@@ -405,7 +405,7 @@ define("Oncoprint",
                                             return 'black';
                                         }
                                         
-                                        if ((/^([A-Z]+)([0-9]+)((del)|(ins))$/g).test(mutationSplit)) {
+                                        if ((/^([A-Z]+)([0-9]+)((del)|(ins))$/g).test(mutationSplit[i])) {
                                             hasIndel = true;
                                         }
                                     }
@@ -713,7 +713,7 @@ define("Oncoprint",
                     //
                     // throws unsupported sort option if something other than the 3 options
                     // above is given.
-                    var sortBy = function(by, cases) {
+                    var sortBy = function(by, cases,mutationColorControl) {
                         if (by === 'genes') {
 //                            state.attrs = params.genes.concat(clinical_attrs);
                             state.attrs = params.genes.slice(0);
@@ -725,7 +725,7 @@ define("Oncoprint",
                                     state.attrs.push(clinical_attrs[i]);
                                 }
                             }
-                            state.data = MemoSort(state.data, state.attrs);
+                            state.data = MemoSort(state.data, state.attrs,mutationColorControl);
                         }
                         else if (by === 'clinical') {
                             state.attrs = [];
@@ -740,7 +740,7 @@ define("Oncoprint",
                             }
                             
                             state.attrs = state.attrs.concat(params.genes);
-                            state.data = MemoSort(state.data, state.attrs);
+                            state.data = MemoSort(state.data, state.attrs,mutationColorControl);
                             
                             for(var i = 0; i < clinical_attrs.length; i++)
                             {
@@ -783,7 +783,7 @@ define("Oncoprint",
                     };
 
                     // create a legend if user asked for it
-                    var attr2rangeValue = utils.attr_data_type2range(params.clinicalData, params.clinical_attrs.length);
+                    var attr2rangeValue = utils.attr_data_type2range(params.clinicalData, params.clinical_attrs.length,params.clinical_attrs);
                     var attr2rangeFuntion = utils.make_attribute2scale(params.clinical_attrs, params.clinicalData);
                     if (params.legend) {
                         utils.legend(params.legend,utils.gene_data_type2range(params.geneData), dims.label_width, attr2rangeValue,attr2rangeFuntion);
@@ -797,7 +797,7 @@ define("Oncoprint",
                     }
                     
                     var memoSort = function(attributes, animation) {
-                        state.data = MemoSort(state.data, attributes);
+                        state.data = MemoSort(state.data, attributes,mutationColorControl);
                         if (animation) { horizontal_translate(ANIMATION_DURATION); }
                         else { horizontal_translate(); }
 
@@ -816,7 +816,7 @@ define("Oncoprint",
                         };
 
                         state.attrs = shuffle(attributes);
-                        state.data = MemoSort(state.data, state.attrs);
+                        state.data = MemoSort(state.data, state.attrs,mutationColorControl);
                         horizontal_translate(ANIMATION_DURATION);
                         return state.attrs;
                     };

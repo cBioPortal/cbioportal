@@ -63,6 +63,7 @@ GLIOMA_USER_SPREADSHEET = 'Request Access to the cBio Glioma Cancer Genomics Por
 ACC_USER_SPREADSHEET = 'Request Access to the cBio ACC Cancer Genomics Portal'
 TARGET_USER_SPREADSHEET = 'Request Access to the cBio TARGET Cancer Genomics Portal'
 MSKCC_USER_SPREADSHEET = 'Request Access to the cBio MSKCC Cancer Genomics Portal'
+TRIAGE_USER_SPREADSHEET = 'Request Access to the cBio MSKCC (Triage) Cancer Genomics Portal'
 
 # portal name (these should correspond to what is in property file of the respective portal)
 PORTAL_NAME = { GDAC_USER_SPREADSHEET : "gdac-portal",
@@ -71,7 +72,8 @@ PORTAL_NAME = { GDAC_USER_SPREADSHEET : "gdac-portal",
                 ACC_USER_SPREADSHEET : "acc-portal",
                 SU2C_USER_SPREADSHEET : "su2c-portal",
                 TARGET_USER_SPREADSHEET : "target-portal",
-                MSKCC_USER_SPREADSHEET : "mskcc-portal" }
+                MSKCC_USER_SPREADSHEET : "mskcc-portal",
+                TRIAGE_USER_SPREADSHEET : "triage-portal" }
 
 # a ref to the google spreadsheet client - used for all i/o to google spreadsheet
 GOOGLE_SPREADSHEET_CLIENT = gdata.spreadsheet.service.SpreadsheetsService()
@@ -102,7 +104,8 @@ MESSAGE_SUBJECT = { GDAC_USER_SPREADSHEET : "You have been granted access to the
                     ACC_USER_SPREADSHEET : "cBioPortal for ACC Access",
                     SU2C_USER_SPREADSHEET : "cBioPortal for SU2C Access",
                     TARGET_USER_SPREADSHEET : "cBioPortal for NCI-TARGET",
-                    MSKCC_USER_SPREADSHEET : "cBioPortal for MSKCC" }
+                    MSKCC_USER_SPREADSHEET : "cBioPortal for MSKCC",
+                    TRIAGE_USER_SPREADSHEET : "cBioPortal for MSKCC (Triage)" }
 GDAC_MESSAGE_BODY = """Thank you for your interest in the private instance of cBioPortal. We have granted you access. You can login at http://cbioportal.org/gdac-portal/. Please let us know if you have any problems logging in.
 
 Please keep in mind that the majority of the data provided in this Portal is preliminary and subject to change. This data is only available to researchers funded through TCGA or involved in the TCGA Disease and Analysis Working Groups.
@@ -133,10 +136,19 @@ TARGET_MESSAGE_BODY = """Thank you for your interest in the cBioPortal for NCI-T
 Please keep in mind that the majority of the data provided in this Portal is preliminary, unpublished and subject to change.
 """
 
-MSKCC_MESSAGE_BODY = """Thank you for your interest in the MSKCC instance of cBioPortal. We have granted you access. You can login at http://cbioportal.org/mskcc-portal/. Please let us know if you have any problems logging in.
+MSKCC_MESSAGE_BODY = """Thank you for your interest in the MSKCC instance of cBioPortal. We have granted you access. You can login at cbioportal.mskcc.org. Please let us know if you have any problems logging in.
 
 Please keep in mind that the data provided in this Portal are preliminary and subject to change. Access to the data in this portal is only available to authorized users at Memorial Sloan Kettering Cancer Center.
 """
+
+TRIAGE_MESSAGE_BODY = """Thank you for your interest in the MSKCC (triage)instance of cBioPortal. We have granted you access. You can login at cbioportal.triage.mskcc.org. Please let us know if you have any problems logging in.
+
+Please keep in mind that the data provided in this Portal are preliminary and subject to change. Access to the data in this portal is only available to authorized users at Memorial Sloan Kettering Cancer Center.
+"""
+
+
+MESSAGE_BODY = { GDAC_USER_SPREADSHEET : GDAC_MESSAGE_BODY,
+                 PROSTATE_USER_SPREADSHEET : PROSTATE_MESSAGE_BODY,
 
 
 MESSAGE_BODY = { GDAC_USER_SPREADSHEET : GDAC_MESSAGE_BODY,
@@ -145,7 +157,8 @@ MESSAGE_BODY = { GDAC_USER_SPREADSHEET : GDAC_MESSAGE_BODY,
                  ACC_USER_SPREADSHEET : ACC_MESSAGE_BODY,
                  SU2C_USER_SPREADSHEET : SU2C_MESSAGE_BODY,
                  TARGET_USER_SPREADSHEET : TARGET_MESSAGE_BODY,
-                 MSKCC_USER_SPREADSHEET : MSKCC_MESSAGE_BODY }
+                 MSKCC_USER_SPREADSHEET : MSKCC_MESSAGE_BODY,
+                 TRIAGE_USER_SPREADSHEET : TRIAGE_MESSAGE_BODY }
 
 
 # ------------------------------------------------------------------------------

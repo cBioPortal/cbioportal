@@ -51,8 +51,7 @@
             </div>
         </div>
         
-        <div style="height:20px;"></div>
-   
+        <div style="height:20px;"></div>  
         <img id="inner_loader_img" src="images/ajax-loader.gif" style="display:none;">
         <div id="oncoprint_body"></div>
         </div>

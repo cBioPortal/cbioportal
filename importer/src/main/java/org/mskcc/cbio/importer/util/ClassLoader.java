@@ -96,9 +96,8 @@ public class ClassLoader {
 
 		try {
 			Class<?> clazz = Class.forName(className);
-			Constructor[] constructors = clazz.getConstructors();
-			// our classes only have the one constructor
-			return constructors[0].newInstance(args);
+			Constructor constructor = clazz.getConstructor(new Class[]{String[].class});
+			return constructor.newInstance(args);
 		}
 		catch (Exception e) {
 			LOG.error(("Failed to instantiate " + className), e) ;

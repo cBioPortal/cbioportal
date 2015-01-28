@@ -166,9 +166,18 @@ cbio.download = (function() {
 	 */
 	function addSvgHeader(xml)
 	{
-		var xmlHeader = "<?xml version='1.0'?>";
-		var svg = xmlHeader + xml;
+		var svg = xml;
 
+		var xmlHeader = "<?xml version='1.0'?>";
+		var xmlVersion = "<?xml version=";
+
+		// add xml header if not exist
+		if(svg.indexOf(xmlVersion) == -1)
+		{
+			svg = xmlHeader + xml;
+		}
+
+		// add svg header if not exist
 		if(svg.indexOf("svg xmlns") == -1)
 		{
 			svg = svg.replace(

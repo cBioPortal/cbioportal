@@ -41,8 +41,8 @@ import java.util.Properties;
  */
 public class CancerStudyMetadata {
 
-    public static final String WORKSHEET_UPDATE_COLUMN_KEY = "CANCERSTUDY";
-    public static final String CANCER_STUDY_COLUMN_KEY = "CANCERSTUDY";
+    public static final String WORKSHEET_UPDATE_COLUMN_KEY = "CANCERSTUDIES";
+    public static final String CANCER_STUDY_COLUMN_KEY = "CANCERSTUDIES";
     public static final String CANCER_TYPE_COLUMN_KEY = "CANCERTYPE";
     public static final String STABLE_ID_COLUMN_KEY = "STABLEID";
     public static final String NAME_COLUMN_KEY = "NAME";
@@ -54,7 +54,7 @@ public class CancerStudyMetadata {
     public static final String CONVERT_COLUMN_KEY = "CONVERT";
     public static final String UPDATE_TRIAGE_COLUMN_KEY = "UPDATETRIAGE";
     public static final String READY_FOR_RELEASE_COLUMN_KEY = "READYFORRELEASE";
-    public static final String TRIAGE_PORTAL_STUDY_KEY = "triageportal";
+    public static final String TRIAGE_PORTAL_STUDY_KEY = "triage-portal";
 
     // delimiter between tumor type and center (used for find the path)
 

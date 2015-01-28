@@ -120,6 +120,9 @@ public enum IdMapService {
             logger.info("CSV for sample id " +IdMapService.INSTANCE.displayDmpIdsByDarwinId(1672517));
         }
     }
+    /*
+    inner class that supplies a darwin id to >= 1 dmp id map
+     */
 
     private class IdMapSupplier implements Supplier<Multimap<Integer,String>> {
         private final Logger logger = Logger.getLogger(IdMapSupplier.class);
@@ -148,8 +151,10 @@ public enum IdMapService {
 
     }
     /*
-    an inner class that will generate an darwin id to dmp id map
+    an inner class that will supply a darwin id to dmp id map
     using a excel spreadsheet as a source.
+    darwin id is the key, >=1 dmp sample id(s) are the values
+    (i.e. there can be >1 dmp samples per patient)
      */
     private class ExcelIdMapSupplier implements Supplier<Multimap<Integer,String>> {
         private final Logger logger = Logger.getLogger(ExcelIdMapSupplier.class);
@@ -181,7 +186,6 @@ public enum IdMapService {
                 logger.error(e.getMessage());
                 e.printStackTrace();
             }
-
             logger.info("Mapped " +idMap.size() +" darwin ids");
             return idMap;
         }

@@ -59,7 +59,7 @@ public class DMPDataTransformer {
     private  DMPTumorTypeSampleMapManager tumorTypeMap;
     private  Path stagingDirectoryPath;
     private static final String DATA_SOURCE_NAME = "dmp-clinical-data-darwin";
-    private static final String STABLE_ID = "mskimpact";
+    private static final String STABLE_ID = "mskimpact-new";
     private static final Path DEFAULT_BASE_PATH = Paths.get("/tmp/dmp-staging");
 
 /*
@@ -108,9 +108,14 @@ temporarily retain this constructor to support legacy client code and testing
     private void registerTransformables() {
         // instantiate and register data transformers
         //SNPs
+        //this.transformableList = Lists.newArrayList((DMPDataTransformable)
+         //       new DmpSnpTransformer(new MutationFileHandlerImpl(),
+         //               stagingDirectoryPath));
         this.transformableList = Lists.newArrayList((DMPDataTransformable)
-                new DmpSnpTransformer(new MutationFileHandlerImpl(),
+                new DmpSnpTransformer(
                         stagingDirectoryPath));
+
+
         //CNVs
         this.transformableList.add((DMPDataTransformable)
                 new DmpCnvTransformer( new CnvFileHandlerImpl(),
@@ -208,7 +213,7 @@ temporarily retain this constructor to support legacy client code and testing
             DMPDataTransformer transformer = new DMPDataTransformer((Paths.get("/tmp/msk-impact")));
             DMPclinicaldataimporter dmpImporterRetriever = new DMPclinicaldataimporter();
             DmpData data = OBJECT_MAPPER.readValue(dmpImporterRetriever.getResult(), DmpData.class);
-              logger.info("Results size = " +data.getResults().size()   );
+              logger.info("Results size = " + data.getResults().size());
 
 
             DMPclinicaldataimporter dmpIporter_mark =

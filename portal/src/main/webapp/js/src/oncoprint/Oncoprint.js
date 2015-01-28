@@ -12,15 +12,23 @@
 define("Oncoprint",
         [           "OncoprintUtils",  "MemoSort"],
         function(   utils,              MemoSort) {
-            return function(div, params) {
-
+            return function(div, params,tracks) {
                 params.clinicalData = params.clinicalData || [];        // initialize
                 params.clinical_attrs = params.clinical_attrs || [];
+
+                if(params.clinical_attrs.length > 0)
+                {
+                    $('#oncoprint-diagram-showlegend-icon').css("display","inline");
+                }
+//                if(params.clinical_attrs.length < 1)
+//                {
+//                    $('#oncoprint-diagram-toolbar-buttons #sort_by')[0].options[1].disabled = true;
+//                }
 
                 // make strings of numbers into numbers
                 var clinicalData = params.clinicalData.map(function(i) {
                     if (!utils.is_discrete(i.attr_val)) {
-                        i.attr_val = parseInt(i.attr_val);
+                        i.attr_val = parseFloat(i.attr_val);
                     }
                     return i;
                 });
@@ -35,7 +43,8 @@ define("Oncoprint",
                 clinical_attrs = clinical_attrs.filter(function(i) { return i !== undefined; });
                 clinical_attrs = clinical_attrs || params.clinical_attrs;
 
-                var attributes = clinical_attrs.concat(params.genes);
+//                var attributes = clinical_attrs.concat(params.genes);
+                var attributes = tracks.concat(params.genes);
 
                 data = utils.process_data(data, attributes);
 
@@ -60,11 +69,13 @@ define("Oncoprint",
                         && params.clinical_attrs !== undefined) {
                     throw {
                         name: "Data Mismatch Error",
-                            message: "There are clinical attributes for nonexistant clinical data"
+                        message: "There are clinical attributes for nonexistant clinical data"
                     }
                 }
 
                 var id2ClinicalAttr = utils.createId2ClinicalAttr(params.clinical_attrs);
+
+                var gapSpaceGeneClinic = 10;
 
                 var dims = (function() {
                     var rect_height = 23;
@@ -74,7 +85,15 @@ define("Oncoprint",
                             function(attr) {
                                 var maybe = utils.maybe_map(id2ClinicalAttr);
                                 var value = maybe(attr);
-                                return value === attr ? value : value.display_name;
+//                                return value === attr ? value : value.display_name;
+                                value= (value === attr ? value : value.display_name);
+
+                                if(value.length>20)
+                                {
+                                    return value.substring(0,17) + "...";
+                                }
+
+                                return value;
 
                             }));
 
@@ -82,7 +101,7 @@ define("Oncoprint",
                     var clinical_offset = (1/6) * rect_height;
 
                     return {
-                        width: data.length * (5.5 + 3),
+                    width: data.length * (5.5 + 3),
                     height: (rect_height + vert_padding) * attributes.length,
                     rect_height: rect_height,
                     rect_width: 5.5,
@@ -101,6 +120,7 @@ define("Oncoprint",
                 var table = d3.select(div)
                     .append('table')
                     .append('tr')
+                    .attr('id','oncoprint_table')
                     .attr('valign','top');
                     
                 var remove_oncoprint = function() {
@@ -117,7 +137,9 @@ define("Oncoprint",
                 var label_svg = table
                     .append('td')
                     .append('svg')
-                    .attr('height', dims.height + browser_offset)
+                    .attr('height', function(){
+                        return params.clinical_attrs.length > 0 ? dims.height + browser_offset + gapSpaceGeneClinic : dims.height + browser_offset;
+                        }) // modified by dong if there are clinic attributes added
                     .attr('width', '' + dims.label_width)
                     .attr('id', 'label');
 
@@ -127,31 +149,118 @@ define("Oncoprint",
                     .append('text')
                     .attr('font-size', '12px')
                     .attr('x', 0)
-                    .attr('y', function(d) {
-                        return (dims.vert_space / 1.80) + vertical_pos(d); });
-
-                var gene2percent = utils.percent_altered(params.geneData);
+                    .attr('y', function(d) { 
+                        if(_.find(params.genes, function(num){ return num === d; }) !==undefined && params.clinical_attrs.length > 0)
+                        {
+                            return (dims.vert_space / 1.80) + gapSpaceGeneClinic + vertical_pos(d); 
+                        }
+                        
+                        return (dims.vert_space / 1.80) + vertical_pos(d);
+                    });
 
 
                 label.append('tspan')       // name
                     .attr('text-anchor', 'start')
                     .attr('font-weight', 'bold')
+                    .attr('fill','black')
+                    .attr('cursor','move')
+                    .attr('class','attribute_name')
+                    .attr('attributename',function(d) {
+                        var maybe = utils.maybe_map(id2ClinicalAttr);
+                        var value = maybe(d);
+                        value= (value === d ? value : value.display_name);
+
+                        return value;
+                    })
                     .text(function(d) {
                         var maybe = utils.maybe_map(id2ClinicalAttr);
                         var value = maybe(d);
-                        return value === d ? value : value.display_name;
+                        value= (value === d ? value : value.display_name);
+                        
+                        if(value.length>20)
+                        {
+                            return value.slice(0,17) + "...";
+                        }
+                        
+                        return value;
                     });
+                    
 
-                label.append('tspan')       // percent_altered
-                    .text(function(d) {
-                        return (d in gene2percent) ? gene2percent[d].toString() + "%" : "X"; })
-                    .attr('fill',function(d){ return (d in gene2percent) ? 'black':'blue'})
-                    .attr('class',function(d){ return (d in gene2percent) ? 'regular':'special_delete'})
-                    .attr('x', '' + dims.label_width)
+                var group=label_svg.append('g');
+                
+                group.selectAll('p')
+                    .data(attributes)
+                    .enter()
+                    .append('svg:image')
+                    .attr('class',function(d){
+                        if(_.indexOf(params.genes,d)<0) 
+                        {
+                            return 'oncoprint_Sort_Button';
+                        } 
+                        else
+                        {
+                            return 'oncoprint_Blank_Button';
+                        }
+                    })
+                    .attr('width', 15)
+                    .attr('height', 15)
+                    .attr("xlink:href",function(d){
+                        var maybe = utils.maybe_map(id2ClinicalAttr);
+                        var value = maybe(d);
+                        value === d ? value : value.display_name;
+                        if(_.indexOf(params.genes,d)<0) 
+                        {
+                            var indexOfClinicAttr = _.indexOf(attributes,d);
+
+                            if(params.sortStatus!== undefined && params.sortStatus[indexOfClinicAttr] === "nonSort")
+                            {
+                                return "images/nonSort.svg";
+                            }
+                            
+                            if(params.sortStatus!== undefined && params.sortStatus[indexOfClinicAttr] === "decresort")
+                            {
+                                return "images/decreaseSort.svg";
+                            }
+                            
+                            return "images/increaseSort.svg";
+                        }
+
+                            return "images/blank.svg";
+                        })
+                    .attr('x', '' + dims.label_width-40)
                     .attr('text-anchor', 'end')
+                    .attr('y', function(d) {
+                        return (dims.vert_space / 1.80) + vertical_pos(d)-10; });  
+           
+                var percentLabel = group.selectAll('text')
+                    .data(attributes)
+                    .enter()
+                    .append('text')
+                    .attr('font-size', '12px')
+                    .attr('x', 0)
+                    .attr('y', function(d) {
+                        if(_.find(params.genes, function(num){ return num === d; }) !==undefined && params.clinical_attrs.length > 0)
+                        {
+                            return (dims.vert_space / 1.80) + gapSpaceGeneClinic + vertical_pos(d); 
+                        }
+                        
+                        return (dims.vert_space / 1.80) + vertical_pos(d);
+                
+                    });
+            
+                var gene2percent = utils.percent_altered(params.geneData);
+                percentLabel.append('tspan')       // percent_altered
+                    .text(function(d) {
+                        return (d in gene2percent) ? gene2percent[d].toString() + "%" : "x"; })
+                    .attr('fill',function(d){ return (d in gene2percent) ? 'black':'#87CEFA'})
+                    .attr('class',function(d){ return (d in gene2percent) ? 'regular':'special_delete'})
+                    .attr('alt',function(d){ return (d in gene2percent) ? 'regular':d})
+                    .attr('x', '' + dims.label_width)
+//                    .attr('cursor', 'pointer')
+                    .attr('text-anchor', 'end');
                     // remove the tspan that would have contained the percent altered
                     // because it messes with the label placement in the pdf download
-                    .filter(function(d) { return gene2percent[d] === undefined; }).remove();
+//                    .filter(function(d) { return gene2percent[d] === undefined; }).remove();
 
 //                label.append('tspan')       // percent_altered
 //                    .text(function(d) {
@@ -173,7 +282,9 @@ define("Oncoprint",
                     .style('overflow-y', 'hidden')
                     .append("svg")
                     .attr('width', dims.width)
-                    .attr('height', dims.height);
+                    .attr('height', function(){
+                        return params.clinical_attrs.length > 0 ? dims.height + browser_offset + gapSpaceGeneClinic : dims.height + browser_offset;
+                        }); // modified by dong if there are clinic attributes added)
 
                 var colors = utils.colors;     // alias
 
@@ -219,9 +330,13 @@ define("Oncoprint",
                                 return utils.cna_fills[d.cna];
                             }
                             else if (utils.is_clinical(d)) {
+
+                                //d.attr_id=d.attr_id.toLowerCase().charAt(0).toUpperCase() + d.attr_id.toLowerCase().slice(1);// added by dong li
+                                var result = attr2range[d.attr_id](d.attr_val);
+                                
                                 return d.attr_val === "NA"
                             ? colors.grey       // attrs with value of NA are colored grey
-                            : attr2range[d.attr_id](d.attr_val);
+                            : result;
                             }
                         })
                     .attr('height', function(d) {
@@ -230,25 +345,150 @@ define("Oncoprint",
                     })
                     .attr('width', dims.rect_width)
                         .attr('y', function(d) {
-                            return d.attr_id === undefined
-                            ? vertical_pos(utils.get_attr(d))
-                            : vertical_pos(utils.get_attr(d)) + dims.clinical_offset;
-                        //     return vertical_pos(utils.get_attr(d));
+                            if(params.clinical_attrs.length > 0)
+                            {
+                                return d.attr_id === undefined
+                                ? vertical_pos(utils.get_attr(d)) + gapSpaceGeneClinic
+                                : vertical_pos(utils.get_attr(d)) + dims.clinical_offset;
+                            }
+                            else
+                            {
+                                return d.attr_id === undefined
+                                ? vertical_pos(utils.get_attr(d))
+                                : vertical_pos(utils.get_attr(d)) + dims.clinical_offset;
+                            }
                         });
 
                     var fusion = enter.append('path')
                         .attr('d', "M0,0L0,"+dims.rect_height+" "+dims.rect_width+","+dims.rect_height/2+"Z")
-                        .attr('transform',function(d) {return 'translate(0,'+(vertical_pos(utils.get_attr(d)))+')';});
+                        .attr('transform',function(d) {
+                            if(params.clinical_attrs.length > 0){
+                                return d.attr_id === undefined
+                                 ? 'translate(0,'+(vertical_pos(utils.get_attr(d))+ gapSpaceGeneClinic)+')'
+                                 : 'translate(0,'+(vertical_pos(utils.get_attr(d))+ dims.clinical_offset)+')';
+                            }
+                            else
+                            {
+//                                return 'translate(0,'+(vertical_pos(utils.get_attr(d)))+')';
+                                return d.attr_id === undefined
+                                 ? 'translate(0,'+(vertical_pos(utils.get_attr(d)))+')'
+                                 : 'translate(0,'+(vertical_pos(utils.get_attr(d))+ dims.clinical_offset)+')';
+                            }
+                            });
                     fusion.filter(function(d) {
                         return d.mutation === undefined || !/\bfusion\b/i.test(d.mutation.toLowerCase());
                     }).remove();
+                    
+                    //seperate the mutation type
+                    var seperateMuation = function(mutation){
+                        
+                        if(params.mutationColor === 'singleColor')
+                        {
+                            return 'green';
+                        }
+                        else if(params.mutationColor === 'multiColor'  || params.mutationColor === undefined)
+                        {             
+                            var mutationSplit;
 
+                            if(mutation !== undefined)//multiple mutations
+                            {
+                                mutationSplit = mutation.split(',');
+
+                                if(mutationSplit.length > 1)
+                                {
+                                    var hasIndel = false;
+                                    for(var i = 0; i < mutationSplit.length; i++)
+                                    {
+                                        if(!/\bfusion\b/i.test(mutationSplit[i]) &&
+                                                !(/^[A-z]([0-9]+)[A-z]$/g).test(mutationSplit[i]))
+                                        {
+                                            return 'black';
+                                        }
+                                        
+                                        if ((/^([A-Z]+)([0-9]+)((del)|(ins))$/g).test(mutationSplit[i])) {
+                                            hasIndel = true;
+                                        }
+                                    }
+                                    
+                                    return hasIndel ? '#9F8170' : 'green';
+                                }
+                            }
+
+                            if((/^[A-z]([0-9]+)[A-z]$/g).test(mutationSplit))
+                            {
+                                return 'green';//Missense_mutation
+                            }
+                            else if((/^([A-Z]+)([0-9]+)((del)|(ins))$/g).test(mutationSplit) )
+                            {
+                                return '#9F8170';//inframe
+                            }
+                            else 
+                            {
+                                return 'black';
+                            }
+                        }
+//                        else
+//                        {
+//                            var mutationSplit;
+//                            
+//                            if(mutation !== undefined)//multiple mutations
+//                            {
+//                                mutationSplit = mutation.split(',');
+//
+//                                if(mutationSplit.length > 1)
+//                                {
+//                                    for(var i = 0; i < mutationSplit.length; i++)
+//                                    {
+//                                        if((/^[A-z]([0-9]+)[A-z]$/g).test(mutationSplit[i]))
+//                                        {
+//                                            continue;
+//                                        }
+//                                        else
+//                                        {
+//                                            return '#FF00FF';
+//                                        }
+//                                    }
+//                                    
+//                                    return 'green';
+//                                }
+//                            }
+//                            
+//                            if((/^[A-z]([0-9]+)[A-z]$/g).test(mutationSplit))
+//                            {
+//                                return 'green';//Missense_mutation
+//                            }
+//                                else if((/^[A-z*]([0-9]+)[A-z]{2}$/g).test(mutationSplit))
+//                            {
+//                                return 'black'; //Frame_shift_del
+//                            }
+//                                else if((/^[A-Z]([0-9]+)[*]$/g).test(mutationSplit))
+//                            {
+//                                return 'Yellow'; //Nonsense_Mutation
+//                            }
+//                                else if((/^[A-Z]([0-9]+)_splice$/g).test(mutationSplit))
+//                            {
+//                                return 'white'; //Splice_Site
+//                            }
+//                                else if((/^([A-Z]+)([0-9]+)del$/g).test(mutationSplit))
+//                            {
+//                                return 'Pink'; //IN_frame_del
+//                            }
+//                                else 
+//                            {
+//                                return 'blue';
+//                            }
+//                        }
+                    };
                     var mut = enter.append('rect')
-                        .attr('fill', 'green')
+                        .attr('fill', function (d){ return seperateMuation(d.mutation);})
                         .attr('height', dims.mut_height)
                         .attr('width', dims.rect_width)
                         .attr('y', function(d) {
-                            return dims.mut_height + vertical_pos(utils.get_attr(d)); });
+                            if(params.clinical_attrs.length === 0) //to check are there clinic data input
+                            {
+                                gapSpaceGeneClinic = 0;
+                            }
+                            return dims.mut_height + gapSpaceGeneClinic + vertical_pos(utils.get_attr(d)); });
                     mut.filter(function(d) {
                         if (d.mutation === undefined) return true;
                         var aas = d.mutation.split(","); // e.g. A32G,fusion
@@ -267,13 +507,22 @@ define("Oncoprint",
                             // UNREGULATED, at the bottom otherwise
                             var dy = dims.rect_height;
                             dy = d.rppa === "UPREGULATED" ? dy * 0.1 : dy / 1.1;
-                            return translate(dims.rect_width / 2, dy + vertical_pos(utils.get_attr(d))); });
+                            if(params.clinical_attrs.length === 0) //to check are there clinic data input
+                            {
+                                gapSpaceGeneClinic = 0;
+                            }
+                            return translate(dims.rect_width / 2, dy + gapSpaceGeneClinic + vertical_pos(utils.get_attr(d))); });
                         rppa.filter(function(d) {
                             return d.rppa === undefined;
                         }).remove();
 
                     var mrna = enter.append('rect')
-                        .attr('y', function(d) { return vertical_pos(utils.get_attr(d)); })
+                        .attr('y', function(d) { 
+                                    if(params.clinical_attrs.length === 0) //to check are there clinic data input
+                                    {
+                                        gapSpaceGeneClinic = 0;
+                                    }
+                                    return vertical_pos(utils.get_attr(d)) + gapSpaceGeneClinic; })
                         .attr('height', dims.rect_height)
                         .attr('width', dims.rect_width)
                         .attr('stroke-width', 2)
@@ -286,7 +535,40 @@ define("Oncoprint",
                 };
 
                 update(data);
-                cbio.util.autoHideOnMouseLeave($("#oncoprint_whole_body"), $(".special_delete"));
+                //needed to modify by dong li
+                var clinicalLength = parseInt(params.clinicalData.length/params.clinical_attrs.length);
+                var geneLength = params.geneData.length/params.genes.length;
+                
+                if(clinicalLength > 0 && clinicalLength !== geneLength)
+                {
+                    for(var u =0; u<geneLength; u++)
+                    {
+                        var newAddedClinic = params.clinicalData.slice(geneLength*(params.clinical_attrs.length-1)); 
+                        var geneElementValue = params.geneData[u].sample;
+                        var clinicalElementValueIndex = _.find(newAddedClinic, function(element){ return element.sample === geneElementValue;});
+                        
+                        if(clinicalElementValueIndex === undefined) 
+                        {
+                            var NAelement = {
+                                attr_id:params.clinicalData[params.clinicalData.length-1].attr_id, //
+                                attr_val:"NA",
+                                sample: geneElementValue
+                            };
+                            
+                            params.clinicalData.push(NAelement);
+                        }
+                    }
+                }
+                cbio.util.autoHideOnMouseLeave($("#oncoprint_table"), $(".special_delete"));
+                cbio.util.autoHideOnMouseLeave($("#oncoprint_table"), $(".oncoprint_Sort_Button"));
+
+                $('.attribute_name').qtip({
+                content: {text: 'Click to drag '},
+                position: {my:'left bottom', at:'top middle', viewport: $(window)},
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+                show: {event: "mouseover"},
+                hide: {fixed: true, delay: 100, event: "mouseout"}
+                });
 
                 var altered
                     = utils.filter_altered(utils.nest_data(params.geneData));
@@ -431,14 +713,46 @@ define("Oncoprint",
                     //
                     // throws unsupported sort option if something other than the 3 options
                     // above is given.
-                    var sortBy = function(by, cases) {
+                    var sortBy = function(by, cases,mutationColorControl) {
                         if (by === 'genes') {
-                            state.attrs = params.genes.concat(clinical_attrs);
-                            state.data = MemoSort(state.data, state.attrs);
+//                            state.attrs = params.genes.concat(clinical_attrs);
+                            state.attrs = params.genes.slice(0);
+                            for(var i = 0; i < clinical_attrs.length; i++)
+                            {
+                                // delete clinic i from attrs list if the icon is non-sort
+                                if($('.oncoprint_Sort_Button')[i].attributes.href.value!=="images/nonSort.svg")
+                                {
+                                    state.attrs.push(clinical_attrs[i]);
+                                }
+                            }
+                            state.data = MemoSort(state.data, state.attrs,mutationColorControl);
                         }
                         else if (by === 'clinical') {
-                            state.attrs = clinical_attrs.concat(params.genes);
-                            state.data = MemoSort(state.data, state.attrs);
+                            state.attrs = [];
+                           
+                            for(var i = 0; i < clinical_attrs.length; i++)
+                            {
+                                // delete clinic i from attrs list if the icon is non-sort
+                                if($('.oncoprint_Sort_Button')[i].attributes.href.value!=="images/nonSort.svg")
+                                {
+                                    state.attrs.push(clinical_attrs[i]);
+                                }
+                            }
+                            
+                            state.attrs = state.attrs.concat(params.genes);
+                            state.data = MemoSort(state.data, state.attrs,mutationColorControl);
+                            
+                            for(var i = 0; i < clinical_attrs.length; i++)
+                            {
+                                if($('.oncoprint_Sort_Button')[i].attributes.href.value==="images/decreaseSort.svg")
+                                {
+                                    //reverse the order of clinic attribute i
+                                    for(var j=0; j< state.data.length/2; j++)
+                                    {
+                                        state.data[j].values[i]=state.data[state.data.length -1 - j].values[i];
+                                    }
+                                }
+                            }
                         }
                         else if (by === 'alphabetical') {
                             state.data = state.data.sort(function(x,y) {
@@ -464,18 +778,26 @@ define("Oncoprint",
                         else {
                             throw new Error("unsupported sort option: ") + JSON.stringify(by);
                         }
-                        horizontal_translate(ANIMATION_DURATION);
+                        horizontal_translate(ANIMATION_DURATION);                       
                         return state.data;
                     };
 
                     // create a legend if user asked for it
+                    var attr2rangeValue = utils.attr_data_type2range(params.clinicalData, params.clinical_attrs.length,params.clinical_attrs);
+                    var attr2rangeFuntion = utils.make_attribute2scale(params.clinical_attrs, params.clinicalData);
                     if (params.legend) {
-                        utils.legend(params.legend,
-                                utils.gene_data_type2range(params.geneData), dims.label_width);
+                        utils.legend(params.legend,utils.gene_data_type2range(params.geneData), dims.label_width, attr2rangeValue,attr2rangeFuntion);
                     }
-
+                    
+                    //if multicolor state is on, then show multiple genetic legend
+                    if(params.mutationColor === 'multiColor'|| params.mutationColor === undefined)
+                    {
+                        $('.legend_missense_name').text("Missense Mutation");
+                        $('.legend_nonmissense').css("display","inline");
+                    }
+                    
                     var memoSort = function(attributes, animation) {
-                        state.data = MemoSort(state.data, attributes);
+                        state.data = MemoSort(state.data, attributes,mutationColorControl);
                         if (animation) { horizontal_translate(ANIMATION_DURATION); }
                         else { horizontal_translate(); }
 
@@ -494,7 +816,7 @@ define("Oncoprint",
                         };
 
                         state.attrs = shuffle(attributes);
-                        state.data = MemoSort(state.data, state.attrs);
+                        state.data = MemoSort(state.data, state.attrs,mutationColorControl);
                         horizontal_translate(ANIMATION_DURATION);
                         return state.attrs;
                     };
@@ -521,7 +843,6 @@ define("Oncoprint",
                     // *signature:* `undefined -> string`
                     var getPdfInput = function() {
                         var width = dims.width + dims.label_width;
-                        var height = dims.height;
                         var svg = main_svg[0][0];
                         var x = data2xscale(state.data);
 
@@ -546,15 +867,125 @@ define("Oncoprint",
 
                                     return serialize(transformed[0]);
                                 });
+                                
+                        var out_svg = map_join($(svg).children(),
+                                function(index, sample_el) {
+                                    var sample_id = d3.select(sample_el).data()[0].key;
+                                    var transformed = $(sample_el).clone();
+                                    transformed = transformed.attr('transform', translate(0,dims.vert_space));
+
+                                    return serialize(transformed[0]);
+                                });
 
                         var labels = $('#oncoprint svg#label').children().clone();
+                        labels.find("image").remove();
                         labels = map_join(labels, function(index, label) {
                             return serialize(label);
                         });
+                        
+                        if($('#oncoprint_legend .genetic_legend_table svg')[0]!== undefined)
+                        {
+                            if($('#oncoprint #oncoprint_legend .genetic_legend_table svg')[0]!== undefined)
+                            {
+                                var verticalTranslateWidth= parseInt($('#oncoprint #oncoprint_legend .genetic_legend_table svg')[0].attributes.width.value);
+                            }
+                            else
+                            {
+                                var verticalTranslateWidth= parseInt($('#oncoprint #oncoprint_table svg')[0].attributes.width.value+$('#oncoprint #oncoprint_table svg')[1].attributes.width.value); 
+                            }
+                            
+                            if($('#oncoprint #oncoprint_legend .genetic_legend_table svg')[0]!== undefined)
+                            {
+                                var generic_legends = $('#oncoprint #oncoprint_legend .genetic_legend_table #legend').children().clone();
+                                generic_legends = map_join(generic_legends, function(index,legend) {
+                                    return serialize(legend);
+                                });
+                                var find1 = '<svg xmlns="http://www.w3.org/2000/svg"';
+                                var find2 = '</svg>';
+                                var find3 = 'xmlns="http://www.w3.org/1999/xhtml"';
+                                var re1 = new RegExp(find1, 'g');
+                                var re2 = new RegExp(find2, 'g');
+                                var re3 = new RegExp(find3, 'g');
+                                generic_legends = generic_legends.replace(re1, '<g').replace(re2, '</g>').replace(re3, '');
+                                generic_legends = "<g transform=\"translate(0,"+ (dims.height + 10) + ")\">" + generic_legends + "</g> ";
 
+                                var generic_legends_svg = $('#oncoprint #oncoprint_legend .genetic_legend_table #legend_svg').children().clone();
+                                generic_legends_svg = map_join(generic_legends_svg, function(index,legend) {
+                                    return serialize(legend);
+                                });
+                                var find1 = '<g xmlns="http://www.w3.org/2000/svg"';
+                                var n = 0;
+                                while(generic_legends_svg.indexOf(find1) > -1)
+                                {
+                                    generic_legends_svg = generic_legends_svg.replace(find1, '<g transform = "translate('+ (144*n) +',0)"');
+                                    n++; 
+                                }
+                                generic_legends_svg = "<g transform=\"translate("+ verticalTranslateWidth +","+ (dims.height + 10) + ")\">" + generic_legends_svg + "</g> ";
+                            }
+                            else
+                            {
+                                var generic_legends = $('#oncoprint_legend .genetic_legend_table #legend').children().clone();
+                                generic_legends = map_join(generic_legends, function(index,legend) {
+                                    return serialize(legend);
+                                });
+                                var find1 = '<svg xmlns="http://www.w3.org/2000/svg"';
+                                var find2 = '</svg>';
+                                var find3 = 'xmlns="http://www.w3.org/1999/xhtml"';
+                                var re1 = new RegExp(find1, 'g');
+                                var re2 = new RegExp(find2, 'g');
+                                var re3 = new RegExp(find3, 'g');
+                                generic_legends = generic_legends.replace(re1, '<g').replace(re2, '</g>').replace(re3, '');
+                                generic_legends = "<g transform=\"translate(0,"+ (dims.height + 10) + ")\">" + generic_legends + "</g> ";
+
+                                var generic_legends_svg = $('#oncoprint_legend .genetic_legend_table #legend_svg').children().clone();
+                                generic_legends_svg = map_join(generic_legends_svg, function(index,legend) {
+                                    return serialize(legend);
+                                });
+                                var find1 = '<g xmlns="http://www.w3.org/2000/svg"';
+                                var n = 0;
+                                while(generic_legends_svg.indexOf(find1) > -1)
+                                {
+                                    generic_legends_svg = generic_legends_svg.replace(find1, '<g transform = "translate('+ (144*n) +',0)"');
+                                    n++; 
+                                }
+                                generic_legends_svg = "<g transform=\"translate("+ (verticalTranslateWidth+20) +","+ (dims.height + 10) + ")\">" + generic_legends_svg + "</g> ";
+                            }
+
+                            var mutation_legends = $('#oncoprint #oncoprint_legend .mutation_legend_table #legend').children().clone();
+                            mutation_legends = map_join(mutation_legends, function(index,legend) {
+                                return serialize(legend);
+                            });
+                            var find1 = 'y="23"';
+                            var j=0;
+                            while(mutation_legends.indexOf(find1) > -1)
+                            {
+                                mutation_legends = mutation_legends.replace(find1, 'y = "' + (dims.vert_space * j + 23)+'"');
+                                j++; 
+                            }
+                            mutation_legends = "<g transform=\"translate(0,"+ (dims.height + 10 + dims.vert_space) + ")\">" + mutation_legends + "</g> ";
+
+                            var mutation_legends_svg = $('#oncoprint #oncoprint_legend .mutation_legend_table #legend_svg').children().clone();
+                            mutation_legends_svg = map_join(mutation_legends_svg, function(index,legend) {
+                                return serialize(legend);
+                            });
+                            var find1 = '<g xmlns="http://www.w3.org/2000/svg" transform="translate(0,0)"';                    
+                            var i=0;
+                            while(mutation_legends_svg.indexOf(find1) > -1)
+                            {
+                                mutation_legends_svg = mutation_legends_svg.replace(find1, '<g transform = "translate(0,'+ (dims.vert_space * i) +')"');
+    //                            mutation_legends_svg = mutation_legends_svg.replace(find1, '<g transform = "translate(0,'+ (dims.vert_space * i) +')"');
+                                i++;
+                            }
+                            mutation_legends_svg = "<g transform=\"translate("+ verticalTranslateWidth +","+ (dims.height + 10 + dims.vert_space) + ")\">" + mutation_legends_svg + "</g> ";
+                        }
+                        
                         out += labels;
+                        out += generic_legends;
+                        out += generic_legends_svg;
+                        out += mutation_legends;
+                        out += mutation_legends_svg;
 
-                        return "<svg height=\"" + height + "\" width=\"" + width + "\">" + out + "</svg>";
+                        return "<svg height=\"" + (dims.height + verticalTranslateWidth + dims.height) + "\" width=\"" + width + "\">" + out + "</svg>";
                     };
 
                     return {

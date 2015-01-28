@@ -115,7 +115,7 @@ var scatterPlots = (function() {
             }
         } else {
             if ($("#" + ids.sidebar[axis].data_type).val() === vals.data_type.clin) {
-                var _type = metaData.getClinicalAttrType($("#" + ids.sidebar.x.clin_attr).val());
+                var _type = metaData.getClinicalAttrType($("#" + ids.sidebar[axis].clin_attr).val());
                 if (_type === "STRING") {
                     discretized_axis(clinical_data_interpreter.get_text_labels(axis));
                 } else if (_type === "NUMBER") {
@@ -624,7 +624,7 @@ var scatterPlots = (function() {
     
     function appendTitle(axis) { //axis titles
         var elt = ($("#" + ids.sidebar[axis].data_type).val() === vals.data_type.genetic)? document.getElementById(ids.sidebar[axis].profile_name):document.getElementById(ids.sidebar[axis].clin_attr);
-        var _name = elt.options[elt.selectedIndex].text;
+        var _name = ($("#" + ids.sidebar[axis].data_type).val() === vals.data_type.genetic)? ($("#" + ids.sidebar[axis].gene).val() + ", " + elt.options[elt.selectedIndex].text): elt.options[elt.selectedIndex].text;
         var _id = elt.options[elt.selectedIndex].value;
         
         var _tmp_attr = (axis === "y")? "rotate(-90)": "";
@@ -793,6 +793,23 @@ var scatterPlots = (function() {
         };
         elem.dotsGroup.selectAll("path").on("mouseover", mouseOn);
         elem.dotsGroup.selectAll("path").on("mouseout", mouseOff);
+    }
+    
+    function append_image_converters() {
+        var pdfConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' target='_blank' " +
+            "onsubmit=\"this.elements['svgelement'].value=loadPlotsSVG();\">" +
+            "<input type='hidden' name='svgelement'>" +
+            "<input type='hidden' name='filetype' value='pdf'>" +
+            "<input type='hidden' name='filename' value='correlation_plot-" + userSelection.gene + ".pdf'>" +
+            "<input type='submit' value='PDF'></form>";
+        $('#view_title').append(pdfConverterForm);
+        var svgConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' target='_blank'" +
+            "onsubmit=\"this.elements['svgelement'].value=loadPlotsSVG();\">" +
+            "<input type='hidden' name='svgelement'>" +
+            "<input type='hidden' name='filetype' value='svg'>" +
+            "<input type='hidden' name='filename' value='correlation_plot-" + userSelection.gene + ".svg'>" +
+            "<input type='submit' value='SVG'></form>";
+        $('#view_title').append(svgConverterForm);
     }
     
     return {

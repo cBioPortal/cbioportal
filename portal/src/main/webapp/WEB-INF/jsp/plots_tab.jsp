@@ -97,10 +97,12 @@
                         <div id="plots-y-spec"></div>
                     </div>
                     <div id="plots-sidebar-util-div" class="plots">
-                        <h4>Search</h4>
-                        <br><h5>Case(s)</h5><input type="text" id="case_id_search_keyword" name="case_id_search_keyword" placeholder="case id.." onkeyup="search_case_id();"><br>
-                        <h5>Mutation(s)</h5><input type="text" id="mutation_search_keyword" name="mutation_search_keyword" placeholder="protein change.." onkeyup="search_mutation();"><br>
+                        <h4>Utilities</h4>
+                        <h5>Search Case(s)</h5><input type="text" id="case_id_search_keyword" name="case_id_search_keyword" placeholder="Case ID.." onkeyup="search_case_id();"><br>
+                        <h5>Search Mutation(s)</h5><input type="text" id="mutation_search_keyword" name="mutation_search_keyword" placeholder="Protein Change.." onkeyup="search_mutation();"><br>
+                        <h5>Download</h5><button type="button">SVG</button><button type="button">PDF</button>
                         <div id="mutation_details_vs_gistic_view" class="mutation_details_vs_gistic_view" style="display:inline;"></div>
+                        
                     </div>        
                 </div>
             </td>

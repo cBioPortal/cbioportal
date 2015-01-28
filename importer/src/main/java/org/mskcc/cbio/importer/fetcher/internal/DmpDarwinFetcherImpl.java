@@ -72,8 +72,9 @@ public class DmpDarwinFetcherImpl implements Fetcher
         DMPclinicaldataimporter dmpImporterRetriever = new DMPclinicaldataimporter();
         DmpData data = OBJECT_MAPPER.readValue(dmpImporterRetriever.getResult(), DmpData.class);
 
-        DMPclinicaldataimporter dmpImporter_mark = 
-                new DMPclinicaldataimporter(transformer.transform(data)); //mark consumed samples (transformer returns a list of consumed sample ids)
+        transformer.transform(data);
+        //DMPclinicaldataimporter dmpImporter_mark = 
+        //        new DMPclinicaldataimporter(transformer.transform(data)); //mark consumed samples (transformer returns a list of consumed sample ids)
         
         //Retrieve Darwin clinical data for retrieved DMP samples
         ApplicationContext applicationContext = new ClassPathXmlApplicationContext("/applicationContext-importer.xml");

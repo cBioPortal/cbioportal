@@ -174,7 +174,7 @@ public class DmpSnpModel extends MutationModel {
 
     @Override
     public String getValidationStatus() {
-        return StagingCommonNames.VALIDATION_STATUS_PROVISIONAL;
+        return StagingCommonNames.VALIDATION_STATUS_UNKNOWN;
     }
 
     @Override

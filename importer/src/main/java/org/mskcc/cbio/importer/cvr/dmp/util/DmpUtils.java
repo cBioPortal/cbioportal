@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.cvr.dmp.model.DmpData;
 import org.mskcc.cbio.importer.cvr.dmp.model.Result;
 import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
+import org.mskcc.cbio.importer.persistence.staging.filehandler.TsvFileHandler;
 
 import java.util.Set;
 
@@ -48,8 +49,22 @@ public class DmpUtils {
         // identify samples that have been marked as deprecated
         Set<String> deprecatedSamples = resolveDeprecatedSamples(data);
         if (!deprecatedSamples.isEmpty()) {
-           fileHandler.removeDeprecatedSamplesFomTsvStagingFiles(sampleColumnName,
-                   deprecatedSamples);
+            fileHandler.removeDeprecatedSamplesFomTsvStagingFiles(sampleColumnName,
+                    deprecatedSamples);
+            logger.info(deprecatedSamples.size() +" deprecated samples have been removed");
+        }
+    }
+
+    public static void removeDeprecatedSamples( DmpData data, TsvFileHandler fileHandler, String sampleColumnName){
+        Preconditions.checkArgument(null != data, "A DmpData object is required");
+        Preconditions.checkArgument(null != fileHandler, "A file fandler implementation is required");
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(sampleColumnName),
+                "The name of the sample column is required");
+        // identify samples that have been marked as deprecated
+        Set<String> deprecatedSamples = resolveDeprecatedSamples(data);
+        if (!deprecatedSamples.isEmpty()) {
+            fileHandler.removeDeprecatedSamplesFomTsvStagingFiles(sampleColumnName,
+                    deprecatedSamples);
             logger.info(deprecatedSamples.size() +" deprecated samples have been removed");
         }
     }

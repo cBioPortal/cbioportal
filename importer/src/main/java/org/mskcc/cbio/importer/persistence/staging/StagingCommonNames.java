@@ -85,7 +85,7 @@ public interface StagingCommonNames {
     public static final String FOUNDATION_FILTERED_NOTATION = "-filtered";
 
     // validation status values
-    public static final String VALIDATION_STATUS_PROVISIONAL = "Provisional";
+    public static final String VALIDATION_STATUS_UNKNOWN = "Unknown";
     public static final String VALIDATION_STATUS_VALID = "Valid";
 
     // IMPACT study

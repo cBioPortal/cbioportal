@@ -139,10 +139,17 @@ public class SnpIndelExonic implements DmpSnp {
     private String variantStatusName;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+    @JsonIgnore
+    private String dmpSampleId;
+
 
     @Override
     public void setDmpSampleId(String id) {
-
+            this.dmpSampleId = id;
+    }
+    @Override
+    public String getDmpSampleId() {
+        return this.dmpSampleId;
     }
 
     /**
@@ -315,10 +322,7 @@ public class SnpIndelExonic implements DmpSnp {
         return dbSNPId;
     }
 
-    @Override
-    public String getDmpSampleId() {
-        return null;
-    }
+
 
     /**
      * 

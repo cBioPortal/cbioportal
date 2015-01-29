@@ -94,8 +94,8 @@ var heat_map = (function() {
             .range(["white", "#0066CC"]);
             
         var textColorScale = d3.scale.linear()
-            .domain([stat.count.min, stat.count.max])
-            .range(["#0066CC", "white"]);
+            .domain([stat.count.min + (stat.count.max - stat.count.min)/2 , stat.count.max])
+            .range(["black", "black"]);
     
     
         //pile rects
@@ -119,9 +119,14 @@ var heat_map = (function() {
     
         //annotation for each brick
         svg.selectAll(".overlayText").data(data).enter().append("text")
-                    .attr("x", function(d) { return ((d.x * w) + w/2 + 90);})
+                    .attr("x", function(d) { return ((d.x * w) + w / 2 + 96);})
                     .attr("y", function(d) { return ((d.y * h) + h / 2 + 5 + 50); })
-                    .attr("fill", function(d) { return textColorScale(d.count); })
+                    .attr("text-anchor", "middle")
+                    .attr("fill", function(d) { 
+                        if (d.count > (stat.count.min + (stat.count.max - stat.count.min)/2)) {
+                            return "white";
+                        } else return "black";
+                    })
                     .text(function(d) { return d.count; });
         
         //labels for rows/columns

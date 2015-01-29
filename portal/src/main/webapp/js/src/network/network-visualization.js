@@ -2950,6 +2950,10 @@ NetworkVis.prototype._initControlFunctions = function()
         self._saveAsPng();
     };
 
+	var saveAsSvg = function() {
+		self._saveAsSvg();
+	};
+
     var openProperties = function() {
         self._openProperties();
     };
@@ -3020,7 +3024,7 @@ NetworkVis.prototype._initControlFunctions = function()
     this._controlFunctions["remove_disconnected"] = toggleRemoveDisconnected;
     this._controlFunctions["show_profile_data"] = toggleProfileData;
     this._controlFunctions["save_as_png"] = saveAsPng;
-    //_controlFunctions["save_as_svg"] = _saveAsSvg;
+	//this._controlFunctions["save_as_svg"] = saveAsSvg;
     this._controlFunctions["layout_properties"] = openProperties;
     this._controlFunctions["highlight_neighbors"] = highlightNeighbors;
     this._controlFunctions["remove_highlights"] = removeHighlights;
@@ -3365,7 +3369,8 @@ NetworkVis.prototype._toggleProfileData = function()
  */
 NetworkVis.prototype._saveAsPng = function()
 {
-    this._vis.exportNetwork('png', 'export_network.jsp?type=png');
+	var content = cbio.util.b64ToByteArrays(this._vis.png());
+	cbio.download.clientSideDownload(content, "network.png", "image/png");
 };
 
 /**
@@ -3373,7 +3378,12 @@ NetworkVis.prototype._saveAsPng = function()
  */
 NetworkVis.prototype._saveAsSvg = function()
 {
-    this._vis.exportNetwork('svg', 'export_network.jsp?type=svg');
+	var downloadOpts = {
+		filename: "network.svg",
+		preProcess: null
+	};
+
+	cbio.download.initDownload(this._vis.svg(), downloadOpts);
 };
 
 /**

@@ -31,8 +31,7 @@ var plotsData = (function() {
                 cna_anno: "", //if same gene on each axis and having discretized cna data
                 mutation : {}  //Mutation ID
             },
-        dotsContent = {}, //json of datums -- final recipe for rendering the view
-        heatmapContent = [];
+        dotsContent = {}; //json of datums -- final recipe for rendering the view
         
     var ajaxCall = function(axis, callback_func) {
         if ($("#" + ids.sidebar[axis].data_type).val() === vals.data_type.genetic) {

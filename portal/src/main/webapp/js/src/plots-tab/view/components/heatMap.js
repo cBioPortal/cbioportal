@@ -146,41 +146,41 @@ var heat_map = (function() {
                 .attr('text-anchor', 'start')
                 .text(function(d) {return d;});
         
-        //axis titles
+        //axis titles & helps
         var elt_x = document.getElementById(ids.sidebar.x.clin_attr);
         var elt_y = document.getElementById(ids.sidebar.y.clin_attr);
-        var _x_text = "Horizontal: " + elt_x.options[elt_x.selectedIndex].text;
-        var _y_text = "Vertical:  " + elt_y.options[elt_y.selectedIndex].text;
+        var _x_text = "Rows: " + elt_x.options[elt_x.selectedIndex].text;
+        var _y_text = "Columns:  " + elt_y.options[elt_y.selectedIndex].text;
         var _x_id = elt_x.options[elt_x.selectedIndex].value;
         var _y_id = elt_x.options[elt_y.selectedIndex].value;
         var _x_description = metaData.getClinicalAttrDescription(_x_id);
         var _y_description = metaData.getClinicalAttrDescription(_y_id);
-
-        svg.selectAll(".heatmap_x_title")
-                .data(data)
-                .enter().append('text')
-                .attr("x", 100)
+        svg.append("text")
+                .attr("x", 120)
                 .attr("y", parseInt(stat.y.max) * h + 120)
-                .style('text-anchor', 'start')
-                .text(_x_text);
-        svg.selectAll(".heatmap_y_title")
-                .data(data)
-                .enter().append('text')
-                .attr("x", 100)
+                .text(_x_text)
+                .attr("font-family", "sans-serif")
+                .attr("font-size", "12px")
+                .attr("fill","black");
+        svg.append("text")
+                .attr("x", 120)
                 .attr("y", parseInt(stat.y.max) * h + 135)
-                .style('text-anchor', 'start')
-                .text(_y_text);
+                .text(_y_text)
+                .attr("font-family", "sans-serif")
+                .attr("font-size", "12px")
+                .attr("fill","black");
+        
         svg.append("svg:image")
             .attr("xlink:href", "images/help.png")
             .attr("class", "x_help")
-            .attr("x", _x_text.length * 8 + 10)
+            .attr("x", 100)
             .attr("y", parseInt(stat.y.max) * h + 108)
             .attr("width", "16")
             .attr("height", "16");
         svg.append("svg:image")
             .attr("xlink:href", "images/help.png")
             .attr("class", "y_help")
-            .attr("x", _y_text.length * 8 + 10)
+            .attr("x", 100)
             .attr("y", parseInt(stat.y.max) * h + 123)
             .attr("width", "16")
             .attr("height", "16");

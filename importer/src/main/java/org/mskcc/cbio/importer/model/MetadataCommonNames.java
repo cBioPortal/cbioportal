@@ -55,6 +55,7 @@ public interface MetadataCommonNames {
             .put(Worksheet_TCGATumorTypes,"")
             .put(Worksheet_Oncotree,"")
             .put(Worksheet_CancerStudies,"cancerstudies")
+            .put(Worksheet_Datatypes,"datatype")
             .build();
 
 

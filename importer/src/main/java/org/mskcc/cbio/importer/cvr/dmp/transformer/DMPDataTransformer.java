@@ -59,8 +59,19 @@ public class DMPDataTransformer {
     private  DMPTumorTypeSampleMapManager tumorTypeMap;
     private  Path stagingDirectoryPath;
     private static final String DATA_SOURCE_NAME = "dmp-clinical-data-darwin";
-    private static final String STABLE_ID = "mskimpact-new";
+    public static final String STABLE_ID = "mskimpact-new";
     private static final Path DEFAULT_BASE_PATH = Paths.get("/tmp/dmp-staging");
+    private static CancerStudyMetadata csMeta;
+
+
+    static {
+        Optional<CancerStudyMetadata> csMetaOpt = CancerStudyMetadata.findCancerStudyMetaDataByStableId(STABLE_ID);
+        if(csMetaOpt.isPresent()){
+            csMeta = csMetaOpt.get();
+        } else {
+            logger.error("CancerStudyMetadata for stable id " +STABLE_ID +" could not be resolved");
+        }
+    }
 
 /*
 temporarily retain this constructor to support legacy client code and testing
@@ -98,23 +109,19 @@ temporarily retain this constructor to support legacy client code and testing
     cancer study name
      */
     private Path resolveStagingPath (Path basePath) {
-        Optional<CancerStudyMetadata> optMeta = CancerStudyMetadata.findCancerStudyMetaDataByStableId(STABLE_ID);
-        if (optMeta.isPresent()){
-            return basePath.resolve(optMeta.get().getStudyPath());
+        if (null != csMeta) {
+            return basePath.resolve(csMeta.getStudyPath());
         }
+        logger.info("WARNING - IMPACT staging files will be written to default Path:  " +basePath.toString());
         return basePath; // default -files go into base path
     }
 
     private void registerTransformables() {
         // instantiate and register data transformers
         //SNPs
-        //this.transformableList = Lists.newArrayList((DMPDataTransformable)
-         //       new DmpSnpTransformer(new MutationFileHandlerImpl(),
-         //               stagingDirectoryPath));
         this.transformableList = Lists.newArrayList((DMPDataTransformable)
                 new DmpSnpTransformer(
                         stagingDirectoryPath));
-
 
         //CNVs
         this.transformableList.add((DMPDataTransformable)
@@ -129,12 +136,17 @@ temporarily retain this constructor to support legacy client code and testing
         this.transformableList.add((DMPDataTransformable)
                 new DmpImpactClinicalDataTransformer(stagingDirectoryPath));
 
-        //Structural Variants
+        //Fusion
         this.transformableList.add((DMPDataTransformable) new DmpFusionTransformer
-                (new MutationFileHandlerImpl(),stagingDirectoryPath) );
+                (stagingDirectoryPath, csMeta) );
+
+        //Structural Variation
+        this.transformableList.add((DMPDataTransformable)
+                (new DmpStructuralVariantTransformer(stagingDirectoryPath, csMeta)));
+
         // segment data
          this.transformableList.add( (DMPDataTransformable) new DmpSegmentDataTransformer
-                 ( new MutationFileHandlerImpl() , stagingDirectoryPath));
+                 (  stagingDirectoryPath));
         // this.tumorTypeMap = new DMPTumorTypeSampleMapManager(this.fileManager);
     }
 
@@ -208,16 +220,12 @@ temporarily retain this constructor to support legacy client code and testing
     // main method for stand alone testing
     public static void main(String...args){
         ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-
         try {
             DMPDataTransformer transformer = new DMPDataTransformer((Paths.get("/tmp/msk-impact")));
             DMPclinicaldataimporter dmpImporterRetriever = new DMPclinicaldataimporter();
             DmpData data = OBJECT_MAPPER.readValue(dmpImporterRetriever.getResult(), DmpData.class);
               logger.info("Results size = " + data.getResults().size());
-
-
-            DMPclinicaldataimporter dmpIporter_mark =
-                    new  DMPclinicaldataimporter(transformer.transform(data));
+            DMPclinicaldataimporter importer =  new  DMPclinicaldataimporter(transformer.transform(data));
 
         } catch (IOException e) {
             e.printStackTrace();

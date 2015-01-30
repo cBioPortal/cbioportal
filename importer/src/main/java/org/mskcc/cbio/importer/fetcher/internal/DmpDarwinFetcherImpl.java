@@ -80,8 +80,8 @@ public class DmpDarwinFetcherImpl implements Fetcher
         ApplicationContext applicationContext = new ClassPathXmlApplicationContext("/applicationContext-importer.xml");
 //        DarwinImporterService darwinImporterService = (DarwinImporterService) applicationContext.getBean("darwinImporterService");
 //        darwinImporterService.transformDarwinData(Paths.get(dataSourcePath));
-        DarwinTumorTransformer darwinTransformer = new DarwinTumorTransformer(Paths.get(dataSourcePath));
-        darwinTransformer.transform();
+       // DarwinTumorTransformer darwinTransformer = new DarwinTumorTransformer(Paths.get(dataSourcePath));
+       // darwinTransformer.transform();
         DarwinSessionManager.INSTANCE.closeSession();
     }
 

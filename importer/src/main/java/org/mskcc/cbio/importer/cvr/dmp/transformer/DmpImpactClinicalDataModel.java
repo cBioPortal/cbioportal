@@ -2,6 +2,7 @@ package org.mskcc.cbio.importer.cvr.dmp.transformer;
 
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.cvr.dmp.model.MetaData;
 import org.mskcc.cbio.importer.cvr.dmp.util.DMPCommonNames;
@@ -66,13 +67,15 @@ public class DmpImpactClinicalDataModel extends ImpactClinicalDataModel {
         if(null == this.metaData.getIsMetastasis()){
             return "Not Applicable";
         }
-        return this.metaData.getMetastasisSite().toString();
+        return (null != this.metaData.getMetastasisSite() )? this.metaData.getMetastasisSite().toString()
+                :"";
     }
 
     @Override
     public String getPrimarySite() {
         return "";
     }
+
 
     @Override
     public String getCancerTypeDetailed() {

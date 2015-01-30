@@ -91,7 +91,6 @@ public class DMPclinicaldataimporter {
         JsonNode rawResultObj = mapper.readTree(jp);
         Iterator<String> sampleIdsItr = rawResultObj.get("results").getFieldNames();
 
-
         while(sampleIdsItr.hasNext()) {
             String sampleId = sampleIdsItr.next();
             ResponseEntity<String> rawSegDataResultEntity = 

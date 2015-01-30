@@ -3,8 +3,11 @@ package org.mskcc.cbio.importer.persistence.staging.segment;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import org.mskcc.cbio.importer.model.CancerStudyMetadata;
+import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.persistence.staging.MetadataFileHandler;
 import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
+import org.mskcc.cbio.importer.persistence.staging.filehandler.FileHandlerService;
+import org.mskcc.cbio.importer.persistence.staging.filehandler.TsvFileHandler;
 import org.mskcc.cbio.importer.persistence.staging.mutation.MutationModel;
 
 import java.nio.file.Path;
@@ -31,9 +34,46 @@ import java.util.Map;
  */
 public class SegmentTransformer  {
 
-    protected final TsvStagingFileHandler fileHandler;
-    //TODO: move to properties file
+    /*
+     protected TsvFileHandler tsvFileHandler;
+
+    public MutationTransformer(Path aPath, Boolean deleteFlag){
+        Preconditions.checkArgument(null != aPath,"A Path to a staging file is required");
+        if (deleteFlag) {
+            this.tsvFileHandler = FileHandlerService.INSTANCE.obtainFileHandlerForNewStagingFile(aPath,
+                    MutationModel.resolveColumnNames());
+        } else {
+            this.tsvFileHandler = FileHandlerService.INSTANCE
+                    .obtainFileHandlerForAppendingToStagingFile(aPath, MutationModel.resolveColumnNames());
+        }
+    }
+     */
+
+    protected  TsvStagingFileHandler fileHandler;
+    protected TsvFileHandler tsvFileHandler;
+    //TODO: get from data sources metadata
+    private static final String SEGMENT_DATA_TYPE = "cna-hg19-seg";
+    private static final String CANCER_STUDY_TEMPLATE = "<CANCER_STUDY>";
+
     private static final String segmentFileBaseName = "_data_cna_hg19.seg";
+    private static final String segmentMetaFileBaseName = "_meta_cna_hg19_seg.txt";
+
+    private static final DatatypeMetadata dtMeta = DatatypeMetadata.findDatatypeMetadatByDataType(SEGMENT_DATA_TYPE).get();
+
+    /*
+    new constructor using FileHandlerService
+     */
+
+    protected SegmentTransformer (Path aPath, Boolean deleteFlag, CancerStudyMetadata csMeta){
+        Path segmentDataFilePath = resolveSegmentFilePath(csMeta, aPath);
+        if (deleteFlag) {
+            this.tsvFileHandler = FileHandlerService.INSTANCE.obtainFileHandlerForNewStagingFile(segmentDataFilePath,
+                    SegmentModel.resolveColumnNames());
+        } else {
+            this.tsvFileHandler = FileHandlerService.INSTANCE
+                    .obtainFileHandlerForAppendingToStagingFile(segmentDataFilePath, SegmentModel.resolveColumnNames());
+        }
+    }
 
     protected SegmentTransformer(TsvStagingFileHandler aHandler) {
         Preconditions.checkArgument(aHandler != null,
@@ -45,25 +85,25 @@ public class SegmentTransformer  {
         Preconditions.checkArgument(null != csMetadata, "A CancerStudyMetadata object is required");
         Preconditions.checkArgument(null != stagingDirectoryPath,
                 "A Path to the staging file directory is required");
-        this.fileHandler.registerTsvStagingFile(this.resolveSegmentFilePath(stagingDirectoryPath),
+        this.fileHandler.registerTsvStagingFile(this.resolveSegmentFilePath(csMetadata,stagingDirectoryPath),
                 SegmentModel.resolveColumnNames(), true);
         this.generateMetadataFile(csMetadata,stagingDirectoryPath);
 
     }
 
-    protected void registerStagingFileDirectory( Path stagingDirectoryPath){
-        Preconditions.checkArgument(null != stagingDirectoryPath,
-                "A Path to the staging file directory is required");
-        this.fileHandler.registerTsvStagingFile(this.resolveSegmentFilePath(stagingDirectoryPath), SegmentModel.resolveColumnNames(), true);
+   // protected void registerStagingFileDirectory( Path stagingDirectoryPath){
+     //   Preconditions.checkArgument(null != stagingDirectoryPath,
+     //           "A Path to the staging file directory is required");
+     //   this.fileHandler.registerTsvStagingFile(this.resolveSegmentFilePath(csMetadata,stagingDirectoryPath), SegmentModel.resolveColumnNames(), true);
+//
+   // }
 
-    }
-
-    protected Path resolveSegmentFilePath(Path basePath){
-        String filename = segmentFileBaseName;
+    protected Path resolveSegmentFilePath(CancerStudyMetadata csMetadata, Path basePath){
+        String filename = dtMeta.getStagingFilename().replace(CANCER_STUDY_TEMPLATE,csMetadata.getStableId());
         if (basePath.toString().contains("mixed")) {
             int start = basePath.toString().indexOf("mixed");
             String rootname = basePath.toString().substring(start);
-            filename = rootname.replaceAll("/", "_") + segmentFileBaseName;
+            filename = rootname.replaceAll("/", "_") + filename;
         }
         return basePath.resolve(filename);
     }
@@ -77,7 +117,8 @@ public class SegmentTransformer  {
     }
 
     private void generateMetadataFile(CancerStudyMetadata csMetadata, Path stagingDirectoryPath){
-        Path metadataPath = stagingDirectoryPath.resolve("mskimpact_meta_cna_hg19_seg.txt");
+        String filename = csMetadata.getStableId() +segmentFileBaseName;
+        Path metadataPath = stagingDirectoryPath.resolve(filename);
         MetadataFileHandler.INSTANCE.generateMetadataFile(this.generateMetadataMap(csMetadata),
                 metadataPath);
     }

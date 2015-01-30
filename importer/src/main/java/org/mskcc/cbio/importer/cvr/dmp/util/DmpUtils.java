@@ -8,6 +8,7 @@ import com.google.common.collect.FluentIterable;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.cvr.dmp.model.DmpData;
 import org.mskcc.cbio.importer.cvr.dmp.model.Result;
+import org.mskcc.cbio.importer.cvr.dmp.model.StructuralVariant;
 import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
 import org.mskcc.cbio.importer.persistence.staging.filehandler.TsvFileHandler;
 
@@ -85,5 +86,35 @@ public class DmpUtils {
                     }
                 })
                 .toSet();
+    }
+
+    /*
+    utility method to generate a structural variant for the second gene
+    in a fusion pair. The original site1 & site2 attributes are reversed
+    used for fusion and structural variant data
+     */
+    public static StructuralVariant generateSecondaryStructuralVariant(StructuralVariant primary){
+        Preconditions.checkArgument(null != primary, "A StructuralVariant object is required.");
+        StructuralVariant secondary = new StructuralVariant();
+        secondary.setComments(primary.getComments());
+        secondary.setConfidenceClass(primary.getConfidenceClass());
+        secondary.setConnType(primary.getConnType());
+        secondary.setDmpSampleId(primary.getDmpSampleId());
+        secondary.setEventInfo(primary.getEventInfo());
+        // reverse site1 and site2 attribute values
+        secondary.setSite1Chrom(primary.getSite2Chrom());
+        secondary.setSite1Desc(primary.getSite2Desc());
+        secondary.setSite1Gene(primary.getSite2Gene());
+        secondary.setSite1Pos(primary.getSite2Pos());
+        secondary.setSite2Chrom(primary.getSite1Chrom());
+        secondary.setSite2Desc(primary.getSite1Desc());
+        secondary.setSite2Gene(primary.getSite1Gene());
+        secondary.setSite2Pos(primary.getSite1Pos());
+        secondary.setSvClassName(primary.getSvClassName());
+        secondary.setSvDesc(primary.getSvDesc());
+        secondary.setSvLength(primary.getSvLength());
+        secondary.setSvVariantId(primary.getSvVariantId());
+        secondary.setVariantStatusName(primary.getVariantStatusName());
+        return secondary;
     }
 }

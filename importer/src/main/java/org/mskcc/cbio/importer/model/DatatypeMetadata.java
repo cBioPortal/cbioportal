@@ -19,12 +19,13 @@
 package org.mskcc.cbio.importer.model;
 
 // imports
+import com.google.common.base.Optional;
+import com.google.common.base.Strings;
+import org.mskcc.cbio.importer.config.internal.ImporterSpreadsheetService;
 import org.mskcc.cbio.importer.util.ClassLoader;
 
-import java.util.Set;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
+import javax.xml.crypto.Data;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.lang.reflect.Method;
 
@@ -107,13 +108,90 @@ public class DatatypeMetadata {
     private String metaProfileName;
 	private String metaProfileDescription;
 
-    /**
-     * Create a DatatypeMetadata instance with properties in given array.
+
+	/*
+	constructor based on datatypes worksheet from spreadsheet
+	 */
+
+	public DatatypeMetadata(Map<String,String> worksheetMap) {
+		this.datatype = (!Strings.isNullOrEmpty(worksheetMap.get("datatype"))) ?
+				worksheetMap.get("datatype").trim()
+				:"";
+		this.download = (!Strings.isNullOrEmpty(worksheetMap.get("download"))) ?
+				Boolean.parseBoolean(worksheetMap.get("download").trim())
+				:false;
+		this.process  = (!Strings.isNullOrEmpty(worksheetMap.get("process"))) ?
+				Boolean.parseBoolean(worksheetMap.get("process").trim())
+				:false;
+		this.dependencies = (!Strings.isNullOrEmpty(worksheetMap.get("dependencies").trim())) ?
+				worksheetMap.get("dependencies").trim().split(DEPENDENCIES_DELIMITER)
+				:new String[0];
+		this.processTcgaDownloadArchive(worksheetMap.get("tcgadownloadarchive"));
+		this.stagingFilename = (!Strings.isNullOrEmpty(worksheetMap.get("stagingfilename"))) ?
+				worksheetMap.get("stagingfilename").trim()
+				:"";
+		this.converterClassName = (!Strings.isNullOrEmpty(worksheetMap.get("converterclassname"))) ?
+				worksheetMap.get("converterclassname").trim()
+				:"";
+		this.importerClassName = (!Strings.isNullOrEmpty(worksheetMap.get("importerclassname"))) ?
+				worksheetMap.get("importerclassname").trim()
+				:"";
+		this.requiresMetafile = (!Strings.isNullOrEmpty(worksheetMap.get("requiresmetafile"))) ?
+				Boolean.parseBoolean(worksheetMap.get("requiresmetafile").trim())
+				:false;
+		this.metaFilename = (!Strings.isNullOrEmpty(worksheetMap.get("metafilename"))) ?
+				worksheetMap.get("metafilename").trim()
+				:"";
+		this.metaStableID = (!Strings.isNullOrEmpty(worksheetMap.get("metastableid"))) ?
+				worksheetMap.get("metastableid").trim()
+				:"";
+		this.metaGeneticAlterationType = (!Strings.isNullOrEmpty(worksheetMap.get("metageneticalterationtype"))) ?
+				worksheetMap.get("metageneticalterationtype").trim()
+				:"";
+		this.metaDatatypeType = (!Strings.isNullOrEmpty(worksheetMap.get("metadatatype"))) ?
+				worksheetMap.get("metadatatype").trim()
+				:"";
+		this.metaShowProfileInAnalysisTab = (!Strings.isNullOrEmpty(worksheetMap.get("metashowprofileinanalysistab"))) ?
+				Boolean.parseBoolean(worksheetMap.get("metashowprofileinanalysistab").trim())
+				:false;
+		this.metaProfileName = (!Strings.isNullOrEmpty(worksheetMap.get("metaprofilename"))) ?
+				worksheetMap.get("metaprofilename").trim()
+				:"";
+		this.metaProfileDescription = (!Strings.isNullOrEmpty(worksheetMap.get("metaprofiledescription"))) ?
+				worksheetMap.get("metaprofiledescription").trim()
+				:"";
+
+	}
+
+	private void processTcgaDownloadArchive( String tcgaDownloadArchive){
+		this. tcgaArchives = new LinkedHashSet<String>();
+		this.tcgaArchivedFiles = new HashMap<String, String>();
+		if(!Strings.isNullOrEmpty(tcgaDownloadArchive)) {
+			for (String archivePair : tcgaDownloadArchive.trim().split(DOWNLOAD_ARCHIVE_DELIMITER)) {
+				String[] parts = archivePair.split(ARCHIVE_FILENAME_PAIR_DELIMITER);
+				String archive = parts[0].trim();
+				String archivedFile = parts[1].trim();
+				tcgaArchives.add(archive);
+				if (tcgaArchivedFiles.containsKey(archive)) {
+					tcgaArchivedFiles.put(archive, (tcgaArchivedFiles.get(archive) +
+							ARCHIVE_FILENAME_PAIR_DELIMITER +
+							archivedFile));
+				}
+				else {
+					tcgaArchivedFiles.put(archive, archivedFile);
+				}
+			}
+		}
+	}
+	/**
+	 * Create a DatatypeMetadata instance with properties in given array.
 	 * Its assumed order of properties is that from google worksheet.
-     *
+	 *
 	 * @param properties String[]
-     */
-    public DatatypeMetadata(String[] properties) {
+	 */
+
+
+	public DatatypeMetadata(String[] properties) {
 
 		if (properties.length < 16) {
             throw new IllegalArgumentException("corrupt properties array passed to contructor");
@@ -219,5 +297,29 @@ public class DatatypeMetadata {
 										  dataSourceName.split(DataSourcesMetadata.DATA_SOURCE_NAME_DELIMITER)[0].toUpperCase() +
 										  "ArchivedFiles");
 		return ClassLoader.getMethod(this.getClass().getName(), archivedFilesMethodName);
+	}
+
+
+	public static Optional<DatatypeMetadata> findDatatypeMetadatByDataType(String aType) {
+		if(Strings.isNullOrEmpty(aType)) { return Optional.absent();}
+		final String datatypesWorksheetName = MetadataCommonNames.Worksheet_Datatypes;
+		final String columnName = MetadataCommonNames.idColumnMap.get(datatypesWorksheetName);
+		Optional<Map<String,String >> rowOptional = ImporterSpreadsheetService.INSTANCE.getWorksheetRowByColumnValue(datatypesWorksheetName, columnName,
+				aType);
+		if(rowOptional.isPresent()){
+			return Optional.of(new DatatypeMetadata(rowOptional.get()));
+		}
+		return Optional.absent();
+	}
+
+	public static void main(String...args) {
+		String dt = "cna-hg19-seg";
+		Optional<DatatypeMetadata> dtMetaOpt = DatatypeMetadata.findDatatypeMetadatByDataType(dt);
+		if (dtMetaOpt.isPresent()){
+			System.out.println(" staging filename " + dtMetaOpt.get().getStagingFilename() +" meta filemame " + dtMetaOpt.get().getMetaFilename()
+			+" " +dtMetaOpt.get().getMetaProfileDescription());
+		} else {
+			System.out.println("Failed to find datatype " + dt);
+		}
 	}
 }

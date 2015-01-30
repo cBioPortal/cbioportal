@@ -41,9 +41,6 @@ public abstract class MutationModel {
 
     protected static IDMapper geneMapper = new GeneSymbolIDMapper();
 
-
-    // public static final Map<String,String> transformationMapOld = Maps.newTreeMap();
-
     public static List<String> resolveColumnNames() {
         final Map<String, String> transformationMap = MutationTransformation.INSTANCE.getTransformationMap();
         return FluentIterable.from(transformationMap.keySet())

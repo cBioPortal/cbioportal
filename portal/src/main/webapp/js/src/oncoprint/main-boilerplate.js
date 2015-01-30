@@ -1439,7 +1439,13 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         {
                             samples= samples + genesValue[i].key+"\n";
                         }
-                        cbio.util.requestDownload("downloadfile.do",{fileContent: samples, filename:"OncoPrintSamples.txt"});
+                        var downloadOpts = {
+				filename: 'OncoPrintSamples.txt',
+				contentType: "text/plain;charset=utf-8",
+				preProcess: false};
+
+			// send download request with filename & file content info
+			cbio.download.initDownload(samples, downloadOpts);
                     });
                 }
             }

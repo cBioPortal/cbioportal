@@ -58,7 +58,6 @@ public class OncotreeSrcMetadata {
     }
 
 
-
     private final ImmutableMap<String, String> getterMap = new ImmutableMap.Builder<String, String>()
             .put("primary", "getPrimary")
             .put("secondary", "getSecondary")

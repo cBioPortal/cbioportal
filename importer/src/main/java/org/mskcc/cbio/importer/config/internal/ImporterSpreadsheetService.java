@@ -5,6 +5,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
 import com.google.gdata.client.spreadsheet.FeedURLFactory;
@@ -15,6 +16,7 @@ import com.google.gdata.util.ServiceException;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.model.IcgcMetadata;
+import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 
 import java.io.IOException;
 import java.util.List;
@@ -75,14 +77,16 @@ public enum ImporterSpreadsheetService {
             WorksheetFeed worksheetFeed = spreadsheetService.getFeed(spreadsheet.getWorksheetFeedUrl(), WorksheetFeed.class);
             for (WorksheetEntry worksheet : worksheetFeed.getEntries()) {
                 if (worksheet.getTitle().getPlainText().equals(worksheetName)) {
+
                     return worksheet;
                 }
             }
         }
         logger.info("Failed to find worksheet" +worksheetName);
         return null;
-
     }
+
+
 
     private Table<Integer,String,String> generateWorksheetTableByName(String worksheetName){
         Preconditions.checkArgument(!Strings.isNullOrEmpty(worksheetName),
@@ -158,6 +162,24 @@ public enum ImporterSpreadsheetService {
             e.printStackTrace();
         }
         return columnNames;
+    }
+
+    public ImmutableList<String> mapWorksheetToTsvTest(String worksheetName){
+            Preconditions.checkArgument(!Strings.isNullOrEmpty(worksheetName),
+                    "A worksheet name is required");
+        Table<Integer, String, String> table = ImporterSpreadsheetService.INSTANCE.getWorksheetTableByName(worksheetName);
+        List<String> lineList = Lists.newArrayList();
+        for (Integer key : table.rowKeySet()) {
+            Map<String, String> rowMap = table.row(key);
+            List<String> rowList = Lists.newArrayList();
+            for (Map.Entry<String, String> entry : rowMap.entrySet()) {
+                rowList.add(entry.getValue());
+            }
+            lineList.add(StagingCommonNames.tabJoiner.join(rowList));
+        }
+        return ImmutableList.copyOf(lineList);
+
+
     }
 
     private SpreadsheetEntry getSpreadsheetEntry() {
@@ -266,11 +288,19 @@ public enum ImporterSpreadsheetService {
         testColumnNames();
         testIcgcWorksheet();
         testWorksheetCache();
+        testOncoTreeSrc();
     }
 
     private static void testColumnNames() {
         for(String value :  ImporterSpreadsheetService.INSTANCE.getWorksheetValuesByColumnName("icgc","icgcid")){
             logger.info(value);
+        }
+    }
+
+    private static void testOncoTreeSrc(){
+        ImmutableList<String> oncoTreeList = ImporterSpreadsheetService.INSTANCE.mapWorksheetToTsvTest("oncotree_src");
+        for (String line : oncoTreeList){
+            logger.info("++++ " +line);
         }
     }
 
@@ -309,7 +339,7 @@ public enum ImporterSpreadsheetService {
     }
 
     private static void testWorksheetCache() {
-        Table<Integer,String,String> table = ImporterSpreadsheetService.INSTANCE.getWorksheetTableByName("case_lists");
+        Table<Integer,String,String> table = ImporterSpreadsheetService.INSTANCE.getWorksheetTableByName("oncotree_src");
         for (String column : table.columnKeySet()){
             logger.info("column: " +column);
         }

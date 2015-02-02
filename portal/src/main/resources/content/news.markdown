@@ -1,4 +1,4 @@
-# January 20, 2014
+# January 20, 2015
 * All __TCGA data__ updated to the Firehose run of October 17, 2014
 * __COSMIC data__ updated to V71
 * __New features__:
@@ -8,7 +8,7 @@
     * [__OncoPrinter tool__](oncoprinter.jsp) now supports mRNA expression changes 
 <br/>![Oncoprint with multiple clinical tracks](images/previews/multi-clinical-track-oncoprint.png)
 
-# January 6, 2014
+# January 6, 2015
 * __New feature__: You can now view __frequencies of mutations and copy-number alterations__ in the study view. These tables are updated dynamically when selecting subsets of samples.<br>
 <br/>![Alterations in heavily copy-number altered endometrial cancer cases](images/previews/study_view_alt_frequencies.png)</center>
 

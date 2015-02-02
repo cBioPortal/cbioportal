@@ -1123,8 +1123,10 @@ public final class DaoMutation {
 			String sql = "SELECT ONCOTATOR_PROTEIN_POS_START, GENETIC_PROFILE_ID, mutation.ENTREZ_GENE_ID, count(DISTINCT SAMPLE_ID) FROM mutation, mutation_event " +
 			             "WHERE GENETIC_PROFILE_ID IN (" + StringUtils.join(internalProfileIds, ",") + ") " +
 			             "AND mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID " +
-			             "AND concat(concat(mutation.ENTREZ_GENE_ID, '_'), ONCOTATOR_PROTEIN_POS_START)" +
-			             "IN ('" + StringUtils.join(proteinPosStarts, "','") + "') " +
+			             //"AND concat(concat(mutation.ENTREZ_GENE_ID, '_'), ONCOTATOR_PROTEIN_POS_START)" +
+			             //"IN ('" + StringUtils.join(proteinPosStarts, "','") + "') " +
+			             "AND (mutation.ENTREZ_GENE_ID, ONCOTATOR_PROTEIN_POS_START)" +
+			             "IN (" + StringUtils.join(proteinPosStarts, ",") + ") " +
 			             "GROUP BY ONCOTATOR_PROTEIN_POS_START, GENETIC_PROFILE_ID";
 
 			pstmt = con.prepareStatement(sql);

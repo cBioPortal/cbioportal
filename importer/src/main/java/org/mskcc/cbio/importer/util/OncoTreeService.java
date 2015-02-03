@@ -65,6 +65,10 @@ public  enum OncoTreeService {
 
         }
 
+        /*
+        Function to parse a complete Oncotree entry into name and code components
+        primary nodes do not have a code value
+         */
         Function<String, Tuple2<String, String>> parseOncoTreeEntry =
                 new Function<String, Tuple2<String, String>>(){
                     @Override
@@ -76,6 +80,11 @@ public  enum OncoTreeService {
                     }
                 };
 
+        /*
+        interface method responsible for constructing a map of OncoTreeNodes
+        if this method is invoked via the Suppliers.memoize operation the Map will only
+        be constructed once
+         */
         @Override
         public Map<String, OncoTreeNode> get() {
 

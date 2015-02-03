@@ -31,11 +31,13 @@ import org.apache.commons.lang.builder.ToStringBuilder;
     "legacy_sample_id",
     "metastasis_site",
     "mrev_comments",
+        "primary_site",
     "retrieve_status",
     "sample_coverage",
     "so_comments",
     "so_status_name",
     "tumor_purity",
+        "tumor_type_code",
     "tumor_type_name"
 })
 public class MetaData {
@@ -68,6 +70,8 @@ public class MetaData {
     private Object metastasisSite;
     @JsonProperty("mrev_comments")
     private String mrevComments;
+    @JsonProperty("primary_site")
+    private String primarySite;
     @JsonProperty("retrieve_status")
     private Integer retrieveStatus;
     @JsonProperty("sample_coverage")
@@ -78,6 +82,8 @@ public class MetaData {
     private String soStatusName;
     @JsonProperty("tumor_purity")
     private Object tumorPurity;
+    @JsonProperty("tumor_type_code")
+    private String tumorTypeCode;
     @JsonProperty("tumor_type_name")
     private String tumorTypeName;
     @JsonIgnore
@@ -364,6 +370,19 @@ public class MetaData {
     }
 
     /**
+     *
+     * @return
+     */
+    @JsonProperty("primary_site")
+    public String getPrimarySite() { return this.primarySite;}
+
+    /**
+     *
+     * @param aSite
+     */
+    @JsonProperty("primary_site")
+    public void setPrimarySite(String aSite) { this.primarySite = aSite;}
+    /**
      * 
      * @return
      *     The retrieveStatus
@@ -454,13 +473,34 @@ public class MetaData {
     }
 
     /**
-     * 
+     *
      * @param tumorPurity
      *     The tumor_purity
      */
     @JsonProperty("tumor_purity")
     public void setTumorPurity(Object tumorPurity) {
         this.tumorPurity = tumorPurity;
+    }
+
+
+    /**
+     *
+     * @return
+     *     The tumorTypeCode
+     */
+    @JsonProperty("tumor_type_code")
+    public String getTumorTypeCode() {
+        return tumorTypeCode;
+    }
+
+    /**
+     *
+     * @param tumorTypeCode
+     *     The tumor_type_name
+     */
+    @JsonProperty("tumor_type_code")
+    public void setTumorTypeCode(String tumorTypeCode) {
+        this.tumorTypeCode = tumorTypeCode;
     }
 
     /**
@@ -500,7 +540,10 @@ public class MetaData {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(alys2sampleId).append(cbxPatientId).append(cbxSampleId).append(dmpAlysTaskId).append(dmpAlysTaskName).append(dmpPatientId).append(dmpSampleId).append(dmpSampleSoId).append(gender).append(isMetastasis).append(legacyPatientId).append(legacySampleId).append(metastasisSite).append(mrevComments).append(retrieveStatus).append(sampleCoverage).append(soComments).append(soStatusName).append(tumorPurity).append(tumorTypeName).append(additionalProperties).toHashCode();
+        return new HashCodeBuilder().append(alys2sampleId).append(cbxPatientId).append(cbxSampleId).append(dmpAlysTaskId).append(dmpAlysTaskName)
+                .append(dmpPatientId).append(dmpSampleId).append(dmpSampleSoId).append(gender).append(isMetastasis).append(legacyPatientId).append(legacySampleId)
+                .append(metastasisSite).append(mrevComments).append(primarySite).append(retrieveStatus).append(sampleCoverage).append(soComments).append(soStatusName)
+                .append(tumorPurity).append(tumorTypeCode).append(tumorTypeName).append(additionalProperties).toHashCode();
     }
 
     @Override
@@ -512,7 +555,20 @@ public class MetaData {
             return false;
         }
         MetaData rhs = ((MetaData) other);
-        return new EqualsBuilder().append(alys2sampleId, rhs.alys2sampleId).append(cbxPatientId, rhs.cbxPatientId).append(cbxSampleId, rhs.cbxSampleId).append(dmpAlysTaskId, rhs.dmpAlysTaskId).append(dmpAlysTaskName, rhs.dmpAlysTaskName).append(dmpPatientId, rhs.dmpPatientId).append(dmpSampleId, rhs.dmpSampleId).append(dmpSampleSoId, rhs.dmpSampleSoId).append(gender, rhs.gender).append(isMetastasis, rhs.isMetastasis).append(legacyPatientId, rhs.legacyPatientId).append(legacySampleId, rhs.legacySampleId).append(metastasisSite, rhs.metastasisSite).append(mrevComments, rhs.mrevComments).append(retrieveStatus, rhs.retrieveStatus).append(sampleCoverage, rhs.sampleCoverage).append(soComments, rhs.soComments).append(soStatusName, rhs.soStatusName).append(tumorPurity, rhs.tumorPurity).append(tumorTypeName, rhs.tumorTypeName).append(additionalProperties, rhs.additionalProperties).isEquals();
+        return new EqualsBuilder().append(alys2sampleId, rhs.alys2sampleId).append(cbxPatientId, rhs.cbxPatientId)
+                .append(cbxSampleId, rhs.cbxSampleId).append(dmpAlysTaskId, rhs.dmpAlysTaskId)
+                .append(dmpAlysTaskName, rhs.dmpAlysTaskName).append(dmpPatientId, rhs.dmpPatientId)
+                .append(dmpSampleId, rhs.dmpSampleId).append(dmpSampleSoId, rhs.dmpSampleSoId)
+                .append(gender, rhs.gender).append(isMetastasis, rhs.isMetastasis)
+                .append(legacyPatientId, rhs.legacyPatientId).append(legacySampleId, rhs.legacySampleId)
+                .append(metastasisSite, rhs.metastasisSite)
+                .append(mrevComments, rhs.mrevComments).append(primarySite, rhs.primarySite)
+                .append(retrieveStatus, rhs.retrieveStatus).append(sampleCoverage, rhs.sampleCoverage)
+                .append(soComments, rhs.soComments).append(soStatusName, rhs.soStatusName)
+                .append(tumorPurity, rhs.tumorPurity)
+                .append(tumorTypeCode, rhs.tumorTypeCode)
+                .append(tumorTypeName, rhs.tumorTypeName)
+                .append(additionalProperties, rhs.additionalProperties).isEquals();
     }
 
 }

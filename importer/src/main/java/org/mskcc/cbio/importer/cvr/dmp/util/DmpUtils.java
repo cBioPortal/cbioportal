@@ -58,7 +58,7 @@ public class DmpUtils {
 
     public static void removeDeprecatedSamples( DmpData data, TsvFileHandler fileHandler, String sampleColumnName){
         Preconditions.checkArgument(null != data, "A DmpData object is required");
-        Preconditions.checkArgument(null != fileHandler, "A file fandler implementation is required");
+        Preconditions.checkArgument(null != fileHandler, "A file handler implementation is required");
         Preconditions.checkArgument(!Strings.isNullOrEmpty(sampleColumnName),
                 "The name of the sample column is required");
         // identify samples that have been marked as deprecated

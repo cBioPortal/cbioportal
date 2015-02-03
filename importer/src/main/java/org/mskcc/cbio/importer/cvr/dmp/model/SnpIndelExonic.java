@@ -951,7 +951,15 @@ public class SnpIndelExonic implements DmpSnp {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(aaChange).append(altAllele).append(cDNAChange).append(chromosome).append(comments).append(confidenceClass).append(confidenceCvId).append(cosmicId).append(dbSNPId).append(dmpSampleMrevId).append(dmpSampleSoId).append(dmpVariantId).append(exonNum).append(geneId).append(isHotspot).append(mafreq1000g).append(mrevComments).append(mrevStatusCvId).append(mrevStatusName).append(normalAd).append(normalDp).append(normalVfreq).append(occuranceInNormal).append(occuranceInPop).append(refAllele).append(snpIndelToolName).append(snpIndelVariantId).append(soComments).append(soStatusCvId).append(soStatusName).append(startPosition).append(transcriptId).append(tumorAd).append(tumorDp).append(tumorVfreq).append(variantClass).append(variantClassCvId).append(variantStatusCvId).append(variantStatusName).append(additionalProperties).toHashCode();
+        return new HashCodeBuilder().append(aaChange).append(altAllele).append(cDNAChange).append(chromosome)
+                .append(comments).append(confidenceClass).append(confidenceCvId).append(cosmicId).append(dbSNPId)
+                .append(dmpSampleMrevId).append(dmpSampleSoId).append(dmpVariantId).append(exonNum).append(geneId)
+                .append(isHotspot).append(mafreq1000g).append(mrevComments).append(mrevStatusCvId).append(mrevStatusName)
+                .append(normalAd).append(normalDp).append(normalVfreq).append(occuranceInNormal).append(occuranceInPop)
+                .append(refAllele).append(snpIndelToolName).append(snpIndelVariantId).append(soComments)
+                .append(soStatusCvId).append(soStatusName).append(startPosition).append(transcriptId)
+                .append(tumorAd).append(tumorDp).append(tumorVfreq).append(variantClass).append(variantClassCvId)
+                .append(variantStatusCvId).append(variantStatusName).append(additionalProperties).toHashCode();
     }
 
     @Override
@@ -963,7 +971,25 @@ public class SnpIndelExonic implements DmpSnp {
             return false;
         }
         SnpIndelExonic rhs = ((SnpIndelExonic) other);
-        return new EqualsBuilder().append(aaChange, rhs.aaChange).append(altAllele, rhs.altAllele).append(cDNAChange, rhs.cDNAChange).append(chromosome, rhs.chromosome).append(comments, rhs.comments).append(confidenceClass, rhs.confidenceClass).append(confidenceCvId, rhs.confidenceCvId).append(cosmicId, rhs.cosmicId).append(dbSNPId, rhs.dbSNPId).append(dmpSampleMrevId, rhs.dmpSampleMrevId).append(dmpSampleSoId, rhs.dmpSampleSoId).append(dmpVariantId, rhs.dmpVariantId).append(exonNum, rhs.exonNum).append(geneId, rhs.geneId).append(isHotspot, rhs.isHotspot).append(mafreq1000g, rhs.mafreq1000g).append(mrevComments, rhs.mrevComments).append(mrevStatusCvId, rhs.mrevStatusCvId).append(mrevStatusName, rhs.mrevStatusName).append(normalAd, rhs.normalAd).append(normalDp, rhs.normalDp).append(normalVfreq, rhs.normalVfreq).append(occuranceInNormal, rhs.occuranceInNormal).append(occuranceInPop, rhs.occuranceInPop).append(refAllele, rhs.refAllele).append(snpIndelToolName, rhs.snpIndelToolName).append(snpIndelVariantId, rhs.snpIndelVariantId).append(soComments, rhs.soComments).append(soStatusCvId, rhs.soStatusCvId).append(soStatusName, rhs.soStatusName).append(startPosition, rhs.startPosition).append(transcriptId, rhs.transcriptId).append(tumorAd, rhs.tumorAd).append(tumorDp, rhs.tumorDp).append(tumorVfreq, rhs.tumorVfreq).append(variantClass, rhs.variantClass).append(variantClassCvId, rhs.variantClassCvId).append(variantStatusCvId, rhs.variantStatusCvId).append(variantStatusName, rhs.variantStatusName).append(additionalProperties, rhs.additionalProperties).isEquals();
+        return new EqualsBuilder().append(aaChange, rhs.aaChange).append(altAllele, rhs.altAllele)
+                .append(cDNAChange, rhs.cDNAChange).append(chromosome, rhs.chromosome).append(comments, rhs.comments)
+                .append(confidenceClass, rhs.confidenceClass).append(confidenceCvId, rhs.confidenceCvId)
+                .append(cosmicId, rhs.cosmicId).append(dbSNPId, rhs.dbSNPId).append(dmpSampleMrevId, rhs.dmpSampleMrevId)
+                .append(dmpSampleSoId, rhs.dmpSampleSoId).append(dmpVariantId, rhs.dmpVariantId)
+                .append(exonNum, rhs.exonNum).append(geneId, rhs.geneId).append(isHotspot, rhs.isHotspot)
+                .append(mafreq1000g, rhs.mafreq1000g).append(mrevComments, rhs.mrevComments)
+                .append(mrevStatusCvId, rhs.mrevStatusCvId).append(mrevStatusName, rhs.mrevStatusName)
+                .append(normalAd, rhs.normalAd).append(normalDp, rhs.normalDp).append(normalVfreq, rhs.normalVfreq)
+                .append(occuranceInNormal, rhs.occuranceInNormal).append(occuranceInPop, rhs.occuranceInPop)
+                .append(refAllele, rhs.refAllele).append(snpIndelToolName, rhs.snpIndelToolName)
+                .append(snpIndelVariantId, rhs.snpIndelVariantId).append(soComments, rhs.soComments)
+                .append(soStatusCvId, rhs.soStatusCvId).append(soStatusName, rhs.soStatusName)
+                .append(startPosition, rhs.startPosition).append(transcriptId, rhs.transcriptId)
+                .append(tumorAd, rhs.tumorAd).append(tumorDp, rhs.tumorDp).append(tumorVfreq, rhs.tumorVfreq)
+                .append(variantClass, rhs.variantClass).append(variantClassCvId, rhs.variantClassCvId)
+                .append(variantStatusCvId, rhs.variantStatusCvId).append(variantStatusName, rhs.variantStatusName)
+
+                .append(additionalProperties, rhs.additionalProperties).isEquals();
     }
 
 }

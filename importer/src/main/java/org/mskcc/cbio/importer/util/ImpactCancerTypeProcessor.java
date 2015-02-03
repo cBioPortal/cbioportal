@@ -2,7 +2,6 @@ package org.mskcc.cbio.importer.util;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
 import com.google.common.collect.*;
 import edu.stanford.nlp.util.StringUtils;
 import org.apache.commons.csv.CSVFormat;
@@ -16,14 +15,12 @@ import rx.Subscriber;
 import rx.functions.Func1;
 import scala.Tuple2;
 import scala.Tuple3;
-
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -153,7 +150,8 @@ public class ImpactCancerTypeProcessor {
                                 oncoTypeMatch, typeDistance.toString(),
                                 samples);
                     }
-                });lineSource.subscribe(new Subscriber<String>() {
+                });
+        lineSource.subscribe(new Subscriber<String>() {
             @Override
             public void onCompleted() {
                 logger.info("Completed report available at " +outputPath.getFileName());
@@ -207,8 +205,6 @@ public class ImpactCancerTypeProcessor {
     public static void main(String...args){
         ImpactCancerTypeProcessor processor = new ImpactCancerTypeProcessor(new File("/tmp/data_clinical.txt"),
                 new File("/tmp/cancert_type.tsv"));
-        for (String s : Lists.newArrayList(processor.oncotreeTypeSet)){
-           // logger.info(s);
-        }
+
     }
 }

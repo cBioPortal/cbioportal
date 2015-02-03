@@ -1,12 +1,15 @@
 package org.mskcc.cbio.importer.cvr.dmp.transformer;
 
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.cvr.dmp.model.MetaData;
 import org.mskcc.cbio.importer.cvr.dmp.util.DMPCommonNames;
 import org.mskcc.cbio.importer.persistence.staging.clinical.ImpactClinicalDataModel;
+import org.mskcc.cbio.importer.util.OncoTreeNode;
+import org.mskcc.cbio.importer.util.OncoTreeService;
 
 /**
  * Copyright (c) 2014 Memorial Sloan-Kettering Cancer Center.
@@ -48,7 +51,12 @@ public class DmpImpactClinicalDataModel extends ImpactClinicalDataModel {
 
     @Override
     public String getCancerType() {
-        return this.metaData.getTumorTypeName();
+
+        Optional<OncoTreeNode> oncoNodeOpt = OncoTreeService.INSTANCE.getNodeByKey(this.metaData.getTumorTypeCode());
+        if(oncoNodeOpt.isPresent()){
+            return oncoNodeOpt.get().getMajorCancerType();
+        }
+        return "Unknown";
     }
 
     @Override
@@ -73,13 +81,13 @@ public class DmpImpactClinicalDataModel extends ImpactClinicalDataModel {
 
     @Override
     public String getPrimarySite() {
-        return "";
+        return this.metaData.getPrimarySite();
     }
 
 
     @Override
     public String getCancerTypeDetailed() {
-        return "";
+        return this.metaData.getTumorTypeName();
     }
 
     @Override

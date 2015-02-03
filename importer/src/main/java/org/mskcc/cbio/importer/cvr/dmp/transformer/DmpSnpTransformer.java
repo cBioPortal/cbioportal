@@ -125,10 +125,7 @@ public class DmpSnpTransformer extends MutationTransformer implements DMPDataTra
         File tmpDir = new File(tempDir);
         tmpDir.mkdirs();
         Path stagingFileDirectory = Paths.get(tempDir);
-        //TsvFileHandler fileHandler = new TsvFileHandlerImpl();
 
-       // fileHandler.registerTsvStagingFile(stagingFileDirectory.resolve("data_mutations_mutations.txt"),
-        //        MutationModel.resolveColumnNames(),true);
         DmpSnpTransformer transformer = new DmpSnpTransformer(stagingFileDirectory);
 
         try {

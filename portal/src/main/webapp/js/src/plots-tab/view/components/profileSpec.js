@@ -38,10 +38,10 @@ var profileSpec = (function() {
             $("#" + ids.sidebar[axis].spec_div).append("</select>");            
         }
 
-        $("#" + ids.sidebar[axis].gene).change(function() {
-            $("#" + ids.sidebar[axis].profile_type).empty();
-            append();
-        });
+//        $("#" + ids.sidebar[axis].gene).change(function() {
+//            $("#" + ids.sidebar[axis].profile_type).empty();
+//            append();
+//        });
         
         $("#" + ids.sidebar[axis].profile_type).change(function() {
             regenerate_plots(axis);
@@ -64,10 +64,10 @@ var profileSpec = (function() {
 
         };
         
-        $("#" + ids.sidebar[axis].gene).change(function() {
-            $("#" + ids.sidebar[axis].profile_name).empty();
-            append();
-        });
+//        $("#" + ids.sidebar[axis].gene).change(function() {
+//            $("#" + ids.sidebar[axis].profile_name).empty();
+//            append();
+//        });
 
         $("#" + ids.sidebar[axis].profile_type).change(function() {
             $("#" + ids.sidebar[axis].profile_name).empty();
@@ -85,9 +85,9 @@ var profileSpec = (function() {
         $("#" + ids.sidebar[axis].spec_div).append("<div id='" + ids.sidebar[axis].log_scale + "-div'></div>");
         append();
         
-        $("#" + ids.sidebar[axis].gene).change(function() {
-            append();
-        });
+//        $("#" + ids.sidebar[axis].gene).change(function() {
+//            append();
+//        });
         $("#" + ids.sidebar[axis].profile_type).change(function() {
             append();
         });
@@ -120,6 +120,7 @@ var profileSpec = (function() {
                     "' checked>Lock Gene");
             if (document.getElementById(ids.sidebar.y.gene)) {
                 document.getElementById(ids.sidebar.y.gene).disabled = true;
+                document.getElementById(ids.sidebar.y.gene).selectedIndex = document.getElementById(ids.sidebar.x.gene).selectedIndex;
             }
             $("#" + ids.sidebar.y.lock_gene).change(function() {
                 if (document.getElementById(ids.sidebar.y.gene).disabled) {

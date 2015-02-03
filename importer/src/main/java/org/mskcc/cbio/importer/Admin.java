@@ -687,10 +687,16 @@ public class Admin implements Runnable {
 		for (CancerStudyMetadata cancerStudyMetadata : config.getCancerStudyMetadata(portal)) {
 			propertyMap.clear();
 			// if we are updating triage and this study is ready for update, then import it
-			if (portal.equals(PortalMetadata.TRIAGE_PORTAL) && cancerStudyMetadata.updateTriage()) {
-				importer.updateCancerStudy(portal, cancerStudyMetadata);
-				// we've updated the study in triage, turn off update triage flag
-				propertyMap.put(CancerStudyMetadata.UPDATE_TRIAGE_COLUMN_KEY, "false");
+			if (portal.equals(PortalMetadata.TRIAGE_PORTAL)) {
+				if (cancerStudyMetadata.updateTriage()) {
+					importer.updateCancerStudy(portal, cancerStudyMetadata);
+					// we've updated the study in triage, turn off update triage flag
+					propertyMap.put(CancerStudyMetadata.UPDATE_TRIAGE_COLUMN_KEY, "false");
+				}
+				else if (cancerStudyMetadata.readyForRelease()) {
+					// we can remove from triage database
+					deleteCancerStudy(cancerStudyMetadata.getStableId());
+				}
 			}
 			// otherwise, we only update studies that are ready for release
 			else if (cancerStudyMetadata.readyForRelease()) {

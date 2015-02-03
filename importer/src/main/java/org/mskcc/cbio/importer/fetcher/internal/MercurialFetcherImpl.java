@@ -143,6 +143,7 @@ public class MercurialFetcherImpl extends FetcherBaseImpl implements Fetcher
 			toReturn.put(CancerStudyMetadata.UPDATE_TRIAGE_COLUMN_KEY, "true");
 			toReturn.put(CancerStudyMetadata.READY_FOR_RELEASE_COLUMN_KEY, "false");
 			toReturn.put(CancerStudyMetadata.TRIAGE_PORTAL_STUDY_KEY, "x");
+			toReturn.put(CancerStudyMetadata.MSK_PORTAL_STUDY_KEY, "x");
 		}
 		// all other data (like DMP-IMPACT) can pass through the validation step
 		else {

@@ -55,6 +55,7 @@ public class CancerStudyMetadata {
     public static final String UPDATE_TRIAGE_COLUMN_KEY = "UPDATETRIAGE";
     public static final String READY_FOR_RELEASE_COLUMN_KEY = "READYFORRELEASE";
     public static final String TRIAGE_PORTAL_STUDY_KEY = "triage-portal";
+    public static final String MSK_PORTAL_STUDY_KEY = "msk-automation-portal";
 
     // delimiter between tumor type and center (used for find the path)
 
@@ -125,14 +126,20 @@ public class CancerStudyMetadata {
     public CancerStudyMetadata(String studyPath, CancerStudy cancerStudy)
     {
         this.studyPath = studyPath;
+        if (cancerStudy.getTypeOfCancerId() == null) {
+            throw new IllegalArgumentException("cancerStudy-typeOfCancer cannot be null");
+        }
         this.tumorType = cancerStudy.getTypeOfCancerId();
+        if (cancerStudy.getCancerStudyStableId() == null) {
+            throw new IllegalArgumentException("cancerStudy-stable id cannot be null");
+        }
         this.stableId = cancerStudy.getCancerStudyStableId();
-        this.name = cancerStudy.getName();
-        this.description = cancerStudy.getDescription();
-        this.citation = cancerStudy.getCitation();
-        this.pmid = cancerStudy.getPmid();
-        this.groups = StringUtils.join(cancerStudy.getGroups(), ";");
-        this.shortName = cancerStudy.getShortName();
+        this.name = (cancerStudy.getName() != null) ? cancerStudy.getName() : "";
+        this.description = (cancerStudy.getDescription() != null) ? cancerStudy.getDescription() : "";
+        this.citation = (cancerStudy.getCitation() != null) ? cancerStudy.getCitation() : "";
+        this.pmid = (cancerStudy.getPmid() != null) ? cancerStudy.getPmid() : "";
+        this.groups = (cancerStudy.getGroups() != null) ? StringUtils.join(cancerStudy.getGroups(), ";") : "";
+        this.shortName = (cancerStudy.getShortName() != null) ? cancerStudy.getShortName() : "";
         this.convert = false;
         this.updateTriage = false;
         this.readyForRelease = false;

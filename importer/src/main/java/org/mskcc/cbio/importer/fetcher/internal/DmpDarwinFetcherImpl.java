@@ -68,9 +68,9 @@ public class DmpDarwinFetcherImpl implements Fetcher
         //Retrieve DMP data
         DMPDataTransformer transformer = new DMPDataTransformer(Paths.get(dataSourcePath));
         DMPclinicaldataimporter dmpImporterRetriever = new DMPclinicaldataimporter();
-        //DmpData data = OBJECT_MAPPER.readValue(dmpImporterRetriever.getResult(), DmpData.class);
+        DmpData data = OBJECT_MAPPER.readValue(dmpImporterRetriever.getResult(), DmpData.class);
 
-        //transformer.transform(data);
+        transformer.transform(data);
         //DMPclinicaldataimporter dmpImporter_mark = 
         //        new DMPclinicaldataimporter(transformer.transform(data)); //mark consumed samples (transformer returns a list of consumed sample ids)
         

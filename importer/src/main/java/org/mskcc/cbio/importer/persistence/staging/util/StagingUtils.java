@@ -82,7 +82,7 @@ public class StagingUtils {
     2. filter out prexisting filtered files
     3. find the FoundationMetadata object associated with each XML file
     4, determine if the file belongs to a filtered study
-    5. if so, copy the file to the same directory, appending "-filtered" to the file name
+    5. if so, copy the file to the same directory, appending "filtered" to the file name
      */
     public static void copyFilteredXMLFiles(Path xmlDirPath) {
         FileSequentialCollection fsc = new FileSequentialCollection(xmlDirPath.toFile(),
@@ -92,7 +92,7 @@ public class StagingUtils {
                 .filter(new Func1<File,Boolean>() {
                             @Override
                             public Boolean call(File file) {
-                                return !file.getName().contains("-filtered.xml");
+                                return !file.getName().contains(StagingCommonNames.FOUNDATION_FILTERED_NOTATION +".xml");
                             }
                         }
                         // filter for files belonging to a filtered study
@@ -116,7 +116,9 @@ public class StagingUtils {
             @Override
             public void onNext(File file) {
                 try {
-                        File destFile = new File(file.getAbsolutePath().replace(".xml","-filtered.xml"));
+                    // filtered files use lower case names to avoid name collisions with original file
+                        String destFileName = file.getName().toLowerCase().replace(".xml",StagingCommonNames.FOUNDATION_FILTERED_NOTATION +".xml");
+                        File destFile = new File(file.getAbsolutePath().replace(file.getName(), destFileName));
                         new FileOutputStream(destFile).getChannel().transferFrom(
                                 new FileInputStream(file).getChannel(), 0, Long.MAX_VALUE);
                         logger.info("XML file " +file.getName() +" copied to " +destFile.getName()

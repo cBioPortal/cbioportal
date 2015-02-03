@@ -313,7 +313,7 @@ public class FoundationShortVariantModel extends MutationModel{
 
     @Override
     public String getValidationStatus() {
-        return FoundationCommonNames.DEFAULT_VALIDATION_STATUS;
+        return (!Strings.isNullOrEmpty(svt.getStatus()))? svt.getStatus() : FoundationCommonNames.DEFAULT_VALIDATION_STATUS;
     }
 
     @Override

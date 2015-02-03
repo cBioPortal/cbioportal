@@ -216,7 +216,7 @@ public class IcgcCancerStudyImporter implements Callable<String> {
         Path basePath = Paths.get("/tmp/icgctest");
         final ListeningExecutorService service =
                 MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(1));
-        IcgcCancerStudyImporter importer = new IcgcCancerStudyImporter("PACA-CA", basePath);
+        IcgcCancerStudyImporter importer = new IcgcCancerStudyImporter("PRAD-CA", basePath);
 
         List<ListenableFuture<String>> futureList = Lists.newArrayList();
         futureList.add(service.submit(importer));

@@ -92,9 +92,6 @@ public interface StagingCommonNames {
     public static final String IMPACT_STUDY_IDENTIFIER = "mskimpact";
 
 
-
-
-
     // length of human chromosomes
     // http://www.ncbi.nlm.nih.gov/projects/genome/assembly/grc/human/data/
     public static final ImmutableMap<String, Long> chromosomeLengthMap = new ImmutableMap.Builder<String, Long>()

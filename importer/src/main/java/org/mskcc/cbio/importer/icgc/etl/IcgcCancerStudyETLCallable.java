@@ -59,12 +59,9 @@ public class IcgcCancerStudyETLCallable implements Callable<String> {
     private final String icgcStudyUrl;
     private final Class modelClass;
     private final String modelType;
-    //private final TsvStagingFileHandler fileHandler;
     private final TsvFileHandler fileHandler;
 
 
-    //public IcgcCancerStudyETLCallable(String aUrl, Class aClass,
-      //                                String aType, TsvStagingFileHandler aHandler){
         public IcgcCancerStudyETLCallable(String aUrl, Class aClass,
                 String aType, TsvFileHandler aHandler){
         Preconditions.checkArgument(!Strings.isNullOrEmpty(aUrl), "An ICGC Cancer study is required");
@@ -191,7 +188,7 @@ public class IcgcCancerStudyETLCallable implements Callable<String> {
 
     // main class for stand alone testing
     public static void main (String...args){
-        String studyUrl = "https://dcc.icgc.org/api/v1/download?fn=/current/Projects/PACA-AU/structural_somatic_mutation.PACA-AU.tsv.gz";
+        String studyUrl = "https://dcc.icgc.org/api/v1/download?fn=/current/Projects/PRAD-CA/structural_somatic_mutation.PRAD-CA.tsv.gz";
         Path tempPath = Paths.get("/tmp/icgctest/data_fusions.txt");
 
         TsvFileHandler handler = FileHandlerService.INSTANCE.obtainFileHandlerForNewStagingFile

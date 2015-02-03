@@ -53,7 +53,7 @@ public class TestXMLFileTransformer {
                     return (input.toString().endsWith("xml"));
                 }
             };
-            FileDataSource fds = new FileDataSource("/data/foundation", xmlFileExtensionFilter);
+            FileDataSource fds = new FileDataSource("/tmp/foundation", xmlFileExtensionFilter);
 
             TsvStagingFileHandler svtFileHandler = new MutationFileHandlerImpl();
             CnvFileHandler cnVFileHandler = new CnvFileHandlerImpl();

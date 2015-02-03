@@ -89,6 +89,8 @@ class GDataImpl implements Config {
 	private String cancerStudiesWorksheet;
 	private String foundationWorksheet;
 	private String tcgaTumorTypesWorksheet;
+	
+	private final String HTML_COLOR_NAME_ONCOTREE_PROP = "HTML_COLOR_NAME";
 
 	/**
 	 * Constructor.
@@ -178,7 +180,7 @@ class GDataImpl implements Config {
 		return ret;
 	}
 	
-	private TumorTypeMetadata parseTumorTypeMetadata(ArrayList<String> line, int index, Map<String, String> colorMap) {
+	private TumorTypeMetadata parseTumorTypeMetadata(ArrayList<String> line, int index, HashMap<String, HashMap<String, String>> propertyMap) {
 		int newEntIndex = index;
 		String newEnt = line.get(newEntIndex).trim();
 		if (newEnt.isEmpty()) {
@@ -187,7 +189,7 @@ class GDataImpl implements Config {
 		String parentEnt = newEntIndex==0?"tissue":line.get(newEntIndex - 1).trim();
 
 		String tissue = line.get(0);
-		String color = colorMap.get(tissue);
+		String color = propertyMap.get(tissue).get(HTML_COLOR_NAME_ONCOTREE_PROP);
 		String[] newEntData = extractTumorTypeData(newEnt);
 		String name = newEntData[0];
 		String id = newEntData[1];
@@ -202,7 +204,7 @@ class GDataImpl implements Config {
 		String clinicalTrialKeywords = name.toLowerCase();
 		return new TumorTypeMetadata(id, name, color, parent, clinicalTrialKeywords, tissue);
 	}
-	
+
 	@Override
 	public Collection<TumorTypeMetadata> getTumorTypeMetadata(String tumorType) {
 
@@ -214,18 +216,23 @@ class GDataImpl implements Config {
 		if (oncotreePropertyMatrix == null) {
 			oncotreePropertyMatrix = getWorksheetData(gdataSpreadsheet, oncotreePropertyWorksheet);
 		}
-		
-		HashMap<String, String> colorMap = new HashMap<>();
+		HashMap<String, HashMap<String, String>> propertyMap = new HashMap<>();
 		for (int i=1; i<oncotreePropertyMatrix.size(); i++) {
 			ArrayList<String> line = oncotreePropertyMatrix.get(i);
-			colorMap.put(line.get(0), line.get(1));
+			String nodeName = line.get(0);
+			String propertyName = line.get(1);
+			String propertyValue = line.get(2);
+			if (!propertyMap.containsKey(nodeName)) {
+				propertyMap.put(nodeName, new HashMap<String, String>());
+			}
+			propertyMap.get(nodeName).put(propertyName, propertyValue);
 		}
 		
 		HashMap<String, TumorTypeMetadata> tumorTypes = new HashMap<>();
 		for (int i=1; i<oncotreeMatrix.size(); i++) {
 			ArrayList<String> line = oncotreeMatrix.get(i);
 			for (int j=0; j<line.size(); j++) {
-				TumorTypeMetadata ttmd = parseTumorTypeMetadata(line, j, colorMap);
+				TumorTypeMetadata ttmd = parseTumorTypeMetadata(line, j, propertyMap);
 				if (ttmd!= null && !tumorTypes.containsKey(ttmd.getType())) {
 					tumorTypes.put(ttmd.getType(), ttmd);
 				}

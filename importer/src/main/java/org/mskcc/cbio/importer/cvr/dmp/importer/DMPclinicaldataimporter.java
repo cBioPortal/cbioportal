@@ -99,7 +99,9 @@ public class DMPclinicaldataimporter {
                 properties.getProperty(DMP_CBIO_RETRIEVE_SEGMENT_DATA) + "/" + _session.getSessionId() + "/" + sampleId, 
                 String.class
             ); 
-            String _sampleSegmentDataJsonStr = JSONconverters.convertSegDataJson(rawSegDataResultEntity.getBody());
+            
+            String _sampleSegmentDataJsonStr = JSONconverters.convertSegDataJson(rawSegDataResultEntity.getBody(), sampleId);
+            
             resultJsonStr = JSONconverters.mergeSampleSegmentData(resultJsonStr, _sampleSegmentDataJsonStr); //Map segment data to sample meta data
         }
 

@@ -61,7 +61,7 @@ public class JSONconverters {
         return indented;
     }
     
-    public static String convertSegDataJson(String rawSegDataJsonStr) 
+    public static String convertSegDataJson(String rawSegDataJsonStr, String _sampleId) 
             throws IOException {
         
         ObjectMapper mapper = new ObjectMapper();
@@ -69,32 +69,34 @@ public class JSONconverters {
         JsonParser jp = factory.createJsonParser(rawSegDataJsonStr);
         
         ArrayNode result_arr_node = mapper.createArrayNode();
-        
         JsonNode root = mapper.readTree(jp);
-        ArrayNode originalSegDataArr = (ArrayNode)root.get("seg-data");
-        String sampleId = root.get("dmp_sample_id").asText();
-        
-        String[] fieldNames = 
-                originalSegDataArr.get(0).toString().replaceAll("[\\[\\]]", "").replaceAll("\"", "").split(",");
-        for (int _index = 1; _index < originalSegDataArr.size(); _index++) {
-            String[] tokens = 
-                    originalSegDataArr.get(_index).toString().replaceAll("[\\[\\]]", "").replaceAll("\"", "").split(",");
-            JsonNode singleSegJson = mapper.createObjectNode();
-            int _fieldIndex = 0;
-            for(String token : tokens) {
-                ((ObjectNode)singleSegJson).put(fieldNames[_fieldIndex], token);
-                _fieldIndex += 1;
-            }
-            result_arr_node.add(singleSegJson);
-        }
-        
+        String indented;
         JsonNode final_result = mapper.createObjectNode();
-        ((ObjectNode)final_result).put("sampleId", sampleId);
+
+        if (root.get("dmp_sample_id") != null) {
+            ArrayNode originalSegDataArr = (ArrayNode)root.get("seg-data");
+            String[] fieldNames = 
+                    originalSegDataArr.get(0).toString().replaceAll("[\\[\\]]", "").replaceAll("\"", "").split(",");
+            for (int _index = 1; _index < originalSegDataArr.size(); _index++) {
+                String[] tokens = 
+                        originalSegDataArr.get(_index).toString().replaceAll("[\\[\\]]", "").replaceAll("\"", "").split(",");
+                JsonNode singleSegJson = mapper.createObjectNode();
+                int _fieldIndex = 0;
+                for(String token : tokens) {
+                    ((ObjectNode)singleSegJson).put(fieldNames[_fieldIndex], token);
+                    _fieldIndex += 1;
+                }
+                result_arr_node.add(singleSegJson);
+            }
+        } else {
+            result_arr_node.removeAll();
+        }
+
+        ((ObjectNode)final_result).put("sampleId", _sampleId);
         ((ObjectNode)final_result).put("segment-data", result_arr_node);
-        
-        String indented = mapper.defaultPrettyPrintingWriter().writeValueAsString(final_result);
-        return indented;
-        
+        indented = mapper.defaultPrettyPrintingWriter().writeValueAsString(final_result);
+
+        return indented;        
     }
     
     public static String mergeSampleSegmentData(String sampleDataJsonStr, String segDataJsonStr) 

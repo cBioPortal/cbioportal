@@ -146,6 +146,9 @@
     border-width: 1px;
     border-color: lightgrey;
 }
+#study-view-scatter-plot foreignObject body {
+    margin: 0 !important;
+}
 #data-table-chart {
     max-width:1200px;
     width : 100%;

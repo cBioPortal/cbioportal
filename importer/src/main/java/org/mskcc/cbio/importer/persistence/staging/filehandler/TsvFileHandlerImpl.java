@@ -22,22 +22,17 @@ import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Table;
-import com.google.inject.internal.Sets;
+import com.google.common.collect.*;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.log4j.Logger;
+import org.mskcc.cbio.importer.cvr.dmp.model.DmpData;
+import org.mskcc.cbio.importer.cvr.dmp.util.DmpUtils;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 import org.mskcc.cbio.importer.persistence.staging.util.StagingUtils;
 
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -144,6 +139,55 @@ public class TsvFileHandlerImpl implements TsvFileHandler{
             logger.error(ex.getMessage());
             ex.printStackTrace();
         }
+    }
+
+    /*
+    specialized method to support preparing existing staging files for adding new data
+    specifically this is for staging files that maintain a list of sample ids as the first
+    line of the file in a comment format
+    1. Read the existing first line and create a Set of existing sample ids
+    2. Scan the new sample data and add their sample ids to the set
+    3. If the sample has a retreive status, add it to the retrieve sample set
+    4. create a temporary file
+    5, write ot the sample set as a comment line
+    6. write the column headings
+    7.Read each data line from the original file
+      a. if the sample ID is NOT in the retrieve sample set, write out to the temporary file
+    8. Overwite the existing staging file with the contents of the temporary file
+
+     */
+    public void preprocessExistingStagingFileWithSampleList(
+        DmpData data, String sampleColumnName) {
+        Preconditions.checkArgument(null != data, "DMP sample data is required");
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(sampleColumnName),
+                "The name of the sample id column in the staging file is required");
+        Set<String> existingSamples = this.resolveExistingSampleSetFromCommentLine();
+        Set<String> deprecatedSamples = DmpUtils.resolveDeprecatedSamples(data);
+        Sets.SetView<String> allSampleSet = Sets.union(existingSamples,DmpUtils.resolveSampleIDsInInputData(data));
+        //copy existing data and new sample set to temp file; remove any deprecated samples
+
+
+
+    }
+
+
+    //generate a Set of existing samples
+    private Set<String> resolveExistingSampleSetFromCommentLine(){
+        // the first line of the file is a comment
+        try (BufferedReader br =  new BufferedReader(new FileReader(this.stagingFilePath.toFile()))){
+
+            String sampleCommentLine = br.readLine();
+            String line = (sampleCommentLine.indexOf(':')>0 ) ?
+                    sampleCommentLine.substring(sampleCommentLine.indexOf(':')+2)
+                    :sampleCommentLine;
+
+            return com.google.common.collect.Sets.newTreeSet(StagingCommonNames.blankSplitter.splitToList(line));
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+            e.printStackTrace();
+        }
+        return Sets.newHashSet(); // empty set
+
     }
 
     /*

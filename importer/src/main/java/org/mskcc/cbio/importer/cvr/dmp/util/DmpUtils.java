@@ -87,6 +87,22 @@ public class DmpUtils {
                 })
                 .toSet();
     }
+    /*
+    public utility method to determine the unique sample id in an input dataset
+    basically the same code as finding deprecated samples without the retrieve status filter
+     */
+    public static Set<String> resolveSampleIDsInInputData(DmpData data){
+        Preconditions.checkArgument(null!= data ,
+                "DMP data are required");
+        return  FluentIterable.from(data.getResults())
+                .transform(new Function<Result, String>() {
+                    @Override
+                    public String apply(Result result) {
+                        return result.getMetaData().getDmpSampleId();
+                    }
+                })
+                .toSet();
+    }
 
     /*
     utility method to generate a structural variant for the second gene

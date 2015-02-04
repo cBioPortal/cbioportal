@@ -90,6 +90,9 @@ public interface StagingCommonNames {
 
     // IMPACT study
     public static final String IMPACT_STUDY_IDENTIFIER = "mskimpact";
+    public static final String DMP_COMMENT_MARKER = "#";
+    public static final String DMP_STAGING_FILE_COMMENT = "#sequenced_samples:";
+
 
 
     // length of human chromosomes

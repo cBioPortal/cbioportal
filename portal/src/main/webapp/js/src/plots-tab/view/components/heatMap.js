@@ -83,6 +83,8 @@ var heat_map = (function() {
         
         var h = 20; //height of each row
         var w = 70; //width of each column
+        var edge_top = 200;
+        var edge_left = 100;
         
         var svg = d3.select("#" + div)
                     .append("svg")
@@ -106,10 +108,10 @@ var heat_map = (function() {
             .attr('width',w)
             .attr('height',h)
             .attr('x', function(d) {
-                return (d.x * w) + 100;
+                return (d.x * w) + edge_left;
             })
             .attr('y', function(d) {
-                return (d.y * h) + 50;
+                return (d.y * h) + edge_top;
             })
             .style('fill',function(d) {
                 return colorScale(d.count);
@@ -119,8 +121,8 @@ var heat_map = (function() {
     
         //annotation for each brick
         svg.selectAll(".overlayText").data(data).enter().append("text")
-                    .attr("x", function(d) { return ((d.x * w) + w / 2 + 96);})
-                    .attr("y", function(d) { return ((d.y * h) + h / 2 + 5 + 50); })
+                    .attr("x", function(d) { return ((d.x * w) + w / 2 - 4 + edge_left);})
+                    .attr("y", function(d) { return ((d.y * h) + h / 2 + 5 + edge_top); })
                     .attr("text-anchor", "middle")
                     .attr("fill", function(d) { 
                         if (d.count > (stat.count.min + (stat.count.max - stat.count.min)/2)) {
@@ -135,7 +137,7 @@ var heat_map = (function() {
             .enter().append('text')
             .attr("dy", ".35em")
             .attr("transform", function(d, i) {
-                return "translate(" + ((i + 0.5) * w + 100) + ",40) rotate(-15)";
+                return "translate(" + ((i + 0.5) * w + edge_left) + "," + (edge_top - 10) + ") rotate(-15)";
             })
             .attr('class','label')
             .style('text-anchor','start')
@@ -143,9 +145,9 @@ var heat_map = (function() {
         svg.selectAll(".rowLabel")
                 .data(clinical_data_interpreter.get_text_labels("y"))
                 .enter().append('svg:text')
-                .attr('x', parseInt(stat.x.max) * w + 190)
+                .attr('x', parseInt(stat.x.max) * w + w + 10 + edge_left)
                 .attr('y', function(d, i) {
-                    return ((i + 0.5) * h) + 53;
+                    return ((i + 0.5) * h) + edge_top;
                 })
                 .attr('class', 'label')
                 .attr('text-anchor', 'start')
@@ -154,32 +156,35 @@ var heat_map = (function() {
         //axis titles & helps
         var elt_x = document.getElementById(ids.sidebar.x.clin_attr);
         var elt_y = document.getElementById(ids.sidebar.y.clin_attr);
-        var _x_text = "Rows: " + elt_x.options[elt_x.selectedIndex].text;
-        var _y_text = "Columns:  " + elt_y.options[elt_y.selectedIndex].text;
+        var _x_text = elt_x.options[elt_x.selectedIndex].text;
+        var _y_text = elt_y.options[elt_y.selectedIndex].text;
         var _x_id = elt_x.options[elt_x.selectedIndex].value;
         var _y_id = elt_x.options[elt_y.selectedIndex].value;
         var _x_description = metaData.getClinicalAttrDescription(_x_id);
         var _y_description = metaData.getClinicalAttrDescription(_y_id);
         svg.append("text")
-                .attr("x", 120)
-                .attr("y", parseInt(stat.y.max) * h + 120)
+                .attr("x", edge_left + 20)
+                .attr("y", parseInt(stat.y.max) * h + h + 23 + edge_top)
                 .text(_x_text)
                 .attr("font-family", "sans-serif")
                 .attr("font-size", "12px")
                 .attr("fill","black");
         svg.append("text")
-                .attr("x", 120)
-                .attr("y", parseInt(stat.y.max) * h + 135)
-                .text(_y_text)
+                .text(_y_text.substring(0, 100))
                 .attr("font-family", "sans-serif")
                 .attr("font-size", "12px")
-                .attr("fill","black");
+                .attr("fill","black")
+                .attr("dy", ".35em")
+                .attr("text-anchor", "start")
+                .attr("transform", function(d) {
+                    return "translate(" + (edge_left - 20) + " ," + (parseInt(stat.y.max) * h + h + edge_top) + ") rotate(-90)";
+                });
         
         svg.append("svg:image")
             .attr("xlink:href", "images/help.png")
             .attr("class", "x_help")
-            .attr("x", 100)
-            .attr("y", parseInt(stat.y.max) * h + 108)
+            .attr("x", edge_left)
+            .attr("y", parseInt(stat.y.max) * h + h + 10 + edge_top)
             .attr("width", "16")
             .attr("height", "16");
         svg.append("svg:image")
@@ -198,7 +203,7 @@ var heat_map = (function() {
                         style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                         show: {event: "mouseover"},
                         hide: {fixed:true, delay: 100, event: "mouseout"},
-                        position: {my:'left bottom',at:'top right', viewport: $(window)}
+                        position: {my:'left top',at:'bottom right', viewport: $(window)}
                     }
                 );
             }

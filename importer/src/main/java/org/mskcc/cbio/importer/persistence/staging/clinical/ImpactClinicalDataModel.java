@@ -46,12 +46,12 @@ public abstract class ImpactClinicalDataModel {
     static {
         transformationMap.put("001SAMPLE_ID", "getSampleId"); //1
         transformationMap.put("002PATIENT_ID", "getPatientId"); //2
-        transformationMap.put("003CANCER_TYPE","getCancerType" ); //3
+        transformationMap.put("003TISSUE_TYPE","getCancerType" ); //3
         transformationMap.put("004SAMPLE_TYPE","getSampleType" ); //4
         transformationMap.put("005SAMPLE_CLASS","getSampleClass" ); //5
         transformationMap.put("006METASTATIC_SITE","getMetastaticSite" );
         transformationMap.put("007PRIMARY_SITE","getPrimarySite"); //7
-        transformationMap.put("008CANCER_TYPE_DETAILED","getCancerTypeDetailed"); //8
+        transformationMap.put("008CANCER_TYPE","getCancerTypeDetailed"); //8
         transformationMap.put("009KNOWN_MOLECULAR_CLASSIFIER","getKnownMolecularClassifier" ); //9
     }
     /*
@@ -68,10 +68,7 @@ public abstract class ImpactClinicalDataModel {
     public abstract String getCancerTypeDetailed();
     public abstract String getKnownMolecularClassifier();
 
-    /*
-Function to transform attributes from a  Foundation Short Variant object into MAF attributes collected in
-a tsv String for subsequent output
-*/
+
     final static Function<ImpactClinicalDataModel, String> transformationFunction =
             new Function<ImpactClinicalDataModel, String>() {
         @Override

@@ -23,14 +23,12 @@ import org.mskcc.cbio.importer.persistence.staging.structvariant.StructVariantMo
  * has been advised of the possibility of such damage.
  * <p/>
  * Created by criscuof on 1/30/15.
+ * mod 2/4/2015 added suppor for addition attributes provided by Web service
  */
 public class DmpStructVariantModel extends StructVariantModel {
 
     private final StructuralVariant structVariant;
     private final static Logger logger = Logger.getLogger(DmpStructVariantModel.class);
-
-
-
 
     public DmpStructVariantModel( StructuralVariant sv){
         Preconditions.checkArgument(null != sv, "A StructuralVariant object is required");
@@ -94,7 +92,7 @@ public class DmpStructVariantModel extends StructVariantModel {
 
     @Override
     public String getConnectionType() {
-        return "";
+        return structVariant.getConnectionType();
     }
 
     @Override
@@ -104,22 +102,22 @@ public class DmpStructVariantModel extends StructVariantModel {
 
     @Override
     public String getMapq() {
-        return "";
+        return (structVariant.getMapq() != null)? structVariant.getMapq().toString():"";
     }
 
     @Override
     public String getPairEndReadSupport() {
-        return "";
+        return  (structVariant.getPairedEndReadSupport() != null)?structVariant.getPairedEndReadSupport().toString():"";
     }
 
     @Override
     public String getSplitReadSupport() {
-        return "";
+        return (structVariant.getSplitReadSupport()!=null) ? structVariant.getSplitReadSupport().toString():"";
     }
 
     @Override
     public String getBrkptType() {
-        return "";
+        return structVariant.getBreakpointType();
     }
 
     @Override
@@ -129,12 +127,12 @@ public class DmpStructVariantModel extends StructVariantModel {
 
     @Override
     public String getTumorVariantCount() {
-        return "";
+        return (structVariant.getTumorVariantCount()!=null)? structVariant.getTumorVariantCount().toString():"";
     }
 
     @Override
     public String getTumorReadCount() {
-        return "";
+        return (structVariant.getTumorReadCount() !=null)?structVariant.getTumorReadCount().toString():"";
     }
 
     @Override
@@ -144,12 +142,12 @@ public class DmpStructVariantModel extends StructVariantModel {
 
     @Override
     public String getNormalVariantCount() {
-        return "";
+        return (structVariant.getNormalVariantCount()!=null) ? structVariant.getNormalVariantCount().toString():"";
     }
 
     @Override
     public String getNormalReadCount() {
-        return "";
+        return (structVariant.getNormalReadCount()!=null)?structVariant.getNormalReadCount().toString():"";
     }
 
     @Override

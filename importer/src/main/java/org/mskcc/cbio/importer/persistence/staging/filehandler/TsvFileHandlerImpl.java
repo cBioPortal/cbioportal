@@ -30,14 +30,13 @@ import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.cvr.dmp.model.DmpData;
 import org.mskcc.cbio.importer.cvr.dmp.util.DmpUtils;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
+import org.mskcc.cbio.importer.persistence.staging.mutation.MutationModel;
 import org.mskcc.cbio.importer.persistence.staging.util.StagingUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.*;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.nio.file.OpenOption;
-import java.nio.file.Path;
+import java.nio.file.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -157,19 +156,79 @@ public class TsvFileHandlerImpl implements TsvFileHandler{
 
      */
     public void preprocessExistingStagingFileWithSampleList(
-        DmpData data, String sampleColumnName) {
+        DmpData data, final String sampleColumnName) {
         Preconditions.checkArgument(null != data, "DMP sample data is required");
         Preconditions.checkArgument(!Strings.isNullOrEmpty(sampleColumnName),
                 "The name of the sample id column in the staging file is required");
-        Set<String> existingSamples = this.resolveExistingSampleSetFromCommentLine();
-        Set<String> deprecatedSamples = DmpUtils.resolveDeprecatedSamples(data);
-        Sets.SetView<String> allSampleSet = Sets.union(existingSamples,DmpUtils.resolveSampleIDsInInputData(data));
+       final  Set<String> existingSamples = this.resolveExistingSampleSetFromCommentLine();
+       final  Set<String> deprecatedSamples = DmpUtils.resolveDeprecatedSamples(data);
+       final  Sets.SetView<String> allSampleSet = Sets.union(existingSamples,DmpUtils.resolveSampleIDsInInputData(data));
         //copy existing data and new sample set to temp file; remove any deprecated samples
+        OpenOption[] options = new OpenOption[]{CREATE, APPEND, DSYNC};
+        Path tempDir = null;
+        Path tempFilePath = null;
+        try {
+            // move staging file to a temporary file, filter out deprecated samples,
+            // then write non-deprecated samples
+            // back to staging files
+
+            tempDir = Files.createTempDirectory("dmptemp");
+            tempFilePath = Files.createTempFile(tempDir, ".txt" ,null);
+            Files.deleteIfExists(tempFilePath);
+            Files.move(this.stagingFilePath, tempFilePath);
+            logger.info(" processing " + tempFilePath.toString());
+            final CSVParser parser = new CSVParser(new FileReader(tempFilePath.toFile()),
+                    CSVFormat.TDF.withHeader().withCommentMarker('#'));
+            String comment = formatSampleListAsCommentList(allSampleSet);
+            String headings = StagingCommonNames.tabJoiner.join(parser.getHeaderMap().keySet());
+            // filter persisted sample ids that are also in the current data input
+            List<String> filteredSamples = FluentIterable.from(parser)
+                    .filter(new Predicate<CSVRecord>() {
+                        @Override
+                        public boolean apply(CSVRecord record) {
+                            String sampleId = record.get(sampleColumnName);
+                            if (!Strings.isNullOrEmpty(sampleId) && !deprecatedSamples.contains(sampleId)) {
+                                return true;
+                            }
+                            return false;
+                        }
+                    }).transform(new Function<CSVRecord, String>() {
+                        @Override
+                        public String apply(CSVRecord record) {
+
+                            return StagingCommonNames
+                                    .tabJoiner
+                                    .join(Lists.newArrayList(record.iterator()));
+                        }
+                    })
+                    .toList();
+
+            // write the filtered data to the original staging file
+            // comment
+            Files.write(this.stagingFilePath,Lists.newArrayList(comment), Charset.defaultCharset(),options);
+            // column headings
+            Files.write(this.stagingFilePath,Lists.newArrayList(headings), Charset.defaultCharset(),options);
+            // data
+            Files.write(this.stagingFilePath, filteredSamples, Charset.defaultCharset(), options);
 
 
+        } catch (IOException ex) {
+            logger.error(ex.getMessage());
+            ex.printStackTrace();
+        } finally {
+            try {
+                Files.delete(tempFilePath);
+                Files.delete(tempDir);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
     }
 
+    private String formatSampleListAsCommentList(Set<String> sampleSet){
+        return StagingCommonNames.blankJoiner.join(StagingCommonNames.DMP_STAGING_FILE_COMMENT,sampleSet);
+    }
 
     //generate a Set of existing samples
     private Set<String> resolveExistingSampleSetFromCommentLine(){
@@ -372,6 +431,24 @@ public class TsvFileHandlerImpl implements TsvFileHandler{
             ex.printStackTrace();
         }
     }
+
+    /*
+    main method for standalone testing
+     */
+    public static void main (String...args){
+        ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+        try {
+            DmpData data = OBJECT_MAPPER.readValue(new File("/tmp/dmp_ws.json"), DmpData.class);
+           TsvFileHandlerImpl test = new TsvFileHandlerImpl(Paths.get("/tmp/data_mutations_extended.txt"), MutationModel.resolveColumnNames(),false);
+            test.preprocessExistingStagingFileWithSampleList(data,"Tumor_Sample_Barcode");
+
+
+        } catch (IOException ex) {
+            logger.error(ex.getMessage());
+        }
+    }
+
 
 
 }

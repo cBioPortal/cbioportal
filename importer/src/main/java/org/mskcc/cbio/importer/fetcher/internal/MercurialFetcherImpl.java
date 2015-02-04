@@ -142,8 +142,14 @@ public class MercurialFetcherImpl extends FetcherBaseImpl implements Fetcher
 		if (dataSourceMetadata.getDataSource().equals(DataSourcesMetadata.CMO_PIPELINE_REPOS)) {
 			toReturn.put(CancerStudyMetadata.UPDATE_TRIAGE_COLUMN_KEY, "true");
 			toReturn.put(CancerStudyMetadata.READY_FOR_RELEASE_COLUMN_KEY, "false");
-			toReturn.put(CancerStudyMetadata.TRIAGE_PORTAL_STUDY_KEY, "x");
-			toReturn.put(CancerStudyMetadata.MSK_PORTAL_STUDY_KEY, "x");
+			toReturn.put(CancerStudyMetadata.TRIAGE_PORTAL_COLUMN_KEY, "x");
+			toReturn.put(CancerStudyMetadata.MSK_PORTAL_COLUMN_KEY, "x");
+			toReturn.put(CancerStudyMetadata.SOURCE_COLUMN_KEY, "BIC");
+			// for consistency on the worksheet
+			toReturn.remove(CancerStudyMetadata.STABLE_ID_COLUMN_KEY);
+			toReturn.remove(CancerStudyMetadata.NAME_COLUMN_KEY);
+			toReturn.remove(CancerStudyMetadata.DESCRIPTION_COLUMN_KEY);
+			toReturn.remove(CancerStudyMetadata.SHORT_NAME_COLUMN_KEY);
 		}
 		// all other data (like DMP-IMPACT) can pass through the validation step
 		else {

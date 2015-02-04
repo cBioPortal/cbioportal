@@ -152,7 +152,6 @@ var scatterPlots = (function() {
                 .call(elem[axis].axis.orient(settings.axis[axis].orient).ticks(0));              
         }
         function continuous_axis() {
-            
             elem.svg.append("g")
                 .style("stroke-width", 1.5)
                 .style("fill", "none")

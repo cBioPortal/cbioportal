@@ -12,6 +12,8 @@ var boxPlots = (function () {
             val: 0,
             dataset: []
         };
+        var color = "#000000";
+        var opacity = 0.2;
         
         function render() {
             
@@ -112,42 +114,48 @@ var boxPlots = (function () {
                             .attr("height", IQR)
                             .attr("fill", "none")
                             .attr("stroke-width", 1)
-                            .attr("stroke", "#BDBDBD");
+                            .attr("stroke", color)
+                            .attr('opacity', opacity);
                         elem.boxPlots.append("line")
                             .attr("x1", midLine-40)
                             .attr("x2", midLine+40)
                             .attr("y1", mean)
                             .attr("y2", mean)
                             .attr("stroke-width", 2)
-                            .attr("stroke", "#BDBDBD");
+                            .attr("stroke", color)
+                            .attr('opacity', opacity);
                         elem.boxPlots.append("line")
                             .attr("x1", midLine-30)
                             .attr("x2", midLine+30)
                             .attr("y1", top)
                             .attr("y2", top)
                             .attr("stroke-width", 1)
-                            .attr("stroke", "#BDBDBD");
+                            .attr("stroke", color)
+                            .attr('opacity', opacity);
                         elem.boxPlots.append("line")
                             .attr("x1", midLine-30)
                             .attr("x2", midLine+30)
                             .attr("y1", bottom)
                             .attr("y2", bottom)
-                            .attr("stroke", "#BDBDBD")
-                            .style("stroke-width", 1);
+                            .attr("stroke", color)
+                            .style("stroke-width", 1)
+                            .attr('opacity', opacity);
                         elem.boxPlots.append("line")
                             .attr("x1", midLine)
                             .attr("x2", midLine)
                             .attr("y1", quan1)
                             .attr("y2", bottom)
-                            .attr("stroke", "#BDBDBD")
-                            .attr("stroke-width", 1);
+                            .attr("stroke", color)
+                            .attr("stroke-width", 1)
+                            .attr('opacity', opacity);
                         elem.boxPlots.append("line")
                             .attr("x1", midLine)
                             .attr("x2", midLine)
                             .attr("y1", quan2)
                             .attr("y2", top)
-                            .attr("stroke", "#BDBDBD")
-                            .style("stroke-width", 1);
+                            .attr("stroke", color)
+                            .style("stroke-width", 1)
+                            .attr('opacity', opacity);
                     } else {
                         elem.boxPlots.append("rect") 
                             .attr("x", quan1)
@@ -156,27 +164,30 @@ var boxPlots = (function () {
                             .attr("width", IQR)
                             .attr("fill", "none")
                             .attr("stroke-width", 1)
-                            .attr("stroke", "#BDBDBD");
+                            .attr('opacity', opacity)
+                            .attr("stroke", color);
                         elem.boxPlots.append("line") 
                             .attr("y1", midLine-30)
                             .attr("y2", midLine+30)
                             .attr("x1", mean)
                             .attr("x2", mean)
                             .attr("stroke-width", 2)
-                            .attr("stroke", "#BDBDBD");
+                            .attr("stroke", color);
                         elem.boxPlots.append("line") 
                             .attr("y1", midLine-30)
                             .attr("y2", midLine+30)
                             .attr("x1", top)
                             .attr("x2", top)
                             .attr("stroke-width", 1)
+                            .attr('opacity', opacity)
                             .attr("stroke", "#BDBDBD");
                         elem.boxPlots.append("line")
                             .attr("y1", midLine-30)
                             .attr("y2", midLine+30)
                             .attr("x1", bottom)
                             .attr("x2", bottom)
-                            .attr("stroke", "#BDBDBD")
+                            .attr("stroke", color)
+                            .attr('opacity', opacity)
                             .style("stroke-width", 1);
                         if (obj.dataset.length === 2) {
                             elem.boxPlots.append("line")
@@ -184,14 +195,16 @@ var boxPlots = (function () {
                                 .attr("y2", midLine)
                                 .attr("x1", quan2)
                                 .attr("x2", top)
-                                .attr("stroke", "#BDBDBD")
+                                .attr("stroke", color)
+                                .attr('opacity', opacity)
                                 .attr("stroke-width", 1);
                             elem.boxPlots.append("line")
                                 .attr("y1", midLine)
                                 .attr("y2", midLine)
                                 .attr("x1", quan1)
                                 .attr("x2", bottom)
-                                .attr("stroke", "#BDBDBD")
+                                .attr("stroke", color)
+                                .attr('opacity', opacity)
                                 .style("stroke-width", 1); 
                         } else {
                             elem.boxPlots.append("line")
@@ -199,14 +212,16 @@ var boxPlots = (function () {
                                 .attr("y2", midLine)
                                 .attr("x1", quan2)
                                 .attr("x2", bottom)
-                                .attr("stroke", "#BDBDBD")
+                                .attr("stroke", color)
+                                .attr('opacity', opacity)
                                 .attr("stroke-width", 1);
                             elem.boxPlots.append("line")
                                 .attr("y1", midLine)
                                 .attr("y2", midLine)
                                 .attr("x1", quan1)
                                 .attr("x2", top)
-                                .attr("stroke", "#BDBDBD")
+                                .attr("stroke", color)
+                                .attr('opacity', opacity)
                                 .style("stroke-width", 1); 
                         }
                     } 

@@ -693,7 +693,7 @@ public class Admin implements Runnable {
 			if (portal.equals(PortalMetadata.TRIAGE_PORTAL)) {
 				if (cancerStudyMetadata.updateTriage()) {
 					importer.updateCancerStudy(portal, cancerStudyMetadata);
-					cancerStudiesUpdated.add(cancerStudyMetadata.getStableId());
+					cancerStudiesUpdated.add(cancerStudyMetadata.getStudyPath());
 					// we've updated the study in triage, turn off update triage flag
 					propertyMap.put(CancerStudyMetadata.UPDATE_TRIAGE_COLUMN_KEY, "false");
 				}
@@ -705,7 +705,7 @@ public class Admin implements Runnable {
 			// otherwise, we only update studies that are ready for release
 			else if (cancerStudyMetadata.readyForRelease()) {
 				importer.updateCancerStudy(portal, cancerStudyMetadata);
-				cancerStudiesUpdated.add(cancerStudyMetadata.getStableId());
+				cancerStudiesUpdated.add(cancerStudyMetadata.getStudyPath());
 				// turn off ready for release so that the next
 				// fetch does not get imported before being vetted
 				propertyMap.put(CancerStudyMetadata.READY_FOR_RELEASE_COLUMN_KEY, "false");
@@ -733,7 +733,7 @@ public class Admin implements Runnable {
 		SimpleMailMessage msg = new SimpleMailMessage(message);
 		for (String cancerStudy : cancerStudiesUpdated) {
 			CancerStudyMetadata cancerStudyMetadata = config.getCancerStudyMetadataByName(cancerStudy);
-			body += "\n" + cancerStudyMetadata.getName();
+			body += "\n" + cancerStudyMetadata.getStableId();
 		}
 		body += "\n";
 		msg.setText(body);

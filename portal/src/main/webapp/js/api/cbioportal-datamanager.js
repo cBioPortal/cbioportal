@@ -336,10 +336,10 @@ dataman = (function () {
         return dfd.promise();
     }
     var getGenesByHugoGeneSymbol = function (ids, callback, fail) {
-        getGenesHelper(ids, 'hugo', callback, fail);
+        return getGenesHelper(ids, 'hugo', callback, fail);
     }
     var getGenesByEntrezGeneId = function (ids, callback, fail) {
-        getGenesHelper(ids, 'entrez', callback, fail);
+        return getGenesHelper(ids, 'entrez', callback, fail);
     }
 
     // -- meta.patients --
@@ -505,10 +505,10 @@ dataman = (function () {
         return dfd.promise();
     }
     var getStudiesByStableId = function (ids, callback, fail) {
-        getStudiesHelper(ids, 'stable_id', callback, fail);
+        return getStudiesHelper(ids, 'stable_id', callback, fail);
     }
     var getStudiesByInternalId = function (ids, callback, fail) {
-        getStudiesHelper(ids, 'internal_id', callback, fail);
+        return getStudiesHelper(ids, 'internal_id', callback, fail);
     }
 
 
@@ -581,13 +581,13 @@ dataman = (function () {
         return dfd.promise();
     }
     var getProfilesByStableId = function (profile_ids, callback, fail) {
-        getProfilesHelper('profile_ids', profile_ids, 'stable_id', ['stable_id', 'internal_id'], callback, fail);
+        return getProfilesHelper('profile_ids', profile_ids, 'stable_id', ['stable_id', 'internal_id'], callback, fail);
     }
     var getProfilesByInternalId = function (profile_ids, callback, fail) {
-        getProfilesHelper('profile_ids', profile_ids, 'internal_id', ['stable_id', 'internal_id'], callback, fail);
+        return getProfilesHelper('profile_ids', profile_ids, 'internal_id', ['stable_id', 'internal_id'], callback, fail);
     }
     var getProfilesByInternalStudyId = function (study_ids, callback, fail) {
-        getProfilesHelper('study_ids', study_ids, 'study', undefined, callback, fail);
+        return getProfilesHelper('study_ids', study_ids, 'study', undefined, callback, fail);
     }
 
     // -- meta.clinicalPatients --

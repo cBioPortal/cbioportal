@@ -237,5 +237,14 @@ oql = (function () {
         return ret;
     }
     
-    return {getGeneList: getGeneList, parseQuery: parseQuery, filter: filter};
+    /**
+     * @memberOf oql
+     * @param {Array.<Object>} profileData Profile data resulting from a call to getProfileData
+     * @returns {Array.<Object>} A list of samples, where a sample is {'sample':<id>, 'data':<dict>}, where <dict> = {'AMP':<1 or 0>, 'HOMDEL':<1 or 0>, 'GAIN':<1 or 0>, 'HETLOSS':<1 or 0>, 'MUT':[...], 'PROT':<float>}
+     */
+    function makeSamples(profileData) {
+	    // TODO
+    }
+    
+    return {getGeneList: getGeneList, parseQuery: parseQuery, filter: filter, compileSamples: makeSamples};
 })();

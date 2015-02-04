@@ -86,11 +86,14 @@ $(document).ready(function(){
       event.preventDefault();
       $('#cancer_results').toggle();
     });
-
+    
     //  Set up an Event Handler to intercept form submission
     $("#main_form").submit(function() {
-       return chooseAction();
+	    return false;
+       //return chooseAction();
     });
+    
+    $("#main_form").find("#main_submit").click(doOQLQuery);
 
     //  Set up an Event Handler for the Query / Data Download Tabs
     $("#query_tab").click(function(event) {
@@ -285,6 +288,27 @@ function reviewCurrentSelections(){
    }
 }
 
+function doOQLQuery() {
+	var genes = oql.getGeneList($("#gene_list").val());
+	var profiles = $.map($("#genomic_profiles").find("input[type=checkbox]:checked,input[type=radio]:checked"), function(elt) { return $(elt).attr('value');});
+	
+	var profilePromise = new $.Deferred();
+	var genePromise = new $.Deferred();
+	dataman.getProfilesByStableId(profiles).then(function(data) {
+		profiles = data.map(function(x) { return x.internal_id; });
+		profilePromise.resolve();
+	});
+	dataman.getGenesByHugoGeneSymbol(genes).then(function(data) {
+		genes = data.map(function(x) { return x.entrezGeneId; })
+		genePromise.resolve();
+	});
+	$.when(profilePromise, genePromise).then(function() {
+		dataman.getAllProfileData(genes, profiles).then(function(data) {
+			console.log(data);
+		});
+	});
+	
+}
 //  Determine whether to submit a cross-cancer query or
 //  a study-specific query
 function chooseAction() {

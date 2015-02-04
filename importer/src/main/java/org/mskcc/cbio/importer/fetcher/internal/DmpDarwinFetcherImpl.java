@@ -53,7 +53,7 @@ public class DmpDarwinFetcherImpl implements Fetcher
     }
     
     @Override
-    public void fetch(String dataSource, String desiredRunDate, boolean sendNotification) 
+    public void fetch(String dataSource, String desiredRunDate) 
             throws Exception {
         
         if (LOG.isInfoEnabled()) {

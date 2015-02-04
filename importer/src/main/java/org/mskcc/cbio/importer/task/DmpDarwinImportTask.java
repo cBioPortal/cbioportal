@@ -55,7 +55,7 @@ public class DmpDarwinImportTask extends AbstractScheduledService {
     protected void runOneIteration() throws Exception {
         logger.info("The DMP Web service fetcher application will now check for new/revised DMP " +
                 "& Darwin data");
-        this.fetcher.fetch(this.dataSource, "",false);
+        this.fetcher.fetch(this.dataSource, "");
 
     }
 

@@ -17,10 +17,10 @@ var scatterPlots = (function() {
                     range_min: 520,
                     range_max: 20,
                     orient: "left",
-                    title_x: -240,
+                    title_x: -280,
                     title_y: 55,
                     help_x: 135,
-                    help_y: 125
+                    help_y: 145
                 }
             }
         },
@@ -677,7 +677,7 @@ var scatterPlots = (function() {
         
         //append help icon (mouseover)
         var _pos_x = (axis==="x")? (settings.axis.x.title_x + _name.length / 2 * 8 + 5): (settings.axis.y.title_y - 11);
-        var _pos_y = (axis==="x")? (settings.axis.x.title_y - 12): (settings.axis.y.title_x + 455 - _name.length / 2 * 8 );
+        var _pos_y = (axis==="x")? (settings.axis.x.title_y - 12): (settings.axis.y.title_x + 535 - _name.length / 2 * 8 );
         elem.axisTitleGroup.append("svg:image")
             .attr("xlink:href", "images/help.png")
             .attr("class", d3_class[axis].title_help)

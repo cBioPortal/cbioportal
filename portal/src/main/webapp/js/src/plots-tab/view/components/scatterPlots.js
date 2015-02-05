@@ -114,24 +114,24 @@ var scatterPlots = (function() {
                         _text_set.push(gisticInterpreter.convert_to_val(obj[_attr_name]));
                     }
                 });
-                discretized_axis(_text_set);
+                discretized_axis(_text_set, false);
             } else {
-                continuous_axis();
+                continuous_axis(false);
             }
         } else {
             if ($("#" + ids.sidebar[axis].data_type).val() === vals.data_type.clin) {
                 var _type = metaData.getClinicalAttrType($("#" + ids.sidebar[axis].clin_attr).val());
                 if (_type === "STRING") {
-                    discretized_axis(clinical_data_interpreter.get_text_labels(axis));
+                    discretized_axis(clinical_data_interpreter.get_text_labels(axis), true);
                 } else if (_type === "NUMBER") {
-                    continuous_axis();
+                    continuous_axis(true);
                 }
             } else {
-                continuous_axis();
+                continuous_axis(false);
             }
         }
         
-        function discretized_axis(_text_set) {
+        function discretized_axis(_text_set, _rotate_flag) {
              elem.svg.append("g")
                 .style("stroke-width", 1.5)
                 .style("fill", "none")
@@ -147,7 +147,36 @@ var scatterPlots = (function() {
                 .style("stroke-width", 0.5)
                 .style("stroke", "black")
                 .style("fill", "black")
-                .text(function(d){return d;});
+                .attr("transform", function(d) {
+                    if (_rotate_flag) {
+                        return "rotate(-10)"; 
+                    }
+                })
+                .attr("class", function(d) {
+                    if (d.length > 8) return "trimmed_label";
+                    else return "axis_label";
+                })
+                .text(function(d) {
+                    if (_rotate_flag) {
+                        if (d.length > 8) {
+
+                            //only display partial labels
+                            return d.substring(0, 8) + "...";   
+                        } 
+                        else return d;
+                    } else return d;
+                });
+                elem.svg.selectAll(".trimmed_label").each(function(d) {
+                    $(this).qtip(
+                        {
+                            content: {text: "<font size=2>" + d + "</font>" },
+                            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+                            show: {event: "mouseover"},
+                            hide: {fixed:true, delay: 100, event: "mouseout"},
+                            position: {my:'left bottom',at:'top right', viewport: $(window)}
+                        }
+                    );
+                });
             elem.svg.append("g")
                 .style("stroke-width", 1.5)
                 .style("fill", "none")
@@ -156,7 +185,7 @@ var scatterPlots = (function() {
                 .attr("transform", "translate(" + bottom_x + ", " + bottom_y + ")")
                 .call(elem[axis].axis.orient(settings.axis[axis].orient).ticks(0));              
         }
-        function continuous_axis() {
+        function continuous_axis(_rotate_flag) {
             elem.svg.append("g")
                 .style("stroke-width", 1.5)
                 .style("fill", "none")
@@ -170,7 +199,12 @@ var scatterPlots = (function() {
                 .style("font-size", "12px")
                 .style("stroke-width", 0.5)
                 .style("stroke", "black")
-                .style("fill", "black");
+                .style("fill", "black")
+                .attr("transform", function(d) {
+                    if (_rotate_flag) {
+                        return "rotate(-10)"; 
+                    }
+                });
             elem.svg.append("g")
                 .style("stroke-width", 1.5)
                 .style("fill", "none")
@@ -507,7 +541,7 @@ var scatterPlots = (function() {
                     if (_axis === "x") {
                         d3.select("#" + ids.main_view.div).select("." + d3_class[_axis].title_help).attr("x", parseInt(_pre_x) - 15);
                     } else if (_axis === "y") {
-                         d3.select("#" + ids.main_view.div).select("." + d3_class[_axis].title_help).attr("y", parseInt(_pre_y) + 15);
+                        d3.select("#" + ids.main_view.div).select("." + d3_class[_axis].title_help).attr("y", parseInt(_pre_y) + 15);
                     }                    
                 }
             }
@@ -864,6 +898,8 @@ var scatterPlots = (function() {
                     gene_y : tmpGeneYcoExpStr
                 };
                 $.post("calcCoExp.do", paramsCalcCoexp, getCalcCoExpCallBack, "json");
+            } else {
+                render();
             }
             
             function getCalcCoExpCallBack(result) {
@@ -871,8 +907,10 @@ var scatterPlots = (function() {
                 var tmpArrCoexpScores = result.split(" ");
                 scores.pearson = parseFloat(tmpArrCoexpScores[0]).toFixed(3);
                 scores.spearman = parseFloat(tmpArrCoexpScores[1]).toFixed(3);
-
-                //rendering
+                render();
+            }
+            
+            function render() {
                 $("#" + _div).empty();
                 initCanvas(div);
                 initAxis("x");
@@ -883,11 +921,10 @@ var scatterPlots = (function() {
                     boxPlots.init(data, plotsData.stat(), _box_plots_axis, elem);
                 }
                 drawDots(_apply_box_plots, _box_plots_axis);
-
                 applyMouseover();
                 appendTitle("x");
                 appendTitle("y");
-                appendGlyphs();
+                appendGlyphs();  
             }
 
         },

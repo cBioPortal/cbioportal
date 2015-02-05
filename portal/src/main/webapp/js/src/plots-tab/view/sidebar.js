@@ -5,8 +5,9 @@ var sidebar = (function() {
         profileSpec.init("y");
         optSpec.init();
         //reset the default value of x: default is always x copy num, y mrna
-        //document.getElementById(ids.sidebar.x.profile_type).selectedIndex = "1";
-        //profileSpec.updateProfileNameList("x");
+        document.getElementById(ids.sidebar.x.profile_type).selectedIndex = "1";
+        profileSpec.updateProfileNameList("x");
+        regenerate_plots("x");
     };
     
     var listener = function() {

@@ -80,6 +80,29 @@ var profileSpec = (function() {
         
     }
     
+    function updateProfileNameList(axis) {
+        $("#" + ids.sidebar[axis].profile_name).empty();
+        append();
+        
+        function append() {
+            $.each(metaData.getGeneticProfilesMeta($("#" + ids.sidebar[axis].gene).val()), function(index, obj) {
+                if (obj.type === $("#" + ids.sidebar[axis].profile_type).val()) {
+                    $("#" + ids.sidebar[axis].profile_name).append(
+                            "<option value='" + obj.id + "'>" + obj.name + "</option>");
+                }
+            });
+
+        };
+        $("#" + ids.sidebar[axis].profile_type).change(function() {
+            $("#" + ids.sidebar[axis].profile_name).empty();
+            append();
+        });
+        
+        $("#" + ids.sidebar[axis].profile_name).change(function() {
+            regenerate_plots(axis);
+        });
+    }
+    
     function appendLogScaleOption (axis) {
  
         $("#" + ids.sidebar[axis].spec_div).append("<div id='" + ids.sidebar[axis].log_scale + "-div'></div>");
@@ -145,6 +168,7 @@ var profileSpec = (function() {
             appendLogScaleOption(axis);
             appendLockGene();
         },
-        appendLockGene: appendLockGene
+        appendLockGene: appendLockGene,
+        updateProfileNameList: updateProfileNameList
     };
 }());

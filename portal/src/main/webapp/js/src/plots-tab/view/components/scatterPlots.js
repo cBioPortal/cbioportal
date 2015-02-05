@@ -159,7 +159,6 @@ var scatterPlots = (function() {
                 .text(function(d) {
                     if (_rotate_flag) {
                         if (d.length > 8) {
-
                             //only display partial labels
                             return d.substring(0, 8) + "...";   
                         } 

@@ -54,6 +54,7 @@ public class DmpSnpTransformer extends MutationTransformer implements DMPDataTra
 
     private final static Logger logger = Logger.getLogger(DmpSnpTransformer.class);
     private static final Boolean DEFAULT_DELETE_FILE_FLAG = false;
+    private static final String DMP_SAMPLE_ID_COLUMN_NAME = "Tumor_Sample_Barcode";
 
     /*
     new constructor to use simplified file handler code
@@ -62,7 +63,6 @@ public class DmpSnpTransformer extends MutationTransformer implements DMPDataTra
         super(stagingFileDirectory.resolve(StagingCommonNames.MUTATIONS_STAGING_FILENAME),DEFAULT_DELETE_FILE_FLAG);
 
     }
-
 
     public DmpSnpTransformer(TsvStagingFileHandler aHandler,Path stagingFileDirectory) {
         super(aHandler);
@@ -79,7 +79,10 @@ public class DmpSnpTransformer extends MutationTransformer implements DMPDataTra
     public void transform(DmpData data) {
         Preconditions.checkArgument(null != data, "A DmpData object is required");
         // process any deprecated samples
-        DmpUtils.removeDeprecatedSamples(data,this.tsvFileHandler,"Tumor_Sample_Barcode");
+        // preprocess exsiting staging file to create a list of sample ids as the first row and to
+        // remove any deprecated samples
+       //   DmpUtils.removeDeprecatedSamples(data,this.tsvFileHandler,DMP_SAMPLE_ID_COLUMN_NAME);
+        this.tsvFileHandler.preprocessExistingStagingFileWithSampleList(data,DMP_SAMPLE_ID_COLUMN_NAME);
         // convert DmpSnp objects to DmpSnpModel objects and output to staging file
         this.tsvFileHandler.transformImportDataToTsvStagingFile(this.resolveDmpMutations(data),
                 MutationModel.getTransformationFunction());
@@ -129,7 +132,7 @@ public class DmpSnpTransformer extends MutationTransformer implements DMPDataTra
         DmpSnpTransformer transformer = new DmpSnpTransformer(stagingFileDirectory);
 
         try {
-            DmpData data = OBJECT_MAPPER.readValue(new File("/tmp/cvr/dmp/result.json"), DmpData.class);
+            DmpData data = OBJECT_MAPPER.readValue(new File("/tmp/dmp_ws.json"), DmpData.class);
             transformer.transform(data);
 
         } catch (IOException ex) {

@@ -93,8 +93,6 @@ public interface StagingCommonNames {
     public static final String DMP_COMMENT_MARKER = "#";
     public static final String DMP_STAGING_FILE_COMMENT = "#sequenced_samples:";
 
-
-
     // length of human chromosomes
     // http://www.ncbi.nlm.nih.gov/projects/genome/assembly/grc/human/data/
     public static final ImmutableMap<String, Long> chromosomeLengthMap = new ImmutableMap.Builder<String, Long>()

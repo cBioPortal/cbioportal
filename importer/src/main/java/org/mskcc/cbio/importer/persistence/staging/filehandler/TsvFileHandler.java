@@ -19,6 +19,7 @@ package org.mskcc.cbio.importer.persistence.staging.filehandler;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Table;
+import org.mskcc.cbio.importer.cvr.dmp.model.DmpData;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -62,5 +63,13 @@ public interface TsvFileHandler {
      */
 
     public void persistCnvTable(Table<String, String, String> cnvTable);
+
+
+    /*
+    method to preprocces a satging file that requires a list of sample ids as
+    a comment at the top of the file
+     */
+    public void preprocessExistingStagingFileWithSampleList(
+            DmpData data, final String sampleColumnName);
 
 }

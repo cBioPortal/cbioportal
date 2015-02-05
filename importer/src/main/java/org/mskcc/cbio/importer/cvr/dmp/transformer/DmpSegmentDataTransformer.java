@@ -7,6 +7,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.FluentIterable;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.cvr.dmp.model.DmpData;
+import org.mskcc.cbio.importer.cvr.dmp.model.MetaData;
 import org.mskcc.cbio.importer.cvr.dmp.model.Result;
 import org.mskcc.cbio.importer.cvr.dmp.model.SegmentDatum;
 import org.mskcc.cbio.importer.cvr.dmp.util.DMPCommonNames;
@@ -53,7 +54,8 @@ class DmpSegmentDataTransformer extends SegmentTransformer implements DMPDataTra
      */
 
     private final static Logger logger = Logger.getLogger(DmpSegmentDataTransformer.class);
-    private final static CancerStudyMetadata csMeta = CancerStudyMetadata.findCancerStudyMetaDataByStableId(StagingCommonNames.IMPACT_STUDY_IDENTIFIER).get();
+    private final static CancerStudyMetadata csMeta =
+            CancerStudyMetadata.findCancerStudyMetaDataByStableId(StagingCommonNames.IMPACT_STUDY_IDENTIFIER).get();
     private static final Boolean DELETE_FILE_FLAG = false;
     private static final String SAMPLE_ID_COLUMN = "ID";
 
@@ -70,7 +72,7 @@ class DmpSegmentDataTransformer extends SegmentTransformer implements DMPDataTra
                 this.registerStagingFileDirectory(csMetaOpt.get(), stagingDirectoryPath);
             } else {
                // this.registerStagingFileDirectory(stagingDirectoryPath);
-                logger.error("Missing Cancer study metadat object");
+                logger.error("Missing Cancer study metadata object");
             }
         }
     }
@@ -92,6 +94,10 @@ class DmpSegmentDataTransformer extends SegmentTransformer implements DMPDataTra
             @Nullable
             @Override
             public List<SegmentDatum> apply(@Nullable Result result) {
+                String sampleId= result.getMetaData().getDmpSampleId();
+                for (SegmentDatum sd  : result.getSegmentData()){
+                    sd.setID(sampleId);
+                }
                 return result.getSegmentData();
             }
         })
@@ -99,6 +105,7 @@ class DmpSegmentDataTransformer extends SegmentTransformer implements DMPDataTra
                     @Nullable
                     @Override
                     public SegmentModel apply(@Nullable SegmentDatum segmentData) {
+
                         return new DmpSegmentModel(segmentData);
                     }
                 }).toList();
@@ -119,7 +126,7 @@ class DmpSegmentDataTransformer extends SegmentTransformer implements DMPDataTra
         DmpSegmentDataTransformer transformer = new DmpSegmentDataTransformer(stagingFileDirectory);
 
         try {
-            DmpData data = OBJECT_MAPPER.readValue(new File("/tmp/cvr/dmp/result.json"), DmpData.class);
+            DmpData data = OBJECT_MAPPER.readValue(new File("/tmp/dmp_ws.json"), DmpData.class);
             transformer.transform(data);
 
         } catch (IOException ex) {

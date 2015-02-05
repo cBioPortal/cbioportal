@@ -155,6 +155,8 @@ public class TsvFileHandlerImpl implements TsvFileHandler{
     8. Overwite the existing staging file with the contents of the temporary file
 
      */
+
+    @Override
     public void preprocessExistingStagingFileWithSampleList(
         DmpData data, final String sampleColumnName) {
         Preconditions.checkArgument(null != data, "DMP sample data is required");
@@ -181,27 +183,8 @@ public class TsvFileHandlerImpl implements TsvFileHandler{
                     CSVFormat.TDF.withHeader().withCommentMarker('#'));
             String comment = formatSampleListAsCommentList(allSampleSet);
             String headings = StagingCommonNames.tabJoiner.join(parser.getHeaderMap().keySet());
-            // filter persisted sample ids that are also in the current data input
-            List<String> filteredSamples = FluentIterable.from(parser)
-                    .filter(new Predicate<CSVRecord>() {
-                        @Override
-                        public boolean apply(CSVRecord record) {
-                            String sampleId = record.get(sampleColumnName);
-                            if (!Strings.isNullOrEmpty(sampleId) && !deprecatedSamples.contains(sampleId)) {
-                                return true;
-                            }
-                            return false;
-                        }
-                    }).transform(new Function<CSVRecord, String>() {
-                        @Override
-                        public String apply(CSVRecord record) {
+            List<String> filteredSamples = FilterOutDeprecatedSamples(sampleColumnName, deprecatedSamples, parser);
 
-                            return StagingCommonNames
-                                    .tabJoiner
-                                    .join(Lists.newArrayList(record.iterator()));
-                        }
-                    })
-                    .toList();
 
             // write the filtered data to the original staging file
             // comment
@@ -226,8 +209,38 @@ public class TsvFileHandlerImpl implements TsvFileHandler{
 
     }
 
+    /*
+    private method to remove samples from an existing staging file that being replaced by an input dataset
+     */
+    private List<String> FilterOutDeprecatedSamples(final String sampleColumnName, final Set<String> deprecatedSamples, CSVParser parser) {
+        // filter persisted sample ids that are also in the current data input
+        return FluentIterable.from(parser)
+                .filter(new Predicate<CSVRecord>() {
+                    @Override
+                    public boolean apply(CSVRecord record) {
+                        String sampleId = record.get(sampleColumnName);
+                        if (!Strings.isNullOrEmpty(sampleId) && !deprecatedSamples.contains(sampleId)) {
+                            return true;
+                        }
+                        return false;
+                    }
+                }).transform(new Function<CSVRecord, String>() {
+                    @Override
+                    public String apply(CSVRecord record) {
+
+                        return StagingCommonNames
+                                .tabJoiner
+                                .join(Lists.newArrayList(record.iterator()));
+                    }
+                })
+                .toList();
+    }
+
     private String formatSampleListAsCommentList(Set<String> sampleSet){
-        return StagingCommonNames.blankJoiner.join(StagingCommonNames.DMP_STAGING_FILE_COMMENT,sampleSet);
+        StringBuffer sb = new StringBuffer(StagingCommonNames.DMP_STAGING_FILE_COMMENT)
+                .append(" ")
+                .append(StagingCommonNames.blankJoiner.join(sampleSet));
+        return  sb.toString();
     }
 
     //generate a Set of existing samples
@@ -278,30 +291,13 @@ public class TsvFileHandlerImpl implements TsvFileHandler{
                 Files.deleteIfExists(tempFilePath);
                 Files.move(this.stagingFilePath, tempFilePath);
                 logger.info(" processing " + tempFilePath.toString());
+                // delete the original file
+                Files.delete(this.stagingFilePath);
                 final CSVParser parser = new CSVParser(new FileReader(tempFilePath.toFile()),
                         CSVFormat.TDF.withHeader());
                 String headings = StagingCommonNames.tabJoiner.join(parser.getHeaderMap().keySet());
                 // filter persisted sample ids that are also in the current data input
-                List<String> filteredSamples = FluentIterable.from(parser)
-                        .filter(new Predicate<CSVRecord>() {
-                            @Override
-                            public boolean apply(CSVRecord record) {
-                                String sampleId = record.get(sampleIdColumnName);
-                                if (!Strings.isNullOrEmpty(sampleId) && !deprecatedSampleSet.contains(sampleId)) {
-                                    return true;
-                                }
-                                return false;
-                            }
-                        }).transform(new Function<CSVRecord, String>() {
-                            @Override
-                            public String apply(CSVRecord record) {
-
-                                return StagingCommonNames
-                                        .tabJoiner
-                                        .join(Lists.newArrayList(record.iterator()));
-                            }
-                        })
-                        .toList();
+                List<String> filteredSamples = FilterOutDeprecatedSamples(sampleIdColumnName, deprecatedSampleSet, parser);
 
                 // write the filtered data to the original staging file
                 // column headings
@@ -403,7 +399,6 @@ public class TsvFileHandlerImpl implements TsvFileHandler{
      */
 
     @Override
-
 
     public void persistCnvTable(Table<String, String, String> cnvTable) {
         com.google.inject.internal.Preconditions.checkArgument(null != cnvTable, "A Table of CNV data is required");

@@ -14,7 +14,12 @@ var heat_map = (function() {
                 min: 0,
                 max: 0
             }
+        },
+        settings = {
+            max_x_title_length: 70,
+            max_y_title_length: 30
         };
+        
     
     function process_data(_raw_data) {
         var datum = {
@@ -162,24 +167,61 @@ var heat_map = (function() {
         var _y_id = elt_x.options[elt_y.selectedIndex].value;
         var _x_description = metaData.getClinicalAttrDescription(_x_id);
         var _y_description = metaData.getClinicalAttrDescription(_y_id);
+        //trim titles that are too long
+        var _x_text_trimmed = (_x_text.length > settings.max_x_title_length)? (_x_text.substring(0, settings.max_x_title_length) + "..."): _x_text;
+        var _y_text_trimmed = (_y_text.length > settings.max_y_title_length)? (_y_text.substring(0, settings.max_y_title_length) + "..."): _y_text;
+        //append titles
         svg.append("text")
                 .attr("x", edge_left + 20)
                 .attr("y", parseInt(stat.y.max) * h + h + 23 + edge_top)
-                .text(_x_text)
+                .text(_x_text_trimmed)
+                .attr("class", "x_title")
                 .attr("font-family", "sans-serif")
                 .attr("font-size", "12px")
                 .attr("fill","black");
         svg.append("text")
-                .text(_y_text.substring(0, 100))
+                .text(_y_text_trimmed)
+                .attr("class", "y_title")
                 .attr("font-family", "sans-serif")
                 .attr("font-size", "12px")
                 .attr("fill","black")
                 .attr("dy", ".35em")
                 .attr("text-anchor", "start")
                 .attr("transform", function(d) {
-                    return "translate(" + (edge_left - 20) + " ," + (parseInt(stat.y.max) * h + h + edge_top) + ") rotate(-90)";
+                    return "translate(" + (edge_left - 20) + " ," + (parseInt(stat.y.max) * h + h + edge_top - 15) + ") rotate(-90)";
                 });
-        
+        //append mouse-over if the titles are trimmed
+        if (_x_text.length > settings.max_x_title_length) {
+                svg.select(".x_title").each(
+                    function() {
+                        $(this).qtip(
+                            {
+                                content: {text: "<font size=2>" +  _x_text + "</font>" },
+                                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+                                show: {event: "mouseover"},
+                                hide: {fixed:true, delay: 100, event: "mouseout"},
+                                position: {my:'left top',at:'bottom right', viewport: $(window)}
+                            }
+                        );
+                    }
+                );     
+        }
+        if (_y_text.length > settings.max_y_title_length) {
+            svg.select(".y_title").each(
+                function() {
+                    $(this).qtip(
+                        {
+                            content: {text: "<font size=2>" +  _y_text + "</font>" },
+                            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+                            show: {event: "mouseover"},
+                            hide: {fixed:true, delay: 100, event: "mouseout"},
+                            position: {my:'left top',at:'bottom right', viewport: $(window)}
+                        }
+                    );
+                }
+            );     
+        }
+        //append help icon
         svg.append("svg:image")
             .attr("xlink:href", "images/help.png")
             .attr("class", "x_help")
@@ -190,8 +232,8 @@ var heat_map = (function() {
         svg.append("svg:image")
             .attr("xlink:href", "images/help.png")
             .attr("class", "y_help")
-            .attr("x", 100)
-            .attr("y", parseInt(stat.y.max) * h + 123)
+            .attr("x", (edge_left - 28))
+            .attr("y", parseInt(stat.y.max) * h + h + edge_top - 10)
             .attr("width", "16")
             .attr("height", "16");
 
@@ -216,7 +258,7 @@ var heat_map = (function() {
                         style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                         show: {event: "mouseover"},
                         hide: {fixed:true, delay: 100, event: "mouseout"},
-                        position: {my:'left bottom',at:'top right', viewport: $(window)}
+                        position: {my:'right bottom',at:'top left', viewport: $(window)}
                     }
                 );
             }

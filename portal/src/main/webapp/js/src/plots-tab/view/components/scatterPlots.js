@@ -43,7 +43,12 @@ var scatterPlots = (function() {
         glyphs = [],
         stat = {
             applied_box_plots: false,
-            box_plots_axis: ""
+            box_plots_axis: "",
+            apply_co_exp: false
+        },
+        scores = {
+            pearson: 0,
+            spearman: 0
         };
     
     function initCanvas() {
@@ -693,6 +698,24 @@ var scatterPlots = (function() {
                 .attr("dy", ".35em")
                 .style("text-anchor", "front")
                 .text(function(d){return d.legendText;});
+        
+        //co-expression scores
+        if (stat.apply_co_exp) {
+            var coExpLegend = elem.svg.selectAll(".coexp_legend")
+                .data(["Correlation", "Pearson: " + scores.pearson, "Spearman: " + scores.spearman])
+                .enter().append("g")
+                .attr("class", "coexp_legend")
+                .attr("transform", function(d, i) {
+                    return "translate(620, " + (100 + i * 15) + ")";
+                });
+                coExpLegend.append("text")
+                        .attr("dx", ".75em")
+                        .attr("dy", ".35em")
+                        .style("text-anchor", "front")
+                        .text(function(d) {
+                            return d;
+                        });
+        }
     }
     
     function applyMouseover() {
@@ -812,11 +835,12 @@ var scatterPlots = (function() {
     }
     
     return {
-        init: function(_div, _data, _apply_box_plots, _box_plots_axis) {
+        init: function(_div, _data, _apply_box_plots, _box_plots_axis, _calculate_co_exp) {
             
             div = _div;
             stat.applied_box_plots = _apply_box_plots;
             stat.box_plots_axis = _box_plots_axis;
+            stat.apply_co_exp = _calculate_co_exp;
             
             data = [];
             glyphs = [];
@@ -828,22 +852,44 @@ var scatterPlots = (function() {
                 data.push(_data[key]);
             }
             
-            $("#" + _div).empty();
-            //rendering
-            initCanvas(div);
-            initAxis("x");
-            initAxis("y");
-            drawAxis("x");
-            drawAxis("y");
-            if (_apply_box_plots) {
-                boxPlots.init(data, plotsData.stat(), _box_plots_axis, elem);
+            if (_calculate_co_exp) {
+                var tmpGeneXcoExpStr = "",
+                    tmpGeneYcoExpStr = "";
+                $.each(data, function(index, obj) {
+                    tmpGeneXcoExpStr += obj.xVal + " ";
+                    tmpGeneYcoExpStr += obj.yVal + " ";
+                });
+                var paramsCalcCoexp = {
+                    gene_x : tmpGeneXcoExpStr,
+                    gene_y : tmpGeneYcoExpStr
+                };
+                $.post("calcCoExp.do", paramsCalcCoexp, getCalcCoExpCallBack, "json");
             }
-            drawDots(_apply_box_plots, _box_plots_axis);
             
-            applyMouseover();
-            appendTitle("x");
-            appendTitle("y");
-            appendGlyphs();
+            function getCalcCoExpCallBack(result) {
+                
+                var tmpArrCoexpScores = result.split(" ");
+                scores.pearson = parseFloat(tmpArrCoexpScores[0]).toFixed(3);
+                scores.spearman = parseFloat(tmpArrCoexpScores[1]).toFixed(3);
+
+                //rendering
+                $("#" + _div).empty();
+                initCanvas(div);
+                initAxis("x");
+                initAxis("y");
+                drawAxis("x");
+                drawAxis("y");
+                if (_apply_box_plots) {
+                    boxPlots.init(data, plotsData.stat(), _box_plots_axis, elem);
+                }
+                drawDots(_apply_box_plots, _box_plots_axis);
+
+                applyMouseover();
+                appendTitle("x");
+                appendTitle("y");
+                appendGlyphs();
+            }
+
         },
         addGlyph: function(obj) {
             glyphs.push(obj);

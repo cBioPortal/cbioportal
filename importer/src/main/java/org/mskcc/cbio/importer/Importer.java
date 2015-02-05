@@ -19,7 +19,7 @@
 package org.mskcc.cbio.importer;
 
 // imports
-import org.mskcc.cbio.importer.model.ReferenceMetadata;
+import org.mskcc.cbio.importer.model.*;
 
 /**
  * Interface used to import portal data.
@@ -36,6 +36,7 @@ public interface Importer {
 	 * @throws Exception
 	 */
 	void importData(String portal, Boolean initPortalDatabase, Boolean initTumorTypes, Boolean importReferenceData) throws Exception;
+	void updateCancerStudy(String portal, CancerStudyMetadata cancerStudyMetadata) throws Exception;
 
 	/**
 	 * Imports the given reference data.

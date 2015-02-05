@@ -189,6 +189,11 @@ public interface Config {
 	 * @return Collection<FoundationMetadata>
 	 */
 	Collection<FoundationMetadata> getFoundationMetadata();
+
+    /**
+     * return the collection of icgc metadata objects
+     */
+    Collection<IcgcMetadata> getIcgcMetadata();
         
    /**
     * Returns a list of cancer study names which incorporate the supplied
@@ -198,4 +203,8 @@ public interface Config {
     * @return 
     */
     List<String> findCancerStudiesBySubstring(String substring);
+
+
+   void updateCancerStudyAttributes(String cancerStudy, Map<String,String> properties);
+   void insertCancerStudyAttributes(Map<String,String> properties);
 }

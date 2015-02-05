@@ -8,6 +8,7 @@
 <html ng-app="menu">
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
 
 <%if(request.getAttribute("tumormap")!=null){%>
 <jsp:include page="css_include_standard.jsp" flush="true" />

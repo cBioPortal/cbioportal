@@ -142,7 +142,7 @@ class FirehoseFetcherImpl implements Fetcher {
 	 * @throws Exception
 	 */
 	@Override
-	public void fetch(String dataSource, String desiredRunDate) throws Exception {
+	public void fetch(String dataSource, String desiredRunDate, boolean sendNotification) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("fetch(), dateSource:runDate: " + dataSource + ":" + desiredRunDate);

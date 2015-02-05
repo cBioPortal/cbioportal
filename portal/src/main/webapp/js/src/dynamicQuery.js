@@ -56,7 +56,7 @@ if(typeof(console) === "undefined" || typeof(console.log) === "undefined")
 
 //  Triggered only when document is ready.
 $(document).ready(function(){
-
+	
      //  Load Portal JSON Meta Data while showing loader image in place of query form
      loadMetaData();
 
@@ -162,9 +162,12 @@ function loadMetaData() {
 
     function loadContent() {
         //  Get Portal JSON Meta Data via JQuery AJAX
+	window.metaDataPromise = $.Deferred();
+
         jQuery.getJSON("portal_meta_data.json?partial_studies=true&partial_genesets=true",function(json){
             //  Store JSON Data in global variable for later use
             window.metaDataJson = json;
+	    window.metaDataPromise.resolve(json);
 
             // Load data of selected study right at the outset before continuing
             $.getJSON("portal_meta_data.json?study_id="+window.cancer_study_id_selected, function(json) {
@@ -695,49 +698,162 @@ function addMetaDataToPage() {
 
     var cancerTypeContainer = $("#select_cancer_type");
 
-    // First create the groups and sort'em
-    var orderedTypes = [];
-    jQuery.each(json.type_of_cancers, function(key, typeStr) {
-        orderedTypes.push({ key: key, name: typeStr });
-    });
-
-    orderedTypes.sort(function(a, b) {
-        return a.name.localeCompare(b.name);
-    });
-    
-    // This is a hack to move the dmp study to the top.
-    orderedTypes.unshift({key:"dmp", name: "MSKCC DMP"});
-    
-    // Then add them in alphanumeric order
-    for(var j=0; j < orderedTypes.length; j ++) {
-        $("<optgroup id='"+ orderedTypes[j].key + "-study-group' label='" + orderedTypes[j].name + "'></optgroup>")
-            .appendTo(cancerTypeContainer);
+    // Construct oncotree
+    var oncotree = {'tissue':{code:'tissue', studies:[], children:[], parent: false, desc_studies_count:0, tissue:''}};
+    var parents = json.parent_type_of_cancers;
+    // First add everything to the tree
+    for (var tumortype in parents) {
+	if (parents.hasOwnProperty(tumortype)) {
+		oncotree[tumortype] = {code:tumortype, studies:[], children:[], parent: false, desc_studies_count: 0, tissue: false};
+	}
     }
-
-    //  Then iterate through all cancer studies and append each to the corresponding group
-    jQuery.each(json.cancer_studies,function(key,cancer_study){
-        //  Append to Cancer Study Pull-Down Menu
-        var addCancerStudy = true;
-
-        //  If the tab index is selected, and this is the all cancer studies option, do not show
-        if (window.tab_index == "tab_download" && key == "all") {
-            addCancerStudy = false;
-        }
-        if (addCancerStudy) {
-            console.log("Adding Cancer Study:  " + cancer_study.name);
-            var newOption = $("<option value='" + key + "' data-description='"+cancer_study.description.replace(/["'\\]/g,"")+"'>" + cancer_study.name + "</option>");
-            if(key == "all") {
-                cancerTypeContainer.prepend(newOption);
-            } else {
-                var type_of_cancer = cancer_study.type_of_cancer;
-                
-                // This is a hack to move the dmp study to the top.
-                if (key.indexOf("_dmp_")>=0) type_of_cancer = "dmp";
-                
-                $("#" + type_of_cancer + "-study-group").append(newOption);
+    // Link parents and insert initial tissue info
+    for (var tumortype in oncotree) {
+	if (oncotree.hasOwnProperty(tumortype) && tumortype !== 'tissue') {
+		oncotree[tumortype].parent = oncotree[parents[tumortype]];
+		oncotree[tumortype].parent.children.push(oncotree[tumortype]);
+		if (parents[tumortype] === "tissue") {
+			oncotree[tumortype].tissue = tumortype;
+		}
+	}
+    }
+    // Insert tissue information in a "union-find" type way
+    for (var elt in oncotree) {
+        if (oncotree.hasOwnProperty(elt) && elt !== 'tissue') {
+            var to_modify = [];
+            var currelt = oncotree[elt];
+            while (!currelt.tissue && currelt.code !== 'tissue') {
+                to_modify.push(currelt);
+                currelt = currelt.parent;
+            }
+            for (var i=0; i<to_modify.length; i++) {
+                to_modify[i].tissue = currelt.tissue;
             }
         }
-    });  //  end 1st for each cancer study loop
+    }
+    // Add studies to tree, and climb up adding one to each level's descendant studies
+    // DMP hack
+    var dmp_studies = [];
+    for (var study in json.cancer_studies) {
+	if (study.indexOf("mskimpact") !== -1) {
+		// DMP hack
+		dmp_studies.push(study);
+	} else if (json.cancer_studies.hasOwnProperty(study) && study !== 'all') { // don't re-add 'all'
+            try {
+                var code = json.cancer_studies[study].type_of_cancer.toLowerCase();
+                oncotree[code].studies.push(study);
+                var node = oncotree[code];
+                while (node) {
+                    node.desc_studies_count += 1;
+                    node = node.parent;
+                }
+            } catch (err) {
+                console.log("Unable to add study");
+                console.log(json.cancer_studies[study]);
+            }
+        }
+    }
+    // Sort dmp by number if there is one in the name
+    dmp_studies.sort(function(a,b) {
+	var matchA = a.match(/\d+/);
+	var matchB = b.match(/\d+/);
+	var numberA = (matchA === null ? NaN : parseInt(a.match(/\d+/)[0], 10));
+	var numberB = (matchB === null ? NaN : parseInt(b.match(/\d+/)[0], 10));
+	if (isNaN(numberA) && isNaN(numberB)) {
+		return a.localeCompare(b);
+	} else if (isNaN(numberA)) {
+		return -1;
+	} else if (isNaN(numberB)) {
+		return 1;
+	} else {
+		return numberA-numberB;
+	}
+    });
+    dmp_studies.reverse();
+    // Sort all the children alphabetically
+    for (var node in oncotree) {
+        if (oncotree.hasOwnProperty(node)) {
+            oncotree[node].children.sort(function(a,b) {
+                try {
+                    return json.type_of_cancers[a.code].localeCompare(json.type_of_cancers[b.code]);
+                } catch(err) {
+                    return a.code.localeCompare(b.code);
+                }
+            });
+            oncotree[node].studies.sort(function(a,b) {
+                return a.localeCompare(b);
+            });
+        }
+    }
+    // First add 'all' study
+    if ('all' in json.cancer_studies) {
+        cancerTypeContainer.prepend($("<option value='all'>"+json.cancer_studies['all'].name+"</option>"));
+    }
+    var margin_inc = 12;
+    var tissue_color = '#7f7f7f';
+    var cancer_color = '#5f5f5f';
+    // Next add the dmps
+    $("<option value='mskcc-dmp-study-group' style='font-weight:bold; margin-left:0px; color:"+tissue_color+";'"
+    + "data-depth='0' data-is-group-header='true' data-tree-id='mskcc-dmp' disabled>MSKCC DMP</option>").appendTo(cancerTypeContainer);
+    for (var i=0; i<dmp_studies.length; i++) {	    
+	    var dmp_study = json.cancer_studies[dmp_studies[i]];
+	$("<option style='margin-left:"+margin_inc+"px' data-depth='1' value='"+dmp_studies[i]+"'"+
+		    " data-description='"+dmp_study.description.replace(/["'\\]/g,"")+"' data-parent='mskcc-dmp'>"+
+		dmp_study.name+"</option>").appendTo(cancerTypeContainer);
+    }
+    // Add groups recursively
+    var addStudyGroups = function(root, depth) {
+        if (root.desc_studies_count === 0) {
+            // don't insert if no study
+            return false;
+        }
+        
+        var margin = margin_inc*(+(depth > 0));
+        var margin_children = margin + margin_inc;
+        
+        
+        var color = (depth === 0 ? tissue_color : cancer_color);
+        
+        var label = json.type_of_cancers[root.code] || root.code;
+	label = label.split("_").map(function(x) { return (x.length > 0 ? x[0].toUpperCase()+x.slice(1) : x);}).join(" "); // capitalize and replace underscores with spaces
+        if (root.code !== "tissue" && !(depth > 0 && root.studies.length === 0)) {
+            // don't insert a group element if A. this is the root of the tree, B. depth > 0 and there are no studies at this level
+            $("<option value='" + root.code + "-study-group'"+
+                    "style='font-weight:bold; margin-left:"+margin+"px; color:"+color+";'"+
+                    "data-depth='"+depth+"' "+
+                    "data-is-group-header='true' "+
+                    "data-tree-id='"+ root.code +"' "
+                    + (root.parent.code === 'tissue' ? "" : "data-parent='"+root.tissue+"' ")
+                    +"disabled>"
+                +label 
+                + "</option>").appendTo(cancerTypeContainer);
+        }
+        // Add all studies
+        for (var i=0; i<root.studies.length; i++) {
+            // jQuery.each(json.cancer_studies,function(key,cancer_study){
+            //  Append to Cancer Study Pull-Down Menu
+	    //  If the tab index is selected, and this is the all cancer studies option, do not show
+            var addCancerStudy = !(window.tab_index === "tab_download" && root.studies[i] === "all");
+
+            if (addCancerStudy) {
+                var key = root.studies[i];
+                var cancer_study = json.cancer_studies[key];
+                console.log("Adding Cancer Study:  " + cancer_study.name);
+                var newOption = $("<option style='margin-left:"+margin_children+"px'"
+                                    +"data-depth='"+(depth+1)
+                                    +"' value='" + key +"'"
+                                    +"data-description='"+cancer_study.description.replace(/["'\\]/g,"")+"' "
+                                    +"data-parent='"+root.code+"' "
+                                    +">" +cancer_study.name + "</option>");
+                cancerTypeContainer.append(newOption);
+            }
+        }
+        // Recur down
+        for (var i=0; i<root.children.length; i++) {
+            addStudyGroups(root.children[i], depth+1);
+        }
+    };
+    addStudyGroups(oncotree["tissue"], -1);
 
     //  Add Gene Sets to Pull-down Menu
     jQuery.each(json.gene_sets,function(key,gene_set){

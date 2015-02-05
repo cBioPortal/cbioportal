@@ -51,8 +51,7 @@ public class MSKCCPortalUserDetailsService implements SAMLUserDetailsService
         Collection<String> toReturn = new ArrayList<String>();
         toReturn.add(appName + ":PUBLIC");
         toReturn.add(appName + ":EXTENDED");
-        toReturn.add(appName + ":MIXED_DMP_MSK-IMPACT_2014");
-        toReturn.add(appName + ":MSK_IMPACT");
+        toReturn.add(appName + ":MSKPUB");
         return toReturn;
     }
 
@@ -109,7 +108,7 @@ public class MSKCCPortalUserDetailsService implements SAMLUserDetailsService
             }
 		}
 		catch (Exception e) {
-            if (userid.endsWith(MSKCC_EMAIL_SUFFIX)) {
+            if (userid.endsWith(MSKCC_EMAIL_SUFFIX) && !GlobalProperties.getAppName().toLowerCase().contains("triage")) {
                 if (log.isDebugEnabled()) {
                     log.debug("loadUserDetails(), granting default authorities for userid: " + userid);
                 }

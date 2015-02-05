@@ -60,20 +60,39 @@ var ClinicalColl = Backbone.Collection.extend({
 var ClinicalMutationColl = Backbone.Collection.extend({
     model: Backbone.Model.extend({}),
     parse: function(response) {
-        this.attributes=function() { return [{attr_id: "mutations", datatype: "NUMBER",description: "Number of mutation", display_name: "Mutations"}]; };   // save the attributes
+        this.attributes=function() { return [{attr_id: "# mutations", datatype: "NUMBER",description: "Number of mutation", display_name: "# mutations"}]; };   // save the attributes
         var result = new Array();
         for (var property in response)
         {
             var tem = new Object();
             tem.attr_val = response[property];
             tem.sample =property;
-            tem.attr_id = "mutations";
+            tem.attr_id = "# mutations";
             result.push(tem);
         }
  
         return result;    // but the data is what is to be model-ed
     },
     url: "mutations.json"
+});
+
+var ClinicalCNAColl = Backbone.Collection.extend({
+    model: Backbone.Model.extend({}),
+    parse: function(response) {
+        this.attributes=function() { return [{attr_id: "FRACTION_GENOME_ALTERED", datatype: "NUMBER",description: "Fraction Genome Altered", display_name: "Fraction Genome Altered"}]; };   // save the attributes
+        var result = new Array();
+        for (var property in response)
+        {
+            var tem = new Object();
+            tem.attr_val = response[property];
+            tem.sample =property;
+            tem.attr_id = "FRACTION_GENOME_ALTERED";
+            result.push(tem);
+        }
+ 
+        return result;    // but the data is what is to be model-ed
+    },
+    url: "cna.json"
 });
 
 var GeneDataColl = Backbone.Collection.extend({

@@ -258,7 +258,7 @@ class ConverterImpl implements Converter {
 			// case lists
 			if (applyCaseLists) {
 				fileUtils.applyOverride(portalMetadata.getOverrideDirectory(), portalMetadata.getStagingDirectory(),
-                                        cancerStudyMetadata, "case_lists", "case_lists");
+                                        cancerStudyMetadata, FileUtils.CASE_LIST_DIRECTORY_NAME, FileUtils.CASE_LIST_DIRECTORY_NAME);
 			}
 		}
 	}

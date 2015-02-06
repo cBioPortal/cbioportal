@@ -222,10 +222,12 @@ temporarily retain this constructor to support legacy client code and testing
         ObjectMapper OBJECT_MAPPER = new ObjectMapper();
         try {
             DMPDataTransformer transformer = new DMPDataTransformer((Paths.get("/tmp/msk-impact")));
-            DMPclinicaldataimporter dmpImporterRetriever = new DMPclinicaldataimporter();
-            DmpData data = OBJECT_MAPPER.readValue(dmpImporterRetriever.getResult(), DmpData.class);
-              logger.info("Results size = " + data.getResults().size());
-            DMPclinicaldataimporter importer =  new  DMPclinicaldataimporter(transformer.transform(data));
+           // DMPclinicaldataimporter dmpImporterRetriever = new DMPclinicaldataimporter();
+            //DmpData data = OBJECT_MAPPER.readValue(dmpImporterRetriever.getResult(), DmpData.class);
+             // logger.info("Results size = " + data.getResults().size());
+           // DMPclinicaldataimporter importer =  new  DMPclinicaldataimporter(transformer.transform(data));
+            DmpData data = OBJECT_MAPPER.readValue(new File("/tmp/dmp_ws.json"), DmpData.class);
+            transformer.transform(data);
 
         } catch (IOException e) {
             e.printStackTrace();

@@ -84,7 +84,7 @@ public class DmpImpactClinicalDataTransformer  implements DMPDataTransformable {
         Path stagingFileDirectory = Paths.get(tempDir);
         DmpImpactClinicalDataTransformer transformer = new DmpImpactClinicalDataTransformer((stagingFileDirectory));
         try {
-            DmpData data = OBJECT_MAPPER.readValue(new File("/tmp/cvr/dmp/result.json"), DmpData.class);
+            DmpData data = OBJECT_MAPPER.readValue(new File("/tmp/dmp_ws.json"), DmpData.class);
             transformer.transform(data);
         } catch (IOException ex) {
             logger.error(ex.getMessage());

@@ -164,7 +164,7 @@ public  enum OncoTreeService {
 
     public static void main  (String...args){
 
-        OncoTreeNode node01 = OncoTreeService.INSTANCE.getNodeByKey("BRCA").get();
+        OncoTreeNode node01 = OncoTreeService.INSTANCE.getNodeByKey("IHCH").get();
         logger.info("Key " +node01.getOncoTreeCode() +" name: " +node01.getOncoTreeName() +" nChilderen = "
             +node01.getChildrenNodeList().size() +" major Cancer type = " +node01.getMajorCancerType());
         // find the children

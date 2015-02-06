@@ -90,7 +90,7 @@ public class DmpFusionTransformer extends FusionTransformer
         if (csMetaOpt.isPresent()) {
             DmpFusionTransformer transformer = new DmpFusionTransformer(stagingFileDirectory, csMetaOpt.get());
             try {
-                DmpData data = OBJECT_MAPPER.readValue(new File("/tmp/cvr/dmp/result-run160.json"), DmpData.class);
+                DmpData data = OBJECT_MAPPER.readValue(new File("/tmp/dmp_ws.json"), DmpData.class);
                 transformer.transform(data);
 
             } catch (IOException ex) {

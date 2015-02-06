@@ -35,12 +35,15 @@ import org.mskcc.cbio.importer.cvr.dmp.model.CnvVariant;
 import org.mskcc.cbio.importer.cvr.dmp.model.DmpData;
 import org.mskcc.cbio.importer.cvr.dmp.model.Result;
 import org.mskcc.cbio.importer.cvr.dmp.util.DMPCommonNames;
+import org.mskcc.cbio.importer.cvr.dmp.util.DmpUtils;
 import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 import org.mskcc.cbio.importer.persistence.staging.cnv.CnvFileHandler;
 import org.mskcc.cbio.importer.persistence.staging.cnv.CnvFileHandlerImpl;
 import org.mskcc.cbio.importer.persistence.staging.cnv.CnvTransformer;
 import scala.Tuple3;
+
+import javax.annotation.Nullable;
 
 /*
  responsible for maintaining the CNV table for DMP data:
@@ -65,6 +68,31 @@ public class DmpCnvTransformer extends CnvTransformer implements DMPDataTransfor
     }
 
     /*
+    Function to convert the gene fold change provided by DMP to a set of discrete String representations
+    for the cbio portal
+     */
+    Function<CnvVariant,String> resolveCopyNumberFunction = new Function<CnvVariant,String>() {
+        @Nullable
+        @Override
+        public String apply(CnvVariant cnv) {
+
+            if (cnv.getCnvClassName().equals(DMPCommonNames.INSIGNIFICANT_CNV_CHANGE)) {
+                return "0";
+            }
+            Double fc = cnv.getGeneFoldChange();
+            if (fc < 0.0) {
+                return "-2";
+            }
+            if (fc > 0.0) {
+                return "2";
+            }
+
+            return "0";
+        }
+    };
+
+
+    /*
     Function to transform attributes from the Result object to a list of tuples containing the cnv gene name, the result sample id,
     and the cnv fold change
     */
@@ -76,7 +104,7 @@ public class DmpCnvTransformer extends CnvTransformer implements DMPDataTransfor
                     .transform(new Function<CnvVariant, Tuple3<String, String, String>>() {
                         @Override
                         public Tuple3<String, String, String> apply(CnvVariant cnv) {
-                            return new Tuple3(cnv.getGeneId(), result.getMetaData().getDmpSampleId(), cnv.getGeneFoldChange().toString());
+                            return new Tuple3(cnv.getGeneId(), result.getMetaData().getDmpSampleId(), resolveCopyNumberFunction.apply(cnv));
                         }
                     }).toList());
 
@@ -131,7 +159,7 @@ public class DmpCnvTransformer extends CnvTransformer implements DMPDataTransfor
         DmpCnvTransformer transformer = new DmpCnvTransformer( new CnvFileHandlerImpl(),
                 stagingFileDirectory);
         try {
-            DmpData data = OBJECT_MAPPER.readValue(new File("/tmp/cvr/dmp/result.json"), DmpData.class);
+            DmpData data = OBJECT_MAPPER.readValue(new File("/tmp/dmp_ws.json"), DmpData.class);
             transformer.transform(data);
 
         } catch (IOException ex) {

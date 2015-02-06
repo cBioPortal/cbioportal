@@ -37,6 +37,8 @@ public interface DMPCommonNames {
     public static final String SEGMENT_ID_COLUMN_NAME = "ID";
     public static final Integer DMP_DATA_STATUS_RETRIEVAL = 11;
     public static final String IS_METASTASTIC_SITE = "1";
+
+    public static final String INSIGNIFICANT_CNV_CHANGE = "NO_SIGNFICANT_GENE_GAIN_OR_LOSS";
   
     
 }

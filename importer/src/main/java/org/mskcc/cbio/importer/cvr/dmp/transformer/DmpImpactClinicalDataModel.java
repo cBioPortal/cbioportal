@@ -52,9 +52,11 @@ public class DmpImpactClinicalDataModel extends ImpactClinicalDataModel {
     @Override
     public String getCancerType() {
 
-        Optional<OncoTreeNode> oncoNodeOpt = OncoTreeService.INSTANCE.getNodeByKey(this.metaData.getTumorTypeCode());
-        if(oncoNodeOpt.isPresent()){
-            return oncoNodeOpt.get().getMajorCancerType();
+        if (!Strings.isNullOrEmpty(this.metaData.getTumorTypeCode())) {
+            Optional<OncoTreeNode> oncoNodeOpt = OncoTreeService.INSTANCE.getNodeByKey(this.metaData.getTumorTypeCode());
+            if(oncoNodeOpt.isPresent()){
+                return oncoNodeOpt.get().getMajorCancerType();
+             }
         }
         return "Unknown";
     }

@@ -756,7 +756,8 @@ define("Oncoprint",
                         }
                         else if (by === 'alphabetical') {
                             state.data = state.data.sort(function(x,y) {
-                                return x.key < y.key;
+//                                return x.key < y.key;
+                                return x.key.localeCompare(y.key);
                             });
                         }
                         else if (by === 'custom') {

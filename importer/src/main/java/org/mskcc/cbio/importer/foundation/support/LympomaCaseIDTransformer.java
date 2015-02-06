@@ -17,8 +17,7 @@
  */
 package org.mskcc.cbio.importer.foundation.support;
 
-import com.google.common.base.Charsets;
-import com.google.common.base.Predicate;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Files;
@@ -55,38 +54,53 @@ public class LympomaCaseIDTransformer {
         Path outputPath = Paths.get("/tmp/foundation/CLINICAL-HEME-COMPLETE-NEW.xml");
         Map<String,String> caseIdMap = Maps.newHashMap();
         String currentCaseId = "XXXXXX";
-        int caseCount=0;
+
         try {
             List<String> lines = Files.readLines(inputPath.toFile(), Charset.defaultCharset());
             for (String line1 : lines){
                 String line = line1.trim();
                 if (line.startsWith(CASE_LINE)) {
-                    caseCount++;
-                    int startPos = line.indexOf(CASE_ATTRIBUTE)+CASE_ATTRIBUTE.length()+1;
-                    logger.info(line);
-                    logger.info("start " +startPos);
-                    if (startPos > 0) {
-                        int stopPos = line.substring(startPos).indexOf('"') +startPos;
-                        logger.info("stop " +stopPos);
-                        currentCaseId = line.substring(startPos,stopPos);
-                        logger.info("start " +startPos +" stop " +stopPos + " case " +currentCaseId);
-                        logger.info("Case count = " +caseCount);
-                    }
+                    currentCaseId = resolveAttributeValue(line, CASE_ATTRIBUTE);
+                    logger.info(currentCaseId);
+                }
+                if (line.startsWith(VARIANT_REPORT_LINE)) {
+                    String testRequest = resolveAttributeValue(line, TEST_REQUEST_ATTRIBUTE);
+                    logger.info("test request " +testRequest);
+                    caseIdMap.put(currentCaseId, testRequest);
+                }
+
+            }
+            List<String>newLines = Lists.newArrayList();
+
+            // reprocess each line and swap values
+            for (String line : lines) {
+                if (line.trim().startsWith(CASE_LINE)) {
+                    currentCaseId = resolveAttributeValue(line.trim(), CASE_ATTRIBUTE);
+                   String line2 =  line.replace(currentCaseId,  caseIdMap.get(currentCaseId));
+                    newLines.add(line2);
+                } else {
+                    newLines.add(line);
                 }
             }
+            java.nio.file.Files.write(outputPath,newLines,Charset.defaultCharset());
+
         } catch (IOException e) {
             logger.error(e.getMessage());
             e.printStackTrace();
         }
 
 
+    }
 
-             //  java.nio.file.Files.write(outPath, newList, Charset.defaultCharset(),
-             //       options);
+    static String resolveAttributeValue(String line, String attributeName) {
+        int startPos = line.indexOf(attributeName)+attributeName.length()+1;
+        if (startPos > 0) {
+            int stopPos = line.substring(startPos).indexOf('"') +startPos;
 
+            return line.substring(startPos,stopPos);
 
-        
-
+        }
+        return "";
     }
 
 }

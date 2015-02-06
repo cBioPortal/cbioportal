@@ -75,10 +75,6 @@ public class DmpCnvTransformer extends CnvTransformer implements DMPDataTransfor
         @Nullable
         @Override
         public String apply(CnvVariant cnv) {
-
-            if (cnv.getCnvClassName().equals(DMPCommonNames.INSIGNIFICANT_CNV_CHANGE)) {
-                return "0";
-            }
             Double fc = cnv.getGeneFoldChange();
             if (fc < 0.0) {
                 return "-2";

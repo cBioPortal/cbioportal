@@ -25,7 +25,8 @@ var ids = {
             div: "plots-sidebar-util-div",
             case_id_search: "case_id_search_keyword",
             mutation_search: "mutation_search_keyword",
-            view_switch: "mutation_details_vs_gistic_view"
+            view_switch: "mutation_details_vs_gistic_view",
+            download_buttons: "download_buttons"
         }
     },
     main_view: {

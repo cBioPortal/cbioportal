@@ -172,6 +172,7 @@ var boxPlots = (function () {
                             .attr("x1", mean)
                             .attr("x2", mean)
                             .attr("stroke-width", 2)
+                            .attr('opacity', opacity)
                             .attr("stroke", color);
                         elem.boxPlots.append("line") 
                             .attr("y1", midLine-30)

@@ -279,6 +279,5 @@ var search_case_id = function() {
     );     
 };
 
-    
 
 

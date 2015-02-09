@@ -27,9 +27,9 @@ dataman = (function () {
                 }
                 // recurse
                 var newhier = hierarchy.slice(1, hierarchy.length);
-                for (var v in buckets) {
+		$.each(buckets, function(v, _) {
                     ret[v] = structureHelper(newhier, buckets[v], injective);
-                }
+                });
             }
             return ret;
         };
@@ -193,6 +193,7 @@ dataman = (function () {
     }
 
     // CACHE VARIABLE DECL/INIT
+    var cbio = cbio_webservice;
     var cache = {meta: {}, data: {}};
     var history = {meta: {}, data: {}};
     var metacalls = ['cancerTypes', 'genes', 'patients', 'samples', 'studies', 'patientLists',

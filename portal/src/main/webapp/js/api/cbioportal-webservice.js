@@ -1,6 +1,6 @@
 // Depends on jquery
 
-cbio = (function() {
+cbio_webservice = (function() {
 	// TODO: handling argument errors?
 
 	// HELPERS

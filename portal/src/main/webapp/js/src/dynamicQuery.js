@@ -294,7 +294,11 @@ function doOQLQuery() {
 	
 	var profilePromise = new $.Deferred();
 	var genePromise = new $.Deferred();
+	var profileTypes = {};
 	dataman.getProfilesByStableId(profiles).then(function(data) {
+		$.each(data, function(ind, obj) {
+			profileTypes[obj.internal_id] = obj.genetic_alteration_type;
+		});
 		profiles = data.map(function(x) { return x.internal_id; });
 		profilePromise.resolve();
 	});
@@ -304,6 +308,7 @@ function doOQLQuery() {
 	});
 	$.when(profilePromise, genePromise).then(function() {
 		dataman.getAllProfileData(genes, profiles).then(function(data) {
+			var oncoprintData = [];
 			console.log(data);
 		});
 	});

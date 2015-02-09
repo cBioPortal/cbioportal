@@ -17,13 +17,13 @@ oql = (function () {
         // isolate gene ids from query
         var splitq = query.split(/[\n;]+/);
         var lines = [];
-        for (var i in splitq) {
+	for (var i=0; i<splitq.length; i++) {
             if ($.trim(splitq[i]) !== "") {
                 lines.push(splitq[i]);
             }
         }
         var genes = [];
-        for (var i in lines) {
+	for (var i=0; i<lines.length; i++) {
             var gene = $.trim(lines[i].split(/[:]/)[0]);
             if (gene !== "") {
                 genes.push(gene);

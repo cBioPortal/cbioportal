@@ -850,21 +850,77 @@ var scatterPlots = (function() {
         elem.dotsGroup.selectAll("path").on("mouseout", mouseOff);
     }
     
-    function append_image_converters() {
-        var pdfConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' target='_blank' " +
-            "onsubmit=\"this.elements['svgelement'].value=loadPlotsSVG();\">" +
-            "<input type='hidden' name='svgelement'>" +
-            "<input type='hidden' name='filetype' value='pdf'>" +
-            "<input type='hidden' name='filename' value='correlation_plot-" + userSelection.gene + ".pdf'>" +
-            "<input type='submit' value='PDF'></form>";
-        $('#view_title').append(pdfConverterForm);
-        var svgConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' target='_blank'" +
-            "onsubmit=\"this.elements['svgelement'].value=loadPlotsSVG();\">" +
-            "<input type='hidden' name='svgelement'>" +
-            "<input type='hidden' name='filetype' value='svg'>" +
-            "<input type='hidden' name='filename' value='correlation_plot-" + userSelection.gene + ".svg'>" +
-            "<input type='submit' value='SVG'></form>";
-        $('#view_title').append(svgConverterForm);
+    function get_tab_delimited_data() {
+        var result_str = "";
+        var elt_x = ($("#" + ids.sidebar.x.data_type).val() === vals.data_type.genetic)? document.getElementById(ids.sidebar.x.profile_name):document.getElementById(ids.sidebar.x.clin_attr);
+        var elt_y = ($("#" + ids.sidebar.y.data_type).val() === vals.data_type.genetic)? document.getElementById(ids.sidebar.y.profile_name):document.getElementById(ids.sidebar.y.clin_attr);
+        var _title_x = ($("#" + ids.sidebar.x.data_type).val() === vals.data_type.genetic)? ($("#" + ids.sidebar.x.gene).val() + ", " + elt_x.options[elt_x.selectedIndex].text): elt_x.options[elt_x.selectedIndex].text;
+        var _title_y = ($("#" + ids.sidebar.y.data_type).val() === vals.data_type.genetic)? ($("#" + ids.sidebar.y.gene).val() + ", " + elt_y.options[elt_y.selectedIndex].text): elt_y.options[elt_y.selectedIndex].text;            
+        //titles
+        if (clinical_vs_clinical()) {
+            result_str += "Sample Id" + "\t" + _title_x + "\t" + _title_y + "\n";
+        } else {
+            result_str += "Sample Id" + "\t" + _title_x + "\t" + _title_y + "\t" + "Mutations" + "\n";
+        }
+        //single rows
+        $.each(data, function(index, _obj) {
+            //case Id
+            var _current_line = _obj.caseId + "\t";
+            //x,y value
+            if (genetic_vs_genetic()) {
+                if (stat.applied_box_plots) {
+                    if (stat.box_plots_axis === "x") {
+                        _current_line += gisticInterpreter.convert_to_val(_obj.xVal) + "\t" + _obj.yVal + "\t";
+                    } else if (stat.box_plots_axis === "y") {
+                        _current_line +=  _obj.xVal + "\t" + gisticInterpreter.convert_to_val(_obj.yVal) + "\t";
+                    }
+                } else {
+                    _current_line += _obj.xVal + "\t" + _obj.yVal + "\t";
+                }                    
+            } else {
+                if (genetic_vs_clinical()) {
+                    if ($("#" + ids.sidebar.x.data_type).val() === vals.data_type.clin) {
+                        var _type = metaData.getClinicalAttrType($("#" + ids.sidebar.x.clin_attr).val());
+                        if (_type === "STRING") {
+                            _current_line += clinical_data_interpreter.convert_to_text(_obj.xVal, "x") + "\t" + _obj.yVal + "\t";
+                        } else if (_type === "NUMBER") {
+                            _current_line += _obj.xVal + "\t" + _obj.yVal + "\t";
+                        }
+                    } else if ($("#" + ids.sidebar.y.data_type).val() === vals.data_type.clin) {
+                        var _type = metaData.getClinicalAttrType($("#" + ids.sidebar.y.clin_attr).val());
+                        if (_type === "STRING") {
+                            _current_line += _obj.xVal + "\t" + clinical_data_interpreter.convert_to_text(_obj.yVal, "y") + "\t";
+                        } else if (_type === "NUMBER") {
+                            _current_line += _obj.xVal + "\t" + _obj.yVal + "\t";
+                        }
+                    }
+                } else if (clinical_vs_clinical()) {
+                    var _type_x = metaData.getClinicalAttrType($("#" + ids.sidebar.x.clin_attr).val());
+                    var _type_y = metaData.getClinicalAttrType($("#" + ids.sidebar.y.clin_attr).val());
+                    var _text_x, _text_y;
+                    if (_type_x === "STRING") {
+                        _text_x = clinical_data_interpreter.convert_to_text(_obj.xVal, "x");
+                    } else _text_x = _obj.xVal;
+                    if (_type_y === "STRING") {
+                        _text_y = clinical_data_interpreter.convert_to_text(_obj.yVal, "y");
+                    } else _text_y = _obj.yVal;
+                    _current_line += _text_x + "\t" + _text_y + "\t";
+                }
+            }
+            //extract mutation details
+            if(!clinical_vs_clinical()) {
+                var _mutation_details = "";
+                if (typeof(_obj.mutation) !== "undefined" && _obj.mutation !== null) {
+                    $.each(Object.keys(_obj.mutation), function(index, gene) {
+                        _mutation_details += gene + ": " + _obj.mutation[gene].details;
+                    });
+                }
+                _current_line += _mutation_details + "\t";
+            } 
+            //assemble overall result string
+            result_str += _current_line + "\n";
+        });
+        return result_str;
     }
     
     return {
@@ -946,7 +1002,8 @@ var scatterPlots = (function() {
             });
             return _result;
         },
-        log_scale: log_scale
+        log_scale: log_scale,
+        get_tab_delimited_data: get_tab_delimited_data
     };
-    
+
 }());

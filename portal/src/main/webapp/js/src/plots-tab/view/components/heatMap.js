@@ -1,6 +1,7 @@
 var heat_map = (function() {
     
-    var data = [],
+    var raw_data = {};
+        data = [],
         stat = {
             x: {
                 min: "0",
@@ -268,6 +269,8 @@ var heat_map = (function() {
     return {
         init: function(_div, _data) {
             
+            raw_data = _data;
+            
             data = [];
             data.length = 0;
             stat.x.min = "0";
@@ -279,6 +282,32 @@ var heat_map = (function() {
             
             process_data(_data);
             render(_div);
+        },
+        get_tab_delimited_data: function() {
+            var elt_x = document.getElementById(ids.sidebar.x.clin_attr);
+            var elt_y = document.getElementById(ids.sidebar.y.clin_attr);
+            var _title_x = elt_x.options[elt_x.selectedIndex].text;
+            var _title_y = elt_y.options[elt_y.selectedIndex].text;            
+            var result_str = "Sample Id" + "\t" + _title_x + "\t" + _title_y + "\n";
+            for(var key in raw_data) {
+                var _obj = raw_data[key];
+                //case Id
+                var _current_line = _obj.caseId + "\t";
+                //x,y value
+                var _type_x = metaData.getClinicalAttrType($("#" + ids.sidebar.x.clin_attr).val());
+                var _type_y = metaData.getClinicalAttrType($("#" + ids.sidebar.y.clin_attr).val());
+                var _text_x, _text_y;
+                if (_type_x === "STRING") {
+                    _text_x = clinical_data_interpreter.convert_to_text(_obj.xVal, "x");
+                } else _text_x = _obj.xVal;
+                if (_type_y === "STRING") {
+                    _text_y = clinical_data_interpreter.convert_to_text(_obj.yVal, "y");
+                } else _text_y = _obj.yVal;
+                _current_line += _text_x + "\t" + _text_y + "\t";
+                //assemble overall result string
+                result_str += _current_line + "\n";
+            }
+            return result_str;
         }
     };
     

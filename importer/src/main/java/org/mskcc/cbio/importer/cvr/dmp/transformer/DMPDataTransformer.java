@@ -59,10 +59,9 @@ public class DMPDataTransformer {
     private  DMPTumorTypeSampleMapManager tumorTypeMap;
     private  Path stagingDirectoryPath;
     private static final String DATA_SOURCE_NAME = "dmp-clinical-data-darwin";
-    public static final String STABLE_ID = "mskimpact-new";
+    public static final String STABLE_ID = "mskimpact_triage";
     private static final Path DEFAULT_BASE_PATH = Paths.get("/tmp/dmp-staging");
     private static CancerStudyMetadata csMeta;
-
 
     static {
         Optional<CancerStudyMetadata> csMetaOpt = CancerStudyMetadata.findCancerStudyMetaDataByStableId(STABLE_ID);

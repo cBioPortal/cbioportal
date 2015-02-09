@@ -82,7 +82,6 @@ public class DmpCnvTransformer extends CnvTransformer implements DMPDataTransfor
             if (fc > 0.0) {
                 return "2";
             }
-
             return "0";
         }
     };
@@ -116,8 +115,10 @@ public class DmpCnvTransformer extends CnvTransformer implements DMPDataTransfor
         for (Tuple3<String, String, String> cnv : cnvList) {
             this.registerCnv(cnv._1(), cnv._2(), cnv._3().toString());
         }
+        // mod 09Feb2015 - ensure that dmp samples w/o cnvs are included in the table
+        this.completeTableSampleSet(DmpUtils.resolveSampleIDsInInputData(data));
         // persist results to staging file
-        super.persistCnvData();
+        this.persistCnvData();
     }
     /*
     private method to reset CNA data for deprecated samples from table

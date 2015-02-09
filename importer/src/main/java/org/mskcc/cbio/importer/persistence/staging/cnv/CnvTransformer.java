@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.model.CancerStudyMetadata;
@@ -138,6 +139,33 @@ public abstract class CnvTransformer {
 
         }
     }
+
+    /*
+    method to ensure that all know samples in a study are included in the cnv table
+    this is to ensure that samples without copy number variants are represented.
+    this method should be invoked prior to persisting the cnv table to disk
+     */
+    protected void completeTableSampleSet(Set <String>currentSampleSet){
+
+        Preconditions.checkArgument(!currentSampleSet.isEmpty(),
+                "A current sample set is required ");
+        Set<String> tableSampleSet = this.cnaTable.columnKeySet();
+        Sets.SetView<String> missingSampleSet = Sets.difference(currentSampleSet,tableSampleSet);
+        if(missingSampleSet.size() > 0 ) {
+            logger.info("There are " + missingSampleSet.size() + " samples without CNVs that must be added to the table");
+            Set<String> geneSet = this.cnaTable.rowKeySet();
+            for (String gene : geneSet) {
+                for (String sample : missingSampleSet) {
+                    this.cnaTable.put(gene, sample, "0");
+                }
+            }
+        } else {
+            logger.info("There are no samples without CNVs.");
+        }
+
+    }
+
+
      protected void persistCnvData() {
         this.fileHandler.persistCnvTable(this.cnaTable);
     }

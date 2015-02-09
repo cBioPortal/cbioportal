@@ -10,11 +10,11 @@ var optSpec = (function() {
             }
         }
         function append() {
-            $("#" + ids.sidebar.util.view_switch + "-div").empty();
+            $("#" + ids.sidebar.util.view_switch).empty();
             if (genetic_vs_genetic()) {
                 if(isSameGene()) {
                     if (stat.hasCnaAnno) {
-                        $("#" + ids.sidebar.util.view_switch + "-div").append(
+                        $("#" + ids.sidebar.util.view_switch).append(
                             "<h5>View</h5>" + 
                             "<input type='radio' value='mutation_details' name='mutation_details_vs_gistic_view' checked>Mutation Type" + 
                             "<input type='radio' value='gistic' name='mutation_details_vs_gistic_view' >Copy-number"
@@ -86,15 +86,11 @@ var optSpec = (function() {
  
     return {
         init: function() {
-            if (!document.getElementById(ids.sidebar.util.view_switch) + "-div") {
-                $("#" + ids.sidebar.util.div).append("<div id='" + 
-                        ids.sidebar.util.view_switch + "-div'></div>");
-            } else {
-                $("#" + ids.sidebar.util.view_switch + "-div").empty();
-            }
+
+            $("#" + ids.sidebar.util.view_switch).empty();
             append_view_switch_opt();
 
-            $("#" + ids.sidebar.util.download_buttons + "").empty();
+            $("#" + ids.sidebar.util.download_buttons).empty();
             append_download_buttons();
         }
     };

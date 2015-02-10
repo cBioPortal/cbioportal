@@ -66,8 +66,8 @@ var optSpec = (function() {
                     cbio.download.clientSideDownload([scatterPlots.get_tab_delimited_data()], "download.txt");
                 }
             } else if (genetic_vs_clinical()) {
-                var _clin_axis = ($("#" + ids.sidebar.x.data_type).val() === vals.data_type.clin)? "x": "y";
-                var _genetic_axis = ($("#" + ids.sidebar.x.data_type).val() === vals.data_type.clin)? "y": "x";
+                var _clin_axis = ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.clin)? "x": "y";
+                var _genetic_axis = ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.clin)? "y": "x";
                 if (clinical_attr_is_discretized(_clin_axis) && is_profile_discretized(_genetic_axis)) {
                     cbio.download.clientSideDownload([heat_map.get_tab_delimited_data()], "download.txt");
                 } else {

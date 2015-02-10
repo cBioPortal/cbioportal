@@ -80,20 +80,18 @@
                  <div id="plots-sidebar">
                     <div id="plots-sidebar-x-div" class="plots">
                         <h4>Horizontal Axis</h4>
-                        <br><h5>Data Type</h5> 
-                        <select id="plots-x-data-type">
-                            <option value="genetic_profile">Genetic Profile</option>
-                            <option value="clinical_attribute">Clinical Attribute</option>
-                        </select>
+                        <div id="plots-x-data-type" style="padding-left:20px;">
+                            <input type="radio" name="plots-x-data-type" value="genetic_profile" checked>Genetic Profile
+                            <input type="radio" name="plots-x-data-type" value="clinical_attribute">Clinical Attribute
+                        </div>
                         <div id="plots-x-spec"></div>
                     </div>
                     <div id="plots-sidebar-y-div" class="plots">
                         <h4>Vertical Axis</h4>
-                        <br><h5>Data Type</h5>
-                        <select id="plots-y-data-type">
-                            <option value="genetic_profile">Genetic Profile</option>
-                            <option value="clinical_attribute">Clinical Attribute</option>
-                        </select>
+                        <div id="plots-y-data-type" style="padding-left:20px;">
+                            <input type="radio" name="plots-y-data-type" value="genetic_profile" checked>Genetic Profile
+                            <input type="radio" name="plots-y-data-type" value="clinical_attribute">Clinical Attribute
+                        </div>
                         <div id="plots-y-spec"></div>
                     </div>
                     <div id="plots-sidebar-util-div" class="plots">

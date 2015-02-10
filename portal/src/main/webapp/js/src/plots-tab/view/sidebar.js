@@ -14,26 +14,26 @@ var sidebar = (function() {
         
         //listener on data types
         $("#" + ids.sidebar.x.data_type).change(function() {
-            if ($("#" + ids.sidebar.x.data_type).val() === vals.data_type.genetic) {
+            if ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.genetic) {
                 profileSpec.init("x");
                 optSpec.init();
-            } else if ($("#" + ids.sidebar.x.data_type).val() === vals.data_type.clin) {
+            } else if ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.clin) {
                 clinSpec.init("x");
             }
             profileSpec.appendLockGene();
             regenerate_plots("x");
         });
         $("#" + ids.sidebar.y.data_type).change(function() {
-            if ($("#" + ids.sidebar.y.data_type).val() === vals.data_type.genetic) {
+            if ($("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() === vals.data_type.genetic) {
                 profileSpec.init("y");
                 optSpec.init();
                 profileSpec.appendLockGene();
-            } else if ($("#" + ids.sidebar.y.data_type).val() === vals.data_type.clin) {
+            } else if ($("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() === vals.data_type.clin) {
                 clinSpec.init("y");
             }
             regenerate_plots("y");
         });
-        $("#" + ids.sidebar.util.view_switch + "-div").change(function() {
+        $("#" + ids.sidebar.util.view_switch).change(function() {
             mutation_copy_no_view_switch();
         });
         

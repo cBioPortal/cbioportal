@@ -34,7 +34,7 @@ var plotsData = (function() {
         dotsContent = {}; //json of datums -- final recipe for rendering the view
         
     var ajaxCall = function(axis, callback_func) {
-        if ($("#" + ids.sidebar[axis].data_type).val() === vals.data_type.genetic) {
+        if ($("input:radio[name='" + ids.sidebar[axis].data_type + "']:checked").val() === vals.data_type.genetic) {
             
             var paramsGetProfileData = {  //webservice call to get profile data
                 cancer_study_id: window.PortalGlobals.getCancerStudyId(),
@@ -54,7 +54,7 @@ var plotsData = (function() {
                 callback_func(axis, _tmp);
             }
             
-        } else if ($("#" + ids.sidebar[axis].data_type).val() === vals.data_type.clin) {
+        } else if ($("input:radio[name='" + ids.sidebar[axis].data_type + "']:checked").val() === vals.data_type.clin) {
             var paramsGetClinicalAttributes = { //webservice call to get clinical data
                 cmd : "getClinicalData",
                 cancer_study_id: window.PortalGlobals.getCancerStudyId(),
@@ -98,10 +98,10 @@ var plotsData = (function() {
             if (genetic_vs_genetic() || genetic_vs_clinical()) {
                 //get mutation data
                 var _gene_list = "";
-                if ($("#" + ids.sidebar.x.data_type).val() === vals.data_type.genetic) {
+                if ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.genetic) {
                     _gene_list += $("#" + ids.sidebar.x.gene).val();
                 }
-                if ($("#" + ids.sidebar.y.data_type).val() === vals.data_type.genetic &&
+                if ($("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() === vals.data_type.genetic &&
                         $("#" + ids.sidebar.y.gene).val() !== $("#" + ids.sidebar.x.gene).val()) {
                     _gene_list += " " + $("#" + ids.sidebar.y.gene).val();
                 }
@@ -199,10 +199,10 @@ var plotsData = (function() {
         } else if (genetic_vs_clinical()) {
             //translate: assign text value a numeric value for clinical data
             var _axis, _axis_key;
-            if ($("#" + ids.sidebar.x.data_type).val() === vals.data_type.clin) {
+            if ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.clin) {
                 _axis = "x";
                 _axis_key = "xVal";
-            } else if ($("#" + ids.sidebar.y.data_type).val() === vals.data_type.clin) {
+            } else if ($("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() === vals.data_type.clin) {
                 _axis = "y";
                 _axis_key = "yVal";
             }

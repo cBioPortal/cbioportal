@@ -57,23 +57,23 @@ var isTwoGenes = function () {
 };
 
 var genetic_vs_genetic = function() {
-    if ($("#" + ids.sidebar.x.data_type).val() === $("#" + ids.sidebar.y.data_type).val() && 
-        $("#" + ids.sidebar.x.data_type).val() === vals.data_type.genetic) {
+    if ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === $("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() && 
+        $("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.genetic) {
         return true;
     } return false;   
 };
 
 var genetic_vs_clinical = function() {
-    var _type_x = $("#" + ids.sidebar.x.data_type).val();
-    var _type_y = $("#" + ids.sidebar.y.data_type).val();
+    var _type_x = $("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val();
+    var _type_y = $("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val();
     if (_type_x !== _type_y) {
         return true;
     } return false;
 };
 
 var clinical_vs_clinical = function() {
-    if ($("#" + ids.sidebar.x.data_type).val() === $("#" + ids.sidebar.y.data_type).val() && 
-        $("#" + ids.sidebar.x.data_type).val() === vals.data_type.clin) {
+    if ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === $("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() && 
+        $("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.clin) {
         return true;
     } return false;
 };

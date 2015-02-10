@@ -985,8 +985,9 @@ define("Oncoprint",
                         out += generic_legends_svg;
                         out += mutation_legends;
                         out += mutation_legends_svg;
+                        out = "<g transform=\"translate("+ 15 +","+ 15 + ")\">" + out + "</g> ";;
 
-                        return "<svg height=\"" + (dims.height + verticalTranslateWidth + dims.height) + "\" width=\"" + width + "\">" + out + "</svg>";
+                        return "<svg height=\"" + (dims.height + verticalTranslateWidth + dims.height + 15) + "\" width=\"" + (width + 30) + "\">" + out + "</svg>";
                     };
 
                     return {

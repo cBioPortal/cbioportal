@@ -25,8 +25,8 @@ var heat_map = (function() {
     function process_data(_raw_data) {
         var datum = {
             count: 0,
-            x: 0,
-            y: 0
+            x: "0",
+            y: "0"
         }, _data_arr = [];
         
         for(var key in _raw_data) {
@@ -49,10 +49,10 @@ var heat_map = (function() {
                 _datum.count = 1;
                 _data_arr.push(_datum);
                 //find max & min  - x & y
-                if (_dot_obj.xVal < stat.x.min) stat.x.min = _dot_obj.xVal;
-                if (_dot_obj.xVal > stat.x.max) stat.x.max = _dot_obj.xVal;
-                if (_dot_obj.yVal < stat.y.min) stat.y.min = _dot_obj.yVal;
-                if (_dot_obj.yVal > stat.y.max) stat.y.max = _dot_obj.yVal;
+                if (parseInt(_dot_obj.xVal) < parseInt(stat.x.min)) stat.x.min = _dot_obj.xVal;
+                if (parseInt(_dot_obj.xVal) > parseInt(stat.x.max)) stat.x.max = _dot_obj.xVal;
+                if (parseInt(_dot_obj.yVal) < parseInt(stat.y.min)) stat.y.min = _dot_obj.yVal;
+                if (parseInt(_dot_obj.yVal) > parseInt(stat.y.max)) stat.y.max = _dot_obj.yVal;
             }
         }
         
@@ -63,8 +63,8 @@ var heat_map = (function() {
         });
         
         //fill the gaps -- in order to have a full matrix
-        for (var i = 0; i < parseInt(stat.x.max) + 1; i++) {
-            for (var j = 0; j < parseInt(stat.y.max) + 1; j++) {
+        for (var i = parseInt(stat.x.min); i < parseInt(stat.x.max) + 1; i++) {
+            for (var j = parseInt(stat.x.min); j < parseInt(stat.y.max) + 1; j++) {
                 var _found = false;
                 $.each(_data_arr, function(index, obj) {
                     if (obj.x === i.toString() && obj.y === j.toString()) {
@@ -108,7 +108,22 @@ var heat_map = (function() {
     
         //pile rects
         var heatmapRects = svg.selectAll("rect")
-            .data(data)
+            .data(function(d) {
+                var _data = jQuery.extend(true, [], data);
+                if (stat.x.min < 0) {
+                    var _gap = 0 - stat.x.min;
+                    $.each(_data, function(index, obj) {
+                        obj.x = parseInt(obj.x) + _gap;
+                    });
+                } 
+                if (stat.y.min < 0) {
+                    var _gap = 0 - stat.y.min;
+                    $.each(_data, function(index, obj) {
+                        obj.y = parseInt(obj.y) + _gap;
+                    });
+                }
+                return _data;
+            })
             .enter()
             .append("svg:rect")
             .attr('width',w)
@@ -126,7 +141,24 @@ var heat_map = (function() {
             .attr("count", function(d) { return d.count; });
     
         //annotation for each brick
-        svg.selectAll(".overlayText").data(data).enter().append("text")
+        svg.selectAll(".overlayText")
+                .data(function(d) {
+                    var _data = jQuery.extend(true, [], data);
+                    if (stat.x.min < 0) {
+                        var _gap = 0 - stat.x.min;
+                        $.each(_data, function(index, obj) {
+                            obj.x = parseInt(obj.x) + _gap;
+                        });
+                    } 
+                    if (stat.y.min < 0) {
+                        var _gap = 0 - stat.y.min;
+                        $.each(_data, function(index, obj) {
+                            obj.y = parseInt(obj.y) + _gap;
+                        });
+                    }
+                    return _data;
+                })
+                .enter().append("text")
                     .attr("x", function(d) { return ((d.x * w) + w / 2 - 4 + edge_left);})
                     .attr("y", function(d) { return ((d.y * h) + h / 2 + 5 + edge_top); })
                     .attr("text-anchor", "middle")
@@ -138,26 +170,33 @@ var heat_map = (function() {
                     .text(function(d) { return d.count; });
         
         //labels for rows/columns
-        svg.selectAll(".colLabel")
-            .data(clinical_data_interpreter.get_text_labels("x"))
-            .enter().append('text')
-            .attr("dy", ".35em")
-            .attr("transform", function(d, i) {
-                return "translate(" + ((i + 0.5) * w + edge_left) + "," + (edge_top - 10) + ") rotate(-15)";
-            })
-            .attr('class','label')
-            .style('text-anchor','start')
-            .text(function(d) {return d;});
-        svg.selectAll(".rowLabel")
-                .data(clinical_data_interpreter.get_text_labels("y"))
-                .enter().append('svg:text')
-                .attr('x', parseInt(stat.x.max) * w + w + 10 + edge_left)
-                .attr('y', function(d, i) {
-                    return ((i + 0.5) * h) + edge_top;
+        if (clinical_vs_clinical()) {
+            svg.selectAll(".colLabel")
+                .data(clinical_data_interpreter.get_text_labels("x"))
+                .enter().append('text')
+                .attr("dy", ".35em")
+                .attr("transform", function(d, i) {
+                    return "translate(" + ((i + 0.5) * w + edge_left) + "," + (edge_top - 10) + ") rotate(-15)";
                 })
-                .attr('class', 'label')
-                .attr('text-anchor', 'start')
+                .attr('class','label')
+                .style('text-anchor','start')
                 .text(function(d) {return d;});
+            svg.selectAll(".rowLabel")
+                    .data(clinical_data_interpreter.get_text_labels("y"))
+                    .enter().append('svg:text')
+                    .attr('x', parseInt(stat.x.max) * w + w + 10 + edge_left)
+                    .attr('y', function(d, i) {
+                        return ((i + 0.5) * h) + edge_top;
+                    })
+                    .attr('class', 'label')
+                    .attr('text-anchor', 'start')
+                    .text(function(d) {return d;});            
+        } else if (genetic_vs_genetic()) {
+            
+        } else if (genetic_vs_clinical()) {
+            
+        }
+
         
         //axis titles & helps
         var elt_x = document.getElementById(ids.sidebar.x.clin_attr);

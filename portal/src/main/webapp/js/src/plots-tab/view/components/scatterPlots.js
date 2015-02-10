@@ -739,7 +739,7 @@ var scatterPlots = (function() {
                 .enter().append("g")
                 .attr("class", "coexp_legend")
                 .attr("transform", function(d, i) {
-                    return "translate(620, " + (100 + i * 15) + ")";
+                    return "translate(620, " + (150 + i * 15) + ")";
                 });
                 coExpLegend.append("text")
                         .attr("dx", ".75em")

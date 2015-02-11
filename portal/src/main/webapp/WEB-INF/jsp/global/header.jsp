@@ -8,6 +8,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
 
 <%if(request.getAttribute("tumormap")!=null){%>
 <jsp:include page="css_include_standard.jsp" flush="true" />
@@ -21,8 +22,6 @@
     <script type="text/javascript">
         $(document).ready(function(){
             $(".oncoprint_help").tipTip({defaultPosition: "right", delay:"100", edgeOffset: 25});
-
-
         });
     </script>
     <title><%= request.getAttribute(QueryBuilder.HTML_TITLE)%></title>

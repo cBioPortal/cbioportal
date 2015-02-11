@@ -96,7 +96,8 @@ public class Admin implements Runnable {
 							.hasArgs(2)
 							.withValueSeparator(':')
 							.withDescription("Fetch data from the given data_source and the given run date (mm/dd/yyyy).  " + 
-											 "Use \"" + Fetcher.LATEST_RUN_INDICATOR + "\" to retrieve the most current run.")
+											 "Use \"" + Fetcher.LATEST_RUN_INDICATOR + "\" to retrieve the most current run or " +
+                                             "when fetching clinical data.")
 							.create("fetch_data"));
 
         Option fetchReferenceData = (OptionBuilder.withArgName("reference_data")
@@ -440,7 +441,9 @@ public class Admin implements Runnable {
 							  FileUtils.FILE_URL_PREFIX + mafFile.getCanonicalPath());
 
 		// clean up
-		org.apache.commons.io.FileUtils.forceDelete(tmpMAF);
+		if (tmpMAF.exists()) {
+			org.apache.commons.io.FileUtils.forceDelete(tmpMAF);
+		}
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("oncotateMAF(), complete");

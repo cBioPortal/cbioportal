@@ -1,30 +1,60 @@
-<%@ taglib prefix='c' uri='http://java.sun.com/jsp/jstl/core' %>
-<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-        <title><%= GlobalProperties.getTitle() %>::cBioPortal Login</title>
+<head>
+<title><%= GlobalProperties.getTitle() %>::cBioPortal Login</title>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<%@ page import="org.mskcc.cbio.portal.util.DynamicState" %>
+<%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
+<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
+<%@ taglib prefix='c' uri='http://java.sun.com/jsp/jstl/core' %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+<jsp:include page="WEB-INF/jsp/global/css_include.jsp" flush="true" />
+<jsp:include page="WEB-INF/jsp/global/js_include.jsp" flush="true" />
+<%
+    String idpEntityId = "";
+    String authenticationMethod = GlobalProperties.authenticationMethod();
+    if (authenticationMethod.equals("openid")) {
+%>
+    <link type="text/css" rel="stylesheet" href="css/openid.css" />
+    <script type="text/javascript" src="js/lib/openid-jquery.js"></script>
+    <script type="text/javascript">
+      $(document).ready(function() {
+              openid.init('openid_identifier');
+              //openid.setDemoMode(false); // if true, Stops form submission for client javascript-only test purposes
+      });
+    </script>
+<%
+    }
+    else if (authenticationMethod.equals("saml")) {
+        idpEntityId = GlobalProperties.getProperty("saml.idp.metadata.entityid");
+    }
+   String siteTitle = GlobalProperties.getTitle();
+%>
 
-        <script type="text/javascript" src="js/lib/jquery-1.4.2.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<% request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::Login/Logout"); %>
+<%
+    String login_error = request.getParameter("login_error");
+    String logout_success = request.getParameter("logout_success");
+%>
+</head>
+<body>
+    <center>
+    <div id="page_wrapper">
+    <table width="860px" cellpadding="0px" cellspacing="5px" border="0px">
+      <tr valign="top">
+        <td colspan="3">
+        <div id="login_header_wrapper">
+        <div id="login_header_top">
+        <jsp:include page="WEB-INF/jsp/global/header_bar.jsp" flush="true" />
+        </div>
+        </div>
+        </td>
+      </tr>
 
-    </head>
-
-    <%
-        String siteTitle = GlobalProperties.getTitle();
-    %>
-
-    <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
-    <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
-
-    <% request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::Login/Logout"); %>
-    <jsp:include page="WEB-INF/jsp/global/login_header.jsp" flush="true" />
-
-    <%
-        String login_error = request.getParameter("login_error");
-        String logout_success = request.getParameter("logout_success");
-    %>
+      <tr valign="top">
+        <td>
+            <div>
 
     <% if (logout_success != null) { %>
     <div class="ui-state-highlight ui-corner-all" style="padding: 0 .7em;width:90%;margin-top:50px">
@@ -33,12 +63,14 @@
     </div>
     <% } %>
     <% if (login_error != null) { %>
-    <div class="ui-state-highlight ui-corner-all" style="padding: 0 .7em;width:90%;margin-top:50px">
-        <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-            <strong>You are not authorized to access this resource. If you think you have received this
-                message in error, please contact us at
-                <a style="color:#FF0000" href="mailto:cbioportal-access@cbio.mskcc.org">cbioportal-access@cbio.mskcc.org</a>
 
+        <div class="ui-state-highlight ui-corner-all" style="padding: 0 .7em;width:90%;margin-top:50px">
+            <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+            <strong>You are not authorized to access this resource.&nbsp;
+            <% if (authenticationMethod.equals("googleplus")) { %>
+            You have attempted to log in as <%= DynamicState.INSTANCE.getFailedUser() %>.
+            <% } %>
+            If you think you have received this message in error, please contact us at <a style="color:#FF0000" href="mailto:cbioportal-access@cbio.mskcc.org">cbioportal-access@cbio.mskcc.org</a>
             </strong></p>
     </div>
     <% } %>
@@ -47,20 +79,49 @@
         <table cellspacing="2px" width="100%">
             <tr>
                 <td>
+                <% if (authenticationMethod.equals("openid")) { %>
+                    <!-- Simple OpenID Selector -->
+                    <form style="width:  100%;" action="<c:url value='j_spring_openid_security_check'/>" method="post" id="openid_form">
+                    <input type="hidden" name="action" value="verify" />
+                    <p/>
+                <% } %>
                     <fieldset>
-                        <legend>
-                            Login to Portal:
-                        </legend>
+                    <legend style="width:96px;border-bottom:none;color:#666666;font-family:verdana,arial,sans-serif;font-size:12px;">
+                        Login to Portal:
+                    </legend>
+                    <p>
+                        <span style="color:#666666;font-family:verdana,arial,sans-serif;font-size:145%">
+                            <%= GlobalProperties.getAuthorizationMessage() %>
+                        </span>
+                    </p>
+                    <% if (authenticationMethod.equals("openid")) { %>
+                        <div id="openid_choice">
+                            <p>Please click your account provider:</p>
+                            <div id="openid_btns"></div>
+                        </div>
+                        <div id="openid_input_area">
+                            <input id="openid_identifier" name="openid_identifier" type="text" value="http://" />
+                            <input id="openid_submit" type="submit" value="Sign-In"/>
+                        </div>
+                        <noscript>
+                            <p>OpenID is a service that allows you to log-on to many different websites using a single identity.
+                            Find out <a href="http://openid.net/what/">more about OpenID</a> and <a href="http://openid.net/get/">how to get an OpenID enabled account</a>.</p>
+                        </noscript>
+                    </fieldset>
+                    </form>
+                    <% } else if (authenticationMethod.equals("saml")) { %>
                         <p>
-                            <span style="font-size:145%">
-                                <%= GlobalProperties.getAuthorizationMessage() %>
-                            </span>
+                            <button id="saml_login_button" type="button" class="btn btn-danger btn-lg" onclick="window.location = 'login?idp=<%= idpEntityId %>'" >
+                            Sign in with MSK</button>
                         </p>
-
+                    </fieldset>
+                    <% } else if (authenticationMethod.equals("googleplus")) { %>
                         <p>
                             <button onclick="window.location = 'auth/google'" style="padding: 0; border:none; background: none" >
-                                <IMG alt="Google+" src="images/login/images.large/googleplus_signin.png"  /></button>
+                                <IMG alt="Google+" src="images/login/googleplus_signin.png"  /></button>
                         </p>
+                    </fieldset>
+                    <% } %>
                 </td>
             </tr>
 

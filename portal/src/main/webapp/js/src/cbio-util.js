@@ -1,4 +1,7 @@
-var cbio = {};
+if (cbio === undefined)
+{
+	var cbio = {};
+}
 
 cbio.util = (function() {
 
@@ -121,6 +124,35 @@ cbio.util = (function() {
 
         return str1.substring(0, i);
     };
+
+	/**
+	 * Converts base 64 encoded string into an array of byte arrays.
+	 *
+	 * @param b64Data   base 64 encoded string
+	 * @param sliceSize size of each byte array (default: 512)
+	 * @returns {Array} an array of byte arrays
+	 */
+	function b64ToByteArrays(b64Data, sliceSize) {
+		sliceSize = sliceSize || 512;
+
+		var byteCharacters = atob(b64Data);
+		var byteArrays = [];
+
+		for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+			var slice = byteCharacters.slice(offset, offset + sliceSize);
+
+			var byteNumbers = new Array(slice.length);
+			for (var i = 0; i < slice.length; i++) {
+				byteNumbers[i] = slice.charCodeAt(i);
+			}
+
+			var byteArray = new Uint8Array(byteNumbers);
+
+			byteArrays.push(byteArray);
+		}
+
+		return byteArrays;
+	}
 
 	/**
 	 * Detects browser and its version.
@@ -395,7 +427,15 @@ cbio.util = (function() {
 			$(document.body).append(form);
 		}
 	}
-        
+
+    function getLinkToPatientView(cancerStudyId, patientId) {
+        return "case.do?cancer_study_id=" + cancerStudyId + "&case_id=" + patientId;
+    }
+    
+    function getLinkToSampleView(cancerStudyId, sampleId) {
+        return "case.do?cancer_study_id=" + cancerStudyId + "&sample_id=" + sampleId;
+    }
+
     return {
         toPrecision: toPrecision,
         getObjectLength: getObjectLength,
@@ -404,6 +444,7 @@ cbio.util = (function() {
         arrayToAssociatedArrayIndices: arrayToAssociatedArrayIndices,
         alterAxesAttrForPDFConverter: alterAxesAttrForPDFConverter,
         lcss: lcss,
+	    b64ToByteArrays: b64ToByteArrays,
         browser: detectBrowser(), // returning the browser object, not the function itself
         getWindowOrigin: getOrigin,
         sortByAttribute: sortByAttribute,
@@ -411,9 +452,12 @@ cbio.util = (function() {
         autoHideOnMouseLeave: autoHideOnMouseLeave,
         swapElement: swapElement,
 	    getTargetWindow: getTargetWindow,
+	    // TODO remove download functions when done with PDF!
 	    submitDownload: submitDownload,
 	    requestDownload: requestDownload,
-	    getTargetDocument: getTargetDocument
+	    getTargetDocument: getTargetDocument,
+        getLinkToPatientView: getLinkToPatientView,
+        getLinkToSampleView: getLinkToSampleView
     };
 
 })();

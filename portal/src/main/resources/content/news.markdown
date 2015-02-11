@@ -1,3 +1,34 @@
+# January 20, 2015
+* All __TCGA data__ updated to the Firehose run of October 17, 2014
+* __COSMIC data__ updated to V71
+* __New features__:
+    * Query page: better search functions to find cancer studies
+    * OncoPrints now support color coding of different mutation types
+    * OncoPrints now support multiple clinical annotation tracks
+    * [__OncoPrinter tool__](oncoprinter.jsp) now supports mRNA expression changes 
+<br/>![Oncoprint with multiple clinical tracks](images/previews/multi-clinical-track-oncoprint.png)
+
+# January 6, 2015
+* __New feature__: You can now view __frequencies of mutations and copy-number alterations__ in the study view. These tables are updated dynamically when selecting subsets of samples.<br>
+<br/>![Alterations in heavily copy-number altered endometrial cancer cases](images/previews/study_view_alt_frequencies.png)</center>
+
+# December 9, 2014
+* __New TCGA data__:
+    * Added complete and up-to-date __clinical data__ for all __TCGA__ provisional studies
+    * All TCGA data updated to the Firehose run of July 15, 2014
+    * New TCGA provisional studies: Esophageal cancer, Pheochromocytoma and Paraganglioma (PCPG)
+    * New published TCGA studies: [Thyroid Cancer](study.do?cancer_study_id=thca_tcga_pub) and [Kidney Chromophobe](study.do?cancer_study_id=kich_tcga_pub)
+* __Added data__ of 172 samples from 4 published studies:
+    * [Cholangiocarcinoma (National University of Singapore, Nature Genetics 2012)](study.do?cancer_study_id=chol_nus_2012)
+    * [Cholangiocarcinoma (National Cancer Centre of Singapore, Nature Genetics 2013)](study.do?cancer_study_id=chol_nccs_2013)
+    * [Intrahepatic Cholangiocarcinoma (Johns Hopkins University, Nature Genetics 2013)](study.do?cancer_study_id=chol_jhu_2013)
+    * [Bladder Cancer (MSKCC, Eur Urol 2014)](study.do?cancer_study_id=blca_mskcc_solit_2014)
+* __New features__:
+    * Redesigned __Mutual Exclusivity__ tab
+    * Added __correlation scores__ for scatter plots on the Plots tab
+    * Download links to [__GenomeSpace__](http://www.genomespace.org/)
+
+
 # October 24, 2014
 * Added data of 885 samples from 11 published studies:
     * [Colorectal Adenocarcinoma Triplets (MSKCC, Genome Biology 2014)](study.do?cancer_study_id=coadread_mskcc)

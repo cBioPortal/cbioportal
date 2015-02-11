@@ -150,7 +150,7 @@ public class ImportGeneData {
         return bitSet.cardinality();
     }
     
-    private static void importSuppGeneData(ProgressMonitor pMonitor, File suppGeneFile) throws IOException, DaoException {
+    static void importSuppGeneData(ProgressMonitor pMonitor, File suppGeneFile) throws IOException, DaoException {
         MySQLbulkLoader.bulkLoadOff();
         FileReader reader = new FileReader(suppGeneFile);
         BufferedReader buf = new BufferedReader(reader);

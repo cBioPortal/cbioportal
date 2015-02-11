@@ -17,17 +17,16 @@
 
 package org.mskcc.cbio.portal.web_api;
 
-import org.json.simple.JSONArray;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.servlet.WebService;
-import org.mskcc.cbio.portal.model.ProfileData;
 import org.mskcc.cbio.io.WebFileConnect;
 
-import java.util.ArrayList;
+import org.json.simple.JSONArray;
+
+import java.util.*;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Web Service to Get Profile Data.
@@ -40,23 +39,23 @@ public class GetProfileData {
     private String rawContent;
     private String[][] matrix;
     private ProfileData profileData;
-    private ArrayList<String> warningList = new ArrayList<String>();
+    private List<String> warningList = new ArrayList<String>();
 
     /**
      * Constructor.
      * @param targetGeneticProfileIdList    Target Genetic Profile List.
      * @param targetGeneList                Target Gene List.
-     * @param targetCaseList                Target Case List.
+     * @param targetSampleList             Target Sample List.
      * @param suppressMondrianHeader        Flag to suppress the mondrian header.
      * @throws DaoException Database Error.
      * @throws IOException IO Error.
      */
-    public GetProfileData (ArrayList<String> targetGeneticProfileIdList,
-            ArrayList<String> targetGeneList,
-            ArrayList<String> targetCaseList,
+    public GetProfileData (List<String> targetGeneticProfileIdList,
+            List<String> targetGeneList,
+            List<String> targetSampleList,
             Boolean suppressMondrianHeader)
             throws DaoException, IOException {
-        execute(targetGeneticProfileIdList, targetGeneList, targetCaseList, suppressMondrianHeader);
+        execute(targetGeneticProfileIdList, targetGeneList, targetSampleList, suppressMondrianHeader);
     }
 
     /**
@@ -64,21 +63,21 @@ public class GetProfileData {
      *
      * @param geneticProfile    Genetic Profile Object.
      * @param targetGeneList    Target Gene List.
-     * @param caseIds           White-space delimited case IDs.
+     * @param sampleIds        White-space delimited sample IDs.
      * @throws DaoException     Database Error.
      * @throws IOException      IO Error.
      */
-    public GetProfileData (GeneticProfile geneticProfile, ArrayList<String> targetGeneList,
-            String caseIds) throws DaoException, IOException {
-        ArrayList<String> targetGeneticProfileIdList = new ArrayList<String>();
+    public GetProfileData (GeneticProfile geneticProfile, List<String> targetGeneList,
+            String sampleIds) throws DaoException, IOException {
+        List<String> targetGeneticProfileIdList = new ArrayList<String>();
         targetGeneticProfileIdList.add(geneticProfile.getStableId());
 
-        ArrayList<String> targetCaseList = new ArrayList<String>();
-        String caseIdParts[] = caseIds.split("\\s+");
-        for (String caseIdPart: caseIdParts) {
-            targetCaseList.add(caseIdPart);
+        List<String> targetSampleList = new ArrayList<String>();
+        String sampleIdParts[] = sampleIds.split("\\s+");
+        for (String sampleIdPart : sampleIdParts) {
+            targetSampleList.add(sampleIdPart);
         }
-        execute(targetGeneticProfileIdList, targetGeneList, targetCaseList, true);
+        execute(targetGeneticProfileIdList, targetGeneList, targetSampleList, true);
     }
 
     /**
@@ -108,20 +107,20 @@ public class GetProfileData {
     /**
      * Gets warnings (if triggered).
      *
-     * @return ArrayList of Warning Strings.
+     * @return List of Warning Strings.
      */
-    public ArrayList<String> getWarnings() {
+    public List<String> getWarnings() {
         return this.warningList;
     }
 
     /**
      * Executes the LookUp.
      */
-    private void execute(ArrayList<String> targetGeneticProfileIdList,
-            ArrayList<String> targetGeneList, ArrayList<String> targetCaseList,
+    private void execute(List<String> targetGeneticProfileIdList,
+            List<String> targetGeneList, List<String> targetSampleList,
             Boolean suppressMondrianHeader) throws DaoException, IOException {
         this.rawContent = getProfileData (targetGeneticProfileIdList, targetGeneList,
-                targetCaseList, suppressMondrianHeader);
+                targetSampleList, suppressMondrianHeader);
         this.matrix = WebFileConnect.parseMatrix(rawContent);
 
         //  Create the Profile Data Object
@@ -137,14 +136,14 @@ public class GetProfileData {
      * Gets Profile Data for Specified Target Info.
      * @param targetGeneticProfileIdList    Target Genetic Profile List.
      * @param targetGeneList                Target Gene List.
-     * @param targetCaseList                Target Case List.
+     * @param targetSampleList             Target Sample List.
      * @param suppressMondrianHeader        Flag to suppress the mondrian header.
      * @return Tab Delim Text String.
      * @throws DaoException Database Error.
      */
-    private String getProfileData(ArrayList<String> targetGeneticProfileIdList,
-            ArrayList<String> targetGeneList, 
-            ArrayList<String> targetCaseList,
+    private String getProfileData(List<String> targetGeneticProfileIdList,
+            List<String> targetGeneList, 
+            List<String> targetSampleList,
             Boolean suppressMondrianHeader) throws DaoException {
 
         StringBuffer buf = new StringBuffer();
@@ -159,6 +158,13 @@ public class GetProfileData {
                 return buf.toString();
             }
         }
+        // validate all genetic profiles belong to the same cancer study
+        if (differentCancerStudies(targetGeneticProfileIdList)) {
+            buf.append("Genetic profiles must come from same cancer study.").append((WebApiUtil.NEW_LINE));
+            return buf.toString();
+        }
+        int cancerStudyId = DaoGeneticProfile.getGeneticProfileByStableId(targetGeneticProfileIdList.get(0)).getCancerStudyId();
+        List<Integer> internalSampleIds = InternalIdUtil.getInternalSampleIds(cancerStudyId, targetSampleList);
 
         //  Branch based on number of profiles requested.
         //  In the first case, we have 1 profile and 1 or more genes.
@@ -168,7 +174,7 @@ public class GetProfileData {
             GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileByStableId(geneticProfileId);
 
             //  Get the Gene List
-            ArrayList<Gene> geneList = WebApiUtil.getGeneList(targetGeneList,
+            List<Gene> geneList = WebApiUtil.getGeneList(targetGeneList,
                     geneticProfile.getGeneticAlterationType(), buf, warningList);
             
             //  Output DATA_TYPE and COLOR_GRADIENT_SETTINGS (Used by Mondrian Cytoscape PlugIn)
@@ -180,20 +186,20 @@ public class GetProfileData {
 
             //  Ouput Column Headings
             buf.append ("GENE_ID\tCOMMON");
-            outputRow(targetCaseList, buf);
+            outputRow(targetSampleList, buf);
 
             //  Iterate through all validated genes, and extract profile data.
             for (Gene gene: geneList) {                
-                ArrayList<String> dataRow = GeneticAlterationUtil.getGeneticAlterationDataRow(gene,
-                        targetCaseList, geneticProfile);
+                List<String> dataRow = GeneticAlterationUtil.getGeneticAlterationDataRow(gene,
+                        internalSampleIds, geneticProfile);
                 outputGeneRow(dataRow, gene, buf);
             }
         } else {
             //  Ouput Column Headings
             buf.append ("GENETIC_PROFILE_ID\tALTERATION_TYPE\tGENE_ID\tCOMMON");
-            outputRow(targetCaseList, buf);
+            outputRow(targetSampleList, buf);
             
-            ArrayList<GeneticProfile> profiles = new ArrayList<GeneticProfile>(targetGeneticProfileIdList.size());
+            List<GeneticProfile> profiles = new ArrayList<GeneticProfile>(targetGeneticProfileIdList.size());
             boolean includeRPPAProteinLevel = false;
             for (String gId:  targetGeneticProfileIdList) {
                 GeneticProfile profile = DaoGeneticProfile.getGeneticProfileByStableId(gId);
@@ -215,8 +221,8 @@ public class GetProfileData {
                 }
                 
                 // get data of the other profile
-                ArrayList<String> dataRow1 = null;
-                ArrayList<Gene> geneList = WebApiUtil.getGeneList(targetGeneList,
+                List<String> dataRow1 = null;
+                List<Gene> geneList = WebApiUtil.getGeneList(targetGeneList,
                         gp1.getGeneticAlterationType(), buf, warningList);
                 
                 if (geneList.size() > 0) {
@@ -224,7 +230,7 @@ public class GetProfileData {
                     buf.append(gp1.getStableId()).append(WebApiUtil.TAB).append(gp1.getGeneticAlterationType())
                             .append (WebApiUtil.TAB);   
                     dataRow1 = GeneticAlterationUtil.getGeneticAlterationDataRow(gene,
-                            targetCaseList, gp1);
+                            internalSampleIds, gp1);
                     outputGeneRow(dataRow1, gene, buf);
                 }
                 
@@ -236,23 +242,23 @@ public class GetProfileData {
                     Gene gene = geneList.get(0);
                     buf.append(gp2.getStableId()).append(WebApiUtil.TAB).append(gp2.getGeneticAlterationType())
                             .append (WebApiUtil.TAB);   
-                    ArrayList<String> dataRow = GeneticAlterationUtil.getBestCorrelatedProteinArrayDataRow(
-                            gp2.getCancerStudyId(),(CanonicalGene)gene, targetCaseList, dataRow1);
+                    List<String> dataRow = GeneticAlterationUtil.getBestCorrelatedProteinArrayDataRow(
+                            gp2.getCancerStudyId(),(CanonicalGene)gene, internalSampleIds, dataRow1);
                     outputGeneRow(dataRow, gene, buf);
                 }
             } else {            
                 //  Iterate through all genetic profiles
                 for (GeneticProfile geneticProfile : profiles) {
                     //  Get the Gene List
-                    ArrayList<Gene> geneList = WebApiUtil.getGeneList(targetGeneList,
+                    List<Gene> geneList = WebApiUtil.getGeneList(targetGeneList,
                             geneticProfile.getGeneticAlterationType(), buf, warningList);
 
                     if (geneList.size() > 0) {
                         Gene gene = geneList.get(0);
                         buf.append(geneticProfile.getStableId()).append(WebApiUtil.TAB)
                                 .append(geneticProfile.getGeneticAlterationType()).append (WebApiUtil.TAB);   
-                        ArrayList<String> dataRow = GeneticAlterationUtil.getGeneticAlterationDataRow(gene,
-                                targetCaseList, geneticProfile);
+                        List<String> dataRow = GeneticAlterationUtil.getGeneticAlterationDataRow(gene,
+                                internalSampleIds, geneticProfile);
                         outputGeneRow(dataRow, gene, buf);
                     }
                 }
@@ -261,14 +267,33 @@ public class GetProfileData {
         return buf.toString();
     }
 
-    private static void outputRow(ArrayList<String> dataValues, StringBuffer buf) {
+    private static boolean differentCancerStudies(List<String> targetGeneticProfileList)
+    {
+        if (targetGeneticProfileList.size() == 1) return false;
+
+        int firstCancerStudyId = -1;
+        boolean processingFirstId = true;
+        for (String profileId : targetGeneticProfileList) {
+            GeneticProfile p = DaoGeneticProfile.getGeneticProfileByStableId(profileId);
+          if (processingFirstId) {
+                firstCancerStudyId = p.getCancerStudyId();
+                processingFirstId = false;
+          }  
+          else if (p.getCancerStudyId() != firstCancerStudyId) {
+              return true;
+          }
+        }
+        return false;
+    }
+
+    private static void outputRow(List<String> dataValues, StringBuffer buf) {
         for (String value:  dataValues) {
             buf.append(WebApiUtil.TAB).append (value);
         }
         buf.append (WebApiUtil.NEW_LINE);
     }
 
-    private static void outputGeneRow(ArrayList<String> dataRow, Gene gene, StringBuffer buf)
+    private static void outputGeneRow(List<String> dataRow, Gene gene, StringBuffer buf)
             throws DaoException {
         if (gene instanceof CanonicalGene) {
             CanonicalGene canonicalGene = (CanonicalGene) gene;
@@ -286,10 +311,10 @@ public class GetProfileData {
         JSONArray toReturn = new JSONArray();
 
 
-        List<String> caseIds = new ArrayList<String>(Arrays.asList(matrix[0]));
-        caseIds.subList(0,4).clear();       // remove column names and meta data
+        List<String> sampleIds = new ArrayList<String>(Arrays.asList(matrix[0]));
+        sampleIds.subList(0,4).clear();       // remove column names and meta data
 
-        for (String s : caseIds) {
+        for (String s : sampleIds) {
             toReturn.add(s);
         }
 

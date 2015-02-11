@@ -17,14 +17,12 @@
 
 package org.mskcc.cbio.portal.dao;
 
-import junit.framework.TestCase;
-import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.scripts.ResetDatabase;
-import org.mskcc.cbio.portal.model.CanonicalGene;
 
-import java.util.HashMap;
-import java.util.ArrayList;
-import java.util.Set;
+import junit.framework.TestCase;
+
+import java.util.*;
 
 /**
  * JUnit tests for DaoGeneticAlteration class.
@@ -46,14 +44,10 @@ public class TestDaoGeneticAlteration extends TestCase {
         daoGene.addGene(new CanonicalGene (672, "BRCA1"));
 
         ResetDatabase.resetDatabase();
+        ArrayList<Integer> internalSampleIds = createSamples();
 
-        //  Add the Case List
-        ArrayList<String> orderedCaseList = new ArrayList<String>();
-        orderedCaseList.add("TCGA-1");
-        orderedCaseList.add("TCGA-2");
-        orderedCaseList.add("TCGA-3");
-        orderedCaseList.add("TCGA-4");
-        int numRows = DaoGeneticProfileCases.addGeneticProfileCases(1, orderedCaseList);
+        //  Add the Sample List
+        int numRows = DaoGeneticProfileSamples.addGeneticProfileSamples(1, internalSampleIds);
         assertEquals (1, numRows);
 
         //  Add Some Data
@@ -68,11 +62,11 @@ public class TestDaoGeneticAlteration extends TestCase {
            MySQLbulkLoader.flushAll();
         }
 
-        HashMap<String, String> valueMap = dao.getGeneticAlterationMap(1, 672);
-        assertEquals ("200", valueMap.get("TCGA-1"));
-        assertEquals ("400", valueMap.get("TCGA-2"));
-        assertEquals ("600", valueMap.get("TCGA-3"));
-        assertEquals ("800", valueMap.get("TCGA-4"));
+        HashMap<Integer, String> valueMap = dao.getGeneticAlterationMap(1, 672);
+        assertEquals ("200", valueMap.get(1));
+        assertEquals ("400", valueMap.get(2));
+        assertEquals ("600", valueMap.get(3));
+        assertEquals ("800", valueMap.get(4));
 
         //  Test the getGenesInProfile method
         Set <CanonicalGene> geneSet = dao.getGenesInProfile(1);
@@ -83,4 +77,19 @@ public class TestDaoGeneticAlteration extends TestCase {
         assertEquals (672, gene.getEntrezGeneId());
     }
 
+    private ArrayList<Integer> createSamples() throws DaoException {
+        ArrayList<Integer> toReturn = new ArrayList<Integer>();
+        CancerStudy study = new CancerStudy("study", "description", "id", "brca", true);
+        Patient p = new Patient(study, "TCGA-1");
+        int pId = DaoPatient.addPatient(p);
+        Sample s = new Sample("TCGA-1-1-01", pId, "type");
+        toReturn.add(DaoSample.addSample(s));
+        s = new Sample("TCGA-1-2-01", pId, "type");
+        toReturn.add(DaoSample.addSample(s));
+        s = new Sample("TCGA-1-3-01", pId, "type");
+        toReturn.add(DaoSample.addSample(s));
+        s = new Sample("TCGA-1-4-01", pId, "type");
+        toReturn.add(DaoSample.addSample(s));
+        return toReturn;
+    }
 }

@@ -27,13 +27,9 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 
-import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
-import org.mskcc.cbio.portal.model.GeneticAlterationType;
-import org.mskcc.cbio.portal.model.GeneticProfile;
-import org.mskcc.cbio.portal.util.ConsoleUtil;
-import org.mskcc.cbio.portal.util.FileUtil;
-import org.mskcc.cbio.portal.util.GeneticProfileReader;
-import org.mskcc.cbio.portal.util.ProgressMonitor;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.util.*;
 
 /**
  * Import 'profile' files that contain data matrices indexed by gene, case. 
@@ -184,5 +180,4 @@ public class ImportProfileData{
         long totalTime = end.getTime() - start.getTime();
         System.out.println ("Total time:  " + totalTime + " ms");
     }
-    
 }

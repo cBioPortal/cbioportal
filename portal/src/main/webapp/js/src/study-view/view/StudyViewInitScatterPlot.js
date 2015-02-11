@@ -32,8 +32,7 @@ var StudyViewInitScatterPlot = (function() {
                         _value['MUTATION_COUNT'] + 
                         "</strong></br>Fraction of CNA: <strong>"+
                         cbio.util.toPrecision(_value['COPY_NUMBER_ALTERATIONS'],2,0.01)+
-                        "</strong><br/>Case ID: <strong>" +
-                        "<a href='case.do?case_id=" +
+                        "<br><a href='case.do?sample_id=" +
                         _value['CASE_ID'] + "&cancer_study_id=" +
                         StudyViewParams.params.studyId + "' target='_blank'>" + 
                         _value['CASE_ID'] + "</a></strong>";
@@ -97,35 +96,32 @@ var StudyViewInitScatterPlot = (function() {
                 hide: {fixed:true, delay: 100, event: "mouseout"},
                 position: {my:'top center',at:'bottom center', viewport: $(window)},
                 content: {
-                    text:   "<form style='display:inline-block; margin-right:5px; float:left' action='svgtopdf.do' method='post' id='study-view-scatter-plot-pdf'>"+
-                            "<input type='hidden' name='svgelement' id='study-view-scatter-plot-pdf-value'>"+
-                            "<input type='hidden' name='filetype' value='pdf'>"+
-                            "<input type='hidden' id='study-view-scatter-plot-pdf-name' name='filename' value=''>"+
-                            "<input type='submit' style='font-size:10px' value='PDF'>"+          
-                            "</form>"+
-
-                            "<form style='display:inline-block; margin-right:5px; float:left' action='svgtopdf.do' method='post' id='study-view-scatter-plot-svg'>"+
-                            "<input type='hidden' name='svgelement' id='study-view-scatter-plot-svg-value'>"+
-                            "<input type='hidden' name='filetype' value='svg'>"+
-                            "<input type='hidden' id='study-view-scatter-plot-svg-name' name='filename' value=''>"+
-                            "<input type='submit' style='font-size:10px' value='SVG'>"+    
-                            "</form>"
+                    text:   "<div style='display:inline-block;float:left;margin: 0 2px'>"+
+                            "<button  id='study-view-scatter-plot-pdf'>PDF</button>"+          
+                            "</div>"+
+                            "<div style='display:inline-block;float:left;margin: 0 2px'>"+
+                            "<button  id='study-view-scatter-plot-svg'>SVG</button>"+
+                            "</div>"
                 },
                 events: {
                     render: function(event, api) {
-                        $("#study-view-scatter-plot-pdf", api.elements.tooltip).submit(function(){
-                            $("#study-view-scatter-plot-pdf-name").val("Scatter_Plot_result-"+ StudyViewParams.params.studyId +".pdf");
+                        $("#study-view-scatter-plot-pdf", api.elements.tooltip).click(function(){
                             setSVGElementValue("study-view-scatter-plot-body-svg",
                                 "study-view-scatter-plot-pdf-value",
                                 scatterPlotOptions,
-                                _title);
+                                _title,{
+                                    filename: "Scatter_Plot_result-"+ StudyViewParams.params.studyId +".pdf",
+                                    contentType: "application/pdf",
+                                    servletName: "svgtopdf.do"
+                                });
                         });
-                        $("#study-view-scatter-plot-svg", api.elements.tooltip).submit(function(){
-                            $("#study-view-scatter-plot-svg-name").val("Scatter_Plot_result-"+ StudyViewParams.params.studyId +".svg");
+                        $("#study-view-scatter-plot-svg", api.elements.tooltip).click(function(){
                             setSVGElementValue("study-view-scatter-plot-body-svg",
                                 "study-view-scatter-plot-svg-value",
                                 scatterPlotOptions,
-                                _title);
+                                _title, {
+                                    filename: "Scatter_Plot_result-"+ StudyViewParams.params.studyId +".svg"
+                                });
                         });
                     }
                 }
@@ -163,7 +159,7 @@ var StudyViewInitScatterPlot = (function() {
         }
     }
     
-    function setSVGElementValue(_svgParentDivId,_idNeedToSetValue,scatterPlotDataAttr, _title){
+    function setSVGElementValue(_svgParentDivId,_idNeedToSetValue,scatterPlotDataAttr, _title, downloadOptions){
         var svgElement;
         
         $("#" + _svgParentDivId + " .plots-title-x-help").remove();
@@ -180,7 +176,9 @@ var StudyViewInitScatterPlot = (function() {
                 "</text></g><g transform='translate(0,40)'>" + 
                 svgElement + "</g></svg>";
                             
-        $("#" + _idNeedToSetValue).val(svgElement);
+        cbio.download.initDownload(
+            svgElement, downloadOptions);
+    
         scatterPlot.updateTitleHelp(scatterPlotDataAttr.names.log_scale_x, scatterPlotDataAttr.names.log_scale_y);
     }
     
@@ -240,12 +238,12 @@ var StudyViewInitScatterPlot = (function() {
         var _style = [];
         
         if(initStatus){
-            for(var i=0 ; i< StudyViewParams.params.caseIds.length ; i++){
+            for(var i=0 ; i< StudyViewParams.params.sampleIds.length ; i++){
                 var styleDatum = {};
 
-                styleDatum.case_id = StudyViewParams.params.caseIds[i];
-                if(_selectedCaseIds.length !== StudyViewParams.params.caseIds.length){
-                    if(_selectedCaseIds.indexOf(StudyViewParams.params.caseIds[i]) !== -1){
+                styleDatum.case_id = StudyViewParams.params.sampleIds[i];
+                if(_selectedCaseIds.length !== StudyViewParams.params.sampleIds.length){
+                    if(_selectedCaseIds.indexOf(StudyViewParams.params.sampleIds[i]) !== -1){
                         if(clickedCaseId !== ''){
                             styleDatum.fill = '#2986e2';
                             styleDatum.stroke = 'red';

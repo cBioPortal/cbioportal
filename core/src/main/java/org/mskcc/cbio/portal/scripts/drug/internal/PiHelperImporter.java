@@ -34,7 +34,6 @@ import java.util.Scanner;
 
 public class PiHelperImporter extends AbstractDrugInfoImporter {
     private static final String separator = "\t";
-    private static final Log log = LogFactory.getLog(PiHelperImporter.class);
 
     private InputStream drugInfoFile;
     private InputStream drugTargetsFile;
@@ -106,13 +105,12 @@ public class PiHelperImporter extends AbstractDrugInfoImporter {
             String refs = tokens[4].trim();
 
             Drug drug = nameToDrugMap.get(drugName);
-            assert drug != null;
 
-            if(drug == DRUG_SKIP)
+            if(drug==null || drug == DRUG_SKIP)
                 continue;
 
-            List<CanonicalGene> genes = daoGeneOptimized.guessGene(geneSymbol);
-            for (CanonicalGene gene : genes) {
+            CanonicalGene gene = daoGeneOptimized.getNonAmbiguousGene(geneSymbol);
+            if (gene!=null) {
                 daoDrugInteraction.addDrugInteraction(
                         drug,
                         gene,
@@ -126,7 +124,7 @@ public class PiHelperImporter extends AbstractDrugInfoImporter {
 
         scanner.close();
 
-        log.info("Number of drug-targets imported: " + saved);
+        System.out.println("Number of drug-targets imported: " + saved);
     }
 
     private void importDrugs() throws Exception {
@@ -139,9 +137,23 @@ public class PiHelperImporter extends AbstractDrugInfoImporter {
             if(line.startsWith("#")) continue;
             if((++lineNo) == 1) continue;
 
-            String[] t = line.split(separator, -1);
+            try {
+                importDrug(line);
+            } catch (Exception e) {
+                System.err.println("Failed to load drug "+line);
+                e.printStackTrace();
+            }
+
+        }
+
+        scanner.close();
+
+        System.out.println("Number of drugs imported: " + nameToDrugMap.keySet().size());
+    }
+    
+    private void importDrug(String line) throws DaoException {
+        String[] t = line.split(separator, -1);
             assert t.length ==  12;
-            if(t.length < 12) continue;
             /*
                 0 PiHelper_Drug_ID
                 1 Drug_Name
@@ -177,11 +189,5 @@ public class PiHelperImporter extends AbstractDrugInfoImporter {
                 getDrugDao().addDrug(drug);
                 nameToDrugMap.put(drug.getName(), drug);
             }
-
-        }
-
-        scanner.close();
-
-        log.info("Number of drugs imported: " + nameToDrugMap.keySet().size());
     }
 }

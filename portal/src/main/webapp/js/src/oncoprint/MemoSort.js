@@ -11,60 +11,106 @@
 //
 // returns the data, sorted
 define(function() {
-    return function(data, attributes) {
+    return function(data, attributes,mutationColorControl) {
         // compares two objects that have gene data (cna, mutation, mrna, rppa).
         // Returns a number that indicates the order.
-        var comp_genes = function(attr1, attr2) {
+        var comp_genes = function(attr1, attr2,mutationcontrol) {
             var cna_order = {AMPLIFIED:4, HOMODELETED:3, GAINED:2, HEMIZYGOUSLYDELETED:1, DIPLOID: 0, undefined: 0},
                 regulated_order = {UPREGULATED: 2, DOWNREGULATED: 1, undefined: 0},
                 mutation_order_f = function(m) { 
                     
-                    if(m !== undefined)//multiple mutations
+//                    if(m !== undefined)//multiple mutations
+//                    {
+//                        m = m.split(',');
+//
+//                        if(m.length > 1)
+//                        {
+//                            for(var i = 0; i < m.length; i++)
+//                            {
+//                                if((/^[A-z]([0-9]+)[A-z]$/g).test(m[i]))
+//                                {
+//                                    continue;
+//                                }
+//                                else
+//                                {
+//                                    return 8;
+//                                }
+//                            }
+//
+//                            return 2;
+//                        }
+//                    }
+//                    
+//                    if((/^[A-z]([0-9]+)[A-z]$/g).test(m))
+//                    {
+//                        return 2;
+//                    }
+//                    else if(m !== undefined)
+//                    {
+////                        if((/^[A-Z]([0-9]+)[*]$/g).test(m))//Nonsense_Mutation
+////                        {return 8;}
+////                        if((/^[A-z*]([0-9]+)[A-z]{2}$/g).test(m))//Frame_shift_del
+////                        {return 7;}
+////                        if((/^([A-Z]+)([0-9]+)del$/g).test(m))//IN_frame_del
+////                        {return 6;}
+////                        if((/^[A-Z]([0-9]+)_splice$/g).test(m))//Splice_Site
+////                        {return 5;}
+////                        if((/^([A-Z]+)([0-9]+)del$/g).test(m))//IN_frame_del
+////                        {return 4;}
+//
+//                        if((/^([A-Z]+)([0-9]+)del$/g).test(m))//IN_frame_del
+//                        {return 3;}
+//                        return 4; // need to modified by dong li
+//                    }
+//                    
+//                    return m === undefined ? 0 : (/\bfusion\b/i.test(m)?2:1); 
+                    if(mutationcontrol === 'multiColor'|| mutationcontrol === undefined)
                     {
-                        m = m.split(',');
-
-                        if(m.length > 1)
+                        if(m === undefined) 
                         {
-                            for(var i = 0; i < m.length; i++)
-                            {
-                                if((/^[A-z]([0-9]+)[A-z]$/g).test(m[i]))
-                                {
-                                    continue;
-                                }
-                                else
-                                {
-                                    return 8;
-                                }
-                            }
+                            return 0;
+                        }
 
-                            return 2;
+                        if(m !== undefined)//multiple mutations
+                        {
+                            m = m.split(',');
+
+                            if(m.length > 1)
+                            {
+                                var hasIndel = false;
+                                for(var i = 0; i < m.length; i++)
+                                {
+                                    if(!/\bfusion\b/i.test(m[i]) && !(/^[A-z]([0-9]+)[A-z]$/g).test(m[i]))
+                                    {
+                                        return 3;
+                                    }
+
+                                    if ((/^([A-Z]+)([0-9]+)((del)|(ins))$/g).test(m[i])) {
+                                        hasIndel = true;
+                                    }
+                                }
+
+                                return hasIndel ? 2 : 1;
+                            }
+                        }
+
+                        if((/^[A-z]([0-9]+)[A-z]$/g).test(m))
+                        {
+                            return 1;//Missense_mutation
+                        }
+                        else if((/^([A-Z]+)([0-9]+)((del)|(ins))$/g).test(m) )
+                        {
+                            return 2;//inframe
+                        }
+                        else 
+                        {
+                            return 3;
                         }
                     }
-                    
-                    if((/^[A-z]([0-9]+)[A-z]$/g).test(m))
+                    else
                     {
-                        return 2;
+                        return m === undefined ? 0 : 1;
                     }
-                    else if(m !== undefined)
-                    {
-//                        if((/^[A-Z]([0-9]+)[*]$/g).test(m))//Nonsense_Mutation
-//                        {return 8;}
-//                        if((/^[A-z*]([0-9]+)[A-z]{2}$/g).test(m))//Frame_shift_del
-//                        {return 7;}
-//                        if((/^([A-Z]+)([0-9]+)del$/g).test(m))//IN_frame_del
-//                        {return 6;}
-//                        if((/^[A-Z]([0-9]+)_splice$/g).test(m))//Splice_Site
-//                        {return 5;}
-//                        if((/^([A-Z]+)([0-9]+)del$/g).test(m))//IN_frame_del
-//                        {return 4;}
-
-                        if((/^([A-Z]+)([0-9]+)del$/g).test(m))//IN_frame_del
-                        {return 4;}
-
-                        return 3; // need to modified by dong li
-                    }
-                    
-                    return m === undefined ? 0 : (/fusion($|,)/i.test(m)?2:1); 
                 };
 
             var cna_diff = cna_order[attr2.cna] - cna_order[attr1.cna];
@@ -168,7 +214,7 @@ define(function() {
 
                 var diff = (xj.gene === undefined
                     ? comp_clinical(xj, yj)
-                    :  comp_genes(xj, yj));
+                    :  comp_genes(xj, yj,mutationColorControl));
 
                 // return the first nonzero diff
                 if (diff !== 0) {

@@ -17,9 +17,11 @@ import joptsimple.OptionSpec;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 import org.mskcc.cbio.portal.dao.DaoClinicalEvent;
 import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoPatient;
 import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.ClinicalEvent;
+import org.mskcc.cbio.portal.model.Patient;
 /**
  *
  * @author jgao
@@ -73,8 +75,8 @@ public class ImportTimelineData {
             throw new Exception("Unknown cancer study: " + properties.getProperty("cancer_study_identifier"));
         }
         
-//        int cancerStudyId = cancerStudy.getInternalId();
-//        DaoClinicalEvent.deleteByCancerStudyId(cancerStudyId);
+        //int cancerStudyId = cancerStudy.getInternalId();
+        //DaoClinicalEvent.deleteByCancerStudyId(cancerStudyId);
         
         importData(dataFile, cancerStudy.getInternalId());
 
@@ -83,12 +85,14 @@ public class ImportTimelineData {
     
     private static void importData(String dataFile, int cancerStudyId) throws IOException, DaoException {
         MySQLbulkLoader.bulkLoadOn();
+        
+        System.out.print("Reading file "+dataFile);
         FileReader reader =  new FileReader(dataFile);
         BufferedReader buff = new BufferedReader(reader);
 
         String line = buff.readLine();
         if (!line.startsWith("PATIENT_ID\tSTART_DATE\tSTOP_DATE\tEVENT_TYPE")) {
-            throw new RuntimeException("The first line must start with 'PATEINT_ID\tSTART_DATE\tSTOP_DATE\tEVENT_TYPE'");
+            throw new RuntimeException("The first line must start with 'PATIENT_ID\tSTART_DATE\tSTOP_DATE\tEVENT_TYPE'");
         }
         String[] headers = line.split("\t");
 
@@ -103,10 +107,13 @@ public class ImportTimelineData {
                 continue;
             }
             
+            Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudyId, fields[0]);
+            if (patient == null) {
+              continue;
+            }
             ClinicalEvent event = new ClinicalEvent();
             event.setClinicalEventId(++clinicalEventId);
-            event.setCancerStudyId(cancerStudyId);
-            event.setPatientId(fields[0]);
+            event.setPatientId(patient.getInternalId());
             event.setStartDate(Long.valueOf(fields[1]));
             if (!fields[2].isEmpty()) {
                 event.setStopDate(Long.valueOf(fields[2]));

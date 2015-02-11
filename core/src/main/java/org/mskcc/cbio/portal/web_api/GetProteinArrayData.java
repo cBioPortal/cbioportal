@@ -17,24 +17,13 @@
 
 package org.mskcc.cbio.portal.web_api;
 
-import org.apache.commons.lang.StringUtils;
-import org.mskcc.cbio.portal.dao.DaoCancerStudy;
-import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
-import org.mskcc.cbio.portal.dao.DaoProteinArrayData;
-import org.mskcc.cbio.portal.dao.DaoProteinArrayInfo;
-import org.mskcc.cbio.portal.model.CanonicalGene;
-import org.mskcc.cbio.portal.model.ProteinArrayData;
-import org.mskcc.cbio.portal.model.ProteinArrayInfo;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.util.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Collection;
+import org.apache.commons.lang.StringUtils;
+
+import java.util.*;
 import java.rmi.RemoteException;
 
 /**
@@ -92,22 +81,25 @@ public class GetProteinArrayData {
     /**
      * 
      * @param proteinArrayIds
-     * @param caseIds
+     * @param sampleIds
      * @param xdebug
      * @return Map &lt; arrayId, Map &lt; caseId,Abundance &gt; &gt;
      * @throws RemoteException 
      */
     public static Map<String,Map<String,Double>> getProteinArrayData(int cancerStudyId, 
-            Collection<String> proteinArrayIds, Collection<String> caseIds)
+            Collection<String> proteinArrayIds, Collection<String> sampleIds)
             throws RemoteException, DaoException {
+
+        List<Integer> internalSampleIds = InternalIdUtil.getInternalSampleIds(cancerStudyId, new ArrayList<String>(sampleIds));
+
         List<ProteinArrayData> pads = DaoProteinArrayData.getInstance()
-                .getProteinArrayData(cancerStudyId, proteinArrayIds, caseIds);
+                .getProteinArrayData(cancerStudyId, proteinArrayIds, internalSampleIds);
         
         Map<String,Map<String,Double>> ret = new HashMap<String,Map<String,Double>>();
         
         for (ProteinArrayData pad : pads) {
             String arrayId = pad.getArrayId();
-            String caseId = pad.getCaseId();
+            Sample sample = DaoSample.getSampleById(pad.getSampleId());
             double abun = pad.getAbundance();
             if (Double.isNaN(abun))
                 continue;
@@ -117,7 +109,7 @@ public class GetProteinArrayData {
                 mapCaseAbun = new HashMap<String,Double>();
                 ret.put(arrayId, mapCaseAbun);
             }
-            mapCaseAbun.put(caseId, abun);
+            mapCaseAbun.put(sample.getStableId(), abun);
         }
             
         return ret;
@@ -167,10 +159,10 @@ public class GetProteinArrayData {
     }
     
     public static String getProteinArrayData(String cancerStudyStableId, List<String> arrayIds,
-            ArrayList<String> targetCaseList, boolean arrayInfo) throws DaoException {
+            List<String> targetSampleList, boolean arrayInfo) throws DaoException {
         Map<String,ProteinArrayInfo> mapArrayIdArray = new HashMap<String,ProteinArrayInfo>();
         DaoProteinArrayInfo daoPAI = DaoProteinArrayInfo.getInstance();
-        ArrayList<ProteinArrayInfo> pais;
+        List<ProteinArrayInfo> pais;
         int studyId = DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId).getInternalId();
         if (arrayIds==null || arrayIds.isEmpty()) {
             pais = daoPAI.getProteinArrayInfo(studyId);
@@ -184,29 +176,30 @@ public class GetProteinArrayData {
         
         DaoProteinArrayData daoPAD = DaoProteinArrayData.getInstance();
         Map<String, Map<String,Double>> mapArrayCaseAbun = new HashMap<String,Map<String,Double>>();
-        Set<String> caseIds = new HashSet<String>();
-        for (ProteinArrayData pad : daoPAD.getProteinArrayData(studyId, arrays, targetCaseList)) {
+        List<Integer> internalSampleIds = InternalIdUtil.getInternalSampleIds(studyId, targetSampleList);
+        Set<String> sampleIds = new HashSet<String>();
+        for (ProteinArrayData pad : daoPAD.getProteinArrayData(studyId, arrays, internalSampleIds)) {
             String arrayId = pad.getArrayId();
-            String caseId = pad.getCaseId();
-            caseIds.add(caseId);
+            Sample sample = DaoSample.getSampleById(pad.getSampleId());
+            sampleIds.add(sample.getStableId());
             Map<String,Double> mapCaseAbun = mapArrayCaseAbun.get(arrayId);
             if (mapCaseAbun==null) {
                 mapCaseAbun = new HashMap<String,Double>();
                 mapArrayCaseAbun.put(arrayId, mapCaseAbun);
             }
-            mapCaseAbun.put(caseId, pad.getAbundance());
+            mapCaseAbun.put(sample.getStableId(), pad.getAbundance());
         }
         
         StringBuilder sb = new StringBuilder();
-        if (targetCaseList==null) {
-            targetCaseList = new ArrayList<String>(caseIds);
+        if (targetSampleList==null) {
+            targetSampleList = new ArrayList<String>(sampleIds);
         }
         
         sb.append("ARRAY_ID\t");
         if (arrayInfo) {
             sb.append("ARRAY_TYPE\tGENE\tRESIDUE\t");
         }
-        sb.append(StringUtils.join(targetCaseList, "\t"));
+        sb.append(StringUtils.join(targetSampleList, "\t"));
         sb.append('\n');
         
         for (String arrayId : arrays) {
@@ -223,9 +216,9 @@ public class GetProteinArrayData {
                 sb.append("\t").append(pai.getResidue());
             }
             
-            for (String caseId : targetCaseList) {
+            for (String sampleId : targetSampleList) {
                 sb.append('\t');
-                Double abundance = mapCaseAbun.get(caseId);
+                Double abundance = mapCaseAbun.get(sampleId);
                 if (abundance==null) {
                     sb.append("NaN");
                 } else {

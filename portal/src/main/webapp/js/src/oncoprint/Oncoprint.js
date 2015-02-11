@@ -16,6 +16,15 @@ define("Oncoprint",
                 params.clinicalData = params.clinicalData || [];        // initialize
                 params.clinical_attrs = params.clinical_attrs || [];
 
+                if(params.clinical_attrs.length > 0)
+                {
+                    $('#oncoprint-diagram-showlegend-icon').css("display","inline");
+                }
+//                if(params.clinical_attrs.length < 1)
+//                {
+//                    $('#oncoprint-diagram-toolbar-buttons #sort_by')[0].options[1].disabled = true;
+//                }
+
                 // make strings of numbers into numbers
                 var clinicalData = params.clinicalData.map(function(i) {
                     if (!utils.is_discrete(i.attr_val)) {
@@ -76,7 +85,15 @@ define("Oncoprint",
                             function(attr) {
                                 var maybe = utils.maybe_map(id2ClinicalAttr);
                                 var value = maybe(attr);
-                                return value === attr ? value : value.display_name;
+//                                return value === attr ? value : value.display_name;
+                                value= (value === attr ? value : value.display_name);
+
+                                if(value.length>20)
+                                {
+                                    return value.substring(0,17) + "...";
+                                }
+
+                                return value;
 
                             }));
 
@@ -141,16 +158,31 @@ define("Oncoprint",
                         return (dims.vert_space / 1.80) + vertical_pos(d);
                     });
 
+
                 label.append('tspan')       // name
                     .attr('text-anchor', 'start')
                     .attr('font-weight', 'bold')
                     .attr('fill','black')
                     .attr('cursor','move')
                     .attr('class','attribute_name')
+                    .attr('attributename',function(d) {
+                        var maybe = utils.maybe_map(id2ClinicalAttr);
+                        var value = maybe(d);
+                        value= (value === d ? value : value.display_name);
+
+                        return value;
+                    })
                     .text(function(d) {
                         var maybe = utils.maybe_map(id2ClinicalAttr);
                         var value = maybe(d);
-                        return value === d ? value : value.display_name;
+                        value= (value === d ? value : value.display_name);
+                        
+                        if(value.length>20)
+                        {
+                            return value.slice(0,17) + "...";
+                        }
+                        
+                        return value;
                     });
                     
 
@@ -160,7 +192,16 @@ define("Oncoprint",
                     .data(attributes)
                     .enter()
                     .append('svg:image')
-                    .attr('class','oncoprint_Sort_Button')
+                    .attr('class',function(d){
+                        if(_.indexOf(params.genes,d)<0) 
+                        {
+                            return 'oncoprint_Sort_Button';
+                        } 
+                        else
+                        {
+                            return 'oncoprint_Blank_Button';
+                        }
+                    })
                     .attr('width', 15)
                     .attr('height', 15)
                     .attr("xlink:href",function(d){
@@ -184,7 +225,7 @@ define("Oncoprint",
                             return "images/increaseSort.svg";
                         }
 
-                            return "";
+                            return "images/blank.svg";
                         })
                     .attr('x', '' + dims.label_width-40)
                     .attr('text-anchor', 'end')
@@ -320,19 +361,32 @@ define("Oncoprint",
 
                     var fusion = enter.append('path')
                         .attr('d', "M0,0L0,"+dims.rect_height+" "+dims.rect_width+","+dims.rect_height/2+"Z")
-                        .attr('transform',function(d) {return 'translate(0,'+(vertical_pos(utils.get_attr(d)))+')';});
+                        .attr('transform',function(d) {
+                            if(params.clinical_attrs.length > 0){
+                                return d.attr_id === undefined
+                                 ? 'translate(0,'+(vertical_pos(utils.get_attr(d))+ gapSpaceGeneClinic)+')'
+                                 : 'translate(0,'+(vertical_pos(utils.get_attr(d))+ dims.clinical_offset)+')';
+                            }
+                            else
+                            {
+//                                return 'translate(0,'+(vertical_pos(utils.get_attr(d)))+')';
+                                return d.attr_id === undefined
+                                 ? 'translate(0,'+(vertical_pos(utils.get_attr(d)))+')'
+                                 : 'translate(0,'+(vertical_pos(utils.get_attr(d))+ dims.clinical_offset)+')';
+                            }
+                            });
                     fusion.filter(function(d) {
-                        return d.mutation === undefined || !/fusion($|,)/i.test(d.mutation.toLowerCase());
+                        return d.mutation === undefined || !/\bfusion\b/i.test(d.mutation.toLowerCase());
                     }).remove();
                     
                     //seperate the mutation type
                     var seperateMuation = function(mutation){
                         
-                        if(params.mutationColor === 'singleColor' || params.mutationColor === undefined)
+                        if(params.mutationColor === 'singleColor')
                         {
                             return 'green';
                         }
-                        else if(params.mutationColor === 'multiColor')
+                        else if(params.mutationColor === 'multiColor'  || params.mutationColor === undefined)
                         {             
                             var mutationSplit;
 
@@ -342,19 +396,21 @@ define("Oncoprint",
 
                                 if(mutationSplit.length > 1)
                                 {
+                                    var hasIndel = false;
                                     for(var i = 0; i < mutationSplit.length; i++)
                                     {
-                                        if((/^[A-z]([0-9]+)[A-z]$/g).test(mutationSplit[i]))
-                                        {
-                                            continue;
-                                        }
-                                        else
+                                        if(!/\bfusion\b/i.test(mutationSplit[i]) &&
+                                                !(/^[A-z]([0-9]+)[A-z]$/g).test(mutationSplit[i]))
                                         {
                                             return 'black';
                                         }
+                                        
+                                        if ((/^([A-Z]+)([0-9]+)((del)|(ins))$/g).test(mutationSplit[i])) {
+                                            hasIndel = true;
+                                        }
                                     }
                                     
-                                    return 'green';
+                                    return hasIndel ? '#9F8170' : 'green';
                                 }
                             }
 
@@ -362,7 +418,7 @@ define("Oncoprint",
                             {
                                 return 'green';//Missense_mutation
                             }
-                            else if((/^([A-Z]+)([0-9]+)del$/g).test(mutationSplit) )
+                            else if((/^([A-Z]+)([0-9]+)((del)|(ins))$/g).test(mutationSplit) )
                             {
                                 return '#9F8170';//inframe
                             }
@@ -437,7 +493,7 @@ define("Oncoprint",
                         if (d.mutation === undefined) return true;
                         var aas = d.mutation.split(","); // e.g. A32G,fusion
                         for (var i=0, n=aas.length; i<n; i++) {
-                            if (!/fusion$/i.test(aas[i])) return false;
+                            if (!/\bfusion\b/i.test(aas[i])) return false;
                         }
                         return true;
                     }).remove();
@@ -657,7 +713,7 @@ define("Oncoprint",
                     //
                     // throws unsupported sort option if something other than the 3 options
                     // above is given.
-                    var sortBy = function(by, cases) {
+                    var sortBy = function(by, cases,mutationColorControl) {
                         if (by === 'genes') {
 //                            state.attrs = params.genes.concat(clinical_attrs);
                             state.attrs = params.genes.slice(0);
@@ -669,7 +725,7 @@ define("Oncoprint",
                                     state.attrs.push(clinical_attrs[i]);
                                 }
                             }
-                            state.data = MemoSort(state.data, state.attrs);
+                            state.data = MemoSort(state.data, state.attrs,mutationColorControl);
                         }
                         else if (by === 'clinical') {
                             state.attrs = [];
@@ -684,7 +740,7 @@ define("Oncoprint",
                             }
                             
                             state.attrs = state.attrs.concat(params.genes);
-                            state.data = MemoSort(state.data, state.attrs);
+                            state.data = MemoSort(state.data, state.attrs,mutationColorControl);
                             
                             for(var i = 0; i < clinical_attrs.length; i++)
                             {
@@ -700,7 +756,8 @@ define("Oncoprint",
                         }
                         else if (by === 'alphabetical') {
                             state.data = state.data.sort(function(x,y) {
-                                return x.key < y.key;
+//                                return x.key < y.key;
+                                return x.key.localeCompare(y.key);
                             });
                         }
                         else if (by === 'custom') {
@@ -727,15 +784,21 @@ define("Oncoprint",
                     };
 
                     // create a legend if user asked for it
-                    var attr2rangeValue = utils.attr_data_type2range(params.clinicalData, params.clinical_attrs.length);
+                    var attr2rangeValue = utils.attr_data_type2range(params.clinicalData, params.clinical_attrs.length,params.clinical_attrs);
                     var attr2rangeFuntion = utils.make_attribute2scale(params.clinical_attrs, params.clinicalData);
                     if (params.legend) {
                         utils.legend(params.legend,utils.gene_data_type2range(params.geneData), dims.label_width, attr2rangeValue,attr2rangeFuntion);
                     }
                     
+                    //if multicolor state is on, then show multiple genetic legend
+                    if(params.mutationColor === 'multiColor'|| params.mutationColor === undefined)
+                    {
+                        $('.legend_missense_name').text("Missense Mutation");
+                        $('.legend_nonmissense').css("display","inline");
+                    }
                     
                     var memoSort = function(attributes, animation) {
-                        state.data = MemoSort(state.data, attributes);
+                        state.data = MemoSort(state.data, attributes,mutationColorControl);
                         if (animation) { horizontal_translate(ANIMATION_DURATION); }
                         else { horizontal_translate(); }
 
@@ -754,7 +817,7 @@ define("Oncoprint",
                         };
 
                         state.attrs = shuffle(attributes);
-                        state.data = MemoSort(state.data, state.attrs);
+                        state.data = MemoSort(state.data, state.attrs,mutationColorControl);
                         horizontal_translate(ANIMATION_DURATION);
                         return state.attrs;
                     };
@@ -922,8 +985,9 @@ define("Oncoprint",
                         out += generic_legends_svg;
                         out += mutation_legends;
                         out += mutation_legends_svg;
+                        out = "<g transform=\"translate("+ 15 +","+ 15 + ")\">" + out + "</g> ";;
 
-                        return "<svg height=\"" + (dims.height + verticalTranslateWidth + dims.height) + "\" width=\"" + width + "\">" + out + "</svg>";
+                        return "<svg height=\"" + (dims.height + verticalTranslateWidth + dims.height + 15) + "\" width=\"" + (width + 30) + "\">" + out + "</svg>";
                     };
 
                     return {
@@ -939,7 +1003,10 @@ define("Oncoprint",
                             showUnalteredCases(show_unaltered_bool);
                         },
                         sortBy: sortBy,
-                        getPdfInput: getPdfInput
+                        getPdfInput: getPdfInput,
+                        getOncoprintData: function() {
+                            return data;
+                        }
                     };
                 })();
 

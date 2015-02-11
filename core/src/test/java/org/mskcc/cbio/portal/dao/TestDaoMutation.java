@@ -17,13 +17,12 @@
 
 package org.mskcc.cbio.portal.dao;
 
-import junit.framework.TestCase;
+import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.scripts.ResetDatabase;
-import org.mskcc.cbio.portal.model.ExtendedMutation;
-import org.mskcc.cbio.portal.model.CanonicalGene;
 
-import java.util.ArrayList;
-import java.util.Set;
+import junit.framework.TestCase;
+
+import java.util.*;
 
 /**
  * JUnit tests for DaoMutation class.
@@ -42,13 +41,14 @@ public class TestDaoMutation extends TestCase {
 		daoGene.addGene(blahGene);
 
 		ResetDatabase.resetDatabase();
+        createSamples();
 
 		ExtendedMutation mutation = new ExtendedMutation();
 
                 mutation.setMutationEventId(1);
                 mutation.setKeyword("key");
 		mutation.setGeneticProfileId(1);
-		mutation.setCaseId("1234");
+		mutation.setSampleId(1);
 		mutation.setGene(blahGene);
 		mutation.setValidationStatus("validated");
 		mutation.setMutationStatus("somatic");
@@ -105,7 +105,7 @@ public class TestDaoMutation extends TestCase {
 		if( MySQLbulkLoader.isBulkLoad()){
                     MySQLbulkLoader.flushAll();
 		}
-		ArrayList<ExtendedMutation> mutationList = DaoMutation.getMutations(1, "1234", 321);
+		ArrayList<ExtendedMutation> mutationList = DaoMutation.getMutations(1, 1, 321);
 		validateMutation(mutationList.get(0));
 
 		//  Test the getGenesInProfile method
@@ -121,7 +121,7 @@ public class TestDaoMutation extends TestCase {
 
 	private void validateMutation(ExtendedMutation mutation) {
 		assertEquals (1, mutation.getGeneticProfileId());
-		assertEquals ("1234", mutation.getCaseId());
+		assertEquals (1, mutation.getSampleId());
 		assertEquals (321, mutation.getEntrezGeneId());
 		assertEquals ("validated", mutation.getValidationStatus());
 		assertEquals ("somatic", mutation.getMutationStatus());
@@ -171,4 +171,12 @@ public class TestDaoMutation extends TestCase {
 		assertEquals(678, mutation.getOncotatorProteinPosEnd());
 		assertEquals (true, mutation.isCanonicalTranscript());
 	}
+
+    private void createSamples() throws DaoException {
+        CancerStudy study = new CancerStudy("study", "description", "id", "brca", true);
+        Patient p = new Patient(study, "TCGA-1");
+        int pId = DaoPatient.addPatient(p);
+        Sample s = new Sample("1234", pId, "type");
+        DaoSample.addSample(s);
+    }
 }

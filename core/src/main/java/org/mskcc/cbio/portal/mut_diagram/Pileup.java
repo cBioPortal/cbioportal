@@ -128,7 +128,7 @@ public final class Pileup {
 
 	        for (ExtendedMutation mutation : entry.getValue())
 	        {
-                caseIds.add(mutation.getCaseId() + ":" + mutation.getProteinChange());
+                caseIds.add(mutation.getSampleId() + ":" + mutation.getProteinChange());
 
 		        if (mutation.getMutationType() != null &&
 		            mutation.getMutationType().toLowerCase().contains("missense"))

@@ -106,7 +106,7 @@ define("OncoprintUtils", (function() {
     // returns: map of an attribute id to its respective range
     // where a range is a 2-ple if the corresponding attribute values are numerical
     // and a list of values otherwise
-    var attr2range = function(clinicalData) {
+    var attr2range = function(clinicalData,attrs) {
         var attr2range_builder = function(prev, curr) {
             prev[curr.attr_id] = prev[curr.attr_id] || [];      // initialize
 
@@ -117,10 +117,17 @@ define("OncoprintUtils", (function() {
             if (val === "NA") {
                 return prev;
             }
-            if (is_discrete(val)) {
-                if (a2r.indexOf(val) === -1) { a2r.push(val); }       // keep a set of unique elements
+            
+            var attrsDatatype;
+            for(var i = 0; i < attrs.length; i++)
+            {
+                if(curr.attr_id === attrs[i].attr_id)
+                {
+                   attrsDatatype = attrs[i].datatype; 
+                }
             }
-            else {
+            
+            if(attrsDatatype.toUpperCase() === "NUMBER") {
                 // just keep the min and max -- an interval of values
                 //val = parseInt(val);
                 var min = a2r[0],
@@ -132,6 +139,11 @@ define("OncoprintUtils", (function() {
                 if (min === undefined || val < min) {
                     a2r[0] = val;
                 }
+            }
+            else
+            {
+                if (a2r.indexOf(val) === -1) { a2r.push(val); }       // keep a set of unique elements
+
             }
 
             prev[curr.attr_id] = a2r;
@@ -164,11 +176,12 @@ define("OncoprintUtils", (function() {
         var mutations = extract_unique(raw_gene_data, 'mutation', function(d){
             var aas = d.split(",");// e.g. A32G,fusion
             for (var i=0, n=aas.length; i<n; i++) {
-                if (!/fusion$/i.test(aas[i])) return true;
+                if (!/\bfusion\b/i.test(aas[i])) return true;
             }
             return false;
         });
-        var fusions = extract_unique(raw_gene_data, 'mutation', function(d){return /fusion($|,)/i.test(d);});
+
+        var fusions = extract_unique(raw_gene_data, 'mutation', function(d){return /\bfusion\b/i.test(d);});
         var mrnas = extract_unique(raw_gene_data, 'mrna');
         var rppas = extract_unique(raw_gene_data, 'rppa');
 
@@ -214,9 +227,9 @@ define("OncoprintUtils", (function() {
         return to_return;
     };
     
-    var attr_data_type2range = function(raw_attr_and_gene_data,attrs_number)
+    var attr_data_type2range = function(raw_attr_and_gene_data,attrs_number,raw_clinical_attr)
     {
-        var extract_unique = function(raw_data, length, filter) {
+        var extract_unique = function(raw_data, length, raw_clinical_attributes ,filter) {
             
             var finalAfterProcess = [];
             var testFinalAfterProcess = [];
@@ -228,8 +241,26 @@ define("OncoprintUtils", (function() {
                 afterProcess = afterProcess.filter( function(d) {
                         return d !== undefined && (!filter || filter(d));
                     });
-                    
-                if(typeof(afterProcess[0].attr_val)==='number')
+                
+                var afterprocessDatatype = false;
+                for(var j=0; j<afterProcess.length;j++)
+                {
+                   //determin the datatype of afterProcess data
+                   if(typeof(afterProcess[j].attr_val) === 'number')
+                   {
+                      afterprocessDatatype = true;
+                   }
+                   
+                   for(var n=0; n<raw_clinical_attr.length;n++)
+                   {
+                       if(afterProcess[j].attr_id === raw_clinical_attr[n].attr_id)
+                       {
+                          afterProcess[j].display_name = raw_clinical_attr[n].display_name;
+                       }
+                   }
+                }
+                
+                if(afterprocessDatatype)// if data type is number
                 {
                     if(afterProcess.length > 12)
                     {
@@ -251,10 +282,11 @@ define("OncoprintUtils", (function() {
                 testFinalAfterProcess[i] = afterProcess;
                 raw_data = raw_data.concat(seperate_raw_data);
             }
+            
             return testFinalAfterProcess;
         };
         
-        var attrs = extract_unique(raw_attr_and_gene_data,attrs_number);
+        var attrs = extract_unique(raw_attr_and_gene_data,attrs_number,raw_clinical_attr);
         
         return attrs;
     }
@@ -315,7 +347,7 @@ define("OncoprintUtils", (function() {
     // returns a map of attr_id to d3 scale
     var make_attribute2scale = function(attrs, raw_clinical_data) {
 
-        var attrId2range = attr2range(raw_clinical_data);
+        var attrId2range = attr2range(raw_clinical_data,attrs);
 
         var slice_googlecolors = function(attr_id) {
             return colors.google.slice(0, attrId2range[attr_id].length);
@@ -430,18 +462,53 @@ define("OncoprintUtils", (function() {
 
         var percent = (altered / total) * 100;
         //attr2percent[gene.key] = Math.round(percent);
-        if(percent>1.0)
+
+        if(percent>=1.0)
         {
             attr2percent[gene.key] = Math.round(percent);
         }
         else
         {
-            attr2percent[gene.key] = percent.toFixed(1);
+            if(percent>0)
+            {
+                attr2percent[gene.key] = percent.toFixed(1);
+            }
+            
+            attr2percent[gene.key] = 0;
         }
         });
 
         return attr2percent;
     };
+
+    var alteration_info = function(raw_gene_data) {
+        var data = d3.nest()
+            .key(function(d) { return get_attr(d); })
+            .entries(raw_gene_data);
+
+        var alterinfo = {};
+
+        data.forEach(function(gene) {
+            var total = gene.values.length;
+            var altered = _.chain(gene.values)
+            .map(function(sample_gene) {
+                return altered_gene(sample_gene) ? 1 : 0;
+            })
+            .reduce(function(sum, zero_or_one) {
+                return sum + zero_or_one;
+            }, 0)
+            .value();
+
+            var percent = (altered / total) * 100;
+            alterinfo[gene.key] = {
+                "total_alter_num" : altered,
+                "percent" : Math.round(percent)
+            }
+        });
+
+        return alterinfo;
+    };
+
 
     // params: array of strings (names of attributes)
     // returns: length (number)
@@ -466,7 +533,7 @@ define("OncoprintUtils", (function() {
         tmp.remove();
         // bye bye tmp
 
-        return 42 + max; // http://goo.gl/iPzfU
+        return 42 + 20 + max; // http://goo.gl/iPzfU
     };
 
     // takes a list of clinical attribute objects and returns a map that maps
@@ -548,7 +615,8 @@ define("OncoprintUtils", (function() {
                 datas[i][0].attr_id.length*dims.character_length;
                 maxlength = (datas[i][0].attr_id.length*dims.character_length) > maxlength ? (datas[i][0].attr_id.length*dims.character_length) : maxlength;
             }
-            
+            var lengestStringLength = 20;//we define truncated the string to 20 characters
+            maxlength = lengestStringLength * dims.character_length
             return maxlength;
         };
         
@@ -593,7 +661,7 @@ define("OncoprintUtils", (function() {
             {
                 if(datas[indexValue][i].attr_val!==valueName)
                 {
-                    totalLength += datas[indexValue][i].attr_val.toString().length *6.5 + dims.rect_width * 5;
+                    totalLength += datas[indexValue][i].attr_val.toString().length *dims.character_length + dims.rect_width * 5;
                 }
                 else
                 {
@@ -610,10 +678,11 @@ define("OncoprintUtils", (function() {
             for( i = 0; i < datas.length; i++ )
             {
                 var longestEachData = 0;
-                longestEachData = calculateDistance(datas[i][datas[i].length - 1].attr_id, datas[i][datas[i].length - 1].attr_val) + datas[i][datas[i].length - 1].attr_val.toString().length *6.5 + dims.rect_width * 5;
+                longestEachData = calculateDistance(datas[i][datas[i].length - 1].attr_id, datas[i][datas[i].length - 1].attr_val) + datas[i][datas[i].length - 1].attr_val.toString().length *dims.character_length + dims.rect_width * 5;
                 longestLegendLength= longestEachData > longestLegendLength ? longestEachData: longestLegendLength;
             }
-            
+//            var lengstStringLength = 20;
+//            longestLegendLength = calculateDistance(datas[i][datas[i].length - 1].attr_id, datas[i][datas[i].length - 1].attr_val) + lengstStringLength * dims.character_length + dims.rect_width * 5;
             return longestLegendLength;
         }; 
         
@@ -621,7 +690,7 @@ define("OncoprintUtils", (function() {
         {
             var i = legendIndex;
             var longestEachData = 0;
-            longestEachData = calculateDistance(datas[i][datas[i].length - 1].attr_id, datas[i][datas[i].length - 1].attr_val) + datas[i][datas[i].length - 1].attr_val.toString().length *6.5 + dims.rect_width * 5;
+            longestEachData = calculateDistance(datas[i][datas[i].length - 1].attr_id, datas[i][datas[i].length - 1].attr_val) + datas[i][datas[i].length - 1].attr_val.toString().length *dims.character_length + dims.rect_width * 5;
             
             return longestEachData;
         }; 
@@ -646,7 +715,7 @@ define("OncoprintUtils", (function() {
                 {
                     if(datas[indexValue][i].attr_val!==valueName)
                     {
-                        totalLength += datas[indexValue][i].attr_val.toString().length *6.5 + dims.rect_width * 5;
+                        totalLength += datas[indexValue][i].attr_val.toString().length *7.5 + dims.rect_width * 5;
                     }
                     else
                     {
@@ -693,7 +762,13 @@ define("OncoprintUtils", (function() {
             .attr('fill','gray')
             .attr('class','attribute_legend')
             .text(function() {
-                return inteData[0].attr_id.toString().toLowerCase();
+                var display_name_value = inteData[0].display_name;
+                if(display_name_value.length > 20)
+                {
+                    display_name_value = display_name_value.slice(0,17) + "...";
+                }
+//                return inteData[0].display_name.toString().toLowerCase();
+                return display_name_value.toString().toLowerCase();
             });
             
         var container_width = $('#oncoprint_table div').width();              // default setting 
@@ -817,6 +892,11 @@ define("OncoprintUtils", (function() {
                 .text(function() {
                     if(typeof(inteData[1].attr_val) === 'number')
                     {
+                        if(inteData[1].attr_val%1 === 0)
+                        {
+                            return inteData[1].attr_val;
+                        }
+                        
                         return cbio.util.toPrecision(inteData[1].attr_val,4,0.00001);
                     }
                     else{
@@ -1027,7 +1107,8 @@ define("OncoprintUtils", (function() {
                 datas[i][0].attr_id.length*character_length;
                 maxlength = (datas[i][0].attr_id.length*character_length) > maxlength ? (datas[i][0].attr_id.length*character_length) : maxlength;
             }
-            
+            var lengestStringLength = 20;//we define truncated the string to 20 characters
+            maxlength = lengestStringLength * character_length;
             return maxlength;
         };
         
@@ -1082,7 +1163,7 @@ define("OncoprintUtils", (function() {
                         return captions.cna[datatype2range.cna[i]].length * 6.5;
                     })
                     .attr('x', 5.5*3)
-                    .attr('y', 21);
+                    .attr('y', 19);
 
                 label.append('tspan')       // name
                     .attr('text-anchor', 'start')
@@ -1103,14 +1184,14 @@ define("OncoprintUtils", (function() {
                         return true;
                     }
                     return false;
-                case 2:
+                case 3:
                     var findResult = _.find(source,function(element){return (/^([A-Z]+)([0-9]+)del$/g).test(element)});
                     if(findResult !== undefined)
                     {
                         return true;
                     }
                     return false;// need to modified by dong li
-                case 3:
+                case 2:
 //                    var findResult = _.find(source,function(element){return (/^([A-Z]+)([0-9]+)del$/g).test(element)});
                     for(var i = 0; i<source.length; i++)
                     {
@@ -1165,7 +1246,7 @@ define("OncoprintUtils", (function() {
                         return ('mRNA Downregulation').length * 6.5;
                     })
                     .attr('x', 5.5*3)
-                    .attr('y', 21);
+                    .attr('y', 19);
 
                 label.append('tspan')       // name
                     .attr('text-anchor', 'start')
@@ -1202,7 +1283,7 @@ define("OncoprintUtils", (function() {
                         return ('mRNA Upregulation').length * 6.5;
                     })
                     .attr('x', 5.5*3)
-                    .attr('y', 21);
+                    .attr('y', 19);
 
                 label.append('tspan')       // name
                     .attr('text-anchor', 'start')
@@ -1249,7 +1330,7 @@ define("OncoprintUtils", (function() {
                         return ('RPPA Downregulation').length * 6.5;
                     })
                     .attr('x', 5.5*3)
-                    .attr('y', 21);
+                    .attr('y', 19);
 
                 label.append('tspan')       // name
                     .attr('text-anchor', 'start')
@@ -1288,7 +1369,7 @@ define("OncoprintUtils", (function() {
                         return ('RPPA Upregulation').length * 6.5;
                     })
                     .attr('x', 5.5*3)
-                    .attr('y', 21);
+                    .attr('y', 19);
 
                 label.append('tspan')       // name
                     .attr('text-anchor', 'start')
@@ -1303,7 +1384,7 @@ define("OncoprintUtils", (function() {
 //            {
                 var legend_svg = tabledata.append('svg')
                             .attr('height', 23 )
-                            .attr('width', ('missense mutation').length * 7.5 + 5.5*3 )
+                            .attr('width', ('Missense Mutation').length * 7.5 + 5.5*3 )
                             .attr('id', 'legend_svg')
                             .attr('class','legend_missense')
                             .append('g');
@@ -1323,10 +1404,10 @@ define("OncoprintUtils", (function() {
                 .attr('font-size', '12px')
                 .attr('width', function()
                 {
-                    return ('missense mutation').length * 6.5;
+                    return ('Missense Mutation').length * 6.5;
                 })
                 .attr('x', 5.5*3)
-                .attr('y', 21);
+                .attr('y', 19);
 
                 label.append('tspan')       // name
                     .attr('text-anchor', 'start')
@@ -1339,7 +1420,7 @@ define("OncoprintUtils", (function() {
                     var legend_svg = tabledata.append('svg')
                                 .attr('height', 23 )
                                 .attr('display','none')
-                                .attr('width', ('truncating mutation').length * 7.5 + 5.5*3 )
+                                .attr('width', ('Truncating Mutation').length * 7.5 + 5.5*3 )
                                 .attr('id', 'legend_svg')
                                 .attr('class', 'legend_nonmissense')
                                 .append('g');
@@ -1359,16 +1440,16 @@ define("OncoprintUtils", (function() {
                     .attr('font-size', '12px')
                     .attr('width', function()
                     {
-                        return ('truncating mutation').length * 6.5;
+                        return ('Truncating Mutation').length * 6.5;
                     })
                     .attr('x', 5.5*3)
-                    .attr('y', 21);
+                    .attr('y', 19);
 
                     label.append('tspan')       // name
                         .attr('text-anchor', 'start')
                         .attr('fill','black')
                         .attr('class','legend_name')
-                        .text('truncating mutation'); 
+                        .text('Truncating Mutation'); 
                 }
                 
                 if(findProperMutation(datatype2range.mutation,3))
@@ -1399,16 +1480,56 @@ define("OncoprintUtils", (function() {
                         return ('inframe mutation').length * 6.5;
                     })
                     .attr('x', 5.5*3)
-                    .attr('y', 21);
+                    .attr('y', 19);
 
                     label.append('tspan')       // name
                         .attr('text-anchor', 'start')
                         .attr('fill','black')
                         .attr('class','legend_name')
-                        .text('inframe mutation'); 
+                        .text('Inframe Mutation'); 
                 }
         }
-        
+        if (datatype2range.fusion !== undefined)
+        {
+                var legend_svg = tabledata
+                            .append('svg')
+                            .attr('height', 23 )
+                            .attr('width', ('Fusion').length * 7.5 + 5.5*3 )
+                            .attr('x', 0)
+                            .attr('id', 'legend_svg')
+                            .attr('class', 'legend_fusion')
+                            .append('g');
+
+                legend_svg.append('rect')
+                            .attr('height', 23)
+                            .attr('width', 5.5)
+                            .attr('fill', colors.grey);
+                    
+                //var sym = d3.svg.symbol().size(5.5 * 3);
+                // need to be modified
+                var fusion = legend_svg.append('path')
+                    .attr('d', "M0,0L0,"+ 23 + " " + 5.5+"," + 23/2 + "Z")
+                    .attr('transform',function(d) {
+                            var dy = 23;
+                            dy =  dy / 23;
+                            return translate( 0, 0);
+                        });
+
+                var label = legend_svg.append('text')
+                    .attr('font-size', '12px')
+                    .attr('width', function()
+                    {
+                        return ('Fusion').length * 6.5;
+                    })
+                    .attr('x', 5.5*3)
+                    .attr('y', 19);
+
+                label.append('tspan')       // name
+                    .attr('text-anchor', 'start')
+                    .attr('fill','black')
+                    .attr('class','legend_name')
+                    .text('Fusion');
+        }
         if(attrtype2range.length > 0)
         {
             CreateLegendII(attrtype2range,attr2rangeFuntion);
@@ -1427,6 +1548,7 @@ define("OncoprintUtils", (function() {
             .data(clinical_attributes)
             .enter()
             .append('option')
+//            .css('background-color','rgba(255,255,255,.8)')
             .text(function(d) { return d.display_name; });
     };
 
@@ -1443,7 +1565,7 @@ define("OncoprintUtils", (function() {
         return {
             mutation: function(d) {
                 if (d.mutation) {
-                    if (/fusion($|,)/i.test(d.mutation)) return "<b>" + d.mutation + "</b><br/>";
+                    if (/\bfusion\b/i.test(d.mutation)) return "<b>" + d.mutation + "</b><br/>";
                     else return "Mutation: <b>" + d.mutation + "</b><br/>";
                 }
                 return "";
@@ -1471,6 +1593,10 @@ define("OncoprintUtils", (function() {
 
             clinical: function(d) {
                 if(typeof d.attr_val === "number"){
+                    if(d.attr_val%1 === 0)
+                    {
+                       return "value: <b>" + d.attr_val + "</b><br/>"; 
+                    }
                     return "value: <b>" + cbio.util.toPrecision(d.attr_val,4,0.00001) + "</b><br/>";
                 }
                 
@@ -1481,9 +1607,7 @@ define("OncoprintUtils", (function() {
 
     var patientViewUrl = function(sample_id) {
         // helper function
-        var href = "case.do?case_id=" + sample_id
-            + "&cancer_study_id=" + window.cancer_study_id_selected;        // N.B.
-
+        var href = cbio.util.getLinkToSampleView(window.cancer_study_id_selected,sample_id);
         return "<a href='" + href + "'>" + sample_id + "</a>";
     };
 
@@ -1533,9 +1657,12 @@ define("OncoprintUtils", (function() {
 //                }}).appendTo($(div));
 //    };
 
+    var addShowLegendIcon = function(div){
+        return $('<img>', { id: "oncoprint-diagram-showlegend-icon",class: "oncoprint-diagram-showlegend-icon",checked:'0', width: "16px",height:"16px", src:"images/showlegend.svg"}).appendTo($(div));
+    };
     var zoomSetup = function(div, fun) {
         
-        return $('<input>', { id: "oncoprint_zoom_slider",type:'range', width: "80",height:"10", min: .1, max: 1, step: .01, value: 1, change: function(event, ui) {
+        return $('<input>', { id: "oncoprint_zoom_slider",type:'range', width: "80",height:"16", min: .1, max: 1, step: .01, value: 1, change: function(event, ui) {
                     fun(this.value, 'animation');       // N.B.
                 }}).appendTo($(div));
     };
@@ -1566,7 +1693,9 @@ define("OncoprintUtils", (function() {
         colors: colors,
         populate_clinical_attr_select: populate_clinical_attr_select,
         make_mouseover: make_mouseover,
-        zoomSetup: zoomSetup
+        addShowLegendIcon:addShowLegendIcon,
+        zoomSetup: zoomSetup,
+        alteration_info: alteration_info
     };
 })()
 );

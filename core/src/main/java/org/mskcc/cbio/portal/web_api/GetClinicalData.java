@@ -51,83 +51,6 @@ public class GetClinicalData {
     }
 
     /**
-     * Gets Clinical Data for the Specific Cases.
-     *
-     * @param caseIdList Target Case IDs.
-     * @return String of Output.
-     * @throws DaoException Database Error.
-     */
-    public static String getClinicalData(int cancerStudyId, Set<String> caseIdList, boolean includeFreeFormData)
-            throws DaoException {
-
-        List<Patient> caseSurvivalList = DaoClinicalData.getSurvivalData(cancerStudyId, caseIdList);
-        Map<String,Patient> mapClinicalData = new HashMap<String,Patient>();
-        for (Patient cd : caseSurvivalList) {
-            mapClinicalData.put(cd.getCaseId(), cd);
-        }
-
-        Map<String,Map<String,String>> mapClinicalFreeForms = Collections.emptyMap();
-        Set<String> freeFormParams = Collections.emptySet();
-        if (includeFreeFormData) {
-            List<ClinicalData> clinicalFreeForms = DaoClinicalData.getCasesByCases(cancerStudyId, new ArrayList(caseIdList));
-            mapClinicalFreeForms = new HashMap<String,Map<String,String>>();
-            freeFormParams = new HashSet<String>();
-            for (ClinicalData cff : clinicalFreeForms) {
-                freeFormParams.add(cff.getAttrId());
-                String caseId = cff.getCaseId();
-                Map<String,String> cffs = mapClinicalFreeForms.get(caseId);
-                if (cffs==null) {
-                    cffs = new HashMap<String,String>();
-                    mapClinicalFreeForms.put(caseId, cffs);
-                }
-                cffs.put(cff.getAttrId(),cff.getAttrVal());
-            }
-        }
-
-        StringBuilder buf = new StringBuilder();
-        if (!caseSurvivalList.isEmpty() || !freeFormParams.isEmpty()) {
-            buf.append("case_id");
-            if (!caseSurvivalList.isEmpty()) {
-                    buf.append("\toverall_survival_months\toverall_survival_status\t")
-                       .append("disease_free_survival_months\tdisease_free_survival_status\tage_at_diagnosis");
-            }
-            for (String param : freeFormParams) {
-                append(buf, param);
-            }
-            buf.append('\n');
-
-            for (String caseId : caseIdList) {
-                buf.append(caseId);
-                if (!caseSurvivalList.isEmpty()) {
-                    Patient cd = mapClinicalData.get(caseId);
-                    append(buf, cd==null ? null : cd.getOverallSurvivalMonths());
-                    append(buf, cd==null ? null : cd.getOverallSurvivalStatus());
-                    append(buf, cd==null ? null : cd.getDiseaseFreeSurvivalMonths());
-                    append(buf, cd==null ? null : cd.getDiseaseFreeSurvivalStatus());
-                    append(buf, cd==null ? null : cd.getAgeAtDiagnosis());
-                }
-
-                Map<String,String> cff = mapClinicalFreeForms.get(caseId);
-                for (String param : freeFormParams) {
-                    append(buf, cff==null ? null : cff.get(param));
-                }
-
-                buf.append('\n');
-            }
-            return buf.toString();
-        } else {
-            buf.append("Error:  No clinical data available for the case set or "
-                    + "case lists specified.  Number of cases:  ")
-                    .append(caseIdList.size()).append("\n");
-            return buf.toString();
-        }
-    }
-
-    private static void append(StringBuilder buf, Object o) {
-        buf.append(TAB).append(o==null ? NA : o);
-    }
-
-    /**
      * takes an object (Clinical or ClinicalAttribute) and
      * converts it to a map (JSONObject)
      *
@@ -141,7 +64,7 @@ public class GetClinicalData {
         map.put("attr_val", clinical.getAttrVal());
         //TODO: at some point we may want to incorporate the cancer_study_id
 //        map.put("cancer_study_id", Integer.toString(clinical.getCancerStudyId()));
-        map.put("sample", clinical.getCaseId());
+        map.put("sample", clinical.getStableId());
 
         return map;
     }
@@ -169,17 +92,27 @@ public class GetClinicalData {
      * Returns a single row the database
      *
      * @param cancerStudyId
-     * @param caseId
+     * @param sampleId
      * @param attrId
      */
-    public static JSONObject getJsonDatum(String cancerStudyId, String caseId, String attrId) throws DaoException {
-        return reflectToMap(DaoClinicalData.getDatum(cancerStudyId, caseId, attrId));
+    public static JSONObject getJsonDatum(int cancerStudyId, String sampleId, String attrId) throws DaoException {
+        ClinicalAttribute attr = DaoClinicalAttribute.getDatum(attrId);
+        List<ClinicalData> data = DaoClinicalData.getSampleAndPatientData(cancerStudyId, Collections.singletonList(sampleId), attr);
+        if (data.isEmpty()) {
+            return new JSONObject();
+        }
+        return reflectToMap(data.get(0));
     }
 
-    public static String getTxtDatum(String cancerStudyId, String caseId, String attrId) throws DaoException {
-        ClinicalData c = DaoClinicalData.getDatum(cancerStudyId, caseId, attrId);
+    public static String getTxtDatum(int cancerStudyId, String sampleId, String attrId) throws DaoException {
+        ClinicalAttribute attr = DaoClinicalAttribute.getDatum(attrId);
+        List<ClinicalData> data = DaoClinicalData.getSampleAndPatientData(cancerStudyId, Collections.singletonList(sampleId), attr);
+        if (data.isEmpty()) {
+            return "";
+        }
 
-        return "" + c.getCaseId() + "\t" + c.getAttrId() + "\t" + c.getAttrVal();
+        ClinicalData c = data.get(0);
+        return "" + c.getStableId() + "\t" + c.getAttrId() + "\t" + c.getAttrVal();
     }
 
     /**
@@ -225,16 +158,16 @@ public class GetClinicalData {
      * -- attributes: array of clinical attribute metadatas (object literals) that appear in the data
      * @throws DaoException
      */
-    public static JSONObject getJSON(String cancerStudyId, List<String> caseIds) throws DaoException {
-        List<ClinicalData> clinicals = DaoClinicalData.getData(cancerStudyId, caseIds);
+    public static JSONObject getJSON(int cancerStudyId, List<String> sampleIds) throws DaoException {
+        List<ClinicalData> clinicals = DaoClinicalData.getSampleAndPatientData(cancerStudyId, sampleIds);
 
         return generateJson(clinicals);
     }
 
-    public static JSONObject getJSON(String cancerStudyId, List<String> caseIds, String attrId) throws DaoException {
+    public static JSONObject getJSON(int cancerStudyId, List<String> sampleIds, String attrId) throws DaoException {
 
         ClinicalAttribute attr = DaoClinicalAttribute.getDatum(attrId);
-        List<ClinicalData> clinicals = DaoClinicalData.getData(cancerStudyId, caseIds, attr);
+        List<ClinicalData> clinicals = DaoClinicalData.getSampleAndPatientData(cancerStudyId, sampleIds, attr);
 
         return generateJson(clinicals);
     }
@@ -259,14 +192,14 @@ public class GetClinicalData {
     /**
      * Takes a list of clinicals and turns them into a tab-delimited, new-line ended string.
      *
-     * invariants : 1. they all must have the same caseId
+     * invariants : 1. they all must have the same sampleId
      *              2. no repeats
      *
      * @param clinicals
      * @return
      */
-    public static String getTxt(String cancerStudyId, List<String> caseIds) throws DaoException {
-        List<ClinicalData> allClinicals = DaoClinicalData.getData(cancerStudyId, caseIds);
+    public static String getTxt(int cancerStudyId, List<String> sampleIds) throws DaoException {
+        List<ClinicalData> allClinicals = DaoClinicalData.getSampleAndPatientData(cancerStudyId, sampleIds);
         
         TreeSet<String> headers = new TreeSet<String>(new Comparator<String>() {
                 @Override
@@ -280,17 +213,17 @@ public class GetClinicalData {
                     return r1.compareTo(r2);
                 }
         });
-        Map<String, Map<String,ClinicalData>> caseId2Clinical = new HashMap<String, Map<String,ClinicalData>>();
+        Map<String, Map<String,ClinicalData>> sampleId2Clinical = new HashMap<String, Map<String,ClinicalData>>();
         for (ClinicalData c : allClinicals) {
             if (getClinicalAttributeRank(c.getAttrId())<0) {
                 continue;
             }
             
-            Map<String,ClinicalData> got = caseId2Clinical.get(c.getCaseId());
+            Map<String,ClinicalData> got = sampleId2Clinical.get(c.getStableId());
 
             if (got == null) {
                 got = new HashMap<String,ClinicalData>();
-                caseId2Clinical.put(c.getCaseId(), got);
+                sampleId2Clinical.put(c.getStableId(), got);
             }
             
             got.put(c.getAttrId(),c);
@@ -304,9 +237,9 @@ public class GetClinicalData {
         }
         sb.append('\n');
 
-        for (Map.Entry<String, Map<String,ClinicalData>> entry : caseId2Clinical.entrySet()) {
-            String caseId = entry.getKey();
-            sb.append(caseId);
+        for (Map.Entry<String, Map<String,ClinicalData>> entry : sampleId2Clinical.entrySet()) {
+            String sampleId = entry.getKey();
+            sb.append(sampleId);
             Map<String,ClinicalData> value = entry.getValue();
             for (String h : headers) {
                 sb.append('\t');

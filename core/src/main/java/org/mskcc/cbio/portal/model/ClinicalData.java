@@ -24,7 +24,7 @@ package org.mskcc.cbio.portal.model;
  */
 public class ClinicalData {
     private int cancerStudyId;
-    private String caseId;
+    private String stableId;
     private String attrId;
     private String attrVal;
 
@@ -36,24 +36,24 @@ public class ClinicalData {
     }
     
     public ClinicalData(ClinicalData other) {
-        this(other.getCancerStudyId(), other.getCaseId(), other.getAttrId(), other.getAttrVal());
+        this(other.getCancerStudyId(), other.getStableId(), other.getAttrId(), other.getAttrVal());
     }
 
     /**
      * Constructor
      *
      * @param cancerStudyId     database id of cancer study
-     * @param caseId            database id of the case
+     * @param stableId          stable id of the patient or sample
      * @param attrId            database id of the attribute
      * @param attrVal           value of the clinical attribute given above
      */
     public ClinicalData(int cancerStudyId,
-                        String caseId,
+                        String stableId,
                         String attrId,
                         String attrVal) {
 
         this.cancerStudyId = cancerStudyId;
-        this.caseId = caseId;
+        this.stableId = stableId;
         this.attrId = attrId;
         this.attrVal = attrVal;
     }
@@ -66,12 +66,12 @@ public class ClinicalData {
         this.cancerStudyId = cancerStudyId;
     }
 
-    public String getCaseId() {
-        return caseId;
+    public String getStableId() {
+        return stableId;
     }
 
-    public void setCaseId(String caseId) {
-        this.caseId = caseId;
+    public void setStableId(String stableId) {
+        this.stableId = stableId;
     }
 
     public String getAttrId() {
@@ -91,6 +91,6 @@ public class ClinicalData {
     }
 
     public String toString() {
-        return String.format("ClinicalData[cancerStudyId=%d, %s, %s, %s]", cancerStudyId, caseId, attrId, attrVal);
+        return String.format("ClinicalData[cancerStudyId=%d, %s, %s, %s]", cancerStudyId, stableId, attrId, attrVal);
     }
 }

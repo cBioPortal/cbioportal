@@ -17,9 +17,10 @@ _mut3dVis = new Mutation3dVis("default3dView");
 _mut3dVis.init();
 
 // Set up Mutation View
-$(document).ready(function(){
-	var sampleArray = PortalGlobals.getCases().trim().split(/\s+/);
+$(document).ready(function() {
+	var sampleArray = _.keys(PortalGlobals.getPatientSampleIdMap());
 	var mutationProxy = DataProxyFactory.getDefaultMutationDataProxy();
+
 	// init default mutation details view
 
 	var options = {

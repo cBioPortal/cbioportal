@@ -20,6 +20,7 @@ package org.mskcc.cbio.importer.model;
 
 // imports
 import java.io.File;
+import java.util.Properties;
 
 /**
  * Class which contains cancer study metadata.
@@ -44,9 +45,6 @@ public class CancerStudyMetadata {
 	public static final String TUMOR_TYPE_TAG = "<TUMOR_TYPE>";
 	public static final String TUMOR_TYPE_NAME_TAG = "<TUMOR_TYPE_NAME>";
 
-	// these suffix identifies a published study
-	public static final String PUBLISHED_TCGA_STUDY_SUFFIX = "tcga_pub";
-
 	// bean properties
 	private String name;
 	private String tumorType;
@@ -65,24 +63,20 @@ public class CancerStudyMetadata {
      * Create a CancerStudyMetadata instance with properties in given array.
 	 * ITs assumed order of properties is that from google worksheet.
 	 * cancerStudyPath is of the form brca/tcga/pub that you would find 
-	 * on the google spreadsheet cancer_studies worksheet.
-	 *
+	 * on the google spreadsheet cancer_studies worksheet
 	 * All portal columns are ignored (anything > 1)
      *
 	 * @param properties String[]
      */
     public CancerStudyMetadata(String[] properties) {
 
-		if (properties.length < 5) {
+		if (properties.length < 7) {
             throw new IllegalArgumentException("corrupt properties array passed to contructor");
 		}
                 
                 this.studyPath = properties[0].trim();
                 String[] parts = properties[0].trim().split(CANCER_STUDY_DELIMITER);
-		if (parts.length < 2) {
-			throw new IllegalArgumentException("cancerStudyPath is missing tumor type and or center");
-                }
-                this.center = parts[1];
+		this.center = (parts.length < 2) ? "No center defined" : parts[1];
 		this.tumorType = properties[1].trim();
                 this.stableId = properties[2].trim();
 		this.name = properties[3].trim();
@@ -92,6 +86,19 @@ public class CancerStudyMetadata {
 		this.groups = properties[7].trim();
                 this.shortName = properties[8].trim();
                 this.convert = Boolean.parseBoolean(properties[9].trim());
+	}
+
+	public CancerStudyMetadata(Properties props)
+	{
+		this.name = props.getProperty("name", "");
+		this.tumorType = props.getProperty("type_of_cancer", "");
+		this.stableId = props.getProperty("cancer_study_identifier", "");
+		this.studyPath = props.getProperty("study_path", "");
+		this.description = props.getProperty("description", "");
+		this.citation = props.getProperty("citation", "");
+		this.pmid = props.getProperty("pmid", "");
+		this.groups = props.getProperty("groups", "");
+		this.shortName = props.getProperty("short_name", "");
 	}
 
 	public String getName() { return name; }
@@ -105,7 +112,7 @@ public class CancerStudyMetadata {
 	public String getCitation() { return citation; }
 	public String getPMID() { return pmid; }
 	public String getGroups() { return groups; }
-    public String getShortName() { return shortName; }
+        public String getShortName() { return shortName; }
 	public Boolean isConverted() { return convert; }
 
 	public String getCancerStudyMetadataFilename() {

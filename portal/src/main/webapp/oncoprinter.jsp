@@ -30,7 +30,8 @@
     display:block;
     }
 </style>
-
+<script src="js/lib/bootstrap.min.js?<%=GlobalProperties.getAppVersion()%>" type="text/javascript"></script>
+        
 <link href="css/bootstrap.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 
 <div id="container" style="margin-left:20px;">
@@ -43,7 +44,7 @@
         }
     </script>
     generates <a href="faq.jsp#what-are-oncoprints">Oncoprints</a> from you own data
-    (<a href="release_notes_oncoprinter.jsp" onclick="return popitup('release_notes_oncoprinter.jsp');">v1.0</a>)
+    (<a href="release_notes_oncoprinter.jsp" onclick="return popitup('release_notes_oncoprinter.jsp');">v1.0.1</a>)
     
     <div id="inner-conainter" style="width:100%;"> <%-- need to be modified by dong li  used to by 70% resize problem--%>
         <div style="margin-top:20px;">
@@ -77,7 +78,7 @@
                                     <li>DOWN: expression down</li>
                                 </ul>
                             </li>
-                            <li>RPPA - please use one of the two events below: 
+                            <li style="display:none">RPPA - please use one of the two events below: 
                                 <ul>
                                     <li>PROT-UP: RPPA Upregulation</li>
                                     <li>PROT-DOWN: RPPA Downregulation</li>
@@ -112,7 +113,7 @@
                 
             <textarea id="mutation-file-example" rows=10 style="width:95%;"></textarea>
             </td>
-            <td style="width:45%;">
+            <td style="width:45%;display:none;">
             <div>
             <p>
                 <b>Input Clinical Data</b>
@@ -169,7 +170,7 @@
                 </div>
             </form>
             </td>
-            <td>
+            <td style="display:none;">
             <form id="clinic-form" class="clinic-form-horizontal" enctype="multipart/form-data" method="post">
                 <div class="clinic-control-group">
                     <label class="clinic-control-label" for="mutation">Input Clinical Data File</label>
@@ -187,7 +188,7 @@
             <p>Please define the order of genes (optional).</p>
             <textarea id="filter_example" rows=2 style="width:40%;"></textarea>
         </div>
-        <button id="create_oncoprint" type="button" class="btn" style="margin-top:20px; margin-bottom:20px;">Create</button>
+        <button id="create_oncoprint" type="button" class="btn" style="margin-top:20px; margin-bottom:20px;">Submit</button>
 
     <div id="oncoprint_controls" style="margin-bottom: 20px;"></div>
 

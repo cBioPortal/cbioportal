@@ -47,7 +47,7 @@
                 $('#clinical-msg').hide();
                 $('#case-select-custom').show();
             } else if ((typeof caseId)==(typeof '')) {
-                $('#clinical-msg').html("&nbsp;"+formatPatientLink(caseId,cancerStudyId)+
+                $('#clinical-msg').html("&nbsp;"+"<a href='"+cbio.util.getLinkToSampleView(cancerStudyId,caseId)+"'>"+caseId+"</a>"
                     " is selected. <button type='button' onclick='csObs.fireSelection(null,null);'>Clear selection</button>");
                 $('#clinical-msg').show();
                 $('#case-select-custom').hide();
@@ -60,7 +60,7 @@
                     $('#clinical-msg').hide();
                     $('#case-select-custom').show();
                 } else if (numSelected==1) {
-                    $('#clinical-msg').html("&nbsp;"+formatPatientLink(id,cancerStudyId)+
+                    $('#clinical-msg').html("&nbsp;"+"<a href='"+cbio.util.getLinkToSampleView(cancerStudyId,id)+"'>"+caseId+"</a>"
                         " is selected. <button type='button' onclick='csObs.fireSelection(null,null);'>Clear selection</button>");
                     $('#clinical-msg').show();
                     $('#case-select-custom').hide();

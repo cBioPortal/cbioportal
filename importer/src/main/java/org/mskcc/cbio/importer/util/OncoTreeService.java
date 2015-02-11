@@ -141,7 +141,7 @@ public  enum OncoTreeService {
                 Map<String, String> rowMap = table.row(key);
                 lineList.add(StagingCommonNames.tabJoiner.join(
                         rowMap.get("primary"),rowMap.get("secondary"),
-                        rowMap.get("tertiary"),rowMap.get("quaternary"),rowMap.get("main"),"\n"
+                        rowMap.get("tertiary"),rowMap.get("quaternary"),rowMap.get("metamaintype"),"\n"
                 ));
             }
             return lineList;

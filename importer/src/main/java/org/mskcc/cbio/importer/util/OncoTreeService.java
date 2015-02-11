@@ -12,11 +12,6 @@ import rx.Observable;
 import rx.Subscriber;
 import rx.observables.StringObservable;
 import scala.Tuple2;
-
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
@@ -107,23 +102,24 @@ public  enum OncoTreeService {
                     @Override
                     public void onNext(StringObservable.Line line) {
                             List<String>fields = tabSplitter.splitToList(line.getText());
+                            String mainCancerType = fields.get(4);
                             String parentKey = fields.get(0);
                             if (!oncoTreeNodeMap.containsKey(parentKey)){
                                 OncoTreeNode parentNode = new OncoTreeNode(parentKey,parentKey);
-                                parentNode.setMajorCancerType(parentKey);
+                                parentNode.setMajorCancerType(mainCancerType);
                                 oncoTreeNodeMap.put(parentKey, parentNode);
                             }
                             for(String field : fields){
-                                if (field.contains("(")) { // ignore primary value
+                                if (field.contains("(")) { // ignore primary value and main values
                                     Tuple2<String,String> keyNameTuple = parseOncoTreeEntry.apply(field);
                                     if(!oncoTreeNodeMap.containsKey(keyNameTuple._1())) {
                                         OncoTreeNode node = new OncoTreeNode(keyNameTuple._1(), keyNameTuple._2(),
                                                 oncoTreeNodeMap.get(parentKey));
-                                        //node.setMajorCancerType(oncoTreeNodeMap.get(parentKey).getMajorCancerType());
+                                        node.setMajorCancerType(mainCancerType);
                                         oncoTreeNodeMap.put(keyNameTuple._1(),node);
                                         // add this node to the parent's list of  children
                                         oncoTreeNodeMap.get(parentKey).getChildrenNodeList().add(node);
-                                       resolveMajorCancerType(node);
+
                                     }
                                     parentKey = keyNameTuple._1();
                                 }
@@ -145,35 +141,30 @@ public  enum OncoTreeService {
                 Map<String, String> rowMap = table.row(key);
                 lineList.add(StagingCommonNames.tabJoiner.join(
                         rowMap.get("primary"),rowMap.get("secondary"),
-                        rowMap.get("tertiary"),rowMap.get("quaternary"),"\n"
+                        rowMap.get("tertiary"),rowMap.get("quaternary"),rowMap.get("main"),"\n"
                 ));
             }
             return lineList;
-        }
-
-        private void resolveMajorCancerType(OncoTreeNode child){
-            for(OncotreePropertiesMetadata md : majorCancerTypeList) {
-                if (md.getNode().equals(child.getOncoTreeCode())) {
-                    child.setMajorCancerType(child.getOncoTreeCode());
-                    return;
-                }
-            }
-            child.setMajorCancerType(child.getParentOncoTreeNode().getMajorCancerType());
         }
     }
 
     public static void main  (String...args){
 
-        OncoTreeNode node01 = OncoTreeService.INSTANCE.getNodeByKey("IHCH").get();
-        logger.info("Key " +node01.getOncoTreeCode() +" name: " +node01.getOncoTreeName() +" nChilderen = "
-            +node01.getChildrenNodeList().size() +" major Cancer type = " +node01.getMajorCancerType());
-        // find the children
-        for (OncoTreeNode node : node01.getChildrenNodeList()){
-            logger.info("Key " + node.getOncoTreeCode() + " name: " + node.getOncoTreeName() + " nChilderen = "
-                    + node.getChildrenNodeList().size() + " major Cancer type = " + node.getMajorCancerType());
+        List<String> testCaseList = Lists.newArrayList("OVT","ES","PCGP", "EGC", "BTMOV" ,"USTUMP");
+        for (String test : testCaseList){
+            OncoTreeNode node01 = OncoTreeService.INSTANCE.getNodeByKey(test).get();
+            logger.info("Key " +node01.getOncoTreeCode() +" name: " +node01.getOncoTreeName() +" nChilderen = "
+                    +node01.getChildrenNodeList().size() +" major Cancer type = " +node01.getMajorCancerType());
+            // find the children
+            for (OncoTreeNode node : node01.getChildrenNodeList()){
+                logger.info("Key " + node.getOncoTreeCode() + " name: " + node.getOncoTreeName() + " nChilderen = "
+                        + node.getChildrenNodeList().size() + " major Cancer type = " + node.getMajorCancerType());
+            }
+            OncoTreeNode parent = node01.getParentOncoTreeNode();
+            logger.info("Parent code " + parent.getOncoTreeCode());
         }
-        OncoTreeNode parent = node01.getParentOncoTreeNode();
-        logger.info("Parent code " + parent.getOncoTreeCode());
+
+
 
     }
 }

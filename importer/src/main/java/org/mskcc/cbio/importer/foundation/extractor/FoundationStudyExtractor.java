@@ -59,8 +59,13 @@ public class FoundationStudyExtractor {
     private final String foundationDataDirectory;
 
     private final static String DEFAULT_DOWNLOAD_DIRECTORY = "/tmp/foundation";
+    private final static String DEFAULT_DATA_SOURCE = "foundation-dev";
     private final static String worksheetName = "foundation";
     private String foundationDataSource;
+
+    public FoundationStudyExtractor() {
+        this(DEFAULT_DATA_SOURCE);
+    }
 
     public FoundationStudyExtractor(String dataSourceName) {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(dataSourceName),

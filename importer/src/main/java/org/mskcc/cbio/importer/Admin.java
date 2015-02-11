@@ -30,6 +30,8 @@ import org.apache.log4j.PropertyConfigurator;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.SimpleMailMessage;
 
 import java.io.*;
 import java.util.*;
@@ -92,8 +94,8 @@ public class Admin implements Runnable {
 													  "\"" + Config.ALL + "\".")
 									 .create("init_db"));
 
-        Option fetchData = (OptionBuilder.withArgName("data_source:run_date:send_notification")
-							.hasArgs(3)
+        Option fetchData = (OptionBuilder.withArgName("data_source:run_date")
+							.hasArgs(2)
 							.withValueSeparator(':')
 							.withDescription("Fetch data from the given data_source and the given run date (mm/dd/yyyy).  " + 
 											 "Use \"" + Fetcher.LATEST_RUN_INDICATOR + "\" to retrieve the most current run or " +
@@ -160,8 +162,8 @@ public class Admin implements Runnable {
 											  "If ref_data is 't', all reference data will be imported prior to importing staging files.")
                              .create("import_data"));
 
-        Option updateStudyData = (OptionBuilder.withArgName("portal:update_worksheet")
-                                  .hasArgs(2)
+        Option updateStudyData = (OptionBuilder.withArgName("portal:update_worksheet:send_notification")
+                                  .hasArgs(3)
                                   .withValueSeparator(':')
                                   .withDescription("Updates study data for the given portal. if update_worksheet is 't' " +
                                                    "UPDATE_AVAILABLE and IMPORT columns in cancer_studies google worksheet are updated.")
@@ -260,7 +262,7 @@ public class Admin implements Runnable {
 			// fetch
 			else if (commandLine.hasOption("fetch_data")) {
                 String[] values = commandLine.getOptionValues("fetch_data");
-				fetchData(values[0], values[1], (values.length == 3) ? values[2] : "");
+				fetchData(values[0], values[1]);
 			}
 			// fetch reference data
 			else if (commandLine.hasOption("fetch_reference_data")) {
@@ -302,7 +304,7 @@ public class Admin implements Runnable {
 			}
 			else if (commandLine.hasOption("update_study_data")) {
                 String[] values = commandLine.getOptionValues("update_study_data");
-                updateStudyData(values[0], values[1]);
+                updateStudyData(values[0], values[1], values[2]);
 			}
                         
 			// import case lists
@@ -376,18 +378,17 @@ public class Admin implements Runnable {
 	 * @param runDate String
 	 * @throws Exception
 	 */
-	private void fetchData(String dataSource, String runDate, String sendNotification) throws Exception {
+	private void fetchData(String dataSource, String runDate) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("fetchData(), dateSource:runDate: " + dataSource + ":" + runDate);
 		}
 
 		// create an instance of fetcher
-		Boolean sendNotificationBool = getBoolean(sendNotification);
 		DataSourcesMetadata dataSourcesMetadata = getDataSourcesMetadata(dataSource);
 		// fetch the given data source
 		Fetcher fetcher = (Fetcher)getBean(dataSourcesMetadata.getFetcherBeanID());
-		fetcher.fetch(dataSource, runDate, sendNotificationBool);
+		fetcher.fetch(dataSource, runDate);
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("fetchData(), complete");
@@ -673,7 +674,7 @@ public class Admin implements Runnable {
 		}
 	}
 
-	private void updateStudyData(String portal, String updateWorksheet) throws Exception
+	private void updateStudyData(String portal, String updateWorksheet, String sendNotification) throws Exception
 	{
 		if (LOG.isInfoEnabled()) {
 			LOG.info("updateStudyData(), portal: " + portal);
@@ -681,15 +682,18 @@ public class Admin implements Runnable {
 		}
 
 		Boolean updateWorksheetBool = getBoolean(updateWorksheet);
+		Boolean sendNotificationBool = getBoolean(sendNotification);
 		Config config = (Config)getBean("config");
 		Importer importer = (Importer)getBean("importer");
 		Map<String,String> propertyMap = new HashMap<String,String>();
+		List<String> cancerStudiesUpdated = new ArrayList<String>();
 		for (CancerStudyMetadata cancerStudyMetadata : config.getCancerStudyMetadata(portal)) {
 			propertyMap.clear();
 			// if we are updating triage and this study is ready for update, then import it
 			if (portal.equals(PortalMetadata.TRIAGE_PORTAL)) {
 				if (cancerStudyMetadata.updateTriage()) {
 					importer.updateCancerStudy(portal, cancerStudyMetadata);
+					cancerStudiesUpdated.add(cancerStudyMetadata.getStudyPath());
 					// we've updated the study in triage, turn off update triage flag
 					propertyMap.put(CancerStudyMetadata.UPDATE_TRIAGE_COLUMN_KEY, "false");
 				}
@@ -701,6 +705,7 @@ public class Admin implements Runnable {
 			// otherwise, we only update studies that are ready for release
 			else if (cancerStudyMetadata.readyForRelease()) {
 				importer.updateCancerStudy(portal, cancerStudyMetadata);
+				cancerStudiesUpdated.add(cancerStudyMetadata.getStudyPath());
 				// turn off ready for release so that the next
 				// fetch does not get imported before being vetted
 				propertyMap.put(CancerStudyMetadata.READY_FOR_RELEASE_COLUMN_KEY, "false");
@@ -708,6 +713,36 @@ public class Admin implements Runnable {
 			if (updateWorksheetBool) {
 				config.updateCancerStudyAttributes(cancerStudyMetadata.getStudyPath(), propertyMap);
 			}
+			if (sendNotificationBool) {
+				sendNotification(portal, cancerStudiesUpdated);
+			}
+		}
+	}
+
+	private void sendNotification(String portal, List<String> cancerStudiesUpdated)
+	{
+		Config config = (Config)getBean("config");
+		SimpleMailMessage message = null;
+		if (portal.equals(CancerStudyMetadata.MSK_PORTAL_COLUMN_KEY)) {
+			message = (SimpleMailMessage)getBean("mskUpdateMessage");
+		}
+		else if (portal.equals(CancerStudyMetadata.TRIAGE_PORTAL_COLUMN_KEY)) {
+			message = (SimpleMailMessage)getBean("triageUpdateMessage");
+		}
+		String body = message.getText() + "\n\n";
+		SimpleMailMessage msg = new SimpleMailMessage(message);
+		for (String cancerStudy : cancerStudiesUpdated) {
+			CancerStudyMetadata cancerStudyMetadata = config.getCancerStudyMetadataByName(cancerStudy);
+			body += "\n" + cancerStudyMetadata.getStableId();
+		}
+		body += "\n";
+		msg.setText(body);
+		try {
+			JavaMailSender mailSender = (JavaMailSender)getBean("mailSender");
+			mailSender.send(msg);
+		}
+		catch (Exception e) {
+			LOG.info("sendNotification(), error sending email notification:\n" + e.getMessage());
 		}
 	}
         

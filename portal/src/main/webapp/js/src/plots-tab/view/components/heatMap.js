@@ -180,7 +180,7 @@ var heat_map = (function() {
         } else if (genetic_vs_clinical()) {
             var _genetic_axis = $("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.genetic? "x": "y";
             var _clin_axis = $("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.clin? "x": "y";
-            _col_text_set = (_genetic_axis === "x")? gisticInterperter.text_set(): clinical_data_interpreter.get_text_labels("x");
+            _col_text_set = (_genetic_axis === "x")? gisticInterpreter.text_set(): clinical_data_interpreter.get_text_labels("x");
             _row_text_set = (_clin_axis === "y")? clinical_data_interpreter.get_text_labels("y"): gisticInterpreter.text_set(); 
         }
         svg.selectAll(".colLabel")
@@ -211,7 +211,7 @@ var heat_map = (function() {
         var _x_text = elt_x.options[elt_x.selectedIndex].text;
         var _y_text = elt_y.options[elt_y.selectedIndex].text;
         var _x_id = elt_x.options[elt_x.selectedIndex].value;
-        var _y_id = elt_x.options[elt_y.selectedIndex].value;
+        var _y_id = elt_y.options[elt_y.selectedIndex].value;
         var _x_description = ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.genetic)? metaData.getProfileDescription($("#" + ids.sidebar.x.gene).val(), _x_id): metaData.getClinicalAttrDescription(_x_id);
         var _y_description = ($("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() === vals.data_type.genetic)? metaData.getProfileDescription($("#" + ids.sidebar.y.gene).val(), _y_id): metaData.getClinicalAttrDescription(_y_id);
         //trim titles that are too long
@@ -239,19 +239,19 @@ var heat_map = (function() {
                 });
         //append mouse-over if the titles are trimmed
         if (_x_text.length > settings.max_x_title_length) {
-                svg.select(".x_title").each(
-                    function() {
-                        $(this).qtip(
-                            {
-                                content: {text: "<font size=2>" +  _x_text + "</font>" },
-                                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
-                                show: {event: "mouseover"},
-                                hide: {fixed:true, delay: 100, event: "mouseout"},
-                                position: {my:'left top',at:'bottom right', viewport: $(window)}
-                            }
-                        );
-                    }
-                );     
+            svg.select(".x_title").each(
+                function() {
+                    $(this).qtip(
+                        {
+                            content: {text: "<font size=2>" +  _x_text + "</font>" },
+                            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+                            show: {event: "mouseover"},
+                            hide: {fixed:true, delay: 100, event: "mouseout"},
+                            position: {my:'left top',at:'bottom right', viewport: $(window)}
+                        }
+                    );
+                }
+            );     
         }
         if (_y_text.length > settings.max_y_title_length) {
             svg.select(".y_title").each(

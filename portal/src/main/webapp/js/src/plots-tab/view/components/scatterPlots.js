@@ -153,16 +153,27 @@ var scatterPlots = (function() {
                     }
                 })
                 .attr("class", function(d) {
-                    if (d.length > 8) return "trimmed_label";
-                    else return "axis_label";
+                    if (axis === "x") {
+                        if (d.length > 8) return "trimmed_label";
+                        else return "axis_label";
+                    } else if (axis === "y") {
+                        if (d.length > 5) return "trimmed_label";
+                        else return "axis_label";
+                    }
                 })
                 .text(function(d) {
                     if (_rotate_flag) {
-                        if (d.length > 8) {
-                            //only display partial labels
-                            return d.substring(0, 8) + "...";   
-                        } 
-                        else return d;
+                        if (axis === "x") {
+                            if (d.length > 8) {
+                                return d.substring(0, 8) + "...";   
+                            } 
+                            else return d;                            
+                        } else if (axis === "y") {
+                            if (d.length > 5) {
+                                return d.substring(0, 5) + "...";   
+                            } 
+                            else return d;                            
+                        }
                     } else return d;
                 });
                 elem.svg.selectAll(".trimmed_label").each(function(d) {

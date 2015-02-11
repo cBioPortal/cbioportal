@@ -263,16 +263,16 @@ var search_case_id = function() {
                         (searchToken.toUpperCase()) !== "TCGA" && (searchToken.toUpperCase()) !== "TCGA-") {
                         $(this).attr("d", d3.svg.symbol()
                             .size(d3.select(this).attr("size") + 5)
-                            .type(d3.select(this).attr("symbol")));
+                            .type(d3.select(this).attr("shape")));
                     } else {
                         $(this).attr("d", d3.svg.symbol()
                             .size(d3.select(this).attr("size"))
-                            .type(d3.select(this).attr("symbol")));
+                            .type(d3.select(this).attr("shape")));
                     }
                 } else {
                     $(this).attr("d", d3.svg.symbol()
                         .size(d3.select(this).attr("size"))
-                        .type(d3.select(this).attr("symbol")));
+                        .type(d3.select(this).attr("shape")));
                 }
             }
         }

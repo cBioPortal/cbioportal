@@ -713,9 +713,9 @@ public class Admin implements Runnable {
 			if (updateWorksheetBool) {
 				config.updateCancerStudyAttributes(cancerStudyMetadata.getStudyPath(), propertyMap);
 			}
-			if (sendNotificationBool) {
-				sendNotification(portal, cancerStudiesUpdated);
-			}
+		}
+		if (sendNotificationBool && !cancerStudiesUpdated.isEmpty()) {
+			sendNotification(portal, cancerStudiesUpdated);
 		}
 	}
 
@@ -733,9 +733,8 @@ public class Admin implements Runnable {
 		SimpleMailMessage msg = new SimpleMailMessage(message);
 		for (String cancerStudy : cancerStudiesUpdated) {
 			CancerStudyMetadata cancerStudyMetadata = config.getCancerStudyMetadataByName(cancerStudy);
-			body += "\n" + cancerStudyMetadata.getStableId();
+			body += cancerStudyMetadata.getStableId() + "\n";
 		}
-		body += "\n";
 		msg.setText(body);
 		try {
 			JavaMailSender mailSender = (JavaMailSender)getBean("mailSender");

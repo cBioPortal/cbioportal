@@ -308,8 +308,15 @@ http://www.springframework.org/schema/util http://www.springframework.org/schema
 
 
     <!-- sendmail beans -->
+    <b:bean id="mailProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <b:property name="properties">
+            <b:props>
+                <b:prop key="mail.smtp.localhost">${mail.server}</b:prop>
+            </b:props>
+        </b:property>
+    </b:bean>
     <b:bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
-        <b:property name="host" value="${mail.server}"/>
+        <b:property name="javaMailProperties" ref="mailProperties"/>
     </b:bean>
     <b:bean id="triageUpdateMessage" class="org.springframework.mail.SimpleMailMessage">
         <b:property name="from" value="${mail.triage_portal.update.message.sender}"/>

@@ -170,50 +170,57 @@ var heat_map = (function() {
                     .text(function(d) { return d.count; });
         
         //labels for rows/columns
+        var _col_text_set = [], _row_text_set = [];
         if (clinical_vs_clinical()) {
-            svg.selectAll(".colLabel")
-                .data(clinical_data_interpreter.get_text_labels("x"))
-                .enter().append('text')
-                .attr("dy", ".35em")
-                .attr("transform", function(d, i) {
-                    return "translate(" + ((i + 0.5) * w + edge_left) + "," + (edge_top - 10) + ") rotate(-15)";
-                })
-                .attr('class','label')
-                .style('text-anchor','start')
-                .text(function(d) {return d;});
-            svg.selectAll(".rowLabel")
-                    .data(clinical_data_interpreter.get_text_labels("y"))
-                    .enter().append('svg:text')
-                    .attr('x', parseInt(stat.x.max) * w + w + 10 + edge_left)
-                    .attr('y', function(d, i) {
-                        return ((i + 0.5) * h) + edge_top;
-                    })
-                    .attr('class', 'label')
-                    .attr('text-anchor', 'start')
-                    .text(function(d) {return d;});            
+            _col_text_set = clinical_data_interpreter.get_text_labels("x");
+            _row_text_set = clinical_data_interpreter.get_text_labels("y");
         } else if (genetic_vs_genetic()) {
-            
+            _col_text_set = gisticInterpreter.text_set();
+            _row_text_set = gisticInterpreter.text_set();
         } else if (genetic_vs_clinical()) {
-            
+            var _genetic_axis = $("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.genetic? "x": "y";
+            var _clin_axis = $("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.clin? "x": "y";
+            _col_text_set = (_genetic_axis === "x")? gisticInterperter.text_set(): clinical_data_interpreter.get_text_labels("x");
+            _row_text_set = (_clin_axis === "y")? clinical_data_interpreter.get_text_labels("y"): gisticInterpreter.text_set(); 
         }
+        svg.selectAll(".colLabel")
+            .data(_col_text_set)
+            .enter().append('text')
+            .attr("dy", ".35em")
+            .attr("transform", function(d, i) {
+                return "translate(" + ((i + 0.5) * w + edge_left) + "," + (edge_top - 10) + ") rotate(-15)";
+            })
+            .attr('class','label')
+            .style('text-anchor','start')
+            .text(function(d) {return d;});
+        svg.selectAll(".rowLabel")
+                .data(_row_text_set)
+                .enter().append('svg:text')
+                .attr('x', parseInt(stat.x.max - stat.x.min) * w + w + 10 + edge_left)
+                .attr('y', function(d, i) {
+                    return ((i + 0.5) * h) + edge_top;
+                })
+                .attr('class', 'label')
+                .attr('text-anchor', 'start')
+                .text(function(d) {return d;}); 
 
         
         //axis titles & helps
-        var elt_x = document.getElementById(ids.sidebar.x.clin_attr);
-        var elt_y = document.getElementById(ids.sidebar.y.clin_attr);
+        var elt_x = ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.genetic)?document.getElementById(ids.sidebar.x.profile_name):document.getElementById(ids.sidebar.x.clin_attr);
+        var elt_y = ($("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() === vals.data_type.genetic)?document.getElementById(ids.sidebar.y.profile_name):document.getElementById(ids.sidebar.y.clin_attr);
         var _x_text = elt_x.options[elt_x.selectedIndex].text;
         var _y_text = elt_y.options[elt_y.selectedIndex].text;
         var _x_id = elt_x.options[elt_x.selectedIndex].value;
         var _y_id = elt_x.options[elt_y.selectedIndex].value;
-        var _x_description = metaData.getClinicalAttrDescription(_x_id);
-        var _y_description = metaData.getClinicalAttrDescription(_y_id);
+        var _x_description = ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.genetic)? metaData.getProfileDescription($("#" + ids.sidebar.x.gene).val(), _x_id): metaData.getClinicalAttrDescription(_x_id);
+        var _y_description = ($("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() === vals.data_type.genetic)? metaData.getProfileDescription($("#" + ids.sidebar.y.gene).val(), _y_id): metaData.getClinicalAttrDescription(_y_id);
         //trim titles that are too long
         var _x_text_trimmed = (_x_text.length > settings.max_x_title_length)? (_x_text.substring(0, settings.max_x_title_length) + "..."): _x_text;
         var _y_text_trimmed = (_y_text.length > settings.max_y_title_length)? (_y_text.substring(0, settings.max_y_title_length) + "..."): _y_text;
         //append titles
         svg.append("text")
                 .attr("x", edge_left + 20)
-                .attr("y", parseInt(stat.y.max) * h + h + 23 + edge_top)
+                .attr("y", parseInt(stat.y.max - stat.y.min) * h + h + 23 + edge_top)
                 .text(_x_text_trimmed)
                 .attr("class", "x_title")
                 .attr("font-family", "sans-serif")
@@ -228,7 +235,7 @@ var heat_map = (function() {
                 .attr("dy", ".35em")
                 .attr("text-anchor", "start")
                 .attr("transform", function(d) {
-                    return "translate(" + (edge_left - 20) + " ," + (parseInt(stat.y.max) * h + h + edge_top - 15) + ") rotate(-90)";
+                    return "translate(" + (edge_left - 20) + " ," + (parseInt(stat.y.max - stat.y.min) * h + h + edge_top - 15) + ") rotate(-90)";
                 });
         //append mouse-over if the titles are trimmed
         if (_x_text.length > settings.max_x_title_length) {
@@ -266,14 +273,14 @@ var heat_map = (function() {
             .attr("xlink:href", "images/help.png")
             .attr("class", "x_help")
             .attr("x", edge_left)
-            .attr("y", parseInt(stat.y.max) * h + h + 10 + edge_top)
+            .attr("y", parseInt(stat.y.max - stat.y.min) * h + h + 10 + edge_top)
             .attr("width", "16")
             .attr("height", "16");
         svg.append("svg:image")
             .attr("xlink:href", "images/help.png")
             .attr("class", "y_help")
             .attr("x", (edge_left - 28))
-            .attr("y", parseInt(stat.y.max) * h + h + edge_top - 10)
+            .attr("y", parseInt(stat.y.max - stat.y.min) * h + h + edge_top - 10)
             .attr("width", "16")
             .attr("height", "16");
 

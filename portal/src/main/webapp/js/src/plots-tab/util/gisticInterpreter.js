@@ -58,6 +58,13 @@ var gisticInterpreter = (function() {
         },
         convert_to_val: function(numeric_val) {
             return _text_val_pair[numeric_val.toString()];
+        },
+        text_set: function() {
+            var _arr = [];
+            for (var key in _text_val_pair) {
+                _arr.push(_text_val_pair[key]);
+            }
+            return _arr;
         }
     };
     

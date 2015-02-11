@@ -294,6 +294,10 @@ function doOQLQuery() {
 	
 	var profilePromise = new $.Deferred();
 	var genePromise = new $.Deferred();
+	var allDataLoadedPromise = new $.Deferred();
+	
+	var geneMap = {}; // maps entrez_gene_id to hugo symbol
+	var sampleMap = {}; // maps internal_sample_id to sample id
 	var profileTypes = {};
 	dataman.getProfilesByStableId(profiles).then(function(data) {
 		$.each(data, function(ind, obj) {
@@ -303,15 +307,60 @@ function doOQLQuery() {
 		profilePromise.resolve();
 	});
 	dataman.getGenesByHugoGeneSymbol(genes).then(function(data) {
+		$.each(data, function(ind, obj) {
+			geneMap[obj.entrezGeneId] = obj.hugoGeneSymbol;
+		});
 		genes = data.map(function(x) { return x.entrezGeneId; })
 		genePromise.resolve();
 	});
 	$.when(profilePromise, genePromise).then(function() {
 		dataman.getAllProfileData(genes, profiles).then(function(data) {
-			var oncoprintData = [];
-			console.log(data);
+			$.each(data, function(ind, obj) {
+				sampleMap[obj.internal_sample_id] = '';
+			});
+			dataman.getSamplesByInternalId(Object.keys(sampleMap)).then(function(sampdata) {
+				$.each(sampdata, function(ind, obj) {
+					sampleMap[obj.internal_id] = obj.stable_id;
+				});
+				allDataLoadedPromise.resolve(data);
+			});
 		});
 	});
+	allDataLoadedPromise.then(function(data) {
+		// finally, convert data to oncoprint format
+		var oncoprintFormat = {}; // collect oncoprint data
+		var cnaType = {'-2': 'HOMODELETED', '-1':'HEMIZYGOUSLYDELETED', '0':'DIPLOID', '1':'GAINED', '2':'AMPLIFIED'};
+		$.each(data, function(ind, obj) {
+			var gene = geneMap[obj.entrez_gene_id];
+			var sample = sampleMap[obj.internal_sample_id];
+			oncoprintFormat[gene] = oncoprintFormat[gene] || {};
+			oncoprintFormat[gene][sample] = oncoprintFormat[gene][sample] || {};
+			if (profileTypes[obj.internal_id] === 'MUTATION_EXTENDED') {
+				oncoprintFormat[gene][sample].mutation = obj.amino_acid_change;
+			} else if (profileTypes[obj.internal_id] === 'COPY_NUMBER_ALTERATION') {
+				oncoprintFormat[gene][sample].cna = (obj.profile_data === '0' ? undefined : cnaType[Integer.toString(obj.profile_data)]);
+			}
+		});
+		var oncoprintData = []; // read the data off
+		$.each(oncoprintFormat, function(gene, sampMap) {
+			$.each(sampMap, function(sampId, propMap) {
+				var newElt = {gene:gene, sample:sampId};
+				$.extend(newElt, propMap);
+				oncoprintData.push(newElt);
+			});
+		});
+		$('#oncoprint_body').empty();
+		requirejs( ['Oncoprint'], function(Oncoprint) {
+			console.log(oncoprintData);
+			var oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
+			geneData: oncoprintData,
+			genes: oql.getGeneList($("#gene_list").val()),
+			legend: document.getElementById('oncoprint_legend'),
+		},[]);});
+		//console.log(oncoprintData);
+	});
+}
+function toOncoprintFormat(data) {
 	
 }
 //  Determine whether to submit a cross-cancer query or

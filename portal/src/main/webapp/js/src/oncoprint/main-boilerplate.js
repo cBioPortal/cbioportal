@@ -146,6 +146,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                 genes: genes,
                 legend: document.getElementById('oncoprint_legend')
             },extraTracks);
+	    window.oncoprint = oncoprint;
             outer_loader_img.hide();
             $('#oncoprint #everything').show();
 

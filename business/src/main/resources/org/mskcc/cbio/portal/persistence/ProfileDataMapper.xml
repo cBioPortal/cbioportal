@@ -5,7 +5,7 @@
 
 <resultMap id="MutationDataResult" type="DBMutationData">
     <result property="entrez_gene_id" column="ENTREZ_GENE_ID"/>
-    <result property="internal_patient_id" column="SAMPLE_ID"/>
+    <result property="internal_sample_id" column="SAMPLE_ID"/>
     <result property="internal_id" column="GENETIC_PROFILE_ID"/>
     <result property="sequencing_center" column="CENTER"/>
     <result property="mutation_status" column="MUTATION_STATUS"/>

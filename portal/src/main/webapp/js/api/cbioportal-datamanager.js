@@ -104,7 +104,7 @@ dataman = (function () {
                         currentMap[keys[j]] = currentMap[keys[j]] || {};
                         currentMap = currentMap[keys[j]];
                     }
-                    currentMap[keys[keys.length - 1]] = objs[j];
+                    currentMap[keys[keys.length - 1]] = objs[i];
                 } else if (this.mapType === Index.mapType.MANY_TO_MANY) {
                     var keys = this.cacheBy(objs[i]);
                     var currentMap = this.map;
@@ -113,7 +113,7 @@ dataman = (function () {
                         currentMap = currentMap[keys[j]];
                     }
                     currentMap[keys[keys.length - 1]] = currentMap[keys[keys.length - 1]] || [];
-                    currentMap[keys[keys.length - 1]].push(objs[j]);
+                    currentMap[keys[keys.length - 1]].push(objs[i]);
                 }
             }
         },
@@ -270,7 +270,7 @@ dataman = (function () {
     }, Index.mapType.ONE_TO_MANY);
 
     cache.data.profiles.addIndex('geneprofilepatient', function (x) {
-        return [x.entrez_gene_id, x.internal_id, x.internal_patient_id]
+        return [x.entrez_gene_id, x.internal_id, x.internal_sample_id]
     }, Index.mapType.MANY_TO_MANY);
 
 

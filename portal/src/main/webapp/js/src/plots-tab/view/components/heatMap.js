@@ -312,6 +312,28 @@ var heat_map = (function() {
         );  
     };
     
+    function error_msg(div) {
+        $("#" + div).empty();
+        var svg = d3.select("#" + div)
+            .append("svg")
+            .attr("width", 800) 
+            .attr("height", 600);
+        elem.svg.append("text")
+            .attr("x", 350)
+            .attr("y", 70)
+            .attr("text-anchor", "middle")
+            .attr("fill", "#DF3A01")
+            .text("Sorry, no data for selected query.");
+        elem.svg.append("rect")
+            .attr("x", 150)
+            .attr("y", 30)
+            .attr("width", 400)
+            .attr("height", 70)
+            .attr("fill", "none")
+            .attr("stroke-width", 1)
+            .attr("stroke", "#BDBDBD");
+    }
+    
     return {
         init: function(_div, _data) {
             
@@ -327,7 +349,9 @@ var heat_map = (function() {
             stat.count.max = "0";
             
             process_data(_data);
-            render(_div);
+            if (data.length === 0) {
+                error_msg(_div);
+            } else render(_div);
         },
         get_tab_delimited_data: function() {
             var elt_x = document.getElementById(ids.sidebar.x.clin_attr);

@@ -952,24 +952,27 @@ var scatterPlots = (function() {
                 data.push(_data[key]);
             }
             
-            if (_calculate_co_exp) {
-                var tmpGeneXcoExpStr = "",
-                    tmpGeneYcoExpStr = "";
-                $.each(data, function(index, obj) {
-                    tmpGeneXcoExpStr += obj.xVal + " ";
-                    tmpGeneYcoExpStr += obj.yVal + " ";
-                });
-                var paramsCalcCoexp = {
-                    gene_x : tmpGeneXcoExpStr,
-                    gene_y : tmpGeneYcoExpStr
-                };
-                $.post("calcCoExp.do", paramsCalcCoexp, getCalcCoExpCallBack, "json");
+            if (data.length === 0) {
+                error_msg();
             } else {
-                render();
+                if (_calculate_co_exp) {
+                    var tmpGeneXcoExpStr = "",
+                        tmpGeneYcoExpStr = "";
+                    $.each(data, function(index, obj) {
+                        tmpGeneXcoExpStr += obj.xVal + " ";
+                        tmpGeneYcoExpStr += obj.yVal + " ";
+                    });
+                    var paramsCalcCoexp = {
+                        gene_x : tmpGeneXcoExpStr,
+                        gene_y : tmpGeneYcoExpStr
+                    };
+                    $.post("calcCoExp.do", paramsCalcCoexp, getCalcCoExpCallBack, "json");
+                } else {
+                    render();
+                }                
             }
             
             function getCalcCoExpCallBack(result) {
-                
                 var tmpArrCoexpScores = result.split(" ");
                 scores.pearson = parseFloat(tmpArrCoexpScores[0]).toFixed(3);
                 scores.spearman = parseFloat(tmpArrCoexpScores[1]).toFixed(3);
@@ -977,6 +980,7 @@ var scatterPlots = (function() {
             }
             
             function error_msg() {
+                $("#" + _div).empty();
                 initCanvas();
                 elem.svg.append("text")
                     .attr("x", 350)
@@ -996,23 +1000,19 @@ var scatterPlots = (function() {
             
             function render() {
                 $("#" + _div).empty();
-                if (data.length === 0) {
-                    error_msg();
-                } else {
-                    initCanvas(div);
-                    initAxis("x");
-                    initAxis("y");
-                    drawAxis("x");
-                    drawAxis("y");
-                    if (_apply_box_plots) {
-                        boxPlots.init(data, plotsData.stat(), _box_plots_axis, elem);
-                    }
-                    drawDots(_apply_box_plots, _box_plots_axis);
-                    applyMouseover();
-                    appendTitle("x");
-                    appendTitle("y");
-                    appendGlyphs();                      
+                initCanvas(div);
+                initAxis("x");
+                initAxis("y");
+                drawAxis("x");
+                drawAxis("y");
+                if (_apply_box_plots) {
+                    boxPlots.init(data, plotsData.stat(), _box_plots_axis, elem);
                 }
+                drawDots(_apply_box_plots, _box_plots_axis);
+                applyMouseover();
+                appendTitle("x");
+                appendTitle("y");
+                appendGlyphs();                      
             }
         },
         addGlyph: function(obj) {

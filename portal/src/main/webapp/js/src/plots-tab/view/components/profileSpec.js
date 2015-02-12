@@ -91,6 +91,7 @@ var profileSpec = (function() {
                             "<option value='" + obj.id + "'>" + obj.name + "</option>");
                 }
             });
+            appendLogScaleOption(axis);
 
         };
         $("#" + ids.sidebar[axis].profile_type).change(function() {

@@ -22,6 +22,10 @@ var scatterPlots = (function() {
                     help_x: 135,
                     help_y: 145
                 }
+            },
+            log_scale: {
+                threshold_down : 0.17677669529,  //-2.5 to 10
+                threshold_up : 1.2676506e+30
             }
         },
         div = "",
@@ -454,8 +458,8 @@ var scatterPlots = (function() {
         
         var re_scale = function(_axis) {
             var _stat = plotsData.stat();
-            var _new_min = Math.log(_stat[_axis].min) / Math.log(2);
-            var _new_max = Math.log(_stat[_axis].max) / Math.log(2);
+            var _new_min = (_stat[_axis].min <= settings.log_scale.threshold_down)? Math.log(settings.log_scale.threshold_down)/Math.log(2):Math.log(_stat[_axis].min) / Math.log(2);
+            var _new_max = (_stat[_axis].min >= settings.log_scale.threshold_up)? Math.log(settings.log_scale.threshold_up)/Math.log(2):Math.log(_stat[_axis].max) / Math.log(2);
             var _new_edge;
             if (_axis === "x") _new_edge = (_new_max - _new_min) * 0.1;
             else if (_axis === "y") _new_edge = (_new_max - _new_min) * 0.2;
@@ -502,8 +506,8 @@ var scatterPlots = (function() {
             //flip the axis
             _axis = (_axis === "x")? "y": "x";
             var _stat = jQuery.extend(true, {}, plotsData.stat());
-            _stat[_axis].min = Math.log(_stat[_axis].min) / Math.log(2);
-            _stat[_axis].max = Math.log(_stat[_axis].max) / Math.log(2);
+            _stat[_axis].min = (_stat[_axis].min <= settings.log_scale.threshold_down) ? Math.log(settings.log_scale.threshold_down) / Math.log(2) : Math.log(_stat[_axis].min) / Math.log(2);
+            _stat[_axis].max = (_stat[_axis].max >= settings.log_scale.threshold_up) ? Math.log(settings.log_scale.threshold_up) / Math.log(2) : Math.log(_stat[_axis].max) / Math.log(2);
             if (_axis === "x") _stat[_axis].edge = (_stat[_axis].max - _stat[_axis].min) * 0.1;
             else if (_axis === "y") _stat[_axis].edge = (_stat[_axis].max - _stat[_axis].min) * 0.2;
             return _stat;
@@ -513,7 +517,7 @@ var scatterPlots = (function() {
             var _data = jQuery.extend(true, [], data);
             var _attr_name = (_axis === "x")? "yVal": "xVal";
             $.each(_data, function(index, _obj) {
-                _obj[_attr_name] = (Math.log(_obj[_attr_name]) / Math.log(2)).toString();
+                _obj[_attr_name] = (_obj[_attr_name] <= settings.log_scale.threshold_down)? (Math.log(settings.log_scale.threshold_down)/Math.log(2)).toString():(Math.log(_obj[_attr_name]) / Math.log(2)).toString();
             });
             return _data;
         };
@@ -571,8 +575,10 @@ var scatterPlots = (function() {
                        elem.dotsGroup.selectAll("path")
                            .transition().duration(300)
                            .attr("transform", function() {
-                               var _x = _new_x_scale(Math.log(d3.select(this).attr("x_val")) / Math.log(2));
-                               var _y = _new_y_scale(Math.log(d3.select(this).attr("y_val")) / Math.log(2));
+                               var _x_val = (d3.select(this).attr("x_val") <= settings.log_scale.threshold_down)? Math.log(settings.log_scale.threshold_down)/Math.log(2):Math.log(d3.select(this).attr("x_val")) / Math.log(2);
+                               var _y_val = (d3.select(this).attr("y_val") <= settings.log_scale.threshold_down)? Math.log(settings.log_scale.threshold_down)/Math.log(2):Math.log(d3.select(this).attr("y_val")) / Math.log(2);
+                               var _x = _new_x_scale(_x_val);
+                               var _y = _new_y_scale(_y_val);
                                return "translate(" + _x + ", " + _y + ")";
                            }); 
 
@@ -589,7 +595,8 @@ var scatterPlots = (function() {
                        elem.dotsGroup.selectAll("path")
                            .transition().duration(300)
                            .attr("transform", function() {
-                               var _log_pos = _new_scale(Math.log(d3.select(this).attr("x_val")) / Math.log(2));
+                               var _log_val = d3.select(this).attr("x_val") <= settings.log_scale.threshold_down ? Math.log(settings.log_scale.threshold_down)/Math.log(2): Math.log(d3.select(this).attr("x_val"))/Math.log(2);
+                               var _log_pos = _new_scale(_log_val);
                                var _pre_pos = d3.select(this).attr("y_pos");
                                return "translate(" + _log_pos + ", " + _pre_pos + ")";    
                            }); 
@@ -607,7 +614,8 @@ var scatterPlots = (function() {
                        elem.dotsGroup.selectAll("path")
                            .transition().duration(300)
                            .attr("transform", function() {
-                               var _log_pos = _new_scale(Math.log(d3.select(this).attr("y_val")) / Math.log(2));
+                               var _log_val = d3.select(this).attr("y_val") <= settings.log_scale.threshold_down ? Math.log(settings.log_scale.threshold_down)/Math.log(2): Math.log(d3.select(this).attr("y_val"))/Math.log(2);
+                               var _log_pos = _new_scale(_log_val);
                                var _pre_pos = d3.select(this).attr("x_pos");
                                return "translate(" + _pre_pos + ", " + _log_pos + ")";    
                            }); 
@@ -644,7 +652,8 @@ var scatterPlots = (function() {
                 elem.dotsGroup.selectAll("path")
                    .transition().duration(300)
                    .attr("transform", function() {
-                       var _log_pos = _new_scale(Math.log(d3.select(this).attr(_profile_axis + "_val")) / Math.log(2));
+                       var _log_val = d3.select(this).attr(_profile_axis + "_val") <= settings.log_scale.threshold_down? Math.log(settings.log_scale.threshold_down)/Math.log(2): Math.log(d3.select(this).attr(_profile_axis + "_val")) / Math.log(2);
+                       var _log_pos = _new_scale(_log_val);
                        var _pre_pos = d3.select(this).attr(_clin_axis + "_pos");
                        return "translate(" + _pre_pos + ", " + _log_pos + ")";    
                    }); 

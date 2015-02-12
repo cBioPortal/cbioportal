@@ -976,23 +976,44 @@ var scatterPlots = (function() {
                 render();
             }
             
+            function error_msg() {
+                initCanvas();
+                elem.svg.append("text")
+                    .attr("x", 350)
+                    .attr("y", 70)
+                    .attr("text-anchor", "middle")
+                    .attr("fill", "#DF3A01")
+                    .text("Sorry, no data for selected query.");
+                elem.svg.append("rect")
+                    .attr("x", 150)
+                    .attr("y", 30)
+                    .attr("width", 400)
+                    .attr("height", 70)
+                    .attr("fill", "none")
+                    .attr("stroke-width", 1)
+                    .attr("stroke", "#BDBDBD");
+            }
+            
             function render() {
                 $("#" + _div).empty();
-                initCanvas(div);
-                initAxis("x");
-                initAxis("y");
-                drawAxis("x");
-                drawAxis("y");
-                if (_apply_box_plots) {
-                    boxPlots.init(data, plotsData.stat(), _box_plots_axis, elem);
+                if (data.length === 0) {
+                    error_msg();
+                } else {
+                    initCanvas(div);
+                    initAxis("x");
+                    initAxis("y");
+                    drawAxis("x");
+                    drawAxis("y");
+                    if (_apply_box_plots) {
+                        boxPlots.init(data, plotsData.stat(), _box_plots_axis, elem);
+                    }
+                    drawDots(_apply_box_plots, _box_plots_axis);
+                    applyMouseover();
+                    appendTitle("x");
+                    appendTitle("y");
+                    appendGlyphs();                      
                 }
-                drawDots(_apply_box_plots, _box_plots_axis);
-                applyMouseover();
-                appendTitle("x");
-                appendTitle("y");
-                appendGlyphs();  
             }
-
         },
         addGlyph: function(obj) {
             glyphs.push(obj);

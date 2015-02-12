@@ -930,7 +930,7 @@ function outputClinicalData() {
             diseaseInfo.push(typeOfCancer);
         }
         
-        var detailedCancerType = guessClinicalData(clinicalData,["DETAILED_CANCER_TYPE"]);
+        var detailedCancerType = guessClinicalData(clinicalData,["DETAILED_CANCER_TYPE","CANCER_TYPE_DETAILED"]);
         if (detailedCancerType!==null) {
             diseaseInfo.push(detailedCancerType);
         } 

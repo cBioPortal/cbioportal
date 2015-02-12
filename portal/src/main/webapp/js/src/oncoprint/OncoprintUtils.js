@@ -615,7 +615,8 @@ define("OncoprintUtils", (function() {
                 datas[i][0].attr_id.length*dims.character_length;
                 maxlength = (datas[i][0].attr_id.length*dims.character_length) > maxlength ? (datas[i][0].attr_id.length*dims.character_length) : maxlength;
             }
-            
+            var lengestStringLength = 20;//we define truncated the string to 20 characters
+            maxlength = lengestStringLength * dims.character_length
             return maxlength;
         };
         
@@ -680,7 +681,8 @@ define("OncoprintUtils", (function() {
                 longestEachData = calculateDistance(datas[i][datas[i].length - 1].attr_id, datas[i][datas[i].length - 1].attr_val) + datas[i][datas[i].length - 1].attr_val.toString().length *dims.character_length + dims.rect_width * 5;
                 longestLegendLength= longestEachData > longestLegendLength ? longestEachData: longestLegendLength;
             }
-            
+//            var lengstStringLength = 20;
+//            longestLegendLength = calculateDistance(datas[i][datas[i].length - 1].attr_id, datas[i][datas[i].length - 1].attr_val) + lengstStringLength * dims.character_length + dims.rect_width * 5;
             return longestLegendLength;
         }; 
         
@@ -1105,7 +1107,8 @@ define("OncoprintUtils", (function() {
                 datas[i][0].attr_id.length*character_length;
                 maxlength = (datas[i][0].attr_id.length*character_length) > maxlength ? (datas[i][0].attr_id.length*character_length) : maxlength;
             }
-            
+            var lengestStringLength = 20;//we define truncated the string to 20 characters
+            maxlength = lengestStringLength * character_length;
             return maxlength;
         };
         

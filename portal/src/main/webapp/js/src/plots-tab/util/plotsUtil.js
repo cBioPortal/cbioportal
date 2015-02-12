@@ -1,30 +1,3 @@
-var is_numeric = function(_arr) {
-    var _result = true;
-    var regex = /^-?[0-9]+(\.[0-9]+)?$/;
-    $.each(_arr, function(index, val) {
-        if (!regex.test(val)) {
-            _result = false;
-        }
-    });
-    return _result;
-};
-
-var is_clinical_data_discretized = function(_arr) {
-    var _result;
-    if (is_numeric(_arr)) {
-        _result = false;   
-    } else {
-        var _tmp = [];
-        $.each(_arr, function(index, val) {
-           if ($.inArray(val, _tmp) === -1) _tmp.push(val); 
-        });   
-        if (_tmp.length > 15) {
-            _result = false;
-        } else _result = true;
-    }
-    return _result;
-};
-
 var clinical_attr_is_discretized = function(_axis) {
     var _type = metaData.getClinicalAttrType($("#" + ids.sidebar[_axis].clin_attr).val());
     if (_type === "STRING") return true;

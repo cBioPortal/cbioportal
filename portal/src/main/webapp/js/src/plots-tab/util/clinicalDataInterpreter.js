@@ -3,7 +3,8 @@ var clinical_data_interpreter = (function() {
     var text_val_map = {
             x: {}, 
             y: {}
-        };
+        },
+        text_labels = [];
     
     var extract_discretized_vals = function(_arr) {
         var _result = [];
@@ -20,12 +21,14 @@ var clinical_data_interpreter = (function() {
             real_val: ""
         };
         var numeric_val_index = 0;
+        text_labels = []; text_labels.length = 0;
         $.each(_arr, function(index, val) {
             var _datum = jQuery.extend(true, {}, datum);
             _datum.real_val = val;
             _datum.numeric_val = numeric_val_index;
             text_val_map[axis][val] = _datum;
             numeric_val_index += 1;
+            if ($.inArray(val, text_labels) === -1) text_labels.push(val);
         });
     };
     
@@ -52,7 +55,7 @@ var clinical_data_interpreter = (function() {
             }
         },
         get_text_labels: function(axis) {
-            return Object.keys(text_val_map[axis]);
+            return text_labels;
         }
     };
     

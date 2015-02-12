@@ -118,21 +118,21 @@ var plotsData = (function() {
                     _arr_x.push(dotsContent[key].xVal);
                     _arr_y.push(dotsContent[key].yVal);
                 }
-                if (!is_numeric(_arr_x)) {
+                if (clinical_attr_is_discretized("x")) {
                     clinical_data_interpreter.process(dotsContent, "x");
                     for (var key in dotsContent) {
                         dotsContent[key].xVal = clinical_data_interpreter.convert_to_numeric(dotsContent[key].xVal, "x");
                     }                        
                 }
-                if (!is_numeric(_arr_y)) {
+                if (clinical_attr_is_discretized("y")) {
                     clinical_data_interpreter.process(dotsContent, "y");
                     for (var key in dotsContent) {
                         dotsContent[key].yVal = clinical_data_interpreter.convert_to_numeric(dotsContent[key].yVal, "y");
                     }                        
                 }
                 
-                if (is_clinical_data_discretized(_arr_x) &&
-                    is_clinical_data_discretized(_arr_y)) {
+                if (clinical_attr_is_discretized("x") &&
+                    clinical_attr_is_discretized("y")) {
                     stat.retrieved = true;
                 } else {
                     analyseData();
@@ -211,7 +211,7 @@ var plotsData = (function() {
             for(var key in dotsContent) {
                 _arr.push(dotsContent[key][_axis_key]);
             }
-            if (!is_numeric(_arr)) {
+            if (clinical_attr_is_discretized(_axis)) {
                 clinical_data_interpreter.process(dotsContent, _axis);
                 for (var key in dotsContent) {
                     dotsContent[key][_axis_key] = clinical_data_interpreter.convert_to_numeric(dotsContent[key][_axis_key], _axis);
@@ -232,10 +232,19 @@ var plotsData = (function() {
 
         stat.x.min = Math.min.apply(Math, tmp_xData);
         stat.x.max = Math.max.apply(Math, tmp_xData);
-        stat.x.edge = (stat.x.max - stat.x.min) * 0.2;
         stat.y.min = Math.min.apply(Math, tmp_yData);
         stat.y.max = Math.max.apply(Math, tmp_yData);
-        stat.y.edge = (stat.y.max - stat.y.min) * 0.1;
+        
+        if (stat.x.min === stat.x.max) {
+            stat.x.edge = 0.2;
+        } else {
+            stat.x.edge = (stat.x.max - stat.x.min) * 0.2;
+        }
+        if (stat.y.min === stat.y.max) {
+            stat.y.edge = 0.2;
+        } else {
+            stat.y.edge = (stat.y.max - stat.y.min) * 0.1;
+        }
     }
 
     return {

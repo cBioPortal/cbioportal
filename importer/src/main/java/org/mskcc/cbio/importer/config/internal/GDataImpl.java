@@ -229,11 +229,22 @@ class GDataImpl implements Config {
 		}
 		
 		HashMap<String, TumorTypeMetadata> tumorTypes = new HashMap<>();
+                int endOfData = 0;
+                ArrayList<String> line = oncotreeMatrix.get(0);
+                for (; endOfData<oncotreeMatrix.size(); endOfData++) {
+                    if (line.get(endOfData).toLowerCase().startsWith("end:")) {
+                        break;
+                    }
+                }
+                
 		for (int i=1; i<oncotreeMatrix.size(); i++) {
-			ArrayList<String> line = oncotreeMatrix.get(i);
-			for (int j=0; j<line.size(); j++) {
+			line = oncotreeMatrix.get(i);
+			for (int j=0; j<endOfData; j++) {
 				TumorTypeMetadata ttmd = parseTumorTypeMetadata(line, j, propertyMap);
-				if (ttmd!= null && !tumorTypes.containsKey(ttmd.getType())) {
+                                if (ttmd==null) {
+                                    break;
+                                }
+				if (!tumorTypes.containsKey(ttmd.getType())) {
 					tumorTypes.put(ttmd.getType(), ttmd);
 				}
 			}

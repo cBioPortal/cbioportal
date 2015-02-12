@@ -228,8 +228,9 @@ class GDataImpl implements Config {
 		HashMap<String, TumorTypeMetadata> tumorTypes = new HashMap<>();
                 int endOfData = 0;
                 ArrayList<String> line = oncotreeMatrix.get(0);
-                for (; endOfData<oncotreeMatrix.size(); endOfData++) {
-                    if (line.get(endOfData).toLowerCase().startsWith("end:")) {
+                for (; endOfData<line.size(); endOfData++) {
+                    if (line.get(endOfData).toLowerCase().startsWith("meta:")) {
+                        // assuming meta data at the end
                         break;
                     }
                 }

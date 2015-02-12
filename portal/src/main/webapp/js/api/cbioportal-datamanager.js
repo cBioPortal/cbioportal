@@ -931,6 +931,7 @@ dataman = (function () {
         getClinicalSampleDataByStableStudyId: getClinicalSampleDataByStableStudyId,
         getClinicalSampleDataByInternalId: getClinicalSampleDataByInternalId,
         getClinicalSampleDataByStableId: getClinicalSampleDataByStableId,
+	
     };
 
 })();

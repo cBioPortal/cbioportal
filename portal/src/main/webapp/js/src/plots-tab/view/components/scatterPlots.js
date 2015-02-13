@@ -100,9 +100,9 @@ var scatterPlots = (function() {
             bottom_x = settings.axis.x.range_max;
             bottom_y = 0;
         }
-        
-        if (genetic_vs_genetic()) {
-            if (stat.applied_box_plots && stat.box_plots_axis === axis) {
+
+        if ($("input:radio[name='" + ids.sidebar[axis].data_type + "']:checked").val() === vals.data_type.genetic) {
+            if (is_profile_discretized(axis)) {
                 function sort_by_cna(a, b){
                     var _attr_name = (stat.box_plots_axis === "x")? "xVal": "yVal";
                     var a_val = parseInt(a[_attr_name]);
@@ -119,20 +119,13 @@ var scatterPlots = (function() {
                     }
                 });
                 discretized_axis(_text_set, false);
-            } else {
-                continuous_axis(false);
-            }
+            } else continuous_axis(false);
+        } else if ($("input:radio[name='" + ids.sidebar[axis].data_type + "']:checked").val() === vals.data_type.clin) {
+            if (clinical_attr_is_discretized(axis)) {
+                discretized_axis(clinical_data_interpreter.get_text_labels(axis), true);
+            } else continuous_axis(true);
         } else {
-            if ($("input:radio[name='" + ids.sidebar[axis].data_type + "']:checked").val() === vals.data_type.clin) {
-                var _type = metaData.getClinicalAttrType($("#" + ids.sidebar[axis].clin_attr).val());
-                if (_type === "STRING") {
-                    discretized_axis(clinical_data_interpreter.get_text_labels(axis), true);
-                } else if (_type === "NUMBER") {
-                    continuous_axis(true);
-                }
-            } else {
-                continuous_axis(false);
-            }
+            continuous_axis(false);
         }
         
         function discretized_axis(_text_set, _rotate_flag) {
@@ -778,42 +771,29 @@ var scatterPlots = (function() {
                 "' target = '_blank'>" + d.caseId +
                 "</a></strong>";
             if (genetic_vs_genetic()) {
-                if (stat.applied_box_plots) {
-                    if (stat.box_plots_axis === "x") {
-                        _content += "<br>Horizontal: <b>" + gisticInterpreter.convert_to_val(d.xVal) + "</b><br>" + "Vertical: <b>" + d.yVal + "</b>";
-                    } else if (stat.box_plots_axis === "y") {
-                        _content += "<br>Horizontal: <b>" + d.xVal + "</b><br>" + "Vertical: <b>" + gisticInterpreter.convert_to_val(d.yVal) + "</b>";
-                    }
-                } else {
+                if (!(is_profile_discretized("x")) && !(is_profile_discretized("y"))) {
                     _content += "<br>Horizontal: <b>" + d.xVal + "</b><br>" + "Vertical: <b>" + d.yVal + "</b>";
+                } else if (is_profile_discretized("x")) {
+                    _content += "<br>Horizontal: <b>" + gisticInterpreter.convert_to_val(d.xVal) + "</b><br>" + "Vertical: <b>" + d.yVal + "</b>";
+                } else if (is_profile_discretized("y")) {
+                    _content += "<br>Horizontal: <b>" + d.xVal + "</b><br>" + "Vertical: <b>" + gisticInterpreter.convert_to_val(d.yVal) + "</b>";
                 }
             } else {
                 if (genetic_vs_clinical()) {
                     if ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.clin) {
-                        var _type = metaData.getClinicalAttrType($("#" + ids.sidebar.x.clin_attr).val());
-                        if (_type === "STRING") {
-                            _content += "<br>Horizontal: <b>" + clinical_data_interpreter.convert_to_text(d.xVal, "x") + "</b><br>" +
-                                        "Vertical: <b>" + d.yVal + "</b>";
-                        } else if (_type === "NUMBER") {
-                            _content += "<br>Horizontal: <b>" + d.xVal + "</b><br>" + "Vertical: <b>" + d.yVal + "</b>";
-                        }
+                        var _text_x = clinical_attr_is_discretized("x")? clinical_data_interpreter.convert_to_text(d.xVal, "x"): d.xVal;
+                        var _text_y = is_profile_discretized("y")? gisticInterpreter.convert_to_val(d.yVal): d.yVal;
+                        _content += "<br>Horizontal: <b>" + _text_x + "</b><br>" + "Vertical: <b>" + _text_y + "</b>";
                     } else if ($("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() === vals.data_type.clin) {
-                        var _type = metaData.getClinicalAttrType($("#" + ids.sidebar.y.clin_attr).val());
-                        if (_type === "STRING") {
-                            _content += "<br>Horizontal: <b>" + d.xVal + "</b><br>" +
-                                        "Vertical: <b>" + clinical_data_interpreter.convert_to_text(d.yVal, "y") + "</b>";
-                        } else if (_type === "NUMBER") {
-                            _content += "<br>Horizontal: <b>" + d.xVal + "</b><br>" + "Vertical: <b>" + d.yVal + "</b>";
-                        }
+                        var _text_x = is_profile_discretized("x")? gisticInterpreter.convert_to_val(d.xVal, "x"): d.xVal;
+                        var _text_y = clinical_attr_is_discretized("y")? clinical_data_interpreter.convert_to_text(d.yVal): d.yVal;
+                        _content += "<br>Horizontal: <b>" + _text_x + "</b><br>" + "Vertical: <b>" + _text_y + "</b>";
                     }
                 } else if (clinical_vs_clinical()) {
-                    var _type_x = metaData.getClinicalAttrType($("#" + ids.sidebar.x.clin_attr).val());
-                    var _type_y = metaData.getClinicalAttrType($("#" + ids.sidebar.y.clin_attr).val());
-                    var _text_x, _text_y;
-                    if (_type_x === "STRING") {
+                    if (clinical_attr_is_discretized("x")) {
                         _text_x = clinical_data_interpreter.convert_to_text(d.xVal, "x");
                     } else _text_x = d.xVal;
-                    if (_type_y === "STRING") {
+                    if (clinical_attr_is_discretized("y")) {
                         _text_y = clinical_data_interpreter.convert_to_text(d.yVal, "y");
                     } else _text_y = d.yVal;
                     _content += "<br>Horizontal: <b>" + _text_x + "</b><br>" +

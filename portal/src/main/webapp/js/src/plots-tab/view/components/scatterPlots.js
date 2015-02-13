@@ -677,20 +677,41 @@ var scatterPlots = (function() {
         var _name = ($("input:radio[name='" + ids.sidebar[axis].data_type + "']:checked").val() === vals.data_type.genetic)? ($("#" + ids.sidebar[axis].gene).val() + ", " + elt.options[elt.selectedIndex].text): elt.options[elt.selectedIndex].text;
         var _id = elt.options[elt.selectedIndex].value;
         
+        //trimm exceedingly long titles
+        var _max_length = 60, _trimmed_name = "";
+        if (_name.length > _max_length) {
+            _trimmed_name = _name.substring(0, _max_length) + "...";
+        } else _trimmed_name = _name;
+        
         var _tmp_attr = (axis === "y")? "rotate(-90)": "";
         d3.select("#" + div).select(d3_class[axis].axis_title).remove();
         elem.axisTitleGroup.append("text")
-            .attr("class", d3_class[axis].axis_title)
+            .attr("class", function() {
+                if (_name.length > _max_length) return d3_class[axis].axis_title + "_trimmed";
+                else return d3_class[axis].axis_title;
+            })
             .attr("transform", _tmp_attr)
             .attr("x", settings.axis[axis].title_x)
             .attr("y", settings.axis[axis].title_y)
             .style("text-anchor", "middle")
             .style("font-weight","bold")
-            .text(_name);
+            .text(_trimmed_name);
+        //apply mouse over to trimmed titles
+        elem.svg.selectAll("." + d3_class[axis].axis_title + "_trimmed").each(function(d) {
+            $(this).qtip(
+                {
+                    content: {text: "<font size=2>" + _name + "</font>" },
+                    style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+                    show: {event: "mouseover"},
+                    hide: {fixed:true, delay: 100, event: "mouseout"},
+                    position: {my:'left bottom',at:'top right', viewport: $(window)}
+                }
+            );
+        });
         
         //append help icon (mouseover)
-        var _pos_x = (axis==="x")? (settings.axis.x.title_x + _name.length / 2 * 8 + 5): (settings.axis.y.title_y - 11);
-        var _pos_y = (axis==="x")? (settings.axis.x.title_y - 12): (settings.axis.y.title_x + 535 - _name.length / 2 * 8 );
+        var _pos_x = (axis==="x")? (settings.axis.x.title_x + _trimmed_name.length / 2 * 8): (settings.axis.y.title_y - 11);
+        var _pos_y = (axis==="x")? (settings.axis.x.title_y - 12): (settings.axis.y.title_x + 535 - _trimmed_name.length / 2 * 8 );
         elem.axisTitleGroup.append("svg:image")
             .attr("xlink:href", "images/help.png")
             .attr("class", d3_class[axis].title_help)

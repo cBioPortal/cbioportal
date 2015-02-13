@@ -703,8 +703,9 @@ public class Admin implements Runnable {
 				}
 				else {
 					// remove from db
-					deleteCancerStudy(cancerStudyMetadata.getStableId());
-					cancerStudiesRemoved.add(cancerStudyMetadata.getStudyPath());
+					if (deleteCancerStudy(cancerStudyMetadata.getStableId())) {
+						cancerStudiesRemoved.add(cancerStudyMetadata.getStudyPath());
+					}
 				}
 			}
 			else if (cancerStudyMetadataToImport.contains(cancerStudyMetadata)) {
@@ -742,7 +743,7 @@ public class Admin implements Runnable {
 			body += cancerStudyMetadata.getStableId() + "\n";
 		}
 		if (!cancerStudiesRemoved.isEmpty()) {
-			body += "\n\n" + "The following studies have been removed:\n";
+			body += "\n\n" + "The following studies have been removed:\n\n";
 			for (String cancerStudy : cancerStudiesRemoved) {
 				CancerStudyMetadata cancerStudyMetadata = config.getCancerStudyMetadataByName(cancerStudy);
 				body += cancerStudyMetadata.getStableId() + "\n";
@@ -843,7 +844,7 @@ public class Admin implements Runnable {
 		}
 	}
 
-	private void deleteCancerStudy(String cancerStudyStableId) throws Exception
+	private boolean deleteCancerStudy(String cancerStudyStableId) throws Exception
 	{
 		if (LOG.isInfoEnabled()) {
 			LOG.info("deleteCancerStudy(), study id: " + cancerStudyStableId);
@@ -853,7 +854,9 @@ public class Admin implements Runnable {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("deleteCancerStudy(), complete");
 			}
+			return true;
 		}
+		return false;
 	}
 
 	/**

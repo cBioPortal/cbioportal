@@ -86,6 +86,8 @@ class GDataImpl implements Config {
 	private String tcgaTumorTypesWorksheet;
     private String icgcWorksheet;
 
+    private final String HTML_COLOR_NAME_ONCOTREE_PROP = "HTML_COLOR_NAME";
+
     /**
      * Constructor.
      *
@@ -175,29 +177,29 @@ class GDataImpl implements Config {
 		return ret;
 	}
 	
-	private TumorTypeMetadata parseTumorTypeMetadata(ArrayList<String> line, int index, Map<String, String> colorMap) {
-		int newEntIndex = index;
-		String newEnt = line.get(newEntIndex).trim();
-		if (newEnt.isEmpty()) {
-			return null;
-		}
-		String parentEnt = newEntIndex==0?"tissue":line.get(newEntIndex - 1).trim();
+    private TumorTypeMetadata parseTumorTypeMetadata(ArrayList<String> line, int index, HashMap<String, HashMap<String, String>> propertyMap) {
+        int newEntIndex = index;
+        String newEnt = line.get(newEntIndex).trim();
+        if (newEnt.isEmpty()) {
+            return null;
+        }
+        String parentEnt = newEntIndex==0?"tissue":line.get(newEntIndex - 1).trim();
 
-		String tissue = line.get(0);
-		String color = colorMap.get(tissue);
-		String[] newEntData = extractTumorTypeData(newEnt);
-		String name = newEntData[0];
-		String id = newEntData[1];
-		if (id.isEmpty()) {
-			id = name;
-		}
-		String[] parentEntData = extractTumorTypeData(parentEnt);
-		String parent = parentEntData[1];
-		if (parent.isEmpty()) {
-			parent = parentEntData[0];
-		}
-		String clinicalTrialKeywords = name.toLowerCase();
-		return new TumorTypeMetadata(id, name, color, parent, clinicalTrialKeywords, tissue);
+        String tissue = line.get(0);
+        String color = propertyMap.get(tissue).get(HTML_COLOR_NAME_ONCOTREE_PROP);
+        String[] newEntData = extractTumorTypeData(newEnt);
+        String name = newEntData[0];
+        String id = newEntData[1];
+        if (id.isEmpty()) {
+            id = name;
+        }
+        String[] parentEntData = extractTumorTypeData(parentEnt);
+        String parent = parentEntData[1];
+        if (parent.isEmpty()) {
+            parent = parentEntData[0];
+        }
+        String clinicalTrialKeywords = name.toLowerCase();
+        return new TumorTypeMetadata(id, name, color, parent, clinicalTrialKeywords, tissue);
 	}
 
     @Override

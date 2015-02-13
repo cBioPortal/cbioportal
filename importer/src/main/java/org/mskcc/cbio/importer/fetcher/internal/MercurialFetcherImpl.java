@@ -135,10 +135,8 @@ public class MercurialFetcherImpl extends FetcherBaseImpl implements Fetcher
 
 	    // all cmo data needs to be vetted within the triage portal
 		if (dataSourceMetadata.getDataSource().equals(DataSourcesMetadata.CMO_PIPELINE_REPOS)) {
-			toReturn.put(CancerStudyMetadata.UPDATE_TRIAGE_COLUMN_KEY, "true");
-			toReturn.put(CancerStudyMetadata.READY_FOR_RELEASE_COLUMN_KEY, "false");
 			toReturn.put(CancerStudyMetadata.TRIAGE_PORTAL_COLUMN_KEY, "x");
-			toReturn.put(CancerStudyMetadata.MSK_PORTAL_COLUMN_KEY, "x");
+			toReturn.put(CancerStudyMetadata.MSK_PORTAL_COLUMN_KEY, "");
 			toReturn.put(CancerStudyMetadata.SOURCE_COLUMN_KEY, "BIC");
 			// for consistency on the workheet - leave stable id - required to remove study
 			toReturn.remove(CancerStudyMetadata.NAME_COLUMN_KEY);
@@ -147,8 +145,7 @@ public class MercurialFetcherImpl extends FetcherBaseImpl implements Fetcher
 		}
 		// all other data (like DMP-IMPACT) can pass through the validation step
 		else {
-			toReturn.put(CancerStudyMetadata.UPDATE_TRIAGE_COLUMN_KEY, "false");
-			toReturn.put(CancerStudyMetadata.READY_FOR_RELEASE_COLUMN_KEY, "true");
+			toReturn.put(CancerStudyMetadata.MSK_PORTAL_COLUMN_KEY, "x");
 		}
 
 		return toReturn;

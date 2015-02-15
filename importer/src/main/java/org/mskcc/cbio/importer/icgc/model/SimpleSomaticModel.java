@@ -346,9 +346,9 @@ public class SimpleSomaticModel extends MutationModel {
          */
         @Override
         public String apply(Tuple2<String, String> f) {
-            if (!Strings.isNullOrEmpty(f._1) && !Strings.isNullOrEmpty(f._2())) {
-                String refAllele = f._1;
-                String altAllele = f._2;
+            if (!Strings.isNullOrEmpty(f._1()) && !Strings.isNullOrEmpty(f._2())) {
+                String refAllele = f._1();
+                String altAllele = f._2();
                 if (refAllele.equals("-")) {
                     return StagingCommonNames.variationList.get(0);
                 }

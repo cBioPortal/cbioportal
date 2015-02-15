@@ -167,8 +167,8 @@ public class CancerStudyMetadata {
         this.groups = worksheetRowMap.get("groups").trim();
         this.shortName = worksheetRowMap.get("shortname").trim();
         this.convert = Boolean.parseBoolean(worksheetRowMap.get("convert").trim());
-        this.updateTriage = Boolean.parseBoolean(worksheetRowMap.get("updatetriage").trim());
-        this.readyForRelease = Boolean.parseBoolean(worksheetRowMap.get("readyforrelease").trim());
+        //this.updateTriage = Boolean.parseBoolean(worksheetRowMap.get("updatetriage").trim());
+        //this.readyForRelease = Boolean.parseBoolean(worksheetRowMap.get("readyforrelease").trim());
 
     }
 

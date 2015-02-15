@@ -126,6 +126,10 @@ public class ImpactCancerTypeProcessor {
         }
     }
 
+    /*
+    private method to generate a report of legacy DMP cancer type discrpencies compared
+    to oncotree entries
+     */
     private void generateReport(final Path outputPath) {
         final List<String> lineList = Lists.newArrayList();
         lineList.add(StagingCommonNames.tabJoiner.join("DMP Cancer Type Detail",
@@ -133,6 +137,12 @@ public class ImpactCancerTypeProcessor {
                 "DMP Cancer Type" ,"Closest OncoTree Match", " Levenshstein Distance",
                 "DMP Sample IDs"   ));
         Observable<String> lineSource = Observable.from(this.cancerTypDetailedMap.entrySet())
+                .filter(new Func1<Map.Entry<String, Tuple2<String, Integer>>, Boolean>() {
+                    @Override
+                    public Boolean call(Map.Entry<String, Tuple2<String, Integer>> stringTuple2Entry) {
+                        return stringTuple2Entry.getValue()._2() > 0;
+                    }
+                })
                 .map(new Func1<Map.Entry<String, Tuple2<String, Integer>>, String>() {
                     @Override
                     public String call(Map.Entry<String, Tuple2<String, Integer>> entry) {
@@ -145,7 +155,7 @@ public class ImpactCancerTypeProcessor {
                         Integer typeDistance = typeTuple._2();
                         String samples = StagingCommonNames.commaJoiner.join(dmpSampleMap.get(dmpDetailedType));
                         return StagingCommonNames.tabJoiner.join(dmpDetailedType,
-                                oncoDetailMatch,detailDistance.toString(),
+                                oncoDetailMatch, detailDistance.toString(),
                                 dmpCancerType,
                                 oncoTypeMatch, typeDistance.toString(),
                                 samples);

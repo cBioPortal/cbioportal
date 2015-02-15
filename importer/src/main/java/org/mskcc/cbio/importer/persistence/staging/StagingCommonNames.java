@@ -39,6 +39,13 @@ public interface StagingCommonNames {
     public static final String xmlExtension = "xml";
 
     public static final List<String> variationList = Lists.newArrayList("INS", "SNP", "DNP", "TNP", "ONP");
+    // worksheet data types
+    public static final String DATATYPE_CNA = "cna-gistic";
+    public static final String DATATYPE_MUTATION = "mutation";
+    public static final String DATATYPE_FUSION = "fusion";
+    public static final String DATATYPE_CLINICAL = "clinical";
+
+
 
     public static final Splitter tabSplitter = Splitter.on("\t");
     public static final Splitter lineSplitter = Splitter.on("\n").trimResults();
@@ -92,6 +99,8 @@ public interface StagingCommonNames {
     public static final String IMPACT_STUDY_IDENTIFIER = "mskimpact";
     public static final String DMP_COMMENT_MARKER = "#";
     public static final String DMP_STAGING_FILE_COMMENT = "#sequenced_samples:";
+
+    public static final String REFERENCED_SAMPLES_COMMENT = "#Referenced samples: ";
 
     // length of human chromosomes
     // http://www.ncbi.nlm.nih.gov/projects/genome/assembly/grc/human/data/

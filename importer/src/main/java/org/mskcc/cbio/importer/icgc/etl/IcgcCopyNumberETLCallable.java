@@ -9,11 +9,17 @@ import edu.stanford.nlp.util.StringUtils;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.icgc.model.IcgcCopyNumberModel;
 import org.mskcc.cbio.importer.icgc.support.IcgcFunctionLibrary;
+import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.model.IcgcMetadata;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 import org.mskcc.cbio.importer.persistence.staging.cnv.CnvFileHandler;
 import org.mskcc.cbio.importer.persistence.staging.cnv.CnvFileHandlerImpl;
 import org.mskcc.cbio.importer.persistence.staging.cnv.CnvTransformer;
+import org.mskcc.cbio.importer.persistence.staging.filehandler.FileHandlerService;
+import org.mskcc.cbio.importer.persistence.staging.filehandler.TsvFileHandler;
+import rx.Observable;
+import rx.Subscriber;
+import rx.observables.StringObservable;
 import scala.Tuple3;
 
 import java.io.BufferedReader;
@@ -49,12 +55,10 @@ public class IcgcCopyNumberETLCallable extends CnvTransformer implements Callabl
     private static final Logger logger = Logger.getLogger(IcgcCopyNumberETLCallable.class);
     private final String icgcCopyNumberUrl;
 
-    public IcgcCopyNumberETLCallable (IcgcMetadata meta, Path aPath, CnvFileHandler aHandler) {
-        super(aHandler);
+    public IcgcCopyNumberETLCallable(IcgcMetadata meta, Path stagingFileDirectory){
+        super(stagingFileDirectory,true); // ICGC staging files are overwritten
         Preconditions.checkArgument(null != meta && !Strings.isNullOrEmpty(meta.getCopynumberurl()), "The ICGC metadata parameter is null or invalid");
-        Preconditions.checkArgument(null != aPath, "A Path to the staging file directory is required");
         this.icgcCopyNumberUrl = meta.getCopynumberurl();
-        this.registerStagingFileDirectory(aPath,false);
     }
 
     @Override
@@ -68,28 +72,42 @@ public class IcgcCopyNumberETLCallable extends CnvTransformer implements Callabl
     persist the data to a file
      */
     private String processIcgcCopyNumberFile(){
-        int lineCount = 0;
-        try {
-            BufferedReader rdr = new BufferedReader(new InputStreamReader(IOUtils.getInputStreamFromURLOrClasspathOrFileSystem(this.icgcCopyNumberUrl)));
-            String line = "";
-            while ((line = rdr.readLine()) != null) {
-                if (lineCount++ > 0){
-                    IcgcCopyNumberModel model = StringUtils.columnStringToObject(IcgcCopyNumberModel.class, line, StagingCommonNames.tabPattern,
-                            IcgcFunctionLibrary.resolveFieldNames(IcgcCopyNumberModel.class));
-                    // add data to cna table id the variation can be mapped to a gene
-                    Optional<Tuple3<String,String,String> > optTuple = model.resolveCnvTuple();
-                    if (optTuple.isPresent()) {
-                        this.registerCnv(optTuple.get());
+        try
+                (BufferedReader rdr = new BufferedReader(new InputStreamReader
+                        (IOUtils.getInputStreamFromURLOrClasspathOrFileSystem(this.icgcCopyNumberUrl)))) {
+            Observable<StringObservable.Line> lineObservable =
+                    StringObservable.byLine(StringObservable.from(rdr)).skip(1);  // skip the header
+            lineObservable.subscribe(new Subscriber<StringObservable.Line>() {
+                @Override
+                public void onCompleted() {
+                    outputCnvData();
+                }
+                @Override
+                public void onError(Throwable throwable) {
+                    logger.error(throwable.getMessage());
+                    throwable.printStackTrace();
+                }
+                @Override
+                public void onNext(StringObservable.Line line) {
+                    try {
+                        IcgcCopyNumberModel model = StringUtils.columnStringToObject(IcgcCopyNumberModel.class, line.getText(),
+                                StagingCommonNames.tabPattern,
+                                IcgcFunctionLibrary.resolveFieldNames(IcgcCopyNumberModel.class));
+                        // add data to cna table if the variation can be mapped to a gene
+                        Optional<Tuple3<String,String,String> > optTuple = model.resolveCnvTuple();
+                        if (optTuple.isPresent()) {
+                            registerCnv(optTuple.get());
+                        }
+                    } catch ( InvocationTargetException |NoSuchMethodException
+                            |NoSuchFieldException  | InstantiationException | IllegalAccessException e ) {
+                        logger.error(e.getMessage());
+                        e.printStackTrace();
                     }
                 }
-            }
-            this.persistCnvData();
-           return("ICGC Copy Number URL: " +this.icgcCopyNumberUrl +" processed " +lineCount
-                    +" ICGC records.");
+            });
+           return("ICGC Copy Number URL: " +this.icgcCopyNumberUrl +" processed.");
 
-        } catch (IOException | InvocationTargetException |NoSuchMethodException
-                |NoSuchFieldException  | InstantiationException | IllegalAccessException e ) {
-            logger.error("Error at line count " +lineCount +" url: " +this.icgcCopyNumberUrl);
+        } catch (IOException  e ) {
             logger.error(e.getMessage());
             e.printStackTrace();
             return e.getMessage();
@@ -100,26 +118,26 @@ public class IcgcCopyNumberETLCallable extends CnvTransformer implements Callabl
     public static void main (String...args) {
         final ListeningExecutorService service = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(1));
 
-        IcgcMetadata meta = IcgcMetadata.getIcgcMetadataById("OV-AU").get();  // throws an Exception if icgcid is invalid
+        IcgcMetadata meta = IcgcMetadata.getIcgcMetadataById("BOCA-FR").get();  // throws an Exception if icgc id is invalid
         Path testPath = Paths.get("/tmp/icgctest");
 
-        ListenableFuture<String> lf = service.submit(new IcgcCopyNumberETLCallable(meta,testPath, new CnvFileHandlerImpl()));
-        Futures.addCallback(lf, new FutureCallback<String>() {
-            @Override
-            public void onSuccess(String result) {
-                logger.info("Result: " + result);
-                service.shutdown();
-                System.exit(0);
-            }
+            ListenableFuture<String> lf = service.submit(new IcgcCopyNumberETLCallable(meta, testPath));
+            Futures.addCallback(lf, new FutureCallback<String>() {
+                @Override
+                public void onSuccess(String result) {
+                    logger.info("Result: " + result);
+                    service.shutdown();
+                    System.exit(0);
+                }
 
-            @Override
-            public void onFailure(Throwable t) {
-                logger.error(t.getMessage());
-                t.printStackTrace();
-                service.shutdown();
-                System.exit(-1);
-            }
-        });
+                @Override
+                public void onFailure(Throwable t) {
+                    logger.error(t.getMessage());
+                    t.printStackTrace();
+                    service.shutdown();
+                    System.exit(-1);
+                }
+            });
 
     }
 

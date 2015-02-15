@@ -180,7 +180,7 @@ public class IcgcSegmentModel  extends SegmentModel{
 
     @Override
     public String getSegMean() {
-        return this.getSegment_median(); // ICGC files populate segment_median, not segment_mean
+        return this.segment_mean;
     }
 
     public void setChromosome(String chromosome) {

@@ -1,17 +1,22 @@
 package org.mskcc.cbio.importer.persistence.staging.segment;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.mskcc.cbio.importer.icgc.model.IcgcSegmentModel;
 import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.persistence.staging.MetadataFileHandler;
+import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
 import org.mskcc.cbio.importer.persistence.staging.filehandler.FileHandlerService;
 import org.mskcc.cbio.importer.persistence.staging.filehandler.TsvFileHandler;
 import org.mskcc.cbio.importer.persistence.staging.mutation.MutationModel;
 
 import java.nio.file.Path;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Copyright (c) 2014 Memorial Sloan-Kettering Cancer Center.
@@ -143,5 +148,109 @@ public class SegmentTransformer  {
         }
         return basePath.resolve(filename);
     }
+
+    /*
+    method that completes a chromosome structural variation map for a sample
+     */
+    protected List<SegmentModel> resolveChromosomeMap(String sampleId, String chr, Collection<SegmentModel> chrModels) {
+        // logger.info("Processing sample " +sampleId +" chromosome " +chr);
+        // sort the models by their start position
+        SortedSet<SegmentModel> sortedModelSet = FluentIterable.from(chrModels)
+                .toSortedSet(new CopyNumberModelStartPositionComparator());
+        Integer currentStop = 1;
+        Integer currentStart = 1;
+        Long maxStop = StagingCommonNames.chromosomeLengthMap.get(chr);
+        int mapSize = chrModels.size();
+        List<SegmentModel> modelList = Lists.newArrayList();
+        //int entryCount = 1;
+        for (SegmentModel model : sortedModelSet) {
+            Integer start = Integer.valueOf(model.getLocStart());
+            if (start > (currentStop + 1)) {
+                // generate default copy number segment to fill in the gap
+                modelList.add(this.createDefaultCopyNumberModel(sampleId, chr, currentStop.toString(), start.toString()));
+                currentStart = currentStop + 1;
+                currentStop = start - 1;
+            }
+            // process the current model object
+            modelList.add(model);
+            currentStart = Integer.valueOf(model.getLocStart());
+            currentStop = Integer.valueOf(model.getLocStart());
+        }
+        // fill in the gap to the end of the chromosome
+        if (currentStop < maxStop) {
+            modelList.add(this.createDefaultCopyNumberModel(sampleId, chr, currentStop.toString(), maxStop.toString()));
+        }
+        return modelList;
+    }
+
+    public  SegmentModel createDefaultCopyNumberModel(String sampleId, String chr, String start, String stop) {
+        return new DefaultSegmentModel(sampleId, chr, start, stop);
+    }
+
+
+    /*
+    used to support gaps in chromosomes where there are no structural variations
+     */
+    public class DefaultSegmentModel extends SegmentModel {
+        final String id;
+        final String chromosome;
+        final String locStart;
+        final String locEnd;
+        final String numMark;
+        final String segMean;
+
+        DefaultSegmentModel(String sampleId, String chr, String start, String stop){
+            this.id = sampleId;
+            this.chromosome = chr;
+            this.locStart = start;
+            this.locEnd = stop;
+            this.numMark = "0";
+            this.segMean = "0.0";
+        }
+
+        @Override
+        public String getID() {
+            return this.id;
+        }
+
+        @Override
+        public String getChromosome() {
+            return this.chromosome;
+        }
+
+        @Override
+        public String getLocStart() {
+            return this.locStart;
+        }
+
+        @Override
+        public String getLocEnd() {
+            return this.locEnd;
+        }
+
+        @Override
+        public String getNumMark() {
+            return this.numMark;
+        }
+
+        @Override
+        public String getSegMean() {
+            return this.segMean;
+        }
+    }
+
+
+    /*
+   Comparator implementation to support sorting data by start position
+    */
+    private class CopyNumberModelStartPositionComparator implements Comparator<SegmentModel> {
+        @Override
+        public int compare(SegmentModel o1, SegmentModel o2) {
+            Integer start1 = Integer.valueOf(o1.getLocStart());
+            Integer start2 = Integer.valueOf(o2.getLocStart());
+            return start1.compareTo(start2);
+        }
+    }
+
 
 }

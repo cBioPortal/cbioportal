@@ -65,7 +65,7 @@ public class IcgcStudyFileEtlCallable implements Callable<String> {
     public IcgcStudyFileEtlCallable(Path stagingFileDirectory, String aUrl, IcgcFileTransformer transformer) {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(aUrl),
                 "A URL to an ICGC file is required");
-        Preconditions.checkArgument(null != transformer, "An IcgcFileTransformer implemntation is required");
+        Preconditions.checkArgument(null != transformer, "An IcgcFileTransformer implementation is required");
         if (StagingUtils.isValidStagingDirectoryPath(stagingFileDirectory)) {
             this.service = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(defaultThreadCount));
             this.stagingFilePath = stagingFileDirectory;

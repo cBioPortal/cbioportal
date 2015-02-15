@@ -1,6 +1,7 @@
 package org.mskcc.cbio.importer.icgc.etl;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.*;
 import com.google.common.util.concurrent.*;
@@ -9,12 +10,15 @@ import edu.stanford.nlp.util.StringUtils;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.icgc.model.IcgcSegmentModel;
 import org.mskcc.cbio.importer.icgc.support.IcgcFunctionLibrary;
+import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 import org.mskcc.cbio.importer.model.IcgcMetadata;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
 import org.mskcc.cbio.importer.persistence.staging.mutation.MutationFileHandlerImpl;
 import org.mskcc.cbio.importer.persistence.staging.segment.SegmentModel;
 import org.mskcc.cbio.importer.persistence.staging.segment.SegmentTransformer;
+import rx.*;
+import rx.observables.StringObservable;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -52,19 +56,21 @@ public class IcgcSegmentDataETLCallable extends SegmentTransformer implements Ca
     model instances, and persisting the transformed data to a staging file
      */
     private static final Logger logger = Logger.getLogger(IcgcSegmentDataETLCallable.class);
-
     private final String icgcCopyNumberUrl;
-
     private Multimap<String, IcgcSegmentModel> copyNumberModelMap = HashMultimap.create(5000, 100);
-    private Set<String>sampleSet = Sets.newTreeSet();
+    private Set<String> sampleSet = Sets.newTreeSet();
 
-    public IcgcSegmentDataETLCallable(IcgcMetadata meta, Path aPath, TsvStagingFileHandler aHandler){
-        super(aHandler);
-        Preconditions.checkArgument(null != meta && !Strings.isNullOrEmpty(meta.getCopynumberurl()), "The ICGC metadata parameter is null or invalid");
-        Preconditions.checkArgument(null != aPath,"A Path to the staging file directory is required" );
-        this.icgcCopyNumberUrl = meta.getCopynumberurl();
-        //this.registerStagingFileDirectory(aPath.resolve( meta.getDownloaddirectory()),meta.getStudyname());
-        this.registerStagingFileDirectory(aPath,meta.getStudyname());
+
+    public IcgcSegmentDataETLCallable(final CancerStudyMetadata csMeta, Path aPath) {
+        super(aPath, true, csMeta);
+        IcgcMetadata icgcMeta = FluentIterable.from(IcgcMetadata.getIcgcMetadataList())
+                .filter(new Predicate<IcgcMetadata>() {
+                    @Override
+                    public boolean apply(IcgcMetadata input) {
+                        return input.getStudyname().equals(csMeta.getStableId());
+                    }
+                }).first().get();
+        this.icgcCopyNumberUrl = icgcMeta.getCopynumberurl();
     }
 
     /*
@@ -73,22 +79,28 @@ public class IcgcSegmentDataETLCallable extends SegmentTransformer implements Ca
     @Override
     public String call() throws Exception {
         this.resolveCopyNumberMap();
-        List<IcgcSegmentModel> modelList = this.transformIcgcSamples();
-        this.fileHandler.transformImportDataToTsvStagingFile(modelList, SegmentModel.getTransformationModel());
+        List<SegmentModel> modelList = this.transformIcgcSamples();
+        this.tsvFileHandler.transformImportDataToTsvStagingFile(modelList, SegmentModel.getTransformationModel());
         return "Completed";
     }
 
-   private  List<IcgcSegmentModel>  transformIcgcSamples() {
-       List<IcgcSegmentModel> segModelList = Lists.newArrayList();
-       // process each unique sample
-       for(String sampleId : this.sampleSet) {
-        //   logger.info("Transforming sample id: " + sampleId);
-           segModelList.addAll(this.transformIcgcSample(sampleId, this.copyNumberModelMap.get(sampleId)));
-       }
-      // logger.info("ICGC Copy Model List contains: " +segModelList.size() +" entries");
+    private List<SegmentModel> transformIcgcSamples() {
+        List<SegmentModel> segModelList = Lists.newArrayList();
+        // process each unique sample
+        for (String sampleId : this.sampleSet) {
+            segModelList.addAll(this.transformIcgcSample(sampleId, this.copyNumberModelMap.get(sampleId)));
+        }
+        return segModelList;
+    }
 
-       return segModelList;
-   }
+    private List<IcgcSegmentModel> transformIcgcSamplesO() {
+        List<IcgcSegmentModel> segModelList = Lists.newArrayList();
+        // process each unique sample
+        for (String sampleId : this.sampleSet) {
+            //segModelList.addAll(this.transformIcgcSample(sampleId, this.copyNumberModelMap.get(sampleId)));
+        }
+        return segModelList;
+    }
 
     /*
     private method to process each sample in the copy number file
@@ -99,32 +111,53 @@ public class IcgcSegmentDataETLCallable extends SegmentTransformer implements Ca
     ordered by chromosome and start position is generated.
     this list includes default values that span chromosome regions without variation
      */
-    private List<IcgcSegmentModel>  transformIcgcSample(String sampleId, Collection<IcgcSegmentModel> models) {
-       
-        // sort the models by start position - the source data are unsorted
-        Map<String,IcgcSegmentModel> sortedModelMap = Maps.newTreeMap();
-        for (IcgcSegmentModel model : models){
-            sortedModelMap.put(model.getChromosome_start(),model);
-        }
+    private List<SegmentModel> transformIcgcSample(String sampleId, Collection<IcgcSegmentModel> models) {
 
-        Table<String,Integer,IcgcSegmentModel> cnvTable = HashBasedTable.create();
-        for(IcgcSegmentModel model : models) {
+        // sort the models by start position - the source data are unsorted
+        Map<String, SegmentModel> sortedModelMap = Maps.newTreeMap();
+        for (IcgcSegmentModel model : models) {
+            sortedModelMap.put(model.getChromosome_start(),  model);
+        }
+        Table<String, Integer, SegmentModel> cnvTable = HashBasedTable.create();
+        for (IcgcSegmentModel model : models) {
             cnvTable.put(model.getChromosome(), Integer.valueOf(model.getChromosome_start()), model);
         }
+        // process each chromosome (1,2,...22,X,Y)
+        List<SegmentModel> modelList = Lists.newArrayList();
+        for (String chr : StagingCommonNames.validChromosomeSet) {
+            if (cnvTable.containsRow(chr.toUpperCase())) {
+                Map<Integer, SegmentModel> chrMap = cnvTable.row(chr);
+                modelList.addAll(this.resolveChromosomeMap(sampleId, chr, cnvTable.row(chr).values()));
+            } else {
+                modelList.add(this.createDefaultCopyNumberModel(sampleId, chr, "1",
+                        StagingCommonNames.chromosomeLengthMap.get(chr.toUpperCase()).toString()));
+            }
+        }
+        return modelList;
+    }
 
+    private List<IcgcSegmentModel> transformIcgcSampleO(String sampleId, Collection<IcgcSegmentModel> models) {
+
+        // sort the models by start position - the source data are unsorted
+        Map<String, IcgcSegmentModel> sortedModelMap = Maps.newTreeMap();
+        for (IcgcSegmentModel model : models) {
+            sortedModelMap.put(model.getChromosome_start(), model);
+        }
+        Table<String, Integer, IcgcSegmentModel> cnvTable = HashBasedTable.create();
+        for (IcgcSegmentModel model : models) {
+            cnvTable.put(model.getChromosome(), Integer.valueOf(model.getChromosome_start()), model);
+        }
         // process each chromosome (1,2,...22,X,Y)
         List<IcgcSegmentModel> modelList = Lists.newArrayList();
-        for (String chr : StagingCommonNames.validChromosomeSet){
-           if(cnvTable.containsRow(chr)){
-                   Map<Integer, IcgcSegmentModel> chrMap =  cnvTable.row(chr);
-                  modelList.addAll(this.resolveChromosomeMap(sampleId, chr, cnvTable.row(chr).values()));
-
-           } else {
-               modelList.add(this.createDefaultCopyNumberModel(sampleId, chr, "1",
-                       StagingCommonNames.chromosomeLengthMap.get(chr.toUpperCase()).toString()));
-           }
+        for (String chr : StagingCommonNames.validChromosomeSet) {
+            if (cnvTable.containsRow(chr)) {
+                Map<Integer, IcgcSegmentModel> chrMap = cnvTable.row(chr);
+               // modelList.addAll(this.resolveChromosomeMap(sampleId, chr, cnvTable.row(chr).values()));
+            } else {
+               // modelList.add(this.createDefaultCopyNumberModel(sampleId, chr, "1",
+                //        StagingCommonNames.chromosomeLengthMap.get(chr.toUpperCase()).toString()));
+            }
         }
-       // logger.info("The model list for sample: " + sampleId +" contains " +modelList.size() +" entries");
         return modelList;
     }
 
@@ -135,22 +168,22 @@ public class IcgcSegmentDataETLCallable extends SegmentTransformer implements Ca
     default values
      */
 
-    private List<IcgcSegmentModel> resolveChromosomeMap( String sampleId, String chr, Collection<IcgcSegmentModel> chrModels){
-       // logger.info("Processing sample " +sampleId +" chromosome " +chr);
+    private List<IcgcSegmentModel> resolveChromosomeMapLocal(String sampleId, String chr, Collection<IcgcSegmentModel> chrModels) {
+        // logger.info("Processing sample " +sampleId +" chromosome " +chr);
         // sort the models by their start position
         SortedSet<IcgcSegmentModel> sortedModelSet = FluentIterable.from(chrModels)
                 .toSortedSet(new IcgcCopyNumberModelStartPositionComparator());
         Integer currentStop = 1;
-        Integer currentStart =1;
-        Long maxStop =  StagingCommonNames.chromosomeLengthMap.get(chr);
+        Integer currentStart = 1;
+        Long maxStop = StagingCommonNames.chromosomeLengthMap.get(chr);
         int mapSize = chrModels.size();
-        List<IcgcSegmentModel>modelList = Lists.newArrayList();
+        List<IcgcSegmentModel> modelList = Lists.newArrayList();
         int entryCount = 1;
-        for ( IcgcSegmentModel model : sortedModelSet) {
+        for (IcgcSegmentModel model : sortedModelSet) {
             Integer start = Integer.valueOf(model.getChromosome_start());
-            if( start > (currentStop +1)) {
+            if (start > (currentStop + 1)) {
                 // generate default copy number segment to fill in the gap
-                modelList.add(this.createDefaultCopyNumberModel(sampleId, chr, currentStop.toString(), start.toString()));
+                //modelList.add(this.createDefaultCopyNumberModel(sampleId, chr, currentStop.toString(), start.toString()));
                 currentStart = currentStop + 1;
                 currentStop = start - 1;
             }
@@ -160,28 +193,13 @@ public class IcgcSegmentDataETLCallable extends SegmentTransformer implements Ca
             currentStop = Integer.valueOf(model.getChromosome_end());
         }
         // fill in the gap to the end of the chromosome
-        if(currentStop < maxStop){
-            modelList.add( this.createDefaultCopyNumberModel(sampleId, chr, currentStop.toString(), maxStop.toString()));
+        if (currentStop < maxStop) {
+            //modelList.add(this.createDefaultCopyNumberModel(sampleId, chr, currentStop.toString(), maxStop.toString()));
         }
-        //logger.info("The model list for sample: " + sampleId +" chromosome: " +chr +" contains " +modelList.size() +" entries");
         return modelList;
     }
 
-    /*
-    private method to create a sparse instance of an IcgcSegmentModel to represent portions of a chromosome
-    for a study that did not demonstrate a copy number variation
-    may represent an entire chromosome
-     */
-    private IcgcSegmentModel createDefaultCopyNumberModel(String sampleId, String chr, String start, String stop){
-        IcgcSegmentModel model = new IcgcSegmentModel();
-        model.setIcgc_sample_id(sampleId);
-        model.setChromosome(chr);
-        model.setChromosome_start(start);
-        model.setChromosome_end(stop);
-        model.setSegment_median("0.0");
-        model.setCopy_number("2");
-        return model;
-    }
+
 
     /*
     private method to read in the ICGC copy number file for a specified study directly from the URL
@@ -190,42 +208,55 @@ public class IcgcSegmentDataETLCallable extends SegmentTransformer implements Ca
     a set of unique sample ids found in the copy number file is also completed
      */
     private void resolveCopyNumberMap() {
-        int lineCount = 0;
-        try {
-            BufferedReader rdr = new BufferedReader(new InputStreamReader(IOUtils.getInputStreamFromURLOrClasspathOrFileSystem(this.icgcCopyNumberUrl)));
-            String line = "";
-            while ((line = rdr.readLine()) != null) {
-                if (lineCount++ > 0){
-                    IcgcSegmentModel model = StringUtils.columnStringToObject(IcgcSegmentModel.class, line, StagingCommonNames.tabPattern,
-                            IcgcFunctionLibrary.resolveFieldNames(IcgcSegmentModel.class));
-                    if (!Strings.isNullOrEmpty(model.getSegment_median()) ){
-                        this.copyNumberModelMap.put(model.getIcgc_sample_id(), model);
-                        this.sampleSet.add(model.getIcgc_sample_id());
+        try (BufferedReader rdr = new BufferedReader(new InputStreamReader
+                (IOUtils.getInputStreamFromURLOrClasspathOrFileSystem(this.icgcCopyNumberUrl)))) {
+            rx.Observable<StringObservable.Line> lineObservable =
+                    StringObservable.byLine(StringObservable.from(rdr)).skip(1);  // skip the header
+            lineObservable.subscribe(new Subscriber<StringObservable.Line>() {
+                @Override
+                public void onCompleted() {
+                }
+                @Override
+                public void onError(Throwable throwable) {
+                    logger.error(throwable.getMessage());
+                    throwable.printStackTrace();
+                }
+                @Override
+                public void onNext(StringObservable.Line line) {
+                    try {
+                        IcgcSegmentModel model = StringUtils.columnStringToObject(IcgcSegmentModel.class,
+                                line.getText(), StagingCommonNames.tabPattern,
+                                IcgcFunctionLibrary.resolveFieldNames(IcgcSegmentModel.class));
+                        if (!Strings.isNullOrEmpty(model.getSegment_mean())) {
+                            copyNumberModelMap.put(model.getIcgc_sample_id(), model);
+                            sampleSet.add(model.getIcgc_sample_id());
+                        }
+
+                    } catch (InstantiationException | IllegalAccessException |
+                            NoSuchMethodException | NoSuchFieldException | InvocationTargetException e) {
+                        e.printStackTrace();
                     }
                 }
-            }
-            logger.info("ICGC Copy Number URL: " +this.icgcCopyNumberUrl +" processed " +lineCount
-                    +" records and mapped " +this.copyNumberModelMap.size() +" CNVs");
-            logger.info("There are " +this.sampleSet.size() +" samples in this cnv file");
-        } catch (IOException | InvocationTargetException |NoSuchMethodException
-                |NoSuchFieldException  | InstantiationException | IllegalAccessException e ) {
-            logger.error("Error at line count " +lineCount +" url: " +this.icgcCopyNumberUrl);
+            });
+            logger.info("ICGC Segment URL: " + this.icgcCopyNumberUrl + " processed ");
+            logger.info("There are " + this.sampleSet.size() + " unique samples in this cnv file");
+        } catch (IOException e) {
             logger.error(e.getMessage());
             e.printStackTrace();
         }
     }
 
     // main  method for standalone testing
-    public static void main (String...args) {
+    public static void main(String... args) {
         final ListeningExecutorService service = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(1));
-        IcgcMetadata meta = IcgcMetadata.getIcgcMetadataById("PACA-CA").get();
-        Path testPath = Paths.get("/tmp/icgctest");
 
-        ListenableFuture<String> lf = service.submit(new IcgcSegmentDataETLCallable(meta,testPath, new MutationFileHandlerImpl()));
+        CancerStudyMetadata csMeta = CancerStudyMetadata.findCancerStudyMetaDataByStableId("boca_icgc_fr").get();
+        Path testPath = Paths.get("/tmp/icgctest");
+        ListenableFuture<String> lf = service.submit(new IcgcSegmentDataETLCallable(csMeta,testPath));
         Futures.addCallback(lf, new FutureCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                logger.info("Result: " +result);
+                logger.info("Result: " + result);
                 service.shutdown();
                 System.exit(0);
             }
@@ -238,12 +269,12 @@ public class IcgcSegmentDataETLCallable extends SegmentTransformer implements Ca
                 System.exit(-1);
             }
         });
-
     }
+
     /*
     Comparator implementation to support sorting data by start position
      */
-    private  class IcgcCopyNumberModelStartPositionComparator implements Comparator<IcgcSegmentModel> {
+    private class IcgcCopyNumberModelStartPositionComparator implements Comparator<IcgcSegmentModel> {
         @Override
         public int compare(IcgcSegmentModel o1, IcgcSegmentModel o2) {
             Integer start1 = Integer.valueOf(o1.getChromosome_start());

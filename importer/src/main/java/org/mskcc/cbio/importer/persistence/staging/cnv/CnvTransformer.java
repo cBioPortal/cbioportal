@@ -9,6 +9,8 @@ import com.google.common.collect.Table;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 import org.mskcc.cbio.importer.persistence.staging.MetadataFileHandler;
+import org.mskcc.cbio.importer.persistence.staging.filehandler.FileHandlerService;
+import org.mskcc.cbio.importer.persistence.staging.filehandler.TsvFileHandler;
 import scala.Tuple3;
 
 import java.nio.file.Path;
@@ -40,11 +42,13 @@ public abstract class CnvTransformer {
 
     protected Table<String, String, String> cnaTable;
     private final static Logger logger = Logger.getLogger(CnvTransformer.class);
-    protected final CnvFileHandler fileHandler;
+    protected  CnvFileHandler fileHandler;
     private static final String cnaFileName = "data_CNA.txt";
 
+    private TsvFileHandler tsvHandler;
+
     protected static final String COPY_NEUTRAL = "0";
-    protected static final String HETEROZY_LOSS = "-1";
+    protected static final String HEMIZY_LOSS = "-1";
     protected static final String HOMOZY_LOSS = "-2";
     protected static final String AMP_LOH = "+1";
     protected static final String AMP = "+2";
@@ -57,7 +61,7 @@ public abstract class CnvTransformer {
                 return HOMOZY_LOSS;
             case "1":
             case "1.0":
-                return HETEROZY_LOSS;
+                return HEMIZY_LOSS;
             case "2":
             case "2.0":
                 return COPY_NEUTRAL;
@@ -66,6 +70,19 @@ public abstract class CnvTransformer {
                 return AMP_LOH;
         }
         return AMP;
+    }
+
+    protected CnvTransformer( Path stagingFileDirectory, Boolean deleteFile){
+        Preconditions.checkArgument(null != stagingFileDirectory,
+                "A Path to a staging file directory is required");
+        this.tsvHandler = FileHandlerService.INSTANCE.obtainFileHandlerForCnvFile(stagingFileDirectory,deleteFile);
+        this.cnaTable = this.tsvHandler.initializeCnvTable();
+    }
+    protected CnvTransformer( TsvFileHandler aHandler){
+        Preconditions.checkArgument(null != aHandler,
+                "A TsvFileHandler implementation is required");
+        this.tsvHandler = aHandler;
+        this.cnaTable = this.tsvHandler.initializeCnvTable();
     }
 
     protected CnvTransformer(CnvFileHandler aHandler){
@@ -165,7 +182,9 @@ public abstract class CnvTransformer {
 
     }
 
-
+     protected void outputCnvData () {
+         this.tsvHandler.persistCnvTable(this.cnaTable);
+     }
      protected void persistCnvData() {
         this.fileHandler.persistCnvTable(this.cnaTable);
     }

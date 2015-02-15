@@ -12,16 +12,18 @@ import edu.stanford.nlp.util.StringUtils;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.icgc.model.IcgcClinicalModel;
 import org.mskcc.cbio.importer.icgc.model.IcgcFusionModel;
+import org.mskcc.cbio.importer.icgc.model.IcgcSimpleSomaticMutationModel;
 import org.mskcc.cbio.importer.icgc.support.IcgcFunctionLibrary;
+import org.mskcc.cbio.importer.model.IcgcMetadata;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
-import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
 import org.mskcc.cbio.importer.persistence.staging.filehandler.FileHandlerService;
 import org.mskcc.cbio.importer.persistence.staging.filehandler.TsvFileHandler;
-import org.mskcc.cbio.importer.persistence.staging.filehandler.TsvFileHandlerImpl;
 import org.mskcc.cbio.importer.persistence.staging.fusion.FusionModel;
-import org.mskcc.cbio.importer.persistence.staging.mutation.MutationFileHandlerImpl;
 import org.mskcc.cbio.importer.persistence.staging.mutation.MutationModel;
 import org.mskcc.cbio.importer.persistence.staging.mutation.MutationModelFunnel;
+import rx.Observable;
+import rx.Subscriber;
+import rx.observables.StringObservable;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -29,6 +31,7 @@ import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.concurrent.*;
 
 /**
@@ -52,155 +55,247 @@ import java.util.concurrent.*;
  */
 public class IcgcCancerStudyETLCallable implements Callable<String> {
     /*
-    repsonsible for obtaining data from the ICGC Data Repository using a
+    responsible for obtaining data from the ICGC Data Repository using a
     supplied URL and transforming them into a staging file
      */
     private static final Logger logger = Logger.getLogger(IcgcCancerStudyETLCallable.class);
     private final String icgcStudyUrl;
     private final Class modelClass;
     private final String modelType;
-    private final TsvFileHandler fileHandler;
+    private Path stagingFileDirectory;
 
 
-        public IcgcCancerStudyETLCallable(String aUrl, Class aClass,
-                String aType, TsvFileHandler aHandler){
+    public IcgcCancerStudyETLCallable(String aUrl, Class aClass,
+                                      String aType, Path aPath) {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(aUrl), "An ICGC Cancer study is required");
         Preconditions.checkArgument(null != aClass, "A model Class is required");
-        Preconditions.checkArgument(!Strings.isNullOrEmpty(aType),"A model type specification is required");
-        Preconditions.checkArgument(null != aHandler," A TsvStagingFileHandler is required");
-        Preconditions.checkArgument(aHandler.isRegistered(),
-                "The supplied  TsvStagingFileHandler does not reference a staging file");
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(aType), "A model type specification is required");
+        Preconditions.checkArgument(null != aPath, " A Path to the ICGC staging file directory is required");
         this.icgcStudyUrl = aUrl;
         this.modelClass = aClass;
         this.modelType = aType;
-        this.fileHandler = aHandler;
-
+        this.stagingFileDirectory = aPath;
     }
 
     @Override
     public String call() throws Exception {
-        logger.info("Processing  study: " +this.icgcStudyUrl);
-       switch(this.modelType){
-           case StagingCommonNames.MUTATION_TYPE:
-               logger.info("Invoking mutation transformation");
+        logger.info("Processing  study: " + this.icgcStudyUrl);
+        switch (this.modelType) {
+            case StagingCommonNames.MUTATION_TYPE:
+                logger.info("Invoking mutation transformation");
                 return this.generateMutationStagingFile();
-           case StagingCommonNames.CLINICAL_TYPE:
-               logger.info("Invoking clinical transformation");
-               return this.generateClinicalStagingFile();
-           case StagingCommonNames.STRUCTURAL_MUTATION_TYPE:
-               logger.info("Invoking structural variation transformation");
-               return this.generateFusionFile();
-          default:
-              logger.error(this.modelType +" is not a supported model type");
-              return "";
-
-       }
+            case StagingCommonNames.CLINICAL_TYPE:
+                logger.info("Invoking clinical transformation");
+                return this.generateClinicalStagingFile();
+            case StagingCommonNames.STRUCTURAL_MUTATION_TYPE:
+                logger.info("Invoking structural variation transformation");
+                return this.generateFusionFile();
+            default:
+                logger.error(this.modelType + " is not a supported model type");
+                return "";
+        }
     }
-
     /*
     process ICGC structural variant files
      */
 
     private String generateFusionFile() {
-        int lineCount = 0;
-        try {
+        try (BufferedReader rdr = new BufferedReader(new InputStreamReader(IOUtils.getInputStreamFromURLOrClasspathOrFileSystem(this.icgcStudyUrl)))) {
+            Observable<StringObservable.Line> lineObservable =
+                    StringObservable.byLine(StringObservable.from(rdr)).skip(1);  // skip the header
+            lineObservable.subscribe(new Subscriber<StringObservable.Line>() {
+                List<IcgcFusionModel> modelList = Lists.newArrayList();
 
-            BufferedReader rdr = new BufferedReader(new InputStreamReader(IOUtils.getInputStreamFromURLOrClasspathOrFileSystem(this.icgcStudyUrl)));
-            String line = "";
-            while ((line = rdr.readLine()) != null) {
-                if (lineCount++ > 0) {
-                    IcgcFusionModel model =  StringUtils.columnStringToObject(this.modelClass,
-                            line, StagingCommonNames.tabPattern, IcgcFunctionLibrary.resolveFieldNames(this.modelClass));
-                    fileHandler.transformImportDataToTsvStagingFile(Lists.newArrayList(model), IcgcFusionModel.getTransformationFunction());
-                    // reverse to and from genes for second model if they are different genes
-                    if( !Strings.isNullOrEmpty(model.getGene_affected_by_bkpt_to()) && !model.getGene_affected_by_bkpt_to().equals(model.getGene())){
-                        model.swapToAndFromLocations();
-                        // output reversed model
-                        fileHandler.transformImportDataToTsvStagingFile(Lists.newArrayList(model), IcgcFusionModel.getTransformationFunction());
-                    }
+                @Override
+                public void onCompleted() {
+                    // output the ICGC fusion data to a new file
+                    TsvFileHandler fh = FileHandlerService.INSTANCE.obtainFileHandlerByDataType(stagingFileDirectory,
+                            StagingCommonNames.DATATYPE_FUSION, FusionModel.resolveColumnNames(), true);
+                    fh.transformImportDataToTsvStagingFile(modelList, IcgcFusionModel.getTransformationFunction());
                 }
-            }
-        } catch (IOException | InvocationTargetException  |NoSuchMethodException
-                |NoSuchFieldException  | InstantiationException | IllegalAccessException e ) {
-            logger.error("Error at line count " +lineCount +" url: " +this.icgcStudyUrl);
+
+                @Override
+                public void onError(Throwable throwable) {
+                    logger.error(throwable.getMessage());
+                    throwable.printStackTrace();
+
+                }
+
+                @Override
+                public void onNext(StringObservable.Line line) {
+                    try {
+                        IcgcFusionModel model = StringUtils.columnStringToObject(modelClass,
+                                line.getText(), StagingCommonNames.tabPattern, IcgcFunctionLibrary.resolveFieldNames(modelClass));
+                        modelList.add(model);
+                        // add entry for second gene
+                        if (!Strings.isNullOrEmpty(model.getGene_affected_by_bkpt_to()) &&
+                                !model.getGene_affected_by_bkpt_to().equals(model.getGene())) {
+                            IcgcFusionModel model2 = IcgcFusionModel.generateSecondFusionModel(model);
+                            modelList.add(model2);
+                        }
+                    } catch (InvocationTargetException | NoSuchMethodException
+                            | NoSuchFieldException | InstantiationException | IllegalAccessException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            });
+
+        } catch (IOException e) {
             logger.error(e.getMessage());
             e.printStackTrace();
         }
-        return "Processed " +lineCount +" structural variation staging records";
+        return "ICGC Fusion data for " + this.icgcStudyUrl + " processed";
     }
-
-
 
     /*
     process ICGC clinical files
      */
-    private String generateClinicalStagingFile(){
-        int lineCount = 0;
-        try {
 
-            BufferedReader rdr = new BufferedReader(new InputStreamReader(IOUtils.getInputStreamFromURLOrClasspathOrFileSystem(this.icgcStudyUrl)));
-            String line = "";
-            while ((line = rdr.readLine()) != null) {
-                if (lineCount++ > 0) {
-                    IcgcClinicalModel model =  StringUtils.columnStringToObject(this.modelClass,
-                            line, StagingCommonNames.tabPattern, IcgcFunctionLibrary.resolveFieldNames(this.modelClass));
+    private String generateClinicalStagingFile() {
+        try
+                (BufferedReader rdr = new BufferedReader(new InputStreamReader
+                        (IOUtils.getInputStreamFromURLOrClasspathOrFileSystem(this.icgcStudyUrl)))) {
+            Observable<StringObservable.Line> lineObservable =
+                    StringObservable.byLine(StringObservable.from(rdr)).skip(1);  // skip the header
+            lineObservable.subscribe(new Subscriber<StringObservable.Line>() {
+                List<IcgcClinicalModel> modelList = Lists.newArrayList();
 
-                        fileHandler.transformImportDataToTsvStagingFile(Lists.newArrayList(model),model.transformationFunction );
+                @Override
+                public void onCompleted() {
+                    // output clinical data to new staging file
+                    final TsvFileHandler tsvFileHandler = FileHandlerService.INSTANCE.obtainFileHandlerByDataType(stagingFileDirectory,
+                            StagingCommonNames.DATATYPE_CLINICAL,
+                            IcgcFunctionLibrary.resolveColumnNames(IcgcClinicalModel.transformationMap), true);
+                    tsvFileHandler.transformImportDataToTsvStagingFile(modelList, IcgcClinicalModel.transformationFunction);
                 }
-            }
-        } catch (IOException | InvocationTargetException  |NoSuchMethodException
-                |NoSuchFieldException  | InstantiationException | IllegalAccessException e ) {
-            logger.error("Error at line count " +lineCount +" url: " +this.icgcStudyUrl);
-            logger.error(e.getMessage());
+
+                @Override
+                public void onError(Throwable throwable) {
+                    System.out.println(throwable.getMessage());
+                }
+
+                @Override
+                public void onNext(StringObservable.Line line) {
+                    try {
+                        modelList.add((IcgcClinicalModel) StringUtils.columnStringToObject(IcgcClinicalModel.class,
+                                line.getText(), StagingCommonNames.tabPattern,
+                                IcgcFunctionLibrary.resolveFieldNames(IcgcClinicalModel.class)));
+                    } catch (InstantiationException | IllegalAccessException | NoSuchMethodException |
+                            NoSuchFieldException | InvocationTargetException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            });
+
+        } catch (IOException e) {
             e.printStackTrace();
         }
-        return "Processed " +lineCount +" clinical staging records";
+
+        return "Processed " + this.icgcStudyUrl + " ICGC clinical file";
     }
 
     private String generateMutationStagingFile() {
-        int lineCount = 0;
        /*
        mutation files are filtered for duplicate records using a BloomFilter and a subset of
        MutationModel attributes as specified in the MutationModelFunnel class
         */
-        BloomFilter<MutationModel> modelFilter = BloomFilter.create(new MutationModelFunnel(), 5000000);
-        try {
-            BufferedReader rdr = new BufferedReader(new InputStreamReader(IOUtils.getInputStreamFromURLOrClasspathOrFileSystem(this.icgcStudyUrl)));
-            String line = "";
-            while ((line = rdr.readLine()) != null) {
-                if (lineCount++ > 0) {
-                    MutationModel model =  StringUtils.columnStringToObject(this.modelClass,
-                            line, StagingCommonNames.tabPattern, IcgcFunctionLibrary.resolveFieldNames(this.modelClass));
-                    if (!modelFilter.mightContain(model)) {
-                        fileHandler.transformImportDataToTsvStagingFile(Lists.newArrayList(model), model.getTransformationFunction() );
-                        modelFilter.put(model);
-                    }
+
+        try (BufferedReader rdr = new BufferedReader(new InputStreamReader(IOUtils
+                .getInputStreamFromURLOrClasspathOrFileSystem(this.icgcStudyUrl)));) {
+            Observable<StringObservable.Line> lineObservable =
+                    StringObservable.byLine(StringObservable.from(rdr)).skip(1);  // skip the header
+            lineObservable.subscribe(new Subscriber<StringObservable.Line>() {
+                List<IcgcSimpleSomaticMutationModel> modelList = Lists.newArrayList();
+                BloomFilter<MutationModel> modelFilter = BloomFilter.create(new MutationModelFunnel(), 5000000);
+
+                @Override
+                public void onCompleted() {
+
+                    final TsvFileHandler tsvFileHandler = FileHandlerService.INSTANCE.obtainFileHandlerByDataType(stagingFileDirectory,
+                            StagingCommonNames.DATATYPE_MUTATION,
+                            MutationModel.resolveColumnNames(), true);
+                    tsvFileHandler.transformImportDataToTsvStagingFile(modelList, MutationModel.getTransformationFunction());
+
                 }
-            }
-        } catch (IOException | InvocationTargetException  |NoSuchMethodException
-                |NoSuchFieldException  | InstantiationException | IllegalAccessException e ) {
-            logger.error("Error at line count " +lineCount +" url: " +this.icgcStudyUrl);
+
+                @Override
+                public void onError(Throwable throwable) {
+                    logger.error(throwable.getMessage());
+                    throwable.printStackTrace();
+
+                }
+
+                @Override
+                public void onNext(StringObservable.Line line) {
+
+                    try {
+                        IcgcSimpleSomaticMutationModel model =
+                                (IcgcSimpleSomaticMutationModel) StringUtils.columnStringToObject(IcgcSimpleSomaticMutationModel.class,
+                                        line.getText(), StagingCommonNames.tabPattern, IcgcFunctionLibrary.resolveFieldNames(IcgcSimpleSomaticMutationModel.class));
+                        if (!modelFilter.mightContain(model)) {
+
+                            modelFilter.put(model);
+                            modelList.add(model);
+                        }
+
+                    } catch (InvocationTargetException | NoSuchMethodException
+                            | NoSuchFieldException | InstantiationException | IllegalAccessException e) {
+                        logger.error(e.getMessage());
+                        e.printStackTrace();
+                    }
+
+
+                }
+            });
+
+        } catch (IOException e) {
             logger.error(e.getMessage());
             e.printStackTrace();
         }
-        return "Processed " +lineCount +" simple somatic  records";
+        return "Processed simple somatic  records for ICGC URL " + this.icgcStudyUrl;
     }
 
     // main class for stand alone testing
-    public static void main (String...args){
-        String studyUrl = "https://dcc.icgc.org/api/v1/download?fn=/current/Projects/PRAD-CA/structural_somatic_mutation.PRAD-CA.tsv.gz";
-        Path tempPath = Paths.get("/tmp/icgctest/data_fusions.txt");
+    public static void main(String... args) {
 
-        TsvFileHandler handler = FileHandlerService.INSTANCE.obtainFileHandlerForNewStagingFile
-                (tempPath,FusionModel.resolveColumnNames());
-
+        IcgcMetadata icgcMetadata = IcgcMetadata.getIcgcMetadataById("BOCA-FR").get();
+        Path tempPath = Paths.get("/tmp/icgctest");
         ListeningExecutorService service = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(3));
-        IcgcCancerStudyETLCallable etl = new IcgcCancerStudyETLCallable(studyUrl, IcgcFusionModel.class,
-                StagingCommonNames.STRUCTURAL_MUTATION_TYPE, handler);
-        ListenableFuture<String> lf = service.submit(etl);
+        ListenableFuture<String> lf1 = null;
+        ListenableFuture<String> lf2 = null;
+        ListenableFuture<String> lf3 = null;
+        // structural mutations
+
+        if (!Strings.isNullOrEmpty(icgcMetadata.getStructuralmutationurl())) {
+            IcgcCancerStudyETLCallable etl = new IcgcCancerStudyETLCallable(icgcMetadata.getStructuralmutationurl(), IcgcFusionModel.class,
+                    StagingCommonNames.STRUCTURAL_MUTATION_TYPE, tempPath);
+            lf1 = service.submit(etl);
+        }
+
+        //clinical
+        if (!Strings.isNullOrEmpty(icgcMetadata.getClinicalurl())) {
+            IcgcCancerStudyETLCallable etl2 = new IcgcCancerStudyETLCallable(icgcMetadata.getClinicalurl(), IcgcClinicalModel.class,
+                    StagingCommonNames.CLINICAL_TYPE, tempPath);
+            lf2 = service.submit(etl2);
+        }
+
+
+        // simple somatic mutations
+        if (!Strings.isNullOrEmpty(icgcMetadata.getSomaticmutationurl())) {
+            IcgcCancerStudyETLCallable etl3 = new IcgcCancerStudyETLCallable(icgcMetadata.getSomaticmutationurl(), MutationModel.class,
+                    StagingCommonNames.MUTATION_TYPE, tempPath);
+            lf3 = service.submit(etl3);
+        }
+
         try {
-            logger.info(lf.get(600, TimeUnit.SECONDS));
-            lf.cancel(true);
+            logger.info(lf1.get(600, TimeUnit.SECONDS));
+            logger.info(lf2.get(600, TimeUnit.SECONDS));
+            logger.info(lf3.get(600, TimeUnit.SECONDS));
+            lf1.cancel(true);
+            lf2.cancel(true);
+            lf3.cancel(true);
             service.shutdown();
             logger.info("service shutdown ");
         } catch (InterruptedException e) {
@@ -210,6 +305,9 @@ public class IcgcCancerStudyETLCallable implements Callable<String> {
         } catch (TimeoutException e) {
             e.printStackTrace();
         }
+
         logger.info("FINIS");
     }
+
+
 }

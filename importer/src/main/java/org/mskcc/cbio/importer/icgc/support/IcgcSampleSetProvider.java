@@ -47,6 +47,7 @@ public enum IcgcSampleSetProvider {
 
     private static final String ICGC_WORKSHEET_NAME ="icgc";
     private static final String CLINICAL_SAMPLE_URL_COLUMN = "clinicalsampleurl";
+
     private static Logger logger = Logger.getLogger(IcgcSampleSetProvider.class);
     private LoadingCache<String,Set<String>> sampleSetCache = CacheBuilder.newBuilder()
             .maximumSize(100L)
@@ -56,6 +57,12 @@ public enum IcgcSampleSetProvider {
                     return resolveSampleSetByIcgcStudyName(key);
                 }
             });
+
+    public String getReferencedSamplesLine(String study) {
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(study),"An ICGC study name is required");
+        StringBuilder sb = new StringBuilder(StagingCommonNames.REFERENCED_SAMPLES_COMMENT);
+        return sb.append(StagingCommonNames.blankJoiner.join(this.getIcgcSamplesByStudy(study))).toString();
+    }
 
     /*
     Represents a Single service that will provide a complete set if sample ids for a specified ICGC
@@ -83,9 +90,9 @@ public enum IcgcSampleSetProvider {
 
     private void resolveIcgcSampleSet(final String studyName){
         String url = determineClinicalSampleUrl(studyName);
-        
 
     }
+
 
     private String determineClinicalSampleUrl(final String studyName) {
         Observable<String> sampleFileObservable = Observable.from(
@@ -94,7 +101,7 @@ public enum IcgcSampleSetProvider {
         ).filter(new Func1<String, Boolean>() {
             @Override
             public Boolean call(String s) {
-               return s.contains(studyName.toUpperCase());
+                return s.contains(studyName.toUpperCase());
             }
         }).single();
 
@@ -159,6 +166,7 @@ public enum IcgcSampleSetProvider {
         }
         logger.info("Second reference to LICA-FR  sample size = " +IcgcSampleSetProvider.INSTANCE.getIcgcSamplesByStudy("LICA-FR").size());
         logger.info("URL = " + IcgcSampleSetProvider.INSTANCE.determineClinicalSampleUrl("LICA-FR"));
+        logger.info(IcgcSampleSetProvider.INSTANCE.getReferencedSamplesLine("BRCA-UK"));
     }
 
 }

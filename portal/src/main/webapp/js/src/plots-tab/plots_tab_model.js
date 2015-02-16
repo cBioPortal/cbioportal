@@ -240,6 +240,66 @@ function loadPlotsSVG() {
     return result;
 }
 
+function load_svg(_filename) {
+    //Remove the help icons
+    var elemXHelpTxt = $(".x-title-help").qtip('api').options.content.text;
+    var elemYHelpTxt = $(".y-title-help").qtip('api').options.content.text;
+    var elemXHelp = $(".x-title-help").remove();
+    var elemYHelp = $(".y-title-help").remove();
+    //extract svg string and download
+    var xmlSerializer = new XMLSerializer();
+    var download_str = cbio.download.addSvgHeader(xmlSerializer.serializeToString($("#plots_box svg")[0]));
+    cbio.download.clientSideDownload([download_str], _filename, "application/svg+xml");
+    //Add the help icons back on
+    $(".axis").append(elemXHelp);
+    $(".axis").append(elemYHelp);
+    $(".x-title-help").qtip({
+        content: {text: elemXHelpTxt },
+        style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+        show: {event: "mouseover"},
+        hide: {fixed:true, delay: 100, event: "mouseout"},
+        position: {my:'left bottom',at:'top right'}
+    });
+    $(".y-title-help").qtip({
+        content: {text: elemYHelpTxt },
+        style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+        show: {event: "mouseover"},
+        hide: {fixed:true, delay: 100, event: "mouseout"},
+        position: {my:'right bottom',at:'top left', viewport: $(window)}
+    });
+}
+
+function load_pdf(_filename) {
+    //Remove the help icons
+    var elemXHelpTxt = $(".x-title-help").qtip('api').options.content.text;
+    var elemYHelpTxt = $(".y-title-help").qtip('api').options.content.text;
+    var elemXHelp = $(".x-title-help").remove();
+    var elemYHelp = $(".y-title-help").remove();
+    //extract svg string and send back to server to download
+    var downloadOptions = {
+        filename: _filename,
+        contentType: "application/pdf",
+        servletName: "svgtopdf.do"
+    };
+    cbio.download.initDownload($("#plots_box svg")[0], downloadOptions);
+    //Add the help icons back on
+    $(".axis").append(elemXHelp);
+    $(".axis").append(elemYHelp);
+    $(".x-title-help").qtip({
+        content: {text: elemXHelpTxt },
+        style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+        show: {event: "mouseover"},
+        hide: {fixed:true, delay: 100, event: "mouseout"},
+        position: {my:'left bottom',at:'top right'}
+    });
+    $(".y-title-help").qtip({
+        content: {text: elemYHelpTxt },
+        style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+        show: {event: "mouseover"},
+        hide: {fixed:true, delay: 100, event: "mouseout"},
+        position: {my:'right bottom',at:'top left', viewport: $(window)}
+    });    
+}
 
 
 

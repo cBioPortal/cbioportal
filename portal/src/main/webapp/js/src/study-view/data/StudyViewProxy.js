@@ -69,7 +69,7 @@ var StudyViewProxy = (function() {
                 cases_ids: sampleIdStr,
                 mutation_profile: parObject.mutationProfileId
             },
-            cnaData: {
+            cnaFraction: {
                 cmd: "get_cna_fraction",
                 case_ids: patientIdStr,
                 cancer_study_id: parObject.studyId
@@ -80,6 +80,11 @@ var StudyViewProxy = (function() {
             },
             gisticData: {
                 selected_cancer_type: parObject.studyId
+            },
+            cnaData: {
+                sample_id: sampleIdStr,
+                cna_profile: parObject.cnaProfileId,
+                cbio_genes_filter: true
             }
         };
     }
@@ -88,7 +93,7 @@ var StudyViewProxy = (function() {
          $.when(  
                 $.ajax({type: "POST", url: "webservice.do", data: ajaxParameters.webserviceData}), 
                 $.ajax({type: "POST", url: "mutations.json", data: ajaxParameters.mutationsData}),
-                $.ajax({type: "POST", url: "cna.json", data: ajaxParameters.cnaData}),
+                $.ajax({type: "POST", url: "cna.json", data: ajaxParameters.cnaFraction}),
                 $.ajax({type: "POST", url: "mutations.json", data: ajaxParameters.mutatedGenesData}),
                 $.ajax({type: "POST", url: "Gistic.json", data: ajaxParameters.gisticData}),
                 $.ajax({type: "POST", url: "webservice.do", data: ajaxParameters.caseLists}))
@@ -99,7 +104,8 @@ var StudyViewProxy = (function() {
                     _dataAttrOfa1 = a1[0]['attributes'],
                     _dataLength = _data.length,
                     _sampleIds = Object.keys(samplePatientMapping),
-                    _sequencedSampleIds = [];
+                    _sequencedSampleIds = [],
+                    _locks=0;
                     
                 //Reorganize data into wanted format datum[ caseID ][ Attribute Name ] = Attribute Value
                 //The original data structure is { attr_id: , attr_va: , sample}
@@ -246,7 +252,7 @@ var StudyViewProxy = (function() {
                     });
                 }
                 obtainDataObject['mutatedGenes'] = a4[0];
-                obtainDataObject['cna'] = a5[0];
+                obtainDataObject['gistic'] = a5[0];
                 
                 if (!patientidExist) {
                     obtainDataObject['attr'].push({
@@ -255,9 +261,31 @@ var StudyViewProxy = (function() {
                         description: 'Patient Identifier',
                         datatype: 'STRING'
                     });
-               }
+                }
                
-                callbackFunc(obtainDataObject);
+                if(ajaxParameters.cnaData.cna_profile) {
+                    _locks++;
+                    $.ajax({type: "POST", url: "cna.json", data: ajaxParameters.cnaData})
+                        .then(function(data){
+                            obtainDataObject['cna'] = data;
+                            _locks--;
+                        }, function(){
+                            obtainDataObject['cna'] = '';
+                            _locks--;
+                        });
+                }
+                
+                lockSolved();
+                
+                function lockSolved() {
+                    setTimeout(function(){
+                        if(_locks > 0) {
+                            lockSolved();
+                        }else {
+                            callbackFunc(obtainDataObject);
+                        }
+                    }, 200);
+                }
             });
     };
     
@@ -311,6 +339,7 @@ var StudyViewProxy = (function() {
         getArrData: function(){ return obtainDataObject['arr'];},
         getAttrData: function(){ return obtainDataObject['attr'];},
         getMutatedGenesData: function(){ return obtainDataObject['mutatedGenes'];},
+        getGisticData: function(){return obtainDataObject['gistic'];},
         getCNAData: function(){return obtainDataObject['cna'];},
         getSampleidToPatientidMap: function(){return obtainDataObject['sampleidToPatientidMap'];},
         getPatientIdsBySampleIds: getPatientIdsBySampleIds

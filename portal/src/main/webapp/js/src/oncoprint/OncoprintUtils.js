@@ -22,9 +22,10 @@ define("OncoprintUtils", (function() {
     //
     // returns: data nested by the key, "sample"
     var nest_data = function(data) {
-        return d3.nest()
+        var result = d3.nest()
     .key(function(d) { return d.sample; })
     .entries(data);
+        return result;
     };
 
     // returns the gene name or the attr_id, whatever the piece of data has
@@ -46,10 +47,10 @@ define("OncoprintUtils", (function() {
         trues = _.map(trues, function() { return true; });
 
         var attribute_set = _.object(attributes, trues);
-
-        return _.filter(data, function(datum) {
+        var result = _.filter(data, function(datum) {
             return attribute_set[get_attr(datum)];
         });
+        return result;
     };
 
     // params: element of a nested list, list of attributes
@@ -105,7 +106,7 @@ define("OncoprintUtils", (function() {
     // returns: map of an attribute id to its respective range
     // where a range is a 2-ple if the corresponding attribute values are numerical
     // and a list of values otherwise
-    var attr2range = function(clinicalData) {
+    var attr2range = function(clinicalData,attrs) {
         var attr2range_builder = function(prev, curr) {
             prev[curr.attr_id] = prev[curr.attr_id] || [];      // initialize
 
@@ -116,12 +117,19 @@ define("OncoprintUtils", (function() {
             if (val === "NA") {
                 return prev;
             }
-            if (is_discrete(val)) {
-                if (a2r.indexOf(val) === -1) { a2r.push(val); }       // keep a set of unique elements
+            
+            var attrsDatatype;
+            for(var i = 0; i < attrs.length; i++)
+            {
+                if(curr.attr_id === attrs[i].attr_id)
+                {
+                   attrsDatatype = attrs[i].datatype; 
+                }
             }
-            else {
+            
+            if(attrsDatatype.toUpperCase() === "NUMBER") {
                 // just keep the min and max -- an interval of values
-                val = parseInt(val);
+                //val = parseInt(val);
                 var min = a2r[0],
                     max = a2r[1];
 
@@ -131,6 +139,11 @@ define("OncoprintUtils", (function() {
                 if (min === undefined || val < min) {
                     a2r[0] = val;
                 }
+            }
+            else
+            {
+                if (a2r.indexOf(val) === -1) { a2r.push(val); }       // keep a set of unique elements
+
             }
 
             prev[curr.attr_id] = a2r;
@@ -163,11 +176,12 @@ define("OncoprintUtils", (function() {
         var mutations = extract_unique(raw_gene_data, 'mutation', function(d){
             var aas = d.split(",");// e.g. A32G,fusion
             for (var i=0, n=aas.length; i<n; i++) {
-                if (!/fusion( |$)/i.test(aas[i])) return true;
+                if (!/\bfusion\b/i.test(aas[i])) return true;
             }
             return false;
         });
-        var fusions = extract_unique(raw_gene_data, 'mutation', function(d){return /fusion( |$|,)/i.test(d);});
+
+        var fusions = extract_unique(raw_gene_data, 'mutation', function(d){return /\bfusion\b/i.test(d);});
         var mrnas = extract_unique(raw_gene_data, 'mrna');
         var rppas = extract_unique(raw_gene_data, 'rppa');
 
@@ -212,7 +226,70 @@ define("OncoprintUtils", (function() {
 
         return to_return;
     };
-
+    
+    var attr_data_type2range = function(raw_attr_and_gene_data,attrs_number,raw_clinical_attr)
+    {
+        var extract_unique = function(raw_data, length, raw_clinical_attributes ,filter) {
+            
+            var finalAfterProcess = [];
+            var testFinalAfterProcess = [];
+            var per_attr_data_length = raw_data.length/length;
+            for(var i = 0; i < length; i++)
+            {
+                var seperate_raw_data = raw_data.slice(i*per_attr_data_length, (i+1)*per_attr_data_length);
+                var afterProcess = _.uniq(seperate_raw_data,function (item) { return item.attr_id + item.attr_val;});
+                afterProcess = afterProcess.filter( function(d) {
+                        return d !== undefined && (!filter || filter(d));
+                    });
+                
+                var afterprocessDatatype = false;
+                for(var j=0; j<afterProcess.length;j++)
+                {
+                   //determin the datatype of afterProcess data
+                   if(typeof(afterProcess[j].attr_val) === 'number')
+                   {
+                      afterprocessDatatype = true;
+                   }
+                   
+                   for(var n=0; n<raw_clinical_attr.length;n++)
+                   {
+                       if(afterProcess[j].attr_id === raw_clinical_attr[n].attr_id)
+                       {
+                          afterProcess[j].display_name = raw_clinical_attr[n].display_name;
+                       }
+                   }
+                }
+                
+                if(afterprocessDatatype)// if data type is number
+                {
+                    if(afterProcess.length > 12)
+                    {
+//                        var min = _.min(afterProcess,function(x){return x.attr_val;});
+                        var min = jQuery.extend(true, {}, _.min(afterProcess,function(x){return x.attr_val;}));
+                        min.attr_val_tpye = 'continuous';
+                        var max = _.max(afterProcess,function(x){return x.attr_val;});
+                        max.attr_val_tpye = 'continuous';
+                        
+                        if(min.attr_id === '# mutations' || min.attr_id === 'FRACTION_GENOME_ALTERED')// specify minimum value of 'mutations' and 'FRACTION_GENOME_ALTERED' to 0
+                        {
+                            min.attr_val = 0;
+                        }
+                        afterProcess = [min,max];
+                    }
+                }
+                
+                finalAfterProcess = finalAfterProcess.concat(afterProcess);
+                testFinalAfterProcess[i] = afterProcess;
+                raw_data = raw_data.concat(seperate_raw_data);
+            }
+            
+            return testFinalAfterProcess;
+        };
+        
+        var attrs = extract_unique(raw_attr_and_gene_data,attrs_number,raw_clinical_attr);
+        
+        return attrs;
+    }
     var colors = {
         continuous: '#A62459',
         white: '#FFFAF0',
@@ -269,13 +346,14 @@ define("OncoprintUtils", (function() {
     //
     // returns a map of attr_id to d3 scale
     var make_attribute2scale = function(attrs, raw_clinical_data) {
-        var attrId2range = attr2range(raw_clinical_data);
+
+        var attrId2range = attr2range(raw_clinical_data,attrs);
 
         var slice_googlecolors = function(attr_id) {
             return colors.google.slice(0, attrId2range[attr_id].length);
         };
 
-        return _.chain(attrs)
+        var result = _.chain(attrs)
             .map(function(attr) {
                 // attr -> [attr_id, d3 scale]
                 var scale;
@@ -284,8 +362,8 @@ define("OncoprintUtils", (function() {
                 if (attr.attr_id.toUpperCase() === "SEX"
                     || attr.attr_id.toUpperCase() === "GENDER") {
                     scale = d3.scale.ordinal()
-                .domain(["MALE", "male", "FEMALE", "female"])
-                .range(["#3790d6", "#3790d6", "pink", "pink"]);
+                .domain(["MALE", "male","M","m", "FEMALE", "female","F","f"])
+                .range(["#3790d6", "#3790d6",  "#3790d6", "#3790d6", "pink", "pink", "pink", "pink"]);
 
                     return [attr.attr_id, scale];
                 }
@@ -306,8 +384,8 @@ define("OncoprintUtils", (function() {
                 }
 
                 else if (attr.datatype.toUpperCase() === "NUMBER") {
-                    scale = d3.scale.linear()
-                        .range([colors.white, colors.continuous]);
+                        scale = d3.scale.linear()
+                            .range([colors.white, colors.continuous]);
                 }
 
                 else if (attr.datatype.toUpperCase() === "STRING") {
@@ -320,12 +398,14 @@ define("OncoprintUtils", (function() {
                     scale = d3.scale.ordinal()
                         .range( slice_googlecolors(attr.attr_id));
                 }
+//                attr.attr_id=attr.attr_id.toLowerCase().charAt(0).toUpperCase() + attr.attr_id.toLowerCase().slice(1);// added by dong li
                 scale.domain(attrId2range[attr.attr_id]);
-
                 return [attr.attr_id, scale];
             })
         .object()
             .value();
+            
+            return result;
     };
 
     // params: sample
@@ -381,7 +461,21 @@ define("OncoprintUtils", (function() {
         .value();
 
         var percent = (altered / total) * 100;
-        attr2percent[gene.key] = Math.round(percent);
+        //attr2percent[gene.key] = Math.round(percent);
+
+        if(percent>=1.0)
+        {
+            attr2percent[gene.key] = Math.round(percent);
+        }
+        else
+        {
+            if(percent>0)
+            {
+                attr2percent[gene.key] = percent.toFixed(1);
+            }
+            
+            attr2percent[gene.key] = 0;
+        }
         });
 
         return attr2percent;
@@ -439,7 +533,7 @@ define("OncoprintUtils", (function() {
         tmp.remove();
         // bye bye tmp
 
-        return 42 + max; // http://goo.gl/iPzfU
+        return 42 + 20 + max; // http://goo.gl/iPzfU
     };
 
     // takes a list of clinical attribute objects and returns a map that maps
@@ -481,14 +575,402 @@ define("OncoprintUtils", (function() {
         HEMIZYGOUSLYDELETED: '#8FD8D8',
         HOMODELETED: '#0000FF'
     };
+      
+    var CreateLegendII = function (datas,attr2rangeFuntion)
+    {
+        var dims = (function() {
+            var rect_height = 23;
+            var mut_height = rect_height / 3;
+            var vert_padding = 6;
+            var Legend_label_width = label_width(datas.map(
+                    function(attr) {
+                        return  attr.attr_id;
+                    }));
 
+            var clinical_height = (2/3) * rect_height;
+            var clinical_offset = (1/6) * rect_height;
+
+            return {
+            width: datas.length * (5.5 + 3),
+            height: (rect_height + vert_padding) * datas.length,
+            rect_height: rect_height,
+            rect_width: 5.5,
+            vert_padding: vert_padding,
+            vert_space: rect_height + vert_padding,
+            hor_padding: 3,
+            character_length:7.5,
+            mut_height: mut_height,
+            legend_width: Legend_label_width,
+            clinical_height: clinical_height,
+            clinical_offset: clinical_offset
+            };
+        }());
+
+        var calculateMaxLabelLength = function ()
+        {
+            var labelNumbers = datas.length;
+            var maxlength = datas[0][0].attr_id.length*dims.character_length;
+            for(var i = 0; i < labelNumbers; i ++)
+            {
+                datas[i][0].attr_id.length*dims.character_length;
+                maxlength = (datas[i][0].attr_id.length*dims.character_length) > maxlength ? (datas[i][0].attr_id.length*dims.character_length) : maxlength;
+            }
+            var lengestStringLength = 20;//we define truncated the string to 20 characters
+            maxlength = lengestStringLength * dims.character_length
+            return maxlength;
+        };
+        
+        var maxLabelLength = calculateMaxLabelLength() + 60;
+
+        var calculateHeight = function (valueName)
+        {
+            var indexValue = _.indexOf(datas,valueName);
+            var totalHeight = 1;
+            for(var i = 1; i < indexValue; i++)
+            {
+                if(datas[i].attr_id !== datas[i-1].attr_id)
+                {
+                    totalHeight +=1;
+                }
+                else
+                {
+                    totalHeight +=1;
+                    return totalHeight;
+                }
+            }
+            
+            return totalHeight;
+        }
+            
+        var calculateDistance = function (idName,valueName)
+        {
+            var indexValue;
+            var dataIndexValue;
+
+            for(var n = 0; n < datas.length; n++)
+            {
+                if(datas[n][0].attr_id === idName)
+                {
+                    indexValue = n;
+                    dataIndexValue = datas[n].length;
+                    break;
+                }
+            }
+            var totalLength = 0;
+            for(var i = 0 ; i < dataIndexValue; i++)
+            {
+                if(datas[indexValue][i].attr_val!==valueName)
+                {
+                    totalLength += datas[indexValue][i].attr_val.toString().length *dims.character_length + dims.rect_width * 5;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            return totalLength;
+        };
+            
+        var calculateLongestLegend = function()
+        {
+            var longestLegendLength = 0;
+            
+            for( i = 0; i < datas.length; i++ )
+            {
+                var longestEachData = 0;
+                longestEachData = calculateDistance(datas[i][datas[i].length - 1].attr_id, datas[i][datas[i].length - 1].attr_val) + datas[i][datas[i].length - 1].attr_val.toString().length *dims.character_length + dims.rect_width * 5;
+                longestLegendLength= longestEachData > longestLegendLength ? longestEachData: longestLegendLength;
+            }
+//            var lengstStringLength = 20;
+//            longestLegendLength = calculateDistance(datas[i][datas[i].length - 1].attr_id, datas[i][datas[i].length - 1].attr_val) + lengstStringLength * dims.character_length + dims.rect_width * 5;
+            return longestLegendLength;
+        }; 
+        
+        var calculateIndividualLegend = function(legendIndex)
+        {
+            var i = legendIndex;
+            var longestEachData = 0;
+            longestEachData = calculateDistance(datas[i][datas[i].length - 1].attr_id, datas[i][datas[i].length - 1].attr_val) + datas[i][datas[i].length - 1].attr_val.toString().length *dims.character_length + dims.rect_width * 5;
+            
+            return longestEachData;
+        }; 
+        
+        var translate = function(x,y) { return "translate(" + x + "," + y + ")"; };
+        var calculateDistance = function (idName,valueName)
+            {
+                var indexValue;
+                var dataIndexValue;
+                
+                for(var n = 0; n < datas.length; n++)
+                {
+                    if(datas[n][0].attr_id === idName)
+                    {
+                        indexValue = n;
+                        dataIndexValue = datas[n].length;
+                        break;
+                    }
+                }
+                var totalLength = 0;
+                for(var i = 0 ; i < dataIndexValue; i++)
+                {
+                    if(datas[indexValue][i].attr_val!==valueName)
+                    {
+                        totalLength += datas[indexValue][i].attr_val.toString().length *7.5 + dims.rect_width * 5;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                return totalLength;
+            };
+            
+            
+        for(var ii = 0; ii< datas.length;ii++)
+        {
+        var inteData = datas[ii];
+        var table = d3.select(document.getElementById('oncoprint_legend'))
+        .append('table')
+        .attr('id','legend_table')
+        .attr('class','mutation_legend_table')
+        .attr('height', dims.vert_space)
+        .attr('valign','top')
+        .style('display','none');
+
+        // hack to get the label flush with the tracks in Firefox
+        // the discrepancy is due to the difference in the way browsers display
+        // <table>.  Assume that other browsers behave like chrome and that Firefox
+        // is the exception.
+        var is_firefox = navigator.userAgent.indexOf("Firefox") !== -1;
+        var browser_offset = is_firefox ? 16 : 0;
+
+        var label_svg = table
+            .append('td')
+            .append('svg')
+            .attr('height', dims.vert_space)
+            .attr('width', function(){return maxLabelLength>120 ? maxLabelLength : 120;})
+            .attr('id', 'legend');
+            
+        var label = label_svg.append('text')
+            .attr('font-size', '12px')
+            .attr('x', 0)
+            .attr('y', dims.rect_height);
+
+        label.append('tspan')       // name
+            .attr('text-anchor', 'start')
+            .attr('font-weight', 'bold')
+            .attr('fill','gray')
+            .attr('class','attribute_legend')
+            .text(function() {
+                var display_name_value = inteData[0].display_name;
+                if(display_name_value.length > 20)
+                {
+                    display_name_value = display_name_value.slice(0,17) + "...";
+                }
+//                return inteData[0].display_name.toString().toLowerCase();
+                return display_name_value.toString().toLowerCase();
+            });
+            
+        var container_width = $('#oncoprint_table div').width();              // default setting 
+        var longest_legend_width = calculateLongestLegend();
+        var this_legend_width = calculateIndividualLegend(ii)
+        var legend_td = table.append('td')
+                            .append('div')      // control overflow to the right
+                            .style('width', container_width + 'px') // buffer of, say, 70
+                            .style('display', 'inline-block')
+                            .style('overflow-x', 'hidden')
+                            .style('overflow-y', 'hidden'); 
+        
+        var gradientLegendColorbarLength = 100;
+        
+        var legend_rec_text =legend_td.append('svg')
+                            .attr('height', dims.vert_space)
+                            .attr('width', this_legend_width + gradientLegendColorbarLength)
+                            .attr('id', 'legend_svg');
+
+        var legend_svg_main = legend_rec_text.append('g')
+            .attr('transform',function(){ return translate( 0, 0 );})
+            .attr('height', dims.vert_space);
+        
+        if(inteData[0].attr_val_tpye === 'continuous')
+        {
+            var legend_svg=legend_svg_main.append('g');
+            
+            var label = legend_svg.append('text')
+                .attr('font-size', '12px')
+                .attr('width', function()
+                {
+                    return cbio.util.toPrecision(inteData[0].attr_val,4,0.00001).toString().length * 6.5;
+                })
+                .attr('x', function(){
+                    return calculateDistance(inteData[0].attr_id,inteData[0].attr_val);} )
+                .attr('y', function() {
+                    return dims.rect_height; });
+
+            label.append('tspan')       // name
+                .attr('text-anchor', 'start')
+                .attr('fill','black')
+                .attr('class','legend_name')
+                .text(function() {
+                    if(typeof(inteData[0].attr_val) === 'number')
+                    {
+                        return cbio.util.toPrecision(inteData[0].attr_val,4,0.00001);
+                    }
+                    else{
+                        return inteData[0].attr_val;
+                    }
+                }); 
+                
+           var gradient = legend_svg
+                .append("linearGradient")
+                .attr("x1", function(){return cbio.util.toPrecision(inteData[0].attr_val,4,0.00001).toString().length * 6.5 + dims.rect_width*3;})
+                .attr("x2", function(){return cbio.util.toPrecision(inteData[0].attr_val,4,0.00001).toString().length * 6.5 + dims.rect_width*3 + 100;})
+                .attr("y1", "0")
+                .attr("y2", "0")
+                .attr("id", "gradient")
+                .attr("gradientUnits", "userSpaceOnUse");
+
+            gradient
+                .append("stop")
+                .attr("offset", "0")
+                .attr("stop-color", function(){
+                if (is_gene(inteData[0])) {
+                    return cna_fills[inteData[0].cna];
+                }
+                else if (is_clinical(inteData[0])) {
+
+                    var result = attr2rangeFuntion[inteData[0].attr_id](inteData[0].attr_val);
+
+                    return inteData[0].attr_val === "NA"
+                ? colors.grey       // attrs with value of NA are colored grey
+                : result;
+                }
+            });
+
+            gradient
+                .append("stop")
+                .attr("offset", "0.5")
+                .attr("stop-color",  function(){
+                if (is_gene(inteData[1])) {
+                    return cna_fills[inteData[1].cna];
+                }
+                else if (is_clinical(inteData[1])) {
+
+                    var result = attr2rangeFuntion[inteData[1].attr_id](inteData[1].attr_val);
+
+                    return inteData[1].attr_val === "NA"
+                ? colors.grey       // attrs with value of NA are colored grey
+                : result;
+                }
+            });
+
+
+
+            legend_svg.append("rect")
+                .attr("x", function(){
+                    return cbio.util.toPrecision(inteData[0].attr_val,4,0.00001).toString().length * 6.5 + dims.rect_width*3;})
+                .attr("y", function(){return 6;})
+                .attr("width", function(){return 100;})
+                .attr("height", 20)
+                .attr("fill", "url(#gradient)");
+        
+            var label = legend_svg.append('text')
+                .attr('font-size', '12px')
+                .attr('width', function()
+                {
+                    return cbio.util.toPrecision(inteData[1].attr_val,4,0.00001).toString().length * 6.5;
+                })
+                .attr('x', function(){
+                    return cbio.util.toPrecision(inteData[0].attr_val,4,0.00001).toString().length * 6.5 + 2 * dims.rect_width*3 + 100;} )
+                .attr('y', function() {
+                    return dims.rect_height; });
+
+            label.append('tspan')       // name
+                .attr('text-anchor', 'start')
+                .attr('fill','black')
+                .attr('class','legend_name')
+                .text(function() {
+                    if(typeof(inteData[1].attr_val) === 'number')
+                    {
+                        if(inteData[1].attr_val%1 === 0)
+                        {
+                            return inteData[1].attr_val;
+                        }
+                        
+                        return cbio.util.toPrecision(inteData[1].attr_val,4,0.00001);
+                    }
+                    else{
+                        return inteData[1].attr_val;
+                    }
+                }); 
+        }
+        else
+        {
+        var legend_svg=legend_svg_main.selectAll('g')
+            .data(inteData)
+            .enter()
+            .append('g');
+
+        // N.B. fill doubles as cna
+        var fill = legend_svg.append('rect')
+                .attr('fill', function(d) {
+                if (is_gene(d)) {
+                    return cna_fills[d.cna];
+                }
+                else if (is_clinical(d)) {
+
+                    var result = attr2rangeFuntion[d.attr_id](d.attr_val);
+
+                    return d.attr_val === "NA"
+                ? colors.grey       // attrs with value of NA are colored grey
+                : result;
+                }
+            })
+            .attr('height', function(d) {
+            return d.attr_id === undefined ? dims.rect_height : dims.clinical_height;
+            })
+            .attr('width', dims.rect_width)
+            .attr('x', function(d){
+                return calculateDistance(d.attr_id,d.attr_val);})
+            .attr('y', function() {
+                    return dims.vert_padding + 4;
+            });
+
+            var label = legend_svg.append('text')
+                .attr('font-size', '12px')
+                .attr('width', function(d)
+                {
+                    return d.attr_val.toString().length * 6.5;
+                })
+                .attr('x', function(d){
+                    return calculateDistance(d.attr_id,d.attr_val) + dims.rect_width*3;} )
+                .attr('y', function() {
+                    return dims.rect_height; });
+
+            label.append('tspan')       // name
+                .attr('text-anchor', 'start')
+                .attr('fill','black')
+                .attr('class','legend_name')
+                .text(function(d) {
+                    if(typeof(d.attr_val) === 'number')
+                    {
+                        return cbio.util.toPrecision(d.attr_val,4,0.00001);
+                    }
+                    else{
+                        return d.attr_val;
+                    }
+                });
+        }
+        }
+    }
+    
     // puts a legend in the div according to range for each datatype.  If the
     // range for a datatype is undefined, then it doesn't get represented in
     // the legend
     //
     // *signature:* `DOM el, { string : [string] }, number -> DOM el`
     // * accepts an optional DOM element containing an item template
-    var legend = function(el, datatype2range, left_adjust, item_template) {
+    var legend = function(el, datatype2range, left_adjust, attrtype2range,attr2rangeFuntion,item_template ) {
 
         // *signature:* object -> string (html)
         // options can be:
@@ -531,79 +1013,527 @@ define("OncoprintUtils", (function() {
                       UPREGULATED: "RPPA Upregulation",
                       DOWNREGULATED: "RPPA Downregulation"
                   },
-            mutation: "Mutation",
+            mutation: "mutation",
             fusion: "Fusion"
         };
 
-        var val2template = {
-            mrna: {
-                      "UPREGULATED": item_templater({display_up_mrna: "inherit", text: captions.mrna.UPREGULATED}),
-                      "DOWNREGULATED": item_templater({display_down_mrna: "inherit", text: captions.mrna.DOWNREGULATED})
-                  },
-            rppa: {
-                      "UPREGULATED": item_templater({display_up_rppa: "inherit", text: captions.rppa.UPREGULATED}),
-                      "DOWNREGULATED": item_templater({display_down_rppa: "inherit", text: captions.rppa.DOWNREGULATED})
-                  }
-        };
+//        var val2template = {
+//            mrna: {
+//                      "UPREGULATED": item_templater({display_up_mrna: "inherit", text: captions.mrna.UPREGULATED}),
+//                      "DOWNREGULATED": item_templater({display_down_mrna: "inherit", text: captions.mrna.DOWNREGULATED})
+//                  },
+//            rppa: {
+//                      "UPREGULATED": item_templater({display_up_rppa: "inherit", text: captions.rppa.UPREGULATED}),
+//                      "DOWNREGULATED": item_templater({display_down_rppa: "inherit", text: captions.rppa.DOWNREGULATED})
+//                  }
+//        };
 
         // build up an array of templates from the values in the dataset
         // N.B. order matters here --- so cna is to the left, then comes
         // mutation, etc.
         var templates = [];
-        if (datatype2range.cna !== undefined) {
-            templates = templates.concat(
-                    _.map(datatype2range.cna, function(val) {
-                        if (val !== undefined && val !== "DIPLOID") {
-                            return item_templater({
-                                bg_color: cna_fills[val],
-                                text: captions.cna[val]
-                            });
-                        }
-                    }).filter(function(x) { return x !== undefined; })
-                    );
-        }
-
-        if (datatype2range.mutation !== undefined) {
-            templates = templates.concat(
-                    item_templater({ display_mutation: "inherit", text: captions.mutation})
-                    );
-        }
-
-        if (datatype2range.fusion !== undefined) {
-            templates = templates.concat(
-                    item_templater({ display_fusion: "inherit", text: captions.fusion})
-                    );
-        }
-
-        if (datatype2range.mrna !== undefined) {
-            templates = templates.concat(
-                    _.map(datatype2range.mrna, function(val) {
-                        return val2template.mrna[val];
-                    }).filter(function(x) { return x !== undefined; })
-                    );
-        }
-
-        if (datatype2range.rppa !== undefined) {
-            templates = templates.concat(
-                    _.map(datatype2range.rppa, function(val) {
-                        return val2template.rppa[val];
-                    }).filter(function(x) { return x !== undefined; })
-                    );
-        }
-
-        var row = _.chain(templates)
-            .map(function(t) {
-                return "<td style='padding-right:10px;'>" + t + "</td>";
+//        if (datatype2range.cna !== undefined) {
+//            templates = templates.concat(
+//                    _.map(datatype2range.cna, function(val) {
+//                        if (val !== undefined && val !== "DIPLOID") {
+//                            return item_templater({
+//                                bg_color: cna_fills[val],
+//                                text: captions.cna[val]
+//                            });
+//                        }
+//                    }).filter(function(x) { return x !== undefined; })
+//                    );
+//        }
+//
+//        if (datatype2range.mutation !== undefined) {
+//            templates = templates.concat(
+//                    item_templater({ display_mutation: "inherit", text: captions.mutation})
+//                    );
+//        }
+//
+//        if (datatype2range.fusion !== undefined) {
+//            templates = templates.concat(
+//                    item_templater({ display_fusion: "inherit", text: captions.fusion})
+//                    );
+//        }
+//
+//        if (datatype2range.mrna !== undefined) {
+//            templates = templates.concat(
+//                    _.map(datatype2range.mrna, function(val) {
+//                        return val2template.mrna[val];
+//                    }).filter(function(x) { return x !== undefined; })
+//                    );
+//        }
+//
+//        if (datatype2range.rppa !== undefined) {
+//            templates = templates.concat(
+//                    _.map(datatype2range.rppa, function(val) {
+//                        return val2template.rppa[val];
+//                    }).filter(function(x) { return x !== undefined; })
+//                    );
+//        }     
+//
+//        var row = _.chain(templates)
+//            .map(function(t) {
+//                return "<td style='padding-right:10px;'>" + t + "</td>";
+//            })
+//            .join("")
+//            .value();
+//        row = "<tr>" +row+ "</tr>";
+        
+        d3.selectAll("#legend_table").remove();
+        
+        var table = d3.select(document.getElementById('oncoprint_legend'))
+            .append('table')
+            .attr('height',function(){
+                return 23+6;
             })
-        .join("")
-            .value();
+            .attr('id','legend_table')
+            .attr('class','genetic_legend_table')
+            .attr('display','inline')
+            .attr('valign','top');
 
-        el.style.paddingLeft = left_adjust + 4 + "px";;
+        var calculateMaxLabelLength = function (datas)
+        {
+            var labelNumbers = datas.length;
+            var character_length = 7.5;
+            if(labelNumbers === 0 ) 
+            {
+                return 0;
+            }
+            var maxlength = datas[0][0].attr_id.length*character_length;
+            for(var i = 0; i < labelNumbers; i ++)
+            {
+                datas[i][0].attr_id.length*character_length;
+                maxlength = (datas[i][0].attr_id.length*character_length) > maxlength ? (datas[i][0].attr_id.length*character_length) : maxlength;
+            }
+            var lengestStringLength = 20;//we define truncated the string to 20 characters
+            maxlength = lengestStringLength * character_length;
+            return maxlength;
+        };
+        
+        var maxLabelLength = calculateMaxLabelLength(attrtype2range) + 60;
 
-        el.innerHTML = "<table><tr>" + row  + "</tr></table>"
-            + "<p style='margin-top: 5px; margin-bottom: 5px;'>Copy number alterations are putative.</p>";
+        var label_svg = table
+            .append('td')
+            .append('svg')
+            .attr('height', 23+6)
+            .attr('width', function(){return maxLabelLength > 120 ? maxLabelLength :120;})
+            .attr('id', 'legend');
 
-        return el;
+        var label = label_svg
+            .append('text')
+            .attr('font-size', '12px')
+            .attr('x', 0)
+            .attr('y', 20);
+
+        label.append('tspan')       // name
+            .attr('text-anchor', 'start')
+            .attr('font-weight', 'bold')
+            .attr('fill','gray')
+            .attr('class','attribute_legend')
+            .text('genetic alteration');
+        
+        var tabledata = table.append('td')
+                            .append('div');
+        if (datatype2range.cna !== undefined && datatype2range.cna !== "DIPLOID") 
+        {
+//            var inter_item_templater;
+//            inter_item_templater = item_templater({ bg_color: cna_fills[datatype2range.cna],text: captions.cna[datatype2range.cna]});
+            for(var i = 0; i < datatype2range.cna.length; i++ )
+            {
+                var legend_svg = tabledata
+                            .append('svg')
+                            .attr('height', 23 )
+                            .attr('width', captions.cna[datatype2range.cna[i]].length * 7.5 + 5.5*3 )
+                            .attr('x', 0)
+                            .attr('id', 'legend_svg')
+                            .attr('class', 'legend_cna')
+                            .append('g');
+
+                legend_svg.append('rect')
+                            .attr('height', 23)
+                            .attr('width', 5.5)
+                            .attr('fill', cna_fills[datatype2range.cna[i]]);
+
+                var label = legend_svg.append('text')
+                    .attr('font-size', '12px')
+                    .attr('width', function()
+                    {
+                        return captions.cna[datatype2range.cna[i]].length * 6.5;
+                    })
+                    .attr('x', 5.5*3)
+                    .attr('y', 19);
+
+                label.append('tspan')       // name
+                    .attr('text-anchor', 'start')
+                    .attr('fill','black')
+                    .attr('class','legend_name')
+                    .text(captions.cna[datatype2range.cna[i]]);
+            }
+        }   
+        
+//        if(datatype2range.cna !== undefined && datatype2range.mutation !== undefined)
+        var findProperMutation = function(source, specialtype)
+        {
+            switch(specialtype){
+                case 1:
+                    var findResult = _.find(source,function(element){ return (/^[A-z]([0-9]+)[A-z]$/g).test(element);});
+                    if(findResult !== undefined)
+                    {
+                        return true;
+                    }
+                    return false;
+                case 3:
+                    var findResult = _.find(source,function(element){return (/^([A-Z]+)([0-9]+)del$/g).test(element)});
+                    if(findResult !== undefined)
+                    {
+                        return true;
+                    }
+                    return false;// need to modified by dong li
+                case 2:
+//                    var findResult = _.find(source,function(element){return (/^([A-Z]+)([0-9]+)del$/g).test(element)});
+                    for(var i = 0; i<source.length; i++)
+                    {
+                        if((/^([A-Z]+)([0-9]+)del$/g).test(source[i]))
+                        {
+                            continue;
+                        }
+                        else if((/^[A-z]([0-9]+)[A-z]$/g).test(source[i]))
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            return true;
+                        }
+                    }
+                    return false;// need to modified by dong li
+            }
+        }
+        var translate = function(x,y) {
+            return "translate(" + x + "," + y + ")";
+        };
+
+
+        if (datatype2range.mrna !== undefined) 
+        {
+                var legend_svg = tabledata
+                            .append('svg')
+                            .attr('height', 23 )
+                            .attr('width', ('mRNA Downregulation').length * 7.5 + 5.5*3 )
+                            .attr('x', 0)
+                            .attr('id', 'legend_svg')
+                            .attr('class', 'legend_cna')
+                            .append('g');
+
+                legend_svg.append('rect')
+                            .attr('height', 23)
+                            .attr('width', 5.5)
+                            .attr('fill', colors.grey);
+                legend_svg.append('rect')
+                            .attr('height', 23)
+                            .attr('width', 5.5)
+                            .attr('stroke-width',2)
+                            .attr('stroke-opacity',1)
+                            .attr('stroke','#6699CC')
+                            .attr('fill', 'none');
+
+                var label = legend_svg.append('text')
+                    .attr('font-size', '12px')
+                    .attr('width', function()
+                    {
+                        return ('mRNA Downregulation').length * 6.5;
+                    })
+                    .attr('x', 5.5*3)
+                    .attr('y', 19);
+
+                label.append('tspan')       // name
+                    .attr('text-anchor', 'start')
+                    .attr('fill','black')
+                    .attr('class','legend_name')
+                    .text('mRNA Downregulation');
+            
+            
+                var legend_svg = tabledata
+                            .append('svg')
+                            .attr('height', 23 )
+                            .attr('width', ('mRNA Upregulation').length * 7.5 + 5.5*3 )
+                            .attr('x', 0)
+                            .attr('id', 'legend_svg')
+                            .attr('class', 'legend_cna')
+                            .append('g');
+
+                legend_svg.append('rect')
+                            .attr('height', 23)
+                            .attr('width', 5.5)
+                            .attr('fill', colors.grey);
+                legend_svg.append('rect')
+                            .attr('height', 23)
+                            .attr('width', 5.5)
+                            .attr('stroke-width',2)
+                            .attr('stroke-opacity',1)
+                            .attr('stroke','#FF9999')
+                            .attr('fill', 'none');
+
+                var label = legend_svg.append('text')
+                    .attr('font-size', '12px')
+                    .attr('width', function()
+                    {
+                        return ('mRNA Upregulation').length * 6.5;
+                    })
+                    .attr('x', 5.5*3)
+                    .attr('y', 19);
+
+                label.append('tspan')       // name
+                    .attr('text-anchor', 'start')
+                    .attr('fill','black')
+                    .attr('class','legend_name')
+                    .text('mRNA Upregulation');
+        }
+        
+        if (datatype2range.rppa !== undefined) 
+        {
+                var legend_svg = tabledata
+                            .append('svg')
+                            .attr('height', 23 )
+                            .attr('width', ('RPPA Downregulation').length * 7.5 + 5.5*3 )
+                            .attr('x', 0)
+                            .attr('id', 'legend_svg')
+                            .attr('class', 'legend_cna')
+                            .append('g');
+
+                legend_svg.append('rect')
+                            .attr('height', 23)
+                            .attr('width', 5.5)
+                            .attr('fill', colors.grey);
+                    
+                var sym = d3.svg.symbol().size(5.5 * 3);
+                // need to be modified
+                var rppa = legend_svg.append('path')
+                        .attr('d', sym.type(function(d) {
+                            return "triangle-up"; }))
+                        .attr('transform', function(d) {
+                            // put the triangle in the right spot: at the top if
+                            // UNREGULATED, at the bottom otherwise
+                            var dy = 23;
+                            dy =  dy * 0.1;
+                            return translate( 5.5 / 2, dy); });
+//                        rppa.filter(function(d) {
+//                            return d.rppa === undefined;
+//                        });
+
+                var label = legend_svg.append('text')
+                    .attr('font-size', '12px')
+                    .attr('width', function()
+                    {
+                        return ('RPPA Downregulation').length * 6.5;
+                    })
+                    .attr('x', 5.5*3)
+                    .attr('y', 19);
+
+                label.append('tspan')       // name
+                    .attr('text-anchor', 'start')
+                    .attr('fill','black')
+                    .attr('class','legend_name')
+                    .text('RPPA Downregulation');
+            
+            
+                var legend_svg = tabledata
+                            .append('svg')
+                            .attr('height', 23 )
+                            .attr('width', ('RPPA Upregulation').length * 7.5 + 5.5*3 )
+                            .attr('x', 0)
+                            .attr('id', 'legend_svg')
+                            .attr('class', 'legend_cna')
+                            .append('g');
+
+                legend_svg.append('rect')
+                            .attr('height', 23)
+                            .attr('width', 5.5)
+                            .attr('fill', colors.grey);
+                var rppa = legend_svg.append('path')
+                        .attr('d', sym.type(function(d) {
+                            return "triangle-down"; }))
+                        .attr('transform', function(d) {
+                            // put the triangle in the right spot: at the top if
+                            // UNREGULATED, at the bottom otherwise
+                            var dy = 23;
+                            dy =  dy / 1.1;
+                            return translate( 5.5 / 2, dy); });
+
+                var label = legend_svg.append('text')
+                    .attr('font-size', '12px')
+                    .attr('width', function()
+                    {
+                        return ('RPPA Upregulation').length * 6.5;
+                    })
+                    .attr('x', 5.5*3)
+                    .attr('y', 19);
+
+                label.append('tspan')       // name
+                    .attr('text-anchor', 'start')
+                    .attr('fill','black')
+                    .attr('class','legend_name')
+                    .text('RPPA Upregulation');
+        }
+        
+        if(datatype2range.mutation !== undefined)
+        {   
+//            if($('#oncoprint_diagram_showmutationcolor_icon')[0].attributes.src.value === 'images/uncolormutations.svg')
+//            {
+                var legend_svg = tabledata.append('svg')
+                            .attr('height', 23 )
+                            .attr('width', ('Missense Mutation').length * 7.5 + 5.5*3 )
+                            .attr('id', 'legend_svg')
+                            .attr('class','legend_missense')
+                            .append('g');
+
+                legend_svg.append('rect')
+                            .attr('height', 23)
+                            .attr('width', 5.5)
+                            .attr('fill', colors.grey);
+
+                legend_svg.append('rect')
+                        .attr('display',"inherit")
+                        .attr('height', 7.666666666666667)
+                        .attr('width', 5.5)
+                        .attr('y',7.666666666666667)
+                        .attr('fill', '#008000');      
+                var label = legend_svg.append('text')
+                .attr('font-size', '12px')
+                .attr('width', function()
+                {
+                    return ('Missense Mutation').length * 6.5;
+                })
+                .attr('x', 5.5*3)
+                .attr('y', 19);
+
+                label.append('tspan')       // name
+                    .attr('text-anchor', 'start')
+                    .attr('fill','black')
+                    .attr('class','legend_missense_name')
+                    .text(captions.mutation); 
+                
+                if(findProperMutation(datatype2range.mutation,2))
+                {
+                    var legend_svg = tabledata.append('svg')
+                                .attr('height', 23 )
+                                .attr('display','none')
+                                .attr('width', ('Truncating Mutation').length * 7.5 + 5.5*3 )
+                                .attr('id', 'legend_svg')
+                                .attr('class', 'legend_nonmissense')
+                                .append('g');
+
+                    legend_svg.append('rect')
+                                .attr('height', 23)
+                                .attr('width', 5.5)
+                                .attr('fill', colors.grey);
+
+                    legend_svg.append('rect')
+                            .attr('display',"inherit")
+                            .attr('height', 7.666666666666667)
+                            .attr('width', 5.5)
+                            .attr('y',7.666666666666667)
+                            .attr('fill', '#000000');      
+                    var label = legend_svg.append('text')
+                    .attr('font-size', '12px')
+                    .attr('width', function()
+                    {
+                        return ('Truncating Mutation').length * 6.5;
+                    })
+                    .attr('x', 5.5*3)
+                    .attr('y', 19);
+
+                    label.append('tspan')       // name
+                        .attr('text-anchor', 'start')
+                        .attr('fill','black')
+                        .attr('class','legend_name')
+                        .text('Truncating Mutation'); 
+                }
+                
+                if(findProperMutation(datatype2range.mutation,3))
+                {
+                    var legend_svg = tabledata.append('svg')
+                                .attr('height', 23 )
+                                .attr('display','none')
+                                .attr('width', ('inframe mutation').length * 7.5 + 5.5*3 )
+                                .attr('id', 'legend_svg')
+                                .attr('class', 'legend_nonmissense')
+                                .append('g');
+
+                    legend_svg.append('rect')
+                                .attr('height', 23)
+                                .attr('width', 5.5)
+                                .attr('fill', colors.grey);
+
+                    legend_svg.append('rect')
+                            .attr('display',"inherit")
+                            .attr('height', 7.666666666666667)
+                            .attr('width', 5.5)
+                            .attr('y',7.666666666666667)
+                            .attr('fill', '#9F8170');      
+                    var label = legend_svg.append('text')
+                    .attr('font-size', '12px')
+                    .attr('width', function()
+                    {
+                        return ('inframe mutation').length * 6.5;
+                    })
+                    .attr('x', 5.5*3)
+                    .attr('y', 19);
+
+                    label.append('tspan')       // name
+                        .attr('text-anchor', 'start')
+                        .attr('fill','black')
+                        .attr('class','legend_name')
+                        .text('Inframe Mutation'); 
+                }
+        }
+        if (datatype2range.fusion !== undefined)
+        {
+                var legend_svg = tabledata
+                            .append('svg')
+                            .attr('height', 23 )
+                            .attr('width', ('Fusion').length * 7.5 + 5.5*3 )
+                            .attr('x', 0)
+                            .attr('id', 'legend_svg')
+                            .attr('class', 'legend_fusion')
+                            .append('g');
+
+                legend_svg.append('rect')
+                            .attr('height', 23)
+                            .attr('width', 5.5)
+                            .attr('fill', colors.grey);
+                    
+                //var sym = d3.svg.symbol().size(5.5 * 3);
+                // need to be modified
+                var fusion = legend_svg.append('path')
+                    .attr('d', "M0,0L0,"+ 23 + " " + 5.5+"," + 23/2 + "Z")
+                    .attr('transform',function(d) {
+                            var dy = 23;
+                            dy =  dy / 23;
+                            return translate( 0, 0);
+                        });
+
+                var label = legend_svg.append('text')
+                    .attr('font-size', '12px')
+                    .attr('width', function()
+                    {
+                        return ('Fusion').length * 6.5;
+                    })
+                    .attr('x', 5.5*3)
+                    .attr('y', 19);
+
+                label.append('tspan')       // name
+                    .attr('text-anchor', 'start')
+                    .attr('fill','black')
+                    .attr('class','legend_name')
+                    .text('Fusion');
+        }
+        if(attrtype2range.length > 0)
+        {
+            CreateLegendII(attrtype2range,attr2rangeFuntion);
+        }
     };
 
     // params: select_el (a DOM <select> element), clinical_attributes (list of
@@ -613,11 +1543,12 @@ define("OncoprintUtils", (function() {
         clinical_attributes = [{display_name: 'none', attr_id: undefined}].concat(clinical_attributes);
 
         var select_el = d3.select(select_el);
-
+        select_el.html("<option value=\"\"></option>");
         select_el.selectAll('option')
             .data(clinical_attributes)
             .enter()
             .append('option')
+//            .css('background-color','rgba(255,255,255,.8)')
             .text(function(d) { return d.display_name; });
     };
 
@@ -634,7 +1565,7 @@ define("OncoprintUtils", (function() {
         return {
             mutation: function(d) {
                 if (d.mutation) {
-                    if (/fusion( |$|,)/i.test(d.mutation)) return "<b>" + d.mutation + "</b><br/>";
+                    if (/\bfusion\b/i.test(d.mutation)) return "<b>" + d.mutation + "</b><br/>";
                     else return "Mutation: <b>" + d.mutation + "</b><br/>";
                 }
                 return "";
@@ -661,6 +1592,14 @@ define("OncoprintUtils", (function() {
             },
 
             clinical: function(d) {
+                if(typeof d.attr_val === "number"){
+                    if(d.attr_val%1 === 0)
+                    {
+                       return "value: <b>" + d.attr_val + "</b><br/>"; 
+                    }
+                    return "value: <b>" + cbio.util.toPrecision(d.attr_val,4,0.00001) + "</b><br/>";
+                }
+                
                 return "value: <b>" + d.attr_val + "</b><br/>";
             }
         };
@@ -710,14 +1649,23 @@ define("OncoprintUtils", (function() {
     // It calls the function fun on the change event of the zoombar
     //
     // *signature:* `DOM el, function -> DOM el`
+//    var zoomSetup = function(div, fun) {
+//        return $('<div>', { id: "width_slider", width: "100"})
+//            .slider({ text: "Adjust Width ", min: .1, max: 1, step: .01, value: 1,
+//                change: function(event, ui) {
+//                    fun(ui.value, 'animation');       // N.B.
+//                }}).appendTo($(div));
+//    };
+
+    var addShowLegendIcon = function(div){
+        return $('<img>', { id: "oncoprint-diagram-showlegend-icon",class: "oncoprint-diagram-showlegend-icon",checked:'0', width: "16px",height:"16px", src:"images/showlegend.svg"}).appendTo($(div));
+    };
     var zoomSetup = function(div, fun) {
-        return $('<div>', { id: "width_slider", width: "100"})
-            .slider({ text: "Adjust Width ", min: .1, max: 1, step: .01, value: 1,
-                change: function(event, ui) {
-                    fun(ui.value, 'animation');       // N.B.
+        
+        return $('<input>', { id: "oncoprint_zoom_slider",type:'range', width: "80",height:"16", min: .1, max: 1, step: .01, value: 1, change: function(event, ui) {
+                    fun(this.value, 'animation');       // N.B.
                 }}).appendTo($(div));
     };
-
     return {
         is_discrete: is_discrete,
         nest_data: nest_data,
@@ -734,15 +1682,18 @@ define("OncoprintUtils", (function() {
         maybe_map: maybe_map,
         normalize_clinical_attributes: normalize_clinical_attributes,
         normalize_nested_values: normalize_nested_values,
+        CreateLegendII: CreateLegendII,
         legend: legend,
         make_attribute2scale: make_attribute2scale,
         gene_data_type2range: gene_data_type2range,
+        attr_data_type2range: attr_data_type2range,
         is_gene: is_gene,
         is_clinical: is_clinical,
         cna_fills: cna_fills,
         colors: colors,
         populate_clinical_attr_select: populate_clinical_attr_select,
         make_mouseover: make_mouseover,
+        addShowLegendIcon:addShowLegendIcon,
         zoomSetup: zoomSetup,
         alteration_info: alteration_info
     };

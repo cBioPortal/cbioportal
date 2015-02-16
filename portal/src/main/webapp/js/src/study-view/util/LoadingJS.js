@@ -9,7 +9,9 @@ var LoadingJS = (function(){
                     'js/src/survival-tab/component/confidenceIntervals.js',
                     'js/src/survival-tab/component/kmEstimator.js',
                     'js/src/survival-tab/component/logRankTest.js',
-                    'js/src/survival-tab/component/boilerPlate.js'];
+                    'js/src/survival-tab/component/boilerPlate.js',
+                    'js/lib/FileSaver.min.js'
+                ];
     
     //As input for RequireJS
     var JSarray = [];
@@ -27,7 +29,8 @@ var LoadingJS = (function(){
                     'PieChart', 
                     'BarChart', 
                     'DataTable',
-                    'AddCharts'
+                    'AddCharts',
+                    'Table'
                 ],
                 data: ['StudyViewProxy'],
                 util: [
@@ -46,7 +49,8 @@ var LoadingJS = (function(){
                     'StudyViewInitMutationsTab',
                     'StudyViewInitCNATab',
                     'StudyViewInitClinicalTab',
-                    'StudyViewSurvivalPlotView'
+                    'StudyViewSurvivalPlotView',
+                    'StudyViewInitTables'
                 ],
                 controller: [
                     'StudyViewMainController',

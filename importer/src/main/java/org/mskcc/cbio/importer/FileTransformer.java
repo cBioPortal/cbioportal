@@ -20,6 +20,7 @@ package org.mskcc.cbio.importer;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import org.mskcc.cbio.importer.foundation.extractor.FileDataSource;
 
 /**
  *
@@ -28,6 +29,7 @@ import java.nio.file.Path;
 public interface FileTransformer {
     
     public void transform(Path aPath) throws IOException;
+    public void transform(FileDataSource fds);
     public String getPrimaryIdentifier();
     public Integer getPrimaryEntityCount();
     

@@ -117,7 +117,7 @@ public class MetadataUtils {
         if (!unknownAttributes.isEmpty()) {
             config.flagMissingClinicalAttributes(cancerStudyMetadata.toString(), cancerStudyMetadata.getTumorType(), unknownAttributes);
         }
-        return headersWithMissingMetadata;
+        return headersWithMissingMetadata;	
 	}
 
     public static String getClinicalMetadataHeaders(Config config, List<String> normalizedColumnHeaderNames, boolean supplyDefaultClinicalAttributeValues) throws Exception

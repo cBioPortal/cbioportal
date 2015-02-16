@@ -163,6 +163,27 @@ class ImporterImpl implements Importer {
 		}
 	}
 
+	@Override
+	public void updateCancerStudy(String portal, CancerStudyMetadata cancerStudyMetadata) throws Exception
+	{
+		if (LOG.isInfoEnabled()) {
+			LOG.info("updateCancerStudy()");
+		}
+
+	    if (portal == null) {
+	        throw new IllegalArgumentException("portal must not be null");
+	    }
+			
+        PortalMetadata portalMetadata = config.getPortalMetadata(portal).iterator().next();
+        if (portalMetadata == null) {
+            if (LOG.isInfoEnabled()) {
+                LOG.info("importData(), cannot find PortalMetadata, returning");
+            }
+            return;
+        }
+		loadCancerStudyStagingFiles(portalMetadata, cancerStudyMetadata);
+	}
+
 	/**
 	 * Imports the given reference data.
 	 *
@@ -245,7 +266,7 @@ class ImporterImpl implements Importer {
             cancerFileContents.append(TumorTypeMetadata.TUMOR_TYPE_META_FILE_DELIMITER);
             cancerFileContents.append(tumorType.getDedicatedColor());
             cancerFileContents.append(TumorTypeMetadata.TUMOR_TYPE_META_FILE_DELIMITER);
-            cancerFileContents.append(tumorType.getShortName());
+            cancerFileContents.append(tumorType.getParentType());
             cancerFileContents.append("\n");
 		}
 		File cancerFile = fileUtils.createTmpFileWithContents(TumorTypeMetadata.TUMOR_TYPE_META_FILE_NAME,
@@ -299,7 +320,7 @@ class ImporterImpl implements Importer {
                 }
 
                 // process case lists
-                String caseListDirectory = (rootDirectory + File.separator + cancerStudyMetadata.getStudyPath() + File.separator + "case_lists");
+                String caseListDirectory = (rootDirectory + File.separator + cancerStudyMetadata.getStudyPath() + File.separator + FileUtils.CASE_LIST_DIRECTORY_NAME);
                 String[] args = new String[] { caseListDirectory };
                 if (LOG.isInfoEnabled()) {
                         LOG.info("loadStagingFile(), ImportCaseList:main(), with args: " + Arrays.asList(args));
@@ -336,125 +357,137 @@ class ImporterImpl implements Importer {
 	 *
 	 * @param portalMetadata PortalMetadata
 	 */
-	private void loadStagingFiles(PortalMetadata portalMetadata) throws Exception {
+	private void loadStagingFiles(PortalMetadata portalMetadata) throws Exception
+	{
+		// iterate over all cancer studies
+		for (CancerStudyMetadata cancerStudyMetadata : config.getCancerStudyMetadata(portalMetadata.getName())) {
+			loadCancerStudyStagingFiles(portalMetadata, cancerStudyMetadata);
+		}
+	}
 
+	/**
+	 * Helper function to import staging data for a study.
+	 *
+	 * @param portalMetadata PortalMetadata
+	 * @param cancerStudyMetadata CancerStudyMetadata
+	 */
+	private void loadCancerStudyStagingFiles(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata) throws Exception
+	{
 		Collection<DatatypeMetadata> datatypeMetadatas = config.getDatatypeMetadata(Config.ALL);
 		Collection<DataSourcesMetadata> dataSourcesMetadata = config.getDataSourcesMetadata(Config.ALL);
 
-		// iterate over all cancer studies
-		for (CancerStudyMetadata cancerStudyMetadata : config.getCancerStudyMetadata(portalMetadata.getName())) {
+		// lets determine if cancer study is in staging directory or studies directory
+		String rootDirectory = MetadataUtils.getCancerStudyRootDirectory(portalMetadata, dataSourcesMetadata, cancerStudyMetadata);
 
-			// lets determine if cancer study is in staging directory or studies directory
-			String rootDirectory = MetadataUtils.getCancerStudyRootDirectory(portalMetadata, dataSourcesMetadata, cancerStudyMetadata);
-
-			if (rootDirectory == null) {
-				if (LOG.isInfoEnabled()) {
-					LOG.info("loadStagingFiles(), cannot find root directory for study: " + cancerStudyMetadata + " skipping...");
-				}
-				continue;
-			}
-
-			// import cancer name / metadata
-			boolean createdCancerStudyMetadataFile = false;
-			String cancerStudyMetadataFile = (rootDirectory + File.separator +
-											  cancerStudyMetadata.getStudyPath() + File.separator +
-											  cancerStudyMetadata.getCancerStudyMetadataFilename());
-			if (!(new File(cancerStudyMetadataFile)).exists()) {
-				if (LOG.isInfoEnabled()) {
-					LOG.info("loadStagingFile(), cannot find cancer study metadata file: " + cancerStudyMetadataFile + ", creating...");
-				}
-				fileUtils.writeCancerStudyMetadataFile(rootDirectory, cancerStudyMetadata, -1);
-				createdCancerStudyMetadataFile = true;
-			}
-			else if (cancerStudyMetadataNeedsUpdating(cancerStudyMetadataFile, cancerStudyMetadata)) {
-				HashMap<String,String> map = new HashMap<String,String>();
-				map.put("type_of_cancer", cancerStudyMetadata.getTumorType());
-		    	fileUtils.updateCancerStudyMetadataFile(rootDirectory, cancerStudyMetadata, map);
-		    }
-		    if (!createdCancerStudyMetadataFile) {
-		    	// if we didnt create a cancer study metadata file,
-		    	// we may have an incomplete cancerStudyMetadata object
-		    	// (for bic-mskcc, most properties are blank)
-		    	Properties properties = getProperties(cancerStudyMetadataFile);
-		    	properties.setProperty("study_path", cancerStudyMetadata.getStudyPath());
-		    	cancerStudyMetadata = new CancerStudyMetadata(properties);
-		    }
-			String[] args = { cancerStudyMetadataFile };
+		if (rootDirectory == null) {
 			if (LOG.isInfoEnabled()) {
-				LOG.info("loadStagingFiles(), Importing cancer study metafile: " + cancerStudyMetadataFile);
+				LOG.info("loadStagingFiles(), cannot find root directory for study: " + cancerStudyMetadata + " aborting...");
 			}
-			ImportCancerStudy.main(args);
-
-			// iterate over all datatypes
-			for (DatatypeMetadata datatypeMetadata : config.getDatatypeMetadata(portalMetadata, cancerStudyMetadata)) {
-
-				// get the metafile/staging file for this cancer_study / datatype
-				for (String stagingFilename : getImportFilenames(rootDirectory, cancerStudyMetadata, datatypeMetadata.getStagingFilename())) {
-					// skip normal file import for now
-					if (stagingFilename.endsWith(DatatypeMetadata.NORMAL_STAGING_FILENAME_SUFFIX)) {
-						continue;
-					}
-					String origName = stagingFilename;
-
-					// datatype might not exists for cancer study
-	                boolean createdZScoreFile = false;
-					if (!(new File(stagingFilename)).exists()) {
-	                    if (isZScoreFile(stagingFilename, datatypeMetadata) &&
-	                        canCreateZScoreFile(rootDirectory, cancerStudyMetadata, datatypeMetadata)) {
-	                        if (createZScoreFile(rootDirectory, cancerStudyMetadata, datatypeMetadata)) {
-	                            createdZScoreFile = true;
-	                        }
-	                        else {
-	                            continue;
-	                        }
-	                    }
-	                    else {
-	                        if (LOG.isInfoEnabled()) {
-	                            LOG.info("loadStagingFile(), cannot find staging file: " + stagingFilename + ", skipping...");
-	                        }
-	                        continue;
-	                    }
-					}
-
-					if (stagingFilename.contains("clinical") && !stagingFilename.endsWith(".xml") && clinicalFileMissingMetadata(stagingFilename)) {
-                    	stagingFilename = addMetadataToClinicalFile(cancerStudyMetadata, stagingFilename);
-                	}
-
-					// if MAF, oncotate
-					if (stagingFilename.endsWith(DatatypeMetadata.MUTATIONS_STAGING_FILENAME)) {
-						stagingFilename = getOncotatedFile(stagingFilename);
-					}
-					if (datatypeMetadata.requiresMetafile()) {
-						Collection<String> importFilenames = getImportFilenames(rootDirectory, cancerStudyMetadata, datatypeMetadata.getMetaFilename());
-						assert importFilenames.size() == 1;
-						String metaFilename = importFilenames.iterator().next();
-						args = new String[] { "--data", stagingFilename, "--meta", metaFilename, "--loadMode", "bulkLoad" };
-					}
-					else {
-						args = new String[] { stagingFilename, cancerStudyMetadata.toString() };
-					}
-					if (LOG.isInfoEnabled()) {
-						LOG.info("loadStagingFile(), attempting to run: " + datatypeMetadata.getImporterClassName() +
-								 ":main(), with args: " + Arrays.asList(args));
-					}
-					Method mainMethod = ClassLoader.getMethod(datatypeMetadata.getImporterClassName(), "main");
-					mainMethod.invoke(null, (Object)args);
-
-					// clean up
-					if (!stagingFilename.equals(origName)) {
-						fileUtils.deleteFile(new File(stagingFilename));
-					}
-	                if (createdZScoreFile) {
-						fileUtils.deleteFile(new File(stagingFilename));
-	                    fileUtils.deleteFile(new File(stagingFilename.replace("data_", "meta_")));
-	                }
-	            }
-			}
-
-			importCaseLists(portalMetadata, cancerStudyMetadata);
-                        
-            if (createdCancerStudyMetadataFile) fileUtils.deleteFile(new File(cancerStudyMetadataFile));
+			return;
 		}
+
+		// import cancer name / metadata
+		boolean createdCancerStudyMetadataFile = false;
+		String cancerStudyMetadataFile = (rootDirectory + File.separator +
+										  cancerStudyMetadata.getStudyPath() + File.separator +
+										  cancerStudyMetadata.getCancerStudyMetadataFilename());
+		if (!(new File(cancerStudyMetadataFile)).exists()) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("loadStagingFile(), cannot find cancer study metadata file: " + cancerStudyMetadataFile + ", creating...");
+			}
+			fileUtils.writeCancerStudyMetadataFile(rootDirectory, cancerStudyMetadata, -1);
+			createdCancerStudyMetadataFile = true;
+		}
+        else {
+            if (cancerStudyMetadataNeedsUpdating(cancerStudyMetadataFile, cancerStudyMetadata)) {
+            	HashMap<String,String> map = new HashMap<String,String>();
+            	map.put("type_of_cancer", cancerStudyMetadata.getTumorType());
+            	fileUtils.updateCancerStudyMetadataFile(rootDirectory, cancerStudyMetadata, map);
+            }
+        }
+		if (!createdCancerStudyMetadataFile) {
+	    	// if we didnt create a cancer study metadata file,
+	    	// we may have an incomplete cancerStudyMetadata object
+	    	// (for bic-mskcc, most properties are blank)
+	    	Properties properties = getProperties(cancerStudyMetadataFile);
+	    	properties.setProperty("study_path", cancerStudyMetadata.getStudyPath());
+	    	cancerStudyMetadata = new CancerStudyMetadata(properties);
+	    }
+		String[] args = { cancerStudyMetadataFile };
+		if (LOG.isInfoEnabled()) {
+			LOG.info("loadStagingFiles(), Importing cancer study metafile: " + cancerStudyMetadataFile);
+		}
+		ImportCancerStudy.main(args);
+
+		// iterate over all datatypes
+		for (DatatypeMetadata datatypeMetadata : config.getDatatypeMetadata(portalMetadata, cancerStudyMetadata)) {
+
+			// get the metafile/staging file for this cancer_study / datatype
+			for (String stagingFilename : getImportFilenames(rootDirectory, cancerStudyMetadata, datatypeMetadata.getStagingFilename())) {
+				// skip normal file import for now
+				if (stagingFilename.endsWith(DatatypeMetadata.NORMAL_STAGING_FILENAME_SUFFIX)) {
+					continue;
+				}
+				String origName = stagingFilename;
+
+				// datatype might not exists for cancer study
+                boolean createdZScoreFile = false;
+				if (!(new File(stagingFilename)).exists()) {
+                    if (isZScoreFile(stagingFilename, datatypeMetadata) &&
+                        canCreateZScoreFile(rootDirectory, cancerStudyMetadata, datatypeMetadata)) {
+                        if (createZScoreFile(rootDirectory, cancerStudyMetadata, datatypeMetadata)) {
+                            createdZScoreFile = true;
+                        }
+                        else {
+                            continue;
+                        }
+                    }
+                    else {
+                        if (LOG.isInfoEnabled()) {
+                            LOG.info("loadStagingFile(), cannot find staging file: " + stagingFilename + ", skipping...");
+                        }
+                        continue;
+                    }
+				}
+
+				if (stagingFilename.contains("clinical") && !stagingFilename.endsWith(".xml") && clinicalFileMissingMetadata(stagingFilename)) {
+                	stagingFilename = addMetadataToClinicalFile(cancerStudyMetadata, stagingFilename);
+            	}
+
+				// if MAF, oncotate
+				if (stagingFilename.endsWith(DatatypeMetadata.MUTATIONS_STAGING_FILENAME)) {
+					stagingFilename = getOncotatedFile(stagingFilename);
+				}
+				if (datatypeMetadata.requiresMetafile()) {
+					Collection<String> importFilenames = getImportFilenames(rootDirectory, cancerStudyMetadata, datatypeMetadata.getMetaFilename());
+					assert importFilenames.size() == 1;
+					String metaFilename = importFilenames.iterator().next();
+					args = new String[] { "--data", stagingFilename, "--meta", metaFilename, "--loadMode", "bulkLoad" };
+				}
+				else {
+					args = new String[] { stagingFilename, cancerStudyMetadata.toString() };
+				}
+				if (LOG.isInfoEnabled()) {
+					LOG.info("loadStagingFile(), attempting to run: " + datatypeMetadata.getImporterClassName() +
+							 ":main(), with args: " + Arrays.asList(args));
+				}
+				Method mainMethod = ClassLoader.getMethod(datatypeMetadata.getImporterClassName(), "main");
+				mainMethod.invoke(null, (Object)args);
+
+				// clean up
+				if (!stagingFilename.equals(origName)) {
+					fileUtils.deleteFile(new File(stagingFilename));
+				}
+                if (createdZScoreFile) {
+					fileUtils.deleteFile(new File(stagingFilename));
+                    fileUtils.deleteFile(new File(stagingFilename.replace("data_", "meta_")));
+                }
+            }
+		}
+
+		importCaseLists(portalMetadata, cancerStudyMetadata);
+                    
+        if (createdCancerStudyMetadataFile) fileUtils.deleteFile(new File(cancerStudyMetadataFile));
 	}
 
 	/**

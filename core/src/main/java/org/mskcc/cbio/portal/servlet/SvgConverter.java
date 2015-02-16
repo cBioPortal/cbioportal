@@ -72,7 +72,7 @@ public class SvgConverter extends HttpServlet {
 
         String format = httpServletRequest.getParameter("filetype");
         String xml = httpServletRequest.getParameter("svgelement");
-        String filename = httpServletRequest.getParameter("filename");
+        //String filename = httpServletRequest.getParameter("filename");
 
 	    // TODO - update antisamy.xml to support svg-xml
 	    if (httpServletRequest instanceof XssRequestWrapper)
@@ -80,27 +80,32 @@ public class SvgConverter extends HttpServlet {
 		    xml = ((XssRequestWrapper) httpServletRequest).getRawParameter("svgelement");
 	    }
 
-        String xmlHeader = "<?xml version='1.0'?>";
+//        String xmlHeader = "<?xml version='1.0'?>";
+//
+//	    if (!xml.contains(xmlHeader)) {
+//	        xml = xmlHeader + xml;
+//	    }
+//
+//        if(!xml.contains("svg xmlns")) {
+//            xml = xml.replace("<svg", "<svg xmlns='http://www.w3.org/2000/svg' version='1.1'");
+//        }
+//
+//        if (filename == null || filename.length() == 0) {
+//            filename = DEFAULT_FILENAME;
+//        }
+//
+//        if (format.equals("pdf")) {
+//            convertToPDF(httpServletResponse, xml, filename);
+//        } else if (format.equals("pdf_data")) {
+//	        convertToPDF(httpServletResponse, xml);
+//        } else if (format.equals("svg")) {
+//            convertToSVG(httpServletResponse, xml, filename);
+//        }
 
-	    if (!xml.contains(xmlHeader)) {
-	        xml = xmlHeader + xml;
+	    if (format.equals("pdf_data"))
+	    {
+		    convertToPDF(httpServletResponse, xml);
 	    }
-
-        if(!xml.contains("svg xmlns")) {
-            xml = xml.replace("<svg", "<svg xmlns='http://www.w3.org/2000/svg' version='1.1'");
-        }
-
-        if (filename == null || filename.length() == 0) {
-            filename = DEFAULT_FILENAME;
-        }
-
-        if (format.equals("pdf")) {
-            convertToPDF(httpServletResponse, xml, filename);
-        } else if (format.equals("pdf_data")) {
-	        convertToPDF(httpServletResponse, xml);
-        } else if (format.equals("svg")) {
-            convertToSVG(httpServletResponse, xml, filename);
-        }
     }
 
     /**

@@ -63,6 +63,7 @@ GLIOMA_USER_SPREADSHEET = 'Request Access to the cBio Glioma Cancer Genomics Por
 ACC_USER_SPREADSHEET = 'Request Access to the cBio ACC Cancer Genomics Portal'
 TARGET_USER_SPREADSHEET = 'Request Access to the cBio TARGET Cancer Genomics Portal'
 MSKCC_USER_SPREADSHEET = 'Request Access to the cBio MSKCC Cancer Genomics Portal'
+TRIAGE_USER_SPREADSHEET = 'Request Access to the cBio MSKCC (Triage) Cancer Genomics Portal'
 
 # portal name (these should correspond to what is in property file of the respective portal)
 PORTAL_NAME = { GDAC_USER_SPREADSHEET : "gdac-portal",
@@ -71,7 +72,8 @@ PORTAL_NAME = { GDAC_USER_SPREADSHEET : "gdac-portal",
                 ACC_USER_SPREADSHEET : "acc-portal",
                 SU2C_USER_SPREADSHEET : "su2c-portal",
                 TARGET_USER_SPREADSHEET : "target-portal",
-                MSKCC_USER_SPREADSHEET : "mskcc-portal" }
+                MSKCC_USER_SPREADSHEET : "mskcc-portal",
+                TRIAGE_USER_SPREADSHEET : "triage-portal" }
 
 # a ref to the google spreadsheet client - used for all i/o to google spreadsheet
 GOOGLE_SPREADSHEET_CLIENT = gdata.spreadsheet.service.SpreadsheetsService()
@@ -102,7 +104,8 @@ MESSAGE_SUBJECT = { GDAC_USER_SPREADSHEET : "You have been granted access to the
                     ACC_USER_SPREADSHEET : "cBioPortal for ACC Access",
                     SU2C_USER_SPREADSHEET : "cBioPortal for SU2C Access",
                     TARGET_USER_SPREADSHEET : "cBioPortal for NCI-TARGET",
-                    MSKCC_USER_SPREADSHEET : "cBioPortal for MSKCC" }
+                    MSKCC_USER_SPREADSHEET : "cBioPortal for MSKCC",
+                    TRIAGE_USER_SPREADSHEET : "cBioPortal for MSKCC (Triage)" }
 GDAC_MESSAGE_BODY = """Thank you for your interest in the private instance of cBioPortal. We have granted you access. You can login at http://cbioportal.org/gdac-portal/. Please let us know if you have any problems logging in.
 
 Please keep in mind that the majority of the data provided in this Portal is preliminary and subject to change. This data is only available to researchers funded through TCGA or involved in the TCGA Disease and Analysis Working Groups.
@@ -133,7 +136,12 @@ TARGET_MESSAGE_BODY = """Thank you for your interest in the cBioPortal for NCI-T
 Please keep in mind that the majority of the data provided in this Portal is preliminary, unpublished and subject to change.
 """
 
-MSKCC_MESSAGE_BODY = """Thank you for your interest in the MSKCC instance of cBioPortal. We have granted you access. You can login at http://cbioportal.org/mskcc-portal/. Please let us know if you have any problems logging in.
+MSKCC_MESSAGE_BODY = """Thank you for your interest in the MSKCC instance of cBioPortal. We have granted you access. You can login at cbioportal.mskcc.org. Please let us know if you have any problems logging in.
+
+Please keep in mind that the data provided in this Portal are preliminary and subject to change. Access to the data in this portal is only available to authorized users at Memorial Sloan Kettering Cancer Center.
+"""
+
+TRIAGE_MESSAGE_BODY = """Thank you for your interest in the MSKCC (triage)instance of cBioPortal. We have granted you access. You can login at cbioportal.triage.mskcc.org. Please let us know if you have any problems logging in.
 
 Please keep in mind that the data provided in this Portal are preliminary and subject to change. Access to the data in this portal is only available to authorized users at Memorial Sloan Kettering Cancer Center.
 """
@@ -145,7 +153,8 @@ MESSAGE_BODY = { GDAC_USER_SPREADSHEET : GDAC_MESSAGE_BODY,
                  ACC_USER_SPREADSHEET : ACC_MESSAGE_BODY,
                  SU2C_USER_SPREADSHEET : SU2C_MESSAGE_BODY,
                  TARGET_USER_SPREADSHEET : TARGET_MESSAGE_BODY,
-                 MSKCC_USER_SPREADSHEET : MSKCC_MESSAGE_BODY }
+                 MSKCC_USER_SPREADSHEET : MSKCC_MESSAGE_BODY,
+                 TRIAGE_USER_SPREADSHEET : TRIAGE_MESSAGE_BODY }
 
 
 # ------------------------------------------------------------------------------
@@ -315,18 +324,25 @@ def get_new_user_map(spreadsheet, worksheet_feed, current_user_map, portal_name)
             entry.custom[STATUS_KEY].text.strip() == STATUS_APPROVED):
             if spreadsheet == MSKCC_USER_SPREADSHEET:
                 inst_email = entry.custom[MSKCC_EMAIL_KEY].text.strip()
-                google_email = entry.custom[MSKCC_EMAIL_KEY].text.strip().lower()
+                google_email = entry.custom[MSKCC_EMAIL_KEY].text.strip()
             else:
                 inst_email = entry.custom[INST_EMAIL_KEY].text.strip()
-                google_email = entry.custom[OPENID_EMAIL_KEY].text.strip().lower()
+                google_email = entry.custom[OPENID_EMAIL_KEY].text.strip()
             name = entry.custom[FULLNAME_KEY].text.strip()
             authorities = entry.custom[AUTHORITIES_KEY].text.strip()
             # do not add entry if this entry is a current user
             if google_email not in current_user_map:
                 if authorities[-1:] == ';':
                     authorities = authorities[:-1]
-                to_return[google_email] = User(inst_email, google_email, name, 1,
-                    [portal_name + ':' + au for au in authorities.split(';')])
+                if google_email in to_return:
+                    # there may be multiple entries per email address
+                    # in google spreadsheet, combine entries
+                    user = to_return[google_email]
+                    user.authorities.extend([portal_name + ':' + au for au in authorities.split(';')])
+                    to_return[google_email] = user
+                else:
+                    to_return[google_email] = User(inst_email, google_email, name, 1,
+                        [portal_name + ':' + au for au in authorities.split(';')])
 
     return to_return
 
@@ -343,10 +359,10 @@ def get_all_user_map(spreadsheet, worksheet_feed):
     for entry in worksheet_feed.entry:
         if spreadsheet == MSKCC_USER_SPREADSHEET:
             inst_email = entry.custom[MSKCC_EMAIL_KEY].text.strip()
-            google_email = entry.custom[MSKCC_EMAIL_KEY].text.strip().lower()
+            google_email = entry.custom[MSKCC_EMAIL_KEY].text.strip()
         else:
             inst_email = entry.custom[INST_EMAIL_KEY].text.strip()
-            google_email = entry.custom[OPENID_EMAIL_KEY].text.strip().lower()
+            google_email = entry.custom[OPENID_EMAIL_KEY].text.strip()
         to_return[google_email] = User(inst_email, google_email, "not_used", 1, "not_used")
 
     return to_return

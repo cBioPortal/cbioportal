@@ -10,7 +10,18 @@
 							 http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
  
   <context:annotation-config />
-  <context:property-placeholder location="classpath:/portal.properties"/>
+  <!--<context:property-placeholder location="classpath:/importer.properties"/>-->
+  <b:bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+      <b:property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
+      <b:property name="searchSystemEnvironment" value="true" />
+      <b:property name="ignoreResourceNotFound" value="true" />
+      <b:property name="locations">
+          <b:list>
+              <b:value>classpath:/importer.properties</b:value>
+              <b:value>file:///${PORTAL_HOME}/importer.properties</b:value>
+          </b:list>
+      </b:property>
+  </b:bean>
 
   <!-- hibernate session factory -->
   <b:bean id="importerSessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">

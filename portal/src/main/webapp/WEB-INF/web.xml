@@ -174,6 +174,15 @@
         <url-pattern>/portal_meta_data.json</url-pattern>
     </servlet-mapping>
 
+	<servlet>
+		<servlet-name>portal_meta_data</servlet-name>
+		<servlet-class>org.mskcc.cbio.portal.servlet.PortalMetaData</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>portal_meta_data</servlet-name>
+		<url-pattern>/portalMetadata.json</url-pattern>
+	</servlet-mapping>
+
     <servlet>
         <servlet-name>show_data</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.ShowData</servlet-class>

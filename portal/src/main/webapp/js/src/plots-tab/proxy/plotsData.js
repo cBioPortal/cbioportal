@@ -243,7 +243,26 @@ var plotsData = (function() {
         if (stat.y.min === stat.y.max) {
             stat.y.edge = 0.2;
         } else {
-            stat.y.edge = (stat.y.max - stat.y.min) * 0.1;
+            stat.y.edge = (stat.y.max - stat.y.min) * 0.2;
+        }
+        
+        //if there's only two categories, increase the edge
+        if (calc_num_of_categories(tmp_xData) === 2) {
+            stat.x.edge = 0.8;
+        } else if (calc_num_of_categories(tmp_xData) >= 6 && calc_num_of_categories(tmp_xData) < 20) {
+            stat.x.edge = 0.5;
+        }
+        if (calc_num_of_categories(tmp_yData) === 2) {
+            stat.y.edge = 0.8;
+        } else if (calc_num_of_categories(tmp_yData) >= 6 && calc_num_of_categories(tmp_yData) < 20) {
+            stat.y.edge = 0.5;
+        }
+        function calc_num_of_categories(_input_arr) {
+            var _arr = [];
+            $.each(_input_arr, function(index, val) {
+                if($.inArray(val, _arr) === -1) _arr.push(val);
+            });
+            return _arr.length;
         }
     }
 

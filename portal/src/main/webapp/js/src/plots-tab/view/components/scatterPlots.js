@@ -75,7 +75,7 @@ var scatterPlots = (function() {
         } else {
             elem[axis].scale = d3.scale.linear()
                 .domain([domainMin, domainMax])
-                .range([settings.axis[axis].range_min, settings.axis[axis].range_max]);            
+                .range([settings.axis[axis].range_min, settings.axis[axis].range_max]);                    
         }
 
         elem[axis].axis = d3.svg.axis()

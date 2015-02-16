@@ -85,7 +85,3 @@ var SurvivalTab = (function() {
     };
 
 }()); //Close SubvivalTabView (Singular)
-
-function loadSurvivalCurveSVG(svgId) {
-    return $("#" + svgId).html();
-}

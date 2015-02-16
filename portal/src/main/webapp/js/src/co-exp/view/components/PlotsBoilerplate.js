@@ -93,5 +93,5 @@ var PlotsBoilerplate = {
             gene_both_mut: "Both mutated",
             non_mut: "Neither mutated"
         }
-    },
+    }
 };

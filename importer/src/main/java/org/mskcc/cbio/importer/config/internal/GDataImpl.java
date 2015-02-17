@@ -84,9 +84,9 @@ class GDataImpl implements Config {
 	private String cancerStudiesWorksheet;
 	private String foundationWorksheet;
 	private String tcgaTumorTypesWorksheet;
-	private String icgcWorksheet;
-	
-	private final String HTML_COLOR_NAME_ONCOTREE_PROP = "HTML_COLOR_NAME";
+    private String icgcWorksheet;
+
+    private final String HTML_COLOR_NAME_ONCOTREE_PROP = "HTML_COLOR_NAME";
 
     /**
      * Constructor.
@@ -177,33 +177,33 @@ class GDataImpl implements Config {
 		return ret;
 	}
 	
-	private TumorTypeMetadata parseTumorTypeMetadata(ArrayList<String> line, int index, HashMap<String, HashMap<String, String>> propertyMap) {
-		int newEntIndex = index;
-		String newEnt = line.get(newEntIndex).trim();
-		if (newEnt.isEmpty()) {
-			return null;
-		}
-		String parentEnt = newEntIndex==0?"tissue":line.get(newEntIndex - 1).trim();
+    private TumorTypeMetadata parseTumorTypeMetadata(ArrayList<String> line, int index, HashMap<String, HashMap<String, String>> propertyMap) {
+        int newEntIndex = index;
+        String newEnt = line.get(newEntIndex).trim();
+        if (newEnt.isEmpty()) {
+            return null;
+        }
+        String parentEnt = newEntIndex==0?"tissue":line.get(newEntIndex - 1).trim();
 
-		String tissue = line.get(0);
-		String color = propertyMap.get(tissue).get(HTML_COLOR_NAME_ONCOTREE_PROP);
-		String[] newEntData = extractTumorTypeData(newEnt);
-		String name = newEntData[0];
-		String id = newEntData[1];
-		if (id.isEmpty()) {
-			id = name;
-		}
-		String[] parentEntData = extractTumorTypeData(parentEnt);
-		String parent = parentEntData[1];
-		if (parent.isEmpty()) {
-			parent = parentEntData[0];
-		}
-		String clinicalTrialKeywords = name.toLowerCase();
-		return new TumorTypeMetadata(id, name, color, parent, clinicalTrialKeywords, tissue);
+        String tissue = line.get(0);
+        String color = propertyMap.get(tissue).get(HTML_COLOR_NAME_ONCOTREE_PROP);
+        String[] newEntData = extractTumorTypeData(newEnt);
+        String name = newEntData[0];
+        String id = newEntData[1];
+        if (id.isEmpty()) {
+            id = name;
+        }
+        String[] parentEntData = extractTumorTypeData(parentEnt);
+        String parent = parentEntData[1];
+        if (parent.isEmpty()) {
+            parent = parentEntData[0];
+        }
+        String clinicalTrialKeywords = name.toLowerCase();
+        return new TumorTypeMetadata(id, name, color, parent, clinicalTrialKeywords, tissue);
 	}
 
-	@Override
-	public Collection<TumorTypeMetadata> getTumorTypeMetadata(String tumorType) {
+    @Override
+    public Collection<TumorTypeMetadata> getTumorTypeMetadata(String tumorType) {
 
 		Collection<TumorTypeMetadata> toReturn = new ArrayList<TumorTypeMetadata>();
 		
@@ -226,11 +226,23 @@ class GDataImpl implements Config {
 		}
 		
 		HashMap<String, TumorTypeMetadata> tumorTypes = new HashMap<>();
+                int endOfData = 0;
+                ArrayList<String> line = oncotreeMatrix.get(0);
+                for (; endOfData<line.size(); endOfData++) {
+                    if (line.get(endOfData).toLowerCase().startsWith("meta:")) {
+                        // assuming meta data at the end
+                        break;
+                    }
+                }
+                
 		for (int i=1; i<oncotreeMatrix.size(); i++) {
-			ArrayList<String> line = oncotreeMatrix.get(i);
-			for (int j=0; j<line.size(); j++) {
+			line = oncotreeMatrix.get(i);
+			for (int j=0; j<endOfData; j++) {
 				TumorTypeMetadata ttmd = parseTumorTypeMetadata(line, j, propertyMap);
-				if (ttmd!= null && !tumorTypes.containsKey(ttmd.getType())) {
+                                if (ttmd==null) {
+                                    break;
+                                }
+				if (!tumorTypes.containsKey(ttmd.getType())) {
 					tumorTypes.put(ttmd.getType(), ttmd);
 				}
 			}
@@ -241,304 +253,303 @@ class GDataImpl implements Config {
 			return tumorTypeMetadatas;
 		}
 
-		// iterate over all TumorTypeMetadata looking for match
-		for (TumorTypeMetadata tumorTypeMetadata : tumorTypeMetadatas) {
+        // iterate over all TumorTypeMetadata looking for match
+        for (TumorTypeMetadata tumorTypeMetadata : tumorTypeMetadatas) {
             if (tumorTypeMetadata.getType().equals(tumorType)) {
-				toReturn.add(tumorTypeMetadata);
-				break;
+                toReturn.add(tumorTypeMetadata);
+                break;
             }
-		}
+        }
 
-		// outta here
-		return toReturn;
-	}
+        // outta here
+        return toReturn;
+    }
 
-	/**
-	 * Function to get datatypes to download as String[]
-	 *
-	 * @param dataSourcesMetadata DataSourcesMetadata
-	 * @return String[]
-	 * @throws Exception
-	 */
-	@Override
-	public String[] getDatatypesToDownload(DataSourcesMetadata dataSourcesMetadata) throws Exception {
+    /**
+     * Function to get datatypes to download as String[]
+     *
+     * @param dataSourcesMetadata DataSourcesMetadata
+     * @return String[]
+     * @throws Exception
+     */
+    @Override
+    public String[] getDatatypesToDownload(DataSourcesMetadata dataSourcesMetadata) throws Exception {
 
-		HashSet<String> toReturn = new HashSet<String>();
-		for (DatatypeMetadata datatypeMetadata : getDatatypeMetadata(Config.ALL)) {
-			if (datatypeMetadata.isDownloaded()) {
-				Method downloadArchivesMethod = datatypeMetadata.getDownloadArchivesMethod(dataSourcesMetadata.getDataSource());
-				toReturn.addAll((Set<String>)downloadArchivesMethod.invoke(datatypeMetadata, null));
-			}
-		}
+        HashSet<String> toReturn = new HashSet<String>();
+        for (DatatypeMetadata datatypeMetadata : getDatatypeMetadata(Config.ALL)) {
+            if (datatypeMetadata.isDownloaded()) {
+                Method downloadArchivesMethod = datatypeMetadata.getDownloadArchivesMethod(dataSourcesMetadata.getDataSource());
+                toReturn.addAll((Set<String>) downloadArchivesMethod.invoke(datatypeMetadata, null));
+            }
+        }
 
-		// outta here
-		return toReturn.toArray(new String[0]);
-	}
+        // outta here
+        return toReturn.toArray(new String[0]);
+    }
 
-	/**
-	 * Function to determine the datatype(s)
-	 * of the datasource file (the file that was fetched from a datasource).
-	 *
-	 * @param dataSourcesMetadata DataSourcesMetadata
-	 * @param filename String
-	 * @return Collection<DatatypeMetadata>
-	 * @throws Exception
-	 */
-	@Override
-	public Collection<DatatypeMetadata> getFileDatatype(DataSourcesMetadata dataSourcesMetadata, String filename)  throws Exception {
+    /**
+     * Function to determine the datatype(s) of the datasource file (the file
+     * that was fetched from a datasource).
+     *
+     * @param dataSourcesMetadata DataSourcesMetadata
+     * @param filename String
+     * @return Collection<DatatypeMetadata>
+     * @throws Exception
+     */
+    @Override
+    public Collection<DatatypeMetadata> getFileDatatype(DataSourcesMetadata dataSourcesMetadata, String filename) throws Exception {
 
-		Collection<DatatypeMetadata> toReturn = new ArrayList<DatatypeMetadata>();
-		for (DatatypeMetadata datatypeMetadata : getDatatypeMetadata(Config.ALL)) {
-			Method downloadArchivesMethod = datatypeMetadata.getDownloadArchivesMethod(dataSourcesMetadata.getDataSource());
-			for (String archive : (Set<String>)downloadArchivesMethod.invoke(datatypeMetadata, null)) {
-				if (filename.contains(archive)) {
-					toReturn.add(datatypeMetadata);
-				}
-			}
-		}
+        Collection<DatatypeMetadata> toReturn = new ArrayList<DatatypeMetadata>();
+        for (DatatypeMetadata datatypeMetadata : getDatatypeMetadata(Config.ALL)) {
+            Method downloadArchivesMethod = datatypeMetadata.getDownloadArchivesMethod(dataSourcesMetadata.getDataSource());
+            for (String archive : (Set<String>) downloadArchivesMethod.invoke(datatypeMetadata, null)) {
+                if (filename.contains(archive)) {
+                    toReturn.add(datatypeMetadata);
+                }
+            }
+        }
 
-		// outta here
-		return toReturn;
-	}
+        // outta here
+        return toReturn;
+    }
 
-	/**
-	 * Gets a DatatypeMetadata object for the given datatype name.
-	 * If datatype == Config.ALL, all are returned.
-	 *
-	 * @param datatype String
-	 * @return Collection<DatatypeMetadata>
-	 */
-	@Override
-	public Collection<DatatypeMetadata> getDatatypeMetadata(String datatype) {
+    /**
+     * Gets a DatatypeMetadata object for the given datatype name. If datatype
+     * == Config.ALL, all are returned.
+     *
+     * @param datatype String
+     * @return Collection<DatatypeMetadata>
+     */
+    @Override
+    public Collection<DatatypeMetadata> getDatatypeMetadata(String datatype) {
 
-		Collection<DatatypeMetadata> toReturn = new ArrayList<DatatypeMetadata>();
+        Collection<DatatypeMetadata> toReturn = new ArrayList<DatatypeMetadata>();
 
-		if (LOG.isInfoEnabled()) {
-			LOG.info("getDatatypeMetadata(): " + datatype);
-		}
+        if (LOG.isInfoEnabled()) {
+            LOG.info("getDatatypeMetadata(): " + datatype);
+        }
 
-		if (datatypesMatrix == null) {
-			datatypesMatrix = getWorksheetData(gdataSpreadsheet, datatypesWorksheet);
-		}
+        if (datatypesMatrix == null) {
+            datatypesMatrix = getWorksheetData(gdataSpreadsheet, datatypesWorksheet);
+        }
 
-		Collection<DatatypeMetadata> datatypeMetadatas = 
-			(Collection<DatatypeMetadata>)getMetadataCollection(datatypesMatrix,
-																"org.mskcc.cbio.importer.model.DatatypeMetadata");
-		// if user wants all, we're done
-		if (datatype.equals(Config.ALL)) {
-			return datatypeMetadatas;
-		}
+        Collection<DatatypeMetadata> datatypeMetadatas
+                = (Collection<DatatypeMetadata>) getMetadataCollection(datatypesMatrix,
+                        "org.mskcc.cbio.importer.model.DatatypeMetadata");
+        // if user wants all, we're done
+        if (datatype.equals(Config.ALL)) {
+            return datatypeMetadatas;
+        }
 
-		for (DatatypeMetadata datatypeMetadata : datatypeMetadatas) {
+        for (DatatypeMetadata datatypeMetadata : datatypeMetadatas) {
             if (datatypeMetadata.getDatatype().equals(datatype)) {
-				toReturn.add(datatypeMetadata);
-				break;
+                toReturn.add(datatypeMetadata);
+                break;
             }
-		}
+        }
 
-		// outta here
-		return toReturn;
-	}
+        // outta here
+        return toReturn;
+    }
 
-	/**
-	 * Gets a collection of Datatype names for the given portal/cancer study.
-	 *
-	 * @param portalMetadata PortalMetadata
-	 * @param cancerStudyMetadata CancerStudyMetadata
-	 * @return Collection<String>
-	 */
-	@Override
-	public Collection<DatatypeMetadata> getDatatypeMetadata(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata) {
+    /**
+     * Gets a collection of Datatype names for the given portal/cancer study.
+     *
+     * @param portalMetadata PortalMetadata
+     * @param cancerStudyMetadata CancerStudyMetadata
+     * @return Collection<String>
+     */
+    @Override
+    public Collection<DatatypeMetadata> getDatatypeMetadata(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata) {
 
-		Collection<DatatypeMetadata> toReturn = new ArrayList<DatatypeMetadata>();
+        Collection<DatatypeMetadata> toReturn = new ArrayList<DatatypeMetadata>();
 
-		if (LOG.isInfoEnabled()) {
-			LOG.info("getDatatypeMetadata(): " + portalMetadata.getName() + ":" + cancerStudyMetadata.toString());
-		}
+        if (LOG.isInfoEnabled()) {
+            LOG.info("getDatatypeMetadata(): " + portalMetadata.getName() + ":" + cancerStudyMetadata.toString());
+        }
 
-		if (cancerStudiesMatrix == null) {
-			cancerStudiesMatrix = getWorksheetData(gdataSpreadsheet, cancerStudiesWorksheet);
-		}
+        if (cancerStudiesMatrix == null) {
+            cancerStudiesMatrix = getWorksheetData(gdataSpreadsheet, cancerStudiesWorksheet);
+        }
 
-		// get portal-column index in the cancer studies worksheet
-		int portalColumnIndex = cancerStudiesMatrix.get(0).indexOf(portalMetadata.getName());
-		if (portalColumnIndex == -1) {
-			return toReturn;
-		}
+        // get portal-column index in the cancer studies worksheet
+        int portalColumnIndex = cancerStudiesMatrix.get(0).indexOf(portalMetadata.getName());
+        if (portalColumnIndex == -1) {
+            return toReturn;
+        }
 
-		// iterate over all studies in worksheet and find row whose first element is cancer study (path)
-		for (ArrayList<String> matrixRow : cancerStudiesMatrix) {
-			if (matrixRow.get(0).equals(cancerStudyMetadata.getStudyPath())) {
-				// the datatypes for the portal/cancer_study is the value of the cell
-				String datatypesIndicator = matrixRow.get(portalColumnIndex);
-				if (datatypesIndicator.equalsIgnoreCase(CancerStudyMetadata.CANCER_STUDY_IN_PORTAL_INDICATOR)) {
-					// all datatypes are desired
-					toReturn = getDatatypeMetadata(Config.ALL);
-				}
-				else {
-					// a delimited list of datatypes have been requested
-					toReturn = new ArrayList<DatatypeMetadata>();
-					for (String datatype : datatypesIndicator.split(DatatypeMetadata.DATATYPES_DELIMITER)) {
-                                                Collection<DatatypeMetadata> metaData = getDatatypeMetadata(datatype);
-                                                if (!metaData.isEmpty()) {
-                                                    DatatypeMetadata datatypeMetadata = metaData.iterator().next();
-                                                    toReturn.add(datatypeMetadata);
-                                                    if (LOG.isInfoEnabled()) {
-                                                            LOG.info("Selecting data type"+datatypeMetadata.getDatatype());
-                                                    }
-                                                }
-					}
-				}
-				break;
-			}
-		}
+        // iterate over all studies in worksheet and find row whose first element is cancer study (path)
+        for (ArrayList<String> matrixRow : cancerStudiesMatrix) {
+            if (matrixRow.get(0).equals(cancerStudyMetadata.getStudyPath())) {
+                // the datatypes for the portal/cancer_study is the value of the cell
+                String datatypesIndicator = matrixRow.get(portalColumnIndex);
+                if (datatypesIndicator.equalsIgnoreCase(CancerStudyMetadata.CANCER_STUDY_IN_PORTAL_INDICATOR)) {
+                    // all datatypes are desired
+                    toReturn = getDatatypeMetadata(Config.ALL);
+                } else {
+                    // a delimited list of datatypes have been requested
+                    toReturn = new ArrayList<DatatypeMetadata>();
+                    for (String datatype : datatypesIndicator.split(DatatypeMetadata.DATATYPES_DELIMITER)) {
+                        Collection<DatatypeMetadata> metaData = getDatatypeMetadata(datatype);
+                        if (!metaData.isEmpty()) {
+                            DatatypeMetadata datatypeMetadata = metaData.iterator().next();
+                            toReturn.add(datatypeMetadata);
+                            if (LOG.isInfoEnabled()) {
+                                LOG.info("Selecting data type" + datatypeMetadata.getDatatype());
+                            }
+                        }
+                    }
+                }
+                break;
+            }
+        }
 
-		// outta here
-		return toReturn;
-	}
+        // outta here
+        return toReturn;
+    }
 
-	/**
-	 * Gets a collection of CaseIDFilterMetadata.
-	 *
-	 * @param filterName String
-	 * @return Collection<CaseIDFilterMetadata>
-	 */
-	@Override
-	public Collection<CaseIDFilterMetadata> getCaseIDFilterMetadata(String filterName) {
+    /**
+     * Gets a collection of CaseIDFilterMetadata.
+     *
+     * @param filterName String
+     * @return Collection<CaseIDFilterMetadata>
+     */
+    @Override
+    public Collection<CaseIDFilterMetadata> getCaseIDFilterMetadata(String filterName) {
 
-		Collection<CaseIDFilterMetadata> toReturn = new ArrayList<CaseIDFilterMetadata>();
+        Collection<CaseIDFilterMetadata> toReturn = new ArrayList<CaseIDFilterMetadata>();
 
-		if (caseIDFiltersMatrix == null) {
-			caseIDFiltersMatrix = getWorksheetData(gdataSpreadsheet, caseIDFiltersWorksheet);
-		}
+        if (caseIDFiltersMatrix == null) {
+            caseIDFiltersMatrix = getWorksheetData(gdataSpreadsheet, caseIDFiltersWorksheet);
+        }
 
-		Collection<CaseIDFilterMetadata> caseIDFilterMetadatas = 
-			(Collection<CaseIDFilterMetadata>)getMetadataCollection(caseIDFiltersMatrix,
-																	"org.mskcc.cbio.importer.model.CaseIDFilterMetadata");
+        Collection<CaseIDFilterMetadata> caseIDFilterMetadatas
+                = (Collection<CaseIDFilterMetadata>) getMetadataCollection(caseIDFiltersMatrix,
+                        "org.mskcc.cbio.importer.model.CaseIDFilterMetadata");
 
-		// if user wants all, we're done
-		if (filterName.equals(Config.ALL)) {
-			return caseIDFilterMetadatas;
-		}
+        // if user wants all, we're done
+        if (filterName.equals(Config.ALL)) {
+            return caseIDFilterMetadatas;
+        }
 
-		for (CaseIDFilterMetadata caseIDFilterMetadata : caseIDFilterMetadatas) {
-			if (caseIDFilterMetadata.getFilterName().equals(filterName)) {
-				toReturn.add(caseIDFilterMetadata);
-				break;
-			}
-		}
+        for (CaseIDFilterMetadata caseIDFilterMetadata : caseIDFilterMetadatas) {
+            if (caseIDFilterMetadata.getFilterName().equals(filterName)) {
+                toReturn.add(caseIDFilterMetadata);
+                break;
+            }
+        }
 
-		// outta here
-		return toReturn;
-	}
+        // outta here
+        return toReturn;
+    }
 
-	/**
-	 * Gets a collection of CaseListMetadata.
-	 * If caseListFilename == Config.ALL, all are returned.
-	 *
-	 * @param caseListFilename String
-	 * @return Collection<CaseListMetadata>
-	 */
-	@Override
-	public Collection<CaseListMetadata> getCaseListMetadata(String caseListFilename) {
+    /**
+     * Gets a collection of CaseListMetadata. If caseListFilename == Config.ALL,
+     * all are returned.
+     *
+     * @param caseListFilename String
+     * @return Collection<CaseListMetadata>
+     */
+    @Override
+    public Collection<CaseListMetadata> getCaseListMetadata(String caseListFilename) {
 
-		Collection<CaseListMetadata> toReturn = new ArrayList<CaseListMetadata>();
+        Collection<CaseListMetadata> toReturn = new ArrayList<CaseListMetadata>();
 
-		if (caseListMatrix == null) {
-			caseListMatrix = getWorksheetData(gdataSpreadsheet, caseListWorksheet);
-		}
+        if (caseListMatrix == null) {
+            caseListMatrix = getWorksheetData(gdataSpreadsheet, caseListWorksheet);
+        }
 
-		Collection<CaseListMetadata> caseListMetadatas = 
-			(Collection<CaseListMetadata>)getMetadataCollection(caseListMatrix,
-																"org.mskcc.cbio.importer.model.CaseListMetadata");
+        Collection<CaseListMetadata> caseListMetadatas
+                = (Collection<CaseListMetadata>) getMetadataCollection(caseListMatrix,
+                        "org.mskcc.cbio.importer.model.CaseListMetadata");
 
-		// if user wants all, we're done
-		if (caseListFilename.equals(Config.ALL)) {
-			return caseListMetadatas;
-		}
+        // if user wants all, we're done
+        if (caseListFilename.equals(Config.ALL)) {
+            return caseListMetadatas;
+        }
 
-		for (CaseListMetadata caseListMetadata : caseListMetadatas) {
-			if (caseListMetadata.getCaseListFilename().equals(caseListFilename)) {
-				toReturn.add(caseListMetadata);
-				break;
-			}
-		}
+        for (CaseListMetadata caseListMetadata : caseListMetadatas) {
+            if (caseListMetadata.getCaseListFilename().equals(caseListFilename)) {
+                toReturn.add(caseListMetadata);
+                break;
+            }
+        }
 
-		// outta here
-		return toReturn;
-	}
+        // outta here
+        return toReturn;
+    }
 
-	/**
-	 * Gets a collection of ClinicalAttributesNamespace.
-	 * If clinicalAttributeNamespaceColumnHeader == Config.ALL, all are returned.
-	 *
-	 * @param clinicalAttributeNamespaceColumnHeader String
-	 * @return Collection<ClinicalAttributesNamespace>
-	 */
-	@Override
-	public Collection<ClinicalAttributesNamespace> getClinicalAttributesNamespace(String clinicalAttributesNamespaceColumnHeader) {
+    /**
+     * Gets a collection of ClinicalAttributesNamespace. If
+     * clinicalAttributeNamespaceColumnHeader == Config.ALL, all are returned.
+     *
+     * @param clinicalAttributesNamespaceColumnHeader String
+     * @return Collection<ClinicalAttributesNamespace>
+     */
+    @Override
+    public Collection<ClinicalAttributesNamespace> getClinicalAttributesNamespace(String clinicalAttributesNamespaceColumnHeader) {
 
-		Collection<ClinicalAttributesNamespace> toReturn = new ArrayList<ClinicalAttributesNamespace>();
+        Collection<ClinicalAttributesNamespace> toReturn = new ArrayList<ClinicalAttributesNamespace>();
 
-		if (clinicalAttributesNamespaceMatrix == null) {
-			clinicalAttributesNamespaceMatrix = getWorksheetData(gdataSpreadsheet, clinicalAttributesNamespaceWorksheet);
-		}
+        if (clinicalAttributesNamespaceMatrix == null) {
+            clinicalAttributesNamespaceMatrix = getWorksheetData(gdataSpreadsheet, clinicalAttributesNamespaceWorksheet);
+        }
 
-		Collection<ClinicalAttributesNamespace> clinicalAttributesNamespace = 
-			(Collection<ClinicalAttributesNamespace>)getMetadataCollection(clinicalAttributesNamespaceMatrix,
-                                                                           "org.mskcc.cbio.importer.model.ClinicalAttributesNamespace");
+        Collection<ClinicalAttributesNamespace> clinicalAttributesNamespace
+                = (Collection<ClinicalAttributesNamespace>) getMetadataCollection(clinicalAttributesNamespaceMatrix,
+                        "org.mskcc.cbio.importer.model.ClinicalAttributesNamespace");
 
-		// if user wants all, we're done
-		if (clinicalAttributesNamespaceColumnHeader.equals(Config.ALL)) {
-			return clinicalAttributesNamespace;
-		}
+        // if user wants all, we're done
+        if (clinicalAttributesNamespaceColumnHeader.equals(Config.ALL)) {
+            return clinicalAttributesNamespace;
+        }
 
-		for (ClinicalAttributesNamespace clinicalAttributesNamespaceEntry : clinicalAttributesNamespace) {
-			if (clinicalAttributesNamespaceEntry.getExternalColumnHeader().equals(clinicalAttributesNamespaceColumnHeader)) {
-				toReturn.add(clinicalAttributesNamespaceEntry);
-				break;
-			}
-		}
+        for (ClinicalAttributesNamespace clinicalAttributesNamespaceEntry : clinicalAttributesNamespace) {
+            if (clinicalAttributesNamespaceEntry.getExternalColumnHeader().equals(clinicalAttributesNamespaceColumnHeader)) {
+                toReturn.add(clinicalAttributesNamespaceEntry);
+                break;
+            }
+        }
 
-		// outta here
-		return toReturn;
-	}
+        // outta here
+        return toReturn;
+    }
 
-	/**
-	 * Gets a collection of ClinicalAttributesMetadata.
-	 * If clinicalAttributeColumnHeader == Config.ALL, all are returned.
-	 *
-	 * @param clinicalAttributeColumnHeader String
-	 * @return Collection<ClinicalAttributesMetadata>
-	 */
-	@Override
-	public Collection<ClinicalAttributesMetadata> getClinicalAttributesMetadata(String clinicalAttributesColumnHeader) {
+    /**
+     * Gets a collection of ClinicalAttributesMetadata. If
+     * clinicalAttributeColumnHeader == Config.ALL, all are returned.
+     *
+     * @param clinicalAttributesColumnHeader String
+     * @return Collection<ClinicalAttributesMetadata>
+     */
+    @Override
+    public Collection<ClinicalAttributesMetadata> getClinicalAttributesMetadata(String clinicalAttributesColumnHeader) {
 
-		Collection<ClinicalAttributesMetadata> toReturn = new ArrayList<ClinicalAttributesMetadata>();
+        Collection<ClinicalAttributesMetadata> toReturn = new ArrayList<ClinicalAttributesMetadata>();
 
-		if (clinicalAttributesMatrix == null) {
-			clinicalAttributesMatrix = getWorksheetData(gdataSpreadsheet, clinicalAttributesWorksheet);
-		}
+        if (clinicalAttributesMatrix == null) {
+            clinicalAttributesMatrix = getWorksheetData(gdataSpreadsheet, clinicalAttributesWorksheet);
+        }
 
-		Collection<ClinicalAttributesMetadata> clinicalAttributesMetadatas = 
-			(Collection<ClinicalAttributesMetadata>)getMetadataCollection(clinicalAttributesMatrix,
-																		  "org.mskcc.cbio.importer.model.ClinicalAttributesMetadata");
+        Collection<ClinicalAttributesMetadata> clinicalAttributesMetadatas
+                = (Collection<ClinicalAttributesMetadata>) getMetadataCollection(clinicalAttributesMatrix,
+                        "org.mskcc.cbio.importer.model.ClinicalAttributesMetadata");
 
-		// if user wants all, we're done
-		if (clinicalAttributesColumnHeader.equals(Config.ALL)) {
-			return clinicalAttributesMetadatas;
-		}
+        // if user wants all, we're done
+        if (clinicalAttributesColumnHeader.equals(Config.ALL)) {
+            return clinicalAttributesMetadatas;
+        }
 
-		for (ClinicalAttributesMetadata clinicalAttributesMetadata : clinicalAttributesMetadatas) {
-			if (clinicalAttributesMetadata.getNormalizedColumnHeader().equals(clinicalAttributesColumnHeader)) {
-				toReturn.add(clinicalAttributesMetadata);
-				break;
-			}
-		}
+        for (ClinicalAttributesMetadata clinicalAttributesMetadata : clinicalAttributesMetadatas) {
+            if (clinicalAttributesMetadata.getNormalizedColumnHeader().equals(clinicalAttributesColumnHeader)) {
+                toReturn.add(clinicalAttributesMetadata);
+                break;
+            }
+        }
 
-		// outta here
-		return toReturn;
-	}
+        // outta here
+        return toReturn;
+    }
 
     @Override
     public Map<String, ClinicalAttributesMetadata> getClinicalAttributesMetadata(Collection<String> externalColumnHeaders) {
@@ -777,6 +788,46 @@ class GDataImpl implements Config {
         return toReturn;
     }
 
+    /**
+     * Gets a CancerStudyMetadata for the given cancer study.
+     *
+     * @param cancerStudyName String - fully qualified path as entered on worksheet,
+     * e.g.: prad/mskcc/foundation
+     * @return CancerStudyMetadata or null if not found
+     */
+    @Override
+    public CancerStudyMetadata getCancerStudyMetadataByName(String cancerStudyName) {
+
+        Collection<CancerStudyMetadata> cancerStudyMetadatas = getAllCancerStudyMetadata();
+
+        for (CancerStudyMetadata cancerStudyMetadata : cancerStudyMetadatas) {
+            if (cancerStudyMetadata.getStudyPath().equals(cancerStudyName)) {
+                // get tumor type metadata
+                Collection<TumorTypeMetadata> tumorTypeCollection = getTumorTypeMetadata(cancerStudyMetadata.getTumorType());
+                if (!tumorTypeCollection.isEmpty()) {
+                    cancerStudyMetadata.setTumorTypeMetadata(tumorTypeCollection.iterator().next());
+                }
+                return cancerStudyMetadata;
+            }
+        }
+
+        return null;
+    }
+
+    @Override
+    public Collection<CancerStudyMetadata> getAllCancerStudyMetadata()
+    {
+        if (cancerStudiesMatrix == null) {
+            cancerStudiesMatrix = getWorksheetData(gdataSpreadsheet, cancerStudiesWorksheet);
+        }
+
+        Collection<CancerStudyMetadata> cancerStudyMetadatas
+                = (Collection<CancerStudyMetadata>) getMetadataCollection(cancerStudiesMatrix,
+                        "org.mskcc.cbio.importer.model.CancerStudyMetadata");
+
+        return cancerStudyMetadatas;
+    }
+
     /*
     return a Collection of IcgcMetadata objects derived from
     the ICGC worksheet on the google spreadsheet
@@ -814,38 +865,6 @@ class GDataImpl implements Config {
 
         // outta here
         return foundationMetadatas;
-    }
-
-    /**
-     * Gets a CancerStudyMetadata for the given cancer study.
-     *
-     * @param cancerStudyName String - fully qualified path as entered on worksheet,
-     * e.g.: prad/mskcc/foundation
-     * @return CancerStudyMetadata or null if not found
-     */
-    @Override
-    public CancerStudyMetadata getCancerStudyMetadataByName(String cancerStudyName) {
-
-        if (cancerStudiesMatrix == null) {
-            cancerStudiesMatrix = getWorksheetData(gdataSpreadsheet, cancerStudiesWorksheet);
-        }
-
-        Collection<CancerStudyMetadata> cancerStudyMetadatas
-                = (Collection<CancerStudyMetadata>) getMetadataCollection(cancerStudiesMatrix,
-                        "org.mskcc.cbio.importer.model.CancerStudyMetadata");
-
-        for (CancerStudyMetadata cancerStudyMetadata : cancerStudyMetadatas) {
-            if (cancerStudyMetadata.getStudyPath().equals(cancerStudyName)) {
-                // get tumor type metadata
-                Collection<TumorTypeMetadata> tumorTypeCollection = getTumorTypeMetadata(cancerStudyMetadata.getTumorType());
-                if (!tumorTypeCollection.isEmpty()) {
-                    cancerStudyMetadata.setTumorTypeMetadata(tumorTypeCollection.iterator().next());
-                }
-                return cancerStudyMetadata;
-            }
-        }
-
-        return null;
     }
 
     /**

@@ -265,13 +265,15 @@ var rppaPlots = (function() {
         function appendHeader() {
             $("#" + divName).empty();
             $("#" + divName).append(title);
-            var pdfConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' target='_blank' " +
-                "onsubmit=\"this.elements['svgelement'].value=loadRPPASVG('" + divName + "');\">" +
-                "<input type='hidden' name='svgelement'>" +
-                "<input type='hidden' name='filetype' value='pdf'>" +
-                "<input type='hidden' name='filename' value='rppa-plots.pdf'>" +
-                "<input type='submit' value='PDF'></form>";
-            $("#" + divName).append(pdfConverterForm);
+            $('#' + divName).append("<button id='protein_exp_pdf_download'>PDF</button>");
+            $("#protein_exp_pdf_download").click(function() {
+                var downloadOptions = {
+                    filename: "rppa-plots.pdf",
+                    contentType: "application/pdf",
+                    servletName: "svgtopdf.do"
+                };
+                cbio.download.initDownload($("#" + divName + " svg")[0], downloadOptions);
+            });
         }
 
         function drawBoxPlot() {
@@ -536,11 +538,3 @@ var rppaPlots = (function() {
     };
 
 }());
-
-function loadRPPASVG(divName) {
-    var docSVG = document.getElementById(divName);
-    var svgDoc = docSVG.getElementsByTagName("svg");
-    var xmlSerializer = new XMLSerializer();
-    var xmlString = xmlSerializer.serializeToString(svgDoc[0]);
-    return xmlString;
-}

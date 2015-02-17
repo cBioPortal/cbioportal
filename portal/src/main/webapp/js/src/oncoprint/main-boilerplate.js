@@ -279,6 +279,20 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             $(this).css('font-size', '12px');
             });
         
+            $('#oncoprint_legend div').mouseover(function(){
+                if($(this).width()<$(this).children().width())
+                {
+                    $(this)[0].style.overflowX='auto';
+                }
+                else
+                {
+                    $(this)[0].style.overflowX='hidden';
+                } 
+            }) 
+            .mouseout(function(){
+                $(this)[0].style.overflowX='hidden';
+            });
+        
         $('.oncoprint_Sort_Button').click(function() {
             
             var sortButtonYValue = $(this)[0].attributes.y.value;
@@ -1450,8 +1464,6 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                 }
             }
         });
-        
-
         
         $('.oncoprint-diagram-Shift').click(function() {
             shiftGeneData();

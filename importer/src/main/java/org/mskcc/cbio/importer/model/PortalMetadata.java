@@ -30,6 +30,7 @@ public class PortalMetadata {
 
 	public static final String TRIAGE_PORTAL = "triage-portal";
 	public static final String PUBLIC_PORTAL = "public-portal";
+	public static final String MSK_AUTOMATION_PORTAL = "msk-automation-portal";
 
 	// bean properties
     private String name;

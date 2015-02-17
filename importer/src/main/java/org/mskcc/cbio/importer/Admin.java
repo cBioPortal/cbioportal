@@ -166,7 +166,8 @@ public class Admin implements Runnable {
                                   .hasArgs(3)
                                   .withValueSeparator(':')
                                   .withDescription("Updates study data for the given portal. if update_worksheet is 't' " +
-                                                   "UPDATE_AVAILABLE and IMPORT columns in cancer_studies google worksheet are updated.")
+                                                   "msk_automation_portal entry will be cleared.  if send_notification is 't' " +
+                                                   "email will be sent to registered users within information about the updates.")
                                   .create("update_study_data"));
         
         Option importCaseLists = (OptionBuilder.withArgName("portal")
@@ -680,46 +681,52 @@ public class Admin implements Runnable {
 			LOG.info("updateStudyData(), portal: " + portal);
 			LOG.info("updateStudyData(), update_worksheet: " + updateWorksheet);
 		}
-
 		Boolean updateWorksheetBool = getBoolean(updateWorksheet);
 		Boolean sendNotificationBool = getBoolean(sendNotification);
+
 		Config config = (Config)getBean("config");
 		Importer importer = (Importer)getBean("importer");
+
 		Map<String,String> propertyMap = new HashMap<String,String>();
+		propertyMap.put(CancerStudyMetadata.MSK_PORTAL_COLUMN_KEY, "");
+
 		List<String> cancerStudiesUpdated = new ArrayList<String>();
-		for (CancerStudyMetadata cancerStudyMetadata : config.getCancerStudyMetadata(portal)) {
-			propertyMap.clear();
-			// if we are updating triage and this study is ready for update, then import it
+		List<String> cancerStudiesRemoved = new ArrayList<String>();
+
+		Collection<CancerStudyMetadata> cancerStudyMetadataToImport = config.getCancerStudyMetadata(portal);
+		for (CancerStudyMetadata cancerStudyMetadata : config.getAllCancerStudyMetadata()) {
 			if (portal.equals(PortalMetadata.TRIAGE_PORTAL)) {
-				if (cancerStudyMetadata.updateTriage()) {
+				if (cancerStudyMetadataToImport.contains(cancerStudyMetadata)) {
+					// update/add study into db
 					importer.updateCancerStudy(portal, cancerStudyMetadata);
 					cancerStudiesUpdated.add(cancerStudyMetadata.getStudyPath());
-					// we've updated the study in triage, turn off update triage flag
-					propertyMap.put(CancerStudyMetadata.UPDATE_TRIAGE_COLUMN_KEY, "false");
 				}
-				else if (cancerStudyMetadata.readyForRelease()) {
-					// we can remove from triage database
-					deleteCancerStudy(cancerStudyMetadata.getStableId());
+				else {
+					// remove from db
+					if (deleteCancerStudy(cancerStudyMetadata.getStableId())) {
+						cancerStudiesRemoved.add(cancerStudyMetadata.getStudyPath());
+					}
 				}
 			}
-			// otherwise, we only update studies that are ready for release
-			else if (cancerStudyMetadata.readyForRelease()) {
+			else if (cancerStudyMetadataToImport.contains(cancerStudyMetadata)) {
 				importer.updateCancerStudy(portal, cancerStudyMetadata);
 				cancerStudiesUpdated.add(cancerStudyMetadata.getStudyPath());
-				// turn off ready for release so that the next
-				// fetch does not get imported before being vetted
-				propertyMap.put(CancerStudyMetadata.READY_FOR_RELEASE_COLUMN_KEY, "false");
 			}
-			if (updateWorksheetBool) {
+			if (portal.equals(PortalMetadata.MSK_AUTOMATION_PORTAL) && updateWorksheetBool
+			    && cancerStudyMetadataToImport.contains(cancerStudyMetadata)) {
+				// For BIC, we do not want to update production again unless a new update occurs.
+				// For DMP we will, so we need option to clear msk_automation_portal flag
 				config.updateCancerStudyAttributes(cancerStudyMetadata.getStudyPath(), propertyMap);
 			}
-			if (sendNotificationBool) {
-				sendNotification(portal, cancerStudiesUpdated);
-			}
+		}
+		if (sendNotificationBool && (!cancerStudiesUpdated.isEmpty() || !cancerStudiesRemoved.isEmpty())) {
+			sendNotification(portal, cancerStudiesUpdated, cancerStudiesRemoved);
 		}
 	}
 
-	private void sendNotification(String portal, List<String> cancerStudiesUpdated)
+
+
+	private void sendNotification(String portal, List<String> cancerStudiesUpdated, List<String> cancerStudiesRemoved)
 	{
 		Config config = (Config)getBean("config");
 		SimpleMailMessage message = null;
@@ -733,9 +740,15 @@ public class Admin implements Runnable {
 		SimpleMailMessage msg = new SimpleMailMessage(message);
 		for (String cancerStudy : cancerStudiesUpdated) {
 			CancerStudyMetadata cancerStudyMetadata = config.getCancerStudyMetadataByName(cancerStudy);
-			body += "\n" + cancerStudyMetadata.getStableId();
+			body += cancerStudyMetadata.getStableId() + "\n";
 		}
-		body += "\n";
+		if (!cancerStudiesRemoved.isEmpty()) {
+			body += "\n\n" + "The following studies have been removed:\n\n";
+			for (String cancerStudy : cancerStudiesRemoved) {
+				CancerStudyMetadata cancerStudyMetadata = config.getCancerStudyMetadataByName(cancerStudy);
+				body += cancerStudyMetadata.getStableId() + "\n";
+			}
+		}
 		msg.setText(body);
 		try {
 			JavaMailSender mailSender = (JavaMailSender)getBean("mailSender");
@@ -831,15 +844,19 @@ public class Admin implements Runnable {
 		}
 	}
 
-	private void deleteCancerStudy(String cancerStudyStableId) throws Exception
+	private boolean deleteCancerStudy(String cancerStudyStableId) throws Exception
 	{
 		if (LOG.isInfoEnabled()) {
 			LOG.info("deleteCancerStudy(), study id: " + cancerStudyStableId);
 		}
-		DaoCancerStudy.deleteCancerStudy(cancerStudyStableId);
-		if (LOG.isInfoEnabled()) {
-			LOG.info("deleteCancerStudy(), complete");
+		if (DaoCancerStudy.doesCancerStudyExistByStableId(cancerStudyStableId)) {
+			DaoCancerStudy.deleteCancerStudy(cancerStudyStableId);
+			if (LOG.isInfoEnabled()) {
+				LOG.info("deleteCancerStudy(), complete");
+			}
+			return true;
 		}
+		return false;
 	}
 
 	/**

@@ -75,7 +75,7 @@ var CoexpPlots = function() {
                     _spearman
                 )
             );
-        }
+        };
     }
 
     function getMutationDataCallBack(_alteration_data_result, _divName, _geneX, _geneY, _pearson, _spearman) {
@@ -83,11 +83,11 @@ var CoexpPlots = function() {
             CoexpPlotsProxy.init(_alteration_data_result, _geneX, _geneY, _pearson, _spearman);
             var coexpPlotsView = new CoexpPlotsView();
             coexpPlotsView.init(_divName, _geneX, _geneY, CoexpPlotsProxy.getData(), CoexpPlotsProxy.getDataAttr());
-        }
+        };
     }
 
     return {
         init: init
-    }
+    };
 
-}
+};

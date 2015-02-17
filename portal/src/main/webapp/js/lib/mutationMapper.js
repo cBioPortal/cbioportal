@@ -958,6 +958,28 @@ var MutationDetailsTableFormatter = (function()
     }
 
 	/**
+	 * Returns the css class and text for the given cosmic count.
+	 *
+	 * @param frequency frequency value in cbio portal
+	 * @return {{style: string, frequency: string}}
+	 * @private
+	 */
+	function getCbioPortal(frequency)
+	{
+		var style = "";
+		var text = "";
+
+		if (frequency > 0)
+		{
+			style = "mutation_table_cbio_portal";
+			text = frequency;
+		}
+
+		return {style: style,
+			frequency: text};
+	}
+
+	/**
 	 * Returns the text and css class values for the given integer value.
 	 *
 	 * @param value an integer value
@@ -1070,6 +1092,7 @@ var MutationDetailsTableFormatter = (function()
 		getFis: getFis,
 		getTumorType: getTumorType,
 		getCosmic: getCosmic,
+		getCbioPortal: getCbioPortal,
 		getIntValue: getIntValue,
 		assignValueToPredictedImpact: assignValueToPredictedImpact,
 		assignIntValue: assignIntValue,
@@ -1095,7 +1118,7 @@ var PileupUtil = (function()
 	 * @return {object} map of mutations (keyed on mutation type)
 	 * @private
 	 */
-	var generateTypeMap = function(pileup)
+	function generateTypeMap(pileup)
 	{
 		var mutations = pileup.mutations;
 		var mutationMap = {};
@@ -1114,7 +1137,7 @@ var PileupUtil = (function()
 		}
 
 		return mutationMap;
-	};
+	}
 
 	/**
 	 * Processes a Pileup instance, and creates an array of
@@ -1124,7 +1147,7 @@ var PileupUtil = (function()
 	 * @param pileup    a pileup instance
 	 * @return {Array}  array of mutation type and count pairs
 	 */
-	var generateTypeArray = function (pileup)
+	function generateTypeArray(pileup)
 	{
 		var map = generateTypeMap(pileup);
 		var typeArray = [];
@@ -1141,7 +1164,7 @@ var PileupUtil = (function()
 		});
 
 		return typeArray;
-	};
+	}
 
 	/**
 	 * Processes a Pileup instance, and creates an array of
@@ -1151,7 +1174,7 @@ var PileupUtil = (function()
 	 * @param pileup    a pileup instance
 	 * @return {Array}  array of mutation type group and count pairs
 	 */
-	var generateTypeGroupArray = function (pileup)
+	function generateTypeGroupArray(pileup)
 	{
 		var mutationTypeMap = MutationViewsUtil.getVisualStyleMaps().mutationType;
 
@@ -1199,14 +1222,14 @@ var PileupUtil = (function()
 		});
 
 		return groupArray;
-	};
+	}
 
-	var nextId = function()
+	function nextId()
 	{
 		_idCounter++;
 
 		return "pileup_" + _idCounter;
-	};
+	}
 
 	/**
 	 * Creates a map of <mutation sid>, <pileup id> pairs.
@@ -1214,7 +1237,7 @@ var PileupUtil = (function()
 	 * @param pileups   list of pileups
 	 * @return {Object} <mutation sid> to <pileup id> map
 	 */
-	var mapToMutations = function(pileups)
+	function mapToMutations(pileups)
 	{
 		var map = {};
 
@@ -1226,11 +1249,184 @@ var PileupUtil = (function()
 		});
 
 		return map;
-	};
+	}
+
+	/**
+	 * Converts the provided mutation data into a list of Pileup instances.
+	 *
+	 * @param mutationColl  collection of Mutation models (MutationCollection)
+	 * @return {Array}      a list of pileup mutations
+	 */
+	function convertToPileups(mutationColl)
+	{
+		// remove redundant mutations by sid
+		mutationColl = removeRedundantMutations(mutationColl);
+
+		// create a map of mutations (key is the mutation location)
+		var mutations = {};
+
+		for (var i=0; i < mutationColl.length; i++)
+		{
+			var mutation = mutationColl.at(i);
+
+			var location = mutation.getProteinStartPos();
+			var type = mutation.mutationType.trim().toLowerCase();
+
+			if (location != null && type != "fusion")
+			{
+				if (mutations[location] == null)
+				{
+					mutations[location] = [];
+				}
+
+				mutations[location].push(mutation);
+			}
+		}
+
+		// convert map into an array of piled mutation objects
+		var pileupList = [];
+
+		for (var key in mutations)
+		{
+			var pileup = {};
+
+			pileup.pileupId = PileupUtil.nextId();
+			pileup.mutations = mutations[key];
+			pileup.count = mutations[key].length;
+			pileup.location = parseInt(key);
+			pileup.label = generateLabel(mutations[key]);
+	        // The following calculates dist of mutations by cancer type
+	        pileup.stats = _.chain(mutations[key])
+	            .groupBy(function(mut) { return mut.cancerType; })
+	            .sortBy(function(stat) { return -stat.length; })
+	            .reduce(function(seed, o) {
+	                seed.push({ cancerType: o[0].cancerType, count: o.length });
+	                return seed;
+	            }, []).value();
+
+			pileupList.push(new Pileup(pileup));
+		}
+
+		// sort (descending) the list wrt mutation count
+		pileupList.sort(function(a, b) {
+			var diff = b.count - a.count;
+
+			// if equal, then compare wrt position (for consistency)
+			if (diff == 0)
+			{
+				diff = b.location - a.location;
+			}
+
+			return diff;
+		});
+
+		return pileupList;
+	}
+
+	// TODO first remove by mutationSid, and then remove by patientId
+	function removeRedundantMutations(mutationData)
+	{
+		// remove redundant mutations by sid
+		var redMap = {};
+		var removeItems = [];
+
+		for (var i=0; i < mutationData.length; i++)
+		{
+			var aMutation = mutationData.at(i);
+			var exists = redMap[aMutation.mutationSid];
+			if(exists == null) {
+				redMap[aMutation.mutationSid] = true;
+			} else {
+				removeItems.push(aMutation);
+			}
+		}
+
+		mutationData.remove(removeItems);
+
+		return mutationData;
+	}
+
+	/**
+	 * Generates a pileup label by joining all unique protein change
+	 * information in the given array of mutations.
+	 *
+ 	 * @param mutations     a list of mutations
+	 * @returns {string}    pileup label
+	 */
+	function generateLabel(mutations)
+	{
+		var mutationSet = {};
+
+		// create a set of protein change labels
+		// (this is to eliminate duplicates)
+		for (var i = 0; i < mutations.length; i++)
+		{
+			if (mutations[i].proteinChange != null &&
+			    mutations[i].proteinChange.length > 0)
+			{
+				mutationSet[mutations[i].proteinChange] = mutations[i].proteinChange;
+			}
+		}
+
+		// convert to array & sort
+		var mutationArray = [];
+
+		for (var key in mutationSet)
+		{
+			mutationArray.push(key);
+		}
+
+		mutationArray.sort();
+
+		// find longest common starting substring
+		// (this is to truncate redundant starting substring)
+
+		var startStr = "";
+
+		if (mutationArray.length > 1)
+		{
+			startStr = cbio.util.lcss(mutationArray[0],
+			                          mutationArray[mutationArray.length - 1]);
+
+//			console.log(mutationArray[0] + " n " +
+//			            mutationArray[mutationArray.length - 1] + " = " +
+//			            startStr);
+		}
+
+		// generate the string
+		var label = startStr;
+
+		for (var i = 0; i < mutationArray.length; i++)
+		{
+			label += mutationArray[i].substring(startStr.length) + "/";
+		}
+
+		// remove the last slash
+		return label.substring(0, label.length - 1);
+	}
+
+	/**
+	 * Counts the number of total mutations for the given
+	 * Pileup array.
+	 *
+	 * @param pileups   an array of Pileup instances
+	 */
+	function countMutations(pileups)
+	{
+		var total = 0;
+
+		_.each(pileups, function(pileup) {
+			total += pileup.count;
+		});
+
+		return total;
+	}
 
 	return {
 		nextId: nextId,
 		mapToMutations: mapToMutations,
+		convertToPileups: convertToPileups,
+		countMutations: countMutations,
 		getMutationTypeMap: generateTypeMap,
 		getMutationTypeArray: generateTypeArray,
 		getMutationTypeGroups: generateTypeGroupArray
@@ -1280,6 +1476,116 @@ var BackboneTemplateCache = (function () {
 
 	return {
 		getTemplateFn: getTemplateFn
+	};
+})();
+
+/**
+ * Singleton utility class for data proxy related tasks.
+ *
+ * @author Selcuk Onur Sumer
+ */
+var DataProxyUtil = (function()
+{
+	/**
+	 * Initializes data proxy instances for the given options.
+	 *
+	 * @param options   data proxy options (for all proxies)
+	 * @param mut3dVis [optional] 3D visualizer instance (only used to init pdb proxy)
+	 */
+	function initDataProxies(options, mut3dVis)
+	{
+		// init proxies
+		var dataProxies = {};
+
+		// workaround: alphabetically sorting to ensure that mutationProxy is
+		// initialized before pdpProxy, since pdbProxy depends on the mutationProxy instance
+		_.each(_.keys(options).sort(), function(proxy) {
+			var proxyOpts = options[proxy];
+			var instance = null;
+
+			// TODO see if it is possible to remove pdb proxy's dependency on mutation proxy
+
+			// special initialization required for mutation proxy
+			// and pdb proxy, so a custom function is provided
+			// as an additional parameter to the initDataProxy function
+			if (proxy == "pdbProxy")
+			{
+				instance = initDataProxy(proxyOpts, function(proxyOpts) {
+					var mutationProxy = dataProxies["mutationProxy"];
+
+					if (mut3dVis != null &&
+					    mutationProxy != null &&
+					    mutationProxy.hasData())
+					{
+						proxyOpts.options.mutationUtil = mutationProxy.getMutationUtil();
+						return true;
+					}
+					else
+					{
+						// do not initialize pdbProxy at all
+						return false;
+					}
+				});
+			}
+			else
+			{
+				// regular init for all other proxies...
+				instance = initDataProxy(proxyOpts);
+			}
+
+			dataProxies[proxy] = instance;
+		});
+
+		return dataProxies;
+	}
+
+	/**
+	 *
+	 * @param proxyOpts     data proxy options (for a single proxy)
+	 * @param preProcessFn  [optional] pre processing function, should return a boolean value.
+	 * @returns {Object}    a data proxy instance
+	 */
+	function initDataProxy(proxyOpts, preProcessFn)
+	{
+		// use the provided custom instance if available
+		var instance = proxyOpts.instance;
+
+		if (instance == null)
+		{
+			// custom pre process function for the proxy options
+			// before initialization
+			if (preProcessFn != null &&
+			    _.isFunction(preProcessFn))
+			{
+				// if preprocess is not successful do not initialize
+				if (!preProcessFn(proxyOpts))
+				{
+					return null;
+				}
+			}
+
+			// init data proxy
+			var Constructor = proxyOpts.instanceClass;
+			instance = Constructor(proxyOpts.options);
+
+			if (proxyOpts.lazy)
+			{
+				// init without data
+				instance.initWithoutData(proxyOpts.servletName);
+			}
+			else
+			{
+				// init with full data
+				instance.initWithData(proxyOpts.data);
+			}
+		}
+
+		return instance;
+	}
+
+	return {
+		initDataProxies: initDataProxies,
+		initDataProxy: initDataProxy
 	};
 })();
 
@@ -2254,6 +2560,9 @@ var MutationDetailsUtil = function(mutations)
 	var _mutationGeneMap = {};
 	var _mutationCaseMap = {};
 	var _mutationIdMap = {};
+	var _mutationKeywordMap = {};
+	var _mutationProteinChangeMap = {};
+	var _mutationProteinPosStartMap = {};
 	var _mutations = [];
 
 	this.getMutationGeneMap = function()
@@ -2289,6 +2598,9 @@ var MutationDetailsUtil = function(mutations)
 		_mutationGeneMap = this._updateGeneMap(mutations);
 		_mutationCaseMap = this._updateCaseMap(mutations);
 		_mutationIdMap = this._updateIdMap(mutations);
+		_mutationKeywordMap = this._updateKeywordMap(mutations);
+		_mutationProteinChangeMap = this._updateProteinChangeMap(mutations);
+		_mutationProteinPosStartMap = this._updateProteinPosStartMap(mutations);
 		_mutations = _mutations.concat(mutations.models);
 	};
 
@@ -2318,6 +2630,26 @@ var MutationDetailsUtil = function(mutations)
 		}
 
 		return positions;
+	};
+
+	this.getAllKeywords = function()
+	{
+		return _.keys(_mutationKeywordMap);
+	};
+
+	this.getAllProteinChanges = function()
+	{
+		return _.keys(_mutationProteinChangeMap);
+	};
+
+	this.getAllProteinPosStarts = function()
+	{
+		return _.keys(_mutationProteinPosStartMap);
+	};
+
+	this.getAllGenes = function()
+	{
+		return _.keys(_mutationGeneMap);
 	};
 
 	/**
@@ -2393,6 +2725,104 @@ var MutationDetailsUtil = function(mutations)
 		{
 			var mutationId = mutations.at(i).mutationId;
 			mutationMap[mutationId] = mutations.at(i);
+		}
+
+		return mutationMap;
+	};
+
+	/**
+	 * Processes the collection of mutations, and creates a map of
+	 * <mutation keyword, mutation array> pairs.
+	 *
+	 * @param mutations collection of mutations
+	 * @return {object} map of mutations (keyed on mutation keyword)
+	 * @private
+	 */
+	this._updateKeywordMap = function(mutations)
+	{
+		var mutationMap = _mutationKeywordMap;
+
+		// process raw data to group mutations by genes
+		for (var i=0; i < mutations.length; i++)
+		{
+			var keyword = mutations.at(i).keyword;
+
+			if (keyword != null)
+			{
+				if (mutationMap[keyword] == undefined)
+				{
+					mutationMap[keyword] = [];
+				}
+
+				mutationMap[keyword].push(mutations.at(i));
+			}
+		}
+
+		return mutationMap;
+	};
+
+	/**
+	 * Processes the collection of mutations, and creates a map of
+	 * <protein change, mutation array> pairs.
+	 *
+	 * @param mutations collection of mutations
+	 * @returns {object} map of mutations (keyed on protein change)
+	 * @private
+	 */
+	this._updateProteinChangeMap = function(mutations)
+	{
+		var mutationMap = _mutationProteinChangeMap;
+
+		// process raw data to group mutations by genes
+		for (var i=0; i < mutations.length; i++)
+		{
+			var proteinChange = mutations.at(i).proteinChange;
+
+			if (proteinChange != null)
+			{
+				if (mutationMap[proteinChange] == undefined)
+				{
+					mutationMap[proteinChange] = [];
+				}
+
+				mutationMap[proteinChange].push(mutations.at(i));
+			}
+		}
+
+		return mutationMap;
+	};
+
+	/**
+	 * Processes the collection of mutations, and creates a map of
+	 * <protein position start, mutation array> pairs.
+	 *
+	 * @param mutations collection of mutations
+	 * @returns {object} map of mutations (keyed on protein position start)
+	 * @private
+	 */
+	this._updateProteinPosStartMap = function(mutations)
+	{
+		var mutationMap = _mutationProteinPosStartMap;
+
+		// process raw data to group mutations by genes
+		for (var i=0; i < mutations.length; i++)
+		{
+			// using only protein position start is ambiguous,
+			// so we also need gene symbol for the key...
+			var gene = mutations.at(i).geneSymbol;
+			var proteinPosStart = mutations.at(i).proteinPosStart;
+
+			if (proteinPosStart != null && gene != null)
+			{
+				var key = gene + "_" + proteinPosStart;
+
+				if (mutationMap[key] == undefined)
+				{
+					mutationMap[key] = [];
+				}
+
+				mutationMap[key].push(mutations.at(i));
+			}
 		}
 
 		return mutationMap;
@@ -2685,6 +3115,22 @@ var MutationDetailsUtil = function(mutations)
 		return this._contains(gene, function(mutation) {
 			return (mutation.mutationCount &&
 			        mutation.mutationCount > 0);
+		});
+	};
+
+	this.containsKeyword = function(gene)
+	{
+		return this._contains(gene, function(mutation) {
+			return (mutation.keyword &&
+			        mutation.keyword != "NA");
+		});
+	};
+
+	this.containsMutationEventId = function(gene)
+	{
+		return this._contains(gene, function(mutation) {
+			return (mutation.mutationEventId &&
+			        mutation.mutationEventId != "NA");
 		});
 	};
 
@@ -3063,6 +3509,61 @@ function MutationInputParser ()
 		getGeneList: getGeneList
 	};
 }
+
+/**
+ * Singleton utility function for Pancancer Mutation Data.
+ *
+ * @author Selcuk Onur Sumer
+ */
+var PancanMutationDataUtil = (function()
+{
+	function munge(response, key)
+	{
+		// munge data to get it into the format: keyword -> corresponding datum
+		return d3.nest()
+			.key(function(d) {
+				return d[key];
+			})
+			.entries(response)
+			.reduce(function(acc, next) {
+				acc[next.key] = next.values;
+				return acc;
+			},
+			{});
+	}
+
+	function getMutationFrequencies(data)
+	{
+		var frequencies = {};
+
+		_.each(_.keys(data), function(key, i) {
+			frequencies = _.extend(frequencies, munge(data[key], key));
+		});
+
+		return frequencies;
+	}
+
+	/**
+	 * Counts number of total mutations for the given frequencies and key.
+	 *
+	 * @param frequencies   pancan mutation frequencies
+	 * @param key           key (keyword, gene symbol or protein change)
+	 * @returns {Object}    mutation count
+	 */
+	function countByKey(frequencies, key)
+	{
+		var data = frequencies[key];
+
+		return _.reduce(data, function(acc, next) {
+			return acc + next.count;
+		}, 0);
+	}
+
+	return {
+		getMutationFrequencies: getMutationFrequencies,
+		countByKey: countByKey
+	};
+})();
 
 /**
  * Singleton utility class for PDB data related tasks.
@@ -4276,8 +4777,7 @@ var LollipopTipView = Backbone.View.extend({
  * options: {el: [target container],
  *           model: {geneSymbol: [hugo gene symbol],
  *                   mutationData: [mutation data for a specific gene]
- *                   mutationProxy: [mutation data proxy],
- *                   pdbProxy: [pdb data proxy],
+ *                   dataProxies: [all available data proxies],
  *                   sequence: [PFAM sequence data],
  *                   sampleArray: [list of case ids as an array of strings],
  *                   diagramOpts: [mutation diagram options -- optional],
@@ -4331,6 +4831,7 @@ var MainMutationView = Backbone.View.extend({
 		var self = this;
 		var gene = self.model.geneSymbol;
 		var mutationData = self.model.mutationData;
+		var dataProxies = self.model.dataProxies;
 		var sequence = self.model.sequence;
 		var diagramOpts = self.model.diagramOpts;
 		var tableOpts = self.model.tableOpts;
@@ -4351,7 +4852,7 @@ var MainMutationView = Backbone.View.extend({
 				// init the 3d view
 				view3d = self._init3dView(gene,
 					sequence,
-					self.model.pdbProxy,
+					self.model.dataProxies.pdbProxy,
 					mut3dVisView);
 			}
 		}
@@ -4361,7 +4862,7 @@ var MainMutationView = Backbone.View.extend({
 		}
 
 		// init mutation table view
-		var tableView = self._initMutationTableView(gene, mutationData, tableOpts);
+		var tableView = self._initMutationTableView(gene, mutationData, dataProxies, tableOpts);
 
 		// update component references
 		self._mutationDiagram = diagram;
@@ -4383,7 +4884,7 @@ var MainMutationView = Backbone.View.extend({
 			el: self.$el.find(".mutation-pdb-panel-view"),
 			model: {geneSymbol: self.model.geneSymbol,
 				pdbColl: pdbColl,
-				pdbProxy: self.model.pdbProxy},
+				pdbProxy: self.model.dataProxies.pdbProxy},
 			diagram: self._mutationDiagram
 		};
 
@@ -4402,7 +4903,7 @@ var MainMutationView = Backbone.View.extend({
 	_mutationSummary: function()
 	{
 		var self = this;
-		var mutationUtil = self.model.mutationProxy.getMutationUtil();
+		var mutationUtil = self.model.dataProxies.mutationProxy.getMutationUtil();
 		var gene = self.model.geneSymbol;
 		var cases = self.model.sampleArray;
 
@@ -4484,10 +4985,11 @@ var MainMutationView = Backbone.View.extend({
 	 *
 	 * @param gene          hugo gene symbol
 	 * @param mutationData  mutation data (array of JSON objects)
+	 * @param dataProxies   all available data proxies
 	 * @param options       [optional] table options
 	 * @return {Object}     initialized mutation table view
 	 */
-	_initMutationTableView: function(gene, mutationData, options)
+	_initMutationTableView: function(gene, mutationData, dataProxies, options)
 	{
 		var self = this;
 
@@ -4495,6 +4997,7 @@ var MainMutationView = Backbone.View.extend({
 			el: self.$el.find(".mutation-table-container"),
 			model: {geneSymbol: gene,
 				mutations: mutationData,
+				dataProxies: dataProxies,
 				tableOpts: options}
 		});
 
@@ -4819,11 +5322,11 @@ var Mutation3dVisView = Backbone.View.extend({
 		// make the main container draggable
 		container3d.draggable({
 			handle: ".mutation-3d-info-title",
-			start: function(event, ui) {
-				// fix the width to prevent resize during drag
-				var width = container3d.css("width");
-				container3d.css("width", width);
-			},
+//			start: function(event, ui) {
+//				// fix the width to prevent resize during drag
+//				var width = container3d.css("width");
+//				container3d.css("width", width);
+//			},
 			stop: function(event, ui) {
 				var top = parseInt(container3d.css("top"));
 				var left = parseInt(container3d.css("left"));
@@ -4843,6 +5346,31 @@ var Mutation3dVisView = Backbone.View.extend({
 				}
 
 				// TODO user can still take the panel out by dragging it to the bottom or right
+			}
+		});
+
+		//TODO something like this might be safer for "alsoResize" option:
+		// container3d.find(".mutation-3d-vis-container,.mutation-3d-vis-container div:eq(0)")
+
+		// make the container resizable
+		container3d.resizable({
+			alsoResize: ".mutation-3d-vis-container,.mutation-3d-vis-container div:eq(0)",
+			handles: "sw, s, w",
+			minWidth: 400,
+			minHeight: 300,
+			start: function(event, ui) {
+				// a workaround to properly redraw the 3d-info area
+				container3d.find(".mutation-3d-vis-help-content").css("width", "auto");
+
+				// a workaround to prevent position to be set to absolute
+				container3d.css("position", "fixed");
+			},
+			stop: function(event, ui) {
+				// a workaround to properly redraw the 3d-info area
+				container3d.css("height", "auto");
+
+				// a workaround to prevent position to be set to absolute
+				container3d.css("position", "fixed");
 			}
 		});
 	},
@@ -4912,9 +5440,13 @@ var Mutation3dVisView = Backbone.View.extend({
 			var filename = self.$el.find(".mutation-3d-pdb-id").text().trim() + "_" +
 			               self.$el.find(".mutation-3d-chain-id").text().trim() + ".pml";
 
+			var downloadOpts = {
+				filename: filename,
+				contentType: "text/plain;charset=utf-8",
+				preProcess: false};
+
 			// send download request with filename & file content info
-			cbio.util.requestDownload("downloadfile.do",
-				{fileContent: script, filename: filename});
+			cbio.download.initDownload(script, downloadOpts);
 		});
 
 		pymolDownload.qtip(self._generateTooltipOpts("Download PyMOL script"));
@@ -5405,7 +5937,7 @@ var Mutation3dVisView = Backbone.View.extend({
 		var self = this;
 		var container3d = self.$el;
 
-		container3d.css({"left": "", "width": "", "top": 0});
+		container3d.css({"left": "", position: "", "top": 0});
 	},
 	/**
 	 * Hides the 3D visualizer panel.
@@ -5688,6 +6220,7 @@ var MutationCustomizePanelView = Backbone.View.extend({
  *
  * options: {el: [target container],
  *           model: {mutations: mutation data as an array of JSON objects,
+ *                   dataProxies: all available data proxies,
  *                   geneSymbol: hugo gene symbol as a string,
  *                   tableOpts: mutation table options (optional)}
  *          }
@@ -5736,7 +6269,10 @@ var MutationDetailsTableView = Backbone.View.extend({
 		var mutationUtil = new MutationDetailsUtil(mutationColl);
 
 		var table = new MutationDetailsTable(
-			options, self.model.geneSymbol, mutationUtil);
+			options,
+			self.model.geneSymbol,
+			mutationUtil,
+			self.model.dataProxies);
 
 		// TODO self.mutationTable = table;
 		self.tableUtil = table;
@@ -6188,8 +6724,34 @@ var MutationDiagramView = Backbone.View.extend({
 		// create a backbone collection for the given data
 		var mutationColl = new MutationCollection(mutationData);
 
-		var mutationDiagram = new MutationDiagram(gene, options, mutationColl);
-		mutationDiagram.initDiagram(sequenceData);
+		// create a data object
+		var diagramData = {
+			pileups: PileupUtil.convertToPileups(mutationColl),
+			sequence: sequenceData
+		};
+
+		var mutationDiagram = new MutationDiagram(gene, options, diagramData);
+
+		// if no sequence data is provided, try to get it from the servlet
+		if (sequenceData == null)
+		{
+			// TODO use PfamDataProxy instance!!
+			$.getJSON("getPfamSequence.json",
+			{geneSymbol: self.geneSymbol},
+				function(data) {
+					if (data)
+					{
+						mutationDiagram.updateSequenceData(data[0]);
+					}
+
+					mutationDiagram.initDiagram();
+			});
+		}
+		// if data is already there just init the diagram
+		else
+		{
+			mutationDiagram.initDiagram();
+		}
 
 		return mutationDiagram;
 	},
@@ -6211,12 +6773,24 @@ var MutationDiagramView = Backbone.View.extend({
 		// helper function to trigger submit event for the svg and pdf button clicks
 		var submitForm = function(alterFn, diagram, type)
 		{
+			var filename = "mutation_diagram_" + geneSymbol + "." + type;
+
 			// alter diagram to have the desired output
 			alterFn(diagram, false);
 
-			// convert svg content to string
-			var xmlSerializer = new XMLSerializer();
-			var svgString = xmlSerializer.serializeToString(diagram.svg[0][0]);
+			if (type == "svg")
+			{
+				cbio.download.initDownload(diagram.svg[0][0], {filename: filename});
+			}
+			else if (type == "pdf")
+			{
+				var params = {filename: filename,
+					contentType: "application/pdf",
+					servletName: "svgtopdf.do"
+				};
+
+				cbio.download.initDownload(diagram.svg[0][0], params);
+			}
 
 			// restore previous settings after generating xml string
 			alterFn(diagram, true);
@@ -6227,13 +6801,6 @@ var MutationDiagramView = Backbone.View.extend({
 //
 //			// submit form
 //			form.submit();
-
-			// set download parameters
-			var params = {filetype: type,
-				filename: "mutation_diagram_" + geneSymbol + "." + type,
-				svgelement: svgString};
-
-			cbio.util.requestDownload("svgtopdf.do", params);
 		};
 
 		// helper function to adjust SVG for file output
@@ -6372,6 +6939,95 @@ var MutationHelpPanelView = Backbone.View.extend({
 	toggleView: function() {
 		var self = this;
 		self.$el.slideToggle();
+	}
+});
+
+/**
+ * Tooltip view for the mutation table's cosmic column.
+ *
+ * options: {el: [target container],
+ *           model: {pancanMutationFreq: [pancan mutation frequency map]
+ *                   cancerStudyMetaData: [cancer study meta data],
+ *                   cancerStudyName: [cancer study name],
+ *                   geneSymbol: [hugo gene symbol],
+ *                   keyword: [mutation keyword],
+ *                   qtipApi: [api reference for the rendered qtip]}
+ *          }
+ *
+ * @author Selcuk Onur Sumer
+ */
+var PancanMutationHistTipView = Backbone.View.extend({
+	render: function()
+	{
+//		var gene = $thumbnail.attr('gene');
+//		var keyword = $thumbnail.attr('keyword');
+//		var metaData = window.cancer_study_meta_data;
+//		var cancerStudy = window.cancerStudyName;
+//		var byKeywordData = genomicEventObs.pancan_mutation_frequencies[keyword];
+//		var byHugoData = genomicEventObs.pancan_mutation_frequencies[gene];
+
+		var self = this;
+
+		var variables = {
+			gene: self.model.geneSymbol
+		};
+
+		// render view
+		var templateFn = BackboneTemplateCache.getTemplateFn("pancan_mutation_hist_tip_template");
+		var content = templateFn(variables);
+
+		self.model.qtipApi.set('content.text', content);
+
+		// format after rendering
+		this.format();
+	},
+	format: function()
+	{
+		var self = this;
+
+		var gene = self.model.geneSymbol;
+		//var keyword = self.model.keyword;
+		var proteinPosStart = self.model.proteinPosStart;
+		var metaData = self.model.cancerStudyMetaData;
+		var cancerStudy = self.model.cancerStudyName;
+
+		//var byKeywordData = self.model.pancanMutationFreq[keyword];
+		var byProteinPosData = self.model.pancanMutationFreq[proteinPosStart];
+		var byHugoData = self.model.pancanMutationFreq[gene];
+
+		var container = self.$el.find(".pancan-histogram-container");
+
+		// init the histogram
+		var histogram = PancanMutationHistogram(byProteinPosData,
+		                                        byHugoData,
+		                                        metaData,
+		                                        container[0],
+		                                        {this_cancer_study: cancerStudy});
+
+		// update the overall count text
+		self.$el.find(".overall-count").html(histogram.overallCountText());
+
+		// correct the qtip width
+		var svgWidth = $(container).find('svg').attr('width');
+		self.$el.css('max-width', parseInt(svgWidth));
+
+		// add histogram tooltips (inner tooltips)
+		var svg = self.$el.find('svg')[0];
+		histogram.qtip(svg);
+
+		// add click functionality for the buttons
+		$(".cross-cancer-download").click(function() {
+			var fileType = $(this).attr("file-type");
+
+			var params = {
+				filetype: fileType,
+				filename: gene + "_mutations." + fileType,
+				svgelement: (new XMLSerializer()).serializeToString(svg)
+			};
+
+			// TODO customize download server
+			cbio.util.requestDownload("svgtopdf.do", params);
+		});
 	}
 });
 
@@ -7051,22 +7707,29 @@ var RegionTipView = Backbone.View.extend({
  * This class is designed to retrieve mutation data on demand, but it can be also
  * initialized with the full mutation data already retrieved from the server.
  *
- * @param geneList  list of target genes (genes of interest) as a string
+ * @param options  additional options
  *
  * @author Selcuk Onur Sumer
  */
-function MutationDataProxy(geneList)
+function MutationDataProxy(options)
 {
+	// default options
+	var _defaultOpts = {
+		geneList: "", // list of target genes (genes of interest) as a string
+		params: {} // fixed servlet params
+	};
+
+	// merge options with default options to use defaults for missing values
+	var _options = jQuery.extend(true, {}, _defaultOpts, options);
+
 	// MutationDetailsUtil instance
 	var _util = new MutationDetailsUtil();
 	// list of target genes as an array of strings (in the exact input order)
-	var _unsortedGeneList = geneList.trim().split(/\s+/);
+	var _unsortedGeneList = _options.geneList.trim().split(/\s+/);
 	// alphabetically sorted list of target genes as an array of strings
-	var _geneList = geneList.trim().split(/\s+/).sort();
+	var _geneList = _options.geneList.trim().split(/\s+/).sort();
 	// name of the mutation data servlet
 	var _servletName;
-	// parameters to be sent to the mutation data servlet
-	var _servletParams;
 	// flag to indicate if the initialization is full or lazy
 	var _fullInit;
 
@@ -7076,12 +7739,10 @@ function MutationDataProxy(geneList)
 	 * of getMutationData function.
 	 *
 	 * @param servletName   name of the mutation data servlet (used for AJAX query)
-	 * @param servletParams servlet (query) parameters
 	 */
-	function lazyInit(servletName, servletParams)
+	function lazyInit(servletName)
 	{
 		_servletName = servletName;
-		_servletParams = servletParams;
 		_fullInit = false;
 	}
 
@@ -7114,7 +7775,7 @@ function MutationDataProxy(geneList)
 
 	function getRawGeneList()
 	{
-		return geneList;
+		return _options.geneList;
 	}
 
 	function getMutationUtil()
@@ -7180,11 +7841,13 @@ function MutationDataProxy(geneList)
 			// send ajax request for missing genes
 			if (genesToQuery.length > 0)
 			{
+				var servletParams = _options.params;
+
 				// add genesToQuery to the servlet params
-				_servletParams.geneList = genesToQuery.join(" ");
+				servletParams.geneList = genesToQuery.join(" ");
 
 				// retrieve data from the server
-				$.post(_servletName, _servletParams, process, "json");
+				$.post(_servletName, servletParams, process, "json");
 			}
 			// data for all requested genes already cached
 			else
@@ -7222,21 +7885,256 @@ function MutationDataProxy(geneList)
 	};
 }
 /**
- * This class is designed to retrieve PDB data on demand.
+ * This class is designed to retrieve PFAM data on demand.
  *
- * @param mutationUtil  an instance of MutationDetailsUtil class
+ * @param options  additional options
  *
  * @author Selcuk Onur Sumer
  */
-function PdbDataProxy(mutationUtil)
+function PancanMutationDataProxy(options)
 {
+	// default options
+	var _defaultOpts = {};
+
+	// merge options with default options to use defaults for missing values
+	var _options = jQuery.extend(true, {}, _defaultOpts, options);
+
+	// name of the PFAM data servlet
+	var _servletName;
+
+	// flag to indicate if the initialization is full or lazy
+	var _fullInit;
+
+	// map of <keyword, data> pairs
+	var _cacheByKeyword = {};
+	// map of <proteinChange, data> pairs
+	var _cacheByProteinChange = {};
+	// map of <proteinPosStart, data> pairs
+	var _cacheByProteinPosition = {};
+	// map of <gene, data> pairs
+	var _cacheByGeneSymbol = {};
+
+	/**
+	 * Initializes the proxy without actually grabbing anything from the server.
+	 * Provided servlet name will be used later.
+	 *
+	 * @param servletName   name of the data servlet (used for AJAX query)
+	 */
+	function lazyInit(servletName)
+	{
+		_servletName = servletName;
+		_fullInit = false;
+	}
+
+	/**
+	 * Initializes with full data. Once initialized with full data,
+	 * this proxy class assumes that there will be no additional data.
+	 *
+	 * @param data
+	 */
+	function fullInit(data)
+	{
+		_cacheByKeyword = data.byKeyword;
+		_cacheByProteinChange = data.byProteinChange;
+		_cacheByGeneSymbol = data.byGeneSymbol;
+		_cacheByProteinPosition = data.byProteinPosition;
+		_fullInit = true;
+	}
+
+	function getPancanData(servletParams, mutationUtil, callback)
+	{
+		var cmd = servletParams.cmd;
+		var q = servletParams.q;
+
+		var data = null;
+		var toQuery = null;
+
+		if (cmd == null)
+		{
+			// no command provided, nothing to retrieve
+			callback(null);
+		}
+		else if (cmd == "byKeywords")
+		{
+			// if no query params (keywords) provided, use all available
+			var keywords = (q == null) ? mutationUtil.getAllKeywords() : q.split(",");
+			getData(cmd, keywords, _cacheByKeyword, ["keyword"], callback);
+		}
+		else if (cmd == "byHugos")
+		{
+			// if no query params (genes) provided, use all available
+			var genes = (q == null) ? mutationUtil.getAllGenes() : q.split(",");
+			getData(cmd, genes, _cacheByGeneSymbol, ["hugo"], callback);
+		}
+		else if (cmd == "byProteinChanges")
+		{
+			// if no query params (genes) provided, use all available
+			var proteinChanges = (q == null) ? mutationUtil.getAllProteinChanges() : q.split(",");
+			getData(cmd, proteinChanges, _cacheByProteinChange, ["protein_change"], callback);
+		}
+		else if (cmd == "byProteinPos")
+		{
+			// if no query params (genes) provided, use all available
+			var proteinPositions = (q == null) ? mutationUtil.getAllProteinPosStarts() : q.split(",");
+			getData(cmd, proteinPositions, _cacheByProteinPosition, ["hugo", "protein_pos_start"], callback);
+		}
+		else
+		{
+			// invalid command
+			callback(null);
+		}
+	}
+
+	/**
+	 * Retrieves the data from the cache and/or server.
+	 *
+	 * @param cmd       cmd (byHugos or byKeyword)
+	 * @param keys      keys used to get cached data
+	 * @param cache     target cache (byKeyword or byGeneSymbol)
+	 * @param fields     field names to be used as a cache key
+	 * @param callback  callback function to forward the data
+	 */
+	function getData(cmd, keys, cache, fields, callback)
+	{
+		// get cached data
+		var data = getCachedData(keys, cache);
+		// get keywords to query
+		var toQuery = getQueryContent(data);
+
+		if (toQuery.length > 0 &&
+		    !_fullInit)
+		{
+			// retrieve missing data from the servlet
+			$.getJSON(_servletName,
+			          {cmd: cmd, q: toQuery.join(",")},
+			          function(response) {
+				          processData(response, data, cache, fields, callback);
+			          }
+			);
+		}
+		// everything is already cached (or full init)
+		else
+		{
+			processData([], data, cache, fields, callback);
+		}
+	}
+
+	/**
+	 * Processes and caches the raw data.
+	 *
+	 * @param response  raw data
+	 * @param data      previously cached data (for provided keys)
+	 * @param cache     target cache (byKeyword or byGeneSymbol)
+	 * @param fields     field names to be used as a cache key
+	 * @param callback  callback function to forward the processed data
+	 */
+	function processData (response, data, cache, fields, callback) {
+		_.each(response, function(ele, idx) {
+			var keyValues = [];
+
+			_.each(fields, function(field, idx){
+				keyValues.push(ele[field]);
+			});
+
+			var key = keyValues.join("_");
+
+			// init the list if not init yet
+			if (cache[key] == null)
+			{
+				cache[key] = [];
+			}
+
+			if (data[key] == null)
+			{
+				data[key] = [];
+			}
+
+			// add data to the cache
+			cache[key].push(ele);
+			data[key].push(ele);
+		});
+
+		var dataArray = [];
+		_.each(data, function(ele) {
+			dataArray = dataArray.concat(ele);
+		});
+
+		// forward the processed data to the provided callback function
+		callback(dataArray);
+	}
+
+	/**
+	 * Get already cached data for the given keys.
+	 * Returned object has null data for not-yet-cached keys.
+	 *
+	 * @param keys      cache keys
+	 * @param cache     data cache
+	 * @returns {Object} cached data as a map
+	 */
+	function getCachedData(keys, cache)
+	{
+		var data = {};
+
+		_.each(keys, function(key) {
+			data[key] = cache[key];
+		});
+
+		return data;
+	}
+
+	/**
+	 * Returns the list of keys to query.
+	 *
+	 * @param data  map of <key, data> pairs
+	 * @returns {Array}     list of keys to query
+	 */
+	function getQueryContent(data)
+	{
+		// keys to query
+		var toQuery = [];
+
+		_.each(_.keys(data), function(key) {
+			// data not cached yet for the given key
+			if (data[key] == null)
+			{
+				toQuery.push(key);
+			}
+		});
+
+		return toQuery
+	}
+
+	return {
+		initWithData: fullInit,
+		initWithoutData: lazyInit,
+		getPancanData: getPancanData
+	};
+}
+
+/**
+ * This class is designed to retrieve PDB data on demand.
+ *
+ * @param options  additional options
+ *
+ * @author Selcuk Onur Sumer
+ */
+function PdbDataProxy(options)
+{
+	// default options
+	var _defaultOpts = {
+		mutationUtil: {} // an instance of MutationDetailsUtil class
+	};
+
+	// merge options with default options to use defaults for missing values
+	var _options = jQuery.extend(true, {}, _defaultOpts, options);
+
 	// name of the PDB data servlet
 	var _servletName;
 
 	// flag to indicate if the initialization is full or lazy
 	var _fullInit;
 
-	var _util = mutationUtil;
+	var _util = _options.mutationUtil;
 
 	// cache for PDB data:
 
@@ -7252,6 +8150,8 @@ function PdbDataProxy(mutationUtil)
 	// map of <uniprot id, pdb data summary> pairs
 	var _pdbDataSummaryCache = {};
 
+	// map of <gene_pdbId_chainId, positionMap> pairs
+	var _positionMapCache = {};
 
 	function lazyInit(servletName)
 	{
@@ -7275,9 +8175,12 @@ function PdbDataProxy(mutationUtil)
 		_pdbDataSummaryCache = data.summaryData;
 
 		// process position data
-		_.each(_.keys(data.positionData), function(key) {
-			// TODO this is a bit tricky...
-		});
+//		_.each(_.keys(data.positionData), function(key) {
+//			// TODO this is a bit tricky so let the user provide whole cache for now...
+//		});
+
+		// set position data
+		_positionMapCache = data.positionData;
 
 		_fullInit = true;
 	}
@@ -7294,13 +8197,12 @@ function PdbDataProxy(mutationUtil)
 	{
 		// collection of alignments (PdbAlignmentCollection)
 		var alignments = chain.alignments;
+		var cacheKey = generatePositionMapCacheKey(gene, chain);
 
-		// TODO use a proper cache instead of checking/reflecting a chain attribute?
 		// do not retrieve data if it is already there
-		if (_fullInit ||
-			chain.positionMap != undefined)
+		if (_fullInit || _positionMapCache[cacheKey] != null)
 		{
-			callbackFn(chain.positionMap || {});
+			callbackFn(_positionMapCache[cacheKey] || {});
 			return;
 		}
 
@@ -7377,6 +8279,13 @@ function PdbDataProxy(mutationUtil)
 				}
 			}
 
+			// cache the map
+			if (cacheKey)
+			{
+				_positionMapCache[cacheKey] = positionMap;
+				//console.log("%s", JSON.stringify(_positionMapCache));
+			}
+
 			// call the callback function with the updated position map
 			callbackFn(positionMap);
 		};
@@ -7396,6 +8305,27 @@ function PdbDataProxy(mutationUtil)
 			// just forward to callback with empty data
 			callbackFn({});
 		}
+	}
+
+	/**
+	 * Generates a cache key for the position map
+	 * by the given gene and chain information.
+	 *
+	 * @param gene  hugo gene symbol
+	 * @param chain a PdbChainModel instance
+	 * @returns {String} cache key as a string
+	 */
+	function generatePositionMapCacheKey(gene, chain)
+	{
+		var key = null;
+
+		if (chain.alignments.length > 0)
+		{
+			// TODO make sure that the key is unique!
+			key = gene + "_" + chain.alignments.at(0).pdbId + "_" + chain.chainId;
+		}
+
+		return key;
 	}
 
 	/**
@@ -7617,10 +8547,18 @@ function PdbDataProxy(mutationUtil)
 /**
  * This class is designed to retrieve PFAM data on demand.
  *
+ * @param options  additional options
+ *
  * @author Selcuk Onur Sumer
  */
-function PfamDataProxy()
+function PfamDataProxy(options)
 {
+	// default options
+	var _defaultOpts = {};
+
+	// merge options with default options to use defaults for missing values
+	var _options = jQuery.extend(true, {}, _defaultOpts, options);
+
 	// name of the PFAM data servlet
 	var _servletName;
 
@@ -7705,6 +8643,111 @@ function PfamDataProxy()
 }
 
 /**
+ * This class is designed to retrieve cBio Portal specific data on demand.
+ *
+ * @param options  additional options
+ *
+ * @author Selcuk Onur Sumer
+ */
+function PortalDataProxy(options)
+{
+	// default options
+	var _defaultOpts = {};
+
+	// merge options with default options to use defaults for missing values
+	var _options = jQuery.extend(true, {}, _defaultOpts, options);
+
+	var _servletName;
+	var _fullInit;
+
+	// cache
+	var _data = {};
+
+	/**
+	 * Initializes the proxy without actually grabbing anything from the server.
+	 * Provided servlet name will be used later.
+	 *
+	 * @param servletName   name of the portal data servlet (used for AJAX query)
+	 */
+	function lazyInit(servletName)
+	{
+		_servletName = servletName;
+		_fullInit = false;
+	}
+
+	/**
+	 * Initializes with full portal data. Once initialized with full data,
+	 * this proxy class assumes that there will be no additional data.
+	 *
+	 * @param portalData  full portal data
+	 */
+	function fullInit(portalData)
+	{
+		//assuming the given data is a map of <gene, sequence data> pairs
+		_data = portalData;
+
+		_fullInit = true;
+	}
+
+	function getPortalData(servletParams, callback)
+	{
+		// for each servlet param, retrieve data (if not cached yet)
+		var metadata = {};
+		var queryParams = {};
+
+		_.each(_.keys(servletParams), function(key, idx) {
+			// not cached yet
+			if (_data[key] == null)
+			{
+				// update query params
+				queryParams[key] = servletParams[key];
+			}
+			// already cached
+			{
+				// get data from cache
+				metadata[key] = _data[key];
+			}
+		});
+
+		var processData = function(data)
+		{
+			// update the cache
+			_.each(_.keys(data), function(key, idx) {
+				_data[key] = data[key];
+			});
+
+			// forward data to the callback function
+			if(_.isFunction(callback))
+			{
+				callback(jQuery.extend(true, {}, metadata, data));
+			}
+		};
+
+		// TODO full init...
+
+		// everything is cached
+		if (_.isEmpty(queryParams))
+		{
+			// just forward
+			processData(metadata);
+		}
+		else
+		{
+			// retrieve data from the servlet
+			$.getJSON(_servletName,
+			          queryParams,
+			          processData);
+		}
+	}
+
+	return {
+		initWithData: fullInit,
+		initWithoutData: lazyInit,
+		getPortalData: getPortalData
+	};
+}
+
+/**
  * Designed as a base (abstract) class for an advanced implementation of data tables
  * with additional and more flexible options.
  *
@@ -7718,6 +8761,9 @@ function AdvancedDataTable(options)
 	// global reference to this instance
 	// (using "this" is sometimes dangerous)
 	var self = this;
+
+	// column index map
+	var _indexMap = null;
 
 	self._defaultOpts = {
 		// target container
@@ -7774,6 +8820,10 @@ function AdvancedDataTable(options)
 		// in addition to the default source, type, and val parameters,
 		// another parameter "indexMap" will also be passed to the function.
 		columnData: {},
+		// optional data retrieval functions for the additional data.
+		// these functions can be used to retrieve more data via ajax calls,
+		// to update the table on demand.
+		additionalData: {},
 		// default tooltip functions
 		columnTooltips: {},
 		// default event listener config
@@ -7834,11 +8884,12 @@ function AdvancedDataTable(options)
 
 		// build a map, to be able to use string constants
 		// instead of integer constants for table columns
-		var indexMap = DataTableUtil.buildColumnIndexMap(columnOrder);
+		var indexMap = _indexMap = DataTableUtil.buildColumnIndexMap(columnOrder);
 		var nameMap = DataTableUtil.buildColumnNameMap(self._options.columns);
 
 		// build a visibility map for column headers
 		var visibilityMap = DataTableUtil.buildColumnVisMap(columnOrder, self._visibilityValue);
+		self._visiblityMap = visibilityMap;
 
 		// build a map to determine searchable columns
 		var searchMap = DataTableUtil.buildColumnSearchMap(columnOrder, self._searchValue);
@@ -7956,15 +9007,45 @@ function AdvancedDataTable(options)
 
 	/**
 	 * Adds column (data) tooltips provided within the options object.
+	 *
+	 * @param helper    may contain additional info, functions, etc.
 	 */
-	self._addColumnTooltips = function()
+	self._addColumnTooltips = function(helper)
 	{
+		helper = helper || {};
+
 		var tableSelector = $(self._options.el);
 
-		_.each(self._options.columnTooltips, function(tooltipFn) {
-			if (_.isFunction(tooltipFn))
+		_.each(_.keys(self._options.columnTooltips), function(key) {
+			// do not add tooltip for excluded columns
+			if (self._visiblityMap[key] != "excluded")
 			{
-				tooltipFn(tableSelector);
+				var tooltipFn = self._options.columnTooltips[key];
+
+				if (_.isFunction(tooltipFn))
+				{
+					tooltipFn(tableSelector, helper);
+				}
+			}
+		});
+	};
+
+	self._loadAdditionalData = function(helper)
+	{
+		helper = helper || {};
+
+		var tableSelector = $(self._options.el);
+
+		_.each(_.keys(self._options.additionalData), function(key) {
+			// do not retrieve data for excluded columns
+			if (self._visiblityMap[key] != "excluded")
+			{
+				var dataFn = self._options.additionalData[key];
+
+				if (_.isFunction(dataFn))
+				{
+					dataFn(helper);
+				}
 			}
 		});
 	};
@@ -7977,6 +9058,11 @@ function AdvancedDataTable(options)
 	self.getDataTable = function()
 	{
 		return self._dataTable;
+	};
+
+	self.getIndexMap = function()
+	{
+		return _indexMap;
 	};
 }
 
@@ -8838,11 +9924,12 @@ function Mutation3dVis(name, options)
  * @param options       visual options object
  * @param gene          hugo gene symbol
  * @param mutationUtil  mutation details util
+ * @param dataProxies   all available data proxies
  * @constructor
  *
  * @author Selcuk Onur Sumer
  */
-function MutationDetailsTable(options, gene, mutationUtil)
+function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 {
 	var self = this;
 
@@ -8964,12 +10051,17 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				sType: "numeric",
 				sClass: "right-align-td",
 				asSorting: ["desc", "asc"],
-				sWidth: "2%"}
+				sWidth: "2%"},
+			cBioPortal: {sTitle: "cBioPortal",
+				tip: "Mutation frequency in cBioPortal",
+				sType: "numeric",
+				sClass: "right-align-td",
+				asSorting: ["desc", "asc"]}
 		},
 		// display order of column headers
 		columnOrder: [
 			"datum", "mutationId", "mutationSid", "caseId", "cancerStudy", "tumorType",
-			"proteinChange", "mutationType", "cna", "cosmic", "mutationStatus",
+			"proteinChange", "mutationType", "cna", "cBioPortal", "cosmic", "mutationStatus",
 			"validationStatus", "mutationAssessor", "sequencingCenter", "chr",
 			"startPos", "endPos", "referenceAllele", "variantAllele", "tumorFreq",
 			"normalFreq", "tumorRefCount", "tumorAltCount", "normalRefCount",
@@ -9090,7 +10182,18 @@ function MutationDetailsTable(options, gene, mutationUtil)
 				else { // if (count <= 0)
 					return "excluded";
 				}
-			}
+			},
+			"cBioPortal": "excluded"
+//			"cBioPortal": function (util, gene) {
+//				if (util.containsKeyword(gene) ||
+//				    util.containsMutationEventId(gene))
+//				{
+//					return "visible";
+//				}
+//				else {
+//					return "excluded";
+//				}
+//			}
 		},
 		// Indicates whether a column is searchable or not.
 		// Should be a boolean value or a function.
@@ -9360,18 +10463,44 @@ function MutationDetailsTable(options, gene, mutationUtil)
 
 				var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_igv_link_template");
 				return templateFn(vars);
+			},
+			"cBioPortal": function(datum) {
+				var mutation = datum.mutation;
+
+				// portal value may be null,
+				// because we are retrieving the data through another ajax call...
+				if (datum.cBioPortal == null)
+				{
+					// TODO make the image customizable?
+					var vars = {loaderImage: "images/ajax-loader.gif", width: 15, height: 15};
+					var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_placeholder_template");
+					return templateFn(vars);
+				}
+				else
+				{
+					var portal = MutationDetailsTableFormatter.getCbioPortal(datum.cBioPortal);
+
+					var vars = {};
+					vars.portalFrequency = portal.frequency;
+					vars.portalClass = portal.style;
+
+					var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_cbio_portal_template");
+					return templateFn(vars);
+				}
 			}
 		},
 		// default tooltip functions
 		columnTooltips: {
-			"simple": function(selector, mutationUtil, gene) {
+			"simple": function(selector, helper) {
 				var qTipOptions = MutationViewsUtil.defaultTableTooltipOpts();
 				$(selector).find('.simple-tip').qtip(qTipOptions);
 				//tableSelector.find('.best_effect_transcript').qtip(qTipOptions);
 				//tableSelector.find('.cc-short-study-name').qtip(qTipOptions);
 				//$('#mutation_details .mutation_details_table td').qtip(qTipOptions);
 			},
-			"cosmic": function(selector, mutationUtil, gene) {
+			"cosmic": function(selector, helper) {
+				var gene = helper.gene;
+				var mutationUtil = helper.mutationUtil;
 				var qTipOptions = MutationViewsUtil.defaultTableTooltipOpts();
 
 				// add tooltip for COSMIC value
@@ -9401,7 +10530,9 @@ function MutationDetailsTable(options, gene, mutationUtil)
 					$(label).qtip(qTipOptsCosmic);
 				});
 			},
-			"mutationAssessor": function(selector, mutationUtil, gene) {
+			"mutationAssessor": function(selector, helper) {
+				var gene = helper.gene;
+				var mutationUtil = helper.mutationUtil;
 				var qTipOptions = MutationViewsUtil.defaultTableTooltipOpts();
 
 				// add tooltip for Predicted Impact Score (FIS)
@@ -9432,6 +10563,58 @@ function MutationDetailsTable(options, gene, mutationUtil)
 
 					$(this).qtip(qTipOptsOma);
 				});
+			},
+			"cBioPortal": function(selector, helper) {
+				var gene = helper.gene;
+				var mutationUtil = helper.mutationUtil;
+				var portalProxy = helper.dataProxies.portalProxy;
+				var additionalData= helper.additionalData;
+
+				var addTooltip = function (frequencies, cancerStudyMetaData, cancerStudyName)
+				{
+					$(selector).find('.mutation_table_cbio_portal').each(function(idx, ele) {
+						var mutationId = $(this).closest("tr.mutation-table-data-row").attr("id");
+						var mutation = mutationUtil.getMutationIdMap()[mutationId];
+						var cancerStudy = cancerStudyName || mutation.cancerStudy;
+
+						$(ele).qtip({
+							content: {text: 'pancancer mutation bar chart is broken'},
+							events: {
+								render: function(event, api) {
+									var model = {pancanMutationFreq: frequencies,
+										cancerStudyMetaData: cancerStudyMetaData,
+										cancerStudyName: cancerStudy,
+										geneSymbol: gene,
+										keyword: mutation.keyword,
+										proteinPosStart: mutation.proteinPosStart,
+										mutationType: mutation.mutationType,
+										qtipApi: api};
+
+									//var container = $(this).find('.qtip-content');
+									var container = $(this);
+
+									// create & render the view
+									var pancanTipView = new PancanMutationHistTipView({el:container, model: model});
+									pancanTipView.render();
+								}
+							},
+							hide: {fixed: true, delay: 100 },
+							style: {classes: 'qtip-light qtip-rounded qtip-shadow', tip: true},
+							position: {my:'center right',at:'center left',viewport: $(window)}
+						});
+					});
+				};
+
+				if (additionalData.pancanFrequencies != null)
+				{
+					// TODO always get the cancerStudyName from the mutation data?
+					portalProxy.getPortalData(
+						{cancerStudyMetaData: true, cancerStudyName: true}, function(portalData) {
+							addTooltip(additionalData.pancanFrequencies,
+							           portalData.cancerStudyMetaData,
+							           portalData.cancerStudyName);
+					});
+				}
 			}
 		},
 		// default event listener config
@@ -9610,6 +10793,13 @@ function MutationDetailsTable(options, gene, mutationUtil)
 			"igvLink": function(datum) {
 				var mutation = datum.mutation;
 				return mutation.igvLink;
+			},
+			"cBioPortal": function(datum) {
+				var portal = datum.cBioPortal;
+
+				// portal value may be null,
+				// because we are retrieving it through another ajax call...
+				return portal || 0;
 			}
 		},
 		// column filter functions:
@@ -9668,6 +10858,54 @@ function MutationDetailsTable(options, gene, mutationUtil)
 			// default config relies on columnRender,
 			// columnSort, and columnFilter functions
 		},
+		// optional data retrieval functions for the additional data.
+		// these functions can be used to retrieve more data via ajax calls,
+		// to update the table on demand.
+		additionalData: {
+			"cBioPortal": function(helper) {
+				var pancanProxy = helper.dataProxies.pancanProxy;
+				var indexMap = helper.indexMap;
+				var dataTable = helper.dataTable;
+				var additionalData = helper.additionalData;
+
+				// get the pancan data and update the data & display values
+				pancanProxy.getPancanData({cmd: "byProteinPos"}, mutationUtil, function(dataByPos) {
+					pancanProxy.getPancanData({cmd: "byHugos"}, mutationUtil, function(dataByGeneSymbol) {
+						var frequencies = PancanMutationDataUtil.getMutationFrequencies(
+							{protein_pos_start: dataByPos, hugo: dataByGeneSymbol});
+
+						additionalData.pancanFrequencies = frequencies;
+
+						var tableData = dataTable.fnGetData();
+
+						// update mutation counts (cBioPortal data field) for each datum
+						_.each(tableData, function(ele, i) {
+							var proteinPosStart = ele[indexMap["datum"]].mutation.proteinPosStart;
+
+							// update the value of the datum only if proteinPosStart value is valid
+							if (proteinPosStart > 0)
+							{
+								ele[indexMap["datum"]].cBioPortal = PancanMutationDataUtil.countByKey(
+									frequencies, proteinPosStart);
+							}
+							else
+							{
+								ele[indexMap["datum"]].cBioPortal = 0;
+							}
+
+							// update but do not redraw, it is too slow
+							dataTable.fnUpdate(null, i, indexMap["cBioPortal"], false, false);
+						});
+
+						if (tableData.length > 0)
+						{
+							// this update is required to re-render the entire column!
+							dataTable.fnUpdate(null, 0, indexMap["cBioPortal"]);
+						}
+					});
+				});
+			}
+		},
 		// delay amount before applying the user entered filter query
 		filteringDelay: 600,
 		// WARNING: overwriting advanced DataTables options such as
@@ -9712,6 +10950,8 @@ function MutationDetailsTable(options, gene, mutationUtil)
 
 	var _selectedRow = null;
 
+	var _additionalData = {};
+
 	/**
 	 * Generates the data table options for the given parameters.
 	 *
@@ -9745,7 +10985,10 @@ function MutationDetailsTable(options, gene, mutationUtil)
 			],
 			"oColVis": {"aiExclude": excludedCols}, // columns to always hide
 			"fnDrawCallback": function(oSettings) {
-				self._addColumnTooltips();
+				self._addColumnTooltips({gene: gene,
+					mutationUtil: mutationUtil,
+					dataProxies: dataProxies,
+					additionalData: _additionalData});
 				self._addEventListeners(indexMap);
 
 				var currSearch = oSettings.oPreviousSearch.sSearch;
@@ -9792,6 +11035,13 @@ function MutationDetailsTable(options, gene, mutationUtil)
 //				// trigger corresponding event
 //				_dispatcher.trigger(
 //					MutationDetailsEvents.MUTATION_TABLE_READY);
+
+				self._loadAdditionalData({
+					dataProxies: dataProxies,
+					indexMap: self.getIndexMap(),
+					additionalData: _additionalData,
+					dataTable: this
+				});
 			},
 			"fnHeaderCallback": function(nHead, aData, iStart, iEnd, aiDisplay) {
 			    $(nHead).find('th').addClass("mutation-details-table-header");
@@ -9920,18 +11170,6 @@ function MutationDetailsTable(options, gene, mutationUtil)
 	}
 
 	/**
-	 * Adds column (data) tooltips provided within the options object.
-	 */
-	function addColumnTooltips()
-	{
-		var tableSelector = $(_options.el);
-
-		_.each(_options.columnTooltips, function(tooltipFn) {
-			tooltipFn(tableSelector, mutationUtil, gene);
-		});
-	}
-
-	/**
 	 * Adds tooltips for the table header cells.
 	 *
 	 * @param nHead     table header
@@ -9984,7 +11222,6 @@ function MutationDetailsTable(options, gene, mutationUtil)
 	this._initDataTableOpts = initDataTableOpts;
 	this._visibilityValue = visibilityValue;
 	this._searchValue = searchValue;
-	this._addColumnTooltips = addColumnTooltips;
 	this._addEventListeners = addEventListeners;
 	this._addHeaderTooltips = addHeaderTooltips;
 
@@ -10007,7 +11244,8 @@ MutationDetailsTable.prototype.constructor = MutationDetailsTable;
  *
  * @param geneSymbol    hugo gene symbol
  * @param options       visual options object
- * @param data          collection of Mutation models (MutationCollection)
+ * @param data          object: {pileups: collection of Pileup instances,
+ *                               sequence: sequence data as a JSON object}
  * @constructor
  *
  * @author Selcuk Onur Sumer
@@ -10026,10 +11264,9 @@ function MutationDiagram(geneSymbol, options, data)
 	// merge options with default options to use defaults for missing values
 	self.options = jQuery.extend(true, {}, self.defaultOpts, options);
 
-	self.rawData = data; // data returned by server
 	self.geneSymbol = geneSymbol; // hugo gene symbol
-	self.currentData = data; // current data set (updated after each filtering)
-	self.pileups = null; // current pileups (updated after each filtering)
+	self.data = data; // processed initial (unfiltered) data
+	self.pileups = (data == null) ? null : data.pileups; // current pileups (updated after each filtering)
 
 	self.highlighted = {}; // map of highlighted data points (initially empty)
 	self.multiSelect = false; // indicates if multiple lollipop selection is active
@@ -10037,7 +11274,6 @@ function MutationDiagram(geneSymbol, options, data)
 	// init other class members as null, will be assigned later
 	self.svg = null;    // svg element (d3)
 	self.bounds = null; // bounds of the plot area
-	self.data = null;   // processed initial (unfiltered) data
 	self.gData = null; // svg group for lollipop data points
 	self.gLine = null;   // svg group for lollipop lines
 	self.gLabel = null;  // svg group for lollipop labels
@@ -10234,7 +11470,7 @@ MutationDiagram.prototype.rescaleYAxis = function()
 {
 	var self = this;
 
-	// TODO use current.pileup instead?
+	// TODO use current Pileup data (self.pileups) instead?
 	var maxCount = self.maxCount = self.calcMaxCount(self.data.pileups);
 	var yMax = self.calcYMax(self.options, maxCount);
 
@@ -10247,13 +11483,23 @@ MutationDiagram.prototype.rescaleYAxis = function()
 };
 
 /**
- * Initializes the diagram with the given sequence data.
- * If no sequence data is provided, then tries to retrieve
- * the data from the default servlet.
+ * Updates the sequence data associated with this diagram.
  *
  * @param sequenceData  sequence data as a JSON object
  */
-MutationDiagram.prototype.initDiagram = function(sequenceData)
+MutationDiagram.prototype.updateSequenceData = function(sequenceData)
+{
+	var self = this;
+
+	self.data.sequence = sequenceData;
+};
+
+/**
+ * Initializes the diagram with the given sequence data.
+ * If no sequence data is provided, then tries to retrieve
+ * the data from the default servlet.
+ */
+MutationDiagram.prototype.initDiagram = function()
 {
 	var self = this;
 
@@ -10262,57 +11508,26 @@ MutationDiagram.prototype.initDiagram = function(sequenceData)
 	var container = d3.select(node);
 
 	// calculate bounds & save a reference for future access
-	var bounds = self.bounds = this.calcBounds(self.options);
+	var bounds = self.bounds = self.calcBounds(self.options);
 
-	// helper function for actual initialization
-	var init = function(sequenceData) {
+	self.mutationPileupMap = PileupUtil.mapToMutations(self.data.pileups);
 
-		// create a data object
-		var data = {};
-		data.pileups = self.processData(self.rawData);
-		data.sequence = sequenceData;
-		self.mutationPileupMap = PileupUtil.mapToMutations(data.pileups);
+	// init svg container
+	var svg = self.createSvg(container,
+	                         self.options.elWidth,
+	                         self.options.elHeight);
 
-		// save a reference for future access
-		self.data = data;
-		self.pileups = data.pileups;
+	// save a reference for future access
+	self.svg = svg;
 
-		// init svg container
-		var svg = self.createSvg(container,
-				self.options.elWidth,
-				self.options.elHeight);
+	// draw the whole diagram
+	self.drawDiagram(svg,
+	                 bounds,
+	                 self.options,
+	                 self.data);
 
-		// save a reference for future access
-		self.svg = svg;
-
-		// draw the whole diagram
-		self.drawDiagram(svg,
-				bounds,
-				self.options,
-				data);
-
-		// add default listeners
-		self.addDefaultListeners();
-	};
-
-	// if no sequence data is provided, try to get it from the servlet
-	if (!sequenceData)
-	{
-		// TODO use PfamDataProxy instance
-		$.getJSON("getPfamSequence.json",
-			{geneSymbol: self.geneSymbol},
-			function(data) {
-				if (data)
-				{
-					init(data[0]);
-				}
-			});
-	}
-	// if data is already there just init the diagram
-	else
-	{
-		init(sequenceData);
-	}
+	// add default listeners
+	self.addDefaultListeners();
 };
 
 /**
@@ -10335,148 +11550,6 @@ MutationDiagram.prototype.calcBounds = function(options)
 	bounds.y = options.elHeight - options.marginBottom;
 
 	return bounds;
-};
-
-/**
- * Converts the mutation data returned from the server into
- * a list of Pileup instances.
- *
- * @param mutationData  list (MutationCollection) of mutations
- * @return {Array}      a list of pileup mutations
- */
-MutationDiagram.prototype.processData = function(mutationData)
-{
-	// TODO move this function into the PileupUtil class?
-	var self = this;
-
-    // remove redundant mutations by sid
-    var redMap = {};
-    var removeItems = [];
-    for (var i=0; i < mutationData.length; i++)
-    {
-        var aMutation = mutationData.at(i);
-        var exists = redMap[aMutation.mutationSid];
-        if(exists == null) {
-            redMap[aMutation.mutationSid] = true;
-        } else {
-            removeItems.push(aMutation);
-        }
-    }
-    mutationData.remove(removeItems);
-
-    // helper function to generate a label by joining all unique
-	// protein change information in the given array of mutations
-	var generateLabel = function(mutations)
-	{
-		var mutationSet = {};
-
-		// create a set of protein change labels
-		// (this is to eliminate duplicates)
-		for (var i = 0; i < mutations.length; i++)
-		{
-			if (mutations[i].proteinChange != null &&
-			    mutations[i].proteinChange.length > 0)
-			{
-				mutationSet[mutations[i].proteinChange] = mutations[i].proteinChange;
-			}
-		}
-
-		// convert to array & sort
-		var mutationArray = [];
-
-		for (var key in mutationSet)
-		{
-			mutationArray.push(key);
-		}
-
-		mutationArray.sort();
-
-		// find longest common starting substring
-		// (this is to truncate redundant starting substring)
-
-		var startStr = "";
-
-		if (mutationArray.length > 1)
-		{
-			startStr = cbio.util.lcss(mutationArray[0],
-				mutationArray[mutationArray.length - 1]);
-
-//			 console.log(mutationArray[0] + " n " +
-//			             mutationArray[mutationArray.length - 1] + " = " +
-//			             startStr);
-		}
-
-		// generate the string
-		var label = startStr;
-
-		for (var i = 0; i < mutationArray.length; i++)
-		{
-			label += mutationArray[i].substring(startStr.length) + "/";
-		}
-
-		// remove the last slash
-		return label.substring(0, label.length - 1);
-	};
-
-	// create a map of mutations (key is the mutation location)
-	var mutations = {};
-
-	for (var i=0; i < mutationData.length; i++)
-	{
-		var mutation = mutationData.at(i);
-
-		var location = mutation.getProteinStartPos();
-		var type = mutation.mutationType.trim().toLowerCase();
-
-		if (location != null && type != "fusion")
-		{
-			if (mutations[location] == null)
-			{
-				mutations[location] = [];
-			}
-
-			mutations[location].push(mutation);
-		}
-	}
-
-	// convert map into an array of piled mutation objects
-	var pileupList = [];
-
-	for (var key in mutations)
-	{
-		var pileup = {};
-
-		pileup.pileupId = PileupUtil.nextId();
-		pileup.mutations = mutations[key];
-		pileup.count = mutations[key].length;
-		pileup.location = parseInt(key);
-		pileup.label = generateLabel(mutations[key]);
-        // The following calculates dist of mutations by cancer type
-        pileup.stats = _.chain(mutations[key])
-            .groupBy(function(mut) { return mut.cancerType; })
-            .sortBy(function(stat) { return -stat.length; })
-            .reduce(function(seed, o) {
-                seed.push({ cancerType: o[0].cancerType, count: o.length });
-                return seed;
-            }, []).value();
-
-		pileupList.push(new Pileup(pileup));
-	}
-
-	// sort (descending) the list wrt mutation count
-	pileupList.sort(function(a, b) {
-		var diff = b.count - a.count;
-
-		// if equal, then compare wrt position (for consistency)
-		if (diff == 0)
-		{
-			diff = b.location - a.location;
-		}
-
-		return diff;
-	});
-
-	return pileupList;
 };
 
 /**
@@ -11505,21 +12578,21 @@ MutationDiagram.prototype.calcSequenceBounds = function (bounds, options)
 };
 
 /**
- * Updates the plot area of the diagram for the given set of mutation data.
+ * Updates the plot area of the diagram for the given set of pileup data.
  * This function assumes that the provided mutation data is a subset
  * of the original data. Therefore this function only modifies the plot area
  * elements (lollipops, labels, etc.). If the provided data set is not a subset
  * of the original data, then the behavior of this function is unpredicted.
  *
- * If the number of mutations provided in mutationData is less than the number
+ * If the number of mutations provided in pileupData is less than the number
  * mutation in the original data set, this function returns true to indicate
  * the provided data set is a subset of the original data. If the number of
  * mutations is the same, then returns false.
  *
- * @param mutationData  a collection of mutations
- * @return {boolean}    true if the diagram is filtered, false otherwise
+ * @param pileupData  an array of piled up mutations
+ * @return {boolean}  true if the diagram is filtered, false otherwise
  */
-MutationDiagram.prototype.updatePlot = function(mutationData)
+MutationDiagram.prototype.updatePlot = function(pileupData)
 {
 	var self = this;
 	var pileups = self.pileups;
@@ -11527,10 +12600,9 @@ MutationDiagram.prototype.updatePlot = function(mutationData)
 	// TODO for a safer update, verify the provided data
 
 	// update current data & pileups
-	if (mutationData)
+	if (pileupData)
 	{
-		self.pileups = pileups = self.processData(mutationData);
-		self.currentData = mutationData;
+		self.pileups = pileups = pileupData;
 		self.mutationPileupMap = PileupUtil.mapToMutations(pileups);
 	}
 
@@ -11633,7 +12705,7 @@ MutationDiagram.prototype.resetPlot = function()
 {
 	var self = this;
 
-	self.updatePlot(self.rawData);
+	self.updatePlot(self.data.pileups);
 
 	// trigger corresponding event
 	self.dispatcher.trigger(
@@ -11990,7 +13062,8 @@ MutationDiagram.prototype.isFiltered = function()
 	var self = this;
 	var filtered = false;
 
-	if (self.currentData.length < self.rawData.length)
+	if (PileupUtil.countMutations(self.pileups) <
+	    PileupUtil.countMutations(self.data.pileups))
 	{
 		filtered = true;
 	}
@@ -13660,6 +14733,448 @@ function MutationPdbTable(options)
 // MutationPdbTable extends AdvancedDataTable...
 MutationPdbTable.prototype = new AdvancedDataTable();
 MutationPdbTable.prototype.constructor = MutationPdbTable;
+/*
+ * Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 2.1 of the License, or
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center
+ * has been advised of the possibility of such damage.  See
+ * the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this library; if not, write to the Free Software Foundation,
+ * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+ */
+
+/**
+ * Makes a Pancancer Mutation Histogram on the DOM el.
+ *
+ * @param byProteinPosData          [list of {cancer_study, cancer_type, hugo, protein_pos_start, count} ]
+ * @param byGeneData                [list of {cancer_study, cancer_type, hugo, count} ]
+ * @param cancer_study_meta_data    [list of {cancer_study, cancer_type, num_sequenced_samples} ]
+ * @param el                        DOM element
+ * @param params                    overrides default parameters: { margin: { top, bottom, right, left }, width, height, this_cancer_study }
+ * @return  an object {el, qtip} where qtip is a function: svg ->
+ *          undefined, creates qtips and their corresponding `rect .mouseOver`
+ *          elements
+ *
+ * @author Gideon Dresdner <dresdnerg@cbio.mskcc.org>
+ * September 2013
+ */
+// TODO make the histogram compatible for different data types (keyword, position data, mutation type, etc)
+function PancanMutationHistogram(byProteinPosData, byGeneData, cancer_study_meta_data, el, params) {
+
+    params = params || {};
+    if (params.sparkline) {
+        params = _.extend({
+            margin: {top: -12, right: 0, bottom: 0, left: 0},
+            width: 30,
+            height: 12,
+            this_cancer_study: undefined
+        }, params);
+    } else {
+        params = _.extend({
+            margin: {top:6, right: 10, bottom: 20, left: 40},
+            width: 600,
+            height: 300,
+            this_cancer_study: undefined
+        }, params);
+    }
+
+    var cancer_study2meta_data = generate_cancer_study2datum(cancer_study_meta_data);
+    var all_cancer_studies = _.keys(cancer_study2meta_data);
+
+    // --- data munging --- //
+
+    // copy
+    var bykeyword_data = deep_copy(byProteinPosData);
+    var bygene_data = deep_copy(byGeneData);
+
+    // extend
+	//var keyword = bykeyword_data[0].keyword;
+	var keyword = bykeyword_data[0].hugo + " " + bykeyword_data[0].protein_pos_start;
+
+    bykeyword_data = extend_by_zero_set(bykeyword_data)
+        .map(function(d) { d.keyword = keyword; return d; });     // make sure everything has a key.  TODO: remove this extra list traversal
+    bygene_data = extend_by_zero_set(bygene_data);
+
+    var cancer_study2datum = {
+        bykeyword: generate_cancer_study2datum(bykeyword_data),
+        bygene: generate_cancer_study2datum(bygene_data)
+    };
+    
+    var commonKeys = _.intersection( _.keys(cancer_study2datum.bykeyword), _.keys(cancer_study2datum.bygene) );
+    bykeyword_data = [];
+    bygene_data = [];
+    _.each(commonKeys, function(aKey) {
+	bykeyword_data.push(cancer_study2datum.bykeyword[aKey]);
+        bygene_data.push(cancer_study2datum.bygene[aKey]);
+    });
+
+
+    if (bygene_data.length !== bykeyword_data.length) {
+        throw new Error("must be same length");
+    }
+
+    if (bygene_data.length !== all_cancer_studies.length) {
+        throw new Error("there must be a datum for every cancer study and visa versa");
+    }
+
+    // subtract off counts in bykeyword_data from bygene_data
+    // because the counts in bygene_data include the ones in bykeyword_data
+    // and we don't want to count the same thing twice.
+    bygene_data.forEach(function(bygene_datum) {
+        var bykeyword_datum = cancer_study2datum.bykeyword[bygene_datum.cancer_study];
+        var new_count = bygene_datum.count - bykeyword_datum.count;
+
+        if (new_count < 0) {
+            throw new Error("more mutations for a particular keyword than "
+                + "for all keywords of a particular gene");
+        }
+
+        bygene_datum.count = new_count;
+    });
+    
+    var totalByGene = _.reduce(bygene_data, function(memo, datum){ return memo + datum.count; }, 0);
+    var totalByKeyword = _.reduce(bykeyword_data, function(memo, datum){ return memo + datum.count; }, 0);
+    var totalSequenced = _.reduce(cancer_study2meta_data, function(memo, datum){ return memo + datum.num_sequenced_samples; }, 0);
+
+    _.mixin({
+        unzip: function(array) {
+            return _.zip.apply(_, array);
+        }
+    });
+
+    var all_data = bykeyword_data.concat(bygene_data);
+    try {
+        all_data = _.chain(all_data)
+            .map(compute_frequency)
+            .groupBy(function(d) {
+                return d.cancer_study;
+            })
+            .map(_.identity)    // extract groups
+            .sortBy(cancer_type)
+            .unzip()            // turn into layers for d3.stack
+            .value();
+    } catch(e) {
+        throw new Error(e);
+    }
+
+    function deep_copy(list_of_objects) {
+        return list_of_objects.map(_.clone);
+    }
+
+    function generate_cancer_study2datum(data) {
+        return _.reduce(data, function(acc, next) {
+            acc[next.cancer_study] = next;
+            return acc;
+        }, {});
+    }
+
+    function compute_frequency(d) {
+        var num_sequenced_samples = cancer_study2meta_data[d.cancer_study].num_sequenced_samples;
+        d.num_sequenced_samples = num_sequenced_samples;
+        d.frequency = d.count / num_sequenced_samples;
+        return d;
+    }
+
+    // takes a list of cancer studies (presumably one which contains all the
+    // cancer studies for a cancer type) and returns the total frequency in
+    // that list
+    //
+    // *signature:* `array -> number`
+    function total_frequency(group) {
+        var total_frequency = _.reduce(group, function(acc, next) { return acc + next.frequency }, 0);
+        return -1 * total_frequency;
+    }
+
+    // returns the cancer type of a group
+    // *throws* error if not all elements in the list have the same cancer type
+    //
+    // *signature:* `array -> string`
+    function cancer_type(group) {
+        var cancerType = group[0].cancer_type;
+        if (!_.every(group, function(d) { return d.cancer_type === cancerType; })) {
+            throw new Error("not all data in a group have the same cancer type");
+        }
+
+        return cancerType;
+    }
+
+    // add in missing cancer studies as data points with count = 0
+    function zero_set(data) {
+        var cancer_study2datum = generate_cancer_study2datum(data);
+        // TODO: this could be optimized by referring to the `cancer_study2datum` object
+
+        function zero_datum(cancer_study) {
+            return {
+                cancer_study: cancer_study,
+                count: 0,
+                cancer_type: cancer_study2meta_data[cancer_study].cancer_type,
+                num_sequenced_samples: cancer_study2meta_data[cancer_study].num_sequenced_samples
+            };
+        }
+
+        return _.chain(all_cancer_studies)
+            .reduce(function(acc, study) {
+                if (!_.has(cancer_study2datum, study)) {
+                    // do all_cancer_studies *setminus* cancer_study2datum
+                    acc.push(study);
+                }
+                return acc;
+            }, [])
+            .map(zero_datum)
+            .value();
+    }
+
+    function extend_by_zero_set(data) {
+        return data.concat(zero_set(data));
+    }
+
+    // --- visualization --- //
+
+    // margin conventions http://bl.ocks.org/mbostock/3019563
+    var width = params.width - params.margin.left - params.margin.left;
+    var height = params.height - params.margin.top - params.margin.bottom;
+
+    var svg = d3.select(el).append("svg")
+        .attr("width", params.width)
+        .attr("height", params.height)
+        .append("g")
+        .attr("transform", "translate(" + params.margin.left + "," + params.margin.top + ")");
+
+    var stack = d3.layout.stack()
+            .x(function(d) { return d.cancer_study; })
+            .y(function(d) { return d.frequency; })
+        ;
+
+    var layers = stack(all_data);
+//    console.log(layers);
+
+    var x = d3.scale.ordinal()
+        .domain(all_data[0].map(function(d) { return d.cancer_study; }))
+        .rangeBands([0, width], .1);
+
+    // sparkline y axis does not scale: will always be from 0 to 1
+    var sparkline_y_threshold = .2
+    var yStackMax = params.sparkline ? sparkline_y_threshold
+        : d3.max(layers, function(layer) { return d3.max(layer, function(d) { return d.y0 + d.y; }); });
+
+    var y = d3.scale.linear()
+        .domain([0, yStackMax])
+        .range([height, 0])
+        .clamp(true)
+        ;
+
+    // --- bar chart ---
+
+    var googleblue = "LimeGreen";
+    var googlered = "Green";
+
+    var layer = svg.selectAll(".layer")
+        .data(layers)
+        .enter().append("g")
+        .attr("class", "layer")
+        .style("fill", function(d, i) { return [googlered, googleblue][i]; });
+
+    var rect = layer.selectAll("rect")
+        .data(function(d) { return d; })
+        .enter().append("rect")
+        .attr("x", function(d) { return x(d.cancer_study); })
+        .attr("y", function(d) { return y(d.y0 + d.y); })
+        .attr("width", function(d) { return x.rangeBand(); })
+        .attr("height", function(d) { return y(d.y0) - y(d.y0 + d.y); })
+
+    // *** kill process, do nothing more ***
+    if (params.sparkline) {
+        return {
+            el: el,
+            qtip: function() { throw new Error("don't qtip a sparkline"); }
+        };
+    }
+
+    // --- axises --- //
+
+    var percent_format = d3.format(yStackMax > .1 ? ".0%" : ".1%");
+    var yAxis = d3.svg.axis()
+        .scale(y)
+        .tickFormat(percent_format)
+        .orient("left");
+    yAxis.tickSize(yAxis.tickSize(), 0, 0);
+
+    // list of element that represent the start and end of each cancer type in
+    // the sorted list of cancer studies
+    var study_start_ends = (function() {
+        var first = all_data[0][0];
+
+        function new_element_from_datum(d) {
+            return {
+                cancer_type: d.cancer_type,
+                start: d.cancer_study,
+                end: d.cancer_study,
+                color: cancer_study2meta_data[d.cancer_study].color
+            };
+        }
+
+        return _.chain(all_data[0])
+            .reduce(function(acc, next) {
+                var last = _.last(acc);
+
+                // beginning of a new cancer type, create a first cancer_study
+                if (last.cancer_type !== next.cancer_type) {
+                    return acc.concat(new_element_from_datum(next));
+                }
+
+                // within a cancer type, continue updating the last
+                // cancer_study
+                if (last.cancer_type === next.cancer_type) {
+                    last.end = next.cancer_study;
+                    return acc;
+                }
+
+            }, [ new_element_from_datum(first) ])
+            .value();
+    }());
+
+    // add the cancer type axis
+    svg.selectAll('line')
+        .data(study_start_ends)
+        .enter()
+        .append('line')
+        .attr('x1', function(d) { return x(d.start); })
+        .attr('x2', function(d) { return x(d.end) + x.rangeBand(); })
+        .attr('y1', height + params.margin.bottom / 3)
+        .attr('y2', height + params.margin.bottom / 3)
+        .style('stroke-width', 5)
+        .style('stroke', function(d) { return d.color; })
+    ;
+
+    // append y axis
+
+    var yAxisEl = svg.append("g")
+        .call(yAxis)
+        .attr('stroke', '#000')
+        .attr('shape-rendering', 'crispEdges');
+
+    var hugo_gene_name = _.find(layers[0], function(d) { return d.hugo !== undefined; }).hugo;
+    var keyword = _.find(layers[0], function(d) { return d.keyword !== undefined; }).keyword;
+
+    // star the current cancer study if this_cancer_study is provided.
+    if (!_.isUndefined(params.this_cancer_study)) {
+        star_this_cancer_study();
+    }
+
+    function star_this_cancer_study() {
+        var this_cancer_study_data = _.find(all_data[0], function(d) {
+            return d.cancer_study === params.this_cancer_study;
+        });
+
+        var this_cancer_type;
+        try {
+            this_cancer_type = this_cancer_study_data.cancer_type;
+        } catch(e) {
+            throw new Error(e + ": could not find this the corresponding datum for this cancer study, [" + params.this_cancer_study + "]");
+        }
+
+        var find_this_cancer_studdy_datum = function(group) {
+            return _.find(group, function(d) {
+                return d.cancer_study === params.this_cancer_study;
+            });
+        };
+
+        var this_cancer_type_group = _.zip.apply(null, all_data);
+        this_cancer_type_group = _.find(this_cancer_type_group, find_this_cancer_studdy_datum);
+
+        var total_freq = total_frequency(this_cancer_type_group);
+
+        svg.append('text')
+            .text('*')
+            .attr('id', 'star')
+            .attr('x', x(params.this_cancer_study))
+            .attr('y', y(-1 * total_freq) + 10)
+            .style("font-family", "Helvetica Neue, Helvetica, Arial, sans-serif")
+            .style("font-size", (x.rangeBand()*3) + "px");
+    }
+
+    function qtip(svg) {
+        var mouseOverBar = d3.select(svg).selectAll('.mouseOver')
+            .data(all_cancer_studies)
+            .enter()
+            .append('rect')
+            .attr('class', 'mouseOver')
+            .attr('y', params.margin.top)
+            .attr('x', function(d) {
+                return x(d) + params.margin.left;
+            })
+            .attr('opacity', '0')
+            .attr('height', height + 5)
+            .attr('width', x.rangeBand())
+            .on('mouseover', function() { d3.select(this).attr('opacity', '0.25'); })
+            .on('mouseout', function() { d3.select(this).attr('opacity', '0'); });
+
+        // add qtips for each bar
+        mouseOverBar.each(function(d) {
+            $(this).qtip({
+                content: {text: 'mouseover failed'},
+                position: {my:'left top', at:'center right', viewport: $(window)},
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-wide' },
+                hide: { fixed: true, delay: 100 },
+                events: {
+                    render: function(event, api) {
+                        var data = getRectsByCancerStudy(d).map(function(rect) { return rect[0].__data__; });
+                        var bykeyword = data.filter(function(d) { return _.has(d, "keyword"); })[0] || {};
+                        var bygene = data.filter(function(d) { return !_.has(d, "keyword"); })[0] || {};
+                        var cancer_study = bygene.cancer_study;     // there should always be a bygene datum
+                        var total = cancer_study2meta_data[cancer_study].num_sequenced_samples;
+                        var text = "<p style='font-weight:bold;'>" + cancer_study + "</p>"
+                            + countText(bykeyword, bygene, total);
+
+                        api.set('content.text', text);
+                    }
+                }
+            });
+        });
+    }
+
+    function qtip_template(d, total) {
+        var count = d.count || 0;
+        if (!('frequency' in d)) d.frequency = count / total;
+        var percent = (d.frequency * 100).toFixed(1)+'%';
+        return (_.template("<span><b>{{percent}}</b> (<b>{{count}}</b> of {{total}} sequenced samples)</span>"))({percent: percent, count: count, total: total});
+    }
+    
+    function countText(bykeyword, bygene, total) {
+        return "<p style='color: " + googlered + "; margin-bottom:0;'>"
+                + keyword  + ": "  + qtip_template(bykeyword, total) + "</p>"
+                + "<p style='color: " + googleblue + "; margin-top:0;'>"
+                + "Other " + hugo_gene_name +  " mutations: "  + qtip_template(bygene, total) + "</p>";
+    }
+
+    function getRectsByCancerStudy(cancer_study) {
+        return rect.filter(function(d) { return d.cancer_study === cancer_study; });
+    }
+
+    return {
+        el: el,
+        qtip: qtip,
+        overallCountText: function() {return countText({count:totalByKeyword}, {count:totalByGene}, totalSequenced);}
+    };
+};
+
 /**
  * Controller class for the Main Mutation view.
  * Listens to the various events and make necessary changes
@@ -13796,6 +15311,14 @@ function Mutation3dController(mutationDetailsView, mainMutationView,
 		mutationDiagram.dispatcher.on(
 			MutationDetailsEvents.LOLLIPOP_SELECTED,
 			diagramSelectHandler);
+
+		mutationDiagram.dispatcher.on(
+			MutationDetailsEvents.LOLLIPOP_MOUSEOVER,
+			diagramMouseoverHandler);
+
+		mutationDiagram.dispatcher.on(
+			MutationDetailsEvents.LOLLIPOP_MOUSEOUT,
+			diagramMouseoutHandler);
 
 		mutationDiagram.dispatcher.on(
 			MutationDetailsEvents.DIAGRAM_PLOT_UPDATED,
@@ -14079,6 +15602,28 @@ function Mutation3dController(mutationDetailsView, mainMutationView,
 		}
 	}
 
+	function diagramMouseoverHandler(datum, index)
+	{
+		// highlight the corresponding residue in 3D view
+		if (mut3dVisView && mut3dVisView.isVisible())
+		{
+			// selected pileups (mutations) on the diagram
+			var pileups = getSelectedPileups();
+
+			// add the mouse over datum
+			pileups.push(datum);
+
+			// highlight (selected + mouseover) residues
+			highlight3dResidues(pileups, true);
+		}
+	}
+
+	function diagramMouseoutHandler(datum, index)
+	{
+		// same as the deselect action...
+		diagramDeselectHandler(datum, index);
+	}
+
 	function proteinChangeLinkHandler(mutationId)
 	{
 		var mutation = highlightDiagram(mutationId);
@@ -14148,15 +15693,34 @@ function Mutation3dController(mutationDetailsView, mainMutationView,
 		// selected pileups (mutations) on the diagram
 		var selected = getSelectedPileups();
 
-		// highlight 3D residues for the initially selected diagram elements
-		var mappedCount = mut3dVisView.highlightView(selected, true);
+		// highlight residues
+		highlight3dResidues(selected);
+	}
 
-		var unmappedCount = selected.length - mappedCount;
+	/**
+	 * Highlight residues on the 3D diagram for the given pileup data.
+	 *
+	 *
+	 * @param pileupData    pileups to be highlighted
+	 * @param noWarning     if set true, warning messages are not be updated
+	 */
+	function highlight3dResidues(pileupData, noWarning)
+	{
+		// highlight 3D residues for the initially selected diagram elements
+		var mappedCount = mut3dVisView.highlightView(pileupData, true);
+
+		var unmappedCount = pileupData.length - mappedCount;
+
+		// no warning flag is provided, do not update the warning text
+		if (noWarning)
+		{
+			return;
+		}
 
 		// show a warning message if there is at least one unmapped selection
 		if (unmappedCount > 0)
 		{
-			mut3dVisView.showResidueWarning(unmappedCount, selected.length);
+			mut3dVisView.showResidueWarning(unmappedCount, pileupData.length);
 		}
 		else
 		{
@@ -14252,10 +15816,12 @@ function Mutation3dController(mutationDetailsView, mainMutationView,
  * @author Selcuk Onur Sumer
  */
 function MutationDetailsController(
-	mutationDetailsView, mutationProxy, pfamProxy, pdbProxy, sampleArray, diagramOpts, tableOpts, mut3dVis)
+	mutationDetailsView, dataProxies, sampleArray, diagramOpts, tableOpts, mut3dVis)
 {
-	var _pdbProxy = pdbProxy;
-	var _pfamProxy = pfamProxy;
+	var mutationProxy = dataProxies.mutationProxy;
+	var pfamProxy = dataProxies.pfamProxy;
+	var pdbProxy = dataProxies.pdbProxy;
+
 	var _geneTabView = {};
 
 	// a single 3D view instance shared by all MainMutationView instances
@@ -14293,7 +15859,7 @@ function MutationDetailsController(
 			var mutation3dVisView = new Mutation3dVisView(
 				{el: container3d,
 					mut3dVis: mut3dVis,
-					pdbProxy: _pdbProxy,
+					pdbProxy: pdbProxy,
 					mutationProxy: mutationProxy});
 
 			mutation3dVisView.render();
@@ -14341,8 +15907,7 @@ function MutationDetailsController(
 			// prepare data for mutation view
 			var model = {geneSymbol: gene,
 				mutationData: mutationData,
-				mutationProxy: mutationProxy, // TODO pass mutationUtil instead?
-				pdbProxy: _pdbProxy,
+				dataProxies: dataProxies,
 				sequence: sequenceData,
 				sampleArray: cases,
 				diagramOpts: diagramOpts,
@@ -14380,7 +15945,7 @@ function MutationDetailsController(
 			{
 				new Mutation3dController(mutationDetailsView, mainView,
 					_mut3dVisView, components.view3d, mut3dVis,
-					_pdbProxy, mutationUtil,
+					pdbProxy, mutationUtil,
 					components.diagram, components.tableView.tableUtil, gene);
 			}
 
@@ -14419,7 +15984,7 @@ function MutationDetailsController(
 				servletParams.uniprotAcc = uniprotAcc;
 			}
 
-			_pfamProxy.getPfamData(servletParams, function(sequenceData) {
+			pfamProxy.getPfamData(servletParams, function(sequenceData) {
 				// sequenceData may be null for unknown genes...
 				if (sequenceData == null)
 				{
@@ -14430,10 +15995,10 @@ function MutationDetailsController(
 				// get the first sequence from the response
 				var sequence = sequenceData[0];
 
-				if (_pdbProxy)
+				if (pdbProxy)
 				{
 					var uniprotId = sequence.metadata.identifier;
-					_pdbProxy.getPdbRowData(uniprotId, function(pdbRowData) {
+					pdbProxy.getPdbRowData(uniprotId, function(pdbRowData) {
 						init(sequence, data, pdbRowData);
 					});
 				}
@@ -14759,7 +16324,7 @@ function MutationDiagramController(mutationDiagram, mutationTable, mutationUtil)
 		if (mutationDiagram !== null)
 		{
 			var mutationData = new MutationCollection(currentMutations);
-			mutationDiagram.updatePlot(mutationData);
+			mutationDiagram.updatePlot(PileupUtil.convertToPileups(mutationData));
 		}
 	}
 
@@ -14810,22 +16375,35 @@ function MutationMapper(options)
 			vis3d: {}
 		},
 		// data proxy configuration
+		// instance: custom instance, if provided all other parameters are ignored
+		// instanceClass: constructor to initialize the data proxy
+		// lazy: indicates if it will be lazy init or full init
+		// servletName: name of the servlet to retrieve the actual data
+		// data: actual data. will be used only if it is a full init, i.e {lazy: false}
+		// options: options to be passed to the data proxy constructor
 		proxy: {
-			pfam: {
+			pfamProxy: {
 				instance: null,
+				instanceClass: PfamDataProxy,
 				lazy: true,
+				servletName: "getPfamSequence.json",
 				data: {},
-				servletName: "getPfamSequence.json"
+				options: {}
 			},
-			mutation: {
+			mutationProxy: {
 				instance: null,
+				instanceClass: MutationDataProxy,
 				lazy: true,
-				data: {},
 				servletName: "getMutationData.json",
-				servletParams: ""
+				data: {},
+				options: {
+					params: {},
+					geneList: ""
+				}
 			},
-			pdb: {
+			pdbProxy: {
 				instance: null,
+				instanceClass: PdbDataProxy,
 				lazy: true,
 				servletName: "get3dPdb.json",
 				data: {
@@ -14833,7 +16411,31 @@ function MutationMapper(options)
 					infoData: {},
 					summaryData: {},
 					positionData: {}
+				},
+				options: {
+					mutationUtil: {}
 				}
+			},
+			pancanProxy: {
+				instance: null,
+				instanceClass: PancanMutationDataProxy,
+				lazy: true,
+				servletName: "pancancerMutations.json",
+				data: {
+					byKeyword: {},
+					byProteinChange: {},
+					byProteinPosition: {},
+					byGeneSymbol: {}
+				},
+				options: {}
+			},
+			portalProxy: {
+				instance: null,
+				instanceClass: PortalDataProxy,
+				lazy: true,
+				servletName: "portalMetadata.json",
+				data: {},
+				options: {}
 			}
 		}
 	};
@@ -14843,84 +16445,16 @@ function MutationMapper(options)
 
 	function init(mut3dVis)
 	{
-		var mutationProxyOpts = _options.proxy.mutation;
-		var pfamProxyOpts = _options.proxy.pfam;
-		var pdbProxyOpts = _options.proxy.pdb;
+		_options.proxy.mutationProxy.options.geneList = _options.data.geneList.join(" ");
 
-		var mutationProxy = null;
-
-		// init proxies
-
-		if (mutationProxyOpts.instance)
-		{
-			// a custom instance is provided
-			mutationProxy = mutationProxyOpts.instance;
-		}
-		else if (mutationProxyOpts.lazy)
-		{
-			mutationProxy = new MutationDataProxy(_options.data.geneList.join(" "));
-
-			// init mutation data without a proxy
-			mutationProxy.initWithoutData(mutationProxyOpts.servletName,
-			                              mutationProxyOpts.servletParams);
-		}
-		else
-		{
-			mutationProxy = new MutationDataProxy(_options.data.geneList.join(" "));
-
-			// init mutation data proxy with full data
-			mutationProxy.initWithData(mutationProxyOpts.data);
-		}
-
-		var pfamProxy = null;
-
-		if (pfamProxyOpts.instance)
-		{
-			pfamProxy = pfamProxyOpts.instance;
-		}
-		else if (pfamProxyOpts.lazy)
-		{
-			pfamProxy = new PfamDataProxy();
-			pfamProxy.initWithoutData(pfamProxyOpts.servletName);
-		}
-		else
-		{
-			pfamProxy = new PfamDataProxy();
-			pfamProxy.initWithData(pfamProxyOpts.data);
-		}
-
-		var pdbProxy = null;
-
-		if (mut3dVis &&
-		    mutationProxy.hasData())
-		{
-			if (pdbProxyOpts.instance)
-			{
-				pdbProxy = pdbProxyOpts.instance;
-			}
-			else
-			{
-				pdbProxy = new PdbDataProxy(mutationProxy.getMutationUtil());
-			}
-		}
-
-		if (pdbProxy != null)
-		{
-			if (pdbProxyOpts.lazy)
-			{
-				pdbProxy.initWithoutData(pdbProxyOpts.servletName);
-			}
-			else
-			{
-				pdbProxy.initWithData(pdbProxyOpts.data);
-			}
-		}
-
+		// init all data proxies
+		var dataProxies = DataProxyUtil.initDataProxies(
+			_options.proxy, mut3dVis);
 
 		// TODO pass other view options (pdb table, pdb diagram, etc.)
 
 		var model = {
-			mutationProxy: mutationProxy,
+			mutationProxy: dataProxies.mutationProxy,
 			sampleArray: _options.data.sampleList,
 			tableOpts: _options.view.mutationTable,
 			diagramOpts: _options.view.mutationDiagram
@@ -14936,13 +16470,11 @@ function MutationMapper(options)
 		// init main controller...
 		var controller = new MutationDetailsController(
 			mutationDetailsView,
-			mutationProxy,
-			pfamProxy,
-			pdbProxy,
+			dataProxies,
 			model.sampleArray,
-		    model.diagramOpts,
-		    model.tableOpts,
-		    mut3dVis);
+			model.diagramOpts,
+			model.tableOpts,
+			mut3dVis);
 
 		// ...and let the fun begin!
 		mutationDetailsView.render();

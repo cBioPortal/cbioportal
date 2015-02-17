@@ -138,7 +138,7 @@ public class MercurialServiceImpl implements MercurialService
 				String cancerStudy = matcher.group(1);
 				int caseListSubdirIndex = cancerStudy.indexOf(FileUtils.CASE_LIST_DIRECTORY_NAME);
 				if (caseListSubdirIndex != -1) {
-					toReturn.add(cancerStudy.substring(0, caseListSubdirIndex));
+					toReturn.add(cancerStudy.substring(0, caseListSubdirIndex-1));
 				}
 				else {
 					toReturn.add(cancerStudy.substring(0, cancerStudy.lastIndexOf("/")));

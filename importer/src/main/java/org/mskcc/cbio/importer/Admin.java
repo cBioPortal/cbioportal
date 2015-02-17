@@ -697,9 +697,11 @@ public class Admin implements Runnable {
 		for (CancerStudyMetadata cancerStudyMetadata : config.getAllCancerStudyMetadata()) {
 			if (portal.equals(PortalMetadata.TRIAGE_PORTAL)) {
 				if (cancerStudyMetadataToImport.contains(cancerStudyMetadata)) {
-					// update/add study into db
-					importer.updateCancerStudy(portal, cancerStudyMetadata);
-					cancerStudiesUpdated.add(cancerStudyMetadata.getStudyPath());
+					if (!DaoCancerStudy.doesCancerStudyExistByStableId(cancerStudyMetadata.getStableId())) {
+						// update/add study into db
+						importer.updateCancerStudy(portal, cancerStudyMetadata);
+						cancerStudiesUpdated.add(cancerStudyMetadata.getStudyPath());
+					}
 				}
 				else {
 					// remove from db

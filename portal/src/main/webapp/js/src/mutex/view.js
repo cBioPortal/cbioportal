@@ -320,46 +320,45 @@
     }
 
     function appendDownloadButton() {
-        var _tmpHeader = ['geneA', 'geneB', 'p-Value', 'Log Odds Ratio', 'Association', '&'];
-        var _str = _tmpHeader.join('+');
+        var _tmpHeader = ['geneA', 'geneB', 'p-Value', 'Log Odds Ratio', 'Association'];
+        var _str = _tmpHeader.join('\t') + "\n";
         $.each(MutexData.getDataArr(), function(index, obj) {
-            var _tmpArr = [obj.geneA, obj.geneB, obj.p_value, obj.log_odds_ratio, obj.association + "&"];
-            _str += _tmpArr.join('+');
+            var _tmpArr = [obj.geneA, obj.geneB, obj.p_value, obj.log_odds_ratio, obj.association];
+            _str += _tmpArr.join('\t') + "\n";
         });
-        var mutexDownloadForm =
-            "<form style='display:inline-block' action='mutexdownload.do' method='post' target='_blank'>" +
-                "<input type='hidden' name='datatable_str' value='" + _str + "'>" +
-                "<input type='submit' value='Download Full Result'></form>";
-        $("#mutex-table-div").append(mutexDownloadForm); 
+        $("#mutex-table-div").append("<button id='mutex_download_btn'>Download Full Result</button>");
+        $("#mutex_download_btn").click(function() {
+            cbio.download.clientSideDownload([_str], "mutex_result.txt");
+        });
     }
 
  	return {
- 		init: function() {
- 			$("#mutex-loading-image").hide();
- 			convertData();
-            overWriteFilters();
- 			configTable();
-            attachFilter();
-            addHeaderQtips();
-            addStatInfo();
-            mutexTableInstance.fnAdjustColumnSizing();
-            appendDownloadButton();
-  		},
-        resize: function() {
-            var tid = setInterval(detectInstance, 100);
-            function detectInstance() {
-                if (mutexTableInstance !== "" && (typeof mutexTableInstance !== "undefined")) {
-                    abortTimer();                    
-                }
-            }
-            function abortTimer() { 
-                clearInterval(tid);
+            init: function() {
+                $("#mutex-loading-image").hide();
+                convertData();
+                overWriteFilters();
+                configTable();
+                attachFilter();
+                addHeaderQtips();
+                addStatInfo();
                 mutexTableInstance.fnAdjustColumnSizing();
+                appendDownloadButton();
+            },
+            resize: function() {
+                var tid = setInterval(detectInstance, 100);
+                function detectInstance() {
+                    if (mutexTableInstance !== "" && (typeof mutexTableInstance !== "undefined")) {
+                        abortTimer();                    
+                    }
+                }
+                function abortTimer() { 
+                    clearInterval(tid);
+                    mutexTableInstance.fnAdjustColumnSizing();
+                }
+            },
+            isTableInstanceExisted: function() {
+                if (mutexTableInstance !== "" && (typeof mutexTableInstance !== "undefined")) return true;
+                else return false;
             }
-        },
-        isTableInstanceExisted: function() {
-            if (mutexTableInstance !== "" && (typeof mutexTableInstance !== "undefined")) return true;
-            else return false;
-        }
- 	}
+ 	};
  }());

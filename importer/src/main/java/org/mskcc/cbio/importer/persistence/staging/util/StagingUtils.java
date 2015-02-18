@@ -210,5 +210,25 @@ common criteria for validating a specified Path to an input file
             logger.error(e.getMessage());
         }
     }
+
+    /*
+   create a staging file path if one does not exist already
+   */
+    public static boolean validateStagingPath(final Path aPath) {
+        Preconditions.checkArgument
+                (null != aPath,
+                        "A Path to the staging file directory is required");
+        try {
+            if(Files.notExists(aPath)) {
+                Files.createDirectories(aPath);
+                logger.info("Staging file path " +aPath +" created");
+            }
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+            return false;
+        }
+        return true;
+
+    }
 }
 

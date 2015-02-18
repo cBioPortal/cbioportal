@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.icgc.etl.IcgcCancerStudyETLCallable;
 import org.mskcc.cbio.importer.icgc.etl.IcgcCopyNumberETLCallable;
 import org.mskcc.cbio.importer.icgc.etl.IcgcSegmentDataETLCallable;
+import org.mskcc.cbio.importer.icgc.etl.IcgcSimpleSomaticMutationETLCallable;
 import org.mskcc.cbio.importer.icgc.model.IcgcClinicalModel;
 import org.mskcc.cbio.importer.icgc.model.IcgcFusionModel;
 import org.mskcc.cbio.importer.icgc.model.IcgcSimpleSomaticMutationModel;
@@ -135,17 +136,18 @@ public class IcgcCancerStudyImporter implements Callable<String> {
      */
     private List<Callable<String>> resolveEtlTasks() {
         List<Callable<String>> etlTasks = Lists.newArrayList();
+        // simple somatic mutations
         if (!Strings.isNullOrEmpty(this.metadata.getSomaticmutationurl())) {
-            etlTasks.add(new IcgcCancerStudyETLCallable(this.metadata.getSomaticmutationurl(),
-                    IcgcSimpleSomaticMutationModel.class, StagingCommonNames.MUTATION_TYPE, this.stagingFileDirectory));
-            logger.info("Added  simple somatic transformation for: " + this.metadata.getSomaticmutationurl());
+          //  etlTasks.add( new IcgcSimpleSomaticMutationETLCallable(this.metadata.getSomaticmutationurl(), this.stagingFileDirectory));
+           // etlTasks.add(new IcgcCancerStudyETLCallable(this.metadata.getSomaticmutationurl(),
+            //        IcgcSimpleSomaticMutationModel.class, StagingCommonNames.MUTATION_TYPE, this.stagingFileDirectory));
+           // logger.info("Added  simple somatic transformation for: " + this.metadata.getSomaticmutationurl());
         }
         // clinical
         if (!Strings.isNullOrEmpty(this.metadata.getClinicalurl())) {
             etlTasks.add(new IcgcCancerStudyETLCallable(this.metadata.getClinicalurl(),
                     IcgcClinicalModel.class, StagingCommonNames.CLINICAL_TYPE, this.stagingFileDirectory));
             logger.info("Added clinical transformation for: " + this.metadata.getClinicalurl());
-
         }
         /*
          ICGC copy number variation data generates two (2) staging files:
@@ -154,7 +156,6 @@ public class IcgcCancerStudyImporter implements Callable<String> {
          */
         if (!Strings.isNullOrEmpty(this.metadata.getCopynumberurl())) {
             // generate the CNA file
-            //TsvFileHandler tsvFileHandler = FileHandlerService.INSTANCE.obtainFileHandlerForCnvFile(this.stagingFileDirectory, true);
             etlTasks.add(new
                     IcgcCopyNumberETLCallable(this.metadata, this.stagingFileDirectory));
             logger.info("Added copy number transformation for " + this.metadata.getCopynumberurl());
@@ -181,6 +182,7 @@ public class IcgcCancerStudyImporter implements Callable<String> {
         if (!Strings.isNullOrEmpty(this.metadata.getSplicevarianturl())) {
 
         }
+        // fusion data
         if (!Strings.isNullOrEmpty(this.metadata.getStructuralmutationurl())) {
             etlTasks.add(new IcgcCancerStudyETLCallable(this.metadata.getStructuralmutationurl(),
                     IcgcFusionModel.class, StagingCommonNames.STRUCTURAL_MUTATION_TYPE, stagingFileDirectory));
@@ -197,7 +199,7 @@ public class IcgcCancerStudyImporter implements Callable<String> {
         Path basePath = Paths.get("/tmp/icgctest");
         final ListeningExecutorService service =
                 MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(1));
-        IcgcCancerStudyImporter importer = new IcgcCancerStudyImporter("BOCA-FR", basePath);
+        IcgcCancerStudyImporter importer = new IcgcCancerStudyImporter("PAEN-AU", basePath);
 
         List<ListenableFuture<String>> futureList = Lists.newArrayList();
         futureList.add(service.submit(importer));

@@ -32,21 +32,13 @@ import java.nio.file.Path;
 public class StructVariantTransformer {
 
     protected static final String TRANSFORMER_DATA_TYPE = "structural-variation";
-    protected static final DatatypeMetadata dtMeta;
+    //protected static final DatatypeMetadata dtMeta;
     private final static Logger logger = Logger.getLogger(StructVariantTransformer.class);
     protected TsvFileHandler tsvFileHandler;
     protected CancerStudyMetadata csMeta;
+    protected final static String stagingFileName = "data_SV.txt";
 
 
-    static {
-        Optional<DatatypeMetadata> dtMetaOpt = DatatypeMetadata.findDatatypeMetadatByDataType(TRANSFORMER_DATA_TYPE);
-        if (dtMetaOpt.isPresent()){
-            dtMeta = dtMetaOpt.get();
-        } else {
-            logger.error("Unable to resolve DatatypeMetaData object for " +TRANSFORMER_DATA_TYPE);
-            dtMeta = null;
-        }
-    }
 
     public StructVariantTransformer(Path aPath, Boolean deleteFlag, CancerStudyMetadata csMeta){
         Preconditions.checkArgument(null != aPath, "A Path to a staging file is required");

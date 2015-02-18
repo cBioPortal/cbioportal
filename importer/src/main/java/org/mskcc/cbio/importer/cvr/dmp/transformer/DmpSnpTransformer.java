@@ -100,6 +100,10 @@ public class DmpSnpTransformer extends MutationTransformer implements DMPDataTra
             // combine the two types of SNPs in DMP data
             snpList.addAll(result.getSnpIndelExonic());
             snpList.addAll(result.getSnpIndelSilent());
+            // mod 17Feb2015 - add support for non-panel SNPs
+            snpList.addAll(result.getSnpIndelExonicNP());
+            snpList.addAll(result.getSnpIndelSilentNP());
+
             modelList.addAll(FluentIterable.from(snpList)
                     .transform(new Function<DmpSnp, DmpSnp>() {
                         @Override

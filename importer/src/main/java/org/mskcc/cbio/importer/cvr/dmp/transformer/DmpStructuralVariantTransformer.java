@@ -45,8 +45,10 @@ public class DmpStructuralVariantTransformer extends StructVariantTransformer im
     private static final Boolean DELETE_STAGING_FILE = false;
     private final static Logger logger = Logger.getLogger(DmpStructuralVariantTransformer.class);
 
+
     public DmpStructuralVariantTransformer(Path aPath, CancerStudyMetadata csMeta) {
-        super(aPath.resolve(dtMeta.getStagingFilename()), DELETE_STAGING_FILE, csMeta);
+
+        super(aPath.resolve(stagingFileName), DELETE_STAGING_FILE, csMeta);
     }
 
     @Override

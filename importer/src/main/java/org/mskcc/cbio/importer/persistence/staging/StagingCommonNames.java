@@ -37,6 +37,7 @@ public interface StagingCommonNames {
     public static final String INTERGENIC = "intergenic";
 
     public static final String xmlExtension = "xml";
+    public static final String stagingFileExtension = "txt";
 
     public static final List<String> variationList = Lists.newArrayList("INS", "SNP", "DNP", "TNP", "ONP");
     // worksheet data types
@@ -127,8 +128,10 @@ public interface StagingCommonNames {
                     .put("20", Long.valueOf(64_444_167))
                     .put("21", Long.valueOf(46_709_983))
                     .put("22", Long.valueOf(50_818_468))
-                    .put("X", Long.valueOf(156_040_895))
-                    .put("Y", Long.valueOf(57_227_415)).build();
+                    .put("X", Long.valueOf(156_040_895))  // upper and lower case for x & y
+                    .put("Y", Long.valueOf(57_227_415))
+                    .put("x", Long.valueOf(156_040_895))
+                    .put("y", Long.valueOf(57_227_415)).build();
     // valid chromosome values
     public static final Set<String> validChromosomeSet = Sets.newHashSet("1","2","3","4","5","6",
            "7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","X","Y",

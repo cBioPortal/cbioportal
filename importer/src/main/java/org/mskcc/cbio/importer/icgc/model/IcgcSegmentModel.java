@@ -1,5 +1,6 @@
 package org.mskcc.cbio.importer.icgc.model;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import org.mskcc.cbio.importer.persistence.staging.segment.SegmentModel;
 
@@ -137,8 +138,12 @@ public class IcgcSegmentModel  extends SegmentModel{
         this.copy_number = copy_number;
     }
 
+    /*
+    ICGC studies are inconsistent about using the segment_mean & segment_median columns to
+    persist variation data. Return whichever column is used
+     */
     public String getSegment_mean() {
-        return segment_mean;
+        return this.segment_mean;
     }
 
     public void setSegment_mean(String segment_mean) {
@@ -177,10 +182,15 @@ public class IcgcSegmentModel  extends SegmentModel{
     public String getNumMark() {
         return "";
     }
-
+    /*
+       ICGC studies are inconsistent about using the segment_mean & segment_median columns to
+       persist variation data. Return whichever column is used
+        */
     @Override
     public String getSegMean() {
-        return this.segment_mean;
+        return (!Strings.isNullOrEmpty(this.segment_mean))
+                ?this.segment_mean
+                :this.segment_median;
     }
 
     public void setChromosome(String chromosome) {

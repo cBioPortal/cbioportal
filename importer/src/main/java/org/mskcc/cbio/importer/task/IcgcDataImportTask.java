@@ -1,6 +1,8 @@
 package org.mskcc.cbio.importer.task;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.*;
 import org.apache.log4j.Logger;
@@ -9,6 +11,7 @@ import org.mskcc.cbio.importer.icgc.importer.SimpleSomaticMutationImporter;
 import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.model.IcgcMetadata;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
+import org.mskcc.cbio.importer.persistence.staging.util.StagingUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -49,6 +52,14 @@ public class IcgcDataImportTask extends AbstractScheduledService {
 
     public IcgcDataImportTask() {
         this.resolveBaseStagingPath();
+    }
+
+    public IcgcDataImportTask(String stagingPath) {
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(stagingPath),
+                "A Path to the staging file directory is required");
+        this.baseStagingPath = Paths.get(stagingPath);
+        Preconditions.checkArgument(StagingUtils.validateStagingPath(this.baseStagingPath),
+                "Path " +stagingPath +" is invalid");
     }
 
     /*
@@ -126,8 +137,9 @@ public class IcgcDataImportTask extends AbstractScheduledService {
     main method for stand alone testing outside of task scheduler
      */
     public static void main(String... args){
-        ApplicationContext applicationContext = new ClassPathXmlApplicationContext("/applicationContext-importer.xml");
-        IcgcDataImportTask importTask = (IcgcDataImportTask) applicationContext.getBean("icgcImportTask");
+       // ApplicationContext applicationContext = new ClassPathXmlApplicationContext("/applicationContext-importer.xml");
+        //IcgcDataImportTask importTask = (IcgcDataImportTask) applicationContext.getBean("icgcImportTask");
+        IcgcDataImportTask importTask = new IcgcDataImportTask("/tmp/icgc");
         try {
             importTask.runOneIteration();
         } catch (Exception e) {

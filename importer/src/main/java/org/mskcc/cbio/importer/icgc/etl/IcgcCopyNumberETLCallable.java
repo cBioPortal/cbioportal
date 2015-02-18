@@ -118,10 +118,10 @@ public class IcgcCopyNumberETLCallable extends CnvTransformer implements Callabl
     public static void main (String...args) {
         final ListeningExecutorService service = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(1));
 
-        IcgcMetadata meta = IcgcMetadata.getIcgcMetadataById("BOCA-FR").get();  // throws an Exception if icgc id is invalid
+        IcgcMetadata meta = IcgcMetadata.getIcgcMetadataById("PAEN-AU").get();  // throws an Exception if icgc id is invalid
         Path testPath = Paths.get("/tmp/icgctest");
 
-            ListenableFuture<String> lf = service.submit(new IcgcCopyNumberETLCallable(meta, testPath));
+            ListenableFuture<String> lf = service.submit(new IcgcCopyNumberETLCallable(meta,testPath.resolve(meta.getDownloaddirectory())));
             Futures.addCallback(lf, new FutureCallback<String>() {
                 @Override
                 public void onSuccess(String result) {

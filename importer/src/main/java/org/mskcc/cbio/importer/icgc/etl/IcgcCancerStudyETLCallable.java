@@ -260,7 +260,7 @@ public class IcgcCancerStudyETLCallable implements Callable<String> {
     // main class for stand alone testing
     public static void main(String... args) {
 
-        IcgcMetadata icgcMetadata = IcgcMetadata.getIcgcMetadataById("BOCA-FR").get();
+        IcgcMetadata icgcMetadata = IcgcMetadata.getIcgcMetadataById("PAEN-AU").get();
         Path tempPath = Paths.get("/tmp/icgctest");
         ListeningExecutorService service = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(3));
         ListenableFuture<String> lf1 = null;
@@ -290,10 +290,10 @@ public class IcgcCancerStudyETLCallable implements Callable<String> {
         }
 
         try {
-            logger.info(lf1.get(600, TimeUnit.SECONDS));
+            //logger.info(lf1.get(600, TimeUnit.SECONDS));
             logger.info(lf2.get(600, TimeUnit.SECONDS));
             logger.info(lf3.get(600, TimeUnit.SECONDS));
-            lf1.cancel(true);
+//            lf1.cancel(true);
             lf2.cancel(true);
             lf3.cancel(true);
             service.shutdown();

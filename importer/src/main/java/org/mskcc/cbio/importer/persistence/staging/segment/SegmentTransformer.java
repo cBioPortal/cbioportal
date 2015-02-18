@@ -5,6 +5,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.icgc.model.IcgcSegmentModel;
 import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
@@ -39,21 +40,6 @@ import java.util.*;
  */
 public class SegmentTransformer  {
 
-    /*
-     protected TsvFileHandler tsvFileHandler;
-
-    public MutationTransformer(Path aPath, Boolean deleteFlag){
-        Preconditions.checkArgument(null != aPath,"A Path to a staging file is required");
-        if (deleteFlag) {
-            this.tsvFileHandler = FileHandlerService.INSTANCE.obtainFileHandlerForNewStagingFile(aPath,
-                    MutationModel.resolveColumnNames());
-        } else {
-            this.tsvFileHandler = FileHandlerService.INSTANCE
-                    .obtainFileHandlerForAppendingToStagingFile(aPath, MutationModel.resolveColumnNames());
-        }
-    }
-     */
-
     protected  TsvStagingFileHandler fileHandler;
     protected TsvFileHandler tsvFileHandler;
     //TODO: get from data sources metadata
@@ -62,11 +48,12 @@ public class SegmentTransformer  {
 
     private static final String segmentFileBaseName = "_data_cna_hg19.seg";
     private static final String segmentMetaFileBaseName = "_meta_cna_hg19_seg.txt";
+    private static final Logger logger = Logger.getLogger(SegmentTransformer.class);
 
     private static final DatatypeMetadata dtMeta = DatatypeMetadata.findDatatypeMetadatByDataType(SEGMENT_DATA_TYPE).get();
 
     /*
-    new constructor using FileHandlerService
+    new constructor using FileHandlerService - preferred
      */
 
     protected SegmentTransformer (Path aPath, Boolean deleteFlag, CancerStudyMetadata csMeta){
@@ -95,13 +82,6 @@ public class SegmentTransformer  {
         this.generateMetadataFile(csMetadata,stagingDirectoryPath);
 
     }
-
-   // protected void registerStagingFileDirectory( Path stagingDirectoryPath){
-     //   Preconditions.checkArgument(null != stagingDirectoryPath,
-     //           "A Path to the staging file directory is required");
-     //   this.fileHandler.registerTsvStagingFile(this.resolveSegmentFilePath(csMetadata,stagingDirectoryPath), SegmentModel.resolveColumnNames(), true);
-//
-   // }
 
     protected Path resolveSegmentFilePath(CancerStudyMetadata csMetadata, Path basePath){
         String filename = dtMeta.getStagingFilename().replace(CANCER_STUDY_TEMPLATE,csMetadata.getStableId());
@@ -159,7 +139,7 @@ public class SegmentTransformer  {
                 .toSortedSet(new CopyNumberModelStartPositionComparator());
         Integer currentStop = 1;
         Integer currentStart = 1;
-        Long maxStop = StagingCommonNames.chromosomeLengthMap.get(chr);
+        Long maxStop = StagingCommonNames.chromosomeLengthMap.get(chr.toUpperCase());
         int mapSize = chrModels.size();
         List<SegmentModel> modelList = Lists.newArrayList();
         //int entryCount = 1;
@@ -176,6 +156,7 @@ public class SegmentTransformer  {
             currentStart = Integer.valueOf(model.getLocStart());
             currentStop = Integer.valueOf(model.getLocStart());
         }
+
         // fill in the gap to the end of the chromosome
         if (currentStop < maxStop) {
             modelList.add(this.createDefaultCopyNumberModel(sampleId, chr, currentStop.toString(), maxStop.toString()));

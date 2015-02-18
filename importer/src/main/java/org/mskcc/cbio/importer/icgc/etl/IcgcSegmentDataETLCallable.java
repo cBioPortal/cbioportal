@@ -161,12 +161,6 @@ public class IcgcSegmentDataETLCallable extends SegmentTransformer implements Ca
         return modelList;
     }
 
-    /*
-    private method to generate an ordered List of IcgcCopyNumber model objects covering the entire span of a
-    chromosome for a specified ICGC sample.
-    those portions of a chromosome that did not demonstrate copy number variation are represented by
-    default values
-     */
 
     private List<IcgcSegmentModel> resolveChromosomeMapLocal(String sampleId, String chr, Collection<IcgcSegmentModel> chrModels) {
         // logger.info("Processing sample " +sampleId +" chromosome " +chr);
@@ -227,7 +221,7 @@ public class IcgcSegmentDataETLCallable extends SegmentTransformer implements Ca
                         IcgcSegmentModel model = StringUtils.columnStringToObject(IcgcSegmentModel.class,
                                 line.getText(), StagingCommonNames.tabPattern,
                                 IcgcFunctionLibrary.resolveFieldNames(IcgcSegmentModel.class));
-                        if (!Strings.isNullOrEmpty(model.getSegment_mean())) {
+                        if (!Strings.isNullOrEmpty(model.getSegMean())) {
                             copyNumberModelMap.put(model.getIcgc_sample_id(), model);
                             sampleSet.add(model.getIcgc_sample_id());
                         }
@@ -250,7 +244,7 @@ public class IcgcSegmentDataETLCallable extends SegmentTransformer implements Ca
     public static void main(String... args) {
         final ListeningExecutorService service = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(1));
 
-        CancerStudyMetadata csMeta = CancerStudyMetadata.findCancerStudyMetaDataByStableId("boca_icgc_fr").get();
+        CancerStudyMetadata csMeta = CancerStudyMetadata.findCancerStudyMetaDataByStableId("pet_icgc_au").get();
         Path testPath = Paths.get("/tmp/icgctest");
         ListenableFuture<String> lf = service.submit(new IcgcSegmentDataETLCallable(csMeta,testPath));
         Futures.addCallback(lf, new FutureCallback<String>() {

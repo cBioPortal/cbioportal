@@ -460,15 +460,15 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         $('#oncoprint-diagram-removeWhitespace-icon img')[0].attributes.src.value = 'images/removeWhitespace.svg';
     }
 
-    var refreshOncoPrint = function(){
+    window.refreshOncoPrint = function(){
         oncoprint.remove_oncoprint();
         inner_loader_img.show();
         toggleControls(false); //disable toggleControls
 
         inner_loader_img.hide();
-        
         oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
-            geneData: geneDataColl.toJSON(),
+            //geneData: geneDataColl.toJSON(),
+	    geneData: geneDataColl.toJSON(),
             clinicalData: extraGenes,
             genes: genes,
             clinical_attrs: extraAttributes,

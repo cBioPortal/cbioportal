@@ -332,11 +332,15 @@ function doOQLQuery() {
 		var oqlFormat = {}; // oql data
 		var cnaType = {'-2': 'HOMODELETED', '-1':'HEMIZYGOUSLYDELETED', '0':'DIPLOID', '1':'GAINED', '2':'AMPLIFIED'};
 		var oqlcnaType = {'-2':'HOMDEL','-1':'HETLOSS', '1':'GAIN', '2':'AMP'};
+		var samples = {};
+		var genes = {};
 		$.each(data, function(ind, obj) {
 			var gene = geneMap[obj.entrez_gene_id];
 			var sample = sampleMap[obj.internal_sample_id];
 			oncoprintFormat[gene] = oncoprintFormat[gene] || {};
 			oncoprintFormat[gene][sample] = oncoprintFormat[gene][sample] || {};
+			samples[sample] = true;
+			genes[gene] = true;
 			
 			oqlFormat[gene] = oqlFormat[gene] || {};
 			oqlFormat[gene][sample] = oqlFormat[gene][sample] || {};
@@ -347,6 +351,11 @@ function doOQLQuery() {
 				oqlFormat[gene][sample][oqlcnaType[Integer.toString(obj.profile_data)]] = true;
 				oncoprintFormat[gene][sample].cna = (obj.profile_data === '0' ? undefined : cnaType[Integer.toString(obj.profile_data)]);
 			}
+		});
+		$.each(samples, function(sample, val) {
+			$.each(genes, function(gene, val) {
+				oncoprintFormat[gene][sample] = oncoprintFormat[gene][sample] || {};
+			});
 		});
 		var oqlData = [];
 		var oncoprintData = []; // read the data off
@@ -365,11 +374,7 @@ function doOQLQuery() {
 			},[]);
 			oncoprint.sortBy('genes');
 		});
-		//console.log(oncoprintData);
 	});
-}
-function toOncoprintFormat(data) {
-	
 }
 //  Determine whether to submit a cross-cancer query or
 //  a study-specific query

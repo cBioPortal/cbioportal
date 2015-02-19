@@ -208,36 +208,30 @@ var CoexpPlotsView = function() {
             $("#" + plotsOpts.names.log_scale_y).change(function() {
                 coexpPlots.updateScaleY(plotsOpts.names.log_scale_y);
             });
+        }  
+        $("#" + plotsOpts.names.download_pdf).click(function() { loadSvg("pdf", plotsOpts.text.fileName); });
+        $("#" + plotsOpts.names.download_svg).click(function() { loadSvg("svg", plotsOpts.text.fileName); });
+    
+        function loadSvg(type, _filename) {
+            //Remove the help icons
+            $("#" + plotsOpts.names.body + " .plots-title-x-help").remove();
+            $("#" + plotsOpts.names.body + " .plots-title-y-help").remove();
+            //extract the "clean" svg
+            if (type === "pdf") {
+                var downloadOptions = {
+                    filename: _filename + ".pdf",
+                    contentType: "application/pdf",
+                    servletName: "svgtopdf.do"
+                };
+                cbio.download.initDownload($("#" + plotsOpts.names.body + " svg")[0], downloadOptions);
+            } if (type === "svg") {
+                var xmlSerializer = new XMLSerializer();
+                var download_str = cbio.download.addSvgHeader(xmlSerializer.serializeToString($("#" + plotsOpts.names.body + " svg")[0]));
+                cbio.download.clientSideDownload([download_str], _filename + ".svg", "application/svg+xml");
+            }
+            //Add help icons back on
+            coexpPlots.updateTitleHelp(plotsOpts.names.log_scale_x, plotsOpts.names.log_scale_y);      
         }
-        $("#" + plotsOpts.names.download_pdf).submit(function() { loadSvg("pdf"); });
-        $("#" + plotsOpts.names.download_svg).submit(function() { loadSvg("svg"); });
-    }
-
-    function loadSvg(type) {
-        //Remove the help icons
-        $("#" + plotsOpts.names.body + " .plots-title-x-help").remove();
-        $("#" + plotsOpts.names.body + " .plots-title-y-help").remove();
-        //extract the "clean" svg
-        var result = $("#" + plotsOpts.names.body).html();
-        if (type === "pdf") {
-            $("#" + plotsOpts.names.download_pdf + " :input").each(
-                function() {
-                    if (this.name === "svgelement") {
-                        this.value = result;
-                    }
-                }
-            );
-        } if (type === "svg") {
-            $("#" + plotsOpts.names.download_svg + " :input").each(
-                function() {
-                    if (this.name === "svgelement") {
-                        this.value = result;
-                    }
-                }
-            );
-        }
-        //Add help icons back on
-        coexpPlots.updateTitleHelp(plotsOpts.names.log_scale_x, plotsOpts.names.log_scale_y);      
     }
 
     return {
@@ -248,7 +242,7 @@ var CoexpPlotsView = function() {
             geneY = _geneY,
             dataArr = jQuery.extend(true, [], _dataArr);
             dataAttr = jQuery.extend(true, [], _dataAttr);
-            //
+            
             importDefaultSettings();
             configGeneralSettings();
             configPlotsSettings();
@@ -256,6 +250,5 @@ var CoexpPlotsView = function() {
             initDivs();
             initPlots();
         }
-    }
-
-}
+    };
+};

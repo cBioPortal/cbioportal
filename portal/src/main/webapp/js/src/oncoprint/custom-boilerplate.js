@@ -476,32 +476,32 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
             hide: {fixed: true, delay: 100, event: "mouseout"}
             }); 
 
-            // setup the download buttons
-            $(".oncoprint-download").click(function() {
-                                var fileType = $(this).attr("type");
-                                var params = {
-                                    filetype: fileType,
-                                    filename:"oncoprint." + fileType,
-                                    svgelement: oncoprint.getPdfInput()
-                                };
-
-                                cbio.util.requestDownload("svgtopdf.do", params);
-                            });
-            
-            $(".sample-download").click(function() {
-                                var samples = "Sample order in the Oncoprint is: \n";
-                                var genesValue = oncoprint.getData();
-                                for(var i = 0; i< genesValue.length; i++)
-                                {
-                                    samples= samples + genesValue[i].key+"\n";
-                                }
-                                var a=document.createElement('a');
-                                a.href='data:text/plain;base64,'+btoa(samples);
-                                a.textContent='download';
-                                a.download='OncoPrintSamples.txt';
-                                a.click();
-                                a.delete();
-                            });
+//            // setup the download buttons
+//            $(".oncoprint-download").click(function() {
+//                                var fileType = $(this).attr("type");
+//                                var params = {
+//                                    filetype: fileType,
+//                                    filename:"oncoprint." + fileType,
+//                                    svgelement: oncoprint.getPdfInput()
+//                                };
+//
+//                                cbio.util.requestDownload("svgtopdf.do", params);
+//                            });
+//            
+//            $(".sample-download").click(function() {
+//                                var samples = "Sample order in the Oncoprint is: \n";
+//                                var genesValue = oncoprint.getData();
+//                                for(var i = 0; i< genesValue.length; i++)
+//                                {
+//                                    samples= samples + genesValue[i].key+"\n";
+//                                }
+//                                var a=document.createElement('a');
+//                                a.href='data:text/plain;base64,'+btoa(samples);
+//                                a.textContent='download';
+//                                a.download='OncoPrintSamples.txt';
+//                                a.click();
+//                                a.delete();
+//                            });
                             
             $('.oncoprinter-diagram-downloads-icon').qtip({
                 //id: "#oncoprint-diagram-downloads-icon-qtip",

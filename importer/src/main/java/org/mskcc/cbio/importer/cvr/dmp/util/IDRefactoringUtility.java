@@ -1,29 +1,31 @@
 package org.mskcc.cbio.importer.cvr.dmp.util;
 
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import edu.stanford.nlp.io.FileSequentialCollection;
+import edu.stanford.nlp.util.StringUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.log4j.Logger;
+import org.apache.logging.log4j.util.PropertiesUtil;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 import rx.Observable;
 import rx.Subscriber;
 import rx.functions.Func1;
 
 import javax.annotation.Nullable;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * Copyright (c) 2014 Memorial Sloan-Kettering Cancer Center.
@@ -53,23 +55,78 @@ import java.util.Map;
  */
 public class IDRefactoringUtility {
     private static final Logger logger = Logger.getLogger(IDRefactoringUtility.class);
+    private Map<String,String> patientIdMap;
+    private Map<String,String> sampleIdMap;
 
     private static final String PATIENT_ID_COLUMN_NAME = "PATIENT_ID";
     private static final String SAMPLE_ID_COLUMN_NAME = "SAMPLE_ID";
     private static final String LEGACY_PATIENT_ID_COLUMN_NAME = "PATIENT_ID_LEGACY";
     private static final String LEGACY_SAMPLE_ID_COLUMN_NAME = "SAMPLE_ID_LEGACY";
 
-    public IDRefactoringUtility() {}
+    private static final String ERROR_ID_VALUE ="***********";
+
+    public IDRefactoringUtility() {
+
+    }
 
     /*
     placeholder methods for converting a legacy id to a new id
     to be replaced with legacy->new Maps
      */
     private String refactorPatientId(String anId){
-        return "PATIENT_" + anId;
+         if (this.patientIdMap.containsKey(anId)){
+             return this.patientIdMap.get(anId);
+         }
+        logger.error("Legacy patient id " +anId +" was not found in the patient id map");
+        return ERROR_ID_VALUE;
     }
     private String refactorSampleId (String anId){
-        return "SAMPLE_" +anId;
+        if (this.sampleIdMap.containsKey(anId)){
+            return this.sampleIdMap.get(anId);
+        }
+        logger.error("Legacy sample id " +anId + " was not found in the sample id map");
+        return ERROR_ID_VALUE;
+    }
+
+    private void initializeMaps(Path patientIdFile, Path sampleIdFile) {
+        this.patientIdMap = initializeIdMap(patientIdFile);
+        this.sampleIdMap = initializeIdMap(sampleIdFile);
+    }
+
+    private Map<String,String> initializeIdMap(final Path idFile){
+        final Map<String,String> idMap = Maps.newHashMap();
+        try {
+            Reader reader = new FileReader(idFile.toFile());
+            final CSVParser parser = new CSVParser(reader, CSVFormat.TDF.withHeader());
+            Observable<CSVRecord> recordObservable = Observable.from(parser.getRecords());
+            recordObservable.subscribe(new Subscriber<CSVRecord>() {
+                @Override
+                public void onCompleted() {
+                    logger.error("Processed " +idMap.size() +" ids in " +idFile.getFileName());
+                }
+                @Override
+                public void onError(Throwable throwable) {
+                    logger.error(throwable.getMessage());
+                    throwable.printStackTrace();
+                }
+                @Override
+                public void onNext(CSVRecord record) {
+                    String legacyId = record.get("legacy_id");
+                    String newId = record.get("new_id");
+                    if (!idMap.containsKey(legacyId)) {
+                        idMap.put(record.get("legacy_id"), record.get("new_id"));
+                    }  else {
+                        logger.error("legacy id: " +legacyId +" is repeated in " +idFile.getFileName() +" mapped to "
+                              +idMap.get(legacyId) +" and "  +newId);
+                    }
+                }
+            });
+
+        } catch (IOException e) {
+            logger.info(e.getMessage());
+            e.printStackTrace();
+        }
+        return idMap;
     }
 
 
@@ -78,12 +135,16 @@ public class IDRefactoringUtility {
     contains the substring "data_clinical"
      */
     private void refactorFileFunction(Path inPath, final Path outPath){
+        Preconditions.checkState(this.patientIdMap.size()>0,
+                "The patient ID map has not been initialized");
+        Preconditions.checkState(this.sampleIdMap.size()>0,
+                "The sample ID map has not been initialized");
 
         FileSequentialCollection fsc = new FileSequentialCollection(inPath.toFile(),
                 StagingCommonNames.stagingFileExtension,false);
         Observable<File> fileObservable = Observable.from(fsc)
-                // filter out -filtered files from a previous run
-                .filter(new Func1<File,Boolean>() {
+                // only retain data_clinical type files
+                .filter(new Func1<File, Boolean>() {
                     @Override
                     public Boolean call(File file) {
                         return file.getName().contains("data_clinical");
@@ -108,7 +169,7 @@ public class IDRefactoringUtility {
             }
         });
     }
-    
+
     /*
     Process a clinical staging file. Create a header for the new staging file with two
     additional columns for the legacy sample and patient ids. Fore each line in the
@@ -141,13 +202,11 @@ public class IDRefactoringUtility {
                         e.printStackTrace();
                     }
                 }
-
                 @Override
                 public void onError(Throwable throwable) {
                     logger.error(throwable.getMessage());
                     throwable.printStackTrace();
                 }
-
                 @Override
                 public void onNext(final CSVRecord record) {
                     String legacySampleId = record.get(SAMPLE_ID_COLUMN_NAME);
@@ -177,6 +236,22 @@ public class IDRefactoringUtility {
 
     public static void main (String...args) {
         IDRefactoringUtility test = new IDRefactoringUtility();
-        test.refactorFileFunction(Paths.get("/tmp/clinical"),Paths.get("/tmp/clinical/new"));
+        Properties utilityProperties = StringUtils.propFileToProperties("/tmp/idrefactor.properties");
+        String patientLookupFile = edu.stanford.nlp.util.PropertiesUtils.getString(utilityProperties,
+                "patient.lookup.file", "/tmp/clinical/patientLookup.txt");
+        String sampleLookupFile = edu.stanford.nlp.util.PropertiesUtils.getString(utilityProperties,
+                "sample.lookup.file", "/tmp/clinical/sampleLookup.txt");
+        String sourcePath = edu.stanford.nlp.util.PropertiesUtils.getString(utilityProperties,
+                "source.path", "/tmp/clinical");
+        String outputPath = edu.stanford.nlp.util.PropertiesUtils.getString(utilityProperties,
+                "source.path", "/tmp/clinical/new");
+        logger.info("The data_clinical files in " +sourcePath +" will be processed");
+        logger.info("The sample ids will be refactored using lookup file " +sampleLookupFile);
+        logger.info("The patient ids will be refactored using lookup file " +patientLookupFile);
+        logger.info("The refactored data_clinical files will be written to "
+            +outputPath);
+        test.initializeMaps(Paths.get(patientLookupFile),
+                Paths.get(sampleLookupFile));
+        test.refactorFileFunction(Paths.get(sourcePath),Paths.get(outputPath));
     }
 }

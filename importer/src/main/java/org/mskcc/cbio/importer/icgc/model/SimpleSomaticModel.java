@@ -245,6 +245,11 @@ public class SimpleSomaticModel extends MutationModel {
     }
 
     @Override
+    public String getCDNA_change() {
+        return "";
+    }
+
+    @Override
     public String getTranscript() {
         return this.recordMap.get("cds_mutation");
     }

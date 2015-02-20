@@ -283,7 +283,7 @@ public class IcgcSimpleSomaticMutationModel extends MutationModel {
 
     @Override
     public String getTRefCount() {
-        return IcgcFunctionLibrary.resolveVariantType.apply(new Tuple2<String,String>(this.getTotal_read_count(),
+        return IcgcFunctionLibrary.resolveReferenceCount.apply(new Tuple2<String,String>(this.getTotal_read_count(),
                 this.getMutant_allele_read_count()));
     }
 
@@ -300,6 +300,11 @@ public class IcgcSimpleSomaticMutationModel extends MutationModel {
     @Override
     public String getAAChange() {
         return this.getAa_mutation();
+    }
+
+    @Override
+    public String getCDNA_change() {
+        return this.getCds_mutation();
     }
 
     @Override

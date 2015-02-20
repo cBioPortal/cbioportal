@@ -363,35 +363,14 @@ public class FoundationShortVariantModel extends MutationModel{
 
     @Override
     public String getTAltCount() {
-        return this.calculateTumorAltCount.apply(new Tuple2(svt.getDepth().toString(),svt.getPercentReads().toString()));
+        return this.calculateAlleleAltCount.apply(new Tuple2(svt.getDepth().toString(),svt.getPercentReads().toString()));
     }
 
     @Override
     public String getTRefCount() {
-        return this.calculateTumorRefCount.apply(new Tuple2(svt.getDepth().toString(),svt.getPercentReads().toString()));
+        return this.calculateAlleleRefCount.apply(new Tuple2(svt.getDepth().toString(),svt.getPercentReads().toString()));
     }
 
-
-    private final Function<Tuple2<String, String>, String> calculateTumorRefCount =
-            new Function<Tuple2<String, String>, String>() {
-                public String apply(Tuple2<String, String> f) {
-                    final Long depth = Long.valueOf(f._1());
-                    final Float percentReads = Float.valueOf(f._2());
-                    final Long  tumorAltCount=  Math.round( depth * (percentReads/100.0));
-                    return Long.toString( (long) depth - tumorAltCount);
-
-                }
-            };
-
-    private final Function<Tuple2<String, String>, String> calculateTumorAltCount =
-            new Function<Tuple2<String, String>, String>() {
-                public String apply(Tuple2<String,String> f) {
-                    final Float depth = Float.valueOf(f._1());
-                    final Float percentReads = Float.valueOf(f._2());
-                    return Long.toString(Math.round( depth * (percentReads/100.0)));
-
-                }
-            };
 
     @Override
     public String getNAltCount() {
@@ -406,6 +385,11 @@ public class FoundationShortVariantModel extends MutationModel{
     @Override
     public String getAAChange() {
         return svt.getProteinEffect();
+    }
+
+    @Override
+    public String getCDNA_change() {
+         return svt.getCdsEffect();
     }
 
     @Override

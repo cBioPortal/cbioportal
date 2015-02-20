@@ -708,8 +708,14 @@ public class Admin implements Runnable {
 				if (cancerStudyMetadataToImport.contains(cancerStudyMetadata)) {
 					if (!DaoCancerStudy.doesCancerStudyExistByStableId(cancerStudyMetadata.getStableId())) {
 						// update/add study into db
-						importer.updateCancerStudy(portal, cancerStudyMetadata);
-						cancerStudiesUpdated.add(cancerStudyMetadata.getStudyPath());
+						try {
+							importer.updateCancerStudy(portal, cancerStudyMetadata);
+							cancerStudiesUpdated.add(cancerStudyMetadata.getStudyPath());
+						}
+						catch (Exception e) {
+							LOG.info(e.getMessage());
+							LOG.info("Error updating study: " + cancerStudyMetadata.getStableId() + ", skipping.");
+						}
 					}
 				}
 				else {

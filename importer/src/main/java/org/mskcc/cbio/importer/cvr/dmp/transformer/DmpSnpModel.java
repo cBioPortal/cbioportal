@@ -1,5 +1,6 @@
 package org.mskcc.cbio.importer.cvr.dmp.transformer;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import org.apache.log4j.Logger;
@@ -226,7 +227,7 @@ public class DmpSnpModel extends MutationModel {
 
     @Override
     public String getTRefCount() {
-        return this.calculateAlleleRefCount.apply(new Tuple2(this.snp.getTumorDp().toString(),this.snp.getTumorVfreq().toString()));
+        return this.calculateDmpAlleleRefCount.apply(new Tuple2(this.snp.getTumorAd(),this.snp.getTumorVfreq()));
     }
 
     @Override
@@ -236,8 +237,7 @@ public class DmpSnpModel extends MutationModel {
 
     @Override
     public String getNRefCount() {
-        return this.calculateAlleleRefCount.apply(new Tuple2(this.snp.getNormalDp().toString(),this.snp.getNormalVfreq().toString()));
-
+        return this.calculateDmpAlleleRefCount.apply(new Tuple2(this.snp.getNormalAd(),this.snp.getNormalVfreq()));
     }
 
     @Override
@@ -254,5 +254,19 @@ public class DmpSnpModel extends MutationModel {
     public String getTranscript() {
         return this.snp.getTranscriptId();
     }
+
+    /*
+    Function to calculate the allele reference count for normal or tumor
+    refcount = variant_frequency / (alternate allele count + variant frequency)
+     */
+    protected final Function<Tuple2<Integer, Integer>, String> calculateDmpAlleleRefCount =
+            new Function<Tuple2<Integer, Integer>, String>() {
+                public String apply(Tuple2<Integer, Integer> f) {
+                    final Long alternateAlleleCount = Long.valueOf(f._1());
+                    final Long variantFrequency = Long.valueOf(f._2());
+                    final Long  total = alternateAlleleCount + variantFrequency;
+                    return Long.toString( (long) variantFrequency/total);
+                }
+            };
 
 }

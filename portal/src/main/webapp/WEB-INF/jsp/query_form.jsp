@@ -94,10 +94,10 @@
         }
     %>
 </script>
-<script type="text/javascript" src="../../js/api/cbioportal-webservice.js"></script>
-<script type="text/javascript" src="../../js/api/cbioportal-datamanager.js"></script>
-<script type="text/javascript" src="../../js/lib/oql-parser.js"></script>
-<script type="text/javascript" src="../../js/lib/oql.js"></script>
+<script type="text/javascript" src="js/api/cbioportal-webservice.js"></script>
+<script type="text/javascript" src="js/api/cbioportal-datamanager.js"></script>
+<script type="text/javascript" src="js/lib/oql-parser.js"></script>
+<script type="text/javascript" src="js/lib/oql.js"></script>
 
 <div class="main_query_panel">
     <div id="main_query_form">

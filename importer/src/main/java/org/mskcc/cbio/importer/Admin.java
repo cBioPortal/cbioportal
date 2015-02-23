@@ -30,6 +30,8 @@ import org.apache.log4j.PropertyConfigurator;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.SimpleMailMessage;
 
 import java.io.*;
 import java.util.*;
@@ -59,6 +61,8 @@ public class Admin implements Runnable {
 	// identifiers for init db command
 	private static final String PORTAL_DATABASE = "portal";
 	private static final String IMPORTER_DATABASE = "importer";
+
+	private int numStudiesUpdated;
 
 	// parsed command line
 	private CommandLine commandLine;
@@ -92,8 +96,8 @@ public class Admin implements Runnable {
 													  "\"" + Config.ALL + "\".")
 									 .create("init_db"));
 
-        Option fetchData = (OptionBuilder.withArgName("data_source:run_date:send_notification")
-							.hasArgs(3)
+        Option fetchData = (OptionBuilder.withArgName("data_source:run_date")
+							.hasArgs(2)
 							.withValueSeparator(':')
 							.withDescription("Fetch data from the given data_source and the given run date (mm/dd/yyyy).  " + 
 											 "Use \"" + Fetcher.LATEST_RUN_INDICATOR + "\" to retrieve the most current run or " +
@@ -160,11 +164,12 @@ public class Admin implements Runnable {
 											  "If ref_data is 't', all reference data will be imported prior to importing staging files.")
                              .create("import_data"));
 
-        Option updateStudyData = (OptionBuilder.withArgName("portal:update_worksheet")
-                                  .hasArgs(2)
+        Option updateStudyData = (OptionBuilder.withArgName("portal:update_worksheet:send_notification")
+                                  .hasArgs(3)
                                   .withValueSeparator(':')
                                   .withDescription("Updates study data for the given portal. if update_worksheet is 't' " +
-                                                   "UPDATE_AVAILABLE and IMPORT columns in cancer_studies google worksheet are updated.")
+                                                   "msk_automation_portal entry will be cleared.  if send_notification is 't' " +
+                                                   "email will be sent to registered users within information about the updates.")
                                   .create("update_study_data"));
         
         Option importCaseLists = (OptionBuilder.withArgName("portal")
@@ -237,11 +242,18 @@ public class Admin implements Runnable {
 		}
 	}
 
-	/**
+	public int getNumStudiesUpdated()
+	{
+		return numStudiesUpdated;
+	}
+
+	/*
 	 * Executes the desired portal commmand.
 	 */
 	@Override
 	public void run() {
+
+		numStudiesUpdated = 0;
 
 		// sanity check
 		if (commandLine == null) {
@@ -260,7 +272,7 @@ public class Admin implements Runnable {
 			// fetch
 			else if (commandLine.hasOption("fetch_data")) {
                 String[] values = commandLine.getOptionValues("fetch_data");
-				fetchData(values[0], values[1], (values.length == 3) ? values[2] : "");
+				fetchData(values[0], values[1]);
 			}
 			// fetch reference data
 			else if (commandLine.hasOption("fetch_reference_data")) {
@@ -302,7 +314,7 @@ public class Admin implements Runnable {
 			}
 			else if (commandLine.hasOption("update_study_data")) {
                 String[] values = commandLine.getOptionValues("update_study_data");
-                updateStudyData(values[0], values[1]);
+                numStudiesUpdated = updateStudyData(values[0], values[1], values[2]);
 			}
                         
 			// import case lists
@@ -376,18 +388,17 @@ public class Admin implements Runnable {
 	 * @param runDate String
 	 * @throws Exception
 	 */
-	private void fetchData(String dataSource, String runDate, String sendNotification) throws Exception {
+	private void fetchData(String dataSource, String runDate) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("fetchData(), dateSource:runDate: " + dataSource + ":" + runDate);
 		}
 
 		// create an instance of fetcher
-		Boolean sendNotificationBool = getBoolean(sendNotification);
 		DataSourcesMetadata dataSourcesMetadata = getDataSourcesMetadata(dataSource);
 		// fetch the given data source
 		Fetcher fetcher = (Fetcher)getBean(dataSourcesMetadata.getFetcherBeanID());
-		fetcher.fetch(dataSource, runDate, sendNotificationBool);
+		fetcher.fetch(dataSource, runDate);
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("fetchData(), complete");
@@ -673,35 +684,97 @@ public class Admin implements Runnable {
 		}
 	}
 
-	private void updateStudyData(String portal, String updateWorksheet) throws Exception
+	private int updateStudyData(String portal, String updateWorksheet, String sendNotification) throws Exception
 	{
 		if (LOG.isInfoEnabled()) {
 			LOG.info("updateStudyData(), portal: " + portal);
 			LOG.info("updateStudyData(), update_worksheet: " + updateWorksheet);
 		}
-
 		Boolean updateWorksheetBool = getBoolean(updateWorksheet);
+		Boolean sendNotificationBool = getBoolean(sendNotification);
+
 		Config config = (Config)getBean("config");
 		Importer importer = (Importer)getBean("importer");
+
 		Map<String,String> propertyMap = new HashMap<String,String>();
-		for (CancerStudyMetadata cancerStudyMetadata : config.getCancerStudyMetadata(portal)) {
-			propertyMap.clear();
-			// if we are updating triage and this study is ready for update, then import it
-			if (portal.equals(PortalMetadata.TRIAGE_PORTAL) && cancerStudyMetadata.updateTriage()) {
-				importer.updateCancerStudy(portal, cancerStudyMetadata);
-				// we've updated the study in triage, turn off update triage flag
-				propertyMap.put(CancerStudyMetadata.UPDATE_TRIAGE_COLUMN_KEY, "false");
+		propertyMap.put(CancerStudyMetadata.MSK_PORTAL_COLUMN_KEY, "");
+
+		List<String> cancerStudiesUpdated = new ArrayList<String>();
+		List<String> cancerStudiesRemoved = new ArrayList<String>();
+
+		Collection<CancerStudyMetadata> cancerStudyMetadataToImport = config.getCancerStudyMetadata(portal);
+		for (CancerStudyMetadata cancerStudyMetadata : config.getAllCancerStudyMetadata()) {
+			if (portal.equals(PortalMetadata.TRIAGE_PORTAL)) {
+				if (cancerStudyMetadataToImport.contains(cancerStudyMetadata)) {
+					if (!DaoCancerStudy.doesCancerStudyExistByStableId(cancerStudyMetadata.getStableId())) {
+						// update/add study into db
+						try {
+							importer.updateCancerStudy(portal, cancerStudyMetadata);
+							cancerStudiesUpdated.add(cancerStudyMetadata.getStudyPath());
+						}
+						catch (Exception e) {
+							LOG.info(e.getMessage());
+							LOG.info("Error updating study: " + cancerStudyMetadata.getStableId() + ", skipping.");
+						}
+					}
+				}
+				else {
+					// remove from db
+					if (deleteCancerStudy(cancerStudyMetadata.getStableId())) {
+						cancerStudiesRemoved.add(cancerStudyMetadata.getStudyPath());
+					}
+				}
 			}
-			// otherwise, we only update studies that are ready for release
-			else if (cancerStudyMetadata.readyForRelease()) {
+			else if (cancerStudyMetadataToImport.contains(cancerStudyMetadata)) {
 				importer.updateCancerStudy(portal, cancerStudyMetadata);
-				// turn off ready for release so that the next
-				// fetch does not get imported before being vetted
-				propertyMap.put(CancerStudyMetadata.READY_FOR_RELEASE_COLUMN_KEY, "false");
+				cancerStudiesUpdated.add(cancerStudyMetadata.getStudyPath());
 			}
-			if (updateWorksheetBool) {
+			if (portal.equals(PortalMetadata.MSK_AUTOMATION_PORTAL) && updateWorksheetBool
+			    && cancerStudyMetadataToImport.contains(cancerStudyMetadata)) {
+				// For BIC, we do not want to update production again unless a new update occurs.
+				// For DMP we will, so we need option to clear msk_automation_portal flag
 				config.updateCancerStudyAttributes(cancerStudyMetadata.getStudyPath(), propertyMap);
 			}
+		}
+		if (sendNotificationBool && (!cancerStudiesUpdated.isEmpty() || !cancerStudiesRemoved.isEmpty())) {
+			sendNotification(portal, cancerStudiesUpdated, cancerStudiesRemoved);
+		}
+
+		return cancerStudiesUpdated.size() + cancerStudiesRemoved.size();
+	}
+
+
+
+	private void sendNotification(String portal, List<String> cancerStudiesUpdated, List<String> cancerStudiesRemoved)
+	{
+		Config config = (Config)getBean("config");
+		SimpleMailMessage message = null;
+		if (portal.equals(CancerStudyMetadata.MSK_PORTAL_COLUMN_KEY)) {
+			message = (SimpleMailMessage)getBean("mskUpdateMessage");
+		}
+		else if (portal.equals(CancerStudyMetadata.TRIAGE_PORTAL_COLUMN_KEY)) {
+			message = (SimpleMailMessage)getBean("triageUpdateMessage");
+		}
+		String body = message.getText() + "\n\n";
+		SimpleMailMessage msg = new SimpleMailMessage(message);
+		for (String cancerStudy : cancerStudiesUpdated) {
+			CancerStudyMetadata cancerStudyMetadata = config.getCancerStudyMetadataByName(cancerStudy);
+			body += cancerStudyMetadata.getStableId() + "\n";
+		}
+		if (!cancerStudiesRemoved.isEmpty()) {
+			body += "\n\n" + "The following studies have been removed:\n\n";
+			for (String cancerStudy : cancerStudiesRemoved) {
+				CancerStudyMetadata cancerStudyMetadata = config.getCancerStudyMetadataByName(cancerStudy);
+				body += cancerStudyMetadata.getStableId() + "\n";
+			}
+		}
+		msg.setText(body);
+		try {
+			JavaMailSender mailSender = (JavaMailSender)getBean("mailSender");
+			mailSender.send(msg);
+		}
+		catch (Exception e) {
+			LOG.info("sendNotification(), error sending email notification:\n" + e.getMessage());
 		}
 	}
         
@@ -790,15 +863,19 @@ public class Admin implements Runnable {
 		}
 	}
 
-	private void deleteCancerStudy(String cancerStudyStableId) throws Exception
+	private boolean deleteCancerStudy(String cancerStudyStableId) throws Exception
 	{
 		if (LOG.isInfoEnabled()) {
 			LOG.info("deleteCancerStudy(), study id: " + cancerStudyStableId);
 		}
-		DaoCancerStudy.deleteCancerStudy(cancerStudyStableId);
-		if (LOG.isInfoEnabled()) {
-			LOG.info("deleteCancerStudy(), complete");
+		if (DaoCancerStudy.doesCancerStudyExistByStableId(cancerStudyStableId)) {
+			DaoCancerStudy.deleteCancerStudy(cancerStudyStableId);
+			if (LOG.isInfoEnabled()) {
+				LOG.info("deleteCancerStudy(), complete");
+			}
+			return true;
 		}
+		return false;
 	}
 
 	/**
@@ -877,5 +954,7 @@ public class Admin implements Runnable {
 		catch (Exception e) {
 			e.printStackTrace();
 		}
+
+		System.exit(admin.getNumStudiesUpdated());
 	}
 }

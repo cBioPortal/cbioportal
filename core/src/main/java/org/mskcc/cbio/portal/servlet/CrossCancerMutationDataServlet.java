@@ -117,7 +117,10 @@ public class CrossCancerMutationDataServlet extends HttpServlet
                 //  Get the default patient set
                 AnnotatedPatientSets annotatedPatientSets = new AnnotatedPatientSets(patientSetList, dataTypePriority);
                 PatientList defaultPatientSet = annotatedPatientSets.getDefaultPatientList();
-                
+
+	            if (defaultPatientSet == null)
+		            continue;
+
                 List<String> sampleList = defaultPatientSet.getPatientList();
 
                 //  Get the default genomic profiles

@@ -86,6 +86,8 @@ class GDataImpl implements Config {
 	private String tcgaTumorTypesWorksheet;
     private String icgcWorksheet;
 
+    private final String HTML_COLOR_NAME_ONCOTREE_PROP = "HTML_COLOR_NAME";
+
     /**
      * Constructor.
      *
@@ -175,64 +177,81 @@ class GDataImpl implements Config {
 		return ret;
 	}
 	
-	private TumorTypeMetadata parseTumorTypeMetadata(ArrayList<String> line, int index, Map<String, String> colorMap) {
-		int newEntIndex = index;
-		String newEnt = line.get(newEntIndex).trim();
-		if (newEnt.isEmpty()) {
-			return null;
-		}
-		String parentEnt = newEntIndex==0?"tissue":line.get(newEntIndex - 1).trim();
+    private TumorTypeMetadata parseTumorTypeMetadata(ArrayList<String> line, int index, HashMap<String, HashMap<String, String>> propertyMap) {
+        int newEntIndex = index;
+        String newEnt = line.get(newEntIndex).trim();
+        if (newEnt.isEmpty()) {
+            return null;
+        }
+        String parentEnt = newEntIndex==0?"tissue":line.get(newEntIndex - 1).trim();
 
-		String tissue = line.get(0);
-		String color = colorMap.get(tissue);
-		String[] newEntData = extractTumorTypeData(newEnt);
-		String name = newEntData[0];
-		String id = newEntData[1];
-		if (id.isEmpty()) {
-			id = name;
-		}
-		String[] parentEntData = extractTumorTypeData(parentEnt);
-		String parent = parentEntData[1];
-		if (parent.isEmpty()) {
-			parent = parentEntData[0];
-		}
-		String clinicalTrialKeywords = name.toLowerCase();
-		return new TumorTypeMetadata(id, name, color, parent, clinicalTrialKeywords, tissue);
+        String tissue = line.get(0);
+        String color = propertyMap.get(tissue).get(HTML_COLOR_NAME_ONCOTREE_PROP);
+        String[] newEntData = extractTumorTypeData(newEnt);
+        String name = newEntData[0];
+        String id = newEntData[1];
+        if (id.isEmpty()) {
+            id = name;
+        }
+        String[] parentEntData = extractTumorTypeData(parentEnt);
+        String parent = parentEntData[1];
+        if (parent.isEmpty()) {
+            parent = parentEntData[0];
+        }
+        String clinicalTrialKeywords = name.toLowerCase();
+        return new TumorTypeMetadata(id, name, color, parent, clinicalTrialKeywords, tissue);
 	}
 
     @Override
     public Collection<TumorTypeMetadata> getTumorTypeMetadata(String tumorType) {
 
-        Collection<TumorTypeMetadata> toReturn = new ArrayList<TumorTypeMetadata>();
-        
-        if (oncotreeMatrix == null) {
-            oncotreeMatrix = getWorksheetData(gdataSpreadsheet, oncotreeWorksheet);
-        }
-        if (oncotreePropertyMatrix == null) {
-            oncotreePropertyMatrix = getWorksheetData(gdataSpreadsheet, oncotreePropertyWorksheet);
-        }
-        
-        HashMap<String, String> colorMap = new HashMap<>();
-        for (int i=1; i<oncotreePropertyMatrix.size(); i++) {
-            ArrayList<String> line = oncotreePropertyMatrix.get(i);
-            colorMap.put(line.get(0), line.get(1));
-        }
-        
-        HashMap<String, TumorTypeMetadata> tumorTypes = new HashMap<>();
-        for (int i=1; i<oncotreeMatrix.size(); i++) {
-            ArrayList<String> line = oncotreeMatrix.get(i);
-            for (int j=0; j<line.size(); j++) {
-                TumorTypeMetadata ttmd = parseTumorTypeMetadata(line, j, colorMap);
-                if (ttmd!= null && !tumorTypes.containsKey(ttmd.getType())) {
-                    tumorTypes.put(ttmd.getType(), ttmd);
+		Collection<TumorTypeMetadata> toReturn = new ArrayList<TumorTypeMetadata>();
+		
+		if (oncotreeMatrix == null) {
+			oncotreeMatrix = getWorksheetData(gdataSpreadsheet, oncotreeWorksheet);
+		}
+		if (oncotreePropertyMatrix == null) {
+			oncotreePropertyMatrix = getWorksheetData(gdataSpreadsheet, oncotreePropertyWorksheet);
+		}
+		HashMap<String, HashMap<String, String>> propertyMap = new HashMap<>();
+		for (int i=1; i<oncotreePropertyMatrix.size(); i++) {
+			ArrayList<String> line = oncotreePropertyMatrix.get(i);
+			String nodeName = line.get(0);
+			String propertyName = line.get(1);
+			String propertyValue = line.get(2);
+			if (!propertyMap.containsKey(nodeName)) {
+				propertyMap.put(nodeName, new HashMap<String, String>());
+			}
+			propertyMap.get(nodeName).put(propertyName, propertyValue);
+		}
+		
+		HashMap<String, TumorTypeMetadata> tumorTypes = new HashMap<>();
+                int endOfData = 0;
+                ArrayList<String> line = oncotreeMatrix.get(0);
+                for (; endOfData<line.size(); endOfData++) {
+                    if (line.get(endOfData).toLowerCase().startsWith("meta:")) {
+                        // assuming meta data at the end
+                        break;
+                    }
                 }
-            }
-        }
-        Collection<TumorTypeMetadata> tumorTypeMetadatas = tumorTypes.values();
-        // if user wants all, we're done
-        if (tumorType.equals(Config.ALL)) {
-            return tumorTypeMetadatas;
-        }
+                
+		for (int i=1; i<oncotreeMatrix.size(); i++) {
+			line = oncotreeMatrix.get(i);
+			for (int j=0; j<endOfData; j++) {
+				TumorTypeMetadata ttmd = parseTumorTypeMetadata(line, j, propertyMap);
+                                if (ttmd==null) {
+                                    break;
+                                }
+				if (!tumorTypes.containsKey(ttmd.getType())) {
+					tumorTypes.put(ttmd.getType(), ttmd);
+				}
+			}
+		}
+		Collection<TumorTypeMetadata> tumorTypeMetadatas = tumorTypes.values();
+		// if user wants all, we're done
+		if (tumorType.equals(Config.ALL)) {
+			return tumorTypeMetadatas;
+		}
 
         // iterate over all TumorTypeMetadata looking for match
         for (TumorTypeMetadata tumorTypeMetadata : tumorTypeMetadatas) {
@@ -769,6 +788,46 @@ class GDataImpl implements Config {
         return toReturn;
     }
 
+    /**
+     * Gets a CancerStudyMetadata for the given cancer study.
+     *
+     * @param cancerStudyName String - fully qualified path as entered on worksheet,
+     * e.g.: prad/mskcc/foundation
+     * @return CancerStudyMetadata or null if not found
+     */
+    @Override
+    public CancerStudyMetadata getCancerStudyMetadataByName(String cancerStudyName) {
+
+        Collection<CancerStudyMetadata> cancerStudyMetadatas = getAllCancerStudyMetadata();
+
+        for (CancerStudyMetadata cancerStudyMetadata : cancerStudyMetadatas) {
+            if (cancerStudyMetadata.getStudyPath().equals(cancerStudyName)) {
+                // get tumor type metadata
+                Collection<TumorTypeMetadata> tumorTypeCollection = getTumorTypeMetadata(cancerStudyMetadata.getTumorType());
+                if (!tumorTypeCollection.isEmpty()) {
+                    cancerStudyMetadata.setTumorTypeMetadata(tumorTypeCollection.iterator().next());
+                }
+                return cancerStudyMetadata;
+            }
+        }
+
+        return null;
+    }
+
+    @Override
+    public Collection<CancerStudyMetadata> getAllCancerStudyMetadata()
+    {
+        if (cancerStudiesMatrix == null) {
+            cancerStudiesMatrix = getWorksheetData(gdataSpreadsheet, cancerStudiesWorksheet);
+        }
+
+        Collection<CancerStudyMetadata> cancerStudyMetadatas
+                = (Collection<CancerStudyMetadata>) getMetadataCollection(cancerStudiesMatrix,
+                        "org.mskcc.cbio.importer.model.CancerStudyMetadata");
+
+        return cancerStudyMetadatas;
+    }
+
     /*
     return a Collection of IcgcMetadata objects derived from
     the ICGC worksheet on the google spreadsheet
@@ -806,38 +865,6 @@ class GDataImpl implements Config {
 
         // outta here
         return foundationMetadatas;
-    }
-
-    /**
-     * Gets a CancerStudyMetadata for the given cancer study.
-     *
-     * @param cancerStudyName String - fully qualified path as entered on worksheet,
-     * e.g.: prad/mskcc/foundation
-     * @return CancerStudyMetadata or null if not found
-     */
-    @Override
-    public CancerStudyMetadata getCancerStudyMetadataByName(String cancerStudyName) {
-
-        if (cancerStudiesMatrix == null) {
-            cancerStudiesMatrix = getWorksheetData(gdataSpreadsheet, cancerStudiesWorksheet);
-        }
-
-        Collection<CancerStudyMetadata> cancerStudyMetadatas
-                = (Collection<CancerStudyMetadata>) getMetadataCollection(cancerStudiesMatrix,
-                        "org.mskcc.cbio.importer.model.CancerStudyMetadata");
-
-        for (CancerStudyMetadata cancerStudyMetadata : cancerStudyMetadatas) {
-            if (cancerStudyMetadata.getStudyPath().equals(cancerStudyName)) {
-                // get tumor type metadata
-                Collection<TumorTypeMetadata> tumorTypeCollection = getTumorTypeMetadata(cancerStudyMetadata.getTumorType());
-                if (!tumorTypeCollection.isEmpty()) {
-                    cancerStudyMetadata.setTumorTypeMetadata(tumorTypeCollection.iterator().next());
-                }
-                return cancerStudyMetadata;
-            }
-        }
-
-        return null;
     }
 
     /**

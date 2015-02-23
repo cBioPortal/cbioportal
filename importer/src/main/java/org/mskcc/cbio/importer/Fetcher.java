@@ -37,7 +37,7 @@ public interface Fetcher {
 	 * @param desiredRunDate String
 	 * @throws Exception
 	 */
-	void fetch(String dataSource, String desiredRunDate, boolean sendNotification) throws Exception;
+	void fetch(String dataSource, String desiredRunDate) throws Exception;
 
 	/**
 	 * Fetchers reference data from an external datasource.

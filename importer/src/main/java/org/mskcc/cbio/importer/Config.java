@@ -167,6 +167,8 @@ public interface Config {
 	 */
 	Collection<DataSourcesMetadata> getDataSourcesMetadata(String dataSource);
 
+	Collection<CancerStudyMetadata> getAllCancerStudyMetadata();
+
 	/**
 	 * Gets all the cancer studies for a given portal.
 	 *

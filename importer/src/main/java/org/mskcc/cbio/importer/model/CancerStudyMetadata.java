@@ -52,9 +52,9 @@ public class CancerStudyMetadata {
     public static final String GROUPS_COLUMN_KEY = "GROUPS";
     public static final String SHORT_NAME_COLUMN_KEY = "SHORTNAME";
     public static final String CONVERT_COLUMN_KEY = "CONVERT";
-    public static final String UPDATE_TRIAGE_COLUMN_KEY = "UPDATETRIAGE";
-    public static final String READY_FOR_RELEASE_COLUMN_KEY = "READYFORRELEASE";
-    public static final String TRIAGE_PORTAL_STUDY_KEY = "triage-portal";
+    public static final String TRIAGE_PORTAL_COLUMN_KEY = "triage-portal";
+    public static final String MSK_PORTAL_COLUMN_KEY = "msk-automation-portal";
+    public static final String SOURCE_COLUMN_KEY = "SOURCE";
 
     // delimiter between tumor type and center (used for find the path)
 
@@ -88,8 +88,6 @@ public class CancerStudyMetadata {
     private String groups;
     private String shortName;
     private boolean convert;
-    private boolean updateTriage;
-    private boolean readyForRelease;
 
     /**
      * Create a CancerStudyMetadata instance with properties in given array.
@@ -109,33 +107,38 @@ public class CancerStudyMetadata {
         this.studyPath = properties[0].trim();
         String[] parts = properties[0].trim().split(CANCER_STUDY_DELIMITER);
         this.center = (parts.length < 2) ? "No center defined" : parts[1];
-		this.tumorType = properties[1].trim();
+        this.tumorType = properties[1].trim();
         this.stableId = properties[2].trim();
-		this.name = properties[3].trim();
-		this.description = properties[4].trim();
-		this.citation = properties[5].trim();
-		this.pmid = properties[6].trim();
-		this.groups = properties[7].trim();
+        if (this.stableId.isEmpty()) {
+            this.stableId = this.studyPath.replaceAll("/", "_");
+        }
+        this.name = properties[3].trim();
+        this.description = properties[4].trim();
+        this.citation = properties[5].trim();
+        this.pmid = properties[6].trim();
+        this.groups = properties[7].trim();
         this.shortName = properties[8].trim();
         this.convert = Boolean.parseBoolean(properties[9].trim());
-        this.updateTriage = Boolean.parseBoolean(properties[10].trim());
-        this.readyForRelease = Boolean.parseBoolean(properties[11].trim());
 	}
 
     public CancerStudyMetadata(String studyPath, CancerStudy cancerStudy)
     {
         this.studyPath = studyPath;
+        if (cancerStudy.getTypeOfCancerId() == null) {
+            throw new IllegalArgumentException("cancerStudy-typeOfCancer cannot be null");
+        }
         this.tumorType = cancerStudy.getTypeOfCancerId();
+        if (cancerStudy.getCancerStudyStableId() == null) {
+            throw new IllegalArgumentException("cancerStudy-stable id cannot be null");
+        }
         this.stableId = cancerStudy.getCancerStudyStableId();
-        this.name = cancerStudy.getName();
-        this.description = cancerStudy.getDescription();
-        this.citation = cancerStudy.getCitation();
-        this.pmid = cancerStudy.getPmid();
-        this.groups = StringUtils.join(cancerStudy.getGroups(), ";");
-        this.shortName = cancerStudy.getShortName();
+        this.name = (cancerStudy.getName() != null) ? cancerStudy.getName() : "";
+        this.description = (cancerStudy.getDescription() != null) ? cancerStudy.getDescription() : "";
+        this.citation = (cancerStudy.getCitation() != null) ? cancerStudy.getCitation() : "";
+        this.pmid = (cancerStudy.getPmid() != null) ? cancerStudy.getPmid() : "";
+        this.groups = (cancerStudy.getGroups() != null) ? StringUtils.join(cancerStudy.getGroups(), ";") : "";
+        this.shortName = (cancerStudy.getShortName() != null) ? cancerStudy.getShortName() : "";
         this.convert = false;
-        this.updateTriage = false;
-        this.readyForRelease = false;
     }
 
 	public CancerStudyMetadata(Properties props)
@@ -167,9 +170,12 @@ public class CancerStudyMetadata {
         this.groups = worksheetRowMap.get("groups").trim();
         this.shortName = worksheetRowMap.get("shortname").trim();
         this.convert = Boolean.parseBoolean(worksheetRowMap.get("convert").trim());
+<<<<<<< local
         //this.updateTriage = Boolean.parseBoolean(worksheetRowMap.get("updatetriage").trim());
         //this.readyForRelease = Boolean.parseBoolean(worksheetRowMap.get("readyforrelease").trim());
 
+=======
+>>>>>>> other
     }
 
 	public String getName() { return name; }
@@ -185,13 +191,20 @@ public class CancerStudyMetadata {
 	public String getGroups() { return groups; }
     public String getShortName() { return shortName; }
 	public Boolean isConverted() { return convert; }
-    public Boolean updateTriage() { return updateTriage; }
-    public Boolean readyForRelease() { return readyForRelease; }
 	public String getCancerStudyMetadataFilename() {
 		//return getStudyPath() + File.separator + toString() + CANCER_STUDY_METADATA_FILE_EXT;
 		return CANCER_STUDY_METADATA_FILE;
 	}
 	public String toString() { return stableId; }
+
+    public boolean equals(Object obj)
+    {
+        if (!(obj instanceof CancerStudyMetadata)) {
+            return false;
+        }
+        CancerStudyMetadata other = (CancerStudyMetadata)obj;
+        return (other.toString().equals(this.toString()));
+    }
 
     public Map<String, String> getProperties() {
         Map<String, String> toReturn = new HashMap<String, String>();
@@ -205,8 +218,6 @@ public class CancerStudyMetadata {
         toReturn.put(GROUPS_COLUMN_KEY, groups);
         toReturn.put(SHORT_NAME_COLUMN_KEY, shortName);
         toReturn.put(CONVERT_COLUMN_KEY, Boolean.toString(convert));
-        toReturn.put(UPDATE_TRIAGE_COLUMN_KEY, Boolean.toString(updateTriage));
-        toReturn.put(READY_FOR_RELEASE_COLUMN_KEY, Boolean.toString(readyForRelease));
         return toReturn;
     }
 

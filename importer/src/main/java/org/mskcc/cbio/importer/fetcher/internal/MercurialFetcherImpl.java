@@ -25,8 +25,6 @@ import org.mskcc.cbio.importer.mercurial.*;
 import org.apache.commons.logging.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.mail.javamail.JavaMailSender;
-//import org.springframework.mail.SimpleMailMessage;
 
 import java.util.*;
 
@@ -62,7 +60,7 @@ public class MercurialFetcherImpl extends FetcherBaseImpl implements Fetcher
 	}
 
 	@Override
-	public void fetch(String dataSource, String desiredRunDate, boolean sendNotification) throws Exception
+	public void fetch(String dataSource, String desiredRunDate) throws Exception
 	{
 		logMessage(LOG, "fetch(), dateSource:runDate: " + dataSource + ":" + desiredRunDate);
 
@@ -72,9 +70,6 @@ public class MercurialFetcherImpl extends FetcherBaseImpl implements Fetcher
 			logMessage(LOG, "fetch(), updates available, pulling from repository.");
 			List<String> cancerStudiesUpdated = updateStudiesWorksheet(dataSourceMetadata,
 			                                                           mercurialService.pullUpdate(dataSourceMetadata.getDownloadDirectory()));
-			if (sendNotification) {
-				sendNotification(cancerStudiesUpdated);
-			}
 		}
 		else {
 			logMessage(LOG, "fetch(), we have the latest dataset, nothing more to do.");
@@ -140,34 +135,19 @@ public class MercurialFetcherImpl extends FetcherBaseImpl implements Fetcher
 
 	    // all cmo data needs to be vetted within the triage portal
 		if (dataSourceMetadata.getDataSource().equals(DataSourcesMetadata.CMO_PIPELINE_REPOS)) {
-			toReturn.put(CancerStudyMetadata.UPDATE_TRIAGE_COLUMN_KEY, "true");
-			toReturn.put(CancerStudyMetadata.READY_FOR_RELEASE_COLUMN_KEY, "false");
-			toReturn.put(CancerStudyMetadata.TRIAGE_PORTAL_STUDY_KEY, "x");
+			toReturn.put(CancerStudyMetadata.TRIAGE_PORTAL_COLUMN_KEY, "x");
+			toReturn.put(CancerStudyMetadata.MSK_PORTAL_COLUMN_KEY, "");
+			toReturn.put(CancerStudyMetadata.SOURCE_COLUMN_KEY, "BIC");
+			// for consistency on the worksheet - leave stable id - required to remove study
+			toReturn.remove(CancerStudyMetadata.NAME_COLUMN_KEY);
+			toReturn.remove(CancerStudyMetadata.DESCRIPTION_COLUMN_KEY);
+			toReturn.remove(CancerStudyMetadata.SHORT_NAME_COLUMN_KEY);
 		}
 		// all other data (like DMP-IMPACT) can pass through the validation step
 		else {
-			toReturn.put(CancerStudyMetadata.UPDATE_TRIAGE_COLUMN_KEY, "false");
-			toReturn.put(CancerStudyMetadata.READY_FOR_RELEASE_COLUMN_KEY, "true");
+			toReturn.put(CancerStudyMetadata.MSK_PORTAL_COLUMN_KEY, "x");
 		}
 
 		return toReturn;
-	}
-
-	private void sendNotification(List<String> cancerStudiesUpdated)
-	{
-		//String body = triageUpdateMessage.getText();
-		//SimpleMailMessage msg = new SimpleMailMessage(triageUpdateMessage);
-		for (String cancerStudy : cancerStudiesUpdated) {
-			CancerStudyMetadata cancerStudyMetadata = config.getCancerStudyMetadataByName(cancerStudy);
-			//body += "\n" + cancerStudyMetadata.getName();
-		}
-		//body += "\n";
-		//msg.setText(body);
-		try {
-			//mailSender.send(msg);
-		}
-		catch (Exception e) {
-			logMessage(LOG, "sendNotification(), error sending email notification:\n" + e.getMessage());
-		}
 	}
 }

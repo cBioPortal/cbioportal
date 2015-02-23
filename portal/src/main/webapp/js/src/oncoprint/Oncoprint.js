@@ -713,7 +713,7 @@ define("Oncoprint",
                     //
                     // throws unsupported sort option if something other than the 3 options
                     // above is given.
-                    var sortBy = function(by, cases,mutationColorControl) {
+                    var sortBy = function(by, cases,mutationColorControl,mutationColorSort) {
                         if (by === 'genes') {
 //                            state.attrs = params.genes.concat(clinical_attrs);
                             state.attrs = params.genes.slice(0);
@@ -725,7 +725,7 @@ define("Oncoprint",
                                     state.attrs.push(clinical_attrs[i]);
                                 }
                             }
-                            state.data = MemoSort(state.data, state.attrs,mutationColorControl);
+                            state.data = MemoSort(state.data, state.attrs,mutationColorControl,mutationColorSort);
                         }
                         else if (by === 'clinical') {
                             state.attrs = [];
@@ -740,7 +740,7 @@ define("Oncoprint",
                             }
                             
                             state.attrs = state.attrs.concat(params.genes);
-                            state.data = MemoSort(state.data, state.attrs,mutationColorControl);
+                            state.data = MemoSort(state.data, state.attrs,mutationColorControl,mutationColorSort);
                             
                             for(var i = 0; i < clinical_attrs.length; i++)
                             {
@@ -756,7 +756,8 @@ define("Oncoprint",
                         }
                         else if (by === 'alphabetical') {
                             state.data = state.data.sort(function(x,y) {
-                                return x.key < y.key;
+//                                return x.key < y.key;
+                                return x.key.localeCompare(y.key);
                             });
                         }
                         else if (by === 'custom') {
@@ -984,8 +985,9 @@ define("Oncoprint",
                         out += generic_legends_svg;
                         out += mutation_legends;
                         out += mutation_legends_svg;
+                        out = "<g transform=\"translate("+ 15 +","+ 15 + ")\">" + out + "</g> ";;
 
-                        return "<svg height=\"" + (dims.height + verticalTranslateWidth + dims.height) + "\" width=\"" + width + "\">" + out + "</svg>";
+                        return "<svg height=\"" + (dims.height + verticalTranslateWidth + dims.height + 15) + "\" width=\"" + (width + 30) + "\">" + out + "</svg>";
                     };
 
                     return {

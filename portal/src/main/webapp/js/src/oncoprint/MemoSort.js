@@ -11,7 +11,7 @@
 //
 // returns the data, sorted
 define(function() {
-    return function(data, attributes,mutationColorControl) {
+    return function(data, attributes,mutationColorControl,mutationColorSort) {
         // compares two objects that have gene data (cna, mutation, mrna, rppa).
         // Returns a number that indicates the order.
         var comp_genes = function(attr1, attr2,mutationcontrol) {
@@ -135,7 +135,63 @@ define(function() {
 
             return 0;       // they are equal in every way
         };
+        var comp_insideGenes = function(attr1, attr2){
+                var cna_order = {AMPLIFIED:4, HOMODELETED:3, GAINED:2, HEMIZYGOUSLYDELETED:1, DIPLOID: 0, undefined: 0},
+                regulated_order = {UPREGULATED: 2, DOWNREGULATED: 1, undefined: 0},
+                mutation_order_f = function(m) { 
+                        if(m === undefined) 
+                        {
+                            return 0;
+                        }
 
+                        if(m !== undefined)//multiple mutations
+                        {
+                            m = m.split(',');
+
+                            if(m.length > 1)
+                            {
+                                var hasIndel = false;
+                                for(var i = 0; i < m.length; i++)
+                                {
+                                    if(!/\bfusion\b/i.test(m[i]) && !(/^[A-z]([0-9]+)[A-z]$/g).test(m[i]))
+                                    {
+                                        return 3;
+                                    }
+
+                                    if ((/^([A-Z]+)([0-9]+)((del)|(ins))$/g).test(m[i])) {
+                                        hasIndel = true;
+                                    }
+                                }
+
+                                return hasIndel ? 2 : 1;
+                            }
+                        }
+
+                        if((/^[A-z]([0-9]+)[A-z]$/g).test(m))
+                        {
+                            return 1;//Missense_mutation
+                        }
+                        else if((/^([A-Z]+)([0-9]+)((del)|(ins))$/g).test(m) )
+                        {
+                            return 2;//inframe
+                        }
+                        else 
+                        {
+                            return 3;
+                        }
+                }
+
+//                var cna_diff = cna_order[attr2.cna] - cna_order[attr1.cna];
+//                if (cna_diff !== 0) {
+//                    return cna_diff;
+//                }
+                
+                var mutation_diff = mutation_order_f(attr2.mutation) - mutation_order_f(attr1.mutation);
+                if (mutation_diff !== 0) {
+                    return mutation_diff;
+                }
+                return 0;
+        };
         // compares two objects of clinical data (attr_ids and attr_vals)
         // returns a *number* that indicates which one is larger
         var comp_clinical = function(attr1, attr2) {
@@ -204,21 +260,61 @@ define(function() {
 
             // iterate over the attributes of x and y in the user defined
             // order, comparing along the way
-            for (var j = 0; j < x_attrs.length; j+=1) {
+            if( mutationColorSort===undefined|| mutationColorSort === "mutationcolornonsort")
+            {
+                    for (var j = 0; j < x_attrs.length; j+=1) {
+                    var xj = x_attrs[j];
+                    var yj = y_attrs[j];
 
-                var xj = x_attrs[j];
-                var yj = y_attrs[j];
+                    assert(xj.gene === yj.gene);        // what we are comparing are comparable
+                    assert(xj.attr_id === yj.attr_id);
 
-                assert(xj.gene === yj.gene);        // what we are comparing are comparable
-                assert(xj.attr_id === yj.attr_id);
+                    var diff = (xj.gene === undefined
+                        ? comp_clinical(xj, yj)
+                        :  comp_genes(xj, yj,mutationColorControl));
 
-                var diff = (xj.gene === undefined
-                    ? comp_clinical(xj, yj)
-                    :  comp_genes(xj, yj,mutationColorControl));
+                    // return the first nonzero diff
+                    if (diff !== 0) {
+                        return diff;
+                    }
+                }
+            }
+            else
+            {
+                for (var j = 0; j < x_attrs.length; j+=1) {
 
-                // return the first nonzero diff
-                if (diff !== 0) {
-                    return diff;
+                    var xj = x_attrs[j];
+                    var yj = y_attrs[j];
+
+                    assert(xj.gene === yj.gene);        // what we are comparing are comparable
+                    assert(xj.attr_id === yj.attr_id);
+
+                    var diff = (xj.gene === undefined
+                        ? comp_clinical(xj, yj)
+                        :  comp_genes(xj, yj,"singleColor"));
+
+                    // return the first nonzero diff
+                    if (diff !== 0) {
+                        return diff;
+                    }
+                }
+
+                for (var j = 0; j < x_attrs.length; j+=1) {
+
+                    var xj = x_attrs[j];
+                    var yj = y_attrs[j];
+
+                    assert(xj.gene === yj.gene);        // what we are comparing are comparable
+                    assert(xj.attr_id === yj.attr_id);
+
+                    var diff = (xj.gene === undefined
+                        ? comp_clinical(xj, yj)
+                        :  comp_genes(xj, yj,mutationColorControl));
+
+                    // return the first nonzero diff
+                    if (diff !== 0) {
+                        return diff;
+                    }
                 }
             }
             // if they are equal in all diffs, then they are truly equal.

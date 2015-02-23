@@ -129,6 +129,11 @@ public class MockConfig implements Config {
     }
 
     @Override
+    public Collection<CancerStudyMetadata> getAllCancerStudyMetadata() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
     public Collection<CancerStudyMetadata> getCancerStudyMetadata(String portalName) {
         throw new UnsupportedOperationException("Not supported yet.");
     }

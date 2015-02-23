@@ -1907,20 +1907,14 @@ var PlotsView = (function () {
             } else if (Util.plotsTypeIsRPPA()) {
                 $('#view_title').append(userSelection.gene + ": RPPA protein level v. mRNA Expression ");
             }
-            var pdfConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' target='_blank' " +
-                "onsubmit=\"this.elements['svgelement'].value=loadPlotsSVG();\">" +
-                "<input type='hidden' name='svgelement'>" +
-                "<input type='hidden' name='filetype' value='pdf'>" +
-                "<input type='hidden' name='filename' value='correlation_plot-" + userSelection.gene + ".pdf'>" +
-                "<input type='submit' value='PDF'></form>";
-            $('#view_title').append(pdfConverterForm);
-            var svgConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' target='_blank'" +
-                "onsubmit=\"this.elements['svgelement'].value=loadPlotsSVG();\">" +
-                "<input type='hidden' name='svgelement'>" +
-                "<input type='hidden' name='filetype' value='svg'>" +
-                "<input type='hidden' name='filename' value='correlation_plot-" + userSelection.gene + ".svg'>" +
-                "<input type='submit' value='SVG'></form>";
-            $('#view_title').append(svgConverterForm);
+            $('#view_title').append("<button id='svg_download'>SVG</button>");
+            $('#view_title').append("<button id='pdf_download'>PDF</button>");
+            $("#svg_download").click(function() {
+                load_svg("correlation_plots-" + userSelection.gene + ".svg");
+            });
+            $("#pdf_download").click(function() {
+                load_pdf("correlation_plots-" + userSelection.gene + ".pdf");
+            });
         }
 
         function applyLogScaleX(applyLogScale) {

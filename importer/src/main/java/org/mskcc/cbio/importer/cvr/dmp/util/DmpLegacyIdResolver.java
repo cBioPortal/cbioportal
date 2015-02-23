@@ -82,6 +82,7 @@ public enum DmpLegacyIdResolver {
         private  final Set<String>  TYPE_SET = Sets.newHashSet(PATIENT_TYPE,SAMPLE_TYPE);
         private static final String PATIENT_ID_MAP_FILE ="/patientLookup.txt";
         private static final String SAMPLE_ID_MAP_FILE = "/sampleLookup.txt";
+        private final Logger logger = Logger.getLogger(IdMapSupplier.class);
 
 
         IdMapSupplier(String aType){
@@ -97,14 +98,14 @@ public enum DmpLegacyIdResolver {
         }
         private Map<String,String> initializeIdMap(final String idFile){
             final Map<String,String> idMap = Maps.newHashMap();
-            try {
-                Reader reader = new InputStreamReader((this.getClass().getResourceAsStream(idFile)));
+            try (Reader reader = new InputStreamReader((this.getClass().getResourceAsStream(idFile)));){
+
                 final CSVParser parser = new CSVParser(reader, CSVFormat.TDF.withHeader());
                 Observable<CSVRecord> recordObservable = Observable.from(parser.getRecords());
                 recordObservable.subscribe(new Subscriber<CSVRecord>() {
                     @Override
                     public void onCompleted() {
-                        logger.error("Processed " + idMap.size() + " ids in " + idFile);
+                       logger.error("Processed " + idMap.size() + " ids in " + idFile);
                     }
                     @Override
                     public void onError(Throwable throwable) {
@@ -117,7 +118,7 @@ public enum DmpLegacyIdResolver {
                         String newId = record.get("new_id");
                         if (!idMap.containsKey(legacyId)) {
                             idMap.put(record.get("legacy_id"), record.get("new_id"));
-                        }  else {
+                        } else {
                             logger.error("legacy id: " +legacyId +" is repeated in " +idFile +" mapped to "
                                     +idMap.get(legacyId) +" and "  +newId);
                         }
@@ -136,8 +137,19 @@ public enum DmpLegacyIdResolver {
     public static void main (String...args){
 
         // look up patient DMP0099
-        logger.info("The new id for DMP0099 is "
+        logger.info("The new id for patient DMP0099 is "
                 +DmpLegacyIdResolver.INSTANCE.resolveNewPatientIdFromLegacyPatientId("DMP0099").get());
+        // lookup a non-existent sample
+        String badSampleId = "DMPXXXX";
+        if (DmpLegacyIdResolver.INSTANCE.resolveNewSampleIdFromLegacySampleId(badSampleId).isPresent()) {
+            logger.info("The new id for non-existent sample DMPXXXX is "
+                    +DmpLegacyIdResolver.INSTANCE.resolveNewSampleIdFromLegacySampleId(badSampleId).get());
+        } else {
+            logger.error(badSampleId +" is not a valid legacy sample id");
+        }
+
+
+
     }
 
 }

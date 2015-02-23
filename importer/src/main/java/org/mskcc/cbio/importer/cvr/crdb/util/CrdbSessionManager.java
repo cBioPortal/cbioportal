@@ -1,4 +1,4 @@
-package org.mskcc.cbio.importer.cvr.darwin.util;
+package org.mskcc.cbio.importer.cvr.crdb.util;
 
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
@@ -6,7 +6,6 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.log4j.Logger;
-
 import java.io.InputStream;
 import java.sql.SQLException;
 
@@ -27,35 +26,38 @@ import java.sql.SQLException;
  * Memorial Sloan-Kettering Cancer Center
  * has been advised of the possibility of such damage.
  * <p/>
- * Created by criscuof on 11/20/14.
+ * Created by criscuof on 02/22/15.
  */
-public enum DarwinSessionManager {
+public enum CrdbSessionManager {
     /*
-    A Singleton implemented as an enum to provide access to a Darwin SQL
+    A Singleton implemented as an enum to provide access to a CRDB SQL
     session object
      */
             INSTANCE;
-    private static final Logger logger = Logger.getLogger(DarwinSessionManager.class);
-    private SqlSession session = Suppliers.memoize(new DarwinSessionSupplier()).get();
+    private static final Logger logger = Logger.getLogger(CrdbSessionManager.class);
+    private SqlSession session = Suppliers.memoize(new CrdbSessionSupplier()).get();
 
-
-    public SqlSession getDarwinSession() {
+    public SqlSession getCrdbSession() {
         return this.session;
     }
 
     public void closeSession() {
         this.session.close();
-        logger.info("The SQL session has been closed.");
+        logger.info("The CRDB SQL session has been closed.");
     }
 
-    private class DarwinSessionSupplier implements Supplier<SqlSession> {
+    /*
+    Inner class responsible for supplying an open Session to the CRDB database via an iBatis
+    configuration file
+
+     */
+    private class CrdbSessionSupplier implements Supplier<SqlSession> {
         //TODO: make this a property
-        private final String darwinConfigFilename = "/mybatis-config.xml";
+        private final String crdbConfigFile = "/crdb-conn/crdb-mybatis-config.xml";
 
         @Override
         public SqlSession get() {
-
-            InputStream inputStream = DarwinSessionSupplier.class.getResourceAsStream(darwinConfigFilename);
+            InputStream inputStream = CrdbSessionSupplier.class.getResourceAsStream(crdbConfigFile);
             SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
             return sqlSessionFactory.openSession();
         }
@@ -63,14 +65,12 @@ public enum DarwinSessionManager {
 
     // main method for testing
     public static void main(String... args) {
-        SqlSession session = DarwinSessionManager.INSTANCE.getDarwinSession();
+        SqlSession session = CrdbSessionManager.INSTANCE.getCrdbSession();
         try {
             logger.info("The session is open? " + !session.getConnection().isClosed());
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        DarwinSessionManager.INSTANCE.closeSession();
+        CrdbSessionManager.INSTANCE.closeSession();
     }
-
-
 }

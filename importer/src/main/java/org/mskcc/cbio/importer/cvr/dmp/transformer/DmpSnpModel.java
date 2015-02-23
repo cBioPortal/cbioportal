@@ -227,7 +227,9 @@ public class DmpSnpModel extends MutationModel {
 
     @Override
     public String getTRefCount() {
-        return this.calculateDmpAlleleRefCount.apply(new Tuple2(this.snp.getTumorAd(),this.snp.getTumorVfreq()));
+        Integer trefCount = this.snp.getTumorDp() - this.snp.getTumorAd();
+        return trefCount.toString();
+
     }
 
     @Override
@@ -237,7 +239,8 @@ public class DmpSnpModel extends MutationModel {
 
     @Override
     public String getNRefCount() {
-        return this.calculateDmpAlleleRefCount.apply(new Tuple2(this.snp.getNormalAd(),this.snp.getNormalVfreq()));
+        Integer nrefCount = this.snp.getNormalDp() - this.snp.getNormalAd();
+        return nrefCount.toString();
     }
 
     @Override
@@ -255,18 +258,5 @@ public class DmpSnpModel extends MutationModel {
         return this.snp.getTranscriptId();
     }
 
-    /*
-    Function to calculate the allele reference count for normal or tumor
-    refcount = variant_frequency / (alternate allele count + variant frequency)
-     */
-    protected final Function<Tuple2<Integer, Integer>, String> calculateDmpAlleleRefCount =
-            new Function<Tuple2<Integer, Integer>, String>() {
-                public String apply(Tuple2<Integer, Integer> f) {
-                    final Long alternateAlleleCount = Long.valueOf(f._1());
-                    final Long variantFrequency = Long.valueOf(f._2());
-                    final Long  total = alternateAlleleCount + variantFrequency;
-                    return Long.toString( (long) variantFrequency/total);
-                }
-            };
 
 }

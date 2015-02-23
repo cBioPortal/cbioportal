@@ -4,6 +4,11 @@ var sidebar = (function() {
         profileSpec.init("x");
         profileSpec.init("y");
         optSpec.init();
+        //if there's no clinical data, remove data type choices
+        if (metaData.getClinAttrsMeta().length === 0) {
+            $("#" + ids.sidebar.x.data_type).hide();
+            $("#" + ids.sidebar.y.data_type).hide();            
+        }
         //reset the default value of x: default is always x copy num, y mrna
         document.getElementById(ids.sidebar.x.profile_type).selectedIndex = "1";
         profileSpec.updateProfileNameList("x");

@@ -696,6 +696,7 @@ var scatterPlots = (function() {
             .style("text-anchor", "middle")
             .style("font-weight","bold")
             .text(_trimmed_name);
+    
         //apply mouse over to trimmed titles
         elem.svg.selectAll("." + d3_class[axis].axis_title + "_trimmed").each(function(d) {
             $(this).qtip(
@@ -710,8 +711,16 @@ var scatterPlots = (function() {
         });
         
         //append help icon (mouseover)
-        var _pos_x = (axis==="x")? (settings.axis.x.title_x + _trimmed_name.length / 2 * 8): (settings.axis.y.title_y - 11);
-        var _pos_y = (axis==="x")? (settings.axis.x.title_y - 12): (settings.axis.y.title_x + 535 - _trimmed_name.length / 2 * 8 );
+        var _dist_x = 0; //decide the distance between the title and the x help icon
+        if (_trimmed_name.length < 50) _dist_x = 10;
+        else if (_trimmed_name.length > 50 && _trimmed_name.length < 63) _dist_x = 0;
+        else _dist_x = -10;
+        var _dist_y = 0; //decide the distance between the title and the y help icon 
+        if (_trimmed_name.length < 50) _dist_y = 535;
+        else if (_trimmed_name.length > 50 && _trimmed_name.length < 63) _dist_y = 550;
+        else _dist_y = 560;
+        var _pos_x = (axis==="x")? (settings.axis.x.title_x + _trimmed_name.length * 8 / 2 + _dist_x ): (settings.axis.y.title_y - 11);
+        var _pos_y = (axis==="x")? (settings.axis.x.title_y - 12): (settings.axis.y.title_x + _dist_y - _trimmed_name.length / 2 * 8 );
         elem.axisTitleGroup.append("svg:image")
             .attr("xlink:href", "images/help.png")
             .attr("class", d3_class[axis].title_help)
@@ -947,25 +956,26 @@ var scatterPlots = (function() {
     return {
         init: function(_div, _data, _apply_box_plots, _box_plots_axis, _calculate_co_exp) {
             
-            div = _div;
-            stat.applied_box_plots = _apply_box_plots;
-            stat.box_plots_axis = _box_plots_axis;
-            stat.apply_co_exp = _calculate_co_exp;
-            
             data = [];
             glyphs = [];
             data.length = 0;
             glyphs.length = 0;
 
+            div = _div;
+            stat.applied_box_plots = _apply_box_plots;
+            stat.box_plots_axis = _box_plots_axis;
+            
             //convert input data from JSON to array
             for (var key in _data) {
                 data.push(_data[key]);
             }
             
+            stat.apply_co_exp = _calculate_co_exp && (data.length > 1);
+            
             if (data.length === 0) {
                 error_msg();
             } else {
-                if (_calculate_co_exp) {
+                if (stat.apply_co_exp) {
                     var tmpGeneXcoExpStr = "",
                         tmpGeneYcoExpStr = "";
                     $.each(data, function(index, obj) {

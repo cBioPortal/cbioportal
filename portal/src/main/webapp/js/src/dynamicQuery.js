@@ -329,7 +329,6 @@ function doOQLQuery() {
 	allDataLoadedPromise.then(function(data) {
 		// finally, convert data to oncoprint format
 		var oncoprintFormat = {}; // collect oncoprint data
-		var oqlFormat = {}; // oql data
 		var cnaType = {'-2': 'HOMODELETED', '-1':'HEMIZYGOUSLYDELETED', '0':'DIPLOID', '1':'GAINED', '2':'AMPLIFIED'};
 		var oqlcnaType = {'-2':'HOMDEL','-1':'HETLOSS', '1':'GAIN', '2':'AMP'};
 		var samples = {};
@@ -342,13 +341,9 @@ function doOQLQuery() {
 			samples[sample] = true;
 			genes[gene] = true;
 			
-			oqlFormat[gene] = oqlFormat[gene] || {};
-			oqlFormat[gene][sample] = oqlFormat[gene][sample] || {};
 			if (profileTypes[obj.internal_id] === 'MUTATION_EXTENDED') {
-				oqlFormat[gene][sample].MUT = obj.amino_acid_change;
 				oncoprintFormat[gene][sample].mutation = obj.amino_acid_change;
 			} else if (profileTypes[obj.internal_id] === 'COPY_NUMBER_ALTERATION') {
-				oqlFormat[gene][sample][oqlcnaType[Integer.toString(obj.profile_data)]] = true;
 				oncoprintFormat[gene][sample].cna = (obj.profile_data === '0' ? undefined : cnaType[Integer.toString(obj.profile_data)]);
 			}
 		});
@@ -357,13 +352,19 @@ function doOQLQuery() {
 				oncoprintFormat[gene][sample] = oncoprintFormat[gene][sample] || {};
 			});
 		});
-		var oqlData = [];
 		var oncoprintData = []; // read the data off
 		$.each(oncoprintFormat, function(gene, sampMap) {
 			$.each(sampMap, function(sampId, propMap) {
 				oncoprintData.push($.extend({gene:gene, sample:sampId}, propMap));
 			});
 		});
+		
+		var oqlQuery = $("#gene_list").val();
+		var failingSamples = oql.filter(oql.parseQuery(oqlQuery).return, oncoprintData);
+		for (var i=0; i<failingSamples.length; i++) {
+			var ind = failingSamples[i];
+			oncoprintData[ind] = {gene:oncoprintData[ind].gene, sample:oncoprintData[ind].sample};
+		}
 		$('#oncoprint_body').empty();
 		var oncoprint;
 		requirejs( ['Oncoprint'], function(Oncoprint) {

@@ -64,7 +64,7 @@ oql = (function () {
         var errors = [];
         for (var i = 0; i < lines.length; i++) {
             var line = lines[i];
-            if (line.length == 0) {
+            if (line.length === 0) {
                 continue;
             }
             try {
@@ -153,6 +153,7 @@ oql = (function () {
         // OUT: a tree as described in 'reduceBooleanTree'
         //		in which each command is converted to the boolean
         //		value representing whether the given gene attributes complies with it
+	var attr_map = {'AMP':'AMPLIFIED', 'GAIN':'GAINED', 'HETLOSS':'HEMIZYGOUSLYDELETED', 'HOMDEL':'HOMODELETED'};
         if (cmds.type === "AND" || cmds.type === "OR") {
             return {"type": cmds.type, "left": createFilterTree(cmds["left"], gene_attrs), "right": createFilterTree(cmds["right"], gene_attrs)};
         } else if (cmds.type === "NOT") {
@@ -161,7 +162,7 @@ oql = (function () {
             // non-logical type
             var ret = false;
             if (cmds.type === "AMP" || cmds.type === "HOMDEL" || cmds.type === "GAIN" || cmds.type === "HETLOSS") {
-                ret = gene_attrs[cmds.type] && (gene_attrs[cmds.type] === true);
+                ret = (gene_attrs.cna === attr_map[cmds.type]);
             } else if (cmds.type === "EXP" || cmds.type === "PROT") {
                 if (cmds.constrType === "<") {
                     ret = gene_attrs[cmds.type] && (gene_attrs[cmds.type] !== false) && (gene_attrs[cmds.type] < cmds.constrVal);
@@ -174,12 +175,12 @@ oql = (function () {
                 }
             } else if (cmds.type === "MUT") {
                 if (cmds.constrType === "=") {
-                    ret = gene_attrs[cmds.type] && mutationMatch(cmds.constrVal, gene_attrs["MUT"]);
+                    ret = mutationMatch(cmds.constrVal, gene_attrs.mutation);
                 } else if (cmds.constrType === "!=") {
-                    ret = gene_attrs[cmds.type] && !(mutationMatch(cmds.constrVal, gene_attrs["MUT"]));
+                    ret = !(mutationMatch(cmds.constrVal, gene_attrs.mutation));
                 } else if (cmds.constrType === false) {
                     // match any mutation
-                    ret = gene_attrs[cmds.type] && (gene_attrs["MUT"].length > 0);
+                    ret = gene_attrs.mutation && (gene_attrs.mutation.length > 0);
                 }
             }
             return {"type": "LEAF", "value": ret};
@@ -196,11 +197,11 @@ oql = (function () {
      * @returns {boolean} Whether the given sample passes the given one-line query
      */
     function filterSample(single_query, sample) {
-        if (!(single_query.gene in sample)) {
+        if (single_query.gene !== sample.gene) {
             // no records on this gene, return false by default
             return false;
         }
-        var filterTree = createFilterTree(single_query.cmds, sample[single_query.gene]);
+        var filterTree = createFilterTree(single_query.cmds, sample);
         return reduceFilterTree(filterTree);
     }
 
@@ -209,29 +210,24 @@ oql = (function () {
      * @param {Array.<Object>} query The result of parseQuery
      * @param {Object.<string, Object>} samples
      * @see angular.query-page-module.DataManager._samples
-     * @param {Array.<string>} subset An optional argument which restricts the
-     * samples in consideration to the given subset of samples, specified by their ids.
      * @returns {Array.<string>} A list of ids of samples (which are in subset, if specified) which pass at least one of the lines of the given query.
      */
-    function filter(query, samples, subset) {
+    function filter(query, samples) {
         // IN: Javascript object representing an OQL query, a list of samples
-        // OUT: The names of samples in 'samples' for which at least one
+        // OUT: The indexes 'samples' for which at least one
         //		line of query returns true
         var ret = [];
-        subset = subset || Object.keys(samples);
-        for (var i = 0; i < subset.length; i++) {
-            var s = subset[i];
-            if (s in samples) {
-                var matchesOne = false;
-                for (var j = 0; j < query.length; j++) {
-                    if (filterSample(query[j], samples[s])) {
-                        matchesOne = true;
-                        break;
-                    }
+        for (var i = 0; i < samples.length; i++) {
+            var sample = samples[i];
+            var matchesNone = true;
+            for (var j = 0; j < query.length; j++) {
+                if (filterSample(query[j], sample)) {
+                    matchesNone = false;
+                    break;
                 }
-                if (matchesOne) {
-                    ret.push(s);
-                }
+            }
+            if (matchesNone) {
+                ret.push(i);
             }
         }
         return ret;

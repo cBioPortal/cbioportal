@@ -147,7 +147,7 @@ class ConverterImpl implements Converter {
 				Object[] args = { config, fileUtils, caseIDs, idMapper };
 				Converter converter;
                                 try {
-					converter = (Converter)ClassLoader.getInstance(datatypeMetadata.getConverterClassName(), args);
+					converter = (Converter)ClassLoader.getInstance(datatypeMetadata.getConverterClassName(), args, false);
 				} catch (ClassNotFoundException ex) {
                                     ex.printStackTrace();
                                     continue;

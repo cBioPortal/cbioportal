@@ -81,9 +81,10 @@ public class ClassLoader {
 	 *
 	 * @param className String
 	 * @param args Object[]
+	 * @param metadataClass boolean
 	 * @return Object
 	 */
-	public static Object getInstance(String className, Object[] args) throws Exception {
+	public static Object getInstance(String className, Object[] args, boolean metadataClass) throws Exception {
 
 		// sanity check
 		if (className == null || className.length() == 0) {
@@ -96,8 +97,17 @@ public class ClassLoader {
 
 		try {
 			Class<?> clazz = Class.forName(className);
-			Constructor constructor = clazz.getConstructor(new Class[]{String[].class});
-			return constructor.newInstance(args);
+			Constructor constructor = null;
+			if (metadataClass) {
+				// metadata classes now have multiple constructors, use the String[] one.
+				constructor = clazz.getConstructor(new Class[]{String[].class});
+				return constructor.newInstance(args);
+			}
+			else {
+				Constructor[] constructors = clazz.getConstructors();
+				// all other classes only have the one constructor
+				return constructors[0].newInstance(args);
+			}
 		}
 		catch (Exception e) {
 			LOG.error(("Failed to instantiate " + className), e) ;

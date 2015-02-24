@@ -89,8 +89,8 @@ $(document).ready(function(){
     
     //  Set up an Event Handler to intercept form submission
     $("#main_form").submit(function() {
-	    return false;
-       //return chooseAction();
+    return false;
+ //      return chooseAction();
     });
     
     $("#main_form").find("#main_submit").click(doOQLQuery);
@@ -328,43 +328,75 @@ function doOQLQuery() {
 	});
 	allDataLoadedPromise.then(function(data) {
 		// finally, convert data to oncoprint format
-		var oncoprintFormat = {}; // collect oncoprint data
 		var cnaType = {'-2': 'HOMODELETED', '-1':'HEMIZYGOUSLYDELETED', '0':'DIPLOID', '1':'GAINED', '2':'AMPLIFIED'};
-		var oqlcnaType = {'-2':'HOMDEL','-1':'HETLOSS', '1':'GAIN', '2':'AMP'};
 		var samples = {};
 		var genes = {};
-		$.each(data, function(ind, obj) {
-			var gene = geneMap[obj.entrez_gene_id];
-			var sample = sampleMap[obj.internal_sample_id];
-			oncoprintFormat[gene] = oncoprintFormat[gene] || {};
-			oncoprintFormat[gene][sample] = oncoprintFormat[gene][sample] || {};
-			samples[sample] = true;
-			genes[gene] = true;
-			
-			if (profileTypes[obj.internal_id] === 'MUTATION_EXTENDED') {
-				oncoprintFormat[gene][sample].mutation = obj.amino_acid_change;
-			} else if (profileTypes[obj.internal_id] === 'COPY_NUMBER_ALTERATION') {
-				oncoprintFormat[gene][sample].cna = (obj.profile_data === '0' ? undefined : cnaType[Integer.toString(obj.profile_data)]);
+		
+		var oncoprintTemplate = {
+			sample: function(datum) {
+				return sampleMap[datum.internal_sample_id];
+			},
+			gene: function(datum) {
+				genes[geneMap[datum.entrez_gene_id]] = true;
+				return geneMap[datum.entrez_gene_id];
+			},
+			mutation: function(datum) {
+				if (profileTypes[datum.internal_id] === 'MUTATION_EXTENDED') {
+					return datum.amino_acid_change;
+				} else {
+					return undefined;
+				}
+			},
+			cna: function(datum) {
+				if (profileTypes[datum.internal_id] === 'COPY_NUMBER_ALTERATION') {
+					return (datum.profile_data === '0' ? undefined : cnaType[Integer.toString(datum.profile_data)]);
+				} else {
+					return undefined;
+				}
+			},
+			mrna: function(datum) {
+				if (profileTypes[datum.internal_id] === 'MRNA_EXPRESSION') {
+					return datum.profile_data;
+				} else {
+					return undefined;
+				}
+			},
+			rppa: function(datum) {
+				if (profileTypes[datum.internal_id] === 'PROTEIN_ARRAY_PROTEIN_LEVEL') {
+					return datum.profile_data;
+				} else {
+					return undefined;
+				}
 			}
+		};
+		var oncoprintData = dataman.df.format(oncoprintTemplate, data);
+		// add sample/gene pairs so that each gene has data for each sample
+		$.each(oncoprintData, function(ind, elt) {
+			samples[elt.sample] = $.extend({}, genes);
 		});
-		$.each(samples, function(sample, val) {
-			$.each(genes, function(gene, val) {
-				oncoprintFormat[gene][sample] = oncoprintFormat[gene][sample] || {};
-			});
+		$.each(oncoprintData, function(ind, elt) {
+			samples[elt.sample][elt.gene] = false;
 		});
-		var oncoprintData = []; // read the data off
-		$.each(oncoprintFormat, function(gene, sampMap) {
-			$.each(sampMap, function(sampId, propMap) {
-				oncoprintData.push($.extend({gene:gene, sample:sampId}, propMap));
+		$.each(samples, function(key, val) {
+			$.each(val, function(gene, needToAddData) {
+				if (needToAddData) {
+					oncoprintData.push({sample:key, gene:gene});
+				}
 			});
 		});
 		
+		$.each(oncoprintData, function(ind, elt) {
+			if (Object.keys(elt).length > 2) {
+				console.log(elt);
+			}
+		});
 		var oqlQuery = $("#gene_list").val();
-		var failingSamples = oql.filter(oql.parseQuery(oqlQuery).return, oncoprintData);
-		for (var i=0; i<failingSamples.length; i++) {
-			var ind = failingSamples[i];
-			oncoprintData[ind] = {gene:oncoprintData[ind].gene, sample:oncoprintData[ind].sample};
-		}
+		var oncoprintData = oql.filter(oql.parseQuery(oqlQuery).return, oncoprintData);
+		$.each(oncoprintData, function(ind, elt) {
+			if (Object.keys(elt).length > 2) {
+				console.log(elt);
+			}
+		});
 		$('#oncoprint_body').empty();
 		var oncoprint;
 		requirejs( ['Oncoprint'], function(Oncoprint) {

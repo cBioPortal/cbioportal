@@ -37,6 +37,9 @@ dataman = (function () {
             var ret = {};
             for (var k in template) {
                 ret[k] = template[k](datum);
+		if (ret[k] === undefined) {
+			delete ret[k];
+		}
             }
             return ret;
         };

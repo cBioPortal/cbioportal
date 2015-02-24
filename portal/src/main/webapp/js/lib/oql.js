@@ -7,6 +7,10 @@
  * You probably want to call 
  * filter(parseQuery(query), samples)
  */
+
+// IGNORE ALL THE DOCUMENTATION - IT NEEDS TO BE REWRITTEN.
+// WE ARE NOW DEALING IN ONCOPRINT FORMAT
+
 oql = (function () {
     /**
      * @memberOf oql
@@ -31,7 +35,7 @@ oql = (function () {
         }
         return genes;
     }
-
+    
     /* PARSING */
     // main method is parseQuery(query)
     /**
@@ -122,12 +126,34 @@ oql = (function () {
         if (tree.type === "LEAF") {
             return tree.value;
         } else {
+	var left, right;
             if (tree.type === "NOT") {
-                return !reduceFilterTree(tree.child);
+		    left = reduceFilterTree(tree.child);
+		    if (!left) {
+			    return {};
+		    } else {
+			    return false;
+		    }
             } else if (tree.type === "AND") {
-                return reduceFilterTree(tree.left) && reduceFilterTree(tree.right);
+		    left = reduceFilterTree(tree.left);
+		    right = reduceFilterTree(tree.right);
+		    if (!left || !right) {
+			    return false;
+		    } else {
+			    return $.extend({}, left, right);
+		    }
             } else if (tree.type === "OR") {
-                return reduceFilterTree(tree.left) || reduceFilterTree(tree.right);
+		    left = reduceFilterTree(tree.left);
+		    right = reduceFilterTree(tree.right);
+		    if (!left && !right) {
+			    return false;
+		    } else if (!left) {
+			    return right;
+		    } else if (!right) {
+			    return left;
+		    } else {
+			    return $.extend({}, left, right);
+		    }
             }
         }
     }
@@ -153,34 +179,48 @@ oql = (function () {
         // OUT: a tree as described in 'reduceBooleanTree'
         //		in which each command is converted to the boolean
         //		value representing whether the given gene attributes complies with it
-	var attr_map = {'AMP':'AMPLIFIED', 'GAIN':'GAINED', 'HETLOSS':'HEMIZYGOUSLYDELETED', 'HOMDEL':'HOMODELETED'};
+	var attr_map = {'AMP':'AMPLIFIED', 'GAIN':'GAINED', 'HETLOSS':'HEMIZYGOUSLYDELETED', 'HOMDEL':'HOMODELETED', 'EXP':'mrna', 'PROT':'rppa'};
         if (cmds.type === "AND" || cmds.type === "OR") {
             return {"type": cmds.type, "left": createFilterTree(cmds["left"], gene_attrs), "right": createFilterTree(cmds["right"], gene_attrs)};
         } else if (cmds.type === "NOT") {
             return {"type": "NOT", "child": createFilterTree(cmds["child"], gene_attrs)};
         } else {
             // non-logical type
-            var ret = false;
+            var ret;
             if (cmds.type === "AMP" || cmds.type === "HOMDEL" || cmds.type === "GAIN" || cmds.type === "HETLOSS") {
-                ret = (gene_attrs.cna === attr_map[cmds.type]);
+                ret = (gene_attrs.cna === attr_map[cmds.type] ? {cna: attr_map[cmds.type]} : false);
             } else if (cmds.type === "EXP" || cmds.type === "PROT") {
+		    var attr_name = attr_map[cmds.type];
+		    var level = gene_attrs[attr_name];
+		    ret = {};
                 if (cmds.constrType === "<") {
-                    ret = gene_attrs[cmds.type] && (gene_attrs[cmds.type] !== false) && (gene_attrs[cmds.type] < cmds.constrVal);
+                    if (level !== undefined && level < cmds.constrVal) {
+			    ret[attr_name] = 'DOWNREGULATED';
+		    }
                 } else if (cmds.constrType === "<=") {
-                    ret = gene_attrs[cmds.type] && (gene_attrs[cmds.type] !== false) && (gene_attrs[cmds.type] <= cmds.constrVal);
+                    if (level !== undefined && level <= cmds.constrVal) {
+			    ret[attr_name] = 'DOWNREGULATED';
+		    }
                 } else if (cmds.constrType === ">") {
-                    ret = gene_attrs[cmds.type] && (gene_attrs[cmds.type] !== false) && (gene_attrs[cmds.type] > cmds.constrVal);
+                    if (level !== undefined && level > cmds.constrVal) {
+			    ret[attr_name] = 'UPREGULATED';
+		    }
                 } else if (cmds.constrType === ">=") {
-                    ret = gene_attrs[cmds.type] && (gene_attrs[cmds.type] !== false) && (gene_attrs[cmds.type] >= cmds.constrVal);
+                    if (level !== undefined && level >= cmds.constrVal) {
+			    ret[attr_name] = 'UPREGULATED';
+		    }
                 }
+		if (Object.keys(ret).length === 0) {
+			ret = false;
+		}
             } else if (cmds.type === "MUT") {
                 if (cmds.constrType === "=") {
-                    ret = mutationMatch(cmds.constrVal, gene_attrs.mutation);
+                    ret = (mutationMatch(cmds.constrVal, gene_attrs.mutation) ? {mutation:gene_attrs.mutation} : false);
                 } else if (cmds.constrType === "!=") {
-                    ret = !(mutationMatch(cmds.constrVal, gene_attrs.mutation));
+                    ret = (!(mutationMatch(cmds.constrVal, gene_attrs.mutation)) ? {mutation:gene_attrs.mutation} : false);
                 } else if (cmds.constrType === false) {
                     // match any mutation
-                    ret = gene_attrs.mutation && (gene_attrs.mutation.length > 0);
+                    ret = (gene_attrs.mutation && (gene_attrs.mutation.length > 0) ? {mutation: gene_attrs.mutation} : false);
                 }
             }
             return {"type": "LEAF", "value": ret};
@@ -219,28 +259,14 @@ oql = (function () {
         var ret = [];
         for (var i = 0; i < samples.length; i++) {
             var sample = samples[i];
-            var matchesNone = true;
+	    var newsample = {sample: sample.sample, gene:sample.gene};
             for (var j = 0; j < query.length; j++) {
-                if (filterSample(query[j], sample)) {
-                    matchesNone = false;
-                    break;
-                }
+		    newsample = $.extend({}, newsample, filterSample(query[j], sample) || {});
             }
-            if (matchesNone) {
-                ret.push(i);
-            }
+	    ret.push(newsample);
         }
         return ret;
     }
     
-    /**
-     * @memberOf oql
-     * @param {Array.<Object>} profileData Profile data resulting from a call to getProfileData
-     * @returns {Array.<Object>} A list of samples, where a sample is {'sample':<id>, 'data':<dict>}, where <dict> = {'AMP':<1 or 0>, 'HOMDEL':<1 or 0>, 'GAIN':<1 or 0>, 'HETLOSS':<1 or 0>, 'MUT':[...], 'PROT':<float>}
-     */
-    function makeSamples(profileData) {
-	    // TODO
-    }
-    
-    return {getGeneList: getGeneList, parseQuery: parseQuery, filter: filter, compileSamples: makeSamples};
+    return {getGeneList: getGeneList, parseQuery: parseQuery, filter: filter};
 })();

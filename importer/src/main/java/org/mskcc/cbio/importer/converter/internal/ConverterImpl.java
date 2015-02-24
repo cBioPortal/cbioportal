@@ -148,11 +148,14 @@ class ConverterImpl implements Converter {
 				Converter converter;
                                 try {
 					converter = (Converter)ClassLoader.getInstance(datatypeMetadata.getConverterClassName(), args, false);
-				} catch (ClassNotFoundException ex) {
+                                        converter.createStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dataMatrices.toArray(new DataMatrix[0]));
+				} catch (Exception ex) {
                                     ex.printStackTrace();
+                                    if (LOG.isInfoEnabled()) {
+                                        LOG.error("convertData(), exception:\n" + ex.getMessage());
+                                    }
                                     continue;
                                 }
-                                converter.createStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dataMatrices.toArray(new DataMatrix[0]));
 			}
 
 			if (createCancerStudyMetadataFile) {

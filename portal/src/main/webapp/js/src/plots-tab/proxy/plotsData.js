@@ -14,12 +14,14 @@ var plotsData = (function() {
                 x: {
                     min: "",
                     max: "",
-                    edge: ""
+                    edge: "",
+                    has_mutation_data: false
                 },
                 y: {
                     min: "",
                     max: "",
-                    edge: ""
+                    edge: "",
+                    has_mutation_data: false
                 },
                 hasCnaAnno: false,
                 retrieved: false
@@ -99,15 +101,27 @@ var plotsData = (function() {
                 //get mutation data
                 var _gene_list = "";
                 if ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.genetic) {
-                    _gene_list += $("#" + ids.sidebar.x.gene).val();
+                    $.each(metaData.getGeneticProfilesMeta($("#" + ids.sidebar.x.gene).val()), function(index, profile) {
+                        if (profile.type === "MUTATION_EXTENDED") {
+                            _gene_list += $("#" + ids.sidebar.x.gene).val();
+                            stat.x.has_mutation_data = true;
+                        }
+                    });
                 }
                 if ($("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() === vals.data_type.genetic &&
                         $("#" + ids.sidebar.y.gene).val() !== $("#" + ids.sidebar.x.gene).val()) {
-                    _gene_list += " " + $("#" + ids.sidebar.y.gene).val();
+                    $.each(metaData.getGeneticProfilesMeta($("#" + ids.sidebar.y.gene).val()), function(index, profile) {
+                        if (profile.type === "MUTATION_EXTENDED") {
+                            _gene_list += " " + $("#" + ids.sidebar.y.gene).val();
+                            stat.y.has_mutation_data = true;
+                        }
+                    });
                 }
                 if (_gene_list !== "") {
                     var proxy = DataProxyFactory.getDefaultMutationDataProxy();
                     proxy.getMutationData(_gene_list, mutationCallback);
+                } else {
+                    mutationCallback();
                 }                 
             } else { //clinical vs. clinical
                 //translate: assign text value a numeric value for clinical data
@@ -144,23 +158,27 @@ var plotsData = (function() {
     };
     
     function mutationCallback(mutationData) {
-        var mutationDetailsUtil = new MutationDetailsUtil(new MutationCollection(mutationData));
-        var mutationMap = mutationDetailsUtil.getMutationCaseMap();
-        for (var key in mutationMap) {
-            $.each(mutationMap[key], function(index, obj) {
-                if (dotsContent.hasOwnProperty(key.toUpperCase())) {
-                    if (typeof(dotsContent[key.toUpperCase()].mutation[obj.geneSymbol]) !== "undefined") {
-                        dotsContent[key.toUpperCase()].mutation[obj.geneSymbol].details += "; " + obj.proteinChange;
-                        dotsContent[key.toUpperCase()].mutation[obj.geneSymbol].type = mutationTranslator(obj.mutationType);
-                    } else {
-                        dotsContent[key.toUpperCase()].mutation[obj.geneSymbol] = {
-                            "details": obj.proteinChange,
-                            "type": mutationTranslator(obj.mutationType)
-                        };
-                    }                    
-                }
-            });
+
+        if (mutationData !== null) {
+            var mutationDetailsUtil = new MutationDetailsUtil(new MutationCollection(mutationData));
+            var mutationMap = mutationDetailsUtil.getMutationCaseMap();
+            for (var key in mutationMap) {
+                $.each(mutationMap[key], function(index, obj) {
+                    if (dotsContent.hasOwnProperty(key.toUpperCase())) {
+                        if (typeof(dotsContent[key.toUpperCase()].mutation[obj.geneSymbol]) !== "undefined") {
+                            dotsContent[key.toUpperCase()].mutation[obj.geneSymbol].details += "; " + obj.proteinChange;
+                            dotsContent[key.toUpperCase()].mutation[obj.geneSymbol].type = mutationTranslator(obj.mutationType);
+                        } else {
+                            dotsContent[key.toUpperCase()].mutation[obj.geneSymbol] = {
+                                "details": obj.proteinChange,
+                                "type": mutationTranslator(obj.mutationType)
+                            };
+                        }                    
+                    }
+                });
+            }            
         }
+
         if (genetic_vs_genetic()) {
             //get cna data
             var cna_annotation_profile_name = "";

@@ -127,7 +127,8 @@ public class ImpactCancerTypeProcessor {
     }
 
     /*
-    private method to generate a report of legacy DMP cancer type discrpencies compared
+    private method to generate a report of legacy DMP cancer type discrepencies
+     compared
     to oncotree entries
      */
     private void generateReport(final Path outputPath) {
@@ -214,7 +215,7 @@ public class ImpactCancerTypeProcessor {
 
     public static void main(String...args){
         ImpactCancerTypeProcessor processor = new ImpactCancerTypeProcessor(new File("/tmp/data_clinical.txt"),
-                new File("/tmp/cancert_type.tsv"));
+                new File("/tmp/cancer_type.tsv"));
 
     }
 }

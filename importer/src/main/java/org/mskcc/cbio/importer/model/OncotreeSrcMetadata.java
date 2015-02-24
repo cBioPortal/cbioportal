@@ -4,6 +4,9 @@ import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+
+import com.google.gdata.data.spreadsheet.Worksheet;
+import com.google.gdata.data.spreadsheet.WorksheetEntry;
 import com.mysql.jdbc.StringUtils;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.log4j.Logger;
@@ -47,25 +50,23 @@ public class OncotreeSrcMetadata {
     private String secondary;
     private String tertiary;
     private String quaternary;
-
+    private String metamaintype;
 
     public OncotreeSrcMetadata(Map<String, String> worksheetRowMap) {
-        try {
-            BeanUtils.populate(this, worksheetRowMap);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
-        }
+        this.setPrimary(worksheetRowMap.get("primary"));
+        this.setSecondary(worksheetRowMap.get("secondary"));
+        this.setTertiary(worksheetRowMap.get("teriary"));
+        this.setQuaternary(worksheetRowMap.get("quaternary"));
+        this.setMetamaintype(worksheetRowMap.get("metamaintype"));
     }
-
 
     private final ImmutableMap<String, String> getterMap = new ImmutableMap.Builder<String, String>()
             .put("primary", "getPrimary")
             .put("secondary", "getSecondary")
             .put("tertiary", "getTertiary")
             .put("quaternary", "getQuaternary")
+            .put("metamaintype","getMetamaintype")
             .build();
-
-
 
     public Optional<String> getAttributeByName (String attributeName){
         if(Strings.isNullOrEmpty(attributeName) ||
@@ -95,4 +96,41 @@ public class OncotreeSrcMetadata {
     public String getQuaternary() {
         return quaternary;
     }
+
+    public String getMetamaintype() { return metamaintype;}
+    // main method for stand alone testing
+    public static void main (String...args) {
+        try {
+            Optional<Map<String,String >> rowOptional = ImporterSpreadsheetService.INSTANCE.getWorksheetRowByColumnValue(MetadataCommonNames.Worksheet_OncotreeSrc,
+                    "quaternary", "Uterine Leiomyoma (ULM)");
+            if(rowOptional.isPresent()){
+                OncotreeSrcMetadata onco = new OncotreeSrcMetadata(rowOptional.get());
+                System.out.println(onco.getMetamaintype());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void setPrimary(String primary) {
+        this.primary = primary;
+    }
+
+    public void setSecondary(String secondary) {
+        this.secondary = secondary;
+    }
+
+    public void setTertiary(String tertiary) {
+        this.tertiary = tertiary;
+    }
+
+    public void setQuaternary(String quaternary) {
+        this.quaternary = quaternary;
+    }
+
+    public void setMetamaintype(String metamaintype) {
+        this.metamaintype = metamaintype;
+    }
 }
+

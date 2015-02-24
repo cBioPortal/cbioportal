@@ -197,15 +197,23 @@ public class ClinicalDataConverterImpl extends ConverterBaseImpl implements Conv
 
         if (addSurvival) {
             // add overall survival attributes
-            clinicalAttributes.put(ClinicalAttribute.OS_STATUS,
-                                   config.getClinicalAttributesMetadata(ClinicalAttribute.OS_STATUS).iterator().next());
-            clinicalAttributes.put(ClinicalAttribute.OS_MONTHS,
-                                   config.getClinicalAttributesMetadata(ClinicalAttribute.OS_MONTHS).iterator().next());
+            if (!config.getClinicalAttributesMetadata(ClinicalAttribute.OS_STATUS).isEmpty()) {
+                clinicalAttributes.put(ClinicalAttribute.OS_STATUS,
+                                       config.getClinicalAttributesMetadata(ClinicalAttribute.OS_STATUS).iterator().next());
+            }
+            if (!config.getClinicalAttributesMetadata(ClinicalAttribute.OS_MONTHS).isEmpty()) {
+                clinicalAttributes.put(ClinicalAttribute.OS_MONTHS,
+                                       config.getClinicalAttributesMetadata(ClinicalAttribute.OS_MONTHS).iterator().next());
+            }
             // add disease free attributes
-            clinicalAttributes.put(ClinicalAttribute.DFS_STATUS,
-                                   config.getClinicalAttributesMetadata(ClinicalAttribute.DFS_STATUS).iterator().next());
-            clinicalAttributes.put(ClinicalAttribute.DFS_MONTHS,
-                                   config.getClinicalAttributesMetadata(ClinicalAttribute.DFS_MONTHS).iterator().next());
+            if (!config.getClinicalAttributesMetadata(ClinicalAttribute.DFS_STATUS).isEmpty()) {
+                clinicalAttributes.put(ClinicalAttribute.DFS_STATUS,
+                                       config.getClinicalAttributesMetadata(ClinicalAttribute.DFS_STATUS).iterator().next());
+            }
+            if (!config.getClinicalAttributesMetadata(ClinicalAttribute.DFS_MONTHS).isEmpty()) {
+                clinicalAttributes.put(ClinicalAttribute.DFS_MONTHS,
+                                       config.getClinicalAttributesMetadata(ClinicalAttribute.DFS_MONTHS).iterator().next());
+            }
         }
         
         return clinicalAttributes;

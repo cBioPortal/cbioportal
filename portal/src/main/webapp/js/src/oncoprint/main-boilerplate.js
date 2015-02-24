@@ -130,6 +130,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             oncoprint.sortBy("custom", cases.split(" "),mutationColorControl);
         }
     };
+    
     geneDataColl.fetch({
         type: "POST",
         data: {
@@ -902,7 +903,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                 }
             }
             
-            spaceHeight=(ExtractNumber(target.parentElement.parentElement.children[2].attributes.y.value)-ExtractNumber(target.parentElement.parentElement.children[0].attributes.y.value))/2; //get the height of each table row
+            spaceHeight=(ExtractNumber(target.parentElement.parentElement.children[1].attributes.y.value)-ExtractNumber(target.parentElement.parentElement.children[0].attributes.y.value))/1; //get the height of each table row
 
             // bring the clicked element to the front while it is being dragged
             _oldZIndex = target.style.zIndex;

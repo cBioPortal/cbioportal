@@ -35,7 +35,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
     
     var gapSpaceGeneClinic = 10;// Gap between gene data and clinic 
     var mutationColorControl = 'multiColor';
-    var mutationColorSort = 'mutationcolornonsort';
+    var mutationColorSort = 'mutationcolorsort';
     
     // basically a hack to prevent the zoom function from a particular oncoprint
     // from getting bound to the UI slider forever

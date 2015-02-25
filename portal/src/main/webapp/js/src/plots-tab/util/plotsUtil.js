@@ -252,5 +252,15 @@ var search_case_id = function() {
     );     
 };
 
+var is_discretized = function(axis) {
+    if ($("input:radio[name='" + ids.sidebar[axis].data_type + "']:checked").val() === vals.data_type.clin) {
+        if (clinical_attr_is_discretized(axis)) return true;
+        return false;
+    } else if ($("input:radio[name='" + ids.sidebar[axis].data_type + "']:checked").val() === vals.data_type.genetic) {
+        if (is_profile_discretized(axis)) return true;
+        return false;
+    }
+};
+
 
 

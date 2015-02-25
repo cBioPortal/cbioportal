@@ -795,7 +795,7 @@ var scatterPlots = (function() {
         
         //no-mutation data info
         var _stat = plotsData.stat();
-        if (!_stat.x.has_mutation_data) {
+        if (!_stat.x.has_mutation_data && $("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.genetic) {
             var mut_exp_x = 
                 elem.svg.selectAll(".mut_exp_x")
                 .data(["*No Mutation Data for " + $("#" + ids.sidebar.x.gene).val()])
@@ -811,20 +811,22 @@ var scatterPlots = (function() {
                     .style("font-size", "11px")
                     .text(function(d) {return d;}); 
         }
-        if (!_stat.y.has_mutation_data && !isSameGene()) {
-            var mut_exp_y = elem.svg.selectAll(".mut_exp_y")
-                .data(["*No Mutation Data for " + $("#" + ids.sidebar.y.gene).val()])
-                .enter().append("g")
-                .attr("class", "mut_exp_y")
-                .attr("transform", function() {
-                    return "translate(615, 510)";
-                });
-                mut_exp_y.append("text")
-                        .attr("dx", ".75em")
-                        .attr("dy", ".35em")
-                        .style("font-size", "11px")
-                        .style("text-anchor", "front")
-                        .text(function(d) {return d;}); 
+        if (!_stat.y.has_mutation_data && $("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() === vals.data_type.genetic) {
+            if (!(genetic_vs_genetic() && isSameGene())) {
+                var mut_exp_y = elem.svg.selectAll(".mut_exp_y")
+                    .data(["*No Mutation Data for " + $("#" + ids.sidebar.y.gene).val()])
+                    .enter().append("g")
+                    .attr("class", "mut_exp_y")
+                    .attr("transform", function() {
+                        return "translate(615, 510)";
+                    });
+                    mut_exp_y.append("text")
+                            .attr("dx", ".75em")
+                            .attr("dy", ".35em")
+                            .style("font-size", "11px")
+                            .style("text-anchor", "front")
+                            .text(function(d) {return d;});                 
+                }
         }
     }
     

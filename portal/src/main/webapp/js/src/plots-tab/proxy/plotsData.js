@@ -247,7 +247,7 @@ var plotsData = (function() {
             tmp_xData.push(parseFloat(dotsContent[key].xVal));
             tmp_yData.push(parseFloat(dotsContent[key].yVal));
         }
-
+        
         stat.x.min = Math.min.apply(Math, tmp_xData);
         stat.x.max = Math.max.apply(Math, tmp_xData);
         stat.y.min = Math.min.apply(Math, tmp_yData);
@@ -265,16 +265,21 @@ var plotsData = (function() {
         }
         
         //if there's only two categories, increase the edge
-        if (calc_num_of_categories(tmp_xData) === 2) {
-            stat.x.edge = 0.8;
-        } else if (calc_num_of_categories(tmp_xData) >= 6 && calc_num_of_categories(tmp_xData) < 20) {
-            stat.x.edge = 0.5;
+        if (is_discretized("x")){
+            if (calc_num_of_categories(tmp_xData) === 2) {
+                stat.x.edge = 0.8;
+            } else if (calc_num_of_categories(tmp_xData) >= 6 && calc_num_of_categories(tmp_xData) < 20) {
+                stat.x.edge = 0.5;
+            }            
         }
-        if (calc_num_of_categories(tmp_yData) === 2) {
-            stat.y.edge = 0.8;
-        } else if (calc_num_of_categories(tmp_yData) >= 6 && calc_num_of_categories(tmp_yData) < 20) {
-            stat.y.edge = 0.5;
+        if (is_discretized("y")){
+            if (calc_num_of_categories(tmp_yData) === 2) {
+                stat.y.edge = 0.8;
+            } else if (calc_num_of_categories(tmp_yData) >= 6 && calc_num_of_categories(tmp_yData) < 20) {
+                stat.y.edge = 0.5;
+            }        
         }
+
         function calc_num_of_categories(_input_arr) {
             var _arr = [];
             $.each(_input_arr, function(index, val) {

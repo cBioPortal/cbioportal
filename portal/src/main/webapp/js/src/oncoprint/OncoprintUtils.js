@@ -1002,16 +1002,16 @@ define("OncoprintUtils", (function() {
                      AMPLIFIED: "Amplification",
                      GAINED: "Gain",
                      DIPLOID: "Diploid",
-                     HEMIZYGOUSLYDELETED: "Heterozygous Deletion",
-                     HOMODELETED: "Homozygous Deletion"
+                     HEMIZYGOUSLYDELETED: "Shallow Deletion",
+                     HOMODELETED: "Deep Deletion"
                  },
             mrna: {
                       UPREGULATED: "mRNA Upregulation",
                       DOWNREGULATED: "mRNA Downregulation"
                   },
             rppa: {
-                      UPREGULATED: "RPPA Upregulation",
-                      DOWNREGULATED: "RPPA Downregulation"
+                      UPREGULATED: "Protein Upregulation",
+                      DOWNREGULATED: "Protein Downregulation"
                   },
             mutation: "mutation",
             fusion: "Fusion"

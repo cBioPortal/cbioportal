@@ -584,15 +584,15 @@
                                 var cna = mutations.getValue(source[0], 'cna');
                                 switch (cna) {
                                     case "-2": return "<span style='color:blue;' class='"
-                                           +table_id+"-tip' alt='Homozygously deleted'><b>HOMDEL</b></span>";
+                                           +table_id+"-tip' alt='Deep deletion'><b>DeepDel</b></span>";
                                     case "-1": return "<span style='color:blue;font-size:smaller;' class='"
-                                           +table_id+"-tip' alt='Heterozygously deleted'><b>hetloss</b></span>";
+                                           +table_id+"-tip' alt='Shallow deletion'><b>ShallowDel</b></span>";
                                     case "0": return "<span style='color:black;font-size:xx-small;' class='"
-                                           +table_id+"-tip' alt='Diploid / normal'>diploid</span>";
+                                           +table_id+"-tip' alt='Diploid / normal'>Diploid</span>";
                                     case "1": return "<span style='color:red;font-size:smaller;' class='"
-                                           +table_id+"-tip' alt='Low-level gain'><b>gain</b></span>";
+                                           +table_id+"-tip' alt='Low-level gain'><b>Gain</b></span>";
                                     case "2": return "<span style='color:red;' class='"
-                                           +table_id+"-tip' alt='High-level amplification'><b>AMP</b></span>";
+                                           +table_id+"-tip' alt='High-level amplification'><b>Amp</b></span>";
                                     default: return "<span style='color:gray;font-size:xx-small;' class='"
                                            +table_id+"-tip' alt='CNA data is not available for this gene.'>NA</span>";
                                 }

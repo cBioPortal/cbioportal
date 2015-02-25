@@ -115,7 +115,7 @@
                                 case -2:
                                     strAlt="<span style='color:blue;' class='"
                                            +table_id+"-tip' alt='"+gene
-                                           +" is Homozygously deleted (putative)'>HOMDEL</span>";
+                                           +" is deeply deleted (putative)'>DeepDel</span>";
                                     break;
                                 default: strAlt='Unknown';
                                 }
@@ -123,7 +123,7 @@
                             } else if (type==='filter') {
                                 switch(cnas.getValue(source[0], "alter")) {
                                 case 2: return 'AMP';
-                                case -2: return 'HOMDEL';
+                                case -2: return 'DeepDel';
                                 default: return 'Unknown';
                                 }
                             } else {

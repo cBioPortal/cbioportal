@@ -146,7 +146,7 @@ var scatterPlots = (function() {
                 .style("fill", "black")
                 .attr("transform", function(d) {
                     if (_rotate_flag) {
-                        return "rotate(-10)"; 
+                        return "rotate(-25)"; 
                     }
                 })
                 .attr("class", function(d) {
@@ -209,7 +209,7 @@ var scatterPlots = (function() {
                 .style("fill", "black")
                 .attr("transform", function(d) {
                     if (_rotate_flag) {
-                        return "rotate(-10)"; 
+                        return "rotate(-25)"; 
                     }
                 });
             elem.svg.append("g")

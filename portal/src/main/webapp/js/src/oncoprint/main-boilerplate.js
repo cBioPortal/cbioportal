@@ -1422,15 +1422,15 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         function(){
                         if($('#oncoprint_diagram_showmutationcolor_icon img')[0].attributes.src.value === 'images/colormutations.svg')
                         {
-                            return 'color-code different mutation types';
+                            return 'Show mutations with different colors by type and sort accordingly';
                         }
                         else if($('#oncoprint_diagram_showmutationcolor_icon img')[0].attributes.src.value === 'images/mutationcolorsort.svg')
                         {
-                           return 'color-code different mutation types with sorting order';
+                           return 'Show mutations with different colors by type';
                         }
                         else
                         {
-                            return 'show all mutations in the same color';
+                            return 'Show mutations with the same color';
                         }
                     }
             },

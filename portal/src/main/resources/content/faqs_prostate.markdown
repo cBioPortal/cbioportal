@@ -12,7 +12,7 @@ We have recently posted [two mini-tutorials](tutorial.jsp) to get you up and run
 
 # What data types are in the portal?
 
-The portal currently stores DNA copy-number data (putative, discrete values per gene, e.g. "homozygously deleted" or "amplified", as well as log2 levels), mRNA and microRNA expression data, non-synonymous mutations, protein-level and phosphoprotein level (RPPA) data, DNA methylation data, and limited clinical data related to survival. For a complete breakdown of available data types per cancer study go to the [Data Sets Page](data_sets.jsp).
+The portal currently stores DNA copy-number data (putative, discrete values per gene, e.g. "deeply deleted" or "amplified", as well as log2 levels), mRNA and microRNA expression data, non-synonymous mutations, protein-level and phosphoprotein level (RPPA) data, DNA methylation data, and limited clinical data related to survival. For a complete breakdown of available data types per cancer study go to the [Data Sets Page](data_sets.jsp).
 
 # Can I use figures from the Portal in my publications or presentations?
 
@@ -83,7 +83,7 @@ algorithms.  Both algorithms attempt to identify significantly altered regions o
 
 # What do "-2", "-1", "0", "1", and "2" mean in the copy-number data?
 
-These levels are derived from the copy-number analysis algorithms GISTIC or RAE, and indicate the copy-number level per gene. "-2" is a deep loss, possibly a homozygous deletion, "-1" is a single-copy loss (heterozygous deletion), "0" is diploid, "1" indicates a low-level gain, and "2" is a high-level amplification. Note that these calls are putative.
+These levels are derived from the copy-number analysis algorithms GISTIC or RAE, and indicate the copy-number level per gene. "-2" is a deep loss, possibly a homozygous deletion, "-1" is a shallow loss (possibly heterozygous deletion), "0" is diploid, "1" indicates a low-level gain, and "2" is a high-level amplification. Note that these calls are putative.
 
 # What are the sources of biological network data?
 

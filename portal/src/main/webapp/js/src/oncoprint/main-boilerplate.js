@@ -1313,7 +1313,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                 }
                 
                 utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(
-                $('#oncoprint_diagram_showmutationcolor_icon img')[0].attributes.src.value = 'images/colormutations.svg';
+                $('#oncoprint_diagram_showmutationcolor_icon img')[0].attributes.src.value = 'images/mutationcolorsort.svg';
                 
                 $('#oncoprint-diagram-showlegend-icon img')[0].attributes.src.value = 'images/showlegend.svg';
                 $('#oncoprint-diagram-removeUCases-icon img')[0].attributes.src.value = 'images/removeUCases.svg';
@@ -1331,7 +1331,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 //                });
                 
                 mutationColorControl = 'multiColor';
-                mutationColorSort = 'mutationcolorsort';
+                mutationColorSort = 'mutationcolornonsort';
                 refreshOncoPrint();
                 //the code below is that after color mutation zoom to the largest value 
 //                zoom = reset_zoom();
@@ -1356,7 +1356,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                 }
                 
                 utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(
-                $('#oncoprint_diagram_showmutationcolor_icon img')[0].attributes.src.value = 'images/mutationcolorsort.svg';
+                $('#oncoprint_diagram_showmutationcolor_icon img')[0].attributes.src.value = 'images/uncolormutations.svg';
                 
                 $('#oncoprint-diagram-showlegend-icon img')[0].attributes.src.value = 'images/showlegend.svg';
                 $('#oncoprint-diagram-removeUCases-icon img')[0].attributes.src.value = 'images/removeUCases.svg';
@@ -1395,7 +1395,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                 }
                 
                 utils.make_mouseover(d3.selectAll('.sample rect'),{linkage:true});        // hack =(
-                $('#oncoprint_diagram_showmutationcolor_icon img')[0].attributes.src.value = 'images/uncolormutations.svg';
+                $('#oncoprint_diagram_showmutationcolor_icon img')[0].attributes.src.value = 'images/colormutations.svg';
                 
                 $('#oncoprint-diagram-showlegend-icon img')[0].attributes.src.value = 'images/showlegend.svg';
                 $('#oncoprint-diagram-removeUCases-icon img')[0].attributes.src.value = 'images/removeUCases.svg';
@@ -1422,15 +1422,15 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         function(){
                         if($('#oncoprint_diagram_showmutationcolor_icon img')[0].attributes.src.value === 'images/colormutations.svg')
                         {
-                            return 'color-code different mutation types';
+                            return 'Show mutations with different colors by type and sort accordingly';
                         }
                         else if($('#oncoprint_diagram_showmutationcolor_icon img')[0].attributes.src.value === 'images/mutationcolorsort.svg')
                         {
-                           return 'color-code different mutation types with sorting order';
+                           return 'Show mutations with different colors by type';
                         }
                         else
                         {
-                            return 'show all mutations in the same color';
+                            return 'Show mutations with the same color';
                         }
                     }
             },

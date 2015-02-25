@@ -1280,12 +1280,12 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
               inner_loader_img.show();
               if($('#oncoprint_diagram_showmutationcolor_icon img')[0].attributes.src.value === 'images/uncolormutations.svg')
               {
-                $(this).qtip({
-                content: {text: 'color-code different mutation types'},
-                position: {my:'bottom middle', at:'top middle', viewport: $(window)},
-                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
-                show: {event: "mouseover"}
-                });
+//                $(this).qtip({
+//                content: {text: 'color-code different mutation types'},
+//                position: {my:'bottom middle', at:'top middle', viewport: $(window)},
+//                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
+//                show: {event: "mouseover"}
+//                });
                 
                 mutationColorControl = 'singleColor';
                 mutationColorSort = 'mutationcolorsort';
@@ -1323,12 +1323,12 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
               }
                 else if($('#oncoprint_diagram_showmutationcolor_icon img')[0].attributes.src.value === 'images/colormutations.svg')
               {
-                $(this).qtip({
-                content: {text: 'show all mutations in the same color'},
-                position: {my:'bottom middle', at:'top middle', viewport: $(window)},
-                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
-                show: {event: "mouseover"}
-                });
+//                $(this).qtip({
+//                content: {text: 'show all mutations in the same color'},
+//                position: {my:'bottom middle', at:'top middle', viewport: $(window)},
+//                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
+//                show: {event: "mouseover"}
+//                });
                 
                 mutationColorControl = 'multiColor';
                 mutationColorSort = 'mutationcolorsort';
@@ -1367,12 +1367,12 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
               }
               else
               {
-                $(this).qtip({
-                content: {text: 'color-code different mutation types with sorting order'},
-                position: {my:'bottom middle', at:'top middle', viewport: $(window)},
-                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
-                show: {event: "mouseover"}
-                });
+//                $(this).qtip({
+//                content: {text: 'color-code different mutation types with sorting order'},
+//                position: {my:'bottom middle', at:'top middle', viewport: $(window)},
+//                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
+//                show: {event: "mouseover"}
+//                });
                 
                 mutationColorControl = 'multiColor';
                 mutationColorSort = 'mutationcolornonsort';
@@ -1404,7 +1404,8 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                 $('.legend_nonmissense').css("display","inline");
               }
               inner_loader_img.hide();
-            });
+            });            
+            
             $('#oncoprint_diagram_showmutationcolor_icon').hover(
             function () {
             $(this).css('fill', '#0000FF');
@@ -1415,12 +1416,17 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             $(this).css('fill', '#87CEFA');
             $(this).css('font-size', '12px');
             });
+            
             $('#oncoprint_diagram_showmutationcolor_icon').qtip({
             content: {text: 
                         function(){
                         if($('#oncoprint_diagram_showmutationcolor_icon img')[0].attributes.src.value === 'images/colormutations.svg')
                         {
                             return 'color-code different mutation types';
+                        }
+                        else if($('#oncoprint_diagram_showmutationcolor_icon img')[0].attributes.src.value === 'images/mutationcolorsort.svg')
+                        {
+                           return 'color-code different mutation types with sorting order';
                         }
                         else
                         {

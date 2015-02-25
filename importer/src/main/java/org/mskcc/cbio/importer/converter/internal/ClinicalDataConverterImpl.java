@@ -21,6 +21,7 @@ import org.mskcc.cbio.portal.model.ClinicalAttribute;
 import org.mskcc.cbio.portal.scripts.ImportClinicalData;
 import org.mskcc.cbio.importer.*;
 import org.mskcc.cbio.importer.model.*;
+import org.mskcc.cbio.importer.util.TCGASurvivalDataCalculator;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -159,6 +160,7 @@ public class ClinicalDataConverterImpl extends ConverterBaseImpl implements Conv
         config.flagMissingClinicalAttributes(cancerStudyMetadata.toString(), cancerStudyMetadata.getTumorType(),
                                              removeUnknownColumnsFromMatrix(patientMatrix, clinicalAttributes));
         addSurvivalDataToMatrix(patientMatrix, computeSurvivalData(patientMatrix, followUps));
+        updateVitalStatusForPatient(patientMatrix);
         normalizeHeaders(patientMatrix, clinicalAttributes);
         patientMatrix.ignoreRow(0, true);
     }
@@ -177,6 +179,19 @@ public class ClinicalDataConverterImpl extends ConverterBaseImpl implements Conv
         dataMatrix.addColumn(ClinicalAttribute.OS_MONTHS, oss.osMonths);
         dataMatrix.addColumn(ClinicalAttribute.DFS_STATUS, oss.dfStatus);
         dataMatrix.addColumn(ClinicalAttribute.DFS_MONTHS, oss.dfMonths);
+    }
+
+    private void updateVitalStatusForPatient(DataMatrix patientMatrix)
+    {
+        List<String> patientIds = patientMatrix.getColumnData(TCGASurvivalDataCalculator.PATIENT_ID).get(0); 
+        for (int lc = 0; lc < patientIds.size(); lc++) {
+            List<String> vitalStatuses = patientMatrix.getColumnData(TCGASurvivalDataCalculator.VITAL_STATUS).get(0);
+            List<String> osStatuses =  patientMatrix.getColumnData(ClinicalAttribute.OS_STATUS).get(0);
+            if (TCGASurvivalDataCalculator.VitalStatusAlive.has(vitalStatuses.get(lc)) &&
+                TCGASurvivalDataCalculator.VitalStatusDead.has(osStatuses.get(lc))) {
+                vitalStatuses.set(lc, TCGASurvivalDataCalculator.VitalStatusDead.DEAD.toString());
+            }
+        }
     }
 
     private void normalizeHeaders(DataMatrix dataMatrix, Map<String, ClinicalAttributesMetadata> clinicalAttributes)

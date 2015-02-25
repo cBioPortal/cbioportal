@@ -43,6 +43,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.log4j.Logger;
+import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 
 
 /*
@@ -59,13 +60,13 @@ public class ICGCSummaryTable {
     private Set<String> studySet;
     private Map<String,Integer> tumorSampleIdMap;
     private Integer totalSampleCount = 0;
-    private static final Joiner tabJoiner = Joiner.on('\t').useForNull(" ");
+
     private final String mafDirectoryName;
     private final List<File> mafFileList;
     private static final String MAF_FILE_EXTENSION = ".maf";
     private static final String OUTPUT_FILE_NAME = "icgc_summary_table.tsv";
     private Set<String> tumorSampleIdSet;
-    private final Joiner pathJoiner = Joiner.on(System.getProperty("file.separator"));
+
 
     public ICGCSummaryTable(final String dirName) {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(dirName),
@@ -129,7 +130,8 @@ public class ICGCSummaryTable {
 
     private List<String> formatTable() {
         List<String> tableData = Lists.newArrayList();
-        tableData.add(tabJoiner.join("Center", "Samples",tabJoiner.join(this.getSortedListWithTotal(varClassSet))));
+        tableData.add(StagingCommonNames.tabJoiner.join("Center", "Samples",
+                StagingCommonNames.tabJoiner.join(this.getSortedListWithTotal(varClassSet))));
         StringBuilder sb = null;
         for (String rowName : this.getSortedListWithTotal(studySet)) {
             sb = new StringBuilder(rowName);
@@ -163,7 +165,7 @@ public class ICGCSummaryTable {
         if (Strings.isNullOrEmpty(columnName)) {
             columnName = "unknown";
         }
-        // increement row & column totals
+        // increment row & column totals
         this.incrementTotals(rowName, columnName);
         // initialize the cell if the row and column have not been specified already
         if (!this.icgcTable.contains(rowName, columnName)) {
@@ -206,7 +208,7 @@ public class ICGCSummaryTable {
     }
 
     private Path resolveOutputPath() {
-        String tableFilename = pathJoiner.join(this.mafDirectoryName,
+        String tableFilename = StagingCommonNames.pathJoiner.join(this.mafDirectoryName,
                 OUTPUT_FILE_NAME);
         logger.info("Summary statistics written to " + tableFilename);
         return Paths.get(tableFilename);

@@ -950,8 +950,9 @@
                             };
                             var servletName = "crosscancermutation.json";
                             // init mutation data proxy with the data servlet config
-                            var proxy = new MutationDataProxy(genes.join(" "));
-                            proxy.initWithoutData(servletName, servletParams);
+                            var proxy = new MutationDataProxy({geneList: genes.join(" "),
+	                                                           params: servletParams});
+                            proxy.initWithoutData(servletName);
 
                             // init default mutation details view
 
@@ -961,11 +962,10 @@
 	                        var options = {
 		                        el: el,
 		                        data: {
-			                        geneList: proxy.getRawGeneList(),
 			                        sampleList: []
 		                        },
 		                        proxy: {
-			                        mutation: {
+			                        mutationProxy: {
 				                        instance: proxy
 			                        }
 		                        },

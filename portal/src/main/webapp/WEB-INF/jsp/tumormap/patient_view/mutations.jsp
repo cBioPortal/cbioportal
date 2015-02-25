@@ -73,13 +73,22 @@
                             
                             $(".cross-cancer-download").click(function() {
                                 var fileType = $(this).attr("file-type");
-                                var params = {
-                                    filetype: fileType,
-                                    filename: gene + "_mutations." + fileType,
-                                    svgelement: (new XMLSerializer()).serializeToString(this_svg)
-                                };
+	                            var filename = gene + "_mutations." + fileType;
 
-                                cbio.util.requestDownload("svgtopdf.do", params);
+	                            if (fileType == "pdf")
+	                            {
+		                            cbio.download.initDownload(this_svg, {
+			                            filename: filename,
+			                            contentType: "application/pdf",
+			                            servletName: "svgtopdf.do"
+		                            });
+	                            }
+	                            else // svg
+	                            {
+		                            cbio.download.initDownload(this_svg, {
+			                            filename: filename
+		                            });
+	                            }
                             });
 
                             $(invisible_container).empty();     // N.B.

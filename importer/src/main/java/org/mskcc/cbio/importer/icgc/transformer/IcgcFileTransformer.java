@@ -17,6 +17,8 @@
  */
 package org.mskcc.cbio.importer.icgc.transformer;
 
+import scala.util.control.TailCalls;
+
 import java.nio.file.Path;
 import java.util.concurrent.Callable;
 

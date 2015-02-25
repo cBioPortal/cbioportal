@@ -41,15 +41,10 @@ var RightMenuStudyStatsUtil = (function($) {
             $.each(portalData.cancer_studies, function(key, cancer_study){
                 if(key == "all") { return; }
 
-                var size = 0;
-                $.each(cancer_study.case_sets, function(index, caselist){
-                    size = Math.max(size, caselist.size);
-                });
-
                 cancerTypes[cancer_study.type_of_cancer].push({
                     name: cancer_study.name.replace(/ \(.*\)/g, ""),
                     fullName: cancer_study.name,
-                    size: size,
+                    size: cancer_study.num_samples,
                     parentName: portalData.type_of_cancers[cancer_study.type_of_cancer],
                     linkId: key
                 });

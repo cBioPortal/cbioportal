@@ -53,6 +53,7 @@ public interface StagingCommonNames {
     public static final Splitter blankSplitter = Splitter.on(" ");
     public static final Joiner tabJoiner = Joiner.on('\t').useForNull(" ");
     public static final Joiner commaJoiner = Joiner.on(',').useForNull(" ");
+    public static final Splitter commaSplitter= Splitter.on(',');
     public static final Joiner blankJoiner = Joiner.on(" ");
     public static final Joiner lineJoiner = Joiner.on("\n");
     public static final Splitter posSplitter = Splitter.on(':');

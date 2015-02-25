@@ -4,6 +4,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import edu.stanford.nlp.io.FileSequentialCollection;
 import edu.stanford.nlp.util.StringUtils;
 import org.apache.commons.csv.CSVFormat;
@@ -28,6 +29,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * Copyright (c) 2014 Memorial Sloan-Kettering Cancer Center.
@@ -49,7 +51,7 @@ import java.util.Properties;
  * Created by criscuof on 2/17/15.
  *
  * Java application that will:
- * (1) read in all data_clinical staging files in a specified directory
+ * (1) read in all staging files in a specified directory
  * (2) convert the existing DMP sample and patient ids to new sample and patient ids
  * (3) use the existing cancer_type_detailed value to determine a new cancer_type value
  * (4) append the legacy sample id and patient id as new columns in the data_clinical.txt file
@@ -57,17 +59,20 @@ import java.util.Properties;
  * eg.  /tmp/clinical/data_clinical_xyz.txt ---> refactor---> /tmp/clinical/new/data_clinical_xyz.txt
  *
  */
-public class ClinicalDataRefactoringUtility {
-    private static final Logger logger = Logger.getLogger(ClinicalDataRefactoringUtility.class);
+public class LegacyDmpDataRefactoringUtility {
+    private static final Logger logger = Logger.getLogger(LegacyDmpDataRefactoringUtility.class);
     private static final String PATIENT_ID_COLUMN_NAME = "PATIENT_ID";
-    private static final String SAMPLE_ID_COLUMN_NAME = "SAMPLE_ID";
+    private static final String CLINICAL_DATA_SAMPLE_ID_COLUMN_NAME = "SAMPLE_ID";
     private static final String CANCER_TYPE_COLUMN_NAME = "CANCER_TYPE";
     private static final String CANCER_TYPE_DETAILED_COLUMN_NAME = "CANCER_TYPE_DETAILED";
     private static final String OTHER_PATIENT_ID_COLUMN_NAME = "OTHER_PATIENT_ID";
     private static final String OTHER_SAMPLE_ID_COLUMN_NAME = "OTHER_SAMPLE_ID";
+    private static final Set<String> TSV_STAGING_FILE_SET = Sets.newHashSet("data_mutations_extended.txt","data_fusions.txt", "data_SV.txt","data_CNA.txt");
+    private static final String CNA_STAGING_FILE = "data_CNA.txt";
 
 
-    public ClinicalDataRefactoringUtility() {
+
+    public LegacyDmpDataRefactoringUtility() {
     }
     private String refactorPatientId(String anId){
         Optional<String> newPatientIdOpt = DmpLegacyIdResolver.INSTANCE.resolveNewPatientIdFromLegacyPatientId(anId);
@@ -78,7 +83,7 @@ public class ClinicalDataRefactoringUtility {
         //if the new id isn't in the map yest, retain the use of the existing one
         return anId;
     }
-    private String refactorSampleId (String anId){
+    private String refactorClinicalSampleId(String anId){
         Optional<String> newSampleIdOpt = DmpLegacyIdResolver.INSTANCE.resolveNewSampleIdFromLegacySampleId(anId);
         if(newSampleIdOpt.isPresent()){
             return newSampleIdOpt.get();
@@ -90,7 +95,6 @@ public class ClinicalDataRefactoringUtility {
 
     private String refactorCancerTypeDetail(String aTypeDetailed) {
         return aTypeDetailed;
-
     }
 
     /*
@@ -107,11 +111,44 @@ public class ClinicalDataRefactoringUtility {
         return currentType;
     }
 
+
+    private void refactorNonClinicalDataStagingFiles(Path inPath, Path outPath){
+        FileSequentialCollection fsc = new FileSequentialCollection(inPath.toFile(),
+                StagingCommonNames.stagingFileExtension,false);
+        Observable<File> fileObservable = Observable.from(fsc)
+                // only retain specific non-clinical data staging files
+                .filter(new Func1<File, Boolean>() {
+                    @Override
+                    public Boolean call(File file) {
+                        return TSV_STAGING_FILE_SET.contains(file.getName());
+                    }
+                });
+        fileObservable.subscribe(new Subscriber<File>() {
+            @Override
+            public void onCompleted() {
+
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                logger.error(throwable.getMessage());
+                throwable.printStackTrace();
+            }
+
+            @Override
+            public void onNext(File file) {
+                logger.info("Processing data staging file " +file.getName());
+
+            }
+        });
+
+    }
+
     /*
     Process all the staging files in the specified directory whose filename
     contains the substring "data_clinical"
      */
-    private void refactorFileFunction(Path inPath, final Path outPath){
+    private void refactorClinicalFileFunction(Path inPath, final Path outPath){
         FileSequentialCollection fsc = new FileSequentialCollection(inPath.toFile(),
                 StagingCommonNames.stagingFileExtension,false);
         Observable<File> fileObservable = Observable.from(fsc)
@@ -184,15 +221,15 @@ public class ClinicalDataRefactoringUtility {
                 }
                 @Override
                 public void onNext(final CSVRecord record) {
-                    String legacySampleId = record.get(SAMPLE_ID_COLUMN_NAME);
+                    String legacySampleId = record.get(CLINICAL_DATA_SAMPLE_ID_COLUMN_NAME);
                     String legacyPatientId = record.get(PATIENT_ID_COLUMN_NAME);
                     String line = StagingCommonNames.tabJoiner.join(FluentIterable.from(headerMap.keySet())
                             .transform(new Function<String, String>() {
                                 @Nullable
                                 @Override
                                 public String apply(String input) {
-                                    if (input.equals(SAMPLE_ID_COLUMN_NAME)) {
-                                        return refactorSampleId(record.get(SAMPLE_ID_COLUMN_NAME));
+                                    if (input.equals(CLINICAL_DATA_SAMPLE_ID_COLUMN_NAME)) {
+                                        return refactorClinicalSampleId(record.get(CLINICAL_DATA_SAMPLE_ID_COLUMN_NAME));
                                     }
                                     if (input.equals(PATIENT_ID_COLUMN_NAME)) {
                                         return refactorPatientId((record.get(PATIENT_ID_COLUMN_NAME)));
@@ -222,8 +259,8 @@ public class ClinicalDataRefactoringUtility {
     }
 
     public static void main (String...args) {
-        ClinicalDataRefactoringUtility test = new ClinicalDataRefactoringUtility();
-        Properties utilityProperties = StringUtils.propFileToProperties("/tmp/clinical/idrefactor.properties");
+        LegacyDmpDataRefactoringUtility test = new LegacyDmpDataRefactoringUtility();
+        Properties utilityProperties = StringUtils.propFileToProperties("/tmp/msk-impact/idrefactor.properties");
         String sourcePath = edu.stanford.nlp.util.PropertiesUtils.getString(utilityProperties,
                 "source.path", "/tmp/clinical");
         String outputPath = edu.stanford.nlp.util.PropertiesUtils.getString(utilityProperties,
@@ -231,6 +268,7 @@ public class ClinicalDataRefactoringUtility {
         logger.info("The data_clinical files in " +sourcePath +" will be processed");
         logger.info("The refactored data_clinical files will be written to "
             +outputPath);
-        test.refactorFileFunction(Paths.get(sourcePath),Paths.get(outputPath));
+        test.refactorClinicalFileFunction(Paths.get(sourcePath), Paths.get(outputPath));
+        test.refactorNonClinicalDataStagingFiles(Paths.get(sourcePath), Paths.get(outputPath));
     }
 }

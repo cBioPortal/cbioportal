@@ -94,7 +94,7 @@ public class Shell {
 					mainMethod.invoke(null, (Object)commandArgs.toArray(new String[0]));
 				}
 				else {
-					Importer importer = (Importer)ClassLoader.getInstance(command, classArgs);
+					Importer importer = (Importer)ClassLoader.getInstance(command, classArgs, false);
 					importer.importReferenceData(referenceMetadata);
 				}
 				toReturn = true;

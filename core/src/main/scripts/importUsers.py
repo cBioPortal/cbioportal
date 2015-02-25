@@ -75,7 +75,7 @@ PORTAL_NAME = { GDAC_USER_SPREADSHEET : "gdac-portal",
                 TARGET_USER_SPREADSHEET : "target-portal",
                 MSKCC_USER_SPREADSHEET : "mskcc-portal",
                 TRIAGE_USER_SPREADSHEET : "triage-portal",
-                SU2C_KRAS_USER_SPREADSHEET : "kras-portal" }
+                SU2C_KRAS_USER_SPREADSHEET : "kras" }
 
 # a ref to the google spreadsheet client - used for all i/o to google spreadsheet
 GOOGLE_SPREADSHEET_CLIENT = gdata.spreadsheet.service.SpreadsheetsService()
@@ -149,7 +149,7 @@ TRIAGE_MESSAGE_BODY = """Thank you for your interest in the MSKCC (triage)instan
 Please keep in mind that the data provided in this Portal are preliminary and subject to change. Access to the data in this portal is only available to authorized users at Memorial Sloan Kettering Cancer Center.
 """
 
-SU2C_KRAS_MESSAGE_BODY = """Thank you for your interest in the cBioPortal for the SU2C KRAS Lung cancer Dream Team. We have granted you access. You can login at http://cbioportal.org/kras-portal/. Please let us know if you have any problems logging in.
+SU2C_KRAS_MESSAGE_BODY = """Thank you for your interest in the cBioPortal for the SU2C KRAS Lung cancer Dream Team. We have granted you access. You can login at http://cbioportal.org/kras/. Please let us know if you have any problems logging in.
 
 Please keep in mind that the data provided in this Portal are preliminary and subject to change. Access to the data in this portal is only available to authorized users at Memorial Sloan Kettering Cancer Center.
 """

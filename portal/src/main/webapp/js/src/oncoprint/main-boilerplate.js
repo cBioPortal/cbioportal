@@ -171,6 +171,52 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         }
     });
 
+//    var dataValue;
+//    geneDataColl.fetch({
+//        type: "POST",
+//        data: {
+//            cancer_study_id: cancer_study_id_selected,
+//            oql: $('#gene_list').val(),
+//            case_list: cases,
+//            geneticProfileIds: window.PortalGlobals.getGeneticProfiles(),
+//            z_score_threshold: window.PortalGlobals.getZscoreThreshold(),
+//            rppa_score_threshold: window.PortalGlobals.getRppaScoreThreshold()
+//        },
+//        success: function(data) {
+//            dataValue = data.toJSON(); 
+//        }
+//    });
+//    
+//    var initOncoprint = function(){
+//        oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
+//            geneData: dataValue,
+//            genes: genes,
+//            legend: document.getElementById('oncoprint_legend')
+//        },extraTracks);
+//        outer_loader_img.hide();
+//        $('#oncoprint #everything').show();
+//
+//        if($('#oncoprint_sortbyfirst_dropdonw span')[0].innerHTML === 'Sort by')
+//        {
+//            oncoprint.sortBy("genes", cases.split(" "),mutationColorControl);
+//        }
+//        else
+//        {
+//            selectsortby();
+//        }
+//
+//        $('.attribute_name').qtip({
+//            content: {text: 'hold to drag '},
+//            position: {my:'middle right', at:'middle left', viewport: $(window)},
+//            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+//            show: {event: "mouseover"}
+//        });  
+//
+//        zoom = reset_zoom();
+//        invokeDataManager(); 
+//    }
+
+
     var select_clinical_attributes_id = '#select_clinical_attributes';
     var oncoprintClinicals;
 //    var sortBy = $('#oncoprint-diagram-toolbar-buttons #sort_by');

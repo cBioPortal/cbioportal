@@ -112,8 +112,7 @@ public class DmpStagingFileRefactoringUtility {
     }
 
     /*
-    Process all the staging files in the specified directory whose filename
-    contains the substring "data_clinical"
+    Process all the staging files in the specified directory whose file name starts with data_
      */
     private void refactorFileFunction(){
         FileSequentialCollection fsc = new FileSequentialCollection(inPath.toFile(),
@@ -140,7 +139,7 @@ public class DmpStagingFileRefactoringUtility {
 
             @Override
             public void onNext(File file) {
-                logger.info("Processing file " +file.getName());
+                logger.info("Processing staging file " +file.getName());
                 processStagingFile(file, outPath);
             }
         });
@@ -150,6 +149,7 @@ public class DmpStagingFileRefactoringUtility {
     Responsible for generating the file header as the initial entry in the List
     In the case of a CNA file, the header is a list of DMP sample ids and they need to be refactored
     to new ids
+    For the data_mutations_extended.txt file, a set of DMP sample ids is used to output a list of sample ids as a comment line
      */
     private List<String> initializeStagingFileOutputList(Map<String, Integer> headerMap,
                                                          boolean legacyColumnsFlag,
@@ -225,7 +225,7 @@ public class DmpStagingFileRefactoringUtility {
                 }
                 @Override
                 public void onNext(final CSVRecord record) {
-
+                    // process each column in the record in the file and refactor columns as necessary
                     String line = StagingCommonNames.tabJoiner.join(FluentIterable.from(headerMap.keySet())
                             .transform(new Function<String, String>() {
                                 @Nullable
@@ -243,7 +243,6 @@ public class DmpStagingFileRefactoringUtility {
                                     if (input.equals(SV_DATA_SAMPLE_ID_COLUMN_NAME)) {
                                         return (refactorSampleId(record.get(SV_DATA_SAMPLE_ID_COLUMN_NAME)));
                                     }
-
                                     // refactor the cancer type column using the cancer type detailed value to
                                     // find a new cancer type from the oncotree worksheet
                                     if (input.equals(CANCER_TYPE_COLUMN_NAME)) {

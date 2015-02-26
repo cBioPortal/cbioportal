@@ -4,16 +4,32 @@
          xmlns:tx="http://www.springframework.org/schema/tx"
          xmlns:context="http://www.springframework.org/schema/context"
          xmlns:util="http://www.springframework.org/schema/util"
+         xmlns:int="http://www.springframework.org/schema/integration"
+         xmlns:int-sftp="http://www.springframework.org/schema/integration/sftp"
          xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-							 http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
-							 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
-							 http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration-4.1.xsd
+http://www.springframework.org/schema/integration/sftp http://www.springframework.org/schema/integration/sftp/spring-integration-sftp-4.1.xsd
+http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
  
     <context:annotation-config />
-    <context:property-placeholder location="classpath:/portal.properties"/>
+    <!--<context:property-placeholder location="classpath:/importer.properties"/>-->
+    <b:bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <b:property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
+        <b:property name="searchSystemEnvironment" value="true" />
+        <b:property name="ignoreResourceNotFound" value="true" />
+        <b:property name="locations">
+            <b:list>
+                <b:value>classpath:/importer.properties</b:value>
+                <b:value>file:///${PORTAL_HOME}/importer.properties</b:value>
+            </b:list>
+        </b:property>
+    </b:bean>
 
     <!-- enable the configuration of transactional behavior based on annotations -->
     <tx:annotation-driven transaction-manager="importerTransactionManager"/>
+    
 
     <!-- datasource -->
     <b:bean id="importerDataSource" destroy-method="close" class="org.apache.commons.dbcp.BasicDataSource">
@@ -51,28 +67,27 @@
     </b:bean>
     <b:bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor"/>
 
-    <!-- datasource for darwin -->
-    <b:bean id="darwinDataSource" destroy-method="close" class="org.apache.commons.dbcp.BasicDataSource">
-        <!--b:property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
-        <b:property name="url" value="jdbc:sqlserver://${darwin.db.host};databaseName=${darwin.db.name}"/-->
-        <b:property name="driverClassName" value="net.sourceforge.jtds.jdbc.Driver"/>
-        <b:property name="url" value="jdbc:jtds:sqlserver://${darwin.db.host}/${darwin.db.name}"/>
-        <b:property name="username" value="${darwin.db.user}"/>
-        <b:property name="password" value="${darwin.db.password}"/>
-    </b:bean>
-
     <!-- importer beans -->
+    <b:bean id="tcgaSurvivalDataCalculator" class="org.mskcc.cbio.importer.util.TCGASurvivalDataCalculator"/>
     <b:bean id="dataSourceFactory" class="org.mskcc.cbio.importer.io.internal.DataSourceFactoryBean"/>
     <b:bean id="databaseUtils" class="org.mskcc.cbio.importer.io.internal.DatabaseUtilsImpl"/>
     <b:bean id="idMapper" class="org.mskcc.cbio.importer.mapper.internal.DAOGeneOptimizedIDMapper"/>
+    <b:bean id="caseIDs" class="org.mskcc.cbio.importer.caseids.internal.CaseIDsImpl">
+        <b:constructor-arg ref="config"/>
+    </b:bean>
+    <b:bean id="fileUtils" class="org.mskcc.cbio.importer.io.internal.FileUtilsImpl">
+        <b:constructor-arg ref="config"/>
+        <b:constructor-arg ref="caseIDs"/>
+    </b:bean>
+    <b:bean id="mercurialServer" class="org.mskcc.cbio.importer.mercurial.internal.MercurialServerImpl" />
+    <b:bean id="mercurialService" class="org.mskcc.cbio.importer.mercurial.internal.MercurialServiceImpl" >
+        <b:constructor-arg ref="mercurialServer"/>
+    </b:bean>
     <b:bean id="spreadsheetService" class="com.google.gdata.client.spreadsheet.SpreadsheetService">
         <b:constructor-arg index="0">
             <b:value>${importer.spreadsheet_service_appname}</b:value>
         </b:constructor-arg>
     </b:bean>
-    
-    <b:bean id="ncicaDSRFetcher" class="org.mskcc.cbio.importer.fetcher.internal.NCIcaDSRFetcherImpl"/>
-   
     <b:bean id="config" class="org.mskcc.cbio.importer.config.internal.GDataImpl">
         <b:constructor-arg index="0">
             <b:value>${google.id}</b:value>
@@ -121,23 +136,17 @@
             <b:value>${importer.foundation_worksheet}</b:value>
         </b:constructor-arg>
         <b:constructor-arg index="16">
+            <b:value>${importer.icgc_worksheet}</b:value>
+        </b:constructor-arg>
+        <b:constructor-arg index="17">
             <b:value>${importer.tcga_tumor_types_worksheet}</b:value>
         </b:constructor-arg>
-       <b:constructor-arg index="17" ref="ncicaDSRFetcher"/>  
-    </b:bean>
-    <b:bean id="caseIDs" class="org.mskcc.cbio.importer.caseids.internal.CaseIDsImpl">
-        <b:constructor-arg ref="config"/>
-    </b:bean>
-    <b:bean id="fileUtils" class="org.mskcc.cbio.importer.io.internal.FileUtilsImpl">
-        <b:constructor-arg ref="config"/>
-        <b:constructor-arg ref="caseIDs"/>
+       <b:constructor-arg index="18" ref="ncicaDSRFetcher"/>  
     </b:bean>
     <b:bean id="importDataRecordDAO" class="org.mskcc.cbio.importer.dao.internal.ImportDataRecordHibernateDAO">
         <b:property name="sessionFactory" ref="importerSessionFactory"/>
     </b:bean>
-    <b:bean id="darwinDAO" class="org.mskcc.cbio.importer.dao.internal.DarwinDAO">
-        <b:property name="dataSource" ref="darwinDataSource" />
-    </b:bean>
+    <b:bean id="ncicaDSRFetcher" class="org.mskcc.cbio.importer.fetcher.internal.NCIcaDSRFetcherImpl"/>
     <b:bean id="tcgaFetcher" class="org.mskcc.cbio.importer.fetcher.internal.FirehoseFetcherImpl">
         <b:constructor-arg ref="config"/>
         <b:constructor-arg ref="fileUtils"/>
@@ -150,40 +159,98 @@
         <b:constructor-arg ref="databaseUtils"/>
         <b:constructor-arg ref="importDataRecordDAO"/>
     </b:bean>
-    <b:bean id="darwinFetcher" class="org.mskcc.cbio.importer.fetcher.internal.DarwinFetcherImpl">
-        <b:constructor-arg ref="config"/>
-        <b:constructor-arg ref="fileUtils"/>
-        <b:constructor-arg ref="darwinDAO"/>
-    </b:bean>
+    <!--
     <b:bean id="foundationFetcher" class="org.mskcc.cbio.importer.fetcher.internal.FoundationFetcherImpl">
         <b:constructor-arg ref="config"/>
         <b:constructor-arg ref="fileUtils"/>
         <b:constructor-arg ref="databaseUtils"/>
         <b:constructor-arg ref="importDataRecordDAO"/>
     </b:bean>
-    
-    <b:bean id="xmlTransformer" class="org.mskcc.cbio.importer.transformer.FoundationXMLTransformer">
-         <b:constructor-arg ref="config"/>
+    -->
+    <b:bean id="mercurialFetcher" class="org.mskcc.cbio.importer.fetcher.internal.MercurialFetcherImpl">
+        <b:constructor-arg ref="config"/>
+        <b:constructor-arg ref="fileUtils"/>
+        <b:constructor-arg ref="databaseUtils"/>
+        <b:constructor-arg ref="importDataRecordDAO"/>
+        <b:constructor-arg ref="mercurialService"/>
     </b:bean>
-   <!-- 
-    <b:bean id="foundationMetadataGenerator" class="org.mskcc.cbio.importer.foundation.support.FoundationMetadataGenerator">
-         <b:constructor-arg ref="config"/>
-          <b:constructor-arg >
-            <b:value>${foundation.root.directory}</b:value>
+
+    <!-- Darwin importer service-->
+    <b:bean id="darwinImporterService" class="org.mskcc.cbio.importer.cvr.darwin.service.DarwinImporterService">
+       <b:property name="transformerClassList">
+            <b:list>
+                <b:bean id="class1"    class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+                    <b:property  name="targetClass"><b:value>java.lang.Class</b:value></b:property>
+                    <b:property name="targetMethod"><b:value>forName</b:value></b:property>
+                    <b:property  name="arguments"><b:value>org.mskcc.cbio.importer.cvr.darwin.transformer.DarwinTumorTransformer</b:value></b:property>
+                </b:bean>
+                <b:bean id="class2"    class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+                    <b:property  name="targetClass"><b:value>java.lang.Class</b:value></b:property>
+                    <b:property name="targetMethod"><b:value>forName</b:value></b:property>
+                    <b:property  name="arguments"><b:value>org.mskcc.cbio.importer.cvr.darwin.transformer.DarwinPatientTransformer</b:value></b:property>
+                </b:bean>
+                <b:bean id="class3"    class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+                    <b:property  name="targetClass"><b:value>java.lang.Class</b:value></b:property>
+                    <b:property name="targetMethod"><b:value>forName</b:value></b:property>
+                    <b:property  name="arguments"><b:value>org.mskcc.cbio.importer.cvr.darwin.transformer.DarwinPathologyDataDetailsTransformer</b:value></b:property>
+                </b:bean>
+                <!--
+                <b:bean id="class4"    class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+                    <b:property  name="targetClass"><b:value>java.lang.Class</b:value></b:property>
+                    <b:property name="targetMethod"><b:value>forName</b:value></b:property>
+                    <b:property  name="arguments"><b:value>org.mskcc.cbio.importer.cvr.darwin.transformer.DarwinClinicalNoteDetailsTransformer</b:value></b:property>
+                </b:bean>
+                -->
+                <b:bean id="class5"    class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+                    <b:property  name="targetClass"><b:value>java.lang.Class</b:value></b:property>
+                    <b:property name="targetMethod"><b:value>forName</b:value></b:property>
+                    <b:property  name="arguments"><b:value>org.mskcc.cbio.importer.cvr.darwin.transformer.DarwinClinicalNoteTransformer</b:value></b:property>
+                </b:bean>
+                <b:bean id="class6"    class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+                    <b:property  name="targetClass"><b:value>java.lang.Class</b:value></b:property>
+                    <b:property name="targetMethod"><b:value>forName</b:value></b:property>
+                    <b:property  name="arguments"><b:value>org.mskcc.cbio.importer.cvr.darwin.transformer.DarwinClinicalTrialTransformer</b:value></b:property>
+                </b:bean>
+                <!-- problem with Procedure view -  wait for correction from DBA
+                <b:bean id="class7"    class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+                    <b:property  name="targetClass"><b:value>java.lang.Class</b:value></b:property>
+                    <b:property name="targetMethod"><b:value>forName</b:value></b:property>
+                    <b:property  name="arguments"><b:value>org.mskcc.cbio.importer.cvr.darwin.transformer.DarwinProcedureTransformer</b:value></b:property>
+                </b:bean>
+                -->
+                <b:bean id="class8"    class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+                    <b:property  name="targetClass"><b:value>java.lang.Class</b:value></b:property>
+                    <b:property name="targetMethod"><b:value>forName</b:value></b:property>
+                    <b:property  name="arguments"><b:value>org.mskcc.cbio.importer.cvr.darwin.transformer.DarwinPathologyDataTransformer</b:value></b:property>
+                </b:bean>
+            </b:list>
+        </b:property>
+    </b:bean>
+
+    <!-- Import task manager -->
+    <b:bean id="importTaskManager" class="org.mskcc.cbio.importer.task.ImportTaskManager">
+        <b:constructor-arg>
+            <b:list>
+                <b:ref bean="dmpDarwinImportTask"></b:ref>
+            <b:ref bean="foundationImportTask"></b:ref>
+            <b:ref bean="icgcImportTask"></b:ref>
+            </b:list>
         </b:constructor-arg>
     </b:bean>
--->
-    <b:bean id="tcgaOverrideFetcher" class="org.mskcc.cbio.importer.fetcher.internal.MercurialFetcherImpl">
-        <b:constructor-arg ref="config"/>
-        <b:constructor-arg ref="fileUtils"/>
-        <b:constructor-arg ref="databaseUtils"/>
-        <b:constructor-arg ref="importDataRecordDAO"/>
+    <!-- DmpDarwinImportTask -->
+    <b:bean id="dmpDarwinImportTask" class = "org.mskcc.cbio.importer.task.DmpDarwinImportTask">
+        <b:constructor-arg ref="dmpDarwinFetcher"/>
+        <b:property name="dataSource" value="dmp-darwin-mskcc"/>
     </b:bean>
-    <b:bean id="studiesFetcher" class="org.mskcc.cbio.importer.fetcher.internal.MercurialFetcherImpl">
+    <!-- FoundationImportTask -->
+    <b:bean id="foundationImportTask" class ="org.mskcc.cbio.importer.task.FoundationImportTask">
+    </b:bean>
+    <!-- ICGCImportTask -->
+    <b:bean id="icgcImportTask" class ="org.mskcc.cbio.importer.task.IcgcDataImportTask">
+    </b:bean>
+    <!-- DmpDarwinFetcher -->
+    <b:bean id="dmpDarwinFetcher" class="org.mskcc.cbio.importer.fetcher.internal.DmpDarwinFetcherImpl">
         <b:constructor-arg ref="config"/>
-        <b:constructor-arg ref="fileUtils"/>
-        <b:constructor-arg ref="databaseUtils"/>
-        <b:constructor-arg ref="importDataRecordDAO"/>
     </b:bean>
     <b:bean id="referenceDataFetcher" class="org.mskcc.cbio.importer.fetcher.internal.ReferenceDataFetcherImpl">
         <b:constructor-arg ref="fileUtils"/>
@@ -200,5 +267,111 @@
         <b:constructor-arg ref="caseIDs"/>
         <b:constructor-arg ref="idMapper"/>
     </b:bean>
-    <b:bean id="tcgaSurvivalDataCalculator" class="org.mskcc.cbio.importer.util.TCGASurvivalDataCalculator"/>
+    <!-- Foundation Fetcher & Importer -->
+    <!--SVT Transformer -->
+    <b:bean id="foundationSvtTransformer" class="org.mskcc.cbio.importer.foundation.transformer.FoundationShortVariantTransformer" >
+        <b:constructor-arg index="0" ref="mut01" ></b:constructor-arg>
+    </b:bean>
+    <b:bean id="mut01" class="org.mskcc.cbio.importer.persistence.staging.mutation.MutationFileHandlerImpl" ></b:bean>
+    <!--CNV Transformer -->
+    <b:bean id="foundationCNVTransformer" class="org.mskcc.cbio.importer.foundation.transformer.FoundationCnvTransformer">
+        <b:constructor-arg index="0" ref="cnv01" ></b:constructor-arg>
+    </b:bean>
+    <b:bean id="cnv01" class="org.mskcc.cbio.importer.persistence.staging.cnv.CnvFileHandlerImpl"></b:bean>
+    <!--Clinical Data Transformer -->
+    <b:bean id="foundationClinicalTransformer" class="org.mskcc.cbio.importer.foundation.transformer.FoundationClinicalDataTransformer">
+        <b:constructor-arg index="0" ref="clin01"></b:constructor-arg>
+    </b:bean>
+    <b:bean id="clin01" class="org.mskcc.cbio.importer.persistence.staging.clinical.ClinicalDataFileHandlerImpl"></b:bean>
+    <!--Fusion Transformer-->
+    <b:bean id="foundationFusionTransformer" class="org.mskcc.cbio.importer.foundation.transformer.FoundationFusionTransformer">
+        <b:constructor-arg index="0" ref="fusion01"></b:constructor-arg>
+    </b:bean>
+    <b:bean id="fusion01" class="org.mskcc.cbio.importer.persistence.staging.fusion.FusionFileHandlerImpl"></b:bean>
+    <!--Foundation XML Transformer -->
+    <b:bean id="foundationTransformer" class="org.mskcc.cbio.importer.foundation.transformer.FoundationXMLTransformer">
+        <b:constructor-arg index="0" ref="foundationSvtTransformer"></b:constructor-arg>
+        <b:constructor-arg index="1" ref="foundationCNVTransformer"></b:constructor-arg>
+        <b:constructor-arg index="2" ref="foundationClinicalTransformer"></b:constructor-arg>
+        <b:constructor-arg index="3" ref ="foundationFusionTransformer"></b:constructor-arg>
+    </b:bean>
+    <!-- Foundation Extractor-->
+    <b:bean id="foundationExtractor" class="org.mskcc.cbio.importer.foundation.extractor.FoundationStudyExtractor"></b:bean>
+    <!--Foundation Fetcher-->
+    <!-- bean id must match entry in data_sources worksheet  -->
+    <b:bean id="foundationFetcher" class="org.mskcc.cbio.importer.fetcher.internal.FoundationFetcherImpl">
+        <b:constructor-arg index="0" ref="foundationExtractor">
+        </b:constructor-arg>
+        <b:constructor-arg index="1" ref="foundationTransformer"></b:constructor-arg>
+    </b:bean>
+
+
+
+    <!-- sendmail beans -->
+    <b:bean id="mailProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <b:property name="properties">
+            <b:props>
+                <b:prop key="mail.smtp.localhost">${mail.server}</b:prop>
+            </b:props>
+        </b:property>
+    </b:bean>
+    <b:bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+        <b:property name="javaMailProperties" ref="mailProperties"/>
+    </b:bean>
+    <b:bean id="triageUpdateMessage" class="org.springframework.mail.SimpleMailMessage">
+        <b:property name="from" value="${mail.triage_portal.update.message.sender}"/>
+        <b:property name="to" value="${mail.triage_portal.update.message.recipient}"/>
+        <b:property name="subject" value="${mail.triage_portal.update.message.subject}"/>
+        <b:property name="text" value="${mail.triage_portal.update.message.body}"/>
+    </b:bean>
+    <b:bean id="mskUpdateMessage" class="org.springframework.mail.SimpleMailMessage">
+        <b:property name="from" value="${mail.msk_portal.update.message.sender}"/>
+        <b:property name="to" value="${mail.msk_portal.update.message.recipient}"/>
+        <b:property name="subject" value="${mail.msk_portal.update.message.subject}"/>
+        <b:property name="text" value="${mail.msk_portal.update.message.body}"/>
+    </b:bean>
+    <b:bean id="redeployMessage" class="org.springframework.mail.SimpleMailMessage">
+        <b:property name="from" value="${mail.redeploy.message.sender}"/>
+        <b:property name="to" value="${mail.redeploy.message.recipient}"/>
+        <b:property name="subject" value="${mail.redeploy.message.subject}"/>
+        <b:property name="text" value="${mail.redeploy.message.body}"/>
+    </b:bean>
+
+    <!-- spring integration - sftp beans -->
+    <int:gateway id="sftpGetGW" service-interface="org.mskcc.cbio.importer.remote.GetGateway" default-request-channel="inboundGet"/>
+    <int:channel id="inboundGet"/>
+
+    <int-sftp:outbound-gateway id="gatewayGet"
+        local-directory-expression="headers['file_localDirectory']"
+        session-factory="defaultsftpSessionFactory"
+        request-channel="inboundGet"
+        reply-channel="inboundRm"
+        command="get"
+        expression= "headers['file_remoteDirectory'] + headers['file_remoteFile']"/>
+
+    <int-sftp:outbound-gateway id="gatewayRM"
+        session-factory="defaultsftpSessionFactory"
+        request-channel="inboundRm"
+        reply-channel="nullChannel"
+        command="rm"
+        expression="headers['file_remoteDirectory'] + headers['file_remoteFile']"/>
+
+    <int:gateway id="sftpPutGW" service-interface="org.mskcc.cbio.importer.remote.PutGateway" default-request-channel="inboundPut"/>
+    <int:channel id="inboundPut"/>
+
+    <int-sftp:outbound-gateway id="gatewayPut"
+        session-factory="defaultsftpSessionFactory"
+        request-channel="inboundPut"
+        reply-channel="nullChannel"
+        command="put"
+        remote-directory-expression="headers['file_remoteDirectory']"
+        expression="payload"/>
+
+    <b:bean id="defaultsftpSessionFactory" class="org.springframework.integration.sftp.session.DefaultSftpSessionFactory">
+        <b:property name="host" value="${production.sftp.host}"/>
+        <b:property name="user" value="${production.sftp.username}"/>
+        <b:property name="password" value="${production.sftp.password}"/>
+        <b:property name="port" value="22"/>
+    </b:bean>
+
 </b:beans>

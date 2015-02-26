@@ -51,24 +51,12 @@ var PlotsHeader = (function() {
         $("#" + headerDivId).append("<b>" + title + "</b>");
     }
 
-    function appendPdfConverter() {
-        var pdfConverterForm =
-            "<form style='display:inline-block' action='svgtopdf.do' method='post' target='_blank' id='" + downloadPdfDivId + "'>" +
-                "<input type='hidden' name='svgelement' id='" + downloadPdfDivId + "_val'>" +
-                "<input type='hidden' name='filetype' value='pdf'>" +
-                "<input type='hidden' name='filename' value='" + fileName + ".pdf'>" +
-                "<input type='submit' value='PDF'></form>";
-        $("#" + headerDivId).append("<br><br><br>" + pdfConverterForm);
+    function appendSvgConverter() {
+        $("#" + headerDivId).append("<br><br><br><button id='" + downloadSvgDivId + "'>SVG</button>");
     }
 
-    function appendSvgConverter() {
-        var svgConverterForm =
-            "<form style='display:inline-block' action='svgtopdf.do' method='post' target='_blank' id='" + downloadSvgDivId + "'>" +
-                "<input type='hidden' name='svgelement'>" +
-                "<input type='hidden' name='filetype' value='svg'>" +
-                "<input type='hidden' name='filename' value='" + fileName + ".svg'>" +
-                "<input type='submit' value='SVG'></form>";
-        $("#" + headerDivId).append(svgConverterForm + "&nbsp;&nbsp;");
+    function appendPdfConverter() {
+        $("#" + headerDivId).append("<button id='" + downloadPdfDivId + "'>PDF</button>&nbsp;&nbsp;");
     }
 
     function appendControlPanel() {
@@ -96,10 +84,10 @@ var PlotsHeader = (function() {
             title = _title;
             fileName = _fileName;
             appendTitle();
-            appendPdfConverter();
             appendSvgConverter();
+            appendPdfConverter();
             appendControlPanel();
         }
-    }
+    };
 
 }());

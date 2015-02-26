@@ -19,8 +19,7 @@
 package org.mskcc.cbio.importer.internal;
 
 import org.mskcc.cbio.importer.*;
-import org.mskcc.cbio.importer.model.ReferenceMetadata;
-import org.mskcc.cbio.importer.model.BCRDictEntry;
+import org.mskcc.cbio.importer.model.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -53,6 +52,12 @@ public class BCRXMLDictImporter extends ImporterBaseImpl implements Importer
     @Override
     public void importData(String portal, Boolean initPortalDatabase,
                            Boolean initTumorTypes, Boolean importReferenceData) throws Exception
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void updateCancerStudy(String portal, CancerStudyMetadata cancerStudyMetadata) throws Exception
     {
         throw new UnsupportedOperationException();
     }

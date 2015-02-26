@@ -733,22 +733,15 @@ var PlotsTwoGenesView = (function(){
         var elt = document.getElementById("two_genes_plots_type");
         var titleText = elt.options[elt.selectedIndex].text;
         $('#view_title').append(titleText + ": " + menu.geneX + " vs. " + menu.geneY);
-
-        var pdfConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' target='_blank' " +
-            "onsubmit=\"this.elements['svgelement'].value=loadPlotsSVG();\">" +
-            "<input type='hidden' name='svgelement'>" +
-            "<input type='hidden' name='filetype' value='pdf'>" +
-            "<input type='hidden' name='filename' value='correlation_plots-" + menu.geneX + "_" + menu.geneY + ".pdf'>" +
-            "<input type='submit' value='PDF'></form>";
-        $('#view_title').append(pdfConverterForm);
-
-        var svgConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' target='_blank' " +
-            "onsubmit=\"this.elements['svgelement'].value=loadPlotsSVG();\">" +
-            "<input type='hidden' name='svgelement'>" +
-            "<input type='hidden' name='filetype' value='svg'>" +
-            "<input type='hidden' name='filename' value='correlation_plots-" + menu.geneX + "_" + menu.geneY + ".svg'>" +
-            "<input type='submit' value='SVG'></form>";
-        $('#view_title').append(svgConverterForm);
+        
+        $('#view_title').append("<button id='svg_download'>SVG</button>");
+        $('#view_title').append("<button id='pdf_download'>PDF</button>");
+        $("#svg_download").click(function() {
+            load_svg("correlation_plots-" + menu.geneX + "_" + menu.geneY + ".svg");
+        });
+        $("#pdf_download").click(function() {
+            load_pdf("correlation_plots-" + menu.geneX + "_" + menu.geneY + ".pdf");
+        });
     }
 
     function addXaxisTitle(applyLogScale) {

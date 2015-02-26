@@ -307,21 +307,22 @@ var SurvivalCurve = function() {
         });
     }
 
-    function appendImgConverter() {
-        var pdfConverterForm = "<form class='img_buttons' action='svgtopdf.do' method='post' target='_blank' " +
-            "onsubmit=\"this.elements['svgelement'].value=loadSurvivalCurveSVG('" + divs.curveDivId + "');\">" +
-            "<input type='hidden' name='svgelement'>" +
-            "<input type='hidden' name='filetype' value='pdf'>" +
-            "<input type='hidden' name='filename' value='survival_study.pdf'>" +
-            "<input type='submit' value='PDF'></form>";
-        $('#' + divs.headerDivId).append(pdfConverterForm);
-        var svgConverterForm = "<form class='img_buttons' action='svgtopdf.do' method='post' target='_blank' " +
-            "onsubmit=\"this.elements['svgelement'].value=loadSurvivalCurveSVG('" + divs.curveDivId + "');\">" +
-            "<input type='hidden' name='svgelement'>" +
-            "<input type='hidden' name='filetype' value='svg'>" +
-            "<input type='hidden' name='filename' value='survival_study.svg'>" +
-            "<input type='submit' value='SVG'></form>";
-        $('#' + divs.headerDivId).append(svgConverterForm);
+    function appendImgConverter() {               
+        $('#' + divs.headerDivId).append("<button id='" + divs.curveDivId + "_svg_download' style='font-size:12px;'>SVG</button>");
+        $('#' + divs.headerDivId).append("<button id='" + divs.curveDivId + "_pdf_download' style='font-size:12px;'>PDF</button>");
+        $("#" + divs.curveDivId + "_svg_download").click(function() {
+            var xmlSerializer = new XMLSerializer();
+            var download_str = cbio.download.addSvgHeader(xmlSerializer.serializeToString($("#" + divs.curveDivId + " svg")[0]));
+            cbio.download.clientSideDownload([download_str], "survival_study.svg", "application/svg+xml");
+        });
+        $("#" + divs.curveDivId + "_pdf_download").click(function() {
+            var downloadOptions = {
+                filename: "survival_study.pdf",
+                contentType: "application/pdf",
+                servletName: "svgtopdf.do"
+            };
+           cbio.download.initDownload($("#" + divs.curveDivId + " svg")[0], downloadOptions);
+       });
     }
     
     function drawCurve(_inputArr, _obj){

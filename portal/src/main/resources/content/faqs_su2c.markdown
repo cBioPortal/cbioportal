@@ -10,7 +10,7 @@ The portal stores genomic data from large scale, integrated cancer genomic data 
 
 # What data types are in the portal?
 
-The portal currently stores DNA copy-number data (putative, discrete values per gene, e.g. "homozygously deleted" or "amplified"), mRNA and microRNA expression data, non-synonymous mutations, and clinical data.
+The portal currently stores DNA copy-number data (putative, discrete values per gene, e.g. "deeply deleted" or "amplified"), mRNA and microRNA expression data, non-synonymous mutations, and clinical data.
 
 # What kind of clinical data is stored in the portal?
 
@@ -42,7 +42,7 @@ For mRNA and microRNA expression data, we typically compute the relative express
 
 # What do "-2", "-1", "0", "1", and "2" mean in the copy-number data?
 
-These levels are derived from the copy-number analysis algorithms GISTIC or RAE, and indicate the copy-number level per gene. "-2" is a deep loss, possibly a homozygous deletion, "-1" is a single-copy loss (heterozygous deletion), "0" is diploid, "1" indicates a low-level gain, and "2" is a high-level amplification. Note that these calls are putative.
+These levels are derived from the copy-number analysis algorithms GISTIC or RAE, and indicate the copy-number level per gene. "-2" is a deep loss, possibly a homozygous deletion, "-1" is a shallow loss (possibly heterozygous deletion), "0" is diploid, "1" indicates a low-level gain, and "2" is a high-level amplification. Note that these calls are putative.
 
 # What is GISTIC?  What is RAE?
 

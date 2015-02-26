@@ -78,6 +78,13 @@
 	  </properties>
 	</profile>
         <profile>
+          <id>kras</id>
+          <properties>
+        <importer-main-class>org.mskcc.cbio.importer.Admin</importer-main-class>
+                <final-war-name>kras</final-war-name>
+          </properties>
+        </profile>
+        <profile>
 	  <id>target</id>
 	  <properties>
         <importer-main-class>org.mskcc.cbio.importer.Admin</importer-main-class>
@@ -118,6 +125,8 @@
   <properties>
 	<slf4j.version>1.6.6</slf4j.version>
 	<spring.version>4.0.4.RELEASE</spring.version>
+    <spring.context.support.version>4.1.2.RELEASE</spring.context.support.version>
+    <spring.integration.version>4.1.0.RELEASE</spring.integration.version>
 	<spring.security.version>3.2.5.RELEASE</spring.security.version>
     <spring.security.saml.version>1.0.0.RELEASE</spring.security.saml.version>
 	<mybatis.spring.version>1.2.2</mybatis.spring.version>
@@ -159,6 +168,12 @@
 	<groupId>commons-dbcp</groupId>
 	<artifactId>commons-dbcp</artifactId>
 	<version>1.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+            <version>1.9.1</version>
         </dependency>
 
         
@@ -234,7 +249,22 @@
 	  <groupId>org.springframework</groupId>		
 	  <artifactId>spring-context</artifactId>		
 	  <version>${spring.version}</version>		
-	</dependency>		
+	</dependency>
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-context-support</artifactId>
+        <version>${spring.context.support.version}</version>
+    </dependency>		
+    <dependency>
+        <groupId>org.springframework.integration</groupId>
+        <artifactId>spring-integration-core</artifactId>
+        <version>${spring.integration.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.integration</groupId>
+        <artifactId>spring-integration-sftp</artifactId>
+        <version>${spring.integration.version}</version>
+    </dependency>
 	<dependency>		
 	  <groupId>org.springframework</groupId>		
 	  <artifactId>spring-tx</artifactId>		
@@ -255,42 +285,11 @@
       <artifactId>spring-webmvc</artifactId>
       <version>${spring.version}</version>
     </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-web</artifactId>
-            <version>${spring.version}</version>
-        </dependency>	
-        <dependency>		
-            <groupId>org.springframework</groupId>		
-            <artifactId>spring-beans</artifactId>		
-            <version>${spring.version}</version>		
-        </dependency>		
-        <dependency>		
-            <groupId>org.springframework</groupId>		
-            <artifactId>spring-aop</artifactId>		
-            <version>${spring.version}</version>		
-        </dependency>		
-        <dependency>		
-            <groupId>org.springframework</groupId>		
-            <artifactId>spring-context</artifactId>		
-            <version>${spring.version}</version>		
-        </dependency>		
-        <dependency>		
-            <groupId>org.springframework</groupId>		
-            <artifactId>spring-tx</artifactId>		
-            <version>${spring.version}</version>		
-        </dependency>		
-        <dependency>		
-            <groupId>org.springframework</groupId>		
-            <artifactId>spring-orm</artifactId>		
-            <version>${spring.version}</version>		
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-jdbc</artifactId>
-            <version>${spring.version}</version>
-        </dependency>
-
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-web</artifactId>
+        <version>${spring.version}</version>
+    </dependency>	
 	<!-- spring security -->
 	<dependency>
 	  <groupId>org.springframework.security</groupId>

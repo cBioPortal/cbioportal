@@ -33,7 +33,7 @@ import java.util.Arrays;
 /**
  * Class which implements the fetcher interface.
  */
-class ReferenceDataFetcherImpl implements Fetcher {
+public class ReferenceDataFetcherImpl implements Fetcher {
 
 	// our logger
 	private static Log LOG = LogFactory.getLog(ReferenceDataFetcherImpl.class);
@@ -82,7 +82,6 @@ class ReferenceDataFetcherImpl implements Fetcher {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("fetchReferenceData(), no fetcher name provided, exiting...");
 			}
-			return;
 		}
 
 		if (LOG.isInfoEnabled()) {

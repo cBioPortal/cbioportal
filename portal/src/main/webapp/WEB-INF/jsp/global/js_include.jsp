@@ -56,3 +56,4 @@
 <script type="text/javascript" src="js/src/d3.right-menu-stats.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/DataProxyFactory.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/download-data-form-validation.js"></script>
+<script type="text/javascript" src="js/lib/jstree.js?<%=GlobalProperties.getAppVersion()%>"></script>

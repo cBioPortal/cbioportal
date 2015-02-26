@@ -49,6 +49,7 @@ var PROFILE_RPPA = "PROFILE_RPPA";
 var PROFILE_METHYLATION = "PROFILE_METHYLATION"
 
 var caseSetSelectionOverriddenByUser = false;
+var cancerTypeSelector = "select_cancer_type";
 
 //  Create Log Function, if FireBug is not Installed.
 if(typeof(console) === "undefined" || typeof(console.log) === "undefined")
@@ -68,6 +69,21 @@ $(document).ready(function(){
          
          caseSetSelected();
          $('#custom_case_set_ids').empty(); // reset the custom case set textarea
+     });
+     
+     // Set up event handler for switching between single and multiple cancer study selection
+     $("#toggle_select_cancer_type_multiple").change(function() {
+	     if ($("#toggle_select_cancer_type_multiple").is(":checked")) {
+		     $("#cancer_study_desc").hide();
+		     $("#select_cancer_type_chzn").hide();
+		     $("#select_cancer_type_multiple_chzn").show();
+		     window.cancerTypeSelector = "select_cancer_type_multiple";
+	     } else {
+		     $("#cancer_study_desc").show();
+		     $("#select_cancer_type_chzn").show();
+		     $("#select_cancer_type_multiple_chzn").hide();
+		     window.cancerTypeSelector = "select_cancer_type";
+	     }
      });
 
     // Set up Event Handler for User Selecting a Case Set
@@ -697,6 +713,7 @@ function addMetaDataToPage() {
     json = window.metaDataJson;
 
     var cancerTypeContainer = $("#select_cancer_type");
+    var cancerTypeContainerMultiple = $("#select_cancer_type_multiple");
 
     // Construct oncotree
     var oncotree = {'tissue':{code:'tissue', studies:[], children:[], parent: false, desc_studies_count:0, tissue:''}};
@@ -785,7 +802,200 @@ function addMetaDataToPage() {
             });
         }
     }
-    // First add 'all' study
+    var splitAndCapitalize = function(s) {
+	    return s.split("_").map(function(x) { return (x.length > 0 ? x[0].toUpperCase()+x.slice(1) : x);}).join(" ");
+    }
+    var jstree_root_id = 'tissue';
+    var jstree_data = [];
+    jstree_data.push({'id':jstree_root_id, parent:'#', text:'All', state:{opened:true}, li_attr:{name:'All'}});
+    var node_queue = [].concat(oncotree['tissue'].children);
+    var currNode;
+    if (dmp_studies.length > 0) {
+	jstree_data.push({'id':'mskimpact-study-group', 'parent':jstree_root_id, 'text':'MSKCC DMP', 'li_attr':{name:'MSKCC DMP'}});
+	$.each(dmp_studies, function(ind, id) {
+		jstree_data.push({'id':id, 'parent':'mskimpact-study-group', 'text':json.cancer_studies[id].name, 
+			'li_attr':{name: json.cancer_studies[id].name, description: metaDataJson.cancer_studies[id].description}});
+	});
+    }
+    while (node_queue.length > 0) {
+	    currNode = node_queue.shift();
+	    if (currNode.desc_studies_count > 0) {
+		var name = splitAndCapitalize(metaDataJson.type_of_cancers[currNode.code] || currNode.code);
+		jstree_data.push({'id':currNode.code, 
+			'parent':((currNode.parent && currNode.parent.code) || '#'), 
+			'text':name,
+			'li_attr':{name:name}
+		});
+		
+		$.each(currNode.studies, function(ind, elt) {
+			    name = splitAndCapitalize(metaDataJson.cancer_studies[elt].name);
+			    jstree_data.push({'id':elt, 
+				    'parent':currNode.code, 
+				    'text':name,
+				    'li_attr':{name: name, description:metaDataJson.cancer_studies[elt].description}});
+		});
+		node_queue = node_queue.concat(currNode.children);
+	    }
+    }
+    var precomputed_search = {query: '', results: {}};
+    var parse_search_query = function(query) {
+		// First eliminate trailing whitespace and reduce every whitespace
+		//	to a single space.
+		query = query.toLowerCase().trim().split(/\s+/g).join(' ');
+		// Now factor out quotation marks and inter-token spaces
+		var phrases = [];
+		var currInd = 0;
+		var nextSpace, nextQuote;
+		while (currInd < query.length) {
+			if (query[currInd] === '"') {
+				nextQuote = query.indexOf('"', currInd+1);
+				if (nextQuote === -1) {
+					phrases.push(query.substring(currInd + 1));
+					currInd = query.length;
+				} else {
+					phrases.push(query.substring(currInd + 1, nextQuote));
+					currInd = nextQuote + 1;
+				}
+			} else if (query[currInd] === ' ') {
+				currInd += 1;
+			} else if (query[currInd] === '-') {
+				phrases.push('-');
+				currInd += 1;
+			} else {
+				nextSpace = query.indexOf(' ', currInd);
+				if (nextSpace === -1) {
+					phrases.push(query.substring(currInd));
+					currInd = query.length;
+				} else {
+					phrases.push(query.substring(currInd, nextSpace));
+					currInd = nextSpace + 1;
+				}
+			}
+		}
+		// Now get the conjunctive clauses, and the negative clauses
+		var clauses = [];
+		currInd = 0;
+		var nextOr, nextDash;
+		while (currInd < phrases.length) {
+			if (phrases[currInd] === '-') {
+				if (currInd < phrases.length - 1) {
+					clauses.push({"type":"not", "data":phrases[currInd+1]});
+				}
+				currInd = currInd + 2;
+			} else {
+				nextOr = phrases.indexOf('or', currInd);
+				nextDash = phrases.indexOf('-', currInd);
+				if (nextOr === -1 && nextDash === -1) {
+					clauses.push({"type":"and","data":phrases.slice(currInd)});
+					currInd = phrases.length;
+				} else if (nextOr === -1 && nextDash > 0) {
+					clauses.push({"type":"and", "data":phrases.slice(currInd, nextDash)});
+					currInd = nextDash;
+				} else if (nextOr > 0 && nextDash === -1) {
+					clauses.push({"type":"and", "data":phrases.slice(currInd, nextOr)});
+					currInd = nextOr + 1;
+				} else {
+					if (nextOr < nextDash) {
+						clauses.push({"type":"and", "data":phrases.slice(currInd, nextOr)});
+						currInd = nextOr + 1;
+					} else {
+						clauses.push({"type":"and", "data":phrases.slice(currInd, nextDash)});
+						currInd = nextDash;
+					}
+				}
+			}
+		}	
+		return clauses;
+    };
+    var perform_search_single = function(parsed_query, node) {
+	    // in: a jstree node
+	    // text to search is node.text and node.li_attr.description
+	    // return true iff the query, considering quotation marks, 'and' and 'or' logic, matches
+	    // TODO: do actual logic
+	    var match = false;
+	    var forced = false;
+	    var matchPhrase = function(phrase, node) {
+		    return (node.text && node.text.toLowerCase().indexOf(phrase) > -1) 
+			    || (node.li_attr && node.li_attr.description && node.li_attr.description.toLowerCase().indexOf(phrase) > -1);
+	    };
+	    $.each(parsed_query, function(ind, clause) {
+		    if (clause.type === 'not') {
+			    if (matchPhrase(clause.data, node)) {
+				    match = false;
+				    forced = true;
+				    return 0;
+			    }
+		    } else if (clause.type === 'and') {
+			    var clauseMatch = true;
+			    $.each(clause.data, function(ind2, phrase) {
+				    clauseMatch = clauseMatch && matchPhrase(phrase, node);
+			    });
+			    match = match || clauseMatch;
+		    }
+	    });
+	    return {result:match, forced:forced};
+    };
+    var perform_search = function(query) {
+	    // IN: query, a string
+	    // void method
+	    // when this ends, the object precomputed_search has been updated
+	    //	so that results[node.id] = true iff the query directly matches it
+	    var parsed_query = parse_search_query(query);
+	    $.each($('#jstree').jstree(true)._model.data, function(key, node) {
+		    precomputed_search.results[node.id] = perform_search_single(parsed_query, node);
+	    });
+	    precomputed_search.query = query;
+    };
+    var jstree_search = function(query, node) {
+	    if (query === "") {
+		    return true;
+	    }
+	    if (precomputed_search.query !== query) {
+		    perform_search(query);
+	    }
+	    if (!precomputed_search.results[node.id].result && precomputed_search.results[node.id].forced) {
+		    return false;
+	    }
+	    var nodes_to_consider = [node.id].concat(node.parents.slice());
+	    var ret = false;
+	    $.each(nodes_to_consider, function(ind, elt) {
+		    if (elt === jstree_root_id || elt === '#') {
+			    return 0;
+		    }
+		    ret = ret || precomputed_search.results[elt].result;
+	    });
+	    return ret;
+    };
+    $("#jstree").jstree({
+      "themes": {
+        "theme": "default",
+        "dots": false,
+        "icons": false,
+        "url": "../../css/jstree.style.css"
+      },
+	"plugins" : ['checkbox', 'search', 'wholerow'],
+	"search": {'show_only_matches':true, 
+		'search_callback': jstree_search,
+		'search_leaves_only': true},
+	"checkbox": {},
+	'core': {'data':jstree_data, 'check_callback': true, 'dblclick_toggle':false}
+	});
+	var jstree_search_timeout = null;
+	$("#jstree_search_input").on('input', function() {
+		if (jstree_search_timeout) {
+			clearTimeout(jstree_search_timeout);
+		}
+		jstree_search_timeout = setTimeout(function() {
+			$("#jstree").jstree(true).search($("#jstree_search_input").val());
+		}, 400); // wait for a bit with no typing before searching
+	});
+	$('#jstree').on('changed.jstree', function() {
+		var ct = $('#jstree').jstree(true)._model.selected_leaves;
+		$('#jstree_selected_study_count').html((ct === 0 ? "No" : ct)+" stud"+(ct === 1 ? "y" : "ies")+" selected.");
+	});
+	$('#jstree').jstree(true).hide_icons();
+	
+    // First add 'all' study to single cancer type container
     if ('all' in json.cancer_studies) {
         cancerTypeContainer.prepend($("<option value='all'>"+json.cancer_studies['all'].name+"</option>"));
     }
@@ -793,13 +1003,17 @@ function addMetaDataToPage() {
     var tissue_color = '#7f7f7f';
     var cancer_color = '#5f5f5f';
     // Next add the dmps
-    $("<option value='mskcc-dmp-study-group' style='font-weight:bold; margin-left:0px; color:"+tissue_color+";'"
-    + "data-depth='0' data-is-group-header='true' data-tree-id='mskcc-dmp' disabled>MSKCC DMP</option>").appendTo(cancerTypeContainer);
+    var mskccDMPStudyGroup = $("<option value='mskcc-dmp-study-group' style='font-weight:bold; margin-left:0px; color:"+tissue_color+";'"
+    + "data-depth='0' data-is-group-header='true' data-tree-id='mskcc-dmp'>MSKCC DMP</option>");
+    mskccDMPStudyGroup.appendTo(cancerTypeContainer);
+    mskccDMPStudyGroup.clone().appendTo(cancerTypeContainerMultiple);
     for (var i=0; i<dmp_studies.length; i++) {	    
 	    var dmp_study = json.cancer_studies[dmp_studies[i]];
-	$("<option style='margin-left:"+margin_inc+"px' data-depth='1' value='"+dmp_studies[i]+"'"+
+	    var dmpOption = $("<option style='margin-left:"+margin_inc+"px' data-depth='1' value='"+dmp_studies[i]+"'"+
 		    " data-description='"+dmp_study.description.replace(/["'\\]/g,"")+"' data-parent='mskcc-dmp'>"+
-		dmp_study.name+"</option>").appendTo(cancerTypeContainer);
+		dmp_study.name+"</option>");
+		dmpOption.appendTo(cancerTypeContainer);
+		dmpOption.clone().appendTo(cancerTypeContainerMultiple);
     }
     // Add groups recursively
     var addStudyGroups = function(root, depth) {
@@ -818,15 +1032,17 @@ function addMetaDataToPage() {
 	label = label.split("_").map(function(x) { return (x.length > 0 ? x[0].toUpperCase()+x.slice(1) : x);}).join(" "); // capitalize and replace underscores with spaces
         if (root.code !== "tissue" && !(depth > 0 && root.studies.length === 0)) {
             // don't insert a group element if A. this is the root of the tree, B. depth > 0 and there are no studies at this level
-            $("<option value='" + root.code + "-study-group'"+
+	    var newOption = $("<option value='" + root.code + "-study-group'"+
                     "style='font-weight:bold; margin-left:"+margin+"px; color:"+color+";'"+
                     "data-depth='"+depth+"' "+
                     "data-is-group-header='true' "+
                     "data-tree-id='"+ root.code +"' "
                     + (root.parent.code === 'tissue' ? "" : "data-parent='"+root.tissue+"' ")
-                    +"disabled>"
+                    +">"
                 +label 
-                + "</option>").appendTo(cancerTypeContainer);
+                + "</option>");
+		newOption.appendTo(cancerTypeContainer);
+		newOption.clone().appendTo(cancerTypeContainerMultiple);
         }
         // Add all studies
         for (var i=0; i<root.studies.length; i++) {
@@ -846,6 +1062,7 @@ function addMetaDataToPage() {
                                     +"data-parent='"+root.code+"' "
                                     +">" +cancer_study.name + "</option>");
                 cancerTypeContainer.append(newOption);
+		cancerTypeContainerMultiple.append(newOption.clone());
             }
         }
         // Recur down
@@ -914,7 +1131,9 @@ function addMetaDataToPage() {
 
     // Chosenize the select boxes
     var minSearchableItems = 10;
-    $("#select_cancer_type").chosen({ width: '550px', disable_search_threshold: minSearchableItems, search_contains: true });
+    $("#select_cancer_type").chosen({ width: '550px', disable_search_threshold: minSearchableItems, search_contains: true});
+    $("#select_cancer_type_multiple").chosen({ width: '550px', disable_search_threshold: minSearchableItems, search_contains: true});
+    $("#select_cancer_type_multiple_chzn").hide();
     $("#select_gene_set").chosen({ width: '620px', search_contains: true});
     $("#select_case_set").chosen({ width: '420px', disable_search_threshold: minSearchableItems, search_contains: true });
 }

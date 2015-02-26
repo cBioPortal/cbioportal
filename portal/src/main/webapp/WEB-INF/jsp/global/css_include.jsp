@@ -38,3 +38,4 @@
 <link href="css/ui.dropdownchecklist.themeroller.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/>
 <link href="css/chosen.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/>
 <link href="<c:url value="${bootstrapCSSPath}"/>" type="text/css" rel="stylesheet"/>
+<link type="text/css" rel="stylesheet" href="css/jstree.style.css?<%=GlobalProperties.getAppVersion()%>"/>

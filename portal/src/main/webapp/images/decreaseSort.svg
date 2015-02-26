@@ -1,6 +1,6 @@
-<svg width="25" height="25" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
+<svg width="15" height="15" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
  <!-- Created with SVG-edit - http://svg-edit.googlecode.com/ -->
-    <g transform="rotate(-179.8924102783203 13.07001495361328,12.715868949890135) " id="svg_1">
-     <path fill="#00afff" stroke-width="3" stroke-dasharray="null" stroke-linejoin="null" stroke-linecap="null" d="m5.08893,18.2135l7.98108,-10.99525l7.98109,10.99525l-15.96217,0z" id="svg_5" transform="rotate(91.34367370605469 13.070016860961914,12.715871810913086) " stroke="#00afff"/>
-    </g>
+<g>
+  <path stroke="#afafaf" fill="#afafaf" stroke-width="3" stroke-dasharray="null" stroke-linejoin="null" stroke-linecap="null" d="m2.30738,7.66242l2.56613,-3.87592l2.56614,3.87592l-5.13227,0z" id="svg_5" transform="rotate(-88.39254760742188 4.873515129089355,5.724460124969482) "/>
+</g>
 </svg>

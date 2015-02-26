@@ -258,9 +258,13 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         {
                             return 'Disable sorting by this attribute';
                         }
-                        else
+                        else if($(this)[0].attributes.href.value === 'images/nonSort.svg')
                         {
                             return 'Enable sorting by this attribute';
+                        }
+                        else
+                        {
+                            return 'Enable decrease sorting by this attribute';
                         }
                     }
                 },
@@ -298,12 +302,18 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             
             var sortButtonYValue = $(this)[0].attributes.y.value;
             var indexSortButton=parseInt(sortButtonYValue/29);
-            if($(this)[0].attributes.href.value==="images/increaseSort.svg")
+            if($(this)[0].attributes.href.value ==="images/increaseSort.svg")
             {
                 sortStatus[indexSortButton] = 'nonSort';
             }
-            else if($(this)[0].attributes.href.value==="images/nonSort.svg")
+            else if($(this)[0].attributes.href.value ==="images/nonSort.svg")
             {
+//                sortStatus[indexSortButton] ='increSort';
+                sortStatus[indexSortButton] = 'decreSort'; 
+            }
+            else if($(this)[0].attributes.href.value ==="images/decreaseSort.svg")
+            {
+//                sortStatus[indexSortButton] = 'decreSort'; 
                 sortStatus[indexSortButton] ='increSort';
             }
             

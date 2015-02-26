@@ -217,7 +217,7 @@ define("Oncoprint",
                                 return "images/nonSort.svg";
                             }
                             
-                            if(params.sortStatus!== undefined && params.sortStatus[indexOfClinicAttr] === "decresort")
+                            if(params.sortStatus!== undefined && params.sortStatus[indexOfClinicAttr] === "decreSort")
                             {
                                 return "images/decreaseSort.svg";
                             }
@@ -749,7 +749,10 @@ define("Oncoprint",
                                     //reverse the order of clinic attribute i
                                     for(var j=0; j< state.data.length/2; j++)
                                     {
-                                        state.data[j].values[i]=state.data[state.data.length -1 - j].values[i];
+                                        var tempValue;
+                                        tempValue = state.data[j].values[i];
+                                        state.data[j].values[i]=state.data[state.data.length - 1 - j].values[i];
+                                        state.data[state.data.length - 1 - j].values[i] = tempValue;  
                                     }
                                 }
                             }

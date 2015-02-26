@@ -552,7 +552,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         extraTracks = extraTracks.concat(response.attributes().map(function(attr) { return attr.attr_id; }));
                         extraGenes = extraGenes.concat(response.toJSON());
                         extraAttributes=extraAttributes.concat(response.attributes());
-                        sortStatus = sortStatus.concat('increSort');
+                        sortStatus = sortStatus.concat('decreSort');
                         oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
                             geneData: geneDataColl.toJSON(),
                             clinicalData: extraGenes,
@@ -633,7 +633,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         extraTracks = extraTracks.concat(response.attributes().map(function(attr) { return attr.attr_id; }));
                         extraGenes = extraGenes.concat(response.toJSON());
                         extraAttributes=extraAttributes.concat(response.attributes());
-                        sortStatus = sortStatus.concat('increSort');
+                        sortStatus = sortStatus.concat('decreSort');
                         oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
                             geneData: geneDataColl.toJSON(),
                             clinicalData: extraGenes,
@@ -717,7 +717,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         extraTracks = extraTracks.concat(response.attributes().map(function(attr) { return attr.attr_id; }));
                         extraGenes = extraGenes.concat(response.toJSON());
                         extraAttributes=extraAttributes.concat(response.attributes());
-                        sortStatus = sortStatus.concat('increSort');
+                        sortStatus = sortStatus.concat('decreSort');
                         oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
                             geneData: geneDataColl.toJSON(),
                             clinicalData: extraGenes,

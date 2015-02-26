@@ -217,12 +217,17 @@ define("Oncoprint",
                                 return "images/nonSort.svg";
                             }
                             
-                            if(params.sortStatus!== undefined && params.sortStatus[indexOfClinicAttr] === "decreSort")
+                            if(params.sortStatus!== undefined && params.sortStatus[indexOfClinicAttr] === "increSort")
                             {
-                                return "images/decreaseSort.svg";
+                                return "images/increaseSort.svg";
                             }
                             
-                            return "images/increaseSort.svg";
+//                            if(params.sortStatus!== undefined && params.sortStatus[indexOfClinicAttr] === "decreSort")
+//                            {
+                                return "images/decreaseSort.svg";
+//                            }
+//                            
+//                            return "images/increaseSort.svg";
                         }
 
                             return "images/blank.svg";

@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Copyright (c) 2014 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
  * <p/>
  * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
@@ -58,7 +58,7 @@ public enum DmpLegacyIdResolver {
         {
             return Optional.of(patientIdMap.get(legacyId));
         }
-        logger.error("Legacy patient id " +legacyId +" was not found in patient id map");
+        //logger.error("Legacy patient id " +legacyId +" was not found in patient id map");
         return Optional.absent();
     }
     /*
@@ -70,12 +70,13 @@ public enum DmpLegacyIdResolver {
         {
             return Optional.of(sampleIdMap.get(legacyId));
         }
-        logger.error("Legacy sample id " +legacyId +" was not found in sample id map");
+        //logger.error("Legacy sample id " +legacyId +" was not found in sample id map");
         return Optional.absent();
     }
 
     /*
-    private class SpreadsheetSupplier implements Supplier<SpreadsheetService>
+    private class IdMapSupplier supplies a legacy->new DMP patient id map or
+    a legacy->new DMP sample id map depending upon the constructor's type argument
      */
     private  class IdMapSupplier implements Supplier<Map<String,String>> {
         private final String mapType;
@@ -105,7 +106,7 @@ public enum DmpLegacyIdResolver {
                 recordObservable.subscribe(new Subscriber<CSVRecord>() {
                     @Override
                     public void onCompleted() {
-                       logger.error("Processed " + idMap.size() + " ids in " + idFile);
+                       logger.info("Processed " + idMap.size() + " ids in " + idFile);
                     }
                     @Override
                     public void onError(Throwable throwable) {

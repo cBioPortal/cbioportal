@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Copyright (c) 2014 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
  * <p/>
  * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
@@ -34,12 +34,17 @@ import java.util.Set;
 public enum CancerTypeResolver {
     /*
     Singleton that provides a mapping between a detailed cancer type and a
-    general cancer type. Used for determining the cancer_type column in data_clinical.txt files
+    general cancer type. Primarily udsed for determining the cancer_type column in data_clinical.txt files
      */
     INSTANCE;
     private final static Logger logger = Logger.getLogger(CancerTypeResolver.class);
-    private Map<String,String> cancerTypeMap = Suppliers.memoize(new CancerTypeMapSupplier()).get();
+    private Map<String,String> cancerTypeMap =
+            Suppliers.memoize(new CancerTypeMapSupplier()).get();
 
+    /*
+    Public method that looks up the generic cancer type for a specified
+    detailed cancer types. All entries are derived from the oncotree worksheet
+     */
     public Optional<String>  resolveCancerTypeByCancerDetailedType(String detailedType){
         if(Strings.isNullOrEmpty(detailedType)){
             return Optional.absent();
@@ -47,7 +52,7 @@ public enum CancerTypeResolver {
         if(cancerTypeMap.containsKey(detailedType)){
             return Optional.of(cancerTypeMap.get(detailedType));
         }
-        logger.info("Detailed cancer type " +detailedType +" is not registered");
+        //logger.info("Detailed cancer type " +detailedType +" is not registered");
         return Optional.absent();
     }
 
@@ -74,7 +79,7 @@ public enum CancerTypeResolver {
             /*
             create a map of unique secondary, tertiary and quaternary oncotree values as keys and
             meta main types as values
-            supports resolution of meat main type from a secondary, tertiary or quaternary oncotree value
+            supports resolution of meta main type from a secondary, tertiary or quaternary oncotree value
              */
             Map<String,String> cancerTypeMap = Maps.newHashMap();
             Table<Integer, String, String> oncoTable = ImporterSpreadsheetService.

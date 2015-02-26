@@ -33,6 +33,7 @@ import java.util.*;
 public interface FileUtils {
 
 	public static final String FILE_URL_PREFIX = "file://";
+	public static final String CASE_LIST_DIRECTORY_NAME = "case_lists";
 
 	/**
 	 * Computes the MD5 digest for the given file.
@@ -327,4 +328,7 @@ public interface FileUtils {
 	 * @throws Exception
 	 */
 	void copySegFiles(PortalMetadata portalMetadata, DatatypeMetadata datatypeMetadata, String remoteUserName) throws Exception;
+	void redeployWar(PortalMetadata portalMetadata) throws Exception;
+
+	CancerStudyMetadata createCancerStudyMetadataFromMetaStudyFile(String downloadDirectory, String studyName);
 }

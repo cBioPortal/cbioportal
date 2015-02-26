@@ -147,7 +147,7 @@ class ConverterImpl implements Converter {
 				Object[] args = { config, fileUtils, caseIDs, idMapper };
 				Converter converter;
                                 try {
-					converter = (Converter)ClassLoader.getInstance(datatypeMetadata.getConverterClassName(), args);
+					converter = (Converter)ClassLoader.getInstance(datatypeMetadata.getConverterClassName(), args, false);
                                         converter.createStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dataMatrices.toArray(new DataMatrix[0]));
 				} catch (Exception ex) {
                                     ex.printStackTrace();
@@ -261,7 +261,7 @@ class ConverterImpl implements Converter {
 			// case lists
 			if (applyCaseLists) {
 				fileUtils.applyOverride(portalMetadata.getOverrideDirectory(), portalMetadata.getStagingDirectory(),
-                                        cancerStudyMetadata, "case_lists", "case_lists");
+                                        cancerStudyMetadata, FileUtils.CASE_LIST_DIRECTORY_NAME, FileUtils.CASE_LIST_DIRECTORY_NAME);
 			}
 		}
 	}

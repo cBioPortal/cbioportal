@@ -56,7 +56,7 @@ if(typeof(console) === "undefined" || typeof(console.log) === "undefined")
 
 //  Triggered only when document is ready.
 $(document).ready(function(){
-
+	
      //  Load Portal JSON Meta Data while showing loader image in place of query form
      loadMetaData();
 
@@ -165,9 +165,12 @@ function loadMetaData() {
 
     function loadContent() {
         //  Get Portal JSON Meta Data via JQuery AJAX
+	window.metaDataPromise = $.Deferred();
+
         jQuery.getJSON("portal_meta_data.json?partial_studies=true&partial_genesets=true",function(json){
             //  Store JSON Data in global variable for later use
             window.metaDataJson = json;
+	    window.metaDataPromise.resolve(json);
 
             // Load data of selected study right at the outset before continuing
             $.getJSON("portal_meta_data.json?study_id="+window.cancer_study_id_selected, function(json) {

@@ -1002,16 +1002,16 @@ define("OncoprintUtils", (function() {
                      AMPLIFIED: "Amplification",
                      GAINED: "Gain",
                      DIPLOID: "Diploid",
-                     HEMIZYGOUSLYDELETED: "Heterozygous Deletion",
-                     HOMODELETED: "Homozygous Deletion"
+                     HEMIZYGOUSLYDELETED: "Shallow Deletion",
+                     HOMODELETED: "Deep Deletion"
                  },
             mrna: {
                       UPREGULATED: "mRNA Upregulation",
                       DOWNREGULATED: "mRNA Downregulation"
                   },
             rppa: {
-                      UPREGULATED: "RPPA Upregulation",
-                      DOWNREGULATED: "RPPA Downregulation"
+                      UPREGULATED: "Protein Upregulation",
+                      DOWNREGULATED: "Protein Downregulation"
                   },
             mutation: "mutation",
             fusion: "Fusion"
@@ -1297,7 +1297,7 @@ define("OncoprintUtils", (function() {
                 var legend_svg = tabledata
                             .append('svg')
                             .attr('height', 23 )
-                            .attr('width', ('RPPA Downregulation').length * 7.5 + 5.5*3 )
+                            .attr('width', ('RPPA Upregulation').length * 7.5 + 5.5*3 )
                             .attr('x', 0)
                             .attr('id', 'legend_svg')
                             .attr('class', 'legend_cna')
@@ -1327,7 +1327,7 @@ define("OncoprintUtils", (function() {
                     .attr('font-size', '12px')
                     .attr('width', function()
                     {
-                        return ('RPPA Downregulation').length * 6.5;
+                        return ('RPPA Upregulation').length * 6.5;
                     })
                     .attr('x', 5.5*3)
                     .attr('y', 19);
@@ -1336,13 +1336,13 @@ define("OncoprintUtils", (function() {
                     .attr('text-anchor', 'start')
                     .attr('fill','black')
                     .attr('class','legend_name')
-                    .text('RPPA Downregulation');
+                    .text('RPPA Upregulation');
             
             
                 var legend_svg = tabledata
                             .append('svg')
                             .attr('height', 23 )
-                            .attr('width', ('RPPA Upregulation').length * 7.5 + 5.5*3 )
+                            .attr('width', ('RPPA Downregulation').length * 7.5 + 5.5*3 )
                             .attr('x', 0)
                             .attr('id', 'legend_svg')
                             .attr('class', 'legend_cna')
@@ -1366,7 +1366,7 @@ define("OncoprintUtils", (function() {
                     .attr('font-size', '12px')
                     .attr('width', function()
                     {
-                        return ('RPPA Upregulation').length * 6.5;
+                        return ('RPPA Downregulation').length * 6.5;
                     })
                     .attr('x', 5.5*3)
                     .attr('y', 19);
@@ -1375,7 +1375,7 @@ define("OncoprintUtils", (function() {
                     .attr('text-anchor', 'start')
                     .attr('fill','black')
                     .attr('class','legend_name')
-                    .text('RPPA Upregulation');
+                    .text('RPPA Downregulation');
         }
         
         if(datatype2range.mutation !== undefined)

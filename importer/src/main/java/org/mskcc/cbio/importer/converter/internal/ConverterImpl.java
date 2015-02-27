@@ -294,14 +294,16 @@ class ConverterImpl implements Converter {
 		// the data type we are interested in...
 		String datatype = datatypeMetadata.getDatatype();
 
+		String tumorType = getTumorType(cancerStudyMetadata);
+
 		if (LOG.isInfoEnabled()) {
 			LOG.info("getDataMatrices(), looking for all ImportDataRecord matching: " +
-					 cancerStudyMetadata.getTumorType() + ":" +
+					 tumorType + ":" +
 					 datatype + ":" + 
 					 cancerStudyMetadata.getCenter() + ".");
 		}
 		List<ImportDataRecord> importDataRecords =
-			importDataRecordDAO.getImportDataRecordByTumorTypeAndDatatypeAndCenterAndRunDate(cancerStudyMetadata.getTumorType(),
+			importDataRecordDAO.getImportDataRecordByTumorTypeAndDatatypeAndCenterAndRunDate(tumorType,
 																							 datatype,
 																							 cancerStudyMetadata.getCenter(),
 																							 datatype.contains("clinical") ?
@@ -310,7 +312,7 @@ class ConverterImpl implements Converter {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("getDataMatrices(), found " + importDataRecords.size() +
 						 " ImportDataRecord objects matching: " +
-						 cancerStudyMetadata.getTumorType() + ":" +
+						 tumorType + ":" +
 						 datatype + ":" + 
 						 cancerStudyMetadata.getCenter() + ".");
 			}
@@ -327,7 +329,7 @@ class ConverterImpl implements Converter {
 				// do we have to check for an override file?
 				if (applyOverrides) {
 					String dataFilename =
-						importData.getDataFilename().replaceAll(DatatypeMetadata.TUMOR_TYPE_TAG, cancerStudyMetadata.getTumorType().toUpperCase());
+						importData.getDataFilename().replaceAll(DatatypeMetadata.TUMOR_TYPE_TAG, tumorType.toUpperCase());
 					File overrideFile = fileUtils.getOverrideFile(portalMetadata, cancerStudyMetadata, dataFilename);
 					if (overrideFile != null) {
 						if (LOG.isInfoEnabled()) {
@@ -351,13 +353,23 @@ class ConverterImpl implements Converter {
 		}
 		else if (LOG.isInfoEnabled()) {
 			LOG.info("getDataMatrices(), cannot find any ImportDataRecord objects matching: " +
-					 cancerStudyMetadata.getTumorType() + ":" +
+					 tumorType + ":" +
 					 datatype + ":" + 
 					 cancerStudyMetadata.getCenter() + ".");
 		}
 
 		// outta here
 		return toReturn;
+	}
+
+	String getTumorType(CancerStudyMetadata cancerStudyMetadata)
+	{
+		if (cancerStudyMetadata.getStudyPath().contains("tcga")) {
+			return config.getTCGATumorTypeMetadata(cancerStudyMetadata.getTumorType().toUpperCase()).getTCGACode().toLowerCase();
+		}
+		else {
+			return cancerStudyMetadata.getTumorType();
+		}
 	}
 }
 

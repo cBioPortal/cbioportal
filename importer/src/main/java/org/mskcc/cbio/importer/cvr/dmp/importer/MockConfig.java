@@ -22,24 +22,15 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import org.mskcc.cbio.importer.Config;
-import org.mskcc.cbio.importer.model.BCRDictEntry;
-import org.mskcc.cbio.importer.model.CancerStudyMetadata;
-import org.mskcc.cbio.importer.model.CaseIDFilterMetadata;
-import org.mskcc.cbio.importer.model.CaseListMetadata;
-import org.mskcc.cbio.importer.model.ClinicalAttributesMetadata;
-import org.mskcc.cbio.importer.model.ClinicalAttributesNamespace;
-import org.mskcc.cbio.importer.model.DataSourcesMetadata;
-import org.mskcc.cbio.importer.model.DatatypeMetadata;
-import org.mskcc.cbio.importer.model.FoundationMetadata;
-import org.mskcc.cbio.importer.model.IcgcMetadata;
-import org.mskcc.cbio.importer.model.PortalMetadata;
-import org.mskcc.cbio.importer.model.ReferenceMetadata;
-import org.mskcc.cbio.importer.model.TumorTypeMetadata;
+import org.mskcc.cbio.importer.model.*;
 
 public class MockConfig implements Config {
 
     @Override
     public Collection<TumorTypeMetadata> getTumorTypeMetadata(String tumorType) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+    public TCGATumorTypeMetadata getTCGATumorTypeMetadata(String oncotreeCode) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

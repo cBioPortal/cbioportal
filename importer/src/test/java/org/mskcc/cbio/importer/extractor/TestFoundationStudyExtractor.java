@@ -71,6 +71,9 @@ public class TestFoundationStudyExtractor {
         public Collection<TumorTypeMetadata> getTumorTypeMetadata(String tumorType) {
             throw new UnsupportedOperationException("Not supported yet.");
         }
+        public TCGATumorTypeMetadata getTCGATumorTypeMetadata(String oncotreeCode) {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
 
         @Override
         public String[] getTumorTypesToDownload() {

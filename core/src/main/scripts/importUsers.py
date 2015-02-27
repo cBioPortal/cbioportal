@@ -263,6 +263,8 @@ def get_worksheet_feed(ss, ws):
 def insert_new_users(cursor, new_user_list):
 
     try:
+        for user in new_user_list:
+            print >> OUTPUT_FILE, "new user: %s" % user.google_email;
         cursor.executemany("insert into users values(%s, %s, %s)",
                            [(user.google_email, user.name, user.enabled) for user in new_user_list])
         for user in new_user_list:
@@ -271,6 +273,7 @@ def insert_new_users(cursor, new_user_list):
             cursor.executemany("insert into authorities values(%s, %s)",
                                [(user.google_email, authority) for authority in authorities])
     except MySQLdb.Error, msg:
+        print >> OUTPUT_FILE, msg
         print >> ERROR_FILE, msg
         return False
 
@@ -340,7 +343,8 @@ def get_new_user_map(spreadsheet, worksheet_feed, current_user_map, portal_name)
             name = entry.custom[FULLNAME_KEY].text.strip()
             authorities = entry.custom[AUTHORITIES_KEY].text.strip()
             # do not add entry if this entry is a current user
-            if google_email not in current_user_map:
+            # we lowercase google account because entries added to mysql are lowercased.
+            if google_email.lower() not in current_user_map:
                 if authorities[-1:] == ';':
                     authorities = authorities[:-1]
                 if google_email in to_return:

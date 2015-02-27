@@ -17,12 +17,10 @@
  */
 package org.mskcc.cbio.importer.persistence.staging.util;
 
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
+import com.google.common.base.*;
 import com.google.common.collect.FluentIterable;
 import edu.stanford.nlp.io.FileSequentialCollection;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.model.FoundationMetadata;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
@@ -48,7 +46,27 @@ import java.util.Map;
  */
 public class StagingUtils {
 
+
+
     private static final Logger logger = Logger.getLogger(StagingUtils.class);
+
+
+    /*
+    Public method to determine the absolute file name for a file that
+    starts with an environmental variable
+    (e.g. $PORTAL_DATA_HOME/study/xyz.txt
+    If the input parameter does not start with a $, the input is returned as is
+     */
+    public static String resolveFileFromEnvironmentVariable(String input){
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(input),"A file name is required");
+        if(input.startsWith("$")) {
+            String[] parts = StringUtils.split(input, File.separator);
+            parts[0] = System.getenv(parts[0].replace("$", ""));
+            return StagingCommonNames.pathJoiner.join(parts);
+        } else {
+            return input;
+        }
+    }
 
     /*
      static method to provide a generic getter for model attributes
@@ -192,7 +210,7 @@ common criteria for validating a specified Path to an input file
     public static void main (String...args){
         Path testPath = Paths.get("/tmp/foundation-test");
         StagingUtils.copyFilteredXMLFiles(testPath);
-        logger.info("Valid staging directory " + StagingUtils.isValidStagingDirectoryPath(testPath));
+       // logger.info("Valid staging directory " + StagingUtils.isValidStagingDirectoryPath(testPath));
         // invalid directory - should throw Exception
         try{
             logger.info("Valid staging directory " + StagingUtils.isValidStagingDirectoryPath(Paths.get("/tmp/xxxxxxxxxx")));
@@ -201,7 +219,7 @@ common criteria for validating a specified Path to an input file
         }
         // valid input file
         Path inputPath = testPath.resolve("lymphoma.xml"); // good file
-        logger.info("Valid input file " + StagingUtils.isValidInputFilePath(inputPath));
+        //logger.info("Valid input file " + StagingUtils.isValidInputFilePath(inputPath));
         // invalid input file
         Path badPath = testPath.resolve("xxxxxx.xml");
         try{
@@ -209,6 +227,8 @@ common criteria for validating a specified Path to an input file
         }catch (Exception e){
             logger.error(e.getMessage());
         }
+        logger.info("Test path resolutiom");
+        logger.info(" Path " +resolveFileFromEnvironmentVariable("$PORTAL_DATA_HOME/msk-impact/msk-impact"));
     }
 
     /*

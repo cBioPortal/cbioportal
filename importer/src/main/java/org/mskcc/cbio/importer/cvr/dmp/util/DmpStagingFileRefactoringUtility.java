@@ -1,18 +1,20 @@
 package org.mskcc.cbio.importer.cvr.dmp.util;
 
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
+import com.google.common.base.*;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import edu.stanford.nlp.io.FileSequentialCollection;
+import edu.stanford.nlp.util.PropertiesUtils;
 import edu.stanford.nlp.util.StringUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.log4j.Logger;
+import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
+import org.mskcc.cbio.importer.persistence.staging.util.StagingUtils;
 import org.mskcc.cbio.importer.util.CancerTypeResolver;
 import rx.Observable;
 import rx.Subscriber;
@@ -68,33 +70,52 @@ public class DmpStagingFileRefactoringUtility {
     private static final String OTHER_PATIENT_ID_COLUMN_NAME = "OTHER_PATIENT_ID";
     private static final String OTHER_SAMPLE_ID_COLUMN_NAME = "OTHER_SAMPLE_ID";
     private static final String MUTATIONS_COMMENT = "#sequenced samples: ";
+    private static final String DATA_SOURCE_NAME = "dmp-clinical-data-darwin";
+
+    private Map<String,String> patientIdMap;
+    private Map<String,String> sampleIdMap;
     private final Path inPath;
     private final Path outPath;
 
-    public DmpStagingFileRefactoringUtility(Path inDirPath, Path outDirPath) {
+    public DmpStagingFileRefactoringUtility(Path inDirPath, Path outDirPath, String pLookupFile,
+                                            String sLookupFile) {
         Preconditions.checkArgument(null != inDirPath, "A Path to the source directory is required");
         Preconditions.checkArgument(null != outDirPath, "A Path to the output directory is required");
         this.inPath = inDirPath;
         this.outPath = outDirPath;
+        this.patientIdMap = Suppliers.memoize(new LookupMapSupplier(pLookupFile)).get();
+        this.sampleIdMap = Suppliers.memoize(new LookupMapSupplier(sLookupFile)).get();
     }
 
+    // revise to use local patient id map
     private String refactorPatientId(String anId){
-        Optional<String> newPatientIdOpt = DmpLegacyIdResolver.INSTANCE.resolveNewPatientIdFromLegacyPatientId(anId);
-        if(newPatientIdOpt.isPresent()){
-            return newPatientIdOpt.get();
+        if(this.patientIdMap.containsKey(anId)){
+            return this.patientIdMap.get(anId);
         }
+        return anId;
+
+       // Optional<String> newPatientIdOpt = DmpLegacyIdResolver.INSTANCE.resolveNewPatientIdFromLegacyPatientId(anId);
+       // if(newPatientIdOpt.isPresent()){
+        //    return newPatientIdOpt.get();
+       // }
         //logger.error("Legacy patient id " +anId +" was not found in the patient id map");
         //if the new id isn't in the map yest, retain the use of the existing one
-        return anId;
+       // return anId;
     }
+
+    // revise to use local sample id map
     private String refactorSampleId (String anId){
-        Optional<String> newSampleIdOpt = DmpLegacyIdResolver.INSTANCE.resolveNewSampleIdFromLegacySampleId(anId);
-        if(newSampleIdOpt.isPresent()){
-            return newSampleIdOpt.get();
+        if(this.sampleIdMap.containsKey(anId)){
+            return this.sampleIdMap.get(anId);
         }
+        return anId;
+       // Optional<String> newSampleIdOpt = DmpLegacyIdResolver.INSTANCE.resolveNewSampleIdFromLegacySampleId(anId);
+       // if(newSampleIdOpt.isPresent()){
+        //    return newSampleIdOpt.get();
+        //}
         //logger.error("Legacy sample id " +anId + " was not found in the sample id map");
         //if the new id isn't in the map yest, retain the use of the existing one
-        return anId;
+        //return anId;
     }
 
     /*
@@ -246,7 +267,8 @@ public class DmpStagingFileRefactoringUtility {
                                     // refactor the cancer type column using the cancer type detailed value to
                                     // find a new cancer type from the oncotree worksheet
                                     if (input.equals(CANCER_TYPE_COLUMN_NAME)) {
-                                        return refactorCancerType(record.get(CANCER_TYPE_COLUMN_NAME), record.get(CANCER_TYPE_DETAILED_COLUMN_NAME));
+                                        return refactorCancerType(record.get(CANCER_TYPE_COLUMN_NAME),
+                                                record.get(CANCER_TYPE_DETAILED_COLUMN_NAME));
                                     }
                                     try {
                                         return record.get(input);
@@ -306,18 +328,115 @@ public class DmpStagingFileRefactoringUtility {
                 }).toSet();
     }
 
-
     public static void main (String...args) {
-
-        Properties utilityProperties = StringUtils.propFileToProperties("/tmp/msk-impact/idrefactor.properties");
-        String sourcePath = edu.stanford.nlp.util.PropertiesUtils.getString(utilityProperties,
-                "source.path", "/tmp/msk-impact");
-        String outputPath = edu.stanford.nlp.util.PropertiesUtils.getString(utilityProperties,
-                "output.path", "/tmp/msk-impact/new");
-        logger.info("The staging files in " +sourcePath +" will be processed");
-        logger.info("The refactored data_staging files will be written to "
-            +outputPath);
-        DmpStagingFileRefactoringUtility test = new DmpStagingFileRefactoringUtility(Paths.get(sourcePath),Paths.get( outputPath));
+        // args[0] is the name of the full name of the properties files
+        // default properties file is within the study's metadata directory
+        UtilityPropertiesManager manager =
+                new UtilityPropertiesManager(args);
+        DmpStagingFileRefactoringUtility test = new DmpStagingFileRefactoringUtility
+                (Paths.get(manager.sourcePath()),Paths.get( manager.outputPath()),
+                        manager.patientIdLookupFile(), manager.sampleIdLookupFile());
         test.refactorFileFunction();
     }
+
+    /*
+    Static inner class to manage runtime properties for the utility
+     */
+    private static class UtilityPropertiesManager{
+        private final Properties utilityProperties;
+
+        UtilityPropertiesManager(String... args){
+            String propertiesFileName = (args.length >0)? args[0]
+                    :resolvePropertiesFileName();
+            logger.info("Using " +propertiesFileName +" for properties");
+            this.utilityProperties = StringUtils.propFileToProperties(propertiesFileName);
+        }
+        String sampleIdLookupFile() {
+           return  StagingUtils.resolveFileFromEnvironmentVariable
+                    (PropertiesUtils.getString(utilityProperties,
+                            "sampleid.lookup.file", "/tmp/msk-impact/metadata/sampleLookup.txt"));
+        }
+
+        String patientIdLookupFile() {
+            return StagingUtils.resolveFileFromEnvironmentVariable
+                    (PropertiesUtils.getString(utilityProperties,
+                            "patientid.lookup.file", "/tmp/msk-impact/metadata/patientLookup.txt"));
+        }
+        String sourcePath() {
+            return StagingUtils.resolveFileFromEnvironmentVariable
+                    (PropertiesUtils.getString(utilityProperties,
+                            "source.path", "/tmp/msk-impact"));
+        }
+
+        String outputPath() {
+            return StagingUtils.resolveFileFromEnvironmentVariable
+                    (PropertiesUtils.getString(utilityProperties,
+                            "output.path", "/tmp/msk-impact/new"));
+        }
+
+        private String resolvePropertiesFileName () {
+            Optional<DataSourcesMetadata> mdOpt = DataSourcesMetadata.findDataSourcesMetadataByDataSourceName(DATA_SOURCE_NAME);
+            if(mdOpt.isPresent()){
+                DataSourcesMetadata md = mdOpt.get();
+                Path metadatadDirectoryPath = md.resolveBaseStagingDirectory().resolve("metadata");
+                return  metadatadDirectoryPath.resolve("idrefactor.properties").toString();
+            }
+            return "";
+        }
+    }
+
+    /*
+    Private inner class to build in-memory Maps to convert legacy sample and patient
+    identifiers to new values.
+     */
+    private  class LookupMapSupplier implements Supplier<Map<String,String>> {
+        private final String mapFile;
+
+        private final Logger logger = Logger.getLogger(LookupMapSupplier.class);
+        LookupMapSupplier(String aFile){
+            this.mapFile = aFile;
+        }
+        @Override
+        public Map<String, String> get() {
+            return this.initializeIdMap(this.mapFile);
+        }
+
+        private Map<String,String> initializeIdMap(final String idFile){
+            final Map<String,String> idMap = Maps.newHashMap();
+            try (Reader reader = new InputStreamReader((this.getClass().getResourceAsStream(idFile)));){
+
+                final CSVParser parser = new CSVParser(reader, CSVFormat.TDF.withHeader());
+                Observable<CSVRecord> recordObservable = Observable.from(parser.getRecords());
+                recordObservable.subscribe(new Subscriber<CSVRecord>() {
+                    @Override
+                    public void onCompleted() {
+                        logger.info("Processed " + idMap.size() + " ids in " + idFile);
+                    }
+                    @Override
+                    public void onError(Throwable throwable) {
+                        logger.error(throwable.getMessage());
+                        throwable.printStackTrace();
+                    }
+                    @Override
+                    public void onNext(CSVRecord record) {
+                        String legacyId = record.get("legacy_id");
+                        String newId = record.get("new_id");
+                        if (!idMap.containsKey(legacyId)) {
+                            idMap.put(record.get("legacy_id"), record.get("new_id"));
+                        } else {
+                            logger.error("legacy id: " +legacyId +" is repeated in " +idFile +" mapped to "
+                                    +idMap.get(legacyId) +" and "  +newId);
+                        }
+                    }
+                });
+
+            } catch (IOException e) {
+                logger.info(e.getMessage());
+                e.printStackTrace();
+            }
+            return idMap;
+        }
+
+    }
+
 }

@@ -18,15 +18,19 @@
     }
 
 	String geneList = request.getParameter(QueryBuilder.GENE_LIST);
+        String cancerStudyList = request.getParameter(QueryBuilder.CANCER_STUDY_LIST);
 
 	// we need the raw gene list
 	if (request instanceof XssRequestWrapper)
 	{
 		geneList = ((XssRequestWrapper)request).getRawParameter(QueryBuilder.GENE_LIST);
+                cancerStudyList = ((XssRequestWrapper)request).getRawParameter(QueryBuilder.CANCER_STUDY_LIST);
 	}
 
 	geneList = geneList.replaceAll("\n", " ").replaceAll("\r", "").replaceAll("/", "_");
 	geneList = servletXssUtil.getCleanerInput(geneList);
+
+        
 
     String bitlyUser = GlobalProperties.getBitlyUser();
     String bitlyKey = GlobalProperties.getBitlyApiKey();
@@ -47,7 +51,7 @@
 %>
 
 <script type="text/javascript">
-    window.location.hash = "crosscancer/overview/<%=dataPriority%>/<%=geneList%>";
+    window.location.hash = "crosscancer/overview/<%=dataPriority%>/<%=geneList%>/<%=cancerStudyList%>";
 </script>
 
 <%

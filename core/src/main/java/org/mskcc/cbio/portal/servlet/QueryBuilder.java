@@ -48,6 +48,7 @@ public class QueryBuilder extends HttpServlet {
     public static final String PROFILE_LIST_INTERNAL = "profile_list";
     public static final String CASE_SETS_INTERNAL = "case_sets";
     public static final String CANCER_STUDY_ID = "cancer_study_id";
+    public static final String CANCER_STUDY_LIST = "cancer_study_list";
     public static final String HAS_SURVIVAL_DATA = "has_survival_data";
     public static final String GENETIC_PROFILE_IDS = "genetic_profile_ids";
     public static final String GENE_SET_CHOICE = "gene_set_choice";

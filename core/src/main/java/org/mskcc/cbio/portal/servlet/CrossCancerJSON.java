@@ -70,6 +70,8 @@ public class CrossCancerJSON extends HttpServlet {
 
             // Get the gene list
             String geneList = request.getParameter(QueryBuilder.GENE_LIST);
+	    String cancerStudyIdListString = request.getParameter(QueryBuilder.CANCER_STUDY_LIST);
+	    String[] cancerStudyIdList = cancerStudyIdListString.split(",");
 
             // Get the priority
             Integer dataTypePriority;
@@ -82,8 +84,15 @@ public class CrossCancerJSON extends HttpServlet {
 
             //  Cancer All Cancer Studies
             List<CancerStudy> cancerStudiesList = accessControl.getCancerStudies();
+	     HashMap<String, Boolean> studyMap = new HashMap<>();
+		for (String studyId: cancerStudyIdList) {
+			studyMap.put(studyId, Boolean.TRUE);
+		}
             for (CancerStudy cancerStudy : cancerStudiesList) {
                 String cancerStudyId = cancerStudy.getCancerStudyStableId();
+		if (!studyMap.containsKey(cancerStudyId)) {
+			continue;
+		}
                 if(cancerStudyId.equalsIgnoreCase("all"))
                     continue;
 

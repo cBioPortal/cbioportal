@@ -125,10 +125,12 @@
 
                 var genes = this.model.genes;
                 var orgQuery = this.model.genes;
+		var study_list = this.model.study_list;
 
                 var studies = new Studies({
                     gene_list: genes,
-                    data_priority: priority
+                    data_priority: priority,
+		    study_list: study_list
                 });
 
                 studies.fetch({
@@ -1221,12 +1223,14 @@
             url: "crosscancerquery.json",
             defaults: {
                 gene_list: "",
-                data_priority: 0
+                data_priority: 0,
+		study_list: ""
             },
 
             initialize: function(options) {
                 options = _.extend(this.defaults, options);
                 this.url += "?gene_list=" + options.gene_list + "&data_priority=" + options.data_priority;
+		this.url += "&cancer_study_list=" + options.study_list;
 
                 return this;
             }
@@ -1235,7 +1239,7 @@
         /* Routers */
         AppRouter = Backbone.Router.extend({
             routes: {
-                "crosscancer/:tab/:priority/:genes": "mainView",
+                "crosscancer/:tab/:priority/:genes/:study_list": "mainView",
                 "crosscancer/*actions": "emptyView"
             },
 
@@ -1243,12 +1247,13 @@
                 (new EmptyView()).render();
             },
 
-            mainView: function(tab, priority, genes) {
+            mainView: function(tab, priority, genes, study_list) {
                 (new MainView({
                     model: {
                         tab: tab,
                         priority: priority,
-                        genes: genes.replace(/_/g, "/")
+                        genes: genes.replace(/_/g, "/"),
+			study_list: study_list
                     }
                 })).render();
             }

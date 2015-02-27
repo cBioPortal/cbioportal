@@ -316,6 +316,7 @@ function chooseAction() {
         }
         else {
             $("#main_form").get(0).setAttribute('action','cross_cancer.do');
+	    $("#main_form").find("#multiple_studies_list").val($("#jstree").jstree(true).get_selected_leaves().join(","));
         }
         if ( haveExpInQuery ) {
             createAnEXPError("Expression filtering in the gene list is not supported when doing cross cancer queries.");

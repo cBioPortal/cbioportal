@@ -268,14 +268,14 @@ var plotsData = (function() {
         if (is_discretized("x")){
             if (calc_num_of_categories(tmp_xData) === 2) {
                 stat.x.edge = 0.8;
-            } else if (calc_num_of_categories(tmp_xData) >= 6 && calc_num_of_categories(tmp_xData) < 20) {
+            } else if (calc_num_of_categories(tmp_xData) >= 6) {
                 stat.x.edge = 0.5;
-            }            
+            }           
         }
         if (is_discretized("y")){
             if (calc_num_of_categories(tmp_yData) === 2) {
                 stat.y.edge = 0.8;
-            } else if (calc_num_of_categories(tmp_yData) >= 6 && calc_num_of_categories(tmp_yData) < 20) {
+            } else if (calc_num_of_categories(tmp_yData) >= 6) {
                 stat.y.edge = 0.5;
             }        
         }

@@ -118,7 +118,7 @@ var scatterPlots = (function() {
                         _text_set.push(gisticInterpreter.convert_to_val(obj[_attr_name]));
                     }
                 });
-                discretized_axis(_text_set, false);
+                discretized_axis(_text_set, true);
             } else continuous_axis(false);
         } else if ($("input:radio[name='" + ids.sidebar[axis].data_type + "']:checked").val() === vals.data_type.clin) {
             if (clinical_attr_is_discretized(axis)) {
@@ -129,7 +129,7 @@ var scatterPlots = (function() {
         }
         
         function discretized_axis(_text_set, _rotate_flag) {
-             elem.svg.append("g")
+            elem.svg.append("g")
                 .style("stroke-width", 1.5)
                 .style("fill", "none")
                 .style("stroke", "grey")
@@ -144,6 +144,7 @@ var scatterPlots = (function() {
                 .style("stroke-width", 0.5)
                 .style("stroke", "black")
                 .style("fill", "black")
+                .style("text-anchor", "end")
                 .attr("transform", function(d) {
                     if (_rotate_flag) {
                         return "rotate(-25)"; 
@@ -207,6 +208,7 @@ var scatterPlots = (function() {
                 .style("stroke-width", 0.5)
                 .style("stroke", "black")
                 .style("fill", "black")
+                .style("text-anchor", "end")
                 .attr("transform", function(d) {
                     if (_rotate_flag) {
                         return "rotate(-25)"; 

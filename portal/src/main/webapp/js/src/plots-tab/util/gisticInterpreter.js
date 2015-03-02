@@ -15,11 +15,11 @@ var gisticInterpreter = (function() {
         legendText: "No CNA data"
     };
     var _text_val_pair = {
-        "-2": "Homdel",
-        "-1": "Hetloss",
+        "-2": "Deep Deletion",
+        "-1": "Shallow Deletion",
         "0": "Diploid",
         "1": "Gain",
-        "2": "Amp"
+        "2": "Amplitication"
     }; 
 
     return {

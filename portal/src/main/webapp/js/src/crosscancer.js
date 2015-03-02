@@ -948,7 +948,8 @@
 
                             // Let's load the mutation details as well
                             var servletParams = {
-                                data_priority: priority
+                                data_priority: priority,
+				cancer_study_list: histData.map(function(d) { return d.studyId;}).join(",")
                             };
                             var servletName = "crosscancermutation.json";
                             // init mutation data proxy with the data servlet config

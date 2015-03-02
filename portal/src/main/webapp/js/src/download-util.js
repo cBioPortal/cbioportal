@@ -28,6 +28,7 @@ cbio.download = (function() {
 	 * @param servletName       name of the action servlet
 	 * @param servletParams     params to send with the form submit
 	 * @param form              jQuery selector for the download form
+	 * @deprecated use either initDownload or clientSideDownload
 	 */
 	function submitDownload(servletName, servletParams, form)
 	{
@@ -56,6 +57,7 @@ cbio.download = (function() {
 	 *
 	 * @param servletName
 	 * @param servletParams
+	 * @deprecated use either initDownload or clientSideDownload
 	 */
 	function requestDownload(servletName, servletParams)
 	{
@@ -80,6 +82,8 @@ cbio.download = (function() {
 	/**
 	 * Initializes the hidden download frame for the entire document.
 	 * This is to isolate download requests from the main window.
+	 *
+	 * @deprecated use either initDownload or clientSideDownload
 	 */
 	function initDownloadFrame(callback)
 	{
@@ -105,6 +109,8 @@ cbio.download = (function() {
 
 	/**
 	 * This form is initialized only for IE
+	 *
+	 * @deprecated use either initDownload or clientSideDownload
 	 */
 	function initDownloadForm()
 	{
@@ -166,9 +172,18 @@ cbio.download = (function() {
 	 */
 	function addSvgHeader(xml)
 	{
-		var xmlHeader = "<?xml version='1.0'?>";
-		var svg = xmlHeader + xml;
+		var svg = xml;
 
+		var xmlHeader = "<?xml version='1.0'?>";
+		var xmlVersion = "<?xml version=";
+
+		// add xml header if not exist
+		if(svg.indexOf(xmlVersion) == -1)
+		{
+			svg = xmlHeader + xml;
+		}
+
+		// add svg header if not exist
 		if(svg.indexOf("svg xmlns") == -1)
 		{
 			svg = svg.replace(

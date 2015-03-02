@@ -1222,7 +1222,7 @@ public class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils
 			File cancerStudyFile = org.apache.commons.io.FileUtils.getFile(downloadDirectory,
 			                                                               studyName,
 			                                                               CancerStudyMetadata.CANCER_STUDY_METADATA_FILE);
-			toReturn = new CancerStudyMetadata(studyName, CancerStudyReader.loadCancerStudy(cancerStudyFile, true, false));
+			toReturn = new CancerStudyMetadata(studyName, CancerStudyReader.loadCancerStudy(cancerStudyFile, false, false));
 		}	
 		catch (Exception e) {
 			LOG.info("Cannot create cancer metadata file (probably unknown tumor type): " + downloadDirectory + "/" + studyName);	

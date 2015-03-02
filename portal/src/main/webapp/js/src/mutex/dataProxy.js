@@ -70,10 +70,26 @@ var MutexData = (function() {
 
 	function countEventCombinations() {
             var _geneArr = window.PortalGlobals.getGeneList();
-            $.each(_geneArr, function(outterIndex, outterObj) {
-                for (var innerIndex = outterIndex + 1; innerIndex < _geneArr.length; innerIndex++) {
-                    var _geneA = _geneArr[outterIndex],
-                        _geneB = _geneArr[innerIndex];
+            //eliminate genes with no alteration
+            var _gene_arr = []; //only genes with alterations
+            $.each(_geneArr, function(index, _gene) {
+                var _has_alteration = false;
+                $.each(oncoprintData, function(index, _data_obj) {
+                    $.each(_data_obj.values, function(_index, _single_gene_obj) {
+                        if (_single_gene_obj.gene === _gene) {
+                            if (Object.keys(_single_gene_obj).length > 2) {
+                                _has_alteration = true;
+                            }
+                        }
+                    });
+                });                
+                if (_has_alteration) _gene_arr.push(_gene); 
+            });
+
+            $.each(_gene_arr, function(outterIndex, outterObj) {
+                for (var innerIndex = outterIndex + 1; innerIndex < _gene_arr.length; innerIndex++) {
+                    var _geneA = _gene_arr[outterIndex],
+                        _geneB = _gene_arr[innerIndex];
                     var _a = 0, //--
                         _b = 0, //-+
                         _c = 0, //+-

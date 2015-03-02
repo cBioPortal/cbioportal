@@ -78,6 +78,13 @@
 	  </properties>
 	</profile>
         <profile>
+          <id>kras</id>
+          <properties>
+        <importer-main-class>org.mskcc.cbio.importer.Admin</importer-main-class>
+                <final-war-name>kras</final-war-name>
+          </properties>
+        </profile>
+        <profile>
 	  <id>target</id>
 	  <properties>
         <importer-main-class>org.mskcc.cbio.importer.Admin</importer-main-class>

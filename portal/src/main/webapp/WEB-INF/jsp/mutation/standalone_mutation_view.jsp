@@ -4,7 +4,7 @@
 	<div class="standalone-mutation-visualizer">
         <h1 style="display:inline;">MutationMapper</h1>
         interprets mutations with protein annotations
-		(<a href="release_notes_mutation_mapper.jsp" class="standalone-release-notes">v1.0</a>)
+		(<a href="release_notes_mutation_mapper.jsp" class="standalone-release-notes">v1.0.1</a>)
 		<div class='mutation-input-field-expander' style="margin-top:10px">
 			<span class="triangle triangle-right ui-icon ui-icon-triangle-1-e"></span>
 			<span class="triangle triangle-down ui-icon ui-icon-triangle-1-s"></span>

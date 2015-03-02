@@ -236,7 +236,7 @@ class ImporterImpl implements Importer {
 			Class<?> clazz = Class.forName(importerName);
 			if (Class.forName("org.mskcc.cbio.importer.Importer").isAssignableFrom(clazz)) {
 				Object[] importerArgs = { config, fileUtils, databaseUtils };
-				Importer importer = (Importer)ClassLoader.getInstance(importerName, importerArgs);
+				Importer importer = (Importer)ClassLoader.getInstance(importerName, importerArgs, false);
 				importer.importReferenceData(referenceMetadata);
                 if (LOG.isInfoEnabled()) {
 					LOG.info("importReferenceData(), successfully executed " + clazz + ".");
@@ -361,9 +361,7 @@ class ImporterImpl implements Importer {
 	{
 		// iterate over all cancer studies
 		for (CancerStudyMetadata cancerStudyMetadata : config.getCancerStudyMetadata(portalMetadata.getName())) {
-			if (cancerStudyMetadata.readyForRelease()) {
-				loadCancerStudyStagingFiles(portalMetadata, cancerStudyMetadata);
-			}
+			loadCancerStudyStagingFiles(portalMetadata, cancerStudyMetadata);
 		}
 	}
 

@@ -308,8 +308,15 @@ http://www.springframework.org/schema/util http://www.springframework.org/schema
 
 
     <!-- sendmail beans -->
+    <b:bean id="mailProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <b:property name="properties">
+            <b:props>
+                <b:prop key="mail.smtp.localhost">${mail.server}</b:prop>
+            </b:props>
+        </b:property>
+    </b:bean>
     <b:bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
-        <b:property name="host" value="${mail.server}"/>
+        <b:property name="javaMailProperties" ref="mailProperties"/>
     </b:bean>
     <b:bean id="triageUpdateMessage" class="org.springframework.mail.SimpleMailMessage">
         <b:property name="from" value="${mail.triage_portal.update.message.sender}"/>
@@ -317,11 +324,11 @@ http://www.springframework.org/schema/util http://www.springframework.org/schema
         <b:property name="subject" value="${mail.triage_portal.update.message.subject}"/>
         <b:property name="text" value="${mail.triage_portal.update.message.body}"/>
     </b:bean>
-    <b:bean id="productionUpdateMessage" class="org.springframework.mail.SimpleMailMessage">
-        <b:property name="from" value="${mail.production_portal.update.message.sender}"/>
-        <b:property name="to" value="${mail.production_portal.update.message.recipient}"/>
-        <b:property name="subject" value="${mail.production_portal.update.message.subject}"/>
-        <b:property name="text" value="${mail.production_portal.update.message.body}"/>
+    <b:bean id="mskUpdateMessage" class="org.springframework.mail.SimpleMailMessage">
+        <b:property name="from" value="${mail.msk_portal.update.message.sender}"/>
+        <b:property name="to" value="${mail.msk_portal.update.message.recipient}"/>
+        <b:property name="subject" value="${mail.msk_portal.update.message.subject}"/>
+        <b:property name="text" value="${mail.msk_portal.update.message.body}"/>
     </b:bean>
     <b:bean id="redeployMessage" class="org.springframework.mail.SimpleMailMessage">
         <b:property name="from" value="${mail.redeploy.message.sender}"/>

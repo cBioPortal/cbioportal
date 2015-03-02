@@ -1009,7 +1009,9 @@
                             // end of mutation details
 
                         });
-                    }
+                    },
+		    type: 'POST',
+		    data: {gene_list: genes, data_priority:priority, cancer_study_list:study_list}
                 }); // Done with the histogram
 
                 $("#customize-controls .close-customize a").click(function(e) {
@@ -1230,9 +1232,11 @@
 
             initialize: function(options) {
                 options = _.extend(this.defaults, options);
-                this.url += "?gene_list=" + options.gene_list + "&data_priority=" + options.data_priority;
-		this.url += "&cancer_study_list=" + options.study_list;
-
+                /*this.url += "?gene_list=" + options.gene_list + "&data_priority=" + options.data_priority;
+		this.url += "&cancer_study_list=" + options.study_list;*/
+		this.gene_list = options.gene_list;
+		this.data_priority = options.data_priority;
+		this.cancer_study_list = options.study_list;
                 return this;
             }
         });

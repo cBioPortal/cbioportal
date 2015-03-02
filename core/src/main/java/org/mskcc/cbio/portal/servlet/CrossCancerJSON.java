@@ -49,6 +49,11 @@ public class CrossCancerJSON extends HttpServlet {
         accessControl = SpringUtil.getAccessControl();
     }
 
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws IOException, ServletException
+    {
+	    doGet(request, response);
+    }
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
      * @param request servlet request

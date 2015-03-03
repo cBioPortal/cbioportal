@@ -14,6 +14,9 @@ var clinical_data_interpreter = (function() {
         $.each(_arr, function(index, val) {
            if ($.inArray(val, _result) === -1) _result.push(val); 
         });
+        _result.sort(function(a, b){
+            return a === b ? 0 : a < b ? -1 : 1;
+        });
         return _result;
     };
     

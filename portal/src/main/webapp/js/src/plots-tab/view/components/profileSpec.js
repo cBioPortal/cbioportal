@@ -61,7 +61,6 @@ var profileSpec = (function() {
                             "<option value='" + obj.id + "'>" + obj.name + "</option>");
                 }
             });
-
         };
         
 //        $("#" + ids.sidebar[axis].gene).change(function() {

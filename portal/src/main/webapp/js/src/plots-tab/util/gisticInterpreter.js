@@ -19,7 +19,7 @@ var gisticInterpreter = (function() {
         "-1": "Shallow Deletion",
         "0": "Diploid",
         "1": "Gain",
-        "2": "Amplitication"
+        "2": "Amplification"
     }; 
 
     return {

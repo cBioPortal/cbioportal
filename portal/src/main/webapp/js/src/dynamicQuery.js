@@ -310,19 +310,21 @@ function chooseAction() {
     var haveExpInQuery = $("#gene_list").val().toUpperCase().search("EXP") > -1;
     $("#exp_error_box").remove();
 
-    if ($("#select_cancer_type").val() == 'all') {
+    var selected_studies = $("#jstree").jstree(true).get_selected_leaves();
+    if (selected_studies.length > 1) {
+	$("#main_form").find("#select_multiple_studies").val(selected_studies.join(","));
         if ($("#tab_index").val() == 'tab_download') {
             $("#main_form").get(0).setAttribute('action','index.do');
         }
         else {
-            $("#main_form").get(0).setAttribute('action','cross_cancer.do');
-	    $("#main_form").find("#multiple_studies_list").val($("#jstree").jstree(true).get_selected_leaves().join(","));
+            $("#main_form").get(0).setAttribute('action','cross_cancer.do');    
         }
         if ( haveExpInQuery ) {
             createAnEXPError("Expression filtering in the gene list is not supported when doing cross cancer queries.");
             return false;
         }
-    } else {
+    } else if (selected_studies.length === 1) {
+	$("#main_form").find("#select_single_study").val(selected_studies[0]);
         $("#main_form").get(0).setAttribute('action','index.do');
 
         if ( haveExpInQuery ) {
@@ -340,6 +342,9 @@ function chooseAction() {
         }
 
         return true;
+    } else {
+	    // TODO: make error - no studies selected
+	    return false;
     }
 }
 

@@ -718,7 +718,7 @@ define("Oncoprint",
                     //
                     // throws unsupported sort option if something other than the 3 options
                     // above is given.
-                    var sortBy = function(by, cases,mutationColorControl,mutationColorSort) {
+                    var sortBy = function(by, cases,mutationColorControl,mutationColorSort,sortStatus) {
                         if (by === 'genes') {
 //                            state.attrs = params.genes.concat(clinical_attrs);
                             state.attrs = params.genes.slice(0);
@@ -730,7 +730,17 @@ define("Oncoprint",
                                     state.attrs.push(clinical_attrs[i]);
                                 }
                             }
-                            state.data = MemoSort(state.data, state.attrs,mutationColorControl,mutationColorSort);
+                            //remove nonosort sortstatus
+                            var newSortStatus = [];
+                            for( var j = 0; j < sortStatus.length;j++ )
+                            {
+                                if(sortStatus[j] !== "nonSort")
+                                {
+                                    newSortStatus.push(sortStatus[j]);
+                                }
+                            }
+                            //remove end
+                            state.data = MemoSort(state.data, state.attrs,mutationColorControl,mutationColorSort,newSortStatus);
                         }
                         else if (by === 'clinical') {
                             state.attrs = [];
@@ -743,24 +753,18 @@ define("Oncoprint",
                                     state.attrs.push(clinical_attrs[i]);
                                 }
                             }
-                            
-                            state.attrs = state.attrs.concat(params.genes);
-                            state.data = MemoSort(state.data, state.attrs,mutationColorControl,mutationColorSort);
-                            
-                            for(var i = 0; i < clinical_attrs.length; i++)
+                            //remove nonosort sortstatus
+                            var newSortStatus = [];
+                            for( var j = 0; j < sortStatus.length;j++ )
                             {
-                                if($('.oncoprint_Sort_Button')[i].attributes.href.value==="images/decreaseSort.svg")
+                                if(sortStatus[j] !== "nonSort")
                                 {
-                                    //reverse the order of clinic attribute i
-                                    for(var j=0; j< state.data.length/2; j++)
-                                    {
-                                        var tempValue;
-                                        tempValue = state.data[j].values[i];
-                                        state.data[j].values[i]=state.data[state.data.length - 1 - j].values[i];
-                                        state.data[state.data.length - 1 - j].values[i] = tempValue;  
-                                    }
+                                    newSortStatus.push(sortStatus[j] );
                                 }
                             }
+                            //remove end
+                            state.attrs = state.attrs.concat(params.genes);
+                            state.data = MemoSort(state.data, state.attrs,mutationColorControl,mutationColorSort,newSortStatus);
                         }
                         else if (by === 'alphabetical') {
                             state.data = state.data.sort(function(x,y) {

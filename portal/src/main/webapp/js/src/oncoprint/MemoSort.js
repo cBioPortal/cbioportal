@@ -11,7 +11,7 @@
 //
 // returns the data, sorted
 define(function() {
-    return function(data, attributes,mutationColorControl,mutationColorSort) {
+    return function(data, attributes,mutationColorControl,mutationColorSort,sortStatus) {
         // compares two objects that have gene data (cna, mutation, mrna, rppa).
         // Returns a number that indicates the order.
         var comp_genes = function(attr1, attr2,mutationcontrol) {
@@ -194,32 +194,30 @@ define(function() {
         };
         // compares two objects of clinical data (attr_ids and attr_vals)
         // returns a *number* that indicates which one is larger
-        var comp_clinical = function(attr1, attr2) {
+        var comp_clinical = function(attr1, attr2,desc) {
             var discrete = isNaN(parseInt(val1));
             var val1 = attr1.attr_val;
             var val2 = attr2.attr_val;
+            var ret;
 
             // "NA" value goes to the end
             if (val1 === "NA") {
                 return val2 === "NA" ? 0 : 1;
-            }
-            if (val2 === "NA") {
+            } else if (val2 === "NA") {
                 return val1 === "NA" ? 0 : -1;
-            }
-
-            // must return a number
-            if (discrete) {
+            } else if (discrete) {
                 if (val1 < val2) {
-                    return 1;
+                    ret = 1;
                 } else if (val2 < val1) {
-                    return -1;
+                    ret = -1;
                 } else {
-                    return 0;
+                    ret = 0;
                 }
+            } else {  // continuous value type
+                ret = val2 - val1;
             }
-            else {  // continuous value type
-                return val2 - val1;
-            }
+            
+            return desc ? ret : -ret;
         };
 
         var getAttr = function(d) {
@@ -265,12 +263,13 @@ define(function() {
                     for (var j = 0; j < x_attrs.length; j+=1) {
                     var xj = x_attrs[j];
                     var yj = y_attrs[j];
-
+                    var indexValue = j - attributes.length;
+                    var descValue = sortStatus[j]==="decreSort"? false:true;
                     assert(xj.gene === yj.gene);        // what we are comparing are comparable
                     assert(xj.attr_id === yj.attr_id);
 
                     var diff = (xj.gene === undefined
-                        ? comp_clinical(xj, yj)
+                        ? comp_clinical(xj, yj, descValue)
                         :  comp_genes(xj, yj,mutationColorControl));
 
                     // return the first nonzero diff
@@ -285,12 +284,13 @@ define(function() {
 
                     var xj = x_attrs[j];
                     var yj = y_attrs[j];
-
+                    var indexValue = j - attributes.length;
+                    var descValue = sortStatus[j]==="decreSort"? false:true;
                     assert(xj.gene === yj.gene);        // what we are comparing are comparable
                     assert(xj.attr_id === yj.attr_id);
 
                     var diff = (xj.gene === undefined
-                        ? comp_clinical(xj, yj)
+                        ? comp_clinical(xj, yj, descValue)
                         :  comp_genes(xj, yj,"singleColor"));
 
                     // return the first nonzero diff
@@ -303,12 +303,13 @@ define(function() {
 
                     var xj = x_attrs[j];
                     var yj = y_attrs[j];
-
+                    var indexValue = j - attributes.length;
+                    var descValue = sortStatus[j]==="decreSort"? false:true;
                     assert(xj.gene === yj.gene);        // what we are comparing are comparable
                     assert(xj.attr_id === yj.attr_id);
 
                     var diff = (xj.gene === undefined
-                        ? comp_clinical(xj, yj)
+                        ? comp_clinical(xj, yj, descValue)
                         :  comp_genes(xj, yj,mutationColorControl));
 
                     // return the first nonzero diff

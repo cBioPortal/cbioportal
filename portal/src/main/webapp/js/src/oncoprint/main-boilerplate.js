@@ -104,6 +104,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
     var extraGenes=[]; // used to record genes add customized
     var extraAttributes=[]; // used to record attributes names add customized
     var sortStatus=[];
+//    var sortStatus={};
     var cases = window.PortalGlobals.getCases();
     var genes = window.PortalGlobals.getGeneListString().split(" ");
 
@@ -116,19 +117,19 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
     {
         if(sortBy1[0].innerHTML === 'gene data first')
         {
-            oncoprint.sortBy("genes", cases.split(" "),mutationColorControl,mutationColorSort);  
+            oncoprint.sortBy("genes", cases.split(" "),mutationColorControl,mutationColorSort,sortStatus);  
         }
         else if(sortBy1[0].innerHTML === 'clinical data first')
         {
-            oncoprint.sortBy("clinical", cases.split(" "),mutationColorControl,mutationColorSort); 
+            oncoprint.sortBy("clinical", cases.split(" "),mutationColorControl,mutationColorSort,sortStatus); 
         }
         else if(sortBy1[0].innerHTML === 'alphabetically by case id')
         {
-            oncoprint.sortBy("alphabetical", cases.split(" "),mutationColorControl,mutationColorSort); 
+            oncoprint.sortBy("alphabetical", cases.split(" "),mutationColorControl,mutationColorSort,sortStatus); 
         }
         else
         {
-            oncoprint.sortBy("custom", cases.split(" "),mutationColorControl,mutationColorSort);
+            oncoprint.sortBy("custom", cases.split(" "),mutationColorControl,mutationColorSort,sortStatus);
         }
     };
     geneDataColl.fetch({
@@ -152,7 +153,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
             if($('#oncoprint_sortbyfirst_dropdonw span')[0].innerHTML === 'Sort by')
             {
-                oncoprint.sortBy("genes", cases.split(" "),mutationColorControl,mutationColorSort);
+                oncoprint.sortBy("genes", cases.split(" "),mutationColorControl,mutationColorSort,sortStatus);
             }
             else
             {
@@ -160,7 +161,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             }
 
             $('.attribute_name').qtip({
-                content: {text: 'hold to drag '},
+                content: {text: 'hold to drag'},
                 position: {my:'middle right', at:'middle left', viewport: $(window)},
                 style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                 show: {event: "mouseover"}
@@ -336,7 +337,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 //            oncoprint.sortBy(sortBy.val(), cases.split(" "));
             if($('#oncoprint_sortbyfirst_dropdonw span')[0].innerHTML === 'Sort by')
             {
-                oncoprint.sortBy("genes", cases.split(" "),mutationColorControl,mutationColorSort);
+                oncoprint.sortBy("genes", cases.split(" "),mutationColorControl,mutationColorSort,sortStatus);
             }
             else
             {
@@ -395,7 +396,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         
         if($('#oncoprint_sortbyfirst_dropdonw span')[0].innerHTML === 'Sort by')
         {
-            oncoprint.sortBy("genes", cases.split(" "),mutationColorControl,mutationColorSort);
+            oncoprint.sortBy("genes", cases.split(" "),mutationColorControl,mutationColorSort,sortStatus);
         }
         else
         {
@@ -456,7 +457,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 //        oncoprint.sortBy(sortBy.val(), cases.split(" "));
         if($('#oncoprint_sortbyfirst_dropdonw span')[0].innerHTML === 'Sort by')
         {
-            oncoprint.sortBy("genes", cases.split(" "),mutationColorControl,mutationColorSort);
+            oncoprint.sortBy("genes", cases.split(" "),mutationColorControl,mutationColorSort,sortStatus);
         }
         else
         {
@@ -492,7 +493,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 //        oncoprint.sortBy(sortBy.val(), cases.split(" "));  
         if($('#oncoprint_sortbyfirst_dropdonw span')[0].innerHTML === 'Sort by')
         {
-            oncoprint.sortBy("genes", cases.split(" "),mutationColorControl,mutationColorSort);
+            oncoprint.sortBy("genes", cases.split(" "),mutationColorControl,mutationColorSort,sortStatus);
         }
         else
         {
@@ -522,7 +523,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 //            oncoprint.sortBy(sortBy.val(), cases.split(" "));
             if($('#oncoprint_sortbyfirst_dropdonw span')[0].innerHTML === 'Sort by')
             {
-                oncoprint.sortBy("genes", cases.split(" "),mutationColorControl,mutationColorSort);
+                oncoprint.sortBy("genes", cases.split(" "),mutationColorControl,mutationColorSort,sortStatus);
             }
             else
             {
@@ -553,6 +554,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         extraGenes = extraGenes.concat(response.toJSON());
                         extraAttributes=extraAttributes.concat(response.attributes());
                         sortStatus = sortStatus.concat('decreSort');
+//                        sortStatus['# mutations'] = 'decreSort';
                         oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
                             geneData: geneDataColl.toJSON(),
                             clinicalData: extraGenes,
@@ -565,7 +567,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
                         if($('#oncoprint_sortbyfirst_dropdonw span')[0].innerHTML === 'Sort by')
                         {
-                            oncoprint.sortBy("genes", cases.split(" "),mutationColorControl,mutationColorSort);
+                            oncoprint.sortBy("genes", cases.split(" "),mutationColorControl,mutationColorSort,sortStatus);
                         }
                         else
                         {
@@ -634,6 +636,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         extraGenes = extraGenes.concat(response.toJSON());
                         extraAttributes=extraAttributes.concat(response.attributes());
                         sortStatus = sortStatus.concat('decreSort');
+//                        sortStatus['FRACTION_GENOME_ALTERED'] = 'decreSort';
                         oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
                             geneData: geneDataColl.toJSON(),
                             clinicalData: extraGenes,
@@ -647,7 +650,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 //                        oncoprint.sortBy(sortBy.val(), cases.split(" "));
                         if($('#oncoprint_sortbyfirst_dropdonw span')[0].innerHTML === 'Sort by')
                         {
-                            oncoprint.sortBy("genes", cases.split(" "),mutationColorControl,mutationColorSort);
+                            oncoprint.sortBy("genes", cases.split(" "),mutationColorControl,mutationColorSort,sortStatus);
                         }
                         else
                         {
@@ -718,6 +721,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         extraGenes = extraGenes.concat(response.toJSON());
                         extraAttributes=extraAttributes.concat(response.attributes());
                         sortStatus = sortStatus.concat('decreSort');
+//                        sortStatus[clinicalAttribute.attr_id] = 'decreSort';
                         oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
                             geneData: geneDataColl.toJSON(),
                             clinicalData: extraGenes,
@@ -730,7 +734,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
                         if($('#oncoprint_sortbyfirst_dropdonw span')[0].innerHTML === 'Sort by')
                         {
-                            oncoprint.sortBy("genes", cases.split(" "),mutationColorControl,mutationColorSort);
+                            oncoprint.sortBy("genes", cases.split(" "),mutationColorControl,mutationColorSort,sortStatus);
                         }
                         else
                         {
@@ -1108,17 +1112,17 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
     $(document).ready(function() {
         $('#oncoprint-diagram-toolbar-buttons #genes_first_a').click(function(){
-            oncoprint.sortBy('genes', cases.split(" "),mutationColorControl,mutationColorSort);
+            oncoprint.sortBy('genes', cases.split(" "),mutationColorControl,mutationColorSort,sortStatus);
         });
 
         $('#oncoprint-diagram-toolbar-buttons #clinical_first_a').click(function(){
-            oncoprint.sortBy('clinical', cases.split(" "),mutationColorControl,mutationColorSort);
+            oncoprint.sortBy('clinical', cases.split(" "),mutationColorControl,mutationColorSort,sortStatus);
         });
         $('#oncoprint-diagram-toolbar-buttons #alphabetically_first_a').click(function(){
-            oncoprint.sortBy('alphabetical', cases.split(" "),mutationColorControl,mutationColorSort);
+            oncoprint.sortBy('alphabetical', cases.split(" "),mutationColorControl,mutationColorSort,sortStatus);
         });
         $('#oncoprint-diagram-toolbar-buttons #user_defined_first_a').click(function(){
-            oncoprint.sortBy('custom', cases.split(" "),mutationColorControl,mutationColorSort);
+            oncoprint.sortBy('custom', cases.split(" "),mutationColorControl,mutationColorSort,sortStatus);
         });
 
         $('#oncoprint_diagram_showmorefeatures_icon').click(function(){

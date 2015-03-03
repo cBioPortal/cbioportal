@@ -3,7 +3,7 @@
 %>
 <div class="query_step_section" id="select_cancer_type_section">
 <span class="step_header">Select Cancer Study:</span>
-<input type="text" id="jstree_search_input"/><img id="select_cancer_type_help" src="images/help.png" title="Type in keywords to narrow down the studies. When using two or more search terms, only studies with all terms are returned (AND logic). Add an 'or' between search terms if you want to see studies that contain either term. Placing quotation marks around two or more words will look for the exact string. Placing a dash (-) before a term will exclude results with that term.">
+<input type="text" id="jstree_search_input" style="width:40em"/><img id="select_cancer_type_help" src="images/help.png" title="Type in keywords to narrow down the studies. When using two or more search terms, only studies with all terms are returned (AND logic). Add an 'or' between search terms if you want to see studies that contain either term. Placing quotation marks around two or more words will look for the exact string. Placing a dash (-) before a term will exclude results with that term.">
 <div id="jstree_selected_study_count">No studies selected.</div>
 <div id="jstree" style="max-height:250px; overflow-y: scroll"></div>
 <input id="select_multiple_studies" name="<%= QueryBuilder.CANCER_STUDY_LIST %>" style="display:none">

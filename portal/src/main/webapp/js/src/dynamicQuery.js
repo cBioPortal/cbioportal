@@ -62,28 +62,13 @@ $(document).ready(function(){
      loadMetaData();
 
      //  Set up Event Handler for User Selecting Cancer Study from Pull-Down Menu
-     $("#select_cancer_type").change(function() {
+     $("#select_single_study").change(function() {
          caseSetSelectionOverriddenByUser = false; // reset
-         console.log("#select_cancer_type change ( cancerStudySelected() )");
+         console.log("#select_single_study change ( cancerStudySelected() )");
          cancerStudySelected();
          
          caseSetSelected();
          $('#custom_case_set_ids').empty(); // reset the custom case set textarea
-     });
-     
-     // Set up event handler for switching between single and multiple cancer study selection
-     $("#toggle_select_cancer_type_multiple").change(function() {
-	     if ($("#toggle_select_cancer_type_multiple").is(":checked")) {
-		     $("#cancer_study_desc").hide();
-		     $("#select_cancer_type_chzn").hide();
-		     $("#select_cancer_type_multiple_chzn").show();
-		     window.cancerTypeSelector = "select_cancer_type_multiple";
-	     } else {
-		     $("#cancer_study_desc").show();
-		     $("#select_cancer_type_chzn").show();
-		     $("#select_cancer_type_multiple_chzn").hide();
-		     window.cancerTypeSelector = "select_cancer_type";
-	     }
      });
 
     // Set up Event Handler for User Selecting a Case Set
@@ -262,7 +247,7 @@ function reviewCurrentSelections(){
     // Unless the download tab has been chosen or 'All Cancer Studies' is
     // selected, iterate through checkboxes to see if any are selected; if not,
     // make default selections
-    if (window.tab_index != "tab_download" && $("#select_cancer_type").val() != 'all'){
+    if (window.tab_index !== "tab_download" && $("#select_single_study").val() !== 'all'){
          var setDefaults = true;
 
          // if no checkboxes are checked, make default selections
@@ -396,7 +381,7 @@ function updateDefaultCaseList() {
     var cnaSelect = $("input.PROFILE_COPY_NUMBER_ALTERATION[type=checkbox]").prop('checked');
     var expSelect = $("input.PROFILE_MRNA_EXPRESSION[type=checkbox]").prop('checked');
     var rppaSelect = $("input.PROFILE_RPPA[type=checkbox]").prop('checked');
-    var selectedCancerStudy = $('#select_cancer_type').val();
+    var selectedCancerStudy = $('#select_single_study').val();
     var defaultCaseList = selectedCancerStudy+"_all";
     if (mutSelect && cnaSelect && !expSelect && !rppaSelect) {
         defaultCaseList = selectedCancerStudy+"_cnaseq";
@@ -613,7 +598,7 @@ function updateCancerStudyInformation(cancerStudyId) {
     // if there is data to filter, then enable "build custom case set" link,
     // otherwise disable the button
     jQuery.getJSON("ClinicalFreeForm.json",
-		{studyId: $("#select_cancer_type").val()},
+		{studyId: $("#select_single_study").val()},
 		function(json){
 			var noDataToFilter = false;
 			
@@ -663,12 +648,7 @@ function cancerStudySelected() {
     //  make sure submit button is enabled unless determined otherwise by lack of data
     $("#main_submit").attr("disabled",false);
 
-    var cancerStudyId = $("#select_cancer_type").val();
-
-    if( !cancerStudyId ) {
-        $("#select_cancer_type option:first").prop("selected",true);
-        cancerStudyId = $("#select_cancer_type").val();
-    }
+    var cancerStudyId = $("#select_single_study").val() || "all";
 
     if (window.metaDataJson.cancer_studies[cancerStudyId].partial==="true") {
             console.log("cancerStudySelected( loadStudyMetaData )");
@@ -718,7 +698,7 @@ function addMetaDataToPage() {
     console.log("Adding Meta Data to Query Form");
     json = window.metaDataJson;
 
-    var cancerTypeContainer = $("#select_cancer_type");
+    var cancerTypeContainer = $("#select_single_study");
     var cancerTypeContainerMultiple = $("#select_cancer_type_multiple");
 
     // Construct oncotree
@@ -998,6 +978,21 @@ function addMetaDataToPage() {
 	$('#jstree').on('changed.jstree', function() {
 		var ct = $('#jstree').jstree(true)._model.selected_leaves;
 		$('#jstree_selected_study_count').html((ct === 0 ? "No" : ct)+" stud"+(ct === 1 ? "y" : "ies")+" selected.");
+		var select_single_study = $("#main_form").find("#select_single_study");
+		var select_multiple_studies = $("#main_form").find("#select_multiple_studies");
+		var selected_studies = $("#jstree").jstree(true).get_selected_leaves();
+		if (selected_studies.length === 1) {
+			select_single_study.val(selected_studies[0]);
+			select_multiple_studies.val("");
+		} else if (selected_studies.length > 1) {
+			select_single_study.val("all");
+			select_multiple_studies.val(selected_studies.join(","));
+		} else {
+			select_single_study.val("all");
+			select_multiple_studies.val("");
+		}
+		select_single_study.trigger('change');
+		select_multiple_studies.trigger('change');
 	});
 	$('#jstree').jstree(true).hide_icons();
 	
@@ -1092,7 +1087,7 @@ function addMetaDataToPage() {
     jQuery.each(json.cancer_studies,function(key,cancer_study){
         // Set Selected Cancer Type, Based on User Parameter
         if (key == window.cancer_study_id_selected) {
-            $("#select_cancer_type").val(key);
+            $("#select_single_study").val(key);
             console.log("addMetaDataToPage ( cancerStudySelected() )");
             cancerStudySelected();
         } 

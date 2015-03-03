@@ -77,6 +77,7 @@
 <script type="text/javascript">
     // Store the currently selected options as global variables;
     window.cancer_study_id_selected = '<%= localCancerTypeId%>';
+    window.cancer_study_list_param = '<%= QueryBuilder.CANCER_STUDY_LIST%>';
     window.case_set_id_selected = '<%= localPatientSetId %>';
     window.gene_set_id_selected = '<%= localGeneSetChoice %>';
     window.tab_index = '<%= localTabIndex %>';

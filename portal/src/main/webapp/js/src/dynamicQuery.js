@@ -949,6 +949,7 @@ function addMetaDataToPage() {
 	    });
 	    return ret;
     };
+    console.log("Initializing jstree");
     $("#jstree").jstree({
       "themes": {
         "theme": "default",
@@ -980,14 +981,12 @@ function addMetaDataToPage() {
 		var selected_studies = $("#jstree").jstree(true).get_selected_leaves();
 		if (selected_studies.length === 1) {
 			select_single_study.val(selected_studies[0]);
-			select_multiple_studies.val("");
 		} else if (selected_studies.length > 1) {
 			select_single_study.val("all");
-			select_multiple_studies.val(selected_studies.join(","));
 		} else {
 			select_single_study.val("all");
-			select_multiple_studies.val("");
 		}
+		select_multiple_studies.val(selected_studies.join(","));
 		select_single_study.trigger('change');
 		select_multiple_studies.trigger('change');
 	});
@@ -1005,14 +1004,38 @@ function addMetaDataToPage() {
         .attr("placeholder", $("#select_gene_set").children("option:first").text());
 
     //  Set things up, based on currently selected cancer type
+    var selected_study_map = {};
+    var windowParams = window.location.search.substring(1).split("&");
+    $.each(windowParams, function(ind, elt) {
+	    var pair = elt.split("=");
+	    if (pair[0] === window.cancer_study_list_param) {
+		    window.selected_cancer_study_list = pair[1];
+		    return 0;
+	    }
+    });
+    if (window.cancer_study_id_selected === 'all') {
+	    var selected_study_list = decodeURIComponent(window.selected_cancer_study_list || '').split(",");
+	    $.each(selected_study_list, function(ind, elt) {
+		    if (elt !== '') {
+			selected_study_map[elt] = false;
+		}
+	    });
+    } else {
+	    selected_study_map[window.cancer_study_id_selected] = false;
+    }
     jQuery.each(json.cancer_studies,function(key,cancer_study){
         // Set Selected Cancer Type, Based on User Parameter
-        if (key == window.cancer_study_id_selected) {
-            $("#select_single_study").val(key);
-            console.log("addMetaDataToPage ( cancerStudySelected() )");
-            cancerStudySelected();
-        } 
-    });  //  end 2nd for each cancer study loop
+        if (selected_study_map.hasOwnProperty(key)) {
+		selected_study_map[key] = true;
+	}
+    });
+	$("#jstree").on('ready.jstree', function() {
+		$.each(selected_study_map, function(key, val) {
+			if (val) {
+				$("#jstree").jstree(true).select_node(key);
+			}
+		});
+	});
 
     //   Set things up, based on currently selected case set id
     if (window.case_set_id_selected != null && window.case_set_id_selected != "") {

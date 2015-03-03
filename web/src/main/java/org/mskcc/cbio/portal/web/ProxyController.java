@@ -29,11 +29,13 @@ import javax.servlet.http.*;
 @RequestMapping("/proxy")
 public class ProxyController
 {
-
-  // location of firehose get
   private String bitlyURL;
   @Value("${bitly.url}")
   public void setBitlyURL(String property) { this.bitlyURL = property; }
+
+  private String pdbDatabaseURL;
+  @Value("${pdb.database.url}")
+  public void setPDBDatabaseURL(String property) { this.pdbDatabaseURL = property; }
 
   @RequestMapping(value="/bitly")
   public @ResponseBody String getBitlyURL(@RequestBody String body, HttpMethod method,
@@ -41,6 +43,20 @@ public class ProxyController
   {
     RestTemplate restTemplate = new RestTemplate();
     URI uri = new URI(bitlyURL + request.getQueryString());
+
+    ResponseEntity<String> responseEntity =
+      restTemplate.exchange(uri, method, new HttpEntity<String>(body), String.class);
+
+    return responseEntity.getBody();
+  }
+
+  @RequestMapping(value="/jsmol/{pdbFile}")
+  public @ResponseBody String getJSMolURL(@PathVariable String pdbFile,
+                                          @RequestBody String body, HttpMethod method,
+                                          HttpServletRequest request, HttpServletResponse response) throws URISyntaxException
+  {
+    RestTemplate restTemplate = new RestTemplate();
+    URI uri = new URI(pdbDatabaseURL + pdbFile + ".pdb");
 
     ResponseEntity<String> responseEntity =
       restTemplate.exchange(uri, method, new HttpEntity<String>(body), String.class);

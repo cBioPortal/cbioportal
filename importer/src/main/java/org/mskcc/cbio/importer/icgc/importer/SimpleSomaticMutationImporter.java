@@ -84,7 +84,7 @@ public class SimpleSomaticMutationImporter implements Callable<String> {
     }
 
     /*
-    private method to create a Collection of the attributes needed to import & transform
+    Private method to create a Collection of the attributes needed to import & transform
     ICGC files
     use a Tuple3 as a data value object containing: (1) Path to the study's staging file directory,
     (2) the URL to the ICGC source file, and (3) a ICGCFileTransformer implementation
@@ -105,11 +105,7 @@ public class SimpleSomaticMutationImporter implements Callable<String> {
                     public Tuple3<Path, String, IcgcFileTransformer> apply(String studyId) {
                         final IcgcMetadata meta = IcgcMetadata.getIcgcMetadataById(studyId).get();
                         final Path stagingDirectoryPath = baseStagingPath.resolve(meta.getDownloaddirectory());
-                        //final Path stagingDirectoryPath = Paths.get(StagingCommonNames.pathJoiner.join(baseStagingPath,
-                         //       meta.getDownloaddirectory()));
                         final String url = mutationUrlMap.get(studyId);
-                       // final IcgcFileTransformer transformer = (IcgcFileTransformer) new SimpleSomaticFileTransformer(
-                        //        new MutationFileHandlerImpl(), stagingDirectoryPath);
                         final IcgcFileTransformer transformer = (IcgcFileTransformer) new SimpleSomaticFileTransformer(
                                  stagingDirectoryPath);
                         return new Tuple3<Path, String, IcgcFileTransformer>(stagingDirectoryPath, url,
@@ -186,9 +182,10 @@ public class SimpleSomaticMutationImporter implements Callable<String> {
     main method for testing
     */
     public static void main(String... args) {
-        ApplicationContext applicationContext = new ClassPathXmlApplicationContext("/applicationContext-importer.xml");
-        SimpleSomaticMutationImporter importer = (SimpleSomaticMutationImporter)
-                applicationContext.getBean("icgcSimpleSomaticImporter");
+       // ApplicationContext applicationContext = new ClassPathXmlApplicationContext("/applicationContext-importer.xml");
+       // SimpleSomaticMutationImporter importer = (SimpleSomaticMutationImporter)
+      //          applicationContext.getBean("icgcSimpleSomaticImporter");
+        SimpleSomaticMutationImporter importer = new SimpleSomaticMutationImporter(Paths.get("tmp/icgc"));
         List<ListenableFuture<String>> futureList = Lists.newArrayList();
         futureList.add(importer.service.submit(importer));
         ListenableFuture<List<String>> etlResults = Futures.successfulAsList(futureList);

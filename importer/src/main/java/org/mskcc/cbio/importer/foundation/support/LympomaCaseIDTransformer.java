@@ -21,6 +21,7 @@ package org.mskcc.cbio.importer.foundation.support;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Files;
+import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -50,8 +51,10 @@ public class LympomaCaseIDTransformer {
     private static OpenOption[] options = new OpenOption[]{CREATE, DSYNC};
 
     public static void main(String... args) {
-        Path inputPath = Paths.get("/tmp/foundation/CLINICAL-HEME-COMPLETE.xml");
-        Path outputPath = Paths.get("/tmp/foundation/CLINICAL-HEME-COMPLETE-NEW.xml");
+        DataSourcesMetadata metadata = DataSourcesMetadata.findDataSourcesMetadataByDataSourceName("foundation").get();
+        Path download = metadata.resolveBaseStagingDirectory();
+        Path inputPath = download.resolve("LYMPHOMA-SA_THERP.xml");
+        Path outputPath = download.resolve("LYMPHOMA-SA_THERP_NEW.xml");
         Map<String,String> caseIdMap = Maps.newHashMap();
         String currentCaseId = "XXXXXX";
 

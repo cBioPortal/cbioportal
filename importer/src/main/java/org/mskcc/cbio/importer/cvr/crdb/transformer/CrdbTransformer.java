@@ -8,6 +8,7 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.cvr.dmp.util.DmpLegacyIdResolver;
+import org.mskcc.cbio.importer.model.ClinicalAttributesNamespace;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 
 import javax.annotation.Nullable;
@@ -19,6 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 
 import static java.nio.file.StandardOpenOption.*;
 
@@ -45,11 +47,17 @@ public abstract class CrdbTransformer {
 
     private final Path stagingFilePath;
     private static final Logger logger = Logger.getLogger(CrdbTransformer.class);
+    private String columnHeaderLine = "";
 
     protected CrdbTransformer(Path aPath){
         Preconditions.checkArgument(null != aPath, "A Path to a staging file is required");
         this.stagingFilePath = aPath;
     }
+
+    protected void setColumnHeaderLine(List<String> chList){
+        this.columnHeaderLine = StagingCommonNames.tabJoiner.join(chList);
+    }
+
 
     public abstract void transform();
 
@@ -72,22 +80,35 @@ public abstract class CrdbTransformer {
                     }
                 })
                 .toList();
-        return StagingCommonNames.tabJoiner.join(headerList);
+
+        return StagingCommonNames.tabJoiner.join(this.normalizeHeaders(headerList));
     }
 
+    private List<String> normalizeHeaders(List<String> externalHeaderList){
+      return  FluentIterable.from(externalHeaderList)
+               .transform(new Function<String,String>(){
+                   @Nullable
+                   @Override
+                   public String apply(@Nullable String extHeader) {
+                       Optional<ClinicalAttributesNamespace> metaOpt =
+                               ClinicalAttributesNamespace.findClinicalAttributeNamespaceByExternalColumnHeader(extHeader);
+                       if(metaOpt.isPresent()) {
+                           return metaOpt.get().getNormalizedColumnHeader();
+                   }
+                       logger.info("External Column Header: " + extHeader +" could not be normalzed");
+                       return extHeader;
+                   }
+               }).toList();
+
+
+    }
 
     protected void writeStagingFile( List<String> dataList,Class c){
         OpenOption[] options = new OpenOption[]{ CREATE, APPEND, DSYNC};
         try {
             Files.deleteIfExists(this.stagingFilePath);
-            List<String>header = Lists.newArrayList(this.generateColumnHeaders(c));
-            Files.write(stagingFilePath,header,Charset.defaultCharset(),options);
-            /*
-            Files.write(this.stagingFilePath, Lists.transform(aList,
-                    transformationFunction),
-                    Charset.defaultCharset(), options);
-             */
-            //Files.write(this.stagingFilePath, dataList, Charset.defaultCharset(),options);
+
+            Files.write(stagingFilePath,Lists.newArrayList(this.generateColumnHeaders(c)),Charset.defaultCharset(),options);
             Files.write(this.stagingFilePath, Lists.transform(dataList,transformationFunction), Charset.defaultCharset(),options);
         } catch (IOException e) {
             e.printStackTrace();

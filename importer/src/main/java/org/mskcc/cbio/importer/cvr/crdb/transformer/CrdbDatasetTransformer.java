@@ -42,7 +42,7 @@ public class CrdbDatasetTransformer extends CrdbTransformer {
    private final CrdbDatasetMapper crdbDatasetMapper;
     private final CrdbDatasetExample crdbDatasetExample;
     //TODO: move filename to Google worksheet
-    private static final String crdbDataSetClinicalFilename = "data_clinical_crdbdataset.txt";
+    private static final String crdbDataSetClinicalFilename = "data_clinical_supp_crdbdataset.txt";
 
     public CrdbDatasetTransformer(Path filePath) {
         super(filePath.resolve(crdbDataSetClinicalFilename));
@@ -61,12 +61,12 @@ public class CrdbDatasetTransformer extends CrdbTransformer {
 
     @Override
     public List<String> generateReportByPatientId(Integer patientId) {
-        return null;
+        return new ArrayList<String>();
     }
 
     @Override
     public List<String> generateReportByPatientIdList(List<Integer> patientIdList) {
-        return null;
+        return new ArrayList<String>();
     }
 
 

@@ -77,7 +77,6 @@ public class SimpleSomaticFileTransformer extends MutationTransformer implements
 
     public SimpleSomaticFileTransformer(Path stagingFileDirectory) {
         super(stagingFileDirectory.resolve(StagingCommonNames.MUTATIONS_STAGING_FILENAME),DELETE_EXISTING_FILE);
-
     }
 
     @Override

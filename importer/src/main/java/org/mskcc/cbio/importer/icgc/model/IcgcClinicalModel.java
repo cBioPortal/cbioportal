@@ -9,8 +9,13 @@ import edu.stanford.nlp.util.StringUtils;
 import org.mskcc.cbio.importer.icgc.support.IcgcFunctionLibrary;
 import org.mskcc.cbio.importer.icgc.support.IcgcUtil;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
+import org.mskcc.cbio.importer.persistence.staging.filehandler.FileHandlerService;
+import org.mskcc.cbio.importer.persistence.staging.filehandler.TsvFileHandler;
 import org.mskcc.cbio.importer.persistence.staging.mutation.MutationFileHandlerImpl;
 import org.mskcc.cbio.importer.persistence.staging.util.StagingUtils;
+import rx.Observable;
+import rx.Subscriber;
+import rx.observables.StringObservable;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -455,33 +460,45 @@ public class IcgcClinicalModel extends IcgcModel{
 
     public static void main (String...args){
         // read in a small ICGC clinical data from URL or local file
-
-        String dataSourceUrl = "https://dcc.icgc.org/api/v1/download?fn=/current/Projects/BOCA-UK/clinical.BOCA-UK.tsv.gz";
-        if(!IcgcUtil.isIcgcConnectionWorking()) {
-            dataSourceUrl = "///Users/criscuof/Downloads/clinical.BOCA-UK.tsv.gz";
-        }
-        List<String> lines = Lists.newArrayList();
-        List<IcgcSimpleSomaticMutationModel> modelList = Lists.newArrayList();
-        Path stagingFilePath = Paths.get("/tmp/icgctest/data_clinical.txt");
-        MutationFileHandlerImpl fileHandler = new MutationFileHandlerImpl();
-        fileHandler.registerTsvStagingFile(stagingFilePath,Lists.newArrayList(
-                IcgcFunctionLibrary.resolveColumnNames(IcgcClinicalModel.transformationMap)),true);
+        String dataSourceUrl = (IcgcUtil.isIcgcConnectionWorking())
+                     ?"https://dcc.icgc.org/api/v1/download?fn=/current/Projects/BOCA-UK/clinical.BOCA-UK.tsv.gz"
+                    : "///Users/criscuof/Downloads/clinical.BOCA-UK.tsv.gz";
+       final Path stagingFilePath = Paths.get("/tmp/icgctest");
         System.out.println("Processing data from: " +dataSourceUrl);
-        try {
-            BufferedReader rdr = new BufferedReader(new InputStreamReader(IOUtils.getInputStreamFromURLOrClasspathOrFileSystem(dataSourceUrl)));
-            String line = "";
-            int lineCount = 0;
-            while ((line = rdr.readLine()) != null) {
-                if (lineCount++ > 0){
-                    IcgcClinicalModel model = StringUtils.columnStringToObject(IcgcClinicalModel.class,
-                            line, StagingCommonNames.tabPattern, IcgcFunctionLibrary.resolveFieldNames( IcgcClinicalModel.class));
-                    fileHandler.transformImportDataToTsvStagingFile(Lists.newArrayList(model),model.transformationFunction  );
+        try
+            (BufferedReader rdr = new BufferedReader(new InputStreamReader
+                    (IOUtils.getInputStreamFromURLOrClasspathOrFileSystem(dataSourceUrl)))) {
+            Observable<StringObservable.Line> lineObservable =
+                    StringObservable.byLine(StringObservable.from(rdr)).skip(1);  // skip the header
+            lineObservable.subscribe(new Subscriber<StringObservable.Line>() {
+                List< IcgcClinicalModel> modelList = Lists.newArrayList();
+                @Override
+                public void onCompleted() {
+                    final TsvFileHandler tsvFileHandler = FileHandlerService.INSTANCE.obtainFileHandlerByDataType(stagingFilePath,
+                            StagingCommonNames.DATATYPE_CLINICAL,
+                            IcgcFunctionLibrary.resolveColumnNames(IcgcClinicalModel.transformationMap) ,true );
+                    tsvFileHandler.transformImportDataToTsvStagingFile(modelList, IcgcClinicalModel.transformationFunction );
                 }
-            }
-            System.out.println(lineCount +" records processed");
-            System.out.println("FINIS...");
-        } catch (IOException | InvocationTargetException | NoSuchMethodException |  NoSuchFieldException
-                | InstantiationException  | IllegalAccessException e) {
+
+                @Override
+                public void onError(Throwable throwable) {
+                    System.out.println(throwable.getMessage());
+                }
+
+                @Override
+                public void onNext(StringObservable.Line line) {
+                    try {
+                       modelList.add((IcgcClinicalModel)StringUtils.columnStringToObject(IcgcClinicalModel.class,
+                               line.getText(), StagingCommonNames.tabPattern, IcgcFunctionLibrary.resolveFieldNames(IcgcClinicalModel.class)));
+                    } catch (InstantiationException  | IllegalAccessException | NoSuchMethodException |
+                            NoSuchFieldException  | InvocationTargetException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            });
+
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

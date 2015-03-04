@@ -18,31 +18,23 @@
 
 package org.mskcc.cbio.importer.persistence.staging.filehandler;
 
-import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.base.Strings;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Table;
-import com.google.inject.internal.Sets;
+import com.google.common.base.*;
+import com.google.common.collect.*;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.log4j.Logger;
+import org.mskcc.cbio.importer.cvr.dmp.model.DmpData;
+import org.mskcc.cbio.importer.cvr.dmp.util.DmpUtils;
+import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
-import org.mskcc.cbio.importer.persistence.staging.util.StagingUtils;
+import org.mskcc.cbio.importer.persistence.staging.mutation.MutationModel;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
+import java.io.*;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.nio.file.OpenOption;
-import java.nio.file.Path;
+import java.nio.file.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -62,6 +54,28 @@ public class TsvFileHandlerImpl implements TsvFileHandler{
     
     private final static Logger logger = Logger.getLogger(TsvFileHandlerImpl.class);
 
+    /*
+    Preferred constructor that resolves the correct staging file based on the
+    supplied data type
+     */
+
+    TsvFileHandlerImpl(Path aPath, String dataType, List<String> columnHeadings, Boolean deleteFile){
+
+        Optional<DatatypeMetadata> dtMetaOpt = DatatypeMetadata.findDatatypeMetadatByDataType(dataType);
+        Preconditions.checkState(dtMetaOpt.isPresent(), dataType +" is not a valid data type");
+        this.stagingFilePath = aPath.resolve(dtMetaOpt.get().getStagingFilename() );
+        this.iniitializeStagingFileIfNew(columnHeadings, deleteFile);
+    }
+
+
+    TsvFileHandlerImpl(Path aPath, Boolean deleteFile){
+        Preconditions.checkArgument(null !=aPath,
+                "A valid Path to a staging file is required");
+
+        this.stagingFilePath = aPath;
+        this.iniitializeStagingFileIfNew(new ArrayList<String>(),deleteFile);
+    }
+
      TsvFileHandlerImpl(Path aPath, List<String> columnHeadings) {
         this.registerTsvStagingFile(aPath, columnHeadings,this.DEFAULT_DELETE_VALUE );
     }
@@ -70,6 +84,30 @@ public class TsvFileHandlerImpl implements TsvFileHandler{
         this.registerTsvStagingFile(aPath, columnHeadings,deleteFlag );
     }
 
+    private void iniitializeStagingFileIfNew(List<String> columnHeadings, Boolean deleteFile) {
+        if(deleteFile){
+            try {
+                Files.deleteIfExists(stagingFilePath);
+            } catch (IOException e) {
+                logger.error(e.getMessage());
+            }
+        }
+        if (!Files.exists(this.stagingFilePath, LinkOption.NOFOLLOW_LINKS)) {
+            try {
+                OpenOption[] options = new OpenOption[]{CREATE, APPEND, DSYNC};
+                Files.createDirectories(this.stagingFilePath.getParent());
+                if(!columnHeadings.isEmpty()){
+                    String line = StagingCommonNames.tabJoiner.join(columnHeadings) +"\n";
+                    Files.write(stagingFilePath,
+                            line.getBytes(),
+                            options);
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     /*
     public method to associate a file handler with a specific file
@@ -78,42 +116,19 @@ public class TsvFileHandlerImpl implements TsvFileHandler{
     if a new TSV file is created, a list of Strings is used to write column headings
      */
 
-
     private void registerTsvStagingFile(Path stagingFilePath, List<String> columnHeadings, boolean deleteFile) {
 
         Preconditions.checkArgument(null != stagingFilePath,
                 "A valid Path to a staging file is required");
-
+        this.stagingFilePath = stagingFilePath;
         /*
         option to delete an existing staging file to support replacement-mode staging
         operations
          */
-        if(deleteFile){
-            try {
-                Files.deleteIfExists(stagingFilePath);
-            } catch (IOException e) {
-               logger.error(e.getMessage());
-            }
-        }
 
        // create the staging file if it doesn't exist and write out the column headers
-       if (!Files.exists(stagingFilePath, LinkOption.NOFOLLOW_LINKS)) {
-           Preconditions.checkArgument(null != columnHeadings && !columnHeadings.isEmpty(),
-                   "Column headings are required for the new staging file: " 
-                           +stagingFilePath.toString());
-            try {
-                // create the file and parent directories
-                Files.createDirectories(stagingFilePath.getParent());
-                OpenOption[] options = new OpenOption[]{CREATE, APPEND, DSYNC};
-                String line = StagingCommonNames.tabJoiner.join(columnHeadings) +"\n";
-                Files.write(stagingFilePath,
-                        line.getBytes(),
-                        options);
-            } catch (IOException ex) {
-                logger.error(ex.getMessage());
-            }       
-       }
-      this.stagingFilePath = stagingFilePath;
+       this.iniitializeStagingFileIfNew(columnHeadings,deleteFile);
+
         logger.info("Staging file path = " +this.stagingFilePath);
 
     }
@@ -147,6 +162,128 @@ public class TsvFileHandlerImpl implements TsvFileHandler{
     }
 
     /*
+    specialized method to support preparing existing staging files for adding new data
+    specifically this is for staging files that maintain a list of sample ids as the first
+    line of the file in a comment format
+    1. Read the existing first line and create a Set of existing sample ids
+    2. Scan the new sample data and add their sample ids to the set
+    3. If the sample has a retreive status, add it to the retrieve sample set
+    4. create a temporary file
+    5, write ot the sample set as a comment line
+    6. write the column headings
+    7.Read each data line from the original file
+      a. if the sample ID is NOT in the retrieve sample set, write out to the temporary file
+    8. Overwite the existing staging file with the contents of the temporary file
+
+     */
+
+    @Override
+    public void preprocessExistingStagingFileWithSampleList(
+        DmpData data, final String sampleColumnName) {
+        Preconditions.checkArgument(null != data, "DMP sample data is required");
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(sampleColumnName),
+                "The name of the sample id column in the staging file is required");
+       final  Set<String> existingSamples = this.resolveExistingSampleSetFromCommentLine();
+       final  Set<String> deprecatedSamples = DmpUtils.resolveDeprecatedSamples(data);
+       final  Sets.SetView<String> allSampleSet = Sets.union(existingSamples,DmpUtils.resolveSampleIDsInInputData(data));
+        //copy existing data and new sample set to temp file; remove any deprecated samples
+        OpenOption[] options = new OpenOption[]{CREATE, APPEND, DSYNC};
+        Path tempDir = null;
+        Path tempFilePath = null;
+        try {
+            // move staging file to a temporary file, filter out deprecated samples,
+            // then write non-deprecated samples
+            // back to staging files
+
+            tempDir = Files.createTempDirectory("dmptemp");
+            tempFilePath = Files.createTempFile(tempDir, ".txt" ,null);
+            Files.deleteIfExists(tempFilePath);
+            Files.move(this.stagingFilePath, tempFilePath);
+            logger.info(" processing " + tempFilePath.toString());
+            final CSVParser parser = new CSVParser(new FileReader(tempFilePath.toFile()),
+                    CSVFormat.TDF.withHeader().withCommentMarker('#'));
+            String comment = formatSampleListAsCommentList(allSampleSet);
+            String headings = StagingCommonNames.tabJoiner.join(parser.getHeaderMap().keySet());
+            List<String> filteredSamples = FilterOutDeprecatedSamples(sampleColumnName, deprecatedSamples, parser);
+
+
+            // write the filtered data to the original staging file
+            // comment
+            Files.write(this.stagingFilePath,Lists.newArrayList(comment), Charset.defaultCharset(),options);
+            // column headings
+            Files.write(this.stagingFilePath,Lists.newArrayList(headings), Charset.defaultCharset(),options);
+            // data
+            Files.write(this.stagingFilePath, filteredSamples, Charset.defaultCharset(), options);
+
+
+        } catch (IOException ex) {
+            logger.error(ex.getMessage());
+            ex.printStackTrace();
+        } finally {
+            try {
+                Files.delete(tempFilePath);
+                Files.delete(tempDir);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+
+    /*
+    private method to remove samples from an existing staging file that being replaced by an input dataset
+     */
+    private List<String> FilterOutDeprecatedSamples(final String sampleColumnName, final Set<String> deprecatedSamples, CSVParser parser) {
+        // filter persisted sample ids that are also in the current data input
+        return FluentIterable.from(parser)
+                .filter(new Predicate<CSVRecord>() {
+                    @Override
+                    public boolean apply(CSVRecord record) {
+                        String sampleId = record.get(sampleColumnName);
+                        if (!Strings.isNullOrEmpty(sampleId) && !deprecatedSamples.contains(sampleId)) {
+                            return true;
+                        }
+                        return false;
+                    }
+                }).transform(new Function<CSVRecord, String>() {
+                    @Override
+                    public String apply(CSVRecord record) {
+
+                        return StagingCommonNames
+                                .tabJoiner
+                                .join(Lists.newArrayList(record.iterator()));
+                    }
+                })
+                .toList();
+    }
+
+    private String formatSampleListAsCommentList(Set<String> sampleSet){
+        StringBuffer sb = new StringBuffer(StagingCommonNames.DMP_STAGING_FILE_COMMENT)
+                .append(" ")
+                .append(StagingCommonNames.blankJoiner.join(sampleSet));
+        return  sb.toString();
+    }
+
+    //generate a Set of existing samples
+    private Set<String> resolveExistingSampleSetFromCommentLine(){
+        // the first line of the file is a comment
+        try (BufferedReader br =  new BufferedReader(new FileReader(this.stagingFilePath.toFile()))){
+
+            String sampleCommentLine = br.readLine();
+            String line = (sampleCommentLine.indexOf(':')>0 ) ?
+                    sampleCommentLine.substring(sampleCommentLine.indexOf(':')+2)
+                    :sampleCommentLine;
+
+            return com.google.common.collect.Sets.newTreeSet(StagingCommonNames.blankSplitter.splitToList(line));
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+            e.printStackTrace();
+        }
+        return Sets.newHashSet(); // empty set
+
+    }
+
+    /*
     public method to filter out rows from an existing staging file that have been deprecated
     inputs consist of a list of deprecated values and the name of the column for these values.
     typically this is the sample id
@@ -175,30 +312,13 @@ public class TsvFileHandlerImpl implements TsvFileHandler{
                 Files.deleteIfExists(tempFilePath);
                 Files.move(this.stagingFilePath, tempFilePath);
                 logger.info(" processing " + tempFilePath.toString());
+                // delete the original file
+                Files.delete(this.stagingFilePath);
                 final CSVParser parser = new CSVParser(new FileReader(tempFilePath.toFile()),
                         CSVFormat.TDF.withHeader());
                 String headings = StagingCommonNames.tabJoiner.join(parser.getHeaderMap().keySet());
                 // filter persisted sample ids that are also in the current data input
-                List<String> filteredSamples = FluentIterable.from(parser)
-                        .filter(new Predicate<CSVRecord>() {
-                            @Override
-                            public boolean apply(CSVRecord record) {
-                                String sampleId = record.get(sampleIdColumnName);
-                                if (!Strings.isNullOrEmpty(sampleId) && !deprecatedSampleSet.contains(sampleId)) {
-                                    return true;
-                                }
-                                return false;
-                            }
-                        }).transform(new Function<CSVRecord, String>() {
-                            @Override
-                            public String apply(CSVRecord record) {
-
-                                return StagingCommonNames
-                                        .tabJoiner
-                                        .join(Lists.newArrayList(record.iterator()));
-                            }
-                        })
-                        .toList();
+                List<String> filteredSamples = FilterOutDeprecatedSamples(sampleIdColumnName, deprecatedSampleSet, parser);
 
                 // write the filtered data to the original staging file
                 // column headings
@@ -255,8 +375,8 @@ public class TsvFileHandlerImpl implements TsvFileHandler{
      */
     @Override
     public Table<String, String, String> initializeCnvTable() {
-        com.google.inject.internal.Preconditions.checkState(null != this.stagingFilePath,
-                "The Path to the data_CNA.txt file has not been specified");
+       Preconditions.checkState(null != this.stagingFilePath,
+               "The Path to the data_CNA.txt file has not been specified");
         logger.info("Reading in existing cnv data from " +this.stagingFilePath.toString());
         Table<String, String,String> cnvTable = HashBasedTable.create();
         // determine if there are persisted cnv data; if so read into Table data structure
@@ -301,7 +421,6 @@ public class TsvFileHandlerImpl implements TsvFileHandler{
 
     @Override
 
-
     public void persistCnvTable(Table<String, String, String> cnvTable) {
         com.google.inject.internal.Preconditions.checkArgument(null != cnvTable, "A Table of CNV data is required");
         com.google.inject.internal.Preconditions.checkState(null != this.stagingFilePath,
@@ -328,6 +447,24 @@ public class TsvFileHandlerImpl implements TsvFileHandler{
             ex.printStackTrace();
         }
     }
+
+    /*
+    main method for standalone testing
+     */
+    public static void main (String...args){
+        ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+        try {
+            DmpData data = OBJECT_MAPPER.readValue(new File("/tmp/dmp_ws.json"), DmpData.class);
+           TsvFileHandlerImpl test = new TsvFileHandlerImpl(Paths.get("/tmp/data_mutations_extended.txt"), MutationModel.resolveColumnNames(),false);
+            test.preprocessExistingStagingFileWithSampleList(data,"Tumor_Sample_Barcode");
+
+
+        } catch (IOException ex) {
+            logger.error(ex.getMessage());
+        }
+    }
+
 
 
 }

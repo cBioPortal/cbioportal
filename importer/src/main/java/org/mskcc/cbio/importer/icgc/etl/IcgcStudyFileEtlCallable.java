@@ -48,6 +48,7 @@ public class IcgcStudyFileEtlCallable implements Callable<String> {
     private static Logger logger = Logger.getLogger(IcgcStudyFileEtlCallable.class);
     private ListeningExecutorService service;
     private static final Integer defaultThreadCount = 3;
+    private static final Integer MAX_TRANSFER_RETRIES = 3;
     private Path stagingFilePath;
     private String sourceUrl;
     private IcgcFileTransformer transformer;
@@ -65,7 +66,7 @@ public class IcgcStudyFileEtlCallable implements Callable<String> {
     public IcgcStudyFileEtlCallable(Path stagingFileDirectory, String aUrl, IcgcFileTransformer transformer) {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(aUrl),
                 "A URL to an ICGC file is required");
-        Preconditions.checkArgument(null != transformer, "An IcgcFileTransformer implemntation is required");
+        Preconditions.checkArgument(null != transformer, "An IcgcFileTransformer implementation is required");
         if (StagingUtils.isValidStagingDirectoryPath(stagingFileDirectory)) {
             this.service = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(defaultThreadCount));
             this.stagingFilePath = stagingFileDirectory;
@@ -220,7 +221,7 @@ public class IcgcStudyFileEtlCallable implements Callable<String> {
         @Override
         public Optional<Path> call() throws Exception {
             int retryCount = 0;
-            while (retryCount < 3) {
+            while (retryCount < MAX_TRANSFER_RETRIES) {
                 try {
                     URL url = new URL(this.icgcStudyUrl);
                     FileUtils.copyURLToFile(url, this.compressedFilePath.toFile());
@@ -228,9 +229,15 @@ public class IcgcStudyFileEtlCallable implements Callable<String> {
                     // successful transfer - outta here
                     return Optional.of(this.compressedFilePath);
                 } catch (IOException e) {
+                    //sometimes the file transfer is interrupted and sometimes ICGC service is down
                     logger.error(e.getMessage());
-                    retryCount++;
-                    logger.info("Failed transfer for " +this.icgcStudyUrl +" retry count = " +retryCount);
+                    if(e.getMessage().contains("Download service unavailable")){
+                        logger.info("ICGC Service unavailable at this time");
+                        return Optional.absent();
+                    } else {
+                        retryCount++;
+                        logger.info("Failed transfer for " + this.icgcStudyUrl + " retry count = " + retryCount);
+                    }
                 }
             }
             logger.error("Failed to obtain file " +this.icgcStudyUrl);

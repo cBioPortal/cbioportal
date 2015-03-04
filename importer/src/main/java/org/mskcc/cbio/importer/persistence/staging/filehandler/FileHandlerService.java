@@ -1,10 +1,15 @@
 package org.mskcc.cbio.importer.persistence.staging.filehandler;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import org.apache.log4j.Logger;
+import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,10 +38,12 @@ a TsvFileHandler implementation
 
 public enum FileHandlerService {
     INSTANCE;
+    private final static Logger logger = Logger.getLogger(FileHandlerService.class);
+
 
     public TsvFileHandler obtainFileHandlerForNewStagingFile(Path aPath, List<String> columnHeadings) {
 
-        if (isValidStagingDirectoryPath(aPath)) {
+        if (validateStagingPath(aPath)) {
             Preconditions.checkArgument(null != columnHeadings && !columnHeadings.isEmpty(),
                     "A List of column headings is required");
             return new TsvFileHandlerImpl(aPath, columnHeadings, true);
@@ -44,28 +51,55 @@ public enum FileHandlerService {
         return null;
     }
 
+    public TsvFileHandler obtainFileHandlerByDataType(Path directoryPath, String dataType, List<String> columnHeadings,
+                                                      Boolean deleteFile){
+        if(validateStagingPath(directoryPath)){
+            Preconditions.checkArgument(!Strings.isNullOrEmpty(dataType),
+                    "Am importer worksheet data type is required ");
+            Preconditions.checkArgument(!columnHeadings.isEmpty(),
+                    "A list of column headings is required");
+            return new TsvFileHandlerImpl(directoryPath, dataType, columnHeadings, deleteFile);
+        }
+        return null;
+    }
+
+
+
+    /*
+    public method to provide file handler for a CNV staging file
+    the distinction is that the CNV file's column headers are the sample ids and cannot be determined when
+    the file is initiated
+     */
+    public TsvFileHandler obtainFileHandlerForCnvFile(Path aPath, Boolean deleteFlag) {
+        // data  type is cnv - file name resolves to data_CNA.txt
+        if (validateStagingPath(aPath)) {
+            return new TsvFileHandlerImpl(aPath, StagingCommonNames.DATATYPE_CNA,
+                    new ArrayList<String>(),deleteFlag);
+        }
+        return null;
+    }
+
+
     public TsvFileHandler obtainFileHandlerForAppendingToStagingFile(Path aPath, List<String> columnHeadings) {
         return  new TsvFileHandlerImpl(aPath, columnHeadings,false);
     }
 
     /*
-   common set of criteria for a Path to a directory to be used for
-   writing staging files
+    create a staging file path if one does not exist already
     */
-    private boolean isValidStagingDirectoryPath(final Path aPath) {
-        com.google.common.base.Preconditions.checkArgument
+    private boolean validateStagingPath(final Path aPath) {
+       Preconditions.checkArgument
                 (null != aPath,
                         "A Path to the staging file directory is required");
-        Path subPath;
-        if (Files.isDirectory(aPath, LinkOption.NOFOLLOW_LINKS)) {
-            subPath = aPath;
-        } else {
-            subPath = aPath.getParent();
+        try {
+            if(Files.notExists(aPath)) {
+                Files.createDirectories(aPath);
+                logger.info("Staging file path " +aPath +" created");
+            }
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+            return false;
         }
-
-          com.google.common.base.Preconditions.checkArgument
-                (Files.isWritable(subPath),
-                        "The specified Path: " + subPath + " is not writable");
         return true;
 
     }

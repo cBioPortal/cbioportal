@@ -29,6 +29,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
 
@@ -40,6 +41,9 @@ import org.mskcc.cbio.importer.persistence.staging.clinical.ClinicalDataFileHand
 import org.mskcc.cbio.importer.persistence.staging.clinical.ClinicalDataFileHandlerImpl;
 import org.mskcc.cbio.importer.persistence.staging.clinical.ClinicalDataTransformer;
 import org.mskcc.cbio.importer.persistence.staging.util.StagingUtils;
+import rx.Observable;
+import rx.Subscriber;
+import rx.observables.StringObservable;
 
 public class IcgcClinicalDataFileTransformer extends ClinicalDataTransformer implements IcgcFileTransformer {
 
@@ -95,27 +99,44 @@ public class IcgcClinicalDataFileTransformer extends ClinicalDataTransformer imp
         }
     }
 
-    /* use the URL to obtain data directly from ICGC and transform each row individually
-
+    /* use the URL to obtain data directly from ICGC
      */
     private void processIcgcClinicalData()  {
-          logger.info(("Processing URL"));
-        try {
-            int recordCount = 0; // skip the header record
-            BufferedReader rdr = new BufferedReader(new InputStreamReader(IOUtils.getInputStreamFromURLOrClasspathOrFileSystem(this.icgcClinicalFileUrl)));
-            String line = "";
-            while ( (line = rdr.readLine()) != null){
-                if (recordCount++ > 0){
-                    IcgcClinicalModel model = StringUtils.columnStringToObject(IcgcClinicalModel.class,
-                            line, pat, IcgcClinicalModel.getFieldNames());
-                    if (!model.getSpecimen_type().startsWith(NORMAL)) {
-                        this.fileHandler.transformImportDataToTsvStagingFile(Lists.newArrayList(model), IcgcClinicalModel.transformationFunction);
-                    }
+        try (BufferedReader rdr = new BufferedReader(new InputStreamReader(
+                IOUtils.getInputStreamFromURLOrClasspathOrFileSystem(this.icgcClinicalFileUrl)))) {
+            final List<IcgcClinicalModel> modelList = Lists.newArrayList();
+            Observable<StringObservable.Line> lineObservable =
+                    StringObservable.byLine(StringObservable.from(rdr)).skip(1);  // skip the header
+            lineObservable.subscribe(new Subscriber<StringObservable.Line>() {
+                @Override
+                public void onCompleted() {
+                    fileHandler.transformImportDataToTsvStagingFile(modelList,
+                            IcgcClinicalModel.transformationFunction);
                 }
-            }
-            logger.info("Processed " +recordCount +" from URL " +this.icgcClinicalFileUrl );
-        } catch (IOException  | InvocationTargetException | NoSuchMethodException |
-                NoSuchFieldException | InstantiationException |  IllegalAccessException e) {
+                @Override
+                public void onError(Throwable throwable) {
+                    logger.error(throwable.getMessage());
+                    throwable.printStackTrace();
+                }
+                @Override
+                public void onNext(StringObservable.Line line) {
+
+                    try {
+                        IcgcClinicalModel model = StringUtils.columnStringToObject(IcgcClinicalModel.class,
+                                line.getText(), pat, IcgcClinicalModel.getFieldNames());
+                        if (!model.getSpecimen_type().startsWith(NORMAL)) {
+                            modelList.add(model);
+                        }
+                    } catch (InstantiationException | IllegalAccessException |NoSuchMethodException
+                            | NoSuchFieldException | InvocationTargetException e) {
+                        logger.error(e.getMessage());
+                        e.printStackTrace();
+                    }
+
+                }
+            });
+
+        } catch (IOException e) {
             logger.error(e.getMessage());
             e.printStackTrace();
         }

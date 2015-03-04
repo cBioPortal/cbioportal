@@ -79,8 +79,8 @@ public abstract class SegmentModel {
     };
 
     /*
-    provide public access to the transformation function
-     */
+      provide public access to the transformation function
+       */
     public static Function<SegmentModel,String> getTransformationModel () { return transformationFunction;}
 
 }

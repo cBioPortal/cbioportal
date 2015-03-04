@@ -57,13 +57,22 @@ public class FoundationStudyExtractor {
     private  Config config;
     private final static Logger logger = Logger.getLogger(FoundationStudyExtractor.class);
     private final String foundationDataDirectory;
-    private final String foundationDataSource = "foundation-dev";
+
     private final static String DEFAULT_DOWNLOAD_DIRECTORY = "/tmp/foundation";
+    private final static String DEFAULT_DATA_SOURCE = "foundation-dev";
     private final static String worksheetName = "foundation";
+    private String foundationDataSource;
 
     public FoundationStudyExtractor() {
+        this(DEFAULT_DATA_SOURCE);
+    }
+
+    public FoundationStudyExtractor(String dataSourceName) {
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(dataSourceName),
+                "A importer data source name is required");
+        this.foundationDataSource = dataSourceName;
       Optional<DataSourcesMetadata> dsMeta =
-        DataSourcesMetadata.findDataSourcesMetadataByDataSourceName(foundationDataSource);
+        DataSourcesMetadata.findDataSourcesMetadataByDataSourceName(dataSourceName);
         if(dsMeta.isPresent()) {
             this.foundationDataDirectory = dsMeta.get().getDownloadDirectory();
         } else {
@@ -233,7 +242,8 @@ public class FoundationStudyExtractor {
 
     // main method for stand alone testing
     public static void main (String...args){
-        FoundationStudyExtractor extractor = new FoundationStudyExtractor();
+        String testDataSource = "foundation-dev";
+        FoundationStudyExtractor extractor = new FoundationStudyExtractor(testDataSource);
         String fileName1 = "lymphoma.xml";
         String fileName2 = "lymphoma-filtered.xml";
         logger.info(extractor.resolveFoundationCancerStudyNameFromXMLFileName(fileName1).get());

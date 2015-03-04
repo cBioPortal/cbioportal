@@ -35,6 +35,10 @@ public abstract class FusionModel {
 
     protected static IDMapper geneMapper = new GeneSymbolIDMapper();
 
+    protected final static String SAMPLE_ID_COLUMN_NAME = "Tumor_Sample_Barcode";
+
+    public static String getSampleIdColumnName() { return SAMPLE_ID_COLUMN_NAME;}
+
     public static final Map<String,String> transformationMap = Maps.newTreeMap();
     static {
         transformationMap.put("001Hugo_Symbol",  "getGene"); //1

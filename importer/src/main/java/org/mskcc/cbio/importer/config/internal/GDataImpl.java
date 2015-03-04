@@ -156,6 +156,16 @@ class GDataImpl implements Config {
                                                                         "org.mskcc.cbio.importer.model.TCGATumorTypeMetadata");
     }
 
+    public TCGATumorTypeMetadata getTCGATumorTypeMetadata(String oncotreeCode)
+    {
+        for (TCGATumorTypeMetadata md : getTCGATumorTypeMetadata()) {
+            if (md.getOncoTreeCode().equals(oncotreeCode)) {
+                return md;
+            }
+        }
+        return null;
+    }
+
 	/**
 	 * Gets a TumorTypeMetadata object via tumorType.
 	 * If tumorType == Config.ALL, all are returned.

@@ -1186,6 +1186,9 @@ public class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils
                     if (dataFilename.contains(DatatypeMetadata.TUMOR_TYPE_TAG)) {
                         dataFilename = dataFilename.replaceAll(DatatypeMetadata.TUMOR_TYPE_TAG, importDataRecord.getTumorTypeLabel());
                     }
+                    if (importDataRecord.getDatatype().equals("bcr-clinical")) {
+                    	dataFilename = dataFilename.toLowerCase();
+                    }
                     if (dataFilename.contains(DatatypeMetadata.CLINICAL_FOLLOWUP_VERSION)) {
                         Matcher clinicalPatientFollowupMatcher = DatatypeMetadata.CLINICAL_FOLLOWUP_FILE_REGEX.matcher(entryName);
                         if (clinicalPatientFollowupMatcher.find()) {

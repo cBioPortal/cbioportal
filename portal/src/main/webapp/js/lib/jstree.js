@@ -942,7 +942,7 @@
 			return dom;
 		},
 		/**
-		 * get a list of ids of leaves which are selected
+		 * get ids of leaves which are selected
 		 * @name get_selected_leaves()
 		 * @return {Array}
 		 */
@@ -950,6 +950,20 @@
 			var ret = [];
 			$.each(this._model.data, function(key, val) {
 				if (val.children.length === 0 && val.state.selected) {
+					ret.push(val.id);
+				}
+			});
+			return ret;
+		},
+		/**
+		 * get ids of leaves
+		 * @name get_leaves()
+		 * @return {Array}
+		 */
+		get_leaves: function() {
+			var ret = [];
+			$.each(this._model.data, function(key, val) {
+				if (val.children.length === 0) {
 					ret.push(val.id);
 				}
 			});
@@ -3307,18 +3321,6 @@
 			}, this));
 		},
 		/**
-		 * Private, used internally. Counts the number of leaves selected
-		 * @name _count_selected_leaves ()
-		 */
-		_count_selected_leaves: function() {
-			this._model.selected_leaves = 0;
-			$.each(this._model.data, $.proxy(function(key, val) {
-				if (val.children.length === 0) {
-					this._model.selected_leaves += val.state.selected;
-				}
-			}, this));
-		},
-		/**
 		 * refreshes the tree - all nodes are reloaded with calls to `load_node`.
 		 * @name refresh()
 		 * @param {Boolean} skip_loading an option to skip showing the loading indicator
@@ -4648,9 +4650,6 @@
 							}
 
 							this._data[ t ? 'core' : 'checkbox' ].selected = $.vakata.array_unique(this._data[ t ? 'core' : 'checkbox' ].selected);
-						}, this))
-					.on('changed.jstree', $.proxy(function(e) {
-							this._count_selected_leaves();
 						}, this))
 					.on(this.settings.checkbox.tie_selection ? 'select_node.jstree' : 'check_node.jstree', $.proxy(function (e, data) {
 							var obj = data.node,

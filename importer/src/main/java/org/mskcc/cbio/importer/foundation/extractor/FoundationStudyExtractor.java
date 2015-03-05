@@ -51,7 +51,7 @@ import javax.annotation.Nullable;
  *
  * @author fcriscuo
  */
-public class FoundationStudyExtractor {
+public class        FoundationStudyExtractor {
 
     private  final FileDataSource inputDataSource;
     private  Config config;

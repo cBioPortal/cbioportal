@@ -299,7 +299,9 @@ http://www.springframework.org/schema/util http://www.springframework.org/schema
         <b:constructor-arg index="3" ref ="foundationFusionTransformer"></b:constructor-arg>
     </b:bean>
     <!-- Foundation Extractor-->
-    <b:bean id="foundationExtractor" class="org.mskcc.cbio.importer.foundation.extractor.FoundationStudyExtractor"></b:bean>
+    <b:bean id="foundationExtractor" class="org.mskcc.cbio.importer.foundation.extractor.FoundationStudyExtractor">
+        <b:constructor-arg index="0" value="foundation"></b:constructor-arg>
+    </b:bean>
     <!--Foundation Fetcher-->
     <!-- bean id must match entry in data_sources worksheet  -->
     <b:bean id="foundationFetcher" class="org.mskcc.cbio.importer.fetcher.internal.FoundationFetcherImpl">

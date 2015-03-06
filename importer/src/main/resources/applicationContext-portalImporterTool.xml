@@ -16,6 +16,10 @@ http://www.springframework.org/schema/beans/spring-beans.xsd
   <b:bean id="fileUtils" class="org.mskcc.cbio.importer.io.internal.FileUtilsImpl">
 	<b:constructor-arg index="0"><b:null/></b:constructor-arg>
 	<b:constructor-arg index="1"><b:null/></b:constructor-arg>
+  <b:constructor-arg index="2"><b:null/></b:constructor-arg>
+  <b:constructor-arg index="3"><b:null/></b:constructor-arg>
+  <b:constructor-arg index="4"><b:null/></b:constructor-arg>
+  <b:constructor-arg index="5"><b:null/></b:constructor-arg>
   </b:bean>
 
   <b:bean name="importerClassMap" class="java.util.HashMap">

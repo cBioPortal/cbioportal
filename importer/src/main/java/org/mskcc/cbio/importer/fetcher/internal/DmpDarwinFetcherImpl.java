@@ -51,7 +51,7 @@ public class DmpDarwinFetcherImpl implements Fetcher
     }
     
     @Override
-    public void fetch(String dataSource, String desiredRunDate) 
+    public void fetch(String dataSource, String desiredRunDate, boolean updateStudiesWorksheet) 
             throws Exception {
         
         if (LOG.isInfoEnabled()) {

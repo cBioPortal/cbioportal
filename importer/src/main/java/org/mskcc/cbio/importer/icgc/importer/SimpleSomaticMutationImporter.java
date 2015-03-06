@@ -67,11 +67,13 @@ public class SimpleSomaticMutationImporter implements Callable<String> {
     private static Logger logger = Logger.getLogger(SimpleSomaticMutationImporter.class);
     private static final Integer ETL_THREADS = 4;
     private boolean processCompleteFlag = false;
-    private final Path baseStagingPath;
+    private  Path baseStagingPath;
     private final Set<String> completedFiles = Sets.newHashSet();
     final ListeningExecutorService service =
             MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(ETL_THREADS));
 
+    public SimpleSomaticMutationImporter() {}
+    //TODO fix in spring config & remove default constructor
     public SimpleSomaticMutationImporter(Path aPath) {
         Preconditions.checkArgument(null != aPath);
         this.baseStagingPath = aPath;

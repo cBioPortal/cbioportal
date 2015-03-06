@@ -64,7 +64,7 @@ public class DmpDataFileRefactoringApplication {
     private static final String OTHER_PATIENT_ID_COLUMN_NAME = "OTHER_PATIENT_ID";
     private static final String OTHER_SAMPLE_ID_COLUMN_NAME = "OTHER_SAMPLE_ID";
     private static final String MUTATIONS_COMMENT = "#sequenced samples: ";
-    private static final String DATA_SOURCE_NAME = "dmp-clinical-data-darwin";
+    private static final String DATA_SOURCE_NAME = "crdb-clinical-data";
     private static final String DATA_FILE_PREFIX = "data_";
     private static final String LEGACY_DMP_ID_PREFIX = "DMP";
     private final Path dmpFilePath;
@@ -94,7 +94,7 @@ public class DmpDataFileRefactoringApplication {
         if(newPatientIdOpt.isPresent()){
             return newPatientIdOpt.get();
         }
-        logger.error("Legacy patient id " +anId +" was not found in the patient id map");
+       // logger.error("Legacy patient id " +anId +" was not found in the patient id map");
         //if the new id isn't in the map yet, retain the use of the existing one
         return anId;
     }
@@ -105,7 +105,7 @@ public class DmpDataFileRefactoringApplication {
         if(newSampleIdOpt.isPresent()){
            return newSampleIdOpt.get();
         }
-        logger.error("Legacy sample id " +anId + " was not found in the sample id map");
+       // logger.error("Legacy sample id " +anId + " was not found in the sample id map");
         //if the new id isn't in the map yet, retain the use of the existing one
         return anId;
     }

@@ -81,7 +81,7 @@ public class BiotabFetcherImpl extends FetcherBaseImpl implements Fetcher
 	}
 
     @Override
-	public void fetch(String dataSource, String desiredRunDate) throws Exception
+	public void fetch(String dataSource, String desiredRunDate, boolean updateStudiesWorksheet) throws Exception
     {
 
 		logMessage(LOG, "fetch(), dateSource" + dataSource);

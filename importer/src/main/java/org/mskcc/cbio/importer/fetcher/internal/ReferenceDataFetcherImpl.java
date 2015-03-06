@@ -63,7 +63,7 @@ public class ReferenceDataFetcherImpl implements Fetcher {
 	 * @throws Exception
 	 */
 	@Override
-	public void fetch(String dataSource, String desiredRunDate) throws Exception {
+	public void fetch(String dataSource, String desiredRunDate, boolean updateStudiesWorksheet) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 

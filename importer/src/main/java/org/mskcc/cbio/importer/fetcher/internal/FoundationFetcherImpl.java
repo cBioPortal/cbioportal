@@ -100,7 +100,7 @@ public class FoundationFetcherImpl implements Fetcher {
     @Override
     // legacy fetch
     // attributes now resolved from importer spreadsheet
-    public void fetch(final String dataSource, final String desiredRunDate) throws Exception {
+    public void fetch(final String dataSource, final String desiredRunDate, boolean updateStudiesWorksheet) throws Exception {
         this.fetch();
 
     }

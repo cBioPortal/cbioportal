@@ -36,7 +36,7 @@ public class CrdbClinicalDataFetcher implements Fetcher {
     private static final Logger logger = Logger.getLogger(CrdbClinicalDataFetcher.class);
 
     @Override
-    public void fetch(String dataSource, String desiredRunDate) throws Exception {
+    public void fetch(String dataSource, String desiredRunDate, boolean updateStudiesWorksheet) throws Exception {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(dataSource),
                 "A registered data source name is required");
         Optional<DataSourcesMetadata> metaOpt = DataSourcesMetadata.findDataSourcesMetadataByDataSourceName(dataSource);
@@ -59,7 +59,7 @@ public class CrdbClinicalDataFetcher implements Fetcher {
     public static void main (String...args){
         CrdbClinicalDataFetcher fetcher = new CrdbClinicalDataFetcher();
         try {
-            fetcher.fetch("crdb-clinical-data","latest");
+            fetcher.fetch("crdb-clinical-data","latest", false);
         } catch (Exception e) {
             logger.error(e.getMessage());
             e.printStackTrace();

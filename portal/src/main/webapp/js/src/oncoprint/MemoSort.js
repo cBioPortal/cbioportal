@@ -11,7 +11,7 @@
 //
 // returns the data, sorted
 define(function() {
-    return function(data, attributes,mutationColorControl,mutationColorSort,sortStatus) {
+    return function(data, attributes,mutationColorControl,mutationColorSort,sortStatus,sortByElement) {
         // compares two objects that have gene data (cna, mutation, mrna, rppa).
         // Returns a number that indicates the order.
         var comp_genes = function(attr1, attr2,mutationcontrol) {
@@ -260,11 +260,31 @@ define(function() {
             // order, comparing along the way
             if( mutationColorSort===undefined|| mutationColorSort === "mutationcolornonsort")
             {
-                    for (var j = 0; j < x_attrs.length; j+=1) {
+                var genesLength = x_attrs.length - sortStatus.length;
+                
+                for (var j = 0; j < x_attrs.length; j+=1) 
+                {
                     var xj = x_attrs[j];
                     var yj = y_attrs[j];
-                    var indexValue = j - attributes.length;
-                    var descValue = sortStatus[j]==="decreSort"? false:true;
+                    
+                    var indexValue;
+                    if(sortByElement==='genes')
+                    {
+                        if(x_attrs.length === x.values.length)
+                        {
+                            indexValue = j - genesLength;
+                        }
+                        else
+                        {
+                            indexValue = j;
+                        }
+                    }
+                    else
+                    {
+                        indexValue = j;
+                    }
+                    var descValue = sortStatus[indexValue]==="decreSort"? false:true;
+
                     assert(xj.gene === yj.gene);        // what we are comparing are comparable
                     assert(xj.attr_id === yj.attr_id);
 
@@ -280,12 +300,31 @@ define(function() {
             }
             else
             {
-                for (var j = 0; j < x_attrs.length; j+=1) {
-
+                var genesLength = x_attrs.length - sortStatus.length;
+                
+                for (var j = 0; j < x_attrs.length; j+=1) 
+                {
                     var xj = x_attrs[j];
                     var yj = y_attrs[j];
-                    var indexValue = j - attributes.length;
-                    var descValue = sortStatus[j]==="decreSort"? false:true;
+                    
+                    var indexValue;
+                    if(sortByElement==='genes')
+                    {
+                        if(x_attrs.length === x.values.length)
+                        {
+                            indexValue = j - genesLength;
+                        }
+                        else
+                        {
+                            indexValue = j;
+                        }
+                    }
+                    else
+                    {
+                        indexValue = j;
+                    }
+                    var descValue = sortStatus[indexValue]==="decreSort"? false:true;
+                    
                     assert(xj.gene === yj.gene);        // what we are comparing are comparable
                     assert(xj.attr_id === yj.attr_id);
 
@@ -299,12 +338,29 @@ define(function() {
                     }
                 }
 
-                for (var j = 0; j < x_attrs.length; j+=1) {
-
+                for (var j = 0; j < x_attrs.length; j+=1) 
+                {
                     var xj = x_attrs[j];
                     var yj = y_attrs[j];
-                    var indexValue = j - attributes.length;
-                    var descValue = sortStatus[j]==="decreSort"? false:true;
+                    
+                    var indexValue;
+                    if(sortByElement==='genes')
+                    {
+                        if(x_attrs.length === x.values.length)
+                        {
+                            indexValue = j - genesLength;
+                        }
+                        else
+                        {
+                            indexValue = j;
+                        }
+                    }
+                    else
+                    {
+                        indexValue = j;
+                    }
+                    var descValue = sortStatus[indexValue]==="decreSort"? false:true;
+                    
                     assert(xj.gene === yj.gene);        // what we are comparing are comparable
                     assert(xj.attr_id === yj.attr_id);
 

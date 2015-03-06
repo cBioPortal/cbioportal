@@ -740,7 +740,7 @@ define("Oncoprint",
                                 }
                             }
                             //remove end
-                            state.data = MemoSort(state.data, state.attrs,mutationColorControl,mutationColorSort,newSortStatus);
+                            state.data = MemoSort(state.data, state.attrs,mutationColorControl,mutationColorSort,newSortStatus,'genes');
                         }
                         else if (by === 'clinical') {
                             state.attrs = [];
@@ -764,7 +764,7 @@ define("Oncoprint",
                             }
                             //remove end
                             state.attrs = state.attrs.concat(params.genes);
-                            state.data = MemoSort(state.data, state.attrs,mutationColorControl,mutationColorSort,newSortStatus);
+                            state.data = MemoSort(state.data, state.attrs,mutationColorControl,mutationColorSort,newSortStatus,'clinical');
                         }
                         else if (by === 'alphabetical') {
                             state.data = state.data.sort(function(x,y) {

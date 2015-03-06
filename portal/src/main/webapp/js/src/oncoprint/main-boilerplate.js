@@ -257,15 +257,15 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         function(){
                         if($(this)[0].attributes.href.value === 'images/increaseSort.svg')
                         {
-                            return 'Disable sorting by this attribute';
+                            return 'Disable sort';
                         }
                         else if($(this)[0].attributes.href.value === 'images/nonSort.svg')
                         {
-                            return 'Enable sorting by this attribute';
+                            return 'Enable decrease sort';
                         }
                         else
                         {
-                            return 'Enable decrease sorting by this attribute';
+                            return 'Enable increase sort';
                         }
                     }
                 },

@@ -52,19 +52,27 @@ if (includeHelpTab==null) {
     			<table>
     			<tr>
     				<td>
-						<button id="filter_genes" class="tabs-button" title="Hide Selected"></button>
+						<button id="filter_genes" class="tabs-button" title="Hide Selected">
+							<span class="ui-button-icon-primary ui-icon ui-icon-circle-minus"></span>
+						</button>
 					</td>
 					<td>
-						<button id="crop_genes" class="tabs-button" title="Show Only Selected"></button>
+						<button id="crop_genes" class="tabs-button" title="Show Only Selected">
+							<span class="ui-button-icon-primary ui-icon ui-icon-crop"></span>
+						</button>
 					</td>
 					<td>
-						<button id="unhide_genes" class="tabs-button" title="Show All"></button>
+						<button id="unhide_genes" class="tabs-button" title="Show All">
+							<span class="ui-button-icon-primary ui-icon ui-icon-circle-plus"></span>
+						</button>
 					</td>
 					<td>					
 						<input type="text" id="search_box" value=""/>
 					</td>
 					<td>
-						<button id="search_genes" class="tabs-button" title="Search"></button>
+						<button id="search_genes" class="tabs-button" title="Search">
+							<span class="ui-button-icon-primary ui-icon ui-icon-search"></span>
+						</button>
 					</td>
 				</tr>
 				</table>
@@ -74,7 +82,9 @@ if (includeHelpTab==null) {
 	        				<label class="button-text">Submit New Query</label>
 	        			</td>
 	        			<td>
-	        				<button id="re-submit_query" class="tabs-button" title="Submit New Query with Genes Selected Below"></button>
+	        				<button id="re-submit_query" class="tabs-button" title="Submit New Query with Genes Selected Below">
+						        <span class="ui-button-icon-primary ui-icon ui-icon-play"></span>
+	        				</button>
 	        			</td>
 	        		</tr>
         		</table>
@@ -177,7 +187,9 @@ if (includeHelpTab==null) {
         				<label class="button-text">Update</label>
         			</td>
         			<td> 
-        				<button id="update_edges" class="tabs-button" title="Update"></button>
+        				<button id="update_edges" class="tabs-button" title="Update">
+					        <span class="ui-button-icon-primary ui-icon ui-icon-refresh"></span>
+        				</button>
         			</td>
         		</tr>
         	</table>

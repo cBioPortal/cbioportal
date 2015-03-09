@@ -109,6 +109,9 @@ public class CancerStudyMetadata {
         this.center = (parts.length < 2) ? "No center defined" : parts[1];
         this.tumorType = properties[1].trim();
         this.stableId = properties[2].trim();
+        if (this.stableId.isEmpty()) {
+            this.stableId = this.studyPath.replaceAll("/", "_");
+        }
         this.name = properties[3].trim();
         this.description = properties[4].trim();
         this.citation = properties[5].trim();

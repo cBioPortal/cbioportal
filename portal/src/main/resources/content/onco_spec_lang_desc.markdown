@@ -18,9 +18,9 @@ Users can define genetic alterations for three data types:
         <td>Copy Number Alterations</td>
         <td><TT>CNA</TT></td>
         <td><TT>AMP </TT> Amplified<BR>
-            <TT>HOMDEL </TT> Homozygously Deleted<BR>
+            <TT>HOMDEL </TT> Deep Deletion<BR>
             <TT>GAIN </TT> Gained<BR>
-            <TT>HETLOSS </TT> Heterozygously Deleted
+            <TT>HETLOSS </TT> Shallow Deletion
         </td>
         <td><TT>AMP</TT> and <TT>HOMDEL</TT></td>
     </tr>

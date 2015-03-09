@@ -17,7 +17,7 @@
 
 package org.mskcc.cbio.importer.util;
 
-import org.mskcc.cbio.importer.model.DataMatrix;
+import org.mskcc.cbio.importer.model.*;
 import org.mskcc.cbio.importer.SurvivalDataCalculator;
 import org.mskcc.cbio.importer.model.SurvivalStatus;
 import org.mskcc.cbio.portal.model.ClinicalAttribute;
@@ -30,10 +30,10 @@ public class TCGASurvivalDataCalculator implements SurvivalDataCalculator
 {
     private static final float AVG_NUM_DAYS_MONTH = 30.44f;
 
-    private static final String PATIENT_ID = "bcr_patient_barcode";
+    public static final String PATIENT_ID = "bcr_patient_barcode";
     private static final String FOLLOW_UP_PATIENT_ID = "bcr_followup_barcode";
 
-    private static final String VITAL_STATUS = "vital_status";
+    public static final String VITAL_STATUS = "vital_status";
     private static final String DAYS_TO_DEATH = "death_days_to";//"days_to_death";
     private static final String LAST_FOLLOW_UP = "last_contact_days_to";//"days_to_last_followup";
     private static final String LAST_KNOWN_ALIVE = "days_to_last_known_alive";
@@ -42,7 +42,7 @@ public class TCGASurvivalDataCalculator implements SurvivalDataCalculator
     
     private List<String> canonicalPatientList;
 
-    private static enum VitalStatusAlive
+    public static enum VitalStatusAlive
     {
         ALIVE("Alive"),
         LIVING("LIVING");
@@ -63,7 +63,7 @@ public class TCGASurvivalDataCalculator implements SurvivalDataCalculator
         }
     }
 
-    private static enum VitalStatusDead
+    public static enum VitalStatusDead
     {
         DEAD("Dead"),
         DECEASED("DECEASED");

@@ -62,6 +62,8 @@ public class Admin implements Runnable {
 	private static final String PORTAL_DATABASE = "portal";
 	private static final String IMPORTER_DATABASE = "importer";
 
+	private int numStudiesUpdated;
+
 	// parsed command line
 	private CommandLine commandLine;
 
@@ -240,11 +242,18 @@ public class Admin implements Runnable {
 		}
 	}
 
-	/**
+	public int getNumStudiesUpdated()
+	{
+		return numStudiesUpdated;
+	}
+
+	/*
 	 * Executes the desired portal commmand.
 	 */
 	@Override
 	public void run() {
+
+		numStudiesUpdated = 0;
 
 		// sanity check
 		if (commandLine == null) {
@@ -305,7 +314,7 @@ public class Admin implements Runnable {
 			}
 			else if (commandLine.hasOption("update_study_data")) {
                 String[] values = commandLine.getOptionValues("update_study_data");
-                updateStudyData(values[0], values[1], values[2]);
+                numStudiesUpdated = updateStudyData(values[0], values[1], values[2]);
 			}
                         
 			// import case lists
@@ -675,7 +684,7 @@ public class Admin implements Runnable {
 		}
 	}
 
-	private void updateStudyData(String portal, String updateWorksheet, String sendNotification) throws Exception
+	private int updateStudyData(String portal, String updateWorksheet, String sendNotification) throws Exception
 	{
 		if (LOG.isInfoEnabled()) {
 			LOG.info("updateStudyData(), portal: " + portal);
@@ -697,9 +706,17 @@ public class Admin implements Runnable {
 		for (CancerStudyMetadata cancerStudyMetadata : config.getAllCancerStudyMetadata()) {
 			if (portal.equals(PortalMetadata.TRIAGE_PORTAL)) {
 				if (cancerStudyMetadataToImport.contains(cancerStudyMetadata)) {
-					// update/add study into db
-					importer.updateCancerStudy(portal, cancerStudyMetadata);
-					cancerStudiesUpdated.add(cancerStudyMetadata.getStudyPath());
+					if (!DaoCancerStudy.doesCancerStudyExistByStableId(cancerStudyMetadata.getStableId())) {
+						// update/add study into db
+						try {
+							importer.updateCancerStudy(portal, cancerStudyMetadata);
+							cancerStudiesUpdated.add(cancerStudyMetadata.getStudyPath());
+						}
+						catch (Exception e) {
+							LOG.info(e.getMessage());
+							LOG.info("Error updating study: " + cancerStudyMetadata.getStableId() + ", skipping.");
+						}
+					}
 				}
 				else {
 					// remove from db
@@ -722,6 +739,8 @@ public class Admin implements Runnable {
 		if (sendNotificationBool && (!cancerStudiesUpdated.isEmpty() || !cancerStudiesRemoved.isEmpty())) {
 			sendNotification(portal, cancerStudiesUpdated, cancerStudiesRemoved);
 		}
+
+		return cancerStudiesUpdated.size() + cancerStudiesRemoved.size();
 	}
 
 
@@ -935,5 +954,7 @@ public class Admin implements Runnable {
 		catch (Exception e) {
 			e.printStackTrace();
 		}
+
+		System.exit(admin.getNumStudiesUpdated());
 	}
 }

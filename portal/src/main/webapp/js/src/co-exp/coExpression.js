@@ -47,10 +47,10 @@ var CoExpView = (function() {
             coexp_table_width: "380px",
             coexp_plots_width: "750px"
         },
-        threshold = 0.3;
+        threshold = 0.3,
+        has_mutation_data = false;
     //Containers    
-    var profileList = [], //Profile Lists for all queried genes
-        coExpTableArr = [];
+    var profileList = []; //Profile Lists for all queried genes
 
     //Sub tabs
     var Tabs = (function() {
@@ -92,7 +92,7 @@ var CoExpView = (function() {
             appendLoadingImgs: appendLoadingImgs,
             generateTabs: generateTabs,
             bindListenerToTabs: bindListenerToTabs
-        }
+        };
 
     }());
 
@@ -108,8 +108,10 @@ var CoExpView = (function() {
                     } else {
                         profileList.push(obj);
                     }
+                } else if (obj["GENETIC_ALTERATION_TYPE"] === "MUTATION_EXTENDED") {
+                    has_mutation_data = true;
                 }
-            })
+            });
             //swap the rna seq profile to the top
             $.each(profileList, function(i, obj) {
                 if (obj["STABLE_ID"].toLowerCase().indexOf("rna_seq") !== -1) {
@@ -166,7 +168,7 @@ var CoExpView = (function() {
                 drawProfileSelector();
                 bindListener();
             }
-        }
+        };
 
     }()); //Closing Profile Selector
 
@@ -309,7 +311,7 @@ var CoExpView = (function() {
                         var coexpPlots = new CoexpPlots();
                         coexpPlots.init(Names.plotId, geneId, aData[0], aData[1], aData[2], $("#coexp-profile-selector :selected").val());
                     }
-                })
+                });
             }
 
             function initTable() {
@@ -379,6 +381,7 @@ var CoExpView = (function() {
                     );
                 }
             };          
+            
         }; //Closing CoExpTable
 
         function assembleNames() {
@@ -453,6 +456,9 @@ var CoExpView = (function() {
                 gene_list: window.PortalGlobals.getGeneListString()
             };
             $.post("getGeneticProfile.json", paramsGetProfiles, getGeneticProfileCallback, "json");
+        },
+        has_mutation_data: function() {
+            return has_mutation_data;
         }
     };
 

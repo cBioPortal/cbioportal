@@ -333,15 +333,12 @@ http://www.springframework.org/schema/util http://www.springframework.org/schema
         <b:property name="subject" value="${mail.triage_portal.update.message.subject}"/>
         <b:property name="text" value="${mail.triage_portal.update.message.body}"/>
     </b:bean>
-    <!--
-    TODO: resolve error with bean definition
     <b:bean id="mskUpdateMessage" class="org.springframework.mail.SimpleMailMessage">
         <b:property name="from" value="${mail.msk_portal.update.message.sender}"/>
         <b:property name="to" value="${mail.msk_portal.update.message.recipient}"/>
         <b:property name="subject" value="${mail.msk_portal.update.message.subject}"/>
         <b:property name="text" value="${mail.msk_portal.update.message.body}"/>
     </b:bean>
-    -->
     <b:bean id="redeployMessage" class="org.springframework.mail.SimpleMailMessage">
         <b:property name="from" value="${mail.redeploy.message.sender}"/>
         <b:property name="to" value="${mail.redeploy.message.recipient}"/>

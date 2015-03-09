@@ -180,7 +180,9 @@ var CoexpPlotsProxy = (function() {
             attr.pearson = _pearson;
             attr.spearman = _spearman;
             dataArr.length = 0;
-            getMutationMaps();
+            if (CoExpView.has_mutation_data()) {
+                getMutationMaps();
+            }
             convertData(_alteration_data_result, _geneX, _geneY, _pearson, _spearman);
             prioritizeMutatedCases();
             analyseData();
@@ -188,6 +190,6 @@ var CoexpPlotsProxy = (function() {
         },
         getData: function() { return dataArr; },
         getDataAttr: function() { return attr; }
-    }
+    };
 
 }());

@@ -147,12 +147,15 @@ class ConverterImpl implements Converter {
 				Object[] args = { config, fileUtils, caseIDs, idMapper };
 				Converter converter;
                                 try {
-					converter = (Converter)ClassLoader.getInstance(datatypeMetadata.getConverterClassName(), args);
-				} catch (ClassNotFoundException ex) {
+					converter = (Converter)ClassLoader.getInstance(datatypeMetadata.getConverterClassName(), args, false);
+                                        converter.createStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dataMatrices.toArray(new DataMatrix[0]));
+				} catch (Exception ex) {
                                     ex.printStackTrace();
+                                    if (LOG.isInfoEnabled()) {
+                                        LOG.error("convertData(), exception:\n" + ex.getMessage());
+                                    }
                                     continue;
                                 }
-                                converter.createStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dataMatrices.toArray(new DataMatrix[0]));
 			}
 
 			if (createCancerStudyMetadataFile) {
@@ -258,7 +261,7 @@ class ConverterImpl implements Converter {
 			// case lists
 			if (applyCaseLists) {
 				fileUtils.applyOverride(portalMetadata.getOverrideDirectory(), portalMetadata.getStagingDirectory(),
-                                        cancerStudyMetadata, "case_lists", "case_lists");
+                                        cancerStudyMetadata, FileUtils.CASE_LIST_DIRECTORY_NAME, FileUtils.CASE_LIST_DIRECTORY_NAME);
 			}
 		}
 	}

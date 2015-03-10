@@ -68,8 +68,8 @@
                                 <ul>
                                     <li>AMP: high level amplification</li>
                                     <li>GAIN: low level gain</li>
-                                    <li>HETLOSS: heterozygous deletion</li>
-                                    <li>HOMDEL: homozygous deletion</li>
+                                    <li>HETLOSS: shallow deletion</li>
+                                    <li>HOMDEL: deep deletion</li>
                                 </ul>
                             </li>
                             <li>mRNA expression - please use one of the two events below: 
@@ -78,7 +78,7 @@
                                     <li>DOWN: expression down</li>
                                 </ul>
                             </li>
-                            <li style="display:none">RPPA - please use one of the two events below: 
+                            <li style="display:none">Protein expression - please use one of the two events below: 
                                 <ul>
                                     <li>PROT-UP: RPPA Upregulation</li>
                                     <li>PROT-DOWN: RPPA Downregulation</li>

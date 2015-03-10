@@ -30,6 +30,8 @@ import org.apache.log4j.PropertyConfigurator;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.SimpleMailMessage;
 
 import java.io.*;
 import java.util.*;
@@ -59,6 +61,8 @@ public class Admin implements Runnable {
 	// identifiers for init db command
 	private static final String PORTAL_DATABASE = "portal";
 	private static final String IMPORTER_DATABASE = "importer";
+
+	private int numStudiesUpdated;
 
 	// parsed command line
 	private CommandLine commandLine;
@@ -159,6 +163,14 @@ public class Admin implements Runnable {
 											  "If init_tumor_types is 't' tumor types will be imported  " + 
 											  "If ref_data is 't', all reference data will be imported prior to importing staging files.")
                              .create("import_data"));
+
+        Option updateStudyData = (OptionBuilder.withArgName("portal:update_worksheet:send_notification")
+                                  .hasArgs(3)
+                                  .withValueSeparator(':')
+                                  .withDescription("Updates study data for the given portal. if update_worksheet is 't' " +
+                                                   "msk_automation_portal entry will be cleared.  if send_notification is 't' " +
+                                                   "email will be sent to registered users within information about the updates.")
+                                  .create("update_study_data"));
         
         Option importCaseLists = (OptionBuilder.withArgName("portal")
                              .hasArgs(1)
@@ -172,6 +184,13 @@ public class Admin implements Runnable {
 												"from cBio Portal web site. 'ssh-add' should be executed prior to this " +
 												"command to add your identity to the authentication agent.")
 							   .create("copy_seg_files"));
+
+        Option redeployWar = (OptionBuilder.withArgName("portal")
+							  .hasArg()
+							  .withDescription("Redeploy war for given portal. " + 
+											   "'ssh-add' should be executed prior to this " +
+											   "command to add your identity to the authentication agent.")
+							  .create("redeploy_war"));
 
         Option deleteCancerStudy = (OptionBuilder.withArgName("cancer_study_id")
 									.hasArg()
@@ -194,8 +213,10 @@ public class Admin implements Runnable {
 		toReturn.addOption(importReferenceData);
 		toReturn.addOption(importTypesOfCancer);
 		toReturn.addOption(importData);
+		toReturn.addOption(updateStudyData);
 		toReturn.addOption(importCaseLists);
 		toReturn.addOption(copySegFiles);
+		toReturn.addOption(redeployWar);
 		toReturn.addOption(deleteCancerStudy);
 
 		// outta here
@@ -221,11 +242,18 @@ public class Admin implements Runnable {
 		}
 	}
 
-	/**
+	public int getNumStudiesUpdated()
+	{
+		return numStudiesUpdated;
+	}
+
+	/*
 	 * Executes the desired portal commmand.
 	 */
 	@Override
 	public void run() {
+
+		numStudiesUpdated = 0;
 
 		// sanity check
 		if (commandLine == null) {
@@ -284,6 +312,10 @@ public class Admin implements Runnable {
                 String[] values = commandLine.getOptionValues("import_data");
                 importData(values[0], values[1], values[2], values[3]);
 			}
+			else if (commandLine.hasOption("update_study_data")) {
+                String[] values = commandLine.getOptionValues("update_study_data");
+                numStudiesUpdated = updateStudyData(values[0], values[1], values[2]);
+			}
                         
 			// import case lists
 			else if (commandLine.hasOption("import_case_lists")) {
@@ -294,6 +326,10 @@ public class Admin implements Runnable {
 			else if (commandLine.hasOption("copy_seg_files")) {
                 String[] values = commandLine.getOptionValues("copy_seg_files");
                 copySegFiles(values[0], values[1], values[2]);
+			}
+			// redeploy war
+			else if (commandLine.hasOption("redeploy_war")) {
+                redeployWar(commandLine.getOptionValue("redeploy_war"));
 			}
 			else if (commandLine.hasOption("delete_cancer_study")) {
 				deleteCancerStudy(commandLine.getOptionValue("delete_cancer_study"));
@@ -647,12 +683,106 @@ public class Admin implements Runnable {
 			LOG.info("importData(), complete");
 		}
 	}
+
+	private int updateStudyData(String portal, String updateWorksheet, String sendNotification) throws Exception
+	{
+		if (LOG.isInfoEnabled()) {
+			LOG.info("updateStudyData(), portal: " + portal);
+			LOG.info("updateStudyData(), update_worksheet: " + updateWorksheet);
+		}
+		Boolean updateWorksheetBool = getBoolean(updateWorksheet);
+		Boolean sendNotificationBool = getBoolean(sendNotification);
+
+		Config config = (Config)getBean("config");
+		Importer importer = (Importer)getBean("importer");
+
+		Map<String,String> propertyMap = new HashMap<String,String>();
+		propertyMap.put(CancerStudyMetadata.MSK_PORTAL_COLUMN_KEY, "");
+
+		List<String> cancerStudiesUpdated = new ArrayList<String>();
+		List<String> cancerStudiesRemoved = new ArrayList<String>();
+
+		Collection<CancerStudyMetadata> cancerStudyMetadataToImport = config.getCancerStudyMetadata(portal);
+		for (CancerStudyMetadata cancerStudyMetadata : config.getAllCancerStudyMetadata()) {
+			if (portal.equals(PortalMetadata.TRIAGE_PORTAL)) {
+				if (cancerStudyMetadataToImport.contains(cancerStudyMetadata)) {
+					if (!DaoCancerStudy.doesCancerStudyExistByStableId(cancerStudyMetadata.getStableId())) {
+						// update/add study into db
+						try {
+							importer.updateCancerStudy(portal, cancerStudyMetadata);
+							cancerStudiesUpdated.add(cancerStudyMetadata.getStudyPath());
+						}
+						catch (Exception e) {
+							LOG.info(e.getMessage());
+							LOG.info("Error updating study: " + cancerStudyMetadata.getStableId() + ", skipping.");
+						}
+					}
+				}
+				else {
+					// remove from db
+					if (deleteCancerStudy(cancerStudyMetadata.getStableId())) {
+						cancerStudiesRemoved.add(cancerStudyMetadata.getStudyPath());
+					}
+				}
+			}
+			else if (cancerStudyMetadataToImport.contains(cancerStudyMetadata)) {
+				importer.updateCancerStudy(portal, cancerStudyMetadata);
+				cancerStudiesUpdated.add(cancerStudyMetadata.getStudyPath());
+			}
+			if (portal.equals(PortalMetadata.MSK_AUTOMATION_PORTAL) && updateWorksheetBool
+			    && cancerStudyMetadataToImport.contains(cancerStudyMetadata)) {
+				// For BIC, we do not want to update production again unless a new update occurs.
+				// For DMP we will, so we need option to clear msk_automation_portal flag
+				config.updateCancerStudyAttributes(cancerStudyMetadata.getStudyPath(), propertyMap);
+			}
+		}
+		if (sendNotificationBool && (!cancerStudiesUpdated.isEmpty() || !cancerStudiesRemoved.isEmpty())) {
+			sendNotification(portal, cancerStudiesUpdated, cancerStudiesRemoved);
+		}
+
+		return cancerStudiesUpdated.size() + cancerStudiesRemoved.size();
+	}
+
+
+
+	private void sendNotification(String portal, List<String> cancerStudiesUpdated, List<String> cancerStudiesRemoved)
+	{
+		Config config = (Config)getBean("config");
+		SimpleMailMessage message = null;
+		if (portal.equals(CancerStudyMetadata.MSK_PORTAL_COLUMN_KEY)) {
+			message = (SimpleMailMessage)getBean("mskUpdateMessage");
+		}
+		else if (portal.equals(CancerStudyMetadata.TRIAGE_PORTAL_COLUMN_KEY)) {
+			message = (SimpleMailMessage)getBean("triageUpdateMessage");
+		}
+		String body = message.getText() + "\n\n";
+		SimpleMailMessage msg = new SimpleMailMessage(message);
+		for (String cancerStudy : cancerStudiesUpdated) {
+			CancerStudyMetadata cancerStudyMetadata = config.getCancerStudyMetadataByName(cancerStudy);
+			body += cancerStudyMetadata.getStableId() + "\n";
+		}
+		if (!cancerStudiesRemoved.isEmpty()) {
+			body += "\n\n" + "The following studies have been removed:\n\n";
+			for (String cancerStudy : cancerStudiesRemoved) {
+				CancerStudyMetadata cancerStudyMetadata = config.getCancerStudyMetadataByName(cancerStudy);
+				body += cancerStudyMetadata.getStableId() + "\n";
+			}
+		}
+		msg.setText(body);
+		try {
+			JavaMailSender mailSender = (JavaMailSender)getBean("mailSender");
+			mailSender.send(msg);
+		}
+		catch (Exception e) {
+			LOG.info("sendNotification(), error sending email notification:\n" + e.getMessage());
+		}
+	}
         
-        /**
-         * 
-         * @param portal
-         * @throws Exception 
-         */
+    /**
+     * 
+     * @param portal
+     * @throws Exception 
+     */
 	private void importCaseLists(String portal) throws Exception {
 		if (LOG.isInfoEnabled()) {
 			LOG.info("importData(), portal: " + portal);
@@ -707,15 +837,45 @@ public class Admin implements Runnable {
 		}
 	}
 
-	private void deleteCancerStudy(String cancerStudyStableId) throws Exception
+	private void redeployWar(String portalName) throws Exception
+	{
+		if (LOG.isInfoEnabled()) {
+			LOG.info("redeployWar(), portal: " + portalName);
+		}
+
+		Config config = (Config)getBean("config");
+		Collection<PortalMetadata> portalMetadatas = config.getPortalMetadata(portalName);
+
+		// sanity check args
+		if (portalMetadatas.isEmpty()) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("redeployWar(), error processing argument, aborting....");
+			}
+		}
+		else {
+			// create an instance of Importer
+			FileUtils fileUtils = (FileUtils)getBean("fileUtils");
+			fileUtils.redeployWar(portalMetadatas.iterator().next());
+		}
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("redeployWar(), complete");
+		}
+	}
+
+	private boolean deleteCancerStudy(String cancerStudyStableId) throws Exception
 	{
 		if (LOG.isInfoEnabled()) {
 			LOG.info("deleteCancerStudy(), study id: " + cancerStudyStableId);
 		}
-		DaoCancerStudy.deleteCancerStudy(cancerStudyStableId);
-		if (LOG.isInfoEnabled()) {
-			LOG.info("deleteCancerStudy(), complete");
+		if (DaoCancerStudy.doesCancerStudyExistByStableId(cancerStudyStableId)) {
+			DaoCancerStudy.deleteCancerStudy(cancerStudyStableId);
+			if (LOG.isInfoEnabled()) {
+				LOG.info("deleteCancerStudy(), complete");
+			}
+			return true;
 		}
+		return false;
 	}
 
 	/**
@@ -794,5 +954,7 @@ public class Admin implements Runnable {
 		catch (Exception e) {
 			e.printStackTrace();
 		}
+
+		System.exit(admin.getNumStudiesUpdated());
 	}
 }

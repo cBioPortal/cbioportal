@@ -26,11 +26,10 @@ $(document).ready(function() {
 	var options = {
 		el: "#mutation_details",
 		data: {
-			geneList: mutationProxy.getRawGeneList(),
 			sampleList: sampleArray
 		},
 		proxy: {
-			mutation: {
+			mutationProxy: {
 				instance: mutationProxy
 			}
 		}

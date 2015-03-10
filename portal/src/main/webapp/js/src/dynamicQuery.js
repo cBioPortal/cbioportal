@@ -56,7 +56,7 @@ if(typeof(console) === "undefined" || typeof(console.log) === "undefined")
 
 //  Triggered only when document is ready.
 $(document).ready(function(){
-
+	
      //  Load Portal JSON Meta Data while showing loader image in place of query form
      loadMetaData();
 
@@ -89,8 +89,8 @@ $(document).ready(function(){
     
     //  Set up an Event Handler to intercept form submission
     $("#main_form").submit(function() {
-	    return false;
-       //return chooseAction();
+    return false;
+ //      return chooseAction();
     });
     
     $("#main_form").find("#main_submit").click(doOQLQuery);
@@ -165,9 +165,12 @@ function loadMetaData() {
 
     function loadContent() {
         //  Get Portal JSON Meta Data via JQuery AJAX
+	window.metaDataPromise = $.Deferred();
+
         jQuery.getJSON("portal_meta_data.json?partial_studies=true&partial_genesets=true",function(json){
             //  Store JSON Data in global variable for later use
             window.metaDataJson = json;
+	    window.metaDataPromise.resolve(json);
 
             // Load data of selected study right at the outset before continuing
             $.getJSON("portal_meta_data.json?study_id="+window.cancer_study_id_selected, function(json) {
@@ -328,41 +331,14 @@ function doOQLQuery() {
 	});
 	allDataLoadedPromise.then(function(data) {
 		// finally, convert data to oncoprint format
-		var oncoprintFormat = {}; // collect oncoprint data
-		var oqlFormat = {}; // oql data
-		var cnaType = {'-2': 'HOMODELETED', '-1':'HEMIZYGOUSLYDELETED', '0':'DIPLOID', '1':'GAINED', '2':'AMPLIFIED'};
-		var oqlcnaType = {'-2':'HOMDEL','-1':'HETLOSS', '1':'GAIN', '2':'AMP'};
-		var samples = {};
-		var genes = {};
-		$.each(data, function(ind, obj) {
-			var gene = geneMap[obj.entrez_gene_id];
-			var sample = sampleMap[obj.internal_sample_id];
-			oncoprintFormat[gene] = oncoprintFormat[gene] || {};
-			oncoprintFormat[gene][sample] = oncoprintFormat[gene][sample] || {};
-			samples[sample] = true;
-			genes[gene] = true;
-			
-			oqlFormat[gene] = oqlFormat[gene] || {};
-			oqlFormat[gene][sample] = oqlFormat[gene][sample] || {};
-			if (profileTypes[obj.internal_id] === 'MUTATION_EXTENDED') {
-				oqlFormat[gene][sample].MUT = obj.amino_acid_change;
-				oncoprintFormat[gene][sample].mutation = obj.amino_acid_change;
-			} else if (profileTypes[obj.internal_id] === 'COPY_NUMBER_ALTERATION') {
-				oqlFormat[gene][sample][oqlcnaType[Integer.toString(obj.profile_data)]] = true;
-				oncoprintFormat[gene][sample].cna = (obj.profile_data === '0' ? undefined : cnaType[Integer.toString(obj.profile_data)]);
+		var oncoprintData = dataman.df.toOncoprintFormat(data, geneMap, sampleMap, profileTypes);
+		
+		var oqlQuery = $("#gene_list").val();
+		var oncoprintData = oql.filter(oql.parseQuery(oqlQuery).return, oncoprintData);
+		$.each(oncoprintData, function(ind, elt) {
+			if (Object.keys(elt).length > 2) {
+				console.log(elt);
 			}
-		});
-		$.each(samples, function(sample, val) {
-			$.each(genes, function(gene, val) {
-				oncoprintFormat[gene][sample] = oncoprintFormat[gene][sample] || {};
-			});
-		});
-		var oqlData = [];
-		var oncoprintData = []; // read the data off
-		$.each(oncoprintFormat, function(gene, sampMap) {
-			$.each(sampMap, function(sampId, propMap) {
-				oncoprintData.push($.extend({gene:gene, sample:sampId}, propMap));
-			});
 		});
 		$('#oncoprint_body').empty();
 		var oncoprint;

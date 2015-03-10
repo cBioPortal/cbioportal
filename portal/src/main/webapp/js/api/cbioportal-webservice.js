@@ -15,7 +15,7 @@ cbio_webservice = (function() {
 			}
 		}
 		return url;
-	}
+	};
 	var getRequest = function(endpt, argstr, callback, fail) {
 		console.log("making get request");
 		var url = endpt + argstr;
@@ -23,59 +23,59 @@ cbio_webservice = (function() {
 		if (fail) {
 			req.fail(fail);
 		}
-	}
+	};
 	var apiCall = function(endpt, args, callback, fail) {
 		getRequest(endpt, makeArgs(args), callback, fail);
-	}
+	};
 	// META
 	var cancerTypesMeta = function(args, callback, fail) {
 		apiCall('api/meta/cancertypes', args, callback, fail);
-	}
+	};
 
 	var genesMeta = function(args, callback, fail) {
 		apiCall('api/meta/genes', args, callback, fail);
-	}
+	};
 
 	var patientsMeta = function(args, callback, fail) {
 		apiCall('api/meta/patients', args, callback, fail);
-	}
+	};
 
 	var samplesMeta = function(args, callback, fail) {
 		apiCall('api/meta/samples', args, callback, fail);
-	}
+	};
 
 	var studiesMeta = function(args, callback, fail) {
 		apiCall('api/meta/studies', args, callback, fail);
-	}
+	};
 
 	var geneSetsMeta = function(args, callback, fail) {
 		apiCall('api/meta/genesets', args, callback, fail);
-	}
+	};
 	var patientListsMeta = function(args, callback, fail) {
 		apiCall('api/meta/patientlists', args, callback, fail);
-	}
+	};
 
 	var profilesMeta = function(args, callback, fail) {
 		apiCall('api/meta/profiles', args, callback, fail);
-	}
+	};
 
 	var clinicalPatientsMeta = function(args, callback, fail) {
 		apiCall('api/meta/clinical/patients', args, callback, fail);
-	}
+	};
 
 	var clinicalSamplesMeta = function(args, callback, fail) {
 		apiCall('api/meta/clinical/samples', args, callback, fail);
-	}
+	};
 	// DATA
 	var clinicalPatientsData = function(args, callback, fail) {
 		apiCall('api/data/clinical/patients', args, callback, fail);
-	}
+	};
 	var clinicalSamplesData = function(args, callback, fail) {
 		apiCall('api/data/clinical/samples', args, callback, fail);
-	}
+	};
 	var profilesData = function(args, callback, fail) {
 		apiCall('api/data/profiles', args, callback, fail);
-	}
+	};
 
 
 	return {
@@ -96,5 +96,5 @@ cbio_webservice = (function() {
 			clinicalSamples: clinicalSamplesData,
 			profiles: profilesData,
 		}
-	}
+	};
 })();

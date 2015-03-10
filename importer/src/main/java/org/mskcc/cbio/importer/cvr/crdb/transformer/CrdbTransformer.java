@@ -223,31 +223,6 @@ public abstract class CrdbTransformer {
                 }).toList();
     }
 
-    protected String generateStagingFileRecord(final Object object) {
-        List<String> valueList = FluentIterable.from(Lists.newArrayList(object.getClass().getDeclaredMethods()))
-                .filter(new Predicate<Method>() {
-                    @Override
-                    public boolean apply(Method method) {
-                        return method.getName().startsWith("get");
-                    }
-                })
-                .transform(new Function<Method, String>() {
-                    @Override
-                    public String apply(Method method) {
-                        try {
-                            if (method.getReturnType() == String.class) {
-                                return (String) method.invoke(object);
-                            } else {
-                                Object value = method.invoke(object);
-                                return (null != value) ? value.toString() : "";
-                            }
-                        } catch (IllegalAccessException  | InvocationTargetException e) {
-                            e.printStackTrace();
-                        }
-                        return "";
-                    }
-                }).toList();
 
-        return StagingCommonNames.tabJoiner.join(valueList);
-    }
+
 }

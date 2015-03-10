@@ -331,68 +331,8 @@ function doOQLQuery() {
 	});
 	allDataLoadedPromise.then(function(data) {
 		// finally, convert data to oncoprint format
-		var cnaType = {'-2': 'HOMODELETED', '-1':'HEMIZYGOUSLYDELETED', '0':'DIPLOID', '1':'GAINED', '2':'AMPLIFIED'};
-		var samples = {};
-		var genes = {};
+		var oncoprintData = dataman.df.toOncoprintFormat(data, geneMap, sampleMap, profileTypes);
 		
-		var oncoprintTemplate = {
-			sample: function(datum) {
-				return sampleMap[datum.internal_sample_id];
-			},
-			gene: function(datum) {
-				genes[geneMap[datum.entrez_gene_id]] = true;
-				return geneMap[datum.entrez_gene_id];
-			},
-			mutation: function(datum) {
-				if (profileTypes[datum.internal_id] === 'MUTATION_EXTENDED') {
-					return datum.amino_acid_change;
-				} else {
-					return undefined;
-				}
-			},
-			cna: function(datum) {
-				if (profileTypes[datum.internal_id] === 'COPY_NUMBER_ALTERATION') {
-					return (datum.profile_data === '0' ? undefined : cnaType[Integer.toString(datum.profile_data)]);
-				} else {
-					return undefined;
-				}
-			},
-			mrna: function(datum) {
-				if (profileTypes[datum.internal_id] === 'MRNA_EXPRESSION') {
-					return datum.profile_data;
-				} else {
-					return undefined;
-				}
-			},
-			rppa: function(datum) {
-				if (profileTypes[datum.internal_id] === 'PROTEIN_ARRAY_PROTEIN_LEVEL') {
-					return datum.profile_data;
-				} else {
-					return undefined;
-				}
-			}
-		};
-		var oncoprintData = dataman.df.format(oncoprintTemplate, data);
-		// add sample/gene pairs so that each gene has data for each sample
-		$.each(oncoprintData, function(ind, elt) {
-			samples[elt.sample] = $.extend({}, genes);
-		});
-		$.each(oncoprintData, function(ind, elt) {
-			samples[elt.sample][elt.gene] = false;
-		});
-		$.each(samples, function(key, val) {
-			$.each(val, function(gene, needToAddData) {
-				if (needToAddData) {
-					oncoprintData.push({sample:key, gene:gene});
-				}
-			});
-		});
-		
-		$.each(oncoprintData, function(ind, elt) {
-			if (Object.keys(elt).length > 2) {
-				console.log(elt);
-			}
-		});
 		var oqlQuery = $("#gene_list").val();
 		var oncoprintData = oql.filter(oql.parseQuery(oqlQuery).return, oncoprintData);
 		$.each(oncoprintData, function(ind, elt) {

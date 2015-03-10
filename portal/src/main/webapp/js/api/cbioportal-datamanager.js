@@ -43,14 +43,77 @@ dataman = (function () {
             }
             return ret;
         };
-        return {
-            format: function (template, data) {
+	var format = function (template, data) {
                 var ret = [];
                 for (var i = 0; i < data.length; i++) {
                     ret.push(formatHelper(template, data[i]));
                 }
                 return ret;
-            },
+        };
+	var toOncoprintFormat = function(data, geneMap, sampleMap, profileTypes) {
+		// geneMap - object, maps entrez gene id to hugo gene symbol
+		// sampleMap - object, maps internal sample id to stable sample id
+		// profileTypes - object, maps internal genetic profile id to genetic profile type (e.g. 'MUTATION_EXTENDED')
+		var cnaType = {'-2': 'HOMODELETED', '-1':'HEMIZYGOUSLYDELETED', '0':'DIPLOID', '1':'GAINED', '2':'AMPLIFIED'};
+		var samples = {};
+		var genes = {};
+		
+		var oncoprintTemplate = {
+			sample: function(datum) {
+				return sampleMap[datum.internal_sample_id];
+			},
+			gene: function(datum) {
+				genes[geneMap[datum.entrez_gene_id]] = true;
+				return geneMap[datum.entrez_gene_id];
+			},
+			mutation: function(datum) {
+				if (profileTypes[datum.internal_id] === 'MUTATION_EXTENDED') {
+					return datum.amino_acid_change;
+				} else {
+					return undefined;
+				}
+			},
+			cna: function(datum) {
+				if (profileTypes[datum.internal_id] === 'COPY_NUMBER_ALTERATION') {
+					return (datum.profile_data === '0' ? undefined : cnaType[Integer.toString(datum.profile_data)]);
+				} else {
+					return undefined;
+				}
+			},
+			mrna: function(datum) {
+				if (profileTypes[datum.internal_id] === 'MRNA_EXPRESSION') {
+					return datum.profile_data;
+				} else {
+					return undefined;
+				}
+			},
+			rppa: function(datum) {
+				if (profileTypes[datum.internal_id] === 'PROTEIN_ARRAY_PROTEIN_LEVEL') {
+					return datum.profile_data;
+				} else {
+					return undefined;
+				}
+			}
+		};
+		var oncoprintData = format(oncoprintTemplate, data);
+		// add sample/gene pairs so that each gene has data for each sample
+		$.each(oncoprintData, function(ind, elt) {
+			samples[elt.sample] = $.extend({}, genes);
+		});
+		$.each(oncoprintData, function(ind, elt) {
+			samples[elt.sample][elt.gene] = false;
+		});
+		$.each(samples, function(key, val) {
+			$.each(val, function(gene, needToAddData) {
+				if (needToAddData) {
+					oncoprintData.push({sample:key, gene:gene});
+				}
+			});
+		});
+		return oncoprintData;
+	};
+        return {
+            format: format,
             addFields: function (template, data) {
                 for (var i = 0; i < data.length; i++) {
                     for (var k in template) {
@@ -61,9 +124,13 @@ dataman = (function () {
             },
             structure: function (hierarchy, data, injective) {
                 return structureHelper(hierarchy, data, injective);
-            }
+            },
+	    toOncoprintFormat: toOncoprintFormat
         }
     };
+    
+    var df = new DataFormatter();
+    
     function Cache() {
         this.data = [];
         this.indexes = {};
@@ -883,10 +950,9 @@ dataman = (function () {
         cbio.data.profilesData({'genes': genes, 'profile_ids': profile_ids, 'patient_list_ids': patient_list_ids}, callback, fail);
         return dfd.promise();
     }
-
     return {
         cache: cache,
-        df: new DataFormatter(),
+        df: df,
         getAllCancerTypes: getAllCancerTypes,
         getCancerTypesById: getCancerTypesById,
         getAllGenes: getAllGenes,

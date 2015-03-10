@@ -990,6 +990,21 @@ function addMetaDataToPage() {
 			$("#jstree").jstree(true).search($("#jstree_search_input").val());
 		}, 400); // wait for a bit with no typing before searching
 	});
+	$("#jstree_cellline_btn").text('Omit cell line studies');
+	$("#jstree_cellline_btn").click(function(evt) {
+		evt.preventDefault();
+		var inp = $("#jstree_search_input");
+		inp.val(inp.val()+' -"cell line"');
+		$("#jstree_search_input").trigger('input');
+	});
+	$("#jstree_tcga_btn").text('Omit TCGA studies');
+	$("#jstree_tcga_btn").click(function(evt) {
+		evt.preventDefault();
+		var inp = $("#jstree_search_input");
+		inp.val(inp.val()+' -tcga');
+		$("#jstree_search_input").trigger('input');
+		
+	});
 	$('#jstree').on('changed.jstree', function() {
 		var select_single_study = $("#main_form").find("#select_single_study");
 		var select_multiple_studies = $("#main_form").find("#select_multiple_studies");

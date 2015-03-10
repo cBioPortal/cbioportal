@@ -21,6 +21,7 @@ package org.mskcc.cbio.importer.model;
 // imports
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
+import edu.stanford.nlp.util.StringUtils;
 import org.mskcc.cbio.importer.config.internal.ImporterSpreadsheetService;
 
 import java.util.Map;
@@ -60,8 +61,9 @@ public class ClinicalAttributesNamespace
         this.normalizedColumnHeader = properties[1].trim();
         this.tumorType = properties[2].trim();
         this.cancerStudy = properties[3].trim();
-        this.numberOfStudies = (Strings.isNullOrEmpty(properties[4]))?0
-                :Integer.parseInt(properties[4]);
+        this.numberOfStudies = (!Strings.isNullOrEmpty(properties[4])
+          && StringUtils.isNumeric(properties[4]))?Integer.parseInt(properties[4])
+                :0;
         this.displayName = properties[5].trim();
         this.description = properties[6].trim();
         this.dateAdded = properties[7].trim();
@@ -73,8 +75,10 @@ public ClinicalAttributesNamespace( Map<String,String> worksheetRowMap) {
     this.normalizedColumnHeader = worksheetRowMap.get("normalizedcolumnheader");
     this.tumorType = worksheetRowMap.get("tumortype");
     this.cancerStudy = worksheetRowMap.get("cancerstudy");
-    this.numberOfStudies = (Strings.isNullOrEmpty(worksheetRowMap.get("noofstudies")))?0
-            :Integer.parseInt(worksheetRowMap.get("noofstudies"));
+    this.numberOfStudies = (!Strings.isNullOrEmpty(worksheetRowMap.get("noofstudies"))
+    && StringUtils.isNumeric(worksheetRowMap.get("noofstudies")))
+            ?Integer.parseInt(worksheetRowMap.get("noofstudies"))
+            :0;
     this.displayName = worksheetRowMap.get("displayname");
     this.description = worksheetRowMap.get("description");
     this.dateAdded = worksheetRowMap.get("dateadded");

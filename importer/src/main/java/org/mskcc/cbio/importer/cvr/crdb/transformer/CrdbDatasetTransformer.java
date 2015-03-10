@@ -60,12 +60,12 @@ public class CrdbDatasetTransformer extends CrdbTransformer {
     }
 
     @Override
-    public List<String> generateReportByPatientId(Integer patientId) {
+    public List<String> generateReportByPatientId(String patientId) {
         return new ArrayList<String>();
     }
 
     @Override
-    public List<String> generateReportByPatientIdList(List<Integer> patientIdList) {
+    public List<String> generateReportByPatientIdList(List<String> patientIdList) {
         return new ArrayList<String>();
     }
 

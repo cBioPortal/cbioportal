@@ -123,6 +123,10 @@
                 out.println ("<li><a href='#coexp' class='result-tab' title='List of top co-expressed genes'>Co-Expression</a></li>");
             }
 
+            if (has_mrna || has_copy_no || showMutTab) {
+                out.println("<li><a href='#or_analysis' class='result-tab' title='Over Representation Analysis'>Over-representation Analysis</a></li>");
+            }
+
             if (has_rppa) {
                 out.println ("<li><a href='#protein_exp' class='result-tab' title='Protein and Phopshoprotein changes using Reverse Phase Protein Array (RPPA) data'>"
                 + "Protein Changes</a></li>");
@@ -211,6 +215,10 @@
 
         <% if (showCoexpTab) { %>
             <%@ include file="co_expression.jsp" %>
+        <% } %>
+        
+        <% if (has_mrna || has_copy_no || showMutTab) { %>
+            <%@ include file="over_representation_analysis.jsp" %>
         <% } %>
 
         <%@ include file="data_download.jsp" %>

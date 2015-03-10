@@ -574,5 +574,15 @@
         <servlet-name>calcFisherExactTest</servlet-name>
         <url-pattern>/calcFisherExact.do</url-pattern>
     </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>overRepresentationAnalysisJSON</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.OverRepresentationAnalysisJSON</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>overRepresentationAnalysisJSON</servlet-name>
+        <url-pattern>/oranalysis.do</url-pattern>
+    </servlet-mapping>
+    
 
 </web-app>

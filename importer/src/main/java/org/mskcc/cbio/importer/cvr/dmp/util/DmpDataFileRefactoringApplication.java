@@ -137,8 +137,12 @@ public class DmpDataFileRefactoringApplication {
     Process all the staging files in the specified directory whose file name starts with data_
      */
     private void refactorFileFunction(){
+
+
         FileSequentialCollection fsc = new FileSequentialCollection(this.dmpFilePath.toFile(),
                 StagingCommonNames.stagingFileExtension,false);
+
+
         Observable<File> fileObservable = Observable.from(fsc)
                 // filter out metadata files
                 .filter(new Func1<File, Boolean>() {

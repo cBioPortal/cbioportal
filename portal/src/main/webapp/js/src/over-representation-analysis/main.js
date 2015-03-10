@@ -38,10 +38,8 @@ var or_tab = (function() {
     
     return {
         init: function() {
-            var param1 = new orAjaxParam("TP53", "profile_place_holder");
-            var or_data1 = new orData(param1);
-            var param2 = new orAjaxParam("PDP1", "profile_place_holder");
-            var or_data2 = new orData(param2);
+            var param = new orAjaxParam("TP53", "gbm_tcga_gistic");
+            var or_data1 = new orData(param);
         }
     };
     

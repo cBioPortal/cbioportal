@@ -187,11 +187,11 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
 //                oncoprint.memoSort(genes);
                 if(sortbyfirst === undefined)
                 {
-                    oncoprint.sortBy('genes');
+                    oncoprint.sortBy('genes','','',[]);
                 }
                 else
                 {
-                    oncoprint.sortBy(sortbyfirst);
+                    oncoprint.sortBy(sortbyfirst,'','',[]);
                 }
                 
                 //sort button
@@ -510,21 +510,37 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
                 hide: {fixed:true, delay: 100, event: "mouseout"},
                 position: {my:'top center',at:'bottom center', viewport: $(window)},
                 content: {
-                    text:   "<button class='oncoprint-download' type='pdf' style='cursor:pointer'>PDF</button>"+
-                            "<button class='oncoprint-download' type='svg' style='cursor:pointer'>SVG</button>"+
-                            "<button class='sample-download'  type='txt' style='cursor:pointer'>Samples</button>"
+                    text:   "<button class='oncoprint-download' type='pdf' style='cursor:pointer;width:80px;'>PDF</button> <br/>"+
+                            "<button class='oncoprint-download' type='svg' style='cursor:pointer;width:80px;'>SVG</button> <br/>"+
+                            "<button class='sample-download'  type='txt' style='cursor:pointer;width:80px;'>Samples</button>"
                 },
                 events:{
                     render:function(event){     
                             $('.oncoprint-download').click(function() {
-                            var fileType = $(this).attr("type");
-                            var params = {
-                                filetype: fileType,
-                                filename:"oncoprint." + fileType,
-                                svgelement: oncoprint.getPdfInput()
-                            };
+//                            var fileType = $(this).attr("type");
+//                            var params = {
+//                                filetype: fileType,
+//                                filename:"oncoprint." + fileType,
+//                                svgelement: oncoprint.getPdfInput()
+//                            };
+//
+//                            cbio.util.requestDownload("svgtopdf.do", params);
 
-                            cbio.util.requestDownload("svgtopdf.do", params);
+                            var fileType = $(this).attr("type");
+                            if(fileType === 'pdf')
+                            {
+                               var downloadOptions = {
+                                    filename: "oncoprint.pdf",
+                                    contentType: "application/pdf",
+                                    servletName: "svgtopdf.do"
+                                    };
+
+                                cbio.download.initDownload(oncoprint.getPdfInput(), downloadOptions); 
+                            }
+                            else if(fileType === 'svg')
+                            {
+                                cbio.download.initDownload(oncoprint.getPdfInput(), {filename: "oncoprint.svg"});
+                            }
                         });
 
                         $('.sample-download').click(function() {

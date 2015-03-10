@@ -130,7 +130,7 @@ function bitlyURL(fullURL, usr, key){
     };
 
     //build call to web API
-    var qurl = "http://api.bit.ly/shorten?"
+    var qurl = "api/proxy/bitly?"
     +"version="+defaults.version
     +"&longUrl="+defaults.longURL
     +"&login="+defaults.login

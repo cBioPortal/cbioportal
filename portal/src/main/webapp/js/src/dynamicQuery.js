@@ -897,11 +897,22 @@ function addMetaDataToPage() {
 	    // return true iff the query, considering quotation marks, 'and' and 'or' logic, matches
 	    // TODO: do actual logic
 	    var match = false;
+	    var hasPositiveClauseType = false;
 	    var forced = false;
 	    var matchPhrase = function(phrase, node) {
-		    return (node.text && node.text.toLowerCase().indexOf(phrase) > -1) 
+		    return (node.li_attr && node.li_attr.name && node.li_attr.name.toLowerCase().indexOf(phrase) > -1) 
 			    || (node.li_attr && node.li_attr.description && node.li_attr.description.toLowerCase().indexOf(phrase) > -1);
 	    };
+	    $.each(parsed_query, function(ind, clause) {
+		    if (clause.type !== 'not') {
+			    hasPositiveClauseType = true;
+			    return 0;
+		    }
+	    });
+	    if (!hasPositiveClauseType) {
+		    // if only negative clauses, match by default
+		    match = true;
+	    }
 	    $.each(parsed_query, function(ind, clause) {
 		    if (clause.type === 'not') {
 			    if (matchPhrase(clause.data, node)) {
@@ -910,6 +921,7 @@ function addMetaDataToPage() {
 				    return 0;
 			    }
 		    } else if (clause.type === 'and') {
+			    hasPositiveClauseType = true;
 			    var clauseMatch = true;
 			    $.each(clause.data, function(ind2, phrase) {
 				    clauseMatch = clauseMatch && matchPhrase(phrase, node);
@@ -944,6 +956,10 @@ function addMetaDataToPage() {
 	    var ret = false;
 	    $.each(nodes_to_consider, function(ind, elt) {
 		    if (elt === jstree_root_id || elt === '#') {
+			    return 0;
+		    }
+		    if (!precomputed_search.results[elt].result && precomputed_search.results[elt].forced) {
+			    ret = false;
 			    return 0;
 		    }
 		    ret = ret || precomputed_search.results[elt].result;

@@ -1,6 +1,5 @@
 package org.mskcc.cbio.importer.cvr.crdb.transformer;
 
-import com.google.common.collect.Lists;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.cvr.crdb.rdbms.dao.cbioint.CrdbImpactSurveyMapper;
 import org.mskcc.cbio.importer.cvr.crdb.rdbms.model.cbioint.CrdbImpactSurvey;

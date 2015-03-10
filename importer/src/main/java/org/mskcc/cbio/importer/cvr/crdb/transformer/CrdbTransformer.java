@@ -140,44 +140,7 @@ public abstract class CrdbTransformer {
         }
     };
 
-    protected List<String> generateStagingFileRecords(final List<CrdbPatientTransformer.CrdbPatient> patientList){
-        return FluentIterable.from(patientList)
-                .transform(new Function<CrdbPatientTransformer.CrdbPatient, String>() {
-                    @Nullable
-                    @Override
-                    public String apply(@Nullable final CrdbPatientTransformer.CrdbPatient o) {
-                        List<String> valueList = FluentIterable.from(Lists.newArrayList(o.getClass().getDeclaredMethods()))
-                                .filter(new Predicate<Method>() {
-                                    @Override
-                                    public boolean apply(@Nullable Method method) {
 
-                                        return method != null && method.getName().startsWith("get");
-                                    }
-                                })
-                                .transform(new Function<Method, String>() {
-                                    @Override
-                                    public String apply(Method method) {
-                                        try {
-                                            if (method.getReturnType() == String.class) {
-                                                Object value = method.invoke(o);
-                                                return (null != value) ? value.toString() : "";
-                                            } else if (method.getReturnType() == Short.class) {
-                                                Object value = method.invoke(o);
-                                                return (null != value) ? Short.toString((Short) value) : "";
-                                            } else {
-                                                Object value = method.invoke(o);
-                                                return (null != value) ? value.toString() : "";
-                                            }
-                                        } catch (IllegalAccessException | InvocationTargetException e) {
-                                            e.printStackTrace();
-                                        }
-                                        return "";
-                                    }
-                                }).toList();
-                        return StagingCommonNames.tabJoiner.join(valueList);
-                    }
-                }).toList();
-    }
 
     /*
     protected method to transform a list of Objects to a List of tab delimited strings

@@ -4,7 +4,6 @@ import com.google.common.base.*;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import edu.stanford.nlp.io.FileSequentialCollection;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -20,6 +19,8 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -76,12 +77,24 @@ public class DmpDataFileRefactoringApplication {
 
     private final Set<String> PATIENT_ID_COLUMN_NAME_SET = Sets.newHashSet(PATIENT_ID_COLUMN_NAME);
 
+
     private final Path dmpFilePath;
 
     public DmpDataFileRefactoringApplication(String dataSource) {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(dataSource),
                 "A Importer Data Source name is required");
         this.dmpFilePath = this.resolveDmpFilePath(dataSource);
+    }
+
+    /*
+    Constructor to support stand alone tests of id refactoring
+    not intended for production use
+     */
+    public DmpDataFileRefactoringApplication(Path aPath){
+        Preconditions.checkArgument(null != aPath,
+                "A Pth to a staging file directory is required");
+        this.dmpFilePath = aPath;
+
     }
     /*
     Private method to resolve the Path to the DMP staging files based  on the data source
@@ -133,17 +146,21 @@ public class DmpDataFileRefactoringApplication {
         return currentType;
     }
 
-    /*
-    Process all the staging files in the specified directory whose file name starts with data_
-     */
+    private static class RefactorFileFilter implements FilenameFilter
+    { public boolean accept(File dir, String s) {
+        if (s.endsWith(".txt") || s.endsWith(".seg") ) {
+            return true; }
+
+        return false; }
+    }
+
     private void refactorFileFunction(){
+        // generate a list of non-metadata files in the staging file directory
 
+        List<File> stagingFileList = Arrays.asList(this.dmpFilePath.toFile()
+                .listFiles(new RefactorFileFilter()));
 
-        FileSequentialCollection fsc = new FileSequentialCollection(this.dmpFilePath.toFile(),
-                StagingCommonNames.stagingFileExtension,false);
-
-
-        Observable<File> fileObservable = Observable.from(fsc)
+        Observable<File> fileObservable = Observable.from(stagingFileList)
                 // filter out metadata files
                 .filter(new Func1<File, Boolean>() {
                     @Override
@@ -334,8 +351,10 @@ public class DmpDataFileRefactoringApplication {
             dataSource = DATA_SOURCE_NAME;
         }
 
-        DmpDataFileRefactoringApplication test = new DmpDataFileRefactoringApplication
-                (dataSource);
+        Path testPath = Paths.get("/tmp/msk-impact/msk-impact");
+        DmpDataFileRefactoringApplication test = new DmpDataFileRefactoringApplication(testPath);
+       // DmpDataFileRefactoringApplication test = new DmpDataFileRefactoringApplication
+        //        (dataSource);
         test.refactorFileFunction();
     }
 

@@ -1,6 +1,8 @@
 package org.mskcc.cbio.importer.cvr.dmp.util;
 
 import com.google.common.base.*;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.apache.commons.csv.CSVFormat;
@@ -77,6 +79,7 @@ public enum DmpLegacyIdResolver {
     /*
     private class IdMapSupplier supplies a legacy->new DMP patient id map or
     a legacy->new DMP sample id map depending upon the constructor's type argument
+    mod 11Mar2015 change Map to Google Guava BiMap to eliminate duplicate vlaues
      */
     private  class IdMapSupplier implements Supplier<Map<String,String>> {
         private final String mapType;
@@ -98,7 +101,7 @@ public enum DmpLegacyIdResolver {
            return this.initializeIdMap(inputFileName);
         }
         private Map<String,String> initializeIdMap(final String idFile){
-            final Map<String,String> idMap = Maps.newHashMap();
+            final BiMap<String,String> idMap = HashBiMap.create();
             try (Reader reader = new InputStreamReader((this.getClass().getResourceAsStream(idFile)));){
 
                 final CSVParser parser = new CSVParser(reader, CSVFormat.TDF.withHeader());
@@ -118,7 +121,11 @@ public enum DmpLegacyIdResolver {
                         String legacyId = record.get("legacy_id");
                         String newId = record.get("new_id");
                         if (!idMap.containsKey(legacyId)) {
-                            idMap.put(record.get("legacy_id"), record.get("new_id"));
+                            //idMap.put(record.get("legacy_id"), record.get("new_id"));
+                           String oldValue=  idMap.forcePut(record.get("legacy_id"), record.get("new_id"));
+                            if(!Strings.isNullOrEmpty(oldValue)) {
+                                logger.info(">>>>Duplicate new id " +oldValue +"  replaced in id map");
+                            }
                         } else {
                             logger.error("legacy id: " +legacyId +" is repeated in " +idFile +" mapped to "
                                     +idMap.get(legacyId) +" and "  +newId);
@@ -133,6 +140,8 @@ public enum DmpLegacyIdResolver {
             return idMap;
         }
 
+
+
     }
     // main method for standalone testing
     public static void main (String...args){
@@ -140,6 +149,9 @@ public enum DmpLegacyIdResolver {
         // look up patient DMP0099
         logger.info("The new id for patient DMP0099 is "
                 +DmpLegacyIdResolver.INSTANCE.resolveNewPatientIdFromLegacyPatientId("DMP0099").get());
+        // look up patient DMP0099
+        logger.info("The new id for sample DMP2178 is "
+                +DmpLegacyIdResolver.INSTANCE.resolveNewSampleIdFromLegacySampleId("DMP2178").get());
         // lookup a non-existent sample
         String badSampleId = "DMPXXXX";
         if (DmpLegacyIdResolver.INSTANCE.resolveNewSampleIdFromLegacySampleId(badSampleId).isPresent()) {

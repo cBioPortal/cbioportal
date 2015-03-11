@@ -351,10 +351,10 @@ public class DmpDataFileRefactoringApplication {
             dataSource = DATA_SOURCE_NAME;
         }
 
-        Path testPath = Paths.get("/tmp/msk-impact/msk-impact");
-        DmpDataFileRefactoringApplication test = new DmpDataFileRefactoringApplication(testPath);
-       // DmpDataFileRefactoringApplication test = new DmpDataFileRefactoringApplication
-        //        (dataSource);
+       // Path testPath = Paths.get("/tmp/msk-impact/msk-impact");
+        //DmpDataFileRefactoringApplication test = new DmpDataFileRefactoringApplication(testPath);
+        DmpDataFileRefactoringApplication test = new DmpDataFileRefactoringApplication
+                (dataSource);
         test.refactorFileFunction();
     }
 

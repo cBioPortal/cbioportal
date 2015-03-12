@@ -261,7 +261,8 @@ oql = (function () {
             var sample = samples[i];
 	    var newsample = {sample: sample.sample, gene:sample.gene};
             for (var j = 0; j < query.length; j++) {
-		    newsample = $.extend({}, newsample, filterSample(query[j], sample) || {});
+		    var filteredSample = filterSample(query[j], sample);
+		    newsample = $.extend({}, newsample, (filteredSample || {}));
             }
 	    ret.push(newsample);
         }

@@ -89,7 +89,7 @@ public class DataController {
     }
     
     @RequestMapping("/profiles")
-    public @ResponseBody List<DBProfileData> dispatchProfiles(@RequestParam(required = false) List<Integer> patient_ids,
+    public @ResponseBody List<DBProfileData> dispatchProfiles(@RequestParam(required = false) List<Integer> sample_ids,
                                                                      @RequestParam(required = false) List<Integer> patient_list_ids,
                                                                      @RequestParam(required = false) List<Integer> genes,
                                                                      @RequestParam(required = false) List<Integer> profile_ids) 
@@ -97,12 +97,12 @@ public class DataController {
         if (genes == null || profile_ids == null) {
             throw new Exception("Must specify genes and profile_ids");
         }
-        if (patient_ids == null && patient_list_ids == null) {
+        if (sample_ids == null && patient_list_ids == null) {
             return profileDataService.byInternalId(profile_ids, genes);
         } else {
             Set<Integer> caseSet = new HashSet<>();
-            if(patient_ids != null) {
-                caseSet.addAll(patient_ids);
+            if(sample_ids != null) {
+                caseSet.addAll(sample_ids);
             } else {
                 List<DBPatientList> caselists = patientListService.byInternalId(patient_list_ids, true);
                 for (DBPatientList cl: caselists) {

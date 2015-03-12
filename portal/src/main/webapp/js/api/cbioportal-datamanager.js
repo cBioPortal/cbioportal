@@ -95,7 +95,19 @@ dataman = (function () {
 				}
 			}
 		};
-		var oncoprintData = format(oncoprintTemplate, data);
+		var oncoprintDataWithDuplicates = format(oncoprintTemplate, data);
+		// merge duplicates
+		var oncoDataMap = {}; // sample -> gene -> new datum
+		$.each(oncoprintDataWithDuplicates, function(ind, elt) {
+			oncoDataMap[elt.sample] = oncoDataMap[elt.sample] || {};
+			oncoDataMap[elt.sample][elt.gene] = $.extend(oncoDataMap[elt.sample][elt.gene] || {}, elt);
+		});
+		var oncoprintData = [];
+		$.each(oncoDataMap, function(sample, obj) {
+			$.each(obj, function(gene, oncoDatum) {
+				oncoprintData.push(oncoDatum);
+			});
+		});
 		// add sample/gene pairs so that each gene has data for each sample
 		$.each(oncoprintData, function(ind, elt) {
 			samples[elt.sample] = $.extend({}, genes);
@@ -457,9 +469,13 @@ dataman = (function () {
         return dfd.promise();
     }
     var getPatientsByStableIdStableStudyId = function (study_id, stable_ids, callback, fail) {
+	var dfd = new $.Deferred();
         cbio.meta.studies({'ids': [study_id]}, function (data) {
-            getPatientsByStableIdInternalStudyId(data[0].internal_id, stable_ids, callback, fail);
+            getPatientsByStableIdInternalStudyId(data[0].internal_id, stable_ids, callback, fail).then(function(data) {
+		    dfd.resolve(data);
+	    });
         }, fail);
+	return dfd.promise();
     }
     var getPatientsByStableIdInternalStudyId = function (study_id, stable_ids, callback, fail) {
         var dfd = new $.Deferred();
@@ -482,13 +498,17 @@ dataman = (function () {
 
     // -- meta.samples --
     var getSamplesByStableStudyId = function (study_ids, callback, fail) {
+	var dfd = new $.Deferred();
         getStudiesByStableId(study_ids, function (data) {
             var internal_ids = [];
             for (var i = 0; i < data.length; i++) {
                 internal_ids.push(data[i].internal_id);
             }
-            getSamplesByInternalStudyId(internal_ids, callback, fail);
+            getSamplesByInternalStudyId(internal_ids, callback, fail).then(function(data) {
+		    dfd.resolve(data);
+	    });
         }, fail);
+	return dfd.promise();
     }
     var getSamplesByInternalStudyId = function (study_ids, callback, fail) {
         var dfd = new $.Deferred();
@@ -521,9 +541,13 @@ dataman = (function () {
         return dfd.promise();
     }
     var getSamplesByStableIdStableStudyId = function (study_id, stable_ids, callback, fail) {
+	var dfd = new $.Deferred();
         getStudiesByStableId([study_id], function (data) {
-            getSamplesByStableIdInternalStudyId(data[0].internal_id, stable_ids, callback, fail);
+            getSamplesByStableIdInternalStudyId(data[0].internal_id, stable_ids, callback, fail).then(function(data) {
+		    dfd.resolve(data);
+	    });
         }, fail);
+	return dfd.promise();
     }
     var getSamplesByStableIdInternalStudyId = function (study_id, stable_ids, callback, fail) {
         var dfd = new $.Deferred();
@@ -897,10 +921,10 @@ dataman = (function () {
         }
         return dfd.promise();
     }
-    var getProfileDataByPatientId = function (genes, profile_ids, patient_ids, callback, fail) {
+    var getProfileDataBySampleId = function (genes, profile_ids, sample_ids, callback, fail) {
         var dfd = new $.Deferred();
         callback = callback || function(x) { dfd.resolve(x); };
-        var allCombs = cartProd3(genes, profile_ids, patient_ids);
+        var allCombs = cartProd3(genes, profile_ids, sample_ids);
         var index = cache.data.profiles.indexes['geneprofilepatient'];
         var toQuery = index.missingKeys(allCombs);
         var queryMap = {}; // what we'll query for
@@ -920,14 +944,14 @@ dataman = (function () {
         if (callsWaiting === 0) {
             callback(index.get(allCombs));
         } else {
-            for (var gene in toQuery) {
+            for (var gene in queryMap) {
                 (function (g) {
-                    cbio.data.profiles({'genes': [g], 'profile_ids': Object.keys(queryMap[g].profiles), 'patient_ids': Object.keys(queryMap[g].patients)}, function (data) {
+                    cbio.data.profiles({'genes': [g], 'profile_ids': Object.keys(queryMap[g].profiles), 'sample_ids': Object.keys(queryMap[g].patients)}, function (data) {
                         var newData = [];
                         for (var i = 0; i < data.length; i++) {
                             var gene = data[i].entrez_gene_id;
                             var profile = data[i].internal_id;
-                            var patient = data[i].internal_patient_id;
+                            var patient = data[i].internal_sample_id;
                             if ((gene in newDataMap) && (profile in newDataMap[gene]) && (patient in newDataMap[gene][profile])) {
                                 newData.push(data[i]);
                             }
@@ -990,7 +1014,7 @@ dataman = (function () {
         getClinicalSampleFieldsByInternalId: getClinicalSampleFieldsByInternalId,
         getClinicalSampleFieldsByStableId: getClinicalSampleFieldsByStableId,
         getAllProfileData: getAllProfileData,
-        getProfileDataByPatientId: getProfileDataByPatientId,
+        getProfileDataBySampleId: getProfileDataBySampleId,
         getProfileDataByPatientListId: getProfileDataByPatientListId,
         getClinicalPatientDataByInternalStudyId: getClinicalPatientDataByInternalStudyId,
         getClinicalPatientDataByStableStudyId: getClinicalPatientDataByStableStudyId,

@@ -1048,8 +1048,13 @@ public class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils
 		MutationAssessorTool.driver(annotatorOutputFile.getCanonicalPath(), outputMAFFile.getCanonicalPath(), false, true, true);
 
 		// clean up
-		org.apache.commons.io.FileUtils.forceDelete(annotatorOutputFile);
-		if (cleanAnnotatorInputFile) org.apache.commons.io.FileUtils.forceDelete(annotatorInputFile);
+		try {
+			org.apache.commons.io.FileUtils.forceDelete(annotatorOutputFile);
+			if (cleanAnnotatorInputFile) org.apache.commons.io.FileUtils.forceDelete(annotatorInputFile);
+		} catch (IOException ex) {
+			ex.printStackTrace();
+			LOG.warn("annotateMAF(), error deleting intermediate annotator file(s).");
+		}
 	}
 
 	/**

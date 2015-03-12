@@ -48,7 +48,6 @@ import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.SimpleMailMessage;
 
@@ -60,16 +59,9 @@ import java.util.zip.GZIPInputStream;
 
 public class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils
 {
-	@Autowired
 	GetGateway getGateway;
-
-	@Autowired
 	PutGateway putGateway;
-
-	@Autowired
 	JavaMailSender mailSender;
-
-	@Autowired
 	SimpleMailMessage redeployMessage;
 
     // used in unzip method
@@ -162,11 +154,16 @@ public class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils
 		return tmpDir;
 	}
 
-	public FileUtilsImpl(Config config, CaseIDs caseIDs) {
-
-		// set members
+	public FileUtilsImpl(Config config, CaseIDs caseIDs,
+	                     GetGateway getGateway, PutGateway putGateway,
+	                     JavaMailSender mailSender, SimpleMailMessage redeployMessage)
+	{
 		this.config = config;
 		this.caseIDs = caseIDs;
+		this.getGateway = getGateway;
+		this.putGateway = putGateway;
+		this.mailSender = mailSender;
+		this.redeployMessage = redeployMessage;
 	}
 
 	@Override

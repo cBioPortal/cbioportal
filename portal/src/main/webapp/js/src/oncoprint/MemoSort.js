@@ -242,14 +242,21 @@ define(function() {
 
         var comp = function(x,y) {
             // sort attributes according to the order specified by the user
-            var x_attrs = x.values
-                .sort(function(x,y) { return attr2index[getAttr(x)] - attr2index[getAttr(y)]; });
-            x_attrs=_.filter(x_attrs,function(e){return (e.attr_id in attr2index || e.gene in attr2index)});
+//            var x_attrs = x.values
+//                .sort(function(x,y) { return attr2index[getAttr(x)] - attr2index[getAttr(y)]; });
+//            x_attrs=_.filter(x_attrs,function(e){return (e.attr_id in attr2index || e.gene in attr2index)});
+//
+//            var y_attrs = y.values
+//                .sort(function(x,y) { return attr2index[getAttr(x)] - attr2index[getAttr(y)]; });
+//            y_attrs=_.filter(y_attrs,function(e){return (e.attr_id in attr2index || e.gene in attr2index)});
 
-            var y_attrs = y.values
-                .sort(function(x,y) { return attr2index[getAttr(x)] - attr2index[getAttr(y)]; });
-            y_attrs=_.filter(y_attrs,function(e){return (e.attr_id in attr2index || e.gene in attr2index)});
+            var x_attrs=_.filter(x.values,function(e){return (e.attr_id in attr2index || e.gene in attr2index)});
+            x_attrs = x_attrs.sort(function(x,y) { return attr2index[getAttr(x)] - attr2index[getAttr(y)]; });
 
+            var y_attrs=_.filter(y.values,function(e){return (e.attr_id in attr2index || e.gene in attr2index)});
+            y_attrs = y_attrs.sort(function(x,y) { return attr2index[getAttr(x)] - attr2index[getAttr(y)]; });
+
+            
             // this is a hack
             // if there is missing data, just put the one with less data to the right
             if (x_attrs.length !== y_attrs.length) {
@@ -270,14 +277,7 @@ define(function() {
                     var indexValue;
                     if(sortByElement==='genes')
                     {
-                        if(x_attrs.length === x.values.length)
-                        {
-                            indexValue = j - genesLength;
-                        }
-                        else
-                        {
-                            indexValue = j;
-                        }
+                        indexValue = j - genesLength;
                     }
                     else
                     {
@@ -310,14 +310,7 @@ define(function() {
                     var indexValue;
                     if(sortByElement==='genes')
                     {
-                        if(x_attrs.length === x.values.length)
-                        {
-                            indexValue = j - genesLength;
-                        }
-                        else
-                        {
-                            indexValue = j;
-                        }
+                        indexValue = j - genesLength;
                     }
                     else
                     {

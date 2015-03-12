@@ -64,7 +64,7 @@ var heat_map = (function() {
         
         //fill the gaps -- in order to have a full matrix
         for (var i = parseInt(stat.x.min); i < parseInt(stat.x.max) + 1; i++) {
-            for (var j = parseInt(stat.x.min); j < parseInt(stat.y.max) + 1; j++) {
+            for (var j = parseInt(stat.y.min); j < parseInt(stat.y.max) + 1; j++) {
                 var _found = false;
                 $.each(_data_arr, function(index, obj) {
                     if (obj.x === i.toString() && obj.y === j.toString()) {
@@ -175,13 +175,24 @@ var heat_map = (function() {
             _col_text_set = clinical_data_interpreter.get_text_labels("x");
             _row_text_set = clinical_data_interpreter.get_text_labels("y");
         } else if (genetic_vs_genetic()) {
-            _col_text_set = gisticInterpreter.text_set();
-            _row_text_set = gisticInterpreter.text_set();
+            for (var i = stat.x.min; i < (parseInt(stat.x.max) + 1); i++) {
+                _col_text_set.push(gisticInterpreter.convert_to_val(i));
+            }
+            for (var j = stat.y.min; j < (parseInt(stat.y.max) + 1); j++) {
+                _row_text_set.push(gisticInterpreter.convert_to_val(j));
+            }
         } else if (genetic_vs_clinical()) {
-            var _genetic_axis = $("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.genetic? "x": "y";
-            var _clin_axis = $("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.clin? "x": "y";
-            _col_text_set = (_genetic_axis === "x")? gisticInterpreter.text_set(): clinical_data_interpreter.get_text_labels("x");
-            _row_text_set = (_clin_axis === "y")? clinical_data_interpreter.get_text_labels("y"): gisticInterpreter.text_set(); 
+            if ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.genetic) {
+                for (var i = stat.x.min; i < (parseInt(stat.x.max) + 1); i++) {
+                    _col_text_set.push(gisticInterpreter.convert_to_val(i));
+                }
+                _row_text_set = clinical_data_interpreter.get_text_labels("y");
+            } else {
+                _col_text_set = clinical_data_interpreter.get_text_labels("x");
+                for (var j = stat.y.min; j < (parseInt(stat.y.max) + 1); j++) {
+                    _row_text_set = gisticInterpreter.convert_to_val(j);
+                }
+            }
         }
         svg.selectAll(".colLabel")
             .data(_col_text_set)

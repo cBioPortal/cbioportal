@@ -190,7 +190,7 @@ var heat_map = (function() {
             } else {
                 _col_text_set = clinical_data_interpreter.get_text_labels("x");
                 for (var j = stat.y.min; j < (parseInt(stat.y.max) + 1); j++) {
-                    _row_text_set = gisticInterpreter.convert_to_val(j);
+                    _row_text_set.push(gisticInterpreter.convert_to_val(j));
                 }
             }
         }

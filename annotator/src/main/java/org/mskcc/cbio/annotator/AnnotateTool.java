@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Date;
 
+import org.apache.commons.io.FileUtils;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.CmdLineException;
 import org.mskcc.cbio.maf.MafHeaderUtil;
@@ -76,14 +77,24 @@ public class AnnotateTool
 		Annotator annotator = new Annotator(config);
 
 		try {
+			File inputFile = new File(config.getInput());
+			File outputFile = new File(config.getOutput());
+
 			System.out.println("[" + start + "] Started annotating: " + config.getInput());
-			result = annotator.annotateFile(new File(config.getInput()),
-			                       new File(config.getOutput()));
+			result = annotator.annotateFile(inputFile, outputFile);
 			int diff = compareFiles(config.getInput(), config.getOutput());
 
 			if (diff != 0)
 			{
 				System.out.println("Possible error processing the input file: " + config.getInput());
+
+				// if annotator fails to create the output file for the existing input file,
+				// then just copy the original file as an output file.
+				if (inputFile.exists() &&
+				    !outputFile.exists())
+				{
+					FileUtils.copyFile(inputFile, outputFile);
+				}
 			}
 		} catch (IOException e) {
 			System.out.println("IO error occurred: " + e.getMessage());

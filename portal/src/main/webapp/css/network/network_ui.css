@@ -371,9 +371,9 @@
 
 #network_tabs .tabs-button
 {
-	padding-top: 7px;
-	padding-bottom: 7px;
-	width: 26px;
+	/*padding-top: 7px;*/
+	/*padding-bottom: 7px;*/
+	/*width: 26px;*/
 }
 
 #network_tabs .heading
@@ -446,7 +446,7 @@
 {
 	/* dimensions of the select box */
 	width: 245px;
-	height: 380px;
+	height: 360px;
 	
 	font-size: 12px;
 	

@@ -1389,7 +1389,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 //                });
                 
                 mutationColorControl = 'multiColor';
-                mutationColorSort = 'mutationcolornonsort';
+                mutationColorSort = 'mutationcolorsort';
                 refreshOncoPrint();
 
                 var zoomvalue = $('#oncoprint_zoom_slider')[0].value;

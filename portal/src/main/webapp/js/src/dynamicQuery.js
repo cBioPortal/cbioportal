@@ -1005,6 +1005,14 @@ function addMetaDataToPage() {
 		$("#jstree_search_input").trigger('input');
 		
 	});
+	$("#jstree_moratorium_btn").text('Omit studies under moratorium');
+	$("#jstree_moratorium_btn").click(function(evt) {
+		evt.preventDefault();
+		var inp = $("#jstree_search_input");
+		inp.val(inp.val()+' -moratorium');
+		$("#jstree_search_input").trigger('input');
+		
+	});
 	$('#jstree').on('changed.jstree', function() {
 		var select_single_study = $("#main_form").find("#select_single_study");
 		var select_multiple_studies = $("#main_form").find("#select_multiple_studies");

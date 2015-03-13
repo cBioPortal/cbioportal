@@ -6,6 +6,7 @@
 <input type="text" id="jstree_search_input" style="width:24em"/>
 <button id="jstree_cellline_btn"></button>
 <button id="jstree_tcga_btn"></button>
+<button id="jstree_moratorium_btn"></button>
 <div id="jstree_search_examples" style="display:none">
     Example queries:<br>
     <button id="jstree_example_btn1"></button><br>

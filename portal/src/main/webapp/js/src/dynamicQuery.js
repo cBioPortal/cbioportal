@@ -89,11 +89,11 @@ $(document).ready(function(){
     
     //  Set up an Event Handler to intercept form submission
     $("#main_form").submit(function() {
-    return false;
- //      return chooseAction();
+ //   return false;
+       return chooseAction();
     });
     
-    $("#main_form").find("#main_submit").click(doOQLQuery);
+   // $("#main_form").find("#main_submit").click(doOQLQuery);
 
     //  Set up an Event Handler for the Query / Data Download Tabs
     $("#query_tab").click(function(event) {
@@ -350,97 +350,6 @@ function doOQLQuery() {
 			},[]);
 			oncoprint.sortBy('genes');
 		});
-	});
-}
-
-function doOQLQueryGetData() {
-	var genes = oql.getGeneList($("#gene_list").val());
-	var profiles = $.map($("#genomic_profiles").find("input[type=checkbox]:checked,input[type=radio]:checked"), function(elt) { return $(elt).attr('value');});
-	
-	var profilePromise = new $.Deferred();
-	var genePromise = new $.Deferred();
-	var allDataLoadedPromise = new $.Deferred();
-	
-	var geneMap = {}; // maps entrez_gene_id to hugo symbol
-	var sampleMap = {}; // maps internal_sample_id to sample id
-	var profileTypes = {};
-	dataman.getProfilesByStableId(profiles).then(function(data) {
-		$.each(data, function(ind, obj) {
-			profileTypes[obj.internal_id] = obj.genetic_alteration_type;
-		});
-		profiles = data.map(function(x) { return x.internal_id; });
-		profilePromise.resolve();
-	});
-	dataman.getGenesByHugoGeneSymbol(genes).then(function(data) {
-		$.each(data, function(ind, obj) {
-			geneMap[obj.entrezGeneId] = obj.hugoGeneSymbol;
-		});
-		genes = data.map(function(x) { return x.entrezGeneId; })
-		genePromise.resolve();
-	});
-	$.when(profilePromise, genePromise).then(function() {
-		dataman.getAllProfileData(genes, profiles).then(function(data) {
-			$.each(data, function(ind, obj) {
-				sampleMap[obj.internal_sample_id] = '';
-			});
-			dataman.getSamplesByInternalId(Object.keys(sampleMap)).then(function(sampdata) {
-				$.each(sampdata, function(ind, obj) {
-					sampleMap[obj.internal_id] = obj.stable_id;
-				});
-				allDataLoadedPromise.resolve(data);
-			});
-		});
-	});
-	allDataLoadedPromise.then(function(data) {
-		// finally, convert data to oncoprint format
-		var oncoprintFormat = {}; // collect oncoprint data
-		var oqlFormat = {}; // oql data
-		var cnaType = {'-2': 'HOMODELETED', '-1':'HEMIZYGOUSLYDELETED', '0':'DIPLOID', '1':'GAINED', '2':'AMPLIFIED'};
-		var oqlcnaType = {'-2':'HOMDEL','-1':'HETLOSS', '1':'GAIN', '2':'AMP'};
-		var samples = {};
-		var genes = {};
-		$.each(data, function(ind, obj) {
-			var gene = geneMap[obj.entrez_gene_id];
-			var sample = sampleMap[obj.internal_sample_id];
-			oncoprintFormat[gene] = oncoprintFormat[gene] || {};
-			oncoprintFormat[gene][sample] = oncoprintFormat[gene][sample] || {};
-			samples[sample] = true;
-			genes[gene] = true;
-			
-			oqlFormat[gene] = oqlFormat[gene] || {};
-			oqlFormat[gene][sample] = oqlFormat[gene][sample] || {};
-			if (profileTypes[obj.internal_id] === 'MUTATION_EXTENDED') {
-				oqlFormat[gene][sample].MUT = obj.amino_acid_change;
-				oncoprintFormat[gene][sample].mutation = obj.amino_acid_change;
-			} else if (profileTypes[obj.internal_id] === 'COPY_NUMBER_ALTERATION') {
-				oqlFormat[gene][sample][oqlcnaType[Integer.toString(obj.profile_data)]] = true;
-				oncoprintFormat[gene][sample].cna = (obj.profile_data === '0' ? undefined : cnaType[Integer.toString(obj.profile_data)]);
-			}
-		});
-		$.each(samples, function(sample, val) {
-			$.each(genes, function(gene, val) {
-				oncoprintFormat[gene][sample] = oncoprintFormat[gene][sample] || {};
-			});
-		});
-		var oqlData = [];
-		var oncoprintData = []; // read the data off
-		$.each(oncoprintFormat, function(gene, sampMap) {
-			$.each(sampMap, function(sampId, propMap) {
-				oncoprintData.push($.extend({gene:gene, sample:sampId}, propMap));
-			});
-		});
-                
-                return oncoprintData;
-//		$('#oncoprint_body').empty();
-//		var oncoprint;
-//		requirejs( ['Oncoprint'], function(Oncoprint) {
-//			oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
-//				geneData: oncoprintData,
-//				genes: oql.getGeneList($("#gene_list").val()),
-//				legend: document.getElementById('oncoprint_legend'),
-//			},[]);
-//			oncoprint.sortBy('genes');
-//		});
 	});
 }
 

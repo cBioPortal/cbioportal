@@ -133,6 +133,8 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         }
     };
     
+	var profileTypes = {};
+	
 	var oncoprintDataPromise = (function () {
 		var _stableProfileIds = window.PortalGlobals.getGeneticProfiles().split(" ");
 		var _hugoGeneSymbols = genes;
@@ -145,7 +147,6 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
 		var geneMap = {};
 		var sampleMap = {};
-		var profileTypes = {};
 
 		var _internalProfileIds;
 		var _entrezGeneIds;
@@ -187,8 +188,24 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 	})();
 		
 	oncoprintDataPromise.then(function(data) {
-		//$('#gene_list').val()
-		oncoprintData = oql.filter(oql.parseQuery("KRAS:MUT AMP;\nNRAS:MUT AMP;\nBRAF:MUT AMP;\n").return,data);
+		var defaultGeneSettings = [];
+		var uniqueProfileTypes = {};
+		$.each(Object.keys(profileTypes), function(ind, key) {
+			uniqueProfileTypes[profileTypes[key]] = true;
+		});
+		$.each(uniqueProfileTypes, function(key, val) {
+			if (key === "MUTATION_EXTENDED") {
+				defaultGeneSettings.push("MUT");
+			} else if (key === "COPY_NUMBER_ALTERATION") {
+				defaultGeneSettings.push("AMP");
+			} else if (key === "MRNA_EXPRESSION") {
+				defaultGeneSettings.push("EXP >= "+window.PortalGlobals.getZscoreThreshold()+" EXP <= -"+window.PortalGlobals.getZscoreThreshold());
+			} else if (key === "PROTEIN_ARRAY_PROTEIN_LEVEL") {
+				defaultGeneSettings.push("PROT >= "+window.PortalGlobals.getRppaScoreThreshold()+" PROT <= -"+window.PortalGlobals.getRppaScoreThreshold());
+			}
+		});
+		
+		oncoprintData = oql.filter(oql.parseQuery($("#gene_list").val(), defaultGeneSettings).return,data);
 		oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
                 geneData: oncoprintData,
                 genes: genes,

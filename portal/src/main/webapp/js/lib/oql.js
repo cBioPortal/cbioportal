@@ -44,14 +44,17 @@ oql = (function () {
      * @returns {string} A 'sanitized' query, ie transformed from user input so that
      * our code can process it as valid oncoquery language.
      */
-    function sanitizeQuery(query) {
+    function sanitizeQuery(query, defaultGeneSettings) {
         // IN: text query, as from user
         // OUT: "sanitized", i.e. with a few adjustments made to put
         //		into valid OQL
         // These adjustments are: - capitalize everything except case-sensitive strings like mutation names (TODO)
         //						  - insert defaults from cbioportal interface (TODO)
         var ret = query;
-        //ret = ret.toUpperCase();
+	if (query.indexOf(":") === -1) {
+		ret = query.split(" ").map(function(x) { return x+":"+defaultGeneSettings.join(" ");}).join("; ");
+	}
+	console.log(ret);
         return ret;
     }
 
@@ -62,8 +65,8 @@ oql = (function () {
      * On success, resultCode = 0, array = a list of maps containing parsed query objects, one per line
      * On failure, resultCode = 1, array = a list of maps {line:lineNumber, msg:errorMessage} corresponding to the syntax errors.
      */
-    function parseQuery(query) {
-        var lines = sanitizeQuery(query).split(/[\n;]/);
+    function parseQuery(query, defaultGeneSettings) {
+        var lines = sanitizeQuery(query, defaultGeneSettings).split(/[\n;]/);
         var ret = [];
         var errors = [];
         for (var i = 0; i < lines.length; i++) {

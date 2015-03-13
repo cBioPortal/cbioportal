@@ -75,7 +75,7 @@ dataman = (function () {
 			},
 			cna: function(datum) {
 				if (profileTypes[datum.internal_id] === 'COPY_NUMBER_ALTERATION') {
-					return (datum.profile_data === '0' ? undefined : cnaType[Integer.toString(datum.profile_data)]);
+					return (datum.profile_data === '0' ? undefined : cnaType[datum.profile_data.toString()]);
 				} else {
 					return undefined;
 				}

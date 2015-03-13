@@ -19,16 +19,17 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("org.jsonschema2pojo")
 @JsonPropertyOrder({
-    "cnv-intragenic-variants",
-    "cnv-variants",
-    "meta-data",
-    "snp-indel-exonic",
-    "snp-indel-silent",
-    "sv-variants",
-    "segment-data"
+        "cnv-intragenic-variants",
+        "cnv-variants",
+        "meta-data",
+        "snp-indel-exonic",
+        "snp-indel-exonic-np",
+        "snp-indel-silent",
+        "snp-indel-silent-np",
+        "sv-variants",
+        "segment-data"
 })
 public class Result {
-
     @JsonProperty("cnv-intragenic-variants")
     private List<CnvIntragenicVariant> cnvIntragenicVariants = new ArrayList<CnvIntragenicVariant>();
     @JsonProperty("cnv-variants")
@@ -37,8 +38,12 @@ public class Result {
     private MetaData metaData;
     @JsonProperty("snp-indel-exonic")
     private List<SnpIndelExonic> snpIndelExonic = new ArrayList<SnpIndelExonic>();
+    @JsonProperty("snp-indel-exonic-np")
+    private List<SnpIndelExonicNP> snpIndelExonicNP = new ArrayList<SnpIndelExonicNP>();
     @JsonProperty("snp-indel-silent")
     private List<SnpIndelSilent> snpIndelSilent = new ArrayList<SnpIndelSilent>();
+    @JsonProperty("snp-indel-silent-np")
+    private List<SnpIndelSilentNP> snpIndelSilentNP = new ArrayList<SnpIndelSilentNP>();
     @JsonProperty("sv-variants")
     private List<StructuralVariant> svVariants = new ArrayList<StructuralVariant>();
     @JsonProperty("segment-data")
@@ -47,7 +52,7 @@ public class Result {
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     /**
-     * 
+     *
      * @return
      *     The cnvIntragenicVariants
      */
@@ -57,7 +62,7 @@ public class Result {
     }
 
     /**
-     * 
+     *
      * @param cnvIntragenicVariants
      *     The cnv-intragenic-variants
      */
@@ -67,7 +72,7 @@ public class Result {
     }
 
     /**
-     * 
+     *
      * @return
      *     The cnvVariants
      */
@@ -77,7 +82,7 @@ public class Result {
     }
 
     /**
-     * 
+     *
      * @param cnvVariants
      *     The cnv-variants
      */
@@ -87,7 +92,7 @@ public class Result {
     }
 
     /**
-     * 
+     *
      * @return
      *     The metaData
      */
@@ -97,7 +102,7 @@ public class Result {
     }
 
     /**
-     * 
+     *
      * @param metaData
      *     The meta-data
      */
@@ -107,7 +112,7 @@ public class Result {
     }
 
     /**
-     * 
+     *
      * @return
      *     The snpIndelExonic
      */
@@ -117,7 +122,7 @@ public class Result {
     }
 
     /**
-     * 
+     *
      * @param snpIndelExonic
      *     The snp-indel-exonic
      */
@@ -126,8 +131,29 @@ public class Result {
         this.snpIndelExonic = snpIndelExonic;
     }
 
+    // non-panel exonic
     /**
-     * 
+     *
+     * @return
+     *     The snpIndelExonicNP
+     */
+    @JsonProperty("snp-indel-exonic-np")
+    public List<SnpIndelExonicNP> getSnpIndelExonicNP() {
+        return snpIndelExonicNP;
+    }
+
+    /**
+     *
+     * @param snpIndelExonicNP
+     *     The snp-indel-exonic-np
+     */
+    @JsonProperty("snp-indel-exonic-np")
+    public void setSnpIndelExonicNP(List<SnpIndelExonicNP> snpIndelExonicNP) {
+        this.snpIndelExonicNP = snpIndelExonicNP;
+    }
+
+    /**
+     *
      * @return
      *     The snpIndelSilent
      */
@@ -137,7 +163,7 @@ public class Result {
     }
 
     /**
-     * 
+     *
      * @param snpIndelSilent
      *     The snp-indel-silent
      */
@@ -146,8 +172,29 @@ public class Result {
         this.snpIndelSilent = snpIndelSilent;
     }
 
+    // non-panel silent
     /**
-     * 
+     *
+     * @return
+     *     The snpIndelSilentNP
+     */
+    @JsonProperty("snp-indel-silent-np")
+    public List<SnpIndelSilentNP> getSnpIndelSilentNP() {
+        return snpIndelSilentNP;
+    }
+
+    /**
+     *
+     * @param snpIndelSilentNP
+     *     The snp-indel-silent-np
+     */
+    @JsonProperty("snp-indel-silent-np")
+    public void setSnpIndelSilentNP(List<SnpIndelSilentNP> snpIndelSilentNP) {
+        this.snpIndelSilentNP = snpIndelSilentNP;
+    }
+
+    /**
+     *
      * @return
      *     The svVariants
      */
@@ -157,7 +204,7 @@ public class Result {
     }
 
     /**
-     * 
+     *
      * @param svVariants
      *     The sv-variants
      */
@@ -167,7 +214,7 @@ public class Result {
     }
 
     /**
-     * 
+     *
      * @return
      *     The segmentData
      */
@@ -177,7 +224,7 @@ public class Result {
     }
 
     /**
-     * 
+     *
      * @param segmentData
      *     The segment-data
      */
@@ -201,9 +248,14 @@ public class Result {
         this.additionalProperties.put(name, value);
     }
 
+    // add support for non-panel exonic and silent
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(cnvIntragenicVariants).append(cnvVariants).append(metaData).append(snpIndelExonic).append(snpIndelSilent).append(svVariants).append(segmentData).append(additionalProperties).toHashCode();
+        return new HashCodeBuilder().append(cnvIntragenicVariants).append(cnvVariants).append(metaData)
+                .append(snpIndelExonic).append(snpIndelSilent)
+                .append(snpIndelExonicNP).append(snpIndelSilentNP)
+                .append(svVariants).append(segmentData)
+                .append(additionalProperties).toHashCode();
     }
 
     @Override
@@ -215,7 +267,12 @@ public class Result {
             return false;
         }
         Result rhs = ((Result) other);
-        return new EqualsBuilder().append(cnvIntragenicVariants, rhs.cnvIntragenicVariants).append(cnvVariants, rhs.cnvVariants).append(metaData, rhs.metaData).append(snpIndelExonic, rhs.snpIndelExonic).append(snpIndelSilent, rhs.snpIndelSilent).append(svVariants, rhs.svVariants).append(segmentData, rhs.segmentData).append(additionalProperties, rhs.additionalProperties).isEquals();
+        return new EqualsBuilder().append(cnvIntragenicVariants, rhs.cnvIntragenicVariants).append(cnvVariants, rhs.cnvVariants)
+                .append(metaData, rhs.metaData)
+                .append(snpIndelExonic, rhs.snpIndelExonic).append(snpIndelSilent, rhs.snpIndelSilent)
+                .append(snpIndelExonicNP, rhs.snpIndelExonicNP).append(snpIndelSilentNP, rhs.snpIndelSilentNP)
+                .append(svVariants, rhs.svVariants).append(segmentData, rhs.segmentData)
+                .append(additionalProperties, rhs.additionalProperties).isEquals();
     }
 
 }

@@ -91,7 +91,6 @@ public class DMPclinicaldataimporter {
         JsonNode rawResultObj = mapper.readTree(jp);
         Iterator<String> sampleIdsItr = rawResultObj.get("results").getFieldNames();
 
-
         while(sampleIdsItr.hasNext()) {
             String sampleId = sampleIdsItr.next();
             ResponseEntity<String> rawSegDataResultEntity = 
@@ -100,13 +99,14 @@ public class DMPclinicaldataimporter {
                 properties.getProperty(DMP_CBIO_RETRIEVE_SEGMENT_DATA) + "/" + _session.getSessionId() + "/" + sampleId, 
                 String.class
             ); 
-            String _sampleSegmentDataJsonStr = JSONconverters.convertSegDataJson(rawSegDataResultEntity.getBody());
+            
+            String _sampleSegmentDataJsonStr = JSONconverters.convertSegDataJson(rawSegDataResultEntity.getBody(), sampleId);
+            
             resultJsonStr = JSONconverters.mergeSampleSegmentData(resultJsonStr, _sampleSegmentDataJsonStr); //Map segment data to sample meta data
         }
 
     }
-    
-    
+
     /**
      * 
      * Create instance to flag consumed samples

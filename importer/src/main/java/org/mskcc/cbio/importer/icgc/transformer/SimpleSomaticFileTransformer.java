@@ -57,6 +57,7 @@ import java.util.concurrent.TimeoutException;
 public class SimpleSomaticFileTransformer extends MutationTransformer implements IcgcFileTransformer {
 
     private static final Logger logger = Logger.getLogger(SimpleSomaticFileTransformer.class);
+    private static Boolean DELETE_EXISTING_FILE = true;
 
     private Path icgcFilePath;
     private BloomFilter<IcgcSimpleSomaticRecord> icgcRecordFilter;
@@ -75,8 +76,7 @@ public class SimpleSomaticFileTransformer extends MutationTransformer implements
     }
 
     public SimpleSomaticFileTransformer(Path stagingFileDirectory) {
-        super(stagingFileDirectory.resolve(StagingCommonNames.MUTATIONS_STAGING_FILENAME));
-
+        super(stagingFileDirectory.resolve(StagingCommonNames.MUTATIONS_STAGING_FILENAME),DELETE_EXISTING_FILE);
     }
 
     @Override
@@ -211,7 +211,7 @@ public class SimpleSomaticFileTransformer extends MutationTransformer implements
      */
     public static void main(String... args) {
         ListeningExecutorService service = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(3));
-        Path tsvPath = Paths.get("/tmp/icgctest/BOCA-UK");
+        Path tsvPath = Paths.get("/tmp/icgctest/PRAD-CA");
         try {
             if (!Files.exists(tsvPath)) {
                 Files.createDirectories(tsvPath);
@@ -220,7 +220,7 @@ public class SimpleSomaticFileTransformer extends MutationTransformer implements
             SimpleSomaticFileTransformer transformer = new SimpleSomaticFileTransformer(
                     tsvPath);
             //String fn = "/Users/criscuof/cbio-portal-data/icgc/pbca/icgc/au/simple_somatic_mutation.open.PBCA-DE.tsv";
-            String fn = "/tmp/simple_somatic_mutation.open.BOCA-UK.tsv";
+            String fn = "/tmp/simple_somatic_mutation.open.PRAD-CA.tsv";
             transformer.setIcgcFilePath(Paths.get(fn));
             ListenableFuture<Path> p = service.submit(transformer);
 

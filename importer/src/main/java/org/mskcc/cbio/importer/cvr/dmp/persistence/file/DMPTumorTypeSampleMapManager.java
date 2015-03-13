@@ -18,9 +18,7 @@
 package org.mskcc.cbio.importer.cvr.dmp.persistence.file;
 
 import com.google.common.base.Function;
-import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
-import com.google.common.base.Splitter;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.FluentIterable;
@@ -31,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import joptsimple.internal.Strings;
 import org.mskcc.cbio.importer.cvr.dmp.model.Result;
+import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 
 /**
  *
@@ -40,14 +39,9 @@ public class DMPTumorTypeSampleMapManager {
 
 
     private final Multimap<String, String> tumorSampleMap;
-    
-    private static final Joiner tabJoiner = Joiner.on("\t");
 
     public DMPTumorTypeSampleMapManager(Object aManager) {
-
         Preconditions.checkArgument(null != aManager, "A DMPStagingFileManager is required");
-
-
         this.tumorSampleMap = Suppliers.memoize(new TumorTypeMapSupplier()).get();
     }
 
@@ -75,16 +69,16 @@ public class DMPTumorTypeSampleMapManager {
             @Override
             public String apply(String key) {
                 String s =FluentIterable.from(tumorSampleMap.get(key))
-                        .join(tabJoiner);
+                        .join(StagingCommonNames.tabJoiner);
                 
-                return (tabJoiner.join(key,s));
+                return (StagingCommonNames.tabJoiner.join(key,s));
             }
         }).toList();
 
         //this.fileManager.persistDMPCaseListData(lines);
     }
     /*
-     public method to return the DMP sample ids assosiated with a specified 
+     public method to return the DMP sample ids associated with a specified
      tumor type. An Optional object is used to encapsulate the result to
      provide support for an empty response.
      */
@@ -106,13 +100,13 @@ public class DMPTumorTypeSampleMapManager {
 
     /**
      * a private class that implements a Supplier to handle the persistence of
-     * the tumor type map all DMP data
+     * the tumor type map for all DMP data
      */
     private class TumorTypeMapSupplier implements Supplier<Multimap<String, String>> {
 
        // private DMPStagingFileManager fileManager;
         private Multimap<String, String> tumorSampleMap;
-        private final Splitter tabSplitter = Splitter.on("\t");
+
 
         TumorTypeMapSupplier() {
            // this.fileManager = aManager;

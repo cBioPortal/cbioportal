@@ -50,12 +50,12 @@ public enum DarwinSessionManager {
 
     private class DarwinSessionSupplier implements Supplier<SqlSession> {
         //TODO: make this a property
-        private final String configFileName = "/mybatis-config.xml";
+        private final String darwinConfigFilename = "/mybatis-config.xml";
 
         @Override
         public SqlSession get() {
 
-            InputStream inputStream = DarwinSessionSupplier.class.getResourceAsStream(configFileName);
+            InputStream inputStream = DarwinSessionSupplier.class.getResourceAsStream(darwinConfigFilename);
             SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
             return sqlSessionFactory.openSession();
         }

@@ -1,19 +1,11 @@
 package org.mskcc.cbio.importer.task;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Service;
 import com.google.common.util.concurrent.ServiceManager;
 import org.apache.log4j.Logger;
-import org.mskcc.cbio.importer.Config;
-import org.mskcc.cbio.importer.cvr.dmp.importer.MockConfig;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.xml.XmlBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
-
 import java.util.List;
 import java.util.Map;
 

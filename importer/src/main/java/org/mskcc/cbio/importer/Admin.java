@@ -96,12 +96,14 @@ public class Admin implements Runnable {
 													  "\"" + Config.ALL + "\".")
 									 .create("init_db"));
 
-        Option fetchData = (OptionBuilder.withArgName("data_source:run_date")
-							.hasArgs(2)
+        Option fetchData = (OptionBuilder.withArgName("data_source:run_date:update_worksheet")
+							.hasArgs(3)
 							.withValueSeparator(':')
 							.withDescription("Fetch data from the given data_source and the given run date (mm/dd/yyyy).  " + 
 											 "Use \"" + Fetcher.LATEST_RUN_INDICATOR + "\" to retrieve the most current run or " +
-                                             "when fetching clinical data.")
+                                             "when fetching clinical data.  If fetching is from mercurial via automation, " +
+                                             "if update_worksheet is 't', cancer study entries on the cancer_studies worksheet will be updated " +
+                                             "or added as needed.")
 							.create("fetch_data"));
 
         Option fetchReferenceData = (OptionBuilder.withArgName("reference_data")
@@ -272,7 +274,7 @@ public class Admin implements Runnable {
 			// fetch
 			else if (commandLine.hasOption("fetch_data")) {
                 String[] values = commandLine.getOptionValues("fetch_data");
-				fetchData(values[0], values[1]);
+				fetchData(values[0], values[1], (values.length == 3) ? values[2] : "f");
 			}
 			// fetch reference data
 			else if (commandLine.hasOption("fetch_reference_data")) {
@@ -388,17 +390,18 @@ public class Admin implements Runnable {
 	 * @param runDate String
 	 * @throws Exception
 	 */
-	private void fetchData(String dataSource, String runDate) throws Exception {
+	private void fetchData(String dataSource, String runDate, String updateWorksheet) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("fetchData(), dateSource:runDate: " + dataSource + ":" + runDate);
 		}
+		Boolean updateWorksheetBool = getBoolean(updateWorksheet);
 
 		// create an instance of fetcher
 		DataSourcesMetadata dataSourcesMetadata = getDataSourcesMetadata(dataSource);
 		// fetch the given data source
 		Fetcher fetcher = (Fetcher)getBean(dataSourcesMetadata.getFetcherBeanID());
-		fetcher.fetch(dataSource, runDate);
+		fetcher.fetch(dataSource, runDate, updateWorksheetBool);
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("fetchData(), complete");

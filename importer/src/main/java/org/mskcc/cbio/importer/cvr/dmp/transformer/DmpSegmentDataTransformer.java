@@ -2,13 +2,18 @@ package org.mskcc.cbio.importer.cvr.dmp.transformer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.FluentIterable;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.cvr.dmp.model.DmpData;
+import org.mskcc.cbio.importer.cvr.dmp.model.MetaData;
 import org.mskcc.cbio.importer.cvr.dmp.model.Result;
 import org.mskcc.cbio.importer.cvr.dmp.model.SegmentDatum;
+import org.mskcc.cbio.importer.cvr.dmp.util.DMPCommonNames;
 import org.mskcc.cbio.importer.cvr.dmp.util.DmpUtils;
+import org.mskcc.cbio.importer.model.CancerStudyMetadata;
+import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
 import org.mskcc.cbio.importer.persistence.staging.mutation.MutationFileHandlerImpl;
 import org.mskcc.cbio.importer.persistence.staging.segment.SegmentModel;
@@ -49,11 +54,26 @@ class DmpSegmentDataTransformer extends SegmentTransformer implements DMPDataTra
      */
 
     private final static Logger logger = Logger.getLogger(DmpSegmentDataTransformer.class);
+    private final static CancerStudyMetadata csMeta =
+            CancerStudyMetadata.findCancerStudyMetaDataByStableId(StagingCommonNames.IMPACT_STUDY_IDENTIFIER).get();
+    private static final Boolean DELETE_FILE_FLAG = false;
+    private static final String SAMPLE_ID_COLUMN = "ID";
+
+    public DmpSegmentDataTransformer(Path stagingDirectoryPath) {
+        super(stagingDirectoryPath,DELETE_FILE_FLAG, csMeta);
+    }
 
     public DmpSegmentDataTransformer(TsvStagingFileHandler aHandler, Path stagingDirectoryPath) {
         super(aHandler);
         if (StagingUtils.isValidStagingDirectoryPath(stagingDirectoryPath)) {
-            this.registerStagingFileDirectory(stagingDirectoryPath);
+            Optional<CancerStudyMetadata> csMetaOpt =
+                    CancerStudyMetadata.findCancerStudyMetaDataByStableId(StagingCommonNames.IMPACT_STUDY_IDENTIFIER);
+            if(csMetaOpt.isPresent()){
+                this.registerStagingFileDirectory(csMetaOpt.get(), stagingDirectoryPath);
+            } else {
+               // this.registerStagingFileDirectory(stagingDirectoryPath);
+                logger.error("Missing Cancer study metadata object");
+            }
         }
     }
 
@@ -63,7 +83,8 @@ class DmpSegmentDataTransformer extends SegmentTransformer implements DMPDataTra
         // the new samples
         Preconditions.checkArgument(null != data, "A DmpData object is required");
         // remove any deprecated samples
-        DmpUtils.removeDeprecatedSamples(data, this.fileHandler);
+        DmpUtils.removeDeprecatedSamples(data,this.tsvFileHandler,SAMPLE_ID_COLUMN);
+
         this.processSegments(data);
     }
 
@@ -73,6 +94,10 @@ class DmpSegmentDataTransformer extends SegmentTransformer implements DMPDataTra
             @Nullable
             @Override
             public List<SegmentDatum> apply(@Nullable Result result) {
+                String sampleId= result.getMetaData().getDmpSampleId();
+                for (SegmentDatum sd  : result.getSegmentData()){
+                    sd.setID(sampleId);
+                }
                 return result.getSegmentData();
             }
         })
@@ -80,12 +105,14 @@ class DmpSegmentDataTransformer extends SegmentTransformer implements DMPDataTra
                     @Nullable
                     @Override
                     public SegmentModel apply(@Nullable SegmentDatum segmentData) {
+
                         return new DmpSegmentModel(segmentData);
                     }
                 }).toList();
 
         // output the list of SegmentData objects to the staging file
-        this.fileHandler.transformImportDataToTsvStagingFile(segmentModelList, SegmentModel.getTransformationModel());
+        this.tsvFileHandler.transformImportDataToTsvStagingFile(segmentModelList, SegmentModel.getTransformationModel());
+        //this.fileHandler.transformImportDataToTsvStagingFile(segmentModelList, SegmentModel.getTransformationModel());
     }
 
     // main method for stand alone testing
@@ -95,12 +122,11 @@ class DmpSegmentDataTransformer extends SegmentTransformer implements DMPDataTra
         File tmpDir = new File(tempDir);
         tmpDir.mkdirs();
         Path stagingFileDirectory = Paths.get(tempDir);
-        TsvStagingFileHandler fileHandler = new MutationFileHandlerImpl();
 
-        DmpSegmentDataTransformer transformer = new DmpSegmentDataTransformer(fileHandler,stagingFileDirectory);
+        DmpSegmentDataTransformer transformer = new DmpSegmentDataTransformer(stagingFileDirectory);
 
         try {
-            DmpData data = OBJECT_MAPPER.readValue(new File("/tmp/cvr/result-sv.json"), DmpData.class);
+            DmpData data = OBJECT_MAPPER.readValue(new File("/tmp/dmp_ws.json"), DmpData.class);
             transformer.transform(data);
 
         } catch (IOException ex) {

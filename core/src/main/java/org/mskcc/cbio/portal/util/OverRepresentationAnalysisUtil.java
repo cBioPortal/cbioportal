@@ -8,13 +8,12 @@ import org.mskcc.cbio.portal.dao.*;
 
 public class OverRepresentationAnalysisUtil {
     
-    public static Map<Long,double[]> getExpressionMap(int profileId, String patientSetId, String patientIdsKey) throws DaoException {
+    public static Map<Long,double[]> getExpressionMap(int cancerStudyId, int profileId, String patientSetId, String patientIdsKey) throws DaoException {
         
-        GeneticProfile gp = DaoGeneticProfile.getGeneticProfileById(profileId);
         List<String> stableSampleIds = getPatientIds(patientSetId, patientIdsKey);
         List<Integer> sampleIds = new ArrayList<Integer>();
         for(String sampleId : stableSampleIds) {
-            Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(gp.getCancerStudyId(), sampleId);   
+            Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, sampleId);   
             sampleIds.add(sample.getInternalId()); 
         }   
         sampleIds.retainAll(DaoSampleProfile.getAllSampleIdsInProfile(profileId));

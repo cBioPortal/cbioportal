@@ -31,9 +31,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.json.simple.JSONValue;
+import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.dao.DaoGeneticProfile;
+import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.mskcc.cbio.portal.util.OverRepresentationAnalysisUtil;
@@ -68,7 +70,7 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
         
         try {
             //Extract parameters
-            String cancerStudyIdentifier = httpServletRequest.getParameter("cancer_study_id");
+            String cancerStudyId = httpServletRequest.getParameter("cancer_study_id");
             String geneSymbol = httpServletRequest.getParameter("gene");
             String caseSetId = httpServletRequest.getParameter("case_set_id");
             String caseIdsKey = httpServletRequest.getParameter("case_ids_key");
@@ -83,24 +85,29 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
             GeneticProfile gp = DaoGeneticProfile.getGeneticProfileByStableId(profileId);
             int gpId = gp.getGeneticProfileId();
             
-            String _tmp = "something";
+            //Get cancer study internal id (int)
+            CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
+            int cancerStudyInternalId = cancerStudy.getInternalId();
             
-            Map<Long,double[]> map = OverRepresentationAnalysisUtil.getExpressionMap(gpId, caseSetId, caseIdsKey);
+            String _result_json_str = "something";
+            
+            Map<Long,double[]> map = OverRepresentationAnalysisUtil.getExpressionMap(cancerStudyInternalId, gpId, caseSetId, caseIdsKey);
             List<Long> genes = new ArrayList<Long>(map.keySet());
             for (int i = 0; i < map.size(); i++) {
                 long _gene = genes.get(i);
                 double[] _gene_exp = map.get(_gene);
-                _tmp += _gene + "||";
+                _result_json_str += _gene + "||";
                 for (int j = 0; j < _gene_exp.length; j++) {
-                    _tmp += _gene_exp[j] + "   ";
+                    _result_json_str += _gene_exp[j] + "\t";
                 }
-                _tmp += "\n";
+                _result_json_str += "\n";
             }
-            System.out.println(_tmp);
+            
+            OverRepresentationAnalysisUtil.getCopyNumMap();
             
             httpServletResponse.setContentType("text/html");
             PrintWriter out = httpServletResponse.getWriter();
-            JSONValue.writeJSONString(_tmp, out);
+            JSONValue.writeJSONString(_result_json_str, out);
             
         } catch (DaoException ex) {
             Logger.getLogger(OverRepresentationAnalysisJSON.class.getName()).log(Level.SEVERE, null, ex);

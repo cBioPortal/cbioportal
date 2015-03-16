@@ -40,6 +40,7 @@ public interface Config {
 	 * @return Collection<TumorTypeMetadata>
 	 */
 	Collection<TumorTypeMetadata> getTumorTypeMetadata(String tumorType);
+	public TCGATumorTypeMetadata getTCGATumorTypeMetadata(String oncotreeCode);
 
 	/**
 	 * Function to get tumor types to download as String[]

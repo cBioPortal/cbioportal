@@ -109,7 +109,7 @@ public class CaseListFileHandler {
         List<String> lines = Lists.newArrayList();
         lines.add("cancer_study_identifier:" +this.study);
         lines.add("stable_id: " +this.study +"_sequenced");
-        lines.add("case_list_category: all_cases_with_mutation data");
+        lines.add("case_list_category: all_cases_with_mutation_data");
         lines.add("case_list_name: Sequenced Tumors");
         lines.add("case_list_description: All sequenced samples (" + nCases +" samples)");
         lines.add(caseListIds);

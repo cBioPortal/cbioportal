@@ -58,6 +58,12 @@ public class CasesTypeSupplier implements Supplier<CasesType> {
 
     }
 
+    /*
+    As long as this method is referenced by the Suppliers.memoize method, it will only actually be invoked once
+    In addition to unmarshalling the XML data, this method filters out any cases specified in the foundation worksheet
+    as well as variants with a specified excluded status
+     */
+
     @Override
     public CasesType get() {
         try {
@@ -91,8 +97,9 @@ public class CasesTypeSupplier implements Supplier<CasesType> {
                     caseType.getVariantReport().getShortVariants().getShortVariant().removeAll(removalList);
                     // output removed svt during development
                     for (ShortVariantType svt : removalList){
-                        logger.debug("Foundation svt removed from case " +caseType.getCase() +" gene " +svt.getGene() +" status " +svt.getStatus());
+                        logger.debug ("Foundation svt removed from case " + caseType.getCase() + " gene " + svt.getGene() + " status " + svt.getStatus());
                     }
+                    logger.info(removalList.size() +" SVTs were removed from case " +caseType.getCase() +" because of excluded status");
                 }
 
                 // filter out CNVs that match an excluded status value

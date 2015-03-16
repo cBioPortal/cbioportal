@@ -231,7 +231,7 @@ public class FoundationMetadata {
     }
 
     /*
-  static method to return a FoundationMetadata instance based on a dependency value
+  static method to return a FoundationMetadata instance based on a file name value
    */
     public static Optional<FoundationMetadata> findFoundationMetadataByXmlFileName(String filename){
         if(Strings.isNullOrEmpty(filename)){ return Optional.absent(); }
@@ -312,6 +312,8 @@ public class FoundationMetadata {
             System.out.println("Found related study " +opt2.get().getCancerStudy()+ " comments: " +opt2.get().getComments());
         }
 
+
+
         Optional<FoundationMetadata> opt3 = FoundationMetadata.findFoundtaionMetadataByStudyName("lymphoma/mskcc/foundation");
         if (opt3.isPresent()) {
             System.out.println("Found metadata by study " +opt3.get().getCancerStudy());
@@ -320,6 +322,11 @@ public class FoundationMetadata {
             if (opt4.isPresent()){
                 System.out.println("Found filtered study: " +opt4.get().getCancerStudy());
             }
+        }
+
+        Optional<FoundationMetadata> opt4 = FoundationMetadata.findFoundationMetadataByXmlFileName("/tmp/clinical-heme-complete-filtered.xml");
+        if(opt4.isPresent()){
+            System.out.println("Found metadata by file " +opt4.get().getCancerStudy() );
         }
             System.out.println("Finis");
     }

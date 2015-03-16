@@ -42,10 +42,12 @@ public class MutationModelFunnel implements Funnel<MutationModel> {
     private final String mutReads;
      */
 
+
+    // mod 17Feb2015 - simplify Bloom Filter funnel
     @Override
     public void funnel(MutationModel t, PrimitiveSink into) {
-        into.putString(t.getGene(), Charset.defaultCharset())
-                .putString(t.getChromosome(), Charset.defaultCharset())
+        //into.putString(t.getGene(), Charset.defaultCharset())
+               into.putString(t.getChromosome(), Charset.defaultCharset())
                 .putString(t.getStartPosition(),Charset.defaultCharset())
                 .putString(t.getEndPosition(), Charset.defaultCharset())
                 .putString(t.getStrand(),Charset.defaultCharset())
@@ -53,9 +55,9 @@ public class MutationModelFunnel implements Funnel<MutationModel> {
               //  .putString(t.getVariantType(),Charset.defaultCharset())
                 .putString(t.getRefAllele(),Charset.defaultCharset())
                 .putString(t.getTumorAllele1(),Charset.defaultCharset())
-                .putString(t.getTumorSampleBarcode(),Charset.defaultCharset())
-                .putString(t.getAAChange(),Charset.defaultCharset())
-                .putString(t.getEntrezGeneId(), Charset.defaultCharset());
+                .putString(t.getTumorSampleBarcode(),Charset.defaultCharset());
+              //  .putString(t.getAAChange(),Charset.defaultCharset())
+              //  .putString(t.getEntrezGeneId(), Charset.defaultCharset());
 
     }
 

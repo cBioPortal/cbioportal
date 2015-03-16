@@ -60,7 +60,7 @@ public class MercurialFetcherImpl extends FetcherBaseImpl implements Fetcher
 	}
 
 	@Override
-	public void fetch(String dataSource, String desiredRunDate) throws Exception
+	public void fetch(String dataSource, String desiredRunDate, boolean updateStudiesWorksheet) throws Exception
 	{
 		logMessage(LOG, "fetch(), dateSource:runDate: " + dataSource + ":" + desiredRunDate);
 
@@ -68,8 +68,11 @@ public class MercurialFetcherImpl extends FetcherBaseImpl implements Fetcher
 		boolean updatesAvailable = mercurialService.updatesAvailable(dataSourceMetadata.getDownloadDirectory());
 		if (updatesAvailable) {
 			logMessage(LOG, "fetch(), updates available, pulling from repository.");
-			List<String> cancerStudiesUpdated = updateStudiesWorksheet(dataSourceMetadata,
-			                                                           mercurialService.pullUpdate(dataSourceMetadata.getDownloadDirectory()));
+			List<String> cancerStudiesUpdated = mercurialService.pullUpdate(dataSourceMetadata.getDownloadDirectory());
+			if (updateStudiesWorksheet) {
+				logMessage(LOG, "fetch(), updating cancer_studies worksheet.");
+				updateStudiesWorksheet(dataSourceMetadata, cancerStudiesUpdated);
+			}
 		}
 		else {
 			logMessage(LOG, "fetch(), we have the latest dataset, nothing more to do.");

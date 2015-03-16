@@ -32,6 +32,7 @@
 <% } %>
 <link href="css/smoothness/jquery-ui-1.10.3.custom.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 <link href="css/data_table.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
+<link href="css/dataTables.tableTools.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 <link href="css/data_table_jui.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 <link href="css/data_table_ColVis.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 <link href="css/custom_case_set.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/>

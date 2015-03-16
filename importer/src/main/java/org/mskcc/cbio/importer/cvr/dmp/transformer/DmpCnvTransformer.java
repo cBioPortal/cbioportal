@@ -19,6 +19,7 @@ package org.mskcc.cbio.importer.cvr.dmp.transformer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
@@ -34,10 +35,15 @@ import org.mskcc.cbio.importer.cvr.dmp.model.CnvVariant;
 import org.mskcc.cbio.importer.cvr.dmp.model.DmpData;
 import org.mskcc.cbio.importer.cvr.dmp.model.Result;
 import org.mskcc.cbio.importer.cvr.dmp.util.DMPCommonNames;
+import org.mskcc.cbio.importer.cvr.dmp.util.DmpUtils;
+import org.mskcc.cbio.importer.model.CancerStudyMetadata;
+import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 import org.mskcc.cbio.importer.persistence.staging.cnv.CnvFileHandler;
 import org.mskcc.cbio.importer.persistence.staging.cnv.CnvFileHandlerImpl;
 import org.mskcc.cbio.importer.persistence.staging.cnv.CnvTransformer;
 import scala.Tuple3;
+
+import javax.annotation.Nullable;
 
 /*
  responsible for maintaining the CNV table for DMP data:
@@ -53,8 +59,33 @@ public class DmpCnvTransformer extends CnvTransformer implements DMPDataTransfor
 
     public DmpCnvTransformer(CnvFileHandler aHandler,Path stagingDirectoryPath) {
         super(aHandler);
-        this.registerStagingFileDirectory(stagingDirectoryPath, true);
+        Optional<CancerStudyMetadata> csMetaOpt = CancerStudyMetadata.findCancerStudyMetaDataByStableId(StagingCommonNames.IMPACT_STUDY_IDENTIFIER);
+        if(csMetaOpt.isPresent()) {
+            this.registerStagingFileDirectory(csMetaOpt.get(), stagingDirectoryPath, true);
+        } else{
+            this.registerStagingFileDirectory( stagingDirectoryPath, true);
+        }
     }
+
+    /*
+    Function to convert the gene fold change provided by DMP to a set of discrete String representations
+    for the cbio portal
+     */
+    Function<CnvVariant,String> resolveCopyNumberFunction = new Function<CnvVariant,String>() {
+        @Nullable
+        @Override
+        public String apply(CnvVariant cnv) {
+            Double fc = cnv.getGeneFoldChange();
+            if (fc < 0.0) {
+                return "-2";
+            }
+            if (fc > 0.0) {
+                return "2";
+            }
+            return "0";
+        }
+    };
+
 
     /*
     Function to transform attributes from the Result object to a list of tuples containing the cnv gene name, the result sample id,
@@ -68,7 +99,7 @@ public class DmpCnvTransformer extends CnvTransformer implements DMPDataTransfor
                     .transform(new Function<CnvVariant, Tuple3<String, String, String>>() {
                         @Override
                         public Tuple3<String, String, String> apply(CnvVariant cnv) {
-                            return new Tuple3(cnv.getGeneId(), result.getMetaData().getDmpSampleId(), cnv.getGeneFoldChange().toString());
+                            return new Tuple3(cnv.getGeneId(), result.getMetaData().getDmpSampleId(), resolveCopyNumberFunction.apply(cnv));
                         }
                     }).toList());
 
@@ -84,8 +115,10 @@ public class DmpCnvTransformer extends CnvTransformer implements DMPDataTransfor
         for (Tuple3<String, String, String> cnv : cnvList) {
             this.registerCnv(cnv._1(), cnv._2(), cnv._3().toString());
         }
+        // mod 09Feb2015 - ensure that dmp samples w/o cnvs are included in the table
+        this.completeTableSampleSet(DmpUtils.resolveSampleIDsInInputData(data));
         // persist results to staging file
-        super.persistCnvData();
+        this.persistCnvData();
     }
     /*
     private method to reset CNA data for deprecated samples from table
@@ -116,14 +149,14 @@ public class DmpCnvTransformer extends CnvTransformer implements DMPDataTransfor
     // main method for stand alone testing
     public static void main(String...args){
         ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-        String tempDir = "/tmp/cvr/dmp";
+        String tempDir = "/tmp/msk-impact/msk-impact";
         File tmpDir = new File(tempDir);
         tmpDir.mkdirs();
         Path stagingFileDirectory = Paths.get(tempDir);
         DmpCnvTransformer transformer = new DmpCnvTransformer( new CnvFileHandlerImpl(),
                 stagingFileDirectory);
         try {
-            DmpData data = OBJECT_MAPPER.readValue(new File("/tmp/cvr/dmp/result-sv.json"), DmpData.class);
+            DmpData data = OBJECT_MAPPER.readValue(new File("/tmp/dmp_ws.json"), DmpData.class);
             transformer.transform(data);
 
         } catch (IOException ex) {

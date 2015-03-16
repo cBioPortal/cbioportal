@@ -156,7 +156,6 @@ public class CancerStudyMetadata {
 
     /*
     Constructor based on Google worksheet Map
-
      */
 
     public CancerStudyMetadata(Map<String, String> worksheetRowMap) {
@@ -245,7 +244,7 @@ public class CancerStudyMetadata {
     // main method for testing
     public static void main(String...args)
     {
-        String stableId= "brca_icgc_uk";
+        String stableId= "mskimpact";
         Optional<CancerStudyMetadata> opt  = CancerStudyMetadata.findCancerStudyMetaDataByStableId(stableId);
         if(opt.isPresent()){
             CancerStudyMetadata meta = opt.get();

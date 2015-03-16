@@ -1,10 +1,12 @@
 package org.mskcc.cbio.importer.icgc.model;
 
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
 import edu.stanford.nlp.io.IOUtils;
 import edu.stanford.nlp.util.StringUtils;
+import org.apache.commons.beanutils.BeanUtils;
 import org.mskcc.cbio.importer.foundation.support.FoundationCommonNames;
 import org.mskcc.cbio.importer.icgc.support.IcgcFunctionLibrary;
 import org.mskcc.cbio.importer.icgc.support.IcgcUtil;
@@ -568,6 +570,30 @@ public class IcgcFusionModel extends FusionModel {
         this.raw_data_accession = raw_data_accession;
     }
 
+    /*
+    Static method to generate a copy of the fusion properties with the gene names and positions
+    reversed.
+    Supports replicating heterogeneous fusion events
+     */
+    public static IcgcFusionModel generateSecondFusionModel(IcgcFusionModel model1) {
+        Preconditions.checkArgument(null != model1);
+        try {
+            IcgcFusionModel model2 = (IcgcFusionModel) BeanUtils.cloneBean(model1);
+            model2.swapToAndFromLocations();
+            return model2;
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+        return null;
+
+    }
+
     public void swapToAndFromLocations() {
         String affectedFrom = this.getGene_affected_by_bkpt_from();
         String chrFrom = this.getChr_from();
@@ -587,7 +613,7 @@ public class IcgcFusionModel extends FusionModel {
 
     // main method for stand alone testing
     public static void main(String...args) {
-        String dataSourceUrl = "https://dcc.icgc.org/api/v1/download?fn=/current/Projects/PACA-AU/structural_somatic_mutation.PACA-AU.tsv.gz";
+        String dataSourceUrl = "https://dcc.icgc.org/api/v1/download?fn=/current/Projects/BOCA-FR/structural_somatic_mutation.BOCA-FR.tsv.gz";
         if(!IcgcUtil.isIcgcConnectionWorking()) {
             dataSourceUrl = "///Users/criscuof/Downloads/structural_somatic_mutation.PACA-AU.tsv.gz";
         }
@@ -603,11 +629,11 @@ public class IcgcFusionModel extends FusionModel {
                             +" chromosome " +model.getChr_from() +" start "
                             +model.getChr_from_bkpt() +" fusion "+ model.getFusion());
                     // test swap
+                    IcgcFusionModel model2 = IcgcFusionModel.generateSecondFusionModel(model);
 
-                    model.swapToAndFromLocations();
-                    System.out.println("swapped  gene: " +model.getGene() +" entrez id " +model.getEntrezGeneId()
-                            +" chromosome " +model.getChr_from() +" start "
-                            +model.getChr_from_bkpt() +" fusion "+ model.getFusion());
+                    System.out.println("swapped  gene: " +model2.getGene() +" entrez id " +model2.getEntrezGeneId()
+                            +" chromosome " +model2.getChr_from() +" start "
+                            +model2.getChr_from_bkpt() +" fusion "+ model2.getFusion());
 
                 }
             }

@@ -16,24 +16,22 @@
 package org.mskcc.cbio.importer.fetcher.internal;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 import java.nio.file.Paths;
-
 import java.util.Collection;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mskcc.cbio.importer.Config;
-
 import org.mskcc.cbio.importer.Fetcher;
 import org.mskcc.cbio.importer.cvr.darwin.service.DarwinImporterService;
-import org.mskcc.cbio.importer.model.DataSourcesMetadata;
-import org.mskcc.cbio.importer.model.ReferenceMetadata;
-
-import org.mskcc.cbio.importer.cvr.dmp.model.DmpData;
-import org.mskcc.cbio.importer.cvr.dmp.importer.DMPclinicaldataimporter;
-import org.mskcc.cbio.importer.cvr.dmp.transformer.DMPDataTransformer;
 
 import org.mskcc.cbio.importer.cvr.darwin.transformer.DarwinTumorTransformer;
 import org.mskcc.cbio.importer.cvr.darwin.util.DarwinSessionManager;
+import org.mskcc.cbio.importer.cvr.dmp.importer.DMPclinicaldataimporter;
+import org.mskcc.cbio.importer.cvr.dmp.model.DmpData;
+import org.mskcc.cbio.importer.cvr.dmp.transformer.DMPDataTransformer;
+import org.mskcc.cbio.importer.model.DataSourcesMetadata;
+import org.mskcc.cbio.importer.model.ReferenceMetadata;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -53,7 +51,7 @@ public class DmpDarwinFetcherImpl implements Fetcher
     }
     
     @Override
-    public void fetch(String dataSource, String desiredRunDate) 
+    public void fetch(String dataSource, String desiredRunDate, boolean updateStudiesWorksheet) 
             throws Exception {
         
         if (LOG.isInfoEnabled()) {
@@ -72,15 +70,16 @@ public class DmpDarwinFetcherImpl implements Fetcher
         DMPclinicaldataimporter dmpImporterRetriever = new DMPclinicaldataimporter();
         DmpData data = OBJECT_MAPPER.readValue(dmpImporterRetriever.getResult(), DmpData.class);
 
-        DMPclinicaldataimporter dmpImporter_mark = 
-                new DMPclinicaldataimporter(transformer.transform(data)); //mark consumed samples (transformer returns a list of consumed sample ids)
+        transformer.transform(data);
+        //DMPclinicaldataimporter dmpImporter_mark = 
+        //        new DMPclinicaldataimporter(transformer.transform(data)); //mark consumed samples (transformer returns a list of consumed sample ids)
         
         //Retrieve Darwin clinical data for retrieved DMP samples
         ApplicationContext applicationContext = new ClassPathXmlApplicationContext("/applicationContext-importer.xml");
 //        DarwinImporterService darwinImporterService = (DarwinImporterService) applicationContext.getBean("darwinImporterService");
 //        darwinImporterService.transformDarwinData(Paths.get(dataSourcePath));
-        DarwinTumorTransformer darwinTransformer = new DarwinTumorTransformer(Paths.get(dataSourcePath));
-        darwinTransformer.transform();
+       // DarwinTumorTransformer darwinTransformer = new DarwinTumorTransformer(Paths.get(dataSourcePath));
+       // darwinTransformer.transform();
         DarwinSessionManager.INSTANCE.closeSession();
     }
 
@@ -90,4 +89,8 @@ public class DmpDarwinFetcherImpl implements Fetcher
         throw new UnsupportedOperationException();
     }
     
+    public static void main(String [] args) throws IOException {
+        //Test
+        DMPclinicaldataimporter dmpImporterRetriever = new DMPclinicaldataimporter();
+    }
 }

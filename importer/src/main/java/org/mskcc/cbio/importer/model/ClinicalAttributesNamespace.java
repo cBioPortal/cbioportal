@@ -19,6 +19,11 @@
 package org.mskcc.cbio.importer.model;
 
 // imports
+import com.google.common.base.Optional;
+import com.google.common.base.Strings;
+import edu.stanford.nlp.util.StringUtils;
+import org.mskcc.cbio.importer.config.internal.ImporterSpreadsheetService;
+
 import java.util.Map;
 import java.util.HashMap;
 import java.text.SimpleDateFormat;
@@ -33,18 +38,22 @@ public class ClinicalAttributesNamespace
 
 	public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy");
 
+
+
 	// bean properties
     private String externalColumnHeader;
 	private String normalizedColumnHeader;
     private String tumorType;
     private String cancerStudy;
+    private Integer numberOfStudies;
     private String displayName;
     private String description;
     private String dateAdded;
 
+
     public ClinicalAttributesNamespace(String[] properties) {
 
-		if (properties.length < 7) {
+		if (properties.length < 8) {
             throw new IllegalArgumentException("corrupt properties array passed to contructor");
 		}
 
@@ -52,18 +61,46 @@ public class ClinicalAttributesNamespace
         this.normalizedColumnHeader = properties[1].trim();
         this.tumorType = properties[2].trim();
         this.cancerStudy = properties[3].trim();
-        this.displayName = properties[4].trim();
-        this.description = properties[5].trim();
-        this.dateAdded = properties[6].trim();
+        this.numberOfStudies = (Strings.isNullOrEmpty(properties[4])) ? 0 : Integer.parseInt(properties[4]);
+        this.displayName = properties[5].trim();
+        this.description = properties[6].trim();
+        this.dateAdded = properties[7].trim();
 	}
+
+
+public ClinicalAttributesNamespace( Map<String,String> worksheetRowMap) {
+    this.externalColumnHeader = worksheetRowMap.get("externalcolumnheader");
+    this.normalizedColumnHeader = worksheetRowMap.get("normalizedcolumnheader");
+    this.tumorType = worksheetRowMap.get("tumortype");
+    this.cancerStudy = worksheetRowMap.get("cancerstudy");
+    this.numberOfStudies = (Strings.isNullOrEmpty(worksheetRowMap.get("noofstudies"))
+            && StringUtils.isNumeric(worksheetRowMap.get("noofstudies")))?0
+            :Integer.parseInt(worksheetRowMap.get("noofstudies"));
+    this.displayName = worksheetRowMap.get("displayname");
+    this.description = worksheetRowMap.get("description");
+    this.dateAdded = worksheetRowMap.get("dateadded");
+
+}
 
 	public String getExternalColumnHeader() { return externalColumnHeader; }
 	public String getNormalizedColumnHeader() { return normalizedColumnHeader; }
 	public String getTumorType() { return tumorType; }
 	public String getCancerStudy() { return cancerStudy; }
+    public Integer getNumberOfStudies() {return this.numberOfStudies;}
 	public String getDisplayName() { return displayName; }
 	public String getDescription() { return description; }
     public String getDateAdded() { return dateAdded; }
+
+
+    public static Optional<ClinicalAttributesNamespace> findClinicalAttributeNamespaceByExternalColumnHeader (String externalColumnHeaderValue){
+        if (Strings.isNullOrEmpty(externalColumnHeaderValue)) { return Optional.absent();}
+        Optional<Map<String,String>> rowOptional = ImporterSpreadsheetService.INSTANCE.getWorksheetRowByColumnValue(MetadataCommonNames.Worksheet_ClinicalAttributesNamespace,
+                "externalcolumnheader",externalColumnHeaderValue);
+        if(rowOptional.isPresent()){
+            return Optional.of( new ClinicalAttributesNamespace(rowOptional.get()));
+        }
+        return Optional.absent();
+    }
 
     public static Map<String,String> getPropertiesMap(BCRDictEntry bcr, String dateAdded)
     {
@@ -77,5 +114,16 @@ public class ClinicalAttributesNamespace
         toReturn.put("DATEADDED", dateAdded);
 
         return toReturn;
+    }
+
+    // main for stand alone test
+    public static void main(String...args){
+        Optional<ClinicalAttributesNamespace> metaOpt = ClinicalAttributesNamespace.findClinicalAttributeNamespaceByExternalColumnHeader("DMP_ID");
+        if(metaOpt.isPresent()){
+            System.out.println("External= " +metaOpt.get().getExternalColumnHeader()  +" Normalized = " +metaOpt.get().getNormalizedColumnHeader() );
+        } else {
+            System.out.println("Failed to find external header DMP_ID");
+        }
+
     }
 }

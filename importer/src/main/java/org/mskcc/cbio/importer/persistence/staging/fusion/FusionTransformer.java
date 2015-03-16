@@ -1,10 +1,15 @@
 package org.mskcc.cbio.importer.persistence.staging.fusion;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
+import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.model.CancerStudyMetadata;
+import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.persistence.staging.MetadataFileHandler;
 import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
+import org.mskcc.cbio.importer.persistence.staging.filehandler.FileHandlerService;
+import org.mskcc.cbio.importer.persistence.staging.filehandler.TsvFileHandler;
 
 import java.nio.file.Path;
 import java.util.Map;
@@ -29,7 +34,45 @@ import java.util.Map;
  * Created by criscuof on 11/13/14.
  */
 public class FusionTransformer {
-    protected final TsvStagingFileHandler fileHandler;
+
+    //TODO - refactor this transformer to use new file handler design
+
+    protected static final String TRANSFORMER_DATA_TYPE = "fusion";
+    protected static final DatatypeMetadata dtMeta;
+    protected  TsvStagingFileHandler fileHandler;
+
+    protected TsvFileHandler tsvFileHandler;
+    protected CancerStudyMetadata csMeta;
+
+
+    private final static Logger logger = Logger.getLogger(FusionTransformer.class);
+
+    static {
+        Optional<DatatypeMetadata> dtMetaOpt = DatatypeMetadata.findDatatypeMetadatByDataType(TRANSFORMER_DATA_TYPE);
+        if (dtMetaOpt.isPresent()){
+            dtMeta = dtMetaOpt.get();
+        } else {
+            logger.error("Unable to resolve DatatypeMetaData object for " +TRANSFORMER_DATA_TYPE);
+            dtMeta = null;
+        }
+    }
+
+    /*
+    constructor that utilizes new file handler design
+     */
+    public FusionTransformer(Path aPath, Boolean deleteFlag, CancerStudyMetadata csMeta){
+        Preconditions.checkArgument(null != aPath, "A Path to a staging file is required");
+        Preconditions.checkArgument(null != csMeta, "A CancerStudyMetadata object is required");
+        this.csMeta = csMeta;
+        if (deleteFlag) {
+            this.tsvFileHandler = FileHandlerService.INSTANCE.obtainFileHandlerForNewStagingFile(aPath,
+                    FusionModel.resolveColumnNames());
+        } else {
+            this.tsvFileHandler = FileHandlerService.INSTANCE
+                    .obtainFileHandlerForAppendingToStagingFile(aPath,FusionModel.resolveColumnNames());
+        }
+    }
+
 
     public FusionTransformer(TsvStagingFileHandler aHandler) {
         Preconditions.checkArgument(aHandler != null,
@@ -47,13 +90,13 @@ public class FusionTransformer {
                 "A Path to the staging file directory is required");
         Preconditions.checkArgument(null != csMetadata,
                 "A CancerStudyMetadata object is required");
-        Path mafPath = stagingDirectoryPath.resolve("data_fusions.txt");
+        Path mafPath = stagingDirectoryPath.resolve(dtMeta.getStagingFilename());
         this.fileHandler.registerTsvStagingFile(mafPath, FusionModel.resolveColumnNames(), true);
         this.generateMetadataFile(csMetadata,stagingDirectoryPath);
     }
 
     private void generateMetadataFile(CancerStudyMetadata csMetadata, Path stagingDirectoryPath){
-        Path metadataPath = stagingDirectoryPath.resolve("meta_fusions.txt");
+        Path metadataPath = stagingDirectoryPath.resolve(dtMeta.getMetaFilename());
         MetadataFileHandler.INSTANCE.generateMetadataFile(this.generateMetadataMap(csMetadata),
                 metadataPath);
     }

@@ -18,6 +18,7 @@
 
 package org.mskcc.cbio.importer.persistence.staging.cnv;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
@@ -87,7 +88,15 @@ public class CnvFileHandlerImpl implements CnvFileHandler {
                 for (CSVRecord record : parser.getRecords()) {
                     String geneName = record.get(geneColumnName);
                     for (String sampleName : columnList) {
-                        cnvTable.put(geneName, sampleName, record.get(sampleName));
+                        // mod 26Jan2015 - legacy files may have missing data
+                        String value = null;
+                        try {
+                            value = record.get(sampleName);
+                        } catch (Exception e) {
+                            logger.error("Missing value for gene "+geneName +" sample " +sampleName);
+                            value = "0";  // set to default value
+                        }
+                        cnvTable.put(geneName, sampleName, value);
                     }
                 }
             } catch (IOException ex) {

@@ -4,10 +4,13 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 import org.mskcc.cbio.importer.persistence.staging.MetadataFileHandler;
+import org.mskcc.cbio.importer.persistence.staging.filehandler.FileHandlerService;
+import org.mskcc.cbio.importer.persistence.staging.filehandler.TsvFileHandler;
 import scala.Tuple3;
 
 import java.nio.file.Path;
@@ -39,11 +42,13 @@ public abstract class CnvTransformer {
 
     protected Table<String, String, String> cnaTable;
     private final static Logger logger = Logger.getLogger(CnvTransformer.class);
-    protected final CnvFileHandler fileHandler;
+    protected  CnvFileHandler fileHandler;
     private static final String cnaFileName = "data_CNA.txt";
 
+    private TsvFileHandler tsvHandler;
+
     protected static final String COPY_NEUTRAL = "0";
-    protected static final String HETEROZY_LOSS = "-1";
+    protected static final String HEMIZY_LOSS = "-1";
     protected static final String HOMOZY_LOSS = "-2";
     protected static final String AMP_LOH = "+1";
     protected static final String AMP = "+2";
@@ -56,7 +61,7 @@ public abstract class CnvTransformer {
                 return HOMOZY_LOSS;
             case "1":
             case "1.0":
-                return HETEROZY_LOSS;
+                return HEMIZY_LOSS;
             case "2":
             case "2.0":
                 return COPY_NEUTRAL;
@@ -65,6 +70,19 @@ public abstract class CnvTransformer {
                 return AMP_LOH;
         }
         return AMP;
+    }
+
+    protected CnvTransformer( Path stagingFileDirectory, Boolean deleteFile){
+        Preconditions.checkArgument(null != stagingFileDirectory,
+                "A Path to a staging file directory is required");
+        this.tsvHandler = FileHandlerService.INSTANCE.obtainFileHandlerForCnvFile(stagingFileDirectory,deleteFile);
+        this.cnaTable = this.tsvHandler.initializeCnvTable();
+    }
+    protected CnvTransformer( TsvFileHandler aHandler){
+        Preconditions.checkArgument(null != aHandler,
+                "A TsvFileHandler implementation is required");
+        this.tsvHandler = aHandler;
+        this.cnaTable = this.tsvHandler.initializeCnvTable();
     }
 
     protected CnvTransformer(CnvFileHandler aHandler){
@@ -83,6 +101,12 @@ public abstract class CnvTransformer {
         } else {
             this.cnaTable = HashBasedTable.create();
         }
+    }
+
+    public void registerStagingFileDirectory(CancerStudyMetadata csMetadata, Path stagingDirectoryPath, boolean reuse){
+        Preconditions.checkArgument(null != csMetadata," A CancerStudyMetadata object is required");
+        this.registerStagingFileDirectory(stagingDirectoryPath,reuse);
+        this.generateMetadataFile(csMetadata,stagingDirectoryPath);
     }
 
     public void registerStagingFileDirectory(CancerStudyMetadata csMetadata, Path stagingDirectoryPath){
@@ -132,6 +156,35 @@ public abstract class CnvTransformer {
 
         }
     }
+
+    /*
+    method to ensure that all know samples in a study are included in the cnv table
+    this is to ensure that samples without copy number variants are represented.
+    this method should be invoked prior to persisting the cnv table to disk
+     */
+    protected void completeTableSampleSet(Set <String>currentSampleSet){
+
+        Preconditions.checkArgument(!currentSampleSet.isEmpty(),
+                "A current sample set is required ");
+        Set<String> tableSampleSet = this.cnaTable.columnKeySet();
+        Sets.SetView<String> missingSampleSet = Sets.difference(currentSampleSet,tableSampleSet);
+        if(missingSampleSet.size() > 0 ) {
+            logger.info("There are " + missingSampleSet.size() + " samples without CNVs that must be added to the table");
+            Set<String> geneSet = this.cnaTable.rowKeySet();
+            for (String gene : geneSet) {
+                for (String sample : missingSampleSet) {
+                    this.cnaTable.put(gene, sample, "0");
+                }
+            }
+        } else {
+            logger.info("There are no samples without CNVs.");
+        }
+
+    }
+
+     protected void outputCnvData () {
+         this.tsvHandler.persistCnvTable(this.cnaTable);
+     }
      protected void persistCnvData() {
         this.fileHandler.persistCnvTable(this.cnaTable);
     }

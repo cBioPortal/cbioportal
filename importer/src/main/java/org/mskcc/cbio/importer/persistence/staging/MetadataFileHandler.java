@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.util.List;
@@ -56,6 +57,10 @@ public enum MetadataFileHandler {
             lines.add(StagingCommonNames.blankJoiner.join(key,entry.getValue()));
         }
         try {
+            if (Files.exists(metadataFilePath,LinkOption.NOFOLLOW_LINKS)) {
+                Files.delete(metadataFilePath);
+                logger.info("Existing metadata file: " +metadataFilePath.getFileName() +" deleted");
+            }
             Files.write(metadataFilePath, lines, Charset.defaultCharset(),options);
         } catch (IOException e) {
             logger.error(e.getMessage());

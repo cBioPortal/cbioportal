@@ -895,7 +895,6 @@ function addMetaDataToPage() {
 	    // in: a jstree node
 	    // text to search is node.text and node.li_attr.description
 	    // return true iff the query, considering quotation marks, 'and' and 'or' logic, matches
-	    // TODO: do actual logic
 	    var match = false;
 	    var hasPositiveClauseType = false;
 	    var forced = false;

@@ -282,12 +282,14 @@ define("OncoprintUtils", (function() {
                 testFinalAfterProcess[i] = afterProcess;
                 raw_data = raw_data.concat(seperate_raw_data);
             }
-            
             return testFinalAfterProcess;
         };
         
         var attrs = extract_unique(raw_attr_and_gene_data,attrs_number,raw_clinical_attr);
-        
+        if(attrs.length>0)
+        {
+            attrs[0]= _.sortBy(attrs[0],function(m){return m.attr_val;});
+        }
         return attrs;
     }
     var colors = {

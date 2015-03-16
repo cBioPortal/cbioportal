@@ -992,16 +992,23 @@ function addMetaDataToPage() {
 			} else {
 				$("#jstree").jstree(true)._model.data['tissue'].li_attr.name = "All Search Results";
 			}
-			$("#jstree").jstree(true).search($("#jstree_search_input").val());
+			$("#jstree").fadeTo(100, 0.5, function() {
+				$("#jstree").jstree(true).search($("#jstree_search_input").val());
+				$("#jstree").fadeTo(100, 1);
+			});
 		}, 400); // wait for a bit with no typing before searching
+	});
+	var jstree_num_leaves;
+	$('#jstree').on('ready.jstree', function() {
+		jstree_num_leaves = $('#jstree').jstree(true).get_leaves().length;
 	});
 	$('#jstree').on('changed.jstree', function() {
 		var select_single_study = $("#main_form").find("#select_single_study");
 		var select_multiple_studies = $("#main_form").find("#select_multiple_studies");
 		var selected_studies = $("#jstree").jstree(true).get_selected_leaves();
-		var all_ct = $("#jstree").jstree(true).get_leaves().length;
 		var selected_ct = selected_studies.length;
-		$('#jstree_selected_study_count').html((selected_ct === 0 ? "No" : (selected_ct === all_ct ? "All" : selected_ct))+" stud"+(selected_ct === 1 ? "y" : "ies")+" selected.");
+		$('#jstree_selected_study_count').html((selected_ct === 0 ? "No" : (selected_ct === jstree_num_leaves ? "All" : selected_ct))+" stud"+(selected_ct === 1 ? "y" : "ies")+" selected.");
+		var old_select_single_study_val = select_single_study.val();
 		if (selected_studies.length === 1) {
 			select_single_study.val(selected_studies[0]);
 		} else if (selected_studies.length > 1) {
@@ -1010,7 +1017,9 @@ function addMetaDataToPage() {
 			select_single_study.val("all");
 		}
 		select_multiple_studies.val(selected_studies.join(","));
-		select_single_study.trigger('change');
+		if (select_single_study.val() !== old_select_single_study_val) {
+			select_single_study.trigger('change');
+		}
 		select_multiple_studies.trigger('change');
 	});
 	$('#jstree').jstree(true).hide_icons();

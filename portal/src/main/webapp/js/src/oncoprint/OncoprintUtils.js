@@ -368,14 +368,14 @@ define("OncoprintUtils", (function() {
                     return [attr.attr_id, scale];
                 }
 
-                // manually override colors for genomic subtypes to match the endometrial paper (doi:10.1038/nature12113)
-                if (attr.attr_id.toUpperCase() === "SUBTYPE") {
-                    scale = d3.scale.ordinal()
-                        .domain(["POLE (Ultra-mutated)", "MSI (Hyper-mutated)", "Copy-number low (Endometriod)", "Copy-number high (Serous-like)"])
-                        .range(["#3366cc", "#109618", "#ff9900", "#dc3912"]);
-
-                    return [attr.attr_id, scale];
-                }
+//                // manually override colors for genomic subtypes to match the endometrial paper (doi:10.1038/nature12113)
+//                if (attr.attr_id.toUpperCase() === "SUBTYPE") {
+//                    scale = d3.scale.ordinal()
+//                        .domain(["POLE (Ultra-mutated)", "MSI (Hyper-mutated)", "Copy-number low (Endometriod)", "Copy-number high (Serous-like)"])
+//                        .range(["#3366cc", "#109618", "#ff9900", "#dc3912"]);
+//
+//                    return [attr.attr_id, scale];
+//                }
 
                 // calculate the proper colors for all other attributes
                 if (attr.datatype.toUpperCase() === "BOOLEAN") {
@@ -388,7 +388,7 @@ define("OncoprintUtils", (function() {
                             .range([colors.white, colors.continuous]);
                 }
 
-                else if (attr.datatype.toUpperCase() === "STRING") {
+                else if (attr.datatype.toUpperCase() === "STRING"||attr.attr_id.toUpperCase() === "SUBTYPE") {
                     scale = d3.scale.ordinal()
                         .range(slice_googlecolors(attr.attr_id));
                 }
@@ -473,8 +473,10 @@ define("OncoprintUtils", (function() {
             {
                 attr2percent[gene.key] = percent.toFixed(1);
             }
-            
-            attr2percent[gene.key] = 0;
+            else
+            {
+                attr2percent[gene.key] = 0;
+            }
         }
         });
 

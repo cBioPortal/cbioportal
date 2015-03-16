@@ -38,8 +38,14 @@ var or_tab = (function() {
     
     return {
         init: function() {
-            var param = new orAjaxParam("TP53", "gbm_tcga_gistic");
-            var or_data1 = new orData(param);
+            
+            //calculate copy number profile
+            var param = new orAjaxParam(
+                    window.PortalGlobals.getGeneList()[0], 
+                    window.PortalGlobals.getCancerStudyId() + "_gistic");
+            var or_data = new orData();
+            or_data.init(param);
+            or_data.get();
         }
     };
     

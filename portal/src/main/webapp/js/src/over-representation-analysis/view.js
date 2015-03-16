@@ -4,4 +4,9 @@
  * and open the template in the editor.
  */
 
+var or_table = function() {
+    
+    
+};
+
 

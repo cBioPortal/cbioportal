@@ -1,9 +1,10 @@
-package org.mskcc.cbio.portal.util;
+package org.mskcc.cbio.or_analysis;
 
 import java.util.*;
 
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.util.PatientSetUtil;
 
 
 public class OverRepresentationAnalysisUtil {

@@ -4,21 +4,38 @@
  * and open the template in the editor.
  */
 
-var orData = function(_param) {
+var orData = function() {
     
-    var request = $.ajax({
-      url: "oranalysis.do",
-      method: "POST",
-      data: _param
-    });    
+    var data = {}, retrieved = false;
 
-    request.done(function(result) {
-        console.log(result);
-    });
-
-    request.fail(function( jqXHR, textStatus ) {
-        alert( "Request failed: " + textStatus );
-    });        
+    return {
+        init: function(_param) {
+            $.ajax({
+                url: "oranalysis.do",
+                method: "POST",
+                data: _param
+            })  
+            .done(function(result) {
+                var _arr = result.substring(1, result.length).split("|");
+                $.each(_arr, function(index, str) {
+                    var _tmp = str.split(":");
+                    data[_tmp[0]] = _tmp[1];
+                });
+                retrieved = true;
+            })
+            .fail(function( jqXHR, textStatus ) {
+                alert( "Request failed: " + textStatus );
+            }); 
+        },
+        get: function(callback_func) { 
+            var tmp = setInterval(function () { timer(); }, 1000);
+            function timer() {
+                if (retrieved) {
+                    clearInterval(tmp);
+                    callback_func(data);
+                }
+            }
+        }
+    };
 
 };
-

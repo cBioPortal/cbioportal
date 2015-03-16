@@ -19,18 +19,17 @@ package org.mskcc.cbio.portal.servlet;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.json.simple.JSONValue;
+import org.mskcc.cbio.or_analysis.ORAnalysisDiscretizedDataProxy;
+import org.mskcc.cbio.or_analysis.OverRepresentationAnalysisUtil;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
@@ -38,7 +37,6 @@ import org.mskcc.cbio.portal.dao.DaoGeneticProfile;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.GeneticProfile;
-import org.mskcc.cbio.portal.util.OverRepresentationAnalysisUtil;
 
 /**
  * Calculate over representation scores 
@@ -89,25 +87,30 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
             CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
             int cancerStudyInternalId = cancerStudy.getInternalId();
             
-            String _result_json_str = "something";
+            StringBuilder result_json_str = new StringBuilder();
             
             Map<Long,double[]> map = OverRepresentationAnalysisUtil.getExpressionMap(cancerStudyInternalId, gpId, caseSetId, caseIdsKey);
             List<Long> genes = new ArrayList<Long>(map.keySet());
             for (int i = 0; i < map.size(); i++) {
                 long _gene = genes.get(i);
-                double[] _gene_exp = map.get(_gene);
-                _result_json_str += _gene + "||";
-                for (int j = 0; j < _gene_exp.length; j++) {
-                    _result_json_str += _gene_exp[j] + "\t";
-                }
-                _result_json_str += "\n";
+                double[] _rotate_gene_exp = map.get(_gene);
+                double[] _queried_gene_exp = map.get(queryGeneId);
+                
+                //copy number: fisher exact test (high level +/-2)
+                double pValue = ORAnalysisDiscretizedDataProxy.calc(_rotate_gene_exp, _queried_gene_exp, "copy_num");
+                String _rotate_gene_name = daoGeneOptimized.getGene(_gene).getHugoGeneSymbolAllCaps();
+                result_json_str.append(_rotate_gene_name);
+                result_json_str.append(":");
+                result_json_str.append(pValue);
+                result_json_str.append("|");
+                
+                //TODO: mutation: fisher exact test
+                //TODO: mRNA expression
             }
-            
-            OverRepresentationAnalysisUtil.getCopyNumMap();
             
             httpServletResponse.setContentType("text/html");
             PrintWriter out = httpServletResponse.getWriter();
-            JSONValue.writeJSONString(_result_json_str, out);
+            JSONValue.writeJSONString(result_json_str.deleteCharAt(result_json_str.length() - 1).toString(), out);
             
         } catch (DaoException ex) {
             Logger.getLogger(OverRepresentationAnalysisJSON.class.getName()).log(Level.SEVERE, null, ex);

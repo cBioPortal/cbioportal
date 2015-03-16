@@ -59,8 +59,13 @@ include_networks=true
 pathway_commons.url=http://www.pathwaycommons.org/pc2
 
 # bitly
+bitly.url=http://api.bit.ly/shorten?
 bitly.user=
 bitly.api_key=
+
+# pdb url
+pdb.database.url=http://rcsb.org/pdb/files/
+
 
 # google analytics
 google_analytics_profile_id=

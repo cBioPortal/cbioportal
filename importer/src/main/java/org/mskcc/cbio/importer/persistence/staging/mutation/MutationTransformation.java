@@ -107,12 +107,13 @@ public enum MutationTransformation {
             transformationMap.put("032Sequencer","getSequencer");//32
             transformationMap.put("033Tumor_Sample_UUID", "getTumorSampleUUID");//33
             transformationMap.put("034Matched_Norm_Sample_UUID", "getMatchedNormSampleUUID"); //34
-            transformationMap.put("035t_alt_count", "getTAltCount");  // new
-            transformationMap.put("036t_ref_count", "getTRefCount"); // new
-            transformationMap.put("037n_alt_count", "getNAltCount");  // new
-            transformationMap.put("038n_ref_count", "getNRefCount");  //new
-            transformationMap.put("039Aminao_Acid_Change","getAAChange");
-            transformationMap.put("040Transcript","getTranscript");
+            transformationMap.put("035t_ref_count", "getTRefCount"); // new
+            transformationMap.put("036t_alt_count", "getTAltCount");  // ne
+            transformationMap.put("037n_ref_count", "getNRefCount");  //new
+            transformationMap.put("038n_alt_count", "getNAltCount");  // new
+            transformationMap.put("039cDNA_Change","getCDNA_change");
+            transformationMap.put("040Amino_Acid_Change","getAAChange");
+            transformationMap.put("041Transcript","getTranscript");
         return transformationMap;
 
     }

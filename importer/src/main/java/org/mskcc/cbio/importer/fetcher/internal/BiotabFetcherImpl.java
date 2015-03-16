@@ -81,7 +81,7 @@ public class BiotabFetcherImpl extends FetcherBaseImpl implements Fetcher
 	}
 
     @Override
-	public void fetch(String dataSource, String desiredRunDate) throws Exception
+	public void fetch(String dataSource, String desiredRunDate, boolean updateStudiesWorksheet) throws Exception
     {
 
 		logMessage(LOG, "fetch(), dateSource" + dataSource);
@@ -136,7 +136,7 @@ public class BiotabFetcherImpl extends FetcherBaseImpl implements Fetcher
 
     private String getURLToFileIndex(String tumorType)
     {
-        return (tcgaClinicalURL.replace(TUMOR_TYPE_REGEX, tumorType));
+        return (tcgaClinicalURL.replace(TUMOR_TYPE_REGEX, tumorType.toLowerCase()));
     }
 
     private Pattern getRevisionPattern(String tumorType)
@@ -171,7 +171,7 @@ public class BiotabFetcherImpl extends FetcherBaseImpl implements Fetcher
 
     private String getURLToFile(String tumorType, String revision)
     {
-        return (tcgaClinicalURL.replace(TUMOR_TYPE_REGEX, tumorType) +
+        return (tcgaClinicalURL.replace(TUMOR_TYPE_REGEX, tumorType.toLowerCase()) +
                 tcgaClinicalFilename.replace(TUMOR_TYPE_REGEX, tumorType.toUpperCase()).replace(REVISION_REGEX, revision));
     }
 

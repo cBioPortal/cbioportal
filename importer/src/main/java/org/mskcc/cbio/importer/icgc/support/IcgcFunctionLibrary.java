@@ -2,14 +2,22 @@ package org.mskcc.cbio.importer.icgc.support;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
+import edu.stanford.nlp.io.IOUtils;
 import org.mskcc.cbio.importer.IDMapper;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 import org.mskcc.cbio.importer.util.GeneSymbolIDMapper;
+import rx.Observable;
+import rx.Subscriber;
+import rx.observables.StringObservable;
 import scala.Tuple2;
 
 import javax.annotation.Nullable;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +46,7 @@ public class IcgcFunctionLibrary {
     represents a collection of common Function and Predicates used to support
     ICGC data imports
      */
+
 
     public static String[] resolveFieldNames(Class modelClass){
         Field[] modelFields = modelClass.getDeclaredFields();
@@ -155,9 +164,9 @@ public class IcgcFunctionLibrary {
          */
         @Override
         public String apply(Tuple2<String, String> f) {
-            if (!Strings.isNullOrEmpty(f._1) && !Strings.isNullOrEmpty(f._2())) {
-                String refAllele = f._1;
-                String altAllele = f._2;
+            if (!Strings.isNullOrEmpty(f._1()) && !Strings.isNullOrEmpty(f._2())) {
+                String refAllele = f._1();
+                String altAllele = f._2();
                 if (refAllele.equals("-")) {
                     return StagingCommonNames.variationList.get(0);
                 }
@@ -191,5 +200,7 @@ public class IcgcFunctionLibrary {
                     }
                 }).toList();
     }
+
+
 
 }

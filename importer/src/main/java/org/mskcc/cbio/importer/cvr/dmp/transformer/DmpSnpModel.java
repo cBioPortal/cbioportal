@@ -3,15 +3,12 @@ package org.mskcc.cbio.importer.cvr.dmp.transformer;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.cvr.dmp.model.DmpSnp;
 import org.mskcc.cbio.importer.cvr.dmp.util.DMPCommonNames;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 import org.mskcc.cbio.importer.persistence.staging.mutation.MutationModel;
 import scala.Tuple2;
-
-import java.util.List;
 
 /**
  * Copyright (c) 2014 Memorial Sloan-Kettering Cancer Center.
@@ -40,6 +37,7 @@ public class DmpSnpModel extends MutationModel {
      */
 
     private static final Logger logger = Logger.getLogger(DmpSnpModel.class);
+    private static final String DEFAULT_IMPACT_SEQUENCER = "MSK-IMPACT";
     private final DmpSnp snp;
 
     DmpSnpModel(DmpSnp aSnp){
@@ -174,7 +172,7 @@ public class DmpSnpModel extends MutationModel {
 
     @Override
     public String getValidationStatus() {
-        return StagingCommonNames.VALIDATION_STATUS_PROVISIONAL;
+        return StagingCommonNames.VALIDATION_STATUS_UNKNOWN;
     }
 
     @Override
@@ -199,7 +197,7 @@ public class DmpSnpModel extends MutationModel {
 
     @Override
     public String getScore() {
-        return "";
+        return this.DEFAULT_IMPACT_SEQUENCER;
     }
 
     @Override
@@ -224,22 +222,25 @@ public class DmpSnpModel extends MutationModel {
 
     @Override
     public String getTAltCount() {
-        return "";
+        return this.snp.getTumorAd().toString();
     }
 
     @Override
     public String getTRefCount() {
-        return "";
+        Integer trefCount = this.snp.getTumorDp() - this.snp.getTumorAd();
+        return trefCount.toString();
+
     }
 
     @Override
     public String getNAltCount() {
-        return "";
+        return this.snp.getNormalAd().toString();
     }
 
     @Override
     public String getNRefCount() {
-        return "";
+        Integer nrefCount = this.snp.getNormalDp() - this.snp.getNormalAd();
+        return nrefCount.toString();
     }
 
     @Override
@@ -248,34 +249,14 @@ public class DmpSnpModel extends MutationModel {
     }
 
     @Override
+    public String getCDNA_change() {
+        return this.snp.getCDNAChange();
+    }
+
+    @Override
     public String getTranscript() {
         return this.snp.getTranscriptId();
     }
 
-    private final List<String> variationList = Lists.newArrayList("INS", "SNP", "DNP", "TNP", "ONP");
-    Function<Tuple2<String, String>, String> resolveVariantType
-            = new Function<Tuple2<String, String>, String>() {
 
-        @Override
-        public String apply(Tuple2<String, String> f) {
-            if (!Strings.isNullOrEmpty(f._1()) && !Strings.isNullOrEmpty(f._2())) {
-                String refAllele = f._1();
-                String altAllele = f._2();
-                if (refAllele.equals("-")) {
-                    return variationList.get(0);
-                }
-                if (altAllele.equals("-") || altAllele.length() < refAllele.length()) {
-                    return "DEL";
-                }
-                if ( refAllele.length() < altAllele.length()) {
-                    return "INS";
-                }
-                if (refAllele.length() < variationList.size()) {
-                    return variationList.get(refAllele.length());
-                }
-            }
-            return "UNK";
-        }
-
-    };
 }

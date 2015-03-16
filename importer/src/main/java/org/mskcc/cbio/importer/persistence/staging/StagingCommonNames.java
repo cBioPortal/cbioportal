@@ -37,14 +37,23 @@ public interface StagingCommonNames {
     public static final String INTERGENIC = "intergenic";
 
     public static final String xmlExtension = "xml";
+    public static final String stagingFileExtension = "txt";
 
     public static final List<String> variationList = Lists.newArrayList("INS", "SNP", "DNP", "TNP", "ONP");
+    // worksheet data types
+    public static final String DATATYPE_CNA = "cna-gistic";
+    public static final String DATATYPE_MUTATION = "mutation";
+    public static final String DATATYPE_FUSION = "fusion";
+    public static final String DATATYPE_CLINICAL = "clinical";
+
+
 
     public static final Splitter tabSplitter = Splitter.on("\t");
     public static final Splitter lineSplitter = Splitter.on("\n").trimResults();
     public static final Splitter blankSplitter = Splitter.on(" ");
     public static final Joiner tabJoiner = Joiner.on('\t').useForNull(" ");
     public static final Joiner commaJoiner = Joiner.on(',').useForNull(" ");
+    public static final Splitter commaSplitter= Splitter.on(',');
     public static final Joiner blankJoiner = Joiner.on(" ");
     public static final Joiner lineJoiner = Joiner.on("\n");
     public static final Splitter posSplitter = Splitter.on(':');
@@ -85,12 +94,15 @@ public interface StagingCommonNames {
     public static final String FOUNDATION_FILTERED_NOTATION = "-filtered";
 
     // validation status values
-    public static final String VALIDATION_STATUS_PROVISIONAL = "Provisional";
+    public static final String VALIDATION_STATUS_UNKNOWN = "Unknown";
     public static final String VALIDATION_STATUS_VALID = "Valid";
 
+    // IMPACT study
+    public static final String IMPACT_STUDY_IDENTIFIER = "mskimpact";
+    public static final String DMP_COMMENT_MARKER = "#";
+    public static final String DMP_STAGING_FILE_COMMENT = "#sequenced_samples:";
 
-
-
+    public static final String REFERENCED_SAMPLES_COMMENT = "#Referenced samples: ";
 
     // length of human chromosomes
     // http://www.ncbi.nlm.nih.gov/projects/genome/assembly/grc/human/data/
@@ -117,8 +129,10 @@ public interface StagingCommonNames {
                     .put("20", Long.valueOf(64_444_167))
                     .put("21", Long.valueOf(46_709_983))
                     .put("22", Long.valueOf(50_818_468))
-                    .put("X", Long.valueOf(156_040_895))
-                    .put("Y", Long.valueOf(57_227_415)).build();
+                    .put("X", Long.valueOf(156_040_895))  // upper and lower case for x & y
+                    .put("Y", Long.valueOf(57_227_415))
+                    .put("x", Long.valueOf(156_040_895))
+                    .put("y", Long.valueOf(57_227_415)).build();
     // valid chromosome values
     public static final Set<String> validChromosomeSet = Sets.newHashSet("1","2","3","4","5","6",
            "7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","X","Y",

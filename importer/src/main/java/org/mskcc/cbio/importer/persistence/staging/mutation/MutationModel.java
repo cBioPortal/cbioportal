@@ -1,13 +1,16 @@
 package org.mskcc.cbio.importer.persistence.staging.mutation;
 
 import com.google.common.base.Function;
+import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Lists;
 import com.google.common.hash.Funnel;
 import com.google.common.hash.PrimitiveSink;
 import org.mskcc.cbio.importer.IDMapper;
 import org.mskcc.cbio.importer.persistence.staging.util.StagingUtils;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 import org.mskcc.cbio.importer.util.GeneSymbolIDMapper;
+import scala.Tuple2;
 
 import java.nio.charset.Charset;
 import java.util.List;
@@ -36,13 +39,12 @@ import java.util.Set;
 public abstract class MutationModel {
     /*
     abstract class to support a consistent view of mutation data
+    first columns adhere to Mutation Annotation Format (MAF) Specification
+    Re:https://wiki.nci.nih.gov/display/TCGA/Mutation+Annotation+Format+%28MAF%29+Specification;jsessionid=F75A63B7DF7A0A9561F8B161B499F1A5
+    Additional columns represent custom cbio attributes
      */
 
-
     protected static IDMapper geneMapper = new GeneSymbolIDMapper();
-
-
-    // public static final Map<String,String> transformationMapOld = Maps.newTreeMap();
 
     public static List<String> resolveColumnNames() {
         final Map<String, String> transformationMap = MutationTransformation.INSTANCE.getTransformationMap();
@@ -137,6 +139,8 @@ public abstract class MutationModel {
 
     public abstract String getAAChange();
 
+    public abstract String getCDNA_change();
+
     public abstract String getTranscript();
 
 
@@ -146,6 +150,55 @@ public abstract class MutationModel {
     public static Function<MutationModel, String> getTransformationFunction() {
         return MutationTransformation.INSTANCE.transformationFunction;
     }
+
+   protected final List<String> variationList = Lists.newArrayList("INS", "SNP", "DNP", "TNP", "ONP");
+    protected Function<Tuple2<String, String>, String> resolveVariantType
+            = new Function<Tuple2<String, String>, String>() {
+
+        @Override
+        public String apply(Tuple2<String, String> f) {
+            if (!Strings.isNullOrEmpty(f._1()) && !Strings.isNullOrEmpty(f._2())) {
+                String refAllele = f._1();
+                String altAllele = f._2();
+                if (refAllele.equals("-")) {
+                    return variationList.get(0);
+                }
+                if (altAllele.equals("-") || altAllele.length() < refAllele.length()) {
+                    return "DEL";
+                }
+                if ( refAllele.length() < altAllele.length()) {
+                    return "INS";
+                }
+                if (refAllele.length() < variationList.size()) {
+                    return variationList.get(refAllele.length());
+                }
+            }
+            return "UNK";
+        }
+
+    };
+
+    protected final Function<Tuple2<String, String>, String> calculateAlleleRefCount =
+            new Function<Tuple2<String, String>, String>() {
+                public String apply(Tuple2<String, String> f) {
+                    final Long depth = Long.valueOf(f._1());
+                    final Float percentReads = Float.valueOf(f._2());
+                    final Long  altCount=  Math.round( depth * (percentReads/100.0));
+                    return Long.toString( (long) depth - altCount);
+
+                }
+            };
+
+    protected final Function<Tuple2<String, String>, String> calculateAlleleAltCount =
+            new Function<Tuple2<String, String>, String>() {
+                public String apply(Tuple2<String,String> f) {
+                    final Float depth = Float.valueOf(f._1());
+                    final Float percentReads = Float.valueOf(f._2());
+                    return Long.toString(Math.round( depth * (percentReads/100.0)));
+
+                }
+            };
+
 
 
 }

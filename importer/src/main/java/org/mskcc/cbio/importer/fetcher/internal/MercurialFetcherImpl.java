@@ -60,7 +60,7 @@ public class MercurialFetcherImpl extends FetcherBaseImpl implements Fetcher
 	}
 
 	@Override
-	public void fetch(String dataSource, String desiredRunDate) throws Exception
+	public void fetch(String dataSource, String desiredRunDate, boolean updateStudiesWorksheet) throws Exception
 	{
 		logMessage(LOG, "fetch(), dateSource:runDate: " + dataSource + ":" + desiredRunDate);
 
@@ -68,8 +68,11 @@ public class MercurialFetcherImpl extends FetcherBaseImpl implements Fetcher
 		boolean updatesAvailable = mercurialService.updatesAvailable(dataSourceMetadata.getDownloadDirectory());
 		if (updatesAvailable) {
 			logMessage(LOG, "fetch(), updates available, pulling from repository.");
-			List<String> cancerStudiesUpdated = updateStudiesWorksheet(dataSourceMetadata,
-			                                                           mercurialService.pullUpdate(dataSourceMetadata.getDownloadDirectory()));
+			List<String> cancerStudiesUpdated = mercurialService.pullUpdate(dataSourceMetadata.getDownloadDirectory());
+			if (updateStudiesWorksheet) {
+				logMessage(LOG, "fetch(), updating cancer_studies worksheet.");
+				updateStudiesWorksheet(dataSourceMetadata, cancerStudiesUpdated);
+			}
 		}
 		else {
 			logMessage(LOG, "fetch(), we have the latest dataset, nothing more to do.");
@@ -138,7 +141,7 @@ public class MercurialFetcherImpl extends FetcherBaseImpl implements Fetcher
 			toReturn.put(CancerStudyMetadata.TRIAGE_PORTAL_COLUMN_KEY, "x");
 			toReturn.put(CancerStudyMetadata.MSK_PORTAL_COLUMN_KEY, "");
 			toReturn.put(CancerStudyMetadata.SOURCE_COLUMN_KEY, "BIC");
-			// for consistency on the workheet - leave stable id - required to remove study
+			// for consistency on the worksheet - leave stable id - required to remove study
 			toReturn.remove(CancerStudyMetadata.NAME_COLUMN_KEY);
 			toReturn.remove(CancerStudyMetadata.DESCRIPTION_COLUMN_KEY);
 			toReturn.remove(CancerStudyMetadata.SHORT_NAME_COLUMN_KEY);

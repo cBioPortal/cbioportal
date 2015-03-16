@@ -109,6 +109,9 @@ public class CancerStudyMetadata {
         this.center = (parts.length < 2) ? "No center defined" : parts[1];
         this.tumorType = properties[1].trim();
         this.stableId = properties[2].trim();
+        if (this.stableId.isEmpty()) {
+            this.stableId = this.studyPath.replaceAll("/", "_");
+        }
         this.name = properties[3].trim();
         this.description = properties[4].trim();
         this.citation = properties[5].trim();
@@ -153,7 +156,6 @@ public class CancerStudyMetadata {
 
     /*
     Constructor based on Google worksheet Map
-
      */
 
     public CancerStudyMetadata(Map<String, String> worksheetRowMap) {
@@ -242,7 +244,7 @@ public class CancerStudyMetadata {
     // main method for testing
     public static void main(String...args)
     {
-        String stableId= "brca_icgc_uk";
+        String stableId= "mskimpact";
         Optional<CancerStudyMetadata> opt  = CancerStudyMetadata.findCancerStudyMetaDataByStableId(stableId);
         if(opt.isPresent()){
             CancerStudyMetadata meta = opt.get();

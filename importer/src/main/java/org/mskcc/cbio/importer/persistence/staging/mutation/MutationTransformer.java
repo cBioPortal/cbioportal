@@ -5,12 +5,14 @@ import com.google.common.collect.Maps;
 import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 import org.mskcc.cbio.importer.model.IcgcMetadata;
 import org.mskcc.cbio.importer.persistence.staging.MetadataFileHandler;
+import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
 import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
 import org.mskcc.cbio.importer.persistence.staging.filehandler.FileHandlerService;
 import org.mskcc.cbio.importer.persistence.staging.filehandler.TsvFileHandler;
 
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.logging.FileHandler;
 
 /**
  * Copyright (c) 2014 Memorial Sloan-Kettering Cancer Center.
@@ -35,12 +37,15 @@ public class MutationTransformer {
     protected  TsvStagingFileHandler fileHandler;
     protected TsvFileHandler tsvFileHandler;
 
-
-    public MutationTransformer(Path aPath) {
+    public MutationTransformer(Path aPath, Boolean deleteFlag){
         Preconditions.checkArgument(null != aPath,"A Path to a staging file is required");
-        this.tsvFileHandler = FileHandlerService.INSTANCE.obtainFileHandlerForNewStagingFile(aPath,
-                MutationModel.resolveColumnNames() );
-
+        if (deleteFlag) {
+            this.tsvFileHandler = FileHandlerService.INSTANCE.obtainFileHandlerForNewStagingFile(aPath,
+                    MutationModel.resolveColumnNames());
+        } else {
+            this.tsvFileHandler = FileHandlerService.INSTANCE
+                    .obtainFileHandlerForAppendingToStagingFile(aPath, MutationModel.resolveColumnNames());
+        }
     }
 
     public MutationTransformer(TsvStagingFileHandler aHandler) {
@@ -63,37 +68,34 @@ public class MutationTransformer {
 
     protected void generateMetadataFile(CancerStudyMetadata csMetadata, Path stagingDirectoryPath){
         Path metadataPath = stagingDirectoryPath.resolve("meta_mutations_extended.txt");
-        MetadataFileHandler.INSTANCE.generateMetadataFile(this.generateMetadataMap(csMetadata),
-                metadataPath);
+        MetadataFileHandler.INSTANCE.generateMetadataFile(this.generateMetadataMap(csMetadata.getStableId(),
+                        csMetadata.getDescription()),
+                    metadataPath);
+
     }
 
     protected void generateMetadataFile(IcgcMetadata icgcMetadata, Path stagingDirectoryPath){
         Path metadataPath = stagingDirectoryPath.resolve("meta_mutations_extended.txt");
-        MetadataFileHandler.INSTANCE.generateMetadataFile(this.generateMetadataMap(icgcMetadata),
+        MetadataFileHandler.INSTANCE.generateMetadataFile
+                (this.generateMetadataMap(icgcMetadata.getIcgcid(),icgcMetadata.getDescription()),
                 metadataPath);
     }
 
-    private Map<String,String> generateMetadataMap(IcgcMetadata meta){
+    /*
+    generic method for generating a mutations metadata template
+     */
+    private Map<String,String> generateMetadataMap(String identifier, String description){
         Map<String,String> metaMap = Maps.newTreeMap();
-        String studyIdentifier =  meta.getIcgcid().replaceAll("/","_");
+        String studyIdentifier =  identifier.replaceAll("/","_");
         metaMap.put("001cancer_study_identifier:", studyIdentifier);
         metaMap.put("002stable_id:",studyIdentifier+"_mutations");
         metaMap.put("003genetic_alteration_type:","MUTATION_EXTENDED");
         metaMap.put("004show_profile_in_analysis_tab:","true");
-        metaMap.put("005profile_description:",meta.getDescription());
+        metaMap.put("005profile_description:",description);
         metaMap.put("006profile_name:","mutations");
         metaMap.put("007datatype:","MAF");
         return metaMap;
     }
 
-    private Map<String,String> generateMetadataMap(CancerStudyMetadata meta){
-        Map<String,String> metaMap = Maps.newTreeMap();
-        metaMap.put("001cancer_study_identifier:", meta.getStableId());
-        metaMap.put("002genetic_alteration_type:","MUTATION_EXTENDED");
-        metaMap.put("003stable_id:",meta.getStableId()+"_mutations");
-        metaMap.put("004show_profile_in_analysis_tab:","true");
-        metaMap.put("005profile_description:",meta.getDescription());
-        metaMap.put("006profile_name:","mutations");
-        return metaMap;
-    }
+
 }

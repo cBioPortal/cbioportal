@@ -64,6 +64,7 @@ ACC_USER_SPREADSHEET = 'Request Access to the cBio ACC Cancer Genomics Portal'
 TARGET_USER_SPREADSHEET = 'Request Access to the cBio TARGET Cancer Genomics Portal'
 MSKCC_USER_SPREADSHEET = 'Request Access to the cBio MSKCC Cancer Genomics Portal'
 TRIAGE_USER_SPREADSHEET = 'Request Access to the cBio MSKCC (Triage) Cancer Genomics Portal'
+SU2C_KRAS_USER_SPREADSHEET = 'Request Access to the cBio KRAS Cancer Genomics Portal'
 
 # portal name (these should correspond to what is in property file of the respective portal)
 PORTAL_NAME = { GDAC_USER_SPREADSHEET : "gdac-portal",
@@ -73,7 +74,8 @@ PORTAL_NAME = { GDAC_USER_SPREADSHEET : "gdac-portal",
                 SU2C_USER_SPREADSHEET : "su2c-portal",
                 TARGET_USER_SPREADSHEET : "target-portal",
                 MSKCC_USER_SPREADSHEET : "mskcc-portal",
-                TRIAGE_USER_SPREADSHEET : "triage-portal" }
+                TRIAGE_USER_SPREADSHEET : "triage-portal",
+                SU2C_KRAS_USER_SPREADSHEET : "kras" }
 
 # a ref to the google spreadsheet client - used for all i/o to google spreadsheet
 GOOGLE_SPREADSHEET_CLIENT = gdata.spreadsheet.service.SpreadsheetsService()
@@ -105,7 +107,8 @@ MESSAGE_SUBJECT = { GDAC_USER_SPREADSHEET : "You have been granted access to the
                     SU2C_USER_SPREADSHEET : "cBioPortal for SU2C Access",
                     TARGET_USER_SPREADSHEET : "cBioPortal for NCI-TARGET",
                     MSKCC_USER_SPREADSHEET : "cBioPortal for MSKCC",
-                    TRIAGE_USER_SPREADSHEET : "cBioPortal for MSKCC (Triage)" }
+                    TRIAGE_USER_SPREADSHEET : "cBioPortal for MSKCC (Triage)",
+                    SU2C_KRAS_USER_SPREADSHEET : "cBioPortal for SU2C KRAS Lung cancer Dream Team" }
 GDAC_MESSAGE_BODY = """Thank you for your interest in the private instance of cBioPortal. We have granted you access. You can login at http://cbioportal.org/gdac-portal/. Please let us know if you have any problems logging in.
 
 Please keep in mind that the majority of the data provided in this Portal is preliminary and subject to change. This data is only available to researchers funded through TCGA or involved in the TCGA Disease and Analysis Working Groups.
@@ -146,6 +149,11 @@ TRIAGE_MESSAGE_BODY = """Thank you for your interest in the MSKCC (triage)instan
 Please keep in mind that the data provided in this Portal are preliminary and subject to change. Access to the data in this portal is only available to authorized users at Memorial Sloan Kettering Cancer Center.
 """
 
+SU2C_KRAS_MESSAGE_BODY = """Thank you for your interest in the cBioPortal for the SU2C KRAS Lung cancer Dream Team. We have granted you access. You can login at http://cbioportal.org/kras/. Please let us know if you have any problems logging in.
+
+Please keep in mind that the data provided in this Portal are preliminary and subject to change. Access to the data in this portal is only available to authorized users at Memorial Sloan Kettering Cancer Center.
+"""
+
 
 MESSAGE_BODY = { GDAC_USER_SPREADSHEET : GDAC_MESSAGE_BODY,
                  PROSTATE_USER_SPREADSHEET : PROSTATE_MESSAGE_BODY,
@@ -154,7 +162,8 @@ MESSAGE_BODY = { GDAC_USER_SPREADSHEET : GDAC_MESSAGE_BODY,
                  SU2C_USER_SPREADSHEET : SU2C_MESSAGE_BODY,
                  TARGET_USER_SPREADSHEET : TARGET_MESSAGE_BODY,
                  MSKCC_USER_SPREADSHEET : MSKCC_MESSAGE_BODY,
-                 TRIAGE_USER_SPREADSHEET : TRIAGE_MESSAGE_BODY }
+                 TRIAGE_USER_SPREADSHEET : TRIAGE_MESSAGE_BODY,
+                 SU2C_KRAS_USER_SPREADSHEET : SU2C_KRAS_MESSAGE_BODY }
 
 
 # ------------------------------------------------------------------------------
@@ -254,6 +263,8 @@ def get_worksheet_feed(ss, ws):
 def insert_new_users(cursor, new_user_list):
 
     try:
+        for user in new_user_list:
+            print >> OUTPUT_FILE, "new user: %s" % user.google_email;
         cursor.executemany("insert into users values(%s, %s, %s)",
                            [(user.google_email, user.name, user.enabled) for user in new_user_list])
         for user in new_user_list:
@@ -262,6 +273,7 @@ def insert_new_users(cursor, new_user_list):
             cursor.executemany("insert into authorities values(%s, %s)",
                                [(user.google_email, authority) for authority in authorities])
     except MySQLdb.Error, msg:
+        print >> OUTPUT_FILE, msg
         print >> ERROR_FILE, msg
         return False
 
@@ -331,7 +343,8 @@ def get_new_user_map(spreadsheet, worksheet_feed, current_user_map, portal_name)
             name = entry.custom[FULLNAME_KEY].text.strip()
             authorities = entry.custom[AUTHORITIES_KEY].text.strip()
             # do not add entry if this entry is a current user
-            if google_email not in current_user_map:
+            # we lowercase google account because entries added to mysql are lowercased.
+            if google_email.lower() not in current_user_map:
                 if authorities[-1:] == ';':
                     authorities = authorities[:-1]
                 if google_email in to_return:

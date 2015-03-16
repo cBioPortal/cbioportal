@@ -1,5 +1,6 @@
 package org.mskcc.cbio.importer.cvr.dmp.transformer;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
@@ -8,14 +9,10 @@ import org.mskcc.cbio.importer.cvr.dmp.model.DmpData;
 import org.mskcc.cbio.importer.cvr.dmp.model.Result;
 import org.mskcc.cbio.importer.cvr.dmp.model.StructuralVariant;
 import org.mskcc.cbio.importer.cvr.dmp.util.DmpUtils;
-import org.mskcc.cbio.importer.persistence.staging.TsvStagingFileHandler;
+import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 import org.mskcc.cbio.importer.persistence.staging.fusion.FusionModel;
 import org.mskcc.cbio.importer.persistence.staging.fusion.FusionTransformer;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.mskcc.cbio.importer.persistence.staging.mutation.MutationFileHandlerImpl;
-import org.mskcc.cbio.importer.persistence.staging.mutation.MutationModel;
-import org.mskcc.cbio.importer.persistence.staging.util.StagingUtils;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -42,20 +39,18 @@ import java.util.List;
  * Created by criscuof on 11/24/14.
  */
 public class DmpFusionTransformer extends FusionTransformer
-    /*
+        implements DMPDataTransformable{
+
+     /*
     responsible for generating the fusion staging file for DMP structural variants
      */
 
- implements DMPDataTransformable{
-
     private final static Logger logger = Logger.getLogger(DmpFusionTransformer.class);
+    private static final Boolean DELETE_STAGING_FILE = false;  // DMP files are appended
 
-    public DmpFusionTransformer(TsvStagingFileHandler aHandler, Path stagingFileDirectory) {
-        super(aHandler);
-        if(StagingUtils.isValidStagingDirectoryPath(stagingFileDirectory)) {
-            aHandler.registerTsvStagingFile(stagingFileDirectory.resolve("data_fusions.txt"),
-                    MutationModel.resolveColumnNames());
-        }
+
+    public DmpFusionTransformer(Path aPath,CancerStudyMetadata csMeta) {
+        super(aPath.resolve(dtMeta.getStagingFilename()), DELETE_STAGING_FILE, csMeta);
     }
 
     @Override
@@ -63,7 +58,8 @@ public class DmpFusionTransformer extends FusionTransformer
         Preconditions.checkArgument(null != data, "A DmpData object is required");
         List<DmpFusionModel> fusionModelList = Lists.newArrayList();
         // process any deprecated samples
-        DmpUtils.removeDeprecatedSamples(data,this.fileHandler);
+        this.tsvFileHandler.removeDeprecatedSamplesFomTsvStagingFiles(DmpFusionModel.getSampleIdColumnName(),
+                DmpUtils.resolveDeprecatedSamples(data));
         for(Result result : data.getResults()){
             String sampleId = result.getMetaData().getDmpSampleId();
             for(StructuralVariant sv : result.getSvVariants()){
@@ -73,55 +69,35 @@ public class DmpFusionTransformer extends FusionTransformer
                 if(!StringUtils.equals(sv.getSite1Gene(),sv.getSite2Gene())){
                     logger.info("Generating secondary variant for: " +sv.getEventInfo());
                     fusionModelList.add(
-                            new DmpFusionModel(this.generateSecondaryStructuralVariant(sv)));
+                            // use utility method to generate a record for the second gene in a heterogenous fusion
+                            new DmpFusionModel(DmpUtils.generateSecondaryStructuralVariant(sv)));
                 }
             }
         }
         // pass this list to the file handler for output
         if (!fusionModelList.isEmpty()) {
-            this.fileHandler.transformImportDataToTsvStagingFile(fusionModelList, FusionModel.getTransformationModel());
+            this.tsvFileHandler.transformImportDataToTsvStagingFile(fusionModelList, FusionModel.getTransformationModel());
+        }else {
+            logger.info("The DMP data did not contain any fusion variations");
         }
-    }
-
-    /*
-    private method to generate a structural variant for the second gene
-    in a fusion pair. The original site1 & site2 attributes are reversed
-     */
-    private StructuralVariant generateSecondaryStructuralVariant(StructuralVariant primary){
-        StructuralVariant secondary = new StructuralVariant();
-        secondary.setComments(primary.getComments());
-        secondary.setConfidenceClass(primary.getConfidenceClass());
-        secondary.setConnType(primary.getConnType());
-        secondary.setDmpSampleId(primary.getDmpSampleId());
-        secondary.setEventInfo(primary.getEventInfo());
-        // reverse site1 and site2 attribute values
-        secondary.setSite1Chrom(primary.getSite2Chrom());
-        secondary.setSite1Desc(primary.getSite2Desc());
-        secondary.setSite1Gene(primary.getSite2Gene());
-        secondary.setSite1Pos(primary.getSite2Pos());
-        secondary.setSite2Chrom(primary.getSite1Chrom());
-        secondary.setSite2Desc(primary.getSite1Desc());
-        secondary.setSite2Gene(primary.getSite1Gene());
-        secondary.setSite2Pos(primary.getSite1Pos());
-        secondary.setSvClassName(primary.getSvClassName());
-        secondary.setSvDesc(primary.getSvDesc());
-        secondary.setSvLength(primary.getSvLength());
-        secondary.setSvVariantId(primary.getSvVariantId());
-        secondary.setVariantStatusName(primary.getVariantStatusName());
-        return secondary;
     }
 
     // main method for stand alone testing
     public static void main(String...args){
         ObjectMapper OBJECT_MAPPER = new ObjectMapper();
         Path stagingFileDirectory = Paths.get("/tmp/cvr/dmp");
-        DmpFusionTransformer transformer = new DmpFusionTransformer(new MutationFileHandlerImpl(), stagingFileDirectory);
-        try {
-            DmpData data = OBJECT_MAPPER.readValue(new File("/tmp/cvr/dmp/result-sv.json"), DmpData.class);
-            transformer.transform(data);
+        Optional<CancerStudyMetadata> csMetaOpt = CancerStudyMetadata.findCancerStudyMetaDataByStableId(DMPDataTransformer.STABLE_ID);
+        if (csMetaOpt.isPresent()) {
+            DmpFusionTransformer transformer = new DmpFusionTransformer(stagingFileDirectory, csMetaOpt.get());
+            try {
+                DmpData data = OBJECT_MAPPER.readValue(new File("/tmp/dmp_ws.json"), DmpData.class);
+                transformer.transform(data);
 
-        } catch (IOException ex) {
-            logger.error(ex.getMessage());
+            } catch (IOException ex) {
+                logger.error(ex.getMessage());
+            }
+        } else {
+            logger.error("CancerStudyMetadata for " +DMPDataTransformer.STABLE_ID +" could not be resolved");
         }
     }
 

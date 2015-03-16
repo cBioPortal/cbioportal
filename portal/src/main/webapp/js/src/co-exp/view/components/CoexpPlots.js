@@ -62,20 +62,32 @@ var CoexpPlots = function() {
         return function(result) {
             var alteration_data_result = jQuery.extend(result, {}, true);
             //get mutation data
-            var proxy = DataProxyFactory.getDefaultMutationDataProxy();
-            var _genes = _geneX + " " + _geneY;
-            proxy.getMutationData(
-                _genes, 
-                getMutationDataCallBack(
+            if (CoExpView.has_mutation_data()) {
+                var proxy = DataProxyFactory.getDefaultMutationDataProxy();
+                var _genes = _geneX + " " + _geneY;
+                proxy.getMutationData(
+                    _genes, 
+                    getMutationDataCallBack(
+                        alteration_data_result, 
+                        _divName, 
+                        _geneX, 
+                        _geneY, 
+                        _pearson, 
+                        _spearman
+                    )
+                );                
+            } else {
+                pseudo_callback(
                     alteration_data_result, 
                     _divName, 
                     _geneX, 
                     _geneY, 
                     _pearson, 
                     _spearman
-                )
-            );
-        }
+                );
+            }
+
+        };
     }
 
     function getMutationDataCallBack(_alteration_data_result, _divName, _geneX, _geneY, _pearson, _spearman) {
@@ -83,11 +95,17 @@ var CoexpPlots = function() {
             CoexpPlotsProxy.init(_alteration_data_result, _geneX, _geneY, _pearson, _spearman);
             var coexpPlotsView = new CoexpPlotsView();
             coexpPlotsView.init(_divName, _geneX, _geneY, CoexpPlotsProxy.getData(), CoexpPlotsProxy.getDataAttr());
-        }
+        };
+    }
+    
+    function pseudo_callback(_alteration_data_result, _divName, _geneX, _geneY, _pearson, _spearman) {
+        CoexpPlotsProxy.init(_alteration_data_result, _geneX, _geneY, _pearson, _spearman);
+        var coexpPlotsView = new CoexpPlotsView();
+        coexpPlotsView.init(_divName, _geneX, _geneY, CoexpPlotsProxy.getData(), CoexpPlotsProxy.getDataAttr());
     }
 
     return {
         init: init
-    }
+    };
 
-}
+};

@@ -15,35 +15,43 @@
  *  Memorial Sloan-Kettering Cancer Center 
  *  has been advised of the possibility of such damage.
  */
-package org.mskcc.cbio.importer.extractor;
+package org.mskcc.cbio.importer.dmp.transformer;
 
-import org.mskcc.cbio.importer.foundation.extractor.FileDataSource;
-import com.google.common.base.Predicate;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
+import java.nio.file.Paths;
 import org.apache.log4j.Logger;
 
-import org.mskcc.cbio.importer.Config;
-import org.mskcc.cbio.importer.foundation.transformer.FoundationXMLTransformerOld;
+import org.mskcc.cbio.importer.cvr.dmp.model.DmpData;
+import org.mskcc.cbio.importer.cvr.dmp.transformer.DMPDataTransformer;
 
-public class TestXMLFileTransformerOld {
+public class TestDMPTransformer {
 
-    private final static Logger logger = Logger.getLogger(TestXMLFileTransformerOld.class);
+    private final static Logger logger = Logger.getLogger(TestDMPTransformer.class); 
+
+    private final DMPDataTransformer transformer;
+
+    public TestDMPTransformer() {
+      
+        this.transformer = new DMPDataTransformer(Paths.get("/tmp/dmp"));
+    }
+
+    private void testTransformations(DmpData data) {
+        this.transformer.transform(data);
+    }
 
     public static void main(String... args) {
+        ObjectMapper OBJECT_MAPPER = new ObjectMapper(); 
+
         try {
-            Config config = new MockConfig();
-            Predicate xmlFileExtensionFilter = new Predicate<Path>() {
-                @Override
-                public boolean apply(Path input) {
-                    return (input.toString().endsWith("xml"));
-                }
-            };
-            FileDataSource fds = new FileDataSource("/data/foundation/amc_rsp/mskcc/foundation/filtered", xmlFileExtensionFilter);
-            FoundationXMLTransformerOld transformer = new FoundationXMLTransformerOld(config);
-            transformer.transform(fds);
+            DmpData data = OBJECT_MAPPER.readValue(new File("/tmp/result.json"), DmpData.class);
+            TestDMPTransformer test = new TestDMPTransformer();
+            test.testTransformations(data);
+
         } catch (IOException ex) {
             logger.error(ex.getMessage());
         }
     }
+
 }

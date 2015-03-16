@@ -67,13 +67,14 @@ public class FoundationFetcherImpl implements Fetcher {
     private ImportDataRecordDAO importDataRecordDAO;
     private DatabaseUtils databaseUtils;
     private DataSourcesMetadata dataSourceMetadata;
+    private static final String FOUNDTAION_DATA_SOURCE_NAME = "foundation";
 
    /*
     Default constructor - for stand alone testing
 
     */ 
     public FoundationFetcherImpl(){
-        this.extractor = new FoundationStudyExtractor();
+        this.extractor = new FoundationStudyExtractor(FOUNDTAION_DATA_SOURCE_NAME);
         TsvStagingFileHandler svtFileHandler = new MutationFileHandlerImpl();
         CnvFileHandler cnVFileHandler = new CnvFileHandlerImpl();
         ClinicalDataFileHandler clinicalDataFileHandler = new ClinicalDataFileHandlerImpl();
@@ -99,7 +100,7 @@ public class FoundationFetcherImpl implements Fetcher {
     @Override
     // legacy fetch
     // attributes now resolved from importer spreadsheet
-    public void fetch(final String dataSource, final String desiredRunDate) throws Exception {
+    public void fetch(final String dataSource, final String desiredRunDate, boolean updateStudiesWorksheet) throws Exception {
         this.fetch();
 
     }

@@ -548,10 +548,10 @@ var MutationViewsUtil = (function()
 	 * Mapping btw the copy number (data) values and view values.
 	 */
 	var _cnaMap = {
-		"-2": {label: "HOMDEL", style: "cna-homdel", tooltip: "Homozygously deleted"},
-		"-1": {label: "hetloss", style: "cna-hetloss", tooltip: "Heterozygously deleted"},
-		"0": {label: "diploid", style: "cna-diploid", tooltip: "Diploid / normal"},
-		"1": {label: "gain", style: "cna-gain", tooltip: "Low-level gain"},
+		"-2": {label: "DeepDel", style: "cna-homdel", tooltip: "Deep deletion"},
+		"-1": {label: "ShallowDel", style: "cna-hetloss", tooltip: "Shallow deletion"},
+		"0": {label: "Diploid", style: "cna-diploid", tooltip: "Diploid / normal"},
+		"1": {label: "Gain", style: "cna-gain", tooltip: "Low-level gain"},
 		"2": {label: "AMP", style: "cna-amp", tooltip: "High-level amplification"},
 		"unknown" : {label: "NA", style: "cna-unknown", tooltip: "CNA data is not available for this gene"}
 	};

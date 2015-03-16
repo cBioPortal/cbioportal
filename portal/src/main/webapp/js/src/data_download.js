@@ -127,6 +127,7 @@ var DataDownloadTab = (function() {
                     "<form name='download_tab_form_" + val + "_" + inner_obj.value + "' style='display:inline-block' action='getProfileData.json' method='post' target='_blank'>" +
                         "<input type='hidden' name='cancer_study_id' value='" + window.PortalGlobals.getCancerStudyId() + "'>" +
                         "<input type='hidden' name='case_set_id' value='" + window.PortalGlobals.getCaseSetId() + "'>" +
+                        "<input type='hidden' name='case_ids_key' value='" + window.PortalGlobals.getCaseIdsKey() + "'>" + 
                         "<input type='hidden' name='genetic_profile_id' value='" + val + "'>" +
                         "<input type='hidden' name='gene_list' value='" + window.PortalGlobals.getGeneListString() + "'>" +
                         "<input type='hidden' name='force_download' value='true'>" +

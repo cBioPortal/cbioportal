@@ -156,6 +156,16 @@ class GDataImpl implements Config {
                                                                         "org.mskcc.cbio.importer.model.TCGATumorTypeMetadata");
     }
 
+    public TCGATumorTypeMetadata getTCGATumorTypeMetadata(String oncotreeCode)
+    {
+        for (TCGATumorTypeMetadata md : getTCGATumorTypeMetadata()) {
+            if (md.getOncoTreeCode().equals(oncotreeCode)) {
+                return md;
+            }
+        }
+        return null;
+    }
+
 	/**
 	 * Gets a TumorTypeMetadata object via tumorType.
 	 * If tumorType == Config.ALL, all are returned.
@@ -931,7 +941,7 @@ class GDataImpl implements Config {
         for (int lc = 1; lc < metadataMatrix.size(); lc++) {
             Object[] args = {metadataMatrix.get(lc).toArray(new String[0])};
             try {
-                toReturn.add(ClassLoader.getInstance(className, args));
+                toReturn.add(ClassLoader.getInstance(className, args, true));
             } catch (Exception e) {
                 e.printStackTrace();
             }

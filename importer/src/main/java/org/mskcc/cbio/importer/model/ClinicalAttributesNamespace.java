@@ -61,8 +61,7 @@ public class ClinicalAttributesNamespace
         this.normalizedColumnHeader = properties[1].trim();
         this.tumorType = properties[2].trim();
         this.cancerStudy = properties[3].trim();
-        this.numberOfStudies = (Strings.isNullOrEmpty(properties[4]) && StringUtils.isNumeric(properties[4]))?0
-                :Integer.parseInt(properties[4]);
+        this.numberOfStudies = (Strings.isNullOrEmpty(properties[4])) ? 0 : Integer.parseInt(properties[4]);
         this.displayName = properties[5].trim();
         this.description = properties[6].trim();
         this.dateAdded = properties[7].trim();

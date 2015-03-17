@@ -292,7 +292,7 @@ function reviewCurrentSelections(){
 //  a study-specific query
 function chooseAction() {
     var haveExpInQuery = $("#gene_list").val().toUpperCase().search("EXP") > -1;
-    $("#exp_error_box").remove();
+    $("#error_box").remove();
 
     var selected_studies = $("#jstree").jstree(true).get_selected_leaves();
     if (selected_studies.length > 1) {
@@ -304,7 +304,7 @@ function chooseAction() {
             $("#main_form").get(0).setAttribute('action','cross_cancer.do');    
         }
         if ( haveExpInQuery ) {
-            createAnEXPError("Expression filtering in the gene list is not supported when doing cross cancer queries.");
+            createAnError("Expression filtering in the gene list is not supported when doing cross cancer queries.",  $('#gene_list'));
             return false;
         }
     } else if (selected_studies.length === 1) {
@@ -315,35 +315,35 @@ function chooseAction() {
             var expCheckBox = $("." + PROFILE_MRNA_EXPRESSION);
 
             if( expCheckBox.length > 0 && expCheckBox.prop('checked') == false) {
-                    createAnEXPError("Expression specified in the list of genes, but not selected in the" +
-                                        " Genetic Profile Checkboxes.");
+                    createAnError("Expression specified in the list of genes, but not selected in the" +
+                                        " Genetic Profile Checkboxes.",  $('#gene_list'));
                     return false;
             } else if( expCheckBox.length == 0 ) {
-                createAnEXPError("Expression specified in the list of genes, but not selected in the" +
-                                    " Genetic Profile Checkboxes.");
+                createAnError("Expression specified in the list of genes, but not selected in the" +
+                                    " Genetic Profile Checkboxes.",  $('#gene_list'));
                 return false;
             }
         }
 
         return true;
     } else {
-	    // TODO: make error - no studies selected
+	    createAnError("No studies selected.", $('#gene_list'));
 	    return false;
     }
 }
 
-function createAnEXPError(errorText) {
-    var errorBox = $("<div id='exp_error_box'>").addClass("ui-state-error ui-corner-all exp_error_box");
-    var errorButton = $("<span>").addClass("ui-icon ui-icon-alert exp_error_button");
-    var strongErrorText = $("<small>").html("Error: " + errorText + "<br>");
-    var errorTextBox = $("<span>").addClass("exp_error_text");
-
-    errorButton.appendTo(errorBox);
-    strongErrorText.appendTo(errorTextBox);
-    errorTextBox.appendTo(errorBox);
-
-    errorBox.insertBefore("#gene_list");
-    errorBox.slideDown();
+function createAnError(errorText, targetElt) {
+	var errorBox = $("<div id='error_box'>").addClass("ui-state-error ui-corner-all exp_error_box");
+	var errorButton = $("<span>").addClass("ui-icon ui-icon-alert exp_error_button");
+	var strongErrorText = $("<small>").html("Error: " + errorText + "<br>");
+	var errorTextBox = $("<span>").addClass("exp_error_text");
+	
+	errorButton.appendTo(errorBox);
+	strongErrorText.appendTo(errorTextBox);
+	errorTextBox.appendTo(errorBox);
+	
+	errorBox.insertBefore(targetElt);
+	errorBox.slideDown();
 }
 
 //  Triggered when a genomic profile radio button is selected

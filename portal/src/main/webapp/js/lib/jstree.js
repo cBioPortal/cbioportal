@@ -4738,13 +4738,13 @@
 							}
 						}, this))
 					.on(this.settings.checkbox.tie_selection ? 'deselect_node.jstree' : 'uncheck_node.jstree', $.proxy(function (e, data) {
-							var obj = data.node,
+							var obj = data.node, m=this._model.data,
 								dom = this.get_node(obj, true),
 								i, j, tmp, s = this.settings.checkbox.cascade, t = this.settings.checkbox.tie_selection;
 							if(obj && obj.original && obj.original.state && obj.original.state.undetermined) {
 								obj.original.state.undetermined = false;
 							}
-
+							
 							// apply down
 							if(s.indexOf('down') !== -1) {
 								for(i = 0, j = obj.children_d.length; i < j; i++) {
@@ -4775,17 +4775,24 @@
 									}
 								}
 							}
-							tmp = [];
+							this._data[ t ? 'core' : 'checkbox' ].selected = [];
+							$.each(m, $.proxy(function(key, val) {
+								if (val.state.selected) {
+									this._data[ t ? 'core' : 'checkbox' ].selected.push(key);
+								}
+							}, this));
+							/*tmp = [];
 							for(i = 0, j = this._data[ t ? 'core' : 'checkbox' ].selected.length; i < j; i++) {
 								// apply down + apply up
 								if(
+									(m[this._data[ t ? 'core' : 'checkbox' ].selected[i]].state.fixed) || 
 									(s.indexOf('down') === -1 || $.inArray(this._data[ t ? 'core' : 'checkbox' ].selected[i], obj.children_d) === -1) &&
 									(s.indexOf('up') === -1 || $.inArray(this._data[ t ? 'core' : 'checkbox' ].selected[i], obj.parents) === -1)
 								) {
 									tmp.push(this._data[ t ? 'core' : 'checkbox' ].selected[i]);
 								}
 							}
-							this._data[ t ? 'core' : 'checkbox' ].selected = $.vakata.array_unique(tmp);
+							this._data[ t ? 'core' : 'checkbox' ].selected = $.vakata.array_unique(tmp);*/
 
 							/*// apply down (process .children separately?)
 							if(s.indexOf('down') !== -1 && dom.length) {

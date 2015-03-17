@@ -1000,8 +1000,9 @@ function addMetaDataToPage() {
 	var jstree_num_leaves;
 	$('#jstree').on('ready.jstree', function() {
 		jstree_num_leaves = $('#jstree').jstree(true).get_leaves().length;
+		onJSTreeChange();
 	});
-	$('#jstree').on('changed.jstree', function() {
+	var onJSTreeChange = function() {
 		var select_single_study = $("#main_form").find("#select_single_study");
 		var select_multiple_studies = $("#main_form").find("#select_multiple_studies");
 		var selected_studies = $("#jstree").jstree(true).get_selected_leaves();
@@ -1010,8 +1011,6 @@ function addMetaDataToPage() {
 		var old_select_single_study_val = select_single_study.val();
 		if (selected_studies.length === 1) {
 			select_single_study.val(selected_studies[0]);
-		} else if (selected_studies.length > 1) {
-			select_single_study.val("all");
 		} else {
 			select_single_study.val("all");
 		}
@@ -1020,7 +1019,8 @@ function addMetaDataToPage() {
 			select_single_study.trigger('change');
 		}
 		select_multiple_studies.trigger('change');
-	});
+	};
+	$('#jstree').on('changed.jstree', onJSTreeChange);
 	$('#jstree').jstree(true).hide_icons();
 	
 

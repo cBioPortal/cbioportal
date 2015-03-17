@@ -22,17 +22,18 @@ var orData = function() {
                     data[_tmp[0]] = _tmp[1];
                 });
                 retrieved = true;
+                console.log(data);
             })
             .fail(function( jqXHR, textStatus ) {
                 alert( "Request failed: " + textStatus );
             }); 
         },
-        get: function(callback_func) { 
+        get: function(callback_func, param) { 
             var tmp = setInterval(function () { timer(); }, 1000);
             function timer() {
                 if (retrieved) {
                     clearInterval(tmp);
-                    callback_func(data);
+                    callback_func(data, param);
                 }
             }
         }

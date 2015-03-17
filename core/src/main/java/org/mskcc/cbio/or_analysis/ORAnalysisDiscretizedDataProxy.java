@@ -2,12 +2,6 @@ package org.mskcc.cbio.or_analysis;
 
 import org.mskcc.cbio.portal.stats.FisherExact;
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
  * pre-calculate/re-format input raw data based on different profiles
  * then return result (p-value) of fisher exact test

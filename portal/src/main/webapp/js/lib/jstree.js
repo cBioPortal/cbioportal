@@ -802,7 +802,7 @@
 								}
 							}
 						}, this));
-					this._set_descendant_count_names();
+					this._set_visible_descendant_count_names();
 					}, this))
 					
 				// THEME RELATED
@@ -3068,13 +3068,14 @@
 		 * @return {Boolean}
 		 */
 		is_selected : function (obj) {
+			var m = this._model.data;
 			obj = this.get_node(obj);
 			if(!obj || obj.id === '#') {
 				return false;
 			}
 			if (this._data.search.str.length > 0 && obj.descendants && obj.descendants.length > 0) {
 				for (var i=0, _len=obj.descendants.length; i<_len; i++) {
-					if (!(obj.descendants[i] in this._data.search.state_frozen) && !(this.get_node(obj.descendants[i]).state.selected)) {
+					if (!m[obj.descendants[i]].state.fixed && !m[obj.descendants[i]].state.selected) {	
 						return false;
 					}
 				}
@@ -3286,17 +3287,18 @@
 		/**
 		 * Private, used internally. Refreshes the node labels so they
 		 * have next to them the number of visible leaf descendants.
-		 * @name _set_descendant_count_names ()
+		 * @name _set_visible_descendant_count_names ()
 		 */
-		_set_descendant_count_names: function() {
+		_set_visible_descendant_count_names: function() {
+			var m = this._model.data;
 			$.each(this._model.data, $.proxy(function(key, val) {
-				// a node is visible iff it's not in state_frozen
+				// a node is visible iff its state is not fixed from search
 				if (!(val.descendants) || val.descendants.length === 0) {
 					return 1;
 				}
 				var count = 0;
 				for (var i=0, _len=val.descendants.length; i<_len; i++) {
-					count += !(this._data.search.str.length > 0 && (val.descendants[i] in this._data.search.state_frozen));
+					count += !(this._data.search.str.length > 0 && m[val.descendants[i]].state.fixed);
 				}
 				this.rename_node(key, val.li_attr.name+' ('+count+')');
 			}, this));
@@ -6454,7 +6456,6 @@
 			this._data.search.dom = $();
 			this._data.search.res = [];
 			this._data.search.opn = [];
-			this._data.search.state_frozen = {};
 			this._data.search.som = false;
 
 			this.element
@@ -6547,7 +6548,6 @@
 			this._data.search.dom = $();
 			this._data.search.res = [];
 			this._data.search.opn = [];
-			this._data.search.state_frozen = {};
 			this._data.search.som = show_only_matches;
 
 			f = new $.vakata.search(str, true, { caseSensitive : s.case_sensitive, fuzzy : s.fuzzy });
@@ -6558,10 +6558,6 @@
 					p = p.concat(v.parents);
 					v.state.fixed = false;
 				} else {
-					if (!s.search_leaves_only || (v.state.loaded && v.children.length === 0)) {
-						
-						this._data.search.state_frozen[i] = this._model.data[i].state.selected;
-					}
 					v.state.fixed = true;
 				}
 			}, this));
@@ -6584,7 +6580,7 @@
 			 * @param {Array} res a collection of objects represeing the matching nodes
 			 * @plugin search
 			 */
-			this._set_descendant_count_names();
+			this._set_visible_descendant_count_names();
 			this.trigger('search', { nodes : this._data.search.dom, str : str, res : this._data.search.res, show_only_matches : show_only_matches });
 		};
 		/**
@@ -6614,9 +6610,8 @@
 			this._data.search.str = "";
 			this._data.search.res = [];
 			this._data.search.opn = [];
-			this._data.search.state_frozen = {};
 			this._data.search.dom = $();
-			this._set_descendant_count_names();
+			this._set_visible_descendant_count_names();
 		};
 		/**
 		 * opens nodes that need to be opened to reveal the search results. Used only internally.

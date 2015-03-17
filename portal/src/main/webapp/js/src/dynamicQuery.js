@@ -1003,6 +1003,7 @@ function addMetaDataToPage() {
 		onJSTreeChange();
 	});
 	var onJSTreeChange = function() {
+		$("#error_box").remove();
 		var select_single_study = $("#main_form").find("#select_single_study");
 		var select_multiple_studies = $("#main_form").find("#select_multiple_studies");
 		var selected_studies = $("#jstree").jstree(true).get_selected_leaves();

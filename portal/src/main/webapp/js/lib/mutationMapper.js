@@ -11009,20 +11009,35 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 					"sExtends": "text",
 					"sButtonText": "CSV",
 					"mColumns": getExportColumns(columnOpts, excludedCols),
-					//"fnCellRender": function(sValue, iColumn, nTr, iDataIndex) {
-					//	// TODO formatting required for some columns...
-					//	return sValue;
-					//},
+					"fnCellRender": function(sValue, iColumn, nTr, iDataIndex) {
+						var value = sValue;
+
+						// strip HTML content and use the main (visible) text only
+						if(sValue.indexOf("<") != -1 &&
+						   sValue.indexOf(">") != -1)
+						{
+							value = $(sValue).text();
+						}
+
+						// also remove the text of "3D" link from the protein change column
+						if (iColumn === indexMap["proteinChange"])
+						{
+							value = value.replace(/(\s)3D/, '');
+						}
+
+						return value.trim();
+					},
 					"fnClick": function(nButton, oConfig) {
-						var text = this.fnGetTableData(oConfig);
+						// get the file data (formatted by 'fnCellRender' function)
+						var content = this.fnGetTableData(oConfig);
 
 						var downloadOpts = {
-							filename: "mutation_table_" + gene + ".txt",
+							filename: "mutation_table_" + gene + ".csv",
 							contentType: "text/plain;charset=utf-8",
 							preProcess: false};
 
 						// send download request with filename & file content info
-						cbio.download.initDownload(text, downloadOpts);
+						cbio.download.initDownload(content, downloadOpts);
 					}
 				}]
 			},

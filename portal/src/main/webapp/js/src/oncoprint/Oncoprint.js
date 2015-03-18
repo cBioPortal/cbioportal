@@ -1,3 +1,35 @@
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This file is part of cBioPortal.
+ *
+ * cBioPortal is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 //
 //
 // Gideon Dresdner <dresdnerg@cbio.mskcc.org> June 2013
@@ -16,6 +48,54 @@ define("Oncoprint",
                 params.clinicalData = params.clinicalData || [];        // initialize
                 params.clinical_attrs = params.clinical_attrs || [];
 
+                var SampleIdMapPatientId = PortalGlobals.getPatientSampleIdMap();
+                var newGeneData = [];
+                var newclinicalData = [];
+                
+                //change sampleId to patientId on geneData
+                for(var i = 0; i < params.geneData.length; i++)
+                {
+                    var patiendId = SampleIdMapPatientId[params.geneData[i].sample];
+                    
+                    var findIndexValue = function(){
+                        for(var j=0;j<newGeneData.length;j++)
+                        {
+                            if(patiendId === newGeneData[j].patient && newGeneData[j].gene === params.geneData[i].gene)
+                            {
+                                return j;
+                            }
+                        }
+                        
+                        return -1;
+                    };
+                    
+                    var positionValue = findIndexValue();
+                    if(positionValue > -1)
+                    {
+                        if(params.geneData[i].mutation !== undefined && newGeneData[positionValue].mutation !== undefined)
+                        {
+                            newGeneData[positionValue].mutation=newGeneData[positionValue].mutation + ","+params.geneData[i].mutation; 
+                        }
+                        else if(params.geneData[i].mutation !== undefined)
+                        {
+                            newGeneData[positionValue].mutation = params.geneData[i].mutation;
+                        }
+                    }
+                    else
+                    {
+                        if(params.geneData[i].mutation !== undefined)
+                        {
+                            var newData = {gene:params.geneData[i].gene,mutation:params.geneData[i].mutation,patient:patiendId};
+                        }
+                        else
+                        {
+                            var newData = {gene:params.geneData[i].gene,patient:patiendId};
+                        }
+                        
+                        newGeneData.push(newData);
+                    }
+                }
+                
                 if(params.clinical_attrs.length > 0)
                 {
                     $('#oncoprint-diagram-showlegend-icon').css("display","inline");
@@ -33,7 +113,52 @@ define("Oncoprint",
                     return i;
                 });
 
-                var data = clinicalData.concat(params.geneData);
+                //change sampleId to patientId on clinicalData
+                for(var i = 0; i < clinicalData.length; i++)
+                {
+                    var patiendId = SampleIdMapPatientId[clinicalData[i].sample];
+                    
+                    var findIndexValue = function(){
+                        for(var j=0;j<newclinicalData.length;j++)
+                        {
+                            if(patiendId === newclinicalData[j].patient && newclinicalData[j].attr_id === clinicalData[i].attr_id)
+                            {
+                                return j;
+                            }
+                        }
+                        
+                        return -1;
+                    };
+                    
+                    var positionValue = findIndexValue();
+                    if(positionValue > -1)
+                    {
+                        if(clinicalData[i].attr_val !== undefined && newclinicalData[positionValue].attr_val !== undefined)
+                        {
+                            newclinicalData[positionValue].attr_val=newclinicalData[positionValue].attr_val + ","+clinicalData[i].attr_val; 
+                        }
+                        else if(clinicalData[i].attr_val !== undefined)
+                        {
+                            newclinicalData[positionValue].attr_val = clinicalData[i].attr_val;
+                        }
+                    }
+                    else
+                    {
+                        if(clinicalData[i].attr_val !== undefined)
+                        {
+                            var newData = {attr_id:clinicalData[i].attr_id,attr_val:clinicalData[i].attr_val,patient:patiendId};
+                        }
+                        else
+                        {
+                            var newData = {attr_id:clinicalData[i].attr_id,patient:patiendId};
+                        }
+                        
+                        newclinicalData.push(newData);
+                    }
+                }
+                
+//                var data = clinicalData.concat(params.geneData);
+                var data = newclinicalData.concat(newGeneData);
 
                 var clinical_attrs = params.clinical_attrs      // extract attr_ids
                     .map(function(attr) { return attr.attr_id; });

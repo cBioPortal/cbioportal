@@ -41,13 +41,12 @@ var CoExpView = (function() {
             loadingImgPrefix: "coexp_loading_img_",
             tableDivPrefix: "coexp_table_div_",
             tablePrefix: "coexp_table_",
-            plotPrefix: "coexp_plot_",
+            plotPrefix: "coexp_plot_"
         },
         dim = {
             coexp_table_width: "380px",
             coexp_plots_width: "750px"
         },
-        threshold = 0.3,
         has_mutation_data = false;
     //Containers    
     var profileList = []; //Profile Lists for all queried genes
@@ -349,14 +348,19 @@ var CoExpView = (function() {
             function getCoExpDataCallBack(result, geneId) {
                 //Hide the loading img
                 $("#" + Names.loadingImgId).empty();
-                //Render datatable
-                convertData(result);
-                overWriteFilters(); 
-                configTable();
-                attachDownloadFullResultButton();
-                attachPearsonFilter();
-                attachRowListener();
-                initTable();
+                if (result.length === 0) {
+                    $("#" + Names.tableDivId).append("There are no gene pairs with a Pearson or Spearman score > 0.3 or < -0.3. To see the scores for all gene pairs, use the button below.");
+                    attachDownloadFullResultButton();                    
+                } else {
+                    //Render datatable
+                    convertData(result);
+                    overWriteFilters(); 
+                    configTable();
+                    attachDownloadFullResultButton();
+                    attachPearsonFilter();
+                    attachRowListener();
+                    initTable();                    
+                }
             }
 
             return {

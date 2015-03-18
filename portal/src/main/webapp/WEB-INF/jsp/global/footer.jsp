@@ -8,5 +8,6 @@
 Questions and feedback: <%= GlobalProperties.getEmailContact() %>
 <% if (GlobalProperties.getAppName().equalsIgnoreCase("public-portal")) { %>
  | <a href="http://groups.google.com/group/cbioportal">User discussion group</a>
+ | <a href="https://www.biostars.org/t/cbioportal/">BioStars</a>
 <% } %>
 </div> <!--end of page_wrapper-->

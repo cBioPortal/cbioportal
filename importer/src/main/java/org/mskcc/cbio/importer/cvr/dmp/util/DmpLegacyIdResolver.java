@@ -72,7 +72,7 @@ public enum DmpLegacyIdResolver {
         {
             return Optional.of(sampleIdMap.get(legacyId));
         }
-        //logger.error("Legacy sample id " +legacyId +" was not found in sample id map");
+       // logger.error("Legacy sample id " +legacyId +" was not found in sample id map");
         return Optional.absent();
     }
 

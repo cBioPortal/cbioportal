@@ -63,6 +63,7 @@ public class DmpDataFileRefactoringApplication {
     private static final String SEGMENT_FILE_SAMPLE_ID_COLUMN_NAME = "ID";
     private static final String TSV_DATA_SAMPLE_ID_COLUMN_NAME = "Tumor_Sample_Barcode";
     private static final String SV_DATA_SAMPLE_ID_COLUMN_NAME = "TumorId";
+    private static final String SPECIMEN_REFERENCE_NUMBER_COLUMN_NAME = "SpecimenReferenceNumber";
     private static final String CANCER_TYPE_COLUMN_NAME = "CANCER_TYPE";
     private static final String CANCER_TYPE_DETAILED_COLUMN_NAME = "CANCER_TYPE_DETAILED";
     private static final String OTHER_PATIENT_ID_COLUMN_NAME = "OTHER_PATIENT_ID";
@@ -73,7 +74,7 @@ public class DmpDataFileRefactoringApplication {
     private static final String META_FILE_IDENTIFIER = "meta";
     private final Set<String> SAMPLE_ID_COLUMN_NAME_SET = Sets.newHashSet(CLINICAL_DATA_SAMPLE_ID_COLUMN_NAME,
             TSV_DATA_SAMPLE_ID_COLUMN_NAME,  SV_DATA_SAMPLE_ID_COLUMN_NAME,
-            SEGMENT_FILE_SAMPLE_ID_COLUMN_NAME  );
+            SEGMENT_FILE_SAMPLE_ID_COLUMN_NAME ,SPECIMEN_REFERENCE_NUMBER_COLUMN_NAME );
 
     private final Set<String> PATIENT_ID_COLUMN_NAME_SET = Sets.newHashSet(PATIENT_ID_COLUMN_NAME);
 
@@ -351,10 +352,10 @@ public class DmpDataFileRefactoringApplication {
             dataSource = DATA_SOURCE_NAME;
         }
 
-       // Path testPath = Paths.get("/tmp/msk-impact/msk-impact");
-        //DmpDataFileRefactoringApplication test = new DmpDataFileRefactoringApplication(testPath);
-        DmpDataFileRefactoringApplication test = new DmpDataFileRefactoringApplication
-                (dataSource);
+        Path testPath = Paths.get("/tmp/msk-impact");
+        DmpDataFileRefactoringApplication test = new DmpDataFileRefactoringApplication(testPath);
+        //DmpDataFileRefactoringApplication test = new DmpDataFileRefactoringApplication
+        //        (dataSource);
         test.refactorFileFunction();
     }
 

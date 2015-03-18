@@ -36,8 +36,17 @@ public interface StagingCommonNames {
     public static final String HUGO_COLUMNNAME = "Hugo_symbol";
     public static final String INTERGENIC = "intergenic";
 
-    public static final String xmlExtension = "xml";
-    public static final String stagingFileExtension = "txt";
+    // common file extensions
+    public static final String TEXT_FILE_EXTENSION = "txt";
+    public static final String EXCEL_FILE_EXTENSION = "xls";
+    public static final String EXCELX_FILE_EXTENSION = "xlsx";
+    public static final String TSV_FILE_EXTENSION = "tsv";
+    public static final String XML_FILE_EXTENSION = "xml";
+    public static final String COMPRESSED_FILE_EXTENSION = "gz";
+
+    // support for legacy file extension use
+    public static final String stagingFileExtension = TEXT_FILE_EXTENSION;
+    public static final String xmlExtension = XML_FILE_EXTENSION;
 
     public static final List<String> variationList = Lists.newArrayList("INS", "SNP", "DNP", "TNP", "ONP");
     // worksheet data types
@@ -46,8 +55,7 @@ public interface StagingCommonNames {
     public static final String DATATYPE_FUSION = "fusion";
     public static final String DATATYPE_CLINICAL = "clinical";
 
-
-
+    // COMMON SPLITTERS & JOINERS
     public static final Splitter tabSplitter = Splitter.on("\t");
     public static final Splitter lineSplitter = Splitter.on("\n").trimResults();
     public static final Splitter blankSplitter = Splitter.on(" ");
@@ -80,15 +88,18 @@ public interface StagingCommonNames {
     public static final String FUSION_STAGING_FILENAME ="data_fusions.txt";
     public static final String FUSION_METADATA_FILENAME = "meta_fusions.txt";
     //clinical
-    public static final String CLINICAL_STAGING_FILENAmE = "data_clinical.txt";
+    public static final String CLINICAL_STAGING_FILENAME = "data_clinical.txt";
 
     // Datasource names
     public static final String DATA_SOURCE_ICGC = "icgc";
     public static final String DATA_SOURCE_FOUNDATION = "foundation";
-    public static final String DATA_SOURCE_DMP = "dmp-darwin-mskcc";
+    public static final String DATA_SOURCE_FOUNDATION_DEV = "foundation-dev";
+    public static final String DATA_SOURCE_DMP = "dmp-clinical-data-darwin";
 
     // default base directory
     public static final String DEFAULT_BASE_DIRECTORY = "/tmp/cbio-portal-data";
+
+    public static final String CASE_LISTS_DIRECTORY_NAME = "case_lists";
 
     //suffix for filtered foundation studies
     public static final String FOUNDATION_FILTERED_NOTATION = "-filtered";

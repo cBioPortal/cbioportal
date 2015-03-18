@@ -791,7 +791,9 @@ function addMetaDataToPage() {
     }
     var jstree_root_id = 'tissue';
     var jstree_data = [];
+    var flat_jstree_data = [];
     jstree_data.push({'id':jstree_root_id, parent:'#', text:'All', state:{opened:true}, li_attr:{name:'All'}});
+    flat_jstree_data.push({'id':jstree_root_id, parent:'#', text:'All', state:{opened:true}, li_attr:{name:'All'}});
     var node_queue = [].concat(oncotree['tissue'].children);
     var currNode;
     if (dmp_studies.length > 0) {

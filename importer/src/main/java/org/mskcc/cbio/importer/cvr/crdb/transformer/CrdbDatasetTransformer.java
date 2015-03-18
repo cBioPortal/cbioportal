@@ -1,16 +1,11 @@
 package org.mskcc.cbio.importer.cvr.crdb.transformer;
 
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Table;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.cvr.crdb.rdbms.dao.cbioint.CrdbDatasetMapper;
 import org.mskcc.cbio.importer.cvr.crdb.rdbms.model.cbioint.CrdbDataset;
 import org.mskcc.cbio.importer.cvr.crdb.rdbms.model.cbioint.CrdbDatasetExample;
 import org.mskcc.cbio.importer.cvr.crdb.util.CrdbSessionManager;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -60,12 +55,12 @@ public class CrdbDatasetTransformer extends CrdbTransformer {
     }
 
     @Override
-    public List<String> generateReportByPatientId(Integer patientId) {
+    public List<String> generateReportByPatientId(String patientId) {
         return new ArrayList<String>();
     }
 
     @Override
-    public List<String> generateReportByPatientIdList(List<Integer> patientIdList) {
+    public List<String> generateReportByPatientIdList(List<String> patientIdList) {
         return new ArrayList<String>();
     }
 

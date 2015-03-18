@@ -1,16 +1,19 @@
 package org.mskcc.cbio.importer.dmp.transformer;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.persistence.staging.StagingCommonNames;
+import rx.Observable;
+import rx.Subscriber;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -32,26 +35,41 @@ import java.util.Set;
  * <p/>
  * Created by criscuof on 2/3/15.
  */
-public class TestCSVReadWithComment {
+public class TestCSVRead {
     /*
     a application to test using the Apache Commoms CSV reader with a comment as the first line of the file
     this is to allow a list of DMP sample ids to precede the column headers
      */
-    private static final Logger logger = Logger.getLogger(TestCSVReadWithComment.class);
+    private static final Logger logger = Logger.getLogger(TestCSVRead.class);
     public static void main(String...args){
         File input = new File("/tmp/data_expression_miRNA.txt");
         final CSVParser parser;
         try {
             BufferedReader br = new BufferedReader(new FileReader(input) );
-            String comment = br.readLine();
-            Set<String> sampleSet = getDmpSamples(comment);
-            logger.info("There are " +sampleSet.size() + " samples");
-            logger.info("The first sample is " +sampleSet.toArray()[0]);
-            logger.info("The last sample is " + sampleSet.toArray()[sampleSet.size()-1]);
-            logger.info(comment);
-            CSVFormat f = CSVFormat.TDF.withHeader().withCommentMarker('#');
+
+            CSVFormat f = CSVFormat.TDF.withHeader();
             parser = new CSVParser(new FileReader(input),
                     f);
+            Observable<CSVRecord> recordObservable = Observable.from(parser.getRecords());
+            recordObservable.subscribe(new Subscriber<CSVRecord>(){
+
+                                           @Override
+                                           public void onCompleted() {
+                                               logger.info("FINIS");
+                                           }
+
+                                           @Override
+                                           public void onError(Throwable throwable) {
+                                                logger.error(throwable.getMessage());
+                                           }
+
+                                           @Override
+                                           public void onNext(CSVRecord record) {
+                                                for (String s : Lists.newArrayList(record.iterator())){
+                                                    logger.info(s);
+                                                }
+                                           }
+                                       });
 
             String headings = StagingCommonNames.tabJoiner.join(parser.getHeaderMap().keySet());
 
@@ -63,11 +81,5 @@ public class TestCSVReadWithComment {
 
     }
 
-    private static Set<String> getDmpSamples(String sampleCommentLine){
-        String line = (sampleCommentLine.indexOf(':')>0 ) ?
-                sampleCommentLine.substring(sampleCommentLine.indexOf(':')+2)
-                :sampleCommentLine;
 
-        return Sets.newTreeSet(StagingCommonNames.blankSplitter.splitToList(line));
-    }
 }

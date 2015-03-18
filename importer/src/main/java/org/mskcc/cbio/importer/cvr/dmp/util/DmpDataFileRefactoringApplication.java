@@ -4,7 +4,6 @@ import com.google.common.base.*;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import edu.stanford.nlp.io.FileSequentialCollection;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -20,6 +19,8 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -55,24 +56,46 @@ import java.util.Set;
  */
 public class DmpDataFileRefactoringApplication {
     private static final Logger logger = Logger.getLogger(DmpDataFileRefactoringApplication.class);
+    private static final String DATA_CLINICAL_FILE_NAME = "data_clinical.txt";
+    private static final String DATA_MUTATIONS_FILE_NAME = "data_mutations_extended.txt";
     private static final String PATIENT_ID_COLUMN_NAME = "PATIENT_ID";
     private static final String CLINICAL_DATA_SAMPLE_ID_COLUMN_NAME = "SAMPLE_ID";
+    private static final String SEGMENT_FILE_SAMPLE_ID_COLUMN_NAME = "ID";
     private static final String TSV_DATA_SAMPLE_ID_COLUMN_NAME = "Tumor_Sample_Barcode";
     private static final String SV_DATA_SAMPLE_ID_COLUMN_NAME = "TumorId";
+    private static final String SPECIMEN_REFERENCE_NUMBER_COLUMN_NAME = "SpecimenReferenceNumber";
     private static final String CANCER_TYPE_COLUMN_NAME = "CANCER_TYPE";
     private static final String CANCER_TYPE_DETAILED_COLUMN_NAME = "CANCER_TYPE_DETAILED";
     private static final String OTHER_PATIENT_ID_COLUMN_NAME = "OTHER_PATIENT_ID";
     private static final String OTHER_SAMPLE_ID_COLUMN_NAME = "OTHER_SAMPLE_ID";
     private static final String MUTATIONS_COMMENT = "#sequenced samples: ";
     private static final String DATA_SOURCE_NAME = "crdb-clinical-data";
-    private static final String DATA_FILE_PREFIX = "data_";
     private static final String LEGACY_DMP_ID_PREFIX = "DMP";
+    private static final String META_FILE_IDENTIFIER = "meta";
+    private final Set<String> SAMPLE_ID_COLUMN_NAME_SET = Sets.newHashSet(CLINICAL_DATA_SAMPLE_ID_COLUMN_NAME,
+            TSV_DATA_SAMPLE_ID_COLUMN_NAME,  SV_DATA_SAMPLE_ID_COLUMN_NAME,
+            SEGMENT_FILE_SAMPLE_ID_COLUMN_NAME ,SPECIMEN_REFERENCE_NUMBER_COLUMN_NAME );
+
+    private final Set<String> PATIENT_ID_COLUMN_NAME_SET = Sets.newHashSet(PATIENT_ID_COLUMN_NAME);
+
+
     private final Path dmpFilePath;
 
     public DmpDataFileRefactoringApplication(String dataSource) {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(dataSource),
                 "A Importer Data Source name is required");
         this.dmpFilePath = this.resolveDmpFilePath(dataSource);
+    }
+
+    /*
+    Constructor to support stand alone tests of id refactoring
+    not intended for production use
+     */
+    public DmpDataFileRefactoringApplication(Path aPath){
+        Preconditions.checkArgument(null != aPath,
+                "A Pth to a staging file directory is required");
+        this.dmpFilePath = aPath;
+
     }
     /*
     Private method to resolve the Path to the DMP staging files based  on the data source
@@ -124,18 +147,26 @@ public class DmpDataFileRefactoringApplication {
         return currentType;
     }
 
-    /*
-    Process all the staging files in the specified directory whose file name starts with data_
-     */
+    private static class RefactorFileFilter implements FilenameFilter
+    { public boolean accept(File dir, String s) {
+        if (s.endsWith(".txt") || s.endsWith(".seg") ) {
+            return true; }
+
+        return false; }
+    }
+
     private void refactorFileFunction(){
-        FileSequentialCollection fsc = new FileSequentialCollection(this.dmpFilePath.toFile(),
-                StagingCommonNames.stagingFileExtension,false);
-        Observable<File> fileObservable = Observable.from(fsc)
-                // only retain data_clinical type files
+        // generate a list of non-metadata files in the staging file directory
+
+        List<File> stagingFileList = Arrays.asList(this.dmpFilePath.toFile()
+                .listFiles(new RefactorFileFilter()));
+
+        Observable<File> fileObservable = Observable.from(stagingFileList)
+                // filter out metadata files
                 .filter(new Func1<File, Boolean>() {
                     @Override
                     public Boolean call(File file) {
-                        return file.getName().startsWith(DATA_FILE_PREFIX);
+                        return !file.getName().contains(META_FILE_IDENTIFIER);
                     }
                 });
         fileObservable.subscribe(new Subscriber<File>() {
@@ -204,8 +235,8 @@ public class DmpDataFileRefactoringApplication {
      */
     private void processStagingFile(final File stagingFile){
         try {
-            final boolean legacyColumnsFlag = (stagingFile.getName().equals("data_clinical.txt"))?true:false;
-            final boolean sampleSetRequired = (stagingFile.getName().equals("data_mutations_extended.txt"))?true:false;
+            final boolean legacyColumnsFlag = (stagingFile.getName().equals(DATA_CLINICAL_FILE_NAME))?true:false;
+            final boolean sampleSetRequired = (stagingFile.getName().equals(DATA_MUTATIONS_FILE_NAME))?true:false;
             final Path outPath = this.dmpFilePath.resolve(stagingFile.getName());
             Reader reader = new FileReader(stagingFile);
             final CSVParser parser = new CSVParser(reader,
@@ -241,17 +272,13 @@ public class DmpDataFileRefactoringApplication {
                                 @Nullable
                                 @Override
                                 public String apply(String input) {
-                                    if (input.equals(CLINICAL_DATA_SAMPLE_ID_COLUMN_NAME)) {
-                                        return refactorSampleId(record.get(CLINICAL_DATA_SAMPLE_ID_COLUMN_NAME));
+                                    // if this column is a sample id refactor to new value as necessary
+                                    if (SAMPLE_ID_COLUMN_NAME_SET.contains(input)) {
+                                        return refactorSampleId(record.get(input));
                                     }
-                                    if (input.equals(PATIENT_ID_COLUMN_NAME)) {
-                                        return refactorPatientId((record.get(PATIENT_ID_COLUMN_NAME)));
-                                    }
-                                    if (input.equals(TSV_DATA_SAMPLE_ID_COLUMN_NAME)) {
-                                        return refactorSampleId(record.get(TSV_DATA_SAMPLE_ID_COLUMN_NAME));
-                                    }
-                                    if (input.equals(SV_DATA_SAMPLE_ID_COLUMN_NAME)) {
-                                        return (refactorSampleId(record.get(SV_DATA_SAMPLE_ID_COLUMN_NAME)));
+                                    // if this column is a patient id refactor to new value as necessary
+                                    if (PATIENT_ID_COLUMN_NAME_SET.contains(input)) {
+                                        return refactorPatientId(record.get(input));
                                     }
                                     // refactor the cancer type column using the cancer type detailed value to
                                     // find a new cancer type from the oncotree worksheet
@@ -262,7 +289,7 @@ public class DmpDataFileRefactoringApplication {
                                     try {
                                         return record.get(input);
                                     } catch (IllegalArgumentException e) {
-                                        logger.error(input);
+                                        logger.error(input +" is not a valid column name");
                                         e.printStackTrace();
                                     }
                                     return "";
@@ -325,8 +352,10 @@ public class DmpDataFileRefactoringApplication {
             dataSource = DATA_SOURCE_NAME;
         }
 
-        DmpDataFileRefactoringApplication test = new DmpDataFileRefactoringApplication
-                (dataSource);
+        Path testPath = Paths.get("/tmp/msk-impact");
+        DmpDataFileRefactoringApplication test = new DmpDataFileRefactoringApplication(testPath);
+        //DmpDataFileRefactoringApplication test = new DmpDataFileRefactoringApplication
+        //        (dataSource);
         test.refactorFileFunction();
     }
 

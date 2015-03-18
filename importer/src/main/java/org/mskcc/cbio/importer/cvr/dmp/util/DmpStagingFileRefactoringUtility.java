@@ -70,7 +70,7 @@ public class DmpStagingFileRefactoringUtility {
     private static final String OTHER_PATIENT_ID_COLUMN_NAME = "OTHER_PATIENT_ID";
     private static final String OTHER_SAMPLE_ID_COLUMN_NAME = "OTHER_SAMPLE_ID";
     private static final String MUTATIONS_COMMENT = "#sequenced samples: ";
-    private static final String DATA_SOURCE_NAME = "dmp-clinical-data-darwin";
+    private static final String DATA_SOURCE_NAME = "crdb-clinical-data" ;
 
     private Map<String,String> patientIdMap;
     private Map<String,String> sampleIdMap;

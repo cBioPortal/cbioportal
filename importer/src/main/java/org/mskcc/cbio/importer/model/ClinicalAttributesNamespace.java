@@ -73,9 +73,10 @@ public ClinicalAttributesNamespace( Map<String,String> worksheetRowMap) {
     this.normalizedColumnHeader = worksheetRowMap.get("normalizedcolumnheader");
     this.tumorType = worksheetRowMap.get("tumortype");
     this.cancerStudy = worksheetRowMap.get("cancerstudy");
-    this.numberOfStudies = (Strings.isNullOrEmpty(worksheetRowMap.get("noofstudies"))
-            && StringUtils.isNumeric(worksheetRowMap.get("noofstudies")))?0
-            :Integer.parseInt(worksheetRowMap.get("noofstudies"));
+    this.numberOfStudies = (!Strings.isNullOrEmpty(worksheetRowMap.get("noofstudies"))
+    && StringUtils.isNumeric(worksheetRowMap.get("noofstudies")))
+            ?Integer.parseInt(worksheetRowMap.get("noofstudies"))
+            :0;
     this.displayName = worksheetRowMap.get("displayname");
     this.description = worksheetRowMap.get("description");
     this.dateAdded = worksheetRowMap.get("dateadded");

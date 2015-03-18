@@ -145,11 +145,7 @@
   <!-- modules -->
   <modules>
     <module>portal</module>
-	<module>core</module>
-	<module>oncotator</module>
-	<module>liftover</module>
-	<module>mutation-assessor</module>
-    <module>importer</module>
+    <module>core</module>
     <module>business</module>
     <module>web</module>
   </modules>

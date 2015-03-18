@@ -42,7 +42,7 @@ var or_tab = (function() {
             //calculate copy number profile
             var param = new orAjaxParam(
                     window.PortalGlobals.getGeneList()[0], 
-                    window.PortalGlobals.getCancerStudyId() + "_mutations");
+                    window.PortalGlobals.getCancerStudyId() + "_gistic");
             var or_data = new orData();
             var or_table = new orTable();
             or_data.init(param);

@@ -20,7 +20,6 @@ import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
 
 import static java.nio.file.StandardOpenOption.*;
 
@@ -61,9 +60,9 @@ public abstract class CrdbTransformer {
 
     public abstract void transform();
 
-    public abstract List<String> generateReportByPatientId(Integer patientId);
+    public abstract List<String> generateReportByPatientId(String patientId);
 
-    public abstract List<String> generateReportByPatientIdList(List<Integer> patientIdList);
+    public abstract List<String> generateReportByPatientIdList(List<String> patientIdList);
 
     protected String generateColumnHeaders(final Class aClass){
         List<String> headerList = FluentIterable.from(Lists.newArrayList(aClass.getDeclaredMethods()))
@@ -140,6 +139,8 @@ public abstract class CrdbTransformer {
             return input;
         }
     };
+
+
 
     /*
     protected method to transform a list of Objects to a List of tab delimited strings

@@ -20,10 +20,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.OpenOption;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.List;
 import java.util.Map;
 
@@ -97,15 +94,15 @@ public class ClinicalTsvFileTransformer {
     }
     private void transform() {
         try(FileReader reader = new FileReader(this.excelPath.toFile())) {
-
+            // Even if the file is a TDF, opening it as an EXCEL file avoids errors with empty columns
             final CSVParser parser = new CSVParser(new FileReader(this.excelPath.toFile()),
                     CSVFormat.EXCEL.withIgnoreEmptyLines(true).withHeader());
             // write header to new file
             Files.write(this.tsvPath, Lists.newArrayList(generateHeader(parser.getHeaderMap())), Charset.defaultCharset(),
-                    new OpenOption[]{CREATE, DSYNC});
+                    new StandardOpenOption[]{CREATE_NEW, DSYNC});
             // append data
             Files.write(this.tsvPath, Lists.transform(parser.getRecords(), transformationFunction), Charset.defaultCharset(),
-                    new OpenOption[]{ APPEND, DSYNC});
+                    new StandardOpenOption[]{ APPEND, DSYNC});
         } catch (IOException e){
             logger.error(e.getMessage());
             e.printStackTrace();
@@ -131,12 +128,12 @@ public class ClinicalTsvFileTransformer {
    };
     // main method for stand alone testing
     public static void main (String...args) {
-
-        List<String>headerList = StagingCommonNames.tabSplitter.splitToList("PATIENT_ID	PRIM_DISEASE_12245	INITIAL_SX_YEAR	INITIAL_DX_YEAR	FIRST_METASTASIS_YEAR	INIT_DX_STATUS_ID	INIT_DX_STATUS	INIT_DX_STATUS_YEAR	INIT_DX_STAGING_DSCRP	INIT_DX_STAGE	INIT_DX_STAGE_DSCRP	INIT_DX_GRADE	INIT_DX_GRADE_DSCRP	INIT_DX_T_STAGE	INIT_DX_T_STAGE_DSCRP	INIT_DX_N_STAGE	INIT_DX_N_STAGE_DSCRP	INIT_DX_M_STAGE	INIT_DX_M_STAGE_DSCRP	INIT_DX_HIST	INIT_DX_SUB_HIST	INIT_DX_SUB_SUB_HIST	INIT_DX_SUB_SUB_SUB_HIST	INIT_DX_SITE	INIT_DX_SUB_SITE	INIT_DX_SUB_SUB_SITE	ENROLL_DX_STATUS_ID	ENROLL_DX_STATUS	ENROLL_DX_STATUS_YEAR	ENROLL_DX_STAGING_DSCRP	ENROLL_DX_STAGE	ENROLL_DX_STAGE_DSCRP	ENROLL_DX_GRADE	ENROLL_DX_GRADE_DSCRP	ENROLL_DX_T_STAGE	ENROLL_DX_T_STAGE_DSCRP	ENROLL_DX_N_STAGE	ENROLL_DX_N_STAGE_DSCRP	ENROLL_DX_M_STAGE	ENROLL_DX_M_STAGE_DSCRP	ENROLL_DX_HIST	ENROLL_DX_SUB_HIST	ENROLL_DX_SUB_SUB_HIST	ENROLL_DX_SUB_SUB_SUB_HIST	ENROLL_DX_SITE	ENROLL_DX_SUB_SITE	ENROLL_DX_SUB_SUB_SITE	SURVIVAL_STATUS	TREATMENT_END_YEAR	OFF_STUDY_YEAR");
-        Path sourcePath = Paths.get("/tmp/cvr/data_clinical_crdbdataset.txt");
+        List<String> emptyHeaderList = Lists.newArrayList();
+       // Path sourcePath = Paths.get("/tmp/Clinical-FM-data.txt");
+        Path sourcePath = Paths.get("/tmp/Clinical-FM-data.xls");
         String dataSource = "foundation-dev";
-        String outFile = "data_clinical_crdbdataset.txt";
-        ClinicalTsvFileTransformer test = new ClinicalTsvFileTransformer(sourcePath,dataSource,outFile, headerList);
+        String outFile = "data_clinical.txt";
+        ClinicalTsvFileTransformer test = new ClinicalTsvFileTransformer(sourcePath,dataSource,outFile, emptyHeaderList);
         test.transform();
 
     }

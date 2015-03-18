@@ -1,6 +1,5 @@
 package org.mskcc.cbio.importer.cvr.crdb.transformer;
 
-import com.google.common.collect.Lists;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.importer.cvr.crdb.rdbms.dao.cbioint.CrdbImpactSurveyMapper;
 import org.mskcc.cbio.importer.cvr.crdb.rdbms.model.cbioint.CrdbImpactSurvey;
@@ -40,14 +39,11 @@ public class CrdbSurveyTransformer extends CrdbTransformer {
     private final CrdbImpactSurveyExample crdbImpactSurveyExample;
     private static final String patientIdColumnName = "DMP_ID";
 
-
-
     public CrdbSurveyTransformer(Path filePath){
         super(filePath.resolve(crdbSurveyClinicalFilename));
         this.crdbImpactSurveyExample = new CrdbImpactSurveyExample();
         this.crdbSurveyMapper = CrdbSessionManager.INSTANCE.getCrdbSession()
                 .getMapper(CrdbImpactSurveyMapper.class);
-
     }
 
     @Override
@@ -58,12 +54,12 @@ public class CrdbSurveyTransformer extends CrdbTransformer {
     }
 
     @Override
-    public List<String> generateReportByPatientId(Integer patientId) {
+    public List<String> generateReportByPatientId(String patientId) {
         return new ArrayList<String>();
     }
 
     @Override
-    public List<String> generateReportByPatientIdList(List<Integer> patientIdList) {
+    public List<String> generateReportByPatientIdList(List<String> patientIdList) {
         return new ArrayList<String>();
     }
 

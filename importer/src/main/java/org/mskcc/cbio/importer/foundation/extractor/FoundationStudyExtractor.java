@@ -58,9 +58,9 @@ public class        FoundationStudyExtractor {
     private final static Logger logger = Logger.getLogger(FoundationStudyExtractor.class);
     private final String foundationDataDirectory;
 
-    private final static String DEFAULT_DOWNLOAD_DIRECTORY = "/tmp/foundation";
-    private final static String DEFAULT_DATA_SOURCE = "foundation-dev";
-    private final static String worksheetName = "foundation";
+    private final static String DEFAULT_DOWNLOAD_DIRECTORY = StagingCommonNames.DEFAULT_BASE_DIRECTORY;
+    private final static String DEFAULT_DATA_SOURCE = StagingCommonNames.DATA_SOURCE_FOUNDATION_DEV;
+    private final static String worksheetName = MetadataCommonNames.Worksheet_Foundation;
     private String foundationDataSource;
 
     public FoundationStudyExtractor() {
@@ -202,7 +202,9 @@ public class        FoundationStudyExtractor {
             try {
                 // ensure that required directories exist
                 Path subDirPath = Paths.get(StagingCommonNames.pathJoiner.join(this.foundationDataDirectory, studyOpt.get()));
-                Files.createDirectories(subDirPath);   
+                Files.createDirectories(subDirPath);
+                // create case lists directory
+                Files.createDirectories(subDirPath.resolve(StagingCommonNames.CASE_LISTS_DIRECTORY_NAME));
                 return Paths.get(StagingCommonNames.pathJoiner.join(this.foundationDataDirectory, studyOpt.get(),
                         sourcePath.getFileName().toString()));
             } catch (IOException ex) {
@@ -242,13 +244,12 @@ public class        FoundationStudyExtractor {
 
     // main method for stand alone testing
     public static void main (String...args){
-        String testDataSource = "foundation-dev";
+        String testDataSource = StagingCommonNames.DATA_SOURCE_FOUNDATION_DEV;
         FoundationStudyExtractor extractor = new FoundationStudyExtractor(testDataSource);
         String fileName1 = "lymphoma.xml";
         String fileName2 = "lymphoma-filtered.xml";
         logger.info(extractor.resolveFoundationCancerStudyNameFromXMLFileName(fileName1).get());
         logger.info(extractor.resolveFoundationCancerStudyNameFromXMLFileName(fileName2).get());
-
     }
 
 

@@ -487,22 +487,24 @@ public class PatientView extends HttpServlet {
         if (map==null) {
             map = new HashMap<String,String>();
             
-            String pathReportUrl = GlobalProperties.getTCGAPathReportUrl(typeOfCancer);
-            if (pathReportUrl!=null) {
-                List<String> pathReportDirs = extractLinksByPattern(pathReportUrl,tcgaPathReportDirLinePattern);
-                for (String dir : pathReportDirs) {
-                    String url = pathReportUrl+dir;
-                    List<String> pathReports = extractLinksByPattern(url,tcgaPathReportPdfLinePattern);
-                    for (String report : pathReports) {
-                        Matcher m = tcgaPathReportPattern.matcher(report);
-                        if (m.find()) {
-                            if (m.groupCount()>0) {
-                                String exist = map.put(m.group(1), url+report);
-                                if (exist!=null) {
-                                    String msg = "Multiple Pathology reports for "+m.group(1)+": \n\t"
-                                            + exist + "\n\t" + url+report;
-                                    System.err.println(url);
-                                    logger.error(msg);
+            String[] pathReportUrls = GlobalProperties.getTCGAPathReportUrl(typeOfCancer);
+            if (pathReportUrls!=null) {
+                for (String pathReportUrl : pathReportUrls) {
+                    List<String> pathReportDirs = extractLinksByPattern(pathReportUrl,tcgaPathReportDirLinePattern);
+                    for (String dir : pathReportDirs) {
+                        String url = pathReportUrl+dir;
+                        List<String> pathReports = extractLinksByPattern(url,tcgaPathReportPdfLinePattern);
+                        for (String report : pathReports) {
+                            Matcher m = tcgaPathReportPattern.matcher(report);
+                            if (m.find()) {
+                                if (m.groupCount()>0) {
+                                    String exist = map.put(m.group(1), url+report);
+                                    if (exist!=null) {
+                                        String msg = "Multiple Pathology reports for "+m.group(1)+": \n\t"
+                                                + exist + "\n\t" + url+report;
+                                        System.err.println(url);
+                                        logger.error(msg);
+                                    }
                                 }
                             }
                         }

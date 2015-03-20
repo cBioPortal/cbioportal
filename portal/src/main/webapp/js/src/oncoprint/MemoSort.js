@@ -400,8 +400,8 @@ define(function() {
                 }
             }
             // if they are equal in all diffs, then they are truly equal.
-//            return x_attrs[0].sample.localeCompare(y_attrs[0].sample);
-            return x_attrs[0].patient.localeCompare(y_attrs[0].patient);
+            return x_attrs[0].sample.localeCompare(y_attrs[0].sample);
+//            return x_attrs[0].patient.localeCompare(y_attrs[0].patient);
         };
 
         return data.sort(comp);

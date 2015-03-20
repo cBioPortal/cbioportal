@@ -157,8 +157,8 @@ define("Oncoprint",
                     }
                 }
                 
-//                var data = clinicalData.concat(params.geneData);
-                var data = newclinicalData.concat(newGeneData);
+                var data = clinicalData.concat(params.geneData);
+//                var data = newclinicalData.concat(newGeneData);
 
                 var clinical_attrs = params.clinical_attrs      // extract attr_ids
                     .map(function(attr) { return attr.attr_id; });

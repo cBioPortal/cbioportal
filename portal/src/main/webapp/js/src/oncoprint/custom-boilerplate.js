@@ -219,11 +219,11 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
 //                oncoprint.memoSort(genes);
                 if(sortbyfirst === undefined)
                 {
-                    oncoprint.sortBy('genes','','',[]);
+                    oncoprint.sortBy('genes','','',[],params.sortStatus);
                 }
                 else
                 {
-                    oncoprint.sortBy(sortbyfirst,'','',[]);
+                    oncoprint.sortBy(sortbyfirst,'','',[],params.sortStatus);
                 }
                 
                 //sort button
@@ -1466,18 +1466,18 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
                 cases = EchoedDataUtils.samples(data);
 
                 var $error_box = $('#error-box');
-                try {
+//                try {
                     exec(data,clinicData,clinicAttributes,tracks);
                     $error_box.hide();
                     oncoprint_loader_img.hide();
                     //$('#download_oncoprint').show();
-                } catch(e) {
-                    // catch all errors and console.log them,
-                    // make sure that nothing is shown in the oncoprint box
-                    console.log("error creating oncoprint ", e);
-                    $oncoprint_el.empty();
-                    $error_box.show();
-                }
+//                } catch(e) {
+//                    // catch all errors and console.log them,
+//                    // make sure that nothing is shown in the oncoprint box
+//                    console.log("error creating oncoprint ", e);
+//                    $oncoprint_el.empty();
+//                    $error_box.show();
+//                }
             });
         });
 });

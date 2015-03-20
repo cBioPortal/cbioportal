@@ -55,8 +55,8 @@ define("OncoprintUtils", (function() {
     // returns: data nested by the key, "sample"
     var nest_data = function(data) {
         var result = d3.nest()
-//    .key(function(d) { return d.sample; })
-    .key(function(d) { return d.patient; })
+    .key(function(d) { return d.sample; })
+//    .key(function(d) { return d.patient; })
     .entries(data);
         return result;
     };
@@ -1661,8 +1661,8 @@ define("OncoprintUtils", (function() {
                 events: {
                     render: function(event, api) {
                         var content;
-//                        var sampleLink = params.linkage?patientViewUrl(d.sample):d.sample;
-                        var sampleLink = params.linkage?patientViewUrl(d.patient):d.patient;
+                        var sampleLink = params.linkage?patientViewUrl(d.sample):d.sample;
+//                        var sampleLink = params.linkage?patientViewUrl(d.patient):d.patient;
                         if (d.attr_id) {
                             content = '<font size="2">'
                                 + format.clinical(d)

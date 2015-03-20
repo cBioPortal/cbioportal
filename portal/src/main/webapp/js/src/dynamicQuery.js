@@ -49,6 +49,7 @@ var PROFILE_RPPA = "PROFILE_RPPA";
 var PROFILE_METHYLATION = "PROFILE_METHYLATION"
 
 var caseSetSelectionOverriddenByUser = false;
+var selectedStudiesCookieName = "cbioportal_selected_studies";
 
 //  Create Log Function, if FireBug is not Installed.
 if(typeof(console) === "undefined" || typeof(console.log) === "undefined")
@@ -1003,7 +1004,7 @@ function addMetaDataToPage() {
 				return ret;
 			};
 		});
-		$('#jstree').on('changed.jstree', onJSTreeChange);
+		$('#jstree').on('changed.jstree', function() { onJSTreeChange(); saveSelectedStudiesCookie(); });
 		$('#jstree').jstree(true).hide_icons();
 	}
 	initialize_jstree(jstree_data);
@@ -1037,6 +1038,11 @@ function addMetaDataToPage() {
 			});
 		}, 400); // wait for a bit with no typing before searching
 	});
+	var saveSelectedStudiesCookie = function() {
+		var selected_studies = $("#jstree").jstree(true).get_selected_leaves();
+		$.removeCookie(selectedStudiesCookieName);
+		$.cookie(selectedStudiesCookieName, selected_studies.join(","), {expires:10});
+	};
 	var onJSTreeChange = function () {
 		$("#error_box").remove();
 		var select_single_study = $("#main_form").find("#select_single_study");
@@ -1078,14 +1084,13 @@ function addMetaDataToPage() {
 		    return 0;
 	    }
     });
-    if (window.cancer_study_id_selected === 'all') {
-	    var selected_study_list = decodeURIComponent(window.selected_cancer_study_list || '').split(",");
+    var selected_study_list = decodeURIComponent(window.selected_cancer_study_list || ( $.cookie(selectedStudiesCookieName) || '')).split(",");
 	    $.each(selected_study_list, function(ind, elt) {
 		    if (elt !== '') {
 			selected_study_map[elt] = false;
 		}
 	    });
-    } else {
+    if (window.cancer_study_id_selected !== 'all') {
 	    selected_study_map[window.cancer_study_id_selected] = false;
     }
     jQuery.each(json.cancer_studies,function(key,cancer_study){
@@ -1097,9 +1102,10 @@ function addMetaDataToPage() {
 	$("#jstree").on('ready.jstree', function() {
 		$.each(selected_study_map, function(key, val) {
 			if (val) {
-				$("#jstree").jstree(true).select_node(key);
+				$("#jstree").jstree(true).select_node(key, true);
 			}
 		});
+		onJSTreeChange();
 		//   Set things up, based on currently selected case set id
 		if (window.case_set_id_selected != null && window.case_set_id_selected != "") {
 			$("#select_case_set").val(window.case_set_id_selected);

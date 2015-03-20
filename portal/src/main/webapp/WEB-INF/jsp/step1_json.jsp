@@ -3,11 +3,12 @@
 %>
 <div class="query_step_section" id="select_cancer_type_section">
     <span class="step_header">Select Cancer Study: </span><span class="step_header" id="jstree_selected_study_count" style="font-weight:normal;">No studies selected.</span><br>
-<a href='javascript:$("#jstree").jstree(true).select_all();'>Select all studies</a>&nbsp;&nbsp;
-<a href='javascript:$("#jstree").jstree(true).deselect_all();'>Deselect all studies</a><br><br>
+<button onclick='$("#jstree").jstree(true).select_all(); return false;'>Select all studies</button>&nbsp;&nbsp;
+<button onclick='$("#jstree").jstree(true).deselect_all(); return false;'>Deselect all studies</button>&nbsp;&nbsp;
+<button onclick="var jstree = $('#jstree').jstree(true); var celllines = jstree.get_matching_nodes('cell line'); jstree.deselect_node(celllines); return false">Deselect Cell Line Studies</button><br><br>
+            
 <input type="text" id="jstree_search_input" style="width:16em; background:url(images/search.svg) no-repeat scroll 3px 3px; background-size: 1em 1em; padding-left:1.8em"/>&nbsp;&nbsp;&nbsp;&nbsp;
-<a href='javascript:$("#jstree_search_input").val("-\"cell line\"");$("#jstree_search_input").trigger("input");'>-"cell line"</a>&nbsp;&nbsp;&nbsp;
-<a href='javascript:$("#jstree_search_input").val("tcga");$("#jstree_search_input").trigger("input");'>tcga</a>
+<a href='javascript:$("#jstree_search_input").val("tcga");$("#jstree_search_input").trigger("input");' title="Search for TCGA studies.">tcga</a>
 <div id="jstree_search_examples" style="display:none">
     Example queries:<br>
     <a href='javascript:$("#jstree_search_input").val("tcga -provisional");$("#jstree_search_input").trigger("input");' >tcga -provisional</a><br>
@@ -24,7 +25,7 @@
 <br>
 <a href='javascript:$("#jstree").jstree(true).open_all();'>Expand all</a>&nbsp;&nbsp;
 <a href='javascript:$("#jstree").jstree(true).close_all();$("#jstree").jstree(true).open_node("tissue");'>Collapse all</a>&nbsp;&nbsp;
-<a id="flatten_jstree_btn" href='javascript:toggleJSTreeFlat()'>Flatten Tree</a><br><br>
+<a id="flatten_jstree_btn" href='#'>Flatten Tree</a><br><br>
 <input id="select_multiple_studies" name="<%= QueryBuilder.CANCER_STUDY_LIST %>" style="display:none">
 <input id="select_single_study" name="<%= QueryBuilder.CANCER_STUDY_ID %>" style="display:none">
 <script type="text/javascript">

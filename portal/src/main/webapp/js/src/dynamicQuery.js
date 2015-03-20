@@ -801,6 +801,8 @@ function addMetaDataToPage() {
 	$.each(dmp_studies, function(ind, id) {
 		jstree_data.push({'id':id, 'parent':'mskimpact-study-group', 'text':json.cancer_studies[id].name, 
 			'li_attr':{name: json.cancer_studies[id].name, description: metaDataJson.cancer_studies[id].description}});
+		flat_jstree_data.push({'id':id, 'parent':jstree_root_id, 'text':json.cancer_studies[id].name, 
+			'li_attr':{name: json.cancer_studies[id].name, description: metaDataJson.cancer_studies[id].description}});
 	});
     }
     while (node_queue.length > 0) {
@@ -817,6 +819,10 @@ function addMetaDataToPage() {
 			    name = splitAndCapitalize(metaDataJson.cancer_studies[elt].name);
 			    jstree_data.push({'id':elt, 
 				    'parent':currNode.code, 
+				    'text':name,
+				    'li_attr':{name: name, description:metaDataJson.cancer_studies[elt].description}});
+			    flat_jstree_data.push({'id':elt, 
+				    'parent':jstree_root_id,
 				    'text':name,
 				    'li_attr':{name: name, description:metaDataJson.cancer_studies[elt].description}});
 		});
@@ -893,6 +899,10 @@ function addMetaDataToPage() {
 		}	
 		return clauses;
     };
+    var matchPhrase = function(phrase, node) {
+		    return (node.li_attr && node.li_attr.name && node.li_attr.name.toLowerCase().indexOf(phrase) > -1) 
+			    || (node.li_attr && node.li_attr.description && node.li_attr.description.toLowerCase().indexOf(phrase) > -1);
+	};
     var perform_search_single = function(parsed_query, node) {
 	    // in: a jstree node
 	    // text to search is node.text and node.li_attr.description
@@ -900,10 +910,7 @@ function addMetaDataToPage() {
 	    var match = false;
 	    var hasPositiveClauseType = false;
 	    var forced = false;
-	    var matchPhrase = function(phrase, node) {
-		    return (node.li_attr && node.li_attr.name && node.li_attr.name.toLowerCase().indexOf(phrase) > -1) 
-			    || (node.li_attr && node.li_attr.description && node.li_attr.description.toLowerCase().indexOf(phrase) > -1);
-	    };
+	    
 	    $.each(parsed_query, function(ind, clause) {
 		    if (clause.type !== 'not') {
 			    hasPositiveClauseType = true;
@@ -967,50 +974,76 @@ function addMetaDataToPage() {
 	    });
 	    return ret;
     };
-    console.log("Initializing jstree");
-    $("#jstree").jstree({
-      "themes": {
-        "theme": "default",
-        "dots": false,
-        "icons": false,
-        "url": "../../css/jstree.style.css"
-      },
-	"plugins" : ['checkbox', 'search', 'wholerow'],
-	"search": {'show_only_matches':true, 
-		'search_callback': jstree_search,
-		'search_leaves_only': true},
-	"checkbox": {},
-	'core': {'data':jstree_data, 'check_callback': true, 'dblclick_toggle':false}
+	var initialize_jstree = function (data) {
+		console.log("Initializing jstree");
+		$("#jstree").jstree({
+			"themes": {
+				"theme": "default",
+				"dots": false,
+				"icons": false,
+				"url": "../../css/jstree.style.css"
+			},
+			"plugins": ['checkbox', 'search'],
+			"search": {'show_only_matches': true,
+				'search_callback': jstree_search,
+				'search_leaves_only': true},
+			"checkbox": {},
+			'core': {'data': data, 'check_callback': true, 'dblclick_toggle': false}
+		});
+		$('#jstree').on('ready.jstree', function () {
+			$('#jstree').jstree(true).num_leaves = $('#jstree').jstree(true).get_leaves().length;
+			onJSTreeChange();
+			$('#jstree').jstree(true).get_matching_nodes = function (phrase) {
+				var ret = [];
+				$.each($('#jstree').jstree(true)._model.data, function (key, node) {
+					if (matchPhrase(phrase, node)) {
+						ret.push(key);
+					}
+				});
+				return ret;
+			};
+		});
+		$('#jstree').on('changed.jstree', onJSTreeChange);
+		$('#jstree').jstree(true).hide_icons();
+	}
+	initialize_jstree(jstree_data);
+	var jstree_is_flat = false;
+	$('#flatten_jstree_btn').click(function() {
+		var selected_studies = $("#jstree").jstree(true).get_selected_leaves();
+		$('#jstree').jstree(true).destroy();
+		jstree_is_flat = !jstree_is_flat;
+		initialize_jstree((jstree_is_flat ? flat_jstree_data : jstree_data));
+		$('#flatten_jstree_btn').text((jstree_is_flat ? 'Unflatten Tree' : 'Flatten Tree'));
+		$('#jstree').on('ready.jstree', function() { 
+			$('#jstree').jstree(true).select_node(selected_studies);
+			$("#jstree_search_input").trigger('input');
+		});
+		return false;
 	});
 	var jstree_search_timeout = null;
-	$("#jstree_search_input").on('input', function() {
+	$("#jstree_search_input").on('input', function () {
 		if (jstree_search_timeout) {
 			clearTimeout(jstree_search_timeout);
 		}
-		jstree_search_timeout = setTimeout(function() {
+		jstree_search_timeout = setTimeout(function () {
 			if ($("#jstree_search_input").val() === "") {
 				$("#jstree").jstree(true)._model.data['tissue'].li_attr.name = "All";
 			} else {
 				$("#jstree").jstree(true)._model.data['tissue'].li_attr.name = "All Search Results";
 			}
-			$("#jstree").fadeTo(100, 0.5, function() {
+			$("#jstree").fadeTo(100, 0.5, function () {
 				$("#jstree").jstree(true).search($("#jstree_search_input").val());
 				$("#jstree").fadeTo(100, 1);
 			});
 		}, 400); // wait for a bit with no typing before searching
 	});
-	var jstree_num_leaves;
-	$('#jstree').on('ready.jstree', function() {
-		jstree_num_leaves = $('#jstree').jstree(true).get_leaves().length;
-		onJSTreeChange();
-	});
-	var onJSTreeChange = function() {
+	var onJSTreeChange = function () {
 		$("#error_box").remove();
 		var select_single_study = $("#main_form").find("#select_single_study");
 		var select_multiple_studies = $("#main_form").find("#select_multiple_studies");
 		var selected_studies = $("#jstree").jstree(true).get_selected_leaves();
 		var selected_ct = selected_studies.length;
-		$('#jstree_selected_study_count').html((selected_ct === 0 ? "No" : (selected_ct === jstree_num_leaves ? "All" : selected_ct))+" stud"+(selected_ct === 1 ? "y" : "ies")+" selected.");
+		$('#jstree_selected_study_count').html((selected_ct === 0 ? "No" : (selected_ct === $('#jstree').jstree(true).num_leaves ? "All" : selected_ct)) + " stud" + (selected_ct === 1 ? "y" : "ies") + " selected.");
 		var old_select_single_study_val = select_single_study.val();
 		if (selected_studies.length === 1) {
 			select_single_study.val(selected_studies[0]);
@@ -1023,8 +1056,6 @@ function addMetaDataToPage() {
 		}
 		select_multiple_studies.trigger('change');
 	};
-	$('#jstree').on('changed.jstree', onJSTreeChange);
-	$('#jstree').jstree(true).hide_icons();
 	
 
     //  Add Gene Sets to Pull-down Menu

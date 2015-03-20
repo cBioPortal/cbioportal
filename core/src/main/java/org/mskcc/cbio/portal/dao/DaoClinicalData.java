@@ -39,6 +39,7 @@ import org.apache.commons.lang.StringUtils;
 
 import java.sql.*;
 import java.util.*;
+import org.mskcc.cbio.portal.util.InternalIdUtil;
 
 /**
  * Data Access Object for `clinical` table
@@ -557,18 +558,20 @@ public final class DaoClinicalData {
 		return DaoClinicalData.getData(cancerStudyId, patientIds);
 	}
 
-    public static List<String> getPatientIdsByAttribute(int cancerStudy, String paramName, String paramValue) throws DaoException
+    public static List<Patient> getPatientsByAttribute(int cancerStudy, String paramName, String paramValue) throws DaoException
     {
-        return getIdsByAttribute(cancerStudy, paramName, paramValue, PATIENT_TABLE, getPatientIdsByCancerStudy(cancerStudy));
+        List<Integer> ids = getIdsByAttribute(cancerStudy, paramName, paramValue, PATIENT_TABLE);
+        return InternalIdUtil.getPatientsById(ids);
     }
 
-    public static List<String> getSampleIdsByAttribute(int cancerStudy, String paramName, String paramValue) throws DaoException
+    public static List<Sample> getSamplesByAttribute(int cancerStudy, String paramName, String paramValue) throws DaoException
     {
-        return getIdsByAttribute(cancerStudy, paramName, paramValue, SAMPLE_TABLE, getSampleIdsByCancerStudy(cancerStudy));
+        List<Integer> ids = getIdsByAttribute(cancerStudy, paramName, paramValue, SAMPLE_TABLE);
+        return InternalIdUtil.getSamplesById(ids);
     }
         
         
-    private static List<String> getIdsByAttribute(int cancerStudyId, String paramName, String paramValue, String tableName, List<Integer> idsByStudy) throws DaoException
+    private static List<Integer> getIdsByAttribute(int cancerStudyId, String paramName, String paramValue, String tableName) throws DaoException
     {
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -582,17 +585,14 @@ public final class DaoClinicalData {
             pstmt.setString(2, paramValue);
             rs = pstmt.executeQuery();
 
-            List<String> stableIds = new ArrayList<String>();
+            List<Integer> ids = new ArrayList<Integer>();
 
             while (rs.next())
             {
-                Integer id = rs.getInt("INTERNAL_ID");
-                if (idsByStudy.contains(id)) {
-                    stableIds.add(id.toString());
-                }
+                ids.add(rs.getInt("INTERNAL_ID"));
             }
 
-            return stableIds;
+            return ids;
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

@@ -1,4 +1,4 @@
-package org.mskcc.cbio.or_analysis;
+package org.mskcc.cbio.portal.or_analysis;
 
 import org.mskcc.cbio.portal.stats.FisherExact;
 

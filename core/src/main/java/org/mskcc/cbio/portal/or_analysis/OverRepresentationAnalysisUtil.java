@@ -1,4 +1,4 @@
-package org.mskcc.cbio.or_analysis;
+package org.mskcc.cbio.portal.or_analysis;
 
 import java.util.*;
 
@@ -52,6 +52,40 @@ public class OverRepresentationAnalysisUtil {
         return map;
     }
 
+    public static ArrayList<ExtendedMutation> getMutationMap(int cancerStudyId, int profileId, String patientSetId, String patientIdsKey) throws DaoException {
+        //sample ids
+        List<String> stableSampleIds = getPatientIds(patientSetId, patientIdsKey);
+        List<Integer> sampleIds = new ArrayList<Integer>();
+        for(String sampleId : stableSampleIds) {
+            Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, sampleId);   
+            sampleIds.add(sample.getInternalId()); 
+        }   
+        sampleIds.retainAll(DaoSampleProfile.getAllSampleIdsInProfile(profileId));
+        
+        //get cancer genes
+        Set<Long> entrezGeneIds = new HashSet<Long>();
+        DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
+        Set<CanonicalGene> cancerGeneSet = daoGeneOptimized.getCbioCancerGenes();
+        for (CanonicalGene cancerGene : cancerGeneSet) {
+            entrezGeneIds.add(cancerGene.getEntrezGeneId());
+        }
+        
+        for (long entrezGeneId : entrezGeneIds) {
+            ArrayList<ExtendedMutation> mutArr = DaoMutation.getMutations(profileId, sampleIds, entrezGeneId);
+            for (ExtendedMutation mut : mutArr) {
+                System.out.println(mut.getSampleId());
+                System.out.println(mut.getEvent().getMutationType());
+            }   
+        }
+        
+        ArrayList<ExtendedMutation> mutArr = DaoMutation.getMutations(profileId, sampleIds, entrezGeneId);
+        for (ExtendedMutation mut : mutArr) {
+            System.out.println(mut.getSampleId());
+            System.out.println(mut.getEvent().getMutationType());
+        }
+        return mutArr;
+    }
+    
     public static ArrayList<String> getPatientIds(String patientSetId, String patientIdsKey) {
         try {
             DaoPatientList daoPatientList = new DaoPatientList();

@@ -36,6 +36,7 @@ import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.dao.DaoGeneticProfile;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.CanonicalGene;
+import org.mskcc.cbio.portal.model.ExtendedMutation;
 import org.mskcc.cbio.portal.model.GeneticAlterationType;
 import org.mskcc.cbio.portal.model.GeneticProfile;
 import static org.mskcc.cbio.portal.model.GeneticAlterationType.COPY_NUMBER_ALTERATION;
@@ -90,10 +91,10 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
             CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
             int cancerStudyInternalId = cancerStudy.getInternalId();
             
-            
             StringBuilder result_json_str = new StringBuilder();
             
-            if(gp_type.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION.toString())) {
+            String gp_type_str = gp_type.toString();
+            if(gp_type_str.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION.toString())) {
                 Map<Long,double[]> map = OverRepresentationAnalysisUtil.getExpressionMap(cancerStudyInternalId, gpId, caseSetId, caseIdsKey);
                 List<Long> genes = new ArrayList<Long>(map.keySet());
                 for (int i = 0; i < map.size(); i++) {
@@ -109,20 +110,21 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
                     result_json_str.append(pValue);
                     result_json_str.append("|");
 
-                    //TODO: mutation: fisher exact test
-                    //TODO: mRNA expression
                 }
+            } else if (gp_type_str.equals(GeneticAlterationType.MUTATION_EXTENDED.toString())) {
+                ArrayList<ExtendedMutation> map = OverRepresentationAnalysisUtil.getMutationMap(cancerStudyInternalId, gpId, caseSetId, caseIdsKey);
             }
             
             httpServletResponse.setContentType("text/html");
             PrintWriter out = httpServletResponse.getWriter();
             JSONValue.writeJSONString(result_json_str.deleteCharAt(result_json_str.length() - 1).toString(), out);
-            
+
+
         } catch (DaoException ex) {
             Logger.getLogger(OverRepresentationAnalysisJSON.class.getName()).log(Level.SEVERE, null, ex);
         }
-
     }
+
     
 }
 

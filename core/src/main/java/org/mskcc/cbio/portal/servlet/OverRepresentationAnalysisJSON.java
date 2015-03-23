@@ -19,6 +19,7 @@ package org.mskcc.cbio.portal.servlet;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -28,8 +29,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.json.simple.JSONValue;
-import org.mskcc.cbio.portal.or_analysis.ORAnalysisDiscretizedDataProxy;
-import org.mskcc.cbio.portal.or_analysis.OverRepresentationAnalysisUtil;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
@@ -38,8 +37,10 @@ import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.ExtendedMutation;
 import org.mskcc.cbio.portal.model.GeneticAlterationType;
-import org.mskcc.cbio.portal.model.GeneticProfile;
 import static org.mskcc.cbio.portal.model.GeneticAlterationType.COPY_NUMBER_ALTERATION;
+import org.mskcc.cbio.portal.model.GeneticProfile;
+import org.mskcc.cbio.portal.or_analysis.ORAnalysisDiscretizedDataProxy;
+import org.mskcc.cbio.portal.or_analysis.OverRepresentationAnalysisUtil;
 
 /**
  * Calculate over representation scores 
@@ -103,7 +104,7 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
                     double[] _queried_gene_exp = map.get(queryGeneId);
 
                     //copy number: fisher exact test (high level +/-2)
-                    double pValue = ORAnalysisDiscretizedDataProxy.calc(_rotate_gene_exp, _queried_gene_exp, "copy_num");
+                    double pValue = ORAnalysisDiscretizedDataProxy.calcCNA(_rotate_gene_exp, _queried_gene_exp);
                     String _rotate_gene_name = daoGeneOptimized.getGene(_gene).getHugoGeneSymbolAllCaps();
                     result_json_str.append(_rotate_gene_name);
                     result_json_str.append(":");
@@ -112,7 +113,21 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
 
                 }
             } else if (gp_type_str.equals(GeneticAlterationType.MUTATION_EXTENDED.toString())) {
-                ArrayList<ExtendedMutation> map = OverRepresentationAnalysisUtil.getMutationMap(cancerStudyInternalId, gpId, caseSetId, caseIdsKey);
+                Map<Long, String[]> map = OverRepresentationAnalysisUtil.getMutationMap(cancerStudyInternalId, gpId, caseSetId, caseIdsKey);
+                List<Long> genes = new ArrayList<Long>(map.keySet());
+                for (int i = 0; i < map.size(); i++) {
+                    long _gene = genes.get(i);
+                    String[] _rotate_gene_mut_arr = map.get(_gene);
+                    String[] _queried_gene_mut_arr = map.get(queryGeneId);
+                    
+                    //Mutation: fisher exacte test (mutated vs. non-mutated)
+                    double pValue = ORAnalysisDiscretizedDataProxy.calcMut(_rotate_gene_mut_arr, _queried_gene_mut_arr);
+                    String _rotate_gene_name = daoGeneOptimized.getGene(_gene).getHugoGeneSymbolAllCaps();
+                    result_json_str.append(_rotate_gene_name);
+                    result_json_str.append(":");
+                    result_json_str.append(pValue);
+                    result_json_str.append("|");
+                }
             }
             
             httpServletResponse.setContentType("text/html");

@@ -52,7 +52,7 @@ public class OverRepresentationAnalysisUtil {
         return map;
     }
 
-    public static ArrayList<ExtendedMutation> getMutationMap(int cancerStudyId, int profileId, String patientSetId, String patientIdsKey) throws DaoException {
+    public static Map<Long, String[]> getMutationMap(int cancerStudyId, int profileId, String patientSetId, String patientIdsKey) throws DaoException {
         //sample ids
         List<String> stableSampleIds = getPatientIds(patientSetId, patientIdsKey);
         List<Integer> sampleIds = new ArrayList<Integer>();
@@ -70,20 +70,32 @@ public class OverRepresentationAnalysisUtil {
             entrezGeneIds.add(cancerGene.getEntrezGeneId());
         }
         
-        for (long entrezGeneId : entrezGeneIds) {
-            ArrayList<ExtendedMutation> mutArr = DaoMutation.getMutations(profileId, sampleIds, entrezGeneId);
-            for (ExtendedMutation mut : mutArr) {
-                System.out.println(mut.getSampleId());
-                System.out.println(mut.getEvent().getMutationType());
-            }   
+        //Init over all result map
+        Map<Long, String[]> map = new HashMap<Long, String[]>();
+
+        for (Long entrezGeneId : entrezGeneIds) {
+            
+            //Get the array of mutations for the rotated gene
+            ArrayList<ExtendedMutation> mutObjArr = DaoMutation.getMutations(profileId, sampleIds, entrezGeneId);
+            
+            //Assign every sample (included non mutated ones) values -- mutated -> Mutation Type, non-mutated -> "Non"
+            String[] mutTypeArr = new String[sampleIds.size()]; 
+            int _index = 0;
+            for (Integer sampleId : sampleIds) {
+                String mutationType = "Non";
+                for (ExtendedMutation mut : mutObjArr) {
+                    if (mut.getSampleId() == sampleId) {
+                        mutationType = mut.getEvent().getMutationType();
+                    }
+                }
+                mutTypeArr[_index] = mutationType;
+                _index += 1;
+            }
+
+            //add a new entry into the overall result map
+            map.put(entrezGeneId, mutTypeArr);
         }
-        
-        ArrayList<ExtendedMutation> mutArr = DaoMutation.getMutations(profileId, sampleIds, entrezGeneId);
-        for (ExtendedMutation mut : mutArr) {
-            System.out.println(mut.getSampleId());
-            System.out.println(mut.getEvent().getMutationType());
-        }
-        return mutArr;
+        return map;
     }
     
     public static ArrayList<String> getPatientIds(String patientSetId, String patientIdsKey) {

@@ -39,7 +39,7 @@ public class TestCSVReadWithComment {
      */
     private static final Logger logger = Logger.getLogger(TestCSVReadWithComment.class);
     public static void main(String...args){
-        File input = new File("/tmp/data_mutations_extended.txt");
+        File input = new File("/tmp/data_expression_miRNA.txt");
         final CSVParser parser;
         try {
             BufferedReader br = new BufferedReader(new FileReader(input) );

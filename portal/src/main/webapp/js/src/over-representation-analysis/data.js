@@ -22,7 +22,6 @@ var orData = function() {
                     data[_tmp[0]] = _tmp[1];
                 });
                 retrieved = true;
-                console.log(data);
             })
             .fail(function( jqXHR, textStatus ) {
                 alert( "Request failed: " + textStatus );

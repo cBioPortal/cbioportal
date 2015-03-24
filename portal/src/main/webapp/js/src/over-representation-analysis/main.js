@@ -37,15 +37,26 @@
 var or_tab = (function() {
     
     return {
-        init: function() {
+        init: function(caseListObj) {
+            
+            var alteredCaseList = [], unalteredCaseList = [];
+            alteredCaseList.length = 0;
+            unalteredCaseList.length = 0;
+            for (var key in caseListObj) {
+                if (caseListObj.hasOwnProperty(key)) {
+                    if (caseListObj[key] === "altered") {
+                        alteredCaseList.push(key);
+                    } else if (caseListObj[key] === "unaltered") {
+                        unalteredCaseList.push(key);
+                    }
+                }
+            }
             
             //calculate copy number profile
-            var param = new orAjaxParam(
-                    window.PortalGlobals.getGeneList()[0], 
-                    window.PortalGlobals.getCancerStudyId() + "_mutations");
+            var param = new orAjaxParam(alteredCaseList, unalteredCaseList, window.PortalGlobals.getCancerStudyId() + "_gistic");
             var or_data = new orData();
-            var or_table = new orTable();
             or_data.init(param);
+            //var or_table = new orTable();
             //or_data.get(or_table.init, "or_analysis");
         }
     };

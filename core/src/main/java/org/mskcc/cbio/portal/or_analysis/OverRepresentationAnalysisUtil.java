@@ -9,15 +9,7 @@ import org.mskcc.cbio.portal.util.PatientSetUtil;
 
 public class OverRepresentationAnalysisUtil {
     
-    public static Map<Long,double[]> getExpressionMap(int cancerStudyId, int profileId, String patientSetId, String patientIdsKey) throws DaoException {
-        
-        List<String> stableSampleIds = getPatientIds(patientSetId, patientIdsKey);
-        List<Integer> sampleIds = new ArrayList<Integer>();
-        for(String sampleId : stableSampleIds) {
-            Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, sampleId);   
-            sampleIds.add(sample.getInternalId()); 
-        }   
-        sampleIds.retainAll(DaoSampleProfile.getAllSampleIdsInProfile(profileId));
+    public static Map<Long, HashMap<Integer, String>> getValueMap(int cancerStudyId, int profileId, List<Integer> alteredSampleIds, List<Integer> unalteredSampleIds) throws DaoException {
 
         DaoGeneticAlteration daoGeneticAlteration = DaoGeneticAlteration.getInstance();
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
@@ -28,27 +20,13 @@ public class OverRepresentationAnalysisUtil {
         for (CanonicalGene cancerGene : cancerGeneSet) {
             entrezGeneIds.add(cancerGene.getEntrezGeneId());
         }
+
+        //join two lists
+        List<Integer> sampleIds = new ArrayList<Integer>(alteredSampleIds);
+        sampleIds.addAll(unalteredSampleIds);
         
         //get gene-value map
-        Map<Long, HashMap<Integer, String>> mapStr = daoGeneticAlteration.getGeneticAlterationMap(profileId, entrezGeneIds);
-        Map<Long, double[]> map = new HashMap<Long, double[]>(mapStr.size());
-        for (Map.Entry<Long, HashMap<Integer, String>> entry : mapStr.entrySet()) {
-            Long gene = entry.getKey();
-            Map<Integer, String> mapCaseValueStr = entry.getValue();
-            double[] values = new double[sampleIds.size()];
-            for (int i = 0; i < sampleIds.size(); i++) {
-                Integer caseId = sampleIds.get(i);
-                String value = mapCaseValueStr.get(caseId);
-                Double d;
-                try {
-                    d = Double.valueOf(value);
-                } catch (Exception e) {
-                    d = Double.NaN;
-                }
-                values[i]=d;
-            }
-            map.put(gene, values);
-        }
+        Map<Long, HashMap<Integer, String>> map = daoGeneticAlteration.getGeneticAlterationMap(profileId, entrezGeneIds);
         return map;
     }
 

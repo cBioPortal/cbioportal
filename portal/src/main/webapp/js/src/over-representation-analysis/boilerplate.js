@@ -5,12 +5,18 @@
  */
 
 
-var orAjaxParam = function(_gene, _profile_id) {
+var orAjaxParam = function(alteredCaseList, unalteredCaseList, profileId) {
+    
+    var _tmp_altered_case_id_list = "", _tmp_unaltered_case_id_list = "";
+    $.each(alteredCaseList, function(index, _caseId) {
+        _tmp_altered_case_id_list += _caseId + " ";
+    });
+    $.each(unalteredCaseList, function(index, _caseId) {
+        _tmp_unaltered_case_id_list += _caseId + " ";
+    });
     
     this.cancer_study_id = window.PortalGlobals.getCancerStudyId();
-    this.gene = _gene;
-    this.case_set_id = window.PortalGlobals.getCaseSetId();
-    this.case_ids_key =  window.PortalGlobals.getCaseIdsKey();
-    this.profile_id = _profile_id;
-    
+    this.altered_case_id_list = _tmp_altered_case_id_list;
+    this.unaltered_case_id_list = _tmp_unaltered_case_id_list;
+    this.profile_id = profileId;
 };

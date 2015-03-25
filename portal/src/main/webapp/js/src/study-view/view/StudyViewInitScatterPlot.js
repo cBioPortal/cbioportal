@@ -202,7 +202,10 @@ var StudyViewInitScatterPlot = (function() {
             .attr('x', 
                 Number($("#" + _svgParentDivId + " .plots-title-x").attr('x')) + 15);
         //Remove x/y title help icon first.
-        svgElement = $("#" + _svgParentDivId + " svg").html();
+        $("#" + _svgParentDivId + " svg>g").each(function(i, e){
+            svgElement += cbio.download.serializeHtml(e);
+        });
+        
         svgElement = "<svg><g><text text-anchor='middle' x='220' y='30' " +
                 "style='font-weight:bold'>" + _title + 
                 "</text></g><g transform='translate(0,40)'>" + 

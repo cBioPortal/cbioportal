@@ -309,12 +309,16 @@ var BarChart = function(){
     //brush and deselected bar, this function is designed to change the svg
     //style, save svg and delete added style.
     function setSVGElementValue(_svgParentDivId,_idNeedToSetValue, downloadOptions){
-        var _svgElement;
+        var _svgElement = '';
         
         var _svg = $("#" + _svgParentDivId + " svg");
         //Change brush style
         var _brush = _svg.find("g.brush"),
             _brushWidth = Number(_brush.find('rect.extent').attr('width'));
+        
+        if(_brushWidth === 0){
+            _brush.css('display', 'none');
+        }
         
         _brush.find('rect.extent')
                 .css({
@@ -371,13 +375,12 @@ var BarChart = function(){
             });
         }
         
-        _svgElement = _svg.html();
-        
-        //Remove brush if brush width is 0, svg file will remove brush
-        //automatically, but the pdf file will not
-        if(_brushWidth === 0){
-            _svgElement = parseSVG(_svg.html());
-        }
+        $("#" + _svgParentDivId + " svg>g").each(function(i, e){
+            _svgElement += cbio.download.serializeHtml(e);
+        });
+        $("#" + _svgParentDivId + " svg>defs").each(function(i, e){
+            _svgElement += cbio.download.serializeHtml(e);
+        });
         
         var svg = "<svg width='370' height='200'>"+
                     "<g><text x='180' y='20' style='font-weight: bold; "+
@@ -387,6 +390,9 @@ var BarChart = function(){
         
         cbio.download.initDownload(
             svg, downloadOptions);
+        
+        
+        _brush.css('display', '');
             
         //Remove added styles
         _brush.find('rect.extent')
@@ -440,7 +446,6 @@ var BarChart = function(){
             var _tmpElem = _div.firstChild
                                 .firstChild
                                 .getElementsByClassName('brush')[0];
-            
             if(typeof _tmpElem !== 'undefined'){
                 _tmpElem.parentNode.removeChild(_tmpElem);
             }

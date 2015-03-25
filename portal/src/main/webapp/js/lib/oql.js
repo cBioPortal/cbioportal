@@ -44,18 +44,34 @@ oql = (function () {
      * @returns {string} A 'sanitized' query, ie transformed from user input so that
      * our code can process it as valid oncoquery language.
      */
-    function sanitizeQuery(query, defaultGeneSettings) {
-        // IN: text query, as from user
-        // OUT: "sanitized", i.e. with a few adjustments made to put
-        //		into valid OQL
-        // These adjustments are: - capitalize everything except case-sensitive strings like mutation names (TODO)
-        //						  - insert defaults from cbioportal interface (TODO)
-        var ret = query;
-	if (query.indexOf(":") === -1) {
-		ret = query.split(" ").map(function(x) { return x+":"+defaultGeneSettings.join(" ");}).join("; ");
-	}
-	console.log(ret);
-        return ret;
+    function sanitizeQuery(query) {
+	var dfd = new $.Deferred();  
+	dataman.getUniqueProfileTypesByStableId(window.PortalGlobals.getGeneticProfiles().split(" ")).then(function(uniqueProfileTypes) {
+		var defaultGeneSettings = [];
+		$.each(uniqueProfileTypes, function (ind, key) {
+			if (key === "MUTATION_EXTENDED") {
+				defaultGeneSettings.push("MUT");
+			} else if (key === "COPY_NUMBER_ALTERATION") {
+				defaultGeneSettings.push("AMP");
+			} else if (key === "MRNA_EXPRESSION") {
+				defaultGeneSettings.push("EXP >= " + window.PortalGlobals.getZscoreThreshold() + " EXP <= -" + window.PortalGlobals.getZscoreThreshold());
+			} else if (key === "PROTEIN_ARRAY_PROTEIN_LEVEL") {
+				defaultGeneSettings.push("PROT >= " + window.PortalGlobals.getRppaScoreThreshold() + " PROT <= -" + window.PortalGlobals.getRppaScoreThreshold());
+			}
+		});
+		// IN: text query, as from user
+		// OUT: "sanitized", i.e. with a few adjustments made to put
+		//		into valid OQL
+		// These adjustments are: - capitalize everything except case-sensitive strings like mutation names (TODO)
+		//						  - insert defaults from cbioportal interface (TODO)
+		var ret = query;
+		if (query.indexOf(":") === -1) {
+			ret = query.split(" ").map(function(x) { return x+":"+defaultGeneSettings.join(" ");}).join("; ");
+		}
+		console.log(ret);
+		dfd.resolve(ret);
+	});
+	return dfd.promise();
     }
 
     /**
@@ -65,25 +81,29 @@ oql = (function () {
      * On success, resultCode = 0, array = a list of maps containing parsed query objects, one per line
      * On failure, resultCode = 1, array = a list of maps {line:lineNumber, msg:errorMessage} corresponding to the syntax errors.
      */
-    function parseQuery(query, defaultGeneSettings) {
-        var lines = sanitizeQuery(query, defaultGeneSettings).split(/[\n;]/);
-        var ret = [];
-        var errors = [];
-        for (var i = 0; i < lines.length; i++) {
-            var line = lines[i];
-            if (line.length === 0) {
-                continue;
-            }
-            try {
-                ret.push(oqlParser.parse(line));
-            } catch (err) {
-                errors.push({"line": i, "msg": err});
-            }
-        }
-        if (errors.length > 0) {
-            return {"result": 1, "return": errors};
-        }
-        return {"result": 0, "return": ret};
+    function parseQuery(query) {
+	var dfd = new $.Deferred();
+	sanitizeQuery(query).then(function(sq) {
+		var lines = sq.split(/[\n;]/);
+		var ret = [];
+		var errors = [];
+		for (var i = 0; i < lines.length; i++) {
+		    var line = lines[i];
+		    if (line.length === 0) {
+			continue;
+		    }
+		    try {
+			ret.push(oqlParser.parse(line));
+		    } catch (err) {
+			errors.push({"line": i, "msg": err});
+		    }
+		}
+		if (errors.length > 0) {
+			dfd.resolve({"result": 1, "return": errors});
+		}
+		dfd.resolve({"result": 0, "return": ret});
+	});
+	return dfd.promise();
     }
 
     /* FILTERING */

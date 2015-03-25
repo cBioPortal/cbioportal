@@ -657,7 +657,7 @@ dataman = (function () {
             }, fail);
         }
         return dfd.promise();
-    }
+    };
     var getProfilesHelper = function (argname, ids, indexName, updateIndexes, callback, fail) {
         var dfd = new $.Deferred();
         callback = callback || function(x) { dfd.resolve(x); };
@@ -674,16 +674,28 @@ dataman = (function () {
             }, fail);
         }
         return dfd.promise();
-    }
+    };
     var getProfilesByStableId = function (profile_ids, callback, fail) {
         return getProfilesHelper('profile_ids', profile_ids, 'stable_id', ['stable_id', 'internal_id'], callback, fail);
-    }
+    };
     var getProfilesByInternalId = function (profile_ids, callback, fail) {
         return getProfilesHelper('profile_ids', profile_ids, 'internal_id', ['stable_id', 'internal_id'], callback, fail);
-    }
+    };
     var getProfilesByInternalStudyId = function (study_ids, callback, fail) {
         return getProfilesHelper('study_ids', study_ids, 'study', undefined, callback, fail);
-    }
+    };
+    var getUniqueProfileTypesByStableId = function(stable_profile_ids, callback, fail) {
+	    // possible values: MUTATION_EXTENDED, COPY_NUMBER_ALTERATION, MRNA_EXPRESSIOn, PROTEIN_ARRAY_PROTEIN_LEVEL
+	var dfd = new $.Deferred();
+	getProfilesByStableId(stable_profile_ids).then(function (data) {
+		var ret = {};
+		$.each(data, function(ind, obj) {
+			ret[obj.genetic_alteration_type] = true;
+		});
+		dfd.resolve(Object.keys(ret));
+	});
+	return dfd.promise();
+    };
 
     // -- meta.clinicalPatients --
     var getAllClinicalPatientFields = function (callback, fail) {
@@ -886,6 +898,54 @@ dataman = (function () {
         }
         return ret;
     }
+	var getOncoprintData = function (_hugoGeneSymbols, _stableProfileIds, _stableSampleIds) {
+		var _profilesPromise = new $.Deferred();
+		var _genesPromise = new $.Deferred();
+		var _sampleIdsPromise = new $.Deferred();
+		var _oncoprintDataLoadedPromise = new $.Deferred();
+
+		var geneMap = {};
+		var sampleMap = {};
+		var profileTypes = {};
+
+		var _internalProfileIds;
+		var _entrezGeneIds;
+		var _internalSampleIds;
+
+		getProfilesByStableId(_stableProfileIds).then(function (data) {
+			$.each(data, function (ind, obj) {
+				profileTypes[obj.internal_id] = obj.genetic_alteration_type;
+			});
+			_internalProfileIds = data.map(function (x) {
+				return x.internal_id;
+			});
+			_profilesPromise.resolve();
+		});
+		getGenesByHugoGeneSymbol(_hugoGeneSymbols).then(function (data) {
+			$.each(data, function (ind, obj) {
+				geneMap[obj.entrezGeneId] = obj.hugoGeneSymbol;
+			});
+			_entrezGeneIds = data.map(function (x) {
+				return x.entrezGeneId;
+			});
+			_genesPromise.resolve();
+		});
+		getSamplesByStableIdStableStudyId(window.cancer_study_id_selected, _stableSampleIds).then(function (data) {
+			$.each(data, function (ind, obj) {
+				sampleMap[obj.internal_id] = obj.stable_id;
+			});
+			_internalSampleIds = data.map(function (x) {
+				return x.internal_id;
+			});
+			_sampleIdsPromise.resolve();
+		});
+		$.when(_profilesPromise, _genesPromise, _sampleIdsPromise).then(function () {
+			getProfileDataBySampleId(_entrezGeneIds, _internalProfileIds, _internalSampleIds).then(function (data) {
+				_oncoprintDataLoadedPromise.resolve(df.toOncoprintFormat(data, geneMap, sampleMap, profileTypes));
+			});
+		});
+		return _oncoprintDataLoadedPromise.promise();
+	};
     var getAllProfileData = function (genes, profile_ids, callback, fail) {
         var dfd = new $.Deferred();
         callback = callback || function(x) { dfd.resolve(x); };
@@ -1005,6 +1065,8 @@ dataman = (function () {
         getProfilesByStableId: getProfilesByStableId,
         getProfilesByInternalId: getProfilesByInternalId,
         getProfilesByInternalStudyId: getProfilesByInternalStudyId,
+	getUniqueProfileTypesByStableId: getUniqueProfileTypesByStableId,
+	getOncoprintData: getOncoprintData,
         getAllClinicalPatientFields: getAllClinicalPatientFields,
         getClinicalPatientFieldsByStudy: getClinicalPatientFieldsByStudy,
         getClinicalPatientFieldsByInternalId: getClinicalPatientFieldsByInternalId,

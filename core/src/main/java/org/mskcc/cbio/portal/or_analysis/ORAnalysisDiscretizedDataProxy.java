@@ -1,5 +1,12 @@
 package org.mskcc.cbio.portal.or_analysis;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
+import org.mskcc.cbio.portal.model.GeneticAlterationType;
 import org.mskcc.cbio.portal.stats.FisherExact;
 
 /**
@@ -11,80 +18,95 @@ import org.mskcc.cbio.portal.stats.FisherExact;
  */
 public class ORAnalysisDiscretizedDataProxy {
     
-    public static double calcCNA (double[] x, double[] y) {
+    private final Map<Long, HashMap<Integer, String>> map;
+    private final List<Integer> alteredSampleIds;
+    private final List<Integer> unalteredSampleIds;
+    private final StringBuilder result = new StringBuilder();
+    
+    public ORAnalysisDiscretizedDataProxy(
+            int cancerStudyId, 
+            int profileId, 
+            String profileType, 
+            List<Integer> alteredSampleIds, 
+            List<Integer> unalteredSampleIds) throws DaoException {
         
-        double pValue = -1;
+        this.alteredSampleIds = alteredSampleIds;
+        this.unalteredSampleIds = unalteredSampleIds;
+        this.map = OverRepresentationAnalysisUtil.getValueMap(cancerStudyId, profileId, profileType, alteredSampleIds, unalteredSampleIds);
+        
+        DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
             
-        int a = 0, //non altered
-            b = 0, //x non altered, y altered
-            c = 0, //x altered, y non altered
-            d = 0; //both alered
-
-        for (int i = 0; i < x.length ; i++) {
-            boolean x_altered = false, y_altered = false;
-
-            //deep deletion or amplification is considered altered 
-            if (x[i] == 2.0 || x[i] == -2.0) { 
-                x_altered = true;
-            } 
-            if (y[i] == 2.0 || y[i] == -2.0) {
-                y_altered = true;
-            }
-
-            if (x_altered && y_altered) {
-                d += 1;
-            } else if (x_altered && !y_altered) {
-                c += 1;
-            } else if (!x_altered && y_altered) {
-                b += 1;
-            } else if (!x_altered && !y_altered) {
-                a += 1;
-            }
-
+        List<Long> genes = new ArrayList<Long>(map.keySet());
+        for (int i = 0; i < map.size(); i++) {
+            long _gene = genes.get(i);
+            HashMap<Integer, String> singleGeneCaseValueMap = map.get(_gene);
+            String _geneName = daoGeneOptimized.getGene(_gene).getHugoGeneSymbolAllCaps();
+            double pValue = calcFishExactTest(singleGeneCaseValueMap, profileType);
+            result.append(_geneName);
+            result.append(":");
+            result.append(pValue);
+            result.append("|");
         }
-
-        FisherExact fisher = new FisherExact(a + b + c + d);
-        pValue = fisher.getCumlativeP(a, b, c, d);
-        
-        return pValue;
-        
+         
     }
     
-    public static double calcMut (String[] x, String[] y) {
+    public String getResult() {
+        return result.toString();
+    }
+    
+    private double calcFishExactTest(HashMap<Integer, String> singleGeneCaseValueMap, String profileType) {
         
-        double pValue = -1;
-            
         int a = 0, //non altered
             b = 0, //x non altered, y altered
             c = 0, //x altered, y non altered
             d = 0; //both alered
-
-        for (int i = 0; i < x.length ; i++) {
-            boolean x_altered = false, y_altered = false;
-
-            //deep deletion or amplification is considered altered 
-            if (!x[i].equals("Non")) { 
-                x_altered = true;
-            } 
-            if (!y[i].equals("Non")) { 
-                y_altered = true;
-            } 
-
-            if (x_altered && y_altered) {
-                d += 1;
-            } else if (x_altered && !y_altered) {
-                c += 1;
-            } else if (!x_altered && y_altered) {
-                b += 1;
-            } else if (!x_altered && !y_altered) {
-                a += 1;
-            }
-        }
-
-        FisherExact fisher = new FisherExact(a + b + c + d);
-        pValue = fisher.getCumlativeP(a, b, c, d);
         
-        return pValue;
+        for (Integer alteredSampleId: alteredSampleIds) {
+            if (singleGeneCaseValueMap.containsKey(alteredSampleId)) {
+                
+                if (profileType.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION.toString())) {
+                    Double value = Double.parseDouble(singleGeneCaseValueMap.get(alteredSampleId));
+                    if (value == 2.0 || value == -2.0) {
+                        d += 1;
+                    } else {
+                        c += 1;
+                    }
+                } else if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString())) {
+                    String value = singleGeneCaseValueMap.get(alteredSampleId);
+                    if (value.equals("Non")) {
+                        c += 1;
+                    } else {
+                        d += 1;
+                    }
+                }
+
+            } 
+        }
+        
+        for (Integer unalteredSampleId: unalteredSampleIds) {
+            if (singleGeneCaseValueMap.containsKey(unalteredSampleId)) {
+                if (profileType.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION.toString())) { 
+                    Double value = Double.parseDouble(singleGeneCaseValueMap.get(unalteredSampleId));
+                    if (value == 2.0 || value == -2.0) {
+                        b += 1;
+                    } else {
+                        a += 1;
+                    }
+                } else if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString())) {
+                    String value = singleGeneCaseValueMap.get(unalteredSampleId);
+                    if (value.equals("Non")) {
+                        a += 1;
+                    } else {
+                        b += 1;
+                    }
+                } 
+            } 
+        }
+        
+        
+        FisherExact fisher = new FisherExact(a + b + c + d);
+        return fisher.getCumlativeP(a, b, c, d);
+        
     }
     
 }

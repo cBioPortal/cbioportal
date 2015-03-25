@@ -36,10 +36,11 @@
 
 var or_tab = (function() {
     
+    var alteredCaseList = [], unalteredCaseList = [];
+    
     return {
         init: function(caseListObj) {
-            
-            var alteredCaseList = [], unalteredCaseList = [];
+            //re-format the case lists
             alteredCaseList.length = 0;
             unalteredCaseList.length = 0;
             for (var key in caseListObj) {
@@ -52,12 +53,41 @@ var or_tab = (function() {
                 }
             }
             
-            //calculate copy number profile
-            var param = new orAjaxParam(alteredCaseList, unalteredCaseList, window.PortalGlobals.getCancerStudyId() + "_gistic");
-            var or_data = new orData();
-            or_data.init(param);
-            //var or_table = new orTable();
-            //or_data.get(or_table.init, "or_analysis");
+            $.ajax({
+                method: "POST", 
+                url: "getGeneticProfile.json", 
+                data: {
+                    cancer_study_id: window.PortalGlobals.getCancerStudyId()
+                }
+            }).done(function(result){
+                var profile_type_list = [];
+                $.each(Object.keys(result), function(index, key) {
+                    var _obj = result[key];
+                    if($.inArray(_obj.GENETIC_ALTERATION_TYPE, profile_type_list) === -1) {
+                        profile_type_list.push(_obj.GENETIC_ALTERATION_TYPE);
+                    }
+                });
+                $.each(profile_type_list, function(index, profile_type) {
+                    $("#or-analysis-tabs-list").append("<li><a href='#" + profile_type + 
+                      "_subtab' class='or-analysis-tabs-ref'><span>" + profile_type + "</span></a></li>");
+                });
+                $("#or-analysis-tabs").tabs();
+                $("#or-analysis-tabs").tabs('paging', {tabsPerPage: 10, follow: true, cycle: false});
+                $("#or-analysis-tabs").tabs("option", "active", 0);
+                $(window).trigger("resize");
+                
+                
+                
+//        var param = new orAjaxParam(alteredCaseList, unalteredCaseList, window.PortalGlobals.getCancerStudyId() + "_mutations");
+//        var or_data = new orData();
+//        or_data.init(param);
+//        var or_table = new orTable();
+//        or_data.get(or_table.init, "or_analysis");       
+            }).fail(function( jqXHR, textStatus ) {
+                alert( "Request failed: " + textStatus );
+            }); 
+            
+            
         }
     };
     

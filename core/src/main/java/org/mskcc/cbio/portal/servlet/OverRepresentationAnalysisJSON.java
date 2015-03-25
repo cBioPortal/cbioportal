@@ -19,10 +19,7 @@ package org.mskcc.cbio.portal.servlet;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletException;
@@ -37,15 +34,9 @@ import org.mskcc.cbio.portal.dao.DaoGeneticProfile;
 import org.mskcc.cbio.portal.dao.DaoSample;
 import org.mskcc.cbio.portal.dao.DaoSampleProfile;
 import org.mskcc.cbio.portal.model.CancerStudy;
-import org.mskcc.cbio.portal.model.CanonicalGene;
-import org.mskcc.cbio.portal.model.ExtendedMutation;
-import org.mskcc.cbio.portal.model.GeneticAlterationType;
-import static org.mskcc.cbio.portal.model.GeneticAlterationType.COPY_NUMBER_ALTERATION;
 import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.mskcc.cbio.portal.model.Sample;
 import org.mskcc.cbio.portal.or_analysis.ORAnalysisDiscretizedDataProxy;
-import org.mskcc.cbio.portal.or_analysis.OverRepresentationAnalysisUtil;
-import static org.mskcc.cbio.portal.or_analysis.OverRepresentationAnalysisUtil.getPatientIds;
 
 /**
  * Calculate over representation scores 
@@ -82,21 +73,17 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
             String[] alteredCaseList = _alteredCaseList.split("\\s+");
             String _unalteredCaseList = httpServletRequest.getParameter("unaltered_case_id_list");
             String[] unalteredCaseList = _unalteredCaseList.split("\\s+");
-            
-            //String geneSymbol = httpServletRequest.getParameter("gene");
-            //String caseSetId = httpServletRequest.getParameter("case_set_id");
-            //String caseIdsKey = httpServletRequest.getParameter("case_ids_key");
             String profileId = httpServletRequest.getParameter("profile_id");
             
             //Get Gene ID (int)
-            DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
+//            DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
 //            CanonicalGene geneObj = daoGeneOptimized.getGene(geneSymbol);
 //            Long queryGeneId = geneObj.getEntrezGeneId();
             
-            //Get genetic profile ID (int)
+            //Get genetic profile ID (int) & Type
             GeneticProfile gp = DaoGeneticProfile.getGeneticProfileByStableId(profileId);
             int gpId = gp.getGeneticProfileId();
-            GeneticAlterationType gp_type = gp.getGeneticAlterationType();
+            String profileType = gp.getGeneticAlterationType().toString();
             
             //Get cancer study internal id (int)
             CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
@@ -116,10 +103,8 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
             }   
             unalteredSampleIds.retainAll(DaoSampleProfile.getAllSampleIdsInProfile(gpId));
             
-            //Get value map for all cancer genes
-            Map<Long, HashMap<Integer, String>> map = OverRepresentationAnalysisUtil.getValueMap(cancerStudyInternalId, gpId, alteredSampleIds, unalteredSampleIds);
-            
-            StringBuilder result_json_str = new StringBuilder();
+            //The actual calculation
+            ORAnalysisDiscretizedDataProxy dataProxy = new ORAnalysisDiscretizedDataProxy(cancerStudyInternalId, gpId, profileType, alteredSampleIds, unalteredSampleIds);
             
 //                Map<Long, String[]> map = OverRepresentationAnalysisUtil.getMutationMap(cancerStudyInternalId, gpId, caseSetId, caseIdsKey);
 //                List<Long> genes = new ArrayList<Long>(map.keySet());
@@ -139,7 +124,7 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
             
             httpServletResponse.setContentType("text/html");
             PrintWriter out = httpServletResponse.getWriter();
-            JSONValue.writeJSONString(result_json_str.toString(), out);
+            JSONValue.writeJSONString(dataProxy.getResult(), out);
 
         } catch (DaoException ex) {
             Logger.getLogger(OverRepresentationAnalysisJSON.class.getName()).log(Level.SEVERE, null, ex);

@@ -16,6 +16,7 @@ var orData = function() {
                 data: _param
             })  
             .done(function(result) {
+                result = result.substring(1, result.length - 2); //remove the quote sign
                 var _arr = result.substring(1, result.length).split("|");
                 $.each(_arr, function(index, str) {
                     var _tmp = str.split(":");

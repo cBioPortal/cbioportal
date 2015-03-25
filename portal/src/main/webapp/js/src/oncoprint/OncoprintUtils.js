@@ -55,8 +55,17 @@ define("OncoprintUtils", (function() {
     // returns: data nested by the key, "sample"
     var nest_data = function(data) {
         var result = d3.nest()
-    .key(function(d) { return d.sample; })
-//    .key(function(d) { return d.patient; })
+//    .key(function(d) { return d.sample; })
+    .key(function(d) { 
+            if(d.patient === undefined)
+            {
+                return d.sample; 
+            }
+            else
+            {
+               return d.patient; 
+            }
+        })
     .entries(data);
         return result;
     };
@@ -403,15 +412,6 @@ define("OncoprintUtils", (function() {
                     return [attr.attr_id, scale];
                 }
 
-//                // manually override colors for genomic subtypes to match the endometrial paper (doi:10.1038/nature12113)
-//                if (attr.attr_id.toUpperCase() === "SUBTYPE") {
-//                    scale = d3.scale.ordinal()
-//                        .domain(["POLE (Ultra-mutated)", "MSI (Hyper-mutated)", "Copy-number low (Endometriod)", "Copy-number high (Serous-like)"])
-//                        .range(["#3366cc", "#109618", "#ff9900", "#dc3912"]);
-//
-//                    return [attr.attr_id, scale];
-//                }
-
                 // calculate the proper colors for all other attributes
                 if (attr.datatype.toUpperCase() === "BOOLEAN") {
                     scale = d3.scale.ordinal()
@@ -433,7 +433,7 @@ define("OncoprintUtils", (function() {
                     scale = d3.scale.ordinal()
                         .range( slice_googlecolors(attr.attr_id));
                 }
-//                attr.attr_id=attr.attr_id.toLowerCase().charAt(0).toUpperCase() + attr.attr_id.toLowerCase().slice(1);// added by dong li
+                
                 scale.domain(attrId2range[attr.attr_id]);
                 return [attr.attr_id, scale];
             })
@@ -1642,10 +1642,10 @@ define("OncoprintUtils", (function() {
         };
     }());
 
-    var patientViewUrl = function(sample_id) {
+    var patientViewUrl = function(patient_id) {
         // helper function
-        var href = cbio.util.getLinkToSampleView(window.cancer_study_id_selected,sample_id);
-        return "<a href='" + href + "'>" + sample_id + "</a>";
+        var href = cbio.util.getLinkToPatientView(window.cancer_study_id_selected,patient_id);
+        return "<a href='" + href + "'>" + patient_id + "</a>";
     };
 
     // params: els, list of d3 selected elements with either gene data or
@@ -1661,8 +1661,15 @@ define("OncoprintUtils", (function() {
                 events: {
                     render: function(event, api) {
                         var content;
-                        var sampleLink = params.linkage?patientViewUrl(d.sample):d.sample;
-//                        var sampleLink = params.linkage?patientViewUrl(d.patient):d.patient;
+//                        var sampleLink = params.linkage?patientViewUrl(d.sample):d.sample;
+                        if(d.patient === undefined)
+                        {
+                            var sampleLink = params.linkage?patientViewUrl(d.sample):d.sample;
+                        }
+                        else
+                        {
+                            var sampleLink = params.linkage?patientViewUrl(d.patient):d.patient;
+                        }
                         if (d.attr_id) {
                             content = '<font size="2">'
                                 + format.clinical(d)

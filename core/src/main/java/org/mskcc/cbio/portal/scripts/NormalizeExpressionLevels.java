@@ -90,7 +90,7 @@ public class NormalizeExpressionLevels{
 
    public static final String TCGA_NORMAL_SUFFIX = "-11";
 
-   static HashMap<Long, ArrayList<String[]>> geneCopyNumberStatus;
+   static HashMap<Long, ArrayList<String[]>> geneCopyNumberStatus = null;
    static int SAMPLES;
    static String zScoresFile;
    static String normalSampleSuffix;
@@ -132,7 +132,9 @@ public class NormalizeExpressionLevels{
 			}
 		}
       
-		geneCopyNumberStatus = readCopyNumberFile(copyNumberFile);
+                if (copyNumberFile!=null) {
+                    geneCopyNumberStatus = readCopyNumberFile(copyNumberFile);
+                }
 		computeZScoreXP(expressionFile); 
 	}
    
@@ -220,7 +222,7 @@ public class NormalizeExpressionLevels{
             }
             
             // ignore gene's data if its copy number status is unknown
-            if(geneCopyNumberStatus.containsKey(gene.getEntrezGeneId())){
+            if(geneCopyNumberStatus==null || geneCopyNumberStatus.containsKey(gene.getEntrezGeneId())){
                genesFound++;
 
                ArrayList<String[]> tumorSampleExpressions = new ArrayList<String[]>();
@@ -233,7 +235,7 @@ public class NormalizeExpressionLevels{
                   }
                }
                
-               ArrayList<String[]> cnStatus = geneCopyNumberStatus.get(gene.getEntrezGeneId());
+               ArrayList<String[]> cnStatus = geneCopyNumberStatus==null ? null : geneCopyNumberStatus.get(gene.getEntrezGeneId());
                double[] zscores = getZscore( gene.getEntrezGeneId(), tumorSampleExpressions, cnStatus );
                
                if(zscores != null){
@@ -319,10 +321,12 @@ public class NormalizeExpressionLevels{
       HashSet<String> diploidSamples = new HashSet<String>();
       String DiploidSample = "0"; // CN value of 0 indicates diploid
       
-      for(int i=0;i<cn.size();i++){
-         
-         if(cn.get(i)[1].equals( DiploidSample ))  
-            diploidSamples.add(cn.get(i)[0]);  // entry [0] is the sampleID; TODO: put in a named record (class)
+      if (cn!=null) {
+        for(int i=0;i<cn.size();i++){
+
+           if(cn.get(i)[1].equals( DiploidSample ))  
+              diploidSamples.add(cn.get(i)[0]);  // entry [0] is the sampleID; TODO: put in a named record (class)
+        }
       }
       
       int xPos = 0;
@@ -331,7 +335,7 @@ public class NormalizeExpressionLevels{
       // for each expression measurement
       for(int i=0;i<xp.size();i++){
          // if the sample is diploid
-         if(diploidSamples.contains(xp.get(i)[0])){
+         if(cn==null || diploidSamples.contains(xp.get(i)[0])){
             count++;
             // and the expression value is not NA or NaN or null
             if(xp.get(i)[1].compareTo("NA")!=0 && xp.get(i)[1].compareTo("NaN")!=0 

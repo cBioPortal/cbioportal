@@ -10204,16 +10204,17 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 					return "excluded";
 				}
 			},
-			"cBioPortal": function (util, gene) {
-				if (util.containsKeyword(gene) ||
-				    util.containsMutationEventId(gene))
-				{
-					return "visible";
-				}
-				else {
-					return "excluded";
-				}
-			}
+			"cBioPortal": "excluded"
+			//"cBioPortal": function (util, gene) {
+			//	if (util.containsKeyword(gene) ||
+			//	    util.containsMutationEventId(gene))
+			//	{
+			//		return "visible";
+			//	}
+			//	else {
+			//		return "excluded";
+			//	}
+			//}
 		},
 		// Indicates whether a column is searchable or not.
 		// Should be a boolean value or a function.

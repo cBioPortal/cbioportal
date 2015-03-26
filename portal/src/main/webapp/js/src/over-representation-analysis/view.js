@@ -52,18 +52,51 @@ var orTable = function() {
     }
     
     return {
-        init: function(_input_data, _div_id) {
+        init: function(_input_data, _div_id, _table_id, _table_title) {
             
             div_id = _div_id;
-            table_id = _div_id + "_data_table";
+            table_id = _table_id;
             
             data = convert_data(_input_data);
             
-            $("#" + _div_id).append("<table id='" + table_id + "' cellpadding='0' cellspacing='0' border='0'></table>"); 
+            $("#" + _div_id).append(_table_title);
+            $("#" + _div_id).append("<table id='" + table_id + "' cellpadding='0' cellspacing='0' border='0' class='" + table_id + "_datatable_class'></table>"); 
             configTable();
         }
     };
     
+};
+
+var orSubTabView = function() {
+    
+    return {
+        init: function(_div_id) {
+            if (_div_id === orAnalysis.ids.sub_tab_main) {
+                var element_gistic_table = $("." + orAnalysis.ids.sub_tab_main + "_gistic_datatable_class");
+                var element_mutations_table = $("." + orAnalysis.ids.sub_tab_main + "_mutations_datatable_class");
+                if (element_gistic_table.length === 0) {
+                    //GISTIC table
+                    var param_gistic = new orAjaxParam(or_tab.getAlteredCaseList(), or_tab.getUnalteredCaseList(), window.PortalGlobals.getCancerStudyId() + "_gistic");
+                    var or_data_gistic = new orData();
+                    or_data_gistic.init(param_gistic);
+                    var or_table_gistic = new orTable();
+                    or_data_gistic.get(or_table_gistic.init, orAnalysis.ids.sub_tab_main, orAnalysis.ids.sub_tab_main + "_gistic", "Putative copy-number alterations from GISTIC"); 
+                }
+                if (element_mutations_table.length === 0) {
+                    //Mutations table
+                    var param_mutations = new orAjaxParam(or_tab.getAlteredCaseList(), or_tab.getUnalteredCaseList(), window.PortalGlobals.getCancerStudyId() + "_mutations");
+                    var or_data_mutations = new orData();
+                    or_data_mutations.init(param_mutations);
+                    var or_table_mutations = new orTable();
+                    or_data_mutations.get(or_table_mutations.init, orAnalysis.ids.sub_tab_main, orAnalysis.ids.sub_tab_main + "_mutations", "Mutations"); 
+                }
+            } else if (_div_id === orAnalysis.ids.sub_tab_mrna_exp) {
+                
+            } else if (_div_id === orAnalysis.ids.sub_tab_advanced) {
+                
+            }
+        }
+    };
 };
 
 

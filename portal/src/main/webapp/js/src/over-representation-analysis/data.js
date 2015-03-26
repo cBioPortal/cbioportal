@@ -28,12 +28,12 @@ var orData = function() {
                 alert( "Request failed: " + textStatus );
             }); 
         },
-        get: function(callback_func, param) { 
+        get: function(callback_func, _div_id, _table_id, _table_title) { 
             var tmp = setInterval(function () { timer(); }, 1000);
             function timer() {
                 if (retrieved) {
                     clearInterval(tmp);
-                    callback_func(data, param);
+                    callback_func(data, _div_id, _table_id, _table_title);
                 }
             }
         }

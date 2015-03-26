@@ -4,6 +4,27 @@
  * and open the template in the editor.
  */
 
+var orAnalysis = (function() {
+    
+    return {
+        
+        ids: {
+            main_div: "or_analysis",
+            sub_tabs_div: "or-analysis-tabs",
+            sub_tabs_list: "or-analysis-tabs-list",
+            sub_tabs_content: "or-analysis-tabs-content",
+            sub_tab_main: "or-analysis-subtab-main",
+            sub_tab_mrna_exp: "or-analysis-subtab-mrna-exp",
+            sub_tab_advanced: "or-analysis-subtab-advanced"
+        },
+        texts: {
+            sub_tab_main: "Overview",
+            sub_tab_mrna_exp: "mRNA Expression",
+            sub_tab_advanced: "Advanced"
+        }
+    };
+    
+}());
 
 var orAjaxParam = function(alteredCaseList, unalteredCaseList, profileId) {
     
@@ -20,3 +41,4 @@ var orAjaxParam = function(alteredCaseList, unalteredCaseList, profileId) {
     this.unaltered_case_id_list = _tmp_unaltered_case_id_list;
     this.profile_id = profileId;
 };
+

@@ -225,7 +225,7 @@
 
         var subscribeOncoprintStat = function(fn) {
             fns_oncoprint_stat.push(fn);
-        }
+        };
 
         return {
             //to subscribe the functions that would re-use oncoprint data -- by subscribing, once the oncoprint

@@ -60,6 +60,7 @@ var or_tab = (function() {
                     cancer_study_id: window.PortalGlobals.getCancerStudyId()
                 }
             }).done(function(result){
+                
                 var profile_type_list = [];
                 $.each(Object.keys(result), function(index, key) {
                     var _obj = result[key];
@@ -67,27 +68,43 @@ var or_tab = (function() {
                         profile_type_list.push(_obj.GENETIC_ALTERATION_TYPE);
                     }
                 });
-                $.each(profile_type_list, function(index, profile_type) {
-                    $("#or-analysis-tabs-list").append("<li><a href='#" + profile_type + 
-                      "_subtab' class='or-analysis-tabs-ref'><span>" + profile_type + "</span></a></li>");
-                });
-                $("#or-analysis-tabs").tabs();
-                $("#or-analysis-tabs").tabs('paging', {tabsPerPage: 10, follow: true, cycle: false});
-                $("#or-analysis-tabs").tabs("option", "active", 0);
+                
+                $("#" + orAnalysis.ids.sub_tabs_list).append("<li><a href='#" + orAnalysis.ids.sub_tab_main + "' class='or-analysis-tabs-ref'><span>" + orAnalysis.texts.sub_tab_main + "</span></a></li>");
+                if ($.inArray("MRNA_EXPRESSION", profile_type_list) !== -1) { //study has expression data
+                    $("#" + orAnalysis.ids.sub_tabs_list).append("<li><a href='#" + orAnalysis.ids.sub_tab_mrna_exp + "' class='or-analysis-tabs-ref'><span>" + orAnalysis.texts.sub_tab_mrna_exp + "</span></a></li>");
+                }
+                $("#" + orAnalysis.ids.sub_tabs_list).append("<li><a href='#" + orAnalysis.ids.sub_tab_advanced + "' class='or-analysis-tabs-ref'><span>" + orAnalysis.texts.sub_tab_advanced + "</span></a></li>");
+                
+                $("#" + orAnalysis.ids.sub_tabs_content).append("<div id='" + orAnalysis.ids.sub_tab_main + "'></div>");
+                $("#" + orAnalysis.ids.sub_tabs_content).append("<div id='" + orAnalysis.ids.sub_tab_mrna_exp + "'></div>");
+                $("#" + orAnalysis.ids.sub_tabs_content).append("<div id='" + orAnalysis.ids.sub_tab_advanced + "'></div>");
+
+                $("#" + orAnalysis.ids.sub_tabs_div).tabs();
+                $("#" + orAnalysis.ids.sub_tabs_div).tabs('paging', {tabsPerPage: 10, follow: true, cycle: false});
+                $("#" + orAnalysis.ids.sub_tabs_div).tabs("option", "active", 0);
                 $(window).trigger("resize");
                 
-                
-                
-//        var param = new orAjaxParam(alteredCaseList, unalteredCaseList, window.PortalGlobals.getCancerStudyId() + "_mutations");
-//        var or_data = new orData();
-//        or_data.init(param);
-//        var or_table = new orTable();
-//        or_data.get(or_table.init, "or_analysis");       
+                $("#" + orAnalysis.ids.sub_tabs_div).on("tabsactivate", function(event, ui) {
+                    if (ui.newTab.text() === orAnalysis.texts.sub_tab_main) {
+                        var orSubTabMain = new orSubTabView();
+                        orSubTabMain.init(orAnalysis.ids.sub_tab_main);
+                    } else if (ui.newTab.text() === orAnalysis.texts.sub_tab_mrna_exp) {
+                        var orSubTabMrnaExp = new orSubTabView();
+                        orSubTabMrnaExp.init(orAnalysis.ids.sub_tab_mrna_exp);
+                    } else if (ui.newTab.text() === orAnalysis.texts.sub_tab_advanced) {
+                        var orSubTabAdvanced = new orSubTabView();
+                        orSubTabAdvanced.init(orAnalysis.ids.sub_tab_advanced);
+                    }
+                });
             }).fail(function( jqXHR, textStatus ) {
                 alert( "Request failed: " + textStatus );
             }); 
-            
-            
+        },
+        getAlteredCaseList: function() {
+            return alteredCaseList;
+        },
+        getUnalteredCaseList: function() {
+            return unalteredCaseList;
         }
     };
     

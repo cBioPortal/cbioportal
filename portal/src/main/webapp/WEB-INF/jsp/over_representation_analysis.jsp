@@ -22,7 +22,6 @@
 
 <script>
     $(document).ready( function() {
-        
         <%
             JSONObject result = new JSONObject();
             for (String patientId : mergedPatientList) {

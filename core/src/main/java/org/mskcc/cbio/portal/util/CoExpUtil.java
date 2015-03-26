@@ -89,7 +89,6 @@ public class CoExpUtil {
         List<String> stableSampleIds = getPatientIds(patientSetId, patientIdsKey);
         List<Integer> sampleIds = new ArrayList<Integer>();
         for(String sampleId : stableSampleIds) {
-            System.out.println("in co-expression (cancer study id, sample id):" + gp.getCancerStudyId() + " " + sampleId);
             Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(gp.getCancerStudyId(), sampleId);   
             sampleIds.add(sample.getInternalId()); 
         }   

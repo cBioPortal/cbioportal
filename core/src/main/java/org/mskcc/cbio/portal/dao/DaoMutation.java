@@ -316,6 +316,31 @@ public final class DaoMutation {
             }
             return mutationList;
         }
+	
+	public static ArrayList<ExtendedMutation> getMutations (int geneticProfileId) throws DaoException {
+		Connection con = null;
+            PreparedStatement pstmt = null;
+            ResultSet rs = null;
+            ArrayList <ExtendedMutation> mutationList = new ArrayList <ExtendedMutation>();
+            try {
+                con = JdbcUtil.getDbConnection(DaoMutation.class);
+                pstmt = con.prepareStatement
+                        ("SELECT * FROM mutation "
+                        + "INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID "
+                        + "WHERE GENETIC_PROFILE_ID = ?");
+                pstmt.setInt(1, geneticProfileId);
+                rs = pstmt.executeQuery();
+                while  (rs.next()) {
+                    ExtendedMutation mutation = extractMutation(rs);
+                    mutationList.add(mutation);
+                }
+            } catch (SQLException e) {
+                throw new DaoException(e);
+            } finally {
+                JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
+            }
+            return mutationList;
+	}
     
         public static boolean hasAlleleFrequencyData (int geneticProfileId, int sampleId) throws DaoException {
             Connection con = null;

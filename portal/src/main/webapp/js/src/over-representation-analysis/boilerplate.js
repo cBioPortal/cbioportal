@@ -18,7 +18,7 @@ var orAnalysis = (function() {
             sub_tab_advanced: "or-analysis-subtab-advanced"
         },
         texts: {
-            sub_tab_main: "Overview",
+            sub_tab_main: "Copy-num Alteration / Mutations",
             sub_tab_mrna_exp: "mRNA Expression",
             sub_tab_advanced: "Advanced"
         }

@@ -5,7 +5,7 @@
 <script type="text/javascript" src="js/src/over-representation-analysis/boilerplate.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <div class="section" id="or_analysis">
-    <div id="or-analysis-info-box">
+    <div id="or-analysis-info-box" style="padding: 10px;">
         Synthetic genetic arrays have been very effective at measuring genetic interactions in yeast in a high-throughput manner and recently have been expanded to measure quantitative changes in interaction, termed 'differential interactions', across multiple conditions. Here, we present a strategy that leverages statistical information from the experimental design to produce a novel, quantitative differential interaction score, which performs favorably compared to previous differential scores. We also discuss the added utility of differential genetic-similarity in differential network analysis.
     </div>
     <div id="or-analysis-tabs" class="or-analysis-tabs">

@@ -622,8 +622,8 @@ var ScatterPlots = function() {
             });
         }
 
-    }
-}
+    };
+};
 
 
 

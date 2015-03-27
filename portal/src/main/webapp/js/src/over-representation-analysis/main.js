@@ -53,6 +53,7 @@ var or_tab = (function() {
                 }
             }
             
+            //retrieve data
             $.ajax({
                 method: "POST", 
                 url: "getGeneticProfile.json", 
@@ -84,16 +85,24 @@ var or_tab = (function() {
                 $("#" + orAnalysis.ids.sub_tabs_div).tabs("option", "active", 0);
                 $(window).trigger("resize");
                 
+                var orSubTabMain = new orSubTabView();
+                orSubTabMain.init(orAnalysis.ids.sub_tab_main);
                 $("#" + orAnalysis.ids.sub_tabs_div).on("tabsactivate", function(event, ui) {
                     if (ui.newTab.text() === orAnalysis.texts.sub_tab_main) {
-                        var orSubTabMain = new orSubTabView();
-                        orSubTabMain.init(orAnalysis.ids.sub_tab_main);
+                        if (("#" + orAnalysis.ids.sub_tab_main).is(':empty')) {
+                            var orSubTabMain = new orSubTabView();
+                            orSubTabMain.init(orAnalysis.ids.sub_tab_main);                            
+                        }
                     } else if (ui.newTab.text() === orAnalysis.texts.sub_tab_mrna_exp) {
-                        var orSubTabMrnaExp = new orSubTabView();
-                        orSubTabMrnaExp.init(orAnalysis.ids.sub_tab_mrna_exp);
+                        if (("#" + orAnalysis.ids.sub_tab_mrna_exp).is(':empty')) {
+                            var orSubTabMrnaExp = new orSubTabView();
+                            orSubTabMrnaExp.init(orAnalysis.ids.sub_tab_mrna_exp);
+                        }
                     } else if (ui.newTab.text() === orAnalysis.texts.sub_tab_advanced) {
-                        var orSubTabAdvanced = new orSubTabView();
-                        orSubTabAdvanced.init(orAnalysis.ids.sub_tab_advanced);
+                        if (("#" + orAnalysis.ids.sub_tab_advanced).is(':empty')) {
+                            var orSubTabAdvanced = new orSubTabView();
+                            orSubTabAdvanced.init(orAnalysis.ids.sub_tab_advanced);
+                        }
                     }
                 });
             }).fail(function( jqXHR, textStatus ) {

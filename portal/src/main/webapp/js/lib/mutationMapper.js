@@ -1567,18 +1567,8 @@ var DataProxyUtil = (function()
 
 			// init data proxy
 			var Constructor = proxyOpts.instanceClass;
-			instance = Constructor(proxyOpts.options);
-
-			if (proxyOpts.lazy)
-			{
-				// init without data
-				instance.initWithoutData(proxyOpts.servletName);
-			}
-			else
-			{
-				// init with full data
-				instance.initWithData(proxyOpts.data);
-			}
+			instance = new Constructor(proxyOpts.options);
+			instance.init();
 		}
 
 		return instance;
@@ -7712,6 +7702,73 @@ var RegionTipView = Backbone.View.extend({
 });
 
 /**
+ * Base class for data proxy instances.
+ *
+ * @author Selcuk Onur Sumer
+ */
+function AbstractDataProxy(options)
+{
+	var self = this;
+
+	// default options
+	self._defaultOpts = {
+		initMode: "lazy", // "lazy" or "full"
+		servletName: "",  // name of the servlet to retrieve the actual data (used for AJAX query)
+		data: {}          // actual data, will be used only if it is a full init, i.e {initMode: "full"}
+	};
+
+	// merge options with default options to use defaults for missing values
+	self._options = jQuery.extend(true, {}, self._defaultOpts, options);
+
+	/**
+	 * Initializes the data proxy with respect to init mode.
+	 */
+	self.init = function()
+	{
+		if (self.isFullInit())
+		{
+			self.fullInit(self._options);
+		}
+		else
+		{
+			self.lazyInit(self._options);
+		}
+	};
+
+	/**
+	 * Initializes the proxy without actually grabbing anything from the server.
+	 * Provided servlet name will be used later.
+	 *
+	 * @param options   data proxy options
+	 */
+	self.lazyInit = function(options)
+	{
+		// no default implementation, can be overridden by subclasses
+	};
+
+	/**
+	 * Initializes with full data. Once initialized with full data,
+	 * this proxy class assumes that there will be no additional data.
+	 *
+	 * @param options   data proxy options
+	 */
+	self.fullInit = function(options)
+	{
+		// method body should be overridden by subclasses
+	};
+
+	/**
+	 * Checks if the initialization is full or lazy.
+	 *
+	 * @return {boolean} true if full init, false otherwise
+	 */
+	self.isFullInit = function()
+	{
+		return !(self._options.initMode.toLowerCase() === "lazy");
+	};
+}
+
+/**
  * This class is designed to retrieve mutation data on demand, but it can be also
  * initialized with the full mutation data already retrieved from the server.
  *
@@ -7721,14 +7778,21 @@ var RegionTipView = Backbone.View.extend({
  */
 function MutationDataProxy(options)
 {
+	var self = this;
+
 	// default options
 	var _defaultOpts = {
+		servletName: "getMutationData.json",
 		geneList: "", // list of target genes (genes of interest) as a string
-		params: {} // fixed servlet params
+		params: {}    // fixed servlet params
 	};
 
 	// merge options with default options to use defaults for missing values
 	var _options = jQuery.extend(true, {}, _defaultOpts, options);
+
+	// call super constructor to init options and other params
+	AbstractDataProxy.call(this, _options);
+	_options = self._options;
 
 	// MutationDetailsUtil instance
 	var _util = new MutationDetailsUtil();
@@ -7736,35 +7800,18 @@ function MutationDataProxy(options)
 	var _unsortedGeneList = _options.geneList.trim().split(/\s+/);
 	// alphabetically sorted list of target genes as an array of strings
 	var _geneList = _options.geneList.trim().split(/\s+/).sort();
-	// name of the mutation data servlet
-	var _servletName;
-	// flag to indicate if the initialization is full or lazy
-	var _fullInit;
-
-	/**
-	 * Initializes the proxy without actually grabbing anything from the server.
-	 * Provided servlet name and servlet parameters will be used for later invocation
-	 * of getMutationData function.
-	 *
-	 * @param servletName   name of the mutation data servlet (used for AJAX query)
-	 */
-	function lazyInit(servletName)
-	{
-		_servletName = servletName;
-		_fullInit = false;
-	}
 
 	/**
 	 * Initializes with full mutation data. Once initialized with full data,
 	 * this proxy class assumes that there will be no additional mutation data.
 	 *
-	 * @param mutationData  full mutation data
+	 * @param options   data proxy options
 	 */
-	function fullInit(mutationData)
+	function fullInit(options)
 	{
-		var mutations = new MutationCollection(mutationData);
+		var data = options.data;
+		var mutations = new MutationCollection(data);
 		_util.processMutationData(mutations);
-		_fullInit = true;
 	}
 
 	function getGeneList()
@@ -7826,7 +7873,7 @@ function MutationDataProxy(options)
 		});
 
 		// all data is already retrieved (full init)
-		if (_fullInit)
+		if (self.isFullInit())
 		{
 			// just forward the call the callback function
 			callback(mutationData);
@@ -7855,10 +7902,10 @@ function MutationDataProxy(options)
 				servletParams.geneList = genesToQuery.join(" ");
 
 				// retrieve data from the server
-				//$.post(_servletName, servletParams, process, "json");
+				//$.post(_options.servletName, servletParams, process, "json");
 				$.ajax({
 					type: "POST",
-					url: _servletName,
+					url: _options.servletName,
 					data: servletParams,
 					success: process,
 					error: function() {
@@ -7893,17 +7940,22 @@ function MutationDataProxy(options)
 		return true;
 	}
 
-	return {
-		initWithData : fullInit,
-		initWithoutData: lazyInit,
-		getMutationData: getMutationData,
-		getGeneList: getGeneList,
-		getRawGeneList: getRawGeneList,
-		getUnsortedGeneList: getUnsortedGeneList,
-		getMutationUtil: getMutationUtil,
-		hasData: hasData
-	};
+	// override required base functions
+	self.fullInit = fullInit;
+
+	// class specific functions
+	self.getMutationData = getMutationData;
+	self.getGeneList = getGeneList;
+	self.getRawGeneList = getRawGeneList;
+	self.getUnsortedGeneList = getUnsortedGeneList;
+	self.getMutationUtil = getMutationUtil;
+	self.hasData = hasData;
 }
+
+// MutationDataProxy extends AbstractDataProxy...
+MutationDataProxy.prototype = new AbstractDataProxy();
+MutationDataProxy.prototype.constructor = MutationDataProxy;
+
 /**
  * This class is designed to retrieve PFAM data on demand.
  *
@@ -7913,17 +7965,19 @@ function MutationDataProxy(options)
  */
 function PancanMutationDataProxy(options)
 {
+	var self = this;
+
 	// default options
-	var _defaultOpts = {};
+	var _defaultOpts = {
+		servletName: "pancancerMutations.json"
+	};
 
 	// merge options with default options to use defaults for missing values
 	var _options = jQuery.extend(true, {}, _defaultOpts, options);
 
-	// name of the PFAM data servlet
-	var _servletName;
-
-	// flag to indicate if the initialization is full or lazy
-	var _fullInit;
+	// call super constructor to init options and other params
+	AbstractDataProxy.call(this, _options);
+	_options = self._options;
 
 	// map of <keyword, data> pairs
 	var _cacheByKeyword = {};
@@ -7935,30 +7989,19 @@ function PancanMutationDataProxy(options)
 	var _cacheByGeneSymbol = {};
 
 	/**
-	 * Initializes the proxy without actually grabbing anything from the server.
-	 * Provided servlet name will be used later.
-	 *
-	 * @param servletName   name of the data servlet (used for AJAX query)
-	 */
-	function lazyInit(servletName)
-	{
-		_servletName = servletName;
-		_fullInit = false;
-	}
-
-	/**
 	 * Initializes with full data. Once initialized with full data,
 	 * this proxy class assumes that there will be no additional data.
 	 *
-	 * @param data
+	 * @param options   data proxy options
 	 */
-	function fullInit(data)
+	function fullInit(options)
 	{
+		var data = options.data;
+
 		_cacheByKeyword = data.byKeyword;
 		_cacheByProteinChange = data.byProteinChange;
 		_cacheByGeneSymbol = data.byGeneSymbol;
 		_cacheByProteinPosition = data.byProteinPosition;
-		_fullInit = true;
 	}
 
 	function getPancanData(servletParams, mutationUtil, callback)
@@ -8022,10 +8065,10 @@ function PancanMutationDataProxy(options)
 		var toQuery = getQueryContent(data);
 
 		if (toQuery.length > 0 &&
-		    !_fullInit)
+		    !self.isFullInit())
 		{
 			// retrieve missing data from the servlet
-			$.getJSON(_servletName,
+			$.getJSON(_options.servletName,
 			          {cmd: cmd, q: toQuery.join(",")},
 			          function(response) {
 				          processData(response, data, cache, fields, callback);
@@ -8124,12 +8167,16 @@ function PancanMutationDataProxy(options)
 		return toQuery
 	}
 
-	return {
-		initWithData: fullInit,
-		initWithoutData: lazyInit,
-		getPancanData: getPancanData
-	};
+	// override required base functions
+	self.fullInit = fullInit;
+
+	// class specific functions
+	self.getPancanData = getPancanData;
 }
+
+// PancanMutationDataProxy extends AbstractDataProxy...
+PancanMutationDataProxy.prototype = new AbstractDataProxy();
+PancanMutationDataProxy.prototype.constructor = PancanMutationDataProxy;
 
 /**
  * This class is designed to retrieve PDB data on demand.
@@ -8140,19 +8187,20 @@ function PancanMutationDataProxy(options)
  */
 function PdbDataProxy(options)
 {
+	var self = this;
+
 	// default options
 	var _defaultOpts = {
+		servletName: "get3dPdb.json",
 		mutationUtil: {} // an instance of MutationDetailsUtil class
 	};
 
 	// merge options with default options to use defaults for missing values
 	var _options = jQuery.extend(true, {}, _defaultOpts, options);
 
-	// name of the PDB data servlet
-	var _servletName;
-
-	// flag to indicate if the initialization is full or lazy
-	var _fullInit;
+	// call super constructor to init options and other params
+	AbstractDataProxy.call(this, _options);
+	_options = self._options;
 
 	var _util = _options.mutationUtil;
 
@@ -8173,14 +8221,14 @@ function PdbDataProxy(options)
 	// map of <gene_pdbId_chainId, positionMap> pairs
 	var _positionMapCache = {};
 
-	function lazyInit(servletName)
+	/**
+	 *
+	 * @param options   data proxy options
+	 */
+	function fullInit(options)
 	{
-		_servletName = servletName;
-		_fullInit = false;
-	}
+		var data = options.data;
 
-	function fullInit(data)
-	{
 		// process pdb data
 		_.each(_.keys(data.pdbData), function(uniprotId) {
 			var pdbColl = PdbDataUtil.processPdbData(data.pdbData[uniprotId]);
@@ -8201,8 +8249,6 @@ function PdbDataProxy(options)
 
 		// set position data
 		_positionMapCache = data.positionData;
-
-		_fullInit = true;
 	}
 
 	/**
@@ -8220,7 +8266,7 @@ function PdbDataProxy(options)
 		var cacheKey = generatePositionMapCacheKey(gene, chain);
 
 		// do not retrieve data if it is already there
-		if (_fullInit || _positionMapCache[cacheKey] != null)
+		if (self.isFullInit() || _positionMapCache[cacheKey] != null)
 		{
 			callbackFn(_positionMapCache[cacheKey] || {});
 			return;
@@ -8314,7 +8360,7 @@ function PdbDataProxy(options)
 		if (positionData.length > 0)
 		{
 			// get pdb data for the current mutations
-			$.getJSON(_servletName,
+			$.getJSON(_options.servletName,
 		          {positions: positionData.join(" "),
 			          alignments: alignmentData.join(" ")},
 		          processData);
@@ -8358,7 +8404,7 @@ function PdbDataProxy(options)
 	 */
 	function getPdbData(uniprotId, callback)
 	{
-		if (_fullInit)
+		if (self.isFullInit())
 		{
 			callback(_pdbDataCache[uniprotId]);
 			return;
@@ -8377,7 +8423,7 @@ function PdbDataProxy(options)
 			};
 
 			// retrieve data from the servlet
-			$.getJSON(_servletName,
+			$.getJSON(_options.servletName,
 					{uniprotId: uniprotId},
 					processData);
 		}
@@ -8401,7 +8447,7 @@ function PdbDataProxy(options)
 	function getPdbRowData(uniprotId, callback)
 	{
 		// retrieve data if not cached yet
-		if (!_fullInit &&
+		if (!self.isFullInit() &&
 		    _pdbRowDataCache[uniprotId] == undefined)
 		{
 			getPdbData(uniprotId, function(pdbColl) {
@@ -8431,7 +8477,7 @@ function PdbDataProxy(options)
 	function getPdbDataSummary(uniprotId, callback)
 	{
 		// retrieve data from the server if not cached
-		if (!_fullInit &&
+		if (!self.isFullInit() &&
 			_pdbDataSummaryCache[uniprotId] == undefined)
 		{
 			// process & cache the raw data
@@ -8443,7 +8489,7 @@ function PdbDataProxy(options)
 			};
 
 			// retrieve data from the servlet
-			$.getJSON(_servletName,
+			$.getJSON(_options.servletName,
 					{uniprotId: uniprotId, type: "summary"},
 					processData);
 		}
@@ -8508,7 +8554,7 @@ function PdbDataProxy(options)
 			}
 		});
 
-		if (_fullInit)
+		if (self.isFullInit())
 		{
 			// no additional data to retrieve
 			callback(pdbData);
@@ -8542,8 +8588,8 @@ function PdbDataProxy(options)
 			servletParams.pdbIds = pdbToQuery.join(" ");
 
 			// retrieve data from the server
-			$.post(_servletName, servletParams, processData, "json");
-			//$.getJSON(_servletName, servletParams, processData, "json");
+			$.post(_options.servletName, servletParams, processData, "json");
+			//$.getJSON(_options.servletName, servletParams, processData, "json");
 		}
 		// data for all requested chains already cached
 		else
@@ -8553,16 +8599,20 @@ function PdbDataProxy(options)
 		}
 	}
 
-	return {
-		hasPdbData: hasPdbData,
-		initWithData: fullInit,
-		initWithoutData: lazyInit,
-		getPdbData: getPdbData,
-		getPdbRowData: getPdbRowData,
-		getPdbInfo: getPdbInfo,
-		getPositionMap: getPositionMap
-	};
+	// override required base functions
+	self.fullInit = fullInit;
+
+	// class specific functions
+	self.hasPdbData = hasPdbData;
+	self.getPdbData = getPdbData;
+	self.getPdbRowData = getPdbRowData;
+	self.getPdbInfo = getPdbInfo;
+	self.getPositionMap = getPositionMap;
 }
+
+// PdbDataProxy extends AbstractDataProxy...
+PdbDataProxy.prototype = new AbstractDataProxy();
+PdbDataProxy.prototype.constructor = PdbDataProxy;
 
 /**
  * This class is designed to retrieve PFAM data on demand.
@@ -8573,45 +8623,33 @@ function PdbDataProxy(options)
  */
 function PfamDataProxy(options)
 {
+	var self = this;
+
 	// default options
-	var _defaultOpts = {};
+	var _defaultOpts = {
+		servletName: "getPfamSequence.json"
+	};
 
 	// merge options with default options to use defaults for missing values
 	var _options = jQuery.extend(true, {}, _defaultOpts, options);
 
-	// name of the PFAM data servlet
-	var _servletName;
-
-	// flag to indicate if the initialization is full or lazy
-	var _fullInit;
+	// call super constructor to init options and other params
+	AbstractDataProxy.call(this, _options);
+	_options = self._options;
 
 	// map of <gene, data> pairs
 	var _pfamDataCache = {};
 
 	/**
-	 * Initializes the proxy without actually grabbing anything from the server.
-	 * Provided servlet name will be used later.
-	 *
-	 * @param servletName   name of the PFAM data servlet (used for AJAX query)
-	 */
-	function lazyInit(servletName)
-	{
-		_servletName = servletName;
-		_fullInit = false;
-	}
-
-	/**
 	 * Initializes with full PFAM data. Once initialized with full data,
 	 * this proxy class assumes that there will be no additional data.
 	 *
-	 * @param pfamData  full PFAM data
+	 * @param options   data proxy options
 	 */
-	function fullInit(pfamData)
+	function fullInit(options)
 	{
 		//assuming the given data is a map of <gene, sequence data> pairs
-		_pfamDataCache = pfamData;
-
-		_fullInit = true;
+		_pfamDataCache = options.data;;
 	}
 
 	function getPfamData(servletParams, callback)
@@ -8629,7 +8667,7 @@ function PfamDataProxy(options)
 		// retrieve data from the server if not cached
 		if (_pfamDataCache[gene] == undefined)
 		{
-			if (_fullInit)
+			if (self.isFullInit())
 			{
 				callback(null);
 				return;
@@ -8644,7 +8682,7 @@ function PfamDataProxy(options)
 			};
 
 			// retrieve data from the servlet
-			$.getJSON(_servletName,
+			$.getJSON(_options.servletName,
 			          servletParams,
 			          processData);
 		}
@@ -8655,13 +8693,16 @@ function PfamDataProxy(options)
 		}
 	}
 
-	return {
-		initWithData: fullInit,
-		initWithoutData: lazyInit,
-		getPfamData: getPfamData
-	};
+	// override required base functions
+	self.fullInit = fullInit;
+
+	// class specific functions
+	self.getPfamData = getPfamData;
 }
 
+// PdbDataProxy extends AbstractDataProxy...
+PfamDataProxy.prototype = new AbstractDataProxy();
+PfamDataProxy.prototype.constructor = PfamDataProxy;
 /**
  * This class is designed to retrieve cBio Portal specific data on demand.
  *
@@ -8671,42 +8712,32 @@ function PfamDataProxy(options)
  */
 function PortalDataProxy(options)
 {
+	var self = this;
+
 	// default options
-	var _defaultOpts = {};
+	var _defaultOpts = {
+		servletName: "portalMetadata.json"
+	};
 
 	// merge options with default options to use defaults for missing values
 	var _options = jQuery.extend(true, {}, _defaultOpts, options);
 
-	var _servletName;
-	var _fullInit;
+	// call super constructor to init options and other params
+	AbstractDataProxy.call(this, _options);
+	_options = self._options;
 
 	// cache
 	var _data = {};
 
 	/**
-	 * Initializes the proxy without actually grabbing anything from the server.
-	 * Provided servlet name will be used later.
-	 *
-	 * @param servletName   name of the portal data servlet (used for AJAX query)
-	 */
-	function lazyInit(servletName)
-	{
-		_servletName = servletName;
-		_fullInit = false;
-	}
-
-	/**
 	 * Initializes with full portal data. Once initialized with full data,
 	 * this proxy class assumes that there will be no additional data.
 	 *
-	 * @param portalData  full portal data
+	 * @param options   data proxy options
 	 */
-	function fullInit(portalData)
+	function fullInit(options)
 	{
-		//assuming the given data is a map of <gene, sequence data> pairs
-		_data = portalData;
-
-		_fullInit = true;
+		_data = options.data;
 	}
 
 	function getPortalData(servletParams, callback)
@@ -8755,19 +8786,22 @@ function PortalDataProxy(options)
 		else
 		{
 			// retrieve data from the servlet
-			$.getJSON(_servletName,
+			$.getJSON(_options.servletName,
 			          queryParams,
 			          processData);
 		}
 	}
 
-	return {
-		initWithData: fullInit,
-		initWithoutData: lazyInit,
-		getPortalData: getPortalData
-	};
+	// override required base functions
+	self.fullInit = fullInit;
+
+	// class specific functions
+	self.getPortalData = getPortalData;
 }
 
+// PdbDataProxy extends AbstractDataProxy...
+PortalDataProxy.prototype = new AbstractDataProxy();
+PortalDataProxy.prototype.constructor = PortalDataProxy;
 /**
  * Designed as a base (abstract) class for an advanced implementation of data tables
  * with additional and more flexible options.
@@ -10204,17 +10238,16 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 					return "excluded";
 				}
 			},
-			"cBioPortal": "excluded"
-			//"cBioPortal": function (util, gene) {
-			//	if (util.containsKeyword(gene) ||
-			//	    util.containsMutationEventId(gene))
-			//	{
-			//		return "visible";
-			//	}
-			//	else {
-			//		return "excluded";
-			//	}
-			//}
+			"cBioPortal": function (util, gene) {
+				if (util.containsKeyword(gene) ||
+				    util.containsMutationEventId(gene))
+				{
+					return "visible";
+				}
+				else {
+					return "excluded";
+				}
+			}
 		},
 		// Indicates whether a column is searchable or not.
 		// Should be a boolean value or a function.
@@ -16453,26 +16486,20 @@ function MutationMapper(options)
 		// data proxy configuration
 		// instance: custom instance, if provided all other parameters are ignored
 		// instanceClass: constructor to initialize the data proxy
-		// lazy: indicates if it will be lazy init or full init
-		// servletName: name of the servlet to retrieve the actual data
-		// data: actual data. will be used only if it is a full init, i.e {lazy: false}
-		// options: options to be passed to the data proxy constructor
+		// options: options to be passed to the data proxy constructor (see AbstractDataProxy default options)
 		proxy: {
 			pfamProxy: {
 				instance: null,
 				instanceClass: PfamDataProxy,
-				lazy: true,
-				servletName: "getPfamSequence.json",
-				data: {},
-				options: {}
+				options: {
+					data: {}
+				}
 			},
 			mutationProxy: {
 				instance: null,
 				instanceClass: MutationDataProxy,
-				lazy: true,
-				servletName: "getMutationData.json",
-				data: {},
 				options: {
+					data: {},
 					params: {},
 					geneList: ""
 				}
@@ -16480,38 +16507,34 @@ function MutationMapper(options)
 			pdbProxy: {
 				instance: null,
 				instanceClass: PdbDataProxy,
-				lazy: true,
-				servletName: "get3dPdb.json",
-				data: {
-					pdbData: {},
-					infoData: {},
-					summaryData: {},
-					positionData: {}
-				},
 				options: {
+					data: {
+						pdbData: {},
+						infoData: {},
+						summaryData: {},
+						positionData: {}
+					},
 					mutationUtil: {}
 				}
 			},
 			pancanProxy: {
 				instance: null,
 				instanceClass: PancanMutationDataProxy,
-				lazy: true,
-				servletName: "pancancerMutations.json",
-				data: {
-					byKeyword: {},
-					byProteinChange: {},
-					byProteinPosition: {},
-					byGeneSymbol: {}
-				},
-				options: {}
+				options: {
+					data: {
+						byKeyword: {},
+						byProteinChange: {},
+						byProteinPosition: {},
+						byGeneSymbol: {}
+					}
+				}
 			},
 			portalProxy: {
 				instance: null,
 				instanceClass: PortalDataProxy,
-				lazy: true,
-				servletName: "portalMetadata.json",
-				data: {},
-				options: {}
+				options: {
+					data: {}
+				}
 			}
 		}
 	};

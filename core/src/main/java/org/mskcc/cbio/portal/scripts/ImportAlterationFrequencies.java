@@ -42,6 +42,7 @@ public class ImportAlterationFrequencies {
 		}
 	}
 	public static void importAlterationFrequencies(String studyStableId) throws Exception {
+		// TODO: collect by patient not by sample
 		// get list of profiles
 		CancerStudy study = DaoCancerStudy.getCancerStudyByStableId(studyStableId);
 		List<GeneticProfile> geneticProfiles = study.getGeneticProfiles();

@@ -49,7 +49,7 @@ var PROFILE_RPPA = "PROFILE_RPPA";
 var PROFILE_METHYLATION = "PROFILE_METHYLATION"
 
 var caseSetSelectionOverriddenByUser = false;
-var selectedStudiesCookieName = "cbioportal_selected_studies";
+var selectedStudiesStorageKey = "cbioportal_selected_studies";
 
 //  Create Log Function, if FireBug is not Installed.
 if(typeof(console) === "undefined" || typeof(console.log) === "undefined")
@@ -127,6 +127,14 @@ $(document).ready(function(){
 });  //  end document ready function
 
 
+function supportsHTML5Storage() {
+	// from diveintohtml5.info/storage.html
+	try {
+		return 'localStorage' in window && window['localStorage'] !== null;
+	} catch (e) {
+		return false;
+	}
+}
 //  Load study Meta Data, i.e. everything except the name, which we load earlier to
 //  	populate the dropdown menu.
 function loadStudyMetaData(cancerStudyId) {
@@ -1004,7 +1012,7 @@ function addMetaDataToPage() {
 				return ret;
 			};
 		});
-		$('#jstree').on('changed.jstree', function() { onJSTreeChange(); saveSelectedStudiesCookie(); });
+		$('#jstree').on('changed.jstree', function() { onJSTreeChange(); saveSelectedStudiesLocalStorage(); });
 		$('#jstree').jstree(true).hide_icons();
 	}
 	initialize_jstree(jstree_data);
@@ -1038,11 +1046,23 @@ function addMetaDataToPage() {
 			});
 		}, 400); // wait for a bit with no typing before searching
 	});
-	var saveSelectedStudiesCookie = function() {
+	var saveSelectedStudiesLocalStorage = function() {
+		if (!supportsHTML5Storage()) {
+			return false;
+		}
 		var selected_studies = $("#jstree").jstree(true).get_selected_leaves();
-		$.removeCookie(selectedStudiesCookieName);
-		$.cookie(selectedStudiesCookieName, selected_studies.join(","), {expires:10});
+		// selectedStudiesStorageKey
+		window.localStorage.setItem(selectedStudiesStorageKey, selected_studies.join(","));
+		//$.removeCookie(selectedStudiesCookieName);
+		//$.cookie(selectedStudiesCookieName, selected_studies.join(","), {expires:10});
+		return true;
 	};
+	var getSelectedStudiesLocalStorage = function() {
+		if (!supportsHTML5Storage()) {
+			return false;
+		}
+		return window.localStorage.getItem(selectedStudiesStorageKey);
+	}
 	var onJSTreeChange = function () {
 		$("#error_box").remove();
 		var select_single_study = $("#main_form").find("#select_single_study");
@@ -1084,7 +1104,7 @@ function addMetaDataToPage() {
 		    return 0;
 	    }
     });
-    var selected_study_list = decodeURIComponent(window.selected_cancer_study_list || ( $.cookie(selectedStudiesCookieName) || '')).split(",");
+    var selected_study_list = decodeURIComponent(window.selected_cancer_study_list || ( getSelectedStudiesLocalStorage() || '')).split(",");
 	    $.each(selected_study_list, function(ind, elt) {
 		    if (elt !== '') {
 			selected_study_map[elt] = false;

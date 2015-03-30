@@ -24,6 +24,7 @@ public class OverRepresentationAnalysisUtil {
         List<Integer> sampleIds = new ArrayList<Integer>(alteredSampleIds);
         sampleIds.addAll(unalteredSampleIds);
         
+        //Map<GeneId, HashMap<CaseId, Value>>
         Map<Long, HashMap<Integer, String>> result = new HashMap<Long, HashMap<Integer,String>>();
         
         if(profileType.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION.toString())) {
@@ -46,6 +47,8 @@ public class OverRepresentationAnalysisUtil {
                 //add a new entry into the overall result map
                 result.put(entrezGeneId, singleGeneMutMap);
             }
+        } else if (profileType.equals(GeneticAlterationType.MRNA_EXPRESSION.toString())) {
+            result = daoGeneticAlteration.getGeneticAlterationMap(profileId, entrezGeneIds);
         }
         return result;
     }

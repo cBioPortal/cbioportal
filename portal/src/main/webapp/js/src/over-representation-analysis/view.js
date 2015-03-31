@@ -81,14 +81,20 @@ var orTable = function() {
     return {
         init: function(_input_data, _div_id, _table_div, _table_id, _table_title) {
             
-            div_id = _div_id;
-            table_id = _table_id;
-            data = convert_data(_input_data);
-            
-            $("#" + _table_div).empty();
-            $("#" + _table_div).append("<span style='font-weight:bold;'>" + _table_title + "</span>");
-            $("#" + _table_div).append("<table id='" + table_id + "' cellpadding='0' cellspacing='0' border='0' class='" + table_id + "_datatable_class'></table>"); 
-            configTable();
+            console.log(Object.keys(_input_data)[0]);
+            if (Object.keys(_input_data).length !== 0 &&
+                Object.keys(_input_data)[0] !== "empty" &&
+                Object.keys(_input_data)[0] !== "") {
+                div_id = _div_id;
+                table_id = _table_id;
+                data = convert_data(_input_data);
+
+                $("#" + _table_div).empty();
+                $("#" + _table_div).append("<span style='font-weight:bold;'>" + _table_title + "</span>");
+                $("#" + _table_div).append("<table id='" + table_id + "' cellpadding='0' cellspacing='0' border='0' class='" + table_id + "_datatable_class'></table>"); 
+                configTable();                
+            }
+
         }
     };
     

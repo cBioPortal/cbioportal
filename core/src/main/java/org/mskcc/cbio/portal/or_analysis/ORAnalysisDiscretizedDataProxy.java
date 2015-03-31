@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.math.MathException;
+import org.apache.commons.math.stat.StatUtils;
+import org.apache.commons.math.stat.inference.TestUtils;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.model.GeneticAlterationType;
@@ -28,24 +31,28 @@ public class ORAnalysisDiscretizedDataProxy {
             int profileId, 
             String profileType, 
             List<Integer> alteredSampleIds, 
-            List<Integer> unalteredSampleIds) throws DaoException {
+            List<Integer> unalteredSampleIds) throws DaoException, IllegalArgumentException, MathException {
         
         this.alteredSampleIds = alteredSampleIds;
         this.unalteredSampleIds = unalteredSampleIds;
         this.map = OverRepresentationAnalysisUtil.getValueMap(cancerStudyId, profileId, profileType, alteredSampleIds, unalteredSampleIds);
         
-        DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
-            
-        List<Long> genes = new ArrayList<Long>(map.keySet());
-        for (int i = 0; i < map.size(); i++) {
-            long _gene = genes.get(i);
-            HashMap<Integer, String> singleGeneCaseValueMap = map.get(_gene);
-            String _geneName = daoGeneOptimized.getGene(_gene).getHugoGeneSymbolAllCaps();
-            double pValue = calcFishExactTest(singleGeneCaseValueMap, profileType);
-            result.append(_geneName);
-            result.append(":");
-            result.append(pValue);
-            result.append("|");
+        if (map.keySet().size() != 0) {
+            DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
+
+            List<Long> genes = new ArrayList<Long>(map.keySet());
+            for (int i = 0; i < map.size(); i++) {
+                long _gene = genes.get(i);
+                HashMap<Integer, String> singleGeneCaseValueMap = map.get(_gene);
+                String _geneName = daoGeneOptimized.getGene(_gene).getHugoGeneSymbolAllCaps();
+                double pValue = calc(singleGeneCaseValueMap, profileType);
+                result.append(_geneName);
+                result.append(":");
+                result.append(pValue);
+                result.append("|");
+            }
+        } else {
+            result.append("empty");
         }
          
     }
@@ -54,7 +61,46 @@ public class ORAnalysisDiscretizedDataProxy {
         return result.toString();
     }
     
-    private double calcFishExactTest(HashMap<Integer, String> singleGeneCaseValueMap, String profileType) {
+    private double calc(HashMap<Integer, String> singleGeneCaseValueMap, String profileType) 
+            throws IllegalArgumentException, MathException {
+        double _result = 0.0;
+        if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString()) || 
+            profileType.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION.toString())) {
+            _result = runFisherExactTest(singleGeneCaseValueMap, profileType);
+        } else if (profileType.equals(GeneticAlterationType.MRNA_EXPRESSION.toString())) {
+            _result = runTTest(singleGeneCaseValueMap, profileType);
+        }
+        return _result;
+    }
+    
+    private double runTTest(HashMap<Integer, String> singleGeneCaseValueMap, String profileType) 
+            throws IllegalArgumentException, MathException {
+        
+        double[] unalteredArray = new double[unalteredSampleIds.size()];
+        double[] alteredArray = new double[alteredSampleIds.size()];
+        int _index_unaltered = 0, _index_altered = 0;
+        for (Integer alteredSampleId: alteredSampleIds) {
+            if (singleGeneCaseValueMap.containsKey(alteredSampleId)) {
+                alteredArray[_index_altered] = Double.parseDouble(singleGeneCaseValueMap.get(alteredSampleId));
+                _index_altered += 1;
+            }
+        }
+        
+        for (Integer unalteredSampleId: unalteredSampleIds) {
+            if (singleGeneCaseValueMap.containsKey(unalteredSampleId)) {
+                unalteredArray[_index_unaltered] = Double.parseDouble(singleGeneCaseValueMap.get(unalteredSampleId));
+                _index_unaltered += 1;
+            }
+        }
+        
+        if (alteredArray.length<2 || unalteredArray.length<2) return Double.NaN;
+        else {
+            double pvalue = TestUtils.tTest(alteredArray, unalteredArray);
+            return pvalue;
+        }
+    }
+    
+    private double runFisherExactTest(HashMap<Integer, String> singleGeneCaseValueMap, String profileType) {
         
         int a = 0, //non altered
             b = 0, //x non altered, y altered

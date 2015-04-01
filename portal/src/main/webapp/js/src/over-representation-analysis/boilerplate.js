@@ -47,7 +47,8 @@ var orAnalysis = (function() {
         texts: {
             sub_tab_main: "Copy-num Alteration / Mutations",
             sub_tab_mrna_exp: "mRNA Expression",
-            sub_tab_advanced: "Advanced"
+            sub_tab_advanced: "Advanced",
+            null_result: "empt"
         },
         postfix: {
             datatable_class: "_datatable_class",

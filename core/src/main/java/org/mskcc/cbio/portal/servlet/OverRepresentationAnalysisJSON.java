@@ -27,6 +27,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.math.MathException;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.node.ArrayNode;
+import org.codehaus.jackson.node.JsonNodeFactory;
+import org.codehaus.jackson.node.ObjectNode;
 import org.json.simple.JSONValue;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 import org.mskcc.cbio.portal.dao.DaoException;
@@ -107,25 +112,10 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
             //The actual calculation
             ORAnalysisDiscretizedDataProxy dataProxy = new ORAnalysisDiscretizedDataProxy(cancerStudyInternalId, gpId, profileType, alteredSampleIds, unalteredSampleIds);
             
-//                Map<Long, String[]> map = OverRepresentationAnalysisUtil.getMutationMap(cancerStudyInternalId, gpId, caseSetId, caseIdsKey);
-//                List<Long> genes = new ArrayList<Long>(map.keySet());
-//                for (int i = 0; i < map.size(); i++) {
-//                    long _gene = genes.get(i);
-//                    String[] _rotate_gene_mut_arr = map.get(_gene);
-//                    String[] _queried_gene_mut_arr = map.get(queryGeneId);
-//                    
-//                    //Mutation: fisher exacte test (mutated vs. non-mutated)
-//                    double pValue = ORAnalysisDiscretizedDataProxy.calcMut(_rotate_gene_mut_arr, _queried_gene_mut_arr);
-//                    String _rotate_gene_name = daoGeneOptimized.getGene(_gene).getHugoGeneSymbolAllCaps();
-//                    result_json_str.append(_rotate_gene_name);
-//                    result_json_str.append(":");
-//                    result_json_str.append(pValue);
-//                    result_json_str.append("|");
-//                }
-            
-            httpServletResponse.setContentType("text/html");
+            ObjectMapper mapper = new ObjectMapper();
+            httpServletResponse.setContentType("application/json");
             PrintWriter out = httpServletResponse.getWriter();
-            JSONValue.writeJSONString(dataProxy.getResult(), out);
+            mapper.writeValue(out, dataProxy.getResult());
 
         } catch (DaoException ex) {
             Logger.getLogger(OverRepresentationAnalysisJSON.class.getName()).log(Level.SEVERE, null, ex);

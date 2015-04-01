@@ -71,9 +71,7 @@ var or_tab = (function() {
         orSubTabMrnaExp.init(orAnalysis.ids.sub_tab_mrna_exp, _profile_list);
     };
     
-    var init_advanced_tab = function() {
-    };
-    
+    //var init_advanced_tab = function() {}; 
     
     return {
         init: function(caseListObj) {
@@ -115,11 +113,11 @@ var or_tab = (function() {
                 if ($.inArray("MRNA_EXPRESSION", profile_type_list) !== -1) { //study has expression data
                     $("#" + orAnalysis.ids.sub_tabs_list).append("<li><a href='#" + orAnalysis.ids.sub_tab_mrna_exp + "' class='or-analysis-tabs-ref'><span>" + orAnalysis.texts.sub_tab_mrna_exp + "</span></a></li>");
                 }
-                $("#" + orAnalysis.ids.sub_tabs_list).append("<li><a href='#" + orAnalysis.ids.sub_tab_advanced + "' class='or-analysis-tabs-ref'><span>" + orAnalysis.texts.sub_tab_advanced + "</span></a></li>");
+                //$("#" + orAnalysis.ids.sub_tabs_list).append("<li><a href='#" + orAnalysis.ids.sub_tab_advanced + "' class='or-analysis-tabs-ref'><span>" + orAnalysis.texts.sub_tab_advanced + "</span></a></li>");
                 
                 $("#" + orAnalysis.ids.sub_tabs_content).append("<div id='" + orAnalysis.ids.sub_tab_main + "'></div>");
                 $("#" + orAnalysis.ids.sub_tabs_content).append("<div id='" + orAnalysis.ids.sub_tab_mrna_exp + "'></div>");
-                $("#" + orAnalysis.ids.sub_tabs_content).append("<div id='" + orAnalysis.ids.sub_tab_advanced + "'></div>");
+                //$("#" + orAnalysis.ids.sub_tabs_content).append("<div id='" + orAnalysis.ids.sub_tab_advanced + "'></div>");
 
                 $("#" + orAnalysis.ids.sub_tabs_div).tabs();
                 $("#" + orAnalysis.ids.sub_tabs_div).tabs('paging', {tabsPerPage: 10, follow: true, cycle: false});
@@ -133,8 +131,8 @@ var or_tab = (function() {
                         if ($("#" + orAnalysis.ids.sub_tab_main).is(':empty')) init_main_tab();
                     } else if (ui.newTab.text() === orAnalysis.texts.sub_tab_mrna_exp) {
                         if ($("#" + orAnalysis.ids.sub_tab_mrna_exp).is(':empty')) init_mrna_exp_tab();
-                    } else if (ui.newTab.text() === orAnalysis.texts.sub_tab_advanced) {
-                        if ($("#" + orAnalysis.ids.sub_tab_advanced).is(':empty')) init_advanced_tab();
+                    //} else if (ui.newTab.text() === orAnalysis.texts.sub_tab_advanced) {
+                    //    if ($("#" + orAnalysis.ids.sub_tab_advanced).is(':empty')) init_advanced_tab();
                     }
                 });
                 

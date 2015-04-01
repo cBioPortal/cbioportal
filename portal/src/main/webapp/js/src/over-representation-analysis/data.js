@@ -33,7 +33,7 @@
 
 var orData = function() {
     
-    var data = {}, retrieved = false;
+    var data = [], retrieved = false;
 
     return {
         init: function(_param) {
@@ -43,12 +43,7 @@ var orData = function() {
                 data: _param
             })  
             .done(function(result) {
-                result = result.substring(0, result.length - 1); //remove the quote sign
-                var _arr = result.substring(1, result.length).split("|");
-                $.each(_arr, function(index, str) {
-                    var _tmp = str.split(":");
-                    data[_tmp[0]] = _tmp[1];
-                });
+                data = result;
                 retrieved = true;
             })
             .fail(function( jqXHR, textStatus ) {

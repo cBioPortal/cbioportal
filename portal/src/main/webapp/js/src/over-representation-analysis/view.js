@@ -33,17 +33,14 @@
 
 var orTable = function() {
     
-    var div_id, table_id, data;
+    var div_id, table_id, data, titles; //titles is formatted string of column names with html markdown in
     
     function configTable() {
         
         //Draw out the markdown of the datatable
         $("#" + table_id).append(
             "<thead style='font-size:70%;' >" +
-            "<tr>" + 
-            "<th>Gene</th>" +
-            "<th>p-Value</th>" +
-            "</tr>" +
+            "<tr>" + titles + "</tr>" +
             "</thead><tbody></tbody>"
         );
 
@@ -67,32 +64,45 @@ var orTable = function() {
         });  
     }
     
-    function convert_data(_json_data) {
+    function convert_data(_input) {
         var table_arr = [];
-        $.each(Object.keys(_json_data), function(_index, _key) {
+        $.each(_input, function(_index, _obj) {
             var _unit = [];
-            _unit.push(_key);
-            _unit.push(_json_data[_key]);
+            $.each(Object.keys(_obj), function(_index, _key) {
+                _unit.push(_obj[_key]);
+            });
             table_arr.push(_unit);
         });  
         return table_arr;
     }
     
+    function extract_titles(_input) {
+        var _title_str = "";
+        $.each(Object.keys(_input[0]), function(_index, _key) {
+            _title_str += "<th>" + _key + "</th>";
+        });
+        return _title_str;
+    }
+    
     return {
         init: function(_input_data, _div_id, _table_div, _table_id, _table_title) {
             
-            console.log(Object.keys(_input_data)[0]);
             if (Object.keys(_input_data).length !== 0 &&
-                Object.keys(_input_data)[0] !== "empty" &&
+                Object.keys(_input_data)[0] !== orAnalysis.texts.null_result &&
                 Object.keys(_input_data)[0] !== "") {
+            
                 div_id = _div_id;
                 table_id = _table_id;
                 data = convert_data(_input_data);
+                titles = extract_titles(_input_data);
 
                 $("#" + _table_div).empty();
                 $("#" + _table_div).append("<span style='font-weight:bold;'>" + _table_title + "</span>");
                 $("#" + _table_div).append("<table id='" + table_id + "' cellpadding='0' cellspacing='0' border='0' class='" + table_id + "_datatable_class'></table>"); 
-                configTable();                
+                configTable();
+                
+            } else {
+                $("#" + _table_div).remove();
             }
 
         }
@@ -113,8 +123,8 @@ var orSubTabView = function() {
 
                     var _table_div = _profile_obj.STABLE_ID + orAnalysis.postfix.datatable_div;
                     var _table_id = _profile_obj.STABLE_ID + orAnalysis.postfix.datatable_id;
-                    $("#" + _div_id).append("<div id='" + _table_div + "' style='width: 400px; display:inline-block; padding: 10px;'></div>");
-                    $("#" + _table_div).append("<img style='padding:20px;' src='images/ajax-loader.gif'><br>Calculating on " + _profile_obj.NAME + " ....");
+                    $("#" + _div_id).append("<div id='" + _table_div + "' style='width: 900px; display:inline-block; padding: 10px;'></div>");
+                    $("#" + _table_div).append("<img style='padding:20px;' src='images/ajax-loader.gif'><br>Calculating on " + _profile_obj.NAME);
                     
                     //init and get calculation result from the server
                     var param = new orAjaxParam(or_tab.getAlteredCaseList(), or_tab.getUnalteredCaseList(), _profile_obj.STABLE_ID);

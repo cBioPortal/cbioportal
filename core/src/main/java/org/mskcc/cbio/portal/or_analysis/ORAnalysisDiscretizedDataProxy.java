@@ -1,12 +1,20 @@
 package org.mskcc.cbio.portal.or_analysis;
 
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.math.MathException;
 import org.apache.commons.math.stat.StatUtils;
+import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.apache.commons.math.stat.inference.TestUtils;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.node.ArrayNode;
+import org.codehaus.jackson.node.JsonNodeFactory;
+import org.codehaus.jackson.node.ObjectNode;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.model.GeneticAlterationType;
@@ -24,7 +32,10 @@ public class ORAnalysisDiscretizedDataProxy {
     private final Map<Long, HashMap<Integer, String>> map;
     private final List<Integer> alteredSampleIds;
     private final List<Integer> unalteredSampleIds;
-    private final StringBuilder result = new StringBuilder();
+    private ObjectMapper mapper = new ObjectMapper();
+    private JsonNodeFactory factory = JsonNodeFactory.instance;
+    private final ArrayNode result = new ArrayNode(factory);
+    static DecimalFormat df=new DecimalFormat("0.000");
     
     public ORAnalysisDiscretizedDataProxy(
             int cancerStudyId, 
@@ -45,32 +56,164 @@ public class ORAnalysisDiscretizedDataProxy {
                 long _gene = genes.get(i);
                 HashMap<Integer, String> singleGeneCaseValueMap = map.get(_gene);
                 String _geneName = daoGeneOptimized.getGene(_gene).getHugoGeneSymbolAllCaps();
-                double pValue = calc(singleGeneCaseValueMap, profileType);
-                result.append(_geneName);
-                result.append(":");
-                result.append(pValue);
-                result.append("|");
+                
+                ObjectNode _datum = mapper.createObjectNode();
+                if (profileType.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION.toString())) {
+                    _datum.put("Gene", _geneName);
+                    _datum.put("%Altered", df.format(calcPct(singleGeneCaseValueMap, profileType, "altered")));
+                    _datum.put("%Unaltered", df.format(calcPct(singleGeneCaseValueMap, profileType, "unaltered")));
+                    _datum.put("Radio", df.format(calcPct(singleGeneCaseValueMap, profileType, "altered") / calcPct(singleGeneCaseValueMap, profileType, "unaltered")));
+                    _datum.put("Direction/Tendency", "place holder");
+                    _datum.put("p-Value", df.format(calcPval(singleGeneCaseValueMap, profileType)));
+                    _datum.put("q-Value", "place holder");
+                } else if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString())) {
+                    _datum.put("Gene", _geneName);
+                    _datum.put("%Altered", df.format(calcPct(singleGeneCaseValueMap, profileType, "altered")));
+                    _datum.put("%Unaltered", df.format(calcPct(singleGeneCaseValueMap, profileType, "unaltered")));
+                    _datum.put("Radio", df.format(calcPct(singleGeneCaseValueMap, profileType, "altered") / calcPct(singleGeneCaseValueMap, profileType, "unaltered")));
+                    _datum.put("Direction/Tendency", "place holder");
+                    _datum.put("p-Value", df.format(calcPval(singleGeneCaseValueMap, profileType)));
+                    _datum.put("q-Value", "place holder");
+                } else if (profileType.equals(GeneticAlterationType.MRNA_EXPRESSION.toString())) {
+                    _datum.put("Gene", _geneName);
+                    _datum.put("M-altered", df.format(calcMean(singleGeneCaseValueMap, "altered")));
+                    _datum.put("M-unaltered", df.format(calcMean(singleGeneCaseValueMap, "unaltered")));
+                    _datum.put("StD-Dev Altered", df.format(calcSTDev(singleGeneCaseValueMap, "altered")));
+                    _datum.put("StD-Dev Unaltered", df.format(calcSTDev(singleGeneCaseValueMap, "unaltered")));
+                    _datum.put("T-score", "place holder");
+                    _datum.put("p-Value", df.format(calcPval(singleGeneCaseValueMap, profileType)));
+                    _datum.put("q-Value", "place holder");
+                }
+                result.add(_datum);
             }
-        } else {
-            result.append("empty");
+        } 
+    }
+    
+    public ArrayNode getResult() {
+        return result;
+    }
+    
+    private double calcMean(HashMap<Integer, String> singleGeneCaseValueMap, String groupType) { // group type: altered or unaltered
+        switch (groupType) {
+            case "altered":
+                int _index_altered = 0;
+                double[] alteredArray = new double[alteredSampleIds.size()];
+                for (Integer alteredSampleId: alteredSampleIds) {
+                    if (singleGeneCaseValueMap.containsKey(alteredSampleId)) {
+                        alteredArray[_index_altered] = Double.parseDouble(singleGeneCaseValueMap.get(alteredSampleId));
+                        _index_altered += 1;
+                    }
+                }
+                return StatUtils.mean(alteredArray);
+            case "unaltered":
+                int _index_unaltered = 0;
+                double[] unalteredArray = new double[unalteredSampleIds.size()];
+                for (Integer unalteredSampleId: unalteredSampleIds) {
+                    if (singleGeneCaseValueMap.containsKey(unalteredSampleId)) {
+                        unalteredArray[_index_unaltered] = Double.parseDouble(singleGeneCaseValueMap.get(unalteredSampleId));
+                        _index_unaltered += 1;
+                    }
+                }
+                return StatUtils.mean(unalteredArray);
+            default:
+                return Double.NaN; //error
         }
-         
     }
     
-    public String getResult() {
-        return result.toString();
+    private double calcSTDev(HashMap<Integer, String> singleGeneCaseValueMap, String groupType) {
+        switch (groupType) {
+            case "altered":
+                DescriptiveStatistics stats_altered = new DescriptiveStatistics();
+                for (Integer alteredSampleId: alteredSampleIds) {
+                    if (singleGeneCaseValueMap.containsKey(alteredSampleId)) {
+                        stats_altered.addValue(Double.parseDouble(singleGeneCaseValueMap.get(alteredSampleId)));
+                    }
+                }
+                return stats_altered.getStandardDeviation();
+            case "unaltered":
+                DescriptiveStatistics stats_unaltered = new DescriptiveStatistics();
+                double[] unalteredArray = new double[unalteredSampleIds.size()];
+                for (Integer unalteredSampleId: unalteredSampleIds) {
+                    if (singleGeneCaseValueMap.containsKey(unalteredSampleId)) {
+                        stats_unaltered.addValue(Double.parseDouble(singleGeneCaseValueMap.get(unalteredSampleId)));
+                    }
+                }
+                return stats_unaltered.getStandardDeviation();
+            default:
+                return Double.NaN; //error
+        }        
+    
     }
     
-    private double calc(HashMap<Integer, String> singleGeneCaseValueMap, String profileType) 
+    private double calcPct(HashMap<Integer, String> singleGeneCaseValueMap, String profileType, String groupType) { // group type: altered or unaltered
+        
+        double _result_pct = 0, _count = 0; //altered samples count
+        
+        if (profileType.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION.toString())) {
+             switch (groupType) {
+                case "altered":
+                    for (Integer alteredSampleId: alteredSampleIds) {
+                        if (singleGeneCaseValueMap.containsKey(alteredSampleId)) {
+                            if (Double.parseDouble(singleGeneCaseValueMap.get(alteredSampleId)) == 2.0 || 
+                                Double.parseDouble(singleGeneCaseValueMap.get(alteredSampleId)) == -2.0) { 
+                                _count += 1;
+                            } 
+                        }
+                    }
+                    _result_pct = (double)(_count/alteredSampleIds.size());
+                    break;
+                case "unaltered":
+                    for (Integer unalteredSampleId: unalteredSampleIds) {
+                        if (singleGeneCaseValueMap.containsKey(unalteredSampleId)) {
+                            if (Double.parseDouble(singleGeneCaseValueMap.get(unalteredSampleId)) == 2.0 || 
+                                Double.parseDouble(singleGeneCaseValueMap.get(unalteredSampleId)) == -2.0) { 
+                                _count += 1;
+                            }   
+                        }  
+                    } 
+                    _result_pct = (double)(_count/unalteredSampleIds.size());
+                    break;
+            }
+        } else if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString())) {
+            switch (groupType) {
+                case "altered":
+                    for (Integer alteredSampleId: alteredSampleIds) {
+                        if (singleGeneCaseValueMap.containsKey(alteredSampleId)) {
+                            if (!singleGeneCaseValueMap.get(alteredSampleId).equals("Non")) { 
+                                _count += 1;
+                            } 
+                        }
+                    }
+                    _result_pct = (double)(_count/alteredSampleIds.size());
+                    break;
+                case "unaltered":
+                    for (Integer unalteredSampleId: unalteredSampleIds) {
+                        if (singleGeneCaseValueMap.containsKey(unalteredSampleId)) {
+                            if (!singleGeneCaseValueMap.get(unalteredSampleId).equals("Non")) { 
+                                _count += 1;
+                            }   
+                        }  
+                    } 
+                    _result_pct = (double)(_count/unalteredSampleIds.size());
+                    break;
+            }
+        } else if (profileType.equals(GeneticAlterationType.MRNA_EXPRESSION.toString())) { //calculate mean
+        }
+
+        return _result_pct;
+    
+    }
+    
+    private double calcPval(HashMap<Integer, String> singleGeneCaseValueMap, String profileType) 
             throws IllegalArgumentException, MathException {
-        double _result = 0.0;
+        double _p_value = 0.0;
         if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString()) || 
             profileType.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION.toString())) {
-            _result = runFisherExactTest(singleGeneCaseValueMap, profileType);
+            _p_value = runFisherExactTest(singleGeneCaseValueMap, profileType);
         } else if (profileType.equals(GeneticAlterationType.MRNA_EXPRESSION.toString())) {
-            _result = runTTest(singleGeneCaseValueMap, profileType);
+            _p_value = runTTest(singleGeneCaseValueMap, profileType);
         }
-        return _result;
+        return _p_value;
     }
     
     private double runTTest(HashMap<Integer, String> singleGeneCaseValueMap, String profileType) 

@@ -223,7 +223,6 @@ function crossCancerStudySelected() {
      $('#step2cross').show();
      $('#step3').hide();
      $('#step5').hide();
-     $('#cancer_study_desc').hide();
 }
 
 //  Display extra steps when an individual cancer study is selected
@@ -232,7 +231,6 @@ function singleCancerStudySelected() {
     $('#step2cross').hide();
     $("#step3").show();
     //$("#step5").show();
-    $("#cancer_study_desc").show();
 }
 
 //  Select default genomic profiles
@@ -527,9 +525,6 @@ function updateCancerStudyInformation() {
             citation = " <a href='http://www.ncbi.nlm.nih.gov/pubmed/"+pmid+"'>"+citation+"</a>";
         }
     }
-    var cancerStudyForm = " <button type='button' onclick=\"window.location.replace('study.do?cancer_study_id="
-        +cancerStudyId+"')\">Study summary</button>";
-    $("#cancer_study_desc").html("<p> " + cancer_study.description + citation + cancerStudyForm + "</p>");
 
     //  Iterate through all genomic profiles
     //  Add all non-expression profiles where show_in_analysis_tab = true

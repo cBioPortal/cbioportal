@@ -1189,14 +1189,6 @@ cursor: default;
     list-style-type: none !important;
 }
 
-/* Cancer Study Description */
-#cancer_study_desc p{
-    font-size: 11px !important;
-    margin-left: 25px;
-    margin-right: 20px;
-    color:black;
-}
-
 /* Genomic Profiles Div */
 #genomic_profiles {
   padding-top:10px;

@@ -839,10 +839,10 @@
 							this.get_node(this.element.attr('aria-activedescendant'), true).find('> .jstree-anchor').focus();
 						}
 					}, this))
-				.on('mouseenter.jstree', '.jstree-anchor', $.proxy(function (e) {
+				.on('mouseenter.jstree', '.jstree-node .jstree-leaf', $.proxy(function (e) {
 						this.hover_node(e.currentTarget);
 					}, this))
-				.on('mouseleave.jstree', '.jstree-anchor', $.proxy(function (e) {
+				.on('mouseleave.jstree', '.jstree-node .jstree-leaf', $.proxy(function (e) {
 						this.dehover_node(e.currentTarget);
 					}, this));
 		},
@@ -2867,6 +2867,40 @@
 			 */
 			this.trigger('activate_node', { 'node' : this.get_node(obj) });
 		},
+		show_node_decorators : function (obj) {
+			obj = this.get_node(obj, true);
+			var node = this.get_node(obj.attr('id'));
+			if (!node || !node.li_attr || !node.li_attr.description) {
+				return false;
+			}
+			obj.children('.jstree-anchor').children('.jstree-node-decorator').remove();
+			var $linkOutIcon = $('<i class="fa fa-lg fa-external-link jstree-node-decorator" style="cursor:pointer; padding-left:0.6em"></i>');
+			var $descriptionIcon = $('<i class="fa fa-lg fa-info-circle jstree-node-decorator" style="cursor:pointer; padding-left:0.4em"></i>');
+			obj.append($linkOutIcon);
+			obj.append($descriptionIcon);
+			$descriptionIcon.qtip({
+				content: { text: node.li_attr.description },
+				style: { classes: 'qtip-light qtip-rounded' },
+				position: { my:'left center',at:'right center',viewport: $(window) },
+				hide: { delay:0, fixed:true }
+			});
+			$linkOutIcon.click(function(e) {
+				e.preventDefault();
+			});
+			$linkOutIcon.mouseenter(function() {
+				$linkOutIcon.fadeTo('fast', 0.7);
+			});
+			$linkOutIcon.mouseleave(function() {
+				$linkOutIcon.fadeTo('fast', 1);
+			});
+			$linkOutIcon.click(function() {
+				window.location.href = 'study.do?cancer_study_id='+node.id;
+			});
+		},
+		hide_node_decorators : function (obj) {
+			obj = this.get_node(obj, true);
+			obj.children('.jstree-node-decorator').remove();
+		},
 		/**
 		 * applies the hover state on a node, called when a node is hovered by the user. Used internally.
 		 * @private
@@ -2883,6 +2917,7 @@
 			if(o && o.length) { this.dehover_node(o); }
 
 			obj.children('.jstree-anchor').addClass('jstree-hovered');
+			this.show_node_decorators(obj);
 			/**
 			 * triggered when an node is hovered
 			 * @event
@@ -2905,6 +2940,7 @@
 				return false;
 			}
 			obj.children('.jstree-anchor').removeClass('jstree-hovered');
+			this.hide_node_decorators(obj);
 			/**
 			 * triggered when an node is no longer hovered
 			 * @event

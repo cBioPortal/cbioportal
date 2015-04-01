@@ -86,10 +86,6 @@ if (step1ErrorMsg != null) {
 }
 %>
 
-<!-- This div shows the cancer description -->
-<div id="cancer_study_desc" style="margin-top: 15px;margin-bottom:-10px;">
-</div>
-
 <%
 if (step1ErrorMsg != null) {
     out.println ("</div>");

@@ -1,1 +1,0 @@
-$JAVA_HOME/bin/java -Xmx1524M -jar ma.jar $@

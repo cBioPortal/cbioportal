@@ -1,3 +1,35 @@
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This file is part of cBioPortal.
+ *
+ * cBioPortal is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 package org.mskcc.cbio.portal.servlet;
 
 
@@ -72,6 +104,8 @@ public class PatientView extends HttpServlet {
     public static final String CLINICAL_DATA = "clinical_data";
     public static final String TISSUE_IMAGES = "tissue_images";
     public static final String PATH_REPORT_URL = "path_report_url";
+    public static final String CLINICAL_ATTRIBUTE_OTHER_PAPTEINT_ID = "OTHER_PATIENT_ID";
+    public static final String CLINICAL_ATTRIBUTE_OTHER_SAMPLE_ID = "OTHER_SAMPLE_ID";
     
     public static final String DRUG_TYPE = "drug_type";
     public static final String DRUG_TYPE_CANCER_DRUG = "cancer_drug";
@@ -189,6 +223,12 @@ public class PatientView extends HttpServlet {
         if (sampleIdsStr!=null) {
             for (String sampleId : sampleIdsStr.split(" +")) {
                 Sample _sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudy.getInternalId(), sampleId);
+                if (_sample == null) {
+                    List<Sample> ss = DaoClinicalData.getSamplesByAttribute(cancerStudy.getInternalId(), CLINICAL_ATTRIBUTE_OTHER_SAMPLE_ID, sampleId);
+                    if (!ss.isEmpty()) { //TODO: what if there are more than 1 samples with the same other id
+                        _sample = ss.get(0);
+                    }
+                }
                 if (_sample != null) {
                     samples.add(_sample);
                     sampleIdSet.add(_sample.getStableId());
@@ -201,6 +241,13 @@ public class PatientView extends HttpServlet {
             request.setAttribute(VIEW_TYPE, "patient");
             for (String patientId : patientIdsStr.split(" +")) {
                 Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudy.getInternalId(), patientId);
+                if (patient == null) {
+                    List<Patient> ps = DaoClinicalData.getPatientsByAttribute(cancerStudy.getInternalId(), CLINICAL_ATTRIBUTE_OTHER_PAPTEINT_ID, patientId);
+                    if (!ps.isEmpty()) { //TODO: what if there are more than 1 patients with the same other id
+                        patient = ps.get(0);
+                    }
+                }
+                
                 if (patient != null) {
                     for (Sample sample : DaoSample.getSamplesByPatientId(patient.getInternalId())) {
                         if (sample != null) {
@@ -455,22 +502,24 @@ public class PatientView extends HttpServlet {
         if (map==null) {
             map = new HashMap<String,String>();
             
-            String pathReportUrl = GlobalProperties.getTCGAPathReportUrl(typeOfCancer);
-            if (pathReportUrl!=null) {
-                List<String> pathReportDirs = extractLinksByPattern(pathReportUrl,tcgaPathReportDirLinePattern);
-                for (String dir : pathReportDirs) {
-                    String url = pathReportUrl+dir;
-                    List<String> pathReports = extractLinksByPattern(url,tcgaPathReportPdfLinePattern);
-                    for (String report : pathReports) {
-                        Matcher m = tcgaPathReportPattern.matcher(report);
-                        if (m.find()) {
-                            if (m.groupCount()>0) {
-                                String exist = map.put(m.group(1), url+report);
-                                if (exist!=null) {
-                                    String msg = "Multiple Pathology reports for "+m.group(1)+": \n\t"
-                                            + exist + "\n\t" + url+report;
-                                    System.err.println(url);
-                                    logger.error(msg);
+            String[] pathReportUrls = GlobalProperties.getTCGAPathReportUrl(typeOfCancer);
+            if (pathReportUrls!=null) {
+                for (String pathReportUrl : pathReportUrls) {
+                    List<String> pathReportDirs = extractLinksByPattern(pathReportUrl,tcgaPathReportDirLinePattern);
+                    for (String dir : pathReportDirs) {
+                        String url = pathReportUrl+dir;
+                        List<String> pathReports = extractLinksByPattern(url,tcgaPathReportPdfLinePattern);
+                        for (String report : pathReports) {
+                            Matcher m = tcgaPathReportPattern.matcher(report);
+                            if (m.find()) {
+                                if (m.groupCount()>0) {
+                                    String exist = map.put(m.group(1), url+report);
+                                    if (exist!=null) {
+                                        String msg = "Multiple Pathology reports for "+m.group(1)+": \n\t"
+                                                + exist + "\n\t" + url+report;
+                                        System.err.println(url);
+                                        logger.error(msg);
+                                    }
                                 }
                             }
                         }

@@ -1,3 +1,35 @@
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This file is part of cBioPortal.
+ *
+ * cBioPortal is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 //TODO: Colors have conflicts when user save SELECTED_CASES/UNSELECTED_CALSES/ALL_CASES
 
 /*
@@ -178,7 +210,7 @@ var StudyViewSurvivalPlotView = (function() {
                 _svgWidth = 360,
                 _svgheight = 360;
 
-        _svgElement = $("#" + _svgParentDivId + " svg").html();
+        _svgElement = $cbio.download.serializeHtml($("#" + _svgParentDivId + " svg")[0]);
         _svgLabels = $("#" + opts[_plotKey].divs.bodyLabel + " svg");
 
         _svgLabels.find('image').remove();
@@ -202,7 +234,7 @@ var StudyViewSurvivalPlotView = (function() {
             _svgheight = _numOfLabels * 20 + 40;
         }
 
-        _svgLabels = _svgLabels.html();
+        _svgLabels = cbio.download.serializeHtml(_svgLabels[0]);
 
         _svgTitle = "<g><text text-anchor='middle' x='210' y='30' " +
                 "style='font-weight:bold'>" + _title + "</text></g>";
@@ -778,7 +810,7 @@ var StudyViewSurvivalPlotView = (function() {
             show: {event: "mouseover", delay: 0},
             hide: {fixed:true, delay: 100, event: "mouseout"},
             position: {my:'left top',at:'top right', viewport: $(window)},
-            content: $("#" + opts[_plotKey].divs.bodyLabel).html(),
+            content: cbio.download.serializeHtml($("#" + opts[_plotKey].divs.bodyLabel)[0]),
             events: {
                 render: function(event, api) {
                     $('svg image', api.elements.tooltip).hover(function() {

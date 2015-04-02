@@ -1,31 +1,35 @@
 /*
- * Basic DC BarChart Component.
- * 
- * @param _param -- Input object
- *                  chartDivClass: currently only accept class name for DIV.chartDiv,
- *                                  (TODO: Add more specific parameters later) 
- *                  chartID: the current bar chart ID which is treated as
- *                           identifier using in global,
- *                  attrId: the attribute name, 
- *                  displayName: the display content of this attribute, 
- *                  transitionDuration: this will be used for initializing
- *                                      DC Bar Chart,
- *                  ndx: crossfilter dimension, used by initializing DC Bar Chart
- *                  chartColors: color schema
- *                  
- * @interface: getChart -- return DC Bar Chart Object.
- * @interface: getCluster -- return the cluster of DC Bar Chart.
- * @interface: updateParam -- pass _param to update current globel parameters,
- *                            this _param should only pass exist keys. 
- * @interface: reDrawChart -- refresh bar chart by redrawing the DC.js Bar
- *                            chart, keep other information.
- * @interface: postFilterCallbackFunc -- pass a function to be called after DC
- *                                       Bar Chart filtered.
- *                                       
- * @authur: Hongxin Zhang
- * @date: Mar. 2014
- * 
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
  */
+
+/*
+ * This file is part of cBioPortal.
+ *
+ * cBioPortal is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
         
 var BarChart = function(){
     var barChart, cluster;
@@ -305,12 +309,16 @@ var BarChart = function(){
     //brush and deselected bar, this function is designed to change the svg
     //style, save svg and delete added style.
     function setSVGElementValue(_svgParentDivId,_idNeedToSetValue, downloadOptions){
-        var _svgElement;
+        var _svgElement = '';
         
         var _svg = $("#" + _svgParentDivId + " svg");
         //Change brush style
         var _brush = _svg.find("g.brush"),
             _brushWidth = Number(_brush.find('rect.extent').attr('width'));
+        
+        if(_brushWidth === 0){
+            _brush.css('display', 'none');
+        }
         
         _brush.find('rect.extent')
                 .css({
@@ -367,13 +375,12 @@ var BarChart = function(){
             });
         }
         
-        _svgElement = _svg.html();
-        
-        //Remove brush if brush width is 0, svg file will remove brush
-        //automatically, but the pdf file will not
-        if(_brushWidth === 0){
-            _svgElement = parseSVG(_svg.html());
-        }
+        $("#" + _svgParentDivId + " svg>g").each(function(i, e){
+            _svgElement += cbio.download.serializeHtml(e);
+        });
+        $("#" + _svgParentDivId + " svg>defs").each(function(i, e){
+            _svgElement += cbio.download.serializeHtml(e);
+        });
         
         var svg = "<svg width='370' height='200'>"+
                     "<g><text x='180' y='20' style='font-weight: bold; "+
@@ -383,6 +390,9 @@ var BarChart = function(){
         
         cbio.download.initDownload(
             svg, downloadOptions);
+        
+        
+        _brush.css('display', '');
             
         //Remove added styles
         _brush.find('rect.extent')
@@ -436,7 +446,6 @@ var BarChart = function(){
             var _tmpElem = _div.firstChild
                                 .firstChild
                                 .getElementsByClassName('brush')[0];
-            
             if(typeof _tmpElem !== 'undefined'){
                 _tmpElem.parentNode.removeChild(_tmpElem);
             }

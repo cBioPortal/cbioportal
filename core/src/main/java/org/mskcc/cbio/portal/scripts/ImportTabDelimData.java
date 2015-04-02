@@ -351,7 +351,8 @@ public class ImportTabDelimData {
                     !h.equalsIgnoreCase("Hugo_Symbol") &&
                     !h.equalsIgnoreCase("Entrez_Gene_Id") &&
                     !h.equalsIgnoreCase("Locus ID") &&
-                    !h.equalsIgnoreCase("Cytoband")) {
+                    !h.equalsIgnoreCase("Cytoband") &&
+                    !h.equalsIgnoreCase("Composite.Element.Ref")) {
                 return i;
             }
         }

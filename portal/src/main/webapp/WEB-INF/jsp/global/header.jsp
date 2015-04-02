@@ -37,7 +37,7 @@
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 
 <!DOCTYPE HTML>
-<html>
+<html ng-app="menu">
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">

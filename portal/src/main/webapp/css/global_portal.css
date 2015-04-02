@@ -17,6 +17,7 @@ body {
   max-width: 1300px;
   text-align: left;
   background: #FFFFFF;
+  padding: 5px;
 }
 
 #header_wrapper {

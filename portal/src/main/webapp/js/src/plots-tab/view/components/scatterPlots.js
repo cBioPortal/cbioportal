@@ -559,82 +559,83 @@ var scatterPlots = (function() {
         if (genetic_vs_genetic()) {
             if ($("#" + ids.sidebar.x.log_scale).is(':checked') && $("#" + ids.sidebar.y.log_scale).is(':checked')) {
 
-                       var _new_x_scale = re_scale("x");
-                       var _new_y_scale = re_scale("y");
-                       re_draw_axis("x");
-                       re_draw_axis("y");
-                       update_axis_title("x", "append");
-                       update_axis_title("y", "append");
-                       if (stat.applied_box_plots) update_box_plots(update_data(stat.box_plots_axis), update_stat(stat.box_plots_axis));
+                var _new_x_scale = re_scale("x");
+                var _new_y_scale = re_scale("y");
+                re_draw_axis("x");
+                re_draw_axis("y");
+                update_axis_title("x", "append");
+                update_axis_title("y", "append");
+                if (stat.applied_box_plots) update_box_plots(update_data(stat.box_plots_axis), update_stat(stat.box_plots_axis));
 
-                       elem.dotsGroup.selectAll("path")
-                           .transition().duration(300)
-                           .attr("transform", function() {
-                               var _x_val = (d3.select(this).attr("x_val") <= settings.log_scale.threshold_down)? Math.log(settings.log_scale.threshold_down)/Math.log(2):Math.log(d3.select(this).attr("x_val")) / Math.log(2);
-                               var _y_val = (d3.select(this).attr("y_val") <= settings.log_scale.threshold_down)? Math.log(settings.log_scale.threshold_down)/Math.log(2):Math.log(d3.select(this).attr("y_val")) / Math.log(2);
-                               var _x = _new_x_scale(_x_val);
-                               var _y = _new_y_scale(_y_val);
-                               return "translate(" + _x + ", " + _y + ")";
-                           }); 
+                elem.dotsGroup.selectAll("path")
+                    .transition().duration(300)
+                    .attr("transform", function() {
+                        var _x_val = (d3.select(this).attr("x_val") <= settings.log_scale.threshold_down)? Math.log(settings.log_scale.threshold_down)/Math.log(2):Math.log(d3.select(this).attr("x_val")) / Math.log(2);
+                        var _y_val = (d3.select(this).attr("y_val") <= settings.log_scale.threshold_down)? Math.log(settings.log_scale.threshold_down)/Math.log(2):Math.log(d3.select(this).attr("y_val")) / Math.log(2);
+                        var _x = _new_x_scale(_x_val);
+                        var _y = _new_y_scale(_y_val);
+                        return "translate(" + _x + ", " + _y + ")";
+                    }); 
 
-                   } else if ($("#" + ids.sidebar.x.log_scale).is(':checked') && (!$("#" + ids.sidebar.y.log_scale).is(':checked'))) {
+            } else if ($("#" + ids.sidebar.x.log_scale).is(':checked') && (!$("#" + ids.sidebar.y.log_scale).is(':checked'))) {
 
-                       var _new_scale = re_scale("x");
-                       re_draw_axis("x");
-                       initAxis("y");
-                       drawAxis("y");
-                       update_axis_title("x", "append");
-                       update_axis_title("y", "remove");
-                       if (stat.applied_box_plots) update_box_plots(update_data(stat.box_plots_axis), update_stat(stat.box_plots_axis));
+                var _new_scale = re_scale("x");
+                re_draw_axis("x");
+                initAxis("y");
+                drawAxis("y");
+                update_axis_title("x", "append");
+                update_axis_title("y", "remove");
+                if (stat.applied_box_plots) update_box_plots(update_data(stat.box_plots_axis), update_stat(stat.box_plots_axis));
 
-                       elem.dotsGroup.selectAll("path")
-                           .transition().duration(300)
-                           .attr("transform", function() {
-                               var _log_val = d3.select(this).attr("x_val") <= settings.log_scale.threshold_down ? Math.log(settings.log_scale.threshold_down)/Math.log(2): Math.log(d3.select(this).attr("x_val"))/Math.log(2);
-                               var _log_pos = _new_scale(_log_val);
-                               var _pre_pos = d3.select(this).attr("y_pos");
-                               return "translate(" + _log_pos + ", " + _pre_pos + ")";    
-                           }); 
+                elem.dotsGroup.selectAll("path")
+                    .transition().duration(300)
+                    .attr("transform", function() {
+                        var _log_val = d3.select(this).attr("x_val") <= settings.log_scale.threshold_down ? Math.log(settings.log_scale.threshold_down)/Math.log(2): Math.log(d3.select(this).attr("x_val"))/Math.log(2);
+                        var _log_pos = _new_scale(_log_val);
+                        var _pre_pos = d3.select(this).attr("y_pos");
+                        return "translate(" + _log_pos + ", " + _pre_pos + ")";    
+                    }); 
 
-                   } else if ((!$("#" + ids.sidebar.x.log_scale).is(':checked')) && $("#" + ids.sidebar.y.log_scale).is(':checked')) {
+            } else if ((!$("#" + ids.sidebar.x.log_scale).is(':checked')) && $("#" + ids.sidebar.y.log_scale).is(':checked')) {
 
-                       var _new_scale = re_scale("y");
-                       initAxis("x");
-                       drawAxis("x");
-                       re_draw_axis("y");
-                       update_axis_title("x", "remove");
-                       update_axis_title("y", "append");
-                       if (stat.applied_box_plots) update_box_plots(update_data(stat.box_plots_axis), update_stat(stat.box_plots_axis));
+                var _new_scale = re_scale("y");
+                initAxis("x");
+                drawAxis("x");
+                re_draw_axis("y");
+                update_axis_title("x", "remove");
+                update_axis_title("y", "append");
+                if (stat.applied_box_plots) update_box_plots(update_data(stat.box_plots_axis), update_stat(stat.box_plots_axis));
 
-                       elem.dotsGroup.selectAll("path")
-                           .transition().duration(300)
-                           .attr("transform", function() {
-                               var _log_val = d3.select(this).attr("y_val") <= settings.log_scale.threshold_down ? Math.log(settings.log_scale.threshold_down)/Math.log(2): Math.log(d3.select(this).attr("y_val"))/Math.log(2);
-                               var _log_pos = _new_scale(_log_val);
-                               var _pre_pos = d3.select(this).attr("x_pos");
-                               return "translate(" + _pre_pos + ", " + _log_pos + ")";    
-                           }); 
+                elem.dotsGroup.selectAll("path")
+                    .transition().duration(300)
+                    .attr("transform", function() {
+                        var _log_val = d3.select(this).attr("y_val") <= settings.log_scale.threshold_down ? Math.log(settings.log_scale.threshold_down)/Math.log(2): Math.log(d3.select(this).attr("y_val"))/Math.log(2);
+                        var _log_pos = _new_scale(_log_val);
+                        var _pre_pos = d3.select(this).attr("x_pos");
+                        return "translate(" + _pre_pos + ", " + _log_pos + ")";    
+                    }); 
 
-                   } else if ((!$("#" + ids.sidebar.x.log_scale).is(':checked')) && (!$("#" + ids.sidebar.y.log_scale).is(':checked'))) {
+            } else if ((!$("#" + ids.sidebar.x.log_scale).is(':checked')) && (!$("#" + ids.sidebar.y.log_scale).is(':checked'))) {
 
-                        initAxis("x");
-                        drawAxis("x");
-                        initAxis("y");
-                        drawAxis("y");
-                        update_axis_title("x", "remove");
-                        update_axis_title("y", "remove");
-                        if (stat.applied_box_plots) restore_box_plots();
-                        elem.dotsGroup.selectAll("path")
-                                .transition().duration(300)
-                                .attr("transform", function() {
-                                    var _x = d3.select(this).attr("x_pos");
-                                    var _y = d3.select(this).attr("y_pos");
-                                    return "translate(" + _x + ", " + _y + ")";
-                                });
-                   }           
+                initAxis("x");
+                drawAxis("x");
+                initAxis("y");
+                drawAxis("y");
+                update_axis_title("x", "remove");
+                update_axis_title("y", "remove");
+                if (stat.applied_box_plots) restore_box_plots();
+                elem.dotsGroup.selectAll("path")
+                    .transition().duration(300)
+                    .attr("transform", function() {
+                        var _x = d3.select(this).attr("x_pos");
+                        var _y = d3.select(this).attr("y_pos");
+                        return "translate(" + _x + ", " + _y + ")";
+                    });
+            }           
         } else if (genetic_vs_clinical()) {
             var _profile_axis = ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.genetic)? "x": "y";
             var _clin_axis = ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.genetic)? "y": "x";
+            
             if ($("#" + ids.sidebar[_profile_axis].log_scale).is(":checked")) {
                 var _new_scale = re_scale(_profile_axis);
                 initAxis(_clin_axis);
@@ -650,7 +651,8 @@ var scatterPlots = (function() {
                        var _log_val = d3.select(this).attr(_profile_axis + "_val") <= settings.log_scale.threshold_down? Math.log(settings.log_scale.threshold_down)/Math.log(2): Math.log(d3.select(this).attr(_profile_axis + "_val")) / Math.log(2);
                        var _log_pos = _new_scale(_log_val);
                        var _pre_pos = d3.select(this).attr(_clin_axis + "_pos");
-                       return "translate(" + _pre_pos + ", " + _log_pos + ")";    
+                       if (_profile_axis === "x") return "translate(" + _log_pos + ", " + _pre_pos + ")";  
+                       else return "translate(" + _pre_pos + ", " + _log_pos + ")";  
                    }); 
                 
             } else if (!$("#" + ids.sidebar[_profile_axis].log_scale).is(":checked")) {

@@ -159,21 +159,32 @@ define("Oncoprint",
                         {
                             if(clinicalData[i].attr_val !== undefined && newclinicalData[positionValue].attr_val !== undefined)
                             {
-                                if(newclinicalData[positionValue].attr_val !== clinicalData[i].attr_val)
-                                {
+//                                if(newclinicalData[positionValue].attr_val !== clinicalData[i].attr_val)
+//                                {
                                     if((typeof(newclinicalData[positionValue].attr_val)).toUpperCase() === "NUMBER")
                                     {
                                         newclinicalData[positionValue].attr_val = (newclinicalData[positionValue].attr_val + clinicalData[i].attr_val)/2;
+                                        newclinicalData[positionValue].sample_num = newclinicalData[positionValue].sample_num + 1;
                                     }
                                     else
                                     {
                                         newclinicalData[positionValue].attr_val=newclinicalData[positionValue].attr_val + "," + clinicalData[i].attr_val; 
+                                        newclinicalData[positionValue].sample_num = newclinicalData[positionValue].sample_num + 1; 
                                     }
-                                }
+//                                }
                             }
-                            else if(clinicalData[i].attr_val !== undefined)
+                            else if(newclinicalData[positionValue].attr_val === undefined)
                             {
                                 newclinicalData[positionValue].attr_val = clinicalData[i].attr_val;
+                                newclinicalData[positionValue].sample_num = newclinicalData[positionValue].sample_num + 1;
+                            }
+                            else if(clinicalData[i].attr_val === undefined)
+                            {
+                                newclinicalData[positionValue].sample_num = newclinicalData[positionValue].sample_num + 1;
+                            }
+                            else
+                            {
+                                newclinicalData[positionValue].sample_num = newclinicalData[positionValue].sample_num + 1;
                             }
                         }
                         else
@@ -183,13 +194,61 @@ define("Oncoprint",
                             {
                                 newData.attr_val = clinicalData[i].attr_val;
                             }
-
+                            newData.sample_num = 1;
                             newclinicalData.push(newData);
                         }
                     }
+                    
+                    
+                    for(var j = 0; j < newclinicalData.length; j++)
+                    {
+                        if((typeof(newclinicalData[j].attr_val)).toUpperCase() !== "NUMBER")
+                        {
+                            var attr_val_value = newclinicalData[j].attr_val.split(',');
+                            var tooltipsValue=[],tooltipNum=[];
+                            for(var n = 0; n < attr_val_value.length; n++)
+                            {   
+                                var indexValue = -1;
+                                for(var t = 0; t< tooltipsValue.length; t++)
+                                {
+                                    if(tooltipsValue[t] === attr_val_value[n])
+                                    {
+                                        indexValue = t;
+                                        break;
+                                    }
+
+                                }
+
+                                if(indexValue > -1)
+                                {
+                                    tooltipNum[indexValue] = tooltipNum[indexValue] + 1;
+                                }
+                                else
+                                {
+                                    tooltipsValue.push(attr_val_value[n]);
+                                    tooltipNum.push(1);
+                                }
+                                
+
+                            }  
+                            
+                            if(tooltipsValue.length===1)
+                            {
+                               newclinicalData[j].attr_val = tooltipsValue[0]; 
+                            }
+                            
+                            var tooltipString =" ";
+                            for(var u=0; u<tooltipsValue.length; u++)
+                            {
+                               tooltipString = tooltipString + "<b>" + tooltipsValue[u] + "<b>" + ": " + tooltipNum[u] + "<br/>" 
+                            }
+
+                            newclinicalData[j].tooltip = tooltipString;
+                        }
+                    }   
                 }
                 
-//                var data = clinicalData.concat(params.geneData);
+//                var data = newclinicalData.concat(newGeneData);
                 if(topatientValue !== undefined &&  topatientValue)
                 {
                     var data = newclinicalData.concat(newGeneData);
@@ -496,32 +555,39 @@ define("Oncoprint",
                     var fill = enter.append('rect')
                         .attr('fill', function(d) {
                             if (utils.is_gene(d)) {
-                                if(d.cna !== undefined)
+                                if(d.patient === undefined )
                                 {
-                                    var cna_median = d.cna.split(',');
-                                    if(cna_median.length>1)
-                                    {
-                                        return "black";
-                                    }
-                                    else
-                                    {
-                                        return utils.cna_fills[d.cna];
-                                    }
+                                    return utils.cna_fills[d.cna];
                                 }
                                 else
                                 {
+                                    
+                                    if((d.cna)!== undefined && (d.cna).split(',').length > 1)
+                                    {
+                                        return "black";
+                                    }
                                     return utils.cna_fills[d.cna];
                                 }
                             }
                             else if (utils.is_clinical(d)) {
 
                                 //d.attr_id=d.attr_id.toLowerCase().charAt(0).toUpperCase() + d.attr_id.toLowerCase().slice(1);// added by dong li
-                                var result = attr2range[d.attr_id](d.attr_val);
-                                if((typeof(d.attr_val)).toUpperCase() !== "NUMBER")
+                                if(d.patient === undefined)
                                 {
-                                    var attr_val_median = d.attr_val.split(',');
-                                    result = attr_val_median.length>1 ? "black":result;
+                                    var result = attr2range[d.attr_id](d.attr_val);
                                 }
+                                else
+                                {
+                                    if((typeof(d.attr_val)).toUpperCase() !== "NUMBER" &&((d.attr_val).split(",")).length>1)
+                                    {
+                                        var result = "black";
+                                    }
+                                    else
+                                    {
+                                        var result = attr2range[d.attr_id](d.attr_val);
+                                    }
+                                }
+                                
                                 return d.attr_val === "NA"
                             ? colors.grey       // attrs with value of NA are colored grey
                             : result;

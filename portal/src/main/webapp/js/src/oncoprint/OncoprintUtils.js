@@ -1630,14 +1630,41 @@ define("OncoprintUtils", (function() {
 
             clinical: function(d) {
                 if(typeof d.attr_val === "number"){
-                    if(d.attr_val%1 === 0)
+                    if(d.patient===undefined)
                     {
-                       return "value: <b>" + d.attr_val + "</b><br/>"; 
+                        if(d.attr_val%1 === 0)
+                        {
+                           return "value: <b>" + d.attr_val + "</b><br/>"; 
+                        }
+
+                        return "value: <b>" + cbio.util.toPrecision(d.attr_val,4,0.00001) + "</b><br/>";
                     }
-                    return "value: <b>" + cbio.util.toPrecision(d.attr_val,4,0.00001) + "</b><br/>";
+                    else
+                    {
+                        if(d.attr_val%1 === 0)
+                        {
+                           return "value: <b>" + d.attr_val + "</b><br/>" + "there are <b>" + d.sample_num + "</b> samples<br/>"; 
+                        }
+
+                        return "value: <b>" + cbio.util.toPrecision(d.attr_val,4,0.00001) + "</b><br/>" + "there are <b>" + d.sample_num + "</b> samples<br/>"; 
+                    }
                 }
                 
-                return "value: <b>" + d.attr_val + "</b><br/>";
+//                return "value: <b>" + d.attr_val + "</b><br/>";
+                if(d.patient===undefined)
+                {
+                    return "value: <b>" + d.attr_val + "</b><br/>";
+                }
+                else
+                {   if((typeof(d.attr_val)).toUpperCase() === "NUMBER")
+                    {
+                        return "value: <b>" + d.attr_val + "</b><br/>" + "there are <b>" + d.sample_num + "</b> samples<br/>";
+                    }
+                    else
+                    {
+                        return "there are <b>" + d.sample_num + "</b> samples<br/>" + d.tooltip;
+                    }
+                }
             }
         };
     }());

@@ -1405,3 +1405,10 @@ ul.ui-autocomplete li.ui-menu-item { font-size: 0.6em; text-align: left; }
     max-width: 600px;
 }
 
+.rotate-45 {
+    -webkit-transform: rotate(45deg);
+    -moz-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    -o-transform: rotate(45deg);
+    transform: rotate(45deg);
+}

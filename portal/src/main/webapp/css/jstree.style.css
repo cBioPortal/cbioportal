@@ -336,7 +336,7 @@
   /* Chrome 19+ & Safari 6+ */
 }
 .jstree-default .jstree-search {
-  font-style: italic;
+  //font-style: italic;
   color: #8b0000;
   font-weight: bold;
 }

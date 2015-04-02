@@ -4,7 +4,7 @@
 <div class="query_step_section" id="select_cancer_type_section">
     <div class="row step_header_first_line">
         <div class="input-group input-group-sm col-5">
-            <input type="text" id="jstree_search_input" class="form-control" placeholder="Select Cancer Study"/>
+            <input type="text" id="jstree_search_input" class="form-control" placeholder="Search..."/>
             <div class="input-group-btn">
                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                   <span class="caret"></span>
@@ -15,6 +15,7 @@
                     <li role="presentation"><a role="menuitem" tabindex="-1"  href='javascript:$("#jstree_search_input").val("tcga -provisional");$("#jstree_search_input").trigger("input");' >tcga -provisional</a></li>
                     <li role="presentation"><a role="menuitem" tabindex="-1"  href='javascript:$("#jstree_search_input").val("tcga -moratorium");$("#jstree_search_input").trigger("input");' >tcga -moratorium</a></li>
                     <li role="presentation"><a role="menuitem" tabindex="-1"  href='javascript:$("#jstree_search_input").val("tcga OR icgc");$("#jstree_search_input").trigger("input");'>tcga OR icgc</a></li>
+                    <li role="presentation"><a role="menuitem" tabindex="-1"  href='javascript:$("#jstree_search_input").val("-\"cell line\"");$("#jstree_search_input").trigger("input");'>-"cell line"</a></li>
                     <li role="presentation"><a role="menuitem" tabindex="-1"  href='javascript:$("#jstree_search_input").val("prostate mskcc");$("#jstree_search_input").trigger("input");'>prostate mskcc</a></li>
                     <li role="presentation"><a role="menuitem" tabindex="-1"  href='javascript:$("#jstree_search_input").val("esophageal OR stomach");$("#jstree_search_input").trigger("input");'>esophageal OR stomach</a></li>
                     <li role="presentation"><a role="menuitem" tabindex="-1"  href='javascript:$("#jstree_search_input").val("serous");$("#jstree_search_input").trigger("input");'>serous</a></li>
@@ -65,6 +66,7 @@ $('#select_cancer_type_help').qtip({
                     position: { my:'left center',at:'right center',viewport: $(window) },
                     hide: { delay:200, fixed:true }
 });
+$('#jstree_search_input').keypress(function(e) { return e.keyCode !== 13; });
 
 //$("#jstree_select_cell_line").change(function(){
 //    if($(this).attr("checked"))

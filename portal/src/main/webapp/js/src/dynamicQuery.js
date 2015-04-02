@@ -746,7 +746,13 @@ function addMetaDataToPage() {
 	} else if (json.cancer_studies.hasOwnProperty(study) && study !== 'all') { // don't re-add 'all'
             try {
                 var code = json.cancer_studies[study].type_of_cancer.toLowerCase();
-                oncotree[code].studies.push(study);
+		var lineage = [];
+		var currCode = code;
+		while (currCode !== 'tissue') {
+			lineage.push(currCode);
+			currCode = oncotree[currCode].parent.code;
+		}
+                oncotree[code].studies.push({id:study, lineage:lineage});
                 var node = oncotree[code];
                 while (node) {
                     node.desc_studies_count += 1;
@@ -786,7 +792,7 @@ function addMetaDataToPage() {
                 }
             });
             oncotree[node].studies.sort(function(a,b) {
-                return a.localeCompare(b);
+                return a.id.localeCompare(b.id);
             });
         }
     }
@@ -806,7 +812,7 @@ function addMetaDataToPage() {
 		jstree_data.push({'id':id, 'parent':'mskimpact-study-group', 'text':json.cancer_studies[id].name, 
 			'li_attr':{name: json.cancer_studies[id].name, description: metaDataJson.cancer_studies[id].description}});
 		flat_jstree_data.push({'id':id, 'parent':jstree_root_id, 'text':json.cancer_studies[id].name, 
-			'li_attr':{name: json.cancer_studies[id].name, description: metaDataJson.cancer_studies[id].description}});
+			'li_attr':{name: json.cancer_studies[id].name, description: metaDataJson.cancer_studies[id].description, search_terms: 'MSKCC DMP'}});
 	});
     }
     while (node_queue.length > 0) {
@@ -820,15 +826,15 @@ function addMetaDataToPage() {
 		});
 		
 		$.each(currNode.studies, function(ind, elt) {
-			    name = splitAndCapitalize(metaDataJson.cancer_studies[elt].name);
-			    jstree_data.push({'id':elt, 
+			    name = splitAndCapitalize(metaDataJson.cancer_studies[elt.id].name);
+			    jstree_data.push({'id':elt.id, 
 				    'parent':currNode.code, 
 				    'text':name,
-				    'li_attr':{name: name, description:metaDataJson.cancer_studies[elt].description}});
-			    flat_jstree_data.push({'id':elt, 
+				    'li_attr':{name: name, description:metaDataJson.cancer_studies[elt.id].description}});
+			    flat_jstree_data.push({'id':elt.id, 
 				    'parent':jstree_root_id,
 				    'text':name,
-				    'li_attr':{name: name, description:metaDataJson.cancer_studies[elt].description}});
+				    'li_attr':{name: name, description:metaDataJson.cancer_studies[elt.id].description, search_terms: elt.lineage.join(" ")}});
 		});
 		node_queue = node_queue.concat(currNode.children);
 	    }
@@ -904,12 +910,14 @@ function addMetaDataToPage() {
 		return clauses;
     };
     var matchPhrase = function(phrase, node) {
-		    return (node.li_attr && node.li_attr.name && node.li_attr.name.toLowerCase().indexOf(phrase) > -1) 
-			    || (node.li_attr && node.li_attr.description && node.li_attr.description.toLowerCase().indexOf(phrase) > -1);
+	    phrase = phrase.toLowerCase();
+		return !!((node.li_attr && node.li_attr.name && node.li_attr.name.toLowerCase().indexOf(phrase) > -1) 
+			    || (node.li_attr && node.li_attr.description && node.li_attr.description.toLowerCase().indexOf(phrase) > -1)
+			    || (node.li_attr && node.li_attr.search_terms && node.li_attr.search_terms.toLowerCase().indexOf(phrase) > -1));
 	};
     var perform_search_single = function(parsed_query, node) {
 	    // in: a jstree node
-	    // text to search is node.text and node.li_attr.description
+	    // text to search is node.text and node.li_attr.description and node.li_attr.search_terms
 	    // return true iff the query, considering quotation marks, 'and' and 'or' logic, matches
 	    var match = false;
 	    var hasPositiveClauseType = false;
@@ -1006,24 +1014,48 @@ function addMetaDataToPage() {
 				});
 				return ret;
 			};
+			$('#jstree').jstree(true).get_node(jstree_root_id, true).children('.jstree-anchor').after($jstree_flatten_btn());
 		});
 		$('#jstree').on('changed.jstree', function() { onJSTreeChange(); saveSelectedStudiesLocalStorage(); });
 		$('#jstree').jstree(true).hide_icons();
 	}
 	initialize_jstree(jstree_data);
 	var jstree_is_flat = false;
-	$('#flatten_jstree_btn').click(function() {
-		var selected_studies = $("#jstree").jstree(true).get_selected_leaves();
-		$('#jstree').jstree(true).destroy();
-		jstree_is_flat = !jstree_is_flat;
-		initialize_jstree((jstree_is_flat ? flat_jstree_data : jstree_data));
-		$('#flatten_jstree_btn').text((jstree_is_flat ? 'Unflatten Tree' : 'Flatten Tree'));
-		$('#jstree').on('ready.jstree', function() { 
-			$('#jstree').jstree(true).select_node(selected_studies);
-			$("#jstree_search_input").trigger('input');
+	var $jstree_flatten_btn = (function() { 
+		var ret = $('<i class="fa fa-lg fa-code-fork jstree-external-node-decorator" style="cursor:pointer; padding-left:0.6em"></i>');
+		ret.mouseenter(function () {
+			ret.fadeTo('fast', 0.7);
 		});
-		return false;
+		ret.mouseleave(function () {
+			ret.fadeTo('fast', 1);
+		});
+		ret.click(function () {
+			var selected_studies = $("#jstree").jstree(true).get_selected_leaves();
+			$('#jstree').jstree(true).destroy();
+			jstree_is_flat = !jstree_is_flat;
+			initialize_jstree((jstree_is_flat ? flat_jstree_data : jstree_data));
+			$('#jstree').on('ready.jstree', function () {
+				$('#jstree').jstree(true).select_node(selected_studies);
+				if ($("#jstree_search_input").val() !== "") {
+					precomputed_search.query = false; // force re-search
+					do_jstree_search();
+				}
+			});
+		});
+		ret.qtip({
+			content: {text: (jstree_is_flat ? "Unflatten tree" : "Flatten tree")},
+			style: {classes: 'qtip-light qtip-rounded'},
+			position: {my: 'bottom center', at: 'top center', viewport: $(window)},
+			show: {delay: 600},
+			hide: {delay: 10, fixed: true},
+		});
+		return ret;
 	});
+	
+	var do_jstree_search = function() {
+		$("#jstree").jstree(true).search($("#jstree_search_input").val());
+		$('#jstree').jstree(true).get_node(jstree_root_id, true).children('.jstree-anchor').after($jstree_flatten_btn());
+	}
 	var jstree_search_timeout = null;
 	$("#jstree_search_input").on('input', function () {
 		if (jstree_search_timeout) {
@@ -1036,7 +1068,7 @@ function addMetaDataToPage() {
 				$("#jstree").jstree(true)._model.data['tissue'].li_attr.name = "All Search Results";
 			}
 			$("#jstree").fadeTo(100, 0.5, function () {
-				$("#jstree").jstree(true).search($("#jstree_search_input").val());
+				do_jstree_search();
 				$("#jstree").fadeTo(100, 1);
 			});
 		}, 400); // wait for a bit with no typing before searching

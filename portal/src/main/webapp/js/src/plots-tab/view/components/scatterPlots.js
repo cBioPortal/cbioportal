@@ -854,7 +854,7 @@ var scatterPlots = (function() {
                         _content += "<br>Horizontal: <b>" + _text_x + "</b><br>" + "Vertical: <b>" + _text_y + "</b>";
                     } else if ($("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() === vals.data_type.clin) {
                         var _text_x = is_profile_discretized("x")? gisticInterpreter.convert_to_val(d.xVal, "x"): d.xVal;
-                        var _text_y = clinical_attr_is_discretized("y")? clinical_data_interpreter.convert_to_text(d.yVal): d.yVal;
+                        var _text_y = clinical_attr_is_discretized("y")? clinical_data_interpreter.convert_to_text(d.yVal, "y"): d.yVal;
                         _content += "<br>Horizontal: <b>" + _text_x + "</b><br>" + "Vertical: <b>" + _text_y + "</b>";
                     }
                 } else if (clinical_vs_clinical()) {

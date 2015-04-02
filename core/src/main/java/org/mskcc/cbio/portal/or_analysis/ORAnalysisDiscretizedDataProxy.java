@@ -48,7 +48,7 @@ public class ORAnalysisDiscretizedDataProxy {
         this.unalteredSampleIds = unalteredSampleIds;
         this.map = OverRepresentationAnalysisUtil.getValueMap(cancerStudyId, profileId, profileType, alteredSampleIds, unalteredSampleIds);
         
-        if (map.keySet().size() != 0) {
+        if (!map.keySet().isEmpty()) {
             DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
 
             List<Long> genes = new ArrayList<Long>(map.keySet());

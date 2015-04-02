@@ -1,29 +1,35 @@
 /*
- * Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
- * This library is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as published
- * by the Free Software Foundation; either version 2.1 of the License, or
- * any later version.
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
  *
- * This library is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
- * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
- * documentation provided hereunder is on an "as is" basis, and
- * Memorial Sloan-Kettering Cancer Center
- * has no obligations to provide maintenance, support,
- * updates, enhancements or modifications.  In no event shall
- * Memorial Sloan-Kettering Cancer Center
- * be liable to any party for direct, indirect, special,
- * incidental or consequential damages, including lost profits, arising
- * out of the use of this software and its documentation, even if
- * Memorial Sloan-Kettering Cancer Center
- * has been advised of the possibility of such damage.  See
- * the GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
  */
+
+/*
+ * This file is part of cBioPortal.
+ *
+ * cBioPortal is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 
 /**
  * Render the Co-expression view using dataTable Jquery Plugin,
@@ -41,13 +47,12 @@ var CoExpView = (function() {
             loadingImgPrefix: "coexp_loading_img_",
             tableDivPrefix: "coexp_table_div_",
             tablePrefix: "coexp_table_",
-            plotPrefix: "coexp_plot_",
+            plotPrefix: "coexp_plot_"
         },
         dim = {
             coexp_table_width: "380px",
             coexp_plots_width: "750px"
         },
-        threshold = 0.3,
         has_mutation_data = false;
     //Containers    
     var profileList = []; //Profile Lists for all queried genes
@@ -349,14 +354,19 @@ var CoExpView = (function() {
             function getCoExpDataCallBack(result, geneId) {
                 //Hide the loading img
                 $("#" + Names.loadingImgId).empty();
-                //Render datatable
-                convertData(result);
-                overWriteFilters(); 
-                configTable();
-                attachDownloadFullResultButton();
-                attachPearsonFilter();
-                attachRowListener();
-                initTable();
+                if (result.length === 0) {
+                    $("#" + Names.tableDivId).append("There are no gene pairs with a Pearson or Spearman score > 0.3 or < -0.3. To see the scores for all gene pairs, use the button below.");
+                    attachDownloadFullResultButton();                    
+                } else {
+                    //Render datatable
+                    convertData(result);
+                    overWriteFilters(); 
+                    configTable();
+                    attachDownloadFullResultButton();
+                    attachPearsonFilter();
+                    attachRowListener();
+                    initTable();                    
+                }
             }
 
             return {

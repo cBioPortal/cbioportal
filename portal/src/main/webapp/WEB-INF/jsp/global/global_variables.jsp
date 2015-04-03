@@ -187,6 +187,20 @@
         showCoexpTab = true;
     } 
     Object patientSampleIdMap = request.getAttribute(QueryBuilder.SELECTED_PATIENT_SAMPLE_ID_MAP);
+
+    //list of altered & unaltered sample ids
+    ArrayList<String> alteredSampleIdList = new ArrayList<String>();
+    ArrayList<String> unalteredSampleIdList = new ArrayList<String>();
+    for (String patientId : mergedPatientList) {
+        if (dataSummary.isCaseAltered(patientId)) {
+            alteredSampleIdList.add(patientId);
+        } else {
+            unalteredSampleIdList.add(patientId);
+        }
+    }
+    String alteredSampleIdsStr = StringUtils.join(alteredSampleIdList, " ");
+    String unalteredSampleIdsStr = StringUtils.join(unalteredSampleIdList, " ");
+
 %>
 
 <!--Global Data Objects Manager-->
@@ -247,7 +261,7 @@
                     );
                 }
             }
-        }
+        };
 
     }());
 </script>
@@ -312,7 +326,9 @@
                 result[(_arr[0].replace(/\s+/, ""))] = (_arr[1].replace(/\s+/, ""));
             });
             return result;
-        }
+        },
+        getAlteredSampleIdList: function() { return '<%=alteredSampleIdsStr%>'; },
+        getUnalteredSampleIdList: function() { return '<%=unalteredSampleIdsStr%>'; }
     };
 </script>
 

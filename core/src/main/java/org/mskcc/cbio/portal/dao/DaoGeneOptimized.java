@@ -105,6 +105,9 @@ public class DaoGeneOptimized {
                 BufferedReader in = new BufferedReader(
                         new InputStreamReader(getClass().getResourceAsStream(GENE_SYMBOL_DISAMBIGUATION_FILE)));
                 for (String line=in.readLine(); line!=null; line=in.readLine()) {
+                    if (line.startsWith("#")) {
+                        continue;
+                    }
                     String[] parts = line.trim().split("\t",-1);
                     CanonicalGene gene = getGene(Long.parseLong(parts[1]));
                     if (gene==null) {

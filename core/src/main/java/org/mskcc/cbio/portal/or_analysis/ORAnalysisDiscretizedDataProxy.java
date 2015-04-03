@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.math.MathException;
@@ -18,6 +19,7 @@ import org.codehaus.jackson.node.ObjectNode;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.model.GeneticAlterationType;
+import org.mskcc.cbio.portal.stats.BenjaminiHochbergFDR;
 import org.mskcc.cbio.portal.stats.FisherExact;
 
 /**
@@ -62,18 +64,16 @@ public class ORAnalysisDiscretizedDataProxy {
                     _datum.put("Gene", _geneName);
                     _datum.put("%Altered", df.format(calcPct(singleGeneCaseValueMap, profileType, "altered")));
                     _datum.put("%Unaltered", df.format(calcPct(singleGeneCaseValueMap, profileType, "unaltered")));
-                    _datum.put("Radio", df.format(calcPct(singleGeneCaseValueMap, profileType, "altered") / calcPct(singleGeneCaseValueMap, profileType, "unaltered")));
+                    _datum.put("Radio", df.format(calcRatio(calcPct(singleGeneCaseValueMap, profileType, "altered"), calcPct(singleGeneCaseValueMap, profileType, "unaltered"))));
                     _datum.put("Direction/Tendency", "place holder");
                     _datum.put("p-Value", df.format(calcPval(singleGeneCaseValueMap, profileType)));
-                    _datum.put("q-Value", "place holder");
                 } else if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString())) {
                     _datum.put("Gene", _geneName);
                     _datum.put("%Altered", df.format(calcPct(singleGeneCaseValueMap, profileType, "altered")));
                     _datum.put("%Unaltered", df.format(calcPct(singleGeneCaseValueMap, profileType, "unaltered")));
-                    _datum.put("Radio", df.format(calcPct(singleGeneCaseValueMap, profileType, "altered") / calcPct(singleGeneCaseValueMap, profileType, "unaltered")));
+                    _datum.put("Radio", df.format(calcRatio(calcPct(singleGeneCaseValueMap, profileType, "altered"), calcPct(singleGeneCaseValueMap, profileType, "unaltered"))));
                     _datum.put("Direction/Tendency", "place holder");
                     _datum.put("p-Value", df.format(calcPval(singleGeneCaseValueMap, profileType)));
-                    _datum.put("q-Value", "place holder");
                 } else if (profileType.equals(GeneticAlterationType.MRNA_EXPRESSION.toString())) {
                     _datum.put("Gene", _geneName);
                     _datum.put("M-altered", df.format(calcMean(singleGeneCaseValueMap, "altered")));
@@ -82,15 +82,44 @@ public class ORAnalysisDiscretizedDataProxy {
                     _datum.put("StD-Dev Unaltered", df.format(calcSTDev(singleGeneCaseValueMap, "unaltered")));
                     _datum.put("T-score", "place holder");
                     _datum.put("p-Value", df.format(calcPval(singleGeneCaseValueMap, profileType)));
-                    _datum.put("q-Value", "place holder");
                 }
-                result.add(_datum);
+                
+                if (profileType.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION.toString()) ||
+                    profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString())) {
+                    if (_datum.get("%Altered").asDouble() != 0.0 || _datum.get("%Unaltered").asDouble() != 0.0) {
+                        result.add(_datum);
+                    }
+                } else {
+                    result.add(_datum);
+                }
             }
+            
+            //Adjust p values
+            double[] originalPvalues = new double[result.size()];
+            for (int i = 0; i < result.size(); i++) {
+                originalPvalues[i] = result.get(i).get("p-Value").asDouble();
+            }
+            BenjaminiHochbergFDR bhFDR = new BenjaminiHochbergFDR(originalPvalues);
+            bhFDR.calculate();
+            double[] adjustedPvalues = bhFDR.getAdjustedPvalues();
+            for (int j = 0; j < result.size(); j++) {
+                ((ObjectNode)result.get(j)).put("q-Value", adjustedPvalues[j]);
+            }
+            
         } 
     }
     
     public ArrayNode getResult() {
         return result;
+    }
+    
+    private String calcRatio(double pct1, double pct2) {
+        if (pct1 != 0 && pct2 != 0) {
+            return Double.toString(pct1 / pct2);
+        } else {
+            return "--";
+        } 
+        
     }
     
     private double calcMean(HashMap<Integer, String> singleGeneCaseValueMap, String groupType) { // group type: altered or unaltered

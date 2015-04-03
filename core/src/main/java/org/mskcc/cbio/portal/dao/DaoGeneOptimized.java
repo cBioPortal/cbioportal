@@ -54,12 +54,14 @@ import org.mskcc.cbio.portal.model.CanonicalGene;
  */
 public class DaoGeneOptimized {
     private static final String CBIO_CANCER_GENES_FILE = "/cbio_cancer_genes.txt";
+    private static final String GENE_SYMBOL_DISAMBIGUATION_FILE = "/gene_symbol_disambiguation.txt";
         
     private static final DaoGeneOptimized daoGeneOptimized = new DaoGeneOptimized();
     private final HashMap<String, CanonicalGene> geneSymbolMap = new HashMap <String, CanonicalGene>();
     private final HashMap<Long, CanonicalGene> entrezIdMap = new HashMap <Long, CanonicalGene>();
     private final HashMap<String, List<CanonicalGene>> geneAliasMap = new HashMap<String, List<CanonicalGene>>();
     private final Set<CanonicalGene> cbioCancerGenes = new HashSet<CanonicalGene>();
+    private final Map<String, CanonicalGene> disambiguousGenes = new HashMap<String, CanonicalGene>();
     
     /**
      * Private Constructor, to enforce singleton pattern.
@@ -95,6 +97,20 @@ public class DaoGeneOptimized {
                     } else {
                         System.err.println(line+" in the cbio cancer gene list is not a HUGO gene symbol.");
                     }
+                }
+                in.close();
+            }
+            
+            {
+                BufferedReader in = new BufferedReader(
+                        new InputStreamReader(getClass().getResourceAsStream(GENE_SYMBOL_DISAMBIGUATION_FILE)));
+                for (String line=in.readLine(); line!=null; line=in.readLine()) {
+                    String[] parts = line.trim().split("\t",-1);
+                    CanonicalGene gene = getGene(Long.parseLong(parts[1]));
+                    if (gene==null) {
+                        System.err.println(line+" in gene_symbol_disambiguation.txt is not valid.");
+                    }
+                    disambiguousGenes.put(parts[0], gene);
                 }
                 in.close();
             }
@@ -325,21 +341,26 @@ public class DaoGeneOptimized {
             return null;
         }
         
-        if (genes.size()!=1) {
-            StringBuilder sb = new StringBuilder("Ambiguous alias ");
-            sb.append(geneId);
-            sb.append(": corresponding entrez ids of ");
-            for (CanonicalGene gene : genes) {
-                sb.append(gene.getEntrezGeneId());
-                sb.append(",");
-            }
-            sb.deleteCharAt(sb.length()-1);
-            
-            System.err.println(sb.toString());
-            return null;
+        if (genes.size()==1) {
+            return genes.get(0);
         }
         
-        return genes.get(0);
+        if (disambiguousGenes.containsKey(geneId)) {
+            return disambiguousGenes.get(geneId);
+        }
+        
+        StringBuilder sb = new StringBuilder("Ambiguous alias ");
+        sb.append(geneId);
+        sb.append(": corresponding entrez ids of ");
+        for (CanonicalGene gene : genes) {
+            sb.append(gene.getEntrezGeneId());
+            sb.append(",");
+        }
+        sb.deleteCharAt(sb.length()-1);
+        System.err.println(sb.toString());
+        
+        return null;
+        
     }
     
     public Set<Long> getEntrezGeneIds(Collection<CanonicalGene> genes) {

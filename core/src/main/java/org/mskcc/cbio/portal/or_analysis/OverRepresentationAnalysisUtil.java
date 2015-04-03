@@ -30,16 +30,15 @@ public class OverRepresentationAnalysisUtil {
         if(profileType.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION.toString())) {
             result = daoGeneticAlteration.getGeneticAlterationMap(profileId, entrezGeneIds);
         } else if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString())) {
+            ArrayList<ExtendedMutation> mutObjArr = DaoMutation.getMutations(profileId, sampleIds, entrezGeneIds);
             for (Long entrezGeneId : entrezGeneIds) {
-                //Get the array of mutations for the rotated gene
-                ArrayList<ExtendedMutation> mutObjArr = DaoMutation.getMutations(profileId, sampleIds, entrezGeneId);
                 //Assign every sample (included non mutated ones) values -- mutated -> Mutation Type, non-mutated -> "Non"
                 HashMap<Integer, String> singleGeneMutMap = new HashMap<Integer, String>();
                 for (Integer sampleId : sampleIds) {
                     String mutationType = "Non";
                     for (ExtendedMutation mut : mutObjArr) {
-                        if (mut.getSampleId() == sampleId) {
-                            mutationType = mut.getEvent().getMutationType();
+                        if (mut.getSampleId() == sampleId && mut.getGene().getEntrezGeneId() == entrezGeneId) {
+                            mutationType = "placeholder";
                         }
                     }
                     singleGeneMutMap.put(sampleId, mutationType);

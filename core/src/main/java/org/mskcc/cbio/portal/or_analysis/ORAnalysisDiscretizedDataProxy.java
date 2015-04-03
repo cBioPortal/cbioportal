@@ -1,6 +1,5 @@
 package org.mskcc.cbio.portal.or_analysis;
 
-import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -64,16 +63,25 @@ public class ORAnalysisDiscretizedDataProxy {
                     _datum.put("Gene", _geneName);
                     _datum.put("%Altered", df.format(calcPct(singleGeneCaseValueMap, profileType, "altered")));
                     _datum.put("%Unaltered", df.format(calcPct(singleGeneCaseValueMap, profileType, "unaltered")));
-                    _datum.put("Radio", df.format(calcRatio(calcPct(singleGeneCaseValueMap, profileType, "altered"), calcPct(singleGeneCaseValueMap, profileType, "unaltered"))));
+                    _datum.put("Radio", calcRatio(calcPct(singleGeneCaseValueMap, profileType, "altered"), calcPct(singleGeneCaseValueMap, profileType, "unaltered")));
                     _datum.put("Direction/Tendency", "place holder");
                     _datum.put("p-Value", df.format(calcPval(singleGeneCaseValueMap, profileType)));
+                    if (!(df.format(calcPct(singleGeneCaseValueMap, profileType, "altered")).equals("0.000") && 
+                          df.format(calcPct(singleGeneCaseValueMap, profileType, "unaltered")).equals("0.000"))) {
+                        result.add(_datum);
+                    }
                 } else if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString())) {
                     _datum.put("Gene", _geneName);
                     _datum.put("%Altered", df.format(calcPct(singleGeneCaseValueMap, profileType, "altered")));
                     _datum.put("%Unaltered", df.format(calcPct(singleGeneCaseValueMap, profileType, "unaltered")));
-                    _datum.put("Radio", df.format(calcRatio(calcPct(singleGeneCaseValueMap, profileType, "altered"), calcPct(singleGeneCaseValueMap, profileType, "unaltered"))));
+                    _datum.put("Radio", calcRatio(calcPct(singleGeneCaseValueMap, profileType, "altered"), calcPct(singleGeneCaseValueMap, profileType, "unaltered")));
                     _datum.put("Direction/Tendency", "place holder");
                     _datum.put("p-Value", df.format(calcPval(singleGeneCaseValueMap, profileType)));
+                    if (!(df.format(calcPct(singleGeneCaseValueMap, profileType, "altered")).equals("0.000") && 
+                          df.format(calcPct(singleGeneCaseValueMap, profileType, "unaltered")).equals("0.000"))) {
+                        result.add(_datum);
+                    }
+
                 } else if (profileType.equals(GeneticAlterationType.MRNA_EXPRESSION.toString())) {
                     _datum.put("Gene", _geneName);
                     _datum.put("M-altered", df.format(calcMean(singleGeneCaseValueMap, "altered")));
@@ -82,16 +90,9 @@ public class ORAnalysisDiscretizedDataProxy {
                     _datum.put("StD-Dev Unaltered", df.format(calcSTDev(singleGeneCaseValueMap, "unaltered")));
                     _datum.put("T-score", "place holder");
                     _datum.put("p-Value", df.format(calcPval(singleGeneCaseValueMap, profileType)));
-                }
-                
-                if (profileType.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION.toString()) ||
-                    profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString())) {
-                    if (_datum.get("%Altered").asDouble() != 0.0 || _datum.get("%Unaltered").asDouble() != 0.0) {
-                        result.add(_datum);
-                    }
-                } else {
                     result.add(_datum);
                 }
+
             }
             
             //Adjust p values
@@ -103,7 +104,7 @@ public class ORAnalysisDiscretizedDataProxy {
             bhFDR.calculate();
             double[] adjustedPvalues = bhFDR.getAdjustedPvalues();
             for (int j = 0; j < result.size(); j++) {
-                ((ObjectNode)result.get(j)).put("q-Value", adjustedPvalues[j]);
+                ((ObjectNode)result.get(j)).put("q-Value", df.format(adjustedPvalues[j]));
             }
             
         } 
@@ -115,7 +116,7 @@ public class ORAnalysisDiscretizedDataProxy {
     
     private String calcRatio(double pct1, double pct2) {
         if (pct1 != 0 && pct2 != 0) {
-            return Double.toString(pct1 / pct2);
+            return df.format(pct1 / pct2);
         } else {
             return "--";
         } 

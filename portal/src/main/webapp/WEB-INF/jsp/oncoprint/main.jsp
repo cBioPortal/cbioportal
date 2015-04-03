@@ -30,8 +30,6 @@
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --%>
 
-<script src="js/lib/bootstrap.min.js?<%=GlobalProperties.getAppVersion()%>" type="text/javascript"></script>
-<link href="css/bootstrap.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
         
 <div id="oncoprint" style="padding-top:10px; padding-bottom:10px; padding-left:10px; border: 1px solid #CCC;">
     <img id="outer_loader_img" src="images/ajax-loader.gif"/>

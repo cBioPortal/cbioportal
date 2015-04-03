@@ -1,4 +1,18 @@
 /* jsTree default theme */
+li.jstree-node>a {
+    font-style: italic;
+    color: grey !important;
+}
+li.jstree-node.jstree-leaf>a {
+    color: black !important;
+    font-style: normal;
+    font-weight: bold;
+}
+li.jstree-node.jstree-leaf>a.jstree-clicked {
+    color: black !important;
+    font-style: normal;
+    font-weight: bold;
+}
 .jstree-node,
 .jstree-children,
 .jstree-container-ul {
@@ -308,9 +322,10 @@
   box-shadow: inset 0 0 1px #cccccc;
 }
 .jstree-default .jstree-clicked {
-  background: #beebff;
-  border-radius: 2px;
-  box-shadow: inset 0 0 1px #999999;
+  background: transparent;
+}
+.jstree-default .jstree-clicked.jstree-hovered{
+  background: #e7f4f9;
 }
 .jstree-default .jstree-no-icons .jstree-anchor > .jstree-themeicon {
   display: none;

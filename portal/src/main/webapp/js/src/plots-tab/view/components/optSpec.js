@@ -103,8 +103,8 @@ var optSpec = (function() {
         }
         
         //Data download button
-        $("#" + ids.sidebar.util.download_buttons).append("<button id='data_download'>Data</button>");
-        $("#data_download").click(function() {
+        $("#" + ids.sidebar.util.download_buttons).append("<button id='opt_spec_data_download'>Data</button>");
+        $("#opt_spec_data_download").click(function() {
             if (genetic_vs_genetic()) {
                 if (is_profile_discretized("x") && is_profile_discretized("y")) {
                     cbio.download.clientSideDownload([heat_map.get_tab_delimited_data()], "download.txt");

@@ -118,18 +118,13 @@
 <script type="text/javascript" src="js/src/protein_exp/protein_exp_datatable.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript">
     function getRppaPlotsCaseList() {
-    <%
-        JSONObject result = new JSONObject();
-        for (String patientId : mergedPatientList) {
-            //Is altered or not (x value)
-            if (dataSummary.isCaseAltered(patientId)) {
-                result.put(patientId, "altered");
-            } else {
-                result.put(patientId, "unaltered");
-            }
-        }
-    %>
-        var obj = jQuery.parseJSON('<%=result%>');
+        var obj = {};
+        $.each(window.PortalGlobals.getAlteredSampleIdList().split(" "), function(_index, _sampleId) {
+            obj[_sampleId] = "altered";
+        });
+        $.each(window.PortalGlobals.getUnalteredSampleIdList().split(" "), function(_index, _sampleId) {
+            obj[_sampleId] = "unaltered";
+        });
         return obj;
     }
     

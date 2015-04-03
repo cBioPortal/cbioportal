@@ -30,7 +30,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
+/*
 The following statment is coming from the Lisense of Jason Davies's d3-cloud
 
 Copyright (c) 2013, Jason Davies.
@@ -108,7 +108,7 @@ var StudyViewInitWordCloud = (function() {
         var svgElement;
         
         //Remove x/y title help icon first.
-        svgElement = $("#" + _svgParentDivId + " svg").html();
+        svgElement = cbio.download.serializeHtml($("#" + _svgParentDivId + " svg")[0]);
         $("#" + _idNeedToSetValue)
                 .val("<svg width='200' height='200'>"+
                     "<g><text x='100' y='20'  style='font-weight: bold; "+

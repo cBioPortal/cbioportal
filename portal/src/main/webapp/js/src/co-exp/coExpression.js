@@ -390,7 +390,7 @@ var CoExpView = (function() {
                         "json"
                     );
                 }
-            };   
+            };          
             
         }; //Closing CoExpTable
 

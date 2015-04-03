@@ -51,6 +51,7 @@ public interface AccessControl {
     public static final String ALL_CANCER_STUDIES_ID = "all";
     public static final String ALL_TCGA_CANCER_STUDIES_ID = "all_tcga";
     public static final String ALL_TARGET_CANCER_STUDIES_ID = "all_nci_target";
+    public static final String MULTIPLE_CANCER_STUDIES_ID = "multiple";
 
     /**
      * Gets Cancer Studies. Used by QueryBuilder.

@@ -210,7 +210,7 @@ var StudyViewSurvivalPlotView = (function() {
                 _svgWidth = 360,
                 _svgheight = 360;
 
-        _svgElement = $("#" + _svgParentDivId + " svg").html();
+        _svgElement = $cbio.download.serializeHtml($("#" + _svgParentDivId + " svg")[0]);
         _svgLabels = $("#" + opts[_plotKey].divs.bodyLabel + " svg");
 
         _svgLabels.find('image').remove();
@@ -234,7 +234,7 @@ var StudyViewSurvivalPlotView = (function() {
             _svgheight = _numOfLabels * 20 + 40;
         }
 
-        _svgLabels = _svgLabels.html();
+        _svgLabels = cbio.download.serializeHtml(_svgLabels[0]);
 
         _svgTitle = "<g><text text-anchor='middle' x='210' y='30' " +
                 "style='font-weight:bold'>" + _title + "</text></g>";
@@ -810,7 +810,7 @@ var StudyViewSurvivalPlotView = (function() {
             show: {event: "mouseover", delay: 0},
             hide: {fixed:true, delay: 100, event: "mouseout"},
             position: {my:'left top',at:'top right', viewport: $(window)},
-            content: $("#" + opts[_plotKey].divs.bodyLabel).html(),
+            content: cbio.download.serializeHtml($("#" + opts[_plotKey].divs.bodyLabel)[0]),
             events: {
                 render: function(event, api) {
                     $('svg image', api.elements.tooltip).hover(function() {

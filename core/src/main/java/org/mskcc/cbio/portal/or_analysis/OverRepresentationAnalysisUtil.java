@@ -1,6 +1,8 @@
 package org.mskcc.cbio.portal.or_analysis;
 
 import java.util.*;
+import org.codehaus.jackson.node.ArrayNode;
+import org.codehaus.jackson.node.ObjectNode;
 
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.dao.*;
@@ -30,18 +32,18 @@ public class OverRepresentationAnalysisUtil {
         if(profileType.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION.toString())) {
             result = daoGeneticAlteration.getGeneticAlterationMap(profileId, entrezGeneIds);
         } else if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString())) {
-            ArrayList<ExtendedMutation> mutObjArr = DaoMutation.getMutations(profileId, sampleIds, entrezGeneIds);
+            ArrayList<ExtendedMutation> mutObjArr = DaoMutation.getSimplifiedMutations(profileId, sampleIds, entrezGeneIds);
             for (Long entrezGeneId : entrezGeneIds) {
                 //Assign every sample (included non mutated ones) values -- mutated -> Mutation Type, non-mutated -> "Non"
                 HashMap<Integer, String> singleGeneMutMap = new HashMap<Integer, String>();
                 for (Integer sampleId : sampleIds) {
-                    String mutationType = "Non";
+                    String mutationStatus = "Non";
                     for (ExtendedMutation mut : mutObjArr) {
                         if (mut.getSampleId() == sampleId && mut.getGene().getEntrezGeneId() == entrezGeneId) {
-                            mutationType = "placeholder";
+                            mutationStatus = "Mutated";
                         }
                     }
-                    singleGeneMutMap.put(sampleId, mutationType);
+                    singleGeneMutMap.put(sampleId, mutationStatus);
                 }
                 //add a new entry into the overall result map
                 result.put(entrezGeneId, singleGeneMutMap);
@@ -49,7 +51,9 @@ public class OverRepresentationAnalysisUtil {
         } else if (profileType.equals(GeneticAlterationType.MRNA_EXPRESSION.toString())) {
             result = daoGeneticAlteration.getGeneticAlterationMap(profileId, entrezGeneIds);
         }
+        	
         return result;
     }
-	
+    
+
 }

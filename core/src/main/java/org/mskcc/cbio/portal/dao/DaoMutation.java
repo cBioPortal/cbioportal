@@ -177,7 +177,7 @@ public final class DaoMutation {
         return mutationList;
     }
     
-    public static ArrayList<ExtendedMutation> getMutations (int geneticProfileId, Collection<Integer> targetSampleList, 
+    public static ArrayList<ExtendedMutation> getSimplifiedMutations (int geneticProfileId, Collection<Integer> targetSampleList, 
             Collection<Long> entrezGeneIds) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -195,7 +195,7 @@ public final class DaoMutation {
             pstmt.setInt(1, geneticProfileId);
             rs = pstmt.executeQuery();
             while  (rs.next()) {
-                ExtendedMutation mutation = extractMutation(rs);
+                ExtendedMutation mutation = extractSimplifiedMutations(rs);
                 mutationList.add(mutation);
             }
         } catch (SQLException e) {
@@ -368,7 +368,7 @@ public final class DaoMutation {
             }
         }
 
-        public static ArrayList<ExtendedMutation> getSimilarMutations (long entrezGeneId, String aminoAcidChange, int excludeSampleId) throws DaoException {
+        public static ArrayList<ExtendedMutation> getMutations (long entrezGeneId, String aminoAcidChange, int excludeSampleId) throws DaoException {
             Connection con = null;
             PreparedStatement pstmt = null;
             ResultSet rs = null;
@@ -519,6 +519,22 @@ public final class DaoMutation {
         catch(NullPointerException e) {
             throw new DaoException(e);
         }
+    }
+    
+    private static ExtendedMutation extractSimplifiedMutations(ResultSet rs) throws SQLException {
+
+        ExtendedMutation mutation = new ExtendedMutation();
+
+        //get gene object 
+        DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
+        CanonicalGene gene = daoGene.getGene(rs.getLong("ENTREZ_GENE_ID"));
+        mutation.setGene(gene);
+        
+        mutation.setGeneticProfileId(rs.getInt("GENETIC_PROFILE_ID"));
+        mutation.setSampleId(rs.getInt("SAMPLE_ID"));
+        
+        return mutation;
+    
     }
     
     private static ExtendedMutation.MutationEvent extractMutationEvent(ResultSet rs) throws SQLException, DaoException {

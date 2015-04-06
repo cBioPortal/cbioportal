@@ -22,18 +22,14 @@
 
 <script>
     $(document).ready( function() {
-        <%
-            JSONObject result = new JSONObject();
-            for (String patientId : mergedPatientList) {
-                //Is altered or not (x value)
-                if (dataSummary.isCaseAltered(patientId)) {
-                    result.put(patientId, "altered");
-                } else {
-                    result.put(patientId, "unaltered");
-                }
-            }
-        %>
-        var caseListObj = jQuery.parseJSON('<%=result%>');
+
+        var caseListObj = {};
+        $.each(window.PortalGlobals.getAlteredSampleIdList().split(" "), function(_index, _sampleId) {
+            caseListObj[_sampleId] = "altered";
+        });
+        $.each(window.PortalGlobals.getUnalteredSampleIdList().split(" "), function(_index, _sampleId) {
+            caseListObj[_sampleId] = "unaltered";
+        });
         
         var or_tab_init = false;
         if ($("#or_analysis").is(":visible")) {

@@ -81,17 +81,13 @@
 
 <script>
     function getSurvivalPlotsCaseList() {
-        <%
-            JSONObject result = new JSONObject();
-            for (String caseId : mergedPatientList) { 
-                if (dataSummary.isCaseAltered(caseId)) {
-                    result.put(caseId, "altered");
-                } else {
-                    result.put(caseId, "unaltered");
-                }
-            }
-        %>
-        var obj = jQuery.parseJSON('<%=result%>');
+        var obj = {};
+        $.each(window.PortalGlobals.getAlteredSampleIdList().split(" "), function(_index, _sampleId) {
+            obj[_sampleId] = "altered";
+        });
+        $.each(window.PortalGlobals.getUnalteredSampleIdList().split(" "), function(_index, _sampleId) {
+            obj[_sampleId] = "unaltered";
+        });
         return obj;
     }
 

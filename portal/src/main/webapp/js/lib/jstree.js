@@ -2867,6 +2867,22 @@
 			 */
 			this.trigger('activate_node', { 'node' : this.get_node(obj) });
 		},
+		node_has_descendant_branches: function(obj) {
+			obj = this.get_node(obj);
+			if (!obj || !this.is_open(obj.id)) {
+				return false;
+			}
+			var ret = false;
+			var node;
+			$.each(obj.children, $.proxy(function(ind, id) {
+				node = this.get_node(id);
+				if (node && !node.state.fixed && node.children.length > 0) {
+					ret = true;
+					return 0;
+				}
+			}, this));
+			return ret;
+		},
 		node_descendants_all_open: function(obj) {
 			obj = this.get_node(obj);
 			if (!obj || !this.is_open(obj.id)) {
@@ -2928,51 +2944,53 @@
 					});
 				}
 			} else {
-				var shouldCollapse = this.node_descendants_all_open(node.id);
-				var expandClass = 'fa-expand'; var collapseClass = 'fa-compress';
-				var $expandCollapseBtn = $('<i class="fa fa-md rotate-45 '+(shouldCollapse ? collapseClass : expandClass)+' jstree-node-decorator" style="display:inline-block; cursor:pointer; padding-left:0.6em"></i>');
-				// MEGA HACK by adama@cbio.mskcc.org
-				if (obj.children('.jstree-external-node-decorator').length > 0) {
-					obj.children('.jstree-external-node-decorator').after($expandCollapseBtn);
-				} else {
-					obj.children('.jstree-anchor').after($expandCollapseBtn);
+				if (this.node_has_descendant_branches(node.id)) {
+					var shouldCollapse = this.node_descendants_all_open(node.id);
+					var expandClass = 'fa-expand'; var collapseClass = 'fa-compress';
+					var $expandCollapseBtn = $('<i class="fa fa-md rotate-45 '+(shouldCollapse ? collapseClass : expandClass)+' jstree-node-decorator" style="display:inline-block; cursor:pointer; padding-left:0.6em"></i>');
+					// MEGA HACK by adama@cbio.mskcc.org
+					if (obj.children('.jstree-external-node-decorator').length > 0) {
+						obj.children('.jstree-external-node-decorator').filter(":last").after($expandCollapseBtn);
+					} else {
+						obj.children('.jstree-anchor').after($expandCollapseBtn);
+					}
+					$expandCollapseBtn.click($.proxy(function(e) {
+						e.preventDefault();
+						$expandCollapseBtn.qtip().hide();
+						if (shouldCollapse) {
+							this.close_all(node);
+							this.open_node(node);
+						} else {
+							this.open_all(node);
+						}
+						shouldCollapse = !shouldCollapse;
+						if (shouldCollapse) {
+							$expandCollapseBtn.removeClass(expandClass);
+							$expandCollapseBtn.addClass(collapseClass);
+						} else {
+							$expandCollapseBtn.removeClass(collapseClass);
+							$expandCollapseBtn.addClass(expandClass);
+						}
+					}, this));
+					$expandCollapseBtn.mousedown(function(e) {
+						e.preventDefault();
+					});
+					$expandCollapseBtn.mouseenter(function() {
+						$expandCollapseBtn.fadeTo('fast', 0.7);
+					});
+					$expandCollapseBtn.mouseleave(function() {
+						$expandCollapseBtn.fadeTo('fast', 1);
+					});
+					$expandCollapseBtn.qtip({
+						content: {text: function() {
+						return (shouldCollapse ? 'Collapse' : 'Expand') + ' all';
+						}},
+						style: {classes: 'qtip-light qtip-rounded'},
+						position: {my: 'bottom center', at: 'top center', viewport: $(window)},
+						hide: {delay: 10, fixed: true},
+						show: {delay: 600},
+					});
 				}
-				$expandCollapseBtn.click($.proxy(function(e) {
-					e.preventDefault();
-					$expandCollapseBtn.qtip().hide();
-					if (shouldCollapse) {
-						this.close_all(node);
-						this.open_node(node);
-					} else {
-						this.open_all(node);
-					}
-					shouldCollapse = !shouldCollapse;
-					if (shouldCollapse) {
-						$expandCollapseBtn.removeClass(expandClass);
-						$expandCollapseBtn.addClass(collapseClass);
-					} else {
-						$expandCollapseBtn.removeClass(collapseClass);
-						$expandCollapseBtn.addClass(expandClass);
-					}
-				}, this));
-				$expandCollapseBtn.mousedown(function(e) {
-					e.preventDefault();
-				});
-				$expandCollapseBtn.mouseenter(function() {
-					$expandCollapseBtn.fadeTo('fast', 0.7);
-				});
-				$expandCollapseBtn.mouseleave(function() {
-					$expandCollapseBtn.fadeTo('fast', 1);
-				});
-				$expandCollapseBtn.qtip({
-					content: {text: function() {
-					return (shouldCollapse ? 'Collapse' : 'Expand') + ' all';
-					}},
-					style: {classes: 'qtip-light qtip-rounded'},
-					position: {my: 'bottom center', at: 'top center', viewport: $(window)},
-					hide: {delay: 10, fixed: true},
-					show: {delay: 600},
-				});
 			}
 		},
 		hide_node_decorators : function (obj) {

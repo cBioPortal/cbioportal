@@ -308,6 +308,11 @@ function chooseAction() {
     $("#error_box").remove();
 
     var selected_studies = $("#jstree").jstree(true).get_selected_leaves();
+    while (selected_studies.length === 0) {
+	    // select all by default
+	    $("#jstree").jstree(true).select_node(window.jstree_root_id);
+	    selected_studies = $("#jstree").jstree(true).get_selected_leaves()
+    }    
     if (selected_studies.length > 1) {
 	$("#main_form").find("#select_multiple_studies").val(selected_studies.join(","));
         if ($("#tab_index").val() == 'tab_download') {
@@ -337,11 +342,7 @@ function chooseAction() {
                 return false;
             }
         }
-
         return true;
-    } else {
-	    createAnError("No studies selected.", $('#gene_list'));
-	    return false;
     }
 }
 
@@ -805,7 +806,7 @@ function addMetaDataToPage() {
     var splitAndCapitalize = function(s) {
 	    return s.split("_").map(function(x) { return (x.length > 0 ? x[0].toUpperCase()+x.slice(1) : x);}).join(" ");
     }
-    var jstree_root_id = 'tissue';
+    window.jstree_root_id = 'tissue';
     var jstree_data = [];
     var flat_jstree_data = [];
     jstree_data.push({'id':jstree_root_id, parent:'#', text:'All', state:{opened:true}, li_attr:{name:'All'}});

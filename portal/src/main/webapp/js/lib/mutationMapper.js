@@ -11008,7 +11008,7 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 			"oTableTools": {
 				"aButtons": [{
 					"sExtends": "text",
-					"sButtonText": "CSV",
+					"sButtonText": "Download",
 					"mColumns": getExportColumns(columnOpts, excludedCols),
 					"fnCellRender": function(sValue, iColumn, nTr, iDataIndex) {
 						var value = sValue;
@@ -11033,7 +11033,7 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 						var content = this.fnGetTableData(oConfig);
 
 						var downloadOpts = {
-							filename: "mutation_table_" + gene + ".csv",
+							filename: "mutation_table_" + gene + ".tsv",
 							contentType: "text/plain;charset=utf-8",
 							preProcess: false};
 

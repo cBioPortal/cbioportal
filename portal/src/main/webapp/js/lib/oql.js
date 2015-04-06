@@ -1,22 +1,5 @@
-// NOTE: Documentation can be generated from these annotations with jsdoc (http://usejsdoc.org/)
-/**
- * @fileOverview Library for OQL functionality
- * @author <a href="mailto:adama@cbio.mskcc.org">Adam Abeshouse</a>
- * @namespace oql
- * @example
- * You probably want to call 
- * filter(parseQuery(query), samples)
- */
-
-// IGNORE ALL THE DOCUMENTATION - IT NEEDS TO BE REWRITTEN.
-// WE ARE NOW DEALING IN ONCOPRINT FORMAT
-
 oql = (function () {
-    /**
-     * @memberOf oql
-     * @param {string} query The query we wish to extract genes ids from
-     * @returns {Array.<string>} A list of genes found in the query
-     */
+	var queryDefaults = -1;
     function getGeneList(query) {
         // isolate gene ids from query
         var splitq = query.split(/[\n;]+/);
@@ -37,84 +20,103 @@ oql = (function () {
     }
     
     /* PARSING */
-    // main method is parseQuery(query)
-    /**
-     * @memberOf oql
-     * @param {string} query The query we wish to sanitize
-     * @returns {string} A 'sanitized' query, ie transformed from user input so that
-     * our code can process it as valid oncoquery language.
-     */
-    function sanitizeQuery(query) {
-	var dfd = new $.Deferred();  
-	dataman.getUniqueProfileTypesByStableId(window.PortalGlobals.getGeneticProfiles().split(" ")).then(function(uniqueProfileTypes) {
-		var defaultGeneSettings = [];
-		$.each(uniqueProfileTypes, function (ind, key) {
-			if (key === "MUTATION_EXTENDED") {
-				defaultGeneSettings.push("MUT");
-			} else if (key === "COPY_NUMBER_ALTERATION") {
-				defaultGeneSettings.push("AMP");
-			} else if (key === "MRNA_EXPRESSION") {
-				defaultGeneSettings.push("EXP >= " + window.PortalGlobals.getZscoreThreshold() + " EXP <= -" + window.PortalGlobals.getZscoreThreshold());
-			} else if (key === "PROTEIN_ARRAY_PROTEIN_LEVEL") {
-				defaultGeneSettings.push("PROT >= " + window.PortalGlobals.getRppaScoreThreshold() + " PROT <= -" + window.PortalGlobals.getRppaScoreThreshold());
-			}
-		});
-		// IN: text query, as from user
-		// OUT: "sanitized", i.e. with a few adjustments made to put
-		//		into valid OQL
-		// These adjustments are: - capitalize everything except case-sensitive strings like mutation names (TODO)
-		//						  - insert defaults from cbioportal interface (TODO)
-		var ret = query;
-		if (query.indexOf(":") === -1) {
-			ret = query.split(" ").map(function(x) { return x+":"+defaultGeneSettings.join(" ");}).join("; ");
-		}
-		console.log(ret);
-		dfd.resolve(ret);
-	});
-	return dfd.promise();
-    }
-
-    /**
-     * @memberOf oql
-     * @param {string} query The multiline query we wish to parse
-     * @returns {Object} {result: resultCode, return: array}
-     * On success, resultCode = 0, array = a list of maps containing parsed query objects, one per line
-     * On failure, resultCode = 1, array = a list of maps {line:lineNumber, msg:errorMessage} corresponding to the syntax errors.
-     */
-    function parseQuery(query) {
+    function getQueryDefaults() {
 	var dfd = new $.Deferred();
-	sanitizeQuery(query).then(function(sq) {
-		var lines = sq.split(/[\n;]/);
-		var ret = [];
-		var errors = [];
-		for (var i = 0; i < lines.length; i++) {
-		    var line = lines[i];
-		    if (line.length === 0) {
-			continue;
-		    }
-		    try {
-			ret.push(oqlParser.parse(line));
-		    } catch (err) {
-			errors.push({"line": i, "msg": err});
-		    }
+	if (queryDefaults === -1) {
+		dataman.getUniqueProfileTypesByStableId(window.PortalGlobals.getGeneticProfiles().split(" ")).then(function (uniqueProfileTypes) {
+			var defaultGeneSettings = [];
+			$.each(uniqueProfileTypes, function (ind, key) {
+				if (key === "MUTATION_EXTENDED") {
+					// default settings for a mutation profile
+					defaultGeneSettings.push("MUT");
+				} else if (key === "COPY_NUMBER_ALTERATION") {
+					// default settings for a CNA profile
+					defaultGeneSettings.push("AMP");
+				} else if (key === "MRNA_EXPRESSION") {
+					// default settings for an MRNA profile
+					defaultGeneSettings.push("EXP >= " + window.PortalGlobals.getZscoreThreshold() + " EXP <= -" + window.PortalGlobals.getZscoreThreshold());
+				} else if (key === "PROTEIN_ARRAY_PROTEIN_LEVEL") {
+					// default settings for an RPPA profile
+					defaultGeneSettings.push("PROT >= " + window.PortalGlobals.getRppaScoreThreshold() + " PROT <= -" + window.PortalGlobals.getRppaScoreThreshold());
+				}
+			});
+			dfd.resolve(defaultGeneSettings);
+		});
+	} else {
+		dfd.resolve(queryDefaults);
+	}
+	return dfd.promise();
+    }
+    
+    function sanitizeSingleGeneQuery(query) {
+	var dfd = new $.Deferred();
+	query = query.trim();
+	if (query.length === 0) {
+		dfd.resolve('');
+	}
+	if (query.indexOf(":") === -1) {
+		var tokens = query.split(/\s+/);
+		if (tokens.length === 1) {
+			getQueryDefaults().then(function(defaults) {
+				dfd.resolve(tokens[0] + " : " + defaults.join(" ")+";");
+			});
+		} else {
+			dfd.resolve(tokens[0] + " : " + tokens.slice(1).join(" ")+";");
 		}
-		if (errors.length > 0) {
-			dfd.resolve({"result": 1, "return": errors});
+	} else {
+		if (query[query.length-1] === ":") {
+			getQueryDefaults().then(function(defaults) {
+				dfd.resolve(query+" "+defaults.join(" ")+";");
+			});
+		} else {
+			dfd.resolve(query);
 		}
-		dfd.resolve({"result": 0, "return": ret});
+	}
+	return dfd.promise();
+    }
+    
+    function sanitizeQuery(query) {
+	var dfd = new $.Deferred();
+	var lines = query.split(/[\n;]/);
+	var sanitizePromises = [];
+	var sanitizedQueries = [];
+	$.each(lines, function(ind, l) {
+		var newPromise = sanitizeSingleGeneQuery(l);
+		sanitizePromises.push(newPromise);
+		newPromise.then(function(sanitizedQuery) {
+			sanitizedQueries.push(sanitizedQuery);
+		});
+	});
+	$.when.apply($, sanitizePromises).then(function() {
+		dfd.resolve(sanitizedQueries);
 	});
 	return dfd.promise();
     }
+    
+	function parseQuery(query) {
+		var dfd = new $.Deferred();
+		sanitizeQuery(query).then(function (sanitizedLines) {
+			var ret = [];
+			var errors = [];
+			$.each(sanitizedLines, function (ind, line) {
+				if (line.length === 0) {
+					return 1;
+				}
+				try {
+					ret.push(oqlParser.parse(line));
+				} catch (err) {
+					errors.push({"line": i, "msg": err});
+				}
+			});
+			if (errors.length > 0) {
+				dfd.resolve({"result": 1, "return": errors});
+			}
+			dfd.resolve({"result": 0, "return": ret});
+		});
+		return dfd.promise();
+	}
 
     /* FILTERING */
-    /**
-     * @memberOf oql
-     * @description Helper function for createFilterTree
-     * @see createFilterTree
-     * @param {Object} test Either,e.g., {type:'class', value:'MISSENSE'} or,e.g., {type:'name', value:'V600E'}
-     * @param {Array.<Object>} targets An array of Objects that look like {name:'V600E', class:'MISSENSE'}
-     * @returns {boolean} Whether there is some element of 'targets' that matches 'test'
-     */
     function mutationMatch(test, targets) {
            if (test.type === "class") {
             //TODO: get mutation type info to make this work
@@ -135,15 +137,7 @@ oql = (function () {
         }
     }
 
-    /**
-     * @memberOf oql
-     * @description Helper function for filterSample. Takes in a tree created by createFilterTree, and
-     * reduces it recursively into a single boolean value.
-     * @see createFilterTree
-     * @see filterSample
-     * @param tree A "filter tree" produced by createFilterTree
-     * @returns {boolean} The single boolean value that 'tree' reduces to.
-     */
+ 
     function reduceFilterTree(tree) {
         // Recursive
         if (tree.type === "LEAF") {
@@ -181,22 +175,7 @@ oql = (function () {
         }
     }
 
-    /**
-     * @memberOf oql
-     * @description Helper function for filterSample. Creates a "filter tree", which is basically
-     * the result of visiting a query's parse tree and converting each command into a boolean 
-     * of whether the given genotype fulfills that requirement.
-     * @param {Object} cmds The attribute commands portion of the result of parseQuery. This is a parse tree.
-     * @param {Object} gene_attrs The genotype of a particular gene in a given sample.
-     * @see filterSample
-     * @returns {Object} A nested object that represents a tree in the following way:
-     * Where T is a subtree and B is a boolean literal value, a leaf looks like
-     * {type:'LEAF', value:B}
-     * and a node looks like one of the following three:
-     * • {type: 'NOT', child: T}
-     * • {type: 'AND', left: T1, right: T2}
-     * • {type: 'OR', left:T1, right:T2}
-     */
+    
     function createFilterTree(cmds, gene_attrs) {
         // IN: a query's command tree, a sample's gene attributes
         // OUT: a tree as described in 'reduceBooleanTree'
@@ -250,15 +229,6 @@ oql = (function () {
         }
     }
 
-    /**
-     * @memberOf oql
-     * @description Helper function for filter
-     * @see filter
-     * @param {Object} single_query One-line query, i.e. one element of the array returned by parseQuery
-     * @param {Object} sample A sample
-     * @see angular.query-page-module.DataManager._samples
-     * @returns {boolean} Whether the given sample passes the given one-line query
-     */
     function filterSample(single_query, sample) {
         if (single_query.gene !== sample.gene) {
             // no records on this gene, return false by default
@@ -268,13 +238,6 @@ oql = (function () {
         return reduceFilterTree(filterTree);
     }
 
-    /**
-     * @memberOf oql
-     * @param {Array.<Object>} query The result of parseQuery
-     * @param {Object.<string, Object>} samples
-     * @see angular.query-page-module.DataManager._samples
-     * @returns {Array.<string>} A list of ids of samples (which are in subset, if specified) which pass at least one of the lines of the given query.
-     */
     function filter(query, samples) {
         // IN: Javascript object representing an OQL query, a list of samples
         // OUT: The indexes 'samples' for which at least one

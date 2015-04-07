@@ -1175,6 +1175,19 @@ cursor: default;
 #select_cancer_type_section .step_header_search_result {
     padding-top: 10px;
 }
+#step_header_first_line_empty_search{
+    position: absolute;
+    right: 40px;
+    top: 0;
+    bottom: 0;
+    height: 14px;
+    margin: auto;
+    font-size: 14px;
+    cursor: pointer;
+    color: #ccc;
+    display: none;
+    z-index: 999;
+}  
 .row.step_header_first_line, .row.step_header_bottom_line{
     margin: 0;
 }

@@ -1070,8 +1070,10 @@ function addMetaDataToPage() {
 		}
 		jstree_search_timeout = setTimeout(function () {
 			if ($("#jstree_search_input").val() === "") {
+                                $("#step_header_first_line_empty_search").css("display", "none");
 				$("#jstree").jstree(true)._model.data['tissue'].li_attr.name = "All";
 			} else {
+                                $("#step_header_first_line_empty_search").css("display", "block");
 				$("#jstree").jstree(true)._model.data['tissue'].li_attr.name = "All Search Results";
 			}
 			$("#jstree").fadeTo(100, 0.5, function () {
@@ -1080,6 +1082,14 @@ function addMetaDataToPage() {
 			});
 		}, 400); // wait for a bit with no typing before searching
 	});
+        $('#step_header_first_line_empty_search').click(function() { 
+            $("#jstree_search_input").val("");
+            $("#step_header_first_line_empty_search").css("display", "none");
+            $("#jstree").fadeTo(100, 0.5, function () {
+                do_jstree_search();
+                $("#jstree").fadeTo(100, 1);
+            });
+        });
 	var saveSelectedStudiesLocalStorage = function() {
 		if (!supportsHTML5Storage()) {
 			return false;

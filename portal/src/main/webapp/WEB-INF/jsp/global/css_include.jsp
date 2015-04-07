@@ -64,6 +64,7 @@
 <% } %>
 <link href="css/smoothness/jquery-ui-1.10.3.custom.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 <link href="css/data_table.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
+<link href="css/dataTables.tableTools.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 <link href="css/data_table_jui.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 <link href="css/data_table_ColVis.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 <link href="css/custom_case_set.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/>
@@ -72,4 +73,5 @@
 <link href="<c:url value="${bootstrapCSSPath}"/>" type="text/css" rel="stylesheet"/>
 <link type="text/css" rel="stylesheet" href="css/jstree.style.css?<%=GlobalProperties.getAppVersion()%>"/>
 <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+<link href="css/bootstrap.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 <link href="css/bootstrap334.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />

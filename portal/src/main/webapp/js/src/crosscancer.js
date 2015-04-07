@@ -990,7 +990,7 @@
 					                        "tumorType": "excluded"
 				                        },
 				                        dataTableOpts: {
-					                        "sDom": '<"H"<"mutation_datatables_filter"f>C<"mutation_datatables_info"i>>t<"F"<"datatable-paging"pl>>',
+					                        "sDom": '<"H"<"mutation_datatables_filter"f>C<"mutation_datatables_info"i>>t<"F"<"mutation_datatables_download"T><"datatable-paging"pl>>',
 					                        "deferRender": true,
 					                        "bPaginate": true,
 					                        "sPaginationType": "two_button",

@@ -37,6 +37,7 @@
     <div class="row step_header_first_line">
         <div class="input-group input-group-sm col-5">
             <input type="text" id="jstree_search_input" class="form-control" placeholder="Search..."/>
+            <i id="step_header_first_line_empty_search" class="fa fa-times"></i>
             <div class="input-group-btn">
                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                   <span class="caret"></span>

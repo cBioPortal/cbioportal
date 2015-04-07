@@ -101,6 +101,20 @@ $('#select_cancer_type_help').qtip({
                     hide: { delay:200, fixed:true }
 });
 $('#jstree_search_input').keypress(function(e) { return e.keyCode !== 13; });
+$('#jstree').bind('mousewheel DOMMouseScroll', function(e) {
+    // thanks to mrtsherman on StackOverflow: http://stackoverflow.com/a/7571867/3158208
+    var scrollTo = null;
+    
+    if (e.type === 'mousewheel') {
+        scrollTo = (e.originalEvent.wheelDelta * -1);
+    } else if (e.type === 'DOMMouseScroll') {
+        scrollTo = 40 * e.originalEvent.detail;
+    }
+    if (scrollTo) {
+        e.preventDefault();
+        $(this).scrollTop(scrollTo + $(this).scrollTop());
+    }
+});
 
 //$("#jstree_select_cell_line").change(function(){
 //    if($(this).attr("checked"))

@@ -34,6 +34,7 @@
     String step1ErrorMsg = (String) request.getAttribute(QueryBuilder.STEP1_ERROR_MSG);
 %>
 <div class="query_step_section" id="select_cancer_type_section">
+    <span class="step_header">Select Cancer Study:</span>
     <div class="row step_header_first_line">
         <div class="input-group input-group-sm col-5">
             <input type="text" id="jstree_search_input" class="form-control" placeholder="Search..."/>

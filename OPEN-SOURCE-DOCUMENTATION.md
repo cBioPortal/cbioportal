@@ -2,139 +2,141 @@
 
 **This document contains the licenses and notices for open source software used in this product.  With respect to the free/open software listed in this document, if you have any questions or wish to receive a copy of the source code to which you are entitled under the applicable free/open source license(s) (such as GNU Lesser/General Public License), please visit our [GitHub project] (https://github.com/cBioPortal/cbioportal) or contact us at cbioportal@googlegroups.com.**
 
-* [ant-1.7.0](#ant-1-7-0)
-* [ant-launcher-1.7.0](#ant-launcher-1-7-0)
-* [antlr-2.7.7](#antlr-2-7-7)
-* [antlr-runtime-3.2](#antlr-runtime-3-2)
-* [aopalliance-1.0](#aopalliance-1-0)
-* [apache-log4j-extras-1.1](#apache-log4j-extras-1-1)
-* [avalon-framework-4.0](#avalon-framework-4-0)
-* [axis-1.4](#axis-1-4)
-* [axis-jaxrpc-1.4](#axis-jaxrpc-1-4)
-* [batik-1.1.1](#batik-1-1-1)
-* [batik-1.5-fop-0.20-5](#batik-1-5-fop-0-20-5)
-* [batik-awt-util-1.6](#batik-awt-util-1-6)
-* [batik-bridge-1.6](#batik-bridge-1-6)
-* [batik-css-1.6](#batik-css-1-6)
-* [batik-css-1.7](#batik-css-1-7)
-* [batik-dom-1.6](#batik-dom-1-6)
-* [batik-ext-1.7](#batik-ext-1-7)
-* [batik-gvt-1.6](#batik-gvt-1-6)
-* [batik-parser-1.6](#batik-parser-1-6)
-* [batik-rasterizer-1.6](#batik-rasterizer-1-6)
-* [batik-script-1.6](#batik-script-1-6)
-* [batik-svg-dom-1.6](#batik-svg-dom-1-6)
-* [batik-transcoder-1.6](#batik-transcoder-1-6)
-* [batik-util-1.6](#batik-util-1-6)
-* [batik-util-1.7](#batik-util-1-7)
-* [batik-xml-1.6](#batik-xml-1-6)
-* [collections-generic-4.01](#collections-generic-4-01)
-* [commons-codec-1.2](#commons-codec-1-2)
-* [commons-collections-3.2.1](#commons-collections-3-2-1)
-* [commons-dbcp-1.2.2](#commons-dbcp-1-2-2)
-* [commons-discovery-0.4_1](#commons-discovery-0-4_1)
-* [commons-fileupload-1.2.2](#commons-fileupload-1-2-2)
-* [commons-httpclient-3.1](#commons-httpclient-3-1)
-* [commons-io-2.4](#commons-io-2-4)
-* [commons-lang-2.4](#commons-lang-2-4)
-* [commons-logging-1.1.1](#commons-logging-1-1-1)
-* [commons-math-2.2](#commons-math-2-2)
-* [commons-math3-3.2](#commons-math3-3-2)
-* [commons-pool-1.3](#commons-pool-1-3)
-* [fop-0.20.5](#fop-0-20-5)
-* [guava-14.0.1](#guava-14-0-1)
-* [guice-2.0](#guice-2-0)
-* [httpclient-4.1.1](#httpclient-4-1-1)
-* [httpcore-4.1](#httpcore-4-1)
-* [jackson-core-asl-1.9.3](#jackson-core-asl-1-9-3)
-* [jackson-mapper-asl-1.9.3](#jackson-mapper-asl-1-9-3)
-* [jcip-annotations-1.0](#jcip-annotations-1-0)
-* [jopt-simple-3.0-rc2](#jopt-simple-3-0-rc2)
-* [json-simple-1.1](#json-simple-1-1)
-* [jstl-1.2](#jstl-1-2)
-* [jung-api-2.0.1](#jung-api-2-0-1)
-* [jung-graph-impl-2.0.1](#jung-graph-impl-2-0-1)
-* [junit-4.8.2](#junit-4-8-2)
-* [log4j-1.2.16](#log4j-1-2-16)
-* [nekohtml-1.9.12](#nekohtml-1-9-12)
-* [opencsv-2.3](#opencsv-2-3)
-* [openid4java-nodeps-0.9.6](#openid4java-nodeps-0-9-6)
-* [org-apache-commons-dbcp-1.2.2-201002241055](#org-apache-commons-dbcp-1-2-2-201002241055)
-* [slf4j-api-1.6.6](#slf4j-api-1-6-6)
-* [slf4j-log4j12-1.6.6](#slf4j-log4j12-1-6-6)
-* [spring-aop-3.0.6.RELEASE](#spring-aop-3-0-6-release)
-* [spring-asm-3.0.6.RELEASE](#spring-asm-3-0-6-release)
-* [spring-beans-3.0.6.RELEASE](#spring-beans-3-0-6-release)
-* [spring-context-3.0.6.RELEASE](#spring-context-3-0-6-release)
-* [spring-core-3.0.6.RELEASE](#spring-core-3-0-6-release)
-* [spring-expression-3.0.6.RELEASE](#spring-expression-3-0-6-release)
-* [spring-jdbc-3.0.6.RELEASE](#spring-jdbc-3-0-6-release)
-* [spring-orm-3.0.6.RELEASE](#spring-orm-3-0-6-release)
-* [spring-security-acl-3.1.0.RELEASE](#spring-security-acl-3-1-0-release)
-* [spring-security-config-3.1.0.RELEASE](#spring-security-config-3-1-0-release)
-* [spring-security-core-3.1.0.RELEASE](#spring-security-core-3-1-0-release)
-* [spring-security-crypto-3.1.0.RELEASE](#spring-security-crypto-3-1-0-release)
-* [spring-security-openid-3.1.0.RELEASE](#spring-security-openid-3-1-0-release)
-* [spring-security-taglibs-3.1.0.RELEASE](#spring-security-taglibs-3-1-0-release)
-* [spring-security-web-3.1.0.RELEASE](#spring-security-web-3-1-0-release)
-* [spring-tx-3.0.6.RELEASE](#spring-tx-3-0-6-release)
-* [spring-web-3.0.6.RELEASE](#spring-web-3-0-6-release)
-* [stringtemplate-3.2](#stringtemplate-3-2)
-* [xalan-2.4.1](#xalan-2-4-1)
-* [xercesImpl-2.11.0](#xercesimpl-2-11-0)
-* [xml-apis-1.0.b2](#xml-apis-1-0-b2)
-* [xml-apis-ext-1.3.04](#xml-apis-ext-1-3-04)
-* [xmlParserAPIs-2.0.2](#xmlparserapis-2-0-2)
-* [backbone-min](#backbone-min)
-* [bootstrap.min](#bootstrap-min)
-* [chosen.jquery](#chosen-jquery)
-* [chosen.jquery.min](#chosen-jquery-min)
-* [cytoscape_web](#cytoscape_web)
-* [d3.min](#d3-min)
-* [d3.v3.min](#d3-v3-min)
-* [jasmine-1.2.0](#jasmine-1-2-0)
-* [corejmoljsv.z](#corejmoljsv-z)
-* [jquery-1.4.2.min](#jquery-1-4-2-min)
-* [jquery-formCookies](#jquery-formcookies)
-* [jquery-ui-1.8.14.custom.min](#jquery-ui-1-8-14-custom-min)
-* [jquery-ui.min](#jquery-ui-min)
-* [jquery.address-1.4.min](#jquery-address-1-4-min)
-* [jquery.address.min](#jquery-address-min)
-* [jquery.cookie](#jquery-cookie)
-* [jquery.dataTables.ColVis.min](#jquery-datatables-colvis-min)
-* [jquery.dataTables.columnFilter](#jquery-datatables-columnfilter)
-* [jquery.dataTables.min](#jquery-datatables-min)
-* [jquery.dataTables.tableTools.min](#jquery-datatables-tabletools-min)
-* [jquery.expander.min](#jquery-expander-min)
-* [jquery.scrollTo.min](#jquery-scrollto-min)
-* [jquery.highlight-4](#jquery-highlight-4)
-* [jquery.min](#jquery-min)
-* [jquery.popeye-2.1.min](#jquery-popeye-2-1-min)
-* [jquery.qtip.min](#jquery-qtip-min)
-* [jquery.quovolver.mini](#jquery-quovolver-mini)
-* [jquery.tipTip.minified](#jquery-tiptip-minified)
-* [jslab-stdlib](#jslab-stdlib)
-* [json2](#json2)
-* [jstree](#jstree)
-* [mailme](#mailme)
-* [openid-jquery](#openid-jquery)
-* [raphael](#raphael)
-* [ui.dropdownchecklist-1.4-min](#ui-dropdownchecklist-1-4-min)
-* [ui.tabs.paging](#ui-tabs-paging)
-* [underscore-min](#underscore-min)
-* [dataTables.fixedColumns](#datatables-fixedcolumns)
-* [dc](#dc)
-* [crossfilter](#crossfilter)
-* [packery.pkgd.min](#packery-pkgd-min)
-* [d3.layout.cloud](#d3-layout-cloud)
-* [draggabilly.pkgd.min](#draggabilly-pkgd-min)
-* [FileSaver.min](#filesaver-min)
-* [Font Awesome (CSS)](#font awesome (css))
-* [Font Awesome (Fonts)](#font awesome (fonts))
+* ant-1.7.0
+* ant-launcher-1.7.0
+* antlr-2.7.7
+* antlr-runtime-3.2
+* aopalliance-1.0
+* apache-log4j-extras-1.1
+* avalon-framework-4.0
+* axis-1.4
+* axis-jaxrpc-1.4
+* batik-1.1.1
+* batik-1.5-fop-0.20-5
+* batik-awt-util-1.6
+* batik-bridge-1.6
+* batik-css-1.6
+* batik-css-1.7
+* batik-dom-1.6
+* batik-ext-1.7
+* batik-gvt-1.6
+* batik-parser-1.6
+* batik-rasterizer-1.6
+* batik-script-1.6
+* batik-svg-dom-1.6
+* batik-transcoder-1.6
+* batik-util-1.6
+* batik-util-1.7
+* batik-xml-1.6
+* collections-generic-4.01
+* commons-codec-1.2
+* commons-collections-3.2.1
+* commons-dbcp-1.2.2
+* commons-discovery-0.4_1
+* commons-fileupload-1.2.2
+* commons-httpclient-3.1
+* commons-io-2.4
+* commons-lang-2.4
+* commons-logging-1.1.1
+* commons-math-2.2
+* commons-math3-3.2
+* commons-pool-1.3
+* fop-0.20.5
+* guava-14.0.1
+* guice-2.0
+* httpclient-4.1.1
+* httpcore-4.1
+* jackson-core-asl-1.9.3
+* jackson-mapper-asl-1.9.3
+* jcip-annotations-1.0
+* jopt-simple-3.0-rc2
+* json-simple-1.1
+* jstl-1.2
+* jung-api-2.0.1
+* jung-graph-impl-2.0.1
+* junit-4.8.2
+* log4j-1.2.16
+* nekohtml-1.9.12
+* opencsv-2.3
+* openid4java-nodeps-0.9.6
+* org-apache-commons-dbcp-1.2.2-201002241055
+* slf4j-api-1.6.6
+* slf4j-log4j12-1.6.6
+* spring-aop-3.0.6.RELEASE
+* spring-asm-3.0.6.RELEASE
+* spring-beans-3.0.6.RELEASE
+* spring-context-3.0.6.RELEASE
+* spring-core-3.0.6.RELEASE
+* spring-expression-3.0.6.RELEASE
+* spring-jdbc-3.0.6.RELEASE
+* spring-orm-3.0.6.RELEASE
+* spring-security-acl-3.1.0.RELEASE
+* spring-security-config-3.1.0.RELEASE
+* spring-security-core-3.1.0.RELEASE
+* spring-security-crypto-3.1.0.RELEASE
+* spring-security-openid-3.1.0.RELEASE
+* spring-security-taglibs-3.1.0.RELEASE
+* spring-security-web-3.1.0.RELEASE
+* spring-tx-3.0.6.RELEASE
+* spring-web-3.0.6.RELEASE
+* stringtemplate-3.2
+* xalan-2.4.1
+* xercesImpl-2.11.0
+* xml-apis-1.0.b2
+* xml-apis-ext-1.3.04
+* xmlParserAPIs-2.0.2
+* backbone-min
+* bootstrap.min
+* chosen.jquery
+* chosen.jquery.min
+* cytoscape_web
+* d3.min
+* d3.v3.min
+* jasmine-1.2.0
+* corejmoljsv.z
+* jquery-1.4.2.min
+* jquery-formCookies
+* jquery-ui-1.8.14.custom.min
+* jquery-ui.min
+* jquery.address-1.4.min
+* jquery.address.min
+* jquery.cookie
+* jquery.dataTables.ColVis.min
+* jquery.dataTables.columnFilter
+* jquery.dataTables.min
+* jquery.dataTables.tableTools.min
+* jquery.expander.min
+* jquery.scrollTo.min
+* jquery.highlight-4
+* jquery.min
+* jquery.popeye-2.1.min
+* jquery.qtip.min
+* jquery.quovolver.mini
+* jquery.tipTip.minified
+* jslab-stdlib
+* json2
+* jstree
+* mailme
+* openid-jquery
+* raphael
+* ui.dropdownchecklist-1.4-min
+* ui.tabs.paging
+* underscore-min
+* dataTables.fixedColumns
+* dc
+* crossfilter
+* packery.pkgd.min
+* d3.layout.cloud
+* draggabilly.pkgd.min
+* FileSaver.min
+* Font Awesome (CSS)
+* Font Awesome (Fonts)
 
 
-### [ant-1.7.0](ant-1-7-0)
-#### Available under license:
+ant-1.7.0
+--------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -193,8 +195,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [ant-launcher-1.7.0](ant-launcher-1-7-0)
-#### Available under license:
+ant-launcher-1.7.0
+------------------ 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -253,8 +257,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [antlr-2.7.7](antlr-2-7-7)
-#### Available under license:
+antlr-2.7.7
+----------- 
+Available under license:
+
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 1. Redistributions of source code must retain the above copyright
@@ -280,8 +286,10 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-### [antlr-runtime-3.2](antlr-runtime-3-2)
-#### Available under license:
+antlr-runtime-3.2
+----------------- 
+Available under license:
+
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 1. Redistributions of source code must retain the above copyright
@@ -307,11 +315,15 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-### [aopalliance-1.0](aopalliance-1-0)
-#### Available under license:
+aopalliance-1.0
+--------------- 
+Available under license:
+
 Public Domain
-### [apache-log4j-extras-1.1](apache-log4j-extras-1-1)
-#### Available under license:
+apache-log4j-extras-1.1
+----------------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -370,8 +382,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [avalon-framework-4.0](avalon-framework-4-0)
-#### Available under license:
+avalon-framework-4.0
+-------------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -430,8 +444,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [axis-1.4](axis-1-4)
-#### Available under license:
+axis-1.4
+-------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -490,8 +506,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [axis-jaxrpc-1.4](axis-jaxrpc-1-4)
-#### Available under license:
+axis-jaxrpc-1.4
+--------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -550,8 +568,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [batik-1.1.1](batik-1-1-1)
-#### Available under license:
+batik-1.1.1
+----------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -610,8 +630,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [batik-1.5-fop-0.20-5](batik-1-5-fop-0-20-5)
-#### Available under license:
+batik-1.5-fop-0.20-5
+-------------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -670,8 +692,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [batik-awt-util-1.6](batik-awt-util-1-6)
-#### Available under license:
+batik-awt-util-1.6
+------------------ 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -730,8 +754,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [batik-bridge-1.6](batik-bridge-1-6)
-#### Available under license:
+batik-bridge-1.6
+---------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -790,8 +816,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [batik-css-1.6](batik-css-1-6)
-#### Available under license:
+batik-css-1.6
+------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -850,8 +878,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [batik-css-1.7](batik-css-1-7)
-#### Available under license:
+batik-css-1.7
+------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -910,8 +940,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [batik-dom-1.6](batik-dom-1-6)
-#### Available under license:
+batik-dom-1.6
+------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -970,8 +1002,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [batik-ext-1.7](batik-ext-1-7)
-#### Available under license:
+batik-ext-1.7
+------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -1030,8 +1064,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [batik-gvt-1.6](batik-gvt-1-6)
-#### Available under license:
+batik-gvt-1.6
+------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -1090,8 +1126,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [batik-parser-1.6](batik-parser-1-6)
-#### Available under license:
+batik-parser-1.6
+---------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -1150,8 +1188,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [batik-rasterizer-1.6](batik-rasterizer-1-6)
-#### Available under license:
+batik-rasterizer-1.6
+-------------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -1210,8 +1250,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [batik-script-1.6](batik-script-1-6)
-#### Available under license:
+batik-script-1.6
+---------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -1270,8 +1312,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [batik-svg-dom-1.6](batik-svg-dom-1-6)
-#### Available under license:
+batik-svg-dom-1.6
+----------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -1330,8 +1374,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [batik-transcoder-1.6](batik-transcoder-1-6)
-#### Available under license:
+batik-transcoder-1.6
+-------------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -1390,8 +1436,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [batik-util-1.6](batik-util-1-6)
-#### Available under license:
+batik-util-1.6
+-------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -1450,8 +1498,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [batik-util-1.7](batik-util-1-7)
-#### Available under license:
+batik-util-1.7
+-------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -1510,8 +1560,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [batik-xml-1.6](batik-xml-1-6)
-#### Available under license:
+batik-xml-1.6
+------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -1570,8 +1622,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [collections-generic-4.01](collections-generic-4-01)
-#### Available under license:
+collections-generic-4.01
+------------------------ 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -1630,8 +1684,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [commons-codec-1.2](commons-codec-1-2)
-#### Available under license:
+commons-codec-1.2
+----------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -1690,8 +1746,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [commons-collections-3.2.1](commons-collections-3-2-1)
-#### Available under license:
+commons-collections-3.2.1
+------------------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -1750,8 +1808,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [commons-dbcp-1.2.2](commons-dbcp-1-2-2)
-#### Available under license:
+commons-dbcp-1.2.2
+------------------ 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -1810,8 +1870,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [commons-discovery-0.4_1](commons-discovery-0-4_1)
-#### Available under license:
+commons-discovery-0.4_1
+----------------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -1870,8 +1932,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [commons-fileupload-1.2.2](commons-fileupload-1-2-2)
-#### Available under license:
+commons-fileupload-1.2.2
+------------------------ 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -1930,8 +1994,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [commons-httpclient-3.1](commons-httpclient-3-1)
-#### Available under license:
+commons-httpclient-3.1
+---------------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -1990,8 +2056,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [commons-io-2.4](commons-io-2-4)
-#### Available under license:
+commons-io-2.4
+-------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -2050,8 +2118,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [commons-lang-2.4](commons-lang-2-4)
-#### Available under license:
+commons-lang-2.4
+---------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -2110,8 +2180,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [commons-logging-1.1.1](commons-logging-1-1-1)
-#### Available under license:
+commons-logging-1.1.1
+--------------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -2170,8 +2242,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [commons-math-2.2](commons-math-2-2)
-#### Available under license:
+commons-math-2.2
+---------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -2230,8 +2304,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [commons-math3-3.2](commons-math3-3-2)
-#### Available under license:
+commons-math3-3.2
+----------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -2290,8 +2366,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [commons-pool-1.3](commons-pool-1-3)
-#### Available under license:
+commons-pool-1.3
+---------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -2350,8 +2428,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [fop-0.20.5](fop-0-20-5)
-#### Available under license:
+fop-0.20.5
+---------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -2410,8 +2490,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [guava-14.0.1](guava-14-0-1)
-#### Available under license:
+guava-14.0.1
+------------ 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -2470,8 +2552,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [guice-2.0](guice-2-0)
-#### Available under license:
+guice-2.0
+--------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -2530,8 +2614,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [httpclient-4.1.1](httpclient-4-1-1)
-#### Available under license:
+httpclient-4.1.1
+---------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -2590,8 +2676,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [httpcore-4.1](httpcore-4-1)
-#### Available under license:
+httpcore-4.1
+------------ 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -2650,8 +2738,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [jackson-core-asl-1.9.3](jackson-core-asl-1-9-3)
-#### Available under license:
+jackson-core-asl-1.9.3
+---------------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -2710,8 +2800,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [jackson-mapper-asl-1.9.3](jackson-mapper-asl-1-9-3)
-#### Available under license:
+jackson-mapper-asl-1.9.3
+------------------------ 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -2770,8 +2862,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [jcip-annotations-1.0](jcip-annotations-1-0)
-#### Available under license:
+jcip-annotations-1.0
+-------------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -2830,8 +2924,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [jopt-simple-3.0-rc2](jopt-simple-3-0-rc2)
-#### Available under license:
+jopt-simple-3.0-rc2
+------------------- 
+Available under license:
+
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -2850,8 +2946,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-### [json-simple-1.1](json-simple-1-1)
-#### Available under license:
+json-simple-1.1
+--------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -2910,8 +3008,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [jstl-1.2](jstl-1-2)
-#### Available under license:
+jstl-1.2
+-------- 
+Available under license:
+
 COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL - Version 1.1)
 1. Definitions.
 1.1. "Contributor" means each individual or entity that creates or contributes to the creation of Modifications.
@@ -3123,8 +3223,10 @@ NO WARRANTY
 
 12. IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR REDISTRIBUTE THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES, INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED TO LOSS OF DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS), EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
-### [jung-api-2.0.1](jung-api-2-0-1)
-#### Available under license:
+jung-api-2.0.1
+-------------- 
+Available under license:
+
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 1. Redistributions of source code must retain the above copyright
@@ -3150,8 +3252,10 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-### [jung-graph-impl-2.0.1](jung-graph-impl-2-0-1)
-#### Available under license:
+jung-graph-impl-2.0.1
+--------------------- 
+Available under license:
+
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 1. Redistributions of source code must retain the above copyright
@@ -3177,8 +3281,10 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-### [junit-4.8.2](junit-4-8-2)
-#### Available under license:
+junit-4.8.2
+----------- 
+Available under license:
+
 Eclipse Public License - v 1.0
 
 THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC LICENSE ("AGREEMENT"). ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
@@ -3250,8 +3356,10 @@ Everyone is permitted to copy and distribute copies of this Agreement, but in or
 
 This Agreement is governed by the laws of the State of New York and the intellectual property laws of the United States of America. No party to this Agreement will bring a legal action under this Agreement more than one year after the cause of action arose. Each party waives its rights to a jury trial in any resulting litigation.
 
-### [log4j-1.2.16](log4j-1-2-16)
-#### Available under license:
+log4j-1.2.16
+------------ 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -3310,8 +3418,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [nekohtml-1.9.12](nekohtml-1-9-12)
-#### Available under license:
+nekohtml-1.9.12
+--------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -3370,8 +3480,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [opencsv-2.3](opencsv-2-3)
-#### Available under license:
+opencsv-2.3
+----------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -3430,8 +3542,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [openid4java-nodeps-0.9.6](openid4java-nodeps-0-9-6)
-#### Available under license:
+openid4java-nodeps-0.9.6
+------------------------ 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -3490,8 +3604,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [org-apache-commons-dbcp-1.2.2-201002241055](org-apache-commons-dbcp-1-2-2-201002241055)
-#### Available under license:
+org-apache-commons-dbcp-1.2.2-201002241055
+------------------------------------------ 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -3550,8 +3666,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [slf4j-api-1.6.6](slf4j-api-1-6-6)
-#### Available under license:
+slf4j-api-1.6.6
+--------------- 
+Available under license:
+
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -3570,8 +3688,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-### [slf4j-log4j12-1.6.6](slf4j-log4j12-1-6-6)
-#### Available under license:
+slf4j-log4j12-1.6.6
+------------------- 
+Available under license:
+
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -3590,8 +3710,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-### [spring-aop-3.0.6.RELEASE](spring-aop-3-0-6-release)
-#### Available under license:
+spring-aop-3.0.6.RELEASE
+------------------------ 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -3650,8 +3772,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [spring-asm-3.0.6.RELEASE](spring-asm-3-0-6-release)
-#### Available under license:
+spring-asm-3.0.6.RELEASE
+------------------------ 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -3710,8 +3834,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [spring-beans-3.0.6.RELEASE](spring-beans-3-0-6-release)
-#### Available under license:
+spring-beans-3.0.6.RELEASE
+-------------------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -3770,8 +3896,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [spring-context-3.0.6.RELEASE](spring-context-3-0-6-release)
-#### Available under license:
+spring-context-3.0.6.RELEASE
+---------------------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -3830,8 +3958,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [spring-core-3.0.6.RELEASE](spring-core-3-0-6-release)
-#### Available under license:
+spring-core-3.0.6.RELEASE
+------------------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -3890,8 +4020,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [spring-expression-3.0.6.RELEASE](spring-expression-3-0-6-release)
-#### Available under license:
+spring-expression-3.0.6.RELEASE
+------------------------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -3950,8 +4082,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [spring-jdbc-3.0.6.RELEASE](spring-jdbc-3-0-6-release)
-#### Available under license:
+spring-jdbc-3.0.6.RELEASE
+------------------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -4010,8 +4144,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [spring-orm-3.0.6.RELEASE](spring-orm-3-0-6-release)
-#### Available under license:
+spring-orm-3.0.6.RELEASE
+------------------------ 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -4070,8 +4206,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [spring-security-acl-3.1.0.RELEASE](spring-security-acl-3-1-0-release)
-#### Available under license:
+spring-security-acl-3.1.0.RELEASE
+--------------------------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -4130,8 +4268,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [spring-security-config-3.1.0.RELEASE](spring-security-config-3-1-0-release)
-#### Available under license:
+spring-security-config-3.1.0.RELEASE
+------------------------------------ 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -4190,8 +4330,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [spring-security-core-3.1.0.RELEASE](spring-security-core-3-1-0-release)
-#### Available under license:
+spring-security-core-3.1.0.RELEASE
+---------------------------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -4250,8 +4392,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [spring-security-crypto-3.1.0.RELEASE](spring-security-crypto-3-1-0-release)
-#### Available under license:
+spring-security-crypto-3.1.0.RELEASE
+------------------------------------ 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -4310,8 +4454,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [spring-security-openid-3.1.0.RELEASE](spring-security-openid-3-1-0-release)
-#### Available under license:
+spring-security-openid-3.1.0.RELEASE
+------------------------------------ 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -4370,8 +4516,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [spring-security-taglibs-3.1.0.RELEASE](spring-security-taglibs-3-1-0-release)
-#### Available under license:
+spring-security-taglibs-3.1.0.RELEASE
+------------------------------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -4430,8 +4578,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [spring-security-web-3.1.0.RELEASE](spring-security-web-3-1-0-release)
-#### Available under license:
+spring-security-web-3.1.0.RELEASE
+--------------------------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -4490,8 +4640,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [spring-tx-3.0.6.RELEASE](spring-tx-3-0-6-release)
-#### Available under license:
+spring-tx-3.0.6.RELEASE
+----------------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -4550,8 +4702,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [spring-web-3.0.6.RELEASE](spring-web-3-0-6-release)
-#### Available under license:
+spring-web-3.0.6.RELEASE
+------------------------ 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -4610,8 +4764,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [stringtemplate-3.2](stringtemplate-3-2)
-#### Available under license:
+stringtemplate-3.2
+------------------ 
+Available under license:
+
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 1. Redistributions of source code must retain the above copyright
@@ -4637,8 +4793,10 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-### [xalan-2.4.1](xalan-2-4-1)
-#### Available under license:
+xalan-2.4.1
+----------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -4697,8 +4855,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [xercesImpl-2.11.0](xercesimpl-2-11-0)
-#### Available under license:
+xercesImpl-2.11.0
+----------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -4757,8 +4917,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [xml-apis-1.0.b2](xml-apis-1-0-b2)
-#### Available under license:
+xml-apis-1.0.b2
+--------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -4817,8 +4979,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [xml-apis-ext-1.3.04](xml-apis-ext-1-3-04)
-#### Available under license:
+xml-apis-ext-1.3.04
+------------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -4877,8 +5041,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [xmlParserAPIs-2.0.2](xmlparserapis-2-0-2)
-#### Available under license:
+xmlParserAPIs-2.0.2
+------------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -4937,8 +5103,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [backbone-min](backbone-min)
-#### Available under license:
+backbone-min
+------------ 
+Available under license:
+
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -4957,8 +5125,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-### [bootstrap.min](bootstrap-min)
-#### Available under license:
+bootstrap.min
+------------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -5017,8 +5187,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [chosen.jquery](chosen-jquery)
-#### Available under license:
+chosen.jquery
+------------- 
+Available under license:
+
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -5037,8 +5209,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-### [chosen.jquery.min](chosen-jquery-min)
-#### Available under license:
+chosen.jquery.min
+----------------- 
+Available under license:
+
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -5057,8 +5231,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-### [cytoscape_web](cytoscape_web)
-#### Available under license:
+cytoscape_web
+------------- 
+Available under license:
+
 GNU LESSER GENERAL PUBLIC LICENSE
 Version 3, 29 June 2007
 
@@ -5116,8 +5292,10 @@ Each version is given a distinguishing version number. If the Library as you rec
 
 If the Library as you received it specifies that a proxy can decide whether future versions of the GNU Lesser General Public License shall apply, that proxy's public statement of acceptance of any version is permanent authorization for you to choose that version for the Library.
 
-### [d3.min](d3-min)
-#### Available under license:
+d3.min
+------ 
+Available under license:
+
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 1. Redistributions of source code must retain the above copyright
@@ -5143,8 +5321,10 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-### [d3.v3.min](d3-v3-min)
-#### Available under license:
+d3.v3.min
+--------- 
+Available under license:
+
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 1. Redistributions of source code must retain the above copyright
@@ -5170,8 +5350,10 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-### [jasmine-1.2.0](jasmine-1-2-0)
-#### Available under license:
+jasmine-1.2.0
+------------- 
+Available under license:
+
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -5190,8 +5372,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-### [corejmoljsv.z](corejmoljsv-z)
-#### Available under license:
+corejmoljsv.z
+------------- 
+Available under license:
+
 GNU LESSER GENERAL PUBLIC LICENSE
 Version 3, 29 June 2007
 
@@ -5249,8 +5433,10 @@ Each version is given a distinguishing version number. If the Library as you rec
 
 If the Library as you received it specifies that a proxy can decide whether future versions of the GNU Lesser General Public License shall apply, that proxy's public statement of acceptance of any version is permanent authorization for you to choose that version for the Library.
 
-### [jquery-1.4.2.min](jquery-1-4-2-min)
-#### Available under license:
+jquery-1.4.2.min
+---------------- 
+Available under license:
+
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -5269,11 +5455,15 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-### [jquery-formCookies](jquery-formcookies)
-#### Available under license:
+jquery-formCookies
+------------------ 
+Available under license:
+
 Public Domain
-### [jquery-ui-1.8.14.custom.min](jquery-ui-1-8-14-custom-min)
-#### Available under license:
+jquery-ui-1.8.14.custom.min
+--------------------------- 
+Available under license:
+
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -5292,8 +5482,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-### [jquery-ui.min](jquery-ui-min)
-#### Available under license:
+jquery-ui.min
+------------- 
+Available under license:
+
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -5312,8 +5504,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-### [jquery.address-1.4.min](jquery-address-1-4-min)
-#### Available under license:
+jquery.address-1.4.min
+---------------------- 
+Available under license:
+
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -5332,8 +5526,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-### [jquery.address.min](jquery-address-min)
-#### Available under license:
+jquery.address.min
+------------------ 
+Available under license:
+
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -5352,8 +5548,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-### [jquery.cookie](jquery-cookie)
-#### Available under license:
+jquery.cookie
+------------- 
+Available under license:
+
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -5372,8 +5570,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-### [jquery.dataTables.ColVis.min](jquery-datatables-colvis-min)
-#### Available under license:
+jquery.dataTables.ColVis.min
+---------------------------- 
+Available under license:
+
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 1. Redistributions of source code must retain the above copyright
@@ -5399,8 +5599,10 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-### [jquery.dataTables.columnFilter](jquery-datatables-columnfilter)
-#### Available under license:
+jquery.dataTables.columnFilter
+------------------------------ 
+Available under license:
+
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 1. Redistributions of source code must retain the above copyright
@@ -5426,8 +5628,10 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-### [jquery.dataTables.min](jquery-datatables-min)
-#### Available under license:
+jquery.dataTables.min
+--------------------- 
+Available under license:
+
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 1. Redistributions of source code must retain the above copyright
@@ -5453,8 +5657,10 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-### [jquery.dataTables.tableTools.min](jquery-datatables-tabletools-min)
-#### Available under license:
+jquery.dataTables.tableTools.min
+-------------------------------- 
+Available under license:
+
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 1. Redistributions of source code must retain the above copyright
@@ -5480,8 +5686,10 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-### [jquery.expander.min](jquery-expander-min)
-#### Available under license:
+jquery.expander.min
+------------------- 
+Available under license:
+
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -5500,8 +5708,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-### [jquery.scrollTo.min](jquery-scrollto-min)
-#### Available under license:
+jquery.scrollTo.min
+------------------- 
+Available under license:
+
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -5520,8 +5730,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-### [jquery.highlight-4](jquery-highlight-4)
-#### Available under license:
+jquery.highlight-4
+------------------ 
+Available under license:
+
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -5540,8 +5752,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-### [jquery.min](jquery-min)
-#### Available under license:
+jquery.min
+---------- 
+Available under license:
+
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -5560,8 +5774,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-### [jquery.popeye-2.1.min](jquery-popeye-2-1-min)
-#### Available under license:
+jquery.popeye-2.1.min
+--------------------- 
+Available under license:
+
 GNU GENERAL PUBLIC LICENSE
 
 Version 3, 29 June 2007
@@ -5751,8 +5967,10 @@ If the disclaimer of warranty and limitation of liability provided above cannot 
 
 END OF TERMS AND CONDITIONS
 
-### [jquery.qtip.min](jquery-qtip-min)
-#### Available under license:
+jquery.qtip.min
+--------------- 
+Available under license:
+
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -5771,11 +5989,15 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-### [jquery.quovolver.mini](jquery-quovolver-mini)
-#### Available under license:
+jquery.quovolver.mini
+--------------------- 
+Available under license:
+
 Public Domain
-### [jquery.tipTip.minified](jquery-tiptip-minified)
-#### Available under license:
+jquery.tipTip.minified
+---------------------- 
+Available under license:
+
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -5794,8 +6016,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-### [jslab-stdlib](jslab-stdlib)
-#### Available under license:
+jslab-stdlib
+------------ 
+Available under license:
+
 GNU GENERAL PUBLIC LICENSE
 
 Version 3, 29 June 2007
@@ -5985,8 +6209,10 @@ If the disclaimer of warranty and limitation of liability provided above cannot 
 
 END OF TERMS AND CONDITIONS
 
-### [json2](json2)
-#### Available under license:
+json2
+----- 
+Available under license:
+
 Copyright (c) 2002 JSON.org
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
@@ -5997,8 +6223,10 @@ The Software shall be used for Good, not Evil.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-### [jstree](jstree)
-#### Available under license:
+jstree
+------ 
+Available under license:
+
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -6017,8 +6245,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-### [mailme](mailme)
-#### Available under license:
+mailme
+------ 
+Available under license:
+
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -6037,8 +6267,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-### [openid-jquery](openid-jquery)
-#### Available under license:
+openid-jquery
+------------- 
+Available under license:
+
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 1. Redistributions of source code must retain the above copyright
@@ -6064,8 +6296,10 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-### [raphael](raphael)
-#### Available under license:
+raphael
+------- 
+Available under license:
+
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -6084,8 +6318,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-### [ui.dropdownchecklist-1.4-min](ui-dropdownchecklist-1-4-min)
-#### Available under license:
+ui.dropdownchecklist-1.4-min
+---------------------------- 
+Available under license:
+
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -6104,8 +6340,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-### [ui.tabs.paging](ui-tabs-paging)
-#### Available under license:
+ui.tabs.paging
+-------------- 
+Available under license:
+
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -6124,8 +6362,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-### [underscore-min](underscore-min)
-#### Available under license:
+underscore-min
+-------------- 
+Available under license:
+
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -6144,8 +6384,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-### [dataTables.fixedColumns](datatables-fixedcolumns)
-#### Available under license:
+dataTables.fixedColumns
+----------------------- 
+Available under license:
+
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 1. Redistributions of source code must retain the above copyright
@@ -6171,8 +6413,10 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-### [dc](dc)
-#### Available under license:
+dc
+-- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -6231,8 +6475,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [crossfilter](crossfilter)
-#### Available under license:
+crossfilter
+----------- 
+Available under license:
+
 Apache License
 
 Version 2.0, January 2004
@@ -6291,8 +6537,10 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-### [packery.pkgd.min](packery-pkgd-min)
-#### Available under license:
+packery.pkgd.min
+---------------- 
+Available under license:
+
 GNU GENERAL PUBLIC LICENSE
 
 Version 3, 29 June 2007
@@ -6482,8 +6730,10 @@ If the disclaimer of warranty and limitation of liability provided above cannot 
 
 END OF TERMS AND CONDITIONS
 
-### [d3.layout.cloud](d3-layout-cloud)
-#### Available under license:
+d3.layout.cloud
+--------------- 
+Available under license:
+
 Copyright (c) 2012, Jason Davies.
 All rights reserved.
 
@@ -6511,8 +6761,10 @@ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
 OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-### [draggabilly.pkgd.min](draggabilly-pkgd-min)
-#### Available under license:
+draggabilly.pkgd.min
+-------------------- 
+Available under license:
+
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -6531,8 +6783,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-### [FileSaver.min](filesaver-min)
-#### Available under license:
+FileSaver.min
+------------- 
+Available under license:
+
 Copyright 2015 Eli Grey.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
@@ -6541,8 +6795,10 @@ The above copyright notice and this permission notice shall be included in all c
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-### [Font Awesome (CSS)](font awesome (css))
-#### Available under license:
+Font Awesome (CSS)
+------------------ 
+Available under license:
+
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -6561,8 +6817,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-### [Font Awesome (Fonts)](font awesome (fonts))
-#### Available under license:
+Font Awesome (Fonts)
+-------------------- 
+Available under license:
+
 This Font Software is licensed under the SIL Open Font License, Version 1.1.
 This license is copied below, and is also available with a FAQ at:
 http://scripts.sil.org/OFL

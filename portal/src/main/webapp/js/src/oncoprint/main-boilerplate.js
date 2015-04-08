@@ -172,7 +172,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 	
 	dataman.getOncoprintData(_hugoGeneSymbols, _stableProfileIds, _stableSampleIds).then(function(data) {
 		oql.parseQuery($("#gene_list").val()).then(function(parsedQuery) {
-			oncoprintData = oql.filter(parsedQuery.return,data);
+			oncoprintData = oql.filterOncoprint(parsedQuery.return,data);
 			oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
 			geneData: oncoprintData,
 			genes: genes,

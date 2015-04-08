@@ -238,7 +238,7 @@ oql = (function () {
         return reduceFilterTree(filterTree);
     }
 
-    function filter(query, samples) {
+    function filterOncoprint(query, samples) {
         // IN: Javascript object representing an OQL query, a list of samples
         // OUT: The indexes 'samples' for which at least one
         //		line of query returns true
@@ -255,5 +255,16 @@ oql = (function () {
         return ret;
     }
     
-    return {getGeneList: getGeneList, parseQuery: parseQuery, filter: filter};
+    function filter(query, samples) {
+	    var oncoprintData = filterOncoprint(query, samples);
+	    var ret = [];
+	    for (var i=0; i<oncoprintData.length; i++) {
+		    if (Object.keys(oncoprintData[i]).length > 2) {
+			    ret.push(i);
+		    }
+	    }
+	    return ret;
+    }
+    
+    return {getGeneList: getGeneList, parseQuery: parseQuery, filter: filter, filterOncoprint: filterOncoprint};
 })();

@@ -38,7 +38,18 @@ public class ORAnalysisDiscretizedDataProxy {
     private ObjectMapper mapper = new ObjectMapper();
     private JsonNodeFactory factory = JsonNodeFactory.instance;
     private final ArrayNode result = new ArrayNode(factory);
-    static DecimalFormat df=new DecimalFormat("0.000");
+
+    private final String COL_NAME_GENE = "Gene";
+    private final String COL_NAME_PCT_ALTERED = "percentage of alteration<br>in altered group";
+    private final String COL_NAME_PCT_UNALTERED = "percentage of alteration<br> in unaltered group";
+    private final String COL_NAME_RATIO = "Ratio(log2)";
+    private final String COL_NAME_DIRECTION = "Direction/Tendency";
+    private final String COL_NAME_P_VALUE = "p-Value";
+    private final String COL_NAME_Q_VALUE = "q-Value";
+    private final String COL_NAME_MEAN_ALTERED = "mean of alteration<br> in altered group";
+    private final String COL_NAME_MEAN_UNALTERED = "mean of alteration<br> in unaltered group";
+    private final String COL_NAME_STDEV_ALTERED = "standard deviation of alteration<br> in altered group";
+    private final String COL_NAME_STDEV_UNALTERED = "standard deviation of alteration<br> in unaltered group";
     
     public ORAnalysisDiscretizedDataProxy(
             int cancerStudyId, 
@@ -63,34 +74,34 @@ public class ORAnalysisDiscretizedDataProxy {
                 
                 ObjectNode _datum = mapper.createObjectNode();
                 if (profileType.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION.toString())) {
-                    _datum.put("Gene", _geneName);
-                    _datum.put("%Altered", df.format(calcPct(singleGeneCaseValueMap, profileType, "altered")));
-                    _datum.put("%Unaltered", df.format(calcPct(singleGeneCaseValueMap, profileType, "unaltered")));
-                    _datum.put("Ratio", calcRatio(calcPct(singleGeneCaseValueMap, profileType, "altered"), calcPct(singleGeneCaseValueMap, profileType, "unaltered")));
-                    _datum.put("Direction/Tendency", "place holder");
-                    _datum.put("p-Value", df.format(calcPval(singleGeneCaseValueMap, profileType)));
-                    if (!(df.format(calcPct(singleGeneCaseValueMap, profileType, "altered")).equals("0.000") && 
-                          df.format(calcPct(singleGeneCaseValueMap, profileType, "unaltered")).equals("0.000"))) {
+                    _datum.put(COL_NAME_GENE, _geneName);
+                    _datum.put(COL_NAME_PCT_ALTERED, calcPct(singleGeneCaseValueMap, profileType, "altered"));
+                    _datum.put(COL_NAME_PCT_UNALTERED, calcPct(singleGeneCaseValueMap, profileType, "unaltered"));
+                    _datum.put(COL_NAME_RATIO, calcRatio(calcPct(singleGeneCaseValueMap, profileType, "altered"), calcPct(singleGeneCaseValueMap, profileType, "unaltered")));
+                    _datum.put(COL_NAME_DIRECTION, "place holder");
+                    _datum.put(COL_NAME_P_VALUE, calcPval(singleGeneCaseValueMap, profileType));
+                    if (!(calcPct(singleGeneCaseValueMap, profileType, "altered") == 0.0 && 
+                          calcPct(singleGeneCaseValueMap, profileType, "unaltered") == 0.0)) {
                         _result.add(_datum);
                     }
                 } else if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString())) {
-                    _datum.put("Gene", _geneName);
-                    _datum.put("%Altered", df.format(calcPct(singleGeneCaseValueMap, profileType, "altered")));
-                    _datum.put("%Unaltered", df.format(calcPct(singleGeneCaseValueMap, profileType, "unaltered")));
-                    _datum.put("Ratio", calcRatio(calcPct(singleGeneCaseValueMap, profileType, "altered"), calcPct(singleGeneCaseValueMap, profileType, "unaltered")));
-                    _datum.put("Direction/Tendency", "place holder");
-                    _datum.put("p-Value", df.format(calcPval(singleGeneCaseValueMap, profileType)));
-                    if (!(df.format(calcPct(singleGeneCaseValueMap, profileType, "altered")).equals("0.000") && 
-                          df.format(calcPct(singleGeneCaseValueMap, profileType, "unaltered")).equals("0.000"))) {
+                    _datum.put(COL_NAME_GENE, _geneName);
+                    _datum.put(COL_NAME_PCT_ALTERED, calcPct(singleGeneCaseValueMap, profileType, "altered"));
+                    _datum.put(COL_NAME_PCT_UNALTERED, calcPct(singleGeneCaseValueMap, profileType, "unaltered"));
+                    _datum.put(COL_NAME_RATIO, calcRatio(calcPct(singleGeneCaseValueMap, profileType, "altered"), calcPct(singleGeneCaseValueMap, profileType, "unaltered")));
+                    _datum.put(COL_NAME_DIRECTION, "place holder");
+                    _datum.put(COL_NAME_P_VALUE, calcPval(singleGeneCaseValueMap, profileType));
+                    if (!(calcPct(singleGeneCaseValueMap, profileType, "altered") == 0.0 && 
+                         calcPct(singleGeneCaseValueMap, profileType, "unaltered") == 0.0)) {
                         _result.add(_datum);
                     }
                 } else if (profileType.equals(GeneticAlterationType.MRNA_EXPRESSION.toString())) {
-                    _datum.put("Gene", _geneName);
-                    _datum.put("M-altered", df.format(calcMean(singleGeneCaseValueMap, "altered")));
-                    _datum.put("M-unaltered", df.format(calcMean(singleGeneCaseValueMap, "unaltered")));
-                    _datum.put("STDev Altered", df.format(calcSTDev(singleGeneCaseValueMap, "altered")));
-                    _datum.put("STDev Unaltered", df.format(calcSTDev(singleGeneCaseValueMap, "unaltered")));
-                    _datum.put("p-Value", df.format(calcPval(singleGeneCaseValueMap, profileType)));
+                    _datum.put(COL_NAME_GENE, _geneName);
+                    _datum.put(COL_NAME_MEAN_ALTERED, calcMean(singleGeneCaseValueMap, "altered"));
+                    _datum.put(COL_NAME_MEAN_UNALTERED, calcMean(singleGeneCaseValueMap, "unaltered"));
+                    _datum.put(COL_NAME_STDEV_ALTERED, calcSTDev(singleGeneCaseValueMap, "altered"));
+                    _datum.put(COL_NAME_STDEV_UNALTERED, calcSTDev(singleGeneCaseValueMap, "unaltered"));
+                    _datum.put(COL_NAME_P_VALUE, calcPval(singleGeneCaseValueMap, profileType));
                     _result.add(_datum);
                 }
             }
@@ -101,13 +112,13 @@ public class ORAnalysisDiscretizedDataProxy {
             //calculate adjusted p values
             double[] originalPvalues = new double[_result.size()];
             for (int i = 0; i < _result.size(); i++) {
-                originalPvalues[i] = _result.get(i).get("p-Value").asDouble();
+                originalPvalues[i] = _result.get(i).get(COL_NAME_P_VALUE).asDouble();
             }
             BenjaminiHochbergFDR bhFDR = new BenjaminiHochbergFDR(originalPvalues);
             bhFDR.calculate();
             double[] adjustedPvalues = bhFDR.getAdjustedPvalues();
             for (int j = 0; j < _result.size(); j++) {
-                ((ObjectNode)_result.get(j)).put("q-Value", df.format(adjustedPvalues[j]));
+                ((ObjectNode)_result.get(j)).put(COL_NAME_Q_VALUE, adjustedPvalues[j]);
             }
             
             //convert array to arraynode
@@ -134,7 +145,7 @@ public class ORAnalysisDiscretizedDataProxy {
     
     private String calcRatio(double pct1, double pct2) {
         if (pct1 != 0 && pct2 != 0) {
-            return df.format(pct1 / pct2);
+            return Double.toString(Math.log(pct1 / pct2) / Math.log(2));
         } else {
             return "--";
         } 
@@ -247,7 +258,7 @@ public class ORAnalysisDiscretizedDataProxy {
             }
         } else if (profileType.equals(GeneticAlterationType.MRNA_EXPRESSION.toString())) { //calculate mean
         }
-
+        
         return _result_pct;
     
     }

@@ -35,6 +35,8 @@ var orTable = function() {
     
     var div_id, table_id, data, titles; //titles is formatted string of column names with html markdown in
     
+    var default_sorting_col = 1;
+    
     function configTable() {
         
         //Draw out the markdown of the datatable
@@ -53,11 +55,11 @@ var orTable = function() {
             "bJQueryUI": true,
             "bAutoWidth": false,
             "aaData" : data,
-            "aaSorting": [[1, 'desc']],
+            "aaSorting": [[default_sorting_col, 'asc']],
             "sScrollY": "400px",
             "bScrollCollapse": true,
             "oLanguage": {
-                "sSearch": "Search Gene"
+                "sSearch": "Search Gene  "
             },
             "bDeferRender": true,
             "iDisplayLength": 17
@@ -69,7 +71,26 @@ var orTable = function() {
         $.each(_input, function(_index, _obj) {
             var _unit = [];
             $.each(Object.keys(_obj), function(_index, _key) {
-                _unit.push(_obj[_key]);
+                
+                var _val = _obj[_key];
+                
+                //convert to scientific notation
+                if (_key.indexOf("Gene") === -1 && _key.indexOf("Direction") === -1 && _val !== "--") {
+                    _val = parseFloat(_val);
+                    _val = _val < 0.001 ? _val.toExponential(2) : _val.toFixed(2);
+                } 
+                
+                //add % sign for percentage values
+                if (_key.indexOf("percentage") !== -1) {
+                    _val += "%";
+                }
+                
+                //assign sorting column
+                if (_key.indexOf("p-Value") !== -1) {
+                    default_sorting_col = _index;
+                }
+                
+                _unit.push(_val);
             });
             table_arr.push(_unit);
         });  
@@ -123,7 +144,7 @@ var orSubTabView = function() {
 
                     var _table_div = _profile_obj.STABLE_ID + orAnalysis.postfix.datatable_div;
                     var _table_id = _profile_obj.STABLE_ID + orAnalysis.postfix.datatable_id;
-                    $("#" + _div_id).append("<div id='" + _table_div + "' style='width: 900px; display:inline-block; padding: 10px;'></div>");
+                    $("#" + _div_id).append("<div id='" + _table_div + "' style='width: 1100px; display:inline-block; padding: 10px;'></div>");
                     $("#" + _table_div).append("<img style='padding:20px;' src='images/ajax-loader.gif'><br>Calculating on " + _profile_obj.NAME);
                     
                     //init and get calculation result from the server

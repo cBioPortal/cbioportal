@@ -80,12 +80,7 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
             String _unalteredCaseList = httpServletRequest.getParameter("unaltered_case_id_list");
             String[] unalteredCaseList = _unalteredCaseList.split("\\s+");
             String profileId = httpServletRequest.getParameter("profile_id");
-            
-            //Get Gene ID (int)
-//            DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
-//            CanonicalGene geneObj = daoGeneOptimized.getGene(geneSymbol);
-//            Long queryGeneId = geneObj.getEntrezGeneId();
-            
+
             //Get genetic profile ID (int) & Type
             GeneticProfile gp = DaoGeneticProfile.getGeneticProfileByStableId(profileId);
             int gpId = gp.getGeneticProfileId();

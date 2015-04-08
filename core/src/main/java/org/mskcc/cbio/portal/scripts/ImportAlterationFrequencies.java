@@ -32,18 +32,45 @@ public class ImportAlterationFrequencies {
 			this.MUT = 0; this.AMP = 0; this.DEL = 0; // TODO: change default to -1 and manage this correctly
 		}
 	}
+	private static class AlterationFrequencyProfile {
+		public float mutCt;
+		public float ampCt;
+		public float delCt;
+		public float totalCt;
+		public float mutAmpCt;
+		public float mutDelCt;
+		public AlterationFrequencyProfile() {
+			mutCt = 0; ampCt = 0; delCt = 0; totalCt = 0; 
+			mutAmpCt = 0; mutDelCt = 0;
+		}
+			
+	}
+	private static String makeHashKey(long entrezGeneId, int sampleId) {
+		return Long.toString(entrezGeneId,10)+"&"+Integer.toString(sampleId,10);
+	}
+	private static long[] decodeHashKey(String key) {
+		long[] ret = new long[2];
+		String[] splitKey = key.split("&");
+		ret[0] = Long.parseLong(splitKey[0], 10);
+		ret[1] = Long.parseLong(splitKey[1], 10);
+		return ret;
+	}
+	
 	public static void main(String[] args) {
 		for(CancerStudy study: DaoCancerStudy.getAllCancerStudies()) {
 			try {
 				importAlterationFrequencies(study.getCancerStudyStableId());
 			} catch (Exception e) {
 				System.out.println("Error importing alteration frequencies for "+study.getCancerStudyStableId());
+				e.printStackTrace();
 			}
 		}
 	}
 	public static void importAlterationFrequencies(String studyStableId) throws Exception {
 		// TODO: collect by patient not by sample
 		// get list of profiles
+		System.out.println("Importing alteration frequencies for "+studyStableId);
+		System.out.println("Organizing profiles");
 		CancerStudy study = DaoCancerStudy.getCancerStudyByStableId(studyStableId);
 		List<GeneticProfile> geneticProfiles = study.getGeneticProfiles();
 		List<GeneticProfile> mutationProfiles = new LinkedList<>();
@@ -56,72 +83,84 @@ public class ImportAlterationFrequencies {
 			}
 		}
 		// collect sample data
-		HashMap<Long, HashMap<Integer, SampleAlterationProfile>> geneData = new HashMap<>();
+		System.out.println("Loading raw data from profiles");
+		HashMap<String, SampleAlterationProfile> geneData = new HashMap<>();
+		// key is entrezgeneid&internalsampleid
 		for (GeneticProfile prof : mutationProfiles) {
 			List<ExtendedMutation> mutations = DaoMutation.getMutations(prof.getGeneticProfileId());
 			for (ExtendedMutation mut : mutations) {
 				int sampleId = mut.getSampleId();
 				long geneId = mut.getEntrezGeneId();
-				if (!geneData.containsKey(geneId)) {
-					geneData.put(geneId, new HashMap<Integer, SampleAlterationProfile>());
+				String key = makeHashKey(geneId, sampleId);
+				if (!geneData.containsKey(key)) {
+					geneData.put(key, new SampleAlterationProfile());
 				}
-				if (!geneData.get(geneId).containsKey(sampleId)) {
-					geneData.get(geneId).put(sampleId, new SampleAlterationProfile());
-				}
-				geneData.get(geneId).get(sampleId).MUT = 1;
+				geneData.get(key).MUT = 1;
 			}
 		}
 		for (GeneticProfile prof: cnaProfiles) {
 			DaoGeneticAlteration geneticAlteration = DaoGeneticAlteration.getInstance();
 			Set<CanonicalGene> genes = geneticAlteration.getGenesInProfile(prof.getGeneticProfileId());
+			LinkedList<Long> geneIds = new LinkedList<>();
 			for (CanonicalGene gene: genes) {
-				long geneId = gene.getEntrezGeneId();
-				HashMap<Integer, String> GAMap = geneticAlteration.getGeneticAlterationMap(prof.getGeneticProfileId(), geneId);
-				for (Integer sampleId: GAMap.keySet()) {
-					if (!geneData.containsKey(geneId)) {
-						geneData.put(geneId, new HashMap<Integer, SampleAlterationProfile>());
+				geneIds.add(gene.getEntrezGeneId());
+			}
+			HashMap<Long, HashMap<Integer, String>> GAMap = geneticAlteration.getGeneticAlterationMap(prof.getGeneticProfileId(), geneIds);
+			for (Long geneId: GAMap.keySet()) {
+				for (Integer sampleId: GAMap.get(geneId).keySet()) {
+					String key = makeHashKey(geneId, sampleId);
+					if (!geneData.containsKey(key)) {
+						geneData.put(key, new SampleAlterationProfile());
 					}
-					if (!geneData.get(geneId).containsKey(sampleId)) {
-						geneData.get(geneId).put(sampleId, new SampleAlterationProfile());
-					}
-					if (GAMap.get(sampleId).equals("2")) {
-						geneData.get(geneId).get(sampleId).AMP = 1;
-					} else if (GAMap.get(sampleId).equals("-2")) {
-						geneData.get(geneId).get(sampleId).DEL = 1;
+					if (GAMap.get(geneId).get(sampleId).equals("2")) {
+						geneData.get(key).AMP = 1;
+					} else if (GAMap.get(geneId).get(sampleId).equals("-2")) {
+						geneData.get(key).DEL = 1;
 					}
 				}
 			}
+			GAMap.clear();
 		
 		}
+		System.out.println("Aggregate frequency data");
 		// convert sample data into frequency data
-		for (Long gene: geneData.keySet()) {
-			float mutCt = 0, ampCt = 0, delCt = 0, totalCt = 0, mutAmpCt = 0, mutDelCt = 0;
-			for (Integer sampleId: geneData.get(gene).keySet()) {
-				totalCt++;
-				SampleAlterationProfile sampleData = geneData.get(gene).get(sampleId);
-				if (sampleData.MUT == 1) {
-					if (sampleData.AMP == 1) {
-						mutAmpCt++;
-					}
-					if (sampleData.DEL == 1) {
-						mutDelCt++;
-					}
-					mutCt++;
-				}
+		HashMap<Long, AlterationFrequencyProfile> alterationFrequency = new HashMap<>();
+		for (String key: geneData.keySet()) {
+			long entrezGeneId = decodeHashKey(key)[0];
+			if (!alterationFrequency.containsKey(entrezGeneId)) {
+				alterationFrequency.put(entrezGeneId, new AlterationFrequencyProfile());
+			}
+			AlterationFrequencyProfile altFreqProf = alterationFrequency.get(entrezGeneId);
+			SampleAlterationProfile sampleData = geneData.get(key);
+			altFreqProf.totalCt ++;
+			if (sampleData.MUT == 1) {
 				if (sampleData.AMP == 1) {
-					ampCt++;
+					altFreqProf.mutAmpCt++;
 				}
 				if (sampleData.DEL == 1) {
-					delCt++;
+					altFreqProf.mutDelCt++;
 				}
+				altFreqProf.mutCt++;
 			}
-			// put frequency data into database
-			// TODO: handle denominator correctly
-			DaoAlterationFrequency.addAlterationFrequency(study.getInternalId(), gene, DaoAlterationFrequency.AlterationFrequencyType.MUT, mutCt/totalCt);
-			DaoAlterationFrequency.addAlterationFrequency(study.getInternalId(), gene, DaoAlterationFrequency.AlterationFrequencyType.CNA_AMP, ampCt/totalCt);
-			DaoAlterationFrequency.addAlterationFrequency(study.getInternalId(), gene, DaoAlterationFrequency.AlterationFrequencyType.CNA_DEL, delCt/totalCt);
-			DaoAlterationFrequency.addAlterationFrequency(study.getInternalId(), gene, DaoAlterationFrequency.AlterationFrequencyType.MUT_AND_CNA_AMP, mutAmpCt/totalCt);
-			DaoAlterationFrequency.addAlterationFrequency(study.getInternalId(), gene, DaoAlterationFrequency.AlterationFrequencyType.MUT_AND_CNA_DEL, mutDelCt/totalCt);
+			if (sampleData.AMP == 1) {
+				altFreqProf.ampCt++;
+			}
+			if (sampleData.DEL == 1) {
+				altFreqProf.delCt++;
+			}
 		}
+		System.out.println("Put frequency data into database");
+		// put frequency data into database
+		// TODO: handle denominator correctly
+		for (Long entrezGeneId: alterationFrequency.keySet()) {
+			AlterationFrequencyProfile altFreqProf = alterationFrequency.get(entrezGeneId);
+			DaoAlterationFrequency.addAlterationFrequency(study.getInternalId(), entrezGeneId, DaoAlterationFrequency.AlterationFrequencyType.MUT, altFreqProf.mutCt/altFreqProf.totalCt);
+			DaoAlterationFrequency.addAlterationFrequency(study.getInternalId(), entrezGeneId, DaoAlterationFrequency.AlterationFrequencyType.CNA_AMP, altFreqProf.ampCt/altFreqProf.totalCt);
+			DaoAlterationFrequency.addAlterationFrequency(study.getInternalId(), entrezGeneId, DaoAlterationFrequency.AlterationFrequencyType.CNA_DEL, altFreqProf.delCt/altFreqProf.totalCt);
+			DaoAlterationFrequency.addAlterationFrequency(study.getInternalId(), entrezGeneId, DaoAlterationFrequency.AlterationFrequencyType.MUT_AND_CNA_AMP, altFreqProf.mutAmpCt/altFreqProf.totalCt);
+			DaoAlterationFrequency.addAlterationFrequency(study.getInternalId(), entrezGeneId, DaoAlterationFrequency.AlterationFrequencyType.MUT_AND_CNA_DEL, altFreqProf.mutDelCt/altFreqProf.totalCt);
+		}
+		System.out.println("clearing table");
+		geneData.clear();
 	}
 }

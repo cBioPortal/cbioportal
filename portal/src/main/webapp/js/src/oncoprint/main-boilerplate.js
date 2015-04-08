@@ -378,11 +378,11 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         }
                         else if($(this)[0].attributes.href.value === 'images/nonSort.svg')
                         {
-                            return 'Enable decrease sort';
+                            return 'Enable increase sort';
                         }
                         else
                         {
-                            return 'Enable increase sort';
+                            return 'Enable decrease sort';
                         }
                     }
                 },

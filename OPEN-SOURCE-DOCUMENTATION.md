@@ -133,7 +133,7 @@
 * [Font Awesome (Fonts)](#font awesome (fonts))
 
 
-### [ant-1.7.0](ant-1.7.0)
+### [ant-1-7-0](ant-1.7.0)
 #### Available under license:
 Apache License
 

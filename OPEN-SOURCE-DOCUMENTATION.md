@@ -2,7 +2,7 @@
 
 **This document contains the licenses and notices for open source software used in this product.  With respect to the free/open software listed in this document, if you have any questions or wish to receive a copy of the source code to which you are entitled under the applicable free/open source license(s) (such as GNU Lesser/General Public License), please visit our [GitHub project] (https://github.com/cBioPortal/cbioportal) or contact us at cbioportal@googlegroups.com.**
 
-* [ant-1.7.0](#ant-1-7-0)
+* [ant-1.7.0](#ant-1.7.0)
 * [ant-launcher-1.7.0](#ant-launcher-1-7-0)
 * [antlr-2.7.7](#antlr-2-7-7)
 * [antlr-runtime-3.2](#antlr-runtime-3-2)
@@ -133,7 +133,7 @@
 * [Font Awesome (Fonts)](#font awesome (fonts))
 
 
-### [ant-1-7-0](ant-1.7.0)
+### [ant-1.7.0](ant-1.7.0)
 #### Available under license:
 Apache License
 

@@ -16,7 +16,7 @@ import java.sql.SQLException;
  */
 public class DaoAlterationFrequency {
 	public static enum AlterationFrequencyType {
-		MUT,CNA_AMP,CNA_DEL,MUT_AND_CNA_AMP,MUT_AND_CNA_DEL;
+		MUT,CNA_AMP,CNA_DEL,MUT_AND_CNA_AMP,MUT_AND_CNA_DEL,WILD_TYPE;
 	}
 	public static int addAlterationFrequency(int cancerStudyId, long entrezGeneId, AlterationFrequencyType freqType, float frequency)
             throws DaoException {

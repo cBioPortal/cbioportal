@@ -41,6 +41,9 @@ import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Code to Import Copy Number Alteration or MRNA Expression Data.
@@ -327,6 +330,50 @@ public class ImportTabDelimData {
             daoGeneticAlteration.addGeneticAlterations(geneticProfileId, gene.getEntrezGeneId(), values);
             importedGeneSet.add(gene.getEntrezGeneId());
         }
+    }
+    
+    private List<CanonicalGene> parseRPPAGenes(String antibodyWithGene) throws DaoException {
+        DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
+        String[] parts = antibodyWithGene.split("\\|");
+        String[] symbols = parts[0].split(" ");
+        String arrayId = parts[1];
+        
+        List<CanonicalGene> genes = new ArrayList<CanonicalGene>();
+        for (String symbol : symbols) {
+            CanonicalGene gene = daoGene.getNonAmbiguousGene(symbol);
+            if (gene!=null) {
+                genes.add(gene);
+            }
+        }
+        
+        Pattern p = Pattern.compile("(p[STY][0-9]+)");
+        Matcher m = p.matcher(arrayId);
+        String type, residue;
+        if (!m.find()) {
+            type = "protein_level";
+            return genes;
+        } else {
+            type = "phosphorylation";
+            residue = m.group(1);
+            return importPhosphoGene(genes, residue);
+        }
+    }
+    
+    private List<CanonicalGene> importPhosphoGene(List<CanonicalGene> genes, String residue) throws DaoException {
+        DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
+        List<CanonicalGene> phosphoGenes = new ArrayList<CanonicalGene>();
+        for (CanonicalGene gene : genes) {
+            Set<String> aliases = new HashSet<String>();
+            aliases.add("rppa-phospho");
+            aliases.add("phosphoprotein");
+            aliases.add("phospho"+gene.getStandardSymbol());
+            String phosphoSymbol = gene.getStandardSymbol()+"_"+residue;
+            CanonicalGene phosphoGene = new CanonicalGene(phosphoSymbol, aliases);
+            phosphoGene.setType(CanonicalGene.PHOSPHOPROTEIN_TYPE);
+            daoGene.addGene(phosphoGene);
+            phosphoGenes.add(phosphoGene);
+        }
+        return phosphoGenes;
     }
     
     private int getHugoSymbolIndex(String[] headers) {

@@ -58,15 +58,15 @@ oql = (function () {
 		var tokens = query.split(/\s+/);
 		if (tokens.length === 1) {
 			getQueryDefaults().then(function(defaults) {
-				dfd.resolve(tokens[0] + " : " + defaults.join(" ")+";");
+				dfd.resolve(tokens[0] + " : " + defaults.join(" "));
 			});
 		} else {
-			dfd.resolve(tokens[0] + " : " + tokens.slice(1).join(" ")+";");
+			dfd.resolve(tokens[0] + " : " + tokens.slice(1).join(" "));
 		}
 	} else {
 		if (query[query.length-1] === ":") {
 			getQueryDefaults().then(function(defaults) {
-				dfd.resolve(query+" "+defaults.join(" ")+";");
+				dfd.resolve(query+" "+defaults.join(" "));
 			});
 		} else {
 			dfd.resolve(query);
@@ -105,7 +105,7 @@ oql = (function () {
 				try {
 					ret.push(oqlParser.parse(line));
 				} catch (err) {
-					errors.push({"line": i, "msg": err});
+					errors.push({"line": ind, "msg": err});
 				}
 			});
 			if (errors.length > 0) {

@@ -138,13 +138,13 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
     var sortStatus=[];
 //    var sortStatus={};
     var cases = window.PortalGlobals.getCases();
-    var genes = window.PortalGlobals.getGeneListString().split(" ");
+    var genes = oql.getGeneList($('#gene_list').val());//window.PortalGlobals.getGeneListString().split(" ");
 
     var outer_loader_img = $('#oncoprint #outer_loader_img');
     var inner_loader_img = $('#oncoprint #inner_loader_img');
 
     var geneDataColl = new GeneDataColl();
-    oncoprintData = [];
+    var oncoprintData = [];
     
     var selectsortby = function()
     {

@@ -1029,7 +1029,7 @@ function addMetaDataToPage() {
 	initialize_jstree(jstree_data);
 	var jstree_is_flat = false;
 	var $jstree_flatten_btn = (function() { 
-		var ret = $('<i class="fa fa-lg fa-code-fork jstree-external-node-decorator" style="cursor:pointer; padding-left:0.6em"></i>');
+		var ret = $('<i class="fa fa-lg fa-code-fork jstree-external-node-decorator" style="display:none; cursor:pointer; padding-left:0.6em"></i>');
 		ret.mouseenter(function () {
 			ret.fadeTo('fast', 0.7);
 		});
@@ -1319,7 +1319,7 @@ function outputGenomicProfileOption (downloadTab, optionType, targetClass, id, n
         + "id='" + id + "'"
         + " name='" + paramName + "'"
         + " class='" + targetClass + "'"
-        + " value='" + id +"'>" + name + "</input>"
+        + " value='" + id +"'>" + '&nbsp;&nbsp;' + name + "</input>"
         + "  <img class='profile_help' src='images/help.png' title='"
         + description + "'><br/>";
     return html;

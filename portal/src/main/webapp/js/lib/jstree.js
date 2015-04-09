@@ -2905,6 +2905,7 @@
 			if (!node) {
 				return false;
 			}
+			obj.children('.jstree-external-node-decorator').show();
 			obj.children('.jstree-node-decorator').remove();
 			if (node.children.length === 0) {
 				var $linkOutIcon = $('<i class="fa fa-lg fa-external-link jstree-node-decorator" style="cursor:pointer; padding-left:0.6em"></i>');
@@ -2995,6 +2996,7 @@
 		},
 		hide_node_decorators : function (obj) {
 			obj = this.get_node(obj, true);
+			obj.children('.jstree-external-node-decorator').hide();
 			obj.children('.jstree-node-decorator').remove();
 		},
 		/**

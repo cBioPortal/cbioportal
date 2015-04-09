@@ -31,7 +31,9 @@ $MARKDOWN -x toc about_us_target.markdown > ../../webapp/content/about_us_target
 
 $MARKDOWN -x toc examples_acc.markdown > ../../webapp/content/examples_acc.html
 
-$MARKDOWN -x toc examples_acc.markdown > ../../webapp/content/examples_kras.html
+$MARKDOWN -x toc examples_kras.markdown > ../../webapp/content/examples_kras.html
+
+$MARKDOWN -x toc examples_genie.markdown > ../../webapp/content/examples_genie.html
 
 $MARKDOWN -x toc examples_glioma.markdown > ../../webapp/content/examples_glioma.html
 

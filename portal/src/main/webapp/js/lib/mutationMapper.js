@@ -162,6 +162,7 @@ var DataTableUtil = (function()
 	}
 
 	/**
+	 * Creates an array of indices for the columns to be ignored during search.
 	 *
 	 * @param headers   column header names
 	 * @param indexMap  map of <column name, column index>
@@ -7018,15 +7019,22 @@ var PancanMutationHistTipView = Backbone.View.extend({
 		// add click functionality for the buttons
 		$(".cross-cancer-download").click(function() {
 			var fileType = $(this).attr("file-type");
+			var filename = gene + "_mutations." + fileType;
 
-			var params = {
-				filetype: fileType,
-				filename: gene + "_mutations." + fileType,
-				svgelement: (new XMLSerializer()).serializeToString(svg)
-			};
-
-			// TODO customize download server
-			cbio.util.requestDownload("svgtopdf.do", params);
+			if (fileType == "pdf")
+			{
+				cbio.download.initDownload(svg, {
+					filename: filename,
+					contentType: "application/pdf",
+					servletName: "svgtopdf.do"
+				});
+			}
+			else // svg
+			{
+				cbio.download.initDownload(svg, {
+					filename: filename
+				});
+			}
 		});
 	}
 });
@@ -7847,7 +7855,19 @@ function MutationDataProxy(options)
 				servletParams.geneList = genesToQuery.join(" ");
 
 				// retrieve data from the server
-				$.post(_servletName, servletParams, process, "json");
+				//$.post(_servletName, servletParams, process, "json");
+				$.ajax({
+					type: "POST",
+					url: _servletName,
+					data: servletParams,
+					success: process,
+					error: function() {
+						console.log("[MutationDataProxy.getMutationData] " +
+							"error retrieving mutation data for genetic profiles: " + servletParams.geneticProfiles);
+						process([]);
+					},
+					dataType: "json"
+				});
 			}
 			// data for all requested genes already cached
 			else
@@ -8703,6 +8723,7 @@ function PortalDataProxy(options)
 				queryParams[key] = servletParams[key];
 			}
 			// already cached
+			else
 			{
 				// get data from cache
 				metadata[key] = _data[key];
@@ -10184,16 +10205,16 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 				}
 			},
 			"cBioPortal": "excluded"
-//			"cBioPortal": function (util, gene) {
-//				if (util.containsKeyword(gene) ||
-//				    util.containsMutationEventId(gene))
-//				{
-//					return "visible";
-//				}
-//				else {
-//					return "excluded";
-//				}
-//			}
+			//"cBioPortal": function (util, gene) {
+			//	if (util.containsKeyword(gene) ||
+			//	    util.containsMutationEventId(gene))
+			//	{
+			//		return "visible";
+			//	}
+			//	else {
+			//		return "excluded";
+			//	}
+			//}
 		},
 		// Indicates whether a column is searchable or not.
 		// Should be a boolean value or a function.
@@ -10912,7 +10933,7 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 		// aoColumnDefs, oColVis, and fnDrawCallback may break column
 		// visibility, sorting, and filtering. Proceed wisely ;)
 		dataTableOpts: {
-			"sDom": '<"H"<"mutation_datatables_filter"f>C<"mutation_datatables_info"i>>t<"F">',
+			"sDom": '<"H"<"mutation_datatables_filter"f>C<"mutation_datatables_info"i>>t<"F"<"mutation_datatables_download"T>>',
 			"bJQueryUI": true,
 			"bPaginate": false,
 			//"sPaginationType": "two_button",
@@ -10984,6 +11005,43 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 					"aTargets": nonSearchableCols}
 			],
 			"oColVis": {"aiExclude": excludedCols}, // columns to always hide
+			"oTableTools": {
+				"aButtons": [{
+					"sExtends": "text",
+					"sButtonText": "Download",
+					"mColumns": getExportColumns(columnOpts, excludedCols),
+					"fnCellRender": function(sValue, iColumn, nTr, iDataIndex) {
+						var value = sValue;
+
+						// strip HTML content and use the main (visible) text only
+						if(sValue.indexOf("<") != -1 &&
+						   sValue.indexOf(">") != -1)
+						{
+							value = $(sValue).text();
+						}
+
+						// also remove the text of "3D" link from the protein change column
+						if (iColumn === indexMap["proteinChange"])
+						{
+							value = value.replace(/(\s)3D/, '');
+						}
+
+						return value.trim();
+					},
+					"fnClick": function(nButton, oConfig) {
+						// get the file data (formatted by 'fnCellRender' function)
+						var content = this.fnGetTableData(oConfig);
+
+						var downloadOpts = {
+							filename: "mutation_table_" + gene + ".tsv",
+							contentType: "text/plain;charset=utf-8",
+							preProcess: false};
+
+						// send download request with filename & file content info
+						cbio.download.initDownload(content, downloadOpts);
+					}
+				}]
+			},
 			"fnDrawCallback": function(oSettings) {
 				self._addColumnTooltips({gene: gene,
 					mutationUtil: mutationUtil,
@@ -11053,6 +11111,24 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 		};
 
 		return tableOpts;
+	}
+
+	/**
+	 * Creates an array of indices for the columns to be exported for download.
+	 *
+	 * @param columnOpts    basic column options
+	 * @param excludedCols  indices of the excluded columns
+	 * @returns {Array}     an array of column indices
+	 */
+	function getExportColumns(columnOpts, excludedCols)
+	{
+		var exportCols = [];
+
+		for (var i = 0; i <= _.keys(columnOpts).length; i++) {
+			exportCols.push(i);
+		}
+
+		return _.difference(exportCols, excludedCols);
 	}
 
 	/**

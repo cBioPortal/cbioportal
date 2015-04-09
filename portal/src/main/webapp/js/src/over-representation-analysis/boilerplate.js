@@ -40,12 +40,14 @@ var orAnalysis = (function() {
             sub_tabs_div: "or-analysis-tabs",
             sub_tabs_list: "or-analysis-tabs-list",
             sub_tabs_content: "or-analysis-tabs-content",
-            sub_tab_main: "or-analysis-subtab-main",
+            sub_tab_copy_num: "or-analysis-subtab-copy-num",
+            sub_tab_mutations: "or-analysis-subtab-mutations",
             sub_tab_mrna_exp: "or-analysis-subtab-mrna-exp",
             sub_tab_advanced: "or-analysis-subtab-advanced"
         },
         texts: {
-            sub_tab_main: "Copy-num Alteration / Mutations",
+            sub_tab_copy_num: "Copy-num Alteration",
+            sub_tab_mutations : "Mutations",
             sub_tab_mrna_exp: "mRNA Expression",
             sub_tab_advanced: "Advanced",
             null_result: "empt"
@@ -54,6 +56,11 @@ var orAnalysis = (function() {
             datatable_class: "_datatable_class",
             datatable_div: "_datatable_div",
             datatable_id: "_datatable_table"
+        },
+        profile_type: {
+            mrna: "MRNA_EXPRESSION",
+            copy_num: "COPY_NUMBER_ALTERATION",
+            mutations: "MUTATION_EXTENDED"
         }
     };
     

@@ -50,12 +50,12 @@ var orData = function() {
                 alert( "Request failed: " + textStatus );
             }); 
         },
-        get: function(callback_func, _div_id, _table_div, _table_id, _table_title) { 
+        get: function(callback_func, _div_id, _table_div, _table_id, _table_title, _profile_type) { 
             var tmp = setInterval(function () { timer(); }, 1000);
             function timer() {
                 if (retrieved) {
                     clearInterval(tmp);
-                    callback_func(data, _div_id, _table_div, _table_id, _table_title);
+                    callback_func(data, _div_id, _table_div, _table_id, _table_title, _profile_type);
                 }
             }
         }

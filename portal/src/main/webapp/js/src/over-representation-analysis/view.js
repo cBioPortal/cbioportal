@@ -41,7 +41,7 @@ var orTable = function() {
         
         //Draw out the markdown of the datatable
         $("#" + table_id).append(
-            "<thead style='font-size:70%;' >" +
+            "<thead style='font-size:70%;'>" +
             "<tr>" + titles + "</tr>" +
             "</thead><tbody></tbody>"
         );
@@ -64,6 +64,7 @@ var orTable = function() {
             "bDeferRender": true,
             "iDisplayLength": 17
         });  
+
     }
     
     function convert_data(_input) {
@@ -74,10 +75,15 @@ var orTable = function() {
                 
                 var _val = _obj[_key];
                 
-                //convert to scientific notation
-                if (_key.indexOf("Gene") === -1 && _key.indexOf("Direction") === -1 && _val !== "--") {
+                //convert to percentage for pct columns
+                if (_key.indexOf("percentage") !== -1) {
+                    _val = _val * 100;
+                }
+                
+                //convert to scientific notation & chop off extrac scitific numbers
+                if (_key.indexOf("Gene") === -1 && _key.indexOf("Direction") === -1 && _val !== "--" && _val !== 0.00) {
                     _val = parseFloat(_val);
-                    _val = _val < 0.001 ? _val.toExponential(2) : _val.toFixed(2);
+                    _val = Math.abs(_val) < 0.001 ? _val.toExponential(2) : _val.toFixed(3);
                 } 
                 
                 //add % sign for percentage values
@@ -97,16 +103,52 @@ var orTable = function() {
         return table_arr;
     }
     
-    function extract_titles(_input) {
+    function extract_titles(_input, _profile_type) {
+        
         var _title_str = "";
-        $.each(Object.keys(_input[0]), function(_index, _key) {
-            _title_str += "<th>" + _key + "</th>";
-        });
+        
+        if (_profile_type === orAnalysis.profile_type.copy_num) {
+            
+            _title_str += "<th rowspan='2'>Gene &nbsp;<img src='images/help.png' id='mean-alt-help'></th>";
+            _title_str += "<th colspan='2'>Percentage of alteration &nbsp;<img src='images/help.png' id='mean-alt-help'></th>";
+            _title_str += "<th rowspan='2'>Log Ratio &nbsp;<img src='images/help.png' id='mean-alt-help'></th>";
+            _title_str += "<th rowspan='2'>Direction/Tendency &nbsp;<img src='images/help.png' id='mean-alt-help'></th>";
+            _title_str += "<th rowspan='2'>p-Value &nbsp;<img src='images/help.png' id='mean-alt-help'></th>";
+            _title_str += "<th rowspan='2'>q-Value &nbsp;<img src='images/help.png' id='mean-alt-help'></th>";
+            
+            _title_str += "</tr><tr><th>in altered group</th><th>in unaltered group</th>";
+
+        } else if (_profile_type === orAnalysis.profile_type.mutations) {
+                        
+            _title_str += "<th rowspan='2'>Gene &nbsp;<img src='images/help.png' id='mean-alt-help'></th>";
+            _title_str += "<th colspan='2'>Percentage of alteration &nbsp;<img src='images/help.png' id='mean-alt-help'></th>";
+            _title_str += "<th rowspan='2'>Log Ratio &nbsp;<img src='images/help.png' id='mean-alt-help'></th>";
+            _title_str += "<th rowspan='2'>Direction/Tendency &nbsp;<img src='images/help.png' id='mean-alt-help'></th>";
+            _title_str += "<th rowspan='2'>p-Value &nbsp;<img src='images/help.png' id='mean-alt-help'></th>";
+            _title_str += "<th rowspan='2'>q-Value &nbsp;<img src='images/help.png' id='mean-alt-help'></th>";
+            
+            _title_str += "</tr><tr><th>in altered group</th><th>in unaltered group</th>";
+            
+        } else if (_profile_type === orAnalysis.profile_type.mrna) {
+            
+            _title_str += "<th rowspan='2'>Gene &nbsp;<img src='images/help.png' id='gene-help'></th>";
+            _title_str += "<th colspan='2'>Mean of alteration &nbsp;<img src='images/help.png' id='mean-alt-help'></th>";
+            _title_str += "<th colspan='2'>Standard deviation of alteration &nbsp;<img src='images/help.png' id='mean-alt-help'></th>";
+            _title_str += "<th rowspan='2'>p-Value &nbsp;<img src='images/help.png' id='p-value-help'></th>";
+            _title_str += "<th rowspan='2'>q-Value &nbsp;<img src='images/help.png' id='q-value-help'></th>";
+            
+            _title_str += "</tr><tr>";
+            _title_str += "<th>in altered group</th>";
+            _title_str += "<th>in unaltered group</th>";
+            _title_str += "<th>in altered group</th>";
+            _title_str += "<th>in unaltered group</th>";
+        }
+
         return _title_str;
     }
     
     return {
-        init: function(_input_data, _div_id, _table_div, _table_id, _table_title) {
+        init: function(_input_data, _div_id, _table_div, _table_id, _table_title, _profile_type) {
             
             if (Object.keys(_input_data).length !== 0 &&
                 Object.keys(_input_data)[0] !== orAnalysis.texts.null_result &&
@@ -115,7 +157,7 @@ var orTable = function() {
                 div_id = _div_id;
                 table_id = _table_id;
                 data = convert_data(_input_data);
-                titles = extract_titles(_input_data);
+                titles = extract_titles(_input_data, _profile_type);
 
                 $("#" + _table_div).empty();
                 $("#" + _table_div).append("<span style='font-weight:bold;'>" + _table_title + "</span>");
@@ -129,12 +171,12 @@ var orTable = function() {
         }
     };
     
-};
+}; //close orTable
 
 var orSubTabView = function() {
     
     return {
-        init: function(_div_id, _profile_list) {
+        init: function(_div_id, _profile_list, _profile_type) {
             
             $.each(_profile_list, function(_index, _profile_obj) {
                 
@@ -144,7 +186,7 @@ var orSubTabView = function() {
 
                     var _table_div = _profile_obj.STABLE_ID + orAnalysis.postfix.datatable_div;
                     var _table_id = _profile_obj.STABLE_ID + orAnalysis.postfix.datatable_id;
-                    $("#" + _div_id).append("<div id='" + _table_div + "' style='width: 1100px; display:inline-block; padding: 10px;'></div>");
+                    $("#" + _div_id).append("<div id='" + _table_div + "' style='width: 1150px; display:inline-block; padding: 10px;'></div>");
                     $("#" + _table_div).append("<img style='padding:20px;' src='images/ajax-loader.gif'><br>Calculating on " + _profile_obj.NAME);
                     
                     //init and get calculation result from the server
@@ -152,7 +194,7 @@ var orSubTabView = function() {
                     var or_data = new orData();
                     or_data.init(param);
                     var or_table = new orTable();
-                    or_data.get(or_table.init, _div_id, _table_div, _table_id, _profile_obj.NAME);
+                    or_data.get(or_table.init, _div_id, _table_div, _table_id, _profile_obj.NAME, _profile_type);
                     
                 }
                 

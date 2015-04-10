@@ -164,6 +164,9 @@ public class ImportTabDelimData {
         boolean discritizedCnaProfile = geneticProfile!=null
                                         && geneticProfile.getGeneticAlterationType() == GeneticAlterationType.COPY_NUMBER_ALTERATION
                                         && geneticProfile.showProfileInAnalysisTab();
+        boolean rppaProfile = geneticProfile!=null
+                                && geneticProfile.getGeneticAlterationType() == GeneticAlterationType.PROTEIN_LEVEL
+                                && "Composite.Element.Ref".equalsIgnoreCase(parts[0]);
 
         Map<CnaEvent.Event, CnaEvent.Event> existingCnaEvents = null;
         long cnaEventId = 0;
@@ -230,16 +233,20 @@ public class ImportTabDelimData {
                         } 
                         
                         if (genes==null && hugo != null) {
-                            // deal with multiple symbols separate by |, use the first one
-                            int ix = hugo.indexOf("|");
-                            if (ix>0) {
-                                hugo = hugo.substring(0, ix);
-                            }
+                            if (rppaProfile) {
+                                genes = parseRPPAGenes(hugo);
+                            } else {
+                                // deal with multiple symbols separate by |, use the first one
+                                int ix = hugo.indexOf("|");
+                                if (ix>0) {
+                                    hugo = hugo.substring(0, ix);
+                                }
 
-                            genes = daoGene.guessGene(hugo);
+                                genes = daoGene.guessGene(hugo);
+                            }
                         }
 
-                        if (genes == null) {
+                        if (genes == null || genes.isEmpty()) {
                             genes = Collections.emptyList();
                         }
 
@@ -368,9 +375,12 @@ public class ImportTabDelimData {
             aliases.add("phosphoprotein");
             aliases.add("phospho"+gene.getStandardSymbol());
             String phosphoSymbol = gene.getStandardSymbol()+"_"+residue;
-            CanonicalGene phosphoGene = new CanonicalGene(phosphoSymbol, aliases);
-            phosphoGene.setType(CanonicalGene.PHOSPHOPROTEIN_TYPE);
-            daoGene.addGene(phosphoGene);
+            CanonicalGene phosphoGene = daoGene.getGene(phosphoSymbol);
+            if (phosphoGene==null) {
+                phosphoGene = new CanonicalGene(phosphoSymbol, aliases);
+                phosphoGene.setType(CanonicalGene.PHOSPHOPROTEIN_TYPE);
+                daoGene.addGene(phosphoGene);
+            }
             phosphoGenes.add(phosphoGene);
         }
         return phosphoGenes;

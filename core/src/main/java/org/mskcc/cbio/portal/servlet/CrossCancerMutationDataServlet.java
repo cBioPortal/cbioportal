@@ -113,11 +113,20 @@ public class CrossCancerMutationDataServlet extends HttpServlet
         } catch (NumberFormatException e) {
             dataTypePriority = 0;
         }
+	
+	String[] cancerStudyIdList = request.getParameter(QueryBuilder.CANCER_STUDY_LIST).split(",");
+	HashMap<String, Boolean> studyMap = new HashMap<>();
+	for (String id : cancerStudyIdList) {
+		studyMap.put(id, Boolean.TRUE);
+	}
 
         try {
             //  Cancer All Cancer Studies
             List<CancerStudy> cancerStudiesList = accessControl.getCancerStudies();
             for (CancerStudy cancerStudy : cancerStudiesList) {
+		if (!studyMap.containsKey(cancerStudy.getCancerStudyStableId())) {
+			continue;
+		}
                 String cancerStudyId = cancerStudy.getCancerStudyStableId();
                 if(cancerStudyId.equalsIgnoreCase("all"))
                     continue;

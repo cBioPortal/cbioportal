@@ -51,6 +51,7 @@
         var histBottom = 400;
         var fontFamily = "sans-serif";
         var animationDuration = 1000;
+	var maxStudyBarWidth = 30;
 
         var defaultQTipOptions = {
             content: {
@@ -175,8 +176,8 @@
                                 }
                             })).render();
 
-                            var studyLocIncrements = (width - (paddingLeft + paddingRight)) / histData.length;
-                            var studyWidth = studyLocIncrements * .75;
+                            var studyWidth = Math.min(((width - (paddingLeft + paddingRight)) / histData.length) * .75, maxStudyBarWidth);
+			    var studyLocIncrements = studyWidth / .75;
                             var verticalCirclePadding = 20;
                             // Data type radius
                             var circleDTR = studyWidth / 4;
@@ -630,8 +631,8 @@
                             var redrawHistogram = function() {
                                 histData = filterAndSortData(histDataOrg);
 
-                                studyLocIncrements = (width - (paddingLeft + paddingRight)) / histData.length;
-                                studyWidth = studyLocIncrements * .75;
+				studyWidth = Math.min(((width - (paddingLeft + paddingRight)) / histData.length) * .75, maxStudyBarWidth);
+				studyLocIncrements = studyWidth / .75;
                                 // Data type radius
                                 circleDTR = studyWidth / 4;
                                 // Tumor type radius

@@ -160,8 +160,9 @@ public class MSKCCPortalUserDetailsService implements SAMLUserDetailsService
 
     private List<GrantedAuthority> getDefaultGrantedAuthorities(final String username)
     {
+        String appName = GlobalProperties.getAppName();
         Collection<String> defAuthorities = new ArrayList<String>(defaultAuthorities);
-        defAuthorities.add(username.substring(0, username.indexOf("@")).toUpperCase());
+        defAuthorities.add(appName + ":" + username.substring(0, username.indexOf("@")).toUpperCase());
         UserAuthorities authorities = new UserAuthorities(username, defAuthorities);
         return AuthorityUtils.createAuthorityList(authorities.getAuthorities().toArray(new String[authorities.getAuthorities().size()]));
 

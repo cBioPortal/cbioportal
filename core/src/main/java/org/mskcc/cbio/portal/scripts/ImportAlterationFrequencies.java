@@ -137,20 +137,22 @@ public class ImportAlterationFrequencies {
 				geneIds.add(gene.getEntrezGeneId());
 			}
 			System.out.println(geneIds.size());
-			int geneIdChunkSize = 700;
+			int geneIdChunkSize = 1000;
 			for (int ind=0; ind<geneIds.size(); ind+= geneIdChunkSize) {
 				List<Long> geneIdsChunk = geneIds.subList(ind, Math.min(ind+geneIdChunkSize, geneIds.size()));
 				HashMap<Long, HashMap<Integer, String>> GAMap = geneticAlteration.getGeneticAlterationMap(prof.getGeneticProfileId(), geneIdsChunk);
 				for (Long geneId: GAMap.keySet()) {
 					for (Integer sampleId: GAMap.get(geneId).keySet()) {
 						String key = makeHashKey(geneId, sampleId);
-						if (!geneData.containsKey(key)) {
-							geneData.put(key, 0);
+						Integer oldData = geneData.get(key);
+						if (oldData == null) {
+							oldData = 0;
 						}
-						if (GAMap.get(geneId).get(sampleId).equals("2")) {
-							geneData.put(key, addAmpToAlterationProfile(geneData.get(key)));
-						} else if (GAMap.get(geneId).get(sampleId).equals("-2")) {
-							geneData.put(key, addDelToAlterationProfile(geneData.get(key)));
+						String newData = GAMap.get(geneId).get(sampleId);
+						if (newData.equals("2")) {
+							geneData.put(key, addAmpToAlterationProfile(oldData));
+						} else if (newData.equals("-2")) {
+							geneData.put(key, addDelToAlterationProfile(oldData));
 						}
 					}
 				}
@@ -161,10 +163,11 @@ public class ImportAlterationFrequencies {
 		HashMap<Long, AlterationFrequencyProfile> alterationFrequency = new HashMap<>();
 		for (String key: geneData.keySet()) {
 			long entrezGeneId = decodeHashKey(key)[0];
-			if (!alterationFrequency.containsKey(entrezGeneId)) {
-				alterationFrequency.put(entrezGeneId, new AlterationFrequencyProfile());
-			}
 			AlterationFrequencyProfile altFreqProf = alterationFrequency.get(entrezGeneId);
+			if (altFreqProf == null) {
+				altFreqProf = new AlterationFrequencyProfile();
+				alterationFrequency.put(entrezGeneId, altFreqProf);
+			}
 			int sampleData = geneData.get(key);
 			altFreqProf.totalCt += 1;
 			DaoAlterationFrequency.AlterationFrequencyType sampleProfile = decodeAlterationProfile(sampleData);

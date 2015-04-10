@@ -76,7 +76,7 @@ PORTAL_NAME = { GDAC_USER_SPREADSHEET : "gdac-portal",
                 TARGET_USER_SPREADSHEET : "target-portal",
                 MSKCC_USER_SPREADSHEET : "mskcc-portal",
                 TRIAGE_USER_SPREADSHEET : "triage-portal",
-                GENIE_USER_SPREADSHEET : "genie" }
+                GENIE_USER_SPREADSHEET : "genie",
                 SU2C_KRAS_USER_SPREADSHEET : "kras" }
 
 # a ref to the google spreadsheet client - used for all i/o to google spreadsheet

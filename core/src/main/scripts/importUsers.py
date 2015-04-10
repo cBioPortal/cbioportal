@@ -101,7 +101,7 @@ DEFAULT_AUTHORITIES = "PUBLIC;EXTENDED;MSKPUB"
 MSKCC_EMAIL_SUFFIX = "@mskcc.org"
 SMTP_SERVER = "cbio.mskcc.org"
 MESSAGE_FROM = "cbioportal-access@cbio.mskcc.org"
-MESSAGE_BCC = ["socci@cbio.mskcc.org", "bouviern@mskcc.org", "jgao@cbio.mskcc.org", "schultz@cbio.mskcc.org", "grossb@cbio.mskcc.org"]
+MESSAGE_BCC = []
 MESSAGE_SUBJECT = { GDAC_USER_SPREADSHEET : "You have been granted access to the private instance of cBioPortal",
                     PROSTATE_USER_SPREADSHEET : "cBioPortal for Prostate Cancer Access",
                     GLIOMA_USER_SPREADSHEET : "cBioPortal for Glioma Access",

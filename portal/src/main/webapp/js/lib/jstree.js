@@ -2908,7 +2908,22 @@
 			obj.children('.jstree-external-node-decorator').show();
 			obj.children('.jstree-node-decorator').remove();
 			if (node.children.length === 0) {
-				var $linkOutIcon = $('<i class="fa fa-lg fa-external-link jstree-node-decorator" style="cursor:pointer; padding-left:0.6em"></i>');
+				if (node.li_attr && node.li_attr.description) {
+					var $descriptionIcon = $('<i class="fa fa-lg fa-info-circle jstree-node-decorator" style="cursor:pointer; padding-left:0.4em"></i>');
+					obj.append($descriptionIcon);
+					$descriptionIcon.mousedown(function(e) {
+						e.preventDefault();
+					});
+					$descriptionIcon.qtip({
+						content: {text: node.li_attr.description},
+						style: {classes: 'qtip-light qtip-rounded'},
+						position: {my: 'bottom center', at: 'top center', viewport: $(window)},
+						show: {delay: 0},
+						hide: {delay: 0, fixed: true}
+					});
+				}
+                                
+                                var $linkOutIcon = $('<i class="btn btn-default btn-sm jstree-node-decorator" style="cursor:pointer;  padding: 0px 5px; font-weight: normal;font-style: normal;margin-left: 10px; color:white; background-color:#2986e2">Summary</i>');
 				obj.append($linkOutIcon);
 				$linkOutIcon.mouseenter(function() {
 					$linkOutIcon.fadeTo('fast', 0.7);
@@ -2923,27 +2938,6 @@
 					e.preventDefault();
 					window.open('study.do?cancer_study_id='+node.id);
 				});
-				$linkOutIcon.qtip({
-					content: {text: "Study summary"},
-					style: {classes: 'qtip-light qtip-rounded'},
-					position: {my: 'bottom center', at: 'top center', viewport: $(window)},
-					hide: {delay: 10, fixed: true},
-					show: {delay: 600, fixed: true}
-				});
-				if (node.li_attr && node.li_attr.description) {
-					var $descriptionIcon = $('<i class="fa fa-lg fa-info-circle jstree-node-decorator" style="cursor:pointer; padding-left:0.4em"></i>');
-					obj.append($descriptionIcon);
-					$descriptionIcon.mousedown(function(e) {
-						e.preventDefault();
-					});
-					$descriptionIcon.qtip({
-						content: {text: node.li_attr.description},
-						style: {classes: 'qtip-light qtip-rounded'},
-						position: {my: 'left center', at: 'right center', viewport: $(window)},
-						show: {delay: 0},
-						hide: {delay: 0, fixed: true}
-					});
-				}
 			} else {
 				if (this.node_has_descendant_branches(node.id)) {
 					var shouldCollapse = this.node_descendants_all_open(node.id);

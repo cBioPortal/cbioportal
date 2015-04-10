@@ -65,6 +65,7 @@ TARGET_USER_SPREADSHEET = 'Request Access to the cBio TARGET Cancer Genomics Por
 MSKCC_USER_SPREADSHEET = 'Request Access to the cBio MSKCC Cancer Genomics Portal'
 TRIAGE_USER_SPREADSHEET = 'Request Access to the cBio MSKCC (Triage) Cancer Genomics Portal'
 SU2C_KRAS_USER_SPREADSHEET = 'Request Access to the cBio KRAS Cancer Genomics Portal'
+GENIE_USER_SPREADSHEET = 'Request Access to the cBio GENIE Cancer Genomics Portal'
 
 # portal name (these should correspond to what is in property file of the respective portal)
 PORTAL_NAME = { GDAC_USER_SPREADSHEET : "gdac-portal",
@@ -75,6 +76,7 @@ PORTAL_NAME = { GDAC_USER_SPREADSHEET : "gdac-portal",
                 TARGET_USER_SPREADSHEET : "target-portal",
                 MSKCC_USER_SPREADSHEET : "mskcc-portal",
                 TRIAGE_USER_SPREADSHEET : "triage-portal",
+                GENIE_USER_SPREADSHEET : "genie",
                 SU2C_KRAS_USER_SPREADSHEET : "kras" }
 
 # a ref to the google spreadsheet client - used for all i/o to google spreadsheet
@@ -99,7 +101,7 @@ DEFAULT_AUTHORITIES = "PUBLIC;EXTENDED;MSKPUB"
 MSKCC_EMAIL_SUFFIX = "@mskcc.org"
 SMTP_SERVER = "cbio.mskcc.org"
 MESSAGE_FROM = "cbioportal-access@cbio.mskcc.org"
-MESSAGE_BCC = ["jgao@cbio.mskcc.org", "schultz@cbio.mskcc.org", "grossb@cbio.mskcc.org"]
+MESSAGE_BCC = []
 MESSAGE_SUBJECT = { GDAC_USER_SPREADSHEET : "You have been granted access to the private instance of cBioPortal",
                     PROSTATE_USER_SPREADSHEET : "cBioPortal for Prostate Cancer Access",
                     GLIOMA_USER_SPREADSHEET : "cBioPortal for Glioma Access",
@@ -108,6 +110,7 @@ MESSAGE_SUBJECT = { GDAC_USER_SPREADSHEET : "You have been granted access to the
                     TARGET_USER_SPREADSHEET : "cBioPortal for NCI-TARGET",
                     MSKCC_USER_SPREADSHEET : "cBioPortal for MSKCC",
                     TRIAGE_USER_SPREADSHEET : "cBioPortal for MSKCC (Triage)",
+                    GENIE_USER_SPREADSHEET : "cBioPortal for GENIE",
                     SU2C_KRAS_USER_SPREADSHEET : "cBioPortal for SU2C KRAS Lung cancer Dream Team" }
 GDAC_MESSAGE_BODY = """Thank you for your interest in the private instance of cBioPortal. We have granted you access. You can login at http://cbioportal.org/gdac-portal/. Please let us know if you have any problems logging in.
 
@@ -151,7 +154,11 @@ Please keep in mind that the data provided in this Portal are preliminary and su
 
 SU2C_KRAS_MESSAGE_BODY = """Thank you for your interest in the cBioPortal for the SU2C KRAS Lung cancer Dream Team. We have granted you access. You can login at http://cbioportal.org/kras/. Please let us know if you have any problems logging in.
 
-Please keep in mind that the data provided in this Portal are preliminary and subject to change. Access to the data in this portal is only available to authorized users at Memorial Sloan Kettering Cancer Center.
+Please keep in mind that the data provided in this Portal are preliminary and subject to change.
+"""
+GENIE_MESSAGE_BODY = """Thank you for your interest in the cBioPortal for GENIE. We have granted you access. You can login at http://cbioportal.org/genie/. Please let us know if you have any problems logging in.
+
+Please keep in mind that the data provided in this Portal are preliminary and subject to change.
 """
 
 
@@ -163,6 +170,7 @@ MESSAGE_BODY = { GDAC_USER_SPREADSHEET : GDAC_MESSAGE_BODY,
                  TARGET_USER_SPREADSHEET : TARGET_MESSAGE_BODY,
                  MSKCC_USER_SPREADSHEET : MSKCC_MESSAGE_BODY,
                  TRIAGE_USER_SPREADSHEET : TRIAGE_MESSAGE_BODY,
+                 GENIE_USER_SPREADSHEET : GENIE_MESSAGE_BODY,
                  SU2C_KRAS_USER_SPREADSHEET : SU2C_KRAS_MESSAGE_BODY }
 
 

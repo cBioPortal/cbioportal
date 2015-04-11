@@ -177,7 +177,7 @@ public class NormalizeExpressionLevels{
             samples[i] = truncatedSampleName(values[i]);
          }
          
-         ArrayList<String> outputLine = new ArrayList<String>(); 
+         List<String> outputLine = new ArrayList<String>(); 
 
          // header contains only ids of tumor samples
          if (firstSamplePosition==1) {
@@ -211,6 +211,7 @@ public class NormalizeExpressionLevels{
          
          // process expression file
          while((line = in.readLine())!=null){
+            outputLine.clear();
             
             values = line.split("\t");
                     
@@ -278,7 +279,6 @@ public class NormalizeExpressionLevels{
                 }
                 genes++;
             }else{
-               outputLine.clear();
                if (firstSamplePosition==1) {
                     outputLine.add(values[0]);
                 } else {

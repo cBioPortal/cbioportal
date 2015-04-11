@@ -516,13 +516,14 @@ def add_unknown_users_to_spreadsheet(cursor, spreadsheet, worksheet):
         if email.endswith(MSKCC_EMAIL_SUFFIX) and email not in google_spreadsheet_user_map:
             user = portal_db_user_map[email]
             print >> OUTPUT_FILE, user.name
+            def_authorities = DEFAULT_AUTHORITIES + ";" + email[0:email.index('@')].upper()
             # we only got here if user was inserted via MSK AD - in which case name is formatted as:
             # Gross, Benjamin E./Sloan Kettering Institute
             if "/" in user.name:
                 user_name_parts = user.name.split("/")
-                row = { TIMESTAMP_KEY : current_time, MSKCC_EMAIL_KEY : user.inst_email, FULLNAME_KEY : user_name_parts[0], LAB_PI_KEY : user_name_parts[1], STATUS_KEY : STATUS_APPROVED, AUTHORITIES_KEY : DEFAULT_AUTHORITIES }
+                row = { TIMESTAMP_KEY : current_time, MSKCC_EMAIL_KEY : user.inst_email, FULLNAME_KEY : user_name_parts[0], LAB_PI_KEY : user_name_parts[1], STATUS_KEY : STATUS_APPROVED, AUTHORITIES_KEY : def_authorities }
             else:
-                row = { TIMESTAMP_KEY : current_time, MSKCC_EMAIL_KEY : user.inst_email, FULLNAME_KEY : user.name, STATUS_KEY : STATUS_APPROVED, AUTHORITIES_KEY : DEFAULT_AUTHORITIES }
+                row = { TIMESTAMP_KEY : current_time, MSKCC_EMAIL_KEY : user.inst_email, FULLNAME_KEY : user.name, STATUS_KEY : STATUS_APPROVED, AUTHORITIES_KEY : def_authorities }
             add_row_to_google_worksheet(spreadsheet, worksheet, row)
 
 

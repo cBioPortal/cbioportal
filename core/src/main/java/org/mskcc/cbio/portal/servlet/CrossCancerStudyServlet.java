@@ -1,18 +1,33 @@
-/** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
  *
- * This library is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
- * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
- * documentation provided hereunder is on an "as is" basis, and
- * Memorial Sloan-Kettering Cancer Center 
- * has no obligations to provide maintenance, support,
- * updates, enhancements or modifications.  In no event shall
- * Memorial Sloan-Kettering Cancer Center
- * be liable to any party for direct, indirect, special,
- * incidental or consequential damages, including lost profits, arising
- * out of the use of this software and its documentation, even if
- * Memorial Sloan-Kettering Cancer Center 
- * has been advised of the possibility of such damage.
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This file is part of cBioPortal.
+ *
+ * cBioPortal is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 package org.mskcc.cbio.portal.servlet;
@@ -37,6 +52,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -75,15 +91,19 @@ public class CrossCancerStudyServlet extends HttpServlet {
         xdebug.startTimer();
         try {
             String geneList = httpServletRequest.getParameter(QueryBuilder.GENE_LIST);
+	    String[] cancerStudyIdList = httpServletRequest.getParameter(QueryBuilder.CANCER_STUDY_LIST).split(" ");
 
 	        // we need the raw gene list
 	        if (httpServletRequest instanceof XssRequestWrapper)
 	        {
 		        geneList = ((XssRequestWrapper)httpServletRequest).getRawParameter(
 				        QueryBuilder.GENE_LIST);
+			cancerStudyIdList = ((XssRequestWrapper)httpServletRequest).getRawParameter(
+					QueryBuilder.CANCER_STUDY_LIST).split(" ");
 	        }
 
-            ArrayList<CancerStudy> cancerStudyList = getCancerStudiesWithData();
+            ArrayList<CancerStudy> cancerStudyList = getCancerStudiesWithData(cancerStudyIdList);
+	    //ArrayList<CancerStudy> cancerStudyList = getCancerStudiesWithData();
 
             if (httpServletRequest.getRequestURL() != null) {
                 httpServletRequest.setAttribute(QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING,
@@ -92,6 +112,7 @@ public class CrossCancerStudyServlet extends HttpServlet {
 
             httpServletRequest.setAttribute(QueryBuilder.CANCER_STUDY_ID,
                     AccessControl.ALL_CANCER_STUDIES_ID);
+	//	      AccessControl.MULTIPLE_CANCER_STUDIES_ID);
             httpServletRequest.setAttribute(QueryBuilder.CANCER_TYPES_INTERNAL, cancerStudyList);
             httpServletRequest.setAttribute(QueryBuilder.XDEBUG_OBJECT, xdebug);
 
@@ -127,13 +148,18 @@ public class CrossCancerStudyServlet extends HttpServlet {
         dispatcher.forward(httpServletRequest, httpServletResponse);
     }
 
-    private ArrayList<CancerStudy> getCancerStudiesWithData() throws DaoException, ProtocolException {
+    private ArrayList<CancerStudy> getCancerStudiesWithData(String[] ids) throws DaoException, ProtocolException {
+	    HashMap<String, Boolean> studyMap = new HashMap<>();
+		for (String id : ids) {
+			studyMap.put(id, Boolean.TRUE);
+		}
 		List<CancerStudy> candidateCancerStudyList = accessControl.getCancerStudies();
         ArrayList<CancerStudy> finalCancerStudyList = new ArrayList<CancerStudy>();
 
         //  Only include cancer studies that have default CNA and/or default mutation
         for (CancerStudy currentCancerStudy : candidateCancerStudyList) {
-            if (hasDefaultCnaOrMutationProfiles(currentCancerStudy)) {
+            if (hasDefaultCnaOrMutationProfiles(currentCancerStudy) && studyMap.containsKey(currentCancerStudy.getCancerStudyStableId())) {
+	    //if (hasDefaultCnaOrMutationProfiles(currentCancerStudy)) {
                 finalCancerStudyList.add(currentCancerStudy);
             }
         }

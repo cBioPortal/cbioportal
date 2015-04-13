@@ -1,18 +1,33 @@
-/** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
  *
- * This library is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
- * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
- * documentation provided hereunder is on an "as is" basis, and
- * Memorial Sloan-Kettering Cancer Center 
- * has no obligations to provide maintenance, support,
- * updates, enhancements or modifications.  In no event shall
- * Memorial Sloan-Kettering Cancer Center
- * be liable to any party for direct, indirect, special,
- * incidental or consequential damages, including lost profits, arising
- * out of the use of this software and its documentation, even if
- * Memorial Sloan-Kettering Cancer Center 
- * has been advised of the possibility of such damage.
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This file is part of cBioPortal.
+ *
+ * cBioPortal is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 package org.mskcc.cbio.portal.dao;
@@ -39,12 +54,14 @@ import org.mskcc.cbio.portal.model.CanonicalGene;
  */
 public class DaoGeneOptimized {
     private static final String CBIO_CANCER_GENES_FILE = "/cbio_cancer_genes.txt";
+    private static final String GENE_SYMBOL_DISAMBIGUATION_FILE = "/gene_symbol_disambiguation.txt";
         
     private static final DaoGeneOptimized daoGeneOptimized = new DaoGeneOptimized();
     private final HashMap<String, CanonicalGene> geneSymbolMap = new HashMap <String, CanonicalGene>();
     private final HashMap<Long, CanonicalGene> entrezIdMap = new HashMap <Long, CanonicalGene>();
     private final HashMap<String, List<CanonicalGene>> geneAliasMap = new HashMap<String, List<CanonicalGene>>();
     private final Set<CanonicalGene> cbioCancerGenes = new HashSet<CanonicalGene>();
+    private final Map<String, CanonicalGene> disambiguousGenes = new HashMap<String, CanonicalGene>();
     
     /**
      * Private Constructor, to enforce singleton pattern.
@@ -80,6 +97,23 @@ public class DaoGeneOptimized {
                     } else {
                         System.err.println(line+" in the cbio cancer gene list is not a HUGO gene symbol.");
                     }
+                }
+                in.close();
+            }
+            
+            {
+                BufferedReader in = new BufferedReader(
+                        new InputStreamReader(getClass().getResourceAsStream(GENE_SYMBOL_DISAMBIGUATION_FILE)));
+                for (String line=in.readLine(); line!=null; line=in.readLine()) {
+                    if (line.startsWith("#")) {
+                        continue;
+                    }
+                    String[] parts = line.trim().split("\t",-1);
+                    CanonicalGene gene = getGene(Long.parseLong(parts[1]));
+                    if (gene==null) {
+                        System.err.println(line+" in gene_symbol_disambiguation.txt is not valid.");
+                    }
+                    disambiguousGenes.put(parts[0], gene);
                 }
                 in.close();
             }
@@ -310,21 +344,26 @@ public class DaoGeneOptimized {
             return null;
         }
         
-        if (genes.size()!=1) {
-            StringBuilder sb = new StringBuilder("Ambiguous alias ");
-            sb.append(geneId);
-            sb.append(": corresponding entrez ids of ");
-            for (CanonicalGene gene : genes) {
-                sb.append(gene.getEntrezGeneId());
-                sb.append(",");
-            }
-            sb.deleteCharAt(sb.length()-1);
-            
-            System.err.println(sb.toString());
-            return null;
+        if (genes.size()==1) {
+            return genes.get(0);
         }
         
-        return genes.get(0);
+        if (disambiguousGenes.containsKey(geneId)) {
+            return disambiguousGenes.get(geneId);
+        }
+        
+        StringBuilder sb = new StringBuilder("Ambiguous alias ");
+        sb.append(geneId);
+        sb.append(": corresponding entrez ids of ");
+        for (CanonicalGene gene : genes) {
+            sb.append(gene.getEntrezGeneId());
+            sb.append(",");
+        }
+        sb.deleteCharAt(sb.length()-1);
+        System.err.println(sb.toString());
+        
+        return null;
+        
     }
     
     public Set<Long> getEntrezGeneIds(Collection<CanonicalGene> genes) {

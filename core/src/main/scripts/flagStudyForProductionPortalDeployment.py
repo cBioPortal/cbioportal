@@ -87,8 +87,11 @@ def get_row_data(entry, remove_from_triage):
 
     dict = {}
     for key in entry.custom:
-        if key == TRIAGE_PORTAL_KEY and remove_from_triage == 't':
-            dict[key] = ''
+        if key == TRIAGE_PORTAL_KEY
+            if remove_from_triage == 't':
+                dict[key] = 'r'
+            else:
+                dict[key] = ''
         elif key == MSK_AUTOMATION_PORTAL_KEY:
             dict[key] = 'x'
         else:

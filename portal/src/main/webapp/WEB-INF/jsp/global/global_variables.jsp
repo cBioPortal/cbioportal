@@ -1,3 +1,35 @@
+<%--
+ - Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ -
+ - This library is distributed in the hope that it will be useful, but WITHOUT
+ - ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ - FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ - is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ - obligations to provide maintenance, support, updates, enhancements or
+ - modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ - liable to any party for direct, indirect, special, incidental or
+ - consequential damages, including lost profits, arising out of the use of this
+ - software and its documentation, even if Memorial Sloan-Kettering Cancer
+ - Center has been advised of the possibility of such damage.
+ --%>
+
+<%--
+ - This file is part of cBioPortal.
+ -
+ - cBioPortal is free software: you can redistribute it and/or modify
+ - it under the terms of the GNU Affero General Public License as
+ - published by the Free Software Foundation, either version 3 of the
+ - License.
+ -
+ - This program is distributed in the hope that it will be useful,
+ - but WITHOUT ANY WARRANTY; without even the implied warranty of
+ - MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ - GNU Affero General Public License for more details.
+ -
+ - You should have received a copy of the GNU Affero General Public License
+ - along with this program.  If not, see <http://www.gnu.org/licenses/>.
+--%>
+
 <!-- Collection of all global variables for the result pages of single cancer study query-->
 
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
@@ -155,6 +187,20 @@
         showCoexpTab = true;
     } 
     Object patientSampleIdMap = request.getAttribute(QueryBuilder.SELECTED_PATIENT_SAMPLE_ID_MAP);
+
+    //list of altered & unaltered sample ids
+    ArrayList<String> alteredSampleIdList = new ArrayList<String>();
+    ArrayList<String> unalteredSampleIdList = new ArrayList<String>();
+    for (String patientId : mergedPatientList) {
+        if (dataSummary.isCaseAltered(patientId)) {
+            alteredSampleIdList.add(patientId);
+        } else {
+            unalteredSampleIdList.add(patientId);
+        }
+    }
+    String alteredSampleIdsStr = StringUtils.join(alteredSampleIdList, " ");
+    String unalteredSampleIdsStr = StringUtils.join(unalteredSampleIdList, " ");
+
 %>
 
 <!--Global Data Objects Manager-->
@@ -193,7 +239,7 @@
 
         var subscribeOncoprintStat = function(fn) {
             fns_oncoprint_stat.push(fn);
-        }
+        };
 
         return {
             //to subscribe the functions that would re-use oncoprint data -- by subscribing, once the oncoprint
@@ -215,7 +261,7 @@
                     );
                 }
             }
-        }
+        };
 
     }());
 </script>
@@ -280,7 +326,9 @@
                 result[(_arr[0].replace(/\s+/, ""))] = (_arr[1].replace(/\s+/, ""));
             });
             return result;
-        }
+        },
+        getAlteredSampleIdList: function() { return '<%=alteredSampleIdsStr%>'; },
+        getUnalteredSampleIdList: function() { return '<%=unalteredSampleIdsStr%>'; }
     };
 </script>
 

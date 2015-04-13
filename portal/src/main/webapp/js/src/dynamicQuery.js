@@ -214,6 +214,7 @@ function loadMetaData() {
 //  Triggered when the User Selects one of the Main Query or Download Tabs
 function userClickedMainTab(tabAction) {
 
+    window.changingTabs = true;
     //  Change hidden field value
     $("#tab_index").val(tabAction);
 
@@ -308,7 +309,7 @@ function chooseAction() {
     $("#error_box").remove();
 
     var selected_studies = $("#jstree").jstree(true).get_selected_leaves();
-    while (selected_studies.length === 0) {
+    while (selected_studies.length === 0 && !window.changingTabs) {
 	    // select all by default
 	    $("#jstree").jstree(true).select_node(window.jstree_root_id);
 	    selected_studies = $("#jstree").jstree(true).get_selected_leaves()
@@ -1016,12 +1017,12 @@ function addMetaDataToPage() {
 				"icons": false,
 				"url": "../../css/jstree.style.css"
 			},
-			"plugins": ['checkbox', 'search'],
+			"plugins": ['checkbox','search'],
 			"search": {'show_only_matches': true,
 				'search_callback': jstree_search,
 				'search_leaves_only': true},
 			"checkbox": {},
-			'core': {'data': data, 'check_callback': true, 'dblclick_toggle': false}
+			'core': {'data': data, 'check_callback': true, 'dblclick_toggle': false, 'multiple': (window.tab_index !== "tab_download")}
 		});
 		$('#jstree').on('ready.jstree', function () {
 			$('#jstree').jstree(true).num_leaves = $('#jstree').jstree(true).get_leaves().length;

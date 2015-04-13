@@ -2818,10 +2818,10 @@
 
 			if(!this.settings.core.multiple || (!e.metaKey && !e.ctrlKey && !e.shiftKey) || (e.shiftKey && (!this._data.core.last_clicked || !this.get_parent(obj) || this.get_parent(obj) !== this._data.core.last_clicked.parent ) )) {
 				if(!this.settings.core.multiple && (e.metaKey || e.ctrlKey || e.shiftKey) && this.is_selected(obj)) {
-					this.deselect_node(obj, false, e);
+					//this.deselect_node(obj, false, e);
 				}
 				else {
-					this.deselect_all(true);
+					//this.deselect_all(true);
 					this.select_node(obj, false, false, e);
 					this._data.core.last_clicked = this.get_node(obj);
 				}
@@ -4772,9 +4772,18 @@
 							// apply down
 							this.downward_select = function(parent_obj) {
 								var is_selected = true;
-								$.each(parent_obj.children, $.proxy(function(ind, key) {
-									is_selected = this.downward_select(m[key]) && is_selected;
-								}, this));
+								if (this.settings.core.multiple) {
+									$.each(parent_obj.children, $.proxy(function(ind, key) {
+										is_selected = this.downward_select(m[key]) && is_selected;
+									}, this));
+								} else {
+									console.log(parent_obj);
+									if (parent_obj.children.length === 0) {
+										this.deselect_node(this.get_selected_leaves());
+									} else {
+										is_selected = false;
+									}
+								}
 								if (is_selected && !parent_obj.state.fixed) {
 									parent_obj.state.selected = true;
 									this._data[ t ? 'core' : 'checkbox' ].selected.push(parent_obj.id);

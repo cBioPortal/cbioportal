@@ -40,16 +40,16 @@ public class ORAnalysisDiscretizedDataProxy {
     private final ArrayNode result = new ArrayNode(factory);
 
     private final String COL_NAME_GENE = "Gene";
-    private final String COL_NAME_PCT_ALTERED = "percentage of alteration<br>in altered group";
-    private final String COL_NAME_PCT_UNALTERED = "percentage of alteration<br> in unaltered group";
+    private final String COL_NAME_PCT_ALTERED = "percentage of alteration in altered group";
+    private final String COL_NAME_PCT_UNALTERED = "percentage of alteration in unaltered group";
     private final String COL_NAME_RATIO = "Log Ratio";
     private final String COL_NAME_DIRECTION = "Direction/Tendency";
     private final String COL_NAME_P_VALUE = "p-Value";
     private final String COL_NAME_Q_VALUE = "q-Value";
-    private final String COL_NAME_MEAN_ALTERED = "mean of alteration<br> in altered group";
-    private final String COL_NAME_MEAN_UNALTERED = "mean of alteration<br> in unaltered group";
-    private final String COL_NAME_STDEV_ALTERED = "standard deviation of alteration<br> in altered group";
-    private final String COL_NAME_STDEV_UNALTERED = "standard deviation of alteration<br> in unaltered group";
+    private final String COL_NAME_MEAN_ALTERED = "mean of alteration in altered group";
+    private final String COL_NAME_MEAN_UNALTERED = "mean of alteration in unaltered group";
+    private final String COL_NAME_STDEV_ALTERED = "standard deviation of alteration in altered group";
+    private final String COL_NAME_STDEV_UNALTERED = "standard deviation of alteration in unaltered group";
     
     public ORAnalysisDiscretizedDataProxy(
             int cancerStudyId, 

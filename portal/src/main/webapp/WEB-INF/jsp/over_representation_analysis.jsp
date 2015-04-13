@@ -18,6 +18,17 @@
     #or_analysis .or-analysis-tabs-ref {
         font-size: 11px !important;
     }
+    #or_analysis table.dataTable thead th div.DataTables_sort_wrapper {
+        font-size: 100%;
+        position: relative;
+        padding-right: 20px;
+    }
+    #or_analysis table.dataTable thead th div.DataTables_sort_wrapper span {
+        position: absolute;
+        top: 50%;
+        margin-top: -8px;
+        right: 0;
+    }
 </style>
 
 <script>
@@ -32,14 +43,18 @@
         });
         
         var or_tab_init = false;
+        $(window).trigger("resize");
         if ($("#or_analysis").is(":visible")) {
             or_tab.init(caseListObj);
             or_tab_init = true;
+            $(window).trigger("resize");
         } else {
             $(window).trigger("resize");
         }
         $("#tabs").bind("tabsactivate", function(event, ui) {
+            $(window).trigger("resize");
             if (ui.newTab.text().trim().toLowerCase() === "over-representation analysis") {
+                $(window).trigger("resize");
                 if (or_tab_init === false) {
                     or_tab.init(caseListObj);
                     or_tab_init = true;

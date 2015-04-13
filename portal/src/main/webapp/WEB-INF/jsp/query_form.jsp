@@ -44,6 +44,10 @@
 		    (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
     String localPatientSetId =
 		    (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
+                    String localCancerStudyList = (String) request.getAttribute(QueryBuilder.CANCER_STUDY_LIST);
+                    if (localCancerStudyList == null) {
+                        localCancerStudyList = "";
+                        }
     HashSet<String> localGeneticProfileIdSet = (HashSet<String>) request.getAttribute
             (QueryBuilder.GENETIC_PROFILE_IDS);
     String localCaseIds = request.getParameter(QueryBuilder.CASE_IDS);
@@ -110,7 +114,9 @@
     // Store the currently selected options as global variables;
     window.cancer_study_id_selected = '<%= localCancerTypeId%>';
     window.cancer_study_list_param = '<%= QueryBuilder.CANCER_STUDY_LIST%>';
+    window.cancer_study_list_selected = '<%= localCancerStudyList %>';
     window.case_set_id_selected = '<%= localPatientSetId %>';
+    window.case_ids_selected = '<%= localCaseIds.replaceAll("\\\\n", "\n").replaceAll("\\\\t", "\t").trim() %>';
     window.gene_set_id_selected = '<%= localGeneSetChoice %>';
     window.tab_index = '<%= localTabIndex %>';
     window.zscore_threshold = '<%= localzScoreThreshold %>';

@@ -1023,7 +1023,7 @@ function addMetaDataToPage() {
 			};
 			$('#jstree').jstree(true).get_node(jstree_root_id, true).children('.jstree-anchor').after($jstree_flatten_btn());
 		});
-		$('#jstree').on('changed.jstree', function() { onJSTreeChange(); saveSelectedStudiesLocalStorage(); });
+		$('#jstree').on('changed.jstree', function() { onJSTreeChange(); /*saveSelectedStudiesLocalStorage();*/ });
 		$('#jstree').jstree(true).hide_icons();
 	}
 	initialize_jstree(jstree_data);
@@ -1140,15 +1140,19 @@ function addMetaDataToPage() {
 
     //  Set things up, based on currently selected cancer type
     var selected_study_map = {};
-    var windowParams = window.location.search.substring(1).split("&");
-    $.each(windowParams, function(ind, elt) {
-	    var pair = elt.split("=");
-	    if (pair[0] === window.cancer_study_list_param) {
-		    window.selected_cancer_study_list = pair[1];
-		    return 0;
-	    }
-    });
-    var selected_study_list = decodeURIComponent(window.selected_cancer_study_list || ( getSelectedStudiesLocalStorage() || '')).split(",");
+    if (!window.cancer_study_list_selected || window.cancer_study_list_selected === '') {
+	var windowParams = window.location.search.substring(1).split("&");
+	$.each(windowParams, function(ind, elt) {
+		var pair = elt.split("=");
+		if (pair[0] === window.cancer_study_list_param) {
+			window.cancer_study_list_selected = pair[1];
+			return 0;
+		}
+	});
+    }
+	    
+    //var selected_study_list = decodeURIComponent(window.selected_cancer_study_list || ( getSelectedStudiesLocalStorage() || '')).split(",");
+    var selected_study_list = decodeURIComponent(window.cancer_study_list_selected || '').split(",");
 	    $.each(selected_study_list, function(ind, elt) {
 		    if (elt !== '') {
 			selected_study_map[elt] = false;
@@ -1176,6 +1180,9 @@ function addMetaDataToPage() {
 			caseSetSelectionOverriddenByUser = true;
 		}
 		caseSetSelected();
+		if (window.case_ids_selected !== '') {
+			$('#custom_case_set_ids').val(window.case_ids_selected);
+		}
 
 		//  Set things up, based on currently selected gene set id
 		if (window.gene_set_id_selected != null && window.gene_set_id_selected != "") {

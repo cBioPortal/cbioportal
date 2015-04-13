@@ -805,7 +805,21 @@ function addMetaDataToPage() {
     }
     var splitAndCapitalize = function(s) {
 	    return s.split("_").map(function(x) { return (x.length > 0 ? x[0].toUpperCase()+x.slice(1) : x);}).join(" ");
-    }
+    };
+    var truncateStudyName = function(n) {
+	    var maxLength = 80;
+	    if (n.length < maxLength) {
+		    return n;
+	    } else {
+		    var suffix = '';
+		    var suffixStart = n.indexOf('(');
+		    if (suffixStart !== -1) {
+			    suffix = n.slice(suffixStart);
+		    }
+		    var ellipsis = '... ';
+		    return n.slice(0,maxLength-suffix.length-ellipsis.length)+ellipsis+suffix;
+	    }			    
+    };
     window.jstree_root_id = 'tissue';
     var jstree_data = [];
     var flat_jstree_data = [];
@@ -816,10 +830,10 @@ function addMetaDataToPage() {
     if (dmp_studies.length > 0) {
 	jstree_data.push({'id':'mskimpact-study-group', 'parent':jstree_root_id, 'text':'MSKCC DMP', 'li_attr':{name:'MSKCC DMP'}});
 	$.each(dmp_studies, function(ind, id) {
-		jstree_data.push({'id':id, 'parent':'mskimpact-study-group', 'text':json.cancer_studies[id].name, 
-			'li_attr':{name: json.cancer_studies[id].name, description: metaDataJson.cancer_studies[id].description}});
-		flat_jstree_data.push({'id':id, 'parent':jstree_root_id, 'text':json.cancer_studies[id].name, 
-			'li_attr':{name: json.cancer_studies[id].name, description: metaDataJson.cancer_studies[id].description, search_terms: 'MSKCC DMP'}});
+		jstree_data.push({'id':id, 'parent':'mskimpact-study-group', 'text':truncateStudyName(json.cancer_studies[id].name), 
+			'li_attr':{description: metaDataJson.cancer_studies[id].description}});
+		flat_jstree_data.push({'id':id, 'parent':jstree_root_id, 'text':truncateStudyName(json.cancer_studies[id].name), 
+			'li_attr':{description: metaDataJson.cancer_studies[id].description, search_terms: 'MSKCC DMP'}});
 	});
     }
     while (node_queue.length > 0) {
@@ -833,15 +847,15 @@ function addMetaDataToPage() {
 		});
 		
 		$.each(currNode.studies, function(ind, elt) {
-			    name = splitAndCapitalize(metaDataJson.cancer_studies[elt.id].name);
+			    name = truncateStudyName(splitAndCapitalize(metaDataJson.cancer_studies[elt.id].name));
 			    jstree_data.push({'id':elt.id, 
 				    'parent':currNode.code, 
 				    'text':name,
-				    'li_attr':{name: name, description:metaDataJson.cancer_studies[elt.id].description}});
+				    'li_attr':{description:metaDataJson.cancer_studies[elt.id].description}});
 			    flat_jstree_data.push({'id':elt.id, 
 				    'parent':jstree_root_id,
 				    'text':name,
-				    'li_attr':{name: name, description:metaDataJson.cancer_studies[elt.id].description, search_terms: elt.lineage.join(" ")}});
+				    'li_attr':{description:metaDataJson.cancer_studies[elt.id].description, search_terms: elt.lineage.join(" ")}});
 		});
 		node_queue = node_queue.concat(currNode.children);
 	    }

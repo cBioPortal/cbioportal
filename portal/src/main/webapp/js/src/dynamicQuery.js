@@ -1036,12 +1036,14 @@ function addMetaDataToPage() {
 				});
 				return ret;
 			};
-			$('#jstree').jstree(true).get_node(jstree_root_id, true).children('.jstree-anchor').after($jstree_flatten_btn());
+			if (window.tab_index !== "tab_download") {
+				$('#jstree').jstree(true).get_node(jstree_root_id, true).children('.jstree-anchor').after($jstree_flatten_btn());
+			}
 		});
 		$('#jstree').on('changed.jstree', function() { onJSTreeChange(); /*saveSelectedStudiesLocalStorage();*/ });
 		$('#jstree').jstree(true).hide_icons();
 	}
-	initialize_jstree(jstree_data);
+	initialize_jstree(window.tab_index === "tab_download" ? flat_jstree_data : jstree_data);
 	var jstree_is_flat = false;
 	var $jstree_flatten_btn = (function() { 
 		var ret = $('<i class="fa fa-lg fa-code-fork jstree-external-node-decorator" style="display:none; cursor:pointer; padding-left:0.6em"></i>');

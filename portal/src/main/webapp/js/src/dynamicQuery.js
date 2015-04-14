@@ -1169,7 +1169,7 @@ function addMetaDataToPage() {
     }
 	    
     //var selected_study_list = decodeURIComponent(window.selected_cancer_study_list || ( getSelectedStudiesLocalStorage() || '')).split(",");
-    var selected_study_list = decodeURIComponent(window.cancer_study_list_selected || '').split(",");
+    var selected_study_list = (window.tab_index !== "tab_download" ? decodeURIComponent(window.cancer_study_list_selected || '').split(",") : []);
 	    $.each(selected_study_list, function(ind, elt) {
 		    if (elt !== '') {
 			selected_study_map[elt] = false;

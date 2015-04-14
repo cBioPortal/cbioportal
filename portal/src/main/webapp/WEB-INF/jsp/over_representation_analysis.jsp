@@ -29,6 +29,10 @@
         margin-top: -8px;
         right: 0;
     }
+    #or_analysis .label-or-analysis-significant {
+        background-color: #58ACFA;
+    }
+    
 </style>
 
 <script>

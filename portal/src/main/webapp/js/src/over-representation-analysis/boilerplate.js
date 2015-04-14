@@ -61,6 +61,47 @@ var orAnalysis = (function() {
             mrna: "MRNA_EXPRESSION",
             copy_num: "COPY_NUMBER_ALTERATION",
             mutations: "MUTATION_EXTENDED"
+        },
+        col_width : {
+            gene: 90,
+            altered_pct: 120,
+            unaltered_pct: 120,
+            log_ratio: 120,
+            p_val: 100,
+            q_val: 100,
+            altered_mean: 100,
+            unaltered_mean: 100,
+            altered_stdev: 100,
+            unaltered_stdev: 100
+        },
+        col_index: {
+            copy_num: {
+                gene: 0,
+                altered_pct: 1,
+                unaltered_pct: 2,
+                log_ratio: 3,
+                p_val: 4,
+                q_val: 5,
+                direction: 6
+            },
+            mrna: {
+                gene: 0,
+                altered_mean: 1,
+                unaltered_mean: 2,
+                altered_stdev: 3,
+                unaltered_stdev: 4,
+                p_val: 5,
+                q_val: 6
+            },
+            mutations: {
+                gene: 0,
+                altered_pct: 1,
+                unaltered_pct: 2,
+                log_ratio: 3,
+                p_val: 4,
+                q_val: 5,
+                direction: 6
+            }
         }
     };
     

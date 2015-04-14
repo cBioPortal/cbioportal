@@ -34,6 +34,86 @@
 var orData = function() {
     
     var data = [], retrieved = false;
+    
+    function convert_data(_input, _profile_type) {
+        
+        var table_arr = [];
+        
+        $.each(_input, function(_index, _obj) {
+            
+            var _unit = [];
+            
+            if (_profile_type === orAnalysis.profile_type.copy_num) {
+                
+                _unit[orAnalysis.col_index.copy_num.gene] = _obj["Gene"];
+                _unit[orAnalysis.col_index.copy_num.altered_pct] = (_obj["percentage of alteration in altered group"] * 100).toFixed(2) + "%";
+                _unit[orAnalysis.col_index.copy_num.unaltered_pct] = (_obj["percentage of alteration in unaltered group"] * 100).toFixed(2) + "%";
+                _unit[orAnalysis.col_index.copy_num.log_ratio] = (_obj["Log Ratio"] !== "--")? parseFloat(_obj["Log Ratio"]).toFixed(2): "--";
+                _unit[orAnalysis.col_index.copy_num.direction] = define_direction(_profile_type, _obj["p-Value"], _obj["q-Value"], _obj["Log Ratio"]);
+                _unit[orAnalysis.col_index.copy_num.p_val] = parseFloat(_obj["p-Value"]) < 0.001? "<0.001": parseFloat(_obj["p-Value"]).toFixed(3);
+                _unit[orAnalysis.col_index.copy_num.q_val] = parseFloat(_obj["q-Value"]) < 0.001? "<0.001": parseFloat(_obj["q-Value"]).toFixed(3);
+                
+            } else if (_profile_type === orAnalysis.profile_type.mutations) {
+                
+                _unit[orAnalysis.col_index.mutations.gene] = _obj["Gene"];
+                _unit[orAnalysis.col_index.mutations.altered_pct] = (_obj["percentage of alteration in altered group"] * 100).toFixed(2) + "%";
+                _unit[orAnalysis.col_index.mutations.unaltered_pct] = (_obj["percentage of alteration in unaltered group"] * 100).toFixed(2) + "%";
+                _unit[orAnalysis.col_index.mutations.log_ratio] = (_obj["Log Ratio"] !== "--")? parseFloat(_obj["Log Ratio"]).toFixed(2): "--";
+                _unit[orAnalysis.col_index.mutations.direction] = define_direction(_profile_type, _obj["p-Value"], _obj["q-Value"], _obj["Log Ratio"]);
+                _unit[orAnalysis.col_index.mutations.p_val] = parseFloat(_obj["p-Value"]) < 0.001? "<0.001": parseFloat(_obj["p-Value"]).toFixed(3);
+                _unit[orAnalysis.col_index.mutations.q_val] = parseFloat(_obj["q-Value"]) < 0.001? "<0.001": parseFloat(_obj["q-Value"]).toFixed(3);
+
+            } else if (_profile_type === orAnalysis.profile_type.mrna) {
+                
+                _unit[orAnalysis.col_index.mrna.gene] = _obj["Gene"];
+                _unit[orAnalysis.col_index.mrna.altered_mean] = parseFloat(_obj["mean of alteration in altered group"]).toFixed(2);
+                _unit[orAnalysis.col_index.mrna.unaltered_mean] = parseFloat(_obj["mean of alteration in unaltered group"]).toFixed(2);
+                _unit[orAnalysis.col_index.mrna.altered_stdev] = parseFloat(_obj["standard deviation of alteration in altered group"]).toFixed(2);
+                _unit[orAnalysis.col_index.mrna.unaltered_stdev] = parseFloat(_obj["standard deviation of alteration in unaltered group"]).toFixed(2);
+                _unit[orAnalysis.col_index.mrna.p_val] = parseFloat(_obj["p-Value"]) < 0.001? "<0.001": parseFloat(_obj["p-Value"]).toFixed(3);
+                _unit[orAnalysis.col_index.mrna.q_val] = parseFloat(_obj["q-Value"]) < 0.001? "<0.001": parseFloat(_obj["q-Value"]).toFixed(3);
+            }
+            
+            table_arr.push(_unit);
+            
+        });  
+        return table_arr;
+    }
+    
+    function define_direction(_profile_type, _p_val, _q_val, _log_ratio) {
+
+        var _result_str = "";
+        
+        if (_profile_type === orAnalysis.profile_type.copy_num) {
+            
+            if (_log_ratio !== "--") {
+                if (_log_ratio > 0) {
+                    _result_str += "Enriched in altered group";
+                } else if (_log_ratio < 0) {
+                    _result_str += "Enriched in unaltered group";
+                }                
+            } else {
+                _result_str += "--";
+            }
+
+        } else if (_profile_type === orAnalysis.profile_type.mutations) {
+            if (_log_ratio !== "--") {
+                if (_log_ratio > 0) {
+                    _result_str += "Enriched in altered group";
+                } else if (_log_ratio < 0) {
+                    _result_str += "Enriched in unaltered group";
+                }                
+            } else {
+                _result_str += "--";
+            }
+        } 
+        
+        if (_p_val < 0.005 && _q_val < 0.005 && _result_str !== "--") {
+            _result_str += "&nbsp;&nbsp;&nbsp;<span class='label label-or-analysis-significant'>Significant</span>";
+        }
+        
+        return _result_str;
+    }
 
     return {
         init: function(_param) {
@@ -55,7 +135,7 @@ var orData = function() {
             function timer() {
                 if (retrieved) {
                     clearInterval(tmp);
-                    callback_func(data, _div_id, _table_div, _table_id, _table_title, _profile_type);
+                    callback_func(convert_data(data, _profile_type), _div_id, _table_div, _table_id, _table_title, _profile_type);
                 }
             }
         }

@@ -81,6 +81,15 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
             String[] unalteredCaseList = _unalteredCaseList.split("\\s+");
             String profileId = httpServletRequest.getParameter("profile_id");
 
+            String copyNumType = "none";
+            if (profileId.contains("_amp")) {
+                copyNumType = "amp";
+                profileId = profileId.substring(0, profileId.length() - 4);
+            } else if (profileId.contains("_del")) {
+                copyNumType = "del";
+                profileId = profileId.substring(0, profileId.length() - 4);
+            }
+            
             //Get genetic profile ID (int) & Type
             GeneticProfile gp = DaoGeneticProfile.getGeneticProfileByStableId(profileId);
             int gpId = gp.getGeneticProfileId();
@@ -105,7 +114,7 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
             unalteredSampleIds.retainAll(DaoSampleProfile.getAllSampleIdsInProfile(gpId));
             
             //The actual calculation
-            ORAnalysisDiscretizedDataProxy dataProxy = new ORAnalysisDiscretizedDataProxy(cancerStudyInternalId, gpId, profileType, alteredSampleIds, unalteredSampleIds);
+            ORAnalysisDiscretizedDataProxy dataProxy = new ORAnalysisDiscretizedDataProxy(cancerStudyInternalId, gpId, profileType, alteredSampleIds, unalteredSampleIds, copyNumType);
             
             ObjectMapper mapper = new ObjectMapper();
             httpServletResponse.setContentType("application/json");

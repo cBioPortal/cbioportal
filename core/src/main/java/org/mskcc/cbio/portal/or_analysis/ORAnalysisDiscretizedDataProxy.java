@@ -51,16 +51,20 @@ public class ORAnalysisDiscretizedDataProxy {
     private final String COL_NAME_STDEV_ALTERED = "standard deviation of alteration in altered group";
     private final String COL_NAME_STDEV_UNALTERED = "standard deviation of alteration in unaltered group";
     
+    private String copyNumType = "none";
+    
     public ORAnalysisDiscretizedDataProxy(
             int cancerStudyId, 
             int profileId, 
             String profileType, 
             List<Integer> alteredSampleIds, 
-            List<Integer> unalteredSampleIds) throws DaoException, IllegalArgumentException, MathException {
+            List<Integer> unalteredSampleIds,
+            String copyNumType) throws DaoException, IllegalArgumentException, MathException {
         
         this.alteredSampleIds = alteredSampleIds;
         this.unalteredSampleIds = unalteredSampleIds;
         this.map = OverRepresentationAnalysisUtil.getValueMap(cancerStudyId, profileId, profileType, alteredSampleIds, unalteredSampleIds);
+        this.copyNumType = copyNumType;
         
         if (!map.keySet().isEmpty()) {
             DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
@@ -78,7 +82,7 @@ public class ORAnalysisDiscretizedDataProxy {
                     _datum.put(COL_NAME_PCT_ALTERED, calcPct(singleGeneCaseValueMap, profileType, "altered"));
                     _datum.put(COL_NAME_PCT_UNALTERED, calcPct(singleGeneCaseValueMap, profileType, "unaltered"));
                     _datum.put(COL_NAME_RATIO, calcRatio(calcPct(singleGeneCaseValueMap, profileType, "altered"), calcPct(singleGeneCaseValueMap, profileType, "unaltered")));
-                    _datum.put(COL_NAME_DIRECTION, "place holder");
+                    _datum.put(COL_NAME_DIRECTION, "place holder"); //calculation is done by the front-end
                     _datum.put(COL_NAME_P_VALUE, calcPval(singleGeneCaseValueMap, profileType));
                     if (!(calcPct(singleGeneCaseValueMap, profileType, "altered") == 0.0 && 
                           calcPct(singleGeneCaseValueMap, profileType, "unaltered") == 0.0)) {
@@ -89,7 +93,7 @@ public class ORAnalysisDiscretizedDataProxy {
                     _datum.put(COL_NAME_PCT_ALTERED, calcPct(singleGeneCaseValueMap, profileType, "altered"));
                     _datum.put(COL_NAME_PCT_UNALTERED, calcPct(singleGeneCaseValueMap, profileType, "unaltered"));
                     _datum.put(COL_NAME_RATIO, calcRatio(calcPct(singleGeneCaseValueMap, profileType, "altered"), calcPct(singleGeneCaseValueMap, profileType, "unaltered")));
-                    _datum.put(COL_NAME_DIRECTION, "place holder");
+                    _datum.put(COL_NAME_DIRECTION, "place holder"); //calculation is done by the front-end
                     _datum.put(COL_NAME_P_VALUE, calcPval(singleGeneCaseValueMap, profileType));
                     if (!(calcPct(singleGeneCaseValueMap, profileType, "altered") == 0.0 && 
                          calcPct(singleGeneCaseValueMap, profileType, "unaltered") == 0.0)) {
@@ -208,13 +212,12 @@ public class ORAnalysisDiscretizedDataProxy {
         
         double _result_pct = 0, _count = 0; //altered samples count
         
-        if (profileType.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION.toString())) {
+        if (profileType.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION.toString()) && copyNumType.equals("del")) {
              switch (groupType) {
                 case "altered":
                     for (Integer alteredSampleId: alteredSampleIds) {
                         if (singleGeneCaseValueMap.containsKey(alteredSampleId)) {
-                            if (Double.parseDouble(singleGeneCaseValueMap.get(alteredSampleId)) == 2.0 || 
-                                Double.parseDouble(singleGeneCaseValueMap.get(alteredSampleId)) == -2.0) { 
+                            if (Double.parseDouble(singleGeneCaseValueMap.get(alteredSampleId)) == -2.0) { 
                                 _count += 1;
                             } 
                         }
@@ -224,8 +227,30 @@ public class ORAnalysisDiscretizedDataProxy {
                 case "unaltered":
                     for (Integer unalteredSampleId: unalteredSampleIds) {
                         if (singleGeneCaseValueMap.containsKey(unalteredSampleId)) {
-                            if (Double.parseDouble(singleGeneCaseValueMap.get(unalteredSampleId)) == 2.0 || 
-                                Double.parseDouble(singleGeneCaseValueMap.get(unalteredSampleId)) == -2.0) { 
+                            if (Double.parseDouble(singleGeneCaseValueMap.get(unalteredSampleId)) == -2.0) { 
+                                _count += 1;
+                            }   
+                        }  
+                    } 
+                    _result_pct = (double)(_count/unalteredSampleIds.size());
+                    break;
+            }
+        } else if (profileType.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION.toString()) && copyNumType.equals("amp")) {
+            switch (groupType) {
+                case "altered":
+                    for (Integer alteredSampleId: alteredSampleIds) {
+                        if (singleGeneCaseValueMap.containsKey(alteredSampleId)) {
+                            if (Double.parseDouble(singleGeneCaseValueMap.get(alteredSampleId)) == 2.0) { 
+                                _count += 1;
+                            } 
+                        }
+                    }
+                    _result_pct = (double)(_count/alteredSampleIds.size());
+                    break;
+                case "unaltered":
+                    for (Integer unalteredSampleId: unalteredSampleIds) {
+                        if (singleGeneCaseValueMap.containsKey(unalteredSampleId)) {
+                            if (Double.parseDouble(singleGeneCaseValueMap.get(unalteredSampleId)) == 2.0) { 
                                 _count += 1;
                             }   
                         }  
@@ -314,10 +339,19 @@ public class ORAnalysisDiscretizedDataProxy {
                 
                 if (profileType.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION.toString())) {
                     Double value = Double.parseDouble(singleGeneCaseValueMap.get(alteredSampleId));
-                    if (value == 2.0 || value == -2.0) {
-                        d += 1;
-                    } else {
-                        c += 1;
+                    switch (copyNumType) {
+                        case "del":
+                            if (value == -2.0) {
+                                d += 1;
+                            } else {
+                                c += 1;
+                            }   break;
+                        case "amp":
+                            if (value == 2.0) {
+                                d += 1;
+                            } else {
+                                c += 1;
+                            }   break;
                     }
                 } else if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString())) {
                     String value = singleGeneCaseValueMap.get(alteredSampleId);
@@ -335,10 +369,19 @@ public class ORAnalysisDiscretizedDataProxy {
             if (singleGeneCaseValueMap.containsKey(unalteredSampleId)) {
                 if (profileType.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION.toString())) { 
                     Double value = Double.parseDouble(singleGeneCaseValueMap.get(unalteredSampleId));
-                    if (value == 2.0 || value == -2.0) {
-                        b += 1;
-                    } else {
-                        a += 1;
+                    switch (copyNumType) {
+                        case "del":
+                            if (value == -2.0) {
+                                b += 1;
+                            } else {
+                                a += 1;
+                            }
+                        case "amp":
+                            if (value == 2.0) {
+                                b += 1;
+                            } else {
+                                a += 1;
+                            }
                     }
                 } else if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString())) {
                     String value = singleGeneCaseValueMap.get(unalteredSampleId);

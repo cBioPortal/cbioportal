@@ -87,6 +87,13 @@ public class MafRecord
     private int normalDepth;
     private float normalVaf;
 
+	// custom annotator columns
+	private String proteinChange;
+	private String codons;
+	private String refSeq;
+	private String swissprot;
+	private String proteinPosition;
+
 	// Mutation Assessor cols
 	private String maFuncImpact;
 	private float maFIS;
@@ -484,6 +491,56 @@ public class MafRecord
     public void setNormalVaf(float normalVaf) {
         this.normalVaf = normalVaf;
     }
+
+	public String getProteinChange()
+	{
+		return proteinChange;
+	}
+
+	public void setProteinChange(String proteinChange)
+	{
+		this.proteinChange = proteinChange;
+	}
+
+	public String getCodons()
+	{
+		return codons;
+	}
+
+	public void setCodons(String codons)
+	{
+		this.codons = codons;
+	}
+
+	public String getRefSeq()
+	{
+		return refSeq;
+	}
+
+	public void setRefSeq(String refSeq)
+	{
+		this.refSeq = refSeq;
+	}
+
+	public String getSwissprot()
+	{
+		return swissprot;
+	}
+
+	public void setSwissprot(String swissprot)
+	{
+		this.swissprot = swissprot;
+	}
+
+	public String getProteinPosition()
+	{
+		return proteinPosition;
+	}
+
+	public void setProteinPosition(String proteinPosition)
+	{
+		this.proteinPosition = proteinPosition;
+	}
 
 	public String getOncotatorProteinChange()
 	{

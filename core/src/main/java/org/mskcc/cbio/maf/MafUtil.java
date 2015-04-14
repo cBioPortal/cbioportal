@@ -99,6 +99,13 @@ public class MafUtil
 	public static final String NORMAL_DEPTH = "normal_depth";
 	public static final String NORMAL_VAF = "normal_vaf";
 
+	// custom annotator column names
+	public static final String PROTEIN_CHANGE = "HGVSp_Short";
+	public static final String CODONS = "Codons";
+	public static final String SWISSPROT = "SWISSPROT";
+	public static final String REFSEQ = "RefSeq";
+	public static final String PROTEIN_POSITION = "Protein_position";
+
 	// oncotator column names
 	public static final String ONCOTATOR_COSMIC_OVERLAPPING = "ONCOTATOR_COSMIC_OVERLAPPING";
 	public static final String ONCOTATOR_DBSNP_RS = "ONCOTATOR_DBSNP_RS";
@@ -478,6 +485,13 @@ public class MafUtil
         record.setTumorVaf(TabDelimitedFileUtil.getPartPercentage(tumorVafIndex, parts));
         record.setNormalDepth(TabDelimitedFileUtil.getPartInt(normalDepthIndex, parts));
         record.setNormalVaf(TabDelimitedFileUtil.getPartPercentage(normalVafIndex, parts));
+
+	    // custom annotator columns
+	    record.setProteinChange(TabDelimitedFileUtil.getPartString(getColumnIndex(PROTEIN_CHANGE), parts));
+	    record.setProteinPosition(TabDelimitedFileUtil.getPartString(getColumnIndex(PROTEIN_POSITION), parts));
+	    record.setCodons(TabDelimitedFileUtil.getPartString(getColumnIndex(CODONS), parts));
+	    record.setSwissprot(TabDelimitedFileUtil.getPartString(getColumnIndex(SWISSPROT), parts));
+	    record.setRefSeq(TabDelimitedFileUtil.getPartString(getColumnIndex(REFSEQ), parts));
 
         // Mutation Assessor columns
 	    record.setMaFuncImpact(TabDelimitedFileUtil.getPartString(maFImpactIndex, parts));

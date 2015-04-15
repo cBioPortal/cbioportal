@@ -50,8 +50,8 @@ var orData = function() {
                 _unit[orAnalysis.col_index.copy_num.unaltered_pct] = (_obj["percentage of alteration in unaltered group"] * 100).toFixed(2) + "%";
                 _unit[orAnalysis.col_index.copy_num.log_ratio] = (_obj["Log Ratio"] !== "--")? parseFloat(_obj["Log Ratio"]).toFixed(2): "--";
                 _unit[orAnalysis.col_index.copy_num.direction] = define_direction(_profile_type, _obj["p-Value"], _obj["q-Value"], _obj["Log Ratio"]);
-                _unit[orAnalysis.col_index.copy_num.p_val] = parseFloat(_obj["p-Value"]) < 0.001? "<0.001": parseFloat(_obj["p-Value"]).toFixed(3);
-                _unit[orAnalysis.col_index.copy_num.q_val] = parseFloat(_obj["q-Value"]) < 0.001? "<0.001": parseFloat(_obj["q-Value"]).toFixed(3);
+                _unit[orAnalysis.col_index.copy_num.p_val] = trim_p_val_copy_num(_obj["p-Value"]);
+                _unit[orAnalysis.col_index.copy_num.q_val] = trim_p_val_copy_num(_obj["q-Value"]);
                 
             } else if (_profile_type === orAnalysis.profile_type.mutations) {
                 
@@ -60,8 +60,8 @@ var orData = function() {
                 _unit[orAnalysis.col_index.mutations.unaltered_pct] = (_obj["percentage of alteration in unaltered group"] * 100).toFixed(2) + "%";
                 _unit[orAnalysis.col_index.mutations.log_ratio] = (_obj["Log Ratio"] !== "--")? parseFloat(_obj["Log Ratio"]).toFixed(2): "--";
                 _unit[orAnalysis.col_index.mutations.direction] = define_direction(_profile_type, _obj["p-Value"], _obj["q-Value"], _obj["Log Ratio"]);
-                _unit[orAnalysis.col_index.mutations.p_val] = parseFloat(_obj["p-Value"]) < 0.001? "<0.001": parseFloat(_obj["p-Value"]).toFixed(3);
-                _unit[orAnalysis.col_index.mutations.q_val] = parseFloat(_obj["q-Value"]) < 0.001? "<0.001": parseFloat(_obj["q-Value"]).toFixed(3);
+                _unit[orAnalysis.col_index.mutations.p_val] = trim_p_val_mutations(_obj["p-Value"]);
+                _unit[orAnalysis.col_index.mutations.q_val] = trim_p_val_mutations(_obj["q-Value"]);;
 
             } else if (_profile_type === orAnalysis.profile_type.mrna) {
                 
@@ -70,14 +70,47 @@ var orData = function() {
                 _unit[orAnalysis.col_index.mrna.unaltered_mean] = parseFloat(_obj["mean of alteration in unaltered group"]).toFixed(2);
                 _unit[orAnalysis.col_index.mrna.altered_stdev] = parseFloat(_obj["standard deviation of alteration in altered group"]).toFixed(2);
                 _unit[orAnalysis.col_index.mrna.unaltered_stdev] = parseFloat(_obj["standard deviation of alteration in unaltered group"]).toFixed(2);
-                _unit[orAnalysis.col_index.mrna.p_val] = parseFloat(_obj["p-Value"]) < 0.001? "<0.001": parseFloat(_obj["p-Value"]).toFixed(3);
-                _unit[orAnalysis.col_index.mrna.q_val] = parseFloat(_obj["q-Value"]) < 0.001? "<0.001": parseFloat(_obj["q-Value"]).toFixed(3);
+                _unit[orAnalysis.col_index.mrna.p_val] = trim_p_val_mrna(_obj["mean of alteration in altered group"], _obj["mean of alteration in unaltered group"], _obj["p-Value"]);
+                _unit[orAnalysis.col_index.mrna.q_val] = trim_p_val_mrna(_obj["mean of alteration in altered group"], _obj["mean of alteration in unaltered group"], _obj["q-Value"]);
             }
             
             table_arr.push(_unit);
             
         });  
         return table_arr;
+    }
+    
+    function trim_p_val_mutations(_input_str) {
+        var _result_str = "";
+        var _raw_p_val = parseFloat(_input_str);
+        if (_raw_p_val < 0.001) {
+            _result_str += "<0.001"; 
+        } else _result_str += _raw_p_val.toFixed(3);   
+        return _result_str;
+    }
+    
+    function trim_p_val_copy_num(_input_str) {
+        var _result_str = "";
+        var _raw_p_val = parseFloat(_input_str);
+        if (_raw_p_val < 0.001) {
+            _result_str += "<0.001"; 
+        } else _result_str += _raw_p_val.toFixed(3);
+        return _result_str;
+    }
+    
+    function trim_p_val_mrna(_param1, _param2, _input_str) {
+        var _result_str = "";
+        var _raw_p_val = parseFloat(_input_str);
+        if (_raw_p_val < 0.001) {
+            _result_str += "<0.001"; 
+        } else _result_str += _raw_p_val.toFixed(3);
+        
+        if (parseFloat(_param1) > parseFloat(_param2)) {
+            _result_str += "<img src=\"images/up1.png\"/>";
+        } else {
+            _result_str += "<img src=\"images/down1.png\"/>";
+        }
+        return _result_str;
     }
     
     function define_direction(_profile_type, _p_val, _q_val, _log_ratio) {

@@ -66,22 +66,35 @@ var orTable = function() {
                 //bold gene names
                 $('td:eq(' + col_index.gene + ')', nRow).css("font-weight", "bold");
                 
-                //bold siginicant pvalue and qvalue
-                if (aData[col_index.p_val] === "<0.001" ||
-                    aData[col_index.p_val] < 0.005) { //significate p value
-                    $('td:eq(' + col_index.p_val + ')', nRow).css("font-weight", "bold");
-                }
-                if (aData[col_index.q_val] === "<0.001" ||
-                    aData[col_index.q_val] < 0.005) { //significate q value
-                    $('td:eq(' + col_index.q_val + ')', nRow).css("font-weight", "bold");
-                } 
-                
                 if (_profile_type === orAnalysis.profile_type.copy_num || _profile_type === orAnalysis.profile_type.mutations) {
                     if (aData[col_index.log_ratio] > 0) {
                         $('td:eq('+ col_index.log_ratio +')', nRow).css("color", "#3B7C3B");
                     } else if (aData[col_index.log_ratio] < 0) {
                         $('td:eq(' + col_index.log_ratio + ')', nRow).css("color", "#B40404");
                     } 
+                    //bold siginicant pvalue and qvalue
+                    if (aData[col_index.p_val] === "<0.001" ||
+                        aData[col_index.p_val] < 0.005) { //significate p value
+                        $('td:eq(' + col_index.p_val + ')', nRow).css("font-weight", "bold");
+                    }
+                    if (aData[col_index.q_val] === "<0.001" ||
+                        aData[col_index.q_val] < 0.005) { //significate q value
+                        $('td:eq(' + col_index.q_val + ')', nRow).css("font-weight", "bold");
+                    } 
+                } else if (_profile_type === orAnalysis.profile_type.mrna) {
+                    var _p_val = aData[col_index.p_val],
+                        _q_val = aData[col_index.q_val];
+                    if (_p_val.indexOf("up1") !== -1) _p_val = _p_val.replace("<img src=\"images/up1.png\"/>",  "");
+                    if (_p_val.indexOf("down1") !== -1) _p_val = _p_val.replace("<img src=\"images/down1.png\"/>",  "");
+                    if (_q_val.indexOf("up1") !== -1) _q_val = _q_val.replace("<img src=\"images/up1.png\"/>",  "");
+                    if (_q_val.indexOf("down1") !== -1) _q_val = _q_val.replace("<img src=\"images/down1.png\"/>",  "");
+                    
+                    if (_p_val === "<0.001" || _p_val < 0.005) {
+                        $('td:eq(' + col_index.p_val + ')', nRow).css("font-weight", "bold");
+                    }
+                    if (_q_val === "<0.001" || _q_val < 0.005) {
+                        $('td:eq(' + col_index.q_val + ')', nRow).css("font-weight", "bold");
+                    }
                 }
 
             },

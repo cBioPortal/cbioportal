@@ -4,11 +4,16 @@ var clinSpec = (function() {
         $("#" + ids.sidebar[axis].spec_div).append("<br><h5>Clinical Attribute</h5>");
         $("#" + ids.sidebar[axis].spec_div).append("<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<select class='chosen' style='max-width: 250px;' id='" + ids.sidebar[axis].clin_attr + "'>");
         $.each(metaData.getClinAttrsMeta(), function(index, obj) {
+            console.log(obj);
             $("#" + ids.sidebar[axis].clin_attr).append(
                     "<option value='" + obj.id + "'>" + obj.name + "</option>");
         });
         $("#" + ids.sidebar[axis].clin_attr).append("</select>");
-        $("#" + ids.sidebar[axis].clin_attr).chosen({ search_contains: true });
+        $("#" + ids.sidebar[axis].clin_attr).chosen({ 
+            search_contains: true,
+            width: "80%"
+        });
+        
     }
 
     return {

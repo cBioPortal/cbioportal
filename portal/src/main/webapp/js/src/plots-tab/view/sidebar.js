@@ -16,14 +16,17 @@ var sidebar = (function() {
                 //reset the default value of x: default is always x copy num, y mrna
                 document.getElementById(ids.sidebar.x.profile_type).selectedIndex = "1";
                 profileSpec.updateProfileNameList("x");
-                regenerate_plots("x");                
+                regenerate_plots("x");       
+                regenerate_plots("y");
             }
         } else if (metaData.getGeneticProfilesMeta(window.PortalGlobals.getGeneList()[0]).length === 0 && metaData.getClinAttrsMeta().length !== 0) { //only have clincal data
             $("#" + ids.sidebar.x.data_type).hide();
             $("#" + ids.sidebar.y.data_type).hide(); 
+            $("input:radio[name='" + ids.sidebar.x.data_type + "'][value='" + vals.data_type.clin + "']").attr('checked', 'checked');
+            $("input:radio[name='" + ids.sidebar.y.data_type + "'][value='" + vals.data_type.clin + "']").attr('checked', 'checked');
             clinSpec.init("x");
             clinSpec.init("y");
-            optSpec.init();                
+            optSpec.init();  
         } else if (metaData.getGeneticProfilesMeta(window.PortalGlobals.getGeneList()[0]).length === 0 && metaData.getClinAttrsMeta().length === 0) { //no plots data
             $("#plots").empty();
             $("#plots").append("No data available for generating plots.");

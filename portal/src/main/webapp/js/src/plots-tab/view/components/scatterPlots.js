@@ -2,14 +2,14 @@ var scatterPlots = (function() {
     
     var settings = {
             canvas_width: 800,
-            canvas_height: 600,
+            canvas_height: 750,
             axis: {
                 x: {
-                    range_min: 120,
-                    range_max: 620,
+                    range_min: 170,
+                    range_max: 670,
                     orient: "bottom",
-                    title_x: 350,
-                    title_y: 590,
+                    title_x: 400,
+                    title_y: 640,
                     help_x: 350,
                     help_y: 575
                 },
@@ -147,7 +147,7 @@ var scatterPlots = (function() {
                 .style("text-anchor", "end")
                 .attr("transform", function(d) {
                     if (_rotate_flag) {
-                        return "rotate(-25)"; 
+                        return "rotate(-30)"; 
                     }
                 })
                 .attr("class", function(d) {
@@ -162,13 +162,13 @@ var scatterPlots = (function() {
                 .text(function(d) {
                     if (_rotate_flag) {
                         if (axis === "x") {
-                            if (d.length > 12) {
-                                return d.substring(0, 12) + "...";   
+                            if (d.length > 20) {
+                                return d.substring(0, 20) + "...";   
                             } 
                             else return d;                            
                         } else if (axis === "y") {
-                            if (d.length > 5) {
-                                return d.substring(0, 5) + "...";   
+                            if (d.length > 12) {
+                                return d.substring(0, 12) + "...";   
                             } 
                             else return d;                            
                         }
@@ -760,7 +760,7 @@ var scatterPlots = (function() {
                 .enter().append("g")
                 .attr("class", "legend")
                 .attr("transform", function(d, i) {
-                    return "translate(630, " + (25 + i * 15) + ")";
+                    return "translate(680, " + (25 + i * 15) + ")";
                 });
 
             legend.append("path")
@@ -786,7 +786,7 @@ var scatterPlots = (function() {
                 .enter().append("g")
                 .attr("class", "coexp_legend")
                 .attr("transform", function(d, i) {
-                    return "translate(620, " + (150 + i * 15) + ")";
+                    return "translate(670, " + (150 + i * 15) + ")";
                 });
                 coExpLegend.append("text")
                         .attr("dx", ".75em")

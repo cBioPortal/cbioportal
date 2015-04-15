@@ -130,11 +130,11 @@ var mutationStyle = (function() {  //Key and "typeName" are always identical
 var gisticStyle = (function() {
    var stylesheet = [
     {    
-        type: "Amp",
+        type: "Amplification",
         value: "2",
         stroke : "#FF0000",
         symbol : "circle",
-        legendText : "Amp",
+        legendText : "Amplification",
         fill: "transparent"
     },
     {
@@ -144,7 +144,6 @@ var gisticStyle = (function() {
         symbol : "circle",
         legendText : "Gain",
         fill: "transparent"
-
     },
     {
         type: "Diploid",
@@ -153,22 +152,21 @@ var gisticStyle = (function() {
         symbol : "circle",
         legendText : "Diploid",
         fill: "transparent"
-
     },
     {
-        type: "Hetloss",
+        type: "Shallow Deletion",
         value: "-1",
         stroke : "#00BFFF",
         symbol : "circle",
-        legendText : "Hetloss",
+        legendText : "Shallow Deletion",
         fill: "transparent"
     },
     {
-         type: "Homdel",
+         type: "Deep Deletion",
          value: "-2",
          stroke : "#00008B",
          symbol : "circle",
-         legendText : "Homdel",
+         legendText : "Deep Deletion",
          fill: "transparent"
      }
    ]; 

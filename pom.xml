@@ -67,7 +67,7 @@
       </activation>
 	  <properties>
         <importer-main-class>org.mskcc.cbio.importer.Admin</importer-main-class>
-		<final-war-name>public-portal</final-war-name>
+		<final-war-name>cbioportal</final-war-name>
 	  </properties>
 	</profile>
 	<profile>

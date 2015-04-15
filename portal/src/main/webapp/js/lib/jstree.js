@@ -2818,10 +2818,10 @@
 
 			if(!this.settings.core.multiple || (!e.metaKey && !e.ctrlKey && !e.shiftKey) || (e.shiftKey && (!this._data.core.last_clicked || !this.get_parent(obj) || this.get_parent(obj) !== this._data.core.last_clicked.parent ) )) {
 				if(!this.settings.core.multiple && (e.metaKey || e.ctrlKey || e.shiftKey) && this.is_selected(obj)) {
-					this.deselect_node(obj, false, e);
+					//this.deselect_node(obj, false, e);
 				}
 				else {
-					this.deselect_all(true);
+					//this.deselect_all(true);
 					this.select_node(obj, false, false, e);
 					this._data.core.last_clicked = this.get_node(obj);
 				}
@@ -2867,6 +2867,22 @@
 			 */
 			this.trigger('activate_node', { 'node' : this.get_node(obj) });
 		},
+		node_has_descendant_branches: function(obj) {
+			obj = this.get_node(obj);
+			if (!obj || !this.is_open(obj.id)) {
+				return false;
+			}
+			var ret = false;
+			var node;
+			$.each(obj.children, $.proxy(function(ind, id) {
+				node = this.get_node(id);
+				if (node && !node.state.fixed && node.children.length > 0) {
+					ret = true;
+					return 0;
+				}
+			}, this));
+			return ret;
+		},
 		node_descendants_all_open: function(obj) {
 			obj = this.get_node(obj);
 			if (!obj || !this.is_open(obj.id)) {
@@ -2889,9 +2905,25 @@
 			if (!node) {
 				return false;
 			}
+			obj.children('.jstree-external-node-decorator').show();
 			obj.children('.jstree-node-decorator').remove();
 			if (node.children.length === 0) {
-				var $linkOutIcon = $('<i class="fa fa-lg fa-external-link jstree-node-decorator" style="cursor:pointer; padding-left:0.6em"></i>');
+				if (node.li_attr && node.li_attr.description) {
+					var $descriptionIcon = $('<i class="fa fa-lg fa-info-circle jstree-node-decorator" style="cursor:pointer; padding-left:0.4em"></i>');
+					obj.append($descriptionIcon);
+					$descriptionIcon.mousedown(function(e) {
+						e.preventDefault();
+					});
+					$descriptionIcon.qtip({
+						content: {text: node.li_attr.description},
+						style: {classes: 'qtip-light qtip-rounded'},
+						position: {my: 'bottom center', at: 'top center', viewport: $(window)},
+						show: {delay: 0},
+						hide: {delay: 0, fixed: true}
+					});
+				}
+                                
+                                var $linkOutIcon = $('<i class="btn btn-default btn-sm jstree-node-decorator" style="cursor:pointer;  padding: 0px 5px; font-weight: normal;font-style: normal;margin-left: 10px; color:white; background-color:#2986e2">Summary</i>');
 				obj.append($linkOutIcon);
 				$linkOutIcon.mouseenter(function() {
 					$linkOutIcon.fadeTo('fast', 0.7);
@@ -2906,77 +2938,59 @@
 					e.preventDefault();
 					window.open('study.do?cancer_study_id='+node.id);
 				});
-				$linkOutIcon.qtip({
-					content: {text: "Study summary"},
-					style: {classes: 'qtip-light qtip-rounded'},
-					position: {my: 'bottom center', at: 'top center', viewport: $(window)},
-					hide: {delay: 10, fixed: true},
-					show: {delay: 600, fixed: true}
-				});
-				if (node.li_attr && node.li_attr.description) {
-					var $descriptionIcon = $('<i class="fa fa-lg fa-info-circle jstree-node-decorator" style="cursor:pointer; padding-left:0.4em"></i>');
-					obj.append($descriptionIcon);
-					$descriptionIcon.mousedown(function(e) {
+			} else {
+				if (this.node_has_descendant_branches(node.id)) {
+					var shouldCollapse = this.node_descendants_all_open(node.id);
+					var expandClass = 'fa-expand'; var collapseClass = 'fa-compress';
+					var $expandCollapseBtn = $('<i class="fa fa-md rotate-45 '+(shouldCollapse ? collapseClass : expandClass)+' jstree-node-decorator" style="display:inline-block; cursor:pointer; padding-left:0.6em"></i>');
+					// MEGA HACK by adama@cbio.mskcc.org
+					if (obj.children('.jstree-external-node-decorator').length > 0) {
+						obj.children('.jstree-external-node-decorator').filter(":last").after($expandCollapseBtn);
+					} else {
+						obj.children('.jstree-anchor').after($expandCollapseBtn);
+					}
+					$expandCollapseBtn.click($.proxy(function(e) {
+						e.preventDefault();
+						$expandCollapseBtn.qtip().hide();
+						if (shouldCollapse) {
+							this.close_all(node);
+							this.open_node(node);
+						} else {
+							this.open_all(node);
+						}
+						shouldCollapse = !shouldCollapse;
+						if (shouldCollapse) {
+							$expandCollapseBtn.removeClass(expandClass);
+							$expandCollapseBtn.addClass(collapseClass);
+						} else {
+							$expandCollapseBtn.removeClass(collapseClass);
+							$expandCollapseBtn.addClass(expandClass);
+						}
+					}, this));
+					$expandCollapseBtn.mousedown(function(e) {
 						e.preventDefault();
 					});
-					$descriptionIcon.qtip({
-						content: {text: node.li_attr.description},
+					$expandCollapseBtn.mouseenter(function() {
+						$expandCollapseBtn.fadeTo('fast', 0.7);
+					});
+					$expandCollapseBtn.mouseleave(function() {
+						$expandCollapseBtn.fadeTo('fast', 1);
+					});
+					$expandCollapseBtn.qtip({
+						content: {text: function() {
+						return (shouldCollapse ? 'Collapse' : 'Expand') + ' all';
+						}},
 						style: {classes: 'qtip-light qtip-rounded'},
-						position: {my: 'left center', at: 'right center', viewport: $(window)},
-						show: {delay: 0},
-						hide: {delay: 0, fixed: true}
+						position: {my: 'bottom center', at: 'top center', viewport: $(window)},
+						hide: {delay: 10, fixed: true},
+						show: {delay: 600},
 					});
 				}
-			} else {
-				var shouldCollapse = this.node_descendants_all_open(node.id);
-				var expandClass = 'fa-expand'; var collapseClass = 'fa-compress';
-				var $expandCollapseBtn = $('<i class="fa fa-md rotate-45 '+(shouldCollapse ? collapseClass : expandClass)+' jstree-node-decorator" style="display:inline-block; cursor:pointer; padding-left:0.6em"></i>');
-				// MEGA HACK by adama@cbio.mskcc.org
-				if (obj.children('.jstree-external-node-decorator').length > 0) {
-					obj.children('.jstree-external-node-decorator').after($expandCollapseBtn);
-				} else {
-					obj.children('.jstree-anchor').after($expandCollapseBtn);
-				}
-				$expandCollapseBtn.click($.proxy(function(e) {
-					e.preventDefault();
-					$expandCollapseBtn.qtip().hide();
-					if (shouldCollapse) {
-						this.close_all(node);
-						this.open_node(node);
-					} else {
-						this.open_all(node);
-					}
-					shouldCollapse = !shouldCollapse;
-					if (shouldCollapse) {
-						$expandCollapseBtn.removeClass(expandClass);
-						$expandCollapseBtn.addClass(collapseClass);
-					} else {
-						$expandCollapseBtn.removeClass(collapseClass);
-						$expandCollapseBtn.addClass(expandClass);
-					}
-				}, this));
-				$expandCollapseBtn.mousedown(function(e) {
-					e.preventDefault();
-				});
-				$expandCollapseBtn.mouseenter(function() {
-					$expandCollapseBtn.fadeTo('fast', 0.7);
-				});
-				$expandCollapseBtn.mouseleave(function() {
-					$expandCollapseBtn.fadeTo('fast', 1);
-				});
-				$expandCollapseBtn.qtip({
-					content: {text: function() {
-					return (shouldCollapse ? 'Collapse' : 'Expand') + ' all';
-					}},
-					style: {classes: 'qtip-light qtip-rounded'},
-					position: {my: 'bottom center', at: 'top center', viewport: $(window)},
-					hide: {delay: 10, fixed: true},
-					show: {delay: 600},
-				});
 			}
 		},
 		hide_node_decorators : function (obj) {
 			obj = this.get_node(obj, true);
+			obj.children('.jstree-external-node-decorator').hide();
 			obj.children('.jstree-node-decorator').remove();
 		},
 		/**
@@ -4758,9 +4772,18 @@
 							// apply down
 							this.downward_select = function(parent_obj) {
 								var is_selected = true;
-								$.each(parent_obj.children, $.proxy(function(ind, key) {
-									is_selected = this.downward_select(m[key]) && is_selected;
-								}, this));
+								if (this.settings.core.multiple) {
+									$.each(parent_obj.children, $.proxy(function(ind, key) {
+										is_selected = this.downward_select(m[key]) && is_selected;
+									}, this));
+								} else {
+									console.log(parent_obj);
+									if (parent_obj.children.length === 0) {
+										this.deselect_node(this.get_selected_leaves());
+									} else {
+										is_selected = false;
+									}
+								}
 								if (is_selected && !parent_obj.state.fixed) {
 									parent_obj.state.selected = true;
 									this._data[ t ? 'core' : 'checkbox' ].selected.push(parent_obj.id);

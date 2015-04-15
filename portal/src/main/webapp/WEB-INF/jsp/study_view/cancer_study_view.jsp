@@ -94,6 +94,7 @@ if (cancerStudyViewError!=null) {
             <form method="post" action="index.do">
                 <b><u><%=cancerStudy.getName()%></u></b>
                 <input type="hidden" name="cancer_study_id" value="<%=cancerStudy.getCancerStudyStableId()%>">
+                <input type="hidden" name="<%=QueryBuilder.CANCER_STUDY_LIST%>" value="<%=cancerStudy.getCancerStudyStableId()%>">
                 <input type="submit" value="Query this study">
             </form>
         </td>

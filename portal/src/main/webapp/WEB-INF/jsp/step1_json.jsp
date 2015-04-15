@@ -34,9 +34,11 @@
     String step1ErrorMsg = (String) request.getAttribute(QueryBuilder.STEP1_ERROR_MSG);
 %>
 <div class="query_step_section" id="select_cancer_type_section">
+    <span class="step_header">Select Cancer Study:</span>
     <div class="row step_header_first_line">
         <div class="input-group input-group-sm col-5">
             <input type="text" id="jstree_search_input" class="form-control" placeholder="Search..."/>
+            <i id="step_header_first_line_empty_search" class="fa fa-times"></i>
             <div class="input-group-btn">
                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                   <span class="caret"></span>
@@ -99,6 +101,20 @@ $('#select_cancer_type_help').qtip({
                     hide: { delay:200, fixed:true }
 });
 $('#jstree_search_input').keypress(function(e) { return e.keyCode !== 13; });
+$('#jstree').bind('mousewheel DOMMouseScroll', function(e) {
+    // thanks to mrtsherman on StackOverflow: http://stackoverflow.com/a/7571867/3158208
+    var scrollTo = null;
+    
+    if (e.type === 'mousewheel') {
+        scrollTo = (e.originalEvent.wheelDelta * -1);
+    } else if (e.type === 'DOMMouseScroll') {
+        scrollTo = 40 * e.originalEvent.detail;
+    }
+    if (scrollTo) {
+        e.preventDefault();
+        $(this).scrollTop(scrollTo + $(this).scrollTop());
+    }
+});
 
 //$("#jstree_select_cell_line").change(function(){
 //    if($(this).attr("checked"))

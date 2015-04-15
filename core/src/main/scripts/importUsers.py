@@ -76,7 +76,7 @@ PORTAL_NAME = { GDAC_USER_SPREADSHEET : "gdac-portal",
                 TARGET_USER_SPREADSHEET : "target-portal",
                 MSKCC_USER_SPREADSHEET : "mskcc-portal",
                 TRIAGE_USER_SPREADSHEET : "triage-portal",
-                GENIE_USER_SPREADSHEET : "genie" }
+                GENIE_USER_SPREADSHEET : "genie",
                 SU2C_KRAS_USER_SPREADSHEET : "kras" }
 
 # a ref to the google spreadsheet client - used for all i/o to google spreadsheet
@@ -101,7 +101,7 @@ DEFAULT_AUTHORITIES = "PUBLIC;EXTENDED;MSKPUB"
 MSKCC_EMAIL_SUFFIX = "@mskcc.org"
 SMTP_SERVER = "cbio.mskcc.org"
 MESSAGE_FROM = "cbioportal-access@cbio.mskcc.org"
-MESSAGE_BCC = ["jgao@cbio.mskcc.org", "schultz@cbio.mskcc.org", "grossb@cbio.mskcc.org"]
+MESSAGE_BCC = []
 MESSAGE_SUBJECT = { GDAC_USER_SPREADSHEET : "You have been granted access to the private instance of cBioPortal",
                     PROSTATE_USER_SPREADSHEET : "cBioPortal for Prostate Cancer Access",
                     GLIOMA_USER_SPREADSHEET : "cBioPortal for Glioma Access",
@@ -516,13 +516,14 @@ def add_unknown_users_to_spreadsheet(cursor, spreadsheet, worksheet):
         if email.endswith(MSKCC_EMAIL_SUFFIX) and email not in google_spreadsheet_user_map:
             user = portal_db_user_map[email]
             print >> OUTPUT_FILE, user.name
+            def_authorities = DEFAULT_AUTHORITIES + ";" + email[0:email.index('@')].upper()
             # we only got here if user was inserted via MSK AD - in which case name is formatted as:
             # Gross, Benjamin E./Sloan Kettering Institute
             if "/" in user.name:
                 user_name_parts = user.name.split("/")
-                row = { TIMESTAMP_KEY : current_time, MSKCC_EMAIL_KEY : user.inst_email, FULLNAME_KEY : user_name_parts[0], LAB_PI_KEY : user_name_parts[1], STATUS_KEY : STATUS_APPROVED, AUTHORITIES_KEY : DEFAULT_AUTHORITIES }
+                row = { TIMESTAMP_KEY : current_time, MSKCC_EMAIL_KEY : user.inst_email, FULLNAME_KEY : user_name_parts[0], LAB_PI_KEY : user_name_parts[1], STATUS_KEY : STATUS_APPROVED, AUTHORITIES_KEY : def_authorities }
             else:
-                row = { TIMESTAMP_KEY : current_time, MSKCC_EMAIL_KEY : user.inst_email, FULLNAME_KEY : user.name, STATUS_KEY : STATUS_APPROVED, AUTHORITIES_KEY : DEFAULT_AUTHORITIES }
+                row = { TIMESTAMP_KEY : current_time, MSKCC_EMAIL_KEY : user.inst_email, FULLNAME_KEY : user.name, STATUS_KEY : STATUS_APPROVED, AUTHORITIES_KEY : def_authorities }
             add_row_to_google_worksheet(spreadsheet, worksheet, row)
 
 

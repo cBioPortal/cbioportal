@@ -48,19 +48,32 @@ var orTable = function() {
 
         //Configure the datatable with  jquery
         orTableInstance = $("#" + table_id).dataTable({
-            "sDom": '<"H"f>t<"F"ip>',
+            "sDom": '<"H"f<"or-analysis-table-filter">>t<"F"ip>',
             "bPaginate": true,
             "sPaginationType": "full_numbers",
             "bInfo": true,
             "bJQueryUI": true,
             "bAutoWidth": false,
             "aaData" : data,
-            "aaSorting": [[col_index.p_val, 'desc']],
+            "aaSorting": [[col_index.p_val, 'asc']],
             "sScrollY": "400px",
             "bScrollCollapse": true,
             "oLanguage": {
                 "sSearch": "Search Gene  "
             },
+            "aoColumnDefs": [
+                {
+                    "sType": 'or-analysis-p-value',
+                    "bSearchable": false,
+                    "aTargets": [ col_index.p_val ]
+
+                },
+                {
+                    "sType": 'or-analysis-q-value',
+                    "bSearchable": true,
+                    "aTargets": [ col_index.q_val ]
+                }               
+            ],
             "fnRowCallback": function(nRow, aData) {
                 
                 //bold gene names
@@ -102,6 +115,14 @@ var orTable = function() {
             "iDisplayLength": 17
         });  
 
+    }
+    
+    function attachFitlers() {
+        $("#" + div_id).find('.or-analysis-table-filter').append(
+            "<input type='checkbox' class='or-analysis-table-checkbox' checked id='or-analysis-table-checkbox-mutex'>Mutual exclusivity</option> &nbsp;&nbsp;" +
+            "<input type='checkbox' class='or-analysis-table-checkbox' checked id='or-analysis-table-checkbox-co-oc'>Co-occurrence</option> &nbsp;&nbsp;" +
+            "<input type='checkbox' class='or-analysis-table-checkbox' id='or-analysis-table-checkbox-sig-only'>Significant pairs</option> &nbsp; &nbsp;"
+        );
     }
     
     //sortings
@@ -203,6 +224,7 @@ var orTable = function() {
                 $("#" + _table_div).append("<span style='font-weight:bold;'>" + _table_title + "</span>");
                 $("#" + _table_div).append("<table id='" + table_id + "' cellpadding='0' cellspacing='0' border='0' class='" + table_id + "_datatable_class'></table>"); 
                 configTable(_profile_type);
+                attachFitlers();
                 
             } else {
                 $("#" + _table_div).remove();

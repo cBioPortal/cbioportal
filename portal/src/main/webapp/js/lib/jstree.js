@@ -4777,7 +4777,6 @@
 										is_selected = this.downward_select(m[key]) && is_selected;
 									}, this));
 								} else {
-									console.log(parent_obj);
 									if (parent_obj.children.length === 0) {
 										this.deselect_node(this.get_selected_leaves());
 									} else {
@@ -6624,11 +6623,11 @@
 					}, this))
 				.on("search.jstree", $.proxy(function (e, data) {
 						if(this._data.search.som) {
-							if(data.nodes.length) {
+							//if(data.nodes.length) {
 								this.element.find(".jstree-node").hide().filter('.jstree-last').filter(function() { return this.nextSibling; }).removeClass('jstree-last');
 								data.nodes.parentsUntil(".jstree").addBack().show()
 									.filter(".jstree-children").each(function () { $(this).children(".jstree-node:visible").eq(-1).addClass("jstree-last"); });
-							}
+							//}
 						}
 					}, this))
 				.on("clear_search.jstree", $.proxy(function (e, data) {

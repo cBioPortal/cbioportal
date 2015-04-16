@@ -2,14 +2,14 @@ var scatterPlots = (function() {
     
     var settings = {
             canvas_width: 800,
-            canvas_height: 600,
+            canvas_height: 750,
             axis: {
                 x: {
-                    range_min: 120,
-                    range_max: 620,
+                    range_min: 170,
+                    range_max: 670,
                     orient: "bottom",
-                    title_x: 350,
-                    title_y: 590,
+                    title_x: 400,
+                    title_y: 640,
                     help_x: 350,
                     help_y: 575
                 },
@@ -147,7 +147,7 @@ var scatterPlots = (function() {
                 .style("text-anchor", "end")
                 .attr("transform", function(d) {
                     if (_rotate_flag) {
-                        return "rotate(-25)"; 
+                        return "rotate(-30)"; 
                     }
                 })
                 .attr("class", function(d) {
@@ -162,13 +162,13 @@ var scatterPlots = (function() {
                 .text(function(d) {
                     if (_rotate_flag) {
                         if (axis === "x") {
-                            if (d.length > 8) {
-                                return d.substring(0, 8) + "...";   
+                            if (d.length > 20) {
+                                return d.substring(0, 20) + "...";   
                             } 
                             else return d;                            
                         } else if (axis === "y") {
-                            if (d.length > 5) {
-                                return d.substring(0, 5) + "...";   
+                            if (d.length > 12) {
+                                return d.substring(0, 12) + "...";   
                             } 
                             else return d;                            
                         }
@@ -760,7 +760,7 @@ var scatterPlots = (function() {
                 .enter().append("g")
                 .attr("class", "legend")
                 .attr("transform", function(d, i) {
-                    return "translate(630, " + (25 + i * 15) + ")";
+                    return "translate(680, " + (25 + i * 15) + ")";
                 });
 
             legend.append("path")
@@ -786,7 +786,7 @@ var scatterPlots = (function() {
                 .enter().append("g")
                 .attr("class", "coexp_legend")
                 .attr("transform", function(d, i) {
-                    return "translate(620, " + (150 + i * 15) + ")";
+                    return "translate(670, " + (150 + i * 15) + ")";
                 });
                 coExpLegend.append("text")
                         .attr("dx", ".75em")
@@ -798,40 +798,40 @@ var scatterPlots = (function() {
         }
         
         //no-mutation data info
-        var _stat = plotsData.stat();
-        if (!_stat.x.has_mutation_data && $("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.genetic) {
-            var mut_exp_x = 
-                elem.svg.selectAll(".mut_exp_x")
-                .data(["*No Mutation Data for " + $("#" + ids.sidebar.x.gene).val()])
-                .enter().append("g")
-                .attr("class", "mut_exp_x")
-                .attr("transform", function() {
-                    return "translate(615, 500)";
-                });
-                mut_exp_x.append("text")
-                    .attr("dx", ".75em")
-                    .attr("dy", ".35em")
-                    .style("text-anchor", "front")
-                    .style("font-size", "11px")
-                    .text(function(d) {return d;}); 
-        }
-        if (!_stat.y.has_mutation_data && $("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() === vals.data_type.genetic) {
-            if (!(genetic_vs_genetic() && isSameGene())) {
-                var mut_exp_y = elem.svg.selectAll(".mut_exp_y")
-                    .data(["*No Mutation Data for " + $("#" + ids.sidebar.y.gene).val()])
-                    .enter().append("g")
-                    .attr("class", "mut_exp_y")
-                    .attr("transform", function() {
-                        return "translate(615, 510)";
-                    });
-                    mut_exp_y.append("text")
-                            .attr("dx", ".75em")
-                            .attr("dy", ".35em")
-                            .style("font-size", "11px")
-                            .style("text-anchor", "front")
-                            .text(function(d) {return d;});                 
-                }
-        }
+//        var _stat = plotsData.stat();
+//        if (!_stat.x.has_mutation_data && $("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.genetic) {
+//            var mut_exp_x = 
+//                elem.svg.selectAll(".mut_exp_x")
+//                .data(["*No Mutation Data for " + $("#" + ids.sidebar.x.gene).val()])
+//                .enter().append("g")
+//                .attr("class", "mut_exp_x")
+//                .attr("transform", function() {
+//                    return "translate(615, 500)";
+//                });
+//                mut_exp_x.append("text")
+//                    .attr("dx", ".75em")
+//                    .attr("dy", ".35em")
+//                    .style("text-anchor", "front")
+//                    .style("font-size", "11px")
+//                    .text(function(d) {return d;}); 
+//        }
+//        if (!_stat.y.has_mutation_data && $("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() === vals.data_type.genetic) {
+//            if (!(genetic_vs_genetic() && isSameGene())) {
+//                var mut_exp_y = elem.svg.selectAll(".mut_exp_y")
+//                    .data(["*No Mutation Data for " + $("#" + ids.sidebar.y.gene).val()])
+//                    .enter().append("g")
+//                    .attr("class", "mut_exp_y")
+//                    .attr("transform", function() {
+//                        return "translate(615, 510)";
+//                    });
+//                    mut_exp_y.append("text")
+//                            .attr("dx", ".75em")
+//                            .attr("dy", ".35em")
+//                            .style("font-size", "11px")
+//                            .style("text-anchor", "front")
+//                            .text(function(d) {return d;});                 
+//                }
+//        }
     }
     
     function applyMouseover() {

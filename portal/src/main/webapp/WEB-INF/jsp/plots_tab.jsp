@@ -68,15 +68,15 @@
     }
     #plots-sidebar-x-div {
         width: inherit;
-        height: 202px;
+        height: 222px;
     }
     #plots-sidebar-y-div {
         width: inherit;
-        height: 202px;
+        height: 222px;
     }
     #plots-sidebar-util-div {
         width: inherit;
-        height: 170px;
+        height: 190px;
     }
 
     #plots-sidebar h4 {
@@ -100,7 +100,7 @@
     }
     #plots-box {
         width: 820px;
-        height: 610px;
+        height: 670px;
         float: right;
     }
 </style>

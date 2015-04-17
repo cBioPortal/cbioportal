@@ -14,5 +14,5 @@ import org.apache.ibatis.annotations.Param;
  */
 
 public interface CancerStudyAlterationFrequencyMapper {
-	List<CancerStudyAlterationFrequency> get(@Param("entrezGeneId") long entrezGeneId, @Param("internalStudyIds") List<Integer> internalStudyIds);
+	List<CancerStudyAlterationFrequency> get(@Param("entrezGeneId") Long entrezGeneId, @Param("internalStudyIds") List<Integer> internalStudyIds);
 }

@@ -10,6 +10,7 @@ import org.mskcc.cbio.portal.model.CancerStudyAlterationFrequency;
 import org.mskcc.cbio.portal.persistence.CancerStudyAlterationFrequencyMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
@@ -18,8 +19,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class CancerStudyAlterationFrequencyService 
 {
+	@Autowired
 	private CancerStudyAlterationFrequencyMapper mapper;
-  @Autowired
+  @Transactional
   public List<CancerStudyAlterationFrequency> get(Long entrezGeneId, List<Integer> internalStudyIds) {
 	  return mapper.get(entrezGeneId, internalStudyIds);
   }

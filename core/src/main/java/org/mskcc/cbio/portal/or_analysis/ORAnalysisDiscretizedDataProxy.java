@@ -2,6 +2,7 @@ package org.mskcc.cbio.portal.or_analysis;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -59,7 +60,8 @@ public class ORAnalysisDiscretizedDataProxy {
             String profileType, 
             List<Integer> alteredSampleIds, 
             List<Integer> unalteredSampleIds,
-            String copyNumType) throws DaoException, IllegalArgumentException, MathException {
+            String copyNumType,
+            String[] queryGenes) throws DaoException, IllegalArgumentException, MathException {
         
         this.alteredSampleIds = alteredSampleIds;
         this.unalteredSampleIds = unalteredSampleIds;
@@ -78,26 +80,30 @@ public class ORAnalysisDiscretizedDataProxy {
                 
                 ObjectNode _datum = mapper.createObjectNode();
                 if (profileType.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION.toString())) {
-                    _datum.put(COL_NAME_GENE, _geneName);
-                    _datum.put(COL_NAME_PCT_ALTERED, calcPct(singleGeneCaseValueMap, profileType, "altered"));
-                    _datum.put(COL_NAME_PCT_UNALTERED, calcPct(singleGeneCaseValueMap, profileType, "unaltered"));
-                    _datum.put(COL_NAME_RATIO, calcRatio(calcPct(singleGeneCaseValueMap, profileType, "altered"), calcPct(singleGeneCaseValueMap, profileType, "unaltered")));
-                    _datum.put(COL_NAME_DIRECTION, "place holder"); //calculation is done by the front-end
-                    _datum.put(COL_NAME_P_VALUE, calcPval(singleGeneCaseValueMap, profileType));
-                    if (!(calcPct(singleGeneCaseValueMap, profileType, "altered") == 0.0 && 
-                          calcPct(singleGeneCaseValueMap, profileType, "unaltered") == 0.0)) {
-                        _result.add(_datum);
+                    if (!(Arrays.asList(queryGenes)).contains(_geneName)) {
+                        _datum.put(COL_NAME_GENE, _geneName);
+                        _datum.put(COL_NAME_PCT_ALTERED, calcPct(singleGeneCaseValueMap, profileType, "altered"));
+                        _datum.put(COL_NAME_PCT_UNALTERED, calcPct(singleGeneCaseValueMap, profileType, "unaltered"));
+                        _datum.put(COL_NAME_RATIO, calcRatio(calcPct(singleGeneCaseValueMap, profileType, "altered"), calcPct(singleGeneCaseValueMap, profileType, "unaltered")));
+                        _datum.put(COL_NAME_DIRECTION, "place holder"); //calculation is done by the front-end
+                        _datum.put(COL_NAME_P_VALUE, calcPval(singleGeneCaseValueMap, profileType));
+                        if (!(calcPct(singleGeneCaseValueMap, profileType, "altered") == 0.0 && 
+                              calcPct(singleGeneCaseValueMap, profileType, "unaltered") == 0.0)) {
+                            _result.add(_datum);
+                        }                    
                     }
                 } else if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString())) {
-                    _datum.put(COL_NAME_GENE, _geneName);
-                    _datum.put(COL_NAME_PCT_ALTERED, calcPct(singleGeneCaseValueMap, profileType, "altered"));
-                    _datum.put(COL_NAME_PCT_UNALTERED, calcPct(singleGeneCaseValueMap, profileType, "unaltered"));
-                    _datum.put(COL_NAME_RATIO, calcRatio(calcPct(singleGeneCaseValueMap, profileType, "altered"), calcPct(singleGeneCaseValueMap, profileType, "unaltered")));
-                    _datum.put(COL_NAME_DIRECTION, "place holder"); //calculation is done by the front-end
-                    _datum.put(COL_NAME_P_VALUE, calcPval(singleGeneCaseValueMap, profileType));
-                    if (!(calcPct(singleGeneCaseValueMap, profileType, "altered") == 0.0 && 
-                         calcPct(singleGeneCaseValueMap, profileType, "unaltered") == 0.0)) {
-                        _result.add(_datum);
+                    if (!(Arrays.asList(queryGenes)).contains(_geneName)) {
+                        _datum.put(COL_NAME_GENE, _geneName);
+                        _datum.put(COL_NAME_PCT_ALTERED, calcPct(singleGeneCaseValueMap, profileType, "altered"));
+                        _datum.put(COL_NAME_PCT_UNALTERED, calcPct(singleGeneCaseValueMap, profileType, "unaltered"));
+                        _datum.put(COL_NAME_RATIO, calcRatio(calcPct(singleGeneCaseValueMap, profileType, "altered"), calcPct(singleGeneCaseValueMap, profileType, "unaltered")));
+                        _datum.put(COL_NAME_DIRECTION, "place holder"); //calculation is done by the front-end
+                        _datum.put(COL_NAME_P_VALUE, calcPval(singleGeneCaseValueMap, profileType));
+                        if (!(calcPct(singleGeneCaseValueMap, profileType, "altered") == 0.0 && 
+                             calcPct(singleGeneCaseValueMap, profileType, "unaltered") == 0.0)) {
+                            _result.add(_datum);
+                        }
                     }
                 } else if (profileType.equals(GeneticAlterationType.MRNA_EXPRESSION.toString())) {
                     _datum.put(COL_NAME_GENE, _geneName);

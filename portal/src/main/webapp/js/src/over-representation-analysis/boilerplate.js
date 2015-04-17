@@ -122,5 +122,6 @@ var orAjaxParam = function(alteredCaseList, unalteredCaseList, profileId) {
     this.altered_case_id_list = _tmp_altered_case_id_list;
     this.unaltered_case_id_list = _tmp_unaltered_case_id_list;
     this.profile_id = profileId;
+    this.gene_list = window.PortalGlobals.getGeneListString();
 };
 

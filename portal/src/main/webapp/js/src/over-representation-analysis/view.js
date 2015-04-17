@@ -35,67 +35,103 @@ var orTable = function() {
     
     var div_id, table_id, data, titles; //titles is formatted string of column names with html markdown in
     
-    var col_index, orTableInstance;
+    var col_index, orTableInstance, profile_type;
         
-    //sortings
-    jQuery.fn.dataTableExt.oSort['or-analysis-p-value-desc'] = function(a,b) {
-        if (a === "<0.001") { a = 0.0009; }
-        if (b === "<0.001") { b = 0.0009; }
-        if (a > b) return -1;
-        else if (a < b) return 1;
-        else return 0;
-    };
-    jQuery.fn.dataTableExt.oSort['or-analysis-p-value-asc'] = function(a,b) {
-        if (a === "<0.001") { a = 0.0009; }
-        if (b === "<0.001") { b = 0.0009; }
-        if (a > b) return 1;
-        else if (a < b) return -1;
-        else return 0;
-    };
-    jQuery.fn.dataTableExt.oSort['or-analysis-q-value-desc'] = function(a,b) {
-        if (a === "<0.001") { a = 0.0009; }
-        if (b === "<0.001") { b = 0.0009; }
-        if (a > b) return -1;
-        else if (a < b) return 1;
-        else return 0;
-    };
-    jQuery.fn.dataTableExt.oSort['or-analysis-q-value-asc'] = function(a,b) {
-        if (a === "<0.001") { a = 0.0009; }
-        if (b === "<0.001") { b = 0.0009; }
-        if (a > b) return 1;
-        else if (a < b) return -1;
-        else return 0;
-    };
-    jQuery.fn.dataTableExt.oSort['or-analysis-log-ratio-desc'] = function(a,b) {
-        if (a === "<-3") { a = -10; }
-        if (b === "<-3") { b = -10; }
-        if (a === ">3") { a = 10; }
-        if (b === ">3") { b = 10; }
-        if (a < 0 && b < 0) {
-            if (Math.abs(a) > Math.abs(b)) return 1;
-            else return -1;
-        } else {
+
+    
+    function configTable() {
+        
+                //sortings
+        jQuery.fn.dataTableExt.oSort['or-analysis-p-value-desc'] = function(a,b) {
+
+            if (profile_type === orAnalysis.profile_type.mrna) {
+                if (a.indexOf("up1") !== -1) a = a.replace("<img src=\"images/up1.png\"/>",  "");
+                if (a.indexOf("down1") !== -1) a = a.replace("<img src=\"images/down1.png\"/>",  "");
+                if (b.indexOf("up1") !== -1) b = b.replace("<img src=\"images/up1.png\"/>",  "");
+                if (b.indexOf("down1") !== -1) b = b.replace("<img src=\"images/down1.png\"/>",  "");
+            }
+
+            if (a === "<0.001") { a = 0.0009; }
+            if (b === "<0.001") { b = 0.0009; }
             if (a > b) return -1;
             else if (a < b) return 1;
             else return 0;
-        }
-    };
-    jQuery.fn.dataTableExt.oSort['or-analysis-log-ratio-asc'] = function(a,b) {
-        if (a === "<-3") { a = -10; }
-        if (b === "<-3") { b = -10; }
-        if (a === ">3") { a = 10; }
-        if (b === ">3") { b = 10; }
-        if (a < 0 && b < 0) {
-            if (Math.abs(a) > Math.abs(b)) return -1;
-            else return 1;
-        } else {
+        };
+        jQuery.fn.dataTableExt.oSort['or-analysis-p-value-asc'] = function(a,b) {
+
+            if (profile_type === orAnalysis.profile_type.mrna) {
+                if (a.indexOf("up1") !== -1) a = a.replace("<img src=\"images/up1.png\"/>",  "");
+                if (a.indexOf("down1") !== -1) a = a.replace("<img src=\"images/down1.png\"/>",  "");
+                if (b.indexOf("up1") !== -1) b = b.replace("<img src=\"images/up1.png\"/>",  "");
+                if (b.indexOf("down1") !== -1) b = b.replace("<img src=\"images/down1.png\"/>",  "");
+            }
+
+            if (a === "<0.001") { a = 0.0009; }
+            if (b === "<0.001") { b = 0.0009; }
+
             if (a > b) return 1;
             else if (a < b) return -1;
             else return 0;
-        }
-    };
-    
-    function configTable(_profile_type) {
+        };
+        jQuery.fn.dataTableExt.oSort['or-analysis-q-value-desc'] = function(a,b) {
+
+             if (profile_type === orAnalysis.profile_type.mrna) {
+                if (a.indexOf("up1") !== -1) a = a.replace("<img src=\"images/up1.png\"/>",  "");
+                if (a.indexOf("down1") !== -1) a = a.replace("<img src=\"images/down1.png\"/>",  "");
+                if (b.indexOf("up1") !== -1) b = b.replace("<img src=\"images/up1.png\"/>",  "");
+                if (b.indexOf("down1") !== -1) b = b.replace("<img src=\"images/down1.png\"/>",  "");
+            }
+
+            if (a === "<0.001") { a = 0.0009; }
+            if (b === "<0.001") { b = 0.0009; }
+            if (a > b) return -1;
+            else if (a < b) return 1;
+            else return 0;
+        };
+        jQuery.fn.dataTableExt.oSort['or-analysis-q-value-asc'] = function(a,b) {
+
+            if (profile_type === orAnalysis.profile_type.mrna) {
+                if (a.indexOf("up1") !== -1) a = a.replace("<img src=\"images/up1.png\"/>",  "");
+                if (a.indexOf("down1") !== -1) a = a.replace("<img src=\"images/down1.png\"/>",  "");
+                if (b.indexOf("up1") !== -1) b = b.replace("<img src=\"images/up1.png\"/>",  "");
+                if (b.indexOf("down1") !== -1) b = b.replace("<img src=\"images/down1.png\"/>",  "");
+            }
+
+            if (a === "<0.001") { a = 0.0009; }
+            if (b === "<0.001") { b = 0.0009; }
+            if (a > b) return 1;
+            else if (a < b) return -1;
+            else return 0;
+        };
+        jQuery.fn.dataTableExt.oSort['or-analysis-log-ratio-desc'] = function(a,b) {
+            if (a === "<-3") { a = -10; }
+            if (b === "<-3") { b = -10; }
+            if (a === ">3") { a = 10; }
+            if (b === ">3") { b = 10; }
+            if (a < 0 && b < 0) {
+                if (Math.abs(a) > Math.abs(b)) return 1;
+                else return -1;
+            } else {
+                if (a > b) return -1;
+                else if (a < b) return 1;
+                else return 0;
+            }
+        };
+        jQuery.fn.dataTableExt.oSort['or-analysis-log-ratio-asc'] = function(a,b) {
+            if (a === "<-3") { a = -10; }
+            if (b === "<-3") { b = -10; }
+            if (a === ">3") { a = 10; }
+            if (b === ">3") { b = 10; }
+            if (a < 0 && b < 0) {
+                if (Math.abs(a) > Math.abs(b)) return -1;
+                else return 1;
+            } else {
+                if (a > b) return 1;
+                else if (a < b) return -1;
+                else return 0;
+            }
+        };
+        
         
         //Draw out the markdown of the datatable
         $("#" + table_id).append(
@@ -141,7 +177,7 @@ var orTable = function() {
                 //bold gene names
                 $('td:eq(' + col_index.gene + ')', nRow).css("font-weight", "bold");
                 
-                if (_profile_type === orAnalysis.profile_type.copy_num || _profile_type === orAnalysis.profile_type.mutations) {
+                if (profile_type === orAnalysis.profile_type.copy_num || profile_type === orAnalysis.profile_type.mutations) {
                     if (aData[col_index.log_ratio] > 0 || aData[col_index.log_ratio] === ">3") {
                         $('td:eq('+ col_index.log_ratio +')', nRow).css("color", "#3B7C3B");
                     } else if (aData[col_index.log_ratio] < 0 || aData[col_index.log_ratio] === "<-3") {
@@ -156,7 +192,7 @@ var orTable = function() {
                         aData[col_index.q_val] < 0.005) { //significate q value
                         $('td:eq(' + col_index.q_val + ')', nRow).css("font-weight", "bold");
                     } 
-                } else if (_profile_type === orAnalysis.profile_type.mrna) {
+                } else if (profile_type === orAnalysis.profile_type.mrna) {
                     var _p_val = aData[col_index.p_val],
                         _q_val = aData[col_index.q_val];
                     if (_p_val.indexOf("up1") !== -1) _p_val = _p_val.replace("<img src=\"images/up1.png\"/>",  "");
@@ -175,7 +211,9 @@ var orTable = function() {
             },
             "bDeferRender": true,
             "iDisplayLength": 17
-        });  
+        });
+        
+
 
     }
     
@@ -246,11 +284,11 @@ var orTable = function() {
         
     }
     
-    function define_titles(_profile_type) {
+    function define_titles() {
         
         var _title_str = "";
         
-        if (_profile_type === orAnalysis.profile_type.copy_num) {
+        if (profile_type === orAnalysis.profile_type.copy_num) {
             
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.gene + "'>Gene &nbsp;<img src='images/help.png' id='gene-help'></th>";
             _title_str += "<th colspan='2'>Percentage of alteration &nbsp;<img src='images/help.png' id='mean-alt-help'></th>";
@@ -261,7 +299,7 @@ var orTable = function() {
             _title_str += "</tr><tr><th width='" + orAnalysis.col_width.altered_pct + "'>in altered group</th>";
             _title_str += "<th width='" + orAnalysis.col_width.unaltered_pct + "'>in unaltered group</th>";
 
-        } else if (_profile_type === orAnalysis.profile_type.mutations) {
+        } else if (profile_type === orAnalysis.profile_type.mutations) {
                         
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.gene + "'>Gene &nbsp;<img src='images/help.png' id='mean-alt-help'></th>";
             _title_str += "<th colspan='2'>Percentage of alteration &nbsp;<img src='images/help.png' id='mean-alt-help'></th>";
@@ -272,7 +310,7 @@ var orTable = function() {
             _title_str += "</tr><tr><th width='" + orAnalysis.col_width.altered_pct + "'>in altered group</th>";
             _title_str += "<th width='" + orAnalysis.col_width.unaltered_pct + "'>in unaltered group</th>";
             
-        } else if (_profile_type === orAnalysis.profile_type.mrna) {
+        } else if (profile_type === orAnalysis.profile_type.mrna) {
             
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.gene + "'>Gene &nbsp;<img src='images/help.png' id='mean-alt-help'></th>";
             _title_str += "<th colspan='2'>Mean of alteration &nbsp;<img src='images/help.png' id='mean-alt-help'></th>";
@@ -300,21 +338,22 @@ var orTable = function() {
                 div_id = _div_id;
                 table_id = _table_id;
                 data = _input_data;
+                profile_type = _profile_type;
                 
-                if (_profile_type === orAnalysis.profile_type.copy_num) {
+                if (profile_type === orAnalysis.profile_type.copy_num) {
                     col_index = orAnalysis.col_index.copy_num;
-                } else if (_profile_type === orAnalysis.profile_type.mutations) {
+                } else if (profile_type === orAnalysis.profile_type.mutations) {
                     col_index = orAnalysis.col_index.mutations;
-                } else if (_profile_type === orAnalysis.profile_type.mrna) {
+                } else if (profile_type === orAnalysis.profile_type.mrna) {
                     col_index = orAnalysis.col_index.mrna;
                 }
                 
-                titles = define_titles(_profile_type);
+                titles = define_titles();
 
                 $("#" + _table_div).empty();
                 $("#" + _table_div).append("<span style='font-weight:bold;'>" + _table_title + "</span>");
                 $("#" + _table_div).append("<table id='" + table_id + "' cellpadding='0' cellspacing='0' border='0' class='" + table_id + "_datatable_class'></table>"); 
-                configTable(_profile_type);
+                configTable();
                 attachFitlers();
                 
             } else {
@@ -330,6 +369,7 @@ var orSubTabView = function() {
     
     return {
         init: function(_div_id, _profile_list, _profile_type) {
+            
 
             //split copy number profile into deep deletion and amplification 
             if (_profile_type === orAnalysis.profile_type.copy_num) {

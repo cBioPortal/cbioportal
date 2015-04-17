@@ -36,6 +36,64 @@ var orTable = function() {
     var div_id, table_id, data, titles; //titles is formatted string of column names with html markdown in
     
     var col_index, orTableInstance;
+        
+    //sortings
+    jQuery.fn.dataTableExt.oSort['or-analysis-p-value-desc'] = function(a,b) {
+        if (a === "<0.001") { a = 0.0009; }
+        if (b === "<0.001") { b = 0.0009; }
+        if (a > b) return -1;
+        else if (a < b) return 1;
+        else return 0;
+    };
+    jQuery.fn.dataTableExt.oSort['or-analysis-p-value-asc'] = function(a,b) {
+        if (a === "<0.001") { a = 0.0009; }
+        if (b === "<0.001") { b = 0.0009; }
+        if (a > b) return 1;
+        else if (a < b) return -1;
+        else return 0;
+    };
+    jQuery.fn.dataTableExt.oSort['or-analysis-q-value-desc'] = function(a,b) {
+        if (a === "<0.001") { a = 0.0009; }
+        if (b === "<0.001") { b = 0.0009; }
+        if (a > b) return -1;
+        else if (a < b) return 1;
+        else return 0;
+    };
+    jQuery.fn.dataTableExt.oSort['or-analysis-q-value-asc'] = function(a,b) {
+        if (a === "<0.001") { a = 0.0009; }
+        if (b === "<0.001") { b = 0.0009; }
+        if (a > b) return 1;
+        else if (a < b) return -1;
+        else return 0;
+    };
+    jQuery.fn.dataTableExt.oSort['or-analysis-log-ratio-desc'] = function(a,b) {
+        if (a === "<-3") { a = -10; }
+        if (b === "<-3") { b = -10; }
+        if (a === ">3") { a = 10; }
+        if (b === ">3") { b = 10; }
+        if (a < 0 && b < 0) {
+            if (Math.abs(a) > Math.abs(b)) return 1;
+            else return -1;
+        } else {
+            if (a > b) return -1;
+            else if (a < b) return 1;
+            else return 0;
+        }
+    };
+    jQuery.fn.dataTableExt.oSort['or-analysis-log-ratio-asc'] = function(a,b) {
+        if (a === "<-3") { a = -10; }
+        if (b === "<-3") { b = -10; }
+        if (a === ">3") { a = 10; }
+        if (b === ">3") { b = 10; }
+        if (a < 0 && b < 0) {
+            if (Math.abs(a) > Math.abs(b)) return -1;
+            else return 1;
+        } else {
+            if (a > b) return 1;
+            else if (a < b) return -1;
+            else return 0;
+        }
+    };
     
     function configTable(_profile_type) {
         
@@ -69,9 +127,14 @@ var orTable = function() {
                 },
                 {
                     "sType": 'or-analysis-q-value',
-                    "bSearchable": true,
+                    "bSearchable": false,
                     "aTargets": [ col_index.q_val ]
-                }               
+                },
+                {
+                    "sType": 'or-analysis-log-ratio',
+                    "bSearchable": false,
+                    "aTargets": [ col_index.log_ratio ]
+                }
             ],
             "fnRowCallback": function(nRow, aData) {
                 
@@ -79,9 +142,9 @@ var orTable = function() {
                 $('td:eq(' + col_index.gene + ')', nRow).css("font-weight", "bold");
                 
                 if (_profile_type === orAnalysis.profile_type.copy_num || _profile_type === orAnalysis.profile_type.mutations) {
-                    if (aData[col_index.log_ratio] > 0) {
+                    if (aData[col_index.log_ratio] > 0 || aData[col_index.log_ratio] === ">3") {
                         $('td:eq('+ col_index.log_ratio +')', nRow).css("color", "#3B7C3B");
-                    } else if (aData[col_index.log_ratio] < 0) {
+                    } else if (aData[col_index.log_ratio] < 0 || aData[col_index.log_ratio] === "<-3") {
                         $('td:eq(' + col_index.log_ratio + ')', nRow).css("color", "#B40404");
                     } 
                     //bold siginicant pvalue and qvalue
@@ -132,24 +195,22 @@ var orTable = function() {
             _sig_only_mutex_fn = function() {
                 orTableInstance.fnFilter("", col_index.direction);
                 orTableInstance.fnFilter("", col_index.log_ratio);
-                orTableInstance.fnFilter("-", col_index.log_ratio, false);
-                orTableInstance.fnFilter("Significant", col_index.direction);
+                orTableInstance.fnFilter("^(.)*\\sunaltered(.)*Significant$", col_index.direction, true);
             },
             _sig_only_co_oc_fn = function() {
                 orTableInstance.fnFilter("", col_index.direction);
                 orTableInstance.fnFilter("", col_index.log_ratio);
-                orTableInstance.fnFilter('^[+]?([1-9][0-9]*(?:[\.][0-9]*)?|0*\.0*[1-9][0-9]*)(?:[eE][+-][0-9]+)?$', col_index.log_ratio, true);
-                orTableInstance.fnFilter("Significant", col_index.direction);
+                orTableInstance.fnFilter("^(.)*\\saltered(.)*Significant$", col_index.direction, true);
             },
             _mutex_fn = function() {
                 orTableInstance.fnFilter("", col_index.direction);
                 orTableInstance.fnFilter("", col_index.log_ratio);
-                orTableInstance.fnFilter("-", col_index.log_ratio, false);
+                orTableInstance.fnFilter("^(.)*\\sunaltered(.)*$", col_index.direction, true);
             },
             _co_oc_fn = function() {
                 orTableInstance.fnFilter("", col_index.direction);
                 orTableInstance.fnFilter("", col_index.log_ratio);
-                orTableInstance.fnFilter('^[+]?([1-9][0-9]*(?:[\.][0-9]*)?|0*\.0*[1-9][0-9]*)(?:[eE][+-][0-9]+)?$', col_index.log_ratio, true);
+                orTableInstance.fnFilter("^(.)*\\saltered(.)*$", col_index.direction, true);
             }, 
             _all_fn = function() {
                 orTableInstance.fnFilter("", col_index.direction);
@@ -184,36 +245,6 @@ var orTable = function() {
         });
         
     }
-    
-    //sortings
-    jQuery.fn.dataTableExt.oSort['or-analysis-p-value-desc'] = function(a,b) {
-        if (a === "<0.001") { a = 0.0009; }
-        if (b === "<0.001") { b = 0.0009; }
-        if (a > b) return -1;
-        else if (a < b) return 1;
-        else return 0;
-    };
-    jQuery.fn.dataTableExt.oSort['or-analysis-p-value-asc'] = function(a,b) {
-        if (a === "<0.001") { a = 0.0009; }
-        if (b === "<0.001") { b = 0.0009; }
-        if (a > b) return 1;
-        else if (a < b) return -1;
-        else return 0;
-    };
-    jQuery.fn.dataTableExt.oSort['or-analysis-q-value-desc'] = function(a,b) {
-        if (a === "<0.001") { a = 0.0009; }
-        if (b === "<0.001") { b = 0.0009; }
-        if (a > b) return -1;
-        else if (a < b) return 1;
-        else return 0;
-    };
-    jQuery.fn.dataTableExt.oSort['or-analysis-q-value-asc'] = function(a,b) {
-        if (a === "<0.001") { a = 0.0009; }
-        if (b === "<0.001") { b = 0.0009; }
-        if (a > b) return 1;
-        else if (a < b) return -1;
-        else return 0;
-    };
     
     function define_titles(_profile_type) {
         

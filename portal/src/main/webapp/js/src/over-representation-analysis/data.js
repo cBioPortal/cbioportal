@@ -48,7 +48,7 @@ var orData = function() {
                 _unit[orAnalysis.col_index.copy_num.gene] = _obj["Gene"];
                 _unit[orAnalysis.col_index.copy_num.altered_pct] = (_obj["percentage of alteration in altered group"] * 100).toFixed(2) + "%";
                 _unit[orAnalysis.col_index.copy_num.unaltered_pct] = (_obj["percentage of alteration in unaltered group"] * 100).toFixed(2) + "%";
-                _unit[orAnalysis.col_index.copy_num.log_ratio] = (_obj["Log Ratio"] !== "--")? parseFloat(_obj["Log Ratio"]).toFixed(2): "--";
+                _unit[orAnalysis.col_index.copy_num.log_ratio] = (_obj["Log Ratio"] !== ">3" && _obj["Log Ratio"] !== "<-3")? parseFloat(_obj["Log Ratio"]).toFixed(2): _obj["Log Ratio"];
                 _unit[orAnalysis.col_index.copy_num.direction] = define_direction(_profile_type, _obj["p-Value"], _obj["q-Value"], _obj["Log Ratio"]);
                 _unit[orAnalysis.col_index.copy_num.p_val] = trim_p_val_copy_num(_obj["p-Value"]);
                 _unit[orAnalysis.col_index.copy_num.q_val] = trim_p_val_copy_num(_obj["q-Value"]);
@@ -58,7 +58,7 @@ var orData = function() {
                 _unit[orAnalysis.col_index.mutations.gene] = _obj["Gene"];
                 _unit[orAnalysis.col_index.mutations.altered_pct] = (_obj["percentage of alteration in altered group"] * 100).toFixed(2) + "%";
                 _unit[orAnalysis.col_index.mutations.unaltered_pct] = (_obj["percentage of alteration in unaltered group"] * 100).toFixed(2) + "%";
-                _unit[orAnalysis.col_index.mutations.log_ratio] = (_obj["Log Ratio"] !== "--")? parseFloat(_obj["Log Ratio"]).toFixed(2): "--";
+                _unit[orAnalysis.col_index.mutations.log_ratio] = (_obj["Log Ratio"] !== ">3" && _obj["Log Ratio"] !== "<-3")? parseFloat(_obj["Log Ratio"]).toFixed(2): _obj["Log Ratio"];
                 _unit[orAnalysis.col_index.mutations.direction] = define_direction(_profile_type, _obj["p-Value"], _obj["q-Value"], _obj["Log Ratio"]);
                 _unit[orAnalysis.col_index.mutations.p_val] = trim_p_val_mutations(_obj["p-Value"]);
                 _unit[orAnalysis.col_index.mutations.q_val] = trim_p_val_mutations(_obj["q-Value"]);;
@@ -119,26 +119,26 @@ var orData = function() {
         
         if (_profile_type === orAnalysis.profile_type.copy_num) {
             
-            if (_log_ratio !== "--") {
-                if (_log_ratio > 0) {
-                    _result_str += "Enriched in altered group";
-                } else if (_log_ratio < 0) {
-                    _result_str += "Enriched in unaltered group";
-                }                
-            } else {
-                _result_str += "--";
-            }
+            if (_log_ratio === ">3") {
+                _result_str += "Enriched in altered group";
+            } else if (_log_ratio === "<-3") {
+                _result_str += "Enriched in unaltered group";
+            } else if (_log_ratio > 0) {
+                _result_str += "Enriched in altered group";
+            } else if (_log_ratio < 0) {
+                _result_str += "Enriched in unaltered group";
+            } 
 
         } else if (_profile_type === orAnalysis.profile_type.mutations) {
-            if (_log_ratio !== "--") {
-                if (_log_ratio > 0) {
-                    _result_str += "Enriched in altered group";
-                } else if (_log_ratio < 0) {
-                    _result_str += "Enriched in unaltered group";
-                }                
-            } else {
-                _result_str += "--";
-            }
+            if (_log_ratio === ">3") {
+                _result_str += "Enriched in altered group";
+            } else if (_log_ratio === "<-3") {
+                _result_str += "Enriched in unaltered group";
+            } else if (_log_ratio > 0) {
+                _result_str += "Enriched in altered group";
+            } else if (_log_ratio < 0) {
+                _result_str += "Enriched in unaltered group";
+            } 
         } 
         
         if (_p_val < 0.005 && _q_val < 0.005 && _result_str !== "--") {

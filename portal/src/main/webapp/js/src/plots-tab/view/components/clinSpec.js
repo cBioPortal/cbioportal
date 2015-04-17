@@ -13,15 +13,14 @@ var clinSpec = (function() {
             search_contains: true,
             width: "80%"
         });
-        
     }
 
     return {
         init: function(axis) {
             $("#" + ids.sidebar[axis].spec_div).empty();
             appendAttrList(axis);
-
             $("#" + ids.sidebar[axis].clin_attr).bind("change", function() { regenerate_plots(axis); });
         }
     };
+    
 }());

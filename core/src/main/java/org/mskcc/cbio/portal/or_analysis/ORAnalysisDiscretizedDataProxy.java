@@ -149,11 +149,20 @@ public class ORAnalysisDiscretizedDataProxy {
     
     private String calcRatio(double pct1, double pct2) {
         if (pct1 != 0 && pct2 != 0) {
-            return Double.toString(Math.log(pct1 / pct2) / Math.log(2));
+            if ((Math.log(pct1 / pct2) / Math.log(2)) > 3) {
+                return ">3";
+            } else if (Math.log(pct1 / pct2) / Math.log(2) < -3) {
+                return "<-3";
+            } else {
+                return Double.toString(Math.log(pct1 / pct2) / Math.log(2));
+            }
+        } else if (pct1 == 0 && pct2 != 0) {
+            return ">3";
+        } else if (pct1 != 0 && pct2 == 0) {
+            return "<-3";
         } else {
             return "--";
         } 
-        
     }
     
     private double calcMean(HashMap<Integer, String> singleGeneCaseValueMap, String groupType) { // group type: altered or unaltered

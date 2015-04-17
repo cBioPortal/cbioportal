@@ -120,18 +120,18 @@ var or_tab = (function() {
                 });
                 
                 //Generate sub tabs
-                if ($.inArray("COPY_NUMBER_ALTERATION", profile_type_list) !== -1) { //study has copy number data
-                    $("#" + orAnalysis.ids.sub_tabs_list).append("<li><a href='#" + orAnalysis.ids.sub_tab_copy_num + "' class='or-analysis-tabs-ref'><span>" + orAnalysis.texts.sub_tab_copy_num + "</span></a></li>");
-                }
                 if ($.inArray("MUTATION_EXTENDED", profile_type_list) !== -1) { // study has mutation data
                    $("#" + orAnalysis.ids.sub_tabs_list).append("<li><a href='#" + orAnalysis.ids.sub_tab_mutations + "' class='or-analysis-tabs-ref'><span>" + orAnalysis.texts.sub_tab_mutations + "</span></a></li>");
+                }
+                if ($.inArray("COPY_NUMBER_ALTERATION", profile_type_list) !== -1) { //study has copy number data
+                    $("#" + orAnalysis.ids.sub_tabs_list).append("<li><a href='#" + orAnalysis.ids.sub_tab_copy_num + "' class='or-analysis-tabs-ref'><span>" + orAnalysis.texts.sub_tab_copy_num + "</span></a></li>");
                 }
                 if ($.inArray("MRNA_EXPRESSION", profile_type_list) !== -1) { //study has expression data
                     $("#" + orAnalysis.ids.sub_tabs_list).append("<li><a href='#" + orAnalysis.ids.sub_tab_mrna_exp + "' class='or-analysis-tabs-ref'><span>" + orAnalysis.texts.sub_tab_mrna_exp + "</span></a></li>");
                 }
                 
-                $("#" + orAnalysis.ids.sub_tabs_content).append("<div id='" + orAnalysis.ids.sub_tab_copy_num + "'></div>");
                 $("#" + orAnalysis.ids.sub_tabs_content).append("<div id='" + orAnalysis.ids.sub_tab_mutations + "'></div>");
+                $("#" + orAnalysis.ids.sub_tabs_content).append("<div id='" + orAnalysis.ids.sub_tab_copy_num + "'></div>");
                 $("#" + orAnalysis.ids.sub_tabs_content).append("<div id='" + orAnalysis.ids.sub_tab_mrna_exp + "'></div>");
 
                 $("#" + orAnalysis.ids.sub_tabs_div).tabs();
@@ -140,7 +140,7 @@ var or_tab = (function() {
                 $(window).trigger("resize");
                 
                 //init sub tab contents
-                init_copy_num_tab(); 
+                init_mutations_tab(); 
                 $("#" + orAnalysis.ids.sub_tabs_div).on("tabsactivate", function(event, ui) {
                     if (ui.newTab.text() === orAnalysis.texts.sub_tab_copy_num) {
                         if ($("#" + orAnalysis.ids.sub_tab_copy_num).is(':empty')) init_copy_num_tab();

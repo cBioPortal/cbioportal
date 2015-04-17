@@ -66,6 +66,9 @@
             <label for="jstree_select_cell_line">Cell Line Studies</label>
         </div>-->
     </div>
+    <div id="jstree_search_none_found_msg" style="display:none">
+        <h5>No matches found.</h5>
+    </div>
 <!--    <button class="btn btn-default btn-sm" onclick='$("#jstree").jstree(true).deselect_all(); return false;'>Deselect all studies</button>&nbsp;&nbsp;
     <button class="btn btn-default btn-sm" onclick="var jstree = $('#jstree').jstree(true); var celllines = jstree.get_matching_nodes('cell line'); jstree.deselect_node(celllines); return false">Deselect Cell Line Studies</button><br><br>-->
 

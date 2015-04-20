@@ -50,8 +50,8 @@ public class CancerStudyAlterationFrequencyController
 	private CancerStudyAlterationFrequencyService alterationFrequencyService;
 	
 	@RequestMapping("/gene")
-  public @ResponseBody List<CancerStudyAlterationFrequency> getAlterationFrequencies(@RequestParam(required=true) Long entrezGeneId,
+  public @ResponseBody List<CancerStudyAlterationFrequency> getAlterationFrequencies(@RequestParam(required=true) List<Long> entrezGeneIds,
 											@RequestParam(required=true) List<Integer> internalStudyIds) throws Exception {
-	  return alterationFrequencyService.get(entrezGeneId, internalStudyIds);
+	  return alterationFrequencyService.get(entrezGeneIds, internalStudyIds);
   }
 }

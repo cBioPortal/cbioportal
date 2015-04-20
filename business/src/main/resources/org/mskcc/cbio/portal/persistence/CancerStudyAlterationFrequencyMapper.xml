@@ -12,7 +12,10 @@
                 ALTERATION_TYPE as alterationType,
                 FREQUENCY as alterationFrequency
 	from alteration_frequency
-        where ENTREZ_GENE_ID=#{entrezGeneId}
+        where ENTREZ_GENE_ID in
+    <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
+        #{item}
+    </foreach>
         and CANCER_STUDY_ID in
     <foreach item="item" collection="internalStudyIds" open="(" separator="," close=")">
         #{item}

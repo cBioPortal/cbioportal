@@ -22,8 +22,8 @@ public class CancerStudyAlterationFrequencyService
 	@Autowired
 	private CancerStudyAlterationFrequencyMapper mapper;
   @Transactional
-  public List<CancerStudyAlterationFrequency> get(Long entrezGeneId, List<Integer> internalStudyIds) {
-	  return mapper.get(entrezGeneId, internalStudyIds);
+  public List<CancerStudyAlterationFrequency> get(List<Long> entrezGeneIds, List<Integer> internalStudyIds) {
+	  return mapper.get(entrezGeneIds, internalStudyIds);
   }
 
 }

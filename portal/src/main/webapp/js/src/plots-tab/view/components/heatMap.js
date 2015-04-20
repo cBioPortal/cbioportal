@@ -97,6 +97,8 @@ var heat_map = (function() {
                     .attr("width", 800) 
                     .attr("height", 600);
             
+        var axisTitleGroup = svg.append("svg:g").attr("class", "axis");
+            
         var colorScale = d3.scale.linear()
             .domain([stat.count.min, stat.count.max])
             .range(["white", "#0066CC"]);
@@ -282,20 +284,20 @@ var heat_map = (function() {
         //append help icon
         svg.append("svg:image")
             .attr("xlink:href", "images/help.png")
-            .attr("class", "x_help")
+            .attr("class", d3_class.x.title_help)
             .attr("x", edge_left)
             .attr("y", parseInt(stat.y.max - stat.y.min) * h + h + 10 + edge_top)
             .attr("width", "16")
             .attr("height", "16");
         svg.append("svg:image")
             .attr("xlink:href", "images/help.png")
-            .attr("class", "y_help")
+            .attr("class", d3_class.y.title_help)
             .attr("x", (edge_left - 28))
             .attr("y", parseInt(stat.y.max - stat.y.min) * h + h + edge_top - 10)
             .attr("width", "16")
             .attr("height", "16");
 
-        svg.select(".x_help").each(
+        svg.select("." + d3_class.x.title_help).each(
             function() {
                 $(this).qtip(
                     {
@@ -308,7 +310,7 @@ var heat_map = (function() {
                 );
             }
         );  
-        svg.select(".y_help").each(
+        svg.select("." + d3_class.y.title_help).each(
             function() {
                 $(this).qtip(
                     {

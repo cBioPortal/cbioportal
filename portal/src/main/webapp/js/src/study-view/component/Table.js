@@ -96,9 +96,9 @@ var Table = function() {
             "<div id='"+divs.headerId+"'style='height: 16px; width:100%; float:left; text-align:center;'>"+
                 "<div class='titleWrapper' id='"+divs.titleWrapperId+"'>"+
                     "<img id='"+divs.reloadId+"' class='study-view-title-icon hidden hover' src='images/reload-alt.svg'/>"+    
-//                    "<div id='"+divs.downloadWrapperId+"' class='study-view-download-icon'>" +
-//                        "<img id='"+divs.downloadId+"' style='float:left' src='images/in.svg'/>"+
-//                    "</div>"+
+                        "<div id='"+divs.downloadWrapperId+"' class='study-view-download-icon'>" +
+                            "<img id='"+divs.downloadId+"' style='float:left' src='images/in.svg'/>"+
+                        "</div>"+
                     "<img class='study-view-drag-icon' src='images/move.svg'/>"+
                     "<span id='"+divs.deleteIconId+"' class='study-view-tables-delete'>x</span>"+
                 "</div>"+
@@ -210,7 +210,7 @@ var Table = function() {
             if(e.name === 'samples') {
                 samplesIndex = i;
             }
-            if(!e.hasOwnProperty('displayName')){
+            if(!e.hasOwnProperty('displayName') || e.name === 'caseIds'){
                 unvisiable.push(i);
             }
         });
@@ -329,6 +329,62 @@ var Table = function() {
     }
     
     function addEvents() {
+        $('#' + divs.tableId + '-download-icon').qtip('destroy', true);
+        $('#' + divs.tableId + '-download-icon-wrapper').qtip('destroy', true);
+        
+        $('#' + divs.tableId + '-download-icon-wrapper').qtip({
+            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
+            show: {event: "mouseover", delay: 0},
+            hide: {fixed:true, delay: 100, event: "mouseout"},
+            position: {my:'bottom left',at:'top right', viewport: $(window)},
+            content: {
+                text:   "Download"
+            }
+        });
+        
+        $('#' + divs.tableId + '-download-icon').qtip({
+            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
+            show: {event: "click", delay: 0},
+            hide: {fixed:true, delay: 100, event: "mouseout "},
+            position: {my:'top center',at:'bottom center', viewport: $(window)},
+            content: {
+                text:   "<div style='display:inline-block;float:left;margin: 0 2px'>"+
+                        "<button  id='"+divs.tableId+"-csv'>CSV</button>"+          
+                        "</div>"
+            },
+            events: {
+                show: function() {
+                    $('#' + divs.tableId + '-download-icon-wrapper').qtip('api').hide();
+                },
+                render: function() {
+                    $("#"+divs.tableId+"-csv").click(function(){
+                        var content = '';
+                        
+                        attr.forEach(function(e) {
+                            content = content + '\"' + (e.displayName||'Unknown') + '\"' + ',';
+                        });
+                        content = content.slice(0,-1);
+
+                        arr.forEach(function(e){
+                            content += '\r\n';
+                            attr.forEach(function(e1){
+                                content += '\"' + e[e1.name] + '\"' + ',';
+                            });
+                            content = content.slice(0,-1);
+                        });
+
+                        var downloadOpts = {
+                            filename: cancerStudyName + "_" + divs.title + ".csv",
+                            contentType: "text/plain;charset=utf-8",
+                            preProcess: false
+                        };
+
+                        cbio.download.initDownload(content, downloadOpts);
+                    });
+                }
+            }
+        });
+        
         deleteTable();
     }
     

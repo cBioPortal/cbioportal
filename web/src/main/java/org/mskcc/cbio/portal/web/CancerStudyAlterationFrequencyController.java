@@ -43,13 +43,12 @@ import java.util.List;
 import org.mskcc.cbio.portal.service.CancerStudyAlterationFrequencyService;
 
 @Controller
-@RequestMapping("/alteration_frequencies")
 public class CancerStudyAlterationFrequencyController
 {
 	@Autowired
 	private CancerStudyAlterationFrequencyService alterationFrequencyService;
 	
-	@RequestMapping("/gene")
+@RequestMapping("/alteration_frequencies")
   public @ResponseBody List<CancerStudyAlterationFrequency> getAlterationFrequencies(@RequestParam(required=true) List<Long> entrezGeneIds,
 											@RequestParam(required=true) List<Integer> internalStudyIds) throws Exception {
 	  return alterationFrequencyService.get(entrezGeneIds, internalStudyIds);

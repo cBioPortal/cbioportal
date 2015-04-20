@@ -16,5 +16,6 @@ public class CancerStudyAlterationFrequency implements Serializable
 	public Long entrezGeneId;
 	public int internalStudyId;
 	public String alterationType;
-	public float alterationFrequency;	
+	public float alterationFrequency;
+	public int numCases;
 }

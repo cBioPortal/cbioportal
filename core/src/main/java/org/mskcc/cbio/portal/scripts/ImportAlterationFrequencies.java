@@ -192,11 +192,11 @@ public class ImportAlterationFrequencies {
 		// TODO: handle denominator correctly
 		for (Long entrezGeneId: alterationFrequency.keySet()) {
 			AlterationFrequencyProfile altFreqProf = alterationFrequency.get(entrezGeneId);
-			DaoAlterationFrequency.addAlterationFrequency(study.getInternalId(), entrezGeneId, DaoAlterationFrequency.AlterationFrequencyType.MUT, altFreqProf.mutCt/altFreqProf.totalCt);
-			DaoAlterationFrequency.addAlterationFrequency(study.getInternalId(), entrezGeneId, DaoAlterationFrequency.AlterationFrequencyType.CNA_AMP, altFreqProf.ampCt/altFreqProf.totalCt);
-			DaoAlterationFrequency.addAlterationFrequency(study.getInternalId(), entrezGeneId, DaoAlterationFrequency.AlterationFrequencyType.CNA_DEL, altFreqProf.delCt/altFreqProf.totalCt);
-			DaoAlterationFrequency.addAlterationFrequency(study.getInternalId(), entrezGeneId, DaoAlterationFrequency.AlterationFrequencyType.MUT_AND_CNA_AMP, altFreqProf.mutAmpCt/altFreqProf.totalCt);
-			DaoAlterationFrequency.addAlterationFrequency(study.getInternalId(), entrezGeneId, DaoAlterationFrequency.AlterationFrequencyType.MUT_AND_CNA_DEL, altFreqProf.mutDelCt/altFreqProf.totalCt);
+			DaoAlterationFrequency.addAlterationFrequency(study.getInternalId(), entrezGeneId, DaoAlterationFrequency.AlterationFrequencyType.MUT, altFreqProf.mutCt/altFreqProf.totalCt, (int) altFreqProf.totalCt);
+			DaoAlterationFrequency.addAlterationFrequency(study.getInternalId(), entrezGeneId, DaoAlterationFrequency.AlterationFrequencyType.CNA_AMP, altFreqProf.ampCt/altFreqProf.totalCt, (int) altFreqProf.totalCt);
+			DaoAlterationFrequency.addAlterationFrequency(study.getInternalId(), entrezGeneId, DaoAlterationFrequency.AlterationFrequencyType.CNA_DEL, altFreqProf.delCt/altFreqProf.totalCt, (int) altFreqProf.totalCt);
+			DaoAlterationFrequency.addAlterationFrequency(study.getInternalId(), entrezGeneId, DaoAlterationFrequency.AlterationFrequencyType.MUT_AND_CNA_AMP, altFreqProf.mutAmpCt/altFreqProf.totalCt, (int) altFreqProf.totalCt);
+			DaoAlterationFrequency.addAlterationFrequency(study.getInternalId(), entrezGeneId, DaoAlterationFrequency.AlterationFrequencyType.MUT_AND_CNA_DEL, altFreqProf.mutDelCt/altFreqProf.totalCt, (int) altFreqProf.totalCt);
 		}
 		System.out.println("clearing table");
 		geneData.clear();

@@ -18,7 +18,7 @@ public class DaoAlterationFrequency {
 	public static enum AlterationFrequencyType {
 		MUT,CNA_AMP,CNA_DEL,MUT_AND_CNA_AMP,MUT_AND_CNA_DEL,WILD_TYPE;
 	}
-	public static int addAlterationFrequency(int cancerStudyId, long entrezGeneId, AlterationFrequencyType freqType, float frequency)
+	public static int addAlterationFrequency(int cancerStudyId, long entrezGeneId, AlterationFrequencyType freqType, float frequency, int numCases)
             throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -27,12 +27,13 @@ public class DaoAlterationFrequency {
             con = JdbcUtil.getDbConnection(DaoMutationFrequency.class);
 
             pstmt = con.prepareStatement
-                    ("INSERT INTO alteration_frequency (`CANCER_STUDY_ID`,`ENTREZ_GENE_ID`, `ALTERATION_TYPE`, `FREQUENCY`) "
-                            + "VALUES (?,?,?,?)");
+                    ("INSERT INTO alteration_frequency (`CANCER_STUDY_ID`,`ENTREZ_GENE_ID`, `ALTERATION_TYPE`, `FREQUENCY`, `CASES`) "
+                            + "VALUES (?,?,?,?,?)");
             pstmt.setInt(1, cancerStudyId);
 	    pstmt.setLong(2, entrezGeneId);
             pstmt.setString(3, freqType.toString());
 	    pstmt.setFloat(4, frequency);
+	    pstmt.setInt(5, numCases);
             return pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);

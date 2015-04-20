@@ -19,7 +19,10 @@ var sidebar = (function() {
                 regenerate_plots("x");       
                 regenerate_plots("y");
             }
-        } else if (metaData.getGeneticProfilesMeta(window.PortalGlobals.getGeneList()[0]).length === 0 && metaData.getClinAttrsMeta().length !== 0) { //only have clincal data
+        } else if ((metaData.getGeneticProfilesMeta(window.PortalGlobals.getGeneList()[0]).length === 0 || 
+                   (metaData.getGeneticProfilesMeta(window.PortalGlobals.getGeneList()[0]).length === 1 && 
+                    metaData.getGeneticProfilesMeta(window.PortalGlobals.getGeneList()[0])[0].type === "MUTATION_EXTENDED"))&& 
+                   metaData.getClinAttrsMeta().length !== 0) { //only have clincal data
             $("#" + ids.sidebar.x.data_type).hide();
             $("#" + ids.sidebar.y.data_type).hide(); 
             $("input:radio[name='" + ids.sidebar.x.data_type + "'][value='" + vals.data_type.clin + "']").attr('checked', 'checked');

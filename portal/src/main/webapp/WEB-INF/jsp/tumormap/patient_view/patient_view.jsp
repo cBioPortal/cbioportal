@@ -78,6 +78,13 @@ boolean showTissueImages = tissueImageUrl!=null;
 String patientID = (String)request.getAttribute(PatientView.PATIENT_ID);
 int numTumors = (Integer)request.getAttribute("num_tumors");
 
+String jsonPatientInfo = null;
+String jsonClinicalAttributes = null;
+if (isPatientView) {
+    jsonPatientInfo = jsonMapper.writeValueAsString((Map<String,String>)request.getAttribute(PatientView.PATIENT_INFO));
+    jsonClinicalAttributes = jsonMapper.writeValueAsString((Map<String,String>)request.getAttribute(PatientView.CLINICAL_ATTRIBUTES));
+}
+
 boolean showTimeline = (Boolean)request.getAttribute("has_timeline_data");
 
 String pathReportUrl = (String)request.getAttribute(PatientView.PATH_REPORT_URL);
@@ -107,10 +114,11 @@ boolean showPathways = showPlaceHoder & (showMutations | showCNA);
 boolean showSimilarPatient = false;//showPlaceHoder & (showMutations | showCNA);
 
 boolean hasCnaSegmentData = ((Boolean)request.getAttribute(PatientView.HAS_SEGMENT_DATA));
-boolean hasAlleleFrequencyData =  ((Boolean)request.getAttribute(PatientView.HAS_ALLELE_FREQUENCY_DATA));
+boolean hasAlleleFrequencyData = ((Boolean)request.getAttribute(PatientView.HAS_ALLELE_FREQUENCY_DATA));
 boolean showGenomicOverview = showMutations | hasCnaSegmentData;
 boolean showClinicalTrials = true;
 boolean showDrugs = true;
+boolean showSamplesTable = isPatientView;
 
 double[] genomicOverviewCopyNumberCnaCutoff = GlobalProperties.getPatientViewGenomicOverviewCnaCutoff();
 
@@ -197,6 +205,10 @@ if (patientViewError!=null) {
     <%if(showSimilarPatient){%>
     <li><a id="link-tissue-similar-patients" href='#tab_similar-patients' class='patient-tab'>Similar Patients</a></li>
     <%}%>
+    
+    <%if(showSamplesTable){%>
+    <li><a id="link-samples-table" href='#tab_samples-table' class='patient-tab'>Clinical Information</a></li>
+    <%}%>
 
     </ul>
 
@@ -249,6 +261,12 @@ if (patientViewError!=null) {
     <%if(showClinicalTrials){%>
         <div class="patient-section" id="tab_clinical-trials">
             <%@ include file="clinical_trials.jsp" %>
+        </div>
+    <%}%>
+    
+    <%if(showSamplesTable){%>
+        <div class="samples-table-section" id="tab_samples-table">
+            <%@ include file="samples_table.jsp" %>
         </div>
     <%}%>
 
@@ -347,9 +365,24 @@ if (patientViewError!=null) {
 	.igv-link {
 		cursor: pointer;
 	}
+    /* Sample records style */
+    .sample-record {
+        color: #428bca;
+        text-align: left;
+    }
+    .sample-record-inline {
+        display: inline-block;
+        color: #428bca;
+        padding: 0 5px;
+    }
+    
+    #page_wrapper_table {
+        background-color: white;
+    }
 </style>
 
 <script type="text/javascript" src="js/src/patient-view/genomic-event-observer.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script src="js/lib/dataTables.tableTools.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript">
 
 var print = <%=print%>;
@@ -369,6 +402,8 @@ var cancerStudyId = '<%=cancerStudy.getCancerStudyStableId()%>';
 var genomicEventObs =  new GenomicEventObserver(<%=showMutations%>,<%=showCNA%>, hasCnaSegmentData);
 var drugType = drugType?'<%=drugType%>':null;
 var clinicalDataMap = <%=jsonClinicalData%>;
+var patientInfo = <%=jsonPatientInfo%>;
+var clinicalAttributes = <%=jsonClinicalAttributes%>;
 var viewBam = <%=viewBam%>;
 var mapCaseBam = <%=jsonMapCaseBam%>;
 var oncokbUrl = '<%=oncokbUrl%>';
@@ -411,7 +446,7 @@ function initTabs() {
             $('.patient-tab').removeClass('selected');
             $(this).addClass('selected');
             return false;
-    }).filter(':first').click();   
+    }).filter(':first').click();
 }
 
 function fixCytoscapeWebRedraw() {
@@ -470,55 +505,102 @@ function addMoreClinicalTooltip(elem) {
     $(elem).each(function( index ) {
         var thisElem = $(this);
         var caseId = thisElem.attr('alt');
+        var table_text;
+        var clinicalData;
+        var dataTable;
         
-        var clinicalData = [];
-        for (var key in clinicalDataMap[caseId]) {
-            clinicalData.push([key, clinicalDataMap[caseId][key]]);
+        if (thisElem.attr('id') === "more-patient-info") {
+            clinicalData = [];
+            for (var key in patientInfo) {
+                clinicalData.push([clinicalAttributes[key]["displayName"], patientInfo[key]]);
+            }
+            table_text = '<table id="more-patient-info-table-'+patientId+'"></table>';
+            dataTable = {
+                "dom": 'C<"clear">lfrtip',
+                "sDom": 't',
+                "bJQueryUI": true,
+                "bDestroy": true,
+                "aaData": clinicalData,
+                "aoColumnDefs": [
+                    {
+                        "aTargets": [ 0 ],
+                        "sClass": "left-align-td",
+                        "mRender": function ( data, type, full ) {
+                            return '<b>'+data+'</b>';
+                        }
+                    },
+                    {
+                        "aTargets": [ 1 ],
+                        "sClass": "left-align-td",
+                        "bSortable": false
+                    }
+                ],
+                "aaSorting": [[0,'asc']],
+                "oLanguage": {
+                    "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
+                    "sInfoFiltered": "",
+                    "sLengthMenu": "Show _MENU_ per page"
+                },
+                "iDisplayLength": -1
+            };
+        } else {
+            var caseId = $(this).attr('alt');
+            clinicalData = [];
+            for (var key in clinicalDataMap[caseId]) {
+                clinicalData.push([clinicalAttributes[key]["displayName"], clinicalDataMap[caseId][key]]);
+            }
+            table_text = "<table id='more-sample-info-table-"+caseId+"'></table>";
+            dataTable = {
+                "dom": 'C<"clear">lfrtip',
+                "sDom": 't',
+                "bJQueryUI": true,
+                "bDestroy": true,
+                "aaData": clinicalData,
+                "aoColumnDefs": [
+                    {
+                        "aTargets": [ 0 ],
+                        "sClass": "left-align-td",
+                        "mRender": function ( data, type, full ) {
+                            return '<b>'+data+'</b>';
+                        }
+                    },
+                    {
+                        "aTargets": [ 1 ],
+                        "sClass": "left-align-td",
+                        "bSortable": false
+                    }
+                ],
+                "aaSorting": [[0,'asc']],
+                "oLanguage": {
+                    "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
+                    "sInfoFiltered": "",
+                    "sLengthMenu": "Show _MENU_ per page"
+                },
+                "iDisplayLength": -1
+            };
         }
 
         if (clinicalData.length===0) {
             thisElem.remove();
         } else {
+            var pos = {my:'top right',at:'bottom right',viewport: $(window)};
+            if (thisElem.attr('class') && thisElem.attr('class').indexOf("sample-record ") > -1) {
+                pos = {my:'right center',at:'left center',viewport: $(window)};
+            }
             thisElem.qtip({
                 content: {
-                    text: '<table id="more-clinical-table-'+caseId+'"></table>'
+                    text: table_text
                 },
                 events: {
                     render: function(event, api) {
-                        $(this).html("<table></table>");
-                        $(this).find("table").dataTable( {
-                            "sDom": 't',
-                            "bJQueryUI": true,
-                            "bDestroy": true,
-                            "aaData": clinicalData,
-                            "aoColumnDefs":[
-                                {
-                                    "aTargets": [ 0 ],
-                                    "sClass": "left-align-td",
-                                    "mRender": function ( data, type, full ) {
-                                        return '<b>'+data+'</b>';
-                                    }
-                                },
-                                {
-                                    "aTargets": [ 1 ],
-                                    "sClass": "left-align-td",
-                                    "bSortable": false
-                                }
-                            ],
-                            "aaSorting": [[0,'asc']],
-                            "oLanguage": {
-                                "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
-                                "sInfoFiltered": "",
-                                "sLengthMenu": "Show _MENU_ per page"
-                            },
-                            "iDisplayLength": -1
-                        } );
+                        $(this).html("<table style='background-color: white;'></table>");
+                        $(this).find("table").dataTable(dataTable);
                     }
                 },
                     show: {event: "mouseover"},
                 hide: {fixed: true, delay: 100, event: "mouseout"},
                 style: { classes: 'qtip-light qtip-rounded qtip-wide' },
-                position: {my:'top right',at:'bottom right',viewport: $(window)}
+                position: pos,
             });
         }
     });
@@ -801,35 +883,116 @@ function guessClinicalData(clinicalData, paramNames) {
 }
 
 function outputClinicalData() {
-    $("#clinical_div").append("<table id='clinical_table' width='100%'></table>");
     var n=caseIds.length;
     if (n>1) initCaseMetaData();
     
     // first row -- cancer study and nav
-    $("#clinical_table").append("<tr><td>"+formatCancerStudyInfo()+"</td><td>"+formatNav()+"</td></tr>");
+    //$("#clinical_table").append("<tr><td>"+formatCancerStudyInfo()+"</td><td>"+formatNav()+"</td>");
     initNav();
+    // formatNav()
     
-    // for each sample
-    for (var i=0; i<n; i++) {
-        var caseId = caseIds[i];
-        var clinicalData = clinicalDataMap[caseId];
-        
-        var row = "<tr><td><b><u><a href='"+cbio.util.getLinkToSampleView(cancerStudyId,caseId)+"'>"+caseId+"<a></b></u>&nbsp;";
-        if (n>1) {
-            row += "<svg width='12' height='12' class='case-label-header' alt='"+caseId+"'></svg>&nbsp;";
-        }
-        
+
+    if (isPatientView) {
+        // patient info
+        //var row = "<tr><td><b>Patient</b></td>";
+        //$("#clinical_table").append(row);
+
+        row = "<div style='white-space: nowrap;'><span id='more-patient-info'><b><u><a href='"+cbio.util.getLinkToPatientView(cancerStudyId,patientId)+"'>"+patientId+"</a></b></u><a>&nbsp;";
         var info = [];
-        var info = info.concat(formatPatientInfo(clinicalData));
-        var info = info.concat(formatDiseaseInfo(clinicalData));
-        var info = info.concat(formatPatientStatus(clinicalData));
-        row +=info.join(",&nbsp;");
-       
-        row += "</td><td align='right'><a href='#' class='more-clinical-a' alt='"+caseId+"'>More about this tumor</a></td></tr>";
-        $("#clinical_table").append(row);
+        var loc;
+        if ("PRIMARY_SITE" in patientInfo) {loc = (" (" + patientInfo["PRIMARY_SITE"] + ")")} else {loc=""};
+        var info = info.concat(formatPatientInfo(patientInfo) + loc);
+        var info = info.concat(formatDiseaseInfo(patientInfo));
+        var info = info.concat(formatPatientStatus(patientInfo));
+        row += info.join(", ");
+        row += "</a></span><span style='float: right'>" + formatCancerStudyInfo()+ "</span></div>";
+        $("#clinical_div").append(row);
         
+        var head_recs = "";
+        var tail_recs = "";
+        var sample_recs = "";
+        var nr_in_head = 5;
+        var max_in_tail = 20;
+        for (var i=0; i<Math.min(n, nr_in_head+max_in_tail); i++) {
+            var caseId = caseIds[i];
+            
+            sample_recs += "<div class='sample-record more-sample-info' alt='"+caseId+"'>";
+            if (n>1) {
+                sample_recs += "<svg width='12' height='12' class='case-label-header' alt='"+caseId+"'></svg>&nbsp;";
+            }
+            sample_recs += "<b><u><a style='color: #1974b8;' href='"+cbio.util.getLinkToSampleView(cancerStudyId,caseId)+"'>"+caseId+"</a></b></u><a>&nbsp;"
+            
+            var sampleData = {"SAMPLE_TYPE":clinicalDataMap[caseId].SAMPLE_TYPE,
+                              "METASTATIC_SITE":clinicalDataMap[caseId].METASTATIC_SITE || "N/A",
+                              "PRIMARY_SITE":clinicalDataMap[caseId].PRIMARY_SITE || "N/A"};
+            var info = [];
+            info = info.concat(formatStateInfo(sampleData));
+            sample_recs += info.join(",&nbsp;");
+            sample_recs += "</a></div>";
+            
+            if ((n > nr_in_head && i == nr_in_head-1) || (n <= nr_in_head && i == n-1)) {
+                head_recs = sample_recs.replace(/sample-record/g, 'sample-record-inline').replace(/<\/div>/g, ", </div>");
+                sample_recs = "";
+            }
+        }
+        var svg_corner = '<svg width="20" height="15" style="top: -10px;"><line x1="10" y1="0" x2="10" y2="10" stroke="gray" stroke-width="2"></line><line x1="10" y1="10" x2="50" y2="10" stroke="gray" stroke-width="2"></line></svg>';
+        if (n > nr_in_head) {
+            tail_recs = sample_recs;
+            $("#clinical_div").append(svg_corner + head_recs + "<b><a id='sample-btn-topbar' style='cursor:pointer'>("+(n-nr_in_head)+" more)</a></b>");
+            $("#sample-btn-topbar").qtip({
+                content: {
+                    text: "sample_extra_info"
+                },
+                events: {
+                    render: function(event, api) {
+                        $(this).html(tail_recs + "<b><a id='sample-btn-tail' style='cursor:pointer'>Show all (" + n + " total)</a></b>");
+                        $("#sample-btn-tail").click(function () {
+                            $("#link-samples-table").click();
+                        });
+                        addMoreClinicalTooltip(".more-sample-info");
+                        plotCaseLabel('.case-label-header', false, true);
+                    }
+                },
+                    show: {event: "mouseover"},
+                hide: {fixed: true, delay: 100, event: "mouseout"},
+                style: { classes: 'qtip-light qtip-rounded' },
+                position: {my:'top right',at:'bottom right',viewport: $(window)}
+            });
+            $("#sample-btn-topbar").click(function () {
+                $("#link-samples-table").click();
+            });
+            
+        } else {
+            $("#clinical_div").append(svg_corner + head_recs.replace(/, <\/div>$/, "</div>"));
+        }
+        addMoreClinicalTooltip("#more-patient-info");
+        addMoreClinicalTooltip(".more-sample-info");
+            
+    
+    } else {
+        $("#clinical_div").append("<table id='clinical_table' width='100%'></table>");
+        
+        // for each sample
+        for (var i=0; i<n; i++) {
+            var caseId = caseIds[i];
+            var clinicalData = clinicalDataMap[caseId];
+
+            var row = "<tr><td><b><u><a href='"+cbio.util.getLinkToSampleView(cancerStudyId,caseId)+"'>"+caseId+"<a></b></u>&nbsp;";
+            if (n>1) {
+                row += "<svg width='12' height='12' class='case-label-header' alt='"+caseId+"'></svg>&nbsp;";
+            }
+
+            var info = [];
+            var info = info.concat(formatPatientInfo(clinicalData));
+            var info = info.concat(formatDiseaseInfo(clinicalData));
+            var info = info.concat(formatPatientStatus(clinicalData));
+            row +=info.join(",&nbsp;");
+
+            row += "</td><td align='right'><a href='#' class='more-clinical-a' alt='"+caseId+"'>More about this tumor</a></td></tr>";
+            $("#clinical_table").append(row);
+
+        }
     }
-    addMoreClinicalTooltip(".more-clinical-a");
     
     if (n>1) {
         plotCaseLabel('.case-label-header', false, true);
@@ -915,7 +1078,11 @@ function outputClinicalData() {
             if (normalizedCaseType(caseType.toLowerCase()) === "metastasis") {
                 loc = guessClinicalData(clinicalData,["TUMOR_SITE","METASTATIC_SITE"]);
             } else {
-                loc = guessClinicalData(clinicalData,["TUMOR_SITE","PRIMARY_SITE"]);
+                if (isPatientView) {
+                    loc = patientInfo["PRIMARY_SITE"];
+                } else {
+                    loc = guessClinicalData(clinicalData,["TUMOR_SITE","PRIMARY_SITE"]);
+                }
             }
             if (loc!==null) 
                 ret += " ("+loc+")";
@@ -1198,6 +1365,6 @@ window["<%=PatientView.CANCER_STUDY_META_DATA_KEY_STRING%>"]
         = <%=jsonMapper.writeValueAsString(request.getAttribute(PatientView.CANCER_STUDY_META_DATA_KEY_STRING))%>;
 
 </script>
-
+<script src="js/lib/bootstrap.min.js?<%=GlobalProperties.getAppVersion()%>" type="text/javascript"></script>
 </body>
 </html>

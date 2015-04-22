@@ -240,6 +240,9 @@ var PieChart = function(){
                         "</div>"+
                         "<div style='display:inline-block;float:left;margin: 0 2px'>"+
                         "<button  id='"+DIV.chartDiv+"-svg'>SVG</button>"+
+                        "</div>"+
+                        "<div style='display:inline-block;float:left;margin: 0 2px'>"+
+                        "<button  id='"+DIV.chartDiv+"-csv'>CSV</button>"+
                         "</div>"
             },
             events: {
@@ -260,6 +263,26 @@ var PieChart = function(){
                             DIV.chartDiv+"-svg-value", {
                                 filename: StudyViewParams.params.studyId + "_" +selectedAttr+".svg",
                             });
+                    });
+                    $("#"+DIV.chartDiv+"-csv").click(function(){
+                        var content = '';
+                        
+                        content = content + '\"' + selectedAttrDisplay + '\"' + ',';
+                        content = content + '\"Number\"';
+                        
+                        for(var i = 0; i < label.length; i++){
+                            content += '\r\n';
+                            content += '\"' + label[i].name + '\"' + ',';
+                            content += '\"' + label[i].value + '\"';
+                        }
+                        
+                        var downloadOpts = {
+                            filename: cancerStudyName + "_" + selectedAttrDisplay + ".csv",
+                            contentType: "text/plain;charset=utf-8",
+                            preProcess: false
+                        };
+
+                        cbio.download.initDownload(content, downloadOpts);
                     });
                 }
             }

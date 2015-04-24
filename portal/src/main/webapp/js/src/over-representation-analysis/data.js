@@ -46,6 +46,7 @@ var orData = function() {
             if (_profile_type === orAnalysis.profile_type.copy_num) {
                 
                 _unit[orAnalysis.col_index.copy_num.gene] = _obj["Gene"];
+                _unit[orAnalysis.col_index.copy_num.cytoband] = _obj["Cytoband"];
                 _unit[orAnalysis.col_index.copy_num.altered_pct] = (_obj["percentage of alteration in altered group"] * 100).toFixed(2) + "%";
                 _unit[orAnalysis.col_index.copy_num.unaltered_pct] = (_obj["percentage of alteration in unaltered group"] * 100).toFixed(2) + "%";
                 _unit[orAnalysis.col_index.copy_num.log_ratio] = (_obj["Log Ratio"] !== ">3" && _obj["Log Ratio"] !== "<-3")? parseFloat(_obj["Log Ratio"]).toFixed(2): _obj["Log Ratio"];
@@ -56,6 +57,7 @@ var orData = function() {
             } else if (_profile_type === orAnalysis.profile_type.mutations) {
                 
                 _unit[orAnalysis.col_index.mutations.gene] = _obj["Gene"];
+                _unit[orAnalysis.col_index.copy_num.cytoband] = _obj["Cytoband"];
                 _unit[orAnalysis.col_index.mutations.altered_pct] = (_obj["percentage of alteration in altered group"] * 100).toFixed(2) + "%";
                 _unit[orAnalysis.col_index.mutations.unaltered_pct] = (_obj["percentage of alteration in unaltered group"] * 100).toFixed(2) + "%";
                 _unit[orAnalysis.col_index.mutations.log_ratio] = (_obj["Log Ratio"] !== ">3" && _obj["Log Ratio"] !== "<-3")? parseFloat(_obj["Log Ratio"]).toFixed(2): _obj["Log Ratio"];
@@ -66,6 +68,7 @@ var orData = function() {
             } else if (_profile_type === orAnalysis.profile_type.mrna) {
                 
                 _unit[orAnalysis.col_index.mrna.gene] = _obj["Gene"];
+                _unit[orAnalysis.col_index.copy_num.cytoband] = _obj["Cytoband"];
                 _unit[orAnalysis.col_index.mrna.altered_mean] = parseFloat(_obj["mean of alteration in altered group"]).toFixed(2);
                 _unit[orAnalysis.col_index.mrna.unaltered_mean] = parseFloat(_obj["mean of alteration in unaltered group"]).toFixed(2);
                 _unit[orAnalysis.col_index.mrna.altered_stdev] = parseFloat(_obj["standard deviation of alteration in altered group"]).toFixed(2);

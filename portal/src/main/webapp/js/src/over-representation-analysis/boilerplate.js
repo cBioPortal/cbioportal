@@ -64,6 +64,7 @@ var orAnalysis = (function() {
         },
         col_width : {
             gene: 90,
+            cytoband: 100,
             altered_pct: 120,
             unaltered_pct: 120,
             log_ratio: 120,
@@ -77,31 +78,46 @@ var orAnalysis = (function() {
         col_index: {
             copy_num: {
                 gene: 0,
-                altered_pct: 1,
-                unaltered_pct: 2,
-                log_ratio: 3,
-                p_val: 4,
-                q_val: 5,
-                direction: 6
+                cytoband: 1,
+                altered_pct: 2,
+                unaltered_pct: 3,
+                log_ratio: 4,
+                p_val: 5,
+                q_val: 6,
+                direction: 7
             },
             mrna: {
                 gene: 0,
-                altered_mean: 1,
-                unaltered_mean: 2,
-                altered_stdev: 3,
-                unaltered_stdev: 4,
-                p_val: 5,
-                q_val: 6
+                cytoband: 1,
+                altered_mean: 2,
+                unaltered_mean: 3,
+                altered_stdev: 4,
+                unaltered_stdev: 5,
+                p_val: 6,
+                q_val: 7
             },
             mutations: {
                 gene: 0,
-                altered_pct: 1,
-                unaltered_pct: 2,
-                log_ratio: 3,
-                p_val: 4,
-                q_val: 5,
-                direction: 6
+                cytoband: 1,
+                altered_pct: 2,
+                unaltered_pct: 3,
+                log_ratio: 4,
+                p_val: 5,
+                q_val: 6,
+                direction: 7
             }
+        },
+        _title_ids : {
+            gene: "gene-help",
+            cytoband: "cytoband-help",
+            pct: "pct-alt-help",
+            log_ratio: "log_ratio_help",
+            p_val: "p_val_help",
+            q_val: "q_val_help",
+            direction: "direction_help",
+            mean_alt: "mean_alt_help",
+            stdev_alt: "stdev_alt_help",
+            p_val_t_test: "p_val_t_test_help"
         }
     };
     

@@ -1,19 +1,16 @@
 package org.mskcc.cbio.portal.or_analysis;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.math.MathException;
 import org.apache.commons.math.stat.StatUtils;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.apache.commons.math.stat.inference.TestUtils;
-import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ArrayNode;
 import org.codehaus.jackson.node.JsonNodeFactory;
@@ -41,6 +38,7 @@ public class ORAnalysisDiscretizedDataProxy {
     private final ArrayNode result = new ArrayNode(factory);
 
     private final String COL_NAME_GENE = "Gene";
+    private final String COL_NAME_CYTOBAND = "Cytoband";
     private final String COL_NAME_PCT_ALTERED = "percentage of alteration in altered group";
     private final String COL_NAME_PCT_UNALTERED = "percentage of alteration in unaltered group";
     private final String COL_NAME_RATIO = "Log Ratio";
@@ -77,14 +75,17 @@ public class ORAnalysisDiscretizedDataProxy {
                 long _gene = genes.get(i);
                 HashMap<Integer, String> singleGeneCaseValueMap = map.get(_gene);
                 String _geneName = daoGeneOptimized.getGene(_gene).getHugoGeneSymbolAllCaps();
+                String _cytoband = daoGeneOptimized.getGene(_gene).getCytoband();
                 
                 ObjectNode _datum = mapper.createObjectNode();
                 if (profileType.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION.toString())) {
                     if (!(Arrays.asList(queryGenes)).contains(_geneName)) {
                         _datum.put(COL_NAME_GENE, _geneName);
+                        _datum.put(COL_NAME_CYTOBAND, _cytoband);
                         _datum.put(COL_NAME_PCT_ALTERED, calcPct(singleGeneCaseValueMap, profileType, "altered"));
                         _datum.put(COL_NAME_PCT_UNALTERED, calcPct(singleGeneCaseValueMap, profileType, "unaltered"));
-                        _datum.put(COL_NAME_RATIO, calcRatio(calcPct(singleGeneCaseValueMap, profileType, "altered"), calcPct(singleGeneCaseValueMap, profileType, "unaltered")));
+                        _datum.put(COL_NAME_RATIO, calcRatio(
+                                calcPct(singleGeneCaseValueMap, profileType, "altered"), calcPct(singleGeneCaseValueMap, profileType, "unaltered")));
                         _datum.put(COL_NAME_DIRECTION, "place holder"); //calculation is done by the front-end
                         _datum.put(COL_NAME_P_VALUE, calcPval(singleGeneCaseValueMap, profileType));
                         if (!(calcPct(singleGeneCaseValueMap, profileType, "altered") == 0.0 && 
@@ -95,9 +96,11 @@ public class ORAnalysisDiscretizedDataProxy {
                 } else if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString())) {
                     if (!(Arrays.asList(queryGenes)).contains(_geneName)) {
                         _datum.put(COL_NAME_GENE, _geneName);
+                        _datum.put(COL_NAME_CYTOBAND, _cytoband);
                         _datum.put(COL_NAME_PCT_ALTERED, calcPct(singleGeneCaseValueMap, profileType, "altered"));
                         _datum.put(COL_NAME_PCT_UNALTERED, calcPct(singleGeneCaseValueMap, profileType, "unaltered"));
-                        _datum.put(COL_NAME_RATIO, calcRatio(calcPct(singleGeneCaseValueMap, profileType, "altered"), calcPct(singleGeneCaseValueMap, profileType, "unaltered")));
+                        _datum.put(COL_NAME_RATIO, calcRatio(
+                                calcPct(singleGeneCaseValueMap, profileType, "altered"), calcPct(singleGeneCaseValueMap, profileType, "unaltered")));
                         _datum.put(COL_NAME_DIRECTION, "place holder"); //calculation is done by the front-end
                         _datum.put(COL_NAME_P_VALUE, calcPval(singleGeneCaseValueMap, profileType));
                         if (!(calcPct(singleGeneCaseValueMap, profileType, "altered") == 0.0 && 
@@ -107,6 +110,7 @@ public class ORAnalysisDiscretizedDataProxy {
                     }
                 } else if (profileType.equals(GeneticAlterationType.MRNA_EXPRESSION.toString())) {
                     _datum.put(COL_NAME_GENE, _geneName);
+                    _datum.put(COL_NAME_CYTOBAND, _cytoband);
                     _datum.put(COL_NAME_MEAN_ALTERED, calcMean(singleGeneCaseValueMap, "altered"));
                     _datum.put(COL_NAME_MEAN_UNALTERED, calcMean(singleGeneCaseValueMap, "unaltered"));
                     _datum.put(COL_NAME_STDEV_ALTERED, calcSTDev(singleGeneCaseValueMap, "altered"));

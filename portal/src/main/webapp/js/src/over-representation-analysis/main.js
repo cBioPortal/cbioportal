@@ -74,15 +74,14 @@ var or_tab = (function() {
         var _profile_list = [];
         $.each(Object.keys(profile_obj_list), function(_index, _key) {
             var _obj = profile_obj_list[_key];
-            if (_obj.GENETIC_ALTERATION_TYPE === orAnalysis.profile_type.mrna) {
+            if (_obj.GENETIC_ALTERATION_TYPE === orAnalysis.profile_type.mrna && 
+                _obj.STABLE_ID.indexOf("z-Scores") === -1) {
                 _profile_list.push(_obj);
             }
         });
         var orSubTabMrnaExp = new orSubTabView();
         orSubTabMrnaExp.init(orAnalysis.ids.sub_tab_mrna_exp, _profile_list, orAnalysis.profile_type.mrna);
     };
-    
-    //var init_advanced_tab = function() {}; 
     
     return {
         init: function(caseListObj) {
@@ -140,7 +139,15 @@ var or_tab = (function() {
                 $(window).trigger("resize");
                 
                 //init sub tab contents
-                init_mutations_tab(); 
+                if ($.inArray("MUTATION_EXTENDED", profile_type_list) !== -1) { // study has mutation data
+                    init_mutations_tab(); 
+                } else if ($.inArray("COPY_NUMBER_ALTERATION", profile_type_list) !== -1) {
+                    init_copy_num_tab();
+                } else if ($.inArray("MRNA_EXPRESSION", profile_type_list) !== -1) {
+                    init_mrna_exp_tab();
+                }
+                
+                //bind event listener
                 $("#" + orAnalysis.ids.sub_tabs_div).on("tabsactivate", function(event, ui) {
                     if (ui.newTab.text() === orAnalysis.texts.sub_tab_copy_num) {
                         if ($("#" + orAnalysis.ids.sub_tab_copy_num).is(':empty')) init_copy_num_tab();

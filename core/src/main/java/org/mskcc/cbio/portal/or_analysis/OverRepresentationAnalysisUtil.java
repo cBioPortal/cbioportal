@@ -1,8 +1,6 @@
 package org.mskcc.cbio.portal.or_analysis;
 
 import java.util.*;
-import org.codehaus.jackson.node.ArrayNode;
-import org.codehaus.jackson.node.ObjectNode;
 
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.dao.*;
@@ -10,7 +8,8 @@ import org.mskcc.cbio.portal.dao.*;
 
 public class OverRepresentationAnalysisUtil {
     
-    public static Map<Long, HashMap<Integer, String>> getValueMap(int cancerStudyId, int profileId, String profileType, List<Integer> alteredSampleIds, List<Integer> unalteredSampleIds) throws DaoException {
+    public static Map<Long, HashMap<Integer, String>> getValueMap(
+            int cancerStudyId, int profileId, String profileType, List<Integer> alteredSampleIds, List<Integer> unalteredSampleIds) throws DaoException {
 
         DaoGeneticAlteration daoGeneticAlteration = DaoGeneticAlteration.getInstance();
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();

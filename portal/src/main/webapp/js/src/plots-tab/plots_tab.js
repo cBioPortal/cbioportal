@@ -41,7 +41,6 @@ var PlotsMenu = (function () {
                 "mrna_methylation" : {
                     value : "mrna_vs_dna_methylation",
                     text : "mRNA vs. DNA Methylation"
-
                 },
                 "rppa_mrna" : {
                     value : "rppa_protein_level_vs_mrna",
@@ -69,7 +68,6 @@ var PlotsMenu = (function () {
                     label: "- RPPA Protein Level -",
                     value: "data_type_rppa",
                     genetic_profile : []
-
                 }
             }
         },

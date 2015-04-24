@@ -94,8 +94,8 @@ var heat_map = (function() {
         
         var svg = d3.select("#" + div)
                     .append("svg")
-                    .attr("width", 800) 
-                    .attr("height", 600);
+                    .attr("width", 100 + (stat.x.max - stat.x.min) * 120) 
+                    .attr("height", 200 + (stat.y.max - stat.y.min) * 50);
             
         var axisTitleGroup = svg.append("svg:g").attr("class", "axis");
             

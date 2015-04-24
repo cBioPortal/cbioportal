@@ -136,7 +136,7 @@
                 </div>
             </td>
             <td>
-                <div id="plots-box" class="plots">
+                <div id="plots-box" class="plots" style="overflow: scroll;">
                 </div>
             </td>
         </tr>

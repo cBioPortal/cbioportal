@@ -2,7 +2,7 @@ var scatterPlots = (function() {
     
     var settings = {
             canvas_width: 800,
-            canvas_height: 750,
+            canvas_height: 650,
             axis: {
                 x: {
                     range_min: 170,

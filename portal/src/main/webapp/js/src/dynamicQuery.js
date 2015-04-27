@@ -1040,6 +1040,7 @@ function addMetaDataToPage() {
 			};
 			
 			$('#jstree').jstree(true).get_node(jstree_root_id, true).children('.jstree-anchor').after($jstree_flatten_btn());
+			$('#jstree').jstree(true).open_all();
 		});
 		$('#jstree').on('changed.jstree', function() { onJSTreeChange(); /*saveSelectedStudiesLocalStorage();*/ });
 		$('#jstree').jstree(true).hide_icons();

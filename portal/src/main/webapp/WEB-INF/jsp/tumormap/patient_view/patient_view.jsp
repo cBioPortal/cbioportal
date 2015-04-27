@@ -547,7 +547,7 @@ function addMoreClinicalTooltip(elem) {
             var caseId = $(this).attr('alt');
             clinicalData = [];
             for (var key in clinicalDataMap[caseId]) {
-                clinicalData.push([clinicalAttributes[key]["displayName"], clinicalDataMap[caseId][key]]);
+                clinicalData.push([clinicalAttributes && clinicalAttributes[key]["displayName"] || key, clinicalDataMap[caseId][key]]);
             }
             table_text = "<table id='more-sample-info-table-"+caseId+"'></table>";
             dataTable = {
@@ -922,9 +922,12 @@ function outputClinicalData() {
             }
             sample_recs += "<b><u><a style='color: #1974b8;' href='"+cbio.util.getLinkToSampleView(cancerStudyId,caseId)+"'>"+caseId+"</a></b></u><a>&nbsp;"
             
-            var sampleData = {"SAMPLE_TYPE":clinicalDataMap[caseId].SAMPLE_TYPE,
+            var sampleData = {};
+            if (clinicalDataMap.length > 0) {
+                sampleData = {"SAMPLE_TYPE":clinicalDataMap[caseId].SAMPLE_TYPE || "N/A",
                               "METASTATIC_SITE":clinicalDataMap[caseId].METASTATIC_SITE || "N/A",
                               "PRIMARY_SITE":clinicalDataMap[caseId].PRIMARY_SITE || "N/A"};
+            }
             var info = [];
             info = info.concat(formatStateInfo(sampleData));
             sample_recs += info.join(",&nbsp;");
@@ -962,11 +965,15 @@ function outputClinicalData() {
                 $("#link-samples-table").click();
             });
             
-        } else {
+        } else if (n > 1) {
             $("#clinical_div").append(svg_corner + head_recs.replace(/, <\/div>$/, "</div>"));
         }
-        addMoreClinicalTooltip("#more-patient-info");
-        addMoreClinicalTooltip(".more-sample-info");
+        if (patientInfo.length > 0) {
+            addMoreClinicalTooltip("#more-patient-info");
+        }
+        if (clinicalDataMap.length > 0) {
+            addMoreClinicalTooltip(".more-sample-info");
+        }
             
     
     } else {
@@ -990,6 +997,7 @@ function outputClinicalData() {
 
             row += "</td><td align='right'><a href='#' class='more-clinical-a' alt='"+caseId+"'>More about this tumor</a></td></tr>";
             $("#clinical_table").append(row);
+            addMoreClinicalTooltip(".more-clinical-a");
 
         }
     }

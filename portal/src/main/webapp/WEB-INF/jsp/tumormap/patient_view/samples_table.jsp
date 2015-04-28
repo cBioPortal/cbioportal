@@ -189,7 +189,7 @@
                 "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
                 "sInfoFiltered": "",
                 "sLengthMenu": "Show _MENU_ per page",
-                "sEmptyTable": "Could not find any samples."
+                "sEmptyTable": "Could not find any clinical information on samples."
             },
             tableTools: {
                 "sSwfPath": "/swf/copy_csv_xls_pdf.swf",
@@ -209,7 +209,7 @@
         
         clinicalData = [];
         for (var key in patientInfo) {
-            clinicalData.push([key, patientInfo[key]]);
+            clinicalData.push([clinicalAttributes[key]["displayName"], patientInfo[key]]);
         }
         table_text = '<table id="patient-table"></table>';
         var patientDataTable = $("#patient-table").dataTable({
@@ -237,7 +237,7 @@
                 "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
                 "sInfoFiltered": "",
                 "sLengthMenu": "Show _MENU_ per page",
-                "sEmptyTable": "Could not find any patient."
+                "sEmptyTable": "Could not find any clinical information on patient."
             },
             tableTools: {
                 "sSwfPath": "/swf/copy_csv_xls_pdf.swf",

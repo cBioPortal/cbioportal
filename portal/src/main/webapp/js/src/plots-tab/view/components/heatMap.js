@@ -94,7 +94,7 @@ var heat_map = (function() {
         
         var svg = d3.select("#" + div)
                     .append("svg")
-                    .attr("width", 100 + (stat.x.max - stat.x.min) * 120) 
+                    .attr("width", 100 + (stat.x.max - stat.x.min) * 150 + 100) 
                     .attr("height", 200 + (stat.y.max - stat.y.min) * 50);
             
         var axisTitleGroup = svg.append("svg:g").attr("class", "axis");
@@ -217,12 +217,11 @@ var heat_map = (function() {
                 .attr('text-anchor', 'start')
                 .text(function(d) {return d;}); 
 
-        
         //axis titles & helps
         var elt_x = ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.genetic)?document.getElementById(ids.sidebar.x.profile_name):document.getElementById(ids.sidebar.x.clin_attr);
         var elt_y = ($("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() === vals.data_type.genetic)?document.getElementById(ids.sidebar.y.profile_name):document.getElementById(ids.sidebar.y.clin_attr);
-        var _x_text = elt_x.options[elt_x.selectedIndex].text;
-        var _y_text = elt_y.options[elt_y.selectedIndex].text;
+        var _x_text = ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.genetic)? $("#" + ids.sidebar.x.gene).val() + ", " + elt_x.options[elt_x.selectedIndex].text: elt_x.options[elt_x.selectedIndex].text;
+        var _y_text = ($("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() === vals.data_type.genetic)? $("#" + ids.sidebar.y.gene).val() + ", " + elt_y.options[elt_y.selectedIndex].text: elt_y.options[elt_y.selectedIndex].text; 
         var _x_id = elt_x.options[elt_x.selectedIndex].value;
         var _y_id = elt_y.options[elt_y.selectedIndex].value;
         var _x_description = ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.genetic)? metaData.getProfileDescription($("#" + ids.sidebar.x.gene).val(), _x_id): metaData.getClinicalAttrDescription(_x_id);

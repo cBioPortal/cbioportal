@@ -1,4 +1,4 @@
-# April 6, 2015
+# April 28, 2015
 * __New features__:
     * Redesigned query interface to allow selecting multiple cancer studies
     * Redesigned __Plots__ tab

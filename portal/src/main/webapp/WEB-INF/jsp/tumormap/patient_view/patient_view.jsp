@@ -968,10 +968,10 @@ function outputClinicalData() {
         } else if (n > 1) {
             $("#clinical_div").append(svg_corner + head_recs.replace(/, <\/div>$/, "</div>"));
         }
-        if (patientInfo.length > 0) {
+        if (Object.keys(patientInfo).length > 0) {
             addMoreClinicalTooltip("#more-patient-info");
         }
-        if (clinicalDataMap.length > 0) {
+        if (Object.keys(clinicalDataMap).length > 0) {
             addMoreClinicalTooltip(".more-sample-info");
         }
             

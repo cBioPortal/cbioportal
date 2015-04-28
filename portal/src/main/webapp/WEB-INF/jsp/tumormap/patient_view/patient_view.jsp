@@ -512,7 +512,7 @@ function addMoreClinicalTooltip(elem) {
         if (thisElem.attr('id') === "more-patient-info") {
             clinicalData = [];
             for (var key in patientInfo) {
-                clinicalData.push([clinicalAttributes[key]["displayName"], patientInfo[key]]);
+                clinicalData.push([(key in clinicalAttributes && clinicalAttributes[key]["displayName"]) || key, patientInfo[key]]);
             }
             table_text = '<table id="more-patient-info-table-'+patientId+'"></table>';
             dataTable = {

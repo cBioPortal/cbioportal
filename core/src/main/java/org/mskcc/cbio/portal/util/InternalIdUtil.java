@@ -124,6 +124,17 @@ public class InternalIdUtil
         return samples;
     }
     
+    public static List<Patient> getPatientsById(Collection<Integer> patientIds) {
+        List<Patient> patients = new ArrayList<Patient>();
+        for (int id : patientIds) {
+            Patient patient = DaoPatient.getPatientById(id);
+            if (patient!=null) {
+                patients.add(patient);
+            }
+        }
+        return patients;
+    }
+    
     public static List<String> getStablePatientIdsFromSampleIds(int cancerStudyId, List<String> stableSampleIds)
     {
         Set<String> patientIds = new HashSet<String>();

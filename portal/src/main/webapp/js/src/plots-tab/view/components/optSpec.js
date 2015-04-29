@@ -38,7 +38,7 @@ var optSpec = (function() {
             //send download request
             var xmlSerializer = new XMLSerializer();
             var download_str = cbio.download.addSvgHeader(xmlSerializer.serializeToString($("#" + ids.main_view.div + " svg")[0]));
-            cbio.download.clientSideDownload([download_str], "result.svg", "application/svg+xml");
+            cbio.download.clientSideDownload([download_str], "plots-download.svg", "application/svg+xml");
             //add back on the help icons
             $(".axis").append(elem_x);
             $(".axis").append(elem_y);
@@ -66,7 +66,7 @@ var optSpec = (function() {
             var elem_y = $("." + d3_class.y.title_help).remove();
             //send download request
             var downloadOptions = {
-                filename: "result.pdf",
+                filename: "plots-download.pdf",
                 contentType: "application/pdf",
                 servletName: "svgtopdf.do"
             };
@@ -107,23 +107,23 @@ var optSpec = (function() {
         $("#opt_spec_data_download").click(function() {
             if (genetic_vs_genetic()) {
                 if (is_profile_discretized("x") && is_profile_discretized("y")) {
-                    cbio.download.clientSideDownload([heat_map.get_tab_delimited_data()], "download.txt");
+                    cbio.download.clientSideDownload([heat_map.get_tab_delimited_data()], "plots-data.txt");
                 } else {
-                    cbio.download.clientSideDownload([scatterPlots.get_tab_delimited_data()], "download.txt");
+                    cbio.download.clientSideDownload([scatterPlots.get_tab_delimited_data()], "plots-data.txt");
                 }
             } else if (genetic_vs_clinical()) {
                 var _clin_axis = ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.clin)? "x": "y";
                 var _genetic_axis = ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.clin)? "y": "x";
                 if (clinical_attr_is_discretized(_clin_axis) && is_profile_discretized(_genetic_axis)) {
-                    cbio.download.clientSideDownload([heat_map.get_tab_delimited_data()], "download.txt");
+                    cbio.download.clientSideDownload([heat_map.get_tab_delimited_data()], "plots-data.txt");
                 } else {
-                    cbio.download.clientSideDownload([scatterPlots.get_tab_delimited_data()], "download.txt");
+                    cbio.download.clientSideDownload([scatterPlots.get_tab_delimited_data()], "plots-data.txt");
                 }           
             } else if (clinical_vs_clinical()) {
                 if (clinical_attr_is_discretized("x") && clinical_attr_is_discretized("y")) {
-                    cbio.download.clientSideDownload([heat_map.get_tab_delimited_data()], "download.txt");
+                    cbio.download.clientSideDownload([heat_map.get_tab_delimited_data()], "plots-data.txt");
                 } else {
-                    cbio.download.clientSideDownload([scatterPlots.get_tab_delimited_data()], "download.txt");
+                    cbio.download.clientSideDownload([scatterPlots.get_tab_delimited_data()], "plots-data.txt");
                 } 
             }
         });

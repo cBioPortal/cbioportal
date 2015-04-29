@@ -94,8 +94,10 @@ var heat_map = (function() {
         
         var svg = d3.select("#" + div)
                     .append("svg")
-                    .attr("width", 800) 
-                    .attr("height", 600);
+                    .attr("width", 200 + (stat.x.max - stat.x.min) * 150 + 100) 
+                    .attr("height", 400 + (stat.y.max - stat.y.min) * 100);
+            
+        var axisTitleGroup = svg.append("svg:g").attr("class", "axis");
             
         var colorScale = d3.scale.linear()
             .domain([stat.count.min, stat.count.max])
@@ -215,12 +217,11 @@ var heat_map = (function() {
                 .attr('text-anchor', 'start')
                 .text(function(d) {return d;}); 
 
-        
         //axis titles & helps
         var elt_x = ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.genetic)?document.getElementById(ids.sidebar.x.profile_name):document.getElementById(ids.sidebar.x.clin_attr);
         var elt_y = ($("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() === vals.data_type.genetic)?document.getElementById(ids.sidebar.y.profile_name):document.getElementById(ids.sidebar.y.clin_attr);
-        var _x_text = elt_x.options[elt_x.selectedIndex].text;
-        var _y_text = elt_y.options[elt_y.selectedIndex].text;
+        var _x_text = ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.genetic)? $("#" + ids.sidebar.x.gene).val() + ", " + elt_x.options[elt_x.selectedIndex].text: elt_x.options[elt_x.selectedIndex].text;
+        var _y_text = ($("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() === vals.data_type.genetic)? $("#" + ids.sidebar.y.gene).val() + ", " + elt_y.options[elt_y.selectedIndex].text: elt_y.options[elt_y.selectedIndex].text; 
         var _x_id = elt_x.options[elt_x.selectedIndex].value;
         var _y_id = elt_y.options[elt_y.selectedIndex].value;
         var _x_description = ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.genetic)? metaData.getProfileDescription($("#" + ids.sidebar.x.gene).val(), _x_id): metaData.getClinicalAttrDescription(_x_id);
@@ -282,20 +283,20 @@ var heat_map = (function() {
         //append help icon
         svg.append("svg:image")
             .attr("xlink:href", "images/help.png")
-            .attr("class", "x_help")
+            .attr("class", d3_class.x.title_help)
             .attr("x", edge_left)
             .attr("y", parseInt(stat.y.max - stat.y.min) * h + h + 10 + edge_top)
             .attr("width", "16")
             .attr("height", "16");
         svg.append("svg:image")
             .attr("xlink:href", "images/help.png")
-            .attr("class", "y_help")
+            .attr("class", d3_class.y.title_help)
             .attr("x", (edge_left - 28))
             .attr("y", parseInt(stat.y.max - stat.y.min) * h + h + edge_top - 10)
             .attr("width", "16")
             .attr("height", "16");
 
-        svg.select(".x_help").each(
+        svg.select("." + d3_class.x.title_help).each(
             function() {
                 $(this).qtip(
                     {
@@ -308,7 +309,7 @@ var heat_map = (function() {
                 );
             }
         );  
-        svg.select(".y_help").each(
+        svg.select("." + d3_class.y.title_help).each(
             function() {
                 $(this).qtip(
                     {

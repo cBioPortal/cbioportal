@@ -45,15 +45,15 @@
                   <span class="sr-only">Toggle Dropdown</span>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="dropdownMenu1">
-                    <li role="presentation"><a role="menuitem" tabindex="-1"  href='javascript:$("#jstree_search_input").val("tcga");$("#jstree_search_input").trigger("input");' >tcga</a></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1"  href='javascript:$("#jstree_search_input").val("tcga -provisional");$("#jstree_search_input").trigger("input");' >tcga -provisional</a></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1"  href='javascript:$("#jstree_search_input").val("tcga -moratorium");$("#jstree_search_input").trigger("input");' >tcga -moratorium</a></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1"  href='javascript:$("#jstree_search_input").val("tcga OR icgc");$("#jstree_search_input").trigger("input");'>tcga OR icgc</a></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1"  href='javascript:$("#jstree_search_input").val("-\"cell line\"");$("#jstree_search_input").trigger("input");'>-"cell line"</a></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1"  href='javascript:$("#jstree_search_input").val("prostate mskcc");$("#jstree_search_input").trigger("input");'>prostate mskcc</a></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1"  href='javascript:$("#jstree_search_input").val("esophageal OR stomach");$("#jstree_search_input").trigger("input");'>esophageal OR stomach</a></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1"  href='javascript:$("#jstree_search_input").val("serous");$("#jstree_search_input").trigger("input");'>serous</a></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1"  href='javascript:$("#jstree_search_input").val("breast");$("#jstree_search_input").trigger("input");'>breast</a></li>
+                    <li role="presentation"><a role="menuitem" tabindex="-1"  href='javascript:void(0)' onclick='$("#jstree_search_input").val("tcga");$("#jstree_search_input").trigger("input");' >tcga</a></li>
+                    <li role="presentation"><a role="menuitem" tabindex="-1"  href='javascript:void(0)' onclick='$("#jstree_search_input").val("tcga -provisional");$("#jstree_search_input").trigger("input");' >tcga -provisional</a></li>
+                    <li role="presentation"><a role="menuitem" tabindex="-1"  href='javascript:void(0)' onclick='$("#jstree_search_input").val("tcga -moratorium");$("#jstree_search_input").trigger("input");' >tcga -moratorium</a></li>
+                    <li role="presentation"><a role="menuitem" tabindex="-1"  href='javascript:void(0)' onclick='$("#jstree_search_input").val("tcga OR icgc");$("#jstree_search_input").trigger("input");'>tcga OR icgc</a></li>
+                    <li role="presentation"><a role="menuitem" tabindex="-1"  href='javascript:void(0)' onclick='$("#jstree_search_input").val("-\"cell line\"");$("#jstree_search_input").trigger("input");'>-"cell line"</a></li>
+                    <li role="presentation"><a role="menuitem" tabindex="-1"  href='javascript:void(0)' onclick='$("#jstree_search_input").val("prostate mskcc");$("#jstree_search_input").trigger("input");'>prostate mskcc</a></li>
+                    <li role="presentation"><a role="menuitem" tabindex="-1"  href='javascript:void(0)' onclick='$("#jstree_search_input").val("esophageal OR stomach");$("#jstree_search_input").trigger("input");'>esophageal OR stomach</a></li>
+                    <li role="presentation"><a role="menuitem" tabindex="-1"  href='javascript:void(0)' onclick='$("#jstree_search_input").val("serous");$("#jstree_search_input").trigger("input");'>serous</a></li>
+                    <li role="presentation"><a role="menuitem" tabindex="-1"  href='javascript:void(0)' onclick='$("#jstree_search_input").val("breast");$("#jstree_search_input").trigger("input");'>breast</a></li>
                 </ul>
             </div>
         </div>
@@ -65,6 +65,9 @@
             <input id="jstree_select_cell_line" type="checkbox">    
             <label for="jstree_select_cell_line">Cell Line Studies</label>
         </div>-->
+    </div>
+    <div id="jstree_search_none_found_msg" style="display:none">
+        <h5>No matches found.</h5>
     </div>
 <!--    <button class="btn btn-default btn-sm" onclick='$("#jstree").jstree(true).deselect_all(); return false;'>Deselect all studies</button>&nbsp;&nbsp;
     <button class="btn btn-default btn-sm" onclick="var jstree = $('#jstree').jstree(true); var celllines = jstree.get_matching_nodes('cell line'); jstree.deselect_node(celllines); return false">Deselect Cell Line Studies</button><br><br>-->

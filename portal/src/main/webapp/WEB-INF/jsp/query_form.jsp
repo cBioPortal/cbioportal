@@ -116,7 +116,7 @@
     window.cancer_study_list_param = '<%= QueryBuilder.CANCER_STUDY_LIST%>';
     window.cancer_study_list_selected = '<%= localCancerStudyList %>';
     window.case_set_id_selected = '<%= localPatientSetId %>';
-    window.case_ids_selected = '<%= (localCaseIds == null ? "" : localCaseIds).replaceAll("\\\\n", "\n").replaceAll("\\\\t", "\t").trim() %>';
+    window.case_ids_selected = '<%= (localCaseIds == null ? "" : localCaseIds).trim() %>';
     window.gene_set_id_selected = '<%= localGeneSetChoice %>';
     window.tab_index = '<%= localTabIndex %>';
     window.zscore_threshold = '<%= localzScoreThreshold %>';

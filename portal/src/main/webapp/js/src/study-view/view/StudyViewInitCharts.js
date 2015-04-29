@@ -283,7 +283,7 @@ var StudyViewInitCharts = (function(){
     }
     
     function initSpecialCharts(_arr){
-        if(cancerStudyId.indexOf("mskimpact") === -1) {
+        if(cancerStudyId.indexOf("mskimpact") === -1 && cancerStudyId.indexOf("genie") === -1) {
             if(     (StudyViewUtil.arrayFindByValue(varName, 'OS_MONTHS') && 
                     StudyViewUtil.arrayFindByValue(varName, 'OS_STATUS') &&
                     varKeys['OS_MONTHS'].length > 0 &&
@@ -547,7 +547,7 @@ var StudyViewInitCharts = (function(){
     
     function initCharts(_data) { 
         $("#study-view-charts").html("");
-        if(cancerStudyId.indexOf("mskimpact") === -1) {
+        if(cancerStudyId.indexOf("mskimpact") === -1 && cancerStudyId.indexOf("genie") === -1) {
             initSpecialCharts(_data.arr);
         }
         initDcCharts(_data);
@@ -576,7 +576,7 @@ var StudyViewInitCharts = (function(){
             }
         });
         
-        if(cancerStudyId.indexOf("mskimpact") !== -1) {
+        if(cancerStudyId.indexOf("mskimpact") !== -1 || cancerStudyId.indexOf("genie") !== -1) {
             initSpecialCharts(_data.arr);      
         }
         

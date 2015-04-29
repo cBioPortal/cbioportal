@@ -1040,6 +1040,7 @@ function addMetaDataToPage() {
 			};
 			
 			$('#jstree').jstree(true).get_node(jstree_root_id, true).children('.jstree-anchor').after($jstree_flatten_btn());
+			$('#jstree').jstree(true).open_all();
 		});
 		$('#jstree').on('changed.jstree', function() { onJSTreeChange(); /*saveSelectedStudiesLocalStorage();*/ });
 		$('#jstree').jstree(true).hide_icons();
@@ -1098,7 +1099,11 @@ function addMetaDataToPage() {
 				$("#jstree").jstree(true)._model.data['tissue'].li_attr.name = "All Search Results";
 			}
 			$("#jstree").fadeTo(100, 0.5, function () {
+				$('#jstree_search_none_found_msg').hide();
 				do_jstree_search();
+				if ($('#jstree_search_input').val() !== "" && $('#jstree').jstree(true)._data.search.res.length === 0) {
+					$('#jstree_search_none_found_msg').show();
+				}
 				$("#jstree").fadeTo(100, 1);
 			});
 		}, 400); // wait for a bit with no typing before searching

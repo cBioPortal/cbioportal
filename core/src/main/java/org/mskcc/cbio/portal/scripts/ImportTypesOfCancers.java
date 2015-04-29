@@ -52,8 +52,8 @@ import java.util.Scanner;
  */
 public class ImportTypesOfCancers {
     public static void main(String[] args) throws IOException, DaoException {
-        if (args.length != 1) {
-            System.out.println("command line usage: importTypesOfCancer.pl <types_of_cancer.txt>");
+        if (args.length < 1) {
+            System.out.println("command line usage: importTypesOfCancer.pl <types_of_cancer.txt> <clobber>");
             return;
         }
 
@@ -61,7 +61,9 @@ public class ImportTypesOfCancers {
         pMonitor.setConsoleMode(true);
 
         File file = new File(args[0]);
-        load(pMonitor, file, true);
+	// default to clobber = true (existing behavior)
+	boolean clobber = (args.length == 2 && (args[1].equalsIgnoreCase("f") || args[1].equalsIgnoreCase("false"))) ? false : true;	
+        load(pMonitor, file, clobber);
     }
 
     public static void load(ProgressMonitor pMonitor, File file) throws IOException, DaoException {

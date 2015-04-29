@@ -169,14 +169,23 @@
         };
         var all_keys = [];
         all_keys = arrayUnique(($.map(clinicalDataMap, function (o) {return Object.keys(o)})));
+        var samples = Object.keys(clinicalDataMap);
         clinicalData = all_keys.map(function(k) {
             clicopy = {};
             clicopy["ATTR"] = clinicalAttributes[k]["displayName"];
-            Object.keys(clinicalDataMap).forEach(function(k2) {
-               clicopy[k2] =  clinicalDataMap[k2][k] || "N/A";
-            });
+            Object.keys(samples).forEach(function (i) {
+                clicopy[i]
+            })
+            for (var i=0; i<samples.length; ++i) {
+                clicopy[i] =  clinicalDataMap[samples[i]][k] || "N/A";
+            }
             return clicopy;
         });
+        // Columns for datatable
+        var columns = [];
+        for (var i=0; i<samples.length; ++i) {
+            columns.push({"sTitle":samples[i],"mData":i});
+        }
         var samplesDataTable = $("#samples-table").dataTable({
             "bSort": false,
             "sDom": '<"H"TC<"dataTableReset">f>rt',
@@ -184,7 +193,7 @@
             "bDestroy": true,
             "autoWidth": true,
             "aaData": clinicalData,
-            "aoColumns": [{"sTitle":"Attribute","mData":"ATTR"}].concat(Object.keys(clinicalDataMap).map(function(k){return {"sTitle":k.replace(/_/g, ' '),"mData":k}})),
+            "aoColumns": [{"sTitle":"Attribute","mData":"ATTR"}].concat(columns),
             "oLanguage": {
                 "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
                 "sInfoFiltered": "",
@@ -209,7 +218,7 @@
         
         clinicalData = [];
         for (var key in patientInfo) {
-            clinicalData.push([clinicalAttributes[key]["displayName"], patientInfo[key]]);
+            clinicalData.push([(key in clinicalAttributes && clinicalAttributes[key]["displayName"]) || key, patientInfo[key]]);
         }
         table_text = '<table id="patient-table"></table>';
         var patientDataTable = $("#patient-table").dataTable({

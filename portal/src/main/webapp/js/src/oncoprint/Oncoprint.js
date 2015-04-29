@@ -48,7 +48,10 @@ define("Oncoprint",
                 params.clinicalData = params.clinicalData || [];        // initialize
                 params.clinical_attrs = params.clinical_attrs || [];
 
-                var SampleIdMapPatientId = PortalGlobals.getPatientSampleIdMap();
+                if(typeof(PortalGlobals) !== 'undefined')
+                {
+                    var SampleIdMapPatientId = PortalGlobals.getPatientSampleIdMap();
+                }
                 var newGeneData = [];
                 var newclinicalData = [];
                 
@@ -252,11 +255,14 @@ define("Oncoprint",
                 if(topatientValue !== undefined &&  topatientValue)
                 {
                     var data = newclinicalData.concat(newGeneData);
+                    params.newGenData = newGeneData;
                 }
                 else
                 {
                     var data = clinicalData.concat(params.geneData);
                 }
+                
+                
 
                 var clinical_attrs = params.clinical_attrs      // extract attr_ids
                     .map(function(attr) { return attr.attr_id; });
@@ -477,6 +483,10 @@ define("Oncoprint",
                     });
             
                 var gene2percent = utils.percent_altered(params.geneData);
+                if(params.newGenData!== undefined)
+                {
+                    var gene2percent = utils.percent_altered(params.newGenData);//if show patientid change the percentage
+                }
                 percentLabel.append('tspan')       // percent_altered
                     .text(function(d) {
                         return (d in gene2percent) ? gene2percent[d].toString() + "%" : "x"; })
@@ -937,6 +947,10 @@ define("Oncoprint",
                             state.data = data;
                             update(state.data);
                         } else {
+                            if(params.newGenData!==undefined)
+                            {
+                                altered= utils.filter_altered(utils.nest_data(params.newGenData));
+                            }
                             var altered_data = data.filter(function(d) { return altered.has(d.key); });
                             state.data = altered_data;
                             update(state.data);
@@ -1045,7 +1059,8 @@ define("Oncoprint",
                     };
 
                     // create a legend if user asked for it
-                    var attr2rangeValue = utils.attr_data_type2range(params.clinicalData, params.clinical_attrs.length,params.clinical_attrs);
+                    var addmixlegend = params.newGenData !== undefined ? true: false; //check whether add mix legend whose color is black
+                    var attr2rangeValue = utils.attr_data_type2range(params.clinicalData, params.clinical_attrs.length,params.clinical_attrs,addmixlegend);
                     var attr2rangeFuntion = utils.make_attribute2scale(params.clinical_attrs, params.clinicalData);
                     if (params.legend) {
                         utils.legend(params.legend,utils.gene_data_type2range(params.geneData), dims.label_width, attr2rangeValue,attr2rangeFuntion);
@@ -1105,6 +1120,10 @@ define("Oncoprint",
                     // *signature:* `undefined -> string`
                     var getPdfInput = function() {
                         var width = dims.width + dims.label_width;
+                        if(width<1000)
+                        {
+                           width = 1000; 
+                        }
                         var svg = main_svg[0][0];
                         var x = data2xscale(state.data);
 

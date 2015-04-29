@@ -269,9 +269,9 @@ define("OncoprintUtils", (function() {
         return to_return;
     };
     
-    var attr_data_type2range = function(raw_attr_and_gene_data,attrs_number,raw_clinical_attr)
+    var attr_data_type2range = function(raw_attr_and_gene_data,attrs_number,raw_clinical_attr,addmixlegend)
     {
-        var extract_unique = function(raw_data, length, raw_clinical_attributes ,filter) {
+        var extract_unique = function(raw_data, length, raw_clinical_attributes,addmixlegendValue ,filter) {
             
             var finalAfterProcess = [];
             var testFinalAfterProcess = [];
@@ -318,6 +318,30 @@ define("OncoprintUtils", (function() {
                         }
                         afterProcess = [min,max];
                     }
+                    else
+                    {
+                        if(addmixlegendValue)
+                        {
+                            var newMixlegend = {};
+                            newMixlegend.attr_id = afterProcess[afterProcess.length-1].attr_id;
+                            newMixlegend.attr_val = "Mixed";
+                            newMixlegend.display_name = "Mix Legend";
+                            newMixlegend.sample = "Mix_LegendSampleID";
+                            afterProcess.push(newMixlegend);
+                        }
+                    }
+                }
+                else
+                {
+                    if(addmixlegendValue)
+                    {
+                        var newMixlegend = {};
+                        newMixlegend.attr_id = afterProcess[afterProcess.length-1].attr_id;
+                        newMixlegend.attr_val = "Mixed";
+                        newMixlegend.display_name = "Mix Legend";
+                        newMixlegend.sample = "Mix_LegendSampleID";
+                        afterProcess.push(newMixlegend);
+                    }
                 }
                 
                 finalAfterProcess = finalAfterProcess.concat(afterProcess);
@@ -327,7 +351,7 @@ define("OncoprintUtils", (function() {
             return testFinalAfterProcess;
         };
         
-        var attrs = extract_unique(raw_attr_and_gene_data,attrs_number,raw_clinical_attr);
+        var attrs = extract_unique(raw_attr_and_gene_data,attrs_number,raw_clinical_attr,addmixlegend);
         if(attrs.length>0)
         {
             attrs[0]= _.sortBy(attrs[0],function(m){return m.attr_val;});
@@ -957,7 +981,10 @@ define("OncoprintUtils", (function() {
                 else if (is_clinical(d)) {
 
                     var result = attr2rangeFuntion[d.attr_id](d.attr_val);
-
+                    if(d.attr_val === "Mixed")//Mixed Legend reture black color
+                    {
+                        result = "black";
+                    }
                     return d.attr_val === "NA"
                 ? colors.grey       // attrs with value of NA are colored grey
                 : result;

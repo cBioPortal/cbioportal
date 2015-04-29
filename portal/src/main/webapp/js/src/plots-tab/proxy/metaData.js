@@ -39,20 +39,28 @@ var metaData = (function() {
     }
 
     function registerMetaData(clinicalAttrMetaDataResult, profileMetaDataResult) {
-        for (var gene in profileMetaDataResult) {
+        
+        var _tmp_id_arr = []; //temporary instore profile id
+        var _profile_arr = [];
+        for (var gene in profileMetaDataResult) { //merge all genetic profiles from all queried genes
             var _gene_obj = profileMetaDataResult[gene];
-            var _profile_arr = [];
             for (var _profile_name in _gene_obj) {
                 var obj = _gene_obj[_profile_name];
-                var _datum = jQuery.extend(true, {}, datum_genetic_profile_meta);
-                _datum.type = obj.GENETIC_ALTERATION_TYPE;
-                _datum.id = obj.STABLE_ID;
-                _datum.name = obj.NAME;
-                _datum.description = obj.DESCRIPTION;    
-                _profile_arr.push(_datum);
+                if ($.inArray(obj.STABLE_ID, _tmp_id_arr) === -1) {
+                    var _datum = jQuery.extend(true, {}, datum_genetic_profile_meta);
+                    _datum.type = obj.GENETIC_ALTERATION_TYPE;
+                    _datum.id = obj.STABLE_ID;
+                    _datum.name = obj.NAME;
+                    _datum.description = obj.DESCRIPTION;    
+                    _profile_arr.push(_datum);
+                    _tmp_id_arr.push(obj.STABLE_ID);
+                }
             }
+        }
+        for (var gene in profileMetaDataResult) {
             geneticProfiles[gene] = _profile_arr;
         }
+        
         $.each(clinicalAttrMetaDataResult, function(index, obj) {
             var _datum = jQuery.extend(true, {}, datum_clinical_attr_meta);
             _datum.id = obj.attr_id;

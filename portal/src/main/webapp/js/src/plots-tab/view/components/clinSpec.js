@@ -12,7 +12,6 @@ var clinSpec = (function() {
             search_contains: true,
             width: "80%"
         });
-        
     }
 
     return {
@@ -23,4 +22,5 @@ var clinSpec = (function() {
             $("#" + ids.sidebar[axis].clin_attr).bind("change", function() { regenerate_plots(axis); });
         }
     };
+    
 }());

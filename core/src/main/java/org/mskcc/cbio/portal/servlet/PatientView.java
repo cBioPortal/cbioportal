@@ -102,6 +102,7 @@ public class PatientView extends HttpServlet {
     public static final String DISEASE_INFO = "disease_info";
     public static final String PATIENT_STATUS = "patient_status";
     public static final String CLINICAL_DATA = "clinical_data";
+    public static final String CLINICAL_ATTRIBUTES = "clinical_attributes";
     public static final String TISSUE_IMAGES = "tissue_images";
     public static final String PATH_REPORT_URL = "path_report_url";
     public static final String CLINICAL_ATTRIBUTE_OTHER_PAPTEINT_ID = "OTHER_PATIENT_ID";
@@ -394,10 +395,11 @@ public class PatientView extends HttpServlet {
     
     private void setClinicalInfo(HttpServletRequest request) throws DaoException {
         List<String> samples = (List<String>)request.getAttribute(SAMPLE_ID);
+	boolean isPatientView = request.getAttribute(VIEW_TYPE) == "patient";
         
         CancerStudy cancerStudy = (CancerStudy)request.getAttribute(CANCER_STUDY);
         int cancerStudyId = cancerStudy.getInternalId();
-        List<ClinicalData> cds = DaoClinicalData.getSampleAndPatientData(cancerStudyId, samples);
+        List<ClinicalData> cds = DaoClinicalData.getSampleData(cancerStudyId, samples);
         Map<String,Map<String,String>> clinicalData = new LinkedHashMap<String,Map<String,String>>();
         for (ClinicalData cd : cds) {
             String caseId = cd.getStableId();
@@ -411,8 +413,22 @@ public class PatientView extends HttpServlet {
             attrMap.put(attrId, attrValue);
         }
         request.setAttribute(CLINICAL_DATA, clinicalData);
+	
+	// Add attribute name to display name mapping
+	List<ClinicalAttribute> cas = DaoClinicalAttribute.getDataByStudy(cancerStudyId);
         
         String sampleId = samples.get(0);
+	Map<String,Map<String,String>> clinicalAttributes = new LinkedHashMap<String,Map<String,String>>();
+        for (ClinicalAttribute ca : cas) {
+            String attrId = ca.getAttrId();
+	    String displayName = ca.getDisplayName();
+	    String description = ca.getDescription();
+            Map<String,String> attrMap = new HashMap<String,String>();
+	    clinicalAttributes.put(attrId, attrMap);
+	    attrMap.put("displayName", displayName);
+	    attrMap.put("description", description);
+        }
+	request.setAttribute(CLINICAL_ATTRIBUTES, clinicalAttributes);
         
         request.setAttribute("num_tumors", 1);
         
@@ -420,6 +436,16 @@ public class PatientView extends HttpServlet {
         Patient patient = DaoPatient.getPatientById(DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, sampleId).getInternalPatientId());
         String patientId = patient.getStableId();
         
+        // Add patient info to request if this is a patient view
+        if (isPatientView) {
+            List<ClinicalData> patientData = DaoClinicalData.getDataByPatientId(cancerStudyId, patientId);
+            Map<String,String> patientMap = new HashMap<String,String>();
+            for (ClinicalData cd: patientData) {
+                patientMap.put(cd.getAttrId(), cd.getAttrVal());
+            }
+            request.setAttribute(PATIENT_INFO, patientMap);
+        }
+
         int numOfSamplesInPatient = DaoSample.getSamplesByPatientId(patient.getInternalId()).size();
         request.setAttribute("num_tumors", numOfSamplesInPatient);
         

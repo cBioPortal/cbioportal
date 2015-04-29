@@ -30,7 +30,10 @@ var sidebar = (function() {
             clinSpec.init("x");
             clinSpec.init("y");
             optSpec.init();  
-        } else if (metaData.getGeneticProfilesMeta(window.PortalGlobals.getGeneList()[0]).length === 0 && metaData.getClinAttrsMeta().length === 0) { //no plots data
+        } else if ((metaData.getGeneticProfilesMeta(window.PortalGlobals.getGeneList()[0]).length === 0 ||
+                    metaData.getGeneticProfilesMeta(window.PortalGlobals.getGeneList()[0]).length === 1 && 
+                    metaData.getGeneticProfilesMeta(window.PortalGlobals.getGeneList()[0])[0].type === "MUTATION_EXTENDED") && 
+                    metaData.getClinAttrsMeta().length === 0) { //no plots data
             $("#plots").empty();
             $("#plots").append("No data available for generating plots.");
         } else {
@@ -38,7 +41,7 @@ var sidebar = (function() {
             profileSpec.init("y");
             optSpec.init();
             //reset the default value of x: default is always x copy num, y mrna
-            if (metaData.getGeneticProfilesMeta(window.PortalGlobals.getGeneList()[0].length !== 1)) {
+            if (metaData.getGeneticProfilesMeta(window.PortalGlobals.getGeneList()[0]).length !== 1) {
                 document.getElementById(ids.sidebar.x.profile_type).selectedIndex = "1";
                 profileSpec.updateProfileNameList("x");
                 regenerate_plots("x");

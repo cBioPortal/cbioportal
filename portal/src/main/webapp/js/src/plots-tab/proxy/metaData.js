@@ -67,8 +67,22 @@ var metaData = (function() {
             var _gene_obj = geneticProfiles[gene];
             $.each(_gene_obj, function(index, _profile_obj) {
 
-                //pass one: sort by profile name (keywords)
-                //TODO: find a more efficient way to sort
+                $.each(_gene_obj, function(index, _profile_obj) {
+                    if (_profile_obj.id.toLowerCase().indexOf("gistic") !== -1) {
+                        bubble_up(_gene_obj, index);
+                    }
+                });
+                
+                _gene_obj.sort(function(a, b) {
+                    if (genetic_profile_type_priority_list.indexOf(a.type) < genetic_profile_type_priority_list.indexOf(b.type)) {
+                        return 1;
+                    } else if (genetic_profile_type_priority_list.indexOf(a.type) > genetic_profile_type_priority_list.indexOf(b.type)) {
+                        return -1;
+                    } else if (genetic_profile_type_priority_list.indexOf(a.type) === genetic_profile_type_priority_list.indexOf(b.type)) {
+                        return 0;
+                    }
+                });
+                
                 $.each(_gene_obj, function(index, _profile_obj) {
                     if (_profile_obj.id.toLowerCase().indexOf("zscores") !== -1) {
                         bubble_up(_gene_obj, index);
@@ -84,21 +98,6 @@ var metaData = (function() {
                     if (_profile_obj.id.toLowerCase().indexOf("zscores") === -1 &&
                         _profile_obj.id.toLowerCase().indexOf("rna_seq_v2") !== -1) {
                         bubble_up(_gene_obj, index);
-                    }
-                });
-                $.each(_gene_obj, function(index, _profile_obj) {
-                    if (_profile_obj.id.toLowerCase().indexOf("gistic") !== -1) {
-                        bubble_up(_gene_obj, index);
-                    }
-                });
-                //pass two: sort by profile type
-                _gene_obj.sort(function(a, b) {
-                    if (genetic_profile_type_priority_list.indexOf(a.type) < genetic_profile_type_priority_list.indexOf(b.type)) {
-                        return 1;
-                    } else if (genetic_profile_type_priority_list.indexOf(a.type) > genetic_profile_type_priority_list.indexOf(b.type)) {
-                        return -1;
-                    } else if (genetic_profile_type_priority_list.indexOf(a.type) === genetic_profile_type_priority_list.indexOf(b.type)) {
-                        return 0;
                     }
                 });
 

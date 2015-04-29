@@ -38,179 +38,141 @@
 <%@ page import="org.mskcc.cbio.portal.model.GeneticProfile" %>
 <%@ page import="org.mskcc.cbio.portal.model.GeneticAlterationType" %>
 
-<script type="text/javascript" src="js/src/plots-tab/plots_tab_model.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/plots-tab/plots_tab.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/plots-tab/plots_two_genes.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/plots-tab/plots_custom.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/plots-tab/plotsTab.js"></script>
+<script type="text/javascript" src="js/src/plots-tab/view/sidebar.js"></script>
+<script type="text/javascript" src="js/src/plots-tab/view/plotsbox.js"></script>
+<script type="text/javascript" src="js/src/plots-tab/proxy/metaData.js"></script>
+<script type="text/javascript" src="js/src/plots-tab/proxy/plotsData.js"></script>
+<script type="text/javascript" src="js/src/plots-tab/util/map.js"></script>
+<script type="text/javascript" src="js/src/plots-tab/util/plotsUtil.js"></script>
+<script type="text/javascript" src="js/src/plots-tab/util/mutationInterpreter.js"></script>
+<script type="text/javascript" src="js/src/plots-tab/util/gisticInterpreter.js"></script>
+<script type="text/javascript" src="js/src/plots-tab/util/clinicalDataInterpreter.js"></script>
+<script type="text/javascript" src="js/src/plots-tab/util/stylesheet.js"></script>
+<script type="text/javascript" src="js/src/plots-tab/view/components/profileSpec.js"></script>
+<script type="text/javascript" src="js/src/plots-tab/view/components/clinSpec.js"></script>
+<script type="text/javascript" src="js/src/plots-tab/view/components/optSpec.js"></script>
+<script type="text/javascript" src="js/src/plots-tab/view/components/scatterPlots.js"></script>
+<script type="text/javascript" src="js/src/plots-tab/view/components/boxPlots.js"></script>
+<script type="text/javascript" src="js/src/plots-tab/view/components/heatMap.js"></script>
 
 <style>
     #plots .plots {
-        height: 610px;
         border: 1px solid #aaaaaa;
         border-radius: 4px;
+        margin: 15px;
     }
-    #plots .plots.plots-menus {
+    
+    #plots-sidebar {
         width: 320px;
-        height: 685px;
     }
-    #plots .plots.plots-view {
-        padding: 40px;
-        width: 720px;
+    #plots-sidebar-x-div {
+        width: inherit;
+        height: 222px;
     }
-    #plots .plots-tabs-ref {
-        font-size: 11px !important;
+    #plots-sidebar-y-div {
+        width: inherit;
+        height: 222px;
     }
-    #plots h4 {
-        padding-top: 15px;
-        padding-bottom: 15px;
+    #plots-sidebar-util-div {
+        width: inherit;
+        height: 190px;
     }
-    #plots h5 {
-        padding-top: 10px;
-        padding-bottom: 10px;
-        font-weight: bold;
+
+    #plots-sidebar h4 {
+        margin: 15px;
+        font-size: 12px;
+        color: grey;
+        background-color: white;
+        margin-top: -6px;
+        display: table;
+        padding: 5px;
     }
-    #plots .plots-firefox {
-        font-size: 10px;
+    #plots-sidebar h5 {
+        margin-left: 20px;
+        padding-left: 5px;
+        padding-right: 5px;
+        display: inline-block;
+        margin-bottom: 10px;
     }
-    #plots .plots-select {
-        width: 250px;
+    #plots-sidebar select {
+        max-width: 180px;
     }
-    #plots .ui-tabs .ui-state-disabled {
-        display: none; /* disabled tabs don't show up */
+    #plots-box {
+        width: 820px;
+        height: 670px;
+        float: right;
+    }
+    #plots-tab-swap-btn {
+	-moz-box-shadow:inset 0px 1px 0px 0px #ffffff;
+	-webkit-box-shadow:inset 0px 1px 0px 0px #ffffff;
+	box-shadow:inset 0px 1px 0px 0px #ffffff;
+	background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #f9f9f9), color-stop(1, #e9e9e9));
+	background:-moz-linear-gradient(top, #f9f9f9 5%, #e9e9e9 100%);
+	background:-webkit-linear-gradient(top, #f9f9f9 5%, #e9e9e9 100%);
+	background:-o-linear-gradient(top, #f9f9f9 5%, #e9e9e9 100%);
+	background:-ms-linear-gradient(top, #f9f9f9 5%, #e9e9e9 100%);
+	background:linear-gradient(to bottom, #f9f9f9 5%, #e9e9e9 100%);
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#f9f9f9', endColorstr='#e9e9e9',GradientType=0);
+	background-color:#f9f9f9;
+	-moz-border-radius:6px;
+	-webkit-border-radius:6px;
+	border-radius:6px;
+	border:1px solid #dcdcdc;
+	display:inline-block;
+	color:#666666;
+	font-weight:bold;
+	text-decoration:none;
+	text-shadow:0px 1px 0px #ffffff;
+        margin-top: -30px;
+        float: right;
     }
 </style>
 
-
-<div class="section" id="plots" class="plots">
+<div class="section" id="plots">
     <table>
         <tr>
             <td>
-                <div id="plots-menus" class="plots plots-menus">
-                    <ul>
-                        <li><a href="#plots_one_gene" title="Single Gene Query" class="plots-tabs-ref"><span>One Gene</span></a></li>
-                        <li><a href="#plots_two_genes" title="Cross Gene Query" class="plots-tabs-ref"><span>Two Genes</span></a></li>
-                        <li><a href="#plots_custom" title="Advanced Cross Gene Query" class="plots-tabs-ref"><span>Custom</span></a></li>
-                    </ul>
-                    <div id="plots_one_gene">
-                        <h4>Plot Parameters</h4>
-                        <h5>Gene</h5>
-                        <select id='gene' onchange='PlotsMenu.updateMenu();PlotsView.init();'></select>
-                        <div id='menu_err_msg'></div>
-                        <div id='one_gene_type_specification'>
-                            <h5>Plot Type</h5>
-                            <select id='plots_type' onchange="PlotsMenu.updateDataType();PlotsView.init();"></select>
-                            <h5>Data Type</h5>
-                            <div id='one_gene_platform_select_div'></div>
+                 <div id="plots-sidebar">
+                    <div id="plots-sidebar-x-div" class="plots">
+                        <h4>Horizontal Axis</h4>
+                        <div id="plots-x-data-type" style="padding-left:20px;">
+                            <input type="radio" name="plots-x-data-type" value="genetic_profile" checked>Genetic Profile
+                            <input type="radio" name="plots-x-data-type" value="clinical_attribute">Clinical Attribute
                         </div>
-                        <div id="inner-search-box-one-gene">
-                            <h5>Search case(s)</h5>
-                            <input type="text" id="search_plots_one_gene" placeholder="Case ID..." onkeyup="Plots.searchPlots('one_gene');">
-                        </div>
+                        <div id="plots-x-spec"></div>
                     </div>
-                    <div id="plots_two_genes">
-                        <h4>Plot Parameters</h4>
-                        <h5>Genes</h5>
-                        x Axis<select id='geneX' onchange="PlotsTwoGenesMenu.updateMenu();PlotsTwoGenesView.init();"></select>
-                        <br>
-                        y Axis<select id='geneY' onchange="PlotsTwoGenesMenu.updateMenu();PlotsTwoGenesView.init();"></select>
-                        <h5>Plot Type</h5>
-                        <select id='two_genes_plots_type' onchange="PlotsTwoGenesMenu.updateDataType();PlotsTwoGenesView.init();"></select>
-                        <h5>Platform</h5>
-                        <div id='two_genes_platform_select_div'></div>
-                        <div id='two_genes_apply_log_scale_div_x'></div>
-                        <div id='two_genes_apply_log_scale_div_y'></div>
-                        <br>
-                        <div id='two_genes_view_options'>
-                            <h5>Options</h5>
-                            <div id='two_genes_show_mutation_div'>
-                                <input type="checkbox" id="show_mutation" checked onchange='PlotsTwoGenesView.updateMutationDisplay();'/>
-                                show mutation data
-                            </div>
+                    <button id='plots-tab-swap-btn'><img src='images/swap.png'></button>
+                    <div id="plots-sidebar-y-div" class="plots">
+                        <h4>Vertical Axis</h4>
+                        <div id="plots-y-data-type" style="padding-left:20px;">
+                            <input type="radio" name="plots-y-data-type" value="genetic_profile" checked>Genetic Profile
+                            <input type="radio" name="plots-y-data-type" value="clinical_attribute">Clinical Attribute
                         </div>
-                        <div id="inner-search-box-two-genes">
-                            <h5>Search case(s)</h5>
-                            <input type="text" id="search_plots_two_genes" placeholder="Case ID..." onkeyup="Plots.searchPlots('two_genes');">
-                        </div>
+                        <div id="plots-y-spec"></div>
                     </div>
-                    <div id="plots_custom">
-                        <h4>Plot Parameters</h4>
-                        <h5>x Axis</h5>
-                        Gene<br>
-                        <select id='custom_geneX' onchange="PlotsCustomMenu.updateX();PlotsCustomView.init();"></select><br>
-                        Plot Type<br>
-                        <select id='custom_plots_type_x' onchange='PlotsCustomMenu.updateX();PlotsCustomView.init();'></select><br>
-                        Platform<br>
-                        <div id='custom_platform_select_div_x'></div>
-                        <div id='custom_genes_apply_log_scale_div_x'></div>
-                        <br>
-                        <h5>y Axis</h5>
-                        Gene<br>
-                        <select id='custom_geneY' onchange="PlotsCustomMenu.updateY();PlotsCustomView.init();"></select><br>
-                        Plot Type<br>
-                        <select id='custom_plots_type_y' onchange='PlotsCustomMenu.updateY();PlotsCustomView.init();'></select><br>
-                        Platform<br>
-                        <div id='custom_platform_select_div_y'></div>
-                        <div id='custom_genes_apply_log_scale_div_y'></div>
-                        <br>
-                        <div id='custom_genes_view_options'>
-                            <h5>Options</h5>
-                            <div id='custom_genes_show_mutation_div'>
-                                <input type="checkbox" id="show_mutation_custom_view" checked onchange='PlotsCustomView.updateMutationDisplay();'/>
-                                show mutation data
-                            </div>
-                        </div>
-                        <div id="inner-search-box-custom">
-                            <h5>Search case(s)</h5>
-                            <input type="text" id="search_plots_custom" placeholder="Case ID..." onkeyup="Plots.searchPlots('custom');">
-                        </div>
-                    </div>
+                    <div id="plots-sidebar-util-div" class="plots">
+                        <h4>Utilities</h4>
+                        <h5>Search Case(s)</h5><input type="text" id="case_id_search_keyword" name="case_id_search_keyword" placeholder="Case ID.." onkeyup="search_case_id();"><br>
+                        <h5>Search Mutation(s)</h5><input type="text" id="mutation_search_keyword" name="mutation_search_keyword" placeholder="Protein Change.." onkeyup="search_mutation();"><br>
+                        <div id="mutation_details_vs_gistic_view" class="mutation_details_vs_gistic_view" style="display:inline;"></div>
+                        <h5>Download</h5><div id="download_buttons" style="display: inline;"></div>
+                    </div>        
                 </div>
             </td>
             <td>
-                <div id="plots-view" class="plots plots-view">
-                    <div id='loading-image'>
-                        <img style='padding:200px;' src='images/ajax-loader.gif'>
-                    </div>
-                    <b><div id='view_title' style="display:inline-block;padding-left:100px;"></div></b>
-                    <div id="plots_box"></div>
+                <div id="plots-box" class="plots" style="overflow: scroll;">
                 </div>
             </td>
         </tr>
     </table>
 </div>
 
-<script>
 
-    if (gene_list.length !== 1) {
-        $("#plots-menus").tabs();
-    } else {
-        $("#plots-menus").tabs();
-        $("#plots-menus").tabs("disable", 1);
-    }
-    
+<script>
     $(document).ready( function() {
-        var plots_tab_init = false;
-        $("#tabs").bind("tabsactivate", function(event, ui) {
-            if (ui.newTab.text().trim().toLowerCase() === "plots") {
-                if (plots_tab_init === false) {
-                    Plots.init();
-                    plots_tab_init = true;
-                }
-            }
-        });
+        plotsTab.init();
     });
-
-
 </script>
 
-<script>
-    //Patch for the sub tab css style and qtip bug. (Overwrite, stay bottom)
-    $(".plots-tabs-ref").tipTip(
-            {defaultPosition: "top", delay:"200", edgeOffset: 10, maxWidth: 200});
-    //Patch for fixing the font size in firefox
-    if (cbio.util.browser.mozilla) {
-        var element = document.getElementById("plots-menus");
-        element.className += " " + "plots-firefox";
-    }
 
-</script>

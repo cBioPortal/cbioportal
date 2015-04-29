@@ -76,7 +76,11 @@ You can input either precusor or mature miRNA IDs. Since one precusor ID may cor
 
 # What are mRNA and microRNA Z-Scores?
 
-For mRNA and microRNA expression data, we typically compute the relative expression of an individual gene and tumor to the gene's expression distribution in a reference population. That reference population is either all tumors that are diploid for the gene in question, or, when available, normal adjacent tissue. The returned value indicates the number of standard deviations away from the mean of expression in the reference population (Z-score). This measure is useful to determine whether a gene is up- or down-regulated relative to the normal samples or all other tumor samples.
+For mRNA and microRNA expression data, we typically compute the relative expression of an individual gene and tumor to the gene's expression distribution in a reference population. That reference population is all samples that are diploid for the gene in question (by default for mRNA), or normal samples (when specified), or all profiled samples . The returned value indicates the number of standard deviations away from the mean of expression in the reference population (Z-score). This measure is useful to determine whether a gene is up- or down-regulated relative to the normal samples or all other tumor samples.
+
+# Are there any normal samples available through cBioPortal?
+
+No, we currently do not store any normal data in our system.
 
 # What is GISTIC?  What is RAE?
 

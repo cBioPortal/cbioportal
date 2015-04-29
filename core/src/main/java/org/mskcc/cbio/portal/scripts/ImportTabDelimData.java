@@ -41,6 +41,9 @@ import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Code to Import Copy Number Alteration or MRNA Expression Data.
@@ -161,6 +164,9 @@ public class ImportTabDelimData {
         boolean discritizedCnaProfile = geneticProfile!=null
                                         && geneticProfile.getGeneticAlterationType() == GeneticAlterationType.COPY_NUMBER_ALTERATION
                                         && geneticProfile.showProfileInAnalysisTab();
+        boolean rppaProfile = geneticProfile!=null
+                                && geneticProfile.getGeneticAlterationType() == GeneticAlterationType.PROTEIN_LEVEL
+                                && "Composite.Element.Ref".equalsIgnoreCase(parts[0]);
 
         Map<CnaEvent.Event, CnaEvent.Event> existingCnaEvents = null;
         long cnaEventId = 0;
@@ -227,16 +233,20 @@ public class ImportTabDelimData {
                         } 
                         
                         if (genes==null && hugo != null) {
-                            // deal with multiple symbols separate by |, use the first one
-                            int ix = hugo.indexOf("|");
-                            if (ix>0) {
-                                hugo = hugo.substring(0, ix);
-                            }
+                            if (rppaProfile) {
+                                genes = parseRPPAGenes(hugo);
+                            } else {
+                                // deal with multiple symbols separate by |, use the first one
+                                int ix = hugo.indexOf("|");
+                                if (ix>0) {
+                                    hugo = hugo.substring(0, ix);
+                                }
 
-                            genes = daoGene.guessGene(hugo);
+                                genes = daoGene.guessGene(hugo);
+                            }
                         }
 
-                        if (genes == null) {
+                        if (genes == null || genes.isEmpty()) {
                             genes = Collections.emptyList();
                         }
 
@@ -329,6 +339,53 @@ public class ImportTabDelimData {
         }
     }
     
+    private List<CanonicalGene> parseRPPAGenes(String antibodyWithGene) throws DaoException {
+        DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
+        String[] parts = antibodyWithGene.split("\\|");
+        String[] symbols = parts[0].split(" ");
+        String arrayId = parts[1];
+        
+        List<CanonicalGene> genes = new ArrayList<CanonicalGene>();
+        for (String symbol : symbols) {
+            CanonicalGene gene = daoGene.getNonAmbiguousGene(symbol);
+            if (gene!=null) {
+                genes.add(gene);
+            }
+        }
+        
+        Pattern p = Pattern.compile("(p[STY][0-9]+)");
+        Matcher m = p.matcher(arrayId);
+        String type, residue;
+        if (!m.find()) {
+            type = "protein_level";
+            return genes;
+        } else {
+            type = "phosphorylation";
+            residue = m.group(1);
+            return importPhosphoGene(genes, residue);
+        }
+    }
+    
+    private List<CanonicalGene> importPhosphoGene(List<CanonicalGene> genes, String residue) throws DaoException {
+        DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
+        List<CanonicalGene> phosphoGenes = new ArrayList<CanonicalGene>();
+        for (CanonicalGene gene : genes) {
+            Set<String> aliases = new HashSet<String>();
+            aliases.add("rppa-phospho");
+            aliases.add("phosphoprotein");
+            aliases.add("phospho"+gene.getStandardSymbol());
+            String phosphoSymbol = gene.getStandardSymbol()+"_"+residue;
+            CanonicalGene phosphoGene = daoGene.getGene(phosphoSymbol);
+            if (phosphoGene==null) {
+                phosphoGene = new CanonicalGene(phosphoSymbol, aliases);
+                phosphoGene.setType(CanonicalGene.PHOSPHOPROTEIN_TYPE);
+                daoGene.addGene(phosphoGene);
+            }
+            phosphoGenes.add(phosphoGene);
+        }
+        return phosphoGenes;
+    }
+    
     private int getHugoSymbolIndex(String[] headers) {
         return targetLine==null ? 0 : 1;
     }
@@ -351,7 +408,8 @@ public class ImportTabDelimData {
                     !h.equalsIgnoreCase("Hugo_Symbol") &&
                     !h.equalsIgnoreCase("Entrez_Gene_Id") &&
                     !h.equalsIgnoreCase("Locus ID") &&
-                    !h.equalsIgnoreCase("Cytoband")) {
+                    !h.equalsIgnoreCase("Cytoband") &&
+                    !h.equalsIgnoreCase("Composite.Element.Ref")) {
                 return i;
             }
         }

@@ -38,15 +38,6 @@ var plotsData = (function() {
     var ajaxCall = function(axis, callback_func) {
         if ($("input:radio[name='" + ids.sidebar[axis].data_type + "']:checked").val() === vals.data_type.genetic) {
             
-            var paramsGetProfileData = {  //webservice call to get profile data
-                cancer_study_id: window.PortalGlobals.getCancerStudyId(),
-                gene_list: $("#" + ids.sidebar[axis].gene).val(),
-                genetic_profile_id: $("#" + ids.sidebar[axis].profile_name).val(),
-                case_set_id: window.PortalGlobals.getCaseSetId(),
-                case_ids_key: window.PortalGlobals.getCaseIdsKey()
-            };
-            $.post("getProfileData.json", paramsGetProfileData, inner_profile_callback_func, "json");
-            
             function inner_profile_callback_func(profileData) { 
                 var _tmp = {}; //convert to json format
                 for (var key in profileData[$("#" + ids.sidebar[axis].gene).val()]) {
@@ -56,14 +47,16 @@ var plotsData = (function() {
                 callback_func(axis, _tmp);
             }
             
-        } else if ($("input:radio[name='" + ids.sidebar[axis].data_type + "']:checked").val() === vals.data_type.clin) {
-            var paramsGetClinicalAttributes = { //webservice call to get clinical data
-                cmd : "getClinicalData",
+            var paramsGetProfileData = {  //webservice call to get profile data
                 cancer_study_id: window.PortalGlobals.getCancerStudyId(),
-                case_set_id : window.PortalGlobals.getCaseSetId(),
-                format : "json"
+                gene_list: $("#" + ids.sidebar[axis].gene).val(),
+                genetic_profile_id: $("#" + ids.sidebar[axis].profile_name).val(),
+                case_set_id: window.PortalGlobals.getCaseSetId(),
+                case_ids_key: window.PortalGlobals.getCaseIdsKey()
             };
-            $.post("webservice.do", paramsGetClinicalAttributes, inner_callback_func, "json");
+            $.post("getProfileData.json", paramsGetProfileData, inner_profile_callback_func, "json");
+            
+        } else if ($("input:radio[name='" + ids.sidebar[axis].data_type + "']:checked").val() === vals.data_type.clin) {
             
             function inner_callback_func(clinicalData) {
                 var _tmp = {};
@@ -74,7 +67,15 @@ var plotsData = (function() {
                 });
                 callback_func(axis, _tmp);
             }
-        
+            
+            var paramsGetClinicalAttributes = { //webservice call to get clinical data
+                cmd : "getClinicalData",
+                cancer_study_id: window.PortalGlobals.getCancerStudyId(),
+                case_set_id : window.PortalGlobals.getCaseSetId(),
+                format : "json"
+            };
+            $.post("webservice.do", paramsGetClinicalAttributes, inner_callback_func, "json");
+
         }
     };
     
@@ -192,14 +193,6 @@ var plotsData = (function() {
                     });
                 }); 
                 if (cna_annotation_profile_name !== "") {
-                    var paramsGetProfileData = {  //webservice call to get profile data
-                        cancer_study_id: window.PortalGlobals.getCancerStudyId(),
-                        gene_list: $("#" + ids.sidebar.y.gene).val(),
-                        genetic_profile_id: cna_annotation_profile_name,
-                        case_set_id: window.PortalGlobals.getCaseSetId(),
-                        case_ids_key: window.PortalGlobals.getCaseIdsKey()
-                    };
-                    $.post("getProfileData.json", paramsGetProfileData, inner_profile_callback_func, "json");
 
                     function inner_profile_callback_func(_result) {
                         stat.hasCnaAnno = true;
@@ -209,6 +202,16 @@ var plotsData = (function() {
                         analyseData();
                         stat.retrieved = true;
                     };
+
+                    var paramsGetProfileData = {  //webservice call to get profile data
+                        cancer_study_id: window.PortalGlobals.getCancerStudyId(),
+                        gene_list: $("#" + ids.sidebar.y.gene).val(),
+                        genetic_profile_id: cna_annotation_profile_name,
+                        case_set_id: window.PortalGlobals.getCaseSetId(),
+                        case_ids_key: window.PortalGlobals.getCaseIdsKey()
+                    };
+                    $.post("getProfileData.json", paramsGetProfileData, inner_profile_callback_func, "json");
+
                 }
             } else {
                 analyseData();

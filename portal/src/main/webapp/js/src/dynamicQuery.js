@@ -75,6 +75,7 @@ $(document).ready(function(){
          
          caseSetSelected();
          $('#custom_case_set_ids').empty(); // reset the custom case set textarea
+	 $('#select_single_study').trigger('doneChanging');
      });
 
     // Set up Event Handler for User Selecting a Case Set
@@ -830,11 +831,13 @@ function addMetaDataToPage() {
     var currNode;
     if (dmp_studies.length > 0) {
 	jstree_data.push({'id':'mskimpact-study-group', 'parent':jstree_root_id, 'text':'MSKCC DMP', 'li_attr':{name:'MSKCC DMP'}});
+	var studyName;
 	$.each(dmp_studies, function(ind, id) {
-		jstree_data.push({'id':id, 'parent':'mskimpact-study-group', 'text':truncateStudyName(json.cancer_studies[id].name), 
-			'li_attr':{description: metaDataJson.cancer_studies[id].description}});
+		studyName = truncateStudyName(json.cancer_studies[id].name);
+		jstree_data.push({'id':id, 'parent':'mskimpact-study-group', 'text':studyName, 
+			'li_attr':{name: studyName, description: metaDataJson.cancer_studies[id].description}});
 		flat_jstree_data.push({'id':id, 'parent':jstree_root_id, 'text':truncateStudyName(json.cancer_studies[id].name), 
-			'li_attr':{description: metaDataJson.cancer_studies[id].description, search_terms: 'MSKCC DMP'}});
+			'li_attr':{name: studyName, description: metaDataJson.cancer_studies[id].description, search_terms: 'MSKCC DMP'}});
 	});
     }
     while (node_queue.length > 0) {
@@ -852,11 +855,11 @@ function addMetaDataToPage() {
 			    jstree_data.push({'id':elt.id, 
 				    'parent':currNode.code, 
 				    'text':name,
-				    'li_attr':{description:metaDataJson.cancer_studies[elt.id].description}});
+				    'li_attr':{name: name, description:metaDataJson.cancer_studies[elt.id].description}});
 			    flat_jstree_data.push({'id':elt.id, 
 				    'parent':jstree_root_id,
 				    'text':name,
-				    'li_attr':{description:metaDataJson.cancer_studies[elt.id].description, search_terms: elt.lineage.join(" ")}});
+				    'li_attr':{name: name, description:metaDataJson.cancer_studies[elt.id].description, search_terms: elt.lineage.join(" ")}});
 		});
 		node_queue = node_queue.concat(currNode.children);
 	    }
@@ -1026,7 +1029,6 @@ function addMetaDataToPage() {
 		});
 		$('#jstree').on('ready.jstree', function () {
 			$('#jstree').jstree(true).num_leaves = $('#jstree').jstree(true).get_leaves().length;
-			onJSTreeChange();
 			$('#jstree').jstree(true).get_matching_nodes = function (phrase) {
 				var ret = [];
 				$.each($('#jstree').jstree(true)._model.data, function (key, node) {
@@ -1036,16 +1038,19 @@ function addMetaDataToPage() {
 				});
 				return ret;
 			};
-			if (window.tab_index !== "tab_download") {
-				$('#jstree').jstree(true).get_node(jstree_root_id, true).children('.jstree-anchor').after($jstree_flatten_btn());
-			}
+			
+			$('#jstree').jstree(true).get_node(jstree_root_id, true).children('.jstree-anchor').after($jstree_flatten_btn());
+			$('#jstree').jstree(true).open_all();
 		});
 		$('#jstree').on('changed.jstree', function() { onJSTreeChange(); /*saveSelectedStudiesLocalStorage();*/ });
 		$('#jstree').jstree(true).hide_icons();
 	}
 	initialize_jstree(window.tab_index === "tab_download" ? flat_jstree_data : jstree_data);
 	var jstree_is_flat = false;
-	var $jstree_flatten_btn = (function() { 
+	var $jstree_flatten_btn = (function() {
+		if (window.tab_index === "tab_download") {
+			return false;
+		}
 		var ret = $('<i class="fa fa-lg fa-code-fork jstree-external-node-decorator" style="display:none; cursor:pointer; padding-left:0.6em"></i>');
 		ret.mouseenter(function () {
 			ret.fadeTo('fast', 0.7);
@@ -1094,7 +1099,11 @@ function addMetaDataToPage() {
 				$("#jstree").jstree(true)._model.data['tissue'].li_attr.name = "All Search Results";
 			}
 			$("#jstree").fadeTo(100, 0.5, function () {
+				$('#jstree_search_none_found_msg').hide();
 				do_jstree_search();
+				if ($('#jstree_search_input').val() !== "" && $('#jstree').jstree(true)._data.search.res.length === 0) {
+					$('#jstree_search_none_found_msg').show();
+				}
 				$("#jstree").fadeTo(100, 1);
 			});
 		}, 400); // wait for a bit with no typing before searching
@@ -1185,59 +1194,60 @@ function addMetaDataToPage() {
 	}
     });
 	$("#jstree").on('ready.jstree', function() {
+		// Chosenize the select boxes
+		var minSearchableItems = 10;
+		$("#select_gene_set").chosen({ width: '620px', search_contains: true});
+		$("#select_case_set").chosen({ width: '420px', disable_search_threshold: minSearchableItems, search_contains: true });
 		$.each(selected_study_map, function(key, val) {
 			if (val) {
 				$("#jstree").jstree(true).select_node(key, true);
 			}
 		});
-		onJSTreeChange();
-		//   Set things up, based on currently selected case set id
-		if (window.case_set_id_selected != null && window.case_set_id_selected != "") {
-			$("#select_case_set").val(window.case_set_id_selected);
-			caseSetSelectionOverriddenByUser = true;
-		}
-		caseSetSelected();
-		if (window.case_ids_selected !== '') {
-			$('#custom_case_set_ids').val(window.case_ids_selected);
-		}
-
-		//  Set things up, based on currently selected gene set id
-		if (window.gene_set_id_selected != null && window.gene_set_id_selected != "") {
-			$("#select_gene_set").val(window.gene_set_id_selected);
-		} else {
-			$("#select_gene_set").val("user-defined-list");
-		}
-		//  Set things up, based on all currently selected genomic profiles
-
-		//  To do so, we iterate through all input elements with the name = 'genetic_profile_ids*'
-		$("input[name^=genetic_profile_ids]").each(function (index) {
-			//  val() is the value that or stable ID of the genetic profile ID
-			var currentValue = $(this).val();
-
-			//  if the user has this stable ID already selected, mark it as checked
-			if (window.genomic_profile_id_selected[currentValue] == 1) {
-				console.log("Checking " + $(this).attr('id') + "... (inside addMetaDataToPage())");
-				$(this).prop('checked', true);
-				//  Select the surrounding checkbox
-				genomicProfileRadioButtonSelected($(this));
+			//   Set things up, based on currently selected case set id
+		$('#select_single_study').one('doneChanging', function() {
+			if (window.case_set_id_selected != null && window.case_set_id_selected != "") {
+				$("#select_case_set").val(window.case_set_id_selected);
+				$("#select_case_set").trigger('liszt:updated');
+				caseSetSelectionOverriddenByUser = true;
 			}
-		});  //  end for each genomic profile option
+			caseSetSelected();
+			if (window.case_ids_selected !== '') {
+				$('#custom_case_set_ids').val(window.case_ids_selected);
+			}
+
+			//  Set things up, based on currently selected gene set id
+			if (window.gene_set_id_selected != null && window.gene_set_id_selected != "") {
+				$("#select_gene_set").val(window.gene_set_id_selected);
+			} else {
+				$("#select_gene_set").val("user-defined-list");
+			}
+			$("#select_gene_set").trigger('liszt:updated');
+			//  Set things up, based on all currently selected genomic profiles
+
+			//  To do so, we iterate through all input elements with the name = 'genetic_profile_ids*'
+			$("input[name^=genetic_profile_ids]").each(function (index) {
+				//  val() is the value that or stable ID of the genetic profile ID
+				var currentValue = $(this).val();
+
+				//  if the user has this stable ID already selected, mark it as checked
+				if (window.genomic_profile_id_selected[currentValue] == 1) {
+					console.log("Checking " + $(this).attr('id') + "... (inside addMetaDataToPage())");
+					$(this).prop('checked', true);
+					//  Select the surrounding checkbox
+					genomicProfileRadioButtonSelected($(this));
+				}
+			});  //  end for each genomic profile option
 
 
-		// HACK TO DEAL WITH ASYNCHRONOUS STUFF
-		window.metaDataAdded = true;
-		// determine whether any selections have already been made
-		// to make sure all of the fields are shown/hidden as appropriate
-		console.log("addMetaDataToPage ( reviewCurrentSelections() )");
-		reviewCurrentSelections();
+			// HACK TO DEAL WITH ASYNCHRONOUS STUFF
+			window.metaDataAdded = true;
+			// determine whether any selections have already been made
+			// to make sure all of the fields are shown/hidden as appropriate
+			console.log("addMetaDataToPage ( reviewCurrentSelections() )");
+			reviewCurrentSelections();
+		});
+		onJSTreeChange();
 	});
-
-    
-
-    // Chosenize the select boxes
-    var minSearchableItems = 10;
-    $("#select_gene_set").chosen({ width: '620px', search_contains: true});
-    $("#select_case_set").chosen({ width: '420px', disable_search_threshold: minSearchableItems, search_contains: true });
 }
 
 // Adds the specified genomic profiles to the page.

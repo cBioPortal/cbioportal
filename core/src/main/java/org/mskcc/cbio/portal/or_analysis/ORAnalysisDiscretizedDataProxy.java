@@ -167,9 +167,9 @@ public class ORAnalysisDiscretizedDataProxy {
                 return Double.toString(Math.log(pct1 / pct2) / Math.log(2));
             }
         } else if (pct1 == 0 && pct2 != 0) {
-            return ">3";
-        } else if (pct1 != 0 && pct2 == 0) {
             return "<-3";
+        } else if (pct1 != 0 && pct2 == 0) {
+            return ">3";
         } else {
             return "--";
         } 

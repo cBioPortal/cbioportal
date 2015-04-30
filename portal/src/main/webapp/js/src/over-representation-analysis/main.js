@@ -33,7 +33,7 @@
 
 /**
  * 
- * Main page for Initiating over representation analysis
+ * Main page for Initiating over representation analysis view
  *
  * Author: yichaoS
  * Date: 3/10/2015

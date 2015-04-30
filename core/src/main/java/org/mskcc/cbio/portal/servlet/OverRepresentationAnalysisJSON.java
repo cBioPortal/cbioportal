@@ -27,15 +27,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.math.MathException;
-import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.node.ArrayNode;
-import org.codehaus.jackson.node.JsonNodeFactory;
-import org.codehaus.jackson.node.ObjectNode;
-import org.json.simple.JSONValue;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.dao.DaoGeneticProfile;
 import org.mskcc.cbio.portal.dao.DaoSample;
 import org.mskcc.cbio.portal.dao.DaoSampleProfile;
@@ -82,6 +76,7 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
             String profileId = httpServletRequest.getParameter("profile_id");
             String[] genes = httpServletRequest.getParameter("gene_list").split("\\s+");
 
+            //calculate deep deletion and amplification separately
             String copyNumType = "none";
             if (profileId.contains("_amp")) {
                 copyNumType = "amp";

@@ -156,11 +156,17 @@ var BarChart = function(){
             hide: {fixed:true, delay: 100, event: "mouseout "},
             position: {my:'top center',at:'bottom center', viewport: $(window)},
             content: {
-                text:   "<div style='display:inline-block;float:left;margin: 0 2px'>"+
-                        "<button  id='"+DIV.chartDiv+"-pdf'>PDF</button>"+          
+                text:
+                        "<div style='display:inline-block;'>"+
+                        "<button id='"+DIV.chartDiv+"-pdf' style=\"width:50px\">PDF</button>"+
                         "</div>"+
-                        "<div style='display:inline-block;float:left;margin: 0 2px'>"+
-                        "<button  id='"+DIV.chartDiv+"-svg'>SVG</button>"+
+                        "<br>"+
+                        "<div style='display:inline-block;'>"+
+                        "<button id='"+DIV.chartDiv+"-svg' style=\"width:50px\">SVG</button>"+
+                        "</div>"+
+                        "<br>"+
+                        "<div style='display:inline-block;'>"+
+                        "<button id='"+DIV.chartDiv+"-tsv' style=\"width:50px\">DATA</button>"+
                         "</div>"
             },
             events: {
@@ -181,6 +187,27 @@ var BarChart = function(){
                             DIV.chartDiv+"-svg-value", {
                                 filename: StudyViewParams.params.studyId + "_" +param.selectedAttr+".svg",
                             });
+                    });
+                    $("#"+DIV.chartDiv+"-tsv").click(function(){
+                        var content = '';
+                        var _cases = barChart.dimension().top(Infinity);
+                        
+                        content = content + '\"Case ID\"' + '\t';
+                        content = content + '\"' + param.selectedAttrDisplay + '\"';
+                        
+                        for(var i = 0; i < _cases.length; i++){
+                            content += '\r\n';
+                            content += '\"' + _cases[i].CASE_ID + '\"' + '\t';
+                            content += '\"' + _cases[i][param.selectedAttr] + '\"';
+                        }
+                        
+                        var downloadOpts = {
+                            filename: cancerStudyName + "_" + param.selectedAttrDisplay + ".tsv",
+                            contentType: "text/plain;charset=utf-8",
+                            preProcess: false
+                        };
+
+                        cbio.download.initDownload(content, downloadOpts);
                     });
                 }
             }

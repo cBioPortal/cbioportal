@@ -348,8 +348,9 @@ var Table = function() {
             hide: {fixed:true, delay: 100, event: "mouseout "},
             position: {my:'top center',at:'bottom center', viewport: $(window)},
             content: {
-                text:   "<div style='display:inline-block;float:left;margin: 0 2px'>"+
-                        "<button  id='"+divs.tableId+"-csv'>CSV</button>"+          
+                text:
+                        "<div style='display:inline-block;'>"+
+                        "<button id='"+divs.tableId+"-tsv' style=\"width:50px\">DATA</button>"+
                         "</div>"
             },
             events: {
@@ -357,24 +358,24 @@ var Table = function() {
                     $('#' + divs.tableId + '-download-icon-wrapper').qtip('api').hide();
                 },
                 render: function() {
-                    $("#"+divs.tableId+"-csv").click(function(){
+                    $("#"+divs.tableId+"-tsv").click(function(){
                         var content = '';
                         
                         attr.forEach(function(e) {
-                            content = content + '\"' + (e.displayName||'Unknown') + '\"' + ',';
+                            content = content + '\"' + (e.displayName||'Unknown') + '\"' + '\t';
                         });
                         content = content.slice(0,-1);
 
                         arr.forEach(function(e){
                             content += '\r\n';
                             attr.forEach(function(e1){
-                                content += '\"' + e[e1.name] + '\"' + ',';
+                                content += '\"' + e[e1.name] + '\"' + '\t';
                             });
                             content = content.slice(0,-1);
                         });
 
                         var downloadOpts = {
-                            filename: cancerStudyName + "_" + divs.title + ".csv",
+                            filename: cancerStudyName + "_" + divs.title + ".tsv",
                             contentType: "text/plain;charset=utf-8",
                             preProcess: false
                         };

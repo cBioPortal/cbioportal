@@ -235,14 +235,17 @@ var PieChart = function(){
             hide: {fixed:true, delay: 300, event: "mouseout"},
             position: {my:'top center',at:'bottom center', viewport: $(window)},
             content: {
-                text:   "<div style='display:inline-block;float:left;margin: 0 2px'>"+
-                        "<button  id='"+DIV.chartDiv+"-pdf'>PDF</button>"+          
+                text:
+                        "<div style='display:inline-block;'>"+
+                        "<button id='"+DIV.chartDiv+"-pdf' style=\"width:50px\">PDF</button>"+
                         "</div>"+
-                        "<div style='display:inline-block;float:left;margin: 0 2px'>"+
-                        "<button  id='"+DIV.chartDiv+"-svg'>SVG</button>"+
+                        "<br>"+
+                        "<div style='display:inline-block;'>"+
+                        "<button id='"+DIV.chartDiv+"-svg' style=\"width:50px\">SVG</button>"+
                         "</div>"+
-                        "<div style='display:inline-block;float:left;margin: 0 2px'>"+
-                        "<button  id='"+DIV.chartDiv+"-csv'>CSV</button>"+
+                        "<br>"+
+                        "<div style='display:inline-block;'>"+
+                        "<button id='"+DIV.chartDiv+"-tsv' style=\"width:50px\">DATA</button>"+
                         "</div>"
             },
             events: {
@@ -264,20 +267,20 @@ var PieChart = function(){
                                 filename: StudyViewParams.params.studyId + "_" +selectedAttr+".svg",
                             });
                     });
-                    $("#"+DIV.chartDiv+"-csv").click(function(){
+                    $("#"+DIV.chartDiv+"-tsv").click(function(){
                         var content = '';
                         
-                        content = content + '\"' + selectedAttrDisplay + '\"' + ',';
+                        content = content + '\"' + selectedAttrDisplay + '\"' + '\t';
                         content = content + '\"Number\"';
                         
                         for(var i = 0; i < label.length; i++){
                             content += '\r\n';
-                            content += '\"' + label[i].name + '\"' + ',';
+                            content += '\"' + label[i].name + '\"' + '\t';
                             content += '\"' + label[i].value + '\"';
                         }
                         
                         var downloadOpts = {
-                            filename: cancerStudyName + "_" + selectedAttrDisplay + ".csv",
+                            filename: cancerStudyName + "_" + selectedAttrDisplay + ".tsv",
                             contentType: "text/plain;charset=utf-8",
                             preProcess: false
                         };

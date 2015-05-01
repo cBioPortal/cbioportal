@@ -192,7 +192,7 @@ var BarChart = function(){
                         var content = '';
                         var _cases = barChart.dimension().top(Infinity);
                         
-                        content = content + '\"Case ID\"' + '\t';
+                        content = content + '\"Sample ID\"' + '\t';
                         content = content + '\"' + param.selectedAttrDisplay + '\"';
                         
                         for(var i = 0; i < _cases.length; i++){

@@ -128,11 +128,17 @@ var StudyViewInitScatterPlot = (function() {
                 hide: {fixed:true, delay: 100, event: "mouseout"},
                 position: {my:'top center',at:'bottom center', viewport: $(window)},
                 content: {
-                    text:   "<div style='display:inline-block;float:left;margin: 0 2px'>"+
-                            "<button  id='study-view-scatter-plot-pdf'>PDF</button>"+          
+                    text:
+                            "<div style='display:inline-block;'>"+
+                            "<button id='study-view-scatter-plot-pdf' style=\"width:50px\">PDF</button>"+
                             "</div>"+
-                            "<div style='display:inline-block;float:left;margin: 0 2px'>"+
-                            "<button  id='study-view-scatter-plot-svg'>SVG</button>"+
+                            "<br>"+
+                            "<div style='display:inline-block;'>"+
+                            "<button id='study-view-scatter-plot-svg' style=\"width:50px\">SVG</button>"+
+                            "</div>"+
+                            "<br>"+
+                            "<div style='display:inline-block;'>"+
+                            "<button id='study-view-scatter-plot-tsv' style=\"width:50px\">DATA</button>"+
                             "</div>"
                 },
                 events: {
@@ -154,6 +160,28 @@ var StudyViewInitScatterPlot = (function() {
                                 _title, {
                                     filename: "Scatter_Plot_result-"+ StudyViewParams.params.studyId +".svg"
                                 });
+                        });
+                        $("#study-view-scatter-plot-tsv").click(function(){
+                            var content = '';
+                            
+                            content = content + '\"Sample ID\"' + '\t';
+                            content = content + '\"Copy Number Alterations\"' + '\t';
+                            content = content + '\"Mutation Count\"';
+                            
+                            for(var i = 0; i < scatterPlotArr.length; i++){
+                                content += '\r\n';
+                                content += '\"' + scatterPlotArr[i].case_id + '\"' + '\t';
+                                content += '\"' + scatterPlotArr[i].x_val + '\"' + '\t';
+                                content += '\"' + scatterPlotArr[i].y_val + '\"';
+                            }
+//
+                            var downloadOpts = {
+                                filename: cancerStudyName + "_" + _title + ".tsv",
+                                contentType: "text/plain;charset=utf-8",
+                                preProcess: false
+                            };
+
+                            cbio.download.initDownload(content, downloadOpts);
                         });
                     }
                 }

@@ -207,27 +207,45 @@ def get_db_clinical_attributes(cursor):
     return to_return
 
 # ------------------------------------------------------------------------------
+# checks validity of google worksheet record
+def valid_worksheet_entry(normalized_column_header, display_name, description, datatype, priority):
+	if normalized_column_header == None or len(normalized_column_header) == 0:
+		return False
+	if display_name == None or len(display_name) == 0:
+		return False
+	if description == None or len(description) == 0:
+		return False
+	if datatype == None or len(datatype) == 0:
+		return False
+	if priority == None or len(priority) == 0:
+		return False
+	return True
+
+# ------------------------------------------------------------------------------
 # get clinical attributes from google worksheet
 
 def get_worksheet_clinical_attributes(worksheet_feed):
 
     # map that we are returning
     # key is the clinical attribute name (tormalized column header) and value is a ClinicalAttribute object
-    to_return = {}
+	to_return = {}
 
-    for entry in worksheet_feed.entry:
-        normalized_column_header = entry.custom[CLINICAL_ATTRIBUTES_KEY].text
-        display_name = entry.custom[CLINICAL_ATTRIBUTES_DISPLAY_NAME].text
-        description = entry.custom[CLINICAL_ATTRIBUTES_DESCRIPTION].text
-        datatype = entry.custom[CLINICAL_ATTRIBUTES_DATATYPE].text
-	if entry.custom[CLINICAL_ATTRIBUTES_ATTRIBUTE_TYPE].text == CLINICAL_ATTRIBUTE_TYPE_PATIENT:
-		patient_attribute = 1
-	else:
-		patient_attribute = 0
-        priority = entry.custom[CLINICAL_ATTRIBUTES_PRIORITY].text
-        to_return[normalized_column_header] = ClinicalAttribute(normalized_column_header, display_name, description, datatype, patient_attribute, priority)
+	for entry in worksheet_feed.entry:
+		normalized_column_header = entry.custom[CLINICAL_ATTRIBUTES_KEY].text
+		display_name = entry.custom[CLINICAL_ATTRIBUTES_DISPLAY_NAME].text
+		description = entry.custom[CLINICAL_ATTRIBUTES_DESCRIPTION].text
+		datatype = entry.custom[CLINICAL_ATTRIBUTES_DATATYPE].text
+		if entry.custom[CLINICAL_ATTRIBUTES_ATTRIBUTE_TYPE].text == CLINICAL_ATTRIBUTE_TYPE_PATIENT:
+			patient_attribute = 1
+		else:
+			patient_attribute = 0
+		priority = entry.custom[CLINICAL_ATTRIBUTES_PRIORITY].text
+		if valid_worksheet_entry(normalized_column_header, display_name, description, datatype, priority):	
+			to_return[normalized_column_header] = ClinicalAttribute(normalized_column_header, display_name, description, datatype, patient_attribute, priority)
+		else:
+			print >> OUTPUT_FILE, "An attribute from the worksheet is missing a value, skipping: %s" % entry
 
-    return to_return
+	return to_return
 
 
 # ------------------------------------------------------------------------------

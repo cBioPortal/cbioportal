@@ -151,11 +151,17 @@ var StudyViewSurvivalPlotView = (function() {
             hide: {fixed:true, delay: 100, event: "mouseout"},
             position: {my:'top center',at:'bottom center', viewport: $(window)},
             content: {
-                text:   "<div style='display:inline-block;float:left;margin: 0 2px'>"+
-                        "<button  id='"+_opts.divs.pdf+"'>PDF</button>"+          
+                text:
+                        "<div style='display:inline-block;'>"+
+                        "<button id='"+_opts.divs.pdf+"' style=\"width:50px\">PDF</button>"+
                         "</div>"+
-                        "<div style='display:inline-block;float:left;margin: 0 2px'>"+
-                        "<button  id='"+_opts.divs.svg+"'>SVG</button>"+
+                        "<br>"+
+                        "<div style='display:inline-block;'>"+
+                        "<button id='"+_opts.divs.svg+"' style=\"width:50px\">SVG</button>"+
+                        "</div>"+
+                        "<br>"+
+                        "<div style='display:inline-block;'>"+
+                        "<button id='"+_opts.divs.tsv+"' style=\"width:50px\">DATA</button>"+
                         "</div>"
             },
             events: {
@@ -173,6 +179,30 @@ var StudyViewSurvivalPlotView = (function() {
                                 _opts.divs.svgValue, _plotKey, _title,  {
                                     filename: "Survival_Plot_result-" + StudyViewParams.params.studyId + ".svg",
                                 });
+                    });
+                    $("#"+_opts.divs.tsv).click(function(){
+                        var content = '';
+                        var subtitle = 'Overall Survival';
+                        if(_opts.index === 1) subtitle = 'Disease Free Survival';
+                        
+                        content = content + '\"Sample ID\"' + '\t';
+                        content = content + '\"' + subtitle + '\"';
+                        var attributes = aData.OS;
+                        if(_opts.index === 1) attributes = aData.DFS;
+                        
+                        for(var i in attributes){
+                            content += '\r\n';
+                            content += '\"' + attributes[i].case_id + '\"' + '\t';
+                            content += '\"' + attributes[i].months + '\"';
+                        }
+                        
+                        var downloadOpts = {
+                            filename: cancerStudyName + "_" + subtitle + ".tsv",
+                            contentType: "text/plain;charset=utf-8",
+                            preProcess: false
+                        };
+
+                        cbio.download.initDownload(content, downloadOpts);
                     });
 //                    $("#study-view-scatter-plot-pdf", api.elements.tooltip).submit(function(){
 //                        $("#study-view-scatter-plot-pdf-name").val("Scatter_Plot_result-"+ StudyViewParams.params.studyId +".pdf");
@@ -210,7 +240,7 @@ var StudyViewSurvivalPlotView = (function() {
                 _svgWidth = 360,
                 _svgheight = 360;
 
-        _svgElement = $cbio.download.serializeHtml($("#" + _svgParentDivId + " svg")[0]);
+        _svgElement = cbio.download.serializeHtml($("#" + _svgParentDivId + " svg")[0]);
         _svgLabels = $("#" + opts[_plotKey].divs.bodyLabel + " svg");
 
         _svgLabels.find('image').remove();
@@ -567,6 +597,7 @@ var StudyViewSurvivalPlotView = (function() {
         _opts.divs.svg = "study-view-survival-plot-svg-" + _index;
         _opts.divs.svgName = "study-view-survival-plot-svg-name-" + _index;
         _opts.divs.svgValue = "study-view-survival-plot-svg-value-" + _index;
+        _opts.divs.tsv = "study-view-survival-plot-tsv-" + _index;
         _opts.divs.menu = "study-view-survival-plot-menu-" + _index;
         _opts.divs.loader = "study-view-survival-plot-loader-" + _index;
         _opts.divs.downloadIcon = "study-view-survival-download-icon-" + _index;

@@ -370,6 +370,7 @@ public final class ExtendedMutation
     private String validationMethod;
     private String score;
     private String bamFile;
+	private String aminoAcidChange;
     private int tumorAltCount;
     private int tumorRefCount;
     private int normalAltCount;
@@ -517,7 +518,17 @@ public final class ExtendedMutation
         event.setProteinChange(proteinChange);
     }
 
-    public String getFunctionalImpactScore() {
+	public String getAminoAcidChange()
+	{
+		return aminoAcidChange;
+	}
+
+	public void setAminoAcidChange(String aminoAcidChange)
+	{
+		this.aminoAcidChange = aminoAcidChange;
+	}
+
+	public String getFunctionalImpactScore() {
         return event.getFunctionalImpactScore();
     }
 

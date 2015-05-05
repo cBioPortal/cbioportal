@@ -76,7 +76,7 @@ public class MafUtil
 	public static final String SEQUENCER = "Sequencer";
 
 	// non-standard columns
-	public static final String AMINO_ACID_CHANGE_MANNUAL = "Amino_Acid_Change";
+	public static final String AMINO_ACID_CHANGE = "Amino_Acid_Change";
 	public static final String TRANSCRIPT = "Transcript";
 
 	// allele frequency columns (non-standard)
@@ -98,6 +98,13 @@ public class MafUtil
 	public static final String TUMOR_VAF = "tumor_vaf";
 	public static final String NORMAL_DEPTH = "normal_depth";
 	public static final String NORMAL_VAF = "normal_vaf";
+
+	// custom annotator column names
+	public static final String PROTEIN_CHANGE = "HGVSp_Short";
+	public static final String CODONS = "Codons";
+	public static final String SWISSPROT = "SWISSPROT";
+	public static final String REFSEQ = "RefSeq";
+	public static final String PROTEIN_POSITION = "Protein_position";
 
 	// oncotator column names
 	public static final String ONCOTATOR_COSMIC_OVERLAPPING = "ONCOTATOR_COSMIC_OVERLAPPING";
@@ -172,7 +179,7 @@ public class MafUtil
     private int validationMethodIndex = -1; // VALIDATION_METHOD
     private int scoreIndex = -1; // SCORE
     private int bamFileIndex = -1; // BAM_FILE
-    private int aminoAcidChangeMannualIndex = -1;
+    private int aminoAcidChangeIndex = -1;
 
 	// Allele Frequency Columns
 	private int tumorAltCountIndex = -1; // TUMOR_ALT_COUNT
@@ -292,8 +299,8 @@ public class MafUtil
                 validationStatusIndex = i;
             } else if(header.equalsIgnoreCase(SEQUENCER)) {
 	            sequencerIndex = i;
-            } else if(header.equalsIgnoreCase(AMINO_ACID_CHANGE_MANNUAL)) {
-	            aminoAcidChangeMannualIndex = i;
+            } else if(header.equalsIgnoreCase(AMINO_ACID_CHANGE)) {
+	            aminoAcidChangeIndex = i;
 	        } else if(header.equalsIgnoreCase(DBSNP_VAL_STATUS)) {
 	        	dbSnpValStatusIndex = i;
 	        } else if(header.equalsIgnoreCase(MATCHED_NORM_SAMPLE_BARCODE)) {
@@ -463,7 +470,7 @@ public class MafUtil
         record.setScore(TabDelimitedFileUtil.getPartString(scoreIndex, parts));
         record.setBamFile(TabDelimitedFileUtil.getPartString(bamFileIndex, parts));
         
-        record.setMannualAminoAcidChange(TabDelimitedFileUtil.getPartString(aminoAcidChangeMannualIndex, parts));
+        record.setAminoAcidChange(TabDelimitedFileUtil.getPartString(aminoAcidChangeIndex, parts));
 
 	    // allele frequency (count) columns
 	    record.setTumorAltCount(TabDelimitedFileUtil.getPartInt(tumorAltCountIndex, parts));
@@ -478,6 +485,13 @@ public class MafUtil
         record.setTumorVaf(TabDelimitedFileUtil.getPartPercentage(tumorVafIndex, parts));
         record.setNormalDepth(TabDelimitedFileUtil.getPartInt(normalDepthIndex, parts));
         record.setNormalVaf(TabDelimitedFileUtil.getPartPercentage(normalVafIndex, parts));
+
+	    // custom annotator columns
+	    record.setProteinChange(TabDelimitedFileUtil.getPartString(getColumnIndex(PROTEIN_CHANGE), parts));
+	    record.setProteinPosition(TabDelimitedFileUtil.getPartString(getColumnIndex(PROTEIN_POSITION), parts));
+	    record.setCodons(TabDelimitedFileUtil.getPartString(getColumnIndex(CODONS), parts));
+	    record.setSwissprot(TabDelimitedFileUtil.getPartString(getColumnIndex(SWISSPROT), parts));
+	    record.setRefSeq(TabDelimitedFileUtil.getPartString(getColumnIndex(REFSEQ), parts));
 
         // Mutation Assessor columns
 	    record.setMaFuncImpact(TabDelimitedFileUtil.getPartString(maFImpactIndex, parts));
@@ -657,8 +671,8 @@ public class MafUtil
 		return bamFileIndex;
 	}
         
-        public int getAminoAcidChangeMannual() {
-            return aminoAcidChangeMannualIndex;
+	public int getAminoAcidChange() {
+            return aminoAcidChangeIndex;
         }
 
 	public int getTumorAltCountIndex() {

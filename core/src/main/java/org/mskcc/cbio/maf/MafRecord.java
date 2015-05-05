@@ -71,7 +71,7 @@ public class MafRecord
     private String score;
     private String bamFile;
     
-    private String mannualAminoAcidChange;
+    private String aminoAcidChange;
 
 	// allele frequency cols
     private int tumorAltCount;
@@ -86,6 +86,13 @@ public class MafRecord
     private float tumorVaf;
     private int normalDepth;
     private float normalVaf;
+
+	// custom annotator columns
+	private String proteinChange;
+	private String codons;
+	private String refSeq;
+	private String swissprot;
+	private String proteinPosition;
 
 	// Mutation Assessor cols
 	private String maFuncImpact;
@@ -372,14 +379,13 @@ public class MafRecord
 		this.score = score;
 	}
 
-    public String getMannualAminoAcidChange() {
-        return mannualAminoAcidChange;
+    public String getAminoAcidChange() {
+        return aminoAcidChange;
     }
 
-    public void setMannualAminoAcidChange(String mannualAminoAcidChange) {
-        this.mannualAminoAcidChange = mannualAminoAcidChange;
+    public void setAminoAcidChange(String aminoAcidChange) {
+        this.aminoAcidChange = aminoAcidChange;
     }
-        
 
 	public String getBamFile() {
 		return bamFile;
@@ -484,6 +490,56 @@ public class MafRecord
     public void setNormalVaf(float normalVaf) {
         this.normalVaf = normalVaf;
     }
+
+	public String getProteinChange()
+	{
+		return proteinChange;
+	}
+
+	public void setProteinChange(String proteinChange)
+	{
+		this.proteinChange = proteinChange;
+	}
+
+	public String getCodons()
+	{
+		return codons;
+	}
+
+	public void setCodons(String codons)
+	{
+		this.codons = codons;
+	}
+
+	public String getRefSeq()
+	{
+		return refSeq;
+	}
+
+	public void setRefSeq(String refSeq)
+	{
+		this.refSeq = refSeq;
+	}
+
+	public String getSwissprot()
+	{
+		return swissprot;
+	}
+
+	public void setSwissprot(String swissprot)
+	{
+		this.swissprot = swissprot;
+	}
+
+	public String getProteinPosition()
+	{
+		return proteinPosition;
+	}
+
+	public void setProteinPosition(String proteinPosition)
+	{
+		this.proteinPosition = proteinPosition;
+	}
 
 	public String getOncotatorProteinChange()
 	{

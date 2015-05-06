@@ -186,16 +186,16 @@ var StudyViewSurvivalPlotView = (function() {
                         if(_opts.index === 1) subtitle = 'Disease Free Survival';
                         
                         content = content + 'Sample ID' + '\t';
-                        content = content + subtitle + '\t';
-                        content = content + 'Status';
+                        content = content + 'Status' + '\t';
+                        content = content + subtitle;
                         var attributes = aData.OS;
                         if(_opts.index === 1) attributes = aData.DFS;
                         
                         for(var i in attributes){
                             content += '\r\n';
                             content += attributes[i].case_id + '\t';
-                            content += attributes[i].months + '\t';
-                            content += attributes[i].originalStatus;
+                            content += attributes[i].originalStatus + '\t';
+                            content += attributes[i].months;
                         }
                         
                         var downloadOpts = {

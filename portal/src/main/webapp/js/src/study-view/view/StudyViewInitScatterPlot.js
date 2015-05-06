@@ -164,19 +164,19 @@ var StudyViewInitScatterPlot = (function() {
                         $("#study-view-scatter-plot-tsv").click(function(){
                             var content = '';
                             
-                            content = content + '\"Sample ID\"' + '\t';
-                            content = content + '\"Copy Number Alterations\"' + '\t';
-                            content = content + '\"Mutation Count\"';
+                            content = content + 'Sample ID' + '\t';
+                            content = content + 'Copy Number Alterations' + '\t';
+                            content = content + 'Mutation Count';
                             
                             for(var i = 0; i < scatterPlotArr.length; i++){
                                 content += '\r\n';
-                                content += '\"' + scatterPlotArr[i].case_id + '\"' + '\t';
-                                content += '\"' + scatterPlotArr[i].x_val + '\"' + '\t';
-                                content += '\"' + scatterPlotArr[i].y_val + '\"';
+                                content += scatterPlotArr[i].case_id + '\t';
+                                content += scatterPlotArr[i].x_val + '\t';
+                                content += scatterPlotArr[i].y_val;
                             }
 //
                             var downloadOpts = {
-                                filename: cancerStudyName + "_" + _title + ".tsv",
+                                filename: cancerStudyName + "_" + _title + ".txt",
                                 contentType: "text/plain;charset=utf-8",
                                 preProcess: false
                             };

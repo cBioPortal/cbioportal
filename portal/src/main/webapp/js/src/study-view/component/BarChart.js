@@ -192,17 +192,17 @@ var BarChart = function(){
                         var content = '';
                         var _cases = barChart.dimension().top(Infinity);
                         
-                        content = content + '\"Sample ID\"' + '\t';
-                        content = content + '\"' + param.selectedAttrDisplay + '\"';
+                        content = content + 'Sample ID' + '\t';
+                        content = content + param.selectedAttrDisplay;
                         
                         for(var i = 0; i < _cases.length; i++){
                             content += '\r\n';
-                            content += '\"' + _cases[i].CASE_ID + '\"' + '\t';
-                            content += '\"' + _cases[i][param.selectedAttr] + '\"';
+                            content += _cases[i].CASE_ID + '\t';
+                            content += _cases[i][param.selectedAttr];
                         }
                         
                         var downloadOpts = {
-                            filename: cancerStudyName + "_" + param.selectedAttrDisplay + ".tsv",
+                            filename: cancerStudyName + "_" + param.selectedAttrDisplay + ".txt",
                             contentType: "text/plain;charset=utf-8",
                             preProcess: false
                         };

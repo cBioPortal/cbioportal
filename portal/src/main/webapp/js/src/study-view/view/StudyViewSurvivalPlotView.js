@@ -161,7 +161,7 @@ var StudyViewSurvivalPlotView = (function() {
                         "</div>"+
                         "<br>"+
                         "<div style='display:inline-block;'>"+
-                        "<button id='"+_opts.divs.tsv+"' style=\"width:50px\">DATA</button>"+
+                        "<button id='"+_opts.divs.txt+"' style=\"width:50px\">DATA</button>"+
                         "</div>"
             },
             events: {
@@ -180,24 +180,24 @@ var StudyViewSurvivalPlotView = (function() {
                                     filename: "Survival_Plot_result-" + StudyViewParams.params.studyId + ".svg",
                                 });
                     });
-                    $("#"+_opts.divs.tsv).click(function(){
+                    $("#"+_opts.divs.txt).click(function(){
                         var content = '';
                         var subtitle = 'Overall Survival';
                         if(_opts.index === 1) subtitle = 'Disease Free Survival';
                         
-                        content = content + '\"Sample ID\"' + '\t';
-                        content = content + '\"' + subtitle + '\"';
+                        content = content + 'Sample ID' + '\t';
+                        content = content + subtitle;
                         var attributes = aData.OS;
                         if(_opts.index === 1) attributes = aData.DFS;
                         
                         for(var i in attributes){
                             content += '\r\n';
-                            content += '\"' + attributes[i].case_id + '\"' + '\t';
-                            content += '\"' + attributes[i].months + '\"';
+                            content += attributes[i].case_id + '\t';
+                            content += attributes[i].months;
                         }
                         
                         var downloadOpts = {
-                            filename: cancerStudyName + "_" + subtitle + ".tsv",
+                            filename: cancerStudyName + "_" + subtitle + ".txt",
                             contentType: "text/plain;charset=utf-8",
                             preProcess: false
                         };
@@ -597,7 +597,7 @@ var StudyViewSurvivalPlotView = (function() {
         _opts.divs.svg = "study-view-survival-plot-svg-" + _index;
         _opts.divs.svgName = "study-view-survival-plot-svg-name-" + _index;
         _opts.divs.svgValue = "study-view-survival-plot-svg-value-" + _index;
-        _opts.divs.tsv = "study-view-survival-plot-tsv-" + _index;
+        _opts.divs.txt = "study-view-survival-plot-tsv-" + _index;
         _opts.divs.menu = "study-view-survival-plot-menu-" + _index;
         _opts.divs.loader = "study-view-survival-plot-loader-" + _index;
         _opts.divs.downloadIcon = "study-view-survival-download-icon-" + _index;

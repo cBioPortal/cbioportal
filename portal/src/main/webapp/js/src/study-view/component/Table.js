@@ -362,20 +362,20 @@ var Table = function() {
                         var content = '';
                         
                         attr.forEach(function(e) {
-                            content = content + '\"' + (e.displayName||'Unknown') + '\"' + '\t';
+                            content = content + (e.displayName||'Unknown') + '\t';
                         });
                         content = content.slice(0,-1);
 
                         arr.forEach(function(e){
                             content += '\r\n';
                             attr.forEach(function(e1){
-                                content += '\"' + e[e1.name] + '\"' + '\t';
+                                content += e[e1.name] + '\t';
                             });
                             content = content.slice(0,-1);
                         });
 
                         var downloadOpts = {
-                            filename: cancerStudyName + "_" + divs.title + ".tsv",
+                            filename: cancerStudyName + "_" + divs.title + ".txt",
                             contentType: "text/plain;charset=utf-8",
                             preProcess: false
                         };

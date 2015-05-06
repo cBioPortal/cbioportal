@@ -270,17 +270,17 @@ var PieChart = function(){
                     $("#"+DIV.chartDiv+"-tsv").click(function(){
                         var content = '';
                         
-                        content = content + '\"' + selectedAttrDisplay + '\"' + '\t';
+                        content = content + selectedAttrDisplay + '\t';
                         content = content + '\"Number\"';
                         
                         for(var i = 0; i < label.length; i++){
                             content += '\r\n';
-                            content += '\"' + label[i].name + '\"' + '\t';
-                            content += '\"' + label[i].value + '\"';
+                            content += label[i].name + '\t';
+                            content += label[i].value;
                         }
                         
                         var downloadOpts = {
-                            filename: cancerStudyName + "_" + selectedAttrDisplay + ".tsv",
+                            filename: cancerStudyName + "_" + selectedAttrDisplay + ".txt",
                             contentType: "text/plain;charset=utf-8",
                             preProcess: false
                         };

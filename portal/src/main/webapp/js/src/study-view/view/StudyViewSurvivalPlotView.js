@@ -182,20 +182,60 @@ var StudyViewSurvivalPlotView = (function() {
                     });
                     $("#"+_opts.divs.txt).click(function(){
                         var content = '';
-                        var subtitle = 'Overall Survival';
-                        if(_opts.index === 1) subtitle = 'Disease Free Survival';
+                        var subtitle;
+                        switch(_plotKey) {
+                            case 'OS':
+                                subtitle = 'Overall Survival';
+                            case 'DFS':
+                                subtitle = 'Disease Free Survival';
+                        }
+                        var attributes;
+                        attributes = aData[_plotKey];
+                        var groupFlag = false;
+                        if(curveInfo[_plotKey].length > 1)
+                            groupFlag = true;
                         
-                        content = content + 'Sample ID' + '\t';
-                        content = content + 'Status' + '\t';
-                        content = content + subtitle;
-                        var attributes = aData.OS;
-                        if(_opts.index === 1) attributes = aData.DFS;
-                        
-                        for(var i in attributes){
-                            content += '\r\n';
-                            content += attributes[i].case_id + '\t';
-                            content += attributes[i].originalStatus + '\t';
-                            content += attributes[i].months;
+                        if(groupFlag) {
+                            content = content + 'Sample ID' + '\t';
+                            content = content + 'Status' + '\t';
+                            content = content + subtitle + '\t';
+                            content = content + 'Group';
+                            
+                            var oldContent = {};
+                            for(var i in attributes){
+                                var row = '\r\n';
+                                row += attributes[i].case_id + '\t';
+                                row += attributes[i].originalStatus + '\t';
+                                row += attributes[i].months + '\t';
+                                oldContent[attributes[i].case_id] = row;
+                            }
+                            
+                            var groupInfo = curveInfo[_plotKey];
+                            
+                            for(var i=0; i<groupInfo.length; i++) {
+                                var group = groupInfo[i];
+                                var name = group.name;
+                                var dataInfo = group.data.data.getData();
+                                for(var j=0; j<dataInfo.length; j++) {
+                                    var data = dataInfo[j];
+                                    oldContent[data.case_id] += name;
+                                }
+                            }
+                            
+                            for(var row in oldContent) {
+                                content += oldContent[row];
+                            }
+                        } else {
+                            content = content + 'Sample ID' + '\t';
+                            content = content + 'Status' + '\t';
+                            content = content + subtitle;
+
+                            for(var i in attributes){
+                                content += '\r\n';
+                                content += attributes[i].case_id + '\t';
+                                content += attributes[i].originalStatus + '\t';
+                                content += attributes[i].months;
+                            }
                         }
                         
                         var downloadOpts = {

@@ -144,7 +144,7 @@ def run_java(*args):
     while process.poll() is None:
         line = process.stdout.readline()
         if line != '' and line.endswith('\n'):
-            print >> OUTPUT_FILE, line
+            print >> OUTPUT_FILE, line.rstrip()
             ret.append(line[:-1])
     stdout, stderr = process.communicate()
     print >> OUTPUT_FILE, stdout

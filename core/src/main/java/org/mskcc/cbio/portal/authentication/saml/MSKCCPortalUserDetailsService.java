@@ -58,14 +58,7 @@ import java.util.*;
  */
 public class MSKCCPortalUserDetailsService implements SAMLUserDetailsService
 {
-	private static final Collection<String> mskEmailSuffixes = initializeDefaultEmailSuffixes();
-	private static final Collection<String> initializeDefaultEmailSuffixes()
-	{
-		Collection<String> toReturn = new ArrayList<String>();
-		toReturn.add("mskcc.org");
-		toReturn.add("sloankettering.edu");
-		return toReturn;
-	}
+    private static final String MSKCC_EMAIL_SUFFIX = "mskcc.org";
 	private static final Log log = LogFactory.getLog(MSKCCPortalUserDetailsService.class);
     private static final Collection<String> defaultAuthorities = initializeDefaultAuthorities();
     private static final Collection<String> initializeDefaultAuthorities()
@@ -121,7 +114,7 @@ public class MSKCCPortalUserDetailsService implements SAMLUserDetailsService
                     List<GrantedAuthority> grantedAuthorities =
                         AuthorityUtils.createAuthorityList(authorities.getAuthorities().toArray(new String[authorities.getAuthorities().size()]));
                     // ensure that granted authorities contains default (google spreadsheet may not have default authorities for all users)
-                    if (mskUser(userid)) {
+                    if (userid.endsWith(MSKCC_EMAIL_SUFFIX)) {
                         grantedAuthorities.addAll(getDefaultGrantedAuthorities(userid));
                     }
                     toReturn = new PortalUserDetails(userid, grantedAuthorities);
@@ -131,7 +124,7 @@ public class MSKCCPortalUserDetailsService implements SAMLUserDetailsService
             }
 		}
 		catch (Exception e) {
-            if (mskUser(userid) && !GlobalProperties.getAppName().toLowerCase().contains("triage")) {
+            if (userid.endsWith(MSKCC_EMAIL_SUFFIX) && !GlobalProperties.getAppName().toLowerCase().contains("triage")) {
                 if (log.isDebugEnabled()) {
                     log.debug("loadUserDetails(), granting default authorities for userid: " + userid);
                 }
@@ -164,16 +157,6 @@ public class MSKCCPortalUserDetailsService implements SAMLUserDetailsService
 			return toReturn;
 		}
     }
-
-	private boolean mskUser(final String email)
-	{
-		for (String suffix : mskEmailSuffixes) {
-			if (email.endsWith(suffix)) {
-				return true;
-			}
-		}
-		return false;
-	}
 
     private List<GrantedAuthority> getDefaultGrantedAuthorities(final String username)
     {

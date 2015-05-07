@@ -125,7 +125,7 @@ var profileSpec = (function() {
                 $("#" + ids.sidebar[axis].profile_name).val().toLowerCase().indexOf(("rna_seq")) !== -1) { //if rna seq (no z-score) profile, show log scale option
                     $("#" + ids.sidebar[axis].log_scale + "-div").append(
                         "<h5>Apply Log Scale</h5>" +
-                        "<input type='checkbox' id='" + ids.sidebar[axis].log_scale + "' checked>");
+                        "<input type='checkbox' id='" + ids.sidebar[axis].log_scale + "'>");
                     $("#" + ids.sidebar[axis].log_scale).change(function() { scatterPlots.log_scale(); });
             }      
         }

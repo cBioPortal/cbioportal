@@ -1072,13 +1072,7 @@ var scatterPlots = (function() {
                 applyMouseover();
                 appendTitle("x");
                 appendTitle("y");
-                appendGlyphs();
-                if (!$('#' + ids.sidebar.x.log_scale).is(':empty')) {
-                    log_scale();
-                }
-                if (!$('#' + ids.sidebar.y.log_scale).is(':empty')) {
-                    log_scale();
-                }
+                appendGlyphs();                      
             }
         },
         addGlyph: function(obj) {

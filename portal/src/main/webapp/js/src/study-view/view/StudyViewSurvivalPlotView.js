@@ -186,8 +186,10 @@ var StudyViewSurvivalPlotView = (function() {
                         switch(_plotKey) {
                             case 'OS':
                                 subtitle = 'Overall Survival';
+                                break;
                             case 'DFS':
                                 subtitle = 'Disease Free Survival';
+                                break;
                         }
                         var attributes;
                         attributes = aData[_plotKey];
@@ -234,7 +236,7 @@ var StudyViewSurvivalPlotView = (function() {
                                 content += '\r\n';
                                 content += attributes[i].case_id + '\t';
                                 content += attributes[i].originalStatus + '\t';
-                                content += attributes[i].months;
+                                content += StudyViewUtil.restrictNumDigits(attributes[i].months);
                             }
                         }
                         

@@ -165,13 +165,13 @@ var StudyViewInitScatterPlot = (function() {
                             var content = '';
                             
                             content = content + 'Sample ID' + '\t';
-                            content = content + 'Copy Number Alterations' + '\t';
+                            content = content + 'Fraction Genome Altered' + '\t';
                             content = content + 'Mutation Count';
                             
                             for(var i = 0; i < scatterPlotArr.length; i++){
                                 content += '\r\n';
                                 content += scatterPlotArr[i].case_id + '\t';
-                                content += scatterPlotArr[i].x_val + '\t';
+                                content += StudyViewUtil.restrictNumDigits(scatterPlotArr[i].x_val) + '\t';
                                 content += scatterPlotArr[i].y_val;
                             }
 //

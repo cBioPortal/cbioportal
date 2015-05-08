@@ -373,7 +373,7 @@ var Table = function() {
                             });
                             content = content.slice(0,-1);
                         });
-
+                        
                         var downloadOpts = {
                             filename: cancerStudyName + "_" + divs.title + ".txt",
                             contentType: "text/plain;charset=utf-8",

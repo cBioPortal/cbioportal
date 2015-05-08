@@ -198,7 +198,7 @@ var BarChart = function(){
                         for(var i = 0; i < _cases.length; i++){
                             content += '\r\n';
                             content += _cases[i].CASE_ID + '\t';
-                            content += _cases[i][param.selectedAttr];
+                            content += StudyViewUtil.restrictNumDigits(_cases[i][param.selectedAttr]);
                         }
                         
                         var downloadOpts = {

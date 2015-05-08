@@ -206,7 +206,7 @@ var StudyViewSurvivalPlotView = (function() {
                                 var row = '\r\n';
                                 row += attributes[i].case_id + '\t';
                                 row += attributes[i].originalStatus + '\t';
-                                row += attributes[i].months + '\t';
+                                row += StudyViewUtil.restrictNumDigits(attributes[i].months) + '\t';
                                 oldContent[attributes[i].case_id] = row;
                             }
                             

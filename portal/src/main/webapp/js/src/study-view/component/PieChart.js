@@ -271,7 +271,7 @@ var PieChart = function(){
                         var content = '';
                         
                         content = content + selectedAttrDisplay + '\t';
-                        content = content + '\"Number\"';
+                        content = content + 'Count';
                         
                         for(var i = 0; i < label.length; i++){
                             content += '\r\n';

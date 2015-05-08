@@ -206,7 +206,7 @@ var StudyViewInitScatterPlot = (function() {
             svgElement += cbio.download.serializeHtml(e);
         });
         
-        svgElement = "<svg><g><text text-anchor='middle' x='220' y='30' " +
+        svgElement = "<svg xmlns='http://www.w3.org/2000/svg' version='1.1'><g><text text-anchor='middle' x='220' y='30' " +
                 "style='font-weight:bold'>" + _title + 
                 "</text></g><g transform='translate(0,40)'>" + 
                 svgElement + "</g></svg>";

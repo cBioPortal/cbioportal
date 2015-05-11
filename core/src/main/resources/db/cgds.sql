@@ -578,7 +578,7 @@ CREATE TABLE `gistic_to_gene`  (
 drop table IF EXISTS text_cache;
 CREATE TABLE `text_cache` (
   `HASH_KEY` varchar(32) NOT NULL,
-  `TEXT` text NOT NULL,
+  `TEXT` longtext NOT NULL,
   `DATE_TIME_STAMP` datetime NOT NULL,
   PRIMARY KEY (`HASH_KEY`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;

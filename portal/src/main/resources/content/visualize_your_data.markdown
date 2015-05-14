@@ -6,8 +6,7 @@ If you want to visualize your own data in cBioPortal, you have the following opt
 * [MutationMapper](mutation_mapper.jsp) draws mutation diagrams (lollipop plots) from your custom data.
 
 ## Download and install a local version of cBioPortal
-* Free for academic researchers. Please [contact us](mailto:cbioportal@cbio.mskcc.org?subject=Installing a local cBioPortal - academic use) for details.
-* For commercial use, please [contact us](mailto:cbioportal@cbio.mskcc.org?subject=Installing a local cBioPortal - commercial use) about license terms.
+* The source code of cBioPortal is available on [GitHub](https://github.com/cBioPortal/cbioportal) under the terms of Affero GPL V3. 
 
 Please note that, installing a local version requires system administration skills, for example, installing and configuring Tomcat and MySQL. With limit resources, we cannot provide technical support on system administration. 
 

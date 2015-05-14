@@ -17,6 +17,7 @@ body {
   max-width: 1300px;
   text-align: left;
   background: #FFFFFF;
+  padding: 5px;
 }
 
 #header_wrapper {
@@ -1142,18 +1143,64 @@ cursor: default;
 
 /* Step Header */
 .step_header {
-  font-size:14px;
+  font-size:15px;
   font-weight:bold;
   margin-right:5px;
-  color:#1974b8;
+  color:#2986e2;
 }
+#jstree_selected_study_count {
+    width: 140px;
+}
+/*.step_header_result {
+    font-size: 14px;
+    font-weight: bold;
+    font-style: italic;
+    color: black;
+}
+#select_cancer_type_section label {
+    margin: 0;
+}
+#select_cancer_type_section input[type=checkbox] { display:none; }  to hide the checkbox itself 
+#select_cancer_type_section input[type=checkbox] + label:before {
+  font-family: FontAwesome;
+  display: inline-block;
+  margin: 0 0 0 3px;
+}
+#select_cancer_type_section input[type=checkbox] + label:hover {
+  cursor: pointer;
+}
+#select_cancer_type_section input[type=checkbox] + label:before { content: "\f096"; letter-spacing: 5px;}  unchecked icon 
 
-/* Cancer Study Description */
-#cancer_study_desc p{
-    font-size: 11px !important;
-    margin-left: 25px;
-    margin-right: 20px;
-    color:black;
+#select_cancer_type_section input[type=checkbox]:checked + label:before { content: "\f046"; letter-spacing: 5px;}  checked icon */
+#select_cancer_type_section .step_header_search_result {
+    padding-top: 10px;
+}
+#step_header_first_line_empty_search{
+    position: absolute;
+    right: 40px;
+    top: 0;
+    bottom: 0;
+    height: 14px;
+    margin: auto;
+    font-size: 14px;
+    cursor: pointer;
+    color: #ccc;
+    display: none;
+    z-index: 999;
+}  
+.row.step_header_first_line, .row.step_header_bottom_line{
+    margin: 0;
+}
+.row.step_header_first_line>div, .row.step_header_bottom_line>div{
+    margin: 5px 10px 5px 0;
+    float: left;
+    font-weight: bold;
+}
+.row.step_header_first_line button{
+    margin: 0;
+}
+.row.step_header_first_line .dropdown-menu{
+    list-style-type: none !important;
 }
 
 /* Genomic Profiles Div */
@@ -1372,3 +1419,11 @@ ul.ui-autocomplete li.ui-menu-item { font-size: 0.6em; text-align: left; }
     max-width: 600px;
 }
 
+.fa-lg {
+   line-height: inherit !important;
+   vertical-align: top !important;
+}
+.fa-md {
+   line-height: inherit !important;
+   vertical-align: top !important;
+}

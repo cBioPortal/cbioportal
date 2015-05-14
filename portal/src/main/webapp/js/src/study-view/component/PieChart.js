@@ -695,7 +695,7 @@ var PieChart = function(){
         
         _svgElement = cbio.download.serializeHtml($("#" + _svgParentDivId + " svg>g")[0]);
         
-        var svg = "<svg width='"+_svgWidth+"' height='"+(180+_pieLabelYCoord)+"'>"+
+        var svg = "<svg xmlns='http://www.w3.org/2000/svg' version='1.1' width='"+_svgWidth+"' height='"+(180+_pieLabelYCoord)+"'>"+
                     "<g><text x='"+(_svgWidth/2)+"' y='20' style='font-weight: bold;"+
                     "text-anchor: middle'>"+
                     selectedAttrDisplay+"</text></g>"+

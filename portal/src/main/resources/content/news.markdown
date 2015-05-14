@@ -1,3 +1,8 @@
+# April 28, 2015
+* __New features__:
+    * Redesigned query interface to allow selecting multiple cancer studies
+    * Redesigned __Plots__ tab
+
 # January 20, 2015
 * All __TCGA data__ updated to the Firehose run of October 17, 2014
 * __COSMIC data__ updated to V71

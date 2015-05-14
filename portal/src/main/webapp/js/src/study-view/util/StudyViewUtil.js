@@ -288,6 +288,17 @@ var StudyViewUtil = (function(){
         }
     }
     
+    function restrictNumDigits(str) {
+        if(!isNaN(str)) {
+            var num = Number(str);
+            if(num % 1 !== 0) {
+                num = num.toFixed(2);
+                str = num.toString();
+            }
+        }
+        return str;
+    }
+    
     return{
         showHideDivision: showHideDivision,
         echoWarningMessg: echoWarningMessg,
@@ -301,6 +312,7 @@ var StudyViewUtil = (function(){
         changeTitle: changeTitle,
         addQtip: addQtip,
         addCytobandSorting: addCytobandSorting,
-        arrayDeDuplicate: arrayDeDuplicate
+        arrayDeDuplicate: arrayDeDuplicate,
+        restrictNumDigits: restrictNumDigits
     };
 })();

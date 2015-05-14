@@ -21,6 +21,10 @@ public class CancerStudyAlterationFrequencyService
 {
 	@Autowired
 	private CancerStudyAlterationFrequencyMapper mapper;
+	@Transactional
+	void insert(int cancerStudyId, long entrezGeneId, String freqType, float frequency, int numPatients) {
+		mapper.insert(cancerStudyId, entrezGeneId, freqType, frequency, numPatients);
+	}
   @Transactional
   public List<CancerStudyAlterationFrequency> get(List<Long> entrezGeneIds, List<Integer> internalStudyIds) {
 	  return mapper.get(entrezGeneIds, internalStudyIds);

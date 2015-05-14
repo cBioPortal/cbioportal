@@ -11,7 +11,7 @@
                 ENTREZ_GENE_ID as entrezGeneId,
                 ALTERATION_TYPE as alterationType,
                 FREQUENCY as alterationFrequency,
-                CASES as numCases
+                PATIENTS as numPatients
 	from alteration_frequency
         where ENTREZ_GENE_ID in
     <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
@@ -22,4 +22,9 @@
         #{item}
     </foreach>
 </select>
+
+<insert id="insert">
+    insert into alteration_frequency (CANCER_STUDY_ID, ENTREZ_GENE_ID, ALTERATION_TYPE, FREQUENCY, PATIENTS)
+    values (#{cancerStudyId}, #{entrezGeneId}, #{freqType}, #{frequency}, #{numPatients})
+</insert>
 </mapper>

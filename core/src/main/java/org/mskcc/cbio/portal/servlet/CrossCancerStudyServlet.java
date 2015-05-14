@@ -91,16 +91,28 @@ public class CrossCancerStudyServlet extends HttpServlet {
         xdebug.startTimer();
         try {
             String geneList = httpServletRequest.getParameter(QueryBuilder.GENE_LIST);
-	    String[] cancerStudyIdList = httpServletRequest.getParameter(QueryBuilder.CANCER_STUDY_LIST).split(" ");
+	    String[] cancerStudyIdList;
+	    String cancerStudyIdListString = httpServletRequest.getParameter(QueryBuilder.CANCER_STUDY_LIST);
 
 	        // we need the raw gene list
 	        if (httpServletRequest instanceof XssRequestWrapper)
 	        {
 		        geneList = ((XssRequestWrapper)httpServletRequest).getRawParameter(
 				        QueryBuilder.GENE_LIST);
-			cancerStudyIdList = ((XssRequestWrapper)httpServletRequest).getRawParameter(
-					QueryBuilder.CANCER_STUDY_LIST).split(" ");
+			cancerStudyIdListString = ((XssRequestWrapper)httpServletRequest).getRawParameter(
+					QueryBuilder.CANCER_STUDY_LIST);
 	        }
+		if (cancerStudyIdListString != null) {
+			cancerStudyIdList = cancerStudyIdListString.split(",");
+		} else {
+			List<CancerStudy> cancerStudies = accessControl.getCancerStudies();
+			cancerStudyIdList = new String[cancerStudies.size()];
+			int i = 0;
+			for (CancerStudy cs: cancerStudies) {
+				cancerStudyIdList[i] = cs.getCancerStudyStableId();
+				i += 1;
+			}
+		}
 
             ArrayList<CancerStudy> cancerStudyList = getCancerStudiesWithData(cancerStudyIdList);
 	    //ArrayList<CancerStudy> cancerStudyList = getCancerStudiesWithData();

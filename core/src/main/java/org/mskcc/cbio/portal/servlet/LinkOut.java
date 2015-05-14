@@ -43,6 +43,8 @@ import java.io.*;
 import java.util.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
+import org.mskcc.cbio.portal.util.AccessControl;
+import org.mskcc.cbio.portal.util.SpringUtil;
 
 /**
  * Central Servlet for Stable LinkOuts.
@@ -104,6 +106,20 @@ public class LinkOut extends HttpServlet {
     private void createCrossCancerForwardingUrl(ForwardingRequest forwardingRequest, String geneList) {
         forwardingRequest.setParameterValue(QueryBuilder.GENE_LIST , geneList);
         forwardingRequest.setParameterValue(QueryBuilder.ACTION_NAME, QueryBuilder.ACTION_SUBMIT);
+	if (forwardingRequest.getParameter(QueryBuilder.CANCER_STUDY_LIST) == null) {
+		AccessControl accessControl = SpringUtil.getAccessControl();
+		StringBuilder cancerStudyListBuilder = new StringBuilder();
+		try {
+			for (CancerStudy cs: accessControl.getCancerStudies()) {
+				cancerStudyListBuilder.append(",");
+				cancerStudyListBuilder.append(cs.getCancerStudyStableId());
+			}
+			forwardingRequest.setParameterValue(QueryBuilder.CANCER_STUDY_LIST, cancerStudyListBuilder.substring(1));
+			forwardingRequest.setParameterValue(QueryBuilder.CANCER_STUDY_ID, "all");
+		} catch (Exception e) {
+		}
+		
+	}
     }
     
     private void handleStudySpecificLink(LinkOutRequest linkOutRequest,

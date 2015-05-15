@@ -73,6 +73,13 @@ dataman = (function () {
 					return undefined;
 				}
 			},
+			mutation_type: function(datum) {
+				if (profileTypes[datum.internal_id] === 'MUTATION_EXTENDED') {
+					return datum.mutation_type;
+				} else {
+					return undefined;
+				}
+			},
 			cna: function(datum) {
 				if (profileTypes[datum.internal_id] === 'COPY_NUMBER_ALTERATION') {
 					return (datum.profile_data === '0' ? undefined : cnaType[datum.profile_data.toString()]);

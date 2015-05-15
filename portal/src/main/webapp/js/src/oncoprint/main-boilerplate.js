@@ -138,7 +138,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
     var sortStatus=[];
 //    var sortStatus={};
     var cases = window.PortalGlobals.getCases();
-    var genes = window.PortalGlobals.getGeneListString().split(" ");
+    var genes = oql.getGeneList($('#gene_list').val());//window.PortalGlobals.getGeneListString().split(" ");
 
     var outer_loader_img = $('#oncoprint #outer_loader_img');
     var inner_loader_img = $('#oncoprint #inner_loader_img');
@@ -166,105 +166,40 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         }
     };
     
-	var profileTypes = {};
+	var _stableProfileIds = window.PortalGlobals.getGeneticProfiles().split(" ");
+	var _hugoGeneSymbols = genes;
+	var _stableSampleIds = window.PortalGlobals.getCases().split(" ");
 	
-	var oncoprintDataPromise = (function () {
-		var _stableProfileIds = window.PortalGlobals.getGeneticProfiles().split(" ");
-		var _hugoGeneSymbols = genes;
-		var _stableSampleIds = window.PortalGlobals.getCases().split(" ");
+	dataman.getOncoprintData(_hugoGeneSymbols, _stableProfileIds, _stableSampleIds).then(function(data) {
+		oql.parseQuery($("#gene_list").val()).then(function(parsedQuery) {
+			oncoprintData = oql.filterOncoprint(parsedQuery.return,data);
+			oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
+			geneData: oncoprintData,
+			genes: genes,
+			legend: document.getElementById('oncoprint_legend')
+		    },extraTracks);
+		    outer_loader_img.hide();
+		    $('#oncoprint #everything').show();
 
-		var _profilesPromise = new $.Deferred();
-		var _genesPromise = new $.Deferred();
-		var _sampleIdsPromise = new $.Deferred();
-		var _oncoprintDataLoadedPromise = new $.Deferred();
+		    if($('#oncoprint_sortbyfirst_dropdonw span')[0].innerHTML === 'Sort by')
+		    {
+			oncoprint.sortBy("genes", cases.split(" "),mutationColorControl,mutationColorSort,sortStatus);
+		    }
+		    else
+		    {
+			selectsortby();
+		    }
 
-		var geneMap = {};
-		var sampleMap = {};
+		    $('.attribute_name').qtip({
+			content: {text: 'hold to drag '},
+			position: {my:'middle right', at:'middle left', viewport: $(window)},
+			style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+			show: {event: "mouseover"}
+		    });  
 
-		var _internalProfileIds;
-		var _entrezGeneIds;
-		var _internalSampleIds;
-
-		dataman.getProfilesByStableId(_stableProfileIds).then(function (data) {
-			$.each(data, function (ind, obj) {
-				profileTypes[obj.internal_id] = obj.genetic_alteration_type;
-			});
-			_internalProfileIds = data.map(function (x) {
-				return x.internal_id;
-			});
-			_profilesPromise.resolve();
-		});
-		dataman.getGenesByHugoGeneSymbol(_hugoGeneSymbols).then(function (data) {
-			$.each(data, function (ind, obj) {
-				geneMap[obj.entrezGeneId] = obj.hugoGeneSymbol;
-			});
-			_entrezGeneIds = data.map(function (x) {
-				return x.entrezGeneId;
-			});
-			_genesPromise.resolve();
-		});
-		dataman.getSamplesByStableIdStableStudyId(window.cancer_study_id_selected, _stableSampleIds).then(function (data) {
-			$.each(data, function(ind, obj) {
-				sampleMap[obj.internal_id] = obj.stable_id;
-			});
-			_internalSampleIds = data.map(function (x) {
-				return x.internal_id;
-			});
-			_sampleIdsPromise.resolve();
-		});
-		$.when(_profilesPromise, _genesPromise, _sampleIdsPromise).then(function () {
-			dataman.getProfileDataBySampleId(_entrezGeneIds, _internalProfileIds, _internalSampleIds).then(function (data) {
-				_oncoprintDataLoadedPromise.resolve(dataman.df.toOncoprintFormat(data, geneMap, sampleMap, profileTypes));
-			});
-		});
-		return _oncoprintDataLoadedPromise.promise();
-	})();
-		
-	oncoprintDataPromise.then(function(data) {
-		var defaultGeneSettings = [];
-		var uniqueProfileTypes = {};
-		$.each(Object.keys(profileTypes), function(ind, key) {
-			uniqueProfileTypes[profileTypes[key]] = true;
-		});
-		$.each(uniqueProfileTypes, function(key, val) {
-			if (key === "MUTATION_EXTENDED") {
-				defaultGeneSettings.push("MUT");
-			} else if (key === "COPY_NUMBER_ALTERATION") {
-				defaultGeneSettings.push("AMP");
-			} else if (key === "MRNA_EXPRESSION") {
-				defaultGeneSettings.push("EXP >= "+window.PortalGlobals.getZscoreThreshold()+" EXP <= -"+window.PortalGlobals.getZscoreThreshold());
-			} else if (key === "PROTEIN_ARRAY_PROTEIN_LEVEL") {
-				defaultGeneSettings.push("PROT >= "+window.PortalGlobals.getRppaScoreThreshold()+" PROT <= -"+window.PortalGlobals.getRppaScoreThreshold());
-			}
-		});
-		
-		oncoprintData = oql.filter(oql.parseQuery($("#gene_list").val(), defaultGeneSettings).return,data);
-		oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
-                geneData: oncoprintData,
-                genes: genes,
-                legend: document.getElementById('oncoprint_legend')
-            },extraTracks);
-            outer_loader_img.hide();
-            $('#oncoprint #everything').show();
-
-            if($('#oncoprint_sortbyfirst_dropdonw span')[0].innerHTML === 'Sort by')
-            {
-                oncoprint.sortBy("genes", cases.split(" "),mutationColorControl,mutationColorSort);
-            }
-            else
-            {
-                selectsortby();
-            }
-
-            $('.attribute_name').qtip({
-                content: {text: 'hold to drag '},
-                position: {my:'middle right', at:'middle left', viewport: $(window)},
-                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
-                show: {event: "mouseover"}
-            });  
-            
-            zoom = reset_zoom();
-            invokeDataManager(); 
+		    zoom = reset_zoom();
+		    invokeDataManager();
+	    });
 	});
     
     

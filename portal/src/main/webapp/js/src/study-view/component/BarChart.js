@@ -382,7 +382,7 @@ var BarChart = function(){
             _svgElement += cbio.download.serializeHtml(e);
         });
         
-        var svg = "<svg width='370' height='200'>"+
+        var svg = "<svg xmlns='http://www.w3.org/2000/svg' version='1.1' width='370' height='200'>"+
                     "<g><text x='180' y='20' style='font-weight: bold; "+
                     "text-anchor: middle'>"+
                     param.selectedAttrDisplay+"</text></g>"+

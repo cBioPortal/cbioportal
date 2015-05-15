@@ -210,7 +210,7 @@ var StudyViewSurvivalPlotView = (function() {
                 _svgWidth = 360,
                 _svgheight = 360;
 
-        _svgElement = $cbio.download.serializeHtml($("#" + _svgParentDivId + " svg")[0]);
+        _svgElement = cbio.download.serializeHtml($("#" + _svgParentDivId + " svg")[0]);
         _svgLabels = $("#" + opts[_plotKey].divs.bodyLabel + " svg");
 
         _svgLabels.find('image').remove();
@@ -239,7 +239,7 @@ var StudyViewSurvivalPlotView = (function() {
         _svgTitle = "<g><text text-anchor='middle' x='210' y='30' " +
                 "style='font-weight:bold'>" + _title + "</text></g>";
 
-        _svgElement = "<svg width='" + _svgWidth + "px' height='" + _svgheight + "px' style='font-size:14px'>" +
+        _svgElement = "<svg xmlns='http://www.w3.org/2000/svg' version='1.1' width='" + _svgWidth + "px' height='" + _svgheight + "px' style='font-size:14px'>" +
                 _svgTitle + "<g transform='translate(0,40)'>" +
                 _svgElement + "</g><g transform='translate(370,50)'>" +
                 _svgLabels + "</g></svg>";
@@ -810,7 +810,7 @@ var StudyViewSurvivalPlotView = (function() {
             show: {event: "mouseover", delay: 0},
             hide: {fixed:true, delay: 100, event: "mouseout"},
             position: {my:'left top',at:'top right', viewport: $(window)},
-            content: cbio.download.serializeHtml($("#" + opts[_plotKey].divs.bodyLabel)[0]),
+            content: $("#" + opts[_plotKey].divs.bodyLabel).html(),
             events: {
                 render: function(event, api) {
                     $('svg image', api.elements.tooltip).hover(function() {

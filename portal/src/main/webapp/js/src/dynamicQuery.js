@@ -96,9 +96,7 @@ $(document).ready(function(){
     });
 
     //  Set up an Event Handler to intercept form submission
-    $("#main_form").submit(function() {
-       return chooseAction();
-    });
+    $("#main_form").submit(chooseAction);
 
     //  Set up an Event Handler for the Query / Data Download Tabs
     $("#query_tab").click(function(event) {
@@ -305,7 +303,7 @@ function reviewCurrentSelections(){
 
 //  Determine whether to submit a cross-cancer query or
 //  a study-specific query
-function chooseAction() {
+function chooseAction(evt) {
     var haveExpInQuery = $("#gene_list").val().toUpperCase().search("EXP") > -1;
     $("#error_box").remove();
 
@@ -321,12 +319,15 @@ function chooseAction() {
             $("#main_form").get(0).setAttribute('action','index.do');
         }
         else {
-            $("#main_form").get(0).setAttribute('action','cross_cancer.do');    
-	    $("#main_form").get(0).setAttribute('method','post');
+		var dataPriority = $('#main_form').find('input[name=data_priority]:checked').val();
+		var newSearch = $('#main_form').serialize() + '&Action=Submit#crosscancer/overview/'+dataPriority+'/'+encodeURIComponent($('#gene_list').val())+'/'+encodeURIComponent(selected_studies.join(","));
+		evt.preventDefault();
+		window.location = window.location.origin + '/cross_cancer.do?' + newSearch;
+            //$("#main_form").get(0).setAttribute('action','cross_cancer.do');
         }
         if ( haveExpInQuery ) {
             createAnError("Expression filtering in the gene list is not supported when doing cross cancer queries.",  $('#gene_list'));
-            return false;
+            evt.preventDefault();
         }
     } else if (selected_studies.length === 1) {
 	$("#main_form").find("#select_single_study").val(selected_studies[0]);
@@ -338,14 +339,13 @@ function chooseAction() {
             if( expCheckBox.length > 0 && expCheckBox.prop('checked') == false) {
                     createAnError("Expression specified in the list of genes, but not selected in the" +
                                         " Genetic Profile Checkboxes.",  $('#gene_list'));
-                    return false;
+                    evt.preventDefault();
             } else if( expCheckBox.length == 0 ) {
                 createAnError("Expression specified in the list of genes, but not selected in the" +
                                     " Genetic Profile Checkboxes.",  $('#gene_list'));
-                return false;
+                evt.preventDefault();
             }
         }
-        return true;
     }
 }
 

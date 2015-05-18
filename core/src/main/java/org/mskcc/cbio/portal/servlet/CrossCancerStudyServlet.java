@@ -91,17 +91,18 @@ public class CrossCancerStudyServlet extends HttpServlet {
         xdebug.startTimer();
         try {
             String geneList = httpServletRequest.getParameter(QueryBuilder.GENE_LIST);
-	    String[] cancerStudyIdList;
-	    String cancerStudyIdListString = httpServletRequest.getParameter(QueryBuilder.CANCER_STUDY_LIST);
+	    /*String[] cancerStudyIdList;
+	    String cancerStudyIdListString = httpServletRequest.getParameter(QueryBuilder.CANCER_STUDY_LIST);*/
 
 	        // we need the raw gene list
 	        if (httpServletRequest instanceof XssRequestWrapper)
 	        {
 		        geneList = ((XssRequestWrapper)httpServletRequest).getRawParameter(
 				        QueryBuilder.GENE_LIST);
-			cancerStudyIdListString = ((XssRequestWrapper)httpServletRequest).getRawParameter(
-					QueryBuilder.CANCER_STUDY_LIST);
+			/*cancerStudyIdListString = ((XssRequestWrapper)httpServletRequest).getRawParameter(
+					QueryBuilder.CANCER_STUDY_LIST);*/
 	        }
+		/*
 		if (cancerStudyIdListString != null) {
 			cancerStudyIdList = cancerStudyIdListString.split(",");
 		} else {
@@ -116,16 +117,16 @@ public class CrossCancerStudyServlet extends HttpServlet {
 
             ArrayList<CancerStudy> cancerStudyList = getCancerStudiesWithData(cancerStudyIdList);
 	    //ArrayList<CancerStudy> cancerStudyList = getCancerStudiesWithData();
-
+*/
             if (httpServletRequest.getRequestURL() != null) {
                 httpServletRequest.setAttribute(QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING,
                         httpServletRequest.getRequestURL().toString());
             }
-
+	    
             httpServletRequest.setAttribute(QueryBuilder.CANCER_STUDY_ID,
                     AccessControl.ALL_CANCER_STUDIES_ID);
 	//	      AccessControl.MULTIPLE_CANCER_STUDIES_ID);
-            httpServletRequest.setAttribute(QueryBuilder.CANCER_TYPES_INTERNAL, cancerStudyList);
+	    /*httpServletRequest.setAttribute(QueryBuilder.CANCER_TYPES_INTERNAL, cancerStudyList);*/
             httpServletRequest.setAttribute(QueryBuilder.XDEBUG_OBJECT, xdebug);
 
             String action = httpServletRequest.getParameter(QueryBuilder.ACTION_NAME);
@@ -141,9 +142,9 @@ public class CrossCancerStudyServlet extends HttpServlet {
             dispatchToIndexJSP(httpServletRequest, httpServletResponse);
         } catch (DaoException e) {
             throw new ServletException(e);
-        } catch (ProtocolException e) {
+        }/* catch (ProtocolException e) {
             throw new ServletException(e);
-		}
+		}*/
     }
 
     private void dispatchToResultsJSP(HttpServletRequest httpServletRequest,
@@ -159,7 +160,7 @@ public class CrossCancerStudyServlet extends HttpServlet {
                 getServletContext().getRequestDispatcher("/WEB-INF/jsp/index.jsp");
         dispatcher.forward(httpServletRequest, httpServletResponse);
     }
-
+    /*
     private ArrayList<CancerStudy> getCancerStudiesWithData(String[] ids) throws DaoException, ProtocolException {
 	    HashMap<String, Boolean> studyMap = new HashMap<>();
 		for (String id : ids) {
@@ -185,5 +186,5 @@ public class CrossCancerStudyServlet extends HttpServlet {
         CategorizedGeneticProfileSet categorizedSet =
                 new CategorizedGeneticProfileSet(geneticProfileList);
         return categorizedSet.getNumDefaultMutationAndCopyNumberProfiles() > 0;
-    }
+    }*/
 }

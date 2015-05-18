@@ -180,11 +180,11 @@ var orTable = function() {
                     } 
                     //bold siginicant pvalue and qvalue
                     if (aData[col_index.p_val] === "<0.001" ||
-                        aData[col_index.p_val] < 0.005) { //significate p value
+                        aData[col_index.p_val] < orAnalysis.settings.p_val_threshold) { //significate p value
                         $('td:eq(' + col_index.p_val + ')', nRow).css("font-weight", "bold");
                     }
                     if (aData[col_index.q_val] === "<0.001" ||
-                        aData[col_index.q_val] < 0.005) { //significate q value
+                        aData[col_index.q_val] < orAnalysis.settings.p_val_threshold) { //significate q value
                         $('td:eq(' + col_index.q_val + ')', nRow).css("font-weight", "bold");
                     } 
                 } else if (profile_type === orAnalysis.profile_type.mrna) {
@@ -195,10 +195,10 @@ var orTable = function() {
                     if (_q_val.indexOf("up1") !== -1) _q_val = _q_val.replace("<img src=\"images/up1.png\"/>",  "");
                     if (_q_val.indexOf("down1") !== -1) _q_val = _q_val.replace("<img src=\"images/down1.png\"/>",  "");
                     
-                    if (_p_val === "<0.001" || _p_val < 0.005) {
+                    if (_p_val === "<0.001" || _p_val < orAnalysis.settings.p_val_threshold) {
                         $('td:eq(' + col_index.p_val + ')', nRow).css("font-weight", "bold");
                     }
-                    if (_q_val === "<0.001" || _q_val < 0.005) {
+                    if (_q_val === "<0.001" || _q_val < orAnalysis.settings.p_val_threshold) {
                         $('td:eq(' + col_index.q_val + ')', nRow).css("font-weight", "bold");
                     }
                 }
@@ -352,6 +352,7 @@ var orTable = function() {
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.p_val + "'>p-Value &nbsp;<img src='images/help.png' id='" + table_id + orAnalysis._title_ids.p_val + "'></th>";
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.q_val + "'>q-Value &nbsp;<img src='images/help.png' id='" + table_id + orAnalysis._title_ids.q_val + "'></th>";
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.direction + "'>Direction/Tendency &nbsp;<img src='images/help.png' id='" + table_id + orAnalysis._title_ids.direction + "'></th>";
+            _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.update_query + "'>Add to Query &nbsp;<img src='images/help.png' id='" + table_id + orAnalysis._title_ids.update_query + "'></th>";
             _title_str += "</tr><tr><th width='" + orAnalysis.col_width.altered_pct + "'>in altered group</th>";
             _title_str += "<th width='" + orAnalysis.col_width.unaltered_pct + "'>in unaltered group</th>";
 
@@ -364,6 +365,7 @@ var orTable = function() {
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.p_val + "'>p-Value &nbsp;<img src='images/help.png' id='" + table_id + orAnalysis._title_ids.p_val + "'></th>";
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.q_val + "'>q-Value &nbsp;<img src='images/help.png' id='" + table_id + orAnalysis._title_ids.q_val + "'></th>";
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.direction + "'>Direction/Tendency &nbsp;<img src='images/help.png' id='" + table_id + orAnalysis._title_ids.direction + "'></th>";
+            _title_str += "<th rowspan='2' widht='" + orAnalysis.col_width.update_query + "'>Add to Query;<img src='images/help.png' id='" + table_id + orAnalysis._title_ids.update_query + "'></th>";
             _title_str += "</tr><tr><th width='" + orAnalysis.col_width.altered_pct + "'>in altered group</th>";
             _title_str += "<th width='" + orAnalysis.col_width.unaltered_pct + "'>in unaltered group</th>";
             
@@ -375,6 +377,7 @@ var orTable = function() {
             _title_str += "<th colspan='2'>Standard deviation of alteration &nbsp;<img src='images/help.png' id='" + table_id + orAnalysis._title_ids.stdev_alt + "'></th>";
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.p_val + "'>p-Value &nbsp;<img src='images/help.png' id='" + table_id + orAnalysis._title_ids.p_val_t_test + "'></th>";
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.q_val + "'>q-Value &nbsp;<img src='images/help.png' id='" + table_id + orAnalysis._title_ids.q_val + "'></th>";
+            _title_str += "<th rowspan='2' widht='" + orAnalysis.col_width.update_query + "'>Add to Query;<img src='images/help.png' id='" + table_id + orAnalysis._title_ids.update_query + "'></th>";
             _title_str += "</tr><tr>";
             _title_str += "<th width='" + orAnalysis.col_width.altered_mean + "'>in altered group</th>";
             _title_str += "<th width='" + orAnalysis.col_width.unaltered_mean + "'>in unaltered group</th>";
@@ -432,7 +435,7 @@ var orSubTabView = function() {
         init: function(_div_id, _profile_list, _profile_type) {
             
             //append loading img
-            $("#" + _div_id).append("<div id='" + _div_id + "_loading_img'><img style='padding:20px;' src='images/ajax-loader.gif'><br>Calculating on " + _profile_type + "</div>");
+            $("#" + _div_id).append("<div id='" + _div_id + "_loading_img'><img style='padding:20px;' src='images/ajax-loader.gif'></div>");
 
             //split copy number profile into deep deletion and amplification 
             if (_profile_type === orAnalysis.profile_type.copy_num) {

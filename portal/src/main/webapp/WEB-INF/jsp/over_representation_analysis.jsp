@@ -57,7 +57,7 @@
         }
         $("#tabs").bind("tabsactivate", function(event, ui) {
             $(window).trigger("resize");
-            if (ui.newTab.text().trim().toLowerCase() === "over-representation analysis") {
+            if (ui.newTab.text().trim().toLowerCase() === "enrichments") {
                 $(window).trigger("resize");
                 if (or_tab_init === false) {
                     or_tab.init(caseListObj);

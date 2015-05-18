@@ -156,7 +156,7 @@
             }
 
             if (has_mrna || has_copy_no || showMutTab) {
-                out.println("<li><a href='#or_analysis' class='result-tab' title='Over Representation Analysis'>Over-representation Analysis</a></li>");
+                out.println("<li><a href='#or_analysis' class='result-tab' title='Enrichment/Differential/Over-representative Analysis'>Enrichments</a></li>");
             }
 
             if (has_rppa) {

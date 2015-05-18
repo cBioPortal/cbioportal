@@ -73,7 +73,8 @@ var orAnalysis = (function() {
             altered_mean: 100,
             unaltered_mean: 100,
             altered_stdev: 100,
-            unaltered_stdev: 100
+            unaltered_stdev: 100,
+            update_query: 30
         },
         col_index: {
             copy_num: {
@@ -117,7 +118,11 @@ var orAnalysis = (function() {
             direction: "direction_help",
             mean_alt: "mean_alt_help",
             stdev_alt: "stdev_alt_help",
-            p_val_t_test: "p_val_t_test_help"
+            p_val_t_test: "p_val_t_test_help",
+            update_query: "update_query_help"
+        },
+        settings: {
+            p_val_threshold: 0.05
         }
     };
     

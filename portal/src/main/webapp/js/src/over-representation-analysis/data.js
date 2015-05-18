@@ -33,7 +33,7 @@
 
 var orData = function() {
     
-    var data = [], retrieved = false;
+    var data = [], retrieved = false, table_id;
     
     function convert_data(_input, _profile_type) {
         
@@ -44,8 +44,8 @@ var orData = function() {
             var _unit = [];
             
             if (_profile_type === orAnalysis.profile_type.copy_num) {
-                
-                _unit[orAnalysis.col_index.copy_num.gene] = _obj["Gene"];
+
+                _unit[orAnalysis.col_index.copy_num.gene] = "<input type='checkbox' class='" + table_id + orAnalysis.postfix.datatable_gene_checkbox_class + "' value='" + _obj["Gene"] + "'>" + _obj["Gene"];
                 _unit[orAnalysis.col_index.copy_num.cytoband] = _obj["Cytoband"];
                 _unit[orAnalysis.col_index.copy_num.altered_pct] = (_obj["percentage of alteration in altered group"] * 100).toFixed(2) + "%";
                 _unit[orAnalysis.col_index.copy_num.unaltered_pct] = (_obj["percentage of alteration in unaltered group"] * 100).toFixed(2) + "%";
@@ -53,28 +53,29 @@ var orData = function() {
                 _unit[orAnalysis.col_index.copy_num.direction] = define_direction(_profile_type, _obj["p-Value"], _obj["q-Value"], _obj["Log Ratio"]);
                 _unit[orAnalysis.col_index.copy_num.p_val] = trim_p_val_copy_num(_obj["p-Value"]);
                 _unit[orAnalysis.col_index.copy_num.q_val] = trim_p_val_copy_num(_obj["q-Value"]);
-                
+
             } else if (_profile_type === orAnalysis.profile_type.mutations) {
-                
-                _unit[orAnalysis.col_index.mutations.gene] = _obj["Gene"];
-                _unit[orAnalysis.col_index.copy_num.cytoband] = _obj["Cytoband"];
+
+                _unit[orAnalysis.col_index.mutations.gene] = "<input type='checkbox' class='" + table_id + orAnalysis.postfix.datatable_gene_checkbox_class + "' value='" + _obj["Gene"] + "'>" + _obj["Gene"];
+                _unit[orAnalysis.col_index.mutations.cytoband] = _obj["Cytoband"];
                 _unit[orAnalysis.col_index.mutations.altered_pct] = (_obj["percentage of alteration in altered group"] * 100).toFixed(2) + "%";
                 _unit[orAnalysis.col_index.mutations.unaltered_pct] = (_obj["percentage of alteration in unaltered group"] * 100).toFixed(2) + "%";
                 _unit[orAnalysis.col_index.mutations.log_ratio] = (_obj["Log Ratio"] !== ">3" && _obj["Log Ratio"] !== "<-3")? parseFloat(_obj["Log Ratio"]).toFixed(2): _obj["Log Ratio"];
                 _unit[orAnalysis.col_index.mutations.direction] = define_direction(_profile_type, _obj["p-Value"], _obj["q-Value"], _obj["Log Ratio"]);
                 _unit[orAnalysis.col_index.mutations.p_val] = trim_p_val_mutations(_obj["p-Value"]);
-                _unit[orAnalysis.col_index.mutations.q_val] = trim_p_val_mutations(_obj["q-Value"]);;
+                _unit[orAnalysis.col_index.mutations.q_val] = trim_p_val_mutations(_obj["q-Value"]);
 
             } else if (_profile_type === orAnalysis.profile_type.mrna) {
-                
-                _unit[orAnalysis.col_index.mrna.gene] = _obj["Gene"];
-                _unit[orAnalysis.col_index.copy_num.cytoband] = _obj["Cytoband"];
+
+                _unit[orAnalysis.col_index.mrna.gene] = "<input type='checkbox' class='" + table_id + orAnalysis.postfix.datatable_gene_checkbox_class + "' value='" + _obj["Gene"] + "'>" + _obj["Gene"];
+                _unit[orAnalysis.col_index.mrna.cytoband] = _obj["Cytoband"];
                 _unit[orAnalysis.col_index.mrna.altered_mean] = parseFloat(_obj["mean of alteration in altered group"]).toFixed(2);
                 _unit[orAnalysis.col_index.mrna.unaltered_mean] = parseFloat(_obj["mean of alteration in unaltered group"]).toFixed(2);
                 _unit[orAnalysis.col_index.mrna.altered_stdev] = parseFloat(_obj["standard deviation of alteration in altered group"]).toFixed(2);
                 _unit[orAnalysis.col_index.mrna.unaltered_stdev] = parseFloat(_obj["standard deviation of alteration in unaltered group"]).toFixed(2);
                 _unit[orAnalysis.col_index.mrna.p_val] = trim_p_val_mrna(_obj["mean of alteration in altered group"], _obj["mean of alteration in unaltered group"], _obj["p-Value"]);
                 _unit[orAnalysis.col_index.mrna.q_val] = trim_p_val_mrna(_obj["mean of alteration in altered group"], _obj["mean of alteration in unaltered group"], _obj["q-Value"]);
+
             }
             
             table_arr.push(_unit);
@@ -152,7 +153,8 @@ var orData = function() {
     }
 
     return {
-        init: function(_param) {
+        init: function(_param, _table_id) {
+            table_id = _table_id;
             $.ajax({
                 url: "oranalysis.do",
                 method: "POST",

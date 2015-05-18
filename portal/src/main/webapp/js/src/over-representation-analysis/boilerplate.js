@@ -55,7 +55,9 @@ var orAnalysis = (function() {
         postfix: {
             datatable_class: "_datatable_class",
             datatable_div: "_datatable_div",
-            datatable_id: "_datatable_table"
+            datatable_id: "_datatable_table",
+            datatable_update_query_button: "_update_query_btn",
+            datatable_gene_checkbox_class: "_gene_checkbox_class"
         },
         profile_type: {
             mrna: "MRNA_EXPRESSION",
@@ -67,14 +69,14 @@ var orAnalysis = (function() {
             cytoband: 100,
             altered_pct: 120,
             unaltered_pct: 120,
-            log_ratio: 100,
-            p_val: 90,
-            q_val: 90,
+            log_ratio: 60,
+            p_val: 80,
+            q_val: 80,
             altered_mean: 100,
             unaltered_mean: 100,
             altered_stdev: 100,
             unaltered_stdev: 100,
-            update_query: 30
+            direction: 250
         },
         col_index: {
             copy_num: {

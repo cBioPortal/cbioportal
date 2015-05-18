@@ -206,8 +206,6 @@ var orTable = function() {
             "bDeferRender": true,
             "iDisplayLength": 17
         });
-        
-
 
     }
     
@@ -279,6 +277,13 @@ var orTable = function() {
     }
     
     function addHeaderQtips() {
+        $("#" + table_id + orAnalysis._title_ids.gene).qtip({
+            content: { text:"Select genes you are interested and click 'update query' button to query with the new genes."},
+            style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow qtip-ui-wide'},
+            show: {event: "mouseover"},
+            hide: {fixed:true, delay: 100, event: "mouseout"},
+            position: {my:'left bottom',at:'top right',viewport: $(window)}
+        });
         $("#" + table_id + orAnalysis._title_ids.pct).qtip({
             content: { text:"percentage of alteration in altered and unaltered sample groups"},
             style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow qtip-ui-wide'},
@@ -344,49 +349,83 @@ var orTable = function() {
         var _title_str = "";
         
         if (profile_type === orAnalysis.profile_type.copy_num) {
-            
-            _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.gene + "'>Gene</th>";
+
+            _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.gene + "'>Gene &nbsp;<img src='images/help.png' id='" + table_id + orAnalysis._title_ids.gene + "'></th>";
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.cytoband + "'>Cytoband</th>";
             _title_str += "<th colspan='2'>Percentage of alteration &nbsp;<img src='images/help.png' id='" + table_id + orAnalysis._title_ids.pct + "'></th>";
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.log_ratio + "'>Log Ratio &nbsp;<img src='images/help.png' id='" + table_id + orAnalysis._title_ids.log_ratio + "'></th>";
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.p_val + "'>p-Value &nbsp;<img src='images/help.png' id='" + table_id + orAnalysis._title_ids.p_val + "'></th>";
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.q_val + "'>q-Value &nbsp;<img src='images/help.png' id='" + table_id + orAnalysis._title_ids.q_val + "'></th>";
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.direction + "'>Direction/Tendency &nbsp;<img src='images/help.png' id='" + table_id + orAnalysis._title_ids.direction + "'></th>";
-            _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.update_query + "'>Add to Query &nbsp;<img src='images/help.png' id='" + table_id + orAnalysis._title_ids.update_query + "'></th>";
             _title_str += "</tr><tr><th width='" + orAnalysis.col_width.altered_pct + "'>in altered group</th>";
             _title_str += "<th width='" + orAnalysis.col_width.unaltered_pct + "'>in unaltered group</th>";
 
         } else if (profile_type === orAnalysis.profile_type.mutations) {
-                        
-            _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.gene + "'>Gene</th>";
+
+            _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.gene + "'>Gene &nbsp;<img src='images/help.png' id='" + table_id + orAnalysis._title_ids.gene + "'></th>";
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.cytoband + "'>Cytoband</th>";
             _title_str += "<th colspan='2'>Percentage of alteration &nbsp;<img src='images/help.png' id='" + table_id + orAnalysis._title_ids.pct + "'></th>";
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.log_ratio + "'>Log Ratio &nbsp;<img src='images/help.png' id='" + table_id + orAnalysis._title_ids.log_ratio + "'></th>";
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.p_val + "'>p-Value &nbsp;<img src='images/help.png' id='" + table_id + orAnalysis._title_ids.p_val + "'></th>";
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.q_val + "'>q-Value &nbsp;<img src='images/help.png' id='" + table_id + orAnalysis._title_ids.q_val + "'></th>";
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.direction + "'>Direction/Tendency &nbsp;<img src='images/help.png' id='" + table_id + orAnalysis._title_ids.direction + "'></th>";
-            _title_str += "<th rowspan='2' widht='" + orAnalysis.col_width.update_query + "'>Add to Query;<img src='images/help.png' id='" + table_id + orAnalysis._title_ids.update_query + "'></th>";
             _title_str += "</tr><tr><th width='" + orAnalysis.col_width.altered_pct + "'>in altered group</th>";
             _title_str += "<th width='" + orAnalysis.col_width.unaltered_pct + "'>in unaltered group</th>";
             
         } else if (profile_type === orAnalysis.profile_type.mrna) {
-            
-            _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.gene + "'>Gene</th>";
-            _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.cytoband + "'>Cytoband</th>";
+
+            _title_str += "<th rowspan='2' width='100'>Gene &nbsp;<img src='images/help.png' id='" + table_id + orAnalysis._title_ids.gene + "'></th>";
+            _title_str += "<th rowspan='2' width='100'>Cytoband</th>";
             _title_str += "<th colspan='2'>Mean of alteration &nbsp;<img src='images/help.png' id='" + table_id + orAnalysis._title_ids.mean_alt + "'></th>";
             _title_str += "<th colspan='2'>Standard deviation of alteration &nbsp;<img src='images/help.png' id='" + table_id + orAnalysis._title_ids.stdev_alt + "'></th>";
-            _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.p_val + "'>p-Value &nbsp;<img src='images/help.png' id='" + table_id + orAnalysis._title_ids.p_val_t_test + "'></th>";
-            _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.q_val + "'>q-Value &nbsp;<img src='images/help.png' id='" + table_id + orAnalysis._title_ids.q_val + "'></th>";
-            _title_str += "<th rowspan='2' widht='" + orAnalysis.col_width.update_query + "'>Add to Query;<img src='images/help.png' id='" + table_id + orAnalysis._title_ids.update_query + "'></th>";
+            _title_str += "<th rowspan='2' width='100'>p-Value &nbsp;<img src='images/help.png' id='" + table_id + orAnalysis._title_ids.p_val_t_test + "'></th>";
+            _title_str += "<th rowspan='2' width='100'>q-Value &nbsp;<img src='images/help.png' id='" + table_id + orAnalysis._title_ids.q_val + "'></th>";
             _title_str += "</tr><tr>";
-            _title_str += "<th width='" + orAnalysis.col_width.altered_mean + "'>in altered group</th>";
-            _title_str += "<th width='" + orAnalysis.col_width.unaltered_mean + "'>in unaltered group</th>";
-            _title_str += "<th width='" + orAnalysis.col_width.altered_stdev + "'>in altered group</th>";
-            _title_str += "<th width='" + orAnalysis.col_width.unaltered_stdev + "'>in unaltered group</th>";
+            _title_str += "<th width='100'>in altered group</th>";
+            _title_str += "<th width='100'>in unaltered group</th>";
+            _title_str += "<th width='100'>in altered group</th>";
+            _title_str += "<th width='100'>in unaltered group</th>";
         
         }
 
         return _title_str;
+    }
+
+    function activateUpdateQueryBtns(btn_id) {
+
+        //attach event listener to checkboxes
+        $("." + table_id + orAnalysis.postfix.datatable_gene_checkbox_class).click(function() {
+                var _selected_genes = [];
+                $("#" + div_id + " ." + table_id + orAnalysis.postfix.datatable_gene_checkbox_class + ":checked").each(function(){
+                    _selected_genes.push($(this).attr("value"));
+                });
+                if (_selected_genes.length !== 0) {
+                    document.getElementById(btn_id).disabled = false;
+                }
+            }
+        );
+
+
+        var _arr_selected_genes = [];
+        $("#" + btn_id).click(function() {
+
+            _arr_selected_genes = [];
+            $("#" + div_id + " ." + table_id + orAnalysis.postfix.datatable_gene_checkbox_class + ":checked").each(function(){
+                _arr_selected_genes.push($(this).attr("value"));
+            });
+
+            var _start_pos_gene_list = document.URL.indexOf("gene_list=");
+            var _end_pos_gene_list = document.URL.indexOf("&", _start_pos_gene_list);
+            var _gene_str = document.URL.substring(_start_pos_gene_list + 10, _end_pos_gene_list);
+
+            var _original_url = document.URL;
+            var _new_url = _original_url.replace(_gene_str, _gene_str + "+" + _arr_selected_genes.join("+"));
+
+            if (_arr_selected_genes.length !== 0) {
+                window.location.replace(_new_url);
+            }
+
+        });
     }
     
     return {
@@ -414,11 +453,16 @@ var orTable = function() {
                 titles = define_titles();
 
                 $("#" + _table_div).empty();
-                $("#" + _table_div).append("<span style='font-weight:bold;'>" + _table_title + "</span>");
+                $("#" + _table_div).append("<span style='font-weight:bold;'>" + _table_title +
+                      "</span>&nbsp;&nbsp;&nbsp;&nbsp;<button type='button' id='" + table_id +
+                      orAnalysis.postfix.datatable_update_query_button + "'>Update Query</button>");
+                document.getElementById(table_id + orAnalysis.postfix.datatable_update_query_button).disabled = true;
+
                 $("#" + _table_div).append("<table id='" + table_id + "' cellpadding='0' cellspacing='0' border='0' class='" + table_id + "_datatable_class'></table>"); 
                 configTable();
                 attachFitlers();
                 addHeaderQtips();
+                activateUpdateQueryBtns(table_id + orAnalysis.postfix.datatable_update_query_button);
                 
             } else {
                 $("#" + _table_div).remove();
@@ -465,7 +509,7 @@ var orSubTabView = function() {
                     //init and get calculation result from the server
                     var param = new orAjaxParam(or_tab.getAlteredCaseList(), or_tab.getUnalteredCaseList(), _profile_obj.STABLE_ID);
                     var or_data = new orData();
-                    or_data.init(param);
+                    or_data.init(param, _table_id);
                     var or_table = new orTable();
                     or_data.get(or_table.init, _div_id, _table_div, _table_id, _profile_obj.NAME, _profile_type);
                     

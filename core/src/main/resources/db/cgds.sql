@@ -166,6 +166,35 @@ CREATE TABLE `patient_list_list` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `gene_panel`
+--
+drop table IF EXISTS gene_panel;
+CREATE TABLE `gene_panel` (
+  `LIST_ID` int(11) NOT NULL auto_increment,
+  `STABLE_ID` varchar(255) NOT NULL,
+  `CANCER_STUDY_IDENTIFIER` varchar(255) NOT NULL,
+  `DESCRIPTION` mediumtext,
+  PRIMARY KEY  (`LIST_ID`),
+  UNIQUE (`STABLE_ID`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `gene_panel_list`
+--
+drop table IF EXISTS gene_panel_list;
+CREATE TABLE `gene_panle_list` (
+  `LIST_ID` int(11) NOT NULL,
+  `GENE_ID` int(11) NOT NULL,
+  PRIMARY KEY  (`LIST_ID`,`GENE_ID`),
+  FOREIGN KEY (`LIST_ID`) REFERENCES `gene_panel` (`LIST_ID`) ON DELETE CASCADE,
+  FOREIGN KEY (`GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`) ON DELETE CASCADE
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `gene`
 --
 drop table IF EXISTS gene;

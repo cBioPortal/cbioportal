@@ -220,27 +220,26 @@ public class PfamSequenceServlet extends HttpServlet
 		String longest = "";
 		int max = -1;
 
-		try
-		{
-			for (String accession : uniProtAccs)
-			{
-				UniprotProxySequenceReader<AminoAcidCompound> uniprotSequence
-					= new UniprotProxySequenceReader<AminoAcidCompound>(
-						accession,
-						AminoAcidCompoundSet.getAminoAcidCompoundSet());
+		if (uniProtAccs.size() == 1) {
+			return uniProtAccs.get(0);
+		} else {
+			try {
+				for (String accession : uniProtAccs) {
+					UniprotProxySequenceReader<AminoAcidCompound> uniprotSequence
+							= new UniprotProxySequenceReader<AminoAcidCompound>(
+							accession,
+							AminoAcidCompoundSet.getAminoAcidCompoundSet());
 
-				if (uniprotSequence.getLength() > max)
-				{
-					max = uniprotSequence.getLength();
-					longest = accession;
+					if (uniprotSequence.getLength() > max) {
+						max = uniprotSequence.getLength();
+						longest = accession;
+					}
 				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				return null;
 			}
+			return longest;
 		}
-		catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-
-		return longest;
 	}
 }

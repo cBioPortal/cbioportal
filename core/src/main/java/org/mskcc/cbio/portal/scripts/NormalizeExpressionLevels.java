@@ -90,7 +90,7 @@ public class NormalizeExpressionLevels{
 
    public static final String TCGA_NORMAL_SUFFIX = "-11";
 
-   static HashMap<Long, ArrayList<String[]>> geneCopyNumberStatus;
+   static HashMap<Long, ArrayList<String[]>> geneCopyNumberStatus = null;
    static int SAMPLES;
    static String zScoresFile;
    static String normalSampleSuffix;
@@ -132,7 +132,9 @@ public class NormalizeExpressionLevels{
 			}
 		}
       
-		geneCopyNumberStatus = readCopyNumberFile(copyNumberFile);
+                if (copyNumberFile!=null) {
+                    geneCopyNumberStatus = readCopyNumberFile(copyNumberFile);
+                }
 		computeZScoreXP(expressionFile); 
 	}
    
@@ -175,11 +177,15 @@ public class NormalizeExpressionLevels{
             samples[i] = truncatedSampleName(values[i]);
          }
          
-         ArrayList<String> outputLine = new ArrayList<String>(); 
+         List<String> outputLine = new ArrayList<String>(); 
 
          // header contains only ids of tumor samples
-         outputLine.add("Hugo_Symbol");
-         outputLine.add("Entrez_Gene_Id");
+         if (firstSamplePosition==1) {
+             outputLine.add(values[0]);
+         } else {
+            outputLine.add("Hugo_Symbol");
+            outputLine.add("Entrez_Gene_Id");
+         }
          for(int i=firstSamplePosition;i<samples.length;i++)
             if(!normalSamples.contains(samples[i]))
                // use values array for sample id - if tcga, we want the full barcode (as passed into utility)
@@ -205,6 +211,7 @@ public class NormalizeExpressionLevels{
          
          // process expression file
          while((line = in.readLine())!=null){
+            outputLine.clear();
             
             values = line.split("\t");
                     
@@ -214,59 +221,70 @@ public class NormalizeExpressionLevels{
             } else {
                 gene = daoGeneOptimized.getNonAmbiguousGene(values[0]);
             }
-
-            if (gene==null) {
+            
+            if (gene==null && geneCopyNumberStatus!=null) {
                 continue;
             }
             
             // ignore gene's data if its copy number status is unknown
-            if(geneCopyNumberStatus.containsKey(gene.getEntrezGeneId())){
-               genesFound++;
+            if(geneCopyNumberStatus==null || geneCopyNumberStatus.containsKey(gene.getEntrezGeneId())){
+                genesFound++;
 
-               ArrayList<String[]> tumorSampleExpressions = new ArrayList<String[]>();
-               for(int i=firstSamplePosition;i<values.length;i++){
-                  if(!normalSamples.contains(samples[i])){
-                     String[] p = new String[2];
-                     p[0] = samples[i];
-                     p[1] = values[i];
-                     tumorSampleExpressions.add(p);
-                  }
-               }
-               
-               ArrayList<String[]> cnStatus = geneCopyNumberStatus.get(gene.getEntrezGeneId());
-               double[] zscores = getZscore( gene.getEntrezGeneId(), tumorSampleExpressions, cnStatus );
-               
-               if(zscores != null){
-                  rowsWithSomeDiploidCases++;
-                  
-                  outputLine.clear();
-                  outputLine.add(gene.getHugoGeneSymbolAllCaps());
-                  outputLine.add(Long.toString(gene.getEntrezGeneId()));
+                ArrayList<String[]> tumorSampleExpressions = new ArrayList<String[]>();
+                for(int i=firstSamplePosition;i<values.length;i++){
+                   if(!normalSamples.contains(samples[i])){
+                      String[] p = new String[2];
+                      p[0] = samples[i];
+                      p[1] = values[i];
+                      tumorSampleExpressions.add(p);
+                   }
+                }
 
-                  for(int k =0;k<zscores.length;k++)
+                ArrayList<String[]> cnStatus = geneCopyNumberStatus==null ? null : geneCopyNumberStatus.get(gene.getEntrezGeneId());
+                double[] zscores = getZscore( tumorSampleExpressions, cnStatus );
 
-                     // Double.NaN indicates an invalid expression value
-                     if(zscores[k] != Double.NaN){
-                        // limit precision
-                        outputLine.add( String.format( "%.4f", zscores[k] ) );
-                     }else{
-                        outputLine.add( NOT_AVAILABLE );
-                     }
-                  out.println( join( outputLine, "\t") );
-                  genesWithValidScores++;
-               }else{
-                  outputLine.clear();
-                  outputLine.add(gene.getHugoGeneSymbolAllCaps());
-                  outputLine.add(Long.toString(gene.getEntrezGeneId()));
-                  for(int k =0;k<SAMPLES;k++)
-                     outputLine.add( NOT_AVAILABLE );
-                  out.println( join( outputLine, "\t") );
-               }
-               genes++;
+                if(zscores != null){
+                   rowsWithSomeDiploidCases++;
+
+                   if (firstSamplePosition==1) {
+                        outputLine.add(values[0]);
+                    } else {
+                        outputLine.add(gene.getHugoGeneSymbolAllCaps());
+                        outputLine.add(Long.toString(gene.getEntrezGeneId()));
+                    }
+
+                   for(int k =0;k<zscores.length;k++)
+
+                      // Double.NaN indicates an invalid expression value
+                      if(zscores[k] != Double.NaN){
+                         // limit precision
+                         outputLine.add( String.format( "%.4f", zscores[k] ) );
+                      }else{
+                         outputLine.add( NOT_AVAILABLE );
+                      }
+                   out.println( join( outputLine, "\t") );
+                   genesWithValidScores++;
+                }else{
+                    outputLine.clear();
+
+                    if (firstSamplePosition==1) {
+                        outputLine.add(values[0]);
+                    } else {
+                        outputLine.add(gene.getHugoGeneSymbolAllCaps());
+                        outputLine.add(Long.toString(gene.getEntrezGeneId()));
+                    }
+                    for(int k =0;k<SAMPLES;k++)
+                       outputLine.add( NOT_AVAILABLE );
+                    out.println( join( outputLine, "\t") );
+                }
+                genes++;
             }else{
-               outputLine.clear();
-               outputLine.add(gene.getHugoGeneSymbolAllCaps());
-               outputLine.add(Long.toString(gene.getEntrezGeneId()));
+               if (firstSamplePosition==1) {
+                    outputLine.add(values[0]);
+                } else {
+                    outputLine.add(gene.getHugoGeneSymbolAllCaps());
+                    outputLine.add(Long.toString(gene.getEntrezGeneId()));
+                }
                for(int k =0;k<SAMPLES;k++)
                   outputLine.add( NOT_AVAILABLE );
                out.println( join( outputLine, "\t") );
@@ -295,7 +313,8 @@ public class NormalizeExpressionLevels{
                      && !values[i].equalsIgnoreCase("LOCUS ID")
                      && !values[i].equalsIgnoreCase("CYTOBAND")
                      && !values[i].equalsIgnoreCase("LOCUS")
-                     && !values[i].equalsIgnoreCase("ID")) {
+                     && !values[i].equalsIgnoreCase("ID")
+                     && !values[i].equalsIgnoreCase("Composite.Element.REF")) {
                  return i;
              }
          }
@@ -313,16 +332,18 @@ public class NormalizeExpressionLevels{
     * @param cn  ArrayList< [sampleID, copyNumber] >
     * @return array of z-Scores for the expression data; null if there were no diploid values
     */
-   private static double[] getZscore(long id, ArrayList<String[]> xp, ArrayList<String[]> cn){
+   private static double[] getZscore( ArrayList<String[]> xp, ArrayList<String[]> cn){
       double[] z = null;
       double[] diploid = new double[SAMPLES];
       HashSet<String> diploidSamples = new HashSet<String>();
       String DiploidSample = "0"; // CN value of 0 indicates diploid
       
-      for(int i=0;i<cn.size();i++){
-         
-         if(cn.get(i)[1].equals( DiploidSample ))  
-            diploidSamples.add(cn.get(i)[0]);  // entry [0] is the sampleID; TODO: put in a named record (class)
+      if (cn!=null) {
+        for(int i=0;i<cn.size();i++){
+
+           if(cn.get(i)[1].equals( DiploidSample ))  
+              diploidSamples.add(cn.get(i)[0]);  // entry [0] is the sampleID; TODO: put in a named record (class)
+        }
       }
       
       int xPos = 0;
@@ -331,7 +352,7 @@ public class NormalizeExpressionLevels{
       // for each expression measurement
       for(int i=0;i<xp.size();i++){
          // if the sample is diploid
-         if(diploidSamples.contains(xp.get(i)[0])){
+         if(cn==null || diploidSamples.contains(xp.get(i)[0])){
             count++;
             // and the expression value is not NA or NaN or null
             if(xp.get(i)[1].compareTo("NA")!=0 && xp.get(i)[1].compareTo("NaN")!=0 
@@ -340,7 +361,7 @@ public class NormalizeExpressionLevels{
                try {
                   diploid[xPos++] = Double.parseDouble(xp.get(i)[1]);
                } catch (NumberFormatException e) {
-                  fatalError( "expression value '" + xp.get(i)[1] + "' for gene " + id + " in sample " +  xp.get(i)[0] + " is not a floating point number." );
+                  fatalError( "expression value '" + xp.get(i)[1] + "' of line " + i + " in sample " +  xp.get(i)[0] + " is not a floating point number." );
                }
             }
          }
@@ -360,13 +381,13 @@ public class NormalizeExpressionLevels{
          // do not compute z-Score if std == 0
          // TODO: use some minimum threshold for std
          if( 0.0d < std ){
-            z = getZ(id, xp, avg, std);
+            z = getZ(xp, avg, std);
          }
       }
       return z;
    }
    
-   public static double[] getZ(long id, ArrayList<String[]> xp, double avg, double std){
+   public static double[] getZ(ArrayList<String[]> xp, double avg, double std){
       double[]z = new double[xp.size()];
       
       if( 0.0d == std){
@@ -383,7 +404,7 @@ public class NormalizeExpressionLevels{
                   s = s/std;
                   z[i] = s;
                } catch (NumberFormatException e) {
-                  fatalError( "expression value '" + xp.get(i)[1] + "' for gene " + id + " in sample " +  xp.get(i)[0] + " is not a floating point number." );
+                  fatalError( "expression value '" + xp.get(i)[1] + " in sample " +  xp.get(i)[0] + " is not a floating point number." );
                }
             }
          else

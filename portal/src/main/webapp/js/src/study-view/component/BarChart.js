@@ -156,11 +156,17 @@ var BarChart = function(){
             hide: {fixed:true, delay: 100, event: "mouseout "},
             position: {my:'top center',at:'bottom center', viewport: $(window)},
             content: {
-                text:   "<div style='display:inline-block;float:left;margin: 0 2px'>"+
-                        "<button  id='"+DIV.chartDiv+"-pdf'>PDF</button>"+          
+                text:
+                        "<div style='display:inline-block;'>"+
+                        "<button id='"+DIV.chartDiv+"-pdf' style=\"width:50px\">PDF</button>"+
                         "</div>"+
-                        "<div style='display:inline-block;float:left;margin: 0 2px'>"+
-                        "<button  id='"+DIV.chartDiv+"-svg'>SVG</button>"+
+                        "<br>"+
+                        "<div style='display:inline-block;'>"+
+                        "<button id='"+DIV.chartDiv+"-svg' style=\"width:50px\">SVG</button>"+
+                        "</div>"+
+                        "<br>"+
+                        "<div style='display:inline-block;'>"+
+                        "<button id='"+DIV.chartDiv+"-tsv' style=\"width:50px\">DATA</button>"+
                         "</div>"
             },
             events: {
@@ -181,6 +187,27 @@ var BarChart = function(){
                             DIV.chartDiv+"-svg-value", {
                                 filename: StudyViewParams.params.studyId + "_" +param.selectedAttr+".svg",
                             });
+                    });
+                    $("#"+DIV.chartDiv+"-tsv").click(function(){
+                        var content = '';
+                        var _cases = barChart.dimension().top(Infinity);
+                        
+                        content = content + 'Sample ID' + '\t';
+                        content = content + param.selectedAttrDisplay;
+                        
+                        for(var i = 0; i < _cases.length; i++){
+                            content += '\r\n';
+                            content += _cases[i].CASE_ID + '\t';
+                            content += StudyViewUtil.restrictNumDigits(_cases[i][param.selectedAttr]);
+                        }
+                        
+                        var downloadOpts = {
+                            filename: cancerStudyName + "_" + param.selectedAttrDisplay + ".txt",
+                            contentType: "text/plain;charset=utf-8",
+                            preProcess: false
+                        };
+
+                        cbio.download.initDownload(content, downloadOpts);
                     });
                 }
             }
@@ -309,12 +336,16 @@ var BarChart = function(){
     //brush and deselected bar, this function is designed to change the svg
     //style, save svg and delete added style.
     function setSVGElementValue(_svgParentDivId,_idNeedToSetValue, downloadOptions){
-        var _svgElement;
+        var _svgElement = '';
         
         var _svg = $("#" + _svgParentDivId + " svg");
         //Change brush style
         var _brush = _svg.find("g.brush"),
             _brushWidth = Number(_brush.find('rect.extent').attr('width'));
+        
+        if(_brushWidth === 0){
+            _brush.css('display', 'none');
+        }
         
         _brush.find('rect.extent')
                 .css({
@@ -371,15 +402,14 @@ var BarChart = function(){
             });
         }
         
-        _svgElement = _svg.html();
+        $("#" + _svgParentDivId + " svg>g").each(function(i, e){
+            _svgElement += cbio.download.serializeHtml(e);
+        });
+        $("#" + _svgParentDivId + " svg>defs").each(function(i, e){
+            _svgElement += cbio.download.serializeHtml(e);
+        });
         
-        //Remove brush if brush width is 0, svg file will remove brush
-        //automatically, but the pdf file will not
-        if(_brushWidth === 0){
-            _svgElement = parseSVG(_svg.html());
-        }
-        
-        var svg = "<svg width='370' height='200'>"+
+        var svg = "<svg xmlns='http://www.w3.org/2000/svg' version='1.1' width='370' height='200'>"+
                     "<g><text x='180' y='20' style='font-weight: bold; "+
                     "text-anchor: middle'>"+
                     param.selectedAttrDisplay+"</text></g>"+
@@ -387,6 +417,9 @@ var BarChart = function(){
         
         cbio.download.initDownload(
             svg, downloadOptions);
+        
+        
+        _brush.css('display', '');
             
         //Remove added styles
         _brush.find('rect.extent')
@@ -440,7 +473,6 @@ var BarChart = function(){
             var _tmpElem = _div.firstChild
                                 .firstChild
                                 .getElementsByClassName('brush')[0];
-            
             if(typeof _tmpElem !== 'undefined'){
                 _tmpElem.parentNode.removeChild(_tmpElem);
             }

@@ -37,6 +37,35 @@
 		</configuration>
 	  </plugin>
 
+		<plugin>
+	       <groupId>org.apache.maven.plugins</groupId>
+	       <artifactId>maven-shade-plugin</artifactId>
+	       <version>2.3</version>
+	       <executions>
+	           <execution>
+	               <phase>package</phase>
+	               <goals>
+	                   <goal>shade</goal>
+	               </goals>
+	               <configuration>
+							<artifactSet>
+	            		<excludes>
+	              			<exclude>org.bouncycastle:bcprov-jdk15</exclude>
+	            		</excludes>
+	          			</artifactSet>
+	                   <transformers>
+	                       <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+	                           <resource>META-INF/spring.handlers</resource>
+	                       </transformer>
+	                       <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+	                           <resource>META-INF/spring.schemas</resource>
+	                       </transformer>
+	                   </transformers>
+	               </configuration>
+	           </execution>
+	       </executions>
+	   </plugin>
+
 	  <!-- this plugin lets us grab shared resources from our parent -->
 	  <plugin>
 		<groupId>org.apache.maven.plugins</groupId>
@@ -73,7 +102,6 @@
 	<!-- properties file used for filter our context file in resources -->
 	<filters>
 	  <filter>${PORTAL_HOME}/src/main/resources/portal.properties</filter> 
-	  <filter>${PORTAL_HOME}/src/main/resources/importer.properties</filter> 
 	</filters>
 
 	<!-- prevent some resources from getting into package -->

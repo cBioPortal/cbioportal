@@ -37,6 +37,9 @@ import org.mskcc.cbio.portal.model.ExtendedMutation;
 import org.mskcc.cbio.maf.MafRecord;
 import org.mskcc.cbio.maf.TabDelimitedFileUtil;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * Utility class related to ExtendedMutation.
  */
@@ -73,46 +76,38 @@ public class ExtendedMutationUtil
 	}
 
 	/**
-	 * Determines the most accurate amino acid change value for the given mutation.
+	 * Determines the most accurate protein change value for the given mutation.
 	 *
-	 * If there is an Oncotator value, returns that value.
-	 * If no Oncotator value, then tries Mutation Assessor value.
-	 * If no MA value either, then tries the amino_acid_change column
-	 * If none of the above is valid then returns "MUTATED"
+	 * If there is an annotator value, returns that value.
+	 * If no annotator value, then tries Amino Acid Change value.
+	 * If none of the above is valid then returns "MUTATED".
 	 *
 	 * @param parts     current mutation as split parts of the line
 	 * @param record    MAF record for the current line
-	 * @return          most accurate amino acid change
+	 * @return          most accurate protein change
 	 */
 	public static String getProteinChange(String[] parts, MafRecord record)
 	{
-		// Note: MA may sometimes use a different isoform than Oncotator.
+		// try annotator value first
+		//String proteinChange = record.getOncotatorProteinChange();
+		String proteinChange = record.getProteinChange();
 
-		// try oncotator value first
-		String aminoAcidChange = record.getOncotatorProteinChange();
-
-		// if no oncotator value, try mutation assessor value
-		if (!isValidProteinChange(aminoAcidChange))
+		// if protein change is not valid, try amino acid change value
+		if (!isValidProteinChange(proteinChange))
 		{
-			aminoAcidChange = record.getMaProteinChange();
-		}
-
-		// if no MA value either, then try amino_acid_change column
-		if (!isValidProteinChange(aminoAcidChange))
-		{
-			aminoAcidChange = record.getMannualAminoAcidChange();
+			proteinChange = record.getAminoAcidChange();
 		}
 
 		// if none is valid, then use the string "MUTATED"
-		if (!isValidProteinChange(aminoAcidChange))
+		if (!isValidProteinChange(proteinChange))
 		{
-			aminoAcidChange = "MUTATED";
+			proteinChange = "MUTATED";
 		}
 
 		// also remove the starting "p." string if any
-		aminoAcidChange = normalizeProteinChange(aminoAcidChange);
+		proteinChange = normalizeProteinChange(proteinChange);
 
-		return aminoAcidChange;
+		return proteinChange;
 	}
 
 	/**
@@ -133,6 +128,46 @@ public class ExtendedMutationUtil
 		}
 
 		return aminoAcidChange;
+	}
+
+	public static int getProteinPosStart(String proteinPosition, String proteinChange)
+	{
+		// parts[0] is the protein start-end positions, parts[1] is the length
+		String[] parts = proteinPosition.split("/");
+
+		int position = TabDelimitedFileUtil.getPartInt(0, parts[0].split("-"));
+
+		// there is a case where the protein change is "-"
+		if (position == TabDelimitedFileUtil.NA_INT)
+		{
+			// try to extract it from protein change value
+			Pattern p = Pattern.compile(".*[A-Z]([0-9]+)[^0-9]+");
+			Matcher m = p.matcher(proteinChange);
+
+			if (m.find())
+			{
+				position = Integer.parseInt(m.group(1));
+			}
+		}
+
+		return position;
+	}
+
+	public static int getProteinPosEnd(String proteinPosition, String proteinChange)
+	{
+		// parts[0] is the protein start-end positions, parts[1] is the length
+		String[] parts = proteinPosition.split("/");
+
+		int end = TabDelimitedFileUtil.getPartInt(1, parts[0].split("-"));
+
+		// if no end position is provided,
+		// then use start position as end position
+		if (end == -1)
+		{
+			end = getProteinPosStart(proteinPosition, proteinChange);
+		}
+
+		return end;
 	}
 
 	public static boolean isValidProteinChange(String proteinChange)

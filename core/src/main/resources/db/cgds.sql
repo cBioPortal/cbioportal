@@ -356,6 +356,7 @@ CREATE TABLE `mutation` (
   `TUMOR_REF_COUNT` int(11),
   `NORMAL_ALT_COUNT` int(11),
   `NORMAL_REF_COUNT` int(11),
+  `AMINO_ACID_CHANGE` varchar(255),
   KEY (`GENETIC_PROFILE_ID`,`ENTREZ_GENE_ID`),
   KEY (`GENETIC_PROFILE_ID`,`SAMPLE_ID`),
   KEY (`GENETIC_PROFILE_ID`),
@@ -578,7 +579,7 @@ CREATE TABLE `gistic_to_gene`  (
 drop table IF EXISTS text_cache;
 CREATE TABLE `text_cache` (
   `HASH_KEY` varchar(32) NOT NULL,
-  `TEXT` text NOT NULL,
+  `TEXT` longtext NOT NULL,
   `DATE_TIME_STAMP` datetime NOT NULL,
   PRIMARY KEY (`HASH_KEY`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;

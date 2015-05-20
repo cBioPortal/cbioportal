@@ -51,6 +51,7 @@
         var histBottom = 400;
         var fontFamily = "sans-serif";
         var animationDuration = 1000;
+	var maxStudyBarWidth = 30;
 
         var defaultQTipOptions = {
             content: {
@@ -131,10 +132,12 @@
 
                 var genes = this.model.genes;
                 var orgQuery = this.model.genes;
+		var study_list = this.model.study_list;
 
                 var studies = new Studies({
                     gene_list: genes,
-                    data_priority: priority
+                    data_priority: priority,
+		    study_list: study_list
                 });
 
                 studies.fetch({
@@ -173,8 +176,8 @@
                                 }
                             })).render();
 
-                            var studyLocIncrements = (width - (paddingLeft + paddingRight)) / histData.length;
-                            var studyWidth = studyLocIncrements * .75;
+                            var studyWidth = Math.min(((width - (paddingLeft + paddingRight)) / histData.length) * .75, maxStudyBarWidth);
+			    var studyLocIncrements = studyWidth / .75;
                             var verticalCirclePadding = 20;
                             // Data type radius
                             var circleDTR = studyWidth / 4;
@@ -628,8 +631,8 @@
                             var redrawHistogram = function() {
                                 histData = filterAndSortData(histDataOrg);
 
-                                studyLocIncrements = (width - (paddingLeft + paddingRight)) / histData.length;
-                                studyWidth = studyLocIncrements * .75;
+				studyWidth = Math.min(((width - (paddingLeft + paddingRight)) / histData.length) * .75, maxStudyBarWidth);
+				studyLocIncrements = studyWidth / .75;
                                 // Data type radius
                                 circleDTR = studyWidth / 4;
                                 // Tumor type radius
@@ -952,7 +955,8 @@
 
                             // Let's load the mutation details as well
                             var servletParams = {
-                                data_priority: priority
+                                data_priority: priority,
+				cancer_study_list: histData.map(function(d) { return d.studyId;}).join(",")
                             };
                             var servletName = "crosscancermutation.json";
                             // init mutation data proxy with the data servlet config
@@ -1015,7 +1019,9 @@
                             // end of mutation details
 
                         });
-                    }
+                    },
+		    type: 'POST',
+		    data: {gene_list: genes, data_priority:priority, cancer_study_list:study_list}
                 }); // Done with the histogram
 
                 $("#customize-controls .close-customize a").click(function(e) {
@@ -1230,13 +1236,17 @@
             url: "crosscancerquery.json",
             defaults: {
                 gene_list: "",
-                data_priority: 0
+                data_priority: 0,
+		study_list: ""
             },
 
             initialize: function(options) {
                 options = _.extend(this.defaults, options);
-                this.url += "?gene_list=" + options.gene_list + "&data_priority=" + options.data_priority;
-
+                /*this.url += "?gene_list=" + options.gene_list + "&data_priority=" + options.data_priority;
+		this.url += "&cancer_study_list=" + options.study_list;*/
+		this.gene_list = options.gene_list;
+		this.data_priority = options.data_priority;
+		this.cancer_study_list = options.study_list;
                 return this;
             }
         });
@@ -1244,7 +1254,7 @@
         /* Routers */
         AppRouter = Backbone.Router.extend({
             routes: {
-                "crosscancer/:tab/:priority/:genes": "mainView",
+                "crosscancer/:tab/:priority/:genes/:study_list": "mainView",
                 "crosscancer/*actions": "emptyView"
             },
 
@@ -1252,12 +1262,13 @@
                 (new EmptyView()).render();
             },
 
-            mainView: function(tab, priority, genes) {
+            mainView: function(tab, priority, genes, study_list) {
                 (new MainView({
                     model: {
                         tab: tab,
                         priority: priority,
-                        genes: genes.replace(/_/g, "/")
+                        genes: genes.replace(/_/g, "/"),
+			study_list: study_list
                     }
                 })).render();
             }

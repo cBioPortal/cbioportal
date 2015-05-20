@@ -94,6 +94,7 @@ if (cancerStudyViewError!=null) {
             <form method="post" action="index.do">
                 <b><u><%=cancerStudy.getName()%></u></b>
                 <input type="hidden" name="cancer_study_id" value="<%=cancerStudy.getCancerStudyStableId()%>">
+                <input type="hidden" name="<%=QueryBuilder.CANCER_STUDY_LIST%>" value="<%=cancerStudy.getCancerStudyStableId()%>">
                 <input type="submit" value="Query this study">
             </form>
         </td>
@@ -199,6 +200,7 @@ if (cancerStudyViewError!=null) {
 
 <script type="text/javascript">
 var cancerStudyId = '<%=cancerStudy.getCancerStudyStableId()%>';
+var cancerStudyName = '<%=cancerStudy.getName()%>';
 var mutationProfileId = <%=mutationProfileStableId==null%>?null:'<%=mutationProfileStableId%>';
 var cnaProfileId = <%=cnaProfileStableId==null%>?null:'<%=cnaProfileStableId%>';
 var hasCnaSegmentData = <%=hasCnaSegmentData%>;
@@ -206,7 +208,7 @@ var hasMutSig = <%=hasMutSig%>;
 var caseSetId = '<%=caseSetId%>';
 var caseIds = <%=jsonCaseIds%>;
 var cancer_study_id = cancerStudyId; //Some components using this as global ID
-var appVersion = <%=GlobalProperties.getAppVersion()%>;
+var appVersion = <%=GlobalProperties.getAppVersion()%>?<%=GlobalProperties.getAppVersion()%>:'0000001';
 
 $("#study-tabs").tabs({disabled: true});
 $("#study-tabs").tabs("enable", 0);

@@ -1,8 +1,14 @@
 # app name
-app.name=
-app.version=
+app.name=cbioportal
+app.version=1.0
 
 # database
+db.user=cbio_user
+db.password=somepassword
+db.host=localhost
+db.portal_db_name=cbioportal
+db.driver=com.mysql.jdbc.Driver
+db.connection_string=jdbc:mysql://localhost/
 db.tomcat_resource_name=jdbc/cbioportal
 
 # web page cosmetics
@@ -19,8 +25,8 @@ news=news_tcga.html
 examples_right_column=examples_tcga.html
 
 # authentication
-authenticate=googleplus
-authorization=true
+authenticate=false
+authorization=false
 googleplus.consumer.key=
 googleplus.consumer.secret=
 saml.sp.metadata.entityid=

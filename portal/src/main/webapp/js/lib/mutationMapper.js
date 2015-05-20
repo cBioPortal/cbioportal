@@ -10603,10 +10603,14 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 
 					qTipOptsOma.content = {text: "NA"}; // content is overwritten on render
 					qTipOptsOma.events = {render: function(event, api) {
-						var model = {impact: fis.value,
-							xvia: mutation.xVarLink,
-							msaLink: mutation.msaLink,
-							pdbLink: mutation.pdbLink};
+						// TODO this is a quickfix for dead getma.org links,
+						// need to update corresponding data sources properly
+						var model = {
+							impact: fis.value,
+							xvia: mutation.xVarLink.replace("getma.org", "mutationassessor.org"),
+							msaLink: mutation.msaLink.replace("getma.org", "mutationassessor.org"),
+							pdbLink: mutation.pdbLink.replace("getma.org", "mutationassessor.org")
+						};
 
 						var container = $(this).find('.qtip-content');
 
@@ -11041,7 +11045,7 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 			"oTableTools": {
 				"aButtons": [{
 					"sExtends": "text",
-					"sButtonText": "CSV",
+					"sButtonText": "Download",
 					"mColumns": getExportColumns(columnOpts, excludedCols),
 					"fnCellRender": function(sValue, iColumn, nTr, iDataIndex) {
 						var value = sValue;
@@ -11066,7 +11070,7 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 						var content = this.fnGetTableData(oConfig);
 
 						var downloadOpts = {
-							filename: "mutation_table_" + gene + ".csv",
+							filename: "mutation_table_" + gene + ".tsv",
 							contentType: "text/plain;charset=utf-8",
 							preProcess: false};
 

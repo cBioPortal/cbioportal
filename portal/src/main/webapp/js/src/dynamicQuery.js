@@ -1141,6 +1141,7 @@ initialize_jstree(window.tab_index === "tab_download" ? flat_jstree_data : jstre
 		var selected_studies = $("#jstree").jstree(true).get_selected_leaves();
 		var selected_ct = selected_studies.length;
 		$('#jstree_selected_study_count').html((selected_ct === 0 ? "No" : (selected_ct === $('#jstree').jstree(true).num_leaves ? "All" : selected_ct)) + " stud" + (selected_ct === 1 ? "y" : "ies") + " selected.");
+		$('#jstree_deselect_all_btn')[selected_ct > 0 ? 'show' : 'hide']();
 		var old_select_single_study_val = select_single_study.val();
 		if (selected_studies.length === 1) {
 			select_single_study.val(selected_studies[0]);

@@ -682,11 +682,11 @@ pieH3{
     font-size: 10px;
     cursor: pointer;
     stroke:white;
-    stroke-width:1px;
+    stroke-width:0.2px;
 }
 .dc-chart .pie-slice :hover {
     fill-opacity: .5;
-    stroke-width: 3px;
+    stroke-width: 1px;
 }
 .dc-chart .selected path {
     stroke-width: 3;

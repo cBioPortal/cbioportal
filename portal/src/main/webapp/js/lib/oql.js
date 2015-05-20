@@ -118,7 +118,7 @@ oql = (function () {
 
     /* FILTERING */
     function mutationMatch(test, targets) {
-           if (test.type === "class") {
+        if (test.type === "class") {
             //TODO: get mutation type info to make this work
             for (var i = 0; i < targets.length; i++) {
                 if (targets[i].class === test.value) {
@@ -181,7 +181,7 @@ oql = (function () {
         // OUT: a tree as described in 'reduceBooleanTree'
         //		in which each command is converted to the boolean
         //		value representing whether the given gene attributes complies with it
-	var attr_map = {'AMP':'AMPLIFIED', 'GAIN':'GAINED', 'HETLOSS':'HEMIZYGOUSLYDELETED', 'HOMDEL':'HOMODELETED', 'EXP':'mrna', 'PROT':'rppa'};
+	var attr_map = {'AMP':'AMPLIFIED', 'GAIN':'GAINED', 'HETLOSS':'HEMIZYGOUSLYDELETED', 'HOMDEL':'HOMODELETED', 'EXP':'mrna', 'PROT':'rppa'}; // maps oql terminology to oncoprint terminology
         if (cmds.type === "AND" || cmds.type === "OR") {
             return {"type": cmds.type, "left": createFilterTree(cmds["left"], gene_attrs), "right": createFilterTree(cmds["right"], gene_attrs)};
         } else if (cmds.type === "NOT") {

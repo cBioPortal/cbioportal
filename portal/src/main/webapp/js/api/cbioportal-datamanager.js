@@ -82,7 +82,8 @@ dataman = (function () {
 			},
 			cna: function(datum) {
 				if (profileTypes[datum.internal_id] === 'COPY_NUMBER_ALTERATION') {
-					return (datum.profile_data === '0' ? undefined : cnaType[datum.profile_data.toString()]);
+					//return (datum.profile_data === '0' ? undefined : cnaType[datum.profile_data.toString()]);
+					return (datum.profile_data === '0' ? undefined : datum.profile_data.toString());
 				} else {
 					return undefined;
 				}
@@ -107,7 +108,19 @@ dataman = (function () {
 		var oncoDataMap = {}; // sample -> gene -> new datum
 		$.each(oncoprintDataWithDuplicates, function(ind, elt) {
 			oncoDataMap[elt.sample] = oncoDataMap[elt.sample] || {};
-			oncoDataMap[elt.sample][elt.gene] = $.extend(oncoDataMap[elt.sample][elt.gene] || {}, elt);
+			oncoDataMap[elt.sample][elt.gene] = oncoDataMap[elt.sample][elt.gene] || {mutations: {}};
+			for (var key in elt) {
+				if (elt.hasOwnProperty(key)) {
+					if (key === 'mutation' || key === 'mutation_type') {
+						return 1;
+					} else {
+						oncoDataMap[elt.sample][elt.gene][key] = elt[key];
+					}
+				}
+			}
+			if (elt.mutation) {
+				oncoDataMap[elt.sample][elt.gene].mutations[elt.mutation] = elt.mutation_type;
+			}
 		});
 		var oncoprintData = [];
 		$.each(oncoDataMap, function(sample, obj) {

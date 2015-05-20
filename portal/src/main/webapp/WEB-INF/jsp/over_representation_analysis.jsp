@@ -32,6 +32,9 @@
     #or_analysis .label-or-analysis-significant {
         background-color: #58ACFA;
     }
+    #or_analysis button:disabled {
+        color: grey;
+    }
     
 </style>
 

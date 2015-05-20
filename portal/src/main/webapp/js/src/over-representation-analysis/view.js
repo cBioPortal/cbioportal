@@ -401,6 +401,8 @@ var orTable = function() {
                 });
                 if (_selected_genes.length !== 0) {
                     document.getElementById(btn_id).disabled = false;
+                } else {
+                    document.getElementById(btn_id).disabled = true;
                 }
             }
         );
@@ -455,7 +457,7 @@ var orTable = function() {
                 $("#" + _table_div).empty();
                 $("#" + _table_div).append("<span style='font-weight:bold;'>" + _table_title +
                       "</span>&nbsp;&nbsp;&nbsp;&nbsp;<button type='button' id='" + table_id +
-                      orAnalysis.postfix.datatable_update_query_button + "'>Update Query</button>");
+                      orAnalysis.postfix.datatable_update_query_button + "'>Add checked genes to query</button>");
                 document.getElementById(table_id + orAnalysis.postfix.datatable_update_query_button).disabled = true;
 
                 $("#" + _table_div).append("<table id='" + table_id + "' cellpadding='0' cellspacing='0' border='0' class='" + table_id + "_datatable_class'></table>"); 

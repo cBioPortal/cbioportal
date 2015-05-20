@@ -178,10 +178,10 @@ public class LinkOut extends HttpServlet {
 	    ret += "&";
 	    String geneticProfiles = "";
 	    for (String geneticProfileId: defaultGeneticProfileSet.keySet()) {
-		    geneticProfiles += "," + geneticProfileId;
+		    ret += QueryBuilder.GENETIC_PROFILE_IDS+"_PROFILE_"+defaultGeneticProfileSet.get(geneticProfileId).getGeneticAlterationType().toString();
+		    ret += "="+geneticProfileId;
+		    ret += "&";
 	    }
-	    ret += QueryBuilder.GENETIC_PROFILE_IDS+"="+geneticProfiles.substring(1);
-	    ret += "&";
 	    ret += QueryBuilder.TAB_INDEX+"="+QueryBuilder.TAB_VISUALIZE;
 	    if (output.toLowerCase().equals(LinkOutRequest.REPORT_ONCOPRINT_HTML)) {
 		    ret += "&";

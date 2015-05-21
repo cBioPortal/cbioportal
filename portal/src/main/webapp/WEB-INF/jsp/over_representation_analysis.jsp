@@ -6,7 +6,7 @@
 
 <div class="section" id="or_analysis">
     <div id="or-analysis-info-box" style="padding: 10px;">
-        Gene Set
+        <!--Gene Set
         <select id="or_analysis_tab_gene_set_select">
             <option value="cancer_genes">All Cancer Genes in cbio portal</option>
             <option value="all_genes">All Genes in cbio portal</option>
@@ -14,6 +14,8 @@
         </select>
         <span id="or_analysis_tab_warning"></span>
         <br>
+        <div id="or_analysis_tab_custom_gene_set_text_area"></div>
+        <br>-->
         Table(s) below rank(s) all the genes among the chose gene set (see above), with highest mutual exclusivity / co-occurrence / differential expression under different genetic profiles, against queried genes.
     </div>
     <div id="or-analysis-tabs" class="or-analysis-tabs">
@@ -43,7 +45,6 @@
     #or_analysis button:disabled {
         color: grey;
     }
-    
 </style>
 
 <script>
@@ -84,10 +85,18 @@
         $("#or_analysis_tab_gene_set_select").change(function() {
             if ($("#or_analysis_tab_gene_set_select").val() === "all_genes") {
                 $("#or_analysis_tab_warning").append("<span style='color:red;'>Calculating and rendering may take up to 10 minutes...</span>");
+                $("#or_analysis_tab_custom_gene_set_text_area").empty();
+                or_tab.update();
+            } else if ($("#or_analysis_tab_gene_set_select").val() === "custom_genes") {
+                $("#or_analysis_tab_warning").empty();
+                $("#or_analysis_tab_custom_gene_set_text_area").append("<br><textarea class='form-control' rows='5' id='or_analysis_tab_custom_gene_set_text_area_id'></textarea>");
+                $("#or_analysis_tab_custom_gene_set_text_area").append("<button id='or_analysis_tab_custom_gene_set_submit_btn'>Submit Custom Gene Set</button>");
             } else {
                 $("#or_analysis_tab_warning").empty();
+                $("#or_analysis_tab_custom_gene_set_text_area").empty();
+                or_tab.update();
             }
-            or_tab.update();
+
         });
 
     });

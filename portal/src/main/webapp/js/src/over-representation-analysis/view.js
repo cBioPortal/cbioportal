@@ -209,7 +209,7 @@ var orTable = function() {
 
     }
     
-    function attachFitlers() {
+    function attachFilters() {
         
         $("#" + div_id).find("." + table_id + "_filter").append(
             "<input type='checkbox' class='" + table_id + "-checkbox' checked id='" + table_id + "-checkbox-mutex'>Mutual exclusivity</option> &nbsp;&nbsp;" +
@@ -393,6 +393,8 @@ var orTable = function() {
 
     function activateUpdateQueryBtns(btn_id) {
 
+        document.getElementById(table_id + orAnalysis.postfix.datatable_update_query_button).disabled = true;
+
         //attach event listener to checkboxes
         $("." + table_id + orAnalysis.postfix.datatable_gene_checkbox_class).click(function() {
                 var _selected_genes = [];
@@ -458,11 +460,10 @@ var orTable = function() {
                 $("#" + _table_div).append("<span style='font-weight:bold;'>" + _table_title +
                       "</span>&nbsp;&nbsp;&nbsp;&nbsp;<button type='button' id='" + table_id +
                       orAnalysis.postfix.datatable_update_query_button + "'>Add checked genes to query</button>");
-                //document.getElementById(table_id + orAnalysis.postfix.datatable_update_query_button).disabled = true;
 
                 $("#" + _table_div).append("<table id='" + table_id + "' cellpadding='0' cellspacing='0' border='0' class='" + table_id + "_datatable_class'></table>"); 
                 configTable();
-                attachFitlers();
+                attachFilters();
                 addHeaderQtips();
                 activateUpdateQueryBtns(table_id + orAnalysis.postfix.datatable_update_query_button);
                 

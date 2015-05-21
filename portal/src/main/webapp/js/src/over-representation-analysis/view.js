@@ -458,7 +458,7 @@ var orTable = function() {
                 $("#" + _table_div).append("<span style='font-weight:bold;'>" + _table_title +
                       "</span>&nbsp;&nbsp;&nbsp;&nbsp;<button type='button' id='" + table_id +
                       orAnalysis.postfix.datatable_update_query_button + "'>Add checked genes to query</button>");
-                document.getElementById(table_id + orAnalysis.postfix.datatable_update_query_button).disabled = true;
+                //document.getElementById(table_id + orAnalysis.postfix.datatable_update_query_button).disabled = true;
 
                 $("#" + _table_div).append("<table id='" + table_id + "' cellpadding='0' cellspacing='0' border='0' class='" + table_id + "_datatable_class'></table>"); 
                 configTable();
@@ -476,11 +476,14 @@ var orTable = function() {
 }; //close orTable
 
 var orSubTabView = function() {
+
+    var gene_set = "";
     
     return {
-        init: function(_div_id, _profile_list, _profile_type) {
+        init: function(_div_id, _profile_list, _profile_type, _gene_set) {
             
             //append loading img
+            $("#" + _div_id).empty();
             $("#" + _div_id).append("<div id='" + _div_id + "_loading_img'><img style='padding:20px;' src='images/ajax-loader.gif'></div>");
 
             //split copy number profile into deep deletion and amplification 
@@ -509,7 +512,7 @@ var orSubTabView = function() {
                     $("#" + _div_id).append("<div id='" + _table_div + "' style='width: 1200px; display:inline-block; padding: 10px;'></div>");
                     
                     //init and get calculation result from the server
-                    var param = new orAjaxParam(or_tab.getAlteredCaseList(), or_tab.getUnalteredCaseList(), _profile_obj.STABLE_ID);
+                    var param = new orAjaxParam(or_tab.getAlteredCaseList(), or_tab.getUnalteredCaseList(), _profile_obj.STABLE_ID, _gene_set);
                     var or_data = new orData();
                     or_data.init(param, _table_id);
                     var or_table = new orTable();

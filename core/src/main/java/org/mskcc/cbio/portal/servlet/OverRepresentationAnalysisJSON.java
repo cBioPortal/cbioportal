@@ -75,6 +75,7 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
             String[] unalteredCaseList = _unalteredCaseList.split("\\s+");
             String profileId = httpServletRequest.getParameter("profile_id");
             String[] genes = httpServletRequest.getParameter("gene_list").split("\\s+");
+            String geneSet = httpServletRequest.getParameter("gene_set"); //cancer genes(default), all genes, custom genes
 
             //calculate deep deletion and amplification separately
             String copyNumType = "none";
@@ -110,7 +111,7 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
             unalteredSampleIds.retainAll(DaoSampleProfile.getAllSampleIdsInProfile(gpId));
             
             //The actual calculation
-            ORAnalysisDiscretizedDataProxy dataProxy = new ORAnalysisDiscretizedDataProxy(cancerStudyInternalId, gpId, profileType, alteredSampleIds, unalteredSampleIds, copyNumType, genes);
+            ORAnalysisDiscretizedDataProxy dataProxy = new ORAnalysisDiscretizedDataProxy(cancerStudyInternalId, gpId, profileType, alteredSampleIds, unalteredSampleIds, copyNumType, genes, geneSet);
             
             ObjectMapper mapper = new ObjectMapper();
             httpServletResponse.setContentType("application/json");

@@ -9,16 +9,23 @@ import org.mskcc.cbio.portal.dao.*;
 public class OverRepresentationAnalysisUtil {
     
     public static Map<Long, HashMap<Integer, String>> getValueMap(
-            int cancerStudyId, int profileId, String profileType, List<Integer> alteredSampleIds, List<Integer> unalteredSampleIds) throws DaoException {
+            int cancerStudyId, int profileId, String profileType, List<Integer> alteredSampleIds, List<Integer> unalteredSampleIds, String geneSet) throws DaoException {
 
         DaoGeneticAlteration daoGeneticAlteration = DaoGeneticAlteration.getInstance();
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
-        
-        //get cancer genes
-        Set<CanonicalGene> cancerGeneSet = daoGeneOptimized.getCbioCancerGenes();
+
         Set<Long> entrezGeneIds = new HashSet<Long>();
-        for (CanonicalGene cancerGene : cancerGeneSet) {
-            entrezGeneIds.add(cancerGene.getEntrezGeneId());
+        if (geneSet.equals("cancer_genes")) {
+            //get cancer genes
+            Set<CanonicalGene> cancerGeneSet = daoGeneOptimized.getCbioCancerGenes();
+            for (CanonicalGene cancerGene : cancerGeneSet) {
+                entrezGeneIds.add(cancerGene.getEntrezGeneId());
+            }
+        } else if (geneSet.equals("all_genes")) {
+            ArrayList<CanonicalGene> allGeneSet = daoGeneOptimized.getAllGenes();
+            for (CanonicalGene gene: allGeneSet) {
+                entrezGeneIds.add(gene.getEntrezGeneId());
+            }
         }
 
         //join two lists

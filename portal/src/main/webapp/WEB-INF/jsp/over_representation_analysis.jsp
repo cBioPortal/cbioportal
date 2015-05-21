@@ -6,7 +6,15 @@
 
 <div class="section" id="or_analysis">
     <div id="or-analysis-info-box" style="padding: 10px;">
-        Synthetic genetic arrays have been very effective at measuring genetic interactions in yeast in a high-throughput manner and recently have been expanded to measure quantitative changes in interaction, termed 'differential interactions', across multiple conditions. Here, we present a strategy that leverages statistical information from the experimental design to produce a novel, quantitative differential interaction score, which performs favorably compared to previous differential scores. We also discuss the added utility of differential genetic-similarity in differential network analysis.
+        Gene Set
+        <select id="or_analysis_tab_gene_set_select">
+            <option value="cancer_genes">All Cancer Genes in cbio portal</option>
+            <option value="all_genes">All Genes in cbio portal</option>
+            <option value="custom_genes">Custom Gene Set</option>
+        </select>
+        <span id="or_analysis_tab_warning"></span>
+        <br>
+        Table(s) below rank(s) all the genes among the chose gene set (see above), with highest mutual exclusivity / co-occurrence / differential expression under different genetic profiles, against queried genes.
     </div>
     <div id="or-analysis-tabs" class="or-analysis-tabs">
         <ul id='or-analysis-tabs-list'></ul>
@@ -71,5 +79,16 @@
                 }
             }
         });
+
+        //bind event listener to gene set selector
+        $("#or_analysis_tab_gene_set_select").change(function() {
+            if ($("#or_analysis_tab_gene_set_select").val() === "all_genes") {
+                $("#or_analysis_tab_warning").append("<span style='color:red;'>Calculating and rendering may take up to 10 minutes...</span>");
+            } else {
+                $("#or_analysis_tab_warning").empty();
+            }
+            or_tab.update();
+        });
+
     });
 </script>

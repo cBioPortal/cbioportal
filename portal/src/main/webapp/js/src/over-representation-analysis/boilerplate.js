@@ -130,7 +130,7 @@ var orAnalysis = (function() {
     
 }());
 
-var orAjaxParam = function(alteredCaseList, unalteredCaseList, profileId) {
+var orAjaxParam = function(alteredCaseList, unalteredCaseList, profileId, geneSet) {
     
     //convert case id array into a string
     var _tmp_altered_case_id_list = "", _tmp_unaltered_case_id_list = "";
@@ -146,5 +146,6 @@ var orAjaxParam = function(alteredCaseList, unalteredCaseList, profileId) {
     this.unaltered_case_id_list = _tmp_unaltered_case_id_list;
     this.profile_id = profileId;
     this.gene_list = window.PortalGlobals.getGeneListString();
+    this.gene_set = geneSet;
 };
 

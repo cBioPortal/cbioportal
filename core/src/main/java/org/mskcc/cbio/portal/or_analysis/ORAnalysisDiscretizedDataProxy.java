@@ -59,11 +59,12 @@ public class ORAnalysisDiscretizedDataProxy {
             List<Integer> alteredSampleIds, 
             List<Integer> unalteredSampleIds,
             String copyNumType,
-            String[] queryGenes) throws DaoException, IllegalArgumentException, MathException {
+            String[] queryGenes,
+            String geneSet) throws DaoException, IllegalArgumentException, MathException {
         
         this.alteredSampleIds = alteredSampleIds;
         this.unalteredSampleIds = unalteredSampleIds;
-        this.map = OverRepresentationAnalysisUtil.getValueMap(cancerStudyId, profileId, profileType, alteredSampleIds, unalteredSampleIds);
+        this.map = OverRepresentationAnalysisUtil.getValueMap(cancerStudyId, profileId, profileType, alteredSampleIds, unalteredSampleIds, geneSet);
         this.copyNumType = copyNumType;
         
         if (!map.keySet().isEmpty()) {

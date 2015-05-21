@@ -210,70 +210,72 @@ var orTable = function() {
     }
     
     function attachFilters() {
-        
-        $("#" + div_id).find("." + table_id + "_filter").append(
-            "<input type='checkbox' class='" + table_id + "-checkbox' checked id='" + table_id + "-checkbox-mutex'>Mutual exclusivity</option> &nbsp;&nbsp;" +
-            "<input type='checkbox' class='" + table_id + "-checkbox' checked id='" + table_id + "-checkbox-co-oc'>Co-occurrence</option> &nbsp;&nbsp;" +
-            "<input type='checkbox' class='" + table_id + "-checkbox' id='" + table_id + "-checkbox-sig-only'>Significant gene(s)</option> &nbsp; &nbsp;"
-        );
 
-        var _sig_only_all_fn = function() {
-                orTableInstance.fnFilter("", col_index.log_ratio);
-                orTableInstance.fnFilter("", col_index.direction);
-                orTableInstance.fnFilter("Significant", col_index.direction);
-            },
-            _sig_only_mutex_fn = function() {
-                orTableInstance.fnFilter("", col_index.direction);
-                orTableInstance.fnFilter("", col_index.log_ratio);
-                orTableInstance.fnFilter("^(.)*\\sunaltered(.)*Significant$", col_index.direction, true);
-            },
-            _sig_only_co_oc_fn = function() {
-                orTableInstance.fnFilter("", col_index.direction);
-                orTableInstance.fnFilter("", col_index.log_ratio);
-                orTableInstance.fnFilter("^(.)*\\saltered(.)*Significant$", col_index.direction, true);
-            },
-            _mutex_fn = function() {
-                orTableInstance.fnFilter("", col_index.direction);
-                orTableInstance.fnFilter("", col_index.log_ratio);
-                orTableInstance.fnFilter("^(.)*\\sunaltered(.)*$", col_index.direction, true);
-            },
-            _co_oc_fn = function() {
-                orTableInstance.fnFilter("", col_index.direction);
-                orTableInstance.fnFilter("", col_index.log_ratio);
-                orTableInstance.fnFilter("^(.)*\\saltered(.)*$", col_index.direction, true);
-            }, 
-            _all_fn = function() {
-                orTableInstance.fnFilter("", col_index.direction);
-                orTableInstance.fnFilter("", col_index.log_ratio);
-            },
-            _empty_fn = function() {
-                orTableInstance.fnFilter("&", col_index.log_ratio);
-            };
+        if (profile_type === orAnalysis.profile_type.copy_num || profile_type === orAnalysis.profile_type.mutations) {
+            $("#" + div_id).find("." + table_id + "_filter").append(
+                "<input type='checkbox' class='" + table_id + "-checkbox' checked id='" + table_id + "-checkbox-mutex'>Mutual exclusivity</option> &nbsp;&nbsp;" +
+                "<input type='checkbox' class='" + table_id + "-checkbox' checked id='" + table_id + "-checkbox-co-oc'>Co-occurrence</option> &nbsp;&nbsp;" +
+                "<input type='checkbox' class='" + table_id + "-checkbox' id='" + table_id + "-checkbox-sig-only'>Significant gene(s)</option> &nbsp; &nbsp;"
+            );
 
-        $("." + table_id + "-checkbox").change(function () {
-        
-            var _mutex_checked = false,
-                _co_oc_checked = false,
-                _sig_checked = false;
+            var _sig_only_all_fn = function() {
+                    orTableInstance.fnFilter("", col_index.log_ratio);
+                    orTableInstance.fnFilter("", col_index.direction);
+                    orTableInstance.fnFilter("Significant", col_index.direction);
+                },
+                _sig_only_mutex_fn = function() {
+                    orTableInstance.fnFilter("", col_index.direction);
+                    orTableInstance.fnFilter("", col_index.log_ratio);
+                    orTableInstance.fnFilter("^(.)*\\sunaltered(.)*Significant$", col_index.direction, true);
+                },
+                _sig_only_co_oc_fn = function() {
+                    orTableInstance.fnFilter("", col_index.direction);
+                    orTableInstance.fnFilter("", col_index.log_ratio);
+                    orTableInstance.fnFilter("^(.)*\\saltered(.)*Significant$", col_index.direction, true);
+                },
+                _mutex_fn = function() {
+                    orTableInstance.fnFilter("", col_index.direction);
+                    orTableInstance.fnFilter("", col_index.log_ratio);
+                    orTableInstance.fnFilter("^(.)*\\sunaltered(.)*$", col_index.direction, true);
+                },
+                _co_oc_fn = function() {
+                    orTableInstance.fnFilter("", col_index.direction);
+                    orTableInstance.fnFilter("", col_index.log_ratio);
+                    orTableInstance.fnFilter("^(.)*\\saltered(.)*$", col_index.direction, true);
+                },
+                _all_fn = function() {
+                    orTableInstance.fnFilter("", col_index.direction);
+                    orTableInstance.fnFilter("", col_index.log_ratio);
+                },
+                _empty_fn = function() {
+                    orTableInstance.fnFilter("&", col_index.log_ratio);
+                };
 
-            if ($("#" + table_id + "-checkbox-sig-only").is(':checked')) _sig_checked = true;
-            if ($("#" + table_id + "-checkbox-mutex").is(':checked')) _mutex_checked = true;
-            if ($("#" + table_id + "-checkbox-co-oc").is(':checked')) _co_oc_checked = true;
-            
-            if (_mutex_checked && _co_oc_checked) {
-                if (_sig_checked) _sig_only_all_fn();
-                else _all_fn();
-            } else if (_mutex_checked && !_co_oc_checked) {
-                if (_sig_checked) _sig_only_mutex_fn();
-                else _mutex_fn();
-            } else if (!_mutex_checked && _co_oc_checked) {
-                if (_sig_checked) _sig_only_co_oc_fn();
-                else _co_oc_fn();
-            } else {
-                _empty_fn();
-            }            
-        });
-        
+            $("." + table_id + "-checkbox").change(function () {
+
+                var _mutex_checked = false,
+                    _co_oc_checked = false,
+                    _sig_checked = false;
+
+                if ($("#" + table_id + "-checkbox-sig-only").is(':checked')) _sig_checked = true;
+                if ($("#" + table_id + "-checkbox-mutex").is(':checked')) _mutex_checked = true;
+                if ($("#" + table_id + "-checkbox-co-oc").is(':checked')) _co_oc_checked = true;
+
+                if (_mutex_checked && _co_oc_checked) {
+                    if (_sig_checked) _sig_only_all_fn();
+                    else _all_fn();
+                } else if (_mutex_checked && !_co_oc_checked) {
+                    if (_sig_checked) _sig_only_mutex_fn();
+                    else _mutex_fn();
+                } else if (!_mutex_checked && _co_oc_checked) {
+                    if (_sig_checked) _sig_only_co_oc_fn();
+                    else _co_oc_fn();
+                } else {
+                    _empty_fn();
+                }
+            });
+        }
+
     }
     
     function addHeaderQtips() {

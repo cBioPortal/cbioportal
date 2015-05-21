@@ -67,9 +67,9 @@ var orAnalysis = (function() {
         col_width : {
             gene: 90,
             cytoband: 100,
-            altered_pct: 120,
-            unaltered_pct: 120,
-            log_ratio: 60,
+            altered_pct: 110,
+            unaltered_pct: 110,
+            log_ratio: 80,
             p_val: 80,
             q_val: 80,
             altered_mean: 100,
@@ -124,7 +124,8 @@ var orAnalysis = (function() {
             update_query: "update_query_help"
         },
         settings: {
-            p_val_threshold: 0.05
+            p_val_threshold: 0.05,
+            help_icon_img_src: "images/help.png"
         }
     };
     

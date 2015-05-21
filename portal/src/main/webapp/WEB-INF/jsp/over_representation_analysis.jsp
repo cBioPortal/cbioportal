@@ -26,7 +26,7 @@
 
 <style>
     #or_analysis .or-analysis-tabs-ref {
-        font-size: 11px !important;
+        font-size: 10px !important;
     }
     #or_analysis table.dataTable thead th div.DataTables_sort_wrapper {
         font-size: 100%;
@@ -44,6 +44,10 @@
     }
     #or_analysis button:disabled {
         color: grey;
+    }
+    #or_analysis .help-img-icon {
+        width: 12px;
+        height: 12px;
     }
 </style>
 

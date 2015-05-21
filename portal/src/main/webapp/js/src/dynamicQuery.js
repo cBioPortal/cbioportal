@@ -322,7 +322,7 @@ function chooseAction(evt) {
 		var dataPriority = $('#main_form').find('input[name=data_priority]:checked').val();
 		var newSearch = $('#main_form').serialize() + '&Action=Submit#crosscancer/overview/'+dataPriority+'/'+encodeURIComponent($('#gene_list').val())+'/'+encodeURIComponent(selected_studies.join(","));
 		evt.preventDefault();
-		window.location = window.location.origin + '/cross_cancer.do?' + newSearch;
+		window.location = 'cross_cancer.do?' + newSearch;
             //$("#main_form").get(0).setAttribute('action','cross_cancer.do');
         }
         if ( haveExpInQuery ) {

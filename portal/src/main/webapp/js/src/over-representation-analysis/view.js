@@ -280,35 +280,35 @@ var orTable = function() {
     
     function addHeaderQtips() {
         $("#" + table_id + orAnalysis._title_ids.gene).qtip({
-            content: { text:"Select genes you are interested and click 'update query' button to query with the new genes."},
+            content: { text:"Select gene(s) you are interested and click 'add to query' button to query with the new genes."},
             style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow qtip-ui-wide'},
             show: {event: "mouseover"},
             hide: {fixed:true, delay: 100, event: "mouseout"},
             position: {my:'left bottom',at:'top right',viewport: $(window)}
         });
         $("#" + table_id + orAnalysis._title_ids.pct).qtip({
-            content: { text:"percentage of alteration in altered and unaltered sample groups"},
+            content: { text:"Percentages of altered cases in altered or unaltered sample groups"},
             style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow qtip-ui-wide'},
             show: {event: "mouseover"},
             hide: {fixed:true, delay: 100, event: "mouseout"},
             position: {my:'left bottom',at:'top right',viewport: $(window)}
         });  
         $("#" + table_id + orAnalysis._title_ids.log_ratio).qtip({
-            content: { text:"log2 based ratio of (pct in altered / pct in unaltered)"},
+            content: { text:"Log2 based ratio of (pct in altered / pct in unaltered)"},
             style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow qtip-ui-wide'},
             show: {event: "mouseover"},
             hide: {fixed:true, delay: 100, event: "mouseout"},
             position: {my:'left bottom',at:'top right',viewport: $(window)}
         });  
         $("#" + table_id + orAnalysis._title_ids.p_val).qtip({
-            content: { text:"derived from fisher exact test"},
+            content: { text:"Derived from Fisher Exact Test"},
             style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow qtip-ui-wide'},
             show: {event: "mouseover"},
             hide: {fixed:true, delay: 100, event: "mouseout"},
             position: {my:'left bottom',at:'top right',viewport: $(window)}
         });        
         $("#" + table_id + orAnalysis._title_ids.q_val).qtip({
-            content: { text:"Derived from Benjamini-Hochberg adjust precedure"},
+            content: { text:"Derived from Benjamini-Hochberg procedure"},
             style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow qtip-ui-wide'},
             show: {event: "mouseover"},
             hide: {fixed:true, delay: 100, event: "mouseout"},
@@ -324,21 +324,21 @@ var orTable = function() {
             position: {my:'left bottom',at:'top right',viewport: $(window)}
         });
         $("#" + table_id + orAnalysis._title_ids.mean_alt).qtip({
-            content: { text:"Mean of expression values in altered and unaltered group"},
+            content: { text:"Mean of expression values in altered or unaltered group"},
             style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow qtip-ui-wide'},
             show: {event: "mouseover"},
             hide: {fixed:true, delay: 100, event: "mouseout"},
             position: {my:'left bottom',at:'top right',viewport: $(window)}
         });
         $("#" + table_id + orAnalysis._title_ids.stdev_alt).qtip({
-            content: { text:"Standard Deviation in altered and unaltered group"},
+            content: { text:"Standard Deviation in altered or unaltered group"},
             style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow qtip-ui-wide'},
             show: {event: "mouseover"},
             hide: {fixed:true, delay: 100, event: "mouseout"},
             position: {my:'left bottom',at:'top right',viewport: $(window)}
         });
         $("#" + table_id + orAnalysis._title_ids.p_val_t_test).qtip({
-            content: { text:"Derived from student t test"},
+            content: { text:"Derived from Student T-test"},
             style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow qtip-ui-wide'},
             show: {event: "mouseover"},
             hide: {fixed:true, delay: 100, event: "mouseout"},

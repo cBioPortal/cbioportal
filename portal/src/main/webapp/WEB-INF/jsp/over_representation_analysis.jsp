@@ -49,6 +49,9 @@
         width: 13px;
         height: 13px;
     }
+    #or_analysis .dataTables tbody tr {
+        min-height: 32px;
+    }
 </style>
 
 <script>

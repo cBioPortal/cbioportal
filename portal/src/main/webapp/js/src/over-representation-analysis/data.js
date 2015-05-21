@@ -124,24 +124,24 @@ var orData = function() {
         if (_profile_type === orAnalysis.profile_type.copy_num) {
             
             if (_log_ratio === ">3") {
-                _result_str += "Enriched in altered group";
+                _result_str += orAnalysis.text.cooccurrence;
             } else if (_log_ratio === "<-3") {
-                _result_str += "Enriched in unaltered group";
+                _result_str += orAnalysis.text.mutex;
             } else if (_log_ratio > 0) {
-                _result_str += "Enriched in altered group";
+                _result_str += orAnalysis.text.cooccurrence;
             } else if (_log_ratio < 0) {
-                _result_str += "Enriched in unaltered group";
+                _result_str += orAnalysis.text.mutex;
             } 
 
         } else if (_profile_type === orAnalysis.profile_type.mutations) {
             if (_log_ratio === ">3") {
-                _result_str += "Enriched in altered group";
+                _result_str += orAnalysis.text.cooccurrence;
             } else if (_log_ratio === "<-3") {
-                _result_str += "Enriched in unaltered group";
+                _result_str += orAnalysis.text.mutex;
             } else if (_log_ratio > 0) {
-                _result_str += "Enriched in altered group";
+                _result_str += orAnalysis.text.cooccurrence;
             } else if (_log_ratio < 0) {
-                _result_str += "Enriched in unaltered group";
+                _result_str += orAnalysis.text.mutex;
             } 
         } 
         

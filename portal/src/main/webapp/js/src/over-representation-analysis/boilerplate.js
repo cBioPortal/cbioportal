@@ -126,6 +126,10 @@ var orAnalysis = (function() {
         settings: {
             p_val_threshold: 0.05,
             help_icon_img_src: "images/help.png"
+        },
+        text: {
+            mutex: "Tendency towards mutual exclusivity",
+            cooccurrence: "Tendency towards co-occurrence"
         }
     };
     

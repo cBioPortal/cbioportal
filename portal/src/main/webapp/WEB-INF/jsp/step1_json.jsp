@@ -59,7 +59,9 @@
         </div>
         <div class="step_header_search_result">
             <span id="jstree_selected_study_count">No studies selected.</span>
+            <span><a href='javascript:void(0)' id='jstree_deselect_all_btn' onclick='$("#jstree").jstree(true).deselect_all();'>Deselect all</a></span>
         </div>
+        
         
 <!--        <div class="btn btn-default btn-sm">
             <input id="jstree_select_cell_line" type="checkbox">    

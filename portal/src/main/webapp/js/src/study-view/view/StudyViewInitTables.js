@@ -72,7 +72,8 @@ var StudyViewInitTables = (function() {
                             name: 'sampleRate',
                             displayName: 'Freq'
                         },{
-                            name: 'caseIds'
+                            name: 'caseIds',
+                            displayName: 'Sample IDs'
                         }
                     ];
                     _worker.data.arr = mutatedGenesData(_datum, numOfCases);
@@ -94,7 +95,8 @@ var StudyViewInitTables = (function() {
                             name: 'altrateInSample',
                             displayName: 'Freq'
                         },{
-                            name: 'caseIds'
+                            name: 'caseIds',
+                            displayName: 'Sample IDs'
                         }
                     ];
                     _worker.data.arr = cnaData(_datum, numOfCases);

@@ -235,11 +235,17 @@ var PieChart = function(){
             hide: {fixed:true, delay: 300, event: "mouseout"},
             position: {my:'top center',at:'bottom center', viewport: $(window)},
             content: {
-                text:   "<div style='display:inline-block;float:left;margin: 0 2px'>"+
-                        "<button  id='"+DIV.chartDiv+"-pdf'>PDF</button>"+          
+                text:
+                        "<div style='display:inline-block;'>"+
+                        "<button id='"+DIV.chartDiv+"-pdf' style=\"width:50px\">PDF</button>"+
                         "</div>"+
-                        "<div style='display:inline-block;float:left;margin: 0 2px'>"+
-                        "<button  id='"+DIV.chartDiv+"-svg'>SVG</button>"+
+                        "<br>"+
+                        "<div style='display:inline-block;'>"+
+                        "<button id='"+DIV.chartDiv+"-svg' style=\"width:50px\">SVG</button>"+
+                        "</div>"+
+                        "<br>"+
+                        "<div style='display:inline-block;'>"+
+                        "<button id='"+DIV.chartDiv+"-tsv' style=\"width:50px\">DATA</button>"+
                         "</div>"
             },
             events: {
@@ -260,6 +266,26 @@ var PieChart = function(){
                             DIV.chartDiv+"-svg-value", {
                                 filename: StudyViewParams.params.studyId + "_" +selectedAttr+".svg",
                             });
+                    });
+                    $("#"+DIV.chartDiv+"-tsv").click(function(){
+                        var content = '';
+                        
+                        content = content + selectedAttrDisplay + '\t';
+                        content = content + 'Count';
+                        
+                        for(var i = 0; i < label.length; i++){
+                            content += '\r\n';
+                            content += label[i].name + '\t';
+                            content += label[i].value;
+                        }
+                        
+                        var downloadOpts = {
+                            filename: cancerStudyName + "_" + selectedAttrDisplay + ".txt",
+                            contentType: "text/plain;charset=utf-8",
+                            preProcess: false
+                        };
+
+                        cbio.download.initDownload(content, downloadOpts);
                     });
                 }
             }
@@ -695,7 +721,7 @@ var PieChart = function(){
         
         _svgElement = cbio.download.serializeHtml($("#" + _svgParentDivId + " svg>g")[0]);
         
-        var svg = "<svg width='"+_svgWidth+"' height='"+(180+_pieLabelYCoord)+"'>"+
+        var svg = "<svg xmlns='http://www.w3.org/2000/svg' version='1.1' width='"+_svgWidth+"' height='"+(180+_pieLabelYCoord)+"'>"+
                     "<g><text x='"+(_svgWidth/2)+"' y='20' style='font-weight: bold;"+
                     "text-anchor: middle'>"+
                     selectedAttrDisplay+"</text></g>"+

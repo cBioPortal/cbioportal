@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.mskcc.cbio.portal.persistence.ProfileDataMapper">
+
+<resultMap id="MutationDataResult" type="DBMutationData">
+    <result property="entrez_gene_id" column="ENTREZ_GENE_ID"/>
+    <result property="internal_sample_id" column="SAMPLE_ID"/>
+    <result property="internal_id" column="GENETIC_PROFILE_ID"/>
+    <result property="sequencing_center" column="CENTER"/>
+    <result property="mutation_status" column="MUTATION_STATUS"/>
+    <result property="mutation_type" column="MUTATION_TYPE"/>
+    <result property="validation_status" column="VALIDATION_STATUS"/>
+    <result property="amino_acid_change" column="PROTEIN_CHANGE"/>
+    <result property="functional_impact_score" column="FUNCTIONAL_IMPACT_SCORE"/>
+    <result property="xvar_link" column="LINK_XVAR"/>
+    <result property="xvar_link_pdb" column="LINK_PDB"/>
+    <result property="xvar_link_msa" column="LINK_MSA"/>
+    <result property="chr" column="CHR"/>
+    <result property="start_position" column="START_POSITION"/>
+    <result property="end_position" column="END_POSITION"/>
+    <result property="reference_allele" column="REFERENCE_ALLELE"/>
+    <result property="variant_allele" column="TUMOR_SEQ_ALLELE"/>
+    <result property="reference_read_count_tumor" column="TUMOR_REF_COUNT"/>
+    <result property="reference_read_count_normal" column="NORMAL_REF_COUNT"/>
+    <result property="variant_read_count_tumor" column="TUMOR_ALT_COUNT"/>
+    <result property="variant_read_count_normal" column="NORMAL_ALT_COUNT"/>  
+</resultMap>
+
+<resultMap id="GeneticAltRowResult" type="DBGeneticAltRow">
+    <result property="genetic_profile_id" column="GENETIC_PROFILE_ID"/>
+    <result property="entrez_gene_id" column="ENTREZ_GENE_ID"/>
+    <result property="values" column="VALUES"/>
+</resultMap>
+
+<select id="altRow" resultMap="GeneticAltRowResult">
+    select * from genetic_alteration
+    where GENETIC_PROFILE_ID in
+    <foreach item="item" collection="ids" open="(" separator="," close=")">
+        #{item}
+    </foreach>
+    and ENTREZ_GENE_ID in
+    <foreach item="item" collection="genes" open="(" separator="," close=")">
+        #{item}
+    </foreach>
+</select>
+
+<select id="profileCaseList" resultType="DBProfileDataCaseList">
+    select
+        GENETIC_PROFILE_ID as genetic_profile_id,
+        ORDERED_SAMPLE_LIST as ordered_sample_list
+    from genetic_profile_samples
+    where GENETIC_PROFILE_ID in
+    <foreach item="item" collection="ids" open="(" separator="," close=")">
+        #{item}
+    </foreach>
+</select>
+
+<select id="mutByInternalId" resultMap="MutationDataResult">
+    select * from mutation inner join mutation_event on mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
+    where mutation.GENETIC_PROFILE_ID in
+    <foreach item="item" collection="ids" open="(" separator="," close=")">
+        #{item}
+    </foreach>
+    and mutation.ENTREZ_GENE_ID in
+    <foreach item="item" collection="genes" open="(" separator="," close=")">
+        #{item}
+    </foreach>
+</select>
+<select id="mutByInternalIdCaseId" resultMap="MutationDataResult">
+    select * from mutation inner join mutation_event on mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
+    where mutation.GENETIC_PROFILE_ID in
+    <foreach item="item" collection="ids" open="(" separator="," close=")">
+        #{item}
+    </foreach>
+    and mutation.ENTREZ_GENE_ID in
+    <foreach item="item" collection="genes" open="(" separator="," close=")">
+        #{item}
+    </foreach>
+    and mutation.SAMPLE_ID in
+    <foreach item="item" collection="case_ids" open="(" separator="," close=")">
+        #{item}
+    </foreach>
+</select>
+    
+</mapper>

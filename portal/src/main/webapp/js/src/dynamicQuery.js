@@ -94,8 +94,9 @@ $(document).ready(function(){
       event.preventDefault();
       $('#cancer_results').toggle();
     });
-
+    
     //  Set up an Event Handler to intercept form submission
+   // $("#main_form").find("#main_submit").click(doOQLQuery);
     $("#main_form").submit(chooseAction);
 
     //  Set up an Event Handler for the Query / Data Download Tabs
@@ -299,6 +300,68 @@ function reviewCurrentSelections(){
  //       });
  //   }
    }
+}
+
+function doOQLQuery() {
+	var genes = oql.getGeneList($("#gene_list").val());
+	var profiles = $.map($("#genomic_profiles").find("input[type=checkbox]:checked,input[type=radio]:checked"), function(elt) { return $(elt).attr('value');});
+	
+	var profilePromise = new $.Deferred();
+	var genePromise = new $.Deferred();
+	var allDataLoadedPromise = new $.Deferred();
+	
+	var geneMap = {}; // maps entrez_gene_id to hugo symbol
+	var sampleMap = {}; // maps internal_sample_id to sample id
+	var profileTypes = {};
+	dataman.getProfilesByStableId(profiles).then(function(data) {
+		$.each(data, function(ind, obj) {
+			profileTypes[obj.internal_id] = obj.genetic_alteration_type;
+		});
+		profiles = data.map(function(x) { return x.internal_id; });
+		profilePromise.resolve();
+	});
+	dataman.getGenesByHugoGeneSymbol(genes).then(function(data) {
+		$.each(data, function(ind, obj) {
+			geneMap[obj.entrezGeneId] = obj.hugoGeneSymbol;
+		});
+		genes = data.map(function(x) { return x.entrezGeneId; })
+		genePromise.resolve();
+	});
+	$.when(profilePromise, genePromise).then(function() {
+		dataman.getAllProfileData(genes, profiles).then(function(data) {
+			$.each(data, function(ind, obj) {
+				sampleMap[obj.internal_sample_id] = '';
+			});
+			dataman.getSamplesByInternalId(Object.keys(sampleMap)).then(function(sampdata) {
+				$.each(sampdata, function(ind, obj) {
+					sampleMap[obj.internal_id] = obj.stable_id;
+				});
+				allDataLoadedPromise.resolve(data);
+			});
+		});
+	});
+	allDataLoadedPromise.then(function(data) {
+		// finally, convert data to oncoprint format
+		var oncoprintData = dataman.df.toOncoprintFormat(data, geneMap, sampleMap, profileTypes);
+		
+		var oqlQuery = $("#gene_list").val();
+		var oncoprintData = oql.filter(oql.parseQuery(oqlQuery).return, oncoprintData);
+		$.each(oncoprintData, function(ind, elt) {
+			if (Object.keys(elt).length > 2) {
+				console.log(elt);
+			}
+		});
+		$('#oncoprint_body').empty();
+		var oncoprint;
+		requirejs( ['Oncoprint'], function(Oncoprint) {
+			oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
+				geneData: oncoprintData,
+				genes: oql.getGeneList($("#gene_list").val()),
+				legend: document.getElementById('oncoprint_legend'),
+			},[]);
+			oncoprint.sortBy('genes');
+		});
+	});
 }
 
 //  Determine whether to submit a cross-cancer query or

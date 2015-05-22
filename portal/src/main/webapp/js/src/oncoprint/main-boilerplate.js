@@ -139,12 +139,13 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
     var sortStatus=[];
 //    var sortStatus={};
     var cases = window.PortalGlobals.getCases();
-    var genes = window.PortalGlobals.getGeneListString().split(" ");
+    var genes = oql.getGeneList($('#gene_list').val());//window.PortalGlobals.getGeneListString().split(" ");
 
     var outer_loader_img = $('#oncoprint #outer_loader_img');
     var inner_loader_img = $('#oncoprint #inner_loader_img');
 
     var geneDataColl = new GeneDataColl();
+    var oncoprintData = [];
     
     var selectsortby = function()
     {
@@ -165,7 +166,45 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             oncoprint.sortBy("custom", cases.split(" "),mutationColorControl,mutationColorSort,sortStatus);
         }
     };
-    geneDataColl.fetch({
+    
+	var _stableProfileIds = window.PortalGlobals.getGeneticProfiles().split(" ");
+	var _hugoGeneSymbols = genes;
+	var _stableSampleIds = window.PortalGlobals.getCases().split(" ");
+	
+	dataman.getOncoprintData(_hugoGeneSymbols, _stableProfileIds, _stableSampleIds).then(function(data) {
+		oql.parseQueryWithDefaults($("#gene_list").val()).then(function(parsedQuery) {
+			oncoprintData = oql.filterOncoprint(parsedQuery.return,data);
+			oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
+			geneData: oncoprintData,
+			genes: genes,
+			legend: document.getElementById('oncoprint_legend')
+		    },extraTracks);
+		    outer_loader_img.hide();
+		    $('#oncoprint #everything').show();
+
+		    if($('#oncoprint_sortbyfirst_dropdonw span')[0].innerHTML === 'Sort by')
+		    {
+			oncoprint.sortBy("genes", cases.split(" "),mutationColorControl,mutationColorSort,sortStatus);
+		    }
+		    else
+		    {
+			selectsortby();
+		    }
+
+		    $('.attribute_name').qtip({
+			content: {text: 'hold to drag '},
+			position: {my:'middle right', at:'middle left', viewport: $(window)},
+			style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+			show: {event: "mouseover"}
+		    });  
+
+		    zoom = reset_zoom();
+		    invokeDataManager();
+	    });
+	});
+    
+    
+    /*geneDataColl.fetch({
         type: "POST",
         data: {
             cancer_study_id: cancer_study_id_selected,
@@ -436,7 +475,53 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 //            zoom = reset_zoom();
 //            invokeDataManager(); 
         }
-    });
+    });*/
+
+//    var dataValue;
+//    geneDataColl.fetch({
+//        type: "POST",
+//        data: {
+//            cancer_study_id: cancer_study_id_selected,
+//            oql: $('#gene_list').val(),
+//            case_list: cases,
+//            geneticProfileIds: window.PortalGlobals.getGeneticProfiles(),
+//            z_score_threshold: window.PortalGlobals.getZscoreThreshold(),
+//            rppa_score_threshold: window.PortalGlobals.getRppaScoreThreshold()
+//        },
+//        success: function(data) {
+//            dataValue = data.toJSON(); 
+//        }
+//    });
+//    
+//    var initOncoprint = function(){
+//        oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
+//            geneData: dataValue,
+//            genes: genes,
+//            legend: document.getElementById('oncoprint_legend')
+//        },extraTracks);
+//        outer_loader_img.hide();
+//        $('#oncoprint #everything').show();
+//
+//        if($('#oncoprint_sortbyfirst_dropdonw span')[0].innerHTML === 'Sort by')
+//        {
+//            oncoprint.sortBy("genes", cases.split(" "),mutationColorControl);
+//        }
+//        else
+//        {
+//            selectsortby();
+//        }
+//
+//        $('.attribute_name').qtip({
+//            content: {text: 'hold to drag '},
+//            position: {my:'middle right', at:'middle left', viewport: $(window)},
+//            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+//            show: {event: "mouseover"}
+//        });  
+//
+//        zoom = reset_zoom();
+//        invokeDataManager(); 
+//    }
+
 
     var select_clinical_attributes_id = '#select_clinical_attributes';
     var oncoprintClinicals;
@@ -629,7 +714,8 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             inner_loader_img.hide();
 
             oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
-                geneData: geneDataColl.toJSON(),
+                //geneData: geneDataColl.toJSON(),
+		geneData: oncoprintData,
                 clinicalData: extraGenes,
                 genes: genes,
                 clinical_attrs: extraAttributes,
@@ -684,7 +770,8 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         inner_loader_img.hide();
         
         oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
-            geneData: geneDataColl.toJSON(),
+            //geneData: geneDataColl.toJSON(),
+	    geneData: oncoprintData,
             clinicalData: extraGenes,
             genes: genes,
             clinical_attrs: extraAttributes,
@@ -776,20 +863,15 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         $('#oncoprint-diagram-removeWhitespace-icon img')[0].attributes.src.value = 'images/removeWhitespace.svg';
     }
 
-    var refreshOncoPrint = function(topatient){
+    window.refreshOncoPrint = function(){
         oncoprint.remove_oncoprint();
         inner_loader_img.show();
         toggleControls(false); //disable toggleControls
 
         inner_loader_img.hide();
-        
-        var topatientValue;
-        if(topatient !== undefined)
-        {
-            topatientValue = true;
-        }
         oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
-            geneData: geneDataColl.toJSON(),
+            //geneData: geneDataColl.toJSON(),
+	    geneData: oncoprintData,
             clinicalData: extraGenes,
             genes: genes,
             clinical_attrs: extraAttributes,
@@ -855,7 +937,8 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             inner_loader_img.hide();
 
             oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
-                geneData: geneDataColl.toJSON(),
+                //geneData: geneDataColl.toJSON(),
+		geneData: oncoprintData,
                 genes: genes,
                 legend: document.getElementById('oncoprint_legend')
             },extraTracks);
@@ -897,7 +980,8 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         sortStatus = sortStatus.concat('decreSort');
 //                        sortStatus['# mutations'] = 'decreSort';
                         oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
-                            geneData: geneDataColl.toJSON(),
+                            //geneData: geneDataColl.toJSON(),
+			    geneData: oncoprintData,
                             clinicalData: extraGenes,
                             genes: genes,
                             clinical_attrs: extraAttributes,
@@ -993,7 +1077,8 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         sortStatus = sortStatus.concat('decreSort');
 //                        sortStatus['FRACTION_GENOME_ALTERED'] = 'decreSort';
                         oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
-                            geneData: geneDataColl.toJSON(),
+                            //geneData: geneDataColl.toJSON(),
+			    geneData: oncoprintData,
                             clinicalData: extraGenes,
                             genes: genes,
                             clinical_attrs: extraAttributes,
@@ -1091,7 +1176,8 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         sortStatus = sortStatus.concat('decreSort');
 //                        sortStatus[clinicalAttribute.attr_id] = 'decreSort';
                         oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
-                            geneData: geneDataColl.toJSON(),
+                            //geneData: geneDataColl.toJSON(),
+			    geneData: oncoprintData,
                             clinicalData: extraGenes,
                             genes: genes,
                             clinical_attrs: extraAttributes,
@@ -1296,7 +1382,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                 }
             }
             
-            spaceHeight=(ExtractNumber(target.parentElement.parentElement.children[2].attributes.y.value)-ExtractNumber(target.parentElement.parentElement.children[0].attributes.y.value))/2; //get the height of each table row
+            spaceHeight=(ExtractNumber(target.parentElement.parentElement.children[1].attributes.y.value)-ExtractNumber(target.parentElement.parentElement.children[0].attributes.y.value))/1; //get the height of each table row
 
             // bring the clicked element to the front while it is being dragged
             _oldZIndex = target.style.zIndex;
@@ -1483,9 +1569,11 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
     var invokeDataManager = function() {
         //TODO: tmp solution for re-using data
-        window.PortalGlobals.setGeneData(geneDataColl.toJSON());
+        //window.PortalGlobals.setGeneData(geneDataColl.toJSON());
+	window.PortalGlobals.setGeneData(oncoprintData);
         PortalDataColl.setOncoprintData(oncoprint.getOncoprintData()); 
-        var alterInfo = utils.alteration_info(geneDataColl.toJSON());
+        //var alterInfo = utils.alteration_info(geneDataColl.toJSON());
+	var alterInfo = utils.alteration_info(oncoprintData);
         PortalDataColl.setOncoprintStat(alterInfo);
     };
 

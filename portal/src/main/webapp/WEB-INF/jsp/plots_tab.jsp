@@ -99,7 +99,7 @@
         max-width: 180px;
     }
     #plots-box {
-        width: 820px;
+        width: 850px;
         height: 670px;
         float: right;
     }

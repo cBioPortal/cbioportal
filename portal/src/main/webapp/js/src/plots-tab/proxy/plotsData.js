@@ -72,6 +72,7 @@ var plotsData = (function() {
                 cmd : "getClinicalData",
                 cancer_study_id: window.PortalGlobals.getCancerStudyId(),
                 case_set_id : window.PortalGlobals.getCaseSetId(),
+                case_ids_key: window.PortalGlobals.getCaseIdsKey(),
                 format : "json"
             };
             $.post("webservice.do", paramsGetClinicalAttributes, inner_callback_func, "json");

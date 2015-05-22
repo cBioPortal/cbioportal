@@ -225,7 +225,7 @@ var scatterPlots = (function() {
     }
     
     function drawDots(_apply_box_plots, _box_plots_axis) {
-        
+
         elem.dotsGroup = elem.svg.append("svg:g");
         elem.dotsGroup.selectAll("path").remove();
 
@@ -995,7 +995,7 @@ var scatterPlots = (function() {
     
     return {
         init: function(_div, _data, _apply_box_plots, _box_plots_axis, _calculate_co_exp) {
-            
+
             data = [];
             glyphs = [];
             data.length = 0;

@@ -151,11 +151,17 @@ var StudyViewSurvivalPlotView = (function() {
             hide: {fixed:true, delay: 100, event: "mouseout"},
             position: {my:'top center',at:'bottom center', viewport: $(window)},
             content: {
-                text:   "<div style='display:inline-block;float:left;margin: 0 2px'>"+
-                        "<button  id='"+_opts.divs.pdf+"'>PDF</button>"+          
+                text:
+                        "<div style='display:inline-block;'>"+
+                        "<button id='"+_opts.divs.pdf+"' style=\"width:50px\">PDF</button>"+
                         "</div>"+
-                        "<div style='display:inline-block;float:left;margin: 0 2px'>"+
-                        "<button  id='"+_opts.divs.svg+"'>SVG</button>"+
+                        "<br>"+
+                        "<div style='display:inline-block;'>"+
+                        "<button id='"+_opts.divs.svg+"' style=\"width:50px\">SVG</button>"+
+                        "</div>"+
+                        "<br>"+
+                        "<div style='display:inline-block;'>"+
+                        "<button id='"+_opts.divs.txt+"' style=\"width:50px\">DATA</button>"+
                         "</div>"
             },
             events: {
@@ -173,6 +179,74 @@ var StudyViewSurvivalPlotView = (function() {
                                 _opts.divs.svgValue, _plotKey, _title,  {
                                     filename: "Survival_Plot_result-" + StudyViewParams.params.studyId + ".svg",
                                 });
+                    });
+                    $("#"+_opts.divs.txt).click(function(){
+                        var content = '';
+                        var subtitle;
+                        switch(_plotKey) {
+                            case 'OS':
+                                subtitle = 'Overall Survival';
+                                break;
+                            case 'DFS':
+                                subtitle = 'Disease Free Survival';
+                                break;
+                        }
+                        var attributes;
+                        attributes = aData[_plotKey];
+                        var groupFlag = false;
+                        if(curveInfo[_plotKey].length > 1)
+                            groupFlag = true;
+                        
+                        if(groupFlag) {
+                            content = content + 'Sample ID' + '\t';
+                            content = content + 'Status' + '\t';
+                            content = content + subtitle + '\t';
+                            content = content + 'Group';
+                            
+                            var oldContent = {};
+                            for(var i in attributes){
+                                var row = '\r\n';
+                                row += attributes[i].case_id + '\t';
+                                row += attributes[i].originalStatus + '\t';
+                                row += StudyViewUtil.restrictNumDigits(attributes[i].months) + '\t';
+                                oldContent[attributes[i].case_id] = row;
+                            }
+                            
+                            var groupInfo = curveInfo[_plotKey];
+                            
+                            for(var i=0; i<groupInfo.length; i++) {
+                                var group = groupInfo[i];
+                                var name = group.name;
+                                var dataInfo = group.data.data.getData();
+                                for(var j=0; j<dataInfo.length; j++) {
+                                    var data = dataInfo[j];
+                                    oldContent[data.case_id] += name;
+                                }
+                            }
+                            
+                            for(var row in oldContent) {
+                                content += oldContent[row];
+                            }
+                        } else {
+                            content = content + 'Sample ID' + '\t';
+                            content = content + 'Status' + '\t';
+                            content = content + subtitle;
+
+                            for(var i in attributes){
+                                content += '\r\n';
+                                content += attributes[i].case_id + '\t';
+                                content += attributes[i].originalStatus + '\t';
+                                content += StudyViewUtil.restrictNumDigits(attributes[i].months);
+                            }
+                        }
+                        
+                        var downloadOpts = {
+                            filename: cancerStudyName + "_" + subtitle + ".txt",
+                            contentType: "text/plain;charset=utf-8",
+                            preProcess: false
+                        };
+
+                        cbio.download.initDownload(content, downloadOpts);
                     });
 //                    $("#study-view-scatter-plot-pdf", api.elements.tooltip).submit(function(){
 //                        $("#study-view-scatter-plot-pdf-name").val("Scatter_Plot_result-"+ StudyViewParams.params.studyId +".pdf");
@@ -210,7 +284,7 @@ var StudyViewSurvivalPlotView = (function() {
                 _svgWidth = 360,
                 _svgheight = 360;
 
-        _svgElement = $cbio.download.serializeHtml($("#" + _svgParentDivId + " svg")[0]);
+        _svgElement = cbio.download.serializeHtml($("#" + _svgParentDivId + " svg")[0]);
         _svgLabels = $("#" + opts[_plotKey].divs.bodyLabel + " svg");
 
         _svgLabels.find('image').remove();
@@ -239,7 +313,7 @@ var StudyViewSurvivalPlotView = (function() {
         _svgTitle = "<g><text text-anchor='middle' x='210' y='30' " +
                 "style='font-weight:bold'>" + _title + "</text></g>";
 
-        _svgElement = "<svg width='" + _svgWidth + "px' height='" + _svgheight + "px' style='font-size:14px'>" +
+        _svgElement = "<svg xmlns='http://www.w3.org/2000/svg' version='1.1' width='" + _svgWidth + "px' height='" + _svgheight + "px' style='font-size:14px'>" +
                 _svgTitle + "<g transform='translate(0,40)'>" +
                 _svgElement + "</g><g transform='translate(370,50)'>" +
                 _svgLabels + "</g></svg>";
@@ -484,6 +558,7 @@ var StudyViewSurvivalPlotView = (function() {
                 } else {
                     _plotData[_caseID].status = 'NA';
                 }
+                _plotData[_caseID].originalStatus = _status;
                 
                 if (isNaN(_time)) {
                     _plotData[_caseID].months = 'NA';
@@ -567,6 +642,7 @@ var StudyViewSurvivalPlotView = (function() {
         _opts.divs.svg = "study-view-survival-plot-svg-" + _index;
         _opts.divs.svgName = "study-view-survival-plot-svg-name-" + _index;
         _opts.divs.svgValue = "study-view-survival-plot-svg-value-" + _index;
+        _opts.divs.txt = "study-view-survival-plot-tsv-" + _index;
         _opts.divs.menu = "study-view-survival-plot-menu-" + _index;
         _opts.divs.loader = "study-view-survival-plot-loader-" + _index;
         _opts.divs.downloadIcon = "study-view-survival-download-icon-" + _index;
@@ -810,7 +886,7 @@ var StudyViewSurvivalPlotView = (function() {
             show: {event: "mouseover", delay: 0},
             hide: {fixed:true, delay: 100, event: "mouseout"},
             position: {my:'left top',at:'top right', viewport: $(window)},
-            content: cbio.download.serializeHtml($("#" + opts[_plotKey].divs.bodyLabel)[0]),
+            content: $("#" + opts[_plotKey].divs.bodyLabel).html(),
             events: {
                 render: function(event, api) {
                     $('svg image', api.elements.tooltip).hover(function() {

@@ -113,6 +113,7 @@ var OncoKBConnector = (function(){
             },
             error: function (responseData, textStatus, errorThrown) {
                 console.log('POST failed.');
+                callback([]);
             }
         });
     }

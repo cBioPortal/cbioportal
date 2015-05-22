@@ -1275,8 +1275,8 @@ function fillColorAndLabelForCase(circle, caseId) {
     var color = caseMetaData.color[caseId];
     circle.select("circle").attr("fill",color);
     circle.append("text")
-        .attr("x",-3)
         .attr("y",4)
+        .attr("text-anchor","middle")
         .attr("font-size",10)
         .attr("fill","white")
         .text(label);

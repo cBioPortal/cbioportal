@@ -371,7 +371,9 @@ if (patientViewError!=null) {
         color: #428bca;
         padding: 0 5px;
     }
-    
+    .sample-record-inline:last-child .sample-record-delimiter {
+		visibility: hidden;
+	}
     #page_wrapper_table {
         background-color: white;
     }
@@ -890,7 +892,7 @@ function outputClinicalData() {
         //var row = "<tr><td><b>Patient</b></td>";
         //$("#clinical_table").append(row);
 
-        row = "<div style='white-space: nowrap;'><span id='more-patient-info'><b><u><a href='"+cbio.util.getLinkToPatientView(cancerStudyId,patientId)+"'>"+patientId+"</a></b></u><a>&nbsp;";
+        row = "<span id='more-patient-info'><b><u><a href='"+cbio.util.getLinkToPatientView(cancerStudyId,patientId)+"'>"+patientId+"</a></b></u><a>&nbsp;";
         var info = [];
         var loc;
         if ("PRIMARY_SITE" in patientInfo) {loc = (" (" + patientInfo["PRIMARY_SITE"] + ")")} else {loc=""};
@@ -898,16 +900,15 @@ function outputClinicalData() {
         var info = info.concat(formatDiseaseInfo(patientInfo));
         var info = info.concat(formatPatientStatus(patientInfo));
         row += info.join(", ");
-        row += "</a></span><span style='float: right'>" + formatCancerStudyInfo()+ "</span></div>";
+        row += "</a></span><span style='float: right'>" + formatCancerStudyInfo()+ "</span><br />";
         $("#clinical_div").append(row);
         
         var head_recs = "";
         var tail_recs = "";
         var sample_recs = "";
         var nr_in_head = 5;
-        var max_in_tail = 20;
         var is_expanded = false;
-        for (var i=0; i<Math.min(n, nr_in_head+max_in_tail); i++) {
+        for (var i=0; i<n; i++) {
             var caseId = caseIds[i];
             
             sample_recs += "<div class='sample-record-inline more-sample-info' alt='"+caseId+"'>";
@@ -925,7 +926,7 @@ function outputClinicalData() {
             var info = [];
             info = info.concat(formatStateInfo(sampleData));
             sample_recs += info.join(",&nbsp;");
-            sample_recs += "</a>, </div>";
+            sample_recs += "</a><span class='sample-record-delimiter'>, </span></div>";
             
             if ((n > nr_in_head && i == nr_in_head-1) || (n <= nr_in_head && i == n-1)) {
                 head_recs = sample_recs;

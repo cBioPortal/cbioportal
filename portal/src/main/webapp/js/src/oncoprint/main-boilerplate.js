@@ -811,6 +811,37 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         toggleControls(true);
     }
 
+    var GenePanelData;
+
+    oncoprintClinicals = new ClinicalColl();
+    oncoprintClinicals.fetch({
+    type: "POST",
+
+    data: {
+        cancer_study_id: cancer_study_id_selected,
+        attribute_id: "GENE_PANEL",
+        case_list: cases
+    },
+    success: function(response) {
+//            inner_loader_img.hide();
+
+//            extraTracks = extraTracks.concat(response.attributes().map(function(attr) { return attr.attr_id; }));
+            GenePanelData = response.toJSON();
+//            extraAttributes=extraAttributes.concat(response.attributes());
+//            sortStatus = sortStatus.concat('decreSort');
+
+//            oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
+//                geneData: geneDataColl.toJSON(),
+//                clinicalData: extraGenes,
+//                genes: genes,
+//                clinical_attrs: extraAttributes,
+//                legend: document.getElementById('oncoprint_legend'),
+//                sortStatus:sortStatus,
+//                mutationColor:mutationColorControl
+//            },extraTracks);
+        }
+    });
+
     // handler for when user selects a clinical attribute to visualization
     var clinicalAttributeSelected = function() {
         $('#clinical_dropdown').dropdown( 'toggle' );

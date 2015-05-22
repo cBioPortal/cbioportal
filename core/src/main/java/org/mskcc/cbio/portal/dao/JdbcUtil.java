@@ -108,7 +108,7 @@ public class JdbcUtil {
             ds = (DataSource)ctx.getBean("businessDataSource");
         }
         catch (Exception e) {
-            // logMessage("Problem creating jndi datasource, opening dbcp datasource.");
+            //logMessage("Problem creating jndi datasource, opening dbcp datasource.");
             ctx = getContext("dbcp");
             ds = (DataSource)ctx.getBean("businessDataSource");
         }

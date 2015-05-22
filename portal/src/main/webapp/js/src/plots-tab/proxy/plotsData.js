@@ -78,9 +78,7 @@ var plotsData = (function() {
 
         }
     };
-    
 
-    
     var merge = function(axis, result) {
         //fill in x, y value
         data[axis].stat = true;

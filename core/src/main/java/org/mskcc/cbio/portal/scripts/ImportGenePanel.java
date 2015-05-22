@@ -11,8 +11,7 @@ import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
 import org.mskcc.cbio.portal.util.ConsoleUtil;
 import org.mskcc.cbio.portal.util.FileUtil;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
-import org.mskcc.cbio.portal.model.GenePanelData;
-import org.mskcc.cbio.portal.model.GenePanelListData;
+import org.mskcc.cbio.portal.model.GenePanel;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -42,7 +41,8 @@ public class ImportGenePanel {
         String studyId="empty";
         String stableId = "empty";
         String decription = "empty";
-        while (!line.startsWith("gene_list")) {
+        String genelist = "empty";
+        while (line!=null&&line.length()!=0) {
             if (pMonitor != null) {
                 pMonitor.incrementCurValue();
                 ConsoleUtil.showProgress(pMonitor);
@@ -62,27 +62,33 @@ public class ImportGenePanel {
                     decription = parts[1];
                 }
             
+            if (line.startsWith("gene_list")) {
+                    String parts[] = line.split(":");
+                    genelist = parts[1];
+            }
             line = buf.readLine();
         }
-        String Parts[] = line.split(":");
-        String panelList[] = Parts[1].split("\t");
+        
+        
+//        String Parts[] = line.split(":");
+//        String panelList[] = Parts[1].split("\t");
         int maxListID = DaoGenePanel.getMaxListId();
-        if(studyId != "empty" || stableId != "empty" || decription != "empty")
+        GenePanel genepenal = new GenePanel(maxListID+1,stableId,studyId,decription,genelist);
+        if(genepenal.getCancerStudyId() != "empty" || genepenal.getStableId() != "empty" || genepenal.getDiscription() != "empty"||genepenal.getGenelist()!="empty")
         {
-            GenePanelData genepenal = new GenePanelData(maxListID+1,stableId,studyId,decription);
             DaoGenePanel.addGenePanel(genepenal);
         }
         
+        String panelList[] = genepenal.getGenelist().split("\t");
         long geneId;
-        
         if(panelList.length > 0)     
         {
             DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
             for(int i=0; i<panelList.length;i++)
             {
                 geneId = daoGene.getNonAmbiguousGene(panelList[i].replaceAll("\\s+","")).getEntrezGeneId();
-                GenePanelListData genepenallist = new GenePanelListData(maxListID+1,geneId);
-                DaoGenePanel.addGenePanelList(genepenallist);
+//                GenePanelListData genepenallist = new GenePanelListData(maxListID+1,geneId);
+                DaoGenePanel.addGenePanelList(maxListID+1, geneId);
             }
         }
         reader.close();

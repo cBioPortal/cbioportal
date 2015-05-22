@@ -6,8 +6,7 @@
 
 package org.mskcc.cbio.portal.dao;
 
-import org.mskcc.cbio.portal.model.GenePanelData;
-import org.mskcc.cbio.portal.model.GenePanelListData;
+import org.mskcc.cbio.portal.model.GenePanel;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -52,7 +51,7 @@ public class DaoGenePanel {
      * @return number of records successfully added.
      * @throws DaoException Database Error.
      */
-    public static int addGenePanel(GenePanelData genePanel) throws DaoException {
+    public static int addGenePanel(GenePanel genePanel) throws DaoException {
         if (MySQLbulkLoader.isBulkLoad()) {
             String test = Long.toString(genePanel.getGenePanelListId());
             
@@ -96,11 +95,11 @@ public class DaoGenePanel {
         }
     }
     
-        public static int addGenePanelList(GenePanelListData genePanellist) throws DaoException {
+    public static int addGenePanelList(int listID, long geneId) throws DaoException {
         if (MySQLbulkLoader.isBulkLoad()) {
             //  write to the temp file maintained by the MySQLbulkLoader
-            MySQLbulkLoader.getMySQLbulkLoader("gene_panel_list").insertRecord(Long.toString(genePanellist.getGenePanelListId()),
-                    Long.toString(genePanellist.getGeneId()));
+            MySQLbulkLoader.getMySQLbulkLoader("gene_panel_list").insertRecord(Long.toString(listID),
+                    Long.toString(geneId));
             // return 1 because normal insert will return 1 if no error occurs
             return 1;
         }

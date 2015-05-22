@@ -184,7 +184,7 @@ CREATE TABLE `gene_panel` (
 -- Table structure for table `gene_panel_list`
 --
 drop table IF EXISTS gene_panel_list;
-CREATE TABLE `gene_panle_list` (
+CREATE TABLE `gene_panel_list` (
   `LIST_ID` int(11) NOT NULL,
   `GENE_ID` int(11) NOT NULL,
   PRIMARY KEY  (`LIST_ID`,`GENE_ID`),

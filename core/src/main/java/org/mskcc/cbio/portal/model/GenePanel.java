@@ -35,42 +35,37 @@ package org.mskcc.cbio.portal.model;
 /**
  * Encapsulates Clinical Data.
  *
- * @author Gideon Dresdner <dresdnerg@cbio.mskcc.org>
+ * @author Dong Li <dresdnerg@cbio.mskcc.org>
  */
-public class GenePanelData {
+public class GenePanel {
     private int listId;
     private String stableId;
     private String cancerStudyId;
     private String discription;
+    private String genelist;
 
     /**
      * Constructor
      */
-    public GenePanelData() {
-        this(-1, "", "", "");
+    public GenePanel() {
+        this(-1, "", "", "","");
     }
     
-    public GenePanelData(GenePanelData other) {
-        this(other.getGenePanelListId(), other.getStableId(), other.getCancerStudyId(), other.getDiscription());
+    public GenePanel(GenePanel other) {
+        this(other.getGenePanelListId(), other.getStableId(), other.getCancerStudyId(), other.getDiscription(), other.getGenelist());
     }
 
-    /**
-     * Constructor
-     *
-     * @param cancerStudyId     database id of cancer study
-     * @param stableId          stable id of the patient or sample
-     * @param attrId            database id of the attribute
-     * @param attrVal           value of the clinical attribute given above
-     */
-    public GenePanelData(int listId,
+    public GenePanel(int listId,
                         String stableId,
                         String cancerStudyId,
-                        String discription) {
+                        String discription,
+                        String genelist) {
 
         this.listId = listId;
         this.stableId = stableId;
         this.cancerStudyId = cancerStudyId;
         this.discription = discription;
+        this.genelist = genelist;
     }
 
     public int getGenePanelListId() {
@@ -104,8 +99,16 @@ public class GenePanelData {
     public void setAttrVal(String discription) {
         this.discription = discription;
     }
+    
+    public String getGenelist() {
+        return genelist;
+    }
+
+    public void setGenelist(String genelist) {
+        this.genelist = genelist;
+    }
 
     public String toString() {
-        return String.format("GenePanelData[cancerStudyId=%d, %s, %s, %s]", listId, stableId, cancerStudyId, discription);
+        return String.format("GenePanelData[cancerStudyId=%d, %s, %s, %s, %s]", listId, stableId, cancerStudyId, discription, genelist);
     }
 }

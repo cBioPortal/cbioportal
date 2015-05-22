@@ -10570,10 +10570,14 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 
 					qTipOptsOma.content = {text: "NA"}; // content is overwritten on render
 					qTipOptsOma.events = {render: function(event, api) {
-						var model = {impact: fis.value,
-							xvia: mutation.xVarLink,
-							msaLink: mutation.msaLink,
-							pdbLink: mutation.pdbLink};
+						// TODO this is a quickfix for dead getma.org links,
+						// need to update corresponding data sources properly
+						var model = {
+							impact: fis.value,
+							xvia: mutation.xVarLink.replace("getma.org", "mutationassessor.org"),
+							msaLink: mutation.msaLink.replace("getma.org", "mutationassessor.org"),
+							pdbLink: mutation.pdbLink.replace("getma.org", "mutationassessor.org")
+						};
 
 						var container = $(this).find('.qtip-content');
 

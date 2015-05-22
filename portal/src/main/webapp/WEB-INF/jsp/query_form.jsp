@@ -44,7 +44,7 @@
 		    (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
     String localPatientSetId =
 		    (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
-                    String localCancerStudyList = (String) request.getAttribute(QueryBuilder.CANCER_STUDY_LIST);
+                    String localCancerStudyList = (String) request.getParameter(QueryBuilder.CANCER_STUDY_LIST);
                     if (localCancerStudyList == null) {
                         localCancerStudyList = "";
                         }

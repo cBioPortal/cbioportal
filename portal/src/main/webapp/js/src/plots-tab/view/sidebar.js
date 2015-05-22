@@ -16,8 +16,8 @@ var sidebar = (function() {
                 //reset the default value of x: default is always x copy num, y mrna
                 document.getElementById(ids.sidebar.x.profile_type).selectedIndex = "1";
                 profileSpec.updateProfileNameList("x");
-                regenerate_plots("x");       
-                regenerate_plots("y");
+                //regenerate_plots("x");
+                //regenerate_plots("y");
             }
         //only have clincal data
         } else if ((metaData.getGeneticProfilesMeta(window.PortalGlobals.getGeneList()[0]).length === 0 || 
@@ -55,7 +55,7 @@ var sidebar = (function() {
             if (_type_arr.length > 1) { //if there's only one profile type don't adjust the default settings
                 document.getElementById(ids.sidebar.x.profile_type).selectedIndex = "1";
                 profileSpec.updateProfileNameList("x");
-                regenerate_plots("x");
+                //regenerate_plots("x");
             }
         }
 
@@ -148,9 +148,8 @@ var sidebar = (function() {
             }
             
             //update plots
-            regenerate_plots("x");
-            regenerate_plots("y");
-            
+            regenerate_plots("xy");
+
         });
         
     };

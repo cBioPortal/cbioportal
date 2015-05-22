@@ -70,7 +70,7 @@ public final class WebserviceParserUtils {
         }
 
         ArrayList<String> patientList = new ArrayList<String>();
-        if (patientSetId != null) {
+        if (patientSetId != null && !(patientSetId.equals("-1"))) {
             DaoPatientList dao = new DaoPatientList();
             PatientList selectedPatientList = dao.getPatientListByStableId(patientSetId);
             if (selectedPatientList == null) {

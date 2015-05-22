@@ -67,7 +67,7 @@ var DataDownloadTab = (function() {
                         strs.alt_type += "  " + "\t";
                     } else {
                         if (inner_obj.hasOwnProperty("mutation")) {
-                            strs.alt_type += "MUT;";
+                            strs.alt_type += "MUT: " + inner_obj.mutation;
                         }
                         if (inner_obj.hasOwnProperty("cna")) {
                             if (inner_obj.cna === "AMPLIFIED") {

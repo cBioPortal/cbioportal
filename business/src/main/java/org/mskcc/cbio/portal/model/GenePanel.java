@@ -32,83 +32,59 @@
 
 package org.mskcc.cbio.portal.model;
 
+import java.util.ArrayList;
+
 /**
  * Encapsulates Clinical Data.
  *
- * @author Dong Li <dresdnerg@cbio.mskcc.org>
+ * @author Dong Li <dongli@cbio.mskcc.org>
  */
-public class GenePanel {
-    private int listId;
+public class GenePanel
+{
+    private int internalId;
     private String stableId;
     private String cancerStudyId;
-    private String discription;
-    private String genelist;
+    private String description;
+    private List <String> genelist;
 
-    /**
-     * Constructor
-     */
-    public GenePanel() {
-        this(-1, "", "", "","");
-    }
+    public GenePanel(int internalId,
+                     String stableId,
+                     String cancerStudyId,
+                     String description)
+	{
+		this.internalId = internalId;
+		this.stableId = stableId;
+		this.cancerStudyId = cancerStudyId;
+		this.description = description;
+	}
     
-    public GenePanel(GenePanel other) {
-        this(other.getGenePanelListId(), other.getStableId(), other.getCancerStudyId(), other.getDiscription(), other.getGenelist());
+    public int getInternalId()
+	{
+        return internalId;
     }
 
-    public GenePanel(int listId,
-                        String stableId,
-                        String cancerStudyId,
-                        String discription,
-                        String genelist) {
-
-        this.listId = listId;
-        this.stableId = stableId;
-        this.cancerStudyId = cancerStudyId;
-        this.discription = discription;
-        this.genelist = genelist;
-    }
-
-    public int getGenePanelListId() {
-        return listId;
-    }
-
-    public void setGenePanelListId(int listId) {
-        this.listId = listId;
-    }
-
-    public String getStableId() {
+    public String getStableId()
+	{
         return stableId;
     }
 
-    public void setStableId(String stableId) {
-        this.stableId = stableId;
-    }
-
-    public String getCancerStudyId() {
+    public String getCancerStudyId()
+	{
         return cancerStudyId;
     }
 
-    public void setCancerStudyId(String cancerStudyId) {
-        this.cancerStudyId = cancerStudyId;
+    public String getDescription()
+	{
+        return description;
     }
 
-    public String getDiscription() {
-        return discription;
-    }
+	public void setGeneList(List<String> geneList)
+	{
+		this.geneList = geneList;
+	}
 
-    public void setAttrVal(String discription) {
-        this.discription = discription;
-    }
-    
-    public String getGenelist() {
+    public List<String> getGenelist()
+	{
         return genelist;
-    }
-
-    public void setGenelist(String genelist) {
-        this.genelist = genelist;
-    }
-
-    public String toString() {
-        return String.format("GenePanelData[cancerStudyId=%d, %s, %s, %s, %s]", listId, stableId, cancerStudyId, discription, genelist);
     }
 }

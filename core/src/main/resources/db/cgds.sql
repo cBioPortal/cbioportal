@@ -170,12 +170,13 @@ CREATE TABLE `patient_list_list` (
 --
 drop table IF EXISTS gene_panel;
 CREATE TABLE `gene_panel` (
-  `LIST_ID` int(11) NOT NULL auto_increment,
+  `INTERNAL_ID` int(11) NOT NULL auto_increment,
   `STABLE_ID` varchar(255) NOT NULL,
-  `CANCER_STUDY_IDENTIFIER` varchar(255) NOT NULL,
   `DESCRIPTION` mediumtext,
-  PRIMARY KEY  (`LIST_ID`),
+  `CANCER_STUDY_ID` int(11) NOT NULL,
+  PRIMARY KEY  (`INTERNAL_ID`),
   UNIQUE (`STABLE_ID`)
+  FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
@@ -185,10 +186,10 @@ CREATE TABLE `gene_panel` (
 --
 drop table IF EXISTS gene_panel_list;
 CREATE TABLE `gene_panel_list` (
-  `LIST_ID` int(11) NOT NULL,
-  `GENE_ID` int(11) NOT NULL,
-  PRIMARY KEY  (`LIST_ID`,`GENE_ID`),
-  FOREIGN KEY (`LIST_ID`) REFERENCES `gene_panel` (`LIST_ID`) ON DELETE CASCADE,
+  `INTERNAL_ID` int(11) NOT NULL,
+  `GENE_ID` int(255) NOT NULL,
+  PRIMARY KEY  (`INTERNAL_ID`,`GENE_ID`),
+  FOREIGN KEY (`INTERNAL_ID`) REFERENCES `gene_panel` (`INTERNAL_ID`) ON DELETE CASCADE,
   FOREIGN KEY (`GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`) ON DELETE CASCADE
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 

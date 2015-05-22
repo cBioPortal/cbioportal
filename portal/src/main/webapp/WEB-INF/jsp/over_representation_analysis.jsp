@@ -50,7 +50,7 @@
         height: 13px;
     }
     #or_analysis .dataTables tbody tr {
-        min-height: 32px;
+        min-height: 28px;
     }
 </style>
 

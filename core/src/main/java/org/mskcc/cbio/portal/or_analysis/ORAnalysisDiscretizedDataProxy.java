@@ -160,17 +160,18 @@ public class ORAnalysisDiscretizedDataProxy {
     
     private String calcRatio(double pct1, double pct2) {
         if (pct1 != 0 && pct2 != 0) {
-            if ((Math.log(pct1 / pct2) / Math.log(2)) > 3) {
-                return ">3";
-            } else if (Math.log(pct1 / pct2) / Math.log(2) < -3) {
-                return "<-3";
+            System.out.println(Math.log(pct1/pct2)/Math.log(2));
+            if ((Math.log(pct1 / pct2) / Math.log(2)) > 10) {
+                return ">10";
+            } else if (Math.log(pct1 / pct2) / Math.log(2) < -10) {
+                return "<-10";
             } else {
                 return Double.toString(Math.log(pct1 / pct2) / Math.log(2));
             }
         } else if (pct1 == 0 && pct2 != 0) {
-            return "<-3";
+            return "<-10";
         } else if (pct1 != 0 && pct2 == 0) {
-            return ">3";
+            return ">10";
         } else {
             return "--";
         } 
@@ -340,7 +341,7 @@ public class ORAnalysisDiscretizedDataProxy {
             }
         }
         
-        if (alteredArray.length<2 || unalteredArray.length<2) return Double.NaN;
+        if (alteredArray.length < 2 || unalteredArray.length < 2) return Double.NaN;
         else {
             double pvalue = TestUtils.tTest(alteredArray, unalteredArray);
             return pvalue;

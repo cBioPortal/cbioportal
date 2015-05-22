@@ -101,10 +101,10 @@ var orTable = function() {
             else return 0;
         };
         jQuery.fn.dataTableExt.oSort['or-analysis-log-ratio-desc'] = function(a,b) {
-            if (a === "<-3") { a = -10; }
-            if (b === "<-3") { b = -10; }
-            if (a === ">3") { a = 10; }
-            if (b === ">3") { b = 10; }
+            if (a === "<-10") { a = -11; }
+            if (b === "<-10") { b = -11; }
+            if (a === ">10") { a = 11; }
+            if (b === ">10") { b = 11; }
             if (a < 0 && b < 0) {
                 if (Math.abs(a) > Math.abs(b)) return 1;
                 else return -1;
@@ -115,10 +115,10 @@ var orTable = function() {
             }
         };
         jQuery.fn.dataTableExt.oSort['or-analysis-log-ratio-asc'] = function(a,b) {
-            if (a === "<-3") { a = -10; }
-            if (b === "<-3") { b = -10; }
-            if (a === ">3") { a = 10; }
-            if (b === ">3") { b = 10; }
+            if (a === "<-10") { a = -11; }
+            if (b === "<-10") { b = -11; }
+            if (a === ">10") { a = 11; }
+            if (b === ">10") { b = 11; }
             if (a < 0 && b < 0) {
                 if (Math.abs(a) > Math.abs(b)) return -1;
                 else return 1;
@@ -173,9 +173,9 @@ var orTable = function() {
                 $('td:eq(' + col_index.gene + ')', nRow).css("font-weight", "bold");
                 
                 if (profile_type === orAnalysis.profile_type.copy_num || profile_type === orAnalysis.profile_type.mutations) {
-                    if (aData[col_index.log_ratio] > 0 || aData[col_index.log_ratio] === ">3") {
+                    if (aData[col_index.log_ratio] > 0 || aData[col_index.log_ratio] === ">10") {
                         $('td:eq('+ col_index.log_ratio +')', nRow).css("color", "#3B7C3B");
-                    } else if (aData[col_index.log_ratio] < 0 || aData[col_index.log_ratio] === "<-3") {
+                    } else if (aData[col_index.log_ratio] < 0 || aData[col_index.log_ratio] === "<-10") {
                         $('td:eq(' + col_index.log_ratio + ')', nRow).css("color", "#B40404");
                     } 
                     //bold siginicant pvalue and qvalue

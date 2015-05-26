@@ -1457,6 +1457,37 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         var alterInfo = utils.alteration_info(geneDataColl.toJSON());
         PortalDataColl.setOncoprintStat(alterInfo);
     };
+    
+    function findIndexInArray(elementValue, arrayValue,patientMap)
+    {
+        for(var i = 0; i < arrayValue.length; i++)
+        {
+            if(patientMap[elementValue] === arrayValue[i])
+            {
+                return i;
+            }  
+        }
+        
+        return -1;
+    }
+    
+    function calculatePatientNum(samples,patientsMap)
+    {
+        var PatientsList = [];
+        samples = samples.split(" ");
+        for(var i = 0; i < samples.length; i++)
+        {
+            if(patientsMap[samples[i]]!==undefined)
+            {
+                if(findIndexInArray(samples[i],PatientsList,patientsMap) === -1)
+                {
+                   PatientsList.push(patientsMap[samples[i]]); 
+                }
+            }
+        }
+        
+        return PatientsList.sort();
+    }
 
     $(document).ready(function() {
         $('#oncoprint-diagram-toolbar-buttons #genes_first_a').click(function(){
@@ -1657,6 +1688,14 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                     mutationColorSort = 'mutationcolorsort';  
                 }
                 
+                var AlteredPatientsNum= calculatePatientNum(PortalGlobals.getAlteredSampleIdList(),PortalGlobals.getPatientSampleIdMap());
+                var UnalteredPatientsNum= calculatePatientNum(PortalGlobals.getUnalteredSampleIdList(),PortalGlobals.getPatientSampleIdMap());
+                
+                var totalPatientsNum = _.union(AlteredPatientsNum,UnalteredPatientsNum);
+                var percentOfAlteredPatients = (AlteredPatientsNum.length/totalPatientsNum.length * 100).toFixed(1);
+                
+                $('#altered_value').text("Altered in "+ AlteredPatientsNum.length + "("+ percentOfAlteredPatients +"%) of patients");
+                
                 showPatientIdflat = true;
                 refreshOncoPrint(showPatientIdflat);
 
@@ -1665,7 +1704,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                 $('#oncoprint_zoom_slider')[0].value = zoomvalue;
                 // sync
                 oncoprint.zoom(zoomvalue);
-
+                
                 oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
                 if($('#oncoprint-diagram-removeWhitespace-icon img')[0].attributes.src.value === 'images/removeWhitespace.svg')
                 {
@@ -1703,7 +1742,9 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                 }
                 showPatientIdflat = false;
                 refreshOncoPrint();
-
+                
+                $('#altered_value').text("Altered in "+ PortalGlobals.getNumOfAlteredCases() + "("+ PortalGlobals.getPercentageOfAlteredCases() +"%) of cases");
+                
                 var zoomvalue = $('#oncoprint_zoom_slider')[0].value;
                 zoom = reset_zoom();
                 $('#oncoprint_zoom_slider')[0].value = zoomvalue;
@@ -1748,11 +1789,11 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         function(){
                         if($('#oncoprint_diagram_topatientid_icon img')[0].attributes.src.value === 'images/cool.svg')
                         {
-                            return 'merge to patientId';
+                            return 'Show events per patient';
                         }
                         else if($('#oncoprint_diagram_topatientid_icon img')[0].attributes.src.value === 'images/cool2.svg')
                         {
-                           return 'spread to sampleId';
+                           return 'Show events per sample';
                         }
                     }
             },

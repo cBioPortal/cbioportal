@@ -1789,11 +1789,11 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         function(){
                         if($('#oncoprint_diagram_topatientid_icon img')[0].attributes.src.value === 'images/cool.svg')
                         {
-                            return 'merge to patientId';
+                            return 'Show events per patient';
                         }
                         else if($('#oncoprint_diagram_topatientid_icon img')[0].attributes.src.value === 'images/cool2.svg')
                         {
-                           return 'spread to sampleId';
+                           return 'Show events per sample';
                         }
                     }
             },

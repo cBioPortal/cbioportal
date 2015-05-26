@@ -366,16 +366,14 @@ if (patientViewError!=null) {
 		cursor: pointer;
 	}
     /* Sample records style */
-    .sample-record {
-        color: #428bca;
-        text-align: left;
-    }
     .sample-record-inline {
         display: inline-block;
         color: #428bca;
         padding: 0 5px;
     }
-    
+    .sample-record-inline:last-child .sample-record-delimiter {
+		visibility: hidden;
+	}
     #page_wrapper_table {
         background-color: white;
     }
@@ -584,9 +582,6 @@ function addMoreClinicalTooltip(elem) {
             thisElem.remove();
         } else {
             var pos = {my:'top right',at:'bottom right',viewport: $(window)};
-            if (thisElem.attr('class') && thisElem.attr('class').indexOf("sample-record ") > -1) {
-                pos = {my:'right center',at:'left center',viewport: $(window)};
-            }
             thisElem.qtip({
                 content: {
                     text: table_text
@@ -897,7 +892,7 @@ function outputClinicalData() {
         //var row = "<tr><td><b>Patient</b></td>";
         //$("#clinical_table").append(row);
 
-        row = "<div style='white-space: nowrap;'><span id='more-patient-info'><b><u><a href='"+cbio.util.getLinkToPatientView(cancerStudyId,patientId)+"'>"+patientId+"</a></b></u><a>&nbsp;";
+        row = "<span id='more-patient-info'><b><u><a href='"+cbio.util.getLinkToPatientView(cancerStudyId,patientId)+"'>"+patientId+"</a></b></u><a>&nbsp;";
         var info = [];
         var loc;
         if ("PRIMARY_SITE" in patientInfo) {loc = (" (" + patientInfo["PRIMARY_SITE"] + ")")} else {loc=""};
@@ -905,18 +900,18 @@ function outputClinicalData() {
         var info = info.concat(formatDiseaseInfo(patientInfo));
         var info = info.concat(formatPatientStatus(patientInfo));
         row += info.join(", ");
-        row += "</a></span><span style='float: right'>" + formatCancerStudyInfo()+ "</span></div>";
+        row += "</a></span><span style='float: right'>" + formatCancerStudyInfo()+ "</span><br />";
         $("#clinical_div").append(row);
         
         var head_recs = "";
         var tail_recs = "";
         var sample_recs = "";
         var nr_in_head = 5;
-        var max_in_tail = 20;
-        for (var i=0; i<Math.min(n, nr_in_head+max_in_tail); i++) {
+        var is_expanded = false;
+        for (var i=0; i<n; i++) {
             var caseId = caseIds[i];
             
-            sample_recs += "<div class='sample-record more-sample-info' alt='"+caseId+"'>";
+            sample_recs += "<div class='sample-record-inline more-sample-info' alt='"+caseId+"'>";
             if (n>1) {
                 sample_recs += "<svg width='12' height='12' class='case-label-header' alt='"+caseId+"'></svg>&nbsp;";
             }
@@ -931,40 +926,30 @@ function outputClinicalData() {
             var info = [];
             info = info.concat(formatStateInfo(sampleData));
             sample_recs += info.join(",&nbsp;");
-            sample_recs += "</a></div>";
+            sample_recs += "</a><span class='sample-record-delimiter'>, </span></div>";
             
             if ((n > nr_in_head && i == nr_in_head-1) || (n <= nr_in_head && i == n-1)) {
-                head_recs = sample_recs.replace(/sample-record/g, 'sample-record-inline').replace(/<\/div>/g, ", </div>");
+                head_recs = sample_recs;
                 sample_recs = "";
             }
         }
         var svg_corner = '<svg width="20" height="15" style="top: -10px;"><line x1="10" y1="0" x2="10" y2="10" stroke="gray" stroke-width="2"></line><line x1="10" y1="10" x2="50" y2="10" stroke="gray" stroke-width="2"></line></svg>';
         if (n > nr_in_head) {
             tail_recs = sample_recs;
-            $("#clinical_div").append(svg_corner + head_recs + "<b><a id='sample-btn-topbar' style='cursor:pointer'>("+(n-nr_in_head)+" more)</a></b>");
-            $("#sample-btn-topbar").qtip({
-                content: {
-                    text: "sample_extra_info"
-                },
-                events: {
-                    render: function(event, api) {
-                        $(this).html(tail_recs + "<b><a id='sample-btn-tail' style='cursor:pointer'>Show all (" + n + " total)</a></b>");
-                        $("#sample-btn-tail").click(function () {
-                            $("#link-samples-table").click();
-                        });
-                        addMoreClinicalTooltip(".more-sample-info");
-                        plotCaseLabel('.case-label-header', false, true);
-                    }
-                },
-                    show: {event: "mouseover"},
-                hide: {fixed: true, delay: 100, event: "mouseout"},
-                style: { classes: 'qtip-light qtip-rounded' },
-                position: {my:'top right',at:'bottom right',viewport: $(window)}
+            $("#clinical_div").append(svg_corner + head_recs + "<a id='sample-btn-topbar' style='font-weight: bold; cursor:pointer'>(Show "+(n-nr_in_head)+" more)</a>");
+            $("#sample-btn-topbar").click(function() {
+                if (!is_expanded) {
+                    $("<span id='sample-tail-records'>"+tail_recs+"</span>").insertBefore("#sample-btn-topbar");
+                    addMoreClinicalTooltip(".more-sample-info");
+                    plotCaseLabel('.case-label-header', false, true);
+                    $("#sample-btn-topbar").text("(Show less)");
+                    is_expanded = true;
+                } else {
+                    $("#sample-tail-records").remove();
+                    $("#sample-btn-topbar").text("(Show "+(n-nr_in_head)+" more)");
+                    is_expanded = false;
+                }
             });
-            $("#sample-btn-topbar").click(function () {
-                $("#link-samples-table").click();
-            });
-            
         } else if (n > 1) {
             $("#clinical_div").append(svg_corner + head_recs.replace(/, <\/div>$/, "</div>"));
         }
@@ -1290,8 +1275,8 @@ function fillColorAndLabelForCase(circle, caseId) {
     var color = caseMetaData.color[caseId];
     circle.select("circle").attr("fill",color);
     circle.append("text")
-        .attr("x",-3)
         .attr("y",4)
+        .attr("text-anchor","middle")
         .attr("font-size",10)
         .attr("fill","white")
         .text(label);

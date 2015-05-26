@@ -90,7 +90,8 @@ public class ORAnalysisDiscretizedDataProxy {
                         _datum.put(COL_NAME_DIRECTION, "place holder"); //calculation is done by the front-end
                         _datum.put(COL_NAME_P_VALUE, calcPval(singleGeneCaseValueMap, profileType));
                         if (!(calcPct(singleGeneCaseValueMap, profileType, "altered") == 0.0 && 
-                              calcPct(singleGeneCaseValueMap, profileType, "unaltered") == 0.0)) {
+                              calcPct(singleGeneCaseValueMap, profileType, "unaltered") == 0.0) &&
+                              !Double.isNaN(calcPval(singleGeneCaseValueMap, profileType))) {
                             _result.add(_datum);
                         }                    
                     }
@@ -105,7 +106,8 @@ public class ORAnalysisDiscretizedDataProxy {
                         _datum.put(COL_NAME_DIRECTION, "place holder"); //calculation is done by the front-end
                         _datum.put(COL_NAME_P_VALUE, calcPval(singleGeneCaseValueMap, profileType));
                         if (!(calcPct(singleGeneCaseValueMap, profileType, "altered") == 0.0 && 
-                             calcPct(singleGeneCaseValueMap, profileType, "unaltered") == 0.0)) {
+                             calcPct(singleGeneCaseValueMap, profileType, "unaltered") == 0.0) &&
+                             !Double.isNaN(calcPval(singleGeneCaseValueMap, profileType))) {
                             _result.add(_datum);
                         }
                     }
@@ -117,7 +119,9 @@ public class ORAnalysisDiscretizedDataProxy {
                     _datum.put(COL_NAME_STDEV_ALTERED, calcSTDev(singleGeneCaseValueMap, "altered"));
                     _datum.put(COL_NAME_STDEV_UNALTERED, calcSTDev(singleGeneCaseValueMap, "unaltered"));
                     _datum.put(COL_NAME_P_VALUE, calcPval(singleGeneCaseValueMap, profileType));
-                    _result.add(_datum);
+                    if (!Double.isNaN(calcPval(singleGeneCaseValueMap, profileType))) {
+                        _result.add(_datum);
+                    }
                 }
             }
             
@@ -160,7 +164,6 @@ public class ORAnalysisDiscretizedDataProxy {
     
     private String calcRatio(double pct1, double pct2) {
         if (pct1 != 0 && pct2 != 0) {
-            System.out.println(Math.log(pct1/pct2)/Math.log(2));
             if ((Math.log(pct1 / pct2) / Math.log(2)) > 10) {
                 return ">10";
             } else if (Math.log(pct1 / pct2) / Math.log(2) < -10) {

@@ -215,6 +215,7 @@ public class ImportExtendedMutationData{
 
 				String mutationType,
 					proteinChange,
+					aaChange,
 					codonChange,
 					refseqMrnaId,
 					uniprotName,
@@ -245,6 +246,8 @@ public class ImportExtendedMutationData{
 				}
 
 				proteinChange = ExtendedMutationUtil.getProteinChange(parts, record);
+				//proteinChange = record.getProteinChange();
+				aaChange = record.getAminoAcidChange();
 				codonChange = record.getCodons();
 				refseqMrnaId = record.getRefSeq();
 				uniprotName = record.getSwissprot();
@@ -286,6 +289,7 @@ public class ImportExtendedMutationData{
 					mutation.setSequencingCenter(record.getCenter());
 					mutation.setSequencer(record.getSequencer());
 					mutation.setProteinChange(proteinChange);
+					mutation.setAminoAcidChange(aaChange);
 					mutation.setMutationType(mutationType);
 					mutation.setChr(record.getChr());
 					mutation.setStartPosition(record.getStartPosition());

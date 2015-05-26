@@ -48,10 +48,10 @@ var orTable = function() {
                 if (b.indexOf("down1") !== -1) b = b.replace("<img src=\"images/down1.png\"/>",  "");
             }
 
-            if (a === "<0.001") { a = 0.0009; }
-            if (b === "<0.001") { b = 0.0009; }
-            if (a > b) return -1;
-            else if (a < b) return 1;
+            //if (a === "<0.001") { a = 0.0009; }
+            //if (b === "<0.001") { b = 0.0009; }
+            if (parseFloat(a) > parseFloat(b)) return -1;
+            else if (parseFloat(a) < parseFloat(b)) return 1;
             else return 0;
         };
         jQuery.fn.dataTableExt.oSort['or-analysis-p-value-asc'] = function(a,b) {
@@ -63,11 +63,11 @@ var orTable = function() {
                 if (b.indexOf("down1") !== -1) b = b.replace("<img src=\"images/down1.png\"/>",  "");
             }
 
-            if (a === "<0.001") { a = 0.0009; }
-            if (b === "<0.001") { b = 0.0009; }
+            //if (a === "<0.001") { a = 0.0009; }
+            //if (b === "<0.001") { b = 0.0009; }
 
-            if (a > b) return 1;
-            else if (a < b) return -1;
+            if (parseFloat(a) > parseFloat(b)) return 1;
+            else if (parseFloat(a) < parseFloat(b)) return -1;
             else return 0;
         };
         jQuery.fn.dataTableExt.oSort['or-analysis-q-value-desc'] = function(a,b) {
@@ -79,10 +79,10 @@ var orTable = function() {
                 if (b.indexOf("down1") !== -1) b = b.replace("<img src=\"images/down1.png\"/>",  "");
             }
 
-            if (a === "<0.001") { a = 0.0009; }
-            if (b === "<0.001") { b = 0.0009; }
-            if (a > b) return -1;
-            else if (a < b) return 1;
+            //if (a === "<0.001") { a = 0.0009; }
+            //if (b === "<0.001") { b = 0.0009; }
+            if (parseFloat(a) > parseFloat(b)) return -1;
+            else if (parseFloat(a) < parseFloat(b)) return 1;
             else return 0;
         };
         jQuery.fn.dataTableExt.oSort['or-analysis-q-value-asc'] = function(a,b) {
@@ -94,10 +94,10 @@ var orTable = function() {
                 if (b.indexOf("down1") !== -1) b = b.replace("<img src=\"images/down1.png\"/>",  "");
             }
 
-            if (a === "<0.001") { a = 0.0009; }
-            if (b === "<0.001") { b = 0.0009; }
-            if (a > b) return 1;
-            else if (a < b) return -1;
+            //if (a === "<0.001") { a = 0.0009; }
+            //if (b === "<0.001") { b = 0.0009; }
+            if (parseFloat(a) > parseFloat(b)) return 1;
+            else if (parseFloat(a) < parseFloat(b)) return -1;
             else return 0;
         };
         jQuery.fn.dataTableExt.oSort['or-analysis-log-ratio-desc'] = function(a,b) {

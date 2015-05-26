@@ -622,7 +622,16 @@ define("Oncoprint",
                                 : vertical_pos(utils.get_attr(d)) + dims.clinical_offset;
                             }
                         });
-
+                    var questionmark = enter.append("text")
+                        .attr('y', function(d) {
+                            if(params.clinical_attrs.length === 0) //to check are there clinic data input
+                            {
+                                gapSpaceGeneClinic = 0;
+                            }
+                            return dims.mut_height + gapSpaceGeneClinic + vertical_pos(utils.get_attr(d)) + 2; 
+                        })
+                        .attr("dy", ".3em")
+                        .text("?");
                     var fusion = enter.append('path')
                         .attr('d', "M0,0L0,"+dims.rect_height+" "+dims.rect_width+","+dims.rect_height/2+"Z")
                         .attr('transform',function(d) {

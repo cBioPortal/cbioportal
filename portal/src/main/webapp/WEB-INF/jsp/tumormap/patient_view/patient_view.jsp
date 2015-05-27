@@ -918,7 +918,7 @@ function outputClinicalData() {
             sample_recs += "<b><u><a style='color: #1974b8;' href='"+cbio.util.getLinkToSampleView(cancerStudyId,caseId)+"'>"+caseId+"</a></b></u><a>&nbsp;"
             
             var sampleData = {};
-            if (clinicalDataMap.length > 0) {
+            if (Object.keys(clinicalDataMap).length > 0) {
                 sampleData = {"SAMPLE_TYPE":clinicalDataMap[caseId].SAMPLE_TYPE || "N/A",
                               "METASTATIC_SITE":clinicalDataMap[caseId].METASTATIC_SITE || "N/A",
                               "PRIMARY_SITE":clinicalDataMap[caseId].PRIMARY_SITE || "N/A"};

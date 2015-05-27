@@ -137,8 +137,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
     var extraGenes=[]; // used to record genes add customized
     var extraAttributes=[]; // used to record attributes names add customized
     var sortStatus=[];
-    var GenePanelData;
-
+//    var sortStatus={};
     var cases = window.PortalGlobals.getCases();
     var genes = window.PortalGlobals.getGeneListString().split(" ");
 
@@ -166,8 +165,6 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             oncoprint.sortBy("custom", cases.split(" "),mutationColorControl,mutationColorSort,sortStatus);
         }
     };
-    
-    //fetch clinical data in url link
     geneDataColl.fetch({
         type: "POST",
         data: {
@@ -207,6 +204,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                                 },
                                 success: function(response) {
                                     inner_loader_img.hide();
+
 //                                    extraTracks = extraTracks.concat(response.attributes().map(function(attr) { return attr.attr_id; }));
                                     clinicalExtraTracks['mutation'] = response.attributes().map(function(attr) { return attr.attr_id; });
 //                                    extraGenes = extraGenes.concat(response.toJSON());
@@ -230,8 +228,13 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                             },
                             success: function(response){
                                         inner_loader_img.hide();
+
+//                                        extraTracks = extraTracks.concat(response.attributes().map(function(attr) { return attr.attr_id; }));
                                         clinicalExtraTracks[clinicalElements] = response.attributes().map(function(attr) { return attr.attr_id; });
+//                                        extraGenes = extraGenes.concat(response.toJSON());
                                         clinicalAttributeArray[clinicalElements]= response.toJSON();
+//                                        extraAttributes=extraAttributes.concat(response.attributes());
+//                                        sortStatus = sortStatus.concat('decreSort');
                                         clinicalExtraAttributes[clinicalElements]= response.attributes();
                                         clinicalSortStatus[clinicalElements] = 'decreSort';
                                     }
@@ -251,8 +254,13 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                             },
                             success: function(response) {
                                 inner_loader_img.hide();
+
+//                                extraTracks = extraTracks.concat(response.attributes().map(function(attr) { return attr.attr_id; }));
                                 clinicalExtraTracks[clinicalElements] = response.attributes().map(function(attr) { return attr.attr_id; });
+//                                extraGenes = extraGenes.concat(response.toJSON());
                                 clinicalAttributeArray[clinicalElements]= response.toJSON();
+//                                extraAttributes=extraAttributes.concat(response.attributes());
+//                                sortStatus = sortStatus.concat('decreSort'); 
                                 clinicalExtraAttributes[clinicalElements]= response.attributes();
                                 clinicalSortStatus[clinicalElements] = 'decreSort';
                             }
@@ -262,20 +270,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
                 var clinicalElementsArray = [];
                 
-                var genePanelClinicals = new ClinicalColl();
-                clinicalElementsArray.push(
-                genePanelClinicals.fetch({
-                type: "POST",
-                data: {
-                    cancer_study_id: cancer_study_id_selected,
-                    attribute_id: "GENE_PANEL",
-                    case_list: cases
-                },
-                success: function(response) {
-                        GenePanelData = response.toJSON();
-                    }
-                }));
-                
+//                for(var i = clinicallistArrayNow.length-1; i >= 0; i--)
                 for(var i=0; i < clinicallistArrayNow.length; i++)
                 {
                     var clinicalElementsValue;
@@ -288,10 +283,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                     gainClinicalData(clinicalElementsValue,clinicalElementsArray);
                 }
 
-
-                
                 $.when.apply(null, clinicalElementsArray).done(function() {
-                    
                         for(var j=0; j < clinicallistArrayNow.length; j++)
                         {
                             extraGenes = extraGenes.concat(clinicalAttributeArray[clinicallistArrayNow[j]]);
@@ -299,7 +291,6 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                             extraAttributes = extraAttributes.concat(clinicalExtraAttributes[clinicallistArrayNow[j]]);
                             sortStatus = sortStatus.concat(clinicalSortStatus[clinicallistArrayNow[j]]);
                         }
-                        
                         oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
                             geneData: data.toJSON(),
                             clinicalData: extraGenes,
@@ -308,7 +299,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                             legend: document.getElementById('oncoprint_legend'),
                             sortStatus:sortStatus,
                             mutationColor:mutationColorControl
-                            },extraTracks,GenePanelData);
+                            },extraTracks);
 
                             outer_loader_img.hide();
                             $('#oncoprint #everything').show();
@@ -386,50 +377,64 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             }
             else
             {
-                //fetch genepanel data
-                var genePanelClinicals = new ClinicalColl();
-                genePanelClinicals.fetch({
-                type: "POST",
-                data: {
-                    cancer_study_id: cancer_study_id_selected,
-                    attribute_id: "GENE_PANEL",
-                    case_list: cases
-                },
-                success: function(response) {
-                        GenePanelData = response.toJSON();
-                        
-                        oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
-                            geneData: data.toJSON(),
-                            genes: genes,
-                            legend: document.getElementById('oncoprint_legend')
-                        },extraTracks,GenePanelData);
+                oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
+                    geneData: data.toJSON(),
+                    genes: genes,
+                    legend: document.getElementById('oncoprint_legend')
+                },extraTracks);
 
-                        outer_loader_img.hide();
-                        $('#oncoprint #everything').show();
+                outer_loader_img.hide();
+                $('#oncoprint #everything').show();
 
-                        if($('#oncoprint_sortbyfirst_dropdonw span')[0].innerHTML === 'Sort by')
-                        {
-                            oncoprint.sortBy("genes", cases.split(" "),mutationColorControl,mutationColorSort,sortStatus);
-                        }
-                        else
-                        {
-                            selectsortby();
-                        }
+                if($('#oncoprint_sortbyfirst_dropdonw span')[0].innerHTML === 'Sort by')
+                {
+                    oncoprint.sortBy("genes", cases.split(" "),mutationColorControl,mutationColorSort,sortStatus);
+                }
+                else
+                {
+                    selectsortby();
+                }
 
-                        $('.attribute_name').qtip({
-                            content: {text: 'hold to drag'},
-                            position: {my:'middle right', at:'middle left', viewport: $(window)},
-                            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
-                            show: {event: "mouseover"}
-                        });  
+                $('.attribute_name').qtip({
+                    content: {text: 'hold to drag'},
+                    position: {my:'middle right', at:'middle left', viewport: $(window)},
+                    style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+                    show: {event: "mouseover"}
+                });  
 
-                        zoom = reset_zoom();
-                        invokeDataManager(); 
-                    }
-                });
-                
-  
+                zoom = reset_zoom();
+                invokeDataManager();   
             }
+            
+            //for add clinical attributes in url to data end
+    
+//            oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
+//                geneData: data.toJSON(),
+//                genes: genes,
+//                legend: document.getElementById('oncoprint_legend')
+//            },extraTracks);
+
+//            outer_loader_img.hide();
+//            $('#oncoprint #everything').show();
+//
+//            if($('#oncoprint_sortbyfirst_dropdonw span')[0].innerHTML === 'Sort by')
+//            {
+//                oncoprint.sortBy("genes", cases.split(" "),mutationColorControl,mutationColorSort,sortStatus);
+//            }
+//            else
+//            {
+//                selectsortby();
+//            }
+//
+//            $('.attribute_name').qtip({
+//                content: {text: 'hold to drag'},
+//                position: {my:'middle right', at:'middle left', viewport: $(window)},
+//                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+//                show: {event: "mouseover"}
+//            });  
+//            
+//            zoom = reset_zoom();
+//            invokeDataManager(); 
         }
     });
 
@@ -631,7 +636,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                 legend: document.getElementById('oncoprint_legend'),
                 sortStatus:sortStatus,
                 mutationColor:mutationColorControl
-            },extraTracks,GenePanelData,showPatientIdflat);
+            },extraTracks,showPatientIdflat);
 
 //            oncoprint.sortBy(sortBy.val(), cases.split(" "));
             if($('#oncoprint_sortbyfirst_dropdonw span')[0].innerHTML === 'Sort by')
@@ -686,7 +691,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             legend: document.getElementById('oncoprint_legend'),
             sortStatus:sortStatus,
             mutationColor:mutationColorControl
-        },extraTracks,GenePanelData,showPatientIdflat);
+        },extraTracks,showPatientIdflat);
         if(extraAttributes.length < 1)
         {
             $('#oncoprint-diagram-toolbar-buttons #clinical_first')[0].style.display = "none";
@@ -791,7 +796,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             legend: document.getElementById('oncoprint_legend'),
             sortStatus:sortStatus,
             mutationColor:mutationColorControl
-        },extraTracks,GenePanelData,topatientValue);
+        },extraTracks,topatientValue);
 
         functionFunctions();
 //        oncoprint.sortBy(sortBy.val(), cases.split(" "));  
@@ -805,6 +810,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         }
         toggleControls(true);
     }
+
     // handler for when user selects a clinical attribute to visualization
     var clinicalAttributeSelected = function() {
         $('#clinical_dropdown').dropdown( 'toggle' );
@@ -821,7 +827,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                 geneData: geneDataColl.toJSON(),
                 genes: genes,
                 legend: document.getElementById('oncoprint_legend')
-            },extraTracks,GenePanelData);
+            },extraTracks);
 
 //            oncoprint.sortBy(sortBy.val(), cases.split(" "));
             if($('#oncoprint_sortbyfirst_dropdonw span')[0].innerHTML === 'Sort by')
@@ -867,7 +873,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                             legend: document.getElementById('oncoprint_legend'),
                             sortStatus:sortStatus,
                             mutationColor:mutationColorControl
-                        },extraTracks,GenePanelData,showPatientIdflat);
+                        },extraTracks,showPatientIdflat);
 
                         if($('#oncoprint_sortbyfirst_dropdonw span')[0].innerHTML === 'Sort by')
                         {
@@ -963,7 +969,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                             legend: document.getElementById('oncoprint_legend'),
                             sortStatus:sortStatus,
                             mutationColor:mutationColorControl
-                        },extraTracks,GenePanelData,showPatientIdflat);
+                        },extraTracks,showPatientIdflat);
                              
 //                        oncoprint.sortBy(sortBy.val(), cases.split(" "));
                         if($('#oncoprint_sortbyfirst_dropdonw span')[0].innerHTML === 'Sort by')
@@ -1061,7 +1067,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                             legend: document.getElementById('oncoprint_legend'),
                             sortStatus:sortStatus,
                             mutationColor:mutationColorControl
-                        },extraTracks,GenePanelData,showPatientIdflat);
+                        },extraTracks,showPatientIdflat);
 
                         if($('#oncoprint_sortbyfirst_dropdonw span')[0].innerHTML === 'Sort by')
                         {
@@ -1451,6 +1457,37 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         var alterInfo = utils.alteration_info(geneDataColl.toJSON());
         PortalDataColl.setOncoprintStat(alterInfo);
     };
+    
+    function findIndexInArray(elementValue, arrayValue,patientMap)
+    {
+        for(var i = 0; i < arrayValue.length; i++)
+        {
+            if(patientMap[elementValue] === arrayValue[i])
+            {
+                return i;
+            }  
+        }
+        
+        return -1;
+    }
+    
+    function calculatePatientNum(samples,patientsMap)
+    {
+        var PatientsList = [];
+        samples = samples.split(" ");
+        for(var i = 0; i < samples.length; i++)
+        {
+            if(patientsMap[samples[i]]!==undefined)
+            {
+                if(findIndexInArray(samples[i],PatientsList,patientsMap) === -1)
+                {
+                   PatientsList.push(patientsMap[samples[i]]); 
+                }
+            }
+        }
+        
+        return PatientsList.sort();
+    }
 
     $(document).ready(function() {
         $('#oncoprint-diagram-toolbar-buttons #genes_first_a').click(function(){
@@ -1651,6 +1688,14 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                     mutationColorSort = 'mutationcolorsort';  
                 }
                 
+                var AlteredPatientsNum= calculatePatientNum(PortalGlobals.getAlteredSampleIdList(),PortalGlobals.getPatientSampleIdMap());
+                var UnalteredPatientsNum= calculatePatientNum(PortalGlobals.getUnalteredSampleIdList(),PortalGlobals.getPatientSampleIdMap());
+                
+                var totalPatientsNum = _.union(AlteredPatientsNum,UnalteredPatientsNum);
+                var percentOfAlteredPatients = (AlteredPatientsNum.length/totalPatientsNum.length * 100).toFixed(1);
+                
+                $('#altered_value').text("Altered in "+ AlteredPatientsNum.length + "("+ percentOfAlteredPatients +"%) of patients");
+                
                 showPatientIdflat = true;
                 refreshOncoPrint(showPatientIdflat);
 
@@ -1659,7 +1704,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                 $('#oncoprint_zoom_slider')[0].value = zoomvalue;
                 // sync
                 oncoprint.zoom(zoomvalue);
-
+                
                 oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
                 if($('#oncoprint-diagram-removeWhitespace-icon img')[0].attributes.src.value === 'images/removeWhitespace.svg')
                 {
@@ -1697,7 +1742,9 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                 }
                 showPatientIdflat = false;
                 refreshOncoPrint();
-
+                
+                $('#altered_value').text("Altered in "+ PortalGlobals.getNumOfAlteredCases() + "("+ PortalGlobals.getPercentageOfAlteredCases() +"%) of cases");
+                
                 var zoomvalue = $('#oncoprint_zoom_slider')[0].value;
                 zoom = reset_zoom();
                 $('#oncoprint_zoom_slider')[0].value = zoomvalue;
@@ -1742,11 +1789,11 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                         function(){
                         if($('#oncoprint_diagram_topatientid_icon img')[0].attributes.src.value === 'images/cool.svg')
                         {
-                            return 'merge to patientId';
+                            return 'Show events per patient';
                         }
                         else if($('#oncoprint_diagram_topatientid_icon img')[0].attributes.src.value === 'images/cool2.svg')
                         {
-                           return 'spread to sampleId';
+                           return 'Show events per sample';
                         }
                     }
             },

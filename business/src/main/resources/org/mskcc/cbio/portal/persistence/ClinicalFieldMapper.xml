@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.mskcc.cbio.portal.persistence.ClinicalFieldMapper">
+
+<resultMap id="ClinicalFieldResult" type="DBClinicalField">
+    <id property="attr_id" column="ATTR_ID"/>
+    <result property="display_name" column="DISPLAY_NAME"/>
+    <result property="description" column="DESCRIPTION"/>
+    <result property="datatype" column="DATATYPE"/>
+    <result property="is_patient_attribute" column="PATIENT_ATTRIBUTE"/>
+    <result property="priority" column="PRIORITY"/>
+</resultMap>
+
+
+<select id="byInternalStudyId_Sample" resultMap="ClinicalFieldResult">
+    select * from clinical_attribute
+    where ATTR_ID in
+    (select distinct ATTR_ID from 
+        clinical_sample inner join sample on clinical_sample.INTERNAL_ID = sample.INTERNAL_ID
+                        inner join patient on sample.PATIENT_ID = patient.INTERNAL_ID
+        where patient.CANCER_STUDY_ID in 
+    <foreach item="item" collection="ids" open="(" separator="," close=")">
+        #{item}
+    </foreach>
+    )
+</select>
+
+<select id="byInternalStudyId_Patient" resultMap="ClinicalFieldResult">
+    select * from clinical_attribute
+    where ATTR_ID in
+    (select distinct ATTR_ID from 
+        clinical_patient inner join inner join patient on clinical_patient.INTERNAL_ID = patient.INTERNAL_ID
+        where patient.CANCER_STUDY_ID in 
+    <foreach item="item" collection="ids" open="(" separator="," close=")">
+        #{item}
+    </foreach>
+    )
+</select>
+
+<select id="byStableStudyId_Sample" resultMap="ClinicalFieldResult">
+    select * from clinical_attribute
+    where ATTR_ID in
+    (select distinct ATTR_ID from
+        clinical_sample inner join sample on clinical_sample.INTERNAL_ID = sample.INTERNAL_ID
+                        inner join patient on sample.PATIENT_ID = patient.INTERNAL_ID
+                        inner join cancer_study on patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        where cancer_study.CANCER_STUDY_IDENTIFIER in 
+    <foreach item="item" collection="ids" open="(" separator="," close=")">
+        #{item}
+    </foreach>
+    )    
+</select>
+
+<select id="byStableStudyId_Patient" resultMap="ClinicalFieldResult">
+    select * from clinical_attribute
+    where ATTR_ID in
+    (select distinct ATTR_ID from
+        clinical_patient inner join patient on clinical_patient.INTERNAL_ID = patient.INTERNAL_ID
+                        inner join cancer_study on patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        where cancer_study.CANCER_STUDY_IDENTIFIER in 
+    <foreach item="item" collection="ids" open="(" separator="," close=")">
+        #{item}
+    </foreach>
+    )    
+</select>
+
+<select id="byInternalSampleId" resultMap="ClinicalFieldResult">
+    select * from clinical_attribute
+    where ATTR_ID in
+    (select distinct ATTR_ID from clinical_sample where INTERNAL_ID in
+    <foreach item="item" collection="ids" open="(" separator="," close=")">
+        #{item}
+    </foreach>
+    )
+</select>
+<select id="byInternalPatientId" resultMap="ClinicalFieldResult">
+    select * from clinical_attribute
+    where ATTR_ID in
+    (select distinct ATTR_ID from clinical_patient where INTERNAL_ID in
+    <foreach item="item" collection="ids" open="(" separator="," close=")">
+        #{item}
+    </foreach>
+    )
+</select>
+
+<select id="byStableSampleIdStableStudyId" resultMap="ClinicalFieldResult">
+    select * from clinical_attribute
+    where ATTR_ID in
+    (select distinct ATTR_ID from
+        clinical_sample inner join sample on clinical_sample.INTERNAL_ID = sample.INTERNAL_ID
+                        inner join patient on sample.PATIENT_ID = patient.INTERNAL_ID
+                        inner join cancer_study on patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        where cancer_study.CANCER_STUDY_IDENTIFIER = #{study}
+        and sample.STABLE_ID in
+        <foreach item="item" collection="ids" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    )    
+</select>
+<select id="byStableSampleIdInternalStudyId" resultMap="ClinicalFieldResult">
+    select * from clinical_attribute
+    where ATTR_ID in
+    (select distinct ATTR_ID from
+        clinical_sample inner join sample on clinical_sample.INTERNAL_ID = sample.INTERNAL_ID
+                        inner join patient on sample.PATIENT_ID = patient.INTERNAL_ID
+                        inner join cancer_study on patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        where cancer_study.CANCER_STUDY_ID = #{study}
+        and sample.STABLE_ID in
+        <foreach item="item" collection="ids" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    )
+</select>
+
+<select id="byStablePatientIdStableStudyId" resultMap="ClinicalFieldResult">
+    select * from clinical_attribute
+    where ATTR_ID in
+    (select distinct ATTR_ID from
+        clinical_patient inner join patient on clinical_patient.INTERNAL_ID = patient.INTERNAL_ID
+                        inner join cancer_study on patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        where cancer_study.CANCER_STUDY_IDENTIFIER = #{study}
+        and patient.STABLE_ID in
+        <foreach item="item" collection="ids" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    )    
+</select>
+<select id="byStablePatientIdInternalStudyId" resultMap="ClinicalFieldResult">
+    select * from clinical_attribute
+    where ATTR_ID in
+    (select distinct ATTR_ID from
+        clinical_patient inner join patient on clinical_patient.INTERNAL_ID = patient.INTERNAL_ID
+                        inner join cancer_study on patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+        where cancer_study.CANCER_STUDY_ID = #{study}
+        and patient.STABLE_ID in
+        <foreach item="item" collection="ids" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    )
+</select>
+
+<select id="getAll_Sample" resultMap="ClinicalFieldResult">
+    select * from clinical_attribute where PATIENT_ATTRIBUTE=0
+</select>
+
+<select id="getAll_Patient" resultMap="ClinicalFieldResult">
+    select * from clinical_attribute where PATIENT_ATTRIBUTE=1
+</select>
+    
+</mapper>

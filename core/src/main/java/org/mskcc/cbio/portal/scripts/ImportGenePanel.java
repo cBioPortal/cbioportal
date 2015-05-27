@@ -6,118 +6,83 @@
 
 package org.mskcc.cbio.portal.scripts;
 
-import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
-import org.mskcc.cbio.portal.util.ConsoleUtil;
-import org.mskcc.cbio.portal.util.FileUtil;
-import org.mskcc.cbio.portal.util.ProgressMonitor;
-import org.mskcc.cbio.portal.model.GenePanel;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.util.*;
+import org.mskcc.cbio.portal.model.*;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.BitSet;
-import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
-import org.mskcc.cbio.portal.dao.DaoGenePanel;
+import java.io.*;
+import java.util.*;
 
 /**
  *
  * @author dongli
  */
 public class ImportGenePanel {        
-    public static void importData(ProgressMonitor pMonitor, File geneFile) throws IOException, DaoException {
-        MySQLbulkLoader.bulkLoadOn();
-        FileReader reader = new FileReader(geneFile);
-        BufferedReader buf = new BufferedReader(reader);
-        String line = buf.readLine();
+    public static void importData(File dataFile, ProgressMonitor pMonitor) throws Exception
+	{
+		pMonitor.setCurrentMessage("Read data from:  " + dataFile.getAbsolutePath());
+		Properties properties = new Properties();
+		properties.load(new FileInputStream(dataFile));
 
-        String studyId="empty";
-        String stableId = "empty";
-        String decription = "empty";
-        String genelist = "empty";
-        while (line!=null&&line.length()!=0) {
-            if (pMonitor != null) {
-                pMonitor.incrementCurValue();
-                ConsoleUtil.showProgress(pMonitor);
-            }
-            if (line.startsWith("cancer_study")) {
-                    String parts[] = line.split(":");
-                    studyId = parts[1];
-            }
-            
-            if (line.startsWith("stable_id")) {
-                    String parts[] = line.split(":");
-                    stableId = parts[1];
-                }
-            
-            if (line.startsWith("gene_panel")) {
-                    String parts[] = line.split(":");
-                    decription = parts[1];
-                }
-            
-            if (line.startsWith("gene_list")) {
-                    String parts[] = line.split(":");
-                    genelist = parts[1];
-            }
-            line = buf.readLine();
-        }
-        
-        
-//        String Parts[] = line.split(":");
-//        String panelList[] = Parts[1].split("\t");
-        int maxListID = DaoGenePanel.getMaxListId();
-        GenePanel genepenal = new GenePanel(maxListID+1,stableId,studyId,decription,genelist);
-        if(genepenal.getCancerStudyId() != "empty" || genepenal.getStableId() != "empty" || genepenal.getDiscription() != "empty"||genepenal.getGenelist()!="empty")
-        {
-            DaoGenePanel.addGenePanel(genepenal);
-        }
-        
-        String panelList[] = genepenal.getGenelist().split("\t");
-        long geneId;
-        if(panelList.length > 0)     
-        {
-            DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-            for(int i=0; i<panelList.length;i++)
-            {
-                geneId = daoGene.getNonAmbiguousGene(panelList[i].replaceAll("\\s+","")).getEntrezGeneId();
-//                GenePanelListData genepenallist = new GenePanelListData(maxListID+1,geneId);
-                DaoGenePanel.addGenePanelList(maxListID+1, geneId);
-            }
-        }
-        reader.close();
-        if (MySQLbulkLoader.isBulkLoad()) {
-           MySQLbulkLoader.flushAll();
-        }        
+		String stableId = getPropertyValue("stable_id", properties, true);
+		String cancerStudyId = getPropertyValue("cancer_study_identifier", properties, true);
+		String description = getPropertyValue("description", properties, false);
+		List<String> geneSymbols = getGeneSymbols("gene_list", properties);
+
+		ImportDataUtil.genePanelService.insertGenePanel(stableId, description, cancerStudyId, geneSymbols);
+		GenePanel gp = ImportDataUtil.genePanelService.getByStableId(stableId);
+
+		pMonitor.setCurrentMessage(" --> internal ID: " + gp.internalId);
+		pMonitor.setCurrentMessage(" --> stable ID: " + gp.stableId);
+		pMonitor.setCurrentMessage(" --> cancer study ID: " + gp.cancerStudyId);
+		pMonitor.setCurrentMessage(" --> number of gene symbols: " + gp.geneList.size());
     }
-        
-        public static void main(String[] args) throws Exception {
-            DaoGenePanel.deleteAllGenePanelRecords();
-//            if (args.length == 0) {
-//                System.out.println("command line usage:  importGenes.pl <ncbi_genes.txt> <supp-genes.txt> <microrna.txt> <all_exon_loci.bed>");
-//                return;
-//            }
-            ProgressMonitor pMonitor = new ProgressMonitor();
-            pMonitor.setConsoleMode(true);
 
-            String filenames[] = {"im3_gene_panel.txt","im5_gene_panel.txt"};
+	private static String getPropertyValue(String propertyName, Properties properties, boolean noSpaceAllowed) throws IllegalArgumentException
+	{
+		String propertyValue = properties.getProperty(propertyName).trim();
 
-            for(int i=0; i<filenames.length;i++)
-            {
-                File geneFile = new File(filenames[i]);
-                System.out.println("Reading gene data from:  " + geneFile.getAbsolutePath());
-                int numLines = FileUtil.getNumLines(geneFile);
-                System.out.println(" --> total number of lines:  " + numLines);
-                pMonitor.setMaxValue(numLines);
-                ImportGenePanel.importData(pMonitor, geneFile);
-                ConsoleUtil.showWarnings(pMonitor);
-                System.err.println("Done.");
-            }
-    }
+		if (propertyValue == null || propertyValue.length() == 0) {
+			throw new IllegalArgumentException(propertyValue + " is not specified.");
+		}
+		if (noSpaceAllowed && propertyValue.contains(" ")) {
+			throw new IllegalArgumentException(propertyValue + " cannot contain spaces:  " + propertyValue);
+		}
+		return propertyValue;
+	}
+
+	private static List<String> getGeneSymbols(String propertyName, Properties properties) throws IllegalArgumentException
+	{
+		String propertyValue = properties.getProperty(propertyName).trim();
+		if (propertyValue == null || propertyValue.length() == 0) {
+			throw new IllegalArgumentException(propertyValue + " is not specified.");
+		}
+		String[] symbols = propertyValue.split("\t");
+		return new ArrayList<String>(new HashSet<String>(Arrays.asList(symbols)));
+	}  
+	
+	public static void main(String[] args) throws Exception {
+		// check args
+      	if (args.length < 1) {
+			System.out.println("missing required argument: gene panel file or director");
+			return;
+		}
+		ProgressMonitor pMonitor = new ProgressMonitor();
+		pMonitor.setConsoleMode(true);
+		File dataFile = new File(args[0]);
+		if (dataFile.isDirectory()) {
+			File files[] = dataFile.listFiles();
+			for (File file : files) {
+				if (file.getName().endsWith("txt")) {
+					ImportGenePanel.importData(file, pMonitor);
+				}
+			}
+			if (files.length == 0) {
+				pMonitor.setCurrentMessage("No gene panels found in directory, skipping import: " + dataFile.getCanonicalPath());
+			}
+		}
+		else {
+			ImportGenePanel.importData(dataFile, pMonitor);
+      	}
+	}
 }

@@ -133,9 +133,14 @@
         }
     %>
 </script>
+<script type="text/javascript" src="js/api/cbioportal-webservice.js"></script>
+<script type="text/javascript" src="js/api/cbioportal-datamanager.js"></script>
+<script type="text/javascript" src="js/lib/oql-parser.js"></script>
+<script type="text/javascript" src="js/lib/oql.js"></script>
+
 <div class="main_query_panel">
     <div id="main_query_form">
-        <form id="main_form" action="index.do" method="post">
+        <form id="main_form" action="#" method="post">
         <%@ include file="step1_json.jsp" %>
         <%@ include file="step2_json.jsp" %>
         <%@ include file="step3_json.jsp" %>

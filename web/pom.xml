@@ -19,6 +19,11 @@
 	  <artifactId>business</artifactId>
 	  <version>${project.version}</version>
 	</dependency>
+        <dependency>
+            <groupId>org.mskcc.cbio</groupId>
+            <artifactId>core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 	<dependency>
 	  <groupId>org.codehaus.jackson</groupId>
 	  <artifactId>jackson-core-asl</artifactId>

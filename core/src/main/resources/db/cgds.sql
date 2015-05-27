@@ -55,30 +55,6 @@ CREATE TABLE `cancer_study` (
 -- --------------------------------------------------------
 
 --
--- Table structure for `entity`
---
-drop table IF EXISTS entity;
-CREATE TABLE `entity` (
-  `INTERNAL_ID` int(11) NOT NULL auto_increment,
-  `STABLE_ID` varchar(50) NOT NULL,
-  `ENTITY_TYPE` varchar(50) NOT NULL,
-  PRIMARY KEY (`INTERNAL_ID`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 COMMENT='ENTITY_TYPE can be STUDY, PATIENT, SAMPLE';
-
---
--- Table structure for `entity_link`
---
-drop table IF EXISTS entity_link;
-CREATE TABLE `entity_link` (
-  `INTERNAL_ID` int(11) NOT NULL auto_increment,
-  `PARENT_ID` int(11) NOT NULL,
-  `CHILD_ID` int(11) NOT NULL,
-  PRIMARY KEY  (`INTERNAL_ID`),
-  FOREIGN KEY (`PARENT_ID`) REFERENCES `entity` (`INTERNAL_ID`) ON DELETE CASCADE,
-  FOREIGN KEY (`CHILD_ID`) REFERENCES `entity` (`INTERNAL_ID`) ON DELETE CASCADE
-) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;
-
---
 -- Table structure for table `users`
 --
 drop table IF EXISTS users;
@@ -170,12 +146,13 @@ CREATE TABLE `patient_list_list` (
 --
 drop table IF EXISTS gene_panel;
 CREATE TABLE `gene_panel` (
-  `LIST_ID` int(11) NOT NULL auto_increment,
+  `INTERNAL_ID` int(11) NOT NULL auto_increment,
   `STABLE_ID` varchar(255) NOT NULL,
-  `CANCER_STUDY_IDENTIFIER` varchar(255) NOT NULL,
   `DESCRIPTION` mediumtext,
-  PRIMARY KEY  (`LIST_ID`),
-  UNIQUE (`STABLE_ID`)
+  `CANCER_STUDY_ID` int(11) NOT NULL,
+  PRIMARY KEY  (`INTERNAL_ID`),
+  UNIQUE (`STABLE_ID`),
+  FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
@@ -185,10 +162,10 @@ CREATE TABLE `gene_panel` (
 --
 drop table IF EXISTS gene_panel_list;
 CREATE TABLE `gene_panel_list` (
-  `LIST_ID` int(11) NOT NULL,
-  `GENE_ID` int(11) NOT NULL,
-  PRIMARY KEY  (`LIST_ID`,`GENE_ID`),
-  FOREIGN KEY (`LIST_ID`) REFERENCES `gene_panel` (`LIST_ID`) ON DELETE CASCADE,
+  `INTERNAL_ID` int(11) NOT NULL,
+  `GENE_ID` int(255) NOT NULL,
+  PRIMARY KEY  (`INTERNAL_ID`,`GENE_ID`),
+  FOREIGN KEY (`INTERNAL_ID`) REFERENCES `gene_panel` (`INTERNAL_ID`) ON DELETE CASCADE,
   FOREIGN KEY (`GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`) ON DELETE CASCADE
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
@@ -421,33 +398,6 @@ CREATE TABLE `mutation_frequency` (
 
 
 -- --------------------------------------------------------
-
---
--- Table structure for table `entity_attributes`
---
-drop table IF EXISTS entity_attribute;
-CREATE TABLE `entity_attribute` (
-  `ENTITY_ID` int(11) NOT NULL,
-  `ATTR_ID` varchar(255) NOT NULL,
-  `ATTR_VALUE` varchar(255) NOT NULL,
-  PRIMARY KEY (`ENTITY_ID`, `ATTR_ID`),
-  FOREIGN KEY (`ENTITY_ID`) REFERENCES `entity` (`INTERNAL_ID`) ON DELETE CASCADE,
-  FOREIGN KEY (`ATTR_ID`) REFERENCES `attribute_metadata` (`ATTR_ID`) ON DELETE CASCADE
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
---
--- Table structure for table `attributes`
---
-drop table IF EXISTS attribute_metadata;
-CREATE TABLE `attribute_metadata` (
-  `ATTR_ID` varchar(255) NOT NULL,
-  `DISPLAY_NAME` varchar(255) NOT NULL,
-  `DESCRIPTION` varchar(2048) NOT NULL,
-  `DATATYPE` varchar(255) NOT NULL,
-  `TYPE` varchar(255) NOT NULL,
-  PRIMARY KEY (`ATTR_ID`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='DATATYPE can be NUMBER, BOOLEAN, STRING';
-
 
 --
 -- Table structure for table `clinical_patient`

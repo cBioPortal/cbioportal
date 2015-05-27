@@ -44,57 +44,82 @@
 define("Oncoprint",
         [           "OncoprintUtils",  "MemoSort"],
         function(   utils,              MemoSort) {
-            return function(div, params,tracks) {
+            return function(div, params,tracks,topatientValue) {
                 params.clinicalData = params.clinicalData || [];        // initialize
                 params.clinical_attrs = params.clinical_attrs || [];
 
-//                var SampleIdMapPatientId = PortalGlobals.getPatientSampleIdMap();
-//                var newGeneData = [];
-//                var newclinicalData = [];
-//                
-//                //change sampleId to patientId on geneData
-//                for(var i = 0; i < params.geneData.length; i++)
-//                {
-//                    var patiendId = SampleIdMapPatientId[params.geneData[i].sample];
-//                    
-//                    var findIndexValue = function(){
-//                        for(var j=0;j<newGeneData.length;j++)
-//                        {
-//                            if(patiendId === newGeneData[j].patient && newGeneData[j].gene === params.geneData[i].gene)
-//                            {
-//                                return j;
-//                            }
-//                        }
-//                        
-//                        return -1;
-//                    };
-//                    
-//                    var positionValue = findIndexValue();
-//                    if(positionValue > -1)
-//                    {
-//                        if(params.geneData[i].mutation !== undefined && newGeneData[positionValue].mutation !== undefined)
-//                        {
-//                            newGeneData[positionValue].mutation=newGeneData[positionValue].mutation + ","+params.geneData[i].mutation; 
-//                        }
-//                        else if(params.geneData[i].mutation !== undefined)
-//                        {
-//                            newGeneData[positionValue].mutation = params.geneData[i].mutation;
-//                        }
-//                    }
-//                    else
-//                    {
-//                        if(params.geneData[i].mutation !== undefined)
-//                        {
-//                            var newData = {gene:params.geneData[i].gene,mutation:params.geneData[i].mutation,patient:patiendId};
-//                        }
-//                        else
-//                        {
-//                            var newData = {gene:params.geneData[i].gene,patient:patiendId};
-//                        }
-//                        
-//                        newGeneData.push(newData);
-//                    }
-//                }
+                if(typeof(PortalGlobals) !== 'undefined')
+                {
+                    var SampleIdMapPatientId = PortalGlobals.getPatientSampleIdMap();
+                }
+                var newGeneData = [];
+                var newclinicalData = [];
+                
+                //change sampleId to patientId on geneData
+                if(topatientValue !== undefined &&  topatientValue)
+                {
+                    for(var i = 0; i < params.geneData.length; i++)
+                    {
+                        var patiendId = SampleIdMapPatientId[params.geneData[i].sample];
+
+                        var findIndexValue = function(){
+                            for(var j=0;j<newGeneData.length;j++)
+                            {
+                                if(patiendId === newGeneData[j].patient && newGeneData[j].gene === params.geneData[i].gene)
+                                {
+                                    return j;
+                                }
+                            }
+
+                            return -1;
+                        };
+
+                        var positionValue = findIndexValue();
+
+                        if(positionValue > -1)
+                        {
+                            if(params.geneData[i].mutation !== undefined && newGeneData[positionValue].mutation !== undefined)
+                            {
+                                if(newGeneData[positionValue].mutation !== params.geneData[i].mutation)
+                                {
+                                    newGeneData[positionValue].mutation=newGeneData[positionValue].mutation + ","+params.geneData[i].mutation; 
+                                }
+                            }
+                            else if(params.geneData[i].mutation !== undefined)
+                            {
+                                newGeneData[positionValue].mutation = params.geneData[i].mutation;
+                            }
+
+                            if(params.geneData[i].cna !== undefined && newGeneData[positionValue].cna !== undefined)
+                            {
+                                if(newGeneData[positionValue].cna !== params.geneData[i].cna)
+                                {
+                                    newGeneData[positionValue].cna=newGeneData[positionValue].cna + ","+params.geneData[i].cna; 
+                                }
+                            }
+                            else if(params.geneData[i].cna !== undefined)
+                            {
+                                newGeneData[positionValue].cna = params.geneData[i].cna;
+                            }
+                        }
+                        else
+                        {
+                            var newData = {gene:params.geneData[i].gene,patient:patiendId};
+
+                            if(params.geneData[i].mutation !== undefined)
+                            {
+                                newData.mutation = params.geneData[i].mutation;
+                            }
+
+                            if(params.geneData[i].cna !== undefined)
+                            {
+                                newData.cna = params.geneData[i].cna;
+                            } 
+
+                            newGeneData.push(newData);
+                        }
+                    }
+                }
                 
                 if(params.clinical_attrs.length > 0)
                 {
@@ -113,52 +138,131 @@ define("Oncoprint",
                     return i;
                 });
 
-//                //change sampleId to patientId on clinicalData
-//                for(var i = 0; i < clinicalData.length; i++)
-//                {
-//                    var patiendId = SampleIdMapPatientId[clinicalData[i].sample];
-//                    
-//                    var findIndexValue = function(){
-//                        for(var j=0;j<newclinicalData.length;j++)
-//                        {
-//                            if(patiendId === newclinicalData[j].patient && newclinicalData[j].attr_id === clinicalData[i].attr_id)
-//                            {
-//                                return j;
-//                            }
-//                        }
-//                        
-//                        return -1;
-//                    };
-//                    
-//                    var positionValue = findIndexValue();
-//                    if(positionValue > -1)
-//                    {
-//                        if(clinicalData[i].attr_val !== undefined && newclinicalData[positionValue].attr_val !== undefined)
-//                        {
-//                            newclinicalData[positionValue].attr_val=newclinicalData[positionValue].attr_val + ","+clinicalData[i].attr_val; 
-//                        }
-//                        else if(clinicalData[i].attr_val !== undefined)
-//                        {
-//                            newclinicalData[positionValue].attr_val = clinicalData[i].attr_val;
-//                        }
-//                    }
-//                    else
-//                    {
-//                        if(clinicalData[i].attr_val !== undefined)
-//                        {
-//                            var newData = {attr_id:clinicalData[i].attr_id,attr_val:clinicalData[i].attr_val,patient:patiendId};
-//                        }
-//                        else
-//                        {
-//                            var newData = {attr_id:clinicalData[i].attr_id,patient:patiendId};
-//                        }
-//                        
-//                        newclinicalData.push(newData);
-//                    }
-//                }
+                //change sampleId to patientId on clinicalData
+                if(topatientValue !== undefined &&  topatientValue)
+                {
+                    for(var i = 0; i < clinicalData.length; i++)
+                    {
+                        var patiendId = SampleIdMapPatientId[clinicalData[i].sample];
+
+                        var findIndexValue = function(){
+                            for(var j=0;j<newclinicalData.length;j++)
+                            {
+                                if(patiendId === newclinicalData[j].patient && newclinicalData[j].attr_id === clinicalData[i].attr_id)
+                                {
+                                    return j;
+                                }
+                            }
+
+                            return -1;
+                        };
+
+                        var positionValue = findIndexValue();
+                        if(positionValue > -1)
+                        {
+                            if(clinicalData[i].attr_val !== undefined && newclinicalData[positionValue].attr_val !== undefined)
+                            {
+//                                if(newclinicalData[positionValue].attr_val !== clinicalData[i].attr_val)
+//                                {
+                                    if((typeof(newclinicalData[positionValue].attr_val)).toUpperCase() === "NUMBER")
+                                    {
+                                        newclinicalData[positionValue].attr_val = (newclinicalData[positionValue].attr_val + clinicalData[i].attr_val)/2;
+                                        newclinicalData[positionValue].sample_num = newclinicalData[positionValue].sample_num + 1;
+                                    }
+                                    else
+                                    {
+                                        newclinicalData[positionValue].attr_val=newclinicalData[positionValue].attr_val + "," + clinicalData[i].attr_val; 
+                                        newclinicalData[positionValue].sample_num = newclinicalData[positionValue].sample_num + 1; 
+                                    }
+//                                }
+                            }
+                            else if(newclinicalData[positionValue].attr_val === undefined)
+                            {
+                                newclinicalData[positionValue].attr_val = clinicalData[i].attr_val;
+                                newclinicalData[positionValue].sample_num = newclinicalData[positionValue].sample_num + 1;
+                            }
+                            else if(clinicalData[i].attr_val === undefined)
+                            {
+                                newclinicalData[positionValue].sample_num = newclinicalData[positionValue].sample_num + 1;
+                            }
+                            else
+                            {
+                                newclinicalData[positionValue].sample_num = newclinicalData[positionValue].sample_num + 1;
+                            }
+                        }
+                        else
+                        {
+                            var newData = {attr_id:clinicalData[i].attr_id,patient:patiendId};
+                            if(clinicalData[i].attr_val !== undefined)
+                            {
+                                newData.attr_val = clinicalData[i].attr_val;
+                            }
+                            newData.sample_num = 1;
+                            newclinicalData.push(newData);
+                        }
+                    }
+                    
+                    
+                    for(var j = 0; j < newclinicalData.length; j++)
+                    {
+                        if((typeof(newclinicalData[j].attr_val)).toUpperCase() !== "NUMBER")
+                        {
+                            var attr_val_value = newclinicalData[j].attr_val.split(',');
+                            var tooltipsValue=[],tooltipNum=[];
+                            for(var n = 0; n < attr_val_value.length; n++)
+                            {   
+                                var indexValue = -1;
+                                for(var t = 0; t< tooltipsValue.length; t++)
+                                {
+                                    if(tooltipsValue[t] === attr_val_value[n])
+                                    {
+                                        indexValue = t;
+                                        break;
+                                    }
+
+                                }
+
+                                if(indexValue > -1)
+                                {
+                                    tooltipNum[indexValue] = tooltipNum[indexValue] + 1;
+                                }
+                                else
+                                {
+                                    tooltipsValue.push(attr_val_value[n]);
+                                    tooltipNum.push(1);
+                                }
+                                
+
+                            }  
+                            
+                            if(tooltipsValue.length===1)
+                            {
+                               newclinicalData[j].attr_val = tooltipsValue[0]; 
+                            }
+                            
+                            var tooltipString =" ";
+                            for(var u=0; u<tooltipsValue.length; u++)
+                            {
+                               tooltipString = tooltipString + "<b>" + tooltipsValue[u] + "<b>" + ": " + tooltipNum[u] + "<br/>" 
+                            }
+
+                            newclinicalData[j].tooltip = tooltipString;
+                        }
+                    }   
+                }
                 
-                var data = clinicalData.concat(params.geneData);
 //                var data = newclinicalData.concat(newGeneData);
+                if(topatientValue !== undefined &&  topatientValue)
+                {
+                    var data = newclinicalData.concat(newGeneData);
+                    params.newGenData = newGeneData;
+                }
+                else
+                {
+                    var data = clinicalData.concat(params.geneData);
+                }
+                
+                
 
                 var clinical_attrs = params.clinical_attrs      // extract attr_ids
                     .map(function(attr) { return attr.attr_id; });
@@ -379,6 +483,10 @@ define("Oncoprint",
                     });
             
                 var gene2percent = utils.percent_altered(params.geneData);
+                if(params.newGenData!== undefined)
+                {
+                    var gene2percent = utils.percent_altered(params.newGenData);//if show patientid change the percentage
+                }
                 percentLabel.append('tspan')       // percent_altered
                     .text(function(d) {
                         return (d in gene2percent) ? gene2percent[d].toString() + "%" : "x"; })
@@ -457,12 +565,38 @@ define("Oncoprint",
                     var fill = enter.append('rect')
                         .attr('fill', function(d) {
                             if (utils.is_gene(d)) {
-                                return utils.cna_fills[d.cna];
+                                if(d.patient === undefined )
+                                {
+                                    return utils.cna_fills[d.cna];
+                                }
+                                else
+                                {
+                                    
+                                    if((d.cna)!== undefined && (d.cna).split(',').length > 1)
+                                    {
+                                        return "black";
+                                    }
+                                    return utils.cna_fills[d.cna];
+                                }
                             }
                             else if (utils.is_clinical(d)) {
 
                                 //d.attr_id=d.attr_id.toLowerCase().charAt(0).toUpperCase() + d.attr_id.toLowerCase().slice(1);// added by dong li
-                                var result = attr2range[d.attr_id](d.attr_val);
+                                if(d.patient === undefined)
+                                {
+                                    var result = attr2range[d.attr_id](d.attr_val);
+                                }
+                                else
+                                {
+                                    if((typeof(d.attr_val)).toUpperCase() !== "NUMBER" &&((d.attr_val).split(",")).length>1)
+                                    {
+                                        var result = "black";
+                                    }
+                                    else
+                                    {
+                                        var result = attr2range[d.attr_id](d.attr_val);
+                                    }
+                                }
                                 
                                 return d.attr_val === "NA"
                             ? colors.grey       // attrs with value of NA are colored grey
@@ -813,6 +947,10 @@ define("Oncoprint",
                             state.data = data;
                             update(state.data);
                         } else {
+                            if(params.newGenData!==undefined)
+                            {
+                                altered= utils.filter_altered(utils.nest_data(params.newGenData));
+                            }
                             var altered_data = data.filter(function(d) { return altered.has(d.key); });
                             state.data = altered_data;
                             update(state.data);
@@ -921,7 +1059,8 @@ define("Oncoprint",
                     };
 
                     // create a legend if user asked for it
-                    var attr2rangeValue = utils.attr_data_type2range(params.clinicalData, params.clinical_attrs.length,params.clinical_attrs);
+                    var addmixlegend = params.newGenData !== undefined ? true: false; //check whether add mix legend whose color is black
+                    var attr2rangeValue = utils.attr_data_type2range(params.clinicalData, params.clinical_attrs.length,params.clinical_attrs,addmixlegend);
                     var attr2rangeFuntion = utils.make_attribute2scale(params.clinical_attrs, params.clinicalData);
                     if (params.legend) {
                         utils.legend(params.legend,utils.gene_data_type2range(params.geneData), dims.label_width, attr2rangeValue,attr2rangeFuntion);
@@ -981,6 +1120,10 @@ define("Oncoprint",
                     // *signature:* `undefined -> string`
                     var getPdfInput = function() {
                         var width = dims.width + dims.label_width;
+                        if(width<1000)
+                        {
+                           width = 1000; 
+                        }
                         var svg = main_svg[0][0];
                         var x = data2xscale(state.data);
 

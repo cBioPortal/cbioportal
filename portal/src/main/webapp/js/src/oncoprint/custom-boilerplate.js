@@ -194,6 +194,7 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
 
             // set up oncoprint params
             var genes = _.chain(data_thresholded).map(function(d){ return d.gene; }).uniq().value();
+
             genesDatas = data_thresholded;
             genesAttributes = genes;
             var params = { geneData: data_thresholded, genes:genesAttributes };
@@ -1435,6 +1436,8 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
             postFile('echofile', new FormData($mutationForm[0]), function(mutationResponse) {
 
                 var mutationTextAreaString = $mutation_file_example.val().trim();
+                mutationTextAreaString = mutationTextAreaString.replace(/ /g,'\t');//replace all whitespace with tab
+                mutationTextAreaString = mutationTextAreaString.replace(/\t\t/g,'');//remove extra tab
                 var clinicTextAreaString = $clinic_file_example.val().trim();
                 var filterExample = $filter_example.val().trim();
 
@@ -1444,6 +1447,15 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
 
                 var rawMutationString = _.isEmpty(mutationResponse) ? mutationTextAreaString : mutationResponse.mutation;
                 var rawClinicString = _.isEmpty(mutationResponse) ? clinicTextAreaString : mutationResponse.mutation;;
+                function firstToUpperCase( str ) {
+                    return str.substr(0, 1).toUpperCase() + str.substr(1);
+                    }
+                var titleValues = rawMutationString.slice(0,22).toLowerCase();
+                titleValues = titleValues.replace(titleValues[0],titleValues[0].toUpperCase());
+                titleValues = titleValues.replace(titleValues[7],titleValues[7].toUpperCase());
+                titleValues = titleValues.replace(titleValues.substr(12),firstToUpperCase(titleValues.substr(12)));
+                
+                rawMutationString = titleValues + rawMutationString.substr(22);
                 
                 var mutation_data = InputData.munge_the_mutation(rawMutationString);
                 var clinic_data = InputData.munge_the_clinic(rawClinicString);

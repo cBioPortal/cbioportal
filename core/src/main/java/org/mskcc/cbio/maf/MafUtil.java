@@ -76,7 +76,7 @@ public class MafUtil
 	public static final String SEQUENCER = "Sequencer";
 
 	// non-standard columns
-	public static final String AMINO_ACID_CHANGE_MANNUAL = "Amino_Acid_Change";
+	public static final String AMINO_ACID_CHANGE = "Amino_Acid_Change";
 	public static final String TRANSCRIPT = "Transcript";
 
 	// allele frequency columns (non-standard)
@@ -179,7 +179,7 @@ public class MafUtil
     private int validationMethodIndex = -1; // VALIDATION_METHOD
     private int scoreIndex = -1; // SCORE
     private int bamFileIndex = -1; // BAM_FILE
-    private int aminoAcidChangeMannualIndex = -1;
+    private int aminoAcidChangeIndex = -1;
 
 	// Allele Frequency Columns
 	private int tumorAltCountIndex = -1; // TUMOR_ALT_COUNT
@@ -299,8 +299,8 @@ public class MafUtil
                 validationStatusIndex = i;
             } else if(header.equalsIgnoreCase(SEQUENCER)) {
 	            sequencerIndex = i;
-            } else if(header.equalsIgnoreCase(AMINO_ACID_CHANGE_MANNUAL)) {
-	            aminoAcidChangeMannualIndex = i;
+            } else if(header.equalsIgnoreCase(AMINO_ACID_CHANGE)) {
+	            aminoAcidChangeIndex = i;
 	        } else if(header.equalsIgnoreCase(DBSNP_VAL_STATUS)) {
 	        	dbSnpValStatusIndex = i;
 	        } else if(header.equalsIgnoreCase(MATCHED_NORM_SAMPLE_BARCODE)) {
@@ -470,7 +470,7 @@ public class MafUtil
         record.setScore(TabDelimitedFileUtil.getPartString(scoreIndex, parts));
         record.setBamFile(TabDelimitedFileUtil.getPartString(bamFileIndex, parts));
         
-        record.setMannualAminoAcidChange(TabDelimitedFileUtil.getPartString(aminoAcidChangeMannualIndex, parts));
+        record.setAminoAcidChange(TabDelimitedFileUtil.getPartString(aminoAcidChangeIndex, parts));
 
 	    // allele frequency (count) columns
 	    record.setTumorAltCount(TabDelimitedFileUtil.getPartInt(tumorAltCountIndex, parts));
@@ -671,8 +671,8 @@ public class MafUtil
 		return bamFileIndex;
 	}
         
-        public int getAminoAcidChangeMannual() {
-            return aminoAcidChangeMannualIndex;
+	public int getAminoAcidChange() {
+            return aminoAcidChangeIndex;
         }
 
 	public int getTumorAltCountIndex() {

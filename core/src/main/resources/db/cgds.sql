@@ -352,6 +352,7 @@ CREATE TABLE `mutation` (
   `VALIDATION_METHOD` varchar(255),
   `SCORE` varchar(100),
   `BAM_FILE` varchar(255),
+  `AMINO_ACID_CHANGE` varchar(255),
   `TUMOR_ALT_COUNT` int(11),
   `TUMOR_REF_COUNT` int(11),
   `NORMAL_ALT_COUNT` int(11),

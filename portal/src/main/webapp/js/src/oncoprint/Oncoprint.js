@@ -649,7 +649,6 @@ define("Oncoprint",
                         .attr("dy", ".4em")
                         .text("?");
                     questionmark.filter(function(d) {
-//                        if(!utils.is_gene(d)) return true;
                         if (!d.genepanel) return true;
                     }).remove();
                 

@@ -55,8 +55,17 @@ define("OncoprintUtils", (function() {
     // returns: data nested by the key, "sample"
     var nest_data = function(data) {
         var result = d3.nest()
-    .key(function(d) { return d.sample; })
-//    .key(function(d) { return d.patient; })
+//    .key(function(d) { return d.sample; })
+    .key(function(d) { 
+            if(d.patient === undefined)
+            {
+                return d.sample; 
+            }
+            else
+            {
+               return d.patient; 
+            }
+        })
     .entries(data);
         return result;
     };
@@ -260,9 +269,9 @@ define("OncoprintUtils", (function() {
         return to_return;
     };
     
-    var attr_data_type2range = function(raw_attr_and_gene_data,attrs_number,raw_clinical_attr)
+    var attr_data_type2range = function(raw_attr_and_gene_data,attrs_number,raw_clinical_attr,addmixlegend)
     {
-        var extract_unique = function(raw_data, length, raw_clinical_attributes ,filter) {
+        var extract_unique = function(raw_data, length, raw_clinical_attributes,addmixlegendValue ,filter) {
             
             var finalAfterProcess = [];
             var testFinalAfterProcess = [];
@@ -309,6 +318,30 @@ define("OncoprintUtils", (function() {
                         }
                         afterProcess = [min,max];
                     }
+                    else
+                    {
+                        if(addmixlegendValue)
+                        {
+                            var newMixlegend = {};
+                            newMixlegend.attr_id = afterProcess[afterProcess.length-1].attr_id;
+                            newMixlegend.attr_val = "Mixed";
+                            newMixlegend.display_name = "Mix Legend";
+                            newMixlegend.sample = "Mix_LegendSampleID";
+                            afterProcess.push(newMixlegend);
+                        }
+                    }
+                }
+                else
+                {
+                    if(addmixlegendValue)
+                    {
+                        var newMixlegend = {};
+                        newMixlegend.attr_id = afterProcess[afterProcess.length-1].attr_id;
+                        newMixlegend.attr_val = "Mixed";
+                        newMixlegend.display_name = "Mix Legend";
+                        newMixlegend.sample = "Mix_LegendSampleID";
+                        afterProcess.push(newMixlegend);
+                    }
                 }
                 
                 finalAfterProcess = finalAfterProcess.concat(afterProcess);
@@ -318,7 +351,7 @@ define("OncoprintUtils", (function() {
             return testFinalAfterProcess;
         };
         
-        var attrs = extract_unique(raw_attr_and_gene_data,attrs_number,raw_clinical_attr);
+        var attrs = extract_unique(raw_attr_and_gene_data,attrs_number,raw_clinical_attr,addmixlegend);
         if(attrs.length>0)
         {
             attrs[0]= _.sortBy(attrs[0],function(m){return m.attr_val;});
@@ -403,15 +436,6 @@ define("OncoprintUtils", (function() {
                     return [attr.attr_id, scale];
                 }
 
-//                // manually override colors for genomic subtypes to match the endometrial paper (doi:10.1038/nature12113)
-//                if (attr.attr_id.toUpperCase() === "SUBTYPE") {
-//                    scale = d3.scale.ordinal()
-//                        .domain(["POLE (Ultra-mutated)", "MSI (Hyper-mutated)", "Copy-number low (Endometriod)", "Copy-number high (Serous-like)"])
-//                        .range(["#3366cc", "#109618", "#ff9900", "#dc3912"]);
-//
-//                    return [attr.attr_id, scale];
-//                }
-
                 // calculate the proper colors for all other attributes
                 if (attr.datatype.toUpperCase() === "BOOLEAN") {
                     scale = d3.scale.ordinal()
@@ -433,7 +457,7 @@ define("OncoprintUtils", (function() {
                     scale = d3.scale.ordinal()
                         .range( slice_googlecolors(attr.attr_id));
                 }
-//                attr.attr_id=attr.attr_id.toLowerCase().charAt(0).toUpperCase() + attr.attr_id.toLowerCase().slice(1);// added by dong li
+                
                 scale.domain(attrId2range[attr.attr_id]);
                 return [attr.attr_id, scale];
             })
@@ -957,7 +981,10 @@ define("OncoprintUtils", (function() {
                 else if (is_clinical(d)) {
 
                     var result = attr2rangeFuntion[d.attr_id](d.attr_val);
-
+                    if(d.attr_val === "Mixed")//Mixed Legend reture black color
+                    {
+                        result = "black";
+                    }
                     return d.attr_val === "NA"
                 ? colors.grey       // attrs with value of NA are colored grey
                 : result;
@@ -1630,22 +1657,49 @@ define("OncoprintUtils", (function() {
 
             clinical: function(d) {
                 if(typeof d.attr_val === "number"){
-                    if(d.attr_val%1 === 0)
+                    if(d.patient===undefined)
                     {
-                       return "value: <b>" + d.attr_val + "</b><br/>"; 
+                        if(d.attr_val%1 === 0)
+                        {
+                           return "value: <b>" + d.attr_val + "</b><br/>"; 
+                        }
+
+                        return "value: <b>" + cbio.util.toPrecision(d.attr_val,4,0.00001) + "</b><br/>";
                     }
-                    return "value: <b>" + cbio.util.toPrecision(d.attr_val,4,0.00001) + "</b><br/>";
+                    else
+                    {
+                        if(d.attr_val%1 === 0)
+                        {
+                           return "value: <b>" + d.attr_val + "</b><br/>" + "there are <b>" + d.sample_num + "</b> samples<br/>"; 
+                        }
+
+                        return "value: <b>" + cbio.util.toPrecision(d.attr_val,4,0.00001) + "</b><br/>" + "there are <b>" + d.sample_num + "</b> samples<br/>"; 
+                    }
                 }
                 
-                return "value: <b>" + d.attr_val + "</b><br/>";
+//                return "value: <b>" + d.attr_val + "</b><br/>";
+                if(d.patient===undefined)
+                {
+                    return "value: <b>" + d.attr_val + "</b><br/>";
+                }
+                else
+                {   if((typeof(d.attr_val)).toUpperCase() === "NUMBER")
+                    {
+                        return "value: <b>" + d.attr_val + "</b><br/>" + "there are <b>" + d.sample_num + "</b> samples<br/>";
+                    }
+                    else
+                    {
+                        return "there are <b>" + d.sample_num + "</b> samples<br/>" + d.tooltip;
+                    }
+                }
             }
         };
     }());
 
-    var patientViewUrl = function(sample_id) {
+    var patientViewUrl = function(patient_id) {
         // helper function
-        var href = cbio.util.getLinkToSampleView(window.cancer_study_id_selected,sample_id);
-        return "<a href='" + href + "'>" + sample_id + "</a>";
+        var href = cbio.util.getLinkToPatientView(window.cancer_study_id_selected,patient_id);
+        return "<a href='" + href + "'>" + patient_id + "</a>";
     };
 
     // params: els, list of d3 selected elements with either gene data or
@@ -1661,8 +1715,15 @@ define("OncoprintUtils", (function() {
                 events: {
                     render: function(event, api) {
                         var content;
-                        var sampleLink = params.linkage?patientViewUrl(d.sample):d.sample;
-//                        var sampleLink = params.linkage?patientViewUrl(d.patient):d.patient;
+//                        var sampleLink = params.linkage?patientViewUrl(d.sample):d.sample;
+                        if(d.patient === undefined)
+                        {
+                            var sampleLink = params.linkage?patientViewUrl(d.sample):d.sample;
+                        }
+                        else
+                        {
+                            var sampleLink = params.linkage?patientViewUrl(d.patient):d.patient;
+                        }
                         if (d.attr_id) {
                             content = '<font size="2">'
                                 + format.clinical(d)

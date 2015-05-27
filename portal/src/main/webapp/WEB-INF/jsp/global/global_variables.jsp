@@ -390,9 +390,15 @@
             $(".query-toggle").toggle();
         });
 
+        var patiendIdList = window.PortalGlobals.getPatientSampleIdMap();
+        var patientIdArray = [];
+        $.each(_sampleIds, function(index, sampleIdElement) {
+                patientIdArray.push(patiendIdList[sampleIdElement]);
+        });
+        patientIdArray = _.uniq(patientIdArray);
         //Oncoprint summary lines
         $("#oncoprint_sample_set_description").append(window.PortalGlobals.getPatientSetDescription() + 
-            "(" + window.PortalGlobals.getNumOfTotalCases() + " samples)");
+            "(" + window.PortalGlobals.getNumOfTotalCases() + " samples"+" / "+patientIdArray.length + " patients)");
         $("#oncoprint_sample_set_name").append(window.PortalGlobals.getPatientSetName());
         $("#oncoprint_num_of_altered_cases").append(window.PortalGlobals.getNumOfAlteredCases());
         $("#oncoprint_percentage_of_altered_cases").append(window.PortalGlobals.getPercentageOfAlteredCases());

@@ -76,6 +76,7 @@ public final class DaoMutation {
                 mutation.getValidationMethod(),
                 mutation.getScore(),
                 mutation.getBamFile(),
+                mutation.getAminoAcidChange(),
                 Integer.toString(mutation.getTumorAltCount()),
                 Integer.toString(mutation.getTumorRefCount()),
                 Integer.toString(mutation.getNormalAltCount()),
@@ -510,6 +511,7 @@ public final class DaoMutation {
             mutation.setValidationMethod(rs.getString("VALIDATION_METHOD"));
             mutation.setScore(rs.getString("SCORE"));
             mutation.setBamFile(rs.getString("BAM_FILE"));
+	        mutation.setAminoAcidChange(rs.getString("AMINO_ACID_CHANGE"));
             mutation.setTumorAltCount(rs.getInt("TUMOR_ALT_COUNT"));
             mutation.setTumorRefCount(rs.getInt("TUMOR_REF_COUNT"));
             mutation.setNormalAltCount(rs.getInt("NORMAL_ALT_COUNT"));

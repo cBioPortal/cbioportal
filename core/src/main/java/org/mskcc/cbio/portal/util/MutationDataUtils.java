@@ -64,6 +64,7 @@ public class MutationDataUtils {
 	public static final String CANCER_STUDY_SHORT = "cancerStudyShort";
 	public static final String CANCER_STUDY_LINK = "cancerStudyLink";
 	public static final String PROTEIN_CHANGE = "proteinChange";
+	public static final String AMINO_ACID_CHANGE = "aminoAcidChange";
 	public static final String MUTATION_TYPE = "mutationType";
 	public static final String COSMIC = "cosmic";
 	public static final String FUNCTIONAL_IMPACT_SCORE = "functionalImpactScore";
@@ -231,6 +232,7 @@ public class MutationDataUtils {
         mutationData.put(CANCER_STUDY_LINK, GlobalProperties.getLinkToCancerStudyView(cancerStudyStableId));
 	    mutationData.put(TUMOR_TYPE, this.getTumorType(mutation, clinicalDataMap));
         mutationData.put(PROTEIN_CHANGE, mutation.getProteinChange());
+	    mutationData.put(AMINO_ACID_CHANGE, mutation.getAminoAcidChange());
         mutationData.put(MUTATION_TYPE, mutation.getMutationType());
         mutationData.put(COSMIC, convertCosmicDataToMatrix(cosmic.get(mutation.getMutationEventId())));
         mutationData.put(FUNCTIONAL_IMPACT_SCORE, mutation.getFunctionalImpactScore());

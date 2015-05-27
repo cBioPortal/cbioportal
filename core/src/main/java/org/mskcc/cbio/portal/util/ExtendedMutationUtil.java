@@ -76,50 +76,38 @@ public class ExtendedMutationUtil
 	}
 
 	/**
-	 * Determines the most accurate amino acid change value for the given mutation.
+	 * Determines the most accurate protein change value for the given mutation.
 	 *
-	 * If there is an Oncotator value, returns that value.
-	 * If no Oncotator value, then tries Mutation Assessor value.
-	 * If no MA value either, then tries the amino_acid_change column
-	 * If none of the above is valid then returns "MUTATED"
+	 * If there is an annotator value, returns that value.
+	 * If no annotator value, then tries Amino Acid Change value.
+	 * If none of the above is valid then returns "MUTATED".
 	 *
 	 * @param parts     current mutation as split parts of the line
 	 * @param record    MAF record for the current line
-	 * @return          most accurate amino acid change
+	 * @return          most accurate protein change
 	 */
 	public static String getProteinChange(String[] parts, MafRecord record)
 	{
-		// TODO simplify? (exclude MA, etc.)
-		// Note: MA may sometimes use a different isoform than Oncotator.
-
-		// try oncotator value first
-		//String aminoAcidChange = record.getOncotatorProteinChange();
-
 		// try annotator value first
-		String aminoAcidChange = record.getProteinChange();
+		//String proteinChange = record.getOncotatorProteinChange();
+		String proteinChange = record.getProteinChange();
 
-		// if no annotator value, try mutation assessor value
-		if (!isValidProteinChange(aminoAcidChange))
+		// if protein change is not valid, try amino acid change value
+		if (!isValidProteinChange(proteinChange))
 		{
-			aminoAcidChange = record.getMaProteinChange();
-		}
-
-		// if no MA value either, then try amino_acid_change column
-		if (!isValidProteinChange(aminoAcidChange))
-		{
-			aminoAcidChange = record.getMannualAminoAcidChange();
+			proteinChange = record.getAminoAcidChange();
 		}
 
 		// if none is valid, then use the string "MUTATED"
-		if (!isValidProteinChange(aminoAcidChange))
+		if (!isValidProteinChange(proteinChange))
 		{
-			aminoAcidChange = "MUTATED";
+			proteinChange = "MUTATED";
 		}
 
 		// also remove the starting "p." string if any
-		aminoAcidChange = normalizeProteinChange(aminoAcidChange);
+		proteinChange = normalizeProteinChange(proteinChange);
 
-		return aminoAcidChange;
+		return proteinChange;
 	}
 
 	/**

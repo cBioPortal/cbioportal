@@ -85,29 +85,15 @@ var orData = function() {
     }
     
     function trim_p_val_mutations(_input_str) {
-        var _result_str = "";
-        var _raw_p_val = parseFloat(_input_str);
-        if (_raw_p_val < 0.001) {
-            _result_str += "<0.001"; 
-        } else _result_str += _raw_p_val.toFixed(3);   
-        return _result_str;
+        return cbio.util.toPrecision(parseFloat(_input_str), 3, 10000);
     }
     
     function trim_p_val_copy_num(_input_str) {
-        var _result_str = "";
-        var _raw_p_val = parseFloat(_input_str);
-        if (_raw_p_val < 0.001) {
-            _result_str += "<0.001"; 
-        } else _result_str += _raw_p_val.toFixed(3);
-        return _result_str;
+        return cbio.util.toPrecision(parseFloat(_input_str), 3, 10000);
     }
     
     function trim_p_val_mrna(_param1, _param2, _input_str) {
-        var _result_str = "";
-        var _raw_p_val = parseFloat(_input_str);
-        if (_raw_p_val < 0.001) {
-            _result_str += "<0.001"; 
-        } else _result_str += _raw_p_val.toFixed(3);
+        var _result_str = cbio.util.toPrecision(parseFloat(_input_str), 3, 10000);
         
         if (parseFloat(_param1) > parseFloat(_param2)) {
             _result_str += "<img src=\"images/up1.png\"/>";

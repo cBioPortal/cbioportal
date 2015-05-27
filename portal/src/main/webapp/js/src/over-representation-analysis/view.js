@@ -527,6 +527,59 @@ var orSubTabView = function() {
             
         }
     };
-};
+}; //close orSubTabView
+
+var proteinExpTable = (function(_table_div, _table_id) {
+
+    var table_div, table_id;
+
+    function appendTitles() {
+        var table_head = "<thead style='font-size:80%'><tr valign='bottom'><th rowspan='2'>RPPA ID</th><th rowspan='2'>Gene</th><th rowspan='2'>Alteration</th><th rowspan='2'>Type</th><th colspan='2' class='ui-state-default'>Target</th>" +
+            "<th colspan='3' class='ui-state-default'>Ave. Abundance<img class='datatable_help' src='images/help.png' title='Average of protein abundance z-scores for unaltered cases and altered cases, respectively.'/></th>" +
+            "<th rowspan='2' nowrap='nowrap'>p-value<img class='datatable_help' src='images/help.png' title='Based on two-sided two sample student t-test.'/></th><th rowspan='2'>data</th><th rowspan='2'>Plot</th></tr>" +
+            "<tr><th>Protein</th><th>Residue</th><th>Unaltered</th><th>Altered</th><th nowrap='nowrap'>Abs. Diff.</th></tr></thead>";
+        var table_foot = "<tfoot><tr valign='bottom'><th>RPPA ID</th><th>Gene</th><th>Alteration</th><th>Type</th><th>Protein</th><th>Residue</th><th>Unaltered</th>" +
+            "<th>Altered</th><th>Abs. Diff.</th><th>p-value</th><th>data</th><th>Plot</th></tr></tfoot>";
+        $("#" + table_id).append(table_head + "<tbody></tbody>" + table_foot);
+    }
+
+    function configTable() {
+
+    }
+
+    return {
+        init: function() {
+            table_div = _table_div;
+            table_id = _table_id;
+            appendTitles();
+
+        }
+    }
+
+})(); //close proteinExpTable
+
+var proteinExpTabView = (function() {
+
+    var table_div, table_id;
+
+    return {
+        init: function(tab_div_id) {
+            table_div = tab_div_id + orAnalysis.postfix.datatable_div;
+            table_id = tab_div_id + orAnalysis.postfix.datatable_id;
+            $("#" + tab_div_id).append("<div id='" + table_div + "' style='width:1200px; display:inline-block; padding: 10px;'></div>");
+            $("#" + table_div).append("<table id='" + table_id + "' cellpadding='0' cellspacing='0' border='0' class='" + table_id + "_datatable_class'></table>");
+            proteinExpTable.init(table_div, table_id);
+        }
+    }
+
+})(); //close proteinExpTabView
+
+
+
+
+
+
+
+
 
 

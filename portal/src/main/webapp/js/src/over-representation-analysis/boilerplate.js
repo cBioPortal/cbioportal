@@ -43,13 +43,15 @@ var orAnalysis = (function() {
             sub_tab_copy_num: "or-analysis-subtab-copy-num",
             sub_tab_mutations: "or-analysis-subtab-mutations",
             sub_tab_mrna_exp: "or-analysis-subtab-mrna-exp",
-            sub_tab_advanced: "or-analysis-subtab-advanced"
+            sub_tab_advanced: "or-analysis-subtab-advanced",
+            sub_tab_protein_exp: "or-analysis-subtab-protein-exp"
         },
         texts: {
             sub_tab_copy_num: "Copy-num Alteration",
             sub_tab_mutations : "Mutations",
             sub_tab_mrna_exp: "mRNA Expression",
             sub_tab_advanced: "Advanced",
+            sub_tab_protein_exp: "Protein Change",
             null_result: "empt"
         },
         postfix: {

@@ -61,7 +61,7 @@ var or_tab = (function() {
     };
     
     //var init_mutations_tab = function(gene_set) {
-    var init_mutations_tab = function(gene_set) {
+    var init_mutations_tab = function() {
 
         var _profile_list = [];
         $.each(Object.keys(profile_obj_list), function(_index, _key) {
@@ -76,7 +76,7 @@ var or_tab = (function() {
     };
     
     //var init_mrna_exp_tab = function(gene_set) {
-    var init_mrna_exp_tab = function(gene_set) {
+    var init_mrna_exp_tab = function() {
         var _profile_list = [];
         $.each(Object.keys(profile_obj_list), function(_index, _key) {
             var _obj = profile_obj_list[_key];
@@ -88,6 +88,10 @@ var or_tab = (function() {
         var orSubTabMrnaExp = new orSubTabView();
         //orSubTabMrnaExp.init(orAnalysis.ids.sub_tab_mrna_exp, _profile_list, orAnalysis.profile_type.mrna, gene_set);
         orSubTabMrnaExp.init(orAnalysis.ids.sub_tab_mrna_exp, _profile_list, orAnalysis.profile_type.mrna, "cancer_genes");
+    };
+
+    var init_protein_exp_tab = function() {
+        proteinExpTabView.init(orAnalysis.ids.sub_tab_protein_exp);
     };
 
     var init_ajax = function() {
@@ -121,10 +125,14 @@ var or_tab = (function() {
             if ($.inArray("MRNA_EXPRESSION", profile_type_list) !== -1) { //study has expression data
                 $("#" + orAnalysis.ids.sub_tabs_list).append("<li><a href='#" + orAnalysis.ids.sub_tab_mrna_exp + "' class='or-analysis-tabs-ref'><span>" + orAnalysis.texts.sub_tab_mrna_exp + "</span></a></li>");
             }
+            if (window.PortalGlobals.hasRPPA()) { //study has RPPA data
+                $("#" + orAnalysis.ids.sub_tabs_list).append("<li><a href='#" + orAnalysis.ids.sub_tab_protein_exp + "' class='or-analysis-tabs-ref'><span>" + orAnalysis.texts.sub_tab_protein_exp + "</span></a></li>");
+            }
 
             $("#" + orAnalysis.ids.sub_tabs_content).append("<div id='" + orAnalysis.ids.sub_tab_mutations + "'></div>");
             $("#" + orAnalysis.ids.sub_tabs_content).append("<div id='" + orAnalysis.ids.sub_tab_copy_num + "'></div>");
             $("#" + orAnalysis.ids.sub_tabs_content).append("<div id='" + orAnalysis.ids.sub_tab_mrna_exp + "'></div>");
+            $("#" + orAnalysis.ids.sub_tabs_content).append("<div id='" + orAnalysis.ids.sub_tab_protein_exp + "'></div>");
 
             $("#" + orAnalysis.ids.sub_tabs_div).tabs();
             $("#" + orAnalysis.ids.sub_tabs_div).tabs('paging', {tabsPerPage: 10, follow: true, cycle: false});
@@ -141,6 +149,8 @@ var or_tab = (function() {
             } else if ($.inArray("MRNA_EXPRESSION", profile_type_list) !== -1) {
                 //init_mrna_exp_tab($("#or_analysis_tab_gene_set_select").val());
                 init_mrna_exp_tab();
+            } else if (window.PortalGlobals.hasRPPA()) {
+                init_protein_exp_tab();
             }
 
             //bind event listener
@@ -154,6 +164,8 @@ var or_tab = (function() {
                 } else if (ui.newTab.text() === orAnalysis.texts.sub_tab_mrna_exp) {
                     //if ($("#" + orAnalysis.ids.sub_tab_mrna_exp).is(':empty')) init_mrna_exp_tab($("#or_analysis_tab_gene_set_select").val());
                     if ($("#" + orAnalysis.ids.sub_tab_mrna_exp).is(':empty')) init_mrna_exp_tab();
+                } else if (ui.newTab.text() === orAnalysis.texts.sub_tab_protein_exp) {
+                    if ($("#" + orAnalysis.ids.sub_tab_protein_exp).is(':empty')) init_protein_exp_tab();
                 }
             });
 
@@ -163,40 +175,40 @@ var or_tab = (function() {
 
     }
 
-    var update = function() {
-
-        //clean the sub tabs
-        if ($.inArray("MUTATION_EXTENDED", profile_type_list) !== -1) { // study has mutation data
-            $("#" + orAnalysis.ids.sub_tab_mutations).empty();
-        }
-        if ($.inArray("COPY_NUMBER_ALTERATION", profile_type_list) !== -1) {
-            $("#" + orAnalysis.ids.sub_tab_copy_num).empty();
-        }
-        if ($.inArray("MRNA_EXPRESSION", profile_type_list) !== -1) {
-            $("#" + orAnalysis.ids.sub_tab_mrna_exp).empty();
-        }
-
-        //re-init sub tab contents
-        if ($.inArray("MUTATION_EXTENDED", profile_type_list) !== -1) { // study has mutation data
-            init_mutations_tab($("#or_analysis_tab_gene_set_select").val());
-        } else if ($.inArray("COPY_NUMBER_ALTERATION", profile_type_list) !== -1) {
-            init_copy_num_tab($("#or_analysis_tab_gene_set_select").val());
-        } else if ($.inArray("MRNA_EXPRESSION", profile_type_list) !== -1) {
-            init_mrna_exp_tab($("#or_analysis_tab_gene_set_select").val());
-        }
-
-        //bind event listener
-        $("#" + orAnalysis.ids.sub_tabs_div).on("tabsactivate", function(event, ui) {
-            if (ui.newTab.text() === orAnalysis.texts.sub_tab_copy_num) {
-                if ($("#" + orAnalysis.ids.sub_tab_copy_num).is(':empty')) init_copy_num_tab($("#or_analysis_tab_gene_set_select").val());
-            } else if (ui.newTab.text() === orAnalysis.texts.sub_tab_mutations) {
-                if ($("#" + orAnalysis.ids.sub_tab_mutations).is(':empty')) init_mutations_tab($("#or_analysis_tab_gene_set_select").val());
-            } else if (ui.newTab.text() === orAnalysis.texts.sub_tab_mrna_exp) {
-                if ($("#" + orAnalysis.ids.sub_tab_mrna_exp).is(':empty')) init_mrna_exp_tab($("#or_analysis_tab_gene_set_select").val());
-            }
-        });
-
-    }
+    //var update = function() {
+    //
+    //    //clean the sub tabs
+    //    if ($.inArray("MUTATION_EXTENDED", profile_type_list) !== -1) { // study has mutation data
+    //        $("#" + orAnalysis.ids.sub_tab_mutations).empty();
+    //    }
+    //    if ($.inArray("COPY_NUMBER_ALTERATION", profile_type_list) !== -1) {
+    //        $("#" + orAnalysis.ids.sub_tab_copy_num).empty();
+    //    }
+    //    if ($.inArray("MRNA_EXPRESSION", profile_type_list) !== -1) {
+    //        $("#" + orAnalysis.ids.sub_tab_mrna_exp).empty();
+    //    }
+    //
+    //    //re-init sub tab contents
+    //    if ($.inArray("MUTATION_EXTENDED", profile_type_list) !== -1) { // study has mutation data
+    //        init_mutations_tab($("#or_analysis_tab_gene_set_select").val());
+    //    } else if ($.inArray("COPY_NUMBER_ALTERATION", profile_type_list) !== -1) {
+    //        init_copy_num_tab($("#or_analysis_tab_gene_set_select").val());
+    //    } else if ($.inArray("MRNA_EXPRESSION", profile_type_list) !== -1) {
+    //        init_mrna_exp_tab($("#or_analysis_tab_gene_set_select").val());
+    //    }
+    //
+    //    //bind event listener
+    //    $("#" + orAnalysis.ids.sub_tabs_div).on("tabsactivate", function(event, ui) {
+    //        if (ui.newTab.text() === orAnalysis.texts.sub_tab_copy_num) {
+    //            if ($("#" + orAnalysis.ids.sub_tab_copy_num).is(':empty')) init_copy_num_tab($("#or_analysis_tab_gene_set_select").val());
+    //        } else if (ui.newTab.text() === orAnalysis.texts.sub_tab_mutations) {
+    //            if ($("#" + orAnalysis.ids.sub_tab_mutations).is(':empty')) init_mutations_tab($("#or_analysis_tab_gene_set_select").val());
+    //        } else if (ui.newTab.text() === orAnalysis.texts.sub_tab_mrna_exp) {
+    //            if ($("#" + orAnalysis.ids.sub_tab_mrna_exp).is(':empty')) init_mrna_exp_tab($("#or_analysis_tab_gene_set_select").val());
+    //        }
+    //    });
+    //
+    //}
     
     return {
         init: function(caseListObj) {
@@ -214,6 +226,7 @@ var or_tab = (function() {
                 }
             }
             init_ajax();
+
         },
         getAlteredCaseList: function() {
             return alteredCaseList;
@@ -221,7 +234,7 @@ var or_tab = (function() {
         getUnalteredCaseList: function() {
             return unalteredCaseList;
         },
-        update: update
+        //update: update
     };
     
 }());

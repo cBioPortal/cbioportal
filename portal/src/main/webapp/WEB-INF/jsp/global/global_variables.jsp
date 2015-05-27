@@ -328,7 +328,8 @@
             return result;
         },
         getAlteredSampleIdList: function() { return '<%=alteredSampleIdsStr%>'; },
-        getUnalteredSampleIdList: function() { return '<%=unalteredSampleIdsStr%>'; }
+        getUnalteredSampleIdList: function() { return '<%=unalteredSampleIdsStr%>'; },
+        hasRPPA: function() { return '<%=has_rppa%>'; }
     };
 </script>
 

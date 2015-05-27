@@ -896,7 +896,7 @@ function outputClinicalData() {
         var info = [];
         var loc;
         if ("PRIMARY_SITE" in patientInfo) {loc = (" (" + patientInfo["PRIMARY_SITE"] + ")")} else {loc=""};
-        var info = info.concat(formatPatientInfo(patientInfo) + loc);
+        var info = info.concat(formatPatientInfo(patientInfo).join(", ") + loc);
         var info = info.concat(formatDiseaseInfo(patientInfo));
         var info = info.concat(formatPatientStatus(patientInfo));
         row += info.join(", ");

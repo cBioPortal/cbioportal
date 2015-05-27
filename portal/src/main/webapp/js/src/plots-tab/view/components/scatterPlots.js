@@ -1,7 +1,7 @@
 var scatterPlots = (function() {
     
     var settings = {
-            canvas_width: 800,
+            canvas_width: 810,
             canvas_height: 650,
             axis: {
                 x: {
@@ -225,7 +225,7 @@ var scatterPlots = (function() {
     }
     
     function drawDots(_apply_box_plots, _box_plots_axis) {
-        
+
         elem.dotsGroup = elem.svg.append("svg:g");
         elem.dotsGroup.selectAll("path").remove();
 
@@ -239,7 +239,7 @@ var scatterPlots = (function() {
         });
         
         if (genetic_vs_genetic()) {
-            if ($("input[name=" + ids.sidebar.util.view_switch + "]:checked").val() === "gistic" && isSameGene() && stat.hasCnaAnno) { 
+            if ($("input[name=" + ids.sidebar.util.view_switch + "]:checked").val() === "gistic" && isSameGene() && stat.hasCnaAnno) {
                 //gistic view (only apply to one gene and having cna profile data case)
                 elem.dotsGroup.selectAll("path")
                     .data(data)
@@ -995,7 +995,7 @@ var scatterPlots = (function() {
     
     return {
         init: function(_div, _data, _apply_box_plots, _box_plots_axis, _calculate_co_exp) {
-            
+
             data = [];
             glyphs = [];
             data.length = 0;

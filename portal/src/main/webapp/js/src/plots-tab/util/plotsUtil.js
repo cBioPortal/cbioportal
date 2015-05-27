@@ -139,7 +139,8 @@ var mutationTranslator = function(mutationDetail) {
 var discretized_cna_profile_keywords = [
     "_cna",
     "_cna_rae",
-    "_gistic"
+    "_gistic",
+    "_cna_consensus"
 ];
 
 var is_profile_discretized = function(axis) {
@@ -193,10 +194,20 @@ var clear_plot_box = function() {
 };
 
 var regenerate_plots = function(_axis) {
-    clear_plot_box();
-    optSpec.init();
-    plotsData.fetch(_axis);
-    plotsbox.init();
+    if (_axis === "x" || _axis === "y") {
+        clear_plot_box();
+        optSpec.init();
+        plotsData.fetch(_axis);
+        plotsbox.init();
+    } else if (_axis === "xy") {
+        clear_plot_box();
+        optSpec.init();
+        plotsData.fetch("x");
+        plotsData.fetch("y");
+        plotsbox.init();
+
+    }
+
 };
 
 var search_mutation = function() {

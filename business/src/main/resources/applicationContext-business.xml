@@ -18,6 +18,7 @@
             <property name="locations">
               <list>
                 <value>file:///${PORTAL_HOME}/src/main/resources/portal.properties</value>
+				<value>file:///${PORTAL_HOME}/src/main/resources/importer.properties</value>
               </list>
             </property>
           </bean>
@@ -29,20 +30,11 @@
 
         <!-- these are required to get properly autowired mappers into our service classes -->
         <!-- when creating services via manually loading this context file -->
-        <bean id="entityMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
-            <property name="mapperInterface" value="org.mskcc.cbio.portal.persistence.EntityMapper" />
+        <bean id="genePanelMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+            <property name="mapperInterface" value="org.mskcc.cbio.portal.persistence.GenePanelMapper" />
             <property name="sqlSessionFactory" ref="sqlSessionFactory" />
         </bean>
-        <bean id="entityAttributeMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
-            <property name="mapperInterface" value="org.mskcc.cbio.portal.persistence.EntityAttributeMapper" />
-            <property name="sqlSessionFactory" ref="sqlSessionFactory" />
-        </bean>
-        <bean id="entityService" class="org.mskcc.cbio.portal.service.EntityService">
-            <property name="entityMapper" ref="entityMapper" />
-        </bean>
-        <bean id="entityAttributeService" class="org.mskcc.cbio.portal.service.EntityAttributeService">
-            <property name="entityAttributeMapper" ref="entityAttributeMapper" />
-        </bean>
+        <bean id="genePanelService" class="org.mskcc.cbio.portal.service.GenePanelService" />
 
         <!-- enable component scanning (beware that this does not enable mapper scanning!) -->    
         <context:component-scan base-package="org.mskcc.cbio.portal.service" />

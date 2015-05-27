@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.mskcc.cbio.portal.persistence.GenePanelMapper">
+
+<cache/>
+
+<insert id="insertGenePanel" parameterType="map" useGeneratedKeys="true" keyProperty="internal_id" keyColumn="internal_id">
+	insert into gene_panel (STABLE_ID, DESCRIPTION, CANCER_STUDY_ID)
+		values (#{stable_id},#{description},#{cancer_study_id})
+</insert>
+
+<insert id="insertGenePanelList" parameterType="map" useGeneratedKeys="false">
+	insert into gene_panel_list (INTERNAL_ID, GENE_ID) values
+	<foreach item="gene_id" index="index" collection="gene_list" separator=",">
+		(#{internal_id}, #{gene_id})
+	</foreach>
+</insert>
+
+<select id="getPanelByStableId" resultType="GenePanel" parameterType="String">
+	select
+		INTERNAL_ID as internalId,
+		STABLE_ID as stableId,
+		DESCRIPTION as description,
+		CANCER_STUDY_ID as cancerStudyId
+	from gene_panel
+	where STABLE_ID = #{stableId}
+</select>
+
+<select id="getListByInternalId" resultType="Long" parameterType="Integer">
+	select
+		GENE_ID as geneId
+	from gene_panel_list
+	where INTERNAL_ID = #{internalId}
+</select>
+
+<delete id="deleteGenePanel" flushCache="true">
+	delete from gene_panel where STABLE_ID = #{stableId}
+</delete>
+<delete id="deleteGenePanelList" flushCache="true">
+	delete from gene_panel_list where INTERNAL_ID = #{internalId}
+</delete>
+
+<delete id="deleteAllGenePanel" flushCache="true">
+	delete from gene_panel
+</delete>
+<delete id="deleteAllGenePanelList" flushCache="true">
+	delete from gene_panel_list
+</delete>
+
+</mapper>

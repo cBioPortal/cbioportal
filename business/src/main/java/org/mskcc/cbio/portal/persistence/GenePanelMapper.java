@@ -30,21 +30,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.mskcc.cbio.portal.model;
+package org.mskcc.cbio.portal.persistence;
 
+import org.mskcc.cbio.portal.model.*;
+import org.apache.ibatis.annotations.*;
 import java.util.*;
-import java.io.Serializable;
 
-/**
- * Encapsulates Clinical Data.
- *
- * @author Dong Li <dongli@cbio.mskcc.org>
- */
-public class GenePanel implements Serializable
+public interface GenePanelMapper
 {
-    public int internalId;
-    public String stableId;
-    public String cancerStudyId;
-    public String description;
-    public List<String> geneList;
+	void insertGenePanel(Map<String, Object> map);
+	void insertGenePanelList(Map<String, Object> map);
+
+	GenePanel getPanelByStableId(@Param("stableId") String stableId);
+	List<Long> getListByInternalId(@Param("internalId") int internalId);
+
+	void deleteGenePanel(@Param("stableId") String stableId);
+	void deleteGenePanelList(@Param("internalId") int internalId);
+	void deleteAllGenePanel();
+	void deleteAllGenePanelList();
 }

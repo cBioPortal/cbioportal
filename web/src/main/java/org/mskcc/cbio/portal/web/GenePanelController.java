@@ -30,21 +30,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.mskcc.cbio.portal.model;
+package org.mskcc.cbio.portal.web;
 
-import java.util.*;
-import java.io.Serializable;
+import org.mskcc.cbio.portal.model.GenePanel;
+import org.mskcc.cbio.portal.service.GenePanelService;
 
-/**
- * Encapsulates Clinical Data.
- *
- * @author Dong Li <dongli@cbio.mskcc.org>
- */
-public class GenePanel implements Serializable
+import org.springframework.web.bind.annotation.*;
+import org.springframework.stereotype.Controller;
+import org.springframework.beans.factory.annotation.Autowired;
+
+
+@Controller
+@RequestMapping("/genepanel")
+public class GenePanelController
 {
-    public int internalId;
-    public String stableId;
-    public String cancerStudyId;
-    public String description;
-    public List<String> geneList;
+	@Autowired
+	private GenePanelService genePanelService;
+
+	@RequestMapping(value="/{stableId}")
+	public @ResponseBody GenePanel getGenePanel(@PathVariable String stableId)
+	{
+		return genePanelService.getByStableId(stableId);
+	}
 }

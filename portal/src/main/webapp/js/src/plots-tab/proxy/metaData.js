@@ -31,6 +31,7 @@ var metaData = (function() {
             cmd : "getClinicalData",
             cancer_study_id: window.PortalGlobals.getCancerStudyId(),
             case_set_id : window.PortalGlobals.getCaseSetId(),
+            case_ids_key: window.PortalGlobals.getCaseIdsKey(),
             format : "json"
         };
         $.post("webservice.do", paramsGetClinicalAttributes, function(result) {
@@ -39,7 +40,7 @@ var metaData = (function() {
     }
 
     function registerMetaData(clinicalAttrMetaDataResult, profileMetaDataResult) {
-        
+
         var _tmp_id_arr = []; //temporary instore profile id
         var _profile_arr = [];
         for (var gene in profileMetaDataResult) { //merge all genetic profiles from all queried genes

@@ -919,9 +919,12 @@ function outputClinicalData() {
             
             var sampleData = {};
             if (Object.keys(clinicalDataMap).length > 0) {
-                sampleData = {"SAMPLE_TYPE":clinicalDataMap[caseId].SAMPLE_TYPE || "N/A",
-                              "METASTATIC_SITE":clinicalDataMap[caseId].METASTATIC_SITE || "N/A",
-                              "PRIMARY_SITE":clinicalDataMap[caseId].PRIMARY_SITE || "N/A"};
+                var info_keys = ["SAMPLE_TYPE", "METASTATIC_SITE", "PRIMARY_SITE"];
+                for (var j=0; j < info_keys.length; j++) {
+                    if (info_keys[j] in clinicalDataMap[caseId]) {
+                        sampleData[info_keys[j]] = clinicalDataMap[caseId][info_keys[j]];
+                    }
+                }
             }
             var info = [];
             info = info.concat(formatStateInfo(sampleData));

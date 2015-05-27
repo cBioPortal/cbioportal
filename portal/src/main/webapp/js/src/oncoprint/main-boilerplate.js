@@ -137,6 +137,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
     var extraGenes=[]; // used to record genes add customized
     var extraAttributes=[]; // used to record attributes names add customized
     var sortStatus=[];
+    var GenePanelData;
 
     var cases = window.PortalGlobals.getCases();
     var genes = window.PortalGlobals.getGeneListString().split(" ");
@@ -206,7 +207,6 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                                 },
                                 success: function(response) {
                                     inner_loader_img.hide();
-
 //                                    extraTracks = extraTracks.concat(response.attributes().map(function(attr) { return attr.attr_id; }));
                                     clinicalExtraTracks['mutation'] = response.attributes().map(function(attr) { return attr.attr_id; });
 //                                    extraGenes = extraGenes.concat(response.toJSON());
@@ -230,7 +230,6 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                             },
                             success: function(response){
                                         inner_loader_img.hide();
-
                                         clinicalExtraTracks[clinicalElements] = response.attributes().map(function(attr) { return attr.attr_id; });
                                         clinicalAttributeArray[clinicalElements]= response.toJSON();
                                         clinicalExtraAttributes[clinicalElements]= response.attributes();
@@ -252,7 +251,6 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                             },
                             success: function(response) {
                                 inner_loader_img.hide();
-
                                 clinicalExtraTracks[clinicalElements] = response.attributes().map(function(attr) { return attr.attr_id; });
                                 clinicalAttributeArray[clinicalElements]= response.toJSON();
                                 clinicalExtraAttributes[clinicalElements]= response.attributes();
@@ -263,7 +261,21 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                 };
 
                 var clinicalElementsArray = [];
-
+                
+                var genePanelClinicals = new ClinicalColl();
+                clinicalElementsArray.push(
+                genePanelClinicals.fetch({
+                type: "POST",
+                data: {
+                    cancer_study_id: cancer_study_id_selected,
+                    attribute_id: "GENE_PANEL",
+                    case_list: cases
+                },
+                success: function(response) {
+                        GenePanelData = response.toJSON();
+                    }
+                }));
+                
                 for(var i=0; i < clinicallistArrayNow.length; i++)
                 {
                     var clinicalElementsValue;
@@ -276,6 +288,8 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                     gainClinicalData(clinicalElementsValue,clinicalElementsArray);
                 }
 
+
+                
                 $.when.apply(null, clinicalElementsArray).done(function() {
                     
                         for(var j=0; j < clinicallistArrayNow.length; j++)
@@ -294,7 +308,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                             legend: document.getElementById('oncoprint_legend'),
                             sortStatus:sortStatus,
                             mutationColor:mutationColorControl
-                            },extraTracks);
+                            },extraTracks,GenePanelData);
 
                             outer_loader_img.hide();
                             $('#oncoprint #everything').show();
@@ -373,7 +387,6 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             else
             {
                 //fetch genepanel data
-                var GenePanelData;
                 var genePanelClinicals = new ClinicalColl();
                 genePanelClinicals.fetch({
                 type: "POST",
@@ -389,7 +402,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                             geneData: data.toJSON(),
                             genes: genes,
                             legend: document.getElementById('oncoprint_legend')
-                        },extraTracks);
+                        },extraTracks,GenePanelData);
 
                         outer_loader_img.hide();
                         $('#oncoprint #everything').show();
@@ -618,7 +631,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                 legend: document.getElementById('oncoprint_legend'),
                 sortStatus:sortStatus,
                 mutationColor:mutationColorControl
-            },extraTracks,showPatientIdflat);
+            },extraTracks,GenePanelData,showPatientIdflat);
 
 //            oncoprint.sortBy(sortBy.val(), cases.split(" "));
             if($('#oncoprint_sortbyfirst_dropdonw span')[0].innerHTML === 'Sort by')
@@ -673,7 +686,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             legend: document.getElementById('oncoprint_legend'),
             sortStatus:sortStatus,
             mutationColor:mutationColorControl
-        },extraTracks,showPatientIdflat);
+        },extraTracks,GenePanelData,showPatientIdflat);
         if(extraAttributes.length < 1)
         {
             $('#oncoprint-diagram-toolbar-buttons #clinical_first')[0].style.display = "none";
@@ -778,7 +791,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             legend: document.getElementById('oncoprint_legend'),
             sortStatus:sortStatus,
             mutationColor:mutationColorControl
-        },extraTracks,topatientValue);
+        },extraTracks,GenePanelData,topatientValue);
 
         functionFunctions();
 //        oncoprint.sortBy(sortBy.val(), cases.split(" "));  
@@ -808,7 +821,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                 geneData: geneDataColl.toJSON(),
                 genes: genes,
                 legend: document.getElementById('oncoprint_legend')
-            },extraTracks);
+            },extraTracks,GenePanelData);
 
 //            oncoprint.sortBy(sortBy.val(), cases.split(" "));
             if($('#oncoprint_sortbyfirst_dropdonw span')[0].innerHTML === 'Sort by')
@@ -854,7 +867,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                             legend: document.getElementById('oncoprint_legend'),
                             sortStatus:sortStatus,
                             mutationColor:mutationColorControl
-                        },extraTracks,showPatientIdflat);
+                        },extraTracks,GenePanelData,showPatientIdflat);
 
                         if($('#oncoprint_sortbyfirst_dropdonw span')[0].innerHTML === 'Sort by')
                         {
@@ -950,7 +963,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                             legend: document.getElementById('oncoprint_legend'),
                             sortStatus:sortStatus,
                             mutationColor:mutationColorControl
-                        },extraTracks,showPatientIdflat);
+                        },extraTracks,GenePanelData,showPatientIdflat);
                              
 //                        oncoprint.sortBy(sortBy.val(), cases.split(" "));
                         if($('#oncoprint_sortbyfirst_dropdonw span')[0].innerHTML === 'Sort by')
@@ -1048,7 +1061,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                             legend: document.getElementById('oncoprint_legend'),
                             sortStatus:sortStatus,
                             mutationColor:mutationColorControl
-                        },extraTracks,showPatientIdflat);
+                        },extraTracks,GenePanelData,showPatientIdflat);
 
                         if($('#oncoprint_sortbyfirst_dropdonw span')[0].innerHTML === 'Sort by')
                         {

@@ -44,7 +44,7 @@
 define("Oncoprint",
         [           "OncoprintUtils",  "MemoSort"],
         function(   utils,              MemoSort) {
-            return function(div, params,tracks,topatientValue) {
+            return function(div, params,tracks,GenePanelData,topatientValue) {
                 params.clinicalData = params.clinicalData || [];        // initialize
                 params.clinical_attrs = params.clinical_attrs || [];
 
@@ -277,6 +277,21 @@ define("Oncoprint",
 
                 data = utils.process_data(data, attributes);
 
+                //get to process data from gene panel
+                var genepanelList = [];
+                genepanelList["IMPACT341"] =["TP53","BRCA1"];
+                for(var i=0; i < data.length; i++)
+                {
+                    var genepanelStableId = GenePanelData[i].attr_val;
+                    for(var j= 0; j < data[i].values.length; j++)
+                    {
+                        var geneIndexValue = _.find(genepanelList[genepanelStableId], function(gene){ return gene ===data[i].values[j].gene; }); 
+                        if(data[i].values[j].gene !== undefined && !geneIndexValue && data[i].values[j].mutation === undefined)
+                        {
+                            data[i].values[j].genepanel = true; 
+                        }
+                    }
+                }
                 // keeps track of the order specified by the user (translates to vertical
                 // order in the visualization)
                 var attr2index = (function() {
@@ -622,6 +637,7 @@ define("Oncoprint",
                                 : vertical_pos(utils.get_attr(d)) + dims.clinical_offset;
                             }
                         });
+                        
                     var questionmark = enter.append("text")
                         .attr('y', function(d) {
                             if(params.clinical_attrs.length === 0) //to check are there clinic data input
@@ -630,8 +646,13 @@ define("Oncoprint",
                             }
                             return dims.mut_height + gapSpaceGeneClinic + vertical_pos(utils.get_attr(d)) + 2; 
                         })
-                        .attr("dy", ".3em")
+                        .attr("dy", ".4em")
                         .text("?");
+                    questionmark.filter(function(d) {
+//                        if(!utils.is_gene(d)) return true;
+                        if (!d.genepanel) return true;
+                    }).remove();
+                
                     var fusion = enter.append('path')
                         .attr('d', "M0,0L0,"+dims.rect_height+" "+dims.rect_width+","+dims.rect_height/2+"Z")
                         .attr('transform',function(d) {

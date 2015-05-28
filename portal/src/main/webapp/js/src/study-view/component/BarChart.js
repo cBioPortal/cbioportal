@@ -166,7 +166,7 @@ var BarChart = function(){
                         "</div>"+
                         "<br>"+
                         "<div style='display:inline-block;'>"+
-                        "<button id='"+DIV.chartDiv+"-tsv' style=\"width:50px\">DATA</button>"+
+                        "<button id='"+DIV.chartDiv+"-tsv' style=\"width:50px\">TXT</button>"+
                         "</div>"
             },
             events: {
@@ -202,7 +202,8 @@ var BarChart = function(){
                         }
                         
                         var downloadOpts = {
-                            filename: cancerStudyName + "_" + param.selectedAttrDisplay + ".txt",
+//                            filename: cancerStudyName + "_" + param.selectedAttrDisplay + ".txt",
+                            filename: StudyViewParams.params.studyId + "_" + param.selectedAttrDisplay + ".txt",
                             contentType: "text/plain;charset=utf-8",
                             preProcess: false
                         };

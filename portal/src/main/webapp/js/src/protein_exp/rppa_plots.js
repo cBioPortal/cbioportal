@@ -535,6 +535,7 @@ var rppaPlots = (function() {
 
     return {
         init: function(xLabel, yLabel, title, divName, caseLists, proteinArrayId, alterationsObj) {
+            console.log(alterationsObj);
             //Set all the parameters
             data.setCaseLists(caseLists);
             view.setAttr(xLabel, yLabel, title, divName);

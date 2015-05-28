@@ -30,5 +30,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+var or_util = (function() {
 
+    return {
+        analyse_data: function(inputArr) {
+            var min = Math.min.apply(Math, inputArr);
+            var max = Math.max.apply(Math, inputArr);
+            var edge = (max - min) * 0.1;
+            min -= edge;
+            max += edge;
 
+            return {
+                min: min,
+                max: max
+            };
+        }
+    }
+
+}());

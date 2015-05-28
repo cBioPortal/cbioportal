@@ -169,15 +169,6 @@ function renderDataTable(result) {
                   "bSearchable": false,
                   "bSortable": false,
                   "aTargets": [ 10 ]
-                },
-                { //"sTitle": "plot",
-                  "bSearchable": false,
-                  "bSortable": false,
-                  "mRender": function(data) {
-                        return "<img class=\"details_img\" src=\"images/details_open.png\">";
-                  },
-                  "aTargets": [ 11 ]
-
                 }
             ],
             "aaSorting": [sortingColumn],

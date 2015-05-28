@@ -75,6 +75,7 @@ var orData = function() {
                 _unit[orAnalysis.col_index.mrna.unaltered_stdev] = parseFloat(_obj["standard deviation of alteration in unaltered group"]).toFixed(2);
                 _unit[orAnalysis.col_index.mrna.p_val] = trim_p_val_mrna(_obj["mean of alteration in altered group"], _obj["mean of alteration in unaltered group"], _obj["p-Value"]);
                 _unit[orAnalysis.col_index.mrna.q_val] = trim_p_val_mrna(_obj["mean of alteration in altered group"], _obj["mean of alteration in unaltered group"], _obj["q-Value"]);
+                //_unit[orAnalysis.col_index.mrna.plot] = "<img src='images/details_open.png' class='or_analysis_details_img'>";
 
             } else if (_profile_type === orAnalysis.profile_type.protein_exp) {
 
@@ -86,6 +87,7 @@ var orData = function() {
                 _unit[orAnalysis.col_index.protein_exp.unaltered_stdev] = parseFloat(_obj["standard deviation of alteration in unaltered group"]).toFixed(2);
                 _unit[orAnalysis.col_index.protein_exp.p_val] = trim_p_val_mrna(_obj["mean of alteration in altered group"], _obj["mean of alteration in unaltered group"], _obj["p-Value"]);
                 _unit[orAnalysis.col_index.protein_exp.q_val] = trim_p_val_mrna(_obj["mean of alteration in altered group"], _obj["mean of alteration in unaltered group"], _obj["q-Value"]);
+                //_unit[orAnalysis.col_index.protein_exp.plot] = "<img src='images/details_open.png' class='or_analysis_details_img'>";
 
             }
             
@@ -165,12 +167,12 @@ var orData = function() {
                 alert( "Request failed: " + textStatus );
             }); 
         },
-        get: function(callback_func, _div_id, _table_div, _table_id, _table_title, _profile_type) { 
+        get: function(callback_func, _div_id, _table_div, _table_id, _table_title, _profile_type, _profile_id) {
             var tmp = setInterval(function () { timer(); }, 1000);
             function timer() {
                 if (retrieved) {
                     clearInterval(tmp);
-                    callback_func(convert_data(data, _profile_type), _div_id, _table_div, _table_id, _table_title, _profile_type);
+                    callback_func(convert_data(data, _profile_type), _div_id, _table_div, _table_id, _table_title, _profile_type, _profile_id);
                 }
             }
         }

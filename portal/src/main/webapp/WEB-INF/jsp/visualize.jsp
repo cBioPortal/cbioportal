@@ -141,9 +141,7 @@
                 + "Mutual Exclusivity</a></li>");
             }
 
-            //if ( has_mrna && (has_rppa || has_methylation || has_copy_no) ) {
-                out.println ("<li><a href='#plots' class='result-tab' title='Multiple plots, including CNA v. mRNA expression'>" + "Plots</a></li>");
-            //}
+            out.println ("<li><a href='#plots' class='result-tab' title='Multiple plots, including CNA v. mRNA expression'>" + "Plots</a></li>");
 
             if (showMutTab){
                 out.println ("<li><a href='#mutation_details' class='result-tab' title='Mutation details, including mutation type, "
@@ -157,11 +155,6 @@
 
             if (has_mrna || has_copy_no || showMutTab) {
                 out.println("<li><a href='#or_analysis' class='result-tab' title='Enrichment/Differential/Over-representative Analysis'>Enrichments</a></li>");
-            }
-
-            if (has_rppa) {
-                out.println ("<li><a href='#protein_exp' class='result-tab' title='Protein and Phopshoprotein changes using Reverse Phase Protein Array (RPPA) data'>"
-                + "Protein Changes</a></li>");
             }
 
             if (has_survival) {
@@ -211,35 +204,29 @@
             <%@ include file="oncoprint/main.jsp" %>
         </div>
 
-            <% //if ( has_mrna && (has_copy_no || has_methylation || has_copy_no) ) { %>
         <%@ include file="plots_tab.jsp" %>
-            <% //} %>
 
-            <% if (showIGVtab) { %>
-        <%@ include file="igv.jsp" %>
-            <% } %>
-
-            <% if (has_survival) { %>
-        <%@ include file="survival_tab.jsp" %>
-            <% } %>
-
-            <% if (computeLogOddsRatio && geneWithScoreList.size() > 1) { %>
-                <%@ include file="mutex_tab.jsp" %>
-            <% } %>
-            
-            <% if (mutationDetailLimitReached != null) {
-        out.println("<div class=\"section\" id=\"mutation_details\">");
-        out.println("<P>To retrieve mutation details, please specify "
-        + QueryBuilder.MUTATION_DETAIL_LIMIT + " or fewer genes.<BR>");
-        out.println("</div>");
-    } else if (showMutTab) { %>
-        <%@ include file="mutation_views.jsp" %>
-        <%@ include file="mutation_details.jsp" %>
-            <%  } %>
-
-        <% if (has_rppa) { %>
-            <%@ include file="protein_exp.jsp" %>
+        <% if (showIGVtab) { %>
+            <%@ include file="igv.jsp" %>
         <% } %>
+
+        <% if (has_survival) { %>
+            <%@ include file="survival_tab.jsp" %>
+        <% } %>
+
+        <% if (computeLogOddsRatio && geneWithScoreList.size() > 1) { %>
+            <%@ include file="mutex_tab.jsp" %>
+        <% } %>
+            
+        <% if (mutationDetailLimitReached != null) {
+            out.println("<div class=\"section\" id=\"mutation_details\">");
+            out.println("<P>To retrieve mutation details, please specify "
+            + QueryBuilder.MUTATION_DETAIL_LIMIT + " or fewer genes.<BR>");
+            out.println("</div>");
+        } else if (showMutTab) { %>
+            <%@ include file="mutation_views.jsp" %>
+            <%@ include file="mutation_details.jsp" %>
+        <%  } %>
 
         <% if (includeNetworks) { %>
             <%@ include file="networks.jsp" %>

@@ -79,7 +79,8 @@ var orAnalysis = (function() {
             unaltered_mean: 100,
             altered_stdev: 100,
             unaltered_stdev: 100,
-            direction: 250
+            direction: 250,
+            plot: 50
         },
         col_index: {
             copy_num: {
@@ -100,7 +101,8 @@ var orAnalysis = (function() {
                 altered_stdev: 4,
                 unaltered_stdev: 5,
                 p_val: 6,
-                q_val: 7
+                q_val: 7,
+                plot: 8
             },
             mutations: {
                 gene: 0,
@@ -120,7 +122,8 @@ var orAnalysis = (function() {
                 altered_stdev: 4,
                 unaltered_stdev: 5,
                 p_val: 6,
-                q_val: 7
+                q_val: 7,
+                plot: 8
             }
         },
         _title_ids : {

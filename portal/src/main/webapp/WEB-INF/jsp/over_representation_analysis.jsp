@@ -2,6 +2,7 @@
 <script type="text/javascript" src="js/src/over-representation-analysis/data.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/over-representation-analysis/view.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/over-representation-analysis/util.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/over-representation-analysis/plots.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/over-representation-analysis/boilerplate.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <div class="section" id="or_analysis">
@@ -26,6 +27,10 @@
 </div>
 
 <style>
+
+    @import "css/data_table_jui.css?<%=GlobalProperties.getAppVersion()%>";
+    @import "css/data_table_ColVis.css?<%=GlobalProperties.getAppVersion()%>";
+
     #or_analysis .or-analysis-tabs-ref {
         font-size: 10px !important;
     }
@@ -52,6 +57,10 @@
     }
     #or_analysis .dataTables tbody tr {
         min-height: 28px;
+    }
+    #or_analysis td.rppa-details {
+        background-color : white;
+        width: 600px;
     }
 </style>
 

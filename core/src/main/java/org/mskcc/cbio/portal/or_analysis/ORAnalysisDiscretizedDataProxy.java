@@ -122,6 +122,17 @@ public class ORAnalysisDiscretizedDataProxy {
                     if (!Double.isNaN(calcPval(singleGeneCaseValueMap, profileType))) {
                         _result.add(_datum);
                     }
+                } else if (profileType.equals(GeneticAlterationType.PROTEIN_LEVEL.toString())) {
+                    _datum.put(COL_NAME_GENE, _geneName);
+                    _datum.put(COL_NAME_CYTOBAND, _cytoband);
+                    _datum.put(COL_NAME_MEAN_ALTERED, calcMean(singleGeneCaseValueMap, "altered"));
+                    _datum.put(COL_NAME_MEAN_UNALTERED, calcMean(singleGeneCaseValueMap, "unaltered"));
+                    _datum.put(COL_NAME_STDEV_ALTERED, calcSTDev(singleGeneCaseValueMap, "altered"));
+                    _datum.put(COL_NAME_STDEV_UNALTERED, calcSTDev(singleGeneCaseValueMap, "unaltered"));
+                    _datum.put(COL_NAME_P_VALUE, calcPval(singleGeneCaseValueMap, profileType));
+                    if (!Double.isNaN(calcPval(singleGeneCaseValueMap, profileType))) {
+                        _result.add(_datum);
+                    }
                 }
             }
             
@@ -318,7 +329,8 @@ public class ORAnalysisDiscretizedDataProxy {
         if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString()) || 
             profileType.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION.toString())) {
             _p_value = runFisherExactTest(singleGeneCaseValueMap, profileType);
-        } else if (profileType.equals(GeneticAlterationType.MRNA_EXPRESSION.toString())) {
+        } else if (profileType.equals(GeneticAlterationType.MRNA_EXPRESSION.toString()) ||
+                   profileType.equals(GeneticAlterationType.PROTEIN_LEVEL.toString())) {
             _p_value = runTTest(singleGeneCaseValueMap, profileType);
         }
         return _p_value;

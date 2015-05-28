@@ -17,6 +17,7 @@
         <div id="or_analysis_tab_custom_gene_set_text_area"></div>
         <br>-->
         Table(s) below rank(s) all the genes among the chose gene set (see above), with highest mutual exclusivity / co-occurrence / differential expression under different genetic profiles, against queried genes.
+        (Calculation is done among cancer genes.)
     </div>
     <div id="or-analysis-tabs" class="or-analysis-tabs">
         <ul id='or-analysis-tabs-list'></ul>

@@ -76,6 +76,17 @@ var orData = function() {
                 _unit[orAnalysis.col_index.mrna.p_val] = trim_p_val_mrna(_obj["mean of alteration in altered group"], _obj["mean of alteration in unaltered group"], _obj["p-Value"]);
                 _unit[orAnalysis.col_index.mrna.q_val] = trim_p_val_mrna(_obj["mean of alteration in altered group"], _obj["mean of alteration in unaltered group"], _obj["q-Value"]);
 
+            } else if (_profile_type === orAnalysis.profile_type.protein_exp) {
+
+                _unit[orAnalysis.col_index.protein_exp.gene] = "<input type='checkbox' class='" + table_id + orAnalysis.postfix.datatable_gene_checkbox_class + "' value='" + _obj["Gene"] + "'>" + _obj["Gene"];
+                _unit[orAnalysis.col_index.protein_exp.cytoband] = _obj["Cytoband"];
+                _unit[orAnalysis.col_index.protein_exp.altered_mean] = parseFloat(_obj["mean of alteration in altered group"]).toFixed(2);
+                _unit[orAnalysis.col_index.protein_exp.unaltered_mean] = parseFloat(_obj["mean of alteration in unaltered group"]).toFixed(2);
+                _unit[orAnalysis.col_index.protein_exp.altered_stdev] = parseFloat(_obj["standard deviation of alteration in altered group"]).toFixed(2);
+                _unit[orAnalysis.col_index.protein_exp.unaltered_stdev] = parseFloat(_obj["standard deviation of alteration in unaltered group"]).toFixed(2);
+                _unit[orAnalysis.col_index.protein_exp.p_val] = trim_p_val_mrna(_obj["mean of alteration in altered group"], _obj["mean of alteration in unaltered group"], _obj["p-Value"]);
+                _unit[orAnalysis.col_index.protein_exp.q_val] = trim_p_val_mrna(_obj["mean of alteration in altered group"], _obj["mean of alteration in unaltered group"], _obj["q-Value"]);
+
             }
             
             table_arr.push(_unit);

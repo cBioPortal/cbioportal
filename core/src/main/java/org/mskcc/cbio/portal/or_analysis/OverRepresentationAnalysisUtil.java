@@ -56,6 +56,8 @@ public class OverRepresentationAnalysisUtil {
             }
         } else if (profileType.equals(GeneticAlterationType.MRNA_EXPRESSION.toString())) {
             result = daoGeneticAlteration.getGeneticAlterationMap(profileId, entrezGeneIds);
+        } else if (profileType.equals(GeneticAlterationType.PROTEIN_LEVEL.toString())) {
+            result = daoGeneticAlteration.getGeneticAlterationMap(profileId, entrezGeneIds);
         }
         	
         return result;

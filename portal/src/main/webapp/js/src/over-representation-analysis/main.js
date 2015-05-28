@@ -62,7 +62,6 @@ var or_tab = (function() {
     
     //var init_mutations_tab = function(gene_set) {
     var init_mutations_tab = function() {
-
         var _profile_list = [];
         $.each(Object.keys(profile_obj_list), function(_index, _key) {
             var _obj = profile_obj_list[_key];
@@ -91,7 +90,16 @@ var or_tab = (function() {
     };
 
     var init_protein_exp_tab = function() {
-        proteinExpTabView.init(orAnalysis.ids.sub_tab_protein_exp);
+        var _profile_list = [];
+        $.each(Object.keys(profile_obj_list), function(_index, _key) {
+            var _obj = profile_obj_list[_key];
+            if (_obj.GENETIC_ALTERATION_TYPE === orAnalysis.profile_type.protein_exp &&
+                _obj.STABLE_ID.toLowerCase().indexOf("zscores") === -1) {
+                _profile_list.push(_obj);
+            }
+        });
+        var orSubTabProteinExp = new orSubTabView();
+        orSubTabProteinExp.init(orAnalysis.ids.sub_tab_protein_exp, _profile_list, orAnalysis.profile_type.protein_exp, "cancer_genes");
     };
 
     var init_ajax = function() {
@@ -125,7 +133,7 @@ var or_tab = (function() {
             if ($.inArray("MRNA_EXPRESSION", profile_type_list) !== -1) { //study has expression data
                 $("#" + orAnalysis.ids.sub_tabs_list).append("<li><a href='#" + orAnalysis.ids.sub_tab_mrna_exp + "' class='or-analysis-tabs-ref'><span>" + orAnalysis.texts.sub_tab_mrna_exp + "</span></a></li>");
             }
-            if (window.PortalGlobals.hasRPPA()) { //study has RPPA data
+            if ($.inArray("PROTEIN_LEVEL", profile_type_list) !== -1) { //study has RPPA data
                 $("#" + orAnalysis.ids.sub_tabs_list).append("<li><a href='#" + orAnalysis.ids.sub_tab_protein_exp + "' class='or-analysis-tabs-ref'><span>" + orAnalysis.texts.sub_tab_protein_exp + "</span></a></li>");
             }
 
@@ -149,7 +157,7 @@ var or_tab = (function() {
             } else if ($.inArray("MRNA_EXPRESSION", profile_type_list) !== -1) {
                 //init_mrna_exp_tab($("#or_analysis_tab_gene_set_select").val());
                 init_mrna_exp_tab();
-            } else if (window.PortalGlobals.hasRPPA()) {
+            } else if ($.inArray("PROTEIN_LEVEL", profile_type_list) !== -1) {
                 init_protein_exp_tab();
             }
 

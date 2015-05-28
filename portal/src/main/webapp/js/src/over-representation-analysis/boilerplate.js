@@ -51,7 +51,7 @@ var orAnalysis = (function() {
             sub_tab_mutations : "Mutations",
             sub_tab_mrna_exp: "mRNA Expression",
             sub_tab_advanced: "Advanced",
-            sub_tab_protein_exp: "Protein Change",
+            sub_tab_protein_exp: "Protein Changes",
             null_result: "empt"
         },
         postfix: {
@@ -64,7 +64,8 @@ var orAnalysis = (function() {
         profile_type: {
             mrna: "MRNA_EXPRESSION",
             copy_num: "COPY_NUMBER_ALTERATION",
-            mutations: "MUTATION_EXTENDED"
+            mutations: "MUTATION_EXTENDED",
+            protein_exp: "PROTEIN_LEVEL"
         },
         col_width : {
             gene: 90,
@@ -110,6 +111,16 @@ var orAnalysis = (function() {
                 p_val: 5,
                 q_val: 6,
                 direction: 7
+            },
+            protein_exp: {
+                gene: 0,
+                cytoband: 1,
+                altered_mean: 2,
+                unaltered_mean: 3,
+                altered_stdev: 4,
+                unaltered_stdev: 5,
+                p_val: 6,
+                q_val: 7
             }
         },
         _title_ids : {

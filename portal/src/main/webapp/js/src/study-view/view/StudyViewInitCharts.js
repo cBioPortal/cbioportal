@@ -531,14 +531,8 @@ var StudyViewInitCharts = (function(){
     }
     
     function initScatterPlot(_arr) {
-        var _attr = {};
-            
-        _attr.min_x = distanceMinMaxArray['COPY_NUMBER_ALTERATIONS'].min;
-        _attr.max_x = distanceMinMaxArray['COPY_NUMBER_ALTERATIONS'].max;
-        _attr.min_y = distanceMinMaxArray['MUTATION_COUNT'].min;
-        _attr.max_y = distanceMinMaxArray['MUTATION_COUNT'].max;
         
-        StudyViewInitScatterPlot.init(_arr, _attr);
+        StudyViewInitScatterPlot.init(_arr);
 
         $(".study-view-scatter-plot-delete").unbind('click');
         $(".study-view-scatter-plot-delete").click(function (){

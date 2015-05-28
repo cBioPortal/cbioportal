@@ -72,7 +72,12 @@ var StudyViewInitTables = (function() {
                             name: 'sampleRate',
                             displayName: 'Freq'
                         },{
-                            name: 'caseIds'
+                            name: 'qval',
+                            displayName: 'MutSig',
+                            hidden: true
+                        },{
+                            name: 'caseIds',
+                            hidden: true
                         }
                     ];
                     _worker.data.arr = mutatedGenesData(_datum, numOfCases);
@@ -94,7 +99,12 @@ var StudyViewInitTables = (function() {
                             name: 'altrateInSample',
                             displayName: 'Freq'
                         },{
-                            name: 'caseIds'
+                            name: 'qval',
+                            displayName: 'Gistic',
+                            hidden: true
+                        },{
+                            name: 'caseIds',
+                            hidden: true
                         }
                     ];
                     _worker.data.arr = cnaData(_datum, numOfCases);
@@ -236,6 +246,13 @@ var StudyViewInitTables = (function() {
             }).length;
             datum.sampleRate = 
                     (datum.samples / Number(numOfCases)* 100).toFixed(1) + '%';
+
+            if(data[i].qval){
+                datum.qval = Number(data[i].qval).toExponential(1);
+            }else{
+                datum.qval = '';
+            }
+
             datum.caseIds = data[i].caseIds;
             genes.push(datum);
         }
@@ -265,6 +282,11 @@ var StudyViewInitTables = (function() {
             datum.altType = _altType;
             datum.samples = data.caseIds[i].length;
             datum.altrateInSample = (datum.samples / numOfCases * 100).toFixed(1) + '%';
+            if(data.gistic[i] && (data.gistic[i] instanceof Array) && data.gistic[i][0]){
+                datum.qval = Number(data.gistic[i][0]).toExponential(1);
+            }else{
+                datum.qval = '';
+            }
             datum.caseIds = data.caseIds[i];
             genes.push(datum);
         }

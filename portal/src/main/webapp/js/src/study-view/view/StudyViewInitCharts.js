@@ -294,9 +294,9 @@ var StudyViewInitCharts = (function(){
                 varKeys['COPY_NUMBER_ALTERATIONS'].length > 0){
             initScatterPlot(_arr);
 
-            if(cancerStudyId.indexOf("mskimpact") !== -1){
-                initSurvialPlotPrep(_arr);
-            }
+            //if(cancerStudyId.indexOf("mskimpact") !== -1){
+            //    initSurvialPlotPrep(_arr);
+            //}
         }
         
         initTables();

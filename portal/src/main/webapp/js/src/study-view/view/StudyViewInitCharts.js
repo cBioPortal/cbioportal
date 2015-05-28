@@ -125,8 +125,8 @@ var StudyViewInitCharts = (function(){
     
     function initData(dataObtained) {
         var _attrskeys = [], //number of keys for each attribute
-            _attr = $.extend(true, [], dataObtained.attr),
-            _arr = $.extend(true, [], dataObtained.arr),
+            _attr = dataObtained.attr,
+            _arr = dataObtained.arr,
             _attrLength = _attr.length,
             _arrLength = _arr.length,
             _studyDesc = "",

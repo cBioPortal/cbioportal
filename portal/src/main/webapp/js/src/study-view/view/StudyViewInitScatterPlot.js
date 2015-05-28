@@ -54,7 +54,7 @@ var StudyViewInitScatterPlot = (function() {
     function initData(_arr) {
         getMinMax(_arr);
 
-        arr = jQuery.extend(true, [], _arr);
+        arr = _arr;
         arrLength = arr.length;
         
         for ( var i = 0; i < arrLength; i++) {

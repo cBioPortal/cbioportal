@@ -195,6 +195,7 @@ var Table = function() {
             altTypeIndex = -1,
             cytobandIndex = -1,
             samplesIndex = -1,
+            qvalIndex = -1,
             unvisiable = [];
         
         attr.forEach(function(e, i){
@@ -210,7 +211,10 @@ var Table = function() {
             if(e.name === 'samples') {
                 samplesIndex = i;
             }
-            if(!e.hasOwnProperty('displayName')){
+            if(e.name === 'qval') {
+                qvalIndex = i;
+            }
+            if(e.hidden){
                 unvisiable.push(i);
             }
         });
@@ -287,6 +291,20 @@ var Table = function() {
                         }else {
                             str = _gene;
                         }
+
+                        if(qvalIndex !== -1 && attr[qvalIndex].displayName && source[qvalIndex]) {
+                            var _displayName = attr[qvalIndex].displayName.toString().toLowerCase();
+                            str += '<span class="hasQtip" qtip="<b>'+ attr[qvalIndex].displayName +'</b><br/><i>Q-value</i>: ' + source[qvalIndex] + '"><svg width="14" height="14"><g transform="translate(8, 8)"><circle r="5" stroke="#55C" fill="none"></circle><text x="-3" y="3" font-size="7" fill="#66C">';
+                            if(_displayName.indexOf('mutsig') !== -1 && source[qvalIndex]){
+                                str += 'M';
+                            }else if(_displayName.indexOf('gistic') !== -1 && source[qvalIndex]){
+                                str += 'G';
+                            }else {
+                                str += 'Q';
+                            }
+                            str += '</text></g></svg></span>';
+                        }
+
                         return str;
                     }
                     return _gene;
@@ -296,12 +314,7 @@ var Table = function() {
             dataTableOpts.fnDrawCallback = function() {
                 $('#'+ divs.tableId).find('span.hasQtip').each(function(e, i) {
                     $(this).qtip('destroy', true);
-                    $(this).qtip({
-                        content: {text: $(this).attr('qtip')},
-                        hide: { fixed: true, delay: 100 },
-                        style: { classes: 'qtip-light qtip-rounded qtip-shadow', tip: true },
-                        position: {my:'center left',at:'center right',viewport: $(window)}
-                    });
+                    qtip(this, $(this).attr('qtip'));
                 });
                 
                 $('#'+ divs.tableId).find('table tbody tr td.clickable').unbind('hover');
@@ -315,6 +328,16 @@ var Table = function() {
             };
         }
         dataTable = $('#'+ divs.tableId +' table').dataTable(dataTableOpts);
+    }
+
+    function qtip(el, tip) {
+        $(el).qtip({
+            content: {text: tip},
+            show: {event: "mouseover"},
+            hide: {fixed: true, delay: 200, event: "mouseout"},
+            style: { classes: 'qtip-light qtip-rounded' },
+            position: {my:'top right',at:'bottom center',viewport: $(window)}
+        });
     }
     
     function redraw(data, callback) {

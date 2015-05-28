@@ -251,7 +251,7 @@ define("Oncoprint",
                     }   
                 }
                 
-//                var data = newclinicalData.concat(newGeneData);
+                
                 if(topatientValue !== undefined &&  topatientValue)
                 {
                     var data = newclinicalData.concat(newGeneData);
@@ -262,7 +262,7 @@ define("Oncoprint",
                     var data = clinicalData.concat(params.geneData);
                 }
                 
-                
+                var Sampledata = params.geneData;
 
                 var clinical_attrs = params.clinical_attrs      // extract attr_ids
                     .map(function(attr) { return attr.attr_id; });
@@ -272,11 +272,10 @@ define("Oncoprint",
                 clinical_attrs = clinical_attrs.filter(function(i) { return i !== undefined; });
                 clinical_attrs = clinical_attrs || params.clinical_attrs;
 
-//                var attributes = clinical_attrs.concat(params.genes);
                 var attributes = tracks.concat(params.genes);
 
                 data = utils.process_data(data, attributes);
-
+                Sampledata = utils.process_data(Sampledata, params.genes);
                 // keeps track of the order specified by the user (translates to vertical
                 // order in the visualization)
                 var attr2index = (function() {
@@ -1285,7 +1284,7 @@ define("Oncoprint",
                         sortBy: sortBy,
                         getPdfInput: getPdfInput,
                         getOncoprintData: function() {
-                            return data;
+                            return Sampledata;
                         }
                     };
                 })();

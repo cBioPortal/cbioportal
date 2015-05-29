@@ -286,6 +286,22 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                     }
                 }));
                 
+                //fetch genepanel data
+                var genePanelDataColl = new GenePanelColl();
+                clinicalElementsArray.push(
+                genePanelDataColl.fetch({
+                type: "POST",
+                data: {
+                    cancer_study_id: cancer_study_id_selected,
+                    attribute_id: "GENE_PANEL",
+                    case_list: cases
+                },
+                success: function(response) {
+                        GenePanelData = response.toJSON();
+                    }
+                }));
+                //fetch genepanel data end
+                
                 for(var i=0; i < clinicallistArrayNow.length; i++)
                 {
                     var clinicalElementsValue;

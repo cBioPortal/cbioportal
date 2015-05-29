@@ -63,6 +63,16 @@ var ClinicalColl = Backbone.Collection.extend({
     url: "webservice.do?cmd=getClinicalData&format=json"
 });
 
+//ajax to fetch genepanel data
+var GenePanelColl = Backbone.Collection.extend({
+    model: Backbone.Model.extend({}),
+    parse: function(response) {
+        this.attributes = function() { return response.attributes; };   // save the attributes
+        return response.data;    // but the data is what is to be model-ed
+    },
+    url: "/api/genepanel/mskimpact_im3"
+});
+
 var ClinicalMutationColl = Backbone.Collection.extend({
     model: Backbone.Model.extend({}),
     parse: function(response) {

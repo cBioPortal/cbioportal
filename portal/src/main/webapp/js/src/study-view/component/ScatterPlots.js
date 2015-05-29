@@ -526,6 +526,10 @@ var ScatterPlots = function() {
                 shiftKeyDown = false;
             }
         });
+
+        //Only initialize qtips when user hoving scatter plot.
+        //Initialization takes some time especially for large dataset(Like: MSK-IMPACT).
+        $("#" + names.body).one('mouseenter', addQtips);
     }
     
     function addQtips() {
@@ -997,7 +1001,6 @@ var ScatterPlots = function() {
             drawPlots(dataArr);
             drawLegends();
             addListeners();
-            addQtips();
         },
         // !!! Log Scale are only used by using RNA Seq Profile
         updateScaleX: updateScaleX,

@@ -9,6 +9,7 @@ package org.mskcc.cbio.portal.scripts;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.service.GenePanelService;
 
 import java.io.*;
 import java.util.*;
@@ -29,8 +30,9 @@ public class ImportGenePanel {
 		String description = getPropertyValue("description", properties, false);
 		List<String> geneSymbols = getGeneSymbols("gene_list", properties);
 
-		ImportDataUtil.genePanelService.insertGenePanel(stableId, description, cancerStudyId, geneSymbols);
-		GenePanel gp = ImportDataUtil.genePanelService.getByStableId(stableId);
+		GenePanelService genePanelService = SpringUtil.getGenePanelService();
+		genePanelService.insertGenePanel(stableId, description, cancerStudyId, geneSymbols);
+		GenePanel gp = genePanelService.getByStableId(stableId);
 
 		pMonitor.setCurrentMessage(" --> internal ID: " + gp.internalId);
 		pMonitor.setCurrentMessage(" --> stable ID: " + gp.stableId);

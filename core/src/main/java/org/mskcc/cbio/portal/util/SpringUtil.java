@@ -32,10 +32,20 @@
 
 package org.mskcc.cbio.portal.util;
 
+import org.mskcc.cbio.portal.service.GenePanelService;
 import org.springframework.context.support.GenericXmlApplicationContext;
 
 public class SpringUtil
 {
+	public static GenePanelService getGenePanelService()
+	{
+    	GenericXmlApplicationContext ctx = new GenericXmlApplicationContext();
+        ctx.getEnvironment().setActiveProfiles("dbcp");
+        ctx.load("classpath:applicationContext-business.xml");
+        ctx.refresh();
+		return (GenePanelService)ctx.getBean("genePanelService");
+	}
+
     public static AccessControl getAccessControl()
     {
     	GenericXmlApplicationContext ctx = new GenericXmlApplicationContext();

@@ -36,29 +36,10 @@ import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.service.*;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.GenericXmlApplicationContext;
-
 import java.util.List;
 
 public class ImportDataUtil
 {
-	private static ApplicationContext context = initContext();
-    private static ApplicationContext initContext()
-    {
-        GenericXmlApplicationContext ctx = new GenericXmlApplicationContext();
-        ctx.getEnvironment().setActiveProfiles("dbcp");
-        ctx.load("classpath:applicationContext-business.xml");
-		ctx.refresh();
-        return ctx; 
-    }
-
-    public static GenePanelService genePanelService = initGenePanelService();
-    private static GenePanelService initGenePanelService()
-    {
-        return (GenePanelService)context.getBean("genePanelService");
-    }
-
     public static void addPatients(String barcodes[], int geneticProfileId) throws DaoException
     {
         addPatients(barcodes, getCancerStudy(geneticProfileId));

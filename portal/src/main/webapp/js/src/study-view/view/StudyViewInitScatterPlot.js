@@ -146,7 +146,7 @@ var StudyViewInitScatterPlot = (function() {
                             "</div>"+
                             "<br>"+
                             "<div style='display:inline-block;'>"+
-                            "<button id='study-view-scatter-plot-tsv' style=\"width:50px\">DATA</button>"+
+                            "<button id='study-view-scatter-plot-tsv' style=\"width:50px\">TXT</button>"+
                             "</div>"
                 },
                 events: {
@@ -184,7 +184,8 @@ var StudyViewInitScatterPlot = (function() {
                             }
 //
                             var downloadOpts = {
-                                filename: cancerStudyName + "_" + _title + ".txt",
+//                                filename: cancerStudyName + "_" + _title + ".txt",
+                                filename: StudyViewParams.params.studyId + "_" + _title + ".txt",
                                 contentType: "text/plain;charset=utf-8",
                                 preProcess: false
                             };

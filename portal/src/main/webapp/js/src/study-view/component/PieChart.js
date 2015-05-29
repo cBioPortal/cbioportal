@@ -245,7 +245,7 @@ var PieChart = function(){
                         "</div>"+
                         "<br>"+
                         "<div style='display:inline-block;'>"+
-                        "<button id='"+DIV.chartDiv+"-tsv' style=\"width:50px\">DATA</button>"+
+                        "<button id='"+DIV.chartDiv+"-tsv' style=\"width:50px\">TXT</button>"+
                         "</div>"
             },
             events: {
@@ -280,7 +280,8 @@ var PieChart = function(){
                         }
                         
                         var downloadOpts = {
-                            filename: cancerStudyName + "_" + selectedAttrDisplay + ".txt",
+//                            filename: cancerStudyName + "_" + selectedAttrDisplay + ".txt",
+                            filename: StudyViewParams.params.studyId + "_" + selectedAttrDisplay + ".txt",
                             contentType: "text/plain;charset=utf-8",
                             preProcess: false
                         };

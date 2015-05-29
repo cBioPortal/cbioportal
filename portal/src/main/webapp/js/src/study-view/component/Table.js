@@ -350,7 +350,7 @@ var Table = function() {
             content: {
                 text:
                         "<div style='display:inline-block;'>"+
-                        "<button id='"+divs.tableId+"-tsv' style=\"width:50px\">DATA</button>"+
+                        "<button id='"+divs.tableId+"-tsv' style=\"width:50px\">TXT</button>"+
                         "</div>"
             },
             events: {
@@ -375,7 +375,8 @@ var Table = function() {
                         });
                         
                         var downloadOpts = {
-                            filename: cancerStudyName + "_" + divs.title + ".txt",
+//                            filename: cancerStudyName + "_" + divs.title + ".txt",
+                            filename: StudyViewParams.params.studyId + "_" + divs.title + ".txt",
                             contentType: "text/plain;charset=utf-8",
                             preProcess: false
                         };

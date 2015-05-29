@@ -161,7 +161,7 @@ var StudyViewSurvivalPlotView = (function() {
                         "</div>"+
                         "<br>"+
                         "<div style='display:inline-block;'>"+
-                        "<button id='"+_opts.divs.txt+"' style=\"width:50px\">DATA</button>"+
+                        "<button id='"+_opts.divs.txt+"' style=\"width:50px\">TXT</button>"+
                         "</div>"
             },
             events: {
@@ -241,7 +241,8 @@ var StudyViewSurvivalPlotView = (function() {
                         }
                         
                         var downloadOpts = {
-                            filename: cancerStudyName + "_" + subtitle + ".txt",
+//                            filename: cancerStudyName + "_" + subtitle + ".txt",
+                            filename: StudyViewParams.params.studyId + "_" + subtitle + ".txt",
                             contentType: "text/plain;charset=utf-8",
                             preProcess: false
                         };

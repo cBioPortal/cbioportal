@@ -34,7 +34,7 @@
 var orTable = function() {
     
     var div_id, table_id, data, titles; //titles is formatted string of column names with html markdown in
-    var col_index, orTableInstance, profile_type, profile_id;
+    var col_index, orTableInstance, profile_type, profile_id, table_title;
     
     function configTable() {
         
@@ -407,7 +407,7 @@ var orTable = function() {
                 var _plots_div_id = table_id + "_" + _gene_name + "_plots";
                 this.src = "images/details_close.png";
                 orTableInstance.fnOpen(nTr, "<div id=" + _plots_div_id + "><img style='padding:200px;' src='images/ajax-loader.gif'></div>", "rppa-details");
-                orPlots.init(_plots_div_id, _gene_name, profile_type, profile_id);
+                orPlots.init(_plots_div_id, _gene_name, profile_type, profile_id, table_title, aData[6]);
             }
         });
     }
@@ -487,6 +487,7 @@ var orTable = function() {
                 data = _input_data;
                 profile_type = _profile_type;
                 profile_id = _profile_id;
+                table_title = _table_title;
                 
                 $("#" + div_id + "_loading_img").empty();
                 

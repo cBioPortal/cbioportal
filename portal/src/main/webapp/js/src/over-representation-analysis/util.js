@@ -44,6 +44,28 @@ var or_util = (function() {
                 min: min,
                 max: max
             };
+        },
+        searchIndexBottom: function(arr, ele) {
+            for(var i = 0; i < arr.length; i++) {
+                if (parseFloat(ele) > parseFloat(arr[i])) {
+                    continue ;
+                } else if (parseFloat(ele) === parseFloat(arr[i])) {
+                    return i;
+                } else {
+                    return i - 1;
+                }
+            }
+            return arr.length - 1 ;
+        },
+        searchIndexTop: function(arr, ele) {
+            for(var i = 0; i < arr.length; i++) {
+                if (ele <= arr[i]) {
+                    return i;
+                } else {
+                    continue;
+                }
+            }
+            return arr.length - 1;
         }
     }
 

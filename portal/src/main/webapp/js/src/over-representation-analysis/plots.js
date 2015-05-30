@@ -45,7 +45,7 @@
 
 var orPlots = (function() {
 
-    var div_id, gene, profile_type, profile_id;
+    var div_id, gene, profile_type, profile_id, profile_name, p_value;
     var dotsArr = [], xAxisTextSet = ["Altered", "Unaltered"];
 
     var elem = {
@@ -63,10 +63,8 @@ var orPlots = (function() {
         };
 
     var data_process = function(result) {
-
         dotsArr = [];
         dotsArr.length = 0;
-
         $.each(Object.keys(result[gene]), function(index, _sampleId) {
             var _obj = result[gene][_sampleId];
             var _datum = {};
@@ -81,14 +79,25 @@ var orPlots = (function() {
                 dotsArr.push(_datum);
             }
         });
-
         generate_plots();
-
-    }
+    };
 
     var generate_plots = function() {
 
         $("#" + div_id).empty();
+
+        //attach headers & download button
+        var _title = "Boxplots of " + profile_name + " data for altered and unaltered cases " +
+            "<button id='" + div_id + "_enrichments_pdf_download'>PDF</button>";
+        $("#" + div_id).append(_title);
+        $("#" + div_id + "_enrichments_pdf_download").click(function() {
+            var downloadOptions = {
+                filename: "enrichments-plots.pdf",
+                contentType: "application/pdf",
+                servletName: "svgtopdf.do"
+            };
+            cbio.download.initDownload($("#" + div_id + " svg")[0], downloadOptions);
+        });
 
         //init canvas
         elem.svg = d3.select("#" + div_id)
@@ -169,7 +178,7 @@ var orPlots = (function() {
             .attr("y", 580)
             .style("text-anchor", "middle")
             .style("font-size", "13px")
-            .text("something");
+            .text("Query: " + window.PortalGlobals.getGeneListString() + " (p-Value: " + p_value + ")");
         axisTitleGroup.append("text")
             .attr("class", "rppa-plots-y-axis-title")
             .attr("transform", "rotate(-90)")
@@ -177,7 +186,128 @@ var orPlots = (function() {
             .attr("y", 45)
             .style("text-anchor", "middle")
             .style("font-size", "13px")
-            .text("something");
+            .text(gene + ", " + profile_name);
+
+
+
+        //box plots
+        var boxPlotsElem = elem.svg.append("svg:g");
+        for (var i = 0 ; i < 2; i++) {  //Just 0(altered) and 1(unaltered)
+            var top;
+            var bottom;
+            var quan1;
+            var quan2;
+            var mean;
+            var IQR;
+            var scaled_y_arr = [];
+            var tmp_y_arr = [];
+            //Find the middle (vertical) line for one box plot
+            var midLine = elem.xScale(i);
+            //Find the max/min y value with certain x value;
+            $.each(dotsArr, function (index, value) {
+                if (value.x_val === i) {
+                    tmp_y_arr.push(parseFloat(value.y_val));
+                }
+            });
+            tmp_y_arr.sort(function (a, b) {
+                return a - b;
+            });
+            if (tmp_y_arr.length === 0) { //Deal with individual data sub group
+                //Skip: do nothing
+            } else if (tmp_y_arr.length === 1) {
+                mean = elem.yScale(tmp_y_arr[0]);
+                boxPlotsElem.append("line")
+                    .attr("x1", midLine - 30)
+                    .attr("x2", midLine + 30)
+                    .attr("y1", mean)
+                    .attr("y2", mean)
+                    .attr("stroke-width", 1)
+                    .attr("stroke", "grey");
+            } else {
+                if (tmp_y_arr.length === 2) {
+                    mean = elem.yScale((tmp_y_arr[0] + tmp_y_arr[1]) / 2);
+                    quan1 = bottom = elem.yScale(tmp_y_arr[0]);
+                    quan2 = top = elem.yScale(tmp_y_arr[1]);
+                    IQR = Math.abs(quan2 - quan1);
+                } else {
+                    var yl = tmp_y_arr.length;
+                    if (yl % 2 === 0) {
+                        mean = elem.yScale((tmp_y_arr[(yl / 2) - 1] + tmp_y_arr[yl / 2]) / 2);
+                        if (yl % 4 === 0) {
+                            quan1 = elem.yScale((tmp_y_arr[(yl / 4) - 1] + tmp_y_arr[yl / 4]) / 2);
+                            quan2 = elem.yScale((tmp_y_arr[(3 * yl / 4) - 1] + tmp_y_arr[3 * yl / 4]) / 2);
+                        } else {
+                            quan1 = elem.yScale(tmp_y_arr[Math.floor(yl / 4)]);
+                            quan2 = elem.yScale(tmp_y_arr[Math.floor(3 * yl / 4)]);
+                        }
+                    } else {
+                        mean = elem.yScale(tmp_y_arr[Math.floor(yl / 2)]);
+                        var tmp_yl = Math.floor(yl / 2) + 1;
+                        if (tmp_yl % 2 === 0) {
+                            quan1 = elem.yScale((tmp_y_arr[tmp_yl / 2 - 1] + tmp_y_arr[tmp_yl / 2]) / 2);
+                            quan2 = elem.yScale((tmp_y_arr[(3 * tmp_yl / 2) - 2] + tmp_y_arr[(3 * tmp_yl / 2) - 1]) / 2);
+                        } else {
+                            quan1 = elem.yScale(tmp_y_arr[Math.floor(tmp_yl / 2)]);
+                            quan2 = elem.yScale(tmp_y_arr[tmp_yl - 1 + Math.floor(tmp_yl / 2)]);
+                        }
+                    }
+                    for (var k = 0; k < tmp_y_arr.length; k++) {
+                        scaled_y_arr[k] = parseFloat(elem.yScale(tmp_y_arr[k]));
+                    }
+                    scaled_y_arr.sort(function (a, b) {
+                        return a - b;
+                    });
+                    IQR = Math.abs(quan2 - quan1);
+                    var index_top = or_util.searchIndexTop(scaled_y_arr, (quan2 - 1.5 * IQR));
+                    top = scaled_y_arr[index_top];
+                    var index_bottom = or_util.searchIndexBottom(scaled_y_arr, (quan1 + 1.5 * IQR));
+                    bottom = scaled_y_arr[index_bottom];
+                }
+                boxPlotsElem.append("rect")
+                    .attr("x", midLine - 60)
+                    .attr("y", quan2)
+                    .attr("width", 120)
+                    .attr("height", IQR)
+                    .attr("fill", "none")
+                    .attr("stroke-width", 1)
+                    .attr("stroke", "#BDBDBD");
+                boxPlotsElem.append("line")
+                    .attr("x1", midLine - 60)
+                    .attr("x2", midLine + 60)
+                    .attr("y1", mean)
+                    .attr("y2", mean)
+                    .attr("stroke-width", 3)
+                    .attr("stroke", "#BDBDBD");
+                boxPlotsElem.append("line")
+                    .attr("x1", midLine - 40)
+                    .attr("x2", midLine + 40)
+                    .attr("y1", top)
+                    .attr("y2", top)
+                    .attr("stroke-width", 1)
+                    .attr("stroke", "#BDBDBD");
+                boxPlotsElem.append("line")
+                    .attr("x1", midLine - 40)
+                    .attr("x2", midLine + 40)
+                    .attr("y1", bottom)
+                    .attr("y2", bottom)
+                    .attr("stroke", "#BDBDBD")
+                    .style("stroke-width", 1);
+                boxPlotsElem.append("line")
+                    .attr("x1", midLine)
+                    .attr("x2", midLine)
+                    .attr("y1", quan1)
+                    .attr("y2", bottom)
+                    .attr("stroke", "#BDBDBD")
+                    .attr("stroke-width", 1);
+                boxPlotsElem.append("line")
+                    .attr("x1", midLine)
+                    .attr("x2", midLine)
+                    .attr("y1", quan2)
+                    .attr("y2", top)
+                    .attr("stroke", "#BDBDBD")
+                    .style("stroke-width", 1);
+            }
+        }
 
         //draw dots
         elem.dotsGroup = elem.svg.append("svg:g");
@@ -188,7 +318,8 @@ var orPlots = (function() {
             .enter()
             .append("svg:path")
             .attr("transform", function(d){
-                return "translate(" + (elem.xScale(d.x_val) + (Math.random() * ramRatio - ramRatio/2)) + ", " + elem.yScale(d.y_val) + ")";
+                return "translate(" + (elem.xScale(d.x_val) + (Math.random() * ramRatio - ramRatio/2)) +
+                       ", " + elem.yScale(d.y_val) + ")";
             })
             .attr("d", d3.svg.symbol()
                 .size(20)
@@ -197,16 +328,61 @@ var orPlots = (function() {
             .attr("stroke", settings.dots_stroke_color)
             .attr("stroke-width", "1.2");
 
+        //add qtips
+        elem.dotsGroup.selectAll('path').each(
+            function(d) {
+                var content = "<font size='2'>";
+                content += "<strong><a href='"
+                    +cbio.util.getLinkToSampleView(cancer_study_id,d.case_id)
+                    + "' target = '_blank'>" + d.case_id + "</a></strong><br>";
+                content += "<strong>" + parseFloat(d.y_val).toFixed(3) + "</strong><br>";
+                content = content + "</font>";
 
-    }
+                $(this).qtip(
+                    {
+                        content: {text: content},
+                        style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+                        show: {event: "mouseover"},
+                        hide: {fixed:true, delay: 100, event: "mouseout"},
+                        position: {my:'left bottom',at:'top right', viewport: $(window)}
+                    }
+                );
+
+                var mouseOn = function() {
+                    var dot = d3.select(this);
+                    dot.transition()
+                        .ease("elastic")
+                        .duration(600)
+                        .delay(100)
+                        .attr("d", d3.svg.symbol().size(200).type("circle"));
+                };
+
+                var mouseOff = function() {
+                    var dot = d3.select(this);
+                    dot.transition()
+                        .ease("elastic")//TODO: default d3 symbol is circle (coincidence!)
+                        .duration(600)
+                        .delay(100)
+                        .attr("d", d3.svg.symbol().size(20).type("circle"));
+                };
+                elem.dotsGroup.selectAll("path").on("mouseover", mouseOn);
+                elem.dotsGroup.selectAll("path").on("mouseout", mouseOff);
+            }
+        );
+
+    };
+
 
     return {
-        init: function(_div_id, _gene, _profile_type, _profile_id) {
+        init: function(_div_id, _gene, _profile_type, _profile_id, _profile_name, _p_value) {
 
             div_id = _div_id;
             gene = _gene;
             profile_type = _profile_type;
             profile_id = _profile_id;
+            profile_name = _profile_name;
+            if (_p_value.indexOf("up1") !== -1) p_value = _p_value.replace("<img src=\"images/up1.png\"/>",  "");
+            if (_p_value.indexOf("down1") !== -1) p_value = _p_value.replace("<img src=\"images/down1.png\"/>",  "");
 
             var params_get_profile_data = {
                 cancer_study_id: window.PortalGlobals.getCancerStudyId(),

@@ -66,6 +66,17 @@ var or_util = (function() {
                 }
             }
             return arr.length - 1;
+        },
+        sortOncoprintData: function(_raw_result) { //sort the data array by original sample order
+            var result = [];
+            $.each(window.PortalGlobals.getSampleIds(), function(index, sampleId) {
+                $.grep(_raw_result, function( n, i ) {
+                    if (n.key === sampleId) {
+                        result.push(n);
+                    }
+                });
+            });
+            return result;
         }
     }
 

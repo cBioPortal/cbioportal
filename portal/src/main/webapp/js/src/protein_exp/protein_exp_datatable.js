@@ -39,8 +39,6 @@
 
 function renderDataTable(result) {
 
-    console.log(result);
-
     var aDataSet = result;
 
     if (aDataSet.length === 0) return;

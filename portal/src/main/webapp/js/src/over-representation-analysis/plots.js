@@ -62,20 +62,65 @@ var orPlots = (function() {
             dots_stroke_color: "#0174DF"
         };
 
-    var data_process = function(result) {
+    function data_process(result) {
+
+        var oncoprintData = or_util.sortOncoprintData(PortalDataColl.getOncoprintData());
+
         dotsArr = [];
         dotsArr.length = 0;
         $.each(Object.keys(result[gene]), function(index, _sampleId) {
             var _obj = result[gene][_sampleId];
             var _datum = {};
             if (!isNaN(_obj[profile_id])) {
-                if ($.inArray(_sampleId, window.PortalGlobals.getAlteredSampleIdArray()) !== -1) {
+                if ($.inArray(_sampleId, window.PortalGlobals.getAlteredSampleIdArray()) !== -1) { //sample is altered
                     _datum.x_val = 0;
-                } else {
+                } else { //sample is unaltered
                     _datum.x_val = 1;
                 }
                 _datum.y_val = parseFloat(_obj[profile_id]);
                 _datum.case_id = _sampleId;
+                if ($.inArray(_sampleId, window.PortalGlobals.getAlteredSampleIdArray()) !== -1) { //sample is altered
+
+                    $.each(oncoprintData, function(outer_index, outer_obj) {
+                        $.each(outer_obj.values, function(inner_key, inner_obj) {
+                            if (_sampleId === inner_obj.sample) {
+                                var _str = "";
+                                if (inner_obj.hasOwnProperty("mutation")) {
+                                    _str += " MUT;";
+                                }
+                                if (inner_obj.hasOwnProperty("cna")) {
+                                    if (inner_obj.cna === "AMPLIFIED") {
+                                        _str += " AMP;";
+                                    } else if (inner_obj.cna === "GAINED") {
+                                        _str += " GAIN;";
+                                    } else if (inner_obj.cna === "HEMIZYGOUSLYDELETED") {
+                                        _str += " HETLOSS;";
+                                    } else if (inner_obj.cna === "HOMODELETED") {
+                                        _str += " HOMDEL;";
+                                    }
+                                }
+                                if (inner_obj.hasOwnProperty("mrna")) {
+                                    if (inner_obj.mrna === "UPREGULATED") {
+                                        _str += " UP;";
+                                    } else if (inner_obj.mrna === "DOWNREGULATED") {
+                                        _str += " DOWN;";
+                                    }
+                                }
+                                if (inner_obj.hasOwnProperty("rppa")) {
+                                    if (inner_obj.rppa === "UPREGULATED") {
+                                        _str += " RPPA-UP;";
+                                    } else if (inner_obj.rppa === "DOWNREGULATED") {
+                                        _str += " RPPA-DOWN;";
+                                    }
+                                }
+                                if (_str !== "") {
+                                    _str = inner_obj.gene + ":" + _str;
+                                    _datum.alteration = _str;
+                                }
+                            }
+                        });
+                    });
+                }
                 dotsArr.push(_datum);
             }
         });
@@ -335,7 +380,15 @@ var orPlots = (function() {
                 content += "<strong><a href='"
                     +cbio.util.getLinkToSampleView(cancer_study_id,d.case_id)
                     + "' target = '_blank'>" + d.case_id + "</a></strong><br>";
+                if (profile_type === orAnalysis.profile_type.mrna) {
+                    content += "mRNA expression: "
+                } else if (profile_type === orAnalysis.profile_type.protein_exp) {
+                    content += "RPPA score: "
+                }
                 content += "<strong>" + parseFloat(d.y_val).toFixed(3) + "</strong><br>";
+                if (d.hasOwnProperty("alteration")) {
+                    content += "Alteration(s): " + d.alteration;
+                }
                 content = content + "</font>";
 
                 $(this).qtip(

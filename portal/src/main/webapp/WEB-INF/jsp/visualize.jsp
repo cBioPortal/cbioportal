@@ -162,11 +162,6 @@
                 + "Survival</a></li>");
             }
 
-            if (has_rppa) {
-                out.println ("<li><a href='#protein_exp' class='result-tab' title='Protein and Phopshoprotein changes using Reverse Phase Protein Array (RPPA) data'>"
-                + "Protein Changes</a></li>");
-            }
-
             if (includeNetworks) {
                 out.println ("<li><a href='#network' class='result-tab' title='Network visualization and analysis'>"
                 + "Network</a></li>");
@@ -244,10 +239,6 @@
         <% if (has_mrna || has_copy_no || showMutTab) { %>
             <%@ include file="over_representation_analysis.jsp" %>
         <% } %>
-
-            <% if (has_rppa) { %>
-        <%@ include file="protein_exp.jsp" %>
-            <% } %>
 
         <%@ include file="data_download.jsp" %>
         <%@ include file="image_tabs_data.jsp" %>

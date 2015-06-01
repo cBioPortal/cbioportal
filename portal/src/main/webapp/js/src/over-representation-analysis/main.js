@@ -48,6 +48,7 @@ var or_tab = (function() {
     //var init_copy_num_tab = function(gene_set) {
     var init_copy_num_tab = function() {
         var _profile_list = [];
+
         $.each(Object.keys(profile_obj_list), function(_index, _key) {
             var _obj = profile_obj_list[_key];
             if ((_obj.GENETIC_ALTERATION_TYPE === orAnalysis.profile_type.copy_num && 
@@ -55,6 +56,19 @@ var or_tab = (function() {
                 _profile_list.push(_obj); 
             } 
         });
+        //split copy number profile into two: deep deletion &
+        var _del_obj = jQuery.extend(true, {}, _profile_list[0]);
+        var _amp_obj = jQuery.extend(true, {}, _profile_list[0]);
+        _del_obj.STABLE_ID += "_del";
+        _amp_obj.STABLE_ID += "_amp";
+        _del_obj.NAME += " (Deep Deletion)";
+        _amp_obj.NAME += " (Amplification)";
+
+        _profile_list.length = 0;
+        _profile_list = [];
+        _profile_list.push(_del_obj);
+        _profile_list.push(_amp_obj);
+
         var orSubTabCopyNum = new orSubTabView();
         //orSubTabCopyNum.init(orAnalysis.ids.sub_tab_copy_num, _profile_list, orAnalysis.profile_type.copy_num, gene_set);
         orSubTabCopyNum.init(orAnalysis.ids.sub_tab_copy_num, _profile_list, orAnalysis.profile_type.copy_num, "cancer_genes");
@@ -93,13 +107,26 @@ var or_tab = (function() {
         var _profile_list = [];
         $.each(Object.keys(profile_obj_list), function(_index, _key) {
             var _obj = profile_obj_list[_key];
-            if (_obj.GENETIC_ALTERATION_TYPE === orAnalysis.profile_type.protein_exp &&
-                _obj.STABLE_ID.toLowerCase().indexOf("zscores") === -1) {
+            if ((_obj.GENETIC_ALTERATION_TYPE === orAnalysis.profile_type.protein_exp &&
+                _obj.STABLE_ID.toLowerCase().indexOf("zscores") === -1)) {
                 _profile_list.push(_obj);
             }
         });
+        var _protein_exp_obj = jQuery.extend(true, {}, _profile_list[0]);
+        var _phospho_exp_obj = jQuery.extend(true, {}, _profile_list[0]);
+        _protein_exp_obj.STABLE_ID += "_protein";
+        _phospho_exp_obj.STABLE_ID += "_phospho";
+        _protein_exp_obj.NAME = "Protein expression (RPPA)";
+        _phospho_exp_obj.NAME = "Protein/phosphoprotein level (RPPA)";
+
+        _profile_list.length = 0;
+        _profile_list = [];
+        _profile_list.push(_protein_exp_obj);
+        _profile_list.push(_phospho_exp_obj);
+
         var orSubTabProteinExp = new orSubTabView();
         orSubTabProteinExp.init(orAnalysis.ids.sub_tab_protein_exp, _profile_list, orAnalysis.profile_type.protein_exp, "cancer_genes");
+
     };
 
     var init_ajax = function() {
@@ -133,7 +160,7 @@ var or_tab = (function() {
             if ($.inArray("MRNA_EXPRESSION", profile_type_list) !== -1) { //study has expression data
                 $("#" + orAnalysis.ids.sub_tabs_list).append("<li><a href='#" + orAnalysis.ids.sub_tab_mrna_exp + "' class='or-analysis-tabs-ref'><span>" + orAnalysis.texts.sub_tab_mrna_exp + "</span></a></li>");
             }
-            if ($.inArray("PROTEIN_LEVEL", profile_type_list) !== -1) { //study has RPPA data
+            if ($.inArray("PROTEIN_LEVEL", profile_type_list) !== -1 || $.inArray("PROTEIN_ARRAY_PROTEIN_LEVEL", profile_type_list) !== -1) { //study has RPPA data
                 $("#" + orAnalysis.ids.sub_tabs_list).append("<li><a href='#" + orAnalysis.ids.sub_tab_protein_exp + "' class='or-analysis-tabs-ref'><span>" + orAnalysis.texts.sub_tab_protein_exp + "</span></a></li>");
             }
 
@@ -157,7 +184,7 @@ var or_tab = (function() {
             } else if ($.inArray("MRNA_EXPRESSION", profile_type_list) !== -1) {
                 //init_mrna_exp_tab($("#or_analysis_tab_gene_set_select").val());
                 init_mrna_exp_tab();
-            } else if ($.inArray("PROTEIN_LEVEL", profile_type_list) !== -1) {
+            } else if ($.inArray("PROTEIN_LEVEL", profile_type_list) !== -1 || $.inArray("PROTEIN_ARRAY_PROTEIN_LEVEL", profile_type_list)) {
                 init_protein_exp_tab();
             }
 

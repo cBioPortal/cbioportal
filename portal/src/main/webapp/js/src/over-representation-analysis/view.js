@@ -407,7 +407,7 @@ var orTable = function() {
                 var _plots_div_id = table_id + "_" + _gene_name + "_plots";
                 this.src = "images/details_close.png";
                 orTableInstance.fnOpen(nTr, "<div id=" + _plots_div_id + "><img style='padding:200px;' src='images/ajax-loader.gif'></div>", "rppa-details");
-                orPlots.init(_plots_div_id, _gene_name, profile_type, profile_id, table_title, aData[6]);
+                orPlots.init(_plots_div_id, _gene_name, profile_type, profile_id, table_title, aData[col_index.p_val]);
             }
         });
     }
@@ -457,18 +457,33 @@ var orTable = function() {
 
         } else if (profile_type === orAnalysis.profile_type.protein_exp) {
 
-            _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.gene + "'>Gene &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.gene + "'></th>";
-            _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.cytoband + "'>Cytoband</th>";
-            _title_str += "<th colspan='2'>Mean of alteration &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.mean_alt + "'></th>";
-            _title_str += "<th colspan='2'>Standard deviation of alteration &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.stdev_alt + "'></th>";
-            _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.p_val + "'>p-Value &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.p_val_t_test + "'></th>";
-            _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.q_val + "'>q-Value &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.q_val + "'></th>";
-            _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.plot + "'>Plot</th>";
-            _title_str += "</tr><tr>";
-            _title_str += "<th width='100'>in altered group</th>";
-            _title_str += "<th width='100'>in unaltered group</th>";
-            _title_str += "<th width='100'>in altered group</th>";
-            _title_str += "<th width='100'>in unaltered group</th>";
+            if (profile_id.indexOf("phospho") !== -1) {
+                _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.gene + "'>Gene &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.gene + "'></th>";
+                _title_str += "<th colspan='2'>Mean of alteration &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.mean_alt + "'></th>";
+                _title_str += "<th colspan='2'>Standard deviation of alteration &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.stdev_alt + "'></th>";
+                _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.p_val + "'>p-Value &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.p_val_t_test + "'></th>";
+                _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.q_val + "'>q-Value &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.q_val + "'></th>";
+                _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.plot + "'>Plot</th>";
+                _title_str += "</tr><tr>";
+                _title_str += "<th width='100'>in altered group</th>";
+                _title_str += "<th width='100'>in unaltered group</th>";
+                _title_str += "<th width='100'>in altered group</th>";
+                _title_str += "<th width='100'>in unaltered group</th>";
+            } else {
+                _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.gene + "'>Gene &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.gene + "'></th>";
+                _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.cytoband + "'>Cytoband</th>";
+                _title_str += "<th colspan='2'>Mean of alteration &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.mean_alt + "'></th>";
+                _title_str += "<th colspan='2'>Standard deviation of alteration &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.stdev_alt + "'></th>";
+                _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.p_val + "'>p-Value &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.p_val_t_test + "'></th>";
+                _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.q_val + "'>q-Value &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.q_val + "'></th>";
+                _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.plot + "'>Plot</th>";
+                _title_str += "</tr><tr>";
+                _title_str += "<th width='100'>in altered group</th>";
+                _title_str += "<th width='100'>in unaltered group</th>";
+                _title_str += "<th width='100'>in altered group</th>";
+                _title_str += "<th width='100'>in unaltered group</th>";
+            }
+
 
         }
 
@@ -498,7 +513,11 @@ var orTable = function() {
                 } else if (profile_type === orAnalysis.profile_type.mrna) {
                     col_index = orAnalysis.col_index.mrna;
                 } else if (profile_type === orAnalysis.profile_type.protein_exp) {
-                    col_index = orAnalysis.col_index.protein_exp;
+                    if (_profile_id.indexOf("phospho") !== -1) {
+                        col_index = orAnalysis.col_index.phospho_exp;
+                    } else {
+                        col_index = orAnalysis.col_index.protein_exp;
+                    }
                 }
                 
                 titles = define_titles();
@@ -535,21 +554,6 @@ var orSubTabView = function() {
             $("#" + _div_id).empty();
             $("#" + _div_id).append("<div id='" + _div_id + "_loading_img'><img style='padding:20px;' src='images/ajax-loader.gif'></div>");
 
-            //split copy number profile into deep deletion and amplification 
-            if (_profile_type === orAnalysis.profile_type.copy_num) {
-                var _del_obj = jQuery.extend(true, {}, _profile_list[0]);
-                var _amp_obj = jQuery.extend(true, {}, _profile_list[0]);
-                _del_obj.STABLE_ID += "_del";
-                _amp_obj.STABLE_ID += "_amp";
-                _del_obj.NAME += " (Deep Deletion)";
-                _amp_obj.NAME += " (Amplification)";
-                
-                _profile_list.length = 0;
-                _profile_list = [];
-                _profile_list.push(_del_obj);
-                _profile_list.push(_amp_obj);
-            }
-            
             $.each(_profile_list, function(_index, _profile_obj) {
                 
                  //avoid duplicated initiation

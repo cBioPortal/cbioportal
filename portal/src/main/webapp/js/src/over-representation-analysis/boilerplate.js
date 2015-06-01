@@ -124,6 +124,17 @@ var orAnalysis = (function() {
                 p_val: 6,
                 q_val: 7,
                 plot: 8
+            },
+            phospho_exp: {
+                gene: 0,
+                altered_mean: 1,
+                unaltered_mean: 2,
+                altered_stdev: 3,
+                unaltered_stdev: 4,
+                p_val: 5,
+                q_val: 6,
+                plot: 7
+
             }
         },
         _title_ids : {

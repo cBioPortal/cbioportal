@@ -9,22 +9,31 @@ import org.mskcc.cbio.portal.dao.*;
 public class OverRepresentationAnalysisUtil {
     
     public static Map<Long, HashMap<Integer, String>> getValueMap(
-            int cancerStudyId, int profileId, String profileType, List<Integer> alteredSampleIds, List<Integer> unalteredSampleIds, String geneSet) throws DaoException {
+            int cancerStudyId, int profileId, String profileType, List<Integer> alteredSampleIds, List<Integer> unalteredSampleIds, String geneSet, String proteinExpType) throws DaoException {
 
         DaoGeneticAlteration daoGeneticAlteration = DaoGeneticAlteration.getInstance();
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
 
         Set<Long> entrezGeneIds = new HashSet<Long>();
-        if (geneSet.equals("cancer_genes")) {
-            //get cancer genes
-            Set<CanonicalGene> cancerGeneSet = daoGeneOptimized.getCbioCancerGenes();
-            for (CanonicalGene cancerGene : cancerGeneSet) {
-                entrezGeneIds.add(cancerGene.getEntrezGeneId());
-            }
-        } else if (geneSet.equals("all_genes")) {
+        if (proteinExpType.equals("phospho")) {
             ArrayList<CanonicalGene> allGeneSet = daoGeneOptimized.getAllGenes();
             for (CanonicalGene gene: allGeneSet) {
-                entrezGeneIds.add(gene.getEntrezGeneId());
+                if (gene.isPhosphoProtein()) { //only get the phospho-protein genes
+                    entrezGeneIds.add(gene.getEntrezGeneId());
+                }
+            }
+        } else {
+            if (geneSet.equals("cancer_genes")) {
+                //get cancer genes
+                Set<CanonicalGene> cancerGeneSet = daoGeneOptimized.getCbioCancerGenes();
+                for (CanonicalGene cancerGene : cancerGeneSet) {
+                    entrezGeneIds.add(cancerGene.getEntrezGeneId());
+                }
+            } else if (geneSet.equals("all_genes")) {
+                ArrayList<CanonicalGene> allGeneSet = daoGeneOptimized.getAllGenes();
+                for (CanonicalGene gene: allGeneSet) {
+                    entrezGeneIds.add(gene.getEntrezGeneId());
+                }
             }
         }
 
@@ -34,10 +43,8 @@ public class OverRepresentationAnalysisUtil {
         
         //Map<GeneId, HashMap<CaseId, Value>>
         Map<Long, HashMap<Integer, String>> result = new HashMap<Long, HashMap<Integer,String>>();
-        
-        if(profileType.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION.toString())) {
-            result = daoGeneticAlteration.getGeneticAlterationMap(profileId, entrezGeneIds);
-        } else if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString())) {
+
+        if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString())) {
             ArrayList<ExtendedMutation> mutObjArr = DaoMutation.getSimplifiedMutations(profileId, sampleIds, entrezGeneIds);
             for (Long entrezGeneId : entrezGeneIds) {
                 //Assign every sample (included non mutated ones) values -- mutated -> Mutation Type, non-mutated -> "Non"
@@ -54,14 +61,10 @@ public class OverRepresentationAnalysisUtil {
                 //add a new entry into the overall result map
                 result.put(entrezGeneId, singleGeneMutMap);
             }
-        } else if (profileType.equals(GeneticAlterationType.MRNA_EXPRESSION.toString())) {
-            result = daoGeneticAlteration.getGeneticAlterationMap(profileId, entrezGeneIds);
-        } else if (profileType.equals(GeneticAlterationType.PROTEIN_LEVEL.toString())) {
+        } else {
             result = daoGeneticAlteration.getGeneticAlterationMap(profileId, entrezGeneIds);
         }
-        	
         return result;
     }
-    
 
 }

@@ -432,7 +432,11 @@ var orPlots = (function() {
             div_id = _div_id;
             gene = _gene;
             profile_type = _profile_type;
-            profile_id = _profile_id;
+            if (_profile_type === orAnalysis.profile_type.protein_exp) {
+                profile_id = _profile_id.substring(0, _profile_id.length - 8);
+            } else {
+                profile_id = _profile_id;
+            }
             profile_name = _profile_name;
             if (_p_value.indexOf("up1") !== -1) p_value = _p_value.replace("<img src=\"images/up1.png\"/>",  "");
             if (_p_value.indexOf("down1") !== -1) p_value = _p_value.replace("<img src=\"images/down1.png\"/>",  "");

@@ -86,6 +86,16 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
                 copyNumType = "del";
                 profileId = profileId.substring(0, profileId.length() - 4);
             }
+
+            //calculate protein level and phosproprotein level separately
+            String proteinExpType = "none";
+            if (profileId.contains("_protein")) {
+                proteinExpType = "protein";
+                profileId = profileId.substring(0, profileId.length() - 8);
+            } else if (profileId.contains("_phospho")) {
+                proteinExpType = "phospho";
+                profileId = profileId.substring(0, profileId.length() - 8);
+            }
             
             //Get genetic profile ID (int) & Type
             GeneticProfile gp = DaoGeneticProfile.getGeneticProfileByStableId(profileId);
@@ -111,7 +121,18 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
             unalteredSampleIds.retainAll(DaoSampleProfile.getAllSampleIdsInProfile(gpId));
             
             //The actual calculation
-            ORAnalysisDiscretizedDataProxy dataProxy = new ORAnalysisDiscretizedDataProxy(cancerStudyInternalId, gpId, profileType, alteredSampleIds, unalteredSampleIds, copyNumType, genes, geneSet);
+            ORAnalysisDiscretizedDataProxy dataProxy =
+                    new ORAnalysisDiscretizedDataProxy(
+                        cancerStudyInternalId,
+                        gpId,
+                        profileType,
+                        alteredSampleIds,
+                        unalteredSampleIds,
+                        copyNumType,
+                        proteinExpType,
+                        genes,
+                        geneSet
+                    );
             
             ObjectMapper mapper = new ObjectMapper();
             httpServletResponse.setContentType("application/json");

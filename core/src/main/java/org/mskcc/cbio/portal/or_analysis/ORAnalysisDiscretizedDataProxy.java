@@ -59,12 +59,13 @@ public class ORAnalysisDiscretizedDataProxy {
             List<Integer> alteredSampleIds, 
             List<Integer> unalteredSampleIds,
             String copyNumType,
+            String proteinExpType,
             String[] queryGenes,
             String geneSet) throws DaoException, IllegalArgumentException, MathException {
         
         this.alteredSampleIds = alteredSampleIds;
         this.unalteredSampleIds = unalteredSampleIds;
-        this.map = OverRepresentationAnalysisUtil.getValueMap(cancerStudyId, profileId, profileType, alteredSampleIds, unalteredSampleIds, geneSet);
+        this.map = OverRepresentationAnalysisUtil.getValueMap(cancerStudyId, profileId, profileType, alteredSampleIds, unalteredSampleIds, geneSet, proteinExpType);
         this.copyNumType = copyNumType;
         
         if (!map.keySet().isEmpty()) {
@@ -123,13 +124,22 @@ public class ORAnalysisDiscretizedDataProxy {
                         _result.add(_datum);
                     }
                 } else if (profileType.equals(GeneticAlterationType.PROTEIN_LEVEL.toString())) {
-                    _datum.put(COL_NAME_GENE, _geneName);
-                    _datum.put(COL_NAME_CYTOBAND, _cytoband);
-                    _datum.put(COL_NAME_MEAN_ALTERED, calcMean(singleGeneCaseValueMap, "altered"));
-                    _datum.put(COL_NAME_MEAN_UNALTERED, calcMean(singleGeneCaseValueMap, "unaltered"));
-                    _datum.put(COL_NAME_STDEV_ALTERED, calcSTDev(singleGeneCaseValueMap, "altered"));
-                    _datum.put(COL_NAME_STDEV_UNALTERED, calcSTDev(singleGeneCaseValueMap, "unaltered"));
-                    _datum.put(COL_NAME_P_VALUE, calcPval(singleGeneCaseValueMap, profileType));
+                    if (proteinExpType.equals("protein")) {
+                        _datum.put(COL_NAME_GENE, _geneName);
+                        _datum.put(COL_NAME_CYTOBAND, _cytoband);
+                        _datum.put(COL_NAME_MEAN_ALTERED, calcMean(singleGeneCaseValueMap, "altered"));
+                        _datum.put(COL_NAME_MEAN_UNALTERED, calcMean(singleGeneCaseValueMap, "unaltered"));
+                        _datum.put(COL_NAME_STDEV_ALTERED, calcSTDev(singleGeneCaseValueMap, "altered"));
+                        _datum.put(COL_NAME_STDEV_UNALTERED, calcSTDev(singleGeneCaseValueMap, "unaltered"));
+                        _datum.put(COL_NAME_P_VALUE, calcPval(singleGeneCaseValueMap, profileType));
+                    } else if (proteinExpType.equals("phospho")) {
+                        _datum.put(COL_NAME_GENE, _geneName);
+                        _datum.put(COL_NAME_MEAN_ALTERED, calcMean(singleGeneCaseValueMap, "altered"));
+                        _datum.put(COL_NAME_MEAN_UNALTERED, calcMean(singleGeneCaseValueMap, "unaltered"));
+                        _datum.put(COL_NAME_STDEV_ALTERED, calcSTDev(singleGeneCaseValueMap, "altered"));
+                        _datum.put(COL_NAME_STDEV_UNALTERED, calcSTDev(singleGeneCaseValueMap, "unaltered"));
+                        _datum.put(COL_NAME_P_VALUE, calcPval(singleGeneCaseValueMap, profileType));
+                    }
                     if (!Double.isNaN(calcPval(singleGeneCaseValueMap, profileType))) {
                         _result.add(_datum);
                     }

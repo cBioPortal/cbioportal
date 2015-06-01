@@ -89,37 +89,20 @@ public class ExtendedMutationUtil
 	 */
 	public static String getProteinChange(String[] parts, MafRecord record)
 	{
-		// TODO simplify? (exclude MA, etc.)
-		// Note: MA may sometimes use a different isoform than Oncotator.
-
-		// try oncotator value first
-		//String aminoAcidChange = record.getOncotatorProteinChange();
-
 		// try annotator value first
-		String aminoAcidChange = record.getProteinChange();
+		//String proteinChange = record.getOncotatorProteinChange();
+		String proteinChange = record.getProteinChange();
 
-		// if no annotator value, try mutation assessor value
-		if (!isValidProteinChange(aminoAcidChange))
+		// if protein change is not valid, then use the string "MUTATED"
+		if (!isValidProteinChange(proteinChange))
 		{
-			aminoAcidChange = record.getMaProteinChange();
-		}
-
-		// if no MA value either, then try amino_acid_change column
-		if (!isValidProteinChange(aminoAcidChange))
-		{
-			aminoAcidChange = record.getMannualAminoAcidChange();
-		}
-
-		// if none is valid, then use the string "MUTATED"
-		if (!isValidProteinChange(aminoAcidChange))
-		{
-			aminoAcidChange = "MUTATED";
+			proteinChange = "MUTATED";
 		}
 
 		// also remove the starting "p." string if any
-		aminoAcidChange = normalizeProteinChange(aminoAcidChange);
+		proteinChange = normalizeProteinChange(proteinChange);
 
-		return aminoAcidChange;
+		return proteinChange;
 	}
 
 	/**

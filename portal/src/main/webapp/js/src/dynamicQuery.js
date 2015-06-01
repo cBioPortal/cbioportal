@@ -96,9 +96,7 @@ $(document).ready(function(){
     });
 
     //  Set up an Event Handler to intercept form submission
-    $("#main_form").submit(function() {
-       return chooseAction();
-    });
+    $("#main_form").submit(chooseAction);
 
     //  Set up an Event Handler for the Query / Data Download Tabs
     $("#query_tab").click(function(event) {
@@ -305,7 +303,7 @@ function reviewCurrentSelections(){
 
 //  Determine whether to submit a cross-cancer query or
 //  a study-specific query
-function chooseAction() {
+function chooseAction(evt) {
     var haveExpInQuery = $("#gene_list").val().toUpperCase().search("EXP") > -1;
     $("#error_box").remove();
 
@@ -316,16 +314,20 @@ function chooseAction() {
 	    selected_studies = $("#jstree").jstree(true).get_selected_leaves()
     }    
     if (selected_studies.length > 1) {
-	$("#main_form").find("#select_multiple_studies").val(selected_studies.join(","));
+	$("#main_form").find("#select_multiple_studies").val("");
         if ($("#tab_index").val() == 'tab_download') {
             $("#main_form").get(0).setAttribute('action','index.do');
         }
         else {
-            $("#main_form").get(0).setAttribute('action','cross_cancer.do');    
+		var dataPriority = $('#main_form').find('input[name=data_priority]:checked').val();
+		var newSearch = $('#main_form').serialize() + '&Action=Submit#crosscancer/overview/'+dataPriority+'/'+encodeURIComponent($('#gene_list').val())+'/'+encodeURIComponent(selected_studies.join(","));
+		evt.preventDefault();
+		window.location = 'cross_cancer.do?' + newSearch;
+            //$("#main_form").get(0).setAttribute('action','cross_cancer.do');
         }
         if ( haveExpInQuery ) {
             createAnError("Expression filtering in the gene list is not supported when doing cross cancer queries.",  $('#gene_list'));
-            return false;
+            evt.preventDefault();
         }
     } else if (selected_studies.length === 1) {
 	$("#main_form").find("#select_single_study").val(selected_studies[0]);
@@ -337,14 +339,13 @@ function chooseAction() {
             if( expCheckBox.length > 0 && expCheckBox.prop('checked') == false) {
                     createAnError("Expression specified in the list of genes, but not selected in the" +
                                         " Genetic Profile Checkboxes.",  $('#gene_list'));
-                    return false;
+                    evt.preventDefault();
             } else if( expCheckBox.length == 0 ) {
                 createAnError("Expression specified in the list of genes, but not selected in the" +
                                     " Genetic Profile Checkboxes.",  $('#gene_list'));
-                return false;
+                evt.preventDefault();
             }
         }
-        return true;
     }
 }
 
@@ -1044,8 +1045,8 @@ function addMetaDataToPage() {
 		});
 		$('#jstree').on('changed.jstree', function() { onJSTreeChange(); /*saveSelectedStudiesLocalStorage();*/ });
 		$('#jstree').jstree(true).hide_icons();
-	}
-	initialize_jstree(window.tab_index === "tab_download" ? flat_jstree_data : jstree_data);
+	}	
+initialize_jstree(window.tab_index === "tab_download" ? flat_jstree_data : jstree_data);
 	var jstree_is_flat = false;
 	var $jstree_flatten_btn = (function() {
 		if (window.tab_index === "tab_download") {
@@ -1140,6 +1141,7 @@ function addMetaDataToPage() {
 		var selected_studies = $("#jstree").jstree(true).get_selected_leaves();
 		var selected_ct = selected_studies.length;
 		$('#jstree_selected_study_count').html((selected_ct === 0 ? "No" : (selected_ct === $('#jstree').jstree(true).num_leaves ? "All" : selected_ct)) + " stud" + (selected_ct === 1 ? "y" : "ies") + " selected.");
+		$('#jstree_deselect_all_btn')[selected_ct > 0 ? 'show' : 'hide']();
 		var old_select_single_study_val = select_single_study.val();
 		if (selected_studies.length === 1) {
 			select_single_study.val(selected_studies[0]);
@@ -1165,12 +1167,29 @@ function addMetaDataToPage() {
         .attr("placeholder", $("#select_gene_set").children("option:first").text());
 
     //  Set things up, based on currently selected cancer type
+    // hacky; order of preference
     var selected_study_map = {};
     if (!window.cancer_study_list_selected || window.cancer_study_list_selected === '') {
 	var windowParams = window.location.search.substring(1).split("&");
 	$.each(windowParams, function(ind, elt) {
 		var pair = elt.split("=");
 		if (pair[0] === window.cancer_study_list_param) {
+			window.cancer_study_list_selected = pair[1];
+			return 0;
+		}
+	});
+    }
+    if (!window.cancer_study_list_selected || window.cancer_study_list_selected === '') {
+	    var split_url_on_hash = window.location.href.split('#');
+	    if (split_url_on_hash.length > 1) {
+		window.cancer_study_list_selected = split_url_on_hash[1].split("/")[4];
+		}
+    }
+    if (!window.cancer_study_list_selected || window.cancer_study_list_selected === '') {
+	var windowParams = window.location.search.substring(1).split("&");
+	$.each(windowParams, function(ind, elt) {
+		var pair = elt.split("=");
+		if (pair[0] === 'cancer_study_id') {
 			window.cancer_study_list_selected = pair[1];
 			return 0;
 		}

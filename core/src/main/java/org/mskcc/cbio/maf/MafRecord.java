@@ -71,7 +71,7 @@ public class MafRecord
     private String score;
     private String bamFile;
     
-    private String mannualAminoAcidChange;
+    private String aminoAcidChange;
 
 	// allele frequency cols
     private int tumorAltCount;
@@ -379,14 +379,13 @@ public class MafRecord
 		this.score = score;
 	}
 
-    public String getMannualAminoAcidChange() {
-        return mannualAminoAcidChange;
+    public String getAminoAcidChange() {
+        return aminoAcidChange;
     }
 
-    public void setMannualAminoAcidChange(String mannualAminoAcidChange) {
-        this.mannualAminoAcidChange = mannualAminoAcidChange;
+    public void setAminoAcidChange(String aminoAcidChange) {
+        this.aminoAcidChange = aminoAcidChange;
     }
-        
 
 	public String getBamFile() {
 		return bamFile;

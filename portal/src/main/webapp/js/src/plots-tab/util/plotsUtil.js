@@ -139,7 +139,8 @@ var mutationTranslator = function(mutationDetail) {
 var discretized_cna_profile_keywords = [
     "_cna",
     "_cna_rae",
-    "_gistic"
+    "_gistic",
+    "_cna_consensus"
 ];
 
 var is_profile_discretized = function(axis) {
@@ -147,7 +148,7 @@ var is_profile_discretized = function(axis) {
     var _profile_name = elt.options[elt.selectedIndex].value;
     var _token = _profile_name.replace(window.PortalGlobals.getCancerStudyId(), "");
     //if ($.inArray(_token, discretizedDataList) !== -1) return true;
-    if ($.inArray(_token, discretized_cna_profile_keywords) !== -1) return true;
+    if ($.inArray(_token.toLowerCase(), discretized_cna_profile_keywords) !== -1) return true;
     return false;
 };
 
@@ -193,10 +194,20 @@ var clear_plot_box = function() {
 };
 
 var regenerate_plots = function(_axis) {
-    clear_plot_box();
-    optSpec.init();
-    plotsData.fetch(_axis);
-    plotsbox.init();
+    if (_axis === "x" || _axis === "y") {
+        clear_plot_box();
+        optSpec.init();
+        plotsData.fetch(_axis);
+        plotsbox.init();
+    } else if (_axis === "xy") {
+        clear_plot_box();
+        optSpec.init();
+        plotsData.fetch("x");
+        plotsData.fetch("y");
+        plotsbox.init();
+
+    }
+
 };
 
 var search_mutation = function() {

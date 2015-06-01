@@ -43,7 +43,7 @@
         
         <div id="oncoprint_whole_body">
 
-        Altered in <%=dataSummary.getNumCasesAffected()%> (<%=OncoPrintUtil.alterationValueToString(dataSummary.getPercentCasesAffected())%>) of cases
+        <span id="altered_value">Altered in <%=dataSummary.getNumCasesAffected()%> (<%=OncoPrintUtil.alterationValueToString(dataSummary.getPercentCasesAffected())%>) of cases</span>
         <div class="btn-group btn-group-sm" id="oncoprint-diagram-toolbar-buttons" style="float:right;margin-right:15px;display: none;height:33px">           
             <div class="btn-group btn-group-sm" id="oncoprint_addclinical_attributes">
                 <button type="button" class="btn btn-default dropdown-toggle" id="oncoprint_diagram_showmorefeatures_icon" data-toggle="dropdown" style="background-color:#efefef;margin:0px;height:30px;">
@@ -69,6 +69,7 @@
                  <li style="list-style-type:none;cursor:pointer" value="custom"><a id="user_defined_first_a">user-defined case list / default</a></li>
                </ul>
             </div>
+            <button type="button" class="btn btn-default" id="oncoprint_diagram_topatientid_icon" style="background-color:#efefef;margin:0px"><img checked="0" src="images/cool.svg" alt="icon" width="16" height="16" /></button>
             <button type="button" class="btn btn-default" id="oncoprint_diagram_showmutationcolor_icon" style="background-color:#efefef;margin:0px"><img checked="0" src="images/colormutations.svg" alt="icon" width="16" height="16" /></button>
             <button type="button" class="btn btn-default" id="oncoprint-diagram-showlegend-icon" style="background-color:#efefef;margin:0px;display:none;"><img class="oncoprint-diagram-showlegend-icon" checked="0" src="images/showlegend.svg" alt="icon" width="16" height="16" /></button>
             <button type="button" class="btn btn-default" id="oncoprint-diagram-removeUCases-icon" style="background-color:#efefef;margin:0px"><img class="oncoprint-diagram-removeUCases-icon" checked="0" src="images/removeUCases.svg" alt="icon" width="16" height="16" /></button>

@@ -139,8 +139,8 @@
             if(data && data.length > 0) {
                 genomicEventObs.mutations.addData("oncokb", data);
                 oncoKBDataReady = true;
-                addOncoKBListener(oTable, tableId);
             }
+            addOncoKBListener(oTable, tableId);
         });
     }
     

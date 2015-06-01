@@ -16,8 +16,8 @@ var sidebar = (function() {
                 //reset the default value of x: default is always x copy num, y mrna
                 document.getElementById(ids.sidebar.x.profile_type).selectedIndex = "1";
                 profileSpec.updateProfileNameList("x");
-                regenerate_plots("x");       
-                regenerate_plots("y");
+                //regenerate_plots("x");
+                //regenerate_plots("y");
             }
         //only have clincal data
         } else if ((metaData.getGeneticProfilesMeta(window.PortalGlobals.getGeneList()[0]).length === 0 || 
@@ -44,10 +44,18 @@ var sidebar = (function() {
             profileSpec.init("y");
             optSpec.init();
             //reset the default value of x: default is always x copy num, y mrna
-            if (metaData.getGeneticProfilesMeta(window.PortalGlobals.getGeneList()[0]).length > 2 ) { 
+            var _type_arr = [];
+            $.each(metaData.getGeneticProfilesMeta($("#" + ids.sidebar.x.gene).val()), function(index, obj) {
+                if($.inArray(obj.type, _type_arr) === -1 &&
+                    obj.type !== "MUTATION_EXTENDED" &&
+                    obj.type !== "PROTEIN_LEVEL") //tmp: skip mutation profile
+                    _type_arr.push(obj.type);
+            });
+
+            if (_type_arr.length > 1) {
                 document.getElementById(ids.sidebar.x.profile_type).selectedIndex = "1";
                 profileSpec.updateProfileNameList("x");
-                regenerate_plots("x");
+                //regenerate_plots("x");
             }
         }
 
@@ -140,9 +148,8 @@ var sidebar = (function() {
             }
             
             //update plots
-            regenerate_plots("x");
-            regenerate_plots("y");
-            
+            regenerate_plots("xy");
+
         });
         
     };

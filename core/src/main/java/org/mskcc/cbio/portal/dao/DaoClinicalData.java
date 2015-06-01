@@ -358,6 +358,15 @@ public final class DaoClinicalData {
         return getDataByInternalIds(cancerStudyId, SAMPLE_TABLE, sampleIdsInt, Collections.singletonList(attr.getAttrId()));
     }
 
+    public static List<ClinicalData> getSampleData(int cancerStudyId, Collection<String> sampleIds) throws DaoException
+    {
+        List<Integer> sampleIdsInt = new ArrayList<Integer>();
+        for (String sampleId : sampleIds) {
+            sampleIdsInt.add(DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, sampleId).getInternalId());
+        }
+        return getDataByInternalIds(cancerStudyId, SAMPLE_TABLE, sampleIdsInt);
+    }
+
     public static List<ClinicalData> getData(String cancerStudyId, Collection<String> patientIds, ClinicalAttribute attr) throws DaoException
     {
         int internalCancerStudyId = getInternalCancerStudyId(cancerStudyId);

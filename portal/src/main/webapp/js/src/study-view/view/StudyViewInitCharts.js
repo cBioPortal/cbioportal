@@ -125,8 +125,8 @@ var StudyViewInitCharts = (function(){
     
     function initData(dataObtained) {
         var _attrskeys = [], //number of keys for each attribute
-            _attr = $.extend(true, [], dataObtained.attr),
-            _arr = $.extend(true, [], dataObtained.arr),
+            _attr = dataObtained.attr,
+            _arr = dataObtained.arr,
             _attrLength = _attr.length,
             _arrLength = _arr.length,
             _studyDesc = "",
@@ -284,17 +284,7 @@ var StudyViewInitCharts = (function(){
     
     function initSpecialCharts(_arr){
         if(cancerStudyId.indexOf("mskimpact") === -1 && cancerStudyId.indexOf("genie") === -1) {
-            if(     (StudyViewUtil.arrayFindByValue(varName, 'OS_MONTHS') && 
-                    StudyViewUtil.arrayFindByValue(varName, 'OS_STATUS') &&
-                    varKeys['OS_MONTHS'].length > 0 &&
-                    varKeys['OS_STATUS'].length > 0) || 
-                    (StudyViewUtil.arrayFindByValue(varName, 'DFS_MONTHS') && 
-                    StudyViewUtil.arrayFindByValue(varName, 'DFS_STATUS') &&
-                    varKeys['DFS_MONTHS'].length > 0 &&
-                    varKeys['DFS_STATUS'].length > 0)){
-
-                initSurvivalPlot(_arr);
-            }
+            initSurvialPlotPrep(_arr);
         }
         
         if(
@@ -303,9 +293,27 @@ var StudyViewInitCharts = (function(){
                 varKeys['MUTATION_COUNT'].length > 0 &&
                 varKeys['COPY_NUMBER_ALTERATIONS'].length > 0){
             initScatterPlot(_arr);
+
+            //if(cancerStudyId.indexOf("mskimpact") !== -1){
+            //    initSurvialPlotPrep(_arr);
+            //}
         }
         
         initTables();
+    }
+
+    function initSurvialPlotPrep(_arr){
+        if(     (StudyViewUtil.arrayFindByValue(varName, 'OS_MONTHS') &&
+            StudyViewUtil.arrayFindByValue(varName, 'OS_STATUS') &&
+            varKeys['OS_MONTHS'].length > 0 &&
+            varKeys['OS_STATUS'].length > 0) ||
+            (StudyViewUtil.arrayFindByValue(varName, 'DFS_MONTHS') &&
+            StudyViewUtil.arrayFindByValue(varName, 'DFS_STATUS') &&
+            varKeys['DFS_MONTHS'].length > 0 &&
+            varKeys['DFS_STATUS'].length > 0)){
+
+            initSurvivalPlot(_arr);
+        }
     }
     
     function initTables() {
@@ -486,6 +494,18 @@ var StudyViewInitCharts = (function(){
         
         StudyViewSurvivalPlotView.init(_plotsInfo, _data);
 
+        if(cancerStudyId.indexOf("mskimpact") !== -1){
+            var index = 0;
+            for(var plot in _plotsInfo){
+                $('#study-view-add-chart')
+                    .append($('<option></option>')
+                        .attr('id','survival-' + index)
+                        .text(plot.name));
+                ++index;
+            }
+            $('.study-view-survival-plot').css('display', 'none');
+        }
+
         $(".study-view-survival-plot-delete").click(function (){
             var _plotDiv = $(this).parent().parent().parent(),
                 _plotIdArray = _plotDiv.attr('id').split("-"),
@@ -511,14 +531,8 @@ var StudyViewInitCharts = (function(){
     }
     
     function initScatterPlot(_arr) {
-        var _attr = {};
-            
-        _attr.min_x = distanceMinMaxArray['COPY_NUMBER_ALTERATIONS'].min;
-        _attr.max_x = distanceMinMaxArray['COPY_NUMBER_ALTERATIONS'].max;
-        _attr.min_y = distanceMinMaxArray['MUTATION_COUNT'].min;
-        _attr.max_y = distanceMinMaxArray['MUTATION_COUNT'].max;
         
-        StudyViewInitScatterPlot.init(_arr, _attr);
+        StudyViewInitScatterPlot.init(_arr);
 
         $(".study-view-scatter-plot-delete").unbind('click');
         $(".study-view-scatter-plot-delete").click(function (){
@@ -738,6 +752,10 @@ var StudyViewInitCharts = (function(){
             var _length = StudyViewSurvivalPlotView.getNumOfPlots();
             
             for(var i = 0; i < _length; i++){
+                if($("#study-view-survival-plot-" + i).css('display') === 'none'){
+                    $("#study-view-survival-plot-" + i).css('display', 'block');
+                    msnry.layout();
+                }
                 $("#study-view-survival-plot-body-" + i).css('opacity', '0.3');
                 $("#study-view-survival-plot-loader-" + i).css('display', 'block');
             }

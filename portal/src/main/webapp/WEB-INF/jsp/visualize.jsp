@@ -37,7 +37,7 @@
 <div class='main_smry'>
     <div id='main_smry_stat_div' style='float:right;margin-right:15px;margin-bottom:-5px;width:50%;text-align:right;'></div>
     <div id='main_smry_info_div'>
-        <table style='margin-left:0px;width=40%;margin-top:-10px;margin-bottom:-5px;' >
+        <table style='margin-left:0px;width:40%;margin-top:-10px;margin-bottom:-5px;' >
             <tr>
                 <td><div id='main_smry_modify_query_btn'><div></td>
                 <td><div id='main_smry_query_div' style='padding-left: 5px;'></div></td>
@@ -188,13 +188,11 @@
             }
             else
             {
-                out.println ("<h4>Right click</b> on the link below to bookmark your results or send by email:</h4><br><a href='"
-                        + buf.toString() + "'>" + request.getAttribute
+                out.println ("<h4>Right click</b> on the link below to bookmark your results or send by email:</h4><br><a id='bookmark-link' href='#'>" + request.getAttribute
                         (QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING) + "?...</a>");
-                String longLink = buf.toString();
                 out.println("<br><br>");
                 out.println("If you would like to use a <b>shorter URL that will not break in email postings</b>, you can use the<br><a href='https://bitly.com/'>bitly.com</a> service below:<BR>");
-                out.println("<BR><form><input type=\"button\" onClick=\"bitlyURL('"+longLink+"', '"+bitlyUser+"', '"+bitlyKey+"')\" value=\"Shorten URL\"></form>");
+                out.println("<BR><button type='button' id='bitly-generator'>Shorten URL</button>");
                 out.println("<div id='bitly'></div>");
             }
 
@@ -280,22 +278,31 @@
             // make the network tab visible...
             $("div.section#network").removeAttr('style');
         }
+        
+
+        $("a.result-tab").click(function(){
+
+            if($(this).attr("href")=="#network") {
+                // to fix problem of flash repainting
+                $("div.section#network").removeAttr('style');
+            } else {
+                // since we never allow display:none we should adjust visibility, height, and width properties
+                $("div.section#network").attr('style', 'height: 0px; width: 0px; visibility: hidden;');
+
+                if($(this).attr("href")=="#bookmark_email") {
+                    $("#bookmark-link").attr("href",window.location.href);
+                }
+            }
+        });
+
+        $("#bitly-generator").click(function() {
+             bitlyURL(window.location.href);
+        });
+
+        //  Set up Tip-Tip Event Handler for Genomic Profiles help
+        $(".result-tab").tipTip({defaultPosition: "bottom", delay:"100", edgeOffset: 10, maxWidth: 200});
 
     });
-
-    // to fix problem of flash repainting
-    $("a.result-tab").click(function(){
-
-        if($(this).attr("href")=="#network") {
-            $("div.section#network").removeAttr('style');
-        } else {
-            // since we never allow display:none we should adjust visibility, height, and width properties
-            $("div.section#network").attr('style', 'height: 0px; width: 0px; visibility: hidden;');
-        }
-    });
-
-    //  Set up Tip-Tip Event Handler for Genomic Profiles help
-    $(".result-tab").tipTip({defaultPosition: "bottom", delay:"100", edgeOffset: 10, maxWidth: 200});
 </script>
 
 

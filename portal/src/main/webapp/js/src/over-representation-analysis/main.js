@@ -94,7 +94,8 @@ var or_tab = (function() {
         $.each(Object.keys(profile_obj_list), function(_index, _key) {
             var _obj = profile_obj_list[_key];
             if (_obj.GENETIC_ALTERATION_TYPE === orAnalysis.profile_type.mrna && 
-                _obj.STABLE_ID.indexOf("z-Scores") === -1) {
+                _obj.STABLE_ID.toLowerCase().indexOf("z-scores") === -1 &&
+                _obj.STABLE_ID.toLowerCase().indexOf("zscores") === -1) {
                 _profile_list.push(_obj);
             }
         });

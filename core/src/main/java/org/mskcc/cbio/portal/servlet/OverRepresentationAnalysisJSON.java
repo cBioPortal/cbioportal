@@ -101,7 +101,7 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
             GeneticProfile gp = DaoGeneticProfile.getGeneticProfileByStableId(profileId);
             int gpId = gp.getGeneticProfileId();
             String profileType = gp.getGeneticAlterationType().toString();
-            
+
             //Get cancer study internal id (int)
             CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
             int cancerStudyInternalId = cancerStudy.getInternalId();

@@ -1,12 +1,7 @@
 package org.mskcc.cbio.portal.or_analysis;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
 import org.apache.commons.math.MathException;
 import org.apache.commons.math.stat.StatUtils;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
@@ -67,7 +62,7 @@ public class ORAnalysisDiscretizedDataProxy {
         this.unalteredSampleIds = unalteredSampleIds;
         this.map = OverRepresentationAnalysisUtil.getValueMap(cancerStudyId, profileId, profileType, alteredSampleIds, unalteredSampleIds, geneSet, proteinExpType);
         this.copyNumType = copyNumType;
-        
+
         if (!map.keySet().isEmpty()) {
             DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
 
@@ -76,6 +71,16 @@ public class ORAnalysisDiscretizedDataProxy {
             for (int i = 0; i < map.size(); i++) {
                 long _gene = genes.get(i);
                 HashMap<Integer, String> singleGeneCaseValueMap = map.get(_gene);
+
+                //clean up empty values case-value map
+                Iterator it = singleGeneCaseValueMap.entrySet().iterator();
+                while (it.hasNext()) {
+                    Map.Entry pair = (Map.Entry)it.next();
+                    if (pair.getValue().equals("NA") || pair.getValue().equals("NaN")) {
+                        it.remove();
+                    }
+                }
+
                 String _geneName = daoGeneOptimized.getGene(_gene).getHugoGeneSymbolAllCaps();
                 String _cytoband = daoGeneOptimized.getGene(_gene).getCytoband();
                 
@@ -145,10 +150,10 @@ public class ORAnalysisDiscretizedDataProxy {
                     }
                 }
             }
-            
+
             //sort the result by p-value
             Collections.sort(_result, new pValueComparator());
-            
+
             //calculate adjusted p values
             double[] originalPvalues = new double[_result.size()];
             for (int i = 0; i < _result.size(); i++) {
@@ -160,7 +165,7 @@ public class ORAnalysisDiscretizedDataProxy {
             for (int j = 0; j < _result.size(); j++) {
                 ((ObjectNode)_result.get(j)).put(COL_NAME_Q_VALUE, adjustedPvalues[j]);
             }
-            
+
             //convert array to arraynode
             for (ObjectNode _result_node : _result) {
                 result.add(_result_node);

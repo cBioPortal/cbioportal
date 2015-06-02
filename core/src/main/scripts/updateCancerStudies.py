@@ -134,7 +134,7 @@ def send_mail(to, subject, body, server=SMTP_SERVER):
 # ------------------------------------------------------------------------------
 # logs into google spreadsheet client
 
-def get_gdata_credentials(client_secrets, creds, scope, force=False):
+def get_gdata_credentials(secrets, creds, scope, force=False):
     storage = Storage(creds)
     credentials = storage.get()
     if credentials is None or credentials.invalid or force:

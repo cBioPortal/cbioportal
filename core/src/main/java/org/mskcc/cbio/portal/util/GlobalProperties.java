@@ -60,8 +60,6 @@ public class GlobalProperties {
 	public static final String IGV_BAM_LINKING_STUDIES = "igv.bam.linking.studies";
     public static final String AUTHENTICATE = "authenticate";
     public static final String AUTHORIZATION = "authorization";
-    public static final String BITLY_USER = "bitly.user";
-    public static final String BITLY_API_KEY = "bitly.api_key";
     public static final String INCLUDE_NETWORKS = "include_networks";
     public static final String GOOGLE_ANALYTICS_PROFILE_ID = "google_analytics_profile_id";
     public static final String GENOMESPACE = "genomespace";
@@ -243,16 +241,6 @@ public class GlobalProperties {
         String emailAddress = properties.getProperty(SKIN_EMAIL_CONTACT);
         return (emailAddress == null) ? DEFAULT_EMAIL_CONTACT :
             ("<span class=\"mailme\" title=\"Contact us\">" + emailAddress + "</span>");
-    }
-
-    public static String getBitlyUser()
-    {
-        return properties.getProperty(BITLY_USER);
-    }
-
-    public static String getBitlyApiKey()
-    {
-        return properties.getProperty(BITLY_API_KEY);
     }
 
     public static boolean includeNetworks()

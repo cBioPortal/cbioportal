@@ -169,8 +169,6 @@
 
     //General site info
     String siteTitle = GlobalProperties.getTitle();
-    String bitlyUser = GlobalProperties.getBitlyUser();
-    String bitlyKey = GlobalProperties.getBitlyApiKey();
 
     request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::Results");
 

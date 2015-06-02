@@ -64,10 +64,8 @@ broad.bam.checking.url=
 include_networks=true
 pathway_commons.url=http://www.pathwaycommons.org/pc2
 
-# bitly
-bitly.url=http://api.bit.ly/shorten?
-bitly.user=
-bitly.api_key=
+# bitly, please use your bitly user and apiKey
+bitly.url=http://api.bit.ly/shorten?login=[bitly.user]&apiKey=[bitly.apiKey]&
 
 # pdb url
 pdb.database.url=http://rcsb.org/pdb/files/

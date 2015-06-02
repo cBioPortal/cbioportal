@@ -960,9 +960,12 @@
                             };
                             var servletName = "crosscancermutation.json";
                             // init mutation data proxy with the data servlet config
-                            var proxy = new MutationDataProxy({geneList: genes.join(" "),
-	                                                           params: servletParams});
-                            proxy.initWithoutData(servletName);
+                            var proxy = new MutationDataProxy({
+								servletName: servletName,
+								geneList: genes.join(" "),
+								params: servletParams
+							});
+                            proxy.init();
 
                             // init default mutation details view
 

@@ -280,15 +280,18 @@ define("Oncoprint",
                 //get to process data from gene panel
                 var genepanelList = [];
                 genepanelList["IMPACT341"] =["TP53","BRCA1"];
-                for(var i=0; i < data.length; i++)
+                if(GenePanelData.length>0)
                 {
-                    var genepanelStableId = GenePanelData[i].attr_val;
-                    for(var j= 0; j < data[i].values.length; j++)
+                    for(var i=0; i < data.length; i++)
                     {
-                        var geneIndexValue = _.find(genepanelList[genepanelStableId], function(gene){ return gene ===data[i].values[j].gene; }); 
-                        if(data[i].values[j].gene !== undefined && !geneIndexValue && data[i].values[j].mutation === undefined)
+                        var genepanelStableId = GenePanelData[i].attr_val;
+                        for(var j= 0; j < data[i].values.length; j++)
                         {
-                            data[i].values[j].genepanel = true; 
+                            var geneIndexValue = _.find(genepanelList[genepanelStableId], function(gene){ return gene ===data[i].values[j].gene; }); 
+                            if(data[i].values[j].gene !== undefined && !geneIndexValue && data[i].values[j].mutation === undefined)
+                            {
+                                data[i].values[j].genepanel = true; 
+                            }
                         }
                     }
                 }

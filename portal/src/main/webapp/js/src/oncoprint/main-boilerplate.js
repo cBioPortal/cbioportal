@@ -138,6 +138,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
     var extraAttributes=[]; // used to record attributes names add customized
     var sortStatus=[];
     var GenePanelData;
+    var genepanelValues;
     
     var cases = window.PortalGlobals.getCases();
     var genes = window.PortalGlobals.getGeneListString().split(" ");
@@ -189,6 +190,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                 var clinicalExtraAttributes = [];
                 var clinicalSortStatus = [];
                 var clinicalExtraTracks = [];
+                var genePanel = new Array();
                 var gainClinicalData = function(clinicalElements,clinicalElementsArray)
                 {
                         if(clinicalElements === "# mutations")
@@ -271,7 +273,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
                 var clinicalElementsArray = [];
                 
-                //fetch genepaneldata
+                //fetch genepanel attribute data
                 var genePanelClinicals = new ClinicalColl();
                 clinicalElementsArray.push(
                 genePanelClinicals.fetch({
@@ -286,20 +288,21 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                     }
                 }));
                 
-                //fetch genepanel data
-                var genePanelDataColl = new GenePanelColl();
-                clinicalElementsArray.push(
-                genePanelDataColl.fetch({
-                type: "POST",
-                data: {
-                    cancer_study_id: cancer_study_id_selected,
-                    attribute_id: "GENE_PANEL",
-                    case_list: cases
-                },
-                success: function(response) {
-                        GenePanelData = response.toJSON();
-                    }
-                }));
+                //fetch genepanel
+                var genepanelFiles = ["api/genepanel/IMPACT341","api/genepanel/IMPACT410"];
+                var gainGenepanel = function(filename,datafetchArray)
+                {
+                    datafetchArray.push(
+                    $.getJSON(filename,function(result){
+                        genePanel[(filename.split("/"))[2]] = result;
+                    }));
+                }
+                
+                for(var i=0; i<genepanelFiles.length; i++)
+                {
+                    var genepanelFilename = genepanelFiles[i];
+                    gainGenepanel(genepanelFilename,clinicalElementsArray);
+                }
                 //fetch genepanel data end
                 
                 for(var i=0; i < clinicallistArrayNow.length; i++)
@@ -409,7 +412,28 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             else
             {
                 //fetch genepanel data
+                var preloadElementArray = [];
+                var genePanel = new Array();               
+                //fetch genepanel
+                var genepanelFiles = ["api/genepanel/IMPACT341","api/genepanel/IMPACT410"];
+                var gainGenepanel = function(filename,datafetchArray)
+                {
+                    datafetchArray.push(
+                    $.getJSON(filename,function(result){
+                        genePanel[(filename.split("/"))[2]] = result;
+                    }));
+                }
+                
+                for(var i=0; i<genepanelFiles.length; i++)
+                {
+                    var genepanelFilename = genepanelFiles[i];
+                    gainGenepanel(genepanelFilename,preloadElementArray);
+                }
+                //fetch genepanel data end
+                //fetch gene panel data
+                
                 var genePanelClinicals = new ClinicalColl();
+                preloadElementArray.push(
                 genePanelClinicals.fetch({
                 type: "POST",
                 data: {
@@ -418,9 +442,16 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                     case_list: cases
                 },
                 success: function(response) {
-                        GenePanelData = response.toJSON();
-                        
-                        oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
+                        GenePanelData = response.toJSON();}})
+                );
+                
+                $.when.apply(null, preloadElementArray).done(function() {
+                    //include genepaneldata and genepanel into one set
+                    genepanelValues = {
+                        genepaneldata:GenePanelData,
+                        genepanel:genePanel
+                    };
+                    oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
                             geneData: data.toJSON(),
                             genes: genes,
                             legend: document.getElementById('oncoprint_legend')
@@ -447,37 +478,48 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
                         zoom = reset_zoom();
                         invokeDataManager(); 
-                    }
                 });
-            //for add clinical attributes in url to data end
-    
-//            oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
-//                geneData: data.toJSON(),
-//                genes: genes,
-//                legend: document.getElementById('oncoprint_legend')
-//            },extraTracks);
-
-//            outer_loader_img.hide();
-//            $('#oncoprint #everything').show();
+                
+//                var genePanelClinicals = new ClinicalColl();
+//                genePanelClinicals.fetch({
+//                type: "POST",
+//                data: {
+//                    cancer_study_id: cancer_study_id_selected,
+//                    attribute_id: "GENE_PANEL",
+//                    case_list: cases
+//                },
+//                success: function(response) {
+//                        GenePanelData = response.toJSON();
+//                    
+//                        oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
+//                            geneData: data.toJSON(),
+//                            genes: genes,
+//                            legend: document.getElementById('oncoprint_legend')
+//                        },extraTracks,GenePanelData);
 //
-//            if($('#oncoprint_sortbyfirst_dropdonw span')[0].innerHTML === 'Sort by')
-//            {
-//                oncoprint.sortBy("genes", cases.split(" "),mutationColorControl,mutationColorSort,sortStatus);
-//            }
-//            else
-//            {
-//                selectsortby();
-//            }
+//                        outer_loader_img.hide();
+//                        $('#oncoprint #everything').show();
 //
-//            $('.attribute_name').qtip({
-//                content: {text: 'hold to drag'},
-//                position: {my:'middle right', at:'middle left', viewport: $(window)},
-//                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
-//                show: {event: "mouseover"}
-//            });  
-//            
-//            zoom = reset_zoom();
-//            invokeDataManager(); 
+//                        if($('#oncoprint_sortbyfirst_dropdonw span')[0].innerHTML === 'Sort by')
+//                        {
+//                            oncoprint.sortBy("genes", cases.split(" "),mutationColorControl,mutationColorSort,sortStatus);
+//                        }
+//                        else
+//                        {
+//                            selectsortby();
+//                        }
+//
+//                        $('.attribute_name').qtip({
+//                            content: {text: 'hold to drag'},
+//                            position: {my:'middle right', at:'middle left', viewport: $(window)},
+//                            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+//                            show: {event: "mouseover"}
+//                        });  
+//
+//                        zoom = reset_zoom();
+//                        invokeDataManager(); 
+//                    }
+//                });
             }
         }
     });

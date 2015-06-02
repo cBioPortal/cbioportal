@@ -342,7 +342,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                             else
                             {
                                 $('#oncoprint_diagram_topatientid_icon img')[0].attributes.src.value = 'images/cool.svg';
-                                $('#switchPatientSample').text("patients"); 
+                                $('#switchPatientSample').text("Show patients"); 
                                 $('#switchPatientSample')[0].attributes.valuetype.value = "samples";
                                 $('#altered_value').text("Altered in "+ PortalGlobals.getNumOfAlteredCases() + " ("+ Math.ceil(PortalGlobals.getPercentageOfAlteredCases()) +"%) of "+ PortalGlobals.getNumOfTotalCases() + " samples"); 
                             }
@@ -439,7 +439,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                 else
                 {
                     $('#oncoprint_diagram_topatientid_icon img')[0].attributes.src.value = 'images/cool.svg';
-                    $('#switchPatientSample').text("patients"); 
+                    $('#switchPatientSample').text("Show patients"); 
                     $('#switchPatientSample')[0].attributes.valuetype.value = "samples";
                     $('#altered_value').text("Altered in "+ PortalGlobals.getNumOfAlteredCases() + " ("+ Math.ceil(PortalGlobals.getPercentageOfAlteredCases()) +"%) of "+ PortalGlobals.getNumOfTotalCases() + " samples"); 
                 }                
@@ -1734,13 +1734,13 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
               inner_loader_img.show();
                 if($('#switchPatientSample')[0].attributes.valuetype.value === "patients")
                 {
-                   $('#switchPatientSample').text("patients"); 
-                   $('#switchPatientSample')[0].attributes.valuetype.value = "samples"
+                   $('#switchPatientSample').text("Show patients"); 
+                   $('#switchPatientSample')[0].attributes.valuetype.value = "samples";
                 }
                 else
                 {
-                    $('#switchPatientSample').text("samples")
-                    $('#switchPatientSample')[0].attributes.valuetype.value = "patients"
+                    $('#switchPatientSample').text("Show samples")
+                    $('#switchPatientSample')[0].attributes.valuetype.value = "patients";
                 }
                 
               if($('#oncoprint_diagram_topatientid_icon img')[0].attributes.src.value === 'images/cool.svg')
@@ -1859,13 +1859,13 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                 inner_loader_img.show();
                 if($('#switchPatientSample')[0].attributes.valuetype.value === "patients")
                 {
-                   $('#switchPatientSample').text("patients"); 
-                   $('#switchPatientSample')[0].attributes.valuetype.value = "samples"
+                   $('#switchPatientSample').text("Show patients"); 
+                   $('#switchPatientSample')[0].attributes.valuetype.value = "samples";
                 }
                 else
                 {
-                    $('#switchPatientSample').text("samples")
-                    $('#switchPatientSample')[0].attributes.valuetype.value = "patients"
+                    $('#switchPatientSample').text("Show samples")
+                    $('#switchPatientSample')[0].attributes.valuetype.value = "patients";
                 }
               
               if($('#oncoprint_diagram_topatientid_icon img')[0].attributes.src.value === 'images/cool.svg')

@@ -397,7 +397,7 @@
         patientIdArray = _.uniq(patientIdArray);
         //Oncoprint summary lines
         $("#oncoprint_sample_set_description").append(window.PortalGlobals.getPatientSetDescription() + 
-            "( showing "+patientIdArray.length + " patients"+ ". " + "There are " + window.PortalGlobals.getNumOfTotalCases() + " samples.)");
+            "("+patientIdArray.length + " patients / " + window.PortalGlobals.getNumOfTotalCases() + " samples)");
         $("#oncoprint_sample_set_name").append(window.PortalGlobals.getPatientSetName());
         $("#oncoprint_num_of_altered_cases").append(window.PortalGlobals.getNumOfAlteredCases());
         $("#oncoprint_percentage_of_altered_cases").append(window.PortalGlobals.getPercentageOfAlteredCases());

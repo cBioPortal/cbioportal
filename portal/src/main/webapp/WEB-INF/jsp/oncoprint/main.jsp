@@ -38,7 +38,7 @@
         <%@ include file="controls-templates.jsp" %>
 
         <div id="oncoprint-statment" style="margin-left:3;">
-            <p>Case Set: <span id='oncoprint_sample_set_name'></span>: <span id='oncoprint_sample_set_description'></span></span><span><button id="switchPatientSample" type="button" valuetype="patients" class="btn btn-primary btn-xs jstree-node" style="cursor:pointer;  padding: 0px 5px; font-weight: normal;font-style: normal;margin-left: 10px; color:white; background-color:#2986e2">samples</button></span></p>
+            <p>Case Set: <span id='oncoprint_sample_set_name'></span>: <span id='oncoprint_sample_set_description'></span></span><span><button id="switchPatientSample" type="button" valuetype="patients" class="btn btn-primary btn-xs jstree-node" style="cursor:pointer;  padding: 0px 5px; font-weight: normal;font-style: normal;margin-left: 10px; color:white; background-color:#2986e2; font:small-caption;">Show samples</button></span></p>
         </div>
         
         <div id="oncoprint_whole_body">

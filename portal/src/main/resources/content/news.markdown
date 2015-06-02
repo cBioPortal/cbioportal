@@ -1,3 +1,9 @@
+# June 2, 2015
+* __Improvements__:
+    * Allowed downloading data in each chart/table in study summary page.
+    * Improved visualization of patient clinical data in patient-centric view.
+    * Added option to merge multiple samples for the same patient in OncoPrint.
+
 # April 28, 2015
 * __New features__:
     * Redesigned query interface to allow selecting multiple cancer studies

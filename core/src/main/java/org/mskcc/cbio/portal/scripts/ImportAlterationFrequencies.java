@@ -27,12 +27,12 @@ import org.mskcc.cbio.portal.model.GeneticProfile;
  */
 public class ImportAlterationFrequencies {
 	private static class AlterationFrequencyProfile {
-		public float mutCt;
-		public float ampCt;
-		public float delCt;
-		public float totalCt;
-		public float mutAmpCt;
-		public float mutDelCt;
+		public int mutCt;
+		public int ampCt;
+		public int delCt;
+		public int totalCt;
+		public int mutAmpCt;
+		public int mutDelCt;
 		public AlterationFrequencyProfile() {
 			mutCt = 0; ampCt = 0; delCt = 0; totalCt = 0; 
 			mutAmpCt = 0; mutDelCt = 0;
@@ -188,11 +188,11 @@ public class ImportAlterationFrequencies {
 		// TODO: handle denominator correctly
 		for (Long entrezGeneId: alterationFrequency.keySet()) {
 			AlterationFrequencyProfile altFreqProf = alterationFrequency.get(entrezGeneId);
-			DaoAlterationFrequency.addAlterationFrequency(internalStudyId, entrezGeneId, DaoAlterationFrequency.AlterationFrequencyType.MUT, altFreqProf.mutCt/altFreqProf.totalCt, (int) altFreqProf.totalCt);
-			DaoAlterationFrequency.addAlterationFrequency(internalStudyId, entrezGeneId, DaoAlterationFrequency.AlterationFrequencyType.CNA_AMP, altFreqProf.ampCt/altFreqProf.totalCt, (int) altFreqProf.totalCt);
-			DaoAlterationFrequency.addAlterationFrequency(internalStudyId, entrezGeneId, DaoAlterationFrequency.AlterationFrequencyType.CNA_DEL, altFreqProf.delCt/altFreqProf.totalCt, (int) altFreqProf.totalCt);
-			DaoAlterationFrequency.addAlterationFrequency(internalStudyId, entrezGeneId, DaoAlterationFrequency.AlterationFrequencyType.MUT_AND_CNA_AMP, altFreqProf.mutAmpCt/altFreqProf.totalCt, (int) altFreqProf.totalCt);
-			DaoAlterationFrequency.addAlterationFrequency(internalStudyId, entrezGeneId, DaoAlterationFrequency.AlterationFrequencyType.MUT_AND_CNA_DEL, altFreqProf.mutDelCt/altFreqProf.totalCt, (int) altFreqProf.totalCt);
+			DaoAlterationFrequency.addAlterationFrequency(internalStudyId, entrezGeneId, DaoAlterationFrequency.AlterationFrequencyType.MUT, altFreqProf.mutCt, (int) altFreqProf.totalCt);
+			DaoAlterationFrequency.addAlterationFrequency(internalStudyId, entrezGeneId, DaoAlterationFrequency.AlterationFrequencyType.CNA_AMP, altFreqProf.ampCt, (int) altFreqProf.totalCt);
+			DaoAlterationFrequency.addAlterationFrequency(internalStudyId, entrezGeneId, DaoAlterationFrequency.AlterationFrequencyType.CNA_DEL, altFreqProf.delCt, (int) altFreqProf.totalCt);
+			DaoAlterationFrequency.addAlterationFrequency(internalStudyId, entrezGeneId, DaoAlterationFrequency.AlterationFrequencyType.MUT_AND_CNA_AMP, altFreqProf.mutAmpCt, (int) altFreqProf.totalCt);
+			DaoAlterationFrequency.addAlterationFrequency(internalStudyId, entrezGeneId, DaoAlterationFrequency.AlterationFrequencyType.MUT_AND_CNA_DEL, altFreqProf.mutDelCt, (int) altFreqProf.totalCt);
 		}
 		System.out.println("clearing table");
 		geneData.clear();

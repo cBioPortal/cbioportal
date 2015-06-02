@@ -18,7 +18,7 @@ public class DaoAlterationFrequency {
 	public static enum AlterationFrequencyType {
 		MUT,CNA_AMP,CNA_DEL,MUT_AND_CNA_AMP,MUT_AND_CNA_DEL,WILD_TYPE;
 	}
-	public static int addAlterationFrequency(int cancerStudyId, long entrezGeneId, AlterationFrequencyType freqType, float frequency, int numPatients)
+	public static int addAlterationFrequency(int cancerStudyId, long entrezGeneId, AlterationFrequencyType freqType, int frequency, int numPatients)
             throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -32,7 +32,7 @@ public class DaoAlterationFrequency {
             pstmt.setInt(1, cancerStudyId);
 	    pstmt.setLong(2, entrezGeneId);
             pstmt.setString(3, freqType.toString());
-	    pstmt.setFloat(4, frequency);
+	    pstmt.setInt(4, frequency);
 	    pstmt.setInt(5, numPatients);
             return pstmt.executeUpdate();
         } catch (SQLException e) {

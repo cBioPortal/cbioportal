@@ -19,6 +19,12 @@ import gdata.docs.client
 import gdata.docs.service
 import gdata.spreadsheet.service
 
+import httplib2
+from oauth2client import client
+from oauth2client.file import Storage
+from oauth2client.client import flow_from_clientsecrets
+from oauth2client.tools import run_flow, argparser
+
 # ------------------------------------------------------------------------------
 # globals
 
@@ -33,8 +39,6 @@ CLINICAL_ATTRIBUTES_NAMESPACE_WORKSHEET = 'importer.clinical_attributes_namespac
 CLINICAL_DATA_FILENAME_PATTERN = 'data_clinical_.*\.txt'
 KEY_COLUMN_HEADER = 'externalcolumnheader'
 VALUE_COLUMN_HEADER = 'normalizedcolumnheader'
-
-GOOGLE_SPREADSHEET_CLIENT = gdata.spreadsheet.service.SpreadsheetsService()
 
 # ------------------------------------------------------------------------------
 # class definitions
@@ -89,13 +93,29 @@ def get_portal_properties(portal_properties_filename):
 # ------------------------------------------------------------------------------
 # logs into google spreadsheet client
 
-def google_login(user, pw):
+def get_gdata_credentials(secrets, creds, scope, force=False):
+    storage = Storage(creds)
+    credentials = storage.get()
+    if credentials is None or credentials.invalid or force:
+      credentials = run_flow(flow_from_clientsecrets(secrets, scope=scope), storage, argparser.parse_args([]))
+      
+    if credentials.access_token_expired:
+        credentials.refresh(httplib2.Http())
+        
+    return credentials
+
+def google_login(secrets, creds, user, pw, app_name):
+
+	credentials = get_gdata_credentials(secrets, creds, ["https://spreadsheets.google.com/feeds"], False)
+	client = gdata.spreadsheet.service.SpreadsheetsService(additional_headers={'Authorization' : 'Bearer %s' % credentials.access_token})
 
 	# google spreadsheet
-	GOOGLE_SPREADSHEET_CLIENT.email = user
-	GOOGLE_SPREADSHEET_CLIENT.password = pw
-	GOOGLE_SPREADSHEET_CLIENT.source = sys.argv[0]
-	GOOGLE_SPREADSHEET_CLIENT.ProgrammaticLogin()
+	client.email = user
+	client.password = pw
+	client.source = app_name
+	client.ProgrammaticLogin()
+
+	return client
 
 # ------------------------------------------------------------------------------
 # given a feed & feed name, returns its id
@@ -114,12 +134,12 @@ def get_feed_id(feed, name):
 # ------------------------------------------------------------------------------
 # gets a worksheet feed
 
-def get_worksheet_feed(ss, ws):
+def get_worksheet_feed(client, ss, ws):
 
-    ss_id = get_feed_id(GOOGLE_SPREADSHEET_CLIENT.GetSpreadsheetsFeed(), ss)
-    ws_id = get_feed_id(GOOGLE_SPREADSHEET_CLIENT.GetWorksheetsFeed(ss_id), ws)
+    ss_id = get_feed_id(client.GetSpreadsheetsFeed(), ss)
+    ws_id = get_feed_id(client.GetWorksheetsFeed(ss_id), ws)
     
-    return GOOGLE_SPREADSHEET_CLIENT.GetListFeed(ss_id, ws_id)
+    return client.GetListFeed(ss_id, ws_id)
 
 # ------------------------------------------------------------------------------
 # creates map KEY_COLUMN_HEADER -> VALUE_COLUMN_HEADER
@@ -178,27 +198,33 @@ def process_clinical(clinical_attribute_map, filename):
 	data_clinical_file.close()
 
 def usage():
-    print >> ERROR_FILE, 'normal-clinical-attributes.py --properties-file [properties file] --directory [directory to traverse]'
+    print >> ERROR_FILE, 'normal-clinical-attributes.py --secrets-file [google secrets.json] --creds-file [oauth creds filename] --properties-file [properties file] --directory [directory to traverse]'
 
 def main():
 
 	# get options to script
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], '', ['properties-file=', 'directory='])
+		opts, args = getopt.getopt(sys.argv[1:], '', ['secrets-file=', 'creds-file=', 'properties-file=', 'directory='])
 	except getopt.error, msg:
 		print >> ERROR_FILE, msg
 		usage()
 		sys.exit(2)
 
 	# process the options
+	secrets_filename = ''
+	creds_filename = ''
 	properties_filename = ''
 	directory_name = ''
 	for o, a in opts:
-		if o == '--properties-file':
+		if o == '--secrets-file':
+			secrets_filename = a
+		elif o == '--creds-file':
+			creds_filename = a
+		elif o == '--properties-file':
 		    properties_filename = a
 		elif o == '--directory':
 			directory_name = a
-	if (properties_filename == '' or directory_name == ''):
+	if (secrets_filename == '' or creds_filename == '' or properties_filename == '' or directory_name == ''):
 		usage()
 		sys.exit(2)
 
@@ -218,8 +244,8 @@ def main():
 		return
 
 	# login to google and get spreadsheet feed & create clinical attribute map
-	google_login(portal_properties.google_id, portal_properties.google_pw)
-	worksheet_feed = get_worksheet_feed(portal_properties.google_spreadsheet,
+	client = google_login(secrets_filename, creds_filename, portal_properties.google_id, portal_properties.google_pw, sys.argv[1])
+	worksheet_feed = get_worksheet_feed(client, portal_properties.google_spreadsheet,
 										portal_properties.google_worksheet)
 	clinical_attributes_map = get_attribute_map(worksheet_feed, KEY_COLUMN_HEADER, VALUE_COLUMN_HEADER)
 

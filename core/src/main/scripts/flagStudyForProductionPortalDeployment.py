@@ -19,7 +19,7 @@ import httplib2
 from oauth2client import client
 from oauth2client.file import Storage
 from oauth2client.client import flow_from_clientsecrets
-from oauth2client.tools import run
+from oauth2client.tools import run_flow, argparser
 
 # ------------------------------------------------------------------------------
 # globals
@@ -42,7 +42,7 @@ def get_gdata_credentials(secrets, creds, scope, force=False):
     storage = Storage(creds)
     credentials = storage.get()
     if credentials is None or credentials.invalid or force:
-      credentials = run(flow_from_clientsecrets(secrets, scope=scope), storage)
+      credentials = run_flow(flow_from_clientsecrets(secrets, scope=scope), storage, argparser.parse_args([]))
       
     if credentials.access_token_expired:
         credentials.refresh(httplib2.Http())

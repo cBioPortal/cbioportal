@@ -271,21 +271,65 @@ define("Oncoprint",
                 data = utils.process_data(data, attributes);
 
                 //get to process data from gene panel
-                if(genepanelValues.genepaneldata.length>0)
+                if(topatientValue !== undefined &&  topatientValue)
                 {
-                    for(var i=0; i < data.length; i++)
+                    if(genepanelValues.genepaneldatapatient.length>0)
                     {
-                        var genepanelStableId = genepanelValues.genepaneldata[i].attr_val;
-                        for(var j= 0; j < data[i].values.length; j++)
+                        for(var i=0; i < data.length; i++)
                         {
-                            var geneIndexValue = _.find(genepanelValues.genepanel[genepanelStableId].geneList, function(gene){ return gene ===data[i].values[j].gene; }); 
-                            if(data[i].values[j].gene !== undefined && !geneIndexValue && data[i].values[j].mutation === undefined)
+                            var geneIndexValue;
+                            var genepanelStableIdValue = genepanelValues.genepaneldatapatient[i].attr_val;
+                            for(var j= 0; j < data[i].values.length; j++)
                             {
-                                data[i].values[j].genepanel = true; 
+                                var genepanelStableId = genepanelStableIdValue.split(",");
+                                if(genepanelStableId.length>1)
+                                {
+                                    for(var i = 0; i<genepanelStableId.length; i++)
+                                    {   
+                                        if(_.find(genepanelValues.genepanel[genepanelStableId[i]].geneList, function(gene){return gene === data[i].values[j].gene; })>-1)
+                                        {
+                                            geneIndexValue = _.find(genepanelValues.genepanel[genepanelStableId].geneList, function(gene){return gene === data[i].values[j].gene; }); 
+                                            break;
+                                        }
+                                        else
+                                        {
+                                            geneIndexValue = -1; 
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    geneIndexValue = _.find(genepanelValues.genepanel[genepanelStableId[0]].geneList, function(gene){return gene === data[i].values[j].gene; }); 
+                                }
+                                
+                                if(data[i].values[j].gene !== undefined && !geneIndexValue && data[i].values[j].mutation === undefined)
+                                {
+                                    data[i].values[j].genepanel = true; 
+                                }
+                            }
+                        }
+                    }  
+                }
+                else
+                {
+                    if(genepanelValues.genepaneldata.length>0)
+                    {
+                        for(var i=0; i < data.length; i++)
+                        {
+                            var genepanelStableId = genepanelValues.genepaneldata[i].attr_val;
+                            for(var j= 0; j < data[i].values.length; j++)
+                            {
+                                var geneIndexValue = _.find(genepanelValues.genepanel[genepanelStableId].geneList, function(gene){ return gene ===data[i].values[j].gene; }); 
+                                if(data[i].values[j].gene !== undefined && !geneIndexValue && data[i].values[j].mutation === undefined)
+                                {
+                                    data[i].values[j].genepanel = true; 
+                                }
                             }
                         }
                     }
                 }
+                //process gene panel end
+                
                 // keeps track of the order specified by the user (translates to vertical
                 // order in the visualization)
                 var attr2index = (function() {

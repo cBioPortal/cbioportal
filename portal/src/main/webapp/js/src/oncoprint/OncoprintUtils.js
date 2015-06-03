@@ -222,11 +222,18 @@ define("OncoprintUtils", (function() {
             }
             return false;
         });
-
+        
         var fusions = extract_unique(raw_gene_data, 'mutation', function(d){return /\bfusion\b/i.test(d);});
         var mrnas = extract_unique(raw_gene_data, 'mrna');
         var rppas = extract_unique(raw_gene_data, 'rppa');
-
+        var unsequenced = extract_unique(raw_gene_data,"genepanel",function(d){
+            if(d.genepanel)
+            {
+                return true;
+            }
+            
+            return false;
+        });
         var there_is_data = function(list) {
             return list.length > 0;
         };
@@ -264,6 +271,10 @@ define("OncoprintUtils", (function() {
 
         if (there_is_data(rppas)) {
             to_return.rppa = rppas;
+        }
+
+        if (there_is_data(unsequenced)) {
+            to_return.unsequenced = true;
         }
 
         return to_return;
@@ -1594,10 +1605,49 @@ define("OncoprintUtils", (function() {
                     .attr('class','legend_name')
                     .text('Fusion');
         }
-        if(attrtype2range.length > 0)
+        
+        if (datatype2range.unsequenced !== undefined)
         {
-            CreateLegendII(attrtype2range,attr2rangeFuntion);
-        }
+            var legend_svg = tabledata
+                        .append('svg')
+                        .attr('height', 23 )
+                        .attr('width', ('Unsequenced').length * 7.5 + 5.5*3 )
+                        .attr('x', 0)
+                        .attr('id', 'legend_svg')
+                        .attr('class', 'legend_fusion')
+                        .append('g');
+
+            legend_svg.append('rect')
+                        .attr('height', 23)
+                        .attr('width', 5.5)
+                        .attr('fill', colors.grey);
+                    
+            var questionmark = legend_svg.append("text")
+                        .attr('y', function(d) {
+                            return 12; 
+                        })
+                        .attr("dy", ".4em")
+                        .text("?");
+
+            var label = legend_svg.append('text')
+                .attr('font-size', '12px')
+                .attr('width', function()
+                {
+                    return ('Unsequenced').length * 6.5;
+                })
+                .attr('x', 5.5*3)
+                .attr('y', 19);
+
+            label.append('tspan')       // name
+                .attr('text-anchor', 'start')
+                .attr('fill','black')
+                .attr('class','legend_name')
+                .text('Unsequenced');    
+            }
+            if(attrtype2range.length > 0)
+            {
+                CreateLegendII(attrtype2range,attr2rangeFuntion);
+            }
     };
 
     // params: select_el (a DOM <select> element), clinical_attributes (list of

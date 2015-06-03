@@ -230,13 +230,8 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                             },
                             success: function(response){
                                         inner_loader_img.hide();
-
-//                                        extraTracks = extraTracks.concat(response.attributes().map(function(attr) { return attr.attr_id; }));
                                         clinicalExtraTracks[clinicalElements] = response.attributes().map(function(attr) { return attr.attr_id; });
-//                                        extraGenes = extraGenes.concat(response.toJSON());
                                         clinicalAttributeArray[clinicalElements]= response.toJSON();
-//                                        extraAttributes=extraAttributes.concat(response.attributes());
-//                                        sortStatus = sortStatus.concat('decreSort');
                                         clinicalExtraAttributes[clinicalElements]= response.attributes();
                                         clinicalSortStatus[clinicalElements] = 'decreSort';
                                     }
@@ -273,7 +268,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                 var clinicalElementsArray = [];
                 
                 //fetch genepanel attribute data
-                var GenePanelData;
+                var GenePanelData = [];
                 var genePanelClinicals = new ClinicalColl();
                 clinicalElementsArray.push(
                 genePanelClinicals.fetch({
@@ -325,8 +320,50 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                             extraAttributes = extraAttributes.concat(clinicalExtraAttributes[clinicallistArrayNow[j]]);
                             sortStatus = sortStatus.concat(clinicalSortStatus[clinicallistArrayNow[j]]);
                         }
+                        //process genepanel attribute to patient format
+                        var GenePanelDataPatient = [];
+                        if(GenePanelData.length>0)
+                        {
+                            if(typeof(PortalGlobals) !== 'undefined')
+                            {
+                                var SampleIdMapPatientId = PortalGlobals.getPatientSampleIdMap();
+                            }
+
+                            for(var i = 0; i < GenePanelData.length; i++)
+                            {
+                                var patiendId = SampleIdMapPatientId[GenePanelData[i].sample];
+
+                                var findIndexValue = function(){
+                                    for(var j=0; j < GenePanelDataPatient.length; j++)
+                                    {
+                                        if(patiendId === GenePanelDataPatient[j].patient)
+                                        {
+                                            return j;
+                                        }
+                                    }
+                                    return -1;
+                                };
+
+                                var positionValue = findIndexValue();
+                                if(positionValue > -1)
+                                {
+                                   if(GenePanelDataPatient[positionValue].attr_val !== GenePanelData[i].attr_val)
+                                   {
+                                       GenePanelDataPatient[positionValue].attr_val = GenePanelDataPatient[positionValue].attr_val+ ","+GenePanelData[i].attr_val;
+                                   }
+                                }
+                                else
+                                {
+                                  var genepanelAttibuteDataPatient = {attr_id:"GENE_PANEL",patient:patiendId}; 
+                                  genepanelAttibuteDataPatient.attr_val = GenePanelData[i].attr_val;
+                                  GenePanelDataPatient.push(genepanelAttibuteDataPatient);
+                                }
+                            }
+                        }
+                        // process end
                         genepanelValues = {
                             genepaneldata:GenePanelData,
+                            genepaneldatapatient:GenePanelDataPatient,
                             genepanel:genePanel
                         };
                         oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
@@ -420,7 +457,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                 var genePanel = new Array();               
 
                 //fetch genepanel data
-                var GenePanelData;
+                var GenePanelData = [];
                 var genePanelClinicals = new ClinicalColl();
                 preloadElementArray.push(
                 genePanelClinicals.fetch({
@@ -453,11 +490,54 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                 //fetch genepanel end
                 
                 $.when.apply(null, preloadElementArray).done(function() {
-                    //include genepaneldata and genepanel into one set
-                    genepanelValues = {
-                        genepaneldata:GenePanelData,
-                        genepanel:genePanel
-                    };
+                    
+                        //process genepanel attribute to patient format
+                        var GenePanelDataPatient = [];
+                        if(GenePanelData.length>0)
+                        {
+                            if(typeof(PortalGlobals) !== 'undefined')
+                            {
+                                var SampleIdMapPatientId = PortalGlobals.getPatientSampleIdMap();
+                            }
+
+                            for(var i = 0; i < GenePanelData.length; i++)
+                            {
+                                var patiendId = SampleIdMapPatientId[GenePanelData[i].sample];
+
+                                var findIndexValue = function(){
+                                    for(var j=0; j < GenePanelDataPatient.length; j++)
+                                    {
+                                        if(patiendId === GenePanelDataPatient[j].patient)
+                                        {
+                                            return j;
+                                        }
+                                    }
+                                    return -1;
+                                };
+
+                                var positionValue = findIndexValue();
+                                if(positionValue > -1)
+                                {
+                                   if(GenePanelDataPatient[positionValue].attr_val !== GenePanelData[i].attr_val)
+                                   {
+                                       GenePanelDataPatient[positionValue].attr_val = GenePanelDataPatient[positionValue].attr_val+ ","+GenePanelData[i].attr_val;
+                                   }
+                                }
+                                else
+                                {
+                                  var genepanelAttibuteDataPatient = {attr_id:"GENE_PANEL",patient:patiendId}; 
+                                  genepanelAttibuteDataPatient.attr_val = GenePanelData[i].attr_val;
+                                  GenePanelDataPatient.push(genepanelAttibuteDataPatient);
+                                }
+                            }
+                        }
+                        // process end
+                        //include genepaneldata and genepanel into one set
+                        genepanelValues = {
+                            genepaneldata:GenePanelData,
+                            genepaneldatapatient:GenePanelDataPatient,
+                            genepanel:genePanel
+                        };
                     oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
                             geneData: data.toJSON(),
                             genes: genes,

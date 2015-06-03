@@ -44,7 +44,7 @@
 define("Oncoprint",
         [           "OncoprintUtils",  "MemoSort"],
         function(   utils,              MemoSort) {
-            return function(div, params,tracks,GenePanelData,topatientValue) {
+            return function(div, params,tracks,genepanelValues,topatientValue) {
                 params.clinicalData = params.clinicalData || [];        // initialize
                 params.clinical_attrs = params.clinical_attrs || [];
 
@@ -125,10 +125,6 @@ define("Oncoprint",
                 {
                     $('#oncoprint-diagram-showlegend-icon').css("display","inline");
                 }
-//                if(params.clinical_attrs.length < 1)
-//                {
-//                    $('#oncoprint-diagram-toolbar-buttons #sort_by')[0].options[1].disabled = true;
-//                }
 
                 // make strings of numbers into numbers
                 var clinicalData = params.clinicalData.map(function(i) {
@@ -251,7 +247,6 @@ define("Oncoprint",
                     }   
                 }
                 
-//                var data = newclinicalData.concat(newGeneData);
                 if(topatientValue !== undefined &&  topatientValue)
                 {
                     var data = newclinicalData.concat(newGeneData);
@@ -261,8 +256,6 @@ define("Oncoprint",
                 {
                     var data = clinicalData.concat(params.geneData);
                 }
-                
-                
 
                 var clinical_attrs = params.clinical_attrs      // extract attr_ids
                     .map(function(attr) { return attr.attr_id; });
@@ -278,16 +271,14 @@ define("Oncoprint",
                 data = utils.process_data(data, attributes);
 
                 //get to process data from gene panel
-                var genepanelList = [];
-                genepanelList["IMPACT341"] =["TP53","BRCA1"];
-                if(GenePanelData.length>0)
+                if(genepanelValues.genepaneldata.length>0)
                 {
                     for(var i=0; i < data.length; i++)
                     {
-                        var genepanelStableId = GenePanelData[i].attr_val;
+                        var genepanelStableId = genepanelValues.genepaneldata[i].attr_val;
                         for(var j= 0; j < data[i].values.length; j++)
                         {
-                            var geneIndexValue = _.find(genepanelList[genepanelStableId], function(gene){ return gene ===data[i].values[j].gene; }); 
+                            var geneIndexValue = _.find(genepanelValues.genepanel[genepanelStableId].geneList, function(gene){ return gene ===data[i].values[j].gene; }); 
                             if(data[i].values[j].gene !== undefined && !geneIndexValue && data[i].values[j].mutation === undefined)
                             {
                                 data[i].values[j].genepanel = true; 

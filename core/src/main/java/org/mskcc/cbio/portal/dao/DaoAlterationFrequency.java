@@ -18,7 +18,7 @@ public class DaoAlterationFrequency {
 	public static enum AlterationFrequencyType {
 		MUT,CNA_AMP,CNA_DEL,MUT_AND_CNA_AMP,MUT_AND_CNA_DEL,WILD_TYPE;
 	}
-	public static int addAlterationFrequency(int cancerStudyId, long entrezGeneId, AlterationFrequencyType freqType, int frequency, int numPatients)
+	public static int addAlterationFrequency(int cancerStudyId, long entrezGeneId, int mutCount, int ampCount, int delCount, int mutAmpCount, int mutDelCount, int numPatients)
             throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -27,13 +27,16 @@ public class DaoAlterationFrequency {
             con = JdbcUtil.getDbConnection(DaoMutationFrequency.class);
 
             pstmt = con.prepareStatement
-                    ("INSERT INTO alteration_frequency (`CANCER_STUDY_ID`,`ENTREZ_GENE_ID`, `ALTERATION_TYPE`, `FREQUENCY`, `PATIENTS`) "
-                            + "VALUES (?,?,?,?,?)");
+                    ("INSERT INTO alteration_frequency (`CANCER_STUDY_ID`,`ENTREZ_GENE_ID`, `MUT`, `AMP`, `DEL`, `MUT_AND_AMP`, `MUT_AND_DEL`, `PATIENTS`) "
+                            + "VALUES (?,?,?,?,?,?,?,?)");
             pstmt.setInt(1, cancerStudyId);
 	    pstmt.setLong(2, entrezGeneId);
-            pstmt.setString(3, freqType.toString());
-	    pstmt.setInt(4, frequency);
-	    pstmt.setInt(5, numPatients);
+            pstmt.setInt(3, mutCount);
+	    pstmt.setInt(4, ampCount);
+	    pstmt.setInt(5, delCount);
+	    pstmt.setInt(6, mutAmpCount);
+	    pstmt.setInt(7, mutDelCount);
+	    pstmt.setInt(8, numPatients);
             return pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);

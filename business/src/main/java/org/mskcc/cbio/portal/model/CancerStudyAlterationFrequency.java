@@ -5,17 +5,29 @@
  */
 package org.mskcc.cbio.portal.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import java.io.Serializable;
 
 /**
  *
  * @author abeshoua
  */
+@JsonInclude(Include.NON_NULL)
 public class CancerStudyAlterationFrequency implements Serializable
 {
-	public Long entrezGeneId;
-	public int internalStudyId;
-	public String alterationType;
-	public float alterationFrequency;
-	public int numPatients;
+	public static enum MutationType {
+		// TODO: Complete
+		MISSENSE, FRAMESHIFT;
+	}
+	public Long entrez_gene_id = null;
+	public Integer internal_study_id = null;
+	public Integer position = null;
+	public CancerStudyAlterationFrequency.MutationType mutation_type = null;
+	public Integer mut = null;
+	public Integer amp = null;
+	public Integer del = null;
+	public Integer mut_amp = null;
+	public Integer mut_del = null;
+	public Integer num_patients = null;
 }

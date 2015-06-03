@@ -5,26 +5,60 @@
 
 <cache/>
 
-<select id="get" resultType="CancerStudyAlterationFrequency">
+<select id="getMut" resultType="CancerStudyAlterationFrequency">
 	select
-                CANCER_STUDY_ID as internalStudyId,
-                ENTREZ_GENE_ID as entrezGeneId,
-                ALTERATION_TYPE as alterationType,
-                FREQUENCY as alterationFrequency,
-                PATIENTS as numPatients
+                CANCER_STUDY_ID as internal_study_id,
+                ENTREZ_GENE_ID as entrez_gene_id,
+                MUT as mut,
+                PATIENTS as num_patients
 	from alteration_frequency
         where ENTREZ_GENE_ID in
-    <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
+    <foreach item="item" collection="entrez_gene_ids" open="(" separator="," close=")">
         #{item}
     </foreach>
         and CANCER_STUDY_ID in
-    <foreach item="item" collection="internalStudyIds" open="(" separator="," close=")">
+    <foreach item="item" collection="internal_study_ids" open="(" separator="," close=")">
         #{item}
     </foreach>
 </select>
 
-<insert id="insert">
-    insert into alteration_frequency (CANCER_STUDY_ID, ENTREZ_GENE_ID, ALTERATION_TYPE, FREQUENCY, PATIENTS)
-    values (#{cancerStudyId}, #{entrezGeneId}, #{freqType}, #{frequency}, #{numPatients})
-</insert>
+<select id="getCna" resultType="CancerStudyAlterationFrequency">
+	select
+                CANCER_STUDY_ID as internal_study_id,
+                ENTREZ_GENE_ID as entrez_gene_id,
+                AMP as amp,
+                DEL as del,
+                PATIENTS as num_patients
+	from alteration_frequency
+        where ENTREZ_GENE_ID in
+    <foreach item="item" collection="entrez_gene_ids" open="(" separator="," close=")">
+        #{item}
+    </foreach>
+        and CANCER_STUDY_ID in
+    <foreach item="item" collection="internal_study_ids" open="(" separator="," close=")">
+        #{item}
+    </foreach>
+</select>
+
+<select id="getMutCna" resultType="CancerStudyAlterationFrequency">
+	select
+                CANCER_STUDY_ID as internal_study_id,
+                ENTREZ_GENE_ID as entrez_gene_id,
+                MUT as mut,
+                AMP as amp,
+                DEL as del,
+                MUT_AND_AMP as mut_amp,
+                MUT_AND_DEL as mut_del,
+                PATIENTS as num_patients
+	from alteration_frequency
+        where ENTREZ_GENE_ID in
+    <foreach item="item" collection="entrez_gene_ids" open="(" separator="," close=")">
+        #{item}
+    </foreach>
+        and CANCER_STUDY_ID in
+    <foreach item="item" collection="internal_study_ids" open="(" separator="," close=")">
+        #{item}
+    </foreach>
+</select>
+
 </mapper>

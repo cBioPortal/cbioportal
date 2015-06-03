@@ -32,6 +32,7 @@
 
 package org.mskcc.cbio.portal.web;
 
+import java.util.LinkedList;
 import org.mskcc.cbio.portal.model.*;
 ;
 
@@ -49,8 +50,20 @@ public class CancerStudyAlterationFrequencyController
 	private CancerStudyAlterationFrequencyService alterationFrequencyService;
 	
 @RequestMapping("/alteration_frequencies")
-  public @ResponseBody List<CancerStudyAlterationFrequency> getAlterationFrequencies(@RequestParam(required=true) List<Long> entrezGeneIds,
-											@RequestParam(required=true) List<Integer> internalStudyIds) throws Exception {
-	  return alterationFrequencyService.get(entrezGeneIds, internalStudyIds);
+  public @ResponseBody List<CancerStudyAlterationFrequency> getAlterationFrequencies(@RequestParam(required=true) List<Long> entrez_gene_ids,
+											@RequestParam(required=true) List<Integer> internal_study_ids,
+											@RequestParam(required=false) List<String> data_type) throws Exception {
+	  if (data_type == null) {
+		  data_type = new LinkedList<>();
+		  data_type.add("MUT");
+		  data_type.add("CNA");
+	  }
+	  if (data_type.contains("MUT") && data_type.contains("CNA")) {
+		return alterationFrequencyService.getMutCna(entrez_gene_ids, internal_study_ids);
+	  } else if (data_type.contains("MUT")) {
+		return alterationFrequencyService.getMut(entrez_gene_ids, internal_study_ids);
+	  } else {
+		  return alterationFrequencyService.getCna(entrez_gene_ids, internal_study_ids);
+	  }
   }
 }

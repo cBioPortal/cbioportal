@@ -21,13 +21,17 @@ public class CancerStudyAlterationFrequencyService
 {
 	@Autowired
 	private CancerStudyAlterationFrequencyMapper mapper;
-	@Transactional
-	void insert(int cancerStudyId, long entrezGeneId, String freqType, float frequency, int numPatients) {
-		mapper.insert(cancerStudyId, entrezGeneId, freqType, frequency, numPatients);
-	}
   @Transactional
-  public List<CancerStudyAlterationFrequency> get(List<Long> entrezGeneIds, List<Integer> internalStudyIds) {
-	  return mapper.get(entrezGeneIds, internalStudyIds);
+  public List<CancerStudyAlterationFrequency> getMut(List<Long> entrez_gene_ids, List<Integer> internal_study_ids) {
+	  return mapper.getMut(entrez_gene_ids, internal_study_ids);
+  }
+  @Transactional
+  public List<CancerStudyAlterationFrequency> getCna(List<Long> entrez_gene_ids, List<Integer> internal_study_ids) {
+	  return mapper.getCna(entrez_gene_ids, internal_study_ids);
+  }
+  @Transactional
+  public List<CancerStudyAlterationFrequency> getMutCna(List<Long> entrez_gene_ids, List<Integer> internal_study_ids) {
+	  return mapper.getMutCna(entrez_gene_ids, internal_study_ids);
   }
 
 }

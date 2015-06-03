@@ -14,6 +14,7 @@ import org.apache.ibatis.annotations.Param;
  */
 
 public interface CancerStudyAlterationFrequencyMapper {
-	void insert(int cancerStudyId, long entrezGeneId, String freqType, float frequency, int numPatients);
-	List<CancerStudyAlterationFrequency> get(@Param("entrezGeneIds") List<Long> entrezGeneId, @Param("internalStudyIds") List<Integer> internalStudyIds);
+	List<CancerStudyAlterationFrequency> getMut(@Param("entrez_gene_ids") List<Long> entrez_gene_ids, @Param("internal_study_ids") List<Integer> internal_study_ids);
+	List<CancerStudyAlterationFrequency> getCna(@Param("entrez_gene_ids") List<Long> entrez_gene_ids, @Param("internal_study_ids") List<Integer> internal_study_ids);
+	List<CancerStudyAlterationFrequency> getMutCna(@Param("entrez_gene_ids") List<Long> entrez_gene_ids, @Param("internal_study_ids") List<Integer> internal_study_ids);
 }

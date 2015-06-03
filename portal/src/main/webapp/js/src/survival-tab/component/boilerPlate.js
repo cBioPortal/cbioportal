@@ -50,8 +50,10 @@ var SurvivalCurveBroilerPlate = {
 	    chart_left: 100,
 	    chart_top: 50,
 	    include_info_table: false, //Statistic Results from the curve
-            include_legend: true,
-            include_pvalue: true
+		include_legend: true,
+		include_pvalue: true,
+		pval_x: 710,
+		pval_y: 110
 	},
 	divs : {
 		curveDivId : "",
@@ -76,7 +78,8 @@ var SurvivalCurveBroilerPlate = {
 			total_cases: "#total cases",
 			num_of_events_cases: "",
 			median: ""
-		}
+		},
+		pValTitle: 'Logrank Test P-Value: '
 	},
 	style : {
 	    censored_sign_size: 5,
@@ -85,7 +88,9 @@ var SurvivalCurveBroilerPlate = {
 	    axisX_title_pos_y: 600,
 	    axisY_title_pos_x: -270,
 	    axisY_title_pos_y: 45,
-	    axis_color: "black"
+	    axis_color: "black",
+		pval_font_size: 12,
+		pval_font_style: 'normal'
 	},
 	vals: {
 		pVal: 0

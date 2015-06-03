@@ -399,6 +399,9 @@
         $("#oncoprint_sample_set_name").append(window.PortalGlobals.getPatientSetName());
         $("#oncoprint_num_of_altered_cases").append(window.PortalGlobals.getNumOfAlteredCases());
         $("#oncoprint_percentage_of_altered_cases").append(window.PortalGlobals.getPercentageOfAlteredCases());
+        if (patientIdArray.length !== window.PortalGlobals.getNumOfTotalCases()) {
+            $("#switchPatientSample").show();
+        }
 
     });
 

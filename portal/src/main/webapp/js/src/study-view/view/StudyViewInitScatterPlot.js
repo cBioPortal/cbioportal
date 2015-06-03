@@ -483,24 +483,28 @@ var StudyViewInitScatterPlot = (function() {
     In this case, we need to recalculate the max and min value in all samples.
     */
     function getMinMax(_arr){
+        var initialed = false;
         _arr.forEach(function(sample, index){
             if(sample.hasOwnProperty('COPY_NUMBER_ALTERATIONS') && sample.hasOwnProperty('MUTATION_COUNT')){
                 //Directly assign value of first sample to variable boundaryVal
-                if(index === 0){
-                    boundaryVal.max_x = boundaryVal.min_x = sample.COPY_NUMBER_ALTERATIONS;
-                    boundaryVal.max_y = boundaryVal.min_y = sample.MUTATION_COUNT;
-                }else{
-                    if(sample.COPY_NUMBER_ALTERATIONS < boundaryVal.min_x){
-                        boundaryVal.min_x = sample.COPY_NUMBER_ALTERATIONS;
-                    }
-                    if(sample.COPY_NUMBER_ALTERATIONS > boundaryVal.max_x){
-                        boundaryVal.max_x = sample.COPY_NUMBER_ALTERATIONS;
-                    }
-                    if(sample.MUTATION_COUNT < boundaryVal.min_y){
-                        boundaryVal.min_y = sample.MUTATION_COUNT;
-                    }
-                    if(sample.MUTATION_COUNT > boundaryVal.max_y){
-                        boundaryVal.max_y = sample.MUTATION_COUNT;
+                if(!isNaN(sample.COPY_NUMBER_ALTERATIONS) && !isNaN(sample.MUTATION_COUNT)){
+                    if (!initialed) {
+                        boundaryVal.max_x = boundaryVal.min_x = sample.COPY_NUMBER_ALTERATIONS;
+                        boundaryVal.max_y = boundaryVal.min_y = sample.MUTATION_COUNT;
+                        initialed = true;
+                    } else {
+                        if (sample.COPY_NUMBER_ALTERATIONS < boundaryVal.min_x) {
+                            boundaryVal.min_x = sample.COPY_NUMBER_ALTERATIONS;
+                        }
+                        if (sample.COPY_NUMBER_ALTERATIONS > boundaryVal.max_x) {
+                            boundaryVal.max_x = sample.COPY_NUMBER_ALTERATIONS;
+                        }
+                        if (sample.MUTATION_COUNT < boundaryVal.min_y) {
+                            boundaryVal.min_y = sample.MUTATION_COUNT;
+                        }
+                        if (sample.MUTATION_COUNT > boundaryVal.max_y) {
+                            boundaryVal.max_y = sample.MUTATION_COUNT;
+                        }
                     }
                 }
             }

@@ -89,6 +89,9 @@ public class CrossCancerJSON extends HttpServlet {
 
             // Get the gene list
             String geneList = request.getParameter(QueryBuilder.GENE_LIST);
+            if (request instanceof XssRequestWrapper) {
+            	geneList = ((XssRequestWrapper)request).getRawParameter(QueryBuilder.GENE_LIST);
+            }
 	    String cancerStudyIdListString = request.getParameter(QueryBuilder.CANCER_STUDY_LIST);
 	    String[] cancerStudyIdList = cancerStudyIdListString.split(",");
 

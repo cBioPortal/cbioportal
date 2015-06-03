@@ -2347,6 +2347,8 @@ function JmolWrapper(useJava)
 	function init(name, options)
 	{
 		_options = jQuery.extend(true, {}, defaultOpts, options);
+                
+                delete Jmol._tracker;
 
 		// init applet
 		_applet = Jmol.getApplet(name, _options);

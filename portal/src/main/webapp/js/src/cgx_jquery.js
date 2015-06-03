@@ -146,7 +146,7 @@ This function accepts as arguments the URL to be shortened,
 our bitly user name and bitly API key (user and key are
 stored in properties file)
  */
-function bitlyURL(fullURL, usr, key){
+function bitlyURL(fullURL){
 
     /*testing - can not encode URI component when localhost is in URL.
               - uncomment following line when testing on localhost.
@@ -155,8 +155,6 @@ function bitlyURL(fullURL, usr, key){
 
     var defaults = {
         version: '3.0',
-        login: usr,
-        apiKey: key,
         history: '0',
         longURL: encodeURIComponent(fullURL)
     };
@@ -165,8 +163,6 @@ function bitlyURL(fullURL, usr, key){
     var qurl = "api/proxy/bitly?"
     +"version="+defaults.version
     +"&longUrl="+defaults.longURL
-    +"&login="+defaults.login
-    +"&apiKey="+defaults.apiKey
     +"&history="+defaults.history
     +"&format=json&callback=?";
 

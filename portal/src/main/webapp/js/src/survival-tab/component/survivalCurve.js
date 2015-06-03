@@ -321,12 +321,12 @@ var SurvivalCurve = function() {
             .attr("font-size", style.pval_font_size)
             .attr("font-style", style.pval_font_style)
             .style("text-anchor", "front")
-            .text(text.pValTitle + parseFloat(_pval).toFixed(6));
+            .text(text.pValTitle + cbio.util.toPrecision(Number(_pval), 3, 0.001));
     }
 
     function updatePvals(pval) {
         elem.svg.select('.pval')
-            .text(text.pValTitle + parseFloat(pval).toFixed(6));
+            .text(text.pValTitle + cbio.util.toPrecision(Number(pval), 3, 0.0001));
     }
 
     function appendInfoTable(_infoTableInputArr) {

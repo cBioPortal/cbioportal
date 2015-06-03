@@ -1,4 +1,4 @@
-# June 2, 2015
+# June 3, 2015
 * __Improvements__:
     * Allowed downloading data in each chart/table in study summary page.
     * Improved visualization of patient clinical data in patient-centric view.

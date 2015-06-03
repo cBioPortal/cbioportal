@@ -15,15 +15,18 @@ import gdata.docs.client
 import gdata.docs.service
 import gdata.spreadsheet.service
 
+import httplib2
+from oauth2client import client
+from oauth2client.file import Storage
+from oauth2client.client import flow_from_clientsecrets
+from oauth2client.tools import run_flow, argparser
+
 # ------------------------------------------------------------------------------
 # globals
 
 # some file descriptors
 ERROR_FILE = sys.stderr
 OUTPUT_FILE = sys.stdout
-
-# a ref to the google spreadsheet client - used for all i/o to google spreadsheet
-GOOGLE_SPREADSHEET_CLIENT = gdata.spreadsheet.service.SpreadsheetsService()
 
 # column constants on google spreadsheet
 TRIAGE_PORTAL_KEY = "triage-portal"
@@ -35,13 +38,29 @@ MSK_AUTOMATION_PORTAL_KEY = "msk-automation-portal"
 # ------------------------------------------------------------------------------
 # logs into google spreadsheet client
 
-def google_login(user, pw):
+def get_gdata_credentials(secrets, creds, scope, force=False):
+    storage = Storage(creds)
+    credentials = storage.get()
+    if credentials is None or credentials.invalid or force:
+      credentials = run_flow(flow_from_clientsecrets(secrets, scope=scope), storage, argparser.parse_args([]))
+      
+    if credentials.access_token_expired:
+        credentials.refresh(httplib2.Http())
+        
+    return credentials
 
-    # google spreadsheet
-    GOOGLE_SPREADSHEET_CLIENT.email = user
-    GOOGLE_SPREADSHEET_CLIENT.password = pw
-    GOOGLE_SPREADSHEET_CLIENT.source = sys.argv[0]
-    GOOGLE_SPREADSHEET_CLIENT.ProgrammaticLogin()
+def google_login(secrets, creds, user, pw, app_name):
+
+	credentials = get_gdata_credentials(secrets, creds, ["https://spreadsheets.google.com/feeds"], False)
+	client = gdata.spreadsheet.service.SpreadsheetsService(additional_headers={'Authorization' : 'Bearer %s' % credentials.access_token})
+
+	# google spreadsheet
+	client.email = user
+	client.password = pw
+	client.source = app_name
+	client.ProgrammaticLogin()
+
+	return client
 
 # ------------------------------------------------------------------------------
 # given a feed & feed name, returns its id
@@ -60,24 +79,23 @@ def get_feed_id(feed, name):
 # ------------------------------------------------------------------------------
 # gets a worksheet feed
 
-def get_worksheet_feed(ss, ws):
+def get_worksheet_feed(client, ss, ws):
 
-    ss_id = get_feed_id(GOOGLE_SPREADSHEET_CLIENT.GetSpreadsheetsFeed(), ss)
-    ws_id = get_feed_id(GOOGLE_SPREADSHEET_CLIENT.GetWorksheetsFeed(ss_id), ws)
+    ss_id = get_feed_id(client.GetSpreadsheetsFeed(), ss)
+    ws_id = get_feed_id(client.GetWorksheetsFeed(ss_id), ws)
     
-    return GOOGLE_SPREADSHEET_CLIENT.GetListFeed(ss_id, ws_id)
+    return client.GetListFeed(ss_id, ws_id)
 
 # ------------------------------------------------------------------------------
 # Flags a study on the given worksheet
 # for deployment into the msk automation portal.
 
-def flag_study_for_production_portal_deployment(worksheet_feed, cancer_study_id, remove_from_triage):
+def flag_study_for_production_portal_deployment(client, worksheet_feed, cancer_study_id, remove_from_triage):
 
     for entry in worksheet_feed.entry:
         for key in entry.custom:  
             if entry.custom[key].text == cancer_study_id:
-                GOOGLE_SPREADSHEET_CLIENT.UpdateRow(entry,
-                                                    get_row_data(entry, remove_from_triage))
+                client.UpdateRow(entry, get_row_data(entry, remove_from_triage))
                 return
 
 # ------------------------------------------------------------------------------
@@ -102,7 +120,7 @@ def get_row_data(entry, remove_from_triage):
 # displays program usage (invalid args)
 
 def usage():
-    print >> OUTPUT_FILE, ('flagStudyForProductionPortalDeployment.py --google-id --google-password ' +
+    print >> OUTPUT_FILE, ('flagStudyForProductionPortalDeployment.py --secrets-file [google secrets.json] --creds-file [oauth creds filename] --google-id --google-password ' +
                            '--google-spreadsheet --google-worksheet --cancer-study-id [STABLE_ID] [--remove-from-triage [t/f]]')
 
 # ------------------------------------------------------------------------------
@@ -113,7 +131,7 @@ def main():
     # process command line options
     try:
         opts, args = getopt.getopt(sys.argv[1:], '',
-                                   ['google-id=', 'google-password=',
+                                   ['secrets-file=', 'creds-file=', 'google-id=', 'google-password=',
                                    'google-spreadsheet=', 'google-worksheet=',
                                    'cancer-study-id=', 'remove-from-triage='])
     except getopt.error, msg:
@@ -121,6 +139,8 @@ def main():
         usage()
         sys.exit(2)
 
+	secrets_filename = ''
+	creds_filename = ''
     google_id = ''
     google_password = ''
     google_spreadsheet = ''
@@ -129,28 +149,32 @@ def main():
     remove_from_triage = ''
 
     for o, a in opts:
-        if o == '--google-id':
-            google_id = a
-        elif o == '--google-password':
-            google_password = a
-        elif o == '--google-spreadsheet':
-            google_spreadsheet = a
-        elif o == '--google-worksheet':
-            google_worksheet = a
-        elif o == '--cancer-study-id':
-            cancer_study_id = a
-        elif o == '--remove-from-triage':
-            remove_from_triage = a
+		if o == '--secrets-file':
+			secrets_filename = a
+		elif o == '--creds-file':
+			creds_filename = a
+		elif o == '--google-id':
+			google_id = a
+		elif o == '--google-password':
+			google_password = a
+		elif o == '--google-spreadsheet':
+			google_spreadsheet = a
+		elif o == '--google-worksheet':
+			google_worksheet = a
+		elif o == '--cancer-study-id':
+			cancer_study_id = a
+		elif o == '--remove-from-triage':
+			remove_from_triage = a
 
-    if (google_id == '' or google_password == '' or 
+    if (secrets_filename == '' or creds_filename == '' or google_id == '' or google_password == '' or 
         google_spreadsheet == '' or google_worksheet == '' or cancer_study_id == ''):
         usage()
         sys.exit(2)
 
     # the point of the script
-    google_login(google_id, google_password)
-    worksheet_feed = get_worksheet_feed(google_spreadsheet, google_worksheet)
-    flag_study_for_production_portal_deployment(worksheet_feed, cancer_study_id, remove_from_triage)
+    client = google_login(secrets_filename, creds_filename, google_id, google_password, sys.argv[1])
+    worksheet_feed = get_worksheet_feed(client, google_spreadsheet, google_worksheet)
+    flag_study_for_production_portal_deployment(client, worksheet_feed, cancer_study_id, remove_from_triage)
 
 # ------------------------------------------------------------------------------
 # ready to roll

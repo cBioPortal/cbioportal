@@ -1,3 +1,15 @@
+# June 3, 2015
+* __Improvements__:
+    * Allowed downloading data in each chart/table in study summary page.
+    * Added log-rank test _p_-values to the survival plots in study summary page.
+    * Improved visualization of patient clinical data in patient-centric view.
+    * Added option to merge multiple samples for the same patient in OncoPrint.
+
+# April 28, 2015
+* __New features__:
+    * Redesigned query interface to allow selecting multiple cancer studies
+    * Redesigned __Plots__ tab
+
 # January 14, 2015
 * All TCGA data updated to the Firehose run of October 17, 2014
 

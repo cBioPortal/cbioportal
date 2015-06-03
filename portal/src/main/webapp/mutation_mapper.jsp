@@ -204,8 +204,10 @@ $(document).ready(function() {
 			},
 			proxy: {
 				mutationProxy: {
-					lazy: false,
-					data: mutationData
+					options: {
+						initMode: "full",
+						data: mutationData
+					}
 				}
 			},
 			view: {

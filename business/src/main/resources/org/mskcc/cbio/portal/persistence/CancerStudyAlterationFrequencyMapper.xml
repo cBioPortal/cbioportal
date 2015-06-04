@@ -22,6 +22,61 @@
     </foreach>
 </select>
 
+<select id="getMutByPosition" resultType="CancerStudyAlterationFrequency">
+        select
+                genetic_profile.CANCER_STUDY_ID as internal_study_id,
+                mutation.ENTREZ_GENE_ID as entrez_gene_id,
+                mutation_event.ONCOTATOR_PROTEIN_POS_START as position,
+                COUNT(DISTINCT (CASE WHEN mutation_event.ONCOTATOR_PROTEIN_POS_START = #{position} THEN sample.PATIENT_ID END)) as mut
+        from mutation INNER JOIN genetic_profile ON genetic_profile.GENETIC_PROFILE_ID = mutation.GENETIC_PROFILE_ID
+                      INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
+                      INNER JOIN sample ON sample.INTERNAL_ID = mutation.SAMPLE_ID
+                      INNER JOIN patient on sample.PATIENT_ID = patient.INTERNAL_ID
+        where mutation.ENTREZ_GENE_ID = #{entrez_gene_id}
+            and genetic_profile.CANCER_STUDY_ID = #{internal_study_id}
+            and genetic_profile.GENETIC_ALTERATION_TYPE = "MUTATION_EXTENDED"
+                
+</select>
+
+<select id="getMutByType" resultType="CancerStudyAlterationFrequency">
+        select
+                genetic_profile.CANCER_STUDY_ID as internal_study_id,
+                mutation.ENTREZ_GENE_ID as entrez_gene_id,
+                mutation_event.MUTATION_TYPE as mutation_type,
+                COUNT(DISTINCT (CASE WHEN mutation_event.MUTATION_TYPE = #{type} THEN sample.PATIENT_ID END)) as mut
+        from mutation INNER JOIN genetic_profile ON genetic_profile.GENETIC_PROFILE_ID = mutation.GENETIC_PROFILE_ID
+                      INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
+                      INNER JOIN sample ON sample.INTERNAL_ID = mutation.SAMPLE_ID
+                      INNER JOIN patient on sample.PATIENT_ID = patient.INTERNAL_ID
+        where mutation.ENTREZ_GENE_ID = #{entrez_gene_id}
+            and genetic_profile.CANCER_STUDY_ID = #{internal_study_id}
+            and genetic_profile.GENETIC_ALTERATION_TYPE = "MUTATION_EXTENDED"
+                
+</select>
+
+<select id="getMutByPositionAndType" resultType="CancerStudyAlterationFrequency">
+        select
+                genetic_profile.CANCER_STUDY_ID as internal_study_id,
+                mutation.ENTREZ_GENE_ID as entrez_gene_id,
+                mutation_event.ONCOTATOR_PROTEIN_POS_START as position,
+                mutation_event.MUTATION_TYPE as mutation_type,
+                COUNT(DISTINCT (CASE WHEN mutation_event.MUTATION_TYPE = #{type} and 
+                                        mutation_event.ONCOTATOR_PROTEIN_POS_START = #{position} 
+                                        THEN sample.PATIENT_ID END)) as mut
+        from mutation INNER JOIN genetic_profile ON genetic_profile.GENETIC_PROFILE_ID = mutation.GENETIC_PROFILE_ID
+                      INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
+                      INNER JOIN sample ON sample.INTERNAL_ID = mutation.SAMPLE_ID
+                      INNER JOIN patient on sample.PATIENT_ID = patient.INTERNAL_ID
+        where mutation.ENTREZ_GENE_ID = #{entrez_gene_id}
+            and genetic_profile.CANCER_STUDY_ID = #{internal_study_id}
+            and genetic_profile.GENETIC_ALTERATION_TYPE = "MUTATION_EXTENDED"
+                
+</select>
+
+<select id="getNumPatients" resultType="java.lang.Integer">
+    select COUNT(*) from patient where patient.CANCER_STUDY_ID=#{internal_study_id}
+</select>
+
 <select id="getCna" resultType="CancerStudyAlterationFrequency">
 	select
                 CANCER_STUDY_ID as internal_study_id,

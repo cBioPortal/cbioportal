@@ -23,7 +23,7 @@ public class CancerStudyAlterationFrequency implements Serializable
 	public Long entrez_gene_id = null;
 	public Integer internal_study_id = null;
 	public Integer position = null;
-	public CancerStudyAlterationFrequency.MutationType mutation_type = null;
+	public String mutation_type = null;
 	public Integer mut = null;
 	public Integer amp = null;
 	public Integer del = null;

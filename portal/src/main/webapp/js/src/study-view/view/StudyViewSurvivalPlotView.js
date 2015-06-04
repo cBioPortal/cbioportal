@@ -662,18 +662,23 @@ var StudyViewSurvivalPlotView = (function() {
         _opts.plot.settings.chart_height = 250;
         _opts.plot.settings.chart_left = 70;
         _opts.plot.settings.chart_top = 5;
+        _opts.plot.settings.pval_x = 295;
+        _opts.plot.settings.pval_y = 35;
         _opts.plot.settings.include_legend = false;
         _opts.plot.settings.include_pvalue = false;
         _opts.plot.style.axisX_title_pos_x = 200;
         _opts.plot.style.axisX_title_pos_y = 295;
         _opts.plot.style.axisY_title_pos_x = -120;
         _opts.plot.style.axisY_title_pos_y = 20;
+        _opts.plot.style.pval_font_size = 10;
+        _opts.plot.style.pval_font_style = 'normal';
         _opts.plot.divs.curveDivId = "study-view-survival-plot-body-svg-" + _index;
         _opts.plot.divs.headerDivId = "";
         _opts.plot.divs.infoTableDivId = "study-view-survival-plot-table-" + _index;
         _opts.plot.text.infoTableTitles.total_cases = "#total cases";
         _opts.plot.text.infoTableTitles.num_of_events_cases = "#cases deceased";
         _opts.plot.text.infoTableTitles.median = "median months survival";
+        _opts.plot.text.pValTitle = 'p=';
         _opts.plot.qtipFunc = cbio.util.getLinkToSampleView;
         
         if(_key === 'DFS') {
@@ -685,7 +690,13 @@ var StudyViewSurvivalPlotView = (function() {
 
     function redrawView(_plotKey, _casesInfo) {
         var _color = "";
-        
+        var opts = {
+            settings:{
+                include_pvalue: false
+            }
+        };
+        var data = {};
+
         inputArr = [];
         kmEstimator = new KmEstimator();
         logRankTest = new LogRankTest();
@@ -733,6 +744,16 @@ var StudyViewSurvivalPlotView = (function() {
         var inputArrLength = inputArr.length;
         for (var i = 0; i < inputArrLength; i++) {
             survivalPlot[_plotKey].addCurve(inputArr[i]);
+        }
+
+        if(inputArrLength === 2) {
+            opts.settings.include_pvalue = true;
+            logRankTest.calc(inputArr[0].data.getData(), inputArr[1].data.getData(), function(_pval){
+                data.pval = _pval;
+                survivalPlot[_plotKey].updateView(data, opts);
+            });
+        }else{
+            survivalPlot[_plotKey].updateView({}, opts);
         }
     }
 
@@ -788,6 +809,9 @@ var StudyViewSurvivalPlotView = (function() {
             }
         }
 
+        if(curveInfo[_plotKey].size === 2) {
+            opts[_plotKey].plot.settings.include_pvalue = true;
+        }
         //We disabled pvalue calculation in here
         survivalPlot[_plotKey] = new SurvivalCurve();
         survivalPlot[_plotKey].init(inputArr, opts[_plotKey].plot);

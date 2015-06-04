@@ -227,7 +227,7 @@ define("OncoprintUtils", (function() {
         var mrnas = extract_unique(raw_gene_data, 'mrna');
         var rppas = extract_unique(raw_gene_data, 'rppa');
         var unsequenced = extract_unique(raw_gene_data,"genepanel",function(d){
-            if(d.genepanel)
+            if(d)
             {
                 return true;
             }

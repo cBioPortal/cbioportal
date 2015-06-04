@@ -125,8 +125,8 @@ var StudyViewInitCharts = (function(){
     
     function initData(dataObtained) {
         var _attrskeys = [], //number of keys for each attribute
-            _attr = $.extend(true, [], dataObtained.attr),
-            _arr = $.extend(true, [], dataObtained.arr),
+            _attr = dataObtained.attr,
+            _arr = dataObtained.arr,
             _attrLength = _attr.length,
             _arrLength = _arr.length,
             _studyDesc = "",
@@ -294,9 +294,9 @@ var StudyViewInitCharts = (function(){
                 varKeys['COPY_NUMBER_ALTERATIONS'].length > 0){
             initScatterPlot(_arr);
 
-            if(cancerStudyId.indexOf("mskimpact") !== -1){
-                initSurvialPlotPrep(_arr);
-            }
+            //if(cancerStudyId.indexOf("mskimpact") !== -1){
+            //    initSurvialPlotPrep(_arr);
+            //}
         }
         
         initTables();
@@ -531,14 +531,8 @@ var StudyViewInitCharts = (function(){
     }
     
     function initScatterPlot(_arr) {
-        var _attr = {};
-            
-        _attr.min_x = distanceMinMaxArray['COPY_NUMBER_ALTERATIONS'].min;
-        _attr.max_x = distanceMinMaxArray['COPY_NUMBER_ALTERATIONS'].max;
-        _attr.min_y = distanceMinMaxArray['MUTATION_COUNT'].min;
-        _attr.max_y = distanceMinMaxArray['MUTATION_COUNT'].max;
         
-        StudyViewInitScatterPlot.init(_arr, _attr);
+        StudyViewInitScatterPlot.init(_arr);
 
         $(".study-view-scatter-plot-delete").unbind('click');
         $(".study-view-scatter-plot-delete").click(function (){

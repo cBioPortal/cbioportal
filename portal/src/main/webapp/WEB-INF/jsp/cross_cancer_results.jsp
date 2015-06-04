@@ -62,10 +62,6 @@
 	geneList = geneList.replaceAll("\n", " ").replaceAll("\r", "").replaceAll("/", "_");
 	geneList = servletXssUtil.getCleanerInput(geneList);
 
-        
-
-    String bitlyUser = GlobalProperties.getBitlyUser();
-    String bitlyKey = GlobalProperties.getBitlyApiKey();
 %>
 
 <jsp:include page="global/header.jsp" flush="true"/>
@@ -115,21 +111,35 @@
 </table>
 
 <script>
-    //Set Event listener for the modify query button (expand the hidden form)
-    $("#modify_query_btn").click(function () {
-        $("#query_form_on_results_page").toggle();
-        if($("#modify_query_btn").hasClass("active")) {
-            $("#modify_query_btn").removeClass("active");
-        } else {
-            $("#modify_query_btn").addClass("active");    
-        }
+    $(document).ready(function() {
+        //Set Event listener for the modify query button (expand the hidden form)
+        $("#modify_query_btn").click(function () {
+            $("#query_form_on_results_page").toggle();
+            if($("#modify_query_btn").hasClass("active")) {
+                $("#modify_query_btn").removeClass("active");
+            } else {
+                $("#modify_query_btn").addClass("active");    
+            }
+        });
+        $("#toggle_query_form").click(function(event) {
+            event.preventDefault();
+            $('#query_form_on_results_page').toggle();
+            //  Toggle the icons
+            $(".query-toggle").toggle();
+        });
+        
+         $("a.result-tab").click(function(){
+            if($(this).attr("href")=="#bookmark_email") {
+                $("#bookmark-link").attr("href",window.location.href);
+            }
+        });
+
+        $("#bitly-generator").click(function() {
+             bitlyURL(window.location.href);
+        });
+
     });
-    $("#toggle_query_form").click(function(event) {
-        event.preventDefault();
-        $('#query_form_on_results_page').toggle();
-        //  Toggle the icons
-        $(".query-toggle").toggle();
-    });
+   
 </script>
 
 <!-- Crosscancer templates -->
@@ -229,14 +239,14 @@
         <div class="section" id="cc-bookmark">
             <h4>Right click</b> on the link below to bookmark your results or send by email:</h4>
             <br/>
-            <a href="<%=request.getAttribute(QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING)%>?tab_index=tab_visualize&cancer_study_id=all&gene_list={{genes}}&data_priority={{priority}}&Action=Submit">
+            <a  id="bookmark-link" href="#">
                 <%=request.getAttribute(QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING)%>?...
             </a>
             <br/>
             <br/>
 
             If you would like to use a <b>shorter URL that will not break in email postings</b>, you can use the<br><a href='https://bitly.com/'>bitly.com</a> service below:<BR>
-            <BR><form><input type="button" onClick="bitlyURL('<%=request.getAttribute(QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING)%>?tab_index=tab_visualize&cancer_study_id=all&gene_list={{genes}}&data_priority={{priority}}&Action=Submit', '<%=bitlyUser%>', '<%=bitlyKey%>')" value="Shorten URL"></form>
+            <BR><button type="button" id="bitly-generator">Shorten URL</button>
             <div id='bitly'></div>
         </div>
 

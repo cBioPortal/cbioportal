@@ -76,11 +76,11 @@ public final class DaoMutation {
                 mutation.getValidationMethod(),
                 mutation.getScore(),
                 mutation.getBamFile(),
-                mutation.getAminoAcidChange(),
                 Integer.toString(mutation.getTumorAltCount()),
                 Integer.toString(mutation.getTumorRefCount()),
                 Integer.toString(mutation.getNormalAltCount()),
-                Integer.toString(mutation.getNormalRefCount()));
+                Integer.toString(mutation.getNormalRefCount()),
+                mutation.getAminoAcidChange());
 
             if (newMutationEvent) {
                 return addMutationEvent(mutation.getEvent())+1;

@@ -219,6 +219,9 @@ legend.legend-border {
     color:#1974b8;
     margin-bottom: 0px;
 }
+#mutation_summary_table tbody tr div {
+    white-space: nowrap;
+}
 </style>
 
 <%if(showTimeline){%>

@@ -9,14 +9,23 @@ var profileSpec = (function() {
         });
         $("#" + ids.sidebar[axis].spec_div).append("</select>");
 
-        $("#" + ids.sidebar[axis].gene).change(function() {
-            regenerate_plots(axis);
-        });
-        
         if (axis === "y") {
-            $("#" + ids.sidebar.y.spec_div).append("<div id='" + 
-                    ids.sidebar.y.lock_gene + "-div' style='display:inline;'></div>");
+            $("#" + ids.sidebar.y.spec_div).append("<div id='" +
+            ids.sidebar.y.lock_gene + "-div' style='display:inline;'></div>");
         }
+
+        $("#" + ids.sidebar[axis].gene).change(function() {
+            if (axis === "y") {
+                regenerate_plots("y");
+            } else if (axis === "x") {
+                if(document.getElementById(ids.sidebar.y.lock_gene).checked) {
+                    regenerate_plots("xy");
+                } else {
+                    regenerate_plots("x");
+                }
+            }
+        });
+
     }   
     
     function appendProfileTypeList(axis) {
@@ -84,7 +93,7 @@ var profileSpec = (function() {
     function updateProfileNameList(axis) {
         $("#" + ids.sidebar[axis].profile_name).empty();
         append();
-        
+
         function append() {
             $.each(metaData.getGeneticProfilesMeta($("#" + ids.sidebar[axis].gene).val()), function(index, obj) {
                 if (obj.type === $("#" + ids.sidebar[axis].profile_type).val()) {
@@ -158,7 +167,6 @@ var profileSpec = (function() {
             $("#" + ids.sidebar.x.gene).change(function() {
                 if(document.getElementById(ids.sidebar.y.lock_gene).checked) {
                     $("#" + ids.sidebar.y.gene).prop("selectedIndex", $("#" + ids.sidebar.x.gene).prop("selectedIndex"));
-                    //regenerate_plots("y");
                 }
             });
         }

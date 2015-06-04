@@ -47,6 +47,8 @@ public class ImportClinicalData {
     public static final String SAMPLE_ID_COLUMN_NAME = "SAMPLE_ID";
     public static final String PATIENT_ID_COLUMN_NAME = "PATIENT_ID";
     public static final String SAMPLE_TYPE_COLUMN_NAME = "SAMPLE_TYPE";
+    private int numSampleSpecificClinicalAttributesAdded = 0;
+    private int numPatientSpecificClinicalAttributesAdded = 0;
 
 	private File clinicalDataFile;
 	private CancerStudy cancerStudy;
@@ -103,6 +105,15 @@ public class ImportClinicalData {
         BufferedReader buff = new BufferedReader(reader);
         List<ClinicalAttribute> columnAttrs = grabAttrs(buff);
 
+        int patientIdIndex = findPatientIdColumn(columnAttrs);
+        int sampleIdIndex = findSampleIdColumn(columnAttrs);
+
+        if (patientIdIndex <0 && sampleIdIndex < 0) {
+            System.out.println("Aborting!  Could not find:  " + PATIENT_ID_COLUMN_NAME
+                    + " or " + SAMPLE_ID_COLUMN_NAME + " in your file.");
+            System.out.println("Please check your file format and try again.");
+            System.exit(0);
+        }
         importData(buff, columnAttrs);
         
         if (MySQLbulkLoader.isBulkLoad()) {
@@ -202,7 +213,7 @@ public class ImportClinicalData {
     private void addDatum(String[] fields, List<ClinicalAttribute> columnAttrs) throws Exception
     {
         // attempt to add both a patient and sample to database
-        int patientIdIndex = findPatientIdColumn(columnAttrs); 
+        int patientIdIndex = findPatientIdColumn(columnAttrs);
         int internalPatientId = (patientIdIndex >= 0) ?
             addPatientToDatabase(fields[patientIdIndex]) : -1; 
         int sampleIdIndex = findSampleIdColumn(columnAttrs);
@@ -340,11 +351,21 @@ public class ImportClinicalData {
         // if bulk loading is ever turned off, we need to check if
         // attribute value exists and if so, perfom an update
         if (attrType.equals(ClinicalAttribute.PATIENT_ATTRIBUTE)) {
+            numPatientSpecificClinicalAttributesAdded++;
             DaoClinicalData.addPatientDatum(internalId, attrId, attrVal.trim());
         }
         else {
+            numSampleSpecificClinicalAttributesAdded++;
             DaoClinicalData.addSampleDatum(internalId, attrId, attrVal.trim());
         }
+    }
+
+    public int getNumSampleSpecificClinicalAttributesAdded() {
+        return numSampleSpecificClinicalAttributesAdded;
+    }
+
+    public int getNumPatientSpecificClinicalAttributesAdded() {
+        return numPatientSpecificClinicalAttributesAdded;
     }
 
     /**
@@ -378,13 +399,22 @@ public class ImportClinicalData {
 				ImportClinicalData importClinicalData = new ImportClinicalData(cancerStudy,
                                                                                clinical_f);
                 importClinicalData.importData();
-                System.out.println("Success!");
+
+                System.out.println("Total number of patient specific clinical attributes added:  "
+                        + importClinicalData.getNumPatientSpecificClinicalAttributesAdded());
+                System.out.println("Total number of sample specific clinical attributes added:  "
+                        + importClinicalData.getNumSampleSpecificClinicalAttributesAdded());
+                if (importClinicalData.getNumSampleSpecificClinicalAttributesAdded()
+                        + importClinicalData.getNumPatientSpecificClinicalAttributesAdded() == 0) {
+                    System.out.println("Error!  No data was addeded.  " +
+                            "Please check your file format and try again.");
+                } else {
+                    System.out.println("Success!");
+                }
 			}
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			System.err.println ("Error:  " + e.getMessage());
-        }
-		finally {
+        } finally {
             ConsoleUtil.showWarnings(pMonitor);
         }
     }

@@ -76,16 +76,15 @@ public class ExtendedMutationUtil
 	}
 
 	/**
-	 * Determines the most accurate amino acid change value for the given mutation.
+	 * Determines the most accurate protein change value for the given mutation.
 	 *
-	 * If there is an Oncotator value, returns that value.
-	 * If no Oncotator value, then tries Mutation Assessor value.
-	 * If no MA value either, then tries the amino_acid_change column
-	 * If none of the above is valid then returns "MUTATED"
+	 * If there is an annotator value, returns that value.
+	 * If no annotator value, then tries Amino Acid Change value.
+	 * If none of the above is valid then returns "MUTATED".
 	 *
 	 * @param parts     current mutation as split parts of the line
 	 * @param record    MAF record for the current line
-	 * @return          most accurate amino acid change
+	 * @return          most accurate protein change
 	 */
 	public static String getProteinChange(String[] parts, MafRecord record)
 	{
@@ -93,7 +92,13 @@ public class ExtendedMutationUtil
 		//String proteinChange = record.getOncotatorProteinChange();
 		String proteinChange = record.getProteinChange();
 
-		// if protein change is not valid, then use the string "MUTATED"
+		// if protein change is not valid, try amino acid change value
+		if (!isValidProteinChange(proteinChange))
+		{
+			proteinChange = record.getAminoAcidChange();
+		}
+
+		// if none is valid, then use the string "MUTATED"
 		if (!isValidProteinChange(proteinChange))
 		{
 			proteinChange = "MUTATED";

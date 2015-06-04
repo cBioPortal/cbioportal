@@ -277,10 +277,10 @@ define("Oncoprint",
                     {
                         for(var i=0; i < data.length; i++)
                         {
-                            var geneIndexValue;
                             var genepanelStableIdValue = genepanelValues.genepaneldatapatient[i].attr_val;
                             for(var j= 0; j < data[i].values.length; j++)
                             {
+                                var geneIndexValue;
                                 var genepanelStableId = genepanelStableIdValue.split(",");
                                 if(genepanelStableId.length>1)
                                 {
@@ -1130,7 +1130,14 @@ define("Oncoprint",
                     var attr2rangeValue = utils.attr_data_type2range(params.clinicalData, params.clinical_attrs.length,params.clinical_attrs,addmixlegend);
                     var attr2rangeFuntion = utils.make_attribute2scale(params.clinical_attrs, params.clinicalData);
                     if (params.legend) {
-                        utils.legend(params.legend,utils.gene_data_type2range(params.geneData), dims.label_width, attr2rangeValue,attr2rangeFuntion);
+                        if(topatientValue)
+                        {
+                            utils.legend(params.legend,utils.gene_data_type2range(newGeneData), dims.label_width, attr2rangeValue,attr2rangeFuntion);   
+                        }
+                        else
+                        {
+                            utils.legend(params.legend,utils.gene_data_type2range(params.geneData), dims.label_width, attr2rangeValue,attr2rangeFuntion);
+                        }
                     }
                     
                     //if multicolor state is on, then show multiple genetic legend

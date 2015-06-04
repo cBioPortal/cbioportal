@@ -58,7 +58,7 @@ import org.mskcc.cbio.portal.model.Patient;
  */
 public class ImportTimelineData {
 
-	private static void importData(String dataFile, String eventType, int cancerStudyId) throws IOException, DaoException {
+	private static void importData(String dataFile, int cancerStudyId) throws IOException, DaoException {
 		MySQLbulkLoader.bulkLoadOn();
 
 		System.out.print("Reading file " + dataFile + "\n");
@@ -166,7 +166,7 @@ public class ImportTimelineData {
 
 		//int cancerStudyId = cancerStudy.getInternalId();
 		//DaoClinicalEvent.deleteByCancerStudyId(cancerStudyId);
-		importData(dataFile, properties.getProperty("event_type"), cancerStudy.getInternalId());
+		importData(dataFile, cancerStudy.getInternalId());
 
 		System.out.println("Done!");
 	}

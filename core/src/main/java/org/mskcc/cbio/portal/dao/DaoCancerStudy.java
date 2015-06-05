@@ -323,6 +323,8 @@ public final class DaoCancerStudy {
                 "delete from mut_sig where CANCER_STUDY_ID=?;",
                 "delete from protein_array_data where CANCER_STUDY_ID=?;",
                 "delete from protein_array_cancer_study where CANCER_STUDY_ID=?;",
+                "delete from gene_panel_list where INTERNAL_ID IN (select INTERNAL_ID from gene_panel where CANCER_STUDY_ID=?);",
+                "delete from gene_panel where CANCER_STUDY_ID=?;",
                 "delete from cancer_study where CANCER_STUDY_ID=?;"
                 };
             for (String sql : sqls) {    

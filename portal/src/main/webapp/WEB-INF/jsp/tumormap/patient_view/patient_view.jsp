@@ -1110,13 +1110,16 @@ function outputClinicalData() {
     function formatDiseaseInfo(clinicalData) {
         var diseaseInfo = [];
         
-        var typeOfCancer = guessClinicalData(clinicalData,["TYPE_OF_CANCER", "CANCER_TYPE"]);
-        if (typeOfCancer!==null) {
-            var detailedCancerType = guessClinicalData(clinicalData,["DETAILED_CANCER_TYPE","CANCER_TYPE_DETAILED"]);
-            if (detailedCancerType!==null) {
-                typeOfCancer += " ("+detailedCancerType+")";
+        var caseType = guessClinicalData(clinicalData, ["TUMOR_TYPE","SAMPLE_TYPE"]);
+        if (caseType != null && normalizedCaseType(caseType.toLowerCase())==="primary") {
+            var typeOfCancer = guessClinicalData(clinicalData,["TYPE_OF_CANCER", "CANCER_TYPE"]);
+            if (typeOfCancer!==null) {
+                var detailedCancerType = guessClinicalData(clinicalData,["DETAILED_CANCER_TYPE","CANCER_TYPE_DETAILED"]);
+                if (detailedCancerType!==null) {
+                    typeOfCancer += " ("+detailedCancerType+")";
+                }
+                diseaseInfo.push(typeOfCancer);
             }
-            diseaseInfo.push(typeOfCancer);
         }
         
         var knowMolecularClassifier = guessClinicalData(clinicalData,["KNOWN_MOLECULAR_CLASSIFIER"]);

@@ -943,7 +943,7 @@ function outputClinicalData() {
                     is_expanded = false;
                 }
             });
-        } else if (n > 1) {
+        } else if (n > 0) {
             $("#clinical_div").append(svg_corner + head_recs.replace(/, <\/div>$/, "</div>"));
         }
         if (Object.keys(patientInfo).length > 0) {

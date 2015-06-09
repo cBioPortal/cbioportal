@@ -3,7 +3,6 @@ The cBioPortal Prostate Cancer is developed and maintained by the Computational 
 ## The team
 
  * Jianjiong Gao, MSKCC
- * B. Arman Aksoy, MSKCC
  * Benjamin Gross, MSKCC
  * Gideon Dresdner, MSKCC
  * Anders Jacobsen, MSKCC
@@ -23,6 +22,7 @@ The cBioPortal Prostate Cancer is developed and maintained by the Computational 
  * Michael Heuer
  * Caitlin Byrne, MSKCC
  * Sinan Sonlu, Bilkent University
+ * B. Arman Aksoy
 
 ## Funding for the cBioPortal for Prostate Cancer is provided in part from:
 

@@ -5,7 +5,6 @@ The cBioPortal for Cancer Genomics is developed and maintained by the [Center fo
  * Jianjiong Gao
  * Benjamin Gross
  * S. Onur Sumer
- * B. Arman Aksoy
  * Yichao Sun
  * Hongxin Zhang
  * Fred Criscuolo
@@ -30,6 +29,8 @@ The cBioPortal for Cancer Genomics is developed and maintained by the [Center fo
  * Anders Jacobsen
  * Erik Larsson, now at University of Gothenburg
  * Caitlin Byrne, MSKCC
+ * B. Arman Aksoy
+
 
 
 ## Funding for the cBioPortal for Cancer Genomics is provided in part from:

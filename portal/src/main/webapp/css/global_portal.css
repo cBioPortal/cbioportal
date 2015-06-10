@@ -599,16 +599,16 @@ td.op_data_cell{
 }
 
 #content A:link {
-        COLOR: #1974b8; text-decoration: none; !important;
+        COLOR: #1974b8; text-decoration: none; //!important;
 }
 #content A:visited {
-	COLOR: #1974b8; text-decoration: none; !important;
+	COLOR: #1974b8; text-decoration: none; //!important;
 }
 #content A:active {
-	COLOR: #1974b8; text-decoration: none; !important;
+	COLOR: #1974b8; text-decoration: none; //!important;
 }
 #content A:hover {
-	COLOR: #1974b8; text-decoration: none; !important;
+	COLOR: #1974b8; text-decoration: none; //!important;
 }
 
 .tip {

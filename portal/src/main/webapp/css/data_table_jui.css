@@ -34,14 +34,14 @@
 .paging_two_button .ui-button {
 	float: left;
 	cursor: pointer;
-	* cursor: hand;
+	cursor: hand;
 }
 
 .paging_full_numbers .ui-button {
 	padding: 2px 6px;
 	margin: 0;
 	cursor: pointer;
-	* cursor: hand;
+	cursor: hand;
 }
 
 .dataTables_paginate .ui-button {
@@ -67,7 +67,7 @@
 table.display thead th {
 	padding: 3px 0px 3px 10px;
 	cursor: pointer;
-	* cursor: hand;
+	cursor: hand;
 }
 
 div.dataTables_wrapper .ui-widget-header {

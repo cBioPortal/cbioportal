@@ -118,7 +118,7 @@
             border: 2px solid #1974b8;
         }
         .gistic_selected_gene {
-            #background:#DDD;
+            background:#DDD;
             font-weight:bold;
         }
         .gistic_amp {

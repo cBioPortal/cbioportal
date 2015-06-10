@@ -43,10 +43,18 @@ var StudyViewInitScatterPlot = (function() {
         scatterPlotDataAttr = {},
         scatterPlotOptions = {},
         dcCharts = [],
-        clearFlag = false;
+        clearFlag = false,
+        boundaryVal = {
+            max_x: '',
+            max_y: '',
+            min_x: '',
+            min_y: ''
+        };
     
-    function initData(_arr, _attr) {
-        arr = jQuery.extend(true, [], _arr);
+    function initData(_arr) {
+        getMinMax(_arr);
+
+        arr = _arr;
         arrLength = arr.length;
         
         for ( var i = 0; i < arrLength; i++) {
@@ -77,10 +85,10 @@ var StudyViewInitScatterPlot = (function() {
         scatterPlotDataAttr = jQuery.extend(true, {}, StudyViewBoilerplate.scatterPlotDataAttr);
         scatterPlotOptions = jQuery.extend(true, {}, StudyViewBoilerplate.scatterPlotOptions);    
         
-        scatterPlotDataAttr.min_x = _attr.min_x;
-        scatterPlotDataAttr.max_x = _attr.max_x;
-        scatterPlotDataAttr.min_y = _attr.min_y;
-        scatterPlotDataAttr.max_y = _attr.max_y;
+        scatterPlotDataAttr.min_x = boundaryVal.min_x;
+        scatterPlotDataAttr.max_x = boundaryVal.max_x;
+        scatterPlotDataAttr.min_y = boundaryVal.min_y;
+        scatterPlotDataAttr.max_y = boundaryVal.max_y;
     }
     
     function initComponent() {
@@ -138,7 +146,7 @@ var StudyViewInitScatterPlot = (function() {
                             "</div>"+
                             "<br>"+
                             "<div style='display:inline-block;'>"+
-                            "<button id='study-view-scatter-plot-tsv' style=\"width:50px\">DATA</button>"+
+                            "<button id='study-view-scatter-plot-tsv' style=\"width:50px\">TXT</button>"+
                             "</div>"
                 },
                 events: {
@@ -176,7 +184,8 @@ var StudyViewInitScatterPlot = (function() {
                             }
 //
                             var downloadOpts = {
-                                filename: cancerStudyName + "_" + _title + ".txt",
+//                                filename: cancerStudyName + "_" + _title + ".txt",
+                                filename: StudyViewParams.params.studyId + "_" + _title + ".txt",
                                 contentType: "text/plain;charset=utf-8",
                                 preProcess: false
                             };
@@ -462,10 +471,49 @@ var StudyViewInitScatterPlot = (function() {
                 StudyViewInitCharts.getDataAndDrawMarker([clickedCaseId]);
         }
     }
-    
+
+    /*
+
+    Calculate maximum and minimum value of mutation counts and copy number alteration
+
+    Min Max value in StudyViewInitCharts are calculated based on single attribute.
+    But the situation may exist which is the sample with max value of mutation count(CNA)
+    may not have CNA(mutation count).
+
+    In this case, we need to recalculate the max and min value in all samples.
+    */
+    function getMinMax(_arr){
+        var initialed = false;
+        _arr.forEach(function(sample, index){
+            if(sample.hasOwnProperty('COPY_NUMBER_ALTERATIONS') && sample.hasOwnProperty('MUTATION_COUNT')){
+                //Directly assign value of first sample to variable boundaryVal
+                if(!isNaN(sample.COPY_NUMBER_ALTERATIONS) && !isNaN(sample.MUTATION_COUNT)){
+                    if (!initialed) {
+                        boundaryVal.max_x = boundaryVal.min_x = sample.COPY_NUMBER_ALTERATIONS;
+                        boundaryVal.max_y = boundaryVal.min_y = sample.MUTATION_COUNT;
+                        initialed = true;
+                    } else {
+                        if (sample.COPY_NUMBER_ALTERATIONS < boundaryVal.min_x) {
+                            boundaryVal.min_x = sample.COPY_NUMBER_ALTERATIONS;
+                        }
+                        if (sample.COPY_NUMBER_ALTERATIONS > boundaryVal.max_x) {
+                            boundaryVal.max_x = sample.COPY_NUMBER_ALTERATIONS;
+                        }
+                        if (sample.MUTATION_COUNT < boundaryVal.min_y) {
+                            boundaryVal.min_y = sample.MUTATION_COUNT;
+                        }
+                        if (sample.MUTATION_COUNT > boundaryVal.max_y) {
+                            boundaryVal.max_y = sample.MUTATION_COUNT;
+                        }
+                    }
+                }
+            }
+        });
+    }
+
     return {
-        init: function(_arr, _attr) {
-            initData(_arr, _attr);
+        init: function(_arr) {
+            initData(_arr);
             initPage();
             initComponent();
             initStatus = true;

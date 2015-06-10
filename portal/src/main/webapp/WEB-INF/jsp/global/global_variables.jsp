@@ -169,8 +169,6 @@
 
     //General site info
     String siteTitle = GlobalProperties.getTitle();
-    String bitlyUser = GlobalProperties.getBitlyUser();
-    String bitlyKey = GlobalProperties.getBitlyApiKey();
 
     request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::Results");
 
@@ -397,10 +395,13 @@
         patientIdArray = _.uniq(patientIdArray);
         //Oncoprint summary lines
         $("#oncoprint_sample_set_description").append(window.PortalGlobals.getPatientSetDescription() + 
-            "(" + window.PortalGlobals.getNumOfTotalCases() + " samples"+" / "+patientIdArray.length + " patients)");
+            "("+patientIdArray.length + " patients / " + window.PortalGlobals.getNumOfTotalCases() + " samples)");
         $("#oncoprint_sample_set_name").append(window.PortalGlobals.getPatientSetName());
         $("#oncoprint_num_of_altered_cases").append(window.PortalGlobals.getNumOfAlteredCases());
         $("#oncoprint_percentage_of_altered_cases").append(window.PortalGlobals.getPercentageOfAlteredCases());
+        if (patientIdArray.length !== window.PortalGlobals.getNumOfTotalCases()) {
+            $("#switchPatientSample").show();
+        }
 
     });
 

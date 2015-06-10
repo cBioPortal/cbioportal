@@ -239,7 +239,7 @@ var scatterPlots = (function() {
         });
         
         if (genetic_vs_genetic()) {
-            if ($("input[name=" + ids.sidebar.util.view_switch + "]:checked").val() === "gistic" && isSameGene() && stat.hasCnaAnno) { 
+            if ($("input[name=" + ids.sidebar.util.view_switch + "]:checked").val() === "gistic" && isSameGene() && stat.hasCnaAnno) {
                 //gistic view (only apply to one gene and having cna profile data case)
                 elem.dotsGroup.selectAll("path")
                     .data(data)

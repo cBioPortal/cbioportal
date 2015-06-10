@@ -32,6 +32,12 @@ import gdata.docs.client
 import gdata.docs.service
 import gdata.spreadsheet.service
 
+import httplib2
+from oauth2client import client
+from oauth2client.file import Storage
+from oauth2client.client import flow_from_clientsecrets
+from oauth2client.tools import run_flow, argparser
+
 from email.MIMEMultipart import MIMEMultipart
 from email.MIMEBase import MIMEBase
 from email.MIMEText import MIMEText
@@ -78,9 +84,6 @@ PORTAL_NAME = { GDAC_USER_SPREADSHEET : "gdac-portal",
                 TRIAGE_USER_SPREADSHEET : "triage-portal",
                 GENIE_USER_SPREADSHEET : "genie",
                 SU2C_KRAS_USER_SPREADSHEET : "kras" }
-
-# a ref to the google spreadsheet client - used for all i/o to google spreadsheet
-GOOGLE_SPREADSHEET_CLIENT = gdata.spreadsheet.service.SpreadsheetsService()
 
 # column constants on google spreadsheet
 FULLNAME_KEY = "fullname"
@@ -233,13 +236,30 @@ def send_mail(to, subject, body, server=SMTP_SERVER):
 
 # logs into google spreadsheet client
 
-def google_login(user, pw):
+def get_gdata_credentials(secrets, creds, scope, force=False):
+    storage = Storage(creds)
+    credentials = storage.get()
+    if credentials is None or credentials.invalid or force:
+      credentials = run_flow(flow_from_clientsecrets(secrets, scope=scope), storage, argparser.parse_args([]))
+      
+    if credentials.access_token_expired:
+        credentials.refresh(httplib2.Http())
+        
+    return credentials
 
-    # google spreadsheet
-    GOOGLE_SPREADSHEET_CLIENT.email = user
-    GOOGLE_SPREADSHEET_CLIENT.password = pw
-    GOOGLE_SPREADSHEET_CLIENT.source = sys.argv[0]
-    GOOGLE_SPREADSHEET_CLIENT.ProgrammaticLogin()
+def google_login(secrets, creds, user, pw, app_name):
+
+	credentials = get_gdata_credentials(secrets, creds, ["https://spreadsheets.google.com/feeds"], False)
+	client = gdata.spreadsheet.service.SpreadsheetsService(additional_headers={'Authorization' : 'Bearer %s' % credentials.access_token})
+
+	# google spreadsheet
+	client.email = user
+	client.password = pw
+	client.source = app_name
+	client.ProgrammaticLogin()
+
+	return client
+
 
 # ------------------------------------------------------------------------------
 # given a feed & feed name, returns its id
@@ -258,12 +278,12 @@ def get_feed_id(feed, name):
 # ------------------------------------------------------------------------------
 # gets a worksheet feed
 
-def get_worksheet_feed(ss, ws):
+def get_worksheet_feed(client, ss, ws):
 
-    ss_id = get_feed_id(GOOGLE_SPREADSHEET_CLIENT.GetSpreadsheetsFeed(), ss)
-    ws_id = get_feed_id(GOOGLE_SPREADSHEET_CLIENT.GetWorksheetsFeed(ss_id), ws)
+    ss_id = get_feed_id(client.GetSpreadsheetsFeed(), ss)
+    ws_id = get_feed_id(client.GetWorksheetsFeed(ss_id), ws)
     
-    return GOOGLE_SPREADSHEET_CLIENT.GetListFeed(ss_id, ws_id)
+    return client.GetListFeed(ss_id, ws_id)
 
 # ------------------------------------------------------------------------------
 # insert new users into table - this list does not contain users already in table
@@ -504,10 +524,10 @@ def update_user_authorities(spreadsheet, cursor, worksheet_feed, portal_name):
 # Adds unknown users to user spreadsheet. MSKCC users are given default access.
 # during MSK signon.  If this happens, we want to make sure they get into the google
 # spreadsheet for tracking purposes.
-def add_unknown_users_to_spreadsheet(cursor, spreadsheet, worksheet):
+def add_unknown_users_to_spreadsheet(client, cursor, spreadsheet, worksheet):
 
     # get map of all users in google spreadsheet and portal database
-    worksheet_feed = get_worksheet_feed(spreadsheet, worksheet)
+    worksheet_feed = get_worksheet_feed(client, spreadsheet, worksheet)
     google_spreadsheet_user_map = get_all_user_map(spreadsheet, worksheet_feed)
     portal_db_user_map = get_current_user_map(cursor)
     current_time = time.strftime("%m/%d/%y %H:%M:%S")
@@ -524,21 +544,21 @@ def add_unknown_users_to_spreadsheet(cursor, spreadsheet, worksheet):
                 row = { TIMESTAMP_KEY : current_time, MSKCC_EMAIL_KEY : user.inst_email, FULLNAME_KEY : user_name_parts[0], LAB_PI_KEY : user_name_parts[1], STATUS_KEY : STATUS_APPROVED, AUTHORITIES_KEY : def_authorities }
             else:
                 row = { TIMESTAMP_KEY : current_time, MSKCC_EMAIL_KEY : user.inst_email, FULLNAME_KEY : user.name, STATUS_KEY : STATUS_APPROVED, AUTHORITIES_KEY : def_authorities }
-            add_row_to_google_worksheet(spreadsheet, worksheet, row)
+            add_row_to_google_worksheet(client, spreadsheet, worksheet, row)
 
 
 # ------------------------------------------------------------------------------
 # adds a row to the google spreadsheet
-def add_row_to_google_worksheet(spreadsheet, worksheet, row):
-    ss_id = get_feed_id(GOOGLE_SPREADSHEET_CLIENT.GetSpreadsheetsFeed(), spreadsheet)
-    ws_id = get_feed_id(GOOGLE_SPREADSHEET_CLIENT.GetWorksheetsFeed(ss_id), worksheet)
-    GOOGLE_SPREADSHEET_CLIENT.InsertRow(row, ss_id, ws_id);
+def add_row_to_google_worksheet(client, spreadsheet, worksheet, row):
+    ss_id = get_feed_id(client.GetSpreadsheetsFeed(), spreadsheet)
+    ws_id = get_feed_id(client.GetWorksheetsFeed(ss_id), worksheet)
+    client.InsertRow(row, ss_id, ws_id);
 
 # ------------------------------------------------------------------------------
 # displays program usage (invalid args)
 
 def usage():
-    print >> OUTPUT_FILE, 'importUsers.py --properties-file [properties file] --send-email-confirm [true or false] --use-institutional-id [true or false]'
+    print >> OUTPUT_FILE, 'importUsers.py --secrets-file [google secrets.json] --creds-file [oauth creds filename] --properties-file [properties file] --send-email-confirm [true or false] --use-institutional-id [true or false]'
 
 # ------------------------------------------------------------------------------
 # the big deal main.
@@ -547,23 +567,29 @@ def main():
 
     # parse command line options
     try:
-        opts, args = getopt.getopt(sys.argv[1:], '', ['properties-file=', 'send-email-confirm=', 'use-institutional-id='])
+        opts, args = getopt.getopt(sys.argv[1:], '', ['secrets-file=', 'creds-file=', 'properties-file=', 'send-email-confirm=', 'use-institutional-id='])
     except getopt.error, msg:
         print >> ERROR_FILE, msg
         usage()
         sys.exit(2)
 
     # process the options
-    properties_filename = ''
-    send_email_confirm = ''
+	secrets_filename = ''
+	creds_filename = ''
+	properties_filename = ''
+	send_email_confirm = ''
 
     for o, a in opts:
-        if o == '--properties-file':
-            properties_filename = a
-        elif o == '--send-email-confirm':
-            send_email_confirm = a
+		if o == '--secrets-file':
+			secrets_filename = a
+		elif o == '--creds-file':
+			creds_filename = a
+		elif o == '--properties-file':
+			properties_filename = a
+		elif o == '--send-email-confirm':
+			send_email_confirm = a
 
-    if (properties_filename == '' or send_email_confirm == '' or 
+    if (secrets_filename == '' or creds_filename == '' or properties_filename == '' or send_email_confirm == '' or 
         (send_email_confirm != 'true' and send_email_confirm != 'false')):
         usage()
         sys.exit(2)
@@ -590,14 +616,14 @@ def main():
         return
 
     # login to google and get spreadsheet feed
-    google_login(portal_properties.google_id, portal_properties.google_pw)
+    client = google_login(secrets_filename, creds_filename, portal_properties.google_id, portal_properties.google_pw, sys.argv[0])
 
     google_spreadsheets = portal_properties.google_spreadsheet.split(';')
 
     for google_spreadsheet in google_spreadsheets:
         print >> OUTPUT_FILE, 'Importing ' + google_spreadsheet + ' ...'
 
-        worksheet_feed = get_worksheet_feed(google_spreadsheet,
+        worksheet_feed = get_worksheet_feed(client, google_spreadsheet,
                                             portal_properties.google_worksheet)
 
         # the 'guts' of the script
@@ -618,7 +644,7 @@ def main():
                               MESSAGE_BODY[google_spreadsheet])
 
         if google_spreadsheet == MSKCC_USER_SPREADSHEET:
-            add_unknown_users_to_spreadsheet(cursor, google_spreadsheet, portal_properties.google_worksheet)
+            add_unknown_users_to_spreadsheet(client, cursor, google_spreadsheet, portal_properties.google_worksheet)
 
     # clean up
     cursor.close()

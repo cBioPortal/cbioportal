@@ -166,6 +166,9 @@ if (patientViewError!=null) {
     </p>
 <%}%>
 
+<div id="nav_div">
+</div>
+
 <div id="clinical_div">
 </div>
 
@@ -881,11 +884,7 @@ function outputClinicalData() {
     var n=caseIds.length;
     if (n>1) initCaseMetaData();
     
-    // first row -- cancer study and nav
-    //$("#clinical_table").append("<tr><td>"+formatCancerStudyInfo()+"</td><td>"+formatNav()+"</td>");
     initNav();
-    // formatNav()
-    
 
     if (isPatientView) {
         // patient info
@@ -918,10 +917,13 @@ function outputClinicalData() {
             sample_recs += "<b><u><a style='color: #1974b8;' href='"+cbio.util.getLinkToSampleView(cancerStudyId,caseId)+"'>"+caseId+"</a></b></u><a>&nbsp;"
             
             var sampleData = {};
-            if (clinicalDataMap.length > 0) {
-                sampleData = {"SAMPLE_TYPE":clinicalDataMap[caseId].SAMPLE_TYPE || "N/A",
-                              "METASTATIC_SITE":clinicalDataMap[caseId].METASTATIC_SITE || "N/A",
-                              "PRIMARY_SITE":clinicalDataMap[caseId].PRIMARY_SITE || "N/A"};
+            if (Object.keys(clinicalDataMap).length > 0) {
+                var info_keys = ["SAMPLE_TYPE", "METASTATIC_SITE", "PRIMARY_SITE"];
+                for (var j=0; j < info_keys.length; j++) {
+                    if (info_keys[j] in clinicalDataMap[caseId]) {
+                        sampleData[info_keys[j]] = clinicalDataMap[caseId][info_keys[j]];
+                    }
+                }
             }
             var info = [];
             info = info.concat(formatStateInfo(sampleData));
@@ -1089,15 +1091,20 @@ function outputClinicalData() {
 
     function formatNav() {
         if (!CaseNavigation.hasNavCaseIds()) return "";
-        return "<ul class='pager' style='float:right;'>Viewing #"+(CaseNavigation.currPosition()+1)+" of "+CaseNavigation.numOfNavCases()+" cases&nbsp&nbsp;"
+        return "<ul class='pager' style='margin-top:0;margin-bottom:0px;'>"
                     + "<li id='case-navigate-first'><a "+(CaseNavigation.hasPrevious()?("href='"+CaseNavigation.first()+"'"):"")+">&lt;&lt;</a></li>&nbsp;"
                     + "<li id='case-navigate-previous'><a "+(CaseNavigation.hasPrevious()?("href='"+CaseNavigation.previous()+"'"):"")+">&nbsp;&lt;&nbsp;</a></li>&nbsp;"
                     + "<li id='case-navigate-next'><a "+(CaseNavigation.hasNext()?("href='"+CaseNavigation.next()+"'"):"")+">&nbsp;&gt;&nbsp;</a></li>&nbsp;"
-                    + "<li id='case-navigate-last'><a "+(CaseNavigation.hasNext()?("href='"+CaseNavigation.last()+"'"):"")+">&gt;&gt;</a></li></ul>";
+                    + "<li id='case-navigate-last'><a "+(CaseNavigation.hasNext()?("href='"+CaseNavigation.last()+"'"):"")+">&gt;&gt;</a></li>"
+                    + "&nbsp&nbsp;Viewing #"+(CaseNavigation.currPosition()+1)+" of "+CaseNavigation.numOfNavCases()+" cases"
+                    + "</ul>";
     }
     
     function initNav() {
         if (!CaseNavigation.hasNavCaseIds()) return;
+       
+        $("#nav_div").append(formatNav());
+        
         if (!CaseNavigation.hasPrevious()) {
             $("#case-navigate-first").addClass("disabled");
             $("#case-navigate-previous").addClass("disabled");

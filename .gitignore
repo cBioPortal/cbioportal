@@ -75,4 +75,4 @@ nbactions.xml
 */.settings/*
 */.classpath
 */.project
-*/dependency-reduced-pom.xml
+dependency-reduced-pom.xml

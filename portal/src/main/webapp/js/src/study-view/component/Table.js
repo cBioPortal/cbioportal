@@ -96,9 +96,9 @@ var Table = function() {
             "<div id='"+divs.headerId+"'style='height: 16px; width:100%; float:left; text-align:center;'>"+
                 "<div class='titleWrapper' id='"+divs.titleWrapperId+"'>"+
                     "<img id='"+divs.reloadId+"' class='study-view-title-icon hidden hover' src='images/reload-alt.svg'/>"+    
-                        "<div id='"+divs.downloadWrapperId+"' class='study-view-download-icon'>" +
-                            "<img id='"+divs.downloadId+"' style='float:left' src='images/in.svg'/>"+
-                        "</div>"+
+//                    "<div id='"+divs.downloadWrapperId+"' class='study-view-download-icon'>" +
+//                        "<img id='"+divs.downloadId+"' style='float:left' src='images/in.svg'/>"+
+//                    "</div>"+
                     "<img class='study-view-drag-icon' src='images/move.svg'/>"+
                     "<span id='"+divs.deleteIconId+"' class='study-view-tables-delete'>x</span>"+
                 "</div>"+
@@ -195,6 +195,7 @@ var Table = function() {
             altTypeIndex = -1,
             cytobandIndex = -1,
             samplesIndex = -1,
+            qvalIndex = -1,
             unvisiable = [];
         
         attr.forEach(function(e, i){
@@ -210,7 +211,10 @@ var Table = function() {
             if(e.name === 'samples') {
                 samplesIndex = i;
             }
-            if(!e.hasOwnProperty('displayName') || e.name === 'caseIds'){
+            if(e.name === 'qval') {
+                qvalIndex = i;
+            }
+            if(e.hidden){
                 unvisiable.push(i);
             }
         });
@@ -287,6 +291,20 @@ var Table = function() {
                         }else {
                             str = _gene;
                         }
+
+                        if(qvalIndex !== -1 && attr[qvalIndex].displayName && source[qvalIndex]) {
+                            var _displayName = attr[qvalIndex].displayName.toString().toLowerCase();
+                            str += '<span class="hasQtip" qtip="<b>'+ attr[qvalIndex].displayName +'</b><br/><i>Q-value</i>: ' + source[qvalIndex] + '"><svg width="14" height="14"><g transform="translate(8, 8)"><circle r="5" stroke="#55C" fill="none"></circle><text x="-3" y="3" font-size="7" fill="#66C">';
+                            if(_displayName.indexOf('mutsig') !== -1 && source[qvalIndex]){
+                                str += 'M';
+                            }else if(_displayName.indexOf('gistic') !== -1 && source[qvalIndex]){
+                                str += 'G';
+                            }else {
+                                str += 'Q';
+                            }
+                            str += '</text></g></svg></span>';
+                        }
+
                         return str;
                     }
                     return _gene;
@@ -296,12 +314,7 @@ var Table = function() {
             dataTableOpts.fnDrawCallback = function() {
                 $('#'+ divs.tableId).find('span.hasQtip').each(function(e, i) {
                     $(this).qtip('destroy', true);
-                    $(this).qtip({
-                        content: {text: $(this).attr('qtip')},
-                        hide: { fixed: true, delay: 100 },
-                        style: { classes: 'qtip-light qtip-rounded qtip-shadow', tip: true },
-                        position: {my:'center left',at:'center right',viewport: $(window)}
-                    });
+                    qtip(this, $(this).attr('qtip'));
                 });
                 
                 $('#'+ divs.tableId).find('table tbody tr td.clickable').unbind('hover');
@@ -316,6 +329,16 @@ var Table = function() {
         }
         dataTable = $('#'+ divs.tableId +' table').dataTable(dataTableOpts);
     }
+
+    function qtip(el, tip) {
+        $(el).qtip({
+            content: {text: tip},
+            show: {event: "mouseover"},
+            hide: {fixed: true, delay: 200, event: "mouseout"},
+            style: { classes: 'qtip-light qtip-rounded' },
+            position: {my:'top right',at:'bottom center',viewport: $(window)}
+        });
+    }
     
     function redraw(data, callback) {
         dataTable.api().destroy();
@@ -329,63 +352,6 @@ var Table = function() {
     }
     
     function addEvents() {
-        $('#' + divs.tableId + '-download-icon').qtip('destroy', true);
-        $('#' + divs.tableId + '-download-icon-wrapper').qtip('destroy', true);
-        
-        $('#' + divs.tableId + '-download-icon-wrapper').qtip({
-            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
-            show: {event: "mouseover", delay: 0},
-            hide: {fixed:true, delay: 100, event: "mouseout"},
-            position: {my:'bottom left',at:'top right', viewport: $(window)},
-            content: {
-                text:   "Download"
-            }
-        });
-        
-        $('#' + divs.tableId + '-download-icon').qtip({
-            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
-            show: {event: "click", delay: 0},
-            hide: {fixed:true, delay: 100, event: "mouseout "},
-            position: {my:'top center',at:'bottom center', viewport: $(window)},
-            content: {
-                text:
-                        "<div style='display:inline-block;'>"+
-                        "<button id='"+divs.tableId+"-tsv' style=\"width:50px\">DATA</button>"+
-                        "</div>"
-            },
-            events: {
-                show: function() {
-                    $('#' + divs.tableId + '-download-icon-wrapper').qtip('api').hide();
-                },
-                render: function() {
-                    $("#"+divs.tableId+"-tsv").click(function(){
-                        var content = '';
-                        
-                        attr.forEach(function(e) {
-                            content = content + (e.displayName||'Unknown') + '\t';
-                        });
-                        content = content.slice(0,-1);
-
-                        arr.forEach(function(e){
-                            content += '\r\n';
-                            attr.forEach(function(e1){
-                                content += e[e1.name] + '\t';
-                            });
-                            content = content.slice(0,-1);
-                        });
-                        
-                        var downloadOpts = {
-                            filename: cancerStudyName + "_" + divs.title + ".txt",
-                            contentType: "text/plain;charset=utf-8",
-                            preProcess: false
-                        };
-
-                        cbio.download.initDownload(content, downloadOpts);
-                    });
-                }
-            }
-        });
-        
         deleteTable();
     }
     

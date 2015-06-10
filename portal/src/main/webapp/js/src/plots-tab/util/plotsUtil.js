@@ -139,7 +139,8 @@ var mutationTranslator = function(mutationDetail) {
 var discretized_cna_profile_keywords = [
     "_cna",
     "_cna_rae",
-    "_gistic"
+    "_gistic",
+    "_cna_consensus"
 ];
 
 var is_profile_discretized = function(axis) {

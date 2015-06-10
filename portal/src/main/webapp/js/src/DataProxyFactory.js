@@ -80,10 +80,11 @@ var DataProxyFactory = (function()
 
 			// init mutation data proxy with the data servlet config
 			var proxy = new MutationDataProxy({
+				servletName: servletName,
 				geneList: PortalGlobals.getGeneListString(),
 				params: servletParams
 			});
-			proxy.initWithoutData(servletName);
+			proxy.init();
 
 			// update singleton reference
 			_defaultMutationDataProxy = proxy;

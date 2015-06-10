@@ -8,6 +8,7 @@ var profileSpec = (function() {
                     "<option value='" + value + "'>" + value + "</option>");
         });
         $("#" + ids.sidebar[axis].spec_div).append("</select>");
+
         $("#" + ids.sidebar[axis].gene).change(function() {
             regenerate_plots(axis);
         });
@@ -43,7 +44,7 @@ var profileSpec = (function() {
 //            $("#" + ids.sidebar[axis].profile_type).empty();
 //            append();
 //        });
-        
+
         $("#" + ids.sidebar[axis].profile_type).change(function() {
             regenerate_plots(axis);
         });
@@ -73,7 +74,7 @@ var profileSpec = (function() {
             $("#" + ids.sidebar[axis].profile_name).empty();
             append();
         });
-        
+
         $("#" + ids.sidebar[axis].profile_name).change(function() {
             regenerate_plots(axis);
         });
@@ -94,11 +95,12 @@ var profileSpec = (function() {
             appendLogScaleOption(axis);
 
         };
+
         $("#" + ids.sidebar[axis].profile_type).change(function() {
             $("#" + ids.sidebar[axis].profile_name).empty();
             append();
         });
-        
+
         $("#" + ids.sidebar[axis].profile_name).change(function() {
             regenerate_plots(axis);
         });
@@ -112,9 +114,11 @@ var profileSpec = (function() {
 //        $("#" + ids.sidebar[axis].gene).change(function() {
 //            append();
 //        });
+
         $("#" + ids.sidebar[axis].profile_type).change(function() {
             append();
         });
+
         $("#" + ids.sidebar[axis].profile_name).change(function() {
             append();
         });
@@ -154,7 +158,7 @@ var profileSpec = (function() {
             $("#" + ids.sidebar.x.gene).change(function() {
                 if(document.getElementById(ids.sidebar.y.lock_gene).checked) {
                     $("#" + ids.sidebar.y.gene).prop("selectedIndex", $("#" + ids.sidebar.x.gene).prop("selectedIndex"));
-                    regenerate_plots("y");
+                    //regenerate_plots("y");
                 }
             });
         }

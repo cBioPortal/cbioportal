@@ -302,7 +302,7 @@ define("Oncoprint",
                                     geneIndexValue = _.find(genepanelValues.genepanel[genepanelStableId[0]].geneList, function(gene){return gene === data[i].values[j].gene; }); 
                                 }
                                 
-                                if(data[i].values[j].gene !== undefined && geneIndexValue && data[i].values[j].mutation === undefined)
+                                if(data[i].values[j].gene !== undefined && !geneIndexValue && data[i].values[j].mutation === undefined)
                                 {
                                     data[i].values[j].genepanel = true; 
                                 }
@@ -320,7 +320,7 @@ define("Oncoprint",
                             for(var j= 0; j < data[i].values.length; j++)
                             {
                                 var geneIndexValue = _.find(genepanelValues.genepanel[genepanelStableId].geneList, function(gene){ return gene ===data[i].values[j].gene; }); 
-                                if(data[i].values[j].gene !== undefined && geneIndexValue && data[i].values[j].mutation === undefined)
+                                if(data[i].values[j].gene !== undefined && !geneIndexValue && data[i].values[j].mutation === undefined)
                                 {
                                     data[i].values[j].genepanel = true; 
                                 }

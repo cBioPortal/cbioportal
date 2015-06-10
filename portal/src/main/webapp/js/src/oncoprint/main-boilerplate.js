@@ -1826,7 +1826,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                 var totalPatientsNum = _.union(AlteredPatientsNum,UnalteredPatientsNum);
                 var percentOfAlteredPatients = Math.ceil((AlteredPatientsNum.length/totalPatientsNum.length * 100).toFixed(1));
                 
-                $('#altered_value').text("Altered in "+ AlteredPatientsNum.length + "("+ percentOfAlteredPatients +"%) "+totalPatientsNum.length+" of patients/cases");
+                $('#altered_value').text("Altered in "+ AlteredPatientsNum.length + "("+ percentOfAlteredPatients +"%) of " + totalPatientsNum.length+ " patients/cases");
                 
                 showPatientIdflat = true;
                 refreshOncoPrint(showPatientIdflat);
@@ -1875,7 +1875,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                 showPatientIdflat = false;
                 refreshOncoPrint();
                 
-                $('#altered_value').text("Altered in "+ PortalGlobals.getNumOfAlteredCases() + "("+ Math.ceil(PortalGlobals.getPercentageOfAlteredCases()) +"%) "+PortalGlobals.getNumOfTotalCases()+" of samples");
+                $('#altered_value').text("Altered in "+ PortalGlobals.getNumOfAlteredCases() + "("+ Math.ceil(PortalGlobals.getPercentageOfAlteredCases()) +"%) of "+PortalGlobals.getNumOfTotalCases()+" samples");
                 
                 var zoomvalue = $('#oncoprint_zoom_slider')[0].value;
                 zoom = reset_zoom();

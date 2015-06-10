@@ -530,8 +530,11 @@ define("OncoprintUtils", (function() {
         }, 0)
         .value();
 
-        var percent = (altered / total) * 100;
-        //attr2percent[gene.key] = Math.round(percent);
+        var genepanelNum = gene.values.filter(function(item) {
+            return item.genepanel === true; 
+        });
+
+        var percent = (altered / (total - genepanelNum.length)) * 100;
 
         if(percent>=1.0)
         {
@@ -1622,12 +1625,16 @@ define("OncoprintUtils", (function() {
                         .attr('width', 5.5)
                         .attr('fill', colors.grey);
                     
-            var questionmark = legend_svg.append("text")
-                        .attr('y', function(d) {
-                            return 12; 
-                        })
-                        .attr("dy", ".4em")
-                        .text("?");
+//            var questionmark = legend_svg.append("text")
+//                        .attr('y', fufnction(d) {
+//                            return 12; 
+//                        })
+//                        .attr("dy", ".4em")
+//                        .text("?");
+            var questionmark = legend_svg.append('rect')
+                        .attr('fill',"#F2F2F2")
+                        .attr('height', 23)
+                        .attr('width', 5.5);
 
             var label = legend_svg.append('text')
                 .attr('font-size', '12px')

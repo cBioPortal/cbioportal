@@ -302,7 +302,7 @@ define("Oncoprint",
                                     geneIndexValue = _.find(genepanelValues.genepanel[genepanelStableId[0]].geneList, function(gene){return gene === data[i].values[j].gene; }); 
                                 }
                                 
-                                if(data[i].values[j].gene !== undefined && !geneIndexValue && data[i].values[j].mutation === undefined)
+                                if(data[i].values[j].gene !== undefined && geneIndexValue && data[i].values[j].mutation === undefined)
                                 {
                                     data[i].values[j].genepanel = true; 
                                 }
@@ -320,7 +320,7 @@ define("Oncoprint",
                             for(var j= 0; j < data[i].values.length; j++)
                             {
                                 var geneIndexValue = _.find(genepanelValues.genepanel[genepanelStableId].geneList, function(gene){ return gene ===data[i].values[j].gene; }); 
-                                if(data[i].values[j].gene !== undefined && !geneIndexValue && data[i].values[j].mutation === undefined)
+                                if(data[i].values[j].gene !== undefined && geneIndexValue && data[i].values[j].mutation === undefined)
                                 {
                                     data[i].values[j].genepanel = true; 
                                 }
@@ -329,6 +329,20 @@ define("Oncoprint",
                     }
                 }
                 //process gene panel end
+                var newgenepaneldata = data.filter(function(itemValue){
+                    var valueslength = itemValue.values.length;
+                    var judgeValue = true;
+                    for (var i = 0; i < valueslength; i++)
+                    {
+                        
+                        judgeValue = judgeValue && itemValue.values[i].genepanel;
+                    }
+                    
+                    if(!judgeValue)
+                    {
+                       return itemValue; 
+                    } 
+                });
                 
                 // keeps track of the order specified by the user (translates to vertical
                 // order in the visualization)
@@ -503,13 +517,8 @@ define("Oncoprint",
                             {
                                 return "images/increaseSort.svg";
                             }
-                            
-//                            if(params.sortStatus!== undefined && params.sortStatus[indexOfClinicAttr] === "decreSort")
-//                            {
-                                return "images/decreaseSort.svg";
-//                            }
-//                            
-//                            return "images/increaseSort.svg";
+
+                            return "images/decreaseSort.svg";
                         }
 
                             return "images/blank.svg";
@@ -517,7 +526,7 @@ define("Oncoprint",
                     .attr('x', '' + dims.label_width-40)
                     .attr('text-anchor', 'end')
                     .attr('y', function(d) {
-                        return (dims.vert_space / 1.80) + vertical_pos(d)-10; });  
+                        return (dims.vert_space / 1.80) + vertical_pos(d)- 10; });  
            
                 var percentLabel = group.selectAll('text')
                     .data(attributes)
@@ -549,17 +558,6 @@ define("Oncoprint",
                     .attr('x', '' + dims.label_width)
 //                    .attr('cursor', 'pointer')
                     .attr('text-anchor', 'end');
-                    // remove the tspan that would have contained the percent altered
-                    // because it messes with the label placement in the pdf download
-//                    .filter(function(d) { return gene2percent[d] === undefined; }).remove();
-
-//                label.append('tspan')       // percent_altered
-//                    .text(function(d) {
-//                        return (d in gene2percent) ? gene2percent[d].toString() + "%" : " "; })
-//                    .attr('text-anchor', 'end')
-//                    // remove the tspan that would have contained the percent altered
-//                    // because it messes with the label placement in the pdf download
-//                    .filter(function(d) { return gene2percent[d] === undefined; }).remove();
 
                 var container_width = $('#td-content').width();              // snatch this from the main portal page
                 container_width = (container_width ? container_width : params.width);    // see if this has specified by user
@@ -661,7 +659,7 @@ define("Oncoprint",
                         //     return dims.rect_height;
                     })
                     .attr('width', dims.rect_width)
-                        .attr('y', function(d) {
+                    .attr('y', function(d) {
                             if(params.clinical_attrs.length > 0)
                             {
                                 return d.attr_id === undefined
@@ -676,16 +674,24 @@ define("Oncoprint",
                             }
                         });
                         
-                    var questionmark = enter.append("text")
+                    var questionmark = enter.append('rect')
+                        .attr('fill',"#F2F2F2")
+                        .attr('height', dims.rect_height)
+                        .attr('width', dims.rect_width)
                         .attr('y', function(d) {
-                            if(params.clinical_attrs.length === 0) //to check are there clinic data input
+                            if(params.clinical_attrs.length > 0)
                             {
-                                gapSpaceGeneClinic = 0;
+                                return d.attr_id === undefined
+                                ? vertical_pos(utils.get_attr(d)) + gapSpaceGeneClinic
+                                : vertical_pos(utils.get_attr(d)) + dims.clinical_offset;
                             }
-                            return dims.mut_height + gapSpaceGeneClinic + vertical_pos(utils.get_attr(d)) + 2; 
-                        })
-                        .attr("dy", ".4em")
-                        .text("?");
+                            else
+                            {
+                                return d.attr_id === undefined
+                                ? vertical_pos(utils.get_attr(d))
+                                : vertical_pos(utils.get_attr(d)) + dims.clinical_offset;
+                            }
+                        });
                     questionmark.filter(function(d) {
                         if (!d.genepanel) return true;
                     }).remove();
@@ -1360,7 +1366,12 @@ define("Oncoprint",
                         getPdfInput: getPdfInput,
                         getOncoprintData: function() {
                             return data;
+                            //return newgenepaneldata
+                        },
+                        getOncoprintExcludedGenepanelData: function(){
+                            return newgenepaneldata;
                         }
+                        
                     };
                 })();
 

@@ -887,9 +887,17 @@ function outputClinicalData() {
     initNav();
 
     if (isPatientView) {
-        // patient info
-        //var row = "<tr><td><b>Patient</b></td>";
-        //$("#clinical_table").append(row);
+        // Add cancer attributes to patientInfo if they are the same for all samples
+        var isOneType = function(group, map) {
+            return Object.keys(group).length === 1 &&
+                    group[Object.keys(group)[0]].length === Object.keys(map).length;
+        }
+        _.map(["CANCER_TYPE", "CANCER_TYPE_DETAILED"], function(c) {
+            var group = _.groupBy(clinicalDataMap, c);
+            if (isOneType(group, clinicalDataMap)) {
+                patientInfo[c] = Object.keys(group)[0];
+            }
+        });
 
         row = "<span id='more-patient-info'><b><u><a href='"+cbio.util.getLinkToPatientView(cancerStudyId,patientId)+"'>"+patientId+"</a></b></u><a>&nbsp;";
         var info = [];
@@ -916,7 +924,7 @@ function outputClinicalData() {
             }
             sample_recs += "<b><u><a style='color: #1974b8;' href='"+cbio.util.getLinkToSampleView(cancerStudyId,caseId)+"'>"+caseId+"</a></b></u><a>&nbsp;";
             var info = [];
-            info = info.concat(formatDiseaseInfo(clinicalDataMap[caseId]));
+            info = info.concat(formatDiseaseInfo(_.omit(clinicalDataMap[caseId], Object.keys(patientInfo))));
             sample_recs += info.join(",&nbsp;");
             sample_recs += "</a><span class='sample-record-delimiter'>, </span></div>";
             
@@ -1114,16 +1122,13 @@ function outputClinicalData() {
     function formatDiseaseInfo(clinicalData) {
         var diseaseInfo = [];
         
-        var caseType = guessClinicalData(clinicalData, ["TUMOR_TYPE","SAMPLE_TYPE"]);
-        if (caseType != null && normalizedCaseType(caseType.toLowerCase())==="primary") {
-            var typeOfCancer = guessClinicalData(clinicalData,["TYPE_OF_CANCER", "CANCER_TYPE"]);
-            if (typeOfCancer!==null) {
-                var detailedCancerType = guessClinicalData(clinicalData,["DETAILED_CANCER_TYPE","CANCER_TYPE_DETAILED"]);
-                if (detailedCancerType!==null) {
-                    typeOfCancer += " ("+detailedCancerType+")";
-                }
-                diseaseInfo.push(typeOfCancer);
+        var typeOfCancer = guessClinicalData(clinicalData,["TYPE_OF_CANCER", "CANCER_TYPE"]);
+        if (typeOfCancer!==null) {
+            var detailedCancerType = guessClinicalData(clinicalData,["DETAILED_CANCER_TYPE","CANCER_TYPE_DETAILED"]);
+            if (detailedCancerType!==null) {
+                typeOfCancer += " ("+detailedCancerType+")";
             }
+            diseaseInfo.push(typeOfCancer);
         }
         
         var knowMolecularClassifier = guessClinicalData(clinicalData,["KNOWN_MOLECULAR_CLASSIFIER"]);

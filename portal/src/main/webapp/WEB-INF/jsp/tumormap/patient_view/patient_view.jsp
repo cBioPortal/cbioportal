@@ -890,7 +890,8 @@ function outputClinicalData() {
         // Add cancer attributes to patientInfo if they are the same for all samples
         var isOneType = function(group, map) {
             return Object.keys(group).length === 1 &&
-                    group[Object.keys(group)[0]].length === Object.keys(map).length;
+                   Object.keys(group)[0] !== "undefined" &&
+                   group[Object.keys(group)[0]].length === Object.keys(map).length;
         }
         _.map(["CANCER_TYPE", "CANCER_TYPE_DETAILED"], function(c) {
             var group = _.groupBy(clinicalDataMap, c);

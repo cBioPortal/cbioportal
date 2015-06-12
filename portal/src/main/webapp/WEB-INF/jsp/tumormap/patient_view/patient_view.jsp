@@ -380,6 +380,9 @@ if (patientViewError!=null) {
     #page_wrapper_table {
         background-color: white;
     }
+    #clinical_div {
+        overflow: hidden;
+    }
 </style>
 
 <script type="text/javascript" src="js/src/patient-view/genomic-event-observer.js?<%=GlobalProperties.getAppVersion()%>"></script>
@@ -908,8 +911,9 @@ function outputClinicalData() {
         var info = info.concat(formatDiseaseInfo(patientInfo));
         var info = info.concat(formatPatientStatus(patientInfo));
         row += info.join(", ");
-        row += "</a></span><span style='float: right'>" + formatCancerStudyInfo()+ "</span><br />";
+        row += "</a></span><span id='topbar-cancer-study' style='text-align: right; float: right'>" + formatCancerStudyInfo()+ "</span><br />";
         $("#clinical_div").append(row);
+        $("#nav_div").appendTo($("#topbar-cancer-study"));
         
         var head_recs = "";
         var tail_recs = "";

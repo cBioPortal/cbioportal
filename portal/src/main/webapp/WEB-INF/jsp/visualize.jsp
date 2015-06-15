@@ -154,7 +154,8 @@
             }
 
             if (has_mrna || has_copy_no || showMutTab) {
-                out.println("<li><a href='#or_analysis' class='result-tab' title='Enrichment/Differential/Over-representative Analysis'>Enrichments</a></li>");
+                out.println("<li><a href='#or_analysis' class='result-tab' title='Enrichment/Differential/Over-representative Analysis'>Enrichments&nbsp;" +
+                 "<span class='new-feature-label'>&nbsp;New&nbsp;</span></a></li>");
             }
 
             if (has_survival) {

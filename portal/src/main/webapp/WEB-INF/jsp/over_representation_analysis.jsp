@@ -86,7 +86,7 @@
         }
         $("#tabs").bind("tabsactivate", function(event, ui) {
             $(window).trigger("resize");
-            if (ui.newTab.text().trim().toLowerCase() === "enrichments") {
+            if (ui.newTab.text().trim().toLowerCase().indexOf("enrichments") !== -1) {
                 $(window).trigger("resize");
                 if (or_tab_init === false) {
                     or_tab.init(caseListObj);

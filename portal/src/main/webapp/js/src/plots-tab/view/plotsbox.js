@@ -2,6 +2,7 @@ var plotsbox = (function() {
     
     //scatterPlots.init(div, data, if_apply_box_plots, box_plots_axis, if_calculate_co_exp);
     var render = function(data) {
+
         if (genetic_vs_genetic()) {
             if(isSameGene()) {
                 if(is_profile_discretized("x") && !is_profile_discretized("y")) { //copy number profile is gistic

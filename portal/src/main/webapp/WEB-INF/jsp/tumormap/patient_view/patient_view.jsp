@@ -166,6 +166,9 @@ if (patientViewError!=null) {
     </p>
 <%}%>
 
+<div id="nav_div">
+</div>
+
 <div id="clinical_div">
 </div>
 
@@ -376,6 +379,9 @@ if (patientViewError!=null) {
 	}
     #page_wrapper_table {
         background-color: white;
+    }
+    #clinical_div {
+        overflow: hidden;
     }
 </style>
 
@@ -881,16 +887,21 @@ function outputClinicalData() {
     var n=caseIds.length;
     if (n>1) initCaseMetaData();
     
-    // first row -- cancer study and nav
-    //$("#clinical_table").append("<tr><td>"+formatCancerStudyInfo()+"</td><td>"+formatNav()+"</td>");
     initNav();
-    // formatNav()
-    
 
     if (isPatientView) {
-        // patient info
-        //var row = "<tr><td><b>Patient</b></td>";
-        //$("#clinical_table").append(row);
+        // Add cancer attributes to patientInfo if they are the same for all samples
+        var isOneType = function(group, map) {
+            return Object.keys(group).length === 1 &&
+                   Object.keys(group)[0] !== "undefined" &&
+                   group[Object.keys(group)[0]].length === Object.keys(map).length;
+        }
+        _.map(["CANCER_TYPE", "CANCER_TYPE_DETAILED"], function(c) {
+            var group = _.groupBy(clinicalDataMap, c);
+            if (isOneType(group, clinicalDataMap)) {
+                patientInfo[c] = Object.keys(group)[0];
+            }
+        });
 
         row = "<span id='more-patient-info'><b><u><a href='"+cbio.util.getLinkToPatientView(cancerStudyId,patientId)+"'>"+patientId+"</a></b></u><a>&nbsp;";
         var info = [];
@@ -900,8 +911,9 @@ function outputClinicalData() {
         var info = info.concat(formatDiseaseInfo(patientInfo));
         var info = info.concat(formatPatientStatus(patientInfo));
         row += info.join(", ");
-        row += "</a></span><span style='float: right'>" + formatCancerStudyInfo()+ "</span><br />";
+        row += "</a></span><span id='topbar-cancer-study' style='text-align: right; float: right'>" + formatCancerStudyInfo()+ "</span><br />";
         $("#clinical_div").append(row);
+        $("#nav_div").appendTo($("#topbar-cancer-study"));
         
         var head_recs = "";
         var tail_recs = "";
@@ -915,19 +927,9 @@ function outputClinicalData() {
             if (n>1) {
                 sample_recs += "<svg width='12' height='12' class='case-label-header' alt='"+caseId+"'></svg>&nbsp;";
             }
-            sample_recs += "<b><u><a style='color: #1974b8;' href='"+cbio.util.getLinkToSampleView(cancerStudyId,caseId)+"'>"+caseId+"</a></b></u><a>&nbsp;"
-            
-            var sampleData = {};
-            if (Object.keys(clinicalDataMap).length > 0) {
-                var info_keys = ["SAMPLE_TYPE", "METASTATIC_SITE", "PRIMARY_SITE"];
-                for (var j=0; j < info_keys.length; j++) {
-                    if (info_keys[j] in clinicalDataMap[caseId]) {
-                        sampleData[info_keys[j]] = clinicalDataMap[caseId][info_keys[j]];
-                    }
-                }
-            }
+            sample_recs += "<b><u><a style='color: #1974b8;' href='"+cbio.util.getLinkToSampleView(cancerStudyId,caseId)+"'>"+caseId+"</a></b></u><a>&nbsp;";
             var info = [];
-            info = info.concat(formatStateInfo(sampleData));
+            info = info.concat(formatDiseaseInfo(_.omit(clinicalDataMap[caseId], Object.keys(patientInfo))));
             sample_recs += info.join(",&nbsp;");
             sample_recs += "</a><span class='sample-record-delimiter'>, </span></div>";
             
@@ -953,7 +955,7 @@ function outputClinicalData() {
                     is_expanded = false;
                 }
             });
-        } else if (n > 1) {
+        } else if (n > 0) {
             $("#clinical_div").append(svg_corner + head_recs.replace(/, <\/div>$/, "</div>"));
         }
         if (Object.keys(patientInfo).length > 0) {
@@ -1075,7 +1077,7 @@ function outputClinicalData() {
                 loc = guessClinicalData(clinicalData,["TUMOR_SITE","METASTATIC_SITE"]);
             } else {
                 if (isPatientView) {
-                    loc = patientInfo["PRIMARY_SITE"];
+                    loc = patientInfo["PRIMARY_SITE"] || guessClinicalData(clinicalData, ["TUMOR_SITE","PRIMARY_SITE"]);
                 } else {
                     loc = guessClinicalData(clinicalData,["TUMOR_SITE","PRIMARY_SITE"]);
                 }
@@ -1092,15 +1094,20 @@ function outputClinicalData() {
 
     function formatNav() {
         if (!CaseNavigation.hasNavCaseIds()) return "";
-        return "<ul class='pager' style='float:right;'>Viewing #"+(CaseNavigation.currPosition()+1)+" of "+CaseNavigation.numOfNavCases()+" cases&nbsp&nbsp;"
+        return "<ul class='pager' style='margin-top:0;margin-bottom:0px;'>"
                     + "<li id='case-navigate-first'><a "+(CaseNavigation.hasPrevious()?("href='"+CaseNavigation.first()+"'"):"")+">&lt;&lt;</a></li>&nbsp;"
                     + "<li id='case-navigate-previous'><a "+(CaseNavigation.hasPrevious()?("href='"+CaseNavigation.previous()+"'"):"")+">&nbsp;&lt;&nbsp;</a></li>&nbsp;"
                     + "<li id='case-navigate-next'><a "+(CaseNavigation.hasNext()?("href='"+CaseNavigation.next()+"'"):"")+">&nbsp;&gt;&nbsp;</a></li>&nbsp;"
-                    + "<li id='case-navigate-last'><a "+(CaseNavigation.hasNext()?("href='"+CaseNavigation.last()+"'"):"")+">&gt;&gt;</a></li></ul>";
+                    + "<li id='case-navigate-last'><a "+(CaseNavigation.hasNext()?("href='"+CaseNavigation.last()+"'"):"")+">&gt;&gt;</a></li>"
+                    + "&nbsp&nbsp;Viewing #"+(CaseNavigation.currPosition()+1)+" of "+CaseNavigation.numOfNavCases()+" cases"
+                    + "</ul>";
     }
     
     function initNav() {
         if (!CaseNavigation.hasNavCaseIds()) return;
+       
+        $("#nav_div").append(formatNav());
+        
         if (!CaseNavigation.hasPrevious()) {
             $("#case-navigate-first").addClass("disabled");
             $("#case-navigate-previous").addClass("disabled");
@@ -1122,13 +1129,12 @@ function outputClinicalData() {
         
         var typeOfCancer = guessClinicalData(clinicalData,["TYPE_OF_CANCER", "CANCER_TYPE"]);
         if (typeOfCancer!==null) {
+            var detailedCancerType = guessClinicalData(clinicalData,["DETAILED_CANCER_TYPE","CANCER_TYPE_DETAILED"]);
+            if (detailedCancerType!==null) {
+                typeOfCancer += " ("+detailedCancerType+")";
+            }
             diseaseInfo.push(typeOfCancer);
         }
-        
-        var detailedCancerType = guessClinicalData(clinicalData,["DETAILED_CANCER_TYPE","CANCER_TYPE_DETAILED"]);
-        if (detailedCancerType!==null) {
-            diseaseInfo.push(detailedCancerType);
-        } 
         
         var knowMolecularClassifier = guessClinicalData(clinicalData,["KNOWN_MOLECULAR_CLASSIFIER"]);
         if (knowMolecularClassifier!==null) {

@@ -380,6 +380,9 @@ if (patientViewError!=null) {
     #page_wrapper_table {
         background-color: white;
     }
+    #clinical_div {
+        overflow: hidden;
+    }
 </style>
 
 <script type="text/javascript" src="js/src/patient-view/genomic-event-observer.js?<%=GlobalProperties.getAppVersion()%>"></script>
@@ -890,7 +893,8 @@ function outputClinicalData() {
         // Add cancer attributes to patientInfo if they are the same for all samples
         var isOneType = function(group, map) {
             return Object.keys(group).length === 1 &&
-                    group[Object.keys(group)[0]].length === Object.keys(map).length;
+                   Object.keys(group)[0] !== "undefined" &&
+                   group[Object.keys(group)[0]].length === Object.keys(map).length;
         }
         _.map(["CANCER_TYPE", "CANCER_TYPE_DETAILED"], function(c) {
             var group = _.groupBy(clinicalDataMap, c);
@@ -907,8 +911,9 @@ function outputClinicalData() {
         var info = info.concat(formatDiseaseInfo(patientInfo));
         var info = info.concat(formatPatientStatus(patientInfo));
         row += info.join(", ");
-        row += "</a></span><span style='float: right'>" + formatCancerStudyInfo()+ "</span><br />";
+        row += "</a></span><span id='topbar-cancer-study' style='text-align: right; float: right'>" + formatCancerStudyInfo()+ "</span><br />";
         $("#clinical_div").append(row);
+        $("#nav_div").appendTo($("#topbar-cancer-study"));
         
         var head_recs = "";
         var tail_recs = "";

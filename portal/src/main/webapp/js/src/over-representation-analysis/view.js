@@ -288,7 +288,7 @@ var orTable = function() {
     
     function addHeaderQtips() {
         $("#" + table_id + orAnalysis._title_ids.gene).qtip({
-            content: { text:"Select gene(s) you are interested and click 'add to query' button to query with the new genes."},
+            content: { text:"Select gene(s) you are interested and click 'add to query' button to re-query alone with the new genes."},
             style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow qtip-ui-wide'},
             show: {event: "mouseover"},
             hide: {fixed:true, delay: 100, event: "mouseout"},
@@ -418,7 +418,7 @@ var orTable = function() {
 
         if (profile_type === orAnalysis.profile_type.copy_num) {
 
-            _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.gene + "'>Gene &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.gene + "'></th>";
+            _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.gene + "'>Gene</th>";
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.cytoband + "'>Cytoband</th>";
             _title_str += "<th colspan='2'>Percentage of alteration &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.pct + "'></th>";
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.log_ratio + "'>Log Ratio &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.log_ratio + "'></th>";
@@ -430,7 +430,7 @@ var orTable = function() {
 
         } else if (profile_type === orAnalysis.profile_type.mutations) {
 
-            _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.gene + "'>Gene &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.gene + "'></th>";
+            _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.gene + "'>Gene</th>";
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.cytoband + "'>Cytoband</th>";
             _title_str += "<th colspan='2'>Percentage of alteration &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.pct + "'></th>";
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.log_ratio + "'>Log Ratio &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.log_ratio + "'></th>";
@@ -442,7 +442,7 @@ var orTable = function() {
 
         } else if (profile_type === orAnalysis.profile_type.mrna) {
 
-            _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.gene + "'>Gene &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.gene + "'></th>";
+            _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.gene + "'>Gene</th>";
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.cytoband + "'>Cytoband</th>";
             _title_str += "<th colspan='2'>Mean of alteration &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.mean_alt + "'></th>";
             _title_str += "<th colspan='2'>Standard deviation of alteration &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.stdev_alt + "'></th>";
@@ -458,7 +458,7 @@ var orTable = function() {
         } else if (profile_type === orAnalysis.profile_type.protein_exp) {
 
             if (profile_id.indexOf("phospho") !== -1) {
-                _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.gene + "'>Gene &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.gene + "'></th>";
+                _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.gene + "'>Gene</th>";
                 _title_str += "<th colspan='2'>Mean of alteration &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.mean_alt + "'></th>";
                 _title_str += "<th colspan='2'>Standard deviation of alteration &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.stdev_alt + "'></th>";
                 _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.p_val + "'>p-Value &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.p_val_t_test + "'></th>";
@@ -470,7 +470,7 @@ var orTable = function() {
                 _title_str += "<th width='100'>in altered group</th>";
                 _title_str += "<th width='100'>in unaltered group</th>";
             } else {
-                _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.gene + "'>Gene &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.gene + "'></th>";
+                _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.gene + "'>Gene</th>";
                 _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.cytoband + "'>Cytoband</th>";
                 _title_str += "<th colspan='2'>Mean of alteration &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.mean_alt + "'></th>";
                 _title_str += "<th colspan='2'>Standard deviation of alteration &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.stdev_alt + "'></th>";
@@ -525,7 +525,9 @@ var orTable = function() {
                 $("#" + _table_div).empty();
                 $("#" + _table_div).append("<span style='font-weight:bold;'>" + _table_title +
                       "</span>&nbsp;&nbsp;&nbsp;&nbsp;<button type='button' id='" + table_id +
-                      orAnalysis.postfix.datatable_update_query_button + "'>Add checked genes to query</button>");
+                      orAnalysis.postfix.datatable_update_query_button + "'>Add checked genes to query" +
+                      "</button>" +
+                      "<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.gene + "'>");
 
                 $("#" + _table_div).append("<table id='" + table_id + "' cellpadding='0' cellspacing='0' border='0' class='" + table_id + "_datatable_class'></table>"); 
                 configTable();

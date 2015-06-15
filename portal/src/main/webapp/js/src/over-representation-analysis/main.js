@@ -113,17 +113,17 @@ var or_tab = (function() {
                 _profile_list.push(_obj);
             }
         });
-        var _protein_exp_obj = jQuery.extend(true, {}, _profile_list[0]);
         var _phospho_exp_obj = jQuery.extend(true, {}, _profile_list[0]);
-        _protein_exp_obj.STABLE_ID += "_protein";
+        var _protein_exp_obj = jQuery.extend(true, {}, _profile_list[0]);
         _phospho_exp_obj.STABLE_ID += "_phospho";
-        _protein_exp_obj.NAME = "Protein expression (RPPA)";
+        _protein_exp_obj.STABLE_ID += "_protein";
         _phospho_exp_obj.NAME = "Protein/phosphoprotein level (RPPA)";
+        _protein_exp_obj.NAME = "Protein expression (RPPA)";
 
         _profile_list.length = 0;
         _profile_list = [];
-        _profile_list.push(_protein_exp_obj);
         _profile_list.push(_phospho_exp_obj);
+        _profile_list.push(_protein_exp_obj);
 
         var orSubTabProteinExp = new orSubTabView();
         orSubTabProteinExp.init(orAnalysis.ids.sub_tab_protein_exp, _profile_list, orAnalysis.profile_type.protein_exp, "cancer_genes");

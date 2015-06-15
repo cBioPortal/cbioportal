@@ -117,7 +117,7 @@ var or_tab = (function() {
         var _protein_exp_obj = jQuery.extend(true, {}, _profile_list[0]);
         _phospho_exp_obj.STABLE_ID += "_phospho";
         _protein_exp_obj.STABLE_ID += "_protein";
-        _phospho_exp_obj.NAME = "Protein/phosphoprotein level (RPPA)";
+        _phospho_exp_obj.NAME = "Phosphoprotein level (RPPA)";
         _protein_exp_obj.NAME = "Protein expression (RPPA)";
 
         _profile_list.length = 0;

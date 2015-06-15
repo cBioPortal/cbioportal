@@ -234,22 +234,22 @@ var orTable = function() {
                 _sig_only_mutex_fn = function() {
                     orTableInstance.fnFilter("", col_index.direction);
                     orTableInstance.fnFilter("", col_index.log_ratio);
-                    orTableInstance.fnFilter("^(.)*\\sunaltered(.)*Significant$", col_index.direction, true);
+                    orTableInstance.fnFilter("^(.)*mutual(.)*Significant$", col_index.direction, true);
                 },
                 _sig_only_co_oc_fn = function() {
                     orTableInstance.fnFilter("", col_index.direction);
                     orTableInstance.fnFilter("", col_index.log_ratio);
-                    orTableInstance.fnFilter("^(.)*\\saltered(.)*Significant$", col_index.direction, true);
+                    orTableInstance.fnFilter("^(.)*occurrence(.)*Significant$", col_index.direction, true);
                 },
                 _mutex_fn = function() {
                     orTableInstance.fnFilter("", col_index.direction);
                     orTableInstance.fnFilter("", col_index.log_ratio);
-                    orTableInstance.fnFilter("^(.)*\\sunaltered(.)*$", col_index.direction, true);
+                    orTableInstance.fnFilter("^(.)*mutual(.)*$", col_index.direction, true);
                 },
                 _co_oc_fn = function() {
                     orTableInstance.fnFilter("", col_index.direction);
                     orTableInstance.fnFilter("", col_index.log_ratio);
-                    orTableInstance.fnFilter("^(.)*\\saltered(.)*$", col_index.direction, true);
+                    orTableInstance.fnFilter("^(.)*occurrence(.)*$", col_index.direction, true);
                 },
                 _all_fn = function() {
                     orTableInstance.fnFilter("", col_index.direction);

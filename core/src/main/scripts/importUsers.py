@@ -339,7 +339,7 @@ def get_user_authorities(cursor, google_email):
         # recall each tuple in authorities table is ['EMAIL', 'AUTHORITY']
         # no tuple can contain nulls
         try:
-                cursor.execute('select * from authorities where email = (%s)', google_email)
+                cursor.execute('select * from authorities where email = (%s)', [google_email])
                 for row in cursor.fetchall():
                         to_return.append(row[1])
         except MySQLdb.Error, msg:

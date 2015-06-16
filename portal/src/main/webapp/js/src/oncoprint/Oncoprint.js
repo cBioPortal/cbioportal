@@ -104,16 +104,16 @@ define("Oncoprint",
                             }
                             
                             
-                            if(params.geneData[i].rppas !== undefined && newGeneData[positionValue].rppas !== undefined)
+                            if(params.geneData[i].rppa !== undefined && newGeneData[positionValue].rppa !== undefined)
                             {
-                                if(newGeneData[positionValue].rppas !== params.geneData[i].rppas)
+                                if(newGeneData[positionValue].rppa !== params.geneData[i].rppa)
                                 {
-                                    newGeneData[positionValue].rppas=newGeneData[positionValue].rppas + ","+params.geneData[i].rppas; 
+                                    newGeneData[positionValue].rppa=newGeneData[positionValue].rppa + ","+params.geneData[i].rppa; 
                                 }
                             }
-                            else if(params.geneData[i].rppas !== undefined)
+                            else if(params.geneData[i].rppa !== undefined)
                             {
-                                newGeneData[positionValue].rppas = params.geneData[i].rppas;
+                                newGeneData[positionValue].rppa = params.geneData[i].rppa;
                             }
                             
 
@@ -143,9 +143,9 @@ define("Oncoprint",
                                 newData.mrna = params.geneData[i].mrna;
                             }
                             
-                            if(params.geneData[i].rppas !== undefined)
+                            if(params.geneData[i].rppa !== undefined)
                             {
-                                newData.rppas = params.geneData[i].rppas;
+                                newData.rppa = params.geneData[i].rppa;
                             }
 
                             if(params.geneData[i].cna !== undefined)

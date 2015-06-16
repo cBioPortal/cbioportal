@@ -89,6 +89,33 @@ define("Oncoprint",
                             {
                                 newGeneData[positionValue].mutation = params.geneData[i].mutation;
                             }
+                            
+                            
+                            if(params.geneData[i].mrna !== undefined && newGeneData[positionValue].mrna !== undefined)
+                            {
+                                if(newGeneData[positionValue].mrna !== params.geneData[i].mrna)
+                                {
+                                    newGeneData[positionValue].mrna=newGeneData[positionValue].mrna + ","+params.geneData[i].mrna; 
+                                }
+                            }
+                            else if(params.geneData[i].mrna !== undefined)
+                            {
+                                newGeneData[positionValue].mrna = params.geneData[i].mrna;
+                            }
+                            
+                            
+                            if(params.geneData[i].rppas !== undefined && newGeneData[positionValue].rppas !== undefined)
+                            {
+                                if(newGeneData[positionValue].rppas !== params.geneData[i].rppas)
+                                {
+                                    newGeneData[positionValue].rppas=newGeneData[positionValue].rppas + ","+params.geneData[i].rppas; 
+                                }
+                            }
+                            else if(params.geneData[i].rppas !== undefined)
+                            {
+                                newGeneData[positionValue].rppas = params.geneData[i].rppas;
+                            }
+                            
 
                             if(params.geneData[i].cna !== undefined && newGeneData[positionValue].cna !== undefined)
                             {
@@ -110,6 +137,16 @@ define("Oncoprint",
                             {
                                 newData.mutation = params.geneData[i].mutation;
                             }
+                            
+                            if(params.geneData[i].mrna !== undefined)
+                            {
+                                newData.mrna = params.geneData[i].mrna;
+                            }
+                            
+                            if(params.geneData[i].rppas !== undefined)
+                            {
+                                newData.rppas = params.geneData[i].rppas;
+                            }
 
                             if(params.geneData[i].cna !== undefined)
                             {
@@ -125,10 +162,6 @@ define("Oncoprint",
                 {
                     $('#oncoprint-diagram-showlegend-icon').css("display","inline");
                 }
-//                if(params.clinical_attrs.length < 1)
-//                {
-//                    $('#oncoprint-diagram-toolbar-buttons #sort_by')[0].options[1].disabled = true;
-//                }
 
                 // make strings of numbers into numbers
                 var clinicalData = params.clinicalData.map(function(i) {
@@ -690,57 +723,6 @@ define("Oncoprint",
                                 return 'black';
                             }
                         }
-//                        else
-//                        {
-//                            var mutationSplit;
-//                            
-//                            if(mutation !== undefined)//multiple mutations
-//                            {
-//                                mutationSplit = mutation.split(',');
-//
-//                                if(mutationSplit.length > 1)
-//                                {
-//                                    for(var i = 0; i < mutationSplit.length; i++)
-//                                    {
-//                                        if((/^[A-z]([0-9]+)[A-z]$/g).test(mutationSplit[i]))
-//                                        {
-//                                            continue;
-//                                        }
-//                                        else
-//                                        {
-//                                            return '#FF00FF';
-//                                        }
-//                                    }
-//                                    
-//                                    return 'green';
-//                                }
-//                            }
-//                            
-//                            if((/^[A-z]([0-9]+)[A-z]$/g).test(mutationSplit))
-//                            {
-//                                return 'green';//Missense_mutation
-//                            }
-//                                else if((/^[A-z*]([0-9]+)[A-z]{2}$/g).test(mutationSplit))
-//                            {
-//                                return 'black'; //Frame_shift_del
-//                            }
-//                                else if((/^[A-Z]([0-9]+)[*]$/g).test(mutationSplit))
-//                            {
-//                                return 'Yellow'; //Nonsense_Mutation
-//                            }
-//                                else if((/^[A-Z]([0-9]+)_splice$/g).test(mutationSplit))
-//                            {
-//                                return 'white'; //Splice_Site
-//                            }
-//                                else if((/^([A-Z]+)([0-9]+)del$/g).test(mutationSplit))
-//                            {
-//                                return 'Pink'; //IN_frame_del
-//                            }
-//                                else 
-//                            {
-//                                return 'blue';
-//                            }
-//                        }
                     };
                     var mut = enter.append('rect')
                         .attr('fill', function (d){ return seperateMuation(d.mutation);})
@@ -764,6 +746,10 @@ define("Oncoprint",
                     var sym = d3.svg.symbol().size(dims.rect_width * 3);
                     var rppa = enter.append('path')
                         .attr('d', sym.type(function(d) {
+                            if(d.rppa!==undefined)
+                            {
+                                d.rppa = ((d.rppa).split(","))[0]; 
+                            }
                             return d.rppa === "UPREGULATED" ? "triangle-up" : "triangle-down"; }))
                         .attr('transform', function(d) {
                             // put the triangle in the right spot: at the top if
@@ -790,7 +776,13 @@ define("Oncoprint",
                         .attr('width', dims.rect_width)
                         .attr('stroke-width', 2)
                         .attr('stroke-opacity', 1)
-                        .attr('stroke', function(d) { return d.mrna === "UPREGULATED" ? '#FF9999' : '#6699CC' })
+                        .attr('stroke', function(d) { 
+                            if(d.mrna!==undefined)
+                            {
+                                d.mrna = ((d.mrna).split(","))[0]; 
+                            }
+                            return d.mrna === "UPREGULATED" ? '#FF9999' : '#6699CC';
+                            })
                         .attr('fill', 'none');
                     mrna.filter(function(d) {
                         return d.mrna === undefined;

@@ -109,15 +109,15 @@ var orData = function() {
     }
     
     function trim_p_val_mutations(_input_str) {
-        return cbio.util.toPrecision(parseFloat(_input_str), 3, 10000);
+        return cbio.util.toPrecision(parseFloat(_input_str), 3, 0.01);
     }
     
     function trim_p_val_copy_num(_input_str) {
-        return cbio.util.toPrecision(parseFloat(_input_str), 3, 10000);
+        return cbio.util.toPrecision(parseFloat(_input_str), 3, 0.01);
     }
     
     function trim_p_val_mrna(_param1, _param2, _input_str) {
-        var _result_str = cbio.util.toPrecision(parseFloat(_input_str), 3, 10000);
+        var _result_str = cbio.util.toPrecision(parseFloat(_input_str), 3, 0.01);
         
         if (parseFloat(_param1) > parseFloat(_param2)) {
             _result_str += "<img src=\"images/up1.png\"/>";

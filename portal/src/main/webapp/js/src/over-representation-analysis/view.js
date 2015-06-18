@@ -65,7 +65,6 @@ var orTable = function() {
 
             //if (a === "<0.001") { a = 0.0009; }
             //if (b === "<0.001") { b = 0.0009; }
-
             if (parseFloat(a) > parseFloat(b)) return 1;
             else if (parseFloat(a) < parseFloat(b)) return -1;
             else return 0;

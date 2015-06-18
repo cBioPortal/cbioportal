@@ -49,29 +49,42 @@ var or_tab = (function() {
     var init_copy_num_tab = function() {
         var _profile_list = [];
 
+        var discretized_cna_profile_keywords = [
+            "_cna",
+            "_cna_rae",
+            "_gistic",
+            "_cna_consensus"
+        ];
+
         $.each(Object.keys(profile_obj_list), function(_index, _key) {
             var _obj = profile_obj_list[_key];
-            if ((_obj.GENETIC_ALTERATION_TYPE === orAnalysis.profile_type.copy_num && 
-                 _obj.STABLE_ID.indexOf("gistic") !== -1)) {
-                _profile_list.push(_obj); 
-            } 
+            if (_obj.GENETIC_ALTERATION_TYPE === orAnalysis.profile_type.copy_num) {
+                var _token = _obj.STABLE_ID.replace(window.PortalGlobals.getCancerStudyId(), "");
+                if ($.inArray(_token.toLowerCase(), discretized_cna_profile_keywords) !== -1) {
+                    _profile_list.push(_obj);
+                }
+            }
         });
-        //split copy number profile into two: deep deletion &
-        var _del_obj = jQuery.extend(true, {}, _profile_list[0]);
-        var _amp_obj = jQuery.extend(true, {}, _profile_list[0]);
-        _del_obj.STABLE_ID += "_del";
-        _amp_obj.STABLE_ID += "_amp";
-        _del_obj.NAME += " (Deep Deletion)";
-        _amp_obj.NAME += " (Amplification)";
 
-        _profile_list.length = 0;
-        _profile_list = [];
-        _profile_list.push(_del_obj);
-        _profile_list.push(_amp_obj);
+        var _split_profile_list = [];
+        _split_profile_list.length = 0;
+        $.each(_profile_list, function(_index, _profile_obj) {
+            //split copy number profile into two: deep deletion &
+            var _del_obj = jQuery.extend(true, {}, _profile_obj);
+            var _amp_obj = jQuery.extend(true, {}, _profile_obj);
+            _del_obj.STABLE_ID += "_del";
+            _amp_obj.STABLE_ID += "_amp";
+            _del_obj.NAME += " (Deep Deletion)";
+            _amp_obj.NAME += " (Amplification)";
+
+            _split_profile_list.push(_del_obj);
+            _split_profile_list.push(_amp_obj);
+        });
+
 
         var orSubTabCopyNum = new orSubTabView();
         //orSubTabCopyNum.init(orAnalysis.ids.sub_tab_copy_num, _profile_list, orAnalysis.profile_type.copy_num, gene_set);
-        orSubTabCopyNum.init(orAnalysis.ids.sub_tab_copy_num, _profile_list, orAnalysis.profile_type.copy_num, "cancer_genes");
+        orSubTabCopyNum.init(orAnalysis.ids.sub_tab_copy_num, _split_profile_list, orAnalysis.profile_type.copy_num, "cancer_genes");
     };
     
     //var init_mutations_tab = function(gene_set) {

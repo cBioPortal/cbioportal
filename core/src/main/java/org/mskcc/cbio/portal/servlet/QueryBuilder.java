@@ -44,6 +44,9 @@ import org.apache.commons.lang.*;
 
 import org.owasp.validator.html.PolicyException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.*;
 import java.util.*;
 import javax.servlet.*;
@@ -58,6 +61,8 @@ import java.rmi.RemoteException;
  * Central Servlet for building queries.
  */
 public class QueryBuilder extends HttpServlet {
+    private static final Logger LOGGER = LoggerFactory.getLogger(QueryBuilder.class);
+
     public static final String CLIENT_TRANSPOSE_MATRIX = "transpose_matrix";
     public static final String CANCER_TYPES_INTERNAL = "cancer_types";
     public static final String PROFILE_LIST_INTERNAL = "profile_list";
@@ -256,14 +261,17 @@ public class QueryBuilder extends HttpServlet {
                 dispatcher.forward(httpServletRequest, httpServletResponse);
             }
         } catch (RemoteException e) {
+            LOGGER.error("Caught RemoteException", e);
             xdebug.logMsg(this, "Got Remote Exception:  " + e.getMessage());
             forwardToErrorPage(httpServletRequest, httpServletResponse,
                                DB_CONNECT_ERROR, xdebug);
         } catch (DaoException e) {
+            LOGGER.error("Caught DatabaseException", e);
             xdebug.logMsg(this, "Got Database Exception:  " + e.getMessage());
             forwardToErrorPage(httpServletRequest, httpServletResponse,
                                DB_CONNECT_ERROR, xdebug);
         } catch (ProtocolException e) {
+            LOGGER.error("Caught ProtocolException", e);
             xdebug.logMsg(this, "Got Protocol Exception:  " + e.getMessage());
             forwardToErrorPage(httpServletRequest, httpServletResponse,
                                DB_CONNECT_ERROR, xdebug);

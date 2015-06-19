@@ -6,991 +6,1013 @@
   To change this template use File | Settings | File Templates.
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<html>
-<head>
-    <title>cBioPortal Cancer Genes</title>
-</head>
-<body>
-PDCD1LG2<br>
-CD276<br>
-TRIM24<br>
-FAT1<br>
-AAMP<br>
-INPP4B<br>
-FANCG<br>
-FANCF<br>
-ABL1<br>
-FANCD2<br>
-FANCC<br>
-ABL2<br>
-FANCE<br>
-CLP1<br>
-ACSL3<br>
-TET3<br>
-MLLT11<br>
-MPL<br>
-MEF2B<br>
-PNRC1<br>
-MRE11A<br>
-TNFRSF11A<br>
-FCGR2B<br>
-ACTB<br>
-TET1<br>
-FH<br>
-FGFR4<br>
-FGFR1<br>
-FGFR3<br>
-MSN<br>
-C2ORF44<br>
-FGFR2<br>
-TNFSF9<br>
-FGF12<br>
-FGF14<br>
-FGF7<br>
-FGF10<br>
-FGF4<br>
-FGF3<br>
-FGF6<br>
-TNFRSF14<br>
-ACVR2A<br>
-KLHL6<br>
-ACVR1B<br>
-MSH2<br>
-MSH3<br>
-SMARCD1<br>
-LGR6<br>
-SMARCB1<br>
-SMARCA4<br>
-IL21R<br>
-SMARCA1<br>
-MSI1<br>
-WNK1<br>
-EED<br>
-MALT1<br>
-SNAP25<br>
-FKBP1A<br>
-SMO<br>
-FHIT<br>
-ERBB3<br>
-ERBB2<br>
-ERBB4<br>
-APCDD1<br>
-PREX2<br>
-ERCC2<br>
-ERCC3<br>
-PARP4<br>
-PARP1<br>
-PHOX2B<br>
-ERCC5<br>
-ERCC4<br>
-SGK1<br>
-ERG<br>
-EPHB2<br>
-EPHB3<br>
-EPHB4<br>
-EPHB6<br>
-SH3GL1<br>
-MTCP1<br>
-EPS15<br>
-MTAP<br>
-AK9<br>
-ESR1<br>
-SEMG1<br>
-FRS2<br>
-SET<br>
-MAP2K4<br>
-SFPQ<br>
-FBXO11<br>
-SRSF2<br>
-BCL10<br>
-BCORL1<br>
-SRSF3<br>
-BTLA<br>
-EXT2<br>
-AKT1<br>
-SKP2<br>
-SEPT9<br>
-EXT1<br>
-MYB<br>
-EWSR1<br>
-MUTYH<br>
-ETV4<br>
-ETV5<br>
-ETS1<br>
-ALDH2<br>
-ETV1<br>
-MUC1<br>
-ZNF384<br>
-FUBP1<br>
-ASXL1<br>
-AKT2<br>
-ETV6<br>
-MECOM<br>
-PTPN22<br>
-ALK<br>
-EPPK1<br>
-PLK2<br>
-FANCA<br>
-WISP3<br>
-RSPO2<br>
-SOCS2<br>
-GMPS<br>
-EZH2<br>
-ZNF703<br>
-ALOX12B<br>
-PMEL<br>
-AHNAK2<br>
-MAX<br>
-MAP3K6<br>
-ASH2L<br>
-FZD10<br>
-MTOR<br>
-CHEK2<br>
-FEV<br>
-LATS2<br>
-CBLC<br>
-STK40<br>
-CHIC2<br>
-TAF1L<br>
-MDM4<br>
-MDM2<br>
-SDHD<br>
-SDHC<br>
-SDHB<br>
-SOCS3<br>
-MEF2A<br>
-SDHA<br>
-MAP3K14<br>
-SDC4<br>
-PSIP1<br>
-MAP3K1<br>
-PATZ1<br>
-APC<br>
-WIF1<br>
-MEF2C<br>
-FUS<br>
-MEN1<br>
-BIRC3<br>
-XIAP<br>
-MAP3K4<br>
-BIRC2<br>
-ARAF<br>
-FYN<br>
-GREM1<br>
-KDSR<br>
-RPS6KA4<br>
-H3F3C<br>
-MCL1<br>
-FAS<br>
-AR<br>
-HIST1H2AG<br>
-HIST1H2BJ<br>
-RPS6KB1<br>
-RPS6KB2<br>
-AURKB<br>
-FOXO1<br>
-NAV3<br>
-FOXO3<br>
-ZMYM3<br>
-FLI1<br>
-FGFR1OP<br>
-ARNT<br>
-CIITA<br>
-PTPRT<br>
-FLT3<br>
-FLT1<br>
-RHOH<br>
-MITF<br>
-FAF1<br>
-FLT4<br>
-RHOA<br>
-RPN1<br>
-AFF2<br>
-MET<br>
-RPL35A<br>
-TRIOBP<br>
-HMGN2P46<br>
-MAP3K13<br>
-RPL22<br>
-PCSK7<br>
-MN1<br>
-ATM<br>
-ATIC<br>
-ATF1<br>
-RABEP1<br>
-ZFHX3<br>
-EXOSC6<br>
-VTI1A<br>
-SMC3<br>
-CNTRL<br>
-MLLT3<br>
-ECT2L<br>
-MLLT4<br>
-MLLT6<br>
-RPS26<br>
-FOXO4<br>
-LATS1<br>
-KMT2A<br>
-MLLT1<br>
-AFF1<br>
-MLH1<br>
-MKI67<br>
-MLF1<br>
-RPS14<br>
-USP6<br>
-RPS19<br>
-NIN<br>
-ATRX<br>
-TGFBR2<br>
-ATR<br>
-TGFBR1<br>
-AXL<br>
-NRAS<br>
-CRBN<br>
-GLI3<br>
-GLI1<br>
-B2M<br>
-NPM1<br>
-LEF1<br>
-JAZF1<br>
-CDC42EP2<br>
-BACH1<br>
-NTRK3<br>
-HIST1H4I<br>
-TRRAP<br>
-GPC3<br>
-EGFL7<br>
-NKX2-1<br>
-C11ORF30<br>
-ARID1A<br>
-NTRK1<br>
-NTRK2<br>
-PICALM<br>
-NUMA1<br>
-ROR2<br>
-DDR2<br>
-TLR4<br>
-TLL2<br>
-AXIN2<br>
-AXIN1<br>
-BAP1<br>
-NOD1<br>
-TNFRSF17<br>
-TMPRSS2<br>
-TMSB4XP8<br>
-BCR<br>
-NDRG1<br>
-NCOA3<br>
-P2RY8<br>
-OMD<br>
-TNFAIP6<br>
-NR4A2<br>
-TNFAIP3<br>
-NUP98<br>
-SBDS<br>
-CLTCL1<br>
-APH1A<br>
-PRDM1<br>
-GNAQ<br>
-EPHA10<br>
-GNAS<br>
-BARD1<br>
-TOP1<br>
-GNA12<br>
-ZRSR2<br>
-ASXL3<br>
-USP9X<br>
-SDHAF2<br>
-RBM10<br>
-SMC1A<br>
-CCND1<br>
-KDM5C<br>
-YAP1<br>
-BCL2<br>
-GNA11<br>
-BCL2L2<br>
-BCL2L1<br>
-BCL5<br>
-BCL3<br>
-TP53<br>
-BCL7A<br>
-BCL6<br>
-BCL9<br>
-FAM46C<br>
-TCEA1<br>
-TLX3<br>
-IKZF1<br>
-OTX2<br>
-HNF1A<br>
-GATA1<br>
-TBX3<br>
-ZFP36L1<br>
-BRCA2<br>
-BRAF<br>
-BRCA1<br>
-TCF7L2<br>
-BUB1B<br>
-TCF3<br>
-BTG1<br>
-BTK<br>
-SPOP<br>
-TCF12<br>
-PAFAH1B2<br>
-CASC5<br>
-BCOR<br>
-TRB<br>
-RNF43<br>
-BLM<br>
-TRA<br>
-FOXL2<br>
-TRD<br>
-TFG<br>
-HIST1H2BK<br>
-TICAM1<br>
-TSHZ2<br>
-ABCA9<br>
-RAD54L<br>
-BMPR1A<br>
-WHSC1L1<br>
-MIR142<br>
-PAX7<br>
-PBX1<br>
-HIST1H2AC<br>
-CREB3L2<br>
-HIST1H2AL<br>
-TET2<br>
-PAX5<br>
-POGLUT1<br>
-PAX3<br>
-HIST1H2BC<br>
-GPHN<br>
-HIST1H3A<br>
-PARK2<br>
-HIST1H2BO<br>
-PAK1<br>
-HIST1H2AM<br>
-PAK3<br>
-CCNL1<br>
-TEK<br>
-TERT<br>
-PCM1<br>
-HIST1H3B<br>
-GATA2<br>
-FSTL3<br>
-GATA3<br>
-STAG1<br>
-ACKR3<br>
-TFE3<br>
-RMI2<br>
-PC<br>
-PCBP1<br>
-TFRC<br>
-MYCN<br>
-MYD88<br>
-KMT2C<br>
-MYC<br>
-MYCL<br>
-CCT6B<br>
-ASXL2<br>
-GADD45B<br>
-ELP2<br>
-YY1AP1<br>
-MYH11<br>
-HIST1H1C<br>
-HIST1H1D<br>
-STK11<br>
-MYH9<br>
-AURKA<br>
-FCRL4<br>
-SNED1<br>
-GAS7<br>
-CALR<br>
-CANT1<br>
-STAG2<br>
-CAD<br>
-SS18L1<br>
-FBXW7<br>
-MSH6<br>
-MYOD1<br>
-RBM15<br>
-SETBP1<br>
-POLQ<br>
-ATP10A<br>
-TFPT<br>
-CRTC3<br>
-NACA<br>
-TAF1<br>
-PBRM1<br>
-TPRX1<br>
-NBN<br>
-CCDC160<br>
-CCND2<br>
-HDAC1<br>
-CBFB<br>
-HDAC2<br>
-CUL4B<br>
-CBL<br>
-CUL4A<br>
-CBLB<br>
-CUL3<br>
-SYK<br>
-GOPC<br>
-HIST1H2BD<br>
-CTCF<br>
-PIK3R3<br>
-H3F3A<br>
-HIST1H1E<br>
-CBFA2T3<br>
-RUNX1T1<br>
-RUNX1<br>
-CARS<br>
-NUTM2A<br>
-FANCI<br>
-PAK7<br>
-GNA13<br>
-CASP8<br>
-TAL1<br>
-TAL2<br>
-MAP3K7<br>
-NEFH<br>
-FANCL<br>
-CD36<br>
-IRS2<br>
-SLC34A2<br>
-TNKS<br>
-SOX10<br>
-SOX9<br>
-SOX2<br>
-IGK<br>
-NCOA1<br>
-SOX4<br>
-NF1<br>
-SOCS1<br>
-CD22<br>
-GPS2<br>
-DCHS1<br>
-B4GALT3<br>
-NFE2L2<br>
-NFIB<br>
-POT1<br>
-SHQ1<br>
-RANBP17<br>
-D2HGDH<br>
-SRC<br>
-NF2<br>
-NFKBIA<br>
-NFKB2<br>
-NFKB1<br>
-BCL11B<br>
-A2ML1<br>
-CCNE1<br>
-CCND3<br>
-GRM3<br>
-NCOA2<br>
-CDK4<br>
-CDK6<br>
-NUTM1<br>
-MSI2<br>
-WWTR1<br>
-CDH11<br>
-TTL<br>
-SIN3A<br>
-NKX3-1<br>
-GSK3B<br>
-FAT3<br>
-ZNF521<br>
-CDH1<br>
-CNRIP1<br>
-SNX29<br>
-TIPARP<br>
-NONO<br>
-STAT3<br>
-STAT4<br>
-STAT6<br>
-TP63<br>
-STAT5A<br>
-ZNF300<br>
-STAT5B<br>
-CD70<br>
-GPR124<br>
-SLC45A3<br>
-ASMTL<br>
-GRIN2A<br>
-SSX4<br>
-CD79B<br>
-CD79A<br>
-SSX2<br>
-CD74<br>
-SSX1<br>
-NOTCH1<br>
-SS18<br>
-NOTCH4<br>
-NOTCH3<br>
-CD58<br>
-NOTCH2<br>
-ARHGAP35<br>
-NR3C1<br>
-PHLDA1<br>
-CHCHD7<br>
-TOX<br>
-GOLPH3<br>
-HRAS<br>
-CHD4<br>
-CHEK1<br>
-CHD1<br>
-CHD2<br>
-PPARG<br>
-HSP90AB1<br>
-POU5F1<br>
-CHN1<br>
-HSP90AA1<br>
-IKZF3<br>
-HDAC4<br>
-CRLF2<br>
-NCKIPSD<br>
-IKZF2<br>
-KMT2B<br>
-CHUK<br>
-GTSE1<br>
-POU2AF1<br>
-RASGEF1A<br>
-ZNF91<br>
-ZNF331<br>
-CDK8<br>
-POLE<br>
-CDKN1A<br>
-CDKN1B<br>
-HOXC11<br>
-MDS2<br>
-CDKN2A<br>
-HOXC13<br>
-CDKN2B<br>
-AADACL2<br>
-DIS3<br>
-CDKN2C<br>
-CEBPA<br>
-HOXA9<br>
-HOXA11<br>
-HOXA13<br>
-CDX2<br>
-SEPT5<br>
-NUTM2B<br>
-CNBP<br>
-HDAC7<br>
-ICK<br>
-PMS2<br>
-PRRX1<br>
-KEAP1<br>
-HOXD13<br>
-HOXD11<br>
-ZNF24<br>
-PMS1<br>
-MYO18A<br>
-YWHAE<br>
-YES1<br>
-MLST8<br>
-SRGAP3<br>
-HMGA1<br>
-DUX4L1<br>
-TRIM33<br>
-MAP2K1<br>
-MAP2K2<br>
-MAGI2<br>
-PRKDC<br>
-TLX1<br>
-PRKCI<br>
-XBP1<br>
-MAPK1<br>
-WT1<br>
-DKK1<br>
-PRKAR1A<br>
-XRCC3<br>
-HNRNPA2B1<br>
-XPO1<br>
-DNAH12<br>
-XPC<br>
-COL1A1<br>
-FOXA2<br>
-XPA<br>
-FOXA1<br>
-LRP1B<br>
-WHSC1<br>
-ASCL4<br>
-CKS1B<br>
-HIF1A<br>
-PRKAA2<br>
-WDR90<br>
-RBMX<br>
-FGF19<br>
-SPEN<br>
-HIP1<br>
-THRAP3<br>
-MED12<br>
-PPP6C<br>
-HGF<br>
-WRN<br>
-PRCC<br>
-ABCG4<br>
-PRF1<br>
-HLF<br>
-PDCD11<br>
-SUFU<br>
-NT5C2<br>
-KDM2B<br>
-MAFB<br>
-EZR<br>
-VHL<br>
-WAS<br>
-HLA-B<br>
-HLA-A<br>
-PPP2R1A<br>
-GOLGA5<br>
-MNX1<br>
-BCL11A<br>
-CLTC<br>
-CPS1<br>
-PARP3<br>
-IGL<br>
-NSD1<br>
-PARP2<br>
-RFWD2<br>
-SOX17<br>
-ESCO2<br>
-ABCB1<br>
-IKBKB<br>
-BCL2L11<br>
-KDM6A<br>
-SH2B3<br>
-COX6C<br>
-IL2<br>
-NR1H2<br>
-CRKL<br>
-ABI1<br>
-AKT3<br>
-PER1<br>
-IL6ST<br>
-IL7R<br>
-CREB1<br>
-CREBBP<br>
-SPECC1<br>
-IFNGR1<br>
-PDK1<br>
-RAD50<br>
-PDGFB<br>
-PDGFRB<br>
-EML4<br>
-COL11A1<br>
-TMEM127<br>
-PDGFRA<br>
-IGF1<br>
-PCLO<br>
-PDPK1<br>
-IGF1R<br>
-IGF2<br>
-PDYN<br>
-IGFBP7<br>
-PDCD1<br>
-IGH<br>
-TYK2<br>
-TYMS<br>
-MAP3K8<br>
-U2AF1<br>
-KLF6<br>
-CTNNA1<br>
-CTLA4<br>
-ID3<br>
-IRF8<br>
-CTNNB1<br>
-PMAIP1<br>
-IDH2<br>
-IDH1<br>
-ARID2<br>
-GID4<br>
-PML<br>
-CUX1<br>
-PKM<br>
-PLAG1<br>
-TSHR<br>
-AKAP9<br>
-TSC1<br>
-TSC2<br>
-ARFRP1<br>
-RSPO3<br>
-PLCG2<br>
-PLEC<br>
-PIK3CA<br>
-PIK3CB<br>
-PIK3C2G<br>
-PIK3C3<br>
-PIK3CG<br>
-PIK3R1<br>
-PIM1<br>
-CSF1R<br>
-PIK3CD<br>
-PIK3R2<br>
-OLIG2<br>
-AJUBA<br>
-ASPSCR1<br>
-TMEM30A<br>
-TRAF2<br>
-TRAF3<br>
-TRAF5<br>
-CSF3R<br>
-TPM4<br>
-LHFP<br>
-TPM3<br>
-TPR<br>
-RET<br>
-DDB2<br>
-PAG1<br>
-ACSL6<br>
-CCNB1IP1<br>
-ICOSLG<br>
-BRIP1<br>
-DDX6<br>
-LRRK2<br>
-KIT<br>
-REL<br>
-DDX10<br>
-TAF15<br>
-DDIT3<br>
-KLK2<br>
-FAT4<br>
-DDX5<br>
-DDX3X<br>
-RHEB<br>
-KIF5B<br>
-MIR17HG<br>
-VTCN1<br>
-SYNE1<br>
-ELL<br>
-DAXX<br>
-TRIM27<br>
-CD274<br>
-KDR<br>
-S1PR2<br>
-OBSCN<br>
-ARHGEF12<br>
-KCNJ5<br>
-RARA<br>
-RAP1GDS1<br>
-TBK1<br>
-CRTC1<br>
-FGF23<br>
-KMT2D<br>
-RALGDS<br>
-ICE1<br>
-RAF1<br>
-RAD52<br>
-RAD51D<br>
-HMGA2<br>
-RAD51B<br>
-CYP17A1<br>
-RAD51C<br>
-CRIPAK<br>
-NCSTN<br>
-RAD51<br>
-TRIP11<br>
-CYLD<br>
-DICER1<br>
-SERP2<br>
-TBL1XR1<br>
-SETD2<br>
-KLF4<br>
-JAK2<br>
-JAK1<br>
-JAK3<br>
-AMER1<br>
-TCL1A<br>
-RB1<br>
-JUN<br>
-KDM5A<br>
-PALB2<br>
-RASA1<br>
-JARID2<br>
-ROS1<br>
-RPGR<br>
-ATP1B4<br>
-MAGEE1<br>
-NR4A3<br>
-ITK<br>
-ZNF750<br>
-RYBP<br>
-SF3B1<br>
-RNF213<br>
-CCDC6<br>
-NCOA4<br>
-MLLT10<br>
-DNMT1<br>
-ITGAL<br>
-BRD3<br>
-DNM2<br>
-DNMT3A<br>
-KIAA1549<br>
-DNMT3B<br>
-NUP214<br>
-FAM175A<br>
-RPL11<br>
-RPL13<br>
-FBXO31<br>
-DKC1<br>
-IRS1<br>
-RPL15<br>
-HEY1<br>
-ARID5B<br>
-IRF1<br>
-RPA1<br>
-IRF4<br>
-C15ORF65<br>
-RECQL4<br>
-FANCM<br>
-DMD<br>
-RPL5<br>
-BRD4<br>
-INSRR<br>
-INSR<br>
-FLCN<br>
-TFEB<br>
-KIAA1109<br>
-INPP5D<br>
-TSHZ3<br>
-RMRP<br>
-INPP4A<br>
-U2AF2<br>
-RIT1<br>
-INHBA<br>
-SUZ12<br>
-POFUT1<br>
-RNF217-AS1<br>
-TRIM7<br>
-MAP4K4<br>
-KAT6B<br>
-KAT6A<br>
-TUSC3<br>
-IL10<br>
-LYL1<br>
-MAGED1<br>
-SH2D1A<br>
-DCUN1D1<br>
-EPCAM<br>
-TRAF7<br>
-CDK12<br>
-PDS5B<br>
-PTCH1<br>
-SMAD2<br>
-SMAD3<br>
-SMAD4<br>
-FNBP1<br>
-RICTOR<br>
-EGFRVIII<br>
-CDKN2AP14ARF<br>
-MAF<br>
-CDKN2AP16INK4A<br>
-MAPK8IP1<br>
-WWOX<br>
-ARHGAP26<br>
-LRP5<br>
-PTEN<br>
-EBF1<br>
-UHRF1BP1L<br>
-FLYWCH1<br>
-E2F3<br>
-MKL1<br>
-PTK2<br>
-KDM4C<br>
-DEK<br>
-ERC1<br>
-TCL6<br>
-LMO2<br>
-DUSP9<br>
-LMO1<br>
-DUSP2<br>
-FIP1L1<br>
-DTX1<br>
-BTG2<br>
-ARID1B<br>
-PHF6<br>
-PRSS8<br>
-RELN<br>
-LPP<br>
-ATN1<br>
-SEPT6<br>
-AARS2<br>
-CIC<br>
-LIFR<br>
-MALAT1<br>
-EPHA6<br>
-RPTOR<br>
-MIB1<br>
-CXCR4<br>
-DOCK2<br>
-PAX8<br>
-EP300<br>
-FOXP1<br>
-HOOK3<br>
-LCP1<br>
-EPHA3<br>
-PRDM16<br>
-EPHA4<br>
-LDHA<br>
-EPHA5<br>
-ZNF217<br>
-EPHA7<br>
-EPHA8<br>
-EPHB1<br>
-PASK<br>
-NFE2L3<br>
-CREB3L1<br>
-LFNG<br>
-NCOR1<br>
-NCOR2<br>
-ZMYM2<br>
-BBC3<br>
-ELF4<br>
-ELN<br>
-ELK4<br>
-PDE4DIP<br>
-MDC1<br>
-PRDM2<br>
-RAC1<br>
-LCK<br>
-DKK3<br>
-DKK2<br>
-IKBKE<br>
-DKK4<br>
-LASP1<br>
-LRIG3<br>
-ELF3<br>
-RAD21<br>
-AFF4<br>
-CAMTA1<br>
-EIF4A2<br>
-MAML2<br>
-ZBTB16<br>
-BRSK1<br>
-EPHA2<br>
-DOT1L<br>
-ANKRD12<br>
-CARD11<br>
-CDC73<br>
-NUP93<br>
-EIF4EBP1<br>
-PTPN2<br>
-PTPN11<br>
-EGFR<br>
-PTPN6<br>
-ZNF132<br>
-AFF3<br>
-PTPRD<br>
-EIF1AX<br>
-EIF2B1<br>
-KTN1<br>
-EGR3<br>
-NLRP3<br>
-KRAS<br>
-PTPRS<br>
-PTPRO<br>
-ESCO1<br>
-HERPUD1
+<jsp:include page="WEB-INF/jsp/global/header.jsp" flush="true" />
+
+<div id="main">
+  <table cellspacing="2px">
+    <tr>
+      <td>
+        <h1>Portal Cancer Gene List</h1>
+        PDCD1LG2&nbsp;&nbsp;&nbsp;&nbsp;
+        CD276&nbsp;&nbsp;&nbsp;&nbsp;
+        TRIM24&nbsp;&nbsp;&nbsp;&nbsp;
+        FAT1&nbsp;&nbsp;&nbsp;&nbsp;
+        AAMP&nbsp;&nbsp;&nbsp;&nbsp;
+        INPP4B&nbsp;&nbsp;&nbsp;&nbsp;
+        FANCG&nbsp;&nbsp;&nbsp;&nbsp;
+        FANCF&nbsp;&nbsp;&nbsp;&nbsp;
+        ABL1&nbsp;&nbsp;&nbsp;&nbsp;
+        FANCD2&nbsp;&nbsp;&nbsp;&nbsp;
+        FANCC&nbsp;&nbsp;&nbsp;&nbsp;
+        ABL2&nbsp;&nbsp;&nbsp;&nbsp;
+        FANCE&nbsp;&nbsp;&nbsp;&nbsp;
+        CLP1&nbsp;&nbsp;&nbsp;&nbsp;
+        ACSL3&nbsp;&nbsp;&nbsp;&nbsp;
+        TET3&nbsp;&nbsp;&nbsp;&nbsp;
+        MLLT11&nbsp;&nbsp;&nbsp;&nbsp;
+        MPL&nbsp;&nbsp;&nbsp;&nbsp;
+        MEF2B&nbsp;&nbsp;&nbsp;&nbsp;
+        PNRC1&nbsp;&nbsp;&nbsp;&nbsp;
+        MRE11A&nbsp;&nbsp;&nbsp;&nbsp;
+        TNFRSF11A&nbsp;&nbsp;&nbsp;&nbsp;
+        FCGR2B&nbsp;&nbsp;&nbsp;&nbsp;
+        ACTB&nbsp;&nbsp;&nbsp;&nbsp;
+        TET1&nbsp;&nbsp;&nbsp;&nbsp;
+        FH&nbsp;&nbsp;&nbsp;&nbsp;
+        FGFR4&nbsp;&nbsp;&nbsp;&nbsp;
+        FGFR1&nbsp;&nbsp;&nbsp;&nbsp;
+        FGFR3&nbsp;&nbsp;&nbsp;&nbsp;
+        MSN&nbsp;&nbsp;&nbsp;&nbsp;
+        C2ORF44&nbsp;&nbsp;&nbsp;&nbsp;
+        FGFR2&nbsp;&nbsp;&nbsp;&nbsp;
+        TNFSF9&nbsp;&nbsp;&nbsp;&nbsp;
+        FGF12&nbsp;&nbsp;&nbsp;&nbsp;
+        FGF14&nbsp;&nbsp;&nbsp;&nbsp;
+        FGF7&nbsp;&nbsp;&nbsp;&nbsp;
+        FGF10&nbsp;&nbsp;&nbsp;&nbsp;
+        FGF4&nbsp;&nbsp;&nbsp;&nbsp;
+        FGF3&nbsp;&nbsp;&nbsp;&nbsp;
+        FGF6&nbsp;&nbsp;&nbsp;&nbsp;
+        TNFRSF14&nbsp;&nbsp;&nbsp;&nbsp;
+        ACVR2A&nbsp;&nbsp;&nbsp;&nbsp;
+        KLHL6&nbsp;&nbsp;&nbsp;&nbsp;
+        ACVR1B&nbsp;&nbsp;&nbsp;&nbsp;
+        MSH2&nbsp;&nbsp;&nbsp;&nbsp;
+        MSH3&nbsp;&nbsp;&nbsp;&nbsp;
+        SMARCD1&nbsp;&nbsp;&nbsp;&nbsp;
+        LGR6&nbsp;&nbsp;&nbsp;&nbsp;
+        SMARCB1&nbsp;&nbsp;&nbsp;&nbsp;
+        SMARCA4&nbsp;&nbsp;&nbsp;&nbsp;
+        IL21R&nbsp;&nbsp;&nbsp;&nbsp;
+        SMARCA1&nbsp;&nbsp;&nbsp;&nbsp;
+        MSI1&nbsp;&nbsp;&nbsp;&nbsp;
+        WNK1&nbsp;&nbsp;&nbsp;&nbsp;
+        EED&nbsp;&nbsp;&nbsp;&nbsp;
+        MALT1&nbsp;&nbsp;&nbsp;&nbsp;
+        SNAP25&nbsp;&nbsp;&nbsp;&nbsp;
+        FKBP1A&nbsp;&nbsp;&nbsp;&nbsp;
+        SMO&nbsp;&nbsp;&nbsp;&nbsp;
+        FHIT&nbsp;&nbsp;&nbsp;&nbsp;
+        ERBB3&nbsp;&nbsp;&nbsp;&nbsp;
+        ERBB2&nbsp;&nbsp;&nbsp;&nbsp;
+        ERBB4&nbsp;&nbsp;&nbsp;&nbsp;
+        APCDD1&nbsp;&nbsp;&nbsp;&nbsp;
+        PREX2&nbsp;&nbsp;&nbsp;&nbsp;
+        ERCC2&nbsp;&nbsp;&nbsp;&nbsp;
+        ERCC3&nbsp;&nbsp;&nbsp;&nbsp;
+        PARP4&nbsp;&nbsp;&nbsp;&nbsp;
+        PARP1&nbsp;&nbsp;&nbsp;&nbsp;
+        PHOX2B&nbsp;&nbsp;&nbsp;&nbsp;
+        ERCC5&nbsp;&nbsp;&nbsp;&nbsp;
+        ERCC4&nbsp;&nbsp;&nbsp;&nbsp;
+        SGK1&nbsp;&nbsp;&nbsp;&nbsp;
+        ERG&nbsp;&nbsp;&nbsp;&nbsp;
+        EPHB2&nbsp;&nbsp;&nbsp;&nbsp;
+        EPHB3&nbsp;&nbsp;&nbsp;&nbsp;
+        EPHB4&nbsp;&nbsp;&nbsp;&nbsp;
+        EPHB6&nbsp;&nbsp;&nbsp;&nbsp;
+        SH3GL1&nbsp;&nbsp;&nbsp;&nbsp;
+        MTCP1&nbsp;&nbsp;&nbsp;&nbsp;
+        EPS15&nbsp;&nbsp;&nbsp;&nbsp;
+        MTAP&nbsp;&nbsp;&nbsp;&nbsp;
+        AK9&nbsp;&nbsp;&nbsp;&nbsp;
+        ESR1&nbsp;&nbsp;&nbsp;&nbsp;
+        SEMG1&nbsp;&nbsp;&nbsp;&nbsp;
+        FRS2&nbsp;&nbsp;&nbsp;&nbsp;
+        SET&nbsp;&nbsp;&nbsp;&nbsp;
+        MAP2K4&nbsp;&nbsp;&nbsp;&nbsp;
+        SFPQ&nbsp;&nbsp;&nbsp;&nbsp;
+        FBXO11&nbsp;&nbsp;&nbsp;&nbsp;
+        SRSF2&nbsp;&nbsp;&nbsp;&nbsp;
+        BCL10&nbsp;&nbsp;&nbsp;&nbsp;
+        BCORL1&nbsp;&nbsp;&nbsp;&nbsp;
+        SRSF3&nbsp;&nbsp;&nbsp;&nbsp;
+        BTLA&nbsp;&nbsp;&nbsp;&nbsp;
+        EXT2&nbsp;&nbsp;&nbsp;&nbsp;
+        AKT1&nbsp;&nbsp;&nbsp;&nbsp;
+        SKP2&nbsp;&nbsp;&nbsp;&nbsp;
+        SEPT9&nbsp;&nbsp;&nbsp;&nbsp;
+        EXT1&nbsp;&nbsp;&nbsp;&nbsp;
+        MYB&nbsp;&nbsp;&nbsp;&nbsp;
+        EWSR1&nbsp;&nbsp;&nbsp;&nbsp;
+        MUTYH&nbsp;&nbsp;&nbsp;&nbsp;
+        ETV4&nbsp;&nbsp;&nbsp;&nbsp;
+        ETV5&nbsp;&nbsp;&nbsp;&nbsp;
+        ETS1&nbsp;&nbsp;&nbsp;&nbsp;
+        ALDH2&nbsp;&nbsp;&nbsp;&nbsp;
+        ETV1&nbsp;&nbsp;&nbsp;&nbsp;
+        MUC1&nbsp;&nbsp;&nbsp;&nbsp;
+        ZNF384&nbsp;&nbsp;&nbsp;&nbsp;
+        FUBP1&nbsp;&nbsp;&nbsp;&nbsp;
+        ASXL1&nbsp;&nbsp;&nbsp;&nbsp;
+        AKT2&nbsp;&nbsp;&nbsp;&nbsp;
+        ETV6&nbsp;&nbsp;&nbsp;&nbsp;
+        MECOM&nbsp;&nbsp;&nbsp;&nbsp;
+        PTPN22&nbsp;&nbsp;&nbsp;&nbsp;
+        ALK&nbsp;&nbsp;&nbsp;&nbsp;
+        EPPK1&nbsp;&nbsp;&nbsp;&nbsp;
+        PLK2&nbsp;&nbsp;&nbsp;&nbsp;
+        FANCA&nbsp;&nbsp;&nbsp;&nbsp;
+        WISP3&nbsp;&nbsp;&nbsp;&nbsp;
+        RSPO2&nbsp;&nbsp;&nbsp;&nbsp;
+        SOCS2&nbsp;&nbsp;&nbsp;&nbsp;
+        GMPS&nbsp;&nbsp;&nbsp;&nbsp;
+        EZH2&nbsp;&nbsp;&nbsp;&nbsp;
+        ZNF703&nbsp;&nbsp;&nbsp;&nbsp;
+        ALOX12B&nbsp;&nbsp;&nbsp;&nbsp;
+        PMEL&nbsp;&nbsp;&nbsp;&nbsp;
+        AHNAK2&nbsp;&nbsp;&nbsp;&nbsp;
+        MAX&nbsp;&nbsp;&nbsp;&nbsp;
+        MAP3K6&nbsp;&nbsp;&nbsp;&nbsp;
+        ASH2L&nbsp;&nbsp;&nbsp;&nbsp;
+        FZD10&nbsp;&nbsp;&nbsp;&nbsp;
+        MTOR&nbsp;&nbsp;&nbsp;&nbsp;
+        CHEK2&nbsp;&nbsp;&nbsp;&nbsp;
+        FEV&nbsp;&nbsp;&nbsp;&nbsp;
+        LATS2&nbsp;&nbsp;&nbsp;&nbsp;
+        CBLC&nbsp;&nbsp;&nbsp;&nbsp;
+        STK40&nbsp;&nbsp;&nbsp;&nbsp;
+        CHIC2&nbsp;&nbsp;&nbsp;&nbsp;
+        TAF1L&nbsp;&nbsp;&nbsp;&nbsp;
+        MDM4&nbsp;&nbsp;&nbsp;&nbsp;
+        MDM2&nbsp;&nbsp;&nbsp;&nbsp;
+        SDHD&nbsp;&nbsp;&nbsp;&nbsp;
+        SDHC&nbsp;&nbsp;&nbsp;&nbsp;
+        SDHB&nbsp;&nbsp;&nbsp;&nbsp;
+        SOCS3&nbsp;&nbsp;&nbsp;&nbsp;
+        MEF2A&nbsp;&nbsp;&nbsp;&nbsp;
+        SDHA&nbsp;&nbsp;&nbsp;&nbsp;
+        MAP3K14&nbsp;&nbsp;&nbsp;&nbsp;
+        SDC4&nbsp;&nbsp;&nbsp;&nbsp;
+        PSIP1&nbsp;&nbsp;&nbsp;&nbsp;
+        MAP3K1&nbsp;&nbsp;&nbsp;&nbsp;
+        PATZ1&nbsp;&nbsp;&nbsp;&nbsp;
+        APC&nbsp;&nbsp;&nbsp;&nbsp;
+        WIF1&nbsp;&nbsp;&nbsp;&nbsp;
+        MEF2C&nbsp;&nbsp;&nbsp;&nbsp;
+        FUS&nbsp;&nbsp;&nbsp;&nbsp;
+        MEN1&nbsp;&nbsp;&nbsp;&nbsp;
+        BIRC3&nbsp;&nbsp;&nbsp;&nbsp;
+        XIAP&nbsp;&nbsp;&nbsp;&nbsp;
+        MAP3K4&nbsp;&nbsp;&nbsp;&nbsp;
+        BIRC2&nbsp;&nbsp;&nbsp;&nbsp;
+        ARAF&nbsp;&nbsp;&nbsp;&nbsp;
+        FYN&nbsp;&nbsp;&nbsp;&nbsp;
+        GREM1&nbsp;&nbsp;&nbsp;&nbsp;
+        KDSR&nbsp;&nbsp;&nbsp;&nbsp;
+        RPS6KA4&nbsp;&nbsp;&nbsp;&nbsp;
+        H3F3C&nbsp;&nbsp;&nbsp;&nbsp;
+        MCL1&nbsp;&nbsp;&nbsp;&nbsp;
+        FAS&nbsp;&nbsp;&nbsp;&nbsp;
+        AR&nbsp;&nbsp;&nbsp;&nbsp;
+        HIST1H2AG&nbsp;&nbsp;&nbsp;&nbsp;
+        HIST1H2BJ&nbsp;&nbsp;&nbsp;&nbsp;
+        RPS6KB1&nbsp;&nbsp;&nbsp;&nbsp;
+        RPS6KB2&nbsp;&nbsp;&nbsp;&nbsp;
+        AURKB&nbsp;&nbsp;&nbsp;&nbsp;
+        FOXO1&nbsp;&nbsp;&nbsp;&nbsp;
+        NAV3&nbsp;&nbsp;&nbsp;&nbsp;
+        FOXO3&nbsp;&nbsp;&nbsp;&nbsp;
+        ZMYM3&nbsp;&nbsp;&nbsp;&nbsp;
+        FLI1&nbsp;&nbsp;&nbsp;&nbsp;
+        FGFR1OP&nbsp;&nbsp;&nbsp;&nbsp;
+        ARNT&nbsp;&nbsp;&nbsp;&nbsp;
+        CIITA&nbsp;&nbsp;&nbsp;&nbsp;
+        PTPRT&nbsp;&nbsp;&nbsp;&nbsp;
+        FLT3&nbsp;&nbsp;&nbsp;&nbsp;
+        FLT1&nbsp;&nbsp;&nbsp;&nbsp;
+        RHOH&nbsp;&nbsp;&nbsp;&nbsp;
+        MITF&nbsp;&nbsp;&nbsp;&nbsp;
+        FAF1&nbsp;&nbsp;&nbsp;&nbsp;
+        FLT4&nbsp;&nbsp;&nbsp;&nbsp;
+        RHOA&nbsp;&nbsp;&nbsp;&nbsp;
+        RPN1&nbsp;&nbsp;&nbsp;&nbsp;
+        AFF2&nbsp;&nbsp;&nbsp;&nbsp;
+        MET&nbsp;&nbsp;&nbsp;&nbsp;
+        RPL35A&nbsp;&nbsp;&nbsp;&nbsp;
+        TRIOBP&nbsp;&nbsp;&nbsp;&nbsp;
+        HMGN2P46&nbsp;&nbsp;&nbsp;&nbsp;
+        MAP3K13&nbsp;&nbsp;&nbsp;&nbsp;
+        RPL22&nbsp;&nbsp;&nbsp;&nbsp;
+        PCSK7&nbsp;&nbsp;&nbsp;&nbsp;
+        MN1&nbsp;&nbsp;&nbsp;&nbsp;
+        ATM&nbsp;&nbsp;&nbsp;&nbsp;
+        ATIC&nbsp;&nbsp;&nbsp;&nbsp;
+        ATF1&nbsp;&nbsp;&nbsp;&nbsp;
+        RABEP1&nbsp;&nbsp;&nbsp;&nbsp;
+        ZFHX3&nbsp;&nbsp;&nbsp;&nbsp;
+        EXOSC6&nbsp;&nbsp;&nbsp;&nbsp;
+        VTI1A&nbsp;&nbsp;&nbsp;&nbsp;
+        SMC3&nbsp;&nbsp;&nbsp;&nbsp;
+        CNTRL&nbsp;&nbsp;&nbsp;&nbsp;
+        MLLT3&nbsp;&nbsp;&nbsp;&nbsp;
+        ECT2L&nbsp;&nbsp;&nbsp;&nbsp;
+        MLLT4&nbsp;&nbsp;&nbsp;&nbsp;
+        MLLT6&nbsp;&nbsp;&nbsp;&nbsp;
+        RPS26&nbsp;&nbsp;&nbsp;&nbsp;
+        FOXO4&nbsp;&nbsp;&nbsp;&nbsp;
+        LATS1&nbsp;&nbsp;&nbsp;&nbsp;
+        KMT2A&nbsp;&nbsp;&nbsp;&nbsp;
+        MLLT1&nbsp;&nbsp;&nbsp;&nbsp;
+        AFF1&nbsp;&nbsp;&nbsp;&nbsp;
+        MLH1&nbsp;&nbsp;&nbsp;&nbsp;
+        MKI67&nbsp;&nbsp;&nbsp;&nbsp;
+        MLF1&nbsp;&nbsp;&nbsp;&nbsp;
+        RPS14&nbsp;&nbsp;&nbsp;&nbsp;
+        USP6&nbsp;&nbsp;&nbsp;&nbsp;
+        RPS19&nbsp;&nbsp;&nbsp;&nbsp;
+        NIN&nbsp;&nbsp;&nbsp;&nbsp;
+        ATRX&nbsp;&nbsp;&nbsp;&nbsp;
+        TGFBR2&nbsp;&nbsp;&nbsp;&nbsp;
+        ATR&nbsp;&nbsp;&nbsp;&nbsp;
+        TGFBR1&nbsp;&nbsp;&nbsp;&nbsp;
+        AXL&nbsp;&nbsp;&nbsp;&nbsp;
+        NRAS&nbsp;&nbsp;&nbsp;&nbsp;
+        CRBN&nbsp;&nbsp;&nbsp;&nbsp;
+        GLI3&nbsp;&nbsp;&nbsp;&nbsp;
+        GLI1&nbsp;&nbsp;&nbsp;&nbsp;
+        B2M&nbsp;&nbsp;&nbsp;&nbsp;
+        NPM1&nbsp;&nbsp;&nbsp;&nbsp;
+        LEF1&nbsp;&nbsp;&nbsp;&nbsp;
+        JAZF1&nbsp;&nbsp;&nbsp;&nbsp;
+        CDC42EP2&nbsp;&nbsp;&nbsp;&nbsp;
+        BACH1&nbsp;&nbsp;&nbsp;&nbsp;
+        NTRK3&nbsp;&nbsp;&nbsp;&nbsp;
+        HIST1H4I&nbsp;&nbsp;&nbsp;&nbsp;
+        TRRAP&nbsp;&nbsp;&nbsp;&nbsp;
+        GPC3&nbsp;&nbsp;&nbsp;&nbsp;
+        EGFL7&nbsp;&nbsp;&nbsp;&nbsp;
+        NKX2-1&nbsp;&nbsp;&nbsp;&nbsp;
+        C11ORF30&nbsp;&nbsp;&nbsp;&nbsp;
+        ARID1A&nbsp;&nbsp;&nbsp;&nbsp;
+        NTRK1&nbsp;&nbsp;&nbsp;&nbsp;
+        NTRK2&nbsp;&nbsp;&nbsp;&nbsp;
+        PICALM&nbsp;&nbsp;&nbsp;&nbsp;
+        NUMA1&nbsp;&nbsp;&nbsp;&nbsp;
+        ROR2&nbsp;&nbsp;&nbsp;&nbsp;
+        DDR2&nbsp;&nbsp;&nbsp;&nbsp;
+        TLR4&nbsp;&nbsp;&nbsp;&nbsp;
+        TLL2&nbsp;&nbsp;&nbsp;&nbsp;
+        AXIN2&nbsp;&nbsp;&nbsp;&nbsp;
+        AXIN1&nbsp;&nbsp;&nbsp;&nbsp;
+        BAP1&nbsp;&nbsp;&nbsp;&nbsp;
+        NOD1&nbsp;&nbsp;&nbsp;&nbsp;
+        TNFRSF17&nbsp;&nbsp;&nbsp;&nbsp;
+        TMPRSS2&nbsp;&nbsp;&nbsp;&nbsp;
+        TMSB4XP8&nbsp;&nbsp;&nbsp;&nbsp;
+        BCR&nbsp;&nbsp;&nbsp;&nbsp;
+        NDRG1&nbsp;&nbsp;&nbsp;&nbsp;
+        NCOA3&nbsp;&nbsp;&nbsp;&nbsp;
+        P2RY8&nbsp;&nbsp;&nbsp;&nbsp;
+        OMD&nbsp;&nbsp;&nbsp;&nbsp;
+        TNFAIP6&nbsp;&nbsp;&nbsp;&nbsp;
+        NR4A2&nbsp;&nbsp;&nbsp;&nbsp;
+        TNFAIP3&nbsp;&nbsp;&nbsp;&nbsp;
+        NUP98&nbsp;&nbsp;&nbsp;&nbsp;
+        SBDS&nbsp;&nbsp;&nbsp;&nbsp;
+        CLTCL1&nbsp;&nbsp;&nbsp;&nbsp;
+        APH1A&nbsp;&nbsp;&nbsp;&nbsp;
+        PRDM1&nbsp;&nbsp;&nbsp;&nbsp;
+        GNAQ&nbsp;&nbsp;&nbsp;&nbsp;
+        EPHA10&nbsp;&nbsp;&nbsp;&nbsp;
+        GNAS&nbsp;&nbsp;&nbsp;&nbsp;
+        BARD1&nbsp;&nbsp;&nbsp;&nbsp;
+        TOP1&nbsp;&nbsp;&nbsp;&nbsp;
+        GNA12&nbsp;&nbsp;&nbsp;&nbsp;
+        ZRSR2&nbsp;&nbsp;&nbsp;&nbsp;
+        ASXL3&nbsp;&nbsp;&nbsp;&nbsp;
+        USP9X&nbsp;&nbsp;&nbsp;&nbsp;
+        SDHAF2&nbsp;&nbsp;&nbsp;&nbsp;
+        RBM10&nbsp;&nbsp;&nbsp;&nbsp;
+        SMC1A&nbsp;&nbsp;&nbsp;&nbsp;
+        CCND1&nbsp;&nbsp;&nbsp;&nbsp;
+        KDM5C&nbsp;&nbsp;&nbsp;&nbsp;
+        YAP1&nbsp;&nbsp;&nbsp;&nbsp;
+        BCL2&nbsp;&nbsp;&nbsp;&nbsp;
+        GNA11&nbsp;&nbsp;&nbsp;&nbsp;
+        BCL2L2&nbsp;&nbsp;&nbsp;&nbsp;
+        BCL2L1&nbsp;&nbsp;&nbsp;&nbsp;
+        BCL5&nbsp;&nbsp;&nbsp;&nbsp;
+        BCL3&nbsp;&nbsp;&nbsp;&nbsp;
+        TP53&nbsp;&nbsp;&nbsp;&nbsp;
+        BCL7A&nbsp;&nbsp;&nbsp;&nbsp;
+        BCL6&nbsp;&nbsp;&nbsp;&nbsp;
+        BCL9&nbsp;&nbsp;&nbsp;&nbsp;
+        FAM46C&nbsp;&nbsp;&nbsp;&nbsp;
+        TCEA1&nbsp;&nbsp;&nbsp;&nbsp;
+        TLX3&nbsp;&nbsp;&nbsp;&nbsp;
+        IKZF1&nbsp;&nbsp;&nbsp;&nbsp;
+        OTX2&nbsp;&nbsp;&nbsp;&nbsp;
+        HNF1A&nbsp;&nbsp;&nbsp;&nbsp;
+        GATA1&nbsp;&nbsp;&nbsp;&nbsp;
+        TBX3&nbsp;&nbsp;&nbsp;&nbsp;
+        ZFP36L1&nbsp;&nbsp;&nbsp;&nbsp;
+        BRCA2&nbsp;&nbsp;&nbsp;&nbsp;
+        BRAF&nbsp;&nbsp;&nbsp;&nbsp;
+        BRCA1&nbsp;&nbsp;&nbsp;&nbsp;
+        TCF7L2&nbsp;&nbsp;&nbsp;&nbsp;
+        BUB1B&nbsp;&nbsp;&nbsp;&nbsp;
+        TCF3&nbsp;&nbsp;&nbsp;&nbsp;
+        BTG1&nbsp;&nbsp;&nbsp;&nbsp;
+        BTK&nbsp;&nbsp;&nbsp;&nbsp;
+        SPOP&nbsp;&nbsp;&nbsp;&nbsp;
+        TCF12&nbsp;&nbsp;&nbsp;&nbsp;
+        PAFAH1B2&nbsp;&nbsp;&nbsp;&nbsp;
+        CASC5&nbsp;&nbsp;&nbsp;&nbsp;
+        BCOR&nbsp;&nbsp;&nbsp;&nbsp;
+        TRB&nbsp;&nbsp;&nbsp;&nbsp;
+        RNF43&nbsp;&nbsp;&nbsp;&nbsp;
+        BLM&nbsp;&nbsp;&nbsp;&nbsp;
+        TRA&nbsp;&nbsp;&nbsp;&nbsp;
+        FOXL2&nbsp;&nbsp;&nbsp;&nbsp;
+        TRD&nbsp;&nbsp;&nbsp;&nbsp;
+        TFG&nbsp;&nbsp;&nbsp;&nbsp;
+        HIST1H2BK&nbsp;&nbsp;&nbsp;&nbsp;
+        TICAM1&nbsp;&nbsp;&nbsp;&nbsp;
+        TSHZ2&nbsp;&nbsp;&nbsp;&nbsp;
+        ABCA9&nbsp;&nbsp;&nbsp;&nbsp;
+        RAD54L&nbsp;&nbsp;&nbsp;&nbsp;
+        BMPR1A&nbsp;&nbsp;&nbsp;&nbsp;
+        WHSC1L1&nbsp;&nbsp;&nbsp;&nbsp;
+        MIR142&nbsp;&nbsp;&nbsp;&nbsp;
+        PAX7&nbsp;&nbsp;&nbsp;&nbsp;
+        PBX1&nbsp;&nbsp;&nbsp;&nbsp;
+        HIST1H2AC&nbsp;&nbsp;&nbsp;&nbsp;
+        CREB3L2&nbsp;&nbsp;&nbsp;&nbsp;
+        HIST1H2AL&nbsp;&nbsp;&nbsp;&nbsp;
+        TET2&nbsp;&nbsp;&nbsp;&nbsp;
+        PAX5&nbsp;&nbsp;&nbsp;&nbsp;
+        POGLUT1&nbsp;&nbsp;&nbsp;&nbsp;
+        PAX3&nbsp;&nbsp;&nbsp;&nbsp;
+        HIST1H2BC&nbsp;&nbsp;&nbsp;&nbsp;
+        GPHN&nbsp;&nbsp;&nbsp;&nbsp;
+        HIST1H3A&nbsp;&nbsp;&nbsp;&nbsp;
+        PARK2&nbsp;&nbsp;&nbsp;&nbsp;
+        HIST1H2BO&nbsp;&nbsp;&nbsp;&nbsp;
+        PAK1&nbsp;&nbsp;&nbsp;&nbsp;
+        HIST1H2AM&nbsp;&nbsp;&nbsp;&nbsp;
+        PAK3&nbsp;&nbsp;&nbsp;&nbsp;
+        CCNL1&nbsp;&nbsp;&nbsp;&nbsp;
+        TEK&nbsp;&nbsp;&nbsp;&nbsp;
+        TERT&nbsp;&nbsp;&nbsp;&nbsp;
+        PCM1&nbsp;&nbsp;&nbsp;&nbsp;
+        HIST1H3B&nbsp;&nbsp;&nbsp;&nbsp;
+        GATA2&nbsp;&nbsp;&nbsp;&nbsp;
+        FSTL3&nbsp;&nbsp;&nbsp;&nbsp;
+        GATA3&nbsp;&nbsp;&nbsp;&nbsp;
+        STAG1&nbsp;&nbsp;&nbsp;&nbsp;
+        ACKR3&nbsp;&nbsp;&nbsp;&nbsp;
+        TFE3&nbsp;&nbsp;&nbsp;&nbsp;
+        RMI2&nbsp;&nbsp;&nbsp;&nbsp;
+        PC&nbsp;&nbsp;&nbsp;&nbsp;
+        PCBP1&nbsp;&nbsp;&nbsp;&nbsp;
+        TFRC&nbsp;&nbsp;&nbsp;&nbsp;
+        MYCN&nbsp;&nbsp;&nbsp;&nbsp;
+        MYD88&nbsp;&nbsp;&nbsp;&nbsp;
+        KMT2C&nbsp;&nbsp;&nbsp;&nbsp;
+        MYC&nbsp;&nbsp;&nbsp;&nbsp;
+        MYCL&nbsp;&nbsp;&nbsp;&nbsp;
+        CCT6B&nbsp;&nbsp;&nbsp;&nbsp;
+        ASXL2&nbsp;&nbsp;&nbsp;&nbsp;
+        GADD45B&nbsp;&nbsp;&nbsp;&nbsp;
+        ELP2&nbsp;&nbsp;&nbsp;&nbsp;
+        YY1AP1&nbsp;&nbsp;&nbsp;&nbsp;
+        MYH11&nbsp;&nbsp;&nbsp;&nbsp;
+        HIST1H1C&nbsp;&nbsp;&nbsp;&nbsp;
+        HIST1H1D&nbsp;&nbsp;&nbsp;&nbsp;
+        STK11&nbsp;&nbsp;&nbsp;&nbsp;
+        MYH9&nbsp;&nbsp;&nbsp;&nbsp;
+        AURKA&nbsp;&nbsp;&nbsp;&nbsp;
+        FCRL4&nbsp;&nbsp;&nbsp;&nbsp;
+        SNED1&nbsp;&nbsp;&nbsp;&nbsp;
+        GAS7&nbsp;&nbsp;&nbsp;&nbsp;
+        CALR&nbsp;&nbsp;&nbsp;&nbsp;
+        CANT1&nbsp;&nbsp;&nbsp;&nbsp;
+        STAG2&nbsp;&nbsp;&nbsp;&nbsp;
+        CAD&nbsp;&nbsp;&nbsp;&nbsp;
+        SS18L1&nbsp;&nbsp;&nbsp;&nbsp;
+        FBXW7&nbsp;&nbsp;&nbsp;&nbsp;
+        MSH6&nbsp;&nbsp;&nbsp;&nbsp;
+        MYOD1&nbsp;&nbsp;&nbsp;&nbsp;
+        RBM15&nbsp;&nbsp;&nbsp;&nbsp;
+        SETBP1&nbsp;&nbsp;&nbsp;&nbsp;
+        POLQ&nbsp;&nbsp;&nbsp;&nbsp;
+        ATP10A&nbsp;&nbsp;&nbsp;&nbsp;
+        TFPT&nbsp;&nbsp;&nbsp;&nbsp;
+        CRTC3&nbsp;&nbsp;&nbsp;&nbsp;
+        NACA&nbsp;&nbsp;&nbsp;&nbsp;
+        TAF1&nbsp;&nbsp;&nbsp;&nbsp;
+        PBRM1&nbsp;&nbsp;&nbsp;&nbsp;
+        TPRX1&nbsp;&nbsp;&nbsp;&nbsp;
+        NBN&nbsp;&nbsp;&nbsp;&nbsp;
+        CCDC160&nbsp;&nbsp;&nbsp;&nbsp;
+        CCND2&nbsp;&nbsp;&nbsp;&nbsp;
+        HDAC1&nbsp;&nbsp;&nbsp;&nbsp;
+        CBFB&nbsp;&nbsp;&nbsp;&nbsp;
+        HDAC2&nbsp;&nbsp;&nbsp;&nbsp;
+        CUL4B&nbsp;&nbsp;&nbsp;&nbsp;
+        CBL&nbsp;&nbsp;&nbsp;&nbsp;
+        CUL4A&nbsp;&nbsp;&nbsp;&nbsp;
+        CBLB&nbsp;&nbsp;&nbsp;&nbsp;
+        CUL3&nbsp;&nbsp;&nbsp;&nbsp;
+        SYK&nbsp;&nbsp;&nbsp;&nbsp;
+        GOPC&nbsp;&nbsp;&nbsp;&nbsp;
+        HIST1H2BD&nbsp;&nbsp;&nbsp;&nbsp;
+        CTCF&nbsp;&nbsp;&nbsp;&nbsp;
+        PIK3R3&nbsp;&nbsp;&nbsp;&nbsp;
+        H3F3A&nbsp;&nbsp;&nbsp;&nbsp;
+        HIST1H1E&nbsp;&nbsp;&nbsp;&nbsp;
+        CBFA2T3&nbsp;&nbsp;&nbsp;&nbsp;
+        RUNX1T1&nbsp;&nbsp;&nbsp;&nbsp;
+        RUNX1&nbsp;&nbsp;&nbsp;&nbsp;
+        CARS&nbsp;&nbsp;&nbsp;&nbsp;
+        NUTM2A&nbsp;&nbsp;&nbsp;&nbsp;
+        FANCI&nbsp;&nbsp;&nbsp;&nbsp;
+        PAK7&nbsp;&nbsp;&nbsp;&nbsp;
+        GNA13&nbsp;&nbsp;&nbsp;&nbsp;
+        CASP8&nbsp;&nbsp;&nbsp;&nbsp;
+        TAL1&nbsp;&nbsp;&nbsp;&nbsp;
+        TAL2&nbsp;&nbsp;&nbsp;&nbsp;
+        MAP3K7&nbsp;&nbsp;&nbsp;&nbsp;
+        NEFH&nbsp;&nbsp;&nbsp;&nbsp;
+        FANCL&nbsp;&nbsp;&nbsp;&nbsp;
+        CD36&nbsp;&nbsp;&nbsp;&nbsp;
+        IRS2&nbsp;&nbsp;&nbsp;&nbsp;
+        SLC34A2&nbsp;&nbsp;&nbsp;&nbsp;
+        TNKS&nbsp;&nbsp;&nbsp;&nbsp;
+        SOX10&nbsp;&nbsp;&nbsp;&nbsp;
+        SOX9&nbsp;&nbsp;&nbsp;&nbsp;
+        SOX2&nbsp;&nbsp;&nbsp;&nbsp;
+        IGK&nbsp;&nbsp;&nbsp;&nbsp;
+        NCOA1&nbsp;&nbsp;&nbsp;&nbsp;
+        SOX4&nbsp;&nbsp;&nbsp;&nbsp;
+        NF1&nbsp;&nbsp;&nbsp;&nbsp;
+        SOCS1&nbsp;&nbsp;&nbsp;&nbsp;
+        CD22&nbsp;&nbsp;&nbsp;&nbsp;
+        GPS2&nbsp;&nbsp;&nbsp;&nbsp;
+        DCHS1&nbsp;&nbsp;&nbsp;&nbsp;
+        B4GALT3&nbsp;&nbsp;&nbsp;&nbsp;
+        NFE2L2&nbsp;&nbsp;&nbsp;&nbsp;
+        NFIB&nbsp;&nbsp;&nbsp;&nbsp;
+        POT1&nbsp;&nbsp;&nbsp;&nbsp;
+        SHQ1&nbsp;&nbsp;&nbsp;&nbsp;
+        RANBP17&nbsp;&nbsp;&nbsp;&nbsp;
+        D2HGDH&nbsp;&nbsp;&nbsp;&nbsp;
+        SRC&nbsp;&nbsp;&nbsp;&nbsp;
+        NF2&nbsp;&nbsp;&nbsp;&nbsp;
+        NFKBIA&nbsp;&nbsp;&nbsp;&nbsp;
+        NFKB2&nbsp;&nbsp;&nbsp;&nbsp;
+        NFKB1&nbsp;&nbsp;&nbsp;&nbsp;
+        BCL11B&nbsp;&nbsp;&nbsp;&nbsp;
+        A2ML1&nbsp;&nbsp;&nbsp;&nbsp;
+        CCNE1&nbsp;&nbsp;&nbsp;&nbsp;
+        CCND3&nbsp;&nbsp;&nbsp;&nbsp;
+        GRM3&nbsp;&nbsp;&nbsp;&nbsp;
+        NCOA2&nbsp;&nbsp;&nbsp;&nbsp;
+        CDK4&nbsp;&nbsp;&nbsp;&nbsp;
+        CDK6&nbsp;&nbsp;&nbsp;&nbsp;
+        NUTM1&nbsp;&nbsp;&nbsp;&nbsp;
+        MSI2&nbsp;&nbsp;&nbsp;&nbsp;
+        WWTR1&nbsp;&nbsp;&nbsp;&nbsp;
+        CDH11&nbsp;&nbsp;&nbsp;&nbsp;
+        TTL&nbsp;&nbsp;&nbsp;&nbsp;
+        SIN3A&nbsp;&nbsp;&nbsp;&nbsp;
+        NKX3-1&nbsp;&nbsp;&nbsp;&nbsp;
+        GSK3B&nbsp;&nbsp;&nbsp;&nbsp;
+        FAT3&nbsp;&nbsp;&nbsp;&nbsp;
+        ZNF521&nbsp;&nbsp;&nbsp;&nbsp;
+        CDH1&nbsp;&nbsp;&nbsp;&nbsp;
+        CNRIP1&nbsp;&nbsp;&nbsp;&nbsp;
+        SNX29&nbsp;&nbsp;&nbsp;&nbsp;
+        TIPARP&nbsp;&nbsp;&nbsp;&nbsp;
+        NONO&nbsp;&nbsp;&nbsp;&nbsp;
+        STAT3&nbsp;&nbsp;&nbsp;&nbsp;
+        STAT4&nbsp;&nbsp;&nbsp;&nbsp;
+        STAT6&nbsp;&nbsp;&nbsp;&nbsp;
+        TP63&nbsp;&nbsp;&nbsp;&nbsp;
+        STAT5A&nbsp;&nbsp;&nbsp;&nbsp;
+        ZNF300&nbsp;&nbsp;&nbsp;&nbsp;
+        STAT5B&nbsp;&nbsp;&nbsp;&nbsp;
+        CD70&nbsp;&nbsp;&nbsp;&nbsp;
+        GPR124&nbsp;&nbsp;&nbsp;&nbsp;
+        SLC45A3&nbsp;&nbsp;&nbsp;&nbsp;
+        ASMTL&nbsp;&nbsp;&nbsp;&nbsp;
+        GRIN2A&nbsp;&nbsp;&nbsp;&nbsp;
+        SSX4&nbsp;&nbsp;&nbsp;&nbsp;
+        CD79B&nbsp;&nbsp;&nbsp;&nbsp;
+        CD79A&nbsp;&nbsp;&nbsp;&nbsp;
+        SSX2&nbsp;&nbsp;&nbsp;&nbsp;
+        CD74&nbsp;&nbsp;&nbsp;&nbsp;
+        SSX1&nbsp;&nbsp;&nbsp;&nbsp;
+        NOTCH1&nbsp;&nbsp;&nbsp;&nbsp;
+        SS18&nbsp;&nbsp;&nbsp;&nbsp;
+        NOTCH4&nbsp;&nbsp;&nbsp;&nbsp;
+        NOTCH3&nbsp;&nbsp;&nbsp;&nbsp;
+        CD58&nbsp;&nbsp;&nbsp;&nbsp;
+        NOTCH2&nbsp;&nbsp;&nbsp;&nbsp;
+        ARHGAP35&nbsp;&nbsp;&nbsp;&nbsp;
+        NR3C1&nbsp;&nbsp;&nbsp;&nbsp;
+        PHLDA1&nbsp;&nbsp;&nbsp;&nbsp;
+        CHCHD7&nbsp;&nbsp;&nbsp;&nbsp;
+        TOX&nbsp;&nbsp;&nbsp;&nbsp;
+        GOLPH3&nbsp;&nbsp;&nbsp;&nbsp;
+        HRAS&nbsp;&nbsp;&nbsp;&nbsp;
+        CHD4&nbsp;&nbsp;&nbsp;&nbsp;
+        CHEK1&nbsp;&nbsp;&nbsp;&nbsp;
+        CHD1&nbsp;&nbsp;&nbsp;&nbsp;
+        CHD2&nbsp;&nbsp;&nbsp;&nbsp;
+        PPARG&nbsp;&nbsp;&nbsp;&nbsp;
+        HSP90AB1&nbsp;&nbsp;&nbsp;&nbsp;
+        POU5F1&nbsp;&nbsp;&nbsp;&nbsp;
+        CHN1&nbsp;&nbsp;&nbsp;&nbsp;
+        HSP90AA1&nbsp;&nbsp;&nbsp;&nbsp;
+        IKZF3&nbsp;&nbsp;&nbsp;&nbsp;
+        HDAC4&nbsp;&nbsp;&nbsp;&nbsp;
+        CRLF2&nbsp;&nbsp;&nbsp;&nbsp;
+        NCKIPSD&nbsp;&nbsp;&nbsp;&nbsp;
+        IKZF2&nbsp;&nbsp;&nbsp;&nbsp;
+        KMT2B&nbsp;&nbsp;&nbsp;&nbsp;
+        CHUK&nbsp;&nbsp;&nbsp;&nbsp;
+        GTSE1&nbsp;&nbsp;&nbsp;&nbsp;
+        POU2AF1&nbsp;&nbsp;&nbsp;&nbsp;
+        RASGEF1A&nbsp;&nbsp;&nbsp;&nbsp;
+        ZNF91&nbsp;&nbsp;&nbsp;&nbsp;
+        ZNF331&nbsp;&nbsp;&nbsp;&nbsp;
+        CDK8&nbsp;&nbsp;&nbsp;&nbsp;
+        POLE&nbsp;&nbsp;&nbsp;&nbsp;
+        CDKN1A&nbsp;&nbsp;&nbsp;&nbsp;
+        CDKN1B&nbsp;&nbsp;&nbsp;&nbsp;
+        HOXC11&nbsp;&nbsp;&nbsp;&nbsp;
+        MDS2&nbsp;&nbsp;&nbsp;&nbsp;
+        CDKN2A&nbsp;&nbsp;&nbsp;&nbsp;
+        HOXC13&nbsp;&nbsp;&nbsp;&nbsp;
+        CDKN2B&nbsp;&nbsp;&nbsp;&nbsp;
+        AADACL2&nbsp;&nbsp;&nbsp;&nbsp;
+        DIS3&nbsp;&nbsp;&nbsp;&nbsp;
+        CDKN2C&nbsp;&nbsp;&nbsp;&nbsp;
+        CEBPA&nbsp;&nbsp;&nbsp;&nbsp;
+        HOXA9&nbsp;&nbsp;&nbsp;&nbsp;
+        HOXA11&nbsp;&nbsp;&nbsp;&nbsp;
+        HOXA13&nbsp;&nbsp;&nbsp;&nbsp;
+        CDX2&nbsp;&nbsp;&nbsp;&nbsp;
+        SEPT5&nbsp;&nbsp;&nbsp;&nbsp;
+        NUTM2B&nbsp;&nbsp;&nbsp;&nbsp;
+        CNBP&nbsp;&nbsp;&nbsp;&nbsp;
+        HDAC7&nbsp;&nbsp;&nbsp;&nbsp;
+        ICK&nbsp;&nbsp;&nbsp;&nbsp;
+        PMS2&nbsp;&nbsp;&nbsp;&nbsp;
+        PRRX1&nbsp;&nbsp;&nbsp;&nbsp;
+        KEAP1&nbsp;&nbsp;&nbsp;&nbsp;
+        HOXD13&nbsp;&nbsp;&nbsp;&nbsp;
+        HOXD11&nbsp;&nbsp;&nbsp;&nbsp;
+        ZNF24&nbsp;&nbsp;&nbsp;&nbsp;
+        PMS1&nbsp;&nbsp;&nbsp;&nbsp;
+        MYO18A&nbsp;&nbsp;&nbsp;&nbsp;
+        YWHAE&nbsp;&nbsp;&nbsp;&nbsp;
+        YES1&nbsp;&nbsp;&nbsp;&nbsp;
+        MLST8&nbsp;&nbsp;&nbsp;&nbsp;
+        SRGAP3&nbsp;&nbsp;&nbsp;&nbsp;
+        HMGA1&nbsp;&nbsp;&nbsp;&nbsp;
+        DUX4L1&nbsp;&nbsp;&nbsp;&nbsp;
+        TRIM33&nbsp;&nbsp;&nbsp;&nbsp;
+        MAP2K1&nbsp;&nbsp;&nbsp;&nbsp;
+        MAP2K2&nbsp;&nbsp;&nbsp;&nbsp;
+        MAGI2&nbsp;&nbsp;&nbsp;&nbsp;
+        PRKDC&nbsp;&nbsp;&nbsp;&nbsp;
+        TLX1&nbsp;&nbsp;&nbsp;&nbsp;
+        PRKCI&nbsp;&nbsp;&nbsp;&nbsp;
+        XBP1&nbsp;&nbsp;&nbsp;&nbsp;
+        MAPK1&nbsp;&nbsp;&nbsp;&nbsp;
+        WT1&nbsp;&nbsp;&nbsp;&nbsp;
+        DKK1&nbsp;&nbsp;&nbsp;&nbsp;
+        PRKAR1A&nbsp;&nbsp;&nbsp;&nbsp;
+        XRCC3&nbsp;&nbsp;&nbsp;&nbsp;
+        HNRNPA2B1&nbsp;&nbsp;&nbsp;&nbsp;
+        XPO1&nbsp;&nbsp;&nbsp;&nbsp;
+        DNAH12&nbsp;&nbsp;&nbsp;&nbsp;
+        XPC&nbsp;&nbsp;&nbsp;&nbsp;
+        COL1A1&nbsp;&nbsp;&nbsp;&nbsp;
+        FOXA2&nbsp;&nbsp;&nbsp;&nbsp;
+        XPA&nbsp;&nbsp;&nbsp;&nbsp;
+        FOXA1&nbsp;&nbsp;&nbsp;&nbsp;
+        LRP1B&nbsp;&nbsp;&nbsp;&nbsp;
+        WHSC1&nbsp;&nbsp;&nbsp;&nbsp;
+        ASCL4&nbsp;&nbsp;&nbsp;&nbsp;
+        CKS1B&nbsp;&nbsp;&nbsp;&nbsp;
+        HIF1A&nbsp;&nbsp;&nbsp;&nbsp;
+        PRKAA2&nbsp;&nbsp;&nbsp;&nbsp;
+        WDR90&nbsp;&nbsp;&nbsp;&nbsp;
+        RBMX&nbsp;&nbsp;&nbsp;&nbsp;
+        FGF19&nbsp;&nbsp;&nbsp;&nbsp;
+        SPEN&nbsp;&nbsp;&nbsp;&nbsp;
+        HIP1&nbsp;&nbsp;&nbsp;&nbsp;
+        THRAP3&nbsp;&nbsp;&nbsp;&nbsp;
+        MED12&nbsp;&nbsp;&nbsp;&nbsp;
+        PPP6C&nbsp;&nbsp;&nbsp;&nbsp;
+        HGF&nbsp;&nbsp;&nbsp;&nbsp;
+        WRN&nbsp;&nbsp;&nbsp;&nbsp;
+        PRCC&nbsp;&nbsp;&nbsp;&nbsp;
+        ABCG4&nbsp;&nbsp;&nbsp;&nbsp;
+        PRF1&nbsp;&nbsp;&nbsp;&nbsp;
+        HLF&nbsp;&nbsp;&nbsp;&nbsp;
+        PDCD11&nbsp;&nbsp;&nbsp;&nbsp;
+        SUFU&nbsp;&nbsp;&nbsp;&nbsp;
+        NT5C2&nbsp;&nbsp;&nbsp;&nbsp;
+        KDM2B&nbsp;&nbsp;&nbsp;&nbsp;
+        MAFB&nbsp;&nbsp;&nbsp;&nbsp;
+        EZR&nbsp;&nbsp;&nbsp;&nbsp;
+        VHL&nbsp;&nbsp;&nbsp;&nbsp;
+        WAS&nbsp;&nbsp;&nbsp;&nbsp;
+        HLA-B&nbsp;&nbsp;&nbsp;&nbsp;
+        HLA-A&nbsp;&nbsp;&nbsp;&nbsp;
+        PPP2R1A&nbsp;&nbsp;&nbsp;&nbsp;
+        GOLGA5&nbsp;&nbsp;&nbsp;&nbsp;
+        MNX1&nbsp;&nbsp;&nbsp;&nbsp;
+        BCL11A&nbsp;&nbsp;&nbsp;&nbsp;
+        CLTC&nbsp;&nbsp;&nbsp;&nbsp;
+        CPS1&nbsp;&nbsp;&nbsp;&nbsp;
+        PARP3&nbsp;&nbsp;&nbsp;&nbsp;
+        IGL&nbsp;&nbsp;&nbsp;&nbsp;
+        NSD1&nbsp;&nbsp;&nbsp;&nbsp;
+        PARP2&nbsp;&nbsp;&nbsp;&nbsp;
+        RFWD2&nbsp;&nbsp;&nbsp;&nbsp;
+        SOX17&nbsp;&nbsp;&nbsp;&nbsp;
+        ESCO2&nbsp;&nbsp;&nbsp;&nbsp;
+        ABCB1&nbsp;&nbsp;&nbsp;&nbsp;
+        IKBKB&nbsp;&nbsp;&nbsp;&nbsp;
+        BCL2L11&nbsp;&nbsp;&nbsp;&nbsp;
+        KDM6A&nbsp;&nbsp;&nbsp;&nbsp;
+        SH2B3&nbsp;&nbsp;&nbsp;&nbsp;
+        COX6C&nbsp;&nbsp;&nbsp;&nbsp;
+        IL2&nbsp;&nbsp;&nbsp;&nbsp;
+        NR1H2&nbsp;&nbsp;&nbsp;&nbsp;
+        CRKL&nbsp;&nbsp;&nbsp;&nbsp;
+        ABI1&nbsp;&nbsp;&nbsp;&nbsp;
+        AKT3&nbsp;&nbsp;&nbsp;&nbsp;
+        PER1&nbsp;&nbsp;&nbsp;&nbsp;
+        IL6ST&nbsp;&nbsp;&nbsp;&nbsp;
+        IL7R&nbsp;&nbsp;&nbsp;&nbsp;
+        CREB1&nbsp;&nbsp;&nbsp;&nbsp;
+        CREBBP&nbsp;&nbsp;&nbsp;&nbsp;
+        SPECC1&nbsp;&nbsp;&nbsp;&nbsp;
+        IFNGR1&nbsp;&nbsp;&nbsp;&nbsp;
+        PDK1&nbsp;&nbsp;&nbsp;&nbsp;
+        RAD50&nbsp;&nbsp;&nbsp;&nbsp;
+        PDGFB&nbsp;&nbsp;&nbsp;&nbsp;
+        PDGFRB&nbsp;&nbsp;&nbsp;&nbsp;
+        EML4&nbsp;&nbsp;&nbsp;&nbsp;
+        COL11A1&nbsp;&nbsp;&nbsp;&nbsp;
+        TMEM127&nbsp;&nbsp;&nbsp;&nbsp;
+        PDGFRA&nbsp;&nbsp;&nbsp;&nbsp;
+        IGF1&nbsp;&nbsp;&nbsp;&nbsp;
+        PCLO&nbsp;&nbsp;&nbsp;&nbsp;
+        PDPK1&nbsp;&nbsp;&nbsp;&nbsp;
+        IGF1R&nbsp;&nbsp;&nbsp;&nbsp;
+        IGF2&nbsp;&nbsp;&nbsp;&nbsp;
+        PDYN&nbsp;&nbsp;&nbsp;&nbsp;
+        IGFBP7&nbsp;&nbsp;&nbsp;&nbsp;
+        PDCD1&nbsp;&nbsp;&nbsp;&nbsp;
+        IGH&nbsp;&nbsp;&nbsp;&nbsp;
+        TYK2&nbsp;&nbsp;&nbsp;&nbsp;
+        TYMS&nbsp;&nbsp;&nbsp;&nbsp;
+        MAP3K8&nbsp;&nbsp;&nbsp;&nbsp;
+        U2AF1&nbsp;&nbsp;&nbsp;&nbsp;
+        KLF6&nbsp;&nbsp;&nbsp;&nbsp;
+        CTNNA1&nbsp;&nbsp;&nbsp;&nbsp;
+        CTLA4&nbsp;&nbsp;&nbsp;&nbsp;
+        ID3&nbsp;&nbsp;&nbsp;&nbsp;
+        IRF8&nbsp;&nbsp;&nbsp;&nbsp;
+        CTNNB1&nbsp;&nbsp;&nbsp;&nbsp;
+        PMAIP1&nbsp;&nbsp;&nbsp;&nbsp;
+        IDH2&nbsp;&nbsp;&nbsp;&nbsp;
+        IDH1&nbsp;&nbsp;&nbsp;&nbsp;
+        ARID2&nbsp;&nbsp;&nbsp;&nbsp;
+        GID4&nbsp;&nbsp;&nbsp;&nbsp;
+        PML&nbsp;&nbsp;&nbsp;&nbsp;
+        CUX1&nbsp;&nbsp;&nbsp;&nbsp;
+        PKM&nbsp;&nbsp;&nbsp;&nbsp;
+        PLAG1&nbsp;&nbsp;&nbsp;&nbsp;
+        TSHR&nbsp;&nbsp;&nbsp;&nbsp;
+        AKAP9&nbsp;&nbsp;&nbsp;&nbsp;
+        TSC1&nbsp;&nbsp;&nbsp;&nbsp;
+        TSC2&nbsp;&nbsp;&nbsp;&nbsp;
+        ARFRP1&nbsp;&nbsp;&nbsp;&nbsp;
+        RSPO3&nbsp;&nbsp;&nbsp;&nbsp;
+        PLCG2&nbsp;&nbsp;&nbsp;&nbsp;
+        PLEC&nbsp;&nbsp;&nbsp;&nbsp;
+        PIK3CA&nbsp;&nbsp;&nbsp;&nbsp;
+        PIK3CB&nbsp;&nbsp;&nbsp;&nbsp;
+        PIK3C2G&nbsp;&nbsp;&nbsp;&nbsp;
+        PIK3C3&nbsp;&nbsp;&nbsp;&nbsp;
+        PIK3CG&nbsp;&nbsp;&nbsp;&nbsp;
+        PIK3R1&nbsp;&nbsp;&nbsp;&nbsp;
+        PIM1&nbsp;&nbsp;&nbsp;&nbsp;
+        CSF1R&nbsp;&nbsp;&nbsp;&nbsp;
+        PIK3CD&nbsp;&nbsp;&nbsp;&nbsp;
+        PIK3R2&nbsp;&nbsp;&nbsp;&nbsp;
+        OLIG2&nbsp;&nbsp;&nbsp;&nbsp;
+        AJUBA&nbsp;&nbsp;&nbsp;&nbsp;
+        ASPSCR1&nbsp;&nbsp;&nbsp;&nbsp;
+        TMEM30A&nbsp;&nbsp;&nbsp;&nbsp;
+        TRAF2&nbsp;&nbsp;&nbsp;&nbsp;
+        TRAF3&nbsp;&nbsp;&nbsp;&nbsp;
+        TRAF5&nbsp;&nbsp;&nbsp;&nbsp;
+        CSF3R&nbsp;&nbsp;&nbsp;&nbsp;
+        TPM4&nbsp;&nbsp;&nbsp;&nbsp;
+        LHFP&nbsp;&nbsp;&nbsp;&nbsp;
+        TPM3&nbsp;&nbsp;&nbsp;&nbsp;
+        TPR&nbsp;&nbsp;&nbsp;&nbsp;
+        RET&nbsp;&nbsp;&nbsp;&nbsp;
+        DDB2&nbsp;&nbsp;&nbsp;&nbsp;
+        PAG1&nbsp;&nbsp;&nbsp;&nbsp;
+        ACSL6&nbsp;&nbsp;&nbsp;&nbsp;
+        CCNB1IP1&nbsp;&nbsp;&nbsp;&nbsp;
+        ICOSLG&nbsp;&nbsp;&nbsp;&nbsp;
+        BRIP1&nbsp;&nbsp;&nbsp;&nbsp;
+        DDX6&nbsp;&nbsp;&nbsp;&nbsp;
+        LRRK2&nbsp;&nbsp;&nbsp;&nbsp;
+        KIT&nbsp;&nbsp;&nbsp;&nbsp;
+        REL&nbsp;&nbsp;&nbsp;&nbsp;
+        DDX10&nbsp;&nbsp;&nbsp;&nbsp;
+        TAF15&nbsp;&nbsp;&nbsp;&nbsp;
+        DDIT3&nbsp;&nbsp;&nbsp;&nbsp;
+        KLK2&nbsp;&nbsp;&nbsp;&nbsp;
+        FAT4&nbsp;&nbsp;&nbsp;&nbsp;
+        DDX5&nbsp;&nbsp;&nbsp;&nbsp;
+        DDX3X&nbsp;&nbsp;&nbsp;&nbsp;
+        RHEB&nbsp;&nbsp;&nbsp;&nbsp;
+        KIF5B&nbsp;&nbsp;&nbsp;&nbsp;
+        MIR17HG&nbsp;&nbsp;&nbsp;&nbsp;
+        VTCN1&nbsp;&nbsp;&nbsp;&nbsp;
+        SYNE1&nbsp;&nbsp;&nbsp;&nbsp;
+        ELL&nbsp;&nbsp;&nbsp;&nbsp;
+        DAXX&nbsp;&nbsp;&nbsp;&nbsp;
+        TRIM27&nbsp;&nbsp;&nbsp;&nbsp;
+        CD274&nbsp;&nbsp;&nbsp;&nbsp;
+        KDR&nbsp;&nbsp;&nbsp;&nbsp;
+        S1PR2&nbsp;&nbsp;&nbsp;&nbsp;
+        OBSCN&nbsp;&nbsp;&nbsp;&nbsp;
+        ARHGEF12&nbsp;&nbsp;&nbsp;&nbsp;
+        KCNJ5&nbsp;&nbsp;&nbsp;&nbsp;
+        RARA&nbsp;&nbsp;&nbsp;&nbsp;
+        RAP1GDS1&nbsp;&nbsp;&nbsp;&nbsp;
+        TBK1&nbsp;&nbsp;&nbsp;&nbsp;
+        CRTC1&nbsp;&nbsp;&nbsp;&nbsp;
+        FGF23&nbsp;&nbsp;&nbsp;&nbsp;
+        KMT2D&nbsp;&nbsp;&nbsp;&nbsp;
+        RALGDS&nbsp;&nbsp;&nbsp;&nbsp;
+        ICE1&nbsp;&nbsp;&nbsp;&nbsp;
+        RAF1&nbsp;&nbsp;&nbsp;&nbsp;
+        RAD52&nbsp;&nbsp;&nbsp;&nbsp;
+        RAD51D&nbsp;&nbsp;&nbsp;&nbsp;
+        HMGA2&nbsp;&nbsp;&nbsp;&nbsp;
+        RAD51B&nbsp;&nbsp;&nbsp;&nbsp;
+        CYP17A1&nbsp;&nbsp;&nbsp;&nbsp;
+        RAD51C&nbsp;&nbsp;&nbsp;&nbsp;
+        CRIPAK&nbsp;&nbsp;&nbsp;&nbsp;
+        NCSTN&nbsp;&nbsp;&nbsp;&nbsp;
+        RAD51&nbsp;&nbsp;&nbsp;&nbsp;
+        TRIP11&nbsp;&nbsp;&nbsp;&nbsp;
+        CYLD&nbsp;&nbsp;&nbsp;&nbsp;
+        DICER1&nbsp;&nbsp;&nbsp;&nbsp;
+        SERP2&nbsp;&nbsp;&nbsp;&nbsp;
+        TBL1XR1&nbsp;&nbsp;&nbsp;&nbsp;
+        SETD2&nbsp;&nbsp;&nbsp;&nbsp;
+        KLF4&nbsp;&nbsp;&nbsp;&nbsp;
+        JAK2&nbsp;&nbsp;&nbsp;&nbsp;
+        JAK1&nbsp;&nbsp;&nbsp;&nbsp;
+        JAK3&nbsp;&nbsp;&nbsp;&nbsp;
+        AMER1&nbsp;&nbsp;&nbsp;&nbsp;
+        TCL1A&nbsp;&nbsp;&nbsp;&nbsp;
+        RB1&nbsp;&nbsp;&nbsp;&nbsp;
+        JUN&nbsp;&nbsp;&nbsp;&nbsp;
+        KDM5A&nbsp;&nbsp;&nbsp;&nbsp;
+        PALB2&nbsp;&nbsp;&nbsp;&nbsp;
+        RASA1&nbsp;&nbsp;&nbsp;&nbsp;
+        JARID2&nbsp;&nbsp;&nbsp;&nbsp;
+        ROS1&nbsp;&nbsp;&nbsp;&nbsp;
+        RPGR&nbsp;&nbsp;&nbsp;&nbsp;
+        ATP1B4&nbsp;&nbsp;&nbsp;&nbsp;
+        MAGEE1&nbsp;&nbsp;&nbsp;&nbsp;
+        NR4A3&nbsp;&nbsp;&nbsp;&nbsp;
+        ITK&nbsp;&nbsp;&nbsp;&nbsp;
+        ZNF750&nbsp;&nbsp;&nbsp;&nbsp;
+        RYBP&nbsp;&nbsp;&nbsp;&nbsp;
+        SF3B1&nbsp;&nbsp;&nbsp;&nbsp;
+        RNF213&nbsp;&nbsp;&nbsp;&nbsp;
+        CCDC6&nbsp;&nbsp;&nbsp;&nbsp;
+        NCOA4&nbsp;&nbsp;&nbsp;&nbsp;
+        MLLT10&nbsp;&nbsp;&nbsp;&nbsp;
+        DNMT1&nbsp;&nbsp;&nbsp;&nbsp;
+        ITGAL&nbsp;&nbsp;&nbsp;&nbsp;
+        BRD3&nbsp;&nbsp;&nbsp;&nbsp;
+        DNM2&nbsp;&nbsp;&nbsp;&nbsp;
+        DNMT3A&nbsp;&nbsp;&nbsp;&nbsp;
+        KIAA1549&nbsp;&nbsp;&nbsp;&nbsp;
+        DNMT3B&nbsp;&nbsp;&nbsp;&nbsp;
+        NUP214&nbsp;&nbsp;&nbsp;&nbsp;
+        FAM175A&nbsp;&nbsp;&nbsp;&nbsp;
+        RPL11&nbsp;&nbsp;&nbsp;&nbsp;
+        RPL13&nbsp;&nbsp;&nbsp;&nbsp;
+        FBXO31&nbsp;&nbsp;&nbsp;&nbsp;
+        DKC1&nbsp;&nbsp;&nbsp;&nbsp;
+        IRS1&nbsp;&nbsp;&nbsp;&nbsp;
+        RPL15&nbsp;&nbsp;&nbsp;&nbsp;
+        HEY1&nbsp;&nbsp;&nbsp;&nbsp;
+        ARID5B&nbsp;&nbsp;&nbsp;&nbsp;
+        IRF1&nbsp;&nbsp;&nbsp;&nbsp;
+        RPA1&nbsp;&nbsp;&nbsp;&nbsp;
+        IRF4&nbsp;&nbsp;&nbsp;&nbsp;
+        C15ORF65&nbsp;&nbsp;&nbsp;&nbsp;
+        RECQL4&nbsp;&nbsp;&nbsp;&nbsp;
+        FANCM&nbsp;&nbsp;&nbsp;&nbsp;
+        DMD&nbsp;&nbsp;&nbsp;&nbsp;
+        RPL5&nbsp;&nbsp;&nbsp;&nbsp;
+        BRD4&nbsp;&nbsp;&nbsp;&nbsp;
+        INSRR&nbsp;&nbsp;&nbsp;&nbsp;
+        INSR&nbsp;&nbsp;&nbsp;&nbsp;
+        FLCN&nbsp;&nbsp;&nbsp;&nbsp;
+        TFEB&nbsp;&nbsp;&nbsp;&nbsp;
+        KIAA1109&nbsp;&nbsp;&nbsp;&nbsp;
+        INPP5D&nbsp;&nbsp;&nbsp;&nbsp;
+        TSHZ3&nbsp;&nbsp;&nbsp;&nbsp;
+        RMRP&nbsp;&nbsp;&nbsp;&nbsp;
+        INPP4A&nbsp;&nbsp;&nbsp;&nbsp;
+        U2AF2&nbsp;&nbsp;&nbsp;&nbsp;
+        RIT1&nbsp;&nbsp;&nbsp;&nbsp;
+        INHBA&nbsp;&nbsp;&nbsp;&nbsp;
+        SUZ12&nbsp;&nbsp;&nbsp;&nbsp;
+        POFUT1&nbsp;&nbsp;&nbsp;&nbsp;
+        RNF217-AS1&nbsp;&nbsp;&nbsp;&nbsp;
+        TRIM7&nbsp;&nbsp;&nbsp;&nbsp;
+        MAP4K4&nbsp;&nbsp;&nbsp;&nbsp;
+        KAT6B&nbsp;&nbsp;&nbsp;&nbsp;
+        KAT6A&nbsp;&nbsp;&nbsp;&nbsp;
+        TUSC3&nbsp;&nbsp;&nbsp;&nbsp;
+        IL10&nbsp;&nbsp;&nbsp;&nbsp;
+        LYL1&nbsp;&nbsp;&nbsp;&nbsp;
+        MAGED1&nbsp;&nbsp;&nbsp;&nbsp;
+        SH2D1A&nbsp;&nbsp;&nbsp;&nbsp;
+        DCUN1D1&nbsp;&nbsp;&nbsp;&nbsp;
+        EPCAM&nbsp;&nbsp;&nbsp;&nbsp;
+        TRAF7&nbsp;&nbsp;&nbsp;&nbsp;
+        CDK12&nbsp;&nbsp;&nbsp;&nbsp;
+        PDS5B&nbsp;&nbsp;&nbsp;&nbsp;
+        PTCH1&nbsp;&nbsp;&nbsp;&nbsp;
+        SMAD2&nbsp;&nbsp;&nbsp;&nbsp;
+        SMAD3&nbsp;&nbsp;&nbsp;&nbsp;
+        SMAD4&nbsp;&nbsp;&nbsp;&nbsp;
+        FNBP1&nbsp;&nbsp;&nbsp;&nbsp;
+        RICTOR&nbsp;&nbsp;&nbsp;&nbsp;
+        EGFRVIII&nbsp;&nbsp;&nbsp;&nbsp;
+        CDKN2AP14ARF&nbsp;&nbsp;&nbsp;&nbsp;
+        MAF&nbsp;&nbsp;&nbsp;&nbsp;
+        CDKN2AP16INK4A&nbsp;&nbsp;&nbsp;&nbsp;
+        MAPK8IP1&nbsp;&nbsp;&nbsp;&nbsp;
+        WWOX&nbsp;&nbsp;&nbsp;&nbsp;
+        ARHGAP26&nbsp;&nbsp;&nbsp;&nbsp;
+        LRP5&nbsp;&nbsp;&nbsp;&nbsp;
+        PTEN&nbsp;&nbsp;&nbsp;&nbsp;
+        EBF1&nbsp;&nbsp;&nbsp;&nbsp;
+        UHRF1BP1L&nbsp;&nbsp;&nbsp;&nbsp;
+        FLYWCH1&nbsp;&nbsp;&nbsp;&nbsp;
+        E2F3&nbsp;&nbsp;&nbsp;&nbsp;
+        MKL1&nbsp;&nbsp;&nbsp;&nbsp;
+        PTK2&nbsp;&nbsp;&nbsp;&nbsp;
+        KDM4C&nbsp;&nbsp;&nbsp;&nbsp;
+        DEK&nbsp;&nbsp;&nbsp;&nbsp;
+        ERC1&nbsp;&nbsp;&nbsp;&nbsp;
+        TCL6&nbsp;&nbsp;&nbsp;&nbsp;
+        LMO2&nbsp;&nbsp;&nbsp;&nbsp;
+        DUSP9&nbsp;&nbsp;&nbsp;&nbsp;
+        LMO1&nbsp;&nbsp;&nbsp;&nbsp;
+        DUSP2&nbsp;&nbsp;&nbsp;&nbsp;
+        FIP1L1&nbsp;&nbsp;&nbsp;&nbsp;
+        DTX1&nbsp;&nbsp;&nbsp;&nbsp;
+        BTG2&nbsp;&nbsp;&nbsp;&nbsp;
+        ARID1B&nbsp;&nbsp;&nbsp;&nbsp;
+        PHF6&nbsp;&nbsp;&nbsp;&nbsp;
+        PRSS8&nbsp;&nbsp;&nbsp;&nbsp;
+        RELN&nbsp;&nbsp;&nbsp;&nbsp;
+        LPP&nbsp;&nbsp;&nbsp;&nbsp;
+        ATN1&nbsp;&nbsp;&nbsp;&nbsp;
+        SEPT6&nbsp;&nbsp;&nbsp;&nbsp;
+        AARS2&nbsp;&nbsp;&nbsp;&nbsp;
+        CIC&nbsp;&nbsp;&nbsp;&nbsp;
+        LIFR&nbsp;&nbsp;&nbsp;&nbsp;
+        MALAT1&nbsp;&nbsp;&nbsp;&nbsp;
+        EPHA6&nbsp;&nbsp;&nbsp;&nbsp;
+        RPTOR&nbsp;&nbsp;&nbsp;&nbsp;
+        MIB1&nbsp;&nbsp;&nbsp;&nbsp;
+        CXCR4&nbsp;&nbsp;&nbsp;&nbsp;
+        DOCK2&nbsp;&nbsp;&nbsp;&nbsp;
+        PAX8&nbsp;&nbsp;&nbsp;&nbsp;
+        EP300&nbsp;&nbsp;&nbsp;&nbsp;
+        FOXP1&nbsp;&nbsp;&nbsp;&nbsp;
+        HOOK3&nbsp;&nbsp;&nbsp;&nbsp;
+        LCP1&nbsp;&nbsp;&nbsp;&nbsp;
+        EPHA3&nbsp;&nbsp;&nbsp;&nbsp;
+        PRDM16&nbsp;&nbsp;&nbsp;&nbsp;
+        EPHA4&nbsp;&nbsp;&nbsp;&nbsp;
+        LDHA&nbsp;&nbsp;&nbsp;&nbsp;
+        EPHA5&nbsp;&nbsp;&nbsp;&nbsp;
+        ZNF217&nbsp;&nbsp;&nbsp;&nbsp;
+        EPHA7&nbsp;&nbsp;&nbsp;&nbsp;
+        EPHA8&nbsp;&nbsp;&nbsp;&nbsp;
+        EPHB1&nbsp;&nbsp;&nbsp;&nbsp;
+        PASK&nbsp;&nbsp;&nbsp;&nbsp;
+        NFE2L3&nbsp;&nbsp;&nbsp;&nbsp;
+        CREB3L1&nbsp;&nbsp;&nbsp;&nbsp;
+        LFNG&nbsp;&nbsp;&nbsp;&nbsp;
+        NCOR1&nbsp;&nbsp;&nbsp;&nbsp;
+        NCOR2&nbsp;&nbsp;&nbsp;&nbsp;
+        ZMYM2&nbsp;&nbsp;&nbsp;&nbsp;
+        BBC3&nbsp;&nbsp;&nbsp;&nbsp;
+        ELF4&nbsp;&nbsp;&nbsp;&nbsp;
+        ELN&nbsp;&nbsp;&nbsp;&nbsp;
+        ELK4&nbsp;&nbsp;&nbsp;&nbsp;
+        PDE4DIP&nbsp;&nbsp;&nbsp;&nbsp;
+        MDC1&nbsp;&nbsp;&nbsp;&nbsp;
+        PRDM2&nbsp;&nbsp;&nbsp;&nbsp;
+        RAC1&nbsp;&nbsp;&nbsp;&nbsp;
+        LCK&nbsp;&nbsp;&nbsp;&nbsp;
+        DKK3&nbsp;&nbsp;&nbsp;&nbsp;
+        DKK2&nbsp;&nbsp;&nbsp;&nbsp;
+        IKBKE&nbsp;&nbsp;&nbsp;&nbsp;
+        DKK4&nbsp;&nbsp;&nbsp;&nbsp;
+        LASP1&nbsp;&nbsp;&nbsp;&nbsp;
+        LRIG3&nbsp;&nbsp;&nbsp;&nbsp;
+        ELF3&nbsp;&nbsp;&nbsp;&nbsp;
+        RAD21&nbsp;&nbsp;&nbsp;&nbsp;
+        AFF4&nbsp;&nbsp;&nbsp;&nbsp;
+        CAMTA1&nbsp;&nbsp;&nbsp;&nbsp;
+        EIF4A2&nbsp;&nbsp;&nbsp;&nbsp;
+        MAML2&nbsp;&nbsp;&nbsp;&nbsp;
+        ZBTB16&nbsp;&nbsp;&nbsp;&nbsp;
+        BRSK1&nbsp;&nbsp;&nbsp;&nbsp;
+        EPHA2&nbsp;&nbsp;&nbsp;&nbsp;
+        DOT1L&nbsp;&nbsp;&nbsp;&nbsp;
+        ANKRD12&nbsp;&nbsp;&nbsp;&nbsp;
+        CARD11&nbsp;&nbsp;&nbsp;&nbsp;
+        CDC73&nbsp;&nbsp;&nbsp;&nbsp;
+        NUP93&nbsp;&nbsp;&nbsp;&nbsp;
+        EIF4EBP1&nbsp;&nbsp;&nbsp;&nbsp;
+        PTPN2&nbsp;&nbsp;&nbsp;&nbsp;
+        PTPN11&nbsp;&nbsp;&nbsp;&nbsp;
+        EGFR&nbsp;&nbsp;&nbsp;&nbsp;
+        PTPN6&nbsp;&nbsp;&nbsp;&nbsp;
+        ZNF132&nbsp;&nbsp;&nbsp;&nbsp;
+        AFF3&nbsp;&nbsp;&nbsp;&nbsp;
+        PTPRD&nbsp;&nbsp;&nbsp;&nbsp;
+        EIF1AX&nbsp;&nbsp;&nbsp;&nbsp;
+        EIF2B1&nbsp;&nbsp;&nbsp;&nbsp;
+        KTN1&nbsp;&nbsp;&nbsp;&nbsp;
+        EGR3&nbsp;&nbsp;&nbsp;&nbsp;
+        NLRP3&nbsp;&nbsp;&nbsp;&nbsp;
+        KRAS&nbsp;&nbsp;&nbsp;&nbsp;
+        PTPRS&nbsp;&nbsp;&nbsp;&nbsp;
+        PTPRO&nbsp;&nbsp;&nbsp;&nbsp;
+        ESCO1&nbsp;&nbsp;&nbsp;&nbsp;
+        HERPUD1
+      </td>
+    </tr>
+  </table>
+</div>
+</td>
+<td width="172">
+  <jsp:include page="WEB-INF/jsp/global/right_column.jsp" flush="true" />
+</td>
+</tr>
+<tr>
+  <td colspan="3">
+    <jsp:include page="WEB-INF/jsp/global/footer.jsp" flush="true" />
+  </td>
+</tr>
+</table>
+</div>
+</center>
+</div>
+</form>
+<jsp:include page="WEB-INF/jsp/global/xdebug.jsp" flush="true" />
 </body>
 </html>

@@ -556,7 +556,7 @@ define("Oncoprint",
                 }
                 percentLabel.append('tspan')       // percent_altered
                     .text(function(d) {
-                        return (d in gene2percent) ? gene2percent[d].toString() + "%" : "x"; })
+                        return (d in gene2percent) ? (gene2percent[d] !== 'NA'? (gene2percent[d].toString() + "%") : gene2percent[d].toString()) : "x"; })
                     .attr('fill',function(d){ return (d in gene2percent) ? 'black':'#87CEFA'})
                     .attr('class',function(d){ return (d in gene2percent) ? 'regular':'special_delete'})
                     .attr('alt',function(d){ return (d in gene2percent) ? 'regular':d})
@@ -1249,6 +1249,8 @@ define("Oncoprint",
                             return serialize(label);
                         });
                         
+                        var legendEndHeight = 0;
+                        
                         if($('#oncoprint_legend .genetic_legend_table svg')[0]!== undefined)
                         {
                             if($('#oncoprint #oncoprint_legend .genetic_legend_table svg')[0]!== undefined)
@@ -1339,8 +1341,8 @@ define("Oncoprint",
                             while(mutation_legends_svg.indexOf(find1) > -1)
                             {
                                 mutation_legends_svg = mutation_legends_svg.replace(find1, '<g transform = "translate(0,'+ (dims.vert_space * i) +')"');
-    //                            mutation_legends_svg = mutation_legends_svg.replace(find1, '<g transform = "translate(0,'+ (dims.vert_space * i) +')"');
                                 i++;
+                                legendEndHeight = dims.vert_space * i;
                             }
                             mutation_legends_svg = "<g transform=\"translate("+ verticalTranslateWidth +","+ (dims.height + 10 + dims.vert_space) + ")\">" + mutation_legends_svg + "</g> ";
                         }
@@ -1350,8 +1352,16 @@ define("Oncoprint",
                         out += generic_legends_svg;
                         out += mutation_legends;
                         out += mutation_legends_svg;
-                        out = "<g transform=\"translate("+ 15 +","+ 15 + ")\">" + out + "</g> ";;
-
+                        if(genepanelValues.genepaneldata.length>0)
+                        {
+                           var spaceToLegendEnd = 10;
+                           var percentageNotation = "<g>  + <text font-size='7pt' fill='blue'>* % based on assayed cases</text> + </g> ";
+                           percentageNotation = "<g transform=\"translate(0,"+ (dims.height + 10 + dims.vert_space + legendEndHeight + spaceToLegendEnd) + ")\">" + percentageNotation + "</g> ";
+                           out += percentageNotation;
+                        }
+                        
+                        out = "<g transform=\"translate("+ 15 +","+ 15 + ")\">" + out + "</g> ";
+                        
                         return "<svg height=\"" + (dims.height + verticalTranslateWidth + dims.height + 15) + "\" width=\"" + (width + 30) + "\">" + out + "</svg>";
                     };
 

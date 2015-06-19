@@ -88,7 +88,8 @@
         <img id="inner_loader_img" src="images/ajax-loader.gif" style="display:none;">
         <div id="oncoprint_body"></div>
         </div>
-        <div id="oncoprint_legend" style="display: inline;"></div>
+        <div id="oncoprint_legend" style="display: inline;font-size: 6px;"></div>
+        <span id="commitmentpercentage" style="color: blue;font-size: 7pt;"></span>
         <%@ include file="legend-template.jsp" %>   
         <script type="text/javascript">
 //            $( document.body ).on( 'click', '.dropdown-menu li', function( event ) {

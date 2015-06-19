@@ -223,6 +223,7 @@ define("OncoprintUtils", (function() {
             return false;
         });
         
+        var unalteration = _.find(raw_gene_data, function(eachElement){ return Object.keys(eachElement).length < 3;});
         var fusions = extract_unique(raw_gene_data, 'mutation', function(d){return /\bfusion\b/i.test(d);});
         var mrnas = extract_unique(raw_gene_data, 'mrna');
         var rppas = extract_unique(raw_gene_data, 'rppa');
@@ -277,6 +278,11 @@ define("OncoprintUtils", (function() {
             to_return.unsequenced = true;
         }
 
+        if(unalteration !== undefined)
+        {
+            to_return.unalteration = true;
+        }
+        
         return to_return;
     };
     
@@ -536,7 +542,11 @@ define("OncoprintUtils", (function() {
 
         var percent = (altered / (total - genepanelNum.length)) * 100;
 
-        if(percent>=1.0)
+        if(isNaN(percent))
+        {
+           attr2percent[gene.key]='NA'; 
+        }
+        else if(percent>=1.0)
         {
             attr2percent[gene.key] = Math.round(percent);
         }
@@ -1110,54 +1120,6 @@ define("OncoprintUtils", (function() {
         // N.B. order matters here --- so cna is to the left, then comes
         // mutation, etc.
         var templates = [];
-//        if (datatype2range.cna !== undefined) {
-//            templates = templates.concat(
-//                    _.map(datatype2range.cna, function(val) {
-//                        if (val !== undefined && val !== "DIPLOID") {
-//                            return item_templater({
-//                                bg_color: cna_fills[val],
-//                                text: captions.cna[val]
-//                            });
-//                        }
-//                    }).filter(function(x) { return x !== undefined; })
-//                    );
-//        }
-//
-//        if (datatype2range.mutation !== undefined) {
-//            templates = templates.concat(
-//                    item_templater({ display_mutation: "inherit", text: captions.mutation})
-//                    );
-//        }
-//
-//        if (datatype2range.fusion !== undefined) {
-//            templates = templates.concat(
-//                    item_templater({ display_fusion: "inherit", text: captions.fusion})
-//                    );
-//        }
-//
-//        if (datatype2range.mrna !== undefined) {
-//            templates = templates.concat(
-//                    _.map(datatype2range.mrna, function(val) {
-//                        return val2template.mrna[val];
-//                    }).filter(function(x) { return x !== undefined; })
-//                    );
-//        }
-//
-//        if (datatype2range.rppa !== undefined) {
-//            templates = templates.concat(
-//                    _.map(datatype2range.rppa, function(val) {
-//                        return val2template.rppa[val];
-//                    }).filter(function(x) { return x !== undefined; })
-//                    );
-//        }     
-//
-//        var row = _.chain(templates)
-//            .map(function(t) {
-//                return "<td style='padding-right:10px;'>" + t + "</td>";
-//            })
-//            .join("")
-//            .value();
-//        row = "<tr>" +row+ "</tr>";
         
         d3.selectAll("#legend_table").remove();
         
@@ -1608,13 +1570,13 @@ define("OncoprintUtils", (function() {
                     .attr('class','legend_name')
                     .text('Fusion');
         }
-        
-        if (datatype2range.unsequenced !== undefined)
+
+        if (datatype2range.unalteration === true)
         {
             var legend_svg = tabledata
                         .append('svg')
                         .attr('height', 23 )
-                        .attr('width', ('Unsequenced').length * 7.5 + 5.5*3 )
+                        .attr('width', ('Not altered').length * 7.5 + 5.5*3 )
                         .attr('x', 0)
                         .attr('id', 'legend_svg')
                         .attr('class', 'legend_fusion')
@@ -1624,13 +1586,34 @@ define("OncoprintUtils", (function() {
                         .attr('height', 23)
                         .attr('width', 5.5)
                         .attr('fill', colors.grey);
-                    
-//            var questionmark = legend_svg.append("text")
-//                        .attr('y', fufnction(d) {
-//                            return 12; 
-//                        })
-//                        .attr("dy", ".4em")
-//                        .text("?");
+
+            var label = legend_svg.append('text')
+                .attr('font-size', '12px')
+                .attr('width', function()
+                {
+                    return ('Not altered').length * 6.5;
+                })
+                .attr('x', 5.5*3)
+                .attr('y', 19);
+
+            label.append('tspan')       // name
+                .attr('text-anchor', 'start')
+                .attr('fill','black')
+                .attr('class','legend_name')
+                .text('Not altered');    
+        }
+            
+        if (datatype2range.unsequenced !== undefined)
+        {
+            var legend_svg = tabledata
+                        .append('svg')
+                        .attr('height', 23 )
+                        .attr('width', ('Not assayed').length * 7.5 + 5.5*3 )
+                        .attr('x', 0)
+                        .attr('id', 'legend_svg')
+                        .attr('class', 'legend_fusion')
+                        .append('g');
+
             var questionmark = legend_svg.append('rect')
                         .attr('fill',"#F2F2F2")
                         .attr('height', 23)
@@ -1640,7 +1623,7 @@ define("OncoprintUtils", (function() {
                 .attr('font-size', '12px')
                 .attr('width', function()
                 {
-                    return ('Unsequenced').length * 6.5;
+                    return ('Not assayed').length * 6.5;
                 })
                 .attr('x', 5.5*3)
                 .attr('y', 19);
@@ -1649,7 +1632,7 @@ define("OncoprintUtils", (function() {
                 .attr('text-anchor', 'start')
                 .attr('fill','black')
                 .attr('class','legend_name')
-                .text('Unsequenced');    
+                .text('Not assayed');    
             }
             if(attrtype2range.length > 0)
             {

@@ -52,8 +52,8 @@ public class CancerStudyAlterationFrequencyController
   public @ResponseBody List<CancerStudyAlterationFrequency> getAlterationFrequencies(@RequestParam(required=true) List<Long> entrez_gene_ids,
 											@RequestParam(required=true) List<Integer> internal_study_ids,
 											@RequestParam(required=false) List<String> data_type,
-											@RequestParam(required=false) Integer position,
-											@RequestParam(required=false) String mutation_type) throws Exception {
+											@RequestParam(required=false) List<Integer> positions,
+											@RequestParam(required=false) List<String> mutation_types) throws Exception {
 	  if (data_type == null) {
 		  data_type = new LinkedList<>();
 		  data_type.add("MUT");
@@ -62,12 +62,12 @@ public class CancerStudyAlterationFrequencyController
 	  if (data_type.contains("MUT") && data_type.contains("CNA")) {
 		return alterationFrequencyService.getMutCna(entrez_gene_ids, internal_study_ids);
 	  } else if (data_type.contains("MUT")) {
-		  if (position != null && mutation_type != null) {
-			return alterationFrequencyService.getMutByPositionAndType(entrez_gene_ids.get(0), internal_study_ids.get(0), position, mutation_type);
-		  } else if (position != null) {
-			return alterationFrequencyService.getMutByPosition(entrez_gene_ids.get(0), internal_study_ids.get(0), position);
-		  } else if (mutation_type != null) {
-			return alterationFrequencyService.getMutByType(entrez_gene_ids.get(0), internal_study_ids.get(0), mutation_type);
+		  if (positions != null && mutation_types != null) {
+			return alterationFrequencyService.getMutByPositionAndType(entrez_gene_ids.get(0), internal_study_ids.get(0), positions.get(0), mutation_types);
+		  } else if (positions != null) {
+			return alterationFrequencyService.getMutByPosition(entrez_gene_ids.get(0), internal_study_ids.get(0), positions);
+		  } else if (mutation_types != null) {
+			return alterationFrequencyService.getMutByType(entrez_gene_ids.get(0), internal_study_ids.get(0), mutation_types);
 		  } else {
 			return alterationFrequencyService.getMut(entrez_gene_ids, internal_study_ids);
 		  }

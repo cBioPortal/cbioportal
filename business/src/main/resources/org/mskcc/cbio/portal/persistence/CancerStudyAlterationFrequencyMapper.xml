@@ -35,6 +35,7 @@
         where mutation.ENTREZ_GENE_ID = #{entrez_gene_id}
             and genetic_profile.CANCER_STUDY_ID = #{internal_study_id}
             and genetic_profile.GENETIC_ALTERATION_TYPE = "MUTATION_EXTENDED"
+            and mutation_event.ONCOTATOR_PROTEIN_POS_START = #{position}
                 
 </select>
 
@@ -51,6 +52,7 @@
         where mutation.ENTREZ_GENE_ID = #{entrez_gene_id}
             and genetic_profile.CANCER_STUDY_ID = #{internal_study_id}
             and genetic_profile.GENETIC_ALTERATION_TYPE = "MUTATION_EXTENDED"
+            and mutation_event.MUTATION_TYPE = #{type}
                 
 </select>
 
@@ -70,6 +72,8 @@
         where mutation.ENTREZ_GENE_ID = #{entrez_gene_id}
             and genetic_profile.CANCER_STUDY_ID = #{internal_study_id}
             and genetic_profile.GENETIC_ALTERATION_TYPE = "MUTATION_EXTENDED"
+            and mutation_event.MUTATION_TYPE = #{type}
+            and mutation_event.ONCOTATOR_PROTEIN_POS_START = #{position}
                 
 </select>
 

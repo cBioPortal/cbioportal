@@ -16,10 +16,6 @@ import java.io.Serializable;
 @JsonInclude(Include.NON_NULL)
 public class CancerStudyAlterationFrequency implements Serializable
 {
-	public static enum MutationType {
-		// TODO: Complete
-		MISSENSE, FRAMESHIFT;
-	}
 	public Long entrez_gene_id = null;
 	public Integer internal_study_id = null;
 	public Integer position = null;

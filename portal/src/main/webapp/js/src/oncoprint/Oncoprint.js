@@ -714,7 +714,8 @@ define("Oncoprint",
                             {
                                 return 'green';//Missense_mutation
                             }
-                            else if((/^([A-Z]+)([0-9]+)((del)|(ins))$/g).test(mutationSplit) )
+//                            else if((/^([A-Z]+)([0-9]+)((del)|(ins))$/g).test(mutationSplit) )
+                            else if((/^([A-Z]+)([0-9]+)((del)|(ins))([a-zA-Z]+)$/g).test(mutationSplit))
                             {
                                 return '#9F8170';//inframe
                             }

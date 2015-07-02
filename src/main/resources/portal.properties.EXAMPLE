@@ -38,6 +38,18 @@ saml.keystore.private-key.key=
 saml.keystore.private-key.password=
 saml.keystore.default-key=
 
+# configuration for the LDAP access
+ldap.user_search_base=DC=example,DC=com
+ldap.url=ldap://ldap.example.com
+ldap.manager.dn=CN=manager-user,DC=example,DC=com
+ldap.manager.password=PASSWORD
+# attributes for ActiveDirectory, for OpenLDAP use "uid" for username
+ldap.attributes.username=sAMAccountName
+#ldap.attributes.username=uid
+ldap.attributes.last_name=sn
+ldap.attributes.given_name=givenName
+ldap.attributes.email=mail
+
 # patient view settings
 patient_view_placeholder=false
 patient_view_genomic_overview_cna_cutoff=0.2,1.5

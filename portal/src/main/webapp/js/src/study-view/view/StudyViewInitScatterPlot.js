@@ -308,13 +308,14 @@ var StudyViewInitScatterPlot = (function() {
      */
     function setStyle(_selectedCaseIds, _hasFilterFlag) {
         var _style = [];
+        var numOfSamples = StudyViewParams.params.sampleIds.length;
         
         if(initStatus){
-            for(var i=0 ; i< StudyViewParams.params.sampleIds.length ; i++){
+            for(var i=0 ; i< numOfSamples ; i++){
                 var styleDatum = {};
 
                 styleDatum.case_id = StudyViewParams.params.sampleIds[i];
-                if(_selectedCaseIds.length !== StudyViewParams.params.sampleIds.length){
+                if(_selectedCaseIds.length !== numOfSamples){
                     if(_selectedCaseIds.indexOf(StudyViewParams.params.sampleIds[i]) !== -1){
                         if(clickedCaseId !== ''){
                             styleDatum.fill = '#2986e2';

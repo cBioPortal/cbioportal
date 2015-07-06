@@ -65,8 +65,8 @@ var StudyViewInitCharts = (function(){
         ndx, //Crossfilter dimension
         msnry,
         totalCharts,
-        mutatedGenes = [],
-        cna = [],
+        //mutatedGenes = [],
+        //cna = [],
         dataArr = {},
         pie = [], //Displayed attributes info, dataType: STRING, NUMBER, OR BOOLEAN
         bar = [], //Displayed attributes info, dataType: NUMBER
@@ -133,8 +133,8 @@ var StudyViewInitCharts = (function(){
             //table chart will always put ahead, and the higher prioirty, the bigger index(later will use array unshift for table charts)
             _priorityAttrs = ['CANCER_TYPE_DETAILED', 'CANCER_TYPE', 'PATIENT_ID', 'CASE_ID'];
         
-        mutatedGenes = dataObtained.mutatedGenes;   
-        cna = dataObtained.cna || '';
+        //mutatedGenes = dataObtained.mutatedGenes;
+        //cna = dataObtained.cna || '';
         numOfCases = _arr.length;        
         ndx = crossfilter(_arr);
         
@@ -319,7 +319,7 @@ var StudyViewInitCharts = (function(){
     function initTables() {
         var initParams = {data: {attr: [], arr: {}}, numOfCases: numOfCases};
         
-        if(mutatedGenes && mutatedGenes.length > 0) {
+        //if(mutatedGenes && mutatedGenes.length > 0) {
             initParams.data.attr.push({
                         name: 'mutatedGenes',
                         displayName: 'Mutated Genes',
@@ -333,23 +333,21 @@ var StudyViewInitCharts = (function(){
                             }
                         }
                     });
-            initParams.data.arr.mutatedGenes = mutatedGenes;
-        }
+        //}
         
-        if(cna) {
-            initParams.data.attr.push({
-                        name: 'cna',
-                        displayName: 'Copy Number Altered Genes',
-                        webService: {
-                            type: 'POST',
-                            url: "Gistic.json",
-                            data: {
-                                selected_cancer_type: StudyViewParams.params.studyId
-                            }
+        //if(cna) {
+        initParams.data.attr.push({
+                    name: 'cna',
+                    displayName: 'Copy Number Altered Genes',
+                    webService: {
+                        type: 'POST',
+                        url: "Gistic.json",
+                        data: {
+                            selected_cancer_type: StudyViewParams.params.studyId
                         }
-                    });
-            initParams.data.arr.cna = cna;
-        }
+                    }
+                });
+        //}
         
         StudyViewInitTables.init(initParams);
     }

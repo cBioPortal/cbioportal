@@ -38,7 +38,8 @@ var Table = function() {
         selectedSamples = [],
         dataTable = '',
         callbacks = {},
-        initStatus = false;
+        initStatus = false,
+        self = this;
     
     function init(input) {
         initStatus = true;
@@ -111,6 +112,7 @@ var Table = function() {
         $('#' + divs.attachedId).append(_div);
         showHideDivision('#' + divs.mainId,['#' + divs.titleWrapperId],  0);
         reset();
+        startLoading();
     }
     
     function initTable(data) {
@@ -442,26 +444,54 @@ var Table = function() {
             }
         });
     }
-    
+
+    function getInitStatus(){
+        return initStatus;
+    }
+
+    function resize() {
+        dataTable.fnAdjustColumnSizing();
+    }
+
+    function startLoading() {
+        $('#' + divs.loaderId).css('display', 'block');
+        $('#' + divs.tableId).css('opacity', '0.3');
+    }
+
+    function stopLoading() {
+        $('#' + divs.loaderId).css('display', 'none');
+        $('#' + divs.tableId).css('opacity', '1');
+    }
+
+    function show() {
+        $('#' + divs.mainId ).css('display', 'block');
+    }
+
+    function hide() {
+        $('#' + divs.mainId ).css('display', 'none');
+    }
+
     return {
         init: init,
+        initDiv: function(input){
+            initData(input);
+            initDiv();
+        },
+        draw: function(data){
+            initTable(data);
+            initDataTable();
+            addEvents();
+            stopLoading();
+        },
         getDataTable: function() {
             return dataTable;
         },
         redraw: redraw,
-        getInitStatus: function(){
-            return initStatus;
-        },
-        resize: function() {
-            dataTable.fnAdjustColumnSizing();
-        },
-        startLoading: function() {
-            $('#' + divs.loaderId).css('display', 'block');
-            $('#' + divs.tableId).css('opacity', '0.3');
-        },
-        stopLoading: function() {
-            $('#' + divs.loaderId).css('display', 'none');
-            $('#' + divs.tableId).css('opacity', '1');
-        }
+        getInitStatus: getInitStatus,
+        resize: resize,
+        startLoading: startLoading,
+        stopLoading: stopLoading,
+        show: show,
+        hide: hide
     };
 };

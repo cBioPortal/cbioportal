@@ -32,11 +32,18 @@
 
 package org.mskcc.cbio.portal.web_api;
 
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.*;
-import org.mskcc.cbio.portal.scripts.*;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Transactional;
+
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,10 +52,35 @@ import java.util.ArrayList;
 /**
  * JUnit test for GetProfileData class.
  */
-public class TestGetProfileData extends TestCase {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
+@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@Transactional
+public class TestGetProfileData {
+	
+	int geneticProfileId;
+	
+	@Before
+	public void setUp() throws DaoException {
+		int studyId = DaoCancerStudy.getCancerStudyByStableId("study_tcga_pub").getInternalId();
+		
+		DaoPatient.reCache();
+		DaoSample.reCache();
+		DaoGeneticProfile.reCache();
+		
+		GeneticProfile newGeneticProfile = new GeneticProfile();
+		newGeneticProfile.setCancerStudyId(studyId);
+		newGeneticProfile.setGeneticAlterationType(GeneticAlterationType.COPY_NUMBER_ALTERATION);
+		newGeneticProfile.setStableId("study_tcga_pub_test");
+		newGeneticProfile.setProfileName("Barry CNA Results");
+		newGeneticProfile.setDatatype("test");
+		DaoGeneticProfile.addGeneticProfile(newGeneticProfile);
+		
+		geneticProfileId =  DaoGeneticProfile.getGeneticProfileByStableId("study_tcga_pub_test").getGeneticProfileId();
+	}
 
+    @Test
     public void testGetProfileData() throws DaoException, IOException {
-        createSmallDbms();
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         daoGene.addGene(new CanonicalGene(207, "AKT1"));
         daoGene.addGene(new CanonicalGene(208, "AKT2"));
@@ -59,13 +91,6 @@ public class TestGetProfileData extends TestCase {
         daoGene.addGene(new CanonicalGene(672, "BRCA1"));
         daoGene.addGene(new CanonicalGene(675, "BRCA2"));
 
-        ProgressMonitor pMonitor = new ProgressMonitor();
-        pMonitor.setConsoleMode(false);
-		// TBD: change this to use getResourceAsStream()
-        File file = new File("target/test-classes/cna_test.txt");
-        ImportTabDelimData parser = new ImportTabDelimData(file, ImportTabDelimData.BARRY_TARGET, 1, pMonitor);
-        parser.importData();
-
         ArrayList <String> targetGeneList = new ArrayList<String> ();
         targetGeneList.add("AKT1");
         targetGeneList.add("AKT2");
@@ -74,49 +99,22 @@ public class TestGetProfileData extends TestCase {
         targetGeneList.add("BRCA1");
 
         ArrayList <String> geneticProfileIdList = new ArrayList<String>();
-        geneticProfileIdList.add("gbm_rae");
+        geneticProfileIdList.add("study_tcga_pub_gistic");
 
         ArrayList <String> sampleIdList = new ArrayList <String>();
-        sampleIdList.add("TCGA-02-0001-01");
-        sampleIdList.add("TCGA-02-0003-01");
-        sampleIdList.add("TCGA-02-0006-01");
+        sampleIdList.add("TCGA-A1-A0SB-01");
+        sampleIdList.add("TCGA-A1-A0SD-01");
+        sampleIdList.add("TCGA-A1-A0SE-01");
 
         GetProfileData getProfileData = new GetProfileData(geneticProfileIdList, targetGeneList,
                 sampleIdList, new Boolean(false));
         String out = getProfileData.getRawContent();
         String lines[] = out.split("\n");
-        assertEquals("# DATA_TYPE\t Barry CNA Results" , lines[0]);
+        assertEquals("# DATA_TYPE\t Putative copy-number alterations from GISTIC" , lines[0]);
         assertEquals("# COLOR_GRADIENT_SETTINGS\t COPY_NUMBER_ALTERATION", lines[1]);
-        assertTrue(lines[2].startsWith("GENE_ID\tCOMMON\tTCGA-02-0001-01\t" +
-                "TCGA-02-0003-01\tTCGA-02-0006-01"));
+        assertTrue(lines[2].startsWith("GENE_ID\tCOMMON\tTCGA-A1-A0SB-01\t" +
+                "TCGA-A1-A0SD-01\tTCGA-A1-A0SE-01"));
         assertTrue(lines[3].startsWith("207\tAKT1\t0\t0\t0"));
         assertTrue(lines[4].startsWith("208\tAKT2\t0\t0\t0"));
-    }
-
-    private void createSmallDbms() throws DaoException
-    {
-        TestImportUtil.createSmallDbms(true);
-
-        CancerStudy study = DaoCancerStudy.getCancerStudyByStableId("gbm");
-
-        Patient p = new Patient(study, "TCGA-02-0001");
-        int pId = DaoPatient.addPatient(p);
-        Sample s = new Sample("TCGA-02-0001-01", pId, "type");
-        DaoSample.addSample(s);
-
-        p = new Patient(study, "TCGA-06-0241");
-        pId = DaoPatient.addPatient(p);
-        s = new Sample("TCGA-06-0241-01", pId, "type");
-        DaoSample.addSample(s);
-
-        p = new Patient(study, "TCGA-06-0148");
-        pId = DaoPatient.addPatient(p);
-        s = new Sample("TCGA-06-0148-01", pId, "type");
-        DaoSample.addSample(s);
-
-        p = new Patient(study, "TCGA-02-0007");
-        pId = DaoPatient.addPatient(p);
-        s = new Sample("TCGA-02-0007-01", pId, "type");
-        DaoSample.addSample(s);
     }
 }

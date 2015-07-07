@@ -33,17 +33,23 @@
 package org.mskcc.cbio.portal.web_api;
 
 
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
+import org.mskcc.cbio.portal.dao.DaoGeneticProfile;
 import org.mskcc.cbio.portal.dao.DaoMutSig;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.MutSig;
-import org.mskcc.cbio.portal.scripts.ImportTypesOfCancers;
-import org.mskcc.cbio.portal.scripts.ResetDatabase;
-import org.mskcc.cbio.portal.util.ProgressMonitor;
 import org.mskcc.cbio.portal.dao.DaoException;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Transactional;
+
+import static org.junit.Assert.*;
 
 import java.io.*;
 
@@ -51,29 +57,27 @@ import java.io.*;
  * @author Lennart Bastian
  */
 
-public class TestGetMutSig extends TestCase {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
+@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@Transactional
+public class TestGetMutSig {
 
+	int studyId;
+	
+	@Before 
+	public void setUp() {
+		studyId = DaoCancerStudy.getCancerStudyByStableId("study_tcga_pub").getInternalId();
+		DaoGeneticProfile.reCache();
+	}
+
+    @Test
     public void testGetMutSig() throws DaoException, IOException {
 
-        ResetDatabase.resetDatabase();
-
-        ProgressMonitor pMonitor = new ProgressMonitor();
-        pMonitor.setConsoleMode(false);
-		// TBD: change this to use getResourceAsStream()
-        ImportTypesOfCancers.load(new ProgressMonitor(), new File("target/test-classes/cancers.txt"));
-        // changed GBM_portal to tcga_gbm
-        CancerStudy cancerStudy = new CancerStudy("Glioblastoma TCGA", "GBM Description", "tcga_gbm", "GBM", false);
-        DaoCancerStudy.addCancerStudy(cancerStudy);
-        assertEquals(1, cancerStudy.getInternalId());
-
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
-        CanonicalGene gene = new CanonicalGene(1956, "EGFR");
-        CanonicalGene gene2 = new CanonicalGene(4921, "DDR2");
-        daoGeneOptimized.addGene(gene);
-        daoGeneOptimized.addGene(gene2);
-        assertEquals("EGFR", gene.getHugoGeneSymbolAllCaps());
-        assertEquals(4921, gene2.getEntrezGeneId());
-
+        CanonicalGene gene = daoGeneOptimized.getGene("AKT1");
+        CanonicalGene gene2 = daoGeneOptimized.getGene("AKT2");
+        
         MutSig mutSig = new MutSig(1, gene, 1, 502500, 20, 1E-11f, 1E-8f);
         MutSig mutSig2 = new MutSig(1, gene2, 14, 273743, 3, 1E-11f, 1E-8f);
 
@@ -83,36 +87,11 @@ public class TestGetMutSig extends TestCase {
         DaoMutSig.addMutSig(mutSig);
         DaoMutSig.addMutSig(mutSig2);
 
-        StringBuffer stringBuffer = GetMutSig.getMutSig(1);
-    }
-    /*
-     * this is taken directly from the WebService class, and minimally changed to function without
-     * a writer, and HttpServletRequest, as to better suit it for a Test Class.
-     */
-    private void getMutSig(String cancerStudyID, String qValueThreshold, String geneList)
-            throws DaoException {
-        int cancerID = Integer.parseInt(cancerStudyID);
-        if ((qValueThreshold == null || qValueThreshold.length() == 0)
-                && (geneList == null || geneList.length() == 0)) {
-            StringBuffer output = GetMutSig.getMutSig(cancerID);
-            System.err.println(output);
-            System.err.println("exit code 0\n");
-            //if client enters a q_value_threshold
-        } else if ((qValueThreshold != null || qValueThreshold.length() != 0)
-                && (geneList == null || geneList.length() == 0)) {
-            StringBuffer output = GetMutSig.getMutSig(cancerID, qValueThreshold, true);
-            System.err.println(output);
-            System.err.println("exit code 1\n");
-            //if client enters a gene_list
-        } else if ((qValueThreshold == null || qValueThreshold.length() == 0)
-                && (geneList != null || geneList.length() != 0)) {
-            StringBuffer output = GetMutSig.getMutSig(cancerID, geneList, false);
-            System.err.println(output);
-            System.err.println("exit code 2\n");
-        } else {
-            System.err.println("Invalid command. Please input a valid Q-Value Threshold, or Gene List. (Not Both)!");
-        }
-    }
+        StringBuffer stringBuffer = GetMutSig.getMutSig(studyId);
 
+        String lines[] = stringBuffer.toString().split("\n");
+        assertEquals("Cancer\tEntrez\tHugo\tRank\tN\tn\tnVal\tnVer\tCpG\tC+G\tA+T\tINDEL\tp\tq", lines[0]);
+        assertEquals("1\t207\tAKT1\t1\t502500\t20\t1.0E-11\t1.0E-8", lines[1]);
+    }
 }
 

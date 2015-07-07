@@ -31,24 +31,25 @@
 */
 
 package org.mskcc.cbio.portal.model;
-
-import org.mskcc.cbio.portal.model.ExtendedMutation;
-import org.mskcc.cbio.portal.model.CanonicalGene;
+import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+
 
 /**
  * Tests the Extended Mutation Map.
  *
  * @author Ethan Cerami.
  */
-public class TestExtendedMutationMap extends TestCase {
+public class TestExtendedMutationMap {
     private static final String BRCA1 = "BRCA1";
     private static final String BRCA2 = "BRCA2";
     private static final Integer SAMPLE_A = 1;
 
+    @Test
     public void test1() {
         CanonicalGene brca1 = new CanonicalGene(672, BRCA1);
         CanonicalGene brca2 = new CanonicalGene(675, BRCA2);

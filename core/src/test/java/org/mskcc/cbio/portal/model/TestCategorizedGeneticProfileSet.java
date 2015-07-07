@@ -32,20 +32,20 @@
 
 package org.mskcc.cbio.portal.model;
 
-import junit.framework.TestCase;
-import org.mskcc.cbio.portal.model.GeneticProfile;
-import org.mskcc.cbio.portal.model.CategorizedGeneticProfileSet;
-import org.mskcc.cbio.portal.model.GeneticAlterationType;
+import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
+
+import org.junit.Test;
 
 /**
  * JUnit Tests for the Categorized GeneticProfileSet.
  *
  * @author Ethan Cerami.
  */
-public class TestCategorizedGeneticProfileSet extends TestCase {
+public class TestCategorizedGeneticProfileSet {
 
+	@Test
     public void testEmptyList() {
         ArrayList<GeneticProfile> profileList = new ArrayList<GeneticProfile>();
         CategorizedGeneticProfileSet categorizedSet = new CategorizedGeneticProfileSet(profileList);
@@ -54,6 +54,7 @@ public class TestCategorizedGeneticProfileSet extends TestCase {
         assertEquals (null, categorizedSet.getDefaultMutationProfile());
     }
 
+	@Test
     public void testMRNADataOnly() {
         ArrayList<GeneticProfile> profileList = new ArrayList<GeneticProfile>();
         addMRNAProfile(profileList);
@@ -63,6 +64,7 @@ public class TestCategorizedGeneticProfileSet extends TestCase {
         assertEquals (null, categorizedSet.getDefaultMutationProfile());
     }
 
+	@Test
     public void testGisticProfile() {
         ArrayList<GeneticProfile> profileList = buildProfileList1();
         CategorizedGeneticProfileSet categorizedSet = new CategorizedGeneticProfileSet(profileList);
@@ -73,6 +75,7 @@ public class TestCategorizedGeneticProfileSet extends TestCase {
         assertEquals ("gbm_mut", defaultMutProfile.getStableId());
     }
 
+	@Test
     public void testRaeProfile() {
         ArrayList<GeneticProfile> profileList = buildProfileList2();
         CategorizedGeneticProfileSet categorizedSet = new CategorizedGeneticProfileSet(profileList);

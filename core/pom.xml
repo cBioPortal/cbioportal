@@ -343,8 +343,11 @@
 				<settingsKey>settingsKey</settingsKey>
 				<driver>com.mysql.jdbc.Driver</driver>
 				<url>jdbc:mysql://localhost:3306/cgds_test</url>
+				<sqlCommand>SET storage_engine=INNODB</sqlCommand>
+				<sqlCommand>SET SESSION sql_mode = 'ANSI_QUOTES'</sqlCommand>
 				<srcFiles>
 				  <srcFile>src/main/resources/db/cgds.sql</srcFile>
+				  <srcFile>src/test/resources/seed_mini.sql</srcFile>
 				</srcFiles>
 			  </configuration>
 			</execution>

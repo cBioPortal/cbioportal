@@ -8,6 +8,18 @@
      http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
      http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
      http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+     
+    <bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+	    <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
+	    <property name="searchSystemEnvironment" value="true" />
+	    <property name="ignoreResourceNotFound" value="true" />
+	    <property name="locations">
+		     <list>
+			     <value>file:///#{systemEnvironment['PORTAL_HOME']}/src/main/resources/portal.properties</value>
+		     </list>
+	    </property>
+     </bean>
+     
 
 	<bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
 	    <property name="staticMethod" value="org.mskcc.cbio.portal.dao.JdbcUtil.setDataSource"/>
@@ -26,16 +38,15 @@
     	<property name="dataSource" ref="businessDataSource"/>
 	</bean>
 
-	<bean id="dbcpDataSource" destroy-method="close"
-		class="org.apache.commons.dbcp.BasicDataSource">
-		<property name="driverClassName" value="${db.test.driver}" />
-		<property name="url" value="${db.test.url}" />
-		<property name="username" value="${db.test.username}" />
-		<property name="password" value="${db.test.password}" />
+	<!-- Values are for testing only, so need to correspond to the cgds in the pom.xml -->
+	<bean id="dbcpDataSource" destroy-method="close" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://localhost:3306/cgds_test" />
+		<property name="username" value="${db.user}" />
+		<property name="password" value="${db.password}" />
 		<property name="minIdle" value="0" />
 		<property name="maxIdle" value="10" />
 		<property name="maxActive" value="100" />
 		<property name="poolPreparedStatements" value="true" />
 	</bean>
-	
 </beans>

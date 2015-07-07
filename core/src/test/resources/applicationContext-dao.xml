@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xmlns:tx="http://www.springframework.org/schema/tx"
+     xmlns:context="http://www.springframework.org/schema/context"
+     xsi:schemaLocation="
+     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+	<bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+	    <property name="staticMethod" value="org.mskcc.cbio.portal.dao.JdbcUtil.setDataSource"/>
+	    <property name="arguments">
+	        <list>
+	            <ref bean="businessDataSource"/>
+	        </list>
+	   </property>
+	</bean>
+	
+	<bean id="businessDataSource" class="org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy">
+         <constructor-arg ref="dbcpDataSource"/>
+    </bean>
+	
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+    	<property name="dataSource" ref="businessDataSource"/>
+	</bean>
+
+	<bean id="dbcpDataSource" destroy-method="close"
+		class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName" value="${db.test.driver}" />
+		<property name="url" value="${db.test.url}" />
+		<property name="username" value="${db.test.username}" />
+		<property name="password" value="${db.test.password}" />
+		<property name="minIdle" value="0" />
+		<property name="maxIdle" value="10" />
+		<property name="maxActive" value="100" />
+		<property name="poolPreparedStatements" value="true" />
+	</bean>
+	
+</beans>

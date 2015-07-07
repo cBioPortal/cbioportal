@@ -35,8 +35,6 @@ package org.mskcc.cbio.portal.oncoPrintSpecLanguage;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import junit.framework.TestCase;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.mskcc.cbio.portal.util.Direction;
@@ -58,11 +56,12 @@ import org.mskcc.cbio.portal.oncoPrintSpecLanguage.UniqueEnumPrefix;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.Utilities;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.DataTypeSpecEnumerations.DataTypeCategory;
 
+
 /**
  * test my library of OncoPrintSpec classes, without the parser
  * @author Arthur Goldberg
  */
-public class TestOncoPrintSpecificationLibrary extends TestCase{
+public class TestOncoPrintSpecificationLibrary{
 
    @Test
    public void testComparisonOp() {

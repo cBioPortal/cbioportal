@@ -188,8 +188,8 @@ public final class TestPileup {
         assertEquals(3, pileup.getCount());
     }
 
-    @Test
     // not sure this could happen, unless one caseId can have different phases
+    @Test
     public void testPileupMultipleMutationsSameLocationDifferentAminoAcidChangeSameSampleIds() {
         ExtendedMutation mutation0 = new ExtendedMutation();
         ExtendedMutation mutation1 = new ExtendedMutation();

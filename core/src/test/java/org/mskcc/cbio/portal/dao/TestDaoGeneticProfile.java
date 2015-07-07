@@ -28,76 +28,132 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.dao;
 
 import java.util.ArrayList;
-import junit.framework.TestCase;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.util.TestImportUtil;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Transactional;
+
+import static org.junit.Assert.*;
 
 /**
  * JUnit tests for DaoGeneticProfile class.
  */
-public class TestDaoGeneticProfile extends TestCase {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
+@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@Transactional
+public class TestDaoGeneticProfile {
+	
+	int studyId;
+	
+	@Before 
+	public void setUp() {
+		studyId = DaoCancerStudy.getCancerStudyByStableId("study_tcga_pub").getInternalId();
+		DaoGeneticProfile.reCache();
+	}
 
-    public void testDaoGeneticProfile() throws DaoException {
-       
-       TestImportUtil.createSmallDbms(true);
+	@Test
+	public void testDaoGetAllGeneticProfiles() throws DaoException {
 
-       ArrayList<GeneticProfile> list = DaoGeneticProfile.getAllGeneticProfiles(1);
-        assertEquals(2, list.size());
-        GeneticProfile geneticProfile = list.get(0);
+		ArrayList<GeneticProfile> list = DaoGeneticProfile.getAllGeneticProfiles(studyId);
+		assertEquals(5, list.size());
+	}
+		
+	@Test
+	public void testDaoCheckGeneticProfiles() throws DaoException {
 
-        assertEquals(1, geneticProfile.getCancerStudyId());
-        assertEquals("Barry CNA Results", geneticProfile.getProfileName());
-        assertEquals(GeneticAlterationType.COPY_NUMBER_ALTERATION,
-                geneticProfile.getGeneticAlterationType());
-        assertEquals ("Blah, Blah, Blah.", geneticProfile.getProfileDescription());
+		ArrayList<GeneticProfile> list = DaoGeneticProfile.getAllGeneticProfiles(studyId);
+		GeneticProfile geneticProfile = list.get(0);
+		assertEquals(studyId, geneticProfile.getCancerStudyId());
+		assertEquals("Putative copy-number alterations from GISTIC", geneticProfile.getProfileName());
+		assertEquals(GeneticAlterationType.COPY_NUMBER_ALTERATION, geneticProfile.getGeneticAlterationType());
+		assertEquals("Putative copy-number from GISTIC 2.0. Values: -2 = homozygous deletion; -1 = hemizygous deletion; 0 = neutral / no change; 1 = gain; 2 = high level amplification.", 
+				geneticProfile.getProfileDescription());
 
-        geneticProfile = list.get(1);
-        assertEquals(1, geneticProfile.getCancerStudyId());
-        assertEquals("Gistic CNA Results", geneticProfile.getProfileName());
-        assertEquals(GeneticAlterationType.COPY_NUMBER_ALTERATION,
-                geneticProfile.getGeneticAlterationType());
-        assertEquals(true, geneticProfile.showProfileInAnalysisTab());
+		geneticProfile = list.get(1);
+		assertEquals(studyId, geneticProfile.getCancerStudyId());
+		assertEquals("mRNA expression (microarray)", geneticProfile.getProfileName());
+		assertEquals(GeneticAlterationType.MRNA_EXPRESSION, geneticProfile.getGeneticAlterationType());
+		assertEquals(false, geneticProfile.showProfileInAnalysisTab());
+	}
+	
+	@Test
+	public void testDaoCreateGeneticProfile() throws DaoException {
 
-        geneticProfile = DaoGeneticProfile.getGeneticProfileByStableId("gbm_gistic");
-        assertEquals(1, geneticProfile.getCancerStudyId());
-        assertEquals("Gistic CNA Results", geneticProfile.getProfileName());
-        assertEquals(GeneticAlterationType.COPY_NUMBER_ALTERATION,
-                geneticProfile.getGeneticAlterationType());
+		GeneticProfile geneticProfile = new GeneticProfile();
+		geneticProfile.setCancerStudyId(studyId);
+		geneticProfile.setProfileName("test profile");
+		geneticProfile.setStableId("test");
+		geneticProfile.setGeneticAlterationType(GeneticAlterationType.FUSION);
+		geneticProfile.setDatatype("test");
+		DaoGeneticProfile.addGeneticProfile(geneticProfile);
+		
+		GeneticProfile readGeneticProfile = DaoGeneticProfile.getGeneticProfileByStableId("test");
+		assertEquals(studyId, readGeneticProfile.getCancerStudyId());
+		assertEquals("test", readGeneticProfile.getStableId());
+		assertEquals("test profile", readGeneticProfile.getProfileName());
+		assertEquals(GeneticAlterationType.FUSION, readGeneticProfile.getGeneticAlterationType());
+	}
 
-        geneticProfile = DaoGeneticProfile.getGeneticProfileById(2);
-        assertEquals(1, geneticProfile.getCancerStudyId());
-        assertEquals("Gistic CNA Results", geneticProfile.getProfileName());
-        assertEquals(GeneticAlterationType.COPY_NUMBER_ALTERATION,
-                geneticProfile.getGeneticAlterationType());
-        
-        assertEquals(2, DaoGeneticProfile.getCount() );
-        DaoGeneticProfile.deleteGeneticProfile(geneticProfile);
-        assertEquals(1, DaoGeneticProfile.getCount() );
-        list = DaoGeneticProfile.getAllGeneticProfiles(1);
-        assertEquals(1, list.size());
-        geneticProfile = list.get(0);
-        assertEquals(1, geneticProfile.getCancerStudyId());
-        assertEquals("Barry CNA Results", geneticProfile.getProfileName());
-        assertEquals(GeneticAlterationType.COPY_NUMBER_ALTERATION,
-                geneticProfile.getGeneticAlterationType());
-        assertEquals ("Blah, Blah, Blah.", geneticProfile.getProfileDescription());
+	@Test
+	public void testDaoGetGeneticProfileByStableId() throws DaoException {
 
-        assertTrue ( DaoGeneticProfile.updateNameAndDescription
-                (geneticProfile.getGeneticProfileId(), "Updated Name", "Updated Description") );
-        list = DaoGeneticProfile.getAllGeneticProfiles(1);
-        assertEquals(1, list.size());
-        geneticProfile = list.get(0);
-        assertEquals(1, geneticProfile.getCancerStudyId());
-        assertEquals("Updated Name", geneticProfile.getProfileName());
-        assertEquals(GeneticAlterationType.COPY_NUMBER_ALTERATION,
-                geneticProfile.getGeneticAlterationType());
-        assertEquals ("Updated Description", geneticProfile.getProfileDescription());
-        DaoGeneticProfile.deleteAllRecords();
-        assertEquals(0, DaoGeneticProfile.getCount() );
-    }
+		GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileByStableId("study_tcga_pub_gistic");
+		assertEquals(studyId, geneticProfile.getCancerStudyId());
+		assertEquals("Putative copy-number alterations from GISTIC", geneticProfile.getProfileName());
+		assertEquals(GeneticAlterationType.COPY_NUMBER_ALTERATION, geneticProfile.getGeneticAlterationType());
+	}
+	
+	@Test
+	public void testDaoGetGeneticProfileByInternalId() throws DaoException {
+
+		GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileById(2);
+		assertEquals(studyId, geneticProfile.getCancerStudyId());
+		assertEquals("Putative copy-number alterations from GISTIC", geneticProfile.getProfileName());
+		assertEquals(GeneticAlterationType.COPY_NUMBER_ALTERATION, geneticProfile.getGeneticAlterationType());
+	}
+	
+	@Test
+	public void testDaoDeleteGeneticProfile() throws DaoException {
+
+		GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileById(2);
+
+		assertEquals(5, DaoGeneticProfile.getCount());
+		DaoGeneticProfile.deleteGeneticProfile(geneticProfile);
+		assertEquals(4, DaoGeneticProfile.getCount());
+		
+		ArrayList<GeneticProfile> list = DaoGeneticProfile.getAllGeneticProfiles(studyId);
+		assertEquals(4, list.size());
+		geneticProfile = list.get(0);
+		assertEquals(studyId, geneticProfile.getCancerStudyId());
+		assertEquals("mRNA expression (microarray)", geneticProfile.getProfileName());
+		assertEquals(GeneticAlterationType.MRNA_EXPRESSION, geneticProfile.getGeneticAlterationType());
+	}
+
+	@Test
+	public void testDaoUpdateGeneticProfile() throws DaoException {
+
+		GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileByStableId("study_tcga_pub_gistic");
+
+		assertTrue(DaoGeneticProfile.updateNameAndDescription(
+				geneticProfile.getGeneticProfileId(), "Updated Name",
+				"Updated Description"));
+		ArrayList<GeneticProfile> list = DaoGeneticProfile.getAllGeneticProfiles(studyId);
+		assertEquals(5, list.size());
+		geneticProfile = list.get(0);
+		assertEquals(studyId, geneticProfile.getCancerStudyId());
+		assertEquals("Updated Name", geneticProfile.getProfileName());
+		assertEquals(GeneticAlterationType.COPY_NUMBER_ALTERATION, geneticProfile.getGeneticAlterationType());
+		assertEquals("Updated Description", geneticProfile.getProfileDescription());
+	}
 }

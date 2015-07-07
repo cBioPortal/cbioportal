@@ -32,20 +32,29 @@
 
 package org.mskcc.cbio.portal.dao;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-import junit.framework.TestCase;
-
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoTextCache;
-import org.mskcc.cbio.portal.scripts.ResetDatabase;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 
-public class TestDaoTextCache extends TestCase
+import static org.junit.Assert.*;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
+@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@Transactional
+public class TestDaoTextCache
 {
+
+	@Test
 	public void testDaoCaseList() throws DaoException
 	{
-        ResetDatabase.resetDatabase();
         DaoTextCache daoTextCache = new DaoTextCache();
 
         String text1 = "even a single character change should make a big difference";

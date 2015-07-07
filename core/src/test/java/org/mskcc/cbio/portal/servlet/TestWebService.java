@@ -34,18 +34,33 @@ package org.mskcc.cbio.portal.servlet;
 
 import java.io.*;
 import java.util.*;
-import java.util.HashSet;
-import junit.framework.TestCase;
+
+import javax.servlet.ServletException;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.scripts.*;
 import org.mskcc.cbio.portal.util.*;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Transactional;
+
+import static org.junit.Assert.*;
+import static org.easymock.EasyMock.*;
 
 /**
  * JUnit test for WebService class.
  */
-public class TestWebService extends TestCase {
-
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
+@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@Transactional
+public class TestWebService {
+	
    private CancerStudy publicCancerStudy;
    private CancerStudy privateCancerStudy1;
    private CancerStudy privateCancerStudy2;
@@ -55,8 +70,31 @@ public class TestWebService extends TestCase {
    private GeneticProfile privateGeneticProfile;
    private GeneticProfile publicGeneticProfile;
    
-   public void testWebService() throws Exception {
-      setUpDBMS();
+   private AccessControl oldAccessControl;
+   
+   @Before
+   public void setUp() throws DaoException {
+	   oldAccessControl = SpringUtil.getAccessControl();
+	   
+	   // This is truly awful, but basically mocks the access control. The API for 
+	   // isAccessibleCancerStudy is a bit silly, as it's intended to be boolean
+	   // but is really a list. So we mock with a non-empty list with a null in it. 
+
+	   AccessControl control = createMock(AccessControl.class);
+	   List<CancerStudy> mockTrue = new ArrayList<CancerStudy>();
+	   mockTrue.add(null);
+	   expect(control.isAccessibleCancerStudy(isA(String.class))).andStubReturn(mockTrue);
+       replay(control);
+       SpringUtil.setAccessControl(control);
+   }
+   
+   @After
+   public void tearDown() {
+	   SpringUtil.setAccessControl(oldAccessControl);
+   }
+   
+   @Test
+   public void testWebServiceGetTypesOfCancer() throws Exception {
       
       WebService webService = new WebService();
 
@@ -67,7 +105,12 @@ public class TestWebService extends TestCase {
       assertTrue( aNullHttpServletResponse.getOutput().contains("Error: you must specify a cmd parameter.\n") );
       
       checkRequest( mkStringArray( WebService.CMD, "getTypesOfCancer" ), 
-               mkStringArray( "type_of_cancer_id\tname", "BLCA\tBladder Urothelial Carcinoma" ) );
+               mkStringArray( "type_of_cancer_id\tname", "acbc\tAdenoid Cystic Breast Cancer" ) );
+   }
+   
+   
+   @Test
+   public void testWebServiceBadCommand() throws Exception {
 
       // bad command
       checkRequest( mkStringArray( WebService.CMD, "badCommand" ), "Error: 'badCommand' not a valid command." );
@@ -78,24 +121,39 @@ public class TestWebService extends TestCase {
                studyLine( publicCancerStudy ) );
       checkRequest( mkStringArray( WebService.CMD, "getCancerStudies" ), publicStudies );
       */
+   }
       
+   @Test
+   public void testWebServiceGetGeneticProfilesNoStudy() throws Exception {
+
       // no cancer_study_id for "getGeneticProfiles" 
       checkRequest( mkStringArray( WebService.CMD, "getGeneticProfiles" ), 
             mkStringArray( "Error: " + "No cancer study (cancer_study_id), or genetic profile (genetic_profile_id) " +
                               "or case list or (case_list) case set (case_set_id) provided by request. " +
                               "Please reformulate request." ) );
+   }
+   
+   @Test
+   public void testWebServiceGetGeneticProfiles() throws Exception {
+
+
       checkRequest( mkStringArray( WebService.CMD, "getGeneticProfiles",
               WebService.CANCER_STUDY_ID, CancerStudy.NO_SUCH_STUDY +"" ),
             mkStringArray( "Error: " + "Problem when identifying a cancer study for the request." ) );
+   }
+   
+   @Test
+   public void testWebService() throws Exception {
 
       // getGeneticProfiles for public study
       String[] publicGenePro = mkStringArray(
          "genetic_profile_id\tgenetic_profile_name\tgenetic_profile_description\t" +
             "cancer_study_id\tgenetic_alteration_type\tshow_profile_in_analysis_tab",
-         "stableIdpublic\tprofileName\tprofileDescription\t3\tCOPY_NUMBER_ALTERATION\ttrue");  
+         "study_tcga_pub_gistic\tPutative copy-number alterations from GISTIC\tPutative copy-number from GISTIC 2.0. Values: -2 = homozygous deletion; -1 = hemizygous deletion; 0 = neutral / no change; 1 = gain; 2 = high level amplification.\t1\tCOPY_NUMBER_ALTERATION\ttrue");  
+      
       checkRequest( mkStringArray( 
             WebService.CMD, "getGeneticProfiles", 
-            WebService.CANCER_STUDY_ID, publicCancerStudy.getCancerStudyStableId()),
+            WebService.CANCER_STUDY_ID, "study_tcga_pub"),
             publicGenePro );
 
       /* TBD: Recoded when we provide granualar access
@@ -143,7 +201,7 @@ public class TestWebService extends TestCase {
       */
    }
    
-   private void checkRequest( String[] requestFields, String... responseLines ) throws IOException{
+   private void checkRequest( String[] requestFields, String... responseLines ) throws IOException, ServletException{
       checkRequest( false, requestFields, responseLines );
    }
    
@@ -153,9 +211,11 @@ public class TestWebService extends TestCase {
     * @param requestFields    array embedded with name, value pairs for the httpRequest 
     * @param responseLines    array of expected responses
     * @throws IOException
+ * @throws ServletException 
     */
-   private void checkRequest( boolean debug, String[] requestFields, String... responseLines ) throws IOException{
+   private void checkRequest( boolean debug, String[] requestFields, String... responseLines ) throws IOException, ServletException{
       WebService webService = new WebService();
+      webService.init();
       NullHttpServletRequest aNullHttpServletRequest = new NullHttpServletRequest();
       NullHttpServletResponse aNullHttpServletResponse = new NullHttpServletResponse();
       for( int i=0; i<requestFields.length; i += 2 ){
@@ -181,71 +241,127 @@ public class TestWebService extends TestCase {
               + "\t" + cancerStudy.getDescription();
    }
 
-   public void testGetCancerStudyIDs() throws Exception {
-
-      setUpDBMS();
+   @Test
+   public void testGetCancerStudyIDNull() throws Exception {
+	   
       HashSet<String> studies;
       NullHttpServletRequest aNullHttpServletRequest = new NullHttpServletRequest();
       studies = WebserviceParserUtils.getCancerStudyIDs(aNullHttpServletRequest);
       assertEquals( 0, studies.size() );
-      
+   }
+   
+   @Test
+   public void testGetCancerStudyIDInvalid() throws Exception {
+	   
       // example getGeneticProfiles request      
+      HashSet<String> studies;
+      NullHttpServletRequest aNullHttpServletRequest = new NullHttpServletRequest();
       aNullHttpServletRequest.setParameter(WebService.CANCER_STUDY_ID, "HI");
       studies = WebserviceParserUtils.getCancerStudyIDs(aNullHttpServletRequest);
       assertTrue(studies.isEmpty());
+   }
+
+   @Test
+   public void testGetCancerStudyIDNumeric() throws Exception {
+   	   
+      HashSet<String> studies;
+      NullHttpServletRequest aNullHttpServletRequest = new NullHttpServletRequest();
       aNullHttpServletRequest.setParameter(WebService.CANCER_STUDY_ID, "33");
       studies = WebserviceParserUtils.getCancerStudyIDs(aNullHttpServletRequest);
       assertTrue(studies.isEmpty());
-      aNullHttpServletRequest.setParameter(WebService.CANCER_STUDY_ID, "study1");
+   }
+   
+   @Test
+   public void testGetCancerStudyIDs() throws Exception {
+   	   
+      HashSet<String> studies;
+      NullHttpServletRequest aNullHttpServletRequest = new NullHttpServletRequest();
+	  aNullHttpServletRequest.setParameter(WebService.CANCER_STUDY_ID, "study_tcga_pub");
       studies = WebserviceParserUtils.getCancerStudyIDs(aNullHttpServletRequest);
       assertEquals( 1, studies.size() );
-      assertTrue( studies.contains("study1"));
-
+      assertTrue( studies.contains("study_tcga_pub"));
+   }
+   
+   @Test
+   public void testGetCancerStudySetIDs() throws Exception {
       // example getProfileData, getMutationData, ... request with existing CASE_SET_ID
+      HashSet<String> studies;
+      NullHttpServletRequest aNullHttpServletRequest = new NullHttpServletRequest();
       aNullHttpServletRequest = new NullHttpServletRequest();
       aNullHttpServletRequest.setParameter(WebService.CASE_SET_ID, "HI");
       studies = WebserviceParserUtils.getCancerStudyIDs(aNullHttpServletRequest);
       assertTrue(studies.isEmpty());
-
-      DaoPatientList aDaoPatientList = new DaoPatientList();
-      String examplePatientSetId = "exampleID";
-      int thisIsNotACancerStudyId = 5;
-      PatientList patientList = new PatientList( examplePatientSetId, 0, thisIsNotACancerStudyId, "", PatientListCategory.OTHER);
-      ArrayList<String> t = new ArrayList<String>();
-      patientList.setPatientList( t );
-      aDaoPatientList.addPatientList(patientList);
-      aNullHttpServletRequest.setParameter(WebService.CASE_SET_ID, examplePatientSetId );
+   }
+    
+   @Test
+   public void testGetCancerStudySetIDList() throws Exception {
+	   
+      HashSet<String> studies;
+      NullHttpServletRequest aNullHttpServletRequest = new NullHttpServletRequest();
+      
+      CancerStudy study = DaoCancerStudy.getCancerStudyByStableId("study_tcga_pub");
+      DaoPatientList daoPatientList = new DaoPatientList();
+      PatientList patientList = new PatientList();
+      patientList.setName("Name0");
+      patientList.setDescription("Description0");
+      patientList.setStableId("stable_0");
+      patientList.setCancerStudyId(study.getInternalId());
+      patientList.setPatientListCategory(PatientListCategory.ALL_CASES_WITH_CNA_DATA);
+      ArrayList<String> patients = new ArrayList<String>();
+      patients.add("TCGA-1-S1");
+      patients.add("TCGA-2-S1");
+      patientList.setPatientList(patients);
+      daoPatientList.addPatientList(patientList);
+      
+      aNullHttpServletRequest.setParameter(WebService.CASE_SET_ID, "stable_0" );
       studies = WebserviceParserUtils.getCancerStudyIDs(aNullHttpServletRequest);
-      assertTrue(studies.isEmpty());
+      assertFalse(studies.isEmpty());
+   }
+   
+   @Test
+   public void testGetCancerStudySetProfileID() throws Exception {
 
-      aDaoPatientList.deleteAllRecords();
-      patientList.setCancerStudyId( 1 ); // CancerStudyId inserted by setUpDBMS()
-      aDaoPatientList.addPatientList(patientList);
+	  HashSet<String> studies;
+      NullHttpServletRequest aNullHttpServletRequest = new NullHttpServletRequest();
+            
+      // test situations when patient_set_id not provided, but profile_id is, as by getProfileData
+      aNullHttpServletRequest = new NullHttpServletRequest();
+      aNullHttpServletRequest.setParameter(WebService.GENETIC_PROFILE_ID, "study_tcga_pub_mutations" );
       studies = WebserviceParserUtils.getCancerStudyIDs(aNullHttpServletRequest);
       assertEquals( 1, studies.size() );
-      assertTrue( studies.contains("study1"));
+      assertTrue( studies.contains("study_tcga_pub"));
+   }
+   
+   @Test
+   public void testGetCancerStudySetPrivateProfile() throws Exception {
+
+	  HashSet<String> studies;
+      NullHttpServletRequest aNullHttpServletRequest = new NullHttpServletRequest();
+      
+      // test situation when multiple profile_ids provided, as by getProfileData
+      aNullHttpServletRequest = new NullHttpServletRequest();
       
       // test situations when patient_set_id not provided, but profile_id is, as by getProfileData
       aNullHttpServletRequest = new NullHttpServletRequest();
-      aNullHttpServletRequest.setParameter(WebService.GENETIC_PROFILE_ID, 
-               privateGeneticProfile.getStableId() );
+      aNullHttpServletRequest.setParameter(WebService.GENETIC_PROFILE_ID, "study_tcga_pub_gistic,study_tcga_pub_mutations" );
       studies = WebserviceParserUtils.getCancerStudyIDs(aNullHttpServletRequest);
       assertEquals( 1, studies.size() );
-      assertTrue( studies.contains(
-              DaoCancerStudy.getCancerStudyByInternalId(
-                      privateGeneticProfile.getCancerStudyId()).getCancerStudyStableId()));
+      assertTrue( studies.contains("study_tcga_pub"));
 
-      // test situation when multiple profile_ids provided, as by getProfileData
-      aNullHttpServletRequest = new NullHttpServletRequest();
-      aNullHttpServletRequest.setParameter(
-               WebService.GENETIC_PROFILE_ID, privateGeneticProfile.getStableId() + ","
-              + publicGeneticProfile.getStableId() );
-      studies = WebserviceParserUtils.getCancerStudyIDs(aNullHttpServletRequest);
-      assertTrue( studies.contains(DaoCancerStudy.getCancerStudyByInternalId
-              (privateGeneticProfile.getCancerStudyId()).getCancerStudyStableId()));
-      assertTrue( studies.contains(DaoCancerStudy.getCancerStudyByInternalId
-              (privateGeneticProfile.getCancerStudyId()).getCancerStudyStableId()));
+      // Removed old test logic for public and private profiles since (a) the tests only check the private
+      // profiles, and (b) this requires better test data
+      
+//      aNullHttpServletRequest.setParameter(
+//               WebService.GENETIC_PROFILE_ID, privateGeneticProfile.getStableId() + ","
+//              + publicGeneticProfile.getStableId() );
+//      studies = WebserviceParserUtils.getCancerStudyIDs(aNullHttpServletRequest);
+//      assertTrue( studies.contains(DaoCancerStudy.getCancerStudyByInternalId
+//              (privateGeneticProfile.getCancerStudyId()).getCancerStudyStableId()));
+//      assertTrue( studies.contains(DaoCancerStudy.getCancerStudyByInternalId
+//              (privateGeneticProfile.getCancerStudyId()).getCancerStudyStableId()));
+   }
 
+   // TODO Add these originally commented out tests
       // test situation when a case_list is explicitly provided, as in getClinicalData, etc.
 //      String c1 = "TCGA-12345";
 //      DaoCaseProfile.addSampleProfile( c1, publicGeneticProfile.getGeneticProfileId());
@@ -264,45 +380,5 @@ public class TestWebService extends TestCase {
 //              (privateGeneticProfile.getCancerStudyId()).getCancerStudyStableId()));
 //      assertTrue( studies.contains(DaoCancerStudy.getCancerStudyByInternalId
 //              (publicGeneticProfile.getCancerStudyId()).getCancerStudyStableId()));
-   }
-   
-   private void setUpDBMS() throws DaoException, IOException{
-      ResetDatabase.resetDatabase();
-
-      user1 = new User("artg@gmail.com", "Arthur", true);
-      DaoUser.addUser(user1);
-      user2 = new User("joe@gmail.com", "J", true);
-      DaoUser.addUser(user2);
-
-      // load cancers
-	  // TBD: change this to use getResourceAsStream()
-      ImportTypesOfCancers.load(new ProgressMonitor(), new File("target/test-classes/cancers.txt"));
-
-      // make a couple of private studies (1 and 2)
-      privateCancerStudy1 = new CancerStudy( "name", "description", "study1", "brca", false );
-      DaoCancerStudy.addCancerStudy(privateCancerStudy1);  // 1
-      privateCancerStudy2 = new CancerStudy( "other name", "other description", "study2", "brca", false );
-      DaoCancerStudy.addCancerStudy(privateCancerStudy2);  // 2
-      
-      publicCancerStudy = new CancerStudy( "public name", "description", "study3", "brca", true );
-      DaoCancerStudy.addCancerStudy(publicCancerStudy);  // 3
-      
-      UserAuthorities authorities = new UserAuthorities(user1.getEmail(), java.util.Arrays.asList("ROLE_USER"));
-      DaoUserAuthorities.addUserAuthorities(authorities);
-      
-      String publicSid = "stableIdpublic";
-      publicGeneticProfile = new GeneticProfile( publicSid, publicCancerStudy.getInternalId(),
-												 GeneticAlterationType.COPY_NUMBER_ALTERATION, "DISCRETE",
-												 "profileName", "profileDescription", true);
-      DaoGeneticProfile.addGeneticProfile( publicGeneticProfile );
-      // have to refetch from the dbms to get the profile_id; sigh!
-      publicGeneticProfile = DaoGeneticProfile.getGeneticProfileByStableId( publicSid ); 
-      String privateSid = "stableIdPrivate";
-      privateGeneticProfile = new GeneticProfile( privateSid, privateCancerStudy1.getInternalId(),
-												  GeneticAlterationType.COPY_NUMBER_ALTERATION, "DISCRETE",
-												  "profileName", "profileDescription", true);
-      DaoGeneticProfile.addGeneticProfile( privateGeneticProfile );
-      privateGeneticProfile = DaoGeneticProfile.getGeneticProfileByStableId(privateSid);
-   }
    
 }

@@ -32,14 +32,10 @@
 
 package org.mskcc.cbio.portal.model;
 
-import static org.junit.Assert.*;
-
-import java.util.EnumSet;
-
+import static org.junit.Assert.fail;
 import junit.framework.Assert;
 
 import org.junit.Test;
-import org.mskcc.cbio.portal.model.GeneticEventImpl;
 import org.mskcc.cbio.portal.model.GeneticEventImpl.CNA;
 import org.mskcc.cbio.portal.model.GeneticEventImpl.MRNA;
 import org.mskcc.cbio.portal.model.GeneticEventImpl.mutations;

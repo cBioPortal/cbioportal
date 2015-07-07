@@ -33,26 +33,42 @@
 package org.mskcc.cbio.portal.dao;
 
 import java.util.ArrayList;
-import junit.framework.TestCase;
-import org.mskcc.cbio.portal.scripts.ResetDatabase;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Transactional;
+
+import static org.junit.Assert.*;
 
 /**
  * JUnit tests for DaoMicroRna class.
  */
-public class TestDaoMicroRna extends TestCase {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
+@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@Transactional
+public class TestDaoMicroRna {
 
-    public void testDaoMicroRna() throws DaoException {
+	@Test
+    public void testDaoMicroRnaBulkloadOff() throws DaoException {
 
         // test with both values of MySQLbulkLoader.isBulkLoad()
         MySQLbulkLoader.bulkLoadOff();
         runTheTest();
         MySQLbulkLoader.bulkLoadOn();
+    }
+
+	@Test
+    public void testDaoMicroRnaBulkloadOn() throws DaoException {
+
         runTheTest();
     }
 
     private void runTheTest() throws DaoException{
         
-        ResetDatabase.resetDatabase();
         DaoMicroRna daoMicroRna = new DaoMicroRna();
         daoMicroRna.addMicroRna("hsa-let-7a", "hsa-let-7a-1");
         daoMicroRna.addMicroRna("hsa-let-7a", "hsa-let-7a-2");

@@ -256,10 +256,10 @@ public class DaoClinicalTrial {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoClinicalTrial.class);
-            pstmt = con.prepareStatement("TRUNCATE TABLE clinical_trials");
+            pstmt = con.prepareStatement("DELETE FROM clinical_trials");
             pstmt.executeUpdate();
 
-            pstmt = con.prepareStatement("TRUNCATE TABLE clinical_trial_keywords");
+            pstmt = con.prepareStatement("DELETE FROM clinical_trial_keywords");
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);

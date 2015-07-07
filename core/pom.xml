@@ -241,6 +241,31 @@
       <version>1.1.6</version>
     </dependency>
 
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-test</artifactId>
+      <version>${spring.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-tx</artifactId>
+      <version>${spring.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+		<groupId>org.easymock</groupId>
+		<artifactId>easymock</artifactId>
+		<version>3.2</version>
+		<scope>test</scope>
+		<exclusions>
+			<exclusion>
+				<groupId>cglib</groupId>
+				<artifactId>cglib-nodep</artifactId>
+			</exclusion>
+		</exclusions>
+	</dependency>
+
   </dependencies>
 
 	<!-- plugins -->
@@ -332,8 +357,11 @@
 				<settingsKey>settingsKey</settingsKey>
 				<driver>com.mysql.jdbc.Driver</driver>
 				<url>jdbc:mysql://localhost:3306/cgds_test</url>
+				<sqlCommand>SET storage_engine=INNODB</sqlCommand>
+				<sqlCommand>SET SESSION sql_mode = 'ANSI_QUOTES'</sqlCommand>
 				<srcFiles>
 				  <srcFile>src/main/resources/db/cgds.sql</srcFile>
+				  <srcFile>src/test/resources/seed_mini.sql</srcFile>
 				</srcFiles>
 			  </configuration>
 			</execution>

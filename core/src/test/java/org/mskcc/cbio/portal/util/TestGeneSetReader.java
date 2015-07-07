@@ -32,7 +32,7 @@
 
 package org.mskcc.cbio.portal.util;
 
-import junit.framework.TestCase;
+
 import org.mskcc.cbio.portal.model.GeneSet;
 
 import java.io.File;
@@ -40,10 +40,12 @@ import java.io.IOException;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 
+import static org.junit.Assert.*;
+
 /**
  * JUnit test for the Gene Set Reader.
  */
-public class TestGeneSetReader extends TestCase {
+public class TestGeneSetReader {
 
     /**
      * Tests the Gene Set Reader Class.

@@ -37,7 +37,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
-import junit.framework.TestCase;
+
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
@@ -51,7 +51,7 @@ import org.junit.Test;
  *
  * @author Arthur Goldberg
  */
-public class TestOncoPrintSpecificationInParser extends TestCase{
+public class TestOncoPrintSpecificationInParser {
 
    @Test
    public void testBadGeneNameInASTParser() {

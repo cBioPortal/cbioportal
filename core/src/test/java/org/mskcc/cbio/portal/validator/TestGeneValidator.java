@@ -32,15 +32,20 @@
 
 package org.mskcc.cbio.portal.validator;
 
-import junit.framework.TestCase;
-import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.model.CanonicalGene;
-import org.mskcc.cbio.portal.scripts.ResetDatabase;
 import org.mskcc.cbio.portal.validate.gene.InvalidGeneSymbolException;
 import org.mskcc.cbio.portal.validate.gene.TooManyGenesException;
 import org.mskcc.cbio.portal.validate.gene.GeneValidationException;
 import org.mskcc.cbio.portal.validate.gene.GeneValidator;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Transactional;
+
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 
@@ -49,22 +54,20 @@ import java.util.ArrayList;
  *
  * @author Ethan Cerami.
  */
-public class TestGeneValidator extends TestCase {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
+@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@Transactional
+public class TestGeneValidator {
 
-    public void setUp() throws DaoException {
-        ResetDatabase.resetDatabase();
-        DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-        daoGene.addGene(new CanonicalGene(672, "BRCA1"));
-        daoGene.addGene(new CanonicalGene(675, "BRCA2"));
-        daoGene.addGene(new CanonicalGene(7157, "TP53"));
-    }
-
+    @Test
     public void testGeneValidator1() throws DaoException, GeneValidationException {
         GeneValidator validator = new GeneValidator ("BRCA1:  AMP");
         ArrayList<CanonicalGene> validGeneList = validator.getValidGeneList();
         assertEquals (1, validGeneList.size());
     }
 
+    @Test
     public void testGeneValidator2() throws DaoException, GeneValidationException {
         try {
             GeneValidator validator = new GeneValidator ("CERAMI:  AMP");
@@ -75,12 +78,14 @@ public class TestGeneValidator extends TestCase {
         }
     }
 
+    @Test
     public void testGeneValidator3() throws DaoException, GeneValidationException {
         GeneValidator validator = new GeneValidator ("BRCA2:  CNA >= GAIN");
         ArrayList<CanonicalGene> validGeneList = validator.getValidGeneList();
         assertEquals (1, validGeneList.size());
     }
 
+    @Test
     public void testGeneValidator4() throws DaoException, GeneValidationException {
         try {
             GeneValidator validator = new GeneValidator("BRCA2:  CNA >= GAIN\nCERAMI:  CNA>=GAIN");
@@ -91,6 +96,7 @@ public class TestGeneValidator extends TestCase {
         }
     }
 
+    @Test
     public void testGeneValidator5() throws DaoException, GeneValidationException {
         try {
             GeneValidator validator = new GeneValidator("DATATYPES: AMP GAIN HOMDEL " +
@@ -103,6 +109,7 @@ public class TestGeneValidator extends TestCase {
         }
     }
 
+    @Test
     public void testGeneValidator6() throws DaoException, GeneValidationException {
         try {
             GeneValidator validator = new GeneValidator ("BRCA2:  AMP\nCERAMI:  AMP\nSANDER: AMP");
@@ -114,6 +121,7 @@ public class TestGeneValidator extends TestCase {
         }
     }
 
+    @Test
     public void testGeneValidator7() throws DaoException, GeneValidationException {
         try {
             GeneValidator validator = new GeneValidator ("");
@@ -124,9 +132,10 @@ public class TestGeneValidator extends TestCase {
         }
     }
 
+    @Test
     public void testGeneValidator8() throws DaoException, GeneValidationException {
         try {
-            GeneValidator validator = new GeneValidator ("BRCA1 BRCA2 TP53", 2);
+            GeneValidator validator = new GeneValidator ("BRCA1 BRCA2 KRAS", 2);
             fail ("TooManyGenesException should have been thrown");
         } catch (TooManyGenesException e) {
             assertEquals ("Too many genes specified:  3.  Please restrict your " +

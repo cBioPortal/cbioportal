@@ -32,19 +32,29 @@
 
 package org.mskcc.cbio.portal.dao;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.model.ClinicalAttribute;
-import org.mskcc.cbio.portal.scripts.ResetDatabase;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 
-public class TestDaoClinicalAttribute extends TestCase {
+import static org.junit.Assert.*;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
+@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@Transactional
+public class TestDaoClinicalAttribute {
+	
+	@Test
     public void testDaoClinicalAttribute() throws DaoException {
-        ResetDatabase.resetDatabase();
 
-        DaoClinicalAttribute daoClinicalAttribute = new DaoClinicalAttribute();
-        int added = daoClinicalAttribute.addDatum(new ClinicalAttribute("attrId", "some attribute", "test attribute", "nonsense", true, "1"));
+        int added = DaoClinicalAttribute.addDatum(new ClinicalAttribute("attrId", "some attribute", "test attribute", "nonsense", true, "1"));
         assertTrue(added == 1);
 
-        ClinicalAttribute clinicalAttribute = daoClinicalAttribute.getDatum("attrId");
+        ClinicalAttribute clinicalAttribute = DaoClinicalAttribute.getDatum("attrId");
         assertNotNull(clinicalAttribute);
     }
 }

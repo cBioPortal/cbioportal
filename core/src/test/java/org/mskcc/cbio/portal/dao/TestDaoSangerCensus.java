@@ -32,26 +32,32 @@
 
 package org.mskcc.cbio.portal.dao;
 
-import junit.framework.TestCase;
-import org.mskcc.cbio.portal.dao.*;
-import org.mskcc.cbio.portal.scripts.ResetDatabase;
-import org.mskcc.cbio.portal.model.ExtendedMutation;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.SangerCancerGene;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Set;
+import static org.junit.Assert.*;
+
 import java.util.HashMap;
 
 /**
  * JUnit tests for DaoSangerCensus class.
  */
-public class TestDaoSangerCensus extends TestCase {
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
+@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@Transactional
+public class TestDaoSangerCensus {
+
+	@Test
     public void testDaoMutation() throws DaoException {
-        DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-        CanonicalGene brca1 = new CanonicalGene(675, "BRCA1");
-        daoGene.addGene(brca1);
+        CanonicalGene brca1 = DaoGeneOptimized.getInstance().getGene("BRCA1");
 
         DaoSangerCensus daoCensus = DaoSangerCensus.getInstance();
         daoCensus.deleteAllRecords();

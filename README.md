@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/cBioPortal/cbioportal.png?label=ready&title=Ready)](https://waffle.io/cBioPortal/cbioportal)
 # cBioPortal
 
 The cBioPortal for Cancer Genomics provides visualization, analysis, and download of large-scale cancer genomics data sets.  The cBioPortal is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License, version 3, as published by the Free Software Foundation.

@@ -160,7 +160,7 @@ if (patientViewError!=null) {
 <jsp:include page="../../global/header.jsp" flush="true" />
 
 <%if(numTumors>1&&caseIds.size()==1) {%>
-    <p style="background-color: lightyellow;"> This patient has 
+    <p style="background-color: lightyellow; margin-bottom: 5px;"> This patient has
         <a title="Go to multi-sample view" href="case.do?cancer_study_id=<%=cancerStudy.getCancerStudyStableId()%>&case_id=<%=patientID%>"><%=numTumors%> tumor samples</a>.
     </p>
 <%}%>
@@ -808,7 +808,7 @@ function plotAlleleFreq(div,mutations,altReadCount,refReadCount) {
         for (var caseId in refCount) {
             var ac = altCount[caseId];
             var rc = refCount[caseId];
-            if (ac&&rc) allFreq[caseId] = (ac/(ac+rc)).toFixed(2);
+            if (!cbio.util.checkNullOrUndefined(ac)&&!cbio.util.checkNullOrUndefined(rc)) allFreq[caseId] = (ac/(ac+rc)).toFixed(2);
         }
         d3AlleleFreqBar($(this)[0],allFreq);
         
@@ -817,7 +817,7 @@ function plotAlleleFreq(div,mutations,altReadCount,refReadCount) {
         caseIds.forEach(function(caseId){
             var ac = altCount[caseId];
             var rc = refCount[caseId];
-            if (ac&&rc) arr.push("<svg width='12' height='12' class='case-label-tip' alt='"+caseId+"'></svg>&nbsp;<b>"
+            if (!cbio.util.checkNullOrUndefined(ac)&&!cbio.util.checkNullOrUndefined(rc)) arr.push("<svg width='12' height='12' class='case-label-tip' alt='"+caseId+"'></svg>&nbsp;<b>"
                     +(ac/(ac+rc)).toFixed(2)+"</b>&nbsp;("+ac+" variant reads out of "+(ac+rc)+" total)");
         });
         var tip = arr.join("<br/>");
@@ -1046,7 +1046,7 @@ function outputClinicalData() {
             ret = "<font color='"+getCaseColor(caseType)+"'>"+caseType+"</font>";
             var loc;
             if (normalizedCaseType(caseType.toLowerCase()) === "metastasis") {
-                loc = guessClinicalData(patientInfo,["TUMOR_SITE","METASTATIC_SITE"]) || guessClinicalData(clinicalData,["TUMOR_SITE","METASTATIC_SITE"]);
+                loc = guessClinicalData(patientInfo, ["TUMOR_SITE","METASTATIC_SITE"]) || guessClinicalData(clinicalData, ["TUMOR_SITE","METASTATIC_SITE"]);
             } else {
                 loc = guessClinicalData(patientInfo, ["TUMOR_SITE","PRIMARY_SITE"]) || guessClinicalData(clinicalData, ["TUMOR_SITE","PRIMARY_SITE"]);
             }

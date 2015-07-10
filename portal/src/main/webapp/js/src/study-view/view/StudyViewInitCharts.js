@@ -531,8 +531,6 @@ var StudyViewInitCharts = (function(){
     function initDcCharts(_data) {
         var createdChartID = 0;
         
-        var tableIcons = [];
-        
         tableCharts.forEach(function(e, i){
             for(var i=0; i< pie.length ; i++){
                 if(pie[i].attr_id === e) {
@@ -541,8 +539,6 @@ var StudyViewInitCharts = (function(){
                     attrNameMapUID[pie[i].attr_id] = createdChartID;
                     displayedID.push(pie[i].attr_id);
                     var tableIcon = $("#study-view-dc-chart-" + createdChartID + "-table-icon");
-                    if (tableIcon.css("display")!=="none")
-                        tableIcons.push(tableIcon);
                     createdChartID++;
                     break;
                 }else {
@@ -589,10 +585,6 @@ var StudyViewInitCharts = (function(){
                 deleteChart(_id,_valueA);
                 bondDragForLayout();
                 AddCharts.bindliClickFunc();
-        });
-        
-        tableIcons.forEach(function(tableIcon) {
-            tableIcon.click();
         });
     }
     

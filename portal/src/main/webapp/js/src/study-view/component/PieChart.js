@@ -84,19 +84,14 @@ var PieChart = function(){
     //bigger than 5.
     function addPieLabels() {
         var _filters =[];
-        
+
         $('#' + DIV.mainDiv + ' .study-view-pie-label').html("");
-          
+
         initLabelInfo();
-        
-//        if(label.length > 6){
-//            bigLabelFunction();
-//        }else{
-            smallLabelFunction();
-//        }
+        labelFunction();
 
         _filters = pieChart.filters();
-         
+
         $('#' + DIV.labelTableID+'-0').find('tr').each(function(index, value) {
             if(_filters.indexOf($($($(value).find('td')[0])).find('span').text()) !== -1) {
                 $(value).find('td').each(function (index1, value1) {
@@ -104,105 +99,10 @@ var PieChart = function(){
                 });
             }
         });
-        
+
         addPieLabelEvents();
     }
-    
-    //Called when the number of label biggen than 6, used by addPieLabels()
-    function bigLabelFunction() {
-        var _totalTableNum = 1;
-        
-        if( label.length % 5 === 0 )
-            _totalTableNum = label.length / 5;
-        else
-            _totalTableNum = parseInt( label.length / 5 ) + 1;
-        
-        
-        for(var j = 0 ; j < label.length ; j+=5){
-            var _innerID = 0,
-                _tableId = parseInt(j/5),
-                _showTableStyle = '',
-                _leftArrowColor = 'blue',
-                _rightArrowColor = 'blue',
-                _currentTableDivId = DIV.labelTableID + "-" + _tableId;
 
-            if( _tableId !== 0 )  
-                _showTableStyle = 'style="display:none"';
-
-            $('#' + DIV.mainDiv)
-                    .find('.study-view-pie-label')
-                    .append("<table id='"+_currentTableDivId+"' "+
-                        _showTableStyle + " ></table>");
-
-            for(var i=j; i< j+5; i++){
-                if(i<label.length){
-                    var _tmpName = label[i].name;
-                    if(_tmpName.length > 9)
-                       _tmpName = _tmpName.substring(0,5) + " ...";
-                    if(( i - _tableId ) % 2 === 0 ){
-                        $('#' + DIV.mainDiv)
-                                .find('#' + _currentTableDivId)
-                                .append("<tr id="+ _innerID +" width='150px'></tr>");
-                        _innerID++;
-                    } 
-                    $('#' + DIV.mainDiv)
-                            .find('#'+_currentTableDivId+
-                                ' tr:nth-child(' + _innerID +')')
-                            .append('<td class="pieLabel" id="' +
-                                DIV.labelTableTdID+label[i].id + "-" + i +
-                                '" style="font-size:' + fontSize +
-                                'px"><svg width="'+(labelSize+3)+'" height="'+
-                                labelSize+'"><rect width="' +
-                                labelSize+'" height="'+ labelSize +
-                                '" style="fill:' + label[i].color + 
-                                ';" /></svg><span oValue="'+
-                                label[i].name + '" style="vertical-align: top">'+
-                                _tmpName+'</span></td>');
-
-                    //Only add qtip when the length of pie label bigger than 9
-                    if(label[i].name.length > 9){
-                        var _qtip = jQuery.extend(true, {}, StudyViewBoilerplate.pieLabelQtip);
-                        
-                        _qtip.content.text = label[i].name;
-                        $('#'+DIV.labelTableTdID+label[i].id+'-'+i).qtip(_qtip);
-                    }
-                }else{
-                    if(( i - _tableId ) % 2 === 0){
-                        $('#' + DIV.mainDiv)
-                            .find('#' + _currentTableDivId)
-                            .append("<tr id="+ _innerID +" width='150px'></tr>");
-                        _innerID++;
-                    } 
-                    $('#' + DIV.mainDiv )
-                        .find('#'+ _currentTableDivId +
-                            ' tr:nth-child(' + _innerID +')')
-                        .append('<td style="width="75px" height="15px"'+
-                                ' font-size:'+fontSize+'px"></td>');
-                }
-            }
-
-            if(_tableId === 0)
-                _leftArrowColor = 'grey';
-            if(_tableId+1 === _totalTableNum)
-                _rightArrowColor = 'grey';
-
-            $('#' + DIV.mainDiv)
-                .find('#'+_currentTableDivId+
-                    ' tr:nth-child(' + _innerID +')')
-                .append('<td id="pieLabel-pagging-' + DIV.chartDiv + "-" +
-                    _tableId + '" style=" width="75px" height="16px"' +
-                    ' border="0px" font-size:' + fontSize+'px">' +
-                    '<svg  width="75" height="13">' +
-                    '<path class="pie-label-left-pagging" ' +
-                    'd="M5 1 L0 11 L10 11 Z" fill="' + _leftArrowColor +
-                    '"/><text x=15 y=10 fill="black">' +
-                    ( _tableId + 1 ) + '/' + _totalTableNum + '</text>' +
-                    '<path class="pie-label-right-pagging"' +
-                    'd="M45 11 L40 1 L50 1 Z" fill="' + _rightArrowColor +
-                    '"/></svg></td>');
-        }
-    }
-    
     function addPieLabelEvents() {
         $('#' + DIV.chartDiv + '-download-icon').qtip('destroy', true); 
         $('#'+  DIV.chartDiv + '-plot-data').qtip('destroy', true);
@@ -578,15 +478,12 @@ var PieChart = function(){
             $("#"+DIV.mainDiv).css('z-index', 16000);
             $('#' + DIV.chartDiv ).css('display','none');
             $('#' + DIV.titleDiv ).css('display','none');
-            $("#"+DIV.mainDiv).animate({height: "340px", width: "375px", duration: 300, queue: false}, 300, function() {
-                StudyViewInitCharts.getLayout().layout();
-                $("#"+DIV.mainDiv).css('z-index', '');
-                $("#"+DIV.chartDiv+"-pie-icon").css('display', 'block');
-                $("#"+DIV.chartDiv+"-table-icon").css('display', 'none');
-                $("#"+DIV.mainDiv + " .study-view-pie-label").css('display','block');
-                if (labelTable)
-                    labelTable.fnAdjustColumnSizing();
-            });
+            if ( !$.fn.DataTable.isDataTable( '#' + DIV.labelTableID+'-0' ) ) {
+                initPieLabelDataTable(animateTable);
+            }else{
+                animateTable();
+            }
+
         });
         $("#"+DIV.chartDiv+"-pie-icon").click(function() {
             $("#"+DIV.mainDiv).css('z-index', 16000);
@@ -611,6 +508,18 @@ var PieChart = function(){
             });
             pieChart.filterAll();
             dc.redrawAll();
+        });
+    }
+
+    function animateTable(){
+        $("#"+DIV.mainDiv).animate({height: "340px", width: "375px", duration: 300, queue: false}, 300, function() {
+            StudyViewInitCharts.getLayout().layout();
+            $("#"+DIV.mainDiv).css('z-index', '');
+            $("#"+DIV.chartDiv+"-pie-icon").css('display', 'block');
+            $("#"+DIV.chartDiv+"-table-icon").css('display', 'none');
+            $("#"+DIV.mainDiv + " .study-view-pie-label").css('display','block');
+            if (labelTable)
+                labelTable.fnAdjustColumnSizing();
         });
     }
     
@@ -1051,11 +960,10 @@ var PieChart = function(){
     }
     
     //Called when the number of label biggen than 6, used by addPieLabels()
-    function smallLabelFunction() {
-        var _innerID = 0;
-        $('#' + DIV.mainDiv)
-                .find('.study-view-pie-label')
-                .append("<table id="+DIV.labelTableID+"-0><thead><th>"+selectedAttrDisplay+"</th><th>#</th></thead><tbody></tbody></table>");
+    function labelFunction() {
+        var _tableDiv = '';
+
+        _tableDiv +='<table id='+DIV.labelTableID+'-0><thead><th>'+selectedAttrDisplay+'</th><th>#</th></thead><tbody>';
 
         for(var i=0; i< label.length; i++){
             var _tmpName = label[i].name;
@@ -1063,17 +971,12 @@ var PieChart = function(){
 //            if(_tmpName.length > 9){
 //                _tmpName = _tmpName.substring(0,5) + " ...";
 //            }
-            
+
             if(i % 1 === 0){
-                $('#' + DIV.mainDiv)
-                        .find('#' + DIV.labelTableID+"-0 tbody")
-                        .append("<tr id="+ _innerID +" width='150px'></tr>");
-                _innerID++;
+                _tableDiv += "<tr width='150px'>";
             }
-            
-            $('#' + DIV.mainDiv)
-                    .find('#' + DIV.labelTableID+'-0 tbody tr:nth-child(' + _innerID +')')
-                    .append('<td class="pieLabel" id="'+
+
+            _tableDiv += '<td class="pieLabel" id="'+
                         DIV.labelTableTdID +label[i].id+'-'+i+
                         '"  style="font-size:'+fontSize+'px">'+
                         '<svg width="'+(labelSize+3)+'" height="'+
@@ -1081,82 +984,95 @@ var PieChart = function(){
                         labelSize+'" height="'+labelSize+'" style="fill:'+
                         label[i].color + ';" /></svg><span oValue="'+
                         label[i].name + '" style="vertical-align: top">'+
-                        _tmpName+'</span></td><td class="pieLabelValue">'+label[i].value+'</td>');
+                        _tmpName+'</span></td><td class="pieLabelValue">'+label[i].value+'</td>';
+
+            if(i % 1 === 0){
+                _tableDiv += '</tr>';
+            }
+
             if(maxLabelNameLength < _tmpName.length) {
                 maxLabelNameLength = _tmpName.length;
             }
-            
+
             if(maxLabelValue < label[i].value) {
                 maxLabelValue = label[i].value;
             }
-            //Only add qtip when the length of pie label bigger than 9
-//            if(label[i].name.length > 9){
-//                addQtip(label[i].name, DIV.labelTableTdID +label[i].id+'-'+i);
-//            }
         }
+
+        _tableDiv += '</tbody></table>';
+
+        $('#' + DIV.mainDiv)
+            .find('.study-view-pie-label')
+            .append(_tableDiv);
+
         if(selectedAttrDisplay.length > maxLabelNameLength && selectedAttrDisplay.length > 20) {
             $('#' + DIV.mainDiv)
                 .find('#' + DIV.labelTableID+'-0 thead th:nth-child(1)').text(selectedAttrDisplay.substring(0, maxLabelNameLength<20?18:maxLabelNameLength-3) + '...');
         }
-        
-        if(category === 'extendable') {
-            var _aaSorting = [];
-            
-            if(labelTableOrder.length === 0) {
-                _aaSorting = [[1, 'desc']];
-            }else {
-                _aaSorting = labelTableOrder;
-            }
-            labelTable = $('#' + DIV.labelTableID+'-0').dataTable({
-                "sDom": "rt<f>",
-                "sScrollY": "255",
-                "bPaginate": false,
-                "bScrollCollapse": true,
-                "aaSorting": _aaSorting,
-                "fnInitComplete": function(oSettings, json) {
-                    $('#'+ DIV.mainDiv + ' .dataTables_filter')
-                            .find('label')
-                            .contents()
-                            .filter(function(){
-                                return this.nodeType === 3;
-                            }).remove();
 
-                    $('#'+ DIV.mainDiv + ' .dataTables_filter')
-                            .find('input')
-                            .attr('placeholder', 'Search...');
-
-                    labelTableOrder = oSettings.aaSorting;
-                },
-                "fnDrawCallback": function() {
-                    $('#'+ DIV.mainDiv).find('table tbody tr').hover(function(e, i) {
-                        $(this).find('td').addClass('hoverRow');
-                    },function(e, i) {
-                        $(this).find('td').removeClass('hoverRow');
-                    });
-                }
-            });
-            
-            $('#' + DIV.mainDiv+' .study-view-pie-label th').click(function() {
-               labelTableOrder = labelTable.fnSettings().aaSorting; 
-            });
-            
-            $('#' + DIV.mainDiv+' .pieLabel').mouseenter(function() {
-                pieLabelMouseEnter(this);
-            });
-
-            $('#' + DIV.mainDiv+' .pieLabel').mouseleave(function(){
-                pieLabelMouseLeave(this);
-            });
-            
-            $('#' + DIV.mainDiv+' .pieLabel').unbind('click');
-            $('#' + DIV.mainDiv+' .pieLabel').click(function(_event){
-                var _shiftClicked = StudyViewWindowEvents.getShiftKeyDown();
-                _event.preventDefault();
-                pieLabelClick(this, _shiftClicked);
-            });
+        if(category === 'extendable' && ['CANCER_TYPE', 'CANCER_TYPE_DETAILED'].indexOf(selectedAttr) !== -1){
+            $("#"+DIV.chartDiv+"-table-icon").click();
         }
     }
-    
+
+    function initPieLabelDataTable(callback) {
+        var _aaSorting = [];
+
+        if(labelTableOrder.length === 0) {
+            _aaSorting = [[1, 'desc']];
+        }else {
+            _aaSorting = labelTableOrder;
+        }
+        labelTable = $('#' + DIV.labelTableID+'-0').dataTable({
+            "sDom": "rt<f>",
+            "sScrollY": "255",
+            "bPaginate": false,
+            "bScrollCollapse": true,
+            "aaSorting": _aaSorting,
+            "fnInitComplete": function(oSettings, json) {
+                $('#'+ DIV.mainDiv + ' .dataTables_filter')
+                        .find('label')
+                        .contents()
+                        .filter(function(){
+                            return this.nodeType === 3;
+                        }).remove();
+
+                $('#'+ DIV.mainDiv + ' .dataTables_filter')
+                        .find('input')
+                        .attr('placeholder', 'Search...');
+
+                labelTableOrder = oSettings.aaSorting;
+            },
+            "fnDrawCallback": function() {
+                $('#'+ DIV.mainDiv).find('table tbody tr').hover(function(e, i) {
+                    $(this).find('td').addClass('hoverRow');
+                },function(e, i) {
+                    $(this).find('td').removeClass('hoverRow');
+                });
+            }
+        });
+
+        $('#' + DIV.mainDiv+' .study-view-pie-label th').click(function() {
+           labelTableOrder = labelTable.fnSettings().aaSorting;
+        });
+
+        $('#' + DIV.mainDiv+' .pieLabel').mouseenter(function() {
+            pieLabelMouseEnter(this);
+        });
+
+        $('#' + DIV.mainDiv+' .pieLabel').mouseleave(function(){
+            pieLabelMouseLeave(this);
+        });
+
+        $('#' + DIV.mainDiv+' .pieLabel').unbind('click');
+        $('#' + DIV.mainDiv+' .pieLabel').click(function(_event){
+            var _shiftClicked = StudyViewWindowEvents.getShiftKeyDown();
+            _event.preventDefault();
+            pieLabelClick(this, _shiftClicked);
+        });
+        callback();
+    }
+
     function pieLabelMouseEnter(_this) {
         var idArray = $(_this).attr('id').split('-'),
             childID = Number(idArray[idArray.length-2])+1,

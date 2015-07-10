@@ -399,31 +399,30 @@ var ScatterPlots = function() {
             .data(_dataArr)
             .enter()
             .append("svg:path")
-            .attr("transform", function(d) {
-                //Remember current positions for the later transition animation
-                $(this).attr("x_val", d.x_val);
-                $(this).attr("y_val", d.y_val);
-                $(this).attr("x_pos", elem.xScale(d.x_val)); 
-                $(this).attr("y_pos", elem.yScale(d.y_val));
-                return "translate(" + elem.xScale(d.x_val) + ", " + elem.yScale(d.y_val) + ")";
+            .each(function (d) {
+                var fill = d.fill;
+                var stroke = d.fill;
+
+                if (d.fill === null || d.fill === "" || typeof d.fill === "undefined") {
+                    fill = style.fill;
+                }
+                if (d.stroke === null || d.stroke === "" || typeof d.stroke === "undefined") {
+                    stroke = style.stroke;
+                }
+
+                d3.select(this).attr({
+                    x_val: d.x_val,
+                    y_val: d.y_val,
+                    x_pos: elem.xScale(d.x_val),
+                    y_pos: elem.xScale(d.y_val),
+                    transform: "translate(" + elem.xScale(d.x_val) + ", " + elem.yScale(d.y_val) + ")",
+                    fill: fill,
+                    stroke: stroke
+                });
             })
             .attr("d", d3.svg.symbol()
                 .size(style.size)
                 .type(style.shape))
-            .attr("fill", function(d) {
-                if (d.fill === null || d.fill === "" || typeof d.fill === "undefined") {
-                    return style.fill;
-                } else {
-                    return d.fill;
-                }
-            })
-            .attr("stroke", function(d) {
-                if (d.stroke === null || d.stroke === "" || typeof d.stroke === "undefined") {
-                    return style.stroke;
-                } else {
-                    return d.stroke;
-                }
-            })
             .attr("stroke-width", style.stroke_width)
             .attr("z-index", "100");
     }

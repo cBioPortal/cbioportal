@@ -33,6 +33,7 @@
         
 <div id="oncoprint" style="padding-top:10px; padding-bottom:10px; padding-left:10px; border: 1px solid #CCC;">
     <img id="outer_loader_img" src="images/ajax-loader.gif"/>
+    <p id="oncoprint_progress_indicator"></p>
     <div style="display:none;" id="everything">
         <div id="oncoprint_controls" style="margin-top:10px; margin-bottom:20px;"></div>
         <%@ include file="controls-templates.jsp" %>
@@ -104,6 +105,15 @@
 //           $('.dropdown-menu #select_clinical_attributes').click(function(){$('#clinical_dropdown').dropdown('toggle');});
         </script>
 
-        <script data-main="js/src/oncoprint/main-boilerplate.js?<%=GlobalProperties.getAppVersion()%>" type="text/javascript" src="js/require.js?<%=GlobalProperties.getAppVersion()%>"></script>
+        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/oncoprintjs/src/js/events.js"></script>
+        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/oncoprintjs/src/js/utils.js"></script>
+        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/oncoprintjs/src/js/defaults.js"></script>
+        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/oncoprintjs/src/js/RuleSet.js"></script>
+        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/oncoprintjs/src/js/OncoprintRenderer.js"></script>
+        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/oncoprintjs/src/js/OncoprintSVGRenderer.js"></script>
+        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/oncoprintjs/src/js/oncoprint.js"></script>
+        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/setup-oncoprint.js"></script>
+        
+        <!--<script data-main="js/src/oncoprint/main-boilerplate.js?<%=GlobalProperties.getAppVersion()%>" type="text/javascript" src="js/require.js?<%=GlobalProperties.getAppVersion()%>"></script>-->
     </div>
 </div>

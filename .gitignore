@@ -76,3 +76,4 @@ nbactions.xml
 */.classpath
 */.project
 dependency-reduced-pom.xml
+portal/src/main/webapp/js/src/oncoprint/new

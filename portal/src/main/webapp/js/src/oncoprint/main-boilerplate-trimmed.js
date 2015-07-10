@@ -42,10 +42,6 @@ requirejs(  ['OncoprintUtils'],
         interpolate : /\{\{(.+?)\}\}/g
     };
 
-    var showmutationflag = true;
-    var showalteredcaseflag = true;
-    var showwhitespaceflag = true;
-    var increasesortflag = true;
     var showPatients = true;
     // add in controls from template
     document.getElementById('oncoprint_controls').innerHTML
@@ -66,7 +62,6 @@ requirejs(  ['OncoprintUtils'],
             "user-defined case list / default": "custom"
         };
     
-    var gapSpaceGeneClinic = 10;// Gap between gene data and clinic 
     var mutationColorControl = 'multiColor';
     var mutationColorSort = 'mutationcolorsort';
     

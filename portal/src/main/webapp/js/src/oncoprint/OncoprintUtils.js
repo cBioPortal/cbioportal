@@ -36,7 +36,7 @@
 //
 // util functions for the Oncoprint.  Basically allows for "static" methods to
 // be tested without having to create an Oncoprint on a DOM element.
-define("OncoprintUtils", (function() {
+window.OncoprintUtils = (function() {
     var is_discrete = function(val) {
         return isNaN(parseInt(val));
     };
@@ -1796,5 +1796,4 @@ define("OncoprintUtils", (function() {
         zoomSetup: zoomSetup,
         alteration_info: alteration_info
     };
-})()
-);
+})();

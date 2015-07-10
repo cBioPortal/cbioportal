@@ -637,6 +637,7 @@ var StudyViewInitCharts = (function(){
                 chartID: _chartID,
                 chartDivClass: 'study-view-pie-chart',
                 attrID: _pieInfo.attr_id,
+                attrKeys: _pieInfo.keys,
                 displayName: _pieInfo.display_name,
                 ndx: ndx,
                 chartColors: chartColors,

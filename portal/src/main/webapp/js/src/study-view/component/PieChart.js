@@ -48,7 +48,8 @@ var PieChart = function(){
     
     var chartID, 
         className, 
-        selectedAttr, 
+        selectedAttr,
+        selectedAttrKeys,
         selectedAttrDisplay,
         ndx,
         labelTable,
@@ -933,36 +934,31 @@ var PieChart = function(){
 
         
         pieChart = dc.pieChart("#" + DIV.chartDiv);
-        
+
         cluster = ndx.dimension(function (d) {
-            if(!d[selectedAttr] || d[selectedAttr].toLowerCase()==="unknown" 
-                    || d[selectedAttr].toLowerCase()==="none")
-                return "NA";
             return d[selectedAttr];
         });
         
         if(selectedAttr !== 'CASE_ID') {
-            var _keys = [];
-            for(var i = 0; i < cluster.group().top(Infinity).length; i++) {
-                _keys.push(cluster.group().top(Infinity)[i].key);
-            }
-            _keys.sort(function(a, b) {
+            selectedAttrKeys.sort(function(a, b) {
                 if(a< b){
                     return -1;
                 }else {
                     return 1;
                 }
             });
-            if(_keys.indexOf('NA') !== -1) {
-                _color[_keys.indexOf('NA')] = '#CCCCCC';
+
+            if(selectedAttrKeys.indexOf('NA') !== -1) {
+                _color[selectedAttrKeys.indexOf('NA')] = '#CCCCCC';
             }
         
-            if(_keys.length > 10) {
+            if(selectedAttrKeys.length > 10) {
                 category = 'extendable';
             }else {
                 category = 'regular';
             }
         }
+
         pieChart
             .width(_pieWidth)
             .height(_pieWidth)
@@ -1035,6 +1031,7 @@ var PieChart = function(){
         className = _param.chartDivClass,
         chartID = _param.chartID;
         selectedAttr = _param.attrID;
+        selectedAttrKeys = _param.attrKeys;
         selectedAttrDisplay = _param.displayName;
         ndx = _param.ndx;
         chartColors = _param.chartColors;

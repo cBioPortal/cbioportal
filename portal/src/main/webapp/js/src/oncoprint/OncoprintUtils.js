@@ -1249,7 +1249,7 @@ define("OncoprintUtils", (function() {
                     }
                     return false;
                 case 3:
-                    var findResult = _.find(source,function(element){return (/^([A-Z]+)([0-9]+)del$/g).test(element)});
+                    var findResult = _.find(source,function(element){return (/^([A-Z]+)([0-9]+)((del)|(ins))([a-zA-Z]+)$/g).test(element)});
                     if(findResult !== undefined)
                     {
                         return true;
@@ -1259,7 +1259,7 @@ define("OncoprintUtils", (function() {
 //                    var findResult = _.find(source,function(element){return (/^([A-Z]+)([0-9]+)del$/g).test(element)});
                     for(var i = 0; i<source.length; i++)
                     {
-                        if((/^([A-Z]+)([0-9]+)del$/g).test(source[i]))
+                        if((/^([A-Z]+)([0-9]+)((del)|(ins))([a-zA-Z]+)$/g).test(source[i]))
                         {
                             continue;
                         }

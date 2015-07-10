@@ -124,6 +124,15 @@ var StudyViewProxy = (function() {
         this.COPY_NUMBER_ALTERATIONS = 'NA';
     }
 
+    function CaseAttr() {
+        this.attr_id = '';
+        this.datatype = ''; //STRING, NUMBER
+        this.description = '';
+        this.display_name = '';
+        this.keys = [];
+        this.numOfNoneEmpty = 0;
+    }
+
     function getDataFunc(callbackFunc){
         $.when(
             $.ajax({type: "POST", url: "webservice.do", data: ajaxParameters.webserviceData}),
@@ -134,14 +143,10 @@ var StudyViewProxy = (function() {
             //$.ajax({type: "POST", url: "mutations.json", data: ajaxParameters.mutatedGenesData})
         )
             .done(function(a1, a2, a3, a4, a5){
-                var startM = (new Date()).getTime();
-                var tmpM;
-
-                console.log('Start: ' + startM);
                 var _dataAttrMapArr = {}, //Map attrbute value with attribute name for each datum
                     _keyNumMapping = {},
                     _data = a1[0]['data'],
-                    _dataAttrOfa1 = a1[0]['attributes'],
+                    _dataAttrOfa1 = [],
                     _dataLength = _data.length,
                     _sampleIds = Object.keys(samplePatientMapping),
                     _sequencedSampleIds = [],
@@ -161,23 +166,18 @@ var StudyViewProxy = (function() {
                     //}
                 }
 
-                tmpM = (new Date()).getTime();
-                console.log('T1 diff: ' + (tmpM - startM));
-                startM = tmpM;
                 //Uppercase all attr_id
-                for(var i= 0; i < _dataAttrOfa1.length; i++){
-                    _dataAttrOfa1[i]['attr_id'] = _dataAttrOfa1[i]['attr_id'].toUpperCase();
-                    if(!_dataAttrOfa1[i].hasOwnProperty('display_name') || !_dataAttrOfa1[i]['display_name']){
-                        _dataAttrOfa1[i]['display_name'] = _dataAttrOfa1[i]['attr_id'];
+                for(var i= 0; i < a1[0]['attributes'].length; i++){
+                    var caseAttr = new CaseAttr();
+                    caseAttr.attr_id =  a1[0]['attributes'][i]['attr_id'].toUpperCase();
+                    if(! a1[0]['attributes'][i].hasOwnProperty('display_name') ||  a1[0]['attributes'][i].display_name){
+                        caseAttr.display_name =  a1[0]['attributes'][i].attr_id;
                     }
-                    _dataAttrOfa1[i]['display_name'] = toPascalCase(_dataAttrOfa1[i]['display_name']);
-                    CaseDatum.prototype[_dataAttrOfa1[i]['attr_id']] = 'NA';
+                    caseAttr.display_name = toPascalCase(caseAttr.display_name);
+                    caseAttr.datatype = a1[0]['attributes'][i].datatype;
+                    CaseDatum.prototype[caseAttr['attr_id']] = 'NA';
+                    _dataAttrOfa1.push(caseAttr);
                 }
-
-
-                tmpM = (new Date()).getTime();
-                console.log('T2 diff: ' + (tmpM - startM));
-                startM = tmpM;
 
                 //Initial data array, not all of cases has MUTAION COUND OR COPY NUMBER ALTERATIONS.
                 for(var j = 0; j <  _sampleIds.length; j++){
@@ -188,36 +188,24 @@ var StudyViewProxy = (function() {
                     obtainDataObject['arr'].push(_caseDatum);
                 }
 
-
-                tmpM = (new Date()).getTime();
-                console.log('T3 diff: ' + (tmpM - startM));
-                startM = tmpM;
-
                 for(var key in _dataAttrMapArr){
                     for (var i = 0 ; i < _dataAttrOfa1.length ; i++){
                         var tmpValue = _dataAttrMapArr[key][_dataAttrOfa1[i]['attr_id']];
                         if(!tmpValue || tmpValue === 'na'){
                             tmpValue = 'NA';
+                        }else{
+                            ++_dataAttrOfa1[i].numOfNoneEmpty;
                         }
+                        _dataAttrOfa1[i].keys.push(tmpValue);
                         obtainDataObject['arr'][_keyNumMapping[key]][_dataAttrOfa1[i]['attr_id']] = tmpValue;
                     }
                 }
-
-
-                tmpM = (new Date()).getTime();
-                console.log('T4 diff: ' + (tmpM - startM));
-                startM = tmpM;
 
                 obtainDataObject['attr'] = _dataAttrOfa1;
 
                 //Filter extra data
                 var filteredA2 = removeExtraData(_sampleIds,a2[0]);
                 var filteredA3 = removeExtraData(_sampleIds,a3[0]);
-
-
-                tmpM = (new Date()).getTime();
-                console.log('T5 diff: ' + (tmpM - startM));
-                startM = tmpM;
 
                 //Find sequenced sample Ids
                 if(a5[0]) {
@@ -233,14 +221,9 @@ var StudyViewProxy = (function() {
                     }
                 }
 
-
-                tmpM = (new Date()).getTime();
-                console.log('T6 diff: ' + (tmpM - startM));
-                startM = tmpM;
-
                 //Add new attribute MUTATIOIN COUNT for each case if have any
                 if(Object.keys(filteredA2).length !== 0){
-                    var _newAttr = {};
+                    var _newAttr = new CaseAttr();
                     _newAttr.attr_id = 'MUTATION_COUNT';
                     _newAttr.display_name = 'Mutation Count';
                     _newAttr.description = 'Mutation Count';
@@ -253,12 +236,16 @@ var StudyViewProxy = (function() {
                             if(_sequencedSampleIds.indexOf(sampleId) !== -1){
                                 console.log(sampleId, 'has been sequenced but does not have data. Changed mutation count to 0.');
                                 val = 0;
+                                ++_newAttr.numOfNoneEmpty;
                             }else{
                                 val = 'NA';
                             }
+                        }else{
+                            ++_newAttr.numOfNoneEmpty;
                         }
 
                         obtainDataObject['arr'][_keyNumMapping[sampleId]]['MUTATION_COUNT'] = val;
+                        _newAttr.keys.push(val);
                     }
                     obtainDataObject['attr'].push(_newAttr);
                 }else {
@@ -270,14 +257,9 @@ var StudyViewProxy = (function() {
                     }
                 }
 
-
-                tmpM = (new Date()).getTime();
-                console.log('T7 diff: ' + (tmpM - startM));
-                startM = tmpM;
-
                 //Add new attribute COPY NUMBER ALTERATIONS for each case if have any
                 if(Object.keys(filteredA3).length !== 0){
-                    var _newAttri = {};
+                    var _newAttri = new CaseAttr();
                     _newAttri.attr_id = 'COPY_NUMBER_ALTERATIONS';
                     _newAttri.display_name = 'Copy Number Alterations';
                     _newAttri.description = 'Copy Number Alterations';
@@ -287,8 +269,11 @@ var StudyViewProxy = (function() {
                         var val = filteredA3[sampleId];
                         if(!val){
                             val = 'NA';
+                        }else{
+                            ++_newAttri.numOfNoneEmpty;
                         }
                         obtainDataObject['arr'][_keyNumMapping[sampleId]]['COPY_NUMBER_ALTERATIONS'] = val;
+                        _newAttri.keys.push(val);
                     }
                     obtainDataObject['attr'].push(_newAttri);
                 }else {
@@ -299,11 +284,6 @@ var StudyViewProxy = (function() {
                         }
                     }
                 }
-
-
-                tmpM = (new Date()).getTime();
-                console.log('T8 diff: ' + (tmpM - startM));
-                startM = tmpM;
 
                 //Attribute CASE_ID will be treated as identifier in Study View
                 //If the case data does not have CASE_ID column, new CASE_ID attribute
@@ -318,24 +298,29 @@ var StudyViewProxy = (function() {
                         patientidExist = true;
                     }
                 }
+
                 if(!caseidExist){
-                    obtainDataObject['attr'].push({
-                        attr_id: 'CASE_ID',
-                        display_name: 'SAMPLE ID',
-                        description: 'Sample Identifier',
-                        datatype: 'STRING'
-                    });
+                    var caseAttr = new CaseAttr();
+                    caseAttr.attr_id = 'CASE_ID';
+                    caseAttr.display_name = 'CASE_ID';
+                    caseAttr.description = 'Sample Identifier';
+                    caseAttr.datatype = 'STRING';
+                    obtainDataObject['attr'].push(caseAttr);
                 }
                 //obtainDataObject['mutatedGenes'] = a4[0];
                 obtainDataObject['gistic'] = a4[0];
 
                 if (!patientidExist) {
-                    obtainDataObject['attr'].push({
-                        attr_id: 'PATIENT_ID',
-                        display_name: 'PATIENT ID',
-                        description: 'Patient Identifier',
-                        datatype: 'STRING'
-                    });
+                    var caseAttr = new CaseAttr();
+                    caseAttr.attr_id = 'PATIENT_ID';
+                    caseAttr.display_name = 'PATIENT_ID';
+                    caseAttr.description = 'Patient Identifier';
+                    caseAttr.datatype = 'STRING';
+                    obtainDataObject['attr'].push(caseAttr);
+                }
+
+                for(var i = 0; i< _dataAttrOfa1.length; i++) {
+                    _dataAttrOfa1[i].keys = _.uniq(_dataAttrOfa1[i].keys);
                 }
 
                 //if(ajaxParameters.cnaData.cna_profile) {
@@ -361,13 +346,6 @@ var StudyViewProxy = (function() {
                         }
                     }, 200);
                 }
-
-
-                tmpM = (new Date()).getTime();
-                console.log('T9 diff: ' + (tmpM - startM));
-                startM = tmpM;
-
-                console.log(new Date());
             });
     };
 

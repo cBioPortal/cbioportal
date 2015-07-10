@@ -124,59 +124,27 @@ var StudyViewInitCharts = (function(){
     }
     
     function initData(dataObtained) {
-        var _attrskeys = [], //number of keys for each attribute
-            _attr = dataObtained.attr,
+        var _attr = dataObtained.attr,
             _arr = dataObtained.arr,
             _attrLength = _attr.length,
             _arrLength = _arr.length,
             _studyDesc = "",
             //table chart will always put ahead, and the higher prioirty, the bigger index(later will use array unshift for table charts)
             _priorityAttrs = ['CANCER_TYPE_DETAILED', 'CANCER_TYPE', 'PATIENT_ID', 'CASE_ID'];
-        
+
         //mutatedGenes = dataObtained.mutatedGenes;
         //cna = dataObtained.cna || '';
         numOfCases = _arr.length;        
         ndx = crossfilter(_arr);
-        
-        //Calculate all keys for each attribute and rank by number of non-empty datum
-        for( var i = 0; i < _attrLength; i++ ){
-            var _varValuesNum = {},
-                _numofNonEmpty = 0;
-            var _attrskeysDatum = [];
-            
-            
-            _attrskeysDatum.push(i);
-            _attrskeysDatum.push(_attr[i]["attr_id"]);
-            
-            for( var j = 0; j < _arrLength; j++ ){
-                if(_attr[i]["attr_id"] === "PATIENT_ID" && 
-                        _arr[j]["PATIENT_ID"] === 'NA') {
-                    _varValuesNum.hasOwnProperty(_arr[j].CASE_ID)? _varValuesNum[_arr[j].CASE_ID]++ :_varValuesNum[_arr[j].CASE_ID]=0;
-                }else {
-                    if(_varValuesNum.hasOwnProperty(_arr[j][_attr[i]["attr_id"]])){
-                        _varValuesNum[_arr[j][_attr[i]["attr_id"]]]++;
-                    }else{
-                        _varValuesNum[_arr[j][_attr[i]["attr_id"]]]=0;
-                    }
-                    dataArr[_arr[j].CASE_ID] = _arr[j];
-                }
-            }
-            
-            for(var key in _varValuesNum) {
-                if( key !== "NA") {
-                    _numofNonEmpty += Number(_varValuesNum[key]);
-                }
-            }
-            _attrskeysDatum.push(Object.keys(_varValuesNum));
-            _attrskeysDatum.push(_numofNonEmpty);
-            _attrskeys.push(_attrskeysDatum);
-            _varValuesNum = null;
-            _attrskeysDatum = null;
+
+        //Save data based on CASE_ID
+        for( var j = 0; j < _arrLength; j++ ){
+            dataArr[_arr[j].CASE_ID] = _arr[j];
         }
-        
-        _attrskeys.sort(function(a, b) {
-            var aIndex = _priorityAttrs.indexOf(a[1]),
-                bIndex = _priorityAttrs.indexOf(b[1]);
+
+        _attr.sort(function(a, b) {
+            var aIndex = _priorityAttrs.indexOf(a.attr_id),
+                bIndex = _priorityAttrs.indexOf(b.attr_id);
                 
              if(aIndex !== -1 && bIndex !== -1) {
                 return aIndex<bIndex?-1:1;
@@ -185,26 +153,23 @@ var StudyViewInitCharts = (function(){
             }else if(bIndex !== -1) {
                 return 1;
             }else {
-                if(a[3] < b[3]) {
+                if(a.numOfNoneEmpty < b.numOfNoneEmpty) {
                     return 1;
                 }else {
                     return -1;
                 }
             }
         });
-        
-        if(_attrskeys.length !== _attrLength) {
-            StudyViewUtil.echoWarningMessg("The length of sorted attrs is not equal to atts length");
-        }
+
         //Calculate the number of pie, bar charts
         //Initial varName, varType, distanceMinMaxArray, varDisplay
         for( var i = 0; i < _attrLength; i++ ){
-            var _attrIndex = _attrskeys[i][0];
-            var _attr_id = _attrskeys[i][1];
-            var _dataType = _attr[_attrIndex]["datatype"].toUpperCase();
+            var _attr_id = _attr[i].attr_id;
+            var _keys = _attr[i].keys;
+            var _dataType = _attr[i].datatype.toUpperCase();
             var _allNumber = false;
             var _createdChartsNum = pie.length + bar.length;
-            var _keys = _attrskeys[i][2];
+
              //If chart only has one category and it is NA, do not show this chart
             if(_keys.length === 1 && _keys[0] === 'NA'){
                 continue;
@@ -219,22 +184,20 @@ var StudyViewInitCharts = (function(){
             }
             
             if(_attr_id === "CASE_ID" ){
-                pie.push(_attr[_attrIndex]);
+                pie.push(_attr[i]);
             }else if(_attr_id === "PATIENT_ID") {
                 if(_keys.length !== Object.keys(dataArr).length) {
                     _studyDesc = "from " + _keys.length + " patients";
                 }
             }else if(_dataType === "NUMBER" || _dataType === "BOOLEAN" || _allNumber){ 
                 if(selectedCol(_attr_id) && _createdChartsNum < 21){                    
-                    if(_keys.length>10 || _attr_id === 'AGE' || _attr_id === 'MUTATION_COUNT' 
-                            || _attr_id === 'COPY_NUMBER_ALTERATIONS')
-                        bar.push(_attr[_attrIndex]);
+                    if(_keys.length>10 || _attr_id === 'AGE' || _attr_id === 'MUTATION_COUNT' || _attr_id === 'COPY_NUMBER_ALTERATIONS')
+                        bar.push(_attr[i]);
                     else
-                        pie.push(_attr[_attrIndex]);
+                        pie.push(_attr[i]);
                 }
 
-                if(_keys.length > 10 || _attr_id === 'AGE' || _attr_id === 'MUTATION_COUNT' 
-                        || _attr_id === 'COPY_NUMBER_ALTERATIONS'){
+                if(_keys.length > 10 || _attr_id === 'AGE' || _attr_id === 'MUTATION_COUNT' || _attr_id === 'COPY_NUMBER_ALTERATIONS'){
                     varType[_attr_id] = "bar";
                 }else{
                     varType[_attr_id] = "pie";
@@ -260,9 +223,9 @@ var StudyViewInitCharts = (function(){
                 varType[_attr_id] = "pie";
                 if(selectedCol(_attr_id) && _createdChartsNum < 21){
                     if (tableCharts.indexOf(_attr_id) !== -1) {
-                        pie.unshift(_attr[_attrIndex]);
+                        pie.unshift(_attr[i]);
                     } else {
-                        pie.push(_attr[_attrIndex]);
+                        pie.push(_attr[i]);
                     }
                 }
             }else {
@@ -272,11 +235,11 @@ var StudyViewInitCharts = (function(){
             if(_attr_id !== "PATIENT_ID") {
                 varKeys[_attr_id] = [];
                 varKeys[_attr_id] = _keys;
-                varDisplay.push(_attr[_attrIndex]["display_name"]);                
-                varName.push(_attr[_attrIndex]["attr_id"]);
+                varDisplay.push(_attr[i].display_name);
+                varName.push(_attr[i].attr_id);
             }
         }
-        
+
         $("#study-desc").append("&nbsp;&nbsp;<b>"+ Object.keys(dataArr).length +" samples " + _studyDesc+"</b>.");
         
         totalCharts = pie.length + bar.length;
@@ -290,8 +253,8 @@ var StudyViewInitCharts = (function(){
         if(
                 StudyViewUtil.arrayFindByValue(varName, 'MUTATION_COUNT') && 
                 StudyViewUtil.arrayFindByValue(varName, 'COPY_NUMBER_ALTERATIONS') &&
-                varKeys['MUTATION_COUNT'].length > 0 &&
-                varKeys['COPY_NUMBER_ALTERATIONS'].length > 0){
+                varKeys.MUTATION_COUNT.length > 0 &&
+                varKeys.COPY_NUMBER_ALTERATIONS.length > 0){
             initScatterPlot(_arr);
 
             //if(cancerStudyId.indexOf("mskimpact") !== -1){
@@ -305,12 +268,12 @@ var StudyViewInitCharts = (function(){
     function initSurvialPlotPrep(_arr){
         if(     (StudyViewUtil.arrayFindByValue(varName, 'OS_MONTHS') &&
             StudyViewUtil.arrayFindByValue(varName, 'OS_STATUS') &&
-            varKeys['OS_MONTHS'].length > 0 &&
-            varKeys['OS_STATUS'].length > 0) ||
+            varKeys.OS_MONTHS.length > 0 &&
+            varKeys.OS_STATUS.length > 0) ||
             (StudyViewUtil.arrayFindByValue(varName, 'DFS_MONTHS') &&
             StudyViewUtil.arrayFindByValue(varName, 'DFS_STATUS') &&
-            varKeys['DFS_MONTHS'].length > 0 &&
-            varKeys['DFS_STATUS'].length > 0)){
+            varKeys.DFS_MONTHS.length > 0 &&
+            varKeys.DFS_STATUS.length > 0)){
 
             initSurvivalPlot(_arr);
         }
@@ -457,8 +420,8 @@ var StudyViewInitCharts = (function(){
             
         if (StudyViewUtil.arrayFindByValue(varName, 'OS_MONTHS') && 
                 StudyViewUtil.arrayFindByValue(varName, 'OS_STATUS') &&
-                varKeys['OS_MONTHS'].length > 0 &&
-                varKeys['OS_STATUS'].length > 0) {
+                varKeys.OS_MONTHS.length > 0 &&
+                varKeys.OS_STATUS.length > 0) {
             _plotsInfo.OS=  {
                 name: "Overall Survival",
                 property: ["OS_MONTHS", "OS_STATUS"],
@@ -474,8 +437,8 @@ var StudyViewInitCharts = (function(){
         
         if (StudyViewUtil.arrayFindByValue(varName, 'DFS_MONTHS') && 
                 StudyViewUtil.arrayFindByValue(varName, 'DFS_STATUS') &&
-                varKeys['DFS_MONTHS'].length > 0 &&
-                varKeys['DFS_STATUS'].length > 0) {
+                varKeys.DFS_MONTHS.length > 0 &&
+                varKeys.DFS_STATUS.length > 0) {
             
             _plotsInfo.DFS=  {
                 name: "Disease Free Survival",
@@ -575,8 +538,8 @@ var StudyViewInitCharts = (function(){
                 if(pie[i].attr_id === e) {
                     makeNewPieChartInstance(createdChartID, pie[i]);
                     HTMLtagsMapUID["study-view-dc-chart-" + createdChartID] = createdChartID;
-                    attrNameMapUID[pie[i]["attr_id"]] = createdChartID;
-                    displayedID.push(pie[i]["attr_id"]);
+                    attrNameMapUID[pie[i].attr_id] = createdChartID;
+                    displayedID.push(pie[i].attr_id);
                     var tableIcon = $("#study-view-dc-chart-" + createdChartID + "-table-icon");
                     if (tableIcon.css("display")!=="none")
                         tableIcons.push(tableIcon);
@@ -597,17 +560,17 @@ var StudyViewInitCharts = (function(){
             if (tableCharts.indexOf(pie[i].attr_id) === -1) {
                 makeNewPieChartInstance(createdChartID, pie[i]);
                 HTMLtagsMapUID["study-view-dc-chart-" + createdChartID] = createdChartID;
-                attrNameMapUID[pie[i]["attr_id"]] = createdChartID;
-                displayedID.push(pie[i]["attr_id"]);
+                attrNameMapUID[pie[i].attr_id] = createdChartID;
+                displayedID.push(pie[i].attr_id);
                 createdChartID++;
             }
         }
         
         for(var i=0; i< bar.length ; i++){
-            makeNewBarChartInstance(createdChartID, bar[i], distanceMinMaxArray[bar[i]['attr_id']]);
+            makeNewBarChartInstance(createdChartID, bar[i], distanceMinMaxArray[bar[i].attr_id]);
             HTMLtagsMapUID["study-view-dc-chart-" + createdChartID] = createdChartID;
-            attrNameMapUID[bar[i]["attr_id"]] = createdChartID;
-            displayedID.push(bar[i]["attr_id"]);            
+            attrNameMapUID[bar[i].attr_id] = createdChartID;
+            displayedID.push(bar[i].attr_id);
             createdChartID++;
         }
         
@@ -634,13 +597,13 @@ var StudyViewInitCharts = (function(){
     }
     
     function getSelectedCases() {
-        return varChart[attrNameMapUID["CASE_ID"]]
+        return varChart[attrNameMapUID.CASE_ID]
                     .getChart()
                     .dimension()
                     .top(Infinity);
     }
     function getSelectedCasesID() {
-        var _cases = varChart[attrNameMapUID["CASE_ID"]]
+        var _cases = varChart[attrNameMapUID.CASE_ID]
                     .getChart()
                     .dimension()
                     .top(Infinity);
@@ -980,7 +943,7 @@ var StudyViewInitCharts = (function(){
     }
         
     function changeHeader(){
-        var _dimention = varChart[attrNameMapUID["CASE_ID"]].getChart().dimension();
+        var _dimention = varChart[attrNameMapUID.CASE_ID].getChart().dimension();
         var _result = _dimention.top(Infinity);
         
         StudyViewInitTopComponents.changeHeader(_result, numOfCases, removedChart);
@@ -1009,7 +972,7 @@ var StudyViewInitCharts = (function(){
             
             for(var i=0; i< _numOfCharts; i++){
                 if(removedChart.indexOf(i) === -1){
-                    if(attrNameMapUID['CASE_ID'] !== i){
+                    if(attrNameMapUID.CASE_ID !== i){
                         var _datum = $("#study-view-dc-chart-" + i),
                             _value = _datum.attr('oValue'),
                             _valueArray = _value.split(",");
@@ -1087,10 +1050,10 @@ var StudyViewInitCharts = (function(){
     }
     
     function filterChartsByGivingIDs(_ids){
-        var _caseIDChart = varChart[attrNameMapUID['CASE_ID']].getChart();
+        var _caseIDChart = varChart[attrNameMapUID.CASE_ID].getChart();
         
         if(_ids.length > 1){
-            StudyViewInitScatterPlot.setClickedCasesId('');;
+            StudyViewInitScatterPlot.setClickedCasesId('');
         }
         _ids = getStableIds(_ids);
         _caseIDChart.filterAll();
@@ -1207,7 +1170,7 @@ var StudyViewInitCharts = (function(){
         },
         bondDragForLayout: bondDragForLayout,
         getFilteredResults: function() {
-            var _filteredResult = varChart[attrNameMapUID['CASE_ID']].getCluster().top(Infinity);
+            var _filteredResult = varChart[attrNameMapUID.CASE_ID].getCluster().top(Infinity);
             return _filteredResult;
         },
         
@@ -1231,7 +1194,7 @@ var StudyViewInitCharts = (function(){
         },
         
         getCaseIdChartIndex: function() {
-            return attrNameMapUID['CASE_ID'];
+            return attrNameMapUID.CASE_ID;
         },
         
         getPlotDataFlag: function() {

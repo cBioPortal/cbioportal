@@ -3,7 +3,6 @@ The cBioPortal for SU2C is developed and maintained by the [Computational Biolog
 ## The team
 
  * Jianjiong Gao, MSKCC
- * B. Arman Aksoy, MSKCC
  * Benjamin Gross, MSKCC
  * Gideon Dresdner, MSKCC
  * Anders Jacobsen, MSKCC
@@ -23,6 +22,7 @@ The cBioPortal for SU2C is developed and maintained by the [Computational Biolog
  * Michael Heuer
  * Caitlin Byrne, MSKCC
  * Sinan Sonlu, Bilkent University
+ * B. Arman Aksoy
 
 ## Protein data provided by:
 

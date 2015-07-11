@@ -409,7 +409,7 @@
                                 if (caseIds.length===1) {
                                     var ac = altCount[caseIds[0]];
                                     var rc = refCount[caseIds[0]];
-                                    if (!ac||!rc) return "";
+                                    if (cbio.util.checkNullOrUndefined(ac)||cbio.util.checkNullOrUndefined(rc)) return "";
                                     var freq = ac / (ac + rc);
                                     var tip = ac + " variant reads out of " + (rc+ac) + " total";
                                     return "<span class='"+table_id+"-tip' alt='"+tip+"'>"+freq.toFixed(2)+"</span>";

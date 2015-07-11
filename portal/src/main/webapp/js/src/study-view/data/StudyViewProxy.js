@@ -188,17 +188,19 @@ var StudyViewProxy = (function() {
                     obtainDataObject['arr'].push(_caseDatum);
                 }
 
-                for(var key in _dataAttrMapArr){
-                    for (var i = 0 ; i < _dataAttrOfa1.length ; i++){
+                for (var i = 0 ; i < _dataAttrOfa1.length; i++){
+                    var _keys = {};
+                    for(var key in _dataAttrMapArr){
                         var tmpValue = _dataAttrMapArr[key][_dataAttrOfa1[i]['attr_id']];
                         if(!tmpValue || tmpValue === 'na'){
                             tmpValue = 'NA';
                         }else{
                             ++_dataAttrOfa1[i].numOfNoneEmpty;
                         }
-                        _dataAttrOfa1[i].keys.push(tmpValue);
+                        _keys[tmpValue] = 0;
                         obtainDataObject['arr'][_keyNumMapping[key]][_dataAttrOfa1[i]['attr_id']] = tmpValue;
                     }
+                    _dataAttrOfa1[i].keys = Object.keys(_keys);
                 }
 
                 obtainDataObject['attr'] = _dataAttrOfa1;
@@ -228,6 +230,7 @@ var StudyViewProxy = (function() {
                     _newAttr.display_name = 'Mutation Count';
                     _newAttr.description = 'Mutation Count';
                     _newAttr.datatype = 'NUMBER';
+                    var _keys = {};
 
                     for(var sampleId in filteredA2){
                         var val = filteredA2[sampleId];
@@ -245,8 +248,9 @@ var StudyViewProxy = (function() {
                         }
 
                         obtainDataObject['arr'][_keyNumMapping[sampleId]]['MUTATION_COUNT'] = val;
-                        _newAttr.keys.push(val);
+                        _keys[val] = 0;
                     }
+                    _newAttr.keys = Object.keys(_keys);
                     obtainDataObject['attr'].push(_newAttr);
                 }else {
                     var cnaLength = obtainDataObject['arr'].length;
@@ -264,6 +268,7 @@ var StudyViewProxy = (function() {
                     _newAttri.display_name = 'Copy Number Alterations';
                     _newAttri.description = 'Copy Number Alterations';
                     _newAttri.datatype = 'NUMBER';
+                    var _keys = {};
 
                     for(var sampleId in filteredA3){
                         var val = filteredA3[sampleId];
@@ -272,9 +277,10 @@ var StudyViewProxy = (function() {
                         }else{
                             ++_newAttri.numOfNoneEmpty;
                         }
+                        _keys[val] = 0;
                         obtainDataObject['arr'][_keyNumMapping[sampleId]]['COPY_NUMBER_ALTERATIONS'] = val;
-                        _newAttri.keys.push(val);
                     }
+                    _newAttri.keys = Object.keys(_keys);
                     obtainDataObject['attr'].push(_newAttri);
                 }else {
                     var cnaLength = obtainDataObject['arr'].length;
@@ -317,10 +323,6 @@ var StudyViewProxy = (function() {
                     caseAttr.description = 'Patient Identifier';
                     caseAttr.datatype = 'STRING';
                     obtainDataObject['attr'].push(caseAttr);
-                }
-
-                for(var i = 0; i< _dataAttrOfa1.length; i++) {
-                    _dataAttrOfa1[i].keys = _.uniq(_dataAttrOfa1[i].keys);
                 }
 
                 //if(ajaxParameters.cnaData.cna_profile) {

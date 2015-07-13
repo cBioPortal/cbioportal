@@ -92,34 +92,45 @@ var setUpClinicalAttributesSelector = function(cancer_study_id, case_list) {
 			$("#select_clinical_attributes_chzn").addClass("chzn-with-drop");
 		}
 	});
+	var MUTATION_COUNT_ATTR_ID = "# mutations";
+	var addClinicalTrack = function(clinical_attr) {
+		if (clinical_attr.attr_id === MUTATION_COUNT_ATTR_ID) {
+			var mutation_count_data = annotatePatientIds(clinicalData[clinical_attr.attr_id]);
+			var mutation_count_track = oncoprint.addTrack({label: '# Mutations (Log scale)', tooltip: mutation_count_tooltip}, 0);
+			oncoprint.setRuleSet(mutation_count_track, window.Oncoprint.BAR_CHART, {
+			data_key: 'attr_val',
+				fill: '#c97894',
+				legend_label: '# Mutations',
+				scale: 'log'
+			});
+			oncoprint.setTrackData(mutation_count_track, mutation_count_data);
+		}
+	};
 	$('#select_clinical_attributes').change(function() {
 		oncoprintFadeTo(0.5);
 		var clinicalAttribute = $('#select_clinical_attributes option:selected')[0].__data__;
 		if (clinicalAttribute.attr_id === undefined) {
 			// selected "none"
 		} else {
-			if (clinicalAttribute.attr_id === "# mutations") {
-				var currentUrl = window.location.href;
-				var clinicalMutationColl = new ClinicalMutationColl();
-				clinicalMutationColl.fetch({
-					type: "POST",
-					data: {
-						mutation_profile: window.PortalGlobals.getMutationProfileId(),
-						cmd: "count_mutations",
-						case_ids: case_list
-					},
-					success: function(response) {
-						var mutation_count_data = annotatePatientIds(response.toJSON());
-						var mutation_count_track = oncoprint.addTrack({label: '# Mutations (Log scale)', tooltip: mutation_count_tooltip}, 0);
-						oncoprint.setRuleSet(mutation_count_track, window.Oncoprint.BAR_CHART, {
-							data_key: 'attr_val',
-							fill: '#c97894',
-							legend_label: '# Mutations',
-							scale: 'log'
-						});
-						oncoprint.setTrackData(mutation_count_track, mutation_count_data);
-					}
-				});
+			if (clinicalData.hasOwnProperty(clinicalAttribute.attr_id)) {
+				addClinicalTrack(clinicalAttribute);
+			} else {
+				if (clinicalAttribute.attr_id === MUTATION_COUNT_ATTR_ID) {
+					var currentUrl = window.location.href;
+					var clinicalMutationColl = new ClinicalMutationColl();
+					clinicalMutationColl.fetch({
+						type: "POST",
+						data: {
+							mutation_profile: window.PortalGlobals.getMutationProfileId(),
+							cmd: "count_mutations",
+							case_ids: case_list
+						},
+						success: function(response) {
+							clinicalData[clinicalAttribute.attr_id] = response.toJSON();
+							addClinicalTrack(clinicalAttribute);
+						}
+					});
+				}
 			}
 		}
 		oncoprintFadeIn();

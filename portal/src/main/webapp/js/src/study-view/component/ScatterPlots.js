@@ -1077,9 +1077,11 @@ var ScatterPlots = function() {
         updateStyle: function(_datumArr) {
             var _tmpDataArr=[];
             var dataCopy = jQuery.extend(true,[],dataArr);
+            var dataCopyL = dataCopy.length;
+            var _caseIdList = [];
             
             if(axisXLogFlag && axisYLogFlag){
-                for(var i=0; i<dataCopy.length; i++){
+                for(var i=0; i<dataCopyL; i++){
                     if(dataCopy[i].x_val === 0) {
                         dataCopy[i].x_val = zeroMappedLogValX;
                     }else {
@@ -1092,7 +1094,7 @@ var ScatterPlots = function() {
                     }
                 }
             }else if(axisXLogFlag){
-                for(var i=0; i<dataCopy.length; i++){
+                for(var i=0; i<dataCopyL; i++){
                     if(dataCopy[i].x_val === 0) {
                         dataCopy[i].x_val = zeroMappedLogValX;
                     }else {
@@ -1100,7 +1102,7 @@ var ScatterPlots = function() {
                     }
                 }
             }else if(axisYLogFlag){
-                for(var i=0; i<dataCopy.length; i++){
+                for(var i=0; i<dataCopyL; i++){
                     if(dataCopy[i].y_val === 0) {
                         dataCopy[i].y_val = zeroMappedLogValY;
                     }else {
@@ -1111,36 +1113,30 @@ var ScatterPlots = function() {
             
             for(var j=0 ; j< _datumArr.length ; j++){
                 if(_datumArr[j].fill !== 'red') {
-                    for(var i=0 ; i< dataCopy.length ; i++){
+                    for(var i=0 ; i< dataCopyL ; i++){
                         if(_datumArr[j].case_id === dataCopy[i].case_id){
-                            _tmpDataArr.push(dataCopy[i]);
+                            _tmpDataArr.unshift(dataCopy[i]);
                             break;
                         }
                     }
-                }
-            }
-            
-            for(var j=0 ; j< _datumArr.length ; j++){
-                if(_datumArr[j].fill === 'red') {
-                    for(var i=0 ; i< dataCopy.length ; i++){
+                }else {
+                    for(var i=0 ; i< dataCopyL ; i++){
                         if(_datumArr[j].case_id === dataCopy[i].case_id ){
                             _tmpDataArr.push(dataCopy[i]);
                             break;
                         }
                     }
                 }
+                _caseIdList.push(_datumArr[j].case_id);
             }
+
             dataCopy = _tmpDataArr;
             drawPlots(dataCopy);
             addQtips();
-            
-            var _caseIdList = [];
-            $.each(_datumArr, function(index, obj) {
-                _caseIdList.push(_datumArr[index].case_id);
-            });
+
             elem.dotsGroup.selectAll("path").each(function(d) {
-                if (_caseIdList.indexOf(d.case_id) !== -1) {
-                    var _index = _caseIdList.indexOf(d.case_id);
+                var _index = _caseIdList.indexOf(d.case_id);
+                if (_index !== -1) {
                     $(this).attr("fill", _datumArr[_index].fill);
                     $(this).attr("stroke", _datumArr[_index].stroke);
 //                    $(this).attr("opacity", _datumArr[_index].opacity);

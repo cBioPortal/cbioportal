@@ -399,7 +399,7 @@ var ScatterPlots = function() {
             .data(_dataArr)
             .enter()
             .append("svg:path")
-            .each(function (d) {
+            .each(function (d, i) {
                 var fill = d.fill;
                 var stroke = d.fill;
 
@@ -415,6 +415,7 @@ var ScatterPlots = function() {
                     y_val: d.y_val,
                     x_pos: elem.xScale(d.x_val),
                     y_pos: elem.xScale(d.y_val),
+                    arr_id: i,
                     transform: "translate(" + elem.xScale(d.x_val) + ", " + elem.yScale(d.y_val) + ")",
                     fill: fill,
                     stroke: stroke
@@ -437,7 +438,7 @@ var ScatterPlots = function() {
                 //Remember current positions for the later transition animation
                 $(this).attr("x_val", d.x_val);
                 $(this).attr("y_val", d.y_val);
-                $(this).attr("x_pos", elem.xScale(d.x_val)); 
+                $(this).attr("x_pos", elem.xScale(d.x_val));
                 $(this).attr("y_pos", elem.yScale(d.y_val));
                 return "translate(" + elem.xScale(d.x_val) + ", " + elem.yScale(d.y_val) + ")";
             })
@@ -489,7 +490,7 @@ var ScatterPlots = function() {
             .attr("transform", function(d, i) {
                 return "translate(" + (canvas.xRight + 10) + ", " + (24 + i * 14) + ")";
             });
-        
+
         legend.append("path")
             .attr("d", d3.svg.symbol()
                 .size(function(d) { return d.size; })
@@ -503,14 +504,14 @@ var ScatterPlots = function() {
             .attr("dy", ".35em")
             .attr("text-anchor", "front")
             .style("font-size", "11")
-            .text(function(d) { 
-                return d.text; 
+            .text(function(d) {
+                return d.text;
             });
 
     }
-    
+
     function addListeners() {
-        //This code is oringinally coming from Onur. Listening shiftKey down and 
+        //This code is oringinally coming from Onur. Listening shiftKey down and
         //shiftKey up.
         $(window).on("keydown", function(event) {
             if (event.keyCode === 16)
@@ -530,23 +531,25 @@ var ScatterPlots = function() {
         //Initialization takes some time especially for large dataset(Like: MSK-IMPACT).
         $("#" + names.body).one('mouseenter', addQtips);
     }
-    
+
     function addQtips() {
-        elem.dotsGroup.selectAll('path').each(
-            function(d) {
+        //Hover Animation
+        //Only initial qtip after mouse overing it. Trigger mouseover again after creating qtip
+        var mouseOn = function() {
+            if(!$(this).data('qtip')) {
                 $(this).qtip(
                     {
-                        content: {text: d.qtip},
+                        content: {text: dataArr[$(this).attr('arr_id')].qtip },
                         style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
                         show: {event: "mouseover"},
                         hide: {fixed:true, delay: 100, event: "mouseout"},
                         position: {my:'right bottom', at:'top left', viewport: $(window)}
                     }
                 );
+                $(this).data('qtip', true);
+                $(this).trigger("mouseover");
             }
-        );
-        //Hover Animation
-        var mouseOn = function() {
+
             var dot = d3.select(this);
             dot.transition()
                 .ease("elastic")

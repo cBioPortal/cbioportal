@@ -273,8 +273,13 @@ var StudyViewInitTables = (function() {
             datum.sampleRate = 
                     (datum.samples / Number(numOfCases)* 100).toFixed(1) + '%';
 
-            if(data[i].qval){
-                datum.qval = Number(data[i].qval).toExponential(1);
+            if( data[i].hasOwnProperty('qval') && !isNaN(data[i].qval)){
+                var qval = Number(data[i].qval);
+                if(qval === 0) {
+                    datum.qval = 0;
+                }else{
+                    datum.qval = qval.toExponential(1);
+                }
             }else{
                 datum.qval = '';
             }
@@ -308,8 +313,13 @@ var StudyViewInitTables = (function() {
             datum.altType = _altType;
             datum.samples = data.caseIds[i].length;
             datum.altrateInSample = (datum.samples / numOfCases * 100).toFixed(1) + '%';
-            if(data.gistic[i] && (data.gistic[i] instanceof Array) && data.gistic[i][0]){
-                datum.qval = Number(data.gistic[i][0]).toExponential(1);
+            if(data.gistic[i] && (data.gistic[i] instanceof Array) && !isNaN(data.gistic[i][0])){
+                var qval = Number(data.gistic[i][0]);
+                if(qval === 0) {
+                    datum.qval = 0;
+                }else{
+                    datum.qval = qval.toExponential(1);
+                }
             }else{
                 datum.qval = '';
             }

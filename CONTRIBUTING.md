@@ -41,6 +41,6 @@ Guidelines for contributing to the cBioPortal project.
 ## Additional Resources
 
 * [cBioPortal Issue Tracker](https://github.com/cBioPortal/cbioportal/issues)
-* [PLACE-HOLDER- Developer Certificate of Origin]()
+* [PLACE-HOLDER- Developer Certificate of Origin]
 * [General GitHub documentation](http://help.github.com/)
 * [GitHub pull request documentation](http://help.github.com/send-pull-requests/)

@@ -183,7 +183,7 @@ var StudyViewProxy = (function() {
 
                     if(!_attrVal || _attrVal === 'na'){
                         _attrVal = 'NA';
-                    }else{
+                    }else if(_attrVal !== 'NA'){
                         ++_dataAttrOfa1[_attrId].numOfNoneEmpty;
                         if(_dataAttrOfa1[_attrId].keys.indexOf(_attrVal) === -1) {
                             _dataAttrOfa1[_attrId].keys.push(_attrVal);

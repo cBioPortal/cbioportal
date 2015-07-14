@@ -165,7 +165,7 @@ var PieChart = function(){
                     $("#"+DIV.chartDiv+"-svg", api.elements.tooltip).click(function(){
                         setSVGElementValue(DIV.chartDiv,
                             DIV.chartDiv+"-svg-value", {
-                                filename: StudyViewParams.params.studyId + "_" +selectedAttr+".svg",
+                                filename: StudyViewParams.params.studyId + "_" +selectedAttr+".svg"
                             });
                     });
                     $("#"+DIV.chartDiv+"-tsv").click(function(){
@@ -198,18 +198,10 @@ var PieChart = function(){
         var _sDom = 'rt',
             _sScrollY = '200';
         if(category === 'regular') {
-//            _sDom = 'rt';
-//            _sScrollY = '200';
-//        }else {
-//            _sDom = '<f>rt';
-//            _sScrollY = '150';
-//            $("#"+ DIV.chartDiv +"-extend").css('display', 'block');
-//        }
-        
-        $('#' + DIV.mainDiv).qtip({
+            $('#' + DIV.mainDiv).qtip({
             id: DIV.mainDiv,
             style: {
-                classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow forceZindex qtip-max-width',
+                classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow forceZindex qtip-max-width'
             },
             show: {event: "mouseover", solo: true, delay: 0},
             hide: {fixed:true, delay: 300, event: "mouseleave"},
@@ -271,9 +263,13 @@ var PieChart = function(){
                 }
             }
         });
-
         }else if(category === 'extendable'){
             $("#"+ DIV.chartDiv +"-extend").css('display', 'block');
+
+            //Make sure datatable will be reinitialized when table view selected
+            if ($("#"+DIV.chartDiv+"-pie-icon").css('display') === 'block' && !$.fn.DataTable.isDataTable( '#' + DIV.labelTableID+'-0' ) ) {
+                initPieLabelDataTable();
+            }
         }
     }
     
@@ -840,7 +836,7 @@ var PieChart = function(){
         var _pieWidth = 130,
             _pieRadius = (_pieWidth - 20) /2,
             _color = jQuery.extend(true, [], chartColors);
-
+        var NAIndex = -1;
         
         pieChart = dc.pieChart("#" + DIV.chartDiv);
 
@@ -857,8 +853,9 @@ var PieChart = function(){
                 }
             });
 
-            if(selectedAttrKeys.indexOf('NA') !== -1) {
-                _color[selectedAttrKeys.indexOf('NA')] = '#CCCCCC';
+            NAIndex = selectedAttrKeys.indexOf('NA');
+            if(NAIndex !== -1) {
+                _color.splice(NAIndex, 0, '#CCCCCC');
             }
         
             if(selectedAttrKeys.length > 10) {
@@ -881,7 +878,7 @@ var PieChart = function(){
             })
             .ordering(function(d){ return d.key;});
     }
-    
+
     //Initial Label Information stored in `label` array
     function initLabelInfo() {
         var _labelID = 0;
@@ -1070,7 +1067,10 @@ var PieChart = function(){
             _event.preventDefault();
             pieLabelClick(this, _shiftClicked);
         });
-        callback();
+
+        if(callback && {}.toString.call(callback) === '[object Function]'){
+            callback();
+        }
     }
 
     function pieLabelMouseEnter(_this) {

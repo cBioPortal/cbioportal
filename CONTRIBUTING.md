@@ -12,7 +12,7 @@ Guidelines for contributing to the cBioPortal project.
 
 * Create a topic branch from where you want to base your work.
  * For bug fixes, this is usually the hotfix branch.  For a new feature, this is usually the master branch.
-* Make commits of logical units.
+* Make commits in logical/cohesive units.
 * Make sure your commit messages are in the proper format.
 
 ````

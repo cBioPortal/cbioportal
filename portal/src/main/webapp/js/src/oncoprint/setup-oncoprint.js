@@ -9,6 +9,10 @@ $('#oncoprint').css('position','relative');
 var oncoprintFadeTo;
 var oncoprintFadeIn;
 var oncoprint;
+var genetic_alteration_tracks = [];
+var clinical_tracks = [];
+var clinical_legends_visible = false;
+
 (function () {
 	var oncoprint_covering_block = $('<div>').appendTo('#oncoprint');;
 	oncoprint_covering_block.css({'position':'absolute', 'left':'0px', 'top': '0px', 'display':'none'});
@@ -30,30 +34,39 @@ var mutation_count_tooltip = function(d) {
 	return ret;
 };
 var genetic_alteration_tooltip = function(d) {
-		var ret = '';
-		if (d.mutation) {
-			ret += '<b>Mutation: </b>' + d.mutation + '<br>';
-		}
-		if (d.cna) {
-			ret += '<b>Copy Number Alteration: </b>' + d.cna + '<br>';
-		}
-		if (d.mrna) {
-			ret += '<b>MRNA: </b>' + d.mrna + '<br>';
-		}
-		if (d.rppa) {
-			ret += '<b>RPPA: </b>' + d.rppa + '<br>';
-		}
-		ret += '<a href="'+sampleViewUrl(d.sample)+'">'+d.sample+'</a>';
-		return ret;
-	};
-
+	var ret = '';
+	if (d.mutation) {
+		ret += 'Mutation: <b>' + d.mutation + '</b><br>';
+	}
+	if (d.cna) {
+		ret += 'Copy Number Alteration: <b>' + d.cna + '</b><br>';
+	}
+	if (d.mrna) {
+		ret += '<b>MRNA: <b>' + d.mrna + '</b><br>';
+	}
+	if (d.rppa) {
+		ret += '<b>RPPA: <b>' + d.rppa + '</b><br>';
+	}
+	ret += '<a href="'+sampleViewUrl(d.sample)+'">'+d.sample+'</a>';
+	return ret;
+};
+var clinical_tooltip = function(d) {
+	var ret = '';
+	ret += 'value: <b>'+d.attr_val+'</b><br>'
+	ret += '<a href="'+sampleViewUrl(d.sample)+'">'+d.sample+'</a>';
+	return ret;
+};
 
 var utils = window.OncoprintUtils;
-var setUpClinicalAttributesSelector = function(cancer_study_id, case_list) {
+(function setUpClinicalAttributesSelector(cancer_study_id, case_list) {
 	var clinicalAttributesColl = new ClinicalAttributesColl();
 	var clinicalData = {};
 	var clinicalAttributes;
-	var originalClinicalAttributes;
+	var currentClinicalAttributes;
+	var populateSelectorChosen = function() {
+		utils.populate_clinical_attr_select(document.getElementById('select_clinical_attributes'), currentClinicalAttributes);
+		$("#select_clinical_attributes").val('').trigger("liszt:updated");
+	};
 	clinicalAttributesColl.fetch({
 		type: 'POST',
 		data: { cancer_study_id: cancer_study_id,
@@ -76,8 +89,8 @@ var setUpClinicalAttributesSelector = function(cancer_study_id, case_list) {
 							display_name: "Fraction Genome Altered"});
 			}
 
-			originalClinicalAttributes = clinicalAttributes.slice();
-			utils.populate_clinical_attr_select(document.getElementById('select_clinical_attributes'), clinicalAttributes);
+			currentClinicalAttributes = clinicalAttributes.slice();
+			populateSelectorChosen();
 			$('#select_clinical_attributes').chosen({width: "330px", "font-size": "12px", search_contains: true});
 
 			$('#select_clinical_attributes_chzn .chzn-search input').click(
@@ -92,22 +105,70 @@ var setUpClinicalAttributesSelector = function(cancer_study_id, case_list) {
 			$("#select_clinical_attributes_chzn").addClass("chzn-with-drop");
 		}
 	});
-	var MUTATION_COUNT_ATTR_ID = "# mutations";
+	
 	var addClinicalTrack = function(clinical_attr) {
-		if (clinical_attr.attr_id === MUTATION_COUNT_ATTR_ID) {
+		var new_track;
+		if (clinical_attr.attr_id === "# mutations") {
 			var mutation_count_data = annotatePatientIds(clinicalData[clinical_attr.attr_id]);
-			var mutation_count_track = oncoprint.addTrack({label: '# Mutations (Log scale)', tooltip: mutation_count_tooltip}, 0);
-			oncoprint.setRuleSet(mutation_count_track, window.Oncoprint.BAR_CHART, {
-			data_key: 'attr_val',
+			new_track = oncoprint.addTrack({label: '# Mutations (Log scale)', tooltip: mutation_count_tooltip, cell_height: 15.33}, 0);
+			oncoprint.setRuleSet(new_track, window.Oncoprint.BAR_CHART, {
+				data_key: 'attr_val',
 				fill: '#c97894',
 				legend_label: '# Mutations',
-				scale: 'log'
+				scale: 'log',
+				na_color: '#d3d3d3'
 			});
-			oncoprint.setTrackData(mutation_count_track, mutation_count_data);
+			oncoprint.setTrackData(new_track, mutation_count_data);
+			oncoprint.sortByTrack();
+		} else {
+			var data = annotatePatientIds(clinicalData[clinical_attr.attr_id]);
+			var new_track = oncoprint.addTrack({label:clinical_attr.display_name, tooltip: clinical_tooltip, cell_height: 15.33}, 0);
+			if (clinical_attr.datatype.toLowerCase() === "number") {	
+				oncoprint.setRuleSet(new_track, window.Oncoprint.GRADIENT_COLOR, {
+					data_key: 'attr_val',
+					color_range: ['#ffffff', '#c97894'],
+					legend_label: clinical_attr.display_name,
+					na_color: '#d3d3d3'
+				});
+			} else {
+				oncoprint.setRuleSet(new_track, window.Oncoprint.CATEGORICAL_COLOR, {
+					legend_label: clinical_attr.display_name,
+					getCategory: function(d) {
+						return d.attr_val;
+					},
+					color: {
+						'NA': '#D3D3D3'
+					},
+				});
+			}
+			oncoprint.setTrackData(new_track, data);
+			oncoprint.sortByTrack();
 		}
+		var attr_index = _.indexOf(_.pluck(currentClinicalAttributes, 'attr_id'), clinical_attr.attr_id);
+		currentClinicalAttributes.splice(attr_index, 1);
+		
+		populateSelectorChosen();
+		
+		clinical_tracks.push(new_track);
+		oncoprint.setLegendVisible(new_track, clinical_legends_visible);
 	};
+	$('#oncoprint_diagram_showmorefeatures_icon').qtip({
+                        content: {text:'Add another clinical attribute track'},
+                        position: {my:'bottom middle', at:'top middle', viewport: $(window)},
+                        style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
+                        show: {event: "mouseover"},
+                        hide: {fixed: true, delay: 100, event: "mouseout"}
+	});
+	$('#oncoprint_diagram_showmorefeatures_icon').click(function(){
+            $('#select_clinical_attributes_chzn').addClass("chzn-with-drop");
+        });
 	$('#select_clinical_attributes').change(function() {
 		oncoprintFadeTo(0.5);
+		$(oncoprint).one('finished_rendering.oncoprint', function() {
+			$('#oncoprint-diagram-toolbar-buttons #clinical_first').css('display','inline');
+			$('#oncoprint-diagram-showlegend-icon').css('display','inline');
+			oncoprintFadeIn();
+		});
 		var clinicalAttribute = $('#select_clinical_attributes option:selected')[0].__data__;
 		if (clinicalAttribute.attr_id === undefined) {
 			// selected "none"
@@ -115,8 +176,7 @@ var setUpClinicalAttributesSelector = function(cancer_study_id, case_list) {
 			if (clinicalData.hasOwnProperty(clinicalAttribute.attr_id)) {
 				addClinicalTrack(clinicalAttribute);
 			} else {
-				if (clinicalAttribute.attr_id === MUTATION_COUNT_ATTR_ID) {
-					var currentUrl = window.location.href;
+				if (clinicalAttribute.attr_id === "# mutations") {
 					var clinicalMutationColl = new ClinicalMutationColl();
 					clinicalMutationColl.fetch({
 						type: "POST",
@@ -126,32 +186,115 @@ var setUpClinicalAttributesSelector = function(cancer_study_id, case_list) {
 							case_ids: case_list
 						},
 						success: function(response) {
-							clinicalData[clinicalAttribute.attr_id] = response.toJSON();
+							clinicalData[clinicalAttribute.attr_id] = fillOutClinicalData(response.toJSON(), clinicalAttribute.attr_id, 'sample', case_list.trim().split(/\s+/));
+							addClinicalTrack(clinicalAttribute);
+						}
+					});
+				} else if (clinicalAttribute.attr_id === "FRACTION_GENOME_ALTERED") {
+					var clinicalCNAColl = new ClinicalCNAColl();
+					clinicalCNAColl.fetch({
+						type: "POST",
+						data: {
+							cancer_study_id: cancer_study_id,
+							cmd: "get_cna_fraction",
+							case_ids: case_list
+						},
+						success: function(response) {
+							clinicalData[clinicalAttribute.attr_id] = fillOutClinicalData(response.toJSON(), clinicalAttribute.attr_id, 'sample', case_list.trim().split(/\s+/));
+							addClinicalTrack(clinicalAttribute);
+						}
+					});
+				} else {
+					var clinicalColl = new ClinicalColl();
+					clinicalColl.fetch({
+						type: "POST",
+						data: {
+							cancer_study_id: cancer_study_id,
+							attribute_id: clinicalAttribute.attr_id,
+							case_list: case_list
+						},
+						success: function(response) {
+							clinicalData[clinicalAttribute.attr_id] = fillOutClinicalData(response.toJSON(), clinicalAttribute.attr_id, 'sample', case_list.trim().split(/\s+/));
 							addClinicalTrack(clinicalAttribute);
 						}
 					});
 				}
 			}
 		}
-		oncoprintFadeIn();
 	});
-};
-setUpClinicalAttributesSelector(cancer_study_id_selected, window.PortalGlobals.getCases());
+})(cancer_study_id_selected, window.PortalGlobals.getCases());
+
+(function setUpShowLegendBtn() {
+	var imgs = ['images/showlegend.svg', 'images/hidelegend.svg'];
+	var qtip_text = ['Show legends for clinical attribute tracks', 'Hide legends for clinical attribute tracks'];
+	$('#oncoprint-diagram-showlegend-icon').click(function() {
+		clinical_legends_visible = !clinical_legends_visible;
+		$('#oncoprint-diagram-showlegend-icon img').attr('src', imgs[+clinical_legends_visible]);
+		oncoprint.setLegendVisible(clinical_tracks, clinical_legends_visible);	
+	});
+	$('#oncoprint-diagram-showlegend-icon').qtip({
+            content: {
+		    text:function() {
+			    return qtip_text[+clinical_legends_visible];
+		    }
+            },
+            position: {my:'bottom middle', at:'top middle', viewport: $(window)},
+            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
+            show: {event: "mouseover"},
+            hide: {fixed: true, delay: 100, event: "mouseout"}
+        }); 
+})();
+(function setUpSortBySelector() {
+	$('#oncoprint-diagram-toolbar-buttons #genes_first_a').click(function(){
+		oncoprint.setTrackGroupSortOrder([1,0]);
+		oncoprint.sortByTrack();
+        });
+        $('#oncoprint-diagram-toolbar-buttons #clinical_first_a').click(function(){
+		oncoprint.setTrackGroupSortOrder([0,1]);
+		oncoprint.sortByTrack();
+        });
+        $('#oncoprint-diagram-toolbar-buttons #alphabetically_first_a').click(function(){
+		oncoprint.sortById();
+        });
+        $('#oncoprint-diagram-toolbar-buttons #user_defined_first_a').click(function(){
+            //oncoprint.sortBy('custom', cases.split(" "),mutationColorControl,mutationColorSort,sortStatus);
+        });
+
+})();
+
+(function setUpMutationSettingsBtn() {
+	// TODO: are we aware that these icon names are 100% unintelligible?
+	var settings = [{color: true, order: false, next_setting_img:'images/colormutations.svg', next_setting_desc: 'Color-code mutations and sort by type'},  
+			{color:true, order: true, next_setting_img:'images/uncolormutations.svg', next_setting_desc: 'Show all mutations with the same color'},
+			{color:false, order: false, next_setting_img:'images/mutationcolorsort.svg', next_setting_desc: 'Color-code mutations but don\'t sort by type'}];
+	var setting_index = 0;
+	var updateBtn = function() {
+		$('#oncoprint_diagram_showmutationcolor_icon').qtip('destroy', true);
+		$('#oncoprint_diagram_showmutationcolor_icon img').attr('src', settings[setting_index].next_setting_img);
+		$('#oncoprint_diagram_showmutationcolor_icon').qtip({
+			content: {text: settings[setting_index].next_setting_desc},
+			position: {my:'bottom middle', at:'top middle', viewport: $(window)},
+			style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite' },
+			show: {event: "mouseover"},
+			hide: {fixed: true, delay: 100, event: "mouseout"}
+		}); 
+	};
+	$('#oncoprint_diagram_showmutationcolor_icon').click(function() {
+		setting_index = (setting_index + 1) % settings.length;
+		var new_params = {dont_distinguish_mutation_color: !settings[setting_index].color, dont_distinguish_mutation_order: !settings[setting_index].order};
+		_.each(genetic_alteration_tracks, function(track_id, ind) {
+			if (ind === 0) {
+				oncoprint.setRuleSet(track_id, window.Oncoprint.GENETIC_ALTERATION, new_params);
+			} else {
+				oncoprint.useSameRuleSet(track_id, genetic_alteration_tracks[0]);
+			}
+		});
+		updateBtn();
+	});
+	updateBtn();
+})();
+
 $("#oncoprint-diagram-toolbar-buttons").show();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 var sampleViewUrl = function(sample_id) {
         var href = cbio.util.getLinkToSampleView(window.cancer_study_id_selected,sample_id);
@@ -161,6 +304,7 @@ var sampleViewUrl = function(sample_id) {
 var setupOncoprint = function(container_selector_string, cancer_study_id, oql, cases, genetic_profile_ids, z_score_threshold, rppa_score_threshold) {
 	var geneDataColl = new GeneDataColl();
 	oncoprint = window.oncoprint = window.Oncoprint.create(container_selector_string);
+	oncoprint.setTrackGroupSortOrder([1,0]);
 	
 	
 	geneDataColl.fetch({
@@ -206,6 +350,7 @@ var setupOncoprint = function(container_selector_string, cancer_study_id, oql, c
 				} else {
 					oncoprint.useSameRuleSet(new_track, track_created);
 				}
+				genetic_alteration_tracks.push(new_track);
 				_data = annotateMutationTypes(_data);
 				_data = annotatePatientIds(_data);
 				oncoprint.setTrackData(new_track, annotateMutationTypes(_data));
@@ -223,7 +368,7 @@ var setupOncoprint = function(container_selector_string, cancer_study_id, oql, c
 						$('#outer_loader_img').hide();
 						$('#oncoprint #everything').show();
 						$('#oncoprint_progress_indicator').hide();
-						oncoprint.sort();
+						oncoprint.sortByTrack();
 					}, 0);
 				};
 			}
@@ -349,6 +494,25 @@ var annotatePatientIds = function(data) {
 		d.patient = sampleToPatientId[d.sample];
 		return d;
 	});
+};
+
+var fillOutClinicalData = function(data, attr_id, id_key, ids) {
+	var ret = data.slice();
+	var seen = {};
+	_.each(ids, function(id) {
+		seen[id] = false;
+	});
+	_.each(data, function(d) {
+		seen[d[id_key]] = true;
+	});
+	_.each(seen, function(val, id) {
+		if (!val) {
+			var new_datum = {attr_id: attr_id, attr_val: 'NA'};
+			new_datum[id_key] = id;
+			ret.push(new_datum);
+		}
+	});
+	return ret;
 };
 
 setupOncoprint('#oncoprint_body', 

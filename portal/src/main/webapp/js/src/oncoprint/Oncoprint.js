@@ -318,11 +318,28 @@ define("Oncoprint",
                     {
                         for(var i=0; i < data.length; i++)
                         {
-                            var genepanelStableId = genepanelValues.genepaneldata[i].attr_val;
+                            var genepanelStableId;
+                            if(genepanelValues.genepaneldata[i] !== undefined)
+                            {
+                                genepanelStableId = genepanelValues.genepaneldata[i].attr_val;
+                            }
+                            else
+                            {
+                                genepanelStableId = undefined;
+                            }
+                            
                             for(var j= 0; j < data[i].values.length; j++)
                             {
-                                var geneIndexValue = _.find(genepanelValues.genepanel[genepanelStableId].geneList, function(gene){ return gene ===data[i].values[j].gene; }); 
-                                if(data[i].values[j].gene !== undefined && !geneIndexValue && data[i].values[j].mutation === undefined)
+                                if(genepanelStableId !== undefined)
+                                {
+                                    geneIndexValue = _.find(genepanelValues.genepanel[genepanelStableId].geneList, function(gene){ return gene ===data[i].values[j].gene; }); 
+                                }
+                                else
+                                {
+                                    geneIndexValue = true;
+                                }
+ 
+                                if(data[i].values[j].gene !== undefined && !geneIndexValue && data[i].values[j].mutation === undefined && data[i].values[j].cna === undefined)
                                 {
                                     data[i].values[j].genepanel = true; 
                                 }

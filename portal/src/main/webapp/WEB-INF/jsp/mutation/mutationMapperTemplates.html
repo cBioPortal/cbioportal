@@ -590,9 +590,16 @@
 </script>
 
 <script type="text/template" id="mutation_details_region_tip_template">
-	<span class="diagram-region-tip">
-		{{identifier}} {{type}}, {{description}} ({{start}} - {{end}})
-	</span>
+	<div class="diagram-region-tip">
+		<div>{{identifier}} {{type}}, {{description}} ({{start}} - {{end}})</div>
+        {{mutationAlignerInfo}}
+	</div>
+</script>
+
+<script type="text/template" id="mutation_aligner_info_template">
+    <div>
+        <a href="{{linkToMutationAligner}}" target="_blank">Go to Mutation Aligner</a>
+    </div>
 </script>
 
 <script type="text/template" id="mutation_details_lollipop_tip_template">

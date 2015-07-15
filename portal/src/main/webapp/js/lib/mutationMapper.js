@@ -5580,7 +5580,7 @@ var MainMutationView = Backbone.View.extend({
 
 		// draw mutation diagram
 		var diagramView = self._initMutationDiagramView(
-				gene, mutationData, sequence, diagramOpts);
+				gene, mutationData, sequence, dataProxies, diagramOpts);
 
 		var diagram = diagramView.mutationDiagram;
 
@@ -5702,16 +5702,18 @@ var MainMutationView = Backbone.View.extend({
 	 * @param gene          hugo gene symbol
 	 * @param mutationData  mutation data (array of JSON objects)
 	 * @param sequenceData  sequence data (as a JSON object)
+	 * @param dataProxies   all available data proxies
 	 * @param options       [optional] diagram options
 	 * @return {Object}     initialized mutation diagram view
 	 */
-	_initMutationDiagramView: function (gene, mutationData, sequenceData, options)
+	_initMutationDiagramView: function (gene, mutationData, sequenceData, dataProxies, options)
 	{
 		var self = this;
 
 		var model = {mutations: mutationData,
 			sequence: sequenceData,
 			geneSymbol: gene,
+			dataProxies: dataProxies,
 			diagramOpts: options};
 
 		var diagramView = new MutationDiagramView({
@@ -7617,6 +7619,7 @@ var MutationDiagramView = Backbone.View.extend({
 			self.model.geneSymbol,
 			self.model.mutations,
 			self.model.sequence,
+			self.model.dataProxies,
 			self.model.diagramOpts);
 
 		self.format();
@@ -7648,10 +7651,11 @@ var MutationDiagramView = Backbone.View.extend({
 	 * @param gene          hugo gene symbol
 	 * @param mutationData  mutation data (array of JSON objects)
 	 * @param sequenceData  sequence data (as a JSON object)
+	 * @param dataProxies   all available data proxies
 	 * @param options       [optional] diagram options
 	 * @return {Object}     initialized mutation diagram view
 	 */
-	_initMutationDiagram: function (gene, mutationData, sequenceData, options)
+	_initMutationDiagram: function (gene, mutationData, sequenceData, dataProxies, options)
 	{
 		var self = this;
 
@@ -7682,7 +7686,7 @@ var MutationDiagramView = Backbone.View.extend({
 			sequence: sequenceData
 		};
 
-		var mutationDiagram = new MutationDiagram(gene, options, diagramData);
+		var mutationDiagram = new MutationDiagram(gene, options, diagramData, dataProxies);
 
 		// if no sequence data is provided, try to get it from the servlet
 		if (sequenceData == null)
@@ -8864,7 +8868,8 @@ var RegionTipView = Backbone.View.extend({
 			type: this.model.type.toLowerCase(),
 			description: this.model.description,
 			start: this.model.start,
-			end: this.model.end};
+			end: this.model.end,
+			mutationAlignerInfo: this.model.mutationAlignerInfo};
 
 		// compile the template using underscore
 		var templateFn = BackboneTemplateCache.getTemplateFn("mutation_details_region_tip_template");
@@ -8968,6 +8973,126 @@ function AbstractDataProxy(options)
 		return !(self._options.initMode.toLowerCase() === "lazy");
 	};
 }
+
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * This class is designed to retrieve Mutation Aligner data on demand.
+ *
+ * @param options  additional options
+ *
+ * @author Selcuk Onur Sumer
+ */
+function MutationAlignerDataProxy(options)
+{
+	var self = this;
+
+	// default options
+	var _defaultOpts = {
+		servletName: "getMutationAligner.json"
+	};
+
+	// merge options with default options to use defaults for missing values
+	var _options = jQuery.extend(true, {}, _defaultOpts, options);
+
+	// call super constructor to init options and other params
+	AbstractDataProxy.call(this, _options);
+	_options = self._options;
+
+	// map of <gene, data> pairs
+	var _maDataCache = {};
+
+	/**
+	 * Initializes with full PFAM data. Once initialized with full data,
+	 * this proxy class assumes that there will be no additional data.
+	 *
+	 * @param options   data proxy options
+	 */
+	function fullInit(options)
+	{
+		//assuming the given data is a map of <gene, sequence data> pairs
+		_maDataCache = options.data;
+	}
+
+	function getMutationAlignerData(servletParams, callback)
+	{
+		// TODO allow more than one accession at a time? (see MutationDataProxy)
+		var pfamAccession = servletParams.pfamAccession;
+
+		if (pfamAccession == null)
+		{
+			// no gene symbol provided, nothing to retrieve
+			callback(null);
+			return;
+		}
+
+		// retrieve data from the server if not cached
+		if (_maDataCache[pfamAccession] == undefined)
+		{
+			if (self.isFullInit())
+			{
+				callback(null);
+				return;
+			}
+
+			// process & cache the raw data
+			var processData = function(data) {
+				_maDataCache[pfamAccession] = data;
+
+				// forward the processed data to the provided callback function
+				callback(data);
+			};
+
+			// retrieve data from the servlet
+			$.getJSON(_options.servletName,
+			          servletParams,
+			          processData);
+		}
+		else
+		{
+			// data is already cached, just forward it
+			callback(_maDataCache[pfamAccession]);
+		}
+	}
+
+	// override required base functions
+	self.fullInit = fullInit;
+
+	// class specific functions
+	self.getMutationAlignerData = getMutationAlignerData;
+}
+
+// MutationAlignerDataProxy extends AbstractDataProxy...
+MutationAlignerDataProxy.prototype = new AbstractDataProxy();
+MutationAlignerDataProxy.prototype.constructor = MutationAlignerDataProxy;
 
 /*
  * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
@@ -12837,11 +12962,12 @@ MutationDetailsTable.prototype.constructor = MutationDetailsTable;
  * @param options       visual options object
  * @param data          object: {pileups: collection of Pileup instances,
  *                               sequence: sequence data as a JSON object}
+ * @param dataProxies   all available data proxies
  * @constructor
  *
  * @author Selcuk Onur Sumer
  */
-function MutationDiagram(geneSymbol, options, data)
+function MutationDiagram(geneSymbol, options, data, dataProxies)
 {
 	var self = this;
 
@@ -12855,6 +12981,7 @@ function MutationDiagram(geneSymbol, options, data)
 	// merge options with default options to use defaults for missing values
 	self.options = jQuery.extend(true, {}, self.defaultOpts, options);
 
+	self.dataProxies = dataProxies;
 	self.geneSymbol = geneSymbol; // hugo gene symbol
 	self.data = data; // processed initial (unfiltered) data
 	self.pileups = (data == null) ? null : data.pileups; // current pileups (updated after each filtering)
@@ -13007,24 +13134,42 @@ MutationDiagram.prototype.defaultOpts = {
 	 *
 	 * @param element   target svg element (region rectangle)
 	 * @param region    a JSON object representing the region
+	 * @param maProxy   mutation aligner proxy for additional region data
 	 */
-	regionTipFn: function (element, region) {
+	regionTipFn: function (element, region, maProxy) {
 		var model = {identifier: region.metadata.identifier,
 			type: region.type,
 			description: region.metadata.description,
 			start: region.metadata.start,
-			end: region.metadata.end};
+			end: region.metadata.end,
+			mutationAlignerInfo: ""};
 
-		var tooltipView = new RegionTipView({model: model});
-		var content = tooltipView.compileTemplate();
+		maProxy.getMutationAlignerData(
+			{pfamAccession: region.metadata.accession},
+			function(data) {
+				// if the link is valid update model.mutationAligner
+				if (data != null &&
+				    data.linkToMutationAligner != null &&
+				    data.linkToMutationAligner.length > 0)
+				{
+					var templateFn = BackboneTemplateCache.getTemplateFn("mutation_aligner_info_template");
+					model.mutationAlignerInfo = templateFn({
+						linkToMutationAligner: data.linkToMutationAligner
+					});
+				}
 
-		var options = {content: {text: content},
-			hide: {fixed: true, delay: 100, event: 'mouseout'},
-			show: {event: 'mouseover'},
-			style: {classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'},
-			position: {my:'bottom left', at:'top center',viewport: $(window)}};
+				var tooltipView = new RegionTipView({model: model});
+				var content = tooltipView.compileTemplate();
 
-		$(element).qtip(options);
+				var options = {content: {text: content},
+					hide: {fixed: true, delay: 100, event: 'mouseout'},
+					show: {event: 'mouseover'},
+					style: {classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'},
+					position: {my:'bottom left', at:'top center',viewport: $(window)}};
+
+				$(element).qtip(options);
+			}
+		);
 	}
 };
 
@@ -14020,7 +14165,7 @@ MutationDiagram.prototype.drawRegion = function(svg, region, options, bounds, xS
 	var addTooltip = options.regionTipFn;
 
 	// add tooltip to the rect
-	addTooltip(rect, region);
+	addTooltip(rect, region, self.dataProxies.mutationAlignerProxy);
 
 	if (options.showRegionText)
 	{
@@ -14030,7 +14175,7 @@ MutationDiagram.prototype.drawRegion = function(svg, region, options, bounds, xS
 		if (text)
 		{
 			// add tooltip to the text
-			addTooltip(text, region);
+			addTooltip(text, region, self.dataProxies.mutationAlignerProxy);
 		}
 	}
 
@@ -18312,6 +18457,13 @@ function MutationMapper(options)
 						byProteinPosition: {},
 						byGeneSymbol: {}
 					}
+				}
+			},
+			mutationAlignerProxy: {
+				instance: null,
+				instanceClass: MutationAlignerDataProxy,
+				options: {
+					data: {}
 				}
 			},
 			portalProxy: {

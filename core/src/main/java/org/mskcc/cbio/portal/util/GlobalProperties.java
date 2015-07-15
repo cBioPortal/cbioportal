@@ -72,6 +72,15 @@ public class GlobalProperties {
     public static final String SKIN_TITLE = "skin.title";
     public static final String DEFAULT_SKIN_TITLE = "cBioPortal for Cancer Genomics";
     public static final String SKIN_BLURB = "skin.blurb";
+    // blurb default
+    public static final String DEFAULT_SKIN_BLURB = "The cBioPortal for Cancer Genomics provides " +
+            "<b>visualization</b>, <b>analysis</b> and <b>download</b> of large-scale cancer genomics data sets. " +
+            "<p>Please adhere to <u><a href=\"http://cancergenome.nih.gov/abouttcga/policies/publicationguidelines\"> " +
+            "the TCGA publication guidelines</a></u> when using TCGA data in your publications.</p> " +
+            "<p><b>Please cite</b> <a href=\"http://www.cbioportal.org/public-portal/sci_signal_reprint.jsp\">Gao " +
+            "et al. <i>Sci. Signal.</i> 2013</a> &amp;  " +
+            "<a href=\"http://cancerdiscovery.aacrjournals.org/content/2/5/401.abstract\">" +
+            "Cerami et al. <i>Cancer Discov.</i> 2012</a> when publishing results based on cBioPortal.</p>\n";
     public static final String SKIN_TAG_LINE_IMAGE = "skin.tag_line_image";
     public static final String DEFAULT_SKIN_TAG_LINE_IMAGE = "images/tag_line.png";
     public static final String SKIN_EMAIL_CONTACT = "skin.email_contact";
@@ -93,9 +102,55 @@ public class GlobalProperties {
     public static final String PATIENT_VIEW_DIGITAL_SLIDE_META_URL = "digitalslidearchive.meta.url";
     public static final String PATIENT_VIEW_TCGA_PATH_REPORT_URL = "tcga_path_report.url";
     public static final String ONCOKB_URL = "oncokb.url";
-    
+
+    // properties for showing the right logo in the header_bar and default logo
+    public static final String SKIN_RIGHT_LOGO = "skin.right_logo";
+    public static final String DEFAULT_SKIN_RIGHT_LOGO = "images/mskcc_logo_3d_grey.jpg";
+
+    // properties for hiding/showing tabs in the header navigation bar
+    public static final String SKIN_SHOW_WEB_API_TAB = "skin.show_web_api_tab";
+    public static final String SKIN_SHOW_R_MATLAB_TAB = "skin.show_r_matlab_tab";
+    public static final String SKIN_SHOW_TUTORIALS_TAB = "skin.show_tutorials_tab";
+    public static final String SKIN_SHOW_FAQS_TAB = "skin.show_faqs_tab";
+    public static final String SKIN_SHOW_TOOLS_TAB = "skin.show_tools_tab";
+    public static final String SKIN_SHOW_ABOUT_TAB = "skin.show_about_tab";
+    public static final String SKIN_SHOW_VISUALIZE_YOUR_DATA_TAB = "skin.show_visualize_your_data_tab";
+
+    // property for setting the news blurb in the right column
+    public static final String SKIN_RIGHT_NAV_WHATS_NEW_BLURB = "skin.right_nav.whats_new_blurb";
+    public static final String DEFAULT_SKIN_WHATS_NEW_BLURB = "<p> &bull;<a href=\"news.jsp\"> <b>New data and " +
+            "features released</b></a><br/> &bull;<a href=\"tools.jsp\"> <b>New tools released</b></a> </p> " +
+            "<form action=\"http://groups.google.com/group/cbioportal-news/boxsubscribe\"> &nbsp;&nbsp;&nbsp;&nbsp;" +
+            "<b>Sign up for low-volume email news alerts:</b></br> &nbsp;&nbsp;&nbsp;&nbsp;<input type=\"text\" " +
+            "name=\"email\"> <input type=\"submit\" name=\"sub\" value=\"Subscribe\"> " +
+            "</form> &nbsp;&nbsp;&nbsp;&nbsp;<b>Or follow us <a href=\"http://www.twitter.com/cbioportal\">" +
+            "<i>@cbioportal</i></a> on Twitter</b>\n";
+
+    // footer
+    public static final String SKIN_FOOTER = "skin.footer";
+    public static final String DEFAULT_SKIN_FOOTER = " | <a href=\"http://www.mskcc.org/mskcc/html/44.cfm\">MSKCC</a>" +
+            " | <a href=\"http://cancergenome.nih.gov/\">TCGA</a>";
+
+    // login contact
+    public static final String SKIN_LOGIN_CONTACT_HTML = "skin.login.contact_html";
+    public static final String DEFAULT_SKIN_LOGIN_CONTACT_HTML = "If you think you have received this message in " +
+            "error, please contact us at <a style=\"color:#FF0000\" href=\"mailto:cbioportal-access@cbio.mskcc.org\">" +
+            "cbioportal-access@cbio.mskcc.org</a>";
+
+    // properties for hiding/showing tabs in the patient view
+    public static final String SKIN_PATIENT_VIEW_SHOW_CLINICAL_TRIALS_TAB="skin.patient_view.show_clinical_trials_tab";
+    public static final String SKIN_PATIENT_VIEW_SHOW_DRUGS_TAB="skin.patient_view.show_drugs_tab";
+
+    // property for setting the saml registration html
+    public static final String SKIN_LOGIN_SAML_REGISTRATION_HTML = "skin.login.saml.registration_html";
+    public static final String DEFAULT_SKIN_LOGIN_SAML_REGISTRATION_HTML = "Sign in with MSK";
+
+    // property for the saml entityid
+    public static final String SAML_IDP_METADATA_ENTITYID="saml.idp.metadata.entityid";
+
     private static Log LOG = LogFactory.getLog(GlobalProperties.class);
     private static Properties properties = initializeProperties();
+
     private static Properties initializeProperties()
     {
         return loadProperties(getResourceStream());
@@ -224,16 +279,45 @@ public class GlobalProperties {
         String skinTitle = properties.getProperty(SKIN_TITLE);
         return (skinTitle == null) ? DEFAULT_SKIN_TITLE : skinTitle;
     }
-
+    // updated function to use a default if nothing is specified
     public static String getBlurb()
     {
-        return properties.getProperty(SKIN_BLURB);
+        String skinBlurb = properties.getProperty(SKIN_BLURB);
+        return (skinBlurb == null) ? DEFAULT_SKIN_BLURB : skinBlurb;
     }
-
+    // get the login contact html
+    public static String getLoginContactHtml()
+    {
+        String loginContactHtml = properties.getProperty(SKIN_LOGIN_CONTACT_HTML);
+        return (loginContactHtml == null) ? DEFAULT_SKIN_LOGIN_CONTACT_HTML : loginContactHtml;
+    }
+    // get the text for the saml login button
+    public static String getLoginSamlRegistrationHtml()
+    {
+        String loginSamlRegistrationHtml = properties.getProperty(SKIN_LOGIN_SAML_REGISTRATION_HTML);
+        return (loginSamlRegistrationHtml == null) ? DEFAULT_SKIN_LOGIN_SAML_REGISTRATION_HTML : loginSamlRegistrationHtml;
+    }
+    public static String getSamlIdpMetadataEntityid()
+    {
+        return getProperty(SAML_IDP_METADATA_ENTITYID);
+    }
     public static String getTagLineImage()
     {
         String tagLineImage = properties.getProperty(SKIN_TAG_LINE_IMAGE);
         return (tagLineImage == null) ? DEFAULT_SKIN_TAG_LINE_IMAGE : "images/" + tagLineImage;
+    }
+
+    // function for retrieving the right logo, used by the header_bar
+    public static String getRightLogo()
+    {
+        String rightLogo = properties.getProperty(SKIN_RIGHT_LOGO);
+        return (rightLogo == null) ? DEFAULT_SKIN_RIGHT_LOGO : "images/" + rightLogo;
+    }
+
+    // function for retrieving the footer text
+    public static String getFooter(){
+        String footer = properties.getProperty(SKIN_FOOTER);
+        return (footer == null) ? DEFAULT_SKIN_FOOTER : footer;
     }
 
     public static String getEmailContact()
@@ -286,12 +370,70 @@ public class GlobalProperties {
         return showFlag == null || Boolean.parseBoolean(showFlag);
     }
 
+    // show or hide the web api tab in header navigation bar
+    public static boolean showWebApiTab()
+    {
+        String showFlag = properties.getProperty(SKIN_SHOW_WEB_API_TAB);
+        return showFlag == null || Boolean.parseBoolean(showFlag);
+    }
+    // show or hide the r matlab tab in header navigation bar
+    public static boolean showRMatlabTab()
+    {
+        String showFlag = properties.getProperty(SKIN_SHOW_R_MATLAB_TAB);
+        return showFlag == null || Boolean.parseBoolean(showFlag);
+    }
+    // show or hide the tutorial tab in header navigation bar
+    public static boolean showTutorialsTab()
+    {
+        String showFlag = properties.getProperty(SKIN_SHOW_TUTORIALS_TAB);
+        return showFlag == null || Boolean.parseBoolean(showFlag);
+    }
+    // show or hide the faqs tab in header navigation bar
+    public static boolean showFaqsTab()
+    {
+        String showFlag = properties.getProperty(SKIN_SHOW_FAQS_TAB);
+        return showFlag == null || Boolean.parseBoolean(showFlag);
+    }
+    // show or hide the tools tab in header navigation bar
+    public static boolean showToolsTab()
+    {
+        String showFlag = properties.getProperty(SKIN_SHOW_TOOLS_TAB);
+        return showFlag == null || Boolean.parseBoolean(showFlag);
+    }
+    // show or hide the about tab in header navigation bar
+    public static boolean showAboutTab()
+    {
+        String showFlag = properties.getProperty(SKIN_SHOW_ABOUT_TAB);
+        return showFlag == null || Boolean.parseBoolean(showFlag);
+    }
+    // show or hide the visualize your data tab in header navigation bar
+    public static boolean showVisualizeYourDataTab()
+    {
+        String showFlag = properties.getProperty(SKIN_SHOW_VISUALIZE_YOUR_DATA_TAB);
+        return showFlag == null || Boolean.parseBoolean(showFlag);
+    }
+    // show or hide the clinical trials tab in the patient view
+    public static boolean showClinicalTrialsTab()
+    {
+        String showFlag = properties.getProperty(SKIN_PATIENT_VIEW_SHOW_CLINICAL_TRIALS_TAB);
+        return showFlag == null || Boolean.parseBoolean(showFlag);
+    }
+    // show or hide the drugs tab in the patient view
+    public static boolean showDrugsTab()
+    {
+        String showFlag = properties.getProperty(SKIN_PATIENT_VIEW_SHOW_DRUGS_TAB);
+        return showFlag == null || Boolean.parseBoolean(showFlag);
+    }
+    // get the text for the What's New in the right navigation bar
+    public static String getRightNavWhatsNewBlurb(){
+        String whatsNewBlurb = properties.getProperty(SKIN_RIGHT_NAV_WHATS_NEW_BLURB);
+        return (whatsNewBlurb == null) ? DEFAULT_SKIN_WHATS_NEW_BLURB : whatsNewBlurb;
+    }
     public static boolean showRightNavDataSets()
     {
         String showFlag = properties.getProperty(SKIN_RIGHT_NAV_SHOW_DATA_SETS);
         return showFlag == null || Boolean.parseBoolean(showFlag);
     }
-
     public static boolean showRightNavExamples()
     {
         String showFlag = properties.getProperty(SKIN_RIGHT_NAV_SHOW_EXAMPLES);

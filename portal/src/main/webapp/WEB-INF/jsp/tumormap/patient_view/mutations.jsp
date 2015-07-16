@@ -53,7 +53,7 @@
     };
     
     var oncoKBDataInject = function(oTable, tableId) {
-        if(!genomicEventObs.oncoKBBuilt) {
+        if(!oncoKBDataReady) {
             OncoKBConnector.init({'url': oncokbUrl||''});
             OncoKBConnector.oncokbAccess(function(flag){
                 console.log(flag);
@@ -63,7 +63,6 @@
                     addOncoKBListener(oTable, tableId);
                 }
             });
-            genomicEventObs.oncoKBBuilt = true;
         }else {
             addOncoKBListener(oTable, tableId);
         }

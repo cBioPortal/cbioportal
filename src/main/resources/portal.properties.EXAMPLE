@@ -83,6 +83,9 @@ saml.keystore.password=
 saml.keystore.private-key.key=
 saml.keystore.private-key.password=
 saml.keystore.default-key=
+## settings to connect to an Active Directory domain controller
+ad.domain=
+ad.url=
 
 # patient view settings
 patient_view_placeholder=false

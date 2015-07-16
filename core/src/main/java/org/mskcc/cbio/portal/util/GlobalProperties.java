@@ -148,6 +148,9 @@ public class GlobalProperties {
     // property for the saml entityid
     public static final String SAML_IDP_METADATA_ENTITYID="saml.idp.metadata.entityid";
 
+    // property for the custom header tabs
+    public static final String SKIN_CUSTOM_HEADER_TABS="skin.custom_header_tabs";
+
     private static Log LOG = LogFactory.getLog(GlobalProperties.class);
     private static Properties properties = initializeProperties();
 
@@ -519,6 +522,16 @@ public class GlobalProperties {
         }
         
         return new String[] {url.replace("{cancer.type}", typeOfCancer)};
+    }
+
+    // function for getting the custom tabs for the header
+    public static String[] getCustomHeaderTabs(){
+        String customPagesString = GlobalProperties.getProperty(SKIN_CUSTOM_HEADER_TABS);
+        if(customPagesString!=null){
+            String [] customPagesArray = customPagesString.split(",");
+            return customPagesArray;
+        }
+        return null;
     }
     
     public static String getOncoKBUrl()

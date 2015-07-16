@@ -130,6 +130,18 @@
                                                 <a href="about_us.jsp">About</a>
                                             </li>
                                             <% } %>
+                                            <!-- Added for adding custom header tabs. If the customPageArray is not
+                                            null, creates list items for the elements in the array. -->
+                                            <%
+                                            String [] customPagesArray = GlobalProperties.getCustomHeaderTabs();
+                                            if(customPagesArray!=null){
+                                                for(int i=0; i<customPagesArray.length%2; i++){ %>
+                                                    <li class="internal">
+                                                        <a href="<%=customPagesArray[i].trim()%>"><%=customPagesArray[i+1].trim()%></a>
+                                                    </li>
+                                                <%}
+                                            }%>
+
                                             <!-- Added call GlobalProperties to check whether to show the Visualize tab -->
                                             <% if (GlobalProperties.showVisualizeYourDataTab()) { %>
                                             <li class="internal" style="float:right">

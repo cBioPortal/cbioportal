@@ -46,12 +46,10 @@ var StudyViewInitTables = (function() {
     
     function initData(input) {
         var attr = input.data.attr,
-            arr = input.data.arr,
             numOfCases = input.numOfCases;
         
         attr.forEach(function(e, i) {
-            var _datum = arr[e.name],
-                _worker = {};
+            var _worker = {};
             
             _worker.opts = {};
             _worker.data = {};
@@ -80,7 +78,19 @@ var StudyViewInitTables = (function() {
                             hidden: true
                         }
                     ];
-                    _worker.data.arr = mutatedGenesData(_datum, numOfCases);
+                    _worker.data.getData = function (callback, workerId){
+                        StudyViewProxy.getMutatedGenesData().then(
+                            function( data ) {
+                                callback(mutatedGenesData(data, numOfCases), workerId);
+                            },
+                            function( status ) {
+                                console.log( status + ", you fail this time" );
+                            },
+                            function( status ) {
+                                console.log(status);
+                            }
+                        );
+                    };
                     break;
                 case 'cna':
                     _worker.data.attr = [{
@@ -107,7 +117,19 @@ var StudyViewInitTables = (function() {
                             hidden: true
                         }
                     ];
-                    _worker.data.arr = cnaData(_datum, numOfCases);
+                    _worker.data.getData = function (callback, workerId){
+                        StudyViewProxy.getCNAData().then(
+                            function( data ) {
+                                callback(cnaData(data, numOfCases), workerId);
+                            },
+                            function( status ) {
+                                console.log( status + ", you fail this time" );
+                            },
+                            function( status ) {
+                                console.log(status);
+                            }
+                        );
+                    };
                     break;
                 default:
                     _worker.opts.title = 'Unknown';
@@ -228,7 +250,11 @@ var StudyViewInitTables = (function() {
         StudyViewUtil.addCytobandSorting();
         workers.forEach(function(e, i){
             workers[i].tableInstance = new Table();
-            workers[i].tableInstance.init(e);
+            workers[i].tableInstance.initDiv(e)
+            workers[i].data.getData(function(data, workerId){
+                workers[workerId].data.arr = data;
+                workers[workerId].tableInstance.draw(workers[workerId].data);
+            }, i);
         });
     }
     
@@ -247,8 +273,13 @@ var StudyViewInitTables = (function() {
             datum.sampleRate = 
                     (datum.samples / Number(numOfCases)* 100).toFixed(1) + '%';
 
-            if(data[i].qval){
-                datum.qval = Number(data[i].qval).toExponential(1);
+            if( data[i].hasOwnProperty('qval') && !isNaN(data[i].qval)){
+                var qval = Number(data[i].qval);
+                if(qval === 0) {
+                    datum.qval = 0;
+                }else{
+                    datum.qval = qval.toExponential(1);
+                }
             }else{
                 datum.qval = '';
             }
@@ -282,8 +313,13 @@ var StudyViewInitTables = (function() {
             datum.altType = _altType;
             datum.samples = data.caseIds[i].length;
             datum.altrateInSample = (datum.samples / numOfCases * 100).toFixed(1) + '%';
-            if(data.gistic[i] && (data.gistic[i] instanceof Array) && data.gistic[i][0]){
-                datum.qval = Number(data.gistic[i][0]).toExponential(1);
+            if(data.gistic[i] && (data.gistic[i] instanceof Array) && !isNaN(data.gistic[i][0])){
+                var qval = Number(data.gistic[i][0]);
+                if(qval === 0) {
+                    datum.qval = 0;
+                }else{
+                    datum.qval = qval.toExponential(1);
+                }
             }else{
                 datum.qval = '';
             }

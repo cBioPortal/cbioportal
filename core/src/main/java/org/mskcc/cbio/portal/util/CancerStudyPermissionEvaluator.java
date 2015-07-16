@@ -45,7 +45,7 @@ import org.mskcc.cbio.portal.dao.DaoException;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 
 
 /**
@@ -102,7 +102,7 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
                 return false;
             }
 
-            User user = (User) authentication.getPrincipal();
+            UserDetails user = (UserDetails) authentication.getPrincipal();
             if (user != null) {
                 return hasPermission(cancerStudy, user);
             } else {
@@ -119,11 +119,11 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
     /**
      * Helper function to determine if given user has access to given cancer study.
      *
-     * @param stableStudyID String
-     * @param user SocialUserDetails
+     * @param cancerStudy String ID of the cancer study to check for
+     * @param user Spring UserDetails of the logged-in user.
      * @return boolean
      */
-    private boolean hasPermission(CancerStudy cancerStudy, User user) {
+    private boolean hasPermission(CancerStudy cancerStudy, UserDetails user) {
 
         Set<String> grantedAuthorities = getGrantedAuthorities(user);
 
@@ -195,7 +195,7 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
         return toReturn;
     }
 
-    private Set<String> getGrantedAuthorities(User user) {
+    private Set<String> getGrantedAuthorities(UserDetails user) {
         String appName = GlobalProperties.getAppName().toUpperCase();
         Set<String> allAuthorities = AuthorityUtils.authorityListToSet(user.getAuthorities());
         Set<String> grantedAuthorities = new HashSet<>();

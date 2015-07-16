@@ -199,12 +199,16 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
         String appName = GlobalProperties.getAppName().toUpperCase();
         Set<String> allAuthorities = AuthorityUtils.authorityListToSet(user.getAuthorities());
         Set<String> grantedAuthorities = new HashSet<>();
-        for (String au : allAuthorities) {
-            if (au.toUpperCase().startsWith(appName + ":")) {
-                grantedAuthorities.add(au.substring(appName.length() + 1));
+        if (GlobalProperties.filterGroupsByAppName()) {
+            for (String au : allAuthorities) {
+                if (au.toUpperCase().startsWith(appName + ":")) {
+                    grantedAuthorities.add(au.substring(appName.length() + 1));
+                }
             }
+            return grantedAuthorities;
+        } else {
+            return allAuthorities;
         }
-        return grantedAuthorities;
     }
 }
 

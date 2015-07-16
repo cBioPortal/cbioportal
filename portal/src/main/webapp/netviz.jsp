@@ -60,11 +60,12 @@
 <script type="text/javascript" src="js/lib/jquery.expander.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/lib/underscore-min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/lib/backbone-min.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/lib/cytoscape_web/AC_OETags.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/lib/cytoscape_web/cytoscapeweb.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/lib/cytoscape_js/cytoscape.js?<%=GlobalProperties.getAppVersion()%>"></script>
+
 
 <script type="text/javascript" src="js/src/network/network-visualization.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/network/network-viz.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/network/network-viz2.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/network/cytoscape.renderer.canvas.portal-renderer.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <jsp:include page="WEB-INF/jsp/network_views.jsp"/>
 
@@ -94,7 +95,7 @@
 	};
 
 </script>
-                        
+
 <%
 String format = request.getParameter("format");
 String graphml = null;
@@ -183,14 +184,14 @@ if (graphml!=null&&!graphml.isEmpty()) {
         var graphml = "<%=graphml%>";
         //graphml = '<graphml><graph><node id="n0"/></graph></graphml>';
         send2cytoscapeweb(graphml, "cytoscapeweb", "network");
-        
+
         <%if(msgs!=null){%>
         var msgs = "<br/><%=msgs%>";
         $("#network #netmsg").append(msgs);
         <%}%>
-        
+
         $("#network-resubmit-query").remove();
-        
+
         if (<%=showProfileData%>) {
             var nre = setInterval(function() {
                 if (!$("#network #network_menu_div").hasClass("hidden-network-ui")) {

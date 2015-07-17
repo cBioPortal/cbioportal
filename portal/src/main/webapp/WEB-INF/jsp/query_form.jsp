@@ -191,7 +191,7 @@
                         "style=\"height: 34px;\" " +
                         "title=\"Send data matrix to GenomeSpace.\" " +
                         "href=\"#\" onclick=\"prepGSLaunch($('#main_form'), " +
-                        "$('#select_cancer_type').val(), " +
+                        "$('#select_single_study').val(), " +
                         "$('#genomic_profiles'));\"><img src=\"images/send-to-gs.png\" alt=\"\"/></a>");
         }
     }

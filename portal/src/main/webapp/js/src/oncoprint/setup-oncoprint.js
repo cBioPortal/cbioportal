@@ -335,7 +335,18 @@ var setupOncoprint = function(container_selector_string, cancer_study_id, oql, c
 				return geneData[gene].length;
 			}), function(a,b) { return a+b;}, 0);
 			var numDataPtsAdded = 0;
-			document.getElementById('oncoprint_progress_indicator').innerHTML = "Adding data points: "+numDataPtsAdded+"/"+numDataPts;
+			$('#outer_loader_img').hide();
+			var updateProgressIndicator = function(done_adding) {
+				if (done_adding) {
+					document.getElementById('oncoprint_progress_indicator_text').innerHTML = "Rendering...";
+					document.getElementById('oncoprint_progress_indicator_rect').setAttribute('width', '200px');
+					document.getElementById('oncoprint_progress_indicator_rect').setAttribute('fill','#00ff00');
+				} else {
+					document.getElementById('oncoprint_progress_indicator_text').innerHTML = "Adding data points..";
+					document.getElementById('oncoprint_progress_indicator_rect').setAttribute('width', Math.ceil(200*numDataPtsAdded/numDataPts)+'px');
+				}
+			};
+			updateProgressIndicator();
 			var geneIndex = 0;
 			var addGeneData = function(gene) {
 				// We do it like this, recursive and with setTimeouts, because we want the browser to
@@ -355,17 +366,16 @@ var setupOncoprint = function(container_selector_string, cancer_study_id, oql, c
 				_data = annotatePatientIds(_data);
 				oncoprint.setTrackData(new_track, annotateMutationTypes(_data));
 				numDataPtsAdded += _data.length;
-				document.getElementById('oncoprint_progress_indicator').innerHTML = "Adding data points: "+numDataPtsAdded+"/"+numDataPts;
+				updateProgressIndicator();
 				geneIndex += 1;
 				if (geneIndex < genes.length) {
 					setTimeout(function() {
 						addGeneData(genes[geneIndex]);
 					}, 0);
 				} else {
-					document.getElementById('oncoprint_progress_indicator').innerHTML = "Rendering...";
+					updateProgressIndicator(true);
 					setTimeout(function() {
 						oncoprint.releaseRendering();
-						$('#outer_loader_img').hide();
 						$('#oncoprint #everything').show();
 						$('#oncoprint_progress_indicator').hide();
 						oncoprint.sortByTrack();

@@ -251,7 +251,8 @@
 	                            if (window.cancerStudyName.toLowerCase().indexOf("msk-impact") != -1 &&
 	                                isDifferentProteinChange(aa, aaOriginal))
 	                            {
-		                            ret += "&nbsp;<span class='"+table_id+"-tip' alt='"+normalizeProteinChange(aaOriginal)+"'>" +
+		                            ret += "&nbsp;<span class='"+table_id+"-tip'" +
+		                                   "alt='The original annotation file indicates a different value: <b>"+normalizeProteinChange(aaOriginal)+"</b>'>" +
 		                                   "<img height=12 width=12 src='images/warning.gif'></span>";
 	                            }
 

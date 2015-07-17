@@ -1008,7 +1008,8 @@ var MutationDetailsTableFormatter = (function()
 			mutation.cancerStudyShort.toLowerCase().indexOf("msk-impact") != -1 &&
 		    isDifferentProteinChange(mutation.proteinChange, mutation.aminoAcidChange))
 		{
-			additionalTip = normalizeProteinChange(mutation.aminoAcidChange);
+			additionalTip = "The original annotation file indicates a different value: <b>" +
+			                normalizeProteinChange(mutation.aminoAcidChange) + "</b>";
 		}
 
 		// TODO disabled temporarily, enable when isoform support completely ready

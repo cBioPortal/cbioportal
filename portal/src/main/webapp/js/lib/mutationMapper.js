@@ -998,6 +998,19 @@ var MutationDetailsTableFormatter = (function()
 	{
 		var style = "mutation-table-protein-change";
 		var tip = "click to highlight the position on the diagram";
+		var additionalTip = "";
+
+		// TODO additional tooltips are enabled (hardcoded) only for msk-impact study for now
+		// this is cBioPortal specific implementation, we may want to make it generic in the future
+		if (mutation.aminoAcidChange != null &&
+		    mutation.aminoAcidChange.length > 0 &&
+			mutation.aminoAcidChange != "NA" &&
+			mutation.cancerStudyShort.toLowerCase().indexOf("msk-impact") != -1 &&
+		    isDifferentProteinChange(mutation.proteinChange, mutation.aminoAcidChange))
+		{
+			additionalTip = "The original annotation file indicates a different value: <b>" +
+			                normalizeProteinChange(mutation.aminoAcidChange) + "</b>";
+		}
 
 		// TODO disabled temporarily, enable when isoform support completely ready
 //        if (!mutation.canonicalTranscript)
@@ -1011,9 +1024,81 @@ var MutationDetailsTableFormatter = (function()
 //                "<br>Uniprot id: " + "<b>" + mutation.uniprotId + "</b>";
 //        }
 
-		return {text: mutation.proteinChange,
+		return {text: normalizeProteinChange(mutation.proteinChange),
 			style : style,
-			tip: tip};
+			tip: tip,
+			additionalTip: additionalTip};
+	}
+
+	/**
+	 * Checks if given 2 protein changes are completely different from each other.
+	 *
+	 * @param proteinChange
+	 * @param aminoAcidChange
+	 * @returns {boolean}
+	 */
+	function isDifferentProteinChange(proteinChange, aminoAcidChange)
+	{
+		var different = false;
+
+		proteinChange = normalizeProteinChange(proteinChange);
+		aminoAcidChange = normalizeProteinChange(aminoAcidChange);
+
+		// if the normalized strings are exact, no need to do anything further
+		if (aminoAcidChange !== proteinChange)
+		{
+			// assuming each uppercase letter represents a single protein
+			var proteinMatch1 = proteinChange.match(/[A-Z]/g);
+			var proteinMatch2 = aminoAcidChange.match(/[A-Z]/g);
+
+			// assuming the first numeric value is the location
+			var locationMatch1 = proteinChange.match(/[0-9]+/);
+			var locationMatch2 = aminoAcidChange.match(/[0-9]+/);
+
+			// assuming first lowercase value is somehow related to
+			var typeMatch1 = proteinChange.match(/([a-z]+)/);
+			var typeMatch2 = aminoAcidChange.match(/([a-z]+)/);
+
+			if (locationMatch1 && locationMatch2 &&
+			    locationMatch1.length > 0 && locationMatch2.length > 0 &&
+			    locationMatch1[0] != locationMatch2[0])
+			{
+				different = true;
+			}
+			else if (proteinMatch1 && proteinMatch2 &&
+			         proteinMatch1.length > 0 && proteinMatch2.length > 0 &&
+			         proteinMatch1[0] !== "X" && proteinMatch2[0] !== "X" &&
+			         proteinMatch1[0] !== proteinMatch2[0])
+			{
+				different = true;
+			}
+			else if (proteinMatch1 && proteinMatch2 &&
+			         proteinMatch1.length > 1 && proteinMatch2.length > 1 &&
+			         proteinMatch1[1] !== proteinMatch2[1])
+			{
+				different = true;
+			}
+			else if (typeMatch1 && typeMatch2 &&
+			         typeMatch1.length > 0 && typeMatch2.length > 0 &&
+			         typeMatch1[0] !== typeMatch2[0])
+			{
+				different = true;
+			}
+		}
+
+		return different;
+	}
+
+	function normalizeProteinChange(proteinChange)
+	{
+		var prefix = "p.";
+
+		if (proteinChange.indexOf(prefix) != -1)
+		{
+			proteinChange = proteinChange.substr(proteinChange.indexOf(prefix) + prefix.length);
+		}
+
+		return proteinChange;
 	}
 
 	function getTumorType(mutation)
@@ -3642,6 +3727,7 @@ function MutationInputParser ()
 		"mutationStatus": "mutation_status",
 		"cna": "copy_number",
 		"proteinChange": "protein_change",
+		"aminoAcidChange": "amino_acid_change",
 		"endPos": "end_position",
 		//"refseqMrnaId": "",
 		"geneSymbol": "hugo_symbol",
@@ -3697,6 +3783,7 @@ function MutationInputParser ()
 			"mutationStatus": "",
 			"cna": "",
 			"proteinChange": "",
+			"aminoAcidChange": "",
 			"endPos": "",
 			"refseqMrnaId": "",
 			"geneSymbol": "",
@@ -4903,6 +4990,7 @@ var MutationModel = Backbone.Model.extend({
         this.cancerStudyLink = attributes.cancerStudyLink;
 		this.tumorType = attributes.tumorType;
 		this.proteinChange = attributes.proteinChange;
+		this.aminoAcidChange = attributes.aminoAcidChange;
 		this.mutationType = attributes.mutationType;
 		this.cosmic = attributes.cosmic;
 		this.cosmicCount = this.calcCosmicCount(attributes.cosmic);
@@ -11739,6 +11827,7 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 				vars.proteinChange = proteinChange.text;
 				vars.proteinChangeClass = proteinChange.style;
 				vars.proteinChangeTip = proteinChange.tip;
+				vars.additionalProteinChangeTip = proteinChange.additionalTip;
 				vars.pdbMatchLink = MutationDetailsTableFormatter.getPdbMatchLink(mutation);
 
 				var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_protein_change_template");
@@ -12564,6 +12653,9 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 
 				// remove invalid links
 				$(nRow).find('a[href=""]').remove();
+
+				// remove invalid protein change tips
+				$(nRow).find('span.mutation-table-additional-protein-change[alt=""]').remove();
 			},
 			"fnInitComplete": function(oSettings, json) {
 				//$(tableSelector).find('a[href=""]').remove();

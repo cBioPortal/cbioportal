@@ -8869,6 +8869,7 @@ var RegionTipView = Backbone.View.extend({
 			description: this.model.description,
 			start: this.model.start,
 			end: this.model.end,
+			pfamAccession: this.model.pfamAccession,
 			mutationAlignerInfo: this.model.mutationAlignerInfo};
 
 		// compile the template using underscore
@@ -13142,6 +13143,7 @@ MutationDiagram.prototype.defaultOpts = {
 			description: region.metadata.description,
 			start: region.metadata.start,
 			end: region.metadata.end,
+			pfamAccession: region.metadata.accession,
 			mutationAlignerInfo: ""};
 
 		maProxy.getMutationAlignerData(

@@ -44,7 +44,7 @@
     var mutTableIndices =
             ["id","case_ids","gene","aa","chr","start","end","ref","_var","validation","type",
              "tumor_freq","tumor_var_reads","tumor_ref_reads","norm_freq","norm_var_reads",
-             "norm_ref_reads","bam","cna","mrna","altrate","pancan_mutations", "cosmic","ma","drug"];
+             "norm_ref_reads","bam","cna","mrna","altrate","pancan_mutations", "cosmic","ma","drug", "oncokb"];
 
     mutTableIndices = cbio.util.arrayToAssociatedArrayIndices(mutTableIndices);
     
@@ -853,6 +853,22 @@
                             }
                         },
                         "asSorting": ["desc", "asc"]
+                    },{// OncoKB column
+                        "aTargets": [ mutTableIndices["oncokb"] ],
+                        "sClass": "center-align-td",
+                        "bSearchable": false,
+                        "bSortable" : false,
+                        "mDataProp":
+                            function(source,type,value) {
+                                if (type==='set') {
+                                    return;
+                                } else if (type==='display') {
+                                    var ret = "<span class='oncokb oncokb_column' hashId='"+source[0]+"' style='display:none'></span><img width='12' height='12' class='loader' src='images/ajax-loader.gif'/>";
+                                    return ret;
+                                } else {
+                                    return '';
+                                }
+                            }
                     }
                 ],
                 "fnDrawCallback": function( oSettings ) {
@@ -948,6 +964,42 @@
             }
             $(this).parent().find('.loader').remove();
         });
+
+        $(oTable).find('.oncokb_column').each(function() {
+            if(oncoKBDataReady) {
+                var hashId = $(this).attr('hashId');
+
+                if(genomicEventObs.mutations.getValue(hashId, 'oncokb')) {
+                    var _prevalence = genomicEventObs.mutations.getValue(hashId, 'oncokb').prevalence,
+                        _progImp = genomicEventObs.mutations.getValue(hashId, 'oncokb').progImp,
+                        _trials = genomicEventObs.mutations.getValue(hashId, 'oncokb').trials,
+                        _treatments = genomicEventObs.mutations.getValue(hashId, 'oncokb').treatments,
+                        _tip = '';
+
+                    createOncoKBColumnCell(this, _prevalence.length>0, _progImp.length>0, _treatments.length>0, _trials.length>0);
+//                    for(var i=0, altsL=_alterations.length; i<altsL; i++) {
+//                        _tip += i!==0?'<br/>':'' + '<b>Mutation Effect: '+_alterations[i].knownEffect + '</b><br/>' + _alterations[i].description + '<br/>';
+//                    }
+//                    if (genomicEventObs.mutations.getValue(hashId, 'oncokb').oncogenic){
+//                        _tip += '<br/><a target="_blank" href="'+oncokbUrl+'#/variant?hugoSymbol='+genomicEventObs.mutations.getValue(hashId, 'gene')+'&alteration='+genomicEventObs.mutations.getValue(hashId, 'aa')+'">More Info on OncoKB</a><span style="float:right"><i>Powered by OncoKB(Beta)</i></span><br/><br/><i>OncoKB is under development, please pardon errors and omissions. Please send feedback to <a href="mailto:oncokb@cbio.mskcc.org" title="Contact us">oncokb@cbio.mskcc.org</a></i>';
+//                    }
+//
+//                    if(_tip !== '') {
+//                        $(this).css('display', '');
+//                        $(this).qtip('destroy', true);
+//                        $(this).qtip({
+//                            content: {text: _tip},
+//                            hide: { fixed: true, delay: 100 },
+//                            style: { classes: 'qtip-light qtip-rounded qtip-shadow', tip: true },
+//                            position: {my:'center right',at:'center left',viewport: $(window)}
+//                        });
+//                    }
+                }
+            }
+            $(this).css('display', 'block');
+            $(this).parent().find('.loader').remove();
+        });
+
         $('.oncokb').hover(function(){
             $(".oncokb_moreInfo").click(function() {
                 $(this).css('display', 'none');
@@ -955,7 +1007,67 @@
             });
         });
     }
-    
+
+    function oncokbCircledChar(g,ch,circleColor,textColor, r, x, y, fontSize) {
+        g.append("circle")
+                .attr("r",r)
+                .attr("stroke",circleColor)
+                .attr("fill",circleColor);
+        g.append("text")
+                .attr("x",x)
+                .attr("y",y)
+                .attr("font-size",fontSize)
+                .attr("fill",textColor)
+                .text(ch);
+    }
+
+    function createOncoKBColumnCell(target, hasPrevalence, hasProgImp, hasTreatments, hasTrials) {
+        var svg = d3.select($(target)[0])
+                .append("svg")
+                .attr("width", 80)
+                .attr("height", 16);
+
+        if (hasPrevalence) {
+            var circle = svg.append("g")
+                    .attr("transform", "translate(8,8)");
+            oncokbCircledChar(circle,"P","#55C","white", 7, -3, 4, 9);
+        }
+        if (hasProgImp) {
+            var circle = svg.append("g")
+                    .attr("transform", "translate(25,8)");
+            oncokbCircledChar(circle,"PI","#55C","white", 7, -5, 4, 9);
+        }
+        if (hasTreatments) {
+            var circle = svg.append("g")
+                    .attr("transform", "translate(42,8)");
+            var level = getHighestLevel($(target).attr('hashId'));
+            oncokbCircledChar(circle,level,"#55C","white", 7, level.length>1?-5:-3, 4, 9);
+        }
+        if (hasTrials) {
+            var circle = svg.append("g")
+                    .attr("transform", "translate(59,8)");
+            oncokbCircledChar(circle,"T","#55C","white", 7, -3, 4, 9);
+        }
+    }
+
+    function getHighestLevel(hashId) {
+        var level = '';
+        var treatments = genomicEventObs.mutations.getValue(hashId, 'oncokb').treatments;
+        var treatmentsL = treatments.length;
+        var levels = ['R3', 'R2', 'R1', '4', '3', '2', '0']
+        var highestLevelIndex = -1;
+        for(var i = 0; i < treatmentsL; i++){
+            var _level = treatments[i].level.match(/LEVEL_(R?\d)/);
+            if(_level instanceof Array && _level.length >= 2){
+                var _index = levels.indexOf(_level[1]);
+                if(_index > highestLevelIndex){
+                    highestLevelIndex = _index;
+                }
+            }
+        }
+        return levels[highestLevelIndex];
+    }
+
     function listenToBamIgvClick(elem) {
         $(elem).each(function(){
                 // TODO use mutation id, instead of binding url to attr alt

@@ -82,6 +82,10 @@ var OncoKBConnector = (function(){
                     var datum = {
                         'gene': {},
                         'alteration': [],
+                        'prevalence': [],
+                        'progImp': [],
+                        'treatments': [],
+                        'trials': [],
                         'oncogenic': false
                     };
                     
@@ -105,6 +109,30 @@ var OncoKBConnector = (function(){
                                         });
                                     }
                                 }
+                            }else if(evidence.evidenceType === 'PREVALENCE') {
+                                datum.prevalence.push({
+                                    tumorType: evidence.tumorType.name,
+                                    description: findRegex(evidence.description)
+                                });
+                            }else if(evidence.evidenceType === 'PROGNOSTIC_IMPLICATION') {
+                                datum.progImp.push({
+                                    tumorType: evidence.tumorType.name,
+                                    description: findRegex(evidence.description)
+                                });
+                            }else if(evidence.evidenceType === 'CLINICAL_TRIAL') {
+                                datum.trials.push({
+                                    tumorType: evidence.tumorType.name,
+                                    list: evidence.clinicalTrial
+                                });
+                            }else if(evidence.levelOfEvidence) {
+                                //if evidence has level information, that means this is treatment evidence.
+                                var _treatment = {};
+                                _treatment.type = evidence.evidenceType;
+                                _treatment.tumorType = evidence.tumorType.name;
+                                _treatment.level = evidence.levelOfEvidence;
+                                _treatment.effect = evidence.knowEffect;
+                                _treatment.content = evidence.treatments;
+                                datum.treatments.push(_treatment);
                             }
                         }
                     }

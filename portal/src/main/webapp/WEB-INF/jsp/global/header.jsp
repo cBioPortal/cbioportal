@@ -135,7 +135,11 @@
                                             <%
                                             String [] customPagesArray = GlobalProperties.getCustomHeaderTabs();
                                             if(customPagesArray!=null){
-                                                for(int i=0; i<customPagesArray.length%2; i++){ %>
+                                                // as the customPagesArray should have an even length, there's a problem
+                                                // if the length is uneven. In that case, don't add the last page.
+                                                // This way, the user will still get feedback for the other customPages
+                                                int until=customPagesArray.length - customPagesArray.length%2;
+                                                for(int i=0; i<until; i=i+2){ %>
                                                     <li class="internal">
                                                         <a href="<%=customPagesArray[i].trim()%>"><%=customPagesArray[i+1].trim()%></a>
                                                     </li>

@@ -181,6 +181,7 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
             return true;
         }
 
+        // finally, check if the user has this study specifically listed in his 'groups' (a 'group' of this study only)
         boolean toReturn = grantedAuthorities.contains(stableStudyID.toUpperCase());
 
         if (log.isDebugEnabled()) {
@@ -199,16 +200,21 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
         String appName = GlobalProperties.getAppName().toUpperCase();
         Set<String> allAuthorities = AuthorityUtils.authorityListToSet(user.getAuthorities());
         Set<String> grantedAuthorities = new HashSet<>();
+
         if (GlobalProperties.filterGroupsByAppName()) {
             for (String au : allAuthorities) {
                 if (au.toUpperCase().startsWith(appName + ":")) {
                     grantedAuthorities.add(au.substring(appName.length() + 1));
                 }
             }
-            return grantedAuthorities;
         } else {
-            return allAuthorities;
+            grantedAuthorities = allAuthorities;
         }
+
+        // all users are allowed access to PUBLIC studies
+        grantedAuthorities.add(AccessControl.PUBLIC_CANCER_STUDIES_GROUP.toUpperCase());
+
+        return grantedAuthorities;
     }
 }
 

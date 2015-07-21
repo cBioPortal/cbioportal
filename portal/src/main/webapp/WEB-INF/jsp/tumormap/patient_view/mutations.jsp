@@ -40,6 +40,11 @@
 
 <link href="css/mutationMapper.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/>
 
+<style type="text/css" title="currentStyle">
+    .oncokb-qtip {
+        max-width: 1000px !important;
+    }
+</style>
 <script type="text/javascript">
     var mutTableIndices =
             ["id","case_ids","gene","aa","chr","start","end","ref","_var","validation","type",
@@ -926,6 +931,7 @@
             }
             $(this).parent().find('.loader').remove();
         });
+
         $(oTable).find('.oncokb_alteration').each(function() {
             if(oncoKBDataReady) {
                 var hashId = $(this).attr('hashId');
@@ -963,27 +969,9 @@
                     var _prevalence = genomicEventObs.mutations.getValue(hashId, 'oncokb').prevalence,
                         _progImp = genomicEventObs.mutations.getValue(hashId, 'oncokb').progImp,
                         _trials = genomicEventObs.mutations.getValue(hashId, 'oncokb').trials,
-                        _treatments = genomicEventObs.mutations.getValue(hashId, 'oncokb').treatments,
-                        _tip = '';
-
-                    createOncoKBColumnCell(this, _prevalence.length>0, _progImp.length>0, _treatments.length>0, _trials.length>0);
-//                    for(var i=0, altsL=_alterations.length; i<altsL; i++) {
-//                        _tip += i!==0?'<br/>':'' + '<b>Mutation Effect: '+_alterations[i].knownEffect + '</b><br/>' + _alterations[i].description + '<br/>';
-//                    }
-//                    if (genomicEventObs.mutations.getValue(hashId, 'oncokb').oncogenic){
-//                        _tip += '<br/><a target="_blank" href="'+oncokbUrl+'#/variant?hugoSymbol='+genomicEventObs.mutations.getValue(hashId, 'gene')+'&alteration='+genomicEventObs.mutations.getValue(hashId, 'aa')+'">More Info on OncoKB</a><span style="float:right"><i>Powered by OncoKB(Beta)</i></span><br/><br/><i>OncoKB is under development, please pardon errors and omissions. Please send feedback to <a href="mailto:oncokb@cbio.mskcc.org" title="Contact us">oncokb@cbio.mskcc.org</a></i>';
-//                    }
-//
-//                    if(_tip !== '') {
-//                        $(this).css('display', '');
-//                        $(this).qtip('destroy', true);
-//                        $(this).qtip({
-//                            content: {text: _tip},
-//                            hide: { fixed: true, delay: 100 },
-//                            style: { classes: 'qtip-light qtip-rounded qtip-shadow', tip: true },
-//                            position: {my:'center right',at:'center left',viewport: $(window)}
-//                        });
-//                    }
+                        _treatments = genomicEventObs.mutations.getValue(hashId, 'oncokb').treatments;
+                    $(this).empty();
+                    createOncoKBColumnCell(this, _prevalence, _progImp, _treatments, _trials);
                 }
             }
             $(this).css('display', 'block');
@@ -996,6 +984,144 @@
                 $(this).parent().find('.oncokb_background').css('display', 'block');
             });
         });
+
+        $('#oncokb-help').qtip({
+            content: {text: oncokbHelpStr()},
+            style: { classes: 'qtip-light qtip-rounded qtip-shadow', tip: true },
+            position: {my:'center right',at:'center left',viewport: $(window)}
+        });
+    }
+
+    function oncokbHelpStr() {
+        var levels = {
+            '0': 'FDA-approved drug in this indication irrespective of gene/variant biomarker.',
+            '1': 'FDA-approved biomarker and drug association in this indication.',
+            '2A': 'FDA-approved biomarker and drug association in another indication, and NCCN-compendium listed for this indication.',
+            '2B': 'FDA-approved biomarker in another indication, but not FDA or NCCN-compendium-listed for this indication.',
+            '3': 'Clinical evidence links this biomarker to drug response but no FDA-approved or NCCN compendium-listed biomarker and drug association.',
+            '4': 'Preclinical evidence potentially links this biomarker to response but no FDA-approved or NCCN compendium-listed biomarker and drug association.',
+            'R1': 'NCCN-compendium listed biomarker for resistance to a FDA-approved drug.',
+            'R2': 'Not NCCN compendium-listed biomarker, but clinical evidence linking this biomarker to drug resistance.',
+            'R3': 'Not NCCN compendium-listed biomarker, but preclinical evidence potentially linking this biomarker to drug resistance.'
+        }
+        var implications = {
+            'SS': 'Standard therapeutic implications for drug sensitivity',
+            'SR': 'Standard therapeutic implications for drug resistance',
+            'IS': 'Investigational therapeutic implications for drug sensitivity',
+            'IR': 'Investigational therapeutic implications for drug resistance'
+        }
+        var str = '<b>Level of therapeutic implications explanations:</b><br/>';
+
+        for(var level in levels){
+            str += '<b>' + level + '</b>: ' + levels[level] + '<br/>';
+        }
+
+        str += '<hr/>'
+        str += '<b>Type of therapeutic implications explanations:</b><br/>'
+
+        for(var implication in implications){
+            str += '<b>' + implication + '</b>: ' + implications[implication] + '<br/>';
+        }
+
+        return str;
+    }
+
+    function createTreatmentsStr(treatments){
+        var str = '', i;
+        if(treatments instanceof Array) {
+            var treatmentsL = treatments.length;
+            str += '<table class="oncokb-treatments-datatable"><thead><tr><th>TYPE</th><th>TREATMENTS</th><th>LEVEL</th><th>TUMOR TYPE</th></tr></thead><tbody>';
+            for(i = 0; i < treatmentsL; i++) {
+                str += '<tr>';
+                str += '<td>' + getTreatmentType(treatments[i].type) + '</td>';
+                str += '<td>' + createDrugsStr(treatments[i].content) + '</td>';
+                str += '<td>' + getLevel(treatments[i].level) + '</td>';
+                str += '<td>' + treatments[i].tumorType + '</td>';
+                str +='</tr>';
+            }
+            str += '</tbody>';
+        }
+        return str;
+    }
+
+    function getLevel(level){
+        var _level = level.match(/LEVEL_(R?\d[AB]?)/);
+        if(_level instanceof Array && _level.length >= 2){
+            return _level[1];
+        }else{
+            return level;
+        }
+    }
+
+    function getTreatmentType(type) {
+        if(type === 'STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_SENSITIVITY') {
+            return 'SS';
+        }
+        if(type === 'STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_RESISTANCE') {
+            return 'SR';
+        }
+        if(type === 'INVESTIGATIONAL_THERAPEUTIC_IMPLICATIONS_DRUG_SENSITIVITY') {
+            return 'IS';
+        }
+        if(type === 'INVESTIGATIONAL_THERAPEUTIC_IMPLICATIONS_DRUG_RESISTANCE') {
+            return 'IR';
+        }
+        return '';
+    }
+
+    function createDrugsStr(drugs){
+        var str = '', i, j;
+        if(drugs instanceof Array) {
+            var drugsL = drugs.length;
+            for(i = 0; i < drugsL; i++){
+                var _drugsL = drugs[i].drugs.length;
+
+                for(j = 0; j < _drugsL; j++){
+                    str += drugs[i].drugs[j].drugName;
+                    if(j != _drugsL - 1) {
+                        str += '+';
+                    }
+                }
+
+                if(i != drugsL - 1) {
+                    str += ', ';
+                }
+            }
+        }
+        return str;
+    }
+
+    function shortDescription(description) {
+        var str = '';
+        var threshold = 40;
+
+        if(description.length > threshold){
+            str = '<span><span class="oncokb-shortDescription">' + description.substring(0, threshold-8) + '<span class="oncokb-description-more" >... <a>more</a></span></span>';
+            str += '<span class="oncokb-fullDescription" style="display:none">' + description + '</span></span>';
+        }else{
+            str = '<span class="oncokb-fullDescriotion">' + description + '</span>';
+        }
+
+        return str;
+    }
+
+    /**
+     *
+     * @param array this is object array, the object should have tumorType and description attributes
+     */
+    function oncokbGetString(array) {
+        var str = '', i;
+        if(array instanceof Array){
+            var arrayL = array.length;
+            for(i = 0; i < arrayL; i++){
+                str += '<b>Tumor type:</b> ' + array[i].tumorType + '<br/>';
+                str += shortDescription(array[i].description) + '';
+                if(i != arrayL - 1){
+                    str += '<hr style="margin-top:5px; margin-bottom:5px" />';
+                }
+            }
+        }
+        return str;
     }
 
     function oncokbCircledChar(g,ch,circleColor,textColor, r, x, y, fontSize) {
@@ -1011,43 +1137,157 @@
                 .text(ch);
     }
 
-    function createOncoKBColumnCell(target, hasPrevalence, hasProgImp, hasTreatments, hasTrials) {
+    function createOncoKBColumnCell(target, prevalence, progImp, treatments, trials) {
         var svg = d3.select($(target)[0])
                 .append("svg")
                 .attr("width", 80)
                 .attr("height", 16);
+        var qtipContext = '', i;
 
-        if (hasPrevalence) {
+        if (prevalence.length > 0) {
             var circle = svg.append("g")
                     .attr("transform", "translate(8,8)");
             oncokbCircledChar(circle,"P","#55C","white", 7, -3, 4, 9);
+            console.log('-------- Prevalence  -----------');
+            console.log(prevalence);
+
+            qtipContext = '<h5 style="margin:0">Prevalence</h5></br>';
+            qtipContext += oncokbGetString(prevalence);
+
+            $(circle).qtip('destroy', true);
+            $(circle).qtip({
+                content: {text: qtipContext},
+                hide: { fixed: true, delay: 100 },
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow', tip: true },
+                position: {my:'center right',at:'center left',viewport: $(window)},
+                events: {
+                    render: function() {
+                        $(this).find('.oncokb-description-more').click(function(){
+                            $(this).parent().parent().find('.oncokb-fullDescription').css('display', 'block');
+                            $(this).parent().parent().find('.oncokb-shortDescription').css('display', 'none');
+                        });
+                    }
+                }
+            });
         }
-        if (hasProgImp) {
+
+        if (progImp.length > 0) {
             var circle = svg.append("g")
                     .attr("transform", "translate(25,8)");
             oncokbCircledChar(circle,"PI","#55C","white", 7, -5, 4, 9);
+            console.log('-------- progImp  -----------');
+            console.log(progImp);
+
+            qtipContext = '<h5 style="margin:0">Prognostic Implications</h5></br>';
+            qtipContext += oncokbGetString(progImp);
+
+            $(circle).qtip('destroy', true);
+            $(circle).qtip({
+                content: {text: qtipContext},
+                hide: { fixed: true, delay: 100 },
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow', tip: true },
+                position: {my:'center right',at:'center left',viewport: $(window)},
+                events: {
+                    render: function() {
+                        $(this).find('.oncokb-description-more').click(function(){
+                            $(this).parent().parent().find('.oncokb-fullDescription').css('display', 'block');
+                            $(this).parent().parent().find('.oncokb-shortDescription').css('display', 'none');
+                        });
+                    }
+                }
+            });
         }
-        if (hasTreatments) {
+
+        if (treatments.length > 0) {
             var circle = svg.append("g")
                     .attr("transform", "translate(42,8)");
             var level = getHighestLevel($(target).attr('hashId'));
+            var dataTable;
+
             oncokbCircledChar(circle,level,"#55C","white", 7, level.length>1?-5:-3, 4, 9);
+            console.log('-------- treatments  -----------');
+            console.log(treatments);
+            qtipContext = '<h5 style="margin:0">Therapeutic Implications</h5></br>';
+            qtipContext += createTreatmentsStr(treatments);
+
+            $(circle).qtip('destroy', true);
+            $(circle).qtip({
+                content: {text: qtipContext},
+                hide: { fixed: true, delay: 100, event: "mouseleave"},
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow oncokb-qtip', tip: true },
+                show: {event: "mouseover", solo: true, delay: 0},
+                position: {my:'center right',at:'center left',viewport: $(window)},
+                events: {
+                    render: function (event, api) {
+                        dataTable = $(this).find('.oncokb-treatments-datatable').dataTable({
+                            "sDom": 'rt',
+                            "bPaginate": false,
+                            "bScrollCollapse": true,
+                            "sScrollY": 400,
+                            "autoWidth": true,
+                            "order": [[ 2, "asc" ]]
+                        });
+                    },
+                    visible: function(event, api) {
+                        if(dataTable){
+                            dataTable.fnAdjustColumnSizing();
+                        }
+                    }
+                }
+            });
         }
-        if (hasTrials) {
+
+        if (trials.length > 0) {
             var circle = svg.append("g")
                     .attr("transform", "translate(59,8)");
+            var trialsL = trials.length;
+
             oncokbCircledChar(circle,"T","#55C","white", 7, -3, 4, 9);
+            console.log('-------- trials  -----------');
+            console.log(trials);
+
+            qtipContext = '<h5 style="margin:0">Clinical Trials</h5></br>';
+            for(i = 0; i < trialsL; i++){
+                qtipContext += '<b>Tumor type:</b> ' + trials[i].tumorType + '<br/>';
+                qtipContext += '<b>Trials:</b> ' + getTrialsStr(trials[i].list);
+                if(i != trialsL-1) {
+                    qtipContext += '<hr style="margin-top:5px; margin-bottom:5px" />';
+                }
+            }
+
+            $(circle).qtip('destroy', true);
+            $(circle).qtip({
+                content: {text: qtipContext},
+                hide: { fixed: true, delay: 100 },
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow', tip: true },
+                position: {my:'center right',at:'center left',viewport: $(window)}
+            });
         }
+    }
+
+    function getTrialsStr(trials) {
+        var i, str = '';
+
+        if(trials instanceof Array){
+            var trialsL = trials.length;
+            for(i = 0; i < trialsL; i++){
+                str += OncoKBConnector.findRegex(trials[i].nctId);
+                if(i != trialsL - 1) {
+                    str += ', ';
+                }
+            }
+        }
+        return str;
     }
 
     function getHighestLevel(hashId) {
         var level = '';
         var treatments = genomicEventObs.mutations.getValue(hashId, 'oncokb').treatments;
         var treatmentsL = treatments.length;
-        var levels = ['R3', 'R2', 'R1', '4', '3', '2', '0']
+        var levels = ['R3', 'R2', 'R1', '4', '3', '2B','2A', '1', '0']
         var highestLevelIndex = -1;
         for(var i = 0; i < treatmentsL; i++){
-            var _level = treatments[i].level.match(/LEVEL_(R?\d)/);
+            var _level = treatments[i].level.match(/LEVEL_(R?\d[AB]?)/);
             if(_level instanceof Array && _level.length >= 2){
                 var _index = levels.indexOf(_level[1]);
                 if(_index > highestLevelIndex){

@@ -52,18 +52,22 @@ var OncoKBConnector = (function(){
         var mutationEventIds = mutations.getEventIds(false),
             searchPairs = [],
             geneStr = "",
-            alterationStr="";
+            alterationStr="",
+            consequenceStr=""
     
         for(var i=0, mutationL = mutationEventIds.length; i < mutationL; i++) {
             var datum = {},
                 gene = mutations.getValue(mutationEventIds[i], 'gene'),
-                alteration = mutations.getValue(mutationEventIds[i], 'aa');
+                alteration = mutations.getValue(mutationEventIds[i], 'aa'),
+                consequence = consequenceConverter(mutations.getValue(mutationEventIds[i], 'type'));
             datum.gene = gene;
             datum.alteration = alteration;
+            datum.consequence = consequence;
             searchPairs.push(datum);
             
             geneStr+=gene+",";
             alterationStr+=alteration+",";
+            consequenceStr+=consequence+",";
         }
         $.ajax({
             type: 'POST',
@@ -71,6 +75,7 @@ var OncoKBConnector = (function(){
             data: {
                 'hugoSymbol' : geneStr.substring(0, geneStr.length - 1),
                 'alteration': alterationStr.substring(0, alterationStr.length - 1),
+                'consequence': consequenceStr.substring(0, consequenceStr.length - 1),
                 'geneStatus': 'complete'
             },
             crossDomain: true,
@@ -122,7 +127,7 @@ var OncoKBConnector = (function(){
                             }else if(evidence.evidenceType === 'CLINICAL_TRIAL') {
                                 datum.trials.push({
                                     tumorType: evidence.tumorType.name,
-                                    list: evidence.clinicalTrial
+                                    list: evidence.clinicalTrials
                                 });
                             }else if(evidence.levelOfEvidence) {
                                 //if evidence has level information, that means this is treatment evidence.
@@ -130,7 +135,6 @@ var OncoKBConnector = (function(){
                                 _treatment.type = evidence.evidenceType;
                                 _treatment.tumorType = evidence.tumorType.name;
                                 _treatment.level = evidence.levelOfEvidence;
-                                _treatment.effect = evidence.knowEffect;
                                 _treatment.content = evidence.treatments;
                                 datum.treatments.push(_treatment);
                             }
@@ -146,7 +150,7 @@ var OncoKBConnector = (function(){
             }
         });
     }
-    
+
     function findRegex(str) {
 
         if(typeof str === 'string' && str !== '') {
@@ -180,9 +184,52 @@ var OncoKBConnector = (function(){
         }
         return str;
     }
+
+    /**
+     * Convert cBioPortal consequence to OncoKB consequence
+     *
+     * @param consequence cBioPortal consequence
+     * @returns
+     */
+    function consequenceConverter(consequence) {
+        var matrix = {
+            '3\'Flank': ['any'],
+            '5\'Flank ': ['any'],
+            'COMPLEX_INDEL': ['inframe_deletion', 'inframe_insertion'],
+            'ESSENTIAL_SPLICE_SITE': ['feature_truncation'],
+            'Exon skipping': ['inframe_deletion'],
+            'Frameshift deletion': ['frameshift_variant'],
+            'Frameshift insertion': ['frameshift_variant'],
+            'FRAMESHIFT_CODING': ['frameshift_variant'],
+            'Frame_Shift_Del': ['frameshift_variant'],
+            'Frame_Shift_Ins': ['frameshift_variant'],
+            'Fusion': ['fusion'],
+            'Indel': ['frameshift_variant', 'inframe_deletion', 'inframe_insertion'],
+            'In_Frame_Del': ['inframe_deletion', 'feature_truncation'],
+            'In_Frame_Ins': ['inframe_insertion'],
+            'Missense': ['missense_variant'],
+            'Missense_Mutation': ['missense_variant'],
+            'Nonsense_Mutation': ['stop_gained'],
+            'Nonstop_Mutation': ['stop_lost'],
+            'Splice_Site': ['splice_region_variant'],
+            'Splice_Site_Del': ['splice_region_variant'],
+            'Splice_Site_SNP': ['splice_region_variant'],
+            'splicing': ['splice_region_variant'],
+            'Translation_Start_Site': ['start_lost'],
+            'vIII deletion': ['any']
+        };
+        if(matrix.hasOwnProperty(consequence)){
+            return matrix[consequence].join('+');
+        }else{
+            return 'any';
+        }
+    }
+
     return {
         init: init,
         oncokbAccess: oncokbAccess,
-        getEvidence: getEvidence
+        getEvidence: getEvidence,
+        findRegex: findRegex,
+        consequenceConverter: consequenceConverter
     };
 })();

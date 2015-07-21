@@ -76,7 +76,7 @@ var OncoKBConnector = (function(){
                 'hugoSymbol' : geneStr.substring(0, geneStr.length - 1),
                 'alteration': alterationStr.substring(0, alterationStr.length - 1),
                 'consequence': consequenceStr.substring(0, consequenceStr.length - 1),
-                'geneStatus': 'complete'
+                //'geneStatus': 'complete'
             },
             crossDomain: true,
             dataType: 'json',
@@ -132,10 +132,10 @@ var OncoKBConnector = (function(){
                             }else if(evidence.levelOfEvidence) {
                                 //if evidence has level information, that means this is treatment evidence.
                                 var _treatment = {};
-                                _treatment.type = evidence.evidenceType;
                                 _treatment.tumorType = evidence.tumorType.name;
                                 _treatment.level = evidence.levelOfEvidence;
                                 _treatment.content = evidence.treatments;
+                                _treatment.description = evidence.description;
                                 datum.treatments.push(_treatment);
                             }
                         }

@@ -42,7 +42,10 @@
 
 <style type="text/css" title="currentStyle">
     .oncokb-qtip {
-        max-width: 1000px !important;
+        max-width: 800px !important;
+    }
+    .oncokb-qtip-sm {
+        max-width: 400px !important;
     }
 </style>
 <script type="text/javascript">
@@ -987,6 +990,7 @@
 
         $('#oncokb-help').qtip({
             content: {text: oncokbHelpStr()},
+            hide: { fixed: true, delay: 100 },
             style: { classes: 'qtip-light qtip-rounded qtip-shadow', tip: true },
             position: {my:'center right',at:'center left',viewport: $(window)}
         });
@@ -1004,23 +1008,10 @@
             'R2': 'Not NCCN compendium-listed biomarker, but clinical evidence linking this biomarker to drug resistance.',
             'R3': 'Not NCCN compendium-listed biomarker, but preclinical evidence potentially linking this biomarker to drug resistance.'
         }
-        var implications = {
-            'SS': 'Standard therapeutic implications for drug sensitivity',
-            'SR': 'Standard therapeutic implications for drug resistance',
-            'IS': 'Investigational therapeutic implications for drug sensitivity',
-            'IR': 'Investigational therapeutic implications for drug resistance'
-        }
         var str = '<b>Level of therapeutic implications explanations:</b><br/>';
 
         for(var level in levels){
             str += '<b>' + level + '</b>: ' + levels[level] + '<br/>';
-        }
-
-        str += '<hr/>'
-        str += '<b>Type of therapeutic implications explanations:</b><br/>'
-
-        for(var implication in implications){
-            str += '<b>' + implication + '</b>: ' + implications[implication] + '<br/>';
         }
 
         return str;
@@ -1030,13 +1021,13 @@
         var str = '', i;
         if(treatments instanceof Array) {
             var treatmentsL = treatments.length;
-            str += '<table class="oncokb-treatments-datatable"><thead><tr><th>TYPE</th><th>TREATMENTS</th><th>LEVEL</th><th>TUMOR TYPE</th></tr></thead><tbody>';
+            str += '<table class="oncokb-treatments-datatable"><thead><tr><th>TREATMENTS</th><th>LEVEL</th><th>TUMOR TYPE</th><th>DESCRIPTION</th></tr></thead><tbody>';
             for(i = 0; i < treatmentsL; i++) {
                 str += '<tr>';
-                str += '<td>' + getTreatmentType(treatments[i].type) + '</td>';
                 str += '<td>' + createDrugsStr(treatments[i].content) + '</td>';
                 str += '<td>' + getLevel(treatments[i].level) + '</td>';
                 str += '<td>' + treatments[i].tumorType + '</td>';
+                str += '<td>' + shortDescription(treatments[i].description) + '</td>';
                 str +='</tr>';
             }
             str += '</tbody>';
@@ -1051,22 +1042,6 @@
         }else{
             return level;
         }
-    }
-
-    function getTreatmentType(type) {
-        if(type === 'STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_SENSITIVITY') {
-            return 'SS';
-        }
-        if(type === 'STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_RESISTANCE') {
-            return 'SR';
-        }
-        if(type === 'INVESTIGATIONAL_THERAPEUTIC_IMPLICATIONS_DRUG_SENSITIVITY') {
-            return 'IS';
-        }
-        if(type === 'INVESTIGATIONAL_THERAPEUTIC_IMPLICATIONS_DRUG_RESISTANCE') {
-            return 'IR';
-        }
-        return '';
     }
 
     function createDrugsStr(drugs){
@@ -1109,17 +1084,18 @@
      *
      * @param array this is object array, the object should have tumorType and description attributes
      */
-    function oncokbGetString(array) {
+    function oncokbGetString(array, title, tableClass) {
         var str = '', i;
         if(array instanceof Array){
             var arrayL = array.length;
+            str += '<table class="oncokb-'+tableClass+'-datatable"><thead><tr><th style="white-space:nowrap">TUMOR TYPE</th><th>' + title + '</th></tr></thead><tbody>';
             for(i = 0; i < arrayL; i++){
-                str += '<b>Tumor type:</b> ' + array[i].tumorType + '<br/>';
-                str += shortDescription(array[i].description) + '';
-                if(i != arrayL - 1){
-                    str += '<hr style="margin-top:5px; margin-bottom:5px" />';
-                }
+                    str += '<tr>';
+                    str += '<td style="white-space:nowrap">' + array[i].tumorType + '</td>';
+                    str += '<td>' + shortDescription(array[i].description) + '</td>';
+                    str +='</tr>';
             }
+            str += '</tbody>';
         }
         return str;
     }
@@ -1147,25 +1123,39 @@
         if (prevalence.length > 0) {
             var circle = svg.append("g")
                     .attr("transform", "translate(8,8)");
+            var prevalenceDataTable;
             oncokbCircledChar(circle,"P","#55C","white", 7, -3, 4, 9);
-            console.log('-------- Prevalence  -----------');
-            console.log(prevalence);
 
-            qtipContext = '<h5 style="margin:0">Prevalence</h5></br>';
-            qtipContext += oncokbGetString(prevalence);
+            qtipContext += oncokbGetString(prevalence, 'PREVALENCE', 'prevalence');
 
             $(circle).qtip('destroy', true);
             $(circle).qtip({
                 content: {text: qtipContext},
                 hide: { fixed: true, delay: 100 },
-                style: { classes: 'qtip-light qtip-rounded qtip-shadow', tip: true },
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow oncokb-qtip-sm', tip: true },
                 position: {my:'center right',at:'center left',viewport: $(window)},
                 events: {
                     render: function() {
                         $(this).find('.oncokb-description-more').click(function(){
                             $(this).parent().parent().find('.oncokb-fullDescription').css('display', 'block');
                             $(this).parent().parent().find('.oncokb-shortDescription').css('display', 'none');
+                            if(prevalenceDataTable){
+                                prevalenceDataTable.fnAdjustColumnSizing();
+                            }
                         });
+                        prevalenceDataTable = $(this).find('.oncokb-prevalence-datatable').dataTable({
+                            "sDom": 'rt',
+                            "bPaginate": false,
+                            "bScrollCollapse": true,
+                            "sScrollY": 400,
+                            "autoWidth": true,
+                            "order": [[ 0, "asc" ]]
+                        });
+                    },
+                    visible: function(event, api) {
+                        if(prevalenceDataTable){
+                            prevalenceDataTable.fnAdjustColumnSizing();
+                        }
                     }
                 }
             });
@@ -1174,25 +1164,39 @@
         if (progImp.length > 0) {
             var circle = svg.append("g")
                     .attr("transform", "translate(25,8)");
+            var progImpDataTable;
             oncokbCircledChar(circle,"PI","#55C","white", 7, -5, 4, 9);
-            console.log('-------- progImp  -----------');
-            console.log(progImp);
 
-            qtipContext = '<h5 style="margin:0">Prognostic Implications</h5></br>';
-            qtipContext += oncokbGetString(progImp);
+            qtipContext = oncokbGetString(progImp, 'PROGNOSTIC IMPLICATIONS', 'progImp');
 
             $(circle).qtip('destroy', true);
             $(circle).qtip({
                 content: {text: qtipContext},
                 hide: { fixed: true, delay: 100 },
-                style: { classes: 'qtip-light qtip-rounded qtip-shadow', tip: true },
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow oncokb-qtip-sm', tip: true },
                 position: {my:'center right',at:'center left',viewport: $(window)},
                 events: {
                     render: function() {
                         $(this).find('.oncokb-description-more').click(function(){
                             $(this).parent().parent().find('.oncokb-fullDescription').css('display', 'block');
                             $(this).parent().parent().find('.oncokb-shortDescription').css('display', 'none');
+                            if(progImpDataTable){
+                                progImpDataTable.fnAdjustColumnSizing();
+                            }
                         });
+                        progImpDataTable = $(this).find('.oncokb-progImp-datatable').dataTable({
+                            "sDom": 'rt',
+                            "bPaginate": false,
+                            "bScrollCollapse": true,
+                            "sScrollY": 400,
+                            "autoWidth": true,
+                            "order": [[ 0, "asc" ]]
+                        });
+                    },
+                    visible: function(event, api) {
+                        if(progImpDataTable){
+                            progImpDataTable.fnAdjustColumnSizing();
+                        }
                     }
                 }
             });
@@ -1202,13 +1206,11 @@
             var circle = svg.append("g")
                     .attr("transform", "translate(42,8)");
             var level = getHighestLevel($(target).attr('hashId'));
-            var dataTable;
+            var treatmentDataTable;
 
             oncokbCircledChar(circle,level,"#55C","white", 7, level.length>1?-5:-3, 4, 9);
-            console.log('-------- treatments  -----------');
-            console.log(treatments);
-            qtipContext = '<h5 style="margin:0">Therapeutic Implications</h5></br>';
-            qtipContext += createTreatmentsStr(treatments);
+
+            qtipContext = createTreatmentsStr(treatments);
 
             $(circle).qtip('destroy', true);
             $(circle).qtip({
@@ -1219,18 +1221,25 @@
                 position: {my:'center right',at:'center left',viewport: $(window)},
                 events: {
                     render: function (event, api) {
-                        dataTable = $(this).find('.oncokb-treatments-datatable').dataTable({
+                        $(this).find('.oncokb-description-more').click(function(){
+                            $(this).parent().parent().find('.oncokb-fullDescription').css('display', 'block');
+                            $(this).parent().parent().find('.oncokb-shortDescription').css('display', 'none');
+                            if(treatmentDataTable){
+                                treatmentDataTable.fnAdjustColumnSizing();
+                            }
+                        });
+                        treatmentDataTable = $(this).find('.oncokb-treatments-datatable').dataTable({
                             "sDom": 'rt',
                             "bPaginate": false,
                             "bScrollCollapse": true,
                             "sScrollY": 400,
                             "autoWidth": true,
-                            "order": [[ 2, "asc" ]]
+                            "order": [[ 1, "asc" ]]
                         });
                     },
                     visible: function(event, api) {
-                        if(dataTable){
-                            dataTable.fnAdjustColumnSizing();
+                        if(treatmentDataTable){
+                            treatmentDataTable.fnAdjustColumnSizing();
                         }
                     }
                 }
@@ -1241,26 +1250,41 @@
             var circle = svg.append("g")
                     .attr("transform", "translate(59,8)");
             var trialsL = trials.length;
+            var trialDataTable;
 
             oncokbCircledChar(circle,"T","#55C","white", 7, -3, 4, 9);
-            console.log('-------- trials  -----------');
-            console.log(trials);
 
-            qtipContext = '<h5 style="margin:0">Clinical Trials</h5></br>';
+            qtipContext = '<table class="oncokb-trials-datatable"><thead><tr><th style="white-space:nowrap">TUMOR TYPE</th><th>TRIALS</th></tr></thead><tbody>';
             for(i = 0; i < trialsL; i++){
-                qtipContext += '<b>Tumor type:</b> ' + trials[i].tumorType + '<br/>';
-                qtipContext += '<b>Trials:</b> ' + getTrialsStr(trials[i].list);
-                if(i != trialsL-1) {
-                    qtipContext += '<hr style="margin-top:5px; margin-bottom:5px" />';
-                }
+                qtipContext += '<tr>';
+                qtipContext += '<td style="white-space:nowrap">' + trials[i].tumorType + '</td>';
+                qtipContext += '<td>' + getTrialsStr(trials[i].list) + '</td>';
+                qtipContext +='</tr>';
             }
 
             $(circle).qtip('destroy', true);
             $(circle).qtip({
                 content: {text: qtipContext},
                 hide: { fixed: true, delay: 100 },
-                style: { classes: 'qtip-light qtip-rounded qtip-shadow', tip: true },
-                position: {my:'center right',at:'center left',viewport: $(window)}
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow oncokb-qtip-sm', tip: true },
+                position: {my:'center right',at:'center left',viewport: $(window)},
+                events: {
+                    render: function (event, api) {
+                        trialDataTable = $(this).find('.oncokb-trials-datatable').dataTable({
+                            "sDom": 'rt',
+                            "bPaginate": false,
+                            "bScrollCollapse": true,
+                            "sScrollY": 400,
+                            "autoWidth": true,
+                            "order": [[ 0, "asc" ]]
+                        });
+                    },
+                    visible: function(event, api) {
+                        if(trialDataTable){
+                            trialDataTable.fnAdjustColumnSizing();
+                        }
+                    }
+                }
             });
         }
     }
@@ -1273,7 +1297,7 @@
             for(i = 0; i < trialsL; i++){
                 str += OncoKBConnector.findRegex(trials[i].nctId);
                 if(i != trialsL - 1) {
-                    str += ', ';
+                    str += ' ';
                 }
             }
         }

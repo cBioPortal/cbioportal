@@ -1040,7 +1040,7 @@
                 str += '<td>' + createDrugsStr(treatments[i].content) + '</td>';
                 str += '<td>' + getLevel(treatments[i].level) + '</td>';
                 str += '<td>' + treatments[i].tumorType + '</td>';
-                str += '<td>' + shortDescription(treatments[i].description) + '</td>';
+                str += '<td>' + (treatments.length>2?shortDescription(treatments[i].description): treatments[i].descriptio)+ '</td>';
                 str +='</tr>';
             }
             str += '</tbody>';
@@ -1081,9 +1081,9 @@
 
     function shortDescription(description) {
         var str = '';
-        var threshold = 40;
+        var threshold = 80;
 
-        if(description.length > threshold){
+        if(description && description.length > threshold){
             str = '<span><span class="oncokb-shortDescription">' + description.substring(0, threshold-8) + '<span class="oncokb-description-more" >... <a>more</a></span></span>';
             str += '<span class="oncokb-fullDescription" style="display:none">' + description + '</span></span>';
         }else{
@@ -1105,7 +1105,7 @@
             for(i = 0; i < arrayL; i++){
                     str += '<tr>';
                     str += '<td style="white-space:nowrap">' + array[i].tumorType + '</td>';
-                    str += '<td>' + shortDescription(array[i].description) + '</td>';
+                    str += '<td>' + (array.length>2?shortDescription(array[i].description): array[i].description)+ '</td>';
                     str +='</tr>';
             }
             str += '</tbody>';

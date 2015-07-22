@@ -48,18 +48,19 @@ var OncoKBConnector = (function(){
         }
     }
     
-    function getEvidence(mutations, callback) {
-        var mutationEventIds = mutations.getEventIds(false),
+    function getEvidence(variants, callback) {
+        var mutationEventIds = variants.mutations.getEventIds(false),
             searchPairs = [],
             geneStr = "",
             alterationStr="",
             consequenceStr=""
-    
+        var oncokbServiceData = {};
+
         for(var i=0, mutationL = mutationEventIds.length; i < mutationL; i++) {
             var datum = {},
-                gene = mutations.getValue(mutationEventIds[i], 'gene'),
-                alteration = mutations.getValue(mutationEventIds[i], 'aa'),
-                consequence = consequenceConverter(mutations.getValue(mutationEventIds[i], 'type'));
+                gene = variants.mutations.getValue(mutationEventIds[i], 'gene'),
+                alteration = variants.mutations.getValue(mutationEventIds[i], 'aa'),
+                consequence = consequenceConverter(variants.mutations.getValue(mutationEventIds[i], 'type'));
             datum.gene = gene;
             datum.alteration = alteration;
             datum.consequence = consequence;
@@ -69,15 +70,21 @@ var OncoKBConnector = (function(){
             alterationStr+=alteration+",";
             consequenceStr+=consequence+",";
         }
+
+        oncokbServiceData = {
+            'hugoSymbol' : geneStr.substring(0, geneStr.length - 1),
+            'alteration': alterationStr.substring(0, alterationStr.length - 1),
+            'consequence': consequenceStr.substring(0, consequenceStr.length - 1),
+            //'geneStatus': 'complete'
+        };
+        if(variants.tumorType) {
+            oncokbServiceData.tumorType = variants.tumorType;
+        }
+
         $.ajax({
             type: 'POST',
             url: oncokbUrl + 'evidence.json',
-            data: {
-                'hugoSymbol' : geneStr.substring(0, geneStr.length - 1),
-                'alteration': alterationStr.substring(0, alterationStr.length - 1),
-                'consequence': consequenceStr.substring(0, consequenceStr.length - 1),
-                //'geneStatus': 'complete'
-            },
+            data: oncokbServiceData,
             crossDomain: true,
             dataType: 'json',
             success: function(evidenceList) {

@@ -142,7 +142,10 @@
     };
     
     function getOncoKBEvidence(oTable, tableId) {
-        OncoKBConnector.getEvidence(genomicEventObs.mutations, function(data) {
+        OncoKBConnector.getEvidence({
+            mutations: genomicEventObs.mutations,
+            tumorType: clinicalDataMap[caseIds[0]].CANCER_TYPE || ''
+        }, function(data) {
             if(data && data.length > 0) {
                 genomicEventObs.mutations.addData("oncokb", data);
                 oncoKBDataReady = true;

@@ -263,7 +263,7 @@
 	                            {
 		                            ret += "&nbsp;<span class='"+table_id+"-tip'" +
 		                                   "alt='The original annotation file indicates a different value: <b>"+normalizeProteinChange(aaOriginal)+"</b>'>" +
-		                                   "<img height=12 width=12 src='images/warning.gif'></span>";
+		                                   "<img class='mutationsProteinChangeWarning' height=12 width=12 src='images/warning.gif'></span>";
 	                            }
 
                                 return ret;
@@ -959,7 +959,7 @@
                         _tip += i!==0?'<br/>':'' + '<b>Mutation Effect: '+_alterations[i].knownEffect + '</b><br/>' + _alterations[i].description + '<br/>';
                     }
                     if (genomicEventObs.mutations.getValue(hashId, 'oncokb').oncogenic){
-                        _tip += '<br/><a target="_blank" href="'+oncokbUrl+'#/variant?hugoSymbol='+genomicEventObs.mutations.getValue(hashId, 'gene')+'&alteration='+genomicEventObs.mutations.getValue(hashId, 'aa')+'">More Info on OncoKB</a><span style="float:right"><i>Powered by OncoKB(Beta)</i></span><br/><br/><i>OncoKB is under development, please pardon errors and omissions. Please send feedback to <a href="mailto:oncokb@cbio.mskcc.org" title="Contact us">oncokb@cbio.mskcc.org</a></i>';
+                        _tip += '<br/><span style="float:right"><i>Powered by OncoKB(Beta)</i></span><br/><br/><i>OncoKB is under development, please pardon errors and omissions. Please send feedback to <a href="mailto:oncokb@cbio.mskcc.org" title="Contact us">oncokb@cbio.mskcc.org</a></i>';
                     }
 
                     if(_tip !== '') {
@@ -1040,7 +1040,7 @@
                 str += '<td>' + createDrugsStr(treatments[i].content) + '</td>';
                 str += '<td>' + getLevel(treatments[i].level) + '</td>';
                 str += '<td>' + treatments[i].tumorType + '</td>';
-                str += '<td>' + (treatments.length>2?shortDescription(treatments[i].description): treatments[i].descriptio)+ '</td>';
+                str += '<td>' + (treatments.length>2?shortDescription(treatments[i].description): treatments[i].description)+ '</td>';
                 str +='</tr>';
             }
             str += '</tbody>';
@@ -1113,120 +1113,60 @@
         return str;
     }
 
-    function oncokbCircledChar(g,ch,circleColor,textColor, r, x, y, fontSize) {
-        g.append("circle")
-                .attr("r",r)
-                .attr("stroke",circleColor)
-                .attr("fill",circleColor);
+    function oncokbIcon(g,text,fill, fontSize) {
+        g.append("rect")
+                .attr("rx",'3')
+                .attr("ry",'3')
+                .attr('width', '14')
+                .attr('height', '14')
+                .attr("fill",fill);
         g.append("text")
-                .attr("x",x)
-                .attr("y",y)
+                .attr('transform', 'translate(7, 11)')
+                .attr('text-anchor', 'middle')
                 .attr("font-size",fontSize)
-                .attr("fill",textColor)
-                .text(ch);
+                .attr('font-family', 'Sans-serif')
+                .attr('stroke-width', 0)
+                .attr("fill",'#ffffff')
+                .text(text);
+    }
+
+    function oncokbLevelIcon(g,level, fill) {
+        g.append("circle")
+                .attr('transform', 'translate(13, 0)')
+                .attr('r', '6')
+                .attr("fill",fill);
+        g.append("text")
+                .attr('transform', 'translate(13, 3)')
+                .attr('text-anchor', 'middle')
+                .attr("font-size", '10')
+                .attr('font-family', 'Sans-serif')
+                .attr('stroke-width', 0)
+                .attr("fill",'#ffffff')
+                .text(level);
     }
 
     function createOncoKBColumnCell(target, prevalence, progImp, treatments, trials) {
         var svg = d3.select($(target)[0])
                 .append("svg")
                 .attr("width", 80)
-                .attr("height", 16);
+                .attr("height", 20);
         var qtipContext = '', i;
 
-        if (prevalence.length > 0) {
-            var circle = svg.append("g")
-                    .attr("transform", "translate(8,8)");
-            var prevalenceDataTable;
-            oncokbCircledChar(circle,"P","#55C","white", 7, -3, 4, 9);
-
-            qtipContext += oncokbGetString(prevalence, 'PREVALENCE', 'prevalence');
-
-            $(circle).qtip('destroy', true);
-            $(circle).qtip({
-                content: {text: qtipContext},
-                hide: { fixed: true, delay: 100 },
-                style: { classes: 'qtip-light qtip-rounded qtip-shadow oncokb-qtip-sm', tip: true },
-                position: {my:'center right',at:'center left',viewport: $(window)},
-                events: {
-                    render: function() {
-                        $(this).find('.oncokb-description-more').click(function(){
-                            $(this).parent().parent().find('.oncokb-fullDescription').css('display', 'block');
-                            $(this).parent().parent().find('.oncokb-shortDescription').css('display', 'none');
-                            if(prevalenceDataTable){
-                                prevalenceDataTable.fnAdjustColumnSizing();
-                            }
-                        });
-                        prevalenceDataTable = $(this).find('.oncokb-prevalence-datatable').dataTable({
-                            "sDom": 'rt',
-                            "bPaginate": false,
-                            "bScrollCollapse": true,
-                            "sScrollY": 400,
-                            "autoWidth": true,
-                            "order": [[ 0, "asc" ]]
-                        });
-                    },
-                    visible: function(event, api) {
-                        if(prevalenceDataTable){
-                            prevalenceDataTable.fnAdjustColumnSizing();
-                        }
-                    }
-                }
-            });
-        }
-
-        if (progImp.length > 0) {
-            var circle = svg.append("g")
-                    .attr("transform", "translate(25,8)");
-            var progImpDataTable;
-            oncokbCircledChar(circle,"PI","#55C","white", 7, -5, 4, 9);
-
-            qtipContext = oncokbGetString(progImp, 'PROGNOSTIC IMPLICATIONS', 'progImp');
-
-            $(circle).qtip('destroy', true);
-            $(circle).qtip({
-                content: {text: qtipContext},
-                hide: { fixed: true, delay: 100 },
-                style: { classes: 'qtip-light qtip-rounded qtip-shadow oncokb-qtip-sm', tip: true },
-                position: {my:'center right',at:'center left',viewport: $(window)},
-                events: {
-                    render: function() {
-                        $(this).find('.oncokb-description-more').click(function(){
-                            $(this).parent().parent().find('.oncokb-fullDescription').css('display', 'block');
-                            $(this).parent().parent().find('.oncokb-shortDescription').css('display', 'none');
-                            if(progImpDataTable){
-                                progImpDataTable.fnAdjustColumnSizing();
-                            }
-                        });
-                        progImpDataTable = $(this).find('.oncokb-progImp-datatable').dataTable({
-                            "sDom": 'rt',
-                            "bPaginate": false,
-                            "bScrollCollapse": true,
-                            "sScrollY": 400,
-                            "autoWidth": true,
-                            "order": [[ 0, "asc" ]]
-                        });
-                    },
-                    visible: function(event, api) {
-                        if(progImpDataTable){
-                            progImpDataTable.fnAdjustColumnSizing();
-                        }
-                    }
-                }
-            });
-        }
-
         if (treatments.length > 0) {
-            var circle = svg.append("g")
-                    .attr("transform", "translate(42,8)");
+            var g = svg.append("g")
+                    .attr("transform", "translate(0, 6)");
             var level = getHighestLevel($(target).attr('hashId'));
+            var isResistance = /R/g.test(level);
+            var numberLevel = level.match(/\d+/)[0];
             var treatmentDataTable;
 
-            oncokbCircledChar(circle,level,"#55C","white", 7, level.length>1?-5:-3, 4, 9);
+            oncokbIcon(g,'Tx',"#5555CC", 9);
+            oncokbLevelIcon(g, numberLevel, isResistance?'#ff0000':'#008000');
 
             qtipContext = createTreatmentsStr(treatments);
 
-            $(circle).qtip('destroy', true);
-            $(circle).qtip({
+            $(g).qtip('destroy', true);
+            $(g).qtip({
                 content: {text: qtipContext},
                 hide: { fixed: true, delay: 100, event: "mouseleave"},
                 style: { classes: 'qtip-light qtip-rounded qtip-shadow oncokb-qtip', tip: true },
@@ -1259,13 +1199,54 @@
             });
         }
 
+        if (progImp.length > 0) {
+            var g = svg.append("g")
+                    .attr("transform", "translate(20, 6)");
+            var progImpDataTable;
+            oncokbIcon(g,'Px',"#5555CC", 9);
+
+            qtipContext = oncokbGetString(progImp, 'PROGNOSTIC IMPLICATIONS', 'progImp');
+
+            $(g).qtip('destroy', true);
+            $(g).qtip({
+                content: {text: qtipContext},
+                hide: { fixed: true, delay: 100 },
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow oncokb-qtip-sm', tip: true },
+                position: {my:'center right',at:'center left',viewport: $(window)},
+                events: {
+                    render: function() {
+                        $(this).find('.oncokb-description-more').click(function(){
+                            $(this).parent().parent().find('.oncokb-fullDescription').css('display', 'block');
+                            $(this).parent().parent().find('.oncokb-shortDescription').css('display', 'none');
+                            if(progImpDataTable){
+                                progImpDataTable.fnAdjustColumnSizing();
+                            }
+                        });
+                        progImpDataTable = $(this).find('.oncokb-progImp-datatable').dataTable({
+                            "sDom": 'rt',
+                            "bPaginate": false,
+                            "bScrollCollapse": true,
+                            "sScrollY": 400,
+                            "autoWidth": true,
+                            "order": [[ 0, "asc" ]]
+                        });
+                    },
+                    visible: function(event, api) {
+                        if(progImpDataTable){
+                            progImpDataTable.fnAdjustColumnSizing();
+                        }
+                    }
+                }
+            });
+        }
+
         if (trials.length > 0) {
-            var circle = svg.append("g")
-                    .attr("transform", "translate(59,8)");
+            var g = svg.append("g")
+                    .attr("transform", "translate(40, 6)");
             var trialsL = trials.length;
             var trialDataTable;
 
-            oncokbCircledChar(circle,"T","#55C","white", 7, -3, 4, 9);
+            oncokbIcon(g,'CT',"#5555CC", 9);
 
             qtipContext = '<table class="oncokb-trials-datatable"><thead><tr><th style="white-space:nowrap">TUMOR TYPE</th><th>TRIALS</th></tr></thead><tbody>';
             for(i = 0; i < trialsL; i++){
@@ -1275,8 +1256,8 @@
                 qtipContext +='</tr>';
             }
 
-            $(circle).qtip('destroy', true);
-            $(circle).qtip({
+            $(g).qtip('destroy', true);
+            $(g).qtip({
                 content: {text: qtipContext},
                 hide: { fixed: true, delay: 100 },
                 style: { classes: 'qtip-light qtip-rounded qtip-shadow oncokb-qtip-sm', tip: true },
@@ -1295,6 +1276,47 @@
                     visible: function(event, api) {
                         if(trialDataTable){
                             trialDataTable.fnAdjustColumnSizing();
+                        }
+                    }
+                }
+            });
+        }
+
+        if (prevalence.length > 0) {
+            var g = svg.append("g")
+                    .attr("transform", "translate(60, 6)");
+            var prevalenceDataTable;
+            oncokbIcon(g,'Pr',"#5555CC", 9);
+
+            qtipContext = oncokbGetString(prevalence, 'PREVALENCE', 'prevalence');
+
+            $(g).qtip('destroy', true);
+            $(g).qtip({
+                content: {text: qtipContext},
+                hide: { fixed: true, delay: 100 },
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow oncokb-qtip-sm', tip: true },
+                position: {my:'center right',at:'center left',viewport: $(window)},
+                events: {
+                    render: function() {
+                        $(this).find('.oncokb-description-more').click(function(){
+                            $(this).parent().parent().find('.oncokb-fullDescription').css('display', 'block');
+                            $(this).parent().parent().find('.oncokb-shortDescription').css('display', 'none');
+                            if(prevalenceDataTable){
+                                prevalenceDataTable.fnAdjustColumnSizing();
+                            }
+                        });
+                        prevalenceDataTable = $(this).find('.oncokb-prevalence-datatable').dataTable({
+                            "sDom": 'rt',
+                            "bPaginate": false,
+                            "bScrollCollapse": true,
+                            "sScrollY": 400,
+                            "autoWidth": true,
+                            "order": [[ 0, "asc" ]]
+                        });
+                    },
+                    visible: function(event, api) {
+                        if(prevalenceDataTable){
+                            prevalenceDataTable.fnAdjustColumnSizing();
                         }
                     }
                 }

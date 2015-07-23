@@ -449,12 +449,12 @@
     <!-- end saml beans -->
     </b:beans>
 
-    <!-- authenticate with AD -->
+    <!-- authenticate with Active Directory -->
     <b:beans profile="ad">
         <http use-expressions="true" auto-config="true">
 
-            <form-login login-processing-url="/j_spring_security_check" default-target-url="/index.do" />
-            <logout     logout-url="/j_spring_security_logout" logout-success-url="/index.do"/>
+            <form-login login-page="/login.jsp" login-processing-url="/j_spring_security_check" default-target-url="/index.do" />
+            <logout     logout-success-url="/login.jsp?logout_success=true" delete-cookies="JSESSIONID" />
 
             ${url.intercepts}
 

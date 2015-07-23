@@ -79,7 +79,7 @@
         </div>
       </td>
     </tr>
-    
+
     <tr valign="top">
       <td>
         <div>
@@ -90,12 +90,12 @@
             <strong>You are now signed out.</strong></p>
           </div>
           <% } %>
-          
+
           <% if (login_error != null) { %>
           <div class="ui-state-highlight ui-corner-all" style="padding: 0 .7em;width:90%;margin-top:50px">
             <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
             <strong>You are not authorized to access this resource.&nbsp;
-            
+
               <% if (authenticationMethod.equals("googleplus")) { %>
               You have attempted to log in as <%= DynamicState.INSTANCE.getFailedUser() %>.
               <% } %>
@@ -116,6 +116,9 @@
                   <form style="width:  100%;" action="<c:url value='j_spring_openid_security_check'/>" method="post" id="openid_form">
                   <input type="hidden" name="action" value="verify" />
                   <p/>
+
+                <% } else if (authenticationMethod.equals("ad")) { %>
+                  <form name='loginForm' action="<c:url value='j_spring_security_check' />" method='POST'>
                 <% } %>
 
                 <fieldset>
@@ -159,6 +162,15 @@
                     </button>
                   </p>
                 </fieldset>
+
+                <% } else if (authenticationMethod.equals("ad")){ %>
+                  <div>
+                    <label for=username>Username: </label> <input type='text' id='username' name='j_username' value=''>  <br/>
+                    <label for=password>Password: </label> <input type='password' name='j_password' /> <br/>
+                    <input name="submit" type="submit" value="submit" />
+                  </div>
+                </fieldset>
+                </form>
                 <% } %>
 
               </td>

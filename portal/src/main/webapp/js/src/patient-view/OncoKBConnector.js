@@ -77,9 +77,11 @@ var OncoKBConnector = (function(){
             'consequence': consequenceStr.substring(0, consequenceStr.length - 1),
             //'geneStatus': 'complete'
         };
-        //if(variants.tumorType) {
-        //    oncokbServiceData.tumorType = variants.tumorType;
-        //}
+
+        if(variants.tumorType) {
+            oncokbServiceData.tumorType = variants.tumorType;
+            oncokbServiceData.source = 'cbioportal';
+        }
 
         $.ajax({
             type: 'POST',

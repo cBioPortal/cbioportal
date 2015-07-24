@@ -812,7 +812,7 @@
                                     var xvia = ma['xvia'];
                                     if (xvia!=null) {
                                         if (xvia.indexOf('http://')!==0) xvia='http://'+xvia;
-                                        
+                                        xvia = xvia.replace("getma.org", "mutationassessor.org");
                                         tip += "<div class=\"mutation-assessor-main-link mutation-assessor-link\">" +
                                                 "<a href=\""+xvia+"\" target=\"_blank\"><img height=\"15\" width=\"19\" src=\"images/ma.png\"> Go to Mutation Assessor</a></div>";
                                     }
@@ -820,12 +820,14 @@
                                     var msa = ma['msa'];
                                     if (msa&&msa!=='NA') {
                                         if (msa.indexOf('http://')!==0) msa='http://'+msa;
+                                        msa=msa.replace("getma.org", "mutationassessor.org");
                                         tip += "<div class=\"mutation-assessor-msa-link mutation-assessor-link\">"+
                                                "<a href=\""+msa+"\" target=\"_blank\"><span class=\"ma-msa-icon\">msa</span> Multiple Sequence Alignment</a></div>";
                                     }
                                     
                                     var pdb = ma['pdb'];
                                     if (pdb&&pdb!=='NA') {
+                                        pdb=pdb.replace("getma.org", "mutationassessor.org");
                                         if (pdb.indexOf('http://')!==0) pdb='http://'+pdb;
                                         tip += "<div class=\"mutation-assessor-3d-link mutation-assessor-link\">"+
                                                "<a href=\""+pdb+"\" target=\"_blank\"><span class=\"ma-3d-icon\">3D</span> Mutation Assessor 3D View</a></div>";

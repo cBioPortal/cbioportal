@@ -1041,7 +1041,7 @@ function outputClinicalData() {
     
     function formatPatientInfo(clinicalData) {
         var patientInfo = [];
-        var gender = guessClinicalData(clinicalData, ['GENDER']);
+        var gender = guessClinicalData(clinicalData, ['GENDER','SEX']);
         if (gender!==null)
             patientInfo.push(gender);
         var age = guessClinicalData(clinicalData, ['AGE']);

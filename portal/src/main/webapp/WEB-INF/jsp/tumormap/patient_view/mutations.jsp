@@ -36,7 +36,6 @@
 
 <script type="text/javascript" src="js/lib/igv_webstart.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/patient-view/PancanMutationHistogram.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/patient-view/OncoKBConnector.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <link href="css/mutationMapper.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/>
 
@@ -61,23 +60,13 @@
     };
     
     var oncoKBDataInject = function(oTable, tableId) {
-        if(!oncoKBDataReady) {
-            OncoKBConnector.init({'url': oncokbUrl||''});
-            OncoKBConnector.oncokbAccess(function(flag){
-                console.log(flag);
-                if(flag) {
-                    getOncoKBEvidence(oTable, tableId);
-                }else {
-                    addOncoKBListener(oTable, tableId);
-                }
-            });
+        if(!OncoKB.dataReady && OncoKB.accessible) {
+            getOncoKBEvidence(oTable, tableId);
         }else {
             addOncoKBListener(oTable, tableId);
         }
     };
-    
-    
-    
+
     var drawPanCanThumbnails = function(oTable) {
         genomicEventObs.subscribePancanMutationsFrequency(function() {
             $(oTable).find('.pancan_mutations_histogram_wait').remove();
@@ -148,7 +137,7 @@
         }, function(data) {
             if(data && data.length > 0) {
                 genomicEventObs.mutations.addData("oncokb", data);
-                oncoKBDataReady = true;
+                OncoKB.dataReady = true;
             }
             addOncoKBListener(oTable, tableId);
         });
@@ -869,6 +858,7 @@
                         "sClass": "center-align-td",
                         "bSearchable": false,
                         "bSortable" : false,
+                        "bVisible": OncoKB.accessible,
                         "mDataProp":
                             function(source,type,value) {
                                 if (type==='set') {
@@ -923,7 +913,7 @@
     
     function addOncoKBListener(oTable, table_id){
         $(oTable).find('.oncokb_gene').each(function() {
-            if(oncoKBDataReady) {
+            if(OncoKB.dataReady) {
                 var hashId = $(this).attr('hashId');
                 var gene = genomicEventObs.mutations.getValue(hashId, 'oncokb').gene;
                 var _tip = '';
@@ -949,7 +939,7 @@
         });
 
         $(oTable).find('.oncokb_alteration').each(function() {
-            if(oncoKBDataReady) {
+            if(OncoKB.dataReady) {
                 var hashId = $(this).attr('hashId');
 
                 if(genomicEventObs.mutations.getValue(hashId, 'oncokb').alteration.length >0) {
@@ -978,7 +968,7 @@
         });
 
         $(oTable).find('.oncokb_column').each(function() {
-            if(oncoKBDataReady) {
+            if(OncoKB.dataReady) {
                 var hashId = $(this).attr('hashId');
 
                 if(genomicEventObs.mutations.getValue(hashId, 'oncokb')) {

@@ -385,6 +385,7 @@ if (patientViewError!=null) {
 </style>
 
 <script type="text/javascript" src="js/src/patient-view/genomic-event-observer.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/patient-view/OncoKBConnector.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script src="js/lib/dataTables.tableTools.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript">
 
@@ -409,8 +410,11 @@ var patientInfo = <%=jsonPatientInfo%>;
 var clinicalAttributes = <%=jsonClinicalAttributes%>;
 var viewBam = <%=viewBam%>;
 var mapCaseBam = <%=jsonMapCaseBam%>;
-var oncokbUrl = '<%=oncokbUrl%>';
-var oncoKBDataReady = false;
+var OncoKB = {
+    url: '<%=oncokbUrl%>',
+    accessible: false,
+    dataReady: false
+};
     
 var caseMetaData = {
     color : {}, label : {}, index : {}, tooltip : {}
@@ -421,12 +425,20 @@ $(document).ready(function(){
     tweaksStyles();
     outputClinicalData();
     setUpPatientTabs();
+    accessOncoKB();
     initTabs();
     var openTab = /(tab_[^&]+)/.exec(window.location.hash);
     if (openTab) {
         switchToTab(openTab[1]);
     }
 });
+
+function accessOncoKB(){
+    OncoKBConnector.init({'url': OncoKB.url||''});
+    OncoKBConnector.oncokbAccess(function(flag){
+        OncoKB.accessible = flag;
+    });
+}
 
 function tweaksStyles() {
     $("div#content").css("margin-top","0px");

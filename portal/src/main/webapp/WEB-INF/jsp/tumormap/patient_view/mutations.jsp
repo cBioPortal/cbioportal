@@ -252,7 +252,7 @@
 	                            {
 		                            ret += "&nbsp;<span class='"+table_id+"-tip'" +
 		                                   "alt='The original annotation file indicates a different value: <b>"+normalizeProteinChange(aaOriginal)+"</b>'>" +
-		                                   "<img height=12 width=12 src='images/warning.gif'></span>";
+		                                   "<img height=12 width=12 style='opacity:0.1' src='images/warning.gif'></span>";
 	                            }
 
                                 return ret;
@@ -1362,9 +1362,13 @@
     // TODO: DUPLICATED FUNCTION from mutation-mapper.
     function normalizeProteinChange(proteinChange)
     {
+            if (cbio.util.checkNullOrUndefined(proteinChange)) {
+                return "";
+            }
+        
 	    var prefix = "p.";
 
-	    if (proteinChange.indexOf(prefix) != -1)
+	    if (proteinChange.indexOf(prefix) !== -1)
 	    {
 		    proteinChange = proteinChange.substr(proteinChange.indexOf(prefix) + prefix.length);
 	    }

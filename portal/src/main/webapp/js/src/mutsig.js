@@ -37,7 +37,7 @@
 //              gene symbol, num mutations, q-value
 //
 // Dynamic jQuery:
-//          Handles changes in select_cancer_type:
+//          Handles changes in select_single_study:
 //              shows/hides "Recurrently Mutated Genes" button
 //              shows/hides table containing MutSig information.
 //          Takes user-selected mutated genes and adds them to the Gene Symbol box.
@@ -105,10 +105,10 @@ var initMutsigDialogue = function() {
 // handle appropriately
 // todo: refactor this
 var listenCancerStudy = function() {
-    $('#select_cancer_type').change( function() {
+    $('#select_single_study').change( function() {
 
         // get the cancer study (i.e. tcga_gbm)
-        var cancerStudyId = $('#select_cancer_type').val();
+        var cancerStudyId = $('#select_single_study').val();
 
         // if the selected cancer study has mutsig data,
         // show the mutsig button
@@ -152,7 +152,7 @@ var promptMutsigTable = function() {
     "use strict";
 
     // grab data to be sent to the server
-    var cancerStudyId = $('#select_cancer_type').val();
+    var cancerStudyId = $('#select_single_study').val();
 
     // open the dialog box
     $('#mutsig_dialog').dialog('open');

@@ -525,6 +525,7 @@ public class MutationsJSON extends HttpServlet {
         map.put("entrez", new ArrayList());
         map.put("gene", new ArrayList());
         map.put("aa", new ArrayList());
+	    map.put("aa-orig", new ArrayList());
         map.put("ref", new ArrayList());
         map.put("var", new ArrayList());
         map.put("type", new ArrayList());
@@ -585,6 +586,7 @@ public class MutationsJSON extends HttpServlet {
         data.get("entrez").add(mutation.getEntrezGeneId());
         data.get("gene").add(symbol);
         data.get("aa").add(mutation.getProteinChange());
+	    data.get("aa-orig").add(mutation.getAminoAcidChange());
         data.get("ref").add(mutation.getReferenceAllele());
         data.get("var").add(mutation.getTumorSeqAllele());
         data.get("type").add(mutation.getMutationType());

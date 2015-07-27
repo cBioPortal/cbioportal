@@ -116,7 +116,11 @@
                     <form style="width:  100%;" action="<c:url value='j_spring_openid_security_check'/>" method="post" id="openid_form">
                     <input type="hidden" name="action" value="verify" />
                     <p/>
+
+                <% } else if (authenticationMethod.equals("ldap")) { %>
+					<form name='loginForm' action="<c:url value='j_spring_security_check' />" method='POST'>
                 <% } %>
+
                     <fieldset>
                     <legend style="width:96px;border-bottom:none;color:#666666;font-family:verdana,arial,sans-serif;font-size:12px;">
                         Login to Portal:
@@ -153,7 +157,15 @@
                                 <IMG alt="Google+" src="images/login/googleplus_signin.png"  /></button>
                         </p>
                     </fieldset>
-                    <% } %>
+                    <% } else if (authenticationMethod.equals("ldap")) { %>
+	                  <div>
+                        <label for=username>Username: </label> <input type='text' id='username' name='j_username' value=''>  <br/>
+                        <label for=password>Password: </label> <input type='password' name='j_password' /> <br/>
+                        <input name="submit" type="submit" value="submit" />
+                      </div>
+                    </fieldset>
+                  </form>
+                  <% } %>
                 </td>
             </tr>
 

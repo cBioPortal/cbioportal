@@ -100,7 +100,7 @@ var OncoKBConnector = (function(){
                             'progImp': [],
                             'treatments': [],
                             'trials': [],
-                            'oncogenic': -1
+                            'oncogenic': 0
                         };
                         var evidenceL = evidenceList[pairIndex].length;
 
@@ -114,23 +114,27 @@ var OncoKBConnector = (function(){
                                 }else if(evidence.evidenceType === 'MUTATION_EFFECT'){
                                     for(var j=0, alterationL = evidence.alterations.length; j<alterationL; j++) {
                                         var alteration = evidence.alterations[j];
-                                        if(alteration.hasOwnProperty('oncogenic')) {
-                                            datum.oncogenic = Number(alteration.oncogenic);
-                                        }
-                                        datum.alteration.push({
-                                            knownEffect: evidence.knownEffect,
-                                            description: findRegex(evidence.description)
-                                        });
+                                        //if(alteration.name === searchPair.alteration) {
+                                            if(alteration.hasOwnProperty('oncogenic')) {
+                                                if(datum.hasOwnProperty('oncogenic')  && [1, 2].indexOf(datum.oncogenic) === -1 ){
+                                                    datum.oncogenic = Number(alteration.oncogenic);
+                                                }
+                                            }
+                                        //}
                                     }
+                                    datum.alteration.push({
+                                        knownEffect: evidence.knownEffect,
+                                        description: findRegex(evidence.description)
+                                    });
                                 }else if(evidence.evidenceType === 'PREVALENCE') {
                                     datum.prevalence.push({
                                         tumorType: evidence.tumorType.name,
-                                        description: findRegex(evidence.description)
+                                        description: findRegex(evidence.description) || 'No yet curated'
                                     });
                                 }else if(evidence.evidenceType === 'PROGNOSTIC_IMPLICATION') {
                                     datum.progImp.push({
                                         tumorType: evidence.tumorType.name,
-                                        description: findRegex(evidence.description)
+                                        description: findRegex(evidence.description) || 'No yet curated'
                                     });
                                 }else if(evidence.evidenceType === 'CLINICAL_TRIAL') {
                                     datum.trials.push({
@@ -143,7 +147,7 @@ var OncoKBConnector = (function(){
                                     _treatment.tumorType = evidence.tumorType.name;
                                     _treatment.level = evidence.levelOfEvidence;
                                     _treatment.content = evidence.treatments;
-                                    _treatment.description = evidence.description;
+                                    _treatment.description = findRegex(evidence.description) || 'No yet curated';
                                     datum.treatments.push(_treatment);
                                 }
                             }
@@ -163,7 +167,7 @@ var OncoKBConnector = (function(){
 
     function findRegex(str) {
 
-        if(typeof str === 'string' && str !== '') {
+        if(typeof str === 'string' && str) {
             var regex = [/PMID:\s*([0-9]+,*\s*)+/ig, /NCT[0-9]+/ig],
                 links = ['http://www.ncbi.nlm.nih.gov/pubmed/',
                          'http://clinicaltrials.gov/show/'];
@@ -191,6 +195,8 @@ var OncoKBConnector = (function(){
                     }
                 }
             }
+        }else{
+            str = ''
         }
         return str;
     }

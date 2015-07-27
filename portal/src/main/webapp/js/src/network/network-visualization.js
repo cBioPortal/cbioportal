@@ -100,7 +100,7 @@ function NetworkVis(divId)
     this.ENTER_KEYCODE = "13";
 
     // name of the graph layout
-    this._graphLayout = {name: "ForceDirected"};
+    this._graphLayout = {name: "cose", animate: false};
     //var _graphLayout = {name: "ForceDirected", options:{weightAttr: "weight"}};
 
     // force directed layout options
@@ -262,24 +262,19 @@ NetworkVis.prototype.updateSelectedGenes = function(evt)
     // when _vis.select function is called.
     this._selectFromTab = true;
 
-    var nodeIds = new Array();
-
     // deselect all nodes
-    this._vis.deselect("nodes");
+    this._vis.nodes().deselect();
 
-    // collect id's of selected node's on the tab
+    // select all checked nodes
     $(this.geneListAreaSelector + " select option").each(
         function(index)
         {
             if ($(this).is(":selected"))
             {
                 var nodeId = $(this).val();
-                nodeIds.push(nodeId);
+                this._vis.$('#'+nodeId).select();
             }
         });
-
-    // select all checked nodes
-    this._vis.select("nodes", nodeIds);
 
     // reset flag
     this._selectFromTab = false;
@@ -363,7 +358,7 @@ NetworkVis.prototype.defaultSettings = function()
 NetworkVis.prototype.updateDetailsTab = function(evt)
 {
     // TODO also consider selected edges?
-    var selected = this._vis.selected();
+    var selected = this._vis.$(':selected');
     var data;
     var areEdges = true;
     var self = this;
@@ -418,7 +413,7 @@ NetworkVis.prototype.updateDetailsTab = function(evt)
         // check the initial conditions, if they don't match do nothing
         // (they may not match because of a delay in the ajax request)
 
-        selected = self._vis.selected("nodes");
+        selected = self._vis.nodes(':selected');
 
         if (selected.length != 1 ||
             data.id != selected[0].data.id)
@@ -490,14 +485,14 @@ NetworkVis.prototype.addInteractionInfo = function(evt, selector, isMerged, sele
     //this.createEdgeDetailsSelector(selector);
     var dataRow;
 
-    var data = (selectType == "click") ? (evt.target.data) : (evt.target[0].data);
+    var data = (selectType == "click") ? (evt.target._private.data) : (evt.target[0]._private.data);
 
     // clean xref & data rows
     $(selector + " .edge_inspector_content .data .data-row").remove();
     $(selector + " .edge_inspector_content .xref .xref-row").remove();
 
-    var title = this._vis.node(data.source).data.label + " - " +
-        this._vis.node(data.target).data.label;
+    var title = this._vis.$('#' + data.source).._private.data.label + " - " +
+        this._vis.$('#' + data.target).._private.data.label;
 
     if (isMerged)
     {
@@ -681,9 +676,9 @@ NetworkVis.prototype.showEdgeInspector = function(evt)
 
     // TODO update the contents of the inspector by using the target edge
 
-    var data = evt.target.data;
-    var title = this._vis.node(data.source).data.label + " - " +
-                this._vis.node(data.target).data.label;
+    var data = evt.target._private.data;
+    var title = this._vis.$('#'+data.source)._private.data.label + " - " +
+                this._vis.$('#'+data.target)._private.data.label;
 
     // clean xref & data rows
     $(this.edgeInspectorSelector + " .edge_inspector_content .data .data-row").remove();
@@ -849,7 +844,7 @@ NetworkVis.prototype._addPubMedIds = function(data, summaryEdge)
  */
 NetworkVis.prototype.updateGenesTab = function(evt)
 {
-    var selected = this._vis.selected("nodes");
+    var selected = this._vis.nodes(":selected");
 
     // do not perform any action on the gene list,
     // if the selection is due to the genes tab
@@ -929,30 +924,22 @@ NetworkVis.prototype.searchGene = function()
     }
 
     var genes = this._visibleGenes();
-    var matched = new Array();
     var i;
 
-    // linear search for the input text
+    // deselect all nodes
+    this._vis.nodes().deselect();
 
+    // linear search for the input text
     for (i=0; i < genes.length; i++)
     {
         if (genes[i].data.label.toLowerCase().indexOf(
             query.toLowerCase()) != -1)
         {
-            matched.push(genes[i].data.id);
+            this._vis.$('#'+genes[i]._private.data.id).select()
         }
-//      else if (genes[i].data.id.toLowerCase().indexOf(
-//          query.toLowerCase()) != -1)
-//      {
-//          matched.push(genes[i].data.id);
-//      }
     }
 
-    // deselect all nodes
-    this._vis.deselect("nodes");
 
-    // select all matched nodes
-    this._vis.select("nodes", matched);
 };
 
 
@@ -1058,7 +1045,7 @@ NetworkVis.prototype.updateEdges = function()
     };
 
     var showAllNodeVisibility = function(element){
-        return self.dropDownVisibility(element) && 
+        return self.dropDownVisibility(element) &&
             self.currentVisibility(element) &&
             self.sliderVisibility(element);
     }
@@ -1369,13 +1356,13 @@ NetworkVis.prototype.selectionVisibility = function(element)
 {
     // if an element is already filtered then it should remain invisible
     // until the filters are reset
-    if (this._alreadyFiltered[element.data.id] != null)
+    if (this._alreadyFiltered[element._private.data.id] != null)
     {
         return false;
     }
     // if an edge type is hidden, all edges of that type should be invisible
-    else if (this._edgeTypeVisibility[element.data.type] != null
-        && !this._edgeTypeVisibility[element.data.type])
+    else if (this._edgeTypeVisibility[element._private.data.type] != null
+        && !this._edgeTypeVisibility[element._private.data.type])
     {
         return false;
     }
@@ -1386,9 +1373,9 @@ NetworkVis.prototype.selectionVisibility = function(element)
     // so the edge visibility check can be omitted
 
     // if the element is selected, then it should be filtered
-    if (this._selectedElements[element.data.id] != null)
+    if (this._selectedElements[element._private.data.id] != null)
     {
-        this._alreadyFiltered[element.data.id] = element;
+        this._alreadyFiltered[element._private.data.id] = element;
         return false;
     }
 
@@ -3079,30 +3066,30 @@ NetworkVis.prototype._initControlFunctions = function()
 
     // add listener for double click action
 
-    this._vis.addListener("dblclick",
-                     "nodes",
+    this._vis.on("cxttap",
+                     "node",
                      showNodeDetails);
 
-    this._vis.addListener("dblclick",
-                     "edges",
+    this._vis.on("cxttap",
+                     "edge",
                      showEdgeDetails);
 
     // add listener for edge select & deselect actions
-    this._vis.addListener("select",
-                    "edges",
+    this._vis.on("select",
+                    "edge",
                      handleEdgeSelect);
 
-    this._vis.addListener("deselect",
+    this._vis.on("deselect",
                     "edges",
                      handleEdgeSelect);
 
     // add listener for node select & deselect actions
-    this._vis.addListener("select",
-                    "nodes",
+    this._vis.on("select",
+                    "node",
                      handleNodeSelect);
 
-    this._vis.addListener("deselect",
-                    "nodes",
+    this._vis.on("deselect",
+                    "node",
                      handleNodeSelect);
 
     // TODO temp debug option, remove when done
@@ -4061,3 +4048,4 @@ function _cubeRoot(value)
 
     return root;
 }
+

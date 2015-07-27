@@ -1,22 +1,7 @@
-// Shorthand for $( document ).ready()
-/**
- * Created by Mehmet Furkan Sahin on 15/07/2015.
- */
-
-$(function()
+function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 {
-	var loadedGraphML = loadXMLDoc("./sampleGraphs/portal.graphml");
-
-	var json = new GraphMLToJSon(loadedGraphML);
-	var elements = json.toJSON();
-
-	send2CytoscapeJS(elements);
-
-});
-
-function send2CytoscapeJS(elements)
-{
-	$('#cy').cytoscape({
+	$('#'+cytoscapeDivId).empty();
+	$('#'+cytoscapeDivId).cytoscape({
 		style: cytoscape.stylesheet()
 		.selector('node')
 		.css({
@@ -181,6 +166,8 @@ function send2CytoscapeJS(elements)
 		ready: function()
 		{
 			window.cy = this;
+
+
 			// giddy up...
 			cy.fit();
 			cy.on('mouseover', 'node', function(evt){
@@ -272,11 +259,22 @@ function send2CytoscapeJS(elements)
 				}
 			});
 
+			var netVis = new NetworkVis(networkDivId);
+
+			// init UI of the network tab
+			netVis.initNetworkUI(cy);
+
+			//to hide drugs initially
+			netVis._changeListener();
+
 		}});
 }
-var rgb2hex = function(r, g, b) {
+
+var rgb2hex = function(r, g, b)
+{
 	return(r<<16 | g<<8 | b);
 }
+
 var getValueByRatio = function(num, numLow, numHigh, colorNum1, colorNum2)
 {
 	return ((((num - numLow) / (numHigh - numLow)) * (colorNum2 - colorNum1)) + colorNum1)

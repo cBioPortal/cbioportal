@@ -1003,7 +1003,7 @@
 
     function oncokbHelpStr() {
         var levels = {
-            '0': 'FDA-approved drug in this indication irrespective of gene/variant biomarker.',
+//            '0': 'FDA-approved drug in this indication irrespective of gene/variant biomarker.',
             '1': 'FDA-approved biomarker and drug association in this indication.',
             '2A': 'FDA-approved biomarker and drug association in another indication, and NCCN-compendium listed for this indication.',
             '2B': 'FDA-approved biomarker in another indication, but not FDA or NCCN-compendium-listed for this indication.',
@@ -1137,6 +1137,36 @@
                 .text(level);
     }
 
+    function createOncoKBAlterationCell(target, alterations) {
+        var altsL = alterations.length, i, tip = '';
+        if(altsL > 0) {
+            var svg = d3.select($(target)[0])
+                    .append("svg")
+                    .attr("width", 12)
+                    .attr("height", 12);
+            var g = svg.append("g").html('<path fill="#444444" d="M10.797 2.656c-0.263-0.358-0.629-0.777-1.030-1.179s-0.82-0.768-1.179-1.030c-0.61-0.447-0.905-0.499-1.075-0.499h-5.863c-0.521 0-0.946 0.424-0.946 0.946v10.213c0 0.521 0.424 0.946 0.946 0.946h8.7c0.521 0 0.946-0.424 0.946-0.946v-7.376c0-0.169-0.052-0.465-0.499-1.075zM9.231 2.012c0.363 0.363 0.648 0.69 0.858 0.962h-1.82v-1.82c0.272 0.21 0.599 0.495 0.962 0.858zM10.539 11.106c0 0.102-0.087 0.189-0.189 0.189h-8.7c-0.102 0-0.189-0.087-0.189-0.189v-10.213c0-0.102 0.087-0.189 0.189-0.189 0 0 5.862-0 5.863 0v2.648c0 0.209 0.169 0.378 0.378 0.378h2.648v7.376z"></path><path fill="#444444" d="M8.648 9.783h-5.296c-0.209 0-0.378-0.169-0.378-0.378s0.169-0.378 0.378-0.378h5.296c0.209 0 0.378 0.169 0.378 0.378s-0.169 0.378-0.378 0.378z"></path>            <path fill="#444444" d="M8.648 8.27h-5.296c-0.209 0-0.378-0.169-0.378-0.378s0.169-0.378 0.378-0.378h5.296c0.209 0 0.378 0.169 0.378 0.378s-0.169 0.378-0.378 0.378z"></path>            <path fill="#444444" d="M8.648 6.756h-5.296c-0.209 0-0.378-0.169-0.378-0.378s0.169-0.378 0.378-0.378h5.296c0.209 0 0.378 0.169 0.378 0.378s-0.169 0.378-0.378 0.378z"></path>');
+
+
+            for(i=0; i<altsL; i++) {
+                tip += i!==0?'<br/>':'' + '<b>Mutation Effect: '+_alterations[i].knownEffect + '</b><br/>' + _alterations[i].description + '<br/>';
+            }
+            if (genomicEventObs.mutations.getValue(hashId, 'oncokb').oncogenic){
+                tip += '<br/><span style="float:right"><i>Powered by OncoKB(Beta)</i></span><br/><br/><i>OncoKB is under development, please pardon errors and omissions. Please send feedback to <a href="mailto:oncokb@cbio.mskcc.org" title="Contact us">oncokb@cbio.mskcc.org</a></i>';
+            }
+
+            if(tip !== '') {
+                $(g).css('display', '');
+                $(g).qtip('destroy', true);
+                $(g).qtip({
+                    content: {text: tip},
+                    hide: { fixed: true, delay: 100 },
+                    style: { classes: 'qtip-light qtip-rounded qtip-shadow', tip: true },
+                    position: {my:'center right',at:'center left',viewport: $(window)}
+                });
+            }
+        }
+    }
+
     function createOncoKBColumnCell(target, prevalence, progImp, treatments, trials) {
         var svg = d3.select($(target)[0])
                 .append("svg")
@@ -1203,7 +1233,7 @@
             $(g).qtip({
                 content: {text: qtipContext},
                 hide: { fixed: true, delay: 100 },
-                style: { classes: 'qtip-light qtip-rounded qtip-shadow oncokb-qtip-sm', tip: true },
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow oncokb-qtip', tip: true },
                 position: {my:'center right',at:'center left',viewport: $(window)},
                 events: {
                     render: function() {
@@ -1286,7 +1316,7 @@
             $(g).qtip({
                 content: {text: qtipContext},
                 hide: { fixed: true, delay: 100 },
-                style: { classes: 'qtip-light qtip-rounded qtip-shadow oncokb-qtip-sm', tip: true },
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow oncokb-qtip', tip: true },
                 position: {my:'center right',at:'center left',viewport: $(window)},
                 events: {
                     render: function() {

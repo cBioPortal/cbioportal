@@ -90,67 +90,68 @@ var OncoKBConnector = (function(){
             crossDomain: true,
             dataType: 'json',
             success: function(evidenceList) {
-                var evidenceCollection = [],
-                    evidenceL = evidenceList.length;
-                searchPairs.forEach(function(searchPair, i) {
-                    var datum = {
-                        'gene': {},
-                        'alteration': [],
-                        'prevalence': [],
-                        'progImp': [],
-                        'treatments': [],
-                        'trials': [],
-                        'oncogenic': false
-                    };
-                    
-                    for(var i=0; i<evidenceL; i++) {
-                        var evidence = evidenceList[i];
-                        if(evidence.gene.hugoSymbol === searchPair.gene) {
-                            if(evidence.evidenceType === 'GENE_SUMMARY') {
-                                datum.gene.summary = findRegex(evidence.description);
-                            }else if(evidence.evidenceType === 'GENE_BACKGROUND') {
-                                datum.gene.background = findRegex(evidence.description);
-                            }else if(evidence.evidenceType === 'MUTATION_EFFECT'){
-                                for(var j=0, alterationL = evidence.alterations.length; j<alterationL; j++) {
-                                    var alteration = evidence.alterations[j];
-                                    if(alteration.name === searchPair.alteration) {
-                                        if(alteration.oncogenic) {
-                                            datum.oncogenic = true;
+                var evidenceCollection = [];
+                if(evidenceList.length === searchPairs.length) {
+                    searchPairs.forEach(function(searchPair, pairIndex) {
+                        var datum = {
+                            'gene': {},
+                            'alteration': [],
+                            'prevalence': [],
+                            'progImp': [],
+                            'treatments': [],
+                            'trials': [],
+                            'oncogenic': -1
+                        };
+                        var evidenceL = evidenceList[pairIndex].length;
+
+                        for(var i=0; i<evidenceL; i++) {
+                            var evidence = evidenceList[pairIndex][i];
+                            if(evidence.gene.hugoSymbol === searchPair.gene) {
+                                if(evidence.evidenceType === 'GENE_SUMMARY') {
+                                    datum.gene.summary = findRegex(evidence.description);
+                                }else if(evidence.evidenceType === 'GENE_BACKGROUND') {
+                                    datum.gene.background = findRegex(evidence.description);
+                                }else if(evidence.evidenceType === 'MUTATION_EFFECT'){
+                                    for(var j=0, alterationL = evidence.alterations.length; j<alterationL; j++) {
+                                        var alteration = evidence.alterations[j];
+                                        if(alteration.hasOwnProperty('oncogenic')) {
+                                            datum.oncogenic = Number(alteration.oncogenic);
                                         }
                                         datum.alteration.push({
                                             knownEffect: evidence.knownEffect,
                                             description: findRegex(evidence.description)
                                         });
                                     }
+                                }else if(evidence.evidenceType === 'PREVALENCE') {
+                                    datum.prevalence.push({
+                                        tumorType: evidence.tumorType.name,
+                                        description: findRegex(evidence.description)
+                                    });
+                                }else if(evidence.evidenceType === 'PROGNOSTIC_IMPLICATION') {
+                                    datum.progImp.push({
+                                        tumorType: evidence.tumorType.name,
+                                        description: findRegex(evidence.description)
+                                    });
+                                }else if(evidence.evidenceType === 'CLINICAL_TRIAL') {
+                                    datum.trials.push({
+                                        tumorType: evidence.tumorType.name,
+                                        list: evidence.clinicalTrials
+                                    });
+                                }else if(evidence.levelOfEvidence) {
+                                    //if evidence has level information, that means this is treatment evidence.
+                                    var _treatment = {};
+                                    _treatment.tumorType = evidence.tumorType.name;
+                                    _treatment.level = evidence.levelOfEvidence;
+                                    _treatment.content = evidence.treatments;
+                                    _treatment.description = evidence.description;
+                                    datum.treatments.push(_treatment);
                                 }
-                            }else if(evidence.evidenceType === 'PREVALENCE') {
-                                datum.prevalence.push({
-                                    tumorType: evidence.tumorType.name,
-                                    description: findRegex(evidence.description)
-                                });
-                            }else if(evidence.evidenceType === 'PROGNOSTIC_IMPLICATION') {
-                                datum.progImp.push({
-                                    tumorType: evidence.tumorType.name,
-                                    description: findRegex(evidence.description)
-                                });
-                            }else if(evidence.evidenceType === 'CLINICAL_TRIAL') {
-                                datum.trials.push({
-                                    tumorType: evidence.tumorType.name,
-                                    list: evidence.clinicalTrials
-                                });
-                            }else if(evidence.levelOfEvidence) {
-                                //if evidence has level information, that means this is treatment evidence.
-                                var _treatment = {};
-                                _treatment.tumorType = evidence.tumorType.name;
-                                _treatment.level = evidence.levelOfEvidence;
-                                _treatment.content = evidence.treatments;
-                                _treatment.description = evidence.description;
-                                datum.treatments.push(_treatment);
                             }
                         }
-                    }
-                    evidenceCollection.push(datum);
-                });
+                        evidenceCollection.push(datum);
+                    });
+
+                }
                 callback(evidenceCollection);
             },
             error: function (responseData, textStatus, errorThrown) {

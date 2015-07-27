@@ -71,7 +71,7 @@ public class LDAPUserDetailsContextMapper implements UserDetailsContextMapper {
 		SpringSecurityLdapTemplate ldapTemplate = new SpringSecurityLdapTemplate(ldapServer);
 		// ArrayList<String> attributesToRetrieve = Lists.newArrayList("givenname", "sn", "mail");
 		String query = MessageFormat.format("({0}='{'0'}')", usernameAttribute);
-		DirContextOperations user = ldapTemplate.searchForSingleEntry(baseDn, query, new String[] { "holtgrem" });
+		DirContextOperations user = ldapTemplate.searchForSingleEntry(baseDn, query, new String[] { username });
 		String givenName = (String) user.getAttributeSortedStringSet(givenNameAttribute).first();
 		String lastName = (String) user.getAttributeSortedStringSet(lastNameAttribute).first();
 		String email = (String) user.getAttributeSortedStringSet(emailAttribute).first();

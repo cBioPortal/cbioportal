@@ -2,6 +2,7 @@
  * Created by Mehmet Furkan Sahin on 01/07/2015.
  */
 
+var showDetailsForAll = false;
 var getDegrees = function(node){
     var map = {};
     map['amplification-start'] = 3.75;
@@ -104,7 +105,7 @@ var rgbs     = ['rgb(254,80,51)', 'rgb(53,91,255)', 'rgb(255,208,214)', 'rgb(158
         context.shadowOffsetX = 0;
         context.shadowOffsetY = 0;
 
-        if (node._private.data['type'] !== 'Drug' && (node._private.style['show-details'] === true || node.selected() === true))
+        if (node._private.data['type'] !== 'Drug' && (node._private.style['show-details'] === true || node.selected() === true || showDetailsForAll === true))
         {
             node.css("opacity", 1);
             var degrees = getDegrees(node);
@@ -120,6 +121,11 @@ var rgbs     = ['rgb(254,80,51)', 'rgb(53,91,255)', 'rgb(255,208,214)', 'rgb(158
             context.fillStyle = "#FF0000";
             context.shadowColor = "grey";
             context.shadowBlur = 10;
+            if (showDetailsForAll === true && node.selected() === false && (node._private.style['show-total-alteration'].value === 'false' ||
+                                                                            node._private.style['show-total-alteration'] === false)){
+              context.shadowBlur = 1;
+            }
+
 
             for (var i = 0; i < 10; i++) {
                 context.beginPath();
@@ -210,14 +216,15 @@ var rgbs     = ['rgb(254,80,51)', 'rgb(53,91,255)', 'rgb(255,208,214)', 'rgb(158
             if (node.selected()){
                 context.shadowColor = "rgb(255,255,0)";
                 context.strokeStyle = "rgba(249,251,166,0.7)";
+                context.shadowBlur = 1;
 
             }
-            else{
+            else if (node._private.style['show-total-alteration'] === true){
                 context.shadowColor = "rgb(227,227,227)";
                 context.strokeStyle = "rgba(0,0,0,0.7)";
-
+                context.shadowBlur = 10;
             }
-            context.shadowBlur = 10;
+
             context.lineWidth = 1;
       //      context.fillStyle = "rgba(200,200,200,1)"
             context.arc(node._private.position['x'],node._private.position['y'],node._private.style['width'].value + 10,

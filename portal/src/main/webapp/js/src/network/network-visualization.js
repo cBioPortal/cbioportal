@@ -3438,10 +3438,11 @@ NetworkVis.prototype._toggleProfileData = function()
 
     this._profileDataVisible = !this._profileDataVisible;
     var nodeVisibility = this._profileDataVisible;
-    this._vis.nodes().forEach(function( ele ){
+/*    this._vis.nodes().forEach(function( ele ){
         ele.css('show-details', "" + nodeVisibility);
     });
-
+*/
+    showDetailsForAll = !showDetailsForAll;
     // update check icon of the corresponding menu item
 
     var item = $(this.mainMenuSelector + " #show_profile_data");
@@ -3454,6 +3455,10 @@ NetworkVis.prototype._toggleProfileData = function()
     {
         item.removeClass(this.CHECKED_CLASS);
     }
+    this._vis.layout({
+      'name': 'preset',
+      'fit':  'false'
+    });
 };
 
 /**

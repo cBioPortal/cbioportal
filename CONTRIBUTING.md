@@ -6,7 +6,7 @@ Guidelines for contributing to the cBioPortal project.
 
  * Make sure you have a [GitHub account](https://github.com/signup/free).
  * Create an issue in our issues tracker, assuming one does not already exist.
- * Fork the cbioportal project on GitHub.
+ * Fork the cbioportal project on GitHub.  For general instructions on forking a GitHub project, see [Forking a Repo](https://help.github.com/articles/fork-a-repo/).
 
 ## Making Changes
 

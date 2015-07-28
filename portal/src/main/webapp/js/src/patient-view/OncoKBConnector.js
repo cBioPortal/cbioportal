@@ -78,7 +78,7 @@ var OncoKBConnector = (function(){
         };
 
         //Read Global environment parameter
-        if(OncoKB.geneStatus) {
+        if(OncoKB.geneStatus && OncoKB.geneStatus != 'null') {
             oncokbServiceData.geneStatus = OncoKB.geneStatus;
         }
 

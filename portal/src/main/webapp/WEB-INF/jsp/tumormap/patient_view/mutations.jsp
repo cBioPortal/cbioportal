@@ -60,10 +60,20 @@
     };
     
     var oncoKBDataInject = function(oTable, tableId) {
-        if(!OncoKB.dataReady && OncoKB.accessible) {
-            getOncoKBEvidence(oTable, tableId);
-        }else {
-            addOncoKBListener(oTable, tableId);
+        if(!OncoKB.accessible) {
+            accessOncoKB(function(){
+                if(!OncoKB.dataReady) {
+                    getOncoKBEvidence(oTable, tableId);
+                }else {
+                    addOncoKBListener(oTable, tableId);
+                }
+            });
+        }else{
+            if(!OncoKB.dataReady) {
+                getOncoKBEvidence(oTable, tableId);
+            }else {
+                addOncoKBListener(oTable, tableId);
+            }
         }
     };
 
@@ -1529,6 +1539,8 @@
         if (drugType) {
             params['<%=PatientView.DRUG_TYPE%>'] = drugType;
         }
+
+        accessOncoKB();
                         
         $.post("mutations.json", 
             params,

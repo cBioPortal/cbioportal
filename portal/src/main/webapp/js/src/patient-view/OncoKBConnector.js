@@ -74,9 +74,13 @@ var OncoKBConnector = (function(){
         oncokbServiceData = {
             'hugoSymbol' : geneStr.substring(0, geneStr.length - 1),
             'alteration': alterationStr.substring(0, alterationStr.length - 1),
-            'consequence': consequenceStr.substring(0, consequenceStr.length - 1),
-            //'geneStatus': 'complete'
+            'consequence': consequenceStr.substring(0, consequenceStr.length - 1)
         };
+
+        //Read Global environment parameter
+        if(OncoKB.geneStatus) {
+            oncokbServiceData.geneStatus = OncoKB.geneStatus;
+        }
 
         if(variants.tumorType) {
             oncokbServiceData.tumorType = variants.tumorType;

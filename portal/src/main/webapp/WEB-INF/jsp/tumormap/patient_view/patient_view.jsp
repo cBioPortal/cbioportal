@@ -89,6 +89,7 @@ boolean showTimeline = (Boolean)request.getAttribute("has_timeline_data");
 String pathReportUrl = (String)request.getAttribute(PatientView.PATH_REPORT_URL);
 
 String oncokbUrl = (String)GlobalProperties.getOncoKBUrl();
+String oncokbGeneStatus = (String)GlobalProperties.getOncoKBGeneStatus();
 
 //String drugType = xssUtil.getCleanerInput(request, "drug_type");
 String drugType = request.getParameter("drug_type");
@@ -412,6 +413,7 @@ var viewBam = <%=viewBam%>;
 var mapCaseBam = <%=jsonMapCaseBam%>;
 var OncoKB = {
     url: '<%=oncokbUrl%>',
+    geneStatus: '<%=oncokbGeneStatus%>',
     accessible: false,
     dataReady: false
 };
@@ -433,10 +435,13 @@ $(document).ready(function(){
     }
 });
 
-function accessOncoKB(){
+function accessOncoKB(callback){
     OncoKBConnector.init({'url': OncoKB.url||''});
     OncoKBConnector.oncokbAccess(function(flag){
         OncoKB.accessible = flag;
+        if($.isFunction(callback)){
+            callback();
+        }
     });
 }
 

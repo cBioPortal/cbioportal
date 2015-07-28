@@ -33,7 +33,7 @@
 package org.mskcc.cbio.portal.web;
 
 import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.service.EntityAttributeService;;
+import org.mskcc.cbio.portal.service.EntityAttributeService;
 
 import org.springframework.web.bind.annotation.*;
 import org.springframework.stereotype.Controller;

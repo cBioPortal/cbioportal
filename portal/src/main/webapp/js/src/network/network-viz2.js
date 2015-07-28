@@ -10,9 +10,9 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 			},
 			'mouse-position-x': 0,
 			'mouse-position-y': 0,
-			'show-details': false,
-			'show-details-selected': false,
-			'show-total-alteration': false,
+			'show-details': 'false',
+			'show-details-selected': 'false',
+			'show-total-alteration': 'false',
 			'opacity': 0.9,
 			'shape': function(ele)
 			{

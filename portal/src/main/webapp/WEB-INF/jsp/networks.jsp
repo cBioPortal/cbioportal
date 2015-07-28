@@ -72,7 +72,7 @@
 <script type="text/javascript" src="js/src/network/network-visualization.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/network/GraphMLIO.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/network/network-viz2.js?<%=GlobalProperties.getAppVersion()%>"></script>
-
+<script type="text/javascript" src="js/src/network/cytoscape.renderer.canvas.portal-renderer.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <!-- for genomic data post request -->
 <script type="text/javascript" src="js/lib/d3.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 

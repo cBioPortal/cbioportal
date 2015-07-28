@@ -264,7 +264,7 @@ NetworkVis.prototype.updateSelectedGenes = function(evt)
 
     // deselect all nodes
     this._vis.nodes().deselect();
-
+    var visInstance = this._vis;
     // select all checked nodes
     $(this.geneListAreaSelector + " select option").each(
         function(index)
@@ -272,7 +272,7 @@ NetworkVis.prototype.updateSelectedGenes = function(evt)
             if ($(this).is(":selected"))
             {
                 var nodeId = $(this).val();
-                this._vis.$('#'+nodeId).select();
+                visInstance.$('#'+nodeId).select();
             }
         });
 
@@ -378,7 +378,7 @@ NetworkVis.prototype.updateDetailsTab = function(evt)
 
     if (selected.length == 1 && !areEdges)
     {
-        data = selected[0].data;
+        data = selected[0]._private.data;
     }
     else if (selected.length > 1 && !areEdges)
     {
@@ -416,7 +416,7 @@ NetworkVis.prototype.updateDetailsTab = function(evt)
         selected = self._vis.nodes(':selected');
 
         if (selected.length != 1 ||
-            data.id != selected[0].data.id)
+            data.id != selected[0]._private.data.id)
         {
             return;
         }
@@ -491,8 +491,8 @@ NetworkVis.prototype.addInteractionInfo = function(evt, selector, isMerged, sele
     $(selector + " .edge_inspector_content .data .data-row").remove();
     $(selector + " .edge_inspector_content .xref .xref-row").remove();
 
-    var title = this._vis.$('#' + data.source).._private.data.label + " - " +
-        this._vis.$('#' + data.target).._private.data.label;
+    var title = this._vis.$('#' + data.source)._private.data.label + " - " +
+        this._vis.$('#' + data.target)._private.data.label;
 
     if (isMerged)
     {
@@ -514,7 +514,7 @@ NetworkVis.prototype.addInteractionInfo = function(evt, selector, isMerged, sele
                 continue;
             }
 
-            data = edges[i].data;
+            data = edges[i]._private.data;
 
             // add an empty row for better edge separation
             $(selector + " .edge-inspector-content").append(
@@ -705,7 +705,7 @@ NetworkVis.prototype.showEdgeInspector = function(evt)
                 continue;
             }
 
-            data = edges[i].data;
+            data = edges[i]._private.data;
 
             // add an empty row for better edge separation
             $(this.edgeInspectorSelector + " .edge_inspector_content .data").append(
@@ -865,7 +865,7 @@ NetworkVis.prototype.updateGenesTab = function(evt)
         // select options for selected nodes
         for (var i=0; i < selected.length; i++)
         {
-            $(this.geneListAreaSelector + " #" +  _safeProperty(selected[i].data.id)).attr(
+            $(this.geneListAreaSelector + " #" +  _safeProperty(selected[i]._private.data.id)).attr(
                 "selected", "selected");
         }
 
@@ -896,7 +896,7 @@ NetworkVis.prototype.reRunQuery = function()
 
     for (var key in nodeMap)
     {
-        currentGenes += nodeMap[key].data.label + " ";
+        currentGenes += nodeMap[key]._private.data.label + " ";
     }
 
     if (currentGenes.length > 0)
@@ -932,7 +932,7 @@ NetworkVis.prototype.searchGene = function()
     // linear search for the input text
     for (i=0; i < genes.length; i++)
     {
-        if (genes[i].data.label.toLowerCase().indexOf(
+        if (genes[i]._private.data.label.toLowerCase().indexOf(
             query.toLowerCase()) != -1)
         {
             this._vis.$('#'+genes[i]._private.data.id).select()
@@ -959,7 +959,15 @@ NetworkVis.prototype.filterSelectedGenes = function()
     this._selectedElements = this._selectedElementsMap("nodes");
 
     // filter out selected elements
-    this._vis.filter("nodes", selectionVisibility);
+    // this._vis.filter("nodes", selectionVisibility);
+    this._vis.nodes().forEach(function( ele ){
+        if (selectionVisibility(ele) === false){
+          ele.css('visibility', 'hidden');
+        }
+        else{
+          ele.css('visibility', 'visible');
+        }
+    });
 
     // also, filter disconnected nodes if necessary
     this._filterDisconnected();
@@ -987,7 +995,14 @@ NetworkVis.prototype.filterNonSelected = function()
     this._selectedElements = this._selectedElementsMap("nodes");
 
     // filter out non-selected elements
-    this._vis.filter('nodes', geneVisibility);
+    this._vis.nodes().forEach(function( ele ){
+        if (geneVisibility(ele) === false){
+          ele.css('visibility', 'hidden');
+        }
+        else{
+          ele.css('visibility', 'visible');
+        }
+    });
 
     // also, filter disconnected nodes if necessary
     this._filterDisconnected();
@@ -1052,13 +1067,27 @@ NetworkVis.prototype.updateEdges = function()
 
     // re-apply filter to update nodes
     //_vis.removeFilter("nodes", false);
-    this._vis.filter("nodes", showAllNodeVisibility);
+    this._vis.nodes().forEach(function( ele ){
+        if (showAllNodeVisibility(ele) === false){
+          ele.css('visibility', 'hidden');
+        }
+        else {
+          ele.css('visibility', 'visible');
+        }
+    });
 
     // remove current edge filters
     //_vis.removeFilter("edges", false);
 
     // filter selected types
-    this._vis.filter("edges", edgeVisibility);
+    this._vis.edges().forEach(function( ele ){
+        if (edgeVisibility(ele) === false){
+          ele.css('visibility', 'hidden');
+        }
+        else {
+          ele.css('visibility', 'visible');
+        }
+    });
 
     // remove previous filters due to disconnection
     for (var key in this._filteredByIsolation)
@@ -1087,7 +1116,7 @@ NetworkVis.prototype.currentVisibility = function(element)
 
     // if the node is in the array of already filtered elements,
     // then it should be invisibile
-    if (this._alreadyFiltered[element.data.id] != null)
+    if (this._alreadyFiltered[element._private.data.id] != null)
     {
         visible = false;
     }
@@ -1116,23 +1145,23 @@ NetworkVis.prototype.edgeVisibility = function(element)
     // there should not be any edge in the array _alreadyFiltered
 
     // if an element is already filtered then it should remain invisible
-    if (this._alreadyFiltered[element.data.id] != null)
+    if (this._alreadyFiltered[element._private.data.id] != null)
     {
         visible = false;
     }
 
     // unknown edge type, check for the OTHER flag
-    if (this._edgeTypeVisibility[element.data.type] == null)
+    if (this._edgeTypeVisibility[element._private.data.type] == null)
     {
         typeVisible = this._edgeTypeVisibility[this.OTHER];
     }
     // check the visibility of the edge type
     else
     {
-        typeVisible = this._edgeTypeVisibility[element.data.type];
+        typeVisible = this._edgeTypeVisibility[element._private.data.type];
     }
 
-    var source = element.data['INTERACTION_DATA_SOURCE'];
+    var source = element._private.data['INTERACTION_DATA_SOURCE'];
 
     if (this._edgeSourceVisibility[source] != null)
     {
@@ -1159,7 +1188,7 @@ NetworkVis.prototype.geneVisibility = function(element)
     var visible = false;
 
     // if an element is already filtered then it should remain invisible
-    if (this._alreadyFiltered[element.data.id] != null)
+    if (this._alreadyFiltered[element._private.data.id] != null)
     {
         visible = false;
     }
@@ -1167,7 +1196,7 @@ NetworkVis.prototype.geneVisibility = function(element)
     {
         // filter non-selected nodes
 
-        if (this._selectedElements[element.data.id] != null)
+        if (this._selectedElements[element._private.data.id] != null)
         {
             visible = true;
         }
@@ -1175,7 +1204,7 @@ NetworkVis.prototype.geneVisibility = function(element)
         if (!visible)
         {
             // if the element should be filtered, then add it to the map
-            this._alreadyFiltered[element.data.id] = element;
+            this._alreadyFiltered[element._private.data.id] = element;
         }
     }
 
@@ -1196,14 +1225,14 @@ NetworkVis.prototype.dropDownVisibility = function(element)
     var selectedOption = $(this.drugFilterSelector).val();
 
     // if an element is already filtered then it should remain invisible
-    if (this._alreadyFiltered[element.data.id] != null )
+    if (this._alreadyFiltered[element._private.data.id] != null )
     {
         visible = false;
     }
     // if an element is a seed node, then it should be visible
     // (if it is not filtered manually)
-    else if (element.data["IN_QUERY"] != null &&
-             element.data["IN_QUERY"].toLowerCase() == "true")
+    else if (element._private.data["IN_QUERY"] != null &&
+             element._private.data["IN_QUERY"].toLowerCase() == "true")
     {
         visible = true;
     }
@@ -1211,7 +1240,7 @@ NetworkVis.prototype.dropDownVisibility = function(element)
     {
         //if the node is a drug then check the drop down selection
 
-        if(element.data.type == "Drug"){
+        if(element._private.data.type == "Drug"){
             if(selectedOption.toString() == "HIDE_DRUGS") {
                 visible = false;
             }
@@ -1219,13 +1248,13 @@ NetworkVis.prototype.dropDownVisibility = function(element)
                 visible = true;
             }
             else if(selectedOption.toString() == "SHOW_CANCER") {
-                if( element.data["CANCER_DRUG"] == "true")
+                if( element._private.data["CANCER_DRUG"] == "true")
                     visible = true;
                 else
                     visible = false;
             }
             else {  // check FDA approved
-                if( element.data["FDA_APPROVAL"] == "true")
+                if( element._private.data["FDA_APPROVAL"] == "true")
                     visible = true;
                 else
                     visible = false;
@@ -1240,8 +1269,8 @@ NetworkVis.prototype.dropDownVisibility = function(element)
         {
             // if the element should be filtered,
             // then add it to the required maps
-            this._filteredByDropDown[element.data.id] = element;
-            this._alreadyFiltered[element.data.id] = element;
+            this._filteredByDropDown[element._private.data.id] = element;
+            this._alreadyFiltered[element._private.data.id] = element;
         }
     }
 
@@ -1262,14 +1291,14 @@ NetworkVis.prototype.sliderVisibility = function(element)
     var weight;
 
     // if an element is already filtered then it should remain invisible
-    if (this._alreadyFiltered[element.data.id] != null)
+    if (this._alreadyFiltered[element._private.data.id] != null)
     {
         visible = false;
     }
     // if an element is a seed node, then it should be visible
     // (if it is not filtered manually)
-    else if (element.data["IN_QUERY"] != null &&
-             element.data["IN_QUERY"].toLowerCase() == "true")
+    else if (element._private.data["IN_QUERY"] != null &&
+             element._private.data["IN_QUERY"].toLowerCase() == "true")
     {
         visible = true;
     }
@@ -1277,12 +1306,12 @@ NetworkVis.prototype.sliderVisibility = function(element)
     else
     {
         // get the weight of the node
-        weight = this._geneWeightMap[element.data.id];
+        weight = this._geneWeightMap[element._private.data.id];
 
         // if the weight of the current node is below the threshold value
         // then it should be filtered (also check the element is not a drug)
 
-        if (weight != null && element.data.type != "Drug")
+        if (weight != null && element._private.data.type != "Drug")
         {
             if (weight >= this._geneWeightThreshold)
             {
@@ -1300,8 +1329,8 @@ NetworkVis.prototype.sliderVisibility = function(element)
             // if the element should be filtered,
             // then add it to the required maps
 
-            this._alreadyFiltered[element.data.id] = element;
-            this._filteredBySlider[element.data.id] = element;
+            this._alreadyFiltered[element._private.data.id] = element;
+            this._filteredBySlider[element._private.data.id] = element;
         }
     }
 
@@ -1320,7 +1349,7 @@ NetworkVis.prototype.isolation = function(element)
     var visible = false;
 
     // if an element is already filtered then it should remain invisible
-    if (this._alreadyFiltered[element.data.id] != null)
+    if (this._alreadyFiltered[element._private.data.id] != null)
     {
         visible = false;
     }
@@ -1328,7 +1357,7 @@ NetworkVis.prototype.isolation = function(element)
     {
         // check if the node is connected, if it is disconnected it should be
         // filtered out
-        if (this._connectedNodes[element.data.id] != null)
+        if (this._connectedNodes[element._private.data.id] != null)
         {
             visible = true;
         }
@@ -1336,8 +1365,8 @@ NetworkVis.prototype.isolation = function(element)
         if (!visible)
         {
             // if the node should be filtered, then add it to the map
-            this._alreadyFiltered[element.data.id] = element;
-            this._filteredByIsolation[element.data.id] = element;
+            this._alreadyFiltered[element._private.data.id] = element;
+            this._filteredByIsolation[element._private.data.id] = element;
         }
     }
 
@@ -1390,12 +1419,22 @@ NetworkVis.prototype.selectionVisibility = function(element)
  */
 NetworkVis.prototype._selectedElementsMap = function(group)
 {
-    var selected = this._vis.selected(group);
+    var selected;
+    if (group === 'nodes'){
+      selected = this._vis.nodes(":selected");
+    }
+    else if( group === 'edges'){
+      selected = this._vis.edges(":selected");
+    }
+    else if (group === 'all'){
+      selected = this._vis.$(":selected");
+    }
+
     var map = new Array();
 
     for (var i=0; i < selected.length; i++)
     {
-        var key = selected[i].data.id;
+        var key = selected[i]._private.data.id;
         map[key] = selected[i];
     }
 
@@ -1413,7 +1452,8 @@ NetworkVis.prototype._connectedNodesMap = function()
     var edges;
 
     // if edges merged, traverse over merged edges for a better performance
-    if (this._vis.edgesMerged())
+    //TODO will be examined after implementation of merged edge!!
+/*    if (this._vis.edgesMerged())
     {
         edges = this._vis.mergedEdges();
     }
@@ -1422,6 +1462,8 @@ NetworkVis.prototype._connectedNodesMap = function()
     {
         edges = this._vis.edges();
     }
+*/
+    edges = this._vis.edges();
 
     var source;
     var target;
@@ -1432,11 +1474,11 @@ NetworkVis.prototype._connectedNodesMap = function()
     {
         if (edges[i].visible)
         {
-            source = this._vis.node(edges[i].data.source);
-            target = this._vis.node(edges[i].data.target);
+            source = this._vis.$("#" + edges[i]._private.data.source);
+            target = this._vis.$("#" + edges[i]._private.data.target);
 
-            map[source.data.id] = source;
-            map[target.data.id] = target;
+            map[source._private.data.id] = source;
+            map[target._private.data.id] = target;
         }
     }
 
@@ -1478,7 +1520,14 @@ NetworkVis.prototype._filterDisconnected = function()
         };
 
         // filter disconnected
-        this._vis.filter('nodes', isolation);
+        this._vis.nodes().forEach(function( ele ){
+            if(isolation(ele) === false){
+                ele.css('visibility', 'hidden');
+            }
+            else{
+              ele.css('visibility', 'visible');
+            }
+        });
     }
 };
 
@@ -1496,7 +1545,8 @@ NetworkVis.prototype._highlightNeighbors = function(/*nodes*/)
      }
      */
 
-    var nodes = this._vis.selected("nodes");
+//TODO after neighbor and bypass implementation
+/*    var nodes = this._vis.nodes(":selected");
 
     if (nodes != null && nodes.length > 0)
     {
@@ -1540,13 +1590,7 @@ NetworkVis.prototype._highlightNeighbors = function(/*nodes*/)
             if( !bypass.edges[e.data.id] ){
                 bypass.edges[e.data.id] = {};
             }
-            /*
-             if (e.data.networkGroupCode === "coexp" || e.data.networkGroupCode === "coloc") {
-             opacity = AUX_UNHIGHLIGHT_EDGE_OPACITY;
-             } else {
-             opacity = DEF_UNHIGHLIGHT_EDGE_OPACITY;
-             }
-             */
+
 
             opacity = 0.15;
 
@@ -1558,13 +1602,7 @@ NetworkVis.prototype._highlightNeighbors = function(/*nodes*/)
             if( !bypass.edges[e.data.id] ){
                 bypass.edges[e.data.id] = {};
             }
-            /*
-             if (e.data.networkGroupCode === "coexp" || e.data.networkGroupCode === "coloc") {
-             opacity = AUX_HIGHLIGHT_EDGE_OPACITY;
-             } else {
-             opacity = DEF_HIGHLIGHT_EDGE_OPACITY;
-             }
-             */
+
 
             opacity = 0.85;
 
@@ -1573,10 +1611,8 @@ NetworkVis.prototype._highlightNeighbors = function(/*nodes*/)
         });
 
         this._vis.visualStyleBypass(bypass);
-        //CytowebUtil.neighborsHighlighted = true;
 
-        //$("#menu_neighbors_clear").removeClass("ui-state-disabled");
-    }
+    }   */
 };
 
 /**
@@ -1586,7 +1622,8 @@ NetworkVis.prototype._highlightNeighbors = function(/*nodes*/)
  */
 NetworkVis.prototype._removeHighlights = function()
 {
-    var bypass = this._vis.visualStyleBypass();
+  //TODO
+/*    var bypass = this._vis.visualStyleBypass();
     bypass.edges = {};
 
     var nodes = bypass.nodes;
@@ -1599,7 +1636,7 @@ NetworkVis.prototype._removeHighlights = function()
     }
 
     this._vis.visualStyleBypass(bypass);
-
+*/
     //CytowebUtil.neighborsHighlighted = false;
     //$("#menu_neighbors_clear").addClass("ui-state-disabled");
 };
@@ -1920,7 +1957,7 @@ NetworkVis.prototype._edgeSourceArray = function()
 
     for (var i = 0; i < edges.length; i++)
     {
-        source = edges[i].data.INTERACTION_DATA_SOURCE;
+        source = edges[i]._private.data.INTERACTION_DATA_SOURCE;
 
         if (source != null
             && source != "")
@@ -1967,9 +2004,9 @@ NetworkVis.prototype._geneWeightArray = function(coeff)
     {
         // get the total alteration of the current node
 
-        if (nodes[i].data["PERCENT_ALTERED"] != null)
+        if (nodes[i]._private.data["PERCENT_ALTERED"] != null)
         {
-            weight = nodes[i].data["PERCENT_ALTERED"];
+            weight = nodes[i]._private.data["PERCENT_ALTERED"];
         }
         else
         {
@@ -1977,8 +2014,8 @@ NetworkVis.prototype._geneWeightArray = function(coeff)
         }
 
         // get first neighbors of the current node
-
-        neighbors = this._vis.firstNeighbors([nodes[i]]).neighbors;
+        //TODO uncomment the line and replace with neighbor function of Cytoscape js
+//        neighbors = this._vis.firstNeighbors([nodes[i]]).neighbors;
         max = 0;
 
         // find the max of the total alteration of its neighbors,
@@ -1987,11 +2024,11 @@ NetworkVis.prototype._geneWeightArray = function(coeff)
         {
             for (var j = 0; j < neighbors.length; j++)
             {
-                if (neighbors[j].data["PERCENT_ALTERED"] != null)
+                if (neighbors[j]._private.data["PERCENT_ALTERED"] != null)
                 {
-                    if (neighbors[j].data["PERCENT_ALTERED"] > max)
+                    if (neighbors[j]._private.data["PERCENT_ALTERED"] > max)
                     {
-                        max = neighbors[j].data["PERCENT_ALTERED"];
+                        max = neighbors[j]._private.data["PERCENT_ALTERED"];
                     }
                 }
             }
@@ -2008,7 +2045,7 @@ NetworkVis.prototype._geneWeightArray = function(coeff)
         }
 
         // add the weight value to the map
-        weightArray[nodes[i].data.id] = weight * 100;
+        weightArray[nodes[i]._private.data.id] = weight * 100;
     }
 
     return weightArray;
@@ -2029,10 +2066,10 @@ NetworkVis.prototype._maxAlterValNonSeed = function(map)
     {
         // skip seed genes
 
-        var node = this._vis.node(key);
+        var node = this._vis.$("#" + key)[0];
 
         if (node != null &&
-            node.data["IN_QUERY"] == "true")
+            node._private.data["IN_QUERY"] == "true")
         {
             continue;
         }
@@ -2270,10 +2307,11 @@ NetworkVis.prototype._adjustToolTipText = function(text)
  *
  *
  */
+ //TODO look at this part again!!!
 NetworkVis.prototype._initTooltipStyle = function()
 {
     // create a function and add it to the Visualization object
-    this._vis["customTooltip"] = function (data)
+/*    this._vis["customTooltip"] = function (data)
     {
         var text;
 
@@ -2309,6 +2347,7 @@ NetworkVis.prototype._initTooltipStyle = function()
 
     // enable node tooltips
     this._vis.nodeTooltipsEnabled(true);
+    */
 };
 
 NetworkVis.prototype._adjustIE = function()
@@ -2390,13 +2429,21 @@ NetworkVis.prototype._filterByDropDown = function()
     };
 
     // filter with new drop down selection
-    this._vis.filter("nodes", dropDownVisibility);
+    this._vis.nodes().forEach(function( ele ){
+        if (dropDownVisibility(ele) === false){
+          ele.css('visibility', 'hidden');
+        }
+        else{
+          ele.css('visibility', 'visible');
+        }
+    });
 
     // also, filter disconnected nodes if necessary
     this._filterDisconnected();
 
     // visualization changed, perform layout if necessary
     this._visChanged();
+
 };
 
 /**
@@ -2432,7 +2479,14 @@ NetworkVis.prototype._filterBySlider = function()
     };
 
     // filter with new slider value
-    this._vis.filter("nodes", sliderVisibility);
+    this._vis.nodes().forEach(function( ele ){
+        if (sliderVisibility(ele) === false){
+          ele.css('visibility', 'hidden');
+        }
+        else{
+          ele.css('visibility', 'visible');
+        }
+    });
 
     // also, filter disconnected nodes if necessary
     this._filterDisconnected();
@@ -2688,11 +2742,11 @@ NetworkVis.prototype._refreshGenesTab = function()
     for (var i=0; i < geneList.length; i++)
     {
         // use the safe version of the gene id as an id of an HTML object
-        var safeId = _safeProperty(geneList[i].data.id);
+        var safeId = _safeProperty(geneList[i]._private.data.id);
 
         var classContent;
 
-        if (geneList[i].data["IN_QUERY"] == "true")
+        if (geneList[i]._private.data["IN_QUERY"] == "true")
         {
             classContent = 'class="in-query" ';
         }
@@ -2704,8 +2758,8 @@ NetworkVis.prototype._refreshGenesTab = function()
         $(this.geneListAreaSelector + " select").append(
             '<option id="' + safeId + '" ' +
             classContent +
-            'value="' + geneList[i].data.id + '" ' + '>' +
-            '<label>' + geneList[i].data.label + '</label>' +
+            'value="' + geneList[i]._private.data.id + '" ' + '>' +
+            '<label>' + geneList[i]._private.data.label + '</label>' +
             '</option>');
 
         // add double click listener for each gene
@@ -2783,7 +2837,7 @@ NetworkVis.prototype._refreshRelationsTab = function()
     // for each edge increment count of the correct edge type
     for (var i=0; i < edges.length; i++)
     {
-        percentages[edges[i].data.type] += 1;
+        percentages[edges[i]._private.data.type] += 1;
     }
 
     percentages[this.OTHER] = edges.length -
@@ -3080,7 +3134,7 @@ NetworkVis.prototype._initControlFunctions = function()
                      handleEdgeSelect);
 
     this._vis.on("deselect",
-                    "edges",
+                    "edge",
                      handleEdgeSelect);
 
     // add listener for node select & deselect actions
@@ -3120,7 +3174,14 @@ NetworkVis.prototype._hideSelected = function()
     };
 
     // filter out selected elements
-    this._vis.filter('all', selectionVisibility);
+    this._vis.elements().forEach(function( ele ){
+        if (selectionVisibility(ele) === false){
+          ele.css('visibility', 'hidden');
+        }
+        else{
+          ele.css('visibility', 'visible');
+        }
+    });
 
     // also, filter disconnected nodes if necessary
     this._filterDisconnected();
@@ -3166,8 +3227,8 @@ NetworkVis.prototype._visibleGenes = function()
     {
         // check if the node is already filtered.
         // also, include only genes, not small molecules or unknown types.
-        if (this._alreadyFiltered[nodes[i].data.id] == null &&
-            nodes[i].data.type == this.PROTEIN)
+        if (this._alreadyFiltered[nodes[i]._private.data.id] == null &&
+            nodes[i]._private.data.type == this.PROTEIN)
         {
             genes.push(nodes[i]);
         }
@@ -3202,8 +3263,8 @@ NetworkVis.prototype._performLayout = function()
 //
 //      _vis.updateData("edges", [edges[i]], edges[i].data);
 //    }
-
-    this._vis.layout(this._graphLayout);
+      //TODO layout options will be changed
+//    this._vis.layout(this._graphLayout);
 };
 
 /**
@@ -3214,8 +3275,14 @@ NetworkVis.prototype._toggleNodeLabels = function()
     // update visibility of labels
 
     this._nodeLabelsVisible = !this._nodeLabelsVisible;
-    this._vis.nodeLabelsVisible(this._nodeLabelsVisible);
-
+    this._vis.nodes().forEach(function( ele ){
+        if (_nodeLabelsVisible === false){
+          ele.css('content', '');
+        }
+        else{
+          ele.css('content', 'data(label)');
+        }
+    });
     // update check icon of the corresponding menu item
 
     var item = $(this.mainMenuSelector + " #show_node_labels");
@@ -3238,7 +3305,14 @@ NetworkVis.prototype._toggleEdgeLabels = function()
     // update visibility of labels
 
     this._edgeLabelsVisible = !this._edgeLabelsVisible;
-    this._vis.edgeLabelsVisible(this._edgeLabelsVisible);
+    this._vis.edges().forEach(function( ele ){
+        if (_edgeLabelsVisible === false){
+          ele.css('content', '');
+        }
+        else{
+          ele.css('content', 'data(label)');
+        }
+    });
 
     // update check icon of the corresponding menu item
 
@@ -3260,8 +3334,8 @@ NetworkVis.prototype._toggleEdgeLabels = function()
 NetworkVis.prototype._togglePanZoom = function()
 {
     // update visibility of the pan/zoom control
-
-    this._panZoomVisible = !this._panZoomVisible;
+    //TODO
+/*    this._panZoomVisible = !this._panZoomVisible;
 
     this._vis.panZoomControlVisible(this._panZoomVisible);
 
@@ -3277,6 +3351,7 @@ NetworkVis.prototype._togglePanZoom = function()
     {
         item.removeClass(this.CHECKED_CLASS);
     }
+    */
 };
 
 /**
@@ -3286,8 +3361,8 @@ NetworkVis.prototype._togglePanZoom = function()
 NetworkVis.prototype._toggleMerge = function()
 {
     // merge/unmerge the edges
-
-    this._linksMerged = !this._linksMerged;
+    //TODO
+/*    this._linksMerged = !this._linksMerged;
 
     this._vis.edgesMerged(this._linksMerged);
 
@@ -3303,6 +3378,7 @@ NetworkVis.prototype._toggleMerge = function()
     {
         item.removeClass(this.CHECKED_CLASS);
     }
+    */
 };
 
 /**
@@ -3361,7 +3437,10 @@ NetworkVis.prototype._toggleProfileData = function()
     // toggle value and pass to CW
 
     this._profileDataVisible = !this._profileDataVisible;
-    this._vis.profileDataAlwaysShown(this._profileDataVisible);
+    var nodeVisibility = this._profileDataVisible;
+    this._vis.nodes().forEach(function( ele ){
+        ele.css('show-details', "" + nodeVisibility);
+    });
 
     // update check icon of the corresponding menu item
 
@@ -3391,12 +3470,14 @@ NetworkVis.prototype._saveAsPng = function()
  */
 NetworkVis.prototype._saveAsSvg = function()
 {
-	var downloadOpts = {
+  //TODO SVG
+/*	var downloadOpts = {
 		filename: "network.svg",
 		preProcess: null
 	};
 
 	cbio.download.initDownload(this._vis.svg(), downloadOpts);
+  */
 };
 
 /**
@@ -3759,11 +3840,11 @@ function _initMenuStyle(divId, hoverClass)
  */
 function _geneSort (node1, node2)
 {
-    if (node1.data.label > node2.data.label)
+    if (node1._private.data.label > node2._private.data.label)
     {
         return 1;
     }
-    else if (node1.data.label < node2.data.label)
+    else if (node1._private.data.label < node2._private.data.label)
     {
         return -1;
     }
@@ -4048,4 +4129,3 @@ function _cubeRoot(value)
 
     return root;
 }
-

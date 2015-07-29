@@ -1867,15 +1867,21 @@ NetworkVis.prototype._defaultOptsArray = function()
 {
     var defaultOpts =
         [ { id: "gravitation", label: "Gravitation",       value: -350,   tip: "The gravitational constant. Negative values produce a repulsive force." },
-            { id: "mass",        label: "Node mass",         value: 3,      tip: "The default mass value for nodes." },
-            { id: "tension",     label: "Edge tension",      value: 0.1,    tip: "The default spring tension for edges." },
-            { id: "restLength",  label: "Edge rest length",  value: "auto", tip: "The default spring rest length for edges." },
-            { id: "drag",        label: "Drag co-efficient", value: 0.4,    tip: "The co-efficient for frictional drag forces." },
-            { id: "minDistance", label: "Minimum distance",  value: 1,      tip: "The minimum effective distance over which forces are exerted." },
-            { id: "maxDistance", label: "Maximum distance",  value: 10000,  tip: "The maximum distance over which forces are exerted." },
-            { id: "iterations",  label: "Iterations",        value: 400,    tip: "The number of iterations to run the simulation." },
-            { id: "maxTime",     label: "Maximum time",      value: 30000,  tip: "The maximum time to run the simulation, in milliseconds." },
-            { id: "autoStabilize", label: "Auto stabilize",  value: true,   tip: "If checked, layout automatically tries to stabilize results that seems unstable after running the regular iterations." } ];
+            { id: "refresh",     label: "Iteration num",     value: 4,      tip: "The default iterations between consecutive screen positions." },
+            { id: "fit",         label: "Graph fitting",      value: true,    tip: "If checked, layout automatically fits the graph to the window." },
+            { id: "randomize",         label: "Randomize",      value: true,    tip: "Whether to randomize node positions on the beginning." },
+            { id: "edgeElasticity",  label: "Edge elasticity",  value: 100, tip: "The default spring elasticity for edges." },
+            { id: "animate",        label: "Animation", value: false,    tip: "Whether to animate while running the layout." },
+            { id: "padding", label: "Padding value",  value: 30,      tip: "Padding on fit." },
+            { id: "nodeRepulsion", label: "Non overlapping",  value: 400000,  tip: "Node repulsion (non overlapping) multiplier." },
+            { id: "nodeOverlap",  label: "Overlapping",        value: 10,    tip: "Node repulsion (overlapping) multiplier." },
+            { id: "idealEdgeLength",     label: "Ideal edge length",      value: 10,  tip: "Ideal edge (non nested) length." },
+            { id: "nestingFactor", label: "Nesting factor",  value: 5,   tip: "Nesting factor (multiplier) to compute ideal edge length for nested edges." },
+            { id: "numIter",     label: "Iteration num",      value: 100,  tip: "Maximum number of iterations to perform." },
+            { id: "initialTemp",     label: "Initial temperature",      value: 200,  tip: "Initial temperature (maximum node displacement)." },
+            { id: "coolingFactor",     label: "Cooling factor",      value: 0.95,  tip: "How the temperature is reduced between consecutive iterations." },
+            { id: "minTemp",     label: "Lower temperature threshold",      value: 1.0,  tip: "// Lower temperature threshold (below this point the layout will end)." }
+];
 
     return defaultOpts;
 };
@@ -3264,7 +3270,7 @@ NetworkVis.prototype._performLayout = function()
 //      _vis.updateData("edges", [edges[i]], edges[i].data);
 //    }
       //TODO layout options will be changed
-//    this._vis.layout(this._graphLayout);
+    this._vis.layout(this._graphLayout);
 };
 
 /**
@@ -3523,20 +3529,48 @@ NetworkVis.prototype._updatePropsUI = function()
 //          $("#norm_" + _layoutOptions[i].value).attr("selected", "selected");
 //      }
 
-        if (this._layoutOptions[i].id == "autoStabilize")
+        if (this._layoutOptions[i].id == "animate")
         {
             if (this._layoutOptions[i].value == true)
             {
                 // check the box
-                $(this.settingsDialogSelector + " #autoStabilize").attr("checked", true);
-                $(this.settingsDialogSelector + " #autoStabilize").val(true);
+                $(this.settingsDialogSelector + " #animate").attr("checked", true);
+                $(this.settingsDialogSelector + " #animate").val(true);
             }
             else
             {
                 // uncheck the box
-                $(this.settingsDialogSelector + " #autoStabilize").attr("checked", false);
-                $(this.settingsDialogSelector + " #autoStabilize").val(false);
+                $(this.settingsDialogSelector + " #animate").attr("checked", false);
+                $(this.settingsDialogSelector + " #animate").val(false);
             }
+        }
+        else if(this._layoutOptions[i].id == "randomize"){
+          if (this._layoutOptions[i].value == true)
+          {
+              // check the box
+              $(this.settingsDialogSelector + " #randomize").attr("checked", true);
+              $(this.settingsDialogSelector + " #randomize").val(true);
+          }
+          else
+          {
+              // uncheck the box
+              $(this.settingsDialogSelector + " #randomize").attr("checked", false);
+              $(this.settingsDialogSelector + " #randomize").val(false);
+          }
+        }
+        else if(this._layoutOptions[i].id == "fit"){
+          if (this._layoutOptions[i].value == true)
+          {
+              // check the box
+              $(this.settingsDialogSelector + " #fit").attr("checked", true);
+              $(this.settingsDialogSelector + " #fit").val(true);
+          }
+          else
+          {
+              // uncheck the box
+              $(this.settingsDialogSelector + " #fit").attr("checked", false);
+              $(this.settingsDialogSelector + " #fit").val(false);
+          }
         }
         else
         {
@@ -3644,76 +3678,108 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
                             '<input type="text" id="gravitation" value=""/>' +
                         '</td>' +
                     '</tr>' +
-                    '<tr title="The default mass value for nodes.">' +
+                    '<tr title="Number of iterations between consecutive screen positions.">' +
                         '<td align="right">' +
-                            '<label>Node mass</label>' +
+                            '<label>Refresh</label>' +
                         '</td>' +
                         '<td>' +
-                            '<input type="text" id="mass" value=""/>' +
+                            '<input type="text" id="refresh" value=""/>' +
                         '</td>' +
                     '</tr>' +
-                    '<tr title="The default spring tension for edges.">' +
+                    '<tr title="Padding on fit.">' +
                         '<td align="right">' +
-                            '<label>Edge tension</label>' +
+                            '<label>Padding</label>' +
                         '</td>' +
                         '<td>' +
-                            '<input type="text" id="tension" value=""/>' +
+                            '<input type="text" id="padding" value=""/>' +
                         '</td>' +
                     '</tr>' +
-                    '<tr title="The default spring rest length for edges.">' +
+                    '<tr title="Node repulsion (non overlapping) multiplier.">' +
                         '<td align="right">' +
-                            '<label>Edge rest length</label>' +
+                            '<label>Node Repulsion (non overlap)</label>' +
                         '</td>' +
                         '<td>' +
-                            '<input type="text" id="restLength" value=""/>' +
+                            '<input type="text" id="nodeRepulsion" value=""/>' +
                         '</td>' +
                     '</tr>' +
-                    '<tr title="The co-efficient for frictional drag forces.">' +
+                    '<tr title="Node repulsion (overlapping) multiplier.">' +
                         '<td align="right">' +
-                            '<label>Drag co-efficient</label>' +
+                            '<label>Node Repulsion (overlapping)</label>' +
                         '</td>' +
                         '<td>' +
-                            '<input type="text" id="drag" value=""/>' +
+                            '<input type="text" id="nodeOverlap" value=""/>' +
                         '</td>' +
                     '</tr>' +
-                    '<tr title="The minimum effective distance over which forces are exerted.">' +
+                    '<tr title="Ideal edge (non nested) length.">' +
                         '<td align="right">' +
-                            '<label>Minimum distance</label>' +
+                            '<label>idealEdgeLength</label>' +
                         '</td>' +
                         '<td>' +
-                            '<input type="text" id="minDistance" value=""/>' +
+                            '<input type="text" id="idealEdgeLength" value=""/>' +
                         '</td>' +
                     '</tr>' +
-                    '<tr title="The maximum distance over which forces are exerted.">' +
+                    '<tr title="Divisor to compute edge forces.">' +
                         '<td align="right">' +
-                            '<label>Maximum distance</label>' +
+                            '<label>Edge Elasticity</label>' +
                         '</td>' +
                         '<td>' +
-                            '<input type="text" id="maxDistance" value=""/>' +
+                            '<input type="text" id="edgeElasticity" value=""/>' +
                         '</td>' +
                     '</tr>' +
-                    '<tr title="The number of iterations to run the simulation.">' +
+                    '<tr title="Nesting factor (multiplier) to compute ideal edge length for nested edges.">' +
                         '<td align="right">' +
-                            '<label>Iterations</label>' +
+                            '<label>nesting Factor</label>' +
                         '</td>' +
                         '<td>' +
-                            '<input type="text" id="iterations" value=""/>' +
+                            '<input type="text" id="nestingFactor" value=""/>' +
                         '</td>' +
                     '</tr>' +
-                    '<tr title="The maximum time to run the simulation, in milliseconds.">' +
+                    '<tr title="Initial temperature (maximum node displacement).">' +
                         '<td align="right">' +
-                            '<label>Maximum Time</label>' +
+                            '<label>Initial temperature</label>' +
                         '</td>' +
                         '<td>' +
-                            '<input type="text" id="maxTime" value=""/>' +
+                            '<input type="text" id="initialTemp" value=""/>' +
                         '</td>' +
                     '</tr>' +
-                    '<tr title="If checked, layout automatically tries to stabilize results that seems unstable after running the regular iterations.">' +
+                    '<tr title="Cooling factor (how the temperature is reduced between consecutive iterations).">' +
                         '<td align="right">' +
-                            '<label>Auto Stabilize</label>' +
+                            '<label>Cooling Factor</label>' +
+                        '</td>' +
+                        '<td>' +
+                            '<input type="text" id="coolingFactor" value=""/>' +
+                        '</td>' +
+                    '</tr>' +
+                    '<tr title="Lower temperature threshold (below this point the layout will end).">' +
+                        '<td align="right">' +
+                            '<label>Minimum Temperature</label>' +
+                        '</td>' +
+                        '<td>' +
+                            '<input type="text" id="minTemp" value=""/>' +
+                        '</td>' +
+                    '</tr>' +
+                    '<tr title="Whether to animate while running the layout.">' +
+                        '<td align="right">' +
+                            '<label>Animate</label>' +
                         '</td>' +
                         '<td align="left">' +
-                            '<input type="checkbox" id="autoStabilize" value="true" checked="checked"/>' +
+                            '<input type="checkbox" id="animate" value="true" checked="checked"/>' +
+                        '</td>' +
+                    '</tr>' +
+                    '<tr title="Whether to fit the network view after when done.">' +
+                        '<td align="right">' +
+                            '<label>Fit</label>' +
+                        '</td>' +
+                        '<td align="left">' +
+                            '<input type="checkbox" id="fit" value="true" checked="checked"/>' +
+                        '</td>' +
+                    '</tr>' +
+                    '<tr title="Whether to randomize node positions on the beginning.">' +
+                        '<td align="right">' +
+                            '<label>Randomize</label>' +
+                        '</td>' +
+                        '<td align="left">' +
+                            '<input type="checkbox" id="randomize" value="true" checked="checked"/>' +
                         '</td>' +
                     '</tr>' +
                 '</table>' +

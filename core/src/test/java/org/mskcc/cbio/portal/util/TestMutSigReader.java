@@ -32,64 +32,61 @@
 
 package org.mskcc.cbio.portal.util;
 
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
-import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
+import org.mskcc.cbio.portal.dao.DaoGeneticProfile;
 import org.mskcc.cbio.portal.dao.DaoMutSig;
-import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.MutSig;
-import org.mskcc.cbio.portal.scripts.ImportTypesOfCancers;
-import org.mskcc.cbio.portal.scripts.ResetDatabase;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Transactional;
+
+import static org.junit.Assert.*;
 
 import java.io.File;
 
-public class TestMutSigReader extends TestCase {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
+@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@Transactional
+public class TestMutSigReader {
 
 	// TBD: change these to use getResourceAsStream()
     File properties = new File("target/test-classes/testCancerStudy.txt");
     File mutSigFile = new File("target/test-classes/test_mut_sig_data.txt");
 
     ProgressMonitor pm = new ProgressMonitor();
-    // TBD: change this to use getResourceAsStream()
-    File cancers =  new File("target/test-classes/cancers.txt");
     
+	int studyId;
+	
+	@Before 
+	public void setUp() {
+		studyId = DaoCancerStudy.getCancerStudyByStableId("study_tcga_pub").getInternalId();
+		DaoGeneticProfile.reCache();
+	}
+
+    @Test
     public void testloadMutSig() throws Exception {
 
         ProgressMonitor pMonitor = new ProgressMonitor();
         pMonitor.setConsoleMode(false);
 
-        ResetDatabase.resetDatabase();
-        ImportTypesOfCancers.load(new ProgressMonitor(), cancers);
-
-        // Add cancers to a fresh database
-        // Add a cancer study whose standardId is "tcga_gbm"
-        // In accordance with /testCancerStudy.txt
-        CancerStudy cancerStudy = new CancerStudy("Glioblastoma TCGA", "GBM Description", "tcga_gbm", "GBM", false);
-        DaoCancerStudy.addCancerStudy(cancerStudy);
-        assertEquals(1, cancerStudy.getInternalId());
-
-        // Add some genes to the fresh database
-        DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
-        CanonicalGene gene = new CanonicalGene(1956, "EGFR");
-        CanonicalGene gene2 = new CanonicalGene(4921, "DDR2");
-        daoGeneOptimized.addGene(gene);
-        daoGeneOptimized.addGene(gene2);
-
-        int cancerStudyId = MutSigReader.getInternalId(properties);
-        assertTrue(CancerStudy.NO_SUCH_STUDY != cancerStudyId);
-        MutSigReader.loadMutSig(cancerStudyId, mutSigFile, pMonitor);
+        MutSigReader.loadMutSig(studyId, mutSigFile, pMonitor);
         
         // Is the data in the database?
-        MutSig mutSig = DaoMutSig.getMutSig("EGFR", 1);
+        MutSig mutSig = DaoMutSig.getMutSig("AKT1", studyId);
         assertTrue(mutSig != null);
         CanonicalGene testGene = mutSig.getCanonicalGene();
         assertTrue(testGene != null);
 
-        assertTrue("EGFR".equals(testGene.getHugoGeneSymbolAllCaps()));
-        assertEquals(mutSig.getNumMutations(), 20);
-        assertEquals(mutSig.getNumBasesCovered(), 502500);
-        assertTrue(1E-11f == mutSig.getpValue());
-        assertTrue(1E-8f == mutSig.getqValue());
+        assertTrue("AKT1".equals(testGene.getHugoGeneSymbolAllCaps()));
+        assertEquals(mutSig.getNumMutations(), 5);
+        assertEquals(mutSig.getNumBasesCovered(), 150306);
+        assertTrue(Math.abs(mutSig.getpValue() - 1.82E-7) < 1E-12);
+        assertTrue(Math.abs(mutSig.getqValue() - 2.7E-5) < 1E-12);
     }
 }

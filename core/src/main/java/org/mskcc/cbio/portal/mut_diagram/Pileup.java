@@ -34,7 +34,9 @@ package org.mskcc.cbio.portal.mut_diagram;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -137,7 +139,11 @@ public final class Pileup {
         for (Map.Entry<Integer, Collection<ExtendedMutation>> entry : mutationsByLocation.asMap().entrySet())
         {
             int location = entry.getKey();
-            String label = Joiner.on("/").join(labels.get(location));
+            Set<String> locationLabels = labels.get(location);
+            List<String> sortedLocationLabels = new ArrayList<String>();
+            sortedLocationLabels.addAll(locationLabels);
+            Collections.sort(sortedLocationLabels);
+            String label = Joiner.on("/").join(sortedLocationLabels);
 	        int missenseCount = 0;
             Set<String> caseIds = Sets.newHashSet();
 

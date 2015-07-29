@@ -32,18 +32,20 @@
 
 package org.mskcc.cbio.portal.html;
 
-import junit.framework.TestCase;
-import org.mskcc.cbio.portal.html.HtmlUtil;
+import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
+
+import org.junit.Test;
 
 /**
  * Tests the HtmlUtil Class.
  *
  * @author Ethan Cerami.
  */
-public class TestHtmlUtil extends TestCase {
-
+public class TestHtmlUtil {
+	
+	@Test
     public void test1() {
         String html = HtmlUtil.createLink("http://www.google.com", "Google");
         assertEquals("<a href='http://www.google.com'>Google</a>", html);
@@ -51,7 +53,7 @@ public class TestHtmlUtil extends TestCase {
         html = HtmlUtil.createLink(null, null);
         assertEquals("", html);
     }
-
+	@Test
     public void test2() {
         String html = HtmlUtil.createLinkWithinSpan("http://www.google.com", "Google", "box");
         assertEquals("<span class='box'><a href='http://www.google.com'>Google</a></span>", html);
@@ -59,7 +61,7 @@ public class TestHtmlUtil extends TestCase {
         html = HtmlUtil.createLinkWithinSpan(null, null, null);
         assertEquals("", html);
     }
-
+	@Test
     public void test3() {
         String html = HtmlUtil.createLinkWithinSpan("Google", "box");
         assertEquals("<span class='box'>Google</span>", html);
@@ -67,12 +69,12 @@ public class TestHtmlUtil extends TestCase {
         html = HtmlUtil.createLinkWithinSpan(null, null);
         assertEquals("", html);
     }
-
+	@Test
     public void test4() {
         String html = HtmlUtil.createEmptySpacer();
         assertEquals("&nbsp;", html);
     }
-
+	@Test
     public void test5() {
         String html = HtmlUtil.createLinkWithinSpan("http://www.google.com", "Google", "box1",
                 "box2");
@@ -81,7 +83,7 @@ public class TestHtmlUtil extends TestCase {
         html = HtmlUtil.createLinkWithinSpan(null, null, null);
         assertEquals("", html);
     }
-
+	@Test
     public void test6() {
         ArrayList<String> headerList = new ArrayList<String>();
         headerList.add("First");
@@ -96,12 +98,12 @@ public class TestHtmlUtil extends TestCase {
         html = HtmlUtil.createTableHeaderRow(null);
         assertEquals("", html);
     }
-
+	@Test
     public void test7() {
         String html = HtmlUtil.createTextWithinSpan("hello", "bold");
         assertEquals("<span class='bold'>hello</span>", html);
     }
-
+	@Test
     public void test8() {
         ArrayList<String> dataFieldList = new ArrayList<String>();
         dataFieldList.add("Ethan");

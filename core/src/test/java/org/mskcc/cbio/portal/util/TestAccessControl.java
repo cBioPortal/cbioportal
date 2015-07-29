@@ -32,17 +32,18 @@
 
 package org.mskcc.cbio.portal.util;
 
-import junit.framework.TestCase;
+
+import java.io.IOException;
+
+import org.junit.Test;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.User;
 
-import java.io.IOException;
-
 /**
  * JUnit test for AccessControl class.
  */
-public class TestAccessControl extends TestCase {
+public class TestAccessControl {
 
     private CancerStudy publicCancerStudy;
     private CancerStudy privateCancerStudy1;
@@ -51,6 +52,7 @@ public class TestAccessControl extends TestCase {
     private User user2;
     private String clearTextKey;
 
+    @Test
     public void testVariousUtilities() throws Exception {
         /* TBD: Recoded when we provide granualar access
 

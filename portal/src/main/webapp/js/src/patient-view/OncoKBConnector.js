@@ -41,7 +41,7 @@ var OncoKBConnector = (function(){
     
     function oncokbAccess(callback) {
         if(oncokbUrl && oncokbUrl !== 'null'){
-            $.get(oncokbUrl+'access', function(){callback(true);})
+            $.get('api/proxy/oncokbAccess', function(){callback(true);})
                 .fail(function(){callback(false);});
         }else {
             callback(false);
@@ -89,7 +89,7 @@ var OncoKBConnector = (function(){
 
         $.ajax({
             type: 'POST',
-            url: oncokbUrl + 'evidence.json',
+            url: 'api/proxy/oncokb',
             data: oncokbServiceData,
             crossDomain: true,
             dataType: 'json',

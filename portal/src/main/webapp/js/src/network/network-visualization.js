@@ -3242,12 +3242,13 @@ NetworkVis.prototype._toggleNodeLabels = function()
     this._vis.nodes().forEach(function( ele ){
         if (tempLabelVisibility === false){
           ele._private.style['content'].strValue= '';
-          ele._private.style['content'].value= '';
+          ele._private.data['label1'] = ele._private.data['label'];
+          ele._private.data['label'] = '';
 
         }
         else{
+		  ele._private.data['label'] = ele._private.data['label1'];
           ele._private.style['content'].strValue= ele._private.data['label'];
-          ele._private.style['content'].value= ele._private.data['label'];
         }
     });
     this._vis.layout({

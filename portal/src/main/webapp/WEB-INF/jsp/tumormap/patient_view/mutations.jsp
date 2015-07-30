@@ -1042,7 +1042,8 @@
                 str += '<td>' + createDrugsStr(treatments[i].content) + '</td>';
                 str += '<td>' + getLevel(treatments[i].level) + '</td>';
                 str += '<td>' + treatments[i].tumorType + '</td>';
-                str += '<td>' + (treatments.length>2?shortDescription(treatments[i].description): treatments[i].description)+ '</td>';
+//                str += '<td>' + (treatments.length>2?shortDescription(treatments[i].description): treatments[i].description)+ '</td>';
+                str += '<td>' + shortDescription(treatments[i].description)+ '</td>';
                 str +='</tr>';
             }
             str += '</tbody>';
@@ -1084,9 +1085,27 @@
     function shortDescription(description) {
         var str = '';
         var threshold = 80;
-
+        var shortStr = description.substring(0, threshold-8);
+        //Need to identify <a> tag, you do not want to cut the string in mid of <a> tag
+        var aIndex = {
+            start: -1,
+            end: -1
+        };
         if(description && description.length > threshold){
-            str = '<span><span class="oncokb-shortDescription">' + description.substring(0, threshold-8) + '<span class="oncokb-description-more" >... <a>more</a></span></span>';
+            if(shortStr.indexOf('<a') !== -1) {
+                aIndex.start = shortStr.indexOf('<a');
+                if(shortStr.indexOf('</a>') !== -1 && shortStr.indexOf('</a>') < (threshold - 8 - 3)) {
+                    aIndex.end = shortStr.indexOf('</a>');
+                }
+            }
+
+            if(aIndex.start > -1){
+                //Means the short description has part of <a> tag
+                if(aIndex.end == -1) {
+                    shortStr = description.substring(0, (aIndex.start));
+                }
+            }
+            str = '<span><span class="oncokb-shortDescription">' + shortStr + '<span class="oncokb-description-more" >... <a>more</a></span></span>';
             str += '<span class="oncokb-fullDescription" style="display:none">' + description + '</span></span>';
         }else{
             str = '<span class="oncokb-fullDescriotion">' + description + '</span>';
@@ -1107,7 +1126,7 @@
             for(i = 0; i < arrayL; i++){
                     str += '<tr>';
                     str += '<td style="white-space:nowrap">' + array[i].tumorType + '</td>';
-                    str += '<td>' + (array.length>2?shortDescription(array[i].description): array[i].description)+ '</td>';
+                    str += '<td>' + shortDescription(array[i].description)+ '</td>';
                     str +='</tr>';
             }
             str += '</tbody>';
@@ -1214,12 +1233,18 @@
                             }
                         });
                         treatmentDataTable = $(this).find('.oncokb-treatments-datatable').dataTable({
+                            "aoColumns": [
+                                { "sType": "string" },
+                                { "sType": "oncokb-level" },
+                                { "sType": "string" },
+                                { "sType": "string" },
+                            ],
                             "sDom": 'rt',
                             "bPaginate": false,
                             "bScrollCollapse": true,
                             "sScrollY": 400,
                             "autoWidth": true,
-                            "order": [[ 1, "asc" ]]
+                            "order": [[ 1, "asc" ], [0, "asc"]]
                         });
                     },
                     visible: function(event, api) {
@@ -1375,7 +1400,7 @@
         var level = '';
         var treatments = genomicEventObs.mutations.getValue(hashId, 'oncokb').treatments;
         var treatmentsL = treatments.length;
-        var levels = ['R3', 'R2', 'R1', '4', '3', '2B','2A', '1', '0']
+        var levels = ['4', '3', '2B','2A', '1', '0', 'R3', 'R2', 'R1'];
         var highestLevelIndex = -1;
         for(var i = 0; i < treatmentsL; i++){
             var _level = treatments[i].level.match(/LEVEL_(R?\d[AB]?)/);
@@ -1527,7 +1552,7 @@
             <%=PatientView.SAMPLE_ID%>:caseIdsStr,
             <%=PatientView.MUTATION_PROFILE%>:mutationProfileId
         };
-        
+
         if (cnaProfileId) {
             params['<%=PatientView.CNA_PROFILE%>'] = cnaProfileId;
         }
@@ -1540,116 +1565,116 @@
             params['<%=PatientView.DRUG_TYPE%>'] = drugType;
         }
 
-        accessOncoKB();
-                        
-        $.post("mutations.json", 
-            params,
-            function(data) {
-                determineOverviewMutations(data);
-                genomicEventObs.mutations.setData(data);
-                genomicEventObs.fire('mutations-built');
-                
-                // summary table
-                buildMutationsDataTable(genomicEventObs.mutations,genomicEventObs.mutations.getEventIds(true), 'mutation_summary_table', 
-                            '<"H"<"mutation-summary-table-name">fr>t<"F"<"mutation-show-more"><"datatable-paging"pl>>', 25, "No mutation events of interest", true);
-                var numFiltered = genomicEventObs.mutations.getNumEvents(true);
-                var numAll = genomicEventObs.mutations.getNumEvents(false);
-                 $('.mutation-show-more').html("<a href='#mutations' onclick='switchToTab(\"tab_mutations\");return false;'\n\
+        accessOncoKB(function(){
+            $.post("mutations.json",
+                    params,
+                    function(data) {
+                        determineOverviewMutations(data);
+                        genomicEventObs.mutations.setData(data);
+                        genomicEventObs.fire('mutations-built');
+
+                        // summary table
+                        buildMutationsDataTable(genomicEventObs.mutations,genomicEventObs.mutations.getEventIds(true), 'mutation_summary_table',
+                                '<"H"<"mutation-summary-table-name">fr>t<"F"<"mutation-show-more"><"datatable-paging"pl>>', 25, "No mutation events of interest", true);
+                        var numFiltered = genomicEventObs.mutations.getNumEvents(true);
+                        var numAll = genomicEventObs.mutations.getNumEvents(false);
+                        $('.mutation-show-more').html("<a href='#mutations' onclick='switchToTab(\"tab_mutations\");return false;'\n\
                       title='Show more mutations of this patient'>Show all "
                         +numAll+" mutations</a>");
-                $('.mutation-show-more').addClass('datatable-show-more');
-                var mutationSummary;
-                if (numAll===numFiltered) {
-                    mutationSummary = ""+numAll+" mutations";
-                } else {
-                    mutationSummary = "Mutations of interest"
-                     +(numAll==0?"":(" ("
-                        +numFiltered
-                        +" of <a href='#mutations' onclick='switchToTab(\"tab_mutations\");return false;'\n\
+                        $('.mutation-show-more').addClass('datatable-show-more');
+                        var mutationSummary;
+                        if (numAll===numFiltered) {
+                            mutationSummary = ""+numAll+" mutations";
+                        } else {
+                            mutationSummary = "Mutations of interest"
+                            +(numAll==0?"":(" ("
+                            +numFiltered
+                            +" of <a href='#mutations' onclick='switchToTab(\"tab_mutations\");return false;'\n\
                          title='Show more mutations of this patient'>"
-                        +numAll
-                        +"</a>)"))
-                     +" <img id='mutations-summary-help' src='images/help.png' \n\
+                            +numAll
+                            +"</a>)"))
+                            +" <img id='mutations-summary-help' src='images/help.png' \n\
                         title='This table contains somatic mutations in genes that are \n\
                         <ul><li>either annotated cancer genes</li>\n\
                         <li>or recurrently mutated, namely\n\
                             <ul><li>MutSig Q < 0.05, if MutSig results are available</li>\n\
                             <li>otherwise, mutated in > 5% of samples in the study with &ge; 50 samples</li></ul> </li>\n\
                         <li>or with > 5 overlapping entries in COSMIC.</li></ul>'/>";
-                }
-                $('.mutation-summary-table-name').html(mutationSummary);
-                $('#mutations-summary-help').qtip({
-                    content: { attr: 'title' },
-                    style: { classes: 'qtip-light qtip-rounded' },
-                    position: { my:'top center',at:'bottom center',viewport: $(window) }
-                });
-                $('.mutation-summary-table-name').addClass("datatable-name");
-                $('#mutation_summary_wrapper_table').show();
-                $('#mutation_summary_wait').remove();
+                        }
+                        $('.mutation-summary-table-name').html(mutationSummary);
+                        $('#mutations-summary-help').qtip({
+                            content: { attr: 'title' },
+                            style: { classes: 'qtip-light qtip-rounded' },
+                            position: { my:'top center',at:'bottom center',viewport: $(window) }
+                        });
+                        $('.mutation-summary-table-name').addClass("datatable-name");
+                        $('#mutation_summary_wrapper_table').show();
+                        $('#mutation_summary_wait').remove();
 
-                // mutations
-                buildMutationsDataTable(genomicEventObs.mutations,genomicEventObs.mutations.getEventIds(false),
-                    'mutation_table', '<"H"<"all-mutation-table-name">fr>t<"F"C<"datatable-paging"pil>>', 100, "No mutation events", false);
-                $('.all-mutation-table-name').html(
-                    ""+genomicEventObs.mutations.getNumEvents()+" nonsynonymous mutations");
-                $('.all-mutation-table-name').addClass("datatable-name");
-                $('#mutation_wrapper_table').show();
-                $('#mutation_wait').remove();
+                        // mutations
+                        buildMutationsDataTable(genomicEventObs.mutations,genomicEventObs.mutations.getEventIds(false),
+                                'mutation_table', '<"H"<"all-mutation-table-name">fr>t<"F"C<"datatable-paging"pil>>', 100, "No mutation events", false);
+                        $('.all-mutation-table-name').html(
+                                ""+genomicEventObs.mutations.getNumEvents()+" nonsynonymous mutations");
+                        $('.all-mutation-table-name').addClass("datatable-name");
+                        $('#mutation_wrapper_table').show();
+                        $('#mutation_wait').remove();
 
-                var pancanMutationsUrl = "pancancerMutations.json";
-                var byKeywordResponse = [];
-                var byHugoResponse = [];
+                        var pancanMutationsUrl = "pancancerMutations.json";
+                        var byKeywordResponse = [];
+                        var byHugoResponse = [];
 
-                function munge(response, key) {
-                    // munge data to get it into the format: keyword -> corresponding datum
-                    return d3.nest().key(function(d) { return d[key]; }).entries(response)
-                            .reduce(function(acc, next) { acc[next.key] = next.values; return acc;}, {});
-                }
+                        function munge(response, key) {
+                            // munge data to get it into the format: keyword -> corresponding datum
+                            return d3.nest().key(function(d) { return d[key]; }).entries(response)
+                                    .reduce(function(acc, next) { acc[next.key] = next.values; return acc;}, {});
+                        }
 
-                var splitJobs = function(cmd, reqData, type) {
-                    var jobs = [];
-                    var batchSize = 1000;
+                        var splitJobs = function(cmd, reqData, type) {
+                            var jobs = [];
+                            var batchSize = 1000;
 
-                    var numOfBatches = Math.ceil(reqData.length / batchSize);
-                    for(var b=0; b<numOfBatches; b++) {
-                        var first = b*batchSize;
-                        var last = Math.min((b+1)*batchSize, reqData.length);
+                            var numOfBatches = Math.ceil(reqData.length / batchSize);
+                            for(var b=0; b<numOfBatches; b++) {
+                                var first = b*batchSize;
+                                var last = Math.min((b+1)*batchSize, reqData.length);
 
-                        var accData = reqData.slice(first, last).join(",");
+                                var accData = reqData.slice(first, last).join(",");
 
-                        jobs.push(
-                                $.post(pancanMutationsUrl,
-                                        {
-                                            cmd: cmd,
-                                            q: accData
-                                        }, function(batchData) {
-                                            if(cmd == "byKeywords") {
-                                                byKeywordResponse = byKeywordResponse.concat(batchData);
-                                            } else if( cmd == "byHugos") {
-                                                byHugoResponse = byHugoResponse.concat(batchData);
-                                            } else {
-                                                console.trace("Ooops! Something is wrong!");
-                                            }
-                                        }
-                                )
-                        );
+                                jobs.push(
+                                        $.post(pancanMutationsUrl,
+                                                {
+                                                    cmd: cmd,
+                                                    q: accData
+                                                }, function(batchData) {
+                                                    if(cmd == "byKeywords") {
+                                                        byKeywordResponse = byKeywordResponse.concat(batchData);
+                                                    } else if( cmd == "byHugos") {
+                                                        byHugoResponse = byHugoResponse.concat(batchData);
+                                                    } else {
+                                                        console.trace("Ooops! Something is wrong!");
+                                                    }
+                                                }
+                                        )
+                                );
+
+                            }
+
+                            return jobs;
+                        };
+
+                        var jobs = splitJobs("byKeywords", genomicEventObs.mutations.data.key)
+                                .concat(splitJobs("byHugos", genomicEventObs.mutations.data.gene));
+                        $.when.apply($, jobs).done(function() {
+                            genomicEventObs.pancan_mutation_frequencies.setData(
+                                    _.extend(munge(byKeywordResponse, "keyword"), munge(byHugoResponse, "hugo")));
+                            genomicEventObs.fire("pancan-mutation-frequency-built");
+                        });
 
                     }
-
-                    return jobs;
-                };
-
-                var jobs = splitJobs("byKeywords", genomicEventObs.mutations.data.key)
-                                .concat(splitJobs("byHugos", genomicEventObs.mutations.data.gene));
-                $.when.apply($, jobs).done(function() {
-                    genomicEventObs.pancan_mutation_frequencies.setData(
-                            _.extend(munge(byKeywordResponse, "keyword"), munge(byHugoResponse, "hugo")));
-                    genomicEventObs.fire("pancan-mutation-frequency-built");
-                });
-                
-            }
-            ,"json"
-        );
+                    ,"json"
+            );
+        });
     });
     
     var patient_view_mutsig_qvalue_threhold = 0.05;

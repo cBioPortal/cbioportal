@@ -147,12 +147,14 @@ var OncoKBConnector = (function(){
                                     });
                                 }else if(evidence.levelOfEvidence) {
                                     //if evidence has level information, that means this is treatment evidence.
-                                    var _treatment = {};
-                                    _treatment.tumorType = evidence.tumorType.name;
-                                    _treatment.level = evidence.levelOfEvidence;
-                                    _treatment.content = evidence.treatments;
-                                    _treatment.description = findRegex(evidence.description) || 'No yet curated';
-                                    datum.treatments.push(_treatment);
+                                    if(['LEVEL_0', 'LEVEL_R3'].indexOf(evidence.levelOfEvidence) === -1) {
+                                        var _treatment = {};
+                                        _treatment.tumorType = evidence.tumorType.name;
+                                        _treatment.level = evidence.levelOfEvidence;
+                                        _treatment.content = evidence.treatments;
+                                        _treatment.description = findRegex(evidence.description) || 'No yet curated';
+                                        datum.treatments.push(_treatment);
+                                    }
                                 }
                             }
                         }
@@ -253,3 +255,25 @@ var OncoKBConnector = (function(){
         consequenceConverter: consequenceConverter
     };
 })();
+
+$.fn.dataTableExt.oSort['oncokb-level-asc']  = function(x,y) {
+    var levels = ['4', '3', '2B','2A', '1', '0', 'R3', 'R2', 'R1'];
+    var xIndex = levels.indexOf(x);
+    var yIndex = levels.indexOf(y);
+    if(xIndex < yIndex){
+        return 1;
+    }else{
+        return -1;
+    }
+};
+
+$.fn.dataTableExt.oSort['oncokb-level-desc'] = function(x,y) {
+    var levels = ['4', '3', '2B','2A', '1', '0', 'R3', 'R2', 'R1'];
+    var xIndex = levels.indexOf(x);
+    var yIndex = levels.indexOf(y);
+    if(xIndex < yIndex){
+        return -1;
+    }else{
+        return 1;
+    }
+};

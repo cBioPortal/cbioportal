@@ -64,7 +64,7 @@ public class ProxyController
   // of JAVA proxy when creating this proxy.
   // Created by Hongxin
   @RequestMapping(value="/{path}")
-  public @ResponseBody String getBitlyURL(@PathVariable String path,
+  public @ResponseBody String getProxyURL(@PathVariable String path,
                                           @RequestBody String body, HttpMethod method,
                                           HttpServletRequest request, HttpServletResponse response) throws URISyntaxException
   {

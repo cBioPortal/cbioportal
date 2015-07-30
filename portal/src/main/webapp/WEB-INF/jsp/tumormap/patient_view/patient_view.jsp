@@ -426,8 +426,7 @@ $(document).ready(function(){
     if (print) $('#page_wrapper_table').css('width', '900px');
     tweaksStyles();
     outputClinicalData();
-    setUpPatientTabs();
-    accessOncoKB();
+    setUpPatientTabs();;
     initTabs();
     var openTab = /(tab_[^&]+)/.exec(window.location.hash);
     if (openTab) {

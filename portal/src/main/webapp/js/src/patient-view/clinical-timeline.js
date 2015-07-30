@@ -1259,6 +1259,15 @@ window.clinicalTimeline = (function(){
     return timeline;
   };
 
+  timeline.collapseAll = function() {
+    var singlePointTracks = allData.filter(function(trackData) {
+      return !isDurationTrack(trackData);
+    });
+    singlePointTracks.forEach(mergeTooltipTablesAtEqualTimepoint);
+    singlePointTracks.forEach(function(x) { x.collapse = true; });
+    return timeline;
+  };
+
   return timeline;
 })();
 // vim: ts=2 sw=2

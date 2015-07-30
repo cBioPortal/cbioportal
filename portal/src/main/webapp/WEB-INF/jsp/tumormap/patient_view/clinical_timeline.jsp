@@ -111,7 +111,8 @@
                 var timeline = clinicalTimeline
                         .width(width)
                         .data(timeData)
-                        .divId("#timeline");
+                        .divId("#timeline")
+                        .collapseAll();
                 timeline();
                 $("#timeline-container").show();
                 //plotCaseLabelsInTimeline();

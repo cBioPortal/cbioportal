@@ -120,6 +120,7 @@
         <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/oncoprintjs/src/js/oncoprint.js"></script>
         <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/OncoprintUtils.js"></script>
         <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/setup-oncoprint-improved.js"></script>
+        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/studyview.js"></script>
         
         <!--<script data-main="js/src/oncoprint/main-boilerplate.js?<%=GlobalProperties.getAppVersion()%>" type="text/javascript" src="js/require.js?<%=GlobalProperties.getAppVersion()%>"></script>-->
     </div>

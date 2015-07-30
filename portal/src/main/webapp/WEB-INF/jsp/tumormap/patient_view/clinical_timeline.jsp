@@ -75,7 +75,19 @@
             var clinicalData = clinicalDataMap[caseId];
             var su2cSampleId = guessClinicalData(clinicalData,["SU2C_SAMPLE_ID"]);
             if (!su2cSampleId) su2cSampleId = caseId;
-            fillColorAndLabelForCase(d3.select('.timeline-'+su2cSampleId),caseId);
+            debugger;
+            var circle = d3.selectAll(".timelineSeries_1").filter(function (x) {
+                if (x.tooltip_tables.length === 1) {
+                    return x.tooltip_tables[0].filter(function(x) {
+                        return x[0] === "SpecimenReferenceNumber";
+                    })[0][1] === su2cSampleId;
+                }
+                else {
+                    return undefined;
+                }
+            });
+            console.log(circle);
+            fillColorAndLabelForCase(circle, caseId);
         }
     }
 
@@ -92,14 +104,17 @@
             function(data){
                 if (cbio.util.getObjectLength(data)===0) return;
                 
-                var timeData = parepareTimeLineData.prepare(data);
+                var timeData = clinicalTimelineParser(data);
                 if (timeData.length===0) return;
 
                 var width = $("#td-content").width() - 75;
-                var timeline = clinicalTimeline().itemHeight(12).width(width).colorProperty('color').opacityProperty('opacity').stack();
-                var svg = d3.select("#timeline").append("svg").attr("width", width).datum(timeData).call(timeline);
-                plotCaseLabelsInTimeline();
+                var timeline = clinicalTimeline
+                        .width(width)
+                        .data(timeData)
+                        .divId("#timeline");
+                timeline();
                 $("#timeline-container").show();
+                //plotCaseLabelsInTimeline();
             }
             ,"json"
         );

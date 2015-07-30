@@ -3437,8 +3437,11 @@ NetworkVis.prototype._toggleProfileData = function()
  */
 NetworkVis.prototype._saveAsPng = function()
 {
-	var content = cbio.util.b64ToByteArrays(this._vis.png());
-	cbio.download.clientSideDownload(content, "network.png", "image/png");
+  var pngContent = this._vis.png({scale: 3, full: true});
+  //Remove additional data from beginning of png image data
+  var b64data = pngContent.substr(pngContent.indexOf(",") + 1);
+  var content = cbio.util.b64ToByteArrays(b64data);
+  cbio.download.clientSideDownload(content, "network.png", "image/png");
 };
 
 /**

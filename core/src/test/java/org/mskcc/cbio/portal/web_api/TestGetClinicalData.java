@@ -35,19 +35,29 @@ package org.mskcc.cbio.portal.web_api;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
-import junit.framework.TestCase;
+
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.model.CancerStudy;
-// import org.mskcc.cbio.portal.scripts.ImportClinicalData;
-import org.mskcc.cbio.portal.scripts.ResetDatabase;
-import org.mskcc.cbio.portal.util.ProgressMonitor;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Transactional;
+
+import static org.junit.Assert.*;
 
 /**
  * Tests Get Clinical Data.
  *
  * @author Ethan Cerami.
  */
-public class TestGetClinicalData extends TestCase {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
+@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@Transactional
+public class TestGetClinicalData {
 
     /**
      * Tests Get Clinical Data.
@@ -55,6 +65,8 @@ public class TestGetClinicalData extends TestCase {
      * @throws DaoException Database Access Error.
      * @throws IOException IO Error.
      */
+	@Ignore
+	@Test
     public void testGetClinicalData() throws DaoException, IOException {
 
         // ResetDatabase.resetDatabase();

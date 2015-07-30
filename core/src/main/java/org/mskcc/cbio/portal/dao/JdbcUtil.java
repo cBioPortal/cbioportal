@@ -36,14 +36,9 @@ import org.mskcc.cbio.portal.util.*;
 
 import org.apache.commons.logging.*;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.beans.factory.BeanCreationException;
-
 import java.sql.*;
 import java.util.*;
 import javax.sql.DataSource;
-import javax.naming.InitialContext;
 
 /**
  * Connection Utility for JDBC.
@@ -52,9 +47,24 @@ import javax.naming.InitialContext;
  */
 public class JdbcUtil {
     private static DataSource ds;
-    private static final int MAX_JDBC_CONNECTIONS = 100;
-    private static Map<String,Integer> activeConnectionCount; // keep track of the number of active connection per class/requester
+    private static Map<String,Integer> activeConnectionCount = new HashMap<String,Integer>(); // keep track of the number of active connection per class/requester
     private static final Log LOG = LogFactory.getLog(JdbcUtil.class);
+    
+    /**
+     * Gets the data source
+     * @return the data source
+     */
+    public static DataSource getDataSource() {
+    	return ds;
+    }
+
+    /**
+     * Sets the data source
+     * @param value the data source
+     */
+    public static void setDataSource(DataSource value) {
+    	ds = value;
+    }
 
     /**
      * Gets Connection to the Database.
@@ -78,10 +88,6 @@ public class JdbcUtil {
         // this method should be syncronized
         // but may slow the speed?
         
-        if (ds == null) {
-            ds = initDataSource();
-        }
-
         Connection con;
         try {
             con = ds.getConnection();
@@ -97,33 +103,6 @@ public class JdbcUtil {
         }
         
         return con;
-    }
-
-    private static DataSource initDataSource()
-    {
-        DataSource ds = null;
-        ApplicationContext ctx = null;
-        try {
-            ctx = getContext("jndi");
-            ds = (DataSource)ctx.getBean("businessDataSource");
-        }
-        catch (Exception e) {
-            //logMessage("Problem creating jndi datasource, opening dbcp datasource.");
-            ctx = getContext("dbcp");
-            ds = (DataSource)ctx.getBean("businessDataSource");
-        }
-
-        activeConnectionCount = new HashMap<String,Integer>();
-
-        return ds;
-    }
-
-    private static ApplicationContext getContext(String profile)
-    {
-        ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("classpath:applicationContext-business.xml");
-        ctx.getEnvironment().setActiveProfiles(profile);
-        ctx.refresh();
-        return ctx; 
     }
 
     /**

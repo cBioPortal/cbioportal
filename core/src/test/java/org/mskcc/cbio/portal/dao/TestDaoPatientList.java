@@ -33,31 +33,57 @@
 package org.mskcc.cbio.portal.dao;
 
 import java.util.ArrayList;
-import junit.framework.TestCase;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.dao.*;
-import org.mskcc.cbio.portal.scripts.ResetDatabase;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Transactional;
+
+import static org.junit.Assert.*;
 
 /**
  * JUnit test for DaoCase List.
  */
-public class TestDaoPatientList extends TestCase {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
+@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@Transactional
+public class TestDaoPatientList {
+	
+	CancerStudy study;
+	
+	@Before
+	public void setUp() throws DaoException {
+		study = DaoCancerStudy.getCancerStudyByStableId("study_tcga_pub");
+        Patient p = new Patient(study, "TCGA-1");
+        int pId = DaoPatient.addPatient(p);
+        DaoSample.addSample(new Sample("TCGA-1-S1", pId, "brca"));
 
+        p = new Patient(study, "TCGA-2");
+        pId = DaoPatient.addPatient(p);
+        DaoSample.addSample(new Sample("TCGA-2-S1", pId, "brca"));
+	}
+
+	@Test
     public void testDaoPatientList() throws DaoException {
-        createSmallDbms();
         DaoPatientList daoPatientList = new DaoPatientList();
         PatientList patientList = new PatientList();
         patientList.setName("Name0");
         patientList.setDescription("Description0");
         patientList.setStableId("stable_0");
-        patientList.setCancerStudyId(CancerStudy.NO_SUCH_STUDY);
+        patientList.setCancerStudyId(study.getInternalId());
         patientList.setPatientListCategory(PatientListCategory.ALL_CASES_WITH_CNA_DATA);
         ArrayList<String> patients = new ArrayList<String>();
-        patients.add("TCGA-1");
-        patients.add("TCGA-2");
+        patients.add("TCGA-1-S1");
+        patients.add("TCGA-2-S1");
         patientList.setPatientList(patients);
         daoPatientList.addPatientList(patientList);
         
+        // Only patients with samples are returned. No samples, no returny in the listy.
         PatientList patientListFromDb = daoPatientList.getPatientListByStableId("stable_0");
         assertEquals("Name0", patientListFromDb.getName());
         assertEquals("Description0", patientListFromDb.getDescription());
@@ -66,12 +92,4 @@ public class TestDaoPatientList extends TestCase {
         assertEquals(2, patientListFromDb.getPatientList().size());
     }
 
-    private void createSmallDbms() throws DaoException {
-        ResetDatabase.resetDatabase();
-        CancerStudy study = new CancerStudy("study", "description", "id", "brca", true);
-        Patient p = new Patient(study, "TCGA-1");
-        int pId = DaoPatient.addPatient(p);
-        p = new Patient(study, "TCGA-2");
-        pId = DaoPatient.addPatient(p);
-    }
 }

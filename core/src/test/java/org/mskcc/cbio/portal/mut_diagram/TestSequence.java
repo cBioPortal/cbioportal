@@ -52,7 +52,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
-import org.mskcc.cbio.portal.mut_diagram.*;
 
 /**
  * Unit test for Sequence.

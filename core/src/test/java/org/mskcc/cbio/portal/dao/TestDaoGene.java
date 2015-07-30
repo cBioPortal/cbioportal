@@ -33,28 +33,37 @@
 package org.mskcc.cbio.portal.dao;
 
 import java.util.Arrays;
-import junit.framework.TestCase;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
 import org.mskcc.cbio.portal.model.CanonicalGene;
-import org.mskcc.cbio.portal.scripts.ResetDatabase;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Transactional;
+
+import static org.junit.Assert.*;
 
 import java.util.HashSet;
 
 /**
  * JUnit Tests for DaoGene and DaoGeneOptimized.
  */
-public class TestDaoGene extends TestCase {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
+@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@Transactional
+public class TestDaoGene {
 
     /**
      * Tests DaoGene and DaoGeneOptimized.
      * @throws DaoException Database Error.
      */
-    public void testDaoGene() throws DaoException {
-
-		// reset database
-        ResetDatabase.resetDatabase();
+	@Test
+    public void testAddExistingGene() throws DaoException {
 
 		// save bulkload setting before turning off
 		boolean isBulkLoad = MySQLbulkLoader.isBulkLoad();
@@ -65,19 +74,31 @@ public class TestDaoGene extends TestCase {
                 new HashSet<String>(Arrays.asList("BRCAI|BRCC1|BROVCA1|IRIS|PNCA4|PSCP|RNF53".split("\\|"))));
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
         int num = daoGeneOptimized.addGene(gene);
-        assertEquals(8, num);
+        assertEquals(5, num);
 
-        gene = new CanonicalGene(675, "BRCA2",
-                new HashSet<String>(Arrays.asList("BRCC2|BROVCA2|FACD|FAD|FAD1|FANCB|FANCD|FANCD1|GLM3|PNCA2".split("\\|"))));
-        num = daoGeneOptimized.addGene(gene);
-        assertEquals(11, num);
+		// restore bulk setting
+		if (isBulkLoad) {
+			MySQLbulkLoader.bulkLoadOn();
+		}
+    }
 
-        gene = daoGeneOptimized.getGene(675);
-        validateBrca2(gene);
-        gene = daoGeneOptimized.getGene("BRCA2");
-        validateBrca2(gene);
-        gene = daoGeneOptimized.getGene(672);
-        validateBrca1(gene);
+    /**
+     * Tests DaoGene and DaoGeneOptimized.
+     * @throws DaoException Database Error.
+     */
+	@Test
+    public void testAddNewGene() throws DaoException {
+
+		// save bulkload setting before turning off
+		boolean isBulkLoad = MySQLbulkLoader.isBulkLoad();
+		MySQLbulkLoader.bulkLoadOff();
+
+        //  Add BRCA1 and BRCA2 Genes
+        CanonicalGene gene = new CanonicalGene(1956, "EGFR",
+                new HashSet<String>(Arrays.asList("ERBB1|ERBB|HER1".split("\\|"))));
+        DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
+        int num = daoGeneOptimized.addGene(gene);
+        assertEquals(4, num);
 
 		// restore bulk setting
 		if (isBulkLoad) {
@@ -87,18 +108,30 @@ public class TestDaoGene extends TestCase {
 
     /**
      * Validates BRCA1.
-     * @param gene Gene Object.
      */
-    private void validateBrca1(CanonicalGene gene) {
+    @Test
+    public void testBRCA1ById() {
+        CanonicalGene gene = DaoGeneOptimized.getInstance().getGene(672);
         assertEquals("BRCA1", gene.getHugoGeneSymbolAllCaps());
         assertEquals(672, gene.getEntrezGeneId());
     }
 
     /**
      * Validates BRCA2.
-     * @param gene Gene Object.
      */
-    private void validateBrca2(CanonicalGene gene) {
+    @Test
+    public void testBRCA2ById() {
+        CanonicalGene gene = DaoGeneOptimized.getInstance().getGene(675);
+        assertEquals("BRCA2", gene.getHugoGeneSymbolAllCaps());
+        assertEquals(675, gene.getEntrezGeneId());
+    }
+
+    /**
+     * Validates BRCA2.
+     */
+    @Test
+    public void testBRCA2ByName() {
+        CanonicalGene gene = DaoGeneOptimized.getInstance().getGene("BRCA2");
         assertEquals("BRCA2", gene.getHugoGeneSymbolAllCaps());
         assertEquals(675, gene.getEntrezGeneId());
     }

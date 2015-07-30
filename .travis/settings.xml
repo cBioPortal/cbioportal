@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<settings>
+  <servers>
+    <server>
+      <id>settingsKey</id>
+      <username>travis</username>
+      <password></password>
+   </server>
+ </servers>
+</settings>

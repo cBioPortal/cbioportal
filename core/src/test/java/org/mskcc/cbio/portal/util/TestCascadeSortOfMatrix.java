@@ -32,7 +32,6 @@
 
 package org.mskcc.cbio.portal.util;
 
-
 import static org.junit.Assert.assertArrayEquals;
 
 import java.util.Comparator;
@@ -40,14 +39,12 @@ import java.util.Formatter;
 import java.util.Locale;
 import java.util.Random;
 
-import junit.framework.TestCase;
-
 import org.junit.Test;
 import org.mskcc.cbio.portal.model.GeneticEvent;
 import org.mskcc.cbio.portal.model.GeneticEventComparator;
 import org.mskcc.cbio.portal.model.GeneticEventImpl;
 
-public class TestCascadeSortOfMatrix extends TestCase{
+public class TestCascadeSortOfMatrix {
    
    // TODO: add a performance test with a 10000 x 10000 matrix
 

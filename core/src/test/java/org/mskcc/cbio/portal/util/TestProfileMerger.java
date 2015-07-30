@@ -32,7 +32,7 @@
 
 package org.mskcc.cbio.portal.util;
 
-import junit.framework.TestCase;
+
 import org.mskcc.cbio.portal.model.ProfileData;
 import org.mskcc.cbio.io.WebFileConnect;
 import org.mskcc.cbio.portal.model.GeneticProfile;
@@ -42,10 +42,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import static org.junit.Assert.*;
+
 /**
  * JUnit test for Profile Merger.
  */
-public class TestProfileMerger extends TestCase {
+public class TestProfileMerger {
 
     /**
      * Tests the Profile Merger Utility Class.

@@ -77,19 +77,26 @@
         g.each(function (d, i) {
           d.forEach(function (datum, index) {
             // Set stack attribute for time points based on overlapping time
-            var overlapGroups = groupByOverlap(datum.times, (ending/80+3));
             var overlapMaxStack = 0;
 
-            overlapGroups.forEach(function(overlapGroup, j) {
-              var overlapStack = 0;
-              overlapGroup.forEach(function(time, k) {
-                time.stack = maxStack + overlapStack;
-                if (overlapStack > overlapMaxStack) {
-                  overlapMaxStack = overlapStack;
-                }
-                overlapStack++;
+            if (!datum.collapse) {
+              var overlapGroups = groupByOverlap(datum.times, (ending/80+3));
+
+              overlapGroups.forEach(function(overlapGroup, j) {
+                var overlapStack = 0;
+                overlapGroup.forEach(function(time, k) {
+                  time.stack = maxStack + overlapStack;
+                  if (overlapStack > overlapMaxStack) {
+                    overlapMaxStack = overlapStack;
+                  }
+                  overlapStack++;
+                });
               });
-            });
+            } else {
+              datum.times.forEach(function(t) {
+                t.stack = maxStack;
+              });
+            }
 
             // create y mapping for stacked graph
             if (stacked && Object.keys(yAxisMapping).indexOf(index) == -1) {

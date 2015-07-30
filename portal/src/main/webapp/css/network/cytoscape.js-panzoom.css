@@ -1,13 +1,12 @@
 .ui-cytoscape-panzoom {
 	position: relative;
-    margin-left: 95%;
 	font-size: 12px;
 	color: #fff;
 	font-family: arial, helvetica, sans-serif;
 	line-height: 1;
 	color: #666;
 	font-size: 11px;
-	z-index: 99999;
+	z-index: 1;
 }
 
 .ui-cytoscape-panzoom-zoom-button {

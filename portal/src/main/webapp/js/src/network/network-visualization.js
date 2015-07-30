@@ -287,7 +287,6 @@ NetworkVis.prototype.updateSelectedGenes = function(evt)
 NetworkVis.prototype.saveSettings = function()
 {
     // update layout option values
-
     for (var i=0; i < (this._layoutOptions).length; i++)
     {
 //      if (_layoutOptions[i].id == "weightNorm")
@@ -308,19 +307,49 @@ NetworkVis.prototype.saveSettings = function()
 //          }
 //      }
 
-        if (this._layoutOptions[i].id == "autoStabilize")
+        if (this._layoutOptions[i].id == "animate")
         {
             // check if the auto stabilize box is checked
 
-            if($(this.settingsDialogSelector + " #autoStabilize").is(":checked"))
+            if($(this.settingsDialogSelector + " #animate").is(":checked"))
             {
                 this._layoutOptions[i].value = true;
-                $(this.settingsDialogSelector + " #autoStabilize").val(true);
+                $(this.settingsDialogSelector + " #animate").val(true);
             }
             else
             {
                 this._layoutOptions[i].value = false;
-                $(this.settingsDialogSelector + " #autoStabilize").val(false);
+                $(this.settingsDialogSelector + " #animate").val(false);
+            }
+        }
+        else if (this._layoutOptions[i].id == "randomize")
+        {
+            // check if the auto stabilize box is checked
+
+            if($(this.settingsDialogSelector + " #randomize").is(":checked"))
+            {
+                this._layoutOptions[i].value = true;
+                $(this.settingsDialogSelector + " #randomize").val(true);
+            }
+            else
+            {
+                this._layoutOptions[i].value = false;
+                $(this.settingsDialogSelector + " #randomize").val(false);
+            }
+        }
+        else if (this._layoutOptions[i].id == "fit")
+        {
+            // check if the auto stabilize box is checked
+
+            if($(this.settingsDialogSelector + " #fit").is(":checked"))
+            {
+                this._layoutOptions[i].value = true;
+                $(this.settingsDialogSelector + " #fit").val(true);
+            }
+            else
+            {
+                this._layoutOptions[i].value = false;
+                $(this.settingsDialogSelector + " #fit").val(false);
             }
         }
         else
@@ -329,6 +358,7 @@ NetworkVis.prototype.saveSettings = function()
             this._layoutOptions[i].value =
                 $(this.settingsDialogSelector + " #" + this._layoutOptions[i].id).val();
         }
+
     }
 
     // update graphLayout options
@@ -3270,7 +3300,7 @@ NetworkVis.prototype._performLayout = function()
 //      _vis.updateData("edges", [edges[i]], edges[i].data);
 //    }
       //TODO layout options will be changed
-    this._vis.layout(this._graphLayout);
+    this._vis.layout(this._graphLayout.options);
 };
 
 /**
@@ -3281,14 +3311,22 @@ NetworkVis.prototype._toggleNodeLabels = function()
     // update visibility of labels
 
     this._nodeLabelsVisible = !this._nodeLabelsVisible;
+    var tempLabelVisibility = this._nodeLabelsVisible;
     this._vis.nodes().forEach(function( ele ){
-        if (_nodeLabelsVisible === false){
-          ele.css('content', '');
+        if (tempLabelVisibility === false){
+          ele._private.style['content'].strValue= '';
+          ele._private.style['content'].value= '';
+
         }
         else{
-          ele.css('content', 'data(label)');
+          ele._private.style['content'].strValue= ele._private.data['label'];
+          ele._private.style['content'].value= ele._private.data['label'];
         }
     });
+    this._vis.layout({
+      name:"preset",
+      fit:false
+    })
     // update check icon of the corresponding menu item
 
     var item = $(this.mainMenuSelector + " #show_node_labels");
@@ -3497,7 +3535,9 @@ NetworkVis.prototype._saveAsSvg = function()
 NetworkVis.prototype._openProperties = function()
 {
     this._updatePropsUI();
-    $(this.settingsDialogSelector).dialog("open").height("auto");
+    $(this.settingsDialogSelector).dialog("open").width("auto");
+
+
 };
 
 /**
@@ -3511,6 +3551,7 @@ NetworkVis.prototype._initPropsUI = function()
 /**
  * Updates the contents of the layout properties panel.
  */
+ //TODO
 NetworkVis.prototype._updatePropsUI = function()
 {
     // update settings panel UI
@@ -3593,7 +3634,7 @@ NetworkVis.prototype._updateLayoutOptions = function()
     {
         options[this._layoutOptions[i].id] = this._layoutOptions[i].value;
     }
-
+    options['name']="cose";
     this._graphLayout.options = options;
 };
 
@@ -3667,7 +3708,7 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
     var id = "settings_dialog_" + divId;
 
     var html =
-        '<div id="' + id + '" class="settings_dialog hidden-network-ui" title="Layout Properties">' +
+        '<div id="' + id + '" style="width: auto;" class="settings_dialog hidden-network-ui" title="Layout Properties">' +
             '<div id="fd_layout_settings" class="content ui-widget-content">' +
                 '<table>' +
                     '<tr title="The gravitational constant. Negative values produce a repulsive force.">' +

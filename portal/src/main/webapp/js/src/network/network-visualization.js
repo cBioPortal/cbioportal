@@ -1564,111 +1564,38 @@ NetworkVis.prototype._filterDisconnected = function()
 /**
  * Highlights the neighbors of the selected nodes.
  *
- * The content of this method is copied from GeneMANIA (genemania.org) sources.
  */
 NetworkVis.prototype._highlightNeighbors = function(/*nodes*/)
 {
-    /*
-     if (nodes == null)
-     {
-     nodes = _vis.selected("nodes");
-     }
-     */
 
-//TODO after neighbor and bypass implementation
-/*    var nodes = this._vis.nodes(":selected");
+    var nodes = this._vis.nodes(":selected");
 
     if (nodes != null && nodes.length > 0)
     {
-        var fn = this._vis.firstNeighbors(nodes, true);
-        var neighbors = fn.neighbors;
-        var edges = fn.edges;
-        edges = edges.concat(fn.mergedEdges);
-        neighbors = neighbors.concat(fn.rootNodes);
-        var bypass = this._vis.visualStyleBypass() || {};
+      for (var i = 0; i < nodes.length; i++)
+      {
+        var highlightedElements = nodes[i].neighborhood();
+        highlightedElements = highlightedElements.add(nodes[i]);
+        highlightedElements.data('highlighted', 'true');
 
-        if( ! bypass.nodes )
-        {
-            bypass.nodes = {};
-        }
-        if( ! bypass.edges )
-        {
-            bypass.edges = {};
-        }
-
-        var allNodes = this._vis.nodes();
-
-        $.each(allNodes, function(i, n) {
-            if( !bypass.nodes[n.data.id] ){
-                bypass.nodes[n.data.id] = {};
-            }
-            bypass.nodes[n.data.id].opacity = 0.25;
-        });
-
-        $.each(neighbors, function(i, n) {
-            if( !bypass.nodes[n.data.id] ){
-                bypass.nodes[n.data.id] = {};
-            }
-            bypass.nodes[n.data.id].opacity = 1;
-        });
-
-        var opacity;
-        var allEdges = this._vis.edges();
-        allEdges = allEdges.concat(this._vis.mergedEdges());
-
-        $.each(allEdges, function(i, e) {
-            if( !bypass.edges[e.data.id] ){
-                bypass.edges[e.data.id] = {};
-            }
-
-
-            opacity = 0.15;
-
-            bypass.edges[e.data.id].opacity = opacity;
-            bypass.edges[e.data.id].mergeOpacity = opacity;
-        });
-
-        $.each(edges, function(i, e) {
-            if( !bypass.edges[e.data.id] ){
-                bypass.edges[e.data.id] = {};
-            }
-
-
-            opacity = 0.85;
-
-            bypass.edges[e.data.id].opacity = opacity;
-            bypass.edges[e.data.id].mergeOpacity = opacity;
-        });
-
-        this._vis.visualStyleBypass(bypass);
-
-    }   */
+        this._vis.nodes(":visible").nodes("[highlighted!='true']").css(this.notHighlightNodeCSS);
+        this._vis.edges(":visible").edges("[highlighted!='true']").css(this.notHighlightEdgeCSS);
+        this._vis.nodes(":visible").nodes("[highlighted='true']").removeCss();
+        this._vis.edges(":visible").edges("[highlighted='true']").removeCss();
+      }
+    }
 };
 
 /**
  * Removes all highlights from the visualization.
  *
- * The content of this method is copied from GeneMANIA (genemania.org) sources.
- */
+  */
 NetworkVis.prototype._removeHighlights = function()
 {
-  //TODO
-/*    var bypass = this._vis.visualStyleBypass();
-    bypass.edges = {};
-
-    var nodes = bypass.nodes;
-
-    for (var id in nodes)
-    {
-        var styles = nodes[id];
-        delete styles["opacity"];
-        delete styles["mergeOpacity"];
-    }
-
-    this._vis.visualStyleBypass(bypass);
-*/
-    //CytowebUtil.neighborsHighlighted = false;
-    //$("#menu_neighbors_clear").addClass("ui-state-disabled");
+  this._vis.nodes(":visible").nodes("[highlighted!='true']").removeCss();
+  this._vis.edges(":visible").edges("[highlighted!='true']").removeCss();
+  this._vis.nodes(":visible").nodes().removeData("highlighted");
+  this._vis.edges(":visible").edges().removeData("highlighted");
 };
 
 /**

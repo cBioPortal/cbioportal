@@ -5,15 +5,15 @@
 }
 
 table #network_wrapper{
-	width: 1244px;
+	width: 1000px;
 	height: 674px;
 }
 
 /* CytoscapeWeb dimensions */
 #vis_content
 {
-    width: 100%;
-	height: 100%;
+  width: 500px;
+	height: 500px;
 	border: 1px solid #aaaaaa;
 	-moz-border-radius: 5px;
 	-webkit-border-radius: 5px;
@@ -26,233 +26,95 @@ table #network_wrapper{
  * ########################################################
  */
 
-#network_menu_div
-{
-	margin-top: -10px;
-}
-
-#network_menu_div ul
-{
-	margin:0;
-	padding:0;
-	list-style-type:none;
-	list-style-position:outside;
-	position:relative;
-	line-height:1.3em;
-}
-
-#network_menu a
-{
-	cursor:pointer;
-	display:block;
-	padding-left: 1.5em;
-	padding-right: 1.5em;
-	padding-top: 0;
-	padding-bottom: 0;
-	border-left: 1px solid #aaaaaa;
-	border-right: 1px solid #aaaaaa;
-	color: #2e6e9e;
-	text-decoration: none;
-	background-color: #e6e6e6;
-	background-repeat: no-repeat;
-	font-size: 11px;
-}
-
-#network_menu li
-{
-	float:left;
-	position:relative;
-}
 
 #network_menu ul
 {
-	position: absolute;
 	display: none;
-	top: 1.4em;
+	top: 2em;
+	list-style-type: none;
+
+}
+.open > .dropdown-menu {
+    animation-name: slidenavAnimation;
+    animation-duration:.3s;
+    animation-iteration-count: 1;
+    animation-timing-function: ease;
+    animation-fill-mode: forwards;
+
+    -webkit-animation-name: slidenavAnimation;
+    -webkit-animation-duration:.2s;
+    -webkit-animation-iteration-count: 1;
+    -webkit-animation-timing-function: ease;
+    -webkit-animation-fill-mode: forwards;
+
+    -moz-animation-name: slidenavAnimation;
+    -moz-animation-duration:.2s;
+    -moz-animation-iteration-count: 1;
+    -moz-animation-timing-function: ease;
+    -moz-animation-fill-mode: forwards;
+}
+@keyframes slidenavAnimation {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+@-webkit-keyframes slidenavAnimation {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
-#network_menu li ul a
-{
-	height: auto;
-	float: left;
+.nav-menu {
+    border: 1px solid #ddd;
+    border-radius: 0.25em;
+    margin: auto;
+    height: 40px;
+    width: 100px;
 }
 
-#network_menu ul ul
-{
-	top:auto;
+.nav li.dropdown ul.dropdown-menu li:HOVER ul {
+    display:block;
+    position:absolute;
+    left:100%;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+}
+.nav li.dropdown ul.dropdown-menu ul {
+    display: none;
+    float:right;
+    position: relative;
+    top: auto;
+    margin-top: -30px;
+}
+.dropdown .dropdown-menu{
+    z-index:3000;
 }
 
-#network_menu li ul ul
-{
-	left:12em;
-	margin:0px 0 0 10px;
+.navbar .nav li.dropdown.open > .dropdown-toggle,
+.navbar .nav li.dropdown.active > .dropdown-toggle,
+.navbar .nav li.dropdown.open.active > .dropdown-toggle {
+    color: #555555;
+    background-color: #0B9BCD;
+    text-shadow: none !important;
 }
 
-#network_menu li:hover ul ul, #network_menu li:hover ul ul ul, #network_menu li:hover ul ul ul ul
-{
-	display:none;
+.dropdown-menu .active > a,
+.dropdown-menu .active > a:hover {
+    color: #ffffff;
+    text-decoration: none;
+    background-color: #0B9BCD;
+    background-image: none;
+    filter: none;
 }
 
-#network_menu li:hover ul, #network_menu li li:hover ul, #network_menu li li li:hover ul, #network_menu li li li li:hover ul
-{
-	display:block;
-}
 
-#file_menu
-{
-	width: 19em;
-}
-
-#file_menu a
-{
-	width: 16em;
-}
-
-#topology_menu
-{
-	width: 26em;
-}
-
-#topology_menu a
-{
-	width: 23em;
-}
-
-#view_menu
-{
-	width: 20em;
-}
-
-#view_menu a
-{
-	width: 17em;
-}
-
-#layout_menu
-{
-	width: 20em;
-}
-
-#layout_menu a
-{
-	width: 17em;
-}
-
-#legends_menu
-{
-	width: 17em;
-}
-
-#legends_menu a
-{
-	width: 14em;
-}
-
-#network_menu .hovered-menu-item
-{
-	background-color: #fff;
-	color: #2e6e9e;
-}
-
-#network_menu .checked-menu-item
-{
-	background-image: url("images/menu_check.gif");
-	background-position: left;
-}
-
-#network_menu .separator-menu-item
-{
-	border-top:1px solid #aaaaaa;
-}
-
-#network_menu .first-menu-item
-{
-	-moz-border-radius-topleft: 5px;
-	-webkit-border-top-left-radius: 5px;
-	border-top-left-radius: 5px;
-	-moz-border-radius-topright: 5px;
-	-webkit-border-top-right-radius: 5px;
-	border-top-right-radius: 5px;
-}
-
-#network_menu .last-menu-item
-{
-	border-bottom:1px solid #aaaaaa;
-	-moz-border-radius-bottomleft: 5px;
-	-webkit-border-bottom-left-radius: 5px;
-	border-bottom-left-radius: 5px;
-	-moz-border-radius-bottomright: 5px;
-	-webkit-border-bottom-right-radius: 5px;
-	border-bottom-right-radius: 5px;
-}
-
-#network_menu .main-menu-item
-{
-	-moz-border-radius: 5px;
-	-webkit-border-radius: 5px;
-	border-radius: 5px;
-	border:1px solid #aaaaaa;
-}
-
-#network_menu .sub-menu-item
-{
-	background-image: url("images/menu_right.png");
-	background-position: right;
-}
-
-.ui-dialog .ui-widget-header .ui-icon
-{
-	background-image: url(images/ui-icons_ffffff_256x240.png);
-}
-
-.ui-dialog .ui-icon-closethick
-{
-	background-position: -96px -128px;
-}
-
-.ui-dialog .ui-dialog-titlebar
-{
-	font-size: 9pt;
-}
-
-.hidden-network-ui
-{
-	display: none;
-	visibility: hidden;
-}
-
-/* layout settings panel */
-.settings_dialog #fd_layout_settings table
-{
-	/* centering the table */
-	margin-left: auto;
-	margin-right: auto;
-}
-
-.settings_dialog #fd_layout_settings label
-{
-	white-space: nowrap;
-}
-
-.settings_dialog .footer
-{
-	padding-top: 0.5em;
-	text-align: center;
-	font-size: 9pt;
-}
-
-/* quick info text */
-#quick_info_div
-{
-	padding-top: 9px;
-	white-space: nowrap;
-}
-
-#quick_info_label
-{
-	margin-left: 20px;
-	font-weight: bold;
-}
 
 
 /*

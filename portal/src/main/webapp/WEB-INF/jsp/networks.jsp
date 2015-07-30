@@ -64,9 +64,16 @@
 %>
 
 <link href="css/network/network_ui.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/>
+<link href="css/network/cytoscape.js-panzoom.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/>
+<link href="css/network/bootstrap.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/>
+<link href="css/network/bootstrap-theme.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/>
+
 
 <script type="text/javascript" src="js/lib/json2.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/lib/cytoscape_js/cytoscape.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/lib/cytoscape_js/cytoscape.js-panzoom.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/lib/bootstrap.js?<%=GlobalProperties.getAppVersion()%>"></script>
+
 
 <!-- <script type="text/javascript" src="js/src/network/network-ui.js?<%=GlobalProperties.getAppVersion()%>"></script> -->
 <script type="text/javascript" src="js/src/network/network-visualization.js?<%=GlobalProperties.getAppVersion()%>"></script>

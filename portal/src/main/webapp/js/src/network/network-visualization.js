@@ -146,6 +146,10 @@ function NetworkVis(divId)
     this._vis = null;
 
     this.isEdgeClicked = false;
+
+    //CSS styles for higlight operation 
+    this.notHighlightNodeCSS = {'border-opacity': 0.3, 'text-opacity' : 0.3, 'background-opacity': 0.3};
+    this.notHighlightEdgeCSS = {'opacity':0.3, 'text-opacity' : 0.3, 'background-opacity': 0.3};
 }
 
 

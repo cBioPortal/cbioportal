@@ -1,5 +1,7 @@
 # cBioPortal
 
+[![Build Status](https://travis-ci.org/cBioPortal/cbioportal.svg?branch=master)](https://travis-ci.org/cBioPortal/cbioportal)
+
 The cBioPortal for Cancer Genomics provides visualization, analysis, and download of large-scale cancer genomics data sets.  The cBioPortal is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License, version 3, as published by the Free Software Foundation.
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of

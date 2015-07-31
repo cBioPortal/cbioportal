@@ -123,6 +123,7 @@ window.setUpOncoprint = function(ctr_id, config) {
 	
 	var to_qtip_destroy = [];
 	var to_click_remove = [];
+	var to_remove = [];
 	
 	(function initOncoprint() {
 		oncoprint = window.Oncoprint.create(ctr_selector);
@@ -229,6 +230,7 @@ window.setUpOncoprint = function(ctr_id, config) {
 				patient_data__gene[gene] = annotateMutationTypes(makePatientData__Gene(data));
 			}
 		});
+		genes = config.gene_order || genes;
 		
 		(function populateOncoprintWithProgressUpdates() {
 			oncoprintFadeTo(0.5).then(function() {
@@ -313,18 +315,20 @@ window.setUpOncoprint = function(ctr_id, config) {
 			oncoprint.hideIds(unaltered_ids, true);
 		};
 		var updatePercentAlteredIndicator = function() {
-			if (!using_sample_data) {
-				var altered_patient_count = _.uniq(_.map(splitIdString(window.PortalGlobals.getAlteredSampleIdList()), function(x) {
-					return sample_to_patient[x];
-				})).length;
-				var unaltered_patient_count = _.uniq(_.map(splitIdString(window.PortalGlobals.getUnalteredSampleIdList()), function(x) {
-					return sample_to_patient[x];
-				})).length;
-				var total_patient_count = altered_patient_count + unaltered_patient_count;
-				var percent_altered = Math.ceil(100 * altered_patient_count / total_patient_count);
-				$('#altered_value').text("Altered in " + altered_patient_count + " (" + percent_altered + "%) of " + total_patient_count + " cases/patients");
-			} else {
-				$('#altered_value').text("Altered in "+ window.PortalGlobals.getNumOfAlteredCases() + " ("+ Math.ceil(window.PortalGlobals.getPercentageOfAlteredCases()) +"%) of "+ window.PortalGlobals.getNumOfTotalCases() + " samples");
+			if (config.percent_altered_indicator_selector) {
+				if (!using_sample_data) {
+					var altered_patient_count = _.uniq(_.map(splitIdString(window.PortalGlobals.getAlteredSampleIdList()), function(x) {
+						return sample_to_patient[x];
+					})).length;
+					var unaltered_patient_count = _.uniq(_.map(splitIdString(window.PortalGlobals.getUnalteredSampleIdList()), function(x) {
+						return sample_to_patient[x];
+					})).length;
+					var total_patient_count = altered_patient_count + unaltered_patient_count;
+					var percent_altered = Math.ceil(100 * altered_patient_count / total_patient_count);
+					$(config.percent_altered_indicator_selector).text("Altered in " + altered_patient_count + " (" + percent_altered + "%) of " + total_patient_count + " cases/patients");
+				} else {
+					$(config.percent_altered_indicator_selector).text("Altered in "+ window.PortalGlobals.getNumOfAlteredCases() + " ("+ Math.ceil(window.PortalGlobals.getPercentageOfAlteredCases()) +"%) of "+ window.PortalGlobals.getNumOfTotalCases() + " samples");
+				}
 			}
 		};
 		
@@ -569,6 +573,7 @@ window.setUpOncoprint = function(ctr_id, config) {
 					oncoprint.setZoom(this.value);
 				}
 			});
+			to_remove.push(slider);
 			zoom_elt.append(slider);
 			setUpToolbarBtnHover(slider);
 			slider.qtip({
@@ -582,7 +587,7 @@ window.setUpOncoprint = function(ctr_id, config) {
 			
 			var zoomStep = 0.05;
 			$(toolbar_selector + ' #oncoprint_zoomout').click(function () {
-				var slider = $('#oncoprint_whole_body #oncoprint_zoom_slider')[0];
+				var slider = $(toolbar_selector + ' #oncoprint_zoom_slider')[0];
 				var currentZoom = parseFloat(slider.value);
 				var newZoom = currentZoom - zoomStep;
 				slider.value = Math.max(0, newZoom);
@@ -868,6 +873,7 @@ window.setUpOncoprint = function(ctr_id, config) {
 		updatePercentAlteredIndicator();
 	})();
 	return {
+		onc_dev: oncoprint,
 		destroy: function() {
 			var toolbar_selector = config.toolbar_selector;
 			d3.select(ctr_selector).selectAll('*').remove();
@@ -879,6 +885,9 @@ window.setUpOncoprint = function(ctr_id, config) {
 			});
 			_.each(to_qtip_destroy, function($elt) {
 				$elt.qtip('destroy', true);
+			});
+			_.each(to_remove, function($elt) {
+				$elt.remove();
 			});
 		}
 	};

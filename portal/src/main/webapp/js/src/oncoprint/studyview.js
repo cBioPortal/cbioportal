@@ -36,12 +36,14 @@ geneDataColl.fetch({
 			toolbar_selector: '#oncoprint-diagram-toolbar-buttons',
 			sample_list: window.PortalGlobals.getCases().trim().split(/\s+/),
 			cancer_study_id: cancer_study_id_selected,
+			gene_order: window.PortalGlobals.getGeneListString().split(/\s+/),
 			
 			load_clinical_tracks: true,
 			swap_patient_sample: true,
 			sort_by: true,
 			
-			link_out_in_tooltips: true
+			link_out_in_tooltips: true,
+			percent_altered_indicator_selector: '#altered_value',
 		});
 	}
 });

@@ -38,8 +38,6 @@ You usually create a branch like so:
 
 You then usually commit code changes, and push your branch back to GitHub like so:
 
-When ready, push the branch on github: 
-
 ```git push origin [name_of_your_new_branch]```
 
 A few tips:

@@ -1,6 +1,6 @@
 # How to contribute
 
-Guidelines for contributing to the cBioPortal project.
+Thank you for contributing to cBioPortal!  This document provides a brief set of guidelines for contributing.
 
 # Background
 

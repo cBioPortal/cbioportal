@@ -29,21 +29,21 @@ The cBioPortal currently maintains three branches:
 Once you have forked the repo, you need to create your code contributions within a new branch of your forked repo.  For general background on creating and managing branches within GitHub, see:  [Git Branching and Merging](https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging).
 
 * To begin, create a topic branch from where you want to base your work.
- * For bug fixes, this is usually the **hotfix branch**.  For a new feature, this is usually the **master branch**.
+ * For a new feature, this is usually the **master branch**.  For bug fixes, this is usually the **hotfix branch**.
 * Make commits in logical/cohesive units.
 * Make sure your commit messages end with a Signed-off-by string (this line can be automatically added by git if you run the git-commit command with the -s option).
 * Make sure you have added the necessary tests for your changes.
 * Run _all_ tests to assure nothing else was accidentally broken.  This is done by running:  ```mvn test```.
 
-## Submitting Changes
+When you are ready to submit your pull-request:
 
-* PLACE-HOLDER - Developer Certificate of Origin
-* Push this branch to your GitHub project.
+* Push your branch to your GitHub project.
 * Open a Pull Request on GitHub to the rc (release candidate) branch for a new feature or the hotfix branch for a bug fix.
+
+For instructions on submitting a pull-request, please see:  [Using Pull Requests ](https://help.github.com/articles/using-pull-requests/) and [Sending Pull Requests](http://help.github.com/send-pull-requests/)
 
 ## Additional Resources
 
 * [cBioPortal Issue Tracker](https://github.com/cBioPortal/cbioportal/issues)
-* [PLACE-HOLDER- Developer Certificate of Origin]
 * [General GitHub documentation](http://help.github.com/)
 * [GitHub pull request documentation](http://help.github.com/send-pull-requests/)

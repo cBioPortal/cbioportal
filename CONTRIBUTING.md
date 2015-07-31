@@ -2,6 +2,14 @@
 
 Guidelines for contributing to the cBioPortal project.
 
+# Background
+
+The cBioPortal currently uses a "fork and pull" model for collaborative software development.
+
+From the [GitHub Help Page of Using Pull Requests](https://help.github.com/articles/using-pull-requests/):
+
+"The fork & pull model lets anyone fork an existing repository and push changes to their personal fork without requiring access be granted to the source repository. The changes must then be pulled into the source repository by the project maintainer. This model reduces the amount of friction for new contributors and is popular with open source projects because it allows people to work independently without upfront coordination."
+
 ## Getting Started
 
  * Make sure you have a [GitHub account](https://github.com/signup/free).

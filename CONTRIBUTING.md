@@ -16,6 +16,14 @@ From the [GitHub Help Page of Using Pull Requests](https://help.github.com/artic
  * Create an issue in our issues tracker, assuming one does not already exist.
  * Fork the cbioportal project on GitHub.  For general instructions on forking a GitHub project, see [Forking a Repo](https://help.github.com/articles/fork-a-repo/) and [Syncing a fork](https://help.github.com/articles/syncing-a-fork/).
 
+## Branches within cBioPortal
+
+The cBioPortal currently maintains three branches:
+
+ * master:  this is the most stable branch, reflecting that currently running in production on cbioportal.org.
+ * rc:  release candidate branch, reflecting the next release candidate we are readying for deployment.  Once deployed to production, the rc branch is merged into master.
+ * hotfix:  hot fix branch, used only for mission critical bug fixes that must be pushed out immediately.  Once deployed to production, the hotfix branch is merged into master. 
+
 ## Making Changes
 
 * Create a topic branch from where you want to base your work.

@@ -38,7 +38,7 @@ Once you have forked the repo, you need to create your code contributions within
 When you are ready to submit your pull-request:
 
 * Push your branch to your GitHub project.
-* Open a Pull Request on GitHub to the rc (release candidate) branch for a new feature or the hotfix branch for a bug fix.
+* Open a Pull Request on GitHub to the **rc (release candidate)** branch for a new feature or the hotfix branch for a bug fix.
 
 For instructions on submitting a pull-request, please see:  [Using Pull Requests ](https://help.github.com/articles/using-pull-requests/) and [Sending Pull Requests](http://help.github.com/send-pull-requests/).
 

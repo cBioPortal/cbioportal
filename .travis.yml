@@ -30,3 +30,7 @@ before_script:
 script:
     - export PORTAL_HOME=$(pwd)/.travis
     - ~/maven/$MAVEN_VERSION/bin/mvn -e -DPORTAL_HOME=$PORTAL_HOME -Ddb.user=travis -Ddb.password= test
+
+notifications:
+  slack: cbioportal:S2qVTFTFMtizONhCOe8BYxS6
+  

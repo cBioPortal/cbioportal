@@ -287,6 +287,7 @@ NetworkVis.prototype.updateSelectedGenes = function(evt)
 NetworkVis.prototype.saveSettings = function()
 {
     // update layout option values
+
     for (var i=0; i < (this._layoutOptions).length; i++)
     {
 //      if (_layoutOptions[i].id == "weightNorm")
@@ -307,58 +308,27 @@ NetworkVis.prototype.saveSettings = function()
 //          }
 //      }
 
-        if (this._layoutOptions[i].id == "animate")
+        if (this._layoutOptions[i].id == "autoStabilize")
         {
             // check if the auto stabilize box is checked
 
-            if($(this.settingsDialogSelector + " #animate").is(":checked"))
+            if($(this.settingsDialogSelector + " #autoStabilize").is(":checked"))
             {
                 this._layoutOptions[i].value = true;
-                $(this.settingsDialogSelector + " #animate").val(true);
+                $(this.settingsDialogSelector + " #autoStabilize").val(true);
             }
             else
             {
                 this._layoutOptions[i].value = false;
-                $(this.settingsDialogSelector + " #animate").val(false);
-            }
-        }
-        else if (this._layoutOptions[i].id == "randomize")
-        {
-            // check if the auto stabilize box is checked
-
-            if($(this.settingsDialogSelector + " #randomize").is(":checked"))
-            {
-                this._layoutOptions[i].value = true;
-                $(this.settingsDialogSelector + " #randomize").val(true);
-            }
-            else
-            {
-                this._layoutOptions[i].value = false;
-                $(this.settingsDialogSelector + " #randomize").val(false);
-            }
-        }
-        else if (this._layoutOptions[i].id == "fit")
-        {
-            // check if the auto stabilize box is checked
-
-            if($(this.settingsDialogSelector + " #fit").is(":checked"))
-            {
-                this._layoutOptions[i].value = true;
-                $(this.settingsDialogSelector + " #fit").val(true);
-            }
-            else
-            {
-                this._layoutOptions[i].value = false;
-                $(this.settingsDialogSelector + " #fit").val(false);
+                $(this.settingsDialogSelector + " #autoStabilize").val(false);
             }
         }
         else
         {
             // simply copy the text field value
             this._layoutOptions[i].value =
-                Number($(this.settingsDialogSelector + " #" + this._layoutOptions[i].id).val());
+                $(this.settingsDialogSelector + " #" + this._layoutOptions[i].id).val();
         }
-
     }
 
     // update graphLayout options
@@ -1564,38 +1534,111 @@ NetworkVis.prototype._filterDisconnected = function()
 /**
  * Highlights the neighbors of the selected nodes.
  *
+ * The content of this method is copied from GeneMANIA (genemania.org) sources.
  */
 NetworkVis.prototype._highlightNeighbors = function(/*nodes*/)
 {
+    /*
+     if (nodes == null)
+     {
+     nodes = _vis.selected("nodes");
+     }
+     */
 
-    var nodes = this._vis.nodes(":selected");
+//TODO after neighbor and bypass implementation
+/*    var nodes = this._vis.nodes(":selected");
 
     if (nodes != null && nodes.length > 0)
     {
-      for (var i = 0; i < nodes.length; i++)
-      {
-        var highlightedElements = nodes[i].neighborhood();
-        highlightedElements = highlightedElements.add(nodes[i]);
-        highlightedElements.data('highlighted', 'true');
+        var fn = this._vis.firstNeighbors(nodes, true);
+        var neighbors = fn.neighbors;
+        var edges = fn.edges;
+        edges = edges.concat(fn.mergedEdges);
+        neighbors = neighbors.concat(fn.rootNodes);
+        var bypass = this._vis.visualStyleBypass() || {};
 
-        this._vis.nodes(":visible").nodes("[highlighted!='true']").css(this.notHighlightNodeCSS);
-        this._vis.edges(":visible").edges("[highlighted!='true']").css(this.notHighlightEdgeCSS);
-        this._vis.nodes(":visible").nodes("[highlighted='true']").removeCss();
-        this._vis.edges(":visible").edges("[highlighted='true']").removeCss();
-      }
-    }
+        if( ! bypass.nodes )
+        {
+            bypass.nodes = {};
+        }
+        if( ! bypass.edges )
+        {
+            bypass.edges = {};
+        }
+
+        var allNodes = this._vis.nodes();
+
+        $.each(allNodes, function(i, n) {
+            if( !bypass.nodes[n.data.id] ){
+                bypass.nodes[n.data.id] = {};
+            }
+            bypass.nodes[n.data.id].opacity = 0.25;
+        });
+
+        $.each(neighbors, function(i, n) {
+            if( !bypass.nodes[n.data.id] ){
+                bypass.nodes[n.data.id] = {};
+            }
+            bypass.nodes[n.data.id].opacity = 1;
+        });
+
+        var opacity;
+        var allEdges = this._vis.edges();
+        allEdges = allEdges.concat(this._vis.mergedEdges());
+
+        $.each(allEdges, function(i, e) {
+            if( !bypass.edges[e.data.id] ){
+                bypass.edges[e.data.id] = {};
+            }
+
+
+            opacity = 0.15;
+
+            bypass.edges[e.data.id].opacity = opacity;
+            bypass.edges[e.data.id].mergeOpacity = opacity;
+        });
+
+        $.each(edges, function(i, e) {
+            if( !bypass.edges[e.data.id] ){
+                bypass.edges[e.data.id] = {};
+            }
+
+
+            opacity = 0.85;
+
+            bypass.edges[e.data.id].opacity = opacity;
+            bypass.edges[e.data.id].mergeOpacity = opacity;
+        });
+
+        this._vis.visualStyleBypass(bypass);
+
+    }   */
 };
 
 /**
  * Removes all highlights from the visualization.
  *
-  */
+ * The content of this method is copied from GeneMANIA (genemania.org) sources.
+ */
 NetworkVis.prototype._removeHighlights = function()
 {
-  this._vis.nodes(":visible").nodes("[highlighted!='true']").removeCss();
-  this._vis.edges(":visible").edges("[highlighted!='true']").removeCss();
-  this._vis.nodes(":visible").nodes().removeData("highlighted");
-  this._vis.edges(":visible").edges().removeData("highlighted");
+  //TODO
+/*    var bypass = this._vis.visualStyleBypass();
+    bypass.edges = {};
+
+    var nodes = bypass.nodes;
+
+    for (var id in nodes)
+    {
+        var styles = nodes[id];
+        delete styles["opacity"];
+        delete styles["mergeOpacity"];
+    }
+
+    this._vis.visualStyleBypass(bypass);
+*/
+    //CytowebUtil.neighborsHighlighted = false;
+    //$("#menu_neighbors_clear").addClass("ui-state-disabled");
 };
 
 /**
@@ -3238,22 +3281,14 @@ NetworkVis.prototype._toggleNodeLabels = function()
     // update visibility of labels
 
     this._nodeLabelsVisible = !this._nodeLabelsVisible;
-    var tempLabelVisibility = this._nodeLabelsVisible;
     this._vis.nodes().forEach(function( ele ){
-        if (tempLabelVisibility === false){
-          ele._private.style['content'].strValue= '';
-          ele._private.data['tempLabel'] = ele._private.data['label'];
-          ele._private.data['label'] = '';
+        if (_nodeLabelsVisible === false){
+          ele.css('content', '');
         }
         else{
-          ele._private.data['label'] = ele._private.data['tempLabel'];
-          ele._private.style['content'].strValue= ele._private.data['label'];
+          ele.css('content', 'data(label)');
         }
     });
-    this._vis.layout({
-      name:"preset",
-      fit:false
-    })
     // update check icon of the corresponding menu item
 
     var item = $(this.mainMenuSelector + " #show_node_labels");
@@ -3306,10 +3341,9 @@ NetworkVis.prototype._togglePanZoom = function()
 {
     // update visibility of the pan/zoom control
     //TODO
+/*    this._panZoomVisible = !this._panZoomVisible;
 
-    this._panZoomVisible = !this._panZoomVisible;
-
-//    this._vis.panZoomControlVisible(this._panZoomVisible);
+    this._vis.panZoomControlVisible(this._panZoomVisible);
 
     // update check icon of the corresponding menu item
 
@@ -3318,14 +3352,12 @@ NetworkVis.prototype._togglePanZoom = function()
     if (this._panZoomVisible)
     {
         item.addClass(this.CHECKED_CLASS);
-        $('.ui-cytoscape-panzoom').css('visibility', 'visible');
     }
     else
     {
         item.removeClass(this.CHECKED_CLASS);
-        $('.ui-cytoscape-panzoom').css('visibility', 'hidden');
     }
-
+    */
 };
 
 /**
@@ -3440,11 +3472,8 @@ NetworkVis.prototype._toggleProfileData = function()
  */
 NetworkVis.prototype._saveAsPng = function()
 {
-  var pngContent = this._vis.png({scale: 3, full: true});
-  //Remove additional data from beginning of png image data
-  var b64data = pngContent.substr(pngContent.indexOf(",") + 1);
-  var content = cbio.util.b64ToByteArrays(b64data);
-  cbio.download.clientSideDownload(content, "network.png", "image/png");
+	var content = cbio.util.b64ToByteArrays(this._vis.png());
+	cbio.download.clientSideDownload(content, "network.png", "image/png");
 };
 
 /**
@@ -3468,9 +3497,7 @@ NetworkVis.prototype._saveAsSvg = function()
 NetworkVis.prototype._openProperties = function()
 {
     this._updatePropsUI();
-    $(this.settingsDialogSelector).dialog("open").width("auto");
-
-
+    $(this.settingsDialogSelector).dialog("open").height("auto");
 };
 
 /**
@@ -3484,7 +3511,6 @@ NetworkVis.prototype._initPropsUI = function()
 /**
  * Updates the contents of the layout properties panel.
  */
- //TODO
 NetworkVis.prototype._updatePropsUI = function()
 {
     // update settings panel UI
@@ -3567,9 +3593,8 @@ NetworkVis.prototype._updateLayoutOptions = function()
     {
         options[this._layoutOptions[i].id] = this._layoutOptions[i].value;
     }
-    options['numIter'] = 100;
-    options['name']="cose";
-    this._graphLayout = options;
+
+    this._graphLayout.options = options;
 };
 
 NetworkVis.prototype._createEdgeInspector = function(divId)
@@ -3642,7 +3667,7 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
     var id = "settings_dialog_" + divId;
 
     var html =
-        '<div id="' + id + '" style="width: auto;" class="settings_dialog hidden-network-ui" title="Layout Properties">' +
+        '<div id="' + id + '" class="settings_dialog hidden-network-ui" title="Layout Properties">' +
             '<div id="fd_layout_settings" class="content ui-widget-content">' +
                 '<table>' +
                     '<tr title="The gravitational constant. Negative values produce a repulsive force.">' +

@@ -26,7 +26,7 @@ The cBioPortal currently maintains three branches:
 
 ## Contributing Code Changes via a Pull Request
 
-Once you have forked the repo, you need to create your code contributions within a new branch of your forked repo.  For general background on creating and managing branches within GitHub, see:  [Git Branching and Merging](https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging}
+Once you have forked the repo, you need to create your code contributions within a new branch of your forked repo.  For general background on creating and managing branches within GitHub, see:  [Git Branching and Merging](https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging)
 
 *   Create a topic branch from where you want to base your work.
  * For bug fixes, this is usually the **hotfix branch**.  For a new feature, this is usually the **master branch**.

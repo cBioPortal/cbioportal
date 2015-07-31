@@ -33,25 +33,34 @@
 package org.mskcc.cbio.portal.scripts;
 
 // imports
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.model.User;
 import org.mskcc.cbio.portal.dao.DaoUser;
 import org.mskcc.cbio.portal.model.UserAuthorities;
 import org.mskcc.cbio.portal.dao.DaoUserAuthorities;
-import org.mskcc.cbio.portal.scripts.ResetDatabase;
 import org.mskcc.cbio.portal.scripts.ImportUsers;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
 
 /**
  * JUnit test for ImportUsers class.
  */
-public class TestImportUsers extends TestCase {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
+@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@Transactional
+public class TestImportUsers {
    
+	@Test
    public void testImportUsers() throws Exception{
 
-      ResetDatabase.resetDatabase();
       // TBD: change this to use getResourceAsStream()
-      String args[] = {"target/test-classes/test-users.txt"};
+      String args[] = {"src/test/resources/test-users.txt"};
       ImportUsers.main(args);
 
       User user = DaoUser.getUserByEmail("Dhorak@yahoo.com");

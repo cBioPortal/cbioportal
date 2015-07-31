@@ -32,19 +32,41 @@
 
 package org.mskcc.cbio.portal.dao;
 
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.DaoDrugInteraction;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.Drug;
 import org.mskcc.cbio.portal.model.DrugInteraction;
-import org.mskcc.cbio.portal.scripts.ResetDatabase;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 
-public class TestDaoDrugInteraction extends TestCase {
+import static org.junit.Assert.*;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
+@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@Transactional
+public class TestDaoDrugInteraction {
+	
+	@Before 
+	public void setUp() throws DaoException {
+        DaoDrug daoDrug = DaoDrug.getInstance();
+        Drug drug1 = new Drug("DRUG:1", "MyDrug", "description",
+                "synonym,synonym2", "this is an xref", "DUMMY", "B01AE02", true, true, false, 25);
+        daoDrug.addDrug(drug1);
+        Drug drug2 = new Drug("DRUG:2", "MyDrug2", "description2",
+                "synonym", "this is an xref2", "BLA", "L01XX29", false, false, true, -1);
+        daoDrug.addDrug(drug2);
+	}
+	
+	@Test
     public void testDaoDrugInteraction() throws DaoException {
-
-        ResetDatabase.resetDatabase();
 
 		// save bulkload setting before turning off
 		boolean isBulkLoad = MySQLbulkLoader.isBulkLoad();

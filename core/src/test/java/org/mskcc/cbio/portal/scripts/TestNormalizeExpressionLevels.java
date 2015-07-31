@@ -28,86 +28,95 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package org.mskcc.cbio.portal.scripts;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import static org.junit.Assert.*;
+
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
-import org.mskcc.cbio.portal.util.GlobalProperties;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 
-import junit.framework.TestCase;
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
+@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@Transactional
+public class TestNormalizeExpressionLevels {
 
-public class TestNormalizeExpressionLevels extends TestCase {
+	private String validationFile;
+	private String[] args;
 
-    private static String validationFile = initializeValidationFile();
-    private static String initializeValidationFile()
-    {
-        String home = System.getenv(GlobalProperties.HOME_DIR);
-        return (home != null) ? 
-            home + File.separator + "core/target/test-classes/correct_data_mRNA_ZbyNorm.txt" : null;
-    }
-    private static String[] args = initializeNormalizeArgsArray();
-    private static String[] initializeNormalizeArgsArray()
-    {
-        String[] args = null;
+	@Before
+	public void initialize() {
+		URL url = this.getClass().getResource("/correct_data_mRNA_ZbyNorm.txt");
+		validationFile = url.getFile().toString();
 
-        String home = System.getenv(GlobalProperties.HOME_DIR);
-        if (home != null) {
-            args = new String [] { home + File.separator + "core/target/test-classes/test_all_thresholded.by_genes.txt",
-                                   home + File.separator + "core/target/test-classes/test_PR_GDAC_CANCER.medianexp.txt",
-                                   home + File.separator + "core/target/test-classes/data_mRNA_ZbyNorm.txt",
-                                   NormalizeExpressionLevels.TCGA_NORMAL_SUFFIX, "4" };
-        }
+		URL url1 = TestNormalizeExpressionLevels.class.getResource("/test_all_thresholded.by_genes.txt");
+		URL url2 = TestNormalizeExpressionLevels.class.getResource("/test_PR_GDAC_CANCER.medianexp.txt");
+		URL url3 = TestNormalizeExpressionLevels.class.getResource("/data_mRNA_ZbyNorm.txt");
 
-        return args;
-    }
-    
-   
+		args = new String[] { 
+				url1.getFile().toString(),
+				url2.getFile().toString(), 
+				url3.getFile().toString(),
+				NormalizeExpressionLevels.TCGA_NORMAL_SUFFIX, "4" };
+	}
+
 	// TBD: change this to use getResourceAsStream()
 
-   public void testNormalizeExpressionLevels(){
-      
-      try {
+	@Test
+	public void testNormalizeExpressionLevels() {
 
-          DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-          daoGene.addGene(new CanonicalGene(65985, "AACS"));
-          daoGene.addGene(new CanonicalGene(63916, "ELMO2"));
-          daoGene.addGene(new CanonicalGene(9240, "PNMA1"));
-          daoGene.addGene(new CanonicalGene(6205, "RPS11"));
-          daoGene.addGene(new CanonicalGene(7157, "TP53"));
-          daoGene.addGene(new CanonicalGene(367, "AR"));
-         
-         NormalizeExpressionLevels.driver(args);
-         // compare with correct
-         String line;
-         Process p = Runtime.getRuntime().exec("diff" + " "  + validationFile + " " + args[2] );
-         BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()) );
-         while ((line = input.readLine()) != null) {
-            assertEquals ( "", line );
-         }
-         input.close();
-         
-      } catch (Exception e) {
-         // TODO Auto-generated catch block
-         e.printStackTrace();
-      }
-      
-      assertTrue( NormalizeExpressionLevels.isNormal("TCGA-A7-A0CG-11A-11D-A011-01") );
-      assertFalse( NormalizeExpressionLevels.isNormal("TCGA-A7-A0CG-01A-11D-A011-01") );
-   }
-   
-   public void testJoin(){
-      ArrayList<String> l = new ArrayList<String>();
-      l.add("out");
-      l.add("of");
-      l.add("order");
-      assertEquals ( "out-of-order", NormalizeExpressionLevels.join( l, "-" ) );
-   }
+		try {
+
+			DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
+			daoGene.addGene(new CanonicalGene(65985, "AACS"));
+			daoGene.addGene(new CanonicalGene(63916, "ELMO2"));
+			daoGene.addGene(new CanonicalGene(9240, "PNMA1"));
+			daoGene.addGene(new CanonicalGene(6205, "RPS11"));
+			daoGene.addGene(new CanonicalGene(7157, "TP53"));
+			daoGene.addGene(new CanonicalGene(367, "AR"));
+
+			NormalizeExpressionLevels.driver(args);
+			// compare with correct
+			String line;
+			Process p = Runtime.getRuntime().exec(
+					"diff" + " " + validationFile + " " + args[2]);
+			BufferedReader input = new BufferedReader(new InputStreamReader(
+					p.getInputStream()));
+			while ((line = input.readLine()) != null) {
+				assertEquals("", line);
+			}
+			input.close();
+
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		assertTrue(NormalizeExpressionLevels.isNormal("TCGA-A7-A0CG-11A-11D-A011-01"));
+		assertFalse(NormalizeExpressionLevels.isNormal("TCGA-A7-A0CG-01A-11D-A011-01"));
+	}
+
+	@Test
+	public void testJoin() {
+		ArrayList<String> l = new ArrayList<String>();
+		l.add("out");
+		l.add("of");
+		l.add("order");
+		assertEquals("out-of-order", NormalizeExpressionLevels.join(l, "-"));
+	}
 }

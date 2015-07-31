@@ -32,13 +32,13 @@
 
 package org.mskcc.cbio.portal.mapback;
 
-import junit.framework.TestCase;
-import org.mskcc.cbio.portal.mapback.MapBack;
-import org.mskcc.cbio.portal.mapback.Brca1;
-import org.mskcc.cbio.portal.mapback.Brca2;
+import static org.junit.Assert.assertEquals;
 
-public class TestMapBack extends TestCase {
+import org.junit.Test;
 
+public class TestMapBack {
+
+	@Test
     public void testMapBack1 () {
         Brca1 brca1 = new Brca1();
 
@@ -56,6 +56,7 @@ public class TestMapBack extends TestCase {
         validate(brca1, 38451310, 5622, 'C');
     }
 
+	@Test
     public void testMapBack2 () {
         Brca2 brca2 = new Brca2();
         MapBack mapBack = new MapBack (brca2, 31812438);

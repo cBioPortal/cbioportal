@@ -32,7 +32,8 @@
 
 package org.mskcc.cbio.portal.scripts;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.DaoDrug;
 import org.mskcc.cbio.portal.dao.DaoDrugInteraction;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
@@ -40,14 +41,25 @@ import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.Drug;
 import org.mskcc.cbio.portal.scripts.drug.DrugDataResource;
 import org.mskcc.cbio.portal.scripts.drug.internal.PiHelperImporter;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Transactional;
+
+import static org.junit.Assert.*;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-public class TestPiHelperDrugImporter extends TestCase {
-    public void testImporter() throws Exception {
-        ResetDatabase.resetDatabase();
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
+@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@Transactional
+public class TestPiHelperDrugImporter {
+
+	@Test
+	public void testImporter() throws Exception {
 
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
         String[] genes = {

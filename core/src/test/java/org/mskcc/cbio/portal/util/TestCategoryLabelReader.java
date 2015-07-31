@@ -37,9 +37,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Map;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
 
-public class TestCategoryLabelReader extends TestCase
+public class TestCategoryLabelReader
 {
 	 /**
      * Tests the utility method of the CategoryLabelReader class.

@@ -10,21 +10,21 @@ From the [GitHub Help Page of Using Pull Requests](https://help.github.com/artic
 
 "The fork & pull model lets anyone fork an existing repository and push changes to their personal fork without requiring access be granted to the source repository. The changes must then be pulled into the source repository by the project maintainer. This model reduces the amount of friction for new contributors and is popular with open source projects because it allows people to work independently without upfront coordination."
 
+## Branches within cBioPortal
+
+The cBioPortal currently maintains three branches:
+
+ * **master**:  this is the most stable branch, reflecting that currently running in production on cbioportal.org.
+ * **rc**:  release candidate branch, reflecting the next release candidate we are readying for deployment.  Once deployed to production, the rc branch is merged into master.
+ * **hotfix**:  hot fix branch, used only for mission critical bug fixes that must be pushed out immediately.  Once deployed to production, the hotfix branch is merged into master. 
+
 ## Getting Started
 
  * Make sure you have a [GitHub account](https://github.com/signup/free).
  * Create an issue in our issues tracker, assuming one does not already exist.
  * Fork the cbioportal project on GitHub.  For general instructions on forking a GitHub project, see [Forking a Repo](https://help.github.com/articles/fork-a-repo/) and [Syncing a fork](https://help.github.com/articles/syncing-a-fork/).
 
-## Branches within cBioPortal
-
-The cBioPortal currently maintains three branches:
-
- * master:  this is the most stable branch, reflecting that currently running in production on cbioportal.org.
- * rc:  release candidate branch, reflecting the next release candidate we are readying for deployment.  Once deployed to production, the rc branch is merged into master.
- * hotfix:  hot fix branch, used only for mission critical bug fixes that must be pushed out immediately.  Once deployed to production, the hotfix branch is merged into master. 
-
-## Making Changes
+## Contributing Code Changes via a Pull Request
 
 * Create a topic branch from where you want to base your work.
  * For bug fixes, this is usually the hotfix branch.  For a new feature, this is usually the master branch.

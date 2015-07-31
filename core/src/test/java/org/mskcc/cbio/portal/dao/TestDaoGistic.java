@@ -33,37 +33,41 @@
 package org.mskcc.cbio.portal.dao;
 
 import java.util.Arrays;
-import junit.framework.TestCase;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoGistic;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.Gistic;
-import org.mskcc.cbio.portal.scripts.ResetDatabase;
 import org.mskcc.cbio.portal.validate.validationException;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Transactional;
+
+import static org.junit.Assert.*;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class TestDaoGistic extends TestCase {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
+@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@Transactional
+public class TestDaoGistic {
 
+	@Test
     public void testDaoGistic() throws SQLException, DaoException, validationException {
 
-        // save the database table and
-        // delete the database
-        ResetDatabase.resetDatabase();
-
         // initialize dummy parameters
-		CanonicalGene brca1 = new CanonicalGene(672, "BRCA1");
-		CanonicalGene brca2 = new CanonicalGene(675, "BRCA2");
-		CanonicalGene tp53 = new CanonicalGene(7157, "TP53");
-
-        DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-        daoGene.addGene(brca1);
-        daoGene.addGene(brca2);
-        daoGene.addGene(tp53);
+		CanonicalGene brca1 = DaoGeneOptimized.getInstance().getGene("BRCA1");
+		CanonicalGene brca2 = DaoGeneOptimized.getInstance().getGene("BRCA2");
+		CanonicalGene kras = DaoGeneOptimized.getInstance().getGene("KRAS");
+				
         ArrayList<CanonicalGene> geneList =
-			new ArrayList<CanonicalGene>(Arrays.asList(brca1, brca2, tp53));
+			new ArrayList<CanonicalGene>(Arrays.asList(brca1, brca2, kras));
 
         Gistic gisticIn1;
         Gistic gisticIn2;

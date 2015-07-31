@@ -94,6 +94,8 @@ public class ImportExtendedMutationData{
 	}
 
 	public void importData() throws IOException, DaoException {
+		MySQLbulkLoader.bulkLoadOn();
+
 		HashSet <String> sequencedCaseSet = new HashSet<String>();
                 
                 Map<MutationEvent,MutationEvent> existingEvents = new HashMap<MutationEvent,MutationEvent>();

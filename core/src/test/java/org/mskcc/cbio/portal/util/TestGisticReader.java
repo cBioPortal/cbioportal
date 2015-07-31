@@ -32,24 +32,14 @@
 
 package org.mskcc.cbio.portal.util;
 
-import junit.framework.TestCase;
-import org.mskcc.cbio.portal.dao.DaoCancerStudy;
-import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
-import org.mskcc.cbio.portal.dao.DaoGistic;
-import org.mskcc.cbio.portal.model.CanonicalGene;
-import org.mskcc.cbio.portal.model.Gistic;
-import org.mskcc.cbio.portal.util.GisticReader;
-import org.mskcc.cbio.portal.util.ProgressMonitor;
-
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Set;
 
-public class TestGisticReader extends TestCase {
+import org.junit.Test;
+import org.mskcc.cbio.portal.dao.DaoException;
 
+public class TestGisticReader {
+
+	@Test
     public void testGisticReader() throws DaoException, IOException, Exception {
 //    File metadata = new File(".//testCancerStudy.txt");
 //    File gisticFile = new File("/test-gistic-amp.txt");

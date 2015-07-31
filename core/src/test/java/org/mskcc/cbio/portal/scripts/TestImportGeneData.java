@@ -32,44 +32,61 @@
 
 package org.mskcc.cbio.portal.scripts;
 
-import junit.framework.TestCase;
-import org.mskcc.cbio.portal.util.GlobalProperties;
-import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
-import org.mskcc.cbio.portal.model.CanonicalGene;
-import org.mskcc.cbio.portal.scripts.ImportGeneData;
-import org.mskcc.cbio.portal.scripts.ResetDatabase;
-import org.mskcc.cbio.portal.util.ProgressMonitor;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import static org.junit.Assert.assertEquals;
 
 import java.io.File;
+import java.net.URL;
+
+import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
+import org.mskcc.cbio.portal.model.CanonicalGene;
+import org.mskcc.cbio.portal.util.ProgressMonitor;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * JUnit tests for ImportGeneData class.
  */
-public class TestImportGeneData extends TestCase {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
+@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@Transactional
+public class TestImportGeneData {
 
-    private static String geneDataFilename = null;
-    private static String suppGeneDataFilename = null;
-    static {
-        String home = System.getenv(GlobalProperties.HOME_DIR);
-        if (home != null) {
-            geneDataFilename = home + File.separator + "core/target/test-classes/genes_test.txt";
-            suppGeneDataFilename = home + File.separator + "core/target/test-classes/supp-genes.txt";
-        }
+    //private String geneDataFilename = null;
+    //private String suppGeneDataFilename = null;
+    private URL geneDataFilePath;
+    private URL suppGeneDataFilePath;
+    
+    @Before
+    public void setUp() {
+
+        //Old implementation, hardcoding file path into a string
+        //geneDataFilename = home + File.separator + "core/target/test-classes/genes_test.txt";
+        //suppGeneDataFilename = home + File.separator + "core/target/test-classes/supp-genes.txt";
+        geneDataFilePath = this.getClass().getResource("/genes_test.txt");
+        suppGeneDataFilePath = this.getClass().getResource("/supp-genes.txt");
+
     }
 
+    @Test
     public void testImportGeneData() throws Exception {
-        ResetDatabase.resetDatabase();
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         ProgressMonitor pMonitor = new ProgressMonitor();
         pMonitor.setConsoleMode(false);
 		// TBD: change this to use getResourceAsStream()
-        if (suppGeneDataFilename!=null) {
-            File file = new File(suppGeneDataFilename);
+        if (suppGeneDataFilePath!=null) {
+            File file = new File(suppGeneDataFilePath.getFile());
             ImportGeneData.importSuppGeneData(pMonitor, file);
         }
         
-        if (geneDataFilename != null) {
-            File file = new File(geneDataFilename);
+        if (geneDataFilePath != null) {
+            File file = new File(geneDataFilePath.getFile());
             ImportGeneData.importData(pMonitor, file);
 
             CanonicalGene gene = daoGene.getGene(10);

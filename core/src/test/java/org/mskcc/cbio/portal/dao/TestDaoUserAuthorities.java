@@ -33,22 +33,33 @@
 package org.mskcc.cbio.portal.dao;
 
 // imports
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.util.Arrays;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.model.User;
 import org.mskcc.cbio.portal.model.UserAuthorities;
-import org.mskcc.cbio.portal.dao.DaoUserAuthorities;
-import org.mskcc.cbio.portal.scripts.ResetDatabase;
-
-import junit.framework.TestCase;
-import java.util.Arrays;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * JUnit test for DaoUserAuthorities class.
  */
-public class TestDaoUserAuthorities extends TestCase {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
+@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@Transactional
+public class TestDaoUserAuthorities {
 
+   @Test
    public void testDaoUserAuthorities() throws Exception {
-
-      ResetDatabase.resetDatabase();
 
       User userJoe = new User("joe@goggle.com", "Joe User", true);
       User userJane = new User("jane@hotmail.com", "Jane User", true);

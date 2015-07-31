@@ -356,7 +356,7 @@ NetworkVis.prototype.saveSettings = function()
         {
             // simply copy the text field value
             this._layoutOptions[i].value =
-                $(this.settingsDialogSelector + " #" + this._layoutOptions[i].id).val();
+                Number($(this.settingsDialogSelector + " #" + this._layoutOptions[i].id).val());
         }
 
     }
@@ -3227,7 +3227,7 @@ NetworkVis.prototype._performLayout = function()
 //      _vis.updateData("edges", [edges[i]], edges[i].data);
 //    }
       //TODO layout options will be changed
-    this._vis.layout(this._graphLayout.options);
+    this._vis.layout(this._graphLayout);
 };
 
 /**
@@ -3242,12 +3242,11 @@ NetworkVis.prototype._toggleNodeLabels = function()
     this._vis.nodes().forEach(function( ele ){
         if (tempLabelVisibility === false){
           ele._private.style['content'].strValue= '';
-          ele._private.data['label1'] = ele._private.data['label'];
+          ele._private.data['tempLabel'] = ele._private.data['label'];
           ele._private.data['label'] = '';
-
         }
         else{
-		  ele._private.data['label'] = ele._private.data['label1'];
+          ele._private.data['label'] = ele._private.data['tempLabel'];
           ele._private.style['content'].strValue= ele._private.data['label'];
         }
     });
@@ -3307,9 +3306,10 @@ NetworkVis.prototype._togglePanZoom = function()
 {
     // update visibility of the pan/zoom control
     //TODO
-/*    this._panZoomVisible = !this._panZoomVisible;
 
-    this._vis.panZoomControlVisible(this._panZoomVisible);
+    this._panZoomVisible = !this._panZoomVisible;
+
+//    this._vis.panZoomControlVisible(this._panZoomVisible);
 
     // update check icon of the corresponding menu item
 
@@ -3318,12 +3318,14 @@ NetworkVis.prototype._togglePanZoom = function()
     if (this._panZoomVisible)
     {
         item.addClass(this.CHECKED_CLASS);
+        $('.ui-cytoscape-panzoom').css('visibility', 'visible');
     }
     else
     {
         item.removeClass(this.CHECKED_CLASS);
+        $('.ui-cytoscape-panzoom').css('visibility', 'hidden');
     }
-    */
+
 };
 
 /**
@@ -3565,8 +3567,9 @@ NetworkVis.prototype._updateLayoutOptions = function()
     {
         options[this._layoutOptions[i].id] = this._layoutOptions[i].value;
     }
+    options['numIter'] = 100;
     options['name']="cose";
-    this._graphLayout.options = options;
+    this._graphLayout = options;
 };
 
 NetworkVis.prototype._createEdgeInspector = function(divId)

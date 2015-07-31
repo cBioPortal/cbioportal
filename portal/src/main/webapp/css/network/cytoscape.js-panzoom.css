@@ -113,7 +113,7 @@
 .ui-cytoscape-panzoom-slider {
 	position: absolute;
 	top: 97px;
-	left: 17px;
+	left: 16px;
 	height: 100px;
 	width: 9px;
 }
@@ -147,8 +147,8 @@
 	position:absolute;
 	margin: 0 4px;
 	line-height: 10px;
-	top:-2px;
-	left: -2px;
+	top:-0.1em;
+	left: -2.5px;
 }
 
 .ui-cytoscape-panzoom-no-zoom-tick {

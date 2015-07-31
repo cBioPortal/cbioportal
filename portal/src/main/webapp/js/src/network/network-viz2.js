@@ -13,7 +13,7 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 			'show-details': 'false',
 			'show-details-selected': 'false',
 			'show-total-alteration': 'false',
-			'opacity': 0.9,
+			'opacity': 0.7,
 			'shape': function(ele)
 			{
 				switch(ele._private.data['type'])

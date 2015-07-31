@@ -1,3 +1,4 @@
+/* v0.0.2 */
 // vim: ts=2 sw=2
 (function () {
   d3.timeline = function() {
@@ -1265,6 +1266,34 @@ window.clinicalTimeline = (function(){
     });
     singlePointTracks.forEach(mergeTooltipTablesAtEqualTimepoint);
     singlePointTracks.forEach(function(x) { x.collapse = true; });
+    return timeline;
+  };
+
+  /*
+   * Order tracks by given array of label names. Tracks with label names not
+   * included in the sequence are appended to the end in alhpanumeric order.
+   */
+  timeline.orderTracks = function(labels) {
+    if (!arguments.length) {
+      allData = _.sortBy(allData, 'label');
+      return timeline;
+    }
+
+    var data = [];
+    var track;
+    // append given label ordering
+    for (var i = 0; i < labels.length; i++) {
+      track = allData.filter(function(x) { return x.label === labels[i]; })[0];
+      if (track) {
+        data = data.concat(track);
+      }
+    }
+    // append missing labels
+    data = data.concat(_.sortBy(allData.filter(function(x) {
+      return labels.indexOf(x.label) === -1;
+    }), 'label'));
+
+    allData = data;
     return timeline;
   };
 

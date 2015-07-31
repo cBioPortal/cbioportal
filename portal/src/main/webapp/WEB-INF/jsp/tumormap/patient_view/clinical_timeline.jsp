@@ -112,7 +112,8 @@
                         .width(width)
                         .data(timeData)
                         .divId("#timeline")
-                        .collapseAll();
+                        .collapseAll()
+                        .orderTracks(["SPECIMEN", "SURGERY", "STATUS", "DIAGNOSTICS", "IMAGING", "TREATMENT"]);
                 timeline();
                 $("#timeline-container").show();
                 //plotCaseLabelsInTimeline();

@@ -256,9 +256,11 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 						name: 'preset',
 						fit: false
 					});
+
 				}
 			});
-
+			cy.boxSelectionEnabled( true );
+			cy.userZoomingEnabled(false);
 			var netVis = new NetworkVis(networkDivId);
 
 			// init UI of the network tab

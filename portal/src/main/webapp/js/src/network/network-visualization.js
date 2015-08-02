@@ -146,7 +146,6 @@ function NetworkVis(divId)
     this._vis = null;
 
     this.isEdgeClicked = false;
-
     //CSS styles for higlight operation 
     this.notHighlightNodeCSS = {'border-opacity': 0.3, 'text-opacity' : 0.3, 'background-opacity': 0.3};
     this.notHighlightEdgeCSS = {'opacity':0.3, 'text-opacity' : 0.3, 'background-opacity': 0.3};
@@ -218,6 +217,7 @@ NetworkVis.prototype.initNetworkUI = function(vis)
 
     // make UI visible
     this._setVisibility(true);
+    $(".layout-properties").css("width", "85px");
 };
 
 /**
@@ -399,7 +399,7 @@ NetworkVis.prototype.updateDetailsTab = function(evt)
 
     for (var i = 0; i < selected.length; i++)
     {
-        if(selected[i].group != "edges")
+        if(selected[i]._private.group != "edges")
         {
             areEdges = false;
             break;
@@ -519,16 +519,17 @@ NetworkVis.prototype.addInteractionInfo = function(evt, selector, isMerged, sele
     //this.createEdgeDetailsSelector(selector);
     var dataRow;
 
-    var data = (selectType == "click") ? (evt.target._private.data) : (evt.target[0]._private.data);
+    var data = (selectType == "click") ? (evt.cyTarget._private.data) : (evt.cyTarget._private.data);
 
     // clean xref & data rows
     $(selector + " .edge_inspector_content .data .data-row").remove();
     $(selector + " .edge_inspector_content .xref .xref-row").remove();
 
-    var title = this._vis.$('#' + data.source)._private.data.label + " - " +
-        this._vis.$('#' + data.target)._private.data.label;
+    var title = this._vis.nodes('#' + data.source)[0]._private.data.label + " - " +
+        this._vis.nodes('#' + data.target)[0]._private.data.label;
 
-    if (isMerged)
+        //TODO When merge is implemented
+/*    if (isMerged)
     {
         title += ' (Summary Edge)';
         var text = '<div class="header"><span class="title"><label>';
@@ -587,7 +588,7 @@ NetworkVis.prototype.addInteractionInfo = function(evt, selector, isMerged, sele
         $(selector + " .edge-inspector-content").append(
             '<tr align="left" class="empty-row data-row"><td> </td></tr>');
     }
-    else
+    else*/
     {
         var text = '<div class="header"><span class="title"><label>';
             text +=  title;
@@ -3472,7 +3473,7 @@ NetworkVis.prototype._saveAsSvg = function()
 NetworkVis.prototype._openProperties = function()
 {
     this._updatePropsUI();
-    $(this.settingsDialogSelector).dialog("open").width("auto");
+    $(this.settingsDialogSelector).dialog("open").height("auto");
 
 
 };
@@ -3654,7 +3655,7 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
                             '<label>Gravitation</label>' +
                         '</td>' +
                         '<td>' +
-                            '<input type="text" id="gravitation" value=""/>' +
+                            '<input type="text" id="gravitation" class="layout-properties" value=""/>' +
                         '</td>' +
                     '</tr>' +
                     '<tr title="Number of iterations between consecutive screen positions.">' +
@@ -3662,7 +3663,7 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
                             '<label>Refresh</label>' +
                         '</td>' +
                         '<td>' +
-                            '<input type="text" id="refresh" value=""/>' +
+                            '<input type="text" id="refresh" class="layout-properties" value=""/>' +
                         '</td>' +
                     '</tr>' +
                     '<tr title="Padding on fit.">' +
@@ -3670,7 +3671,7 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
                             '<label>Padding</label>' +
                         '</td>' +
                         '<td>' +
-                            '<input type="text" id="padding" value=""/>' +
+                            '<input type="text" id="padding" class="layout-properties" value=""/>' +
                         '</td>' +
                     '</tr>' +
                     '<tr title="Node repulsion (non overlapping) multiplier.">' +
@@ -3678,7 +3679,7 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
                             '<label>Node Repulsion (non overlap)</label>' +
                         '</td>' +
                         '<td>' +
-                            '<input type="text" id="nodeRepulsion" value=""/>' +
+                            '<input type="text" id="nodeRepulsion" class="layout-properties" value=""/>' +
                         '</td>' +
                     '</tr>' +
                     '<tr title="Node repulsion (overlapping) multiplier.">' +
@@ -3686,7 +3687,7 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
                             '<label>Node Repulsion (overlapping)</label>' +
                         '</td>' +
                         '<td>' +
-                            '<input type="text" id="nodeOverlap" value=""/>' +
+                            '<input type="text" id="nodeOverlap" class="layout-properties" value=""/>' +
                         '</td>' +
                     '</tr>' +
                     '<tr title="Ideal edge (non nested) length.">' +
@@ -3694,7 +3695,7 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
                             '<label>idealEdgeLength</label>' +
                         '</td>' +
                         '<td>' +
-                            '<input type="text" id="idealEdgeLength" value=""/>' +
+                            '<input type="text" id="idealEdgeLength" class="layout-properties" value=""/>' +
                         '</td>' +
                     '</tr>' +
                     '<tr title="Divisor to compute edge forces.">' +
@@ -3702,7 +3703,7 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
                             '<label>Edge Elasticity</label>' +
                         '</td>' +
                         '<td>' +
-                            '<input type="text" id="edgeElasticity" value=""/>' +
+                            '<input type="text" id="edgeElasticity" class="layout-properties" value=""/>' +
                         '</td>' +
                     '</tr>' +
                     '<tr title="Nesting factor (multiplier) to compute ideal edge length for nested edges.">' +
@@ -3710,7 +3711,7 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
                             '<label>nesting Factor</label>' +
                         '</td>' +
                         '<td>' +
-                            '<input type="text" id="nestingFactor" value=""/>' +
+                            '<input type="text" id="nestingFactor" class="layout-properties" value=""/>' +
                         '</td>' +
                     '</tr>' +
                     '<tr title="Initial temperature (maximum node displacement).">' +
@@ -3718,7 +3719,7 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
                             '<label>Initial temperature</label>' +
                         '</td>' +
                         '<td>' +
-                            '<input type="text" id="initialTemp" value=""/>' +
+                            '<input type="text" id="initialTemp" class="layout-properties" value=""/>' +
                         '</td>' +
                     '</tr>' +
                     '<tr title="Cooling factor (how the temperature is reduced between consecutive iterations).">' +
@@ -3726,7 +3727,7 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
                             '<label>Cooling Factor</label>' +
                         '</td>' +
                         '<td>' +
-                            '<input type="text" id="coolingFactor" value=""/>' +
+                            '<input type="text" id="coolingFactor" class="layout-properties" value=""/>' +
                         '</td>' +
                     '</tr>' +
                     '<tr title="Lower temperature threshold (below this point the layout will end).">' +
@@ -3734,7 +3735,7 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
                             '<label>Minimum Temperature</label>' +
                         '</td>' +
                         '<td>' +
-                            '<input type="text" id="minTemp" value=""/>' +
+                            '<input type="text" id="minTemp" class="layout-properties" value=""/>' +
                         '</td>' +
                     '</tr>' +
                     '<tr title="Whether to animate while running the layout.">' +

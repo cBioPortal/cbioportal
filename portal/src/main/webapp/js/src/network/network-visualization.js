@@ -146,7 +146,8 @@ function NetworkVis(divId)
     this._vis = null;
 
     this.isEdgeClicked = false;
-    //CSS styles for higlight operation 
+
+    //CSS styles for higlight operation
     this.notHighlightNodeCSS = {'border-opacity': 0.3, 'text-opacity' : 0.3, 'background-opacity': 0.3};
     this.notHighlightEdgeCSS = {'opacity':0.3, 'text-opacity' : 0.3, 'background-opacity': 0.3};
 }
@@ -1583,6 +1584,7 @@ NetworkVis.prototype._highlightNeighbors = function(/*nodes*/)
         highlightedElements = highlightedElements.add(nodes[i]);
         highlightedElements.data('highlighted', 'true');
 
+        this._vis.nodes(":visible").css("show-details", "false");
         this._vis.nodes(":visible").nodes("[highlighted!='true']").css(this.notHighlightNodeCSS);
         this._vis.edges(":visible").edges("[highlighted!='true']").css(this.notHighlightEdgeCSS);
         this._vis.nodes(":visible").nodes("[highlighted='true']").removeCss();
@@ -1597,6 +1599,7 @@ NetworkVis.prototype._highlightNeighbors = function(/*nodes*/)
   */
 NetworkVis.prototype._removeHighlights = function()
 {
+  this._vis.nodes(":visible").css("show-details", "false");
   this._vis.nodes(":visible").nodes("[highlighted!='true']").removeCss();
   this._vis.edges(":visible").edges("[highlighted!='true']").removeCss();
   this._vis.nodes(":visible").nodes().removeData("highlighted");

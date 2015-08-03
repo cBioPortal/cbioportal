@@ -28,7 +28,6 @@ public class OverRepresentationAnalysisUtil {
                 Set<CanonicalGene> cancerGeneSet = daoGeneOptimized.getCbioCancerGenes();
                 for (CanonicalGene cancerGene : cancerGeneSet) {
                     entrezGeneIds.add(cancerGene.getEntrezGeneId());
-                    System.out.println(cancerGene.getHugoGeneSymbolAllCaps());
                 }
             } else if (geneSet.equals("all_genes")) {
                 ArrayList<CanonicalGene> allGeneSet = daoGeneOptimized.getAllGenes();

@@ -35,9 +35,7 @@
 
 var StudyViewMutationsTabController = (function() {
     var init = function (){
-        StudyViewInitMutationsTab.init(
-            StudyViewProxy.getMutatedGenesData()
-        );
+        StudyViewProxy.getMutatedGenesData().then(StudyViewInitMutationsTab.init)
     };
     
     return {

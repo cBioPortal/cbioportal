@@ -32,23 +32,28 @@
 
 package org.mskcc.cbio.portal.util;
 
-import junit.framework.TestCase;
 
+import static org.junit.Assert.*;
+import org.junit.Test;
 import java.util.ArrayList;
+
+import static org.junit.Assert.*;
 
 /**
  * Tests the String List Util Class.
  *
  * @author Ethan Cerami.
  */
-public class TestStringListUtil extends TestCase {
-
+public class TestStringListUtil {
+	
+	@Test
     public void testItems1() {
         ArrayList<String> itemList = new ArrayList<String>();
         String itemSentence = StringListUtil.covertItemsIntoSentence(itemList);
         assertEquals ("", itemSentence);
     }
 
+	@Test
     public void testItems2() {
         ArrayList<String> itemList = new ArrayList<String>();
         itemList.add("apple");
@@ -56,6 +61,7 @@ public class TestStringListUtil extends TestCase {
         assertEquals ("apple.", itemSentence);
     }
 
+	@Test
     public void testItems3() {
         ArrayList<String> itemList = new ArrayList<String>();
         itemList.add("apple");
@@ -64,6 +70,7 @@ public class TestStringListUtil extends TestCase {
         assertEquals ("apple, orange.", itemSentence);
     }
 
+	@Test
     public void testItems4() {
         ArrayList<String> itemList = new ArrayList<String>();
         itemList.add("apple");

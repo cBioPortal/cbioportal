@@ -32,10 +32,18 @@
 
 package org.mskcc.cbio.portal.scripts;
 
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.*;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Transactional;
+
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,8 +54,24 @@ import java.util.ArrayList;
  *
  * @author Selcuk Onur Sumer
  */
-public class TestImportFusionData extends TestCase
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
+@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@Transactional
+public class TestImportFusionData
 {
+	
+	int studyId;
+	int geneticProfileId;
+	
+	@Before
+	public void setUp() {
+		studyId = DaoCancerStudy.getCancerStudyByStableId("study_tcga_pub").getInternalId();
+		geneticProfileId = DaoGeneticProfile.getGeneticProfileByStableId("study_tcga_pub_mutations").getGeneticProfileId();
+
+	}
+	
+	@Test
 	public void testImportFusionData()
 	{
         try {
@@ -59,7 +83,7 @@ public class TestImportFusionData extends TestCase
 
             // TODO change this to use getResourceAsStream()
             File file = new File("target/test-classes/data_fusions.txt");
-            ImportFusionData parser = new ImportFusionData(file, 1, pMonitor);
+            ImportFusionData parser = new ImportFusionData(file, geneticProfileId, pMonitor);
 
 			loadGenes();
 			parser.importData();
@@ -80,10 +104,17 @@ public class TestImportFusionData extends TestCase
 	private void checkImportedData() throws DaoException
 	{
 		ArrayList<ExtendedMutation> list = DaoMutation.getAllMutations();
+		
+		ArrayList<ExtendedMutation> fusions = new ArrayList<ExtendedMutation>();
+		for(ExtendedMutation mut : list) {
+			if (mut.getEvent().getMutationType().equals("Fusion")) {
+				fusions.add(mut);
+			}
+		}
 
-		assertEquals(2, list.size()); // all except "FAKE"
+		assertEquals(2, fusions.size()); // all except "FAKE"
 
-		list = DaoMutation.getMutations(1, 1);
+		list = DaoMutation.getMutations(geneticProfileId, DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-A1-A0SB-01").getInternalId());
 
 		assertEquals(1, list.size());
 		assertEquals("saturn", list.get(0).getSequencingCenter());
@@ -91,7 +122,7 @@ public class TestImportFusionData extends TestCase
 		assertEquals("Fusion", list.get(0).getMutationType());
 		assertEquals("Fusion1", list.get(0).getProteinChange());
 
-		list = DaoMutation.getMutations(1, 2);
+		list = DaoMutation.getMutations(geneticProfileId, DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-A1-A0SD-01").getInternalId());
 
 		assertEquals(1, list.size());
 		assertEquals("jupiter", list.get(0).getSequencingCenter());
@@ -102,7 +133,6 @@ public class TestImportFusionData extends TestCase
 
 	private void loadGenes() throws DaoException
 	{
-        TestImportUtil.createSmallDbms(true);
 		DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
 
 		// genes for "data_fusions.txt"

@@ -31,15 +31,17 @@
 */
 
 package org.mskcc.cbio.portal.oncoPrintSpecLanguage;
-
+import static org.junit.Assert.*;
+import org.junit.Test;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.CallOncoPrintSpecParser;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParserOutput;
 
-import junit.framework.TestCase;
 
-public class TestCallOncoPrintSpecParser extends TestCase {
+
+public class TestCallOncoPrintSpecParser {
    
    // TODO
+	@Test
    public void testCallOncoPrintSpecParser() {
       assertTrue(true);
       

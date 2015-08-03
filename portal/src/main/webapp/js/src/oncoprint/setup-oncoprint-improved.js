@@ -201,7 +201,6 @@ window.setUpOncoprint = function(ctr_id, config) {
 		};
 		cTooltipPatient = function (d) {
 			var ret = '';
-			ret += 'There are <b>' + d.num_samples + '</b> samples<br>';
 			if (d.value_counts) {
 				_.each(d.value_counts, function (count, value) {
 					ret += '<b>' + value + ': ' + count + '</b><br>';
@@ -210,6 +209,8 @@ window.setUpOncoprint = function(ctr_id, config) {
 				ret += 'value: <b>' + d.attr_val + '</b><br>';
 			}
 			ret += makeLinkOrPlain(patientViewUrl(d.patient), d.patient);
+			ret += '<br>';
+			ret += 'There are <b>' + d.num_samples + '</b> samples';
 			return ret;
 		};
 	})();
@@ -608,11 +609,15 @@ window.setUpOncoprint = function(ctr_id, config) {
 			var btn_img = btn.find('img')[0];
 			var img_urls = ['images/removeWhitespace.svg', 'images/unremoveWhitespace.svg'];
 			var curr_img_url_index = 0;
-			btn.click(function () {
-				oncoprint.toggleCellPadding();
-				curr_img_url_index = +!curr_img_url_index;
+			var updateBtn = function() {
 				btn_img.attributes.src.value = img_urls[curr_img_url_index];
+			};
+			btn.click(function () {
+				curr_img_url_index = +!curr_img_url_index;
+				oncoprint.toggleCellPadding();
+				updateBtn();
 			});
+			updateBtn();
 			to_click_remove.push(btn);
 			setUpToolbarBtnHover(btn);
 			btn.qtip({
@@ -634,10 +639,13 @@ window.setUpOncoprint = function(ctr_id, config) {
 			var btn = $(toolbar_selector + ' #oncoprint-diagram-removeUCases-icon');
 			var imgs = ['images/removeUCases.svg', 'images/unremoveUCases.svg'];
 			var descs = ['Hide unaltered cases', 'Show unaltered cases'];
+			var updateBtn = function() {
+				btn.find('img').attr('src', imgs[+unaltered_cases_hidden]);
+			};
 			btn.click(function () {
 				oncoprintFadeTo(0.5).then(function() {
 					unaltered_cases_hidden = !unaltered_cases_hidden;
-					btn.find('img').attr('src', imgs[+unaltered_cases_hidden]);
+					updateBtn();
 					if (!unaltered_cases_hidden) {
 						oncoprint.showIds();
 					} else {
@@ -646,6 +654,7 @@ window.setUpOncoprint = function(ctr_id, config) {
 					oncoprintFadeIn();
 				});
 			});
+			updateBtn();
 			to_click_remove.push(btn);
 			btn.qtip({
 				content: {text: function () {
@@ -667,9 +676,12 @@ window.setUpOncoprint = function(ctr_id, config) {
 			var imgs = ['images/cool2.svg', 'images/cool.svg'];
 			var toolbar_descs = ['Show events per sample', 'Show events per patient'];
 			var header_descs = ['Show samples in OncoPrint', 'Show patients in OncoPrint'];
+			var updateBtn = function() {
+				toolbar_btn.find('img').attr('src', imgs[+using_sample_data]);
+			};
 			toolbar_btn.add(header_btn).click(function () {
 				using_sample_data = !using_sample_data;
-				toolbar_btn.find('img').attr('src', imgs[+using_sample_data]);
+				updateBtn();
 				header_btn.text(header_descs[+using_sample_data]);
 				oncoprintFadeTo(0.5).then(function () {
 					if (!using_sample_data) {
@@ -708,6 +720,7 @@ window.setUpOncoprint = function(ctr_id, config) {
 					oncoprintFadeIn();
 				});
 			});
+			updateBtn();
 			to_click_remove.push(toolbar_btn);
 			to_click_remove.push(header_btn);
 			toolbar_btn.qtip({
@@ -727,11 +740,15 @@ window.setUpOncoprint = function(ctr_id, config) {
 			}
 			var imgs = ['images/showlegend.svg', 'images/hidelegend.svg'];
 			var qtip_text = ['Show legends for clinical attribute tracks', 'Hide legends for clinical attribute tracks'];
+			var updateBtn = function() {
+				$(toolbar_selector + ' #oncoprint-diagram-showlegend-icon img').attr('src', imgs[+clinical_legends_visible]);
+			};
 			$(toolbar_selector + ' #oncoprint-diagram-showlegend-icon').click(function () {
 				clinical_legends_visible = !clinical_legends_visible;
-				$(toolbar_selector + ' #oncoprint-diagram-showlegend-icon img').attr('src', imgs[+clinical_legends_visible]);
+				updateBtn();
 				oncoprint.setLegendVisible(clinical_tracks, clinical_legends_visible);
 			});
+			updateBtn();
 			to_click_remove.push($(toolbar_selector + ' #oncoprint-diagram-showlegend-icon'));
 			$(toolbar_selector + ' #oncoprint-diagram-showlegend-icon').qtip({
 				content: {

@@ -221,6 +221,7 @@
             <textarea id="filter_example" rows=2 style="width:40%;"></textarea>
         </div>
         <button id="create_oncoprint" type="button" class="btn" style="margin-top:20px; margin-bottom:20px;">Submit</button>
+        <div id="error_msg" style="color:#ff0000"></div>
 
     <div id="oncoprint_controls" style="margin-bottom: 20px;"></div>
 

@@ -56,7 +56,6 @@ var makeOncoprinter = (function() {
 		if (gene_order[0] === '') {
 			gene_order = undefined;
 		}
-		console.log(data);
 		if (window.onc_obj) {
 			window.onc_obj.destroy();
 		}
@@ -73,8 +72,58 @@ var makeOncoprinter = (function() {
 	};
 })();
 
-$('#create_oncoprint').click(function() {
-	makeOncoprinter($('#mutation-file-example').val());
-});
+var isInputValid = function(str) {
+	var lines = _.map(str.split('\n'), function(x) { return x.trim(); });
+	if (lines[0].split(/\s+/).length !== 3) {
+		return false;
+	}
+	for (var i=1; i<lines.length; i++) {
+		var split_line_length = lines[i].split(/\s+/).length;
+		if (split_line_length !== 1 && split_line_length !== 3) {
+			return false;
+		}
+	}
+	return true;
+};
+var postFile = function (url, formData, callback) {
+	$.ajax({
+		url: url,
+		type: 'POST',
+		success: callback,
+		data: formData,
+		//Options to tell jQuery not to process data or worry about content-type.
+		cache: false,
+		contentType: false,
+		processData: false
+	});
+};
 
-$('#mutation-form #mutation').change(function() { $('#mutation-file-example').html("") });
+$(document).ready(function() {
+	$('#create_oncoprint').click(function() {
+		var textarea_input = $('#mutation-file-example').val().trim();
+		if (textarea_input.length > 0) {
+			if (isInputValid(textarea_input)) {
+				makeOncoprinter($('#mutation-file-example').val());
+				$('#error_msg').hide();
+			} else {
+				$('#error_msg').html("Error in input data");
+				$('#error_msg').show();
+			}
+		} else if ($('#mutation-form #mutation').val().trim().length > 0) {
+			postFile('echofile', new FormData($('#mutation-form')[0]), function(mutationResponse) {
+				var input = mutationResponse.mutation.trim();
+				if (isInputValid(input)) {
+					makeOncoprinter(input);
+					$('#error_msg').hide();
+				} else {
+					$('#error_msg').html("Error in input data");
+					$('#error_msg').show();
+				}
+			});
+		} else {
+			$('#error_msg').html("Please input data or select a file.");
+			$('#error_msg').show();
+		}
+	});
+	$('#mutation-form #mutation').change(function() { $('#mutation-file-example').val(""); });
+});

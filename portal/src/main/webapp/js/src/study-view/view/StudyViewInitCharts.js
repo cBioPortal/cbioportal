@@ -1095,9 +1095,10 @@ var StudyViewInitCharts = (function(){
                 }
 
                 if(_selectedChartType === 'pie'){
-                    makeNewPieChartInstance(_chartID, 
-                                            {attr_id:_id,
-                                                display_name:_selectedAttrDisplay});
+                    makeNewPieChartInstance(_chartID, {
+                        attr_id:_id,
+                        display_name:_selectedAttrDisplay,
+                        keys: varKeys[_id]});
                 }else{
                     makeNewBarChartInstance(_chartID,
                                             {attr_id:_id,

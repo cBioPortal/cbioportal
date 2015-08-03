@@ -414,7 +414,7 @@ var ScatterPlots = function() {
                     x_val: d.x_val,
                     y_val: d.y_val,
                     x_pos: elem.xScale(d.x_val),
-                    y_pos: elem.xScale(d.y_val),
+                    y_pos: elem.yScale(d.y_val),
                     arr_id: i,
                     transform: "translate(" + elem.xScale(d.x_val) + ", " + elem.yScale(d.y_val) + ")",
                     fill: fill,

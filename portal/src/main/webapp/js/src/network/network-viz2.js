@@ -139,7 +139,7 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 					default: return "#A583AB"; break;
 				}
 			},
-			'opacity': 0.9,
+			'opacity': 0.8,
 			'curve-style': 'bezier',
 		//	"haystack-radius":"0",
 			'width': 2

@@ -98,6 +98,8 @@ var rgbs     = ['rgb(254,80,51)', 'rgb(53,91,255)', 'rgb(255,208,214)', 'rgb(158
     $$.style.properties.push({name: 'total-alteration-font-size', type: $$.style.types.size});
     $$.style.properties['total-alteration-font-size'] = {name: 'total-alteration-font-size', type: $$.style.types.size};
 
+    $$.style.properties.push({name: 'main-opacity', type: $$.style.types.size});
+    $$.style.properties['main-opacity'] = {name: 'main-opacity', type: $$.style.types.size};
 
     CRp.drawNode = function(context, node, drawOverlayInstead) {
 
@@ -215,14 +217,18 @@ var rgbs     = ['rgb(254,80,51)', 'rgb(53,91,255)', 'rgb(255,208,214)', 'rgb(158
 
             if (node.selected()){
                 context.shadowColor = "rgb(255,255,0)";
-                context.strokeStyle = "rgba(249,251,166,0.7)";
+                context.strokeStyle = "rgba(249,251,166," + node._private.style['main-opacity'].value + ")";
                 context.shadowBlur = 1;
 
             }
             else if (node._private.style['show-total-alteration'] === true){
                 context.shadowColor = "rgb(227,227,227)";
-                context.strokeStyle = "rgba(0,0,0,0.7)";
+                context.strokeStyle = "rgba(0,0,0," + node._private.style['main-opacity'].value + ")";
                 context.shadowBlur = 10;
+            }
+            else{
+                node.css('opacity', node._private.style['main-opacity'].value);
+                context.shadowBlur = 1;
             }
 
             context.lineWidth = 1;

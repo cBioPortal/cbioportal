@@ -13,7 +13,8 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 			'show-details': 'false',
 			'show-details-selected': 'false',
 			'show-total-alteration': 'false',
-			'opacity': 0.7,
+			'main-opacity': 0.8,
+			'opacity': 0.8,						// Must be the same with the main-opacity in load state!!!
 			'shape': function(ele)
 			{
 				switch(ele._private.data['type'])
@@ -138,7 +139,7 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 					default: return "#A583AB"; break;
 				}
 			},
-			'opacity': 0.8,
+			'opacity': 0.9,
 			'curve-style': 'bezier',
 		//	"haystack-radius":"0",
 			'width': 2
@@ -193,7 +194,7 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 			cy.on('mouseout', 'node', function(evt){
 				this._private.style['show-total-alteration'] = false;
 				if (this.selected() === false) {
-					this.css("opacity", 0.8);
+					this.css("opacity", this._private.style['main-opacity'].value);
 				}
 				if (!this.selected()) {
 					this.css('show-details', 'false');
@@ -218,17 +219,10 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 				}
 				else {
 					var nodes = cy.nodes();
-					var exist = false;
 					for (var i = 0 ; i < nodes.length; i++){
-						if (nodes[i]._private.style['show-details-selected'] === true)
-						{
-							exist = true;
-							break;
-						}
-					}
-					for (var i = 0 ; exist && i < nodes.length; i++){
 						nodes[i].css('show-details', 'false');
 						nodes[i].css('show-details-selected', 'false');
+						nodes[i].css('opacity', nodes[i]._private.style['main-opacity'].value);
 					}
 					cy.layout({
 						name: 'preset',

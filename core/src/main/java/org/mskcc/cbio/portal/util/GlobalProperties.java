@@ -93,6 +93,7 @@ public class GlobalProperties {
     public static final String PATIENT_VIEW_DIGITAL_SLIDE_META_URL = "digitalslidearchive.meta.url";
     public static final String PATIENT_VIEW_TCGA_PATH_REPORT_URL = "tcga_path_report.url";
     public static final String ONCOKB_URL = "oncokb.url";
+    public static final String MYCANCERGENOME_URL = "mycancergenome.url=";
     
     private static Log LOG = LogFactory.getLog(GlobalProperties.class);
     private static Properties properties = initializeProperties();
@@ -383,4 +384,11 @@ public class GlobalProperties {
     {
         return properties.getProperty(ONCOKB_URL);
     }
+    
+    public static String getMyCancerGenomeUrl()
+    {
+        return properties.getProperty(MYCANCERGENOME_URL);
+    }
+    
+    
 }

@@ -32,9 +32,14 @@
 
 package org.mskcc.cbio.portal.dao;
 
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.scripts.ResetDatabase;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 
@@ -43,46 +48,53 @@ import java.util.ArrayList;
  *
  * @author Ethan Cerami.
  */
-public class TestDaoGeneticProfileSamples extends TestCase {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
+public class TestDaoGeneticProfileSamples {
+	
+	CancerStudy study;
+	ArrayList<Integer> internalSampleIds;
+	int geneticProfileId;
+	
+	@Before
+	public void setUp() throws DaoException {
+		study = DaoCancerStudy.getCancerStudyByStableId("study_tcga_pub");
+		geneticProfileId = DaoGeneticProfile.getGeneticProfileByStableId("study_tcga_pub_mutations").getGeneticProfileId();
+		
+		internalSampleIds = new ArrayList<Integer>();
+        Patient p = new Patient(study, "TCGA-1");
+        int pId = DaoPatient.addPatient(p);
+        
+        DaoSample.reCache();
+        Sample s = new Sample("XCGA-A1-A0SB-01", pId, "brca");
+        internalSampleIds.add(DaoSample.addSample(s));
+        s = new Sample("XCGA-A1-A0SD-01", pId, "brca");
+        internalSampleIds.add(DaoSample.addSample(s));
+        s = new Sample("XCGA-A1-A0SE-01", pId, "brca");
+        internalSampleIds.add(DaoSample.addSample(s));
+        s = new Sample("XCGA-A1-A0SF-01", pId, "brca");
+        internalSampleIds.add(DaoSample.addSample(s));
+	}
 
     /**
      * Tests the Dao Genetic Profile Samples Class.
      * @throws DaoException Database Exception.
      */
+	@Test
     public void testDaoGeneticProfileSamples() throws DaoException {
-        ResetDatabase.resetDatabase();
-        createSamples();
 
         ArrayList<Integer> orderedSampleList = new ArrayList<Integer>();
-        orderedSampleList.add(1);
-        orderedSampleList.add(2);
-        orderedSampleList.add(3);
-        orderedSampleList.add(4);
-        int numRows = DaoGeneticProfileSamples.addGeneticProfileSamples(1, orderedSampleList);
+        int numRows = DaoGeneticProfileSamples.addGeneticProfileSamples(geneticProfileId, internalSampleIds);
 
         assertEquals (1, numRows);
 
-        orderedSampleList = DaoGeneticProfileSamples.getOrderedSampleList(1);
+        orderedSampleList = DaoGeneticProfileSamples.getOrderedSampleList(geneticProfileId);
         assertEquals (4, orderedSampleList.size());
 
         //  Test the Delete method
-        DaoGeneticProfileSamples.deleteAllSamplesInGeneticProfile(1);
-        orderedSampleList = DaoGeneticProfileSamples.getOrderedSampleList(1);
+        DaoGeneticProfileSamples.deleteAllSamplesInGeneticProfile(geneticProfileId);
+        orderedSampleList = DaoGeneticProfileSamples.getOrderedSampleList(geneticProfileId);
         assertEquals (0, orderedSampleList.size());
-    }
-
-    private void createSamples() throws DaoException {
-        CancerStudy study = new CancerStudy("study", "description", "id", "brca", true);
-        Patient p = new Patient(study, "TCGA-1");
-        int pId = DaoPatient.addPatient(p);
-        Sample s = new Sample("TCGA-1", pId, "type");
-        DaoSample.addSample(s);
-        s = new Sample("TCGA-2", pId, "type");
-        DaoSample.addSample(s);
-        s = new Sample("TCGA-3", pId, "type");
-        DaoSample.addSample(s);
-        s = new Sample("TCGA-4", pId, "type");
-        DaoSample.addSample(s);
     }
 
 }

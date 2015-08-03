@@ -32,37 +32,51 @@
 
 package org.mskcc.cbio.portal.dao;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoInteraction;
 import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
-import org.mskcc.cbio.portal.scripts.ResetDatabase;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.Interaction;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Transactional;
+
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 
 /**
  * JUnit Tests for DaoInteraction.
  */
-public class TestDaoInteraction extends TestCase {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
+@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@Transactional
+public class TestDaoInteraction {
 
     /**
      * Test the DaoInteraction Class.
      *
      * @throws DaoException Database Error
      */
-    public void testDaoInteraction() throws DaoException {
+	@Test
+    public void testDaoInteractionBulkloadOff() throws DaoException {
 
         // test with both values of MySQLbulkLoader.isBulkLoad()
         MySQLbulkLoader.bulkLoadOff();
         runTheTest();
         MySQLbulkLoader.bulkLoadOn();
-        runTheTest();
     }
+	
+	@Test
+    public void testDaoInteractionBulkloadOn() throws DaoException {
+        runTheTest();
+	}
 
     private void runTheTest() throws DaoException{
-        ResetDatabase.resetDatabase();
         DaoInteraction daoInteraction = DaoInteraction.getInstance();
 
         CanonicalGene geneA = new CanonicalGene (672, "BRCA1");

@@ -278,6 +278,15 @@
     </servlet-mapping>
 
 	<servlet>
+		<servlet-name>mutation_aligner_json</servlet-name>
+		<servlet-class>org.mskcc.cbio.portal.servlet.MutationAlignerServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>mutation_aligner_json</servlet-name>
+		<url-pattern>/getMutationAligner.json</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
 		<servlet-name>mutation_3d_json</servlet-name>
 		<servlet-class>org.mskcc.cbio.portal.servlet.PdbDataServlet</servlet-class>
 	</servlet>

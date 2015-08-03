@@ -32,39 +32,75 @@
 
 package org.mskcc.cbio.portal.dao;
 
+import static org.junit.Assert.*;
+
 import java.util.ArrayList;
 
-import junit.framework.TestCase;
-
-import org.mskcc.cbio.portal.model.User;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.DaoUser;
-import org.mskcc.cbio.portal.scripts.ResetDatabase;
+import org.mskcc.cbio.portal.model.User;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Transactional;
+
+import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.*;
 
 /**
  * JUnit test for DaoUser class.
  */
-public class TestDaoUser extends TestCase {
 
-   public void testDaoUser() throws Exception {
-      ResetDatabase.resetDatabase();
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
+@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@Transactional
+public class TestDaoUser {
+	
+	@Test
+	public void testDaoSeededUsers() throws Exception {
+	    ArrayList<User> allUsers = DaoUser.getAllUsers();
+	    assertEquals(3, allUsers.size());
+	}
 
-      User user = new User("joe@mail.com", "Joe Smith", false);
-      DaoUser.addUser(user);
+	@Test
+	public void testDaoFindUser() throws Exception {
+		
+		User user = DaoUser.getUserByEmail("Lonnie@openid.org");
+	    assertThat(user.getEmail(), is("Lonnie@openid.org"));
+	}
+	
+	
+	@Test
+	public void testDaoAddUser() throws Exception {
 
-      assertEquals(null, DaoUser.getUserByEmail("foo"));
-      assertEquals(user, DaoUser.getUserByEmail("joe@mail.com"));
-      assertFalse(user.isEnabled());
+		User user = new User("joe@mail.com", "Joe Smith", false);
+		DaoUser.addUser(user);
 
-      User user2 = new User("jane@yahoo.com", "Jane Doe", false);
-      DaoUser.addUser(user2);
+		assertEquals(null, DaoUser.getUserByEmail("foo"));
+		assertEquals(user, DaoUser.getUserByEmail("joe@mail.com"));
+		assertFalse(user.isEnabled());
+		
+	    ArrayList<User> allUsers = DaoUser.getAllUsers();
+	    assertEquals(4, allUsers.size());
+	    
+	    User foundUser = DaoUser.getUserByEmail("joe@mail.com");
+	    assertThat(foundUser, is(notNullValue()));
+	    assertThat(user.getEmail(), is("joe@mail.com"));
+	}
+	
+	@Test
+	public void testDaoRemoveUser() throws Exception {
+		
+		DaoUser.deleteUser("Lonnie@openid.org");
+		
+	    ArrayList<User> allUsers = DaoUser.getAllUsers();
+	    assertEquals(2, allUsers.size());
+	    
+	    for(User user : allUsers) {
+	    	assertThat(user.getEmail(), is(not("Lonnie@openid.org")));
+	    }
+	}
 
-      ArrayList<User> allUsers = DaoUser.getAllUsers();
-      assertEquals(2, allUsers.size());
-
-      DaoUser.deleteUser(user.getEmail());
-      allUsers = DaoUser.getAllUsers();
-      assertEquals(user2, allUsers.get(0));
-
-      assertEquals(user2, DaoUser.getUserByEmail("jane@yahoo.com"));
-   }
 }

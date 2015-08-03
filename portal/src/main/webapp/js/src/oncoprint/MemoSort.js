@@ -117,7 +117,7 @@ define(function() {
                                         return 3;
                                     }
 
-                                    if ((/^([A-Z]+)([0-9]+)((del)|(ins))$/g).test(m[i])) {
+                                    if ((/^([A-Z]+)([0-9]+)((del)|(ins))([a-zA-Z]+)$/g).test(m[i])) {
                                         hasIndel = true;
                                     }
                                 }
@@ -130,7 +130,7 @@ define(function() {
                         {
                             return 1;//Missense_mutation
                         }
-                        else if((/^([A-Z]+)([0-9]+)((del)|(ins))$/g).test(m) )
+                        else if((/^([A-Z]+)([0-9]+)((del)|(ins))([a-zA-Z]+)$/g).test(m) )
                         {
                             return 2;//inframe
                         }
@@ -190,7 +190,7 @@ define(function() {
                                         return 3;
                                     }
 
-                                    if ((/^([A-Z]+)([0-9]+)((del)|(ins))$/g).test(m[i])) {
+                                    if ((/^([A-Z]+)([0-9]+)((del)|(ins))([a-zA-Z]+)$/g).test(m[i])) {
                                         hasIndel = true;
                                     }
                                 }
@@ -203,7 +203,7 @@ define(function() {
                         {
                             return 1;//Missense_mutation
                         }
-                        else if((/^([A-Z]+)([0-9]+)((del)|(ins))$/g).test(m) )
+                        else if((/^([A-Z]+)([0-9]+)((del)|(ins))([a-zA-Z]+)$/g).test(m) )
                         {
                             return 2;//inframe
                         }

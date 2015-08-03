@@ -35,16 +35,17 @@ package org.mskcc.cbio.portal.model;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
+
 import junit.framework.Assert;
+import junit.framework.TestCase;
+
 import org.junit.Test;
-import org.mskcc.cbio.portal.model.GeneticEventComparator;
-import org.mskcc.cbio.portal.model.GeneticEventImpl;
 import org.mskcc.cbio.portal.model.GeneticEventImpl.CNA;
 import org.mskcc.cbio.portal.model.GeneticEventImpl.MRNA;
 import org.mskcc.cbio.portal.model.GeneticEventImpl.RPPA;
 import org.mskcc.cbio.portal.model.GeneticEventImpl.mutations;
 
-public class TestGeneticEventComparator {
+public class TestGeneticEventComparator extends TestCase{
 
    @Test
    public void testGeneticEventComparator() {

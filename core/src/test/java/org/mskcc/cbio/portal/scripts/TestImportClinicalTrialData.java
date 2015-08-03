@@ -32,9 +32,16 @@
 
 package org.mskcc.cbio.portal.scripts;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.DaoClinicalTrial;
 import org.mskcc.cbio.portal.model.ClinicalTrial;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Transactional;
+
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.net.URL;
@@ -45,7 +52,13 @@ import java.net.URL;
  * @author Arman
  *
  */
-public class TestImportClinicalTrialData extends TestCase {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
+@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@Transactional
+public class TestImportClinicalTrialData {
+	
+	@Test
     public void testClinicalTrialDataImport() throws Exception {
         URL trialsURL = TestImportClinicalTrialData.class.getClassLoader().getResource("clinicalTrials");
         assertNotNull(trialsURL);

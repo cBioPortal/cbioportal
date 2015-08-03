@@ -70,7 +70,8 @@ var OncoKBConnector = (function(){
             url: oncokbUrl + 'evidence.json',
             data: {
                 'hugoSymbol' : geneStr.substring(0, geneStr.length - 1),
-                'alteration': alterationStr.substring(0, alterationStr.length - 1)
+                'alteration': alterationStr.substring(0, alterationStr.length - 1),
+                'geneStatus': 'complete'
             },
             crossDomain: true,
             dataType: 'json',

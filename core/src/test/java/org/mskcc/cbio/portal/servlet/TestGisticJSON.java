@@ -32,7 +32,7 @@
 
 package org.mskcc.cbio.portal.servlet;
 
-import junit.framework.TestCase;
+
 import org.mskcc.cbio.portal.dao.DaoGistic;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.Gistic;
@@ -42,7 +42,9 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Map;
 
-public class TestGisticJSON extends TestCase {
+import static org.junit.Assert.*;
+
+public class TestGisticJSON {
 
     public void testGisticJSON() {
 

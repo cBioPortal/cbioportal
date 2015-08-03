@@ -399,31 +399,31 @@ var ScatterPlots = function() {
             .data(_dataArr)
             .enter()
             .append("svg:path")
-            .attr("transform", function(d) {
-                //Remember current positions for the later transition animation
-                $(this).attr("x_val", d.x_val);
-                $(this).attr("y_val", d.y_val);
-                $(this).attr("x_pos", elem.xScale(d.x_val)); 
-                $(this).attr("y_pos", elem.yScale(d.y_val));
-                return "translate(" + elem.xScale(d.x_val) + ", " + elem.yScale(d.y_val) + ")";
+            .each(function (d, i) {
+                var fill = d.fill;
+                var stroke = d.fill;
+
+                if (d.fill === null || d.fill === "" || typeof d.fill === "undefined") {
+                    fill = style.fill;
+                }
+                if (d.stroke === null || d.stroke === "" || typeof d.stroke === "undefined") {
+                    stroke = style.stroke;
+                }
+
+                d3.select(this).attr({
+                    x_val: d.x_val,
+                    y_val: d.y_val,
+                    x_pos: elem.xScale(d.x_val),
+                    y_pos: elem.yScale(d.y_val),
+                    arr_id: i,
+                    transform: "translate(" + elem.xScale(d.x_val) + ", " + elem.yScale(d.y_val) + ")",
+                    fill: fill,
+                    stroke: stroke
+                });
             })
             .attr("d", d3.svg.symbol()
                 .size(style.size)
                 .type(style.shape))
-            .attr("fill", function(d) {
-                if (d.fill === null || d.fill === "" || typeof d.fill === "undefined") {
-                    return style.fill;
-                } else {
-                    return d.fill;
-                }
-            })
-            .attr("stroke", function(d) {
-                if (d.stroke === null || d.stroke === "" || typeof d.stroke === "undefined") {
-                    return style.stroke;
-                } else {
-                    return d.stroke;
-                }
-            })
             .attr("stroke-width", style.stroke_width)
             .attr("z-index", "100");
     }
@@ -438,7 +438,7 @@ var ScatterPlots = function() {
                 //Remember current positions for the later transition animation
                 $(this).attr("x_val", d.x_val);
                 $(this).attr("y_val", d.y_val);
-                $(this).attr("x_pos", elem.xScale(d.x_val)); 
+                $(this).attr("x_pos", elem.xScale(d.x_val));
                 $(this).attr("y_pos", elem.yScale(d.y_val));
                 return "translate(" + elem.xScale(d.x_val) + ", " + elem.yScale(d.y_val) + ")";
             })
@@ -490,7 +490,7 @@ var ScatterPlots = function() {
             .attr("transform", function(d, i) {
                 return "translate(" + (canvas.xRight + 10) + ", " + (24 + i * 14) + ")";
             });
-        
+
         legend.append("path")
             .attr("d", d3.svg.symbol()
                 .size(function(d) { return d.size; })
@@ -504,14 +504,14 @@ var ScatterPlots = function() {
             .attr("dy", ".35em")
             .attr("text-anchor", "front")
             .style("font-size", "11")
-            .text(function(d) { 
-                return d.text; 
+            .text(function(d) {
+                return d.text;
             });
 
     }
-    
+
     function addListeners() {
-        //This code is oringinally coming from Onur. Listening shiftKey down and 
+        //This code is oringinally coming from Onur. Listening shiftKey down and
         //shiftKey up.
         $(window).on("keydown", function(event) {
             if (event.keyCode === 16)
@@ -531,23 +531,25 @@ var ScatterPlots = function() {
         //Initialization takes some time especially for large dataset(Like: MSK-IMPACT).
         $("#" + names.body).one('mouseenter', addQtips);
     }
-    
+
     function addQtips() {
-        elem.dotsGroup.selectAll('path').each(
-            function(d) {
+        //Hover Animation
+        //Only initial qtip after mouse overing it. Trigger mouseover again after creating qtip
+        var mouseOn = function() {
+            if(!$(this).data('qtip')) {
                 $(this).qtip(
                     {
-                        content: {text: d.qtip},
+                        content: {text: dataArr[$(this).attr('arr_id')].qtip },
                         style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
                         show: {event: "mouseover"},
                         hide: {fixed:true, delay: 100, event: "mouseout"},
                         position: {my:'right bottom', at:'top left', viewport: $(window)}
                     }
                 );
+                $(this).data('qtip', true);
+                $(this).trigger("mouseover");
             }
-        );
-        //Hover Animation
-        var mouseOn = function() {
+
             var dot = d3.select(this);
             dot.transition()
                 .ease("elastic")
@@ -1075,9 +1077,11 @@ var ScatterPlots = function() {
         updateStyle: function(_datumArr) {
             var _tmpDataArr=[];
             var dataCopy = jQuery.extend(true,[],dataArr);
+            var dataCopyL = dataCopy.length;
+            var _caseIdList = [];
             
             if(axisXLogFlag && axisYLogFlag){
-                for(var i=0; i<dataCopy.length; i++){
+                for(var i=0; i<dataCopyL; i++){
                     if(dataCopy[i].x_val === 0) {
                         dataCopy[i].x_val = zeroMappedLogValX;
                     }else {
@@ -1090,7 +1094,7 @@ var ScatterPlots = function() {
                     }
                 }
             }else if(axisXLogFlag){
-                for(var i=0; i<dataCopy.length; i++){
+                for(var i=0; i<dataCopyL; i++){
                     if(dataCopy[i].x_val === 0) {
                         dataCopy[i].x_val = zeroMappedLogValX;
                     }else {
@@ -1098,7 +1102,7 @@ var ScatterPlots = function() {
                     }
                 }
             }else if(axisYLogFlag){
-                for(var i=0; i<dataCopy.length; i++){
+                for(var i=0; i<dataCopyL; i++){
                     if(dataCopy[i].y_val === 0) {
                         dataCopy[i].y_val = zeroMappedLogValY;
                     }else {
@@ -1109,36 +1113,30 @@ var ScatterPlots = function() {
             
             for(var j=0 ; j< _datumArr.length ; j++){
                 if(_datumArr[j].fill !== 'red') {
-                    for(var i=0 ; i< dataCopy.length ; i++){
+                    for(var i=0 ; i< dataCopyL ; i++){
                         if(_datumArr[j].case_id === dataCopy[i].case_id){
-                            _tmpDataArr.push(dataCopy[i]);
+                            _tmpDataArr.unshift(dataCopy[i]);
                             break;
                         }
                     }
-                }
-            }
-            
-            for(var j=0 ; j< _datumArr.length ; j++){
-                if(_datumArr[j].fill === 'red') {
-                    for(var i=0 ; i< dataCopy.length ; i++){
+                }else {
+                    for(var i=0 ; i< dataCopyL ; i++){
                         if(_datumArr[j].case_id === dataCopy[i].case_id ){
                             _tmpDataArr.push(dataCopy[i]);
                             break;
                         }
                     }
                 }
+                _caseIdList.push(_datumArr[j].case_id);
             }
+
             dataCopy = _tmpDataArr;
             drawPlots(dataCopy);
             addQtips();
-            
-            var _caseIdList = [];
-            $.each(_datumArr, function(index, obj) {
-                _caseIdList.push(_datumArr[index].case_id);
-            });
+
             elem.dotsGroup.selectAll("path").each(function(d) {
-                if (_caseIdList.indexOf(d.case_id) !== -1) {
-                    var _index = _caseIdList.indexOf(d.case_id);
+                var _index = _caseIdList.indexOf(d.case_id);
+                if (_index !== -1) {
                     $(this).attr("fill", _datumArr[_index].fill);
                     $(this).attr("stroke", _datumArr[_index].stroke);
 //                    $(this).attr("opacity", _datumArr[_index].opacity);

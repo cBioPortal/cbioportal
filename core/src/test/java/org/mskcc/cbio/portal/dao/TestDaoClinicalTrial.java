@@ -32,15 +32,26 @@
 
 package org.mskcc.cbio.portal.dao;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.model.ClinicalTrial;
-import org.mskcc.cbio.portal.scripts.ResetDatabase;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Transactional;
+
+import static org.junit.Assert.*;
 
 import java.util.HashSet;
 
-public class TestDaoClinicalTrial extends TestCase {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
+@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@Transactional
+public class TestDaoClinicalTrial {
+	
+	@Test
     public void testDaoClinicalTrial() throws DaoException {
-        ResetDatabase.resetDatabase();
 
         DaoClinicalTrial instance = DaoClinicalTrial.getInstance();
         ClinicalTrial clinicalTrial = new ClinicalTrial();

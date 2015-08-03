@@ -79,8 +79,7 @@ public final class DaoMutation {
                 Integer.toString(mutation.getTumorAltCount()),
                 Integer.toString(mutation.getTumorRefCount()),
                 Integer.toString(mutation.getNormalAltCount()),
-                Integer.toString(mutation.getNormalRefCount()),
-                mutation.getAminoAcidChange());
+                Integer.toString(mutation.getNormalRefCount()));
 
             if (newMutationEvent) {
                 return addMutationEvent(mutation.getEvent())+1;
@@ -448,6 +447,37 @@ public final class DaoMutation {
         return mutationList;
     }
     
+    /**
+     * Similar to getAllMutations(), but filtered by a passed geneticProfileId
+     * @param geneticProfileId
+     * @return
+     * @throws DaoException
+     */
+    public static ArrayList<ExtendedMutation> getAllMutations (int geneticProfileId) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        ArrayList <ExtendedMutation> mutationList = new ArrayList <ExtendedMutation>();
+        try {
+            con = JdbcUtil.getDbConnection(DaoMutation.class);
+            pstmt = con.prepareStatement
+                    ("SELECT * FROM mutation "
+                        + "INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID "
+                        + "WHERE mutation.GENETIC_PROFILE_ID = ?");
+            pstmt.setInt(1, geneticProfileId);
+            rs = pstmt.executeQuery();
+            while  (rs.next()) {
+                ExtendedMutation mutation = extractMutation(rs);
+                mutationList.add(mutation);
+            }
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
+        }
+        return mutationList;
+    }
+    
     public static Set<ExtendedMutation.MutationEvent> getAllMutationEvents() throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -511,7 +541,6 @@ public final class DaoMutation {
             mutation.setValidationMethod(rs.getString("VALIDATION_METHOD"));
             mutation.setScore(rs.getString("SCORE"));
             mutation.setBamFile(rs.getString("BAM_FILE"));
-	        mutation.setAminoAcidChange(rs.getString("AMINO_ACID_CHANGE"));
             mutation.setTumorAltCount(rs.getInt("TUMOR_ALT_COUNT"));
             mutation.setTumorRefCount(rs.getInt("TUMOR_REF_COUNT"));
             mutation.setNormalAltCount(rs.getInt("NORMAL_ALT_COUNT"));

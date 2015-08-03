@@ -93,7 +93,12 @@ public class GlobalProperties {
     public static final String SKIN_AUTHORIZATION_MESSAGE = "skin.authorization_message";
     public static final String DEFAULT_AUTHORIZATION_MESSAGE = "Access to this portal is only available to authorized users.";
     public static final String SKIN_DATASETS_HEADER = "skin.data_sets_header";
+    public static final String DEFAULT_SKIN_DATASETS_HEADER = "The portal currently contains data from the following " +
+            "cancer genomics studies.  The table below lists the number of available samples per data type and tumor.";
     public static final String SKIN_DATASETS_FOOTER = "skin.data_sets_footer";
+    public static final String DEFAULT_SKIN_DATASETS_FOOTER = "Data sets of TCGA studies were downloaded from Broad " +
+            "Firehose (http://gdac.broadinstitute.org) and updated monthly. In some studies, data sets were from the " +
+            "TCGA working groups directly.";
 
     public static final String PATIENT_VIEW_PLACEHOLDER = "patient_view_placeholder";
     public static final String PATIENT_VIEW_CNA_TUMORMAP_CNA_CUTOFF = "patient_view_genomic_overview_cna_cutoff";
@@ -455,14 +460,18 @@ public class GlobalProperties {
         return authMessage == null ? DEFAULT_AUTHORIZATION_MESSAGE : authMessage;
     }
 
+    // added usage of default data sets header
     public static String getDataSetsHeader()
     {
-        return properties.getProperty(SKIN_DATASETS_HEADER);
+        String dataSetsHeader = properties.getProperty(SKIN_DATASETS_HEADER);
+        return dataSetsHeader == null ? DEFAULT_SKIN_DATASETS_HEADER : dataSetsHeader;
     }
 
+    // added usage of default data sets footer
     public static String getDataSetsFooter()
     {
-        return properties.getProperty(SKIN_DATASETS_FOOTER);
+        String dataSetsFooter = properties.getProperty(SKIN_DATASETS_FOOTER);
+        return dataSetsFooter == null ? DEFAULT_SKIN_DATASETS_FOOTER : dataSetsFooter;
     }
 
     public static String getLinkToPatientView(String caseId, String cancerStudyId)
@@ -528,8 +537,8 @@ public class GlobalProperties {
     public static String[] getCustomHeaderTabs(){
         String customPagesString = GlobalProperties.getProperty(SKIN_CUSTOM_HEADER_TABS);
         if(customPagesString!=null){
-            String [] customPagesArray = customPagesString.split(",");
-            return customPagesArray;
+            // split by comma and return the String array
+            return customPagesString.split(",");
         }
         return null;
     }

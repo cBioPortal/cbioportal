@@ -429,7 +429,6 @@
 			<form-login login-page="/login.jsp" login-processing-url="/j_spring_security_check" default-target-url="/index.do" />
 			<logout logout-success-url="/login.jsp?logout_success=true" delete-cookies="JSESSIONID" />
 
-			<intercept-url pattern="/**" access="ROLE_USER" />
 			${url.intercepts}
 
 			<!-- HTTP Login Form, allows logout-login to refresh authorities in session -->

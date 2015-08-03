@@ -122,8 +122,9 @@ var RightMenuStudyStatsUtil = (function($) {
 
         node = root = treeData;
 
+        // Select leave nodes, trim empty ones 
         var nodes = treemap.nodes(root)
-            .filter(function(d) { return !d.children; });
+            .filter(function(d) { return !d.children && d.area !== 0; });
 
         var cell = svg.selectAll("g")
             .data(nodes)

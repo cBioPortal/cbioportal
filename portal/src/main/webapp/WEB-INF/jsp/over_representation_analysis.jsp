@@ -101,23 +101,23 @@
             }
         });
 
-        //bind event listener to gene set selector
-        $("#or_analysis_tab_gene_set_select").change(function() {
-            if ($("#or_analysis_tab_gene_set_select").val() === "all_genes") {
-                $("#or_analysis_tab_warning").append("<span style='color:red;'>Calculating and rendering may take up to 10 minutes...</span>");
-                $("#or_analysis_tab_custom_gene_set_text_area").empty();
-                or_tab.update();
-            } else if ($("#or_analysis_tab_gene_set_select").val() === "custom_genes") {
-                $("#or_analysis_tab_warning").empty();
-                $("#or_analysis_tab_custom_gene_set_text_area").append("<br><textarea class='form-control' rows='5' id='or_analysis_tab_custom_gene_set_text_area_id'></textarea>");
-                $("#or_analysis_tab_custom_gene_set_text_area").append("<button id='or_analysis_tab_custom_gene_set_submit_btn'>Submit Custom Gene Set</button>");
-            } else {
-                $("#or_analysis_tab_warning").empty();
-                $("#or_analysis_tab_custom_gene_set_text_area").empty();
-                or_tab.update();
-            }
-
-        });
+//        //bind event listener to gene set selector
+//        $("#or_analysis_tab_gene_set_select").change(function() {
+//            if ($("#or_analysis_tab_gene_set_select").val() === "all_genes") {
+//                $("#or_analysis_tab_warning").append("<span style='color:red;'>Calculating and rendering may take up to 10 minutes...</span>");
+//                $("#or_analysis_tab_custom_gene_set_text_area").empty();
+//                or_tab.update();
+//            } else if ($("#or_analysis_tab_gene_set_select").val() === "custom_genes") {
+//                $("#or_analysis_tab_warning").empty();
+//                $("#or_analysis_tab_custom_gene_set_text_area").append("<br><textarea class='form-control' rows='5' id='or_analysis_tab_custom_gene_set_text_area_id'></textarea>");
+//                $("#or_analysis_tab_custom_gene_set_text_area").append("<button id='or_analysis_tab_custom_gene_set_submit_btn'>Submit Custom Gene Set</button>");
+//            } else {
+//                $("#or_analysis_tab_warning").empty();
+//                $("#or_analysis_tab_custom_gene_set_text_area").empty();
+//                or_tab.update();
+//            }
+//
+//        });
 
     });
 </script>

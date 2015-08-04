@@ -172,7 +172,6 @@ var orData = function() {
                 data: _param
             })  
             .done(function(result) {
-
                 data = result;
                 retrieved = true;
             })

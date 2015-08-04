@@ -546,8 +546,6 @@ var orTable = function() {
 
 var orSubTabView = function() {
 
-    //var gene_set = "";
-    
     return {
         init: function(_div_id, _profile_list, _profile_type, _gene_set) {
             

@@ -5,7 +5,13 @@
   Time: 3:47 PM
   To change this template use File | Settings | File Templates.
 --%>
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
+<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
+<%
+  String siteTitle = GlobalProperties.getTitle();
+%>
+
+<% request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::Portal Cancer Gene"); %>
 <jsp:include page="WEB-INF/jsp/global/header.jsp" flush="true" />
 
 <div id="main">

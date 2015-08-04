@@ -21,7 +21,7 @@
         The tables below rank genes by significant co-occurrence or mutual exclusivity of mutations or copy-number changes,
         and by differential mRNA or protein expression, when available.
         <br>The calculation are only performed for annotated cancer genes.
-        <a href="cancer_genes_list.jsp" target="_blank">[List of Portal Cancer Genes]</a>
+        <a href="cancer_gene_list.jsp" target="_blank">[List of Portal Cancer Genes]</a>
     </div>
     <div id="or-analysis-tabs" class="or-analysis-tabs">
         <ul id='or-analysis-tabs-list'></ul>

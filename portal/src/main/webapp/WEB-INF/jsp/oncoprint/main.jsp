@@ -67,7 +67,7 @@
             
             <div class="btn-group btn-group-sm"   id="oncoprint_diagram_sortby_group">
                <button type="button" class="btn btn-default dropdown-toggle" id="oncoprint_sortbyfirst_dropdonw" data-toggle="dropdown" style="background-color:#efefef;height:30px;margin:0px">
-                 <span data-bind="label">Sort by</span>&nbsp;<span class="caret"></span>
+                 <span id="oncoprint_diagram_sortby_label" data-bind="label">Sort by</span>&nbsp;<span class="caret"></span>
                </button>
                <ul class="dropdown-menu">
                    <li style="list-style-type:none;cursor:pointer" value="genes"><a id="genes_first_a">gene data first</a></li>
@@ -96,14 +96,17 @@
         <script type="text/javascript">
 //            $( document.body ).on( 'click', '.dropdown-menu li', function( event ) {
             $('#oncoprint_diagram_sortby_group' ).on( 'click', '.dropdown-menu li', function( event ) {
-              var $target = $( event.currentTarget );
+                $('#oncoprint_diagram_sortby_label').text($(event.currentTarget).text());
+                $('#oncoprint_diagram_sortby_group').children('.dropdown-toggle').dropdown('toggle');
+                return false;
+              /*var $target = $( event.currentTarget );
 
               $target.closest( '.btn-group' )
                  .find( '[data-bind="label"]' ).text( $target.text() )
                     .end()
                  .children( '.dropdown-toggle' ).dropdown( 'toggle' );
 
-              return false;
+              return false;*/
 
             });
 //           $('.dropdown-menu #select_clinical_attributes').click(function(){$('#clinical_dropdown').dropdown('toggle');});

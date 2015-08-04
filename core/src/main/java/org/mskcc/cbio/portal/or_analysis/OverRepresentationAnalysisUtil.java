@@ -45,17 +45,14 @@ public class OverRepresentationAnalysisUtil {
         Map<Long, HashMap<Integer, String>> result = new HashMap<Long, HashMap<Integer,String>>();
 
         if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString())) {
-            ArrayList<ExtendedMutation> mutObjArr = DaoMutation.getSimplifiedMutations(profileId, sampleIds, entrezGeneIds);
+            HashMap mutHm = DaoMutation.getSimplifiedMutations(profileId, sampleIds, entrezGeneIds);
             for (Long entrezGeneId : entrezGeneIds) {
                 //Assign every sample (included non mutated ones) values -- mutated -> Mutation Type, non-mutated -> "Non"
                 HashMap<Integer, String> singleGeneMutMap = new HashMap<Integer, String>();
                 for (Integer sampleId : sampleIds) {
                     String mutationStatus = "Non";
-                    for (ExtendedMutation mut : mutObjArr) {
-                        if (mut.getSampleId() == sampleId && mut.getGene().getEntrezGeneId() == entrezGeneId) {
-                            mutationStatus = "Mutated";
-                        }
-                    }
+                    String tmpStr = new StringBuilder().append(Integer.toString(sampleId)).append(Long.toString(entrezGeneId)).toString();
+                    if(mutHm.containsKey(tmpStr)) mutationStatus = "Mutated";
                     singleGeneMutMap.put(sampleId, mutationStatus);
                 }
                 //add a new entry into the overall result map

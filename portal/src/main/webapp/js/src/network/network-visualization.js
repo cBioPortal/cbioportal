@@ -100,7 +100,7 @@ function NetworkVis(divId)
     this.ENTER_KEYCODE = "13";
 
     // name of the graph layout
-    this._graphLayout = {name: "cose", animate: false};
+    this._graphLayout = {name: "cose2", animate: false};
     //var _graphLayout = {name: "ForceDirected", options:{weightAttr: "weight"}};
 
     // force directed layout options
@@ -999,8 +999,10 @@ NetworkVis.prototype.filterSelectedGenes = function()
     this._vis.nodes().forEach(function( ele ){
         if (selectionVisibility(ele) === false){
           ele.css('visibility', 'hidden');
+          ele._private.selectable = false;
         }
         else{
+          ele._private.selectable = true;
           ele.css('visibility', 'visible');
         }
     });
@@ -1034,8 +1036,11 @@ NetworkVis.prototype.filterNonSelected = function()
     this._vis.nodes().forEach(function( ele ){
         if (geneVisibility(ele) === false){
           ele.css('visibility', 'hidden');
+          ele._private.selectable = false;
         }
         else{
+          ele._private.selectable = true;
+
           ele.css('visibility', 'visible');
         }
     });
@@ -1106,9 +1111,11 @@ NetworkVis.prototype.updateEdges = function()
     this._vis.nodes().forEach(function( ele ){
         if (showAllNodeVisibility(ele) === false){
           ele.css('visibility', 'hidden');
+          ele._private.selectable=false;
         }
         else {
           ele.css('visibility', 'visible');
+          ele._private.selectable=true;
         }
     });
 
@@ -1308,6 +1315,7 @@ NetworkVis.prototype.dropDownVisibility = function(element)
             this._filteredByDropDown[element._private.data.id] = element;
             this._alreadyFiltered[element._private.data.id] = element;
         }
+
     }
 
     return visible;
@@ -1836,7 +1844,7 @@ NetworkVis.prototype._defaultOptsArray = function()
             { id: "fit",         label: "Graph fitting",      value: true,    tip: "If checked, layout automatically fits the graph to the window." },
             { id: "randomize",         label: "Randomize",      value: true,    tip: "Whether to randomize node positions on the beginning." },
             { id: "edgeElasticity",  label: "Edge elasticity",  value: 100, tip: "The default spring elasticity for edges." },
-            { id: "animate",        label: "Animation", value: false,    tip: "Whether to animate while running the layout." },
+            { id: "animate",        label: "Animation", value: true,    tip: "Whether to animate while running the layout." },
             { id: "padding", label: "Padding value",  value: 30,      tip: "Padding on fit." },
             { id: "nodeRepulsion", label: "Non overlapping",  value: 400000,  tip: "Node repulsion (non overlapping) multiplier." },
             { id: "nodeOverlap",  label: "Overlapping",        value: 10,    tip: "Node repulsion (overlapping) multiplier." },
@@ -2403,8 +2411,11 @@ NetworkVis.prototype._filterByDropDown = function()
     this._vis.nodes().forEach(function( ele ){
         if (dropDownVisibility(ele) === false){
           ele.css('visibility', 'hidden');
+          ele._private.selectable = false;
         }
         else{
+          ele._private.selectable = true;
+
           ele.css('visibility', 'visible');
         }
     });
@@ -2453,8 +2464,11 @@ NetworkVis.prototype._filterBySlider = function()
     this._vis.nodes().forEach(function( ele ){
         if (sliderVisibility(ele) === false){
           ele.css('visibility', 'hidden');
+          ele._private.selectable = false;
         }
         else{
+          ele._private.selectable = true;
+
           ele.css('visibility', 'visible');
         }
     });
@@ -3148,8 +3162,11 @@ NetworkVis.prototype._hideSelected = function()
     this._vis.elements().forEach(function( ele ){
         if (selectionVisibility(ele) === false){
           ele.css('visibility', 'hidden');
+          ele._private.selectable = false;
         }
         else{
+          ele._private.selectable = true;
+
           ele.css('visibility', 'visible');
         }
     });
@@ -3661,14 +3678,6 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
                             '<input type="text" id="gravitation" class="layout-properties" value=""/>' +
                         '</td>' +
                     '</tr>' +
-                    '<tr title="Number of iterations between consecutive screen positions.">' +
-                        '<td align="right">' +
-                            '<label>Refresh</label>' +
-                        '</td>' +
-                        '<td>' +
-                            '<input type="text" id="refresh" class="layout-properties" value=""/>' +
-                        '</td>' +
-                    '</tr>' +
                     '<tr title="Padding on fit.">' +
                         '<td align="right">' +
                             '<label>Padding</label>' +
@@ -3693,7 +3702,7 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
                             '<input type="text" id="nodeOverlap" class="layout-properties" value=""/>' +
                         '</td>' +
                     '</tr>' +
-                    '<tr title="Ideal edge (non nested) length.">' +
+                    '<tr title="Ideal length of an edge.">' +
                         '<td align="right">' +
                             '<label>idealEdgeLength</label>' +
                         '</td>' +
@@ -3711,7 +3720,7 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
                     '</tr>' +
                     '<tr title="Nesting factor (multiplier) to compute ideal edge length for nested edges.">' +
                         '<td align="right">' +
-                            '<label>nesting Factor</label>' +
+                            '<label>Nesting Factor</label>' +
                         '</td>' +
                         '<td>' +
                             '<input type="text" id="nestingFactor" class="layout-properties" value=""/>' +
@@ -3719,7 +3728,7 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
                     '</tr>' +
                     '<tr title="Initial temperature (maximum node displacement).">' +
                         '<td align="right">' +
-                            '<label>Initial temperature</label>' +
+                            '<label>Initial Temperature</label>' +
                         '</td>' +
                         '<td>' +
                             '<input type="text" id="initialTemp" class="layout-properties" value=""/>' +
@@ -3747,6 +3756,14 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
                         '</td>' +
                         '<td align="left">' +
                             '<input type="checkbox" id="animate" value="true" checked="checked"/>' +
+                        '</td>' +
+                    '</tr>' +
+                    '<tr title="Number of iterations between consecutive screen refresh.">' +
+                        '<td align="right">' +
+                            '<label>Refresh</label>' +
+                        '</td>' +
+                        '<td>' +
+                            '<input type="text" id="refresh" class="layout-properties" value=""/>' +
                         '</td>' +
                     '</tr>' +
                     '<tr title="Whether to fit the network view after when done.">' +

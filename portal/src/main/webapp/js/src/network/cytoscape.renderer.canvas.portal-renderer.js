@@ -495,7 +495,7 @@ var rgbs     = ['rgb(254,80,51)', 'rgb(53,91,255)', 'rgb(255,208,214)', 'rgb(158
             context.shadowBlur = 9;
             context.lineWidth = 2;
             context.beginPath();
-            context.font = node._private.style['total-alteration-font-size'].strValue + " " + node._private.style['total-alteration-font'].strValue;
+            context.font = "bold " + node._private.style['total-alteration-font-size'].strValue + " " + node._private.style['total-alteration-font'].strValue;
             var a = node._private.position['x'];
             var b = node._private.position['y'];
             context.rect(node._private.style['mouse-position-x']+node._private.style['total-alteration-font-size'].pxValue * 2
@@ -506,9 +506,16 @@ var rgbs     = ['rgb(254,80,51)', 'rgb(53,91,255)', 'rgb(255,208,214)', 'rgb(158
 
             context.fill();
             context.fillStyle = node._private.style['total-alteration-color'].strValue;
-            context.fillText((node._private.data['PERCENT_ALTERED']*100).toString().substring(0,4) + "%",
-                node._private.style['mouse-position-x']+node._private.style['total-alteration-font-size'].pxValue * 4,
-                node._private.style['mouse-position-y']+node._private.style['total-alteration-font-size'].pxValue * 3.3);
+            if (node._private.data['type'] === 'Drug'){
+              context.fillText("n/a",
+                  node._private.style['mouse-position-x']+node._private.style['total-alteration-font-size'].pxValue * 4,
+                  node._private.style['mouse-position-y']+node._private.style['total-alteration-font-size'].pxValue * 3.3);
+            }
+            else{
+              context.fillText((node._private.data['PERCENT_ALTERED']*100).toString().substring(0,4) + "%",
+                  node._private.style['mouse-position-x']+node._private.style['total-alteration-font-size'].pxValue * 4,
+                  node._private.style['mouse-position-y']+node._private.style['total-alteration-font-size'].pxValue * 3.3);
+            }
             context.closePath();
             context.stroke();
         }

@@ -108,7 +108,7 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 			'taxt-valign': "bottom",
 			'total-alteration-font': "Verdana",
 			'total-alteration-color': function(ele){
-				return (ele._private.data['type'] === 'Drug') ?  "#E6A90F" : "#EE0505";
+				return (ele._private.data['type'] === 'Drug') ?  "#E6A90F" : "#FF0000";
 			},
 			'total-alteration-font-size': 12
 		})
@@ -144,12 +144,13 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 		//	"haystack-radius":"0",
 			'width': 2
 		})
-		.selector('node:selected')
+		.selector(':selected')
 		.css({
 
 			'shadow-color': 'yellow',
 			'shadow-opacity': 1
 		}),
+
 /*		.selector('.faded')
 		.css({
 			'opacity': 0.25,
@@ -171,6 +172,13 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 
 			// giddy up...
 			cy.fit();
+
+			var netVis = new NetworkVis(networkDivId);
+
+			// init UI of the network tab
+			netVis.initNetworkUI(cy);
+
+
 			cy.on('mouseover', 'node', function(evt){
 				if (!this.isParent()) {
 					this._private.style['show-details'] = true;
@@ -223,6 +231,12 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 						nodes[i].css('show-details', 'false');
 						nodes[i].css('show-details-selected', 'false');
 						nodes[i].css('opacity', nodes[i]._private.style['main-opacity'].value);
+						if (nodes[i].selected() && nodes[i]._private.selectable === false){
+							nodes[i]._private.selectable = true;
+							nodes[i].unselect();
+							nodes[i]._private.selectable = false;
+						}
+						netVis.updateDetailsTab();
 					}
 					cy.layout({
 						name: 'preset',
@@ -240,6 +254,11 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 					for (var i = 0; i < nodes.length; i++){
 						nodes[i]._private.style['show-details'] = false;
 						nodes[i]._private.style['show-details-selected'] = false;
+						if (nodes[i].selected() && nodes[i]._private.selectable === false){
+							nodes[i]._private.selectable = true;
+							nodes[i].unselect();
+							nodes[i]._private.selectable = false;
+						}
 					}
 
 					this._private.style['show-details'] = true;
@@ -255,10 +274,7 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 			});
 			cy.boxSelectionEnabled( true );
 			cy.userZoomingEnabled(false);
-			var netVis = new NetworkVis(networkDivId);
 
-			// init UI of the network tab
-			netVis.initNetworkUI(cy);
 
 			//to hide drugs initially
 			netVis._changeListener();

@@ -160,8 +160,8 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 		elements: elements,
 
 		layout: {
-			name: 'cose',
-			animate: false
+			name: 'cose2',
+			randomize: true
 		},
 
 		// on graph initial layout done (could be async depending on layout...)
@@ -219,6 +219,10 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 			});
 			cy.on('tap', 'edge', function(evt){
 				edge = true;
+				var nodes = cy.nodes(":selected");
+				for (var i = 0; i < nodes.length; i++){
+					nodes[i]._private.style['show-details'] = false;
+				}
 			});
 			cy.on('tap', '', function (event) {
 				if (tapped || edge ) {

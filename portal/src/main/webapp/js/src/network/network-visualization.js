@@ -100,7 +100,7 @@ function NetworkVis(divId)
     this.ENTER_KEYCODE = "13";
 
     // name of the graph layout
-    this._graphLayout = {name: "cose2", animate: false};
+    this._graphLayout = {name: "cose2", randomize: true};
     //var _graphLayout = {name: "ForceDirected", options:{weightAttr: "weight"}};
 
     // force directed layout options
@@ -327,6 +327,21 @@ NetworkVis.prototype.saveSettings = function()
                 $(this.settingsDialogSelector + " #animate").val(false);
             }
         }
+        else if (this._layoutOptions[i].id == "tile")
+        {
+            // check if the auto stabilize box is checked
+
+            if($(this.settingsDialogSelector + " #tile").is(":checked"))
+            {
+                this._layoutOptions[i].value = true;
+                $(this.settingsDialogSelector + " #tile").val(true);
+            }
+            else
+            {
+                this._layoutOptions[i].value = false;
+                $(this.settingsDialogSelector + " #tile").val(false);
+            }
+        }
         else if (this._layoutOptions[i].id == "randomize")
         {
             // check if the auto stabilize box is checked
@@ -427,10 +442,12 @@ NetworkVis.prototype.updateDetailsTab = function(evt)
     {
         if(this.isEdgeClicked)
         {
-            this.addInteractionInfo(evt, this.detailsTabSelector, evt.target.merged, "click");
+          //TODO false will be replaced with evt.target.merged after merge implemented
+            this.addInteractionInfo(evt, this.detailsTabSelector, false, "click");
         }
         else{
-            this.addInteractionInfo(evt, this.detailsTabSelector, this._linksMerged, "select");
+          //TODO false will be replaced with this._linksMerged after merge implemented
+            this.addInteractionInfo(evt, this.detailsTabSelector, false, "select");
         }
 
         return;
@@ -1839,21 +1856,17 @@ NetworkVis.prototype._setComponentVis = function(component, visible)
 NetworkVis.prototype._defaultOptsArray = function()
 {
     var defaultOpts =
-        [ { id: "gravitation", label: "Gravitation",       value: -350,   tip: "The gravitational constant. Negative values produce a repulsive force." },
-            { id: "refresh",     label: "Iteration num",     value: 4,      tip: "The default iterations between consecutive screen positions." },
+        [ { id: "gravity", label: "Gravity",       value: 0.4,   tip: "Gravity force." },
             { id: "fit",         label: "Graph fitting",      value: true,    tip: "If checked, layout automatically fits the graph to the window." },
-            { id: "randomize",         label: "Randomize",      value: true,    tip: "Whether to randomize node positions on the beginning." },
-            { id: "edgeElasticity",  label: "Edge elasticity",  value: 100, tip: "The default spring elasticity for edges." },
+            { id: "edgeElasticity",  label: "Edge elasticity",  value: 0.45, tip: "The default spring elasticity for edges." },
             { id: "animate",        label: "Animation", value: true,    tip: "Whether to animate while running the layout." },
-            { id: "padding", label: "Padding value",  value: 30,      tip: "Padding on fit." },
-            { id: "nodeRepulsion", label: "Non overlapping",  value: 400000,  tip: "Node repulsion (non overlapping) multiplier." },
-            { id: "nodeOverlap",  label: "Overlapping",        value: 10,    tip: "Node repulsion (overlapping) multiplier." },
-            { id: "idealEdgeLength",     label: "Ideal edge length",      value: 10,  tip: "Ideal edge (non nested) length." },
-            { id: "nestingFactor", label: "Nesting factor",  value: 5,   tip: "Nesting factor (multiplier) to compute ideal edge length for nested edges." },
-            { id: "numIter",     label: "Iteration num",      value: 100,  tip: "Maximum number of iterations to perform." },
-            { id: "initialTemp",     label: "Initial temperature",      value: 200,  tip: "Initial temperature (maximum node displacement)." },
-            { id: "coolingFactor",     label: "Cooling factor",      value: 0.95,  tip: "How the temperature is reduced between consecutive iterations." },
-            { id: "minTemp",     label: "Lower temperature threshold",      value: 1.0,  tip: "// Lower temperature threshold (below this point the layout will end)." }
+            { id: "randomize",        label: "Randomize", value: true,    tip: "Whether to enable incremental mode." },
+            { id: "padding", label: "Padding value",  value: 10,      tip: "Padding on fit." },
+            { id: "nodeRepulsion", label: "Non overlapping",  value: 4500,  tip: "Node repulsion (non overlapping) multiplier." },
+            { id: "idealEdgeLength",     label: "Ideal edge length",      value: 50,  tip: "Ideal edge (non nested) length." },
+            { id: "nestingFactor", label: "Nesting factor",  value: 0.1,   tip: "Nesting factor (multiplier) to compute ideal edge length for nested edges." },
+            { id: "numIter",     label: "Iteration num",      value: 2500,  tip: "Maximum number of iterations to perform." },
+            { id: "tile",        label: "Tile",                             value: true,    tip: "For enabling tiling." }
 ];
 
     return defaultOpts;
@@ -3116,7 +3129,7 @@ NetworkVis.prototype._initControlFunctions = function()
     // add listener for edge select & deselect actions
     this._vis.on("select",
                     "edge",
-                     handleEdgeSelect);
+                     showEdgeDetails);
 
     this._vis.on("deselect",
                     "edge",
@@ -3592,8 +3605,7 @@ NetworkVis.prototype._updateLayoutOptions = function()
     {
         options[this._layoutOptions[i].id] = this._layoutOptions[i].value;
     }
-    options['numIter'] = 100;
-    options['name']="cose";
+    options['name']="cose2";
     this._graphLayout = options;
 };
 
@@ -3672,10 +3684,10 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
                 '<table>' +
                     '<tr title="The gravitational constant. Negative values produce a repulsive force.">' +
                         '<td align="right">' +
-                            '<label>Gravitation</label>' +
+                            '<label>Gravity</label>' +
                         '</td>' +
                         '<td>' +
-                            '<input type="text" id="gravitation" class="layout-properties" value=""/>' +
+                            '<input type="text" id="gravity" class="layout-properties" value=""/>' +
                         '</td>' +
                     '</tr>' +
                     '<tr title="Padding on fit.">' +
@@ -3686,6 +3698,14 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
                             '<input type="text" id="padding" class="layout-properties" value=""/>' +
                         '</td>' +
                     '</tr>' +
+                    '<tr title="Incremental mode.">' +
+                        '<td align="right">' +
+                            '<label>Randomize</label>'+
+                        '</td>' +
+                        '<td align="left">' +
+                            '<input type="checkbox" id="randomize" value="true" checked="checked"/>' +
+                        '</td>' +
+                    '</tr>' +
                     '<tr title="Node repulsion (non overlapping) multiplier.">' +
                         '<td align="right">' +
                             '<label>Node Repulsion (non overlap)</label>' +
@@ -3694,12 +3714,12 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
                             '<input type="text" id="nodeRepulsion" class="layout-properties" value=""/>' +
                         '</td>' +
                     '</tr>' +
-                    '<tr title="Node repulsion (overlapping) multiplier.">' +
+                    '<tr title="Iteration Number.">' +
                         '<td align="right">' +
-                            '<label>Node Repulsion (overlapping)</label>' +
+                            '<label>Iteration Number</label>' +
                         '</td>' +
                         '<td>' +
-                            '<input type="text" id="nodeOverlap" class="layout-properties" value=""/>' +
+                            '<input type="text" id="numIter" class="layout-properties" value=""/>' +
                         '</td>' +
                     '</tr>' +
                     '<tr title="Ideal length of an edge.">' +
@@ -3726,44 +3746,12 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
                             '<input type="text" id="nestingFactor" class="layout-properties" value=""/>' +
                         '</td>' +
                     '</tr>' +
-                    '<tr title="Initial temperature (maximum node displacement).">' +
-                        '<td align="right">' +
-                            '<label>Initial Temperature</label>' +
-                        '</td>' +
-                        '<td>' +
-                            '<input type="text" id="initialTemp" class="layout-properties" value=""/>' +
-                        '</td>' +
-                    '</tr>' +
-                    '<tr title="Cooling factor (how the temperature is reduced between consecutive iterations).">' +
-                        '<td align="right">' +
-                            '<label>Cooling Factor</label>' +
-                        '</td>' +
-                        '<td>' +
-                            '<input type="text" id="coolingFactor" class="layout-properties" value=""/>' +
-                        '</td>' +
-                    '</tr>' +
-                    '<tr title="Lower temperature threshold (below this point the layout will end).">' +
-                        '<td align="right">' +
-                            '<label>Minimum Temperature</label>' +
-                        '</td>' +
-                        '<td>' +
-                            '<input type="text" id="minTemp" class="layout-properties" value=""/>' +
-                        '</td>' +
-                    '</tr>' +
                     '<tr title="Whether to animate while running the layout.">' +
                         '<td align="right">' +
                             '<label>Animate</label>' +
                         '</td>' +
                         '<td align="left">' +
                             '<input type="checkbox" id="animate" value="true" checked="checked"/>' +
-                        '</td>' +
-                    '</tr>' +
-                    '<tr title="Number of iterations between consecutive screen refresh.">' +
-                        '<td align="right">' +
-                            '<label>Refresh</label>' +
-                        '</td>' +
-                        '<td>' +
-                            '<input type="text" id="refresh" class="layout-properties" value=""/>' +
                         '</td>' +
                     '</tr>' +
                     '<tr title="Whether to fit the network view after when done.">' +
@@ -3774,12 +3762,12 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
                             '<input type="checkbox" id="fit" value="true" checked="checked"/>' +
                         '</td>' +
                     '</tr>' +
-                    '<tr title="Whether to randomize node positions on the beginning.">' +
+                    '<tr title="For enabling tiling.">' +
                         '<td align="right">' +
-                            '<label>Randomize</label>' +
+                            '<label>Tile</label>' +
                         '</td>' +
                         '<td align="left">' +
-                            '<input type="checkbox" id="randomize" value="true" checked="checked"/>' +
+                            '<input type="checkbox" id="tile" value="true" checked="checked"/>' +
                         '</td>' +
                     '</tr>' +
                 '</table>' +

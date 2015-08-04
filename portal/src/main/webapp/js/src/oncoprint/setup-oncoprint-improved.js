@@ -49,15 +49,45 @@ window.setUpOncoprint = function(ctr_id, config) {
 	var makePatientData__Gene = function(sample_data) {
 		var ret = {};
 		// TEMPORARY: just use an arbitrary sample. TODO: fix this properly
+		var extremeness = {
+			cna: {
+				'AMPLIFIED': 2,
+				'GAINED': 1,
+				'HEMIZYGOUSLYDELETED': 1,
+				'HOMODELETED': 2,
+				undefined: 0
+			},
+			mrna: {
+				'UPREGULATED': 1,
+				'DOWNREGULATED': 1,
+				undefined: 0
+			},
+			rppa: {
+				'UPREGULATED': 1,
+				'DOWNREGULATED': 1,
+				undefined: 0
+			}
+		};
 		_.each(sample_data, function (d) {
-			var new_datum = $.extend(true, {}, d);
 			var patient_id = sample_to_patient[d.sample];
-			ret[patient_id] = new_datum;
-			delete new_datum['sample'];
-			new_datum.patient = patient_id;
+			ret[patient_id] = ret[patient_id] || {patient: patient_id, gene:d.gene};
+			var new_datum = ret[patient_id];
+			_.each(d, function(val, key) {
+				if (key === 'mutation') {
+					new_datum['mutation'] = (new_datum['mutation'] && (new_datum['mutation']+','+val)) || val;
+				} else if (extremeness.hasOwnProperty(key)) {
+					if (extremeness[key][val] > extremeness[key][new_datum[key]]) {
+						new_datum[key] = val;
+					}
+				}
+			});
 		});
 		return _.map(Object.keys(ret), function (k) {
-			return ret[k];
+			var d = ret[k];
+			if (d.mutation) {
+				d.mutation = _.uniq(d.mutation.split(',').filter(function(x) { return x.trim().length > 0; })).join(",");
+			}
+			return d;
 		});
 	};
 	var makePatientData__Clinical = function(sample_data, aggregation_method) {
@@ -209,8 +239,14 @@ window.setUpOncoprint = function(ctr_id, config) {
 				ret += 'value: <b>' + d.attr_val + '</b><br>';
 			}
 			ret += makeLinkOrPlain(patientViewUrl(d.patient), d.patient);
-			ret += '<br>';
-			ret += 'There are <b>' + d.num_samples + '</b> samples';
+			if (d.num_samples > 1) {
+				ret += '<br>';
+				if (d.value_counts) {
+					ret += '(Data from <b>' + d.num_samples + '</b> samples from this patient)';
+				} else {
+					ret += '(Average value from <b>' + d.num_samples + '</b> samples from this patient)';
+				}
+			}
 			return ret;
 		};
 	})();
@@ -423,12 +459,11 @@ window.setUpOncoprint = function(ctr_id, config) {
 				if (clinical_attr.attr_id === "# mutations") {
 					var mutation_count_data = (using_sample_data ? sample_data__clinical : patient_data__clinical)[clinical_attr.attr_id];
 					new_track = oncoprint.addTrack({label: '# Mutations (Log scale)', tooltip: (using_sample_data ? cTooltipSample : cTooltipPatient), cell_height: 15.33, removable: true, sort_direction_changable: true, datum_id_key: (using_sample_data ? "sample" : "patient")}, 0);
-					oncoprint.setRuleSet(new_track, window.Oncoprint.BAR_CHART, {
+					oncoprint.setRuleSet(new_track, 'bar_chart', {
 						data_key: 'attr_val',
 						fill: '#c97894',
 						legend_label: '# Mutations',
 						scale: 'log',
-						na_color: '#d3d3d3'
 					});
 					oncoprint.setTrackData(new_track, mutation_count_data);
 					oncoprint.sort();
@@ -440,16 +475,12 @@ window.setUpOncoprint = function(ctr_id, config) {
 							data_key: 'attr_val',
 							color_range: ['#ffffff', '#c97894'],
 							legend_label: clinical_attr.display_name,
-							na_color: '#d3d3d3'
 						});
 					} else {
 						oncoprint.setRuleSet(new_track, 'categorical_color', {
 							legend_label: clinical_attr.display_name,
 							getCategory: function (d) {
 								return d.attr_val;
-							},
-							color: {
-								'NA': '#D3D3D3'
 							},
 						});
 					}
@@ -571,7 +602,7 @@ window.setUpOncoprint = function(ctr_id, config) {
 				step: 0.01,
 				value: 1,
 				change: function () {
-					oncoprint.setZoom(this.value);
+					this.value = oncoprint.setZoom(this.value);
 				}
 			});
 			to_remove.push(slider);
@@ -586,19 +617,15 @@ window.setUpOncoprint = function(ctr_id, config) {
 			});
 			to_qtip_destroy.push(slider);
 			
-			var zoomStep = 0.05;
+			var zoomStep = 0.2;
 			$(toolbar_selector + ' #oncoprint_zoomout').click(function () {
 				var slider = $(toolbar_selector + ' #oncoprint_zoom_slider')[0];
-				var currentZoom = parseFloat(slider.value);
-				var newZoom = currentZoom - zoomStep;
-				slider.value = Math.max(0, newZoom);
+				slider.value = oncoprint.decreaseZoom();
 				$(slider).trigger('change');
 			});
 			$(toolbar_selector + ' #oncoprint_zoomin').click(function () {
 				var slider = $(toolbar_selector + ' #oncoprint_zoom_slider')[0];
-				var currentZoom = parseFloat(slider.value);
-				var newZoom = currentZoom + zoomStep;
-				slider.value = Math.min(1, newZoom);
+				slider.value = oncoprint.increaseZoom();
 				$(slider).trigger('change');
 			});
 			to_click_remove.push($(toolbar_selector + ' #oncoprint_zoomout'));
@@ -675,14 +702,16 @@ window.setUpOncoprint = function(ctr_id, config) {
 			var header_btn = $('#switchPatientSample');
 			var imgs = ['images/cool2.svg', 'images/cool.svg'];
 			var toolbar_descs = ['Show events per sample', 'Show events per patient'];
-			var header_descs = ['Show samples in OncoPrint', 'Show patients in OncoPrint'];
+			var header_text = ['Show all samples', 'Show only one column per patient'];
+			var header_descs = ['All samples from a patient are merged into one column. Click to split samples into multiple columns.', 
+						'Each sample for each patient is in a separate column. Click to show only one column per patient'];
 			var updateBtn = function() {
 				toolbar_btn.find('img').attr('src', imgs[+using_sample_data]);
+				header_btn.text(header_text[+using_sample_data]);
 			};
 			toolbar_btn.add(header_btn).click(function () {
 				using_sample_data = !using_sample_data;
 				updateBtn();
-				header_btn.text(header_descs[+using_sample_data]);
 				oncoprintFadeTo(0.5).then(function () {
 					if (!using_sample_data) {
 						oncoprint.setIdOrder([]);
@@ -732,7 +761,17 @@ window.setUpOncoprint = function(ctr_id, config) {
 				show: {event: "mouseover"},
 				hide: {fixed: true, delay: 100, event: "mouseout"}
 			});
+			header_btn.qtip({
+				content: {text: function () {
+						return header_descs[+using_sample_data];
+					}},
+				position: {my: 'bottom middle', at: 'top middle', viewport: $(window)},
+				style: {classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite'},
+				show: {event: "mouseover"},
+				hide: {fixed: true, delay: 100, event: "mouseout"}
+			});
 			to_qtip_destroy.push(toolbar_btn);
+			to_qtip_destroy.push(header_btn);
 		})();
 		(function setUpShowClinicalLegendsBtn() {
 			if (!config.load_clinical_tracks) {

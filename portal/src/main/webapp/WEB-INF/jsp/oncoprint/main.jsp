@@ -44,13 +44,13 @@
         <div id="oncoprint_controls" style="margin-top:10px; margin-bottom:20px;"></div>
         <%@ include file="controls-templates.jsp" %>
 
-        <div id="oncoprint-statment" style="margin-left:3;">
+        <div id="oncoprint-statment" style="margin-left:3; margin-top: 10px">
             <p>Case Set: <span id='oncoprint_sample_set_name'></span>: <span id='oncoprint_sample_set_description'></span></span><span><button id="switchPatientSample" type="button" valuetype="patients" class="btn btn-primary btn-xs jstree-node" style="display: none; cursor:pointer;  padding: 0px 5px; font-weight: normal;font-style: normal;margin-left: 10px; color:white; background-color:#2986e2; font:small-caption;">Show samples in OncoPrint</button></span></p>
         </div>
         
         <div id="oncoprint_whole_body">
 
-        <span id="altered_value"></span>
+        <span id="altered_value" style="float:left; margin-top:12px"></span>
         <div class="btn-group btn-group-sm" id="oncoprint-diagram-toolbar-buttons" style="float:right;margin-right:15px;display: none;height:33px">           
             <div class="btn-group btn-group-sm" id="oncoprint_addclinical_attributes">
                 <button type="button" class="btn btn-default dropdown-toggle" id="oncoprint_diagram_showmorefeatures_icon" data-toggle="dropdown" style="background-color:#efefef;margin:0px;height:30px;">
@@ -88,9 +88,7 @@
                 <button type="button" id="oncoprint_zoomin" class="btn btn-default" style="background-color:#efefef;margin:0px"><img src="images/zoom-in.svg" alt="icon" width="16" height="16" /></button>
             </div>
         </div>
-        
-        <div style="height:20px;"></div>  
-        <img id="inner_loader_img" src="images/ajax-loader.gif" style="display:none;">
+        <br><br>
         <div id="oncoprint_body"></div>
         </div>
         <div id="oncoprint_legend" style="display: inline;"></div>

@@ -41,75 +41,127 @@ var OncoKBConnector = (function(){
     
     function oncokbAccess(callback) {
         if(oncokbUrl && oncokbUrl !== 'null'){
-            $.get(oncokbUrl+'access', function(){callback(true);})
+            $.get('api/proxy/oncokbAccess', function(){callback(true);})
                 .fail(function(){callback(false);});
         }else {
             callback(false);
         }
     }
     
-    function getEvidence(mutations, callback) {
-        var mutationEventIds = mutations.getEventIds(false),
+    function getEvidence(variants, callback) {
+        var mutationEventIds = variants.mutations.getEventIds(false),
             searchPairs = [],
             geneStr = "",
-            alterationStr="";
-    
+            alterationStr="",
+            consequenceStr=""
+        var oncokbServiceData = {};
+
         for(var i=0, mutationL = mutationEventIds.length; i < mutationL; i++) {
             var datum = {},
-                gene = mutations.getValue(mutationEventIds[i], 'gene'),
-                alteration = mutations.getValue(mutationEventIds[i], 'aa');
+                gene = variants.mutations.getValue(mutationEventIds[i], 'gene'),
+                alteration = variants.mutations.getValue(mutationEventIds[i], 'aa'),
+                consequence = consequenceConverter(variants.mutations.getValue(mutationEventIds[i], 'type'));
             datum.gene = gene;
             datum.alteration = alteration;
+            datum.consequence = consequence;
             searchPairs.push(datum);
             
             geneStr+=gene+",";
             alterationStr+=alteration+",";
+            consequenceStr+=consequence+",";
         }
+
+        oncokbServiceData = {
+            'hugoSymbol' : geneStr.substring(0, geneStr.length - 1),
+            'alteration': alterationStr.substring(0, alterationStr.length - 1),
+            'consequence': consequenceStr.substring(0, consequenceStr.length - 1)
+        };
+
+        //Read Global environment parameter
+        if(OncoKB.geneStatus && OncoKB.geneStatus != 'null') {
+            oncokbServiceData.geneStatus = OncoKB.geneStatus;
+        }
+
+        if(variants.tumorType) {
+            oncokbServiceData.tumorType = variants.tumorType;
+            oncokbServiceData.source = 'cbioportal';
+        }
+
         $.ajax({
             type: 'POST',
-            url: oncokbUrl + 'evidence.json',
-            data: {
-                'hugoSymbol' : geneStr.substring(0, geneStr.length - 1),
-                'alteration': alterationStr.substring(0, alterationStr.length - 1),
-                'geneStatus': 'complete'
-            },
+            url: 'api/proxy/oncokb',
+            data: oncokbServiceData,
             crossDomain: true,
             dataType: 'json',
             success: function(evidenceList) {
-                var evidenceCollection = [],
-                    evidenceL = evidenceList.length;
-                searchPairs.forEach(function(searchPair, i) {
-                    var datum = {
-                        'gene': {},
-                        'alteration': [],
-                        'oncogenic': false
-                    };
-                    
-                    for(var i=0; i<evidenceL; i++) {
-                        var evidence = evidenceList[i];
-                        if(evidence.gene.hugoSymbol === searchPair.gene) {
-                            if(evidence.evidenceType === 'GENE_SUMMARY') {
-                                datum.gene.summary = findRegex(evidence.description);
-                            }else if(evidence.evidenceType === 'GENE_BACKGROUND') {
-                                datum.gene.background = findRegex(evidence.description);
-                            }else if(evidence.evidenceType === 'MUTATION_EFFECT'){
-                                for(var j=0, alterationL = evidence.alterations.length; j<alterationL; j++) {
-                                    var alteration = evidence.alterations[j];
-                                    if(alteration.name === searchPair.alteration) {
-                                        if(alteration.oncogenic) {
-                                            datum.oncogenic = true;
-                                        }
-                                        datum.alteration.push({
-                                            knownEffect: evidence.knownEffect,
-                                            description: findRegex(evidence.description)
-                                        });
+                var evidenceCollection = [];
+                if(evidenceList.length === searchPairs.length) {
+                    searchPairs.forEach(function(searchPair, pairIndex) {
+                        var datum = {
+                            'gene': {},
+                            'alteration': [],
+                            'prevalence': [],
+                            'progImp': [],
+                            'treatments': [],
+                            'trials': [],
+                            'oncogenic': 0
+                        };
+                        var evidenceL = evidenceList[pairIndex].length;
+
+                        for(var i=0; i<evidenceL; i++) {
+                            var evidence = evidenceList[pairIndex][i];
+                            if(evidence.gene.hugoSymbol === searchPair.gene) {
+                                if(evidence.evidenceType === 'GENE_SUMMARY') {
+                                    datum.gene.summary = findRegex(evidence.description);
+                                }else if(evidence.evidenceType === 'GENE_BACKGROUND') {
+                                    datum.gene.background = findRegex(evidence.description);
+                                }else if(evidence.evidenceType === 'MUTATION_EFFECT'){
+                                    for(var j=0, alterationL = evidence.alterations.length; j<alterationL; j++) {
+                                        var alteration = evidence.alterations[j];
+                                        //if(alteration.name === searchPair.alteration) {
+                                            if(alteration.hasOwnProperty('oncogenic')) {
+                                                if(datum.hasOwnProperty('oncogenic')  && [1, 2].indexOf(datum.oncogenic) === -1 ){
+                                                    datum.oncogenic = Number(alteration.oncogenic);
+                                                }
+                                            }
+                                        //}
+                                    }
+                                    datum.alteration.push({
+                                        knownEffect: evidence.knownEffect,
+                                        description: findRegex(evidence.description)
+                                    });
+                                }else if(evidence.evidenceType === 'PREVALENCE') {
+                                    datum.prevalence.push({
+                                        tumorType: evidence.tumorType.name,
+                                        description: findRegex(evidence.description) || 'No yet curated'
+                                    });
+                                }else if(evidence.evidenceType === 'PROGNOSTIC_IMPLICATION') {
+                                    datum.progImp.push({
+                                        tumorType: evidence.tumorType.name,
+                                        description: findRegex(evidence.description) || 'No yet curated'
+                                    });
+                                }else if(evidence.evidenceType === 'CLINICAL_TRIAL') {
+                                    datum.trials.push({
+                                        tumorType: evidence.tumorType.name,
+                                        list: evidence.clinicalTrials
+                                    });
+                                }else if(evidence.levelOfEvidence) {
+                                    //if evidence has level information, that means this is treatment evidence.
+                                    if(['LEVEL_0', 'LEVEL_R3'].indexOf(evidence.levelOfEvidence) === -1) {
+                                        var _treatment = {};
+                                        _treatment.tumorType = evidence.tumorType.name;
+                                        _treatment.level = evidence.levelOfEvidence;
+                                        _treatment.content = evidence.treatments;
+                                        _treatment.description = findRegex(evidence.description) || 'No yet curated';
+                                        datum.treatments.push(_treatment);
                                     }
                                 }
                             }
                         }
-                    }
-                    evidenceCollection.push(datum);
-                });
+                        evidenceCollection.push(datum);
+                    });
+
+                }
                 callback(evidenceCollection);
             },
             error: function (responseData, textStatus, errorThrown) {
@@ -118,10 +170,10 @@ var OncoKBConnector = (function(){
             }
         });
     }
-    
+
     function findRegex(str) {
 
-        if(typeof str === 'string' && str !== '') {
+        if(typeof str === 'string' && str) {
             var regex = [/PMID:\s*([0-9]+,*\s*)+/ig, /NCT[0-9]+/ig],
                 links = ['http://www.ncbi.nlm.nih.gov/pubmed/',
                          'http://clinicaltrials.gov/show/'];
@@ -149,12 +201,79 @@ var OncoKBConnector = (function(){
                     }
                 }
             }
+        }else{
+            str = ''
         }
         return str;
     }
+
+    /**
+     * Convert cBioPortal consequence to OncoKB consequence
+     *
+     * @param consequence cBioPortal consequence
+     * @returns
+     */
+    function consequenceConverter(consequence) {
+        var matrix = {
+            '3\'Flank': ['any'],
+            '5\'Flank ': ['any'],
+            'COMPLEX_INDEL': ['inframe_deletion', 'inframe_insertion'],
+            'ESSENTIAL_SPLICE_SITE': ['feature_truncation'],
+            'Exon skipping': ['inframe_deletion'],
+            'Frameshift deletion': ['frameshift_variant'],
+            'Frameshift insertion': ['frameshift_variant'],
+            'FRAMESHIFT_CODING': ['frameshift_variant'],
+            'Frame_Shift_Del': ['frameshift_variant'],
+            'Frame_Shift_Ins': ['frameshift_variant'],
+            'Fusion': ['fusion'],
+            'Indel': ['frameshift_variant', 'inframe_deletion', 'inframe_insertion'],
+            'In_Frame_Del': ['inframe_deletion', 'feature_truncation'],
+            'In_Frame_Ins': ['inframe_insertion'],
+            'Missense': ['missense_variant'],
+            'Missense_Mutation': ['missense_variant'],
+            'Nonsense_Mutation': ['stop_gained'],
+            'Nonstop_Mutation': ['stop_lost'],
+            'Splice_Site': ['splice_region_variant'],
+            'Splice_Site_Del': ['splice_region_variant'],
+            'Splice_Site_SNP': ['splice_region_variant'],
+            'splicing': ['splice_region_variant'],
+            'Translation_Start_Site': ['start_lost'],
+            'vIII deletion': ['any']
+        };
+        if(matrix.hasOwnProperty(consequence)){
+            return matrix[consequence].join('+');
+        }else{
+            return 'any';
+        }
+    }
+
     return {
         init: init,
         oncokbAccess: oncokbAccess,
-        getEvidence: getEvidence
+        getEvidence: getEvidence,
+        findRegex: findRegex,
+        consequenceConverter: consequenceConverter
     };
 })();
+
+$.fn.dataTableExt.oSort['oncokb-level-asc']  = function(x,y) {
+    var levels = ['4', '3', '2B','2A', '1', '0', 'R3', 'R2', 'R1'];
+    var xIndex = levels.indexOf(x);
+    var yIndex = levels.indexOf(y);
+    if(xIndex < yIndex){
+        return 1;
+    }else{
+        return -1;
+    }
+};
+
+$.fn.dataTableExt.oSort['oncokb-level-desc'] = function(x,y) {
+    var levels = ['4', '3', '2B','2A', '1', '0', 'R3', 'R2', 'R1'];
+    var xIndex = levels.indexOf(x);
+    var yIndex = levels.indexOf(y);
+    if(xIndex < yIndex){
+        return -1;
+    }else{
+        return 1;
+    }
+};

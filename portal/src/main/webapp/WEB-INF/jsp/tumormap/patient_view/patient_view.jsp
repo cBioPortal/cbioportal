@@ -515,7 +515,7 @@ function addNoteTooltip(elem, content, position) {
         content: (cbio.util.checkNullOrUndefined(content) ? {attr: 'alt'} : content),
 	    show: {event: "mouseover"},
         hide: {fixed: true, delay: 100, event: "mouseout"},
-        style: { classes: 'qtip-light qtip-rounded' },
+        style: { classes: 'qtip-light qtip-rounded qtip-wide' },
         position: (cbio.util.checkNullOrUndefined(position) ? {my:'top left',at:'bottom center',viewport: $(window)} : position)
     });
 }

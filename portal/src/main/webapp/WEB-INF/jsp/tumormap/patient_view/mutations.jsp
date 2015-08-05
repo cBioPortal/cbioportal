@@ -255,9 +255,16 @@
                                             +table_id+"-tip' alt='Germline mutation'>Germline</span>";
                                 ret += "&nbsp;<span class='oncokb oncokb_alteration' alteration='"+aa+"' hashId='"+source[0]+"' style='display:none'><img width='12' height='12' src='images/file.svg'/></span><img width='12' height='12' class='loader' src='images/ajax-loader.gif'/>";
 
+                                    var mcg = mutations.getValue(source[0], 'mycancergenome');
+                                    if (!cbio.util.checkNullOrUndefined(mcg) && mcg.length) {
+                                        ret += "&nbsp;<span class='"+table_id+"-tip'" +
+		                                   "alt='MyCancerGenome.org links:<br/><ul style=\"list-style-position: inside;padding-left:0;\"><li>"+mcg.join("</li><li>")+"</li></ul>'>" +
+		                                   "<img src='images/mcg_logo.png'></span>";
+                                    }
+
 	                            var aaOriginal = mutations.getValue(source[0], 'aa-orig');
 
-	                            if (window.cancerStudyName.toLowerCase().indexOf("msk-impact") != -1 &&
+	                            if (window.cancerStudyId.indexOf("mskimpact") !== -1 &&
 	                                isDifferentProteinChange(aa, aaOriginal))
 	                            {
 		                            ret += "&nbsp;<span class='"+table_id+"-tip'" +

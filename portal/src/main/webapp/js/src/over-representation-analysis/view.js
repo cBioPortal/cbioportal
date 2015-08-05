@@ -572,10 +572,6 @@ var orSubTabView = function() {
     return {
         init: function(_div_id, _profile_list, _profile_type, _gene_set) {
             
-            //append loading img
-            $("#" + _div_id).empty();
-            $("#" + _div_id).append("<div id='" + _div_id + "_loading_img'><img style='padding:20px;' src='images/ajax-loader.gif'></div>");
-
             //for mrna sub tab, there is an EXTRA dropdown menu for selecting profiles
             //order profiles by priority list -- swap the rna seq profile to the top
             $.each(valid_profile_list, function(i, obj) {

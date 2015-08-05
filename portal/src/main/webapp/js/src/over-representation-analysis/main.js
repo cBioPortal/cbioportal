@@ -47,6 +47,10 @@ var or_tab = (function() {
 
     //var init_copy_num_tab = function(gene_set) {
     var init_copy_num_tab = function() {
+
+        $("#" + orAnalysis.ids.sub_tab_copy_num).empty();
+        $("#" + orAnalysis.ids.sub_tab_copy_num).append("<div id='" + orAnalysis.ids.sub_tab_copy_num + "_loading_img'><img style='padding:20px;' src='images/ajax-loader.gif'></div>");
+
         var _profile_list = [];
 
         var discretized_cna_profile_keywords = [
@@ -89,6 +93,10 @@ var or_tab = (function() {
 
     //var init_mutations_tab = function(gene_set) {
     var init_mutations_tab = function() {
+
+        $("#" + orAnalysis.ids.sub_tab_mutations).empty();
+        $("#" + orAnalysis.ids.sub_tab_mutations).append("<div id='" + orAnalysis.ids.sub_tab_mutations + "_loading_img'><img style='padding:20px;' src='images/ajax-loader.gif'></div>");
+
         var _profile_list = [];
         $.each(Object.keys(profile_obj_list), function(_index, _key) {
             var _obj = profile_obj_list[_key];
@@ -104,6 +112,10 @@ var or_tab = (function() {
 
     //var init_mrna_exp_tab = function(gene_set) {
     var init_mrna_exp_tab = function() {
+
+        $("#" + orAnalysis.ids.sub_tab_mrna_exp).empty();
+        $("#" + orAnalysis.ids.sub_tab_mrna_exp).append("<div id='" + orAnalysis.ids.sub_tab_mrna_exp + "_loading_img'><img style='padding:20px;' src='images/ajax-loader.gif'></div>");
+
         var _profile_list = [];
         $.each(Object.keys(profile_obj_list), function(_index, _key) {
             var _obj = profile_obj_list[_key];
@@ -128,12 +140,14 @@ var or_tab = (function() {
             }
         }
 
-
-
     };
 
     //var init_protein_exp_tab = function(gene_set) {
     var init_protein_exp_tab = function() {
+
+        $("#" + orAnalysis.ids.sub_tab_protein_exp).empty();
+        $("#" + orAnalysis.ids.sub_tab_protein_exp).append("<div id='" + orAnalysis.ids.sub_tab_protein_exp + "_loading_img'><img style='padding:20px;' src='images/ajax-loader.gif'></div>");
+
         var _profile_list = [];
         $.each(Object.keys(profile_obj_list), function(_index, _key) {
             var _obj = profile_obj_list[_key];

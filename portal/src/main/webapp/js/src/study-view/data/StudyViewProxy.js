@@ -382,14 +382,18 @@ var StudyViewProxy = (function() {
         if(obtainDataObject.hasOwnProperty('cna') && obtainDataObject.cna){
             deferred.resolve(obtainDataObject.cna);
         }else{
-            $.ajax({type: "POST", url: "cna.json", data: ajaxParameters.cnaData})
-                .then(function(data){
-                    obtainDataObject.cna = data;
-                    deferred.resolve(obtainDataObject.cna);
-                }, function(status){
-                    obtainDataObject.cna = '';
-                    deferred.reject(status);
-                });
+            if(hasCNA) {
+                $.ajax({type: "POST", url: "cna.json", data: ajaxParameters.cnaData})
+                    .then(function(data){
+                        obtainDataObject.cna = data;
+                        deferred.resolve(obtainDataObject.cna);
+                    }, function(status){
+                        obtainDataObject.cna = '';
+                        deferred.resolve({});
+                    });
+            }else{
+                deferred.resolve({});
+            }
         }
         return deferred.promise();
     }
@@ -400,14 +404,18 @@ var StudyViewProxy = (function() {
         if(obtainDataObject.hasOwnProperty('mutatedGenes') && obtainDataObject.mutatedGenes){
             deferred.resolve(obtainDataObject.mutatedGenes);
         }else{
-            $.ajax({type: "POST", url: "mutations.json", data: ajaxParameters.mutatedGenesData})
-                .then(function(data){
-                    obtainDataObject.mutatedGenes = data;
-                    deferred.resolve(obtainDataObject.mutatedGenes);
-                }, function(status){
-                    obtainDataObject.mutatedGenes = '';
-                    deferred.reject(status);
-                });
+            if(hasMutation){
+                $.ajax({type: "POST", url: "mutations.json", data: ajaxParameters.mutatedGenesData})
+                    .then(function(data){
+                        obtainDataObject.mutatedGenes = data;
+                        deferred.resolve(obtainDataObject.mutatedGenes);
+                    }, function(status){
+                        obtainDataObject.mutatedGenes = '';
+                        deferred.resolve([]);
+                    });
+            }else{
+                deferred.resolve([]);
+            }
         }
         return deferred.promise();
     }

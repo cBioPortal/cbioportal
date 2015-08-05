@@ -33,8 +33,7 @@
 
 
 var StudyViewInitTables = (function() {
-    var workers = [],
-        numOfWorkers = 0;
+    var workers = [];
     
     function init(input,callback) {
         initData(input);
@@ -145,8 +144,6 @@ var StudyViewInitTables = (function() {
             _worker.callbacks.rowClick = rowClick;
             workers.push(_worker);
         });
-        
-        numOfWorkers = workers.length;
     }
     
     function rowClick(tableId, data) {
@@ -161,7 +158,7 @@ var StudyViewInitTables = (function() {
             caseIdChartIndex = StudyViewInitCharts.getCaseIdChartIndex();;
         
         //Find reletive table data
-        for(var i = 0; i < numOfWorkers; i++) {
+        for(var i = 0; i < workers.length; i++) {
             if(workers[i].opts.tableId === tableId)  {
                 worker = workers[i];
                 workerIndex = i;
@@ -260,17 +257,17 @@ var StudyViewInitTables = (function() {
     
     function mutatedGenesData(data, numOfCases) {
         var genes = [];
-        
+
         for(var i = 0, dataL = data.length; i < dataL; i++){
             var datum = {},
                 caseIds = data[i].caseIds;
-            
+
             datum.gene = data[i].gene_symbol;
             datum.numOfMutations = Number(data[i].num_muts);
             datum.samples = caseIds.filter(function(elem, pos) {
                 return caseIds.indexOf(elem) === pos;
             }).length;
-            datum.sampleRate = 
+            datum.sampleRate =
                     (datum.samples / Number(numOfCases)* 100).toFixed(1) + '%';
 
             if( data[i].hasOwnProperty('qval') && !isNaN(data[i].qval)){
@@ -293,16 +290,16 @@ var StudyViewInitTables = (function() {
     function cnaData(data, numOfCases) {
 
         var genes = [];
-        
+
         for(var i = 0, dataL = data.gene.length; i < dataL; i++){
             var datum = {},
                 _altType = '';
-            
+
             switch(data.alter[i]) {
-                case -2: 
+                case -2:
                     _altType = 'DEL';
                     break;
-                case 2: 
+                case 2:
                     _altType = 'AMP';
                     break;
                 default:

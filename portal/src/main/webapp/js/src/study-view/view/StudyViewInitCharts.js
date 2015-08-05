@@ -281,25 +281,25 @@ var StudyViewInitCharts = (function(){
     
     function initTables() {
         var initParams = {data: {attr: [], arr: {}}, numOfCases: numOfCases};
-        
-        //if(mutatedGenes && mutatedGenes.length > 0) {
+
+        if(hasMutation) {
             initParams.data.attr.push({
-                        name: 'mutatedGenes',
-                        displayName: 'Mutated Genes',
-                        webService: {
-                            type: 'POST',
-                            url: "mutations.json",
-                            data: {
-                                cmd: 'get_smg',
-                                case_list: '',
-                                mutation_profile: StudyViewParams.params.mutationProfileId
-                            }
+                    name: 'mutatedGenes',
+                    displayName: 'Mutated Genes',
+                    webService: {
+                        type: 'POST',
+                        url: "mutations.json",
+                        data: {
+                            cmd: 'get_smg',
+                            case_list: '',
+                            mutation_profile: StudyViewParams.params.mutationProfileId
                         }
-                    });
-        //}
-        
-        //if(cna) {
-        initParams.data.attr.push({
+                    }
+                });
+        }
+
+        if(hasCNA) {
+            initParams.data.attr.push({
                     name: 'cna',
                     displayName: 'Copy Number Altered Genes',
                     webService: {
@@ -310,8 +310,8 @@ var StudyViewInitCharts = (function(){
                         }
                     }
                 });
-        //}
-        
+        }
+
         StudyViewInitTables.init(initParams);
     }
         

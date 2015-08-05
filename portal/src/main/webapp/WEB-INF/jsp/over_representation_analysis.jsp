@@ -17,9 +17,8 @@
         <br>
         <div id="or_analysis_tab_custom_gene_set_text_area"></div>
         <br>-->
-        <a href="cancer_gene_list.jsp" target="_blank">[List of Portal Cancer Genes]</a>
     </div>
-    <div id="or-analysis-tabs" class="or-analysis-tabs">
+    <div id="or-analysis-tabs" class="or-analysis-tabs" style="margin-top:-40px;">
         <ul id='or-analysis-tabs-list'></ul>
         <div id='or-analysis-tabs-content'></div>
     </div>

@@ -490,7 +490,7 @@ var orTable = function() {
     }
     
     return {
-        init: function(_input_data, _div_id, _table_div, _table_id, _table_title, _profile_type, _profile_id) {
+        init: function(_input_data, _div_id, _table_div, _table_id, _table_title, _profile_type, _profile_id, _profile_list) {
             
             if (Object.keys(_input_data).length !== 0 &&
                 Object.keys(_input_data)[0] !== orAnalysis.texts.null_result &&
@@ -504,7 +504,23 @@ var orTable = function() {
                 table_title = _table_title;
                 
                 $("#" + div_id + "_loading_img").empty();
-                
+
+                //append profile selection dropdown menu for mrna sub-tab
+                if (_profile_type == orAnalysis.profile_type.mrna) {
+                    if ($("#" + _div_id + orAnalysis.postfix.mrna_sub_tab_profile_selection_dropdown_menu + "_div").is(":empty")) {
+                        if (_profile_type === orAnalysis.profile_type.mrna) {
+                            $("#" + _div_id + orAnalysis.postfix.mrna_sub_tab_profile_selection_dropdown_menu + "_div").append(
+                                "Data Set <select id='" + _div_id + orAnalysis.postfix.mrna_sub_tab_profile_selection_dropdown_menu + "'></select>"
+                            );
+                        }
+                        $.each(_profile_list, function(_index, _profile_obj) {
+                            $("#" + _div_id + orAnalysis.postfix.mrna_sub_tab_profile_selection_dropdown_menu).append(
+                                "<option value='" + _profile_obj.STABLE_ID + "'>" + _profile_obj.NAME + "</option>"
+                            );
+                        });
+                    }
+                }
+
                 if (profile_type === orAnalysis.profile_type.copy_num) {
                     col_index = orAnalysis.col_index.copy_num;
                 } else if (profile_type === orAnalysis.profile_type.mutations) {
@@ -534,7 +550,12 @@ var orTable = function() {
                 addHeaderQtips();
                 activateUpdateQueryBtns(table_id + orAnalysis.postfix.datatable_update_query_button);
                 event_listener_details_btn();
-                
+
+                //initially hiding all the mrna data tables
+                if (_profile_type === orAnalysis.profile_type.mrna) {
+                    $("#" + _table_div).hide();
+                }
+
             } else {
                 $("#" + _table_div).remove();
             }
@@ -546,6 +567,8 @@ var orTable = function() {
 
 var orSubTabView = function() {
 
+    var valid_profile_list = [];
+
     return {
         init: function(_div_id, _profile_list, _profile_type, _gene_set) {
             
@@ -553,27 +576,89 @@ var orSubTabView = function() {
             $("#" + _div_id).empty();
             $("#" + _div_id).append("<div id='" + _div_id + "_loading_img'><img style='padding:20px;' src='images/ajax-loader.gif'></div>");
 
-            $.each(_profile_list, function(_index, _profile_obj) {
-                
-                 //avoid duplicated initiation
-                var element = $("." + _profile_obj.STABLE_ID + orAnalysis.postfix.datatable_class);
-                if (element.length === 0) {
+            //for mrna sub tab, there is an EXTRA dropdown menu for selecting profiles
+            //order profiles by priority list -- swap the rna seq profile to the top
+            $.each(valid_profile_list, function(i, obj) {
+                if (obj["STABLE_ID"].toLowerCase().indexOf("rna_seq") !== -1) {
+                    cbio.util.swapElement(valid_profile_list, i, 0);
+                }
+            });
+            if (_profile_type === orAnalysis.profile_type.mrna) {
+                $("#" + _div_id).append("<div id='" + _div_id + orAnalysis.postfix.mrna_sub_tab_profile_selection_dropdown_menu + "_div'></div>");
+            }
 
+            $.each(_profile_list, function(_index, _profile_obj) {
+                var element = $("." + _profile_obj.STABLE_ID + orAnalysis.postfix.datatable_class); //avoid duplicated initiation
+                if (element.length === 0) {
                     var _table_div = _profile_obj.STABLE_ID + orAnalysis.postfix.datatable_div;
                     var _table_id = _profile_obj.STABLE_ID + orAnalysis.postfix.datatable_id;
                     $("#" + _div_id).append("<div id='" + _table_div + "' style='width: 1200px; display:inline-block; padding: 10px;'></div>");
-                    
+
                     //init and get calculation result from the server
                     var param = new orAjaxParam(or_tab.getAlteredCaseList(), or_tab.getUnalteredCaseList(), _profile_obj.STABLE_ID, _gene_set);
                     var or_data = new orData();
                     or_data.init(param, _table_id);
                     var or_table = new orTable();
-                    or_data.get(or_table.init, _div_id, _table_div, _table_id, _profile_obj.NAME, _profile_type, _profile_obj.STABLE_ID);
-                    
+                    or_data.get(or_table.init, _div_id, _table_div, _table_id, _profile_obj.NAME, _profile_type, _profile_obj.STABLE_ID, _profile_list);
                 }
-                
             });
-            
+
+            if (_profile_type === orAnalysis.profile_type.mrna) {
+
+                var tmp = setInterval(function () { timer(); }, 1000);
+                function timer() {
+                    if (!$( "#" + _div_id + orAnalysis.postfix.mrna_sub_tab_profile_selection_dropdown_menu + "_div").is(":empty")) {
+                        clearInterval(tmp);
+
+                        //hide mrna table that's not being selected
+                        var selected_profile_id = $( "#" + _div_id + orAnalysis.postfix.mrna_sub_tab_profile_selection_dropdown_menu).val();
+                        $.each(_profile_list, function(_index, _profile_obj) {
+                            if (_profile_obj.STABLE_ID !== selected_profile_id) {
+                                $("#" + _profile_obj.STABLE_ID + orAnalysis.postfix.datatable_div).hide();
+                            } else {
+                                $("#" + _profile_obj.STABLE_ID + orAnalysis.postfix.datatable_div).show();
+                            }
+                        });
+
+                        //add event listener to the profile selection under mrna sub tab.
+                        $("#" + _div_id + orAnalysis.postfix.mrna_sub_tab_profile_selection_dropdown_menu).change(function() {
+                            var selected_profile_id = $( "#" + _div_id + orAnalysis.postfix.mrna_sub_tab_profile_selection_dropdown_menu).val();
+                            $.each(_profile_list, function(_index, _profile_obj) {
+                                if (_profile_obj.STABLE_ID !== selected_profile_id) {
+                                    $("#" + _profile_obj.STABLE_ID + orAnalysis.postfix.datatable_div).hide();
+                                } else {
+                                    $("#" + _profile_obj.STABLE_ID + orAnalysis.postfix.datatable_div).show();
+                                }
+                            });
+                        });
+
+                    }
+                }
+
+            }
+
+        },
+        valid: function(_profile_list, _gene_set) {
+
+            var push_valid_profile = function(_input_data, _profile_obj) {
+                if (Object.keys(_input_data).length !== 0 &&
+                    Object.keys(_input_data)[0] !== orAnalysis.texts.null_result &&
+                    Object.keys(_input_data)[0] !== "") {
+                    valid_profile_list.push(_profile_obj);
+                }
+            }
+
+            $.each(_profile_list, function(_index, _profile_obj) {
+                var param = new orAjaxParam(or_tab.getAlteredCaseList(), or_tab.getUnalteredCaseList(), _profile_obj.STABLE_ID, _gene_set);
+                var or_data = new orData();
+                var _table_id = _profile_obj.STABLE_ID + orAnalysis.postfix.datatable_id;
+                or_data.init(param, _table_id);
+                or_data.get(push_valid_profile, _profile_obj, "", "", "", "", "", "");
+            });
+
+        },
+        profile_list: function() {
+            return valid_profile_list;
         }
     };
 }; //close orSubTabView

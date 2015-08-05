@@ -96,9 +96,10 @@ var or_tab = (function() {
                 _profile_list.push(_obj);
             }
         });
+
         var orSubTabMutations = new orSubTabView();
         //orSubTabMutations.init(orAnalysis.ids.sub_tab_mutations, _profile_list, orAnalysis.profile_type.mutations, gene_set);
-        orSubTabMutations.init(orAnalysis.ids.sub_tab_mutations, _profile_list, orAnalysis.profile_type.mutations, "cancer_genes");
+        orSubTabMutations.init(orAnalysis.ids.sub_tab_mutations, _profile_list, orAnalysis.profile_type.mutations, "cancer_genes"); //init with only one profile
     };
 
     //var init_mrna_exp_tab = function(gene_set) {
@@ -112,9 +113,23 @@ var or_tab = (function() {
                 _profile_list.push(_obj);
             }
         });
+
+        //filter out profiles without data
         var orSubTabMrnaExp = new orSubTabView();
-        //orSubTabMrnaExp.init(orAnalysis.ids.sub_tab_mrna_exp, _profile_list, orAnalysis.profile_type.mrna, gene_set);
-        orSubTabMrnaExp.init(orAnalysis.ids.sub_tab_mrna_exp, _profile_list, orAnalysis.profile_type.mrna, "cancer_genes");
+        orSubTabMrnaExp.valid(_profile_list, "cancer_genes");
+        var valid_profile_list = orSubTabMrnaExp.profile_list();
+
+        var tmp = setInterval(function () { timer(); }, 1000);
+        function timer() {
+            if (valid_profile_list.length !== 0) {
+                clearInterval(tmp);
+                orSubTabMrnaExp.init(orAnalysis.ids.sub_tab_mrna_exp, valid_profile_list, orAnalysis.profile_type.mrna, "cancer_genes");
+                //orSubTabMrnaExp.init(orAnalysis.ids.sub_tab_mrna_exp, valid_profile_list, orAnalysis.profile_type.mrna, gene_set);
+            }
+        }
+
+
+
     };
 
     //var init_protein_exp_tab = function(gene_set) {

@@ -179,12 +179,12 @@ var orData = function() {
                 alert( "Request failed: " + textStatus );
             }); 
         },
-        get: function(callback_func, _div_id, _table_div, _table_id, _table_title, _profile_type, _profile_id) {
+        get: function(callback_func, _div_id, _table_div, _table_id, _table_title, _profile_type, _profile_id, _profile_list) {
             var tmp = setInterval(function () { timer(); }, 1000);
             function timer() {
                 if (retrieved) {
                     clearInterval(tmp);
-                    callback_func(convert_data(data, _profile_type), _div_id, _table_div, _table_id, _table_title, _profile_type, _profile_id);
+                    callback_func(convert_data(data, _profile_type), _div_id, _table_div, _table_id, _table_title, _profile_type, _profile_id, _profile_list);
                 }
             }
         }

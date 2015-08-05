@@ -1014,7 +1014,7 @@ NetworkVis.prototype.filterSelectedGenes = function()
     // filter out selected elements
     // this._vis.filter("nodes", selectionVisibility);
     this._vis.nodes().forEach(function( ele ){
-        if (selectionVisibility(ele) === false){
+        if (selectionVisibility(ele) === false || ele._private.style.visibility.strValue == 'hidden'){
           ele.css('visibility', 'hidden');
           ele._private.selectable = false;
         }
@@ -1143,9 +1143,13 @@ NetworkVis.prototype.updateEdges = function()
     this._vis.edges().forEach(function( ele ){
         if (edgeVisibility(ele) === false){
           ele.css('visibility', 'hidden');
+          ele._private.selectable=false;
+
         }
         else {
           ele.css('visibility', 'visible');
+          ele._private.selectable=true;
+
         }
     });
 
@@ -1507,6 +1511,7 @@ NetworkVis.prototype._selectedElementsMap = function(group)
  *
  * @return  a map of connected nodes
  */
+
 NetworkVis.prototype._connectedNodesMap = function()
 {
     var map = new Array();
@@ -1514,17 +1519,17 @@ NetworkVis.prototype._connectedNodesMap = function()
 
     // if edges merged, traverse over merged edges for a better performance
     //TODO will be examined after implementation of merged edge!!
-/*    if (this._vis.edgesMerged())
+/*    if (this._vis.edges(":merged"))
     {
-        edges = this._vis.mergedEdges();
+        edges = this._vis.edges(":merged");
     }
     // else traverse over regular edges
     else
-    {
+*/    {
         edges = this._vis.edges();
     }
-*/
-    edges = this._vis.edges();
+
+
 
     var source;
     var target;
@@ -1535,12 +1540,13 @@ NetworkVis.prototype._connectedNodesMap = function()
     {
         if (edges[i].visible)
         {
-            source = this._vis.$("#" + edges[i]._private.data.source);
-            target = this._vis.$("#" + edges[i]._private.data.target);
+            source = this._vis.$("#" + edges[i]._private.data.source)[0];
+            target = this._vis.$("#" + edges[i]._private.data.target)[0];
 
             map[source._private.data.id] = source;
             map[target._private.data.id] = target;
         }
+        
     }
 
     return map;
@@ -1581,12 +1587,25 @@ NetworkVis.prototype._filterDisconnected = function()
         };
 
         // filter disconnected
+        var self = this;
         this._vis.nodes().forEach(function( ele ){
-            if(isolation(ele) === false){
-                ele.css('visibility', 'hidden');
+            var check = false;
+            var edges = self._vis.edges();
+            for (var i = 0; i < edges.length; i++){
+              if (edges[i].visible() && (ele._private.data.id === edges[i]._private.data.source ||
+                  ele._private.data.id === edges[i]._private.data.target)){
+                    check = true;
+                    break;
+                  }
+            }
+            if (!check || ele._private.style.visibility.strValue == 'hidden'){
+              ele.css('visibility', 'hidden');
+              ele._private.selectable=false;
             }
             else{
               ele.css('visibility', 'visible');
+              ele._private.selectable=true;
+
             }
         });
     }
@@ -1856,17 +1875,17 @@ NetworkVis.prototype._setComponentVis = function(component, visible)
 NetworkVis.prototype._defaultOptsArray = function()
 {
     var defaultOpts =
-        [ { id: "gravity", label: "Gravity",       value: 0.4,   tip: "Gravity force." },
-            { id: "fit",         label: "Graph fitting",      value: true,    tip: "If checked, layout automatically fits the graph to the window." },
-            { id: "edgeElasticity",  label: "Edge elasticity",  value: 0.45, tip: "The default spring elasticity for edges." },
-            { id: "animate",        label: "Animation", value: true,    tip: "Whether to animate while running the layout." },
-            { id: "randomize",        label: "Randomize", value: true,    tip: "Whether to enable incremental mode." },
-            { id: "padding", label: "Padding value",  value: 10,      tip: "Padding on fit." },
-            { id: "nodeRepulsion", label: "Non overlapping",  value: 4500,  tip: "Node repulsion (non overlapping) multiplier." },
-            { id: "idealEdgeLength",     label: "Ideal edge length",      value: 50,  tip: "Ideal edge (non nested) length." },
-            { id: "nestingFactor", label: "Nesting factor",  value: 0.1,   tip: "Nesting factor (multiplier) to compute ideal edge length for nested edges." },
-            { id: "numIter",     label: "Iteration num",      value: 2500,  tip: "Maximum number of iterations to perform." },
-            { id: "tile",        label: "Tile",                             value: true,    tip: "For enabling tiling." }
+        [ { id: "gravity", label: "Gravity",       value: 0.4,   tip: "Gravitonal constant to keep graph components together" },
+            { id: "fit",         label: "Graph fitting",      value: true,    tip: "Whether or not to fit the network into canvas after layout" },
+            { id: "edgeElasticity",  label: "Edge elasticity",  value: 0.45, tip: "Divisor to computer edge forces" },
+            { id: "animate",        label: "Animation", value: true,    tip: "Whether or not to display network during layout" },
+            { id: "randomize",        label: "Randomize", value: true,    tip: "Uncheck for incremental layout" },
+            { id: "padding", label: "Padding value",  value: 10,      tip: "Padding on fit" },
+            { id: "nodeRepulsion", label: "Node Repulsion",  value: 4500,  tip: "Node repulsion (non-overlapping) multiplier" },
+            { id: "idealEdgeLength",     label: "Ideal edge length",      value: 50,  tip: "Ideal length of an edge" },
+            { id: "nestingFactor", label: "Nesting factor",  value: 0.1,   tip: "Nesting factor (multiplier) to compute ideal edge length for nested edges" },
+            { id: "numIter",     label: "Iteration num",      value: 2500,  tip: "Maximum number of iterations" },
+            { id: "tile",        label: "Tile Disconnected",  value: true,    tip: "Whether or not to tile disconnected nodes on layout" }
 ];
 
     return defaultOpts;
@@ -3173,13 +3192,12 @@ NetworkVis.prototype._hideSelected = function()
 
     // filter out selected elements
     this._vis.elements().forEach(function( ele ){
-        if (selectionVisibility(ele) === false){
+        if (selectionVisibility(ele) === false || ele._private.style.visibility.strValue == 'hidden'){
           ele.css('visibility', 'hidden');
           ele._private.selectable = false;
         }
         else{
           ele._private.selectable = true;
-
           ele.css('visibility', 'visible');
         }
     });
@@ -3370,13 +3388,14 @@ NetworkVis.prototype._togglePanZoom = function()
  * Merges the edges, if not merged. If edges are already merges, then show all
  * edges.
  */
+
 NetworkVis.prototype._toggleMerge = function()
 {
     // merge/unmerge the edges
     //TODO
-/*    this._linksMerged = !this._linksMerged;
+    this._linksMerged = !this._linksMerged;
 
-    this._vis.edgesMerged(this._linksMerged);
+  //  this._vis.edgesMerged(this._linksMerged);
 
     // update check icon of the corresponding menu item
 
@@ -3385,12 +3404,12 @@ NetworkVis.prototype._toggleMerge = function()
     if (this._linksMerged)
     {
         item.addClass(this.CHECKED_CLASS);
+
     }
     else
     {
         item.removeClass(this.CHECKED_CLASS);
     }
-    */
 };
 
 /**
@@ -3570,6 +3589,20 @@ NetworkVis.prototype._updatePropsUI = function()
               $(this.settingsDialogSelector + " #randomize").val(false);
           }
         }
+        else if(this._layoutOptions[i].id == "tile"){
+          if (this._layoutOptions[i].value == true)
+          {
+              // check the box
+              $(this.settingsDialogSelector + " #tile").attr("checked", true);
+              $(this.settingsDialogSelector + " #tile").val(true);
+          }
+          else
+          {
+              // uncheck the box
+              $(this.settingsDialogSelector + " #tile").attr("checked", false);
+              $(this.settingsDialogSelector + " #tile").val(false);
+          }
+        }
         else if(this._layoutOptions[i].id == "fit"){
           if (this._layoutOptions[i].value == true)
           {
@@ -3682,7 +3715,7 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
         '<div id="' + id + '" style="width: auto;" class="settings_dialog hidden-network-ui" title="Layout Properties">' +
             '<div id="fd_layout_settings" class="content ui-widget-content">' +
                 '<table>' +
-                    '<tr title="The gravitational constant. Negative values produce a repulsive force.">' +
+                    '<tr title="Gravitational constant to keep graph components together">' +
                         '<td align="right">' +
                             '<label>Gravity</label>' +
                         '</td>' +
@@ -3690,7 +3723,7 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
                             '<input type="text" id="gravity" class="layout-properties" value=""/>' +
                         '</td>' +
                     '</tr>' +
-                    '<tr title="Padding on fit.">' +
+                    '<tr title="Padding on fit">' +
                         '<td align="right">' +
                             '<label>Padding</label>' +
                         '</td>' +
@@ -3698,7 +3731,7 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
                             '<input type="text" id="padding" class="layout-properties" value=""/>' +
                         '</td>' +
                     '</tr>' +
-                    '<tr title="Incremental mode.">' +
+                    '<tr title="Uncheck for incremental layout">' +
                         '<td align="right">' +
                             '<label>Randomize</label>'+
                         '</td>' +
@@ -3706,15 +3739,15 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
                             '<input type="checkbox" id="randomize" value="true" checked="checked"/>' +
                         '</td>' +
                     '</tr>' +
-                    '<tr title="Node repulsion (non overlapping) multiplier.">' +
+                    '<tr title="Node Repulsion (non-overlapping) multiplier">' +
                         '<td align="right">' +
-                            '<label>Node Repulsion (non overlap)</label>' +
+                            '<label>Node Repulsion</label>' +
                         '</td>' +
                         '<td>' +
                             '<input type="text" id="nodeRepulsion" class="layout-properties" value=""/>' +
                         '</td>' +
                     '</tr>' +
-                    '<tr title="Iteration Number.">' +
+                    '<tr title="Maximum number of iterations">' +
                         '<td align="right">' +
                             '<label>Iteration Number</label>' +
                         '</td>' +
@@ -3722,15 +3755,15 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
                             '<input type="text" id="numIter" class="layout-properties" value=""/>' +
                         '</td>' +
                     '</tr>' +
-                    '<tr title="Ideal length of an edge.">' +
+                    '<tr title="Ideal length of an edge">' +
                         '<td align="right">' +
-                            '<label>idealEdgeLength</label>' +
+                            '<label>Ideal Edge Length</label>' +
                         '</td>' +
                         '<td>' +
                             '<input type="text" id="idealEdgeLength" class="layout-properties" value=""/>' +
                         '</td>' +
                     '</tr>' +
-                    '<tr title="Divisor to compute edge forces.">' +
+                    '<tr title="Divisor to computer edge forces">' +
                         '<td align="right">' +
                             '<label>Edge Elasticity</label>' +
                         '</td>' +
@@ -3738,7 +3771,7 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
                             '<input type="text" id="edgeElasticity" class="layout-properties" value=""/>' +
                         '</td>' +
                     '</tr>' +
-                    '<tr title="Nesting factor (multiplier) to compute ideal edge length for nested edges.">' +
+                    '<tr title="Nesting factor (multiplier) to compute ideal edge length for nested edges">' +
                         '<td align="right">' +
                             '<label>Nesting Factor</label>' +
                         '</td>' +
@@ -3746,7 +3779,7 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
                             '<input type="text" id="nestingFactor" class="layout-properties" value=""/>' +
                         '</td>' +
                     '</tr>' +
-                    '<tr title="Whether to animate while running the layout.">' +
+                    '<tr title="Whether or not to display network during layout.">' +
                         '<td align="right">' +
                             '<label>Animate</label>' +
                         '</td>' +
@@ -3754,7 +3787,7 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
                             '<input type="checkbox" id="animate" value="true" checked="checked"/>' +
                         '</td>' +
                     '</tr>' +
-                    '<tr title="Whether to fit the network view after when done.">' +
+                    '<tr title="Whether or not to fit the network into canvas after layout">' +
                         '<td align="right">' +
                             '<label>Fit</label>' +
                         '</td>' +
@@ -3762,9 +3795,9 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
                             '<input type="checkbox" id="fit" value="true" checked="checked"/>' +
                         '</td>' +
                     '</tr>' +
-                    '<tr title="For enabling tiling.">' +
+                    '<tr title="Whether or not to tile disconnected nodes on layout">' +
                         '<td align="right">' +
-                            '<label>Tile</label>' +
+                            '<label>Tile Disconnected</label>' +
                         '</td>' +
                         '<td align="left">' +
                             '<input type="checkbox" id="tile" value="true" checked="checked"/>' +

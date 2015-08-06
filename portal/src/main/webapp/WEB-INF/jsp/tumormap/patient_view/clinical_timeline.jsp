@@ -75,19 +75,30 @@
             var clinicalData = clinicalDataMap[caseId];
             var su2cSampleId = guessClinicalData(clinicalData,["SU2C_SAMPLE_ID"]);
             if (!su2cSampleId) su2cSampleId = caseId;
-            debugger;
-            var circle = d3.selectAll(".timelineSeries_1").filter(function (x) {
+            var circle = d3.selectAll(".timelineSeries_0").filter(function (x) {
                 if (x.tooltip_tables.length === 1) {
                     return x.tooltip_tables[0].filter(function(x) {
-                        return x[0] === "SpecimenReferenceNumber";
+                        return x[0] === "SpecimenReferenceNumber" || x[0] === "SPECIMEN_REFERENCE_NUMBER";
                     })[0][1] === su2cSampleId;
                 }
                 else {
                     return undefined;
                 }
             });
-            console.log(circle);
-            fillColorAndLabelForCase(circle, caseId);
+            if (circle[0][0]) {
+                var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                $(g).attr("transform","translate("+circle.attr("cx")+","+circle.attr("cy")+")");
+                $(circle[0]).removeAttr("cx");
+                $(circle[0]).removeAttr("cy");
+                $(circle[0]).removeAttr("style");
+                $(circle[0]).qtip('destroy');
+                $(circle[0]).unbind('mouseover mouseout');
+                $(circle[0]).wrap(g);
+                g = $(circle[0]).parent();
+                g.prop("__data__", $(circle[0]).prop("__data__"));
+                fillColorAndLabelForCase(d3.select(g.get(0)), caseId);
+                clinicalTimeline.addDataPointTooltip(g);
+            }
         }
     }
 
@@ -113,10 +124,10 @@
                         .data(timeData)
                         .divId("#timeline")
                         .collapseAll()
-                        .orderTracks(["SPECIMEN", "SURGERY", "STATUS", "DIAGNOSTICS", "IMAGING", "TREATMENT"]);
+                        .orderTracks(["SPECIMEN", "SURGERY", "STATUS", "DIAGNOSTICS", "IMAGING", "TREATMENT"])
+                        .addPostTimelineHook(plotCaseLabelsInTimeline);
                 timeline();
                 $("#timeline-container").show();
-                //plotCaseLabelsInTimeline();
             }
             ,"json"
         );

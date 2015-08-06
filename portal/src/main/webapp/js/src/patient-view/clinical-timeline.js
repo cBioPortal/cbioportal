@@ -1,4 +1,4 @@
-/* v0.0.2 */
+/* v0.0.2-1-g5731505 */
 // vim: ts=2 sw=2
 (function () {
   d3.timeline = function() {
@@ -645,7 +645,8 @@ window.clinicalTimeline = (function(){
       itemHeight = 6,
       itemMargin = 8,
       divId = null,
-      width = null;
+      width = null,
+      postTimelineHooks = [];
 
   function timeline() {
     visibleData = allData.filter(function(x) {
@@ -671,7 +672,7 @@ window.clinicalTimeline = (function(){
     var svg = d3.select(divId).append("svg").attr("width", width)
       .datum(mergeAllTooltipTablesAtEqualTimepoint(visibleData)).call(chart);
     $("[id^='timelineItem']").each(function() {
-      addDataPointToolTip($(this));
+      timeline.addDataPointTooltip($(this));
     });
     $("[id^='timelineItem']").each(function() {
       $(this).on("mouseover", function() {
@@ -706,6 +707,10 @@ window.clinicalTimeline = (function(){
     // preserve whitespace for easy indentation of labels
     $(".timeline-label").each(function(i, x) {
       x.setAttributeNS("http://www.w3.org/XML/1998/namespace", "xml:space", "preserve");
+    });
+
+    postTimelineHooks.forEach(function(hook) {
+      hook.call();
     });
   }
 
@@ -903,85 +908,85 @@ window.clinicalTimeline = (function(){
     }
   }
 
-  function createDataTable(tooltip_table) {
-    dataTable = {
-                    "sDom": 't',
-                    "bJQueryUI": true,
-                    "bDestroy": true,
-                    "aaData": tooltip_table,
-                    "aoColumnDefs": [
-                        {
-                            "aTargets": [ 0 ],
-                            "sClass": "left-align-td",
-                            "mRender": function ( data, type, full ) {
-                                return '<b>'+data+'</b>';
-                            }
-                        },
-                        {
-                            "aTargets": [ 1 ],
-                            "sClass": "left-align-td",
-                            "bSortable": false
-                        }
-                    ],
-                    "fnDrawCallback": function ( oSettings ) {
-                        $(oSettings.nTHead).hide();
-                    },
-                    "aaSorting": []
-                };
-    return dataTable;
-  }
+  timeline.addDataPointTooltip = function addDataPointTooltip(elem) {
+    function createDataTable(tooltip_table) {
+      dataTable = {
+        "sDom": 't',
+        "bJQueryUI": true,
+        "bDestroy": true,
+        "aaData": tooltip_table,
+        "aoColumnDefs": [
+          {
+            "aTargets": [ 0 ],
+            "sClass": "left-align-td",
+            "mRender": function ( data, type, full ) {
+               return '<b>'+data+'</b>';
+            }
+          },
+          {
+            "aTargets": [ 1 ],
+            "sClass": "left-align-td",
+            "bSortable": false
+          }
+        ],
+        "fnDrawCallback": function ( oSettings ) {
+          $(oSettings.nTHead).hide();
+        },
+        "aaSorting": []
+      };
+      return dataTable;
+    }
 
-  function addDataPointToolTip(elem) {
-       elem.qtip({
-              content: {
-                  text: "table"
-              },
-              events: {
-                  render: function(event, api) {
-                      var tooltipDiv = $.parseHTML("<div></div>");
-                      var d = elem.prop("__data__");
-                      var table;
-                      if ("tooltip_tables" in d) {
-                        for (var i=0; i < d.tooltip_tables.length; i++) {
-                          if (i !== 0) {
-                            $(tooltipDiv).append("<hr />");
-                          }
-                          table = $.parseHTML("<table style='text-align:left; background-color: white;'></table>");
-                          $(table).dataTable(createDataTable(d.tooltip_tables[i]));
-                          $(tooltipDiv).append(table);
-                        }
-                      } else if ("tooltip" in d) {
-                        table = $.parseHTML("<table style='text-align:left; background-color: white;'></table>");
-                        $(table).dataTable(createDataTable(d.tooltip));
-                        $(tooltipDiv).append(table);
-                      }
-                      $(this).html(tooltipDiv);
-                      // Detect when point it was clicked and store it
-                      api.elements.target.click(function(e) {
-                          if (api.wasClicked) {
-                              api.hide();
-                              api.wasClicked = false;
-                          }
-                          else {
-                              api.wasClicked = !api.wasClicked;
-                          }
-                      });
-                  },
-                  hide: function(event, api) {
-                       // Prevent hiding if the point was clicked or if the
-                       // tooltip is already showing because of the mouseover
-                       if ((api.wasClicked && event.originalEvent.type === 'mouseleave') ||
-                           (!api.wasClicked && event.originalEvent.type === 'click')) {
-                           try{ event.preventDefault(); } catch(e) {}
-                       }
-                   }
-              },
-              show: {event: "click mouseover"},
-              hide: {event: "click mouseleave"},
-              style: { classes: 'qtip-light qtip-rounded qtip-wide' },
-              position: {my:'top middle',at:'bottom middle',viewport: $(window)},
-          }); 
-  }
+    elem.qtip({
+      content: {
+        text: "table"
+      },
+      events: {
+        render: function(event, api) {
+          var tooltipDiv = $.parseHTML("<div></div>");
+          var d = elem.prop("__data__");
+          var table;
+          if ("tooltip_tables" in d) {
+            for (var i=0; i < d.tooltip_tables.length; i++) {
+              if (i !== 0) {
+                $(tooltipDiv).append("<hr />");
+              }
+              table = $.parseHTML("<table style='text-align:left; background-color: white;'></table>");
+              $(table).dataTable(createDataTable(d.tooltip_tables[i]));
+              $(tooltipDiv).append(table);
+            }
+          } else if ("tooltip" in d) {
+            table = $.parseHTML("<table style='text-align:left; background-color: white;'></table>");
+            $(table).dataTable(createDataTable(d.tooltip));
+            $(tooltipDiv).append(table);
+          }
+          $(this).html(tooltipDiv);
+          // Detect when point it was clicked and store it
+          api.elements.target.click(function(e) {
+            if (api.wasClicked) {
+              api.hide();
+              api.wasClicked = false;
+            }
+            else {
+              api.wasClicked = !api.wasClicked;
+            }
+          });
+        },
+        hide: function(event, api) {
+          // Prevent hiding if the point was clicked or if the
+          // tooltip is already showing because of the mouseover
+          if ((api.wasClicked && event.originalEvent.type === 'mouseleave') ||
+              (!api.wasClicked && event.originalEvent.type === 'click')) {
+              try{ event.preventDefault(); } catch(e) {}
+          }
+        }
+      },
+      show: {event: "click mouseover"},
+      hide: {event: "click mouseleave"},
+      style: { classes: 'qtip-light qtip-rounded qtip-wide' },
+      position: {my:'top middle',at:'bottom middle',viewport: $(window)},
+   });
+  };
 
   function toggleTrackVisibility(trackName) {
     $.each(allData, function(i, x) {
@@ -1294,6 +1299,11 @@ window.clinicalTimeline = (function(){
     }), 'label'));
 
     allData = data;
+    return timeline;
+  };
+
+  timeline.addPostTimelineHook = function(hook) {
+    postTimelineHooks = postTimelineHooks.concat(hook);
     return timeline;
   };
 

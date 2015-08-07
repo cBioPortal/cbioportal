@@ -266,6 +266,7 @@ NetworkVis.prototype._createMergingEdges = function(){
           this._vis.$("#" + metaEdge.data.id)[0].css('haystack-radius', '0');
 
           this.mergingEdges.push(metaEdge);
+
           for (var j = 0; j < tempEdges[names[i]].length; j++){
             if (this.mergedEdges[names[i]] == undefined){
               this.mergedEdges[names[i]] = [];
@@ -498,11 +499,11 @@ NetworkVis.prototype.updateDetailsTab = function(evt)
         if(this.isEdgeClicked)
         {
           //TODO false will be replaced with evt.target.merged after merge implemented
-            this.addInteractionInfo(evt, this.detailsTabSelector, false, "click");
+            this.addInteractionInfo(evt, this.detailsTabSelector, "click");
         }
         else{
           //TODO false will be replaced with this._linksMerged after merge implemented
-            this.addInteractionInfo(evt, this.detailsTabSelector, false, "select");
+            this.addInteractionInfo(evt, this.detailsTabSelector, "select");
         }
 
         return;
@@ -587,7 +588,7 @@ NetworkVis.prototype.updateDetailsTab = function(evt)
     }
 };
 
-NetworkVis.prototype.addInteractionInfo = function(evt, selector, isMerged, selectType)
+NetworkVis.prototype.addInteractionInfo = function(evt, selector, selectType)
 {
     //this.createEdgeDetailsSelector(selector);
     var dataRow;
@@ -602,7 +603,7 @@ NetworkVis.prototype.addInteractionInfo = function(evt, selector, isMerged, sele
         this._vis.nodes('#' + data.target)[0]._private.data.label;
 
         //TODO When merge is implemented
-/*    if (isMerged)
+    if (evt.cyTarget._private.style.merged != undefined && evt.cyTarget._private.style.merged.value === "true")
     {
         title += ' (Summary Edge)';
         var text = '<div class="header"><span class="title"><label>';
@@ -610,18 +611,19 @@ NetworkVis.prototype.addInteractionInfo = function(evt, selector, isMerged, sele
             text += '</label></span></div>';
         $(selector + " .edge-inspector-content").append(text);
 
-        var edges = (selectType == "click") ? (evt.target.edges) : (evt.target);
+        var edges = (selectType == "click") ? (this.mergedEdges['source:' + evt.cyTarget._private.data.source
+                                                + "" + ";target:" + evt.cyTarget._private.data.target]) : (evt.cyTarget);
 
         // add information for each edge
 
         for (var i = 0; i < edges.length; i++)
         {
             // skip filtered-out edges
-            if (!this.edgeVisibility(edges[i]))
+/*            if (edges[i].visible() == false)
             {
                 continue;
             }
-
+*/
             data = edges[i]._private.data;
 
             // add an empty row for better edge separation
@@ -661,7 +663,7 @@ NetworkVis.prototype.addInteractionInfo = function(evt, selector, isMerged, sele
         $(selector + " .edge-inspector-content").append(
             '<tr align="left" class="empty-row data-row"><td> </td></tr>');
     }
-    else*/
+    else
     {
         var text = '<div class="header"><span class="title"><label>';
             text +=  title;

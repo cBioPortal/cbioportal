@@ -83,6 +83,10 @@ var rgbs     = ['rgb(254,80,51)', 'rgb(53,91,255)', 'rgb(255,208,214)', 'rgb(158
     $$.style.properties.push({name: 'show-details-selected', type: $$.style.types.trueOrFalse});
     $$.style.properties['show-details-selected'] = {name: 'show-details-selected', type: $$.style.types.trueOrFalse};
 
+    $$.style.types.trueOrFalse = {enums: ['true', 'false']};
+    $$.style.properties.push({name: 'merged', type: $$.style.types.trueOrFalse});
+    $$.style.properties['merged'] = {name: 'merged', type: $$.style.types.trueOrFalse};
+
     $$.style.properties.push({name: 'mouse-position-x', type: $$.style.types.percent});
     $$.style.properties['mouse-position-x'] = {name: 'mouse-position-x', type: $$.style.types.percent};
 

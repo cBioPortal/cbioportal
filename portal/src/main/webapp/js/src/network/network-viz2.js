@@ -84,26 +84,25 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 					return "rgb"+"("+lowCRed +"," + lowCGreen + "," + lowCBlue +")";
 				}
 			},
-            'content': function(ele){
-                var name = ele._private.data["label"];
+      'content': function(ele){
+          var name = ele._private.data["label"];
 
-                if (ele._private.data["type"] == "Drug")
-                {
-                    name = ele._private.data["NAME"];
+          if (ele._private.data["type"] == "Drug")
+          {
+              name = ele._private.data["NAME"];
 
-                    var truncateIndicator = '...';
-                    var nameSize = name.length;
+              var truncateIndicator = '...';
+              var nameSize = name.length;
 
-                    if (nameSize > 10)
-                    {
-                        name = name.substring(0, 10);
-                        name = name.concat(truncateIndicator);
-                    }
+              if (nameSize > 10)
+              {
+                  name = name.substring(0, 10);
+                  name = name.concat(truncateIndicator);
+              }
 
-                }
-
-                return name;
-            },
+          }
+          return name;
+      },
 			'text-halign': "center",
 			'taxt-valign': "bottom",
 			'total-alteration-font': "Verdana",
@@ -123,6 +122,7 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 					default: return "#A583AB"; break;
 				}
 			},
+			'merged': false,
 			"target-arrow-shape": function(ele){
 				switch (ele._private.data['type']){
 					case "STATE_CHANGE": return "triangle"; break;

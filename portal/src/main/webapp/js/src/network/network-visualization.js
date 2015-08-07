@@ -147,6 +147,9 @@ function NetworkVis(divId)
 
     this.isEdgeClicked = false;
 
+    this.mergingEdges = [];      // Created to implement merge edge functionality.
+    this.mergedEdges = {};       // Created to implement merge edge functionality.
+
     //CSS styles for higlight operation
     this.notHighlightNodeCSS = {'border-opacity': 0.3, 'text-opacity' : 0.3, 'background-opacity': 0.3};
     this.notHighlightEdgeCSS = {'opacity':0.3, 'text-opacity' : 0.3, 'background-opacity': 0.3};
@@ -198,6 +201,7 @@ NetworkVis.prototype.initNetworkUI = function(vis)
         self.hideDialogs(evt, ui);
     };
 
+
     $("#tabs").bind("tabsactivate", hideDialogs);
 
     // this is required to prevent hideDialogs function to be invoked
@@ -218,9 +222,55 @@ NetworkVis.prototype.initNetworkUI = function(vis)
 
     // make UI visible
     this._setVisibility(true);
+    this._createMergingEdges();
+    this._toggleMerge();
     $(".layout-properties").css("width", "85px");
 };
-
+NetworkVis.prototype._createMergingEdges = function(){
+    var edges = this._vis.edges();
+    var tempEdges = {};
+    var names = [];
+    for (var i = 0; i < edges.length; i++){
+      if (!tempEdges['source:' + edges[i]._private.data.source + ';target:' + edges[i]._private.data.target]){
+        tempEdges['source:' + edges[i]._private.data.source + ';target:' + edges[i]._private.data.target] = [];
+      }
+      if (tempEdges['source:' + edges[i]._private.data.target + ';target:' + edges[i]._private.data.source] != undefined){
+        tempEdges['source:' + edges[i]._private.data.target + ';target:' + edges[i]._private.data.source].push(edges[i]);
+      }
+      else{
+        tempEdges['source:' + edges[i]._private.data.source + ';target:' + edges[i]._private.data.target].push(edges[i]);
+      }
+    }
+    for (var k in tempEdges) names.push(k);
+    for (var i = 0; i < names.length; i++){
+      if (tempEdges[names[i]].length > 1){
+        var src = tempEdges[names[i]][0]._private.data.source;
+        var trgt= tempEdges[names[i]][0]._private.data.target;
+        var metaEdge = {
+          group: 'edges',
+          data: {
+            id: "e" + src + "" + trgt,
+            source: src,
+            target: trgt
+          }
+        }
+        if (this._vis.$("#" + "e" + src + "" + trgt).length == 0 && this._vis.$("#" + "e" + trgt + "" + src).length == 0){
+          this._vis.add([metaEdge]);
+          this._vis.$("#" + metaEdge.data.id)[0].css('visibility', 'hidden');
+          this._vis.$("#" + metaEdge.data.id)[0]._private.selectable = false;
+          this._vis.$("#" + metaEdge.data.id)[0]._private.data["INTERACTION_PUBMED_ID"] = "NA";
+          this._vis.$("#" + metaEdge.data.id)[0].css('merged', 'true');
+          this.mergingEdges.push(metaEdge);
+          for (var j = 0; j < tempEdges[names[i]].length; j++){
+            if (!this.mergedEdges[names[i]]){
+              this.mergedEdges[names[i]] = [];
+            }
+            this.mergedEdges[names[i]].push(tempEdges[names[i]][j]);
+          }
+        }
+      }
+    }
+}
 /**
  * Hides all dialogs upon selecting a tab other than the network tab.
  */
@@ -1546,7 +1596,7 @@ NetworkVis.prototype._connectedNodesMap = function()
             map[source._private.data.id] = source;
             map[target._private.data.id] = target;
         }
-        
+
     }
 
     return map;
@@ -3394,7 +3444,6 @@ NetworkVis.prototype._toggleMerge = function()
     // merge/unmerge the edges
     //TODO
     this._linksMerged = !this._linksMerged;
-
   //  this._vis.edgesMerged(this._linksMerged);
 
     // update check icon of the corresponding menu item
@@ -3404,12 +3453,38 @@ NetworkVis.prototype._toggleMerge = function()
     if (this._linksMerged)
     {
         item.addClass(this.CHECKED_CLASS);
+        for (var i = 0; i < this.mergingEdges.length; i++){
+          this._vis.$("#" + this.mergingEdges[i].data.id)[0].css('visibility', 'visible');
+          this._vis.$("#" + this.mergingEdges[i].data.id)[0]._private.selectable = true;
+
+          var tempMergedEdges = this.mergedEdges["source:" + this.mergingEdges[i].data.source
+                              + ";target:" + this.mergingEdges[i].data.target];
+          for (var j = 0; j < tempMergedEdges.length; j++){
+            this._vis.$("#" + tempMergedEdges[j]._private.data.id)[0].css('visibility','hidden');
+            this._vis.$("#" + tempMergedEdges[j]._private.data.id)[0]._private.selectable = false;
+          }
+        }
 
     }
     else
     {
         item.removeClass(this.CHECKED_CLASS);
+        for (var i = 0; i < this.mergingEdges.length; i++){
+          this._vis.$("#" + this.mergingEdges[i].data.id)[0].css('visibility', 'hidden')
+          this._vis.$("#" + this.mergingEdges[i].data.id)[0]._private.selectable = false;
+
+          var tempMergedEdges = this.mergedEdges["source:" + this.mergingEdges[i].data.source
+                              + ";target:" + this.mergingEdges[i].data.target];
+          for (var j = 0; j < tempMergedEdges.length; j++){
+            this._vis.$("#" + tempMergedEdges[j]._private.data.id)[0].css('visibility', 'visible');
+            this._vis.$("#" + tempMergedEdges[j]._private.data.id)[0]._private.selectable = true;
+          }
+        }
     }
+    this._vis.layout({
+      name:'preset',
+      fit: false
+    })
 };
 
 /**

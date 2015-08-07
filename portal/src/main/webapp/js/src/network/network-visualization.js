@@ -231,15 +231,16 @@ NetworkVis.prototype._createMergingEdges = function(){
     var tempEdges = {};
     var names = [];
     for (var i = 0; i < edges.length; i++){
-      if (!tempEdges['source:' + edges[i]._private.data.source + ';target:' + edges[i]._private.data.target]){
-        tempEdges['source:' + edges[i]._private.data.source + ';target:' + edges[i]._private.data.target] = [];
-      }
       if (tempEdges['source:' + edges[i]._private.data.target + ';target:' + edges[i]._private.data.source] != undefined){
         tempEdges['source:' + edges[i]._private.data.target + ';target:' + edges[i]._private.data.source].push(edges[i]);
       }
       else{
+        if (tempEdges['source:' + edges[i]._private.data.source + ';target:' + edges[i]._private.data.target] == undefined){
+          tempEdges['source:' + edges[i]._private.data.source + ';target:' + edges[i]._private.data.target] = [];
+        }
         tempEdges['source:' + edges[i]._private.data.source + ';target:' + edges[i]._private.data.target].push(edges[i]);
       }
+
     }
     for (var k in tempEdges) names.push(k);
     for (var i = 0; i < names.length; i++){
@@ -260,9 +261,13 @@ NetworkVis.prototype._createMergingEdges = function(){
           this._vis.$("#" + metaEdge.data.id)[0]._private.selectable = false;
           this._vis.$("#" + metaEdge.data.id)[0]._private.data["INTERACTION_PUBMED_ID"] = "NA";
           this._vis.$("#" + metaEdge.data.id)[0].css('merged', 'true');
+          this._vis.$("#" + metaEdge.data.id)[0].css('curve-style', 'haystack');
+          this._vis.$("#" + metaEdge.data.id)[0].css('line-color', 'rgba(100,100,100, 0.8)');
+          this._vis.$("#" + metaEdge.data.id)[0].css('haystack-radius', '0');
+
           this.mergingEdges.push(metaEdge);
           for (var j = 0; j < tempEdges[names[i]].length; j++){
-            if (!this.mergedEdges[names[i]]){
+            if (this.mergedEdges[names[i]] == undefined){
               this.mergedEdges[names[i]] = [];
             }
             this.mergedEdges[names[i]].push(tempEdges[names[i]][j]);

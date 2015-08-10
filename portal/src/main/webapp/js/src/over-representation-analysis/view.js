@@ -35,7 +35,8 @@ var orTable = function() {
     
     var div_id, table_id, data, titles; //titles is formatted string of column names with html markdown in
     var col_index, orTableInstance, profile_type, profile_id, table_title;
-    
+    var selected_genes = [];
+
     function configTable() {
         
         //sortings
@@ -212,6 +213,7 @@ var orTable = function() {
             },
             "fnDrawCallback": function() {
                 event_listener_details_btn();
+                activateUpdateQueryBtns(table_id + orAnalysis.postfix.datatable_update_query_button);
             },
             "bDeferRender": true,
             "iDisplayLength": 14
@@ -358,39 +360,39 @@ var orTable = function() {
 
     function activateUpdateQueryBtns(btn_id) {
 
-        document.getElementById(table_id + orAnalysis.postfix.datatable_update_query_button).disabled = true;
+        //document.getElementsByClassName(table_id + orAnalysis.postfix.datatable_gene_checkbox_class).removeEventListener("click");
+        $("." + table_id + orAnalysis.postfix.datatable_gene_checkbox_class).unbind("click");
 
         //attach event listener to checkboxes
         $("." + table_id + orAnalysis.postfix.datatable_gene_checkbox_class).click(function() {
-                var _selected_genes = [];
-                $("#" + div_id + " ." + table_id + orAnalysis.postfix.datatable_gene_checkbox_class + ":checked").each(function(){
-                    _selected_genes.push($(this).attr("value"));
-                });
-                if (_selected_genes.length !== 0) {
-                    document.getElementById(btn_id).disabled = false;
-                } else {
-                    document.getElementById(btn_id).disabled = true;
-                }
+
+            $("#" + table_id + orAnalysis.postfix.update_query_gene_list).empty();
+            if ($(this).is(':checked')) {
+                selected_genes.push($(this).attr("value"));
+            } else {
+                selected_genes.splice($.inArray($(this).attr("value"), selected_genes), 1);
             }
-        );
+            $("#" + table_id + orAnalysis.postfix.update_query_gene_list).append("&nbsp;&nbsp;Selected genes: " + selected_genes.join(", "));
 
 
-        var _arr_selected_genes = [];
+            if (selected_genes.length !== 0) {
+                document.getElementById(btn_id).disabled = false;
+            } else {
+                document.getElementById(btn_id).disabled = true;
+            }
+
+        });
+
         $("#" + btn_id).click(function() {
-
-            _arr_selected_genes = [];
-            $("#" + div_id + " ." + table_id + orAnalysis.postfix.datatable_gene_checkbox_class + ":checked").each(function(){
-                _arr_selected_genes.push($(this).attr("value"));
-            });
 
             var _start_pos_gene_list = document.URL.indexOf("gene_list=");
             var _end_pos_gene_list = document.URL.indexOf("&", _start_pos_gene_list);
             var _gene_str = document.URL.substring(_start_pos_gene_list + 10, _end_pos_gene_list);
 
             var _original_url = document.URL;
-            var _new_url = _original_url.replace(_gene_str, _gene_str + "+" + _arr_selected_genes.join("+"));
+            var _new_url = _original_url.replace(_gene_str, _gene_str + "+" + selected_genes.join("+"));
 
-            if (_arr_selected_genes.length !== 0) {
+            if (selected_genes.length !== 0) {
                 window.location.replace(_new_url);
             }
 
@@ -545,14 +547,14 @@ var orTable = function() {
                       "</span>&nbsp;&nbsp;&nbsp;&nbsp;<button type='button' id='" + table_id +
                       orAnalysis.postfix.datatable_update_query_button + "'>Add checked genes to query" +
                       "</button>" +
-                      "<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.gene + "'>");
+                      "<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.gene + "'>" +
+                      "<span id='" + table_id + orAnalysis.postfix.update_query_gene_list + "'></span>");
+                document.getElementById(table_id + orAnalysis.postfix.datatable_update_query_button).disabled = true;
 
                 $("#" + _table_div).append("<table id='" + table_id + "' cellpadding='0' cellspacing='0' border='0' class='" + table_id + "_datatable_class'></table>"); 
                 configTable();
                 attachFilters();
                 addHeaderQtips();
-                activateUpdateQueryBtns(table_id + orAnalysis.postfix.datatable_update_query_button);
-                //event_listener_details_btn();
 
                 //initially hiding all the mrna data tables
                 if (_profile_type === orAnalysis.profile_type.mrna) {

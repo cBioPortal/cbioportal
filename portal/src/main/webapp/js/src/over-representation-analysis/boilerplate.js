@@ -60,7 +60,8 @@ var orAnalysis = (function() {
             datatable_id: "_datatable_table",
             datatable_update_query_button: "_update_query_btn",
             datatable_gene_checkbox_class: "_gene_checkbox_class",
-            mrna_sub_tab_profile_selection_dropdown_menu: "_mrna_sub_tab_profile_selection_dropdown_menu"
+            mrna_sub_tab_profile_selection_dropdown_menu: "_mrna_sub_tab_profile_selection_dropdown_menu",
+            update_query_gene_list: "_update_query_gene_list"
         },
         profile_type: {
             mrna: "MRNA_EXPRESSION",

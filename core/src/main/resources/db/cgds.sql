@@ -700,8 +700,8 @@ CREATE TABLE `clinical_trials` (
 );
 
 CREATE TABLE `clinical_trial_keywords` (
-  `PROTOCOLID` char(50) NOT NULL,
-  `KEYWORD` varchar(256),
+  `PROTOCOLID` char(20) NOT NULL,
+  `KEYWORD` varchar(160),
   PRIMARY KEY (`PROTOCOLID`, `KEYWORD`),
   KEY(`KEYWORD`),
   FOREIGN KEY (`PROTOCOLID`) REFERENCES `clinical_trials` (`PROTOCOLID`)

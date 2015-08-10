@@ -1,8 +1,6 @@
 sudo: false
 language: java
 jdk: openjdk7
-addons:
-    mariadb: "5.5"
 
 cache:
     directories:

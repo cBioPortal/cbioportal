@@ -62,7 +62,7 @@ drop table IF EXISTS type_of_cancer;
 CREATE TABLE `type_of_cancer` (
   `TYPE_OF_CANCER_ID` varchar(63) NOT NULL,
   `NAME` varchar(255) NOT NULL,
-  `CLINICAL_TRIAL_KEYWORDS` varchar(1024) NOT NULL,
+  `` varchar(1024) NOT NULL,
   `DEDICATED_COLOR` char(31) NOT NULL,
   `SHORT_NAME` varchar(127),
   `PARENT` varchar(63),
@@ -700,8 +700,8 @@ CREATE TABLE `clinical_trials` (
 );
 
 CREATE TABLE `clinical_trial_keywords` (
-  `PROTOCOLID` char(50) NOT NULL,
-  `KEYWORD` varchar(256),
+  `PROTOCOLID` char(20) NOT NULL,
+  `KEYWORD` varchar(160),
   PRIMARY KEY (`PROTOCOLID`, `KEYWORD`),
   KEY(`KEYWORD`),
   FOREIGN KEY (`PROTOCOLID`) REFERENCES `clinical_trials` (`PROTOCOLID`)

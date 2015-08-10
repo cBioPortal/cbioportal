@@ -210,6 +210,9 @@ var orTable = function() {
                     }
                 }
             },
+            "fnDrawCallback": function() {
+                event_listener_details_btn();
+            },
             "bDeferRender": true,
             "iDisplayLength": 14
         });
@@ -549,7 +552,7 @@ var orTable = function() {
                 attachFilters();
                 addHeaderQtips();
                 activateUpdateQueryBtns(table_id + orAnalysis.postfix.datatable_update_query_button);
-                event_listener_details_btn();
+                //event_listener_details_btn();
 
                 //initially hiding all the mrna data tables
                 if (_profile_type === orAnalysis.profile_type.mrna) {

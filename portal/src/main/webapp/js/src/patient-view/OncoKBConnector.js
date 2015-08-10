@@ -28,35 +28,39 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 
-
-var OncoKBConnector = (function(){
+var OncoKBConnector = (function () {
     var oncokbUrl = '';
-    
+
     function init(data) {
         oncokbUrl = data.url || '';
     }
-    
+
     function oncokbAccess(callback) {
-        if(oncokbUrl && oncokbUrl !== 'null'){
-            $.get('api/proxy/oncokbAccess', function(){callback(true);})
-                .fail(function(){callback(false);});
-        }else {
+        if (oncokbUrl && oncokbUrl !== 'null') {
+            $.get('api/proxy/oncokbAccess', function () {
+                callback(true);
+            })
+                .fail(function () {
+                    callback(false);
+                });
+        } else {
             callback(false);
         }
     }
-    
+
     function getEvidence(variants, callback) {
         var mutationEventIds = variants.mutations.getEventIds(false),
             searchPairs = [],
             geneStr = "",
-            alterationStr="",
-            consequenceStr=""
+            alterationStr = "",
+            consequenceStr = ""
         var oncokbServiceData = {};
+        var oncokbSummaryData = {};
 
-        for(var i=0, mutationL = mutationEventIds.length; i < mutationL; i++) {
+        for (var i = 0, mutationL = mutationEventIds.length; i < mutationL; i++) {
             var datum = {},
                 gene = variants.mutations.getValue(mutationEventIds[i], 'gene'),
                 alteration = variants.mutations.getValue(mutationEventIds[i], 'aa'),
@@ -65,39 +69,52 @@ var OncoKBConnector = (function(){
             datum.alteration = alteration;
             datum.consequence = consequence;
             searchPairs.push(datum);
-            
-            geneStr+=gene+",";
-            alterationStr+=alteration+",";
-            consequenceStr+=consequence+",";
+
+            geneStr += gene + ",";
+            alterationStr += alteration + ",";
+            consequenceStr += consequence + ",";
         }
 
         oncokbServiceData = {
-            'hugoSymbol' : geneStr.substring(0, geneStr.length - 1),
+            'hugoSymbol': geneStr.substring(0, geneStr.length - 1),
             'alteration': alterationStr.substring(0, alterationStr.length - 1),
             'consequence': consequenceStr.substring(0, consequenceStr.length - 1)
         };
 
         //Read Global environment parameter
-        if(OncoKB.geneStatus && OncoKB.geneStatus != 'null') {
+        if (OncoKB.geneStatus && OncoKB.geneStatus != 'null') {
             oncokbServiceData.geneStatus = OncoKB.geneStatus;
         }
 
-        if(variants.tumorType) {
+        if (variants.tumorType) {
             oncokbServiceData.tumorType = variants.tumorType;
             oncokbServiceData.source = 'cbioportal';
         }
 
-        $.ajax({
-            type: 'POST',
-            url: 'api/proxy/oncokb',
-            data: oncokbServiceData,
-            crossDomain: true,
-            dataType: 'json',
-            success: function(evidenceList) {
+        oncokbSummaryData = $.extend({}, oncokbServiceData);
+        oncokbSummaryData.type = 'variant';
+
+        $.when(
+            $.ajax({
+                type: 'POST',
+                url: 'api/proxy/oncokb',
+                data: oncokbServiceData,
+                crossDomain: true,
+                dataType: 'json'
+            }),
+            $.ajax({
+                type: 'POST',
+                url: 'api/proxy/oncokbSummary',
+                data: oncokbSummaryData,
+                crossDomain: true,
+                dataType: 'json'
+            })
+        ).then(function (d1, d2) {
                 var evidenceCollection = [];
-                if(evidenceList.length === searchPairs.length) {
-                    searchPairs.forEach(function(searchPair, pairIndex) {
+                if (d1.length ===  d2.length === searchPairs.length) {
+                    searchPairs.forEach(function (searchPair, pairIndex) {
                         var datum = {
+                            'variantSummary': '',
                             'gene': {},
                             'alteration': [],
                             'prevalence': [],
@@ -106,48 +123,48 @@ var OncoKBConnector = (function(){
                             'trials': [],
                             'oncogenic': 0
                         };
-                        var evidenceL = evidenceList[pairIndex].length;
+                        var evidenceL = d1[pairIndex].length;
 
-                        for(var i=0; i<evidenceL; i++) {
+                        for (var i = 0; i < evidenceL; i++) {
                             var evidence = evidenceList[pairIndex][i];
-                            if(evidence.gene.hugoSymbol === searchPair.gene) {
-                                if(evidence.evidenceType === 'GENE_SUMMARY') {
+                            if (evidence.gene.hugoSymbol === searchPair.gene) {
+                                if (evidence.evidenceType === 'GENE_SUMMARY') {
                                     datum.gene.summary = findRegex(evidence.description);
-                                }else if(evidence.evidenceType === 'GENE_BACKGROUND') {
+                                } else if (evidence.evidenceType === 'GENE_BACKGROUND') {
                                     datum.gene.background = findRegex(evidence.description);
-                                }else if(evidence.evidenceType === 'MUTATION_EFFECT'){
-                                    for(var j=0, alterationL = evidence.alterations.length; j<alterationL; j++) {
+                                } else if (evidence.evidenceType === 'MUTATION_EFFECT') {
+                                    for (var j = 0, alterationL = evidence.alterations.length; j < alterationL; j++) {
                                         var alteration = evidence.alterations[j];
                                         //if(alteration.name === searchPair.alteration) {
-                                            if(alteration.hasOwnProperty('oncogenic')) {
-                                                if(datum.hasOwnProperty('oncogenic')  && [1, 2].indexOf(datum.oncogenic) === -1 ){
-                                                    datum.oncogenic = Number(alteration.oncogenic);
-                                                }
+                                        if (alteration.hasOwnProperty('oncogenic')) {
+                                            if (datum.hasOwnProperty('oncogenic') && [1, 2].indexOf(datum.oncogenic) === -1) {
+                                                datum.oncogenic = Number(alteration.oncogenic);
                                             }
+                                        }
                                         //}
                                     }
                                     datum.alteration.push({
                                         knownEffect: evidence.knownEffect,
                                         description: findRegex(evidence.description)
                                     });
-                                }else if(evidence.evidenceType === 'PREVALENCE') {
+                                } else if (evidence.evidenceType === 'PREVALENCE') {
                                     datum.prevalence.push({
                                         tumorType: evidence.tumorType.name,
                                         description: findRegex(evidence.description) || 'No yet curated'
                                     });
-                                }else if(evidence.evidenceType === 'PROGNOSTIC_IMPLICATION') {
+                                } else if (evidence.evidenceType === 'PROGNOSTIC_IMPLICATION') {
                                     datum.progImp.push({
                                         tumorType: evidence.tumorType.name,
                                         description: findRegex(evidence.description) || 'No yet curated'
                                     });
-                                }else if(evidence.evidenceType === 'CLINICAL_TRIAL') {
+                                } else if (evidence.evidenceType === 'CLINICAL_TRIAL') {
                                     datum.trials.push({
                                         tumorType: evidence.tumorType.name,
                                         list: evidence.clinicalTrials
                                     });
-                                }else if(evidence.levelOfEvidence) {
+                                } else if (evidence.levelOfEvidence) {
                                     //if evidence has level information, that means this is treatment evidence.
-                                    if(['LEVEL_0', 'LEVEL_R3'].indexOf(evidence.levelOfEvidence) === -1) {
+                                    if (['LEVEL_0', 'LEVEL_R3'].indexOf(evidence.levelOfEvidence) === -1) {
                                         var _treatment = {};
                                         _treatment.tumorType = evidence.tumorType.name;
                                         _treatment.level = evidence.levelOfEvidence;
@@ -157,51 +174,53 @@ var OncoKBConnector = (function(){
                                     }
                                 }
                             }
+
+                            if(d2[pairIndex]){
+                                datum.variantSummary = d2[pairIndex];
+                            }
                         }
                         evidenceCollection.push(datum);
                     });
 
                 }
                 callback(evidenceCollection);
-            },
-            error: function (responseData, textStatus, errorThrown) {
+            }, function () {
                 console.log('POST failed.');
                 callback([]);
-            }
-        });
+            });
     }
 
     function findRegex(str) {
 
-        if(typeof str === 'string' && str) {
+        if (typeof str === 'string' && str) {
             var regex = [/PMID:\s*([0-9]+,*\s*)+/ig, /NCT[0-9]+/ig],
                 links = ['http://www.ncbi.nlm.nih.gov/pubmed/',
-                         'http://clinicaltrials.gov/show/'];
+                    'http://clinicaltrials.gov/show/'];
             for (var j = 0, regexL = regex.length; j < regexL; j++) {
                 var result = str.match(regex[j]);
 
-                if(result) {
-                    var uniqueResult = result.filter(function(elem, pos) {
+                if (result) {
+                    var uniqueResult = result.filter(function (elem, pos) {
                         return result.indexOf(elem) === pos;
                     });
-                    for(var i = 0, resultL = uniqueResult.length; i < resultL; i++) {
+                    for (var i = 0, resultL = uniqueResult.length; i < resultL; i++) {
                         var _datum = uniqueResult[i];
 
-                        switch(j) {
+                        switch (j) {
                             case 0:
                                 var _number = _datum.split(':')[1].trim();
                                 _number = _number.replace(/\s+/g, '');
-                                str = str.replace(new RegExp(_datum, 'g'), '<a class="withUnderScore" target="_blank" href="'+ links[j] + _number+'">' + _datum + '</a>');
+                                str = str.replace(new RegExp(_datum, 'g'), '<a class="withUnderScore" target="_blank" href="' + links[j] + _number + '">' + _datum + '</a>');
                                 break;
                             default:
-                                str = str.replace(_datum, '<a class="withUnderScore" target="_blank" href="'+ links[j] + _datum+'">' + _datum + '</a>');
+                                str = str.replace(_datum, '<a class="withUnderScore" target="_blank" href="' + links[j] + _datum + '">' + _datum + '</a>');
                                 break;
                         }
 
                     }
                 }
             }
-        }else{
+        } else {
             str = ''
         }
         return str;
@@ -240,9 +259,9 @@ var OncoKBConnector = (function(){
             'Translation_Start_Site': ['start_lost'],
             'vIII deletion': ['any']
         };
-        if(matrix.hasOwnProperty(consequence)){
+        if (matrix.hasOwnProperty(consequence)) {
             return matrix[consequence].join('+');
-        }else{
+        } else {
             return 'any';
         }
     }
@@ -256,24 +275,24 @@ var OncoKBConnector = (function(){
     };
 })();
 
-$.fn.dataTableExt.oSort['oncokb-level-asc']  = function(x,y) {
-    var levels = ['4', '3', '2B','2A', '1', '0', 'R3', 'R2', 'R1'];
+$.fn.dataTableExt.oSort['oncokb-level-asc'] = function (x, y) {
+    var levels = ['4', '3', '2B', '2A', '1', '0', 'R3', 'R2', 'R1'];
     var xIndex = levels.indexOf(x);
     var yIndex = levels.indexOf(y);
-    if(xIndex < yIndex){
+    if (xIndex < yIndex) {
         return 1;
-    }else{
+    } else {
         return -1;
     }
 };
 
-$.fn.dataTableExt.oSort['oncokb-level-desc'] = function(x,y) {
-    var levels = ['4', '3', '2B','2A', '1', '0', 'R3', 'R2', 'R1'];
+$.fn.dataTableExt.oSort['oncokb-level-desc'] = function (x, y) {
+    var levels = ['4', '3', '2B', '2A', '1', '0', 'R3', 'R2', 'R1'];
     var xIndex = levels.indexOf(x);
     var yIndex = levels.indexOf(y);
-    if(xIndex < yIndex){
+    if (xIndex < yIndex) {
         return -1;
-    }else{
+    } else {
         return 1;
     }
 };

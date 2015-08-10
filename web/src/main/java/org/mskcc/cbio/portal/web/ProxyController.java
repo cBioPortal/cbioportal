@@ -83,6 +83,9 @@ public class ProxyController
       case "oncokb":
         URL = oncokbURL + "evidence.json";
         break;
+      case "oncokbSummary":
+        URL = oncokbURL + "summary.json";
+        break;
       default:
         URL = "";
         break;

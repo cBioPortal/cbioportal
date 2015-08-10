@@ -48,7 +48,7 @@ tcga_path_report.url=https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftp
 
 # various url's
 segfile.url=http://cbio.mskcc.org/cancergenomics/gdac-portal/seg/
-oncokb.url=https://cbioportal.mskcc.org/oncokb/
+oncokb.url=
 
 # igv bam linking
 igv.bam.linking=

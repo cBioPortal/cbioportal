@@ -36,14 +36,6 @@
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.ArrayList" %>
 
-<%
-   String examplesHtml = GlobalProperties.getProperty("examples_right_column");
-   if (examplesHtml == null) {
-	   examplesHtml = "../../../content/examples.html";
-   } else {
-	   examplesHtml = "../../../content/" + examplesHtml;
-   }
-%>
 
 
 <div id="right_side">
@@ -85,7 +77,7 @@ if (GlobalProperties.showRightNavDataSets()) {
 %>
 <% if (GlobalProperties.showRightNavExamples()) {%>
     <h3>Example Queries</h3>
-    <jsp:include page="<%= examplesHtml %>" flush="true" />
+    <jsp:include page="<%= GlobalProperties.getExamplesRightColumnHtml() %>" flush="true" />
 <% } %>
 
 <% if (GlobalProperties.showRightNavTestimonials()) {%>

@@ -156,6 +156,17 @@ public class GlobalProperties {
     // property for the custom header tabs
     public static final String SKIN_CUSTOM_HEADER_TABS="skin.custom_header_tabs";
 
+    // properties for the FAQ, about us, news and examples
+    public static final String SKIN_FAQ="skin.faq";
+    public static final String DEFAULT_SKIN_FAQ="content/faq.html";
+    public static final String SKIN_ABOUT="skin.about";
+    public static final String DEFAULT_SKIN_ABOUT="content/about_us.html";
+    public static final String SKIN_NEWS="skin.news";
+    public static final String DEFAULT_SKIN_NEWS="content/news.html";
+    public static final String SKIN_EXAMPLES_RIGHT_COLUMN="skin.examples_right_column";
+    public static final String DEFAULT_SKIN_EXAMPLES_RIGHT_COLUMN="../../../content/examples.html";
+
+
     private static Log LOG = LogFactory.getLog(GlobalProperties.class);
     private static Properties properties = initializeProperties();
 
@@ -219,7 +230,7 @@ public class GlobalProperties {
 
         return properties;
     }
-    
+
     public static String getPathwayCommonsUrl()
 	{
 		return properties.getProperty(PATHWAY_COMMONS_URL);
@@ -293,6 +304,32 @@ public class GlobalProperties {
         String skinBlurb = properties.getProperty(SKIN_BLURB);
         return (skinBlurb == null) ? DEFAULT_SKIN_BLURB : skinBlurb;
     }
+    // get custom FAQ html or the default
+    public static String getFaqHtml()
+    {
+        String faqHtml = properties.getProperty(SKIN_FAQ);
+        return (faqHtml == null) ? DEFAULT_SKIN_FAQ : "content/"+faqHtml;
+    }
+    // get custom About html or the default
+    public static String getAboutHtml()
+    {
+        String aboutHtml = properties.getProperty(SKIN_ABOUT);
+        return (aboutHtml == null) ? DEFAULT_SKIN_ABOUT : "content/"+aboutHtml;
+    }
+    // get custom News html or the default
+    public static String getNewsHtml()
+    {
+        String newsHtml = properties.getProperty(SKIN_NEWS);
+        return (newsHtml == null) ? DEFAULT_SKIN_NEWS : "content/"+newsHtml;
+    }
+    // get custom Example Queries for the right column html or the default
+    public static String getExamplesRightColumnHtml()
+    {
+        String examplesRightColumnHtml = properties.getProperty(SKIN_EXAMPLES_RIGHT_COLUMN);
+        return (examplesRightColumnHtml == null) ? DEFAULT_SKIN_EXAMPLES_RIGHT_COLUMN : "../../../content/"+examplesRightColumnHtml;
+    }
+
+
     // get the login contact html
     public static String getLoginContactHtml()
     {

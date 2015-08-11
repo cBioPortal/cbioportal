@@ -72,12 +72,17 @@ var orPlots = (function() {
             var _obj = result[gene][_sampleId];
             var _datum = {};
             if (!isNaN(_obj[profile_id])) {
+
                 if ($.inArray(_sampleId, window.PortalGlobals.getAlteredSampleIdArray()) !== -1) { //sample is altered
                     _datum.x_val = 0;
                 } else { //sample is unaltered
                     _datum.x_val = 1;
                 }
-                _datum.y_val = parseFloat(_obj[profile_id]);
+
+                //if rna seq data, apply log 10
+                if (profile_id.indexOf("rna_seq") !== -1 && _datum.y_val !== 0) _datum.y_val = Math.log(parseFloat(_obj[profile_id])) / Math.log(10);
+                else _datum.y_val = parseFloat(_obj[profile_id]);
+
                 _datum.case_id = _sampleId;
                 if ($.inArray(_sampleId, window.PortalGlobals.getAlteredSampleIdArray()) !== -1) { //sample is altered
 

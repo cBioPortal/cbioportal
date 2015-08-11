@@ -12,7 +12,9 @@ import org.codehaus.jackson.node.JsonNodeFactory;
 import org.codehaus.jackson.node.ObjectNode;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
+import org.mskcc.cbio.portal.dao.DaoGeneticProfile;
 import org.mskcc.cbio.portal.model.GeneticAlterationType;
+import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.mskcc.cbio.portal.stats.BenjaminiHochbergFDR;
 import org.mskcc.cbio.portal.stats.FisherExact;
 
@@ -49,7 +51,7 @@ public class ORAnalysisDiscretizedDataProxy {
     
     public ORAnalysisDiscretizedDataProxy(
             int cancerStudyId, 
-            int profileId, 
+            int profileId,
             String profileType, 
             List<Integer> alteredSampleIds, 
             List<Integer> unalteredSampleIds,
@@ -78,6 +80,17 @@ public class ORAnalysisDiscretizedDataProxy {
                     Map.Entry pair = (Map.Entry)it.next();
                     if (pair.getValue().equals("NA") || pair.getValue().equals("NaN")) {
                         it.remove();
+                    }
+                }
+
+                //if it's mrna rna seq data, apply log to original values (concern of doing t-test on normal distribution)
+                GeneticProfile gp = DaoGeneticProfile.getGeneticProfileById(profileId);
+                if (gp.getStableId().indexOf("rna_seq") != -1) {
+                    Iterator _it_log = singleGeneCaseValueMap.entrySet().iterator();
+                    while (_it_log.hasNext()) {
+                        Map.Entry _pair = (Map.Entry)_it_log.next();
+                        if (_pair.getValue().equals("0")) _it_log.remove();
+                        else _pair.setValue(Double.toString(Math.log(Double.parseDouble(_pair.getValue().toString())) / Math.log(10)));
                     }
                 }
 

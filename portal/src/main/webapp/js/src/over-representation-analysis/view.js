@@ -600,7 +600,12 @@ var orSubTabView = function() {
                     var or_data = new orData();
                     or_data.init(param, _table_id);
                     var or_table = new orTable();
-                    or_data.get(or_table.init, _div_id, _table_div, _table_id, _profile_obj.NAME, _profile_type, _profile_obj.STABLE_ID, _profile_list);
+                    if (_profile_obj.STABLE_ID.indexOf("rna_seq") !== -1) {
+                        or_data.get(or_table.init, _div_id, _table_div, _table_id, _profile_obj.NAME + " (log)", _profile_type, _profile_obj.STABLE_ID, _profile_list);
+                    } else {
+                        or_data.get(or_table.init, _div_id, _table_div, _table_id, _profile_obj.NAME, _profile_type, _profile_obj.STABLE_ID, _profile_list);
+                    }
+
                 }
             });
 

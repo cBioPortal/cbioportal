@@ -1,4 +1,4 @@
-/* v0.0.2-1-g5731505 */
+/* v0.0.2-11-gf84d34c */
 // vim: ts=2 sw=2
 (function () {
   d3.timeline = function() {
@@ -191,7 +191,7 @@
             ;
           }
 
-          g.selectAll("svg").data(data).enter()
+          var timePoints = g.selectAll("svg").data(data).enter()
             .append(getShape)
             .attr("x", getXPos)
             .attr("y", getStackPosition)
@@ -204,6 +204,9 @@
             .attr("height", getHeight)
             .style("fill", function(d, i){
               var dColorPropName;
+              if ("display" in d && d.display === "unfilled_circle") {
+                return "rgb(255, 255, 255)";
+              }
               if (d.color) return d.color;
               if( colorPropertyName ){
                 dColorPropName = d[colorPropertyName];
@@ -216,6 +219,13 @@
                   return colorCycle(datum.label);
               }
               return colorCycle(index);
+            })
+            .style("stroke", function(d, i) {
+              if (d.display === "unfilled_circle") {
+                if (d.color) return d.color;
+                if (hasLabel) return colorCycle(datum.label);
+                return colorCycle(index);
+              }
             })
             .on("mousemove", function (d, i) {
               hover(d, index, datum);
@@ -358,14 +368,14 @@
                 (parseInt(sortedTimes[i].starting_time) !== parseInt(sortedTimes[i].ending_time) &&
                  (parseInt(sortedTimes[i].starting_time) < parseInt(end)))
                 ) {
-                group.push(sortedTimes[i])
+                group.push(sortedTimes[i]);
                 if (parseInt(sortedTimes[i].ending_time) > end) {
                   end = parseInt(sortedTimes[i].ending_time);
                 }
             } else {
               if (group.length > 0) {
-                  groups.push(group)
-              };
+                  groups.push(group);
+              }
               group = [sortedTimes[i]];
               end = parseInt(sortedTimes[i].ending_time);
             }
@@ -381,6 +391,8 @@
             shape = d.display;
           } else if (d.display === "square") {
             shape = "rect";
+          } else if (d.display === "unfilled_circle") {
+            shape = "circle";
           } else {
             console.warn("d3Timeline Warning: unrecognized display attribute: " + d.display);
           }
@@ -393,7 +405,6 @@
       function getHeight(d, i) {
         return parseInt(d.size) || itemHeight;
       }
-
 
       function getWidth(d, i) {
         if ("display" in d && d.display === "square") {
@@ -646,7 +657,14 @@ window.clinicalTimeline = (function(){
       itemMargin = 8,
       divId = null,
       width = null,
-      postTimelineHooks = [];
+      postTimelineHooks = [],
+      enableTrackTooltips = true;
+
+  function getTrack(data, track) {
+    return data.filter(function(x) {
+      return x.label === track;
+    })[0];
+  }
 
   function timeline() {
     visibleData = allData.filter(function(x) {
@@ -684,24 +702,27 @@ window.clinicalTimeline = (function(){
           $(this).attr("height", parseInt($(this).attr("height")) - 2);
       });
     });
-    $(".timeline-label").each(function(i) {
-      if ($(this).prop("__data__")[i].split && !$(this).prop("__data__")[i].parent_track) {
-        addSplittedTrackTooltip($(this), allData);
-      } else {
-        addTrackTooltip($(this), allData);
-      }
-    });
-    svg.attr("height", parseInt(svg.attr("height")) + 15);
+    if (enableTrackTooltips) {
+      $(".timeline-label").each(function(i) {
+        if ($(this).prop("__data__")[i].split && !$(this).prop("__data__")[i].parent_track) {
+          addSplittedTrackTooltip($(this), allData);
+        } else {
+          addTrackTooltip($(this), allData);
+        }
+      });
+      // Add track button
+      svg.attr("height", parseInt(svg.attr("height")) + 15);
+      svg.insert("text")
+        .attr("transform", "translate(0,"+svg.attr("height")+")")
+        .attr("class", "timeline-label")
+        .text("Add track")
+        .attr("id", "addtrack");
+      addNewTrackTooltip($("#addtrack"));
+    }
     svg.insert("text")
       .attr("transform", "translate(0, 15)")
       .attr("class", "timeline-label")
       .text("Time since diagnosis");
-    svg.insert("text")
-      .attr("transform", "translate(0,"+svg.attr("height")+")")
-      .attr("class", "timeline-label")
-      .text("Add track")
-      .attr("id", "addtrack");
-    addNewTrackTooltip($("#addtrack"));
     d3.select(".axis").attr("transform", "translate(0,20)");
 
     // preserve whitespace for easy indentation of labels
@@ -771,7 +792,7 @@ window.clinicalTimeline = (function(){
         return {
           "starting_time":startingTime,
           "ending_time":startingTime,
-          "display":"circle",
+          "display":"unfilled_circle",
           "tooltip_tables": _.reduce(group.map(function(x) {
             return x.tooltip_tables;
           }), function(a, b) {
@@ -808,9 +829,7 @@ window.clinicalTimeline = (function(){
   }
 
   function getClinicalAttributes(data, track) {
-    return _.union.apply(_, data.filter(function(x) {
-        return x.label === track;
-      })[0].times.map(function(x) {
+    return _.union.apply(_, getTrack(data, track).times.map(function(x) {
           // return union of attributes in tooltip (in case there are multiple)
           return _.union.apply(_, x.tooltip_tables.map(function(y) {
             return y.map(function(z) {
@@ -822,7 +841,7 @@ window.clinicalTimeline = (function(){
   }
 
   function groupByClinicalAttribute(track, attr) {
-    return _.groupBy(allData.filter(function(x) {return x.label === track;})[0].times, function(x) {
+    return _.groupBy(getTrack(allData, track).times, function(x) {
       // return attribute value if there is one tooltip table
       if (x.tooltip_tables.length === 1) {
         return _.reduce(x.tooltip_tables[0], function(a,b) {
@@ -837,7 +856,7 @@ window.clinicalTimeline = (function(){
 
   function splitByClinicalAttribute(track, attr) {
     // split tooltip_tables into separate time points
-    splitTooltipTables(allData.filter(function(x) {return x.label === track;})[0]);
+    splitTooltipTables(getTrack(allData, track));
 
     var g = groupByClinicalAttribute(track, attr);
     var trackIndex = _.findIndex(allData, function(x) {
@@ -870,7 +889,7 @@ window.clinicalTimeline = (function(){
   }
 
   function sizeByClinicalAttribute(track, attr, minSize, maxSize) {
-    var arr = allData.filter(function(x) {return x.label === track;})[0].times.map(function(x) {
+    var arr = getTrack(allData, track).times.map(function(x) {
       if (x.tooltip_tables.length === 1) {
         return parseInt(x.tooltip_tables[0].filter(function(x) {
           return x[0] === attr;})[0][1]);
@@ -881,7 +900,7 @@ window.clinicalTimeline = (function(){
     var scale = d3.scale.linear()
       .domain([d3.min(arr), d3.max(arr)])
       .range([minSize, maxSize]);
-    allData.filter(function(x) {return x.label === track;})[0].times.forEach(function(x) {
+    getTrack(allData, track).times.forEach(function(x) {
       if (x.tooltip_tables.length === 1) {
         x.size = scale(parseInt(x.tooltip_tables[0].filter(function(x) {
           return x[0] === attr;})[0][1])) || itemHeight;
@@ -900,7 +919,7 @@ window.clinicalTimeline = (function(){
   }
 
   function clearColors(track) {
-    var times = allData.filter(function(x) {return x.label === track;})[0].times;
+    var times = getTrack(allData, track).times;
     for (var i=0; i < times.length; i++) {
       if ("color" in times[i]) {
         delete times[i].color;
@@ -989,28 +1008,20 @@ window.clinicalTimeline = (function(){
   };
 
   function toggleTrackVisibility(trackName) {
-    $.each(allData, function(i, x) {
-      if (x.label === trackName) {
-        x.visible = x.visible? false : true;
-      }
-     });
-     timeline();
+    var trackData = getTrack(allData, trackName);
+    trackData.visible = trackData.visible? false : true;
   }
 
   function toggleTrackCollapse(trackName) {
-    $.each(allData, function(i, x) {
-      if (x.label === trackName) {
-        if (x.collapse) {
-          x.collapse = false;
-          splitTooltipTables(x);
-        } else {
-          if (!isDurationTrack(x)) {
-            x.collapse = true;
-          }
-        }
+    var trackData = getTrack(allData, trackName);
+    if (trackData.collapse) {
+      trackData.collapse = false;
+      splitTooltipTables(trackData);
+    } else {
+      if (!isDurationTrack(trackData)) {
+        trackData.collapse = true;
       }
-     });
-     timeline();
+    }
   }
 
   function addNewTrackTooltip(elem) {
@@ -1126,11 +1137,13 @@ window.clinicalTimeline = (function(){
     function hideTrackClickHandler(trackName) {
        return function() {
          toggleTrackVisibility(trackName);
+         timeline();
        };
     }
     function collapseTrackClickHandler(trackName) {
       return function() {
         toggleTrackCollapse(trackName);
+        timeline();
       };
     }
     elem.qtip({
@@ -1146,7 +1159,7 @@ window.clinicalTimeline = (function(){
           $(trackTooltip).append(a);
           $(trackTooltip).append("<br />");
 
-          if (!isDurationTrack(allData.filter(function(x) {return x.label === elem.prop("innerHTML");})[0])) {
+          if (!isDurationTrack(getTrack(allData, elem.prop("innerHTML")))) {
             a = $.parseHTML("<a href='#' onClick='return false' class='hide-track'>Collapse/Stack</a>");
             $(a).on("click", collapseTrackClickHandler(elem.prop("innerHTML")));
             $(trackTooltip).append(a);
@@ -1247,6 +1260,15 @@ window.clinicalTimeline = (function(){
       return tickValues;
   }
 
+  timeline.enableTrackTooltips = function(b) {
+    if (!arguments.length) return enableTrackTooltips;
+
+    if (b === true || b === false) {
+      enableTrackTooltips = b;
+    }
+    return timeline;
+  };
+
   timeline.width = function (w) {
     if (!arguments.length) return width;
     width = w;
@@ -1288,7 +1310,7 @@ window.clinicalTimeline = (function(){
     var track;
     // append given label ordering
     for (var i = 0; i < labels.length; i++) {
-      track = allData.filter(function(x) { return x.label === labels[i]; })[0];
+      track = getTrack(allData, labels[i]);
       if (track) {
         data = data.concat(track);
       }
@@ -1299,6 +1321,67 @@ window.clinicalTimeline = (function(){
     }), 'label'));
 
     allData = data;
+    return timeline;
+  };
+
+  /*
+   * Split a track into multiple tracks based on the value of an
+   * attribute in the tooltip_tables.
+   */
+  timeline.splitByClinicalAttribute = function(track, attr) {
+    var trackData = getTrack(allData, track);
+    if (trackData) {
+      var attrData = trackData.times[0].tooltip_tables[0].filter(function(x) {
+        return x[0] === attr;
+      });
+      if (attrData.length === 1) {
+        splitByClinicalAttribute(track, attr);
+      }
+    }
+    return timeline;
+  };
+
+  /*
+   * Set the size of each timepoint in a track based on the value of an
+   * attribute in the tooltip_tables.
+   */
+  timeline.sizeByClinicalAttribute = function(track, attr) {
+    var trackData = getTrack(allData, track);
+    if (trackData) {
+      var attrData = trackData.times[0].tooltip_tables[0].filter(function(x) {
+        return x[0] === attr;
+      });
+      if (attrData.length === 1) {
+        sizeByClinicalAttribute(track, attr, 2, itemHeight+2);
+      }
+    }
+    return timeline;
+  };
+
+  /*
+   * Collapse or stack timepoints on given track
+   */
+  timeline.toggleTrackCollapse = function(track) {
+    var trackData = getTrack(allData, track);
+    if (trackData) {
+      toggleTrackCollapse(track);
+    }
+    return timeline;
+  };
+
+  /*
+   * Set the display attribute for all timepoints with one tooltip_table on a
+   * given track.
+   */
+  timeline.setTimepointsDisplay = function(track, display) {
+    var trackData = getTrack(allData, track);
+    if (trackData) {
+      trackData.times.forEach(function(x) {
+        if (x.tooltip_tables.length === 1) {
+          x.display = display;
+        }
+      });
+    }
     return timeline;
   };
 

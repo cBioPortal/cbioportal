@@ -124,7 +124,11 @@
                         .data(timeData)
                         .divId("#timeline")
                         .collapseAll()
+                        .toggleTrackCollapse("SPECIMEN")
+                        .setTimepointsDisplay("IMAGING", "square")
                         .orderTracks(["SPECIMEN", "SURGERY", "STATUS", "DIAGNOSTICS", "IMAGING", "TREATMENT"])
+                        .splitByClinicalAttribute("TREATMENT", "AGENT")
+                        .enableTrackTooltips(false)
                         .addPostTimelineHook(plotCaseLabelsInTimeline);
                 timeline();
                 $("#timeline-container").show();

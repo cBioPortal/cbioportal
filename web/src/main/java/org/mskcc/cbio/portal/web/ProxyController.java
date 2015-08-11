@@ -41,6 +41,7 @@ import org.springframework.beans.factory.annotation.*;
 
 import java.net.*;
 import javax.servlet.http.*;
+import java.util.Arrays;
 import java.util.Map;
 
 @Controller
@@ -70,6 +71,7 @@ public class ProxyController
   {
 
     RestTemplate restTemplate = new RestTemplate();
+    String[] parseJsonLink = {"oncokb", "oncokbSummary"};
     String URL = null;
 
     //Switch could be replaced by a filter function
@@ -99,7 +101,7 @@ public class ProxyController
     URI uri = new URI(URL);
 
     //For oncokb use, if request method is POST, use request body instead. Convert string request body to json string
-    if(method.equals(HttpMethod.POST) && path.equals("oncokb")) {
+    if(method.equals(HttpMethod.POST) && Arrays.asList(parseJsonLink).contains(path)) {
       JSONObject jsonObj = requestParamsToJSON(request);
       body = jsonObj.toJSONString();
     }

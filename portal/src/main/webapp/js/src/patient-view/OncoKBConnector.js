@@ -78,7 +78,8 @@ var OncoKBConnector = (function () {
         oncokbServiceData = {
             'hugoSymbol': geneStr.substring(0, geneStr.length - 1),
             'alteration': alterationStr.substring(0, alterationStr.length - 1),
-            'consequence': consequenceStr.substring(0, consequenceStr.length - 1)
+            'consequence': consequenceStr.substring(0, consequenceStr.length - 1),
+            'evidenceType': 'GENE_SUMMARY,GENE_BACKGROUND,MUTATION_EFFECT,STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_SENSITIVITY'
         };
 
         //Read Global environment parameter
@@ -111,7 +112,7 @@ var OncoKBConnector = (function () {
             })
         ).then(function (d1, d2) {
                 var evidenceCollection = [];
-                if (d1.length ===  d2.length === searchPairs.length) {
+                if (d1[0].length ===  d2[0].length && d2[0].length === searchPairs.length) {
                     searchPairs.forEach(function (searchPair, pairIndex) {
                         var datum = {
                             'variantSummary': '',
@@ -123,10 +124,10 @@ var OncoKBConnector = (function () {
                             'trials': [],
                             'oncogenic': 0
                         };
-                        var evidenceL = d1[pairIndex].length;
+                        var evidenceL = d1[0][pairIndex].length;
 
                         for (var i = 0; i < evidenceL; i++) {
-                            var evidence = evidenceList[pairIndex][i];
+                            var evidence = d1[0][pairIndex][i];
                             if (evidence.gene.hugoSymbol === searchPair.gene) {
                                 if (evidence.evidenceType === 'GENE_SUMMARY') {
                                     datum.gene.summary = findRegex(evidence.description);
@@ -175,8 +176,8 @@ var OncoKBConnector = (function () {
                                 }
                             }
 
-                            if(d2[pairIndex]){
-                                datum.variantSummary = d2[pairIndex];
+                            if(d2[0][pairIndex]){
+                                datum.variantSummary = d2[0][pairIndex];
                             }
                         }
                         evidenceCollection.push(datum);

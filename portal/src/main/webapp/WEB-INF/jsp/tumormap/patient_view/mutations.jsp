@@ -141,9 +141,13 @@
     };
     
     function getOncoKBEvidence(oTable, tableId) {
+        var tumorType = '';
+        if(Object.keys(clinicalDataMap).length > 0 && clinicalDataMap[Object.keys(clinicalDataMap)[0]].CANCER_TYPE){
+            tumorType = clinicalDataMap[Object.keys(clinicalDataMap)[0]].CANCER_TYPE;
+        }
         OncoKBConnector.getEvidence({
             mutations: genomicEventObs.mutations,
-            tumorType: clinicalDataMap[caseIds[0]].CANCER_TYPE || ''
+            tumorType: tumorType
         }, function(data) {
             if(data && data.length > 0) {
                 genomicEventObs.mutations.addData("oncokb", data);
@@ -783,6 +787,7 @@
                         "aTargets": [ mutTableIndices["drug"] ],
                         "sClass": "center-align-td",
                         "bSearchable": false,
+                        "bVisible": false,
                         "mDataProp": 
                             function(source,type,value) {
                             if (type==='set') {
@@ -810,6 +815,7 @@
                     {
                         "aTargets": [ mutTableIndices["ma"] ],
                         "sClass": "center-align-td",
+                        "bVisible": false,
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
                                 return;
@@ -941,7 +947,7 @@
                     _tip +=  '<b>Gene Summary</b><br/>' + gene.summary;
                 }
                 if(gene.background) {
-                    _tip += '<br/><div><span class="oncokb_moreInfo"><br/><a>More Info</a><i style="float:right">Powered by OncoKB(Beta)</i></span><br/><span class="oncokb_background" style="display:none"><b>Gene Background</b><br/>' + gene.background + '<br/><i style="float:right">Powered by OncoKB(Beta)</i></span></div>';
+                    _tip += '<br/><div><span class="oncokb_gene_moreInfo"><br/><a>More Info</a><i style="float:right">Powered by OncoKB(Beta)</i></span><br/><span class="oncokb_gene_background" style="display:none"><b>Gene Background</b><br/>' + gene.background + '<br/><i style="float:right">Powered by OncoKB(Beta)</i></span></div>';
                 }
                 if(_tip !== '') {
                     $(this).css('display', '');
@@ -963,13 +969,20 @@
 
                 if(genomicEventObs.mutations.getValue(hashId, 'oncokb').alteration.length >0) {
                     var _alterations = genomicEventObs.mutations.getValue(hashId, 'oncokb').alteration,
+                        _variantSummary = genomicEventObs.mutations.getValue(hashId, 'oncokb').variantSummary,
                         _tip = '';
-                    for(var i=0, altsL=_alterations.length; i<altsL; i++) {
-                        _tip += i!==0?'<br/>':'' + '<b>Mutation Effect: '+_alterations[i].knownEffect + '</b><br/>' + _alterations[i].description + '<br/>';
+                    _tip += _variantSummary + '<br/>';
+                    if(_alterations && _alterations.length > 0) {
+                        _tip += '<div><span class="oncokb_alt_moreInfo"><br/><a>More Info</a></span><br/><span class="oncokb_mutation_effect" style="display:none">';
+                        for(var i=0, altsL=_alterations.length; i<altsL; i++) {
+                            _tip += '<b>Mutation Effect: '+_alterations[i].knownEffect + '</b><br/>' + _alterations[i].description + '<br/>';
+                        }
+                        _tip += '</span></div>';
                     }
-                    if (genomicEventObs.mutations.getValue(hashId, 'oncokb').oncogenic){
-                        _tip += '<br/><span style="float:right"><i>Powered by OncoKB(Beta)</i></span><br/><br/><i>OncoKB is under development, please pardon errors and omissions. Please send feedback to <a href="mailto:oncokb@cbio.mskcc.org" title="Contact us">oncokb@cbio.mskcc.org</a></i>';
-                    }
+
+//                    if (genomicEventObs.mutations.getValue(hashId, 'oncokb').oncogenic){
+                        _tip += '<span style="float:right"><i>Powered by OncoKB(Beta)</i></span><br/><br/><i>OncoKB is under development, please pardon errors and omissions. Please send feedback to <a href="mailto:oncokb@cbio.mskcc.org" title="Contact us">oncokb@cbio.mskcc.org</a></i>';
+//                    }
 
                     if(_tip !== '') {
                         $(this).css('display', '');
@@ -1004,9 +1017,13 @@
         });
 
         $('.oncokb').hover(function(){
-            $(".oncokb_moreInfo").click(function() {
+            $(".oncokb_gene_moreInfo").click(function() {
                 $(this).css('display', 'none');
-                $(this).parent().find('.oncokb_background').css('display', 'block');
+                $(this).parent().find('.oncokb_gene_background').css('display', 'block');
+            });
+            $(".oncokb_alt_moreInfo").click(function() {
+                $(this).css('display', 'none');
+                $(this).parent().find('.oncokb_mutation_effect').css('display', 'block');
             });
         });
 

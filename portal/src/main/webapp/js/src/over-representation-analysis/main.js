@@ -305,7 +305,14 @@ var or_tab = (function() {
                     }
                 }
             }
-            init_ajax();
+
+            if ((alteredCaseList.length === 1 && alteredCaseList[0] === "") || alteredCaseList.length === 0) {
+                $("#or_analysis").append("No alteration in selected samples, therefore could not perform this calculation.");
+            } else if ((unalteredCaseList.length === 1 && unalteredCaseList[0] === "") || unalteredCaseList.length === 0) {
+                $("#or_analysis").append("No non-alteration in selected samples, therefore could not perform this calculation.");
+            } else {
+                init_ajax();
+            }
 
         },
         getAlteredCaseList: function() {

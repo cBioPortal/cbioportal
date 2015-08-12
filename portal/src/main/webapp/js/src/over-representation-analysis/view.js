@@ -495,7 +495,7 @@ var orTable = function() {
     }
     
     return {
-        init: function(_input_data, _div_id, _table_div, _table_id, _table_title, _profile_type, _profile_id, _profile_list) {
+        init: function(_input_data, _div_id, _table_div, _table_id, _table_title, _profile_type, _profile_id, _last_profile) {
             
             if (Object.keys(_input_data).length !== 0 &&
                 Object.keys(_input_data)[0] !== orAnalysis.texts.null_result &&
@@ -547,6 +547,10 @@ var orTable = function() {
 
             } else {
                 $("#" + _table_div).remove();
+                if (_last_profile) {
+                    $("#" + _div_id).empty();
+                    $("#" + _div_id).append("No result available.");
+                }
             }
 
         }
@@ -605,15 +609,23 @@ var orSubTabView = function() {
                     var _table_id = _profile_obj.STABLE_ID + orAnalysis.postfix.datatable_id;
                     $("#" + _div_id).append("<div id='" + _table_div + "' style='width: 1200px; display:inline-block; padding: 10px;'></div>");
 
+                    //if this is the last profile
+                    var last_profile = false;
+                    if (_index + 1 === _profile_list.length) { //if it's last table, the instance would also in charge of clear the loading img and put an error msg
+                        last_profile = true;
+                    } else {
+                        last_profile = false;
+                    }
+
                     //init and get calculation result from the server
                     var param = new orAjaxParam(or_tab.getAlteredCaseList(), or_tab.getUnalteredCaseList(), _profile_obj.STABLE_ID, _gene_set);
                     var or_data = new orData();
                     or_data.init(param, _table_id);
                     var or_table = new orTable();
                     if (_profile_obj.STABLE_ID.indexOf("rna_seq") !== -1) {
-                        or_data.get(or_table.init, _div_id, _table_div, _table_id, _profile_obj.NAME + orAnalysis.postfix.title_log, _profile_type, _profile_obj.STABLE_ID, _profile_list);
+                        or_data.get(or_table.init, _div_id, _table_div, _table_id, _profile_obj.NAME + orAnalysis.postfix.title_log, _profile_type, _profile_obj.STABLE_ID, last_profile);
                     } else {
-                        or_data.get(or_table.init, _div_id, _table_div, _table_id, _profile_obj.NAME, _profile_type, _profile_obj.STABLE_ID, _profile_list);
+                        or_data.get(or_table.init, _div_id, _table_div, _table_id, _profile_obj.NAME, _profile_type, _profile_obj.STABLE_ID, last_profile);
                     }
 
                     //hide mrna tables initially
@@ -622,6 +634,7 @@ var orSubTabView = function() {
                     }
 
                 }
+
             });
 
             //show mrna table that's being selected

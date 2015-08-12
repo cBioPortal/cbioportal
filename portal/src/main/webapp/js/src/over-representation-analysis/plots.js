@@ -80,7 +80,7 @@ var orPlots = (function() {
                 }
 
                 //if rna seq data, apply log 10
-                if (profile_id.indexOf("rna_seq") !== -1 && _datum.y_val !== 0) _datum.y_val = Math.log(parseFloat(_obj[profile_id])) / Math.log(10);
+                if (profile_id.indexOf("rna_seq") !== -1 && _datum.y_val !== 0) _datum.y_val = Math.log(parseFloat(_obj[profile_id]) + 1.0) / Math.log(2);
                 else _datum.y_val = parseFloat(_obj[profile_id]);
 
                 _datum.case_id = _sampleId;
@@ -129,6 +129,10 @@ var orPlots = (function() {
                 dotsArr.push(_datum);
             }
         });
+        $.each(dotsArr, function(_index, obj) {
+            console.log(obj.y_val);
+        });
+
         generate_plots();
     };
 

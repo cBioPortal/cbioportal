@@ -89,8 +89,7 @@ public class ORAnalysisDiscretizedDataProxy {
                     Iterator _it_log = singleGeneCaseValueMap.entrySet().iterator();
                     while (_it_log.hasNext()) {
                         Map.Entry _pair = (Map.Entry)_it_log.next();
-                        if (_pair.getValue().equals("0")) _it_log.remove();
-                        else _pair.setValue(Double.toString(Math.log(Double.parseDouble(_pair.getValue().toString())) / Math.log(10)));
+                        _pair.setValue(Double.toString(Math.log(Double.parseDouble(_pair.getValue().toString()) + 1) / Math.log(10)));
                     }
                 }
 

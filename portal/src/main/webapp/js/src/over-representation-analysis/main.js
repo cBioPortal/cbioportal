@@ -128,17 +128,8 @@ var or_tab = (function() {
 
         //filter out profiles without data
         var orSubTabMrnaExp = new orSubTabView();
-        orSubTabMrnaExp.valid(_profile_list, "cancer_genes");
-        var valid_profile_list = orSubTabMrnaExp.profile_list();
-
-        var tmp = setInterval(function () { timer(); }, 1000);
-        function timer() {
-            if (valid_profile_list.length !== 0) {
-                clearInterval(tmp);
-                orSubTabMrnaExp.init(orAnalysis.ids.sub_tab_mrna_exp, valid_profile_list, orAnalysis.profile_type.mrna, "cancer_genes");
-                //orSubTabMrnaExp.init(orAnalysis.ids.sub_tab_mrna_exp, valid_profile_list, orAnalysis.profile_type.mrna, gene_set);
-            }
-        }
+        orSubTabMrnaExp.valid(orSubTabMrnaExp.init, _profile_list, "cancer_genes", orAnalysis.ids.sub_tab_mrna_exp,orAnalysis.profile_type.mrna);
+        //orSubTabMrnaExp.init(orAnalysis.ids.sub_tab_mrna_exp, valid_profile_list, orAnalysis.profile_type.mrna, gene_set);
 
     };
 

@@ -1223,7 +1223,7 @@
     function createOncoKBColumnCell(target, prevalence, progImp, treatments, trials) {
         var svg = d3.select($(target)[0])
                 .append("svg")
-                .attr("width", 80)
+                .attr("width", 20)
                 .attr("height", 20);
         var qtipContext = '', i;
 

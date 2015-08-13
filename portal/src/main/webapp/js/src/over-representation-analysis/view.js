@@ -546,10 +546,15 @@ var orTable = function() {
                 }
 
             } else {
-                $("#" + _table_div).remove();
-                if (_last_profile) {
-                    $("#" + _div_id).empty();
-                    $("#" + _div_id).append("No result available.");
+                if (_profile_type === orAnalysis.profile_type.mrna) {
+                    $("#" + _table_div).empty();
+                    $("#" + _table_div).append("No data/result available");
+                } else {
+                    $("#" + _table_div).remove();
+                    if (_last_profile) {
+                        $("#" + _div_id).empty();
+                        $("#" + _div_id).append("No result available.");
+                    }
                 }
             }
 

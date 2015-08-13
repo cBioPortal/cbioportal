@@ -110,7 +110,7 @@ var StudyViewProxy = (function() {
                 selected_cancer_type: parObject.studyId
             },
             cnaData: {
-                sample_id: sampleIdStr,
+                //sample_id: sampleIdStr,
                 cna_profile: parObject.cnaProfileId,
                 cbio_genes_filter: true
             }
@@ -389,10 +389,10 @@ var StudyViewProxy = (function() {
                         deferred.resolve(obtainDataObject.cna);
                     }, function(status){
                         obtainDataObject.cna = '';
-                        deferred.resolve({});
+                        deferred.reject(null);
                     });
             }else{
-                deferred.resolve({});
+                deferred.reject(null);
             }
         }
         return deferred.promise();
@@ -411,10 +411,10 @@ var StudyViewProxy = (function() {
                         deferred.resolve(obtainDataObject.mutatedGenes);
                     }, function(status){
                         obtainDataObject.mutatedGenes = '';
-                        deferred.resolve([]);
+                        deferred.reject(null);
                     });
             }else{
-                deferred.resolve([]);
+                deferred.reject(null);
             }
         }
         return deferred.promise();

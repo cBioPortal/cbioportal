@@ -671,8 +671,8 @@ var StudyViewInitCharts = (function(){
         var _selectedCases = getSelectedCases().map(function(e){
             return e.CASE_ID;
         });
-        
-        StudyViewInitTables.redraw({
+
+        var redrawService = {
             selectedCases: _selectedCases,
             exceptionIds: exceptionIds,
             webService: {
@@ -695,7 +695,14 @@ var StudyViewInitCharts = (function(){
                     }
                 }
             }
-        });
+        };
+
+        if(numOfCases === _selectedCases.length) {
+            delete redrawService.webService.mutatedGenes.data.case_list;
+            delete redrawService.webService.cna.data.sample_id;
+        }
+
+        StudyViewInitTables.redraw(redrawService);
     }
     
     function redrawSpecialPlots(_casesInfo, _selectedAttr){

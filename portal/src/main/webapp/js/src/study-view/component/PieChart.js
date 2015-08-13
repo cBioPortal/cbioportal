@@ -93,10 +93,9 @@ var PieChart = function(){
         _filters = pieChart.filters();
 
         $('#' + DIV.labelTableID+'-0').find('tr').each(function(index, value) {
-            if(_filters.indexOf($($($(value).find('td')[0])).find('span').text()) !== -1) {
-                $(value).find('td').each(function (index1, value1) {
-                    $(value1).addClass('highlightRow');
-                });
+            if(_filters.indexOf($(value).find('td:nth-child(1)').find('span span').text()) !== -1) {
+                $(value).find('td').addClass('highlightRow');
+                $(value).find('td:nth-child(1) input:checkbox').attr('checked', true);
             }
         });
 

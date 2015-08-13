@@ -597,9 +597,9 @@ var orSubTabView = function() {
                     var selected_profile_id = $( "#" + _div_id + orAnalysis.postfix.mrna_sub_tab_profile_selection_dropdown_menu).val();
                     $.each(_profile_list, function(_index, _profile_obj) {
                         if (_profile_obj.STABLE_ID !== selected_profile_id) {
-                            $("#" + _profile_obj.STABLE_ID + orAnalysis.postfix.datatable_div).hide();
+                            $("#" + _profile_obj.STABLE_ID.replace(/\./g, "_") + orAnalysis.postfix.datatable_div).hide();
                         } else {
-                            $("#" + _profile_obj.STABLE_ID + orAnalysis.postfix.datatable_div).show();
+                            $("#" + _profile_obj.STABLE_ID.replace(/\./g, "_") + orAnalysis.postfix.datatable_div).show();
                         }
                     });
                 });
@@ -608,10 +608,10 @@ var orSubTabView = function() {
             }
 
             $.each(_profile_list, function(_index, _profile_obj) {
-                var element = $("." + _profile_obj.STABLE_ID + orAnalysis.postfix.datatable_class); //avoid duplicated initiation
+                var element = $("." + _profile_obj.STABLE_ID.replace(/\./g, "_") + orAnalysis.postfix.datatable_class); //avoid duplicated initiation
                 if (element.length === 0) {
-                    var _table_div = _profile_obj.STABLE_ID + orAnalysis.postfix.datatable_div;
-                    var _table_id = _profile_obj.STABLE_ID + orAnalysis.postfix.datatable_id;
+                    var _table_div = _profile_obj.STABLE_ID.replace(/\./g, "_") + orAnalysis.postfix.datatable_div;
+                    var _table_id = _profile_obj.STABLE_ID.replace(/\./g, "_") + orAnalysis.postfix.datatable_id;
                     $("#" + _div_id).append("<div id='" + _table_div + "' style='width: 1200px; display:inline-block; padding: 10px;'></div>");
 
                     //if this is the last profile
@@ -628,14 +628,14 @@ var orSubTabView = function() {
                     or_data.init(param, _table_id);
                     var or_table = new orTable();
                     if (_profile_obj.STABLE_ID.indexOf("rna_seq") !== -1) {
-                        or_data.get(or_table.init, _div_id, _table_div, _table_id, _profile_obj.NAME + orAnalysis.postfix.title_log, _profile_type, _profile_obj.STABLE_ID, last_profile);
+                        or_data.get(or_table.init, _div_id, _table_div, _table_id, _profile_obj.NAME + orAnalysis.postfix.title_log, _profile_type, _profile_obj.STABLE_ID.replace(/\./g, "_"), last_profile);
                     } else {
-                        or_data.get(or_table.init, _div_id, _table_div, _table_id, _profile_obj.NAME, _profile_type, _profile_obj.STABLE_ID, last_profile);
+                        or_data.get(or_table.init, _div_id, _table_div, _table_id, _profile_obj.NAME, _profile_type, _profile_obj.STABLE_ID.replace(/\./g, "_"), last_profile);
                     }
 
                     //hide mrna tables initially
                     if (_profile_type === orAnalysis.profile_type.mrna) {
-                        $("#" + _profile_obj.STABLE_ID + orAnalysis.postfix.datatable_div).hide();
+                        $("#" + _profile_obj.STABLE_ID.replace(/\./g, "_") + orAnalysis.postfix.datatable_div).hide();
                     }
 
                 }
@@ -646,7 +646,7 @@ var orSubTabView = function() {
             if (_profile_type === orAnalysis.profile_type.mrna) {
                 var tmp = setInterval(function () { timer(); }, 1000);
                 function timer() {
-                    var _target_table_div = $("#" + _div_id + orAnalysis.postfix.mrna_sub_tab_profile_selection_dropdown_menu).val() + orAnalysis.postfix.datatable_div;
+                    var _target_table_div = $("#" + _div_id + orAnalysis.postfix.mrna_sub_tab_profile_selection_dropdown_menu).val().replace(/\./g, "_") + orAnalysis.postfix.datatable_div;
                     if (!$( "#" + _target_table_div).is(":empty")) {
                         clearInterval(tmp);
                         $("#" + _div_id + "_table_loading_img").empty();

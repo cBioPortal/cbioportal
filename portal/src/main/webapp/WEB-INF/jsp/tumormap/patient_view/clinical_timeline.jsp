@@ -114,9 +114,42 @@
             params,
             function(data){
                 if (cbio.util.getObjectLength(data)===0) return;
-                
+
                 var timeData = clinicalTimelineParser(data);
                 if (timeData.length===0) return;
+
+                // add DECEASED point to STATUS track
+                if ("CAISIS_OS_STATUS" in patientInfo &&
+                    patientInfo["CAISIS_OS_STATUS"] === "DECEASED" &&
+                    "CAISIS_OS_MONTHS" in patientInfo) {
+                    var days = parseInt(parseInt(patientInfo["CAISIS_OS_MONTHS"])*30.4);
+                    console.log(days);
+                    var timePoint = {
+                        "starting_time":days,
+                        "ending_time":days,
+                        "display":"circle",
+                        "color": "#000",
+                        "tooltip_tables":[
+                            [
+                                ["START_DATE", days],
+                                ["STATUS", "DECEASED"]
+                            ]
+                        ]
+                    }
+
+                    var trackData = timeData.filter(function(x) {
+                       return x.label === "STATUS";
+                    })[0];
+
+                    if (trackData) {
+                        trackData.times = trackData.times.concat(timePoint);
+                    } else {
+                        timeData = timeData.concat({
+                            "label":"STATUS",
+                            "times":[timePoint]
+                        });
+                    }
+                }
 
                 var width = $("#td-content").width() - 75;
                 var timeline = clinicalTimeline

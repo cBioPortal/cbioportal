@@ -65,7 +65,8 @@ var StudyViewInitTables = (function() {
                             displayName: '# Mut'
                         },{
                             name: 'samples',
-                            displayName: '#'
+                            displayName: '#',
+                            qtip: 'Number of samples'
                         },{
                             name: 'sampleRate',
                             displayName: 'Freq'
@@ -104,7 +105,8 @@ var StudyViewInitTables = (function() {
                             displayName: 'CNA'
                         },{
                             name: 'samples',
-                            displayName: '#'
+                            displayName: '#',
+                            qtip: 'Number of samples'
                         },{
                             name: 'altrateInSample',
                             displayName: 'Freq'

@@ -118,14 +118,19 @@ var Table = function() {
     }
 
     function datumIsSelected(selected, datum) {
+        var contain = false;
         for(var i = 0; i < selected.length; i ++){
+            var allSame = true;
             for(var key in selected[i]) {
                 if(datum[key] !== selected[i][key]) {
-                    return false;
+                    allSame = false;
                 }
             }
+            if(allSame) {
+                contain = true;
+            }
         }
-        return true;
+        return contain;
     }
 
     function initTable(data) {
@@ -156,7 +161,11 @@ var Table = function() {
         
         //Append table header
         for(i=0; i< attrL; i++){
-            tableHeaderStr += '<th style=" white-space: nowrap;">'+ attr[i].displayName||'Unknown' +'</th>';
+            tableHeaderStr += '<th style=" white-space: nowrap;" ';
+            if(attr[i].hasOwnProperty('qtip')) {
+                tableHeaderStr += ' class="hasQtip" qtip="' + attr[i].qtip + '"';
+            }
+            tableHeaderStr += '>'+ attr[i].displayName||'Unknown' +'</th>';
         }
         tableHeader.append(tableHeaderStr);
         
@@ -327,7 +336,7 @@ var Table = function() {
             });
               
             dataTableOpts.fnDrawCallback = function() {
-                $('#'+ divs.tableId).find('span.hasQtip').each(function(e, i) {
+                $('#'+ divs.tableId).find('.hasQtip').each(function(e, i) {
                     $(this).qtip('destroy', true);
                     qtip(this, $(this).attr('qtip'));
                 });
@@ -336,7 +345,6 @@ var Table = function() {
                     if($(this).hasClass('highlightRow')){
                         $(this).find('td').addClass('highlightRow');
                         $(this).find('td:nth-child(1) input:checkbox').attr('checked', true);
-                        $(this).removeClass('highlightRow');
                     }
                 });
                 
@@ -390,14 +398,14 @@ var Table = function() {
                 $('#' + divs.tableId + ' tbody').find('.highlightRow').removeClass('highlightRow');
                 $('#' + divs.tableId + ' tbody').find('input:checkbox').attr('checked', false);
                 if(!_isClicked) {
-                    $(this).parent().toggleClass('highlightRow');
                     $(this).siblings().addBack().toggleClass('highlightRow');
+                    $(this).parent().toggleClass('highlightRow');
                     $(this).parent().find('input:checkbox').attr('checked', true);
                 }
             }else{
+                $(this).siblings().addBack().toggleClass('highlightRow');
                 $(this).parent().toggleClass('highlightRow');
                 $(this).parent().find('input:checkbox').attr('checked', true);
-                $(this).siblings().addBack().toggleClass('highlightRow');
             }
             clickFunc();
         });
@@ -406,8 +414,8 @@ var Table = function() {
     function checkboxClick() {
         $('#' + divs.tableId + ' table tbody tr td:nth-child(1) input:checkbox').unbind('change');
         $('#' + divs.tableId + ' table tbody tr td:nth-child(1) input:checkbox').change(function () {
-            $(this).parent().parent().toggleClass('highlightRow');
             $(this).parent().siblings().addBack().toggleClass('highlightRow');
+            $(this).parent().parent().toggleClass('highlightRow');
             clickFunc();
         });
     }

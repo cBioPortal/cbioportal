@@ -119,10 +119,10 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 					case "REACTS_WITH": return "#7B7EF7"; break;
 					case "DRUG_TARGET": return "#E6A90F"; break;
 					case "STATE_CHANGE": return "#67C1A9"; break;
+					case "MERGED": return "#646464"; break;
 					default: return "#A583AB"; break;
 				}
 			},
-			'merged': false,
 			"target-arrow-shape": function(ele){
 				switch (ele._private.data['type']){
 					case "STATE_CHANGE": return "triangle"; break;
@@ -141,6 +141,7 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 			},
 			'opacity': 0.8,
 			'curve-style': 'bezier',
+			'control-point-step-size': 10,
 		//	"haystack-radius":"0",
 			'width': 2
 		})
@@ -199,6 +200,7 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 					});
 				}
 			});
+
 			cy.on('mouseout', 'node', function(evt){
 				this._private.style['show-total-alteration'] = false;
 				if (this.selected() === false) {
@@ -212,6 +214,7 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 					});
 				}
 			});
+
 			var tapped = false;
 			var edge = false;
 			cy.on('tap', 'node', function(evt){
@@ -249,6 +252,24 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 					entered = false;
 				}
 			});
+
+			cy.on('unselect', 'node', function(event)
+			{
+				var tmpNode = event.cyTarget;
+
+				tmpNode.css('show-details', 'false');
+				tmpNode.css('show-details-selected', 'false');
+				tmpNode.css('opacity', tmpNode._private.style['main-opacity'].value);
+
+				if (tmpNode.selected() && tmpNode._private.selectable === false)
+				{
+					tmpNode._private.selectable = true;
+					tmpNode.unselect();
+					tmpNode._private.selectable = false;
+				}
+
+			});
+
 			cy.on('tap', 'node', function(evt){
 				tapped = false;
 				if (!this.isParent()) {
@@ -277,7 +298,7 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 				}
 			});
 			cy.boxSelectionEnabled( true );
-			cy.userZoomingEnabled(false);
+			cy.userZoomingEnabled(true);
 
 
 			//to hide drugs initially

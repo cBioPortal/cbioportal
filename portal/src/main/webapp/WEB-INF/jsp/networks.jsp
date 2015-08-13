@@ -142,9 +142,18 @@
                         var json = gml2jsonConverter.toJSON();
                         send2cytoscapeweb(json, "cytoscapeweb", "network");
 
-                        //TODO Reimplement those functions to show debug message !
-                        //showXDebug(json);
-                        //showNetworkMessage(json, "#network #netmsg");
+                        if (typeof graphml !== "string")
+                        {
+                          if (window.ActiveXObject) { // IE
+                                  graphml = (new XMLSerializer()).serializeToString(graphml);
+                          } else { // Other browsers
+                                  graphml = (new XMLSerializer()).serializeToString(graphml);
+                          } 
+                        }
+
+                        //show debug message !
+                        showXDebug(graphml);
+                        showNetworkMessage(graphml, "#network #netmsg");
                     });
             }
 

@@ -147,8 +147,8 @@ function NetworkVis(divId)
 
     this.isEdgeClicked = false;
 
-    this.mergingEdges = [];      // Created to implement merge edge functionality.
-    this.mergedEdges = {};       // Created to implement merge edge functionality.
+    this.metaEdges = [];
+    this.edgesToBeMerged = [];
 
     //CSS styles for higlight operation
     this.notHighlightNodeCSS = {'border-opacity': 0.3, 'text-opacity' : 0.3, 'background-opacity': 0.3};
@@ -225,58 +225,87 @@ NetworkVis.prototype.initNetworkUI = function(vis)
     this._createMergingEdges();
     this._toggleMerge();
     $(".layout-properties").css("width", "85px");
+
+    //Make interactions merged initially
+    this._toggleMerge();
 };
-NetworkVis.prototype._createMergingEdges = function(){
+
+NetworkVis.prototype._createMergingEdges = function()
+{
     var edges = this._vis.edges();
     var tempEdges = {};
     var names = [];
-    for (var i = 0; i < edges.length; i++){
-      if (tempEdges['source:' + edges[i]._private.data.target + ';target:' + edges[i]._private.data.source] != undefined){
+
+    //Meta edges
+    var mergingEdges = [];
+
+    //Edges that will be merged
+    var mergedEdges = {};
+
+    for (var i = 0; i < edges.length; i++)
+    {
+      if (tempEdges['source:' + edges[i]._private.data.target + ';target:' + edges[i]._private.data.source] != undefined)
+      {
         tempEdges['source:' + edges[i]._private.data.target + ';target:' + edges[i]._private.data.source].push(edges[i]);
       }
-      else{
-        if (tempEdges['source:' + edges[i]._private.data.source + ';target:' + edges[i]._private.data.target] == undefined){
+      else
+      {
+        if (tempEdges['source:' + edges[i]._private.data.source + ';target:' + edges[i]._private.data.target] == undefined)
+        {
           tempEdges['source:' + edges[i]._private.data.source + ';target:' + edges[i]._private.data.target] = [];
         }
         tempEdges['source:' + edges[i]._private.data.source + ';target:' + edges[i]._private.data.target].push(edges[i]);
       }
 
     }
-    for (var k in tempEdges) names.push(k);
-    for (var i = 0; i < names.length; i++){
-      if (tempEdges[names[i]].length > 1){
+
+    for (var k in tempEdges)
+      names.push(k);
+
+    for (var i = 0; i < names.length; i++)
+    {
+      if (tempEdges[names[i]].length > 1)
+      {
         var src = tempEdges[names[i]][0]._private.data.source;
         var trgt= tempEdges[names[i]][0]._private.data.target;
-        var metaEdge = {
+        var metaEdge =
+        {
           group: 'edges',
-          data: {
+          data:
+          {
             id: "e" + src + "" + trgt,
             source: src,
-            target: trgt
-          }
+            target: trgt,
+            mergeStatus: 'merged', //Mark meta edges like that !
+            INTERACTION_PUBMED_ID: 'NA',
+            type: 'MERGED'
+          },
+
         }
-        if (this._vis.$("#" + "e" + src + "" + trgt).length == 0 && this._vis.$("#" + "e" + trgt + "" + src).length == 0){
-          this._vis.add([metaEdge]);
-          this._vis.$("#" + metaEdge.data.id)[0].css('visibility', 'hidden');
-          this._vis.$("#" + metaEdge.data.id)[0]._private.selectable = false;
-          this._vis.$("#" + metaEdge.data.id)[0]._private.data["INTERACTION_PUBMED_ID"] = "NA";
-          this._vis.$("#" + metaEdge.data.id)[0].css('merged', 'true');
-          this._vis.$("#" + metaEdge.data.id)[0].css('curve-style', 'haystack');
-          this._vis.$("#" + metaEdge.data.id)[0].css('line-color', 'rgba(100,100,100, 0.8)');
-          this._vis.$("#" + metaEdge.data.id)[0].css('haystack-radius', '0');
 
-          this.mergingEdges.push(metaEdge);
+        mergingEdges.push(metaEdge);
 
-          for (var j = 0; j < tempEdges[names[i]].length; j++){
-            if (this.mergedEdges[names[i]] == undefined){
-              this.mergedEdges[names[i]] = [];
-            }
-            this.mergedEdges[names[i]].push(tempEdges[names[i]][j]);
+        for (var j = 0; j < tempEdges[names[i]].length; j++)
+        {
+          if (mergedEdges[names[i]] == undefined)
+          {
+            mergedEdges[names[i]] = [];
           }
+          mergedEdges[names[i]].push(tempEdges[names[i]][j]);
+          //Mark edges to be merged like that !
+          tempEdges[names[i]][j]._private.data['mergeStatus'] = 'toBeMerged';
         }
       }
     }
+
+    // Initially map the edges to be merged and meta edges, so that we can use eles.restore()
+    // functionality of cytoscape.js
+    this._vis.add(mergingEdges);
+    this.metaEdges = this._vis.remove("[mergeStatus='merged']");
+    this.edgesToBeMerged = this._vis.edges("[mergeStatus='toBeMerged']");
 }
+
+
 /**
  * Hides all dialogs upon selecting a tab other than the network tab.
  */
@@ -603,7 +632,7 @@ NetworkVis.prototype.addInteractionInfo = function(evt, selector, selectType)
         this._vis.nodes('#' + data.target)[0]._private.data.label;
 
         //TODO When merge is implemented
-    if (evt.cyTarget._private.style.merged != undefined && evt.cyTarget._private.style.merged.value === "true")
+    if (evt.cyTarget._private.data.mergeStatus != undefined && evt.cyTarget._private.data.mergeStatus === "merged")
     {
         title += ' (Summary Edge)';
         var text = '<div class="header"><span class="title"><label>';
@@ -611,8 +640,19 @@ NetworkVis.prototype.addInteractionInfo = function(evt, selector, selectType)
             text += '</label></span></div>';
         $(selector + " .edge-inspector-content").append(text);
 
-        var edges = (selectType == "click") ? (this.mergedEdges['source:' + evt.cyTarget._private.data.source
-                                                + "" + ";target:" + evt.cyTarget._private.data.target]) : (evt.cyTarget);
+
+        var edgesOfMetaEdge = this.edgesToBeMerged.filter(function(i, element)
+        {
+            if( element.isEdge()
+            && element.data("source") == evt.cyTarget._private.data.source
+            && element.data("target") == evt.cyTarget._private.data.target)
+            {
+              return true;
+            }
+            return false;
+        });
+
+        var edges = (selectType == "click") ? (metaEdgeElements) : (evt.cyTarget);
 
         // add information for each edge
 
@@ -687,7 +727,7 @@ NetworkVis.prototype.addInteractionInfo = function(evt, selector, selectType)
         }
     }
 
-    $(selector).show();
+    //$(selector).show();
 }
 
 NetworkVis.prototype._addDataRow2 = function(type, label, value /*, section*/)
@@ -1619,8 +1659,18 @@ NetworkVis.prototype._visChanged = function()
 
     if (this._autoLayout)
     {
+	//Disable animation for auto layout
+	var tempAnimateFlag = this._graphLayout.animate;
+	var tempRandomizeFlag = this._graphLayout.randomize;
+	this._graphLayout.animate = false;
+	this._graphLayout.randomize = false;
+
         // re-apply layout
         this._performLayout();
+
+	//Write back original flag
+	this._graphLayout.animate = tempAnimateFlag;
+	this._graphLayout.randomize = tempRandomizeFlag;
     }
 };
 
@@ -3028,6 +3078,8 @@ NetworkVis.prototype._initControlFunctions = function()
     // (this is required to pass "this" instance to the listener functions)
     var showNodeDetails = function(evt) {
         // open details tab instead
+        self._vis.elements(':selected').unselect();
+        evt.cyTarget.select();
         $(self.networkTabsSelector).tabs("option", "active", 2);
     };
 
@@ -3038,6 +3090,8 @@ NetworkVis.prototype._initControlFunctions = function()
 
     var showEdgeDetails = function(evt) {
         self.isEdgeClicked = true;
+        self._vis.elements(':selected').unselect();
+        evt.cyTarget.select();
         $(self.networkTabsSelector).tabs("option", "active", 2);
         self.updateDetailsTab(evt);
     };
@@ -3205,7 +3259,7 @@ NetworkVis.prototype._initControlFunctions = function()
     // add listener for edge select & deselect actions
     this._vis.on("select",
                     "edge",
-                     showEdgeDetails);
+                     handleEdgeSelect);
 
     this._vis.on("deselect",
                     "edge",
@@ -3455,38 +3509,31 @@ NetworkVis.prototype._toggleMerge = function()
 
     // update check icon of the corresponding menu item
 
+    //Unselect selected edges beforehand !
+    this._vis.edges(':selected').unselect();
+
+
+    var edgesToBeRemoved = this._vis.edges("[mergeStatus='toBeMerged']");
+
     var item = $(this.mainMenuSelector + " #merge_links");
 
     if (this._linksMerged)
     {
         item.addClass(this.CHECKED_CLASS);
-        for (var i = 0; i < this.mergingEdges.length; i++){
-          this._vis.$("#" + this.mergingEdges[i].data.id)[0].css('visibility', 'visible');
-          this._vis.$("#" + this.mergingEdges[i].data.id)[0]._private.selectable = true;
 
-          var tempMergedEdges = this.mergedEdges["source:" + this.mergingEdges[i].data.source
-                              + ";target:" + this.mergingEdges[i].data.target];
-          for (var j = 0; j < tempMergedEdges.length; j++){
-            this._vis.$("#" + tempMergedEdges[j]._private.data.id)[0].css('visibility','hidden');
-            this._vis.$("#" + tempMergedEdges[j]._private.data.id)[0]._private.selectable = false;
-          }
-        }
-
+        //Add meta edges again
+        this.metaEdges.restore();
+        //Remove edges to be merged
+        this._vis.remove(this.edgesToBeMerged);
     }
     else
     {
         item.removeClass(this.CHECKED_CLASS);
-        for (var i = 0; i < this.mergingEdges.length; i++){
-          this._vis.$("#" + this.mergingEdges[i].data.id)[0].css('visibility', 'hidden')
-          this._vis.$("#" + this.mergingEdges[i].data.id)[0]._private.selectable = false;
 
-          var tempMergedEdges = this.mergedEdges["source:" + this.mergingEdges[i].data.source
-                              + ";target:" + this.mergingEdges[i].data.target];
-          for (var j = 0; j < tempMergedEdges.length; j++){
-            this._vis.$("#" + tempMergedEdges[j]._private.data.id)[0].css('visibility', 'visible');
-            this._vis.$("#" + tempMergedEdges[j]._private.data.id)[0]._private.selectable = true;
-          }
-        }
+        //Add original edges
+        this.edgesToBeMerged.restore();
+        //Remove meta edges
+        this._vis.remove(this.metaEdges);
     }
     this._vis.layout({
       name:'preset',
@@ -3608,8 +3655,6 @@ NetworkVis.prototype._openProperties = function()
 {
     this._updatePropsUI();
     $(this.settingsDialogSelector).dialog("open").height("auto");
-
-
 };
 
 /**
@@ -3861,7 +3906,7 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
                             '<input type="text" id="nestingFactor" class="layout-properties" value=""/>' +
                         '</td>' +
                     '</tr>' +
-                    '<tr title="Whether or not to display network during layout.">' +
+                    '<tr title="Whether or not to display network during layout">' +
                         '<td align="right">' +
                             '<label>Animate</label>' +
                         '</td>' +

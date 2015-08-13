@@ -227,5 +227,5 @@
 	Technology
 </p>
 <p class="regular">
-	Network visualization is powered by <a href="http://js.cytoscape.org/" target="_blank">Cytoscape JS</a>.
+	Network visualization is powered by <a href="http://js.cytoscape.org/" target="_blank">Cytoscape.js</a>.
 </p>

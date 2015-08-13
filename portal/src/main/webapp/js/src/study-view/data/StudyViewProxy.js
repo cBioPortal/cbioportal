@@ -181,7 +181,7 @@ var StudyViewProxy = (function() {
                     var _attrId = _data[i].attr_id.toUpperCase();
                     var _attrVal = _data[i].attr_val;
 
-                    if(!_attrVal || _attrVal === 'na'){
+                    if(cbio.util.checkNullOrUndefined(_attrVal) || _attrVal === '' || _attrVal === 'na'){
                         _attrVal = 'NA';
                     }else if(_attrVal !== 'NA'){
                         ++_dataAttrOfa1[_attrId].numOfNoneEmpty;
@@ -268,7 +268,7 @@ var StudyViewProxy = (function() {
 
                     for(var sampleId in filteredA3){
                         var val = filteredA3[sampleId];
-                        if(!val){
+                        if(cbio.util.checkNullOrUndefined(val) || val === '' || val === 'na'){
                             val = 'NA';
                         }else{
                             ++_newAttri.numOfNoneEmpty;

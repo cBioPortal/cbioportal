@@ -141,7 +141,9 @@ var orData = function() {
                 _result_str += orAnalysis.text.cooccurrence;
             } else if (_log_ratio < 0) {
                 _result_str += orAnalysis.text.mutex;
-            } 
+            } else if (_log_ratio === 0) {
+                _result_str += "--"
+            }
 
         } else if (_profile_type === orAnalysis.profile_type.mutations) {
             if (_log_ratio === ">10") {
@@ -152,7 +154,9 @@ var orData = function() {
                 _result_str += orAnalysis.text.cooccurrence;
             } else if (_log_ratio < 0) {
                 _result_str += orAnalysis.text.mutex;
-            } 
+            } else if (_log_ratio === 0) {
+                _result_str += "--"
+            }
         } 
         
         if (_p_val < orAnalysis.settings.p_val_threshold && _q_val < orAnalysis.settings.p_val_threshold && _result_str !== "--") {

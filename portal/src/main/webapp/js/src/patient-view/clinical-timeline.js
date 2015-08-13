@@ -1,4 +1,4 @@
-/* v0.0.2-11-gf84d34c */
+/* v0.0.2-14-g9b7d331 */
 // vim: ts=2 sw=2
 (function () {
   d3.timeline = function() {
@@ -662,7 +662,7 @@ window.clinicalTimeline = (function(){
 
   function getTrack(data, track) {
     return data.filter(function(x) {
-      return x.label === track;
+      return $.trim(x.label) === $.trim(track);
     })[0];
   }
 
@@ -891,8 +891,8 @@ window.clinicalTimeline = (function(){
   function sizeByClinicalAttribute(track, attr, minSize, maxSize) {
     var arr = getTrack(allData, track).times.map(function(x) {
       if (x.tooltip_tables.length === 1) {
-        return parseInt(x.tooltip_tables[0].filter(function(x) {
-          return x[0] === attr;})[0][1]);
+        return parseFloat(x.tooltip_tables[0].filter(function(x) {
+          return x[0] === attr;})[0][1].replace(/[^\d.-]/g, ''));
       } else {
         return undefined;
       }
@@ -902,11 +902,10 @@ window.clinicalTimeline = (function(){
       .range([minSize, maxSize]);
     getTrack(allData, track).times.forEach(function(x) {
       if (x.tooltip_tables.length === 1) {
-        x.size = scale(parseInt(x.tooltip_tables[0].filter(function(x) {
-          return x[0] === attr;})[0][1])) || itemHeight;
+        x.size = scale(parseFloat(x.tooltip_tables[0].filter(function(x) {
+          return x[0] === attr;})[0][1].replace(/[^\d.-]/g, ''))) || minSize;
       }
     });
-    timeline();
   }
 
   function colorByClinicalAttribute(track, attr) {
@@ -1069,7 +1068,7 @@ window.clinicalTimeline = (function(){
       timeline();
     }
     function sizeByClickHandler() {
-      sizeByClinicalAttribute(track, $(this).prop("innerHTML"), 2, itemHeight+2);
+      sizeByClinicalAttribute(track, $(this).prop("innerHTML"), 2, itemHeight);
       timeline();
     }
     elem.qtip({
@@ -1352,7 +1351,7 @@ window.clinicalTimeline = (function(){
         return x[0] === attr;
       });
       if (attrData.length === 1) {
-        sizeByClinicalAttribute(track, attr, 2, itemHeight+2);
+        sizeByClinicalAttribute(track, attr, 2, itemHeight);
       }
     }
     return timeline;

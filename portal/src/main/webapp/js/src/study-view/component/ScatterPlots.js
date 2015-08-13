@@ -64,6 +64,7 @@ var ScatterPlots = function() {
         names = {}, //ids
         legends = [],
         dataArr = [],
+        dataArrByCaseId = {},
         dataAttr = {},
         brushedCases = [];
 
@@ -112,6 +113,7 @@ var ScatterPlots = function() {
                     hasZeroY = true;
                 }
                 dataArr.push(obj);
+                dataArrByCaseId[obj.case_id] = obj;
             }
         });
         
@@ -415,7 +417,7 @@ var ScatterPlots = function() {
                     y_val: d.y_val,
                     x_pos: elem.xScale(d.x_val),
                     y_pos: elem.yScale(d.y_val),
-                    arr_id: i,
+                    arr_id: d.case_id,
                     transform: "translate(" + elem.xScale(d.x_val) + ", " + elem.yScale(d.y_val) + ")",
                     fill: fill,
                     stroke: stroke
@@ -539,7 +541,7 @@ var ScatterPlots = function() {
             if(!$(this).data('qtip')) {
                 $(this).qtip(
                     {
-                        content: {text: dataArr[$(this).attr('arr_id')].qtip },
+                        content: {text: dataArrByCaseId[$(this).attr('arr_id')].qtip },
                         style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
                         show: {event: "mouseover"},
                         hide: {fixed:true, delay: 100, event: "mouseout"},

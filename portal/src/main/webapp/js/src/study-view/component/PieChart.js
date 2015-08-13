@@ -219,17 +219,23 @@ var PieChart = function(){
                     });
                     
                     $('.pieLabel', api.elements.tooltip).mouseenter(function() {
-                        pieLabelMouseEnter(this);
+                        pieLabelMouseEnter($(this).parent());
                     });
                     
                     $('.pieLabel', api.elements.tooltip).mouseleave(function(){
-                        pieLabelMouseLeave(this);
+                        pieLabelMouseLeave($(this).parent());
                     });
 
                     $('.pieLabel', api.elements.tooltip).click(function(_event){
                         var _shiftClicked = StudyViewWindowEvents.getShiftKeyDown();
                         _event.preventDefault();
-                        pieLabelClick(this, _shiftClicked);
+                        pieLabelClick($(this).parent(), _shiftClicked);
+                        api.show(_event);
+                    });
+
+                    $('table tbody tr td:nth-child(1) input:checkbox', api.elements.tooltip).change(function(_event){
+                        _event.preventDefault();
+                        pieLabelCheckboxChange(this);
                         api.show(_event);
                     });
 
@@ -342,8 +348,9 @@ var PieChart = function(){
                 removeMarker();
                 if(category !== "extendable") {
                     $('#qtip-' + DIV.mainDiv + "-table").find("tr").each(function(index, value) {
-                        if(_filters.indexOf($(value).find('td').first().find('span').text()) !== -1) {
+                        if(_filters.indexOf($(value).find('td:nth-child(1)').find('.pieLabel').find('span').text()) !== -1) {
                             $(value).find('td').addClass("highlightRow");
+                            $(value).find('td').find('input:checkbox').attr('checked', true);
                         }
                     });
                 }
@@ -965,23 +972,24 @@ var PieChart = function(){
         for(var i=0; i< label.length; i++){
             var _tmpName = label[i].name;
             
-//            if(_tmpName.length > 9){
-//                _tmpName = _tmpName.substring(0,5) + " ...";
-//            }
+            if(_tmpName.length > 30){
+                _tmpName = _tmpName.substring(0,28) + " ...";
+            }
 
             if(i % 1 === 0){
                 _tableDiv += "<tr width='150px'>";
             }
 
-            _tableDiv += '<td class="pieLabel" id="'+
+            _tableDiv += '<td  id="'+
                         DIV.labelTableTdID +label[i].id+'-'+i+
-                        '"  style="font-size:'+fontSize+'px">'+
-                        '<svg width="'+(labelSize+3)+'" height="'+
+                        '"  style="font-size:'+fontSize+'px;white-space: nowrap;">'+
+                        '<input type="checkbox">' +
+                        '<span class="pieLabel"><svg width="'+(labelSize+3)+'" height="'+
                         labelSize+'"><rect width="'+
                         labelSize+'" height="'+labelSize+'" style="fill:'+
-                        label[i].color + ';" /></svg><span oValue="'+
+                        label[i].color + ';" /></svg><span class="hasQtip" oValue="'+
                         label[i].name + '" style="vertical-align: top">'+
-                        _tmpName+'</span></td><td class="pieLabelValue">'+label[i].value+'</td>';
+                        _tmpName+'</span></span></td><td class="pieLabelValue">'+label[i].value+'</td>';
 
             if(i % 1 === 0){
                 _tableDiv += '</tr>';
@@ -1010,6 +1018,16 @@ var PieChart = function(){
         if(category === 'extendable' && ['CANCER_TYPE', 'CANCER_TYPE_DETAILED'].indexOf(selectedAttr) !== -1){
             $("#"+DIV.chartDiv+"-table-icon").click();
         }
+    }
+
+    function qtip(el, tip) {
+        $(el).qtip({
+            content: {text: tip},
+            show: {event: "mouseover"},
+            hide: {fixed: true, delay: 200, event: "mouseout"},
+            style: { classes: 'qtip-light qtip-rounded' },
+            position: {my:'top right',at:'bottom center',viewport: $(window)}
+        });
     }
 
     function initPieLabelDataTable(callback) {
@@ -1046,6 +1064,10 @@ var PieChart = function(){
                 },function(e, i) {
                     $(this).find('td').removeClass('hoverRow');
                 });
+                $('#'+ DIV.mainDiv).find('table tbody tr td span.hasQtip').each(function(e, i) {
+                    $(this).qtip('destroy', true);
+                    qtip(this, $(this).attr('oValue'));
+                });
             }
         });
 
@@ -1054,18 +1076,23 @@ var PieChart = function(){
         });
 
         $('#' + DIV.mainDiv+' .pieLabel').mouseenter(function() {
-            pieLabelMouseEnter(this);
+            pieLabelMouseEnter($(this).parent());
         });
 
         $('#' + DIV.mainDiv+' .pieLabel').mouseleave(function(){
-            pieLabelMouseLeave(this);
+            pieLabelMouseLeave($(this).parent());
         });
 
         $('#' + DIV.mainDiv+' .pieLabel').unbind('click');
         $('#' + DIV.mainDiv+' .pieLabel').click(function(_event){
             var _shiftClicked = StudyViewWindowEvents.getShiftKeyDown();
             _event.preventDefault();
-            pieLabelClick(this, _shiftClicked);
+            pieLabelClick($(this).parent(), _shiftClicked);
+        });
+
+        $('#' + DIV.mainDiv+' tbody tr td:nth-child(1) input:checkbox').change(function(_event){
+            _event.preventDefault();
+            pieLabelCheckboxChange(this);
         });
 
         if(callback && {}.toString.call(callback) === '[object Function]'){
@@ -1108,56 +1135,50 @@ var PieChart = function(){
             chartID = Number(idArray[idArray.length-3]);
 
         var arcID = chartID+"-"+(Number(childID)-1);
-        
+
         if(_shiftKeyDown) {
-            $(_this).parent().find('td').each(function(index, value) {
-                if($(value).hasClass('highlightRow')) {
-                    $(value).removeClass('highlightRow');
-                }else {
-                    $(value).addClass('highlightRow');
-                }
-            });
-            
+            $(_this).parent().toggleClass('highlightRow');
+            $(_this).parent().find('input:checkbox').attr('checked', true);
+            $(_this).siblings().addBack().toggleClass('highlightRow');
             pieChart.onClick({
-                key: label[childaLabelID].name, 
+                key: label[childaLabelID].name,
                 value: label[childaLabelID].value
             });
-        }else {
-            var _trIndex = $(_this).parent().index(),
-                _selfClicked = false;
-            
-            $(_this).parent().parent().find('tr').each(function(index, value) {
-                $(value).find('td').each(function(index1, value1) {
-                    if($(value1).hasClass('highlightRow')) {
-                        $(value1).removeClass('highlightRow');
-                        if(index === _trIndex) {
-                            _selfClicked = true;
-                        }
-                    }
-                });
-            });
-            
+        }else{
+            var _isClicked = $(this).parent().hasClass('highlightRow');
+            $(_this).parent().parent().find('.highlightRow').removeClass('highlightRow');
+            $(_this).parent().parent().find('input:checkbox').attr('checked', false);
             pieChart.filterAll();
-            
-            if(!_selfClicked) {
-                $(_this).parent().find('td').each(function(index, value) {
-                    $(value).addClass('highlightRow');
-                });
-                
+
+            if(!_isClicked) {
+                $(_this).parent().toggleClass('highlightRow');
+                $(_this).siblings().addBack().toggleClass('highlightRow');
+                $(_this).parent().find('input:checkbox').attr('checked', true);
                 pieChart.onClick({
-                    key: label[childaLabelID].name, 
+                    key: label[childaLabelID].name,
                     value: label[childaLabelID].value
                 });
-            }else {
+            }else{
                 dc.redrawAll();
             }
         }
-
         $("#" + DIV.chartDiv + " svg g #" + arcID).remove();
 
         $('#' + DIV.chartDiv + ' svg>g>g:nth-child(' + childID+')').css({
             'fill-opacity': '1',
             'stroke-width': '1px'
+        });
+    }
+
+    function pieLabelCheckboxChange(_this) {
+        var idArray = $(_this).parent().attr('id').split('-');
+        var childaLabelID = Number(idArray[idArray.length-1]);
+
+        $(_this).parent().parent().toggleClass('highlightRow');
+        $(_this).parent().siblings().addBack().toggleClass('highlightRow');
+        pieChart.onClick({
+            key: label[childaLabelID].name,
+            value: label[childaLabelID].value
         });
     }
     

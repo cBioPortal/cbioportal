@@ -166,9 +166,9 @@ var Table = function() {
         for(i = 0; i < arrL; i++){
 
             if(typeof data === 'object' && data.selected instanceof Array && data.selected.length > 0 && datumIsSelected(data.selected, arr[i])) {
-                tableBodyStr += '<tr class="highlightRow">';
+                tableBodyStr += '<tr class="highlightRow" style="white-space: nowrap;">';
             }else{
-                tableBodyStr += '<tr>';
+                tableBodyStr += '<tr style="white-space: nowrap;">';
             }
 
             for(j = 0; j < attrL; j++) {
@@ -300,10 +300,11 @@ var Table = function() {
                     var _gene = source[geneIndex];
                     if (type==='display') {
                         var str = '';
+                        str += '<input type="checkbox">';
                         if(_gene.toString().length > 6) {
                             str += '<span class="hasQtip" qtip="'+_gene+'">'+_gene.substring(0,4) + '...'+'</span>';
                         }else {
-                            str = _gene;
+                            str += _gene;
                         }
 
                         if(qvalIndex !== -1 && attr[qvalIndex].displayName && source[qvalIndex]) {
@@ -330,6 +331,14 @@ var Table = function() {
                     $(this).qtip('destroy', true);
                     qtip(this, $(this).attr('qtip'));
                 });
+
+                $('#'+ divs.tableId).find('table tbody tr').each(function(e, i) {
+                    if($(this).hasClass('highlightRow')){
+                        $(this).find('td').addClass('highlightRow');
+                        $(this).find('td:nth-child(1) input:checkbox').attr('checked', true);
+                        $(this).removeClass('highlightRow');
+                    }
+                });
                 
                 $('#'+ divs.tableId).find('table tbody tr td.clickable').unbind('hover');
                 $('#'+ divs.tableId).find('table tbody tr td.clickable').hover(function(e, i) {
@@ -339,6 +348,7 @@ var Table = function() {
                 });
                 
                 rowClick();
+                checkboxClick();
             };
         }
         dataTable = $('#'+ divs.tableId +' table').dataTable(dataTableOpts);
@@ -374,32 +384,46 @@ var Table = function() {
         $('#' + divs.tableId + ' table tbody tr td.clickable').click(function () {
             var shiftClicked = StudyViewWindowEvents.getShiftKeyDown(),
             highlightedRowsData = '';
-                
+
             if(!shiftClicked) {
                 var _isClicked = $(this).parent().hasClass('highlightRow');
                 $('#' + divs.tableId + ' tbody').find('.highlightRow').removeClass('highlightRow');
+                $('#' + divs.tableId + ' tbody').find('input:checkbox').attr('checked', false);
                 if(!_isClicked) {
                     $(this).parent().toggleClass('highlightRow');
                     $(this).siblings().addBack().toggleClass('highlightRow');
-                    
+                    $(this).parent().find('input:checkbox').attr('checked', true);
                 }
             }else{
                 $(this).parent().toggleClass('highlightRow');
+                $(this).parent().find('input:checkbox').attr('checked', true);
                 $(this).siblings().addBack().toggleClass('highlightRow');
             }
-            
-            highlightedRowsData = dataTable.api().rows('.highlightRow').data();
-            
-            if(highlightedRowsData.length === 0) {
-                hideReload();
-            }else {
-                showReload();
-            }
-            
-            if(callbacks.hasOwnProperty('rowClick')) {
-                callbacks.rowClick(divs.tableId, highlightedRowsData);
-            }
+            clickFunc();
         });
+    }
+
+    function checkboxClick() {
+        $('#' + divs.tableId + ' table tbody tr td:nth-child(1) input:checkbox').unbind('change');
+        $('#' + divs.tableId + ' table tbody tr td:nth-child(1) input:checkbox').change(function () {
+            $(this).parent().parent().toggleClass('highlightRow');
+            $(this).parent().siblings().addBack().toggleClass('highlightRow');
+            clickFunc();
+        });
+    }
+
+    function clickFunc() {
+        var highlightedRowsData = dataTable.api().rows('.highlightRow').data();
+
+        if(highlightedRowsData.length === 0) {
+            hideReload();
+        }else {
+            showReload();
+        }
+
+        if(callbacks.hasOwnProperty('rowClick')) {
+            callbacks.rowClick(divs.tableId, highlightedRowsData);
+        }
     }
     
     function deleteTable() {
@@ -417,6 +441,7 @@ var Table = function() {
         $('#'+ divs.reloadId).unbind('click');
         $('#'+ divs.reloadId).click(function() {
             $('#' + divs.tableId + ' tbody').find('.highlightRow').removeClass('highlightRow');
+            $('#' + divs.tableId + ' tbody tr td:nth-child(1) input:checkbox').attr('checked', false);
             if(callbacks.hasOwnProperty('rowClick')) {
                 callbacks.rowClick(divs.tableId, []);
             }

@@ -652,7 +652,7 @@ NetworkVis.prototype.addInteractionInfo = function(evt, selector, selectType)
             return false;
         });
 
-        var edges = (selectType == "click") ? (metaEdgeElements) : (evt.cyTarget);
+        var edges = (selectType == "select") ? (edgesOfMetaEdge) : (evt.cyTarget);
 
         // add information for each edge
 

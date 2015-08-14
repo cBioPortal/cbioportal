@@ -65,7 +65,6 @@
 <%@ page import="org.codehaus.jackson.JsonFactory" %>
 <%@ page import="org.codehaus.jackson.map.ObjectMapper" %>
 
-
 <%
     //Security Instance
     ServletXssUtil xssUtil = ServletXssUtil.getInstance();
@@ -202,6 +201,8 @@
 %>
 
 <!--Global Data Objects Manager-->
+<script type="text/javascript" src="js/lib/oql-parser-8-15.js"></script>
+<script type="text/javascript" src="js/api/cbioportal-datamanager.js"></script>
 <script type="text/javascript">
     var PortalDataColl = (function() {
         var oncoprintData = null,
@@ -328,6 +329,12 @@
         getAlteredSampleIdList: function() { return '<%=alteredSampleIdsStr%>'; },
         getUnalteredSampleIdList: function() { return '<%=unalteredSampleIdsStr%>'; }
     };
+    (function setUpDataManager() {
+        window.PortalDataManager = window.initDatamanager('<%=geneticProfiles%>'.trim().split(/\s+/),
+                                                            '<%=oql%>'.trim(),
+                                                            ['<%=cancerTypeId%>'.trim()],
+                                                            '<%=patients%>'.trim().split(/\s+/));
+    })();
 </script>
 
 <script>

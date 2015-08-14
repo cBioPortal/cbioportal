@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.mskcc.cbio.portal.persistence.GeneticProfileMapper">
+
+<resultMap id="GeneticProfileResult" type="DBGeneticProfile">
+    <id property="internal_id" column="GENETIC_PROFILE_ID"/>
+    <result property="id" column="STABLE_ID"/>
+    <result property="name" column="NAME"/>
+    <result property="description" column="DESCRIPTION"/>
+    <result property="datatype" column="DATATYPE"/>
+    <result property="internal_study_id" column="CANCER_STUDY_ID"/>
+    <result property="genetic_alteration_type" column="GENETIC_ALTERATION_TYPE"/>
+    <result property="show_profile_in_analysis_tab" column="SHOW_PROFILE_IN_ANALYSIS_TAB"/>
+</resultMap>
+
+<select id="byStableId" resultMap="GeneticProfileResult" parameterType="list">
+    select * from genetic_profile
+    where STABLE_ID in
+    <foreach item="item" collection="ids" open="(" separator="," close=")">
+        #{item}
+    </foreach>
+</select>
+
+<select id="byInternalId" resultMap="GeneticProfileResult" parameterType="list">
+    select * from genetic_profile
+    where GENETIC_PROFILE_ID in
+    <foreach item="item" collection="ids" open="(" separator="," close=")">
+        #{item}
+    </foreach>
+</select>
+
+<select id="byInternalStudyId" resultMap="GeneticProfileResult" parameterType="list">
+    select * from genetic_profile
+    where CANCER_STUDY_ID in
+    <foreach item="item" collection="ids" open="(" separator="," close=")">
+        #{item}
+    </foreach>
+</select>
+
+<select id="getAll" resultMap="GeneticProfileResult">
+    select * from genetic_profile
+</select>
+    
+</mapper>

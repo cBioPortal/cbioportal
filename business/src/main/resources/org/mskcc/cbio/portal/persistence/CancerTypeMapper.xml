@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.mskcc.cbio.portal.persistence.CancerTypeMapper">
+    
+<cache/>
+
+<select id="getAll" resultType="DBCancerType">
+    select
+        TYPE_OF_CANCER_ID as id,
+        NAME as name,
+        DEDICATED_COLOR as color
+    from type_of_cancer
+</select>
+
+<select id="byId" resultType="DBCancerType" parameterType="list">
+    select
+        TYPE_OF_CANCER_ID as id,
+        NAME as name,
+        DEDICATED_COLOR as color
+    from type_of_cancer
+    where TYPE_OF_CANCER_ID in
+    <foreach item="item" collection="ids" open="(" separator="," close=")">
+        #{item}
+    </foreach>
+</select> 
+</mapper>

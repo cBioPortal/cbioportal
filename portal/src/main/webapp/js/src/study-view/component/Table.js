@@ -405,7 +405,7 @@ var Table = function() {
             }else{
                 $(this).siblings().addBack().toggleClass('highlightRow');
                 $(this).parent().toggleClass('highlightRow');
-                $(this).parent().find('input:checkbox').attr('checked', true);
+                $(this).parent().find('input:checkbox').attr('checked', !($(this).parent().find('input:checkbox').attr('checked')));
             }
             clickFunc();
         });

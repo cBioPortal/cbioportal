@@ -1,0 +1,130 @@
+      <!-- template for the tabs with space for the main content. listContent is transformed into the tabs -->
+      <script type="text/template" id="cancertypesummary_main_template">
+         <div class='gene-tabs-container'>
+            <ul>
+               {{listContent}}
+            </ul>
+            {{mainContent}}
+         </div>
+      </script>
+
+      <!-- template for the tabs -->
+      <script type="text/template" id="gene_tab_ear_template">
+         <li>
+            <a href="#gene_details_{{geneId}}" class="gene-details-tabs-ref" title="{{geneSymbol}} genes">
+               <span>{{geneSymbol}}</span>
+            </a>
+         </li>
+      </script>
+
+      <!-- template for the main content with space for the details -->
+      <script type="text/template" id="gene_details_main_content_template">
+         <div id='gene_details_{{geneId}}'>
+            <div id='button-container-{{geneId}}'></div>
+            <div id='customize-histogram-{{geneId}}'></div>
+            <div id='histogram-{{geneId}}'></div>
+            <img src='{{loaderImage}}'/>
+         </div>
+      </script>
+
+      <!-- template for the buttons -->
+      <script type="text/template" id="buttons_template">
+         <button class='diagram-to-pdf'>PDF</button>
+         <button class='diagram-to-svg'>SVG</button>
+         <button class="histogram-customize">Customize histogram</button>
+      </script>
+
+      <!-- template for customize histogram -->
+      <!-- adapted the show-hide-cancertypes part from cross_cancer_results.jsp -->
+      <!-- still todo is the select-all / select-none etc. -->
+      <script type="text/template" id="customize_histogram_template">
+         This is the content for customize histogram
+         <table class='customize-options'>
+            <tr>
+               <td><div id='customize-cancertype-dropdown-{{geneId}}'></div></td>
+               <td><div id='customize-sort-by-y-axis-{{geneId}}'></div></td>
+               <td><div id='customize-min-nr-altered-samples-slider-{{geneId}}'></div></td>
+            </tr>
+            <tr>
+               <td></td>
+               <td><div id='customize-sort-by-x-axis-{{geneId}}'></div></td>
+               <td><div id='customize-show-genomic-alteration-types-{{geneId}}'></div></td>
+            </tr>
+            <tr>
+               <td colspan="3">
+                  <div id="show-hide-cancertypes-{{geneId}}" class="test">
+                     <span class="triangle ui-icon ui-icon-triangle-1-e cc-triangle"></span>
+                     <span class="triangle ui-icon ui-icon-triangle-1-s cc-triangle cc-hide"></span>
+                     <b id="show-hide-cancertypes-toggle-{{geneId}}" class="show-hide-cancer-types">Show/Hide Specific Cancer Types</b>
+                     <br/>
+                  </div>
+                  <div id="specific-cancertypes-area-{{geneId}}" class="specific-cancertypes-area cc-hide">
+                     (Select <a href="#" id="cc-select-all">all</a> / <a href="#" id="cc-select-none">none</a>)
+                     <br> <br>
+                  </div>
+               </td>
+            </tr>
+         </table>
+      </script>
+
+
+      <!-- template for the slider, adapted from the mutationmapper-->
+      <script type="text/template" id="nr_altered_samples_slider_template">
+         <div class="diagram-min-nr-altered-samples-slider-area">
+            <table class='customize-options'>
+               <tr>
+                  <td width="30%" valign="top">
+                     <div class="diagram-min-nr-altered-samples-slider"></div>
+                     <span class="diagram-min-nr-altered-samples-min-label">{{min}}</span>
+                     <span class="diagram-min-nr-altered-samples-max-label">{{max}}</span>
+                  </td>
+                  <td valign="top">
+                     Show cancer types with 
+                     <span class="diagram-min-nr-alter-samples-value">1</span>
+                     or more altered samples
+                  </td>
+               </tr>
+            </table>
+         </div>
+      </script>
+
+
+
+<!-- template for checking the model parameters. For debugging/temporary -->
+
+      <script type="text/template" id="debug_template">
+         Histogram for {{geneId}} with the following parameters:
+         <table>
+            <tr>
+               <td>myType</td>
+               <td>{{myType}}</td>
+            </tr>
+            <tr>
+               <td>cancerType</td>
+               <td>{{cancerType}}</td>
+            </tr>
+            <tr>
+               <td>cancerTypeDetailed</td>
+               <td>{{cancerTypeDetailed}}</td>
+            </tr>
+            <tr>
+               <td>sortXAxis</td>
+               <td>{{sortXAxis}}</td>
+            </tr>
+            <tr>
+               <td>sortYAxis</td>
+               <td>{{sortYAxis}}</td>
+            </tr>
+            <tr>
+               <td>minNrAlteredSamples</td>
+               <td>{{minNrAlteredSamples}}</td>
+            </tr>
+            <tr>
+               <td>showGenomicAlterationTypes</td>
+               <td>{{showGenomicAlterationTypes}}</td>
+            </tr>
+         </table>
+      </script>
+
+
+

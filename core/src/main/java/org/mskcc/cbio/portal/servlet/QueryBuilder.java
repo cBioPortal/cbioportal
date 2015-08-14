@@ -112,6 +112,7 @@ public class QueryBuilder extends HttpServlet {
     private static final String DB_CONNECT_ERROR = ("An error occurred while trying to connect to the database." +
                                                     "  This could happen if the database does not contain any cancer studies.");
     
+    public static final String CANCER_TYPES_MAP = "cancer_types_map"; 
 
     private ServletXssUtil servletXssUtil;
 
@@ -404,7 +405,11 @@ public class QueryBuilder extends HttpServlet {
         {
             patientIdsKey = PatientSetUtil.shortenPatientIds(sampleIds);
         }
-        
+
+        // retrieve information about the cancer types
+        Map<String, List<String>> cancerTypeInfo = DaoClinicalData.getCancerTypeInfo(cancerStudyInternalId);
+        request.setAttribute(CANCER_TYPES_MAP, cancerTypeInfo);
+
         // this will create a key even if the patient set is a predefined set,
         // because it is required to build a patient id string in any case
         request.setAttribute(CASE_IDS_KEY, patientIdsKey);
@@ -622,7 +627,7 @@ public class QueryBuilder extends HttpServlet {
                     }
                 }
             }
-        }
+        } 
         if( errorsExist ){
            httpServletRequest.setAttribute( GENE_LIST, geneList );
        }

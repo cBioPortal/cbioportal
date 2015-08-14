@@ -49,7 +49,11 @@ public class ClinicalAttribute  {
 	public static final String DFS_STATUS = "DFS_STATUS";
 	public static final String DFS_MONTHS = "DFS_MONTHS";
 	public static final String AGE_AT_DIAGNOSIS = "AGE";
-	public static final List<String> survivalAttributes = initializeSurvivalAttributeList();
+    // two additional variables for multi-cancer
+    public static final String CANCER_TYPE = "CANCER_TYPE"; // may have to change this to MAIN_CANCER_TYPE
+    public static final String CANCER_TYPE_DETAILED = "CANCER_TYPE_DETAILED"; // may have to change this to CANCER_TYPE
+
+    public static final List<String> survivalAttributes = initializeSurvivalAttributeList();
 	private static List<String> initializeSurvivalAttributeList() {
 		return Arrays.asList(AGE_AT_DIAGNOSIS, OS_STATUS, OS_MONTHS, DFS_STATUS, DFS_MONTHS);
 	}

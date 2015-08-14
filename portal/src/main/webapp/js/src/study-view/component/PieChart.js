@@ -1137,7 +1137,7 @@ var PieChart = function(){
 
         if(_shiftKeyDown) {
             $(_this).parent().toggleClass('highlightRow');
-            $(_this).parent().find('input:checkbox').attr('checked', true);
+            $(_this).parent().find('input:checkbox').attr('checked', !($(this).parent().find('input:checkbox').attr('checked')));
             $(_this).siblings().addBack().toggleClass('highlightRow');
             pieChart.onClick({
                 key: label[childaLabelID].name,

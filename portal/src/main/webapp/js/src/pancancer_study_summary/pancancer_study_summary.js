@@ -32,6 +32,7 @@
          //_.extend(this.dispatcher, Backbone.Events);
 
          this.dispatcher = options.dispatcher;
+         this.queryPresenter = options.queryPresenter;
 
       },
 
@@ -100,7 +101,7 @@
          var listContent = "";
 
          // create a test gene list for the tabs
-         var geneList = [{"gene":"TNF"}, {"gene":"IFI44L"}]; //TODO - this has to come from the "Data manager"
+         var geneList = self.queryPresenter.getGeneList();
 
          // create a div for for each gene
          //_.each(self.model.geneProxy.getGeneList(), function(gene, idx) {
@@ -204,7 +205,9 @@
          this.template = templateFn({geneId: this.gene});
 
          // subscribe to the showHideCustomizeHistogram event and give "this" is the context
-         this.dispatcher.bind(GeneDetailsEvents.SHOW_HIDE_CUSTOMIZE_HISTOGRAM_CLICKED+this.gene, this.showHideCustomizeHistogram, this); 
+         this.dispatcher.bind(GeneDetailsEvents.SHOW_HIDE_CUSTOMIZE_HISTOGRAM_CLICKED+this.gene, this.showHideCustomizeHistogram, this);
+         
+         this.dmPresenter = options.dmPresenter;
       },
 
       render: function(){
@@ -226,7 +229,7 @@
       addcancerTypeSelect: function(){
     	 var self = this;
          // cancer types:
-         var selOptions = ["All", "breast", "lung"]; //TODO - comes from "data manager"
+         var selOptions = self.dmPresenter.getCancerTypeList();
 
          //event handler for when the Cancer Type Select is changed
          var changeCallBack = function(){
@@ -272,7 +275,12 @@
 
       // add the slider for minimum number of altered samples
       addNrAlteredSamplesSlider: function(){
-         new MinNrAlteredSamplesSliderView({gene:this.gene, el:"#customize-min-nr-altered-samples-slider-"+this.gene, dispatcher:this.dispatcher, model:this.model});
+         new MinNrAlteredSamplesSliderView({
+        	 gene:this.gene, 
+        	 el:"#customize-min-nr-altered-samples-slider-"+this.gene, 
+        	 dispatcher:this.dispatcher, 
+        	 model:this.model,
+        	 dmPresenter:this.dmPresenter});
       },
 
       // add checkbox for genomic alteration types
@@ -310,20 +318,28 @@
       initialize: function(options){
          this.dispatcher = options.dispatcher;
          this.gene = options.gene;
-         // min will always be 0, max will have to be provided
-         // we may need to listen to some event for this, as I think it may depend on the Cancer Type selected? 
-         this.max=10; //TODO fill in according to "data manager" data
-         var templateFn = BackboneTemplateCache.getTemplateFn("nr_altered_samples_slider_template");
-         this.template = templateFn({min:0, max:this.max});
-
+         this.dmPresenter = options.dmPresenter;
          this.render();
+         // call render when the model is changed
+         this.model.on("change", this.updateRender, this);
       },
 
       events: {
          'slidechange .diagram-min-nr-altered-samples-slider': 'handleSliderChange'
       }, 
-
+      //function for model.onchange above, it will check whether the slider max threshold needs
+      //to be udpated:
+      updateRender: function(){
+    	  var cancerTypeChanged = this.model.hasChanged("cancerType");
+    	  if (cancerTypeChanged)
+    		  this.render();
+      },
+      
       render: function(){
+    	 this.max = this.dmPresenter.getNrAlteredSamplesForCancerTypeAndGene(this.model.get("cancerType"), this.gene);
+         var templateFn = BackboneTemplateCache.getTemplateFn("nr_altered_samples_slider_template");
+         this.template = templateFn({min:0, max:this.max});
+
          // add the template
          $(this.el).html(this.template);
 
@@ -332,7 +348,7 @@
          sampleSlider.slider({ 
             value: 1, 
             min: 0, 
-            max: this.max, 
+            max: this.max 
          });
       },
 
@@ -507,7 +523,7 @@ fnCreateSelect = function(title, aData, defaultItem, callBack) {
 
 
 // Controller which glues it all together
-function GeneDetailsController(cancerSummaryMainView, dispatcher){
+function GeneDetailsController(cancerSummaryMainView, dispatcher, dmPresenter){
    // variable for keeping track of whether the tab has been initiliazed to prevent creating new content every time we switch to a different tab
    var geneTabGenerated = {};
 
@@ -547,7 +563,8 @@ function GeneDetailsController(cancerSummaryMainView, dispatcher){
          gene:gene, 
          el:"#customize-histogram-"+gene, 
          dispatcher:dispatcher,
-         model: histogramSettings
+         model: histogramSettings, 
+         dmPresenter:dmPresenter
       });
       // create a GeneHistogramView, providing the gene, the dispatcher, the el and a model
       // the model contains the settings for the Histogram
@@ -569,26 +586,81 @@ function GeneDetailsController(cancerSummaryMainView, dispatcher){
    init();
 }
 
-
-function PancancerStudySummary(options)
+//'presenter' layer to expose the DataManager API, formating its data for display in the views
+function DataManagerPresenter()
 {
-   var self = this;
-   var _cancerSummaryMainView = null;
+	// returns the CANCER_TYPE list
+	this.getCancerTypeList = function() {
+		return ["All", "breast", "lung"];
+	}
+	
+	// returns the CANCER_TYPE_DETAILED list for the given cancerType
+	this.getCancerTypeDetailedList = function(cancerType) {
+		//dummy impl. for now:
+		if (cancerType == "breast")
+			return ["breast_det_1", "breast_det_2"];
+		else if (cancerType == "lung")
+			return ["lung_det_1", "lung_det_2"];
+		else 
+			return [];
+	}
+	
+	//returns the total number of cancerType samples where there is one or more alterations for the given gene
+	this.getNrAlteredSamplesForCancerTypeAndGene = function(cancerType, gene){
+		//dummy results for now
+		
+		if (cancerType == "breast"){
+			if (gene == "TNF")
+				return 5;
+			else 
+				return 8;
+		}
+		else if (cancerType == "lung"){
+			if (gene == "TNF")
+				return 20;
+			else 
+				return 4;
+		}
+		else {
+			if (gene == "TNF")
+				return 25;
+			else 
+				return 12;
+		}
+			
+	}
+	
+	
+}
 
+//'presenter' layer to expose the parameters from query, formating its data for display in the views
+function QueryPresenter()
+{
+	this.getGeneList = function(){
+		return [{"gene":"TNF"}, {"gene":"IFI44L"}];
+	}
+}
+	
+function PancancerStudySummary()
+{
+   var _cancerSummaryMainView = null;
 
    function init()
    {
 	  console.log("init called");
       // create event dispacther
       var dispatcher = _.extend({}, Backbone.Events);
+      var dmPresenter = new DataManagerPresenter();
+      var queryPresenter = new QueryPresenter();
 
-      var cancerSummaryMainView = new CancerSummaryMainView({dispatcher:dispatcher});
+      var cancerSummaryMainView = new CancerSummaryMainView({dispatcher:dispatcher, queryPresenter:queryPresenter});
       _cancerSummaryMainView = cancerSummaryMainView;
 
       // init main controller...
       var controller = new GeneDetailsController(
          cancerSummaryMainView,
-         dispatcher
+         dispatcher, 
+         dmPresenter
       );
 
       // ...and let the fun begin!

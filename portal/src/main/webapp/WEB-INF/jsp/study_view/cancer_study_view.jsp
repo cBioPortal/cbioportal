@@ -209,6 +209,9 @@ var caseSetId = '<%=caseSetId%>';
 var caseIds = <%=jsonCaseIds%>;
 var cancer_study_id = cancerStudyId; //Some components using this as global ID
 var appVersion = <%=GlobalProperties.getAppVersion()%>?<%=GlobalProperties.getAppVersion()%>:'0000001';
+var hasMutation = <%=hasMutation%>;
+var hasCNA = <%=hasCNA%>;
+
 
 $("#study-tabs").tabs({disabled: true});
 $("#study-tabs").tabs("enable", 0);

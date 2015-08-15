@@ -137,7 +137,7 @@ public class QueryBuilder extends HttpServlet {
      * Handles HTTP GET Request.
      *
      * @param httpServletRequest  Http Servlet Request Object.
-     * @param httpServletResponse Http Servelt Response Object.
+     * @param httpServletResponse Http Servlet Response Object.
      * @throws ServletException Servlet Error.
      * @throws IOException      IO Error.
      */
@@ -151,7 +151,7 @@ public class QueryBuilder extends HttpServlet {
      * Handles HTTP POST Request.
      *
      * @param httpServletRequest  Http Servlet Request Object.
-     * @param httpServletResponse Http Servelt Response Object.
+     * @param httpServletResponse Http Servlet Response Object.
      * @throws ServletException Servlet Error.
      * @throws IOException      IO Error.
      */

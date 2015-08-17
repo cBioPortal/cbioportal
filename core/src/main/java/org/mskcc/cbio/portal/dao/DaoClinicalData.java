@@ -58,7 +58,7 @@ public final class DaoClinicalData {
     private static final Map<String, String> patientAttributes = new HashMap<String, String>();
     // map for the cancer types
     private static Map<String, List<String>> cancerTypeInfo;
-
+    
     private DaoClinicalData() {}
 
     static {
@@ -150,9 +150,9 @@ public final class DaoClinicalData {
             return null;
         }
         return getDatum(internalCancerStudyId,
-                table,
-                DaoPatient.getPatientByCancerStudyAndPatientId(internalCancerStudyId, patientId).getInternalId(),
-                attrId);
+                        table,
+                        DaoPatient.getPatientByCancerStudyAndPatientId(internalCancerStudyId, patientId).getInternalId(),
+                        attrId);
     }
 
     private static int getInternalCancerStudyId(String cancerStudyId)

@@ -1,4 +1,4 @@
-/* v0.0.2-14-g9b7d331 */
+/* v0.0.3 */
 // vim: ts=2 sw=2
 (function () {
   d3.timeline = function() {
@@ -27,6 +27,7 @@
         ending = 0,
         margin = {left: 30, right:30, top: 30, bottom:30},
         stacked = false,
+        stackSlack = 0,
         rotateTicks = false,
         timeIsRelative = false,
         itemHeight = 20,
@@ -81,7 +82,7 @@
             var overlapMaxStack = 0;
 
             if (!datum.collapse) {
-              var overlapGroups = groupByOverlap(datum.times, (ending/80+3));
+              var overlapGroups = groupByOverlap(datum.times, stackSlack);
 
               overlapGroups.forEach(function(overlapGroup, j) {
                 var overlapStack = 0;
@@ -204,7 +205,7 @@
             .attr("height", getHeight)
             .style("fill", function(d, i){
               var dColorPropName;
-              if ("display" in d && d.display === "unfilled_circle") {
+              if ("display" in d && d.display.split(" ").indexOf("unfilled") !== -1) {
                 return "rgb(255, 255, 255)";
               }
               if (d.color) return d.color;
@@ -221,10 +222,17 @@
               return colorCycle(index);
             })
             .style("stroke", function(d, i) {
-              if (d.display === "unfilled_circle") {
+              if ("display" in d && d.display.split(" ").indexOf("unfilled") !== -1) {
                 if (d.color) return d.color;
                 if (hasLabel) return colorCycle(datum.label);
                 return colorCycle(index);
+              }
+            })
+            .attr("filter", function(d, i) {
+              if ("display" in d && d.display.split(" ").indexOf("dropshadow") !== -1) {
+                return "url(#dropshadow)";
+              } else {
+                return "";
               }
             })
             .on("mousemove", function (d, i) {
@@ -391,7 +399,7 @@
             shape = d.display;
           } else if (d.display === "square") {
             shape = "rect";
-          } else if (d.display === "unfilled_circle") {
+          } else if (d.display.split(" ").indexOf("circle") !== -1) {
             shape = "circle";
           } else {
             console.warn("d3Timeline Warning: unrecognized display attribute: " + d.display);
@@ -585,6 +593,11 @@
       return timeline;
     };
 
+    timeline.stackSlack = function () {
+      if (!arguments.length) return stackSlack;
+      return timeline;
+    };
+
     timeline.relativeTime = function() {
       timeIsRelative = !timeIsRelative;
       return timeline;
@@ -658,7 +671,8 @@ window.clinicalTimeline = (function(){
       divId = null,
       width = null,
       postTimelineHooks = [],
-      enableTrackTooltips = true;
+      enableTrackTooltips = true,
+      stackSlack = null;
 
   function getTrack(data, track) {
     return data.filter(function(x) {
@@ -670,6 +684,20 @@ window.clinicalTimeline = (function(){
     visibleData = allData.filter(function(x) {
         return x.visible;
     });
+
+    var maxDays = Math.max.apply(Math, [getMaxEndingTime(allData), 1]);
+    if (stackSlack === null) {
+      if (maxDays > 300) {
+        stackSlack = 5;
+      }
+      if (maxDays > 600) {
+        stackSlack = 10;
+      }
+      if (maxDays > 900) {
+        stackSlack = 20;
+      }
+    }
+
     var chart = d3.timeline()
       .stack()
       .margin({left:200, right:30, top:15, bottom:0})
@@ -679,7 +707,8 @@ window.clinicalTimeline = (function(){
         tickSize: 6
       })
       .beginning("0")
-      .ending(getMaxEndingTime(allData))
+      .ending(maxDays)
+      .stackSlack(stackSlack)
       .orient('top')
       .itemHeight(itemHeight)
       .itemMargin(itemMargin)
@@ -687,8 +716,18 @@ window.clinicalTimeline = (function(){
 
 
     $(divId).html("");
-    var svg = d3.select(divId).append("svg").attr("width", width)
-      .datum(mergeAllTooltipTablesAtEqualTimepoint(visibleData)).call(chart);
+    var svg = d3.select(divId).append("svg").attr("width", width);
+
+    // Add dropshadow filter
+    svg.append('defs').html('' +
+      '<filter id="dropshadow" x="0" y="0" width="200%" height="200%">' +
+      '  <feOffset result="offOut" in="SourceAlpha" dx="1.5" dy="1.5" />' +
+      '  <feGaussianBlur result="blurOut" in="offOut" stdDeviation="1" />' +
+      '  <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />' +
+      '</filter>');
+
+    svg.datum(mergeAllTooltipTablesAtEqualTimepoint(visibleData)).call(chart);
+
     $("[id^='timelineItem']").each(function() {
       timeline.addDataPointTooltip($(this));
     });
@@ -792,7 +831,7 @@ window.clinicalTimeline = (function(){
         return {
           "starting_time":startingTime,
           "ending_time":startingTime,
-          "display":"unfilled_circle",
+          "display":"dropshadow circle",
           "tooltip_tables": _.reduce(group.map(function(x) {
             return x.tooltip_tables;
           }), function(a, b) {
@@ -891,8 +930,8 @@ window.clinicalTimeline = (function(){
   function sizeByClinicalAttribute(track, attr, minSize, maxSize) {
     var arr = getTrack(allData, track).times.map(function(x) {
       if (x.tooltip_tables.length === 1) {
-        return parseFloat(x.tooltip_tables[0].filter(function(x) {
-          return x[0] === attr;})[0][1].replace(/[^\d.-]/g, ''));
+        return parseFloat(String(x.tooltip_tables[0].filter(function(x) {
+          return x[0] === attr;})[0][1]).replace(/[^\d.-]/g, ''));
       } else {
         return undefined;
       }
@@ -902,8 +941,8 @@ window.clinicalTimeline = (function(){
       .range([minSize, maxSize]);
     getTrack(allData, track).times.forEach(function(x) {
       if (x.tooltip_tables.length === 1) {
-        x.size = scale(parseFloat(x.tooltip_tables[0].filter(function(x) {
-          return x[0] === attr;})[0][1].replace(/[^\d.-]/g, ''))) || minSize;
+        x.size = scale(parseFloat(String(x.tooltip_tables[0].filter(function(x) {
+          return x[0] === attr;})[0][1]).replace(/[^\d.-]/g, ''))) || minSize;
       }
     });
   }
@@ -1241,7 +1280,7 @@ window.clinicalTimeline = (function(){
 
   function getTickValues(data) {
       tickValues = [];
-      maxDays = getMaxEndingTime(data);
+      maxDays = Math.max.apply(Math, [getMaxEndingTime(allData), 1]);
       maxTime = daysToTimeObject(maxDays);
       if (maxTime.y >= 1) {
           for (var i=0; i <= maxTime.y; i++) {
@@ -1271,6 +1310,11 @@ window.clinicalTimeline = (function(){
   timeline.width = function (w) {
     if (!arguments.length) return width;
     width = w;
+    return timeline;
+  };
+
+  timeline.stackSlack = function () {
+    if (!arguments.length) return stackSlack;
     return timeline;
   };
 

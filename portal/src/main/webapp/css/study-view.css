@@ -103,6 +103,24 @@
     font-size: 1.1em;
     margin-top: 4px;
 }
+/* based on study-view-header-left-3 */
+#study-view-header-left-5 {
+    float: left;
+    font-size: 13px;
+    margin: 0;
+    vertical-align: middle;
+    padding: 10px 10px;
+    background-color: white;
+    width: auto;
+    color: orange;
+    text-align: center;
+    font-family: Verdana,Arial,sans-serif;
+    font-size: 1.1em;
+    margin-top: -7px;
+    margin-right: 10px;
+    border: solid 1px;
+    border-color: black;
+}
 #study-view-header-left-4 {
     font-size: 1.1em;
 }

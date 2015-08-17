@@ -229,6 +229,8 @@ var StudyViewBoilerplate ={
 //            _span1 = $('<span></span>'),
 //            _span2 = $('<span></span>'),
             _span3 = $('<span></span>'),
+            // span for the number of items found
+            _span5 = $('<span></span>'),
             _span1 = $("<input type='button' />"),
             _span2 = $("<input type='button' />"),
             _span4 = $("<input type='button' />"),
@@ -316,12 +318,24 @@ var StudyViewBoilerplate ={
                 'class': 'study-view-header-button'})
             .val('View all cases');
 
+        // span5 attributes
+        _span5
+            .attr({
+                'id': 'study-view-header-left-5',
+                'class': 'hidden'})
+            .text('');
 
+        // span3 is now the first item and span5 is added
+        _header.append(_span3);
+        _header.append(_span5);
         _header.append(_span1);
         _header.append(_form);
         _header.append(_span4);
         _header.append(_span2);
-        _header.append(_span3);
+
+        // add a container for the breadcrumbs
+        //_header.append("<div id='breadcrumbs_container'></div>");
+$("#study-view-header-function").append("<div id='breadcrumbs_container'></div>");
         
         return _header;
     },
@@ -402,6 +416,13 @@ var StudyViewBoilerplate ={
             "<tr>"+
             "</tr>"+
             "</tfoot>"+
-            "</table>"
-    
+            "</table>",
+
+    // added for breadcrumbs
+    breadCrumbDiv:
+        "<div class='breadcrumb_container' style='border: solid 1px; display: inline-block'>"+
+            "<span class='breadcrumb_item'></span>"+
+            "<img class='breadcrumb_remove' src='images/bullseye.png'>"+
+        "</div>"
+
 };

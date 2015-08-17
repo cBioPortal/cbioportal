@@ -138,19 +138,24 @@ var StudyViewInitTopComponents = (function() {
                 $("#study-view-header-left-4").val('View selected cases');
                 $("#study-view-header-left-2").css('display','block');
                 $("#study-view-header-left-3").css('display','block');
-                $("#study-view-header-left-3").text(_resultLength + " samples are selected.");
+                // changed text for left-3 and added left-5
+                $("#study-view-header-left-3").text("Total number of samples selected: ");
+                $("#study-view-header-left-5").css('display','block');
+                $("#study-view-header-left-5").text(_resultLength);
             }else if(_plotDataFlag){
                 $("#study-view-header-left-0").css('display','block');
                 $("#study-view-header-left-1").val('Query all samples');
                 $("#study-view-header-left-4").val('View all cases');
                 $("#study-view-header-left-2").css('display','block');
                 $("#study-view-header-left-3").css('display','none');
+                $("#study-view-header-left-5").css('display','none');
             }else {
                 $("#study-view-header-left-0").css('display','block');
                 $("#study-view-header-left-1").val('Query all samples');
                 $("#study-view-header-left-4").val('View all cases');
                 $("#study-view-header-left-2").css('display','none');
                 $("#study-view-header-left-3").css('display','none');
+                $("#study-view-header-left-5").css('display','none');
             }
         }else{
             if(_resultLength === 0){
@@ -161,6 +166,7 @@ var StudyViewInitTopComponents = (function() {
                 $("#study-view-header-left-3").css('display','block');
                 $("#study-view-header-left-3").text("No samples are selected.");
                 $("#study-view-header-left-2").val('Reset all');
+                $("#study-view-header-left-5").css('display','none');
             }else if(_resultLength === 1){
                 $("#study-view-header-left-0").css('display','none');
                 $("#study-view-header-left-1").val('Query selected samples');
@@ -173,7 +179,8 @@ var StudyViewInitTopComponents = (function() {
                         .append("<a title='Go to sample view' href='"
                         + cbio.util.getLinkToSampleView(StudyViewParams.params.studyId, _caseID[0])
                         + "'><span style='color: red'>" + _caseID[0] + 
-                        "</span></a>" + " is selected.");                
+                        "</span></a>" + " is selected.");
+                $("#study-view-header-left-5").css('display','none');
             }else{
                 $("#study-view-header-left-0").css('display','none');
                 $("#study-view-header-left-1").val('Query selected samples');
@@ -181,7 +188,9 @@ var StudyViewInitTopComponents = (function() {
                 $("#study-view-header-left-2").css('display','block');
                 $("#study-view-header-left-3").css('display','block');
                 $("#study-view-header-left-2").val('Reset all');
-                $("#study-view-header-left-3").text(_resultLength + " samples are selected.");
+                $("#study-view-header-left-3").text("Total number of samples selected: ");
+                $("#study-view-header-left-5").css('display','block');
+                $("#study-view-header-left-5").text(_resultLength);
             }
         }
         $("#study-view-header-left-case-ids").val(_caseID.join(" "));
@@ -205,16 +214,18 @@ var StudyViewInitTopComponents = (function() {
         _headerLeftQtip.position.target = $(window);
         _headerLeftQtip.content.text = $('#study-view-case-select-custom-dialog');
         $('#study-view-header-left-0').qtip(_headerLeftQtip);
-        
+
         initAddCharts();
     }
-    
+
+
+
     return {
         init: function() {
             createDiv();
             addEvents();
         },
         
-        changeHeader: changeHeader
+        changeHeader: changeHeader,
     };
 })();

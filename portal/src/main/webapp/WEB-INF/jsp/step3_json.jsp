@@ -48,6 +48,13 @@
 	 			<a id="build_custom_case_set" onclick="promptCustomCaseSetBuilder()" title="Build a Custom Case Set Based on Clinical Attributes">
 	 				Build Case Set
 	 			</a>
+                <!-- add new link for the new functionality which links to the study view -->
+                <!--<a id="build_case_set" onclick="openStudyView()" title="Build a Case Set via Study View">
+                    Build a Case Set via Study View
+                </a>-->
+                <a id="build_case_set" onclick="openStudyView()" title="Build a Case Set via Study View">
+                    Interested in building your own case set based on sample or clinical attributes? Try out enhanced Study View.
+                </a>
 	 		</td>
 		</tr>
 	</table>

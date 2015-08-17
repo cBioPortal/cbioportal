@@ -767,11 +767,27 @@ var StudyViewInitCharts = (function(){
     /**
      * DC charts post filter callback function
      */
-    function postFilterCallbackFunc(){
+    function postFilterCallbackFunc(chartID, chartFilter){
         if(!StudyViewInitScatterPlot.getclearFlag() && !plotDataFlag){
             removeMarker();
             resetBars();
             redrawSpecialPlots();
+
+            // update the breadcrumbs
+            updateBreadCrumbs(chartID, chartFilter);
+        }
+    }
+
+    function updateBreadCrumbs(chartID, chartFilter) {
+        var chartAttribute=displayedID[chartID-1];
+        var chartType = varType[chartAttribute];
+
+        if(chartType==="bar"){
+            var crumbTip = chartFilter==null?"":chartAttribute+": "+chartFilter[0]+" - "+chartFilter[1];
+            BreadCrumbs.updateBarChartBreadCrumb(chartID, chartAttribute, crumbTip);
+        }
+        else if(chartType==="pie"){
+            BreadCrumbs.updatePieChartBreadCrumb(chartID, chartFilter, chartAttribute+": "+chartFilter);
         }
     }
     
@@ -785,7 +801,8 @@ var StudyViewInitCharts = (function(){
         resetBars(_selectedAttr[0]);
         redrawSpecialPlots(_casesInfo, _selectedAttr);
     }
-    
+
+
     /**
      * 
      * @returns {Boolean} whether current dc charts have filter

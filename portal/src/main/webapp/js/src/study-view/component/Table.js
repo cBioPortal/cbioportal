@@ -181,8 +181,12 @@ var Table = function() {
                 tableBodyStr += '<tr style="white-space: nowrap;">';
             }
 
+            // create a unique identifier for the clickable samples part
+            // the identifier is the tableId + the row's gene
+            var cellId = divs.tableId+"_"+arr[i]['gene'];
             for(j = 0; j < attrL; j++) {
-                tableBodyStr += '<td' + (attr[j].name === 'samples' ? ' class="clickable"' : '') + '>' + arr[i][attr[j].name] + '</td>';
+                // added an id for the clickable component
+                tableBodyStr += '<td' + (attr[j].name === 'samples' ? ' id='+cellId+' class="clickable"' : '') + '>' + arr[i][attr[j].name] + '</td>';
             }
             tableBodyStr += '</tr>';
         }
@@ -394,6 +398,9 @@ var Table = function() {
             var shiftClicked = StudyViewWindowEvents.getShiftKeyDown(),
             highlightedRowsData = '';
 
+
+            updateBreadCrumb(this, shiftClicked);
+
             if(!shiftClicked) {
                 var _isClicked = $(this).parent().hasClass('highlightRow');
                 $('#' + divs.tableId + ' tbody').find('.highlightRow').removeClass('highlightRow');
@@ -434,6 +441,20 @@ var Table = function() {
             callbacks.rowClick(divs.tableId, highlightedRowsData);
         }
     }
+
+    function updateBreadCrumb(clickedCell, shiftClicked){
+        // if the clicked cell has an id, it means we have to remove the breadcrumb
+        // if it doesn't have an id, we have to add the id and add the breadcrumb
+        // we need the id to be able to trigger the click event when the x from the breadcrumb is clicked
+        var chartId = divs.tableId;
+        var crumbTitle = $(clickedCell).siblings().first().text();
+        var crumbTipText = divs.title+": "+crumbTitle;
+        var cellId = $(clickedCell).attr("id");
+
+        BreadCrumbs.updateTableBreadCrumb(chartId, crumbTitle, crumbTipText, cellId, shiftClicked)
+
+    }
+
     
     function deleteTable() {
         $('#'+ divs.deleteIconId).unbind('click');

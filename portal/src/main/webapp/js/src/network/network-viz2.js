@@ -164,6 +164,7 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 			name: 'cose2',
 			randomize: true
 		},
+		wheelSensitivity: 0.2,
 
 		// on graph initial layout done (could be async depending on layout...)
 		ready: function()

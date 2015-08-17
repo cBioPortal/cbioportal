@@ -3394,7 +3394,9 @@ NetworkVis.prototype._performLayout = function()
 //      _vis.updateData("edges", [edges[i]], edges[i].data);
 //    }
       //TODO layout options will be changed
-    this._vis.layout(this._graphLayout);
+
+    //Perform layout only on visible elements !
+    this._vis.eles(':visible').layout(this._graphLayout);
 };
 
 /**

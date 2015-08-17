@@ -84,8 +84,7 @@
             Enumeration paramEnum = request.getParameterNames();
             StringBuffer buf = new StringBuffer(request.getAttribute(QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING) + "?");
 
-            while (paramEnum.hasMoreElements())
-            {
+            while (paramEnum.hasMoreElements()) {
                 String paramName = (String) paramEnum.nextElement();
                 String values[] = request.getParameterValues(paramName);
 
@@ -134,48 +133,33 @@
                 }
             }
 
-            out.println ("<li><a href='#summary' class='result-tab' title='Compact visualization of genomic alterations'>OncoPrint</a></li>");
-
+            out.println ("<li><a href='#summary' class='result-tab' id='oncoprint-result-tab'>OncoPrint</a></li>");
             if (computeLogOddsRatio && geneWithScoreList.size() > 1) {
-                out.println ("<li><a href='#mutex' class='result-tab' title='Mutual exclusivity and co-occurrence analysis'>"
+                out.println ("<li><a href='#mutex' class='result-tab' id='mutex-result-tab'>"
                 + "Mutual Exclusivity</a></li>");
             }
-
-            //if ( has_mrna && (has_rppa || has_methylation || has_copy_no) ) {
-                out.println ("<li><a href='#plots' class='result-tab' title='Multiple plots, including CNA v. mRNA expression'>" + "Plots</a></li>");
-            //}
-
+            out.println ("<li><a href='#plots' class='result-tab' id='plots-result-tab'>Plots</a></li>");
             if (showMutTab){
-                out.println ("<li><a href='#mutation_details' class='result-tab' title='Mutation details, including mutation type, "
-                 + "amino acid change, validation status and predicted functional consequence'>"
-                 + "Mutations</a></li>");
+                out.println ("<li><a href='#mutation_details' class='result-tab' id='mutation-result-tab'>Mutations</a></li>");
             }
-
             if (showCoexpTab) {
-                out.println ("<li><a href='#coexp' class='result-tab' title='List of top co-expressed genes'>Co-Expression</a></li>");
+                out.println ("<li><a href='#coexp' class='result-tab' id='coexp-result-tab'>Co-Expression</a></li>");
             }
-
-            if (has_rppa) {
-                out.println ("<li><a href='#protein_exp' class='result-tab' title='Protein and Phopshoprotein changes using Reverse Phase Protein Array (RPPA) data'>"
-                + "Protein Changes</a></li>");
+            if (has_mrna || has_copy_no || showMutTab) {
+                out.println("<li><a href='#or_analysis' id='enrichments-result-tab' class='result-tab' style='height: 18px;'>Enrichments&nbsp;" +
+                 "<span class='new-feature-label'>&nbsp;New&nbsp;</span></a></li>");
             }
-
             if (has_survival) {
-                out.println ("<li><a href='#survival' class='result-tab' title='Survival analysis and Kaplan-Meier curves'>"
-                + "Survival</a></li>");
+                out.println ("<li><a href='#survival' class='result-tab' id='survival-result-tab'>Survival</a></li>");
             }
-
             if (includeNetworks) {
-                out.println ("<li><a href='#network' class='result-tab' title='Network visualization and analysis'>"
-                + "Network</a></li>");
+                out.println ("<li><a href='#network' class='result-tab' id='network-result-tab'>Network</a></li>");
             }
-
             if (showIGVtab){
-                out.println ("<li><a href='#igv_tab' class='result-tab' title='Visualize copy number data via the Integrative Genomics Viewer (IGV).'>IGV</a></li>");
+                out.println ("<li><a href='#igv_tab' class='result-tab' id='igv-result-tab'>IGV</a></li>");
             }
-            out.println ("<li><a href='#data_download' class='result-tab' title='Download all alterations or copy and paste into Excel'>Download</a></li>");
-            out.println ("<li><a href='#bookmark_email' class='result-tab' title='Bookmark or generate a URL for email'>Bookmark</a></li>");
-            out.println ("<!--<li><a href='index.do' class='result-tab'>Create new query</a> -->");
+            out.println ("<li><a href='#data_download' class='result-tab' id='data-download-result-tab'>Download</a></li>");
+            out.println ("<li><a href='#bookmark_email' class='result-tab' id='bookmark-result-tab'>Bookmark</a></li>");
             out.println ("</ul>");
 
             out.println ("<div class=\"section\" id=\"bookmark_email\">");
@@ -205,35 +189,29 @@
             <%@ include file="oncoprint/main.jsp" %>
         </div>
 
-            <% //if ( has_mrna && (has_copy_no || has_methylation || has_copy_no) ) { %>
         <%@ include file="plots_tab.jsp" %>
-            <% //} %>
 
-            <% if (showIGVtab) { %>
-        <%@ include file="igv.jsp" %>
-            <% } %>
-
-            <% if (has_survival) { %>
-        <%@ include file="survival_tab.jsp" %>
-            <% } %>
-
-            <% if (computeLogOddsRatio && geneWithScoreList.size() > 1) { %>
-                <%@ include file="mutex_tab.jsp" %>
-            <% } %>
-            
-            <% if (mutationDetailLimitReached != null) {
-        out.println("<div class=\"section\" id=\"mutation_details\">");
-        out.println("<P>To retrieve mutation details, please specify "
-        + QueryBuilder.MUTATION_DETAIL_LIMIT + " or fewer genes.<BR>");
-        out.println("</div>");
-    } else if (showMutTab) { %>
-        <%@ include file="mutation_views.jsp" %>
-        <%@ include file="mutation_details.jsp" %>
-            <%  } %>
-
-        <% if (has_rppa) { %>
-            <%@ include file="protein_exp.jsp" %>
+        <% if (showIGVtab) { %>
+            <%@ include file="igv.jsp" %>
         <% } %>
+
+        <% if (has_survival) { %>
+            <%@ include file="survival_tab.jsp" %>
+        <% } %>
+
+        <% if (computeLogOddsRatio && geneWithScoreList.size() > 1) { %>
+            <%@ include file="mutex_tab.jsp" %>
+        <% } %>
+            
+        <% if (mutationDetailLimitReached != null) {
+            out.println("<div class=\"section\" id=\"mutation_details\">");
+            out.println("<P>To retrieve mutation details, please specify "
+            + QueryBuilder.MUTATION_DETAIL_LIMIT + " or fewer genes.<BR>");
+            out.println("</div>");
+        } else if (showMutTab) { %>
+            <%@ include file="mutation_views.jsp" %>
+            <%@ include file="mutation_details.jsp" %>
+        <%  } %>
 
         <% if (includeNetworks) { %>
             <%@ include file="networks.jsp" %>
@@ -241,6 +219,10 @@
 
         <% if (showCoexpTab) { %>
             <%@ include file="co_expression.jsp" %>
+        <% } %>
+        
+        <% if (has_mrna || has_copy_no || showMutTab) { %>
+            <%@ include file="over_representation_analysis.jsp" %>
         <% } %>
 
         <%@ include file="data_download.jsp" %>
@@ -295,13 +277,114 @@
             }
         });
 
+
         $("#bitly-generator").click(function() {
              bitlyURL(window.location.href);
         });
 
-        //  Set up Tip-Tip Event Handler for Genomic Profiles help
-        $(".result-tab").tipTip({defaultPosition: "bottom", delay:"100", edgeOffset: 10, maxWidth: 200});
-
+        //qtips
+        $("#oncoprint-result-tab").qtip(
+            {
+                content: {text: "Compact visualization of genomic alterations"},
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow result-tab-qtip-content' },
+                show: {event: "mouseover", delay: 0},
+                hide: {fixed:true, delay: 100, event: "mouseout"},
+                position: {my:'left top',at:'right bottom', viewport: $(window)}
+            }
+        );
+        $("#mutex-result-tab").qtip(
+            {
+                content: {text: "Mutual exclusivity and co-occurrence analysis"},
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow result-tab-qtip-content' },
+                show: {event: "mouseover", delay: 0},
+                hide: {fixed:true, delay: 100, event: "mouseout"},
+                position: {my:'left top',at:'right bottom', viewport: $(window)}
+            }
+        );
+        $("#plots-result-tab").qtip(
+            {
+                content: {text: "Multiple plots, including CNA v. mRNA expression"},
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow result-tab-qtip-content' },
+                show: {event: "mouseover", delay: 0},
+                hide: {fixed:true, delay: 100, event: "mouseout"},
+                position: {my:'left top',at:'right bottom', viewport: $(window)}
+            }
+        );
+        $("#mutation-result-tab").qtip(
+            {
+                content: {text: "Mutation details, including mutation type, amino acid change, validation status and predicted functional consequence"},
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow result-tab-qtip-content' },
+                show: {event: "mouseover", delay: 0},
+                hide: {fixed:true, delay: 100, event: "mouseout"},
+                position: {my:'left top',at:'right bottom', viewport: $(window)}
+            }
+        );
+        $("#coexp-result-tab").qtip(
+            {
+                content: {text: "List of top co-expressed genes"},
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow result-tab-qtip-content' },
+                show: {event: "mouseover", delay: 0},
+                hide: {fixed:true, delay: 100, event: "mouseout"},
+                position: {my:'left top',at:'right bottom', viewport: $(window)}
+            }
+        );
+        $("#enrichments-result-tab").qtip(
+            {
+                content: {text: "This analysis finds alterations " +
+                "(mutations, copy number alterations, mRNA expression changes, and protein expression changes, if available) " +
+                "that are enriched in either altered samples (with at least one alteration based on query) or unaltered samples. " +
+                "The analysis is only performed on annotated cancer genes. <a href='cancer_gene_list.jsp' target='_blank'>[List of Portal Cancer Genes]</a>"},
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow result-tab-qtip-content' },
+                show: {event: "mouseover", delay: 0},
+                hide: {fixed:true, delay: 100, event: "mouseout"},
+                position: {my:'left top',at:'right bottom', viewport: $(window)}
+            }
+        );
+        $("#survival-result-tab").qtip(
+            {
+                content: {text: "Survival analysis and Kaplan-Meier curves"},
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow result-tab-qtip-content' },
+                show: {event: "mouseover", delay: 0},
+                hide: {fixed:true, delay: 100, event: "mouseout"},
+                position: {my:'left top',at:'right bottom', viewport: $(window)}
+            }
+        );
+        $("#network-result-tab").qtip(
+            {
+                content: {text: "Network visualization and analysis"},
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow result-tab-qtip-content' },
+                show: {event: "mouseover", delay: 0},
+                hide: {fixed:true, delay: 100, event: "mouseout"},
+                position: {my:'left top',at:'right bottom', viewport: $(window)}
+            }
+        );
+        $("#igv-result-tab").qtip(
+            {
+                content: {text: "Visualize copy number data via the Integrative Genomics Viewer (IGV)"},
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow result-tab-qtip-content' },
+                show: {event: "mouseover", delay: 0},
+                hide: {fixed:true, delay: 100, event: "mouseout"},
+                position: {my:'left top',at:'right bottom', viewport: $(window)}
+            }
+        );
+        $("#data-download-result-tab").qtip(
+            {
+                content: {text: "Download all alterations or copy and paste into Excel"},
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow result-tab-qtip-content' },
+                show: {event: "mouseover", delay: 0},
+                hide: {fixed:true, delay: 100, event: "mouseout"},
+                position: {my:'left top',at:'right bottom', viewport: $(window)}
+            }
+        );
+        $("#bookmark-result-tab").qtip(
+            {
+                content: {text: "Bookmark or generate a URL for email"},
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow result-tab-qtip-content' },
+                show: {event: "mouseover", delay: 0},
+                hide: {fixed:true, delay: 100, event: "mouseout"},
+                position: {my:'left top',at:'right bottom', viewport: $(window)}
+            }
+        );
     });
 </script>
 
@@ -318,6 +401,10 @@
     }
     [class*="ui-button-text"] {
         margin: 3px;
+    }
+    .result-tab-qtip-content{
+        font-size: 13px;
+        line-height: 110%;
     }
 </style>
 

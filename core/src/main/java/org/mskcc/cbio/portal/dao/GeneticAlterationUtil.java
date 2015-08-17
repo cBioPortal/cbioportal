@@ -86,6 +86,7 @@ public class GeneticAlterationUtil {
                                                    targetSampleList, canonicalGene, type, null)[0];
             }
             else {
+
                 //  Handle All Other Data Types another way
                 sampleMap = daoGeneticAlteration.getGeneticAlterationMap(targetGeneticProfile.getGeneticProfileId(),
                                                                         canonicalGene.getEntrezGeneId());

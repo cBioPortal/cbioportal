@@ -34,7 +34,6 @@ package org.mskcc.cbio.portal.scripts;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.Date;
 
 import joptsimple.OptionException;

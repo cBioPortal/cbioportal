@@ -230,11 +230,16 @@
     	 var self = this;
          // cancer types:
          var selOptions = self.dmPresenter.getCancerTypeList();
+         // add "all" entry:
+         selOptions.splice(0,0, "All");
 
          //event handler for when the Cancer Type Select is changed
          var changeCallBack = function(){
-             //console.log("CancerTypeSelect changed to "+event.currentTarget.value);
-        	 self.model.set("cancerType", $(this).val());
+             var fields = {};
+             var cancerType = $(this).val();
+             fields["cancerType"] = cancerType;
+             fields["cancerTypeDetailed"] = self.dmPresenter.getCancerTypeDetailedList(cancerType);
+        	 self.model.set(fields);
          }
          // create the dropdown and add it
          $("#customize-cancertype-dropdown-"+this.gene).append(fnCreateSelect(
@@ -301,7 +306,11 @@
 
       // add view for the specific cancer types selection
       addcancerTypeDetailedView: function(){
-         new SpecificCancerTypesView({gene:this.gene, el:"#specific-cancertypes-area-"+this.gene, dispatcher:this.dispatcher, model:this.model});
+         new SpecificCancerTypesView({gene:this.gene, 
+        	 el:"#specific-cancertypes-area-"+this.gene, 
+        	 dispatcher:this.dispatcher, 
+        	 model:this.model,
+        	 dmPresenter:this.dmPresenter});
       },
                                              
       // incoming event - change the visibility of the customize histogram part
@@ -375,7 +384,7 @@
          this.dispatcher = options.dispatcher;
 
          // call render when the model is changed
-         this.model.on("change", this.render, this);
+         this.model.on("change", this.render, this); //TODO change to this.listenTo(this.model, "change", this.updateRender)
       },
 
       render: function(){
@@ -394,7 +403,13 @@
          });
 
          $(this.el).html(this.template);
+         this.drawHistogram();
       },
+      
+      drawHistogram: function(){
+    	  alert('drawing histogram' + this.model.get("cancerTypeDetailed"));
+      }
+      
    }); // end of GeneHistogramView
 
 
@@ -409,22 +424,33 @@
          minNrAlteredSamples: "1",
          showGenomicAlterationTypes: true
       },
-      initialize: function() {
+      initialize: function(options) {
+    	  this.set("cancerTypeDetailed", options.dmPresenter.getCancerTypeList()); 
           console.log("HistogramSettings Created");
       }
   });
 
 
 var SpecificCancerTypesView = Backbone.View.extend({
-//el: "#specific-cancertypes-area",
-//    template: _.template($("#cc-remove-study-tmpl").html()),
+
       initialize: function(options){
          this.gene = options.gene;
+         this.dmPresenter = options.dmPresenter;
          this.dispatcher = options.dispatcher;
          this.addEventListener();
          this.render();
+         // call render again when the model is changed
+         this.model.on("change", this.updateRender, this);
       },
 
+      //function for model.onchange above, it will check whether the view needs
+      //to be udpated:
+      updateRender: function(){
+    	  var cancerTypeChanged = this.model.hasChanged("cancerType");
+    	  if (cancerTypeChanged)
+    		  this.render();
+      },
+      
       addEventListener: function(){
          var self=this;
          // when the Show/Hide Specific Cancer Types is clicked, show or hide the section and change the icon
@@ -438,26 +464,50 @@ var SpecificCancerTypesView = Backbone.View.extend({
       },
 
       render: function() {
-         $(this.el).append("test for "+this.gene);
-         //TODO - get items from "data manager" - 
-/*
-          var thatModel = this.model;
-          var thatTmpl = this.template;
-          var thatEl = this.$el;
+    	  
+    	  var templateFn = BackboneTemplateCache.getTemplateFn("specific_cancertypes_area_template");
+    	  this.template = templateFn();
+          // add the template
+          $(this.el).html(this.template);
+    	  
+    	  var listOfOptions = [];
+    	  if (this.model.get("cancerType") == "All")
+    		  listOfOptions = this.dmPresenter.getCancerTypeList(); 
+    	  else
+    		  listOfOptions = this.dmPresenter.getCancerTypeDetailedList(this.model.get("cancerType"));
+    	  
+    	  for (var i = 0; i < listOfOptions.length; i++){
+    		  this.addCancerTypeCheckbox(listOfOptions[i]);
+    	  }
 
-          _.each(thatModel.studies, function(aStudy) {
-              if(aStudy.skipped) { return; }
-
-              thatEl.append(
-                  thatTmpl({
-                      studyId: aStudy.studyId,
-                      name: thatModel.metaData.cancer_studies[aStudy.studyId].name,
-                      checked: true,
-                      altered: aStudy.alterations.all > 0
-                  })
-              );
-          });*/
-
+      },
+      
+      // add checkbox for genomic alteration types
+      addCancerTypeCheckbox: function(cancerType){
+    	 var self = this;    	 
+    	 // handle the event for when the Show genomic alteration types checkbkox is changed
+         var changeCallBack = function(){
+        	 var cancerTypeDetailedList = self.model.get("cancerTypeDetailed");
+        	 //update model, which triggers a redraw of the histogram:
+        	 var checked = $(this).is(":checked");
+        	 if (checked) {
+        		 cancerTypeDetailedList.push($(this).attr("cancerType"));
+        	 }
+        	 else {
+            	 var indexOfType = cancerTypeDetailedList.indexOf($(this).attr("cancerType"));
+            	 cancerTypeDetailedList.splice(indexOfType, 1);
+        	 }
+        	 //unset model value,  otherwise model.onchange is not triggered, since it is an array object:
+        	 self.model.unset("cancerTypeDetailed", {silent: true});
+        	 self.model.set("cancerTypeDetailed", cancerTypeDetailedList);
+         }
+         //create checkbox and add it
+         var checkBox = $("<input/>", {type: 'checkbox', checked: true}).change(changeCallBack);
+         checkBox.attr("cancerType", cancerType);
+         $(this.el).append(checkBox);
+         //checkbox label:
+         $(this.el).append( 	
+        	$("<label/>").text(cancerType));
       }
   });
 
@@ -550,7 +600,7 @@ function GeneDetailsController(cancerSummaryMainView, dispatcher, dmPresenter){
 
    // create the content of a tab, triggered when tab 
    function createTabContent(gene){
-      var histogramSettings = new HistogramSettings();
+      var histogramSettings = new HistogramSettings({dmPresenter: dmPresenter});
 
       // create a ButtonsView, providing the gene, the dispatcher and the el
       var buttonsView = new ButtonsView({
@@ -591,7 +641,7 @@ function DataManagerPresenter()
 {
 	// returns the CANCER_TYPE list
 	this.getCancerTypeList = function() {
-		return ["All", "breast", "lung"];
+		return ["breast", "lung"];
 	}
 	
 	// returns the CANCER_TYPE_DETAILED list for the given cancerType

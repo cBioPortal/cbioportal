@@ -40,6 +40,7 @@ var Table = function() {
         selectedSamples = [],
         dataTable = '',
         callbacks = {},
+        checkboxChildId = -1,
         initStatus = false,
         self = this;
     
@@ -233,6 +234,7 @@ var Table = function() {
             }
             if(e.name === 'samples') {
                 samplesIndex = i;
+                checkboxChildId = i+1;
             }
             if(e.name === 'qval') {
                 qvalIndex = i;
@@ -255,7 +257,7 @@ var Table = function() {
                 "mDataProp": function(source,type) {
                     var _samplesType = source[samplesIndex];
                     if (type==='display') {
-                        return '<span style="border-bottom:2px dotted grey">'+_samplesType+'</span>';
+                        return '<span>'+_samplesType+'</span><input type="checkbox" style="float:right; margin: 3px 0;">';
                     }
                     return _samplesType;
                 }
@@ -309,7 +311,6 @@ var Table = function() {
                     var _gene = source[geneIndex];
                     if (type==='display') {
                         var str = '';
-                        str += '<input type="checkbox">';
                         if(_gene.toString().length > 6) {
                             str += '<span class="hasQtip" qtip="'+_gene+'">'+_gene.substring(0,4) + '...'+'</span>';
                         }else {
@@ -344,7 +345,7 @@ var Table = function() {
                 $('#'+ divs.tableId).find('table tbody tr').each(function(e, i) {
                     if($(this).hasClass('highlightRow')){
                         $(this).find('td').addClass('highlightRow');
-                        $(this).find('td:nth-child(1) input:checkbox').attr('checked', true);
+                        $(this).find('td:nth-child('+checkboxChildId+') input:checkbox').attr('checked', true);
                     }
                 });
                 
@@ -355,7 +356,7 @@ var Table = function() {
                     $(this).siblings().addBack().removeClass('hoverRow');
                 });
                 
-                rowClick();
+                //rowClick();
                 checkboxClick();
             };
         }
@@ -412,8 +413,8 @@ var Table = function() {
     }
 
     function checkboxClick() {
-        $('#' + divs.tableId + ' table tbody tr td:nth-child(1) input:checkbox').unbind('change');
-        $('#' + divs.tableId + ' table tbody tr td:nth-child(1) input:checkbox').change(function () {
+        $('#' + divs.tableId + ' table tbody tr td:nth-child('+checkboxChildId+') input:checkbox').unbind('change');
+        $('#' + divs.tableId + ' table tbody tr td:nth-child('+checkboxChildId+') input:checkbox').change(function () {
             $(this).parent().siblings().addBack().toggleClass('highlightRow');
             $(this).parent().parent().toggleClass('highlightRow');
             clickFunc();
@@ -449,7 +450,7 @@ var Table = function() {
         $('#'+ divs.reloadId).unbind('click');
         $('#'+ divs.reloadId).click(function() {
             $('#' + divs.tableId + ' tbody').find('.highlightRow').removeClass('highlightRow');
-            $('#' + divs.tableId + ' tbody tr td:nth-child(1) input:checkbox').attr('checked', false);
+            $('#' + divs.tableId + ' tbody tr td:nth-child('+checkboxChildId+') input:checkbox').attr('checked', false);
             if(callbacks.hasOwnProperty('rowClick')) {
                 callbacks.rowClick(divs.tableId, []);
             }

@@ -166,12 +166,11 @@ window.setUpOncoprint = function(ctr_id, config) {
 		
 		oncoprintFadeTo = function (f) {
 			oncoprint_covering_block.css({'display':'block', 'width':$('#oncoprint').width()+'px', 'height':$('#oncoprint').height()+'px'});
-			$(config.toolbar_selector).fadeTo('fast', f);
+			$(config.toolbar_selector).fadeTo('fast', 0);
 			return $.when($(ctr_selector + ' .oncoprint-content-area').fadeTo('fast', f));
 		};
 		oncoprintFadeIn = function () {
 			oncoprint_covering_block.css({'display':'none'});
-			$(config.toolbar_selector).fadeTo('fast', 1);
 			return $.when($(ctr_selector + ' .oncoprint-content-area').fadeTo('fast', 1));
 		};
 		sampleViewUrl = function(sample_id) {
@@ -456,37 +455,32 @@ window.setUpOncoprint = function(ctr_id, config) {
 			$(oncoprint).on('remove_track.oncoprint', removeClinicalTrackHandler);
 			var addClinicalTrack = function (clinical_attr) {
 				var new_track;
-				if (clinical_attr.attr_id === "# mutations") {
-					var mutation_count_data = (using_sample_data ? sample_data__clinical : patient_data__clinical)[clinical_attr.attr_id];
-					new_track = oncoprint.addTrack({label: '# Mutations (Log scale)', tooltip: (using_sample_data ? cTooltipSample : cTooltipPatient), cell_height: 15.33, removable: true, sort_direction_changable: true, datum_id_key: (using_sample_data ? "sample" : "patient")}, 0);
-					oncoprint.setRuleSet(new_track, 'bar_chart', {
+				var data = (using_sample_data ? sample_data__clinical : patient_data__clinical)[clinical_attr.attr_id];
+				new_track = oncoprint.addTrack({label: clinical_attr.display_name, tooltip: (using_sample_data ? cTooltipSample : cTooltipPatient), cell_height: 15.33, removable: true, sort_direction_changable: true, datum_id_key: (using_sample_data ? "sample" : "patient")}, 0);
+				if (clinical_attr.datatype.toLowerCase() === "number") {
+					var bar_chart_config = {
 						data_key: 'attr_val',
-						fill: '#c97894',
-						legend_label: '# Mutations',
-						scale: 'log',
-					});
-					oncoprint.setTrackData(new_track, mutation_count_data);
-					oncoprint.sort();
-				} else {
-					var data = (using_sample_data ? sample_data__clinical : patient_data__clinical)[clinical_attr.attr_id];
-					new_track = oncoprint.addTrack({label: clinical_attr.display_name, tooltip: (using_sample_data ? cTooltipSample : cTooltipPatient), cell_height: 15.33, removable: true, sort_direction_changable: true, datum_id_key: (using_sample_data ? "sample" : "patient")}, 0);
-					if (clinical_attr.datatype.toLowerCase() === "number") {
-						oncoprint.setRuleSet(new_track, 'gradient_color', {
-							data_key: 'attr_val',
-							color_range: ['#ffffff', '#c97894'],
-							legend_label: clinical_attr.display_name,
-						});
-					} else {
-						oncoprint.setRuleSet(new_track, 'categorical_color', {
-							legend_label: clinical_attr.display_name,
-							getCategory: function (d) {
-								return d.attr_val;
-							},
-						});
+						fill: '#b38d9b',
+						legend_label: clinical_attr.display_name,
+					};
+					if (clinical_attr.attr_id === "# mutations") {
+						bar_chart_config.scale = "log";
+						bar_chart_config.data_range = [0,undefined];
+						bar_chart_config.legend_label += " (log scale)";
+					} else if (clinical_attr.attr_id === "FRACTION_GENOME_ALTERED") {
+						bar_chart_config.data_range = [0,1];
 					}
-					oncoprint.setTrackData(new_track, data);
-					oncoprint.sort();
+					oncoprint.setRuleSet(new_track, 'bar_chart', bar_chart_config);
+				} else {
+					oncoprint.setRuleSet(new_track, 'categorical_color', {
+						legend_label: clinical_attr.display_name,
+						getCategory: function (d) {
+							return d.attr_val;
+						},
+					});
 				}
+				oncoprint.setTrackData(new_track, data);
+				oncoprint.sort();
 				var attr_index = _.indexOf(_.pluck(unused_clinical_attrs, 'attr_id'), clinical_attr.attr_id);
 				unused_clinical_attrs.splice(attr_index, 1);
 
@@ -921,11 +915,12 @@ window.setUpOncoprint = function(ctr_id, config) {
 			});
 			to_qtip_destroy.push($(toolbar_selector + ' #oncoprint-diagram-downloads-icon'));
 		})();
-		$('#oncoprint').hover(function () {
+		$(config.toolbar_fade_hitzone_selector).hover(function () {
 			$(toolbar_selector).stop().fadeTo(80, 1);
 		}, function (evt) {
 			$(toolbar_selector).stop().fadeOut(500);
 		});
+		$(toolbar_selector).hide();
 		updatePercentAlteredIndicator();
 	})();
 	return {

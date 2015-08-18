@@ -35,6 +35,7 @@ $(document).ready(function() {
 				sample_to_patient: window.PortalGlobals.getPatientSampleIdMap(),
 				gene_data: response.toJSON(),
 				toolbar_selector: '#oncoprint-diagram-toolbar-buttons',
+				toolbar_fade_hitzone_selector: '#oncoprint',
 				sample_list: window.PortalGlobals.getCases().trim().split(/\s+/),
 				cancer_study_id: cancer_study_id_selected,
 				gene_order: window.PortalGlobals.getGeneListString().split(/\s+/),

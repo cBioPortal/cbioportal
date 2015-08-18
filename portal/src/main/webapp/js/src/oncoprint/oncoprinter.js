@@ -62,6 +62,7 @@ var makeOncoprinter = (function() {
 		window.onc_obj = window.setUpOncoprint('oncoprint_body', {
 			gene_data: data,
 			toolbar_selector: '#oncoprint-diagram-toolbar-buttons',
+			toolbar_fade_hitzone_selector: '#oncoprint',
 			load_clinical_tracks: false,
 			swap_patient_sample: false,
 			sort_by: false,

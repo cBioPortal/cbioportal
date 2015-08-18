@@ -464,11 +464,16 @@ window.setUpOncoprint = function(ctr_id, config) {
 						legend_label: clinical_attr.display_name,
 					};
 					if (clinical_attr.attr_id === "# mutations") {
-						bar_chart_config.scale = "log";
 						bar_chart_config.data_range = [0,undefined];
-						bar_chart_config.legend_label += " (log scale)";
 					} else if (clinical_attr.attr_id === "FRACTION_GENOME_ALTERED") {
 						bar_chart_config.data_range = [0,1];
+					}
+					var data_pts = _.map(data, function(d) { return d.attr_val;});
+					var median = _.sortBy(data_pts)[Math.floor(data_pts.length/2)];
+					var max = _.max(data_pts);
+					if (median <= 0.1 * max) {
+						bar_chart_config.scale = "log";
+						bar_chart_config.legend_label += " (log scale)";
 					}
 					oncoprint.setRuleSet(new_track, 'bar_chart', bar_chart_config);
 				} else {

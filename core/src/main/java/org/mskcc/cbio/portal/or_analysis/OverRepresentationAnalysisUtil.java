@@ -1,3 +1,20 @@
+/** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center
+ * has been advised of the possibility of such damage.
+ */
+
 package org.mskcc.cbio.portal.or_analysis;
 
 import java.util.*;
@@ -15,6 +32,7 @@ public class OverRepresentationAnalysisUtil {
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
 
         Set<Long> entrezGeneIds = new HashSet<Long>();
+
         if (proteinExpType.equals("phospho")) {
             ArrayList<CanonicalGene> allGeneSet = daoGeneOptimized.getAllGenes();
             for (CanonicalGene gene: allGeneSet) {
@@ -23,18 +41,37 @@ public class OverRepresentationAnalysisUtil {
                 }
             }
         } else {
+
+
+            Set<Long> profileGeneIds = new HashSet<>();
+            if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString())) { //get only genes that has mutations -- performance concern
+                Set<CanonicalGene> profileGeneSet = DaoMutation.getGenesInProfile(profileId);
+                for (CanonicalGene profileGene : profileGeneSet) {
+                    profileGeneIds.add(profileGene.getEntrezGeneId());
+                }
+            }
+
             if (geneSet.equals("cancer_genes")) {
                 //get cancer genes
                 Set<CanonicalGene> cancerGeneSet = daoGeneOptimized.getCbioCancerGenes();
                 for (CanonicalGene cancerGene : cancerGeneSet) {
                     entrezGeneIds.add(cancerGene.getEntrezGeneId());
                 }
+                //overlap two gene sets for mutation profile
+                if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString())) {
+                    entrezGeneIds.retainAll(profileGeneIds);
+                }
             } else if (geneSet.equals("all_genes")) {
-                ArrayList<CanonicalGene> allGeneSet = daoGeneOptimized.getAllGenes();
-                for (CanonicalGene gene: allGeneSet) {
-                    entrezGeneIds.add(gene.getEntrezGeneId());
+                if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString())) {
+                    entrezGeneIds.addAll(profileGeneIds);
+                } else {
+                    ArrayList<CanonicalGene> allGeneSet = daoGeneOptimized.getAllGenes();
+                    for (CanonicalGene gene: allGeneSet) {
+                        entrezGeneIds.add(gene.getEntrezGeneId());
+                    }
                 }
             }
+
         }
 
         //join two lists

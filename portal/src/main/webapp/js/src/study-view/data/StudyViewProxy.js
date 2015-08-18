@@ -110,7 +110,7 @@ var StudyViewProxy = (function() {
                 selected_cancer_type: parObject.studyId
             },
             cnaData: {
-                sample_id: sampleIdStr,
+                //sample_id: sampleIdStr,
                 cna_profile: parObject.cnaProfileId,
                 cbio_genes_filter: true
             }
@@ -181,7 +181,7 @@ var StudyViewProxy = (function() {
                     var _attrId = _data[i].attr_id.toUpperCase();
                     var _attrVal = _data[i].attr_val;
 
-                    if(!_attrVal || _attrVal === 'na'){
+                    if(cbio.util.checkNullOrUndefined(_attrVal) || _attrVal === '' || _attrVal === 'na'){
                         _attrVal = 'NA';
                     }else if(_attrVal !== 'NA'){
                         ++_dataAttrOfa1[_attrId].numOfNoneEmpty;
@@ -268,7 +268,7 @@ var StudyViewProxy = (function() {
 
                     for(var sampleId in filteredA3){
                         var val = filteredA3[sampleId];
-                        if(!val){
+                        if(cbio.util.checkNullOrUndefined(val) || val === '' || val === 'na'){
                             val = 'NA';
                         }else{
                             ++_newAttri.numOfNoneEmpty;
@@ -382,14 +382,18 @@ var StudyViewProxy = (function() {
         if(obtainDataObject.hasOwnProperty('cna') && obtainDataObject.cna){
             deferred.resolve(obtainDataObject.cna);
         }else{
-            $.ajax({type: "POST", url: "cna.json", data: ajaxParameters.cnaData})
-                .then(function(data){
-                    obtainDataObject.cna = data;
-                    deferred.resolve(obtainDataObject.cna);
-                }, function(status){
-                    obtainDataObject.cna = '';
-                    deferred.reject(status);
-                });
+            if(hasCNA) {
+                $.ajax({type: "POST", url: "cna.json", data: ajaxParameters.cnaData})
+                    .then(function(data){
+                        obtainDataObject.cna = data;
+                        deferred.resolve(obtainDataObject.cna);
+                    }, function(status){
+                        obtainDataObject.cna = '';
+                        deferred.reject(null);
+                    });
+            }else{
+                deferred.reject(null);
+            }
         }
         return deferred.promise();
     }
@@ -400,14 +404,18 @@ var StudyViewProxy = (function() {
         if(obtainDataObject.hasOwnProperty('mutatedGenes') && obtainDataObject.mutatedGenes){
             deferred.resolve(obtainDataObject.mutatedGenes);
         }else{
-            $.ajax({type: "POST", url: "mutations.json", data: ajaxParameters.mutatedGenesData})
-                .then(function(data){
-                    obtainDataObject.mutatedGenes = data;
-                    deferred.resolve(obtainDataObject.mutatedGenes);
-                }, function(status){
-                    obtainDataObject.mutatedGenes = '';
-                    deferred.reject(status);
-                });
+            if(hasMutation){
+                $.ajax({type: "POST", url: "mutations.json", data: ajaxParameters.mutatedGenesData})
+                    .then(function(data){
+                        obtainDataObject.mutatedGenes = data;
+                        deferred.resolve(obtainDataObject.mutatedGenes);
+                    }, function(status){
+                        obtainDataObject.mutatedGenes = '';
+                        deferred.reject(null);
+                    });
+            }else{
+                deferred.reject(null);
+            }
         }
         return deferred.promise();
     }

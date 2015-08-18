@@ -55,7 +55,7 @@ public class LinkOut extends HttpServlet {
      * Handles HTTP GET Request.
      *
      * @param httpServletRequest  Http Servlet Request Object.
-     * @param httpServletResponse Http Servelt Response Object.
+     * @param httpServletResponse Http Servlet Response Object.
      * @throws javax.servlet.ServletException Servlet Error.
      * @throws java.io.IOException      IO Error.
      */
@@ -82,7 +82,7 @@ public class LinkOut extends HttpServlet {
      * Handles HTTP POST Request.
      *
      * @param httpServletRequest  Http Servlet Request Object.
-     * @param httpServletResponse Http Servelt Response Object.
+     * @param httpServletResponse Http Servlet Response Object.
      * @throws javax.servlet.ServletException Servlet Error.
      * @throws java.io.IOException      IO Error.
      */

@@ -1,6 +1,6 @@
 # How to contribute
 
-Guidelines for contributing to the cBioPortal project.
+Thank you for contributing to cBioPortal!  This document provides a brief set of guidelines for contributing.
 
 # Background
 
@@ -30,6 +30,18 @@ Once you have forked the repo, you need to create your code contributions within
 
 * To begin, create a topic branch from where you want to base your work.
  * For a new feature, this is usually the **master branch**.  For bug fixes, this is usually the **hotfix branch**.
+
+You usually create a branch like so:
+
+```git checkout master```
+```git checkout -b [name_of_your_new_branch]```
+
+You then usually commit code changes, and push your branch back to GitHub like so:
+
+```git push origin [name_of_your_new_branch]```
+
+A few tips:
+
 * Make commits in logical/cohesive units.
 * Make sure your commit messages end with a Signed-off-by string (this line can be automatically added by git if you run the git-commit command with the -s option).
 * Make sure you have added the necessary tests for your changes.

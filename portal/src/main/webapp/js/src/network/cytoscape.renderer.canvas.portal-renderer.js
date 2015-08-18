@@ -63,7 +63,7 @@ var getDegrees = function(node){
 };
 
 var mutNames = ['amplification', 'homozygous-deletion', 'gain', 'hemizygous-deletion','upper', 'mutated','right', 'up-regulated', 'down-regulated','left'];
-var rgbs     = ['rgb(254,80,51)', 'rgb(53,91,255)', 'rgb(255,208,214)', 'rgb(158,223,224)','rgb(255,255,255)', 'rgb(50,161,50)','rgb(255,255,255)', 'rgb(250,185,182)', 'rgb(147,187,221)','rgb(255,255,255)'];
+var rgbs     = ['rgba(254,80,51,0.8)', 'rgba(53,91,255,0.8)', 'rgba(255,208,214,0.8)', 'rgba(158,223,224,0.8)','rgba(255,255,255,0.3)', 'rgba(50,161,50,0.8)','rgba(255,255,255,0.3)', 'rgba(250,185,182,0.8)', 'rgba(147,187,221,0.8)','rgba(255,255,255,0.3)'];
 
 (function ($$) {"use strict";
     var CanvasRenderer = $$('renderer', 'canvas');

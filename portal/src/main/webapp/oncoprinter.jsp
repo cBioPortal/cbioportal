@@ -246,13 +246,13 @@
      </div>
     <div id='oncoprint_legend' style="display: inline;"></div>
     <!--<script data-main="js/src/oncoprint/custom-boilerplate.js?<%=GlobalProperties.getAppVersion()%>" type="text/javascript" src="js/require.js?<%=GlobalProperties.getAppVersion()%>"></script>-->
-    <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/oncoprintjs/src/js/events.js"></script>
-    <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/oncoprintjs/src/js/utils.js"></script>
-    <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/oncoprintjs/src/js/defaults.js"></script>
-    <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/oncoprintjs/src/js/RuleSet.js"></script>
-    <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/oncoprintjs/src/js/OncoprintRenderer.js"></script>
-    <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/oncoprintjs/src/js/OncoprintSVGRenderer.js"></script>
-    <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/oncoprintjs/src/js/oncoprint.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/events.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/utils.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/defaults.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/RuleSet.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/OncoprintRenderer.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/OncoprintSVGRenderer.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/oncoprint.js"></script>
     <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/OncoprintUtils.js"></script>
     <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/setup-oncoprint-improved.js"></script>
     <script src="js/src/oncoprint/oncoprinter.js?<%=GlobalProperties.getAppVersion()%>"></script>

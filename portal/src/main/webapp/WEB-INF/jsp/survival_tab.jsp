@@ -80,6 +80,7 @@
 </div>
 
 <script>
+    
     function getSurvivalPlotsCaseList() {
         var obj = {};
         $.each(window.PortalGlobals.getAlteredSampleIdList().split(" "), function(_index, _sampleId) {
@@ -94,4 +95,5 @@
     $(document).ready(function() {
         SurvivalTab.init(getSurvivalPlotsCaseList());
     });
+    
 </script>

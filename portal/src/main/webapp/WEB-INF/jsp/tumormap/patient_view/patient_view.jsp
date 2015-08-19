@@ -900,7 +900,7 @@ function guessClinicalData(clinicalData, paramNames) {
 
 function outputClinicalData() {
     var n=caseIds.length;
-    if (n>1) initCaseMetaData();
+    if (n>0) initCaseMetaData();
     
     initNav();
 
@@ -938,7 +938,7 @@ function outputClinicalData() {
         var caseId = caseIds[i];
 
         sample_recs += "<div class='sample-record-inline more-sample-info' alt='"+caseId+"'>";
-        if (n>1) {
+        if (n>0) {
             sample_recs += "<svg width='12' height='12' class='case-label-header' alt='"+caseId+"'></svg>&nbsp;";
         }
         sample_recs += "<b><u><a style='color: #1974b8;' href='"+cbio.util.getLinkToSampleView(cancerStudyId,caseId)+"'>"+caseId+"</a></b></u><a>&nbsp;";
@@ -980,7 +980,7 @@ function outputClinicalData() {
     }
 
     
-    if (n>1) {
+    if (n>0) {
         plotCaseLabel('.case-label-header', false, true);
     }
   

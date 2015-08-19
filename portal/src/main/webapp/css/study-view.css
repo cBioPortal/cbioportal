@@ -286,6 +286,13 @@
 .qtip-content td {
     white-space: nowrap;
 }
+#study-view-main table.dataTable td {
+    padding: 3px 5px !important;
+}
+.smallTable thead th {
+    font-size: 10px !important;
+}
+
 #dataTable_info {
     float: left;
     width: auto;
@@ -383,7 +390,7 @@
     height:55px;
     width:95%;
     float:left;
-    padding: 0 10px;
+    padding: 0 5px;
     display: none;
 }
 .pieLabel:hover{
@@ -771,7 +778,7 @@ pieH3{
 .qtip-max-width {
     max-width: 500px;
 }
-//Show/Hide columns related classes
+/*Show/Hide columns related classes*/
 .ColVis_collection {
     width: 500px;
 }

@@ -188,9 +188,13 @@ public class ImportProteinArrayData {
     private void importPhosphoGene(String[] genes, String residue, String arrayId) throws DaoException {
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         String phosphoSymbol = StringUtils.join(genes, "/")+"_"+residue;
+        
+        if (null != daoGene.getGene(phosphoSymbol)) {
+            return;
+        }
 
         Set<String> aliases = new HashSet<String>();
-        aliases.add(arrayId);
+        //aliases.add(arrayId);
         aliases.add("rppa-phospho");
         aliases.add("phosphoprotein");
         for (String gene : genes) {
@@ -208,10 +212,12 @@ public class ImportProteinArrayData {
         for (String gene : genes) {
             CanonicalGene existingGene = daoGene.getGene(gene);
             if (existingGene!=null) {
-                Set<String> aliases = new HashSet<String>();
-                aliases.add("rppa-protein");
-                existingGene.setAliases(aliases);
-                daoGene.addGene(existingGene);
+                Set<String> aliases = new HashSet<String>(existingGene.getAliases());
+                if (!aliases.contains("rppa-protein")) {
+                    aliases.add("rppa-protein");
+                    existingGene.setAliases(aliases);
+                    daoGene.addGene(existingGene);
+                }
             }
         }
     }

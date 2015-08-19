@@ -246,6 +246,7 @@
             };
 
         $(".mutex-table-checkbox").change(function () {
+        
             var _mutex_checked = false,
                 _co_oc_checked = false,
                 _sig_only_checked = false;
@@ -266,7 +267,9 @@
             } else {
                 _empty_fn();
             }
+            
         });
+        
     }
 
     function addHeaderQtips() {

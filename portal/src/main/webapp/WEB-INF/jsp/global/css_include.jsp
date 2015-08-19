@@ -75,3 +75,4 @@
 <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
 <link href="css/bootstrap.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 <link href="css/bootstrap334.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
+<link href="js/src/oncoprint/new/oncoprint.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />

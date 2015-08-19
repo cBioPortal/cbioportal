@@ -224,18 +224,18 @@
                             } else if (type==='display') {
                                 var gene = mutations.getValue(source[0], "gene");
                                 var entrez = mutations.getValue(source[0], "entrez");
-                                var tip = "<a href=\"http://www.ncbi.nlm.nih.gov/gene/"
-                                    +entrez+"\">NCBI Gene</a>";
-                                var sanger = mutations.getValue(source[0], 'sanger');
-                                if (sanger) {
-                                    tip += "<br/><a href=\"http://cancer.sanger.ac.uk/cosmic/gene/overview?ln="
-                                        +gene+"\">Sanger Cancer Gene Census</a>";
-                                }
+//                                var tip = "<a href=\"http://www.ncbi.nlm.nih.gov/gene/"
+//                                    +entrez+"\">NCBI Gene</a>";
+//                                var sanger = mutations.getValue(source[0], 'sanger');
+//                                if (sanger) {
+//                                    tip += "<br/><a href=\"http://cancer.sanger.ac.uk/cosmic/gene/overview?ln="
+//                                        +gene+"\">Sanger Cancer Gene Census</a>";
+//                                }
                                 var ret = "<b>"+gene+"</b>";
-                                if (tip) {
-                                    ret = "<span class='"+table_id+"-tip' alt='"+tip+"'>"+ret+"</span>";
-                                }
-                                ret += "&nbsp;<span  class='oncokb oncokb_gene' gene='"+gene+"' hashId='"+source[0]+"' style='display:none'><img width='12' height='12' src='images/file.svg'/></span><img width='12' height='12' class='loader' src='images/ajax-loader.gif'/>";
+//                                if (tip) {
+                                ret = "<span class='"+table_id+"-tip oncokb oncokb_gene' gene='"+gene+"' hashId='"+source[0]+"'>"+ret+"</span>";
+//                                }
+                                ret += "<img width='12' height='12' class='loader' src='images/ajax-loader.gif'/>";
 
                                 return ret;
                             } else {
@@ -257,7 +257,7 @@
                                 if (mutations.getValue(source[0],'status')==="Germline")
                                     ret += "&nbsp;<span style='background-color:red;font-size:x-small;' class='"
                                             +table_id+"-tip' alt='Germline mutation'>Germline</span>";
-                                ret += "&nbsp;<span class='oncokb oncokb_alteration' alteration='"+aa+"' hashId='"+source[0]+"' style='display:none'><img width='12' height='12' src='images/file.svg'/></span><img width='12' height='12' class='loader' src='images/ajax-loader.gif'/>";
+                                ret += "&nbsp;<span class='oncokb oncokb_alteration' alteration='"+aa+"' hashId='"+source[0]+"' style='display:none'><i class='fa fa-dot-circle-o'></i></span><img width='12' height='12' class='loader' src='images/ajax-loader.gif'/>";
 
                                     var mcg = mutations.getValue(source[0], 'mycancergenome');
                                     if (!cbio.util.checkNullOrUndefined(mcg) && mcg.length) {
@@ -966,6 +966,24 @@
         $(oTable).find('.oncokb_alteration').each(function() {
             if(OncoKB.dataReady) {
                 var hashId = $(this).attr('hashId');
+                var oncogenicIconColor = 'grey';
+
+                //Change oncogenic icon color
+                switch (genomicEventObs.mutations.getValue(hashId, 'oncokb').oncogenic) {
+                    case 0:
+                        oncogenicIconColor = 'black';
+                        break;
+                    case -1:
+                        oncogenicIconColor = 'grey';
+                        break;
+                    case 2:
+                        oncogenicIconColor = 'hotpink';
+                        break;
+                    case 1:
+                        oncogenicIconColor = 'red';
+                        break;
+                }
+                $(this).find('i.fa-dot-circle-o').css('color', oncogenicIconColor);
 
                 if(genomicEventObs.mutations.getValue(hashId, 'oncokb').alteration.length >0) {
                     var _alterations = genomicEventObs.mutations.getValue(hashId, 'oncokb').alteration,

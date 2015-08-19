@@ -214,20 +214,12 @@ var StudyViewInitTables = (function() {
             });
             workers[workerIndex].data.selectedSamples = selectedSamples;
         }
-        
+
+        dcCharts[caseIdChartIndex].getChart().filterAll();
         if(selectedSamples.length > 0){
-            dcCharts[caseIdChartIndex].getChart().filterAll();
             dcCharts[caseIdChartIndex].getChart().filter([selectedSamples]);
-            dc.redrawAll();
-        }else{
-            for(var i=0; i< dcChartsL ; i++){
-                if(dcCharts[i] !== ''){
-                    if(dcCharts[i].getChart().filters().length > 0)
-                        dcCharts[i].getChart().filterAll();
-                }
-            }
-            dc.redrawAll();
         }
+        dc.redrawAll();
         
         StudyViewInitCharts.resetBars();
         StudyViewInitCharts.redrawScatter();

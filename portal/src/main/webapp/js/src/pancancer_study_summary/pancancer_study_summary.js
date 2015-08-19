@@ -407,7 +407,9 @@
       },
       
       drawHistogram: function(){
-    	  alert('drawing histogram' + this.model.get("cancerTypeDetailed"));
+    	  var pancancerStudyHistogram = new PancancerStudySummaryHistogram();
+    	  pancancerStudyHistogram.init(this.el, this.model);
+    	  
       }
       
    }); // end of GeneHistogramView
@@ -695,7 +697,7 @@ function PancancerStudySummary()
 {
    var _cancerSummaryMainView = null;
 
-   function init()
+   this.init = function()
    {
 	  console.log("init called");
       // create event dispacther
@@ -717,7 +719,6 @@ function PancancerStudySummary()
       cancerSummaryMainView.render();
    }
 
-   this.init = init;
    this.getView = function() {return _cancerSummaryMainView;};
 }
 

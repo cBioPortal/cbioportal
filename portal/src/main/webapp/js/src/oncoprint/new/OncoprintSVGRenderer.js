@@ -183,8 +183,7 @@
 						$('.'+CELL_QTIP_CLASS).finish().hide();
 						prev_cell_index = cell_index;
 						prev_track = track;
-						//prev_dom = track_cell.dom;
-						prev_dom = self.track_cells[oncoprint.getTopmostTrack()][cell_id].dom;
+						prev_dom = track_cell.dom;
 						self.cell_tooltip_html = oncoprint.getTrackTooltip(track)(track_cell.d);
 						hover_cell(prev_dom);
 						column_highlight_timeout = setTimeout(function() {

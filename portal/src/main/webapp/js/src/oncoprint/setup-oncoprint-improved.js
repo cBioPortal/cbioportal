@@ -1,5 +1,5 @@
 var utils = window.OncoprintUtils;
-window.setUpOncoprint = function(ctr_id, config) {
+window.setUpOncoprint = function(ctr_id, config) {	
 	var ctr_selector = '#' + ctr_id;
 	var oncoprintFadeTo, oncoprintFadeIn;
 	var sampleViewUrl, patientViewUrl;
@@ -141,9 +141,28 @@ window.setUpOncoprint = function(ctr_id, config) {
 	var sample_data__gene = {};
 	var patient_data__gene = {};
 	var sample_data__clinical = {};
-	var patient_data__clinical = {};
+	var patient_data__clinical = {}
 	
 	var using_sample_data = !config.swap_patient_sample;
+	var preloaded_clinical_tracks = [];
+	(function loadFromUrl() {
+		var curr_url = window.location.href;
+		var show_samples_key = "show_samples=";
+		var show_samples_index = curr_url.indexOf(show_samples_key);
+		if (show_samples_index > -1) {
+			using_sample_data = (curr_url.substr(show_samples_index + show_samples_key.length, 4) === "true");
+		}
+		var clinical_list_key = "clinicallist=";
+		var clinical_list_index = curr_url.indexOf(clinical_list_key);
+		if (clinical_list_index > -1) {
+			var next_amp = curr_url.indexOf("&", clinical_list_index);
+			if (next_amp === -1) {
+				next_amp = curr_url.length;
+			}
+			preloaded_clinical_tracks = _.map(curr_url.substring(clinical_list_index + clinical_list_key.length, next_amp).trim().split(","), decodeURIComponent);
+		}
+	})();
+	
 	var clinical_legends_visible = false;
 	var track_data_name = {};
 	
@@ -386,7 +405,9 @@ window.setUpOncoprint = function(ctr_id, config) {
 				return;
 			}
 			var clinicalAttributesColl = new ClinicalAttributesColl();
+			var clinical_attrs_promise = new $.Deferred();
 			var unused_clinical_attrs = [];
+			var used_clinical_attrs = [];
 			var clinical_track_attrs = {};
 			
 			var populateSelectorChosen = function () {
@@ -435,9 +456,30 @@ window.setUpOncoprint = function(ctr_id, config) {
 						$(toolbar_selector + " #select_clinical_attributes_chzn .chzn-search input").focus();
 					});
 					$(toolbar_selector + " #select_clinical_attributes_chzn").addClass("chzn-with-drop");
+					clinical_attrs_promise.resolve();
 				}
 			});
 			
+			var updateURL = function() {
+				var clinical_list_key = "clinicallist=";
+				var curr_url = window.location.href;
+				var clinical_list_index = curr_url.indexOf(clinical_list_key);
+				var before_url, after_url;
+				if (clinical_list_index === -1) {
+					before_url = curr_url + "&";
+					after_url = "";
+					clinical_list_index = curr_url.length;
+				} else {
+					before_url = curr_url.substring(0, clinical_list_index);
+					var next_amp = curr_url.indexOf("&", clinical_list_index);
+					if (next_amp === -1) {
+						next_amp = curr_url.length;
+					}
+					after_url = curr_url.substring(next_amp+1);
+				}
+				var new_url = before_url + clinical_list_key + _.map(used_clinical_attrs, function(ca) { return encodeURIComponent(ca.attr_id); }).join(",") + "&" + after_url;
+				window.history.pushState({"html":window.location.html,"pageTitle":window.location.pageTitle},"", new_url);
+			};
 			removeClinicalTrackHandler = function (evt, data) {
 				var attr = clinical_track_attrs[data.track_id];
 				delete clinical_track_attrs[data.track_id];
@@ -447,10 +489,13 @@ window.setUpOncoprint = function(ctr_id, config) {
 				unused_clinical_attrs = _.sortBy(unused_clinical_attrs, function (o) {
 					return o.display_order;
 				});
+				var attr_index = _.indexOf(_.pluck(used_clinical_attrs, 'attr_id'), attr.attr_id);
+				used_clinical_attrs.splice(attr_index, 1);
 				if (Object.keys(clinical_track_attrs).length === 0) {
 					$(toolbar_selector + ' #oncoprint-diagram-showlegend-icon').css('display', 'none');
 				}
 				populateSelectorChosen();
+				updateURL();
 			};
 			$(oncoprint).on('remove_track.oncoprint', removeClinicalTrackHandler);
 			var addClinicalTrack = function (clinical_attr) {
@@ -488,6 +533,7 @@ window.setUpOncoprint = function(ctr_id, config) {
 				oncoprint.sort();
 				var attr_index = _.indexOf(_.pluck(unused_clinical_attrs, 'attr_id'), clinical_attr.attr_id);
 				unused_clinical_attrs.splice(attr_index, 1);
+				used_clinical_attrs.push(clinical_attr);
 
 				populateSelectorChosen();
 
@@ -512,25 +558,20 @@ window.setUpOncoprint = function(ctr_id, config) {
 			$(toolbar_selector + " #select_clinical_attributes_chzn").mouseenter(function () {
 				$(toolbar_selector + " #select_clinical_attributes_chzn .chzn-search input").focus();
 			});
-			selectClinicalAttributeHandler = function (evt) {
-				if ($(toolbar_selector + ' #select_clinical_attributes').val().trim() === '') {
-					evt.stopPropagation();
-					return;
-				}
+			var onSelectClinicalAttribute = function(clinical_attr) {
+				var def = new $.Deferred();
 				oncoprintFadeTo(0.5);
 				$(oncoprint).one('finished_rendering.oncoprint', function () {
 					$(toolbar_selector + ' #clinical_first').css('display', 'inline');
 					$(toolbar_selector + ' #oncoprint-diagram-showlegend-icon').css('display', 'inline');
 					oncoprintFadeIn();
 				});
-				var clinical_attr = $(toolbar_selector + ' #select_clinical_attributes option:selected')[0].__data__;
-				$(toolbar_selector + ' #select_clinical_attributes').val('').trigger('liszt:updated');
-				$(toolbar_selector + ' #clinical_dropdown').dropdown('toggle');
 				if (clinical_attr.attr_id === undefined) {
 					// selected "none"
 				} else {
 					if (sample_data__clinical.hasOwnProperty(clinical_attr.attr_id)) {
 						addClinicalTrack(clinical_attr);
+						def.resolve();
 					} else {
 						if (clinical_attr.attr_id === "# mutations") {
 							var clinicalMutationColl = new ClinicalMutationColl();
@@ -547,6 +588,7 @@ window.setUpOncoprint = function(ctr_id, config) {
 										patient_data__clinical[clinical_attr.attr_id] = makePatientData__Clinical(sample_data__clinical[clinical_attr.attr_id], 'average');
 									}
 									addClinicalTrack(clinical_attr);
+									def.resolve();
 								}
 							});
 						} else if (clinical_attr.attr_id === "FRACTION_GENOME_ALTERED") {
@@ -564,6 +606,7 @@ window.setUpOncoprint = function(ctr_id, config) {
 										patient_data__clinical[clinical_attr.attr_id] = makePatientData__Clinical(sample_data__clinical[clinical_attr.attr_id], 'average');
 									}
 									addClinicalTrack(clinical_attr);
+									def.resolve();
 								}
 							});
 						} else {
@@ -581,13 +624,33 @@ window.setUpOncoprint = function(ctr_id, config) {
 										patient_data__clinical[clinical_attr.attr_id] = makePatientData__Clinical(sample_data__clinical[clinical_attr.attr_id], 'category');
 									}
 									addClinicalTrack(clinical_attr);
+									def.resolve();
 								}
 							});
 						}
 					}
 				}
+				return def.promise();
+			};
+			selectClinicalAttributeHandler = function (evt) {
+				if ($(toolbar_selector + ' #select_clinical_attributes').val().trim() === '') {
+					evt && evt.stopPropagation();
+					return;
+				}
+				var clinical_attr = $(toolbar_selector + ' #select_clinical_attributes option:selected')[0].__data__;
+				onSelectClinicalAttribute(clinical_attr).then(function() {
+					updateURL();
+				});
+				$(toolbar_selector + ' #select_clinical_attributes').val('').trigger('liszt:updated');
+				$(toolbar_selector + ' #clinical_dropdown').dropdown('toggle');
 			};
 			$(toolbar_selector + ' #select_clinical_attributes').change(selectClinicalAttributeHandler);
+			clinical_attrs_promise.then(function() {
+				_.each(preloaded_clinical_tracks, function(attr_id) {
+					var clinical_attr = _.find(unused_clinical_attrs, function(ca) { return ca.attr_id === attr_id; })
+					clinical_attr && onSelectClinicalAttribute(clinical_attr);
+				});
+			});
 		})();
 		(function setUpZoom() {
 			var zoom_elt = $(toolbar_selector + ' #oncoprint_diagram_slider_icon');

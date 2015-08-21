@@ -123,8 +123,7 @@ public class GlobalProperties {
 
     // property for setting the news blurb in the right column
     public static final String SKIN_RIGHT_NAV_WHATS_NEW_BLURB = "skin.right_nav.whats_new_blurb";
-    public static final String DEFAULT_SKIN_WHATS_NEW_BLURB = "<p> &bull;<a href=\"news.jsp\"> <b>New data and " +
-            "features released</b></a><br/> &bull;<a href=\"tools.jsp\"> <b>New tools released</b></a> </p> " +
+    public static final String DEFAULT_SKIN_WHATS_NEW_BLURB = 
             "<form action=\"http://groups.google.com/group/cbioportal-news/boxsubscribe\"> &nbsp;&nbsp;&nbsp;&nbsp;" +
             "<b>Sign up for low-volume email news alerts:</b></br> &nbsp;&nbsp;&nbsp;&nbsp;<input type=\"text\" " +
             "name=\"email\"> <input type=\"submit\" name=\"sub\" value=\"Subscribe\"> " +

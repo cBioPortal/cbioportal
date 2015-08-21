@@ -23,12 +23,12 @@ The cBioPortal for Cancer Genomics is developed and maintained by the [Center fo
 
 ## Alumni
 
- * Ethan Cerami, now at Blueprint Medicines
- * Arthur Goldberg, now at Mount Sinai School of Medicine
+ * Ethan Cerami
+ * Arthur Goldberg
  * Michael Heuer
  * Anders Jacobsen
- * Erik Larsson, now at University of Gothenburg
- * Caitlin Byrne, MSKCC
+ * Erik Larsson
+ * Caitlin Byrne
  * B. Arman Aksoy
 
 

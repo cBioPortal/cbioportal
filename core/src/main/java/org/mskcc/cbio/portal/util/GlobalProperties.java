@@ -77,7 +77,7 @@ public class GlobalProperties {
             "<b>visualization</b>, <b>analysis</b> and <b>download</b> of large-scale cancer genomics data sets. " +
             "<p>Please adhere to <u><a href=\"http://cancergenome.nih.gov/abouttcga/policies/publicationguidelines\"> " +
             "the TCGA publication guidelines</a></u> when using TCGA data in your publications.</p> " +
-            "<p><b>Please cite</b> <a href=\"http://www.cbioportal.org/public-portal/sci_signal_reprint.jsp\">Gao " +
+            "<p><b>Please cite</b> <a href=\"http://www.ncbi.nlm.nih.gov/pubmed/23550210\">Gao " +
             "et al. <i>Sci. Signal.</i> 2013</a> &amp;  " +
             "<a href=\"http://cancerdiscovery.aacrjournals.org/content/2/5/401.abstract\">" +
             "Cerami et al. <i>Cancer Discov.</i> 2012</a> when publishing results based on cBioPortal.</p>\n";

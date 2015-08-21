@@ -1,4 +1,4 @@
-/* v0.0.3 */
+/* v0.0.3-1-g626aac9 */
 // vim: ts=2 sw=2
 (function () {
   d3.timeline = function() {
@@ -993,7 +993,6 @@ window.clinicalTimeline = (function(){
       };
       return dataTable;
     }
-
     elem.qtip({
       content: {
         text: "table"
@@ -1038,8 +1037,8 @@ window.clinicalTimeline = (function(){
           }
         }
       },
-      show: {event: "click mouseover"},
-      hide: {event: "click mouseleave"},
+      show: {event: "mouseover"},
+      hide: {event: "mouseleave"},
       style: { classes: 'qtip-light qtip-rounded qtip-wide' },
       position: {my:'top middle',at:'bottom middle',viewport: $(window)},
    });

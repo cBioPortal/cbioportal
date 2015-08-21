@@ -150,9 +150,13 @@ var ScatterPlots = function() {
         elem.axisTitleGroup = elem.svg.append("svg:g");
     }
 
+
+    // clear the scatterplot
     function clearScatterPlot(){
+        // find all items that are shiftClicked and all items that are clicked and shift-clicked
         var shiftClickedItems = $("#study-view-scatter-plot").find("[clicked='shiftClicked']");
         var bothItems = $("#study-view-scatter-plot").find("[clicked='both']");
+        // act as if we selected these items by dragging the mouse; call the brushended function
         brushended("", $.merge(shiftClickedItems, bothItems));
     }
 

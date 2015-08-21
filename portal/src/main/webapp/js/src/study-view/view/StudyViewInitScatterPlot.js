@@ -228,6 +228,7 @@ var StudyViewInitScatterPlot = (function() {
         }
     }
 
+    // call the scatterPlot's clear function
     function clearScatterPlot(){
         scatterPlot.clearScatterPlot();
     }

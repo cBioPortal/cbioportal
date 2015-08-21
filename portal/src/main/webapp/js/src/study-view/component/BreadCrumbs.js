@@ -219,7 +219,7 @@ var BreadCrumbs = (function() {
 
 
     // get an identifier based on the chartId and the crumbTitle
-    // remove any non-alphanumeric characters
+    // remove any non-alphanumeric characters and spaces
     function getCrumbId(chartId, crumbTitle){
         return ("crumb_"+chartId+"_"+crumbTitle).replace(/[^a-z0-9]/gi, '_');
     }
@@ -231,7 +231,6 @@ var BreadCrumbs = (function() {
         $("#"+crumbID+"_item").qtip('option', 'content.text', crumbTipText);
         $("#"+crumbID+"_img").attr("chartFilter", chartFilter);
     }
-
 
 
     //function addBreadCrumb(chartId, crumbTitle, crumbTipText, chartType, removeFiltering){
@@ -276,31 +275,45 @@ var BreadCrumbs = (function() {
 
     }
 
+    // when the 'x' is pressed for the scatterplot breadcrumb
     function removeScatterPlotFiltering(){
-        //StudyViewInitCharts.clearScatterPlot();
+        // call the clearScatterPlot function
         StudyViewInitScatterPlot.clearScatterPlot();
     }
 
+    // when the 'x' is pressed for the piefiltering breadcrumb
     function removePieFiltering(){
+        // retrieve the chart id and filter
         var chartId = $(this).attr("chartID");
         var chartFilter = $(this).attr("chartFilter");
+        // get the actual chart
         var chart = StudyViewInitCharts.getChartsByID(chartId-1).getChart();
+        // remove the filter by calling the chart's filter function with the filter
         chart.filter(chartFilter);
+        // call the redraw function to redraw the pie-charts and histograms
         dc.redrawAll();
     }
 
+    // when the 'x' is pressed for the barfiltering breadcrumb
     function removeBarFiltering(){
+        // retrieve the chart id
         var chartId = $(this).attr("chartID");
+        // get the actual chart
         var chart = StudyViewInitCharts.getChartsByID(chartId-1).getChart();
+        // remove the filter by calling the chart's filter function with null
         chart.filter(null);
+        // call the redraw function to redraw the pie-charts and histograms
         dc.redrawAll();
     }
 
+    // when the 'x' is pressed for the tablefiltering breadcrumb
     function removeTableFiltering(){
         var cellID = $(this).attr("cellID");
 
+        // this will probably change due to the expected checkbox functionality
+        // but the idea was: act as if someone presses shift, clicks the cell and releases shift
+        // this would save any already existing filters
         StudyViewWindowEvents.setShiftDown();
-
         $("#"+cellID).click();
         //dc.redrawAll();
         StudyViewWindowEvents.setShiftUp();

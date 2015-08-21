@@ -227,6 +227,10 @@ var StudyViewInitScatterPlot = (function() {
             $('#study-view-scatter-plot').css('display','none');
         }
     }
+
+    function clearScatterPlot(){
+        scatterPlot.clearScatterPlot();
+    }
     
     function setSVGElementValue(_svgParentDivId,_idNeedToSetValue,scatterPlotDataAttr, _title, downloadOptions){
         var svgElement;
@@ -519,6 +523,7 @@ var StudyViewInitScatterPlot = (function() {
             initComponent();
             initStatus = true;
         },
+        clearScatterPlot:clearScatterPlot,
 
         getScatterPlot: function() {
             if(scatterPlot === undefined){

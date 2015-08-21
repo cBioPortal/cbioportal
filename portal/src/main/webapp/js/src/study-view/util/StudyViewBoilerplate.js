@@ -301,12 +301,19 @@ var StudyViewBoilerplate ={
                 'class': 'hidden study-view-header-button'})
             .val('Reset all');
         
+        //_span3
+        //    .attr({
+        //        'id': 'study-view-header-left-3',
+        //        'class': 'hidden'})
+        //    .text('');
+//            .val('Reset all');
+
+        // changed the initialisation for span 3
         _span3
             .attr({
-                'id': 'study-view-header-left-3',
-                'class': 'hidden'})
-            .text('');
-//            .val('Reset all');
+                'id': 'study-view-header-left-3'
+                })
+            .text('Total number of samples selected: ');
 
        // tumormap.do?cancer_study_id=acyc_mskcc&case_id=9534#nav_case_ids=9534,6277
         //Build View cases button linking to patient view
@@ -319,24 +326,26 @@ var StudyViewBoilerplate ={
             .val('View all cases');
 
         // span5 attributes
-        _span5
-            .attr({
-                'id': 'study-view-header-left-5',
-                'class': 'hidden'})
-            .text('');
+        //_span5
+        //    .attr({
+        //        'id': 'study-view-header-left-5',
+        //        'class': 'hidden'})
+        //    .text('');
+        _span5.attr({'id': 'study-view-header-left-5'});
 
-        // span3 is now the first item and span5 is added
+
+        // span3 is now the first item, span5 added, image added
         _header.append(_span3);
         _header.append(_span5);
+        _header.append("<img id='arrow_studyview' src='images/arrow_studyview.png'>");
         _header.append(_span1);
         _header.append(_form);
         _header.append(_span4);
         _header.append(_span2);
 
         // add a container for the breadcrumbs
-        //_header.append("<div id='breadcrumbs_container'></div>");
-$("#study-view-header-function").append("<div id='breadcrumbs_container'></div>");
-        
+        _header.append("<br><br><div id='breadcrumbs_container' class='hidden'>Your selections: </div>");
+
         return _header;
     },
     
@@ -419,10 +428,11 @@ $("#study-view-header-function").append("<div id='breadcrumbs_container'></div>"
             "</table>",
 
     // added for breadcrumbs
+    // "<div class='breadcrumb_container' style='display: inline-block'>"+
     breadCrumbDiv:
-        "<div class='breadcrumb_container' style='border: solid 1px; display: inline-block'>"+
+        "<div class='breadcrumb_container'>"+
             "<span class='breadcrumb_item'></span>"+
-            "<img class='breadcrumb_remove' src='images/bullseye.png'>"+
+            "<img class='breadcrumb_remove' src='images/remove_breadcrumb_icon.png'>"+
         "</div>"
 
 };

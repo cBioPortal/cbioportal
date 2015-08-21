@@ -497,6 +497,9 @@ var StudyViewInitCharts = (function(){
 
         $(".study-view-scatter-plot-delete").unbind('click');
         $(".study-view-scatter-plot-delete").click(function (){
+            // remove breadcrumbs for the chart
+            BreadCrumbs.deleteCrumbsByChartId("study-view-scatter-plot");
+
             $("#study-view-scatter-plot").css('display','none');
             $('#study-view-add-chart').css('display','block');
 //            $('#study-view-add-chart ul')
@@ -585,6 +588,9 @@ var StudyViewInitCharts = (function(){
                 deleteChart(_id,_valueA);
                 bondDragForLayout();
                 AddCharts.bindliClickFunc();
+
+                // delete histogram or pie chart breadcrumbs
+                //BreadCrumbs.deleteCrumbsByChartId(_id);
         });
     }
     
@@ -621,6 +627,10 @@ var StudyViewInitCharts = (function(){
                 }
             }
         }
+    }
+
+    function clearScatterPlot(){
+        StudyViewInitScatterPlot.clearScatterPlot();
     }
     
     function makeNewPieChartInstance(_chartID, _pieInfo) {
@@ -763,7 +773,7 @@ var StudyViewInitCharts = (function(){
             StudyViewInitScatterPlot.setclearFlag(false);
         }
     }
-    
+
     /**
      * DC charts post filter callback function
      */
@@ -772,7 +782,6 @@ var StudyViewInitCharts = (function(){
             removeMarker();
             resetBars();
             redrawSpecialPlots();
-
             // update the breadcrumbs
             updateBreadCrumbs(chartID, chartFilter);
         }
@@ -783,14 +792,16 @@ var StudyViewInitCharts = (function(){
         var chartType = varType[chartAttribute];
 
         if(chartType==="bar"){
-            var crumbTip = chartFilter==null?"":chartAttribute+": "+chartFilter[0]+" - "+chartFilter[1];
-            BreadCrumbs.updateBarChartBreadCrumb(chartID, chartAttribute, crumbTip);
+            //var crumbTip = chartFilter==null?"":chartAttribute+": "+chartFilter[0]+" - "+chartFilter[1];
+            //BreadCrumbs.updateBarChartBreadCrumb(chartID, chartAttribute, crumbTip, crumbTip, chartType);
+            BreadCrumbs.updateBarChartBreadCrumb(chartID, chartFilter, chartAttribute, chartType);
         }
         else if(chartType==="pie"){
-            BreadCrumbs.updatePieChartBreadCrumb(chartID, chartFilter, chartAttribute+": "+chartFilter);
+            //BreadCrumbs.updatePieChartBreadCrumb(chartID, chartFilter, chartAttribute+": "+chartFilter, chartFilter, chartType);
+            BreadCrumbs.updatePieChartBreadCrumb(chartID, chartFilter, chartAttribute, chartType);
         }
     }
-    
+
     /**
      * DC charts plot data button callback function
      * @param {type} _casesInfo
@@ -1222,7 +1233,8 @@ var StudyViewInitCharts = (function(){
         setPlotDataFlag: function(_flag) {
             plotDataFlag = _flag;
         },
-        
+
+        clearScatterPlot: clearScatterPlot,
         redrawScatter: redrawScatter,
         redrawSpecialPlots: redrawSpecialPlots,
         filterChartsByGivingIDs: filterChartsByGivingIDs,

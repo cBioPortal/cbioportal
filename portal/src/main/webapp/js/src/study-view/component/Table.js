@@ -451,7 +451,11 @@ var Table = function() {
         var crumbTipText = divs.title+": "+crumbTitle;
         var cellId = $(clickedCell).attr("id");
 
-        BreadCrumbs.updateTableBreadCrumb(chartId, crumbTitle, crumbTipText, cellId, shiftClicked)
+        var chartFilter = $(clickedCell).siblings().first().text();
+
+        //BreadCrumbs.updateTableBreadCrumb(chartId, crumbTitle, crumbTipText, cellId, shiftClicked);
+
+        BreadCrumbs.updateTableBreadCrumb(chartId, chartFilter, "table", cellId, shiftClicked, crumbTipText);
 
     }
 
@@ -460,6 +464,8 @@ var Table = function() {
         $('#'+ divs.deleteIconId).unbind('click');
         $('#'+ divs.deleteIconId).click(function() {
             if(callbacks.hasOwnProperty('deleteTable')) {
+                // delete breadcrumbs
+                BreadCrumbs.deleteCrumbsByChartId(divs.tableId);
                 callbacks.deleteTable(divs.mainId, divs.title);
             }else {
                 redraw();

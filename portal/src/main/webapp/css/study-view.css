@@ -21,7 +21,7 @@
 #study-view-top-wrapper {
     width: 100%;
     float: left;
-    height: 40px;
+    height: 50px;
 }
 #study-view-add-chart {
     right:43px;
@@ -37,7 +37,7 @@
     background: #e6e6e6;
     font-weight: normal;
     color: #555555;
-    max-width: 500px;
+    max-width: 250px;
 }
 #study-view-tutorial {
     right: 0;
@@ -101,26 +101,9 @@
     text-align: center;
     font-family: Verdana,Arial,sans-serif;
     font-size: 1.1em;
-    margin-top: 4px;
+    margin-top: 3px;
 }
-/* based on study-view-header-left-3 */
-#study-view-header-left-5 {
-    float: left;
-    font-size: 13px;
-    margin: 0;
-    vertical-align: middle;
-    padding: 10px 10px;
-    background-color: white;
-    width: auto;
-    color: orange;
-    text-align: center;
-    font-family: Verdana,Arial,sans-serif;
-    font-size: 1.1em;
-    margin-top: -7px;
-    margin-right: 10px;
-    border: solid 1px;
-    border-color: black;
-}
+
 #study-view-header-left-4 {
     font-size: 1.1em;
 }
@@ -1056,4 +1039,51 @@ div.DTTT_print_info {
     display: none;
     padding: 20px;
     z-index: 1000;
+}
+
+#breadcrumbs_container{
+    padding: 0px 10px;
+}
+.breadcrumb_container{
+    display:inline-block;
+}
+.breadcrumb_remove{
+    /*padding: 0px 5px;*/
+}
+.breadcrumb_item{
+    padding: 0px 5px;
+}
+#study-view-header-left{
+    border: solid 1px;
+    display: inline-block;
+    padding: 8px 0px;
+    border-radius: 5px;
+    border-color: darkgrey;
+}
+/* based on study-view-header-left-3 */
+#study-view-header-left-5 {
+    float: left;
+    font-size: 13px;
+    margin: 0;
+    vertical-align: middle;
+    padding: 5px 10px;
+    background-color: white;
+    width: 40px;
+    color: orange;
+    text-align: center;
+    font-family: Verdana,Arial,sans-serif;
+    font-size: 1.1em;
+    margin-top: -3px;
+    margin-right: 10px;
+    border: solid 1px;
+    border-radius: 5px;
+    border-color: darkgrey;
+}
+#arrow_studyview{
+    width: 50px;
+    height: 35px;
+    float: left;
+    padding: 0px 10px 0px 0px;
+    margin-top: -3px;
+
 }

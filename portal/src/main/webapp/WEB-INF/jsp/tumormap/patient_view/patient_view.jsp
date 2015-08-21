@@ -115,8 +115,8 @@ boolean showSimilarPatient = false;//showPlaceHoder & (showMutations | showCNA);
 boolean hasCnaSegmentData = ((Boolean)request.getAttribute(PatientView.HAS_SEGMENT_DATA));
 boolean hasAlleleFrequencyData = ((Boolean)request.getAttribute(PatientView.HAS_ALLELE_FREQUENCY_DATA));
 boolean showGenomicOverview = showMutations | hasCnaSegmentData;
-boolean showClinicalTrials = true;
-boolean showDrugs = true;
+boolean showClinicalTrials = GlobalProperties.showClinicalTrialsTab();
+boolean showDrugs = GlobalProperties.showDrugsTab();
 boolean showSamplesTable = isPatientView;
 
 double[] genomicOverviewCopyNumberCnaCutoff = GlobalProperties.getPatientViewGenomicOverviewCnaCutoff();

@@ -31,15 +31,7 @@
 --%>
 
 <%
-    String aboutHtml = GlobalProperties.getProperty("about");
     String siteTitle = GlobalProperties.getTitle();
-
-    if (aboutHtml == null) {
-        aboutHtml = "content/about_us.html";
-    } else {
-        aboutHtml = "content/" + aboutHtml;
-    }
-
 %>
 
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
@@ -56,7 +48,7 @@
             <td>
                 <h1>About Us</h1>
                 <div class="markdown">
-                <P><jsp:include page="<%= aboutHtml %>" flush="true" /></p>
+                <P><jsp:include page="<%= GlobalProperties.getAboutHtml() %>" flush="true" /></p>
                 </div>
             </td>
         </tr>

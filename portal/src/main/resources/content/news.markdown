@@ -1,5 +1,5 @@
 # August 21, 2015
-* All __TCGA data__ updated to the Firehose run of April 16, 2014.
+* All __TCGA data__ updated to the Firehose run of April 16, 2015.
 * __New features__: enrichment analysis.
 * __Improvements__: OncoPrint with better performance.
 

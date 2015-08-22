@@ -205,19 +205,41 @@ var MutexData = (function() {
             oncoprintData = inputDataObj;
         },
         init: function() {
-            countEventCombinations();
-            calc();
 
-            var tid = setInterval(detectInstance, 600);
-            function detectInstance() {
-                if (dataArr.length !== 0) {
-                    abortTimer();                    
+            //eliminate genes with no alteration
+            var _gene_arr = []; //only genes with alterations
+            $.each(window.PortalGlobals.getGeneList(), function(index, _gene) {
+                var _has_alteration = false;
+                $.each(oncoprintData, function(index, _data_obj) {
+                    $.each(_data_obj.values, function(_index, _single_gene_obj) {
+                        if (_single_gene_obj.gene === _gene) {
+                            if (Object.keys(_single_gene_obj).length > 2) {
+                                _has_alteration = true;
+                            }
+                        }
+                    });
+                });
+                if (_has_alteration) _gene_arr.push(_gene);
+            });
+
+            if (_gene_arr.length > 1) {
+                countEventCombinations();
+                calc();
+
+                var tid = setInterval(detectInstance, 600);
+                function detectInstance() {
+                    if (dataArr.length !== 0) {
+                        abortTimer();
+                    }
                 }
-            }
-            function abortTimer() { 
-                clearInterval(tid);
-                buildStat();
-                MutexView.init();
+                function abortTimer() {
+                    clearInterval(tid);
+                    buildStat();
+                    MutexView.init();
+                }
+            } else {
+                $("#mutex").empty();
+                $("#mutex").append("Calculation could not be performed.");
             }
         },
         getDataArr: function() {

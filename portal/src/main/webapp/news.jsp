@@ -31,15 +31,7 @@
 --%>
 
 <%
-    String newsHtml = GlobalProperties.getProperty("news");
-
     String siteTitle = GlobalProperties.getTitle();
-    if (newsHtml == null) {
-        newsHtml = "content/news.html";
-    } else {
-        newsHtml = "content/" + newsHtml;
-    }
-
 %>
 
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
@@ -55,7 +47,7 @@
                 
             <div class="markdown">
 
-            <P><jsp:include page="<%= newsHtml%>" flush="true" /></p>
+            <P><jsp:include page="<%= GlobalProperties.getNewsHtml()%>" flush="true" /></p>
 
             </div>
             </td>

@@ -26,7 +26,7 @@ You can cite the following portal papers:
 
 - Cerami et al. The cBio Cancer Genomics Portal: An Open Platform for Exploring Multidimensional Cancer Genomics Data. *Cancer Discovery*. May 2012 2; 401.
 [Abstract](http://cancerdiscovery.aacrjournals.org/content/2/5/401.abstract).
-- Gao et al. Integrative analysis of complex cancer genomics and clinical profiles using the cBioPortal. *Sci. Signal.* 6, pl1 (2013). [Reprint](http://www.cbioportal.org/public-portal/sci_signal_reprint.jsp).
+- Gao et al. Integrative analysis of complex cancer genomics and clinical profiles using the cBioPortal. *Sci. Signal.* 6, pl1 (2013). [Reprint](http://www.ncbi.nlm.nih.gov/pubmed/23550210).
 
 # How is the cBioPortal for Cancer Genomics different from the TCGA Data Portal?
 

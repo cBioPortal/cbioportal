@@ -157,7 +157,6 @@
 
     //Vision Control Tokens
     boolean showIGVtab = cancerStudy.hasCnaSegmentData();
-    boolean has_rppa = countProfiles(profileList, GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL) > 0;
     boolean has_mrna = countProfiles(profileList, GeneticAlterationType.MRNA_EXPRESSION) > 0;
     boolean has_methylation = countProfiles(profileList, GeneticAlterationType.METHYLATION) > 0;
     boolean has_copy_no = countProfiles(profileList, GeneticAlterationType.COPY_NUMBER_ALTERATION) > 0;
@@ -326,7 +325,16 @@
             return result;
         },
         getAlteredSampleIdList: function() { return '<%=alteredSampleIdsStr%>'; },
-        getUnalteredSampleIdList: function() { return '<%=unalteredSampleIdsStr%>'; }
+        getUnalteredSampleIdList: function() { return '<%=unalteredSampleIdsStr%>'; },
+        getAlteredSampleIdArray: function() {
+            var _str = '<%=alteredSampleIdsStr%>';
+            return _str.split(/\s+/);
+
+        },
+        getUnalteredSampleIdArray: function() {
+            var _str = '<%=unalteredSampleIdsStr%>';
+            return _str.split(/\s+/);
+        }
     };
 </script>
 
@@ -393,6 +401,7 @@
                 patientIdArray.push(patiendIdList[sampleIdElement]);
         });
         patientIdArray = _.uniq(patientIdArray);
+
         //Oncoprint summary lines
         $("#oncoprint_sample_set_description").append(window.PortalGlobals.getPatientSetDescription() + 
             "("+patientIdArray.length + " patients / " + window.PortalGlobals.getNumOfTotalCases() + " samples)");

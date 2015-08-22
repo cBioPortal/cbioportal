@@ -63,7 +63,7 @@ var SurvivalCurveProxy  = function() {
                     _datum.case_id = _result[caseId].case_id;
                     _datum.time = _result[caseId].months;
                     _datum.status = _result[caseId].status;
-                    if (_datum.time !== "NA" && _datum.status !== "NA") {
+                    if (_datum.time !== "NA" && (_datum.status !== "NA" && typeof _datum.status !== "undefined" && _datum.status !== undefined)) {
                         datumArr.push(_datum);
                         _totalNum += 1;
                     }

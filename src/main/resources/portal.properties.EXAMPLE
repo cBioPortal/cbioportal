@@ -12,17 +12,56 @@ db.connection_string=jdbc:mysql://localhost/
 db.tomcat_resource_name=jdbc/cbioportal
 
 # web page cosmetics
-skin.title=MSK cBioPortal
+skin.title=cBioPortal for Cancer Genomics
 skin.email_contact=cbioportal at googlegroups dot com
-skin.blurb=The cBioPortal for Cancer Genomics provides visualization, analysis and download of large-scale cancer genomics data sets.
+skin.blurb=The cBioPortal for Cancer Genomics provides <b>visualization</b>, <b>analysis</b> and <b>download</b> of large-scale cancer genomics data sets.  <p>Please adhere to <u><a href=\"http://cancergenome.nih.gov/abouttcga/policies/publicationguidelines\"> the TCGA publication guidelines</a></u> when using TCGA data in your publications.</p> <p><b>Please cite</b> <a href=\"http://www.ncbi.nlm.nih.gov/pubmed/23550210\">Gao et al. <i>Sci. Signal.</i> 2013</a> &amp;  <a href=\"http://cancerdiscovery.aacrjournals.org/content/2/5/401.abstract\"> Cerami et al. <i>Cancer Discov.</i> 2012</a> when publishing results based on cBioPortal.</p>
 skin.authorization_message=Access to this portal is only available to authorized users at Memorial Sloan Kettering Cancer Center.  [<a href="http://bit.ly/ZevaHa">Request Access</a>].
 skin.right_nav.show_testimonials=true
 skin.data_sets_header=The portal currently contains data from the following cancer genomics studies.  The table below lists the number of available samples per data type and tumor.
 skin.data_sets_footer=Data sets of TCGA studies were downloaded from Broad Firehose (http://gdac.broadinstitute.org) and updated monthly. In some studies, data sets were from the TCGA working groups directly.
-faq=faq_tcga.html
-about=about_us.html
-news=news_tcga.html
-examples_right_column=examples_tcga.html
+skin.faq=faq.html
+skin.about=about_us.html
+skin.news=news.html
+skin.examples_right_column=examples.html
+
+# setting controlling the logos
+skin.right_logo=mskcc_logo_3d_grey.jpg
+skin.tag_line_image=tag_line.png
+
+# setting controlling which tabs to hide.
+skin.show_news_tab=true
+skin.show_data_tab=true
+skin.show_web_api_tab=true
+skin.show_r_matlab_tab=true
+skin.show_tutorials_tab=true
+skin.show_faqs_tab=true
+skin.show_tools_tab=true
+skin.show_about_tab=true
+skin.show_visualize_your_data_tab=true
+
+# settings controlling the whats new blurb
+skin.right_nav.whats_new_blurb=<p> &bull;<a href="news.jsp"> <b>New data and features released</b></a><br/> &bull;<a href="tools.jsp"> <b>New tools released</b></a> </p> <form action="http://groups.google.com/group/cbioportal-news/boxsubscribe"> &nbsp;&nbsp;&nbsp;&nbsp;<b>Sign up for low-volume email news alerts:</b></br> &nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="email"> <input type="submit" name="sub" value="Subscribe"> </form> &nbsp;&nbsp;&nbsp;&nbsp;<b>Or follow us <a href="http://www.twitter.com/cbioportal"><i>@cbioportal</i></a> on Twitter</b>
+
+# setting controlling the blurb
+skin.blurb=The cBioPortal for Cancer Genomics provides <b>visualization</b>, <b>analysis</b> and <b>download</b> of large-scale cancer genomics data sets.  <p>Please adhere to <u><a href="http://cancergenome.nih.gov/abouttcga/policies/publicationguidelines"> the TCGA publication guidelines</a></u> when using TCGA data in your publications.</p> <p><b>Please cite</b> <a href="http://www.ncbi.nlm.nih.gov/pubmed/23550210">Gao et al. <i>Sci. Signal.</i> 2013</a> &amp;  <a href="http://cancerdiscovery.aacrjournals.org/content/2/5/401.abstract">Cerami et al. <i>Cancer Discov.</i> 2012</a> when publishing results based on cBioPortal.</p>
+
+# setting controlling the footer
+skin.footer= | <a href="http://www.mskcc.org/mskcc/html/44.cfm">MSKCC</a> | <a href="http://cancergenome.nih.gov/">TCGA</a>
+
+# setting controlling html for the contact
+skin.login.contact_html=If you think you have received this message in error, please contact us at <a style="color:#FF0000" href="mailto:cbioportal-access@cbio.mskcc.org">cbioportal-access@cbio.mskcc.org</a>
+
+# setting controlling the saml registration
+skin.login.saml.registration_html=Sign in with MSK
+
+# setting controlling which tabs to hide/show in the patient view
+skin.patient_view.show_clinical_trials_tab=true
+skin.patient_view.show_drugs_tab=true
+
+# settings controlling what to show in the right navigation bar
+skin.right_nav.show_data_sets=true
+skin.right_nav.show_examples=true
+skin.right_nav.show_testimonials=true
 
 # authentication
 authenticate=false

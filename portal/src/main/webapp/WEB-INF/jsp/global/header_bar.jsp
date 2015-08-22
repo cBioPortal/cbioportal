@@ -45,6 +45,11 @@
 	String tagLineImage = (authenticationMethod.equals("saml")) ?
 		"/" + GlobalProperties.getTagLineImage() : GlobalProperties.getTagLineImage();
 	pageContext.setAttribute("tagLineImage", tagLineImage);
+
+    // retrieve right-logo from global properties. Based on the tagLineImage code.
+    String rightLogo = (authenticationMethod.equals("saml")) ?
+            "/" + GlobalProperties.getRightLogo() : GlobalProperties.getRightLogo();
+    pageContext.setAttribute("rightLogo", rightLogo);
 %>
 <table width="100%" cellspacing="0px" cellpadding="2px" border="0px">
 	<tr valign="middle">
@@ -54,9 +59,10 @@
 		<td valign="middle" align="center" width="50%">
 			<img src="<c:url value="${tagLineImage}"/>" alt="Tag Line" style="max-height: 50px;">
 		</td>
-		<td valign="middle" align="right" width="25%">
-			<a href="http://www.mskcc.org"><img src="<c:url value="/images/mskcc_logo_3d_grey.jpg"/>" height="50px" alt="MSKCC Logo"></a>
-		</td>
+        <!-- replaced hard-coded text with parameter  -->
+        <td valign="middle" align="right" width="25%">
+            <img src="<c:url value="${rightLogo}"/>" alt="Right Logo" style="max-height: 50px;">
+        </td>
 	</tr>
     <!-- Display Sign Out Button for Real (Non-Anonymous) User -->
     <sec:authorize access="!hasRole('ROLE_ANONYMOUS')">

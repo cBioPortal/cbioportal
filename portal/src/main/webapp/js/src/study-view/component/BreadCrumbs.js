@@ -2,13 +2,13 @@
 var BreadCrumbs = (function() {
     // clear all removes all the breadcrumbs from the container
     // it is called by the reset all button
-    function clearAll(){
+    function clearAllBreadCrumbs(){
         removeChartCrumbs($("#breadcrumbs_container").children());
     }
 
     // delete crumbs by chartId removes the crumbs for a single chart
     // it is called when someone removes a graph
-    function deleteCrumbsByChartId(chartId){
+    function deleteBreadCrumbsByChartId(chartId){
         removeChartCrumbs($("#breadcrumbs_container").find("."+chartId));
     }
 
@@ -110,6 +110,22 @@ var BreadCrumbs = (function() {
         }
     }
 
+    function updateTableBreadCrumb(chartId, chartFilter, chartType, tableRowId, crumbTipText, checkboxChecked){
+        // find the proper div
+        var crumbTitle = chartFilter;
+
+        if(checkboxChecked){
+            // create crumb
+            var crumbID = getCrumbId(chartId, crumbTitle);
+            addBreadCrumb(chartId, crumbTitle, crumbTipText, chartType, chartFilter, removeTableFiltering);
+            $("#"+crumbID+"_img").attr("cellID", tableRowId);
+        }
+        else{
+            // remove the crumb
+            removeChartCrumb(chartId, crumbTitle);
+        }
+    }
+
     // get the tiptext for the barchart based on the filter and the attribute
     // if the filter is null we return the empty string, otherwise something like
     // age: 4.02 - 8.05
@@ -121,74 +137,6 @@ var BreadCrumbs = (function() {
     function roundToTwo(num) {
         return +(Math.round(num + "e+2")  + "e-2");
     }
-
-
-    //function updateBarChartBreadCrumb(chartId, chartFilter, chartAttribute, chartType){
-    // update table breadcrumb
-    //function updateTableBreadCrumb(chartId, crumbTitle, crumbTipText, tableRowId, chartFilter, shiftClicked){
-    function updateTableBreadCrumb(chartId, chartFilter, chartType, tableRowId, shiftClicked, crumbTipText){
-        // find the proper div
-        //var crumbID = chartId+"_"+crumbTitle;
-        //var breadcrumbDiv = $("#breadcrumbs_container").find("#"+crumbID);
-
-        var crumbTitle = chartFilter;
-
-        // was the table row highlighted before the click occurred?
-        var highlighted = $("#"+tableRowId).parent().hasClass('highlightRow');
-
-        // find all breadcrumbs for the table
-        var tableBreadCrumbs = $("#breadcrumbs_container").find("."+chartId);
-
-        if(tableBreadCrumbs.length==0) {
-            if (highlighted) {
-                // remove the crumb
-                removeChartCrumb(chartId, crumbTitle);
-            }
-            else{
-                // create crumb
-                createTableCrumb(chartId, crumbTitle, crumbTipText, chartFilter, tableRowId);
-            }
-        }
-        else{
-            if (!shiftClicked) {
-                if (!highlighted) {
-                    // some breadcrumbs already exist; shift is not pressed and our new item was not yet highlighted
-                    // this means that we have to remove all the existing breadcrumbs for the table and create a new
-                    // one for the clicked item
-                    removeChartCrumbs(tableBreadCrumbs);
-                    createTableCrumb(chartId, crumbTitle, crumbTipText, chartFilter, tableRowId);
-                }
-                else{
-                    // some breadcrumbs exist and the currently clicked item was highlighted
-                    // as shift is nog pressed, we need to remove all breadcrumbs for the table
-                    removeChartCrumbs(tableBreadCrumbs);
-                }
-            }
-            else {
-                if (!highlighted) {
-                    // some breadcrumbs already exist and the currently clicked item was not yet highlighted
-                    // as shift is pressed, we just add another breadcrumb
-                    createTableCrumb(chartId, crumbTitle, crumbTipText, chartFilter, tableRowId);
-                }
-                else{
-                    // some breadcrumbs already exist and the currently clicked item was not yet highlighted
-                    // as shift is pressed, we just remove the clicked breadcrumb
-                    removeChartCrumb(chartId, crumbTitle);
-                }
-
-            }
-        }
-    }
-
-
-    function createTableCrumb(chartId, crumbTitle, crumbTipText, chartFilter, tableRowId){
-        var crumbID = getCrumbId(chartId, crumbTitle);
-        addBreadCrumb(chartId, crumbTitle, crumbTipText, "table", chartFilter, removeTableFiltering);
-
-        //$("#"+crumbID).attr("class", chartId)
-        $("#"+crumbID+"_img").attr("cellID", tableRowId);
-    }
-
 
     // remove all provided chartCrumbs
     function removeChartCrumbs(chartCrumbs){
@@ -259,12 +207,15 @@ var BreadCrumbs = (function() {
         });
 
         // settings for the breadcrumb image
+        // we store the information here which will allow us to call the filtering
+        // functionality when a 'x' is pressed to remove the breadcrumb
         var breadcrumbImg = $(breadCrumbDiv).find(".breadcrumb_remove");
         $(breadcrumbImg).attr("id", crumbID + "_img");
         $(breadcrumbImg).attr("chartID", chartId);
         $(breadcrumbImg).attr("crumbTitle", crumbTitle);
         $(breadcrumbImg).attr("chartType", chartType);
         $(breadcrumbImg).attr("chartFilter", chartFilter);
+        // tell what to do when the 'x' is pressed
         $("#" + crumbID).on("click", "#" + crumbID + "_img", removeFiltering);
 
         // if this is the first breadcrumb, show the container and slightly increase the space for visualisation
@@ -310,13 +261,10 @@ var BreadCrumbs = (function() {
     function removeTableFiltering(){
         var cellID = $(this).attr("cellID");
 
-        // this will probably change due to the expected checkbox functionality
-        // but the idea was: act as if someone presses shift, clicks the cell and releases shift
-        // this would save any already existing filters
-        StudyViewWindowEvents.setShiftDown();
-        $("#"+cellID).click();
+        // find the checkbox and perform the click, which will deselect it
+        // and trigger other triggers
+        $("#"+cellID).find(":checkbox").click();
         //dc.redrawAll();
-        StudyViewWindowEvents.setShiftUp();
     }
 
     return {
@@ -325,8 +273,8 @@ var BreadCrumbs = (function() {
         updatePieChartBreadCrumb: updatePieChartBreadCrumb,
         updateBarChartBreadCrumb: updateBarChartBreadCrumb,
         updateTableBreadCrumb: updateTableBreadCrumb,
-        clearAll: clearAll,
-        deleteCrumbsByChartId:deleteCrumbsByChartId
+        clearAllBreadCrumbs: clearAllBreadCrumbs,
+        deleteBreadCrumbsByChartId:deleteBreadCrumbsByChartId
     };
 
 })();

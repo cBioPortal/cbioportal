@@ -1048,7 +1048,9 @@ div.DTTT_print_info {
     display:inline-block;
 }
 .breadcrumb_remove{
-    /*padding: 0px 5px;*/
+    vertical-align: middle;
+    margin-top: -2px;
+    padding-right: 10px;
 }
 .breadcrumb_item{
     padding: 0px 5px;
@@ -1084,6 +1086,6 @@ div.DTTT_print_info {
     height: 35px;
     float: left;
     padding: 0px 10px 0px 0px;
-    margin-top: -3px;
+    margin-top: -6px;
 
 }

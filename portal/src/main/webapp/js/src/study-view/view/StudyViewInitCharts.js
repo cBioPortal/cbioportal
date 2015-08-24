@@ -498,7 +498,7 @@ var StudyViewInitCharts = (function(){
         $(".study-view-scatter-plot-delete").unbind('click');
         $(".study-view-scatter-plot-delete").click(function (){
             // remove breadcrumbs for the chart
-            BreadCrumbs.deleteCrumbsByChartId("study-view-scatter-plot");
+            BreadCrumbs.deleteBreadCrumbsByChartId("study-view-scatter-plot");
 
             $("#study-view-scatter-plot").css('display','none');
             $('#study-view-add-chart').css('display','block');
@@ -590,7 +590,7 @@ var StudyViewInitCharts = (function(){
                 AddCharts.bindliClickFunc();
 
                 // delete histogram or pie chart breadcrumbs
-                //BreadCrumbs.deleteCrumbsByChartId(_id);
+                //BreadCrumbs.deleteBreadCrumbsByChartId(_id);
         });
     }
     

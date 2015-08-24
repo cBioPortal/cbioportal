@@ -42,7 +42,7 @@ var StudyViewInitTopComponents = (function() {
         $('#study-view-header-left-2').unbind('click');
         $('#study-view-header-left-2').click(function (){
             // clear all breadcrumbs
-            BreadCrumbs.clearAll();
+            BreadCrumbs.clearAllBreadCrumbs();
 
             var i,
                 _charts = StudyViewInitCharts.getCharts(),

@@ -270,31 +270,21 @@
     var global_gene_data = {}, global_sample_ids = [];
 
     window.PortalGlobals = {
-        setSampleIds: function(_inputArr) { global_sample_ids = _inputArr; },
-        getSampleIds: function() { return global_sample_ids; },
-        setGeneData: function(_inputObj) { global_gene_data = _inputObj; },
-        getGeneData: function() { return global_gene_data; },
-        //TODO: this is just temporary solution of getting the right total number of samples -- should update the number in the database table instead.
-        getNumOfTotalCases: function() { return num_total_cases; },
-        getNumOfAlteredCases: function() { return num_altered_cases; },
-        getPercentageOfAlteredCases: function() { return ((num_altered_cases / num_total_cases) * 100).toFixed(1); },
+
+        //cancer study
         getCancerStudyId: function() { return '<%=cancerTypeId%>'},
-        getMutationProfileId: function() { return <%=(mutationProfileID==null?"null":("'"+mutationProfileID+"'"))%>},
         getCancerStudyName: function() { return '<%=cancerStudyName%>'},
+
+        //query genes
         getGenes: function() { return '<%=genes%>'},  // raw gene list (as it is entered by the user, it MAY CONTAIN onco query language)
-        getGeneListString: function() {  // gene list WITHOUT onco query language
+        getGeneListString: function() { // gene list WITHOUT onco query language
             return '<%=StringUtils.join(theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes(), " ")%>'
         },
-        getGeneList: function() {
+        getGeneList: function() { //Gene Id list without onco query language
             var _geneList = '<%=StringUtils.join(theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes(), " ")%>';
-            return _geneList.split(/\s+/);    //Gene Id list without onco query language
+            return _geneList.split(/\s+/);
         },
         getGeneSetName: function() { return '<%=geneSetName%>'; },
-        getCaseSetId: function() { return '<%= patientSetId %>';},  //Id for user chosen standard case set
-        getCaseSetName: function() { return '<%= patientSetName %>'},  //Name for user chose standard case set
-        getCaseIdsKey: function() { return '<%= patientIdsKey %>'; },   //A key arrsigned to use build case set
-        getCases: function() { return '<%= patients %>'; }, // list of queried case ids
-        getMergedCases: function() { return '<%=  mergedPatientList %>'; },
         getOqlString: (function() {     // raw gene list (as it is entered by the user, it may contain onco query language)
             var oql = '<%=oql%>'
                     .replace("&gt;", ">", "gm")
@@ -303,18 +293,27 @@
                     .replace(/[\r\n]/g, "\\n");
             return function() { return oql; };
         })(),
-        getGeneticProfiles: function() { return '<%=geneticProfiles%>'; },
-        getZscoreThreshold: function() { return '<%=zScoreThreshold%>'; },
-        getRppaScoreThreshold: function() { return '<%=rppaScoreThreshold%>'; },
-        getPatientIds: function() { return '<%=patients%>'; },
+
+        //cases
+        getCaseSetId: function() { return '<%= patientSetId %>';},  //Id for user chosen standard case set
+        getCaseSetName: function() { return '<%= patientSetName %>'},  //Name for user chose standard case set
+        getCaseIdsKey: function() { return '<%= patientIdsKey %>'; },   //A key arrsigned to use build case set
+        getCases: function() { return '<%= patients %>'; }, // list of queried case ids
+        getMergedCases: function() { return '<%=  mergedPatientList %>'; },
+
+        //samples
+        setSampleIds: function(_inputArr) { global_sample_ids = _inputArr; },
+        getSampleIds: function() { return global_sample_ids; },
+
+        //patients
         getPatientSetName: function() { return '<%=patientSetName%>'; },
-        getPatientSetDescription: function() { 
+        getPatientSetDescription: function() {
             var _str = '<%=patientSetDescription%>';
             _str = _str.substring(0, _str.indexOf("("));
             return _str;
         },
-        getPatientSampleIdMap: function() { 
-            var _tmpPatientSampleIdMap = '<%=patientSampleIdMap%>'; 
+        getPatientSampleIdMap: function() {
+            var _tmpPatientSampleIdMap = '<%=patientSampleIdMap%>';
             var tmpPatientSampleIdMap = _tmpPatientSampleIdMap.substring(1, _tmpPatientSampleIdMap.length-1);
             var _arrPatientSampleMap = tmpPatientSampleIdMap.split(",");
             var result = {};
@@ -324,6 +323,13 @@
             });
             return result;
         },
+        getPatientIds: function() { return '<%=patients%>'; },
+
+        //profiles
+        getMutationProfileId: function() { return <%=(mutationProfileID==null?"null":("'"+mutationProfileID+"'"))%>},
+        getGeneticProfiles: function() { return '<%=geneticProfiles%>'; },
+
+        //altered vs. unaltered
         getAlteredSampleIdList: function() { return '<%=alteredSampleIdsStr%>'; },
         getUnalteredSampleIdList: function() { return '<%=unalteredSampleIdsStr%>'; },
         getAlteredSampleIdArray: function() {
@@ -334,7 +340,19 @@
         getUnalteredSampleIdArray: function() {
             var _str = '<%=unalteredSampleIdsStr%>';
             return _str.split(/\s+/);
-        }
+        },
+        getNumOfTotalCases: function() { return num_total_cases; },
+        getNumOfAlteredCases: function() { return num_altered_cases; },
+        getPercentageOfAlteredCases: function() { return ((num_altered_cases / num_total_cases) * 100).toFixed(1); },
+
+        //thresholds
+        getZscoreThreshold: function() { return '<%=zScoreThreshold%>'; },
+        getRppaScoreThreshold: function() { return '<%=rppaScoreThreshold%>'; },
+
+        //gene data
+        setGeneData: function(_inputObj) { global_gene_data = _inputObj; },
+        getGeneData: function() { return global_gene_data; }
+
     };
 </script>
 

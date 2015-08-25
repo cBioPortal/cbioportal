@@ -33,17 +33,24 @@
         
 <div id="oncoprint" style="padding-top:10px; padding-bottom:10px; padding-left:10px; border: 1px solid #CCC;">
     <img id="outer_loader_img" src="images/ajax-loader.gif"/>
+    <!--<div id="oncoprint_progress_indicator">
+        <p id="oncoprint_progress_indicator_text"></p>
+        <svg width="200px" height="20px" style="outline: 1px solid #888888">
+            <rect id="oncoprint_progress_indicator_rect" fill="#1974b8" height="20px">
+        </svg>
+    </div>-->
+    <p id="oncoprint_progress_indicator"></p>
     <div style="display:none;" id="everything">
         <div id="oncoprint_controls" style="margin-top:10px; margin-bottom:20px;"></div>
         <%@ include file="controls-templates.jsp" %>
 
-        <div id="oncoprint-statment" style="margin-left:3;">
+        <div id="oncoprint-statment" style="margin-left:3; margin-top: 10px">
             <p>Case Set: <span id='oncoprint_sample_set_name'></span>: <span id='oncoprint_sample_set_description'></span></span><span><button id="switchPatientSample" type="button" valuetype="patients" class="btn btn-primary btn-xs jstree-node" style="display: none; cursor:pointer;  padding: 0px 5px; font-weight: normal;font-style: normal;margin-left: 10px; color:white; background-color:#2986e2; font:small-caption;">Show samples in OncoPrint</button></span></p>
         </div>
         
         <div id="oncoprint_whole_body">
 
-        <span id="altered_value"></span>
+        <span id="altered_value" style="float:left; margin-top:12px"></span>
         <div class="btn-group btn-group-sm" id="oncoprint-diagram-toolbar-buttons" style="float:right;margin-right:15px;display: none;height:33px">           
             <div class="btn-group btn-group-sm" id="oncoprint_addclinical_attributes">
                 <button type="button" class="btn btn-default dropdown-toggle" id="oncoprint_diagram_showmorefeatures_icon" data-toggle="dropdown" style="background-color:#efefef;margin:0px;height:30px;">
@@ -60,7 +67,7 @@
             
             <div class="btn-group btn-group-sm"   id="oncoprint_diagram_sortby_group">
                <button type="button" class="btn btn-default dropdown-toggle" id="oncoprint_sortbyfirst_dropdonw" data-toggle="dropdown" style="background-color:#efefef;height:30px;margin:0px">
-                 <span data-bind="label">Sort by</span>&nbsp;<span class="caret"></span>
+                 <span id="oncoprint_diagram_sortby_label" data-bind="label">Sort by</span>&nbsp;<span class="caret"></span>
                </button>
                <ul class="dropdown-menu">
                    <li style="list-style-type:none;cursor:pointer" value="genes"><a id="genes_first_a">gene data first</a></li>
@@ -81,9 +88,7 @@
                 <button type="button" id="oncoprint_zoomin" class="btn btn-default" style="background-color:#efefef;margin:0px"><img src="images/zoom-in.svg" alt="icon" width="16" height="16" /></button>
             </div>
         </div>
-        
-        <div style="height:20px;"></div>  
-        <img id="inner_loader_img" src="images/ajax-loader.gif" style="display:none;">
+        <br><br>
         <div id="oncoprint_body"></div>
         </div>
         <div id="oncoprint_legend" style="display: inline;"></div>
@@ -91,19 +96,33 @@
         <script type="text/javascript">
 //            $( document.body ).on( 'click', '.dropdown-menu li', function( event ) {
             $('#oncoprint_diagram_sortby_group' ).on( 'click', '.dropdown-menu li', function( event ) {
-              var $target = $( event.currentTarget );
+                $('#oncoprint_diagram_sortby_label').text($(event.currentTarget).text());
+                $('#oncoprint_diagram_sortby_group').children('.dropdown-toggle').dropdown('toggle');
+                return false;
+              /*var $target = $( event.currentTarget );
 
               $target.closest( '.btn-group' )
                  .find( '[data-bind="label"]' ).text( $target.text() )
                     .end()
                  .children( '.dropdown-toggle' ).dropdown( 'toggle' );
 
-              return false;
+              return false;*/
 
             });
 //           $('.dropdown-menu #select_clinical_attributes').click(function(){$('#clinical_dropdown').dropdown('toggle');});
         </script>
 
-        <script data-main="js/src/oncoprint/main-boilerplate.js?<%=GlobalProperties.getAppVersion()%>" type="text/javascript" src="js/require.js?<%=GlobalProperties.getAppVersion()%>"></script>
+        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/events.js?<%=GlobalProperties.getAppVersion()%>"></script>
+        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/utils.js?<%=GlobalProperties.getAppVersion()%>"></script>
+        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/defaults.js?<%=GlobalProperties.getAppVersion()%>"></script>
+        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/RuleSet.js?<%=GlobalProperties.getAppVersion()%>"></script>
+        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/OncoprintRenderer.js?<%=GlobalProperties.getAppVersion()%>"></script>
+        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/OncoprintSVGRenderer.js?<%=GlobalProperties.getAppVersion()%>"></script>
+        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/oncoprint.js?<%=GlobalProperties.getAppVersion()%>"></script>
+        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/OncoprintUtils.js?<%=GlobalProperties.getAppVersion()%>"></script>
+        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/setup-oncoprint-improved.js?<%=GlobalProperties.getAppVersion()%>"></script>
+        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/studyview.js?<%=GlobalProperties.getAppVersion()%>"></script>
+        
+        <!--<script data-main="js/src/oncoprint/main-boilerplate.js?<%=GlobalProperties.getAppVersion()%>" type="text/javascript" src="js/require.js?<%=GlobalProperties.getAppVersion()%>"></script>-->
     </div>
 </div>

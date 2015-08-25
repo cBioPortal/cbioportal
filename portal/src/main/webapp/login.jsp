@@ -44,7 +44,6 @@
 <jsp:include page="WEB-INF/jsp/global/css_include.jsp" flush="true" />
 <jsp:include page="WEB-INF/jsp/global/js_include.jsp" flush="true" />
 <%
-    String idpEntityId = "";
     String authenticationMethod = GlobalProperties.authenticationMethod();
     if (authenticationMethod.equals("openid")) {
 %>
@@ -57,9 +56,6 @@
       });
     </script>
 <%
-    }
-    else if (authenticationMethod.equals("saml")) {
-        idpEntityId = GlobalProperties.getProperty("saml.idp.metadata.entityid");
     }
    String siteTitle = GlobalProperties.getTitle();
 %>
@@ -102,7 +98,8 @@
             <% if (authenticationMethod.equals("googleplus")) { %>
             You have attempted to log in as <%= DynamicState.INSTANCE.getFailedUser() %>.
             <% } %>
-            If you think you have received this message in error, please contact us at <a style="color:#FF0000" href="mailto:cbioportal-access@cbio.mskcc.org">cbioportal-access@cbio.mskcc.org</a>
+            <!-- removed hard-coded login contact html, instead calling GlobalProperties -->
+            <%= GlobalProperties.getLoginContactHtml() %>
             </strong></p>
     </div>
     <% } %>
@@ -143,8 +140,9 @@
                     </form>
                     <% } else if (authenticationMethod.equals("saml")) { %>
                         <p>
-                            <button id="saml_login_button" type="button" class="btn btn-danger btn-lg" onclick="window.location = 'login?idp=<%= idpEntityId %>'" >
-                            Sign in with MSK</button>
+                            <!-- removed the hard-coded saml registration html and calling GlobalProperties instead -->
+                            <button id="saml_login_button" type="button" class="btn btn-danger btn-lg" onclick="window.location = 'login?idp=<%= GlobalProperties.getSamlIdpMetadataEntityid() %>'" >
+                                <%= GlobalProperties.getLoginSamlRegistrationHtml() %></button>
                         </p>
                     </fieldset>
                     <% } else if (authenticationMethod.equals("googleplus")) { %>

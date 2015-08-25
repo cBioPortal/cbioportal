@@ -34,15 +34,7 @@
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 
 <%
-    String faqHtml = GlobalProperties.getProperty("faq");
     String siteTitle = GlobalProperties.getTitle();
-
-    if (faqHtml == null) {
-        faqHtml = "content/faq.html";
-    } else {
-        faqHtml = "content/" + faqHtml;
-    }
-
 %>
 
 <% request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::FAQ"); %>
@@ -53,7 +45,7 @@
             <td>
             <h1>Portal FAQs</h1>
             <div class="markdown">
-            <P><jsp:include page="<%= faqHtml %>" flush="true" /></p>
+            <P><jsp:include page="<%= GlobalProperties.getFaqHtml() %>" flush="true" /></p>
             </div>
             </td>
         </tr>

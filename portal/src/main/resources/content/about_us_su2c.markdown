@@ -1,4 +1,4 @@
-The cBioPortal for SU2C is developed and maintained by the [Computational Biology Center](http://cbio.mskcc.org/) at [Memorial Sloan-Kettering Cancer Center](http://www.mskcc.org/) and the [i-Vis (Information Visualization) Research Group](http://www.cs.bilkent.edu.tr/~ivis/) of the Computer Engineering Department at [Bilkent University](http://www.bilkent.edu.tr/index.html).
+The cBioPortal for SU2C is developed and maintained by the [Computational Biology Center](http://cbio.mskcc.org/) at [Memorial Sloan-Kettering Cancer Center](http://www.mskcc.org/).
 
 ## The team
 
@@ -16,12 +16,12 @@ The cBioPortal for SU2C is developed and maintained by the [Computational Biolog
  
 ## Alumni
 
- * Ethan Cerami, now at Blueprint Medicines
- * Erik Larsson, now at University of Gothenburg
- * Arthur Goldberg, now at Mount Sinai School of Medicine
+ * Ethan Cerami
+ * Erik Larsson
+ * Arthur Goldberg
  * Michael Heuer
- * Caitlin Byrne, MSKCC
- * Sinan Sonlu, Bilkent University
+ * Caitlin Byrne
+ * Sinan Sonlu
  * B. Arman Aksoy
 
 ## Protein data provided by:

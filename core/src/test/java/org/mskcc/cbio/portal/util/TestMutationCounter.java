@@ -32,19 +32,20 @@
 
 package org.mskcc.cbio.portal.util;
 
-import junit.framework.TestCase;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.ExtendedMutation;
 import org.mskcc.cbio.portal.model.ExtendedMutationMap;
 
 import java.util.ArrayList;
 
+import static org.junit.Assert.*;
+
 /**
  * Tests the Mutation Counder Class.
  *
  * @author Ethan Cerami.
  */
-public class TestMutationCounter extends TestCase {
+public class TestMutationCounter {
     private static final String BRCA1 = "BRCA1";
     private static final String BRCA2 = "BRCA2";
     private static final int CASE_A = 1;

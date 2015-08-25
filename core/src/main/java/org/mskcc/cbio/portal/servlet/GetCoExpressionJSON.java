@@ -96,7 +96,7 @@ public class GetCoExpressionJSON extends HttpServlet  {
             geneSymbol = ((XssRequestWrapper)httpServletRequest).getRawParameter("gene");
         }
         String profileId = httpServletRequest.getParameter("profile_id");
-	      String caseSetId = httpServletRequest.getParameter("case_set_id");
+        String caseSetId = httpServletRequest.getParameter("case_set_id");
         String caseIdsKey = httpServletRequest.getParameter("case_ids_key");
         boolean isFullResult = Boolean.parseBoolean(httpServletRequest.getParameter("is_full_result"));
 

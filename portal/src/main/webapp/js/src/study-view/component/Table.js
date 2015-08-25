@@ -35,10 +35,14 @@ var Table = function() {
     var divs = {},
         attr = [],
         arr = [],
+        attrL = 0,
+        arrL = 0,
         selectedSamples = [],
         dataTable = '',
         callbacks = {},
-        initStatus = false;
+        checkboxChildId = -1,
+        initStatus = false,
+        self = this;
     
     function init(input) {
         initStatus = true;
@@ -71,7 +75,7 @@ var Table = function() {
             divs.headerId = tableId + '-header';
             divs.reloadId = tableId + '-reload-icon';
             divs.downloadId = tableId + '-download-icon';
-            divs.downloadWrapperId = tableId + '-download-icon-wrapper'
+            divs.downloadWrapperId = tableId + '-download-icon-wrapper';
             divs.loaderId = tableId + '-loader';
         }else {
             initStatus = false;
@@ -107,63 +111,83 @@ var Table = function() {
             "<div id='"+divs.tableId+"'>"+
             "</div>"+
             "<div id='"+divs.loaderId+"' class='study-view-loader' style='top:30%;left:30%'><img src='images/ajax-loader.gif'/></div>"+
-        "</div>"
+        "</div>";
         $('#' + divs.attachedId).append(_div);
         showHideDivision('#' + divs.mainId,['#' + divs.titleWrapperId],  0);
         reset();
+        startLoading();
     }
-    
+
+    function datumIsSelected(selected, datum) {
+        var contain = false;
+        for(var i = 0; i < selected.length; i ++){
+            var allSame = true;
+            for(var key in selected[i]) {
+                if(datum[key] !== selected[i][key]) {
+                    allSame = false;
+                }
+            }
+            if(allSame) {
+                contain = true;
+            }
+        }
+        return contain;
+    }
+
     function initTable(data) {
         var table = $('#' + divs.tableId);
+        var tableHeaderStr = '';
+        var tableBodyStr = '';
+        var i = 0, j = 0;
+        var hasSelected = false;
+        var selectedKeys = [];
+
+        if(typeof data === 'object' && data.selected instanceof Array && data.selected.length > 0) {
+            hasSelected = true;
+        }
+
         if(typeof data === 'object' && data.hasOwnProperty('attr') && data.hasOwnProperty('arr')) {
             arr = data.arr;
             attr = data.attr;
+            arrL = arr.length;
+            attrL = attr.length;
         }
         if(typeof data === 'object' && data.hasOwnProperty('selectedSamples')) {
             selectedSamples = data.selectedSamples;
         }
         var tableHtml = '<table><thead><tr></tr></thead><tbody></tbody></table>';
         table.html(tableHtml);
-        
+
         var tableHeader = table.find('table thead tr');
         
         //Append table header
-        attr.forEach(function(e, i) {
-            tableHeader.append('<th style=" white-space: nowrap;">'+ e.displayName||'Unknown' +'</th>');
-        });
+        for(i=0; i< attrL; i++){
+            tableHeaderStr += '<th style=" white-space: nowrap;" ';
+            if(attr[i].hasOwnProperty('qtip')) {
+                tableHeaderStr += ' class="hasQtip" qtip="' + attr[i].qtip + '"';
+            }
+            tableHeaderStr += '>'+ attr[i].displayName||'Unknown' +'</th>';
+        }
+        tableHeader.append(tableHeaderStr);
         
         var tableBody = table.find('tbody');
         
         //Append table body
-        arr.forEach(function(e, i){
-            var _row= '<tr>';
-             
-            if(typeof data === 'object' && data.selected instanceof Array && data.selected.length > 0) {
-                var match = false;
-                data.selected.forEach(function(e1, i1){
-                    var _match = true;
-                    for(var key in e1) {
-                        if(e1[key] !== e[key]) {
-                            _match = false;
-                            break;
-                        }
-                    }
-                    if(_match) {
-                        match = true;
-                    }
-                });
-                
-                if(match) {
-                    _row= '<tr class="highlightRow">';
-                }
+        for(i = 0; i < arrL; i++){
+
+            if(typeof data === 'object' && data.selected instanceof Array && data.selected.length > 0 && datumIsSelected(data.selected, arr[i])) {
+                tableBodyStr += '<tr class="highlightRow" style="white-space: nowrap;">';
+            }else{
+                tableBodyStr += '<tr style="white-space: nowrap;">';
             }
-            
-            attr.forEach(function(e1, i1){
-                _row += '<td' + (e1.name === 'samples'?' class="clickable"':'') + '>' + e[e1.name] + '</td>';
-            });
-            _row += '</tr>';
-            tableBody.append(_row);
-        });
+
+            for(j = 0; j < attrL; j++) {
+                tableBodyStr += '<td' + (attr[j].name === 'samples' ? ' class="clickable"' : '') + '>' + arr[i][attr[j].name] + '</td>';
+            }
+            tableBodyStr += '</tr>';
+        }
+        tableBody.append(tableBodyStr);
+
         if(selectedSamples.length === 0){
             hideReload();
         }
@@ -210,6 +234,7 @@ var Table = function() {
             }
             if(e.name === 'samples') {
                 samplesIndex = i;
+                checkboxChildId = i+1;
             }
             if(e.name === 'qval') {
                 qvalIndex = i;
@@ -232,7 +257,7 @@ var Table = function() {
                 "mDataProp": function(source,type) {
                     var _samplesType = source[samplesIndex];
                     if (type==='display') {
-                        return '<span style="border-bottom:2px dotted grey">'+_samplesType+'</span>';
+                        return '<span>'+_samplesType+'</span><input type="checkbox" style="float:right; margin: 3px 0;">';
                     }
                     return _samplesType;
                 }
@@ -289,7 +314,7 @@ var Table = function() {
                         if(_gene.toString().length > 6) {
                             str += '<span class="hasQtip" qtip="'+_gene+'">'+_gene.substring(0,4) + '...'+'</span>';
                         }else {
-                            str = _gene;
+                            str += _gene;
                         }
 
                         if(qvalIndex !== -1 && attr[qvalIndex].displayName && source[qvalIndex]) {
@@ -312,9 +337,16 @@ var Table = function() {
             });
               
             dataTableOpts.fnDrawCallback = function() {
-                $('#'+ divs.tableId).find('span.hasQtip').each(function(e, i) {
+                $('#'+ divs.tableId).find('.hasQtip').each(function(e, i) {
                     $(this).qtip('destroy', true);
                     qtip(this, $(this).attr('qtip'));
+                });
+
+                $('#'+ divs.tableId).find('table tbody tr').each(function(e, i) {
+                    if($(this).hasClass('highlightRow')){
+                        $(this).find('td').addClass('highlightRow');
+                        $(this).find('td:nth-child('+checkboxChildId+') input:checkbox').attr('checked', true);
+                    }
                 });
                 
                 $('#'+ divs.tableId).find('table tbody tr td.clickable').unbind('hover');
@@ -324,7 +356,8 @@ var Table = function() {
                     $(this).siblings().addBack().removeClass('hoverRow');
                 });
                 
-                rowClick();
+                //rowClick();
+                checkboxClick();
             };
         }
         dataTable = $('#'+ divs.tableId +' table').dataTable(dataTableOpts);
@@ -341,7 +374,7 @@ var Table = function() {
     }
     
     function redraw(data, callback) {
-        dataTable.api().destroy();
+        dataTable = null;
         $('#' + divs.tableId).empty();
         initTable(data);
         initDataTable();
@@ -360,32 +393,46 @@ var Table = function() {
         $('#' + divs.tableId + ' table tbody tr td.clickable').click(function () {
             var shiftClicked = StudyViewWindowEvents.getShiftKeyDown(),
             highlightedRowsData = '';
-                
+
             if(!shiftClicked) {
                 var _isClicked = $(this).parent().hasClass('highlightRow');
                 $('#' + divs.tableId + ' tbody').find('.highlightRow').removeClass('highlightRow');
+                $('#' + divs.tableId + ' tbody').find('input:checkbox').attr('checked', false);
                 if(!_isClicked) {
-                    $(this).parent().toggleClass('highlightRow');
                     $(this).siblings().addBack().toggleClass('highlightRow');
-                    
+                    $(this).parent().toggleClass('highlightRow');
+                    $(this).parent().find('input:checkbox').attr('checked', true);
                 }
             }else{
-                $(this).parent().toggleClass('highlightRow');
                 $(this).siblings().addBack().toggleClass('highlightRow');
+                $(this).parent().toggleClass('highlightRow');
+                $(this).parent().find('input:checkbox').attr('checked', !($(this).parent().find('input:checkbox').attr('checked')));
             }
-            
-            highlightedRowsData = dataTable.api().rows('.highlightRow').data();
-            
-            if(highlightedRowsData.length === 0) {
-                hideReload();
-            }else {
-                showReload();
-            }
-            
-            if(callbacks.hasOwnProperty('rowClick')) {
-                callbacks.rowClick(divs.tableId, highlightedRowsData);
-            }
+            clickFunc();
         });
+    }
+
+    function checkboxClick() {
+        $('#' + divs.tableId + ' table tbody tr td:nth-child('+checkboxChildId+') input:checkbox').unbind('change');
+        $('#' + divs.tableId + ' table tbody tr td:nth-child('+checkboxChildId+') input:checkbox').change(function () {
+            $(this).parent().siblings().addBack().toggleClass('highlightRow');
+            $(this).parent().parent().toggleClass('highlightRow');
+            clickFunc();
+        });
+    }
+
+    function clickFunc() {
+        var highlightedRowsData = dataTable.api().rows('.highlightRow').data();
+
+        if(highlightedRowsData.length === 0) {
+            hideReload();
+        }else {
+            showReload();
+        }
+
+        if(callbacks.hasOwnProperty('rowClick')) {
+            callbacks.rowClick(divs.tableId, highlightedRowsData);
+        }
     }
     
     function deleteTable() {
@@ -403,6 +450,7 @@ var Table = function() {
         $('#'+ divs.reloadId).unbind('click');
         $('#'+ divs.reloadId).click(function() {
             $('#' + divs.tableId + ' tbody').find('.highlightRow').removeClass('highlightRow');
+            $('#' + divs.tableId + ' tbody tr td:nth-child('+checkboxChildId+') input:checkbox').attr('checked', false);
             if(callbacks.hasOwnProperty('rowClick')) {
                 callbacks.rowClick(divs.tableId, []);
             }
@@ -442,26 +490,54 @@ var Table = function() {
             }
         });
     }
-    
+
+    function getInitStatus(){
+        return initStatus;
+    }
+
+    function resize() {
+        dataTable.fnAdjustColumnSizing();
+    }
+
+    function startLoading() {
+        $('#' + divs.loaderId).css('display', 'block');
+        $('#' + divs.tableId).css('opacity', '0.3');
+    }
+
+    function stopLoading() {
+        $('#' + divs.loaderId).css('display', 'none');
+        $('#' + divs.tableId).css('opacity', '1');
+    }
+
+    function show() {
+        $('#' + divs.mainId ).css('display', 'block');
+    }
+
+    function hide() {
+        $('#' + divs.mainId ).css('display', 'none');
+    }
+
     return {
         init: init,
+        initDiv: function(input){
+            initData(input);
+            initDiv();
+        },
+        draw: function(data){
+            initTable(data);
+            initDataTable();
+            addEvents();
+            stopLoading();
+        },
         getDataTable: function() {
             return dataTable;
         },
         redraw: redraw,
-        getInitStatus: function(){
-            return initStatus;
-        },
-        resize: function() {
-            dataTable.fnAdjustColumnSizing();
-        },
-        startLoading: function() {
-            $('#' + divs.loaderId).css('display', 'block');
-            $('#' + divs.tableId).css('opacity', '0.3');
-        },
-        stopLoading: function() {
-            $('#' + divs.loaderId).css('display', 'none');
-            $('#' + divs.tableId).css('opacity', '1');
-        }
+        getInitStatus: getInitStatus,
+        resize: resize,
+        startLoading: startLoading,
+        stopLoading: stopLoading,
+        show: show,
+        hide: hide
     };
 };

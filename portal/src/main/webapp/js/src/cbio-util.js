@@ -47,8 +47,8 @@ cbio.util = (function() {
         }
 
         var ret = number.toPrecision(precision);
-        if (ret.indexOf(".")!==-1)
-            ret = ret.replace(/\.?0+$/,'');
+        //if (ret.indexOf(".")!==-1)
+        //    ret = ret.replace(/\.?0+$/,'');
 
         return ret;
     };

@@ -209,6 +209,9 @@ var caseSetId = '<%=caseSetId%>';
 var caseIds = <%=jsonCaseIds%>;
 var cancer_study_id = cancerStudyId; //Some components using this as global ID
 var appVersion = <%=GlobalProperties.getAppVersion()%>?<%=GlobalProperties.getAppVersion()%>:'0000001';
+var hasMutation = <%=hasMutation%>;
+var hasCNA = <%=hasCNA%>;
+
 
 $("#study-tabs").tabs({disabled: true});
 $("#study-tabs").tabs("enable", 0);
@@ -216,10 +219,10 @@ $("#study-tabs").tabs("enable", 0);
 $('#study-tab-clinical-a').click(function(){
     if (!$(this).parent().hasClass('ui-state-disabled') && !$(this).hasClass("tab-clicked")) {
         //First time: adjust the width of data table;
-        $("#clinical-data-table-loading-wait").css('display', 'block');
+        $("#clinical-data-table-loading-wait").css('display', 'inline-block');
         $("#clinical-data-table-div").css('display','none');
         setTimeout(function () {
-            $("#clinical-data-table-div").css('display','block');
+            $("#clinical-data-table-div").css('display','inline-block');
             StudyViewClinicalTabController.init();
             $("#clinical-data-table-loading-wait").css('display', 'none');
             $('#study-tab-clinical-a').addClass("tab-clicked");

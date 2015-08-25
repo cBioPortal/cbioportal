@@ -52,6 +52,15 @@
 
     <!-- googleplus beans -->
     <b:beans profile="googleplus">
+	
+	<b:bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+	    <b:property name="staticMethod" value="org.mskcc.cbio.portal.util.SpringUtil.setAccessControl"/>
+	    <b:property name="arguments">
+	        <b:list>
+	            <b:ref bean="accessControl"/>
+	        </b:list>
+	   </b:property>
+	</b:bean>
 
     <http entry-point-ref="authenticationEntryPoint" use-expressions="true"> 
         ${url.intercepts}
@@ -135,6 +144,15 @@
     <!-- openid beans -->
     <b:beans profile="openid">
 
+	<b:bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+	    <b:property name="staticMethod" value="org.mskcc.cbio.portal.util.SpringUtil.setAccessControl"/>
+	    <b:property name="arguments">
+	        <b:list>
+	            <b:ref bean="accessControl"/>
+	        </b:list>
+	   </b:property>
+	</b:bean>
+
     <http use-expressions="true"> 
         ${url.intercepts}
 
@@ -171,6 +189,15 @@
 
     <!-- saml beans -->
     <b:beans profile="saml">
+
+	<b:bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+	    <b:property name="staticMethod" value="org.mskcc.cbio.portal.util.SpringUtil.setAccessControl"/>
+	    <b:property name="arguments">
+	        <b:list>
+	            <b:ref bean="accessControl"/>
+	        </b:list>
+	   </b:property>
+	</b:bean>
 
     <http entry-point-ref="samlEntryPoint" use-expressions="true">
         ${url.intercepts}
@@ -427,6 +454,14 @@
     <global-method-security pre-post-annotations="disabled"/>
     <http pattern="/**" security="none"/>
     <b:bean id="accessControl" class="org.mskcc.cbio.portal.util.internal.AccessControlImpl"/>
+	<b:bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+	    <b:property name="staticMethod" value="org.mskcc.cbio.portal.util.SpringUtil.setAccessControl"/>
+	    <b:property name="arguments">
+	        <b:list>
+	            <b:ref bean="accessControl"/>
+	        </b:list>
+	   </b:property>
+	</b:bean>
     </b:beans>
 
 </b:beans>

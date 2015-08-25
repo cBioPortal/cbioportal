@@ -32,26 +32,37 @@
 
 package org.mskcc.cbio.portal.mut_diagram;
 
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.mut_diagram.IdMappingService;
 import org.mskcc.cbio.portal.mut_diagram.impl.CgdsIdMappingService;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import static org.junit.Assert.*;
 
 /**
  * Abstract unit test for implementations of IdMappingService.
  */
-public class TestAbstractIdMappingService extends TestCase {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
+public class TestAbstractIdMappingService {
     protected IdMappingService idMappingService;
 
+    @Before
     public void setUp() throws DaoException {
         idMappingService = new CgdsIdMappingService(DaoGeneOptimized.getInstance());
     }
 
+    @Test
     public final void testCreateIdMappingService() {
         assertNotNull(idMappingService);
     }
 
+    @Test
     public final void testGetUniProtIdNullHugoGeneSymbol() {
         try {
             idMappingService.mapFromHugoToUniprotAccessions(null);

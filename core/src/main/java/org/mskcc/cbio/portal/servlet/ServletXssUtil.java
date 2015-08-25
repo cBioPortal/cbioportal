@@ -92,8 +92,10 @@ public class ServletXssUtil {
                 return null;
             }
         } catch (ScanException e) {
+            System.err.println(e.getMessage());
             return null;
         } catch (PolicyException e) {
+            System.err.println(e.getMessage());
             return null;
         }
     }

@@ -5,9 +5,9 @@
      xmlns:tx="http://www.springframework.org/schema/tx"
      xmlns:context="http://www.springframework.org/schema/context"
      xsi:schemaLocation="
-     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
-     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
 
      <beans profile="jndi,dbcp">
 
@@ -79,11 +79,27 @@
             <property name="maxActive" value="100"/>
             <property name="poolPreparedStatements" value="true"/>
         </bean>
+		<bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+	    	<property name="staticMethod" value="org.mskcc.cbio.portal.dao.JdbcUtil.setDataSource"/>
+	    	<property name="arguments">
+	        	<list>
+	            	<ref bean="businessDataSource"/>
+	        	</list>
+	   		</property>
+		</bean>
     </beans>
 
     <beans profile="jndi">
         <bean id="businessDataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
             <property name="jndiName" value="java:comp/env/${db.tomcat_resource_name}"/>
         </bean>
+		<bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+	    	<property name="staticMethod" value="org.mskcc.cbio.portal.dao.JdbcUtil.setDataSource"/>
+	    	<property name="arguments">
+	        	<list>
+	            	<ref bean="businessDataSource"/>
+	        	</list>
+	   		</property>
+		</bean>
     </beans>
 </beans>

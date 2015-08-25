@@ -12,6 +12,7 @@
             <option value="cancer_genes">All Cancer Genes in cbio portal</option>
             <option value="all_genes">All Genes in cbio portal</option>
         </select>
+        <span id="enrichments-tab-gene-set-warning" style="color:grey;"></span>
         <br>
     </div>
     <div id="or-analysis-tabs" class="or-analysis-tabs" style="margin-top:5px;">
@@ -95,8 +96,11 @@
         //bind event listener to gene set selector
         $("#or_analysis_tab_gene_set_select").change(function() {
             if ($("#or_analysis_tab_gene_set_select").val() === "cancer_genes") {
+                $("#" + orAnalysis.ids.gene_set_warning).empty();
                 or_tab.update();
             } else if ($("#or_analysis_tab_gene_set_select").val() === "all_genes") {
+                $("#" + orAnalysis.ids.gene_set_warning).empty();
+                $("#" + orAnalysis.ids.gene_set_warning).append("Calculating and rendering...(this may a few seconds)");
                 or_tab.update();
             }
         });

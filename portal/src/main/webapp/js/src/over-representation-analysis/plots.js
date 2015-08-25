@@ -129,9 +129,6 @@ var orPlots = (function() {
                 dotsArr.push(_datum);
             }
         });
-        $.each(dotsArr, function(_index, obj) {
-            console.log(obj.y_val);
-        });
 
         generate_plots();
     };

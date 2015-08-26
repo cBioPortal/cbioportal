@@ -10,6 +10,7 @@ var makeOncoprinter = (function() {
 		var gene_to_sample_to_datum = {};
 		var cna = {'AMP':'AMPLIFIED','GAIN':'GAINED', 'HETLOSS':'HETLOSS', 'HOMDEL':'HOMODELETED'};
 		var mrna = {'UP':'UPREGULATED', 'DOWN':'DOWNREGULATED'};
+		var rppa = {'PROT-UP': 'UPREGULATED', 'PROT-DOWN':'DOWNREGULATED'};
 		var lines = str.split('\n');
 		var samples = {};
 		for (var i=1; i<lines.length; i++) {
@@ -32,6 +33,8 @@ var makeOncoprinter = (function() {
 				gene_to_sample_to_datum[gene][sample].cna = cna[alteration];
 			} else if (mrna.hasOwnProperty(alteration)) {
 				gene_to_sample_to_datum[gene][sample].mrna = mrna[alteration];
+			} else if (rppa.hasOwnProperty(alteration)) {
+				gene_to_sample_to_datum[gene][sample].rppa = rppa[alteration];
 			} else {
 				gene_to_sample_to_datum[gene][sample].mutation = alteration;
 			}

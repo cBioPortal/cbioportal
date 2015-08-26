@@ -32,34 +32,16 @@
 
 package org.mskcc.cbio.portal.scripts;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import org.biojava.bio.structure.AminoAcid;
-import org.biojava.bio.structure.Chain;
-import org.biojava.bio.structure.Group;
-import org.biojava.bio.structure.ResidueNumber;
-import org.biojava.bio.structure.Structure;
+import java.io.*;
+import java.util.*;
+import org.biojava.bio.structure.*;
 import org.biojava.bio.structure.align.util.AtomCache;
 import org.biojava.bio.structure.io.FileParsingParameters;
-import org.biojava3.core.sequence.compound.AminoAcidCompound;
-import org.biojava3.core.sequence.compound.AminoAcidCompoundSet;
+import org.biojava3.core.sequence.compound.*;
 import org.biojava3.core.sequence.loader.UniprotProxySequenceReader;
-import org.mskcc.cbio.portal.dao.DaoPdbUniprotResidueMapping;
-import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.dao.DaoUniProtIdMapping;
-import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
-import org.mskcc.cbio.portal.model.PdbUniprotAlignment;
-import org.mskcc.cbio.portal.model.PdbUniprotResidueMapping;
-import org.mskcc.cbio.portal.util.ConsoleUtil;
-import org.mskcc.cbio.portal.util.FileUtil;
-import org.mskcc.cbio.portal.util.ProgressMonitor;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.util.*;
 
 /**
  *
@@ -311,6 +293,8 @@ public final class ImportPdbUniprotResidueMappingFromSifts {
     
         ProgressMonitor pMonitor = new ProgressMonitor();
         pMonitor.setConsoleMode(true);
+
+		SpringUtil.initDataSource();
         
         double identpThrehold = 80;
 

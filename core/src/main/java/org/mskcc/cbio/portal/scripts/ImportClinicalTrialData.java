@@ -34,8 +34,8 @@ package org.mskcc.cbio.portal.scripts;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.mskcc.cbio.portal.dao.DaoClinicalTrial;
-import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.util.SpringUtil;
 import org.mskcc.cbio.portal.model.ClinicalTrial;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -93,6 +93,7 @@ public class ImportClinicalTrialData {
     public static void importFilesFromFolder(File folder)
             throws ParserConfigurationException, IOException, SAXException, DaoException
     {
+		SpringUtil.initDataSource();
         daoClinicalTrial = DaoClinicalTrial.getInstance();
 
         log.debug("Reseting the clinical trials table. ");

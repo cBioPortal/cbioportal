@@ -32,14 +32,10 @@
 
 package org.mskcc.cbio.portal.scripts;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.Date;
 
-import joptsimple.OptionException;
-import joptsimple.OptionParser;
-import joptsimple.OptionSet;
-import joptsimple.OptionSpec;
+import joptsimple.*;
 
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
@@ -147,6 +143,7 @@ public class ImportProfileData{
           }
        }
 
+		SpringUtil.initDataSource();
         ProgressMonitor pMonitor = new ProgressMonitor();
         pMonitor.setConsoleMode(true);
         System.err.println("Reading data from:  " + dataFile.getAbsolutePath());

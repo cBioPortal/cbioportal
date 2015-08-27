@@ -14,6 +14,6 @@ import org.mskcc.cbio.portal.model.DBCancerType;
  * @author abeshoua
  */
 public interface CancerTypeMapper {
-    List<DBCancerType> getAll();
-    List<DBCancerType> byId(@Param("ids") List<String> ids);
+	List<DBCancerType> getAllCancerTypes();
+	List<DBCancerType> getCancerTypes(@Param("cancer_type_ids") List<String> cancer_type_ids);
 }

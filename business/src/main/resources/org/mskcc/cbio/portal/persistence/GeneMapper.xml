@@ -5,30 +5,30 @@
     
 <cache/>
 
-<select id="byHugoGeneSymbol" resultType="DBGene" parameterType="list">
+<select id="getGenesByHugo" resultType="DBGene" parameterType="list">
     select
-        HUGO_GENE_SYMBOL as hugoGeneSymbol,
-        ENTREZ_GENE_ID as entrezGeneId
+        HUGO_GENE_SYMBOL as hugo_gene_symbol,
+        ENTREZ_GENE_ID as entrez_gene_id
     from gene
     where HUGO_GENE_SYMBOL in
-    <foreach item="item" collection="ids" open="(" separator="," close=")">
+    <foreach item="item" collection="hugo_gene_symbols" open="(" separator="," close=")">
         #{item}
     </foreach>
 </select>
-<select id="byEntrezGeneId" resultType="DBGene" parameterType="list">
+<select id="getGenesByEntrez" resultType="DBGene" parameterType="list">
     select
-        HUGO_GENE_SYMBOL as hugoGeneSymbol,
-        ENTREZ_GENE_ID as entrezGeneId
+        HUGO_GENE_SYMBOL as hugo_gene_symbol,
+        ENTREZ_GENE_ID as entrez_gene_id
     from gene
     where ENTREZ_GENE_ID in
-    <foreach item="item" collection="ids" open="(" separator="," close=")">
+    <foreach item="item" collection="entrez_gene_ids" open="(" separator="," close=")">
         #{item}
     </foreach>
 </select> 
-<select id="getAll" resultType="DBGene">
+<select id="getAllGenes" resultType="DBGene">
     select
-        HUGO_GENE_SYMBOL as hugoGeneSymbol,
-        ENTREZ_GENE_ID as entrezGeneId
+        HUGO_GENE_SYMBOL as hugo_gene_symbol,
+        ENTREZ_GENE_ID as entrez_gene_id
     from gene
 </select>
     

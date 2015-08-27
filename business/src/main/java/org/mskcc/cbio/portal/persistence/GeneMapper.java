@@ -12,9 +12,8 @@ import org.mskcc.cbio.portal.model.DBGene;
  *
  * @author abeshoua
  */
-public interface GeneMapper 
-{
-    List<DBGene> byEntrezGeneId(@Param("ids") List<Long> ids);
-    List<DBGene> byHugoGeneSymbol(@Param("ids") List<String> ids);
-    List<DBGene> getAll();
+public interface GeneMapper {
+	List<DBGene> getGenesByEntrez(@Param("entrez_gene_ids") List<Long> entrez_gene_ids);
+	List<DBGene> getGenesByHugo(@Param("hugo_gene_symbols") List<String> hugo_gene_symbols);
+	List<DBGene> getAllGenes();
 }

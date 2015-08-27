@@ -12,5 +12,5 @@ import java.io.Serializable;
  * @author abeshoua
  */
 public class DBClinicalPatientData extends DBClinicalData implements Serializable {
-    public Long patient_id;
+    public String patient_id;
 }

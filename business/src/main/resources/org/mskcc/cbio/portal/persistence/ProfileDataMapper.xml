@@ -4,81 +4,134 @@
 <mapper namespace="org.mskcc.cbio.portal.persistence.ProfileDataMapper">
 
 <resultMap id="MutationDataResult" type="DBMutationData">
-    <result property="entrez_gene_id" column="ENTREZ_GENE_ID"/>
-    <result property="internal_sample_id" column="SAMPLE_ID"/>
-    <result property="internal_id" column="GENETIC_PROFILE_ID"/>
-    <result property="sequencing_center" column="CENTER"/>
-    <result property="mutation_status" column="MUTATION_STATUS"/>
-    <result property="mutation_type" column="MUTATION_TYPE"/>
-    <result property="validation_status" column="VALIDATION_STATUS"/>
-    <result property="amino_acid_change" column="PROTEIN_CHANGE"/>
-    <result property="functional_impact_score" column="FUNCTIONAL_IMPACT_SCORE"/>
-    <result property="xvar_link" column="LINK_XVAR"/>
-    <result property="xvar_link_pdb" column="LINK_PDB"/>
-    <result property="xvar_link_msa" column="LINK_MSA"/>
-    <result property="chr" column="CHR"/>
-    <result property="start_position" column="START_POSITION"/>
-    <result property="end_position" column="END_POSITION"/>
-    <result property="reference_allele" column="REFERENCE_ALLELE"/>
-    <result property="variant_allele" column="TUMOR_SEQ_ALLELE"/>
-    <result property="reference_read_count_tumor" column="TUMOR_REF_COUNT"/>
-    <result property="reference_read_count_normal" column="NORMAL_REF_COUNT"/>
-    <result property="variant_read_count_tumor" column="TUMOR_ALT_COUNT"/>
-    <result property="variant_read_count_normal" column="NORMAL_ALT_COUNT"/>  
+    <result property="hugo_gene_symbol" column="gene.HUGO_GENE_SYMBOL"/>
+    <result property="entrez_gene_id" column="gene.ENTREZ_GENE_ID"/>
+    <result property="sample_id" column="sample.STABLE_ID"/>
+    <result property="genetic_profile_id" column="genetic_profile.STABLE_ID"/>
+    <result property="sequencing_center" column="mutation.CENTER"/>
+    <result property="mutation_status" column="mutation.MUTATION_STATUS"/>
+    <result property="mutation_type" column="mutation_event.MUTATION_TYPE"/>
+    <result property="validation_status" column="mutation.VALIDATION_STATUS"/>
+    <result property="amino_acid_change" column="mutation_event.PROTEIN_CHANGE"/>
+    <result property="functional_impact_score" column="mutation_event.FUNCTIONAL_IMPACT_SCORE"/>
+    <result property="xvar_link" column="mutation_event.LINK_XVAR"/>
+    <result property="xvar_link_pdb" column="mutation_event.LINK_PDB"/>
+    <result property="xvar_link_msa" column="mutation_event.LINK_MSA"/>
+    <result property="chr" column="mutation_event.CHR"/>
+    <result property="start_position" column="mutation_event.START_POSITION"/>
+    <result property="end_position" column="mutation_event.END_POSITION"/>
+    <result property="reference_allele" column="mutation_event.REFERENCE_ALLELE"/>
+    <result property="variant_allele" column="mutation_event.TUMOR_SEQ_ALLELE"/>
+    <result property="reference_read_count_tumor" column="mutation.TUMOR_REF_COUNT"/>
+    <result property="reference_read_count_normal" column="mutation.NORMAL_REF_COUNT"/>
+    <result property="variant_read_count_tumor" column="mutation.TUMOR_ALT_COUNT"/>
+    <result property="variant_read_count_normal" column="mutation.NORMAL_ALT_COUNT"/>  
 </resultMap>
 
-<resultMap id="GeneticAltRowResult" type="DBGeneticAltRow">
-    <result property="genetic_profile_id" column="GENETIC_PROFILE_ID"/>
-    <result property="entrez_gene_id" column="ENTREZ_GENE_ID"/>
-    <result property="values" column="VALUES"/>
-</resultMap>
-
-<select id="altRow" resultMap="GeneticAltRowResult">
-    select * from genetic_alteration
-    where GENETIC_PROFILE_ID in
-    <foreach item="item" collection="ids" open="(" separator="," close=")">
-        #{item}
-    </foreach>
-    and ENTREZ_GENE_ID in
-    <foreach item="item" collection="genes" open="(" separator="," close=")">
-        #{item}
-    </foreach>
-</select>
-
-<select id="profileCaseList" resultType="DBProfileDataCaseList">
+<select id="getGeneticAlterationRow" resultType="DBGeneticAltRow">
     select
-        GENETIC_PROFILE_ID as genetic_profile_id,
-        ORDERED_SAMPLE_LIST as ordered_sample_list
-    from genetic_profile_samples
-    where GENETIC_PROFILE_ID in
-    <foreach item="item" collection="ids" open="(" separator="," close=")">
+        gene.HUGO_GENE_SYMBOL as hugo_gene_symbol,
+        gene.ENTREZ_GENE_ID as entrez_gene_id,
+        genetic_profile.STABLE_ID as genetic_profile_id,
+        genetic_alteration.VALUES as `values`,
+        cancer_study.CANCER_STUDY_IDENTIFIER as study_id
+    from genetic_alteration inner join gene on genetic_alteration.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID
+                            inner join genetic_profile on genetic_profile.GENETIC_PROFILE_ID = genetic_alteration.GENETIC_PROFILE_ID
+                            inner join cancer_study on genetic_profile.CANCER_STUDY_ID=cancer_study.CANCER_STUDY_ID
+    where genetic_profile.STABLE_ID in <foreach item="item" collection="genetic_profile_ids" open="(" separator="," close=")">#{item}</foreach> and
+        gene.HUGO_GENE_SYMBOL in <foreach item="item" collection="genes" open="(" separator="," close=")">#{item}</foreach>
+</select>
+
+<select id="getProfileCaseLists" resultType="DBProfileDataCaseList">
+    select
+        genetic_profile.STABLE_ID as genetic_profile_id,
+        genetic_profile_samples.ORDERED_SAMPLE_LIST as ordered_sample_list
+    from genetic_profile_samples inner join genetic_profile on genetic_profile.GENETIC_PROFILE_ID=genetic_profile_samples.GENETIC_PROFILE_ID
+    where genetic_profile.STABLE_ID in
+    <foreach item="item" collection="genetic_profile_ids" open="(" separator="," close=")">
         #{item}
     </foreach>
 </select>
 
-<select id="mutByInternalId" resultMap="MutationDataResult">
-    select * from mutation inner join mutation_event on mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
-    where mutation.GENETIC_PROFILE_ID in
-    <foreach item="item" collection="ids" open="(" separator="," close=")">
+<select id="getMutationData" resultType="DBMutationData">
+    select
+        gene.HUGO_GENE_SYMBOL as hugo_gene_symbol,
+        gene.ENTREZ_GENE_ID as entrez_gene_id,
+        sample.STABLE_ID as sample_id,
+        cancer_study.CANCER_STUDY_IDENTIFIER as study_id,
+        genetic_profile.STABLE_ID as genetic_profile_id,
+        mutation.CENTER as sequencing_center,
+        mutation.MUTATION_STATUS as mutation_status,
+        mutation_event.MUTATION_TYPE as mutation_type,
+        mutation.VALIDATION_STATUS as validation_status,
+        mutation_event.PROTEIN_CHANGE as amino_acid_change,
+        mutation_event.FUNCTIONAL_IMPACT_SCORE as functional_impact_score,
+        mutation_event.LINK_XVAR as xvar_link,
+        mutation_event.LINK_PDB as xvar_link_pdb,
+        mutation_event.LINK_MSA as xvar_link_msa,
+        mutation_event.CHR as chr,
+        mutation_event.START_POSITION as start_position,
+        mutation_event.END_POSITION as end_position,
+        mutation_event.REFERENCE_ALLELE as reference_allele,
+        mutation_event.TUMOR_SEQ_ALLELE as variant_allele,
+        mutation.TUMOR_REF_COUNT as reference_read_count_tumor,
+        mutation.NORMAL_REF_COUNT as reference_read_count_normal,
+        mutation.TUMOR_ALT_COUNT as variant_read_count_tumor,
+        mutation.NORMAL_ALT_COUNT as variant_read_count_normal
+    from mutation inner join mutation_event on mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
+                            inner join sample on mutation.SAMPLE_ID=sample.INTERNAL_ID
+                            inner join gene on mutation.ENTREZ_GENE_ID=gene.ENTREZ_GENE_ID
+                            inner join genetic_profile on genetic_profile.GENETIC_PROFILE_ID=mutation.GENETIC_PROFILE_ID
+                            inner join cancer_study on genetic_profile.CANCER_STUDY_ID=cancer_study.CANCER_STUDY_ID
+    where genetic_profile.STABLE_ID in
+    <foreach item="item" collection="mutation_profile_ids" open="(" separator="," close=")">
         #{item}
     </foreach>
-    and mutation.ENTREZ_GENE_ID in
+    and gene.HUGO_GENE_SYMBOL in
     <foreach item="item" collection="genes" open="(" separator="," close=")">
         #{item}
     </foreach>
 </select>
-<select id="mutByInternalIdCaseId" resultMap="MutationDataResult">
-    select * from mutation inner join mutation_event on mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
-    where mutation.GENETIC_PROFILE_ID in
-    <foreach item="item" collection="ids" open="(" separator="," close=")">
+<select id="getMutationDataBySample" resultMap="MutationDataResult">
+    select
+        gene.HUGO_GENE_SYMBOL as hugo_gene_symbol,
+        gene.ENTREZ_GENE_ID as entrez_gene_id,
+        sample.STABLE_ID as sample_id,
+        cancer_study.CANCER_STUDY_IDENTIFIER as study_id,
+        genetic_profile.STABLE_ID as genetic_profile_id,
+        mutation.CENTER as sequencing_center,
+        mutation.MUTATION_STATUS as mutation_status,
+        mutation_event.MUTATION_TYPE as mutation_type,
+        mutation.VALIDATION_STATUS as validation_status,
+        mutation_event.PROTEIN_CHANGE as amino_acid_change,
+        mutation_event.FUNCTIONAL_IMPACT_SCORE as functional_impact_score,
+        mutation_event.LINK_XVAR as xvar_link,
+        mutation_event.LINK_PDB as xvar_link_pdb,
+        mutation_event.LINK_MSA as xvar_link_msa,
+        mutation_event.CHR as chr,
+        mutation_event.START_POSITION as start_position,
+        mutation_event.END_POSITION as end_position,
+        mutation_event.REFERENCE_ALLELE as reference_allele,
+        mutation_event.TUMOR_SEQ_ALLELE as variant_allele,
+        mutation.TUMOR_REF_COUNT as reference_read_count_tumor,
+        mutation.NORMAL_REF_COUNT as reference_read_count_normal,
+        mutation.TUMOR_ALT_COUNT as variant_read_count_tumor,
+        mutation.NORMAL_ALT_COUNT as variant_read_count_normal
+    from mutation inner join mutation_event on mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
+                            inner join sample on mutation.SAMPLE_ID=sample.INTERNAL_ID
+                            inner join gene on mutation.ENTREZ_GENE_ID=gene.ENTREZ_GENE_ID
+                            inner join genetic_profile on genetic_profile.GENETIC_PROFILE_ID=mutation.GENETIC_PROFILE_ID
+                            inner join cancer_study on genetic_profile.CANCER_STUDY_ID=cancer_study.CANCER_STUDY_ID
+    where genetic_profile.STABLE_ID in
+    <foreach item="item" collection="mutation_profile_ids" open="(" separator="," close=")">
         #{item}
     </foreach>
-    and mutation.ENTREZ_GENE_ID in
+    and gene.HUGO_GENE_SYMBOL in
     <foreach item="item" collection="genes" open="(" separator="," close=")">
         #{item}
     </foreach>
-    and mutation.SAMPLE_ID in
-    <foreach item="item" collection="case_ids" open="(" separator="," close=")">
+    and sample.STABLE_ID in
+    <foreach item="item" collection="sample_ids" open="(" separator="," close=")">
         #{item}
     </foreach>
 </select>

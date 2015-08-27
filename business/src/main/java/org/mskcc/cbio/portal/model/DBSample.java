@@ -12,9 +12,8 @@ import java.io.Serializable;
  * @author abeshoua
  */
 public class DBSample implements Serializable {
-    public Integer internal_id;
-    public String stable_id;
+    public String id;
     public String sample_type;
-    public Integer patient_id;
-    public Integer study_id;
+    public String patient_id;
+    public String study_id;
 }

@@ -14,8 +14,7 @@ import org.mskcc.cbio.portal.model.DBPatientList;
  * @author abeshoua
  */
 public interface PatientListMapper {
-    List<DBPatientList> byStableId(@Param("ids") List<String> ids);
-    List<DBPatientList> byInternalId(@Param("ids") List<Integer> ids);
-    List<DBPatientList> byInternalStudyId(@Param("ids") List<Integer> ids);
-    List<DBPatientList> getAll();
+	List<DBPatientList> getPatientLists(@Param("patient_list_ids") List<String> patient_list_ids);
+	List<DBPatientList> getPatientListsByStudy(@Param("study_id") String study_id);
+	List<DBPatientList> getAllPatientLists();
 }

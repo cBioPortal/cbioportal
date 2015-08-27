@@ -3,57 +3,19 @@
 
 <mapper namespace="org.mskcc.cbio.portal.persistence.PatientMapper">
 
-<cache/>
-
-<resultMap id="PatientResult" type="DBPatient">
-    <result property="internal_id" column="INTERNAL_ID"/>
-    <result property="stable_id" column="STABLE_ID"/>
-    <result property="study_id" column="CANCER_STUDY_ID"/>
-</resultMap>
-
-<select id="byInternalStudyId" resultMap="PatientResult">
-    select * from patient
-    where CANCER_STUDY_ID in
-    <foreach item="item" collection="ids" open="(" separator="," close=")">
-        #{item}
-    </foreach>
-</select>
-<select id="byStableStudyId" resultType="DBPatient">
+<select id="getPatients" resultType="DBPatient">
     select
-        patient.INTERNAL_ID as internal_id,
-        patient.STABLE_ID as stable_id,
-        patient.CANCER_STUDY_ID as study_id
+        patient.STABLE_ID as id,
+        cancer_study.CANCER_STUDY_IDENTIFIER as study_id
     from patient inner join cancer_study on patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
-    where cancer_study.CANCER_STUDY_IDENTIFIER in
-    <foreach item="item" collection="ids" open="(" separator="," close=")">
-        #{item}
-    </foreach>
+    where cancer_study.CANCER_STUDY_IDENTIFIER = #{study_id} and
+    patient.STABLE_ID in <foreach item="item" collection="patient_ids" open="(" separator="," close=")">#{item}</foreach>
 </select>
-<select id="byInternalPatientId" resultMap="PatientResult">
-    select * from patient
-    where INTERNAL_ID in 
-    <foreach item="item" collection="ids" open="(" separator="," close=")">
-        #{item}
-    </foreach>
-</select>
-<select id="byStablePatientIdInternalStudyId" resultMap="PatientResult">
-    select * from patient
-    where CANCER_STUDY_ID=#{study}
-    and STABLE_ID in 
-    <foreach item="item" collection="ids" open="(" separator="," close=")">
-        #{item}
-    </foreach>
-</select>
-<select id="byStablePatientIdStableStudyId" resultMap="PatientResult">
-     select
-        patient.INTERNAL_ID as internal_id,
-        patient.STABLE_ID as stable_id,
-        patient.CANCER_STUDY_ID as study_id
+<select id="getPatientsByStudy" resultType="DBPatient">
+    select
+        patient.STABLE_ID as id,
+        cancer_study.CANCER_STUDY_IDENTIFIER as study_id
     from patient inner join cancer_study on patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
-    where cancer_study.CANCER_STUDY_IDENTIFIER = #{study}
-    and INTERNAL_ID in
-    <foreach item="item" collection="ids" open="(" separator="," close=")">
-        #{item}
-    </foreach>
+    where cancer_study.CANCER_STUDY_IDENTIFIER = #{study_id}
 </select>
 </mapper>

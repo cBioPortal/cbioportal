@@ -16,14 +16,9 @@ import org.mskcc.cbio.portal.model.DBClinicalSampleData;
  * @author abeshoua
  */
 public interface ClinicalDataMapper {
-    List<DBClinicalSampleData> byInternalStudyId_Sample(@Param("ids") List<Integer> ids);
-    List<DBClinicalPatientData> byInternalStudyId_Patient(@Param("ids") List<Integer> ids);
-    List<DBClinicalSampleData> byStableStudyId_Sample(@Param("ids") List<String> ids);
-    List<DBClinicalPatientData> byStableStudyId_Patient(@Param("ids") List<String> ids);
-    List<DBClinicalSampleData> byInternalSampleId(@Param("ids") List<Integer> ids);
-    List<DBClinicalPatientData> byInternalPatientId(@Param("ids") List<Integer> ids);
-    List<DBClinicalSampleData> byStableSampleIdInternalStudyId(@Param("study_id") Integer study_id, @Param("ids") List<String> ids);
-    List<DBClinicalPatientData> byStablePatientIdInternalStudyId(@Param("study_id") Integer study_id, @Param("ids") List<String> ids);
-    List<DBClinicalSampleData> byStableSampleIdStableStudyId(@Param("study_id") String study_id, @Param("ids") List<String> ids);
-    List<DBClinicalPatientData> byStablePatientIdStableStudyId(@Param("study_id") String study_id, @Param("ids") List<String> ids);
+	List<DBClinicalSampleData> getSampleClinicalDataByStudy(@Param("study_id") String study_id);
+	List<DBClinicalPatientData> getPatientClinicalDataByStudy(@Param("study_id") String study_id);
+	
+	List<DBClinicalSampleData> getSampleClinicalDataBySample(@Param("study_id") String study_id, @Param("sample_ids") List<String> sample_ids);
+	List<DBClinicalPatientData> getPatientClinicalDataByPatient(@Param("study_id") String study_id, @Param("patient_ids") List<String> patient_ids);
 }

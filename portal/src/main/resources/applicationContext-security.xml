@@ -52,7 +52,7 @@
 
     <!-- googleplus beans -->
     <b:beans profile="googleplus">
-	
+
 	<b:bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
 	    <b:property name="staticMethod" value="org.mskcc.cbio.portal.util.SpringUtil.setAccessControl"/>
 	    <b:property name="arguments">
@@ -478,14 +478,15 @@
     <global-method-security pre-post-annotations="disabled"/>
     <http pattern="/**" security="none"/>
     <b:bean id="accessControl" class="org.mskcc.cbio.portal.util.internal.AccessControlImpl"/>
-	<b:bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-	    <b:property name="staticMethod" value="org.mskcc.cbio.portal.util.SpringUtil.setAccessControl"/>
-	    <b:property name="arguments">
-	        <b:list>
-	            <b:ref bean="accessControl"/>
-	        </b:list>
-	   </b:property>
-	</b:bean>
+
+    <b:bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <b:property name="staticMethod" value="org.mskcc.cbio.portal.util.SpringUtil.setAccessControl"/>
+        <b:property name="arguments">
+            <b:list>
+                <b:ref bean="accessControl"/>
+            </b:list>
+        </b:property>
+    </b:bean>
     </b:beans>
 
 </b:beans>

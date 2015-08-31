@@ -60,6 +60,7 @@ public class GlobalProperties {
 	public static final String IGV_BAM_LINKING_STUDIES = "igv.bam.linking.studies";
     public static final String AUTHENTICATE = "authenticate";
     public static final String AUTHORIZATION = "authorization";
+    public static final String FILTER_GROUPS_BY_APPNAME = "filter_groups_by_appname";
     public static final String INCLUDE_NETWORKS = "include_networks";
     public static final String GOOGLE_ANALYTICS_PROFILE_ID = "google_analytics_profile_id";
     public static final String GENOMESPACE = "genomespace";
@@ -582,5 +583,10 @@ public class GlobalProperties {
     public static String getOncoKBUrl()
     {
         return properties.getProperty(ONCOKB_URL);
+    }
+
+    public static boolean filterGroupsByAppName() {
+        String filterGroupsByNameFlag = properties.getProperty(FILTER_GROUPS_BY_APPNAME);
+        return filterGroupsByNameFlag == null || Boolean.parseBoolean(filterGroupsByNameFlag);
     }
 }

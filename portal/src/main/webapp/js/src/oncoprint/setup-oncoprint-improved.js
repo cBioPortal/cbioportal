@@ -174,6 +174,24 @@ window.setUpOncoprint = function(ctr_id, config) {
 	var to_click_remove = [];
 	var to_remove = [];
 	
+	var changeURLParam = function (param, new_value, url) {
+		var index = url.indexOf(param + '=');
+		var before_url, after_url;
+		if (index === -1) {
+			before_url = url + "&";
+			after_url = "";
+			index = url.length;
+		} else {
+			before_url = url.substring(0, index);
+			var next_amp = url.indexOf("&", index);
+			if (next_amp === -1) {
+				next_amp = url.length;
+			}
+			after_url = url.substring(next_amp + 1);
+		}
+		return before_url + param + '=' + new_value + "&" + after_url;
+	};
+	
 	(function initOncoprint() {
 		oncoprint = window.Oncoprint.create(ctr_selector);
 		oncoprint.setTrackGroupSortOrder([1,0]);
@@ -190,6 +208,7 @@ window.setUpOncoprint = function(ctr_id, config) {
 		};
 		oncoprintFadeIn = function () {
 			oncoprint_covering_block.css({'display':'none'});
+			$(config.toolbar_selector).fadeTo('fast', 1);
 			return $.when($(ctr_selector + ' .oncoprint-content-area').fadeTo('fast', 1));
 		};
 		sampleViewUrl = function(sample_id) {
@@ -359,7 +378,6 @@ window.setUpOncoprint = function(ctr_id, config) {
 	})();
 	(function setUpToolbar() {
 		var unaltered_cases_hidden = false;
-		var using_sample_data = false;
 		var hideUnalteredIds = function () {
 			var unaltered_ids = oncoprint.getFilteredIdOrder(function (d_list) {
 				return _.filter(d_list, function (d) {
@@ -460,24 +478,10 @@ window.setUpOncoprint = function(ctr_id, config) {
 				}
 			});
 			
+			
 			var updateURL = function() {
-				var clinical_list_key = "clinicallist=";
-				var curr_url = window.location.href;
-				var clinical_list_index = curr_url.indexOf(clinical_list_key);
-				var before_url, after_url;
-				if (clinical_list_index === -1) {
-					before_url = curr_url + "&";
-					after_url = "";
-					clinical_list_index = curr_url.length;
-				} else {
-					before_url = curr_url.substring(0, clinical_list_index);
-					var next_amp = curr_url.indexOf("&", clinical_list_index);
-					if (next_amp === -1) {
-						next_amp = curr_url.length;
-					}
-					after_url = curr_url.substring(next_amp+1);
-				}
-				var new_url = before_url + clinical_list_key + _.map(used_clinical_attrs, function(ca) { return encodeURIComponent(ca.attr_id); }).join(",") + "&" + after_url;
+				var new_url = window.location.href;
+				new_url = changeURLParam("clinicallist", _.map(used_clinical_attrs, function(ca) { return encodeURIComponent(ca.attr_id); }).join(","), new_url);
 				window.history.pushState({"html":window.location.html,"pageTitle":window.location.pageTitle},"", new_url);
 			};
 			removeClinicalTrackHandler = function (evt, data) {
@@ -771,6 +775,11 @@ window.setUpOncoprint = function(ctr_id, config) {
 				toolbar_btn.find('img').attr('src', imgs[+using_sample_data]);
 				header_btn.text(header_text[+using_sample_data]);
 			};
+			var updateURL = function () {
+				var new_url = window.location.href;
+				new_url = changeURLParam("show_samples", using_sample_data, new_url);
+				window.history.pushState({"html": window.location.html, "pageTitle": window.location.pageTitle}, "", new_url);
+			};
 			toolbar_btn.add(header_btn).click(function () {
 				using_sample_data = !using_sample_data;
 				updateBtn();
@@ -809,6 +818,7 @@ window.setUpOncoprint = function(ctr_id, config) {
 					}
 					oncoprint.sort();
 					oncoprintFadeIn();
+					updateURL();
 				});
 			});
 			updateBtn();

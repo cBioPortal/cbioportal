@@ -247,6 +247,7 @@ public class ImportProteinArrayData {
             return;
         }
         
+		SpringUtil.initDataSource();
         int cancerStudyId = DaoCancerStudy.getCancerStudyByStableId(args[1]).getInternalId();
         
         ProgressMonitor pMonitor = new ProgressMonitor();

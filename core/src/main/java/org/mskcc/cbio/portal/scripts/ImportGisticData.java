@@ -38,12 +38,8 @@ import java.util.ArrayList;
 import org.apache.log4j.Logger;
 
 import org.mskcc.cbio.portal.model.Gistic;
-import org.mskcc.cbio.portal.util.ConsoleUtil;
-import org.mskcc.cbio.portal.util.FileUtil;
-import org.mskcc.cbio.portal.util.GisticReader;
-import org.mskcc.cbio.portal.util.ProgressMonitor;
-import org.mskcc.cbio.portal.dao.DaoGistic;
-import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.util.*;
+import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.validate.validationException;
 
 
@@ -79,7 +75,7 @@ public class ImportGisticData {
                     "\t <cancer-study-id> e.g. 'tcga_gbm'");
             return;
         }
-
+		SpringUtil.initDataSource();
         GisticReader gisticReader = new GisticReader();
 
         File gistic_f = new File(args[0]);

@@ -32,10 +32,7 @@
 
 package org.mskcc.cbio.portal.scripts;
 
-import org.mskcc.cbio.portal.util.ConsoleUtil;
-import org.mskcc.cbio.portal.util.FileUtil;
-import org.mskcc.cbio.portal.util.MutSigReader;
-import org.mskcc.cbio.portal.util.ProgressMonitor;
+import org.mskcc.cbio.portal.util.*;
 
 import java.io.File;
 
@@ -60,6 +57,7 @@ public class ImportMutSigData {
 
         ProgressMonitor pMonitor = new ProgressMonitor();
         pMonitor.setConsoleMode(false);
+		SpringUtil.initDataSource();
 
         File mutSigFile = new File(args[0]);
         System.out.println("Reading data from: " + mutSigFile.getAbsolutePath());

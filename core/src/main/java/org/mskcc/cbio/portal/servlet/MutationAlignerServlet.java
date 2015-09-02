@@ -53,6 +53,7 @@ import java.util.Map;
 public class MutationAlignerServlet extends HttpServlet
 {
 	public final static String MUTATION_ALIGNER_API = "http://mutationaligner.org/api/domains/";
+	public final static String MUTATION_ALIGNER_API_SUFFIX = "?metadata=true";
 	public final static String MUTATION_ALIGNER_BASE_LINK = "http://mutationaligner.org/domains/";
 
 	private static String makeRequest(String pfamAccession) throws IOException
@@ -61,6 +62,7 @@ public class MutationAlignerServlet extends HttpServlet
 
 		urlBuilder.append(MUTATION_ALIGNER_API);
 		urlBuilder.append(pfamAccession);
+		urlBuilder.append(MUTATION_ALIGNER_API_SUFFIX);
 
 		String url = urlBuilder.toString();
 

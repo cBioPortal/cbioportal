@@ -32,20 +32,11 @@
 
 package org.mskcc.cbio.portal.scripts;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
-import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
+import java.io.*;
+import java.util.*;
+import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.CanonicalGene;
-import org.mskcc.cbio.portal.util.ConsoleUtil;
-import org.mskcc.cbio.portal.util.ProgressMonitor;
+import org.mskcc.cbio.portal.util.*;
 
 /**
  * Command Line Tool to Import Background Gene Data.
@@ -57,6 +48,7 @@ public class ImportMicroRNAIDs {
         FileReader reader = new FileReader(geneFile);
         BufferedReader buf = new BufferedReader(reader);
         String line = buf.readLine(); // skip first line
+		SpringUtil.initDataSource();
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         
         List<CanonicalGene> mirnas = new ArrayList<CanonicalGene>();

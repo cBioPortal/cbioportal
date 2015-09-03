@@ -56,7 +56,7 @@ public class ShowData extends HttpServlet {
      * Handles HTTP GET Request.
      *
      * @param request  Http Servlet Request Object.
-     * @param response Http Servelt Response Object.
+     * @param response Http Servlet Response Object.
      * @throws javax.servlet.ServletException Servlet Error.
      * @throws java.io.IOException            IO Error.
      */

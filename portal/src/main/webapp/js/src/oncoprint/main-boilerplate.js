@@ -33,8 +33,8 @@
 // boilerplate for the main portal page
 //
 // Gideon Dresdner July 2013
-requirejs(  [         'Oncoprint',    'OncoprintUtils'],
-            function(   Oncoprint,      utils) {
+requirejs(  ['OncoprintUtils'],
+            function(utils) {
 
     // This is for the moustache-like templates
     // prevents collisions with JSP tags

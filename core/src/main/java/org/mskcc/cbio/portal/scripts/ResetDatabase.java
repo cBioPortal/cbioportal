@@ -33,7 +33,7 @@
 package org.mskcc.cbio.portal.scripts;
 
 import org.mskcc.cbio.portal.dao.*;
-import org.mskcc.cbio.portal.util.ImportDataUtil;
+import org.mskcc.cbio.portal.util.*;
 
 /**
  * Empty the database.
@@ -109,6 +109,7 @@ public class ResetDatabase {
     }
 
     public static void main(String[] args) throws DaoException {
+		SpringUtil.initDataSource();
         StatDatabase.statDb();
         ResetDatabase.resetDatabase();
         System.err.println("Database Cleared and Reset.");

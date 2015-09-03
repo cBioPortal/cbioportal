@@ -50,7 +50,7 @@ var sidebar = (function() {
                     _type_arr.push(obj.type);
             });
 
-            if (_type_arr.length > 1) {
+            if (_type_arr.length > 1) { //if there's only one profile type don't adjust the default settings
                 document.getElementById(ids.sidebar.x.profile_type).selectedIndex = "1";
                 profileSpec.updateProfileNameList("x");
             }

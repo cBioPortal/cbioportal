@@ -36,33 +36,16 @@
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.ArrayList" %>
 
-<%
-   String examplesHtml = GlobalProperties.getProperty("examples_right_column");
-   if (examplesHtml == null) {
-	   examplesHtml = "../../../content/examples.html";
-   } else {
-	   examplesHtml = "../../../content/" + examplesHtml;
-   }
-%>
 
 
 <div id="right_side">
-    
-    
-    <h3>What's New</h3>
 
-    <p>
-    &bull;<a href="news.jsp"> <b>New data and features released</b></a><br/>
-    &bull;<a href="tools.jsp"> <b>New tools released</b></a>
-    </p>
-    
-    <form action="http://groups.google.com/group/cbioportal-news/boxsubscribe">
-      &nbsp;&nbsp;&nbsp;&nbsp;<b>Sign up for low-volume email news alerts:</b></br>
-      &nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="email">
-      <input type="submit" name="sub" value="Subscribe">
-    </form>
-    
-    &nbsp;&nbsp;&nbsp;&nbsp;<b>Or follow us <a href="http://www.twitter.com/cbioportal"><i>@cbioportal</i></a> on Twitter</b>
+    <!-- replaced the hard-coded what's new with a call to GlobalProperties
+    <!-- Should the "What's New" itself stay? -->
+    <h3>What's New</h3>
+    <%= GlobalProperties.getRightNavWhatsNewBlurb() %>
+
+
     <%
 if (GlobalProperties.showRightNavDataSets()) {
 %>
@@ -94,7 +77,7 @@ if (GlobalProperties.showRightNavDataSets()) {
 %>
 <% if (GlobalProperties.showRightNavExamples()) {%>
     <h3>Example Queries</h3>
-    <jsp:include page="<%= examplesHtml %>" flush="true" />
+    <jsp:include page="<%= GlobalProperties.getExamplesRightColumnHtml() %>" flush="true" />
 <% } %>
 
 <% if (GlobalProperties.showRightNavTestimonials()) {%>

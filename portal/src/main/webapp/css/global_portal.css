@@ -1427,3 +1427,11 @@ ul.ui-autocomplete li.ui-menu-item { font-size: 0.6em; text-align: left; }
    line-height: inherit !important;
    vertical-align: top !important;
 }
+.new-feature-label {
+    background-color: #d00000;
+    border-radius: 3px;
+    color: white;
+    font-size: 8px;
+    margin-bottom: -2px;
+    padding-bottom: -2px;
+}

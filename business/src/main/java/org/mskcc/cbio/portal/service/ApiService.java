@@ -150,7 +150,11 @@ public class ApiService {
 	public List<DBPatientList> getPatientLists() {
 		List<DBPatientList> incomplete_lists = patientListMapper.getAllIncompletePatientLists();
 		for (DBPatientList l: incomplete_lists) {
-			l.patient_ids = patientListMapper.getList(l.id);
+			List<DBPatient> patient_list = patientListMapper.getList(l.id);
+			l.patient_ids = new ArrayList<>();
+			for (DBPatient pat: patient_list) {
+				l.patient_ids.add(pat.id);
+			}
 		}
 		return incomplete_lists;
 	}
@@ -159,7 +163,11 @@ public class ApiService {
 	public List<DBPatientList> getPatientLists(String study_id) {
 		List<DBPatientList> incomplete_lists = patientListMapper.getIncompletePatientListsByStudy(study_id);
 		for (DBPatientList l: incomplete_lists) {
-			l.patient_ids = patientListMapper.getList(l.id);
+			List<DBPatient> patient_list = patientListMapper.getList(l.id);
+			l.patient_ids = new ArrayList<>();
+			for (DBPatient pat: patient_list) {
+				l.patient_ids.add(pat.id);
+			}
 		}
 		return incomplete_lists;
 	}
@@ -168,7 +176,11 @@ public class ApiService {
 	public List<DBPatientList> getPatientLists(List<String> patient_list_ids) {
 		List<DBPatientList> incomplete_lists = patientListMapper.getIncompletePatientLists(patient_list_ids);
 		for (DBPatientList l: incomplete_lists) {
-			l.patient_ids = patientListMapper.getList(l.id);
+			List<DBPatient> patient_list = patientListMapper.getList(l.id);
+			l.patient_ids = new ArrayList<>();
+			for (DBPatient pat: patient_list) {
+				l.patient_ids.add(pat.id);
+			}
 		}
 		return incomplete_lists;
 	}

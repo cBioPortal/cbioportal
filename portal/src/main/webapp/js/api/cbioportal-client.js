@@ -328,18 +328,6 @@ window.cbioportal_client = (function() {
 			return raw_service.getPatientClinicalAttributes(args);
 		}
 	};
-	var test = function() {
-		// getCancerTypes
-		// getGenes
-		// getStudies
-		// getGeneticProfiles
-		// getPatientLists
-		// getSampleClinicalData
-		// getPatientClinicalData
-		// getPatients
-		// getSamples
-		// getGeneticProfileData
-	};
 	return cached_service;
 })();
 

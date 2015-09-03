@@ -3,8 +3,10 @@
 
 <mapper namespace="org.mskcc.cbio.portal.persistence.PatientListMapper">
 
-<select id="getList" resultType="String">
-    select patient.STABLE_ID from patient_list_list inner join patient on patient.INTERNAL_ID = patient_list_list.PATIENT_ID
+<select id="getList" resultType="DBPatient">
+    select 
+        patient.STABLE_ID as id
+    from patient_list_list inner join patient on patient.INTERNAL_ID = patient_list_list.PATIENT_ID
                                                     inner join patient_list on patient_list_list.LIST_ID = patient_list.LIST_ID
         where patient_list.STABLE_ID = #{list_id}
 </select>

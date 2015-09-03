@@ -57,13 +57,24 @@ window.cbioportal_client = (function() {
 			}
 			return ret;
 		};
-		this.addData = function (data, args) {
+		this.clear = function(data, args) {
 			var i;
 			var _len = data.length;
 			// Clear existing data for touched keys
 			for (i = 0; i < _len; i++) {
 				var datum_key = key(data[i], args);
 				map[datum_key] = [];
+			}
+		};
+		this.addData = function (data, args, append) {
+			var i;
+			var _len = data.length;
+			if (!append) {
+				// Clear existing data for touched keys
+				for (i = 0; i < _len; i++) {
+					var datum_key = key(data[i], args);
+					map[datum_key] = [];
+				}
 			}
 			// Add data
 			for (i = 0; i < _len; i++) {
@@ -226,7 +237,6 @@ window.cbioportal_client = (function() {
 		getGeneticProfileData: (function() {
 			var index = {};
 			return function(args) {
-				console.log(index)
 				var def = new $.Deferred();
 				var genetic_profile_ids = args.genetic_profile_ids;
 				var genes = args.genes;
@@ -256,6 +266,7 @@ window.cbioportal_client = (function() {
 							if (index[gp_id][gene].loaded_all === false) {
 								missing_genetic_profile_ids[gp_id] = true;
 								missing_genes[gene] = true;
+								index[gp_id][gene].loaded_all = true;
 							}
 						}
 					}
@@ -264,7 +275,7 @@ window.cbioportal_client = (function() {
 				missing_genes = Object.keys(missing_genes);
 				if (missing_genetic_profile_ids.length === 0 && missing_genes.length === 0) {
 					var ret = [];
-					for (var i=0; i<genetic_profile_ids.legnth; i++) {
+					for (var i=0; i<genetic_profile_ids.length; i++) {
 						var gp_id = genetic_profile_ids[i];
 						for (var j=0; j<genes.length; j++) {
 							var gene = genes[j];
@@ -279,22 +290,28 @@ window.cbioportal_client = (function() {
 					if (args.hasOwnProperty('sample_ids')) {
 						webservice_args.sample_ids = args.sample_ids;
 					}
-					console.log(webservice_args);
 					raw_service.getGeneticProfileData(webservice_args).then(function(data) {
 						for (var i=0; i<data.length; i++) {
 							var datum = data[i];
 							var gp_id = datum.genetic_profile_id;
-							var gene = datum.genes;
+							var gene = datum.hugo_gene_symbol;
 							index[gp_id] = index[gp_id] || {};
 							index[gp_id][gene] = index[gp_id][gene] || {sub_index: new Index(function(d) { return d.sample_id; }), loaded_all: false};
-							index[gp_id][gene].sub_index.addData([datum]);
+							index[gp_id][gene].sub_index.clear([datum]);
+						}
+						for (var i=0; i<data.length; i++) {
+							var datum = data[i];
+							var gp_id = datum.genetic_profile_id;
+							var gene = datum.hugo_gene_symbol;
+							index[gp_id] = index[gp_id] || {};
+							index[gp_id][gene] = index[gp_id][gene] || {sub_index: new Index(function(d) { return d.sample_id; }), loaded_all: false};
+							index[gp_id][gene].sub_index.addData([datum], undefined, true);
 						}
 						var ret = [];
 						for (var i=0; i<genetic_profile_ids.length; i++) {
 							var gp_id = genetic_profile_ids[i];
 							for (var j=0; j<genes.length; j++) {
 								var gene = genes[j];
-								console.log(index[gp_id][gene].sub_index.getData());
 								ret = ret.concat(index[gp_id][gene].sub_index.getData(args.sample_ids));
 							}
 						}	

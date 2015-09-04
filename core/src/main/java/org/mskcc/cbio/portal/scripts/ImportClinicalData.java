@@ -387,6 +387,7 @@ public class ImportClinicalData {
         }
 
 		try {
+			SpringUtil.initDataSource();
 			CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(args[1]);
 			if (cancerStudy == null) {
 				System.err.println("Unknown cancer study: " + args[1]);

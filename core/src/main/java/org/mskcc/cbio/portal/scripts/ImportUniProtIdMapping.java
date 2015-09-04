@@ -33,28 +33,13 @@
 package org.mskcc.cbio.portal.scripts;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
+import java.io.*;
+import java.net.*;
+import java.util.*;
+import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.methods.GetMethod;
-import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.dao.DaoUniProtIdMapping;
-import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
-import org.mskcc.cbio.portal.util.ConsoleUtil;
-import org.mskcc.cbio.portal.util.FileUtil;
-import org.mskcc.cbio.portal.util.ProgressMonitor;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.web_api.ConnectionManager;
 
 /**
@@ -142,6 +127,7 @@ public final class ImportUniProtIdMapping {
         }
         ProgressMonitor progressMonitor = new ProgressMonitor();
         progressMonitor.setConsoleMode(true);
+		SpringUtil.initDataSource();
         try {
             DaoUniProtIdMapping.deleteAllRecords();
             File uniProtIdMapping = new File(args[0]);

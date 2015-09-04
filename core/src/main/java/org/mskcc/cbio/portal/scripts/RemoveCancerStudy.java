@@ -49,7 +49,7 @@ public class RemoveCancerStudy {
 
         ProgressMonitor pMonitor = new ProgressMonitor();
         pMonitor.setConsoleMode(true);
-
+		SpringUtil.initDataSource();
         if (DaoCancerStudy.doesCancerStudyExistByStableId(cancerStudyIdentifier)) {
             System.out.println("Cancer study with identifier " + cancerStudyIdentifier + " found in database, removing...");
             DaoCancerStudy.deleteCancerStudy(cancerStudyIdentifier);

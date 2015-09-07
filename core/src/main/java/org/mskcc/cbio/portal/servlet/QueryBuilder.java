@@ -311,7 +311,7 @@ public class QueryBuilder extends HttpServlet {
      * process a good request
      * 
     */
-    private void processData(String cancerTypeId,
+    private void processData(String cancerStudyStableId,
 							 HashSet<String> geneticProfileIdSet,
 							 ArrayList<GeneticProfile> profileList,
 							 String geneListStr,
@@ -387,7 +387,7 @@ public class QueryBuilder extends HttpServlet {
         
         // Map user selected samples Ids to patient Ids
         HashMap<String, String> patientSampleIdMap = new HashMap<String, String>();
-        CancerStudy selectedCancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerTypeId);
+        CancerStudy selectedCancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId);
         int cancerStudyInternalId = selectedCancerStudy.getInternalId();
         Iterator<String> itr = setOfSampleIds.iterator();
         while(itr.hasNext()){

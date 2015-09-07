@@ -82,13 +82,13 @@ public class TestPanCancerStudySummaryImport {
 //    @Test
     public void testGetCancerTypeInfo() throws Exception{
         String studyName="multi_cancer_study";
-        int cancerId = DaoCancerStudy.getCancerStudyByStableId(studyName).getInternalId();
+        int studyID = DaoCancerStudy.getCancerStudyByStableId(studyName).getInternalId();
 
         // retrieve the cancerTypeInfoMap for the study
         // this should contain:
         // 'CANCER_TYPE' - 'cns', 'cervix'
         // 'CANCER_TYPE_DETAILED' - 'byst', 'bimt', 'cead', 'cene', 'cacc'
-        Map<String, List<String>> cancerTypeInfoMap = DaoClinicalData.getCancerTypeInfo(cancerId);
+        Map<String, List<String>> cancerTypeInfoMap = DaoClinicalData.getCancerTypeInfo(studyID);
         assertEquals(cancerTypeInfoMap.keySet().size(), 2);
         assertEquals(cancerTypeInfoMap.containsKey(ClinicalAttribute.CANCER_TYPE), true);
         assertEquals(cancerTypeInfoMap.containsKey(ClinicalAttribute.CANCER_TYPE_DETAILED), true);

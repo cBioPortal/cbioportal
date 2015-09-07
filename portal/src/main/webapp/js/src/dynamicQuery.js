@@ -815,7 +815,7 @@ function addMetaDataToPage() {
 		    return n;
 	    } else {
 		    var suffix = '';
-		    var suffixStart = n.indexOf('(');
+		    var suffixStart = n.lastIndexOf('(');
 		    if (suffixStart !== -1) {
 			    suffix = n.slice(suffixStart);
 		    }

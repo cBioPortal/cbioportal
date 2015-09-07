@@ -18,7 +18,7 @@ var profileSpec = (function() {
             if (axis === "y") {
                 regenerate_plots("y");
             } else if (axis === "x") {
-                if(document.getElementById(ids.sidebar.y.lock_gene).checked) {
+                if(document.getElementById(ids.sidebar.y.lock_gene) !== null && document.getElementById(ids.sidebar.y.lock_gene).checked) {
                     regenerate_plots("xy");
                 } else {
                     regenerate_plots("x");
@@ -165,7 +165,7 @@ var profileSpec = (function() {
                 } else document.getElementById(ids.sidebar.y.gene).disabled = true;
             });
             $("#" + ids.sidebar.x.gene).change(function() {
-                if(document.getElementById(ids.sidebar.y.lock_gene).checked) {
+                if(document.getElementById(ids.sidebar.y.lock_gene) !== null && document.getElementById(ids.sidebar.y.lock_gene).checked) {
                     $("#" + ids.sidebar.y.gene).prop("selectedIndex", $("#" + ids.sidebar.x.gene).prop("selectedIndex"));
                 }
             });

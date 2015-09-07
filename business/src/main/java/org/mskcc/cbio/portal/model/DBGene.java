@@ -12,6 +12,6 @@ import java.io.Serializable;
  * @author abeshoua
  */
 public class DBGene implements Serializable {
-    public String hugoGeneSymbol;
-    public Long entrezGeneId;
+    public String hugo_gene_symbol;
+    public Long entrez_gene_id;
 }

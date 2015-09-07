@@ -109,7 +109,8 @@ public class ImportCopyNumberSegmentData {
         String[] filenames = getFilenames(args);
         Properties properties = new Properties();
         properties.load(new FileInputStream(filenames[1]));
-        
+
+		SpringUtil.initDataSource();
         CancerStudy cancerStudy = getCancerStudy(properties);
         
         if (segmentDataExistsForCancerStudy(cancerStudy)) {

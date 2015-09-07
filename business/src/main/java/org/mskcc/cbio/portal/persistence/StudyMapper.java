@@ -12,7 +12,6 @@ import org.mskcc.cbio.portal.model.DBStudy;
  * @author abeshoua
  */
 public interface StudyMapper {
-    List<DBStudy> byStableId(@Param("ids") List<String> ids);
-    List<DBStudy> byInternalId(@Param("ids") List<Integer> ids);
-    List<DBStudy> getAll();
+	List<DBStudy> getStudies(@Param("study_ids") List<String> study_ids);
+	List<DBStudy> getAllStudies();
 }

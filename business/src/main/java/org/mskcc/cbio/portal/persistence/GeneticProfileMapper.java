@@ -13,8 +13,7 @@ import org.mskcc.cbio.portal.model.DBGeneticProfile;
  * @author abeshoua
  */
 public interface GeneticProfileMapper {
-    List<DBGeneticProfile> byStableId(@Param("ids") List<String> ids);
-    List<DBGeneticProfile> byInternalId(@Param("ids") List<Integer> ids);
-    List<DBGeneticProfile> byInternalStudyId(@Param("ids") List<Integer> ids);
-    List<DBGeneticProfile> getAll();
+    List<DBGeneticProfile> getGeneticProfiles(@Param("genetic_profile_ids") List<String> genetic_profile_ids);
+    List<DBGeneticProfile> getGeneticProfilesByStudy(@Param("study_id") String study_id);
+    List<DBGeneticProfile> getAllGeneticProfiles();
 }

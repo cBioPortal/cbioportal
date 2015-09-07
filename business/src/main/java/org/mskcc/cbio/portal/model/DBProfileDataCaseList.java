@@ -12,6 +12,6 @@ import java.io.Serializable;
  * @author abeshoua
  */
 public class DBProfileDataCaseList implements Serializable {
-    public Integer genetic_profile_id;
+    public String genetic_profile_id;
     public String ordered_sample_list;
 }

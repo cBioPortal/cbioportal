@@ -35,7 +35,7 @@ var StudyViewInitMutationsTab = (function(){
     
     function init(_data){
         data = _data;
-        $('#gistic_wrapper_table').hide();
+        $('#smg_wrapper_table').hide();
         loadMutatedGenes(
             StudyViewParams.params.studyId, 
             StudyViewParams.params.mutationProfileId, 

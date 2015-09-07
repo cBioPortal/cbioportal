@@ -85,7 +85,7 @@ public class CnaJSON extends HttpServlet {
     
     private void processGetCnaRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String[] sampleIds = request.getParameter(PatientView.SAMPLE_ID).split(" +");
+        String[] sampleIds = null;
         String cnaProfileId = request.getParameter(PatientView.CNA_PROFILE);
         String mrnaProfileId = request.getParameter(PatientView.MRNA_PROFILE);
         String drugType = request.getParameter(PatientView.DRUG_TYPE);
@@ -95,6 +95,9 @@ public class CnaJSON extends HttpServlet {
         if (drugType!=null && drugType.equalsIgnoreCase(PatientView.DRUG_TYPE_FDA_ONLY)) {
             fdaOnly = true;
             cancerDrug = false;
+        }
+        if(request.getParameterMap().containsKey(PatientView.SAMPLE_ID)) {
+            sampleIds = request.getParameter(PatientView.SAMPLE_ID).split(" +");
         }
                 
         GeneticProfile cnaProfile;
@@ -108,7 +111,12 @@ public class CnaJSON extends HttpServlet {
         try {
             cnaProfile = DaoGeneticProfile.getGeneticProfileByStableId(cnaProfileId);
             cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cnaProfile.getCancerStudyId());
-            List<Integer> internalSampleIds = InternalIdUtil.getInternalSampleIds(cancerStudy.getInternalId(), Arrays.asList(sampleIds)); 
+            List<Integer> internalSampleIds = new ArrayList<>();
+            if(sampleIds == null){
+                internalSampleIds = InternalIdUtil.getInternalNonNormalSampleIds(cancerStudy.getInternalId());
+            }else{
+                internalSampleIds = InternalIdUtil.getInternalSampleIds(cancerStudy.getInternalId(), Arrays.asList(sampleIds));
+            }
             cnaEvents = DaoCnaEvent.getCnaEvents(internalSampleIds,
                     (filterByCbioGene?daoGeneOptimized.getEntrezGeneIds(daoGeneOptimized.getCbioCancerGenes()):null), cnaProfile.getGeneticProfileId(), Arrays.asList((short)-2,(short)2));
             String concatEventIds = getConcatEventIds(cnaEvents);

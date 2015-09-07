@@ -14,14 +14,13 @@ import java.util.List;
  */
 public class DBPatientList implements Serializable {
     public String id;
-    public Integer internal_id;
     public String name;
     public String description;
-    public Integer internal_study_id;
-    public List<Integer> internal_patient_ids;
+    public String study_id;
+    public List<String> patient_ids;
     
     public DBPatientList discardList() {
-        this.internal_patient_ids = null;
+        this.patient_ids = null;
         return this;
     }
 }

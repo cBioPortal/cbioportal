@@ -16,12 +16,9 @@ import org.mskcc.cbio.portal.model.DBProfileDataCaseList;
  * @author abeshoua
  */
 public interface ProfileDataMapper {
-    List<DBProfileDataCaseList> profileCaseList(@Param("ids") List<Integer> ids);
-    List<DBGeneticAltRow> altRow(@Param("ids") List<Integer> ids,
-                                               @Param("genes") List<Integer> genes);
-    List<DBMutationData> mutByInternalId(@Param("ids") List<Integer> ids,
-                                               @Param("genes") List<Integer> genes);
-    List<DBMutationData> mutByInternalIdCaseId(@Param("ids") List<Integer> ids,
-                                               @Param("genes") List<Integer> genes,
-                                               @Param("case_ids") List<Integer> case_ids);
+    
+    List<DBProfileDataCaseList> getProfileCaseLists(@Param("genetic_profile_ids") List<String> genetic_profile_ids);
+    List<DBGeneticAltRow> getGeneticAlterationRow(@Param("genetic_profile_ids") List<String> genetic_profile_ids, @Param("genes") List<String> genes);
+    List<DBMutationData> getMutationData(@Param("mutation_profile_ids") List<String> mutation_profile_ids, @Param("genes") List<String> genes);
+    List<DBMutationData> getMutationDataBySample(@Param("mutation_profile_ids") List<String> mutation_profile_ids, @Param("genes") List<String> genes, @Param("sample_ids") List<String> sample_ids);
 }

@@ -14,5 +14,5 @@ import java.io.Serializable;
 public abstract class DBClinicalData implements Serializable {
     public String attr_id;
     public String attr_val;
-    public Integer study_id;
+    public String study_id;
 }

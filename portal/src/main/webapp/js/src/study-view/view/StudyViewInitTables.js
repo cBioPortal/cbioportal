@@ -33,8 +33,7 @@
 
 
 var StudyViewInitTables = (function() {
-    var workers = [],
-        numOfWorkers = 0;
+    var workers = [];
     
     function init(input,callback) {
         initData(input);
@@ -65,7 +64,8 @@ var StudyViewInitTables = (function() {
                             displayName: '# Mut'
                         },{
                             name: 'samples',
-                            displayName: 'Samples'
+                            displayName: '#',
+                            qtip: 'Number of samples'
                         },{
                             name: 'sampleRate',
                             displayName: 'Freq'
@@ -84,6 +84,7 @@ var StudyViewInitTables = (function() {
                                 callback(mutatedGenesData(data, numOfCases), workerId);
                             },
                             function( status ) {
+                                callback(mutatedGenesData(null, numOfCases), workerId);
                                 console.log( status + ", you fail this time" );
                             },
                             function( status ) {
@@ -104,7 +105,8 @@ var StudyViewInitTables = (function() {
                             displayName: 'CNA'
                         },{
                             name: 'samples',
-                            displayName: 'Samples'
+                            displayName: '#',
+                            qtip: 'Number of samples'
                         },{
                             name: 'altrateInSample',
                             displayName: 'Freq'
@@ -123,6 +125,7 @@ var StudyViewInitTables = (function() {
                                 callback(cnaData(data, numOfCases), workerId);
                             },
                             function( status ) {
+                                callback(cnaData(null, numOfCases), workerId);
                                 console.log( status + ", you fail this time" );
                             },
                             function( status ) {
@@ -145,8 +148,6 @@ var StudyViewInitTables = (function() {
             _worker.callbacks.rowClick = rowClick;
             workers.push(_worker);
         });
-        
-        numOfWorkers = workers.length;
     }
     
     function rowClick(tableId, data) {
@@ -161,7 +162,7 @@ var StudyViewInitTables = (function() {
             caseIdChartIndex = StudyViewInitCharts.getCaseIdChartIndex();;
         
         //Find reletive table data
-        for(var i = 0; i < numOfWorkers; i++) {
+        for(var i = 0; i < workers.length; i++) {
             if(workers[i].opts.tableId === tableId)  {
                 worker = workers[i];
                 workerIndex = i;
@@ -215,20 +216,12 @@ var StudyViewInitTables = (function() {
             });
             workers[workerIndex].data.selectedSamples = selectedSamples;
         }
-        
+
+        dcCharts[caseIdChartIndex].getChart().filterAll();
         if(selectedSamples.length > 0){
-            dcCharts[caseIdChartIndex].getChart().filterAll();
             dcCharts[caseIdChartIndex].getChart().filter([selectedSamples]);
-            dc.redrawAll();
-        }else{
-            for(var i=0; i< dcChartsL ; i++){
-                if(dcCharts[i] !== ''){
-                    if(dcCharts[i].getChart().filters().length > 0)
-                        dcCharts[i].getChart().filterAll();
-                }
-            }
-            dc.redrawAll();
         }
+        dc.redrawAll();
         
         StudyViewInitCharts.resetBars();
         StudyViewInitCharts.redrawScatter();
@@ -260,32 +253,34 @@ var StudyViewInitTables = (function() {
     
     function mutatedGenesData(data, numOfCases) {
         var genes = [];
-        
-        for(var i = 0, dataL = data.length; i < dataL; i++){
-            var datum = {},
-                caseIds = data[i].caseIds;
-            
-            datum.gene = data[i].gene_symbol;
-            datum.numOfMutations = Number(data[i].num_muts);
-            datum.samples = caseIds.filter(function(elem, pos) {
-                return caseIds.indexOf(elem) === pos;
-            }).length;
-            datum.sampleRate = 
+
+        if(data) {
+            for(var i = 0, dataL = data.length; i < dataL; i++){
+                var datum = {},
+                    caseIds = data[i].caseIds;
+
+                datum.gene = data[i].gene_symbol;
+                datum.numOfMutations = Number(data[i].num_muts);
+                datum.samples = caseIds.filter(function(elem, pos) {
+                    return caseIds.indexOf(elem) === pos;
+                }).length;
+                datum.sampleRate =
                     (datum.samples / Number(numOfCases)* 100).toFixed(1) + '%';
 
-            if( data[i].hasOwnProperty('qval') && !isNaN(data[i].qval)){
-                var qval = Number(data[i].qval);
-                if(qval === 0) {
-                    datum.qval = 0;
+                if( data[i].hasOwnProperty('qval') && !isNaN(data[i].qval)){
+                    var qval = Number(data[i].qval);
+                    if(qval === 0) {
+                        datum.qval = 0;
+                    }else{
+                        datum.qval = qval.toExponential(1);
+                    }
                 }else{
-                    datum.qval = qval.toExponential(1);
+                    datum.qval = '';
                 }
-            }else{
-                datum.qval = '';
-            }
 
-            datum.caseIds = data[i].caseIds;
-            genes.push(datum);
+                datum.caseIds = data[i].caseIds;
+                genes.push(datum);
+            }
         }
         return genes;
     }
@@ -293,38 +288,40 @@ var StudyViewInitTables = (function() {
     function cnaData(data, numOfCases) {
 
         var genes = [];
-        
-        for(var i = 0, dataL = data.gene.length; i < dataL; i++){
-            var datum = {},
-                _altType = '';
-            
-            switch(data.alter[i]) {
-                case -2: 
-                    _altType = 'DEL';
-                    break;
-                case 2: 
-                    _altType = 'AMP';
-                    break;
-                default:
-                    break;
-            }
-            datum.gene = data.gene[i];
-            datum.cytoband = data.cytoband[i];
-            datum.altType = _altType;
-            datum.samples = data.caseIds[i].length;
-            datum.altrateInSample = (datum.samples / numOfCases * 100).toFixed(1) + '%';
-            if(data.gistic[i] && (data.gistic[i] instanceof Array) && !isNaN(data.gistic[i][0])){
-                var qval = Number(data.gistic[i][0]);
-                if(qval === 0) {
-                    datum.qval = 0;
-                }else{
-                    datum.qval = qval.toExponential(1);
+
+        if(data) {
+            for(var i = 0, dataL = data.gene.length; i < dataL; i++){
+                var datum = {},
+                    _altType = '';
+
+                switch(data.alter[i]) {
+                    case -2:
+                        _altType = 'DEL';
+                        break;
+                    case 2:
+                        _altType = 'AMP';
+                        break;
+                    default:
+                        break;
                 }
-            }else{
-                datum.qval = '';
+                datum.gene = data.gene[i];
+                datum.cytoband = data.cytoband[i];
+                datum.altType = _altType;
+                datum.samples = data.caseIds[i].length;
+                datum.altrateInSample = (datum.samples / numOfCases * 100).toFixed(1) + '%';
+                if(data.gistic[i] && (data.gistic[i] instanceof Array) && !isNaN(data.gistic[i][0])){
+                    var qval = Number(data.gistic[i][0]);
+                    if(qval === 0) {
+                        datum.qval = 0;
+                    }else{
+                        datum.qval = qval.toExponential(1);
+                    }
+                }else{
+                    datum.qval = '';
+                }
+                datum.caseIds = data.caseIds[i];
+                genes.push(datum);
             }
-            datum.caseIds = data.caseIds[i];
-            genes.push(datum);
         }
         return genes;
     }

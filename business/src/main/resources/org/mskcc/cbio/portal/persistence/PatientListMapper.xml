@@ -3,46 +3,38 @@
 
 <mapper namespace="org.mskcc.cbio.portal.persistence.PatientListMapper">
 
-<resultMap id="PatientListResult" type="DBPatientList">
-    <id property="internal_id" column="LIST_ID"/>
-    <result property="id" column="STABLE_ID"/>
-    <result property="name" column="NAME"/>
-    <result property="description" column="DESCRIPTION"/>
-    <result property="internal_study_id" column="CANCER_STUDY_ID"/>
-    <collection property="internal_patient_ids" column="LIST_ID" javaType="ArrayList"
-        ofType="Integer" select="selectList"/>
-</resultMap>
-
-<select id="selectList" parameterType="Integer" resultType="Integer">
-    select PATIENT_ID from patient_list_list where LIST_ID = #{LIST_ID}
+<select id="getList" resultType="DBPatient">
+    select 
+        patient.STABLE_ID as id
+    from patient_list_list inner join patient on patient.INTERNAL_ID = patient_list_list.PATIENT_ID
+                                                    inner join patient_list on patient_list_list.LIST_ID = patient_list.LIST_ID
+        where patient_list.STABLE_ID = #{list_id}
 </select>
 
-<select id="byStableId" resultMap="PatientListResult" parameterType="list">
-    select * from patient_list
-    where STABLE_ID in
-    <foreach item="item" collection="ids" open="(" separator="," close=")">
-        #{item}
-    </foreach>
+<select id="getIncompletePatientLists" resultType="DBPatientList" parameterType="list">
+    select
+        patient_list.STABLE_ID as id,
+        patient_list.NAME as name,
+        patient_list.DESCRIPTION as description,
+        cancer_study.CANCER_STUDY_IDENTIFIER as study_id
+    from patient_list inner join cancer_study on cancer_study.CANCER_STUDY_ID = patient_list.CANCER_STUDY_ID
+    where patient_list.STABLE_ID in <foreach item="item" collection="patient_list_ids" open="(" separator = "," close=")">#{item}</foreach>
 </select>
-
-<select id="byInternalId" resultMap="PatientListResult" parameterType="list">
-    select * from patient_list
-    where LIST_ID in
-    <foreach item="item" collection="ids" open="(" separator="," close=")">
-        #{item}
-    </foreach>
+<select id="getAllIncompletePatientLists" resultType="DBPatientList" parameterType="list">
+    select
+        patient_list.STABLE_ID as id,
+        patient_list.NAME as name,
+        patient_list.DESCRIPTION as description,
+        cancer_study.CANCER_STUDY_IDENTIFIER as study_id
+    from patient_list inner join cancer_study on cancer_study.CANCER_STUDY_ID = patient_list.CANCER_STUDY_ID
 </select>
-
-<select id="byInternalStudyId" resultMap="PatientListResult" parameterType="list">
-    select * from patient_list
-    where CANCER_STUDY_ID in
-    <foreach item="item" collection="ids" open="(" separator="," close=")">
-        #{item}
-    </foreach>
-</select>
-
-<select id="getAll" resultMap="PatientListResult">
-    select * from patient_list
-</select>
-    
+<select id="getIncompletePatientListsByStudy" resultType="DBPatientList" parameterType="list">
+    select
+        patient_list.STABLE_ID as id,
+        patient_list.NAME as name,
+        patient_list.DESCRIPTION as description,
+        cancer_study.CANCER_STUDY_IDENTIFIER as study_id
+    from patient_list inner join cancer_study on cancer_study.CANCER_STUDY_ID = patient_list.CANCER_STUDY_ID
+    where cancer_study.CANCER_STUDY_IDENTIFIER=#{study_id}
+</select>    
 </mapper>

@@ -53,7 +53,7 @@
                     Build a Case Set via Study View
                 </a>-->
                 <a id="build_case_set" onclick="openStudyView()" title="Build a Case Set via Study View">
-                    Interested in building your own case set based on sample or clinical attributes? Try out enhanced Study View.
+                    <%= GlobalProperties.getStudyviewLinkText()%>
                 </a>
 	 		</td>
 		</tr>

@@ -165,6 +165,11 @@ public class GlobalProperties {
     public static final String SKIN_EXAMPLES_RIGHT_COLUMN="skin.examples_right_column";
     public static final String DEFAULT_SKIN_EXAMPLES_RIGHT_COLUMN="../../../content/examples.html";
 
+    // property for text shown at the right side of the Select Patient/Case set, which
+    // links to the study view
+    public static final String SKIN_STUDY_VIEW_LINK_TEXT="skin.study_view.link_text";
+    public static final String DEFAULT_SKIN_STUDY_VIEW_LINK_TEXT="Interested in building your own case set based on sample " +
+            "or clinical attributes? Try out enhanced Study View.";
 
     private static Log LOG = LogFactory.getLog(GlobalProperties.class);
     private static Properties properties = initializeProperties();
@@ -362,6 +367,11 @@ public class GlobalProperties {
     public static String getFooter(){
         String footer = properties.getProperty(SKIN_FOOTER);
         return (footer == null) ? DEFAULT_SKIN_FOOTER : footer;
+    }
+    // function for retrieving the studyview link text
+    public static String getStudyviewLinkText(){
+        String studyviewLinkText = properties.getProperty(SKIN_STUDY_VIEW_LINK_TEXT);
+        return (studyviewLinkText == null) ? DEFAULT_SKIN_STUDY_VIEW_LINK_TEXT : studyviewLinkText;
     }
 
     public static String getEmailContact()

@@ -641,8 +641,16 @@ function GeneDetailsController(cancerSummaryMainView, dispatcher, dmPresenter){
 //'presenter' layer to expose the DataManager API, formating its data for display in the views
 function DataManagerPresenter()
 {
+	//study_id is part of the "session"
+	window.PortalDataManager.getSampleClinicalData().done(
+		function (data){
+			alert(data);//TODO - parse the data to the correct internal format
+			//set list
+		});	
+
 	// returns the CANCER_TYPE list
 	this.getCancerTypeList = function() {
+		
 		return ["breast", "lung"];
 	}
 	

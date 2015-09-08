@@ -33,6 +33,7 @@
 <%@ include file="global/global_variables.jsp" %>
 
 <jsp:include page="global/header.jsp" flush="true" />
+<%@ page import="java.util.Map" %>
 
 <div class='main_smry'>
     <div id='main_smry_stat_div' style='float:right;margin-right:15px;margin-bottom:-5px;width:50%;text-align:right;'></div>

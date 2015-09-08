@@ -461,7 +461,7 @@ window.oncoprint_RuleSet = (function() {
 
 		var scale = function(x) {
 			if (params.scale === 'log') {
-				return Math.log10(Math.max(x, 0.1)); 
+				return Math.log10(Math.max(Math.abs(x), 0.1)); 
 			} else {
 				return x;
 			}
@@ -476,7 +476,7 @@ window.oncoprint_RuleSet = (function() {
 			var scaled_data_range = _.map(data_range, scale);
 			var height_helper = function(d) {
 				var datum = scale(d[params.data_key]);
-				var distance = (datum-scaled_data_range[0]) / (scaled_data_range[1]-scaled_data_range[0]);
+				var distance = Math.abs(datum-scaled_data_range[0]) / Math.abs(scaled_data_range[1]-scaled_data_range[0]);
 				return distance * 100;
 			};
 			var y_function = function(d) {
@@ -503,10 +503,14 @@ window.oncoprint_RuleSet = (function() {
 		};
 
 		this.getEffectiveDataRange = function() {
-			var ret = [];
-			ret[0] = (typeof this.data_range[0] === 'undefined' ? this.inferred_data_range[0] : this.data_range[0]);
-			ret[1] = (typeof this.data_range[1] === 'undefined' ? this.inferred_data_range[1] : this.data_range[1]);
-			return ret;
+			if (typeof this.data_range === "undefined") {
+				return this.inferred_data_range;
+			} else {
+				var ret = [];
+				ret[0] = (typeof this.data_range[0] === 'undefined' ? this.inferred_data_range[0] : this.data_range[0]);
+				ret[1] = (typeof this.data_range[1] === 'undefined' ? this.inferred_data_range[1] : this.data_range[1]);
+				return ret;
+			}
 		};
 		this.getLegendDiv = function(cell_width, cell_height) {
 			if (!this.showInLegend()) {

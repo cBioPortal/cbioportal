@@ -64,7 +64,8 @@ var StudyViewInitTables = (function() {
                             displayName: '# Mut'
                         },{
                             name: 'samples',
-                            displayName: 'Samples'
+                            displayName: '#',
+                            qtip: 'Number of samples'
                         },{
                             name: 'sampleRate',
                             displayName: 'Freq'
@@ -104,7 +105,8 @@ var StudyViewInitTables = (function() {
                             displayName: 'CNA'
                         },{
                             name: 'samples',
-                            displayName: 'Samples'
+                            displayName: '#',
+                            qtip: 'Number of samples'
                         },{
                             name: 'altrateInSample',
                             displayName: 'Freq'
@@ -214,20 +216,12 @@ var StudyViewInitTables = (function() {
             });
             workers[workerIndex].data.selectedSamples = selectedSamples;
         }
-        
+
+        dcCharts[caseIdChartIndex].getChart().filterAll();
         if(selectedSamples.length > 0){
-            dcCharts[caseIdChartIndex].getChart().filterAll();
             dcCharts[caseIdChartIndex].getChart().filter([selectedSamples]);
-            dc.redrawAll();
-        }else{
-            for(var i=0; i< dcChartsL ; i++){
-                if(dcCharts[i] !== ''){
-                    if(dcCharts[i].getChart().filters().length > 0)
-                        dcCharts[i].getChart().filterAll();
-                }
-            }
-            dc.redrawAll();
         }
+        dc.redrawAll();
         
         StudyViewInitCharts.resetBars();
         StudyViewInitCharts.redrawScatter();

@@ -35,6 +35,7 @@ package org.mskcc.cbio.portal.scripts;
 import java.io.File;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.util.SpringUtil;
 
 import org.dom4j.*;
 import org.dom4j.io.SAXReader;
@@ -90,6 +91,7 @@ public final class ImportCaisesClinicalXML {
         
         Properties properties = new Properties();
         properties.load(new FileInputStream(descriptorFile));
+		SpringUtil.initDataSource();
       
         CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(properties.getProperty("cancer_study_identifier"));
         if (cancerStudy == null) {

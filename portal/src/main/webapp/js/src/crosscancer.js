@@ -397,12 +397,13 @@
                                     $(this).click(function(e) {
                                         e.preventDefault();
 
-                                        var sLink = _.template($("#study-link-tmpl").html(), {
+                                        var sLink = _.template($("#study-link-tmpl").html());
+                                        var link = $(sLink({
                                             study: d,
                                             genes: orgQuery
-                                        });
+                                        })).attr("href");
 
-                                        window.open($(sLink).attr("href"), "_blank");
+                                        window.open(link);
                                     });
                                 });
 

@@ -639,36 +639,77 @@ function GeneDetailsController(cancerSummaryMainView, dispatcher, dmPresenter){
 }
 
 //'presenter' layer to expose the DataManager API, formating its data for display in the views
-function DataManagerPresenter()
+function DataManagerPresenter(study_id, dmInitCallBack)
 {
-	//study_id is part of the "session"
-	window.PortalDataManager.getSampleClinicalData().done(
+	var self = this;
+	
+	//run initial ws requests and data parsing: 
+	window.cbioportal_client.getSampleClinicalData({study_id: study_id} ).then(
 		function (data){
-			alert(data);//TODO - parse the data to the correct internal format
-			//set list
+			//parse the data to the correct internal format:
+			self.cancerTypeList = [];
+			var sampleList = [];
+			for (var i = 0; i < data.length; i++)
+			{
+				if (data[i].attr_id == "CANCER_TYPE")
+				{
+					//track cancer types and sample ids:
+					if (!self.cancerTypeList[data[i].attr_val])
+						self.cancerTypeList[data[i].attr_val] = {cancerTypeDetailed: []};
+					var cancerType = self.cancerTypeList[data[i].attr_val];
+					//a sample contains only one cancer_type, so refer to it:
+					sampleList[data[i].sample_id] = cancerType;
+					
+				}
+			}
+			for (var i = 0; i < data.length; i++)
+			{
+				if (data[i].attr_id == "CANCER_TYPE_DETAILED")
+				{
+					//track cancer type detailed per cancer type:
+					var cancerType = sampleList[data[i].sample_id];
+					cancerType.cancerTypeDetailed[data[i].attr_val] = data[i].attr_val;
+				}
+			}
+			dmInitCallBack(self);
 		});	
 
 	// returns the CANCER_TYPE list
 	this.getCancerTypeList = function() {
 		
-		return ["breast", "lung"];
+		var result = [];
+		//return in form such as : ["breast", "lung"];
+		for (var item in self.cancerTypeList) {
+		    if (self.cancerTypeList.hasOwnProperty(item)) {
+		        result.push(item);
+		    }
+		}		
+		return result;
 	}
 	
 	// returns the CANCER_TYPE_DETAILED list for the given cancerType
 	this.getCancerTypeDetailedList = function(cancerType) {
-		//dummy impl. for now:
-		if (cancerType == "breast")
-			return ["breast_det_1", "breast_det_2"];
-		else if (cancerType == "lung")
-			return ["lung_det_1", "lung_det_2"];
-		else 
-			return [];
+		var result = [];
+		
+		if (cancerType == "All")
+			return this.getCancerTypeList();
+		else {
+			var cancerTypeDetailedList = self.cancerTypeList[cancerType].cancerTypeDetailed;
+			//return in form such as : ["s1", "s2"];
+			for (var item in cancerTypeDetailedList) {
+			    if (cancerTypeDetailedList.hasOwnProperty(item)) {
+			        result.push(item);
+			    }
+			}		
+			return result;
+		}
 	}
 	
 	//returns the total number of cancerType samples where there is one or more alterations for the given gene
 	this.getNrAlteredSamplesForCancerTypeAndGene = function(cancerType, gene){
 		//dummy results for now
-		
+		return 20;
+		/* dummy code:
 		if (cancerType == "breast"){
 			if (gene == "TNF")
 				return 5;
@@ -687,7 +728,7 @@ function DataManagerPresenter()
 			else 
 				return 12;
 		}
-			
+		*/	
 	}
 	
 	
@@ -696,6 +737,7 @@ function DataManagerPresenter()
 //'presenter' layer to expose the parameters from query, formating its data for display in the views
 function QueryPresenter()
 {
+	//gene list chosen by user in query form:
 	this.getGeneList = function(){
 		return [{"gene":"TNF"}, {"gene":"IFI44L"}];
 	}
@@ -705,12 +747,17 @@ function PancancerStudySummary()
 {
    var _cancerSummaryMainView = null;
 
-   this.init = function()
+   this.init = function(study_id)
    {
 	  console.log("init called");
+      
+      var dmPresenter = new DataManagerPresenter(study_id, dmInitCallBack);
+   };
+   
+   var dmInitCallBack = function(dmPresenter)
+   {
       // create event dispacther
       var dispatcher = _.extend({}, Backbone.Events);
-      var dmPresenter = new DataManagerPresenter();
       var queryPresenter = new QueryPresenter();
 
       var cancerSummaryMainView = new CancerSummaryMainView({dispatcher:dispatcher, queryPresenter:queryPresenter});

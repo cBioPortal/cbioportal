@@ -257,8 +257,8 @@
                                 if (mutations.getValue(source[0],'status')==="Germline")
                                     ret += "&nbsp;<span style='background-color:red;font-size:x-small;' class='"
                                             +table_id+"-tip' alt='Germline mutation'>Germline</span>";
-                                ret += "&nbsp;<span class='oncokb oncokb_alteration' alteration='"+aa+"' hashId='"+source[0]+"' style='display:none'><i class='fa fa-dot-circle-o'></i></span><img width='12' height='12' class='loader' src='images/ajax-loader.gif'/>";
-
+                                ret += "<span class='oncokb oncokb_alteration hotspot' alteration='"+aa+"' hashId='"+source[0]+"' style='display:none;margin-left:5px;'><img width='13' height='13' src='images/oncokb-flame.svg'></span>";
+                                ret += "&nbsp;<span class='oncokb oncokb_alteration oncogenic' alteration='"+aa+"' hashId='"+source[0]+"' style='display:none'><img class='oncogenic' width='13' height='13' src='images/oncokb-oncogenic-1.svg' style='display:none'><img class='unknownoncogenic' width='13' height='13' src='images/oncokb-oncogenic-2.svg' style='display:none'><img class='notoncogenic' width='13' height='13' src='images/oncokb-oncogenic-3.svg' style='display:none'></span><img width='13' height='13' class='loader' src='images/ajax-loader.gif'/>";
                                     var mcg = mutations.getValue(source[0], 'mycancergenome');
                                     if (!cbio.util.checkNullOrUndefined(mcg) && mcg.length) {
                                         ret += "&nbsp;<span class='"+table_id+"-tip'" +
@@ -273,7 +273,7 @@
 	                            {
 		                            ret += "&nbsp;<span class='"+table_id+"-tip'" +
 		                                   "alt='The original annotation file indicates a different value: <b>"+normalizeProteinChange(aaOriginal)+"</b>'>" +
-		                                   "<img class='mutationsProteinChangeWarning' height=12 width=12 src='images/warning.gif'></span>";
+		                                   "<img class='mutationsProteinChangeWarning' height=13 width=13 src='images/warning.gif'></span>";
 	                            }
 
                                 return ret;
@@ -889,7 +889,7 @@
                                 if (type==='set') {
                                     return;
                                 } else if (type==='display') {
-                                    var ret = "<span class='oncokb oncokb_column' hashId='"+source[0]+"' style='display:none'></span><img width='12' height='12' class='loader' src='images/ajax-loader.gif'/>";
+                                    var ret = "<span class='oncokb oncokb_column' hashId='"+source[0]+"' style='display:none'></span><img width='13' height='13' class='loader' src='images/ajax-loader.gif'/>";
                                     return ret;
                                 } else {
                                     return '';
@@ -971,15 +971,19 @@
                 //Change oncogenic icon color
                 switch (genomicEventObs.mutations.getValue(hashId, 'oncokb').oncogenic) {
                     case 0:
+                        $(this).find('.notoncogenic').css('display', '');
                         oncogenicIconColor = 'black';
                         break;
                     case -1:
+                        $(this).find('.unknownoncogenic').css('display', '');
                         oncogenicIconColor = 'grey';
                         break;
                     case 2:
+                        $(this).find('.oncogenic').css('display', '');
                         oncogenicIconColor = 'hotpink';
                         break;
                     case 1:
+                        $(this).find('.oncogenic').css('display', '');
                         oncogenicIconColor = 'red';
                         break;
                 }
@@ -987,20 +991,31 @@
 
                 if(genomicEventObs.mutations.getValue(hashId, 'oncokb').alteration.length >0) {
                     var _alterations = genomicEventObs.mutations.getValue(hashId, 'oncokb').alteration,
-                        _variantSummary = genomicEventObs.mutations.getValue(hashId, 'oncokb').variantSummary,
-                        _tip = '';
-                    _tip += _variantSummary + '<br/>';
+                            _variantSummary = genomicEventObs.mutations.getValue(hashId, 'oncokb').variantSummary,
+                            _hotspot = genomicEventObs.mutations.getValue(hashId, 'oncokb').hotspot,
+                            _tip = '', _oncogenicTip = '', _hotspotTip = '';
+                    _oncogenicTip += _variantSummary + '<br/>';
                     if(_alterations && _alterations.length > 0) {
-                        _tip += '<div><span class="oncokb_alt_moreInfo"><br/><a>More Info</a></span><br/><span class="oncokb_mutation_effect" style="display:none">';
+                        _oncogenicTip += '<div><span class="oncokb_alt_moreInfo"><br/><a>More Info</a></span><br/><span class="oncokb_mutation_effect" style="display:none">';
                         for(var i=0, altsL=_alterations.length; i<altsL; i++) {
-                            _tip += '<b>Mutation Effect: '+_alterations[i].knownEffect + '</b><br/>' + _alterations[i].description + '<br/>';
+                            _oncogenicTip += '<b>Mutation Effect: '+_alterations[i].knownEffect + '</b><br/>' + _alterations[i].description + '<br/>';
                         }
-                        _tip += '</span></div>';
+                        _oncogenicTip += '</span></div>';
+                    }
+
+                    if(_hotspot === 1){
+                        _hotspotTip = 'This mutated amino acid was identified as a recurrent hotspot (statistical significance, q-value < 0.01) in a set of 11,119 tumor samples of various cancer types (based on Chang M. et al. Nature Biotech. 2015).'
                     }
 
 //                    if (genomicEventObs.mutations.getValue(hashId, 'oncokb').oncogenic){
-                        _tip += '<span style="float:right"><i>Powered by OncoKB(Beta)</i></span><br/><br/><i>OncoKB is under development, please pardon errors and omissions. Please send feedback to <a href="mailto:oncokb@cbio.mskcc.org" title="Contact us">oncokb@cbio.mskcc.org</a></i>';
+                    _oncogenicTip += '<span style="float:right"><i>Powered by OncoKB(Beta)</i></span><br/><br/><i>OncoKB is under development, please pardon errors and omissions. Please send feedback to <a href="mailto:oncokb@cbio.mskcc.org" title="Contact us">oncokb@cbio.mskcc.org</a></i>';
 //                    }
+
+                    if($(this).hasClass('oncogenic')) {
+                        _tip = _oncogenicTip;
+                    }else if($(this).hasClass('hotspot')) {
+                        _tip = _hotspotTip;
+                    }
 
                     if(_tip !== '') {
                         $(this).css('display', '');
@@ -1213,8 +1228,8 @@
         if(altsL > 0) {
             var svg = d3.select($(target)[0])
                     .append("svg")
-                    .attr("width", 12)
-                    .attr("height", 12);
+                    .attr("width", 13)
+                    .attr("height", 13);
             var g = svg.append("g").html('<path fill="#444444" d="M10.797 2.656c-0.263-0.358-0.629-0.777-1.030-1.179s-0.82-0.768-1.179-1.030c-0.61-0.447-0.905-0.499-1.075-0.499h-5.863c-0.521 0-0.946 0.424-0.946 0.946v10.213c0 0.521 0.424 0.946 0.946 0.946h8.7c0.521 0 0.946-0.424 0.946-0.946v-7.376c0-0.169-0.052-0.465-0.499-1.075zM9.231 2.012c0.363 0.363 0.648 0.69 0.858 0.962h-1.82v-1.82c0.272 0.21 0.599 0.495 0.962 0.858zM10.539 11.106c0 0.102-0.087 0.189-0.189 0.189h-8.7c-0.102 0-0.189-0.087-0.189-0.189v-10.213c0-0.102 0.087-0.189 0.189-0.189 0 0 5.862-0 5.863 0v2.648c0 0.209 0.169 0.378 0.378 0.378h2.648v7.376z"></path><path fill="#444444" d="M8.648 9.783h-5.296c-0.209 0-0.378-0.169-0.378-0.378s0.169-0.378 0.378-0.378h5.296c0.209 0 0.378 0.169 0.378 0.378s-0.169 0.378-0.378 0.378z"></path>            <path fill="#444444" d="M8.648 8.27h-5.296c-0.209 0-0.378-0.169-0.378-0.378s0.169-0.378 0.378-0.378h5.296c0.209 0 0.378 0.169 0.378 0.378s-0.169 0.378-0.378 0.378z"></path>            <path fill="#444444" d="M8.648 6.756h-5.296c-0.209 0-0.378-0.169-0.378-0.378s0.169-0.378 0.378-0.378h5.296c0.209 0 0.378 0.169 0.378 0.378s-0.169 0.378-0.378 0.378z"></path>');
 
 

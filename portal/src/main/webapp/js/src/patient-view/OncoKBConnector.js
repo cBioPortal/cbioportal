@@ -122,7 +122,8 @@ var OncoKBConnector = (function () {
                             'progImp': [],
                             'treatments': [],
                             'trials': [],
-                            'oncogenic': 0
+                            'oncogenic': 0,
+                            'hotspot': 0
                         };
                         var evidenceL = d1[0][pairIndex].length;
 
@@ -134,6 +135,7 @@ var OncoKBConnector = (function () {
                                 } else if (evidence.evidenceType === 'GENE_BACKGROUND') {
                                     datum.gene.background = findRegex(evidence.description);
                                 } else if (evidence.evidenceType === 'MUTATION_EFFECT') {
+                                    var description = '';
                                     for (var j = 0, alterationL = evidence.alterations.length; j < alterationL; j++) {
                                         var alteration = evidence.alterations[j];
                                         //if(alteration.name === searchPair.alteration) {
@@ -142,11 +144,21 @@ var OncoKBConnector = (function () {
                                                 datum.oncogenic = Number(alteration.oncogenic);
                                             }
                                         }
-                                        //}
+                                        if (alteration.hasOwnProperty('hotspot')) {
+                                            if (datum.hasOwnProperty('hotspot') && datum.hotspot === 0) {
+                                                datum.hotspot = Number(alteration.hotspot);
+                                            }
+                                        }
+                                    }
+
+                                    if(evidence.shortDescription) {
+                                        description = evidence.shortDescription;
+                                    }else{
+                                        description = evidence.description;
                                     }
                                     datum.alteration.push({
                                         knownEffect: evidence.knownEffect,
-                                        description: findRegex(evidence.description)
+                                        description: findRegex(description)
                                     });
                                 } else if (evidence.evidenceType === 'PREVALENCE') {
                                     datum.prevalence.push({

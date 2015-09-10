@@ -46,6 +46,12 @@
     .oncokb-qtip-sm {
         max-width: 400px !important;
     }
+    ul.oncokb {
+        padding-left: 20px;
+    }
+    ul.oncokb li {
+        margin: 2px 0 2px 0;
+    }
 </style>
 <script type="text/javascript">
     var mutTableIndices =
@@ -257,16 +263,16 @@
                                 if (mutations.getValue(source[0],'status')==="Germline")
                                     ret += "&nbsp;<span style='background-color:red;font-size:x-small;' class='"
                                             +table_id+"-tip' alt='Germline mutation'>Germline</span>";
-                                ret += "<span class='oncokb oncokb_alteration hotspot' alteration='"+aa+"' hashId='"+source[0]+"' style='display:none;margin-left:5px;'><img width='13' height='13' src='images/oncokb-flame.svg'></span>";
                                 ret += "&nbsp;<span class='oncokb oncokb_alteration oncogenic' alteration='"+aa+"' hashId='"+source[0]+"' style='display:none'><img class='oncogenic' width='13' height='13' src='images/oncokb-oncogenic-1.svg' style='display:none'><img class='unknownoncogenic' width='13' height='13' src='images/oncokb-oncogenic-2.svg' style='display:none'><img class='notoncogenic' width='13' height='13' src='images/oncokb-oncogenic-3.svg' style='display:none'></span><img width='13' height='13' class='loader' src='images/ajax-loader.gif'/>";
                                     var mcg = mutations.getValue(source[0], 'mycancergenome');
                                     if (!cbio.util.checkNullOrUndefined(mcg) && mcg.length) {
                                         ret += "&nbsp;<span class='"+table_id+"-tip'" +
-		                                   "alt='MyCancerGenome.org links:<br/><ul style=\"list-style-position: inside;padding-left:0;\"><li>"+mcg.join("</li><li>")+"</li></ul>'>" +
+		                                   "alt='<b>MyCancerGenome.org links:</b><br/><ul style=\"list-style-position: inside;padding-left:0;\"><li>"+mcg.join("</li><li>")+"</li></ul>'>" +
 		                                   "<img src='images/mcg_logo.png'></span>";
                                     }
+                                ret += "<span class='oncokb oncokb_alteration hotspot' alteration='"+aa+"' hashId='"+source[0]+"' style='display:none;margin-left:5px;'><img width='13' height='13' src='images/oncokb-flame.svg'></span>";
 
-	                            var aaOriginal = mutations.getValue(source[0], 'aa-orig');
+                                var aaOriginal = mutations.getValue(source[0], 'aa-orig');
 
 	                            if (window.cancerStudyId.indexOf("mskimpact") !== -1 &&
 	                                isDifferentProteinChange(aa, aaOriginal))
@@ -991,20 +997,13 @@
 
                 if(genomicEventObs.mutations.getValue(hashId, 'oncokb').alteration.length >0) {
                     var _alterations = genomicEventObs.mutations.getValue(hashId, 'oncokb').alteration,
-                            _variantSummary = genomicEventObs.mutations.getValue(hashId, 'oncokb').variantSummary,
+//                            _variantSummary = genomicEventObs.mutations.getValue(hashId, 'oncokb').variantSummary,
                             _hotspot = genomicEventObs.mutations.getValue(hashId, 'oncokb').hotspot,
                             _tip = '', _oncogenicTip = '', _hotspotTip = '';
-                    _oncogenicTip += _variantSummary + '<br/>';
-                    if(_alterations && _alterations.length > 0) {
-                        _oncogenicTip += '<div><span class="oncokb_alt_moreInfo"><br/><a>More Info</a></span><br/><span class="oncokb_mutation_effect" style="display:none">';
-                        for(var i=0, altsL=_alterations.length; i<altsL; i++) {
-                            _oncogenicTip += '<b>Mutation Effect: '+_alterations[i].knownEffect + '</b><br/>' + _alterations[i].description + '<br/>';
-                        }
-                        _oncogenicTip += '</span></div>';
-                    }
+                    _oncogenicTip += oncokbMutationSummary(genomicEventObs.mutations.getValue(hashId, 'oncokb'));
 
                     if(_hotspot === 1){
-                        _hotspotTip = 'This mutated amino acid was identified as a recurrent hotspot (statistical significance, q-value < 0.01) in a set of 11,119 tumor samples of various cancer types (based on Chang M. et al. Nature Biotech. 2015).'
+                        _hotspotTip = '<b>Recurrent Hotspot</b><br/>This mutated amino acid was identified as a recurrent hotspot (statistical significance, q-value < 0.01) in a set of 11,119 tumor samples of various cancer types (based on Chang, M. et al. Nature Biotech. 2015).'
                     }
 
 //                    if (genomicEventObs.mutations.getValue(hashId, 'oncokb').oncogenic){
@@ -1056,7 +1055,13 @@
             });
             $(".oncokb_alt_moreInfo").click(function() {
                 $(this).css('display', 'none');
-                $(this).parent().find('.oncokb_mutation_effect').css('display', 'block');
+                $(this).parent().find('.oncokb_mutation_effect').css('display', '');
+                $(this).parent().find('.oncokb_alt_lessInfo').css('display', '');
+            });
+            $(".oncokb_alt_lessInfo").click(function() {
+                $(this).css('display', 'none');
+                $(this).parent().find('.oncokb_mutation_effect').css('display', 'none');
+                $(this).parent().find('.oncokb_alt_moreInfo').css('display', '');
             });
         });
 
@@ -1066,6 +1071,85 @@
             style: { classes: 'qtip-light qtip-rounded qtip-shadow', tip: true },
             position: {my:'center right',at:'center left',viewport: $(window)}
         });
+    }
+
+    function oncokbMutationSummary(oncokbInfo) {
+        var str = '<ul class="oncokb">';
+
+        //Add oncogenic
+        str +='<li><b>';
+        switch(oncokbInfo.oncogenic) {
+            case 0:
+                str += 'Not Oncogenic';
+                break;
+            case 1:
+                str += 'Oncogenic';
+                break;
+            case 2:
+                str += 'Likely Oncogenic';
+                break;
+            default:
+                str += 'Oncogenic: Unknown';
+                break;
+        }
+        str += '</b></li>'
+
+        if(oncokbInfo.mutationEffect.hasOwnProperty('knownEffect')) {
+            str +='<li><b>' + oncokbInfo.mutationEffect.knownEffect + '</b>';
+            if(oncokbInfo.mutationEffect.hasOwnProperty('description') && oncokbInfo.mutationEffect.description) {
+                str += '<span class="oncokb_alt_moreInfo" style="float:right"><a><i>More Info</i></a></span><br/><span class="oncokb_mutation_effect" style="display:none">' + oncokbInfo.mutationEffect.description + '</span><span class="oncokb_alt_lessInfo" style="display:none;float:right"><a><i>Less Info</i></a></span></div>';
+            }
+
+            str += '</li>';
+        }
+
+        if(oncokbInfo.drugs.sensitive.current.length > 0) {
+            str +='<li><b>FDA approved drugs:</b><br/>';
+            oncokbInfo.drugs.sensitive.current.forEach(function (list) {
+               str += '- ' + treatmentsToStr(list.content) + '<br/>';
+            });
+            str +='</li>'
+        }
+
+        if(oncokbInfo.drugs.sensitive.inOtherTumor.length > 0) {
+            str +='<li><b>FDA approved drugs for other cancer:</b><br/>';
+            oncokbInfo.drugs.sensitive.inOtherTumor.forEach(function (list) {
+                str += '- ' + treatmentsToStr(list.content) + '<br/>';
+            });
+            str +='</li>'
+        }
+
+        if(oncokbInfo.drugs.resistance.length > 0) {
+            str +='<li><b>Resistance drugs:</b><br/>';
+            oncokbInfo.drugs.resistance.forEach(function (list) {
+                str += '- ' + treatmentsToStr(list.content) + '<br/>';
+            });
+            str +='</li>'
+        }
+
+        str += '</ul>';
+
+        return str;
+    }
+
+    function treatmentsToStr(data) {
+        var treatments = [];
+
+        data.forEach(function (treatment) {
+            treatments.push(drugToStr((treatment.drugs)));
+        });
+
+        return treatments.join(',');
+    }
+
+    function drugToStr(data) {
+        var drugs = [];
+
+        data.forEach(function (drug) {
+            drugs.push(drug.drugName);
+        });
+
+        return drugs.join('+');
     }
 
     function oncokbHelpStr() {
@@ -1296,10 +1380,20 @@
                                     "targets": 1
                                 },
                                 {
+                                    "type": "oncokb-level",
+                                    "targets": 1
+                                },
+                                {
                                     "orderData": [1, 0],
                                     "targets": 1
                                 }
-                            ]
+                            ],
+//                            "aoColumns": [
+//                                { "sType": "string" },
+//                                { "sType": "oncokb-level" },
+//                                { "sType": "string" },
+//                                { "sType": "string" },
+//                            ],
                             "sDom": 'rt',
                             "bPaginate": false,
                             "bScrollCollapse": true,

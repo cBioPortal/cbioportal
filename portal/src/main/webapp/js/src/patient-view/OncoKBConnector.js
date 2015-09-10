@@ -79,7 +79,7 @@ var OncoKBConnector = (function () {
             'hugoSymbol': geneStr.substring(0, geneStr.length - 1),
             'alteration': alterationStr.substring(0, alterationStr.length - 1),
             'consequence': consequenceStr.substring(0, consequenceStr.length - 1),
-            'evidenceType': 'GENE_SUMMARY,GENE_BACKGROUND,MUTATION_EFFECT,STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_SENSITIVITY'
+            'evidenceType': 'GENE_SUMMARY,GENE_BACKGROUND,MUTATION_EFFECT,STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_SENSITIVITY,STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_RESISTANCE'
         };
 
         //Read Global environment parameter
@@ -102,33 +102,44 @@ var OncoKBConnector = (function () {
                 data: oncokbServiceData,
                 crossDomain: true,
                 dataType: 'json'
-            }),
-            $.ajax({
-                type: 'POST',
-                url: 'api/proxy/oncokbSummary',
-                data: oncokbSummaryData,
-                crossDomain: true,
-                dataType: 'json'
             })
-        ).then(function (d1, d2) {
+            //$.ajax({
+            //    type: 'POST',
+            //    url: 'api/proxy/oncokbSummary',
+            //    data: oncokbSummaryData,
+            //    crossDomain: true,
+            //    dataType: 'json'
+            //})
+        ).then(function (d1) {
                 var evidenceCollection = [];
-                if (d1[0].length ===  d2[0].length && d2[0].length === searchPairs.length) {
+                //if (d1[0].length ===  d2[0].length && d2[0].length === searchPairs.length) {
+                if (d1.length === searchPairs.length) {
                     searchPairs.forEach(function (searchPair, pairIndex) {
                         var datum = {
-                            'variantSummary': '',
+                            //'variantSummary': '',
                             'gene': {},
                             'alteration': [],
                             'prevalence': [],
                             'progImp': [],
                             'treatments': [],
                             'trials': [],
-                            'oncogenic': 0,
-                            'hotspot': 0
+                            'oncogenic': -1, //-1 unknown, 0 not oncogenic, 1 oncogenic, 2 likely
+                            'mutationEffect': {},
+                            'hotspot': 0,
+                            'drugs': {
+                                sensitive: {
+                                    'current': [],
+                                    'inOtherTumor': []
+                                },
+                                resistance: []
+                            }
                         };
-                        var evidenceL = d1[0][pairIndex].length;
+                        var evidenceL = d1[pairIndex].length;
+                        var hasHigherLevelEvidence = false;
+                        var treatments = [];
 
                         for (var i = 0; i < evidenceL; i++) {
-                            var evidence = d1[0][pairIndex][i];
+                            var evidence = d1[pairIndex][i];
                             var description = '';
                             if(evidence.shortDescription) {
                                 description = evidence.shortDescription;
@@ -144,8 +155,8 @@ var OncoKBConnector = (function () {
                                     for (var j = 0, alterationL = evidence.alterations.length; j < alterationL; j++) {
                                         var alteration = evidence.alterations[j];
                                         //if(alteration.name === searchPair.alteration) {
-                                        if (alteration.hasOwnProperty('oncogenic')) {
-                                            if (datum.hasOwnProperty('oncogenic') && [1, 2].indexOf(datum.oncogenic) === -1) {
+                                        if (alteration.hasOwnProperty('oncogenic')) {9
+                                            if (datum.hasOwnProperty('oncogenic') && [0, 1, 2].indexOf(datum.oncogenic) === -1) {
                                                 datum.oncogenic = Number(alteration.oncogenic);
                                             }
                                         }
@@ -155,10 +166,12 @@ var OncoKBConnector = (function () {
                                             }
                                         }
                                     }
-                                    datum.alteration.push({
-                                        knownEffect: evidence.knownEffect,
-                                        description: findRegex(description)
-                                    });
+                                    if(description) {
+                                        datum.alteration.push({
+                                            knownEffect: evidence.knownEffect,
+                                            description: findRegex(description)
+                                        });
+                                    }
                                 } else if (evidence.evidenceType === 'PREVALENCE') {
                                     datum.prevalence.push({
                                         tumorType: evidence.tumorType.name,
@@ -176,21 +189,49 @@ var OncoKBConnector = (function () {
                                     });
                                 } else if (evidence.levelOfEvidence) {
                                     //if evidence has level information, that means this is treatment evidence.
-                                    if (['LEVEL_0', 'LEVEL_R3'].indexOf(evidence.levelOfEvidence) === -1) {
+                                    if (['LEVEL_0', 'LEVEL_3', 'LEVEL_4', 'LEVEL_R2','LEVEL_R3'].indexOf(evidence.levelOfEvidence) === -1) {
                                         var _treatment = {};
                                         _treatment.tumorType = evidence.tumorType.name;
                                         _treatment.level = evidence.levelOfEvidence;
                                         _treatment.content = evidence.treatments;
                                         _treatment.description = findRegex(description) || 'No yet curated';
-                                        datum.treatments.push(_treatment);
+                                        treatments.push(_treatment);
+                                        if(_treatment.level === 'LEVEL_1' || _treatment.level === 'LEVEL_2A') {
+                                            hasHigherLevelEvidence = true;
+                                        }
                                     }
                                 }
                             }
 
-                            if(d2[0][pairIndex]){
-                                datum.variantSummary = d2[0][pairIndex];
-                            }
+                            //if(d2[0][pairIndex]){
+                            //    datum.variantSummary = d2[0][pairIndex];
+                            //}
                         }
+
+                        //If has and more then 1 mutation effects, use the first one
+                        if(datum.alteration.length > 0) {
+                            datum.mutationEffect = datum.alteration[0];
+                        }
+
+                        if(hasHigherLevelEvidence) {
+                            treatments.forEach(function (treatment, index) {
+                                if(treatment.level !== 'LEVEL_2B') {
+                                    datum.treatments.push(treatment);
+                                }
+                            })
+                        }else{
+                            datum.treatments = treatments;
+                        }
+
+                        datum.treatments.forEach(function (treatment, index) {
+                           if(treatment.level === 'LEVEL_2B') {
+                               datum.drugs.sensitive.inOtherTumor.push(treatment);
+                           } else if(treatment.level === 'LEVEL_2A' || treatment.level === 'LEVEL_1') {
+                               datum.drugs.sensitive.current.push(treatment);
+                           } else if(treatment.level === 'LEVEL_R1') {
+                               datum.drugs.resistance.push(treatment);
+                           }
+                        });
                         evidenceCollection.push(datum);
                     });
 
@@ -288,7 +329,7 @@ var OncoKBConnector = (function () {
 })();
 
 $.fn.dataTableExt.oSort['oncokb-level-asc'] = function (x, y) {
-    var levels = ['4', '3', '2B', '2A', '1', '0', 'R3', 'R2', 'R1'];
+    var levels = ['R3', 'R2', '4', '3', '2B', '2A', 'R1', '1', '0'];
     var xIndex = levels.indexOf(x);
     var yIndex = levels.indexOf(y);
     if (xIndex < yIndex) {
@@ -299,7 +340,7 @@ $.fn.dataTableExt.oSort['oncokb-level-asc'] = function (x, y) {
 };
 
 $.fn.dataTableExt.oSort['oncokb-level-desc'] = function (x, y) {
-    var levels = ['4', '3', '2B', '2A', '1', '0', 'R3', 'R2', 'R1'];
+    var levels = ['R3', 'R2', '4', '3', '2B', '2A', 'R1', '1', '0'];
     var xIndex = levels.indexOf(x);
     var yIndex = levels.indexOf(y);
     if (xIndex < yIndex) {

@@ -62,12 +62,18 @@
 	geneList = geneList.replaceAll("\n", " ").replaceAll("\r", "").replaceAll("/", "_");
 	geneList = servletXssUtil.getCleanerInput(geneList);
 
+    //case set
+    String caseSetId = request.getParameter(QueryBuilder.CASE_SET_ID);
+    String caseIdsKey = request.getParameter(QueryBuilder.CASE_IDS_KEY);
+
+
 %>
 
 <jsp:include page="global/header.jsp" flush="true"/>
 
 <!-- for now, let's include these guys here and prevent clashes with the rest of the portal -->
 <script type="text/javascript" src="js/src/crosscancer.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/cross-cancer-plots.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <link href="css/data_table_ColVis.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 <link href="css/data_table_jui.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 <link href="css/mutationMapper.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
@@ -152,6 +158,7 @@
             <li>
                 <a href="#cc-mutations" id="cc-mutations-link" title="Mutation details, including mutation type,amino acid change, validation status and predicted functional consequence">Mutations</a>
             </li>
+            <li><a href="#cc-plots" id="cc-plots-link" title="Plots with mRNA expression data">Plots</a></li>
             <li>
                 <a href="#cc-download" id="cc-download-link" title="Download all alterations or copy and paste into Excel">Download</a>
             </li>
@@ -224,6 +231,10 @@
             <div id="mutation_details" class="mutation-details-content">
                 <img src="images/ajax-loader.gif"/>
             </div>
+        </div>
+
+        <div class="section" id="cc-plots">
+            <img src="images/ajax-loader.gif"/>
         </div>
 
         <div class="section" id="cc-download">
@@ -350,7 +361,6 @@
 <script type="text/template" id="cross-cancer-main-empty-tmpl">
     <h1>Default cross-cancer view</h1>
 </script>
-
 
 
 </div>

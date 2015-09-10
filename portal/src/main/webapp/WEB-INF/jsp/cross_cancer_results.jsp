@@ -62,11 +62,6 @@
 	geneList = geneList.replaceAll("\n", " ").replaceAll("\r", "").replaceAll("/", "_");
 	geneList = servletXssUtil.getCleanerInput(geneList);
 
-    //case set
-    String caseSetId = request.getParameter(QueryBuilder.CASE_SET_ID);
-    String caseIdsKey = request.getParameter(QueryBuilder.CASE_IDS_KEY);
-
-
 %>
 
 <jsp:include page="global/header.jsp" flush="true"/>
@@ -234,7 +229,7 @@
         </div>
 
         <div class="section" id="cc-plots">
-            <img src="images/ajax-loader.gif"/>
+            <jsp:include page="cross_cancer_plots_tab.jsp" />
         </div>
 
         <div class="section" id="cc-download">
@@ -357,6 +352,7 @@
 <!-- Mutation views -->
 <jsp:include page="mutation_views.jsp" flush="true"/>
 <!-- mutation views end -->
+
 
 <script type="text/template" id="cross-cancer-main-empty-tmpl">
     <h1>Default cross-cancer view</h1>

@@ -642,17 +642,6 @@ function DataManagerPresenter(study_id, dmInitCallBack)
 	var self = this;
 	
 	//run initial ws requests and data parsing: 
-	window.cbioportal_client.getStudies({study_ids: [study_id,study_id]} ).then(
-			function (data){}
-			);
-	
-	window.PortalDataManager.getGenomicEventData({genetic_profile_ids:["multi_cancer_study_gistic"],genes: ["A2M"]}).done(
-			function (data){
-				var a = data;
-				//TODO //stopped here -> suggestion by JJ, but is not working
-			}
-	);
-	var sampleIds = window.PortalDataManager.getSampleIds();
 	
 	window.cbioportal_client.getSampleClinicalData({study_id: study_id} ).then(
 		function (data){
@@ -684,6 +673,22 @@ function DataManagerPresenter(study_id, dmInitCallBack)
 			dmInitCallBack(self);
 		});	
 
+
+	//some trials:==================
+	window.cbioportal_client.getStudies({study_ids: [study_id,study_id]} ).then(
+			function (data){}
+			);
+	
+	window.PortalDataManager.getGenomicEventData({genetic_profile_ids:["multi_cancer_study_gistic"],genes: ["A2M"]}).done(
+			function (data){
+				var a = data;
+				//TODO //stopped here -> suggestion by JJ, but is not working
+			}
+	);
+	//======================
+
+	
+	
 	// returns the CANCER_TYPE list
 	this.getCancerTypeList = function() {
 		

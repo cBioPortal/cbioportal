@@ -1290,18 +1290,22 @@
                             }
                         });
                         treatmentDataTable = $(this).find('.oncokb-treatments-datatable').dataTable({
-                            "aoColumns": [
-                                { "sType": "string" },
-                                { "sType": "oncokb-level" },
-                                { "sType": "string" },
-                                { "sType": "string" },
-                            ],
+                            "columnDefs": [
+                                {
+                                    "orderDataType": "oncokb-level",
+                                    "targets": 1
+                                },
+                                {
+                                    "orderData": [1, 0],
+                                    "targets": 1
+                                }
+                            ]
                             "sDom": 'rt',
                             "bPaginate": false,
                             "bScrollCollapse": true,
                             "sScrollY": 400,
                             "autoWidth": true,
-                            "order": [[ 1, "asc" ], [0, "asc"]]
+                            "order": [[ 1, "asc" ]]
                         });
                     },
                     visible: function(event, api) {

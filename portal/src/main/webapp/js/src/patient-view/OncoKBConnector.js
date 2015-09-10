@@ -129,13 +129,18 @@ var OncoKBConnector = (function () {
 
                         for (var i = 0; i < evidenceL; i++) {
                             var evidence = d1[0][pairIndex][i];
+                            var description = '';
+                            if(evidence.shortDescription) {
+                                description = evidence.shortDescription;
+                            }else{
+                                description = evidence.description;
+                            }
                             if (evidence.gene.hugoSymbol === searchPair.gene) {
                                 if (evidence.evidenceType === 'GENE_SUMMARY') {
-                                    datum.gene.summary = findRegex(evidence.description);
+                                    datum.gene.summary = findRegex(description);
                                 } else if (evidence.evidenceType === 'GENE_BACKGROUND') {
-                                    datum.gene.background = findRegex(evidence.description);
+                                    datum.gene.background = findRegex(description);
                                 } else if (evidence.evidenceType === 'MUTATION_EFFECT') {
-                                    var description = '';
                                     for (var j = 0, alterationL = evidence.alterations.length; j < alterationL; j++) {
                                         var alteration = evidence.alterations[j];
                                         //if(alteration.name === searchPair.alteration) {
@@ -150,12 +155,6 @@ var OncoKBConnector = (function () {
                                             }
                                         }
                                     }
-
-                                    if(evidence.shortDescription) {
-                                        description = evidence.shortDescription;
-                                    }else{
-                                        description = evidence.description;
-                                    }
                                     datum.alteration.push({
                                         knownEffect: evidence.knownEffect,
                                         description: findRegex(description)
@@ -163,12 +162,12 @@ var OncoKBConnector = (function () {
                                 } else if (evidence.evidenceType === 'PREVALENCE') {
                                     datum.prevalence.push({
                                         tumorType: evidence.tumorType.name,
-                                        description: findRegex(evidence.description) || 'No yet curated'
+                                        description: findRegex(description) || 'No yet curated'
                                     });
                                 } else if (evidence.evidenceType === 'PROGNOSTIC_IMPLICATION') {
                                     datum.progImp.push({
                                         tumorType: evidence.tumorType.name,
-                                        description: findRegex(evidence.description) || 'No yet curated'
+                                        description: findRegex(description) || 'No yet curated'
                                     });
                                 } else if (evidence.evidenceType === 'CLINICAL_TRIAL') {
                                     datum.trials.push({
@@ -182,7 +181,7 @@ var OncoKBConnector = (function () {
                                         _treatment.tumorType = evidence.tumorType.name;
                                         _treatment.level = evidence.levelOfEvidence;
                                         _treatment.content = evidence.treatments;
-                                        _treatment.description = findRegex(evidence.description) || 'No yet curated';
+                                        _treatment.description = findRegex(description) || 'No yet curated';
                                         datum.treatments.push(_treatment);
                                     }
                                 }

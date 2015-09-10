@@ -106,9 +106,7 @@
          // create a div for for each gene
          //_.each(self.model.geneProxy.getGeneList(), function(gene, idx) {
          _.each(geneList, function(gene, idx) {
-            // not sure what the original function returns... quick fix
-            gene = gene.gene;
-
+ 
             // get the template for the main content and apply it
             var templateFn = BackboneTemplateCache.getTemplateFn("gene_details_main_content_template");
             mainContent += templateFn(
@@ -644,6 +642,18 @@ function DataManagerPresenter(study_id, dmInitCallBack)
 	var self = this;
 	
 	//run initial ws requests and data parsing: 
+	window.cbioportal_client.getStudies({study_ids: [study_id,study_id]} ).then(
+			function (data){}
+			);
+	
+	window.PortalDataManager.getGenomicEventData({genetic_profile_ids:["multi_cancer_study_gistic"],genes: ["A2M"]}).done(
+			function (data){
+				var a = data;
+				//TODO //stopped here -> suggestion by JJ, but is not working
+			}
+	);
+	var sampleIds = window.PortalDataManager.getSampleIds();
+	
 	window.cbioportal_client.getSampleClinicalData({study_id: study_id} ).then(
 		function (data){
 			//parse the data to the correct internal format:
@@ -739,8 +749,29 @@ function QueryPresenter()
 {
 	//gene list chosen by user in query form:
 	this.getGeneList = function(){
-		return [{"gene":"TNF"}, {"gene":"IFI44L"}];
+		return window.PortalDataManager.getQueryGenes();
 	}
+	
+	//TODO - both methods below should be used to restrict the data shown, 
+	//according to choices from user. So if the user selects to look only at mutations, the 
+	//histogram should not display alteration counts (?).
+	//For sampleIds, only these samples should be taken into consideration when building the 
+	//list of cancer types and counting the mutations. > make test case.
+	
+	
+	//genetic profiles chosen by user in query form:
+	this.getGeneticProfileIds = function(){
+		return window.PortalDataManager.getGeneticProfileIds();
+	}
+	
+	//list of specific cases (samples) filled in by user in query form:
+	this.getSampleIds = function(){
+		return window.PortalDataManager.getSampleIds();
+	}
+	
+
+	
+	
 }
 	
 function PancancerStudySummary()

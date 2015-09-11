@@ -267,7 +267,7 @@
                                     var mcg = mutations.getValue(source[0], 'mycancergenome');
                                     if (!cbio.util.checkNullOrUndefined(mcg) && mcg.length) {
                                         ret += "&nbsp;<span class='"+table_id+"-tip'" +
-		                                   "alt='<b>MyCancerGenome.org links:</b><br/><ul style=\"list-style-position: inside;padding-left:0;\"><li>"+mcg.join("</li><li>")+"</li></ul>'>" +
+		                                   "alt='<b>My Cancer Genome links:</b><br/><ul style=\"list-style-position: inside;padding-left:0;\"><li>"+mcg.join("</li><li>")+"</li></ul>'>" +
 		                                   "<img src='images/mcg_logo.png'></span>";
                                     }
 
@@ -1077,26 +1077,24 @@
     }
 
     function oncokbMutationSummary(oncokbInfo) {
-        var str = '<ul class="oncokb">';
-
-        //Add oncogenic
-        str +='<li><b>';
+        var str = '<span style="color:#';
         switch(oncokbInfo.oncogenic) {
             case 0:
-                str += 'Not Oncogenic';
+                str += '545454"><b>Non-Oncogenic Mutation';
                 break;
             case 1:
-                str += 'Oncogenic';
+                str += '007fff"><b>Known Oncogenic Mutation';
                 break;
             case 2:
-                str += 'Likely Oncogenic';
+                str += '007fff"><b>Likely Oncogenic Mutation';
                 break;
             default:
-                str += 'Oncogenic: Unknown';
+                str += '000000"><b>Unknown Oncogenicity';
                 break;
         }
-        str += '</b></li>'
+        str += '</b></span>';
 
+        str +='<ul class="oncokb">';
         if(oncokbInfo.mutationEffect.hasOwnProperty('knownEffect')) {
             str +='<li><b>' + oncokbInfo.mutationEffect.knownEffect + '</b>';
             if(oncokbInfo.mutationEffect.hasOwnProperty('description') && oncokbInfo.mutationEffect.description) {

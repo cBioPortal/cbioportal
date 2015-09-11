@@ -1080,16 +1080,16 @@
         var str = '<span style="color:#';
         switch(oncokbInfo.oncogenic) {
             case 0:
-                str += '545454"><b>Non-Oncogenic Mutation';
+                str += '2f4f4f"><b>Non-Oncogenic Mutation';
                 break;
             case 1:
-                str += '007fff"><b>Known Oncogenic Mutation';
+                str += 'ff0000"><b>Known Oncogenic Mutation';
                 break;
             case 2:
-                str += '007fff"><b>Likely Oncogenic Mutation';
+                str += 'ff69b4"><b>Likely Oncogenic Mutation';
                 break;
             default:
-                str += '000000"><b>Unknown Oncogenicity';
+                str += '2f4f4f"><b>Unknown Oncogenicity';
                 break;
         }
         str += '</b></span>';
@@ -1121,7 +1121,7 @@
         }
 
         if(oncokbInfo.drugs.resistance.length > 0) {
-            str +='<li><b>Resistant to:</b><br/>';
+            str +='<li><b>Confers resistance to:</b><br/>';
             oncokbInfo.drugs.resistance.forEach(function (list) {
                 str += '- ' + treatmentsToStr(list.content) + '<br/>';
             });

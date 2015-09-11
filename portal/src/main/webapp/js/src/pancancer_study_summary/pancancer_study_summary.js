@@ -255,7 +255,7 @@
          }
          // create the dropdown and add it
          $("#customize-data-type-y-axis-"+this.gene).append(fnCreateSelect(
-        		 "Y-Axis value:", selOptions, "Absolute Counts", changeCallBack));
+        		 "Y-Axis value: ", selOptions, "Absolute Counts", changeCallBack));
       },
 
       // add the Sort by Select for the x-axis
@@ -271,7 +271,7 @@
          }         
          // create the dropdown and add it
          $("#customize-sort-by-x-axis-"+this.gene).append(fnCreateSelect(
-        		 "Sort X-Axis by:", selOptions, "Y-Axis Value", changeCallBack));
+        		 "Sort X-Axis by: ", selOptions, "Y-Axis Value", changeCallBack));
       },
 
       // add the slider for minimum number of altered samples

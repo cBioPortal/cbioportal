@@ -23,7 +23,6 @@
             <div id='button-container-{{geneId}}'></div>
             <div id='customize-histogram-{{geneId}}'></div>
             <div id='histogram-{{geneId}}'></div>
-            <img src='{{loaderImage}}'/>
          </div>
       </script>
 
@@ -42,7 +41,7 @@
          <table class='customize-options'>
             <tr>
                <td><div id='customize-cancertype-dropdown-{{geneId}}'></div></td>
-               <td><div id='customize-sort-by-y-axis-{{geneId}}'></div></td>
+               <td><div id='customize-data-type-y-axis-{{geneId}}'></div></td>
                <td><div id='customize-min-nr-altered-samples-slider-{{geneId}}'></div></td>
             </tr>
             <tr>
@@ -118,8 +117,8 @@
                <td>{{sortXAxis}}</td>
             </tr>
             <tr>
-               <td>sortYAxis</td>
-               <td>{{sortYAxis}}</td>
+               <td>dataTypeYAxis</td>
+               <td>{{dataTypeYAxis}}</td>
             </tr>
             <tr>
                <td>minNrAlteredSamples</td>
@@ -132,5 +131,51 @@
          </table>
       </script>
 
+	<script type="text/template" id="cancer-type-tip-tmpl">
+   	 <div>
+        <div class="cc-cancer-type-tip">
+            <b class="cc-tip-header">Summary for {{name}}</b><br/><br/>
+            <p>
+                Gene set altered in <b>{{allFrequency}}%</b> of {{caseSetLength}} cases.
+
+            </p>
+            <table class="cc-tip-table">
+                <thead>
+                <tr>
+                    <th class="cc-cancer-type-tip">Alteration</th>
+                    <th class="cc-cancer-type-tip">Frequency</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr class='{{ mutationCount > 0 ? "cc-mutation" : "cc-hide"}}'>
+                    <td class="cc-alt-type">Mutation</td>
+                    <td>{{mutationFrequency}}% ({{mutationCount}} cases)</td>
+                </tr>
+                <tr class='{{ lossCount > 0 ? "cc-loss" : "cc-hide"}}'>
+                    <td class="cc-alt-type">Heterozygous loss</td>
+                    <td>{{lossFrequency}}% ({{lossCount}} cases)</td>
+                </tr>
+                <tr class='{{ deletionCount > 0 ? "cc-del" : "cc-hide"}}'>
+                    <td class="cc-alt-type">Deletion</td>
+                    <td>{{deletionFrequency}}% ({{deletionCount}} cases)</td>
+                </tr>
+                <tr class='{{ gainCount > 0 ? "cc-gain" : "cc-hide"}}'>
+                    <td class="cc-alt-type">Gain</td>
+                    <td>{{gainFrequency}}% ({{gainCount}} cases)</td>
+                </tr>
+                <tr class='{{ amplificationCount > 0 ? "cc-amp" : "cc-hide"}}'>
+                    <td class="cc-alt-type">Amplification</td>
+                    <td>{{amplificationFrequency}}% ({{amplificationCount}} cases)</td>
+                </tr>
+                <tr class='{{ multipleCount > 0 ? "cc-mtpl" : "cc-hide"}}'>
+                    <td class="cc-alt-type">Multiple alterations</td>
+                    <td>{{multipleFrequency}}% ({{multipleCount}} cases)</td>
+                </tr>
+                </tbody>
+            </table>
+
+          </div>
+      </div>
+	</script>
 
 

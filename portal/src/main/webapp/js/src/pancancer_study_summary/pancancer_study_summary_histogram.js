@@ -4,7 +4,7 @@ function PancancerStudySummaryHistogram()
 	// Some semi-global utilities
     // Here are some options that we will use in this view
     var width = 1100;
-    var height = 650;
+    var height = 550;
     var paddingLeft = 80;
     var paddingRight = 50;
     var paddingTop = 10;
@@ -26,12 +26,15 @@ function PancancerStudySummaryHistogram()
             event: 'mouseover'
         },
         style: {
-            classes: 'qtip-light qtip-rounded qtip-shadow cc-study-tip cc-ui-tooltip'
+            classes: 'qtip-light qtip-rounded qtip-shadow cc-cancer-type-tip cc-ui-tooltip'
         },
         position: {
-            my:'bottom left', at:'top center'
+        	my:'bottom left', 
+        	at:'top center',
+        	viewport: $(window)
         }
     };
+  
 
     var getTypeOfCancer = function(study) {
         //return metaData.cancer_studies[study.studyId].short_name;  //maybe add this to study? Using id for now:
@@ -53,14 +56,14 @@ function PancancerStudySummaryHistogram()
 	this.init = function(histogramEl, model){
 		
 	    var getY = function(d, type) {
-	    	if (model.get("sortYAxis") == "Absolute Counts")
+	    	if (model.get("dataTypeYAxis") == "Absolute Counts")
 	    		return d.alterations[type];
 	    	else
 	    		return calculateFrequency(d, type);
 	    };
 		
 	    var getYlabel = function(d) {
-	    	if (model.get("sortYAxis") == "Absolute Counts")
+	    	if (model.get("dataTypeYAxis") == "Absolute Counts")
 	    		return d
 	    	else
 	    		return Math.round(parseFloat(d) * 100) + "%"; 
@@ -95,7 +98,12 @@ function PancancerStudySummaryHistogram()
 		    ])
 		    .range([histBottom-paddingTop, 0]);    
 	
-			
+			var isThereHetLoss = false;
+			var isThereGain = false;
+			var isThereMutation = false;
+			var isThereAmplification = false;
+			var isThereDeletion = false;
+			var isThereMultiple = false;
 			
 			// Empty the content
 		    $(histogramEl).html("");
@@ -125,7 +133,10 @@ function PancancerStudySummaryHistogram()
 		        })
 		        .style("stroke", "white")
 		        .style("stroke-width", "1")
-		        .attr("class", function(d, i) { return d.studyId + " alt-other" })
+		        .attr("class", function(d, i) { 
+		        	//keep track of whether there is data in this type:
+		        	if (getY(d, "other") > 0) {isThereMultiple = true}
+		        	return d.studyId + " alt-other"; })
 		    ;
 		
 		    var mutBarGroup = histogram.append("g");
@@ -147,7 +158,11 @@ function PancancerStudySummaryHistogram()
 		        })
 		        .style("stroke", "white")
 		        .style("stroke-width", "1")
-		        .attr("class", function(d, i) { return d.studyId + " alt-mut" })
+		        .attr("class", function(d, i) { 
+		        	//keep track of whether there is data in this type:
+		        	if (getY(d, "mutation") > 0) {isThereMutation = true}
+		        	return d.studyId + " alt-mut";
+		        })
 		    ;
 		
 		    var cnalossBarGroup = histogram.append("g");
@@ -171,7 +186,10 @@ function PancancerStudySummaryHistogram()
 		        })
 		        .style("stroke", "white")
 		        .style("stroke-width", "1")
-		        .attr("class", function(d, i) { return d.studyId + " alt-cnaloss" })
+		        .attr("class", function(d, i) { 
+		        	if (getY(d, "cnaLoss") > 0) {isThereHetLoss = true}
+		        	return d.studyId + " alt-cnaloss"; 
+		        })
 		    ;
 		
 		
@@ -197,7 +215,10 @@ function PancancerStudySummaryHistogram()
 		        })
 		        .style("stroke", "white")
 		        .style("stroke-width", "1")
-		        .attr("class", function(d, i) { return d.studyId + " alt-cnadown" })
+		        .attr("class", function(d, i) {
+		        	if (getY(d, "cnaDown") > 0) {isThereDeletion = true}
+		        	return d.studyId + " alt-cnadown";
+		        })
 		    ;
 		
 		    var cnaupBarGroup = histogram.append("g");
@@ -223,7 +244,10 @@ function PancancerStudySummaryHistogram()
 		        })
 		        .style("stroke", "white")
 		        .style("stroke-width", "1")
-		        .attr("class", function(d, i) { return d.studyId + " alt-cnaup" })
+		        .attr("class", function(d, i) { 
+		        	if (getY(d, "cnaUp") > 0) {isThereAmplification = true}
+		        	return d.studyId + " alt-cnaup";
+		        	})
 		    ;
 		
 		    var cnagainBarGroup = histogram.append("g");
@@ -250,9 +274,13 @@ function PancancerStudySummaryHistogram()
 		        })
 		        .style("stroke", "white")
 		        .style("stroke-width", "1")
-		        .attr("class", function(d, i) { return d.studyId + " alt-cnagain" })
+		        .attr("class", function(d, i) { 
+		        	if (getY(d, "cnaGain") > 0) {isThereGain = true}
+		        	return d.studyId + " alt-cnagain";
+		        	})
 		    ;
 		
+		    //"invisible" div on top of bars to enable tooltip:
 		    var infoBarGroup = histogram.append("g");
 		    infoBarGroup.selectAll("rect")
 		        .data(histData, key)
@@ -265,15 +293,39 @@ function PancancerStudySummaryHistogram()
 		        .attr("height", function(d, i) {
 		            return (histBottom-paddingTop) - yScale(getY(d, "all"));
 		        })
-		        .style("opacity",0)
+		        .style("opacity",0) //make invisible
 		        .style("stroke", "white")
 		        .style("cursor", "pointer")
 		        .style("stroke-width", "1")
 		        .attr("class", function(d, i) { return d.studyId + " alt-info" })
-		        .each(function(d, i) {
-		            var container = $("<div></div>");
-		            //(new StudyToolTipView({  //see crosscancer.js for example
-		        });
+		        .each(function(d, i)  {
+		        	//add tooltip:
+                    var container = $("<div></div>");
+                    (new StudyToolTipView({
+                        el: container,
+                        model: {
+                            dataItem: d
+                        }
+                    })).render();
+
+                    var qOpts = _.extend(defaultQTipOptions, {
+                        content: container.html()
+                    });
+                    $(this).qtip(qOpts);
+
+                    $(this).click(function(e) {
+                    	alert('test click');//TODO decide what to do here
+//                        e.preventDefault();
+//
+//                        var sLink = _.template($("#study-link-tmpl").html(), {
+//                            study: d,
+//                            genes: orgQuery
+//                        });
+//
+//                        window.open($(sLink).attr("href"), "_blank");
+                    });
+                });
+	
 		
 		    var abbrGroups = histogram.append("g");
 		    abbrGroups.selectAll("text")
@@ -293,29 +345,33 @@ function PancancerStudySummaryHistogram()
 		            var yLoc = histBottom + 10;
 		            return "rotate(-60, " + xLoc + ", " + yLoc +  ")";
 		        })
-		        .attr("class", function(d, i) { return d.studyId + " annotation-abbr" })
-		        .each(function(d, i) {
-		            var qOpts = _.extend(defaultQTipOptions, {
-		                content: d.studyId, //metaData.cancer_studies[d.studyId].name, //TODO maybe add this to study itself....using id for now....OR typeOfCancer??
-		                position: { viewport: $(window) }
-		            });
-		            $(this).qtip(qOpts);
-		        })
 		    ;
 		    
 		    var yAxisEl = histogram.append("g")
 		        .attr("class", "axis")
 		        .attr("transform", "translate(" + (paddingLeft-10) + ", " + paddingTop + ")")
 		        .call(yAxis);
+		    // Give some style
+		    yAxisEl.selectAll("path, line")
+		        .attr("fill", "none")
+		        .attr("stroke", "black")
+		        .attr("shape-rendering", "crispEdges");
 		
-		    // Define where the label should appear
+		    // d3 formating 
+		    yAxisEl.selectAll("text")
+		        .attr("font-family", fontFamily)
+		        .attr("font-size", "11px")
+		        .each(function(d) {
+		            $(this).text(getYlabel(d) );
+		        });		    
+		    
+		    
+		    // Add dataTypeYAxis label information to Y axis
 		    var labelCorX = 15;
 		    var labelCorY = paddingTop + (histBottom/2);
-		
-		    // Add axis label
 		    histogram.append("g")
 		        .selectAll("text")
-		        .data([model.get("sortYAxis")])
+		        .data([model.get("dataTypeYAxis")])
 		        .enter()
 		        .append("text")
 		        .text(function(d, i) { return d; })
@@ -334,26 +390,12 @@ function PancancerStudySummaryHistogram()
 		    var multpLegend = { label: "Multiple alterations", color: "#aaaaaa" };
 		
 		    var legendData = [];
-		    /*switch(priority * 1) {
-		        case 0:
-		            legendData.push(mutLegend);
-		            if(isThereHetLoss) {legendData.push(lossLegend); }
-		            legendData.push(delLegend);
-		            if(isThereGain) { legendData.push(gainLegend); }
-		            legendData.push(ampLegend);
-		            legendData.push(multpLegend);
-		            break;
-		        case 1:*/
-		            legendData.push(mutLegend);
-		            //break;
-		        /*case 2:
-		            if(isThereHetLoss) {legendData.push(lossLegend); }
-		            legendData.push(delLegend);
-		            if(isThereGain) { legendData.push(gainLegend); }
-		            legendData.push(ampLegend);
-		            legendData.push(multpLegend);
-		            break;
-		    }*/
+		    if(isThereMutation) {legendData.push(mutLegend); }
+		    if(isThereHetLoss) {legendData.push(lossLegend); }
+		    if(isThereDeletion) {legendData.push(delLegend); }
+		    if(isThereGain) {legendData.push(gainLegend); }
+		    if(isThereAmplification) {legendData.push(ampLegend); }
+		    if(isThereMultiple) {legendData.push(multpLegend); }
 		
 		    var legendWidth = 125;
 		    var numOfLegends = legendData.length;
@@ -380,23 +422,67 @@ function PancancerStudySummaryHistogram()
 		        .attr("font-family", fontFamily)
 		        .attr("font-size", "15px")
 		    ;
-		
-		    // Give some style
-		    yAxisEl.selectAll("path, line")
-		        .attr("fill", "none")
-		        .attr("stroke", "black")
-		        .attr("shape-rendering", "crispEdges");
-		
-		    // d3 formating 
-		    yAxisEl.selectAll("text")
-		        .attr("font-family", fontFamily)
-		        .attr("font-size", "11px")
-		        .each(function(d) {
-		            $(this).text(getYlabel(d) );
-		        });
+
 		});
 	}
 
+	
+	
+	var StudyToolTipView = Backbone.View.extend({
+        template: _.template($("#cancer-type-tip-tmpl").html()),
+        render: function() {
+            var dataItem = this.model.dataItem;
+
+            var fixFloat = function(number, digit) {
+                var multiplier = Math.pow( 10, digit );
+                return Math.round( number * multiplier ) / multiplier;
+            };
+            
+            var summary = {
+                name: dataItem.typeOfCancer,
+                caseSetLength: dataItem.caseSetLength,
+                // frequencies
+                allFrequency: fixFloat(calculateFrequency(dataItem, "all") * 100, 1),
+                mutationFrequency: fixFloat(calculateFrequency(dataItem, "mutation")  * 100, 1),
+                deletionFrequency: fixFloat(calculateFrequency(dataItem, "cnaDown") * 100, 1),
+                amplificationFrequency: fixFloat(calculateFrequency(dataItem, "cnaUp") * 100, 1),
+                lossFrequency: fixFloat(calculateFrequency(dataItem, "cnaLoss") * 100, 1),
+                gainFrequency: fixFloat(calculateFrequency(dataItem, "cnaGain") * 100, 1),
+                multipleFrequency: fixFloat(calculateFrequency(dataItem, "other") * 100, 1),
+                // raw counts
+                allCount: dataItem.alterations.all,
+                mutationCount: dataItem.alterations.mutation,
+                deletionCount: dataItem.alterations.cnaDown,
+                amplificationCount: dataItem.alterations.cnaUp,
+                gainCount: dataItem.alterations.cnaGain,
+                lossCount: dataItem.alterations.cnaLoss,
+                multipleCount: dataItem.alterations.other //,
+                // and create the link
+                //studyLink: _.template($("#study-link-tmpl").html(), { study: study, genes: genes } )
+            };
+
+            this.$el.html(this.template(summary));
+            this.$el.find("table.cc-tip-table tr.cc-hide").remove();
+            this.$el.find("table.cc-tip-table").dataTable({
+                "sDom": 't',
+                "bJQueryUI": true,
+                "bDestroy": true,
+                "aaSorting": [[ 1, "desc" ]],  //TODO - sorting on text....should sort numerically
+                "aoColumns": [
+                    { "bSortable": false },
+                    { "bSortable": false }
+                ]
+            });
+
+            // TODO this is a workaround to remove the sort icons,
+            // we should fix this through the data tables API
+            this.$el.find("span.DataTables_sort_icon").remove();
+            this.$el.find("table.cc-tip-table th").removeClass("sorting_desc");
+
+            return this;
+        }
+    });
+	
 	
 }
 

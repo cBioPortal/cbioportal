@@ -47,7 +47,6 @@
 
          // create the variables for the main template
          var variables = {
-            loaderImage: "images/ajax-loader.gif",
             listContent: content.listContent,
             mainContent: content.mainContent
          };
@@ -110,9 +109,8 @@
             // get the template for the main content and apply it
             var templateFn = BackboneTemplateCache.getTemplateFn("gene_details_main_content_template");
             mainContent += templateFn(
-               {loaderImage: "images/ajax-loader.gif",
-               //geneId: cbio.util.safeProperty(gene)}
-               geneId: gene}
+               {//geneId: cbio.util.safeProperty(gene)}
+                geneId: gene} //TODO is the gene unique? Or is it an ambiguous alias that can be shared by different genes? 
             );
 
             // get the template for the tab ear (tab title) and apply it
@@ -253,11 +251,11 @@
          // handle the event for when the Sort By Y-Axis Select is changed
          var changeCallBack = function(){
             //console.log("sortByYAxisSelect changed to "+event.currentTarget.value);
-            self.model.set("sortYAxis", $(this).val());
+            self.model.set("dataTypeYAxis", $(this).val());
          }
          // create the dropdown and add it
-         $("#customize-sort-by-y-axis-"+this.gene).append(fnCreateSelect(
-        		 "Sort Y-Axis by:", selOptions, "Absolute Counts", changeCallBack));
+         $("#customize-data-type-y-axis-"+this.gene).append(fnCreateSelect(
+        		 "Y-Axis value:", selOptions, "Absolute Counts", changeCallBack));
       },
 
       // add the Sort by Select for the x-axis
@@ -394,7 +392,7 @@
             myType: this.model.get("myType"),
             cancerType:this.model.get("cancerType"),
             sortXAxis:this.model.get("sortXAxis"),
-            sortYAxis: this.model.get("sortYAxis"),
+            dataTypeYAxis: this.model.get("dataTypeYAxis"),
             minNrAlteredSamples: this.model.get("minNrAlteredSamples"),
             showGenomicAlterationTypes: this.model.get("showGenomicAlterationTypes"),
             cancerTypeDetailed: this.model.get("cancerTypeDetailed")
@@ -420,7 +418,7 @@
          cancerType: "All",
          cancerTypeDetailed: "All",
          sortXAxis: "Y-Axis Values",
-         sortYAxis: "Absolute Counts",
+         dataTypeYAxis: "Absolute Counts",
          minNrAlteredSamples: "1",
          showGenomicAlterationTypes: true
       },

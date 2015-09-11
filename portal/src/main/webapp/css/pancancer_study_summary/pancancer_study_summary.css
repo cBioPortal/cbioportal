@@ -1,5 +1,15 @@
 /* custom styles for the pancancer study summary ui (studies comprising more than 1 cancer type) */
 
+.cc-cancer-type-tip {
+    font-size: 13px;
+    text-align: center;
+}
+
+.cc-ui-tooltip {
+	max-width: 400px;
+}
+
+
 table.customize-options {
 	width: 100%;
 }
@@ -52,3 +62,36 @@ table.customize-options td{
 	width: 50%;
 	text-align: right;
 }
+
+
+
+.cc-alt-type {
+    font-weight: bold;
+}
+
+.cc-loss .cc-alt-type {
+    color: skyblue;
+}
+
+.cc-gain .cc-alt-type {
+    color: lightpink;
+}
+
+
+.cc-del .cc-alt-type {
+    color: blue;
+}
+
+.cc-amp .cc-alt-type {
+    color: red;
+}
+
+.cc-mutation .cc-alt-type {
+    color: green;
+}
+
+.cc-mtpl .cc-alt-type {
+    color: gray;
+}
+
+

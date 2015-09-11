@@ -270,7 +270,10 @@
 		                                   "alt='<b>MyCancerGenome.org links:</b><br/><ul style=\"list-style-position: inside;padding-left:0;\"><li>"+mcg.join("</li><li>")+"</li></ul>'>" +
 		                                   "<img src='images/mcg_logo.png'></span>";
                                     }
-                                ret += "<span class='oncokb oncokb_alteration hotspot' alteration='"+aa+"' hashId='"+source[0]+"' style='display:none;margin-left:5px;'><img width='13' height='13' src='images/oncokb-flame.svg'></span>";
+
+                                if(mutations.getValue(source[0], 'is-hotspot')) {
+                                    ret += "<span class='oncokb oncokb_alteration hotspot' alteration='"+aa+"' hashId='"+source[0]+"' style='margin-left:5px;'><img width='13' height='13' src='images/oncokb-flame.svg'></span>";
+                                }
 
                                 var aaOriginal = mutations.getValue(source[0], 'aa-orig');
 
@@ -998,13 +1001,13 @@
                 if(genomicEventObs.mutations.getValue(hashId, 'oncokb').alteration.length >0) {
                     var _alterations = genomicEventObs.mutations.getValue(hashId, 'oncokb').alteration,
 //                            _variantSummary = genomicEventObs.mutations.getValue(hashId, 'oncokb').variantSummary,
-                            _hotspot = genomicEventObs.mutations.getValue(hashId, 'oncokb').hotspot,
+//                            _hotspot = genomicEventObs.mutations.getValue(hashId, 'oncokb').hotspot,
                             _tip = '', _oncogenicTip = '', _hotspotTip = '';
                     _oncogenicTip += oncokbMutationSummary(genomicEventObs.mutations.getValue(hashId, 'oncokb'));
 
-                    if(_hotspot === 1){
+//                    if(_hotspot === 1){
                         _hotspotTip = '<b>Recurrent Hotspot</b><br/>This mutated amino acid was identified as a recurrent hotspot (statistical significance, q-value < 0.01) in a set of 11,119 tumor samples of various cancer types (based on Chang, M. et al. Nature Biotech. 2015).'
-                    }
+//                    }
 
 //                    if (genomicEventObs.mutations.getValue(hashId, 'oncokb').oncogenic){
                     _oncogenicTip += '<span style="float:right"><i>Powered by OncoKB(Beta)</i></span><br/><br/><i>OncoKB is under development, please pardon errors and omissions. Please send feedback to <a href="mailto:oncokb@cbio.mskcc.org" title="Contact us">oncokb@cbio.mskcc.org</a></i>';
@@ -1112,7 +1115,7 @@
         }
 
         if(oncokbInfo.drugs.sensitive.inOtherTumor.length > 0) {
-            str +='<li><b>FDA approved drugs for other cancer:</b><br/>';
+            str +='<li><b>FDA approved drugs in another cancer:</b><br/>';
             oncokbInfo.drugs.sensitive.inOtherTumor.forEach(function (list) {
                 str += '- ' + treatmentsToStr(list.content) + '<br/>';
             });
@@ -1120,7 +1123,7 @@
         }
 
         if(oncokbInfo.drugs.resistance.length > 0) {
-            str +='<li><b>Resistance drugs:</b><br/>';
+            str +='<li><b>Resistant to:</b><br/>';
             oncokbInfo.drugs.resistance.forEach(function (list) {
                 str += '- ' + treatmentsToStr(list.content) + '<br/>';
             });

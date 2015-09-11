@@ -196,7 +196,7 @@ var OncoKBConnector = (function () {
                                         _treatment.content = evidence.treatments;
                                         _treatment.description = findRegex(description) || 'No yet curated';
                                         treatments.push(_treatment);
-                                        if(_treatment.level === 'LEVEL_1' || _treatment.level === 'LEVEL_2A') {
+                                        if(_treatment.level === 'LEVEL_1' || _treatment.level === 'LEVEL_2A' || _treatment.level === 'LEVEL_R1') {
                                             hasHigherLevelEvidence = true;
                                         }
                                     }

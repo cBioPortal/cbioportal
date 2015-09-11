@@ -41,10 +41,6 @@ function PancancerStudySummaryHistogram()
     	return study.typeOfCancer; //PA
     };
 
-    var calculateFrequency = function(d, type) {
-        return d.alterations[type]/ d.caseSetLength;
-    };
-
     var hasCnaData = function(alterations) {
     	//TODO maybe include cnaLoss, cnaGain?
     	if (alterations.cnaUp > 0 || alterations.cnaDown > 0)
@@ -53,14 +49,12 @@ function PancancerStudySummaryHistogram()
     }
     
     
+    
 	this.init = function(histogramEl, model){
 		
 	    var getY = function(d, type) {
-	    	if (model.get("dataTypeYAxis") == "Absolute Counts")
-	    		return d.alterations[type];
-	    	else
-	    		return calculateFrequency(d, type);
-	    };
+    		return getYValue(d, type, model.get("dataTypeYAxis"));
+    	};
 		
 	    var getYlabel = function(d) {
 	    	if (model.get("dataTypeYAxis") == "Absolute Counts")
@@ -487,11 +481,24 @@ function PancancerStudySummaryHistogram()
 }
 
 
+//utility methods:
+
+var calculateFrequency = function(d, type) {
+    return d.alterations[type]/ d.caseSetLength;
+};
+
+var getYValue = function(d, type, dataTypeYAxis) {
+if (dataTypeYAxis == "Absolute Counts")
+	return d.alterations[type];
+else
+	return calculateFrequency(d, type);
+};
+
 //'presenter' layer to expose the parameters from query, formating its data for display in the views
 function HistogramPresenter(model)
 {
 	this.model = model;
-	
+	var self = this;
 	// this method will retrieve the data for the histogram according to the 
 	// settings found in the model and format this into the correct JSON format
 	// to be used in the D3JS functions to draw the histogram:
@@ -501,302 +508,54 @@ function HistogramPresenter(model)
 		
 		
 		
+		
+
+		histData = this.sortData(histData); //original was filterAndSortData...but filtering will take place separately as it will depend whether we have bars per cancer_type or cancer_type_detailed
 		callBackFunction(histData);
 	}
+	
+	
+	this.sortData = function(histData) {
+
+        switch(this.model.get("sortXAxis")) {
+            case "Y-Axis Values":
+                // Sort by value
+                histData.sort(function(a, b) {
+                     return this.getYValue(b, "all", self.model.get("dataTypeYAxis")) - getYValue(a, "all", self.model.get("dataTypeYAxis"));
+                });
+                break;
+            case "Cancer Types":
+            	// Sort by name
+                histData.sort(function(a, b) {
+                     return a.typeOfCancer > b.typeOfCancer;
+                });
+        } 
+        return histData;
+    };
+    
+    
+// basis for simple animation, if required:
+// http://jsfiddle.net/enigmarm/3HL4a/13/
+//    var sortBars = function () {
+//        sortOrder = !sortOrder;
+//        
+//        sortItems = function (a, b) {
+//            if (sortOrder) {
+//                return a.value - b.value;
+//            }
+//            return b.value - a.value;
+//        };
+//
+//        svg.selectAll("rect")
+//            .sort(sortItems)
+//            .transition()
+//            .duration(1000)
+//            .attr("x", function (d, i) {
+//            return xScale(i);
+//        });
+//
+//
+//    };
 
 }
 
-	/*
-	 * is this for the animation effect???
-	 * 
-	    var genes = _.last(histData).genes;
-	    var numOfGenes = genes.length;
-	    var numOfStudies = histData.length;
-	
-	    (new CCTitleView({
-	       model: {
-	           numOfStudies: numOfStudies,
-	           numOfGenes: numOfGenes,
-	           genes: genes.join(', ')
-	               }
-	            })).render();
-	
-	     var redrawHistogram = function() {
-	        histData = filterAndSortData(histDataOrg);
-	
-	        studyWidth = Math.min(((width - (paddingLeft + paddingRight)) / histData.length) * .75, maxStudyBarWidth);
-	        studyLocIncrements = studyWidth / .75;
-	                // Data type radius
-	        circleDTR = studyWidth / 4;
-	        // Tumor type radius
-	        circleTTR = Math.min(studyWidth, 20) / 2;
-	
-	        var stacked = $("#histogram-show-colors").is(":checked");
-	        var outX = width + 1000;
-	
-	        yScale
-	            .domain([
-	            0,
-	            Math.min(
-	                1.0,
-	                parseFloat(d3.max(histData, function (d, i) {
-	                    return fixFloat(getY(d, "all"), 1);
-	                })) + .05
-	            )
-	        ])
-	        .range([histBottom-paddingTop, 0]);
-	
-	        yAxisEl
-	            .transition()
-	            .duration(animationDuration)
-	            .call(yAxis);
-	        // Give some style
-	        yAxisEl.selectAll("path, line")
-	            .attr("fill", "none")
-	            .attr("stroke", "black")
-	            .attr("shape-rendering", "crispEdges");
-	        yAxisEl.selectAll("text")
-	            .attr("font-family", fontFamily)
-	            .attr("font-size", "11px")
-	            .each(function(d, i) {
-	                $(this).text(fixFloat($(this).text() * 100, 1) + "%" );
-	            });
-	
-	        var obg = otherBarGroup.selectAll("rect").data(histData, key);
-	        obg.exit()
-	            .transition()
-	            .duration(animationDuration)
-	            .attr("x", outX)
-	        ;
-	        obg.transition()
-	            .duration(animationDuration)
-	            .attr("x", function(d, i) { return paddingLeft + i * studyLocIncrements; } )
-	            .attr("y", function(d, i) { return yScale(getY(d, "other")) + paddingTop; })
-	            .attr("width", studyWidth)
-	            .attr("height", function(d, i) {
-	                return (histBottom-paddingTop) - yScale(getY(d, "other"));
-	            })
-	        ;
-	
-	        var mbg = mutBarGroup.selectAll("rect").data(histData, key);
-	        mbg.exit()
-	            .transition()
-	            .duration(animationDuration)
-	            .attr("x", outX)
-	        ;
-	        mbg.transition()
-	            .duration(animationDuration)
-	            .attr("x", function(d, i) { return paddingLeft + i * studyLocIncrements; } )
-	            .attr("y", function(d, i) {
-	                return yScale(getY(d, "mutation"))
-	                    - ((histBottom-paddingTop) - yScale(getY(d, "other")))
-	                    + paddingTop;
-	            })
-	            .attr("width", studyWidth)
-	            .attr("height", function(d, i) {
-	                return (histBottom-paddingTop) - yScale(getY(d, "mutation"));
-	
-	            })
-	        ;
-	
-	        var clbg = cnalossBarGroup.selectAll("rect").data(histData, key);
-	        clbg
-	            .exit()
-	            .transition()
-	            .duration(animationDuration)
-	            .attr("x", outX)
-	        ;
-	        clbg
-	            .transition()
-	            .duration(animationDuration)
-	            .attr("x", function(d, i) { return paddingLeft + i * studyLocIncrements; } )
-	            .attr("y", function(d, i) {
-	                return yScale(getY(d, "cnaLoss"))
-	                    - (
-	                    ((histBottom-paddingTop) - yScale(getY(d, "mutation")))
-	                        + ((histBottom-paddingTop) - yScale(getY(d, "other")))
-	                    )
-	                    + paddingTop;
-	            })
-	            .attr("width", studyWidth)
-	            .attr("height", function(d, i) {
-	                return (histBottom-paddingTop) - yScale(getY(d, "cnaLoss"));
-	            })
-	        ;
-	
-	
-	        var cdbg = cnadownBarGroup.selectAll("rect").data(histData, key);
-	        cdbg
-	            .exit()
-	            .transition()
-	            .duration(animationDuration)
-	            .attr("x", outX)
-	        ;
-	        cdbg
-	            .transition()
-	            .duration(animationDuration)
-	            .attr("x", function(d, i) { return paddingLeft + i * studyLocIncrements; } )
-	            .attr("y", function(d, i) {
-	                return yScale(getY(d, "cnaDown"))
-	                    - (
-	                    ((histBottom-paddingTop) - yScale(getY(d, "mutation")))
-	                        + ((histBottom-paddingTop) - yScale(getY(d, "other")))
-	                        + ((histBottom-paddingTop) - yScale(getY(d, "cnaLoss")))
-	                    )
-	                    + paddingTop;
-	            })
-	            .attr("width", studyWidth)
-	            .attr("height", function(d, i) {
-	                return (histBottom-paddingTop) - yScale(getY(d, "cnaDown"));
-	            })
-	        ;
-	
-	        var cubp = cnaupBarGroup.selectAll("rect").data(histData, key);
-	        cubp
-	            .exit()
-	            .transition()
-	            .duration(animationDuration)
-	            .attr("x", outX)
-	        ;
-	        cubp
-	            .transition()
-	            .duration(animationDuration)
-	            .attr("x", function(d, i) { return paddingLeft + i * studyLocIncrements; } )
-	            .attr("y", function(d, i) {
-	                return yScale(getY(d, "cnaUp"))
-	                    - (
-	                    ((histBottom-paddingTop) - yScale(getY(d, "mutation")))
-	                        + ((histBottom-paddingTop) - yScale(getY(d, "other")))
-	                        + ((histBottom-paddingTop) - yScale(getY(d, "cnaLoss")))
-	                        + ((histBottom-paddingTop) - yScale(getY(d, "cnaDown")))
-	                    )
-	                    + paddingTop;
-	            })
-	            .attr("width", studyWidth)
-	            .attr("height", function(d, i) {
-	                return (histBottom-paddingTop) - yScale(getY(d, "cnaUp"));
-	            })
-	        ;
-	
-	        var cgbp = cnagainBarGroup.selectAll("rect").data(histData, key);
-	        cgbp
-	            .exit()
-	            .transition()
-	            .duration(animationDuration)
-	            .attr("x", outX)
-	        ;
-	        cgbp
-	            .transition()
-	            .duration(animationDuration)
-	            .attr("x", function(d, i) { return paddingLeft + i * studyLocIncrements; } )
-	            .attr("y", function(d, i) {
-	                return yScale(getY(d, "cnaGain"))
-	                    - (
-	                    ((histBottom-paddingTop) - yScale(getY(d, "mutation")))
-	                        + ((histBottom-paddingTop) - yScale(getY(d, "other")))
-	                        + ((histBottom-paddingTop) - yScale(getY(d, "cnaLoss")))
-	                        + ((histBottom-paddingTop) - yScale(getY(d, "cnaDown")))
-	                        + ((histBottom-paddingTop) - yScale(getY(d, "cnaUp")))
-	                    )
-	                    + paddingTop;
-	            })
-	            .attr("width", studyWidth)
-	            .attr("height", function(d, i) {
-	                return (histBottom-paddingTop) - yScale(getY(d, "cnaGain"));
-	            })
-	        ;
-	
-	        var ibg = infoBarGroup.selectAll("rect").data(histData, key);
-	        ibg
-	            .exit()
-	            .transition()
-	            .duration(animationDuration)
-	            .attr("x", outX)
-	        ;
-	        ibg
-	            .transition()
-	            .duration(animationDuration)
-	            .attr("x", function(d, i) { return paddingLeft + i * studyLocIncrements; } )
-	            .attr("y", function(d, i) { return yScale(getY(d, "all")) + paddingTop; })
-	            .attr("width", studyWidth)
-	            .attr("height", function(d, i) {
-	                return (histBottom-paddingTop) - yScale(getY(d, "all"));
-	            })
-	            .style("opacity", stacked ? 0 : 1)
-	        ;
-	
-	        var ct = cancerTypes.selectAll("circle").data(histData, key);
-	        ct
-	            .exit()
-	            .transition()
-	            .duration(animationDuration)
-	            .attr("cx", outX)
-	        ;
-	        ct
-	            .transition()
-	            .duration(animationDuration)
-	            .attr("cx", function(d, i) { return paddingLeft + i*studyLocIncrements + studyWidth/2; } )
-	            .attr("cy", function(d, i) { return histBottom + verticalCirclePadding })
-	            .attr("r", circleTTR)
-	        ;
-	
-	        var mg = mutGroups.selectAll("text").data(histData, key);
-	        mg
-	            .exit()
-	            .transition()
-	            .duration(animationDuration)
-	            .attr("x", outX)
-	        ;
-	        mg
-	            .transition()
-	            .duration(animationDuration)
-	            .attr("x", function(d, i) { return paddingLeft + i*studyLocIncrements + studyWidth/2; } )
-	        ;
-	
-	        var cg = cnaGroups.selectAll("text").data(histData, key);
-	        cg
-	            .exit()
-	            .transition()
-	            .duration(animationDuration)
-	            .attr("x", outX)
-	        ;
-	        cg
-	            .transition()
-	            .duration(animationDuration)
-	            .attr("x", function(d, i) { return paddingLeft + i*studyLocIncrements + studyWidth/2; } )
-	        ;
-	
-	        var ag = abbrGroups.selectAll("text").data(histData, key);
-	        ag
-	            .exit()
-	            .transition()
-	            .duration(animationDuration)
-	            .attr("x", outX)
-	            .attr("transform", function(d, i) {
-	                var xLoc = paddingLeft + i*studyLocIncrements + studyWidth*.75;
-	                var yLoc = histBottom + verticalCirclePadding*4;
-	                return "rotate(-60, " + xLoc + ", " + yLoc +  ")";
-	            })
-	        ;
-	        ag
-	            .transition()
-	            .duration(animationDuration)
-	            .text(function(d, i) {
-	                return getTypeOfCancer(d, metaData);
-	            })
-	            .attr("font-size", function() { return Math.min((studyWidth * .65), 12) + "px"; })
-	            .attr("x", function(d, i) { return paddingLeft + i*studyLocIncrements + studyWidth*.5; })
-	            .attr("transform", function(d, i) {
-	                var xLoc = paddingLeft + i*studyLocIncrements + studyWidth*.5;
-	                var yLoc = histBottom + verticalCirclePadding*4;
-	                return "rotate(-60, " + xLoc + ", " + yLoc +  ")";
-	            })
-	        ;
-	
-	        legend
-	            .transition()
-	            .duration(animationDuration)
-	            .style("opacity", stacked ? 1 : 0)
-	        ;
-	    }; // end of redraw
-	*/

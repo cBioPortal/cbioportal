@@ -250,7 +250,7 @@ window.cbioportal_client = (function() {
 						for (var j=0; j<genes.length; j++) {
 							var gene = genes[j];
 							index[gp_id][gene] = index[gp_id][gene] || {sub_index: new Index(function(d) { return d.sample_id; }), loaded_all: false};
-							if (index[gp_id][gene].missingKeys(sample_ids).length > 0) {
+							if (index[gp_id][gene].sub_index.missingKeys(sample_ids).length > 0) {
 								missing_genetic_profile_ids[gp_id] = true;
 								missing_genes[gene] = true;
 							}

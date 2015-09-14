@@ -3,31 +3,6 @@
 
 <mapper namespace="org.mskcc.cbio.portal.persistence.ProfileDataMapper">
 
-<resultMap id="MutationDataResult" type="DBMutationData">
-    <result property="hugo_gene_symbol" column="gene.HUGO_GENE_SYMBOL"/>
-    <result property="entrez_gene_id" column="gene.ENTREZ_GENE_ID"/>
-    <result property="sample_id" column="sample.STABLE_ID"/>
-    <result property="genetic_profile_id" column="genetic_profile.STABLE_ID"/>
-    <result property="sequencing_center" column="mutation.CENTER"/>
-    <result property="mutation_status" column="mutation.MUTATION_STATUS"/>
-    <result property="mutation_type" column="mutation_event.MUTATION_TYPE"/>
-    <result property="validation_status" column="mutation.VALIDATION_STATUS"/>
-    <result property="amino_acid_change" column="mutation_event.PROTEIN_CHANGE"/>
-    <result property="functional_impact_score" column="mutation_event.FUNCTIONAL_IMPACT_SCORE"/>
-    <result property="xvar_link" column="mutation_event.LINK_XVAR"/>
-    <result property="xvar_link_pdb" column="mutation_event.LINK_PDB"/>
-    <result property="xvar_link_msa" column="mutation_event.LINK_MSA"/>
-    <result property="chr" column="mutation_event.CHR"/>
-    <result property="start_position" column="mutation_event.START_POSITION"/>
-    <result property="end_position" column="mutation_event.END_POSITION"/>
-    <result property="reference_allele" column="mutation_event.REFERENCE_ALLELE"/>
-    <result property="variant_allele" column="mutation_event.TUMOR_SEQ_ALLELE"/>
-    <result property="reference_read_count_tumor" column="mutation.TUMOR_REF_COUNT"/>
-    <result property="reference_read_count_normal" column="mutation.NORMAL_REF_COUNT"/>
-    <result property="variant_read_count_tumor" column="mutation.TUMOR_ALT_COUNT"/>
-    <result property="variant_read_count_normal" column="mutation.NORMAL_ALT_COUNT"/>  
-</resultMap>
-
 <select id="getGeneticAlterationRow" resultType="DBGeneticAltRow">
     select
         gene.HUGO_GENE_SYMBOL as hugo_gene_symbol,
@@ -92,7 +67,7 @@
         #{item}
     </foreach>
 </select>
-<select id="getMutationDataBySample" resultMap="MutationDataResult">
+<select id="getMutationDataBySample" resultType="DBMutationData">
     select
         gene.HUGO_GENE_SYMBOL as hugo_gene_symbol,
         gene.ENTREZ_GENE_ID as entrez_gene_id,

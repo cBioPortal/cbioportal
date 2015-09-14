@@ -17,4 +17,5 @@ import org.mskcc.cbio.portal.model.DBSample;
 public interface SampleMapper {
 	List<DBSample> getSamples(@Param("study_id") String study_id, @Param("sample_ids") List<String> sample_ids);
 	List<DBSample> getSamplesByStudy(@Param("study_id") String study_id);
+	List<DBSample> getSamplesByInternalId(@Param("sample_ids") List<String> sample_ids);
 }

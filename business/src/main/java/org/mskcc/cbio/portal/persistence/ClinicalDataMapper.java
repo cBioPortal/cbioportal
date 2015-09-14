@@ -21,4 +21,10 @@ public interface ClinicalDataMapper {
 	
 	List<DBClinicalSampleData> getSampleClinicalDataBySample(@Param("study_id") String study_id, @Param("sample_ids") List<String> sample_ids);
 	List<DBClinicalPatientData> getPatientClinicalDataByPatient(@Param("study_id") String study_id, @Param("patient_ids") List<String> patient_ids);
+	
+	List<DBClinicalSampleData> getSampleClinicalDataByStudyAndAttribute(@Param("study_id") String study_id, @Param("attribute_ids") List<String> attribute_ids);
+	List<DBClinicalPatientData> getPatientClinicalDataByStudyAndAttribute(@Param("study_id") String study_id, @Param("attribute_ids") List<String> attribute_ids);
+	
+	List<DBClinicalSampleData> getSampleClinicalDataBySampleAndAttribute(@Param("study_id") String study_id, @Param("sample_ids") List<String> sample_ids, @Param("attribute_ids") List<String> attribute_ids);
+	List<DBClinicalPatientData> getPatientClinicalDataByPatientAndAttribute(@Param("study_id") String study_id, @Param("patient_ids") List<String> patient_ids, @Param("attribute_ids") List<String> attribute_ids);
 }

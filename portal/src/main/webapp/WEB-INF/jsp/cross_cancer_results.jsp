@@ -138,8 +138,9 @@
         $("#bitly-generator").click(function() {
              bitlyURL(window.location.href);
         });
-
     });
+
+
    
 </script>
 
@@ -353,11 +354,43 @@
 <jsp:include page="mutation_views.jsp" flush="true"/>
 <!-- mutation views end -->
 
-
 <script type="text/template" id="cross-cancer-main-empty-tmpl">
     <h1>Default cross-cancer view</h1>
 </script>
 
+<script>
+    $(document).ready(function() {
+
+        var cc_plots_time_out = setInterval(function () {
+            cc_plots_timer();
+        }, 1000);
+        function cc_plots_timer() {
+            if (window.metaDataJson !== undefined) {
+                clearInterval(cc_plots_time_out);
+                var cc_plots_init = false;
+                if ($("#cc-plots").is(":visible")) {
+                    ccPlots.init();
+                    cc_plots_init = true;
+                    $(window).trigger("resize");
+                } else {
+                    $(window).trigger("resize");
+                }
+                $("#tabs").bind("tabsactivate", function (event, ui) {
+                    if (ui.newTab.text().trim().toLowerCase() === "plots") {
+                        if (cc_plots_init === false) {
+                            ccPlots.init();
+                            cc_plots_init = true;
+                            $(window).trigger("resize");
+                        } else {
+                            $(window).trigger("resize");
+                        }
+                    }
+                });
+            }
+        }
+
+    });
+</script>
 
 </div>
 </td>

@@ -6,8 +6,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
 
     var data = (function () {
 
-        var retrieved_genes = [], //list of genes that already retrieved data and stored here
-            study_name_list = []; //list of cancer studies with related profile data
+        var retrieved_genes = []; //list of genes that already retrieved data and stored here
 
         var ProfileMeta = Backbone.Model.extend({
             defaults: {
@@ -16,7 +15,8 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 DESCRIPTION: "",
                 STABLE_ID: "",
                 CANCER_STUDY_STABLE_ID: "",
-                CASE_SET_ID: ""
+                CASE_SET_ID: "",
+                CANCER_STUDY_NAME: ""
             }
         });
 
@@ -36,7 +36,6 @@ var ccPlots = (function ($, _, Backbone, d3) {
                     return (obj.STABLE_ID.indexOf("_rna_seq_v2_mrna") !== -1 &&
                     obj.STABLE_ID.toLowerCase().indexOf("zscore") === -1);
                 });
-
             }
         });
 
@@ -102,21 +101,10 @@ var ccPlots = (function ($, _, Backbone, d3) {
                     var profileMetaListTmp = new ProfileMetaListTmp(_study_obj.studyId);
                     profileMetaListTmp.fetch({
                         success: function (profileMetaListTmp) {
-                            if (profileMetaListTmp.length !== 0) {
-                                var tmp = setInterval(function () {
-                                    timer();
-                                }, 1000);
-
-                                function timer() {
-                                    if (window.metaDataJson !== undefined) {
-                                        clearInterval(tmp);
-                                        study_name_list.push(window.metaDataJson["cancer_studies"][_study_obj.studyId].name);
-                                    }
-                                }
-                            }
                             _.each(_.pluck(profileMetaListTmp.models, "attributes"), function (_profile_obj) {
                                 _profile_obj.CANCER_STUDY_STABLE_ID = profileMetaListTmp.cancer_study_id;
                                 _profile_obj.CASE_SET_ID = _study_obj.caseSetId;
+                                _profile_obj.CANCER_STUDY_NAME = window.metaDataJson["cancer_studies"][_study_obj.studyId].name;
                             });
                             profileMetaList.add(profileMetaListTmp.models);
                             if (_study_index + 1 === window.studies.length) { //reach the end of the iteration
@@ -148,14 +136,27 @@ var ccPlots = (function ($, _, Backbone, d3) {
                         return model.get("gene") === _gene;
                     }));
                 }
-            }
+            },
+            get_meta: function() { return profileMetaList; }
         }
 
     }());
 
     var view = (function () {
 
-        var elem = {},
+        var elem = {
+                svg: "",
+                x: {
+                    scale: "",
+                    axis: ""
+                },
+                y: {
+                    scale: "",
+                    axis: ""
+                },
+                dots: "",
+                title: ""
+            },
             init_sidebar = function () {
                 $("#cc_plots_gene_list_select").append("<select id='cc_plots_gene_list'>");
                 _.each(window.studies.gene_list.split(/\s+/), function (_gene) {
@@ -163,31 +164,138 @@ var ccPlots = (function ($, _, Backbone, d3) {
                         "<option value='" + _gene + "'>" + _gene + "</option>");
                 });
             },
+            init_canvas = function() {
+                $("#cc-plots-box").empty();
+                elem.svg = d3.select("#cc-plots-box")
+                    .append("svg")
+                    .attr("width", _.pluck(_.pluck(data.get_meta().models, "attributes"), "STABLE_ID").length * 100 + 400)
+                    .attr("height", 900);
+            },
             init_box = function (_input) {
 
-                var _data = _.pluck(_input, "attributes");
+                //data
+                var _data = _.filter(_.pluck(_input, "attributes"), function(item) {
+                    return item.value !== "NaN"
+                }) ;
+                console.log(_data);
 
-                $("#cc-plots-box").empty();
+                //x axis
+                var x_axis_right = (_.pluck(_.pluck(data.get_meta().models, "attributes"), "STABLE_ID").length * 100 + 300);
+                elem.x.scale = d3.scale.ordinal()
+                    .domain(_.pluck(_.pluck(data.get_meta().models, "attributes"), "STABLE_ID"))
+                    .rangeRoundBands([300, x_axis_right]);
 
-                elem.svg = d3.select("#cc-plots")
-                    .append("svg")
-                    .attr("width", 900)
-                    .attr("height", 650);
+                elem.x.axis = d3.svg.axis()
+                    .scale(elem.x.scale)
+                    .orient("bottom");
+
+                elem.svg.append("g")
+                    .style("stroke-width", 1.5)
+                    .style("fill", "none")
+                    .style("stroke", "grey")
+                    .style("shape-rendering", "crispEdges")
+                    .attr("class", "x axis")
+                    .attr("transform", "translate(0, 520)")
+                    .call(elem.x.axis.ticks(_.pluck(data.get_meta().models, "attributes").length))
+                    .selectAll("text")
+                    .data(_.pluck(data.get_meta().models, "attributes"))
+                    .style("font-family", "sans-serif")
+                    .style("font-size", "12px")
+                    .style("stroke-width", 0.5)
+                    .style("stroke", "black")
+                    .style("fill", "black")
+                    .style("text-anchor", "end")
+                    .attr("transform", function() { return "rotate(-30)"; })
+                    .text(function(d) { return d["CANCER_STUDY_NAME"]; });
+                elem.svg.append("g")
+                    .style("stroke-width", 1.5)
+                    .style("fill", "none")
+                    .style("stroke", "grey")
+                    .style("shape-rendering", "crispEdges")
+                    .attr("transform", "translate(0, 20)")
+                    .call(elem.x.axis.tickFormat("").ticks(0).tickSize(0));
+
+                //y axis
+                var _y_str_arr = _.filter(_.pluck(_.pluck(_input, "attributes"), "value"), function(item) { return item !== "NaN"});
+                var _y_arr = _.map(_y_str_arr, function(item) {
+                    return parseInt(item, 10);
+                });
+                var _min_y = _.min(_y_arr) - 0.1 * (_.max(_y_arr) - _.min(_y_arr));
+                var _max_y = _.max(_y_arr) + 0.1 * (_.max(_y_arr) - _.min(_y_arr));
+                elem.y.scale = d3.scale.linear()
+                    .domain([_min_y, _max_y])
+                    .range([520, 20]);
+
+                elem.y.axis = d3.svg.axis()
+                    .scale(elem.y.scale)
+                    .orient("left");
+
+                elem.svg.append("g")
+                    .style("stroke-width", 1.5)
+                    .style("fill", "none")
+                    .style("stroke", "grey")
+                    .style("shape-rendering", "crispEdges")
+                    .attr("transform", "translate(300, 0)")
+                    .attr("class", "y axis")
+                    .call(elem.y.axis.ticks(5))
+                    .selectAll("text")
+                    .style("font-family", "sans-serif")
+                    .style("font-size", "12px")
+                    .style("stroke-width", 0.5)
+                    .style("stroke", "black")
+                    .style("fill", "black")
+                    .style("text-anchor", "end");
+                elem.svg.append("g")
+                    .style("stroke-width", 1.5)
+                    .style("fill", "none")
+                    .style("stroke", "grey")
+                    .style("shape-rendering", "crispEdges")
+                    .attr("transform", "translate(" + x_axis_right + ", 0)")
+                    .call(elem.y.axis.ticks(0));
+
+                //y axis title
+                d3.select("#ccPlots").select("y title").remove();
+                elem.title = elem.svg.append("svg:g");
+                elem.title.append("text")
+                    .attr("class", "y title")
+                    .attr("transform", "rotate(-90)")
+                    .attr("x", -250)
+                    .attr("y", 220)
+                    .style("text-anchor", "middle")
+                    .style("font-weight","bold")
+                    .text($("#cc_plots_gene_list").val() + " expression -- RNA-Seq V2");
+
+                //draw dots
+                elem.dots = elem.svg.append("svg:g");
+                elem.dots.selectAll("path").remove();
+                elem.dots.selectAll("path")
+                    .data(_data)
+                    .enter()
+                    .append("svg:path")
+                    .attr("class", "dot")
+                    .attr("d", d3.svg.symbol().size(20).type("circle"))
+                    .style("fill", "black")
+                    .attr("transform", function(d) {
+                        var _x = elem.x.scale(d.profileId) + elem.x.scale.rangeBand() / 2 + _.random(elem.x.scale.rangeBand() / 3 * (-1), elem.x.scale.rangeBand()/3);
+                        var _y = elem.y.scale(parseInt(d.value));
+                        return "translate(" + _x + ", " + _y + ")";
+                    })
 
             };
 
         return {
             init: function () {
                 init_sidebar();
+                init_canvas();
                 data.get($("#cc_plots_gene_list").val(), init_box);
             },
             update: function() {
+                init_canvas();
                 data.get($("#cc_plots_gene_list").val(), init_box);
             },
             init_sidebar: init_sidebar,
             init_box: init_box
         }
-
     }());
 
     return {
@@ -200,27 +308,3 @@ var ccPlots = (function ($, _, Backbone, d3) {
     }
 
 }(window.jQuery, window._, window.Backbone, window.d3));
-
-
-$(function () {
-    var cc_plots_init = false;
-    if ($("#cc-plots").is(":visible")) {
-        ccPlots.init();
-        cc_plots_init = true;
-    } else {
-        $(window).trigger("resize");
-    }
-    $("#tabs").bind("tabsactivate", function (event, ui) {
-        if (ui.newTab.text().trim().toLowerCase() === "plots") {
-            if (cc_plots_init === false) {
-                ccPlots.init();
-                cc_plots_init = true;
-                $(window).trigger("resize");
-            } else {
-                $(window).trigger("resize");
-            }
-        }
-    });
-
-
-});

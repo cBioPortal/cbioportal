@@ -21,7 +21,7 @@
       <script type="text/template" id="gene_details_main_content_template">
          <div id='gene_details_{{geneId}}'>
             <div id='button-container-{{geneId}}'></div>
-            <div id='customize-histogram-{{geneId}}'></div>
+            <div id='customize-histogram-{{geneId}}' class="ui-widget cc-hide customize-controls"></div>
             <div id='histogram-{{geneId}}'></div>
          </div>
       </script>
@@ -37,7 +37,10 @@
       <!-- adapted the show-hide-cancertypes part from cross_cancer_results.jsp -->
       <!-- still todo is the select-all / select-none etc. -->
       <script type="text/template" id="customize_histogram_template">
-         This is the content for customize histogram
+         <div class="close-customize">
+           <a href="#">&times;</a>
+         </div>
+		 <h3>Customize histogram</h3>
          <table class='customize-options'>
             <tr>
                <td><div id='customize-cancertype-dropdown-{{geneId}}'></div></td>
@@ -62,7 +65,7 @@
                   </div>
                </td>
             </tr>
-         </table>
+       	</table>
       </script>
       
       <script type="text/template" id="specific_cancertypes_area_template">
@@ -91,44 +94,6 @@
                </tr>
             </table>
          </div>
-      </script>
-
-
-
-<!-- template for checking the model parameters. For debugging/temporary -->
-
-      <script type="text/template" id="debug_template">
-         Histogram for {{geneId}} with the following parameters:
-         <table>
-            <tr>
-               <td>myType</td>
-               <td>{{myType}}</td>
-            </tr>
-            <tr>
-               <td>cancerType</td>
-               <td>{{cancerType}}</td>
-            </tr>
-            <tr>
-               <td>cancerTypeDetailed</td>
-               <td>{{cancerTypeDetailed}}</td>
-            </tr>
-            <tr>
-               <td>sortXAxis</td>
-               <td>{{sortXAxis}}</td>
-            </tr>
-            <tr>
-               <td>dataTypeYAxis</td>
-               <td>{{dataTypeYAxis}}</td>
-            </tr>
-            <tr>
-               <td>minNrAlteredSamples</td>
-               <td>{{minNrAlteredSamples}}</td>
-            </tr>
-            <tr>
-               <td>showGenomicAlterationTypes</td>
-               <td>{{showGenomicAlterationTypes}}</td>
-            </tr>
-         </table>
       </script>
 
 	<script type="text/template" id="cancer-type-tip-tmpl">

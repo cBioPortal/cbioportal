@@ -411,16 +411,12 @@ var patientInfo = <%=jsonPatientInfo%>;
 var clinicalAttributes = <%=jsonClinicalAttributes%>;
 var viewBam = <%=viewBam%>;
 var mapCaseBam = <%=jsonMapCaseBam%>;
-var OncoKB = {
-    url: '<%=oncokbUrl%>',
-    geneStatus: '<%=oncokbGeneStatus%>',
-    accessible: false,
-    dataReady: false
-};
-    
 var caseMetaData = {
     color : {}, label : {}, index : {}, tooltip : {}
 };
+
+OncoKB.url = '<%=oncokbUrl%>';
+OncoKB.geneStatus = '<%=oncokbGeneStatus%>';
 
 $(document).ready(function(){
     if (print) $('#page_wrapper_table').css('width', '900px');
@@ -433,16 +429,6 @@ $(document).ready(function(){
         switchToTab(openTab[1]);
     }
 });
-
-function accessOncoKB(callback){
-    OncoKBConnector.init({'url': OncoKB.url||''});
-    OncoKBConnector.oncokbAccess(function(flag){
-        OncoKB.accessible = flag;
-        if($.isFunction(callback)){
-            callback();
-        }
-    });
-}
 
 function tweaksStyles() {
     $("div#content").css("margin-top","0px");

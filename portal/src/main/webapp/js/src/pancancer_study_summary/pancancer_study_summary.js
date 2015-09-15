@@ -174,7 +174,7 @@
 
       // add events
       events:{
-         "click .histogram-customize": "showHideCustomizeHistogram"  //strange that this should be a string...?
+         "click .histogram-customize": "showHideCustomizeHistogram"
       },
 
       render: function(){
@@ -205,7 +205,11 @@
          
          this.dmPresenter = options.dmPresenter;
       },
-
+      
+      // add events
+      events:{
+         "click .close-customize a": "showHideCustomizeHistogram"
+      },
       render: function(){
          console.log("CustomizeHistogram Render");
          // add the generated template
@@ -378,36 +382,16 @@
       initialize: function(options){
          this.gene = options.gene;
          this.dispatcher = options.dispatcher;
-
+         this.pancancerStudyHistogram = new PancancerStudySummaryHistogram();
+         
          // call render when the model is changed
          this.model.on("change", this.render, this); //TODO change to this.listenTo(this.model, "change", this.updateRender)
       },
 
       render: function(){
-         //$(this.el).html("Histogram for "+this.gene+" with the following model parameters: <br>"+);
 
-         var templateFn = BackboneTemplateCache.getTemplateFn("debug_template");
-         this.template = templateFn({
-            geneId: this.gene,
-            myType: this.model.get("myType"),
-            cancerType:this.model.get("cancerType"),
-            sortXAxis:this.model.get("sortXAxis"),
-            dataTypeYAxis: this.model.get("dataTypeYAxis"),
-            minNrAlteredSamples: this.model.get("minNrAlteredSamples"),
-            showGenomicAlterationTypes: this.model.get("showGenomicAlterationTypes"),
-            cancerTypeDetailed: this.model.get("cancerTypeDetailed")
-         });
-
-         $(this.el).html(this.template);
-         this.drawHistogram();
-      },
-      
-      drawHistogram: function(){
-    	  var pancancerStudyHistogram = new PancancerStudySummaryHistogram();
-    	  pancancerStudyHistogram.init(this.el, this.model);
-    	  
-      }
-      
+         this.pancancerStudyHistogram.render(this.el, this.model);
+      }      
    }); // end of GeneHistogramView
 
 

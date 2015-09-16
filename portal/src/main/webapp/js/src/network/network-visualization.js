@@ -3396,7 +3396,7 @@ NetworkVis.prototype._performLayout = function()
       //TODO layout options will be changed
 
     //Perform layout only on visible elements !
-    this._vis.eles(':visible').layout(this._graphLayout);
+    this._vis.filter(':visible').layout(this._graphLayout);
 };
 
 /**

@@ -541,11 +541,11 @@
 
 		var tooltip = oncoprint.getTrackTooltip(track_id);
 		bound_svg.each(function(d,i) {
-			var dom_cell = this;
 			var id = id_accessor(d);
 			track_cells[id] = {dom: this, d: d};
 		});
 		bound_svg.selectAll('*').remove();
+		bound_svg.style('outline', 'none');
 		this.active_rule_set_rules[rule_set.getRuleSetId()][track_id] = rule_set.apply(bound_svg, oncoprint.getFullCellWidth(), oncoprint.getCellHeight(track_id));
 		self.track_cell_selections[track_id] = bound_svg;
 	};

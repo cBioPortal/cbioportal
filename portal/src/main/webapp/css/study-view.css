@@ -286,8 +286,11 @@
 .qtip-content td {
     white-space: nowrap;
 }
-#study-view-main table.dataTable td {
+#study-view-main table.dataTable td, table.dataTable td.pieLabelValue {
     padding: 3px 5px !important;
+}
+.study-view-qtip table.dataTable td.pieLabelValue {
+    padding: 3px 2px 3px 0 !important;
 }
 .smallTable thead th {
     font-size: 10px !important;

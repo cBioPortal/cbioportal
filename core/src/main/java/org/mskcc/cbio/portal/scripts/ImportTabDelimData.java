@@ -306,7 +306,7 @@ public class ImportTabDelimData {
                                 numRecordsStored++;
                             } else {
                                 for (CanonicalGene gene : genes) {
-                                    if (gene.isMicroRNA()) { // for micro rna, duplicate the data
+                                    if (gene.isMicroRNA() || rppaProfile) { // for micro rna or protein data, duplicate the data
                                         storeGeneticAlterations(values, daoGeneticAlteration, gene);
                                     }
                                 }

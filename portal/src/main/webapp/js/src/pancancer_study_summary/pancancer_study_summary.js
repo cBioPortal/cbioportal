@@ -2,21 +2,14 @@
 
    // load global GeneDetailsEvents
    var GeneDetailsEvents = (function(){
-      // events for creating and selecting tabs   
-      var _geneTabSelected = "geneDetailsGeneTabSelected";
-      var _geneTabsCreated = "geneDetailsGeneTabsCreated";
-
-      // events for the buttons template
-      var _showHideCustomizeHistogramClicked = "showHideCustomizeHistogramClicked";
-
-      // events for the Customize Histogram
-      var _cancerTypeChanged = "cancerTypeChanged";
-
       return {
-         GENE_TAB_SELECTED: _geneTabSelected,
-         GENE_TABS_CREATED: _geneTabsCreated,
-         SHOW_HIDE_CUSTOMIZE_HISTOGRAM_CLICKED: _showHideCustomizeHistogramClicked,
-         CANCER_TYPE_CANGED: _cancerTypeChanged
+          // events for creating and selecting tabs   
+         GENE_TAB_SELECTED: "geneDetailsGeneTabSelected",
+         GENE_TABS_CREATED: "geneDetailsGeneTabsCreated",
+         // events for the buttons template
+         SHOW_HIDE_CUSTOMIZE_HISTOGRAM_CLICKED: "showHideCustomizeHistogramClicked",
+         DOWNLOAD_PDF_CLICKED: "DOWNLOAD_PDF_CLICKED", 
+         DOWNLOAD_SVG_CLICKED: "DOWNLOAD_SVG_CLICKED",
       };
    })();
 
@@ -174,7 +167,9 @@
 
       // add events
       events:{
-         "click .histogram-customize": "showHideCustomizeHistogram"
+         "click .histogram-customize": "showHideCustomizeHistogram",
+         "click .diagram-to-pdf": "downloadHistogramPdf",
+         "click .diagram-to-svg": "downloadHistogramSvg"
       },
 
       render: function(){
@@ -187,7 +182,18 @@
       showHideCustomizeHistogram: function(){
          console.log("clicked for "+this.gene);
          this.dispatcher.trigger(GeneDetailsEvents.SHOW_HIDE_CUSTOMIZE_HISTOGRAM_CLICKED+this.gene);
-      }
+      },
+      
+      downloadHistogramPdf: function(){
+          console.log("clicked for "+this.gene);
+          this.dispatcher.trigger(GeneDetailsEvents.DOWNLOAD_PDF_CLICKED+this.gene);
+      },
+       
+      downloadHistogramSvg: function(){
+          console.log("clicked for "+this.gene);
+          this.dispatcher.trigger(GeneDetailsEvents.DOWNLOAD_SVG_CLICKED+this.gene);
+      } 
+      
    }); // End ButtonsView
 
    // CustomizeHistogramView
@@ -317,7 +323,8 @@
       showHideCustomizeHistogram: function(){
          console.log("ShowHide Order Received! "+this.gene);
          $("#customize-histogram-"+this.gene).toggle();
-      }  
+      } 
+
    }); // End CustomizeHistogramView
 
 
@@ -384,14 +391,39 @@
          this.dispatcher = options.dispatcher;
          this.pancancerStudyHistogram = new PancancerStudySummaryHistogram();
          
+         // subscribe to the DOWNLOAD_PDF/SVG_CLICKED event and give "this" is the context
+         this.dispatcher.bind(GeneDetailsEvents.DOWNLOAD_PDF_CLICKED+this.gene, this.downloadPdf, this);
+         this.dispatcher.bind(GeneDetailsEvents.DOWNLOAD_SVG_CLICKED+this.gene, this.downloadSvg, this);
+         
          // call render when the model is changed
-         this.model.on("change", this.render, this); //TODO change to this.listenTo(this.model, "change", this.updateRender)
+         this.model.on("change", this.render, this); 
       },
 
       render: function(){
 
          this.pancancerStudyHistogram.render(this.el, this.model);
-      }      
+      },
+      
+      downloadPdf: function() {
+    	  console.log("downloadPdf Received! "+this.gene);
+
+    	  var downloadOptions = {
+            filename: "pancancerhistogram"+this.gene+".pdf",
+            contentType: "application/pdf",
+            servletName: "svgtopdf.do"
+    	  };
+
+    	  cbio.download.initDownload(
+            $("#" + this.el.id + " svg")[0], downloadOptions);
+      },
+      
+      downloadSvg: function() {
+    	  console.log("downloadSvg Received! "+this.gene);
+
+    	  cbio.download.initDownload(
+    	            $("#" + this.el.id + " svg")[0], {filename:  "pancancerhistogram"+this.gene+".svg"});
+      }
+      
    }); // end of GeneHistogramView
 
 

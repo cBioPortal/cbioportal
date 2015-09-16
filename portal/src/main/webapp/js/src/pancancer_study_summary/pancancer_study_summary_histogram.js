@@ -154,9 +154,9 @@ function PancancerStudySummaryHistogram()
 	        .orient("left");
 	    //keep track of bar groups:
 	    histogram._xGroups = [];
-	    var otherBarGroup = histogram.append("g");
-	    histogram._xGroups.push(otherBarGroup);
-	    otherBarGroup.selectAll("rect")
+	    var multipleTypesGroup = histogram.append("g");
+	    histogram._xGroups.push(multipleTypesGroup);
+	    multipleTypesGroup.selectAll("rect")
 	        .data(histData, key)
 	        .enter()
 	        .append("rect")
@@ -323,6 +323,7 @@ function PancancerStudySummaryHistogram()
 	
 	    //"invisible" div on top of bars to enable tooltip:
 	    var infoBarGroup = histogram.append("g");
+	    histogram._xGroups.push(infoBarGroup);
 	    infoBarGroup.selectAll("rect")
 	        .data(histData, key)
 	        .enter()
@@ -334,7 +335,7 @@ function PancancerStudySummaryHistogram()
 	        .attr("height", function(d, i) {
 	            return (histBottom-paddingTop) - yScale(getY(d, "all"));
 	        })
-	        .style("opacity",0) //make invisible
+	        .style("opacity", model.get("showGenomicAlterationTypes") ? 0 : 1) //make visible depending on showGenomicAlterationTypes
 	        .style("stroke", "white")
 	        .style("cursor", "pointer")
 	        .style("stroke-width", "1")
@@ -353,21 +354,11 @@ function PancancerStudySummaryHistogram()
                     content: container.html()
                 });
                 $(this).qtip(qOpts);
-
-                $(this).click(function(e) {
-                	alert('test click');//TODO decide what to do here
-//                        e.preventDefault();
-//
-//                        var sLink = _.template($("#study-link-tmpl").html(), {
-//                            study: d,
-//                            genes: orgQuery
-//                        });
-//
-//                        window.open($(sLink).attr("href"), "_blank");
-                });
+                
             });
 
 	
+	    //X axis labels:
 	    var abbrGroups = histogram.append("g");
 	    histogram._xGroups.push(abbrGroups);
 	    abbrGroups.selectAll("text")
@@ -453,6 +444,7 @@ function PancancerStudySummaryHistogram()
 	        .attr('width', 19)
 	        .attr('height', 19)
 	        .style('fill', function(d) { return d.color; })
+	        .style("opacity", model.get("showGenomicAlterationTypes") ? 1 : 0) //make visible depending on showGenomicAlterationTypes
 	    ;
 	    legend.selectAll("text")
 	        .data(legendData)
@@ -463,6 +455,7 @@ function PancancerStudySummaryHistogram()
 	        .text(function(d, i) { return d.label; })
 	        .attr("font-family", fontFamily)
 	        .attr("font-size", "15px")
+	        .style("opacity", model.get("showGenomicAlterationTypes") ? 1 : 0) //make visible depending on showGenomicAlterationTypes
 	    ;
 	    
 	    return histogram;
@@ -500,7 +493,7 @@ function PancancerStudySummaryHistogram()
 	        	.data(histData, key)    
 	            .sort(sortFunction)
 	            .transition()
-	            .duration(1000)
+	            .duration(animationDuration)
 	            .attr("x", function (d, i) {
 	            	return paddingLeft + i * studyLocIncrements; 
 	            });
@@ -509,7 +502,7 @@ function PancancerStudySummaryHistogram()
 	        	.data(histData, key)
 	            .sort(sortFunction)
 	            .transition()
-	            .duration(1000)
+	            .duration(animationDuration)
 	            .attr("x", function(d, i) { return paddingLeft + i*studyLocIncrements + studyWidth*.5; })
 	            .attr("transform", function(d, i) {
 			            var xLoc = paddingLeft + i*studyLocIncrements + studyWidth*.75;

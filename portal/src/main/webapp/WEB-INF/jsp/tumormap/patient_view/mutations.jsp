@@ -60,18 +60,20 @@
              "norm_ref_reads","bam","cna","mrna","altrate","pancan_mutations", "cosmic","ma","drug", "oncokb"];
 
     mutTableIndices = cbio.util.arrayToAssociatedArrayIndices(mutTableIndices);
-    
+
     _.templateSettings = {
         interpolate : /\{\{(.+?)\}\}/g
     };
-    
+
     var oncoKBDataInject = function(oTable, tableId) {
         if(!OncoKB.accessible &&! OncoKB.initialized) {
+
             OncoKB.Init().then(function(){
                 if(!OncoKB.dataReady) {
                     getOncoKBEvidence(oTable, tableId);
                 }else {
-                    OncoKB.Events.specialEvent(oTable, tableId);
+                    OncoKB.events(oTable);
+                    OncoKB.events(oTable);
                 }
             });
         }else{
@@ -114,7 +116,7 @@
 
                             var this_svg = $(this).find('svg')[0];
                             histogram.qtip(this_svg);
-                            
+
                             $(".cross-cancer-download").click(function() {
                                 var fileType = $(this).attr("file-type");
 	                            var filename = gene + "_mutations." + fileType;
@@ -145,7 +147,7 @@
             });
         });
     };
-    
+
     function getOncoKBEvidence(oTable, tableId) {
         var tumorType = '';
         if(Object.keys(clinicalDataMap).length > 0 && clinicalDataMap[Object.keys(clinicalDataMap)[0]].CANCER_TYPE){
@@ -162,12 +164,21 @@
             OncoKB.Events.specialEvent(oTable, tableId);
         });
     }
-    
+
     function buildMutationsDataTable(mutations,mutEventIds, table_id, sDom, iDisplayLength, sEmptyInfo, compact) {
         var data = [];
+        var oncokbInstance = new OncoKB.Instance();
+        var tunmorType = clinicalDataMap[Object.keys(clinicalDataMap)[0]].CANCER_TYPE;
+        oncokbInstance.tumorType = tunmorType;
         for (var i=0, nEvents=mutEventIds.length; i<nEvents; i++) {
-                data.push([mutEventIds[i]]);
+            var _id = mutEventIds[i];
+            oncokbInstance.addVariant(_id, mutations.getValue(_id, "gene"), mutations.getValue(_id, "aa"), tunmorType, mutations.getValue(_id, "type"))
+            data.push([mutEventIds[i]]);
         }
+
+        oncokbInstance.getEvidence();
+
+
         var oTable = $("#"+table_id).dataTable( {
                 "sDom": sDom, // selectable columns
                 "oColVis": { "aiExclude": [ mutTableIndices["id"] ] }, // always hide id column
@@ -200,7 +211,7 @@
                                         ret.push("<svg width='12' height='12'></svg>");
                                     }
                                 }
-                                
+
                                 return "<div>"+ret.join("&nbsp;")+"</div>";
                             } else if (type==='sort') {
                                 var samples = mutations.getValue(source[0], "caseIds");
@@ -423,9 +434,9 @@
                                     abbr = mutType;
                                     color = 'gray';
                                 }
-                                
+
                                 if (type==='filter') return abbr;
-                                
+
                                 return "<span style='color:"+color+";' class='"
                                             +table_id+"-tip' alt='"+mutType+"'><b>"
                                             +abbr+"</b></span>";
@@ -433,7 +444,7 @@
                                 return mutations.getValue(source[0], "type");
                             }
                         }
-                        
+
                     },
                     {// tumor read count frequency
                         "aTargets": [ mutTableIndices["tumor_freq"] ],
@@ -453,7 +464,7 @@
                                     var tip = ac + " variant reads out of " + (rc+ac) + " total";
                                     return "<span class='"+table_id+"-tip' alt='"+tip+"'>"+freq.toFixed(2)+"</span>";
                                 }
-                                
+
                                 if ($.isEmptyObject(refCount)||$.isEmptyObject(altCount))
                                     return "";
                                 return "<div class='"+table_id+"-tumor-freq' alt='"+source[0]+"'></div>";
@@ -480,11 +491,11 @@
                             } else if (type==='display') {
                                 var altCount = mutations.getValue(source[0], 'alt-count');
                                 if (caseIds.length===1) return altCount[caseIds[0]]?altCount[caseIds[0]]:"";
-                                
+
                                 var arr = [];
                                 for (var ac in altCount) {
                                     arr.push(ac+": "+altCount[ac].toFixed(2));
-                                } 
+                                }
                                 return arr.join("<br/>")
                             } else if (type==='sort') {
                                 var altCount = mutations.getValue(source[0], 'alt-count')[caseIds[0]];
@@ -508,11 +519,11 @@
                             } else if (type==='display') {
                                 var altCount = mutations.getValue(source[0], 'ref-count');
                                 if (caseIds.length===1) return altCount[caseIds[0]]?altCount[caseIds[0]]:"";
-                                
+
                                 var arr = [];
                                 for (var ac in altCount) {
                                     arr.push(ac+": "+altCount[ac].toFixed(2));
-                                } 
+                                }
                                 return arr.join("<br/>")
                             } else if (type==='sort') {
                                 var refCount = mutations.getValue(source[0], 'ref-count')[caseIds[0]];
@@ -544,10 +555,10 @@
                                     var tip = ac + " variant reads out of " + (rc+ac) + " total";
                                     return "<span class='"+table_id+"-tip' alt='"+tip+"'>"+freq.toFixed(2)+"</span>";
                                 }
-                                
+
                                 if ($.isEmptyObject(refCount)||$.isEmptyObject(altCount))
                                     return "";
-                                return "<div class='"+table_id+"-normal-freq' alt='"+source[0]+"'></div>"; 
+                                return "<div class='"+table_id+"-normal-freq' alt='"+source[0]+"'></div>";
                             } else if (type==='sort') {
                                 var refCount = mutations.getValue(source[0], 'normal-ref-count')[caseIds[0]];
                                 var altCount = mutations.getValue(source[0], 'normal-alt-count')[caseIds[0]];
@@ -571,11 +582,11 @@
                             } else if (type==='display') {
                                 var altCount = mutations.getValue(source[0], 'normal-alt-count');
                                 if (caseIds.length===1) return altCount[caseIds[0]]?altCount[caseIds[0]]:"";
-                                
+
                                 var arr = [];
                                 for (var ac in altCount) {
                                     arr.push(ac+": "+altCount[ac].toFixed(2));
-                                } 
+                                }
                                 return arr.join("<br/>")
                             } else if (type==='sort') {
                                 var altCount = mutations.getValue(source[0], 'normal-alt-count')[caseIds[0]];
@@ -599,11 +610,11 @@
                             } else if (type==='display') {
                                 var altCount = mutations.getValue(source[0], 'normal-ref-count');
                                 if (caseIds.length===1) return altCount[caseIds[0]]?altCount[caseIds[0]]:"";
-                                
+
                                 var arr = [];
                                 for (var ac in altCount) {
                                     arr.push(ac+": "+altCount[ac].toFixed(2));
-                                } 
+                                }
                                 return arr.join("<br/>")
                             } else if (type==='sort') {
                                 var refCount = mutations.getValue(source[0], 'normal-ref-count')[caseIds[0]];
@@ -647,7 +658,7 @@
                         "bVisible": !mutations.colAllNull('cna'),
                         "sClass": "center-align-td",
                         "bSearchable": false,
-                        "mDataProp": 
+                        "mDataProp":
                             function(source,type,value) {
                             if (type==='set') {
                                 return;
@@ -683,7 +694,7 @@
                         "bVisible": !mutations.colAllNull('mrna'),
                         "sClass": "center-align-td",
                         "bSearchable": false,
-                        "mDataProp": 
+                        "mDataProp":
                             function(source,type,value) {
                             if (type==='set') {
                                 return;
@@ -733,7 +744,7 @@
                                 var ret = "<div class='pancan_mutations_histogram_thumbnail' gene='"+hugo+"' keyword='"+keyword+"'></div>";
                                     ret += "<img width='15' height='15' class='pancan_mutations_histogram_wait' src='images/ajax-loader.gif'/>";
                                     ret += "<div class='pancan_mutations_histogram_count' style='float:right' gene='"+hugo+"' keyword='"+keyword+"'></div>";
-                                    
+
                                 return ret;
                             }
                             else if (type === "sort") {
@@ -797,7 +808,7 @@
                         "sClass": "center-align-td",
                         "bSearchable": false,
                         "bVisible": false,
-                        "mDataProp": 
+                        "mDataProp":
                             function(source,type,value) {
                             if (type==='set') {
                                 return;
@@ -830,14 +841,14 @@
                                 return;
                             } else if (type==='display') {
                                 var ma = mutations.getValue(source[0], 'ma');
-                                
+
                                 var score = ma['score'];
                                 var maclass,impact;
                                 if (score==='N') {maclass="oma_link oma_neutral"; impact='Neutral';}
                                 else if (score==='L') {maclass="oma_link oma_low"; impact='Low';}
                                 else if (score==='M') {maclass="oma_link oma_medium"; impact='Medium';}
                                 else if (score==='H') {maclass="oma_link oma_high"; impact='High';}
-                                
+
                                 var ret = "";
                                 if (impact) {
                                     var tip = "";
@@ -848,7 +859,7 @@
                                         tip += "<div class=\"mutation-assessor-main-link mutation-assessor-link\">" +
                                                 "<a href=\""+xvia+"\" target=\"_blank\"><img height=\"15\" width=\"19\" src=\"images/ma.png\"> Go to Mutation Assessor</a></div>";
                                     }
-                                    
+
                                     var msa = ma['msa'];
                                     if (msa&&msa!=='NA') {
                                         if (msa.indexOf('http://')!==0) msa='http://'+msa;
@@ -856,7 +867,7 @@
                                         tip += "<div class=\"mutation-assessor-msa-link mutation-assessor-link\">"+
                                                "<a href=\""+msa+"\" target=\"_blank\"><span class=\"ma-msa-icon\">msa</span> Multiple Sequence Alignment</a></div>";
                                     }
-                                    
+
                                     var pdb = ma['pdb'];
                                     if (pdb&&pdb!=='NA') {
                                         pdb=pdb.replace("getma.org", "mutationassessor.org");
@@ -867,7 +878,7 @@
 
                                     ret += "<span class='"+maclass+" "+table_id+"-ma-tip' alt='"+tip+"'>"+impact+"</span>";
                                 }
-                                
+
                                 return ret;
                             } else if (type==='sort') {
                                 var ma = mutations.getValue(source[0], 'ma');
@@ -969,15 +980,15 @@
             var keyperc = 100 * keymutrate / numPatientInSameMutationProfile;
             var genemutrate = mutations.getValue(gene, 'genemutrate');
             var geneperc = 100 * genemutrate / numPatientInSameMutationProfile;
-            
+
             var data = [keyperc, geneperc-keyperc, 100-geneperc];
             var colors = ["green", "lightgreen", "#ccc"];
-                        
+
             var svg = d3.select($(this)[0])
                 .append("svg")
                 .attr("width", 86)
                 .attr("height", 12);
-        
+
             var percg = svg.append("g");
             percg.append("text")
                     .attr('x',70)
@@ -985,7 +996,7 @@
                     .attr("text-anchor", "end")
                     .attr('font-size',10)
                     .text(geneperc.toFixed(1)+"%");
-            
+
             var gSvg = percg.append("g");
             var pie = d3AccBar(gSvg, data, 30, colors);
             var tip = ""+genemutrate+" sample"+(genemutrate===1?"":"s")
@@ -995,7 +1006,7 @@
                 + " (<b>"+keyperc.toFixed(1) + "%</b>) "
                 + (keymutrate===1?"has ":"have ")+mutations.getValue(gene,'key')+" mutations.";
             qtip($(percg), tip);
-            
+
             // mutsig
             var mutsig = mutations.getValue(gene, 'mutsig');
             if (mutsig) {
@@ -1005,9 +1016,9 @@
                 d3CircledChar(circle,"M","#55C","#66C");
                 qtip($(circle), tip);
             }
-            
+
         });
-        
+
         function qtip(el, tip) {
             $(el).qtip({
                 content: {text: tip},
@@ -1074,9 +1085,9 @@
             position: {my:'top right',at:'bottom center',viewport: $(window)}
         });
     }
-    
+
     var numPatientInSameMutationProfile = <%=numPatientInSameMutationProfile%>;
-    
+
     $(document).ready(function(){
         $('#mutation_id_filter_msg').hide();
         var params = {
@@ -1087,11 +1098,11 @@
         if (cnaProfileId) {
             params['<%=PatientView.CNA_PROFILE%>'] = cnaProfileId;
         }
-        
+
         if (mrnaProfileId) {
             params['<%=PatientView.MRNA_PROFILE%>'] = mrnaProfileId;
         }
-        
+
         if (drugType) {
             params['<%=PatientView.DRUG_TYPE%>'] = drugType;
         }
@@ -1207,7 +1218,7 @@
             );
         });
     });
-    
+
     var patient_view_mutsig_qvalue_threhold = 0.05;
     var patient_view_genemutrate_threhold = 0.05;
     var patient_view_genemutrate_apply_cohort_count = 50;
@@ -1219,7 +1230,7 @@
         var mutsig = data['mutsig'];
         var mutrate = data['genemutrate'];
         var cosmic = data['cosmic'];
-        
+
         var noMutsig = true;
         for (var i=0; i<len; i++) {
             if (mutsig[i]) {
@@ -1227,13 +1238,13 @@
                 break;
             }
         }
-        
+
         for (var i=0; i<len; i++) {
             if (cancerGene[i]) {
                 overview.push(true);
                 continue;
             }
-            
+
             if (noMutsig) {
                 if (numPatientInSameMutationProfile>=patient_view_genemutrate_apply_cohort_count
                   && mutrate[i]/numPatientInSameMutationProfile>=patient_view_genemutrate_threhold) {
@@ -1246,7 +1257,7 @@
                     continue;
                 }
             }
-            
+
             var ncosmic = 0;
             var cosmicI= cosmic[i];
             if (cosmicI) {
@@ -1259,12 +1270,12 @@
                     continue;
                 }
             }
-            
+
             overview.push(false);
         }
         data['overview'] = overview;
     }
-    
+
     function getMutGeneAA(mutIds) {
         var m = [];
         for (var i=0; i<mutIds.length; i++) {
@@ -1274,7 +1285,7 @@
         }
         return m;
     }
-    
+
     function filterMutationsTableByIds(mutIdsRegEx) {
         var mut_table = $('#mutation_table').dataTable();
         var n = mut_table.fnSettings().fnRecordsDisplay();
@@ -1282,7 +1293,7 @@
         if (n!=mut_table.fnSettings().fnRecordsDisplay())
             $('#mutation_id_filter_msg').show();
     }
-    
+
     function unfilterMutationsTableByIds() {
         var mut_table = $('#mutation_table').dataTable();
         mut_table.fnFilter("", mutTableIndices["id"]);
@@ -1356,7 +1367,7 @@
             if (cbio.util.checkNullOrUndefined(proteinChange)) {
                 return "";
             }
-        
+
 	    var prefix = "p.";
 
 	    if (proteinChange.indexOf(prefix) !== -1)

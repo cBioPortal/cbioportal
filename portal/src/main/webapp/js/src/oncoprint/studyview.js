@@ -5,10 +5,94 @@ $(document).ready(function() {
 		interpolate: /\{\{(.+?)\}\}/g
 	};
 	$('#oncoprint_controls').html(_.template($('#main-controls-template').html())());
+        
+        var clinicalElementsArray = [];
+        var GenePanelData = [];
+        var genePanelClinicals = new ClinicalColl();
+        clinicalElementsArray.push(
+        genePanelClinicals.fetch({
+        type: "POST",
+        data: {
+           cancer_study_id: cancer_study_id_selected,
+           attribute_id: "GENE_PANEL",
+           case_list: cases
+        },
+        success: function(response) {
+               GenePanelData = response.toJSON();
+           }
+        }));
+        
+        //fetch genepanel
+        var genepanelFiles = ["api/genepanel/IMPACT341","api/genepanel/IMPACT410"];
+        var genePanel = new Array();
+        var gainGenepanel = function(filename,datafetchArray)
+        {
+            datafetchArray.push(
+            $.getJSON(filename,function(result){
+                genePanel[(filename.split("/"))[2]] = result;
+            }));
+        }
 
-	var geneDataColl = new GeneDataColl();
+        for(var i=0; i<genepanelFiles.length; i++)
+        {
+            var genepanelFilename = genepanelFiles[i];
+            gainGenepanel(genepanelFilename,clinicalElementsArray);
+        }
+        //fetch genepanel data end 
+            
+        $.when.apply(null, clinicalElementsArray).done(function() {
+            //process genepanel attribute to patient format
+            var GenePanelDataPatient = [];
+            if(GenePanelData.length>0)
+            {
+                if(typeof(window.PortalGlobals) !== 'undefined')
+                {
+                    var SampleIdMapPatientId = window.PortalGlobals.getPatientSampleIdMap();
+                }
 
-	geneDataColl.fetch({
+                for(var i = 0; i < GenePanelData.length; i++)
+                {
+                    var patiendId = SampleIdMapPatientId[GenePanelData[i].sample];
+
+                    var findIndexValue = function(){
+                        for(var j=0; j < GenePanelDataPatient.length; j++)
+                        {
+                            if(patiendId === GenePanelDataPatient[j].patient)
+                            {
+                                return j;
+                            }
+                        }
+                        return -1;
+                    };
+
+                    var positionValue = findIndexValue();
+                    if(positionValue > -1)
+                    {
+                       if(GenePanelDataPatient[positionValue].attr_val !== GenePanelData[i].attr_val)
+                       {
+                           GenePanelDataPatient[positionValue].attr_val = GenePanelDataPatient[positionValue].attr_val+ ","+GenePanelData[i].attr_val;
+                       }
+                    }
+                    else
+                    {
+                      var genepanelAttibuteDataPatient = {attr_id:"GENE_PANEL",patient:patiendId}; 
+                      genepanelAttibuteDataPatient.attr_val = GenePanelData[i].attr_val;
+                      GenePanelDataPatient.push(genepanelAttibuteDataPatient);
+                    }
+                }
+            }
+            // process end
+
+            var genepanelValues; 
+            genepanelValues = {
+                genepaneldata:GenePanelData,
+                genepaneldatapatient:GenePanelDataPatient,
+                genepanel:genePanel
+            };
+            
+            var geneDataColl = new GeneDataColl();
+
+            geneDataColl.fetch({
 		type: "POST",
 		data: {
 			cancer_study_id: cancer_study_id_selected,
@@ -34,6 +118,7 @@ $(document).ready(function() {
 			window.onc_obj = setUpOncoprint('oncoprint_body', {
 				sample_to_patient: window.PortalGlobals.getPatientSampleIdMap(),
 				gene_data: response.toJSON(),
+                                genepanel_data:genepanelValues,
 				toolbar_selector: '#oncoprint-diagram-toolbar-buttons',
 				toolbar_fade_hitzone_selector: '#oncoprint',
 				sample_list: window.PortalGlobals.getCases().trim().split(/\s+/),
@@ -49,4 +134,5 @@ $(document).ready(function() {
 			});
 		}
 	});
+    });
 });

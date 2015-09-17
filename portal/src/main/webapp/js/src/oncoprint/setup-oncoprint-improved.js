@@ -7,6 +7,44 @@ window.setUpOncoprint = function(ctr_id, config) {
 	var sample_to_patient = config.sample_to_patient;
 	var gene_data = config.gene_data;
 	
+        var genepanelValues = config.genepanelValues;
+        
+        //get to process data from gene panel
+        if(genepanelValues.genepaneldata.length>0)
+        {
+            for(var i=0; i < gene_data.length; i++)
+            {
+                var geneIndexValue;
+                var genepanelStableId;
+                if(genepanelValues.genepaneldata[i] !== undefined)
+                {
+                    genepanelStableId = genepanelValues.genepaneldata[i].attr_val;
+                }
+                else
+                {
+                    genepanelStableId = undefined;
+                }
+
+                for(var j= 0; j < config.gene_order.length; j++)
+                {
+                    if(genepanelStableId !== undefined)
+                    {
+                        geneIndexValue = _.find(genepanelValues.genepanel[genepanelStableId].geneList, function(gene){ return gene === gene_data[i+j*gene_data.length].gene; }); 
+                    }
+                    else
+                    {
+                        geneIndexValue = false;
+                    }
+
+                    if(gene_data[i+j*gene_data.length].gene !== undefined && !geneIndexValue && gene_data[i+j*gene_data.length].mutation === undefined && gene_data[i+j*gene_data.length].cna === undefined)
+                    {
+                        gene_data[i+j*gene_data.length].NA = true; 
+                    }
+                }
+            }
+        }
+        //process gene panel end
+        
 	var genetic_alteration_tracks = [];
 	var clinical_tracks = [];
 	
@@ -561,7 +599,7 @@ window.setUpOncoprint = function(ctr_id, config) {
 			});
 			$(toolbar_selector + " #select_clinical_attributes_chzn").mouseenter(function () {
 				$(toolbar_selector + " #select_clinical_attributes_chzn .chzn-search input").focus();
-			});
+			});                      
 			var onSelectClinicalAttribute = function(clinical_attr) {
 				var def = new $.Deferred();
 				oncoprintFadeTo(0.5);

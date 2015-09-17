@@ -328,9 +328,11 @@ var StudyViewBoilerplate ={
     
     customDialogDiv:
             "<div class='hidden' id='study-view-case-select-custom-dialog'>" +
-                "Please input sample IDs (one per line)" +
+                "Please input IDs (one per line)" +
                 "<textarea rows='20' cols='50' id='study-view-case-select-custom-input'></textarea><br/>" +
-                "<button type='button' id='study-view-case-select-custom-submit-btn'>Select</button>" +
+                '<input type="radio" name="study-view-case-select-custom-radio" value="sample" checked>By sample ID' +
+                '<input type="radio" name="study-view-case-select-custom-radio" value="patient">By patient ID' +
+                "<button type='button' id='study-view-case-select-custom-submit-btn' style='float: right;'>Select</button>" +
             "</div>",
     addChartDiv:
             "<select id='study-view-add-chart'><option id=''>Add Chart</option></select>",

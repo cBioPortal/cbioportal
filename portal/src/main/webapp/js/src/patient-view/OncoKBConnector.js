@@ -329,7 +329,7 @@ var OncoKBConnector = (function () {
 })();
 
 $.fn.dataTableExt.oSort['oncokb-level-asc'] = function (x, y) {
-    var levels = ['R3', 'R2', '4', '3', '2B', '2A', 'R1', '1', '0'];
+    var levels = ['R3', '4', '3', '2B', 'R2', '2A', 'R1', '1', '0'];
     var xIndex = levels.indexOf(x);
     var yIndex = levels.indexOf(y);
     if (xIndex < yIndex) {
@@ -340,7 +340,7 @@ $.fn.dataTableExt.oSort['oncokb-level-asc'] = function (x, y) {
 };
 
 $.fn.dataTableExt.oSort['oncokb-level-desc'] = function (x, y) {
-    var levels = ['R3', 'R2', '4', '3', '2B', '2A', 'R1', '1', '0'];
+    var levels = ['R3', '4', '3', '2B', 'R2', '2A', 'R1', '1', '0'];
     var xIndex = levels.indexOf(x);
     var yIndex = levels.indexOf(y);
     if (xIndex < yIndex) {

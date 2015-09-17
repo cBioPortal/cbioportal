@@ -1556,7 +1556,7 @@
         var level = '';
         var treatments = genomicEventObs.mutations.getValue(hashId, 'oncokb').treatments;
         var treatmentsL = treatments.length;
-        var levels = ['4', '3', '2B','2A', '1', '0', 'R3', 'R2', 'R1'];
+        var levels = ['R3', '4', '3', '2B', 'R2', '2A', 'R1', '1', '0'];
         var highestLevelIndex = -1;
         for(var i = 0; i < treatmentsL; i++){
             var _level = treatments[i].level.match(/LEVEL_(R?\d[AB]?)/);

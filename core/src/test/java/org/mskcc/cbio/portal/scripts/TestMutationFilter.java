@@ -35,26 +35,40 @@ package org.mskcc.cbio.portal.scripts;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.ExtendedMutation;
 import org.mskcc.cbio.portal.scripts.MutationFilter;
 import org.mskcc.cbio.portal.scripts.ResetDatabase;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Transactional;
+
+import static org.junit.Assert.*;
 
 /**
  * JUnit tests for MutationFilter class.
  */
-public class TestMutationFilter extends TestCase {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
+@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@Transactional
+public class TestMutationFilter {
+	
+	@Before
+	public void setUp() throws DaoException {
+	      // load genes
+	      loadGene( "FOO", 3L  );
+	      loadGene( "BAR", 234L  );
+	      loadGene( "BIG", 234234L  );
+	}
    
-   protected void setUp(){
-      try {
-         ResetDatabase.resetDatabase();
-      } catch (DaoException e) {
-         e.printStackTrace();
-      }
-   }
-   
+   @Test
    public void testBadWhiteLists( ){
       try {
          new MutationFilter("no_such_file");
@@ -64,6 +78,7 @@ public class TestMutationFilter extends TestCase {
       }
    }
    
+   @Test
    public void testNoWhitelists( ){
       MutationFilter myMutationFilter = new MutationFilter( );
       alwaysRejectTheseMutations( myMutationFilter );
@@ -123,12 +138,9 @@ public class TestMutationFilter extends TestCase {
 
    }
 
+   @Test
    public void testAcceptMutationGermlineWhiteList() throws DaoException {
       
-      // load genes
-      loadGene( "FOO", 3L  );
-      loadGene( "BAR", 234L  );
-      loadGene( "BIG", 234234L  );
                  
       // create MutationFilter
 	  // TBD: change this to use getResourceAsStream()
@@ -153,7 +165,7 @@ public class TestMutationFilter extends TestCase {
       // a germline on whitelist, but also missense
       nowTestAcceptMutation( 
             myMutationFilter,
-            false, 
+            true, 
             3L, 
             "Unknown",        // validationStatus,
             "GERMLINE",        // mutationStatus,
@@ -163,7 +175,7 @@ public class TestMutationFilter extends TestCase {
       // a germline NOT on whitelist
       nowTestAcceptMutation( 
             myMutationFilter,
-            false, 
+            true, 
             9999L, 
             "Unknown",        // validationStatus,
             "GERMLINE",        // mutationStatus,

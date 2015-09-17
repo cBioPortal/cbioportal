@@ -32,21 +32,24 @@
 
 package org.mskcc.cbio.portal.html;
 
-import junit.framework.TestCase;
-import org.mskcc.cbio.portal.model.ExtendedMutation;
-import org.mskcc.cbio.portal.model.CanonicalGene;
-import org.mskcc.cbio.portal.html.special_gene.SpecialGeneFactory;
-import org.mskcc.cbio.portal.html.special_gene.SpecialGene;
+import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
+
+import org.junit.Test;
+import org.mskcc.cbio.portal.html.special_gene.SpecialGene;
+import org.mskcc.cbio.portal.html.special_gene.SpecialGeneFactory;
+import org.mskcc.cbio.portal.model.CanonicalGene;
+import org.mskcc.cbio.portal.model.ExtendedMutation;
 
 /**
  * Tests the Special Mutation Util Class.
  *
  * @author Ethan Cerami.
  */
-public class TestSpecialGene extends TestCase {
-
+public class TestSpecialGene {
+	
+	@Test
     public void test1() {
         //  From:  http://www.pharmgkb.org/search/annotatedGene/brca1/variant.jsp
         //  we know the BRCA1 187 DEL AG Maps to: Chr17: 38529572 (hg18)
@@ -64,7 +67,8 @@ public class TestSpecialGene extends TestCase {
                 "founder mutations are noted.",
                 specialGene.getFooter());
     }
-
+	
+	@Test
     public void test2() {
         //  From:  http://www.pharmgkb.org/search/annotatedGene/brca1/variant.jsp
         //  we know the BRCA1 187 DEL AG Maps to: Chr17: 38529572 (hg18)
@@ -90,13 +94,13 @@ public class TestSpecialGene extends TestCase {
         assertEquals ("181", dataFieldList.get(0));
         assertEquals ("&nbsp;", dataFieldList.get(1));
     }
-
+    @Test
     public void test4() {
         CanonicalGene tp53 = new CanonicalGene(12345, "TP53");
         SpecialGene specialGene = SpecialGeneFactory.getInstance(tp53.getHugoGeneSymbolAllCaps());
         assertEquals (null, specialGene);
     }
-
+    @Test
     public void test5() {
         //  From:  http://www.pharmgkb.org/search/annotatedGene/brca1/variant.jsp
         //  we know the BRCA1 5385insC Maps to: Chr17: 38462606 (hg 18)
@@ -111,7 +115,7 @@ public class TestSpecialGene extends TestCase {
         assertEquals ("5385", dataFieldList.get(0));
         assertEquals ("5382/5385 insC Founder Mutation", dataFieldList.get(1));
     }
-
+    @Test
     public void test6() {
         CanonicalGene brca2 = createBrca2();
         ExtendedMutation mutation = new ExtendedMutation(brca2, "XXX", "XXX", "XXX");
@@ -124,7 +128,7 @@ public class TestSpecialGene extends TestCase {
         assertEquals ("6174", dataFieldList.get(0));
         assertEquals ("6174delT founder mutation.", dataFieldList.get(1));
     }
-
+    @Test
     public void test7() {
         CanonicalGene brca1 = createBrca1();
         ExtendedMutation mutation = new ExtendedMutation(brca1, "XXX", "XXX", "XXX");
@@ -136,7 +140,7 @@ public class TestSpecialGene extends TestCase {
         assertEquals (2, dataFieldList.size());
         assertEquals ("--", dataFieldList.get(0));
     }
-
+    
     private CanonicalGene createBrca1() {
         return new CanonicalGene(1, "BRCA1");
     }

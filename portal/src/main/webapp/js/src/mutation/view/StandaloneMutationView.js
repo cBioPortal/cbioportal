@@ -99,7 +99,8 @@ var StandaloneMutationView = Backbone.View.extend({
 
 		loadExampleData.click(function(event) {
 			event.preventDefault();
-			textArea.val(_.template($("#example_mutation_data_template").html(), {}).trim());
+			var templateFn = _.template($("#example_mutation_data_template").html());
+			textArea.val(templateFn({}).trim());
 		});
 
 		releaseNotes.click(function(event) {

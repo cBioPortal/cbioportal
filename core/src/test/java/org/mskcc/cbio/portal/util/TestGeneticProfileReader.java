@@ -32,14 +32,19 @@
 
 package org.mskcc.cbio.portal.util;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 import org.mskcc.cbio.portal.dao.DaoGeneticProfile;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.GeneticAlterationType;
 import org.mskcc.cbio.portal.model.GeneticProfile;
-import org.mskcc.cbio.portal.scripts.ImportTypesOfCancers;
-import org.mskcc.cbio.portal.scripts.ResetDatabase;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Transactional;
+
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -47,39 +52,31 @@ import java.util.ArrayList;
 /**
  * JUnit test for GeneticProfileReader class.
  */
-public class TestGeneticProfileReader extends TestCase {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
+@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@Transactional
+public class TestGeneticProfileReader {
 
+	@Test
     public void testGeneticProfileReader() throws Exception {
-        ResetDatabase.resetDatabase();
         // load cancers
 		// TBD: change this to use getResourceAsStream()
-        ImportTypesOfCancers.load(new ProgressMonitor(), new File("target/test-classes/cancers.txt"));
-
-        DaoGeneticProfile.deleteAllRecords();
-
-        DaoCancerStudy.deleteAllRecords();
-
-        CancerStudy cancerStudy = new CancerStudy("GBM", "GBM Description",
-                "gbm", "gbm", true);
-        DaoCancerStudy.addCancerStudy(cancerStudy);
 		// TBD: change this to use getResourceAsStream()
+		
         File file = new File("target/test-classes/genetic_profile_test.txt");
         GeneticProfile geneticProfile = GeneticProfileReader.loadGeneticProfile(file);
         assertEquals("Barry", geneticProfile.getTargetLine());
         assertEquals("Blah Blah.", geneticProfile.getProfileDescription());
 
-        cancerStudy = DaoCancerStudy.getCancerStudyByStableId("gbm");
+        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId("study_tcga_pub");
         ArrayList<GeneticProfile> list = DaoGeneticProfile.getAllGeneticProfiles
                 (cancerStudy.getInternalId());
         geneticProfile = list.get(0);
 
         assertEquals(cancerStudy.getInternalId(), geneticProfile.getCancerStudyId());
-        assertEquals("Barry's CNA Data", geneticProfile.getProfileName());
+        assertEquals("Putative copy-number alterations from GISTIC", geneticProfile.getProfileName());
         assertEquals(GeneticAlterationType.COPY_NUMBER_ALTERATION,
                 geneticProfile.getGeneticAlterationType());
-
-        geneticProfile = GeneticProfileReader.loadGeneticProfile(file);
-        assertEquals("Barry", geneticProfile.getTargetLine());
-        assertEquals("Blah Blah.", geneticProfile.getProfileDescription());
     }
 }

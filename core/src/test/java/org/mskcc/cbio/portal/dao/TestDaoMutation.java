@@ -32,18 +32,46 @@
 
 package org.mskcc.cbio.portal.dao;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.scripts.ResetDatabase;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
 
 import java.util.*;
 
 /**
  * JUnit tests for DaoMutation class.
  */
-public class TestDaoMutation extends TestCase {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
+@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@Transactional
+public class TestDaoMutation {
+	
+	int geneticProfileId;
+	int sampleId;
+	CanonicalGene gene;
+	
+	@Before 
+	public void setUp() throws DaoException {
+		int studyId = DaoCancerStudy.getCancerStudyByStableId("study_tcga_pub").getInternalId();
+		ArrayList<GeneticProfile> list = DaoGeneticProfile.getAllGeneticProfiles(studyId);
+		geneticProfileId = list.get(0).getGeneticProfileId();
+		
+		sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-A1-A0SB-01").getInternalId();
+		
+        gene = new CanonicalGene(321, "BLAH");
+        DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
+        daoGeneOptimized.addGene(gene);
+	}
 
+	@Test
 	public void testDaoMutation() throws DaoException {
 		MySQLbulkLoader.bulkLoadOn();
 		runTheTest();
@@ -51,20 +79,14 @@ public class TestDaoMutation extends TestCase {
 
 	private void runTheTest() throws DaoException{
 		//  Add a fake gene
-		DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-		CanonicalGene blahGene = new CanonicalGene(321, "BLAH");
-		daoGene.addGene(blahGene);
-
-		ResetDatabase.resetDatabase();
-        createSamples();
 
 		ExtendedMutation mutation = new ExtendedMutation();
 
-                mutation.setMutationEventId(1);
-                mutation.setKeyword("key");
-		mutation.setGeneticProfileId(1);
-		mutation.setSampleId(1);
-		mutation.setGene(blahGene);
+        mutation.setMutationEventId(1);
+        mutation.setKeyword("key");
+		mutation.setGeneticProfileId(geneticProfileId);
+		mutation.setSampleId(sampleId);
+		mutation.setGene(gene);
 		mutation.setValidationStatus("validated");
 		mutation.setMutationStatus("somatic");
 		mutation.setMutationType("missense");
@@ -118,13 +140,13 @@ public class TestDaoMutation extends TestCase {
 
 		// if bulkLoading, execute LOAD FILE
 		if( MySQLbulkLoader.isBulkLoad()){
-                    MySQLbulkLoader.flushAll();
+            MySQLbulkLoader.flushAll();
 		}
-		ArrayList<ExtendedMutation> mutationList = DaoMutation.getMutations(1, 1, 321);
+		ArrayList<ExtendedMutation> mutationList = DaoMutation.getMutations(geneticProfileId, 1, 321);
 		validateMutation(mutationList.get(0));
 
 		//  Test the getGenesInProfile method
-		Set<CanonicalGene> geneSet = DaoMutation.getGenesInProfile(1);
+		Set<CanonicalGene> geneSet = DaoMutation.getGenesInProfile(geneticProfileId);
 		assertEquals (1, geneSet.size());
 
 		ArrayList<CanonicalGene> geneList = new ArrayList<CanonicalGene>(geneSet);
@@ -135,8 +157,8 @@ public class TestDaoMutation extends TestCase {
 	}
 
 	private void validateMutation(ExtendedMutation mutation) {
-		assertEquals (1, mutation.getGeneticProfileId());
-		assertEquals (1, mutation.getSampleId());
+		assertEquals (geneticProfileId, mutation.getGeneticProfileId());
+		assertEquals (sampleId, mutation.getSampleId());
 		assertEquals (321, mutation.getEntrezGeneId());
 		assertEquals ("validated", mutation.getValidationStatus());
 		assertEquals ("somatic", mutation.getMutationStatus());
@@ -148,7 +170,7 @@ public class TestDaoMutation extends TestCase {
 		assertEquals ("SOLiD", mutation.getSequencer());
 		assertEquals ("BRCA1_123", mutation.getProteinChange());
 		assertEquals ("H", mutation.getFunctionalImpactScore());
-		assertEquals (Float.MIN_VALUE, mutation.getFisValue());
+		assertEquals (Float.MIN_VALUE, mutation.getFisValue(), 1E-30);
 		assertEquals ("link1", mutation.getLinkXVar());
 		assertEquals ("link2", mutation.getLinkPdb());
 		assertEquals ("link3", mutation.getLinkMsa());
@@ -186,12 +208,12 @@ public class TestDaoMutation extends TestCase {
 		assertEquals(678, mutation.getOncotatorProteinPosEnd());
 		assertEquals (true, mutation.isCanonicalTranscript());
 	}
-
-    private void createSamples() throws DaoException {
-        CancerStudy study = new CancerStudy("study", "description", "id", "brca", true);
-        Patient p = new Patient(study, "TCGA-1");
-        int pId = DaoPatient.addPatient(p);
-        Sample s = new Sample("1234", pId, "type");
-        DaoSample.addSample(s);
-    }
+//
+//    private void createSamples() throws DaoException {
+//        CancerStudy study = new CancerStudy("study", "description", "id", "brca", true);
+//        Patient p = new Patient(study, "TCGA-1");
+//        int pId = DaoPatient.addPatient(p);
+//        Sample s = new Sample("1234", pId, "type");
+//        DaoSample.addSample(s);
+//    }
 }

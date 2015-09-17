@@ -313,7 +313,7 @@ Gistic.UI = ( function() {
 
             var genes = GeneSet($('#gene_list').val()).getAllGenes();
 
-            var current_selection = $('#select_cancer_type').val();
+            var current_selection = $('#select_single_study').val();
 
             // if Gistic has never been run then Gistic.last_selection =
             // undefined, otherwise, check to prevent multiple AJAXs for the

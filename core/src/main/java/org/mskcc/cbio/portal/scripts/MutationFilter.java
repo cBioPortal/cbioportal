@@ -181,6 +181,7 @@ public class MutationFilter {
 
       // Do not accept 3'UTR or 5' UTR Mutations
       if( safeStringTest( mutation.getMutationType(), "3'UTR" ) ||
+		  safeStringTest( mutation.getMutationType(), "3'Flank" ) ||
 		  safeStringTest( mutation.getMutationType(), "5'UTR" ) ){
 		  utrRejects++;
          return false;

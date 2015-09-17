@@ -53,7 +53,7 @@
     };
     
     var oncoKBDataInject = function(oTable, tableId) {
-        if(!genomicEventObs.oncoKBBuilt) {
+        if(!oncoKBDataReady) {
             OncoKBConnector.init({'url': oncokbUrl||''});
             OncoKBConnector.oncokbAccess(function(flag){
                 console.log(flag);
@@ -63,7 +63,6 @@
                     addOncoKBListener(oTable, tableId);
                 }
             });
-            genomicEventObs.oncoKBBuilt = true;
         }else {
             addOncoKBListener(oTable, tableId);
         }
@@ -245,6 +244,16 @@
                                     ret += "&nbsp;<span style='background-color:red;font-size:x-small;' class='"
                                             +table_id+"-tip' alt='Germline mutation'>Germline</span>";
                                 ret += "&nbsp;<span class='oncokb oncokb_alteration' alteration='"+aa+"' hashId='"+source[0]+"' style='display:none'><img width='12' height='12' src='images/file.svg'/></span><img width='12' height='12' class='loader' src='images/ajax-loader.gif'/>";
+
+	                            var aaOriginal = mutations.getValue(source[0], 'aa-orig');
+
+	                            if (window.cancerStudyName.toLowerCase().indexOf("msk-impact") != -1 &&
+	                                isDifferentProteinChange(aa, aaOriginal))
+	                            {
+		                            ret += "&nbsp;<span class='"+table_id+"-tip'" +
+		                                   "alt='The original annotation file indicates a different value: <b>"+normalizeProteinChange(aaOriginal)+"</b>'>" +
+		                                   "<img height=12 width=12 style='opacity:0.2' src='images/warning.gif'></span>";
+	                            }
 
                                 return ret;
                             } else {
@@ -803,7 +812,7 @@
                                     var xvia = ma['xvia'];
                                     if (xvia!=null) {
                                         if (xvia.indexOf('http://')!==0) xvia='http://'+xvia;
-                                        
+                                        xvia = xvia.replace("getma.org", "mutationassessor.org");
                                         tip += "<div class=\"mutation-assessor-main-link mutation-assessor-link\">" +
                                                 "<a href=\""+xvia+"\" target=\"_blank\"><img height=\"15\" width=\"19\" src=\"images/ma.png\"> Go to Mutation Assessor</a></div>";
                                     }
@@ -811,12 +820,14 @@
                                     var msa = ma['msa'];
                                     if (msa&&msa!=='NA') {
                                         if (msa.indexOf('http://')!==0) msa='http://'+msa;
+                                        msa=msa.replace("getma.org", "mutationassessor.org");
                                         tip += "<div class=\"mutation-assessor-msa-link mutation-assessor-link\">"+
                                                "<a href=\""+msa+"\" target=\"_blank\"><span class=\"ma-msa-icon\">msa</span> Multiple Sequence Alignment</a></div>";
                                     }
                                     
                                     var pdb = ma['pdb'];
                                     if (pdb&&pdb!=='NA') {
+                                        pdb=pdb.replace("getma.org", "mutationassessor.org");
                                         if (pdb.indexOf('http://')!==0) pdb='http://'+pdb;
                                         tip += "<div class=\"mutation-assessor-3d-link mutation-assessor-link\">"+
                                                "<a href=\""+pdb+"\" target=\"_blank\"><span class=\"ma-3d-icon\">3D</span> Mutation Assessor 3D View</a></div>";
@@ -1288,6 +1299,85 @@
         mut_table.fnFilter("", mutTableIndices["id"]);
         $('#mutation_id_filter_msg').hide();
     }
+
+    // TODO: DUPLICATED FUNCTION from mutation-mapper.
+    // we should use mutation mapper as a library in patient view...
+    /**
+     * Checks if given 2 protein changes are completely different from each other.
+     *
+     * @param proteinChange
+     * @param aminoAcidChange
+     * @returns {boolean}
+     */
+    function isDifferentProteinChange(proteinChange, aminoAcidChange)
+    {
+	    var different = false;
+
+	    proteinChange = normalizeProteinChange(proteinChange);
+	    aminoAcidChange = normalizeProteinChange(aminoAcidChange);
+
+	    // if the normalized strings are exact, no need to do anything further
+	    if (aminoAcidChange !== proteinChange)
+	    {
+		    // assuming each uppercase letter represents a single protein
+		    var proteinMatch1 = proteinChange.match(/[A-Z]/g);
+		    var proteinMatch2 = aminoAcidChange.match(/[A-Z]/g);
+
+		    // assuming the first numeric value is the location
+		    var locationMatch1 = proteinChange.match(/[0-9]+/);
+		    var locationMatch2 = aminoAcidChange.match(/[0-9]+/);
+
+		    // assuming first lowercase value is somehow related to
+		    var typeMatch1 = proteinChange.match(/([a-z]+)/);
+		    var typeMatch2 = aminoAcidChange.match(/([a-z]+)/);
+
+		    if (locationMatch1 && locationMatch2 &&
+		        locationMatch1.length > 0 && locationMatch2.length > 0 &&
+		        locationMatch1[0] != locationMatch2[0])
+		    {
+			    different = true;
+		    }
+		    else if (proteinMatch1 && proteinMatch2 &&
+		             proteinMatch1.length > 0 && proteinMatch2.length > 0 &&
+		             proteinMatch1[0] !== "X" && proteinMatch2[0] !== "X" &&
+		             proteinMatch1[0] !== proteinMatch2[0])
+		    {
+			    different = true;
+		    }
+		    else if (proteinMatch1 && proteinMatch2 &&
+		             proteinMatch1.length > 1 && proteinMatch2.length > 1 &&
+		             proteinMatch1[1] !== proteinMatch2[1])
+		    {
+			    different = true;
+		    }
+		    else if (typeMatch1 && typeMatch2 &&
+		             typeMatch1.length > 0 && typeMatch2.length > 0 &&
+		             typeMatch1[0] !== typeMatch2[0])
+		    {
+			    different = true;
+		    }
+	    }
+
+	    return different;
+    }
+
+    // TODO: DUPLICATED FUNCTION from mutation-mapper.
+    function normalizeProteinChange(proteinChange)
+    {
+            if (cbio.util.checkNullOrUndefined(proteinChange)) {
+                return "";
+            }
+        
+	    var prefix = "p.";
+
+	    if (proteinChange.indexOf(prefix) !== -1)
+	    {
+		    proteinChange = proteinChange.substr(proteinChange.indexOf(prefix) + prefix.length);
+	    }
+
+	    return proteinChange;
+    }
+
 </script>
 
 <div id="mutation_wait"><img src="images/ajax-loader.gif"/></div>

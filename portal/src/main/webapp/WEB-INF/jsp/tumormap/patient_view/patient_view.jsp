@@ -115,8 +115,8 @@ boolean showSimilarPatient = false;//showPlaceHoder & (showMutations | showCNA);
 boolean hasCnaSegmentData = ((Boolean)request.getAttribute(PatientView.HAS_SEGMENT_DATA));
 boolean hasAlleleFrequencyData = ((Boolean)request.getAttribute(PatientView.HAS_ALLELE_FREQUENCY_DATA));
 boolean showGenomicOverview = showMutations | hasCnaSegmentData;
-boolean showClinicalTrials = true;
-boolean showDrugs = true;
+boolean showClinicalTrials = GlobalProperties.showClinicalTrialsTab();
+boolean showDrugs = GlobalProperties.showDrugsTab();
 boolean showSamplesTable = isPatientView;
 
 double[] genomicOverviewCopyNumberCnaCutoff = GlobalProperties.getPatientViewGenomicOverviewCnaCutoff();
@@ -884,7 +884,7 @@ function guessClinicalData(clinicalData, paramNames) {
 
 function outputClinicalData() {
     var n=caseIds.length;
-    if (n>1) initCaseMetaData();
+    if (n>0) initCaseMetaData();
     
     initNav();
 
@@ -922,7 +922,7 @@ function outputClinicalData() {
         var caseId = caseIds[i];
 
         sample_recs += "<div class='sample-record-inline more-sample-info' alt='"+caseId+"'>";
-        if (n>1) {
+        if (n>0) {
             sample_recs += "<svg width='12' height='12' class='case-label-header' alt='"+caseId+"'></svg>&nbsp;";
         }
         sample_recs += "<b><u><a style='color: #1974b8;' href='"+cbio.util.getLinkToSampleView(cancerStudyId,caseId)+"'>"+caseId+"</a></b></u><a>&nbsp;";
@@ -964,7 +964,7 @@ function outputClinicalData() {
     }
 
     
-    if (n>1) {
+    if (n>0) {
         plotCaseLabel('.case-label-header', false, true);
     }
   
@@ -1029,7 +1029,7 @@ function outputClinicalData() {
     
     function formatPatientInfo(clinicalData) {
         var patientInfo = [];
-        var gender = guessClinicalData(clinicalData, ['GENDER']);
+        var gender = guessClinicalData(clinicalData, ['GENDER','SEX']);
         if (gender!==null)
             patientInfo.push(gender);
         var age = guessClinicalData(clinicalData, ['AGE']);

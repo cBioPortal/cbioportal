@@ -34,24 +34,29 @@ package org.mskcc.cbio.portal.util;
 
 import java.io.File;
 
-import junit.framework.TestCase;
-
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 import org.mskcc.cbio.portal.model.CancerStudy;
-import org.mskcc.cbio.portal.scripts.ImportTypesOfCancers;
-import org.mskcc.cbio.portal.scripts.ResetDatabase;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Transactional;
+
+import static org.junit.Assert.*;
 
 /**
  * JUnit test for CancerStudyReader class.
  */
-public class TestCancerStudyReader extends TestCase {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
+@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@Transactional
+public class TestCancerStudyReader {
 
+	@Test
    public void testCancerStudyReader() throws Exception {
-      ResetDatabase.resetDatabase();
-      // load cancers
-	  // TBD: change this to use getResourceAsStream()
-      ImportTypesOfCancers.load(new ProgressMonitor(), new File("target/test-classes/cancers.txt"));
-	  // TBD: change this to use getResourceAsStream()
+
       File file = new File("target/test-classes/cancer_study.txt");
       CancerStudy cancerStudy = CancerStudyReader.loadCancerStudy( file );
       

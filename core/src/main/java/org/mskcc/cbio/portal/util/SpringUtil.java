@@ -32,17 +32,36 @@
 
 package org.mskcc.cbio.portal.util;
 
-import org.springframework.context.support.GenericXmlApplicationContext;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import javax.sql.DataSource;
 
 public class SpringUtil
 {
-    public static AccessControl getAccessControl()
+	private static final Log log = LogFactory.getLog(SpringUtil.class);
+
+	private static AccessControl accessControl;
+	private static ApplicationContext context;
+
+    public static void setAccessControl(AccessControl accessControl) {
+    	log.debug("Setting access control");
+		SpringUtil.accessControl = accessControl;
+	}
+
+	public static AccessControl getAccessControl()
     {
-    	GenericXmlApplicationContext ctx = new GenericXmlApplicationContext();
-        ctx.getEnvironment().setActiveProfiles(GlobalProperties.authenticationMethod());
-        ctx.load("classpath:applicationContext-security.xml");
-        ctx.refresh();
-		return (AccessControl)ctx.getBean("accessControl");
+		return accessControl;
     }
+
+	public static void initDataSource()
+	{
+		if (SpringUtil.context == null) {
+			context = new ClassPathXmlApplicationContext("classpath:applicationContext-business.xml");
+		}
+	}
 
 }

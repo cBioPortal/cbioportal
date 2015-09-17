@@ -1,0 +1,34 @@
+sudo: false
+language: java
+jdk: openjdk7
+
+cache:
+    directories:
+        - $HOME/.m2
+        - $HOME/maven
+
+env:
+    - MAVEN_VERSION=3.3.3
+
+install:
+    - mkdir -p ~/maven
+    - |
+        test -d ~/maven/$MAVEN_VERSION/bin || { \
+            find ~/maven -mindepth 1 -delete && \
+            mkdir -p ~/maven/$MAVEN_VERSION && \
+            wget -O - http://www.eu.apache.org/dist/maven/maven-3/$MAVEN_VERSION/binaries/apache-maven-$MAVEN_VERSION-bin.tar.gz | \
+                tar -C ~/maven/$MAVEN_VERSION --strip-components=1 -xzf -; }
+
+before_script:
+    - mkdir -p ~/.m2
+    - cp .travis/settings.xml ~/.m2
+    - mysql --user travis --password= <<< 'CREATE DATABASE cgds_test'
+    - cp src/main/resources/spring.security.url.intercepts .travis/src/main/resources
+
+script:
+    - export PORTAL_HOME=$(pwd)/.travis
+    - ~/maven/$MAVEN_VERSION/bin/mvn -e -DPORTAL_HOME=$PORTAL_HOME -Ddb.user=travis -Ddb.password= test
+
+notifications:
+  slack: cbioportal:S2qVTFTFMtizONhCOe8BYxS6
+  

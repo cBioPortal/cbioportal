@@ -54,6 +54,9 @@
 	max-width: 600px; /* Change this? */
 	min-width: 50px; /* ...and this! */
 }
+.patient-view-scatter-qtip-wide {
+    max-width: 600px !important;
+}
 </style>
 
 <%
@@ -174,7 +177,7 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
             content: $('#mut_cna_scatter_dialog').remove(),
             show: {delay: 200, event: "mouseover" },
             hide: {fixed: true, delay: 100,  event: "mouseout"},
-            style: { classes: 'qtip-light qtip-rounded qtip-wide' },
+            style: { classes: 'qtip-light qtip-rounded patient-view-scatter-qtip-wide' },
             position: {my:'top right',at:'top left',viewport: $(window)},
             events: {
                 render: function(event, api) {

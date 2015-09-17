@@ -32,13 +32,18 @@
 
 package org.mskcc.cbio.portal.web_api;
 
-import junit.framework.TestCase;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
-import org.mskcc.cbio.portal.scripts.ImportTypesOfCancers;
-import org.mskcc.cbio.portal.scripts.ResetDatabase;
-import org.mskcc.cbio.portal.util.ProgressMonitor;
 import org.mskcc.cbio.portal.model.CancerStudy;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Transactional;
+
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,7 +53,11 @@ import java.io.IOException;
  *
  * @author Ethan Cerami, Arthur Goldberg.
  */
-public class TestGetTypesOfCancer extends TestCase {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
+@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@Transactional
+public class TestGetTypesOfCancer {
 
     /**
      * Tests Get Types of Cancer.
@@ -56,8 +65,9 @@ public class TestGetTypesOfCancer extends TestCase {
      * @throws IOException IO Error.
      * @throws ProtocolException ProtocolError.
      */
-    public void testGetTypesOfCancer() throws DaoException, IOException, ProtocolException {
-        ResetDatabase.resetDatabase();
+	@Ignore
+    @Test
+    public void testGetTypesOfCancerEmpty() throws DaoException, IOException, ProtocolException {
 
         // First, verify that protocol exception is thrown when there are no cancer types
         try {
@@ -66,15 +76,15 @@ public class TestGetTypesOfCancer extends TestCase {
         } catch (ProtocolException e) {
             assertEquals(e.getMsg(), "No Types of Cancer Available.");
         }
-
-        // then, load cancers
-		// TBD: change this to use getResourceAsStream()
-        ImportTypesOfCancers.load(new ProgressMonitor(), new File("target/test-classes/cancers.txt"));
+	}
+	
+    @Test
+    public void testGetTypesOfCancer() throws DaoException, IOException, ProtocolException {
 
         //  Verify a few of the data lines
         String output = GetTypesOfCancer.getTypesOfCancer();
-        assertTrue(output.contains("GBM\tGlioblastoma multiforme"));
-        assertTrue(output.contains("PRAD\tProstate adenocarcinoma"));
+        assertTrue(output.contains("acbc\tAdenoid Cystic Breast Cancer"));
+        assertTrue(output.contains("brca\tBreast Invasive Carcinoma"));
 
         //  Verify header
         String lines[] = output.split("\n");
@@ -87,8 +97,9 @@ public class TestGetTypesOfCancer extends TestCase {
      * @throws IOException IO Error.
      * @throws ProtocolException ProtocolError.
      */
-    public void testGetCancerStudies() throws DaoException, IOException, ProtocolException {
-        ResetDatabase.resetDatabase();
+    @Ignore
+    @Test
+    public void testGetCancerStudiesEmpty() throws DaoException, IOException, ProtocolException {
 
         // First, verify that protocol exception is thrown when there are no cancer studies
         try {
@@ -97,14 +108,11 @@ public class TestGetTypesOfCancer extends TestCase {
         } catch (ProtocolException e) {
             assertEquals(e.getMsg(), "No Cancer Studies Available.");
         }
+    }
+    
+    @Test
+    public void testGetCancerStudies() throws DaoException, IOException, ProtocolException {
 
-        // then, load one sample cancer study
-		// TBD: change this to use getResourceAsStream()
-        ImportTypesOfCancers.load(new ProgressMonitor(), new File("target/test-classes/cancers.txt"));
-        CancerStudy tcgaGbm = new CancerStudy("TCGA GBM", "TCGA GBM Project", "tcga_gbm" ,
-                "GBM", true);
-
-        DaoCancerStudy.addCancerStudy(tcgaGbm);
         String output = GetTypesOfCancer.getCancerStudies();
         String lines[] = output.split("\n");
 
@@ -115,6 +123,6 @@ public class TestGetTypesOfCancer extends TestCase {
         assertEquals ("cancer_study_id\tname\tdescription", lines[0].trim());
 
         //  Verify data
-        assertEquals ("tcga_gbm\tTCGA GBM\tTCGA GBM Project", lines[1].trim());
+        assertEquals ("study_tcga_pub\tBreast Invasive Carcinoma (TCGA, Nature 2012)\t<a href=\"http://cancergenome.nih.gov/\">The Cancer Genome Atlas (TCGA)</a> Breast Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\"http://tcga-data.nci.nih.gov/tcga/\">Raw data via the TCGA Data Portal</a>.", lines[1].trim());
     }
 }

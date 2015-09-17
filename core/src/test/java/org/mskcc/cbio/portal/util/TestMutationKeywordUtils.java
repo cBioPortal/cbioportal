@@ -34,14 +34,17 @@ package org.mskcc.cbio.portal.util;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;
-import junit.framework.TestCase;
+
+import org.junit.Test;
+
 
 /**
  *
  * @author jgao
  */
-public class TestMutationKeywordUtils extends TestCase {
+public class TestMutationKeywordUtils {
     
+	@Test
     public void testGuessOncotatorKeyword() throws Exception {
         // missense
         assertEquals("K13 missense", MutationKeywordUtils.guessOncotatorMutationKeyword("K13R", "Missense_Mutation"));
@@ -94,6 +97,7 @@ public class TestMutationKeywordUtils extends TestCase {
         assertEquals("Fusion", MutationKeywordUtils.guessOncotatorMutationKeyword("Fusion", "Fusion"));
     }
     
+	@Test
     public void testGuessCosmicKeyword() throws Exception {
         assertNull(MutationKeywordUtils.guessCosmicKeyword(""));
         assertNull(MutationKeywordUtils.guessCosmicKeyword("0"));

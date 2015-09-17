@@ -1,3 +1,8 @@
+# August 21, 2015
+* All __TCGA data__ updated to the Firehose run of April 16, 2015.
+* __New feature__: Enrichments Analysis finds alterations that are enriched in either altered or unaltered samples.
+* __Improvement__: improved OncoPrint with better performance.
+
 # June 3, 2015
 * __Improvements__:
     * Allowed downloading data in each chart/table in study summary page.

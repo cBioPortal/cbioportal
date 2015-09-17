@@ -1,60 +1,5 @@
 window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_ids, sample_ids) {
-	var webservice = (function () {
-		var makeQueryParams = function (args) {
-			var arg_strings = [];
-			for (var k in args) {
-				if (args.hasOwnProperty(k) && args[k].length > 0) {
-					arg_strings.push(k + '=' + args[k].join(","));
-				}
-			}
-			return arg_strings.join('&');
-		};
-		var apiCall = function (endpt, args) {
-			var url = endpt + '?' + makeQueryParams(args);
-			return $.getJSON(url);
-		};
-		return {
-			getCancerTypes: function (args) {
-				return apiCall('api/meta/cancertypes', args);
-			},
-			getGenes: function (args) {
-				return apiCall('api/meta/genes', args);
-			},
-			getPatients: function (args) {
-				return apiCall('api/meta/patients', args);
-			},
-			getSamples: function (args) {
-				return apiCall('api/meta/samples', args);
-			},
-			getStudies: function (args) {
-				return apiCall('api/meta/studies', args);
-			},
-			getGeneSets: function (args) {
-				return apiCall('api/meta/genesets', args);
-			},
-			getPatientLists: function (args) {
-				return apiCall('api/meta/patientlists', args);
-			},
-			getGeneticProfiles: function (args) {
-				return apiCall('api/meta/profiles', args);
-			},
-			getPatientClinicalAttributes: function (args) {
-				return apiCall('api/meta/clinical/patients', args);
-			},
-			getSampleClinicalAttributes: function (args) {
-				return apiCall('api/meta/clinical/samples', args);
-			},
-			getPatientClinicalData: function (args) {
-				return apiCall('api/data/clinical/patients', args);
-			},
-			getSampleClinicalData: function (args) {
-				return apiCall('api/data/clinical/samples', args);
-			},
-			getSampleGeneticProfileData: function (args) {
-				return apiCall('api/data/profiles', args);
-			}
-		}
-	})();
+	var oql_parser = window.oql_parser;
 	var OQLHandler = (function (config) {
 		var default_config = {
 			gene_key:"gene",
@@ -68,10 +13,10 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		config = config || default_config;
 
 		var parse = function(oql_query) {
-			var parsed = window.oql_parser.parse(oql_query);
+			var parsed = oql_parser.parse(oql_query);
 			for (var i=0; i<parsed.length; i++) {
 				if (!parsed[i].alterations) {
-					parsed[i].alterations = window.oql_parser.parse("DUMMYGENE:"+config.default_oql+";")[0].alterations;
+					parsed[i].alterations = oql_parser.parse("DUMMYGENE:"+config.default_oql+";")[0].alterations;
 				}
 			};
 			return parsed;
@@ -237,73 +182,144 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			}
 		};
 	})();
-			
-	return (function() {
-		var objEach = function(iterable, callback) {
-			for (var k in iterable) {
-				if (iterable.hasOwnProperty(k)) {
-					callback(iterable[k], k);
-				}
+	var objEach = function (iterable, callback) {
+		for (var k in iterable) {
+			if (iterable.hasOwnProperty(k)) {
+				callback(iterable[k], k);
 			}
-		};
-		var annotateMutationTypesForOncoprint = function (data) {
-			var ret = data.map(function (d) {
-				if (d.mutation) {
-					var mutations = d.mutation.split(",");
-					var hasIndel = false;
-					if (mutations.length > 1) {
-						for (var i = 0, _len = mutations.length; i < _len; i++) {
-							if (/\bfusion\b/i.test(mutations[i])) {
-								d.mut_type = 'FUSION';
-							} else if (!(/^[A-z]([0-9]+)[A-z]$/g).test(mutations[i])) {
-								d.mut_type = 'TRUNC';
-							} else if ((/^([A-Z]+)([0-9]+)((del)|(ins))$/g).test(mutations[i])) {
-								hasIndel = true;
-							}
-						}
-						d.mut_type = d.mut_type || (hasIndel ? 'INFRAME' : 'MISSENSE');
-					} else {
-						if (/\bfusion\b/i.test(mutations)) {
+		}
+	};
+	var annotateMutationTypesForOncoprint = function (data) {
+		var ret = data.map(function (d) {
+			if (d.mutation) {
+				var mutations = d.mutation.split(",");
+				var hasIndel = false;
+				if (mutations.length > 1) {
+					for (var i = 0, _len = mutations.length; i < _len; i++) {
+						if (/\bfusion\b/i.test(mutations[i])) {
 							d.mut_type = 'FUSION';
-						} else if ((/^[A-z]([0-9]+)[A-z]$/g).test(mutations)) {
-							d.mut_type = 'MISSENSE';
-						} else if ((/^([A-Z]+)([0-9]+)((del)|(ins))$/g).test(mutations)) {
-							d.mut_type = 'INFRAME';
-						} else {
+						} else if (!(/^[A-z]([0-9]+)[A-z]$/g).test(mutations[i])) {
 							d.mut_type = 'TRUNC';
+						} else if ((/^([A-Z]+)([0-9]+)((del)|(ins))$/g).test(mutations[i])) {
+							hasIndel = true;
 						}
 					}
-				}
-				return d;
-			});
-			return ret;
-		};
-		var samples_by_stable = {};
-		var samples_by_internal = {};
-
-		var fetchSamples = (function() {
-			var samples_fetched = false;
-			return function() {
-				var def = new $.Deferred();
-				if (samples_fetched) {
-					def.resolve();
+					d.mut_type = d.mut_type || (hasIndel ? 'INFRAME' : 'MISSENSE');
 				} else {
-					webservice.getSamples({study_ids: dm_ret.getCancerStudyIds(), sample_ids: dm_ret.getSampleIds()}).then(function(response) {
-						for (var i = 0; i < response.length; i++) {
-							samples_by_stable[response[i].stable_id] = response[i];
-							samples_by_internal[response[i].internal_id] = response[i];
-						}
-						samples_fetched = true;
-						def.resolve();
+					if (/\bfusion\b/i.test(mutations)) {
+						d.mut_type = 'FUSION';
+					} else if ((/^[A-z]([0-9]+)[A-z]$/g).test(mutations)) {
+						d.mut_type = 'MISSENSE';
+					} else if ((/^([A-Z]+)([0-9]+)((del)|(ins))$/g).test(mutations)) {
+						d.mut_type = 'INFRAME';
+					} else {
+						d.mut_type = 'TRUNC';
+					}
+				}
+			}
+			return d;
+		});
+		return ret;
+	};
+			
+	return (function() {
+		var dm_ret = {
+			'oql_query': oql_query,
+			'cancer_study_ids': cancer_study_ids,
+			'sample_ids': sample_ids,
+			'genetic_profile_ids': genetic_profile_ids,
+			'getOQLQuery': function() {
+				return this.oql_query;
+			},
+			'getQueryGenes': function() {
+				return OQLHandler.getGenes(this.oql_query);
+			},
+			'getGeneticProfileIds': function() {
+				return this.genetic_profile_ids;
+			},
+			'getSampleIds': function() {
+				return this.sample_ids;
+			},
+			'getCancerStudyIds': function() {
+				return this.cancer_study_ids;
+			},
+			'getGenomicEventData': function() {
+				var def = new $.Deferred();
+				var self = this;
+				fetchOncoprintGeneData().then(function() {
+					def.resolve(self.sample_gene_data);
+				});
+				return def.promise();
+			},
+			'getCombinedPatientGenomicEventData': function() {
+				var def = new $.Deferred();
+				var self = this;
+				fetchOncoprintGeneData().then(function() {
+					def.resolve(self.patient_gene_data);
+				});
+				return def.promise();
+			},
+			'getAlteredSamples': function () {
+				var def = new $.Deferred();
+				var self = this;
+				fetchOncoprintGeneData().then(function () {
+					def.resolve(self.altered_samples);
+				});
+				return def.promise();
+			},
+			'getUnalteredSamples': function () {
+				var def = new $.Deferred();
+				var self = this;
+				fetchOncoprintGeneData().then(function () {
+					def.resolve(self.unaltered_samples);
+				});
+				return def.promise();
+			},
+			'getAlteredPatients': function() {
+				var def = new $.Deferred();
+				var self = this;
+				fetchOncoprintGeneData().then(function () {
+					def.resolve(self.altered_patients);
+				});
+				return def.promise();
+			},
+			'getUnalteredPatients': function () {
+				var def = new $.Deferred();
+				var self = this;
+				fetchOncoprintGeneData().then(function () {
+					def.resolve(self.unaltered_patients);
+				});
+				return def.promise();
+			},
+			'getSampleClinicalAttributes': function () {
+				var def = new $.Deferred();
+				var self = this;
+				if (this.sample_clinical_attrs) {
+					def.resolve(this.sample_clinical_attrs);
+				} else {
+					window.cbioportal_client.getSampleClinicalAttributes({study_ids: this.getCancerStudyIds(), sample_ids: this.getSampleIds()}).then(function (response) {
+						self.sample_clinical_attrs = response;
+						def.resolve(self.sample_clinical_attrs);
 					});
 				}
 				return def.promise();
-			};
-		})();
+			},
+			'getSampleClinicalData': function () {
+				var def = new $.Deferred();
+				var self = this;
+				if (dm_ret.sample_clinical_data) {
+					def.resolve(this.sample_clinical_data);
+				} else {
+					window.cbioportal_client.getSampleClinicalData({study_ids: this.getCancerStudyIds(), sample_ids: this.getSampleIds()}).then(function (response) {
+						self.sample_clinical_data = makeOncoprintClinicalData(response);
+						def.resolve(self.sample_clinical_data);
+					});
+				}
+				return def.promise();
+			}
+		};
 		var fetchOncoprintGeneData = (function() {
-			var profile_types_by_internal = {};
-			var genes_by_entrez = {};
-			var patients_by_internal = {};
+			var profile_types = {};
 			var data_fetched = false;
 
 			var makeOncoprintSampleData = function(webservice_gp_data) {
@@ -312,14 +328,14 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 				for (var i=0, _len=webservice_gp_data.length; i<_len; i++) {
 					var d = webservice_gp_data[i];
 
-					var sample = samples_by_internal[d.internal_sample_id].stable_id;
+					var sample = d.sample_id;
 					samp_to_gene_to_datum[sample] = samp_to_gene_to_datum[sample] || {};
 
-					var gene = genes_by_entrez[d.entrez_gene_id].hugoGeneSymbol;
+					var gene = d.hugo_gene_symbol;
 					samp_to_gene_to_datum[sample][gene] = samp_to_gene_to_datum[sample][gene] || {sample:sample, gene:gene};
 
 					var datum = samp_to_gene_to_datum[sample][gene];
-					var profile_type = profile_types_by_internal[d.internal_id];
+					var profile_type = profile_types[d.genetic_profile_id];
 					switch (profile_type) {
 						case "MUTATION_EXTENDED":
 							datum.mutation = (datum.mutation ? datum.mutation+","+d.amino_acid_change  : d.amino_acid_change);
@@ -387,7 +403,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 				};
 				for (var i=0, _len=oncoprint_sample_data.length; i<_len; i++) {
 					var d = oncoprint_sample_data[i];
-					var patient_id = patients_by_internal[samples_by_stable[d.sample].patient_id].stable_id;
+					var patient_id = d.patient_id;
 					var gene = d.gene;
 					pat_to_gene_to_datum[patient_id] = pat_to_gene_to_datum[patient_id] || {};
 					pat_to_gene_to_datum[patient_id][gene] = pat_to_gene_to_datum[patient_id][gene] || {patient: patient_id, gene:gene};
@@ -413,7 +429,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			};
 			var setDefaultOQL = function() {
 				var default_oql_uniq = {};
-				objEach(profile_types_by_internal, function(type, internal_id) {
+				objEach(profile_types, function(type, profile_id) {
 					switch (type) {
 						case "MUTATION_EXTENDED":
 							default_oql_uniq["MUT"] = true;
@@ -440,36 +456,13 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 				if (data_fetched) {
 					def.resolve();
 				} else {
-					var entrez_gene_ids = [];
-					var internal_profile_ids = [];
-					var internal_sample_ids = [];
-					webservice.getGenes({ids: dm_ret.getQueryGenes()}).then(function (response) {
+					window.cbioportal_client.getGeneticProfiles({genetic_profile_ids: dm_ret.getGeneticProfileIds()}).then(function(response) {
 						for (var i = 0; i < response.length; i++) {
-							entrez_gene_ids.push(response[i].entrezGeneId);
-							genes_by_entrez[response[i].entrezGeneId] = response[i];
-						}
-						return webservice.getGeneticProfiles({profile_ids: dm_ret.getGeneticProfileIds()});
-					}).then(function (response) {
-						for (var i = 0; i < response.length; i++) {
-							internal_profile_ids.push(response[i].internal_id);
-							profile_types_by_internal[response[i].internal_id] = response[i].genetic_alteration_type;
+							profile_types[response[i].id] = response[i].genetic_alteration_type;
 						}
 						setDefaultOQL();
-						return fetchSamples();
 					}).then(function() {
-						var patient_ids = {};
-						var samples = Object.keys(samples_by_stable).map(function(k) { return samples_by_stable[k];});
-						for (var i = 0; i < samples.length; i++) {
-							internal_sample_ids.push(samples[i].internal_id);
-							patient_ids[samples[i].patient_id] = true;
-						}
-						return webservice.getPatients({patient_ids: Object.keys(patient_ids)});
-					}).then(function(response) {
-						for (var i = 0; i < response.length; i++) {
-							patients_by_internal[response[i].internal_id] = response[i];
-						}
-					}).then(function () {
-						return webservice.getSampleGeneticProfileData({genes: entrez_gene_ids, profile_ids: internal_profile_ids, sample_ids: internal_sample_ids});
+						return window.cbioportal_client.getGeneticProfileData({genetic_profile_ids: dm_ret.getGeneticProfileIds(), genes: dm_ret.getQueryGenes(), sample_ids: dm_ret.getSampleIds()});
 					}).then(function(response) {
 						var oql_process_result = OQLHandler.maskData(dm_ret.getOQLQuery(), makeOncoprintSampleData(response));
 						dm_ret.sample_gene_data = oql_process_result.data;
@@ -489,528 +482,15 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			};
 		})();
 		var makeOncoprintClinicalData = function(webservice_clinical_data) {
-			var def = new $.Deferred();
-			fetchSamples().then(function() {
-				var ret = [];
-				for (var i=0, _len=webservice_clinical_data.length; i<_len; i++) {
-					var d = webservice_clinical_data[i];
-					ret.push({'attr_id':d.attr_id, 'attr_val':d.attr_val, 'sample':samples_by_internal[d.sample_id].stable_id});
-				}
-				def.resolve(ret);
-			});
-			return def.promise();
-		};
-		var dm_ret = {};
-		dm_ret.oql_query = oql_query;
-		dm_ret.cancer_study_ids = cancer_study_ids;
-		dm_ret.sample_ids = sample_ids;
-		dm_ret.genetic_profile_ids = genetic_profile_ids;
-		dm_ret.getOQLQuery = function() {
-			return this.oql_query;
-		};
-		dm_ret.getQueryGenes = function() {
-			return OQLHandler.getGenes(this.oql_query);
-		};
-		dm_ret.getGeneticProfileIds = function() {
-			return this.genetic_profile_ids;
-		};
-		dm_ret.getSampleIds = function() {
-			return this.sample_ids;
-		};
-		dm_ret.getCancerStudyIds = function() {
-			return this.cancer_study_ids;
-		};
-		dm_ret.getGenomicEventData = function() {
-			var def = new $.Deferred()
-			fetchOncoprintGeneData().then(function() {
-				def.resolve(dm_ret.sample_gene_data);
-			});
-			return def.promise();
-		};
-		dm_ret.getCombinedPatientGenomicEventData = function() {
-			var def = new $.Deferred()
-			fetchOncoprintGeneData().then(function() {
-				def.resolve(dm_ret.patient_gene_data);
-			});
-			return def.promise();
-		};
-		dm_ret.getAlteredSamples = function() {
-			var def = new $.Deferred()
-			fetchOncoprintGeneData().then(function() {
-				def.resolve(dm_ret.altered_samples);
-			});
-			return def.promise();
-		};
-		dm_ret.getUnalteredSamples = function() {
-			var def = new $.Deferred()
-			fetchOncoprintGeneData().then(function() {
-				def.resolve(dm_ret.unaltered_samples);
-			});
-			return def.promise();
-
-		};
-		dm_ret.getAlteredPatients = function() {
-			var def = new $.Deferred()
-			fetchOncoprintGeneData().then(function() {
-				def.resolve(dm_ret.altered_patients);
-			});
-			return def.promise();
-		};
-		dm_ret.getUnalteredPatients = function() {
-			var def = new $.Deferred()
-			fetchOncoprintGeneData().then(function() {
-				def.resolve(dm_ret.unaltered_patients);
-			});
-			return def.promise();
-		};
-
-		dm_ret.getSampleClinicalAttributes = function() {
-			var def = new $.Deferred();
-			if (dm_ret.sample_clinical_attrs) {
-				def.resolve(dm_ret.sample_clinical_attrs);
-			} else {
-				webservice.getSampleClinicalAttributes({study_ids: dm_ret.getCancerStudyIds(), sample_ids: dm_ret.getSampleIds()}).then(function(response) {
-					dm_ret.sample_clinical_attrs = response;
-					def.resolve(dm_ret.sample_clinical_attrs);
-				});
-			}
-			return def.promise();
-		};
-		dm_ret.getSampleClinicalData = function() {
-			var def = new $.Deferred();
-			if (dm_ret.sample_clinical_data) {
-				def.resolve(dm_ret.sample_clinical_data);
-			} else {
-				webservice.getSampleClinicalData({study_ids: dm_ret.getCancerStudyIds(), sample_ids: dm_ret.getSampleIds()}).then(function(response) {
-					makeOncoprintClinicalData(response).then(function(clin_dat) {
-						dm_ret.sample_clinical_data = clin_dat;
-						def.resolve(dm_ret.sample_clinical_data);
-					});
-				});
-			}
-			return def.promise();
-		};
-
-		return dm_ret;
-	})();
-};
-
-
-
-/*var stringSetDifference = function (A, B) {
-		// In A and not in B
-		var in_A_not_in_B = {};
-		var i, _len;
-		for (i = 0, _len = A.length; i < _len; i++) {
-			in_A_not_in_B[A[i]] = true;
-		}
-		for (i = 0, _len = B.length; i < _len; i++) {
-			in_A_not_in_B[B[i]] = false;
-		}
-		var ret = [];
-		for (i = 0, _len = A.length; i < _len; i++) {
-			if (in_A_not_in_B[A[i]]) {
-				ret.push(A[i]);
-			}
-		}
-		return ret;
-	};
-	var stringSetEquals = function(A,B) {
-		return ((stringSetDifference(A,B).length + stringSetDifference(B,A).length) === 0);
-	};
-	function Index(key) {
-		var map = {};
-		this.addData = function (data, args) {
-			var i;
-			var _len = data.length;
-			// Clear existing data for touched keys
-			for (i = 0; i < _len; i++) {
-				var datum_key = key(data[i], args);
-				map[datum_key] = [];
-			}
-			// Add data
-			for (i = 0; i < _len; i++) {
-				var d = data[i];
-				map[key(d, args)].push(d);
-			}
-		};
-		this.getData = function (keys, datumFilter) {
-			keys = keys || Object.keys(map);
-			var i, datum;
-			var ret = [], _len = keys.length;
-			for (i = 0; i < _len; i++) {
-				datum = map[keys[i]];
-				if (typeof datum !== 'undefined' && (!datumFilter || datumFilter(datum))) {
-					ret = ret.concat(datum);
-				}
+			var ret = [];
+			for (var i=0, _len=webservice_clinical_data.length; i<_len; i++) {
+				var d = webservice_clinical_data[i];
+				ret.push({'attr_id':d.attr_id, 'attr_val':d.attr_val, 'sample':d.sample_id});
 			}
 			return ret;
 		};
 		
-		this.missingKeys = function (keys) {
-			return stringSetDifference(keys, Object.keys(map));
-		};
-	};
-	var objEach = function(iterable, callback) {
-		for (var k in iterable) {
-			if (iterable.hasOwnProperty(k)) {
-				callback(iterable[k], k);
-			}
-		}
-	};
-	
-	var makeConvertArgument = function(source_argument_name, target_argument_name, datum_key, getterServiceName, sourceArgsToGetterArgs, gotDataToNewArg) {
-		return function(args) {
-			var def = new $.Deferred();
-			var getter_args = sourceArgsToGetterArgs(args);
-			if (getter_args) {
-				window[getterServiceName](getter_args).then(function(response) {
-					args[target_argument_name] = gotDataToNewArg(response);
-					delete args[source_argument_name];
-					def.resolve(args);
-				});
-			} else {
-				def.resolve(args);
-			}
-		};
-	};
-	var convertStableStudyIdsToInternal = makeConvertArgument('study_ids', 'internal_study_ids',
-								'getStudies',
-								function(args) {
-									return (args.study_ids && args.study_ids.length > 0 ? {study_ids: args.study_ids} : false);
-								},
-								function(response) {
-									var new_args = {};
-									for (var i = 0, _len = response.length; i < _len; i++) {
-										new_args[response[i]['internal_id']] = true;
-									}
-									return Object.keys(new_args);
-								});
-	var convertStableSampleIdsToInternal = makeConvertArgument('sample_ids', 'internal_sample_ids', 
-								'getSamples', 
-								function(args) {
-									return (args.sample_ids && args.sample_ids.length > 0 ? {study_ids: args.study_ids, sample_ids: args.sample_ids} : false);
-								},
-								function(response) {
-									var new_args = {};
-									for (var i = 0, _len = response.length; i < _len; i++) {
-										new_args[response[i]['internal_id']] = true;
-									}
-									return Object.keys(new_args);
-								});
-	var convertStablePatientIdsToInternal = makeConvertArgument('patient_ids','internal_patient_ids',
-								'getPatients',
-								function(args) {
-									return (args.patient_ids && args.patient_ids.length > 0 ? {study_ids: args.study_ids, patient_ids: args.patient_ids} : false);
-								},
-								function(response) {
-									var new_args = {};
-									for (var i = 0, _len = response.length; i < _len; i++) {
-										new_args[response[i]['internal_id']] = true;
-									}
-									return Object.keys(new_args);
-								});
-				
-	var convertHugoGeneSymbolsToEntrezGeneIds = makeConvertArgument('hugo_gene_symbols','entrez_gene_ids',
-								'getGenes',
-								function(args) {
-									return (args.hugo_gene_symbols && args.hugo_gene_symbols.length > 0 ? {hugo_gene_symbols: args.hugo_gene_symbols} : false);
-								},
-								function(response) {
-									var new_args = {};
-									for (var i = 0, _len = response.length; i < _len; i++) {
-										new_args[response[i]['entrezGeneId']] = true;
-									}
-									return Object.keys(new_args);
-								});
-	var convertStableProfileIdsToInternal = makeConvertArgument('profile_ids','internal_profile_ids',
-								'getGeneticProfiles',
-								function(args) {
-									return (args.profile_ids && args.profile_ids.length > 0 ? {profile_ids: args.profile_ids} : false);
-								},
-								function(response) {
-									var new_args = {};
-									for (var i = 0, _len = response.length; i < _len; i++) {
-										new_args[response[i]['internal_id']] = true;
-									}
-									return Object.keys(new_args);
-								});
-	
-	var convertStablePatientListIdsToInternal = makeConvertArgument('patient_list_ids', 'internal_patient_list_ids',
-									'getPatientLists',
-									function(args) {
-										return (args.patient_list_ids && args.patient_list_ids.length > 0 ? {patient_list_ids: args.patient_list_ids} : false);
-									},
-									function(response) {
-										var new_args = {};
-										for (var i = 0, _len = response.length; i < _len; i++) {
-											new_args[response[i]['internal_id']] = true;
-										}
-										return Object.keys(new_args);
-									});
-	var convertInternalPatientListIdsToInternalPatientIds = makeConvertArgument('internal_patient_list_ids', 'internal_patient_ids',
-								'getPatientLists',
-								function(args) {
-									return (args.internal_patient_list_ids && args.internal_patient_list_ids.length > 0 ? {internal_patient_list_ids: args.internal_patient_list_ids} : false);
-								},
-								function(response) {
-									var new_args = {};
-									for (var i = 0, _len = response.length; i < _len; i++) {
-										var patient_ids = response[i].internal_patient_ids;
-										if (patient_ids) {
-											for (var j=0;j<patient_ids.length;j++) {
-												new_args[patient_ids[j]] = true;
-											}
-										}
-									}
-									return Object.keys(new_args);
-								});
-	
-	var normalizeArgs = function(args) {
-		return convertStableStudyIdsToInternal(args).then(convertStableSampleIdsToInternal).then(convertStablePatientIdsToInternal);
-	};
-	var makeGetPatientsOrSamples = function (patients) {
-		return (function () {
-			var stable_id_index = {};
-			var internal_id_index = new Index(function (d) {
-				return d['internal_id'];
-			});
-			var internal_study_id_index = new Index(function (d) {
-				return d['study_id'];
-			});
 
-			var addToStableIdIndex = function (data) {
-				for (var i = 0, _len = data.length; i < _len; i++) {
-					var datum = data[i];
-					stable_id_index[datum.study_id] = stable_id_index[datum.study_id] || {};
-					stable_id_index[datum.study_id][datum.stable_id] = datum;
-				}
-			};
-			var getFromStableIdIndex = function (internal_study_id, stable_ids) {
-				var ret = [];
-				var sub_index = stable_id_index[internal_study_id];
-				if (typeof sub_index !== 'undefined') {
-					for (var i = 0, _len = stable_ids.length; i < _len; i++) {
-						var datum = sub_index[stable_ids[i]];
-						if (typeof datum !== 'undefined') {
-							ret.push(datum);
-						}
-					}
-				}
-				return ret;
-			};
-			var missingFromStableIdIndex = function (internal_study_id, stable_ids) {
-				var ret = [];
-				var sub_index = stable_id_index[internal_study_id];
-				if (typeof sub_index !== 'undefined') {
-					for (var i = 0, _len = stable_ids.length; i < _len; i++) {
-						var datum = sub_index[stable_ids[i]];
-						if (typeof datum === 'undefined') {
-							ret.push(stable_ids[i]);
-						}
-					}
-				} else {
-					ret = stable_ids.slice();
-				}
-				return ret;
-			};
-			var multiplexOnArgs = function (args) {
-				var args_keys = Object.keys(args);
-				var def = new $.Deferred();
-				if (stringSetEquals(args_keys, ["internal_study_ids", (patients ? "patient_ids" : "sample_ids")])) {
-					getByStableCaseIds(args).then(function (response) {
-						def.resolve(response);
-					});
-				} else if (stringSetEquals(args_keys, [(patients ? "internal_patient_ids" : "internal_sample_ids")])) {
-					getByInternalCaseIds(args).then(function (response) {
-						def.resolve(response);
-					});
-				} else if (stringSetEquals(args_keys, ["internal_study_ids"])) {
-					getByInternalStudyIds(args).then(function (response) {
-						def.resolve(response);
-					});
-				}
-				return def.promise();
-			};
-			var getByInternalCaseIds = function (args) {
-				var def = new $.Deferred();
-				var to_fetch = internal_id_index.missingKeys(args[(patients ? 'internal_patient_ids' : 'internal_sample_ids')]);
-				if (to_fetch.length > 0) {
-					webservice.getSamples({sample_ids: to_fetch}).then(function (response) {
-						internal_id_index.addData(response);
-						addToStableIdIndex(response);
-						def.resolve(internal_id_index.getData(args[(patients ? 'internal_patient_ids' : 'internal_sample_ids')]));
-					});
-				} else {
-					def.resolve(internal_id_index.getData(args[(patients ? 'internal_patient_ids' : 'internal_sample_ids')]));
-				}
-				return def.promise();
-			};
-			var getByInternalStudyIds = function (args) {
-				var def = new $.Deferred();
-				var to_fetch = internal_study_id_index.missingKeys(args['internal_study_ids']);
-				if (to_fetch.length > 0) {
-					webservice[patients ? 'getPatients' : 'getSamples']({study_ids: to_fetch}).then(function (response) {
-						internal_id_index.addData(response);
-						internal_study_id_index.addData(response);
-						addToStableIdIndex(response);
-						def.resolve(internal_study_id_index.getData(args['internal_study_ids']));
-					});
-				} else {
-					def.resolve(internal_study_id_index.getData(args['internal_study_ids']));
-				}
-				return def.promise();
-			};
-			var getByStableCaseIds = function (args) {
-				var def = new $.Deferred();
-				var to_fetch = missingFromStableIdIndex(args['internal_study_ids'][0], args[patients ? 'patient_ids' : 'sample_ids']);
-				if (to_fetch.length > 0) {
-					webservice.getSamples({study_ids: [args['internal_study_ids'][0]], sample_ids: to_fetch}).then(function (response) {
-						internal_id_index.addData(response);
-						addToStableIdIndex(response);
-						def.resolve(getFromStableIdIndex(args['internal_study_ids'][0], args[patients ? 'patient_ids' : 'sample_ids']));
-					});
-				} else {
-					def.resolve(getFromStableIdIndex(args['internal_study_ids'][0], args[patients ? 'patient_ids' : 'sample_ids']));
-				}
-				return def.promise();
-			};
-			return function (args) {
-				var def = new $.Deferred();
-				if (args.hasOwnProperty("study_ids")) {
-					convertStableStudyIdsToInternal(args).then(function (args) {
-						multiplexOnArgs(args).then(function (result) {
-							def.resolve(result);
-						});
-					});
-				} else {
-					multiplexOnArgs(args).then(function (result) {
-						def.resolve(result);
-					});
-				}
-				return def.promise();
-			};
-		})();
-	};
-	var makeServiceCache = function (arg_name_to_index_key_fn, webserviceFnName, returns_all_with_no_arg, normalize_args, arg_name_to_webservice_arg_name) {
-		return (function () {
-			var indexes = {};
-			var arbitrary_index;
-			var all_loaded = false;
-			(function initializeIndexes() {
-				objEach(arg_name_to_index_key_fn, function (index_key_fn, arg_name) {
-					indexes[arg_name] = new Index(index_key_fn);
-					arbitrary_index = indexes[arg_name];
-				});
-			})();
-			var addDataToIndexes = function (data, args) {
-				objEach(indexes, function (index, __unused) {
-					index.addData(data, args);
-				});
-			};
-			return function (args) {
-				args = args || {};
-				var def = new $.Deferred();
-				var args_keys = Object.keys(args);
-				if (args_keys.length === 0) {
-					if (!returns_all_with_no_arg) {
-						def.resolve([]);
-					} else {
-						if (all_loaded) {
-							def.resolve(arbitrary_index.getData());
-						} else {
-							webservice[webserviceFnName]({}).then(function (response) {
-								all_loaded = true;
-								addDataToIndexes(response, args);
-								def.resolve(arbitrary_index.getData());
-							});
-						}
-					}
-				} else {
-					var getAndReturnData = function(args) {
-						var arg_name;
-						var args_keys = Object.keys(args);
-						for (var i = 0, _len = args_keys.length; i < _len; i++) {
-							if (indexes.hasOwnProperty(args_keys[i])) {
-								arg_name = args_keys[i];
-								break;
-							}
-						}
-						if (typeof arg_name === 'undefined') {
-							def.resolve([]);
-							return;
-						}
-						var to_fetch = indexes[arg_name].missingKeys(args[arg_name]);
-						if (to_fetch.length === 0) {
-							def.resolve(indexes[arg_name].getData(args[arg_name]));
-						} else {
-							var webservice_args = {};
-							var webservice_arg_name = arg_name_to_webservice_arg_name[arg_name] || arg_name;
-							webservice_args[webservice_arg_name] = to_fetch;
-							webservice[webserviceFnName](webservice_args).then(function (response) {
-								addDataToIndexes(response, args);
-								def.resolve(indexes[arg_name].getData(args[arg_name]));
-							});
-						}
-					};
-					if (normalize_args) {
-						normalizeArgs(args).then(getAndReturnData);
-					} else {
-						getAndReturnData(args);
-					}
-				}
-				return def.promise();
-			};
-		})();
-	};
-	
-	var getSamples = makeGetPatientsOrSamples(false);
-	var getPatients = makeGetPatientsOrSamples(true);
-	var getStudies = makeServiceCache({'study_ids':function(d) { return d['id'];},
-					'internal_study_ids':function(d) { return d['internal_id'];}},
-					'getStudies',
-					true,
-					false,
-					{'study_ids':'ids', 'internal_study_ids':'ids'});
-	var getCancerTypes = makeServiceCache({'ids':function(d) { return d['id']; }},
-						'getCancerTypes',
-						true);
-	var getGenes = makeServiceCache({'hugo_gene_symbols': function(d) { return d['hugoGeneSymbol']; },
-					'entrez_gene_ids': function(d) { return d['entrezGeneId']; }},
-					'getGenes',
-					true,
-					false,
-					{'hugo_gene_symbols':'ids', 'entrez_gene_ids':'ids'});
-	var getGeneSets = makeServiceCache({'gene_set_ids': function(d) { return d['id']; }},
-					'getGeneSets',
-					true,
-					false,
-					{'gene_set_ids': 'ids'});
-	var getPatientLists = makeServiceCache({'internal_study_ids': function(d) { return d['internal_study_id'];},
-						'internal_patient_list_ids': function(d) { return d['internal_id'];},
-						'patient_list_ids': function(d) { return d['id'];}},
-						'getPatientLists',
-						true,
-						true,
-						{'internal_study_ids':'study_ids', 'internal_patient_list_ids': 'patient_list_ids', 'patient_list_ids': 'patient_list_ids'});
-	var getGeneticProfiles = makeServiceCache({'internal_profile_ids':function(d) { return d['internal_id']; },
-						'profile_ids': function(d) { return d['id']; },
-						'internal_study_ids': function(d) { return d['internal_study_id']; }},
-						'getGeneticProfiles',
-						true,
-						true,
-						{'internal_profile_ids':'profile_ids', 'profile_ids':'profile_ids', 'internal_study_ids':'study_ids'});
-
-	var getSampleClinicalData = makeServiceCache({'internal_study_ids':function(d) { return d['study_id'];},
-							'internal_sample_ids': function(d) { return d['sample_id'];}},
-							'getSampleClinicalData',
-							false,
-							true,
-							{'internal_study_ids': 'study_ids', 'internal_sample_ids':'sample_ids'});
-	var getPatientClinicalData = makeServiceCache({'internal_study_ids':function(d) { return d['study_id'];},
-							'internal_patient_ids': function(d) { return d['sample_id'];}},
-							'getPatientClinicalData',
-							false,
-							true,
-							{'internal_study_ids': 'study_ids', 'internal_patient_ids':'patient_ids'});
-							*/
+		return dm_ret;
+	})();
+};

@@ -46,21 +46,31 @@ public class ApiController {
 
     @Transactional
     @RequestMapping(value = "/clinicaldata/samples", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody List<DBClinicalSampleData> getSampleClinicalData(@RequestParam(required = true) String study_id, @RequestParam(required = false) List<String> sample_ids) {
-	    if (sample_ids == null) {
+    public @ResponseBody List<DBClinicalSampleData> getSampleClinicalData(@RequestParam(required = true) String study_id, @RequestParam(required = false) List<String> sample_ids, @RequestParam(required = false) List<String> attribute_ids) {
+	    if (sample_ids == null && attribute_ids == null) {
 		    return service.getSampleClinicalData(study_id);
-	    } else {
-		    return service.getSampleClinicalData(study_id, sample_ids);
+	    } else if (sample_ids != null && attribute_ids != null) {
+		    return service.getSampleClinicalData(study_id, sample_ids, attribute_ids);
+	    } else if (attribute_ids != null) {
+		    return service.getSampleClinicalDataBySample(study_id, attribute_ids);
+	    } else if (sample_ids != null) {
+		    return service.getSampleClinicalDataByAttribute(study_id, sample_ids);
 	    }
+	    return null;
     }
     @Transactional
     @RequestMapping(value = "/clinicaldata/patients", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody List<DBClinicalPatientData> getPatientClinicalData(@RequestParam(required = true) String study_id, @RequestParam(required = false) List<String> patient_ids) {
-	    if (patient_ids == null) {
+    public @ResponseBody List<DBClinicalPatientData> getPatientClinicalData(@RequestParam(required = true) String study_id, @RequestParam(required = false) List<String> patient_ids, @RequestParam(required = false) List<String> attribute_ids) {
+	    if (patient_ids == null && attribute_ids == null) {
 		    return service.getPatientClinicalData(study_id);
-	    } else {
-		    return service.getPatientClinicalData(study_id, patient_ids);
+	    } else if (patient_ids != null && attribute_ids != null) {
+		    return service.getPatientClinicalData(study_id, patient_ids, attribute_ids);
+	    } else if (attribute_ids != null) {
+		    return service.getPatientClinicalDataByAttribute(study_id, attribute_ids);
+	    } else if (patient_ids != null) {
+		    return service.getPatientClinicalDataByPatient(study_id, patient_ids);
 	    }
+	    return null;
     }
     
     @Transactional

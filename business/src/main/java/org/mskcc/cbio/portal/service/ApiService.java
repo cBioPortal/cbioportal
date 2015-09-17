@@ -2,8 +2,10 @@ package org.mskcc.cbio.portal.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.mskcc.cbio.portal.model.DBCancerType;
 import org.mskcc.cbio.portal.model.DBClinicalField;
 import org.mskcc.cbio.portal.model.DBClinicalPatientData;
@@ -75,20 +77,38 @@ public class ApiService {
 	public List<DBClinicalSampleData> getSampleClinicalData(String study_id) {
 		return clinicalDataMapper.getSampleClinicalDataByStudy(study_id);
 	}
+	@Transactional
+	public List<DBClinicalSampleData> getSampleClinicalData(String study_id, List<String> sample_ids, List<String> attribute_ids) {
+		return clinicalDataMapper.getSampleClinicalDataBySampleAndAttribute(study_id, sample_ids, attribute_ids);
+	}
 
 	@Transactional
-	public List<DBClinicalSampleData> getSampleClinicalData(String study_id, List<String> sample_ids) {
+	public List<DBClinicalSampleData> getSampleClinicalDataBySample(String study_id, List<String> sample_ids) {
 		return clinicalDataMapper.getSampleClinicalDataBySample(study_id, sample_ids);
+	}
+	
+	@Transactional
+	public List<DBClinicalSampleData> getSampleClinicalDataByAttribute(String study_id, List<String> attribute_ids) {
+		return clinicalDataMapper.getSampleClinicalDataByStudyAndAttribute(study_id, attribute_ids);
 	}
 
 	@Transactional
 	public List<DBClinicalPatientData> getPatientClinicalData(String study_id) {
 		return clinicalDataMapper.getPatientClinicalDataByStudy(study_id);
 	}
+	@Transactional
+	public List<DBClinicalPatientData> getPatientClinicalData(String study_id, List<String> patient_ids, List<String> attribute_ids) {
+		return clinicalDataMapper.getPatientClinicalDataByPatientAndAttribute(study_id, patient_ids, attribute_ids);
+	}
 
 	@Transactional
-	public List<DBClinicalPatientData> getPatientClinicalData(String study_id, List<String> patient_ids) {
+	public List<DBClinicalPatientData> getPatientClinicalDataByPatient(String study_id, List<String> patient_ids) {
 		return clinicalDataMapper.getPatientClinicalDataByPatient(study_id, patient_ids);
+	}
+	
+	@Transactional
+	public List<DBClinicalPatientData> getPatientClinicalDataByAttribute(String study_id, List<String> attribute_ids) {
+		return clinicalDataMapper.getPatientClinicalDataByStudyAndAttribute(study_id, attribute_ids);
 	}
 
 	@Transactional
@@ -225,29 +245,45 @@ public class ApiService {
 		if (!non_mutation_profiles.isEmpty()) {
 			List<DBGeneticAltRow> genetic_alt_rows = profileDataMapper.getGeneticAlterationRow(non_mutation_profiles, genes);
 			List<DBProfileDataCaseList> ordered_sample_lists = profileDataMapper.getProfileCaseLists(non_mutation_profiles);
-			Map<String, String> sample_map = new HashMap<>();
+			Set<String> desired_samples = new HashSet<>();
+			if (sample_ids != null) {
+				for (String sample: sample_ids) {
+					desired_samples.add(sample);
+				}
+			}
+			Map<String, String> sample_order_map = new HashMap<>();
+			Map<String, String> stable_sample_id_map = new HashMap<>();
 			for (DBProfileDataCaseList sample_list : ordered_sample_lists) {
 				String[] list = sample_list.ordered_sample_list.split(",");
 				String key_prefix = sample_list.genetic_profile_id + "~";
 				for (int i = 0; i < list.length; i++) {
 					if (!list[i].equals("")) {
-						sample_map.put(key_prefix + i, list[i]);
+						sample_order_map.put(key_prefix + i, list[i]);
 					}
 				}
+			}
+			List<String> internal_sample_ids = new ArrayList<>();
+			internal_sample_ids.addAll(sample_order_map.values());
+			List<DBSample> samples = sampleMapper.getSamplesByInternalId(internal_sample_ids);
+			for (DBSample sample: samples) {
+				stable_sample_id_map.put(sample.internal_id, sample.id);
 			}
 			for (DBGeneticAltRow row : genetic_alt_rows) {
 				String[] values = row.values.split(",");
 				String key_prefix = row.genetic_profile_id + "~";
 				for (int i = 0; i < values.length; i++) {
 					if (!values[i].equals("")) {
-						DBSimpleProfileData datum = new DBSimpleProfileData();
-						datum.genetic_profile_id = row.genetic_profile_id;
-						datum.sample_id = sample_map.get(key_prefix + i);
-						datum.study_id = row.study_id;
-						datum.hugo_gene_symbol = row.hugo_gene_symbol;
-						datum.entrez_gene_id = row.entrez_gene_id;
-						datum.profile_data = values[i];
-						ret.add(datum);
+						String sample_id = stable_sample_id_map.get(sample_order_map.get(key_prefix + i));
+						if (desired_samples.contains(sample_id) || sample_ids == null) {
+							DBSimpleProfileData datum = new DBSimpleProfileData();
+							datum.sample_id = sample_id;
+							datum.genetic_profile_id = row.genetic_profile_id;
+							datum.study_id = row.study_id;
+							datum.hugo_gene_symbol = row.hugo_gene_symbol;
+							datum.entrez_gene_id = row.entrez_gene_id;
+							datum.profile_data = values[i];
+							ret.add(datum);
+						}
 					}
 				}
 			}

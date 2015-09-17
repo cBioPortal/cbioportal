@@ -25,7 +25,7 @@
          //_.extend(this.dispatcher, Backbone.Events);
 
          this.dispatcher = options.dispatcher;
-         this.queryPresenter = options.queryPresenter;
+         this.dmPresenter = options.dmPresenter;
 
       },
 
@@ -93,7 +93,7 @@
          var listContent = "";
 
          // create a test gene list for the tabs
-         var geneList = self.queryPresenter.getGeneList();
+         var geneList = self.dmPresenter.getGeneList();
 
          // create a div for for each gene
          //_.each(self.model.geneProxy.getGeneList(), function(gene, idx) {
@@ -389,6 +389,7 @@
       initialize: function(options){
          this.gene = options.gene;
          this.dispatcher = options.dispatcher;
+         this.dmPresenter = options.dmPresenter;
          this.pancancerStudyHistogram = new PancancerStudySummaryHistogram();
          
          // subscribe to the DOWNLOAD_PDF/SVG_CLICKED event and give "this" is the context
@@ -401,7 +402,7 @@
 
       render: function(){
 
-         this.pancancerStudyHistogram.render(this.el, this.model);
+         this.pancancerStudyHistogram.render(this.el, this.model, this.dmPresenter, this.gene);
       },
       
       downloadPdf: function() {
@@ -638,7 +639,8 @@ function GeneDetailsController(cancerSummaryMainView, dispatcher, dmPresenter){
          gene:gene, 
          el:"#histogram-"+gene, 
          model: histogramSettings, 
-         dispatcher:dispatcher
+         dispatcher: dispatcher, 
+         dmPresenter: dmPresenter
       });
       buttonsView.render();
       customizeHistogramView.render();
@@ -654,24 +656,50 @@ function GeneDetailsController(cancerSummaryMainView, dispatcher, dmPresenter){
 function DataManagerPresenter(study_id, dmInitCallBack)
 {
 	var self = this;
+	//keep track of samples and their respective alteration events 
+	self.sampleList = []; //each entry contains alterationEvents[] 
+	self.cancerTypeList = [];  //each entry contains cancerTypeDetailed[] and sample_ids[], each cancerTypeDetailed entry also contains sample_ids[]
 	
 	//run initial ws requests and data parsing: 
 	
-	window.cbioportal_client.getSampleClinicalData({study_id: study_id} ).then(
+	//gets all genomic event data, for all queried genes, according to selected profiles and OQL criteria:
+	window.PortalDataManager.getGenomicEventData()
+	.then(
 		function (data){
-			//parse the data to the correct internal format:
-			self.cancerTypeList = [];
-			var sampleList = [];
+			for (var i = 0; i < data.length; i++) {
+				//init alteration events, if not yet done
+				if (!self.sampleList[data[i].sample])
+					self.sampleList[data[i].sample] = {alterationEvents: []};
+				self.sampleList[data[i].sample].alterationEvents.push(data[i]); 
+				
+			}
+			
+			//do the next call:
+			//TODO use later: correct call: 
+			//return window.PortalDataManager.getSampleClinicalData();
+			//failing....
+			//TODO : attribute_ids: ["CANCER_TYPE","CANCER_TYPE_DETAILED"] should be added to the API and used here
+			//
+			//Because above is failing,
+			//temp workaround...this calls the WS directly, not taking into consideration the query parameters, as the one above does...:
+			return window.cbioportal_client.getSampleClinicalData({study_id: study_id});//, sample_ids: window.PortalDataManager.getSampleIds(), attribute_ids: ["CANCER_TYPE","CANCER_TYPE_DETAILED"]});
+		})
+	.then(
+		function (data){
+			//parse the data to the correct internal format. Here we can assume that the samples are only the ones 
+			//that comply with the query form parameters (e.g. the sample set ):
+			var sampleIdAndCancerTypeIdx = [];
 			for (var i = 0; i < data.length; i++)
 			{
 				if (data[i].attr_id == "CANCER_TYPE")
 				{
 					//track cancer types and sample ids:
 					if (!self.cancerTypeList[data[i].attr_val])
-						self.cancerTypeList[data[i].attr_val] = {cancerTypeDetailed: []};
+						self.cancerTypeList[data[i].attr_val] = {cancerTypeDetailed: [], sampleIds: []};
 					var cancerType = self.cancerTypeList[data[i].attr_val];
 					//a sample contains only one cancer_type, so refer to it:
-					sampleList[data[i].sample_id] = cancerType;
+					sampleIdAndCancerTypeIdx[data[i].sample_id] = cancerType;
+					cancerType.sampleIds.push(data[i].sample_id);
 					
 				}
 			}
@@ -680,27 +708,94 @@ function DataManagerPresenter(study_id, dmInitCallBack)
 				if (data[i].attr_id == "CANCER_TYPE_DETAILED")
 				{
 					//track cancer type detailed per cancer type:
-					var cancerType = sampleList[data[i].sample_id];
-					cancerType.cancerTypeDetailed[data[i].attr_val] = data[i].attr_val;
+					var cancerType = sampleIdAndCancerTypeIdx[data[i].sample_id];
+					if (!cancerType.cancerTypeDetailed[data[i].attr_val])
+						cancerType.cancerTypeDetailed[data[i].attr_val] = {sampleIds: []};
+					cancerType.cancerTypeDetailed[data[i].attr_val].sampleIds.push(data[i].sample_id);
 				}
 			}
 			dmInitCallBack(self);
 		});	
 
 
-	//some trials:==================
-	window.cbioportal_client.getStudies({study_ids: [study_id,study_id]} ).then(
-			function (data){}
-			);
-	
-	window.PortalDataManager.getGenomicEventData({genetic_profile_ids:["multi_cancer_study_gistic"],genes: ["A2M"]}).done(
-			function (data){
-				var a = data;
-				//TODO //stopped here -> suggestion by JJ, but is not working
-			}
-	);
-	//======================
 
+	this.getAlterationEvents = function(cancerType, cancerTypeDetailed, geneId) {
+		//get the sample list based on cancerType, cancerTypeDetailed
+		var sampleIds;
+		if (cancerTypeDetailed == null)
+			sampleIds = self.cancerTypeList[cancerType].sampleIds;
+		else
+			sampleIds = self.cancerTypeList[cancerType].cancerTypeDetailed[cancerTypeDetailed].sampleIds;
+		
+		//return the alteration event counts for the sample list and geneId  
+		return this._getAlterationEventCounts(sampleIds, geneId);
+	}
+	
+	this._getAlterationEventCounts = function(sampleIds, geneId) {
+		//returns object in format like below: 
+		//		{
+		//	        "all": 136,
+		//	        "mutation": 50,
+		//	        "cnaUp": 70,
+		//	        "cnaDown": 16,
+		//	        "cnaLoss": 0,
+		//	        "cnaGain": 0,
+		//	        "multiple": 0
+		//		}
+		var mutation = cnaUp = cnaDown = cnaLoss = cnaGain = multiple = 1;
+		
+		//count / mapping logic: 
+		for (var i = 0; i < sampleIds.length; i++) {
+			var sampleItem = this.sampleList[sampleIds[i]];
+			var alterationEvents = sampleItem.alterationEvents;
+			var alterationEventFound = false;
+			for (var j = 0; j < alterationEvents.length; j++) {
+				var alterations = alterationEvents[j];
+				//only count for given gene: 
+				if (alterations.gene == geneId) {
+					//validation (not expected): 
+					if (alterationEventFound)
+						throw "prog error: only one alterations group item expected for a given sample/gene combination"; 
+					alterationEventFound = true;
+					//if both:
+					if (alterations.cna && alterations.mutation) {
+						multiple++;
+					}
+					//cna counts:
+					else if (alterations.cna) {
+						cnaUp += (alterations.cna == "AMPLIFIED" ? 1 : 0);
+						cnaDown += (alterations.cna == "HOMODELETED" ? 1 : 0);
+						cnaLoss += (alterations.cna == "HEMIZYGOUSLYDELETED" ? 1 : 0);
+						cnaGain += (alterations.cna == "GAINED" ? 1 : 0);
+						//From cbioportal-datamanager.js:
+						//{"-2":"HOMODELETED","-1":"HEMIZYGOUSLYDELETED","0":undefined,"1":"GAINED","2":"AMPLIFIED"};
+					}
+					//mutation counts:
+					else if (alterations.mutation) {
+						mutation++;
+					}
+				}
+			}
+		}
+		
+		return {
+			all: mutation + cnaUp + cnaDown + cnaLoss + cnaGain + multiple, 
+			mutation: mutation, 
+			cnaUp: cnaUp,
+			cnaDown: cnaDown,
+			cnaLoss: cnaLoss,
+			cnaGain: cnaGain,
+			multiple: multiple
+		}
+		
+	}
+	
+	this.getCaseSetLength = function() {
+		//alternative: Object.keys(this.sampleList).length  ...but could fail in older browsers....
+		var count = 0;
+		for (var k in this.sampleList) if (this.sampleList.hasOwnProperty(k)) count++;
+		return count;
+	}
 	
 	
 	// returns the CANCER_TYPE list
@@ -736,7 +831,7 @@ function DataManagerPresenter(study_id, dmInitCallBack)
 	
 	//returns the total number of cancerType samples where there is one or more alterations for the given gene
 	this.getNrAlteredSamplesForCancerTypeAndGene = function(cancerType, gene){
-		//dummy results for now
+		//dummy results for now. TODO - base on case counts
 		return 20;
 		/* dummy code:
 		if (cancerType == "breast"){
@@ -760,38 +855,14 @@ function DataManagerPresenter(study_id, dmInitCallBack)
 		*/	
 	}
 	
-	
-}
-
-//'presenter' layer to expose the parameters from query, formating its data for display in the views
-function QueryPresenter()
-{
 	//gene list chosen by user in query form:
 	this.getGeneList = function(){
 		return window.PortalDataManager.getQueryGenes();
 	}
 	
-	//TODO - both methods below should be used to restrict the data shown, 
-	//according to choices from user. So if the user selects to look only at mutations, the 
-	//histogram should not display alteration counts (?).
-	//For sampleIds, only these samples should be taken into consideration when building the 
-	//list of cancer types and counting the mutations. > make test case.
-	
-	
-	//genetic profiles chosen by user in query form:
-	this.getGeneticProfileIds = function(){
-		return window.PortalDataManager.getGeneticProfileIds();
-	}
-	
-	//list of specific cases (samples) filled in by user in query form:
-	this.getSampleIds = function(){
-		return window.PortalDataManager.getSampleIds();
-	}
-	
-
-	
-	
 }
+
+
 	
 function PancancerStudySummary()
 {
@@ -801,16 +872,15 @@ function PancancerStudySummary()
    {
 	  console.log("init called");
       
-      var dmPresenter = new DataManagerPresenter(study_id, dmInitCallBack);
+      new DataManagerPresenter(study_id, dmInitCallBack);
    };
    
    var dmInitCallBack = function(dmPresenter)
    {
       // create event dispacther
       var dispatcher = _.extend({}, Backbone.Events);
-      var queryPresenter = new QueryPresenter();
 
-      var cancerSummaryMainView = new CancerSummaryMainView({dispatcher:dispatcher, queryPresenter:queryPresenter});
+      var cancerSummaryMainView = new CancerSummaryMainView({dispatcher:dispatcher, dmPresenter:dmPresenter});
       _cancerSummaryMainView = cancerSummaryMainView;
 
       // init main controller...

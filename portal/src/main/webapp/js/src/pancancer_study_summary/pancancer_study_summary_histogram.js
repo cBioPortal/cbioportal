@@ -51,7 +51,6 @@ function PancancerStudySummaryHistogram()
   
 
     var getTypeOfCancer = function(study) {
-        //return metaData.cancer_studies[study.studyId].short_name;  //maybe add this to study? Using id for now:
     	return study.typeOfCancer; 
     };
 
@@ -69,14 +68,14 @@ function PancancerStudySummaryHistogram()
     
     
     //render histogram method:
-	this.render = function(histogramEl, model){
+	this.render = function(histogramEl, model, dmPresenter, geneId){
 		this.model = model;
 	    
 		//if data will change, e.g. because a cancer type was added or removed to the 
 		//filter criteria, then get processed data again: 
 	    if (filterCriteriaChanged(model)) {
 	    	//get data via presenter layer:
-			this.histogramPresenter = new HistogramPresenter(model);
+			this.histogramPresenter = new HistogramPresenter(model, dmPresenter, geneId);
 			//Get data:
 		    this.histogramPresenter.getJSONDataForHistogram(function (histData) {
 		    	//sort data:
@@ -162,17 +161,17 @@ function PancancerStudySummaryHistogram()
 	        .append("rect")
 	        .attr("fill", "#aaaaaa")
 	        .attr("x", function(d, i) { return paddingLeft + i * studyLocIncrements; } )
-	        .attr("y", function(d, i) { return yScale(getY(d, "other")) + paddingTop; })
+	        .attr("y", function(d, i) { return yScale(getY(d, "multiple")) + paddingTop; })
 	        .attr("width", studyWidth)
 	        .attr("height", function(d, i) {
-	            return (histBottom-paddingTop) - yScale(getY(d, "other"));
+	            return (histBottom-paddingTop) - yScale(getY(d, "multiple"));
 	        })
 	        .style("stroke", "white")
 	        .style("stroke-width", "1")
 	        .attr("class", function(d, i) { 
 	        	//keep track of whether there is data in this type:
-	        	if (getY(d, "other") > 0) {isThereMultiple = true}
-	        	return d.studyId + " alt-other"; })
+	        	if (getY(d, "multiple") > 0) {isThereMultiple = true}
+	        	return d.typeOfCancer + " alt-other"; })
 	    ;
 	
 	    var mutBarGroup = histogram.append("g");
@@ -185,7 +184,7 @@ function PancancerStudySummaryHistogram()
 	        .attr("x", function(d, i) { return paddingLeft + i * studyLocIncrements; } )
 	        .attr("y", function(d, i) {
 	            return yScale(getY(d, "mutation"))
-	                - ((histBottom-paddingTop) - yScale(getY(d, "other")))
+	                - ((histBottom-paddingTop) - yScale(getY(d, "multiple")))
 	                + paddingTop;
 	        })
 	        .attr("width", studyWidth)
@@ -198,7 +197,7 @@ function PancancerStudySummaryHistogram()
 	        .attr("class", function(d, i) { 
 	        	//keep track of whether there is data in this type:
 	        	if (getY(d, "mutation") > 0) {isThereMutation = true}
-	        	return d.studyId + " alt-mut";
+	        	return d.typeOfCancer + " alt-mut";
 	        })
 	    ;
 	
@@ -214,7 +213,7 @@ function PancancerStudySummaryHistogram()
 	            return yScale(getY(d, "cnaLoss"))
 	                - (
 	                ((histBottom-paddingTop) - yScale(getY(d, "mutation")))
-	                    + ((histBottom-paddingTop) - yScale(getY(d, "other")))
+	                    + ((histBottom-paddingTop) - yScale(getY(d, "multiple")))
 	                )
 	                + paddingTop;
 	        })
@@ -226,7 +225,7 @@ function PancancerStudySummaryHistogram()
 	        .style("stroke-width", "1")
 	        .attr("class", function(d, i) { 
 	        	if (getY(d, "cnaLoss") > 0) {isThereHetLoss = true}
-	        	return d.studyId + " alt-cnaloss"; 
+	        	return d.typeOfCancer + " alt-cnaloss"; 
 	        })
 	    ;
 	
@@ -243,7 +242,7 @@ function PancancerStudySummaryHistogram()
 	            return yScale(getY(d, "cnaDown"))
 	                - (
 	                    ((histBottom-paddingTop) - yScale(getY(d, "mutation")))
-	                    + ((histBottom-paddingTop) - yScale(getY(d, "other")))
+	                    + ((histBottom-paddingTop) - yScale(getY(d, "multiple")))
 	                    + ((histBottom-paddingTop) - yScale(getY(d, "cnaLoss")))
 	                )
 	                + paddingTop;
@@ -256,7 +255,7 @@ function PancancerStudySummaryHistogram()
 	        .style("stroke-width", "1")
 	        .attr("class", function(d, i) {
 	        	if (getY(d, "cnaDown") > 0) {isThereDeletion = true}
-	        	return d.studyId + " alt-cnadown";
+	        	return d.typeOfCancer + " alt-cnadown";
 	        })
 	    ;
 	
@@ -272,7 +271,7 @@ function PancancerStudySummaryHistogram()
 	            return yScale(getY(d, "cnaUp"))
 	                - (
 	                    ((histBottom-paddingTop) - yScale(getY(d, "mutation")))
-	                    + ((histBottom-paddingTop) - yScale(getY(d, "other")))
+	                    + ((histBottom-paddingTop) - yScale(getY(d, "multiple")))
 	                    + ((histBottom-paddingTop) - yScale(getY(d, "cnaLoss")))
 	                    + ((histBottom-paddingTop) - yScale(getY(d, "cnaDown")))
 	                )
@@ -286,7 +285,7 @@ function PancancerStudySummaryHistogram()
 	        .style("stroke-width", "1")
 	        .attr("class", function(d, i) { 
 	        	if (getY(d, "cnaUp") > 0) {isThereAmplification = true}
-	        	return d.studyId + " alt-cnaup";
+	        	return d.typeOfCancer + " alt-cnaup";
 	        	})
 	    ;
 	
@@ -302,7 +301,7 @@ function PancancerStudySummaryHistogram()
 	            return yScale(getY(d, "cnaGain"))
 	                - (
 	                ((histBottom-paddingTop) - yScale(getY(d, "mutation")))
-	                    + ((histBottom-paddingTop) - yScale(getY(d, "other")))
+	                    + ((histBottom-paddingTop) - yScale(getY(d, "multiple")))
 	                    + ((histBottom-paddingTop) - yScale(getY(d, "cnaLoss")))
 	                    + ((histBottom-paddingTop) - yScale(getY(d, "cnaDown")))
 	                    + ((histBottom-paddingTop) - yScale(getY(d, "cnaUp")))
@@ -317,7 +316,7 @@ function PancancerStudySummaryHistogram()
 	        .style("stroke-width", "1")
 	        .attr("class", function(d, i) { 
 	        	if (getY(d, "cnaGain") > 0) {isThereGain = true}
-	        	return d.studyId + " alt-cnagain";
+	        	return d.typeOfCancer + " alt-cnagain";
 	        	})
 	    ;
 	
@@ -339,7 +338,7 @@ function PancancerStudySummaryHistogram()
 	        .style("stroke", "white")
 	        .style("cursor", "pointer")
 	        .style("stroke-width", "1")
-	        .attr("class", function(d, i) { return d.studyId + " alt-info" })
+	        .attr("class", function(d, i) { return d.typeOfCancer + " alt-info" })
 	        .each(function(d, i)  {
 	        	//add tooltip:
                 var container = $("<div></div>");
@@ -535,7 +534,7 @@ function PancancerStudySummaryHistogram()
                 amplificationFrequency: fixFloat(calculateFrequency(dataItem, "cnaUp") * 100, 1),
                 lossFrequency: fixFloat(calculateFrequency(dataItem, "cnaLoss") * 100, 1),
                 gainFrequency: fixFloat(calculateFrequency(dataItem, "cnaGain") * 100, 1),
-                multipleFrequency: fixFloat(calculateFrequency(dataItem, "other") * 100, 1),
+                multipleFrequency: fixFloat(calculateFrequency(dataItem, "multiple") * 100, 1),
                 // raw counts
                 allCount: dataItem.alterations.all,
                 mutationCount: dataItem.alterations.mutation,
@@ -543,7 +542,7 @@ function PancancerStudySummaryHistogram()
                 amplificationCount: dataItem.alterations.cnaUp,
                 gainCount: dataItem.alterations.cnaGain,
                 lossCount: dataItem.alterations.cnaLoss,
-                multipleCount: dataItem.alterations.other //,
+                multipleCount: dataItem.alterations.multiple //,
                 // and create the link
                 //studyLink: _.template($("#study-link-tmpl").html(), { study: study, genes: genes } )
             };
@@ -577,10 +576,12 @@ function PancancerStudySummaryHistogram()
 
 
 //'presenter' layer to expose the parameters from query, formating its data for display in the views
-function HistogramPresenter(model)
+function HistogramPresenter(model, dmPresenter, geneId)
 {
 	this.model = model;
+	this.dmPresenter = dmPresenter;
 	this.histData = null;
+	this.geneId = geneId;
 	// this method will retrieve the data for the histogram according to the 
 	// settings found in the model and format this into the correct JSON format
 	// to be used in the D3JS functions to draw the histogram:
@@ -588,8 +589,8 @@ function HistogramPresenter(model)
 		//get data (from external temp files for now):
 		
 		//TODO - only get data again if cancer type selection was changed:
-		//alert(self.histData); 
-		this.histData = data_temp; //TODO call the "data manager" layer to retrieve the data and transform to correct JSON structure
+		//call the "data manager" layer to retrieve the data and transform to correct JSON structure
+		this.histData = this.getHistogramData();
 		
 		
 		var finalHistData = [];
@@ -605,32 +606,52 @@ function HistogramPresenter(model)
 		callBackFunction(this.histData);
 	}
 	
-	
-
-    
-    
-// basis for simple animation, if required:
-// http://jsfiddle.net/enigmarm/3HL4a/13/
-//    var sortBars = function () {
-//        sortOrder = !sortOrder;
-//        
-//        sortItems = function (a, b) {
-//            if (sortOrder) {
-//                return a.value - b.value;
-//            }
-//            return b.value - a.value;
-//        };
-//
-//        svg.selectAll("rect")
-//            .sort(sortItems)
-//            .transition()
-//            .duration(1000)
-//            .attr("x", function (d, i) {
-//            return xScale(i);
-//        });
-//
-//
-//    };
+	this.getHistogramData = function() {
+		//returns list of objects with following structure:
+		//   {
+		//	      "typeOfCancer": "cancer_type1",
+		//	      "caseSetLength": 806,
+		//	      "alterations": {
+		//	         "all": 136,
+		//	         "mutation": 50,
+		//	         "cnaUp": 70,
+		//	         "cnaDown": 16,
+		//	         "cnaLoss": 0,
+		//	         "cnaGain": 0,
+		//	         "multiple": 0
+		//	      }
+		//	  }
+		var result = [];
+		var caseSetLength = this.dmPresenter.getCaseSetLength(); 
+		if (this.model.get("cancerType") == "All") {
+			//get data by cancerType:
+			var cancerTypes = this.dmPresenter.getCancerTypeList();
+			for (var i = 0; i < cancerTypes.length; i++) {
+				var resultItem = {
+						typeOfCancer: cancerTypes[i],
+						caseSetLength: caseSetLength,
+						alterations: this.dmPresenter.getAlterationEvents(cancerTypes[i], null, this.geneId)
+					};
+				result.push(resultItem);
+			}
+		}
+		else {
+			var mainCancerType = this.model.get("cancerType");
+			//get data by cancerTypeDetailed:
+			var cancerTypes = this.dmPresenter.getCancerTypeDetailedList(mainCancerType);
+			for (var i = 0; i < cancerTypes.length; i++) {
+				var resultItem = {
+						typeOfCancer: cancerTypes[i],
+						caseSetLength: caseSetLength,
+						alterations: this.dmPresenter.getAlterationEvents(mainCancerType, cancerTypes[i], this.geneId)
+					};
+				result.push(resultItem);
+			}
+			
+		}
+		
+		return result;
+	}
 
 }
 

@@ -168,8 +168,8 @@
     function buildMutationsDataTable(mutations,mutEventIds, table_id, sDom, iDisplayLength, sEmptyInfo, compact) {
         var data = [];
         var oncokbInstance = new OncoKB.Instance();
-        var tunmorType = clinicalDataMap[Object.keys(clinicalDataMap)[0]].CANCER_TYPE;
-        oncokbInstance.setTumorType(tunmorType);
+        var tumorType = clinicalDataMap[Object.keys(clinicalDataMap)[0]].CANCER_TYPE;
+        oncokbInstance.setTumorType(tumorType);
         for (var i=0, nEvents=mutEventIds.length; i<nEvents; i++) {
             var _id = mutEventIds[i];
             oncokbInstance.addVariant(_id, mutations.getValue(_id, "gene"), mutations.getValue(_id, "aa"), null, mutations.getValue(_id, "type"))
@@ -931,7 +931,7 @@
                     addCosmicTooltip(table_id);
                     listenToBamIgvClick(".igv-link");
                     drawPanCanThumbnails(this);
-                    oncoKBDataInject(this, table_id);
+//                    oncoKBDataInject(this, table_id);
                 },
                 "bPaginate": true,
                 "sPaginationType": "two_button",

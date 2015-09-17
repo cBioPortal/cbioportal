@@ -415,8 +415,7 @@ var caseMetaData = {
     color : {}, label : {}, index : {}, tooltip : {}
 };
 
-OncoKB.url = '<%=oncokbUrl%>';
-OncoKB.geneStatus = '<%=oncokbGeneStatus%>';
+OncoKB.setUrl('<%=oncokbUrl%>')
 
 $(document).ready(function(){
     if (print) $('#page_wrapper_table').css('width', '900px');

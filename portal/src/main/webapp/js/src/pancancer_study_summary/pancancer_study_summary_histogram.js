@@ -53,17 +53,9 @@ function PancancerStudySummaryHistogram()
     var getTypeOfCancer = function(study) {
     	return study.typeOfCancer; 
     };
-
-    var hasCnaData = function(alterations) {
-    	//TODO maybe include cnaLoss, cnaGain?
-    	if (alterations.cnaUp > 0 || alterations.cnaDown > 0)
-    		return true;
-    	return false;
-    }
     
     var filterCriteriaChanged = function(model) {
     	return model.hasChanged("cancerType") || model.hasChanged("cancerTypeDetailed") || model.hasChanged("minNrAlteredSamples");
-        //TODO - use this field : showGenomicAlterationTypes: true  : to display simple histogram
     }
     
     
@@ -586,12 +578,9 @@ function HistogramPresenter(model, dmPresenter, geneId)
 	// settings found in the model and format this into the correct JSON format
 	// to be used in the D3JS functions to draw the histogram:
 	this.getJSONDataForHistogram = function(callBackFunction){
-		//get data (from external temp files for now):
-		
-		//TODO - only get data again if cancer type selection was changed:
+
 		//call the "data manager" layer to retrieve the data and transform to correct JSON structure
-		this.histData = this.getHistogramData();
-		
+		this.histData = this.getHistogramData();		
 		
 		var finalHistData = [];
 		//filter data on nr of samples:

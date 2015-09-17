@@ -245,6 +245,8 @@
              var cancerType = $(this).val();
              fields["cancerType"] = cancerType;
              fields["cancerTypeDetailed"] = self.dmPresenter.getCancerTypeDetailedList(cancerType);
+             //also reset minNrAlteredSamples (for the slider):
+             fields["minNrAlteredSamples"] = 1;
         	 self.model.set(fields);
          }
          // create the dropdown and add it
@@ -256,7 +258,7 @@
       addSortByYAxisSelect: function(){
     	 var self = this;
          // static options: 
-         var selOptions = ["Absolute Counts", "Alteration Frequency"];  //TODO could be constants
+         var selOptions = ["Absolute Counts", "Alteration Frequency"];  
          
          // handle the event for when the Sort By Y-Axis Select is changed
          var changeCallBack = function(){
@@ -830,29 +832,31 @@ function DataManagerPresenter(study_id, dmInitCallBack)
 	}
 	
 	//returns the total number of cancerType samples where there is one or more alterations for the given gene
-	this.getNrAlteredSamplesForCancerTypeAndGene = function(cancerType, gene){
-		//dummy results for now. TODO - base on case counts
-		return 20;
-		/* dummy code:
-		if (cancerType == "breast"){
-			if (gene == "TNF")
-				return 5;
-			else 
-				return 8;
-		}
-		else if (cancerType == "lung"){
-			if (gene == "TNF")
-				return 20;
-			else 
-				return 4;
+	this.getNrAlteredSamplesForCancerTypeAndGene = function(cancerType, geneId) {
+		
+		if (cancerType == "All") {
+			//check max:
+			var max = 0;
+			var cancerTypes = this.getCancerTypeList();
+			for (var i = 0; i < cancerTypes.length; i++) {
+				//this method call is repeated (also called to build histogram JSON data)...TODO - performance improvement could be gained here...tests will indicate if necessary
+				var nrAlt = this.getAlterationEvents(cancerTypes[i], null, geneId).all;
+				if (nrAlt > max)
+					max = nrAlt;
+			}
+			return max;
 		}
 		else {
-			if (gene == "TNF")
-				return 25;
-			else 
-				return 12;
+			var max = 0;
+			var cancerTypes = this.getCancerTypeDetailedList(cancerType);
+			for (var i = 0; i < cancerTypes.length; i++) {
+				var nrAlt = this.getAlterationEvents(cancerType, cancerTypes[i], geneId).all;
+				if (nrAlt > max)
+					max = nrAlt;
+			}
+			return max;
 		}
-		*/	
+
 	}
 	
 	//gene list chosen by user in query form:

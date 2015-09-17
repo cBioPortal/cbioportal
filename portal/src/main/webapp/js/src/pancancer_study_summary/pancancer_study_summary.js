@@ -744,7 +744,7 @@ function DataManagerPresenter(study_id, dmInitCallBack)
 		//	        "cnaGain": 0,
 		//	        "multiple": 0
 		//		}
-		var mutation = cnaUp = cnaDown = cnaLoss = cnaGain = multiple = 1;
+		var mutation = cnaUp = cnaDown = cnaLoss = cnaGain = multiple = 0; 
 		
 		//count / mapping logic: 
 		for (var i = 0; i < sampleIds.length; i++) {

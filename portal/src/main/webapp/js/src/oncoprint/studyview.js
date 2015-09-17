@@ -115,10 +115,47 @@ $(document).ready(function() {
 			})();
 			$('#outer_loader_img').hide();
 			$('#oncoprint #everything').show();
+                        
+                        var gene_data = response.toJSON();
+                        //get to process data from gene panel
+                        if(genepanelValues.genepaneldata.length>0)
+                        {
+                            for(var i=0; i < gene_data.length; i++)
+                            {
+                                var geneIndexValue;
+                                var genepanelStableId;
+                                if(genepanelValues.genepaneldata[i] !== undefined)
+                                {
+                                    genepanelStableId = genepanelValues.genepaneldata[i].attr_val;
+                                }
+                                else
+                                {
+                                    genepanelStableId = undefined;
+                                }
+
+                                for(var j= 0; j < config.gene_order.length; j++)
+                                {
+                                    if(genepanelStableId !== undefined)
+                                    {
+                                        geneIndexValue = _.find(genepanelValues.genepanel[genepanelStableId].geneList, function(gene){ return gene === gene_data[i+j*gene_data.length].gene; }); 
+                                    }
+                                    else
+                                    {
+                                        geneIndexValue = false;
+                                    }
+
+                                    if(gene_data[i+j*gene_data.length].gene !== undefined && !geneIndexValue && gene_data[i+j*gene_data.length].mutation === undefined && gene_data[i+j*gene_data.length].cna === undefined)
+                                    {
+                                        gene_data[i+j*gene_data.length].NA = true; 
+                                    }
+                                }
+                            }
+                        }
+                        //process gene panel end
+                        
 			window.onc_obj = setUpOncoprint('oncoprint_body', {
 				sample_to_patient: window.PortalGlobals.getPatientSampleIdMap(),
-				gene_data: response.toJSON(),
-                                genepanel_data:genepanelValues,
+				gene_data: gene_data,
 				toolbar_selector: '#oncoprint-diagram-toolbar-buttons',
 				toolbar_fade_hitzone_selector: '#oncoprint',
 				sample_list: window.PortalGlobals.getCases().trim().split(/\s+/),

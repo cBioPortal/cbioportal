@@ -272,7 +272,7 @@
                                     }
 
                                 if(mutations.getValue(source[0], 'is-hotspot')) {
-                                    ret += "<span class='oncokb oncokb_alteration hotspot' alteration='"+aa+"' hashId='"+source[0]+"' style='margin-left:5px;'><img width='13' height='13' src='images/oncokb-flame.svg'></span>";
+                                    ret += "<span class='"+table_id+"-chang-hotspot' alteration='"+aa+"' hashId='"+source[0]+"' style='margin-left:5px;'><img width='13' height='13' src='images/oncokb-flame.svg'></span>";
                                 }
 
                                 var aaOriginal = mutations.getValue(source[0], 'aa-orig');
@@ -916,6 +916,7 @@
                     plotMutRate("."+table_id+"-mut-cohort",mutations);
                     addNoteTooltip("."+table_id+"-tip");
                     addNoteTooltip("."+table_id+"-ma-tip",null,{my:'top right',at:'bottom center',viewport: $(window)});
+                    addNoteTooltip('.'+table_id+'-chang-hotspot', '<b>Recurrent Hotspot</b><br/>This mutated amino acid was identified as a recurrent hotspot (statistical significance, q-value < 0.01) in a set of 11,119 tumor samples of various cancer types (based on Chang, M. et al. Nature Biotech. 2015).');
                     addDrugsTooltip("."+table_id+"-drug-tip", 'top right', 'bottom center');
                     addCosmicTooltip(table_id);
                     listenToBamIgvClick(".igv-link");
@@ -1005,18 +1006,12 @@
                             _tip = '', _oncogenicTip = '', _hotspotTip = '';
                     _oncogenicTip += oncokbMutationSummary(genomicEventObs.mutations.getValue(hashId, 'oncokb'));
 
-//                    if(_hotspot === 1){
-                        _hotspotTip = '<b>Recurrent Hotspot</b><br/>This mutated amino acid was identified as a recurrent hotspot (statistical significance, q-value < 0.01) in a set of 11,119 tumor samples of various cancer types (based on Chang, M. et al. Nature Biotech. 2015).'
-//                    }
-
 //                    if (genomicEventObs.mutations.getValue(hashId, 'oncokb').oncogenic){
                     _oncogenicTip += '<span style="float:right"><i>Powered by OncoKB(Beta)</i></span><br/><br/><i>OncoKB is under development, please pardon errors and omissions. Please send feedback to <a href="mailto:oncokb@cbio.mskcc.org" title="Contact us">oncokb@cbio.mskcc.org</a></i>';
 //                    }
 
                     if($(this).hasClass('oncogenic')) {
                         _tip = _oncogenicTip;
-                    }else if($(this).hasClass('hotspot')) {
-                        _tip = _hotspotTip;
                     }
 
                     if(_tip !== '') {

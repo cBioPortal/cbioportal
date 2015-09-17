@@ -36,6 +36,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -59,9 +61,15 @@ public final class OncokbHotspotUtil {
         
         Map<String, Integer> geneInfo = linkMap.get(gene);
         if (geneInfo != null) {
-            Integer times = geneInfo.get(alteration);
-            if (times != null && times >= 5) {
-                return true;
+            Pattern p = Pattern.compile("([A-Z][0-9]+)([A-Z])");
+            Matcher m = p.matcher(alteration);
+            if (m.matches()) {
+                String codon = m.group(1);
+                if(geneInfo.containsKey(codon)) {
+                    return true;
+                }else{
+                    return false;
+                }
             }else{
                 return false;
             }
@@ -87,22 +95,22 @@ public final class OncokbHotspotUtil {
             if(items.length > 1 && items.length < 4) {
                 String hugoSymbol = items[0];
                 String codon = items[1];
-                String[] variants = items.length>2?items[2].split("\\|"):null;
+//                String[] variants = items.length>2?items[2].split("\\|"):null;
 
                 if(codon != null) {
                     if(!hotspots.containsKey(hugoSymbol)) {
                         hotspots.put(hugoSymbol, new HashMap<String, Integer>());
                     }
-                    if(variants != null && variants.length > 0) {
-                        for(String aa : variants) {
-                            String [] datum = aa.split(":");
-                            if(datum.length == 2) {
-                                hotspots.get(hugoSymbol).put(codon+datum[0], Integer.parseInt(datum[1]));
-                            }
-                        }
-                    }else{
+//                    if(variants != null && variants.length > 0) {
+//                        for(String aa : variants) {
+//                            String [] datum = aa.split(":");
+//                            if(datum.length == 2) {
+//                                hotspots.get(hugoSymbol).put(codon+datum[0], Integer.parseInt(datum[1]));
+//                            }
+//                        }
+//                    }else{
                         hotspots.get(hugoSymbol).put(codon, 1000000);
-                    }
+//                    }
                 }
             }
         }

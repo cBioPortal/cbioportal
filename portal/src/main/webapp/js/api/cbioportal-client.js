@@ -100,6 +100,99 @@ window.cbioportal_client = (function() {
 			return stringSetDifference([].concat(keys), Object.keys(map));
 		};
 	};
+	function HierIndex(key) {
+		var map = {};
+		this.addData = function(data, args) {
+			var i, _len=data.length, j;
+			// Clear existing data for touched keys, and initialize map locations
+			for (i = 0; i < _len; i++) {
+				var datum_key = key(data[i], args);
+				var map_entry = map;
+				for (j = 0; j < datum_key.length; j++) {
+					var sub_key = datum_key[j];
+					if (j < datum_key.length - 1) {
+						map_entry[sub_key] = map_entry[sub_key] || {};
+					} else {
+						map_entry[sub_key] = [];
+					}
+					map_entry = map_entry[sub_key];
+				}
+			}
+			// Add data
+			for (i = 0; i < _len; i++) {
+				var datum_key = key(data[i], args);
+				var map_entry = map;
+				for (j = 0; j < datum_key.length; j++) {
+					map_entry = map_entry[datum_key[j]];
+				}
+				map_entry.push(data[i]);
+			}
+		};
+		this.getData = function (key_list_list) {
+			var ret = [];
+			var intermediate = [map];
+			var leaves = [];
+			var i, j, k;
+			key_list_list = key_list_list || [];
+			var key_list_index = 0;
+			while (intermediate.length > 0) {
+				var tmp_intermediate = [];
+				for (i = 0; i<intermediate.length; i++) {
+					var obj = intermediate[i];
+					if (Object.prototype.toString.call(obj) === '[object Array]') {
+						leaves.push(obj);
+					} else {
+						var keys = key_list_list[key_list_index] || Object.keys(obj);
+						for (k = 0; k<keys.length; k++) {
+							if (obj.hasOwnProperty(keys[k])) {
+								tmp_intermediate.push(obj[keys[k]]);
+							}
+						}
+					}
+				}
+				intermediate = tmp_intermediate;
+				key_list_index += 1;
+			}
+			for (i = 0; i<leaves.length; i++) {
+				ret = ret.concat(leaves[i]);
+			}
+			return ret;
+		};
+		this.missingKeys = function(key_list_list) {
+			var missing_keys = [];
+			var intermediates = [{'key': [], 'obj': map}];
+			var i, j, k, h;
+			for (i = 0; i<key_list_list.length; i++) {
+				missing_keys.push({});
+			}
+			var use_all_keys_starting_at = key_list_list.length;
+			for (i = 0; i<key_list_list.length && i<use_all_keys_starting_at; i++) {
+				var key_list = key_list_list[i];
+				var tmp_intermediates = [];
+				for (j = 0; j<key_list.length; j++) {
+					for (k = 0; k<intermediates.length; k++) {
+						var intermediate = intermediates[k];
+						if (intermediate.obj.hasOwnProperty(key_list[j])) {
+							var new_intermediate = {'key':intermediate.key.concat(key_list[j]), 'obj':intermediate.obj[key_list[j]]};
+							tmp_intermediates.push(new_intermediate);
+						} else {
+							for (h=0; h<intermediate.key.length; h++) {
+								missing_keys[h][intermediate.key[h]] = true;
+							}
+							use_all_keys_starting_at = Math.min(i+1, use_all_keys_starting_at);
+						}
+					}
+				}
+				intermediates = tmp_intermediates;
+			}
+			missing_keys = missing_keys.map(function(o) { return Object.keys(o); });
+			for (i = use_all_keys_starting_at; i < key_list_list.length; i++) {
+				missing_keys[i] = key_list_list[i];
+			}
+			return missing_keys;
+		};
+	};
+	window.HierIndex = HierIndex;
 	
 	var makeOneIndexService = function(arg_name, indexKeyFn, service_fn_name) {
 		return (function() {
@@ -189,35 +282,37 @@ window.cbioportal_client = (function() {
 			}
 		})();
 	};
-	var makeStudyHierIndexService = function(arg_name, indexKeyFn, service_fn_name) {
+	
+	var makeStudyHierIndexService = function(arg_name, indexing_attr, service_fn_name) {
 		return (function() {
-			var index = {};
+			//var index = {};
+			var index = new HierIndex(function(d) { return [d.study_id, d[indexing_attr]];});
+			var all_loaded = {};
 			return function(args) {
 				var def = new $.Deferred();
 				var study_id = args.study_id;
 				if (args.hasOwnProperty(arg_name)) {
-					index[study_id] = index[study_id] || {sub_index: new Index(indexKeyFn), all_loaded: false};
-					var missing_keys = index[study_id].sub_index.missingKeys(args[arg_name]);
-					if (missing_keys.length > 0) {
+					var missing_keys = index.missingKeys([[study_id], args[arg_name]]);
+					if (missing_keys[0].length > 0) {
 						var webservice_args = {};
-						webservice_args[arg_name] = missing_keys;
+						webservice_args[arg_name] = missing_keys[1];
+						webservice_args.study_id = study_id;
 						raw_service[service_fn_name](webservice_args).then(function(data) {
-							index[study_id].sub_index.addData(data);
-							def.resolve(index[study_id].sub_index.getData(args[arg_name]));
+							index.addData(data);
+							def.resolve(index.getData([[study_id], args[arg_name]]));
 						});
 					} else {
-						def.resolve(index[study_id].sub_index.getData(args[arg_name]));
+						def.resolve(index.getData([[study_id], args[arg_name]]));
 					}
 				} else {
-					index[study_id] = index[study_id] || {sub_index: new Index(indexKeyFn), all_loaded: false};
-					if (index[study_id].all_loaded === false) {
-						raw_service[service_fn_name]({'study_id': study_id}).then(function(data) {
-							index[study_id].sub_index.addData(data);
-							index[study_id].all_loaded = true;
-							def.resolve(index[study_id].sub_index.getData());
-						});
+					if (all_loaded[study_id]) {
+						def.resolve(index.getData([[study_id]]));
 					} else {
-						def.resolve(index[study_id].sub_index.getData());
+						raw_service[service_fn_name]({'study_id': study_id}).then(function(data) {
+							index.addData(data);
+							all_loaded[study_id] = true;
+							def.resolve(index.getData([[study_id]]));
+						});
 					}
 				}
 				return def.promise();
@@ -230,10 +325,10 @@ window.cbioportal_client = (function() {
 		getStudies: makeOneIndexService('study_ids', function(d) { return d.id;}, 'getStudies'),
 		getGeneticProfiles: makeTwoIndexService('study_id', function(d) { return d.study_id;}, false, 'genetic_profile_ids', function(d) {return d.id; }, true, 'getGeneticProfiles'),
 		getPatientLists: makeTwoIndexService('study_id', function(d) { return d.study_id;}, false, 'patient_list_ids', function(d) {return d.id; }, true, 'getPatientLists'),
-		getSampleClinicalData: makeStudyHierIndexService('sample_ids', function(d) { return d.sample_id; }, 'getSampleClinicalData'),
-		getPatientClinicalData: makeStudyHierIndexService('patient_ids', function(d) { return d.patient_id; }, 'getPatientClinicalData'),
-		getPatients: makeStudyHierIndexService('patient_ids', function(d) { return d.id; }, 'getPatients'),
-		getSamples: makeStudyHierIndexService('sample_ids', function(d) { return d.id; }, 'getSamples'),
+		getSampleClinicalData: makeStudyHierIndexService('sample_ids', 'sample_id', 'getSampleClinicalData'),
+		getPatientClinicalData: makeStudyHierIndexService('patient_ids', 'patient_id', 'getPatientClinicalData'),
+		getPatients: makeStudyHierIndexService('patient_ids', 'id', 'getPatients'),
+		getSamples: makeStudyHierIndexService('sample_ids', 'id', 'getSamples'),
 		getGeneticProfileData: (function() {
 			var index = {};
 			return function(args) {

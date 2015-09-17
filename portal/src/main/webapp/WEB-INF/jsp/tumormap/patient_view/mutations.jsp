@@ -169,10 +169,10 @@
         var data = [];
         var oncokbInstance = new OncoKB.Instance();
         var tunmorType = clinicalDataMap[Object.keys(clinicalDataMap)[0]].CANCER_TYPE;
-        oncokbInstance.tumorType = tunmorType;
+        oncokbInstance.setTumorType(tunmorType);
         for (var i=0, nEvents=mutEventIds.length; i<nEvents; i++) {
             var _id = mutEventIds[i];
-            oncokbInstance.addVariant(_id, mutations.getValue(_id, "gene"), mutations.getValue(_id, "aa"), tunmorType, mutations.getValue(_id, "type"))
+            oncokbInstance.addVariant(_id, mutations.getValue(_id, "gene"), mutations.getValue(_id, "aa"), null, mutations.getValue(_id, "type"))
             data.push([mutEventIds[i]]);
         }
 

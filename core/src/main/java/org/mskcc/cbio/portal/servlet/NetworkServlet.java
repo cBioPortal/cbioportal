@@ -47,7 +47,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.*;
 
 /**
- * Retrieving 
+ * Retrieving
  * @author jj
  */
 public class NetworkServlet extends HttpServlet {
@@ -60,17 +60,17 @@ public class NetworkServlet extends HttpServlet {
     private static final String NODE_ATTR_PERCENT_CNA_HET_LOSS = "PERCENT_CNA_HEMIZYGOUSLY_DELETED";
     private static final String NODE_ATTR_PERCENT_MRNA_WAY_UP = "PERCENT_MRNA_WAY_UP";
     private static final String NODE_ATTR_PERCENT_MRNA_WAY_DOWN = "PERCENT_MRNA_WAY_DOWN";
-    
+
     @Override
     public void doGet(HttpServletRequest req,
-                      HttpServletResponse res) 
+                      HttpServletResponse res)
             throws ServletException, IOException {
         this.doPost(req, res);
     }
-    
+
     /**
      * Processes Post Request.
-     * 
+     *
      * @param req   HttpServletRequest Object.
      * @param res   HttpServletResponse Object.
      * @throws ServletException Servlet Error.
@@ -96,15 +96,15 @@ public class NetworkServlet extends HttpServlet {
             res.getWriter().write("");
         }
     }
-    
+
     public void processGetNetworkRequest(HttpServletRequest req,
                       HttpServletResponse res)
             throws ServletException, IOException {
         try {
             StringBuilder messages = new StringBuilder();
-            
+
             XDebug xdebug = new XDebug( req );
-            
+
             String xd = req.getParameter("xdebug");
             boolean logXDebug = xd!=null && xd.equals("1");
 
@@ -126,11 +126,11 @@ public class NetworkServlet extends HttpServlet {
             } catch(Exception e) {
                 netSize = NetworkIO.NetworkSize.LARGE;
             }
-            
+
             String dsSrc = req.getParameter("source");
             List<String> dataSources = dsSrc == null ? null :
                     Arrays.asList(dsSrc.split("[, ]+"));
-            
+
             Network network;
             xdebug.startTimer();
             if ("cpath2".equalsIgnoreCase(netSrc)) {
@@ -142,39 +142,39 @@ public class NetworkServlet extends HttpServlet {
             } else {
                 network = NetworkIO.readNetworkFromCGDS(queryGenes, netSize, dataSources, true);
             }
-            
+
             xdebug.stopTimer();
             xdebug.logMsg(this, "Successfully retrieved networks from " + netSrc
                     + ": took "+xdebug.getTimeElapsed()+"ms");
-                
+
             // get cancer study id
             // if cancer study id is null, return the current network
             String cancerStudyId = req.getParameter(QueryBuilder.CANCER_STUDY_ID);
             CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
 
             if (network.countNodes()!=0 && cancerStudyId!=null) {
-            
+
                 // add attribute is_query to indicate if a node is in query genes
                 // and get the list of genes in network
                 xdebug.logMsg(this, "Retrieving data from CGDS...");
-                
+
                 // Get patient ids
                 Set<String> targetPatientIds = getPatientIds(req, cancerStudyId);
                 List<Integer> internalSampleIds = InternalIdUtil.getInternalNonNormalSampleIds(cancerStudy.getInternalId(), new ArrayList<String>(targetPatientIds));
-                
+
                 //  Get User Selected Genetic Profiles
                 Set<GeneticProfile> geneticProfileSet = getGeneticProfileSet(req, cancerStudyId);
-                
+
                 // getzScoreThreshold
                 double zScoreThreshold = Double.parseDouble(req.getParameter(QueryBuilder.Z_SCORE_THRESHOLD));
 
                 xdebug.startTimer();
-                
-                Map<String,Map<String,Integer>> mapQueryGeneAlterationCaseNumber 
+
+                Map<String,Map<String,Integer>> mapQueryGeneAlterationCaseNumber
                         = getMapQueryGeneAlterationCaseNumber(req);
-                
+
                 DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
-                
+
                 Set<Node> queryNodes = new HashSet<Node>();
                 for (Node node : network.getNodes()) {
                     if(node.getType().equals(NodeType.DRUG))
@@ -184,7 +184,7 @@ public class NetworkServlet extends HttpServlet {
                     if (ngnc==null) {
                         continue;
                     }
-                    
+
                     if (mapQueryGeneAlterationCaseNumber!=null) {
                         if (queryGenes.contains(ngnc)) {
                             queryNodes.add(node);
@@ -196,21 +196,21 @@ public class NetworkServlet extends HttpServlet {
                     if (canonicalGene==null) {
                         continue;
                     }
-                    
+
                     long entrezGeneId = canonicalGene.getEntrezGeneId();
 
                     // add attributes
-                    addCGDSDataAsNodeAttribute(node, entrezGeneId, geneticProfileSet, 
+                    addCGDSDataAsNodeAttribute(node, entrezGeneId, geneticProfileSet,
                             internalSampleIds, zScoreThreshold);
                 }
 
                 xdebug.stopTimer();
                 xdebug.logMsg(this, "Retrived data from CGDS. Took "+xdebug.getTimeElapsed()+"ms");
-                
+
                 if (mapQueryGeneAlterationCaseNumber!=null) {
                     addAttributesForQueryGenes(queryNodes, internalSampleIds.size(), mapQueryGeneAlterationCaseNumber);
                 }
-                
+
                 String nLinker = req.getParameter("linkers");
                 if (nLinker!=null && nLinker.matches("[0-9]+")) {
                     int nBefore = network.countNodes();
@@ -222,7 +222,7 @@ public class NetworkServlet extends HttpServlet {
                     } catch (Exception ex) {
                         diffusion = 0;
                     }
-                    
+
                     xdebug.startTimer();
                     pruneNetworkByAlteration(network, diffusion, Integer.parseInt(nLinker), querySize);
                     int nAfter = network.countNodes(true);
@@ -249,11 +249,11 @@ public class NetworkServlet extends HttpServlet {
                 String encodedQueryAlteration = encodeQueryAlteration(mapQueryGeneAlterationCaseNumber);
 
                 if (logXDebug) {
-                    xdebug.logMsg(this, "<a href=\""+getNetworkServletUrl(req, false, 
+                    xdebug.logMsg(this, "<a href=\""+getNetworkServletUrl(req, false,
                             false, false, encodedQueryAlteration)
                             +"\" target=\"_blank\">NetworkServlet URL</a>");
                 }
-                
+
                 messages.append("Download the complete network in ");
                 messages.append("<a href=\"");
                 messages.append(getNetworkServletUrl(req, true, true, false, encodedQueryAlteration));
@@ -266,10 +266,10 @@ public class NetworkServlet extends HttpServlet {
                 messages.append("name=GraphMLReader\" target=\"_blank\">GraphMLReader plugin</a>");
                 messages.append(" is required for importing GraphML).");
             }
-            
+
             String format = req.getParameter("format");
             boolean sif = format!=null && format.equalsIgnoreCase("sif");
-
+            
             String download = req.getParameter("download");
             if (download!=null && download.equalsIgnoreCase("on")) {
                 res.setContentType("application/octet-stream");
@@ -278,13 +278,13 @@ public class NetworkServlet extends HttpServlet {
             } else {
                 res.setContentType("text/"+(sif?"plain":"xml"));
             }
-            
+
             String gzip = req.getParameter("gzip");
             boolean isGzip = gzip != null && gzip.equalsIgnoreCase("on");
             if (isGzip) {
                 res.setHeader("Content-Encoding", "gzip");
             }
-            
+
             NetworkIO.NodeLabelHandler nodeLabelHandler = new NetworkIO.NodeLabelHandler() {
                 // using HGNC gene symbol as label if available
                 public String getLabel(Node node) {
@@ -295,7 +295,7 @@ public class NetworkServlet extends HttpServlet {
                     if (symbol!=null) {
                         return symbol;
                     }
-                    
+
                     Object strNames = node.getAttributes().get("PARTICIPANT_NAME");
                     if (strNames!=null) {
                         String[] names = strNames.toString().split(";",2);
@@ -303,27 +303,29 @@ public class NetworkServlet extends HttpServlet {
                             return names[0];
                         }
                     }
-                    
+
                     return node.getId();
                 }
             };
-            
+
             String graph;
             if (sif) {
                 graph = NetworkIO.writeNetwork2Sif(network, nodeLabelHandler);
-            } else {
+            }
+            else
+            {
                 graph = NetworkIO.writeNetwork2GraphML(network,nodeLabelHandler);
             }
-            
+
             if (logXDebug) {
                 writeXDebug(xdebug, res);
             }
-            
+
             String msgoff = req.getParameter("msgoff");
             if ((msgoff==null || !msgoff.equals("t")) && messages.length()>0) {
                 writeMsg(messages.toString(), res);
             }
-            
+
             if (isGzip) {
                 GZIPOutputStream out = new GZIPOutputStream(res.getOutputStream());
                 out.write(graph.getBytes());
@@ -340,7 +342,7 @@ public class NetworkServlet extends HttpServlet {
             res.getWriter().write("<graphml></graphml>");
         }
     }
-    
+
     private int filterNodes(Set<String> queryGenes) {
         int n = 0;
         try {
@@ -356,35 +358,35 @@ public class NetworkServlet extends HttpServlet {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
+
         return n;
     }
-    
+
     /**
-     * @param network 
+     * @param network
      * @param nKeep keep the top altered
      */
     private void pruneNetworkByAlteration(Network network, double diffusion, int nKeep, int nQuery) {
         if (network.countNodes() <= nKeep + nQuery) {
             return;
         }
-        
+
         List<Node> nodesToRemove = getNodesToRemove(network, diffusion, nKeep);
-        
+
         for (Node node : nodesToRemove) {
             network.removeNode(node);
         }
     }
-    
+
     /**
-     * 
+     *
      * @param network
      * @param n
-     * @return 
+     * @return
      */
     private List<Node> getNodesToRemove(final Network network, final double diffusion, final int n) {
         final Map<Node,Double> mapDiffusion = getMapDiffusedTotalAlteredPercentage(network, diffusion);
-        
+
         // keep track of the top nKeep
         PriorityQueue<Node> topAlteredNodes = new PriorityQueue<Node>(n,
                 new Comparator<Node>() {
@@ -394,21 +396,21 @@ public class NetworkServlet extends HttpServlet {
                             ret = Double.compare(getTotalAlteredPercentage(n1),
                                     getTotalAlteredPercentage(n2));
                         }
-                            
+
                         if (ret==0) { // if the same, rank according to degree
                             ret = network.getDegree(n1) - network.getDegree(n2);
                         }
-                        
+
                         return ret;
                     }
                 });
-        
+
         List<Node> nodesToRemove = new ArrayList<Node>();
         for (Node node : network.getNodes()) {
             if (isInQuery(node) || node.getType().equals(NodeType.DRUG)) {
                 continue;
             }
-            
+
             if (topAlteredNodes.size()<n) {
                 topAlteredNodes.add(node);
             } else {
@@ -424,15 +426,15 @@ public class NetworkServlet extends HttpServlet {
                 }
             }
         }
-        
+
         return nodesToRemove;
     }
-    
+
     private boolean isInQuery(Node node) {
         String inQuery = (String)node.getAttribute(NODE_ATTR_IN_QUERY);
         return inQuery!=null && inQuery.equals("true");
     }
-    
+
     private Map<Node,Double> getMapDiffusedTotalAlteredPercentage(Network network, double diffusion) {
         Map<Node,Double> map = new HashMap<Node,Double>();
         for (Node node : network.getNodes()) {
@@ -440,33 +442,33 @@ public class NetworkServlet extends HttpServlet {
         }
         return map;
     }
-    
+
     private double getDiffusedTotalAlteredPercentage(Network network, Node node, double diffusion) {
         double alterPerc = getTotalAlteredPercentage(node);
         if (diffusion==0) {
             return alterPerc;
         }
-        
+
         for (Node neighbor : network.getNeighbors(node)) {
             double diffused = diffusion * getTotalAlteredPercentage(neighbor);
             if (diffused > alterPerc) {
                 alterPerc = diffused;
             }
         }
-        
+
         return alterPerc;
     }
-    
+
     private double getTotalAlteredPercentage(Node node) {
         Double alterPerc = (Double)node.getAttribute(NODE_ATTR_PERCENT_ALTERED);
         return alterPerc == null ? 0.0 : alterPerc;
     }
-    
-    private Set<String> getPatientIds(HttpServletRequest req, String cancerStudyId) 
+
+    private Set<String> getPatientIds(HttpServletRequest req, String cancerStudyId)
             throws ServletException, DaoException {
     	String patientIdsKey = req.getParameter(QueryBuilder.CASE_IDS_KEY);
     	String strPatientIds = PatientSetUtil.getPatientIds(patientIdsKey);
-    	
+
         if (strPatientIds==null || strPatientIds.length()==0) {
             String patientSetId = req.getParameter(QueryBuilder.CASE_SET_ID);
                 //  Get Patient Sets for Selected Cancer Type
@@ -485,7 +487,7 @@ public class NetworkServlet extends HttpServlet {
         }
         return targetPatientIds;
     }
-    
+
     private Set<GeneticProfile> getGeneticProfileSet(HttpServletRequest req, String cancerStudyId)
             throws ServletException, DaoException {
         Set<GeneticProfile> geneticProfileSet = new HashSet<GeneticProfile>();
@@ -500,7 +502,7 @@ public class NetworkServlet extends HttpServlet {
         }
         return geneticProfileSet;
     }
-    
+
     private void addAttributesForQueryGenes(Set<Node> nodes, int nCases,
             Map<String,Map<String,Integer>> mapQueryGeneAlterationCaseNumber) {
         for (Node node : nodes) {
@@ -511,7 +513,7 @@ public class NetworkServlet extends HttpServlet {
             }
         }
     }
-    
+
     private Map<String,Map<String,Integer>> getMapQueryGeneAlterationCaseNumber(HttpServletRequest req)
     {
         String geneAlt = req.getParameter("query_alt");
@@ -530,7 +532,7 @@ public class NetworkServlet extends HttpServlet {
         }
 
         if (heatMap!=null) {
-            Map<String,Map<String,Integer>> mapQueryGeneAlterationCaseNumber 
+            Map<String,Map<String,Integer>> mapQueryGeneAlterationCaseNumber
                     = new HashMap<String,Map<String,Integer>>();
             String[] heatMapLines = heatMap.split("\r?\n");
             String[] genes = heatMapLines[0].split("\t");
@@ -554,7 +556,7 @@ public class NetworkServlet extends HttpServlet {
                         if (type.isEmpty()) {
                             continue;
                         }
-                        
+
                         // add to specific type
                         Integer num = map.get(type);
                         if (num==null) {
@@ -565,13 +567,13 @@ public class NetworkServlet extends HttpServlet {
                     }
                 }
             }
-            
+
             return mapQueryGeneAlterationCaseNumber;
         }
-        
+
         return null;
     }
-    
+
     private static final Map<String,String> mapHeatMapKeyToAttrName;
     static {
         mapHeatMapKeyToAttrName = new HashMap<String,String>();
@@ -584,11 +586,11 @@ public class NetworkServlet extends HttpServlet {
         mapHeatMapKeyToAttrName.put("UP", NetworkServlet.NODE_ATTR_PERCENT_MRNA_WAY_UP);
         mapHeatMapKeyToAttrName.put("MUT", NetworkServlet.NODE_ATTR_PERCENT_MUTATED);
     }
-    
+
     private void addCGDSDataAsNodeAttribute(Node node, long entrezGeneId,
         Set<GeneticProfile> profiles, List<Integer> internalSampleIds, double zScoreThreshold) throws DaoException {
         Set<String> alteredSamples = new HashSet<String>();
-        
+
         for (GeneticProfile profile : profiles) {
             if (profile.getGeneticAlterationType() == GeneticAlterationType.MUTATION_EXTENDED) {
                 Set<String> samples = getMutatedSamples(profile.getGeneticProfileId(),
@@ -598,21 +600,21 @@ public class NetworkServlet extends HttpServlet {
             } else if (profile.getGeneticAlterationType() == GeneticAlterationType.COPY_NUMBER_ALTERATION) {
                 Map<String,Set<String>> cnaSamples = getCNASamples(profile.getGeneticProfileId(),
                         internalSampleIds, entrezGeneId);
-                
+
                 //AMP
                 Set<String> samples = cnaSamples.get("2");
                 if (!samples.isEmpty()) {
                     alteredSamples.addAll(samples);
                     node.setAttribute(NODE_ATTR_PERCENT_CNA_AMPLIFIED, 1.0*samples.size()/internalSampleIds.size());
                 }
-                
+
                 //HOMDEL
                 samples = cnaSamples.get("-2");
                 if (!samples.isEmpty()) {
                     alteredSamples.addAll(samples);
                     node.setAttribute(NODE_ATTR_PERCENT_CNA_HOM_DEL, 1.0*samples.size()/internalSampleIds.size());
                 }
-                
+
             } else if (profile.getGeneticAlterationType() == GeneticAlterationType.MRNA_EXPRESSION) {
                 Set<String>[] samples = getMRnaAlteredSamples(profile.getGeneticProfileId(),
                         internalSampleIds, entrezGeneId, zScoreThreshold);
@@ -624,11 +626,11 @@ public class NetworkServlet extends HttpServlet {
         }
 
         node.setAttribute(NODE_ATTR_PERCENT_ALTERED, 1.0*alteredSamples.size()/internalSampleIds.size());
-        
+
     }
-    
+
     /**
-     * 
+     *
      * @return mutated samples.
      */
     private Set<String> getMutatedSamples(int geneticProfileId, List<Integer> internalSampleIds,
@@ -638,20 +640,20 @@ public class NetworkServlet extends HttpServlet {
                     DaoMutation.getMutations(geneticProfileId, internalSampleIds, entrezGeneId);
         Set<String> samples = new HashSet<String>();
         for (ExtendedMutation mutation : mutationList) {
-            Sample sample = DaoSample.getSampleById(mutation.getSampleId()); 
+            Sample sample = DaoSample.getSampleById(mutation.getSampleId());
             samples.add(sample.getStableId());
         }
-        
+
         return samples;
     }
-    
+
     /**
-     * 
+     *
      * @param geneticProfileId
      * @param internalSampleIds
      * @param entrezGeneId
      * @return map from cna status to cases
-     * @throws DaoException 
+     * @throws DaoException
      */
     private Map<String,Set<String>> getCNASamples(int geneticProfileId, List<Integer> internalSampleIds,
             long entrezGeneId) throws DaoException {
@@ -664,25 +666,25 @@ public class NetworkServlet extends HttpServlet {
         //res.put("-1", new HashSet<String>());
         //res.put("1", new HashSet<String>());
         res.put("2", new HashSet<String>());
-        
+
         for (Map.Entry<Integer,String> entry : sampleMap.entrySet()) {
             String cna = entry.getValue();
             if (cna.equals("2")||cna.equals("-2")) {
-                Sample sample = DaoSample.getSampleById(entry.getKey()); 
+                Sample sample = DaoSample.getSampleById(entry.getKey());
                 res.get(cna).add(sample.getStableId());
             }
         }
         return res;
     }
-    
+
     /**
-     * 
+     *
      * @param geneticProfileId
      * @param internalSampleIds
      * @param entrezGeneId
      * @return an array of two sets: first set contains up-regulated cases; second
      * contains down-regulated cases.
-     * @throws DaoException 
+     * @throws DaoException
      */
     private Set<String>[] getMRnaAlteredSamples(int geneticProfileId, List<Integer> internalSampleIds,
             long entrezGeneId, double zScoreThreshold) throws DaoException {
@@ -693,7 +695,7 @@ public class NetworkServlet extends HttpServlet {
         Set<String>[] samples = new Set[2];
         samples[0] = new HashSet<String>();
         samples[1] = new HashSet<String>();
-        
+
         for (Map.Entry<Integer,String> entry : sampleMap.entrySet()) {
             double mrna;
             try {
@@ -701,22 +703,22 @@ public class NetworkServlet extends HttpServlet {
             } catch (Exception e) {
                 continue;
             }
-            Sample sample = DaoSample.getSampleById(entry.getKey()); 
+            Sample sample = DaoSample.getSampleById(entry.getKey());
             if (mrna>=zScoreThreshold) {
                 samples[0].add(sample.getStableId());
             } else if (mrna<=-zScoreThreshold) {
                 samples[1].add(sample.getStableId());
             }
         }
-        
+
         return samples;
     }
-    
+
     private Map<String,Map<String,Integer>> decodeQueryAlteration(String strQueryAlteration) {
         if (strQueryAlteration==null || strQueryAlteration.isEmpty()) {
             return null;
         }
-        
+
         Map<String,Map<String,Integer>> ret = new HashMap<String,Map<String,Integer>>();
         try {
             String[] genes = strQueryAlteration.split(";");
@@ -725,7 +727,7 @@ public class NetworkServlet extends HttpServlet {
                 String gene = perGene.substring(0, ix);
                 Map<String,Integer> map = new HashMap<String,Integer>();
                 ret.put(gene, map);
-                
+
                 String[] alters = perGene.substring(ix+1).split(",");
                 for (String alter : alters) {
                     String[] parts = alter.split(":");
@@ -738,12 +740,12 @@ public class NetworkServlet extends HttpServlet {
             return null;
         }
     }
-    
+
     private String encodeQueryAlteration(Map<String,Map<String,Integer>> queryAlteration) {
         if (queryAlteration==null) {
             return null;
         }
-        
+
         StringBuilder sb = new StringBuilder();
         for (Map.Entry<String,Map<String,Integer>> entry1 : queryAlteration.entrySet()) {
             sb.append(entry1.getKey());
@@ -759,8 +761,8 @@ public class NetworkServlet extends HttpServlet {
         sb.deleteCharAt(sb.length()-1);
         return sb.toString();
     }
-    
-    private String getNetworkServletUrl(HttpServletRequest req, boolean complete, 
+
+    private String getNetworkServletUrl(HttpServletRequest req, boolean complete,
             boolean download, boolean sif, String strQueryAlteration) {
         String geneListStr = req.getParameter(QueryBuilder.GENE_LIST);
         String geneticProfileIdsStr = req.getParameter(QueryBuilder.GENETIC_PROFILE_IDS);
@@ -771,7 +773,7 @@ public class NetworkServlet extends HttpServlet {
         String netSize = req.getParameter("netsize");
         String nLinker = req.getParameter("linkers");
         String strDiffusion = req.getParameter("diffusion");
-        
+
         String ret = "network.do?"+QueryBuilder.GENE_LIST+"="+geneListStr
                 +"&"+QueryBuilder.GENETIC_PROFILE_IDS+"="+geneticProfileIdsStr
                 +"&"+QueryBuilder.CANCER_STUDY_ID+"="+cancerStudyId
@@ -779,30 +781,30 @@ public class NetworkServlet extends HttpServlet {
                 +"&"+QueryBuilder.Z_SCORE_THRESHOLD+"="+zscoreThreshold
                 +"&netsrc="+netSrc
                 +"&msgoff=t";
-        
+
         if (strQueryAlteration!=null) {
-            
+
             ret += "&query_alt="+strQueryAlteration;
         }
-        
+
         if (!complete) {
-            ret += "&netsize=" + netSize 
+            ret += "&netsize=" + netSize
                 + "&linkers=" + nLinker
                 +"&diffusion="+strDiffusion;
         }
-        
+
         if (download) {
             ret += "&download=on";
         }
-        
+
         if (sif) {
             ret += "&format=sif";
         }
-         
+
         return ret;
     }
-    
-    private void writeXDebug(XDebug xdebug, HttpServletResponse res) 
+
+    private void writeXDebug(XDebug xdebug, HttpServletResponse res)
             throws ServletException, IOException {
         PrintWriter writer = res.getWriter();
         writer.write("<!--xdebug messages begin:\n");
@@ -812,14 +814,14 @@ public class NetworkServlet extends HttpServlet {
         }
         writer.write("xdebug messages end-->\n");
     }
-    
-    private void writeMsg(String msg, HttpServletResponse res) 
+
+    private void writeMsg(String msg, HttpServletResponse res)
             throws ServletException, IOException {
         PrintWriter writer = res.getWriter();
         writer.write("<!--messages begin:\n");
         writer.write(msg);
         writer.write("\nmessages end-->\n");
     }
-    
-    
+
+
 }

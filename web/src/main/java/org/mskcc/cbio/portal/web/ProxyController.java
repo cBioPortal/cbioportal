@@ -100,6 +100,7 @@ public class ProxyController
 
     URI uri = new URI(URL);
 
+    String type = request.getContentType();
     //For oncokb use, if request method is POST, use request body instead. Convert string request body to json string
     if(method.equals(HttpMethod.POST) && Arrays.asList(parseJsonLink).contains(path)) {
       JSONObject jsonObj = requestParamsToJSON(request);

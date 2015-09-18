@@ -421,33 +421,54 @@ function PancancerStudySummaryHistogram()
 	    if(isThereAmplification) {legendData.push(ampLegend); }
 	    if(isThereMultiple) {legendData.push(multpLegend); }
 	
-	    var legendWidth = 125;
-	    var numOfLegends = legendData.length;
-	    var legBegPoint = (width-paddingLeft-paddingRight-(numOfLegends*legendWidth))/2;
-	    // Now add the legends
-	    var legend = histogram.append("g");
-	    legend.selectAll("rect")
-	        .data(legendData)
-	        .enter()
-	        .append("rect")
-	        .attr('x', function(d, i) { return legBegPoint + i*legendWidth + 10; })
-	        .attr('y', height-20)
-	        .attr('width', 19)
-	        .attr('height', 19)
-	        .style('fill', function(d) { return d.color; })
-	        .style("opacity", model.get("showGenomicAlterationTypes") ? 1 : 0) //make visible depending on showGenomicAlterationTypes
-	    ;
-	    legend.selectAll("text")
-	        .data(legendData)
-	        .enter()
+	    if (legendData.length > 0) {
+	    	
+		    var legendWidth = 125;
+		    var numOfLegends = legendData.length;
+		    var legBegPoint = (width-paddingLeft-paddingRight-(numOfLegends*legendWidth))/2;
+		    // Now add the legends
+		    var legend = histogram.append("g");
+		    legend.selectAll("rect")
+		        .data(legendData)
+		        .enter()
+		        .append("rect")
+		        .attr('x', function(d, i) { return legBegPoint + i*legendWidth + 10; })
+		        .attr('y', height-20)
+		        .attr('width', 19)
+		        .attr('height', 19)
+		        .style('fill', function(d) { return d.color; })
+		        .style("opacity", model.get("showGenomicAlterationTypes") ? 1 : 0) //make visible depending on showGenomicAlterationTypes
+		    ;
+		    legend.selectAll("text")
+		        .data(legendData)
+		        .enter()
+		        .append("text")
+		        .attr('x', function(d, i) { return legBegPoint + i*legendWidth + 35; })
+		        .attr('y', height-5)
+		        .text(function(d, i) { return d.label; })
+		        .attr("font-family", fontFamily)
+		        .attr("font-size", "15px")
+		        .style("opacity", model.get("showGenomicAlterationTypes") ? 1 : 0) //make visible depending on showGenomicAlterationTypes
+		    ;
+	    }
+	    else {
+	    	//no data:
+	    	var noData = histogram.append("g");
+	    	noData
 	        .append("text")
-	        .attr('x', function(d, i) { return legBegPoint + i*legendWidth + 35; })
-	        .attr('y', height-5)
-	        .text(function(d, i) { return d.label; })
+	        .attr("x", (width-paddingLeft-paddingRight)/3)
+	        .attr("y", labelCorY)
+	        .text("No alteration data to plot")
 	        .attr("font-family", fontFamily)
 	        .attr("font-size", "15px")
-	        .style("opacity", model.get("showGenomicAlterationTypes") ? 1 : 0) //make visible depending on showGenomicAlterationTypes
+	        .style("opacity", 0.5) 
 	    ;
+	    	
+	    }
+	    	
+	    
+	    
+	    
 	    
 	    return histogram;
 	};
@@ -612,31 +633,20 @@ function HistogramPresenter(model, dmPresenter, geneId)
 		//	  }
 		var result = [];
 		var caseSetLength = this.dmPresenter.getCaseSetLength(); 
-		if (this.model.get("cancerType") == "All") {
-			//get data by cancerType:
-			var cancerTypes = this.dmPresenter.getCancerTypeList();
-			for (var i = 0; i < cancerTypes.length; i++) {
-				var resultItem = {
-						typeOfCancer: cancerTypes[i],
-						caseSetLength: caseSetLength,
-						alterations: this.dmPresenter.getAlterationEvents(cancerTypes[i], null, this.geneId)
-					};
-				result.push(resultItem);
-			}
-		}
-		else {
-			var mainCancerType = this.model.get("cancerType");
-			//get data by cancerTypeDetailed:
-			var cancerTypes = this.dmPresenter.getCancerTypeDetailedList(mainCancerType);
-			for (var i = 0; i < cancerTypes.length; i++) {
-				var resultItem = {
-						typeOfCancer: cancerTypes[i],
-						caseSetLength: caseSetLength,
-						alterations: this.dmPresenter.getAlterationEvents(mainCancerType, cancerTypes[i], this.geneId)
-					};
-				result.push(resultItem);
-			}
-			
+		//get the selected items from the model:
+		var cancerTypes = this.model.get("cancerTypeDetailed");//when this.model.get("cancerType") == "All" then "cancerTypeDetailed" contains the list of main cancer types (see SpecificCancerTypesView render() function) 
+		for (var i = 0; i < cancerTypes.length; i++) {
+			var resultItem = {
+					typeOfCancer: cancerTypes[i],
+					caseSetLength: caseSetLength,
+					alterations: (function (cancerType, dmPresenter, geneId) {
+						if (cancerType == "All")
+							return dmPresenter.getAlterationEvents(cancerTypes[i], null, geneId);
+						else
+							return dmPresenter.getAlterationEvents(cancerType, cancerTypes[i], geneId);
+					})(this.model.get("cancerType"), this.dmPresenter, this.geneId)
+				};
+			result.push(resultItem);
 		}
 		
 		return result;

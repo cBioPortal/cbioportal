@@ -52,9 +52,9 @@ public class ApiController {
 	    } else if (sample_ids != null && attribute_ids != null) {
 		    return service.getSampleClinicalData(study_id, sample_ids, attribute_ids);
 	    } else if (attribute_ids != null) {
-		    return service.getSampleClinicalDataBySample(study_id, attribute_ids);
+		    return service.getSampleClinicalDataByAttribute(study_id, attribute_ids);
 	    } else if (sample_ids != null) {
-		    return service.getSampleClinicalDataByAttribute(study_id, sample_ids);
+		    return service.getSampleClinicalDataBySample(study_id, sample_ids);
 	    }
 	    return null;
     }

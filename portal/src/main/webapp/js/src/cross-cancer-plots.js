@@ -282,6 +282,8 @@ var ccPlots = (function ($, _, Backbone, d3) {
                     .attr("d", d3.svg.symbol()
                         .size(20)
                         .type(function() {
+                            $(this).attr("size", 20);
+                            $(this).attr("shape", mutationStyle.getSymbol("non"));
                             return mutationStyle.getSymbol("non");
                         }))
                     .attr("fill", function() {
@@ -302,7 +304,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                     var _content = "<strong><a href='" +
                         cbio.util.getLinkToSampleView(d.profileId.substring(0, d.profileId.indexOf("_rna_seq_v2_mrna")), d.caseId) +
                         "' target = '_blank'>" + d.caseId +
-                        "</strong></a><br>mRNA expression: " + d.value + "<br>Mutation(s): " + "non";
+                        "</strong></a><br>mRNA expression: <strong>" + d.value + "</strong><br>Mutation(s): " + "non";
                     $(this).qtip(
                         {
                             content: {text: _content},
@@ -313,6 +315,39 @@ var ccPlots = (function ($, _, Backbone, d3) {
                         }
                     );
                 });
+
+                var mouseOn = function() {
+                    var dot = d3.select(this);
+                    dot.transition()
+                        .ease("elastic")
+                        .duration(600)
+                        .delay(100)
+                        .attr("d", d3.svg.symbol()
+                            .size(200)
+                            .type(function(d) {
+                                return $(this).attr("shape");
+                            })
+                    );
+
+                };
+                var mouseOff = function() {
+                    var dot = d3.select(this);
+                    dot.transition()
+                        .ease("elastic")
+                        .duration(600)
+                        .delay(100)
+                        .attr("d", d3.svg.symbol()
+                            .size(function(d) {
+                                return $(this).attr("size");
+                            })
+                            .type(function(d) {
+                                return $(this).attr("shape");
+                            })
+                    );
+                };
+
+                elem.dots.selectAll("path").on("mouseover", mouseOn);
+                elem.dots.selectAll("path").on("mouseout", mouseOff);
 
             };
 

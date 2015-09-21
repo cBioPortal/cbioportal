@@ -116,7 +116,7 @@
         </td>
         <td>
             <div id="cc-plots-box" class="cc-plots" style="overflow: scroll;">
-                <img src="images/ajax-loader.gif" style="padding:200px;"/>
+                <img src="images/ajax-loader.gif" id="cc_plots_loading" style="padding:200px;"/>
             </div>
         </td>
     </tr>

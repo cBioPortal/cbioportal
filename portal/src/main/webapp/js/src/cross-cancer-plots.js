@@ -47,7 +47,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 caseId: "",
                 profileId: "",
                 value: "",
-                mutation: ""
+                mutation: "non"
             }
         });
 
@@ -96,23 +96,30 @@ var ccPlots = (function ($, _, Backbone, d3) {
 
         return {
             init: function (callback_func) {
-                //retrieve profiles meta
-                $.each(_.pluck(window.studies.models, "attributes"), function (_study_index, _study_obj) {
-                    var profileMetaListTmp = new ProfileMetaListTmp(_study_obj.studyId);
-                    profileMetaListTmp.fetch({
-                        success: function (profileMetaListTmp) {
-                            _.each(_.pluck(profileMetaListTmp.models, "attributes"), function (_profile_obj) {
-                                _profile_obj.CANCER_STUDY_STABLE_ID = profileMetaListTmp.cancer_study_id;
-                                _profile_obj.CASE_SET_ID = _study_obj.caseSetId;
-                                _profile_obj.CANCER_STUDY_NAME = window.metaDataJson["cancer_studies"][_study_obj.studyId].name;
+
+                var tmp = setInterval(function () {timer();}, 1000);
+                function timer() {
+                    if (window.studies !== undefined) {
+                        clearInterval(tmp);
+                        //retrieve profiles meta
+                        $.each(_.pluck(window.studies.models, "attributes"), function (_study_index, _study_obj) {
+                            var profileMetaListTmp = new ProfileMetaListTmp(_study_obj.studyId);
+                            profileMetaListTmp.fetch({
+                                success: function (profileMetaListTmp) {
+                                    _.each(_.pluck(profileMetaListTmp.models, "attributes"), function (_profile_obj) {
+                                        _profile_obj.CANCER_STUDY_STABLE_ID = profileMetaListTmp.cancer_study_id;
+                                        _profile_obj.CASE_SET_ID = _study_obj.caseSetId;
+                                        _profile_obj.CANCER_STUDY_NAME = window.metaDataJson["cancer_studies"][_study_obj.studyId].name;
+                                    });
+                                    profileMetaList.add(profileMetaListTmp.models);
+                                    if (_study_index + 1 === window.studies.length) { //reach the end of the iteration
+                                        callback_func();
+                                    }
+                                }
                             });
-                            profileMetaList.add(profileMetaListTmp.models);
-                            if (_study_index + 1 === window.studies.length) { //reach the end of the iteration
-                                callback_func();
-                            }
-                        }
-                    });
-                });
+                        });
+                    }
+                }
             },
             get: function (_gene, callback_func) {
                 if ($.inArray(_gene, retrieved_genes) === -1) {
@@ -165,14 +172,13 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 });
             },
             init_canvas = function() {
-                $("#cc-plots-box").empty();
                 elem.svg = d3.select("#cc-plots-box")
                     .append("svg")
                     .attr("width", _.pluck(_.pluck(data.get_meta().models, "attributes"), "STABLE_ID").length * 100 + 400)
                     .attr("height", 900);
             },
             init_box = function (_input) {
-
+                $("#cc_plots_loading").hide();
                 //data
                 var _data = _.filter(_.pluck(_input, "attributes"), function(item) {
                     return item.value !== "NaN"
@@ -273,13 +279,40 @@ var ccPlots = (function ($, _, Backbone, d3) {
                     .enter()
                     .append("svg:path")
                     .attr("class", "dot")
-                    .attr("d", d3.svg.symbol().size(20).type("circle"))
-                    .style("fill", "black")
+                    .attr("d", d3.svg.symbol()
+                        .size(20)
+                        .type(function() {
+                            return mutationStyle.getSymbol("non");
+                        }))
+                    .attr("fill", function() {
+                        return mutationStyle.getFill("non");
+                    })
+                    .attr("stroke", function() {
+                        return mutationStyle.getStroke("non");
+                    })
+                    .attr("stroke-width", 1.2)
                     .attr("transform", function(d) {
                         var _x = elem.x.scale(d.profileId) + elem.x.scale.rangeBand() / 2 + _.random(elem.x.scale.rangeBand() / 3 * (-1), elem.x.scale.rangeBand()/3);
                         var _y = elem.y.scale(parseInt(d.value));
                         return "translate(" + _x + ", " + _y + ")";
-                    })
+                    });
+
+                //add mouseover
+                elem.dots.selectAll("path").each(function(d) {
+                    var _content = "<strong><a href='" +
+                        cbio.util.getLinkToSampleView(d.profileId.substring(0, d.profileId.indexOf("_rna_seq_v2_mrna")), d.caseId) +
+                        "' target = '_blank'>" + d.caseId +
+                        "</strong></a><br>mRNA expression: " + d.value + "<br>Mutation(s): " + "non";
+                    $(this).qtip(
+                        {
+                            content: {text: _content},
+                            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+                            show: {event: "mouseover"},
+                            hide: {fixed:true, delay: 100, event: "mouseout"},
+                            position: {my:'left bottom',at:'top right', viewport: $(window)}
+                        }
+                    );
+                });
 
             };
 

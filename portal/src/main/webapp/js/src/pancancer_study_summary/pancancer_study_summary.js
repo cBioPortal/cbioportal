@@ -236,8 +236,9 @@
     	 var self = this;
          // cancer types:
          var selOptions = self.dmPresenter.getCancerTypeList();
-         // add "all" entry:
-         selOptions.splice(0,0, "All");
+         // add "all" entry, if more than 1 cancer type is found:
+         if (selOptions.length > 1)
+        	 selOptions.splice(0,0, "All");
 
          //event handler for when the Cancer Type Select is changed
          var changeCallBack = function(){
@@ -251,7 +252,7 @@
          }
          // create the dropdown and add it
          $("#customize-cancertype-dropdown-"+this.gene).append(fnCreateSelect(
-        		 "Cancer Type: ", selOptions, "All", changeCallBack));
+        		 "Cancer Type: ", selOptions, changeCallBack));
       },
 
       // add the Sort by Select for the y-axis
@@ -267,7 +268,7 @@
          }
          // create the dropdown and add it
          $("#customize-data-type-y-axis-"+this.gene).append(fnCreateSelect(
-        		 "Y-Axis value: ", selOptions, "Absolute Counts", changeCallBack));
+        		 "Y-Axis value: ", selOptions, changeCallBack));
       },
 
       // add the Sort by Select for the x-axis
@@ -283,7 +284,7 @@
          }         
          // create the dropdown and add it
          $("#customize-sort-by-x-axis-"+this.gene).append(fnCreateSelect(
-        		 "Sort X-Axis by: ", selOptions, "Y-Axis Value", changeCallBack));
+        		 "Sort X-Axis by: ", selOptions, changeCallBack));
       },
 
       // add the slider for minimum number of altered samples
@@ -574,7 +575,7 @@ var SpecificCancerTypesView = Backbone.View.extend({
 
 
 //utility function to create a select/drop-down box: 
-fnCreateSelect = function(title, aData, defaultItem, callBack) {
+fnCreateSelect = function(title, aData, callBack) {
 	var div = $('<div/>');
 	div.html(title);
 	var sel = $('<select />');	
@@ -681,10 +682,12 @@ function DataManagerPresenter(study_id, dmInitCallBack)
 			//return window.PortalDataManager.getSampleClinicalData();
 			//failing....
 			//TODO : attribute_ids: ["CANCER_TYPE","CANCER_TYPE_DETAILED"] should be added to the API and used here
-			//
+			// 
 			//Because above is failing,
 			//temp workaround...this calls the WS directly, not taking into consideration the query parameters, as the one above does...:
 			return window.cbioportal_client.getSampleClinicalData({study_id: study_id});//, sample_ids: window.PortalDataManager.getSampleIds(), attribute_ids: ["CANCER_TYPE","CANCER_TYPE_DETAILED"]});
+			//this works http://localhost:8080/cbioportal/api/clinicaldata/samples?study_id=multi_cancer_study&sample_ids=TCGA-A1-A0SB-01&attribute_ids=CANCER_TYPE,CANCER_TYPE_DETAILED
+			//but this does not work...return window.cbioportal_client.getSampleClinicalData({study_id: study_id, sample_ids: window.PortalDataManager.getSampleIds()});//, attribute_ids: ["CANCER_TYPE","CANCER_TYPE_DETAILED"]});
 		})
 	.then(
 		function (data){

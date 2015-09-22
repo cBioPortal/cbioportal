@@ -168,8 +168,8 @@ public class GlobalProperties {
     // property for text shown at the right side of the Select Patient/Case set, which
     // links to the study view
     public static final String SKIN_STUDY_VIEW_LINK_TEXT="skin.study_view.link_text";
-    public static final String DEFAULT_SKIN_STUDY_VIEW_LINK_TEXT="Interested in building your own case set based on sample " +
-            "or clinical attributes? Try out enhanced Study View.";
+    public static final String DEFAULT_SKIN_STUDY_VIEW_LINK_TEXT="To build your own case set, try out our enhanced " +
+            "Study View.";
 
     private static Log LOG = LogFactory.getLog(GlobalProperties.class);
     private static Properties properties = initializeProperties();

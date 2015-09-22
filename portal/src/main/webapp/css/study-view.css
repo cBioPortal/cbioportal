@@ -1054,6 +1054,7 @@ div.DTTT_print_info {
 }
 .breadcrumb_item{
     padding: 0px 5px;
+    font-weight: bold;
 }
 #study-view-header-left{
     border: solid 1px;

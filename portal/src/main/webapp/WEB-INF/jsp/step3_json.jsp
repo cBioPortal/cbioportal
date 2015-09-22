@@ -38,23 +38,24 @@
 <div class="query_step_section" id="step3">
 	<table>
 		<tr>
-			<td>
-    		<span class="step_header">Select Patient/Case Set:</span>
+			<td width="23%">
+    		    <span class="step_header">Select Patient/Case Set:</span>
 			</td>
 			<td>
 				<select id="select_case_set" name="<%= QueryBuilder.CASE_SET_ID %>"></select>
 	 		</td>
 	 		<td>
+                <!--
 	 			<a id="build_custom_case_set" onclick="promptCustomCaseSetBuilder()" title="Build a Custom Case Set Based on Clinical Attributes">
 	 				Build Case Set
 	 			</a>
-                <!-- add new link for the new functionality which links to the study view -->
-                <!--<a id="build_case_set" onclick="openStudyView()" title="Build a Case Set via Study View">
-                    Build a Case Set via Study View
-                </a>-->
-                <a id="build_case_set" onclick="openStudyView()" title="Build a Case Set via Study View">
-                    <%= GlobalProperties.getStudyviewLinkText()%>
-                </a>
+	 			-->
+                <div style="padding-left: 10px">
+                    <!-- add new link for the new functionality which links to the study view -->
+                    <a id="build_case_set" onclick="openStudyView()" title="Build a Case Set via Study View">
+                        <%= GlobalProperties.getStudyviewLinkText()%>
+                    </a>
+                </div>
 	 		</td>
 		</tr>
 	</table>

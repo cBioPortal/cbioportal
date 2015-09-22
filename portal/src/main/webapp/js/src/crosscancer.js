@@ -1017,7 +1017,7 @@
 	                            _mut3dVis);
 
                             // end of mutation details
-
+                            window.crossCancerMutationProxy = proxy;
                         });
                     },
 		    type: 'POST',

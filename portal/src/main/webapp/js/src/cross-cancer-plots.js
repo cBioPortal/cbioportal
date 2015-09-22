@@ -47,7 +47,8 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 caseId: "",
                 profileId: "",
                 value: "",
-                mutation: "non"
+                mutation: "",
+                mutation_type: ""
             }
         });
 
@@ -72,20 +73,32 @@ var ccPlots = (function ($, _, Backbone, d3) {
             parse: function (response) {
                 var _results = [];
                 var genes = _.keys(response);
-                _.each(genes, function (gene) {
-                    _.each(Object.keys(response[gene]), function (_case_id) {
-                        var _profile_id = Object.keys(response[gene][_case_id])[0];
-                        var _value = response[gene][_case_id][_profile_id];
 
-                        var _result_obj = {};
-                        _result_obj.gene = gene;
-                        _result_obj.caseId = _case_id;
-                        _result_obj.profileId = _profile_id;
-                        _result_obj.value = _value;
-                        _results.push(_result_obj);
-                    });
-                });
-                return _results;
+                //var tmp = setInterval(function () {timer();}, 1000);
+                //function timer() {
+                //    if (window.crossCancerMutationProxy !== undefined) {
+                        //clearInterval(tmp);
+                        //var _proxy = window.crossCancerMutationProxy;
+                        //_proxy.getMutationData(genes[0], _mutation_callback);
+                        //function _mutation_callback(_mutation_obj) {
+                            _.each(genes, function (gene) {
+                                _.each(Object.keys(response[gene]), function (_case_id) {
+                                    var _profile_id = Object.keys(response[gene][_case_id])[0];
+                                    var _value = response[gene][_case_id][_profile_id];
+                                    var _result_obj = {};
+                                    _result_obj.gene = gene;
+                                    _result_obj.caseId = _case_id;
+                                    _result_obj.profileId = _profile_id;
+                                    _result_obj.value = _value;
+                                    _result_obj.mutation = "";
+                                    _result_obj.mutation_type = "";
+                                    _results.push(_result_obj);
+                                });
+                            });
+                            return _results;
+                        //}
+                  //  }
+                //}
             }
         });
 
@@ -128,13 +141,27 @@ var ccPlots = (function ($, _, Backbone, d3) {
                             new ProfileDataListTmp(_profile_obj.CANCER_STUDY_STABLE_ID, _gene, _profile_obj.STABLE_ID, _profile_obj.CASE_SET_ID, "-1");
                         profileDataListTmp.fetch({
                             success: function (profileDataListTmp) {
-                                profileDataList.add(profileDataListTmp.models);
-                                if (_profile_index + 1 === profileMetaList.length) {
-                                    retrieved_genes.push(_gene);
-                                    callback_func(_.filter(profileDataList.models, function (model) {
-                                        return model.get("gene") === _gene;
-                                    }));
+                                var _proxy = window.crossCancerMutationProxy;
+                                _proxy.getMutationData(_gene, _mutation_callback);
+                                function _mutation_callback(_mut_obj_arr) {
+                                    _.each(_mut_obj_arr, function(_mut_obj) {
+                                        _.each(profileDataListTmp.models, function(_model) {
+                                            if(_mut_obj.caseId === _model.attributes.caseId) {
+                                                _model.attributes.mutation += _mut_obj.proteinChange + ";";
+                                                _model.attributes.mutation_type += mutationTranslator(_mut_obj.mutationType) + ";";
+                                            }
+                                        });
+                                    })
+                                    profileDataList.add(profileDataListTmp.models);
+                                    if (_profile_index + 1 === profileMetaList.length) {
+                                        retrieved_genes.push(_gene);
+                                        callback_func(_.filter(profileDataList.models, function (model) {
+                                            return model.get("gene") === _gene;
+                                        }));
+                                    }
                                 }
+
+
                             }
                         });
                     });
@@ -178,12 +205,21 @@ var ccPlots = (function ($, _, Backbone, d3) {
                     .attr("height", 900);
             },
             init_box = function (_input) {
+
                 $("#cc_plots_loading").hide();
+
                 //data
                 var _data = _.filter(_.pluck(_input, "attributes"), function(item) {
                     return item.value !== "NaN"
                 }) ;
-                console.log(_data);
+                _.each(_data, function(_data_item) {
+                    _data_item.mutation = _.uniq(_data_item.mutation.split(";")).join(", ");
+                    _data_item.mutation = _data_item.mutation.substring(0, _data_item.mutation.length - 2);
+                    _data_item.mutation_type = _data_item.mutation_type.split(";")[0];
+                    if (_data_item.mutation === "") { _data_item.mutation = "non"; }
+                    if (_data_item.mutation_type === "" ) { _data_item.mutation_type = "non"; }
+                });
+
 
                 //x axis
                 var x_axis_right = (_.pluck(_.pluck(data.get_meta().models, "attributes"), "STABLE_ID").length * 100 + 300);
@@ -275,22 +311,22 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 elem.dots = elem.svg.append("svg:g");
                 elem.dots.selectAll("path").remove();
                 elem.dots.selectAll("path")
-                    .data(_data)
+                    .data((_.filter(_data, function(_item) { return _item.mutation === "non"; })).concat(_.filter(_data, function(_item) { return _item.mutation !== "non"; })))
                     .enter()
                     .append("svg:path")
                     .attr("class", "dot")
                     .attr("d", d3.svg.symbol()
                         .size(20)
-                        .type(function() {
+                        .type(function(d) {
                             $(this).attr("size", 20);
-                            $(this).attr("shape", mutationStyle.getSymbol("non"));
-                            return mutationStyle.getSymbol("non");
+                            $(this).attr("shape", mutationStyle.getSymbol(d.mutation_type));
+                            return mutationStyle.getSymbol(d.mutation_type);
                         }))
-                    .attr("fill", function() {
-                        return mutationStyle.getFill("non");
+                    .attr("fill", function(d) {
+                        return mutationStyle.getFill(d.mutation_type);
                     })
-                    .attr("stroke", function() {
-                        return mutationStyle.getStroke("non");
+                    .attr("stroke", function(d) {
+                        return mutationStyle.getStroke(d.mutation_type);
                     })
                     .attr("stroke-width", 1.2)
                     .attr("transform", function(d) {
@@ -299,12 +335,52 @@ var ccPlots = (function ($, _, Backbone, d3) {
                         return "translate(" + _x + ", " + _y + ")";
                     });
 
+                //add glyphs
+                var _mutation_types = _.uniq(_.pluck(_.filter(_data, function(_item) { return _item.mutation !== "non"; }), "mutation_type"));
+                _mutation_types.push("non");
+                var _glyph_objs = [];
+                _.each(_mutation_types, function(_type) {
+                    var _tmp = {};
+                    _tmp.symbol = mutationStyle.getSymbol(_type);
+                    _tmp.fill = mutationStyle.getFill(_type);
+                    _tmp.stroke = mutationStyle.getStroke(_type);
+                    _tmp.text = _type;
+                    _glyph_objs.push(_tmp);
+                });
+                var legend = elem.svg.selectAll(".legend")
+                    .data(_glyph_objs)
+                    .enter().append("g")
+                    .attr("class", "legend")
+                    .attr("transform", function(d, i) {
+                        return "translate(" + (_.pluck(_.pluck(data.get_meta().models, "attributes"), "STABLE_ID").length * 100 + 310) + ", " + (25 + i * 15) + ")";
+                    });
+
+                legend.append("path")
+                    .attr("width", 18)
+                    .attr("height", 18)
+                    .attr("d", d3.svg.symbol()
+                        .size(30)
+                        .type(function(d) { return d.symbol; }))
+                    .attr("fill", function (d) { return d.fill; })
+                    .attr("stroke", function (d) { return d.stroke; })
+                    .attr("stroke-width", 1.1);
+
+                legend.append("text")
+                    .attr("dx", ".75em")
+                    .attr("dy", ".35em")
+                    .style("text-anchor", "front")
+                    .text(function(d){return d.text;});
+
                 //add mouseover
                 elem.dots.selectAll("path").each(function(d) {
                     var _content = "<strong><a href='" +
                         cbio.util.getLinkToSampleView(d.profileId.substring(0, d.profileId.indexOf("_rna_seq_v2_mrna")), d.caseId) +
                         "' target = '_blank'>" + d.caseId +
-                        "</strong></a><br>mRNA expression: <strong>" + d.value + "</strong><br>Mutation(s): " + "non";
+                        "</strong></a><br>mRNA expression: <strong>" + d.value + "</strong>";
+                    if (d.mutation !== "non") {
+                        _content += "<br>Mutation: <strong>" + d.mutation + "</strong>";
+                    }
+
                     $(this).qtip(
                         {
                             content: {text: _content},

@@ -1,10 +1,14 @@
-package org.mskcc.cbio.portal.scripts;
+package org.mskcc.cbio.portal.pancancer;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.ClinicalAttribute;
 import org.mskcc.cbio.portal.model.TypeOfCancer;
+import org.mskcc.cbio.portal.scripts.ImportCancerStudy;
+import org.mskcc.cbio.portal.scripts.ImportClinicalData;
+import org.mskcc.cbio.portal.scripts.ImportPatientList;
+import org.mskcc.cbio.portal.scripts.ImportProfileData;
 import org.mskcc.cbio.portal.util.*;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;

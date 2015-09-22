@@ -10847,11 +10847,16 @@ function Mutation3dVis(name, options)
 	function init()
 	{
 		// init html5 version (Jsmol)
-		_3dApp = new JmolWrapper(false);
+		//_3dApp = new JmolWrapper(false);
 
-		// init app
-		//_3dApp.init(name, _options.appOptions, _options.frame);
-		_3dApp.init(name, _options.appOptions);
+		// init framed JSmol version
+		_3dApp = new JSmolWrapper();
+
+		// init app (with frames)
+		_3dApp.init(name, _options.appOptions, _options.frame);
+
+		// init app (without frames frames)
+		//_3dApp.init(name, _options.appOptions);
 
 		// TODO memory leak -- eventually crashes the browser
 //		if (_options.addGlowEffect)

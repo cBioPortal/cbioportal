@@ -65,26 +65,6 @@
         interpolate : /\{\{(.+?)\}\}/g
     };
 
-    var oncoKBDataInject = function(oTable, tableId) {
-        if(!OncoKB.accessible &&! OncoKB.initialized) {
-
-            OncoKB.Init().then(function(){
-                if(!OncoKB.dataReady) {
-                    getOncoKBEvidence(oTable, tableId);
-                }else {
-                    OncoKB.events(oTable);
-                    OncoKB.events(oTable);
-                }
-            });
-        }else{
-            if(!OncoKB.dataReady) {
-                getOncoKBEvidence(oTable, tableId);
-            }else {
-                OncoKB.Events.specialEvent(oTable, tableId);
-            }
-        }
-    };
-
     var drawPanCanThumbnails = function(oTable) {
         genomicEventObs.subscribePancanMutationsFrequency(function() {
             $(oTable).find('.pancan_mutations_histogram_wait').remove();
@@ -148,23 +128,6 @@
         });
     };
 
-    function getOncoKBEvidence(oTable, tableId) {
-        var tumorType = '';
-        if(Object.keys(clinicalDataMap).length > 0 && clinicalDataMap[Object.keys(clinicalDataMap)[0]].CANCER_TYPE){
-            tumorType = clinicalDataMap[Object.keys(clinicalDataMap)[0]].CANCER_TYPE;
-        }
-        OncoKB.Connector.getEvidence({
-            mutations: genomicEventObs.mutations,
-            tumorType: tumorType
-        }).then(function(data) {
-            if(data && data.length > 0) {
-                genomicEventObs.mutations.addData("oncokb", data);
-                OncoKB.dataReady = true;
-            }
-            OncoKB.Events.specialEvent(oTable, tableId);
-        });
-    }
-
     function buildMutationsDataTable(mutations,mutEventIds, table_id, sDom, iDisplayLength, sEmptyInfo, compact) {
         var data = [];
         var oncokbInstance = new OncoKB.Instance();
@@ -172,7 +135,7 @@
         oncokbInstance.setTumorType(tumorType);
         for (var i=0, nEvents=mutEventIds.length; i<nEvents; i++) {
             var _id = mutEventIds[i];
-            oncokbInstance.addVariant(_id, mutations.getValue(_id, "gene"), mutations.getValue(_id, "aa"), null, mutations.getValue(_id, "type"))
+            oncokbInstance.addVariant(_id, mutations.getValue(_id, "gene"), mutations.getValue(_id, "aa"), null, mutations.getValue(_id, "type"));
             data.push([mutEventIds[i]]);
         }
 
@@ -275,10 +238,10 @@
                                 if(mutations.colExists('oncokb')) {
                                     var oncokbInfo = mutations.getValue(source[0], 'oncokb');
 
-                                    ret += "&nbsp;<span class='oncokb oncokb_alteration oncogenic' alteration='"+aa+"' hashId='"+source[0]+"'>";
+                                    ret += "&nbsp;<span class='oncokb oncokb_alteration oncogenic' hashId='"+source[0]+"'>";
                                     if(oncokbInfo) {
                                         if(oncokbInfo.hasOwnProperty('oncogenic')) {
-                                            switch (genomicEventObs.mutations.getValue(source[0], 'oncokb').oncogenic) {
+                                            switch (mutations.getValue(source[0], 'oncokb').oncogenic) {
                                                 case 0:
                                                     ret += "<img class='oncogenic' width='13' height='13' src='images/oncokb-oncogenic-3.svg'>";
                                                     break;

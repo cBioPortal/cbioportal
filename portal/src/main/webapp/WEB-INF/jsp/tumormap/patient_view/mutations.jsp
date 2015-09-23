@@ -176,9 +176,6 @@
             data.push([mutEventIds[i]]);
         }
 
-        oncokbInstance.getEvidence();
-
-
         var oTable = $("#"+table_id).dataTable( {
                 "sDom": sDom, // selectable columns
                 "oColVis": { "aiExclude": [ mutTableIndices["id"] ] }, // always hide id column
@@ -274,13 +271,39 @@
                                 if (mutations.getValue(source[0],'status')==="Germline")
                                     ret += "&nbsp;<span style='background-color:red;font-size:x-small;' class='"
                                             +table_id+"-tip' alt='Germline mutation'>Germline</span>";
-                                ret += "&nbsp;<span class='oncokb oncokb_alteration oncogenic' alteration='"+aa+"' hashId='"+source[0]+"' style='display:none'><img class='oncogenic' width='13' height='13' src='images/oncokb-oncogenic-1.svg' style='display:none'><img class='unknownoncogenic' width='13' height='13' src='images/oncokb-oncogenic-2.svg' style='display:none'><img class='notoncogenic' width='13' height='13' src='images/oncokb-oncogenic-3.svg' style='display:none'></span><img width='13' height='13' class='loader' src='images/ajax-loader.gif'/>";
-                                    var mcg = mutations.getValue(source[0], 'mycancergenome');
-                                    if (!cbio.util.checkNullOrUndefined(mcg) && mcg.length) {
-                                        ret += "&nbsp;<span class='"+table_id+"-tip'" +
-		                                   "alt='<b>My Cancer Genome links:</b><br/><ul style=\"list-style-position: inside;padding-left:0;\"><li>"+mcg.join("</li><li>")+"</li></ul>'>" +
-		                                   "<img src='images/mcg_logo.png'></span>";
+                                if(mutations.colExists('oncokb')) {
+                                    var oncokbInfo = mutations.getValue(source[0], 'oncokb');
+
+                                    ret += "&nbsp;<span class='oncokb oncokb_alteration oncogenic' alteration='"+aa+"' hashId='"+source[0]+"'>";
+                                    if(oncokbInfo) {
+                                        if(oncokbInfo.hasOwnProperty('oncogenic')) {
+                                            switch (genomicEventObs.mutations.getValue(source[0], 'oncokb').oncogenic) {
+                                                case 0:
+                                                    ret += "<img class='oncogenic' width='13' height='13' src='images/oncokb-oncogenic-3.svg'>";
+                                                    break;
+                                                case -1:
+                                                    ret += "<img class='oncogenic' width='13' height='13' src='images/oncokb-oncogenic-2.svg'>";
+                                                    break;
+                                                case 2:
+                                                    ret += "<img class='oncogenic' width='13' height='13' src='images/oncokb-oncogenic-1.svg'>";
+                                                    break;
+                                                case 1:
+                                                    ret += "<img class='oncogenic' width='13' height='13' src='images/oncokb-oncogenic-1.svg'>";
+                                                    break;
+                                            }
+                                        }
                                     }
+                                    ret +='</span>';
+                                }else{
+                                    ret += '<img width="13" height="13" class="loader" src="images/ajax-loader.gif"/>';
+                                }
+
+                                var mcg = mutations.getValue(source[0], 'mycancergenome');
+                                if (!cbio.util.checkNullOrUndefined(mcg) && mcg.length) {
+                                    ret += "&nbsp;<span class='"+table_id+"-tip'" +
+                                       "alt='<b>My Cancer Genome links:</b><br/><ul style=\"list-style-position: inside;padding-left:0;\"><li>"+mcg.join("</li><li>")+"</li></ul>'>" +
+                                       "<img src='images/mcg_logo.png'></span>";
+                                }
 
                                 if(mutations.getValue(source[0], 'is-hotspot')) {
                                     ret += "<span class='oncokb oncokb_alteration hotspot' alteration='"+aa+"' hashId='"+source[0]+"' style='margin-left:5px;'><img width='13' height='13' src='images/oncokb-flame.svg'></span>";
@@ -945,6 +968,23 @@
                 "iDisplayLength": iDisplayLength,
                 "aLengthMenu": [[5,10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]]
         } );
+
+        oncokbInstance.getEvidence().then(function () {
+            var tableData = oTable.fnGetData();
+            var oncokbEvidence = [];
+            _.each(tableData, function(ele, i) {
+                oncokbEvidence.push(oncokbInstance.getVariant(ele[0]).evidence);
+            });
+            mutations.addData('oncokb', oncokbEvidence)
+            if (tableData.length > 0)
+            {
+                _.each(tableData, function(ele, i) {
+                    oTable.fnUpdate(null, i, mutTableIndices["aa"], false, false);
+                });
+
+                oTable.fnUpdate(null, 0, mutTableIndices['aa']);
+            }
+        });
 
         oTable.css("width","100%");
         addNoteTooltip("#"+table_id+" th.mut-header");

@@ -365,6 +365,7 @@ window.cbioportal_client = (function() {
 			};
 		})();
 	};
+	// TODO: abstract this correctly so there isn't more than one index, more than one index service maker?
 	var cached_service = {
 		getCancerTypes: makeOneIndexService('cancer_type_ids', function(d) { return d.id;}, 'getCancerTypes'),
 		getGenes: makeOneIndexService('hugo_gene_symbols', function(d) { return d.hugo_gene_symbol;}, 'getGenes'),
@@ -375,94 +376,7 @@ window.cbioportal_client = (function() {
 		getPatientClinicalData: makeHierIndexService(['study_id', 'attribute_ids', 'patient_ids'], ['study_id', 'attr_id', 'patient_id'], 'getPatientClinicalData'),
 		getPatients: makeHierIndexService(['study_id', 'patient_ids'], ['study_id', 'id'], 'getPatients'),
 		getSamples: makeHierIndexService(['study_id', 'sample_ids'], ['study_id', 'id'], 'getSamples'),
-		getGeneticProfileData: (function() {
-			// TODO: implement using makeHierIndexService?
-			var index = {};
-			return function(args) {
-				var def = new $.Deferred();
-				var genetic_profile_ids = args.genetic_profile_ids;
-				var genes = args.genes;
-				var missing_genetic_profile_ids = {};
-				var missing_genes = {};
-				if (args.hasOwnProperty('sample_ids')) {
-					var sample_ids = args.sample_ids;
-					for (var i=0; i<genetic_profile_ids.length; i++) {
-						var gp_id = genetic_profile_ids[i];
-						index[gp_id] = index[gp_id] || {};
-						for (var j=0; j<genes.length; j++) {
-							var gene = genes[j];
-							index[gp_id][gene] = index[gp_id][gene] || {sub_index: new Index(function(d) { return d.sample_id; }), loaded_all: false};
-							if (index[gp_id][gene].sub_index.missingKeys(sample_ids).length > 0) {
-								missing_genetic_profile_ids[gp_id] = true;
-								missing_genes[gene] = true;
-							}
-						}
-					}
-				} else {
-					for (var i=0; i<genetic_profile_ids.length; i++) {
-						var gp_id = genetic_profile_ids[i];
-						index[gp_id] = index[gp_id] || {};
-						for (var j=0; j<genes.length; j++) {
-							var gene = genes[j];
-							index[gp_id][gene] = index[gp_id][gene] || {sub_index: new Index(function(d) { return d.sample_id; }), loaded_all: false};
-							if (index[gp_id][gene].loaded_all === false) {
-								missing_genetic_profile_ids[gp_id] = true;
-								missing_genes[gene] = true;
-								index[gp_id][gene].loaded_all = true;
-							}
-						}
-					}
-				}
-				missing_genetic_profile_ids = Object.keys(missing_genetic_profile_ids);
-				missing_genes = Object.keys(missing_genes);
-				if (missing_genetic_profile_ids.length === 0 && missing_genes.length === 0) {
-					var ret = [];
-					for (var i=0; i<genetic_profile_ids.length; i++) {
-						var gp_id = genetic_profile_ids[i];
-						for (var j=0; j<genes.length; j++) {
-							var gene = genes[j];
-							ret = ret.concat(index[gp_id][gene].sub_index.getData(args.sample_ids));
-						}
-					}
-					def.resolve(ret);
-				} else {
-					var webservice_args = {};
-					webservice_args.genetic_profile_ids = missing_genetic_profile_ids;
-					webservice_args.genes = missing_genes;
-					if (args.hasOwnProperty('sample_ids')) {
-						webservice_args.sample_ids = args.sample_ids;
-					}
-					raw_service.getGeneticProfileData(webservice_args).then(function(data) {
-						for (var i=0; i<data.length; i++) {
-							var datum = data[i];
-							var gp_id = datum.genetic_profile_id;
-							var gene = datum.hugo_gene_symbol;
-							index[gp_id] = index[gp_id] || {};
-							index[gp_id][gene] = index[gp_id][gene] || {sub_index: new Index(function(d) { return d.sample_id; }), loaded_all: false};
-							index[gp_id][gene].sub_index.clear([datum]);
-						}
-						for (var i=0; i<data.length; i++) {
-							var datum = data[i];
-							var gp_id = datum.genetic_profile_id;
-							var gene = datum.hugo_gene_symbol;
-							index[gp_id] = index[gp_id] || {};
-							index[gp_id][gene] = index[gp_id][gene] || {sub_index: new Index(function(d) { return d.sample_id; }), loaded_all: false};
-							index[gp_id][gene].sub_index.addData([datum], undefined, true);
-						}
-						var ret = [];
-						for (var i=0; i<genetic_profile_ids.length; i++) {
-							var gp_id = genetic_profile_ids[i];
-							for (var j=0; j<genes.length; j++) {
-								var gene = genes[j];
-								ret = ret.concat(index[gp_id][gene].sub_index.getData(args.sample_ids));
-							}
-						}	
-						def.resolve(ret);
-					});
-				}
-				return def.promise();
-			};
-		})(),
+		getGeneticProfileData: makeHierIndexService(['genetic_profile_ids', 'genes', 'sample_ids'], ['genetic_profile_id', 'hugo_gene_symbol', 'sample_id'], 'getGeneticProfileData'),
 		getSampleClinicalAttributes: function(args) {
 			return raw_service.getSampleClinicalAttributes(args);
 		},

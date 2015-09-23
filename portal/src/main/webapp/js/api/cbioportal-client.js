@@ -100,8 +100,49 @@ window.cbioportal_client = (function() {
 			return stringSetDifference([].concat(keys), Object.keys(map));
 		};
 	};
+	var keyCombinations = function(key_list_list, list_of_lists) {
+		var ret = [[]];
+		for (var i=0; i<key_list_list.length; i++) {
+			var intermediate_ret = [];
+			var key_list = key_list_list[i];
+			for (var j=0; j<key_list.length; j++) {
+				for (var k=0; k<ret.length; k++) {
+					intermediate_ret.push(ret[k].concat([(list_of_lists ? [].concat(key_list[j]) : key_list[j])]));
+				}
+			}
+			ret = intermediate_ret;
+		}
+		return ret;
+	};
 	function HierIndex(key) {
+		var fully_loaded = {};
 		var map = {};
+		this.markFullyLoaded = function(key) {
+			var curr_obj = fully_loaded;
+			for (var i=0; i<key.length; i++) {
+				if (curr_obj === true) {
+					break;
+				}
+				var sub_key = key[i];
+				if (i < key.length - 1) {
+					curr_obj[sub_key] = curr_obj[sub_key] || {};
+					curr_obj = curr_obj[sub_key];
+				} else {
+					curr_obj[sub_key] = true;
+				}
+			}
+		};
+		this.isFullyLoaded = function(key) {
+			var curr_obj = fully_loaded;
+			for (var i=0; i<key.length; i++) {
+				if (curr_obj === true || typeof curr_obj === "undefined") {
+					break;
+				}
+				var sub_key = key[i];
+				curr_obj = curr_obj[sub_key];
+			}
+			return (curr_obj === true);
+		};
 		this.addData = function(data, args) {
 			var i, _len=data.length, j;
 			// Clear existing data for touched keys, and initialize map locations
@@ -159,40 +200,19 @@ window.cbioportal_client = (function() {
 			return ret;
 		};
 		this.missingKeys = function(key_list_list) {
-			var missing_keys = [];
-			var intermediates = [{'key': [], 'obj': map}];
-			var i, j, k, h;
-			for (i = 0; i<key_list_list.length; i++) {
-				missing_keys.push({});
-			}
-			var use_all_keys_starting_at = key_list_list.length;
-			for (i = 0; i<key_list_list.length && i<use_all_keys_starting_at; i++) {
-				var key_list = key_list_list[i];
-				var tmp_intermediates = [];
-				for (j = 0; j<key_list.length; j++) {
-					for (k = 0; k<intermediates.length; k++) {
-						var intermediate = intermediates[k];
-						if (intermediate.obj.hasOwnProperty(key_list[j])) {
-							var new_intermediate = {'key':intermediate.key.concat(key_list[j]), 'obj':intermediate.obj[key_list[j]]};
-							tmp_intermediates.push(new_intermediate);
-						} else {
-							for (h=0; h<intermediate.key.length; h++) {
-								missing_keys[h][intermediate.key[h]] = true;
-							}
-							use_all_keys_starting_at = Math.min(i+1, use_all_keys_starting_at);
-						}
+			var missing_keys = key_list_list.map(function() { return {}; });
+			var j, k;
+			var key_combinations = keyCombinations(key_list_list, true);
+			for (k = 0; k<key_combinations.length; k++) {
+				if (this.getData(key_combinations[k]).length === 0) {
+					for (j=0; j<key_combinations[k].length; j++) {
+						missing_keys[j][key_combinations[k][j]] = true;
 					}
 				}
-				intermediates = tmp_intermediates;
 			}
-			missing_keys = missing_keys.map(function(o) { return Object.keys(o); });
-			for (i = use_all_keys_starting_at; i < key_list_list.length; i++) {
-				missing_keys[i] = key_list_list[i];
-			}
-			return missing_keys;
+			return missing_keys.map(function(o) { return Object.keys(o);});
 		};
 	};
-	window.HierIndex = HierIndex;
 	
 	var makeOneIndexService = function(arg_name, indexKeyFn, service_fn_name) {
 		return (function() {
@@ -283,41 +303,67 @@ window.cbioportal_client = (function() {
 		})();
 	};
 	
-	var makeStudyHierIndexService = function(arg_name, indexing_attr, service_fn_name) {
+	var makeHierIndexService = function(arg_names, indexing_attrs, service_fn_name) {
 		return (function() {
-			//var index = {};
-			var index = new HierIndex(function(d) { return [d.study_id, d[indexing_attr]];});
-			var all_loaded = {};
+			var index = new HierIndex(function(d) {
+				var ret = [];
+				for (var i=0; i<indexing_attrs.length; i++) {
+					ret.push(d[indexing_attrs[i]]);
+				}
+				return ret;
+			});
 			return function(args) {
 				var def = new $.Deferred();
-				var study_id = args.study_id;
-				if (args.hasOwnProperty(arg_name)) {
-					var missing_keys = index.missingKeys([[study_id], args[arg_name]]);
-					if (missing_keys[0].length > 0) {
+				var arg_list_list = arg_names.map(function(a) { return args[a];});
+				while (typeof arg_list_list[arg_list_list.length-1] === "undefined") {
+					arg_list_list.pop();
+				}
+				if (arg_list_list.length < arg_names.length) {
+					var missing_arg_set_list = arg_list_list.map(function(a) { return {};});
+					var key_combs = keyCombinations(arg_list_list);
+					var missing_key_combs = [];
+					for (var i=0; i<key_combs.length; i++) {
+						if (!index.isFullyLoaded(key_combs[i])) {
+							missing_key_combs.push(key_combs[i]);
+							for (var j=0; j<key_combs[i].length; j++) {
+								missing_arg_set_list[j][key_combs[i][j]] = true;
+							}
+						}
+					}
+					missing_arg_set_list = missing_arg_set_list.map(function(o) { return Object.keys(o); });
+					if (missing_arg_set_list[0].length > 0) {
 						var webservice_args = {};
-						webservice_args[arg_name] = missing_keys[1];
-						webservice_args.study_id = study_id;
+						for (var i=0; i<missing_arg_set_list.length; i++) {
+							webservice_args[arg_names[i]] = missing_arg_set_list[i];
+						}
 						raw_service[service_fn_name](webservice_args).then(function(data) {
+							for (var j=0; j<missing_key_combs.length; j++) {
+								index.markFullyLoaded(missing_key_combs[j]);
+							}
 							index.addData(data);
-							def.resolve(index.getData([[study_id], args[arg_name]]));
+							def.resolve(index.getData(arg_list_list));
 						});
 					} else {
-						def.resolve(index.getData([[study_id], args[arg_name]]));
+						def.resolve(index.getData(arg_list_list));
 					}
 				} else {
-					if (all_loaded[study_id]) {
-						def.resolve(index.getData([[study_id]]));
-					} else {
-						raw_service[service_fn_name]({'study_id': study_id}).then(function(data) {
+					var missing_keys = index.missingKeys(arg_list_list);
+					if (missing_keys[0].length > 0) {
+						var webservice_args = {};
+						for (var i=0; i<missing_keys.length; i++) {
+							webservice_args[arg_names[i]] = missing_keys[i];
+						}
+						raw_service[service_fn_name](webservice_args).then(function(data) {
 							index.addData(data);
-							all_loaded[study_id] = true;
-							def.resolve(index.getData([[study_id]]));
+							def.resolve(index.getData(arg_list_list));
 						});
+					} else {
+						def.resolve(index.getData(arg_list_list));
 					}
 				}
 				return def.promise();
 			};
-		})();	
+		})();
 	};
 	var cached_service = {
 		getCancerTypes: makeOneIndexService('cancer_type_ids', function(d) { return d.id;}, 'getCancerTypes'),
@@ -325,11 +371,12 @@ window.cbioportal_client = (function() {
 		getStudies: makeOneIndexService('study_ids', function(d) { return d.id;}, 'getStudies'),
 		getGeneticProfiles: makeTwoIndexService('study_id', function(d) { return d.study_id;}, false, 'genetic_profile_ids', function(d) {return d.id; }, true, 'getGeneticProfiles'),
 		getPatientLists: makeTwoIndexService('study_id', function(d) { return d.study_id;}, false, 'patient_list_ids', function(d) {return d.id; }, true, 'getPatientLists'),
-		getSampleClinicalData: makeStudyHierIndexService('sample_ids', 'sample_id', 'getSampleClinicalData'),
-		getPatientClinicalData: makeStudyHierIndexService('patient_ids', 'patient_id', 'getPatientClinicalData'),
-		getPatients: makeStudyHierIndexService('patient_ids', 'id', 'getPatients'),
-		getSamples: makeStudyHierIndexService('sample_ids', 'id', 'getSamples'),
+		getSampleClinicalData: makeHierIndexService(['study_id', 'attribute_ids', 'sample_ids'], ['study_id', 'attr_id', 'sample_id'], 'getSampleClinicalData'),
+		getPatientClinicalData: makeHierIndexService(['study_id', 'attribute_ids', 'patient_ids'], ['study_id', 'attr_id', 'patient_id'], 'getPatientClinicalData'),
+		getPatients: makeHierIndexService(['study_id', 'patient_ids'], ['study_id', 'id'], 'getPatients'),
+		getSamples: makeHierIndexService(['study_id', 'sample_ids'], ['study_id', 'id'], 'getSamples'),
 		getGeneticProfileData: (function() {
+			// TODO: implement using makeHierIndexService?
 			var index = {};
 			return function(args) {
 				var def = new $.Deferred();

@@ -24,8 +24,8 @@ getSampleClinicalData
 	"sample_id":"TCGA-A2-A0T2-01"
 }
 Required: "study_id": Cancer study id
+          "attribute_ids": List of attribute ids
 Optional: "sample_ids":  List of sample ids
-                  "attr_ids": List of attribute ids
 
 /clinicaldata/patients
 getPatientClinicalData
@@ -36,8 +36,9 @@ getPatientClinicalData
 	"patient_id":"TCGA-A2-A0T2"
 }
 Required: "study_id": Cancer study id
+          "attribute_ids": List of attribute ids
 Optional: "patient_ids":  List of patient ids
-                  "attr_ids": List of attribute ids
+          
 
 /clinicalattributes/samples
 getSampleClinicalAttributes

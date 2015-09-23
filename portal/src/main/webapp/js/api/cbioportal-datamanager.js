@@ -292,29 +292,15 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 				return def.promise();
 			},
 			'getSampleClinicalAttributes': function () {
-				var def = new $.Deferred();
-				var self = this;
-				if (this.sample_clinical_attrs) {
-					def.resolve(this.sample_clinical_attrs);
-				} else {
-					window.cbioportal_client.getSampleClinicalAttributes({study_ids: this.getCancerStudyIds(), sample_ids: this.getSampleIds()}).then(function (response) {
-						self.sample_clinical_attrs = response;
-						def.resolve(self.sample_clinical_attrs);
-					});
-				}
-				return def.promise();
+				// TODO: handle more than one study
+				return window.cbioportal_client.getSampleClinicalAttributes({study_id: [this.getCancerStudyIds()[0]], sample_ids: this.getSampleIds()});
 			},
-			'getSampleClinicalData': function () {
+			'getSampleClinicalData': function (attribute_ids) {
+				// TODO: handle more than one study
 				var def = new $.Deferred();
-				var self = this;
-				if (dm_ret.sample_clinical_data) {
-					def.resolve(this.sample_clinical_data);
-				} else {
-					window.cbioportal_client.getSampleClinicalData({study_ids: this.getCancerStudyIds(), sample_ids: this.getSampleIds()}).then(function (response) {
-						self.sample_clinical_data = makeOncoprintClinicalData(response);
-						def.resolve(self.sample_clinical_data);
-					});
-				}
+				window.cbioportal_client.getSampleClinicalData({study_id: [this.getCancerStudyIds()[0]], attribute_ids: attribute_ids, sample_ids: this.getSampleIds()}).then(function(data) {
+					def.resolve(makeOncoprintClinicalData(data));
+				});
 				return def.promise();
 			}
 		};

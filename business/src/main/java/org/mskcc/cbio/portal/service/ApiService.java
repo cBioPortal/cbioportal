@@ -74,41 +74,21 @@ public class ApiService {
 	}
 
 	@Transactional
-	public List<DBClinicalSampleData> getSampleClinicalData(String study_id) {
-		return clinicalDataMapper.getSampleClinicalDataByStudy(study_id);
-	}
-	@Transactional
-	public List<DBClinicalSampleData> getSampleClinicalData(String study_id, List<String> sample_ids, List<String> attribute_ids) {
-		return clinicalDataMapper.getSampleClinicalDataBySampleAndAttribute(study_id, sample_ids, attribute_ids);
-	}
-
-	@Transactional
-	public List<DBClinicalSampleData> getSampleClinicalDataBySample(String study_id, List<String> sample_ids) {
-		return clinicalDataMapper.getSampleClinicalDataBySample(study_id, sample_ids);
-	}
-	
-	@Transactional
-	public List<DBClinicalSampleData> getSampleClinicalDataByAttribute(String study_id, List<String> attribute_ids) {
+	public List<DBClinicalSampleData> getSampleClinicalData(String study_id, List<String> attribute_ids) {
 		return clinicalDataMapper.getSampleClinicalDataByStudyAndAttribute(study_id, attribute_ids);
 	}
-
 	@Transactional
-	public List<DBClinicalPatientData> getPatientClinicalData(String study_id) {
-		return clinicalDataMapper.getPatientClinicalDataByStudy(study_id);
-	}
-	@Transactional
-	public List<DBClinicalPatientData> getPatientClinicalData(String study_id, List<String> patient_ids, List<String> attribute_ids) {
-		return clinicalDataMapper.getPatientClinicalDataByPatientAndAttribute(study_id, patient_ids, attribute_ids);
+	public List<DBClinicalSampleData> getSampleClinicalData(String study_id, List<String> attribute_ids, List<String> sample_ids) {
+		return clinicalDataMapper.getSampleClinicalDataBySampleAndAttribute(study_id, attribute_ids, sample_ids);
 	}
 
 	@Transactional
-	public List<DBClinicalPatientData> getPatientClinicalDataByPatient(String study_id, List<String> patient_ids) {
-		return clinicalDataMapper.getPatientClinicalDataByPatient(study_id, patient_ids);
-	}
-	
-	@Transactional
-	public List<DBClinicalPatientData> getPatientClinicalDataByAttribute(String study_id, List<String> attribute_ids) {
+	public List<DBClinicalPatientData> getPatientClinicalData(String study_id, List<String> attribute_ids) {
 		return clinicalDataMapper.getPatientClinicalDataByStudyAndAttribute(study_id, attribute_ids);
+	}
+	@Transactional
+	public List<DBClinicalPatientData> getPatientClinicalData(String study_id, List<String> attribute_ids, List<String> patient_ids) {
+		return clinicalDataMapper.getPatientClinicalDataByPatientAndAttribute(study_id, attribute_ids, patient_ids);
 	}
 
 	@Transactional

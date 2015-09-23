@@ -30,6 +30,7 @@
       },
 
       render: function() {
+    	 console.log(new Date() + ": START CancerSummaryMainView render()"); 
          var self = this;
 
          // init tab view flags (for each gene)
@@ -57,6 +58,7 @@
 
          //apply the tabs format:
          self.format();
+         console.log(new Date() + ": END CancerSummaryMainView render()"); 
       },
 
       /**
@@ -666,9 +668,13 @@ function DataManagerPresenter(study_id, dmInitCallBack)
 	//run initial ws requests and data parsing: 
 	
 	//gets all genomic event data, for all queried genes, according to selected profiles and OQL criteria:
+	console.log(new Date() + ": CALL to getGenomicEventData()");
 	window.PortalDataManager.getGenomicEventData()
 	.then(
 		function (data){
+			
+			console.log(new Date() + ": started processing getGenomicEventData() data");
+			
 			for (var i = 0; i < data.length; i++) {
 				//init alteration events, if not yet done
 				if (!self.sampleList[data[i].sample])
@@ -676,23 +682,18 @@ function DataManagerPresenter(study_id, dmInitCallBack)
 				self.sampleList[data[i].sample].alterationEvents.push(data[i]); 
 				
 			}
+			console.log(new Date() + ": finished processing getGenomicEventData() data");
 			
 			//do the next call:
-			//TODO use later: correct call: 
-			//return window.PortalDataManager.getSampleClinicalData();
-			//failing....
-			//TODO : attribute_ids: ["CANCER_TYPE","CANCER_TYPE_DETAILED"] should be added to the API and used here
-			// 
-			//Because above is failing,
-			//temp workaround...this calls the WS directly, not taking into consideration the query parameters, as the one above does...:
-			return window.cbioportal_client.getSampleClinicalData({study_id: study_id});//, sample_ids: window.PortalDataManager.getSampleIds(), attribute_ids: ["CANCER_TYPE","CANCER_TYPE_DETAILED"]});
-			//this works http://localhost:8080/cbioportal/api/clinicaldata/samples?study_id=multi_cancer_study&sample_ids=TCGA-A1-A0SB-01&attribute_ids=CANCER_TYPE,CANCER_TYPE_DETAILED
-			//but this does not work...return window.cbioportal_client.getSampleClinicalData({study_id: study_id, sample_ids: window.PortalDataManager.getSampleIds()});//, attribute_ids: ["CANCER_TYPE","CANCER_TYPE_DETAILED"]});
+			console.log(new Date() + ": CALL to get sample clinical atttributes (cancer types)");
+			return window.PortalDataManager.getSampleClinicalData(["CANCER_TYPE","CANCER_TYPE_DETAILED"]);
 		})
 	.then(
 		function (data){
 			//parse the data to the correct internal format. Here we can assume that the samples are only the ones 
 			//that comply with the query form parameters (e.g. the sample set ):
+			console.log(new Date() + ": started processing sample clinical atttributes (cancer types)");
+			
 			var sampleIdAndCancerTypeIdx = [];
 			for (var i = 0; i < data.length; i++)
 			{
@@ -703,8 +704,8 @@ function DataManagerPresenter(study_id, dmInitCallBack)
 						self.cancerTypeList[data[i].attr_val] = {cancerTypeDetailed: [], sampleIds: []};
 					var cancerType = self.cancerTypeList[data[i].attr_val];
 					//a sample contains only one cancer_type, so refer to it:
-					sampleIdAndCancerTypeIdx[data[i].sample_id] = cancerType;
-					cancerType.sampleIds.push(data[i].sample_id);
+					sampleIdAndCancerTypeIdx[data[i].sample] = cancerType;
+					cancerType.sampleIds.push(data[i].sample);
 					
 				}
 			}
@@ -713,12 +714,13 @@ function DataManagerPresenter(study_id, dmInitCallBack)
 				if (data[i].attr_id == "CANCER_TYPE_DETAILED")
 				{
 					//track cancer type detailed per cancer type:
-					var cancerType = sampleIdAndCancerTypeIdx[data[i].sample_id];
+					var cancerType = sampleIdAndCancerTypeIdx[data[i].sample];
 					if (!cancerType.cancerTypeDetailed[data[i].attr_val])
 						cancerType.cancerTypeDetailed[data[i].attr_val] = {sampleIds: []};
-					cancerType.cancerTypeDetailed[data[i].attr_val].sampleIds.push(data[i].sample_id);
+					cancerType.cancerTypeDetailed[data[i].attr_val].sampleIds.push(data[i].sample);
 				}
 			}
+			console.log(new Date() + ": finished processing sample clinical atttributes (cancer types)");
 			dmInitCallBack(self);
 		});	
 
@@ -877,13 +879,14 @@ function PancancerStudySummary()
 
    this.init = function(study_id)
    {
-	  console.log("init called");
+	  console.log(new Date() + ": init called");
       
       new DataManagerPresenter(study_id, dmInitCallBack);
    };
    
    var dmInitCallBack = function(dmPresenter)
    {
+	  console.log(new Date() + ": histogram data fetched and processed. Rendering of pancancer summary view");
       // create event dispacther
       var dispatcher = _.extend({}, Backbone.Events);
 

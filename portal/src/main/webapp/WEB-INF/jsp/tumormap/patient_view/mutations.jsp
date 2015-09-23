@@ -246,10 +246,11 @@
 //                                        +gene+"\">Sanger Cancer Gene Census</a>";
 //                                }
                                 var ret = "<b>"+gene+"</b>";
-//                                if (tip) {
-                                ret = "<span class='"+table_id+"-tip oncokb oncokb_gene' gene='"+gene+"' hashId='"+source[0]+"'>"+ret+"</span>";
-//                                }
-                                ret += "<img width='12' height='12' class='loader' src='images/ajax-loader.gif'/>";
+                                if(mutations.colExists('oncokb')) {
+                                    ret = "<span class='"+table_id+"-tip oncokb oncokb_gene' gene='"+gene+"' hashId='"+source[0]+"'>"+ret+"</span>";
+                                }else{
+                                    ret += "<img width='12' height='12' class='loader' src='images/ajax-loader.gif'/>";
+                                }
 
                                 return ret;
                             } else {
@@ -932,7 +933,12 @@
                                 if (type==='set') {
                                     return;
                                 } else if (type==='display') {
-                                    var ret = "<span class='oncokb oncokb_column' hashId='"+source[0]+"' style='display:none'></span><img width='13' height='13' class='loader' src='images/ajax-loader.gif'/>";
+                                    var ret = '';
+                                    if(mutations.colExists('oncokb')) {
+                                        ret += "<span class='oncokb oncokb_column' hashId='"+source[0]+"'></span>";
+                                    }else{
+                                        ret += "<img width='13' height='13' class='loader' src='images/ajax-loader.gif'/>"
+                                    }
                                     return ret;
                                 } else {
                                     return '';
@@ -954,7 +960,7 @@
                     addCosmicTooltip(table_id);
                     listenToBamIgvClick(".igv-link");
                     drawPanCanThumbnails(this);
-//                    oncoKBDataInject(this, table_id);
+                    oncokbInstance.addEvents(this);
                 },
                 "bPaginate": true,
                 "sPaginationType": "two_button",

@@ -126,7 +126,7 @@
 //                                }
                                 var ret = "<b>"+gene+"</b>";
                                 if(cnas.colExists('oncokb')) {
-                                    ret = "<span class='"+table_id+"-tip oncokb oncokb_gene' gene='"+gene+"' hashId='"+source[0]+"'>"+ret+"</span>";
+                                    ret = "<span class='"+table_id+"-tip oncokb oncokb_gene' gene='"+gene+"' oncokbId='"+source[0]+"'>"+ret+"</span>";
                                 }else{
                                     ret += "<img width='12' height='12' class='loader' src='images/ajax-loader.gif'/>";
                                 }
@@ -175,7 +175,7 @@
                                 if(cnas.colExists('oncokb')) {
                                     var oncokbInfo = cnas.getValue(source[0], 'oncokb');
 
-                                    strAlt += "&nbsp;<span class='oncokb oncokb_alteration oncogenic' hashId='"+source[0]+"'>";
+                                    strAlt += "&nbsp;<span class='oncokb oncokb_alteration oncogenic' oncokbId='"+source[0]+"'>";
                                     if(oncokbInfo) {
                                         if(oncokbInfo.hasOwnProperty('oncogenic')) {
                                             switch (cnas.getValue(source[0], 'oncokb').oncogenic) {
@@ -301,7 +301,7 @@
                                     } else if (type==='display') {
                                         var ret = '';
                                         if(cnas.colExists('oncokb')) {
-                                            ret += "<span class='oncokb oncokb_column' hashId='"+source[0]+"'></span>";
+                                            ret += "<span class='oncokb oncokb_column' oncokbId='"+source[0]+"'></span>";
                                         }else{
                                             ret += "<img width='13' height='13' class='loader' src='images/ajax-loader.gif'/>"
                                         }

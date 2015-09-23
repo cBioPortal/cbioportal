@@ -210,7 +210,7 @@
 //                                }
                                 var ret = "<b>"+gene+"</b>";
                                 if(mutations.colExists('oncokb')) {
-                                    ret = "<span class='"+table_id+"-tip oncokb oncokb_gene' gene='"+gene+"' hashId='"+source[0]+"'>"+ret+"</span>";
+                                    ret = "<span class='"+table_id+"-tip oncokb oncokb_gene' gene='"+gene+"' oncokbId='"+source[0]+"'>"+ret+"</span>";
                                 }else{
                                     ret += "<img width='12' height='12' class='loader' src='images/ajax-loader.gif'/>";
                                 }
@@ -238,7 +238,7 @@
                                 if(mutations.colExists('oncokb')) {
                                     var oncokbInfo = mutations.getValue(source[0], 'oncokb');
 
-                                    ret += "&nbsp;<span class='oncokb oncokb_alteration oncogenic' hashId='"+source[0]+"'>";
+                                    ret += "&nbsp;<span class='oncokb oncokb_alteration oncogenic' oncokbId='"+source[0]+"'>";
                                     if(oncokbInfo) {
                                         if(oncokbInfo.hasOwnProperty('oncogenic')) {
                                             switch (mutations.getValue(source[0], 'oncokb').oncogenic) {
@@ -270,7 +270,7 @@
                                 }
 
                                 if(mutations.getValue(source[0], 'is-hotspot')) {
-                                    ret += "<span class='"+table_id+"-chang-hotspot' alteration='"+aa+"' hashId='"+source[0]+"' style='margin-left:5px;'><img width='13' height='13' src='images/oncokb-flame.svg'></span>";
+                                    ret += "<span class='"+table_id+"-chang-hotspot' alteration='"+aa+"' oncokbId='"+source[0]+"' style='margin-left:5px;'><img width='13' height='13' src='images/oncokb-flame.svg'></span>";
                                 }
 
                                 var aaOriginal = mutations.getValue(source[0], 'aa-orig');
@@ -898,7 +898,7 @@
                                 } else if (type==='display') {
                                     var ret = '';
                                     if(mutations.colExists('oncokb')) {
-                                        ret += "<span class='oncokb oncokb_column' hashId='"+source[0]+"'></span>";
+                                        ret += "<span class='oncokb oncokb_column' oncokbId='"+source[0]+"'></span>";
                                     }else{
                                         ret += "<img width='13' height='13' class='loader' src='images/ajax-loader.gif'/>"
                                     }

@@ -96,12 +96,14 @@ var PieChart = function(){
 
         _filters = pieChart.filters();
 
-        $('#' + DIV.labelTableID+'-0').find('tr').each(function(index, value) {
-            if(_filters.indexOf($(value).find('td:nth-child(1)').find('span span').text()) !== -1) {
-                $(value).find('td').addClass('highlightRow');
-                $(value).find('td:nth-child(1) input:checkbox').attr('checked', true);
-            }
-        });
+        if(_filters instanceof Array && _filters.length > 0) {
+            $('#' + DIV.labelTableID+'-0').find('tr').each(function(index, value) {
+                if(_filters.indexOf($(value).find('td:nth-child(1)').find('span span').attr('oValue')) !== -1) {
+                    $(value).find('td').addClass('highlightRow');
+                    $(value).find('td:nth-child(2) input:checkbox').attr('checked', true);
+                }
+            });
+        }
 
         addPieLabelEvents();
     }
@@ -215,7 +217,7 @@ var PieChart = function(){
         $('#' + DIV.mainDiv).qtip({
             id: DIV.mainDiv,
             style: {
-                classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow forceZindex qtip-max-width'
+                classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow forceZindex qtip-max-width study-view-qtip'
             },
             show: {event: "mouseover", solo: true, delay: 0},
             hide: {fixed:true, delay: 300, event: "mouseleave"},
@@ -223,6 +225,7 @@ var PieChart = function(){
             content: copyPieLabelTable(),
             events: {
                 render: function(event, api) {
+                    var _filters = pieChart.filters();
                     $('#qtip-' + DIV.mainDiv + " table").attr('id', 'qtip-' + DIV.mainDiv + "-table");
                     pieLabelTable = $('#qtip-' + DIV.mainDiv + "-table").dataTable({
                         "sDom": _sDom,
@@ -231,7 +234,14 @@ var PieChart = function(){
                         "bScrollCollapse": true,
                         "autoWidth": false
                     });
-
+                    if(_filters instanceof Array && _filters.length > 0) {
+                        $('#qtip-' + DIV.mainDiv + "-table").find('tr').each(function(index, value) {
+                            if(_filters.indexOf($(value).find('td:nth-child(1)').find('span span').attr('oValue')) !== -1) {
+                                $(value).find('td').addClass('highlightRow');
+                                $(value).find('td:nth-child(2) input:checkbox').attr('checked', true);
+                            }
+                        });
+                    }
                     $('.pieLabel', api.elements.tooltip).mouseenter(function() {
                         pieLabelMouseEnter($(this).parent());
                     });
@@ -247,7 +257,7 @@ var PieChart = function(){
                         api.show(_event);
                     });
 
-                    $('table tbody tr td:nth-child(1) input:checkbox', api.elements.tooltip).change(function(_event){
+                    $('table tbody tr td:nth-child(2) input:checkbox', api.elements.tooltip).change(function(_event){
                         _event.preventDefault();
                         pieLabelCheckboxChange(this);
                         api.show(_event);
@@ -573,7 +583,7 @@ var PieChart = function(){
         //Draw pie label into output
         for ( var i = 0; i < _pieLabelLength; i++) {
             var _value = _pieLabel[i],
-                _number = Number($($(_value).parent().find('td.pieLabelValue')[0]).text()),
+                _number = Number($($(_value).parent().find('td.pieLabelValue span')[0]).text()),
                 _labelName = $($(_value).find('span')[0]).attr('oValue'),
                 _labelColormarker = cbio.download.serializeHtml($(_value).find('svg>rect')[0]);
 
@@ -948,16 +958,18 @@ var PieChart = function(){
             _tableDiv += '<td  uniqueId="'+
                         DIV.labelTableTdID +label[i].id+'-'+i+
                         '"  style="font-size:'+fontSize+'px;white-space: nowrap;">'+
-                        '<input type="checkbox">' +
                         '<span class="pieLabel"><svg width="'+(labelSize+3)+'" height="'+
                         labelSize+'"><rect width="'+
                         labelSize+'" height="'+labelSize+'" style="fill:'+
                         label[i].color + ';" /></svg><span';
             if(_tmpName !== label[i].name) {
-                _tableDiv +=  ' class="hasQtip" oValue="'+ (label[i].name.replace(/'/g, "&#39;")).replace(/"/g, "&#34;") + '"';
+                _tableDiv +=  ' class="hasQtip"';
             }
-            _tableDiv += ' style="vertical-align: top">'+
-                _tmpName+'</span></span></td><td class="pieLabelValue">'+label[i].value+'</td>';
+            _tableDiv += ' oValue="'+ (label[i].name.replace(/'/g, "&#39;")).replace(/"/g, "&#34;") + '" style="vertical-align: top">'+
+                _tmpName+'</span></span></td><td class="pieLabelValue" uniqueId="'+
+                DIV.labelTableTdID +label[i].id+'-'+i+
+                '"><span style="margin: 3px 0;padding-top: 3px;">'+label[i].value+
+                '</span><input type="checkbox" style="float:right; margin: 3px 0;" /></td>';
 
             if(i % 1 === 0){
                 _tableDiv += '</tr>';
@@ -1079,7 +1091,7 @@ var PieChart = function(){
             pieLabelClick($(this).parent(), _shiftClicked);
         });
 
-        $('#' + DIV.mainDiv+' tbody tr td:nth-child(1) input:checkbox').change(function(_event){
+        $('#' + DIV.mainDiv+' tbody tr td:nth-child(2) input:checkbox').change(function(_event){
             _event.preventDefault();
             pieLabelCheckboxChange(this);
         });

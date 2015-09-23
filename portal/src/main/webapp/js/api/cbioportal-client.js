@@ -9,7 +9,12 @@ window.cbioportal_client = (function() {
 				}
 			}
 			var arg_string = arg_strings.join("&");
-			return $.getJSON(endpt+'?'+arg_string);
+			return $.ajax({
+				type: "POST",
+				url: endpt,
+				data: arg_string,
+				dataType: "json"
+			});
 		};
 		var functionNameToEndpoint = {
 			'CancerTypes':'api/cancertypes',

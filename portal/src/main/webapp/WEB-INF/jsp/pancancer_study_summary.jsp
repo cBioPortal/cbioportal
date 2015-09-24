@@ -41,9 +41,6 @@
 <!-- The pancer_study_summary files: -->
 <link href="css/pancancer_study_summary/pancancer_study_summary.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 <jsp:include page="pancancer_study_summary/pancancer_study_summary_templates.html" flush="true"/>
-<!-- temp -->
-<script type="text/javascript" src="js/src/pancancer_study_summary/data_temp.json.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/pancancer_study_summary/meta_data_temp.json.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <!-- js files: -->
 <script type="text/javascript" src="js/src/pancancer_study_summary/pancancer_study_summary.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/pancancer_study_summary/pancancer_study_summary_histogram.js?<%=GlobalProperties.getAppVersion()%>"></script>

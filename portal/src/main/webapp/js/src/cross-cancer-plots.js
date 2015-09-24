@@ -74,31 +74,21 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 var _results = [];
                 var genes = _.keys(response);
 
-                //var tmp = setInterval(function () {timer();}, 1000);
-                //function timer() {
-                //    if (window.crossCancerMutationProxy !== undefined) {
-                        //clearInterval(tmp);
-                        //var _proxy = window.crossCancerMutationProxy;
-                        //_proxy.getMutationData(genes[0], _mutation_callback);
-                        //function _mutation_callback(_mutation_obj) {
-                            _.each(genes, function (gene) {
-                                _.each(Object.keys(response[gene]), function (_case_id) {
-                                    var _profile_id = Object.keys(response[gene][_case_id])[0];
-                                    var _value = response[gene][_case_id][_profile_id];
-                                    var _result_obj = {};
-                                    _result_obj.gene = gene;
-                                    _result_obj.caseId = _case_id;
-                                    _result_obj.profileId = _profile_id;
-                                    _result_obj.value = _value;
-                                    _result_obj.mutation = "";
-                                    _result_obj.mutation_type = "";
-                                    _results.push(_result_obj);
-                                });
-                            });
-                            return _results;
-                        //}
-                  //  }
-                //}
+                _.each(genes, function (gene) {
+                    _.each(Object.keys(response[gene]), function (_case_id) {
+                        var _profile_id = Object.keys(response[gene][_case_id])[0];
+                        var _value = response[gene][_case_id][_profile_id];
+                        var _result_obj = {};
+                        _result_obj.gene = gene;
+                        _result_obj.caseId = _case_id;
+                        _result_obj.profileId = _profile_id;
+                        _result_obj.value = _value;
+                        _result_obj.mutation = "";
+                        _result_obj.mutation_type = "";
+                        _results.push(_result_obj);
+                    });
+                });
+                return _results;
             }
         });
 
@@ -141,27 +131,31 @@ var ccPlots = (function ($, _, Backbone, d3) {
                             new ProfileDataListTmp(_profile_obj.CANCER_STUDY_STABLE_ID, _gene, _profile_obj.STABLE_ID, _profile_obj.CASE_SET_ID, "-1");
                         profileDataListTmp.fetch({
                             success: function (profileDataListTmp) {
-                                var _proxy = window.crossCancerMutationProxy;
-                                _proxy.getMutationData(_gene, _mutation_callback);
-                                function _mutation_callback(_mut_obj_arr) {
-                                    _.each(_mut_obj_arr, function(_mut_obj) {
-                                        _.each(profileDataListTmp.models, function(_model) {
-                                            if(_mut_obj.caseId === _model.attributes.caseId) {
-                                                _model.attributes.mutation += _mut_obj.proteinChange + ";";
-                                                _model.attributes.mutation_type += mutationTranslator(_mut_obj.mutationType) + ";";
+                                var tmp = setInterval(function () {timer();}, 1000);
+                                function timer() {
+                                    if (window.crossCancerMutationProxy !== undefined) {
+                                        clearInterval(tmp);
+                                        var _proxy = window.crossCancerMutationProxy;
+                                        _proxy.getMutationData(_gene, _mutation_callback);
+                                        function _mutation_callback(_mut_obj_arr) {
+                                            _.each(_mut_obj_arr, function(_mut_obj) {
+                                                _.each(profileDataListTmp.models, function(_model) {
+                                                    if(_mut_obj.caseId === _model.attributes.caseId) {
+                                                        _model.attributes.mutation += _mut_obj.proteinChange + ";";
+                                                        _model.attributes.mutation_type += mutationTranslator(_mut_obj.mutationType) + ";";
+                                                    }
+                                                });
+                                            })
+                                            profileDataList.add(profileDataListTmp.models);
+                                            if (_profile_index + 1 === profileMetaList.length) {
+                                                retrieved_genes.push(_gene);
+                                                callback_func(_.filter(profileDataList.models, function (model) {
+                                                    return model.get("gene") === _gene;
+                                                }));
                                             }
-                                        });
-                                    })
-                                    profileDataList.add(profileDataListTmp.models);
-                                    if (_profile_index + 1 === profileMetaList.length) {
-                                        retrieved_genes.push(_gene);
-                                        callback_func(_.filter(profileDataList.models, function (model) {
-                                            return model.get("gene") === _gene;
-                                        }));
+                                        }
                                     }
                                 }
-
-
                             }
                         });
                     });
@@ -189,8 +183,13 @@ var ccPlots = (function ($, _, Backbone, d3) {
                     axis: ""
                 },
                 dots: "",
-                title: ""
+                title: "",
+                box_plots: ""
             },
+            settings = {
+                canvas_width: 0,
+                canvas_height: 900
+            };
             init_sidebar = function () {
                 $("#cc_plots_gene_list_select").append("<select id='cc_plots_gene_list'>");
                 _.each(window.studies.gene_list.split(/\s+/), function (_gene) {
@@ -199,10 +198,11 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 });
             },
             init_canvas = function() {
+                settings.canvas_width = _.pluck(_.pluck(data.get_meta().models, "attributes"), "STABLE_ID").length * 100 + 400;
                 elem.svg = d3.select("#cc-plots-box")
                     .append("svg")
-                    .attr("width", _.pluck(_.pluck(data.get_meta().models, "attributes"), "STABLE_ID").length * 100 + 400)
-                    .attr("height", 900);
+                    .attr("width", settings.canvas_width)
+                    .attr("height", settings.canvas_height);
             },
             init_box = function (_input) {
 
@@ -425,6 +425,127 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 elem.dots.selectAll("path").on("mouseover", mouseOn);
                 elem.dots.selectAll("path").on("mouseout", mouseOff);
 
+                //add box plots
+                var _box_plots_datum = {
+                        x_val: "",
+                        y_val: []
+                    },
+                    _box_plots_data_arr = [],
+                    _box_plots_color = "#000000",
+                    _box_plots_opacity = 0.2;
+                var _meta_list = data.get_meta();
+                _.each(_.pluck(_.pluck(_meta_list.models, "attributes"), "STABLE_ID"), function(_profile_id) {
+                    var _tmp_y_val_arr = [];
+                    _.each(_data, function(_data_item) {
+                        if (_data_item.profileId === _profile_id) {
+                            _tmp_y_val_arr.push(parseFloat(_data_item.value));
+                        }
+                    });
+                    _tmp_y_val_arr.sort(function(a, b) { return (a - b); });
+                    var _datum = jQuery.extend(true, {}, _box_plots_datum);
+                    _datum.x_val = _profile_id;
+                    _datum.y_val = _tmp_y_val_arr;
+                    _box_plots_data_arr.push(_datum);
+                });
+
+                $.each(_box_plots_data_arr, function(index, obj) {
+                    if (obj.y_val.length !== 0) {
+                        if (obj.y_val.length === 1) { //just one simple line
+
+                        } else if (obj.y_val.length === 2) {
+
+                        } else { //regular box
+                            var top, bottom, quan1, quan2, mean, IQR, midLine, width;
+                            var yl = obj.y_val.length;
+                            var _data = obj.y_val;
+
+                            width = (settings.canvas_width - 800) / _box_plots_data_arr.length;
+                            midLine = elem.x.scale(obj.x_val) + width + 8;
+                            if (yl % 2 === 0) {
+                                mean = elem.y.scale((_data[(yl / 2)-1] + _data[yl / 2]) / 2);
+                                if (yl % 4 === 0) {
+                                    quan1 = elem.y.scale((_data[(yl / 4)-1] + _data[yl / 4]) / 2);
+                                    quan2 = elem.y.scale((_data[(3*yl / 4)-1] + _data[3 * yl / 4]) / 2);
+                                } else {
+                                    quan1 = elem.y.scale(_data[Math.floor(yl / 4)]);
+                                    quan2 = elem.y.scale(_data[Math.floor(3 * yl / 4)]);
+                                }
+                            } else {
+                                mean = elem.y.scale(_data[Math.floor(yl / 2)]);
+                                var tmp_yl = Math.floor(yl / 2) + 1;
+                                if (tmp_yl % 2 === 0) {
+                                    quan1 = elem.y.scale((_data[tmp_yl / 2 - 1] + _data[tmp_yl / 2]) / 2);
+                                    quan2 = elem.y.scale((_data[(3 * tmp_yl / 2) - 2] + _data[(3 * tmp_yl / 2) - 1]) / 2);
+                                } else {
+                                    quan1 = elem.y.scale(_data[Math.floor(tmp_yl / 2)]);
+                                    quan2 = elem.y.scale(_data[tmp_yl - 1 + Math.floor(tmp_yl / 2)]);
+                                }
+                            }
+                            var _scaled_arr = [];
+                            $.each(_data, function(index, value) {
+                                _scaled_arr.push(elem.y.scale(value));
+                            });
+                            _scaled_arr.sort(function(a,b) { return (a - b); });
+                            IQR = Math.abs(quan2 - quan1);
+                            var index_top = searchIndexTop(_scaled_arr, (quan2 - 1.5 * IQR));
+                            top = _scaled_arr[index_top];
+                            var index_bottom = searchIndexBottom(_scaled_arr, (quan1 + 1.5 * IQR));
+                            bottom = _scaled_arr[index_bottom];
+
+                            elem.box_plots = elem.svg.append("svg:g").attr("class", "cc_plots_box_plots");
+                            elem.box_plots.append("rect")
+                                .attr("x", midLine - width)
+                                .attr("y", quan2)
+                                .attr("width", width * 2)
+                                .attr("height", IQR)
+                                .attr("fill", "none")
+                                .attr("stroke-width", 1)
+                                .attr("stroke", _box_plots_color)
+                                .attr('opacity', _box_plots_opacity);
+                            elem.box_plots.append("line")
+                                .attr("x1", midLine - width)
+                                .attr("x2", midLine + width)
+                                .attr("y1", mean)
+                                .attr("y2", mean)
+                                .attr("stroke-width", 2)
+                                .attr("stroke", _box_plots_color)
+                                .attr('opacity', _box_plots_opacity);
+                            elem.box_plots.append("line")
+                                .attr("x1", midLine - width)
+                                .attr("x2", midLine + width)
+                                .attr("y1", top)
+                                .attr("y2", top)
+                                .attr("stroke-width", 1)
+                                .attr("stroke", _box_plots_color)
+                                .attr('opacity', _box_plots_opacity);
+                            elem.box_plots.append("line")
+                                .attr("x1", midLine - width)
+                                .attr("x2", midLine + width)
+                                .attr("y1", bottom)
+                                .attr("y2", bottom)
+                                .attr("stroke", _box_plots_color)
+                                .style("stroke-width", 1)
+                                .attr('opacity', _box_plots_opacity);
+                            elem.box_plots.append("line")
+                                .attr("x1", midLine)
+                                .attr("x2", midLine)
+                                .attr("y1", quan1)
+                                .attr("y2", bottom)
+                                .attr("stroke", _box_plots_color)
+                                .attr("stroke-width", 1)
+                                .attr('opacity', _box_plots_opacity);
+                            elem.box_plots.append("line")
+                                .attr("x1", midLine)
+                                .attr("x2", midLine)
+                                .attr("y1", quan2)
+                                .attr("y2", top)
+                                .attr("stroke", _box_plots_color)
+                                .style("stroke-width", 1)
+                                .attr('opacity', _box_plots_opacity);
+                        }
+
+                    }
+                });
             };
 
         return {

@@ -28,6 +28,8 @@ public class LargeTestSetGenerator {
 		String studyId = args[2];
 		String dataCNAfile = args[3];
 		String dataMutationsfile = args[4];
+		int nrCancerTypes = Integer.parseInt(args[5]);
+		int nrSubTypes = Integer.parseInt(args[6]);
 		
 		//0- make output dir:
 		if (!new File(outputDir).exists() && !new File(outputDir).mkdirs())
@@ -49,21 +51,103 @@ public class LargeTestSetGenerator {
 
 		System.out.println("Generating data_clinical.txt....");
         //Generate clinical data:
-        generateClinicalData(outputDir, sampleList);
+        generateClinicalData(outputDir, sampleList, nrCancerTypes, nrSubTypes);
+        
+        System.out.println("Generating cancer_type.txt....");
+        generateCancerType(outputDir, studyId);
+        
+        System.out.println("Generating meta_study.txt....");
+        generateMetaStudy(outputDir, studyId);
+        
+        System.out.println("Generating meta_clinical.txt....");
+        generateMetaClinical(outputDir, studyId);
+        
+        System.out.println("Generating meta_mutations_extended.txt....");
+        generateMetaMutExt(outputDir, studyId);
+        
+        System.out.println("Generating meta_CNA.txt....");
+        generateMetaCna(outputDir, studyId);
+        
         
         System.out.println("Done. You will find the files in " + outputDir);
 	}
 
+	private static void generateCancerType(String outputDir, String studyId) throws IOException {
+		FileWriter resultFile = new FileWriter(outputDir + "/cancer_type.txt");
+		resultFile.write("pan_cancer	" + studyId+ "	PANCAN	Yellow	Breast");
+		resultFile.close();
+	}
 
-	private static void generateClinicalData(String outputDir, List<String> sampleList) throws IOException {
+	private static void generateMetaStudy(String outputDir, String studyId) throws IOException {
+		FileWriter resultFile = new FileWriter(outputDir + "/meta_study.txt");
+		resultFile.write("type_of_cancer: pan_cancer\n"+
+			"cancer_study_identifier: " + studyId+ "\n"+
+			"name: " + studyId+ "\n"+
+			"description: <a >" + studyId+ "</a>.\n"+
+			"citation: The Hyve, Pieter Lukasse\n"+
+			"pmid: 23000897\n"+
+			"groups: PUBLIC;GDAC;SU2C-PI3K\n"+
+			"dedicated_color: Yellow\n"+
+			"short_name: " + studyId+ " (TEST)");
+		resultFile.close();
+	}
+
+	private static void generateMetaClinical(String outputDir, String studyId) throws IOException {
+		FileWriter resultFile = new FileWriter(outputDir + "/meta_clinical.txt");
+		resultFile.write("cancer_study_identifier: " + studyId+ "\n"+
+			"genetic_alteration_type: CLINICAL\n"+
+			"datatype: ;:FREE-FORM\n"+
+			"stable_id: " + studyId+ "_clinical\n"+
+			"show_profile_in_analysis_tab: false\n"+
+			"profile_description: Sample clinical data for this study. \n"+
+			"profile_name: Sample clinical data for " + studyId+ ".");
+		resultFile.close();
+	}
+
+	private static void generateMetaMutExt(String outputDir, String studyId) throws IOException {
+		FileWriter resultFile = new FileWriter(outputDir + "/meta_mutations_extended.txt");
+		resultFile.write("cancer_study_identifier: " + studyId+ "\n"+
+			"genetic_alteration_type: MUTATION_EXTENDED\n"+
+			"datatype: MAF\n"+
+			"stable_id: " + studyId+ "_mutations\n"+
+			"show_profile_in_analysis_tab: true\n"+
+			"profile_description: Mutation data from whole exome sequencing.\n"+
+			"profile_name: Mutations " + studyId);
+		resultFile.close();
+	}
+
+	private static void generateMetaCna(String outputDir, String studyId) throws IOException {
+		FileWriter resultFile = new FileWriter(outputDir + "/meta_CNA.txt");
+		resultFile.write("cancer_study_identifier: " + studyId+ "\n"+
+			"genetic_alteration_type: COPY_NUMBER_ALTERATION\n"+
+			"datatype: DISCRETE\n"+
+			"stable_id: " + studyId+ "_gistic\n"+
+			"show_profile_in_analysis_tab: true\n"+
+			"profile_description: Putative copy-number from GISTIC 2.0. Values: -2 = homozygous deletion; -1 = hemizygous deletion; 0 = neutral / no change; 1 = gain; 2 = high level amplification.\n"+
+			"profile_name: Putative copy-number alterations from GISTIC " + studyId);
+		resultFile.close();
+	}
+
+	private static void generateClinicalData(String outputDir, List<String> sampleList, int nrCancerTypes, int nrSubTypes) throws IOException {
 		FileWriter resultFile = new FileWriter(outputDir + "/data_clinical.txt");
-		//write header, with CANCER_TYPE, tCANCER_TYPE_DETAILED in pos 3 and 4:
-		resultFile.write("#1\t1\t1\t\t\t1\t1\t1\t1\n");
-		resultFile.write("#PATIENT\tSAMPLE\tSAMPLE\tSAMPLE\tSAMPLE\tPATIENT\tPATIENT\tPATIENT\tPATIENT\n");
-		resultFile.write("#Patient Identifier\t#Sample Identifier\tSubtype\tCancer Type\tCancer Type Detailed\tOverall Survival Status\tOverall Survival (Months)\tDisease Free Status\tDisease Free (Months)\n");
-		resultFile.write("#Patient identifier\t#Sample identifier\tSubtype description\tCancer Type\tCancer Type Detailed\tOverall survival status\tOverall survival in months since diagnosis\tDisease free status\tDisease free in months since treatment\n");
-		resultFile.write("#STRING\t#STRING\tSTRING\tSTRING\tSTRING\tSTRING\tNUMBER\tSTRING\tNUMBER\n");
-		resultFile.write("PATIENT_ID\tSAMPLE_ID\tSUBTYPE\tCANCER_TYPE\tCANCER_TYPE_DETAILED\tOS_STATUS\tOS_MONTHS\tDFS_STATUS\tDFS_MONTHS\n");
+		//write header, with CANCER_TYPE, CANCER_TYPE_DETAILED in pos 3 and 4:
+		if (nrSubTypes > 0) {
+			resultFile.write("#1\t1\t1\t\t\t1\t1\t1\t1\n");
+			resultFile.write("#PATIENT\tSAMPLE\tSAMPLE\tSAMPLE\tSAMPLE\tPATIENT\tPATIENT\tPATIENT\tPATIENT\n");
+			resultFile.write("#Patient Identifier\t#Sample Identifier\tSubtype\tCancer Type\tCancer Type Detailed\tOverall Survival Status\tOverall Survival (Months)\tDisease Free Status\tDisease Free (Months)\n");
+			resultFile.write("#Patient identifier\t#Sample identifier\tSubtype description\tCancer Type\tCancer Type Detailed\tOverall survival status\tOverall survival in months since diagnosis\tDisease free status\tDisease free in months since treatment\n");
+			resultFile.write("#STRING\t#STRING\tSTRING\tSTRING\tSTRING\tSTRING\tNUMBER\tSTRING\tNUMBER\n");
+			resultFile.write("PATIENT_ID\tSAMPLE_ID\tSUBTYPE\tCANCER_TYPE\tCANCER_TYPE_DETAILED\tOS_STATUS\tOS_MONTHS\tDFS_STATUS\tDFS_MONTHS\n");
+		}
+		else {
+			//shorter, without CANCER_TYPE_DETAILED
+			resultFile.write("#1\t1\t1\t\t\t1\t1\t1\n");
+			resultFile.write("#PATIENT\tSAMPLE\tSAMPLE\tSAMPLE\tPATIENT\tPATIENT\tPATIENT\tPATIENT\n");
+			resultFile.write("#Patient Identifier\t#Sample Identifier\tSubtype\tCancer Type\tOverall Survival Status\tOverall Survival (Months)\tDisease Free Status\tDisease Free (Months)\n");
+			resultFile.write("#Patient identifier\t#Sample identifier\tSubtype description\tCancer Type\tOverall survival status\tOverall survival in months since diagnosis\tDisease free status\tDisease free in months since treatment\n");
+			resultFile.write("#STRING\t#STRING\tSTRING\tSTRING\tSTRING\tNUMBER\tSTRING\tNUMBER\n");
+			resultFile.write("PATIENT_ID\tSAMPLE_ID\tSUBTYPE\tCANCER_TYPE\tOS_STATUS\tOS_MONTHS\tDFS_STATUS\tDFS_MONTHS\n");
+		}
 		
 		//iterate over sampleList, write the lines:
 		for (String sample: sampleList) {
@@ -74,11 +158,13 @@ public class LargeTestSetGenerator {
 			String [] subtype = {"Luminal A", "basal-like", "Luminal B", "Her2 enriched"};
 			resultFile.write(subtype[random(0,3)] + "\t");
 			
-			int cancerType = random(1,20);
+			int cancerType = random(1,nrCancerTypes);
 			resultFile.write("Cancer_type" + cancerType + "\t");
 			
-			int cancerTypeDetailed = random(1,12);
-			resultFile.write("Cancer_type" + cancerType + "_Sub" +cancerTypeDetailed + "\t");
+			if (nrSubTypes > 0) {
+				int cancerTypeDetailed = random(1,nrSubTypes);
+				resultFile.write("Cancer_type" + cancerType + "_Sub" +cancerTypeDetailed + "\t");
+			}
 			
 			String [] osStatus = {"DECEASED", "LIVING"};
 			resultFile.write(osStatus[random(0,1)] + "\t");

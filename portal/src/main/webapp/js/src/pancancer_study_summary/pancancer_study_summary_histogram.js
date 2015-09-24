@@ -86,7 +86,6 @@ function PancancerStudySummaryHistogram()
 	}
 	    
     var drawHistogram = function(histData, model, histogramEl) {
-		//var metaData = metadata_temp;
 		
     	var getY = function(d, type) {
     		return getYValue(d, type, model.get("dataTypeYAxis"));

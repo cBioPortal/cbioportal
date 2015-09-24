@@ -249,7 +249,7 @@
              fields["cancerType"] = cancerType;
              fields["cancerTypeDetailed"] = self.dmPresenter.getCancerTypeDetailedList(cancerType);
              //also reset minNrAlteredSamples (for the slider):
-             fields["minNrAlteredSamples"] = 1;
+             fields["minNrAlteredSamples"] = 0;
         	 self.model.set(fields);
          }
          // create the dropdown and add it
@@ -367,7 +367,7 @@
          // create the jQuery ui slider
          var sampleSlider = this.$el.find(".diagram-min-nr-altered-samples-slider");
          sampleSlider.slider({ 
-            value: 1, 
+            value: 0, 
             min: 0, 
             max: this.max 
          });
@@ -441,18 +441,24 @@
          cancerTypeDetailed: "All",
          sortXAxis: "Y-Axis Values",
          dataTypeYAxis: "Absolute Counts",
-         minNrAlteredSamples: "1",
+         minNrAlteredSamples: "0",
          showGenomicAlterationTypes: true
       },
       initialize: function(options) {
-    	  this.set("cancerTypeDetailed", options.dmPresenter.getCancerTypeList()); 
+    	  //initialize cancerType to something different than "All" if only 1 cancer_type is there:
+    	  if (options.dmPresenter.getCancerTypeList().length == 1) {
+    		  var cancerType = options.dmPresenter.getCancerTypeList()[0];
+    		  this.set("cancerType", cancerType);
+    		  this.set("cancerTypeDetailed", options.dmPresenter.getCancerTypeDetailedList(cancerType));
+    	  }
+    	  else
+    		  this.set("cancerTypeDetailed", options.dmPresenter.getCancerTypeList()); 
           console.log("HistogramSettings Created");
       }
   });
 
 
 var SpecificCancerTypesView = Backbone.View.extend({
-
       initialize: function(options){
          this.gene = options.gene;
          this.dmPresenter = options.dmPresenter;
@@ -484,12 +490,31 @@ var SpecificCancerTypesView = Backbone.View.extend({
       },
 
       render: function() {
-    	  
+    	  var self = this;
     	  var templateFn = BackboneTemplateCache.getTemplateFn("specific_cancertypes_area_template");
-    	  this.template = templateFn();
+    	  this.template = templateFn({geneId: self.gene});
           // add the template
           $(this.el).html(this.template);
     	  
+          // add click handlers:
+          $("#cc-select-all-"+self.gene).click(function(e) {
+        	  e.preventDefault();//prevents # link click to scroll the page
+              $("#specific-cancertypes-area-"+self.gene +" input").each(function(idx, el) {
+                  $(el).prop("checked", true);
+              });
+              //reset model field:
+              self.model.set("cancerTypeDetailed", self.dmPresenter.getCancerTypeDetailedList(self.model.get("cancerType")));
+          });
+
+          $("#cc-select-none-"+self.gene).click(function(e) {
+        	  e.preventDefault();
+              $("#specific-cancertypes-area-"+self.gene +" input").each(function(idx, el) {
+                  $(el).prop("checked", false);
+              });
+              //reset model field to none:
+              self.model.set("cancerTypeDetailed", []);
+          });
+          
     	  var listOfOptions = [];
     	  if (this.model.get("cancerType") == "All")
     		  listOfOptions = this.dmPresenter.getCancerTypeList(); 

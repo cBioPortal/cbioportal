@@ -253,7 +253,6 @@ window.oncoprint_RuleSet = (function() {
 		var vocab = ['full-rect', 'middle-rect', 'large-right-arrow', 'small-up-arrow', 'small-down-arrow'];
 		var self = this;
 		self.type = GENETIC_ALTERATION;
-
 		var makeStaticShapeRule = function(rule_spec, key, value) {
 			var condition = typeof key !== 'undefined' && typeof value !== 'undefined' ? (function(_key, _value) {
 				if (_value === ANY) {
@@ -324,6 +323,9 @@ window.oncoprint_RuleSet = (function() {
 		_.each(params.default, function(rule_spec) {
 			makeStaticShapeRule(rule_spec);
 		});
+		self.addStaticRule(makeNARuleParams(function(d) {
+			return d.hasOwnProperty("na");
+		}, 'NA'));
 		self.getLegendDiv = function(active_rules, cell_width, cell_height) {
 			var div = d3.select(document.createElement('div'));
 			_.each(self.getRules(), function(rule) {

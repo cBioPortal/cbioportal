@@ -39,20 +39,6 @@
 
 <link href="css/mutationMapper.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/>
 
-<style type="text/css" title="currentStyle">
-    .oncokb-qtip {
-        max-width: 800px !important;
-    }
-    .oncokb-qtip-sm {
-        max-width: 400px !important;
-    }
-    ul.oncokb {
-        padding-left: 20px;
-    }
-    ul.oncokb li {
-        margin: 2px 0 2px 0;
-    }
-</style>
 <script type="text/javascript">
     var mutTableIndices =
             ["id","case_ids","gene","aa","chr","start","end","ref","_var","validation","type",
@@ -238,26 +224,7 @@
                                 if(mutations.colExists('oncokb')) {
                                     var oncokbInfo = mutations.getValue(source[0], 'oncokb');
 
-                                    ret += "&nbsp;<span class='oncokb oncokb_alteration oncogenic' oncokbId='"+source[0]+"'>";
-                                    if(oncokbInfo) {
-                                        if(oncokbInfo.hasOwnProperty('oncogenic')) {
-                                            switch (mutations.getValue(source[0], 'oncokb').oncogenic) {
-                                                case 0:
-                                                    ret += "<img class='oncogenic' width='13' height='13' src='images/oncokb-oncogenic-3.svg'>";
-                                                    break;
-                                                case -1:
-                                                    ret += "<img class='oncogenic' width='13' height='13' src='images/oncokb-oncogenic-2.svg'>";
-                                                    break;
-                                                case 2:
-                                                    ret += "<img class='oncogenic' width='13' height='13' src='images/oncokb-oncogenic-1.svg'>";
-                                                    break;
-                                                case 1:
-                                                    ret += "<img class='oncogenic' width='13' height='13' src='images/oncokb-oncogenic-1.svg'>";
-                                                    break;
-                                            }
-                                        }
-                                    }
-                                    ret +='</span>';
+                                    ret += "&nbsp;<span class='oncokb oncokb_alteration oncogenic' oncokbId='"+source[0]+"'></span>";
                                 }else{
                                     ret += '<img width="13" height="13" class="loader" src="images/ajax-loader.gif"/>';
                                 }

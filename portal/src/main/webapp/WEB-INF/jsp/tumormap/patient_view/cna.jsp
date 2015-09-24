@@ -35,7 +35,7 @@
 
 <script type="text/javascript">
     
-    var cnaTableIndices = cbio.util.arrayToAssociatedArrayIndices(["id","case_ids","gene","cytoband","alteration","mrna","altrate","drug", "oncokb"]);
+    var cnaTableIndices = cbio.util.arrayToAssociatedArrayIndices(["id","case_ids","gene","alteration","cytoband","mrna","altrate","drug", "oncokb"]);
     function buildCnaDataTable(cnas, cnaEventIds, table_id, sDom, iDisplayLength, sEmptyInfo) {
         var data = [];
         var oncokbInstance = new OncoKB.Instance();
@@ -173,28 +173,7 @@
                                 strAlt = "<b>"+strAlt+"</b>";
 
                                 if(cnas.colExists('oncokb')) {
-                                    var oncokbInfo = cnas.getValue(source[0], 'oncokb');
-
-                                    strAlt += "&nbsp;<span class='oncokb oncokb_alteration oncogenic' oncokbId='"+source[0]+"'>";
-                                    if(oncokbInfo) {
-                                        if(oncokbInfo.hasOwnProperty('oncogenic')) {
-                                            switch (cnas.getValue(source[0], 'oncokb').oncogenic) {
-                                                case 0:
-                                                    strAlt += "<img class='oncogenic' width='13' height='13' src='images/oncokb-oncogenic-3.svg'>";
-                                                    break;
-                                                case -1:
-                                                    strAlt += "<img class='oncogenic' width='13' height='13' src='images/oncokb-oncogenic-2.svg'>";
-                                                    break;
-                                                case 2:
-                                                    strAlt += "<img class='oncogenic' width='13' height='13' src='images/oncokb-oncogenic-1.svg'>";
-                                                    break;
-                                                case 1:
-                                                    strAlt += "<img class='oncogenic' width='13' height='13' src='images/oncokb-oncogenic-1.svg'>";
-                                                    break;
-                                            }
-                                        }
-                                    }
-                                    strAlt +='</span>';
+                                    strAlt += "&nbsp;<span class='oncokb oncokb_alteration oncogenic' oncokbId='"+source[0]+"'></span>";
                                 }else{
                                     strAlt += '<img width="13" height="13" class="loader" src="images/ajax-loader.gif"/>';
                                 }

@@ -43,52 +43,9 @@ $(document).ready(function() {
         //fetch genepanel data end 
             
         $.when.apply(null, clinical_data_promises).done(function() {
-            //process genepanel attribute to patient format
-//            var GenePanelDataPatient = [];
-//            if(GenePanelData.length>0)
-//            {
-//                if(typeof(window.PortalGlobals) !== 'undefined')
-//                {
-//                    var SampleIdMapPatientId = window.PortalGlobals.getPatientSampleIdMap();
-//                }
-//
-//                for(var i = 0; i < GenePanelData.length; i++)
-//                {
-//                    var patiendId = SampleIdMapPatientId[GenePanelData[i].sample];
-//
-//                    var findIndexValue = function(){
-//                        for(var j=0; j < GenePanelDataPatient.length; j++)
-//                        {
-//                            if(patiendId === GenePanelDataPatient[j].patient)
-//                            {
-//                                return j;
-//                            }
-//                        }
-//                        return -1;
-//                    };
-//
-//                    var positionValue = findIndexValue();
-//                    if(positionValue > -1)
-//                    {
-//                       if(GenePanelDataPatient[positionValue].attr_val !== GenePanelData[i].attr_val)
-//                       {
-//                           GenePanelDataPatient[positionValue].attr_val = GenePanelDataPatient[positionValue].attr_val+ ","+GenePanelData[i].attr_val;
-//                       }
-//                    }
-//                    else
-//                    {
-//                      var genepanelAttibuteDataPatient = {attr_id:"GENE_PANEL",patient:patiendId}; 
-//                      genepanelAttibuteDataPatient.attr_val = GenePanelData[i].attr_val;
-//                      GenePanelDataPatient.push(genepanelAttibuteDataPatient);
-//                    }
-//                }
-//            }
-            // process end
-
             var genepanelValues; 
             genepanelValues = {
                 genepaneldata:GenePanelData,
-                //genepaneldatapatient:GenePanelDataPatient,
                 genepanel:genePanel
             };
             
@@ -119,34 +76,28 @@ $(document).ready(function() {
 			$('#oncoprint #everything').show();
                         
                         var gene_data = response.toJSON();
+                        
                         //get to process data from gene panel
                         if(genepanelValues.genepaneldata.length>0){
-                            for(var i=0; i < gene_data.length; i++)
-                            {
+                            for(var i=0; i < gene_data.length; i++){
                                 var geneIndexValue;
                                 var genepanelStableId;
-                                if(genepanelValues.genepaneldata[i] !== undefined)
-                                {
+                                if(genepanelValues.genepaneldata[i] !== undefined){
                                     genepanelStableId = genepanelValues.genepaneldata[i].attr_val;
                                 }
-                                else
-                                {
+                                else{
                                     genepanelStableId = undefined;
                                 }
 
-                                for(var j= 0; j < config.gene_order.length; j++)
-                                {
-                                    if(genepanelStableId !== undefined)
-                                    {
+                                for(var j= 0; j < config.gene_order.length; j++){
+                                    if(genepanelStableId !== undefined){
                                         geneIndexValue = _.find(genepanelValues.genepanel[genepanelStableId].geneList, function(gene){ return gene === gene_data[i+j*gene_data.length].gene; }); 
                                     }
-                                    else
-                                    {
+                                    else{
                                         geneIndexValue = false;
                                     }
 
-                                    if(gene_data[i+j*gene_data.length].gene !== undefined && !geneIndexValue && gene_data[i+j*gene_data.length].mutation === undefined && gene_data[i+j*gene_data.length].cna === undefined)
-                                    {
+                                    if(gene_data[i+j*gene_data.length].gene !== undefined && !geneIndexValue && gene_data[i+j*gene_data.length].mutation === undefined && gene_data[i+j*gene_data.length].cna === undefined){
                                         gene_data[i+j*gene_data.length].NA = true; 
                                     }
                                 }

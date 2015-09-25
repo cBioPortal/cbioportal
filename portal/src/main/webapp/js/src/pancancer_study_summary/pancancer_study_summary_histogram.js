@@ -93,9 +93,9 @@ function PancancerStudySummaryHistogram()
     	
     	var getYlabel = function(d) {
 	    	if (model.get("dataTypeYAxis") == "Absolute Counts")
-	    		return d
+	    		return d;
 	    	else
-	    		return Math.round(parseFloat(d) * 100) + "%"; 
+	    		return Math.round(parseFloat(d) * 1000)/10 + "%"; 
 	    };
     	
 		// main values: 
@@ -112,8 +112,12 @@ function PancancerStudySummaryHistogram()
 
 	    var yMax = parseFloat(d3.max(histData, function (d) {
             return getY(d, "all");
-        })) + .05;
-	    //alert(yMax);
+        }));
+	    //add a small extra, so that the axis is a bit taller that the highest bar:
+	    if (model.get("dataTypeYAxis") == "Absolute Counts")
+	    	yMax += .05;
+	    else
+	    	yMax += .005;
 	    
 	    var yScale = d3.scale.linear()
 	        .domain([
@@ -481,7 +485,7 @@ function PancancerStudySummaryHistogram()
         	if (model.get("sortXAxis") == "Y-Axis Values") 
         		return getYValue(b, "all", model.get("dataTypeYAxis")) - getYValue(a, "all", model.get("dataTypeYAxis"));
         	else
-        		return a.typeOfCancer > b.typeOfCancer;
+        		return a.typeOfCancer.localeCompare(b.typeOfCancer);
         };
 
 		//there will only be a transition animation if at this point the order of histData is different from the order in which the diagrams are drawn. 

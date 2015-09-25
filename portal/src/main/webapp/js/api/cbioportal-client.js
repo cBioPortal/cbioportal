@@ -175,7 +175,6 @@ window.cbioportal_client = (function() {
 			}
 		};
 		this.getData = function (key_list_list) {
-			var ret = [];
 			var intermediate = [map];
 			var leaves = [];
 			var i, j, k;
@@ -199,10 +198,7 @@ window.cbioportal_client = (function() {
 				intermediate = tmp_intermediate;
 				key_list_index += 1;
 			}
-			for (i = 0; i<leaves.length; i++) {
-				ret = ret.concat(leaves[i]);
-			}
-			return ret;
+			return [].concat.apply([], leaves);
 		};
 		this.missingKeys = function(key_list_list) {
 			var missing_keys = key_list_list.map(function() { return {}; });

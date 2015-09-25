@@ -6,11 +6,11 @@ $(document).ready(function() {
 	};
 	$('#oncoprint_controls').html(_.template($('#main-controls-template').html())());
         
-        var clinicalElementsArray = [];
+        var clinical_data_promises = []
         var GenePanelData = [];
-        var genePanelClinicals = new ClinicalColl();
-        clinicalElementsArray.push(
-        genePanelClinicals.fetch({
+        var gene_panel_clinical_coll = new ClinicalColl();
+        clinical_data_promises.push(
+        gene_panel_clinical_coll.fetch({
         type: "POST",
         data: {
            cancer_study_id: cancer_study_id_selected,
@@ -23,70 +23,72 @@ $(document).ready(function() {
         }));
         
         //fetch genepanel
-        var genepanelFiles = ["api/genepanel/IMPACT341","api/genepanel/IMPACT410"];
-        var genePanel = new Array();
-        var gainGenepanel = function(filename,datafetchArray)
-        {
+        var gene_panel_files = [{path:"api/genepanel/IMPACT341", file:"IMPACT341"},{path:"api/genepanel/IMPACT410",file:"IMPACT410"}];
+        var genePanel = [];
+        var gainGenepanel = function(filename,datafetchArray){
             datafetchArray.push(
             $.getJSON(filename,function(result){
                 genePanel[(filename.split("/"))[2]] = result;
             }));
         }
-
-        for(var i=0; i<genepanelFiles.length; i++)
+        
+        
+        for(var i=0; i<gene_panel_files.length; i++)
         {
-            var genepanelFilename = genepanelFiles[i];
-            gainGenepanel(genepanelFilename,clinicalElementsArray);
+            var gene_panel_file = gene_panel_files[i];
+            var gene_panel_file_name = gene_panel_files.file;
+            clinical_data_promises.push($.getJSON(gene_panel_file.path, function(result) { gene_panel_file_data[gene_panel_file_name] = result; }));
+        
         }
         //fetch genepanel data end 
             
-        $.when.apply(null, clinicalElementsArray).done(function() {
+        $.when.apply(null, clinical_data_promises).done(function() {
             //process genepanel attribute to patient format
-            var GenePanelDataPatient = [];
-            if(GenePanelData.length>0)
-            {
-                if(typeof(window.PortalGlobals) !== 'undefined')
-                {
-                    var SampleIdMapPatientId = window.PortalGlobals.getPatientSampleIdMap();
-                }
-
-                for(var i = 0; i < GenePanelData.length; i++)
-                {
-                    var patiendId = SampleIdMapPatientId[GenePanelData[i].sample];
-
-                    var findIndexValue = function(){
-                        for(var j=0; j < GenePanelDataPatient.length; j++)
-                        {
-                            if(patiendId === GenePanelDataPatient[j].patient)
-                            {
-                                return j;
-                            }
-                        }
-                        return -1;
-                    };
-
-                    var positionValue = findIndexValue();
-                    if(positionValue > -1)
-                    {
-                       if(GenePanelDataPatient[positionValue].attr_val !== GenePanelData[i].attr_val)
-                       {
-                           GenePanelDataPatient[positionValue].attr_val = GenePanelDataPatient[positionValue].attr_val+ ","+GenePanelData[i].attr_val;
-                       }
-                    }
-                    else
-                    {
-                      var genepanelAttibuteDataPatient = {attr_id:"GENE_PANEL",patient:patiendId}; 
-                      genepanelAttibuteDataPatient.attr_val = GenePanelData[i].attr_val;
-                      GenePanelDataPatient.push(genepanelAttibuteDataPatient);
-                    }
-                }
-            }
+//            var GenePanelDataPatient = [];
+//            if(GenePanelData.length>0)
+//            {
+//                if(typeof(window.PortalGlobals) !== 'undefined')
+//                {
+//                    var SampleIdMapPatientId = window.PortalGlobals.getPatientSampleIdMap();
+//                }
+//
+//                for(var i = 0; i < GenePanelData.length; i++)
+//                {
+//                    var patiendId = SampleIdMapPatientId[GenePanelData[i].sample];
+//
+//                    var findIndexValue = function(){
+//                        for(var j=0; j < GenePanelDataPatient.length; j++)
+//                        {
+//                            if(patiendId === GenePanelDataPatient[j].patient)
+//                            {
+//                                return j;
+//                            }
+//                        }
+//                        return -1;
+//                    };
+//
+//                    var positionValue = findIndexValue();
+//                    if(positionValue > -1)
+//                    {
+//                       if(GenePanelDataPatient[positionValue].attr_val !== GenePanelData[i].attr_val)
+//                       {
+//                           GenePanelDataPatient[positionValue].attr_val = GenePanelDataPatient[positionValue].attr_val+ ","+GenePanelData[i].attr_val;
+//                       }
+//                    }
+//                    else
+//                    {
+//                      var genepanelAttibuteDataPatient = {attr_id:"GENE_PANEL",patient:patiendId}; 
+//                      genepanelAttibuteDataPatient.attr_val = GenePanelData[i].attr_val;
+//                      GenePanelDataPatient.push(genepanelAttibuteDataPatient);
+//                    }
+//                }
+//            }
             // process end
 
             var genepanelValues; 
             genepanelValues = {
                 genepaneldata:GenePanelData,
-                genepaneldatapatient:GenePanelDataPatient,
+                //genepaneldatapatient:GenePanelDataPatient,
                 genepanel:genePanel
             };
             
@@ -118,8 +120,7 @@ $(document).ready(function() {
                         
                         var gene_data = response.toJSON();
                         //get to process data from gene panel
-                        if(genepanelValues.genepaneldata.length>0)
-                        {
+                        if(genepanelValues.genepaneldata.length>0){
                             for(var i=0; i < gene_data.length; i++)
                             {
                                 var geneIndexValue;

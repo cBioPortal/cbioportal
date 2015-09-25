@@ -220,6 +220,8 @@ var ccPlots = (function ($, _, Backbone, d3) {
                     if (_data_item.mutation_type === "" ) { _data_item.mutation_type = "non"; }
                 });
 
+                elem.box_plots = elem.svg.append("svg:g").attr("class", "cc_plots_box_plots");
+                elem.dots = elem.svg.append("svg:g");
 
                 //x axis
                 var x_axis_right = (_.pluck(_.pluck(data.get_meta().models, "attributes"), "STABLE_ID").length * 100 + 300);
@@ -308,7 +310,6 @@ var ccPlots = (function ($, _, Backbone, d3) {
                     .text($("#cc_plots_gene_list").val() + " expression -- RNA-Seq V2");
 
                 //draw dots
-                elem.dots = elem.svg.append("svg:g");
                 elem.dots.selectAll("path").remove();
                 elem.dots.selectAll("path")
                     .data((_.filter(_data, function(_item) { return _item.mutation === "non"; })).concat(_.filter(_data, function(_item) { return _item.mutation !== "non"; })))
@@ -459,8 +460,8 @@ var ccPlots = (function ($, _, Backbone, d3) {
                             var yl = obj.y_val.length;
                             var _data = obj.y_val;
 
-                            width = (settings.canvas_width - 800) / _box_plots_data_arr.length;
-                            midLine = elem.x.scale(obj.x_val) + width + 8;
+                            width = elem.x.scale.rangeBand() / 2 - 10;
+                            midLine = elem.x.scale(obj.x_val) + elem.x.scale.rangeBand() / 2;
                             if (yl % 2 === 0) {
                                 mean = elem.y.scale((_data[(yl / 2)-1] + _data[yl / 2]) / 2);
                                 if (yl % 4 === 0) {
@@ -492,7 +493,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                             var index_bottom = searchIndexBottom(_scaled_arr, (quan1 + 1.5 * IQR));
                             bottom = _scaled_arr[index_bottom];
 
-                            elem.box_plots = elem.svg.append("svg:g").attr("class", "cc_plots_box_plots");
+
                             elem.box_plots.append("rect")
                                 .attr("x", midLine - width)
                                 .attr("y", quan2)

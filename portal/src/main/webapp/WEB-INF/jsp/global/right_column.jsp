@@ -61,8 +61,10 @@ if (GlobalProperties.showRightNavDataSets()) {
                                 return acc+currVal;
                             }, 0);
                             var numStudies = Object.keys(json.cancer_studies).length - 1; // subtract one for the cross-cancer "study"
-                            $("#portal_data_stats_copy").html("The Portal contains data for <b>" + totalNumSamples + " tumor samples from " +
-                                    numStudies + " cancer studies.</b> [<a href='data_sets.jsp'>Details</a>]</p>");
+                            /*$("#portal_data_stats_copy").html("The Portal contains data for <b>" + totalNumSamples + " tumor samples from " +
+                                    numStudies + " cancer studies.</b> [<a href='data_sets.jsp'>Details</a>]</p>");*/
+                            $("#portal_data_stats_copy").html("The Portal contains data from <b>" + 
+				    numStudies + " cancer studies.</b> [<a href='data_sets.jsp'>Details</a>]</p>");
                             RightMenuStudyStatsUtil.plotTree(json);
 			};
                         if (window.metaDataPromise) {

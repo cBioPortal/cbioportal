@@ -176,7 +176,7 @@ window.cbioportal_client = (function() {
 		};
 		this.getData = function (key_list_list) {
 			var intermediate = [map];
-			var leaves = [];
+			var ret = [];
 			var i, j, k;
 			key_list_list = key_list_list || [];
 			var key_list_index = 0;
@@ -185,7 +185,7 @@ window.cbioportal_client = (function() {
 				for (i = 0; i<intermediate.length; i++) {
 					var obj = intermediate[i];
 					if (Object.prototype.toString.call(obj) === '[object Array]') {
-						leaves.push(obj);
+						ret = ret.concat(obj);
 					} else {
 						var keys = key_list_list[key_list_index] || Object.keys(obj);
 						for (k = 0; k<keys.length; k++) {
@@ -198,7 +198,7 @@ window.cbioportal_client = (function() {
 				intermediate = tmp_intermediate;
 				key_list_index += 1;
 			}
-			return [].concat.apply([], leaves);
+			return ret;
 		};
 		this.missingKeys = function(key_list_list) {
 			var missing_keys = key_list_list.map(function() { return {}; });

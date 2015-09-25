@@ -86,6 +86,8 @@ saml.keystore.default-key=
 ## settings to connect to an Active Directory domain controller
 ad.domain=
 ad.url=
+# always show studies with this group
+always_show_study_group=
 
 # patient view settings
 patient_view_placeholder=false
@@ -125,3 +127,4 @@ google_analytics_profile_id=
 
 # genomespace linking
 genomespace=true
+

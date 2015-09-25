@@ -212,7 +212,9 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
         }
 
         // all users are allowed access to PUBLIC studies
-        grantedAuthorities.add(AccessControl.PUBLIC_CANCER_STUDIES_GROUP.toUpperCase());
+        if (AccessControl.PUBLIC_CANCER_STUDIES_GROUP!=null) {
+            grantedAuthorities.add(AccessControl.PUBLIC_CANCER_STUDIES_GROUP.toUpperCase());
+        }
 
         return grantedAuthorities;
     }

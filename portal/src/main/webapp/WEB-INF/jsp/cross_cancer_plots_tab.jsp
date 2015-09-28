@@ -101,11 +101,11 @@
                     <h4>Utilities</h4>
                     <h5>Search Case(s)</h5>
                     <input type="text" id="case_id_search_keyword" name="case_id_search_keyword"
-                           placeholder="Case ID.." onkeyup="search_case_id();"><br>
+                           placeholder="Case ID.." onkeyup="ccPlots.search_case_id();"><br>
                     <h5>Search Mutation(s)</h5>
                     <input type="text" id="mutation_search_keyword"
                            name="mutation_search_keyword" placeholder="Protein Change.."
-                           onkeyup="search_mutation();"><br>
+                           onkeyup="ccPlots.search_mutation();"><br>
                     <div id="mutation_details_vs_gistic_view" class="mutation_details_vs_gistic_view"
                          style="display:inline;"></div>
                     <h5>Download</h5>

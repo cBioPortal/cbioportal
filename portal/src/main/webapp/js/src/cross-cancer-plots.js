@@ -344,6 +344,8 @@ var ccPlots = (function ($, _, Backbone, d3) {
                         .type(function(d) {
                             $(this).attr("size", 20);
                             $(this).attr("shape", mutationStyle.getSymbol(d.mutation_type));
+                            $(this).attr("case_id", d.caseId);
+                            $(this).attr("mutation", d.mutation);
                             return mutationStyle.getSymbol(d.mutation_type);
                         }))
                     .attr("fill", function(d) {
@@ -587,6 +589,59 @@ var ccPlots = (function ($, _, Backbone, d3) {
         }
     }());
 
+    var search_mutation = function() {
+        var searchToken = document.getElementById("mutation_search_keyword").value;
+        d3.select("#cc-plots-box").selectAll("path").each(
+            function() {
+                var mutation_details = $(this).attr("mutation");
+                if (typeof mutation_details !== 'undefined' && mutation_details !== false && mutation_details !== "domain") {
+                    if ( searchToken.length >= 3 ) {
+                        if (mutation_details.toUpperCase().indexOf(searchToken.toUpperCase()) !== -1) {
+                            $(this).attr("d", d3.svg.symbol()
+                                .size(d3.select(this).attr("size") + 5)
+                                .type(d3.select(this).attr("shape")));
+                        } else {
+                            $(this).attr("d", d3.svg.symbol()
+                                .size(d3.select(this).attr("size"))
+                                .type(d3.select(this).attr("shape")));
+                        }
+                    } else {
+                        $(this).attr("d", d3.svg.symbol()
+                            .size(d3.select(this).attr("size"))
+                            .type(d3.select(this).attr("shape")));
+                    }
+                }
+            }
+        );
+    };
+
+    var search_case_id = function() {
+        var searchToken = document.getElementById("case_id_search_keyword").value;
+        d3.select("#cc-plots-box").selectAll("path").each(
+            function() {
+                var _case_id = $(this).attr("case_id");
+                if (typeof _case_id !== 'undefined' && _case_id !== false && _case_id !== "domain") {
+                    if ( searchToken.length >= 4 ) {
+                        if ( _case_id.toUpperCase().indexOf(searchToken.toUpperCase()) !== -1 &&
+                            (searchToken.toUpperCase()) !== "TCGA" && (searchToken.toUpperCase()) !== "TCGA-") {
+                            $(this).attr("d", d3.svg.symbol()
+                                .size(d3.select(this).attr("size") + 5)
+                                .type(d3.select(this).attr("shape")));
+                        } else {
+                            $(this).attr("d", d3.svg.symbol()
+                                .size(d3.select(this).attr("size"))
+                                .type(d3.select(this).attr("shape")));
+                        }
+                    } else {
+                        $(this).attr("d", d3.svg.symbol()
+                            .size(d3.select(this).attr("size"))
+                            .type(d3.select(this).attr("shape")));
+                    }
+                }
+            }
+        );
+    };
+
     return {
         init: function () {
             var cc_plots_time_out = setInterval(function () {
@@ -603,7 +658,9 @@ var ccPlots = (function ($, _, Backbone, d3) {
             $("#cc-plots-box").empty();
             $("#cc-plots-box").append("<img src='images/ajax-loader.gif' id='cc_plots_loading' style='padding:200px;'/>");
             view.update();
-        }
+        },
+        search_mutation: search_mutation,
+        search_case_id: search_case_id
     }
 
 }(window.jQuery, window._, window.Backbone, window.d3));

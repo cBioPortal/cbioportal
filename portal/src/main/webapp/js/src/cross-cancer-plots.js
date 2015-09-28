@@ -167,7 +167,15 @@ var ccPlots = (function ($, _, Backbone, d3) {
                     }));
                 }
             },
-            get_meta: function() { return profileMetaList; }
+            get_meta: function() { return profileMetaList; },
+            get_profile_name: function(_profile_id) {
+                var _profile_obj = _.filter(_.pluck(profileMetaList.models, "attributes"), function(_profile_item) { return _profile_item.STABLE_ID === _profile_id; });
+                return _profile_obj[0].NAME;
+            },
+            get_cancer_study_name: function(_profile_id) {
+                var _profile_obj = _.filter(_.pluck(profileMetaList.models, "attributes"), function(_profile_item) { return _profile_item.STABLE_ID === _profile_id; });
+                return _profile_obj[0].CANCER_STUDY_NAME;
+            }
         }
 
     }());
@@ -212,6 +220,9 @@ var ccPlots = (function ($, _, Backbone, d3) {
                     };
                     cbio.download.initDownload(
                         $("#cc-plots-box svg")[0], downloadOptions);
+                });
+                $("#cc_plots_data_download").click(function() {
+                    cbio.download.clientSideDownload([ccPlots.get_tab_delimited_data()], "plots-data.txt");
                 });
             },
             init_canvas = function() {
@@ -642,6 +653,19 @@ var ccPlots = (function ($, _, Backbone, d3) {
         );
     };
 
+    var get_tab_delimited_data = function() {
+        var result_str = "";
+        result_str += "Sample Id" + "\t" + "Cancer Study" + "\t" + "Profile Name" + "\t" + "Mutation" + "\t" + "Value" + "\n";
+        var assemble = function(result) {
+            _.each(_.pluck(result, "attributes"), function(item) {
+                result_str += item.caseId + "\t" + data.get_cancer_study_name(item.profileId) + "\t" +
+                            data.get_profile_name(item.profileId) + "\t" + item.mutation + "\t" + item.value + "\n";
+            });
+        }
+        data.get($("#cc_plots_gene_list").val(), assemble);
+        return result_str;
+    }
+
     return {
         init: function () {
             var cc_plots_time_out = setInterval(function () {
@@ -660,7 +684,8 @@ var ccPlots = (function ($, _, Backbone, d3) {
             view.update();
         },
         search_mutation: search_mutation,
-        search_case_id: search_case_id
+        search_case_id: search_case_id,
+        get_tab_delimited_data: get_tab_delimited_data
     }
 
 }(window.jQuery, window._, window.Backbone, window.d3));

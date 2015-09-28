@@ -109,7 +109,11 @@
                     <div id="mutation_details_vs_gistic_view" class="mutation_details_vs_gistic_view"
                          style="display:inline;"></div>
                     <h5>Download</h5>
-                    <div id="cc_plots_download_buttons" style="display: inline;"></div>
+                    <div id="cc_plots_download_buttons" style="display: inline;">
+                        <br><button id='cc_plots_svg_download' style="margin-left:30px;">SVG</button>
+                        <button id='cc_plots_pdf_download'>PDF</button>
+                        <button id='cc_plots_data_download'>Data</button>
+                    </div>
 
                 </div>
             </div>

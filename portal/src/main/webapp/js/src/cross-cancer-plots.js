@@ -192,12 +192,26 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 canvas_width: 0,
                 canvas_height: 900
             },
-            plots_data = [];
             init_sidebar = function () {
                 $("#cc_plots_gene_list_select").append("<select id='cc_plots_gene_list'>");
                 _.each(window.studies.gene_list.split(/\s+/), function (_gene) {
                     $("#cc_plots_gene_list").append(
                         "<option value='" + _gene + "'>" + _gene + "</option>");
+                });
+                //SVG & PDF buttons
+                $("#cc_plots_svg_download").click(function() {
+                    var xmlSerializer = new XMLSerializer();
+                    var download_str = cbio.download.addSvgHeader(xmlSerializer.serializeToString($("#cc-plots-box svg")[0]));
+                    cbio.download.clientSideDownload([download_str], "cross-cancer-plots-download.svg", "application/svg+xml");
+                });
+                $("#cc_plots_pdf_download").click(function() {
+                    var downloadOptions = {
+                        filename: "cross-cancer-plots-download.pdf",
+                        contentType: "application/pdf",
+                        servletName: "svgtopdf.do"
+                    };
+                    cbio.download.initDownload(
+                        $("#cc-plots-box svg")[0], downloadOptions);
                 });
             },
             init_canvas = function() {
@@ -565,7 +579,6 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 data.get($("#cc_plots_gene_list").val(), init_box);
             },
             update: function() {
-                $("#cc_plots_box").empty();
                 init_canvas();
                 data.get($("#cc_plots_gene_list").val(), init_box);
             },
@@ -587,6 +600,8 @@ var ccPlots = (function ($, _, Backbone, d3) {
             }
         },
         update: function() {
+            $("#cc-plots-box").empty();
+            $("#cc-plots-box").append("<img src='images/ajax-loader.gif' id='cc_plots_loading' style='padding:200px;'/>");
             view.update();
         }
     }

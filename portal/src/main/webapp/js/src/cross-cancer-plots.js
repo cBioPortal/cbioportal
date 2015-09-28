@@ -99,7 +99,6 @@ var ccPlots = (function ($, _, Backbone, d3) {
 
         return {
             init: function (callback_func) {
-
                 var tmp = setInterval(function () {timer();}, 1000);
                 function timer() {
                     if (window.studies !== undefined) {
@@ -147,7 +146,10 @@ var ccPlots = (function ($, _, Backbone, d3) {
                                                 });
                                             })
                                             profileDataList.add(profileDataListTmp.models);
-                                            if (_profile_index + 1 === profileMetaList.length) {
+
+                                            var _profileDataList_gene = _.filter(_.pluck(profileDataList.models, "attributes"), function(item) { return item.gene === $("#cc_plots_gene_list").val(); });
+                                            var _profile_length = _.uniq(_.pluck(_profileDataList_gene, "profileId")).length;
+                                            if (_profile_length === profileMetaList.length) {
                                                 retrieved_genes.push(_gene);
                                                 callback_func(_.filter(profileDataList.models, function (model) {
                                                     return model.get("gene") === _gene;

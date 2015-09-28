@@ -363,25 +363,6 @@
 <script>
     $(document).ready(function() {
         ccPlots.init();
-//        var cc_plots_init = false;
-//        if ($("#cc-plots").is(":visible")) {
-//            ccPlots.init();
-//            cc_plots_init = true;
-//            $(window).trigger("resize");
-//        } else {
-//            $(window).trigger("resize");
-//        }
-//        $("#tabs").bind("tabsactivate", function (event, ui) {
-//            if (ui.newTab.text().trim().toLowerCase() === "plots") {
-//                if (cc_plots_init === false) {
-//                    ccPlots.init();
-//                    cc_plots_init = true;
-//                    $(window).trigger("resize");
-//                } else {
-//                    $(window).trigger("resize");
-//                }
-//            }
-//        });
     });
 </script>
 

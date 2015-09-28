@@ -385,15 +385,37 @@ var orTable = function() {
 
         $("#" + btn_id).click(function() {
 
-            var _start_pos_gene_list = document.URL.indexOf("gene_list=");
-            var _end_pos_gene_list = document.URL.indexOf("&", _start_pos_gene_list);
-            var _gene_str = document.URL.substring(_start_pos_gene_list + 10, _end_pos_gene_list);
+            if (window.PortalGlobals.getCaseSetId() !== "-1") {
+                var _start_pos_gene_list = document.URL.indexOf("gene_list=");
+                var _end_pos_gene_list = document.URL.indexOf("&", _start_pos_gene_list);
+                var _gene_str = document.URL.substring(_start_pos_gene_list + 10, _end_pos_gene_list);
 
-            var _original_url = document.URL;
-            var _new_url = _original_url.replace(_gene_str, _gene_str + "+" + selected_genes.join("+"));
+                var _original_url = document.URL;
+                var _new_url = _original_url.replace(_gene_str, _gene_str + "+" + selected_genes.join("+"));
 
-            if (selected_genes.length !== 0) {
-                window.location.replace(_new_url);
+                if (selected_genes.length !== 0) {
+                    window.location.replace(_new_url);
+                }
+            } else {
+                var _original_url = document.URL.substring(0, document.URL.indexOf("index.do") + ("index.do").length);
+
+                //genetic profiles separate
+                var _tmp_profile_id_list = "";
+                $.each(window.PortalGlobals.getGeneticProfiles().split(/\s+/), function(index, _profile_id) {
+                    _tmp_profile_id_list += "genetic_profile_ids=" + _profile_id + "&";
+                });
+                var _new_url = _original_url.concat(
+                    "?" + "tab_index=tab_visualize" + "&" +
+                    "cancer_study_id=" + window.PortalGlobals.getCancerStudyId() + "&" +
+                    _tmp_profile_id_list +
+                    "gene_list=" + window.PortalGlobals.getGeneListString() + " " + selected_genes.join(" ") + "&" +
+                    "case_set_id=" + window.PortalGlobals.getCaseSetId() + "&" +
+                    "case_ids_key=" + window.PortalGlobals.getCaseIdsKey() + "&" +
+                    "Action=Submit"
+                );
+                if (selected_genes.length !== 0) {
+                    window.location.replace(_new_url);
+                }
             }
 
         });

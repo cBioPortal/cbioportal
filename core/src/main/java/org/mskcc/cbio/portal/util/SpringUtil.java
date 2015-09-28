@@ -35,11 +35,17 @@ package org.mskcc.cbio.portal.util;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import javax.sql.DataSource;
+
 public class SpringUtil
 {
 	private static final Log log = LogFactory.getLog(SpringUtil.class);
 
 	private static AccessControl accessControl;
+	private static ApplicationContext context;
 
     public static void setAccessControl(AccessControl accessControl) {
     	log.debug("Setting access control");
@@ -50,5 +56,12 @@ public class SpringUtil
     {
 		return accessControl;
     }
+
+	public static void initDataSource()
+	{
+		if (SpringUtil.context == null) {
+			context = new ClassPathXmlApplicationContext("classpath:applicationContext-business.xml");
+		}
+	}
 
 }

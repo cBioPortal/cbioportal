@@ -32,16 +32,11 @@
 
 package org.mskcc.cbio.portal.scripts;
 
-import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.dao.DaoPfamGraphics;
-import org.mskcc.cbio.portal.util.ProgressMonitor;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.util.*;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
+import java.io.*;
+import java.util.*;
 
 /**
  * Imports a pfam graphics mapping file.
@@ -118,6 +113,7 @@ public class ImportPfamGraphicsData
 		}
 
 		ProgressMonitor pMonitor = new ProgressMonitor(); // TODO pMonitor is not used at all
+		SpringUtil.initDataSource();
 		File input = new File(args[0]);
 		ImportPfamGraphicsData importer = new ImportPfamGraphicsData(input, pMonitor);
 

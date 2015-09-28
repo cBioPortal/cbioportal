@@ -87,9 +87,10 @@
             <div id="div-data-format-exp" style="background-color:#eee;display:none;">
                 <h4>Data format</h4>
                 The data should contain three tab-delimited columns. 
-                The first row is a header row, which contains: <code>Sample Gene   Alteration</code>. 
+                The first row is a header row, which contains: <code>Sample Gene    Alteration</code>. 
                 Each following row contains a single genomic event in a single sample. 
                 You can also list samples without any events at the end of the list so that the percentages can be properly calculated.
+                Note: Any row which has an entry in the Gene (2nd) column must also have an entry in the Alteration (3rd) column
                <ol>
                     <li>Sample: Sample ID</li>
                     <li>Gene: Gene symbol (or other gene identifier)</li>

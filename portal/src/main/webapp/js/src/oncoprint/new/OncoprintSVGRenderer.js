@@ -541,11 +541,11 @@
 
 		var tooltip = oncoprint.getTrackTooltip(track_id);
 		bound_svg.each(function(d,i) {
-			var dom_cell = this;
 			var id = id_accessor(d);
 			track_cells[id] = {dom: this, d: d};
 		});
 		bound_svg.selectAll('*').remove();
+		bound_svg.style('outline', 'none');
 		this.active_rule_set_rules[rule_set.getRuleSetId()][track_id] = rule_set.apply(bound_svg, oncoprint.getFullCellWidth(), oncoprint.getCellHeight(track_id));
 		self.track_cell_selections[track_id] = bound_svg;
 	};
@@ -729,12 +729,20 @@
 			self.clipAndPositionCells(undefined, undefined, true, true);
 			self.cell_div.selectAll('.oncoprint-cell').each(function() {
 				var cell_elt = d3.select(this);
+				var cell_rect = cell_elt.node().getBoundingClientRect();
+				var cell_dim = {width: cell_rect.width, height: cell_rect.height};
 				var pos = $(cell_elt.node()).offset();
 				var g = svg.append('g').attr('transform', utils.translate(pos.left - root.left, pos.top - root.top));
 				cell_elt.selectAll('*').each(function() {
 					utils.appendD3SVGElement(d3.select(this), g);
 				});
+				var outline_styles = {color: cell_elt.style('outline-color'), width: cell_elt.style('outline-width')};
+				if (outline_styles.color) {
+					g.append('rect').attr('width', cell_dim.width+'px').attr('height', cell_dim.height+'px')
+							.style('fill', 'none').style('stroke', outline_styles.color).style('stroke-width', outline_styles.width);
+				}
 			});
+			//styles = {'outline-color':rule_spec.color, 'outline-style':'solid', 'outline-width':'2px'};
 			self.clipAndPositionCells(undefined, undefined, true);
 		})();
 		(function addLegend() {
@@ -761,6 +769,13 @@
 							var elt = d3.select(this);
 							var pos = $(elt.node()).offset();
 							var g = svg.append('g').attr('transform', utils.translate(pos.left - root.left, pos.top - root.top));
+							var cell_rect = elt.node().getBoundingClientRect();
+							var cell_dim = {width: cell_rect.width, height: cell_rect.height};
+							var outline_styles = {color: elt.style('outline-color'), width: elt.style('outline-width')};
+							if (outline_styles.color) {
+								g.append('rect').attr('width', cell_dim.width+'px').attr('height', cell_dim.height+'px')
+										.style('fill', 'none').style('stroke', outline_styles.color).style('stroke-width', outline_styles.width);
+							}
 							elt.selectAll('*').each(function() {
 								utils.appendD3SVGElement(d3.select(this), g);
 							});

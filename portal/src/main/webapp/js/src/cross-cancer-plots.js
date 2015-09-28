@@ -212,19 +212,16 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 $("#cc_plots_loading").hide();
 
                 //data
-                plots_data.length = 0;
-                plots_data = [];
                 var _data = _.filter(_.pluck(_input, "attributes"), function(item) {
                     return item.value !== "NaN"
                 }) ;
                 _.each(_data, function(_data_item) {
                     _data_item.mutation = _.uniq(_data_item.mutation.split(";")).join(", ");
-                    _data_item.mutation = _data_item.mutation.substring(0, _data_item.mutation.length - 2);
+                    if (_data_item.mutation.indexOf(",") !== -1) _data_item.mutation = _data_item.mutation.substring(0, _data_item.mutation.length - 2);
                     _data_item.mutation_type = _data_item.mutation_type.split(";")[0];
                     if (_data_item.mutation === "") { _data_item.mutation = "non"; }
                     if (_data_item.mutation_type === "" ) { _data_item.mutation_type = "non"; }
                 });
-                _data = _.filter(_data, function(_item) { return _item.mutation === "non"; }).concat(_.filter(_data, function(_item) { return _item.mutation !== "non"; }));
 
                 elem.box_plots = elem.svg.append("svg:g").attr("class", "cc_plots_box_plots");
                 elem.dots = elem.svg.append("svg:g");
@@ -316,9 +313,15 @@ var ccPlots = (function ($, _, Backbone, d3) {
                     .text($("#cc_plots_gene_list").val() + " expression -- RNA-Seq V2");
 
                 //draw dots
+                var _plots_data = _data;
+                $.each(_plots_data, function(index, obj) { //sort data array (to plot the mutated dots last)
+                    if (obj.mutation === "non") {
+                        bubble_up(_plots_data, index);
+                    }
+                });
                 elem.dots.selectAll("path").remove();
                 elem.dots.selectAll("path")
-                    .data(_data)
+                    .data(_plots_data)
                     .enter()
                     .append("svg:path")
                     .attr("class", "dot")

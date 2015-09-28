@@ -362,35 +362,26 @@
 
 <script>
     $(document).ready(function() {
-
-        var cc_plots_time_out = setInterval(function () {
-            cc_plots_timer();
-        }, 1000);
-        function cc_plots_timer() {
-            if (window.metaDataJson !== undefined) {
-                clearInterval(cc_plots_time_out);
-                var cc_plots_init = false;
-                if ($("#cc-plots").is(":visible")) {
-                    ccPlots.init();
-                    cc_plots_init = true;
-                    $(window).trigger("resize");
-                } else {
-                    $(window).trigger("resize");
-                }
-                $("#tabs").bind("tabsactivate", function (event, ui) {
-                    if (ui.newTab.text().trim().toLowerCase() === "plots") {
-                        if (cc_plots_init === false) {
-                            ccPlots.init();
-                            cc_plots_init = true;
-                            $(window).trigger("resize");
-                        } else {
-                            $(window).trigger("resize");
-                        }
-                    }
-                });
-            }
-        }
-
+        ccPlots.init();
+//        var cc_plots_init = false;
+//        if ($("#cc-plots").is(":visible")) {
+//            ccPlots.init();
+//            cc_plots_init = true;
+//            $(window).trigger("resize");
+//        } else {
+//            $(window).trigger("resize");
+//        }
+//        $("#tabs").bind("tabsactivate", function (event, ui) {
+//            if (ui.newTab.text().trim().toLowerCase() === "plots") {
+//                if (cc_plots_init === false) {
+//                    ccPlots.init();
+//                    cc_plots_init = true;
+//                    $(window).trigger("resize");
+//                } else {
+//                    $(window).trigger("resize");
+//                }
+//            }
+//        });
     });
 </script>
 

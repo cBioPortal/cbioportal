@@ -189,7 +189,8 @@ var ccPlots = (function ($, _, Backbone, d3) {
             settings = {
                 canvas_width: 0,
                 canvas_height: 900
-            };
+            },
+            plots_data = [];
             init_sidebar = function () {
                 $("#cc_plots_gene_list_select").append("<select id='cc_plots_gene_list'>");
                 _.each(window.studies.gene_list.split(/\s+/), function (_gene) {
@@ -209,6 +210,8 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 $("#cc_plots_loading").hide();
 
                 //data
+                plots_data.length = 0;
+                plots_data = [];
                 var _data = _.filter(_.pluck(_input, "attributes"), function(item) {
                     return item.value !== "NaN"
                 }) ;
@@ -219,6 +222,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                     if (_data_item.mutation === "") { _data_item.mutation = "non"; }
                     if (_data_item.mutation_type === "" ) { _data_item.mutation_type = "non"; }
                 });
+                _data = _.filter(_data, function(_item) { return _item.mutation === "non"; }).concat(_.filter(_data, function(_item) { return _item.mutation !== "non"; }));
 
                 elem.box_plots = elem.svg.append("svg:g").attr("class", "cc_plots_box_plots");
                 elem.dots = elem.svg.append("svg:g");
@@ -312,7 +316,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 //draw dots
                 elem.dots.selectAll("path").remove();
                 elem.dots.selectAll("path")
-                    .data((_.filter(_data, function(_item) { return _item.mutation === "non"; })).concat(_.filter(_data, function(_item) { return _item.mutation !== "non"; })))
+                    .data(_data)
                     .enter()
                     .append("svg:path")
                     .attr("class", "dot")
@@ -556,6 +560,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 data.get($("#cc_plots_gene_list").val(), init_box);
             },
             update: function() {
+                $("#cc_plots_box").empty();
                 init_canvas();
                 data.get($("#cc_plots_gene_list").val(), init_box);
             },
@@ -566,7 +571,15 @@ var ccPlots = (function ($, _, Backbone, d3) {
 
     return {
         init: function () {
-            data.init(view.init);
+            var cc_plots_time_out = setInterval(function () {
+                cc_plots_timer();
+            }, 1000);
+            function cc_plots_timer() {
+                if (window.metaDataJson !== undefined) {
+                    clearInterval(cc_plots_time_out);
+                    data.init(view.init);
+                }
+            }
         },
         update: function() {
             view.update();

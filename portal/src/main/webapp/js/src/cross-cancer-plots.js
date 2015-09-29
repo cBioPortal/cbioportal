@@ -234,7 +234,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
             },
             init_box = function (_input) {
 
-                $("#cc_plots_loading").hide();
+                $("#cc_plots_loading").remove();
 
                 //data
                 var _data = _.filter(_.pluck(_input, "attributes"), function(item) {
@@ -679,7 +679,8 @@ var ccPlots = (function ($, _, Backbone, d3) {
             }
         },
         update: function() {
-            $("#cc-plots-box").empty();
+            //$("#cc-plots-box").empty();
+            d3.select("#cc-plots-box").select("svg").remove();
             $("#cc-plots-box").append("<img src='images/ajax-loader.gif' id='cc_plots_loading' style='padding:200px;'/>");
             view.update();
         },

@@ -1005,7 +1005,7 @@ var MutationDetailsTableFormatter = (function()
 		if (mutation.aminoAcidChange != null &&
 		    mutation.aminoAcidChange.length > 0 &&
 			mutation.aminoAcidChange != "NA" &&
-			mutation.cancerStudyShort.toLowerCase().indexOf("msk-impact") != -1 &&
+			PortalGlobals.getCancerStudyId().indexOf("mskimpact") !== -1 &&
 		    isDifferentProteinChange(mutation.proteinChange, mutation.aminoAcidChange))
 		{
 			additionalTip = "The original annotation file indicates a different value: <b>" +

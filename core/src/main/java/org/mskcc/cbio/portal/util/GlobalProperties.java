@@ -168,6 +168,10 @@ public class GlobalProperties {
     
     public static final String ALWAYS_SHOW_STUDY_GROUP="always_show_study_group";
 
+
+    public static final String MYCANCERGENOME_URL = "mycancergenome.url";
+    public static final String ONCOKB_GENE_STATUS = "oncokb.geneStatus";
+    
     private static Log LOG = LogFactory.getLog(GlobalProperties.class);
     private static Properties properties = initializeProperties();
 
@@ -589,6 +593,16 @@ public class GlobalProperties {
     public static boolean filterGroupsByAppName() {
         String filterGroupsByNameFlag = properties.getProperty(FILTER_GROUPS_BY_APPNAME);
         return filterGroupsByNameFlag == null || Boolean.parseBoolean(filterGroupsByNameFlag);
+    }
+    
+    public static String getMyCancerGenomeUrl()
+    {
+        return properties.getProperty(MYCANCERGENOME_URL);
+    }
+    
+    public static String getOncoKBGeneStatus()
+    {
+        return properties.getProperty(ONCOKB_GENE_STATUS);
     }
     
     public static String getAlwaysShowStudyGroup() {

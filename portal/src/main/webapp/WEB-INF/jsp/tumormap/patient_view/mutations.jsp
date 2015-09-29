@@ -36,15 +36,28 @@
 
 <script type="text/javascript" src="js/lib/igv_webstart.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/patient-view/PancanMutationHistogram.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/patient-view/OncoKBConnector.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <link href="css/mutationMapper.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/>
 
+<style type="text/css" title="currentStyle">
+    .oncokb-qtip {
+        max-width: 800px !important;
+    }
+    .oncokb-qtip-sm {
+        max-width: 400px !important;
+    }
+    ul.oncokb {
+        padding-left: 20px;
+    }
+    ul.oncokb li {
+        margin: 2px 0 2px 0;
+    }
+</style>
 <script type="text/javascript">
     var mutTableIndices =
             ["id","case_ids","gene","aa","chr","start","end","ref","_var","validation","type",
              "tumor_freq","tumor_var_reads","tumor_ref_reads","norm_freq","norm_var_reads",
-             "norm_ref_reads","bam","cna","mrna","altrate","pancan_mutations", "cosmic","ma","drug"];
+             "norm_ref_reads","bam","cna","mrna","altrate","pancan_mutations", "cosmic","ma","drug", "oncokb"];
 
     mutTableIndices = cbio.util.arrayToAssociatedArrayIndices(mutTableIndices);
     
@@ -53,23 +66,23 @@
     };
     
     var oncoKBDataInject = function(oTable, tableId) {
-        if(!oncoKBDataReady) {
-            OncoKBConnector.init({'url': oncokbUrl||''});
-            OncoKBConnector.oncokbAccess(function(flag){
-                console.log(flag);
-                if(flag) {
+        if(!OncoKB.accessible) {
+            accessOncoKB(function(){
+                if(!OncoKB.dataReady) {
                     getOncoKBEvidence(oTable, tableId);
                 }else {
                     addOncoKBListener(oTable, tableId);
                 }
             });
-        }else {
-            addOncoKBListener(oTable, tableId);
+        }else{
+            if(!OncoKB.dataReady) {
+                getOncoKBEvidence(oTable, tableId);
+            }else {
+                addOncoKBListener(oTable, tableId);
+            }
         }
     };
-    
-    
-    
+
     var drawPanCanThumbnails = function(oTable) {
         genomicEventObs.subscribePancanMutationsFrequency(function() {
             $(oTable).find('.pancan_mutations_histogram_wait').remove();
@@ -134,10 +147,17 @@
     };
     
     function getOncoKBEvidence(oTable, tableId) {
-        OncoKBConnector.getEvidence(genomicEventObs.mutations, function(data) {
+        var tumorType = '';
+        if(Object.keys(clinicalDataMap).length > 0 && clinicalDataMap[Object.keys(clinicalDataMap)[0]].CANCER_TYPE){
+            tumorType = clinicalDataMap[Object.keys(clinicalDataMap)[0]].CANCER_TYPE;
+        }
+        OncoKBConnector.getEvidence({
+            mutations: genomicEventObs.mutations,
+            tumorType: tumorType
+        }, function(data) {
             if(data && data.length > 0) {
                 genomicEventObs.mutations.addData("oncokb", data);
-                oncoKBDataReady = true;
+                OncoKB.dataReady = true;
             }
             addOncoKBListener(oTable, tableId);
         });
@@ -210,18 +230,18 @@
                             } else if (type==='display') {
                                 var gene = mutations.getValue(source[0], "gene");
                                 var entrez = mutations.getValue(source[0], "entrez");
-                                var tip = "<a href=\"http://www.ncbi.nlm.nih.gov/gene/"
-                                    +entrez+"\">NCBI Gene</a>";
-                                var sanger = mutations.getValue(source[0], 'sanger');
-                                if (sanger) {
-                                    tip += "<br/><a href=\"http://cancer.sanger.ac.uk/cosmic/gene/overview?ln="
-                                        +gene+"\">Sanger Cancer Gene Census</a>";
-                                }
+//                                var tip = "<a href=\"http://www.ncbi.nlm.nih.gov/gene/"
+//                                    +entrez+"\">NCBI Gene</a>";
+//                                var sanger = mutations.getValue(source[0], 'sanger');
+//                                if (sanger) {
+//                                    tip += "<br/><a href=\"http://cancer.sanger.ac.uk/cosmic/gene/overview?ln="
+//                                        +gene+"\">Sanger Cancer Gene Census</a>";
+//                                }
                                 var ret = "<b>"+gene+"</b>";
-                                if (tip) {
-                                    ret = "<span class='"+table_id+"-tip' alt='"+tip+"'>"+ret+"</span>";
-                                }
-                                ret += "&nbsp;<span  class='oncokb oncokb_gene' gene='"+gene+"' hashId='"+source[0]+"' style='display:none'><img width='12' height='12' src='images/file.svg'/></span><img width='12' height='12' class='loader' src='images/ajax-loader.gif'/>";
+//                                if (tip) {
+                                ret = "<span class='"+table_id+"-tip oncokb oncokb_gene' gene='"+gene+"' hashId='"+source[0]+"'>"+ret+"</span>";
+//                                }
+                                ret += "<img width='12' height='12' class='loader' src='images/ajax-loader.gif'/>";
 
                                 return ret;
                             } else {
@@ -243,16 +263,26 @@
                                 if (mutations.getValue(source[0],'status')==="Germline")
                                     ret += "&nbsp;<span style='background-color:red;font-size:x-small;' class='"
                                             +table_id+"-tip' alt='Germline mutation'>Germline</span>";
-                                ret += "&nbsp;<span class='oncokb oncokb_alteration' alteration='"+aa+"' hashId='"+source[0]+"' style='display:none'><img width='12' height='12' src='images/file.svg'/></span><img width='12' height='12' class='loader' src='images/ajax-loader.gif'/>";
+                                ret += "&nbsp;<span class='oncokb oncokb_alteration oncogenic' alteration='"+aa+"' hashId='"+source[0]+"' style='display:none'><img class='oncogenic' width='13' height='13' src='images/oncokb-oncogenic-1.svg' style='display:none'><img class='unknownoncogenic' width='13' height='13' src='images/oncokb-oncogenic-2.svg' style='display:none'><img class='notoncogenic' width='13' height='13' src='images/oncokb-oncogenic-3.svg' style='display:none'></span><img width='13' height='13' class='loader' src='images/ajax-loader.gif'/>";
+                                    var mcg = mutations.getValue(source[0], 'mycancergenome');
+                                    if (!cbio.util.checkNullOrUndefined(mcg) && mcg.length) {
+                                        ret += "&nbsp;<span class='"+table_id+"-tip'" +
+		                                   "alt='<b>My Cancer Genome links:</b><br/><ul style=\"list-style-position: inside;padding-left:0;\"><li>"+mcg.join("</li><li>")+"</li></ul>'>" +
+		                                   "<img src='images/mcg_logo.png'></span>";
+                                    }
 
-	                            var aaOriginal = mutations.getValue(source[0], 'aa-orig');
+                                if(mutations.getValue(source[0], 'is-hotspot')) {
+                                    ret += "<span class='"+table_id+"-chang-hotspot' alteration='"+aa+"' hashId='"+source[0]+"' style='margin-left:5px;'><img width='13' height='13' src='images/oncokb-flame.svg'></span>";
+                                }
 
-	                            if (window.cancerStudyName.toLowerCase().indexOf("msk-impact") != -1 &&
+                                var aaOriginal = mutations.getValue(source[0], 'aa-orig');
+
+	                            if (window.cancerStudyId.indexOf("mskimpact") !== -1 &&
 	                                isDifferentProteinChange(aa, aaOriginal))
 	                            {
 		                            ret += "&nbsp;<span class='"+table_id+"-tip'" +
 		                                   "alt='The original annotation file indicates a different value: <b>"+normalizeProteinChange(aaOriginal)+"</b>'>" +
-		                                   "<img height=12 width=12 style='opacity:0.2' src='images/warning.gif'></span>";
+		                                   "<img class='mutationsProteinChangeWarning' height=13 width=13 src='images/warning.gif'></span>";
 	                            }
 
                                 return ret;
@@ -766,6 +796,7 @@
                         "aTargets": [ mutTableIndices["drug"] ],
                         "sClass": "center-align-td",
                         "bSearchable": false,
+                        "bVisible": false,
                         "mDataProp": 
                             function(source,type,value) {
                             if (type==='set') {
@@ -793,6 +824,7 @@
                     {
                         "aTargets": [ mutTableIndices["ma"] ],
                         "sClass": "center-align-td",
+                        "bVisible": false,
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
                                 return;
@@ -855,6 +887,23 @@
                             }
                         },
                         "asSorting": ["desc", "asc"]
+                    },{// OncoKB column
+                        "aTargets": [ mutTableIndices["oncokb"] ],
+                        "sClass": "center-align-td",
+                        "bSearchable": false,
+                        "bSortable" : false,
+                        "bVisible": OncoKB.accessible,
+                        "mDataProp":
+                            function(source,type,value) {
+                                if (type==='set') {
+                                    return;
+                                } else if (type==='display') {
+                                    var ret = "<span class='oncokb oncokb_column' hashId='"+source[0]+"' style='display:none'></span><img width='13' height='13' class='loader' src='images/ajax-loader.gif'/>";
+                                    return ret;
+                                } else {
+                                    return '';
+                                }
+                            }
                     }
                 ],
                 "fnDrawCallback": function( oSettings ) {
@@ -867,6 +916,7 @@
                     plotMutRate("."+table_id+"-mut-cohort",mutations);
                     addNoteTooltip("."+table_id+"-tip");
                     addNoteTooltip("."+table_id+"-ma-tip",null,{my:'top right',at:'bottom center',viewport: $(window)});
+                    addNoteTooltip('.'+table_id+'-chang-hotspot', '<b>Recurrent Hotspot</b><br/>This mutated amino acid was identified as a recurrent hotspot (statistical significance, q-value < 0.01) in a set of 11,119 tumor samples of various cancer types (based on Chang, M. et al. Nature Biotech. 2015).');
                     addDrugsTooltip("."+table_id+"-drug-tip", 'top right', 'bottom center');
                     addCosmicTooltip(table_id);
                     listenToBamIgvClick(".igv-link");
@@ -898,7 +948,7 @@
     
     function addOncoKBListener(oTable, table_id){
         $(oTable).find('.oncokb_gene').each(function() {
-            if(oncoKBDataReady) {
+            if(OncoKB.dataReady) {
                 var hashId = $(this).attr('hashId');
                 var gene = genomicEventObs.mutations.getValue(hashId, 'oncokb').gene;
                 var _tip = '';
@@ -907,7 +957,7 @@
                     _tip +=  '<b>Gene Summary</b><br/>' + gene.summary;
                 }
                 if(gene.background) {
-                    _tip += '<br/><div><span class="oncokb_moreInfo"><br/><a>More Info</a><i style="float:right">Powered by OncoKB(Beta)</i></span><br/><span class="oncokb_background" style="display:none"><b>Gene Background</b><br/>' + gene.background + '<br/><i style="float:right">Powered by OncoKB(Beta)</i></span></div>';
+                    _tip += '<br/><div><span class="oncokb_gene_moreInfo"><br/><a>More Info</a><i style="float:right">Powered by OncoKB(Beta)</i></span><br/><span class="oncokb_gene_background" style="display:none"><b>Gene Background</b><br/>' + gene.background + '<br/><i style="float:right">Powered by OncoKB(Beta)</i></span></div>';
                 }
                 if(_tip !== '') {
                     $(this).css('display', '');
@@ -922,18 +972,46 @@
             }
             $(this).parent().find('.loader').remove();
         });
+
         $(oTable).find('.oncokb_alteration').each(function() {
-            if(oncoKBDataReady) {
+            if(OncoKB.dataReady) {
                 var hashId = $(this).attr('hashId');
+                var oncogenicIconColor = 'grey';
+
+                //Change oncogenic icon color
+                switch (genomicEventObs.mutations.getValue(hashId, 'oncokb').oncogenic) {
+                    case 0:
+                        $(this).find('.notoncogenic').css('display', '');
+                        oncogenicIconColor = 'black';
+                        break;
+                    case -1:
+                        $(this).find('.unknownoncogenic').css('display', '');
+                        oncogenicIconColor = 'grey';
+                        break;
+                    case 2:
+                        $(this).find('.oncogenic').css('display', '');
+                        oncogenicIconColor = 'hotpink';
+                        break;
+                    case 1:
+                        $(this).find('.oncogenic').css('display', '');
+                        oncogenicIconColor = 'red';
+                        break;
+                }
+                $(this).find('i.fa-dot-circle-o').css('color', oncogenicIconColor);
 
                 if(genomicEventObs.mutations.getValue(hashId, 'oncokb').alteration.length >0) {
                     var _alterations = genomicEventObs.mutations.getValue(hashId, 'oncokb').alteration,
-                        _tip = '';
-                    for(var i=0, altsL=_alterations.length; i<altsL; i++) {
-                        _tip += i!==0?'<br/>':'' + '<b>Mutation Effect: '+_alterations[i].knownEffect + '</b><br/>' + _alterations[i].description + '<br/>';
-                    }
-                    if (genomicEventObs.mutations.getValue(hashId, 'oncokb').oncogenic){
-                        _tip += '<br/><a target="_blank" href="'+oncokbUrl+'#/variant?hugoSymbol='+genomicEventObs.mutations.getValue(hashId, 'gene')+'&alteration='+genomicEventObs.mutations.getValue(hashId, 'aa')+'">More Info on OncoKB</a><span style="float:right"><i>Powered by OncoKB(Beta)</i></span><br/><br/><i>OncoKB is under development, please pardon errors and omissions. Please send feedback to <a href="mailto:oncokb@cbio.mskcc.org" title="Contact us">oncokb@cbio.mskcc.org</a></i>';
+//                            _variantSummary = genomicEventObs.mutations.getValue(hashId, 'oncokb').variantSummary,
+//                            _hotspot = genomicEventObs.mutations.getValue(hashId, 'oncokb').hotspot,
+                            _tip = '', _oncogenicTip = '', _hotspotTip = '';
+                    _oncogenicTip += oncokbMutationSummary(genomicEventObs.mutations.getValue(hashId, 'oncokb'));
+
+//                    if (genomicEventObs.mutations.getValue(hashId, 'oncokb').oncogenic){
+                    _oncogenicTip += '<span style="float:right"><i>Powered by OncoKB(Beta)</i></span><br/><br/><i>OncoKB is under development, please pardon errors and omissions. Please send feedback to <a href="mailto:oncokb@cbio.mskcc.org" title="Contact us">oncokb@cbio.mskcc.org</a></i>';
+//                    }
+
+                    if($(this).hasClass('oncogenic')) {
+                        _tip = _oncogenicTip;
                     }
 
                     if(_tip !== '') {
@@ -950,14 +1028,543 @@
             }
             $(this).parent().find('.loader').remove();
         });
+
+        $(oTable).find('.oncokb_column').each(function() {
+            if(OncoKB.dataReady) {
+                var hashId = $(this).attr('hashId');
+
+                if(genomicEventObs.mutations.getValue(hashId, 'oncokb')) {
+                    var _prevalence = genomicEventObs.mutations.getValue(hashId, 'oncokb').prevalence,
+                        _progImp = genomicEventObs.mutations.getValue(hashId, 'oncokb').progImp,
+                        _trials = genomicEventObs.mutations.getValue(hashId, 'oncokb').trials,
+                        _treatments = genomicEventObs.mutations.getValue(hashId, 'oncokb').treatments;
+                    $(this).empty();
+                    createOncoKBColumnCell(this, _prevalence, _progImp, _treatments, _trials);
+                }
+            }
+            $(this).css('display', 'block');
+            $(this).parent().find('.loader').remove();
+        });
+
         $('.oncokb').hover(function(){
-            $(".oncokb_moreInfo").click(function() {
+            $(".oncokb_gene_moreInfo").click(function() {
                 $(this).css('display', 'none');
-                $(this).parent().find('.oncokb_background').css('display', 'block');
+                $(this).parent().find('.oncokb_gene_background').css('display', 'block');
+            });
+            $(".oncokb_alt_moreInfo").click(function() {
+                $(this).css('display', 'none');
+                $(this).parent().find('.oncokb_mutation_effect').css('display', '');
+                $(this).parent().find('.oncokb_alt_lessInfo').css('display', '');
+            });
+            $(".oncokb_alt_lessInfo").click(function() {
+                $(this).css('display', 'none');
+                $(this).parent().find('.oncokb_mutation_effect').css('display', 'none');
+                $(this).parent().find('.oncokb_alt_moreInfo').css('display', '');
             });
         });
+
+        $('#oncokb-help').qtip({
+            content: {text: oncokbHelpStr()},
+            hide: { fixed: true, delay: 100 },
+            style: { classes: 'qtip-light qtip-rounded qtip-shadow', tip: true },
+            position: {my:'center right',at:'center left',viewport: $(window)}
+        });
     }
-    
+
+    function oncokbMutationSummary(oncokbInfo) {
+        var str = '<span style="color:#';
+        switch(oncokbInfo.oncogenic) {
+            case 0:
+                str += '2f4f4f"><b>Non-Oncogenic Mutation';
+                break;
+            case 1:
+                str += 'ff0000"><b>Known Oncogenic Mutation';
+                break;
+            case 2:
+                str += 'ff69b4"><b>Likely Oncogenic Mutation';
+                break;
+            default:
+                str += '2f4f4f"><b>Unknown Oncogenicity';
+                break;
+        }
+        str += '</b></span>';
+
+        str +='<ul class="oncokb">';
+        if(oncokbInfo.mutationEffect.hasOwnProperty('knownEffect')) {
+            str +='<li><b>' + oncokbInfo.mutationEffect.knownEffect + '</b>';
+            if(oncokbInfo.mutationEffect.hasOwnProperty('description') && oncokbInfo.mutationEffect.description) {
+                str += '<span class="oncokb_alt_moreInfo" style="float:right"><a><i>More Info</i></a></span><br/><span class="oncokb_mutation_effect" style="display:none">' + oncokbInfo.mutationEffect.description + '</span><span class="oncokb_alt_lessInfo" style="display:none;float:right"><a><i>Less Info</i></a></span></div>';
+            }
+
+            str += '</li>';
+        }
+
+        if(oncokbInfo.drugs.sensitive.current.length > 0) {
+            str +='<li><b>FDA approved drugs:</b><br/>';
+            oncokbInfo.drugs.sensitive.current.forEach(function (list) {
+               str += '- ' + treatmentsToStr(list.content) + '<br/>';
+            });
+            str +='</li>'
+        }
+
+        if(oncokbInfo.drugs.sensitive.inOtherTumor.length > 0) {
+            str +='<li><b>FDA approved drugs in another cancer:</b><br/>';
+            oncokbInfo.drugs.sensitive.inOtherTumor.forEach(function (list) {
+                str += '- ' + treatmentsToStr(list.content) + '<br/>';
+            });
+            str +='</li>'
+        }
+
+        if(oncokbInfo.drugs.resistance.length > 0) {
+            str +='<li><b>Confers resistance to:</b><br/>';
+            oncokbInfo.drugs.resistance.forEach(function (list) {
+                str += '- ' + treatmentsToStr(list.content) + '<br/>';
+            });
+            str +='</li>'
+        }
+
+        str += '</ul>';
+
+        return str;
+    }
+
+    function treatmentsToStr(data) {
+        var treatments = [];
+
+        data.forEach(function (treatment) {
+            treatments.push(drugToStr((treatment.drugs)));
+        });
+
+        return treatments.join(',');
+    }
+
+    function drugToStr(data) {
+        var drugs = [];
+
+        data.forEach(function (drug) {
+            drugs.push(drug.drugName);
+        });
+
+        return drugs.join('+');
+    }
+
+    function oncokbHelpStr() {
+        var levels = {
+//            '0': 'FDA-approved drug in this indication irrespective of gene/variant biomarker.',
+            '1': 'FDA-approved biomarker and drug association in this indication.',
+            '2A': 'FDA-approved biomarker and drug association in another indication, and NCCN-compendium listed for this indication.',
+            '2B': 'FDA-approved biomarker in another indication, but not FDA or NCCN-compendium-listed for this indication.',
+            '3': 'Clinical evidence links this biomarker to drug response but no FDA-approved or NCCN compendium-listed biomarker and drug association.',
+            '4': 'Preclinical evidence potentially links this biomarker to response but no FDA-approved or NCCN compendium-listed biomarker and drug association.',
+            'R1': 'NCCN-compendium listed biomarker for resistance to a FDA-approved drug.',
+            'R2': 'Not NCCN compendium-listed biomarker, but clinical evidence linking this biomarker to drug resistance.',
+            'R3': 'Not NCCN compendium-listed biomarker, but preclinical evidence potentially linking this biomarker to drug resistance.'
+        }
+        var str = '<b>Level of therapeutic implications explanations:</b><br/>';
+
+        for(var level in levels){
+            str += '<b>' + level + '</b>: ' + levels[level] + '<br/>';
+        }
+
+        return str;
+    }
+
+    function createTreatmentsStr(treatments){
+        var str = '', i;
+        if(treatments instanceof Array) {
+            var treatmentsL = treatments.length;
+            str += '<table class="oncokb-treatments-datatable"><thead><tr><th>TREATMENTS</th><th>LEVEL</th><th>TUMOR TYPE</th><th>DESCRIPTION</th></tr></thead><tbody>';
+            for(i = 0; i < treatmentsL; i++) {
+                str += '<tr>';
+                str += '<td>' + createDrugsStr(treatments[i].content) + '</td>';
+                str += '<td>' + getLevel(treatments[i].level) + '</td>';
+                str += '<td>' + treatments[i].tumorType + '</td>';
+//                str += '<td>' + (treatments.length>2?shortDescription(treatments[i].description): treatments[i].description)+ '</td>';
+                str += '<td>' + shortDescription(treatments[i].description)+ '</td>';
+                str +='</tr>';
+            }
+            str += '</tbody>';
+        }
+        return str;
+    }
+
+    function getLevel(level){
+        var _level = level.match(/LEVEL_(R?\d[AB]?)/);
+        if(_level instanceof Array && _level.length >= 2){
+            return _level[1];
+        }else{
+            return level;
+        }
+    }
+
+    function createDrugsStr(drugs){
+        var str = '', i, j;
+        if(drugs instanceof Array) {
+            var drugsL = drugs.length;
+            for(i = 0; i < drugsL; i++){
+                var _drugsL = drugs[i].drugs.length;
+
+                for(j = 0; j < _drugsL; j++){
+                    str += drugs[i].drugs[j].drugName;
+                    if(j != _drugsL - 1) {
+                        str += '+';
+                    }
+                }
+
+                if(i != drugsL - 1) {
+                    str += ', ';
+                }
+            }
+        }
+        return str;
+    }
+
+    function shortDescription(description) {
+        var str = '';
+        var threshold = 80;
+        var shortStr = description.substring(0, threshold-8);
+        //Need to identify <a> tag, you do not want to cut the string in mid of <a> tag
+        var aIndex = {
+            start: -1,
+            end: -1
+        };
+        if(description && description.length > threshold){
+            if(shortStr.indexOf('<a') !== -1) {
+                aIndex.start = shortStr.indexOf('<a');
+                if(shortStr.indexOf('</a>') !== -1 && shortStr.indexOf('</a>') < (threshold - 8 - 3)) {
+                    aIndex.end = shortStr.indexOf('</a>');
+                }
+            }
+
+            if(aIndex.start > -1){
+                //Means the short description has part of <a> tag
+                if(aIndex.end == -1) {
+                    shortStr = description.substring(0, (aIndex.start));
+                }
+            }
+            str = '<span><span class="oncokb-shortDescription">' + shortStr + '<span class="oncokb-description-more" >... <a>more</a></span></span>';
+            str += '<span class="oncokb-fullDescription" style="display:none">' + description + '</span></span>';
+        }else{
+            str = '<span class="oncokb-fullDescriotion">' + description + '</span>';
+        }
+
+        return str;
+    }
+
+    /**
+     *
+     * @param array this is object array, the object should have tumorType and description attributes
+     */
+    function oncokbGetString(array, title, tableClass) {
+        var str = '', i;
+        if(array instanceof Array){
+            var arrayL = array.length;
+            str += '<table class="oncokb-'+tableClass+'-datatable"><thead><tr><th style="white-space:nowrap">TUMOR TYPE</th><th>' + title + '</th></tr></thead><tbody>';
+            for(i = 0; i < arrayL; i++){
+                    str += '<tr>';
+                    str += '<td style="white-space:nowrap">' + array[i].tumorType + '</td>';
+                    str += '<td>' + shortDescription(array[i].description)+ '</td>';
+                    str +='</tr>';
+            }
+            str += '</tbody>';
+        }
+        return str;
+    }
+
+    function oncokbIcon(g,text,fill, fontSize) {
+        g.append("rect")
+                .attr("rx",'3')
+                .attr("ry",'3')
+                .attr('width', '14')
+                .attr('height', '14')
+                .attr("fill",fill);
+        g.append("text")
+                .attr('transform', 'translate(7, 11)')
+                .attr('text-anchor', 'middle')
+                .attr("font-size",fontSize)
+                .attr('font-family', 'Sans-serif')
+                .attr('stroke-width', 0)
+                .attr("fill",'#ffffff')
+                .text(text);
+    }
+
+    function oncokbLevelIcon(g,level, fill) {
+        g.append("circle")
+                .attr('transform', 'translate(13, 0)')
+                .attr('r', '6')
+                .attr("fill",fill);
+        g.append("text")
+                .attr('transform', 'translate(13, 3)')
+                .attr('text-anchor', 'middle')
+                .attr("font-size", '10')
+                .attr('font-family', 'Sans-serif')
+                .attr('stroke-width', 0)
+                .attr("fill",'#ffffff')
+                .text(level);
+    }
+
+    function createOncoKBAlterationCell(target, alterations) {
+        var altsL = alterations.length, i, tip = '';
+        if(altsL > 0) {
+            var svg = d3.select($(target)[0])
+                    .append("svg")
+                    .attr("width", 13)
+                    .attr("height", 13);
+            var g = svg.append("g").html('<path fill="#444444" d="M10.797 2.656c-0.263-0.358-0.629-0.777-1.030-1.179s-0.82-0.768-1.179-1.030c-0.61-0.447-0.905-0.499-1.075-0.499h-5.863c-0.521 0-0.946 0.424-0.946 0.946v10.213c0 0.521 0.424 0.946 0.946 0.946h8.7c0.521 0 0.946-0.424 0.946-0.946v-7.376c0-0.169-0.052-0.465-0.499-1.075zM9.231 2.012c0.363 0.363 0.648 0.69 0.858 0.962h-1.82v-1.82c0.272 0.21 0.599 0.495 0.962 0.858zM10.539 11.106c0 0.102-0.087 0.189-0.189 0.189h-8.7c-0.102 0-0.189-0.087-0.189-0.189v-10.213c0-0.102 0.087-0.189 0.189-0.189 0 0 5.862-0 5.863 0v2.648c0 0.209 0.169 0.378 0.378 0.378h2.648v7.376z"></path><path fill="#444444" d="M8.648 9.783h-5.296c-0.209 0-0.378-0.169-0.378-0.378s0.169-0.378 0.378-0.378h5.296c0.209 0 0.378 0.169 0.378 0.378s-0.169 0.378-0.378 0.378z"></path>            <path fill="#444444" d="M8.648 8.27h-5.296c-0.209 0-0.378-0.169-0.378-0.378s0.169-0.378 0.378-0.378h5.296c0.209 0 0.378 0.169 0.378 0.378s-0.169 0.378-0.378 0.378z"></path>            <path fill="#444444" d="M8.648 6.756h-5.296c-0.209 0-0.378-0.169-0.378-0.378s0.169-0.378 0.378-0.378h5.296c0.209 0 0.378 0.169 0.378 0.378s-0.169 0.378-0.378 0.378z"></path>');
+
+
+            for(i=0; i<altsL; i++) {
+                tip += i!==0?'<br/>':'' + '<b>Mutation Effect: '+_alterations[i].knownEffect + '</b><br/>' + _alterations[i].description + '<br/>';
+            }
+            if (genomicEventObs.mutations.getValue(hashId, 'oncokb').oncogenic){
+                tip += '<br/><span style="float:right"><i>Powered by OncoKB(Beta)</i></span><br/><br/><i>OncoKB is under development, please pardon errors and omissions. Please send feedback to <a href="mailto:oncokb@cbio.mskcc.org" title="Contact us">oncokb@cbio.mskcc.org</a></i>';
+            }
+
+            if(tip !== '') {
+                $(g).css('display', '');
+                $(g).qtip('destroy', true);
+                $(g).qtip({
+                    content: {text: tip},
+                    hide: { fixed: true, delay: 100 },
+                    style: { classes: 'qtip-light qtip-rounded qtip-shadow', tip: true },
+                    position: {my:'center right',at:'center left',viewport: $(window)}
+                });
+            }
+        }
+    }
+
+    function createOncoKBColumnCell(target, prevalence, progImp, treatments, trials) {
+        var svg = d3.select($(target)[0])
+                .append("svg")
+                .attr("width", 20)
+                .attr("height", 20);
+        var qtipContext = '', i;
+
+        if (treatments.length > 0) {
+            var g = svg.append("g")
+                    .attr("transform", "translate(0, 6)");
+            var level = getHighestLevel($(target).attr('hashId'));
+            var isResistance = /R/g.test(level);
+            var numberLevel = level.match(/\d+/)[0];
+            var treatmentDataTable;
+
+            oncokbIcon(g,'Tx',"#5555CC", 9);
+            oncokbLevelIcon(g, numberLevel, isResistance?'#ff0000':'#008000');
+
+            qtipContext = createTreatmentsStr(treatments);
+
+            $(g).qtip('destroy', true);
+            $(g).qtip({
+                content: {text: qtipContext},
+                hide: { fixed: true, delay: 100, event: "mouseleave"},
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow oncokb-qtip', tip: true },
+                show: {event: "mouseover", solo: true, delay: 0},
+                position: {my:'center right',at:'center left',viewport: $(window)},
+                events: {
+                    render: function (event, api) {
+                        $(this).find('.oncokb-description-more').click(function(){
+                            $(this).parent().parent().find('.oncokb-fullDescription').css('display', 'block');
+                            $(this).parent().parent().find('.oncokb-shortDescription').css('display', 'none');
+                            if(treatmentDataTable){
+                                treatmentDataTable.fnAdjustColumnSizing();
+                            }
+                        });
+                        treatmentDataTable = $(this).find('.oncokb-treatments-datatable').dataTable({
+                            "columnDefs": [
+                                {
+                                    "orderDataType": "oncokb-level",
+                                    "targets": 1
+                                },
+                                {
+                                    "type": "oncokb-level",
+                                    "targets": 1
+                                },
+                                {
+                                    "orderData": [1, 0],
+                                    "targets": 1
+                                }
+                            ],
+//                            "aoColumns": [
+//                                { "sType": "string" },
+//                                { "sType": "oncokb-level" },
+//                                { "sType": "string" },
+//                                { "sType": "string" },
+//                            ],
+                            "sDom": 'rt',
+                            "bPaginate": false,
+                            "bScrollCollapse": true,
+                            "sScrollY": 400,
+                            "autoWidth": true,
+                            "order": [[ 1, "asc" ]]
+                        });
+                    },
+                    visible: function(event, api) {
+                        if(treatmentDataTable){
+                            treatmentDataTable.fnAdjustColumnSizing();
+                        }
+                    }
+                }
+            });
+        }
+
+        if (progImp.length > 0) {
+            var g = svg.append("g")
+                    .attr("transform", "translate(20, 6)");
+            var progImpDataTable;
+            oncokbIcon(g,'Px',"#5555CC", 9);
+
+            qtipContext = oncokbGetString(progImp, 'PROGNOSTIC IMPLICATIONS', 'progImp');
+
+            $(g).qtip('destroy', true);
+            $(g).qtip({
+                content: {text: qtipContext},
+                hide: { fixed: true, delay: 100 },
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow oncokb-qtip', tip: true },
+                position: {my:'center right',at:'center left',viewport: $(window)},
+                events: {
+                    render: function() {
+                        $(this).find('.oncokb-description-more').click(function(){
+                            $(this).parent().parent().find('.oncokb-fullDescription').css('display', 'block');
+                            $(this).parent().parent().find('.oncokb-shortDescription').css('display', 'none');
+                            if(progImpDataTable){
+                                progImpDataTable.fnAdjustColumnSizing();
+                            }
+                        });
+                        progImpDataTable = $(this).find('.oncokb-progImp-datatable').dataTable({
+                            "sDom": 'rt',
+                            "bPaginate": false,
+                            "bScrollCollapse": true,
+                            "sScrollY": 400,
+                            "autoWidth": true,
+                            "order": [[ 0, "asc" ]]
+                        });
+                    },
+                    visible: function(event, api) {
+                        if(progImpDataTable){
+                            progImpDataTable.fnAdjustColumnSizing();
+                        }
+                    }
+                }
+            });
+        }
+
+        if (trials.length > 0) {
+            var g = svg.append("g")
+                    .attr("transform", "translate(40, 6)");
+            var trialsL = trials.length;
+            var trialDataTable;
+
+            oncokbIcon(g,'CT',"#5555CC", 9);
+
+            qtipContext = '<table class="oncokb-trials-datatable"><thead><tr><th style="white-space:nowrap">TUMOR TYPE</th><th>TRIALS</th></tr></thead><tbody>';
+            for(i = 0; i < trialsL; i++){
+                qtipContext += '<tr>';
+                qtipContext += '<td style="white-space:nowrap">' + trials[i].tumorType + '</td>';
+                qtipContext += '<td>' + getTrialsStr(trials[i].list) + '</td>';
+                qtipContext +='</tr>';
+            }
+
+            $(g).qtip('destroy', true);
+            $(g).qtip({
+                content: {text: qtipContext},
+                hide: { fixed: true, delay: 100 },
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow oncokb-qtip-sm', tip: true },
+                position: {my:'center right',at:'center left',viewport: $(window)},
+                events: {
+                    render: function (event, api) {
+                        trialDataTable = $(this).find('.oncokb-trials-datatable').dataTable({
+                            "sDom": 'rt',
+                            "bPaginate": false,
+                            "bScrollCollapse": true,
+                            "sScrollY": 400,
+                            "autoWidth": true,
+                            "order": [[ 0, "asc" ]]
+                        });
+                    },
+                    visible: function(event, api) {
+                        if(trialDataTable){
+                            trialDataTable.fnAdjustColumnSizing();
+                        }
+                    }
+                }
+            });
+        }
+
+        if (prevalence.length > 0) {
+            var g = svg.append("g")
+                    .attr("transform", "translate(60, 6)");
+            var prevalenceDataTable;
+            oncokbIcon(g,'Pr',"#5555CC", 9);
+
+            qtipContext = oncokbGetString(prevalence, 'PREVALENCE', 'prevalence');
+
+            $(g).qtip('destroy', true);
+            $(g).qtip({
+                content: {text: qtipContext},
+                hide: { fixed: true, delay: 100 },
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow oncokb-qtip', tip: true },
+                position: {my:'center right',at:'center left',viewport: $(window)},
+                events: {
+                    render: function() {
+                        $(this).find('.oncokb-description-more').click(function(){
+                            $(this).parent().parent().find('.oncokb-fullDescription').css('display', 'block');
+                            $(this).parent().parent().find('.oncokb-shortDescription').css('display', 'none');
+                            if(prevalenceDataTable){
+                                prevalenceDataTable.fnAdjustColumnSizing();
+                            }
+                        });
+                        prevalenceDataTable = $(this).find('.oncokb-prevalence-datatable').dataTable({
+                            "sDom": 'rt',
+                            "bPaginate": false,
+                            "bScrollCollapse": true,
+                            "sScrollY": 400,
+                            "autoWidth": true,
+                            "order": [[ 0, "asc" ]]
+                        });
+                    },
+                    visible: function(event, api) {
+                        if(prevalenceDataTable){
+                            prevalenceDataTable.fnAdjustColumnSizing();
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    function getTrialsStr(trials) {
+        var i, str = '';
+
+        if(trials instanceof Array){
+            var trialsL = trials.length;
+            for(i = 0; i < trialsL; i++){
+                str += OncoKBConnector.findRegex(trials[i].nctId);
+                if(i != trialsL - 1) {
+                    str += ' ';
+                }
+            }
+        }
+        return str;
+    }
+
+    function getHighestLevel(hashId) {
+        var level = '';
+        var treatments = genomicEventObs.mutations.getValue(hashId, 'oncokb').treatments;
+        var treatmentsL = treatments.length;
+        var levels = ['R3', '4', '3', '2B', 'R2', '2A', 'R1', '1', '0'];
+        var highestLevelIndex = -1;
+        for(var i = 0; i < treatmentsL; i++){
+            var _level = treatments[i].level.match(/LEVEL_(R?\d[AB]?)/);
+            if(_level instanceof Array && _level.length >= 2){
+                var _index = levels.indexOf(_level[1]);
+                if(_index > highestLevelIndex){
+                    highestLevelIndex = _index;
+                }
+            }
+        }
+        return levels[highestLevelIndex];
+    }
+
     function listenToBamIgvClick(elem) {
         $(elem).each(function(){
                 // TODO use mutation id, instead of binding url to attr alt
@@ -1096,7 +1703,7 @@
             <%=PatientView.SAMPLE_ID%>:caseIdsStr,
             <%=PatientView.MUTATION_PROFILE%>:mutationProfileId
         };
-        
+
         if (cnaProfileId) {
             params['<%=PatientView.CNA_PROFILE%>'] = cnaProfileId;
         }
@@ -1108,115 +1715,117 @@
         if (drugType) {
             params['<%=PatientView.DRUG_TYPE%>'] = drugType;
         }
-                        
-        $.post("mutations.json", 
-            params,
-            function(data) {
-                determineOverviewMutations(data);
-                genomicEventObs.mutations.setData(data);
-                genomicEventObs.fire('mutations-built');
-                
-                // summary table
-                buildMutationsDataTable(genomicEventObs.mutations,genomicEventObs.mutations.getEventIds(true), 'mutation_summary_table', 
-                            '<"H"<"mutation-summary-table-name">fr>t<"F"<"mutation-show-more"><"datatable-paging"pl>>', 25, "No mutation events of interest", true);
-                var numFiltered = genomicEventObs.mutations.getNumEvents(true);
-                var numAll = genomicEventObs.mutations.getNumEvents(false);
-                 $('.mutation-show-more').html("<a href='#mutations' onclick='switchToTab(\"tab_mutations\");return false;'\n\
+
+        accessOncoKB(function(){
+            $.post("mutations.json",
+                    params,
+                    function(data) {
+                        determineOverviewMutations(data);
+                        genomicEventObs.mutations.setData(data);
+                        genomicEventObs.fire('mutations-built');
+
+                        // summary table
+                        buildMutationsDataTable(genomicEventObs.mutations,genomicEventObs.mutations.getEventIds(true), 'mutation_summary_table',
+                                '<"H"<"mutation-summary-table-name">fr>t<"F"<"mutation-show-more"><"datatable-paging"pl>>', 25, "No mutation events of interest", true);
+                        var numFiltered = genomicEventObs.mutations.getNumEvents(true);
+                        var numAll = genomicEventObs.mutations.getNumEvents(false);
+                        $('.mutation-show-more').html("<a href='#mutations' onclick='switchToTab(\"tab_mutations\");return false;'\n\
                       title='Show more mutations of this patient'>Show all "
                         +numAll+" mutations</a>");
-                $('.mutation-show-more').addClass('datatable-show-more');
-                var mutationSummary;
-                if (numAll===numFiltered) {
-                    mutationSummary = ""+numAll+" mutations";
-                } else {
-                    mutationSummary = "Mutations of interest"
-                     +(numAll==0?"":(" ("
-                        +numFiltered
-                        +" of <a href='#mutations' onclick='switchToTab(\"tab_mutations\");return false;'\n\
+                        $('.mutation-show-more').addClass('datatable-show-more');
+                        var mutationSummary;
+                        if (numAll===numFiltered) {
+                            mutationSummary = ""+numAll+" mutations";
+                        } else {
+                            mutationSummary = "Mutations of interest"
+                            +(numAll==0?"":(" ("
+                            +numFiltered
+                            +" of <a href='#mutations' onclick='switchToTab(\"tab_mutations\");return false;'\n\
                          title='Show more mutations of this patient'>"
-                        +numAll
-                        +"</a>)"))
-                     +" <img id='mutations-summary-help' src='images/help.png' \n\
+                            +numAll
+                            +"</a>)"))
+                            +" <img id='mutations-summary-help' src='images/help.png' \n\
                         title='This table contains somatic mutations in genes that are \n\
                         <ul><li>either annotated cancer genes</li>\n\
                         <li>or recurrently mutated, namely\n\
                             <ul><li>MutSig Q < 0.05, if MutSig results are available</li>\n\
                             <li>otherwise, mutated in > 5% of samples in the study with &ge; 50 samples</li></ul> </li>\n\
                         <li>or with > 5 overlapping entries in COSMIC.</li></ul>'/>";
-                }
-                $('.mutation-summary-table-name').html(mutationSummary);
-                $('#mutations-summary-help').qtip({
-                    content: { attr: 'title' },
-                    style: { classes: 'qtip-light qtip-rounded' },
-                    position: { my:'top center',at:'bottom center',viewport: $(window) }
-                });
-                $('.mutation-summary-table-name').addClass("datatable-name");
-                $('#mutation_summary_wrapper_table').show();
-                $('#mutation_summary_wait').remove();
+                        }
+                        $('.mutation-summary-table-name').html(mutationSummary);
+                        $('#mutations-summary-help').qtip({
+                            content: { attr: 'title' },
+                            style: { classes: 'qtip-light qtip-rounded' },
+                            position: { my:'top center',at:'bottom center',viewport: $(window) }
+                        });
+                        $('.mutation-summary-table-name').addClass("datatable-name");
+                        $('#mutation_summary_wrapper_table').show();
+                        $('#mutation_summary_wait').remove();
 
-                // mutations
-                buildMutationsDataTable(genomicEventObs.mutations,genomicEventObs.mutations.getEventIds(false),
-                    'mutation_table', '<"H"<"all-mutation-table-name">fr>t<"F"C<"datatable-paging"pil>>', 100, "No mutation events", false);
-                $('.all-mutation-table-name').html(
-                    ""+genomicEventObs.mutations.getNumEvents()+" nonsynonymous mutations");
-                $('.all-mutation-table-name').addClass("datatable-name");
-                $('#mutation_wrapper_table').show();
-                $('#mutation_wait').remove();
+                        // mutations
+                        buildMutationsDataTable(genomicEventObs.mutations,genomicEventObs.mutations.getEventIds(false),
+                                'mutation_table', '<"H"<"all-mutation-table-name">fr>t<"F"C<"datatable-paging"pil>>', 100, "No mutation events", false);
+                        $('.all-mutation-table-name').html(
+                                ""+genomicEventObs.mutations.getNumEvents()+" nonsynonymous mutations");
+                        $('.all-mutation-table-name').addClass("datatable-name");
+                        $('#mutation_wrapper_table').show();
+                        $('#mutation_wait').remove();
 
-                var pancanMutationsUrl = "pancancerMutations.json";
-                var byKeywordResponse = [];
-                var byHugoResponse = [];
+                        var pancanMutationsUrl = "pancancerMutations.json";
+                        var byKeywordResponse = [];
+                        var byHugoResponse = [];
 
-                function munge(response, key) {
-                    // munge data to get it into the format: keyword -> corresponding datum
-                    return d3.nest().key(function(d) { return d[key]; }).entries(response)
-                            .reduce(function(acc, next) { acc[next.key] = next.values; return acc;}, {});
-                }
+                        function munge(response, key) {
+                            // munge data to get it into the format: keyword -> corresponding datum
+                            return d3.nest().key(function(d) { return d[key]; }).entries(response)
+                                    .reduce(function(acc, next) { acc[next.key] = next.values; return acc;}, {});
+                        }
 
-                var splitJobs = function(cmd, reqData, type) {
-                    var jobs = [];
-                    var batchSize = 1000;
+                        var splitJobs = function(cmd, reqData, type) {
+                            var jobs = [];
+                            var batchSize = 1000;
 
-                    var numOfBatches = Math.ceil(reqData.length / batchSize);
-                    for(var b=0; b<numOfBatches; b++) {
-                        var first = b*batchSize;
-                        var last = Math.min((b+1)*batchSize, reqData.length);
+                            var numOfBatches = Math.ceil(reqData.length / batchSize);
+                            for(var b=0; b<numOfBatches; b++) {
+                                var first = b*batchSize;
+                                var last = Math.min((b+1)*batchSize, reqData.length);
 
-                        var accData = reqData.slice(first, last).join(",");
+                                var accData = reqData.slice(first, last).join(",");
 
-                        jobs.push(
-                                $.post(pancanMutationsUrl,
-                                        {
-                                            cmd: cmd,
-                                            q: accData
-                                        }, function(batchData) {
-                                            if(cmd == "byKeywords") {
-                                                byKeywordResponse = byKeywordResponse.concat(batchData);
-                                            } else if( cmd == "byHugos") {
-                                                byHugoResponse = byHugoResponse.concat(batchData);
-                                            } else {
-                                                console.trace("Ooops! Something is wrong!");
-                                            }
-                                        }
-                                )
-                        );
+                                jobs.push(
+                                        $.post(pancanMutationsUrl,
+                                                {
+                                                    cmd: cmd,
+                                                    q: accData
+                                                }, function(batchData) {
+                                                    if(cmd == "byKeywords") {
+                                                        byKeywordResponse = byKeywordResponse.concat(batchData);
+                                                    } else if( cmd == "byHugos") {
+                                                        byHugoResponse = byHugoResponse.concat(batchData);
+                                                    } else {
+                                                        console.trace("Ooops! Something is wrong!");
+                                                    }
+                                                }
+                                        )
+                                );
+
+                            }
+
+                            return jobs;
+                        };
+
+                        var jobs = splitJobs("byKeywords", genomicEventObs.mutations.data.key)
+                                .concat(splitJobs("byHugos", genomicEventObs.mutations.data.gene));
+                        $.when.apply($, jobs).done(function() {
+                            genomicEventObs.pancan_mutation_frequencies.setData(
+                                    _.extend(munge(byKeywordResponse, "keyword"), munge(byHugoResponse, "hugo")));
+                            genomicEventObs.fire("pancan-mutation-frequency-built");
+                        });
 
                     }
-
-                    return jobs;
-                };
-
-                var jobs = splitJobs("byKeywords", genomicEventObs.mutations.data.key)
-                                .concat(splitJobs("byHugos", genomicEventObs.mutations.data.gene));
-                $.when.apply($, jobs).done(function() {
-                    genomicEventObs.pancan_mutation_frequencies.setData(
-                            _.extend(munge(byKeywordResponse, "keyword"), munge(byHugoResponse, "hugo")));
-                    genomicEventObs.fire("pancan-mutation-frequency-built");
-                });
-                
-            }
-            ,"json"
-        );
+                    ,"json"
+            );
+        });
     });
     
     var patient_view_mutsig_qvalue_threhold = 0.05;

@@ -1427,6 +1427,12 @@ ul.ui-autocomplete li.ui-menu-item { font-size: 0.6em; text-align: left; }
    line-height: inherit !important;
    vertical-align: top !important;
 }
+.mutationsProteinChangeWarning {
+    opacity: 0.1;
+}
+.mutationsProteinChangeWarning:hover {
+    opacity: 1;
+}
 .new-feature-label {
     background-color: #d00000;
     border-radius: 3px;

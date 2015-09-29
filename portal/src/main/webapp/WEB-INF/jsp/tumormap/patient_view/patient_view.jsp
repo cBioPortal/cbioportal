@@ -89,6 +89,7 @@ boolean showTimeline = (Boolean)request.getAttribute("has_timeline_data");
 String pathReportUrl = (String)request.getAttribute(PatientView.PATH_REPORT_URL);
 
 String oncokbUrl = (String)GlobalProperties.getOncoKBUrl();
+String oncokbGeneStatus = (String)GlobalProperties.getOncoKBGeneStatus();
 
 //String drugType = xssUtil.getCleanerInput(request, "drug_type");
 String drugType = request.getParameter("drug_type");
@@ -385,6 +386,7 @@ if (patientViewError!=null) {
 </style>
 
 <script type="text/javascript" src="js/src/patient-view/genomic-event-observer.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/patient-view/OncoKBConnector.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script src="js/lib/dataTables.tableTools.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript">
 
@@ -409,8 +411,12 @@ var patientInfo = <%=jsonPatientInfo%>;
 var clinicalAttributes = <%=jsonClinicalAttributes%>;
 var viewBam = <%=viewBam%>;
 var mapCaseBam = <%=jsonMapCaseBam%>;
-var oncokbUrl = '<%=oncokbUrl%>';
-var oncoKBDataReady = false;
+var OncoKB = {
+    url: '<%=oncokbUrl%>',
+    geneStatus: '<%=oncokbGeneStatus%>',
+    accessible: false,
+    dataReady: false
+};
     
 var caseMetaData = {
     color : {}, label : {}, index : {}, tooltip : {}
@@ -420,13 +426,23 @@ $(document).ready(function(){
     if (print) $('#page_wrapper_table').css('width', '900px');
     tweaksStyles();
     outputClinicalData();
-    setUpPatientTabs();
+    setUpPatientTabs();;
     initTabs();
     var openTab = /(tab_[^&]+)/.exec(window.location.hash);
     if (openTab) {
         switchToTab(openTab[1]);
     }
 });
+
+function accessOncoKB(callback){
+    OncoKBConnector.init({'url': OncoKB.url||''});
+    OncoKBConnector.oncokbAccess(function(flag){
+        OncoKB.accessible = flag;
+        if($.isFunction(callback)){
+            callback();
+        }
+    });
+}
 
 function tweaksStyles() {
     $("div#content").css("margin-top","0px");
@@ -499,7 +515,7 @@ function addNoteTooltip(elem, content, position) {
         content: (cbio.util.checkNullOrUndefined(content) ? {attr: 'alt'} : content),
 	    show: {event: "mouseover"},
         hide: {fixed: true, delay: 100, event: "mouseout"},
-        style: { classes: 'qtip-light qtip-rounded' },
+        style: { classes: 'qtip-light qtip-rounded qtip-wide' },
         position: (cbio.util.checkNullOrUndefined(position) ? {my:'top left',at:'bottom center',viewport: $(window)} : position)
     });
 }

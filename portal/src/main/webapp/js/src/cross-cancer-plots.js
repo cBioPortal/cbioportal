@@ -198,8 +198,13 @@ var ccPlots = (function ($, _, Backbone, d3) {
             },
             settings = {
                 canvas_width: 0,
-                canvas_height: 900
+                canvas_height: 900,
+                log_scale: {
+                    threshold_down : 0.17677669529,  //-2.5 to 10
+                    threshold_up : 1.2676506e+30
+                }
             },
+            plotsData = [],
             init_sidebar = function () {
                 $("#cc_plots_gene_list_select").append("<select id='cc_plots_gene_list'>");
                 _.each(window.studies.gene_list.split(/\s+/), function (_gene) {
@@ -239,7 +244,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 //data
                 var _data = _.filter(_.pluck(_input, "attributes"), function(item) {
                     return item.value !== "NaN"
-                }) ;
+                });
                 _.each(_data, function(_data_item) {
                     _data_item.mutation = _.uniq(_data_item.mutation.split(";")).join(", ");
                     if (_data_item.mutation.indexOf(",") !== -1) _data_item.mutation = _data_item.mutation.substring(0, _data_item.mutation.length - 2);
@@ -247,9 +252,6 @@ var ccPlots = (function ($, _, Backbone, d3) {
                     if (_data_item.mutation === "") { _data_item.mutation = "non"; }
                     if (_data_item.mutation_type === "" ) { _data_item.mutation_type = "non"; }
                 });
-
-                elem.box_plots = elem.svg.append("svg:g").attr("class", "cc_plots_box_plots");
-                elem.dots = elem.svg.append("svg:g");
 
                 //x axis
                 var x_axis_right = (_.pluck(_.pluck(data.get_meta().models, "attributes"), "STABLE_ID").length * 100 + 300);
@@ -266,7 +268,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                     .style("fill", "none")
                     .style("stroke", "grey")
                     .style("shape-rendering", "crispEdges")
-                    .attr("class", "x axis")
+                    .attr("class", "x-axis")
                     .attr("transform", "translate(0, 520)")
                     .call(elem.x.axis.ticks(_.pluck(data.get_meta().models, "attributes").length))
                     .selectAll("text")
@@ -308,7 +310,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                     .style("stroke", "grey")
                     .style("shape-rendering", "crispEdges")
                     .attr("transform", "translate(300, 0)")
-                    .attr("class", "y axis")
+                    .attr("class", "y-axis")
                     .call(elem.y.axis.ticks(5))
                     .selectAll("text")
                     .style("font-family", "sans-serif")
@@ -329,7 +331,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 d3.select("#ccPlots").select("y title").remove();
                 elem.title = elem.svg.append("svg:g");
                 elem.title.append("text")
-                    .attr("class", "y title")
+                    .attr("class", "y-title")
                     .attr("transform", "rotate(-90)")
                     .attr("x", -250)
                     .attr("y", 220)
@@ -344,6 +346,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                         bubble_up(_plots_data, index);
                     }
                 });
+                elem.dots = elem.svg.append("svg:g");
                 elem.dots.selectAll("path").remove();
                 elem.dots.selectAll("path")
                     .data(_plots_data)
@@ -357,6 +360,8 @@ var ccPlots = (function ($, _, Backbone, d3) {
                             $(this).attr("shape", mutationStyle.getSymbol(d.mutation_type));
                             $(this).attr("case_id", d.caseId);
                             $(this).attr("mutation", d.mutation);
+                            $(this).attr("x_val", d.profileId);
+                            $(this).attr("y_val", d.value);
                             return mutationStyle.getSymbol(d.mutation_type);
                         }))
                     .attr("fill", function(d) {
@@ -369,6 +374,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                     .attr("transform", function(d) {
                         var _x = elem.x.scale(d.profileId) + elem.x.scale.rangeBand() / 2 + _.random(elem.x.scale.rangeBand() / 3 * (-1), elem.x.scale.rangeBand()/3);
                         var _y = elem.y.scale(parseInt(d.value));
+                        $(this).attr("x_pos", _x);
                         return "translate(" + _x + ", " + _y + ")";
                     });
 
@@ -467,9 +473,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                         x_val: "",
                         y_val: []
                     },
-                    _box_plots_data_arr = [],
-                    _box_plots_color = "#000000",
-                    _box_plots_opacity = 0.2;
+                    _box_plots_data_arr = [];
                 var _meta_list = data.get_meta();
                 _.each(_.pluck(_.pluck(_meta_list.models, "attributes"), "STABLE_ID"), function(_profile_id) {
                     var _tmp_y_val_arr = [];
@@ -484,106 +488,311 @@ var ccPlots = (function ($, _, Backbone, d3) {
                     _datum.y_val = _tmp_y_val_arr;
                     _box_plots_data_arr.push(_datum);
                 });
+                add_box_plots(_box_plots_data_arr);
 
-                $.each(_box_plots_data_arr, function(index, obj) {
-                    if (obj.y_val.length !== 0) {
-                        if (obj.y_val.length === 1) { //just one simple line
+                if (document.getElementById("cc_plots_log_scale").checked) {
+                    apply_log_scale(_input);
+                }
+            }; //close init_box()
 
-                        } else if (obj.y_val.length === 2) {
+        function add_box_plots(_box_plots_data_arr) {
+            d3.select("#cc-plots-box").select(".cc_plots_box_plots").remove();
+            elem.box_plots = elem.svg.append("svg:g").attr("class", "cc_plots_box_plots");
+            var _box_plots_color = "#000000",
+                _box_plots_opacity = 0.2;
+            $.each(_box_plots_data_arr, function(index, obj) {
+                if (obj.y_val.length !== 0) {
+                    if (obj.y_val.length === 1) { //just one simple line
 
-                        } else { //regular box
-                            var top, bottom, quan1, quan2, mean, IQR, midLine, width;
-                            var yl = obj.y_val.length;
-                            var _data = obj.y_val;
+                    } else if (obj.y_val.length === 2) {
 
-                            width = elem.x.scale.rangeBand() / 2 - 10;
-                            midLine = elem.x.scale(obj.x_val) + elem.x.scale.rangeBand() / 2;
-                            if (yl % 2 === 0) {
-                                mean = elem.y.scale((_data[(yl / 2)-1] + _data[yl / 2]) / 2);
-                                if (yl % 4 === 0) {
-                                    quan1 = elem.y.scale((_data[(yl / 4)-1] + _data[yl / 4]) / 2);
-                                    quan2 = elem.y.scale((_data[(3*yl / 4)-1] + _data[3 * yl / 4]) / 2);
-                                } else {
-                                    quan1 = elem.y.scale(_data[Math.floor(yl / 4)]);
-                                    quan2 = elem.y.scale(_data[Math.floor(3 * yl / 4)]);
-                                }
+                    } else { //regular box
+                        var top, bottom, quan1, quan2, mean, IQR, midLine, width;
+                        var yl = obj.y_val.length;
+                        var _data = obj.y_val;
+
+                        width = elem.x.scale.rangeBand() / 2 - 10;
+                        midLine = elem.x.scale(obj.x_val) + elem.x.scale.rangeBand() / 2;
+                        if (yl % 2 === 0) {
+                            mean = elem.y.scale((_data[(yl / 2)-1] + _data[yl / 2]) / 2);
+                            if (yl % 4 === 0) {
+                                quan1 = elem.y.scale((_data[(yl / 4)-1] + _data[yl / 4]) / 2);
+                                quan2 = elem.y.scale((_data[(3*yl / 4)-1] + _data[3 * yl / 4]) / 2);
                             } else {
-                                mean = elem.y.scale(_data[Math.floor(yl / 2)]);
-                                var tmp_yl = Math.floor(yl / 2) + 1;
-                                if (tmp_yl % 2 === 0) {
-                                    quan1 = elem.y.scale((_data[tmp_yl / 2 - 1] + _data[tmp_yl / 2]) / 2);
-                                    quan2 = elem.y.scale((_data[(3 * tmp_yl / 2) - 2] + _data[(3 * tmp_yl / 2) - 1]) / 2);
-                                } else {
-                                    quan1 = elem.y.scale(_data[Math.floor(tmp_yl / 2)]);
-                                    quan2 = elem.y.scale(_data[tmp_yl - 1 + Math.floor(tmp_yl / 2)]);
-                                }
+                                quan1 = elem.y.scale(_data[Math.floor(yl / 4)]);
+                                quan2 = elem.y.scale(_data[Math.floor(3 * yl / 4)]);
                             }
-                            var _scaled_arr = [];
-                            $.each(_data, function(index, value) {
-                                _scaled_arr.push(elem.y.scale(value));
-                            });
-                            _scaled_arr.sort(function(a,b) { return (a - b); });
-                            IQR = Math.abs(quan2 - quan1);
-                            var index_top = searchIndexTop(_scaled_arr, (quan2 - 1.5 * IQR));
-                            top = _scaled_arr[index_top];
-                            var index_bottom = searchIndexBottom(_scaled_arr, (quan1 + 1.5 * IQR));
-                            bottom = _scaled_arr[index_bottom];
-
-
-                            elem.box_plots.append("rect")
-                                .attr("x", midLine - width)
-                                .attr("y", quan2)
-                                .attr("width", width * 2)
-                                .attr("height", IQR)
-                                .attr("fill", "none")
-                                .attr("stroke-width", 1)
-                                .attr("stroke", _box_plots_color)
-                                .attr('opacity', _box_plots_opacity);
-                            elem.box_plots.append("line")
-                                .attr("x1", midLine - width)
-                                .attr("x2", midLine + width)
-                                .attr("y1", mean)
-                                .attr("y2", mean)
-                                .attr("stroke-width", 2)
-                                .attr("stroke", _box_plots_color)
-                                .attr('opacity', _box_plots_opacity);
-                            elem.box_plots.append("line")
-                                .attr("x1", midLine - width)
-                                .attr("x2", midLine + width)
-                                .attr("y1", top)
-                                .attr("y2", top)
-                                .attr("stroke-width", 1)
-                                .attr("stroke", _box_plots_color)
-                                .attr('opacity', _box_plots_opacity);
-                            elem.box_plots.append("line")
-                                .attr("x1", midLine - width)
-                                .attr("x2", midLine + width)
-                                .attr("y1", bottom)
-                                .attr("y2", bottom)
-                                .attr("stroke", _box_plots_color)
-                                .style("stroke-width", 1)
-                                .attr('opacity', _box_plots_opacity);
-                            elem.box_plots.append("line")
-                                .attr("x1", midLine)
-                                .attr("x2", midLine)
-                                .attr("y1", quan1)
-                                .attr("y2", bottom)
-                                .attr("stroke", _box_plots_color)
-                                .attr("stroke-width", 1)
-                                .attr('opacity', _box_plots_opacity);
-                            elem.box_plots.append("line")
-                                .attr("x1", midLine)
-                                .attr("x2", midLine)
-                                .attr("y1", quan2)
-                                .attr("y2", top)
-                                .attr("stroke", _box_plots_color)
-                                .style("stroke-width", 1)
-                                .attr('opacity', _box_plots_opacity);
+                        } else {
+                            mean = elem.y.scale(_data[Math.floor(yl / 2)]);
+                            var tmp_yl = Math.floor(yl / 2) + 1;
+                            if (tmp_yl % 2 === 0) {
+                                quan1 = elem.y.scale((_data[tmp_yl / 2 - 1] + _data[tmp_yl / 2]) / 2);
+                                quan2 = elem.y.scale((_data[(3 * tmp_yl / 2) - 2] + _data[(3 * tmp_yl / 2) - 1]) / 2);
+                            } else {
+                                quan1 = elem.y.scale(_data[Math.floor(tmp_yl / 2)]);
+                                quan2 = elem.y.scale(_data[tmp_yl - 1 + Math.floor(tmp_yl / 2)]);
+                            }
                         }
+                        var _scaled_arr = [];
+                        $.each(_data, function(index, value) {
+                            _scaled_arr.push(elem.y.scale(value));
+                        });
+                        _scaled_arr.sort(function(a,b) { return (a - b); });
+                        IQR = Math.abs(quan2 - quan1);
+                        var index_top = searchIndexTop(_scaled_arr, (quan2 - 1.5 * IQR));
+                        top = _scaled_arr[index_top];
+                        var index_bottom = searchIndexBottom(_scaled_arr, (quan1 + 1.5 * IQR));
+                        bottom = _scaled_arr[index_bottom];
 
+
+                        elem.box_plots.append("rect")
+                            .attr("x", midLine - width)
+                            .attr("y", quan2)
+                            .attr("width", width * 2)
+                            .attr("height", IQR)
+                            .attr("fill", "none")
+                            .attr("stroke-width", 1)
+                            .attr("stroke", _box_plots_color)
+                            .attr('opacity', _box_plots_opacity);
+                        elem.box_plots.append("line")
+                            .attr("x1", midLine - width)
+                            .attr("x2", midLine + width)
+                            .attr("y1", mean)
+                            .attr("y2", mean)
+                            .attr("stroke-width", 2)
+                            .attr("stroke", _box_plots_color)
+                            .attr('opacity', _box_plots_opacity);
+                        elem.box_plots.append("line")
+                            .attr("x1", midLine - width)
+                            .attr("x2", midLine + width)
+                            .attr("y1", top)
+                            .attr("y2", top)
+                            .attr("stroke-width", 1)
+                            .attr("stroke", _box_plots_color)
+                            .attr('opacity', _box_plots_opacity);
+                        elem.box_plots.append("line")
+                            .attr("x1", midLine - width)
+                            .attr("x2", midLine + width)
+                            .attr("y1", bottom)
+                            .attr("y2", bottom)
+                            .attr("stroke", _box_plots_color)
+                            .style("stroke-width", 1)
+                            .attr('opacity', _box_plots_opacity);
+                        elem.box_plots.append("line")
+                            .attr("x1", midLine)
+                            .attr("x2", midLine)
+                            .attr("y1", quan1)
+                            .attr("y2", bottom)
+                            .attr("stroke", _box_plots_color)
+                            .attr("stroke-width", 1)
+                            .attr('opacity', _box_plots_opacity);
+                        elem.box_plots.append("line")
+                            .attr("x1", midLine)
+                            .attr("x2", midLine)
+                            .attr("y1", quan2)
+                            .attr("y2", top)
+                            .attr("stroke", _box_plots_color)
+                            .style("stroke-width", 1)
+                            .attr('opacity', _box_plots_opacity);
+                    }
+                }
+            });
+        }
+
+        function apply_log_scale(_input) {
+
+            //y axis
+            var _y_str_arr = _.filter(_.pluck(_.pluck(_input, "attributes"), "value"), function(item) { return item !== "NaN"});
+            var _scaled_y_arr = _.map(_y_str_arr, function(item) {
+                var _orig_val = parseInt(item, 10);
+                var _scaled_val = 0;
+                if (_orig_val <= settings.log_scale.threshold_down) {
+                    _scaled_val = Math.log(settings.log_scale.threshold_down) / Math.log(2);
+                } else if (_orig_val >= settings.log_scale.threshold_up) {
+                    _scaled_val = Math.log(settings.log_scale.threshold_up) / Math.log(2);
+                } else {
+                    _scaled_val = Math.log(_orig_val) / Math.log(2);
+                }
+                return _scaled_val;
+            });
+            var _min_y = _.min(_scaled_y_arr) - 0.1 * (_.max(_scaled_y_arr) - _.min(_scaled_y_arr));
+            var _max_y = _.max(_scaled_y_arr) + 0.1 * (_.max(_scaled_y_arr) - _.min(_scaled_y_arr));
+            elem.y.scale = d3.scale.linear()
+                .domain([_min_y, _max_y])
+                .range([520, 20]);
+
+            elem.y.axis = d3.svg.axis()
+                .scale(elem.y.scale)
+                .orient("left");
+
+            d3.select("#cc-plots-box").select(".y-axis").remove();
+            var x_axis_right = (_.pluck(_.pluck(data.get_meta().models, "attributes"), "STABLE_ID").length * 100 + 300);
+            elem.svg.append("g")
+                .style("stroke-width", 1.5)
+                .style("fill", "none")
+                .style("stroke", "grey")
+                .style("shape-rendering", "crispEdges")
+                .attr("transform", "translate(300, 0)")
+                .attr("class", "y-axis")
+                .call(elem.y.axis.ticks(5))
+                .selectAll("text")
+                .style("font-family", "sans-serif")
+                .style("font-size", "12px")
+                .style("stroke-width", 0.5)
+                .style("stroke", "black")
+                .style("fill", "black")
+                .style("text-anchor", "end");
+            elem.svg.append("g")
+                .style("stroke-width", 1.5)
+                .style("fill", "none")
+                .style("stroke", "grey")
+                .style("shape-rendering", "crispEdges")
+                .attr("transform", "translate(" + x_axis_right + ", 0)")
+                .call(elem.y.axis.ticks(0));
+
+            //y axis title
+            d3.select("#cc-plots-box").select(".y-title").remove();
+            elem.title = elem.svg.append("svg:g");
+            elem.title.append("text")
+                .attr("class", "y-title")
+                .attr("transform", "rotate(-90)")
+                .attr("x", -250)
+                .attr("y", 220)
+                .style("text-anchor", "middle")
+                .style("font-weight","bold")
+                .text($("#cc_plots_gene_list").val() + " expression -- RNA-Seq V2 (log2)");
+
+            //move dots
+            elem.dots.selectAll("path")
+                .transition().duration(300)
+                .attr("transform", function() {
+                    var _y_val = (d3.select(this).attr("y_val") <= settings.log_scale.threshold_down)? Math.log(settings.log_scale.threshold_down)/Math.log(2):Math.log(d3.select(this).attr("y_val")) / Math.log(2);
+                    var _y = elem.y.scale(_y_val);
+                    return "translate(" + d3.select(this).attr("x_pos") + ", " + _y + ")";
+                });
+
+            //box plots
+            var _data = _.filter(_.pluck(_input, "attributes"), function(item) {
+                return item.value !== "NaN"
+            });
+            var _box_plots_datum = {
+                    x_val: "",
+                    y_val: []
+                },
+                _box_plots_data_arr = [];
+            var _meta_list = data.get_meta();
+            _.each(_.pluck(_.pluck(_meta_list.models, "attributes"), "STABLE_ID"), function(_profile_id) {
+                var _tmp_y_val_arr = [];
+                _.each(_data, function(_data_item) {
+                    if (_data_item.profileId === _profile_id) {
+                        var _orig_val = parseFloat(_data_item.value), _scaled_val = 0;
+                        if (_orig_val <= settings.log_scale.threshold_down) {
+                            _scaled_val = Math.log(settings.log_scale.threshold_down) / Math.log(2);
+                        } else if (_orig_val >= settings.log_scale.threshold_up) {
+                            _scaled_val = Math.log(settings.log_scale.threshold_up) / Math.log(2);
+                        } else {
+                            _scaled_val = Math.log(_orig_val) / Math.log(2);
+                        }
+                        _tmp_y_val_arr.push(parseFloat(_scaled_val));
                     }
                 });
-            };
+                _tmp_y_val_arr.sort(function(a, b) { return (a - b); });
+                var _datum = jQuery.extend(true, {}, _box_plots_datum);
+                _datum.x_val = _profile_id;
+                _datum.y_val = _tmp_y_val_arr;
+                _box_plots_data_arr.push(_datum);
+            });
+            add_box_plots(_box_plots_data_arr);
+
+        }
+
+        function remove_log_scale(_input) {
+            //y axis
+            var _y_str_arr = _.filter(_.pluck(_.pluck(_input, "attributes"), "value"), function(item) { return item !== "NaN"});
+            var _y_arr = _.map(_y_str_arr, function(item) {
+                return parseInt(item, 10);
+            });
+            var _min_y = _.min(_y_arr) - 0.1 * (_.max(_y_arr) - _.min(_y_arr));
+            var _max_y = _.max(_y_arr) + 0.1 * (_.max(_y_arr) - _.min(_y_arr));
+            elem.y.scale = d3.scale.linear()
+                .domain([_min_y, _max_y])
+                .range([520, 20]);
+
+            elem.y.axis = d3.svg.axis()
+                .scale(elem.y.scale)
+                .orient("left");
+
+            d3.select("#cc-plots-box").select(".y-axis").remove();
+            var x_axis_right = (_.pluck(_.pluck(data.get_meta().models, "attributes"), "STABLE_ID").length * 100 + 300);
+            elem.svg.append("g")
+                .style("stroke-width", 1.5)
+                .style("fill", "none")
+                .style("stroke", "grey")
+                .style("shape-rendering", "crispEdges")
+                .attr("transform", "translate(300, 0)")
+                .attr("class", "y-axis")
+                .call(elem.y.axis.ticks(5))
+                .selectAll("text")
+                .style("font-family", "sans-serif")
+                .style("font-size", "12px")
+                .style("stroke-width", 0.5)
+                .style("stroke", "black")
+                .style("fill", "black")
+                .style("text-anchor", "end");
+            elem.svg.append("g")
+                .style("stroke-width", 1.5)
+                .style("fill", "none")
+                .style("stroke", "grey")
+                .style("shape-rendering", "crispEdges")
+                .attr("transform", "translate(" + x_axis_right + ", 0)")
+                .call(elem.y.axis.ticks(0));
+
+            //y axis title
+            d3.select("#cc-plots-box").select(".y-title").remove();
+            elem.title = elem.svg.append("svg:g");
+            elem.title.append("text")
+                .attr("class", "y-title")
+                .attr("transform", "rotate(-90)")
+                .attr("x", -250)
+                .attr("y", 220)
+                .style("text-anchor", "middle")
+                .style("font-weight","bold")
+                .text($("#cc_plots_gene_list").val() + " expression -- RNA-Seq V2");
+
+            //move dots
+            elem.dots.selectAll("path")
+                .transition().duration(300)
+                .attr("transform", function() {
+                    var _y = elem.y.scale(d3.select(this).attr("y_val"));
+                    return "translate(" + d3.select(this).attr("x_pos") + ", " + _y + ")";
+                });
+
+            //box plots
+            var _data = _.filter(_.pluck(_input, "attributes"), function(item) {
+                return item.value !== "NaN"
+            });
+            var _box_plots_datum = {
+                    x_val: "",
+                    y_val: []
+                },
+                _box_plots_data_arr = [];
+            var _meta_list = data.get_meta();
+            _.each(_.pluck(_.pluck(_meta_list.models, "attributes"), "STABLE_ID"), function(_profile_id) {
+                var _tmp_y_val_arr = [];
+                _.each(_data, function(_data_item) {
+                    if (_data_item.profileId === _profile_id) {
+                        _tmp_y_val_arr.push(parseFloat(_data_item.value));
+                    }
+                });
+                _tmp_y_val_arr.sort(function(a, b) { return (a - b); });
+                var _datum = jQuery.extend(true, {}, _box_plots_datum);
+                _datum.x_val = _profile_id;
+                _datum.y_val = _tmp_y_val_arr;
+                _box_plots_data_arr.push(_datum);
+            });
+            add_box_plots(_box_plots_data_arr);
+
+        }
 
         return {
             init: function () {
@@ -595,6 +804,8 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 init_canvas();
                 data.get($("#cc_plots_gene_list").val(), init_box);
             },
+            apply_log_scale: apply_log_scale,
+            remove_log_scale: remove_log_scale,
             init_sidebar: init_sidebar,
             init_box: init_box
         }
@@ -679,14 +890,20 @@ var ccPlots = (function ($, _, Backbone, d3) {
             }
         },
         update: function() {
-            //$("#cc-plots-box").empty();
             d3.select("#cc-plots-box").select("svg").remove();
             $("#cc-plots-box").append("<img src='images/ajax-loader.gif' id='cc_plots_loading' style='padding:200px;'/>");
             view.update();
         },
         search_mutation: search_mutation,
         search_case_id: search_case_id,
-        get_tab_delimited_data: get_tab_delimited_data
+        get_tab_delimited_data: get_tab_delimited_data,
+        toggle_log_scale: function() {
+            if (document.getElementById("cc_plots_log_scale").checked) {
+                data.get($("#cc_plots_gene_list").val(), view.apply_log_scale);
+            } else {
+                data.get($("#cc_plots_gene_list").val(), view.remove_log_scale);
+            }
+        }
     }
 
 }(window.jQuery, window._, window.Backbone, window.d3));

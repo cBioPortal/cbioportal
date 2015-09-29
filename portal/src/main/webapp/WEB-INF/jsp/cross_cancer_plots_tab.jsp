@@ -95,10 +95,16 @@
             <div id="cc-plots-sidebar">
                 <div id="cc-plots-sidebar-y-div" class="cc-plots">
                     <h4>Vertical Axis</h4>
-                    <h5>Gene</h5><span id="cc_plots_gene_list_select" onchange="ccPlots.update();"></span>
+                    <br>
+                    <h5>Gene</h5><span id="cc_plots_gene_list_select" onchange="ccPlots.update();"></span><br>
+                    <br><h5>Platform</h5><input type="radio" name="cc_plots_platform" value="rsem"> RSEM
+                    <input type="radio" name="cc_plots_platform" value="rpkm"> RPKM</span><br>
+                    <br><h5>Log Scale</h5>
+                    <input type="checkbox" id="cc_plots_log_scale" onchange="ccPlots.toggle_log_scale()" checked/>
                 </div>
                 <div id="cc-plots-sidebar-util-div" class="cc-plots">
                     <h4>Utilities</h4>
+                    <br><br>
                     <h5>Search Case(s)</h5>
                     <input type="text" id="case_id_search_keyword" name="case_id_search_keyword"
                            placeholder="Case ID.." onkeyup="ccPlots.search_case_id();"><br>

@@ -154,5 +154,5 @@ if (includeNetLegend==null) {
 </div>
 
 <div id="quick_info_div" class="hidden-network-ui">
-	<label id="quick_info_label">Right-click nodes/edges for details</label>
+	<label id="quick_info_label">Double-click nodes/edges for details</label>
 </div>

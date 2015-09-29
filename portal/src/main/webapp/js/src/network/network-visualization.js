@@ -3248,11 +3248,11 @@ NetworkVis.prototype._initControlFunctions = function()
 
     // add listener for double click action
 
-    this._vis.on("cxttap",
+    this._vis.on("doubleTap",
                      "node",
                      showNodeDetails);
 
-    this._vis.on("cxttap",
+    this._vis.on("doubleTap",
                      "edge",
                      showEdgeDetails);
 

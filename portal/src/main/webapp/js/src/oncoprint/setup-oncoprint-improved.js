@@ -196,20 +196,31 @@ window.setUpOncoprint = function(ctr_id, config) {
 		oncoprint = window.Oncoprint.create(ctr_selector);
 		oncoprint.setTrackGroupSortOrder([1,0]);
 		$(ctr_selector).show();
+		$(ctr_selector).css('position','relative');
 	})();
 	(function createUtilityFns() {
-		var oncoprint_covering_block = $('<div>').appendTo(ctr_selector);;
-		oncoprint_covering_block.css({'position':'absolute', 'left':'0px', 'top': '0px', 'display':'none'});
+		var oncoprint_covering_block = $('<div>').appendTo(ctr_selector);
+		oncoprint_covering_block.css({'position':'absolute', 'left':'0px', 'top': '0px', 'display':'none', 'background-color':'#ffffff'});
+		var update_covering_block_interval;
 		
 		oncoprintFadeTo = function (f) {
-			oncoprint_covering_block.css({'display':'block', 'width':$('#oncoprint').width()+'px', 'height':$('#oncoprint').height()+'px'});
+			update_covering_block_interval = setInterval(function() {
+				oncoprint_covering_block.css({'display':'block', 'width':$(ctr_selector).width()+'px', 'height':$(ctr_selector).height()+'px'});
+			}, 200);
 			$(config.toolbar_selector).fadeTo('fast', 0);
-			return $.when($(ctr_selector + ' .oncoprint-content-area').fadeTo('fast', f));
+			return $.when(oncoprint_covering_block.fadeTo('fast', f));
 		};
 		oncoprintFadeIn = function () {
-			oncoprint_covering_block.css({'display':'none'});
+			if (update_covering_block_interval) {
+				clearInterval(update_covering_block_interval);
+				update_covering_block_interval = undefined;
+			}
 			$(config.toolbar_selector).fadeTo('fast', 1);
-			return $.when($(ctr_selector + ' .oncoprint-content-area').fadeTo('fast', 1));
+			var hide_covering_block_promise = $.when(oncoprint_covering_block.fadeTo('fast', 0));
+			hide_covering_block_promise.then(function() {
+				oncoprint_covering_block.css('display','none');
+			});
+			return hide_covering_block_promise;
 		};
 		sampleViewUrl = function(sample_id) {
 			var href = cbio.util.getLinkToSampleView(window.cancer_study_id_selected,sample_id);

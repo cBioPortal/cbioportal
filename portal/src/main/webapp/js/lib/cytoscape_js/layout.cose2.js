@@ -551,7 +551,7 @@
   Integer.MAX_VALUE = 2147483647;
   Integer.MIN_VALUE = -2147483648;
 
-  /* 
+  /*
    *This class is the javascript implementation of the Point.java class in jdk
    */
   function Point(x, y, p) {
@@ -2578,7 +2578,7 @@
 //      this.update(edge);
       }
 
-      // recursively update nodes 
+      // recursively update nodes
       var node;
       var nodes = this.graphManager.getRoot().getNodes();
       for (var i = 0; i < nodes.length; i++)
@@ -2616,7 +2616,7 @@
         // cast to Updatable without any type check
         var vNode = node.vGraphObject;
 
-        // call the update method of the interface 
+        // call the update method of the interface
         vNode.update(node);
       }
     }
@@ -2631,7 +2631,7 @@
         // cast to Updatable without any type check
         var vEdge = edge.vGraphObject;
 
-        // call the update method of the interface 
+        // call the update method of the interface
         vEdge.update(edge);
       }
     }
@@ -2646,7 +2646,7 @@
         // cast to Updatable without any type check
         var vGraph = graph.vGraphObject;
 
-        // call the update method of the interface 
+        // call the update method of the interface
         vGraph.update(graph);
       }
     }
@@ -3450,12 +3450,12 @@
       // calculate distance
 
       if (this.uniformLeafNodeSizes &&
-              nodeA.getChild() == null && nodeB.getChild() == null)// simply base repulsion on distance of node centers              
+              nodeA.getChild() == null && nodeB.getChild() == null)// simply base repulsion on distance of node centers
       {
         distanceX = rectB.getCenterX() - rectA.getCenterX();
         distanceY = rectB.getCenterY() - rectA.getCenterY();
       }
-      else// use clipping points              
+      else// use clipping points
       {
         IGeometry.getIntersection(rectA, rectB, clipPoints);
 
@@ -3511,7 +3511,7 @@
     absDistanceX = Math.abs(distanceX);
     absDistanceY = Math.abs(distanceY);
 
-    if (node.getOwner() == this.graphManager.getRoot())// in the root graph           
+    if (node.getOwner() == this.graphManager.getRoot())// in the root graph
     {
       Math.floor(80);
       estimatedSize = Math.floor(ownerGraph.getEstimatedSize() *
@@ -3523,7 +3523,7 @@
         node.gravitationForceY = -this.gravityConstant * distanceY;
       }
     }
-    else// inside a compound           
+    else// inside a compound
     {
       estimatedSize = Math.floor((ownerGraph.getEstimatedSize() *
               this.compoundGravityRangeFactor));
@@ -3647,7 +3647,7 @@
     this.startY = 0;
     this.finishY = 0;
 
-    //Geometric neighbors of this node 
+    //Geometric neighbors of this node
     this.surrounding = [];
   }
 
@@ -4304,16 +4304,15 @@
     var edges = this.options.eles.edges();
 
     this.root = gm.addRoot();
-    this.orphans = nodes.orphans();
 
     if (!this.options.tile) {
-      this.processChildrenList(this.root, this.orphans);
+      this.processChildrenList(this.root, nodes.orphans());
     }
     else {
-      // Find zero degree nodes and create a complex for each level
+      // Find zero degree nodes and create a compound for each level
       var memberGroups = this.groupZeroDegreeMembers();
-      // Tile and clear children of each complex
-      var tiledMemberPack = this.clearComplexes(this.options);
+      // Tile and clear children of each compound
+      var tiledMemberPack = this.clearCompounds(this.options);
       // Separately tile and clear zero degree nodes for each level
       var tiledZeroDegreeNodes = this.clearZeroDegreeMembers(memberGroups);
     }
@@ -4545,7 +4544,7 @@
       if (after.options.tile) {
         // Repopulate members
         after.repopulateZeroDegreeMembers(tiledZeroDegreeNodes);
-        after.repopulateComplexes(tiledMemberPack);
+        after.repopulateCompounds(tiledMemberPack);
         after.options.eles.nodes().updateCompoundBounds();
       }
 
@@ -4560,7 +4559,7 @@
       });
 
       if (after.options.fit)
-        after.options.cy.fit(after.options.padding);
+        after.options.cy.fit(after.options.eles.nodes(), after.options.padding);
 
       //trigger layoutready when each node has had its position set at least once
       if (!ready) {
@@ -4598,7 +4597,7 @@
         });
 
         if (after.options.fit)
-          after.options.cy.fit(after.options.padding);
+          after.options.cy.fit(after.options.eles.nodes(), after.options.padding);
 
         if (!ready) {
           ready = true;
@@ -4612,7 +4611,7 @@
     return this; // chaining
   };
 
-  var getToBeTiled = function (node) {
+  _CoSELayout.prototype.getToBeTiled = function (node) {
     var id = node.data("id");
     //firstly check the previous results
     if (_CoSELayout.toBeTiled[id] != null) {
@@ -4630,7 +4629,7 @@
     for (var i = 0; i < children.length; i++) {
       var theChild = children[i];
 
-      if (theChild.degree(false) > 0) {
+      if (this.getNodeDegree(theChild) > 0) {
         _CoSELayout.toBeTiled[id] = false;
         return false;
       }
@@ -4641,23 +4640,36 @@
         continue;
       }
 
-      if (!getToBeTiled(theChild)) {
+      if (!this.getToBeTiled(theChild)) {
         _CoSELayout.toBeTiled[id] = false;
         return false;
       }
     }
     _CoSELayout.toBeTiled[id] = true;
     return true;
-  }
+  };
+
+  _CoSELayout.prototype.getNodeDegree = function(node) {
+    var id = node.id();
+    var edges = this.options.eles.edges().filter(function(i, ele){
+      var source = ele.data('source');
+      var target = ele.data('target');
+      if(source != target && (source == id || target == id) ){
+        return true;
+      }
+    });
+    return edges.length;
+  };
 
   _CoSELayout.prototype.groupZeroDegreeMembers = function () {
-    // array of [parent_id x oneDegreeNode_id] 
+    // array of [parent_id x oneDegreeNode_id]
     var tempMemberGroups = [];
     var memberGroups = [];
-
-    // Find all zero degree nodes which aren't covered by a complex
+    var self = this;
+    // Find all zero degree nodes which aren't covered by a compound
     var zeroDegree = this.options.eles.nodes().filter(function (i, ele) {
-      if (this.degree(false) == 0 && ele.parent().length > 0 && !getToBeTiled(ele.parent()[0]))
+//      console.log(self.getNodeDegree(ele));
+      if (self.getNodeDegree(ele) == 0 && (ele.parent().length == 0 || (ele.parent().length > 0 && !self.getToBeTiled(ele.parent()[0])) ) )
         return true;
       else
         return false;
@@ -4675,21 +4687,22 @@
       tempMemberGroups[p_id] = tempMemberGroups[p_id].concat(node);
     }
 
-    // If there are at least two nodes at a level, create a dummy complex for them
+    // If there are at least two nodes at a level, create a dummy compound for them
     for (var p_id in tempMemberGroups) {
       if (tempMemberGroups[p_id].length > 1) {
-        var dummyComplexId = "DummyComplex_" + p_id;
-        memberGroups[dummyComplexId] = tempMemberGroups[p_id];
+        var dummyCompoundId = "DummyCompound_" + p_id;
+        memberGroups[dummyCompoundId] = tempMemberGroups[p_id];
 
-        // Create a dummy complex
-        if (this.options.cy.getElementById(dummyComplexId).empty()) {
+        // Create a dummy compound
+        if (this.options.cy.getElementById(dummyCompoundId).empty()) {
           this.options.cy.add({
             group: "nodes",
-            data: {id: dummyComplexId, parent: p_id,
+            data: {id: dummyCompoundId, parent: p_id
             },
             position: {x: Math.random() * this.options.cy.container().clientWidth,
               y: Math.random() * this.options.cy.container().clientHeight}
           });
+          this.options.eles = this.options.eles.union(this.options.cy.nodes()[this.options.cy.nodes().length - 1]);
         }
       }
     }
@@ -4697,46 +4710,45 @@
     return memberGroups;
   };
 
-  _CoSELayout.prototype.performDFSOnComplexes = function (options) {
-    var complexOrder = [];
+  _CoSELayout.prototype.performDFSOnCompounds = function (options) {
+    var compoundOrder = [];
 
     var roots = this.options.eles.nodes().orphans();
-    this.fillCompexOrderByDFS(complexOrder, roots);
+    this.fillCompexOrderByDFS(compoundOrder, roots);
 
-    return complexOrder;
+    return compoundOrder;
   };
 
-  _CoSELayout.prototype.fillCompexOrderByDFS = function (complexOrder, children) {
+  _CoSELayout.prototype.fillCompexOrderByDFS = function (compoundOrder, children) {
     for (var i = 0; i < children.length; i++) {
       var child = children[i];
-      this.fillCompexOrderByDFS(complexOrder, child.children());
-      if (getToBeTiled(child)) {
-        complexOrder.push(child);
+      this.fillCompexOrderByDFS(compoundOrder, child.children());
+      if (this.getToBeTiled(child)) {
+        compoundOrder.push(child);
       }
     }
   };
 
-  _CoSELayout.prototype.clearComplexes = function (options) {
+  _CoSELayout.prototype.clearCompounds = function (options) {
     var childGraphMap = [];
 
-    // Get complex ordering by finding the inner one first
-    var complexOrder = this.performDFSOnComplexes(options);
-    _CoSELayout.complexOrder = complexOrder;
+    // Get compound ordering by finding the inner one first
+    var compoundOrder = this.performDFSOnCompounds(options);
+    _CoSELayout.compoundOrder = compoundOrder;
+    this.processChildrenList(this.root, this.options.eles.nodes().orphans());
 
-    this.processChildrenList(this.root, this.orphans);
-
-    for (var i = 0; i < complexOrder.length; i++) {
+    for (var i = 0; i < compoundOrder.length; i++) {
       // find the corresponding layout node
-      var lComplexNode = _CoSELayout.idToLNode[complexOrder[i].id()];
+      var lCompoundNode = _CoSELayout.idToLNode[compoundOrder[i].id()];
 
-      childGraphMap[complexOrder[i].id()] = complexOrder[i].children();
+      childGraphMap[compoundOrder[i].id()] = compoundOrder[i].children();
 
-      // Remove children of complexes 
-      lComplexNode.child = null;
+      // Remove children of compounds
+      lCompoundNode.child = null;
     }
 
     // Tile the removed children
-    var tiledMemberPack = this.tileComplexMembers(childGraphMap);
+    var tiledMemberPack = this.tileCompoundMembers(childGraphMap);
 
     return tiledMemberPack;
   };
@@ -4745,45 +4757,45 @@
     var tiledZeroDegreePack = [];
 
     for (var id in memberGroups) {
-      var complexNode = _CoSELayout.idToLNode[id];
+      var compoundNode = _CoSELayout.idToLNode[id];
 
       tiledZeroDegreePack[id] = this.tileNodes(memberGroups[id]);
 
-      // Set the width and height of the dummy complex as calculated
-      complexNode.rect.width = tiledZeroDegreePack[id].width;
-      complexNode.rect.height = tiledZeroDegreePack[id].height;
+      // Set the width and height of the dummy compound as calculated
+      compoundNode.rect.width = tiledZeroDegreePack[id].width;
+      compoundNode.rect.height = tiledZeroDegreePack[id].height;
     }
     return tiledZeroDegreePack;
   };
 
-  _CoSELayout.prototype.repopulateComplexes = function (tiledMemberPack) {
-    for (var i = _CoSELayout.complexOrder.length - 1; i >= 0; i--) {
-      var id = _CoSELayout.complexOrder[i].id();
-      var lComplexNode = _CoSELayout.idToLNode[id];
+  _CoSELayout.prototype.repopulateCompounds = function (tiledMemberPack) {
+    for (var i = _CoSELayout.compoundOrder.length - 1; i >= 0; i--) {
+      var id = _CoSELayout.compoundOrder[i].id();
+      var lCompoundNode = _CoSELayout.idToLNode[id];
 
-      this.adjustLocations(tiledMemberPack[id], lComplexNode.rect.x, lComplexNode.rect.y);
+      this.adjustLocations(tiledMemberPack[id], lCompoundNode.rect.x, lCompoundNode.rect.y);
     }
   };
 
   _CoSELayout.prototype.repopulateZeroDegreeMembers = function (tiledPack) {
     for (var i in tiledPack) {
-      var complex = this.cy.getElementById(i);
-      var complexNode = _CoSELayout.idToLNode[i];
+      var compound = this.cy.getElementById(i);
+      var compoundNode = _CoSELayout.idToLNode[i];
 
-      // Adjust the positions of nodes wrt its complex
-      this.adjustLocations(tiledPack[i], complexNode.rect.x, complexNode.rect.y);
+      // Adjust the positions of nodes wrt its compound
+      this.adjustLocations(tiledPack[i], compoundNode.rect.x, compoundNode.rect.y);
 
-      // Remove the dummy complex
-      complex.remove();
+      // Remove the dummy compound
+      compound.remove();
     }
   };
 
   /**
-   * This method places each zero degree member wrt given (x,y) coordinates (top left). 
+   * This method places each zero degree member wrt given (x,y) coordinates (top left).
    */
   _CoSELayout.prototype.adjustLocations = function (organization, x, y) {
-    x += organization.complexMargin;
-    y += organization.complexMargin;
+    x += organization.compoundMargin;
+    y += organization.compoundMargin;
 
     var left = x;
 
@@ -4814,17 +4826,17 @@
     }
   };
 
-  _CoSELayout.prototype.tileComplexMembers = function (childGraphMap) {
+  _CoSELayout.prototype.tileCompoundMembers = function (childGraphMap) {
     var tiledMemberPack = [];
 
     for (var id in childGraphMap) {
-      // Access layoutInfo nodes to set the width and height of complexes
-      var complexNode = _CoSELayout.idToLNode[id];
+      // Access layoutInfo nodes to set the width and height of compounds
+      var compoundNode = _CoSELayout.idToLNode[id];
 
       tiledMemberPack[id] = this.tileNodes(childGraphMap[id]);
 
-      complexNode.rect.width = tiledMemberPack[id].width + 20;
-      complexNode.rect.height = tiledMemberPack[id].height + 20;
+      compoundNode.rect.width = tiledMemberPack[id].width + 20;
+      compoundNode.rect.height = tiledMemberPack[id].height + 20;
     }
 
     return tiledMemberPack;
@@ -4835,7 +4847,7 @@
       rows: [],
       rowWidth: [],
       rowHeight: [],
-      complexMargin: 10,
+      compoundMargin: 10,
       width: 20,
       height: 20,
       verticalPadding: 10,
@@ -4888,14 +4900,14 @@
   };
 
   _CoSELayout.prototype.insertNodeToRow = function (organization, node, rowIndex) {
-    var minComplexSize = organization.complexMargin * 2;
+    var minCompoundSize = organization.compoundMargin * 2;
 
     // Add new row if needed
     if (rowIndex == organization.rows.length) {
       var secondDimension = [];
 
       organization.rows.push(secondDimension);
-      organization.rowWidth.push(minComplexSize);
+      organization.rowWidth.push(minCompoundSize);
       organization.rowHeight.push(0);
     }
 
@@ -4907,7 +4919,7 @@
     }
 
     organization.rowWidth[rowIndex] = w;
-    // Update complex width
+    // Update compound width
     if (organization.width < w) {
       organization.width = w;
     }

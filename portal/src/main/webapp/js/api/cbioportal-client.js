@@ -8,7 +8,7 @@ window.cbioportal_client = (function() {
 					arg_strings.push(k + '=' + args[k].join(","));
 				}
 			}
-			var arg_string = arg_strings.join("&") || "?"; 
+			var arg_string = arg_strings.join("&") || "?";
 			return $.ajax({
 				type: "POST",
 				url: endpt,
@@ -187,10 +187,12 @@ window.cbioportal_client = (function() {
 					if (Object.prototype.toString.call(obj) === '[object Array]') {
 						ret = ret.concat(obj);
 					} else {
-						var keys = key_list_list[key_list_index] || Object.keys(obj);
-						for (k = 0; k<keys.length; k++) {
-							if (obj.hasOwnProperty(keys[k])) {
-								tmp_intermediate.push(obj[keys[k]]);
+						if (key_list_index < key_list_list.length) {
+							var keys = key_list_list[key_list_index] || Object.keys(obj);
+							for (k = 0; k<keys.length; k++) {
+								if (obj.hasOwnProperty(keys[k])) {
+									tmp_intermediate.push(obj[keys[k]]);
+								}
 							}
 						}
 					}
@@ -201,6 +203,7 @@ window.cbioportal_client = (function() {
 			return ret;
 		};
 		this.missingKeys = function(key_list_list) {
+			// TODO: implement this without slow reference to getData
 			var missing_keys = key_list_list.map(function() { return {}; });
 			var j, k;
 			var key_combinations = keyCombinations(key_list_list, true);

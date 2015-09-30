@@ -379,13 +379,7 @@
             });
         });     
 
-        //extract the sample Ids array
-        var _sampleIds = [];
-        $.each(window.PortalGlobals.getGeneData(), function(index, obj) {
-            if ($.inArray(obj.sample, _sampleIds) === -1) {
-                _sampleIds.push(obj.sample);
-            }
-        });
+        var _sampleIds = window.PortalDataManager.getSampleIds();
         window.PortalGlobals.setSampleIds(_sampleIds);
 
         //Configure the summary line of alteration statstics

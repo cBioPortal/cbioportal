@@ -212,6 +212,11 @@ public class PatientView extends HttpServlet {
             request.setAttribute(ERROR, "Please specify cancer study ID. ");
             return false;
         }
+
+		if (cancerStudyUpdating(cancerStudyId)) {
+			request.setAttribute(ERROR, "The selected cancer study is currently being updated, please try back later.");
+			return false;
+		}
         
         CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
         if (cancerStudy==null) {
@@ -296,6 +301,20 @@ public class PatientView extends HttpServlet {
         
         return true;
     }
+
+	private boolean cancerStudyUpdating(String cancerStudyId) throws DaoException
+	{
+		DaoCancerStudy.Status status = DaoCancerStudy.getStatus(cancerStudyId);
+		if (status != DaoCancerStudy.Status.AVAILABLE) {
+			if (status == DaoCancerStudy.Status.RECACHE) {
+				DaoCancerStudy.reCacheAll();
+			}
+			else {
+				return true;
+			}
+		}
+		return false;
+	}
     
     private void sortSampleIds(int cancerStudyId, int patientId, List<String> sampleIds) {
         if (sampleIds.size()==1) {

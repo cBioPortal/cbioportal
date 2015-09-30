@@ -239,6 +239,8 @@ public class QueryBuilder extends HttpServlet {
 
             httpServletRequest.setAttribute(XDEBUG_OBJECT, xdebug);
 
+			checkAndRedirectOnStudyStatus(httpServletRequest, httpServletResponse, cancerTypeId);
+
             boolean errorsExist = validateForm(action, profileList, geneticProfileIdSet, geneList,
                                                patientSetId, patientIds, httpServletRequest);
             if (action != null && action.equals(ACTION_SUBMIT) && (!errorsExist)) {
@@ -320,6 +322,8 @@ public class QueryBuilder extends HttpServlet {
 							 HttpServletResponse response,
 							 XDebug xdebug) throws IOException, ServletException, DaoException {
 
+		checkAndRedirectOnStudyStatus(request, response, cancerTypeId);
+
        // parse geneList, written in the OncoPrintSpec language (except for changes by XSS clean)
        double zScore = ZScoreUtil.getZScore(geneticProfileIdSet, profileList, request);
        double rppaScore = ZScoreUtil.getRPPAScore(request);
@@ -342,7 +346,7 @@ public class QueryBuilder extends HttpServlet {
         HashSet<String> setOfSampleIds = null;
         
         String patientIdsKey = null;
-        
+
         // user-specified patients, but patient_ids parameter is missing,
         // so try to retrieve patient_ids by using patient_ids_key parameter.
         // this is required for survival plot requests  
@@ -381,6 +385,10 @@ public class QueryBuilder extends HttpServlet {
             
             sampleIds = sampleIds.replaceAll("\\s+", " ");
         }
+
+		if (setOfSampleIds == null || setOfSampleIds.isEmpty()) {
+			redirectStudyUnavailable(request, response);
+		}
 
         request.setAttribute(SET_OF_CASE_IDS, sampleIds);
         
@@ -524,6 +532,27 @@ public class QueryBuilder extends HttpServlet {
         writer.flush();
         writer.close();
     }
+
+	private void checkAndRedirectOnStudyStatus(HttpServletRequest request, HttpServletResponse response, String cancerStudyId) throws ServletException, IOException, DaoException
+	{
+		DaoCancerStudy.Status status = DaoCancerStudy.getStatus(cancerStudyId);
+		if (status != DaoCancerStudy.Status.AVAILABLE) {
+			if (status == DaoCancerStudy.Status.RECACHE) {
+				DaoCancerStudy.reCacheAll();
+			}
+			else {
+				redirectStudyUnavailable(request, response);
+			}
+		}
+
+	}
+
+	private void redirectStudyUnavailable(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
+	{
+		request.setAttribute(QueryBuilder.USER_ERROR_MESSAGE, "The selected cancer study is currently being updated, please try back later.");
+		RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/jsp/index.jsp");
+		dispatcher.forward(request, response);
+	}
 
     /**
      * validate the portal web input form.

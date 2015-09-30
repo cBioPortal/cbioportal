@@ -102,6 +102,17 @@ public class CancerStudyView extends HttpServlet {
     
     private boolean validate(HttpServletRequest request) throws DaoException {
         String cancerStudyID = request.getParameter(QueryBuilder.CANCER_STUDY_ID);
+
+		DaoCancerStudy.Status status = DaoCancerStudy.getStatus(cancerStudyID);
+		if (status != DaoCancerStudy.Status.AVAILABLE) {
+			if (status == DaoCancerStudy.Status.RECACHE) {
+				DaoCancerStudy.reCacheAll();
+			}
+			else {
+				request.setAttribute(ERROR, "The selected cancer study is currently being updated, please try back later.");
+				return false;
+			}
+		}
         
         CancerStudy cancerStudy = DaoCancerStudy
                 .getCancerStudyByStableId(cancerStudyID);

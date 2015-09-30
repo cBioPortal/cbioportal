@@ -167,7 +167,12 @@ var ccPlots = (function ($, _, Backbone, d3) {
                     }));
                 }
             },
-            get_meta: function() { return profileMetaList; },
+            get_meta: function() {
+                var _platform = $('input[name=cc_plots_platform]:checked').val();
+                return _.filter(_.pluck(profileMetaList.models, "attributes"), function(profile_obj) {
+                    return (profile_obj.NAME.toLowerCase().indexOf(_platform) !== -1);
+                });
+            },
             get_profile_name: function(_profile_id) {
                 var _profile_obj = _.filter(_.pluck(profileMetaList.models, "attributes"), function(_profile_item) { return _profile_item.STABLE_ID === _profile_id; });
                 return _profile_obj[0].NAME;
@@ -204,7 +209,6 @@ var ccPlots = (function ($, _, Backbone, d3) {
                     threshold_up : 1.2676506e+30
                 }
             },
-            plotsData = [],
             init_sidebar = function () {
                 $("#cc_plots_gene_list_select").append("<select id='cc_plots_gene_list'>");
                 _.each(window.studies.gene_list.split(/\s+/), function (_gene) {
@@ -229,9 +233,25 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 $("#cc_plots_data_download").click(function() {
                     cbio.download.clientSideDownload([ccPlots.get_tab_delimited_data()], "plots-data.txt");
                 });
+                var _has_rsem = false, _has_rpkm = false;
+                _.each(data.get_meta(), function(profile_item) {
+                    if (profile_item.NAME.toLowerCase().indexOf("rsem") !== -1) _has_rsem = true;
+                    if (profile_item.NAME.toLowerCase().indexOf("rpkm") !== -1) _has_rpkm = true;
+                });
+                if (!_has_rsem) {
+                    document.getElementById("cc_plots_rsem").disabled = true;
+                    $("#cc_plots_rsem_text").css("color", "grey");
+                }
+                if (!_has_rpkm) {
+                    document.getElementById("cc_plots_rpkm").disabled = true;
+                    $("#cc_plots_rpkm_text").css("color", "grey");
+                }
+                $('input[name=cc_plots_platform]:radio').change(function() {
+                    ccPlots.update_platform();
+                });
             },
             init_canvas = function() {
-                settings.canvas_width = _.pluck(_.pluck(data.get_meta().models, "attributes"), "STABLE_ID").length * 100 + 400;
+                settings.canvas_width = _.pluck(data.get_meta(), "STABLE_ID").length * 100 + 400;
                 elem.svg = d3.select("#cc-plots-box")
                     .append("svg")
                     .attr("width", settings.canvas_width)
@@ -254,9 +274,9 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 });
 
                 //x axis
-                var x_axis_right = (_.pluck(_.pluck(data.get_meta().models, "attributes"), "STABLE_ID").length * 100 + 300);
+                var x_axis_right = (_.pluck(data.get_meta(), "STABLE_ID").length * 100 + 300);
                 elem.x.scale = d3.scale.ordinal()
-                    .domain(_.pluck(_.pluck(data.get_meta().models, "attributes"), "STABLE_ID"))
+                    .domain(_.pluck(data.get_meta(), "STABLE_ID"))
                     .rangeRoundBands([300, x_axis_right]);
 
                 elem.x.axis = d3.svg.axis()
@@ -270,9 +290,9 @@ var ccPlots = (function ($, _, Backbone, d3) {
                     .style("shape-rendering", "crispEdges")
                     .attr("class", "x-axis")
                     .attr("transform", "translate(0, 520)")
-                    .call(elem.x.axis.ticks(_.pluck(data.get_meta().models, "attributes").length))
+                    .call(elem.x.axis.ticks(data.get_meta().length))
                     .selectAll("text")
-                    .data(_.pluck(data.get_meta().models, "attributes"))
+                    .data(data.get_meta())
                     .style("font-family", "sans-serif")
                     .style("font-size", "12px")
                     .style("stroke-width", 0.5)
@@ -395,7 +415,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                     .enter().append("g")
                     .attr("class", "legend")
                     .attr("transform", function(d, i) {
-                        return "translate(" + (_.pluck(_.pluck(data.get_meta().models, "attributes"), "STABLE_ID").length * 100 + 310) + ", " + (25 + i * 15) + ")";
+                        return "translate(" + (_.pluck(data.get_meta(), "STABLE_ID").length * 100 + 310) + ", " + (25 + i * 15) + ")";
                     });
 
                 legend.append("path")
@@ -474,8 +494,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                         y_val: []
                     },
                     _box_plots_data_arr = [];
-                var _meta_list = data.get_meta();
-                _.each(_.pluck(_.pluck(_meta_list.models, "attributes"), "STABLE_ID"), function(_profile_id) {
+                _.each(_.pluck(data.get_meta(), "STABLE_ID"), function(_profile_id) {
                     var _tmp_y_val_arr = [];
                     _.each(_data, function(_data_item) {
                         if (_data_item.profileId === _profile_id) {
@@ -626,7 +645,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 .orient("left");
 
             d3.select("#cc-plots-box").select(".y-axis").remove();
-            var x_axis_right = (_.pluck(_.pluck(data.get_meta().models, "attributes"), "STABLE_ID").length * 100 + 300);
+            var x_axis_right = (_.pluck(data.get_meta(), "STABLE_ID").length * 100 + 300);
             elem.svg.append("g")
                 .style("stroke-width", 1.5)
                 .style("fill", "none")
@@ -680,8 +699,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                     y_val: []
                 },
                 _box_plots_data_arr = [];
-            var _meta_list = data.get_meta();
-            _.each(_.pluck(_.pluck(_meta_list.models, "attributes"), "STABLE_ID"), function(_profile_id) {
+            _.each(_.pluck(data.get_meta(), "STABLE_ID"), function(_profile_id) {
                 var _tmp_y_val_arr = [];
                 _.each(_data, function(_data_item) {
                     if (_data_item.profileId === _profile_id) {
@@ -723,7 +741,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 .orient("left");
 
             d3.select("#cc-plots-box").select(".y-axis").remove();
-            var x_axis_right = (_.pluck(_.pluck(data.get_meta().models, "attributes"), "STABLE_ID").length * 100 + 300);
+            var x_axis_right = (_.pluck(data.get_meta(), "STABLE_ID").length * 100 + 300);
             elem.svg.append("g")
                 .style("stroke-width", 1.5)
                 .style("fill", "none")
@@ -776,8 +794,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                     y_val: []
                 },
                 _box_plots_data_arr = [];
-            var _meta_list = data.get_meta();
-            _.each(_.pluck(_.pluck(_meta_list.models, "attributes"), "STABLE_ID"), function(_profile_id) {
+            _.each(_.pluck(data.get_meta(), "STABLE_ID"), function(_profile_id) {
                 var _tmp_y_val_arr = [];
                 _.each(_data, function(_data_item) {
                     if (_data_item.profileId === _profile_id) {
@@ -800,7 +817,11 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 init_canvas();
                 data.get($("#cc_plots_gene_list").val(), init_box);
             },
-            update: function() {
+            update_gene: function() {
+                init_canvas();
+                data.get($("#cc_plots_gene_list").val(), init_box);
+            },
+            update_platform: function() {
                 init_canvas();
                 data.get($("#cc_plots_gene_list").val(), init_box);
             },
@@ -889,10 +910,15 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 }
             }
         },
-        update: function() {
+        update_gene: function() {
             d3.select("#cc-plots-box").select("svg").remove();
             $("#cc-plots-box").append("<img src='images/ajax-loader.gif' id='cc_plots_loading' style='padding:200px;'/>");
-            view.update();
+            view.update_gene();
+        },
+        update_platform: function() {
+            d3.select("#cc-plots-box").select("svg").remove();
+            $("#cc-plots-box").append("<img src='images/ajax-loader.gif' id='cc_plots_loading' style='padding:200px;'/>");
+            view.update_platform();
         },
         search_mutation: search_mutation,
         search_case_id: search_case_id,

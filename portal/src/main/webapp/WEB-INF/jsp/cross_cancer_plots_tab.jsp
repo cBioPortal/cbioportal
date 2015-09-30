@@ -96,10 +96,15 @@
                 <div id="cc-plots-sidebar-y-div" class="cc-plots">
                     <h4>Vertical Axis</h4>
                     <br>
-                    <h5>Gene</h5><span id="cc_plots_gene_list_select" onchange="ccPlots.update();"></span><br>
-                    <br><h5>Platform</h5><input type="radio" name="cc_plots_platform" value="rsem"> RSEM
-                    <input type="radio" name="cc_plots_platform" value="rpkm"> RPKM</span><br>
-                    <br><h5>Log Scale</h5>
+                    <h5>Gene</h5><span id="cc_plots_gene_list_select" onchange="ccPlots.update_gene();"></span><br>
+                    <br>
+                    <h5>Platform</h5>
+                    <input type="radio" name="cc_plots_platform" value="rsem" id="cc_plots_rsem" checked>
+                    <span id="cc_plots_rsem_text"> RSEM</span>
+                    <input type="radio" name="cc_plots_platform" value="rpkm" id="cc_plots_rpkm">
+                    <span id="cc_plots_rpkm_text"> RPKM</span>
+                    <br><br>
+                    <h5>Log Scale</h5>
                     <input type="checkbox" id="cc_plots_log_scale" onchange="ccPlots.toggle_log_scale()" checked/>
                 </div>
                 <div id="cc-plots-sidebar-util-div" class="cc-plots">

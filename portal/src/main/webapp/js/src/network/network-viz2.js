@@ -5,8 +5,16 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 		style: cytoscape.stylesheet()
 		.selector('node')
 		.css({
-			'border-width': function(ele){
-				return (ele._private.data['IN_QUERY'] === "true") ? 5 : 1;
+			'border-width': function(ele)
+			{
+				if (ele._private.data['IN_QUERY'] === undefined)
+				{
+					return 1;
+				}
+				else
+				{
+					return (ele._private.data['IN_QUERY'] === "true") ? 5 : 1;
+				}
 			},
 			'mouse-position-x': 0,
 			'mouse-position-y': 0,
@@ -17,28 +25,66 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 			'opacity': 0.8,						// Must be the same with the main-opacity in load state!!!
 			'shape': function(ele)
 			{
+				if (ele._private.data['type'] === undefined)
+				{
+					return "ellipse";
+				}
+
 				switch(ele._private.data['type'])
 				{
 					case "Protein": return "ellipse"; break;
 					case "SmallMolecule": return "triangle"; break;
 					case "Unknown": return "diamond"; break;
 					case "Drug": return "hexagon"; break;
+					default: return "ellipse"; break;
 				}
 			},
-			'content': 'data(label)',
+			'content': function(ele)
+			{
+				if (ele._private.data['label'] === undefined)
+				{
+					return "";
+
+				}
+				else
+				{
+					return ele._private.data['label'];
+				}
+			},
 			'text-valign': 'top',
 			'text-halign': 'bottom',
 			'font-size': 10,
 			'width': function(ele)
 			{
-				return ele._private.data['type'] === 'Drug' ? 15 : 25;
+				if (ele._private.data['type'] === undefined)
+				{
+					 return 15;
+				}
+				else
+				{
+					 return ele._private.data['type'] === 'Drug' ? 15 : 25;
+				}
+
 			},
 			'height': function(ele)
 			{
-				return ele._private.data['type'] === 'Drug' ? 15 : 25;
+				if (ele._private.data['type'] === undefined)
+				{
+					return 15;
+
+				}
+				else
+				{
+					return ele._private.data['type'] === 'Drug' ? 15 : 25;
+				}
 			},
 			'background-color': function(ele)
 			{
+				if (ele._private.data['PERCENT_ALTERED'] === undefined)
+				{
+					return "#ffffff";
+				}
+
 				var value = ele._private.data['PERCENT_ALTERED']*100;
 				var high = 100;
 				var low = 0;
@@ -84,7 +130,14 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 					return "rgb"+"("+lowCRed +"," + lowCGreen + "," + lowCBlue +")";
 				}
 			},
-			'content': function(ele){
+			'content': function(ele)
+			{
+				if (ele._private.data["label"] === undefined ||
+						ele._private.data["type"] === undefined )
+				{
+					return "";
+				}
+
 				var name = ele._private.data["label"];
 
 				if (ele._private.data["type"] == "Drug")
@@ -106,14 +159,28 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 			'text-halign': "center",
 			'taxt-valign': "bottom",
 			'total-alteration-font': "Verdana",
-			'total-alteration-color': function(ele){
-				return (ele._private.data['type'] === 'Drug') ?  "#E6A90F" : "#FF0000";
+			'total-alteration-color': function(ele)
+			{
+				if (ele._private.data['type'] === undefined)
+				{
+					return "#FF0000";
+				}
+				else
+				{
+					return (ele._private.data['type'] === 'Drug') ?  "#E6A90F" : "#FF0000";
+				}
 			},
 			'total-alteration-font-size': 12
 		})
 		.selector('edge')
 		.css({
-			'line-color': function(ele){
+			'line-color': function(ele)
+			{
+				if (ele._private.data['type'] === undefined)
+				{
+					return "#A583AB";
+				}
+
 				switch (ele._private.data['type']){
 					case "IN_SAME_COMPONENT": return "#904930"; break;
 					case "REACTS_WITH": return "#7B7EF7"; break;
@@ -123,14 +190,26 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 					default: return "#A583AB"; break;
 				}
 			},
-			"target-arrow-shape": function(ele){
+			"target-arrow-shape": function(ele)
+			{
+				if (ele._private.data['type'] === undefined)
+				{
+					return "#A583AB";
+				}
+
 				switch (ele._private.data['type']){
 					case "STATE_CHANGE": return "triangle"; break;
 					case "DRUG_TARGET": return "tee"; break;
 					default: return "none"; break;
 				}
 			},
-			'target-arrow-color': function(ele){
+			'target-arrow-color': function(ele)
+			{
+				if (ele._private.data['type'] === undefined)
+				{
+					return "#A583AB";
+				}
+
 				switch (ele._private.data['type']){
 					case "IN_SAME_COMPONENT": return "#904930"; break;
 					case "REACTS_WITH": return "#7B7EF7"; break;
@@ -152,12 +231,12 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 			'shadow-opacity': 1
 		}),
 
-		/*		.selector('.faded')
+		/*.selector('.faded')
 		.css({
 		'opacity': 0.25,
 		'text-opacity': 0
-	}),
-	*/
+	}),*/
+
 	elements: elements,
 
 	layout: {
@@ -253,8 +332,6 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 			}
 		});
 
-
-
 		function updateDetailsTab(event)
 		{
 			if (tapped || edge ) {
@@ -299,7 +376,13 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 				tmpNode.unselect();
 				tmpNode._private.selectable = false;
 			}
+			netVis.updateDetailsTab();
 
+		});
+
+		cy.on('unselect', 'edge', function(event)
+		{
+			netVis.updateDetailsTab();
 		});
 
 		cy.on('tap', 'node', function(evt){

@@ -99,8 +99,8 @@ public class MutationDataUtils {
 	public static final String MUTATION_COUNT = "mutationCount";
 	public static final String SPECIAL_GENE_DATA = "specialGeneData";
 	public static final String CNA_CONTEXT = "cna";
-    public static final String MY_CANCER_GENOME = "mycancergenome";
-    public static final String IS_HOTSPOT = "is-hotspot";
+    public static final String MY_CANCER_GENOME = "myCancerGenome";
+    public static final String IS_HOTSPOT = "isHotspot";
 
     /**
      * Generates an array (JSON array) of mutations for the given sample

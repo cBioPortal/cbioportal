@@ -116,12 +116,17 @@
 
     function buildMutationsDataTable(mutations,mutEventIds, table_id, sDom, iDisplayLength, sEmptyInfo, compact) {
         var data = [];
-        var oncokbInstance = new OncoKB.Instance();
+        var oncokbInstance;
         var tumorType = clinicalDataMap[Object.keys(clinicalDataMap)[0]].CANCER_TYPE;
-        oncokbInstance.setTumorType(tumorType);
+        if(OncoKB.accessible) {
+            oncokbInstance = new OncoKB.Instance();
+            oncokbInstance.setTumorType(tumorType);
+        }
         for (var i=0, nEvents=mutEventIds.length; i<nEvents; i++) {
             var _id = mutEventIds[i];
-            oncokbInstance.addVariant(_id, mutations.getValue(_id, "gene"), mutations.getValue(_id, "aa"), null, mutations.getValue(_id, "type"));
+            if(oncokbInstance) {
+                oncokbInstance.addVariant(_id, mutations.getValue(_id, "gene"), mutations.getValue(_id, "aa"), null, mutations.getValue(_id, "type"));
+            }
             data.push([mutEventIds[i]]);
         }
 
@@ -197,7 +202,7 @@
                                 var ret = "<b>"+gene+"</b>";
                                 if(mutations.colExists('oncokb')) {
                                     ret = "<span class='"+table_id+"-tip oncokb oncokb_gene' gene='"+gene+"' oncokbId='"+source[0]+"'>"+ret+"</span>";
-                                }else{
+                                }else if(OncoKB.accessible){
                                     ret += "<img width='12' height='12' class='loader' src='images/ajax-loader.gif'/>";
                                 }
 
@@ -225,7 +230,7 @@
                                     var oncokbInfo = mutations.getValue(source[0], 'oncokb');
 
                                     ret += "&nbsp;<span class='oncokb oncokb_alteration oncogenic' oncokbId='"+source[0]+"'></span>";
-                                }else{
+                                }else if(OncoKB.accessible){
                                     ret += '<img width="13" height="13" class="loader" src="images/ajax-loader.gif"/>';
                                 }
 
@@ -236,7 +241,7 @@
                                        "<img src='images/mcg_logo.png'></span>";
                                 }
 
-                                if(mutations.getValue(source[0], 'is-hotspot')) {
+                                if(enableChangHotspot && mutations.getValue(source[0], 'is-hotspot')) {
                                     ret += "<span class='"+table_id+"-chang-hotspot' alteration='"+aa+"' oncokbId='"+source[0]+"' style='margin-left:5px;'><img width='13' height='13' src='images/oncokb-flame.svg'></span>";
                                 }
 
@@ -886,12 +891,14 @@
                     plotMutRate("."+table_id+"-mut-cohort",mutations);
                     addNoteTooltip("."+table_id+"-tip");
                     addNoteTooltip("."+table_id+"-ma-tip",null,{my:'top right',at:'bottom center',viewport: $(window)});
-                    addNoteTooltip('.'+table_id+'-chang-hotspot', '<b>Recurrent Hotspot</b><br/>This mutated amino acid was identified as a recurrent hotspot (statistical significance, q-value < 0.01) in a set of 11,119 tumor samples of various cancer types (based on Chang, M. et al. Nature Biotech. 2015).');
+                    if(enableChangHotspot) {
+                        addNoteTooltip('.'+table_id+'-chang-hotspot', '<b>Recurrent Hotspot</b><br/>This mutated amino acid was identified as a recurrent hotspot (statistical significance, q-value < 0.01) in a set of 11,119 tumor samples of various cancer types (based on Chang, M. et al. Nature Biotech. 2015).');
+                    }
                     addDrugsTooltip("."+table_id+"-drug-tip", 'top right', 'bottom center');
                     addCosmicTooltip(table_id);
                     listenToBamIgvClick(".igv-link");
                     drawPanCanThumbnails(this);
-                    oncokbInstance.addEvents(this);
+                    if(oncokbInstance) oncokbInstance.addEvents(this);
                 },
                 "bPaginate": true,
                 "sPaginationType": "two_button",
@@ -906,22 +913,24 @@
                 "aLengthMenu": [[5,10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]]
         } );
 
-        oncokbInstance.getEvidence().then(function () {
-            var tableData = oTable.fnGetData();
-            var oncokbEvidence = [];
-            _.each(tableData, function(ele, i) {
-                oncokbEvidence.push(oncokbInstance.getVariant(ele[0]).evidence);
-            });
-            mutations.addData('oncokb', oncokbEvidence)
-            if (tableData.length > 0)
-            {
+        if(oncokbInstance) {
+            oncokbInstance.getEvidence().then(function () {
+                var tableData = oTable.fnGetData();
+                var oncokbEvidence = [];
                 _.each(tableData, function(ele, i) {
-                    oTable.fnUpdate(null, i, mutTableIndices["aa"], false, false);
+                    oncokbEvidence.push(oncokbInstance.getVariant(ele[0]).evidence);
                 });
+                mutations.addData('oncokb', oncokbEvidence)
+                if (tableData.length > 0)
+                {
+                    _.each(tableData, function(ele, i) {
+                        oTable.fnUpdate(null, i, mutTableIndices["aa"], false, false);
+                    });
 
-                oTable.fnUpdate(null, 0, mutTableIndices['aa']);
-            }
-        });
+                    oTable.fnUpdate(null, 0, mutTableIndices['aa']);
+                }
+            });
+        }
 
         oTable.css("width","100%");
         addNoteTooltip("#"+table_id+" th.mut-header");

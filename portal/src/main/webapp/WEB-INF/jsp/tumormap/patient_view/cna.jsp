@@ -38,24 +38,30 @@
     var cnaTableIndices = cbio.util.arrayToAssociatedArrayIndices(["id","case_ids","gene","alteration","cytoband","mrna","altrate","drug", "oncokb"]);
     function buildCnaDataTable(cnas, cnaEventIds, table_id, sDom, iDisplayLength, sEmptyInfo) {
         var data = [];
-        var oncokbInstance = new OncoKB.Instance();
         var tumorType = clinicalDataMap[Object.keys(clinicalDataMap)[0]].CANCER_TYPE;
-        oncokbInstance.setTumorType(tumorType);
+        var oncokbInstance;
+
+        if(OncoKB.accessible) {
+            oncokbInstance = new OncoKB.Instance();
+            oncokbInstance.setTumorType(tumorType);
+        }
 
         for (var i=0, nEvents=cnaEventIds.length; i<nEvents; i++) {
-            var _id = cnaEventIds[i];
-            var alter = '';
-            switch(cnas.getValue(_id, "alter")) {
-                case 2:
-                    alter = 'amplification';
-                    break;
-                case -2:
-                    alter = 'inactivating mutations';
-                    break;
-                default:
-                    alter = null;
+            if(oncokbInstance) {
+                var _id = cnaEventIds[i];
+                var alter = '';
+                switch(cnas.getValue(_id, "alter")) {
+                    case 2:
+                        alter = 'amplification';
+                        break;
+                    case -2:
+                        alter = 'inactivating mutations';
+                        break;
+                    default:
+                        alter = null;
+                }
+                oncokbInstance.addVariant(_id, cnas.getValue(_id, "gene"), alter, null, alter);
             }
-            oncokbInstance.addVariant(_id, cnas.getValue(_id, "gene"), alter, null, alter);
             data.push([cnaEventIds[i]]);
         }
         var oTable = $('#'+table_id).dataTable( {
@@ -127,7 +133,7 @@
                                 var ret = "<b>"+gene+"</b>";
                                 if(cnas.colExists('oncokb')) {
                                     ret = "<span class='"+table_id+"-tip oncokb oncokb_gene' gene='"+gene+"' oncokbId='"+source[0]+"'>"+ret+"</span>";
-                                }else{
+                                }else if(OncoKB.accessible){
                                     ret += "<img width='12' height='12' class='loader' src='images/ajax-loader.gif'/>";
                                 }
                                 return ret;
@@ -174,7 +180,7 @@
 
                                 if(cnas.colExists('oncokb')) {
                                     strAlt += "&nbsp;<span class='oncokb oncokb_alteration oncogenic' oncokbId='"+source[0]+"'></span>";
-                                }else{
+                                }else if(OncoKB.accessible){
                                     strAlt += '<img width="13" height="13" class="loader" src="images/ajax-loader.gif"/>';
                                 }
 
@@ -299,8 +305,7 @@
                     plotCnaAltRate("."+table_id+"-cna-cohort",cnas);
                     addNoteTooltip("."+table_id+"-tip");
                     addDrugsTooltip("."+table_id+"-drug-tip", 'top right', 'bottom center');
-                    addNoteTooltip('.'+table_id+'-chang-hotspot', '<b>Recurrent Hotspot</b><br/>This mutated amino acid was identified as a recurrent hotspot (statistical significance, q-value < 0.01) in a set of 11,119 tumor samples of various cancer types (based on Chang, M. et al. Nature Biotech. 2015).');
-                    oncokbInstance.addEvents(this);
+                    if(oncokbInstance) oncokbInstance.addEvents(this);
                 },
                 "bPaginate": true,
                 "sPaginationType": "two_button",
@@ -315,23 +320,24 @@
                 "aLengthMenu": [[5,10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]]
         } );
 
-        oncokbInstance.getEvidence().then(function () {
-            var tableData = oTable.fnGetData();
-            var oncokbEvidence = [];
-            _.each(tableData, function(ele, i) {
-                oncokbEvidence.push(oncokbInstance.getVariant(ele[0]).evidence);
-            });
-            cnas.addData('oncokb', oncokbEvidence)
-            if (tableData.length > 0)
-            {
+        if(oncokbInstance) {
+            oncokbInstance.getEvidence().then(function () {
+                var tableData = oTable.fnGetData();
+                var oncokbEvidence = [];
                 _.each(tableData, function(ele, i) {
-                    oTable.fnUpdate(null, i, cnaTableIndices["alteration"], false, false);
+                    oncokbEvidence.push(oncokbInstance.getVariant(ele[0]).evidence);
                 });
+                cnas.addData('oncokb', oncokbEvidence)
+                if (tableData.length > 0)
+                {
+                    _.each(tableData, function(ele, i) {
+                        oTable.fnUpdate(null, i, cnaTableIndices["alteration"], false, false);
+                    });
 
-                oTable.fnUpdate(null, 0, cnaTableIndices['alteration']);
-            }
-        });
-
+                    oTable.fnUpdate(null, 0, cnaTableIndices['alteration']);
+                }
+            });
+        }
         oTable.css("width","100%");
         addNoteTooltip("#"+table_id+" th.cna-header");
         return oTable;

@@ -414,12 +414,13 @@ var mapCaseBam = <%=jsonMapCaseBam%>;
 var caseMetaData = {
     color : {}, label : {}, index : {}, tooltip : {}
 };
+var enableChangHotspot = true;
 
 OncoKB.setUrl('<%=oncokbUrl%>');
 
 
 $(document).ready(function(){
-    OncoKB.access().done(function () {
+    OncoKB.access().always(function () {
         if (print) $('#page_wrapper_table').css('width', '900px');
         tweaksStyles();
         outputClinicalData();

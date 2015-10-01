@@ -13,7 +13,7 @@ import java.io.Serializable;
  */
 public class DBGeneticAltRow implements Serializable {
     public String genetic_profile_id;
-    public Long entrez_gene_id;
+    public String entrez_gene_id;
     public String hugo_gene_symbol;
     public String values;
     public String study_id;

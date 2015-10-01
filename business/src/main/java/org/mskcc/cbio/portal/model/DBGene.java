@@ -13,5 +13,5 @@ import java.io.Serializable;
  */
 public class DBGene implements Serializable {
     public String hugo_gene_symbol;
-    public Long entrez_gene_id;
+    public String entrez_gene_id;
 }

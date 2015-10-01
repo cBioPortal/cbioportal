@@ -21,9 +21,9 @@ public class DBMutationData extends DBProfileData implements Serializable {
     public String xvar_link;
     public String xvar_link_pdb;
     public String xvar_link_msa;
-    public Integer chr;
-    public Long start_position;
-    public Long end_position;
+    public String chr;
+    public String start_position;
+    public String end_position;
     public String reference_allele;
     public String variant_allele;
     public String reference_read_count_tumor;

@@ -8,7 +8,7 @@ window.cbioportal_client = (function() {
 					arg_strings.push(k + '=' + args[k].join(","));
 				}
 			}
-			var arg_string = arg_strings.join("&");
+			var arg_string = arg_strings.join("&") || "?";
 			return $.ajax({
 				type: "POST",
 				url: endpt,
@@ -100,7 +100,7 @@ window.cbioportal_client = (function() {
 			}
 			return ret;
 		};
-		
+
 		this.missingKeys = function (keys) {
 			return stringSetDifference([].concat(keys), Object.keys(map));
 		};
@@ -176,7 +176,7 @@ window.cbioportal_client = (function() {
 		};
 		this.getData = function (key_list_list) {
 			var intermediate = [map];
-			var leaves = [];
+			var ret = [];
 			var i, j, k;
 			key_list_list = key_list_list || [];
 			var key_list_index = 0;
@@ -185,12 +185,14 @@ window.cbioportal_client = (function() {
 				for (i = 0; i<intermediate.length; i++) {
 					var obj = intermediate[i];
 					if (Object.prototype.toString.call(obj) === '[object Array]') {
-						leaves.push(obj);
+						ret = ret.concat(obj);
 					} else {
-						var keys = key_list_list[key_list_index] || Object.keys(obj);
-						for (k = 0; k<keys.length; k++) {
-							if (obj.hasOwnProperty(keys[k])) {
-								tmp_intermediate.push(obj[keys[k]]);
+						if (key_list_index < key_list_list.length) {
+							var keys = key_list_list[key_list_index] || Object.keys(obj);
+							for (k = 0; k<keys.length; k++) {
+								if (obj.hasOwnProperty(keys[k])) {
+									tmp_intermediate.push(obj[keys[k]]);
+								}
 							}
 						}
 					}
@@ -198,9 +200,10 @@ window.cbioportal_client = (function() {
 				intermediate = tmp_intermediate;
 				key_list_index += 1;
 			}
-			return [].concat.apply([], leaves);
+			return ret;
 		};
 		this.missingKeys = function(key_list_list) {
+			// TODO: implement this without slow reference to getData
 			var missing_keys = key_list_list.map(function() { return {}; });
 			var j, k;
 			var key_combinations = keyCombinations(key_list_list, true);
@@ -214,7 +217,7 @@ window.cbioportal_client = (function() {
 			return missing_keys.map(function(o) { return Object.keys(o);});
 		};
 	};
-	
+
 	var makeOneIndexService = function(arg_name, indexKeyFn, service_fn_name) {
 		return (function() {
 			var index = new Index(indexKeyFn);
@@ -303,7 +306,7 @@ window.cbioportal_client = (function() {
 			}
 		})();
 	};
-	
+
 	var makeHierIndexService = function(arg_names, indexing_attrs, service_fn_name) {
 		return (function() {
 			var index = new HierIndex(function(d) {
@@ -367,24 +370,50 @@ window.cbioportal_client = (function() {
 		})();
 	};
 	// TODO: abstract this correctly so there isn't more than one index, more than one index service maker?
+	var enforceRequiredArguments = function(fnPtr, list_of_arg_combinations) {
+			return function(args) {
+				args = args || {};
+				var matches_one = false;
+				for (var i = 0; i < list_of_arg_combinations.length; i++) {
+					var combination = list_of_arg_combinations[i];
+					var matches_combo = true;
+					for (var j = 0; j < combination.length; j++) {
+						matches_combo = matches_combo && args.hasOwnProperty(combination[j]);
+					}
+					if (matches_combo) {
+						matches_one = true;
+						break;
+					}
+				}
+				if (!matches_one) {
+					var def = new $.Deferred();
+					var msg = "Given arguments not acceptable; need a combination in the following list: "
+					msg += list_of_arg_combinations.map(function(arg_combo) { return arg_combo.join(","); }).join(";");
+					def.reject({msg: msg});
+					return def.promise();
+				} else {
+					return fnPtr(args);
+				}
+			};
+	}
+
 	var cached_service = {
-		getCancerTypes: makeOneIndexService('cancer_type_ids', function(d) { return d.id;}, 'getCancerTypes'),
-		getGenes: makeOneIndexService('hugo_gene_symbols', function(d) { return d.hugo_gene_symbol;}, 'getGenes'),
-		getStudies: makeOneIndexService('study_ids', function(d) { return d.id;}, 'getStudies'),
-		getGeneticProfiles: makeTwoIndexService('study_id', function(d) { return d.study_id;}, false, 'genetic_profile_ids', function(d) {return d.id; }, true, 'getGeneticProfiles'),
-		getPatientLists: makeTwoIndexService('study_id', function(d) { return d.study_id;}, false, 'patient_list_ids', function(d) {return d.id; }, true, 'getPatientLists'),
-		getSampleClinicalData: makeHierIndexService(['study_id', 'attribute_ids', 'sample_ids'], ['study_id', 'attr_id', 'sample_id'], 'getSampleClinicalData'),
-		getPatientClinicalData: makeHierIndexService(['study_id', 'attribute_ids', 'patient_ids'], ['study_id', 'attr_id', 'patient_id'], 'getPatientClinicalData'),
-		getPatients: makeHierIndexService(['study_id', 'patient_ids'], ['study_id', 'id'], 'getPatients'),
-		getSamples: makeHierIndexService(['study_id', 'sample_ids'], ['study_id', 'id'], 'getSamples'),
-		getGeneticProfileData: makeHierIndexService(['genetic_profile_ids', 'genes', 'sample_ids'], ['genetic_profile_id', 'hugo_gene_symbol', 'sample_id'], 'getGeneticProfileData'),
-		getSampleClinicalAttributes: function(args) {
+		getCancerTypes: enforceRequiredArguments(makeOneIndexService('cancer_type_ids', function(d) { return d.id;}, 'getCancerTypes'), [[], ["cancer_type_ids"]]),
+		getGenes: enforceRequiredArguments(makeOneIndexService('hugo_gene_symbols', function(d) { return d.hugo_gene_symbol;}, 'getGenes'), [[],["hugo_gene_symbols"]]),
+		getStudies: enforceRequiredArguments(makeOneIndexService('study_ids', function(d) { return d.id;}, 'getStudies'), [[], ["study_ids"]]),
+		getGeneticProfiles: enforceRequiredArguments(makeTwoIndexService('study_id', function(d) { return d.study_id;}, false, 'genetic_profile_ids', function(d) {return d.id; }, true, 'getGeneticProfiles'), [["study_id"],["genetic_profile_ids"]]),
+		getPatientLists: enforceRequiredArguments(makeTwoIndexService('study_id', function(d) { return d.study_id;}, false, 'patient_list_ids', function(d) {return d.id; }, true, 'getPatientLists'), [["study_id"], ["patient_list_ids"]]),
+		getSampleClinicalData: enforceRequiredArguments(makeHierIndexService(['study_id', 'attribute_ids', 'sample_ids'], ['study_id', 'attr_id', 'sample_id'], 'getSampleClinicalData'), [["study_id","attribute_ids"], ["study_id","attribute_ids","sample_ids"]]),
+		getPatientClinicalData: enforceRequiredArguments(makeHierIndexService(['study_id', 'attribute_ids', 'patient_ids'], ['study_id', 'attr_id', 'patient_id'], 'getPatientClinicalData'), [["study_id","attribute_ids"], ["study_id","attribute_ids","patient_ids"]]),
+		getPatients: enforceRequiredArguments(makeHierIndexService(['study_id', 'patient_ids'], ['study_id', 'id'], 'getPatients'), [["study_id"], ["study_id","patient_ids"]]),
+		getSamples: enforceRequiredArguments(makeHierIndexService(['study_id', 'sample_ids'], ['study_id', 'id'], 'getSamples'), [["study_id"], ["study_id", "sample_ids"]]),
+		getGeneticProfileData: enforceRequiredArguments(makeHierIndexService(['genetic_profile_ids', 'genes', 'sample_ids'], ['genetic_profile_id', 'hugo_gene_symbol', 'sample_id'], 'getGeneticProfileData'), [["genetic_profile_ids","genes"], ["genetic_profile_ids","genes","sample_ids"]]),
+		getSampleClinicalAttributes: enforceRequiredArguments(function(args) {
 			return raw_service.getSampleClinicalAttributes(args);
-		},
-		getPatientClinicalAttributes: function(args) {
+		}, [["study_id"], ["study_id","sample_ids"]]),
+		getPatientClinicalAttributes: enforceRequiredArguments(function(args) {
 			return raw_service.getPatientClinicalAttributes(args);
-		}
+		}, [["study_id"], ["study_id", "patient_ids"]])
 	};
 	return cached_service;
 })();
-

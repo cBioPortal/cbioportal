@@ -13,12 +13,12 @@ import java.util.List;
  * @author abeshoua
  */
 public class DBGeneSet implements Serializable {
-    public Integer id;
+    public String id;
     public String name;
     public String gene_list; // space-delimited
     public DBGeneSet(){
     }
-    public DBGeneSet(Integer _id, String _name, String _list) {
+    public DBGeneSet(String _id, String _name, String _list) {
         this.id = _id;
         this.name = _name;
         this.gene_list = _list;

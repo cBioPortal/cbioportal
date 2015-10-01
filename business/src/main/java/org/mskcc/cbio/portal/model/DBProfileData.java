@@ -13,7 +13,7 @@ import java.io.Serializable;
  */
 public class DBProfileData implements Serializable {
     public String genetic_profile_id;
-    public Long entrez_gene_id; //protein_array_target
+    public String entrez_gene_id; //protein_array_target
     public String hugo_gene_symbol;
     public String sample_id;
     public String study_id;

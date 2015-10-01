@@ -165,6 +165,8 @@ public class GlobalProperties {
     public static final String DEFAULT_SKIN_NEWS="content/news.html";
     public static final String SKIN_EXAMPLES_RIGHT_COLUMN="skin.examples_right_column";
     public static final String DEFAULT_SKIN_EXAMPLES_RIGHT_COLUMN="../../../content/examples.html";
+    
+    public static final String ALWAYS_SHOW_STUDY_GROUP="always_show_study_group";
 
 
     public static final String MYCANCERGENOME_URL = "mycancergenome.url";
@@ -591,6 +593,15 @@ public class GlobalProperties {
     public static boolean filterGroupsByAppName() {
         String filterGroupsByNameFlag = properties.getProperty(FILTER_GROUPS_BY_APPNAME);
         return filterGroupsByNameFlag == null || Boolean.parseBoolean(filterGroupsByNameFlag);
+    }
+    
+    public static String getAlwaysShowStudyGroup() {
+        String group = properties.getProperty(ALWAYS_SHOW_STUDY_GROUP);
+        if (group!=null && group.trim().isEmpty()) {
+            return null;
+        }
+        
+        return group;
     }
     
     public static String getMyCancerGenomeUrl()

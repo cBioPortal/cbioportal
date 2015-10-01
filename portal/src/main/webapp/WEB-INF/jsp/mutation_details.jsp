@@ -106,7 +106,7 @@
             }
         };
 
-        if(OncoKB.accessible) {
+        if(OncoKB.getAccess()) {
             var oncokbInstance = new OncoKB.Instance();
             if(oncokbGeneStatus) {
                 oncokbInstance.setGeneStatus(oncokbGeneStatus);

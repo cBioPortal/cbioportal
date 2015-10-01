@@ -118,7 +118,7 @@
         var data = [];
         var oncokbInstance;
         var tumorType = clinicalDataMap[Object.keys(clinicalDataMap)[0]].CANCER_TYPE;
-        if(OncoKB.accessible) {
+        if(OncoKB.getAccess()) {
             oncokbInstance = new OncoKB.Instance();
             if(oncokbGeneStatus){
                 oncokbInstance.setGeneStatus(oncokbGeneStatus);
@@ -205,7 +205,7 @@
                                 var ret = "<b>"+gene+"</b>";
                                 if(mutations.colExists('oncokb')) {
                                     ret = "<span class='"+table_id+"-tip oncokb oncokb_gene' gene='"+gene+"' oncokbId='"+source[0]+"'>"+ret+"</span>";
-                                }else if(OncoKB.accessible){
+                                }else if(OncoKB.getAccess()){
                                     ret += "<img width='12' height='12' class='loader' src='images/ajax-loader.gif'/>";
                                 }
 
@@ -233,7 +233,7 @@
                                     var oncokbInfo = mutations.getValue(source[0], 'oncokb');
 
                                     ret += "&nbsp;<span class='oncokb oncokb_alteration oncogenic' oncokbId='"+source[0]+"'></span>";
-                                }else if(OncoKB.accessible){
+                                }else if(OncoKB.getAccess()){
                                     ret += '<img width="13" height="13" class="loader" src="images/ajax-loader.gif"/>';
                                 }
 
@@ -865,7 +865,7 @@
                         "sClass": "center-align-td",
                         "bSearchable": false,
                         "bSortable" : false,
-                        "bVisible": OncoKB.accessible,
+                        "bVisible": OncoKB.getAccess(),
                         "mDataProp":
                             function(source,type,value) {
                                 if (type==='set') {

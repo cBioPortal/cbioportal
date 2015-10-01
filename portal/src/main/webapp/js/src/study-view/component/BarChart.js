@@ -91,7 +91,8 @@ var BarChart = function(){
                             .css({'border-width':'2px', 'border-style':'inset'});
                 }
                 removeMarker();
-                postFilterCallback();
+                // provide the postFilterCallback function with the chartID and the filter for the breadcrumbs
+                postFilterCallback(chart.chartID(), filter);
             }, 400);
         });
         barChart.on("postRedraw",function(chart){

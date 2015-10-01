@@ -99,7 +99,12 @@ tcga_path_report.url=https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftp
 
 # various url's
 segfile.url=http://cbio.mskcc.org/cancergenomics/gdac-portal/seg/
+
+# Enable OncoKB annotation
 oncokb.url=
+
+# My Cancer Genome link
+mycancergenome.url = http://www.mycancergenome.org
 
 # igv bam linking
 igv.bam.linking=

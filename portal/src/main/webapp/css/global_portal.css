@@ -1427,6 +1427,12 @@ ul.ui-autocomplete li.ui-menu-item { font-size: 0.6em; text-align: left; }
    line-height: inherit !important;
    vertical-align: top !important;
 }
+.mutationsProteinChangeWarning {
+    opacity: 0.1;
+}
+.mutationsProteinChangeWarning:hover {
+    opacity: 1;
+}
 .new-feature-label {
     background-color: #d00000;
     border-radius: 3px;
@@ -1434,4 +1440,24 @@ ul.ui-autocomplete li.ui-menu-item { font-size: 0.6em; text-align: left; }
     font-size: 8px;
     margin-bottom: -2px;
     padding-bottom: -2px;
+}
+
+/* OncoKB integration styles */
+.oncokb-qtip {
+    max-width: 800px !important;
+}
+.oncokb-qtip-sm {
+    max-width: 400px !important;
+}
+.oncokb-qtio table.dataTable {
+    font-size: 11px !important;
+}
+ul.oncokb {
+    padding-left: 20px;
+}
+ul.oncokb li {
+    margin: 2px 0 2px 0;
+}
+.oncokb.oncokb_alteration svg{
+    vertical-align: middle;
 }

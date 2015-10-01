@@ -181,8 +181,13 @@ var Table = function() {
                 tableBodyStr += '<tr style="white-space: nowrap;">';
             }
 
+            // create a unique identifier for the clickable samples part
+            // the identifier is the tableId + the row's gene
+            // the identifier can then be used by the breadcrumbs to find the correct row
+            var cellId = divs.tableId+"_"+arr[i]['gene'];
             for(j = 0; j < attrL; j++) {
-                tableBodyStr += '<td' + (attr[j].name === 'samples' ? ' class="clickable"' : '') + '>' + arr[i][attr[j].name] + '</td>';
+                // added an id for the clickable component
+                tableBodyStr += '<td' + (attr[j].name === 'samples' ? ' id='+cellId+' class="clickable"' : '') + '>' + arr[i][attr[j].name] + '</td>';
             }
             tableBodyStr += '</tr>';
         }
@@ -417,6 +422,9 @@ var Table = function() {
         $('#' + divs.tableId + ' table tbody tr td:nth-child('+checkboxChildId+') input:checkbox').change(function () {
             $(this).parent().siblings().addBack().toggleClass('highlightRow');
             $(this).parent().parent().toggleClass('highlightRow');
+
+            // update the breadcrumbs
+            updateBreadCrumb(this);
             clickFunc();
         });
     }
@@ -434,11 +442,39 @@ var Table = function() {
             callbacks.rowClick(divs.tableId, highlightedRowsData);
         }
     }
+
+    //function updateBreadCrumb(clickedCell, shiftClicked){
+    function updateBreadCrumb(clickedCell){
+        // we need the id to be able to trigger the click event when the x from the breadcrumb is clicked
+        var chartId = divs.tableId;
+        var cellId = $(clickedCell).parent().attr("id");
+        var checkboxChecked = clickedCell.checked;
+
+        // the first cell contains the gene name, which we use for the crumb's title and is also the filter
+        var firstCell = $(clickedCell).parent().siblings(":first-child");
+        var chartFilter = $(firstCell).text();
+
+        // check whether the cell has a qtip
+        // if it does, it means the text in the first cell is incomplete, e.g. B4GA... instead of B4GALT3
+        // in that case, we overwrite the chartFilter with the qtip
+        if($(firstCell).find(".hasQtip").length!=0){
+            chartFilter = $(firstCell).find(".hasQtip").attr('qtip');
+        }
+
+        var crumbTitle = chartFilter;
+        var crumbTipText = divs.title+": "+crumbTitle;
+
+        BreadCrumbs.updateTableBreadCrumb(chartId, chartFilter, "table", cellId, crumbTipText, checkboxChecked);
+
+    }
+
     
     function deleteTable() {
         $('#'+ divs.deleteIconId).unbind('click');
         $('#'+ divs.deleteIconId).click(function() {
             if(callbacks.hasOwnProperty('deleteTable')) {
+                // delete breadcrumbs
+                BreadCrumbs.deleteBreadCrumbsByChartId(divs.tableId);
                 callbacks.deleteTable(divs.mainId, divs.title);
             }else {
                 redraw();

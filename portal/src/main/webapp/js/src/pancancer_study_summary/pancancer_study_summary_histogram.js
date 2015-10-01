@@ -59,7 +59,15 @@ function PancancerStudySummaryHistogram()
     }
     
     
-    //render histogram method:
+    /**
+     * Trigger the rendering of the histogram.
+     * 
+     * @param histogramEl: el where the histogram should be rendered
+     * @param model: the model with the parameters for sorting/filtering (see HistogramSettings model in pancancer_study_summary.js)
+     * @param dmPresenter: instance of DataManagerPresenter (see DataManagerPresenter in pancancer_study_summary.js)
+     * @param geneId: the gene id of the current tab
+     * 
+     */
 	this.render = function(histogramEl, model, dmPresenter, geneId){
 		this.model = model;
 	    
@@ -85,6 +93,13 @@ function PancancerStudySummaryHistogram()
 	    }
 	}
 	    
+	/**
+	 * Main function using D3js methods to render the histogram.
+	 * 
+	 * @param histData: the histogram data formated, filtered and sorted by HistogramPresenter
+	 * @param model: the model with the parameters for sorting/filtering (see HistogramSettings model in pancancer_study_summary.js)
+	 * @param histogramEl: el where the histogram should be rendered
+	 */
     var drawHistogram = function(histData, model, histogramEl) {
 		
     	var getY = function(d, type) {
@@ -468,18 +483,20 @@ function PancancerStudySummaryHistogram()
 	    ;
 	    	
 	    }
-	    	
-	    
-	    
-	    
 	    
 	    return histogram;
 	};
 	    
     
-	
+	/**
+	 * Function to sort the items and, if applicable, sort the histogram 
+	 * accordingly (with some animation).
+	 * 
+	 * @param histData: histogram data (as returned by HistogramPresenter)
+	 * @param model: the model with the parameters for sorting/filtering (see HistogramSettings model in pancancer_study_summary.js)
+	 * @param histogram: (optional) instance of histogram, as returned by drawHistogram() function, OR null. If null, only the histData is sorted.
+	 */
     var sortItems = function (histData, model, histogram) {
-    	
     	
     	var sortFunction = function (a, b) {
         	if (model.get("sortXAxis") == "Y-Axis Values") 
@@ -529,7 +546,10 @@ function PancancerStudySummaryHistogram()
         
     };    
 	
-	
+	/**
+	 * View for the qtip / tool tip showing the summary table with 
+	 * number of alterations per type. 
+	 */
 	var StudyToolTipView = Backbone.View.extend({
         template: _.template($("#cancer-type-tip-tmpl").html()),
         render: function() {
@@ -589,9 +609,21 @@ function PancancerStudySummaryHistogram()
 }
 
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//          CONTROLLERS / PRESENTERS
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-//'presenter' layer to expose the parameters from query, formating its data for display in the views
+/**
+ * 'Presenter' layer to expose the parameters from query, formating its data in the 
+ * format expected by the histogram view.
+ * 
+ * @param model: the model with the parameters for sorting/filtering (see HistogramSettings model in pancancer_study_summary.js)
+ * @param dmPresenter: instance of DataManagerPresenter (see DataManagerPresenter in pancancer_study_summary.js)
+ * @param geneId: the gene id of the current tab
+ */
 function HistogramPresenter(model, dmPresenter, geneId)
 {
 	this.model = model;
@@ -604,7 +636,7 @@ function HistogramPresenter(model, dmPresenter, geneId)
 	this.getJSONDataForHistogram = function(callBackFunction){
 
 		//call the "data manager" layer to retrieve the data and transform to correct JSON structure
-		this.histData = this.getHistogramData();		
+		this.histData = this._getHistogramData();		
 		
 		var finalHistData = [];
 		//filter data on nr of samples:
@@ -619,7 +651,11 @@ function HistogramPresenter(model, dmPresenter, geneId)
 		callBackFunction(this.histData);
 	}
 	
-	this.getHistogramData = function() {
+	/**
+	 * Internal function to get the data from dmPresenter layer and 
+	 * transform it into the form that is needed by the histogram rendering logic.
+	 */
+	this._getHistogramData = function() {
 		//returns list of objects with following structure:
 		//   {
 		//	      "typeOfCancer": "cancer_type1",

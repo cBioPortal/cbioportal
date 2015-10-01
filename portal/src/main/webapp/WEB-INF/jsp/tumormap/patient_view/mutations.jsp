@@ -120,6 +120,9 @@
         var tumorType = clinicalDataMap[Object.keys(clinicalDataMap)[0]].CANCER_TYPE;
         if(OncoKB.accessible) {
             oncokbInstance = new OncoKB.Instance();
+            if(oncokbGeneStatus){
+                oncokbInstance.setGeneStatus(oncokbGeneStatus);
+            }
             oncokbInstance.setTumorType(tumorType);
         }
         for (var i=0, nEvents=mutEventIds.length; i<nEvents; i++) {

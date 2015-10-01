@@ -38,7 +38,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.util.*;
+import java.net.URL;
+
 
 /**
  * Utility class for getting / setting global properties.
@@ -171,6 +175,7 @@ public class GlobalProperties {
 
     public static final String MYCANCERGENOME_URL = "mycancergenome.url";
     public static final String ONCOKB_GENE_STATUS = "oncokb.geneStatus";
+    public static final String HOTSPOT_CHANG = "hotspot.chang";
     
     private static Log LOG = LogFactory.getLog(GlobalProperties.class);
     private static Properties properties = initializeProperties();
@@ -587,7 +592,32 @@ public class GlobalProperties {
     
     public static String getOncoKBUrl()
     {
-        return properties.getProperty(ONCOKB_URL);
+        String oncokbUrl = properties.getProperty(ONCOKB_URL);
+
+        //Test connection of OncoKB website.
+        if(oncokbUrl != null && !oncokbUrl.isEmpty()) {
+            try {
+                URL url = new URL(oncokbUrl+"access");
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                if(conn.getResponseCode() != 200) {
+                    oncokbUrl = "";
+                }
+                conn.disconnect();
+                return oncokbUrl;
+            } catch (Exception e) {
+                return "";
+            }
+        }
+        return "";
+    }
+
+    public static boolean enableChangHotspot() {
+        String hotspot = properties.getProperty(HOTSPOT_CHANG);
+        if(hotspot != null  && !hotspot.isEmpty()) {
+            return Boolean.parseBoolean(hotspot);
+        }else{
+            return false;
+        }
     }
 
     public static boolean filterGroupsByAppName() {

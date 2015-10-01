@@ -91,6 +91,8 @@ String pathReportUrl = (String)request.getAttribute(PatientView.PATH_REPORT_URL)
 String oncokbUrl = (String)GlobalProperties.getOncoKBUrl();
 String oncokbGeneStatus = (String)GlobalProperties.getOncoKBGeneStatus();
 
+boolean enableChangHotspot = (Boolean) GlobalProperties.enableChangHotspot();
+
 //String drugType = xssUtil.getCleanerInput(request, "drug_type");
 String drugType = request.getParameter("drug_type");
 
@@ -414,19 +416,18 @@ var mapCaseBam = <%=jsonMapCaseBam%>;
 var caseMetaData = {
     color : {}, label : {}, index : {}, tooltip : {}
 };
-var enableChangHotspot = true;
+var oncokbGeneStatus = <%=oncokbGeneStatus%>;
+var enableChangHotspot = <%=enableChangHotspot%>;
 
 OncoKB.setUrl('<%=oncokbUrl%>');
 
 
 $(document).ready(function(){
-    OncoKB.access().always(function () {
-        if (print) $('#page_wrapper_table').css('width', '900px');
-        tweaksStyles();
-        outputClinicalData();
-        setUpPatientTabs();
-        initTabs();
-    });
+    if (print) $('#page_wrapper_table').css('width', '900px');
+    tweaksStyles();
+    outputClinicalData();
+    setUpPatientTabs();
+    initTabs();
     var openTab = /(tab_[^&]+)/.exec(window.location.hash);
     if (openTab) {
         switchToTab(openTab[1]);

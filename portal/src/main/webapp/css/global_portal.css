@@ -1449,7 +1449,7 @@ ul.ui-autocomplete li.ui-menu-item { font-size: 0.6em; text-align: left; }
 .oncokb-qtip-sm {
     max-width: 400px !important;
 }
-.oncokb-qtio table.dataTable {
+.oncokb-qtip table.dataTable {
     font-size: 11px !important;
 }
 ul.oncokb {

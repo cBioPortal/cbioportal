@@ -43,6 +43,9 @@
 
         if(OncoKB.accessible) {
             oncokbInstance = new OncoKB.Instance();
+            if(oncokbGeneStatus){
+                oncokbInstance.setGeneStatus(oncokbGeneStatus);
+            }
             oncokbInstance.setTumorType(tumorType);
         }
 

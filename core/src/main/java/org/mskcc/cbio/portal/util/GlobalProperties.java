@@ -60,6 +60,7 @@ public class GlobalProperties {
 	public static final String IGV_BAM_LINKING_STUDIES = "igv.bam.linking.studies";
     public static final String AUTHENTICATE = "authenticate";
     public static final String AUTHORIZATION = "authorization";
+    public static final String FILTER_GROUPS_BY_APPNAME = "filter_groups_by_appname";
     public static final String INCLUDE_NETWORKS = "include_networks";
     public static final String GOOGLE_ANALYTICS_PROFILE_ID = "google_analytics_profile_id";
     public static final String GENOMESPACE = "genomespace";
@@ -164,7 +165,14 @@ public class GlobalProperties {
     public static final String DEFAULT_SKIN_NEWS="content/news.html";
     public static final String SKIN_EXAMPLES_RIGHT_COLUMN="skin.examples_right_column";
     public static final String DEFAULT_SKIN_EXAMPLES_RIGHT_COLUMN="../../../content/examples.html";
+    
+    public static final String ALWAYS_SHOW_STUDY_GROUP="always_show_study_group";
 
+    // property for text shown at the right side of the Select Patient/Case set, which
+    // links to the study view
+    public static final String SKIN_STUDY_VIEW_LINK_TEXT="skin.study_view.link_text";
+    public static final String DEFAULT_SKIN_STUDY_VIEW_LINK_TEXT="To build your own case set, try out our enhanced " +
+            "Study View.";
 
     private static Log LOG = LogFactory.getLog(GlobalProperties.class);
     private static Properties properties = initializeProperties();
@@ -362,6 +370,11 @@ public class GlobalProperties {
     public static String getFooter(){
         String footer = properties.getProperty(SKIN_FOOTER);
         return (footer == null) ? DEFAULT_SKIN_FOOTER : footer;
+    }
+    // function for retrieving the studyview link text
+    public static String getStudyviewLinkText(){
+        String studyviewLinkText = properties.getProperty(SKIN_STUDY_VIEW_LINK_TEXT);
+        return (studyviewLinkText == null) ? DEFAULT_SKIN_STUDY_VIEW_LINK_TEXT : studyviewLinkText;
     }
 
     public static String getEmailContact()
@@ -582,5 +595,19 @@ public class GlobalProperties {
     public static String getOncoKBUrl()
     {
         return properties.getProperty(ONCOKB_URL);
+    }
+
+    public static boolean filterGroupsByAppName() {
+        String filterGroupsByNameFlag = properties.getProperty(FILTER_GROUPS_BY_APPNAME);
+        return filterGroupsByNameFlag == null || Boolean.parseBoolean(filterGroupsByNameFlag);
+    }
+    
+    public static String getAlwaysShowStudyGroup() {
+        String group = properties.getProperty(ALWAYS_SHOW_STUDY_GROUP);
+        if (group!=null && group.trim().isEmpty()) {
+            return null;
+        }
+        
+        return group;
     }
 }

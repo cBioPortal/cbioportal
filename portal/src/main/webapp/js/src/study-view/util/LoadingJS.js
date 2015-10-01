@@ -58,6 +58,7 @@ var LoadingJS = (function(){
         var _folder = {
                 component: [
                     'ScatterPlots',
+                    'BreadCrumbs',
                     'PieChart', 
                     'BarChart', 
                     'DataTable',

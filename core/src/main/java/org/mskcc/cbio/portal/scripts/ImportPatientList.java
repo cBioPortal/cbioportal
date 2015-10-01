@@ -63,6 +63,7 @@ public class ImportPatientList {
       if (cancerStudyIdentifier == null) {
          throw new IllegalArgumentException("cancer_study_identifier is not specified.");
       }
+	  SpringUtil.initDataSource();
       CancerStudy theCancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyIdentifier);
       if (theCancerStudy == null) {
          throw new IllegalArgumentException("cancer study identified by cancer_study_identifier '"

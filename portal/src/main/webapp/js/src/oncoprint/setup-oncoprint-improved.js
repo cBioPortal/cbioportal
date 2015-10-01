@@ -70,8 +70,11 @@ window.setUpOncoprint = function(ctr_id, config) {
 		};
 		_.each(sample_data, function (d) {
 			var patient_id = sample_to_patient[d.sample];
-			ret[patient_id] = ret[patient_id] || {patient: patient_id, gene:d.gene};
+			ret[patient_id] = ret[patient_id] || {patient: patient_id, gene:d.gene, na: true};
 			var new_datum = ret[patient_id];
+			if (!d.hasOwnProperty("na")) {
+				delete new_datum["na"];
+			}
 			_.each(d, function(val, key) {
 				if (key === 'mutation') {
 					new_datum['mutation'] = (new_datum['mutation'] && (new_datum['mutation']+','+val)) || val;

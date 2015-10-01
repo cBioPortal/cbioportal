@@ -129,9 +129,6 @@ var orPlots = (function() {
                 dotsArr.push(_datum);
             }
         });
-        $.each(dotsArr, function(_index, obj) {
-            console.log(obj.y_val);
-        });
 
         generate_plots();
     };
@@ -390,9 +387,9 @@ var orPlots = (function() {
                     +cbio.util.getLinkToSampleView(cancer_study_id,d.case_id)
                     + "' target = '_blank'>" + d.case_id + "</a></strong><br>";
                 if (profile_type === orAnalysis.profile_type.mrna) {
-                    content += "mRNA expression: "
+                    content += "mRNA expression: ";
                 } else if (profile_type === orAnalysis.profile_type.protein_exp) {
-                    content += "RPPA score: "
+                    content += "RPPA score: ";
                 }
                 content += "<strong>" + parseFloat(d.y_val).toFixed(3) + "</strong><br>";
                 if (d.hasOwnProperty("alteration")) {

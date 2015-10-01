@@ -44,7 +44,8 @@ var orAnalysis = (function() {
             sub_tab_mutations: "or-analysis-subtab-mutations",
             sub_tab_mrna_exp: "or-analysis-subtab-mrna-exp",
             sub_tab_advanced: "or-analysis-subtab-advanced",
-            sub_tab_protein_exp: "or-analysis-subtab-protein-exp"
+            sub_tab_protein_exp: "or-analysis-subtab-protein-exp",
+            gene_set_warning: "enrichments-tab-gene-set-warning"
         },
         texts: {
             sub_tab_copy_num: "Copy-number",

@@ -673,7 +673,7 @@ function GeneDetailsController(cancerSummaryMainView, dispatcher, dmPresenter){
  * 'Presenter' layer to expose the DataManager API (i.e. the cbioportal-datamanager.js), 
  * transforming its data to a format that is ready to use by the views.
  */
-function DataManagerPresenter(study_id, dmInitCallBack)
+function DataManagerPresenter(dmInitCallBack)
 {
 	var self = this;
 	//keep track of samples and their respective alteration events 
@@ -944,12 +944,12 @@ function PancancerStudySummary()
 {
    var _cancerSummaryMainView = null;
 
-   this.init = function(study_id)
+   this.init = function()
    {
 	  console.log(new Date() + ": init called");
       //Initialize presenter, which triggers the asynchronous services to get the 
 	  //data and calls the callback function once the data is received:
-      new DataManagerPresenter(study_id, dmInitCallBack);
+      new DataManagerPresenter(dmInitCallBack);
    };
    
    //continues init:

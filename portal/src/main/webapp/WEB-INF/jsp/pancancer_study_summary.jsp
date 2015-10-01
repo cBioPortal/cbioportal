@@ -62,9 +62,8 @@
 	//Initialize the pancancer study summary object which triggers the creation of the sub tabs,
 	//models and respective views, one per gene:
 	$(document).ready( function() {
-		var study_id = window.cancer_study_id_selected; //this window.cancer_study_id_selected is set in query_form.jsp...
 		var pancancerStudySummary = new PancancerStudySummary();
-		pancancerStudySummary.init(study_id);
+		pancancerStudySummary.init();
 	});
 </script>
 

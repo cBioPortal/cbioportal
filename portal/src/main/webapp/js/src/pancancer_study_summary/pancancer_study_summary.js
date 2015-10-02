@@ -685,7 +685,7 @@ function DataManagerPresenter(dmInitCallBack)
 	//  - all genomic event data, for all queried genes, according to selected profiles and OQL criteria.
 	//  - all sample clinical atttribute values for attributes CANCER_TYPE and CANCER_TYPE_DETAILED
 	console.log(new Date() + ": CALL to getGenomicEventData()");
-	window.PortalDataManager.getGenomicEventData()
+	window.QuerySession.getGenomicEventData()
 	.then(
 		function (data){
 			
@@ -702,7 +702,7 @@ function DataManagerPresenter(dmInitCallBack)
 			
 			//do the next call:
 			console.log(new Date() + ": CALL to get sample clinical atttributes (cancer types)");
-			return window.PortalDataManager.getSampleClinicalData(["CANCER_TYPE","CANCER_TYPE_DETAILED"]);
+			return window.QuerySession.getSampleClinicalData(["CANCER_TYPE","CANCER_TYPE_DETAILED"]);
 		},
 		function(err){
 			// handle error, if any
@@ -926,7 +926,7 @@ function DataManagerPresenter(dmInitCallBack)
 	 * Returns the gene list chosen by user in query form.
 	 */
 	this.getGeneList = function(){
-		return window.PortalDataManager.getQueryGenes();
+		return window.QuerySession.getQueryGenes();
 	}
 	
 }

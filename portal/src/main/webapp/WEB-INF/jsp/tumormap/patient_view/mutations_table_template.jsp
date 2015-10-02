@@ -58,5 +58,6 @@
                         <th class="mut-header" alt="COSMIC occurrences"><b>COSMIC</b></th>
                         <th class="mut-header" alt="Functional Impact predicted by MutationAssessor (missense mutations only)"><b>Mutation<br/>Assessor</b></th>
                         <th class="mut-header" alt="Potential Drugs"><b>Drugs</b></th>
+                        <th class="mut-header" alt="OncoKB"><b>OncoKB</b><img id='oncokb-help' src='images/help.png'/></th>
                     </tr>
                 </thead>

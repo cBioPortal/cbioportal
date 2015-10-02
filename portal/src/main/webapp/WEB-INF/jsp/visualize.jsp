@@ -33,6 +33,7 @@
 <%@ include file="global/global_variables.jsp" %>
 
 <jsp:include page="global/header.jsp" flush="true" />
+<%@ page import="java.util.Map" %>
 
 <div class='main_smry'>
     <div id='main_smry_stat_div' style='float:right;margin-right:15px;margin-bottom:-5px;width:50%;text-align:right;'></div>
@@ -79,12 +80,14 @@
     <ul>
     <%
         Boolean showMutTab = false;
+        Boolean showCancerTypesSummary = false;
         if (geneWithScoreList.size() > 0) {
 
             Enumeration paramEnum = request.getParameterNames();
             StringBuffer buf = new StringBuffer(request.getAttribute(QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING) + "?");
 
-            while (paramEnum.hasMoreElements()) {
+            while (paramEnum.hasMoreElements())
+            {
                 String paramName = (String) paramEnum.nextElement();
                 String values[] = request.getParameterValues(paramName);
 
@@ -133,7 +136,22 @@
                 }
             }
 
+            // determine whether to show the cancerTypesSummaryTab
+            // retrieve the cancerTypesMap and create an iterator for the values
+            Map<String, List<String>>  cancerTypesMap = (Map<String, List<String>>) request.getAttribute(QueryBuilder.CANCER_TYPES_MAP);
+            if(cancerTypesMap.keySet().size() > 1) {
+            	showCancerTypesSummary = true;
+            }
+            else if (cancerTypesMap.keySet().size() == 1 && cancerTypesMap.values().iterator().next().size() > 1 )  {
+            	showCancerTypesSummary = true;
+            }
             out.println ("<li><a href='#summary' class='result-tab' id='oncoprint-result-tab'>OncoPrint</a></li>");
+            // if showCancerTypesSummary is try, add the list item
+            if(showCancerTypesSummary){
+                out.println ("<li><a href='#pancancer_study_summary' class='result-tab' title='Cancer types summary'>"
+                + "Cancer Types Summary</a></li>");
+            }
+            
             if (computeLogOddsRatio && geneWithScoreList.size() > 1) {
                 out.println ("<li><a href='#mutex' class='result-tab' id='mutex-result-tab'>"
                 + "Mutual Exclusivity</a></li>");
@@ -161,7 +179,7 @@
             out.println ("<li><a href='#data_download' class='result-tab' id='data-download-result-tab'>Download</a></li>");
             out.println ("<li><a href='#bookmark_email' class='result-tab' id='bookmark-result-tab'>Bookmark</a></li>");
             out.println ("</ul>");
-
+            
             out.println ("<div class=\"section\" id=\"bookmark_email\">");
 
             // diable bookmark link if case set is user-defined
@@ -188,6 +206,11 @@
             <% //contents of fingerprint.jsp now come from attribute on request object %>
             <%@ include file="oncoprint/main.jsp" %>
         </div>
+
+        <!-- if showCancerTypes is true, include cancer_types_summary.jsp -->
+        <% if(showCancerTypesSummary) { %>
+        <%@ include file="pancancer_study_summary.jsp" %>
+        <%}%>
 
         <%@ include file="plots_tab.jsp" %>
 

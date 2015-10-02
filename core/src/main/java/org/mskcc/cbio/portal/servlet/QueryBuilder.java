@@ -323,13 +323,13 @@ public class QueryBuilder extends HttpServlet {
 							 HttpServletResponse response,
 							 XDebug xdebug) throws IOException, ServletException, DaoException {
 
-		checkAndRedirectOnStudyStatus(request, response, cancerTypeId);
+        checkAndRedirectOnStudyStatus(request, response, cancerStudyStableId);
 
-       // parse geneList, written in the OncoPrintSpec language (except for changes by XSS clean)
-       double zScore = ZScoreUtil.getZScore(geneticProfileIdSet, profileList, request);
-       double rppaScore = ZScoreUtil.getRPPAScore(request);
+        // parse geneList, written in the OncoPrintSpec language (except for changes by XSS clean)
+        double zScore = ZScoreUtil.getZScore(geneticProfileIdSet, profileList, request);
+        double rppaScore = ZScoreUtil.getRPPAScore(request);
        
-       ParserOutput theOncoPrintSpecParserOutput =
+        ParserOutput theOncoPrintSpecParserOutput =
                OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver( geneListStr,
                 geneticProfileIdSet, profileList, zScore, rppaScore );
        

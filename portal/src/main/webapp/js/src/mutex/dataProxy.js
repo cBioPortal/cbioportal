@@ -237,7 +237,7 @@ var MutexData = (function() {
                     MutexView.init();
                 }
 								
-								var tid = setInterval(detectInstance, 600);
+		var tid = setInterval(detectInstance, 600);
 
             } else {
                 $("#mutex").empty();

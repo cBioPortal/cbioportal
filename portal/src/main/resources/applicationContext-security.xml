@@ -10,7 +10,7 @@
 
 
     <!-- beans shared across any authentication system -->
-    <b:beans profile="googleplus,openid,saml,ad">
+    <b:beans profile="googleplus,openid,saml,ad,ldap">
 
     <!-- support for general annotations within class definitions (used in AccessControl) -->
     <context:annotation-config/>
@@ -470,6 +470,71 @@
         <b:bean id="adAuthenticationProvider" class="org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider">
             <b:constructor-arg value="${ad.domain}"/>
             <b:constructor-arg value="${ad.url}"/>
+        </b:bean>
+    </b:beans>
+
+    <!-- authenticate with LDAP -->
+    <b:beans profile="ldap">
+        <http use-expressions="true" auto-config="true">
+            <form-login login-page="/login.jsp" login-processing-url="/j_spring_security_check" default-target-url="/index.do" />
+            <logout     logout-success-url="/login.jsp?logout_success=true" delete-cookies="jsessionid" />
+
+            ${url.intercepts}
+
+            <!-- to enable access from matlab, r, python, etc clients -->
+            <session-management session-fixation-protection="none"/>
+        </http>
+
+        <b:bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+            <b:property name="staticMethod" value="org.mskcc.cbio.portal.util.SpringUtil.setAccessControl"/>
+            <b:property name="arguments">
+                <b:list>
+                    <b:ref bean="accessControl"/>
+                </b:list>
+            </b:property>
+        </b:bean>
+
+        <!--<authentication-manager>-->
+            <!--<ldap-authentication-provider user-dn-pattern="cn={0},ou=people" user-search-filter="(cn={0})" user-search-base="ou=people" group-search-base="ou=groups" group-search-filter="(member={0})">-->
+            <!--</ldap-authentication-provider>-->
+        <!--</authentication-manager>-->
+
+        <!--<ldap-server url="${ldap.url}/${ldap.dc}" manager-dn="${ldap.manager_dn}" manager-password="${ldap.manager_password}" />-->
+
+        <authentication-manager>
+            <authentication-provider ref="ldapAuthenticationProvider"/>
+        </authentication-manager>
+
+        <b:bean id="contextSource"
+              class="org.springframework.security.ldap.DefaultSpringSecurityContextSource">
+            <b:constructor-arg value="${ldap.url}/${ldap.dc}"/>
+            <b:property name="userDn" value="${ldap.manager_dn}"/>
+            <b:property name="password" value="${ldap.manager_password}" />
+        </b:bean>
+
+        <b:bean id="userSearch" class="org.springframework.security.ldap.search.FilterBasedLdapUserSearch">
+            <b:constructor-arg index="0" value="ou=people"/>
+            <b:constructor-arg index="1" value="(cn={0})"/>
+            <b:constructor-arg index="2" ref="contextSource" />
+        </b:bean>
+
+        <b:bean id="ldapAuthenticationProvider"
+              class="org.springframework.security.ldap.authentication.LdapAuthenticationProvider">
+            <b:constructor-arg>
+                <b:bean class="org.springframework.security.ldap.authentication.BindAuthenticator">
+                    <b:constructor-arg ref="contextSource"/>
+                    <b:property name="userDnPatterns">
+                        <b:list><b:value>cn={0},ou=people</b:value></b:list>
+                    </b:property>
+                    <b:property name="userSearch" ref="userSearch"/>
+                </b:bean>
+            </b:constructor-arg>
+            <b:constructor-arg>
+                <b:bean class="org.mskcc.cbio.portal.authentication.ldap.PortalLdapAuthoritiesPopulator">
+                    <b:constructor-arg ref="contextSource"/>
+                    <b:constructor-arg ref="portalUserDAO"/>
+                </b:bean>
+            </b:constructor-arg>
         </b:bean>
     </b:beans>
 

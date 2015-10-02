@@ -91,6 +91,8 @@ ldap.url=
 ldap.dc=
 ldap.manager_dn=
 ldap.manager_password=
+# always show studies with this group
+always_show_study_group=
 
 # patient view settings
 patient_view_placeholder=false
@@ -130,3 +132,4 @@ google_analytics_profile_id=
 
 # genomespace linking
 genomespace=true
+

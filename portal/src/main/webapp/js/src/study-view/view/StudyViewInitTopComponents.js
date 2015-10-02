@@ -74,8 +74,8 @@ var StudyViewInitTopComponents = (function() {
         
         
         $("#study-view-case-select-custom-submit-btn").click(function() {
-            var caseIds = $('#study-view-case-select-custom-input').val().trim().split(/\s+/);
-            StudyViewInitCharts.filterChartsByGivingIDs(caseIds);
+            var ids = $('#study-view-case-select-custom-input').val().trim().split(/\s+/);
+            StudyViewInitCharts.filterChartsByGivingIDs(convertIds(ids));
             $('#study-view-header-left-0').qtip('toggle');
         });
         
@@ -96,6 +96,29 @@ var StudyViewInitTopComponents = (function() {
             
             window.open(_url);
         });
+    }
+
+    //The selected id should be sample based. Check patient list if unidentified id exists.
+    function convertIds(ids) {
+        var radioVal = $('input[name=study-view-case-select-custom-radio]:checked').val();
+        var sampleIds = ids;
+        if(radioVal === 'patient') {
+            sampleIds = StudyViewProxy.getSampleIdsByPatientIds(ids)
+        }
+        //var sampleIds = StudyViewProxy.getSampleIds();
+        //var unidentifiedIds = [];
+        //var identifiedIds = [];
+        //_.each(ids, function(id){
+        //    if(sampleIds.indexOf(id) === -1) {
+        //        unidentifiedIds.push(id);
+        //    }else{
+        //        identifiedIds.push(id);
+        //    }
+        //});
+        //
+        //identifiedIds = identifiedIds.concat(StudyViewProxy.getSampleIdsByPatientIds(unidentifiedIds));
+
+        return sampleIds;
     }
     
     function changeHeader(_filteredResult, _numOfCases, _removedChart){

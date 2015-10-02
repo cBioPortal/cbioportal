@@ -226,17 +226,17 @@ var MutexData = (function() {
                 countEventCombinations();
                 calc();
 
-                var tid = setInterval(detectInstance, 600);
-                function detectInstance() {
-                    if (dataArr.length !== 0) {
-                        abortTimer();
-                    }
-                }
                 function abortTimer() {
                     clearInterval(tid);
                     buildStat();
                     MutexView.init();
                 }
+                function detectInstance() {
+                    if (dataArr.length !== 0) {
+                        abortTimer();
+                    }
+                }
+                var tid = setInterval(detectInstance, 600);
             } else {
                 $("#mutex").empty();
                 $("#mutex").append("Calculation could not be performed.");

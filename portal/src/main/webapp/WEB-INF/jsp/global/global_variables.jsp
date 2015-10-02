@@ -356,7 +356,7 @@
 
     };
     (function setUpDataManager() {
-        window.PortalDataManager = window.initDatamanager('<%=geneticProfiles%>'.trim().split(/\s+/),
+        window.QuerySession = window.initDatamanager('<%=geneticProfiles%>'.trim().split(/\s+/),
                                                             '<%=oql%>'.trim(),
                                                             ['<%=cancerTypeId%>'.trim()],
                                                             '<%=patients%>'.trim().split(/\s+/));
@@ -379,7 +379,7 @@
             });
         });     
 
-        var _sampleIds = window.PortalDataManager.getSampleIds();
+        var _sampleIds = window.QuerySession.getSampleIds();
         window.PortalGlobals.setSampleIds(_sampleIds);
 
         //Configure the summary line of alteration statstics

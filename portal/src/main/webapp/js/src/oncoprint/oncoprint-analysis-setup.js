@@ -7,9 +7,9 @@ $(document).ready(function() {
 	$('#oncoprint_controls').html(_.template($('#main-controls-template').html())());
 
 	
-	window.PortalDataManager.getGenomicEventData().then(function(response) {
+	window.QuerySession.getGenomicEventData().then(function(response) {
 			(function invokeOldDataManagers() {
-				var genes = window.PortalDataManager.getQueryGenes();
+				var genes = window.QuerySession.getQueryGenes();
 				window.PortalGlobals.setGeneData(response)
 				window.PortalDataColl.setOncoprintData(utils.process_data(response, genes));
 				PortalDataColl.setOncoprintStat(utils.alteration_info(response));

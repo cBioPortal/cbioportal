@@ -847,7 +847,7 @@ function addMetaDataToPage() {
                 	samplePlurality = '';
                		numSamplesInStudy = '';
                 }
-		jstree_data.push({'id':id, 'parent':'mskimpact-study-group', 'text':studyName.concat('<span style="font-weight:normal;"> '+ numSamplesInStudy + ' ' + samplePlurality + '</span>'), 
+		jstree_data.push({'id':id, 'parent':'mskimpact-study-group', 'text':studyName.concat('<span style="font-weight:normal;font-style:italic;"> '+ numSamplesInStudy + ' ' + samplePlurality + '</span>'), 
 			'li_attr':{name: studyName, description: metaDataJson.cancer_studies[id].description}});
 		
 		flat_jstree_data.push({'id':id, 'parent':jstree_root_id, 'text':truncateStudyName(json.cancer_studies[id].name), 
@@ -880,7 +880,7 @@ function addMetaDataToPage() {
 			    }
 			    jstree_data.push({'id':elt.id, 
 				    'parent':currNode.code, 
-				    'text':name.concat('<span style="font-weight:normal;"> '+ numSamplesInStudy + ' ' + samplePlurality + '</span>'),
+				    'text':name.concat('<span style="font-weight:normal;font-style:italic;"> '+ numSamplesInStudy + ' ' + samplePlurality + '</span>'),
 				    'li_attr':{name: name, description:metaDataJson.cancer_studies[elt.id].description}});
 			    
 			    flat_jstree_data.push({'id':elt.id, 

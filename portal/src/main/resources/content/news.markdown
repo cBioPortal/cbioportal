@@ -1,11 +1,4 @@
-# October 8, 2015
-* __New features__ (to be refined):
-    * Network analysis was re-implemented with Cytoscape.js -- no Adobe Flash is required any longer.
-    * Breadcrumbs in study view
-    * Pan-cancer histogram for studies with multiple cancer types
-    * MyCancerGenome link
-    * Hotspot icon
-    * Enrichment analysis against all genes
+# October 5, 2015
 * __New TCGA data__:
     * [Breast Invasive Carcinoma (TCGA, 2015)](study.do?cancer_study_id=brca_tcga_pub2015)
     * [Uveal Melanoma (TCGA, Provisional)](study.do?cancer_study_id=uvm_tcga)

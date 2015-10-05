@@ -6,7 +6,8 @@ var ccPlots = (function ($, _, Backbone, d3) {
 
     var data = (function () {
 
-        var retrieved_genes = []; //list of genes that already retrieved data and stored here
+        var retrieved_genes = [], //list of genes that already retrieved data and stored here
+            mut_proxy = "", mut_obj = {};
 
         var ProfileMeta = Backbone.Model.extend({
             defaults: {
@@ -115,7 +116,18 @@ var ccPlots = (function ($, _, Backbone, d3) {
                                     });
                                     profileMetaList.add(profileMetaListTmp.models);
                                     if (_study_index + 1 === window.studies.length) { //reach the end of the iteration
-                                        callback_func();
+                                        var _tmp = setInterval(function () {timer();}, 1000);
+                                        function timer() {
+                                            if (window.crossCancerMutationProxy !== undefined) {
+                                                clearInterval(_tmp);
+                                                mut_proxy = window.crossCancerMutationProxy;
+                                                mut_proxy.getMutationData(window.studies.gene_list, _mutation_call_back);
+                                                function _mutation_call_back(_mut_obj) {
+                                                    mut_obj = _mut_obj;
+                                                    callback_func();
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             });
@@ -130,33 +142,23 @@ var ccPlots = (function ($, _, Backbone, d3) {
                             new ProfileDataListTmp(_profile_obj.CANCER_STUDY_STABLE_ID, _gene, _profile_obj.STABLE_ID, _profile_obj.CASE_SET_ID, "-1");
                         profileDataListTmp.fetch({
                             success: function (profileDataListTmp) {
-                                var tmp = setInterval(function () {timer();}, 1000);
-                                function timer() {
-                                    if (window.crossCancerMutationProxy !== undefined) {
-                                        clearInterval(tmp);
-                                        var _proxy = window.crossCancerMutationProxy;
-                                        _proxy.getMutationData(_gene, _mutation_callback);
-                                        function _mutation_callback(_mut_obj_arr) {
-                                            _.each(_mut_obj_arr, function(_mut_obj) {
-                                                _.each(profileDataListTmp.models, function(_model) {
-                                                    if(_mut_obj.caseId === _model.attributes.caseId) {
-                                                        _model.attributes.mutation += _mut_obj.proteinChange + ";";
-                                                        _model.attributes.mutation_type += mutationTranslator(_mut_obj.mutationType) + ";";
-                                                    }
-                                                });
-                                            })
-                                            profileDataList.add(profileDataListTmp.models);
-
-                                            var _profileDataList_gene = _.filter(_.pluck(profileDataList.models, "attributes"), function(item) { return item.gene === $("#cc_plots_gene_list").val(); });
-                                            var _profile_length = _.uniq(_.pluck(_profileDataList_gene, "profileId")).length;
-                                            if (_profile_length === profileMetaList.length) {
-                                                retrieved_genes.push(_gene);
-                                                callback_func(_.filter(profileDataList.models, function (model) {
-                                                    return model.get("gene") === _gene;
-                                                }));
-                                            }
+                                _.each(mut_obj, function(_mut_obj) {
+                                    _.each(profileDataListTmp.models, function(_model) {
+                                        if(_mut_obj.caseId === _model.attributes.caseId && _mut_obj.geneSymbol === _gene) {
+                                            _model.attributes.mutation += _mut_obj.proteinChange + ";";
+                                            _model.attributes.mutation_type += mutationTranslator(_mut_obj.mutationType) + ";";
                                         }
-                                    }
+                                    });
+                                })
+                                profileDataList.add(profileDataListTmp.models);
+
+                                var _profileDataList_gene = _.filter(_.pluck(profileDataList.models, "attributes"), function(item) { return item.gene === $("#cc_plots_gene_list").val(); });
+                                var _profile_length = _.uniq(_.pluck(_profileDataList_gene, "profileId")).length;
+                                if (_profile_length === profileMetaList.length) {
+                                    retrieved_genes.push(_gene);
+                                    callback_func(_.filter(profileDataList.models, function (model) {
+                                        return model.get("gene") === _gene;
+                                    }));
                                 }
                             }
                         });
@@ -254,6 +256,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 settings.canvas_width = _.pluck(data.get_meta(), "STABLE_ID").length * 100 + 400;
                 elem.svg = d3.select("#cc-plots-box")
                     .append("svg")
+                    .attr("id", "cc-plots-canvas")
                     .attr("width", settings.canvas_width)
                     .attr("height", settings.canvas_height);
             },
@@ -454,7 +457,6 @@ var ccPlots = (function ($, _, Backbone, d3) {
                         }
                     );
                 });
-
                 var mouseOn = function() {
                     var dot = d3.select(this);
                     dot.transition()
@@ -467,7 +469,6 @@ var ccPlots = (function ($, _, Backbone, d3) {
                                 return $(this).attr("shape");
                             })
                     );
-
                 };
                 var mouseOff = function() {
                     var dot = d3.select(this);

@@ -33,8 +33,8 @@
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 <!-- Include Global List of Javascript Files to Load -->
 
-<script type="text/javascript" src="js/lib/bootstrap.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/lib/jquery.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/lib/bootstrap.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/lib/jquery-migrate.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type='text/javascript' src='https://www.google.com/jsapi?<%=GlobalProperties.getAppVersion()%>'></script>
 <script type="text/javascript" src="js/lib/jquery.cookie.js?<%=GlobalProperties.getAppVersion()%>"></script>

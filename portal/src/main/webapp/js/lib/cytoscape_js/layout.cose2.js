@@ -4703,6 +4703,7 @@
               y: Math.random() * this.options.cy.container().clientHeight}
           });
           this.options.eles = this.options.eles.union(this.options.cy.nodes()[this.options.cy.nodes().length - 1]);
+          this.options.cy.nodes()[this.options.cy.nodes().length - 1].hide();
         }
       }
     }

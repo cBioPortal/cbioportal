@@ -117,13 +117,12 @@
     function buildMutationsDataTable(mutations,mutEventIds, table_id, sDom, iDisplayLength, sEmptyInfo, compact) {
         var data = [];
         var oncokbInstance;
-        var tumorType = clinicalDataMap[Object.keys(clinicalDataMap)[0]].CANCER_TYPE;
         if(OncoKB.getAccess()) {
             oncokbInstance = new OncoKB.Instance();
             if(oncokbGeneStatus){
                 oncokbInstance.setGeneStatus(oncokbGeneStatus);
             }
-            oncokbInstance.setTumorType(tumorType);
+            oncokbInstance.setTumorType(OncoKB.utils.getTumorTypeFromClinicalDataMap(clinicalDataMap));
         }
         for (var i=0, nEvents=mutEventIds.length; i<nEvents; i++) {
             var _id = mutEventIds[i];

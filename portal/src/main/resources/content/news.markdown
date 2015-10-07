@@ -1,21 +1,19 @@
-# October 5, 2015
+# October 6, 2015
 * __New TCGA data__:
-    * [Breast Invasive Carcinoma (TCGA, 2015)](study.do?cancer_study_id=brca_tcga_pub2015)
+    * [Breast Invasive Carcinoma (TCGA, Cell 2015)](study.do?cancer_study_id=brca_tcga_pub2015)
     * [Uveal Melanoma (TCGA, Provisional)](study.do?cancer_study_id=uvm_tcga)
-* __Added data__ of 834 samples from 14 published studies:
+* __Added data__ of 763 samples from 12 published studies:
     * [Small Cell Lung Cancer (U Cologne, Nature 2015)](study.do?cancer_study_id=sclc_ucologne_2015)
-    * [Low-Grade Gliomas (UCSF, Science 2014)](study.do?cancer_study_id=lgg_ucsf_2014)
-    * [Uterine Carcinosarcoma (Johns Hopkins University, Nat Commun 2014)](study.do?cancer_study_id=ucs_jhu_2014)
-    * [Multiregion Sequencing of Clear-Cell Renal Cell Carcinoma (IRC, Nat Genet 2014)](study.do?cancer_study_id=ccrcc_irc_2014)
+    * [Uterine Carcinosarcoma (JHU, Nat Commun 2014)](study.do?cancer_study_id=ucs_jhu_2014)
     * [Microdissected Pancreatic Cancer Whole Exome Sequencing (UTSW, Nat Commun 2015)](study.do?cancer_study_id=paad_utsw_2015)
-    * [Pancreatic Neuroendocrine Tumors (Johns Hopkins University, Science 2011)](study.do?cancer_study_id=panet_jhu_2011)
+    * [Pancreatic Neuroendocrine Tumors (JHU, Science 2011)](study.do?cancer_study_id=panet_jhu_2011)
     * [Renal Non-Clear Cell Carcinoma (Genentech, Nat Genet 2014)](study.do?cancer_study_id=nccrcc_genentech_2014)
     * [Infant MLL-Rearranged Acute Lymphoblastic Leukemia (St Jude, Nat Genet 2015)](study.do?cancer_study_id=all_stjude_2015)
     * [Rhabdomyosarcoma (NIH, Cancer Discov 2014)](study.do?cancer_study_id=rms_nih_2014)
     * [Thymic epithelial tumors (NCI, Nat Genet 2014)](study.do?cancer_study_id=tet_nci_2014)
-    * [Pediatric Ewing Sarcoma (Dana-Farber, Cancer Discov 2014)](study.do?cancer_study_id=es_dfarber_broad_2014)
+    * [Pediatric Ewing Sarcoma (DFCI, Cancer Discov 2014)](study.do?cancer_study_id=es_dfarber_broad_2014)
     * [Ewing Sarcoma (Institut Cuire, Cancer Discov 2014)](study.do?cancer_study_id=es_iocurie_2014)
-    * [Cutaneous squamous cell carcinoma (Dana-Farber, Clin Cancer Res 2015)](study.do?cancer_study_id=cscc_dfarber_2015)
+    * [Cutaneous squamous cell carcinoma (DFCI, Clin Cancer Res 2015)](study.do?cancer_study_id=cscc_dfarber_2015)
     * [Gallbladder Carcinoma (Shanghai, Nat Genet 2014)](study.do?cancer_study_id=gbc_shanghai_2014)
 
 # August 21, 2015

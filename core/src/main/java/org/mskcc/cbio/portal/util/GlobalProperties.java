@@ -181,7 +181,7 @@ public class GlobalProperties {
 
     public static final String MYCANCERGENOME_URL = "mycancergenome.url";
     public static final String ONCOKB_GENE_STATUS = "oncokb.geneStatus";
-    public static final String HOTSPOT_CHANG = "hotspot.chang";
+    public static final String SHOW_HOTSPOT = "show.hotspot";
     
     private static Log LOG = LogFactory.getLog(GlobalProperties.class);
     private static Properties properties = initializeProperties();
@@ -622,8 +622,8 @@ public class GlobalProperties {
         return "";
     }
 
-    public static boolean enableChangHotspot() {
-        String hotspot = properties.getProperty(HOTSPOT_CHANG);
+    public static boolean getShowHotspot() {
+        String hotspot = properties.getProperty(SHOW_HOTSPOT);
         if(hotspot != null  && !hotspot.isEmpty()) {
             return Boolean.parseBoolean(hotspot);
         }else{

@@ -107,7 +107,7 @@ segfile.url=http://cbio.mskcc.org/cancergenomics/gdac-portal/seg/
 oncokb.url=
 
 # Enable Chang's hotspot list (true, false)
-hotspot.chang = true
+show.hotspot = true
 
 # My Cancer Genome link
 mycancergenome.url = http://www.mycancergenome.org

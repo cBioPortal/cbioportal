@@ -1,0 +1,82 @@
+start
+	= Query
+	/ sp { return false; }
+
+br	= b:[\n]
+	/ b:";"
+
+Number = word:[0-9]*("."[0-9]*)? { return word.join(""); }
+String = word:[-.@/a-zA-Z0-9]+ { return word.join("") }
+
+sp = space:[ \t\r]+
+msp = space:[ \t\r]*
+
+
+// Case-insensitive keywords
+AMP = "AMP"i
+HOMDEL = "HOMDEL"i
+GAIN = "GAIN"i
+HETLOSS = "HETLOSS"i
+MUT = "MUT"i
+EXP = "EXP"i
+PROT = "PROT"i
+
+Query
+	= listofgenes:ListOfGenes { return listofgenes.map(function(gene) { return {"gene":gene, "alterations":false}; }); }
+	/ msp first: SingleGeneQuery msp rest: Query  { return rest.concat(first); }
+	/ msp first:SingleGeneQuery msp { return [first]; }
+	/ msp geneName:String msp { return [{"gene":geneName, "alterations":false}]; }
+
+ListOfGenes
+	= msp geneName:String msp rest:ListOfGenes { return rest.concat(geneName);}
+	/ msp geneName1:String msp geneName2:String msp{ return [geneName1, geneName2]; }
+
+SingleGeneQuery 
+	= geneName:String msp ":" msp alts:Alterations msp br { return {"gene": geneName, "alterations": alts}; }
+	/ geneName:String msp br { return {"gene": geneName, "alterations":false}; }
+
+Alterations
+	= a1:Alteration sp a2:Alterations { return a2.concat(a1);}
+	/ a1:Alteration { return [a1]; }
+
+Alteration
+	= cmd:CNACommand { return cmd; }
+	/ cmd:EXPCommand { return cmd; }
+	/ cmd:PROTCommand { return cmd; }
+// MUT has to go at the end because it matches an arbitrary string at the end as a type of mutation
+	/ cmd:MUTCommand { return cmd; }
+
+CNACommand
+	= "AMP" { return {"alteration_type":"cna", "constr_val": "AMP"}; }
+	/ "HOMDEL" { return {"alteration_type":"cna", "constr_val": "HOMDEL"}; }
+	/ "GAIN" { return {"alteration_type":"cna", "constr_val": "GAIN"}; }
+	/ "HETLOSS" { return {"alteration_type":"cna", "constr_val": "HETLOSS"}; }
+
+MUTCommand
+	= "MUT" msp "=" msp mutation:Mutation { return {"alteration_type":"mut", "constr_rel": "=", "constr_type":mutation.type, "constr_val":mutation.value}; }
+	/ "MUT" msp "!=" msp mutation:Mutation { return {"alteration_type":"mut", "constr_rel": "!=", "constr_type":mutation.type, "constr_val":mutation.value}; }
+	/ "MUT" { return {"alteration_type":"mut"}; }
+	/ mutation:Mutation { return {"alteration_type":"mut", "constr_rel": "=", "constr_type":mutation.type, "constr_val":mutation.value}; }
+
+EXPCommand
+	= "EXP" msp op:ComparisonOp msp constrval:Number { return {"alteration_type":"exp", "constr_rel":op, "constr_val":parseFloat(constrval)}; }
+
+PROTCommand
+	= "PROT" msp op:ComparisonOp msp constrval:Number { return {"alteration_type":"prot", "constr_rel":op, "constr_val":parseFloat(constrval)}; }
+
+ComparisonOp
+	= ">=" { return ">="; }
+	/ "<=" { return "<="; }
+	/ ">" { return ">"; }
+	/ "<" { return "<"; }
+
+Mutation
+	= "MISSENSE"i { return {"type":"class", "value":"MISSENSE"}; }
+	/ "NONSENSE"i { return {"type":"class", "value":"NONSENSE"}; }
+	/ "NONSTART"i { return {"type":"class", "value":"NONSTART"}; }
+	/ "NONSTOP"i { return {"type":"class", "value":"NONSTOP"}; }
+	/ "FRAMESHIFT"i { return {"type":"class", "value":"FRAMESHIFT"}; }
+	/ "INFRAME"i { return {"type":"class", "value":"INFRAME"}; }
+	/ "SPLICE"i { return {"type":"class", "value":"SPLICE"}; }
+	/ "TRUNC"i { return {"type":"class", "value":"TRUNC"}; }
+	/ mutation_name:String { return {"type":"name", "value":mutation_name}; }

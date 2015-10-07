@@ -144,7 +144,7 @@ var StudyViewProxy = (function() {
             //$.ajax({type: "POST", url: "mutations.json", data: ajaxParameters.mutatedGenesData})
         )
             .done(function(a1, a2, a3, a4, a5){
-                var _dataAttrMapArr = {}, //Map attrbute value with attribute name for each datum
+                var _dataAttrMapArr = {}, //Map attribute value with attribute name for each datum
                     _keyNumMapping = {},
                     _data = a1[0].data,
                     _dataAttrOfa1 = {},
@@ -166,7 +166,7 @@ var StudyViewProxy = (function() {
                     _dataAttrOfa1[caseAttr.attr_id] = caseAttr;
                 }
 
-                //Initial data array, not all of cases has MUTAION COUND OR COPY NUMBER ALTERATIONS.
+                //Initial data array, not all of cases has MUTATION COUNT OR COPY NUMBER ALTERATIONS.
                 for(var j = 0; j <  _sampleIds.length; j++){
                     var _caseDatum =  new CaseDatum();
                     _caseDatum.CASE_ID = _sampleIds[j];

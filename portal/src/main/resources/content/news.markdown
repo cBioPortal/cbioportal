@@ -1,6 +1,7 @@
 # October 6, 2015
 * __New TCGA data__:
     * [Breast Invasive Carcinoma (TCGA, Cell 2015)](study.do?cancer_study_id=brca_tcga_pub2015)
+    * [Prostate Adenocarcinoma (TCGA, in press)](study.do?cancer_study_id=prad_tcga_pub)
     * [Uveal Melanoma (TCGA, Provisional)](study.do?cancer_study_id=uvm_tcga)
 * __Added data__ of 763 samples from 12 published studies:
     * [Small Cell Lung Cancer (U Cologne, Nature 2015)](study.do?cancer_study_id=sclc_ucologne_2015)

@@ -624,7 +624,11 @@ public class GlobalProperties {
 
     public static boolean getShowHotspot() {
         String hotspot = properties.getProperty(SHOW_HOTSPOT);
-        if(hotspot != null  && !hotspot.isEmpty()) {
+        if (hotspot==null) {
+            return true; // show hotspots by default
+        }
+        
+        if(!hotspot.isEmpty()) {
             return Boolean.parseBoolean(hotspot);
         }else{
             return false;

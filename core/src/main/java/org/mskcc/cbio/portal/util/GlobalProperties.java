@@ -622,7 +622,7 @@ public class GlobalProperties {
         return "";
     }
 
-    public static boolean getShowHotspot() {
+    public static boolean showHotspot() {
         String hotspot = properties.getProperty(SHOW_HOTSPOT);
         if (hotspot==null) {
             return true; // show hotspots by default

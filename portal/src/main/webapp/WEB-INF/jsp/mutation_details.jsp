@@ -33,7 +33,7 @@
     String oncokbUrl = (String) GlobalProperties.getOncoKBUrl();
     String myCancerGenomeUrl = (String) GlobalProperties.getMyCancerGenomeUrl();
     String oncokbGeneStatus = (String) GlobalProperties.getOncoKBGeneStatus();
-    boolean enableChangHotspot = (Boolean) GlobalProperties.enableChangHotspot();
+    boolean showHotspot = (Boolean) GlobalProperties.showHotspot();
 %>
 
 <div class='section' id='mutation_details'>
@@ -80,7 +80,7 @@
     var _mut3dVis = null;
     var myCancerGenomeUrl = '<%=myCancerGenomeUrl%>';
     var oncokbGeneStatus = <%=oncokbGeneStatus%>;
-    var enableChangHotspot = <%=enableChangHotspot%>;
+    var showHotspot = <%=showHotspot%>;
     var enableMyCancerGenome = myCancerGenomeUrl?true:false;
 
     _mut3dVis = new Mutation3dVis("default3dView");
@@ -167,7 +167,7 @@
                                 vars.mcgAlt = "<b>My Cancer Genome links:</b><br/><ul style=\"list-style-position: inside;padding-left:0;\"><li>"+mutation.myCancerGenome.join("</li><li>")+"</li></ul>";
                             }
 
-                            if(enableChangHotspot && mutation['isHotspot']) {
+                            if(showHotspot && mutation['isHotspot']) {
                                 vars.changHotspotAlt = "<b>Recurrent Hotspot</b><br/>This mutated amino acid was identified as a recurrent hotspot (statistical significance, q-value < 0.01) in a set of 11,119 tumor samples of various cancer types (based on Chang, M. et al. Nature Biotech. 2015).";
                             }
 
@@ -253,7 +253,7 @@
                                 vars.mcgAlt = "<b>My Cancer Genome links:</b><br/><ul style=\"list-style-position: inside;padding-left:0;\"><li>"+mutation.myCancerGenome.join("</li><li>")+"</li></ul>";
                             }
 
-                            if(enableChangHotspot && mutation['isHotspot']) {
+                            if(showHotspot && mutation['isHotspot']) {
                                 vars.changHotspotAlt = "<b>Recurrent Hotspot</b><br/>This mutated amino acid was identified as a recurrent hotspot (statistical significance, q-value < 0.01) in a set of 11,119 tumor samples of various cancer types (based on Chang, M. et al. Nature Biotech. 2015).";
                             }
 

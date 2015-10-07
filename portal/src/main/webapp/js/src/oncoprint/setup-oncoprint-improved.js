@@ -11,7 +11,12 @@ window.setUpOncoprint = function(ctr_id, config) {
 	var clinical_tracks = [];
 	
 	var splitIdString = function(str) {
-		return str.split(/\s+/);
+		str = str.trim();
+		if (str.length > 0) {
+			return str.split(/\s+/);
+		} else {
+			return [];
+		}
 	};
 	var annotateMutationTypes = function(data) {
 		var ret = _.map(data, function (d) {

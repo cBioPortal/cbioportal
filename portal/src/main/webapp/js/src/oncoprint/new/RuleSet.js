@@ -505,14 +505,20 @@ window.oncoprint_RuleSet = (function() {
 		};
 
 		this.getEffectiveDataRange = function() {
+			var to_return;
 			if (typeof this.data_range === "undefined") {
-				return this.inferred_data_range;
+				to_return = this.inferred_data_range;
 			} else {
 				var ret = [];
 				ret[0] = (typeof this.data_range[0] === 'undefined' ? this.inferred_data_range[0] : this.data_range[0]);
 				ret[1] = (typeof this.data_range[1] === 'undefined' ? this.inferred_data_range[1] : this.data_range[1]);
-				return ret;
+				to_return = ret;
 			}
+			if (to_return[0] === to_return[1]) {
+				to_return[0] -= to_return[0]/2;
+				to_return[1] += to_return[1]/2;
+			}
+			return to_return;
 		};
 		this.getLegendDiv = function(cell_width, cell_height) {
 			if (!this.showInLegend()) {
@@ -609,6 +615,23 @@ window.oncoprint_RuleSet = (function() {
 			});
 			return [min, max];
 		};
+		
+		this.getEffectiveDataRange = function() {
+			var to_return;
+			if (typeof this.data_range === "undefined") {
+				to_return = this.inferred_data_range;
+			} else {
+				var ret = [];
+				ret[0] = (typeof this.data_range[0] === 'undefined' ? this.inferred_data_range[0] : this.data_range[0]);
+				ret[1] = (typeof this.data_range[1] === 'undefined' ? this.inferred_data_range[1] : this.data_range[1]);
+				to_return = ret;
+			}
+			if (to_return[0] === to_return[1]) {
+				to_return[0] -= to_return[0]/2;
+				to_return[1] += to_return[1]/2;
+			}
+			return to_return;
+		};
 
 		this.getLegendDiv = function(cell_width, cell_height) {
 			if (!this.showInLegend()) {
@@ -643,7 +666,8 @@ window.oncoprint_RuleSet = (function() {
 			return div.node();
 		};
 		this.apply = function(g, cell_width, cell_height) {
-			this.setUpHelperFunctions(this.data_range || (this.inferred_data_range = this.inferDataRange(g)));
+			this.inferred_data_range = this.inferDataRange(g);
+			this.setUpHelperFunctions(this.getEffectiveDataRange());
 			D3SVGRule.prototype.apply.call(this, g, cell_width, cell_height);
 		};
 	}

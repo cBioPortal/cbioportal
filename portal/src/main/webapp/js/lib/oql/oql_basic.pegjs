@@ -23,20 +23,20 @@ PROT = "PROT"i
 
 Query
 	= listofgenes:ListOfGenes { return listofgenes.map(function(gene) { return {"gene":gene, "alterations":false}; }); }
-	/ msp first: SingleGeneQuery msp rest: Query  { return rest.concat(first); }
+	/ msp first:SingleGeneQuery msp br rest:Query  { return [first].concat(rest); }
+	/ msp first:SingleGeneQuery msp br { return [first]; }
 	/ msp first:SingleGeneQuery msp { return [first]; }
-	/ msp geneName:String msp { return [{"gene":geneName, "alterations":false}]; }
 
 ListOfGenes
-	= msp geneName:String msp rest:ListOfGenes { return rest.concat(geneName);}
+	= msp geneName:String msp rest:ListOfGenes { return [geneName].concat(rest);}
 	/ msp geneName1:String msp geneName2:String msp{ return [geneName1, geneName2]; }
 
 SingleGeneQuery 
-	= geneName:String msp ":" msp alts:Alterations msp br { return {"gene": geneName, "alterations": alts}; }
-	/ geneName:String msp br { return {"gene": geneName, "alterations":false}; }
+	= geneName:String msp ":" msp alts:Alterations { return {"gene": geneName, "alterations": alts}; }
+	/ geneName:String { return {"gene": geneName, "alterations":false}; }
 
 Alterations
-	= a1:Alteration sp a2:Alterations { return a2.concat(a1);}
+	= a1:Alteration sp a2:Alterations { return [a1].concat(a2);}
 	/ a1:Alteration { return [a1]; }
 
 Alteration

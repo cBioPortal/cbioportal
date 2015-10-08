@@ -226,8 +226,7 @@ var StudyViewBoilerplate ={
     
     headerLeftDiv: function() {
         var _header = $('<div></div>'),
-//            _span1 = $('<span></span>'),
-//            _span2 = $('<span></span>'),
+            _breadcrumbs = $('<div></div>'),
             _span3 = $('<span></span>'),
             // span for the number of items found
             _span5 = $('<span></span>'),
@@ -283,7 +282,7 @@ var StudyViewBoilerplate ={
             .attr({
                 type: "submit",
                 id: "study-view-header-left-1",
-                value: "Query all samples",
+                value: "Query",
 //                class: "study-view-header hidden"
                 class: "study-view-header-button"
             });
@@ -293,20 +292,13 @@ var StudyViewBoilerplate ={
         _form.append(_input4);
 
 
+        //Clear all button moved to after breadcrumbs
         _span2
             .attr({
                 'id': 'study-view-header-left-2',
-//                'class': 'study-view-header hidden'})
-//            .text('Reset all');
-                'class': 'hidden study-view-header-button'})
-            .val('Reset all');
-        
-        //_span3
-        //    .attr({
-        //        'id': 'study-view-header-left-3',
-        //        'class': 'hidden'})
-        //    .text('');
-//            .val('Reset all');
+                'class': 'hidden'})
+            .css('float', 'left')
+            .val('Clear all');
 
         // changed the initialisation for span 3
         _span3
@@ -320,18 +312,13 @@ var StudyViewBoilerplate ={
         _span4
             .attr({
                 'id': 'study-view-header-left-4',
-//                'class': 'study-view-header hidden'})
-//            .text('Reset all');
                 'class': 'study-view-header-button'})
-            .val('View all cases');
+            .val('View');
 
         // span5 attributes
-        //_span5
-        //    .attr({
-        //        'id': 'study-view-header-left-5',
-        //        'class': 'hidden'})
-        //    .text('');
-        _span5.attr({'id': 'study-view-header-left-5'});
+        _span5.attr({
+            'id': 'study-view-header-leftstudy-view-header-left-5'
+        });
 
 
         // span3 is now the first item, span5 added, image added
@@ -341,10 +328,18 @@ var StudyViewBoilerplate ={
         _header.append(_span1);
         _header.append(_form);
         _header.append(_span4);
-        _header.append(_span2);
 
         // add a container for the breadcrumbs
-        _header.append("<br><br><div id='breadcrumbs_container' class='hidden'>Your selections: </div>");
+        _breadcrumbs.attr({
+            id: 'breadcrumbs_container',
+            class: 'hidden'
+        });
+        _breadcrumbs.append('<span style="float:left">Your selections: </span>');
+        _breadcrumbs.append('<div style="float:left" class="breadcrumbs_items"></div>');
+        _breadcrumbs.append(_span2);
+
+        _header.append("<br><br>");
+        _header.append(_breadcrumbs);
 
         return _header;
     },

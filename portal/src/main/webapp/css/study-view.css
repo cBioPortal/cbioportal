@@ -46,47 +46,15 @@
     z-index:21;
 }
 #study-view-header-left-0 {
-/*    left: 0;*/
-    float: left;
-    width: 160px;
-    margin: 0 5px 0 0;
-    font-family: Verdana,Arial,sans-serif;
     font-size: 1.1em;
-    border: 1px solid #d3d3d3;
-    background: #e6e6e6;
-    font-weight: normal;
-    color: #555555;
+    width: 160px;
 }
 #study-view-header-left-1 {
-    /*left: 0;*/
-    float: left;
-    margin: 0 5px 0 0;
-    /*width: 190px;*/
-    font-family: Verdana,Arial,sans-serif;
     font-size: 1.1em;
-    border: 1px solid #d3d3d3;
-    background: #e6e6e6;
-    font-weight: normal;
-    color: #555555;
-    //height: 30px;
 }
 #study-view-header-left-2 {
-    /*left: 210px;*/
-    float: left;
-    margin: 0 5px 0 0;
-    font-family: Verdana,Arial,sans-serif;
-    font-size: 1.1em;
-    border: 1px solid #d3d3d3;
-    background: #e6e6e6;
-    font-weight: normal;
-    color: #555555;
 }
 #study-view-header-left-3 {
-    /*position: absolute;*/
-    /*left: 410px;*/
-/*    height: 30px;
-    line-height: 30px;*/
-    /*top: 2px;*/
     float: left;
     border: 0;
     font-size: 13px;
@@ -96,7 +64,6 @@
     padding: 0 10px;
     background-color: white;
     width: auto;
-    /*color: #2986e2;*/
     color: black;
     text-align: center;
     font-family: Verdana,Arial,sans-serif;
@@ -115,10 +82,16 @@
     margin: 0 5px 0 0;
     font-family: Verdana,Arial,sans-serif;
     font-size: 1.1em;
-    border: 1px solid #d3d3d3;
-    background: #e6e6e6;
+    border: 1px solid darkgray;
+    background: none;
     font-weight: normal;
     color: #555555;
+    padding: 5px 10px;
+    margin-top: -3px;
+    margin-right: 10px;
+    border: solid 1px;
+    border-radius: 5px;
+    border-color: darkgrey;
 }
 .study-view-header-button:hover {
     cursor: pointer;
@@ -204,10 +177,11 @@
     position: absolute;
     top: 60px;
     width: 1200px;
-    height: 30px;
     background-color: white;
     z-index: 20;
     -webkit-backface-visibility: hidden;
+    border-bottom: 1px solid darkgray;
+    padding-bottom: 10px;
 }
 #study-view-scatter-plot-header {
     float: right;
@@ -1063,25 +1037,19 @@ div.DTTT_print_info {
     font-weight: bold;
 }
 #study-view-header-left{
-    border: solid 1px;
     display: inline-block;
-    padding: 8px 0px;
-    border-radius: 5px;
-    border-color: darkgrey;
 }
 /* based on study-view-header-left-3 */
 #study-view-header-left-5 {
     float: left;
-    font-size: 13px;
-    margin: 0;
-    vertical-align: middle;
-    padding: 5px 10px;
-    background-color: white;
-    width: 40px;
-    color: orange;
-    text-align: center;
+    margin: 0 5px 0 0;
     font-family: Verdana,Arial,sans-serif;
     font-size: 1.1em;
+    border: 1px solid darkgray;
+    background: none;
+    font-weight: normal;
+    color: orange;
+    padding: 5px 10px;
     margin-top: -3px;
     margin-right: 10px;
     border: solid 1px;

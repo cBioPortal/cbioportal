@@ -3,13 +3,13 @@ var BreadCrumbs = (function() {
     // clear all removes all the breadcrumbs from the container
     // it is called by the reset all button
     function clearAllBreadCrumbs(){
-        removeChartCrumbs($("#breadcrumbs_container").children());
+        removeChartCrumbs($("#breadcrumbs_container .breadcrumbs_items").children());
     }
 
     // delete crumbs by chartId removes the crumbs for a single chart
     // it is called when someone removes a graph
     function deleteBreadCrumbsByChartId(chartId){
-        removeChartCrumbs($("#breadcrumbs_container").find("."+chartId));
+        removeChartCrumbs($("#breadcrumbs_container .breadcrumbs_items").find("."+chartId));
     }
 
     // update scatterplot breadcrumb
@@ -41,7 +41,7 @@ var BreadCrumbs = (function() {
 
     function applyExistingFilters(){
         // find all the breadcrumbs and re-apply the filters
-        $("#breadcrumbs_container").find(".breadcrumb_remove").each(function () {
+        $("#breadcrumbs_container .breadcrumbs_items").find(".breadcrumb_remove").each(function () {
             var chartId = $(this).attr("chartID");
             var chartFilter = $(this).attr("chartFilter");
             var chartType = $(this).attr("chartType");
@@ -71,11 +71,11 @@ var BreadCrumbs = (function() {
         var crumbTipText = chartAttribute+": "+chartFilter;
 
         // if the crumbTitle is null we have to remove all the filters for this piechart
-        if(chartFilter==null) removeChartCrumbs($("#breadcrumbs_container").find("."+chartId));
+        if(chartFilter==null) removeChartCrumbs($("#breadcrumbs_container .breadcrumbs_items").find("."+chartId));
         else {
             // find the proper div
             var crumbID = getCrumbId(chartId, chartFilter);
-            var breadcrumbDiv = $("#breadcrumbs_container").find("#" + crumbID);
+            var breadcrumbDiv = $("#breadcrumbs_container .breadcrumbs_items").find("#" + crumbID);
 
             // the div doesn't exist, so the click on the chart implies we have to create the breadcrumb
             if (breadcrumbDiv.length == 0)
@@ -93,7 +93,7 @@ var BreadCrumbs = (function() {
         // find the proper div
         var crumbTipText = getBarChartTipText(chartFilter, chartAttribute);
         var crumbID = getCrumbId(chartId, chartAttribute);
-        var breadcrumbDiv = $("#breadcrumbs_container").find("#"+crumbID);
+        var breadcrumbDiv = $("#breadcrumbs_container .breadcrumbs_items").find("#"+crumbID);
 
         // the div doesn't exist and the user selected a valid range; add the breadcrumb
         if(breadcrumbDiv.length==0 && crumbTipText!==""){
@@ -146,7 +146,7 @@ var BreadCrumbs = (function() {
             });
             //dc.redrawAll();
             // reset the css
-            if($("#breadcrumbs_container").children().length==0) {
+            if($("#breadcrumbs_container .breadcrumbs_items").children().length==0) {
                 removeChartCrumbResetCSS();
             }
         }
@@ -155,7 +155,7 @@ var BreadCrumbs = (function() {
     // remove a single breadcrumb
     function removeChartCrumb(chartId, crumbTitle){
         var crumbID = getCrumbId(chartId, crumbTitle);
-        var breadcrumbDiv = $("#breadcrumbs_container").find("#"+crumbID);
+        var breadcrumbDiv = $("#breadcrumbs_container .breadcrumbs_items").find("#"+crumbID);
         removeChartCrumbs(breadcrumbDiv);
     }
 
@@ -186,8 +186,8 @@ var BreadCrumbs = (function() {
         var crumbID = getCrumbId(chartId, crumbTitle);
 
         var breadCrumbDiv = StudyViewBoilerplate.breadCrumbDiv;
-        $("#breadcrumbs_container").append(breadCrumbDiv);
-        breadCrumbDiv = $("#breadcrumbs_container").children().last();
+        $("#breadcrumbs_container .breadcrumbs_items").append(breadCrumbDiv);
+        breadCrumbDiv = $("#breadcrumbs_container .breadcrumbs_items").children().last();
 
         // settings for a single breadcrumb
         // set the class to the chartId to be able to easily find all the breadcrumbs for the chart
@@ -219,7 +219,7 @@ var BreadCrumbs = (function() {
         $("#" + crumbID).on("click", "#" + crumbID + "_img", removeFiltering);
 
         // if this is the first breadcrumb, show the container and slightly increase the space for visualisation
-        if ($("#breadcrumbs_container").children().length == 1) {
+        if ($("#breadcrumbs_container .breadcrumbs_items").children().length == 1) {
             $("#breadcrumbs_container").css('display', 'block');
             $("#study-view-top-wrapper").css("height", 70)
         }

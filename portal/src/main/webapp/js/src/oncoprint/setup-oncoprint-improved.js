@@ -411,18 +411,20 @@ window.setUpOncoprint = function(ctr_id, config) {
 		var updatePercentAlteredIndicator = function() {
 			if (config.percent_altered_indicator_selector) {
 				if (!using_sample_data) {
-					var altered_patient_count = _.uniq(_.map(splitIdString(window.PortalGlobals.getAlteredSampleIdList()), function(x) {
-						return sample_to_patient[x];
-					})).length;
-					var unaltered_patient_count = _.uniq(_.map(splitIdString(window.PortalGlobals.getUnalteredSampleIdList()), function(x) {
-						return sample_to_patient[x];
-					})).length;
-					var total_patient_count = altered_patient_count + unaltered_patient_count;
-					var percent_altered = Math.ceil(100 * altered_patient_count / total_patient_count);
-					$(config.percent_altered_indicator_selector).text("Altered in " + altered_patient_count + " (" + percent_altered + "%) of " + total_patient_count + " cases/patients");
+					$.when(window.QuerySession.getAlteredPatients(), window.QuerySession.getUnalteredPatients())
+					.then(function(altered_pats, unaltered_pats) {
+						var altered_patient_count = altered_pats.length;
+						var unaltered_patient_count = unaltered_pats.length;
+						var total_patient_count = altered_patient_count + unaltered_patient_count;
+						var percent_altered = Math.ceil(100 * altered_patient_count / total_patient_count);
+						$(config.percent_altered_indicator_selector).text("Altered in " + altered_patient_count + " (" + percent_altered + "%) of " + total_patient_count + " cases/patients");
+					});
 				} else {
-					$(config.percent_altered_indicator_selector).text("Altered in "+ window.PortalGlobals.getNumOfAlteredCases() + " ("+ Math.ceil(window.PortalGlobals.getPercentageOfAlteredCases()) +"%) of "+ window.PortalGlobals.getNumOfTotalCases() + " samples");
-				}
+					$.when(window.QuerySession.getAlteredSamples(), window.QuerySession.getUnalteredSamples())
+						.then(function(altered_samps, unaltered_samps) {
+					$(config.percent_altered_indicator_selector).text("Altered in "+ altered_samps.length + " ("+ Math.ceil(100 * altered_samps.length / (altered_samps.length + unaltered_samps.length)) +"%) of "+ (altered_samps.length + unaltered_samps.length) + " samples");
+					});
+				};
 			}
 		};
 		

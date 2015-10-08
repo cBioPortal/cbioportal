@@ -180,13 +180,9 @@ var Table = function() {
                 tableBodyStr += '<tr style="white-space: nowrap;">';
             }
 
-            // create a unique identifier for the clickable samples part
-            // the identifier is the tableId + the row's gene
-            // the identifier can then be used by the breadcrumbs to find the correct row
-            var cellId = divs.tableId+"_"+arr[i]['gene'];
             for(j = 0; j < attrL; j++) {
                 // added an id for the clickable component
-                tableBodyStr += '<td' + (attr[j].name === 'samples' ? ' id='+cellId+' class="clickable"' : '') + '>' + arr[i][attr[j].name] + '</td>';
+                tableBodyStr += '<td' + ( (attr[j].name === 'samples' && +arr[i].hasOwnProperty('uniqueId')) ? ' id='+ divs.tableId + '-' + arr[i].uniqueId : '') + '>' + arr[i][attr[j].name] + '</td>';
             }
             tableBodyStr += '</tr>';
         }
@@ -352,15 +348,7 @@ var Table = function() {
                         $(this).find('td:nth-child('+checkboxChildId+') input:checkbox').attr('checked', true);
                     }
                 });
-                
-                $('#'+ divs.tableId).find('table tbody tr td.clickable').unbind('hover');
-                $('#'+ divs.tableId).find('table tbody tr td.clickable').hover(function(e, i) {
-                    $(this).siblings().addBack().addClass('hoverRow');
-                },function(e, i) {
-                    $(this).siblings().addBack().removeClass('hoverRow');
-                });
-                
-                //rowClick();
+
                 checkboxClick();
             };
         }
@@ -391,30 +379,6 @@ var Table = function() {
     function addEvents() {
         deleteTable();
     }
-    
-    function rowClick() {
-        $('#' + divs.tableId + ' table tbody tr td.clickable').unbind('click');
-        $('#' + divs.tableId + ' table tbody tr td.clickable').click(function () {
-            var shiftClicked = StudyViewWindowEvents.getShiftKeyDown(),
-            highlightedRowsData = '';
-
-            if(!shiftClicked) {
-                var _isClicked = $(this).parent().hasClass('highlightRow');
-                $('#' + divs.tableId + ' tbody').find('.highlightRow').removeClass('highlightRow');
-                $('#' + divs.tableId + ' tbody').find('input:checkbox').attr('checked', false);
-                if(!_isClicked) {
-                    $(this).siblings().addBack().toggleClass('highlightRow');
-                    $(this).parent().toggleClass('highlightRow');
-                    $(this).parent().find('input:checkbox').attr('checked', true);
-                }
-            }else{
-                $(this).siblings().addBack().toggleClass('highlightRow');
-                $(this).parent().toggleClass('highlightRow');
-                $(this).parent().find('input:checkbox').attr('checked', !($(this).parent().find('input:checkbox').attr('checked')));
-            }
-            clickFunc();
-        });
-    }
 
     function checkboxClick() {
         $('#' + divs.tableId + ' table tbody tr td:nth-child('+checkboxChildId+') input:checkbox').unbind('change');
@@ -422,13 +386,11 @@ var Table = function() {
             $(this).parent().siblings().addBack().toggleClass('highlightRow');
             $(this).parent().parent().toggleClass('highlightRow');
 
-            // update the breadcrumbs
-            updateBreadCrumb(this);
-            clickFunc();
+            clickFunc(dataTable.api().row($(this).parent().parent()).data() , $(this).prop("checked"));
         });
     }
 
-    function clickFunc() {
+    function clickFunc(clickedRowData, rowChecked) {
         var highlightedRowsData = dataTable.api().rows('.highlightRow').data();
 
         if(highlightedRowsData.length === 0) {
@@ -438,35 +400,9 @@ var Table = function() {
         }
 
         if(callbacks.hasOwnProperty('rowClick')) {
-            callbacks.rowClick(divs.tableId, highlightedRowsData);
+            callbacks.rowClick(divs.tableId, highlightedRowsData, clickedRowData, rowChecked);
         }
     }
-
-    //function updateBreadCrumb(clickedCell, shiftClicked){
-    function updateBreadCrumb(clickedCell){
-        // we need the id to be able to trigger the click event when the x from the breadcrumb is clicked
-        var chartId = divs.tableId;
-        var cellId = $(clickedCell).parent().attr("id");
-        var checkboxChecked = clickedCell.checked;
-
-        // the first cell contains the gene name, which we use for the crumb's title and is also the filter
-        var firstCell = $(clickedCell).parent().siblings(":first-child");
-        var chartFilter = $(firstCell).text();
-
-        // check whether the cell has a qtip
-        // if it does, it means the text in the first cell is incomplete, e.g. B4GA... instead of B4GALT3
-        // in that case, we overwrite the chartFilter with the qtip
-        if($(firstCell).find(".hasQtip").length!=0){
-            chartFilter = $(firstCell).find(".hasQtip").attr('qtip');
-        }
-
-        var crumbTitle = chartFilter;
-        var crumbTipText = divs.title+": "+crumbTitle;
-
-        BreadCrumbs.updateTableBreadCrumb(chartId, chartFilter, "table", cellId, crumbTipText, checkboxChecked);
-
-    }
-
     
     function deleteTable() {
         $('#'+ divs.deleteIconId).unbind('click');
@@ -485,7 +421,7 @@ var Table = function() {
             $('#' + divs.tableId + ' tbody').find('.highlightRow').removeClass('highlightRow');
             $('#' + divs.tableId + ' tbody tr td:nth-child('+checkboxChildId+') input:checkbox').attr('checked', false);
             if(callbacks.hasOwnProperty('rowClick')) {
-                callbacks.rowClick(divs.tableId, []);
+                callbacks.rowClick(divs.tableId, [], [], false);
             }
             redraw();
             hideReload();

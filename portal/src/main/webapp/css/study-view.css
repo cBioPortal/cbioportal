@@ -1055,6 +1055,9 @@ div.DTTT_print_info {
     margin-top: -2px;
     padding-right: 10px;
 }
+.breadcrumb_remove:hover{
+    cursor: pointer;
+}
 .breadcrumb_item{
     padding: 0px 5px;
     font-weight: bold;

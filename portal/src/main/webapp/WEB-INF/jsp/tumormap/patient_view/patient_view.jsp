@@ -91,7 +91,7 @@ String pathReportUrl = (String)request.getAttribute(PatientView.PATH_REPORT_URL)
 String oncokbUrl = (String)GlobalProperties.getOncoKBUrl();
 String oncokbGeneStatus = (String)GlobalProperties.getOncoKBGeneStatus();
 
-boolean enableChangHotspot = (Boolean) GlobalProperties.enableChangHotspot();
+boolean showHotspot = (Boolean) GlobalProperties.showHotspot();
 
 //String drugType = xssUtil.getCleanerInput(request, "drug_type");
 String drugType = request.getParameter("drug_type");
@@ -417,7 +417,7 @@ var caseMetaData = {
     color : {}, label : {}, index : {}, tooltip : {}
 };
 var oncokbGeneStatus = <%=oncokbGeneStatus%>;
-var enableChangHotspot = <%=enableChangHotspot%>;
+var showHotspot = <%=showHotspot%>;
 
 OncoKB.setUrl('<%=oncokbUrl%>');
 

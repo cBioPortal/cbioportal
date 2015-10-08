@@ -10851,8 +10851,16 @@ function Mutation3dVis(name, options)
 		// init html5 version (Jsmol)
 		//_3dApp = new JmolWrapper(false);
 
-		// init framed JSmol version
-		_3dApp = new JSmolWrapper();
+		if (cbio.util.browser.msie)
+		{
+			// use Java version for IE
+			_3dApp = new JmolWrapper(true);
+		}
+		else
+		{
+			// init framed JSmol version for other browsers
+			_3dApp = new JSmolWrapper();
+		}
 
 		// init app (with frames)
 		_3dApp.init(name, _options.appOptions, _options.frame);

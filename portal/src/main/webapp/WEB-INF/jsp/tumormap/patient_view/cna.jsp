@@ -38,7 +38,6 @@
     var cnaTableIndices = cbio.util.arrayToAssociatedArrayIndices(["id","case_ids","gene","alteration","cytoband","mrna","altrate","drug", "oncokb"]);
     function buildCnaDataTable(cnas, cnaEventIds, table_id, sDom, iDisplayLength, sEmptyInfo) {
         var data = [];
-        var tumorType = clinicalDataMap[Object.keys(clinicalDataMap)[0]].CANCER_TYPE;
         var oncokbInstance;
 
         if(OncoKB.getAccess()) {
@@ -46,7 +45,7 @@
             if(oncokbGeneStatus){
                 oncokbInstance.setGeneStatus(oncokbGeneStatus);
             }
-            oncokbInstance.setTumorType(tumorType);
+            oncokbInstance.setTumorType(OncoKB.utils.getTumorTypeFromClinicalDataMap(clinicalDataMap));
         }
 
         for (var i=0, nEvents=cnaEventIds.length; i<nEvents; i++) {

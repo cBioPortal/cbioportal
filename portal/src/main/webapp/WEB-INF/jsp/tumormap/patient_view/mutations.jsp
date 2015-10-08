@@ -117,13 +117,12 @@
     function buildMutationsDataTable(mutations,mutEventIds, table_id, sDom, iDisplayLength, sEmptyInfo, compact) {
         var data = [];
         var oncokbInstance;
-        var tumorType = clinicalDataMap[Object.keys(clinicalDataMap)[0]].CANCER_TYPE;
         if(OncoKB.getAccess()) {
             oncokbInstance = new OncoKB.Instance();
             if(oncokbGeneStatus){
                 oncokbInstance.setGeneStatus(oncokbGeneStatus);
             }
-            oncokbInstance.setTumorType(tumorType);
+            oncokbInstance.setTumorType(OncoKB.utils.getTumorTypeFromClinicalDataMap(clinicalDataMap));
         }
         for (var i=0, nEvents=mutEventIds.length; i<nEvents; i++) {
             var _id = mutEventIds[i];
@@ -244,8 +243,8 @@
                                        "<img src='images/mcg_logo.png'></span>";
                                 }
 
-                                if(enableChangHotspot && mutations.getValue(source[0], 'is-hotspot')) {
-                                    ret += "<span class='"+table_id+"-chang-hotspot' alteration='"+aa+"' oncokbId='"+source[0]+"' style='margin-left:5px;'><img width='13' height='13' src='images/oncokb-flame.svg'></span>";
+                                if(showHotspot && mutations.getValue(source[0], 'is-hotspot')) {
+                                    ret += "<span class='"+table_id+"-hotspot' alteration='"+aa+"' oncokbId='"+source[0]+"' style='margin-left:5px;'><img width='13' height='13' src='images/oncokb-flame.svg'></span>";
                                 }
 
                                 var aaOriginal = mutations.getValue(source[0], 'aa-orig');
@@ -894,8 +893,8 @@
                     plotMutRate("."+table_id+"-mut-cohort",mutations);
                     addNoteTooltip("."+table_id+"-tip");
                     addNoteTooltip("."+table_id+"-ma-tip",null,{my:'top right',at:'bottom center',viewport: $(window)});
-                    if(enableChangHotspot) {
-                        addNoteTooltip('.'+table_id+'-chang-hotspot', '<b>Recurrent Hotspot</b><br/>This mutated amino acid was identified as a recurrent hotspot (statistical significance, q-value < 0.01) in a set of 11,119 tumor samples of various cancer types (based on Chang, M. et al. Nature Biotech. 2015).');
+                    if(showHotspot) {
+                        addNoteTooltip('.'+table_id+'-hotspot', '<b>Recurrent Hotspot</b><br/>This mutated amino acid was identified as a recurrent hotspot (statistical significance, q-value < 0.01) in a set of 11,119 tumor samples of various cancer types (based on Chang, M. et al. Nature Biotech. 2015).');
                     }
                     addDrugsTooltip("."+table_id+"-drug-tip", 'top right', 'bottom center');
                     addCosmicTooltip(table_id);

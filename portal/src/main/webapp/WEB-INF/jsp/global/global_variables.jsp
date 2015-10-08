@@ -200,7 +200,7 @@
 %>
 
 <!--Global Data Objects Manager-->
-<script type="text/javascript" src="js/lib/oql-parser-8-15.js"></script>
+<script type="text/javascript" src="js/lib/oql/oql-parser.js"></script>
 <script type="text/javascript" src="js/api/cbioportal-datamanager.js"></script>
 <script type="text/javascript">
     var PortalDataColl = (function() {
@@ -356,7 +356,7 @@
 
     };
     (function setUpDataManager() {
-        window.PortalDataManager = window.initDatamanager('<%=geneticProfiles%>'.trim().split(/\s+/),
+        window.QuerySession = window.initDatamanager('<%=geneticProfiles%>'.trim().split(/\s+/),
                                                             '<%=oql%>'.trim(),
                                                             ['<%=cancerTypeId%>'.trim()],
                                                             '<%=patients%>'.trim().split(/\s+/));
@@ -379,7 +379,7 @@
             });
         });     
 
-        var _sampleIds = window.PortalDataManager.getSampleIds();
+        var _sampleIds = window.QuerySession.getSampleIds();
         window.PortalGlobals.setSampleIds(_sampleIds);
 
         //Configure the summary line of alteration statstics

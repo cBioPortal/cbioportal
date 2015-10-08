@@ -59,7 +59,7 @@ var Table = function() {
             callbacks.callback();
         }
     }
-    
+
     function initData(input) {
         if(input.hasOwnProperty('opts') && input.opts.hasOwnProperty('parentId')) {
             var tableId = input.opts.hasOwnProperty('tableId')?input.opts.tableId:createTableId();
@@ -79,12 +79,12 @@ var Table = function() {
         }else {
             initStatus = false;
         }
-        
+
         if(input.hasOwnProperty('callbacks')) {
             callbacks = input.callbacks;
         }
     }
-    
+
     function createTableId() {
         var randomId = 'special-table-' + Math.floor((Math.random() * 100) + 1);
         if($('#' + randomId).length === 0) {
@@ -93,12 +93,12 @@ var Table = function() {
             return createTableId();
         }
     }
-    
+
     function initDiv() {
         var _div = "<div id='"+divs.mainId+"' class='study-view-dc-chart study-view-tables h1half w2'>"+
             "<div id='"+divs.headerId+"'style='height: 16px; width:100%; float:left; text-align:center;'>"+
                 "<div class='titleWrapper' id='"+divs.titleWrapperId+"'>"+
-                    "<img id='"+divs.reloadId+"' class='study-view-title-icon hidden hover' src='images/reload-alt.svg'/>"+    
+                    "<img id='"+divs.reloadId+"' class='study-view-title-icon hidden hover' src='images/reload-alt.svg'/>"+
 //                    "<div id='"+divs.downloadWrapperId+"' class='study-view-download-icon'>" +
 //                        "<img id='"+divs.downloadId+"' style='float:left' src='images/in.svg'/>"+
 //                    "</div>"+
@@ -158,7 +158,7 @@ var Table = function() {
         table.html(tableHtml);
 
         var tableHeader = table.find('table thead tr');
-        
+
         //Append table header
         for(i=0; i< attrL; i++){
             tableHeaderStr += '<th style=" white-space: nowrap;" ';
@@ -168,9 +168,9 @@ var Table = function() {
             tableHeaderStr += '>'+ attr[i].displayName||'Unknown' +'</th>';
         }
         tableHeader.append(tableHeaderStr);
-        
+
         var tableBody = table.find('tbody');
-        
+
         //Append table body
         for(i = 0; i < arrL; i++){
 
@@ -184,9 +184,12 @@ var Table = function() {
             // the identifier is the tableId + the row's gene
             // the identifier can then be used by the breadcrumbs to find the correct row
             var cellId = divs.tableId+"_"+arr[i]['gene'];
+            // also store the actual gene to prevent problems with truncated names (e.g. PPP2...)
+            var geneId = arr[i]['gene'];
+
             for(j = 0; j < attrL; j++) {
                 // added an id for the clickable component
-                tableBodyStr += '<td' + (attr[j].name === 'samples' ? ' id='+cellId+' class="clickable"' : '') + '>' + arr[i][attr[j].name] + '</td>';
+                tableBodyStr += '<td' + (attr[j].name === 'samples' ? ' id='+cellId+' geneId='+geneId+' class="clickable"' : '') + '>' + arr[i][attr[j].name] + '</td>';
             }
             tableBodyStr += '</tr>';
         }
@@ -196,7 +199,7 @@ var Table = function() {
             hideReload();
         }
     }
-    
+
     function initDataTable() {
         var dataTableOpts = {
             "sDom": 'rt<f>',
@@ -218,14 +221,14 @@ var Table = function() {
                         .attr('placeholder', 'Search...');
             }
         };
-        
+
         var geneIndex = -1,
             altTypeIndex = -1,
             cytobandIndex = -1,
             samplesIndex = -1,
             qvalIndex = -1,
             unvisiable = [];
-        
+
         attr.forEach(function(e, i){
             if(e.name === 'gene') {
                 geneIndex = i;
@@ -247,14 +250,14 @@ var Table = function() {
                 unvisiable.push(i);
             }
         });
-        
+
         if(unvisiable.length > 0) {
             dataTableOpts.aoColumnDefs.push({
                 "targets": unvisiable,
                 'visible': false
             });
         }
-        
+
         if(samplesIndex !== -1) {
             dataTableOpts.aoColumnDefs.push({
                 "aTargets": [samplesIndex],
@@ -266,9 +269,9 @@ var Table = function() {
                     return _samplesType;
                 }
             });
-            dataTableOpts.aaSorting.push([samplesIndex, 'desc']); 
+            dataTableOpts.aaSorting.push([samplesIndex, 'desc']);
         }
-        
+
         if(altTypeIndex !== -1) {
             dataTableOpts.aoColumnDefs.push({
                 "aTargets": [altTypeIndex],
@@ -288,7 +291,7 @@ var Table = function() {
             });
             dataTableOpts.aaSorting.push([3, 'desc']);
         }
-        
+
         if(cytobandIndex !== -1) {
             dataTableOpts.aoColumnDefs.push({
                 "aTargets": [cytobandIndex],
@@ -339,7 +342,7 @@ var Table = function() {
                     return _gene;
                 }
             });
-              
+
             dataTableOpts.fnDrawCallback = function() {
                 $('#'+ divs.tableId).find('.hasQtip').each(function(e, i) {
                     $(this).qtip('destroy', true);
@@ -352,14 +355,14 @@ var Table = function() {
                         $(this).find('td:nth-child('+checkboxChildId+') input:checkbox').attr('checked', true);
                     }
                 });
-                
+
                 $('#'+ divs.tableId).find('table tbody tr td.clickable').unbind('hover');
                 $('#'+ divs.tableId).find('table tbody tr td.clickable').hover(function(e, i) {
                     $(this).siblings().addBack().addClass('hoverRow');
                 },function(e, i) {
                     $(this).siblings().addBack().removeClass('hoverRow');
                 });
-                
+
                 //rowClick();
                 checkboxClick();
             };
@@ -376,7 +379,7 @@ var Table = function() {
             position: {my:'top right',at:'bottom center',viewport: $(window)}
         });
     }
-    
+
     function redraw(data, callback) {
         dataTable = null;
         $('#' + divs.tableId).empty();
@@ -387,11 +390,11 @@ var Table = function() {
             callback();
         }
     }
-    
+
     function addEvents() {
         deleteTable();
     }
-    
+
     function rowClick() {
         $('#' + divs.tableId + ' table tbody tr td.clickable').unbind('click');
         $('#' + divs.tableId + ' table tbody tr td.clickable').click(function () {
@@ -442,32 +445,20 @@ var Table = function() {
         }
     }
 
-    //function updateBreadCrumb(clickedCell, shiftClicked){
+    // Update breadcrumb
     function updateBreadCrumb(clickedCell){
         // we need the id to be able to trigger the click event when the x from the breadcrumb is clicked
         var chartId = divs.tableId;
         var cellId = $(clickedCell).parent().attr("id");
+        var geneId = $(clickedCell).parent().attr("geneId");
         var checkboxChecked = clickedCell.checked;
+        var crumbTipText = divs.title+": "+geneId;
 
-        // the first cell contains the gene name, which we use for the crumb's title and is also the filter
-        var firstCell = $(clickedCell).parent().siblings(":first-child");
-        var chartFilter = $(firstCell).text();
-
-        // check whether the cell has a qtip
-        // if it does, it means the text in the first cell is incomplete, e.g. B4GA... instead of B4GALT3
-        // in that case, we overwrite the chartFilter with the qtip
-        if($(firstCell).find(".hasQtip").length!=0){
-            chartFilter = $(firstCell).find(".hasQtip").attr('qtip');
-        }
-
-        var crumbTitle = chartFilter;
-        var crumbTipText = divs.title+": "+crumbTitle;
-
-        BreadCrumbs.updateTableBreadCrumb(chartId, chartFilter, "table", cellId, crumbTipText, checkboxChecked);
-
+        BreadCrumbs.updateTableBreadCrumb(chartId, geneId, "table", cellId, crumbTipText, checkboxChecked);
     }
 
-    
+
+
     function deleteTable() {
         $('#'+ divs.deleteIconId).unbind('click');
         $('#'+ divs.deleteIconId).click(function() {
@@ -478,7 +469,7 @@ var Table = function() {
             }
         });
     }
-    
+
     function reset() {
         $('#'+ divs.reloadId).unbind('click');
         $('#'+ divs.reloadId).click(function() {
@@ -491,17 +482,17 @@ var Table = function() {
             hideReload();
         });
     }
-    
+
     function showReload() {
         $('#' + divs.reloadId).css('display', 'block');
         $('#' + divs.mainId).css({'border-width':'2px', 'border-style':'inset'});
     }
-    
+
     function hideReload() {
         $('#' + divs.reloadId).css('display', 'none');
         $('#' + divs.mainId).css({'border-width':'1px', 'border-style':'solid'});
     }
-    
+
     function showHideDivision(_listenedDiv, _targetDiv, _time){
         var _targetLength = _targetDiv.length;
         for ( var i = 0; i < _targetLength; i++) {

@@ -112,7 +112,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                                     _.each(_.pluck(profileMetaListTmp.models, "attributes"), function (_profile_obj) {
                                         _profile_obj.CANCER_STUDY_STABLE_ID = profileMetaListTmp.cancer_study_id;
                                         _profile_obj.CASE_SET_ID = _study_obj.caseSetId;
-                                        _profile_obj.CANCER_STUDY_NAME = window.metaDataJson["cancer_studies"][_study_obj.studyId].name;
+                                        _profile_obj.CANCER_STUDY_NAME = window.PortalMetaData["cancer_studies"][_study_obj.studyId].name;
                                     });
                                     profileMetaList.add(profileMetaListTmp.models);
                                     if (_study_index + 1 === window.studies.length) { //reach the end of the iteration
@@ -205,7 +205,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
             },
             settings = {
                 canvas_width: 0,
-                canvas_height: 900,
+                canvas_height: 600,
                 log_scale: {
                     threshold_down : 0.17677669529,  //-2.5 to 10
                     threshold_up : 1.2676506e+30
@@ -253,7 +253,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 });
             },
             init_canvas = function() {
-                settings.canvas_width = _.pluck(data.get_meta(), "STABLE_ID").length * 100 + 400;
+                settings.canvas_width = _.pluck(data.get_meta(), "STABLE_ID").length * 100 + 250;
                 elem.svg = d3.select("#cc-plots-box")
                     .append("svg")
                     .attr("id", "cc-plots-canvas")
@@ -277,10 +277,10 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 });
 
                 //x axis
-                var x_axis_right = (_.pluck(data.get_meta(), "STABLE_ID").length * 100 + 300);
+                var x_axis_right = (_.pluck(data.get_meta(), "STABLE_ID").length * 100 + 160);
                 elem.x.scale = d3.scale.ordinal()
                     .domain(_.pluck(data.get_meta(), "STABLE_ID"))
-                    .rangeRoundBands([300, x_axis_right]);
+                    .rangeRoundBands([160, x_axis_right]);
 
                 elem.x.axis = d3.svg.axis()
                     .scale(elem.x.scale)
@@ -296,6 +296,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                     .call(elem.x.axis.ticks(data.get_meta().length))
                     .selectAll("text")
                     .data(data.get_meta())
+                    .attr("class", "x-axis-label")
                     .style("font-family", "sans-serif")
                     .style("font-size", "12px")
                     .style("stroke-width", 0.5)
@@ -303,7 +304,9 @@ var ccPlots = (function ($, _, Backbone, d3) {
                     .style("fill", "black")
                     .style("text-anchor", "end")
                     .attr("transform", function() { return "rotate(-30)"; })
-                    .text(function(d) { return d["CANCER_STUDY_NAME"]; });
+                    .text(function(d) {
+                        return window.PortalMetaData.cancer_studies[d.CANCER_STUDY_STABLE_ID].short_name;
+                    });
                 elem.svg.append("g")
                     .style("stroke-width", 1.5)
                     .style("fill", "none")
@@ -311,6 +314,18 @@ var ccPlots = (function ($, _, Backbone, d3) {
                     .style("shape-rendering", "crispEdges")
                     .attr("transform", "translate(0, 20)")
                     .call(elem.x.axis.tickFormat("").ticks(0).tickSize(0));
+
+                elem.svg.selectAll(".x-axis-label").each(function(d) {
+                    $(this).qtip(
+                        {
+                            content: {text: "<font size=2>" + d.CANCER_STUDY_NAME + "</font>" },
+                            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+                            show: {event: "mouseover"},
+                            hide: {fixed:true, delay: 100, event: "mouseout"},
+                            position: {my:'left bottom',at:'top right', viewport: $(window)}
+                        }
+                    );
+                });
 
                 //y axis
                 var _y_str_arr = _.filter(_.pluck(_.pluck(_input, "attributes"), "value"), function(item) { return item !== "NaN"});
@@ -332,7 +347,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                     .style("fill", "none")
                     .style("stroke", "grey")
                     .style("shape-rendering", "crispEdges")
-                    .attr("transform", "translate(300, 0)")
+                    .attr("transform", "translate(160, 0)")
                     .attr("class", "y-axis")
                     .call(elem.y.axis.ticks(5))
                     .selectAll("text")
@@ -357,7 +372,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                     .attr("class", "y-title")
                     .attr("transform", "rotate(-90)")
                     .attr("x", -250)
-                    .attr("y", 220)
+                    .attr("y", 70)
                     .style("text-anchor", "middle")
                     .style("font-weight","bold")
                     .text($("#cc_plots_gene_list").val() + " expression -- RNA-Seq V2");
@@ -418,7 +433,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                     .enter().append("g")
                     .attr("class", "legend")
                     .attr("transform", function(d, i) {
-                        return "translate(" + (_.pluck(data.get_meta(), "STABLE_ID").length * 100 + 310) + ", " + (25 + i * 15) + ")";
+                        return "translate(" + (_.pluck(data.get_meta(), "STABLE_ID").length * 100 + 170) + ", " + (25 + i * 15) + ")";
                     });
 
                 legend.append("path")
@@ -646,13 +661,13 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 .orient("left");
 
             d3.select("#cc-plots-box").select(".y-axis").remove();
-            var x_axis_right = (_.pluck(data.get_meta(), "STABLE_ID").length * 100 + 300);
+            var x_axis_right = (_.pluck(data.get_meta(), "STABLE_ID").length * 100 + 160);
             elem.svg.append("g")
                 .style("stroke-width", 1.5)
                 .style("fill", "none")
                 .style("stroke", "grey")
                 .style("shape-rendering", "crispEdges")
-                .attr("transform", "translate(300, 0)")
+                .attr("transform", "translate(160, 0)")
                 .attr("class", "y-axis")
                 .call(elem.y.axis.ticks(5))
                 .selectAll("text")
@@ -677,7 +692,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 .attr("class", "y-title")
                 .attr("transform", "rotate(-90)")
                 .attr("x", -250)
-                .attr("y", 220)
+                .attr("y", 70)
                 .style("text-anchor", "middle")
                 .style("font-weight","bold")
                 .text($("#cc_plots_gene_list").val() + " expression -- RNA-Seq V2 (log2)");
@@ -742,13 +757,13 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 .orient("left");
 
             d3.select("#cc-plots-box").select(".y-axis").remove();
-            var x_axis_right = (_.pluck(data.get_meta(), "STABLE_ID").length * 100 + 300);
+            var x_axis_right = (_.pluck(data.get_meta(), "STABLE_ID").length * 100 + 160);
             elem.svg.append("g")
                 .style("stroke-width", 1.5)
                 .style("fill", "none")
                 .style("stroke", "grey")
                 .style("shape-rendering", "crispEdges")
-                .attr("transform", "translate(300, 0)")
+                .attr("transform", "translate(160, 0)")
                 .attr("class", "y-axis")
                 .call(elem.y.axis.ticks(5))
                 .selectAll("text")
@@ -773,7 +788,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 .attr("class", "y-title")
                 .attr("transform", "rotate(-90)")
                 .attr("x", -250)
-                .attr("y", 220)
+                .attr("y", 70)
                 .style("text-anchor", "middle")
                 .style("font-weight","bold")
                 .text($("#cc_plots_gene_list").val() + " expression -- RNA-Seq V2");
@@ -905,7 +920,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 cc_plots_timer();
             }, 1000);
             function cc_plots_timer() {
-                if (window.metaDataJson !== undefined) {
+                if (window.PortalMetaData !== undefined) {
                     clearInterval(cc_plots_time_out);
                     data.init(view.init);
                 }

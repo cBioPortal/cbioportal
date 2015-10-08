@@ -145,6 +145,7 @@
                         window.studies = studies;
 
                         $.getJSON("portal_meta_data.json", function(metaData) {
+                            window.PortalMetaData = metaData;
                             var histDataOrg = studies.toJSON();
                             (new HideStudyControlView({
                                 model: {

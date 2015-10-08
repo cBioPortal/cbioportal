@@ -269,7 +269,7 @@ var StudyViewInitTables = (function() {
 
     function deleteTable(tableId, title) {
         $('#' + tableId + '-main').css('display','none');
-        $('#study-view-add-chart').css('display','block');
+        $('#study_view_add_chart_chzn').css('display','block');
         $('#study-view-add-chart')
                 .append($('<option></option>')
                     .attr('id',tableId + '-main' + '-option')
@@ -277,8 +277,8 @@ var StudyViewInitTables = (function() {
         // delete breadcrumbs
         workers.forEach(function (e, i) {
             if(e.opts.tableId === tableId) {
-                e.data.selectedSamples.length = 0;
-                e.data.selected.length = 0;
+                e.data.selectedSamples = [];
+                e.data.selected = [];
             }
         });
         rowClick(tableId, [], [], false);

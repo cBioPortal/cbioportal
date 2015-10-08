@@ -474,7 +474,7 @@ var StudyViewInitCharts = (function(){
                 _title = $(this).parent().parent().find("charttitleh4").text();
            
             $($(this).parent().parent().parent()).css('display','none');
-            $('#study-view-add-chart').css('display','block');
+            $('#study_view_add_chart_chzn').css('display','inline-block');
 //            $('#study-view-add-chart ul')
 //                    .append($('<li></li>')
 //                        .attr('id','survival-' + _plotId)
@@ -501,7 +501,7 @@ var StudyViewInitCharts = (function(){
             BreadCrumbs.deleteBreadCrumbsByChartId("study-view-scatter-plot");
 
             $("#study-view-scatter-plot").css('display','none');
-            $('#study-view-add-chart').css('display','block');
+            $('#study_view_add_chart_chzn').css('display','block');
 //            $('#study-view-add-chart ul')
 //                    .append($('<li></li>')
 //                        .attr('id','mutationCNA')
@@ -965,7 +965,7 @@ var StudyViewInitCharts = (function(){
         });
         $('#study-view-add-chart').find('option:not(:first)').remove();
         $('#study-view-add-chart').append(_options);
-        $('#study-view-add-chart').css('display','block');
+        $('#study_view_add_chart_chzn').css('display','inline-block');
         varChart[_chartID] = "";
         removedChart.push(Number(_chartID));
     }
@@ -1180,12 +1180,12 @@ var StudyViewInitCharts = (function(){
 //            $('#study-view-add-chart ul').find('li[id="' + _selectedAttr + '"]').remove();
             $('#study-view-add-chart').find('option[id="' + _id + '"]').remove();
 //            if($('#study-view-add-chart ul').find('li').length === 0 ){
-            if($('#study-view-add-chart').find('option').length === 1 && 
+            if($('#study-view-add-chart').find('option').length === 1 &&
                     $('#study-view-add-chart').find('option').attr('id') === ''){
-                $('#study-view-add-chart').css('display','none');
+                $('#study_view_add_chart_chzn').css('display','none');
             }
-            
-//            $('#study-view-add-chart ul').css('height','100%');
+
+            $("#study-view-add-chart").trigger("liszt:updated");
         }
     }
     

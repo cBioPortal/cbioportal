@@ -317,7 +317,7 @@ var StudyViewBoilerplate ={
 
         // span5 attributes
         _span5.attr({
-            'id': 'study-view-header-leftstudy-view-header-left-5'
+            'id': 'study-view-header-left-5'
         });
 
 
@@ -353,7 +353,7 @@ var StudyViewBoilerplate ={
                 "<button type='button' id='study-view-case-select-custom-submit-btn' style='float: right;'>Select</button>" +
             "</div>",
     addChartDiv:
-            "<select id='study-view-add-chart'><option id=''>Add Chart</option></select>",
+            "<select id='study-view-add-chart' class='chosen-select'><option id=''>Add Chart</option></select>",
 //            "<div  id='study-view-add-chart' class='study-view-header'>" +
 //                "<span>Add Chart</span><br>" +
 //                "<ul>" +

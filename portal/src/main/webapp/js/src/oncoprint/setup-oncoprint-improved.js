@@ -212,20 +212,22 @@ window.setUpOncoprint = function(ctr_id, config) {
 		var update_covering_block_interval;
 		
 		oncoprintFadeTo = function (f) {
-			update_covering_block_interval = setInterval(function() {
-				oncoprint_covering_block.css({'display':'block', 'width':$(ctr_selector).width()+'px', 'height':$(ctr_selector).height()+'px'});
-			}, 200);
-			$(config.toolbar_selector).fadeTo('fast', 0);
+			if (!update_covering_block_interval) {
+				update_covering_block_interval = setInterval(function() {
+					oncoprint_covering_block.css({'display':'block', 'width':$(ctr_selector).width()+'px', 'height':$(ctr_selector).height()+'px'});
+				}, 200);
+			}
+			$(config.toolbar_selector).stop().fadeTo('fast', 0);
 			return $.when(oncoprint_covering_block.fadeTo('fast', f));
 		};
 		oncoprintFadeIn = function () {
-			if (update_covering_block_interval) {
-				clearInterval(update_covering_block_interval);
-				update_covering_block_interval = undefined;
-			}
-			$(config.toolbar_selector).fadeTo('fast', 1);
-			var hide_covering_block_promise = $.when(oncoprint_covering_block.fadeTo('fast', 0));
+			$(config.toolbar_selector).stop().fadeTo('fast', 1);
+			var hide_covering_block_promise = $.when(oncoprint_covering_block.stop().fadeTo('fast', 0));
 			hide_covering_block_promise.then(function() {
+				if (update_covering_block_interval) {
+					clearInterval(update_covering_block_interval);
+					update_covering_block_interval = undefined;
+				}
 				oncoprint_covering_block.css('display','none');
 			});
 			return hide_covering_block_promise;

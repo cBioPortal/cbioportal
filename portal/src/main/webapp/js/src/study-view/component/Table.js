@@ -41,9 +41,8 @@ var Table = function() {
         dataTable = '',
         callbacks = {},
         checkboxChildId = -1,
-        initStatus = false,
-        self = this;
-
+        initStatus = false;
+    
     function init(input) {
         initStatus = true;
         try {
@@ -464,9 +463,7 @@ var Table = function() {
         $('#'+ divs.deleteIconId).unbind('click');
         $('#'+ divs.deleteIconId).click(function() {
             if(callbacks.hasOwnProperty('deleteTable')) {
-                // delete breadcrumbs
-                BreadCrumbs.deleteBreadCrumbsByChartId(divs.tableId);
-                callbacks.deleteTable(divs.mainId, divs.title);
+                callbacks.deleteTable(divs.tableId, divs.title);
             }else {
                 redraw();
             }

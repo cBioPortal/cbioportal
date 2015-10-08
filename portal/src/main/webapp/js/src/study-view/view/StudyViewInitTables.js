@@ -227,14 +227,23 @@ var StudyViewInitTables = (function() {
         StudyViewInitCharts.redrawScatter();
         StudyViewInitCharts.redrawWSCharts(exceptionId);
     }
-    
+
     function deleteTable(tableId, title) {
-        $('#' + tableId).css('display','none');
+        $('#' + tableId + '-main').css('display','none');
         $('#study-view-add-chart').css('display','block');
         $('#study-view-add-chart')
                 .append($('<option></option>')
-                    .attr('id',tableId + '-option')
+                    .attr('id',tableId + '-main' + '-option')
                     .text(title));
+        // delete breadcrumbs
+        workers.forEach(function (e, i) {
+            if(e.opts.tableId === tableId) {
+                e.data.selectedSamples.length = 0;
+                e.data.selected.length = 0;
+            }
+        });
+        rowClick(tableId, []);
+        BreadCrumbs.deleteBreadCrumbsByChartId(tableId);
         StudyViewInitCharts.bondDragForLayout();
         AddCharts.bindliClickFunc();
     }

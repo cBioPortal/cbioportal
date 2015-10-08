@@ -306,6 +306,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		};
 		var fetchOncoprintGeneData = (function() {
 			var profile_types = {};
+			var sample_to_patient = {};
 			var data_fetched = false;
 
 			var makeOncoprintSampleData = function(webservice_gp_data) {
@@ -389,7 +390,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 				};
 				for (var i=0, _len=oncoprint_sample_data.length; i<_len; i++) {
 					var d = oncoprint_sample_data[i];
-					var patient_id = d.patient_id;
+					var patient_id = sample_to_patient[d.sample];
 					var gene = d.gene;
 					pat_to_gene_to_datum[patient_id] = pat_to_gene_to_datum[patient_id] || {};
 					pat_to_gene_to_datum[patient_id][gene] = pat_to_gene_to_datum[patient_id][gene] || {patient: patient_id, gene:gene};
@@ -442,11 +443,17 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 				if (data_fetched) {
 					def.resolve();
 				} else {
-					window.cbioportal_client.getGeneticProfiles({genetic_profile_ids: dm_ret.getGeneticProfileIds()}).then(function(response) {
-						for (var i = 0; i < response.length; i++) {
-							profile_types[response[i].id] = response[i].genetic_alteration_type;
+					$.when(window.cbioportal_client.getGeneticProfiles({genetic_profile_ids: dm_ret.getGeneticProfileIds()}),
+						window.cbioportal_client.getSamples({study_id: [cancer_study_ids[0]], sample_ids: sample_ids}))
+					.then(function(gp_response, sample_response) {
+						for (var i = 0; i < gp_response.length; i++) {
+							profile_types[gp_response[i].id] = gp_response[i].genetic_alteration_type;
 						}
 						setDefaultOQL();
+						
+						for (var i = 0; i < sample_response.length; i++) {
+							sample_to_patient[sample_response[i].id] = sample_response[i].patient_id;
+						}
 					}).then(function() {
 						return window.cbioportal_client.getGeneticProfileData({genetic_profile_ids: dm_ret.getGeneticProfileIds(), genes: dm_ret.getQueryGenes(), sample_ids: dm_ret.getSampleIds()});
 					}).then(function(response) {

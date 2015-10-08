@@ -35,4 +35,15 @@
                 inner join cancer_study on patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
     where sample.INTERNAL_ID in <foreach item="item" collection="sample_ids" open="(" separator="," close=")">#{item}</foreach>
 </select>
+<select id="getSamplesByStudyAndPatientId" resultType="DBSample">
+    select
+        sample.STABLE_ID as id,
+        sample.SAMPLE_TYPE as sample_type,
+        patient.STABLE_ID as patient_id,
+        cancer_study.CANCER_STUDY_IDENTIFIER as study_id
+    from sample inner join patient on sample.PATIENT_ID = patient.INTERNAL_ID
+        inner join cancer_study on patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
+    where cancer_study.CANCER_STUDY_IDENTIFIER = #{study} and
+        patient.INTERNAL_ID in <foreach item="item" collection="patient_ids" open="(" separator="," close=")">#{item}</foreach>
+</select>
 </mapper>

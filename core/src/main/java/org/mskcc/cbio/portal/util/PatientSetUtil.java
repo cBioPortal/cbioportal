@@ -56,7 +56,7 @@ public class PatientSetUtil
 	 * @throws DaoException		if a DB error occurs
 	 */
 	public static List<String> validatePatientSet(String studyId,
-			String sampleIds) throws DaoException
+			String sampleIds, String patientCaseSelect) throws DaoException
 	{
 		ArrayList<String> invalidSample = new ArrayList<String>();
 		
@@ -70,12 +70,28 @@ public class PatientSetUtil
 			// validate each patient ID
 			for(String sampleId: sampleIds.trim().split("\\s+"))
 			{
+                            if(patientCaseSelect.equals("sample"))
+                            {
 				Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(iStudyId, sampleId);
 				
 				if (sample==null)
 				{
 					invalidSample.add(sampleId);
 				}
+                            }
+                            else if(patientCaseSelect.equals("patient"))
+                            {
+                                Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(iStudyId, sampleId);
+                                
+                                if (patient==null)
+				{
+					invalidSample.add(sampleId);
+				}
+                            }
+                            else
+                            {
+                                invalidSample.add(sampleId);
+                            }
 			}
 		}
 		

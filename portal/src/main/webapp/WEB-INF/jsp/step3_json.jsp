@@ -185,6 +185,10 @@ if (step3ErrorMsg != null) {
     <div id='custom_case_list_section' style="display:<%= customCaseListStyle %>;">
         <p><span style="font-size:80%">Enter case IDs below:</span></p>
 <textarea id='custom_case_set_ids' name='<%= QueryBuilder.CASE_IDS %>' rows=6 cols=80></textarea>
+<br/>
+<input type="radio" name='<%=QueryBuilder.PATIENT_CASE_SELECT %>' value="sample" checked>By sample ID</input>
+<br/>
+<input type="radio" name='<%=QueryBuilder.PATIENT_CASE_SELECT %>' value="patient">By patient ID</input>
     </div>
 
 <%

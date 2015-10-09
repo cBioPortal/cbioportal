@@ -232,11 +232,11 @@ var StudyViewBoilerplate ={
             _breadcrumbs = $('<div></div>'),
             _span3 = $('<span></span>'),
             // span for the number of items found
-            _span5 = $('<span></span>'),
             _span1 = $("<input type='button' />"),
             _span2 = $("<input type='button' />"),
             _span4 = $("<input type='button' />"),
-//            _span3 = $("<input type='button' />"),
+            _span5 = $('<span></span>'),
+            _span6 = $("<input type='button' />"),
             _form = $('<form></form>'),
             _input1 = $('<input></input>'),
             _input2 = $('<input></input>'),
@@ -321,6 +321,12 @@ var StudyViewBoilerplate ={
             'id': 'study-view-header-left-5'
         });
 
+        //Download button
+        _span6
+            .attr({
+                'id': 'study-view-header-left-6',
+                'class': 'study-view-header-button'})
+            .val('Download');
 
         // span3 is now the first item, span5 added, image added
         _headerLeft.append(_span3);
@@ -328,6 +334,7 @@ var StudyViewBoilerplate ={
         _headerLeft.append("<img id='arrow_studyview' src='images/arrow_studyview.png'>");
         _headerLeft.append(_form);
         _headerLeft.append(_span4);
+        _headerLeft.append(_span6);
 
         _headerRight.attr('id','study-view-header-right');
         _headerRight.append(_span1);

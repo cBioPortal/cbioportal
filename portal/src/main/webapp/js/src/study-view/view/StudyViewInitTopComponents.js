@@ -99,6 +99,33 @@ var StudyViewInitTopComponents = (function() {
             
             window.open(_url);
         });
+
+        $("#study-view-header-left-6").click(function () {
+            var content = '';
+            var sampleIds = StudyViewInitCharts.getSelectedCasesID();
+            var attr = StudyViewProxy.getAttrData();
+            var arr = StudyViewProxy.getArrDataBySampleIds(sampleIds);
+            attr.forEach(function(e) {
+                content += (e.display_name||'Unknown') + '\t';
+            });
+            content = content.slice(0,-1);
+
+            arr.forEach(function(e){
+                content += '\r\n';
+                attr.forEach(function(e1){
+                    content += e[e1.attr_id] + '\t';
+                });
+                content = content.slice(0,-1);
+            });
+
+            var downloadOpts = {
+                filename: StudyViewParams.params.studyId + "_clinical_data.txt",
+                contentType: "text/plain;charset=utf-8",
+                preProcess: false
+            };
+
+            cbio.download.initDownload(content, downloadOpts);
+        })
     }
 
     //The selected id should be sample based. Check patient list if unidentified id exists.

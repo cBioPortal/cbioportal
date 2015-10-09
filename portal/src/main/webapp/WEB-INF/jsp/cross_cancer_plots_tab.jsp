@@ -38,17 +38,8 @@
     }
 
     #cc-plots-sidebar {
-        width: 220px;
-    }
-
-    #cc-plots-sidebar-y-div {
-        width: inherit;
-        height: 222px;
-    }
-
-    #cc-plots-sidebar-util-div {
-        width: inherit;
-        height: 412px;
+        height: 25px;
+        width: 1160px;
     }
 
     #cc-plots-sidebar h4 {
@@ -74,16 +65,8 @@
     }
 
     #cc-plots-box {
-        width: 950px;
-        height: 670px;
-        float: right;
-    }
-
-    #cc-plots-sidebar input[type="text"] {
-        width: 150px;
-        display: inline;
-        margin-bottom: 20px;
-        margin-left: 30px;
+        width: 1160px;
+        height: 640px;
     }
 
 </style>
@@ -91,49 +74,18 @@
 
 <table>
     <tr>
-        <td>
-            <div id="cc-plots-sidebar">
-                <div id="cc-plots-sidebar-y-div" class="cc-plots">
-                    <h4>Vertical Axis</h4>
-                    <br>
-                    <h5>Gene</h5><span id="cc_plots_gene_list_select" onchange="ccPlots.update_gene();"></span><br>
-                    <br>
-                    <h5>Platform</h5>
-                    <input type="radio" name="cc_plots_platform" value="rsem" id="cc_plots_rsem" checked>
-                    <span id="cc_plots_rsem_text"> RSEM</span>
-                    <input type="radio" name="cc_plots_platform" value="rpkm" id="cc_plots_rpkm">
-                    <span id="cc_plots_rpkm_text"> RPKM</span>
-                    <br><br>
-                    <h5>Log Scale</h5>
-                    <input type="checkbox" id="cc_plots_log_scale" onchange="ccPlots.toggle_log_scale()" checked/>
-                </div>
-                <div id="cc-plots-sidebar-util-div" class="cc-plots">
-                    <h4>Utilities</h4>
-                    <br><br>
-                    <h5>Search Case(s)</h5>
-                    <input type="text" id="case_id_search_keyword" name="case_id_search_keyword"
-                           placeholder="Case ID.." onkeyup="ccPlots.search_case_id();"><br>
-                    <h5>Search Mutation(s)</h5>
-                    <input type="text" id="mutation_search_keyword"
-                           name="mutation_search_keyword" placeholder="Protein Change.."
-                           onkeyup="ccPlots.search_mutation();"><br>
-                    <div id="mutation_details_vs_gistic_view" class="mutation_details_vs_gistic_view"
-                         style="display:inline;"></div>
-                    <h5>Download</h5>
-                    <div id="cc_plots_download_buttons" style="display: inline;">
-                        <br><button id='cc_plots_svg_download' style="margin-left:30px;">SVG</button>
-                        <button id='cc_plots_pdf_download'>PDF</button>
-                        <button id='cc_plots_data_download'>Data</button>
-                    </div>
-
-                </div>
-            </div>
-        </td>
-        <td>
-            <div id="cc-plots-box" class="cc-plots" style="overflow: scroll;">
-                <img src="images/ajax-loader.gif" id="cc_plots_loading" style="padding:200px;"/>
-            </div>
-        </td>
+        <div id="cc-plots-sidebar">
+            <h5>Gene</h5><span id="cc_plots_gene_list_select" onchange="ccPlots.update_gene();"></span>
+            <h5>Log Scale</h5><input type="checkbox" id="cc_plots_log_scale" onchange="ccPlots.toggle_log_scale()" checked/>
+            <h5>Download</h5><button id='cc_plots_svg_download'>SVG</button>
+            <button id='cc_plots_pdf_download'>PDF</button>
+            <button id='cc_plots_data_download'>Data</button>
+        </div>
+    </tr>
+    <tr>
+        <div id="cc-plots-box" class="cc-plots" style="overflow: scroll;">
+            <img src="images/ajax-loader.gif" id="cc_plots_loading" style="padding:200px;"/>
+        </div>
     </tr>
 </table>
 

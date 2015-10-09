@@ -170,9 +170,10 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 }
             },
             get_meta: function() {
-                var _platform = $('input[name=cc_plots_platform]:checked').val();
+                //var _platform = $('input[name=cc_plots_platform]:checked').val();
                 return _.filter(_.pluck(profileMetaList.models, "attributes"), function(profile_obj) {
-                    return (profile_obj.NAME.toLowerCase().indexOf(_platform) !== -1);
+                    //return (profile_obj.NAME.toLowerCase().indexOf(_platform) !== -1);
+                    return (profile_obj.NAME.toLowerCase().indexOf("rsem") !== -1);
                 });
             },
             get_profile_name: function(_profile_id) {
@@ -205,7 +206,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
             },
             settings = {
                 canvas_width: 0,
-                canvas_height: 600,
+                canvas_height: 605,
                 log_scale: {
                     threshold_down : 0.17677669529,  //-2.5 to 10
                     threshold_up : 1.2676506e+30
@@ -235,25 +236,30 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 $("#cc_plots_data_download").click(function() {
                     cbio.download.clientSideDownload([ccPlots.get_tab_delimited_data()], "plots-data.txt");
                 });
-                var _has_rsem = false, _has_rpkm = false;
-                _.each(data.get_meta(), function(profile_item) {
-                    if (profile_item.NAME.toLowerCase().indexOf("rsem") !== -1) _has_rsem = true;
-                    if (profile_item.NAME.toLowerCase().indexOf("rpkm") !== -1) _has_rpkm = true;
-                });
-                if (!_has_rsem) {
-                    document.getElementById("cc_plots_rsem").disabled = true;
-                    $("#cc_plots_rsem_text").css("color", "grey");
-                }
-                if (!_has_rpkm) {
-                    document.getElementById("cc_plots_rpkm").disabled = true;
-                    $("#cc_plots_rpkm_text").css("color", "grey");
-                }
-                $('input[name=cc_plots_platform]:radio').change(function() {
-                    ccPlots.update_platform();
-                });
+                //var _has_rsem = false, _has_rpkm = false;
+                //_.each(data.get_meta(), function(profile_item) {
+                //    if (profile_item.NAME.toLowerCase().indexOf("rsem") !== -1) _has_rsem = true;
+                //    if (profile_item.NAME.toLowerCase().indexOf("rpkm") !== -1) _has_rpkm = true;
+                //});
+                //if (!_has_rsem) {
+                //    document.getElementById("cc_plots_rsem").disabled = true;
+                //    $("#cc_plots_rsem_text").css("color", "grey");
+                //}
+                //if (!_has_rpkm) {
+                //    document.getElementById("cc_plots_rpkm").disabled = true;
+                //    $("#cc_plots_rpkm_text").css("color", "grey");
+                //}
+                //$('input[name=cc_plots_platform]:radio').change(function() {
+                //    ccPlots.update_platform();
+                //});
             },
             init_canvas = function() {
-                settings.canvas_width = _.pluck(data.get_meta(), "STABLE_ID").length * 100 + 250;
+                if (_.pluck(data.get_meta(), "STABLE_ID").length < 8) {
+                    settings.canvas_width = _.pluck(data.get_meta(), "STABLE_ID").length * 100 + 250;
+                } else {
+                    settings.canvas_width = 1070;
+                }
+
                 elem.svg = d3.select("#cc-plots-box")
                     .append("svg")
                     .attr("id", "cc-plots-canvas")
@@ -277,7 +283,13 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 });
 
                 //x axis
-                var x_axis_right = (_.pluck(data.get_meta(), "STABLE_ID").length * 100 + 160);
+                var x_axis_right = 0;
+                if (_.pluck(data.get_meta(), "STABLE_ID").length < 8) {
+                    x_axis_right = (_.pluck(data.get_meta(), "STABLE_ID").length * 100 + 160);
+                } else {
+                    x_axis_right = 980;
+                }
+
                 elem.x.scale = d3.scale.ordinal()
                     .domain(_.pluck(data.get_meta(), "STABLE_ID"))
                     .rangeRoundBands([160, x_axis_right]);
@@ -433,7 +445,12 @@ var ccPlots = (function ($, _, Backbone, d3) {
                     .enter().append("g")
                     .attr("class", "legend")
                     .attr("transform", function(d, i) {
-                        return "translate(" + (_.pluck(data.get_meta(), "STABLE_ID").length * 100 + 170) + ", " + (25 + i * 15) + ")";
+                        if (_.pluck(data.get_meta(), "STABLE_ID").length < 8) {
+                            return "translate(" + (_.pluck(data.get_meta(), "STABLE_ID").length * 100 + 170) + ", " + (25 + i * 15) + ")";
+                        } else {
+                            return "translate(990, " + (25 + i * 15) + ")";
+                        }
+
                     });
 
                 legend.append("path")
@@ -661,7 +678,12 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 .orient("left");
 
             d3.select("#cc-plots-box").select(".y-axis").remove();
-            var x_axis_right = (_.pluck(data.get_meta(), "STABLE_ID").length * 100 + 160);
+            var x_axis_right = 0;
+            if (_.pluck(data.get_meta(), "STABLE_ID").length < 8 ) {
+                x_axis_right = (_.pluck(data.get_meta(), "STABLE_ID").length * 100 + 160);
+            } else {
+                x_axis_right = 980;
+            }
             elem.svg.append("g")
                 .style("stroke-width", 1.5)
                 .style("fill", "none")
@@ -757,7 +779,12 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 .orient("left");
 
             d3.select("#cc-plots-box").select(".y-axis").remove();
-            var x_axis_right = (_.pluck(data.get_meta(), "STABLE_ID").length * 100 + 160);
+            var x_axis_right = 0;
+            if (_.pluck(data.get_meta(), "STABLE_ID").length < 8) {
+                x_axis_right = (_.pluck(data.get_meta(), "STABLE_ID").length * 100 + 160);
+            } else {
+                x_axis_right = 980;
+            }
             elem.svg.append("g")
                 .style("stroke-width", 1.5)
                 .style("fill", "none")
@@ -837,10 +864,10 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 init_canvas();
                 data.get($("#cc_plots_gene_list").val(), init_box);
             },
-            update_platform: function() {
-                init_canvas();
-                data.get($("#cc_plots_gene_list").val(), init_box);
-            },
+            //update_platform: function() {
+            //    init_canvas();
+            //    data.get($("#cc_plots_gene_list").val(), init_box);
+            //},
             apply_log_scale: apply_log_scale,
             remove_log_scale: remove_log_scale,
             init_sidebar: init_sidebar,
@@ -931,11 +958,11 @@ var ccPlots = (function ($, _, Backbone, d3) {
             $("#cc-plots-box").append("<img src='images/ajax-loader.gif' id='cc_plots_loading' style='padding:200px;'/>");
             view.update_gene();
         },
-        update_platform: function() {
-            d3.select("#cc-plots-box").select("svg").remove();
-            $("#cc-plots-box").append("<img src='images/ajax-loader.gif' id='cc_plots_loading' style='padding:200px;'/>");
-            view.update_platform();
-        },
+        //update_platform: function() {
+        //    d3.select("#cc-plots-box").select("svg").remove();
+        //    $("#cc-plots-box").append("<img src='images/ajax-loader.gif' id='cc_plots_loading' style='padding:200px;'/>");
+        //    view.update_platform();
+        //},
         search_mutation: search_mutation,
         search_case_id: search_case_id,
         get_tab_delimited_data: get_tab_delimited_data,

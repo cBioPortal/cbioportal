@@ -74,6 +74,7 @@ var StudyViewInitTables = (function() {
                             displayName: 'MutSig',
                             hidden: true
                         },{
+                        displayName: 'Sample IDs',
                             name: 'caseIds',
                             hidden: true
                         },{
@@ -118,6 +119,7 @@ var StudyViewInitTables = (function() {
                             displayName: 'Gistic',
                             hidden: true
                         },{
+                            displayName: 'Sample IDs',
                             name: 'caseIds',
                             hidden: true
                         },{

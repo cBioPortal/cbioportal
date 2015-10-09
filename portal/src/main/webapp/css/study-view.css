@@ -18,23 +18,16 @@
     padding: 0 0 5px 0;
 }
 */
-#study-view-top-wrapper {
-    width: 100%;
-    float: left;
-    height: 50px;
-}
 #study_view_add_chart_chzn {
-    right:43px;
-    top: 0;
-    position: absolute;
+    margin-top: -3px;
     width: 250px !important;
     background-image: none !important;
 }
 
 #study_view_add_chart_chzn>a {
     background-image: none;
-    height: 30px;
-    line-height: 30px;
+    height: 28px;
+    line-height: 28px;
 }
 
 #study-view-tutorial {
@@ -43,7 +36,7 @@
     position: absolute;
     z-index:21;
 }
-#study-view-header-left-0 {
+#study-view-header-right-1 {
     font-size: 1.1em;
     width: 160px;
 }
@@ -51,6 +44,7 @@
     font-size: 1.1em;
 }
 #study-view-header-left-2 {
+    float: none;
 }
 #study-view-header-left-3 {
     float: left;
@@ -59,7 +53,7 @@
     margin: 0;
     z-index: 21;
     vertical-align: middle;
-    padding: 0 10px;
+    padding: 0 10px 0 0;
     background-color: white;
     width: auto;
     color: black;
@@ -172,14 +166,13 @@
     margin-right: 75px;
 }
 #study-view-header-function {
-    position: absolute;
-    top: 60px;
     width: 1200px;
     background-color: white;
     z-index: 20;
     -webkit-backface-visibility: hidden;
     border-bottom: 1px solid darkgray;
     padding-bottom: 10px;
+    padding-top: 10px;
 }
 #study-view-scatter-plot-header {
     float: right;
@@ -1017,7 +1010,7 @@ div.DTTT_print_info {
 }
 
 #breadcrumbs_container{
-    padding: 0px 10px;
+    padding: 5px 10px 0 0;
 }
 .breadcrumb_container{
     display:inline-block;
@@ -1036,6 +1029,9 @@ div.DTTT_print_info {
 }
 #study-view-header-left{
     display: inline-block;
+}
+#study-view-header-right {
+    float: right;
 }
 /* based on study-view-header-left-3 */
 #study-view-header-left-5 {
@@ -1060,5 +1056,4 @@ div.DTTT_print_info {
     float: left;
     padding: 0px 10px 0px 0px;
     margin-top: 2px;
-
 }

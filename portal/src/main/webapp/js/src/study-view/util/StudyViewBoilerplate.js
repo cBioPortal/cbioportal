@@ -224,8 +224,11 @@ var StudyViewBoilerplate ={
         fill: ""
     },
     
-    headerLeftDiv: function() {
+    headerDiv: function() {
         var _header = $('<div></div>'),
+            _headerLeft = $('<div></div>'),
+            _headerRight = $('<div></div>'),
+
             _breadcrumbs = $('<div></div>'),
             _span3 = $('<span></span>'),
             // span for the number of items found
@@ -240,13 +243,12 @@ var StudyViewBoilerplate ={
             _input3 = $('<input></input>'),
             _input4 = $('<input></input>');
         
-        _header.attr('id','study-view-header-left');
+        _headerLeft.attr('id','study-view-header-left');
+
         _span1
             .attr({
-                'id': 'study-view-header-left-0',
+                'id': 'study-view-header-right-1',
                 'class': 'study-view-header-button'})
-//                'class': 'study-view-header study-view-header-left'})
-//            .text('Select cases by IDs');
             .val('Select cases by IDs');
 
         // Build query button
@@ -296,8 +298,7 @@ var StudyViewBoilerplate ={
         _span2
             .attr({
                 'id': 'study-view-header-left-2',
-                'class': 'hidden'})
-            .css('float', 'left')
+                'class': 'study-view-header-clear-all'})
             .val('Clear all');
 
         // changed the initialisation for span 3
@@ -322,12 +323,17 @@ var StudyViewBoilerplate ={
 
 
         // span3 is now the first item, span5 added, image added
-        _header.append(_span3);
-        _header.append(_span5);
-        _header.append("<img id='arrow_studyview' src='images/arrow_studyview.png'>");
-        _header.append(_span1);
-        _header.append(_form);
-        _header.append(_span4);
+        _headerLeft.append(_span3);
+        _headerLeft.append(_span5);
+        _headerLeft.append("<img id='arrow_studyview' src='images/arrow_studyview.png'>");
+        _headerLeft.append(_form);
+        _headerLeft.append(_span4);
+
+        _headerRight.attr('id','study-view-header-right');
+        _headerRight.append(_span1);
+
+        _header.append(_headerLeft);
+        _header.append(_headerRight);
 
         // add a container for the breadcrumbs
         _breadcrumbs.attr({
@@ -336,9 +342,9 @@ var StudyViewBoilerplate ={
         });
         _breadcrumbs.append('<span style="float:left">Your selections: </span>');
         _breadcrumbs.append('<div style="float:left" class="breadcrumbs_items"></div>');
-        _breadcrumbs.append(_span2);
+        _breadcrumbs.children('.breadcrumbs_items').append(_span2);
 
-        _header.append("<br><br>");
+        _header.append("<br/>");
         _header.append(_breadcrumbs);
 
         return _header;

@@ -34,8 +34,8 @@
 var AddCharts = (function(){
     var liClickCallback;
     
-    function createDiv() {
-        $("#study-view-header-function").append(StudyViewBoilerplate.addChartDiv);
+    function createDiv(target) {
+        $(target).append(StudyViewBoilerplate.addChartDiv);
     }
     
     function initAddChartsButton(_param) {
@@ -108,8 +108,8 @@ var AddCharts = (function(){
         $("#study-view-add-chart").trigger("liszt:updated");
     }
     return {
-        init: function() {
-            createDiv();
+        init: function(target) {
+            createDiv(target);
         },
         
         initAddChartsButton: initAddChartsButton,

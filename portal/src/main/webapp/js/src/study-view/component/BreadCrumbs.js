@@ -3,7 +3,7 @@ var BreadCrumbs = (function() {
     // clear all removes all the breadcrumbs from the container
     // it is called by the reset all button
     function clearAllBreadCrumbs(){
-        removeChartCrumbs($("#breadcrumbs_container .breadcrumbs_items").children());
+        removeChartCrumbs($("#breadcrumbs_container .breadcrumbs_items").children('.breadcrumb_container'));
     }
 
     // delete crumbs by chartId removes the crumbs for a single chart
@@ -146,7 +146,7 @@ var BreadCrumbs = (function() {
             });
             //dc.redrawAll();
             // reset the css
-            if($("#breadcrumbs_container .breadcrumbs_items").children().length==0) {
+            if($("#breadcrumbs_container .breadcrumbs_items").children('.breadcrumb_container').length==0) {
                 removeChartCrumbResetCSS();
             }
         }
@@ -162,7 +162,6 @@ var BreadCrumbs = (function() {
     // stop showing the container and restore the top-wrapper height
     function removeChartCrumbResetCSS(){
         $("#breadcrumbs_container").css('display','none');
-        $("#study-view-top-wrapper").css("height", 50)
     }
 
 
@@ -186,8 +185,8 @@ var BreadCrumbs = (function() {
         var crumbID = getCrumbId(chartId, crumbTitle);
 
         var breadCrumbDiv = StudyViewBoilerplate.breadCrumbDiv;
-        $("#breadcrumbs_container .breadcrumbs_items").append(breadCrumbDiv);
-        breadCrumbDiv = $("#breadcrumbs_container .breadcrumbs_items").children().last();
+        $("#breadcrumbs_container .breadcrumbs_items .study-view-header-clear-all").before(breadCrumbDiv);
+        breadCrumbDiv = $("#breadcrumbs_container .breadcrumbs_items").children('.breadcrumb_container').last();
 
         // settings for a single breadcrumb
         // set the class to the chartId to be able to easily find all the breadcrumbs for the chart
@@ -218,12 +217,10 @@ var BreadCrumbs = (function() {
         // tell what to do when the 'x' is pressed
         $("#" + crumbID).on("click", "#" + crumbID + "_img", removeFiltering);
 
-        // if this is the first breadcrumb, show the container and slightly increase the space for visualisation
-        if ($("#breadcrumbs_container .breadcrumbs_items").children().length == 1) {
-            $("#breadcrumbs_container").css('display', 'block');
-            $("#study-view-top-wrapper").css("height", 70)
+        // if this is the first breadcrumb, show the container
+        if ($("#breadcrumbs_container .breadcrumbs_items").children('.breadcrumb_container').length == 1) {
+            $("#breadcrumbs_container").css('display', 'inline-block');
         }
-
     }
 
     // when the 'x' is pressed for the scatterplot breadcrumb

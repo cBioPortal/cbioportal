@@ -12,6 +12,30 @@ var BreadCrumbs = (function() {
         removeChartCrumbs($("#breadcrumbs_container .breadcrumbs_items").find("."+chartId));
     }
 
+    // update Select cases by ID button breadcrumb
+    function updateSelectCaseIDdBreadCrumb(chartId, crumbTitle, crumbTipText, selectedCases){
+        var crumbID = getCrumbId(chartId, crumbTitle);
+
+        // there are two cases for this breadcrumb:
+        // 1. the breadcrumb does not yet exist and the chart contains selected cases
+        // create the crumb
+        if ($("#"+crumbID).length == 0 && selectedCases.length>0){
+            addBreadCrumb(chartId, crumbTitle, crumbTipText, "selectcasebutton", "", function(){
+                StudyViewInitCharts.filterChartsByGivingIDs([]);
+                updateSelectCaseIDdBreadCrumb(chartId, crumbTitle, crumbTipText, []);
+            });
+        }
+        // remove the crumb
+        else if($("#"+crumbID).length>0 && selectedCases.length==0){
+            removeChartCrumb(chartId, crumbTitle);
+            // if any filters still exist, re-apply them
+            applyExistingFilters();
+        } else if($("#"+crumbID).length>0 && selectedCases.length>0){
+            changeBreadCrumb(chartId, crumbTitle, crumbTipText, '');
+        }
+        // all other cases can in this case be ignored
+    }
+
     // update scatterplot breadcrumb
     // currently there is only one scatterplot with a hard-coded id
     // we're using this id as our link to the scatterplot
@@ -199,7 +223,7 @@ var BreadCrumbs = (function() {
         $(breadcrumbItem).text(crumbTitle);
         $(breadcrumbItem).qtip({
             content: {text: crumbTipText},
-            position: {my: 'left bottom', at: 'top right', viewport: $(window)},
+            position: {my: 'top center', at: 'bottom center', viewport: $(window)},
             style: {classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'},
             show: {event: "mouseover"},
             hide: {fixed: true, delay: 100, event: "mouseout"}
@@ -270,6 +294,7 @@ var BreadCrumbs = (function() {
         updatePieChartBreadCrumb: updatePieChartBreadCrumb,
         updateBarChartBreadCrumb: updateBarChartBreadCrumb,
         updateTableBreadCrumb: updateTableBreadCrumb,
+        updateSelectCaseIDdBreadCrumb: updateSelectCaseIDdBreadCrumb,
         clearAllBreadCrumbs: clearAllBreadCrumbs,
         deleteBreadCrumbsByChartId:deleteBreadCrumbsByChartId
     };

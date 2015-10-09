@@ -80,6 +80,7 @@ var StudyViewInitTopComponents = (function() {
             var ids = $('#study-view-case-select-custom-input').val().trim().split(/\s+/);
             StudyViewInitCharts.filterChartsByGivingIDs(convertIds(ids));
             $('#study-view-header-right-1').qtip('toggle');
+            BreadCrumbs.updateSelectCaseIDdBreadCrumb('study-view-select-case', 'Custom', 'User defined cases', ids);
         });
         
         $("#study-view-tutorial").click(function() {

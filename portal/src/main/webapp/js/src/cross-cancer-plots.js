@@ -106,31 +106,43 @@ var ccPlots = (function ($, _, Backbone, d3) {
                         clearInterval(tmp);
                         //retrieve profiles meta
                         $.each(_.pluck(window.studies.models, "attributes"), function (_study_index, _study_obj) {
-                            var profileMetaListTmp = new ProfileMetaListTmp(_study_obj.studyId);
-                            profileMetaListTmp.fetch({
-                                success: function (profileMetaListTmp) {
-                                    _.each(_.pluck(profileMetaListTmp.models, "attributes"), function (_profile_obj) {
-                                        _profile_obj.CANCER_STUDY_STABLE_ID = profileMetaListTmp.cancer_study_id;
-                                        _profile_obj.CASE_SET_ID = profileMetaListTmp.cancer_study_id + "_all";
-                                        _profile_obj.CANCER_STUDY_NAME = window.PortalMetaData["cancer_studies"][_study_obj.studyId].name;
-                                    });
-                                    profileMetaList.add(profileMetaListTmp.models);
-                                    if (_study_index + 1 === window.studies.length) { //reach the end of the iteration
-                                        var _tmp = setInterval(function () {timer();}, 1000);
-                                        function timer() {
-                                            if (window.crossCancerMutationProxy !== undefined) {
-                                                clearInterval(_tmp);
-                                                mut_proxy = window.crossCancerMutationProxy;
-                                                mut_proxy.getMutationData(window.studies.gene_list, _mutation_call_back);
-                                                function _mutation_call_back(_mut_obj) {
-                                                    mut_obj = _mut_obj;
-                                                    callback_func();
+                            var _cancer_study_name = window.PortalMetaData["cancer_studies"][_study_obj.studyId].name;
+
+                            var _include_study = false; //exclude certain studies
+                            if (_cancer_study_name.indexOf("TCGA") !== -1) {
+                                if (_cancer_study_name.toLowerCase().indexOf("provisional") !== -1) _include_study = true;
+                            } else {
+                                _include_study = true;
+                            }
+
+                            if (_include_study) {
+                                var profileMetaListTmp = new ProfileMetaListTmp(_study_obj.studyId);
+                                profileMetaListTmp.fetch({
+                                    success: function (profileMetaListTmp) {
+                                        _.each(_.pluck(profileMetaListTmp.models, "attributes"), function (_profile_obj) {
+                                            _profile_obj.CANCER_STUDY_STABLE_ID = profileMetaListTmp.cancer_study_id;
+                                            _profile_obj.CASE_SET_ID = profileMetaListTmp.cancer_study_id + "_all";
+                                            _profile_obj.CANCER_STUDY_NAME = window.PortalMetaData["cancer_studies"][_study_obj.studyId].name;
+                                        });
+                                        profileMetaList.add(profileMetaListTmp.models);
+                                        if (_study_index + 1 === window.studies.length) { //reach the end of the iteration
+                                            var _tmp = setInterval(function () {timer();}, 1000);
+                                            function timer() {
+                                                if (window.crossCancerMutationProxy !== undefined) {
+                                                    clearInterval(_tmp);
+                                                    mut_proxy = window.crossCancerMutationProxy;
+                                                    mut_proxy.getMutationData(window.studies.gene_list, _mutation_call_back);
+                                                    function _mutation_call_back(_mut_obj) {
+                                                        mut_obj = _mut_obj;
+                                                        callback_func();
+                                                    }
                                                 }
                                             }
                                         }
                                     }
-                                }
-                            });
+                                });
+                            }
+
                         });
                     }
                 }

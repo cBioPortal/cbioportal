@@ -151,7 +151,7 @@
                 out.println ("<li><a href='#pancancer_study_summary' class='result-tab' title='Cancer types summary'>"
                 + "Cancer Types Summary</a></li>");
             }
-            
+
             if (computeLogOddsRatio && geneWithScoreList.size() > 1) {
                 out.println ("<li><a href='#mutex' class='result-tab' id='mutex-result-tab'>"
                 + "Mutual Exclusivity</a></li>");
@@ -179,7 +179,7 @@
             out.println ("<li><a href='#data_download' class='result-tab' id='data-download-result-tab'>Download</a></li>");
             out.println ("<li><a href='#bookmark_email' class='result-tab' id='bookmark-result-tab'>Bookmark</a></li>");
             out.println ("</ul>");
-            
+
             out.println ("<div class=\"section\" id=\"bookmark_email\">");
 
             // diable bookmark link if case set is user-defined
@@ -225,7 +225,7 @@
         <% if (computeLogOddsRatio && geneWithScoreList.size() > 1) { %>
             <%@ include file="mutex_tab.jsp" %>
         <% } %>
-            
+
         <% if (mutationDetailLimitReached != null) {
             out.println("<div class=\"section\" id=\"mutation_details\">");
             out.println("<P>To retrieve mutation details, please specify "
@@ -243,7 +243,7 @@
         <% if (showCoexpTab) { %>
             <%@ include file="co_expression.jsp" %>
         <% } %>
-        
+
         <% if (has_mrna || has_copy_no || showMutTab) { %>
             <%@ include file="over_representation_analysis.jsp" %>
         <% } %>
@@ -274,22 +274,30 @@
 
     // it is better to check selected tab after document gets ready
     $(document).ready(function() {
+        var firstTime = true;
 
         $("#toggle_query_form").tipTip();
         // check if network tab is initially selected
         // TODO this depends on aria-hidden attribute which may not be safe...
-        
+
         if ($("div.section#network").attr('aria-hidden') == "false"){
             // make the network tab visible...
             $("div.section#network").removeAttr('style');
         }
-        
+
 
         $("a.result-tab").click(function(){
 
             if($(this).attr("href")=="#network") {
                 // to fix problem of flash repainting
                 $("div.section#network").removeAttr('style');
+
+                if(firstTime)
+                {
+                  send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
+                  firstTime = false;
+                }
+
             } else {
                 // since we never allow display:none we should adjust visibility, height, and width properties
                 $("div.section#network").attr('style', 'height: 0px; width: 0px; visibility: hidden;');

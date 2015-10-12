@@ -140,7 +140,7 @@
                     function(graphml){
                         var gml2jsonConverter = new GraphMLToJSon(graphml);
                         var json = gml2jsonConverter.toJSON();
-                        send2cytoscapeweb(json, "cytoscapeweb", "network");
+                        window.networkGraphJSON = json;
 
                         if (typeof graphml !== "string")
                         {
@@ -148,7 +148,7 @@
                                   graphml = (new XMLSerializer()).serializeToString(graphml);
                           } else { // Other browsers
                                   graphml = (new XMLSerializer()).serializeToString(graphml);
-                          } 
+                          }
                         }
 
                         //show debug message !

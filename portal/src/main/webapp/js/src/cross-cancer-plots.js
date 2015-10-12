@@ -109,10 +109,12 @@ var ccPlots = (function ($, _, Backbone, d3) {
                             var _cancer_study_name = window.PortalMetaData["cancer_studies"][_study_obj.studyId].name;
 
                             var _include_study = false; //exclude certain studies
-                            if (_cancer_study_name.indexOf("TCGA") !== -1) {
-                                if (_cancer_study_name.toLowerCase().indexOf("provisional") !== -1) _include_study = true;
-                            } else {
-                                _include_study = true;
+                            if (_study_obj.studyId.indexOf("esca") === -1 && _study_obj.studyId.indexOf("stad") === -1) {
+                                if (_cancer_study_name.indexOf("TCGA") !== -1) {
+                                    if (_cancer_study_name.toLowerCase().indexOf("provisional") !== -1) _include_study = true;
+                                } else {
+                                    _include_study = true;
+                                }
                             }
 
                             if (_include_study) {

@@ -111,7 +111,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                                 success: function (profileMetaListTmp) {
                                     _.each(_.pluck(profileMetaListTmp.models, "attributes"), function (_profile_obj) {
                                         _profile_obj.CANCER_STUDY_STABLE_ID = profileMetaListTmp.cancer_study_id;
-                                        _profile_obj.CASE_SET_ID = _study_obj.caseSetId;
+                                        _profile_obj.CASE_SET_ID = profileMetaListTmp.cancer_study_id + "_all";
                                         _profile_obj.CANCER_STUDY_NAME = window.PortalMetaData["cancer_studies"][_study_obj.studyId].name;
                                     });
                                     profileMetaList.add(profileMetaListTmp.models);

@@ -74,7 +74,7 @@ public class TestGetTypesOfCancer {
             String output = GetTypesOfCancer.getTypesOfCancer();
             fail ("ProtocolException should have been thrown.");
         } catch (ProtocolException e) {
-            assertEquals(e.getMsg(), "No Types of Cancer Available.");
+            assertEquals(e.getMessage(), "No Types of Cancer Available.");
         }
 	}
 	
@@ -106,7 +106,7 @@ public class TestGetTypesOfCancer {
             String output = GetTypesOfCancer.getCancerStudies();
             fail ("ProtocolException should have been thrown.");
         } catch (ProtocolException e) {
-            assertEquals(e.getMsg(), "No Cancer Studies Available.");
+            assertEquals(e.getMessage(), "No Cancer Studies Available.");
         }
     }
     

@@ -246,7 +246,7 @@ public class WebService extends HttpServlet {
             outputError(writer, "internal error:  " + e.getMessage());
         } catch (ProtocolException e) {
             e.printStackTrace();
-            outputError(writer, e.getMsg());
+            outputError(writer, e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
             outputError(writer, e.toString());

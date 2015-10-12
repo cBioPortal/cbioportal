@@ -105,7 +105,7 @@ public class TestAccessControl {
         } catch (ProtocolException e) {
             assertEquals("No cancer studies accessible; either provide credentials to access private studies, " +
                     "or ask administrator to load public ones.\n",
-                    e.getMsg());
+                    e.getMessage());
 
         }
         */

@@ -360,8 +360,20 @@
     <h1>Default cross-cancer view</h1>
 </script>
 
+
+
 <script>
     $(document).ready(function() {
+        var _cc_plots_gene_list = "";
+        _.each(window.location.search.split("&"), function(param) {
+            if (param.indexOf("gene_list") !== -1) {
+                _cc_plots_gene_list = param.substring(param.indexOf("=") + 1, param.length);
+            }
+        });
+        _.each(_cc_plots_gene_list.split("+"), function (_gene) {
+            $("#cc_plots_gene_list").append(
+                    "<option value='" + _gene + "'>" + _gene + "</option>");
+        });
         ccPlots.init();
     });
 </script>

@@ -71,13 +71,17 @@
 
 </style>
 
-
 <table>
     <tr>
         <div id="cc-plots-sidebar">
-            <h5>Gene</h5><span id="cc_plots_gene_list_select" onchange="ccPlots.update_gene();"></span>
-            <h5>Log Scale</h5><input type="checkbox" id="cc_plots_log_scale" onchange="ccPlots.toggle_log_scale()" checked/>
-            <h5>Download</h5><button id='cc_plots_svg_download'>SVG</button>
+            <h5>Gene</h5>
+            <span id="cc_plots_gene_list_select" onchange="ccPlots.update_gene();">
+                <select id="cc_plots_gene_list"></select>
+            </span>
+            <h5>Log Scale</h5>
+            <input type="checkbox" id="cc_plots_log_scale" onchange="ccPlots.toggle_log_scale()" checked/>
+            <h5>Download</h5>
+            <button id='cc_plots_svg_download'>SVG</button>
             <button id='cc_plots_pdf_download'>PDF</button>
             <button id='cc_plots_data_download'>Data</button>
         </div>

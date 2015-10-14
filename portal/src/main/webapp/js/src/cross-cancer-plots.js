@@ -227,11 +227,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 }
             },
             init_sidebar = function () {
-                $("#cc_plots_gene_list_select").append("<select id='cc_plots_gene_list'>");
-                _.each(window.studies.gene_list.split(/\s+/), function (_gene) {
-                    $("#cc_plots_gene_list").append(
-                        "<option value='" + _gene + "'>" + _gene + "</option>");
-                });
+
                 //SVG & PDF buttons
                 $("#cc_plots_svg_download").click(function() {
                     var xmlSerializer = new XMLSerializer();

@@ -266,7 +266,7 @@ public class MutationsJSON extends HttpServlet {
             if (mutation.getMutationType().equalsIgnoreCase("Fusion")) {
                 mcgLinks = MyCancerGenomeLinkUtil.getMyCancerGenomeLinks(mutation.getGeneSymbol(), "fusion", false);
             } else {
-                mcgLinks = MyCancerGenomeLinkUtil.getMyCancerGenomeLinks(mutation.getGeneSymbol(), mutation.getProteinChange(), true);
+                mcgLinks = MyCancerGenomeLinkUtil.getMyCancerGenomeLinks(mutation.getGeneSymbol(), mutation.getProteinChange(), false);
             }
             isHotspot = OncokbHotspotUtil.getOncokbHotspot(mutation.getGeneSymbol(), mutation.getProteinChange());
             exportMutation(data, mapMutationEventIndex, mutation, cancerStudy,

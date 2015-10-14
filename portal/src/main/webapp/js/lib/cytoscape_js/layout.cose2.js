@@ -4327,36 +4327,36 @@
 
 
     var t1 = $$.Thread();
-    t1.require(DimensionD);
-    t1.require(HashMap);
-    t1.require(HashSet);
-    t1.require(IGeometry);
-    t1.require(IMath);
-    t1.require(Integer);
-    t1.require(Point);
-    t1.require(PointD);
-    t1.require(RandomSeed);
-    t1.require(RectangleD);
-    t1.require(Transform);
-    t1.require(UniqueIDGeneretor);
-    t1.require(LGraphObject);
-    t1.require(LGraph);
-    t1.require(LEdge);
-    t1.require(LGraphManager);
-    t1.require(LNode);
-    t1.require(Layout);
-    t1.require(LayoutConstants);
-    t1.require(layoutOptionsPack);
-    t1.require(FDLayout);
-    t1.require(FDLayoutConstants);
-    t1.require(FDLayoutEdge);
-    t1.require(FDLayoutNode);
-    t1.require(CoSEConstants);
-    t1.require(CoSEEdge);
-    t1.require(CoSEGraph);
-    t1.require(CoSEGraphManager);
-    t1.require(CoSELayout);
-    t1.require(CoSENode);
+    t1.require(DimensionD, 'DimensionD');
+    t1.require(HashMap, 'HashMap');
+    t1.require(HashSet, 'HashSet');
+    t1.require(IGeometry, 'IGeometry');
+    t1.require(IMath, 'IMath');
+    t1.require(Integer, 'Integer');
+    t1.require(Point, 'Point');
+    t1.require(PointD, 'PointD');
+    t1.require(RandomSeed, 'RandomSeed');
+    t1.require(RectangleD, 'RectangleD');
+    t1.require(Transform, 'Transform');
+    t1.require(UniqueIDGeneretor, 'UniqueIDGeneretor');
+    t1.require(LGraphObject, 'LGraphObject');
+    t1.require(LGraph, 'LGraph');
+    t1.require(LEdge, 'LEdge');
+    t1.require(LGraphManager, 'LGraphManager');
+    t1.require(LNode, 'LNode');
+    t1.require(Layout, 'Layout');
+    t1.require(LayoutConstants, 'LayoutConstants');
+    t1.require(layoutOptionsPack, 'layoutOptionsPack');
+    t1.require(FDLayout, 'FDLayout');
+    t1.require(FDLayoutConstants, 'FDLayoutConstants');
+    t1.require(FDLayoutEdge, 'FDLayoutEdge');
+    t1.require(FDLayoutNode, 'FDLayoutNode');
+    t1.require(CoSEConstants, 'CoSEConstants');
+    t1.require(CoSEEdge, 'CoSEEdge');
+    t1.require(CoSEGraph, 'CoSEGraph');
+    t1.require(CoSEGraphManager, 'CoSEGraphManager');
+    t1.require(CoSELayout, 'CoSELayout');
+    t1.require(CoSENode, 'CoSENode');
 
     var nodes = this.options.eles.nodes();
     var edges = this.options.eles.edges();
@@ -4703,6 +4703,7 @@
               y: Math.random() * this.options.cy.container().clientHeight}
           });
           this.options.eles = this.options.eles.union(this.options.cy.nodes()[this.options.cy.nodes().length - 1]);
+          this.options.cy.nodes()[this.options.cy.nodes().length - 1].hide();
         }
       }
     }

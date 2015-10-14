@@ -32,13 +32,14 @@
 
 package org.mskcc.cbio.portal.dao;
 
+import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.util.ImportDataUtil;
+
+import org.apache.commons.lang.StringUtils;
 
 import java.sql.*;
 import java.util.*;
-import org.apache.commons.lang.StringUtils;
-import org.mskcc.cbio.portal.util.ImportDataUtil;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Analogous to and replaces the old DaoCancerType. A CancerStudy has a NAME and
@@ -49,14 +50,30 @@ import org.mskcc.cbio.portal.util.ImportDataUtil;
  * @author Arthur Goldberg goldberg@cbio.mskcc.org
  */
 public final class DaoCancerStudy {
+
+	public static enum Status
+	{
+		UNAVAILABLE, RECACHE, AVAILABLE
+	}
+
     private DaoCancerStudy() {}
     
-    private static final Map<String,CancerStudy> byStableId = new HashMap<String,CancerStudy>();
-    private static final Map<Integer,CancerStudy> byInternalId = new HashMap<Integer,CancerStudy>();
+    private static final Map<String,CancerStudy> byStableId = new ConcurrentHashMap<String,CancerStudy>();
+    private static final Map<Integer,CancerStudy> byInternalId = new ConcurrentHashMap<Integer,CancerStudy>();
     
     static {
-       reCache();
+        SpringUtil.initDataSource();
+        reCache();
     }
+
+	public static void reCacheAll()
+	{
+		reCache();
+		DaoGeneticProfile.reCache();
+		DaoPatient.reCache();
+		DaoSample.reCache();
+		DaoClinicalData.reCache();
+	}
     
     private static synchronized void reCache() {
         byStableId.clear();
@@ -71,7 +88,10 @@ public final class DaoCancerStudy {
             while (rs.next()) {
                 CancerStudy cancerStudy = extractCancerStudy(rs);
                 cacheCancerStudy(cancerStudy);
+				setStatus(Status.AVAILABLE, cancerStudy.getCancerStudyStableId());
             }
+		} catch (DaoException e) {
+			e.printStackTrace();
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
@@ -82,6 +102,71 @@ public final class DaoCancerStudy {
     private static void cacheCancerStudy(CancerStudy study) {
         byStableId.put(study.getCancerStudyStableId(), study);
         byInternalId.put(study.getInternalId(), study);
+    }
+    
+	public static void setStatus(Status status, String stableCancerStudyId, Integer ... internalId) throws DaoException
+    {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection(DaoCancerStudy.class);
+			if (internalId.length > 0) {
+            	pstmt = con.prepareStatement("UPDATE cancer_study set status = ? where cancer_study_id = ?");
+            	pstmt.setInt(1, status.ordinal());
+            	pstmt.setInt(2, internalId[0]);
+			}
+			else {
+            	pstmt = con.prepareStatement("UPDATE cancer_study set status = ? where cancer_study_identifier = ?");
+            	pstmt.setInt(1, status.ordinal());
+            	pstmt.setString(2, stableCancerStudyId);
+			}
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+			if (!e.getMessage().toLowerCase().contains("unknown column")) {
+            	throw new DaoException(e);
+			}
+        } finally {
+            JdbcUtil.closeAll(DaoCancerStudy.class, con, pstmt, rs);
+        }
+    }
+
+	public static Status getStatus(String stableCancerStudyId, Integer ... internalId) throws DaoException
+    {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection(DaoCancerStudy.class);
+			if (internalId.length > 0) {
+				pstmt = con.prepareStatement("SELECT status FROM cancer_study where cancer_study_id = ?");
+				pstmt.setInt(1, internalId[0]);
+			}
+			else {
+				pstmt = con.prepareStatement("SELECT status FROM cancer_study where cancer_study_identifier = ?");
+				pstmt.setString(1, stableCancerStudyId);
+			}
+            rs = pstmt.executeQuery();
+            if (rs.next()) {
+				Integer status = rs.getInt(1);
+				if (rs.wasNull()) {
+					return Status.AVAILABLE;
+				}
+				else {
+					return Status.values()[status];
+				}
+            }
+            else {
+                return Status.AVAILABLE;
+            }
+        } catch (SQLException e) {
+			if (e.getMessage().toLowerCase().contains("unknown column")) {
+				return Status.AVAILABLE;
+			}
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoCancerStudy.class, con, pstmt, rs);
+        }
     }
 
     /**
@@ -123,11 +208,8 @@ public final class DaoCancerStudy {
         if (existing!=null) {
             if (overwrite) {
                 System.out.println("Overwrite cancer study " + stableId);
+				setStatus(Status.UNAVAILABLE, stableId);
                 deleteCancerStudy(existing.getInternalId());
-                DaoGeneticProfile.reCache();
-                DaoPatient.reCache();
-                DaoSample.reCache();
-                DaoClinicalData.reCache();
             } else {
                 throw new DaoException("Cancer study " + stableId + "is already imported.");
             }
@@ -179,8 +261,12 @@ public final class DaoCancerStudy {
      * @param cancerStudyID     Internal (int) Cancer Study ID.
      * @return Cancer Study Object, or null if there's no such study.
      */
-    public static CancerStudy getCancerStudyByInternalId(int cancerStudyID) {
-        return byInternalId.get(cancerStudyID);
+    public static CancerStudy getCancerStudyByInternalId(int internalId) throws DaoException
+	{
+		if (getStatus(null, internalId) == Status.RECACHE) {
+			reCacheAll();
+		}
+        return byInternalId.get(internalId);
     }
 
     /**
@@ -189,8 +275,12 @@ public final class DaoCancerStudy {
      * @param cancerStudyStableId Cancer Study Stable ID.
      * @return the CancerStudy, or null if there's no such study.
      */
-    public static CancerStudy getCancerStudyByStableId(String cancerStudyStableId) {
-        return byStableId.get(cancerStudyStableId);
+    public static CancerStudy getCancerStudyByStableId(String stableId) throws DaoException
+	{
+		if (getStatus(stableId) == Status.RECACHE) {
+			reCacheAll();
+		}
+        return byStableId.get(stableId);
     }
 
     /**
@@ -256,6 +346,7 @@ public final class DaoCancerStudy {
     {
         CancerStudy study = getCancerStudyByStableId(cancerStudyStableId);
         if (study != null){
+			setStatus(Status.UNAVAILABLE, cancerStudyStableId);
             deleteCancerStudy(study.getInternalId());
         }
     }
@@ -337,7 +428,7 @@ public final class DaoCancerStudy {
         } finally {
             JdbcUtil.closeAll(DaoCancerStudy.class, con, pstmt, rs);
         }
-        reCache();
+        reCacheAll();
     }
 
     /**

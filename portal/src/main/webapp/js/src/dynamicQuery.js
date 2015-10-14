@@ -712,7 +712,6 @@ function addMetaDataToPage() {
     console.log("Adding Meta Data to Query Form");
     json = window.metaDataJson;
 
-
     // Construct oncotree
     var oncotree = {'tissue':{code:'tissue', studies:[], children:[], parent: false, desc_studies_count:0, tissue:''}};
     var parents = json.parent_type_of_cancers;
@@ -833,10 +832,24 @@ function addMetaDataToPage() {
     if (dmp_studies.length > 0) {
 	jstree_data.push({'id':'mskimpact-study-group', 'parent':jstree_root_id, 'text':'MSKCC DMP', 'li_attr':{name:'MSKCC DMP'}});
 	var studyName;
+	var numSamplesInStudy;
+	var samplePlurality;
 	$.each(dmp_studies, function(ind, id) {
 		studyName = truncateStudyName(json.cancer_studies[id].name);
-		jstree_data.push({'id':id, 'parent':'mskimpact-study-group', 'text':studyName, 
+		numSamplesInStudy = json.cancer_studies[id].num_samples;
+		if (numSamplesInStudy == 1) {
+                	samplePlurality = 'sample';
+                }
+               	else if (numSamplesInStudy > 1) {
+               		samplePlurality = 'samples';
+               	}
+                else {
+                	samplePlurality = '';
+               		numSamplesInStudy = '';
+                }
+		jstree_data.push({'id':id, 'parent':'mskimpact-study-group', 'text':studyName.concat('<span style="font-weight:normal;font-style:italic;"> '+ numSamplesInStudy + ' ' + samplePlurality + '</span>'), 
 			'li_attr':{name: studyName, description: metaDataJson.cancer_studies[id].description}});
+		
 		flat_jstree_data.push({'id':id, 'parent':jstree_root_id, 'text':truncateStudyName(json.cancer_studies[id].name), 
 			'li_attr':{name: studyName, description: metaDataJson.cancer_studies[id].description, search_terms: 'MSKCC DMP'}});
 	});
@@ -850,13 +863,26 @@ function addMetaDataToPage() {
 			'text':name,
 			'li_attr':{name:name}
 		});
-		
+		var numSamplesInStudy;
+		var samplePlurality;
 		$.each(currNode.studies, function(ind, elt) {
 			    name = truncateStudyName(splitAndCapitalize(metaDataJson.cancer_studies[elt.id].name));
+		            numSamplesInStudy = json.cancer_studies[elt.id].num_samples;
+			    if (numSamplesInStudy == 1) {
+			        samplePlurality = 'sample';
+			    }
+			    else if (numSamplesInStudy > 1) {
+				samplePlurality = 'samples';
+			    }
+			    else {
+				samplePlurality = '';
+				numSamplesInStudy = '';
+			    }
 			    jstree_data.push({'id':elt.id, 
 				    'parent':currNode.code, 
-				    'text':name,
+				    'text':name.concat('<span style="font-weight:normal;font-style:italic;"> '+ numSamplesInStudy + ' ' + samplePlurality + '</span>'),
 				    'li_attr':{name: name, description:metaDataJson.cancer_studies[elt.id].description}});
+			    
 			    flat_jstree_data.push({'id':elt.id, 
 				    'parent':jstree_root_id,
 				    'text':name,

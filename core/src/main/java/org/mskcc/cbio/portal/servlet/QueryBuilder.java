@@ -112,6 +112,7 @@ public class QueryBuilder extends HttpServlet {
     private static final String DB_CONNECT_ERROR = ("An error occurred while trying to connect to the database." +
                                                     "  This could happen if the database does not contain any cancer studies.");
     
+    public static final String CANCER_TYPES_MAP = "cancer_types_map"; 
 
     private ServletXssUtil servletXssUtil;
 
@@ -239,6 +240,8 @@ public class QueryBuilder extends HttpServlet {
 
             httpServletRequest.setAttribute(XDEBUG_OBJECT, xdebug);
 
+			checkAndRedirectOnStudyStatus(httpServletRequest, httpServletResponse, cancerTypeId);
+
             boolean errorsExist = validateForm(action, profileList, geneticProfileIdSet, geneList,
                                                patientSetId, patientIds, httpServletRequest);
             if (action != null && action.equals(ACTION_SUBMIT) && (!errorsExist)) {
@@ -310,7 +313,7 @@ public class QueryBuilder extends HttpServlet {
      * process a good request
      * 
     */
-    private void processData(String cancerTypeId,
+    private void processData(String cancerStudyStableId,
 							 HashSet<String> geneticProfileIdSet,
 							 ArrayList<GeneticProfile> profileList,
 							 String geneListStr,
@@ -320,11 +323,13 @@ public class QueryBuilder extends HttpServlet {
 							 HttpServletResponse response,
 							 XDebug xdebug) throws IOException, ServletException, DaoException {
 
-       // parse geneList, written in the OncoPrintSpec language (except for changes by XSS clean)
-       double zScore = ZScoreUtil.getZScore(geneticProfileIdSet, profileList, request);
-       double rppaScore = ZScoreUtil.getRPPAScore(request);
+        checkAndRedirectOnStudyStatus(request, response, cancerStudyStableId);
+
+        // parse geneList, written in the OncoPrintSpec language (except for changes by XSS clean)
+        double zScore = ZScoreUtil.getZScore(geneticProfileIdSet, profileList, request);
+        double rppaScore = ZScoreUtil.getRPPAScore(request);
        
-       ParserOutput theOncoPrintSpecParserOutput =
+        ParserOutput theOncoPrintSpecParserOutput =
                OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver( geneListStr,
                 geneticProfileIdSet, profileList, zScore, rppaScore );
        
@@ -342,7 +347,7 @@ public class QueryBuilder extends HttpServlet {
         HashSet<String> setOfSampleIds = null;
         
         String patientIdsKey = null;
-        
+
         // user-specified patients, but patient_ids parameter is missing,
         // so try to retrieve patient_ids by using patient_ids_key parameter.
         // this is required for survival plot requests  
@@ -382,11 +387,15 @@ public class QueryBuilder extends HttpServlet {
             sampleIds = sampleIds.replaceAll("\\s+", " ");
         }
 
+		if (setOfSampleIds == null || setOfSampleIds.isEmpty()) {
+			redirectStudyUnavailable(request, response);
+		}
+
         request.setAttribute(SET_OF_CASE_IDS, sampleIds);
         
         // Map user selected samples Ids to patient Ids
         HashMap<String, String> patientSampleIdMap = new HashMap<String, String>();
-        CancerStudy selectedCancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerTypeId);
+        CancerStudy selectedCancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId);
         int cancerStudyInternalId = selectedCancerStudy.getInternalId();
         Iterator<String> itr = setOfSampleIds.iterator();
         while(itr.hasNext()){
@@ -404,7 +413,11 @@ public class QueryBuilder extends HttpServlet {
         {
             patientIdsKey = PatientSetUtil.shortenPatientIds(sampleIds);
         }
-        
+
+        // retrieve information about the cancer types
+        Map<String, List<String>> cancerTypeInfo = DaoClinicalData.getCancerTypeInfo(cancerStudyInternalId);
+        request.setAttribute(CANCER_TYPES_MAP, cancerTypeInfo);
+
         // this will create a key even if the patient set is a predefined set,
         // because it is required to build a patient id string in any case
         request.setAttribute(CASE_IDS_KEY, patientIdsKey);
@@ -525,6 +538,27 @@ public class QueryBuilder extends HttpServlet {
         writer.close();
     }
 
+	private void checkAndRedirectOnStudyStatus(HttpServletRequest request, HttpServletResponse response, String cancerStudyId) throws ServletException, IOException, DaoException
+	{
+		DaoCancerStudy.Status status = DaoCancerStudy.getStatus(cancerStudyId);
+		if (status != DaoCancerStudy.Status.AVAILABLE) {
+			if (status == DaoCancerStudy.Status.RECACHE) {
+				DaoCancerStudy.reCacheAll();
+			}
+			else {
+				redirectStudyUnavailable(request, response);
+			}
+		}
+
+	}
+
+	private void redirectStudyUnavailable(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
+	{
+		request.setAttribute(QueryBuilder.USER_ERROR_MESSAGE, "The selected cancer study is currently being updated, please try back later.");
+		RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/jsp/index.jsp");
+		dispatcher.forward(request, response);
+	}
+
     /**
      * validate the portal web input form.
      */
@@ -622,7 +656,7 @@ public class QueryBuilder extends HttpServlet {
                     }
                 }
             }
-        }
+        } 
         if( errorsExist ){
            httpServletRequest.setAttribute( GENE_LIST, geneList );
        }

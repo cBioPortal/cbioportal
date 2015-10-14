@@ -12,6 +12,8 @@ The cBioPortal for Cancer Genomics is developed and maintained by the [Center fo
  * Adam Abeshouse
  * Gideon Dresdner
  * Ritika Kundra
+ * Hsiao-Wei Chen
+ * Zachary Heins
  * Chris Sander
  * Nikolaus Schultz
  
@@ -19,7 +21,7 @@ The cBioPortal for Cancer Genomics is developed and maintained by the [Center fo
 
  * Ugur Dogrusoz
  * Istemi Bahceci
- * Sinan Sonlu
+ * M. Furkan Sahin
 
 ## Alumni
 

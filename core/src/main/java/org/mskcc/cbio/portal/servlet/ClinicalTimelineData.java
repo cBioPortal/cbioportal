@@ -60,20 +60,19 @@ public class ClinicalTimelineData extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        //Set<String> types = new HashSet<String>(Arrays.asList(request.getParameter("type").split("[ ,]+")));
-        int cancerStudyId = DaoCancerStudy.getCancerStudyByStableId(request.getParameter("cancer_study_id")).getInternalId();
-        String patientId = request.getParameter("patient_id");
-        
-        Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudyId, patientId);
-        
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
+	{
         Collection<ClinicalEvent> clinicalEvents;
         
-        
         try {
+			//Set<String> types = new HashSet<String>(Arrays.asList(request.getParameter("type").split("[ ,]+")));
+			int cancerStudyId = DaoCancerStudy.getCancerStudyByStableId(request.getParameter("cancer_study_id")).getInternalId();
+			String patientId = request.getParameter("patient_id");
+			
+			Patient patient = DaoPatient.getPatientByCancerStudyAndPatientId(cancerStudyId, patientId);
             clinicalEvents = DaoClinicalEvent.getClinicalEvent(patient.getInternalId());
-        } catch (DaoException ex) {
+        }
+		catch (DaoException ex) {
             throw new ServletException(ex);
         }
         

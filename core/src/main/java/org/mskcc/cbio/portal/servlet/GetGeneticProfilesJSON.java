@@ -91,7 +91,13 @@ public class GetGeneticProfilesJSON extends HttpServlet  {
             geneListStr = ((XssRequestWrapper)httpServletRequest).getRawParameter("gene_list");
         }
 
-        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyIdentifier);
+		CancerStudy cancerStudy = null;
+		try {
+        	cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyIdentifier);
+		}
+		catch (DaoException e) {
+			System.out.println("DaoException Caught:" + e.getMessage());
+		}
         if (cancerStudy != null) {
 
             int cancerStudyId = cancerStudy.getInternalId();

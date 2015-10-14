@@ -11,7 +11,12 @@ window.setUpOncoprint = function(ctr_id, config) {
 	var clinical_tracks = [];
 	
 	var splitIdString = function(str) {
-		return str.split(/\s+/);
+		str = str.trim();
+		if (str.length > 0) {
+			return str.split(/\s+/);
+		} else {
+			return [];
+		}
 	};
 	var annotateMutationTypes = function(data) {
 		var ret = _.map(data, function (d) {
@@ -70,8 +75,11 @@ window.setUpOncoprint = function(ctr_id, config) {
 		};
 		_.each(sample_data, function (d) {
 			var patient_id = sample_to_patient[d.sample];
-			ret[patient_id] = ret[patient_id] || {patient: patient_id, gene:d.gene};
+			ret[patient_id] = ret[patient_id] || {patient: patient_id, gene:d.gene, na: true};
 			var new_datum = ret[patient_id];
+			if (!d.hasOwnProperty("na")) {
+				delete new_datum["na"];
+			}
 			_.each(d, function(val, key) {
 				if (key === 'mutation') {
 					new_datum['mutation'] = (new_datum['mutation'] && (new_datum['mutation']+','+val)) || val;
@@ -204,20 +212,22 @@ window.setUpOncoprint = function(ctr_id, config) {
 		var update_covering_block_interval;
 		
 		oncoprintFadeTo = function (f) {
-			update_covering_block_interval = setInterval(function() {
-				oncoprint_covering_block.css({'display':'block', 'width':$(ctr_selector).width()+'px', 'height':$(ctr_selector).height()+'px'});
-			}, 200);
-			$(config.toolbar_selector).fadeTo('fast', 0);
+			if (!update_covering_block_interval) {
+				update_covering_block_interval = setInterval(function() {
+					oncoprint_covering_block.css({'display':'block', 'width':$(ctr_selector).width()+'px', 'height':$(ctr_selector).height()+'px'});
+				}, 200);
+			}
+			$(config.toolbar_selector).stop().fadeTo('fast', 0);
 			return $.when(oncoprint_covering_block.fadeTo('fast', f));
 		};
 		oncoprintFadeIn = function () {
-			if (update_covering_block_interval) {
-				clearInterval(update_covering_block_interval);
-				update_covering_block_interval = undefined;
-			}
-			$(config.toolbar_selector).fadeTo('fast', 1);
-			var hide_covering_block_promise = $.when(oncoprint_covering_block.fadeTo('fast', 0));
+			$(config.toolbar_selector).stop().fadeTo('fast', 1);
+			var hide_covering_block_promise = $.when(oncoprint_covering_block.stop().fadeTo('fast', 0));
 			hide_covering_block_promise.then(function() {
+				if (update_covering_block_interval) {
+					clearInterval(update_covering_block_interval);
+					update_covering_block_interval = undefined;
+				}
 				oncoprint_covering_block.css('display','none');
 			});
 			return hide_covering_block_promise;
@@ -401,18 +411,20 @@ window.setUpOncoprint = function(ctr_id, config) {
 		var updatePercentAlteredIndicator = function() {
 			if (config.percent_altered_indicator_selector) {
 				if (!using_sample_data) {
-					var altered_patient_count = _.uniq(_.map(splitIdString(window.PortalGlobals.getAlteredSampleIdList()), function(x) {
-						return sample_to_patient[x];
-					})).length;
-					var unaltered_patient_count = _.uniq(_.map(splitIdString(window.PortalGlobals.getUnalteredSampleIdList()), function(x) {
-						return sample_to_patient[x];
-					})).length;
-					var total_patient_count = altered_patient_count + unaltered_patient_count;
-					var percent_altered = Math.ceil(100 * altered_patient_count / total_patient_count);
-					$(config.percent_altered_indicator_selector).text("Altered in " + altered_patient_count + " (" + percent_altered + "%) of " + total_patient_count + " cases/patients");
+					$.when(window.QuerySession.getAlteredPatients(), window.QuerySession.getUnalteredPatients())
+					.then(function(altered_pats, unaltered_pats) {
+						var altered_patient_count = altered_pats.length;
+						var unaltered_patient_count = unaltered_pats.length;
+						var total_patient_count = altered_patient_count + unaltered_patient_count;
+						var percent_altered = Math.ceil(100 * altered_patient_count / total_patient_count);
+						$(config.percent_altered_indicator_selector).text("Altered in " + altered_patient_count + " (" + percent_altered + "%) of " + total_patient_count + " cases/patients");
+					});
 				} else {
-					$(config.percent_altered_indicator_selector).text("Altered in "+ window.PortalGlobals.getNumOfAlteredCases() + " ("+ Math.ceil(window.PortalGlobals.getPercentageOfAlteredCases()) +"%) of "+ window.PortalGlobals.getNumOfTotalCases() + " samples");
-				}
+					$.when(window.QuerySession.getAlteredSamples(), window.QuerySession.getUnalteredSamples())
+						.then(function(altered_samps, unaltered_samps) {
+					$(config.percent_altered_indicator_selector).text("Altered in "+ altered_samps.length + " ("+ Math.ceil(100 * altered_samps.length / (altered_samps.length + unaltered_samps.length)) +"%) of "+ (altered_samps.length + unaltered_samps.length) + " samples");
+					});
+				};
 			}
 		};
 		

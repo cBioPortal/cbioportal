@@ -98,10 +98,10 @@ var Table = function() {
         var _div = "<div id='"+divs.mainId+"' class='study-view-dc-chart study-view-tables h1half w2'>"+
             "<div id='"+divs.headerId+"'style='height: 16px; width:100%; float:left; text-align:center;'>"+
                 "<div class='titleWrapper' id='"+divs.titleWrapperId+"'>"+
-                    "<img id='"+divs.reloadId+"' class='study-view-title-icon hidden hover' src='images/reload-alt.svg'/>"+    
-//                    "<div id='"+divs.downloadWrapperId+"' class='study-view-download-icon'>" +
-//                        "<img id='"+divs.downloadId+"' style='float:left' src='images/in.svg'/>"+
-//                    "</div>"+
+                    "<img id='"+divs.reloadId+"' class='study-view-title-icon hidden hover' src='images/reload-alt.svg'/>"+
+                        "<div id='"+divs.downloadWrapperId+"' class='study-view-download-icon'>" +
+                        "<img id='"+divs.downloadId+"' style='float:left' src='images/in.svg'/>"+
+                        "</div>"+
                     "<img class='study-view-drag-icon' src='images/move.svg'/>"+
                     "<span id='"+divs.deleteIconId+"' class='study-view-tables-delete'>x</span>"+
                 "</div>"+
@@ -180,13 +180,9 @@ var Table = function() {
                 tableBodyStr += '<tr style="white-space: nowrap;">';
             }
 
-            // create a unique identifier for the clickable samples part
-            // the identifier is the tableId + the row's gene
-            // the identifier can then be used by the breadcrumbs to find the correct row
-            var cellId = divs.tableId+"_"+arr[i]['gene'];
             for(j = 0; j < attrL; j++) {
                 // added an id for the clickable component
-                tableBodyStr += '<td' + (attr[j].name === 'samples' ? ' id='+cellId+' class="clickable"' : '') + '>' + arr[i][attr[j].name] + '</td>';
+                tableBodyStr += '<td' + ( (attr[j].name === 'samples' && +arr[i].hasOwnProperty('uniqueId')) ? ' id='+ divs.tableId + '-' + arr[i].uniqueId : '') + '>' + arr[i][attr[j].name] + '</td>';
             }
             tableBodyStr += '</tr>';
         }
@@ -352,15 +348,7 @@ var Table = function() {
                         $(this).find('td:nth-child('+checkboxChildId+') input:checkbox').attr('checked', true);
                     }
                 });
-                
-                $('#'+ divs.tableId).find('table tbody tr td.clickable').unbind('hover');
-                $('#'+ divs.tableId).find('table tbody tr td.clickable').hover(function(e, i) {
-                    $(this).siblings().addBack().addClass('hoverRow');
-                },function(e, i) {
-                    $(this).siblings().addBack().removeClass('hoverRow');
-                });
-                
-                //rowClick();
+
                 checkboxClick();
             };
         }
@@ -389,31 +377,64 @@ var Table = function() {
     }
     
     function addEvents() {
-        deleteTable();
-    }
-    
-    function rowClick() {
-        $('#' + divs.tableId + ' table tbody tr td.clickable').unbind('click');
-        $('#' + divs.tableId + ' table tbody tr td.clickable').click(function () {
-            var shiftClicked = StudyViewWindowEvents.getShiftKeyDown(),
-            highlightedRowsData = '';
+        $('#' + divs.tableId + '-download-icon').qtip('destroy', true);
+        $('#' + divs.tableId + '-download-icon-wrapper').qtip('destroy', true);
 
-            if(!shiftClicked) {
-                var _isClicked = $(this).parent().hasClass('highlightRow');
-                $('#' + divs.tableId + ' tbody').find('.highlightRow').removeClass('highlightRow');
-                $('#' + divs.tableId + ' tbody').find('input:checkbox').attr('checked', false);
-                if(!_isClicked) {
-                    $(this).siblings().addBack().toggleClass('highlightRow');
-                    $(this).parent().toggleClass('highlightRow');
-                    $(this).parent().find('input:checkbox').attr('checked', true);
-                }
-            }else{
-                $(this).siblings().addBack().toggleClass('highlightRow');
-                $(this).parent().toggleClass('highlightRow');
-                $(this).parent().find('input:checkbox').attr('checked', !($(this).parent().find('input:checkbox').attr('checked')));
+        $('#' + divs.tableId + '-download-icon-wrapper').qtip({
+            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
+            show: {event: "mouseover", delay: 0},
+            hide: {fixed:true, delay: 100, event: "mouseout"},
+            position: {my:'bottom left',at:'top right', viewport: $(window)},
+            content: {
+                text:   "Download"
             }
-            clickFunc();
         });
+
+        $('#' + divs.tableId + '-download-icon').qtip({
+            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
+            show: {event: "click", delay: 0},
+            hide: {fixed:true, delay: 100, event: "mouseout "},
+            position: {my:'top center',at:'bottom center', viewport: $(window)},
+            content: {
+                text:
+                "<div style='display:inline-block;'>"+
+                "<button id='"+divs.tableId+"-tsv' style=\"width:50px\">TXT</button>"+
+                "</div>"
+            },
+            events: {
+                show: function() {
+                    $('#' + divs.tableId + '-download-icon-wrapper').qtip('api').hide();
+                },
+                render: function() {
+                    $("#"+divs.tableId+"-tsv").click(function(){
+                        var content = '';
+
+                        attr.forEach(function(e) {
+                            content += e.name === 'uniqueId' ? '' : ((e.displayName||'Unknown') + '\t');
+                        });
+                        content = content.slice(0,-1);
+
+                        arr.forEach(function(e){
+                            content += '\r\n';
+                            attr.forEach(function(e1){
+                                content += e1.name === 'uniqueId' ? '' : (e[e1.name] + '\t');
+                            });
+                            content = content.slice(0,-1);
+                        });
+
+                        var downloadOpts = {
+//                            filename: cancerStudyName + "_" + divs.title + ".txt",
+                            filename: StudyViewParams.params.studyId + "_" + divs.title + ".txt",
+                            contentType: "text/plain;charset=utf-8",
+                            preProcess: false
+                        };
+
+                        cbio.download.initDownload(content, downloadOpts);
+                    });
+                }
+            }
+        });
+        deleteTable();
     }
 
     function checkboxClick() {
@@ -422,13 +443,11 @@ var Table = function() {
             $(this).parent().siblings().addBack().toggleClass('highlightRow');
             $(this).parent().parent().toggleClass('highlightRow');
 
-            // update the breadcrumbs
-            updateBreadCrumb(this);
-            clickFunc();
+            clickFunc(dataTable.api().row($(this).parent().parent()).data() , $(this).prop("checked"));
         });
     }
 
-    function clickFunc() {
+    function clickFunc(clickedRowData, rowChecked) {
         var highlightedRowsData = dataTable.api().rows('.highlightRow').data();
 
         if(highlightedRowsData.length === 0) {
@@ -438,35 +457,9 @@ var Table = function() {
         }
 
         if(callbacks.hasOwnProperty('rowClick')) {
-            callbacks.rowClick(divs.tableId, highlightedRowsData);
+            callbacks.rowClick(divs.tableId, highlightedRowsData, clickedRowData, rowChecked);
         }
     }
-
-    //function updateBreadCrumb(clickedCell, shiftClicked){
-    function updateBreadCrumb(clickedCell){
-        // we need the id to be able to trigger the click event when the x from the breadcrumb is clicked
-        var chartId = divs.tableId;
-        var cellId = $(clickedCell).parent().attr("id");
-        var checkboxChecked = clickedCell.checked;
-
-        // the first cell contains the gene name, which we use for the crumb's title and is also the filter
-        var firstCell = $(clickedCell).parent().siblings(":first-child");
-        var chartFilter = $(firstCell).text();
-
-        // check whether the cell has a qtip
-        // if it does, it means the text in the first cell is incomplete, e.g. B4GA... instead of B4GALT3
-        // in that case, we overwrite the chartFilter with the qtip
-        if($(firstCell).find(".hasQtip").length!=0){
-            chartFilter = $(firstCell).find(".hasQtip").attr('qtip');
-        }
-
-        var crumbTitle = chartFilter;
-        var crumbTipText = divs.title+": "+crumbTitle;
-
-        BreadCrumbs.updateTableBreadCrumb(chartId, chartFilter, "table", cellId, crumbTipText, checkboxChecked);
-
-    }
-
     
     function deleteTable() {
         $('#'+ divs.deleteIconId).unbind('click');
@@ -485,7 +478,7 @@ var Table = function() {
             $('#' + divs.tableId + ' tbody').find('.highlightRow').removeClass('highlightRow');
             $('#' + divs.tableId + ' tbody tr td:nth-child('+checkboxChildId+') input:checkbox').attr('checked', false);
             if(callbacks.hasOwnProperty('rowClick')) {
-                callbacks.rowClick(divs.tableId, []);
+                callbacks.rowClick(divs.tableId, [], [], false);
             }
             redraw();
             hideReload();

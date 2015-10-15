@@ -4323,6 +4323,7 @@
       var sourceNode = _CoSELayout.idToLNode[edge.data("source")];
       var targetNode = _CoSELayout.idToLNode[edge.data("target")];
       var e1 = gm.add(_CoSELayout.layout.newEdge(), sourceNode, targetNode);
+      e1.id = edge.id();
     }
 
 
@@ -4367,46 +4368,43 @@
       'edges': []
     };
 
-    nodes.each(
-            function (i, node) {
-              var nodeId = this._private.data.id;
-              var parentId = node.parent().id();
-              var w = node.width();
-              var posX = node.position('x');
-              var posY = node.position('y');
-              var h = node.height();
+    var lnodes = gm.getAllNodes();
+    for (var i = 0; i < lnodes.length; i++) {
+      var lnode = lnodes[i];
+      var nodeId = lnode.id;
+      var cyNode = this.options.cy.getElementById(nodeId);
+      var parentId = cyNode.data('parent');
+      var w = lnode.rect.width;
+      var posX = lnode.rect.x;
+      var posY = lnode.rect.y;
+      var h = lnode.rect.height;
+      var dummy_parent_id = cyNode.data('dummy_parent_id');
 
-              var temp = node.parent()[0];
+      pData[ 'nodes' ].push({
+        id: nodeId,
+        pid: parentId,
+        x: posX,
+        y: posY,
+        width: w,
+        height: h,
+        dummy_parent_id: dummy_parent_id
+      });
 
-              while (temp != null) {
-                if (_CoSELayout.toBeTiled[temp.id()]) {
-                  return;
-                }
-                temp = temp.parent()[0];
-              }
+    }
 
-              pData[ 'nodes' ].push({
-                id: nodeId,
-                pid: parentId,
-                x: posX,
-                y: posY,
-                width: w,
-                height: h
-              });
-            });
-
-    edges.each(
-            function () {
-              var srcNodeId = this.source().id();
-              var tgtNodeId = this.target().id();
-              var edgeId = this._private.data.id;
-              pData[ 'edges' ].push({
-                id: edgeId,
-                source: srcNodeId,
-                target: tgtNodeId
-              });
-            });
-
+    var ledges = gm.getAllEdges();
+    for (var i = 0; i < ledges.length; i++) {
+      var ledge = ledges[i];
+      var edgeId = ledge.id;
+      var cyEdge = this.options.cy.getElementById(edgeId);
+      var srcNodeId = cyEdge.source().id();
+      var tgtNodeId = cyEdge.target().id();
+      pData[ 'edges' ].push({
+        id: edgeId,
+        source: srcNodeId,
+        target: tgtNodeId
+      });
+    }
 
     var ready = false;
 
@@ -4571,6 +4569,8 @@
       after.cy.one('layoutstop', after.options.stop);
       after.cy.trigger('layoutstop');
       t1.stop();
+
+      after.options.eles.nodes().removeData('dummy_parent_id');
     });
 
     t1.on('message', function (e) {
@@ -4582,6 +4582,12 @@
       var pData = e.message.pData;
       if (pData != null) {
         after.options.eles.nodes().positions(function (i, ele) {
+          if (ele.data('dummy_parent_id')) {
+            return {
+              x: pData[ele.data('dummy_parent_id')].x,
+              y: pData[ele.data('dummy_parent_id')].y
+            };
+          }
           var theId = ele.data('id');
           var pNode = pData[theId];
           var temp = this;
@@ -4649,16 +4655,26 @@
     return true;
   };
 
-  _CoSELayout.prototype.getNodeDegree = function(node) {
+  _CoSELayout.prototype.getNodeDegree = function (node) {
     var id = node.id();
-    var edges = this.options.eles.edges().filter(function(i, ele){
+    var edges = this.options.eles.edges().filter(function (i, ele) {
       var source = ele.data('source');
       var target = ele.data('target');
-      if(source != target && (source == id || target == id) ){
+      if (source != target && (source == id || target == id)) {
         return true;
       }
     });
     return edges.length;
+  };
+
+  _CoSELayout.prototype.getNodeDegreeWithChildren = function (node) {
+    var degree = this.getNodeDegree(node);
+    var children = node.children();
+    for(var i = 0; i < children.length; i++){
+      var child = children[i];
+      degree += this.getNodeDegreeWithChildren(child);
+    }
+    return degree;
   };
 
   _CoSELayout.prototype.groupZeroDegreeMembers = function () {
@@ -4668,8 +4684,7 @@
     var self = this;
     // Find all zero degree nodes which aren't covered by a compound
     var zeroDegree = this.options.eles.nodes().filter(function (i, ele) {
-//      console.log(self.getNodeDegree(ele));
-      if (self.getNodeDegree(ele) == 0 && (ele.parent().length == 0 || (ele.parent().length > 0 && !self.getToBeTiled(ele.parent()[0])) ) )
+      if (self.getNodeDegreeWithChildren(ele) == 0 && (ele.parent().length == 0 || (ele.parent().length > 0 && !self.getToBeTiled(ele.parent()[0]))))
         return true;
       else
         return false;
@@ -4698,12 +4713,31 @@
           this.options.cy.add({
             group: "nodes",
             data: {id: dummyCompoundId, parent: p_id
-            },
-            position: {x: Math.random() * this.options.cy.container().clientWidth,
-              y: Math.random() * this.options.cy.container().clientHeight}
+            }
           });
-          this.options.eles = this.options.eles.union(this.options.cy.nodes()[this.options.cy.nodes().length - 1]);
-          this.options.cy.nodes()[this.options.cy.nodes().length - 1].hide();
+
+          var dummy = this.options.cy.nodes()[this.options.cy.nodes().length - 1];
+          this.options.eles = this.options.eles.union(dummy);
+          dummy.hide();
+
+          for (var i = 0; i < tempMemberGroups[p_id].length; i++) {
+            if (i == 0) {
+              dummy.data('tempchildren', []);
+            }
+            var node = tempMemberGroups[p_id][i];
+            node.data('dummy_parent_id', dummyCompoundId);
+            this.options.cy.add({
+              group: "nodes",
+              data: {parent: dummyCompoundId, width: node.width(), height: node.height()
+              }
+            });
+            var tempchild = this.options.cy.nodes()[this.options.cy.nodes().length - 1];
+            tempchild.hide();
+            tempchild.css('width', tempchild.data('width'));
+            tempchild.css('height', tempchild.data('height'));
+            tempchild.width();
+            dummy.data('tempchildren').push(tempchild);
+          }
         }
       }
     }
@@ -4786,6 +4820,11 @@
       // Adjust the positions of nodes wrt its compound
       this.adjustLocations(tiledPack[i], compoundNode.rect.x, compoundNode.rect.y);
 
+      var tempchildren = compound.data('tempchildren');
+      for (var i = 0; i < tempchildren.length; i++) {
+        tempchildren[i].remove();
+      }
+
       // Remove the dummy compound
       compound.remove();
     }
@@ -4862,11 +4901,13 @@
       var node = nodes[i];
       var lNode = _CoSELayout.idToLNode[node.id()];
 
-      var owner = lNode.owner;
-      owner.remove(lNode);
+      if (!node.data('dummy_parent_id')) {
+        var owner = lNode.owner;
+        owner.remove(lNode);
 
-      this.gm.resetAllNodes();
-      this.gm.getAllNodes();
+        this.gm.resetAllNodes();
+        this.gm.getAllNodes();
+      }
 
       layoutNodes.push(lNode);
     }

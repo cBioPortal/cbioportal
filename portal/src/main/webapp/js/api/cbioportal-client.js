@@ -4,8 +4,7 @@ window.cbioportal_client = (function() {
 			var arg_strings = [];
 			for (var k in args) {
 				if (args.hasOwnProperty(k)) {
-					args[k] = [].concat(args[k]);
-					arg_strings.push(k + '=' + args[k].join(","));
+					arg_strings.push(k + '=' + [].concat(args[k]).join(","));
 				}
 			}
 			var arg_string = arg_strings.join("&") || "?";

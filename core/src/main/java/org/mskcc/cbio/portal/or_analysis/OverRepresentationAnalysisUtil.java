@@ -96,7 +96,8 @@ public class OverRepresentationAnalysisUtil {
                 result.put(entrezGeneId, singleGeneMutMap);
             }
         } else {
-            result = daoGeneticAlteration.getGeneticAlterationMap(profileId, entrezGeneIds);
+            result = daoGeneticAlteration.getGeneticAlterationMap(profileId, null);
+            //result = daoGeneticAlteration.getGeneticAlterationMap(profileId, entrezGeneIds);
         }
         return result;
     }

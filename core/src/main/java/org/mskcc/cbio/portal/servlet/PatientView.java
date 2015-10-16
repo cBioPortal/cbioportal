@@ -304,16 +304,7 @@ public class PatientView extends HttpServlet {
 
 	private boolean cancerStudyUpdating(String cancerStudyId) throws DaoException
 	{
-		DaoCancerStudy.Status status = DaoCancerStudy.getStatus(cancerStudyId);
-		if (status != DaoCancerStudy.Status.AVAILABLE) {
-			if (status == DaoCancerStudy.Status.RECACHE) {
-				DaoCancerStudy.reCacheAll();
-			}
-			else {
-				return true;
-			}
-		}
-		return false;
+		return (DaoCancerStudy.getStatus(cancerStudyId) == DaoCancerStudy.Status.UNAVAILABLE);
 	}
     
     private void sortSampleIds(int cancerStudyId, int patientId, List<String> sampleIds) {

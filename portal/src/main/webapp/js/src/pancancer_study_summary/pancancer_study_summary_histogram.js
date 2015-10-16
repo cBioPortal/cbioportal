@@ -1,3 +1,20 @@
+/**
+ * some global utility functions:
+ */ 
+var calculateFrequency = function(d, type) {
+    return d.alterations[type]/ d.caseSetLength;
+};
+
+var getYValue = function(d, type, dataTypeYAxis) {
+    if (dataTypeYAxis == "Absolute Counts")
+	    return d.alterations[type];
+	else
+		return calculateFrequency(d, type);
+};
+  
+/**
+ * Class to render the d3js histogram.
+ */
 function PancancerStudySummaryHistogram()
 {
 	
@@ -38,24 +55,12 @@ function PancancerStudySummaryHistogram()
         }
     };
     
-    var calculateFrequency = function(d, type) {
-        return d.alterations[type]/ d.caseSetLength;
-    };
-
-    var getYValue = function(d, type, dataTypeYAxis) {
-	    if (dataTypeYAxis == "Absolute Counts")
-	    	return d.alterations[type];
-	    else
-	    	return calculateFrequency(d, type);
-    };
-  
-
     var getTypeOfCancer = function(study) {
     	return study.typeOfCancer; 
     };
     
     var filterCriteriaChanged = function(model) {
-    	return model.hasChanged("cancerType") || model.hasChanged("cancerTypeDetailed") || model.hasChanged("minNrAlteredSamples");
+    	return model.hasChanged("cancerType") || model.hasChanged("cancerTypeDetailed") || model.hasChanged("minAlteredSamples");
     }
     
     
@@ -640,10 +645,10 @@ function HistogramPresenter(model, dmPresenter, geneId)
 		
 		var finalHistData = [];
 		//filter data on nr of samples:
-		var minNrAlteredSamples = model.get("minNrAlteredSamples");
+		var minAlteredSamples = model.get("minAlteredSamples");
 		
 		for (var i = 0; i < this.histData.length; i++) {
-			if (this.histData[i].alterations.all >= minNrAlteredSamples)
+			if (getYValue(this.histData[i]) >= minAlteredSamples)
 				finalHistData.push(this.histData[i]);
 		}
 		

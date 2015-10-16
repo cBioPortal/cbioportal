@@ -68,7 +68,8 @@ public class TestImportClinicalData {
 	ProgressMonitor pMonitor = new ProgressMonitor();
 
 	@Before 
-	public void setUp() {
+	public void setUp() throws DaoException
+	{
 		study = DaoCancerStudy.getCancerStudyByStableId("study_tcga_pub");
 		DaoGeneticProfile.reCache();
 		DaoPatient.reCache();

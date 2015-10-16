@@ -33,13 +33,14 @@
 package org.mskcc.cbio.portal.dao;
 
 import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.util.InternalIdUtil;
 
 import org.apache.commons.logging.*;
 import org.apache.commons.lang.StringUtils;
 
 import java.sql.*;
 import java.util.*;
-import org.mskcc.cbio.portal.util.InternalIdUtil;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Data Access Object for `clinical` table
@@ -54,8 +55,8 @@ public final class DaoClinicalData {
     private static final String SAMPLE_INSERT = "INSERT INTO " + SAMPLE_TABLE + "(`INTERAL_ID`,`ATTR_ID`,`ATTR_VALUE` VALUES(?,?,?)";
     private static final String PATIENT_INSERT = "INSERT INTO " + PATIENT_TABLE + "(`INTERNAL_ID`,`ATTR_ID`,`ATTR_VALUE` VALUES(?,?,?)";
 
-    private static final Map<String, String> sampleAttributes = new HashMap<String, String>();
-    private static final Map<String, String> patientAttributes = new HashMap<String, String>();
+    private static final Map<String, String> sampleAttributes = new ConcurrentHashMap<String, String>();
+    private static final Map<String, String> patientAttributes = new ConcurrentHashMap<String, String>();
 
     private DaoClinicalData() {}
 
@@ -129,8 +130,16 @@ public final class DaoClinicalData {
             pstmt.setInt(1, internalId);
             pstmt.setString(2, attrId);
             pstmt.setString(3, attrVal);
+            int toReturn = pstmt.executeUpdate();
 
-            return pstmt.executeUpdate();
+			if (tableName.equals(PATIENT_TABLE)) {
+				patientAttributes.put(attrId, attrId);
+			}
+			else {
+				sampleAttributes.put(attrId, attrId);
+			}	
+
+			return toReturn;
         }
         catch (SQLException e) {
             throw new DaoException(e);
@@ -153,7 +162,7 @@ public final class DaoClinicalData {
                         attrId);
     }
 
-    private static int getInternalCancerStudyId(String cancerStudyId)
+    private static int getInternalCancerStudyId(String cancerStudyId) throws DaoException
     {
         return DaoCancerStudy.getCancerStudyByStableId(cancerStudyId).getInternalId();
     }
@@ -478,6 +487,7 @@ public final class DaoClinicalData {
         } finally {
             JdbcUtil.closeAll(DaoClinicalData.class, con, pstmt, rs);
         }
+		reCache();
     }
 
 	/*********************************************************

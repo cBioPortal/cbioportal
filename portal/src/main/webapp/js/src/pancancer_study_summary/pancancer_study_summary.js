@@ -841,7 +841,7 @@ function DataManagerPresenter(dmInitCallBack)
 	 * Returns the total number of samples for the given cancer type.
 	 * If cancerTypeDetailed is given, it returns the total for this sub type instead.
 	 */
-	this.getTotalNrSamplesPerCancerType(cancerType, cancerTypeDetailed) {
+	this.getTotalNrSamplesPerCancerType = function(cancerType, cancerTypeDetailed) {
 		if (cancerTypeDetailed == null)
 			return self.cancerTypeList[cancerType].sampleIds.length;
 		else

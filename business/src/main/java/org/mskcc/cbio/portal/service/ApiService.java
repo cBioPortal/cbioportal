@@ -292,13 +292,6 @@ public class ApiService {
 	}
         
         @Transactional
-        public List<DBSample> getSamplesByStudyAndPatientId(String study_id,String patient_id) {
-            List<String> patient_ids = new ArrayList<>();
-            patient_ids.add(patient_id);
-            return sampleMapper.getSamplesByStudyAndPatientId(study_id,patient_ids);
-        }
-        
-        @Transactional
         public List<DBSample> getSamplesByStudyAndPatientId(String study_id, List<String> patient_ids) {
         return sampleMapper.getSamplesByStudyAndPatientId(study_id,patient_ids);
         }

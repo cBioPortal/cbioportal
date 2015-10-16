@@ -775,6 +775,7 @@ function DataManagerPresenter(dmInitCallBack)
 		//return the alteration event counts for the sample list and geneId  
 		return this._getAlterationEventCounts(sampleIds, geneId);
 	}
+
 	
 	this._getAlterationEventCounts = function(sampleIds, geneId) {
 		//returns object in format like below: 
@@ -834,6 +835,18 @@ function DataManagerPresenter(dmInitCallBack)
 		}
 		
 	}
+	
+	
+	/** 
+	 * Returns the total number of samples for the given cancer type.
+	 * If cancerTypeDetailed is given, it returns the total for this sub type instead.
+	 */
+	this.getTotalNrSamplesPerCancerType = function(cancerType, cancerTypeDetailed) {
+		if (cancerTypeDetailed == null)
+			return self.cancerTypeList[cancerType].sampleIds.length;
+		else
+			return self.cancerTypeList[cancerType].cancerTypeDetailed[cancerTypeDetailed].sampleIds.length;
+	}	
 	
 	/**
 	 * Returns the number of samples in the current case set.

@@ -18,9 +18,9 @@ IMPORT_CANCER_TYPE = "import-cancer-type"
 IMPORT_STUDY = "import-study"
 REMOVE_STUDY = "remove-study"
 IMPORT_STUDY_DATA = "import-study-data"
-IMPORT_PATIENT_LIST = "import-patient-list"
+IMPORT_CASE_LIST = "import-case-list"
 
-COMMANDS = [IMPORT_CANCER_TYPE, IMPORT_STUDY, REMOVE_STUDY, IMPORT_STUDY_DATA, IMPORT_PATIENT_LIST]
+COMMANDS = [IMPORT_CANCER_TYPE, IMPORT_STUDY, REMOVE_STUDY, IMPORT_STUDY_DATA, IMPORT_CASE_LIST]
 
 # ------------------------------------------------------------------------------
 # sub-routines
@@ -63,9 +63,9 @@ def import_study_data(jvm_args, meta_filename, data_filename):
         args.append(data_filename)
     run_java(*args)
 
-def import_patient_list(jvm_args, meta_filename):
+def import_case_list(jvm_args, meta_filename):
 	args = jvm_args.split(' ')
-	args.append(IMPORT_PATIENT_LIST_CLASS);
+	args.append(IMPORT_CASE_LIST_CLASS);
 	args.append(meta_filename)
 	run_java(*args)
 
@@ -78,8 +78,8 @@ def process_command(jvm_args, command, meta_filename, data_filename):
 		remove_study(jvm_args, meta_filename)
 	elif command == IMPORT_STUDY_DATA:
 		import_study_data(jvm_args, meta_filename, data_filename)
-	elif command == IMPORT_PATIENT_LIST:
-		import_patient_list(jvm_args, meta_filename)
+	elif command == IMPORT_CASE_LIST:
+		import_case_list(jvm_args, meta_filename)
 
 def usage():
     print >> OUTPUT_FILE, ('cbioportalImporter.py --jvm-args (args to jvm) ' +

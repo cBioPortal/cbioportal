@@ -17,7 +17,7 @@ OUTPUT_FILE = sys.stdout
 IMPORT_STUDY_CLASS = "org.mskcc.cbio.portal.scripts.ImportCancerStudy";
 REMOVE_STUDY_CLASS = "org.mskcc.cbio.portal.scripts.RemoveCancerStudy";
 IMPORT_CANCER_TYPE_CLASS = "org.mskcc.cbio.portal.scripts.ImportTypesOfCancers"
-IMPORT_PATIENT_LIST_CLASS = "org.mskcc.cbio.portal.scripts.ImportPatientList"
+IMPORT_CASE_LIST_CLASS = "org.mskcc.cbio.portal.scripts.ImportPatientList"
 
 IMPORTER_CLASSNAME_BY_ALTERATION_TYPE = { "CLINICAL" : "org.mskcc.cbio.portal.scripts.ImportClinicalData",
                                             "COPY_NUMBER_ALTERATION" : "org.mskcc.cbio.portal.scripts.ImportProfileData",

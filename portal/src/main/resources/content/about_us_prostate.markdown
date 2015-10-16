@@ -1,9 +1,8 @@
-The cBioPortal Prostate Cancer is developed and maintained by the Computational Biology Center at Memorial Sloan-Kettering Cancer Center and the i-Vis (Information Visualization) Research Group of the Computer Engineering Department at Bilkent University.
+The cBioPortal Prostate Cancer is developed and maintained by the Computational Biology Center at Memorial Sloan-Kettering Cancer Center.
 
 ## The team
 
  * Jianjiong Gao, MSKCC
- * B. Arman Aksoy, MSKCC
  * Benjamin Gross, MSKCC
  * Gideon Dresdner, MSKCC
  * Anders Jacobsen, MSKCC
@@ -17,12 +16,13 @@ The cBioPortal Prostate Cancer is developed and maintained by the Computational 
  
 ## Alumni
 
- * Ethan Cerami, now at Blueprint Medicines
- * Erik Larsson, now at University of Gothenburg
- * Arthur Goldberg, now at Mount Sinai School of Medicine
+ * Ethan Cerami
+ * Erik Larsson
+ * Arthur Goldberg
  * Michael Heuer
- * Caitlin Byrne, MSKCC
- * Sinan Sonlu, Bilkent University
+ * Caitlin Byrne
+ * Sinan Sonlu
+ * B. Arman Aksoy
 
 ## Funding for the cBioPortal for Prostate Cancer is provided in part from:
 

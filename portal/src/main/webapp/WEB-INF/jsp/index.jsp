@@ -115,16 +115,14 @@ $(document).ready(function(){
         <tr>
             <td>
             <div class="welcome">
-                <table>
+                <!-- added width style attribute to keep the image at the right side -->
+                <table style="width: 100%">
                 <tr>
                    <td valign=top>
 	              <div style="position: relative; z-index: 999;">
+                      <!-- removed hard coded part and added it to the blurb text-->
                         <p><%= GlobalProperties.getBlurb() %></p>
-                        <p>Please adhere to <u><a href="http://cancergenome.nih.gov/abouttcga/policies/publicationguidelines">
-                            the TCGA publication guidelines</a></u> when using TCGA data in your publications.</p>
-                        <p><b>Please cite</b> <a href="http://www.cbioportal.org/public-portal/sci_signal_reprint.jsp">Gao et al. <i>Sci. Signal.</i> 2013</a> 
-                                &amp;  <a href="http://cancerdiscovery.aacrjournals.org/content/2/5/401.abstract">Cerami et al. <i>Cancer Discov.</i> 2012</a>
-                                when publishing results based on cBioPortal.</p>
+
                         </div>
                         <br/>
                    </td>

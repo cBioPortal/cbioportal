@@ -33,19 +33,12 @@
 package org.mskcc.cbio.portal.scripts;
 
 // imports
-import org.mskcc.cbio.portal.model.User;
-import org.mskcc.cbio.portal.dao.DaoUser;
-import org.mskcc.cbio.portal.model.UserAuthorities;
-import org.mskcc.cbio.portal.dao.DaoUserAuthorities;
+import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.util.*;
 
-import org.mskcc.cbio.portal.util.ConsoleUtil;
-import org.mskcc.cbio.portal.util.ProgressMonitor;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.util.List;
-import java.util.Arrays;
+import java.io.*;
+import java.util.*;
 
 /**
  * Import a file of users and their authorities.
@@ -69,6 +62,8 @@ public class ImportUsers {
 
         ProgressMonitor pMonitor = new ProgressMonitor();
         pMonitor.setConsoleMode(true);
+
+		SpringUtil.initDataSource();
 
         File file = new File(args[0]);
         FileReader reader = new FileReader(file);

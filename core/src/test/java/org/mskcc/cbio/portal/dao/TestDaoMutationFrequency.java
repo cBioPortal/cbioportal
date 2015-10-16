@@ -32,20 +32,25 @@
 
 package org.mskcc.cbio.portal.dao;
 
-import junit.framework.TestCase;
-import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.dao.DaoMutationFrequency;
-import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
-import org.mskcc.cbio.portal.scripts.ResetDatabase;
-import org.mskcc.cbio.portal.model.CanonicalGene;
-
-import java.util.ArrayList;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * JUnit test for DaoMutationFrequency class.
  */
-public class TestDaoMutationFrequency extends TestCase {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
+@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@Transactional
+public class TestDaoMutationFrequency {
 
+	@Ignore
+	@Test
     public void testDaoMutationFrequency() throws DaoException {
         // DaoMutationFrequency is not used any more
 //        ResetDatabase.resetDatabase();

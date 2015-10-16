@@ -112,7 +112,9 @@ public class ImportClinicalData {
             System.out.println("Aborting!  Could not find:  " + PATIENT_ID_COLUMN_NAME
                     + " or " + SAMPLE_ID_COLUMN_NAME + " in your file.");
             System.out.println("Please check your file format and try again.");
-            System.exit(0);
+            throw new RuntimeException("Aborting owing to failure to find " +
+                    PATIENT_ID_COLUMN_NAME + " or " + SAMPLE_ID_COLUMN_NAME +
+                    " in file.");
         }
         importData(buff, columnAttrs);
         
@@ -385,6 +387,7 @@ public class ImportClinicalData {
         }
 
 		try {
+			SpringUtil.initDataSource();
 			CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(args[1]);
 			if (cancerStudy == null) {
 				System.err.println("Unknown cancer study: " + args[1]);

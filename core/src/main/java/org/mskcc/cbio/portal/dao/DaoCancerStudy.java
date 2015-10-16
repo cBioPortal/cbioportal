@@ -38,7 +38,7 @@ import org.mskcc.cbio.portal.util.ImportDataUtil;
 import java.sql.*;
 import java.util.*;
 import org.apache.commons.lang.StringUtils;
-import org.mskcc.cbio.portal.util.ImportDataUtil;
+import org.mskcc.cbio.portal.util.*;
 
 /**
  * Analogous to and replaces the old DaoCancerType. A CancerStudy has a NAME and
@@ -55,7 +55,8 @@ public final class DaoCancerStudy {
     private static final Map<Integer,CancerStudy> byInternalId = new HashMap<Integer,CancerStudy>();
     
     static {
-       reCache();
+        SpringUtil.initDataSource();
+        reCache();
     }
     
     private static synchronized void reCache() {

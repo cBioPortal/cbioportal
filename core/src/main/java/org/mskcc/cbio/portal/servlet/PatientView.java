@@ -68,6 +68,7 @@ import org.apache.log4j.Logger;
 import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.*;
 import java.util.*;
@@ -287,6 +288,12 @@ public class PatientView extends HttpServlet {
                     "You are not authorized to view the cancer study with id: '" +
                     cancerStudyIdentifier + "'. ");
             return false;
+        }
+        else {
+            UserDetails ud = accessControl.getUserDetails();
+            if (ud != null) {
+                logger.info("PatientView.validate: Query initiated by user: " + ud.getUsername());
+            }
         }
         
         request.setAttribute(PATIENT_CASE_OBJ, samples);

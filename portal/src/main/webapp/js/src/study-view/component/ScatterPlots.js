@@ -151,6 +151,14 @@ var ScatterPlots = function() {
     }
 
 
+    // clear the scatterplot
+    function clearScatterPlot(){
+        // find all items that are shiftClicked and all items that are clicked and shift-clicked
+        var shiftClickedItems = $("#study-view-scatter-plot").find("[clicked='shiftClicked']");
+        var bothItems = $("#study-view-scatter-plot").find("[clicked='both']");
+        // act as if we selected these items by dragging the mouse; call the brushended function
+        brushended("", $.merge(shiftClickedItems, bothItems));
+    }
 
     function initScaleX() {
         var _edge_x = (dataAttr.max_x - dataAttr.min_x) * axis_edge;
@@ -588,7 +596,9 @@ var ScatterPlots = function() {
         elem.dotsGroup.selectAll("path").attr('pointer-events', 'all').on("mouseout", mouseOff);
         elem.dotsGroup.selectAll("path").attr('pointer-events', 'all').on("click", click);
     }
-    
+
+
+
     function getMouseoutPointSize(_element) {
         var _clickType = pointClickType(_element);
         
@@ -746,28 +756,39 @@ var ScatterPlots = function() {
         elem.dotsGroup.selectAll("path").each(function(d) {
             changeClickStyle(this);
         });
-            
+
+        //update breadcrumbs
+        updateBreadCrumbs();
+
         clickCallback(brushedCases);
     }
     
     //This functions has been modified from original template.
-    function brushended(event) {
+    function brushended(event, clearHighlightedArray) {
         var _brushedCases = [],
             _totalHighlightIds = [];
-        
+
         var extent = elem.brush.extent();
-        
-        elem.dotsGroup.selectAll("path").each(function(d) {
-            var _x = $(this).attr("x_val"),
-                _y = $(this).attr("y_val");
-        
-            if (_x > extent[0][0] && _x < extent[1][0] &&
-                        _y > extent[0][1] && _y < extent[1][1]) {
-                _totalHighlightIds.push(d.case_id);
-            }     
-        });
-        
-        
+
+        if(clearHighlightedArray !=0) {
+            _totalHighlightIds = clearHighlightedArray;
+            shiftKeyDown = false;
+        }
+        else {
+            elem.dotsGroup.selectAll("path").each(function (d) {
+                var _x = $(this).attr("x_val"),
+                    _y = $(this).attr("y_val");
+
+                if (_x > extent[0][0] && _x < extent[1][0] &&
+                    _y > extent[0][1] && _y < extent[1][1]) {
+                    _totalHighlightIds.push(d.case_id);
+                }
+            });
+        }
+
+        // store the number of highlighted; if 0 we have an empty selection and do not want
+        // to update the breadcrumbs
+        var nrHighlighted = _totalHighlightIds.length;
         
         if(_totalHighlightIds.length > 0) {
             _totalHighlightIds = [];
@@ -824,8 +845,25 @@ var ScatterPlots = function() {
 
             updateBrushCallback(_totalHighlightIds);
         }
-        
+
+        //update breadcrumbs
+        if(nrHighlighted!=0 && (_brushedCases.length>0 || clearHighlightedArray !=0 || _totalHighlightIds.length==0))
+            updateBreadCrumbs();
+
+
         d3.select(".brush").call(elem.brush.clear());
+    }
+
+    function updateBreadCrumbs(){
+        // there's only one scatter plot so we have a fixed ids
+        // if this is changed at some point, also change the function in StudyViewInitCharts
+        // $(".study-view-scatter-plot-delete").click(function (){
+        var chartId = "study-view-scatter-plot";
+        var chartTitle = $("#study-view-scatter-plot-title").text();
+        var tipText = $("#study-view-scatter-plot-body-svg").find(".plots-title-x").text()+
+            " vs "+
+            $("#study-view-scatter-plot-body-svg").find(".plots-title-y").text();
+        BreadCrumbs.updateScatterPlotBreadCrumb(chartId, chartTitle, tipText);
     }
 
     function updatePlotsLogScale(_axis, _applyLogScale) {
@@ -1006,6 +1044,8 @@ var ScatterPlots = function() {
             drawLegends();
             addListeners();
         },
+        clearScatterPlot:clearScatterPlot,
+
         // !!! Log Scale are only used by using RNA Seq Profile
         updateScaleX: updateScaleX,
         

@@ -72,6 +72,7 @@ MSKCC_USER_SPREADSHEET = 'Request Access to the cBio MSKCC Cancer Genomics Porta
 TRIAGE_USER_SPREADSHEET = 'Request Access to the cBio MSKCC (Triage) Cancer Genomics Portal'
 SU2C_KRAS_USER_SPREADSHEET = 'Request Access to the cBio KRAS Cancer Genomics Portal'
 GENIE_USER_SPREADSHEET = 'Request Access to the cBio GENIE Cancer Genomics Portal'
+BETA_USER_SPREADSHEET = 'Request Access to the cBio Cancer Genomics Portal Beta'
 
 # portal name (these should correspond to what is in property file of the respective portal)
 PORTAL_NAME = { GDAC_USER_SPREADSHEET : "gdac-portal",
@@ -83,7 +84,8 @@ PORTAL_NAME = { GDAC_USER_SPREADSHEET : "gdac-portal",
                 MSKCC_USER_SPREADSHEET : "mskcc-portal",
                 TRIAGE_USER_SPREADSHEET : "triage-portal",
                 GENIE_USER_SPREADSHEET : "genie",
-                SU2C_KRAS_USER_SPREADSHEET : "kras" }
+                SU2C_KRAS_USER_SPREADSHEET : "kras",
+                BETA_USER_SPREADSHEET : "beta" }
 
 # column constants on google spreadsheet
 FULLNAME_KEY = "fullname"
@@ -114,7 +116,8 @@ MESSAGE_SUBJECT = { GDAC_USER_SPREADSHEET : "You have been granted access to the
                     MSKCC_USER_SPREADSHEET : "cBioPortal for MSKCC",
                     TRIAGE_USER_SPREADSHEET : "cBioPortal for MSKCC (Triage)",
                     GENIE_USER_SPREADSHEET : "cBioPortal for GENIE",
-                    SU2C_KRAS_USER_SPREADSHEET : "cBioPortal for SU2C KRAS Lung cancer Dream Team" }
+                    SU2C_KRAS_USER_SPREADSHEET : "cBioPortal for SU2C KRAS Lung cancer Dream Team",
+                    BETA_USER_SPREADSHEET : "cBioPortal Beta" }
 GDAC_MESSAGE_BODY = """Thank you for your interest in the private instance of cBioPortal. We have granted you access. You can login at http://cbioportal.org/gdac-portal/. Please let us know if you have any problems logging in.
 
 Please keep in mind that the majority of the data provided in this Portal is preliminary and subject to change. This data is only available to researchers funded through TCGA or involved in the TCGA Disease and Analysis Working Groups.
@@ -164,6 +167,10 @@ GENIE_MESSAGE_BODY = """Thank you for your interest in the cBioPortal for GENIE.
 Please keep in mind that the data provided in this Portal are preliminary and subject to change.
 """
 
+BETA_MESSAGE_BODY = """Thank you for your interest in the cBioPortal Beta. We have granted you access. You can login at http://cbioportal.mskcc.org/beta/. Please let us know if you have any problems logging in.
+
+Please keep in mind that the data provided in this Portal are preliminary and subject to change.
+"""
 
 MESSAGE_BODY = { GDAC_USER_SPREADSHEET : GDAC_MESSAGE_BODY,
                  PROSTATE_USER_SPREADSHEET : PROSTATE_MESSAGE_BODY,
@@ -174,7 +181,8 @@ MESSAGE_BODY = { GDAC_USER_SPREADSHEET : GDAC_MESSAGE_BODY,
                  MSKCC_USER_SPREADSHEET : MSKCC_MESSAGE_BODY,
                  TRIAGE_USER_SPREADSHEET : TRIAGE_MESSAGE_BODY,
                  GENIE_USER_SPREADSHEET : GENIE_MESSAGE_BODY,
-                 SU2C_KRAS_USER_SPREADSHEET : SU2C_KRAS_MESSAGE_BODY }
+                 SU2C_KRAS_USER_SPREADSHEET : SU2C_KRAS_MESSAGE_BODY,
+                 BETA_USER_SPREADSHEET : BETA_MESSAGE_BODY }
 
 
 # ------------------------------------------------------------------------------

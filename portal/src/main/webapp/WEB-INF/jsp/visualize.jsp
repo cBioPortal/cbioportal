@@ -33,6 +33,7 @@
 <%@ include file="global/global_variables.jsp" %>
 
 <jsp:include page="global/header.jsp" flush="true" />
+<%@ page import="java.util.Map" %>
 
 <div class='main_smry'>
     <div id='main_smry_stat_div' style='float:right;margin-right:15px;margin-bottom:-5px;width:50%;text-align:right;'></div>
@@ -79,12 +80,14 @@
     <ul>
     <%
         Boolean showMutTab = false;
+        Boolean showCancerTypesSummary = false;
         if (geneWithScoreList.size() > 0) {
 
             Enumeration paramEnum = request.getParameterNames();
             StringBuffer buf = new StringBuffer(request.getAttribute(QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING) + "?");
 
-            while (paramEnum.hasMoreElements()) {
+            while (paramEnum.hasMoreElements())
+            {
                 String paramName = (String) paramEnum.nextElement();
                 String values[] = request.getParameterValues(paramName);
 
@@ -133,7 +136,22 @@
                 }
             }
 
+            // determine whether to show the cancerTypesSummaryTab
+            // retrieve the cancerTypesMap and create an iterator for the values
+            Map<String, List<String>>  cancerTypesMap = (Map<String, List<String>>) request.getAttribute(QueryBuilder.CANCER_TYPES_MAP);
+            if(cancerTypesMap.keySet().size() > 1) {
+            	showCancerTypesSummary = true;
+            }
+            else if (cancerTypesMap.keySet().size() == 1 && cancerTypesMap.values().iterator().next().size() > 1 )  {
+            	showCancerTypesSummary = true;
+            }
             out.println ("<li><a href='#summary' class='result-tab' id='oncoprint-result-tab'>OncoPrint</a></li>");
+            // if showCancerTypesSummary is try, add the list item
+            if(showCancerTypesSummary){
+                out.println ("<li><a href='#pancancer_study_summary' class='result-tab' title='Cancer types summary'>"
+                + "Cancer Types Summary</a></li>");
+            }
+
             if (computeLogOddsRatio && geneWithScoreList.size() > 1) {
                 out.println ("<li><a href='#mutex' class='result-tab' id='mutex-result-tab'>"
                 + "Mutual Exclusivity</a></li>");
@@ -189,6 +207,11 @@
             <%@ include file="oncoprint/main.jsp" %>
         </div>
 
+        <!-- if showCancerTypes is true, include cancer_types_summary.jsp -->
+        <% if(showCancerTypesSummary) { %>
+        <%@ include file="pancancer_study_summary.jsp" %>
+        <%}%>
+
         <%@ include file="plots_tab.jsp" %>
 
         <% if (showIGVtab) { %>
@@ -202,7 +225,7 @@
         <% if (computeLogOddsRatio && geneWithScoreList.size() > 1) { %>
             <%@ include file="mutex_tab.jsp" %>
         <% } %>
-            
+
         <% if (mutationDetailLimitReached != null) {
             out.println("<div class=\"section\" id=\"mutation_details\">");
             out.println("<P>To retrieve mutation details, please specify "
@@ -220,7 +243,7 @@
         <% if (showCoexpTab) { %>
             <%@ include file="co_expression.jsp" %>
         <% } %>
-        
+
         <% if (has_mrna || has_copy_no || showMutTab) { %>
             <%@ include file="over_representation_analysis.jsp" %>
         <% } %>
@@ -251,22 +274,30 @@
 
     // it is better to check selected tab after document gets ready
     $(document).ready(function() {
+        var firstTime = true;
 
         $("#toggle_query_form").tipTip();
         // check if network tab is initially selected
         // TODO this depends on aria-hidden attribute which may not be safe...
-        
+
         if ($("div.section#network").attr('aria-hidden') == "false"){
             // make the network tab visible...
             $("div.section#network").removeAttr('style');
         }
-        
+
 
         $("a.result-tab").click(function(){
 
             if($(this).attr("href")=="#network") {
                 // to fix problem of flash repainting
                 $("div.section#network").removeAttr('style');
+
+                if(firstTime)
+                {
+                  send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
+                  firstTime = false;
+                }
+
             } else {
                 // since we never allow display:none we should adjust visibility, height, and width properties
                 $("div.section#network").attr('style', 'height: 0px; width: 0px; visibility: hidden;');

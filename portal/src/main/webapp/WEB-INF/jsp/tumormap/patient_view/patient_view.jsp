@@ -89,6 +89,9 @@ boolean showTimeline = (Boolean)request.getAttribute("has_timeline_data");
 String pathReportUrl = (String)request.getAttribute(PatientView.PATH_REPORT_URL);
 
 String oncokbUrl = (String)GlobalProperties.getOncoKBUrl();
+String oncokbGeneStatus = (String)GlobalProperties.getOncoKBGeneStatus();
+
+boolean showHotspot = (Boolean) GlobalProperties.showHotspot();
 
 //String drugType = xssUtil.getCleanerInput(request, "drug_type");
 String drugType = request.getParameter("drug_type");
@@ -173,13 +176,13 @@ if (patientViewError!=null) {
 
 <div id="patient-tabs">
     <ul>
-        
+
     <li><a id="link-summary" href='#tab_summary' class='patient-tab'>Summary</a></li>
-    
+
     <%if(showMutations){%>
     <li><a id="link-mutations" href='#tab_mutations' class='patient-tab'>Mutations</a></li>
     <%}%>
-    
+
     <%if(showCNA){%>
     <li><a id="link-cna" href='#tab_cna' class='patient-tab'>Copy Number Alterations</a></li>
     <%}%>
@@ -191,11 +194,11 @@ if (patientViewError!=null) {
     <%if(showClinicalTrials){%>
     <li><a id="link-clinical-trials" href='#tab_clinical-trials' class='patient-tab'>Clinical Trials</a></li>
     <%}%>
-    
+
     <%if(showTissueImages){%>
     <li><a id="link-tissue-images" href='#tab_images' class='patient-tab'>Tissue Images</a></li>
     <%}%>
-    
+
     <%if(pathReportUrl!=null){%>
     <li><a id="link-path-report" href='#tab_path-report' class='patient-tab'>Pathology Report</a></li>
     <%}%>
@@ -203,11 +206,11 @@ if (patientViewError!=null) {
     <%if(showPathways){%>
     <li><a id="link-pathways" href='#tab_pathways' class='patient-tab'>Network</a></li>
     <%}%>
-    
+
     <%if(showSimilarPatient){%>
     <li><a id="link-tissue-similar-patients" href='#tab_similar-patients' class='patient-tab'>Similar Patients</a></li>
     <%}%>
-    
+
     <%if(showSamplesTable){%>
     <li><a id="link-samples-table" href='#tab_samples-table' class='patient-tab'>Clinical Information</a></li>
     <%}%>
@@ -265,7 +268,7 @@ if (patientViewError!=null) {
             <%@ include file="clinical_trials.jsp" %>
         </div>
     <%}%>
-    
+
     <%if(showSamplesTable){%>
         <div class="samples-table-section" id="tab_samples-table">
             <%@ include file="samples_table.jsp" %>
@@ -273,7 +276,7 @@ if (patientViewError!=null) {
     <%}%>
 
 </div>
-<%  
+<%
 }
 %>
         </div>
@@ -294,7 +297,7 @@ if (patientViewError!=null) {
 <link href="css/jquery.qtip.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/>
 <link href="css/bootstrap.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 
-<style type="text/css" title="currentStyle"> 
+<style type="text/css" title="currentStyle">
         @import "css/data_table_jui.css?<%=GlobalProperties.getAppVersion()%>";
         @import "css/data_table_ColVis.css?<%=GlobalProperties.getAppVersion()%>";
         .ColVis {
@@ -385,6 +388,7 @@ if (patientViewError!=null) {
 </style>
 
 <script type="text/javascript" src="js/src/patient-view/genomic-event-observer.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/patient-view/OncoKBConnector.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script src="js/lib/dataTables.tableTools.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript">
 
@@ -409,12 +413,14 @@ var patientInfo = <%=jsonPatientInfo%>;
 var clinicalAttributes = <%=jsonClinicalAttributes%>;
 var viewBam = <%=viewBam%>;
 var mapCaseBam = <%=jsonMapCaseBam%>;
-var oncokbUrl = '<%=oncokbUrl%>';
-var oncoKBDataReady = false;
-    
 var caseMetaData = {
     color : {}, label : {}, index : {}, tooltip : {}
 };
+var oncokbGeneStatus = <%=oncokbGeneStatus%>;
+var showHotspot = <%=showHotspot%>;
+
+OncoKB.setUrl('<%=oncokbUrl%>');
+
 
 $(document).ready(function(){
     if (print) $('#page_wrapper_table').css('width', '900px');
@@ -455,7 +461,7 @@ function initTabs() {
 function fixCytoscapeWebRedraw() {
     // to initially hide the network tab
     $("#pathways").attr('style', 'display: none !important; height: 0px; width: 0px; visibility: hidden;');
-    
+
     // to fix problem of flash repainting
     $("a.patient-tab").click(function(){
         if($(this).attr("href")==="#pathways") {
@@ -493,13 +499,13 @@ function getEventIndexMap(eventTableData,idCol) {
     }
     return m;
 }
-    
+
 function addNoteTooltip(elem, content, position) {
     $(elem).qtip({
         content: (cbio.util.checkNullOrUndefined(content) ? {attr: 'alt'} : content),
 	    show: {event: "mouseover"},
         hide: {fixed: true, delay: 100, event: "mouseout"},
-        style: { classes: 'qtip-light qtip-rounded' },
+        style: { classes: 'qtip-light qtip-rounded qtip-wide' },
         position: (cbio.util.checkNullOrUndefined(position) ? {my:'top left',at:'bottom center',viewport: $(window)} : position)
     });
 }
@@ -511,7 +517,7 @@ function addMoreClinicalTooltip(elem) {
         var table_text;
         var clinicalData;
         var dataTable;
-        
+
         if (thisElem.attr('id') === "more-patient-info") {
             clinicalData = [];
             for (var key in patientInfo) {
@@ -586,7 +592,7 @@ function addMoreClinicalTooltip(elem) {
         if (clinicalData.length===0) {
             thisElem.remove();
         } else {
-            var pos = {my:'top right',at:'bottom right',viewport: $(window)};
+            var pos = {my:'top left',at:'bottom left'};
             thisElem.qtip({
                 content: {
                     text: table_text
@@ -688,7 +694,7 @@ function d3PieChart(svg, data, radius, colors) {
         .sort(null);
 
     var arcs = chart.selectAll("g.slice")
-        .data(pie) 
+        .data(pie)
         .enter()
         .append("g")
         .attr("class", "slice");
@@ -707,7 +713,7 @@ function d3AccBar(svg, data, width, colors) {
         acc.push(sum);
         sum += data[i];
     }
-    
+
     var vd = [];
     for (var i=0; i<data.length; i++) {
         vd.push({
@@ -718,7 +724,7 @@ function d3AccBar(svg, data, width, colors) {
     }
 
     var chart = svg.selectAll(".bar")
-        .data(vd) 
+        .data(vd)
         .enter()
         .append("g")
         .attr("class", "bar")
@@ -744,7 +750,7 @@ function d3CircledChar(g,ch,circleColor,textColor) {
         .attr("fill",textColor)
         .text(ch);
 }
-    
+
 function plotMrna(div,alts) {
     $(div).each(function() {
         if (!$(this).is(":empty")) return;
@@ -811,7 +817,7 @@ function plotAlleleFreq(div,mutations,altReadCount,refReadCount) {
             if (!cbio.util.checkNullOrUndefined(ac)&&!cbio.util.checkNullOrUndefined(rc)) allFreq[caseId] = (ac/(ac+rc)).toFixed(2);
         }
         d3AlleleFreqBar($(this)[0],allFreq);
-        
+
         // tooltip
         var arr = [];
         caseIds.forEach(function(caseId){
@@ -851,7 +857,7 @@ function d3AlleleFreqBar(div,alleFreq) {
         .attr("height", height);
 
     var chart = svg.selectAll(".bar")
-        .data(caseIds) 
+        .data(caseIds)
         .enter()
         .append("g")
         .attr("class", "bar")
@@ -885,7 +891,7 @@ function guessClinicalData(clinicalData, paramNames) {
 function outputClinicalData() {
     var n=caseIds.length;
     if (n>0) initCaseMetaData();
-    
+
     initNav();
 
     // Add cancer attributes to patientInfo if they are the same for all samples
@@ -963,11 +969,11 @@ function outputClinicalData() {
         addMoreClinicalTooltip(".more-sample-info");
     }
 
-    
+
     if (n>0) {
         plotCaseLabel('.case-label-header', false, true);
     }
-  
+
     function initCaseMetaData() {
         var n=caseIds.length;
         // set caseMetaData.color
@@ -1011,7 +1017,7 @@ function outputClinicalData() {
         for (var i=0; i<caseIds.length; i++) {
             caseMetaData.label[caseIds[i]] = i+1;
         }
-        
+
 
         // set tooltips
         for (var i=0; i<n; i++) {
@@ -1026,7 +1032,7 @@ function outputClinicalData() {
             caseMetaData.tooltip[caseId] = tip;
         }
     }
-    
+
     function formatPatientInfo(clinicalData) {
         var patientInfo = [];
         var gender = guessClinicalData(clinicalData, ['GENDER','SEX']);
@@ -1038,7 +1044,7 @@ function outputClinicalData() {
 
         return patientInfo;
     }
-    
+
     function formatStateInfo(clinicalData) {
         var ret = null;
         var caseType = guessClinicalData(clinicalData, ["TUMOR_TYPE","SAMPLE_TYPE"]);
@@ -1050,12 +1056,12 @@ function outputClinicalData() {
             } else {
                 loc = guessClinicalData(patientInfo, ["TUMOR_SITE","PRIMARY_SITE"]) || guessClinicalData(clinicalData, ["TUMOR_SITE","PRIMARY_SITE"]);
             }
-            if (loc!==null) 
+            if (loc!==null)
                 ret += " ("+loc+")";
         }
         return ret;
     }
-    
+
     function formatCancerStudyInfo() {
         return "<a href=\"study.do?cancer_study_id="+cancerStudyId+"\"><b>"+cancerStudyName+"</b></a>";
     }
@@ -1070,12 +1076,12 @@ function outputClinicalData() {
                     + "&nbsp&nbsp;Viewing #"+(CaseNavigation.currPosition()+1)+" of "+CaseNavigation.numOfNavCases()+" cases"
                     + "</ul>";
     }
-    
+
     function initNav() {
         if (!CaseNavigation.hasNavCaseIds()) return;
-       
+
         $("#nav_div").append(formatNav());
-        
+
         if (!CaseNavigation.hasPrevious()) {
             $("#case-navigate-first").addClass("disabled");
             $("#case-navigate-previous").addClass("disabled");
@@ -1094,7 +1100,7 @@ function outputClinicalData() {
 
     function formatDiseaseInfo(clinicalData) {
         var diseaseInfo = [];
-        
+
         var typeOfCancer = guessClinicalData(clinicalData,["TYPE_OF_CANCER", "CANCER_TYPE"]);
         if (typeOfCancer!==null) {
             var detailedCancerType = guessClinicalData(clinicalData,["DETAILED_CANCER_TYPE","CANCER_TYPE_DETAILED"]);
@@ -1103,11 +1109,11 @@ function outputClinicalData() {
             }
             diseaseInfo.push(typeOfCancer);
         }
-        
+
         var knowMolecularClassifier = guessClinicalData(clinicalData,["KNOWN_MOLECULAR_CLASSIFIER"]);
         if (knowMolecularClassifier!==null) {
             diseaseInfo.push(knowMolecularClassifier);
-        } 
+        }
 
         var stateInfo = formatStateInfo(clinicalData);
         if (stateInfo) diseaseInfo.push(stateInfo);
@@ -1117,7 +1123,7 @@ function outputClinicalData() {
         var strGleason = null;
         if (gleason!==null) {
             strGleason = "Gleason: "+gleason;
-        } 
+        }
 
         var primaryGleason = guessClinicalData(clinicalData, ["GLEASON_SCORE_1"]);
         var secondaryGleason = guessClinicalData(clinicalData, ["GLEASON_SOCRE_2"]);
@@ -1133,7 +1139,7 @@ function outputClinicalData() {
 
         var stage = guessClinicalData(clinicalData, ["TUMOR_STAGE_2009"]);
         if (stage!==null && stage.toLowerCase()!=="unknown") {
-            diseaseInfo.push(stage); 
+            diseaseInfo.push(stage);
         }
 
         var grade = guessClinicalData(clinicalData,["TUMOR_GRADE"]);
@@ -1187,7 +1193,7 @@ function outputClinicalData() {
             }
             ret.push(patientStatus);
         }
-        if (dfss!==null && dfssLow!=="unknown") {            
+        if (dfss!==null && dfssLow!=="unknown") {
             var patientStatus = "<font color='"
                     + (dfssLow==="diseasefree" ? "green":"red")
                     + "'>"
@@ -1209,7 +1215,7 @@ function outputClinicalData() {
         if (caseTypeNorm==="progressed") return "orange";
         return "black";
     }
-    
+
     function normalizedCaseType(caseType) {
         var caseTypeLower = caseType.toLowerCase();
         if (caseTypeLower.indexOf("metastatic")>=0 || caseTypeLower.indexOf("metastasis")>=0)
@@ -1219,7 +1225,7 @@ function outputClinicalData() {
                 || caseTypeLower.indexOf("recurred")>=0
                 || caseTypeLower.indexOf("recurrence")>=0)
             return "progressed";
-        
+
         return "primary";
     }
 }
@@ -1228,9 +1234,9 @@ function plotCaseLabel(svgEl,onlyIfEmpty, noTip) {
     $(svgEl).each(function() {
         if (onlyIfEmpty && !$(this).is(":empty")) return;
         var caseId = $(this).attr('alt');
-        
+
         var svg = d3.select($(this)[0]);
-    
+
         if (caseId) {
             plotCaselabelInSVG(svg, caseId);
             if (!noTip) addNoteTooltip($(this), caseMetaData.tooltip[caseId], {my:'middle left',at:'middle right',viewport: $(window)});
@@ -1265,39 +1271,39 @@ var CaseNavigation = (function(currCaseId){
         if (!idStr) return [];
         return idStr[1].split(/[ ,]+/);
     })();
-    
+
     var currPosition = (function(){
         return $.inArray(currCaseId, navCaseIds);
     })();
-    
+
     function hasNavCaseIds() {
         return navCaseIds.length>0;
     }
-    
+
     function hasPrevious() {
         return hasNavCaseIds() && currPosition>0;
     }
-    
+
     function previousCaseId() {
         return hasPrevious() ? navCaseIds[currPosition-1] : null;
     }
-    
+
     function getUrlTo(id) {
         return window.location.href.replace("="+currCaseId, "="+id);
     }
-    
+
     function navTo(id) {
         window.location.replace(getUrlTo(id));
     }
-    
+
     function hasNext() {
         return hasNavCaseIds() && (currPosition<navCaseIds.length-1);
     }
-    
+
     function nextCaseId() {
         return hasNext ? navCaseIds[currPosition+1] : null;
     }
-    
+
     return {
         currPosition: function() {return currPosition;},
         numOfNavCases: function() {return navCaseIds.length;},

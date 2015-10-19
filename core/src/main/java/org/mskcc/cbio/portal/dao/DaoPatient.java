@@ -178,10 +178,15 @@ public class DaoPatient {
 
     private static Patient extractPatient(ResultSet rs) throws SQLException
     {
-        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(rs.getInt("CANCER_STUDY_ID"));
-        if (cancerStudy == null) return null;
-        return new Patient(cancerStudy,
-                           rs.getString("STABLE_ID"),
-                           rs.getInt("INTERNAL_ID"));
+		try {
+			CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(rs.getInt("CANCER_STUDY_ID"));
+			if (cancerStudy == null) return null;
+			return new Patient(cancerStudy,
+							   rs.getString("STABLE_ID"),
+							   rs.getInt("INTERNAL_ID"));
+		}
+		catch (DaoException e) {
+			throw new SQLException(e);
+		}
     }
 }

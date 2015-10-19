@@ -168,6 +168,7 @@ if (cancerStudyViewError!=null) {
 <style type="text/css">
         @import "css/data_table_jui.css?<%=GlobalProperties.getAppVersion()%>";
         @import "css/data_table_ColVis.css?<%=GlobalProperties.getAppVersion()%>";
+        @import "css/bootstrap-chzn.css?<%=GlobalProperties.getAppVersion()%>";
         .ColVis {
                 float: left;
                 margin-bottom: 0

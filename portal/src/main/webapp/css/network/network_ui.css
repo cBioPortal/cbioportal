@@ -35,7 +35,7 @@ table #network_wrapper{
 {
 	margin:0;
 	padding:0;
-	z-index:2;									/*IMPORTANT//To draw menu elements at the most top!!*/
+	z-index:999;									/*IMPORTANT//To draw menu elements at the most top!!*/
 	list-style-type:none;
 	list-style-position:outside;
 	position:relative;

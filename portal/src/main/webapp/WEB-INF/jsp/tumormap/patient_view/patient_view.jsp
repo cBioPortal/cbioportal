@@ -592,7 +592,7 @@ function addMoreClinicalTooltip(elem) {
         if (clinicalData.length===0) {
             thisElem.remove();
         } else {
-            var pos = {my:'top right',at:'bottom right',viewport: $(window)};
+            var pos = {my:'top left',at:'bottom left'};
             thisElem.qtip({
                 content: {
                     text: table_text

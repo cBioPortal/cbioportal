@@ -671,13 +671,17 @@ function HistogramPresenter(model, dmPresenter, geneId)
 		//	      }
 		//	  }
 		var result = [];
-		var caseSetLength = this.dmPresenter.getCaseSetLength(); 
 		//get the selected items from the model:
 		var cancerTypes = this.model.get("cancerTypeDetailed");//when this.model.get("cancerType") == "All" then "cancerTypeDetailed" contains the list of main cancer types (see SpecificCancerTypesView render() function) 
 		for (var i = 0; i < cancerTypes.length; i++) {
 			var resultItem = {
 					typeOfCancer: cancerTypes[i],
-					caseSetLength: caseSetLength,
+					caseSetLength: (function (cancerType, dmPresenter) {
+						if (cancerType == "All")
+							return dmPresenter.getTotalNrSamplesPerCancerType(cancerTypes[i], null);
+						else
+							return dmPresenter.getTotalNrSamplesPerCancerType(cancerType, cancerTypes[i]);
+					})(this.model.get("cancerType"), this.dmPresenter),
 					alterations: (function (cancerType, dmPresenter, geneId) {
 						if (cancerType == "All")
 							return dmPresenter.getAlterationEvents(cancerTypes[i], null, geneId);

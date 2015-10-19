@@ -224,28 +224,36 @@ window.cbioportal_client = (function() {
 			return function(args) {
 				args = args || {};
 				var def = new $.Deferred();
-				if (args.hasOwnProperty(arg_name)) {
-					var missing_keys = index.missingKeys(args[arg_name]);
-					if (missing_keys.length > 0) {
-						var webservice_args = {};
-						webservice_args[arg_name] = missing_keys;
-						raw_service[service_fn_name](webservice_args).then(function(data) {
-							index.addData(data);
+				try {
+					if (args.hasOwnProperty(arg_name)) {
+						var missing_keys = index.missingKeys(args[arg_name]);
+						if (missing_keys.length > 0) {
+							var webservice_args = {};
+							webservice_args[arg_name] = missing_keys;
+							raw_service[service_fn_name](webservice_args).then(function(data) {
+								index.addData(data);
+								def.resolve(index.getData(args[arg_name]));
+							}).fail(function() {
+								def.reject();
+							});
+						} else {
 							def.resolve(index.getData(args[arg_name]));
-						});
+						}
 					} else {
-						def.resolve(index.getData(args[arg_name]));
-					}
-				} else {
-					if (!loaded_all) {
-						raw_service[service_fn_name]({}).then(function(data) {
-							index.addData(data);
-							loaded_all = true;
+						if (!loaded_all) {
+							raw_service[service_fn_name]({}).then(function(data) {
+								index.addData(data);
+								loaded_all = true;
+								def.resolve(index.getData());
+							}).fail(function() {
+								def.reject();
+							});
+						} else {
 							def.resolve(index.getData());
-						});
-					} else {
-						def.resolve(index.getData());
+						}
 					}
+				} catch (err) {
+					def.reject();
 				}
 				return def.promise();
 			}
@@ -259,47 +267,57 @@ window.cbioportal_client = (function() {
 			return function(args) {
 				args = args || {};
 				var def = new $.Deferred();
-				if (args.hasOwnProperty(arg_name1)) {
-					var missing_keys = index1.missingKeys(args[arg_name1]);
-					if (missing_keys.length > 0) {
-						var webservice_args = {};
-						webservice_args[arg_name1] = missing_keys;
-						raw_service[service_fn_name](webservice_args).then(function(data) {
-							index1.addData(data);
-							if (index2_always_add) {
-								index2.addData(data);
-							}
-							def.resolve(index1.getData(args[arg_name1]));
-						});
-					} else {
-						def.resolve(index1.getData(args[arg_name1]));
-					}
-				} else if (args.hasOwnProperty(arg_name2)) {
-					var missing_keys = index2.missingKeys(args[arg_name2]);
-					if (missing_keys.length > 0) {
-						var webservice_args = {};
-						webservice_args[arg_name2] = missing_keys;
-						raw_service[service_fn_name](webservice_args).then(function(data) {
-							index2.addData(data);
-							if (index1_always_add) {
+				try {
+					if (args.hasOwnProperty(arg_name1)) {
+						var missing_keys = index1.missingKeys(args[arg_name1]);
+						if (missing_keys.length > 0) {
+							var webservice_args = {};
+							webservice_args[arg_name1] = missing_keys;
+							raw_service[service_fn_name](webservice_args).then(function(data) {
 								index1.addData(data);
-							}
+								if (index2_always_add) {
+									index2.addData(data);
+								}
+								def.resolve(index1.getData(args[arg_name1]));
+							}).fail(function() {
+								def.reject();
+							});
+						} else {
+							def.resolve(index1.getData(args[arg_name1]));
+						}
+					} else if (args.hasOwnProperty(arg_name2)) {
+						var missing_keys = index2.missingKeys(args[arg_name2]);
+						if (missing_keys.length > 0) {
+							var webservice_args = {};
+							webservice_args[arg_name2] = missing_keys;
+							raw_service[service_fn_name](webservice_args).then(function(data) {
+								index2.addData(data);
+								if (index1_always_add) {
+									index1.addData(data);
+								}
+								def.resolve(index2.getData(args[arg_name2]));
+							}).fail(function() {
+								def.reject();
+							});
+						} else {
 							def.resolve(index2.getData(args[arg_name2]));
-						});
+						}
 					} else {
-						def.resolve(index2.getData(args[arg_name2]));
-					}
-				} else {
-					if (!loaded_all) {
-						raw_service[service_fn_name]({}).then(function(data) {
-							index1.addData(data);
-							index2.addData(data);
-							loaded_all = true;
+						if (!loaded_all) {
+							raw_service[service_fn_name]({}).then(function(data) {
+								index1.addData(data);
+								index2.addData(data);
+								loaded_all = true;
+								def.resolve(index1.getData());
+							}).fail(function() {
+								def.reject();
+							});
+						} else {
 							def.resolve(index1.getData());
-						});
-					} else {
-						def.resolve(index1.getData());
+						}
 					}
+				} catch (err) {
+					def.reject();
 				}
 				return def.promise();
 			}
@@ -317,52 +335,66 @@ window.cbioportal_client = (function() {
 			});
 			return function(args) {
 				var def = new $.Deferred();
-				var arg_list_list = arg_names.map(function(a) { return args[a];});
-				while (typeof arg_list_list[arg_list_list.length-1] === "undefined") {
-					arg_list_list.pop();
-				}
-				if (arg_list_list.length < arg_names.length) {
-					var missing_arg_set_list = arg_list_list.map(function(a) { return {};});
-					var key_combs = keyCombinations(arg_list_list);
-					var missing_key_combs = [];
-					for (var i=0; i<key_combs.length; i++) {
-						if (!index.isFullyLoaded(key_combs[i])) {
-							missing_key_combs.push(key_combs[i]);
-							for (var j=0; j<key_combs[i].length; j++) {
-								missing_arg_set_list[j][key_combs[i][j]] = true;
+				try {
+					var arg_list_list = arg_names.map(function (a) {
+						return args[a];
+					});
+					while (typeof arg_list_list[arg_list_list.length - 1] === "undefined") {
+						arg_list_list.pop();
+					}
+					if (arg_list_list.length < arg_names.length) {
+						var missing_arg_set_list = arg_list_list.map(function (a) {
+							return {};
+						});
+						var key_combs = keyCombinations(arg_list_list);
+						var missing_key_combs = [];
+						for (var i = 0; i < key_combs.length; i++) {
+							if (!index.isFullyLoaded(key_combs[i])) {
+								missing_key_combs.push(key_combs[i]);
+								for (var j = 0; j < key_combs[i].length; j++) {
+									missing_arg_set_list[j][key_combs[i][j]] = true;
+								}
 							}
 						}
-					}
-					missing_arg_set_list = missing_arg_set_list.map(function(o) { return Object.keys(o); });
-					if (missing_arg_set_list[0].length > 0) {
-						var webservice_args = {};
-						for (var i=0; i<missing_arg_set_list.length; i++) {
-							webservice_args[arg_names[i]] = missing_arg_set_list[i];
-						}
-						raw_service[service_fn_name](webservice_args).then(function(data) {
-							for (var j=0; j<missing_key_combs.length; j++) {
-								index.markFullyLoaded(missing_key_combs[j]);
+						missing_arg_set_list = missing_arg_set_list.map(function (o) {
+							return Object.keys(o);
+						});
+						if (missing_arg_set_list[0].length > 0) {
+							var webservice_args = {};
+							for (var i = 0; i < missing_arg_set_list.length; i++) {
+								webservice_args[arg_names[i]] = missing_arg_set_list[i];
 							}
-							index.addData(data);
+							raw_service[service_fn_name](webservice_args).then(function (data) {
+								for (var j = 0; j < missing_key_combs.length; j++) {
+									index.markFullyLoaded(missing_key_combs[j]);
+								}
+								index.addData(data);
+								def.resolve(index.getData(arg_list_list));
+							}).fail(function() {
+								def.reject();
+							});
+						} else {
 							def.resolve(index.getData(arg_list_list));
-						});
-					} else {
-						def.resolve(index.getData(arg_list_list));
-					}
-				} else {
-					var missing_keys = index.missingKeys(arg_list_list);
-					if (missing_keys[0].length > 0) {
-						var webservice_args = {};
-						for (var i=0; i<missing_keys.length; i++) {
-							webservice_args[arg_names[i]] = missing_keys[i];
 						}
-						raw_service[service_fn_name](webservice_args).then(function(data) {
-							index.addData(data);
-							def.resolve(index.getData(arg_list_list));
-						});
 					} else {
-						def.resolve(index.getData(arg_list_list));
+						var missing_keys = index.missingKeys(arg_list_list);
+						if (missing_keys[0].length > 0) {
+							var webservice_args = {};
+							for (var i = 0; i < missing_keys.length; i++) {
+								webservice_args[arg_names[i]] = missing_keys[i];
+							}
+							raw_service[service_fn_name](webservice_args).then(function (data) {
+								index.addData(data);
+								def.resolve(index.getData(arg_list_list));
+							}).fail(function() {
+								def.reject();
+							});
+						} else {
+							def.resolve(index.getData(arg_list_list));
+						}
 					}
+				} catch (err) {
+					def.reject();
 				}
 				return def.promise();
 			};

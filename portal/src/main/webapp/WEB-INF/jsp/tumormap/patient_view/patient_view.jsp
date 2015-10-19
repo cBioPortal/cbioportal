@@ -1052,9 +1052,11 @@ function outputClinicalData() {
             ret = "<font color='"+getCaseColor(caseType)+"'>"+caseType+"</font>";
             var loc;
             if (normalizedCaseType(caseType.toLowerCase()) === "metastasis") {
-                loc = guessClinicalData(patientInfo, ["TUMOR_SITE","METASTATIC_SITE"]) || guessClinicalData(clinicalData, ["TUMOR_SITE","METASTATIC_SITE"]);
+                loc = guessClinicalData(clinicalData, ["METASTATIC_SITE", "TUMOR_SITE"]) || guessClinicalData(patientInfo, ["METASTATIC_SITE"]);
+            } else if (normalizedCaseType(caseType.toLowerCase()) === "primary") {
+                loc = guessClinicalData(clinicalData, ["PRIMARY_SITE", "TUMOR_SITE"]) || guessClinicalData(patientInfo, ["PRIMARY_SITE"]);
             } else {
-                loc = guessClinicalData(patientInfo, ["TUMOR_SITE","PRIMARY_SITE"]) || guessClinicalData(clinicalData, ["TUMOR_SITE","PRIMARY_SITE"]);
+                loc = guessClinicalData(clinicalData, ["TUMOR_SITE"]);
             }
             if (loc!==null)
                 ret += " ("+loc+")";

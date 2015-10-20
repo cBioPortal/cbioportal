@@ -72,10 +72,13 @@ public class ORAnalysisDiscretizedDataProxy {
 
         if (!map.keySet().isEmpty()) {
             final DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
+            final GeneticProfile gp = DaoGeneticProfile.getGeneticProfileById(profileId);
+            final String profileStableId = gp.getStableId();
 
             final int bin = 3000;
             final int nThread = (int)Math.floor(map.size() / bin) + 1;
             Thread[] threads = new Thread[nThread];
+            final List<List<Long>> gene_short_lists = splitGenes(bin, nThread);
             final AtomicInteger result_index = new AtomicInteger(-1);
             for (int i = 0; i < nThread; i++) {
                 threads[i] = new Thread(new Runnable() {
@@ -83,12 +86,7 @@ public class ORAnalysisDiscretizedDataProxy {
                     public void run()  {
                         try {
                             result_index.incrementAndGet();
-                            if (((result_index.get() + 1) * bin - 1) > map.size()) {
-                                calc(daoGeneOptimized, profileId, profileType, proteinExpType, queryGenes, result_index.get() * bin, map.size());
-
-                            } else {
-                                calc(daoGeneOptimized, profileId, profileType, proteinExpType, queryGenes, result_index.get() * bin, (result_index.get() + 1) * bin);
-                            }
+                            calc(daoGeneOptimized, profileStableId, profileType, proteinExpType, queryGenes, gene_short_lists.get(result_index.get()));
                         } catch (MathException ex) {
                             Logger.getLogger(ORAnalysisDiscretizedDataProxy.class.getName()).log(Level.SEVERE, null, ex);
                         }
@@ -129,30 +127,40 @@ public class ORAnalysisDiscretizedDataProxy {
         }
     }
 
-    private void calc(DaoGeneOptimized daoGeneOptimized, int profileId, String profileType, String proteinExpType, String[] queryGenes, int start, int end) throws MathException {
-        List<Long> _genes = new ArrayList<>(map.keySet());
-        List<Long> genes = _genes.subList(start, end);
+    private List<List<Long>> splitGenes(int bin, int nThread) {
+        List<Long> all_genes = new ArrayList<>(map.keySet());
+        List<List<Long>> gene_short_lists = new ArrayList<>();
+        for (int i = 0; i < nThread; i++) {
+            List<Long> gene_short_list;
+            if ((i + 1) * bin >= all_genes.size()) {
+                gene_short_list = new ArrayList<>(all_genes.subList(i * bin, all_genes.size() - 1));
+                gene_short_list.add(all_genes.get(all_genes.size() - 1));
+            } else {
+                gene_short_list = new ArrayList<>(all_genes.subList(i * bin, (i + 1) * bin));
+            }
+            gene_short_lists.add(gene_short_list);
+        }
+        return gene_short_lists;
+    }
+
+    private void calc(DaoGeneOptimized daoGeneOptimized, String profileStableId, String profileType, String proteinExpType, String[] queryGenes, List<Long> genes) throws MathException {
+
         for (int i = 0; i < genes.size(); i++) {
 
             long _gene = genes.get(i);
             HashMap<Integer, String> singleGeneCaseValueMap = map.get(_gene);
 
             //clean up empty values case-value map
+            //if it's mrna rna seq data, apply log to original values (concern of doing t-test on normal distribution)
             Iterator it = singleGeneCaseValueMap.entrySet().iterator();
             while (it.hasNext()) {
                 Map.Entry pair = (Map.Entry)it.next();
-                if (pair.getValue().equals("NA") || pair.getValue().equals("NaN")) {
+                if (pair.getValue().equals("NA") || pair.getValue().equals("NaN") || pair.getValue().equals("null")) {
                     it.remove();
-                }
-            }
-
-            //if it's mrna rna seq data, apply log to original values (concern of doing t-test on normal distribution)
-            GeneticProfile gp = DaoGeneticProfile.getGeneticProfileById(profileId);
-            if (gp.getStableId().indexOf("rna_seq") != -1) {
-                Iterator _it_log = singleGeneCaseValueMap.entrySet().iterator();
-                while (_it_log.hasNext()) {
-                    Map.Entry _pair = (Map.Entry)_it_log.next();
-                    _pair.setValue(Double.toString(Math.log(Double.parseDouble(_pair.getValue().toString()) + 1.0) / Math.log(2)));
+                } else {
+                    if (profileStableId.indexOf("rna_seq") != -1) {
+                        pair.setValue(Double.toString(Math.log(Double.parseDouble(pair.getValue().toString()) + 1.0) / Math.log(2)));
+                    }
                 }
             }
 
@@ -169,10 +177,10 @@ public class ORAnalysisDiscretizedDataProxy {
                     _datum.put(COL_NAME_RATIO, calcRatio(
                             calcPct(singleGeneCaseValueMap, profileType, "altered"), calcPct(singleGeneCaseValueMap, profileType, "unaltered")));
                     _datum.put(COL_NAME_DIRECTION, "place holder"); //calculation is done by the front-end
-                    _datum.put(COL_NAME_P_VALUE, calcPval(singleGeneCaseValueMap, profileType));
+                    _datum.put(COL_NAME_P_VALUE, calcPval(singleGeneCaseValueMap, profileType, profileStableId));
                     if (!(calcPct(singleGeneCaseValueMap, profileType, "altered") == 0.0 &&
                             calcPct(singleGeneCaseValueMap, profileType, "unaltered") == 0.0) &&
-                            !Double.isNaN(calcPval(singleGeneCaseValueMap, profileType))) {
+                            !Double.isNaN(calcPval(singleGeneCaseValueMap, profileType, profileStableId))) {
                         _result.add(_datum);
                     }
                 }
@@ -185,10 +193,10 @@ public class ORAnalysisDiscretizedDataProxy {
                     _datum.put(COL_NAME_RATIO, calcRatio(
                             calcPct(singleGeneCaseValueMap, profileType, "altered"), calcPct(singleGeneCaseValueMap, profileType, "unaltered")));
                     _datum.put(COL_NAME_DIRECTION, "place holder"); //calculation is done by the front-end
-                    _datum.put(COL_NAME_P_VALUE, calcPval(singleGeneCaseValueMap, profileType));
+                    _datum.put(COL_NAME_P_VALUE, calcPval(singleGeneCaseValueMap, profileType, profileStableId));
                     if (!(calcPct(singleGeneCaseValueMap, profileType, "altered") == 0.0 &&
                             calcPct(singleGeneCaseValueMap, profileType, "unaltered") == 0.0) &&
-                            !Double.isNaN(calcPval(singleGeneCaseValueMap, profileType))) {
+                            !Double.isNaN(calcPval(singleGeneCaseValueMap, profileType, profileStableId))) {
                         _result.add(_datum);
                     }
                 }
@@ -199,8 +207,8 @@ public class ORAnalysisDiscretizedDataProxy {
                 _datum.put(COL_NAME_MEAN_UNALTERED, calcMean(singleGeneCaseValueMap, "unaltered"));
                 _datum.put(COL_NAME_STDEV_ALTERED, calcSTDev(singleGeneCaseValueMap, "altered"));
                 _datum.put(COL_NAME_STDEV_UNALTERED, calcSTDev(singleGeneCaseValueMap, "unaltered"));
-                _datum.put(COL_NAME_P_VALUE, calcPval(singleGeneCaseValueMap, profileType));
-                if (!Double.isNaN(calcPval(singleGeneCaseValueMap, profileType))) {
+                _datum.put(COL_NAME_P_VALUE, calcPval(singleGeneCaseValueMap, profileType, profileStableId));
+                if (!Double.isNaN(calcPval(singleGeneCaseValueMap, profileType, profileStableId))) {
                     _result.add(_datum);
                 }
             } else if (profileType.equals(GeneticAlterationType.PROTEIN_LEVEL.toString())) {
@@ -211,16 +219,16 @@ public class ORAnalysisDiscretizedDataProxy {
                     _datum.put(COL_NAME_MEAN_UNALTERED, calcMean(singleGeneCaseValueMap, "unaltered"));
                     _datum.put(COL_NAME_STDEV_ALTERED, calcSTDev(singleGeneCaseValueMap, "altered"));
                     _datum.put(COL_NAME_STDEV_UNALTERED, calcSTDev(singleGeneCaseValueMap, "unaltered"));
-                    _datum.put(COL_NAME_P_VALUE, calcPval(singleGeneCaseValueMap, profileType));
+                    _datum.put(COL_NAME_P_VALUE, calcPval(singleGeneCaseValueMap, profileType, profileStableId));
                 } else if (proteinExpType.equals("phospho")) {
                     _datum.put(COL_NAME_GENE, _geneName);
                     _datum.put(COL_NAME_MEAN_ALTERED, calcMean(singleGeneCaseValueMap, "altered"));
                     _datum.put(COL_NAME_MEAN_UNALTERED, calcMean(singleGeneCaseValueMap, "unaltered"));
                     _datum.put(COL_NAME_STDEV_ALTERED, calcSTDev(singleGeneCaseValueMap, "altered"));
                     _datum.put(COL_NAME_STDEV_UNALTERED, calcSTDev(singleGeneCaseValueMap, "unaltered"));
-                    _datum.put(COL_NAME_P_VALUE, calcPval(singleGeneCaseValueMap, profileType));
+                    _datum.put(COL_NAME_P_VALUE, calcPval(singleGeneCaseValueMap, profileType, profileStableId));
                 }
-                if (!Double.isNaN(calcPval(singleGeneCaseValueMap, profileType))) {
+                if (!Double.isNaN(calcPval(singleGeneCaseValueMap, profileType, profileStableId))) {
                     _result.add(_datum);
                 }
             }
@@ -391,7 +399,7 @@ public class ORAnalysisDiscretizedDataProxy {
     
     }
     
-    private double calcPval(HashMap<Integer, String> singleGeneCaseValueMap, String profileType) 
+    private double calcPval(HashMap<Integer, String> singleGeneCaseValueMap, String profileType, String profileStableId)
             throws IllegalArgumentException, MathException {
         double _p_value = 0.0;
         if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString()) || 
@@ -399,31 +407,31 @@ public class ORAnalysisDiscretizedDataProxy {
             _p_value = runFisherExactTest(singleGeneCaseValueMap, profileType);
         } else if (profileType.equals(GeneticAlterationType.MRNA_EXPRESSION.toString()) ||
                    profileType.equals(GeneticAlterationType.PROTEIN_LEVEL.toString())) {
-            _p_value = runTTest(singleGeneCaseValueMap, profileType);
+            _p_value = runTTest(singleGeneCaseValueMap, profileStableId);
         }
         return _p_value;
     }
     
-    private double runTTest(HashMap<Integer, String> singleGeneCaseValueMap, String profileType) 
+    private double runTTest(HashMap<Integer, String> singleGeneCaseValueMap, String profileStableId)
             throws IllegalArgumentException, MathException {
-        
+
         double[] unalteredArray = new double[unalteredSampleIds.size()];
         double[] alteredArray = new double[alteredSampleIds.size()];
         int _index_unaltered = 0, _index_altered = 0;
+
         for (Integer alteredSampleId: alteredSampleIds) {
             if (singleGeneCaseValueMap.containsKey(alteredSampleId)) {
                 alteredArray[_index_altered] = Double.parseDouble(singleGeneCaseValueMap.get(alteredSampleId));
                 _index_altered += 1;
             }
         }
-        
         for (Integer unalteredSampleId: unalteredSampleIds) {
             if (singleGeneCaseValueMap.containsKey(unalteredSampleId)) {
                 unalteredArray[_index_unaltered] = Double.parseDouble(singleGeneCaseValueMap.get(unalteredSampleId));
                 _index_unaltered += 1;
             }
         }
-        
+
         if (alteredArray.length < 2 || unalteredArray.length < 2) return Double.NaN;
         else {
             double pvalue = TestUtils.tTest(alteredArray, unalteredArray);

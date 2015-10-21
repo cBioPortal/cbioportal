@@ -264,7 +264,14 @@ var RuleSet = (function () {
 	RuleSet.prototype.getRuleSetId = function () {
 		return this.rule_set_id;
 	}
-
+	
+	RuleSet.prototype.addRules = function (list_of_params) {
+		var self = this;
+		return list_of_params.map(function(params) {
+			return self.addRule(params);
+		});
+	}
+	
 	RuleSet.prototype.addRule = function (params) {
 		var rule_id = getRuleId();
 		var z = (typeof params.z === "undefined" ? rule_id : params.z);
@@ -319,6 +326,7 @@ var RuleSet = (function () {
 	RuleSet.prototype.apply = function (data, cell_width, cell_height) {
 		// Returns a list of lists of concrete shapes, in the same order as data
 		this.clearRecentlyUsedRules();
+		
 		var rules = this.getRulesInRenderOrder();
 		var rules_len = rules.length;
 		var self = this;
@@ -603,8 +611,8 @@ var GeneticAlterationRuleSet = (function() {
 						for (var value in key_rule_params) {
 							if (key_rule_params.hasOwnProperty(value)) {
 								var condition = (value === '*' ?
-								function(d) { return d.hasOwnProperty(key); } :
-									function(d) { return d[key] === value; });
+										function(d) { return d.hasOwnProperty(key); } :
+										function(d) { return d[key] === value; });
 								this.addRule(
 									shallowExtend(key_rule_params[value], 
 									{'condition': condition}));

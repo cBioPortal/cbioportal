@@ -648,7 +648,7 @@ function HistogramPresenter(model, dmPresenter, geneId)
 		var minAlteredSamples = model.get("minAlteredSamples");
 		
 		for (var i = 0; i < this.histData.length; i++) {
-			if (getYValue(this.histData[i]) >= minAlteredSamples)
+			if (getYValue(this.histData[i], "all", model.get("dataTypeYAxis")) >= minAlteredSamples)
 				finalHistData.push(this.histData[i]);
 		}
 		

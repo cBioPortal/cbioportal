@@ -378,8 +378,10 @@ var MinAlteredSamplesSliderView = Backbone.View.extend({
 			 totalNrSamples = this.dmPresenter.getTotalNrSamplesPerCancerType(infoOnMax.maxCancerType, null);
 		 else
 			 totalNrSamples = this.dmPresenter.getTotalNrSamplesPerCancerType(this.model.get("cancerType"), infoOnMax.maxCancerType);
-			 
-		 this.max = 100*(infoOnMax.maxAlteredSamples)/totalNrSamples;
+		 //max frequency:	 
+		 this.max = infoOnMax.maxAlteredSamples/totalNrSamples;
+		 //in %, with 1 decimal:
+		 this.max = Math.round(parseFloat(this.max) * 1000)/10;
 	 }
 	 else {
 		 this.max = this.dmPresenter.getInfoOnMaxAlteredSamplesForCancerTypeAndGene(this.model.get("cancerType"), this.gene).maxAlteredSamples;

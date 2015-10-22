@@ -530,7 +530,7 @@ var GradientRuleSet = (function() {
 		var color_range = this.color_range;
 		this.gradient_rule = this.addRule({
 			condition: function(d) {
-				return !isNaN(d[params.value_key]);
+				return !isNaN(d[value_key]);
 			},
 			shapes: [{
 					type: 'rectangle',
@@ -566,7 +566,7 @@ var BarRuleSet = (function() {
 		var value_key = this.value_key;
 		this.bar_rule = this.addRule({
 			condition: function(d) {
-				return !isNaN(d[params.value_key]);
+				return !isNaN(d[value_key]);
 			},
 			shapes: [{
 					type: 'rectangle',

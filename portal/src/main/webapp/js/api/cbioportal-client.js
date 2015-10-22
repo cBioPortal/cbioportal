@@ -186,14 +186,12 @@ window.cbioportal_client = (function() {
 					if (Object.prototype.toString.call(obj) === '[object Array]') {
 						ret = ret.concat(obj);
 					} else {
-						if (key_list_index < key_list_list.length) {
-							var keys = key_list_list[key_list_index] || Object.keys(obj);
-							for (k = 0; k<keys.length; k++) {
-								if (obj.hasOwnProperty(keys[k])) {
-									tmp_intermediate.push(obj[keys[k]]);
-								}
-							}
-						}
+                                                var keys = key_list_list[key_list_index] || Object.keys(obj);
+                                                for (k = 0; k<keys.length; k++) {
+                                                        if (obj.hasOwnProperty(keys[k])) {
+                                                                tmp_intermediate.push(obj[keys[k]]);
+                                                        }
+                                                }
 					}
 				}
 				intermediate = tmp_intermediate;
@@ -256,7 +254,7 @@ window.cbioportal_client = (function() {
 					def.reject();
 				}
 				return def.promise();
-			}
+			};
 		})();
 	};
 	var makeTwoIndexService = function(arg_name1, indexKeyFn1, index1_always_add, arg_name2, indexKeyFn2, index2_always_add, service_fn_name) {
@@ -320,7 +318,7 @@ window.cbioportal_client = (function() {
 					def.reject();
 				}
 				return def.promise();
-			}
+			};
 		})();
 	};
 
@@ -418,7 +416,7 @@ window.cbioportal_client = (function() {
 				}
 				if (!matches_one) {
 					var def = new $.Deferred();
-					var msg = "Given arguments not acceptable; need a combination in the following list: "
+					var msg = "Given arguments not acceptable; need a combination in the following list: ";
 					msg += list_of_arg_combinations.map(function(arg_combo) { return arg_combo.join(","); }).join(";");
 					def.reject({msg: msg});
 					return def.promise();
@@ -426,7 +424,7 @@ window.cbioportal_client = (function() {
 					return fnPtr(args);
 				}
 			};
-	}
+	};
 
 	var cached_service = {
 		getCancerTypes: enforceRequiredArguments(makeOneIndexService('cancer_type_ids', function(d) { return d.id;}, 'getCancerTypes'), [[], ["cancer_type_ids"]]),

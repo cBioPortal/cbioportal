@@ -111,7 +111,7 @@ public class QueryBuilder extends HttpServlet {
     public static final String SELECTED_PATIENT_SAMPLE_ID_MAP = "selected_patient_sample_id_map";
     private static final String DB_CONNECT_ERROR = ("An error occurred while trying to connect to the database." +
                                                     "  This could happen if the database does not contain any cancer studies.");
-    
+
     public static final String CANCER_TYPES_MAP = "cancer_types_map"; 
 
     private ServletXssUtil servletXssUtil;
@@ -546,9 +546,9 @@ public class QueryBuilder extends HttpServlet {
 				DaoCancerStudy.reCacheAll();
 			}
 			else {
-				redirectStudyUnavailable(request, response);
-			}
+			redirectStudyUnavailable(request, response);
 		}
+	}
 
 	}
 

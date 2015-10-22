@@ -146,12 +146,15 @@ public class ApiController {
     
     @Transactional
     @RequestMapping(value = "/samples", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody List<DBSample> getSamples(@RequestParam(required = true) String study_id, @RequestParam(required = false) List<String> sample_ids) {
+    public @ResponseBody List<DBSample> getSamples(@RequestParam(required = true) String study_id, @RequestParam(required = false) List<String> sample_ids, @RequestParam(required = false) List<String> patient_ids) {
 	    if (sample_ids != null) {
-		    return service.getSamples(study_id, sample_ids);
+		    return service.getSamplesBySample(study_id, sample_ids);
+	    } else if (patient_ids != null) {
+                    return service.getSamplesByPatient(study_id, patient_ids);
 	    } else {
-		    return service.getSamples(study_id);
-	    }
+                return service.getSamples(study_id);
+            }
+            
     }
     
     @Transactional

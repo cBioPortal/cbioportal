@@ -1,4 +1,4 @@
-window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_ids, sample_ids) {
+window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_ids, sample_ids, patient_case_select) {
 	var oql_parser = window.oql_parser;
 	var OQLHandler = (function (config) {
 		var default_config = {
@@ -227,6 +227,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			'oql_query': oql_query,
 			'cancer_study_ids': cancer_study_ids,
 			'sample_ids': sample_ids,
+                        'patient_case_select': patient_case_select,
 			'genetic_profile_ids': genetic_profile_ids,
 			'getOQLQuery': function() {
 				return this.oql_query;
@@ -243,6 +244,9 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			'getCancerStudyIds': function() {
 				return this.cancer_study_ids;
 			},
+                        'getSampleSelect': function() {
+                                return this.sample_select;
+                        },
 			'getGenomicEventData': function() {
 				var def = new $.Deferred();
 				var self = this;
@@ -316,7 +320,17 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 					def.reject();
 				});
 				return def.promise();
-			}
+			},
+                        'getPatientSampleIdMap': function () {
+                            var def = new $.Deferred();
+                            if(getPatientCaseSelect() === "patient")
+                                window.cbioportal_client.getSamples({study_id: getCancerStudyIds(),patient_id: getSampleIds()}).then(function(sampleMap){
+                                    makeSampleMap(sampleMap);
+                                });
+                                return def.promise();
+                        }
+                        
+                        
 		};
 		var fetchOncoprintGeneData = (function() {
 			var profile_types = {};
@@ -506,6 +520,14 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			}
 			return ret;
 		};
+                var makeSampleMap = function(data) {
+                    var all_samples = {};
+                    for (var i=0,_len=data.length; i<_len; i++) {
+                        var d = data[i];
+                        all_samples[d.id]= d.patient_id;
+                    };
+                    return all_samples;
+                };
 		
 
 		return dm_ret;

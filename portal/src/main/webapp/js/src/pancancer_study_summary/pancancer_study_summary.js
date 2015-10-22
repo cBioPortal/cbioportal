@@ -361,31 +361,22 @@ var MinAlteredSamplesSliderView = Backbone.View.extend({
   //function for model.onchange above, it will check whether the slider max threshold needs
   //to be udpated:
   updateRender: function(){
-	  var cancerTypeChanged = this.model.hasChanged("cancerType");
-	  if (cancerTypeChanged)
+	  var renderNeeded = this.model.hasChanged("cancerType") || this.model.hasChanged("dataTypeYAxis");
+	  if (renderNeeded)
 		  this.render();
   },
   
   render: function(){
 	 //add % after the values or not:
 	 var suffix = "";
+	 this.max = this.dmPresenter.getMaxAlteredSamplesForCancerTypeAndGene(this.model.get("cancerType"), this.gene, this.model.get("dataTypeYAxis"));
+	 
 	 if (this.model.get("dataTypeYAxis") == "Alteration Frequency") {
 		 suffix = "%";
-		 var infoOnMax = this.dmPresenter.getInfoOnMaxAlteredSamplesForCancerTypeAndGene(this.model.get("cancerType"), this.gene);
-		 var totalNrSamples;
-		 //depending on whether we have cancer types or subcancer types being displayed, call getTotalNr with different parameters:
-		 if (this.model.get("cancerType") == "All")
-			 totalNrSamples = this.dmPresenter.getTotalNrSamplesPerCancerType(infoOnMax.maxCancerType, null);
-		 else
-			 totalNrSamples = this.dmPresenter.getTotalNrSamplesPerCancerType(this.model.get("cancerType"), infoOnMax.maxCancerType);
-		 //max frequency:	 
-		 this.max = infoOnMax.maxAlteredSamples/totalNrSamples;
 		 //in %, with 1 decimal:
 		 this.max = Math.round(parseFloat(this.max) * 1000)/10;
 	 }
-	 else {
-		 this.max = this.dmPresenter.getInfoOnMaxAlteredSamplesForCancerTypeAndGene(this.model.get("cancerType"), this.gene).maxAlteredSamples;
-	 }
+	 
      var templateFn = PanCancerTemplateCache.getTemplateFn("nr_altered_samples_slider_template");
      this.template = templateFn({min:0, max:this.max, suffix: suffix});
 
@@ -399,6 +390,8 @@ var MinAlteredSamplesSliderView = Backbone.View.extend({
         min: 0, 
         max: this.max 
      });
+     //synchronize model:
+     this.model.set("minAlteredSamples", 0);
   },
 
   // handle change to the slider        
@@ -916,49 +909,47 @@ function DataManagerPresenter(dmInitCallBack)
 	}
 	
 	/** 
-	 * Returns information on: the max number of altered samples and on which 
-	 * (sub)cancerType this max was found, for given cancerType and gene.
-	 * If cancerType == "All", it will iterate over the main cancer types and
-	 * return the max number of samples and the respective cancer type that had the most 
-	 * altered samples for this gene. 
+	 * Returns information on: the max number or frequency (%) of altered samples
+	 * for the given cancerType and gene.
+	 * If cancerType == "All", it will iterate over the main cancer types. 
 	 * 
-	 * If cancerType == a specific main cancer type, it will iterate over its sub cancer types and
-	 * return the max number of samples and the respective sub cancer type that had the most 
-	 * altered samples for this gene. 
+	 * If cancerType == a specific main cancer type, it will iterate over its sub cancer types. 
 	 * 
-	 * @return : returns object with {maxAlteredSamples: max, maxCancerType: maxCancerType}
+	 * @param cancerType: "All" or one of the main cancer types
+	 * @param geneId : gene id for which current tab was rendered
+	 * @param dataTypeYAxis: set to "Alteration Frequency" to return max in frequency %
+	 * 
+	 * @return : max as number of samples or frequency % (depending on the value of dataTypeYAxis)
 	 */
-	this.getInfoOnMaxAlteredSamplesForCancerTypeAndGene = function(cancerType, geneId) {
+	this.getMaxAlteredSamplesForCancerTypeAndGene = function(cancerType, geneId, dataTypeYAxis) {
 		
 		if (cancerType == "All") {
 			//check max:
 			var max = 0;
-			//cancer type that has max nr altered samples:
-			var maxCancerType;
 			var cancerTypes = this.getCancerTypeList();
 			for (var i = 0; i < cancerTypes.length; i++) {
+				var denominator = 1;
+				if (dataTypeYAxis == "Alteration Frequency")
+					denominator = this.getTotalNrSamplesPerCancerType(cancerTypes[i], null);
 				//this method call is repeated (also called to build histogram JSON data)...TODO - performance improvement could be gained here...tests will indicate if necessary
-				var nrAlt = this.getAlterationEvents(cancerTypes[i], null, geneId).all;
-				if (nrAlt > max) {
-					max = nrAlt;
-					maxCancerType = cancerTypes[i];
-				}
+				var value = this.getAlterationEvents(cancerTypes[i], null, geneId).all / denominator;				
+				if (value > max)
+					max = value;
 			}
-			return {maxAlteredSamples: max, maxCancerType: maxCancerType};
+			return max;
 		}
 		else {
 			var max = 0;
-			//cancer type that has max nr altered samples:
-			var maxCancerType;
 			var cancerTypes = this.getCancerTypeDetailedList(cancerType);
 			for (var i = 0; i < cancerTypes.length; i++) {
-				var nrAlt = this.getAlterationEvents(cancerType, cancerTypes[i], geneId).all;
-				if (nrAlt > max){
-					max = nrAlt;
-					maxCancerType = cancerTypes[i];
-				}
+				var denominator = 1;
+				if (dataTypeYAxis == "Alteration Frequency")
+					denominator = this.getTotalNrSamplesPerCancerType(cancerType, cancerTypes[i]);
+				var value = this.getAlterationEvents(cancerType, cancerTypes[i], geneId).all / denominator;
+				if (value > max)
+					max = value;
 			}
-			return {maxAlteredSamples: max, maxCancerType: maxCancerType};
+			return max;
 		}
 
 	}

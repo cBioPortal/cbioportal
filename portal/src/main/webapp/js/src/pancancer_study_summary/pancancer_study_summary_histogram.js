@@ -1,10 +1,15 @@
 /**
- * some global utility functions:
+ * Global utility function:
+ * @return returns frequency of alterations
  */ 
 var calculateFrequency = function(d, type) {
     return d.alterations[type]/ d.caseSetLength;
 };
 
+/**
+ * Global utility function:
+ * @return returns either the number of alterations (in counts) or the frequency of alterations. 
+ */
 var getYValue = function(d, type, dataTypeYAxis) {
     if (dataTypeYAxis == "Absolute Counts")
 	    return d.alterations[type];
@@ -648,7 +653,11 @@ function HistogramPresenter(model, dmPresenter, geneId)
 		var minAlteredSamples = model.get("minAlteredSamples");
 		
 		for (var i = 0; i < this.histData.length; i++) {
-			if (getYValue(this.histData[i], "all", model.get("dataTypeYAxis")) >= minAlteredSamples)
+			var yValue = getYValue(this.histData[i], "all", model.get("dataTypeYAxis"));
+			if (model.get("dataTypeYAxis") == "Alteration Frequency")
+				yValue = yValue*100; //multiply by 100 because minAlteredSamples is in %
+				
+			if (yValue >= minAlteredSamples)
 				finalHistData.push(this.histData[i]);
 		}
 		

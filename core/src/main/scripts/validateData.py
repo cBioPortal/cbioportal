@@ -29,6 +29,9 @@ import re
 ERROR_BUFFER = StringIO.StringIO()
 OUTPUT_BUFFER = StringIO.StringIO()
 
+ERROR_FILE = sys.stderr
+OUTPUT_FILE = sys.stdout
+
 hugoEntrezMapPresent = True
 try:
     from hugoEntrezMap import *
@@ -49,20 +52,20 @@ SEG_META_PATTERN = '_meta_cna_' + GENOMIC_BUILD_COUNTERPART + '_seg.txt'
 MUTATION_FILE_PATTERN = '_mutations_extended.txt'
 MUTATION_META_PATTERN = 'meta_mutations_extended.txt'
 
-CNA_FILE_PATTERN = '_CNA.txt'
-CNA_META_PATTERN = 'meta_CNA.txt'
+CNA_FILE_PATTERN = '_CNA'
+CNA_META_PATTERN = 'meta_CNA'
 
 CLINICAL_FILE_PATTERN = '_clinical'
 CLINICAL_META_PATTERN = 'meta_clinical'
 
-LOG2_FILE_PATTERN = '_log2CNA.txt'
-LOG2_META_PATTERN = 'meta_log2CNA.txt'
+LOG2_FILE_PATTERN = '_log2CNA'
+LOG2_META_PATTERN = 'meta_log2CNA'
 
 EXPRESSION_FILE_PATTERN = '_expression'
 EXPRESSION_META_PATTERN = 'meta_expression'
 
-FUSION_FILE_PATTERN = '_fusions.txt'
-FUSION_META_PATTERN = 'meta_fusions.txt'
+FUSION_FILE_PATTERN = '_fusions'
+FUSION_META_PATTERN = 'meta_fusions'
 
 METHYLATION_FILE_PATTERN = '_methylation'
 METHYLATION_META_PATTERN = 'meta_methylation'
@@ -338,6 +341,9 @@ META_FIELD_MAP = {
     TIMELINE_META_PATTERN:TIMELINE_META_FIELDS
 }
 
+exitcode = 0
+
+
 # ------------------------------------------------------------------------------
 # class definitions
 
@@ -350,14 +356,14 @@ class ValidatorFactory:
         ValidatorFactory.factories.put[id] = validatorFactory
 
     @staticmethod
-    def createValidator(id,filename,hugo_entrez_map,fix,binary,verbose):
+    def createValidator(id,filename,hugo_entrez_map,fix,verbose,stableId):
         if not ValidatorFactory.factories.has_key(id):
             ValidatorFactory.factories[id] = eval(id + '.Factory()')
-        return ValidatorFactory.factories[id].create(filename,hugo_entrez_map,fix,binary,verbose)
+        return ValidatorFactory.factories[id].create(filename,hugo_entrez_map,fix,verbose,stableId)
 
 # basic validator obect
 class Validator(object):
-    def __init__(self,filename,hugo_entrez_map,fix,binary,verbose):
+    def __init__(self,filename,hugo_entrez_map,fix,verbose,stableId):
         self.filename = filename
         self.filenameShort = filename.split('/')[-1]
         self.file = open(filename, 'rU')
@@ -375,11 +381,13 @@ class Validator(object):
         self.addEntrez = False
         self.studyId = ''
         self.headerWritten = False
-        self.binary = binary
         self.verbose = verbose
+        self.blankColumns = set()
+        self.stableId = stableId
+        self.blankLines = 0
 
         if fix:
-            self.correctedFilename = self.filename.split('/')[-1][:-4]+'_corrected'+'.txt'
+            self.correctedFilename = self.filename.split('/')[-1][:-4]+'_'+self.stableId+'.txt'
             self.correctedFile = open(self.correctedFilename,'w')
 
     # validate method - initiates validation of file
@@ -399,6 +407,9 @@ class Validator(object):
                     self.checkLine(line)
             else:
                 self.processTopLine(line)
+
+        self.checkBlankCells()
+        self.checkBlankLines()
 
         self.file.close()
         if self.fix:
@@ -425,35 +436,31 @@ class Validator(object):
             print >> OUTPUT_BUFFER, '\tWARNING: Missing columns'
             for m in missing:
                 print >> OUTPUT_BUFFER,'\t\t' + m
-            if self.binary:
-                self.exitFail()
-
+            exitcode = 1
 
     # Checks lines after header, removing quotes
     def checkLine(self,line):
         data = [x.strip().replace('"','').replace('\'','') for x in line.split('\t')]
 
         if all(x == '' for x in data):
-            print >> OUTPUT_BUFFER, '\tWARNING: blank line'
-            if self.binary:
-                self.exitFail()
+            self.blankLines += 1
 
         if data == self.cols or data[0:2] == self.cols[0:2]:
             print >> OUTPUT_BUFFER, '\tWARNING: Repeated header'
-            if self.binary:
-                self.exitFail()
+            exitcode = 1
         
         if len(data) != self.numCols and not self.invalidNumCols:
             print >> OUTPUT_BUFFER, '\tWARNING: Expected ' + str(self.numCols) + ' columns based on header. Found ' + str(len(data)) + '\n' + \
                 '\t\tLine: ' + str(self.lineCount)
             self.invalidNumCols = True
-            if self.binary:
-                self.exitFail()
+            exitcode = 1
 
-        if any(x == '' for x in data):
-            print >> OUTPUT_BUFFER, '\tWARNING: blank data on line ' + str(self.lineCount)
-            if self.binary:
-                self.exitFail()
+        for i,x in enumerate(data):
+            if x == '':
+                try:
+                    self.blankColumns.add(self.cols[i])
+                except IndexError:
+                    self.blankColumns.add('Column ' + str(i))
 
         return data
 
@@ -461,15 +468,14 @@ class Validator(object):
         if '"' in self.fileRead or '\'' in self.fileRead:
             print >> OUTPUT_BUFFER, '\tWARNING: detected quotation marks in file\n' + \
                 '\t\tFile:\t' + self.filenameShort
-            if self.binary:
-                self.exitFail()
-        
+            exitcode = 1
 
     # checks line breaks, reports to user
     def checkLineBreaks(self):
         print >> OUTPUT_BUFFER, '\tChecking line breaks'
         if "\r\n" in self.fileRead:
             self.lineEndings = "\r\n"
+            exitcode = 1
             print >> OUTPUT_BUFFER, '\t\tDOS line breaks detected (\\r\\n)'
             if self.fix:
                 print >> OUTPUT_BUFFER, '\t\tCorrected file will have Unix (\\n) line breaks'
@@ -477,6 +483,7 @@ class Validator(object):
                 print >> OUTPUT_BUFFER, '\t\tPlease correct line breaks to Unix style (\\n) before importing to cBioPortal to avoid errors'
         elif "\r" in self.fileRead:
             self.lineEndings = "\r"
+            exitcode = 1
             print >> OUTPUT_BUFFER, '\t\tMac line breaks detected (\\r)'
             if self.fix:
                 print >> OUTPUT_BUFFER, '\t\tCorrected file will have Unix (\\n) line breaks'
@@ -486,11 +493,8 @@ class Validator(object):
             self.lineEndings = "\n"
             print >> OUTPUT_BUFFER, '\t\tUnix line breaks detected (\\n) (Correct)'
         else:
-            print >> ERROR_BUFFER, '\t\tInvalid or no line breaks. Exiting.'
-            if self.binary:
-                self.exitFail()
-        if self.lineEndings != "\n" and binary:
-            self.exitFail()
+            print >> ERROR_BUFFER, '\t\tInvalid or no line breaks.'
+            exitcode = 1
 
     # if sample Ids are columns, extracts them and sets the sampleIds var
     def setSampleIdsFromColumns(self):
@@ -524,18 +528,6 @@ class Validator(object):
         else:
             self.correctedFile.write('\t'.join(data) + '\n')
 
-    def exitFail(self,message = ''):
-        if message != '':
-            print >> OUTPUT_BUFFER,'\nStudy cannot be imported:\n' + \
-                '\t' + message
-
-        if self.verbose:
-            print >> sys.stdout, OUTPUT_BUFFER.getvalue()
-            print >> sys.stderr, ERROR_BUFFER.getvalue()
-
-
-        sys.exit(1)
-
     def checkRepeatedColumns(self):
         seen = set()
         for col in self.cols:
@@ -544,14 +536,25 @@ class Validator(object):
             else:
                 print >> OUTPUT_BUFFER,'\tWARNING: Repeated column header\n' + \
                     '\t\tColumn:\t' + col
-            if self.binary:
-                self.exitFail()
+                exitcode = 1
+
+    def checkBlankCells(self):
+        if len(self.blankColumns) > 0:
+            print >> OUTPUT_BUFFER, '\tWARNING: Blank cells detected'
+            exitcode = 1
+            for blank in self.blankColumns:
+                print >> OUTPUT_BUFFER, '\t\t' + blank
+
+    def checkBlankLines(self):
+        if self.blankLines > 0:
+            print >> OUTPUT_BUFFER,'\tWarning: ' + str(self.blankLines) + ' blank lines detected'
+            exitcode = 1
 
 
 # sub-class CNA validator
 class CNAValidator(Validator):
-    def __init__(self,filename,hugo_entrez_map,fix,binary,verbose):
-        super(CNAValidator,self).__init__(filename,hugo_entrez_map,fix,binary,verbose)
+    def __init__(self,filename,hugo_entrez_map,fix,verbose,stableId):
+        super(CNAValidator,self).__init__(filename,hugo_entrez_map,fix,verbose,stableId)
         self.headers = CNA_HEADERS
         self.entrez_present = True
         self.badHugos = []
@@ -571,13 +574,12 @@ class CNAValidator(Validator):
         
         if not self.headers[0] == self.cols[0]:
             print >> OUTPUT_BUFFER, "\tWARNING: Invalid Header:\t" + self.headers[0] + " should be in column 1"
-            self.end = True
-            if self.binary:
-                self.exitFail()
+            exitcode = 1
         if not self.headers[1] == self.cols[1]:
             print >> OUTPUT_BUFFER, "\tWARNING: Invalid Header:\t" + self.headers[1] + " should be in column 2"
             self.entrez_present = False
             self.addEntrez = True
+            exitcode = 1
 
         self.setSampleIdsFromColumns()
 
@@ -594,6 +596,7 @@ class CNAValidator(Validator):
             elif i == 1 and self.entrez_present:
                 if not checkInt(d.strip()) and not d.strip() == 'NA':
                     print >> OUTPUT_BUFFER, '\tWARNING: Invalid Data Type:\tColumn ' + str(i+1) + ' Line ' + str(self.lineCount) + 'Entrez_Gene_Id must be integer or NA'
+                    exitcode = 1
             elif i == 0 and len(self.hugo_entrez_map) > 0:
                 if not d in self.hugo_entrez_map and len(self.hugo_entrez_map) != {}:
                     self.badHugos.append((d,self.lineCount))
@@ -605,19 +608,17 @@ class CNAValidator(Validator):
     def printBadValues(self,name,bads):
         if len(bads) > 0:
             print >> OUTPUT_BUFFER, '\tWARNING: ' + name + ' appears incorrect ' + str(len(bads)) + ' time(s) on line(s):'
+            exitcode = 1
             for bad in bads:
                 print >> OUTPUT_BUFFER, '\t\t' + str(bad[1]) + '\t' + str(bad[0])
-            if self.binary:
-                self.exitFail()
-
 
     class Factory:
-        def create(self,filename,hugo_entrez_map,fix,binary,verbose): return CNAValidator(filename,hugo_entrez_map,fix,binary,verbose)
+        def create(self,filename,hugo_entrez_map,fix,verbose,stableId): return CNAValidator(filename,hugo_entrez_map,fix,verbose,stableId)
 
 #sub-class mutations_extended validator
 class MutationsExtendedValidator(Validator):
-    def __init__(self,filename,hugo_entrez_map,fix,binary,verbose):
-        super(MutationsExtendedValidator,self).__init__(filename,hugo_entrez_map,fix,binary,verbose)
+    def __init__(self,filename,hugo_entrez_map,fix,verbose,stableId):
+        super(MutationsExtendedValidator,self).__init__(filename,hugo_entrez_map,fix,verbose,stableId)
         self.headers = MUTATIONS_HEADERS_ORDER
         self.sampleIdsHeader = set()
         self.mafValues = {}
@@ -627,6 +628,7 @@ class MutationsExtendedValidator(Validator):
         self.hugo_warning_lines = []
         self.functionList = inspect.getmembers(MutationsExtendedValidator,predicate=inspect.ismethod)
         self.toplinecount = 0
+        self.headerPresent = False
 
     def validate(self):
         super(MutationsExtendedValidator,self).validate()
@@ -639,10 +641,9 @@ class MutationsExtendedValidator(Validator):
 
         if self.cols[0:32] != self.headers[0:32]:
             print >> OUTPUT_BUFFER, '\tWARNING: Invalid Header:\tMust have following columns in specified order'
+            exitcode = 1
             for h in self.headers[0:32]:
                 print >> OUTPUT_BUFFER, '\t\t' + h
-            if self.binary:
-                self.exitFail()
 
         if self.fix:
             self.writeHeader(self.cols)
@@ -666,8 +667,7 @@ class MutationsExtendedValidator(Validator):
                         self.mafValues[self.cols[i]] = d
                 except IndexError:
                     print >> OUTPUT_BUFFER, '\tWARNING: row ' + self.lineCount + ' has too many values'
-                    if self.binary:
-                        self.exitFail()
+                    exitcode = 1
 
         if self.fix:
             self.writeNewLine(data)
@@ -675,6 +675,7 @@ class MutationsExtendedValidator(Validator):
                     
     # processes the top line of, which contains sample ids used in study.
     def processTopLine(self,line):
+        self.headerPresent = True
         topline = [x.strip() for x in line.split(' ') if '#' not in x]
 
         self.toplinecount += 1
@@ -687,6 +688,7 @@ class MutationsExtendedValidator(Validator):
     # prints out statement for invalid values detected
     def printDataInvalidStatement(self,value,col):
         print >> OUTPUT_BUFFER, '\tWARNING: Column ' + str(col + 1) +' ' + MUTATIONS_HEADERS_ORDER[col] + ' line ' + str(self.lineCount + self.toplinecount) + ' appears incorrect\n\tValue: ' + value
+        exitcode = 1
         if self.extra_exists:
             print >> OUTPUT_BUFFER, '\t\t' + self.extra
             self.extra_exists = False
@@ -720,10 +722,12 @@ class MutationsExtendedValidator(Validator):
                 print >> OUTPUT_BUFFER, '\tWARNING: Missing entrez IDs'
                 self.entrez_present = False
                 self.addEntrez = True
+                exitcode = 1
             elif self.entrez_present and not value in self.hugo_entrez_map.values() and self.hugo_entrez_map != {}:
                 return False
             elif self.hugo_entrez_map.get(self.mafValues['Hugo_Symbol'])!= value and self.hugo_entrez_map != {}:
                 print >> OUTPUT_BUFFER, '\tWARNING: Line ' + str(self.lineCount) + ' Entrez gene ID does not match Hugo symbol'
+                exitcode = 1
         return True
     
 
@@ -751,12 +755,13 @@ class MutationsExtendedValidator(Validator):
         return True
    
     def checkTumorSampleBarcode(self, value):
-        if len(self.sampleIdsHeader) > 0 and value not in self.sampleIdsHeader:
+        good = True
+        if self.headerPresent and value not in self.sampleIdsHeader:
             self.extra = 'Value not in sample ids from header'
             self.extra_exists = True
-            return False
+            good = False
         self.sampleIds.add(value.strip())
-        return True
+        return good
 
     def checkNCBIbuild(self, value):
         if self.checkInt(value) and value != '':
@@ -789,7 +794,7 @@ class MutationsExtendedValidator(Validator):
     
     def checkMatchedNormSampleBarcode(self, value):
         if value != '':
-            if len(self.sampleIds) > 0 and value not in self.sampleIds:
+            if self.headerPresent and value not in self.sampleIdsHeader:
                 self.extra = 'Value not in sample ids from header'
                 self.extra_exists =  True
                 return False
@@ -812,7 +817,7 @@ class MutationsExtendedValidator(Validator):
     def checkValidationStatus(self, value):
         if value == '':
             return True
-        if value.lower() != 'valid' and value.lower() != 'unknown':
+        if value.lower() != 'valid' and value.lower() != 'unknown' and value.lower() != 'na' and value.lower() != 'untested':
             return False
         return True
     
@@ -865,14 +870,15 @@ class MutationsExtendedValidator(Validator):
             print >> OUTPUT_BUFFER, "\tWARNING: Hugo symbols appear incorrect " + str(len(self.hugo_warning_lines)) + ' time(s) on lines:'
             for hugo_warning in self.hugo_warning_lines:
                 print >> OUTPUT_BUFFER, '\t\t' + str(hugo_warning[1] + self.toplinecount) + '\t' + str(hugo_warning[0])
-            
+            exitcode = 1
+
     class Factory:
-        def create(self,filename,hugo_entrez_map,fix,binary,verbose): return MutationsExtendedValidator(filename,hugo_entrez_map,fix,binary,verbose)
+        def create(self,filename,hugo_entrez_map,fix,verbose,stableId): return MutationsExtendedValidator(filename,hugo_entrez_map,fix,verbose,stableId)
 
 # validator for clinical data files
 class ClinicalValidator(Validator):
-    def __init__(self,filename,hugo_entrez_map,fix,binary,verbose):
-        super(ClinicalValidator,self).__init__(filename,hugo_entrez_map,fix,binary,verbose)
+    def __init__(self,filename,hugo_entrez_map,fix,verbose,stableId):
+        super(ClinicalValidator,self).__init__(filename,hugo_entrez_map,fix,verbose,stableId)
         self.headers = CLINICAL_HEADERS
 
     def validate(self):
@@ -889,10 +895,9 @@ class ClinicalValidator(Validator):
 
         if len(missing) > 0:
             print >> OUTPUT_BUFFER, '\tWARNING: header missing following columns:\n'
+            exitcode = 1
             for m in missing:
                 print >> OUTPUT_BUFFER, '\t\t' + m
-            if self.binary:
-                self.exitFail()
 
         notUpper = []
         for col in self.cols:
@@ -901,10 +906,9 @@ class ClinicalValidator(Validator):
 
         if len(notUpper) > 0:
             print >> OUTPUT_BUFFER, '\tWARNING: Headers found not all caps:'
+            exitcode = 1
             for nu in notUpper:
                 print >> OUTPUT_BUFFER, '\t\t' + nu
-            if self.binary:
-                self.exitFail()
 
         if self.fix:
             self.writeHeader(self.cols)
@@ -925,12 +929,12 @@ class ClinicalValidator(Validator):
 
 
     class Factory:
-        def create(self,filename,hugo_entrez_map,fix,binary,verbose): return ClinicalValidator(filename,hugo_entrez_map,fix,binary,verbose)
+        def create(self,filename,hugo_entrez_map,fix,verbose,stableId): return ClinicalValidator(filename,hugo_entrez_map,fix,verbose,stableId)
 
 # validator for .seg files
 class SegValidator(Validator):
-    def __init__(self,filename,hugo_entrez_map,fix,binary,verbose):
-        super(SegValidator,self).__init__(filename,hugo_entrez_map,fix,binary,verbose)
+    def __init__(self,filename,hugo_entrez_map,fix,verbose,stableId):
+        super(SegValidator,self).__init__(filename,hugo_entrez_map,fix,verbose,stableId)
         self.headers = SEG_HEADERS
         self.sampleIds = set()
 
@@ -943,10 +947,9 @@ class SegValidator(Validator):
 
         if self.cols != self.headers:
             print >> OUTPUT_BUFFER, '\tWARNING:Invalid Header:\tMust have following columns in specified order'
+            exitcode = 1
             for h in self.headers:
                 print >> OUTPUT_BUFFER, '\t\t' + h
-            if self.binary:
-                self.exitFail()
 
         if self.fix:
             self.writeHeader(self.cols)
@@ -964,11 +967,11 @@ class SegValidator(Validator):
 
 
     class Factory:
-        def create(self,filename,hugo_entrez_map,fix,binary,verbose): return SegValidator(filename,hugo_entrez_map,fix,binary,verbose)
+        def create(self,filename,hugo_entrez_map,fix,verbose,stableId): return SegValidator(filename,hugo_entrez_map,fix,verbose,stableId)
 
 class Log2Validator(Validator):
-    def __init__(self,filename,hugo_entrez_map,fix,binary,verbose):
-        super(Log2Validator,self).__init__(filename,hugo_entrez_map,fix,binary,verbose)
+    def __init__(self,filename,hugo_entrez_map,fix,verbose,stableId):
+        super(Log2Validator,self).__init__(filename,hugo_entrez_map,fix,verbose,stableId)
         self.headers = LOG2_HEADERS
 
     def validate(self):
@@ -989,11 +992,11 @@ class Log2Validator(Validator):
             self.writeNewLine(data)
 
     class Factory:
-        def create(self,filename,hugo_entrez_map,fix,binary,verbose): return Log2Validator(filename,hugo_entrez_map,fix,binary,verbose)
+        def create(self,filename,hugo_entrez_map,fix,verbose,stableId): return Log2Validator(filename,hugo_entrez_map,fix,verbose,stableId)
 
 class ExpressionValidator(Validator):
-    def __init__(self,filename,hugo_entrez_map,fix,binary,verbose):
-        super(ExpressionValidator,self).__init__(filename,hugo_entrez_map,fix,binary,verbose)
+    def __init__(self,filename,hugo_entrez_map,fix,verbose,stableId):
+        super(ExpressionValidator,self).__init__(filename,hugo_entrez_map,fix,verbose,stableId)
         self.headers = EXPRESSION_HEADERS
 
     def validate(self):
@@ -1014,11 +1017,11 @@ class ExpressionValidator(Validator):
             self.writeNewLine(data)
 
     class Factory:
-        def create(self,filename,hugo_entrez_map,fix,binary,verbose): return ExpressionValidator(filename,hugo_entrez_map,fix,binary,verbose)
+        def create(self,filename,hugo_entrez_map,fix,verbose,stableId): return ExpressionValidator(filename,hugo_entrez_map,fix,verbose,stableId)
 
 class FusionValidator(Validator):
-    def __init__(self,filename,hugo_entrez_map,fix,binary,verbose):
-        super(FusionValidator,self).__init__(filename,hugo_entrez_map,fix,binary,verbose)
+    def __init__(self,filename,hugo_entrez_map,fix,verbose,stableId):
+        super(FusionValidator,self).__init__(filename,hugo_entrez_map,fix,verbose,stableId)
         self.headers = FUSION_HEADERS
 
     def validate(self):
@@ -1038,11 +1041,11 @@ class FusionValidator(Validator):
             self.writeNewLine(data)
 
     class Factory:
-        def create(self,filename,hugo_entrez_map,fix,binary,verbose): return FusionValidator(filename,hugo_entrez_map,fix,binary,verbose)
+        def create(self,filename,hugo_entrez_map,fix,verbose,stableId): return FusionValidator(filename,hugo_entrez_map,fix,verbose,stableId)
 
 class MethylationValidator(Validator):
-    def __init__(self,filename,hugo_entrez_map,fix,binary,verbose):
-        super(MethylationValidator,self).__init__(filename,hugo_entrez_map,fix,binary,verbose)
+    def __init__(self,filename,hugo_entrez_map,fix,verbose,stableId):
+        super(MethylationValidator,self).__init__(filename,hugo_entrez_map,fix,verbose,stableId)
         self.headers = METHYLATION_HEADERS
 
     def validate(self):
@@ -1062,11 +1065,11 @@ class MethylationValidator(Validator):
             self.writeNewLine(data)
 
     class Factory:
-        def create(self,filename,hugo_entrez_map,fix,binary,verbose): return MethylationValidator(filename,hugo_entrez_map,fix,binary,verbose)
+        def create(self,filename,hugo_entrez_map,fix,verbose,stableId): return MethylationValidator(filename,hugo_entrez_map,fix,verbose,stableId)
 
 class RPPAValidator(Validator):
-    def __init__(self,filename,hugo_entrez_map,fix,binary,verbose):
-        super(RPPAValidator,self).__init__(filename,hugo_entrez_map,fix,binary,verbose)
+    def __init__(self,filename,hugo_entrez_map,fix,verbose,stableId):
+        super(RPPAValidator,self).__init__(filename,hugo_entrez_map,fix,verbose,stableId)
         self.headers = RPPA_HEADERS
 
     def validate(self):
@@ -1088,11 +1091,11 @@ class RPPAValidator(Validator):
         if self.fix:
             self.writeNewLine(data)
     class Factory:
-        def create(self,filename,hugo_entrez_map,fix,binary,verbose): return RPPAValidator(filename,hugo_entrez_map,fix,binary,verbose)
+        def create(self,filename,hugo_entrez_map,fix,verbose,stableId): return RPPAValidator(filename,hugo_entrez_map,fix,verbose,stableId)
 
 class TimelineValidator(Validator):
-    def __init__(self,filename,hugo_entrez_map,fix,binary,verbose):
-        super(TimelineValidator,self).__init__(filename,hugo_entrez_map,fix,binary,verbose)
+    def __init__(self,filename,hugo_entrez_map,fix,verbose,stableId):
+        super(TimelineValidator,self).__init__(filename,hugo_entrez_map,fix,verbose,stableId)
         self.headers = TIMELINE_HEADERS
 
     def validate(self):
@@ -1112,7 +1115,7 @@ class TimelineValidator(Validator):
             self.writeNewLine(data)
 
     class Factory:
-        def create(self,filename,hugo_entrez_map,fix,binary,verbose): return TimelineValidator(filename,hugo_entrez_map,fix,binary,verbose)
+        def create(self,filename,hugo_entrez_map,fix,verbose,stableId): return TimelineValidator(filename,hugo_entrez_map,fix,verbose,stableId)
 
 # ------------------------------------------------------------------------------
 # Functions
@@ -1153,8 +1156,6 @@ def checkSampleIds (sampleIdSets,clinIds,cname):
 
     if len(badIds) > 0:
         printBadIds(cname,badIds)
-        if self.binary:
-            sys.exit(1)
 
 # helper function for checkSampleids - just prints out the IDs it finds
 def printBadIds(cname,badIds):
@@ -1162,6 +1163,7 @@ def printBadIds(cname,badIds):
         'Missing IDs:'
     for bid in badIds:
         print >> OUTPUT_BUFFER, '\t' + str(bid)
+    exitcode = 1
 
 # checks meta fle vs segment file on the name
 
@@ -1171,8 +1173,7 @@ def segMetaCheck(segvalidator,filenameCheck):
             print >> OUTPUT_BUFFER, 'Seg file name appears invalid \n' + \
                 '\tMeta filename:\t' + filenameCheck + '\n' + \
                 '\tSeg filename:\t' + segvalidator.filenameShort
-            if self.binary:
-                sys.exit(1)
+            exitcode = 1
 
 def getFileFromFilepath(f):
     return f.split('/')[-1].strip()
@@ -1189,8 +1190,7 @@ def processCaseListDirectory(caseListDir,sampleIdSets):
                 print >> OUTPUT_BUFFER, 'WARNING: Unexpected field found in case list file\n' + \
                     '\tFile:\t' + getFileFromFilepath(case) + '\n' + \
                     '\tField:\t' + cd
-                if self.binary:
-                    sys.exit(1)
+                exitcode = 1
 
         sampleIds = case_data.get('case_list_ids')
         if sampleIds is not None:
@@ -1198,18 +1198,11 @@ def processCaseListDirectory(caseListDir,sampleIdSets):
             sampleIdSets.append(sampleIds)
     print >> OUTPUT_BUFFER, 'Validation of Case_Lists complete\n'
 
-def exitPrint(verbose):
-    if verbose:
-        print >> sys.stdout, OUTPUT_BUFFER.getvalue()
-        print >> sys.stderr, ERROR_BUFFER.getvalue()
-
-    sys.exit(1)
-
 # displays program usage (invalid args)
 
 def usage():
     print >> OUTPUT_BUFFER, 'validateData.py -v (verbose output) -c (create corrected files) --directory=[path to directory] --hugo-entrez-map=[download or filename, optional]\n' + \
-        'For output of warnings, use -v\nFor binary output, use -b\n' + \
+        'For output of warnings, use -v\n' + \
         'To generate corrected files, use -c' + \
         '\n##############################################\n' + \
         'Follow file naming conventions in the github wiki:\n' + \
@@ -1221,11 +1214,11 @@ def usage():
 def main():
     # parse command line options
     try:
-        opts, args = getopt.getopt(sys.argv[1:], 'vcb', ['directory=','hugo-entrez-map='])
+        opts, args = getopt.getopt(sys.argv[1:], 'vc', ['directory=','hugo-entrez-map='])
     except getopt.error, msg:
         print >> ERROR_BUFFER, msg
         usage()
-        exitPrint(True)
+        sys.exit(2)
 
     # process the options (fp - filepath)
     fp = ''
@@ -1236,7 +1229,6 @@ def main():
 
     hugo_entrez_map = {}
     verbose = False
-    binary=False
 
 
     for o, a in opts:
@@ -1248,17 +1240,15 @@ def main():
             fix = True
         elif o == '-v':
             verbose = True
-        elif o == '-b':
-            binary = True
 
     if fp == '' or fix == '':
         usage()
-        exitPrint(True)
+        sys.exit(2)
 
     # check existence of directory
     if not os.path.exists(fp):
         print >> ERROR_BUFFER, 'directory cannot be found: ' + fp
-        exitPrint(True)
+        sys.exit(2)
 
     if hugo == 'download' and hugoEntrezMapPresent:
         hugo_entrez_map = ftp_NCBI()
@@ -1267,7 +1257,7 @@ def main():
             ncbi_file = open(hugo,'r')
         except IOError:
             print >> ERROR_BUFFER, 'file cannot be found: ' + hugo
-            exitPrint(True)
+            sys.exit(2)
 
         hugo_entrez_map = parse_ncbi_file(ncbi_file)
 
@@ -1287,6 +1277,8 @@ def main():
     sampleIdSets = []
     clinIds = set()
 
+    stableids = {}
+
     clinvalidatorname = ''
 
     for f in filenames:
@@ -1305,20 +1297,19 @@ def main():
 
                 for field in meta:
                     if field not in META_FIELD_MAP[pattern]:
-                        print >> OUTPUT_BUFFER, 'WARNING: File in metafile ' + getFileFromFilepath(f) + ' not present in schema\n' + \
+                        print >> OUTPUT_BUFFER, 'WARNING: Field in metafile ' + getFileFromFilepath(f) + ' not present in schema\n' + \
                             '\tField: ' + field
-                        if binary:
-                            exitPrint(verbose)
+                        exitcode = 1
 
                 # check that cancer study identifiers across files so far are consistent.
                 if cancerStudyId == '':
                     cancerStudyId = meta['cancer_study_identifier'].strip()
                 elif cancerStudyId != meta['cancer_study_identifier'].strip():
                     print >> ERROR_BUFFER, 'Cancer study identifier in metafiles do not match.\n\t' + \
-                        cancerStudyId.strip() + '\t\n\t' + meta['cancer_study_identifier'].strip() + \
-                        '\n\tExiting'
-                    if binary:
-                        exitPrint(verbose)
+                        cancerStudyId.strip() + '\t\n\t' + meta['cancer_study_identifier'].strip() 
+                    exitcode = 1
+
+                stableids[pattern] = meta.get('stable_id','corrected')
 
 
                 # check filenames for seg meta file, and get correct filename for the actual
@@ -1330,15 +1321,14 @@ def main():
                         print >> OUTPUT_BUFFER, 'Meta file for .seg named incorrectly.\n' + \
                             '\tExpected:\t' + filenameMetaStringCheck + '\n' + \
                             '\tFound:\t' + f
-                        if binary:
-                            exitPrint(verbose)
+                        exitcode = 1
+
                     seg_data_filename = meta['data_filename']
                     if meta.get('reference_genome_id').strip() != GENOMIC_BUILD_COUNTERPART.strip():
                         print >> OUTPUT_BUFFER, 'WARNING: reference_genome_id in ' + f.split('/')[-1].strip() + \
                             ' incorrect\n\t\tExpected:\t' + GENOMIC_BUILD_COUNTERPART + \
                             '\n\t\tFound:\t' + meta.get('reference_genome_id').strip()
-                        if binary:
-                            exitPrint(verbose)
+                        exitcode = 1
 
                 metafiles.append(pattern)
 
@@ -1346,12 +1336,21 @@ def main():
                 metafile = True
                 print >> OUTPUT_BUFFER, 'WARNING: Found clinical meta file\n' + \
                     '\tFile: ' + getFileFromFilepath(f)
+                exitcode = 1
+
+
+
+    for f in filenames:
+        metafile = False
+        for pattern in META_PATTERNS:
+            if pattern in f and pattern != CLINICAL_META_PATTERN:
+                metafile = True
 
         # create the validator objects
         for pattern in FILE_PATTERNS:
             if pattern in f and not metafile:
-                validators.append(ValidatorFactory.createValidator(VALIDATOR_IDS[pattern],f,hugo_entrez_map,fix,binary,verbose))
-
+                stableid = stableids.get(VALIDATOR_META_MAP[VALIDATOR_IDS[pattern]],'corrected')
+                validators.append(ValidatorFactory.createValidator(VALIDATOR_IDS[pattern],f,hugo_entrez_map,fix,verbose,stableid))
 
     # validate all the files
     for validator in validators:
@@ -1361,8 +1360,7 @@ def main():
         # check if metafile exists for given file type (except clinical)
         if VALIDATOR_META_MAP.get(type(validator).__name__) not in metafiles and type(validator).__name__ != 'ClinicalValidator':
             print >> OUTPUT_BUFFER, 'WARNING: missing metafile for ' + validator.filenameShort + '\n'
-            if binary:
-                exitPrint(verbose)
+            exitcode = 1
         
         # check meta and file names match for seg files
         if type(validator).__name__ == 'SegValidator':
@@ -1382,8 +1380,8 @@ def main():
     print >> OUTPUT_BUFFER, '\nValidation complete'
 
     if verbose:
-        print >> sys.stdout, OUTPUT_BUFFER.getvalue()
-        print >> sys.stderr, ERROR_BUFFER.getvalue()
+        print >> OUTPUT_FILE, OUTPUT_BUFFER.getvalue()
+        print >> ERROR_FILE, ERROR_BUFFER.getvalue()
 
 
 	
@@ -1392,3 +1390,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    sys.exit(exitcode)

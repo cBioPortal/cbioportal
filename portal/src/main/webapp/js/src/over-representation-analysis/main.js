@@ -158,16 +158,12 @@ var or_tab = (function() {
                 _profile_list.push(_obj);
             }
         });
-        var _phospho_exp_obj = jQuery.extend(true, {}, _profile_list[0]);
         var _protein_exp_obj = jQuery.extend(true, {}, _profile_list[0]);
-        _phospho_exp_obj.STABLE_ID += "_phospho";
         _protein_exp_obj.STABLE_ID += "_protein";
-        _phospho_exp_obj.NAME = "Phosphoprotein level (RPPA)";
-        _protein_exp_obj.NAME = "Protein expression (RPPA)";
+        _protein_exp_obj.NAME = "Protein / Phosphoprotein expression (RPPA)";
 
         _profile_list.length = 0;
         _profile_list = [];
-        _profile_list.push(_phospho_exp_obj);
         _profile_list.push(_protein_exp_obj);
 
         var orSubTabProteinExp = new orSubTabView();

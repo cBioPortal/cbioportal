@@ -157,10 +157,10 @@ public class ORAnalysisDiscretizedDataProxy {
                 Map.Entry pair = (Map.Entry)it.next();
                 if (pair.getValue().equals("NA") || pair.getValue().equals("NaN") || pair.getValue().equals("null")) {
                     it.remove();
-                } else {
-                    if (profileStableId.indexOf("rna_seq") != -1) {
-                        pair.setValue(Double.toString(Math.log(Double.parseDouble(pair.getValue().toString()) + 1.0) / Math.log(2)));
-                    }
+//                } else {
+//                    if (profileStableId.indexOf("rna_seq") != -1) {
+//                        pair.setValue(Double.toString(Math.log(Double.parseDouble(pair.getValue().toString()) + 1.0) / Math.log(2)));
+//                    }
                 }
             }
 
@@ -203,10 +203,10 @@ public class ORAnalysisDiscretizedDataProxy {
             } else if (profileType.equals(GeneticAlterationType.MRNA_EXPRESSION.toString())) {
                 _datum.put(COL_NAME_GENE, _geneName);
                 _datum.put(COL_NAME_CYTOBAND, _cytoband);
-                _datum.put(COL_NAME_MEAN_ALTERED, calcMean(singleGeneCaseValueMap, "altered"));
-                _datum.put(COL_NAME_MEAN_UNALTERED, calcMean(singleGeneCaseValueMap, "unaltered"));
-                _datum.put(COL_NAME_STDEV_ALTERED, calcSTDev(singleGeneCaseValueMap, "altered"));
-                _datum.put(COL_NAME_STDEV_UNALTERED, calcSTDev(singleGeneCaseValueMap, "unaltered"));
+                _datum.put(COL_NAME_MEAN_ALTERED, calcMean(singleGeneCaseValueMap, "altered", profileStableId));
+                _datum.put(COL_NAME_MEAN_UNALTERED, calcMean(singleGeneCaseValueMap, "unaltered", profileStableId));
+                _datum.put(COL_NAME_STDEV_ALTERED, calcSTDev(singleGeneCaseValueMap, "altered", profileStableId));
+                _datum.put(COL_NAME_STDEV_UNALTERED, calcSTDev(singleGeneCaseValueMap, "unaltered", profileStableId));
                 _datum.put(COL_NAME_P_VALUE, calcPval(singleGeneCaseValueMap, profileType, profileStableId));
                 if (!Double.isNaN(calcPval(singleGeneCaseValueMap, profileType, profileStableId))) {
                     _result.add(_datum);
@@ -215,17 +215,17 @@ public class ORAnalysisDiscretizedDataProxy {
                 if (proteinExpType.equals("protein")) {
                     _datum.put(COL_NAME_GENE, _geneName);
                     _datum.put(COL_NAME_CYTOBAND, _cytoband);
-                    _datum.put(COL_NAME_MEAN_ALTERED, calcMean(singleGeneCaseValueMap, "altered"));
-                    _datum.put(COL_NAME_MEAN_UNALTERED, calcMean(singleGeneCaseValueMap, "unaltered"));
-                    _datum.put(COL_NAME_STDEV_ALTERED, calcSTDev(singleGeneCaseValueMap, "altered"));
-                    _datum.put(COL_NAME_STDEV_UNALTERED, calcSTDev(singleGeneCaseValueMap, "unaltered"));
+                    _datum.put(COL_NAME_MEAN_ALTERED, calcMean(singleGeneCaseValueMap, "altered", profileStableId));
+                    _datum.put(COL_NAME_MEAN_UNALTERED, calcMean(singleGeneCaseValueMap, "unaltered", profileStableId));
+                    _datum.put(COL_NAME_STDEV_ALTERED, calcSTDev(singleGeneCaseValueMap, "altered", profileStableId));
+                    _datum.put(COL_NAME_STDEV_UNALTERED, calcSTDev(singleGeneCaseValueMap, "unaltered", profileStableId));
                     _datum.put(COL_NAME_P_VALUE, calcPval(singleGeneCaseValueMap, profileType, profileStableId));
                 } else if (proteinExpType.equals("phospho")) {
                     _datum.put(COL_NAME_GENE, _geneName);
-                    _datum.put(COL_NAME_MEAN_ALTERED, calcMean(singleGeneCaseValueMap, "altered"));
-                    _datum.put(COL_NAME_MEAN_UNALTERED, calcMean(singleGeneCaseValueMap, "unaltered"));
-                    _datum.put(COL_NAME_STDEV_ALTERED, calcSTDev(singleGeneCaseValueMap, "altered"));
-                    _datum.put(COL_NAME_STDEV_UNALTERED, calcSTDev(singleGeneCaseValueMap, "unaltered"));
+                    _datum.put(COL_NAME_MEAN_ALTERED, calcMean(singleGeneCaseValueMap, "altered", profileStableId));
+                    _datum.put(COL_NAME_MEAN_UNALTERED, calcMean(singleGeneCaseValueMap, "unaltered", profileStableId));
+                    _datum.put(COL_NAME_STDEV_ALTERED, calcSTDev(singleGeneCaseValueMap, "altered", profileStableId));
+                    _datum.put(COL_NAME_STDEV_UNALTERED, calcSTDev(singleGeneCaseValueMap, "unaltered", profileStableId));
                     _datum.put(COL_NAME_P_VALUE, calcPval(singleGeneCaseValueMap, profileType, profileStableId));
                 }
                 if (!Double.isNaN(calcPval(singleGeneCaseValueMap, profileType, profileStableId))) {
@@ -267,14 +267,18 @@ public class ORAnalysisDiscretizedDataProxy {
         } 
     }
     
-    private double calcMean(HashMap<Integer, String> singleGeneCaseValueMap, String groupType) { // group type: altered or unaltered
+    private double calcMean(HashMap<Integer, String> singleGeneCaseValueMap, String groupType, String profileStableId) { // group type: altered or unaltered
         switch (groupType) {
             case "altered":
                 int _index_altered = 0;
                 double[] alteredArray = new double[alteredSampleIds.size()];
                 for (Integer alteredSampleId: alteredSampleIds) {
                     if (singleGeneCaseValueMap.containsKey(alteredSampleId)) {
-                        alteredArray[_index_altered] = Double.parseDouble(singleGeneCaseValueMap.get(alteredSampleId));
+                        if (profileStableId.indexOf("rna_seq") != -1) {
+                            alteredArray[_index_altered] = Math.log(Double.parseDouble(singleGeneCaseValueMap.get(alteredSampleId))) / Math.log(2);
+                        } else {
+                            alteredArray[_index_altered] = Double.parseDouble(singleGeneCaseValueMap.get(alteredSampleId));
+                        }
                         _index_altered += 1;
                     }
                 }
@@ -284,7 +288,11 @@ public class ORAnalysisDiscretizedDataProxy {
                 double[] unalteredArray = new double[unalteredSampleIds.size()];
                 for (Integer unalteredSampleId: unalteredSampleIds) {
                     if (singleGeneCaseValueMap.containsKey(unalteredSampleId)) {
-                        unalteredArray[_index_unaltered] = Double.parseDouble(singleGeneCaseValueMap.get(unalteredSampleId));
+                        if (profileStableId.indexOf("rna_seq") != -1) {
+                            unalteredArray[_index_unaltered] = Math.log(Double.parseDouble(singleGeneCaseValueMap.get(unalteredSampleId))) / Math.log(2);
+                        } else {
+                            unalteredArray[_index_unaltered] = Double.parseDouble(singleGeneCaseValueMap.get(unalteredSampleId));
+                        }
                         _index_unaltered += 1;
                     }
                 }
@@ -294,22 +302,29 @@ public class ORAnalysisDiscretizedDataProxy {
         }
     }
     
-    private double calcSTDev(HashMap<Integer, String> singleGeneCaseValueMap, String groupType) {
+    private double calcSTDev(HashMap<Integer, String> singleGeneCaseValueMap, String groupType, String profileStableId) {
         switch (groupType) {
             case "altered":
                 DescriptiveStatistics stats_altered = new DescriptiveStatistics();
                 for (Integer alteredSampleId: alteredSampleIds) {
                     if (singleGeneCaseValueMap.containsKey(alteredSampleId)) {
-                        stats_altered.addValue(Double.parseDouble(singleGeneCaseValueMap.get(alteredSampleId)));
+                        if (profileStableId.indexOf("rna_seq") != -1) {
+                            stats_altered.addValue(Math.log(Double.parseDouble(singleGeneCaseValueMap.get(alteredSampleId))) / Math.log(2));
+                        } else {
+                            stats_altered.addValue(Double.parseDouble(singleGeneCaseValueMap.get(alteredSampleId)));
+                        }
                     }
                 }
                 return stats_altered.getStandardDeviation();
             case "unaltered":
                 DescriptiveStatistics stats_unaltered = new DescriptiveStatistics();
-                double[] unalteredArray = new double[unalteredSampleIds.size()];
                 for (Integer unalteredSampleId: unalteredSampleIds) {
                     if (singleGeneCaseValueMap.containsKey(unalteredSampleId)) {
-                        stats_unaltered.addValue(Double.parseDouble(singleGeneCaseValueMap.get(unalteredSampleId)));
+                        if (profileStableId.indexOf("rna_seq") != -1) {
+                            stats_unaltered.addValue(Math.log(Double.parseDouble(singleGeneCaseValueMap.get(unalteredSampleId))) / Math.log(2));
+                        } else {
+                            stats_unaltered.addValue(Double.parseDouble(singleGeneCaseValueMap.get(unalteredSampleId)));
+                        }
                     }
                 }
                 return stats_unaltered.getStandardDeviation();
@@ -421,13 +436,21 @@ public class ORAnalysisDiscretizedDataProxy {
 
         for (Integer alteredSampleId: alteredSampleIds) {
             if (singleGeneCaseValueMap.containsKey(alteredSampleId)) {
-                alteredArray[_index_altered] = Double.parseDouble(singleGeneCaseValueMap.get(alteredSampleId));
+                if (profileStableId.indexOf("rna_seq") != -1) {
+                    alteredArray[_index_altered] = Math.log(Double.parseDouble(singleGeneCaseValueMap.get(alteredSampleId))) / Math.log(2);
+                } else {
+                    alteredArray[_index_altered] = Double.parseDouble(singleGeneCaseValueMap.get(alteredSampleId));
+                }
                 _index_altered += 1;
             }
         }
         for (Integer unalteredSampleId: unalteredSampleIds) {
             if (singleGeneCaseValueMap.containsKey(unalteredSampleId)) {
-                unalteredArray[_index_unaltered] = Double.parseDouble(singleGeneCaseValueMap.get(unalteredSampleId));
+                if (profileStableId.indexOf("rna_seq") != -1) {
+                    unalteredArray[_index_unaltered] = Math.log(Double.parseDouble(singleGeneCaseValueMap.get(unalteredSampleId))) / Math.log(2);
+                } else {
+                    unalteredArray[_index_unaltered] = Double.parseDouble(singleGeneCaseValueMap.get(unalteredSampleId));
+                }
                 _index_unaltered += 1;
             }
         }

@@ -85,12 +85,11 @@ var CancerSummaryMainView = Backbone.View.extend({
      var mainContent = "";
      var listContent = "";
 
-     // create a test gene list for the tabs
+     // retrieve the gene list for the tabs
      var geneList = self.dmPresenter.getGeneList();
 
      // create a div for for each gene
-     //_.each(self.model.geneProxy.getGeneList(), function(gene, idx) {
-         _.each(geneList, function(gene, idx) {
+     _.each(geneList, function(gene, idx) {
  
             // get the template for the main content and apply it
         var templateFn = PanCancerTemplateCache.getTemplateFn("gene_details_main_content_template");

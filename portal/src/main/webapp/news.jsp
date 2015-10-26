@@ -37,6 +37,17 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 
+<!-- The pancer_study_summary files: -->
+<%--<link href="css/pancancer_study_summary/pancancer_study_summary.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />--%>
+<!-- js files: -->
+<script type="text/javascript" src="js/lib/jquery.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/lib/underscore-min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/lib/backbone-min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+
+<script type="text/javascript" src="js/lib/showdown.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/url_based_content.js?<%=GlobalProperties.getAppVersion()%>"></script>
+
+
 <% request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::What's New"); %>
 <jsp:include page="WEB-INF/jsp/global/header.jsp" flush="true" />
 <div id="main">
@@ -44,12 +55,7 @@
         <tr>
             <td>
                 <h1>What's New</h1>
-                
-            <div class="markdown">
-
-            <P><jsp:include page="<%= GlobalProperties.getNewsHtml()%>" flush="true" /></p>
-
-            </div>
+                <div id="newsPage" class="markdown"></div>
             </td>
         </tr>
     </table>
@@ -71,3 +77,13 @@
 <jsp:include page="WEB-INF/jsp/global/xdebug.jsp" flush="true" />
 </body>
 </html>
+
+
+<!-- Initialization script -->
+<script>
+    $(document).ready( function() {
+        var generatePage = new GeneratePage("https://github.com/cBioPortal/cbioportal/wiki/Build-from-Source.md", "#newsPage");
+        generatePage.init();
+    });
+</script>
+

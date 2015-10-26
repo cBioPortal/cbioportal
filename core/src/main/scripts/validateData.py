@@ -2,10 +2,10 @@
 
 # ------------------------------------------------------------------------------
 # Data validation script - validates files before import into portal.
-# Does not actively correct - warns user of possible issues with the data.
 # If create-corrected set to true, the script will create a new version of all the files it detects
 #   and ensure the newlines are correct and that no data is enclosed in quotes. It will also
 #   add entrez IDs if they are not present and the user either provides the file or sets ftp
+#   Also checks for duplicate column headers, repeated header rows
 # ------------------------------------------------------------------------------
 
 # imports
@@ -25,13 +25,14 @@ import re
 # ------------------------------------------------------------------------------
 # globals
 
-# some file descriptors
+# some file/buffer descriptors
 ERROR_BUFFER = StringIO.StringIO()
 OUTPUT_BUFFER = StringIO.StringIO()
 
 ERROR_FILE = sys.stderr
 OUTPUT_FILE = sys.stdout
 
+# allows script to run with or without the hugoEntrezMap module
 hugoEntrezMapPresent = True
 try:
     from hugoEntrezMap import *
@@ -190,6 +191,8 @@ MUTATIONS_HEADERS_ORDER = ['Hugo_Symbol',
     'n_ref_count'
 ]
 
+# Used for mapping column names to the corresponding function that does a check on the value.
+# This can be done for other filetypes besides maf - not currently implemented.
 MUTATIONS_CHECK_FUNCTION_MAP = {
     'Hugo_Symbol':'checkValidHugo',
     'Entrez_Gene_Id':'checkValidEntrez',
@@ -341,6 +344,7 @@ META_FIELD_MAP = {
     TIMELINE_META_PATTERN:TIMELINE_META_FIELDS
 }
 
+# allows pass/fail to be passed programatically throughout program. If failure condition found, set to 1
 exitcode = 0
 
 
@@ -1357,9 +1361,13 @@ def main():
         validator.validate()
         sampleIdSets.append(validator.sampleIds)
 
-        # check if metafile exists for given file type (except clinical)
+        # check if metafile exists for given file type (except clinical) and that the stable ids match
         if VALIDATOR_META_MAP.get(type(validator).__name__) not in metafiles and type(validator).__name__ != 'ClinicalValidator':
             print >> OUTPUT_BUFFER, 'WARNING: missing metafile for ' + validator.filenameShort + '\n'
+            exitcode = 1
+        elif stableids.get(VALIDATOR_META_MAP.get(type(validator).__name__),None) != validator.stableId and type(validator).__name__ != 'ClinicalValidator':
+            print >> OUTPUT_BUFFER, 'WARNING: stable_id in meta and data files do not match\n' + \
+                '\tFile:\t' + validator.filenameShort
             exitcode = 1
         
         # check meta and file names match for seg files
@@ -1373,7 +1381,7 @@ def main():
             clinvalidatorname = validator.filenameShort
 
     # make sure that lla samples seen across all files are present in the clinical file
-    print >> OUTPUT_BUFFER, '\nDoing sampleID checks\n'
+    print >> OUTPUT_BUFFER, '\nDoing sampleID checks'
     if clinvalidatorname != '':
         checkSampleIds(sampleIdSets,clinIds,clinvalidatorname)
 

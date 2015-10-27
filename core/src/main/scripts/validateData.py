@@ -329,7 +329,15 @@ CASE_LIST_FIELDS = [
     'case_list_category'
 ]
 
-CLINICAL_META_FIELDS = []
+CLINICAL_META_FIELDS = [
+    'cancer_study_identifier',
+    'genetic_alteration_type',
+    'datatype',
+    'stable_id',
+    'show_profile_in_analysis_tab',
+    'profile_name',
+    'profile_description'
+    ]
 
 META_FIELD_MAP = {
     CNA_META_PATTERN:CNA_META_FIELDS,
@@ -410,7 +418,10 @@ class Validator(object):
                 elif not self.end:
                     self.checkLine(line)
             else:
-                self.processTopLine(line)
+                try:
+                    self.processTopLine(line)
+                except AttributeError:
+                    continue
 
         self.checkBlankCells()
         self.checkBlankLines()
@@ -598,7 +609,7 @@ class CNAValidator(Validator):
             if d.strip() not in CNA_VALUES and i != 0 and not (i == 1 and self.entrez_present):
                 self.badValues.append((d,self.lineCount))
             elif i == 1 and self.entrez_present:
-                if not checkInt(d.strip()) and not d.strip() == 'NA':
+                if not self.checkInt(d.strip()) and not d.strip() == 'NA':
                     print >> OUTPUT_BUFFER, '\tWARNING: Invalid Data Type:\tColumn ' + str(i+1) + ' Line ' + str(self.lineCount) + 'Entrez_Gene_Id must be integer or NA'
                     exitcode = 1
             elif i == 0 and len(self.hugo_entrez_map) > 0:
@@ -916,14 +927,19 @@ class ClinicalValidator(Validator):
 
         if self.fix:
             self.writeHeader(self.cols)
+
+        self.cols = map(str.lower,self.cols)
             
 
 
     def checkLine(self,line):
         data = super(ClinicalValidator,self).checkLine(line)
         for i,d in enumerate(data):
-            if i == self.cols.index(self.headers[0]):
-                self.sampleIds.add(d.strip())
+            try:
+                if i == self.cols.index(self.headers[0].lower()):
+                    self.sampleIds.add(d.strip())
+            except ValueError:
+                continue
 
         if self.fix:
             self.writeNewLine(data)
@@ -1222,6 +1238,8 @@ def main():
     except getopt.error, msg:
         print >> ERROR_BUFFER, msg
         usage()
+        print >> ERROR_FILE, ERROR_BUFFER.getvalue()
+        print >> OUTPUT_FILE, OUTPUT_BUFFER.getvalue()
         sys.exit(2)
 
     # process the options (fp - filepath)
@@ -1247,11 +1265,15 @@ def main():
 
     if fp == '' or fix == '':
         usage()
+        print >> ERROR_FILE, ERROR_BUFFER.getvalue()
+        print >> OUTPUT_FILE, OUTPUT_BUFFER.getvalue()
         sys.exit(2)
 
     # check existence of directory
     if not os.path.exists(fp):
         print >> ERROR_BUFFER, 'directory cannot be found: ' + fp
+        print >> ERROR_FILE, ERROR_BUFFER.getvalue()
+        print >> OUTPUT_FILE, OUTPUT_BUFFER.getvalue()
         sys.exit(2)
 
     if hugo == 'download' and hugoEntrezMapPresent:
@@ -1261,6 +1283,8 @@ def main():
             ncbi_file = open(hugo,'r')
         except IOError:
             print >> ERROR_BUFFER, 'file cannot be found: ' + hugo
+            print >> ERROR_FILE, ERROR_BUFFER.getvalue()
+            print >> OUTPUT_FILE, OUTPUT_BUFFER.getvalue()
             sys.exit(2)
 
         hugo_entrez_map = parse_ncbi_file(ncbi_file)
@@ -1295,7 +1319,7 @@ def main():
         # metafile validation and information gathering. Simpler than the big files, so no classes.
         # just need to get some values out, and also verify that no extra fields are specified
         for pattern in META_PATTERNS:
-            if pattern in f and pattern != CLINICAL_META_PATTERN:
+            if pattern in f:
                 meta = processMetafile(f)
                 metafile = True
 
@@ -1336,18 +1360,10 @@ def main():
 
                 metafiles.append(pattern)
 
-            elif pattern in f and pattern == CLINICAL_META_PATTERN:
-                metafile = True
-                print >> OUTPUT_BUFFER, 'WARNING: Found clinical meta file\n' + \
-                    '\tFile: ' + getFileFromFilepath(f)
-                exitcode = 1
-
-
-
     for f in filenames:
         metafile = False
         for pattern in META_PATTERNS:
-            if pattern in f and pattern != CLINICAL_META_PATTERN:
+            if pattern in f:
                 metafile = True
 
         # create the validator objects
@@ -1362,10 +1378,10 @@ def main():
         sampleIdSets.append(validator.sampleIds)
 
         # check if metafile exists for given file type (except clinical) and that the stable ids match
-        if VALIDATOR_META_MAP.get(type(validator).__name__) not in metafiles and type(validator).__name__ != 'ClinicalValidator':
+        if VALIDATOR_META_MAP.get(type(validator).__name__) not in metafiles:
             print >> OUTPUT_BUFFER, 'WARNING: missing metafile for ' + validator.filenameShort + '\n'
             exitcode = 1
-        elif stableids.get(VALIDATOR_META_MAP.get(type(validator).__name__),None) != validator.stableId and type(validator).__name__ != 'ClinicalValidator':
+        elif stableids.get(VALIDATOR_META_MAP.get(type(validator).__name__),None) != validator.stableId:
             print >> OUTPUT_BUFFER, 'WARNING: stable_id in meta and data files do not match\n' + \
                 '\tFile:\t' + validator.filenameShort
             exitcode = 1
@@ -1384,6 +1400,9 @@ def main():
     print >> OUTPUT_BUFFER, '\nDoing sampleID checks'
     if clinvalidatorname != '':
         checkSampleIds(sampleIdSets,clinIds,clinvalidatorname)
+    else:
+        print >> OUTPUT_BUFFER, '\tWARNING: No clinical file detected'
+        errorcode = 1
 
     print >> OUTPUT_BUFFER, '\nValidation complete'
 

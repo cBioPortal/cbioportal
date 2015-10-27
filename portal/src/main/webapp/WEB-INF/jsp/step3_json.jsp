@@ -186,9 +186,9 @@ if (step3ErrorMsg != null) {
         <p><span style="font-size:80%">Enter case IDs below:</span></p>
 <textarea id='custom_case_set_ids' name='<%= QueryBuilder.CASE_IDS %>' rows=6 cols=80></textarea>
 <br/>
-<input type="radio" name='<%= QueryBuilder.PATIENT_CASE_SELECT%>' value="sample" checked>By sample ID</input>
+<input type="radio" name='patient_case_select' value="sample" checked>By sample ID</input>
 <br/>
-<input type="radio" name='<%= QueryBuilder.PATIENT_CASE_SELECT%>' value="patient">By patient ID</input>
+<input type="radio" name='patient_case_select' value="patient">By patient ID</input>
     </div>
 
 <%

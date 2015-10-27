@@ -324,10 +324,18 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
                         'getPatientSampleIdMap': function () {
                             var def = new $.Deferred();
                             if(getPatientCaseSelect() === "patient")
-                                window.cbioportal_client.getSamples({study_id: getCancerStudyIds(),patient_id: getSampleIds()}).then(function(sampleMap){
-                                    makeSampleMap(sampleMap);
+                                window.cbioportal_client.getSamples({study_id: getCancerStudyIds(),patient_ids: getSampleIds()}).then(function(_sampleMap){
+                                    var samplemap = makeSampleMap(_sampleMap);
+                                    def.resolve(samplemap);
                                 });
-                                return def.promise();
+                            else
+                            {
+                                window.cbioportal_clinet.getSample({study_id: getCancerStudyIds(),sample_ids: getSampleIds()}).then(function(_sampleMap){
+                                    var samplemap = makeSampleMap(_sampleMap);
+                                    def.resolve(samplemap);
+                                });
+                            }
+                            return def.promise();
                         }
                         
                         

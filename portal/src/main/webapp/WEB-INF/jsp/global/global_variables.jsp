@@ -311,8 +311,9 @@
         
         setPatientSampleIdMap: function(_patientSampleIdMap) {patientSampleIdMap = _patientSampleIdMap;},
 
-        setPatientCaseSelect: function(_patientCaseSelect) {patientCaseSelect = _patientCaseSelect;}
-        getPatientCaseSelect: function() {return patientCaseSelect;}
+    
+        getPatientCaseSelect: function() {return '<%=patientCaseSelect%>';},
+        
         //patients
         getPatientSetName: function() { return '<%=patientSetName%>'; },
         getPatientSetDescription: function() {
@@ -366,8 +367,7 @@
         window.QuerySession = window.initDatamanager('<%=geneticProfiles%>'.trim().split(/\s+/),
                                                             '<%=oql%>'.trim(),
                                                             ['<%=cancerTypeId%>'.trim()],
-                                                            '<%=patients%>'.trim().split(/\s+/),
-                                                            getPatientCaseSelect());
+                                                            '<%=patients%>'.trim().split(/\s+/));
     })();
 </script>
 

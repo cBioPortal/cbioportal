@@ -63,6 +63,7 @@ public class QueryBuilder extends HttpServlet {
     public static final String PROFILE_LIST_INTERNAL = "profile_list";
     public static final String CASE_SETS_INTERNAL = "case_sets";
     public static final String CANCER_STUDY_ID = "cancer_study_id";
+    public static final String PATIENT_CASE_SELECT = "patient_case_select";
     public static final String CANCER_STUDY_LIST = "cancer_study_list";
     public static final String HAS_SURVIVAL_DATA = "has_survival_data";
     public static final String GENETIC_PROFILE_IDS = "genetic_profile_ids";
@@ -171,6 +172,8 @@ public class QueryBuilder extends HttpServlet {
 
         //  Get User Selected Action
         String action = httpServletRequest.getParameter(ACTION_NAME);
+        
+        String patientCaseSelect = httpServletRequest.getParameter(PATIENT_CASE_SELECT);
 
         //  Get User Selected Cancer Type
         String cancerTypeId = httpServletRequest.getParameter(CANCER_STUDY_ID);
@@ -247,7 +250,7 @@ public class QueryBuilder extends HttpServlet {
             if (action != null && action.equals(ACTION_SUBMIT) && (!errorsExist)) {
 
                 processData(cancerTypeId, geneticProfileIdSet, profileList, geneList, patientSetId,
-                            patientIds, patientSets, getServletContext(), httpServletRequest,
+                            patientIds, patientSets, patientCaseSelect, getServletContext(), httpServletRequest,
                             httpServletResponse, xdebug);
             } else {
                 if (errorsExist) {
@@ -319,6 +322,7 @@ public class QueryBuilder extends HttpServlet {
 							 String geneListStr,
 							 String patientSetId, String sampleIds,
 							 ArrayList<PatientList> patientSetList,
+                                                         String patientCaseSelect,
 							 ServletContext servletContext, HttpServletRequest request,
 							 HttpServletResponse response,
 							 XDebug xdebug) throws IOException, ServletException, DaoException {
@@ -341,6 +345,8 @@ public class QueryBuilder extends HttpServlet {
         }
         geneList = tempGeneList;
         request.setAttribute(GENE_LIST, geneList);
+        
+        request.setAttribute(PATIENT_CASE_SELECT, patientCaseSelect);
 
         xdebug.logMsg(this, "Using gene list geneList.toString():  " + geneList.toString());
         

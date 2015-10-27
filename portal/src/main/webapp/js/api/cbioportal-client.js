@@ -334,12 +334,17 @@ window.cbioportal_client = (function() {
 			return function(args) {
 				var def = new $.Deferred();
 				try {
+                                        var undefined_indices = [];
 					var arg_list_list = arg_names.map(function (a) {
 						return args[a];
 					});
-					while (typeof arg_list_list[arg_list_list.length - 1] === "undefined") {
-						arg_list_list.pop();
-					}
+                                        for(var i = 0,_len = arg_list_list.length;i<_len;i++) {
+                                            if(typeof(arg_list_list[i]) === "undefined") {
+                                                undefined_indices.push(i);
+                                            }
+                                        }
+                                        arg_list_list = arg_list_list.filter( Boolean );
+                                        
 					if (arg_list_list.length < arg_names.length) {
 						var missing_arg_set_list = arg_list_list.map(function (a) {
 							return {};
@@ -360,7 +365,14 @@ window.cbioportal_client = (function() {
 						if (missing_arg_set_list[0].length > 0) {
 							var webservice_args = {};
 							for (var i = 0; i < missing_arg_set_list.length; i++) {
-								webservice_args[arg_names[i]] = missing_arg_set_list[i];
+                                                                if (missing_arg_set_list[i].length > 0) {
+                                                                    if (undefined_indices.indexOf(i) > -1 && undefined_indices.indexOf(i+1) <= -1) {
+                                                                        webservice_args[arg_names[i+1]] = missing_arg_set_list[i];
+                                                                    }
+                                                                    else if ( undefined_indices.indexOf(i) <= -1) {
+                                                                        webservice_args[arg_names[i]] = missing_arg_set_list[i];
+                                                                    }
+                                                                }
 							}
 							raw_service[service_fn_name](webservice_args).then(function (data) {
 								for (var j = 0; j < missing_key_combs.length; j++) {
@@ -435,7 +447,7 @@ window.cbioportal_client = (function() {
 		getSampleClinicalData: enforceRequiredArguments(makeHierIndexService(['study_id', 'attribute_ids', 'sample_ids'], ['study_id', 'attr_id', 'sample_id'], 'getSampleClinicalData'), [["study_id","attribute_ids"], ["study_id","attribute_ids","sample_ids"]]),
 		getPatientClinicalData: enforceRequiredArguments(makeHierIndexService(['study_id', 'attribute_ids', 'patient_ids'], ['study_id', 'attr_id', 'patient_id'], 'getPatientClinicalData'), [["study_id","attribute_ids"], ["study_id","attribute_ids","patient_ids"]]),
 		getPatients: enforceRequiredArguments(makeHierIndexService(['study_id', 'patient_ids'], ['study_id', 'id'], 'getPatients'), [["study_id"], ["study_id","patient_ids"]]),
-		getSamples: enforceRequiredArguments(makeHierIndexService(['study_id', 'sample_ids'], ['study_id', 'id'], 'getSamples'), [["study_id"], ["study_id", "sample_ids"]]),
+		getSamples: enforceRequiredArguments(makeHierIndexService(['study_id', 'patient_ids', 'sample_ids'], ['study_id', 'patient_id','id'], 'getSamples'), [["study_id"], ["study_id", "sample_ids"],["study_id","patient_ids"]]),
 		getGeneticProfileData: enforceRequiredArguments(makeHierIndexService(['genetic_profile_ids', 'genes', 'sample_ids'], ['genetic_profile_id', 'hugo_gene_symbol', 'sample_id'], 'getGeneticProfileData'), [["genetic_profile_ids","genes"], ["genetic_profile_ids","genes","sample_ids"]]),
 		getSampleClinicalAttributes: enforceRequiredArguments(function(args) {
 			return raw_service.getSampleClinicalAttributes(args);

@@ -174,15 +174,14 @@
         var main_form = document.forms["main_form"];
         if(edit === true)
         {
-            var case_ids = document.getElementsByName('<%= QueryBuilder.CASE_IDS %>');
-            case_ids.value = samples_string;
+            main_form.<%= QueryBuilder.CASE_IDS %>.value = samples_string;
               
         }
         main_form.submit();
     }
     function getMap() {
         // Get radio button selection
-        var patientCaseRadio = document.getElementsByName('<%= QueryBuilder.PATIENT_CASE_SELECT%>');
+        var patientCaseRadio = document.getElementsByName('patient_case_select');
         var patientCaseSelect = "";
         for (var i = 0, length = patientCaseRadio.length;i<length;i++) 
         {
@@ -198,7 +197,7 @@
             var sampleIds = document.getElementsByName('<%= QueryBuilder.CASE_IDS%>')[0].value.trim().replace(/"/g,'').split(/\s+/);
             // Get study selection
             var studyId =document.getElementById('select_single_study').value.trim().replace(/"/g,'');
-            if (sampleIds[0] !== "" && sampleIds.length !== 1)
+            if (sampleIds[0] !== "")
             {
                     window.cbioportal_client.getSamples({study_id: [studyId],patient_ids: sampleIds}).then(function(sampleMap){
                         setPatientSampleIdMap(sampleMap);

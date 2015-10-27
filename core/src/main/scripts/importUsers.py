@@ -74,6 +74,10 @@ SU2C_KRAS_USER_SPREADSHEET = 'Request Access to the cBio KRAS Cancer Genomics Po
 GENIE_USER_SPREADSHEET = 'Request Access to the cBio GENIE Cancer Genomics Portal'
 BETA_USER_SPREADSHEET = 'Request Access to the cBio Cancer Genomics Portal Beta'
 
+# Worksheet that contains email contents
+IMPORTER_WORKSHEET = 'import_user_email'
+
+
 # portal name (these should correspond to what is in property file of the respective portal)
 PORTAL_NAME = { GDAC_USER_SPREADSHEET : "gdac-portal",
                 PROSTATE_USER_SPREADSHEET : "prostate-portal",
@@ -96,6 +100,8 @@ STATUS_KEY = "statusapprovedorblank"
 AUTHORITIES_KEY = "authoritiesalloralltcgaandorsemicolondelimitedcancerstudylist"
 LAB_PI_KEY = "labpi"
 TIMESTAMP_KEY = "timestamp"
+SUBJECT_KEY = "subject"
+BODY_KEY = "body"
 
 # possible values in status column
 STATUS_APPROVED = "APPROVED"
@@ -107,82 +113,7 @@ MSKCC_EMAIL_SUFFIX = "@mskcc.org"
 SMTP_SERVER = "cbio.mskcc.org"
 MESSAGE_FROM = "cbioportal-access@cbio.mskcc.org"
 MESSAGE_BCC = []
-MESSAGE_SUBJECT = { GDAC_USER_SPREADSHEET : "You have been granted access to the private instance of cBioPortal",
-                    PROSTATE_USER_SPREADSHEET : "cBioPortal for Prostate Cancer Access",
-                    GLIOMA_USER_SPREADSHEET : "cBioPortal for Glioma Access",
-                    ACC_USER_SPREADSHEET : "cBioPortal for ACC Access",
-                    SU2C_USER_SPREADSHEET : "cBioPortal for SU2C Access",
-                    TARGET_USER_SPREADSHEET : "cBioPortal for NCI-TARGET",
-                    MSKCC_USER_SPREADSHEET : "cBioPortal for MSKCC",
-                    TRIAGE_USER_SPREADSHEET : "cBioPortal for MSKCC (Triage)",
-                    GENIE_USER_SPREADSHEET : "cBioPortal for GENIE",
-                    SU2C_KRAS_USER_SPREADSHEET : "cBioPortal for SU2C KRAS Lung cancer Dream Team",
-                    BETA_USER_SPREADSHEET : "cBioPortal Beta" }
-GDAC_MESSAGE_BODY = """Thank you for your interest in the private instance of cBioPortal. We have granted you access. You can login at http://cbioportal.org/gdac-portal/. Please let us know if you have any problems logging in.
 
-Please keep in mind that the majority of the data provided in this Portal is preliminary and subject to change. This data is only available to researchers funded through TCGA or involved in the TCGA Disease and Analysis Working Groups.
-"""
-
-SU2C_MESSAGE_BODY = """Thank you for your interest in the cBioPortal for SU2C. We have granted you access. You can login at http://cbioportal.org/su2c-portal/. Please let us know if you have any problems logging in.
-
-Please keep in mind that the majority of the data provided in this Portal is preliminary, unpublished and subject to change.
-"""
-
-PROSTATE_MESSAGE_BODY = """Thank you for your interest in the cBioPortal for Prostate. We have granted you access. You can login at http://cbioportal.org/prostate-portal/. Please let us know if you have any problems logging in.
-
-Please keep in mind that the majority of the data provided in this Portal is preliminary, unpublished and subject to change.
-"""
-
-GLIOMA_MESSAGE_BODY = """Thank you for your interest in the cBioPortal for Glioma. We have granted you access. You can login at http://cbioportal.org/glioma-portal/. Please let us know if you have any problems logging in.
-
-Please keep in mind that the majority of the data provided in this Portal is preliminary, unpublished and subject to change.
-"""
-
-ACC_MESSAGE_BODY = """Thank you for your interest in the cBioPortal for ACC. We have granted you access. You can login at http://cbioportal.org/acc-portal/. Please let us know if you have any problems logging in.
-
-Please keep in mind that the majority of the data provided in this Portal is preliminary, unpublished and subject to change.
-"""
-
-TARGET_MESSAGE_BODY = """Thank you for your interest in the cBioPortal for NCI-TARGET. We have granted you access. You can login at http://cbioportal.org/target-portal/. Please let us know if you have any problems logging in.
-
-Please keep in mind that the majority of the data provided in this Portal is preliminary, unpublished and subject to change.
-"""
-
-MSKCC_MESSAGE_BODY = """Thank you for your interest in the MSKCC instance of cBioPortal. We have granted you access. You can login at cbioportal.mskcc.org. Please let us know if you have any problems logging in.
-
-Please keep in mind that the data provided in this Portal are preliminary and subject to change. Access to the data in this portal is only available to authorized users at Memorial Sloan Kettering Cancer Center.
-"""
-
-TRIAGE_MESSAGE_BODY = """Thank you for your interest in the MSKCC (triage)instance of cBioPortal. We have granted you access. You can login at cbioportal.triage.mskcc.org. Please let us know if you have any problems logging in.
-
-Please keep in mind that the data provided in this Portal are preliminary and subject to change. Access to the data in this portal is only available to authorized users at Memorial Sloan Kettering Cancer Center.
-"""
-
-SU2C_KRAS_MESSAGE_BODY = """Thank you for your interest in the cBioPortal for the SU2C KRAS Lung cancer Dream Team. We have granted you access. You can login at http://cbioportal.org/kras/. Please let us know if you have any problems logging in.
-
-Please keep in mind that the data provided in this Portal are preliminary and subject to change.
-"""
-GENIE_MESSAGE_BODY = """Thank you for your interest in the cBioPortal for GENIE. We have granted you access. You can login at http://cbioportal.org/genie/. Please let us know if you have any problems logging in.
-
-Please keep in mind that the data provided in this Portal are preliminary and subject to change.
-"""
-
-BETA_MESSAGE_BODY = """Thank you for your interest in the cBioPortal Beta. We have granted you access. You can login at http://cbioportal.mskcc.org/beta/. Please let us know if you have any problems logging in.
-
-Please keep in mind that the data provided in this Portal are preliminary and subject to change.
-"""
-
-MESSAGE_BODY = { GDAC_USER_SPREADSHEET : GDAC_MESSAGE_BODY,
-                 PROSTATE_USER_SPREADSHEET : PROSTATE_MESSAGE_BODY,
-                 GLIOMA_USER_SPREADSHEET : GLIOMA_MESSAGE_BODY,
-                 ACC_USER_SPREADSHEET : ACC_MESSAGE_BODY,
-                 SU2C_USER_SPREADSHEET : SU2C_MESSAGE_BODY,
-                 TARGET_USER_SPREADSHEET : TARGET_MESSAGE_BODY,
-                 MSKCC_USER_SPREADSHEET : MSKCC_MESSAGE_BODY,
-                 TRIAGE_USER_SPREADSHEET : TRIAGE_MESSAGE_BODY,
-                 GENIE_USER_SPREADSHEET : GENIE_MESSAGE_BODY,
-                 SU2C_KRAS_USER_SPREADSHEET : SU2C_KRAS_MESSAGE_BODY,
-                 BETA_USER_SPREADSHEET : BETA_MESSAGE_BODY }
 
 
 # ------------------------------------------------------------------------------
@@ -204,8 +135,8 @@ class PortalProperties(object):
 
 class User(object):
     def __init__(self, inst_email, google_email, name, enabled, authorities):
-        self.inst_email = inst_email
-        self.google_email = google_email
+        self.inst_email = inst_email.lower()
+        self.google_email = google_email.lower()
         self.name = name
         self.enabled = enabled
         self.authorities = authorities
@@ -257,16 +188,16 @@ def get_gdata_credentials(secrets, creds, scope, force=False):
 
 def google_login(secrets, creds, user, pw, app_name):
 
-	credentials = get_gdata_credentials(secrets, creds, ["https://spreadsheets.google.com/feeds"], False)
-	client = gdata.spreadsheet.service.SpreadsheetsService(additional_headers={'Authorization' : 'Bearer %s' % credentials.access_token})
+    credentials = get_gdata_credentials(secrets, creds, ["https://spreadsheets.google.com/feeds"], False)
+    client = gdata.spreadsheet.service.SpreadsheetsService(additional_headers={'Authorization' : 'Bearer %s' % credentials.access_token})
 
-	# google spreadsheet
-	client.email = user
-	client.password = pw
-	client.source = app_name
-	client.ProgrammaticLogin()
+    # google spreadsheet
+    client.email = user
+    client.password = pw
+    client.source = app_name
+    client.ProgrammaticLogin()
 
-	return client
+    return client
 
 
 # ------------------------------------------------------------------------------
@@ -371,11 +302,11 @@ def get_new_user_map(spreadsheet, worksheet_feed, current_user_map, portal_name)
         if (entry.custom[STATUS_KEY].text is not None and
             entry.custom[STATUS_KEY].text.strip() == STATUS_APPROVED):
             if spreadsheet == MSKCC_USER_SPREADSHEET:
-                inst_email = entry.custom[MSKCC_EMAIL_KEY].text.strip()
-                google_email = entry.custom[MSKCC_EMAIL_KEY].text.strip()
+                inst_email = entry.custom[MSKCC_EMAIL_KEY].text.strip().lower()
+                google_email = entry.custom[MSKCC_EMAIL_KEY].text.strip().lower()
             else:
-                inst_email = entry.custom[INST_EMAIL_KEY].text.strip()
-                google_email = entry.custom[OPENID_EMAIL_KEY].text.strip()
+                inst_email = entry.custom[INST_EMAIL_KEY].text.strip().lower()
+                google_email = entry.custom[OPENID_EMAIL_KEY].text.strip().lower()
             name = entry.custom[FULLNAME_KEY].text.strip()
             authorities = entry.custom[AUTHORITIES_KEY].text.strip()
             # do not add entry if this entry is a current user
@@ -383,7 +314,7 @@ def get_new_user_map(spreadsheet, worksheet_feed, current_user_map, portal_name)
             if google_email.lower() not in current_user_map:
                 if authorities[-1:] == ';':
                     authorities = authorities[:-1]
-                if google_email in to_return:
+                if google_email.lower() in to_return:
                     # there may be multiple entries per email address
                     # in google spreadsheet, combine entries
                     user = to_return[google_email]
@@ -563,6 +494,20 @@ def add_row_to_google_worksheet(client, spreadsheet, worksheet, row):
     client.InsertRow(row, ss_id, ws_id);
 
 # ------------------------------------------------------------------------------
+# gets email parameters from google spreadsheet
+
+def get_email_parameters(google_spreadsheet,client):
+    subject = ''
+    body = ''
+    print >> OUTPUT_FILE, 'Getting email parameters from google spreadsheet'
+    email_worksheet_feed = get_worksheet_feed(client, google_spreadsheet, IMPORTER_WORKSHEET)
+    for entry in email_worksheet_feed.entry:
+    if entry.custom[SUBJECT_KEY].text is not None and entry.custom[BODY_KEY].text is not None:
+        subject = entry.custom[SUBJECT_KEY].text.strip()
+        body = entry.custom[BODY_KEY].text.strip()
+    return subject, body
+
+# ------------------------------------------------------------------------------
 # displays program usage (invalid args)
 
 def usage():
@@ -582,20 +527,20 @@ def main():
         sys.exit(2)
 
     # process the options
-	secrets_filename = ''
-	creds_filename = ''
-	properties_filename = ''
-	send_email_confirm = ''
+    secrets_filename = ''
+    creds_filename = ''
+    properties_filename = ''
+    send_email_confirm = ''
 
     for o, a in opts:
-		if o == '--secrets-file':
-			secrets_filename = a
-		elif o == '--creds-file':
-			creds_filename = a
-		elif o == '--properties-file':
-			properties_filename = a
-		elif o == '--send-email-confirm':
-			send_email_confirm = a
+        if o == '--secrets-file':
+            secrets_filename = a
+        elif o == '--creds-file':
+            creds_filename = a
+        elif o == '--properties-file':
+            properties_filename = a
+        elif o == '--send-email-confirm':
+            send_email_confirm = a
 
     if (secrets_filename == '' or creds_filename == '' or properties_filename == '' or send_email_confirm == '' or 
         (send_email_confirm != 'true' and send_email_confirm != 'false')):
@@ -629,30 +574,30 @@ def main():
     google_spreadsheets = portal_properties.google_spreadsheet.split(';')
 
     for google_spreadsheet in google_spreadsheets:
-        print >> OUTPUT_FILE, 'Importing ' + google_spreadsheet + ' ...'
+        if not google_spreadsheet == '':
+            print >> OUTPUT_FILE, 'Importing ' + google_spreadsheet + ' ...'
 
-        worksheet_feed = get_worksheet_feed(client, google_spreadsheet,
-                                            portal_properties.google_worksheet)
+            worksheet_feed = get_worksheet_feed(client, google_spreadsheet,
+                                                portal_properties.google_worksheet)
 
-        # the 'guts' of the script
-        new_user_map = manage_users(google_spreadsheet, cursor, worksheet_feed, PORTAL_NAME[google_spreadsheet])
+            # the 'guts' of the script
+            new_user_map = manage_users(google_spreadsheet, cursor, worksheet_feed, PORTAL_NAME[google_spreadsheet])
 
-        # update user authorities
-        update_user_authorities(google_spreadsheet, cursor, worksheet_feed, PORTAL_NAME[google_spreadsheet])
+            # update user authorities
+            update_user_authorities(google_spreadsheet, cursor, worksheet_feed, PORTAL_NAME[google_spreadsheet])
 
-        # sending emails
-        if new_user_map is not None:
-            if send_email_confirm == 'true':
-                for new_user_key in new_user_map.keys():
+            # sending emails
+            if new_user_map is not None:
+                if send_email_confirm == 'true':
+                    subject,body = get_email_parameters(google_spreadsheet,client)
+                    for new_user_key in new_user_map.keys():
                     new_user = new_user_map[new_user_key]
                     print >> OUTPUT_FILE, ('Sending confirmation email to new user: %s at %s' %
-                                           (new_user.name, new_user.inst_email))
-                    send_mail([new_user.inst_email],
-                              MESSAGE_SUBJECT[google_spreadsheet],
-                              MESSAGE_BODY[google_spreadsheet])
+                            (new_user.name, new_user.inst_email))
+                    send_mail([new_user.inst_email],subject,body)
 
-        if google_spreadsheet == MSKCC_USER_SPREADSHEET:
-            add_unknown_users_to_spreadsheet(client, cursor, google_spreadsheet, portal_properties.google_worksheet)
+            if google_spreadsheet == MSKCC_USER_SPREADSHEET:
+                add_unknown_users_to_spreadsheet(client, cursor, google_spreadsheet, portal_properties.google_worksheet)
 
     # clean up
     cursor.close()

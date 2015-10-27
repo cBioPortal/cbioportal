@@ -156,7 +156,7 @@ public class ApiController {
             }
             
     }
-    
+     
     @Transactional
     @RequestMapping(value = "/studies", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody List<DBStudy> getStudies(@RequestParam(required = false) List<String> study_ids) {

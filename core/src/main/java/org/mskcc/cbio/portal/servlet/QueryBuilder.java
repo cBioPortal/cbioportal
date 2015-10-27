@@ -240,7 +240,7 @@ public class QueryBuilder extends HttpServlet {
 	        {
 		        patientIds = patientIds.replaceAll("\\\\n", "\n").replaceAll("\\\\t", "\t");
 	        }
-
+         
             httpServletRequest.setAttribute(XDEBUG_OBJECT, xdebug);
 
 			checkAndRedirectOnStudyStatus(httpServletRequest, httpServletResponse, cancerTypeId);
@@ -380,7 +380,7 @@ public class QueryBuilder extends HttpServlet {
         }
         //if user specifies patients, add these to hashset, and send to GetMutationData
         else if (sampleIds != null)
-        {
+        {           
             String[] sampleIdSplit = sampleIds.split("\\s+");
             setOfSampleIds = new HashSet<String>();
             
@@ -392,11 +392,11 @@ public class QueryBuilder extends HttpServlet {
             
             sampleIds = sampleIds.replaceAll("\\s+", " ");
         }
-
+        
 		if (setOfSampleIds == null || setOfSampleIds.isEmpty()) {
 			redirectStudyUnavailable(request, response);
 		}
-
+                
         request.setAttribute(SET_OF_CASE_IDS, sampleIds);
         
         // Map user selected samples Ids to patient Ids
@@ -409,12 +409,12 @@ public class QueryBuilder extends HttpServlet {
             ArrayList<String> sampleIdList = new ArrayList<String>();
             sampleIdList.add(sampleId);
             
-            Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyInternalId, sampleId);
-            Patient patient = DaoPatient.getPatientById(sample.getInternalPatientId());
-            patientSampleIdMap.put(sampleId, patient.getStableId());
-        }
+                Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyInternalId, sampleId);
+                Patient patient = DaoPatient.getPatientById(sample.getInternalPatientId());
+                patientSampleIdMap.put(sampleId, patient.getStableId());
+            }
         request.setAttribute(SELECTED_PATIENT_SAMPLE_ID_MAP, patientSampleIdMap);
-
+         
         if (patientIdsKey == null)
         {
             patientIdsKey = PatientSetUtil.shortenPatientIds(sampleIds);
@@ -608,7 +608,7 @@ public class QueryBuilder extends HttpServlet {
                 	if (patientIds.trim().length() == 0)
                 	{
                 		httpServletRequest.setAttribute(STEP3_ERROR_MSG,
-                				"Please enter at least one patient ID below. ");
+                				"Please enter at least one ID below. ");
                 		
                 		errorsExist = true;
                 	}

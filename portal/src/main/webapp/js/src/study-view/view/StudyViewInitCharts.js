@@ -788,7 +788,7 @@ var StudyViewInitCharts = (function(){
     }
 
     function updateBreadCrumbs(chartID, chartFilter) {
-        var chartAttribute=displayedID[chartID-1];
+        var chartAttribute=displayedID[chartID];
         var chartType = varType[chartAttribute];
 
         if(chartType==="bar"){
@@ -939,7 +939,7 @@ var StudyViewInitCharts = (function(){
     
     function deleteChart(_chartID,_value){
         var _options;
-        
+
         $("div").remove("#study-view-dc-chart-main-" + _chartID); 
         if(varChart[_chartID].getChart().hasFilter()){
             varChart[_chartID].getChart().filterAll();
@@ -1170,9 +1170,13 @@ var StudyViewInitCharts = (function(){
         }
         
         if(_createdFlag) {
+
             _index = removedChart.indexOf(_chartID);
             if (_index > -1) {
                 removedChart.splice(_index, 1);
+            }else {
+                displayedID.push(_id)
+                varDisplay.push(_selectedAttrDisplay);
             }
 
             bondDragForLayout();

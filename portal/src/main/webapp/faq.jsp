@@ -33,6 +33,14 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 
+<!-- js files: -->
+<script type="text/javascript" src="js/lib/jquery.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/lib/underscore-min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/lib/backbone-min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+
+<script type="text/javascript" src="js/lib/showdown.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/url_based_content.js?<%=GlobalProperties.getAppVersion()%>"></script>
+
 <%
     String siteTitle = GlobalProperties.getTitle();
 %>
@@ -44,9 +52,7 @@
         <tr>
             <td>
             <h1>Portal FAQs</h1>
-            <div class="markdown">
-            <P><jsp:include page="<%= GlobalProperties.getFaqHtml() %>" flush="true" /></p>
-            </div>
+                <div id="faqPage" class="markdown"></div>
             </td>
         </tr>
     </table>
@@ -68,3 +74,13 @@
 <jsp:include page="WEB-INF/jsp/global/xdebug.jsp" flush="true" />
 </body>
 </html>
+
+<!-- Initialization script -->
+<script>
+    $(document).ready( function() {
+        // retrieve link for FAQ and generate the page
+        var faqLink = '<%= GlobalProperties.getFaqHtml()%>';
+        var generatePage = new GeneratePage(faqLink, "#faqPage");
+        generatePage.init();
+    });
+</script>

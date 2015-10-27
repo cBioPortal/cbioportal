@@ -16,27 +16,34 @@ import java.net.URLDecoder;
 import java.util.Collections;
 import java.util.Map;
 
+// Retrieve the content of an external page
+// Make it auto-scannable
 @Controller
-public class MarkdownPageController {
-    @Transactional
-//    @RequestMapping(value = "/getmarkdownpage.json", method = {RequestMethod.GET}, produces={"application/xml", "application/json"})
-    @RequestMapping(value = "/getmarkdownpage.json", method = {RequestMethod.GET})
-    public @ResponseBody
-    Map<String, String> getCancerTypes(@RequestParam(required = true) String sourceURL) throws IOException {
-        sourceURL = URLDecoder.decode(sourceURL, "UTF-8");
+public class ExternalPageController {
 
+    // service name: getexternalpage.json
+    // available via GET method
+    // sourceURL is required
+    @Transactional
+    @RequestMapping(value = "/getexternalpage.json", method = {RequestMethod.GET})
+    public @ResponseBody Map<String, String> getExternalPage(@RequestParam(required = true) String sourceURL) throws IOException {
+        String decodedString, markdownText = "";
+
+        // decode the sourceURL and open a connection
+        sourceURL = URLDecoder.decode(sourceURL, "UTF-8");
         URL url = new URL(sourceURL);
         URLConnection connection = url.openConnection();
 
-        BufferedReader in = new BufferedReader(
-                new InputStreamReader(connection.getInputStream()));
-        String decodedString, markdownText = "";
+        // create a reader
+        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+
+        // read
         while ((decodedString = in.readLine()) != null) {
             markdownText += decodedString + "\n";
         }
         in.close();
 
+        // turn the markdownText into a singletonMap for json and return
         return Collections.singletonMap("response", markdownText);
-//        return markdownText;
     }
 }

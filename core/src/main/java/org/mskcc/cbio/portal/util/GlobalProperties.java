@@ -326,19 +326,19 @@ public class GlobalProperties {
     public static String getFaqHtml()
     {
         String faqHtml = properties.getProperty(SKIN_FAQ);
-        return (faqHtml == null) ? DEFAULT_SKIN_FAQ : "content/"+faqHtml;
+        return (faqHtml == null) ? DEFAULT_SKIN_FAQ : getContentString(faqHtml);
     }
     // get custom About html or the default
     public static String getAboutHtml()
     {
         String aboutHtml = properties.getProperty(SKIN_ABOUT);
-        return (aboutHtml == null) ? DEFAULT_SKIN_ABOUT : "content/"+aboutHtml;
+        return (aboutHtml == null) ? DEFAULT_SKIN_ABOUT : getContentString(aboutHtml);
     }
     // get custom News html or the default
     public static String getNewsHtml()
     {
         String newsHtml = properties.getProperty(SKIN_NEWS);
-        return (newsHtml == null) ? DEFAULT_SKIN_NEWS : "content/"+newsHtml;
+        return (newsHtml == null) ? DEFAULT_SKIN_NEWS : getContentString(newsHtml);
     }
     // get custom Example Queries for the right column html or the default
     public static String getExamplesRightColumnHtml()
@@ -347,6 +347,10 @@ public class GlobalProperties {
         return (examplesRightColumnHtml == null) ? DEFAULT_SKIN_EXAMPLES_RIGHT_COLUMN : "../../../content/"+examplesRightColumnHtml;
     }
 
+    private static String getContentString(String contentString){
+        if(!contentString.startsWith("http")) return "content/"+contentString;
+        return contentString;
+    }
 
     // get the login contact html
     public static String getLoginContactHtml()

@@ -385,9 +385,12 @@ table td {
   font-size:14px;
   padding-bottom: 5px;
   border :1px;
-  padding: 10px 10px 10px 20px;
-  display: block;
+  /*padding: 10px 10px 10px 20px;*/
   color:black;
+}
+
+pre code{
+    display: block;
 }
 
 .oncoprint_accordion_panel {

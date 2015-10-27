@@ -6,7 +6,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * Main view holding the tabs (one for each of the genes)
+ * Main view
  */
 var GeneratedPageMainView = Backbone.View.extend({
 
@@ -18,7 +18,7 @@ var GeneratedPageMainView = Backbone.View.extend({
         console.log(new Date() + ": START GeneratedPageMainView render()");
         $(this.el).html(this.dmPresenter.getHTMLPage());
     }
-}); // end of GeneratedPageMainView
+});
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -28,36 +28,60 @@ var GeneratedPageMainView = Backbone.View.extend({
 
 
 /**
- * 'Presenter' layer to expose the DataManager API (i.e. the cbioportal-datamanager.js),
- * transforming its data to a format that is ready to use by the views.
+ * 'Presenter' layer
+ * fetches the data from the webservice and transforms the data to a format that is ready to use by the views.
  */
 function DataManagerPresenter(dmInitCallBack, sourceURL){
     var self = this;
     var htmlPage;
+    var htmlErrorPage = new Date() + "\nThere was a problem retrieving the page located at: "+sourceURL+"\n";
 
-    function createHTMLPage(sourceURL){
-        var mdPage;
+    // fetch an external page
+    function fetchExternalPage(sourceURL, isMarkdown){
         $.ajax({
             type: "GET",
-            url: "api/getmarkdownpage.json",
+            url: "api/getexternalpage.json",
             data: {sourceURL: sourceURL},
             dataType: "json"
         })
         .done(function(result){
             console.log(new Date() + ': successfully retrieved the markdownpage!');
-            mdPage = result.response;
+            // the resultPage is stored in result.response
+            var resultPage = result.response;
+            if(isMarkdown) htmlPage = markdown2html(resultPage);
+            else htmlPage = resultPage;
         })
         .fail(function(jqxhr, textStatus, error) {
             var err = textStatus + ", " + error;
             console.log(new Date() + ": Request Failed: " + err );
-            mdPage = new Date() + "\nThere was a problem retrieving the page located at: "+sourceURL+"\n"+err;
+            htmlPage = htmlErrorPage+err;
         })
         .always(function(){
-            htmlPage = markdown2html(mdPage);
             dmInitCallBack(self);
         });
     }
 
+    // fetch an internal page
+    function fetchInternalPage(sourceURL, isMarkdown){
+        $.ajax({
+            url : sourceURL
+        })
+        .done(function(resultPage){
+            console.log(new Date() + ': successfully retrieved local page!');
+            if(isMarkdown) htmlPage = markdown2html(resultPage);
+            else htmlPage = resultPage;
+        })
+        .fail(function(jqxhr, textStatus, error) {
+            var err = textStatus + ", " + error;
+            console.log(new Date() + ": Request Failed for local page: " + err );
+            htmlPage = htmlErrorPage+err;
+        })
+        .always(function(){
+            dmInitCallBack(self);
+        });
+    }
+
+    // convert markdown to html
     function markdown2html(markdownPage){
         var converter = new showdown.Converter(),
             text      = markdownPage,
@@ -65,13 +89,32 @@ function DataManagerPresenter(dmInitCallBack, sourceURL){
         return html;
     }
 
+    // returns the html string
     this.getHTMLPage = function(){
         return htmlPage;
     }
 
-    createHTMLPage(sourceURL);
-}
+    // determines what to do with the sourceURL
+    function init(sourceURL){
+        // local url, located in content
+        if(!(sourceURL.lastIndexOf("http", 0) === 0)) {
+            // markdown
+            if(sourceURL.match(/\.md$/)) fetchInternalPage(sourceURL, true);
+            // other
+            else fetchInternalPage(sourceURL, false);
+        }
+        // other url
+        else{
+            // markdown
+            if(sourceURL.match(/\.md$/)) fetchExternalPage(sourceURL, true);
+            //other
+            else fetchExternalPage(sourceURL, false);
+        }
+    }
 
+    // call init with the source URL
+    init(sourceURL);
+}
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -83,17 +126,13 @@ function DataManagerPresenter(dmInitCallBack, sourceURL){
 
 function GeneratePage(sourceURL, targetDiv)
 {
-    //var _pageMainView = null;
-    // maybe store by url and if already exists render that one?
-
     this.init = function()
     {
         console.log(new Date() + ": init called");
 
-        //Initialize presenter, which triggers the asynchronous services to get the
-        //data and calls the callback function once the data is received:
-        //var dmPresenter = new DataManagerPresenter();
-        //dmPresenter.retrieveMarkdown(sourceURL);
+        // add the "loading" image
+        $(targetDiv).html("<img id='loader_img' src='images/ajax-loader.gif' alt='loading...'>");
+
         //Initialize presenter, which triggers the asynchronous services to get the
         //data and calls the callback function once the data is received:
         new DataManagerPresenter(dmInitCallBack, sourceURL);
@@ -113,5 +152,4 @@ function GeneratePage(sourceURL, targetDiv)
         // ...and let the fun begin!
         generatedPageView.render();
     }
-    //this.getView = function() {return _cancerSummaryMainView;};
 }

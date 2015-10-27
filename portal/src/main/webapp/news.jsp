@@ -37,8 +37,6 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 
-<!-- The pancer_study_summary files: -->
-<%--<link href="css/pancancer_study_summary/pancancer_study_summary.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />--%>
 <!-- js files: -->
 <script type="text/javascript" src="js/lib/jquery.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/lib/underscore-min.js?<%=GlobalProperties.getAppVersion()%>"></script>
@@ -82,7 +80,9 @@
 <!-- Initialization script -->
 <script>
     $(document).ready( function() {
-        var generatePage = new GeneratePage("https://github.com/cBioPortal/cbioportal/wiki/Build-from-Source.md", "#newsPage");
+        // retrieve link for News and generate the page
+        var newsLink = '<%= GlobalProperties.getNewsHtml()%>';
+        var generatePage = new GeneratePage(newsLink, "#newsPage");
         generatePage.init();
     });
 </script>

@@ -162,11 +162,11 @@ public class GlobalProperties {
 
     // properties for the FAQ, about us, news and examples
     public static final String SKIN_FAQ="skin.faq";
-    public static final String DEFAULT_SKIN_FAQ="content/faq.html";
+    public static final String DEFAULT_SKIN_FAQ="https://github.com/cBioPortal/cbioportal/wiki/FAQ.md";
     public static final String SKIN_ABOUT="skin.about";
-    public static final String DEFAULT_SKIN_ABOUT="content/about_us.html";
+    public static final String DEFAULT_SKIN_ABOUT="https://github.com/cBioPortal/cbioportal/wiki/About-Us.md";
     public static final String SKIN_NEWS="skin.news";
-    public static final String DEFAULT_SKIN_NEWS="content/news.html";
+    public static final String DEFAULT_SKIN_NEWS="https://github.com/cBioPortal/cbioportal/wiki/News.md";
     public static final String SKIN_EXAMPLES_RIGHT_COLUMN="skin.examples_right_column";
     public static final String DEFAULT_SKIN_EXAMPLES_RIGHT_COLUMN="../../../content/examples.html";
     
@@ -292,9 +292,8 @@ public class GlobalProperties {
         return properties.getProperty(AUTHENTICATE);
     }
 
-	public static boolean usersMustBeAuthorized()
-    {
-		return Boolean.parseBoolean(properties.getProperty(AUTHORIZATION));
+	public static boolean usersMustBeAuthorized() {
+        return Boolean.parseBoolean(properties.getProperty(AUTHORIZATION));
 	}
 
     public static String getAppName()

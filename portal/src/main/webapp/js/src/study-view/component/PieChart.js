@@ -947,6 +947,10 @@ var PieChart = function(){
         })
 
         category[0]= _maxAttrL <= labelLT? 'w1' : 'w2';
+
+        if(['CANCER_TYPE', 'CANCER_TYPE_DETAILED'].indexOf(selectedAttr) !== -1) {
+            category[0] = 'w2';
+        }
     }
 
     //Remove drawed Pie Markder.

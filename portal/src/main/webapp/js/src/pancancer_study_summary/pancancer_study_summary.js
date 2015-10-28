@@ -241,8 +241,8 @@ var CustomizeHistogramView = Backbone.View.extend({
          var cancerType = $(this).val();
          fields["cancerType"] = cancerType;
          fields["cancerTypeDetailed"] = self.dmPresenter.getCancerTypeDetailedList(cancerType);
-         //also reset minNrAlteredSamples (for the slider):
-         fields["minNrAlteredSamples"] = 0;
+         //also reset minAlteredSamples (for the slider):
+         fields["minAlteredSamples"] = 0;
     	 self.model.set(fields);
      }
      // create the dropdown and add it
@@ -254,7 +254,7 @@ var CustomizeHistogramView = Backbone.View.extend({
   addSortByYAxisSelect: function(){
 	 var self = this;
      // static options: 
-     var selOptions = ["Absolute Counts", "Alteration Frequency"];  
+     var selOptions = ["Alteration Frequency", "Absolute Counts"];  
      
      // handle the event for when the Sort By Y-Axis Select is changed
      var changeCallBack = function(){
@@ -284,7 +284,7 @@ var CustomizeHistogramView = Backbone.View.extend({
 
   // add the slider for minimum number of altered samples
   addNrAlteredSamplesSlider: function(){
-     new MinNrAlteredSamplesSliderView({
+     new MinAlteredSamplesSliderView({
     	 gene:this.gene, 
     	 el:"#customize-min-nr-altered-samples-slider-"+this.gene, 
     	 dispatcher:this.dispatcher, 
@@ -343,7 +343,7 @@ var fnCreateSelect = function(title, aData, callBack) {
  * View for the "Min nr of altered Samples" parameter, presented in the form of a slider. 
  * It is used as part of CustomizeHistogramView above.
  */
-var MinNrAlteredSamplesSliderView = Backbone.View.extend({
+var MinAlteredSamplesSliderView = Backbone.View.extend({
       
   initialize: function(options){
      this.dispatcher = options.dispatcher;
@@ -361,15 +361,24 @@ var MinNrAlteredSamplesSliderView = Backbone.View.extend({
   //function for model.onchange above, it will check whether the slider max threshold needs
   //to be udpated:
   updateRender: function(){
-	  var cancerTypeChanged = this.model.hasChanged("cancerType");
-	  if (cancerTypeChanged)
+	  var renderNeeded = this.model.hasChanged("cancerType") || this.model.hasChanged("dataTypeYAxis");
+	  if (renderNeeded)
 		  this.render();
   },
   
   render: function(){
-	 this.max = this.dmPresenter.getNrAlteredSamplesForCancerTypeAndGene(this.model.get("cancerType"), this.gene);
+	 //add % after the values or not:
+	 var suffix = "";
+	 this.max = this.dmPresenter.getMaxAlteredSamplesForCancerTypeAndGene(this.model.get("cancerType"), this.gene, this.model.get("dataTypeYAxis"));
+	 
+	 if (this.model.get("dataTypeYAxis") == "Alteration Frequency") {
+		 suffix = "%";
+		 //in %, with 1 decimal:
+		 this.max = Math.round(parseFloat(this.max) * 1000)/10;
+	 }
+	 
      var templateFn = PanCancerTemplateCache.getTemplateFn("nr_altered_samples_slider_template");
-     this.template = templateFn({min:0, max:this.max});
+     this.template = templateFn({min:0, max:this.max, suffix: suffix});
 
      // add the template
      $(this.el).html(this.template);
@@ -381,6 +390,8 @@ var MinNrAlteredSamplesSliderView = Backbone.View.extend({
         min: 0, 
         max: this.max 
      });
+     //synchronize model:
+     this.model.set("minAlteredSamples", 0);
   },
 
   // handle change to the slider        
@@ -390,10 +401,10 @@ var MinNrAlteredSamplesSliderView = Backbone.View.extend({
      // update text 
      sampleText.html(ui.value);
      // and notify the histogram 
-     this.model.set("minNrAlteredSamples", ui.value);
+     this.model.set("minAlteredSamples", ui.value);
   }
 
-}); // end MinNrAlteredSamplesSliderView
+}); // end MinAlteredSamplesSliderView
 
 
 /**
@@ -576,8 +587,8 @@ var HistogramSettings = Backbone.Model.extend({
      cancerType: "All",
      cancerTypeDetailed: "All",
      sortXAxis: "Y-Axis Values",
-     dataTypeYAxis: "Absolute Counts",
-     minNrAlteredSamples: "0",
+     dataTypeYAxis: "Alteration Frequency",
+     minAlteredSamples: "0",
      showGenomicAlterationTypes: true
   },
   initialize: function(options) {
@@ -898,27 +909,32 @@ function DataManagerPresenter(dmInitCallBack)
 	}
 	
 	/** 
-	 * Returns the max number of altered samples for given cancerType and gene.
-	 * If cancerType == "All", it will iterate over the main cancer types and
-	 * return the max number of samples of the cancer type that had the most 
-	 * altered samples for this gene. 
+	 * Returns information on: the max number or frequency (%) of altered samples
+	 * for the given cancerType and gene.
+	 * If cancerType == "All", it will iterate over the main cancer types. 
 	 * 
-	 * If cancerType == a specific main cancer type, it will iterate over its sub cancer types and
-	 * return the max number of samples of the sub cancer type that had the most 
-	 * altered samples for this gene. 
+	 * If cancerType == a specific main cancer type, it will iterate over its sub cancer types. 
 	 * 
+	 * @param cancerType: "All" or one of the main cancer types
+	 * @param geneId : gene id for which current tab was rendered
+	 * @param dataTypeYAxis: set to "Alteration Frequency" to return max in frequency %
+	 * 
+	 * @return : max as number of samples or frequency % (depending on the value of dataTypeYAxis)
 	 */
-	this.getNrAlteredSamplesForCancerTypeAndGene = function(cancerType, geneId) {
+	this.getMaxAlteredSamplesForCancerTypeAndGene = function(cancerType, geneId, dataTypeYAxis) {
 		
 		if (cancerType == "All") {
 			//check max:
 			var max = 0;
 			var cancerTypes = this.getCancerTypeList();
 			for (var i = 0; i < cancerTypes.length; i++) {
+				var denominator = 1;
+				if (dataTypeYAxis == "Alteration Frequency")
+					denominator = this.getTotalNrSamplesPerCancerType(cancerTypes[i], null);
 				//this method call is repeated (also called to build histogram JSON data)...TODO - performance improvement could be gained here...tests will indicate if necessary
-				var nrAlt = this.getAlterationEvents(cancerTypes[i], null, geneId).all;
-				if (nrAlt > max)
-					max = nrAlt;
+				var value = this.getAlterationEvents(cancerTypes[i], null, geneId).all / denominator;				
+				if (value > max)
+					max = value;
 			}
 			return max;
 		}
@@ -926,9 +942,12 @@ function DataManagerPresenter(dmInitCallBack)
 			var max = 0;
 			var cancerTypes = this.getCancerTypeDetailedList(cancerType);
 			for (var i = 0; i < cancerTypes.length; i++) {
-				var nrAlt = this.getAlterationEvents(cancerType, cancerTypes[i], geneId).all;
-				if (nrAlt > max)
-					max = nrAlt;
+				var denominator = 1;
+				if (dataTypeYAxis == "Alteration Frequency")
+					denominator = this.getTotalNrSamplesPerCancerType(cancerType, cancerTypes[i]);
+				var value = this.getAlterationEvents(cancerType, cancerTypes[i], geneId).all / denominator;
+				if (value > max)
+					max = value;
 			}
 			return max;
 		}

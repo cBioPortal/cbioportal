@@ -158,16 +158,12 @@ var or_tab = (function() {
                 _profile_list.push(_obj);
             }
         });
-        var _phospho_exp_obj = jQuery.extend(true, {}, _profile_list[0]);
         var _protein_exp_obj = jQuery.extend(true, {}, _profile_list[0]);
-        _phospho_exp_obj.STABLE_ID += "_phospho";
         _protein_exp_obj.STABLE_ID += "_protein";
-        _phospho_exp_obj.NAME = "Phosphoprotein level (RPPA)";
-        _protein_exp_obj.NAME = "Protein expression (RPPA)";
+        _protein_exp_obj.NAME = "Protein / Phosphoprotein expression (RPPA)";
 
         _profile_list.length = 0;
         _profile_list = [];
-        _profile_list.push(_phospho_exp_obj);
         _profile_list.push(_protein_exp_obj);
 
         var orSubTabProteinExp = new orSubTabView();
@@ -205,7 +201,7 @@ var or_tab = (function() {
             if ($.inArray("MRNA_EXPRESSION", profile_type_list) !== -1) { //study has expression data
                 $("#" + orAnalysis.ids.sub_tabs_list).append("<li><a href='#" + orAnalysis.ids.sub_tab_mrna_exp + "' class='or-analysis-tabs-ref'><span>" + orAnalysis.texts.sub_tab_mrna_exp + "</span></a></li>");
             }
-            if ($.inArray("PROTEIN_LEVEL", profile_type_list) !== -1 || $.inArray("PROTEIN_ARRAY_PROTEIN_LEVEL", profile_type_list) !== -1) { //study has RPPA data
+            if ($.inArray("PROTEIN_LEVEL", profile_type_list) !== -1) { //study has RPPA data
                 $("#" + orAnalysis.ids.sub_tabs_list).append("<li><a href='#" + orAnalysis.ids.sub_tab_protein_exp + "' class='or-analysis-tabs-ref'><span>" + orAnalysis.texts.sub_tab_protein_exp + "</span></a></li>");
             }
 
@@ -229,7 +225,7 @@ var or_tab = (function() {
             } else if ($.inArray("MRNA_EXPRESSION", profile_type_list) !== -1) {
                 init_mrna_exp_tab("all_genes");
                 //init_mrna_exp_tab();
-            } else if ($.inArray("PROTEIN_LEVEL", profile_type_list) !== -1 || $.inArray("PROTEIN_ARRAY_PROTEIN_LEVEL", profile_type_list)) {
+            } else if ($.inArray("PROTEIN_LEVEL", profile_type_list) !== -1) {
                 init_protein_exp_tab("all_genes");
                 //init_protein_exp_tab();
             }

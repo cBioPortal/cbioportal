@@ -278,7 +278,7 @@ var PieChart = function(){
     function addFunctions() {
         if(selectedAttr !== 'CASE_ID'){
             pieChart.on("filtered", function(chart,filter){
-                console.log("filtered called for: "+chart.chartID());
+                console.log("filtered called for: "+chartID);
 
                 var _currentFilters = pieChart.filters();
 
@@ -296,7 +296,7 @@ var PieChart = function(){
 
                 removeMarker();
                 // provide the postFilterCallback function with the chartID and the filter for the breadcrumbs
-                postFilterCallback(chart.chartID(), filter);
+                postFilterCallback(chartID, filter);
             });
             pieChart.on("preRedraw",function(chart){
                 var _filters = pieChart.filters();

@@ -20,8 +20,6 @@ package org.mskcc.cbio.portal.servlet;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -87,16 +85,6 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
                 profileId = profileId.substring(0, profileId.length() - 4);
             }
 
-            //calculate protein level and phosproprotein level separately
-            String proteinExpType = "none";
-            if (profileId.contains("_protein")) {
-                proteinExpType = "protein";
-                profileId = profileId.substring(0, profileId.length() - 8);
-            } else if (profileId.contains("_phospho")) {
-                proteinExpType = "phospho";
-                profileId = profileId.substring(0, profileId.length() - 8);
-            }
-            
             //Get genetic profile ID (int) & Type
             GeneticProfile gp = DaoGeneticProfile.getGeneticProfileByStableId(profileId);
             int gpId = gp.getGeneticProfileId();
@@ -120,31 +108,29 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
             }   
             unalteredSampleIds.retainAll(DaoSampleProfile.getAllSampleIdsInProfile(gpId));
             
-            //The actual calculation
+//            //The actual calculation
             ORAnalysisDiscretizedDataProxy dataProxy =
                     new ORAnalysisDiscretizedDataProxy(
-                        cancerStudyInternalId,
                         gpId,
                         profileType,
                         alteredSampleIds,
                         unalteredSampleIds,
                         copyNumType,
-                        proteinExpType,
                         genes,
                         geneSet
                     );
-            
+
             ObjectMapper mapper = new ObjectMapper();
             httpServletResponse.setContentType("application/json");
             PrintWriter out = httpServletResponse.getWriter();
             mapper.writeValue(out, dataProxy.getResult());
 
         } catch (DaoException ex) {
-            Logger.getLogger(OverRepresentationAnalysisJSON.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println(ex.getMessage());
         } catch (IllegalArgumentException ex) {
-            Logger.getLogger(OverRepresentationAnalysisJSON.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println(ex.getMessage());
         } catch (MathException ex) {
-            Logger.getLogger(OverRepresentationAnalysisJSON.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println(ex.getMessage());
         }
     }
 

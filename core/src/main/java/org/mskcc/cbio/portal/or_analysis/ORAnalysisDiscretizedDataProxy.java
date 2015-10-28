@@ -2,14 +2,10 @@ package org.mskcc.cbio.portal.or_analysis;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import org.apache.commons.math.MathException;
 import org.apache.commons.math.stat.StatUtils;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.apache.commons.math.stat.inference.TestUtils;
-import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ArrayNode;
 import org.codehaus.jackson.node.JsonNodeFactory;
@@ -55,19 +51,17 @@ public class ORAnalysisDiscretizedDataProxy {
     private String copyNumType = "none";
     
     public ORAnalysisDiscretizedDataProxy(
-            int cancerStudyId, 
             final int profileId,
             final String profileType,
             List<Integer> alteredSampleIds, 
             List<Integer> unalteredSampleIds,
             String copyNumType,
-            final String proteinExpType,
             final String[] queryGenes,
             String geneSet) throws DaoException, IllegalArgumentException, MathException {
         
         this.alteredSampleIds = alteredSampleIds;
         this.unalteredSampleIds = unalteredSampleIds;
-        this.map = OverRepresentationAnalysisUtil.getValueMap(cancerStudyId, profileId, profileType, alteredSampleIds, unalteredSampleIds, geneSet, proteinExpType);
+        this.map = OverRepresentationAnalysisUtil.getValueMap(profileId, profileType, alteredSampleIds, unalteredSampleIds, geneSet);
         this.copyNumType = copyNumType;
 
         if (!map.keySet().isEmpty()) {
@@ -86,9 +80,9 @@ public class ORAnalysisDiscretizedDataProxy {
                     public void run()  {
                         try {
                             result_index.incrementAndGet();
-                            calc(daoGeneOptimized, profileStableId, profileType, proteinExpType, queryGenes, gene_short_lists.get(result_index.get()));
+                            calc(daoGeneOptimized, profileStableId, profileType, queryGenes, gene_short_lists.get(result_index.get()));
                         } catch (MathException ex) {
-                            Logger.getLogger(ORAnalysisDiscretizedDataProxy.class.getName()).log(Level.SEVERE, null, ex);
+                            System.out.println(ex.getMessage());
                         }
                     }
                 });
@@ -143,7 +137,7 @@ public class ORAnalysisDiscretizedDataProxy {
         return gene_short_lists;
     }
 
-    private void calc(DaoGeneOptimized daoGeneOptimized, String profileStableId, String profileType, String proteinExpType, String[] queryGenes, List<Long> genes) throws MathException {
+    private void calc(DaoGeneOptimized daoGeneOptimized, String profileStableId, String profileType, String[] queryGenes, List<Long> genes) throws MathException {
 
         for (int i = 0; i < genes.size(); i++) {
 
@@ -157,10 +151,6 @@ public class ORAnalysisDiscretizedDataProxy {
                 Map.Entry pair = (Map.Entry)it.next();
                 if (pair.getValue().equals("NA") || pair.getValue().equals("NaN") || pair.getValue().equals("null")) {
                     it.remove();
-//                } else {
-//                    if (profileStableId.indexOf("rna_seq") != -1) {
-//                        pair.setValue(Double.toString(Math.log(Double.parseDouble(pair.getValue().toString()) + 1.0) / Math.log(2)));
-//                    }
                 }
             }
 
@@ -212,22 +202,13 @@ public class ORAnalysisDiscretizedDataProxy {
                     _result.add(_datum);
                 }
             } else if (profileType.equals(GeneticAlterationType.PROTEIN_LEVEL.toString())) {
-                if (proteinExpType.equals("protein")) {
-                    _datum.put(COL_NAME_GENE, _geneName);
-                    _datum.put(COL_NAME_CYTOBAND, _cytoband);
-                    _datum.put(COL_NAME_MEAN_ALTERED, calcMean(singleGeneCaseValueMap, "altered", profileStableId));
-                    _datum.put(COL_NAME_MEAN_UNALTERED, calcMean(singleGeneCaseValueMap, "unaltered", profileStableId));
-                    _datum.put(COL_NAME_STDEV_ALTERED, calcSTDev(singleGeneCaseValueMap, "altered", profileStableId));
-                    _datum.put(COL_NAME_STDEV_UNALTERED, calcSTDev(singleGeneCaseValueMap, "unaltered", profileStableId));
-                    _datum.put(COL_NAME_P_VALUE, calcPval(singleGeneCaseValueMap, profileType, profileStableId));
-                } else if (proteinExpType.equals("phospho")) {
-                    _datum.put(COL_NAME_GENE, _geneName);
-                    _datum.put(COL_NAME_MEAN_ALTERED, calcMean(singleGeneCaseValueMap, "altered", profileStableId));
-                    _datum.put(COL_NAME_MEAN_UNALTERED, calcMean(singleGeneCaseValueMap, "unaltered", profileStableId));
-                    _datum.put(COL_NAME_STDEV_ALTERED, calcSTDev(singleGeneCaseValueMap, "altered", profileStableId));
-                    _datum.put(COL_NAME_STDEV_UNALTERED, calcSTDev(singleGeneCaseValueMap, "unaltered", profileStableId));
-                    _datum.put(COL_NAME_P_VALUE, calcPval(singleGeneCaseValueMap, profileType, profileStableId));
-                }
+                _datum.put(COL_NAME_GENE, _geneName);
+                _datum.put(COL_NAME_CYTOBAND, _cytoband);
+                _datum.put(COL_NAME_MEAN_ALTERED, calcMean(singleGeneCaseValueMap, "altered", profileStableId));
+                _datum.put(COL_NAME_MEAN_UNALTERED, calcMean(singleGeneCaseValueMap, "unaltered", profileStableId));
+                _datum.put(COL_NAME_STDEV_ALTERED, calcSTDev(singleGeneCaseValueMap, "altered", profileStableId));
+                _datum.put(COL_NAME_STDEV_UNALTERED, calcSTDev(singleGeneCaseValueMap, "unaltered", profileStableId));
+                _datum.put(COL_NAME_P_VALUE, calcPval(singleGeneCaseValueMap, profileType, profileStableId));
                 if (!Double.isNaN(calcPval(singleGeneCaseValueMap, profileType, profileStableId))) {
                     _result.add(_datum);
                 }
@@ -528,8 +509,7 @@ public class ORAnalysisDiscretizedDataProxy {
                 } 
             } 
         }
-        
-        
+
         FisherExact fisher = new FisherExact(a + b + c + d);
         return fisher.getCumlativeP(a, b, c, d);
         

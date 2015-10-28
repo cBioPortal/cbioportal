@@ -2,8 +2,10 @@ start
 	= Query
 	/ sp { return false; }
 
-br	= b:[\n]
-	/ b:";"
+br	= [\n] b:br
+        / ";" b:br
+        / [\n]
+	/ ";"
 
 Number = word:[0-9]*("."[0-9]*)? { return word.join(""); }
 String = word:[-.@/a-zA-Z0-9]+ { return word.join("") }

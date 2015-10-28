@@ -12,6 +12,7 @@ var GeneratedPageMainView = Backbone.View.extend({
 
     initialize : function (options) {
         this.dmPresenter = options.dmPresenter;
+        this.render();
     },
 
     render: function(){
@@ -31,13 +32,22 @@ var GeneratedPageMainView = Backbone.View.extend({
  * 'Presenter' layer
  * fetches the data from the webservice and transforms the data to a format that is ready to use by the views.
  */
-function DataManagerPresenter(dmInitCallBack, sourceURL){
+function DataManagerPresenter(dmInitCallBack){
     var self = this;
-    var htmlPage;
-    var htmlErrorPage = new Date() + "\nThere was a problem retrieving the page located at: "+sourceURL+"\n";
+    // default HTML page is the loader
+    var htmlPage="<img id='loader_img' src='images/ajax-loader.gif' alt='loading...'>";
+
+    function getErrorHtml(sourceURL){
+        return new Date() + "<br>There was a problem retrieving the page located at: "+sourceURL+"<br>";
+    }
+
+    // returns whether sourceURL ends with md
+    function isMarkdownPage(sourceURL){
+        return sourceURL.match(/\.md$/);
+    }
 
     // fetch an external page
-    function fetchExternalPage(sourceURL, isMarkdown){
+    function fetchExternalPage(sourceURL){
         $.ajax({
             type: "GET",
             url: "api/getexternalpage.json",
@@ -48,13 +58,16 @@ function DataManagerPresenter(dmInitCallBack, sourceURL){
             console.log(new Date() + ': successfully retrieved the markdownpage!');
             // the resultPage is stored in result.response
             var resultPage = result.response;
-            if(isMarkdown) htmlPage = markdown2html(resultPage);
-            else htmlPage = resultPage;
+            // check whether it's a markdown page. If so, convert it; otherwise use the results as the htmlPage
+            if(isMarkdownPage(sourceURL))
+                htmlPage = markdown2html(resultPage);
+            else
+                htmlPage = resultPage;
         })
         .fail(function(jqxhr, textStatus, error) {
             var err = textStatus + ", " + error;
-            console.log(new Date() + ": Request Failed: " + err );
-            htmlPage = htmlErrorPage+err;
+            htmlPage = getErrorHtml()+err;
+            console.log(new Date() + ": Request Failed for external page: " + err );
         })
         .always(function(){
             dmInitCallBack(self);
@@ -62,22 +75,25 @@ function DataManagerPresenter(dmInitCallBack, sourceURL){
     }
 
     // fetch an internal page
-    function fetchInternalPage(sourceURL, isMarkdown){
+    function fetchInternalPage(sourceURL){
         $.ajax({
             url : sourceURL
         })
         .done(function(resultPage){
-            console.log(new Date() + ': successfully retrieved local page!');
-            if(isMarkdown) htmlPage = markdown2html(resultPage);
-            else htmlPage = resultPage;
+            console.log(new Date() + ': successfully retrieved internal page!');
+            // check whether it's a markdown page. If so, convert it; otherwise use the results as the htmlPage
+            if(isMarkdownPage(sourceURL))
+                htmlPage = markdown2html(resultPage);
+            else
+                htmlPage = resultPage;
         })
         .fail(function(jqxhr, textStatus, error) {
             var err = textStatus + ", " + error;
+            htmlPage = getErrorHtml()+err;
             console.log(new Date() + ": Request Failed for local page: " + err );
-            htmlPage = htmlErrorPage+err;
         })
         .always(function(){
-            dmInitCallBack(self);
+            dmInitCallBack();
         });
     }
 
@@ -95,25 +111,16 @@ function DataManagerPresenter(dmInitCallBack, sourceURL){
     }
 
     // determines what to do with the sourceURL
-    function init(sourceURL){
-        // local url, located in content
-        if(!(sourceURL.lastIndexOf("http", 0) === 0)) {
-            // markdown
-            if(sourceURL.match(/\.md$/)) fetchInternalPage(sourceURL, true);
-            // other
-            else fetchInternalPage(sourceURL, false);
-        }
+    this.init = function (sourceURL){
+        // if the page does not start with http we're assuming it's an internal page
+        if(!(sourceURL.lastIndexOf("http", 0) === 0))
+            // in that case, fetch the internal page
+            fetchInternalPage(sourceURL);
         // other url
-        else{
-            // markdown
-            if(sourceURL.match(/\.md$/)) fetchExternalPage(sourceURL, true);
-            //other
-            else fetchExternalPage(sourceURL, false);
-        }
+        else
+            fetchExternalPage(sourceURL);
     }
 
-    // call init with the source URL
-    init(sourceURL);
 }
 
 
@@ -126,30 +133,32 @@ function DataManagerPresenter(dmInitCallBack, sourceURL){
 
 function GeneratePage(sourceURL, targetDiv)
 {
+    var generatedPageView;
+
     this.init = function()
     {
         console.log(new Date() + ": init called");
 
-        // add the "loading" image
-        $(targetDiv).html("<img id='loader_img' src='images/ajax-loader.gif' alt='loading...'>");
+        // create a new presenter, with a call-back function
+        var dmPresenter = new DataManagerPresenter(dmInitCallBack);
 
-        //Initialize presenter, which triggers the asynchronous services to get the
-        //data and calls the callback function once the data is received:
-        new DataManagerPresenter(dmInitCallBack, sourceURL);
-    };
-
-    //continues init:
-    var dmInitCallBack = function(dmPresenter){
-
-        console.log(new Date() + ": page data fetched and processed. Rendering of retrieved view");
-
-        var generatedPageView = new GeneratedPageMainView({
+        // create the view
+        generatedPageView = new GeneratedPageMainView({
             dmPresenter:dmPresenter,
             sourceURL:sourceURL,
             el: targetDiv
         });
 
-        // ...and let the fun begin!
+        //Initialize presenter, which triggers the asynchronous services to get the
+        //data and calls the callback function once the data is received:
+        dmPresenter.init(sourceURL);
+    };
+
+    //continues init:
+    var dmInitCallBack = function(){
+        console.log(new Date() + ": page data fetched and processed. Rendering of retrieved view");
+
+        // render the htmlpage
         generatedPageView.render();
     }
 }

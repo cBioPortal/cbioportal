@@ -127,7 +127,7 @@ A:hover {
     height: 750px;
 	/* never allow setting display to none
 	   this is to fix flash (CytoWeb) repaint problem */
-	display: block !important;
+	/*display: block !important;*/
 }
 
 .map table {

@@ -32,18 +32,19 @@
 
 package org.mskcc.cbio.portal.dao;
 
+import org.apache.commons.math.MathException;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.node.ArrayNode;
+import org.codehaus.jackson.node.JsonNodeFactory;
+import org.codehaus.jackson.node.ObjectNode;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Set;
-import java.util.HashSet;
+import java.util.*;
+
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -75,6 +76,15 @@ public class DaoGeneticAlteration {
         }
 
         return daoGeneticAlteration;
+    }
+
+    public static interface AlterationProcesser {
+        ObjectNode process(
+            long entrezGeneId,
+            String[] values,
+            ArrayList<Integer> orderedSampleList,
+            HashMap mutHm
+        ) throws MathException;
     }
 
     /**
@@ -109,9 +119,9 @@ public class DaoGeneticAlteration {
            } else {
                 con = JdbcUtil.getDbConnection(DaoGeneticAlteration.class);
                 pstmt = con.prepareStatement
-                        ("INSERT INTO genetic_alteration (`GENETIC_PROFILE_ID`, " +
-                                " `ENTREZ_GENE_ID`," +
-                                " `VALUES`) "
+                        ("INSERT INTO genetic_alteration (GENETIC_PROFILE_ID, " +
+                                " ENTREZ_GENE_ID," +
+                                " VALUES) "
                                 + "VALUES (?,?,?)");
                 pstmt.setInt(1, geneticProfileId);
                 pstmt.setLong(2, entrezGeneId);
@@ -207,6 +217,64 @@ public class DaoGeneticAlteration {
         } finally {
             JdbcUtil.closeAll(DaoGeneticAlteration.class, con, pstmt, rs);
         }
+    }
+
+    /**
+     *
+     * @param geneticProfileId  Genetic Profile ID.
+     * @param entrezGeneIds      Entrez Gene IDs.
+     * @return Map<Entrez, Map<CaseId, Value>>.
+     * @throws DaoException Database Error.
+     */
+    public static ArrayList<ObjectNode> getProcessedAlterationData(
+            int geneticProfileId,               //queried profile internal id (num)
+            Set<Long> entrezGeneIds,            //calculation gene pool (all, cancer_genes)
+            AlterationProcesser processor       //implemented interface
+    ) throws DaoException, MathException {
+
+        ArrayList<ObjectNode> result = new ArrayList<>();
+
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        ArrayList<Integer> orderedSampleList = DaoGeneticProfileSamples.getOrderedSampleList(geneticProfileId);
+        if (orderedSampleList == null || orderedSampleList.size() ==0) {
+            throw new IllegalArgumentException ("Could not find any samples for genetic" +
+                    " profile ID:  " + geneticProfileId);
+        }
+
+        try {
+
+            con = JdbcUtil.getDbConnection(DaoGeneticAlteration.class);
+            if (entrezGeneIds == null) {
+                pstmt = con.prepareStatement("SELECT * FROM genetic_alteration WHERE"
+                        + " GENETIC_PROFILE_ID = " + geneticProfileId);
+            } else {
+                pstmt = con.prepareStatement("SELECT * FROM genetic_alteration WHERE"
+                        + " GENETIC_PROFILE_ID = " + geneticProfileId
+                        + " AND ENTREZ_GENE_ID IN ("+StringUtils.join(entrezGeneIds, ",")+")");
+            }
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                long entrezGeneId = rs.getLong("ENTREZ_GENE_ID");
+                String[] values = rs.getString("VALUES").split(DELIM);
+                ObjectNode datum = processor.process(
+                    entrezGeneId,
+                    values,
+                    orderedSampleList,
+                    null);
+                if (datum != null) result.add(datum);
+            }
+
+            return result;
+
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoGeneticAlteration.class, con, pstmt, rs);
+        }
+
     }
 
     /**

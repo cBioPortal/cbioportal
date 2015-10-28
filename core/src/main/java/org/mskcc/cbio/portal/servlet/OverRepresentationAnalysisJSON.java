@@ -18,23 +18,20 @@
 package org.mskcc.cbio.portal.servlet;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.math.MathException;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.mskcc.cbio.portal.dao.DaoCancerStudy;
-import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.dao.DaoGeneticProfile;
-import org.mskcc.cbio.portal.dao.DaoSample;
-import org.mskcc.cbio.portal.dao.DaoSampleProfile;
-import org.mskcc.cbio.portal.model.CancerStudy;
-import org.mskcc.cbio.portal.model.GeneticProfile;
-import org.mskcc.cbio.portal.model.Sample;
+import org.codehaus.jackson.node.ArrayNode;
+import org.codehaus.jackson.node.JsonNodeFactory;
+import org.codehaus.jackson.node.ObjectNode;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.or_analysis.ORAnalysisDiscretizedDataProxy;
+import org.mskcc.cbio.portal.stats.BenjaminiHochbergFDR;
 
 /**
  * Calculate over representation scores 
@@ -72,8 +69,8 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
             String _unalteredCaseList = httpServletRequest.getParameter("unaltered_case_id_list");
             String[] unalteredCaseList = _unalteredCaseList.split("\\s+");
             String profileId = httpServletRequest.getParameter("profile_id");
-            String[] genes = httpServletRequest.getParameter("gene_list").split("\\s+");
-            String geneSet = httpServletRequest.getParameter("gene_set"); //cancer genes(default), all genes, custom genes
+            String[] queriedGenes = httpServletRequest.getParameter("gene_list").split("\\s+");
+            String geneSetOpt = httpServletRequest.getParameter("gene_set"); //cancer genes(default), all genes, custom genes
 
             //calculate deep deletion and amplification separately
             String copyNumType = "none";
@@ -88,6 +85,7 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
             //Get genetic profile ID (int) & Type
             GeneticProfile gp = DaoGeneticProfile.getGeneticProfileByStableId(profileId);
             int gpId = gp.getGeneticProfileId();
+            String gpStableId = gp.getStableId();
             String profileType = gp.getGeneticAlterationType().toString();
 
             //Get cancer study internal id (int)
@@ -95,8 +93,8 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
             int cancerStudyInternalId = cancerStudy.getInternalId();
             
             //Get Internal Sample Ids (int)
-            List<Integer> alteredSampleIds = new ArrayList<Integer>();
-            List<Integer> unalteredSampleIds = new ArrayList<Integer>();
+            List<Integer> alteredSampleIds = new ArrayList<>();
+            List<Integer> unalteredSampleIds = new ArrayList<>();
             for(String alteredSampleId : alteredCaseList) {
                 Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyInternalId, alteredSampleId);   
                 alteredSampleIds.add(sample.getInternalId()); 
@@ -107,23 +105,99 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
                 unalteredSampleIds.add(sample.getInternalId()); 
             }   
             unalteredSampleIds.retainAll(DaoSampleProfile.getAllSampleIdsInProfile(gpId));
-            
-//            //The actual calculation
+
+            //get gene IDs
+            Set<Long> entrezGeneIds = new HashSet<>();
+            DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
+            Set<Long> profileGeneIds = new HashSet<>();
+            if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString())) { //get only genes that has mutations -- performance concern
+                Set<CanonicalGene> profileGeneSet = DaoMutation.getGenesInProfile(gpId);
+                for (CanonicalGene profileGene : profileGeneSet) {
+                    profileGeneIds.add(profileGene.getEntrezGeneId());
+                }
+            }
+            if (geneSetOpt.equals("cancer_genes")) {
+                Set<CanonicalGene> cancerGeneSet = daoGeneOptimized.getCbioCancerGenes();
+                for (CanonicalGene cancerGene : cancerGeneSet) {
+                    entrezGeneIds.add(cancerGene.getEntrezGeneId());
+                }
+                if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString())) { //overlap two gene sets for mutation profile
+                    entrezGeneIds.retainAll(profileGeneIds);
+                }
+            } else if (geneSetOpt.equals("all_genes")) {
+                if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString())) {
+                    entrezGeneIds.addAll(profileGeneIds);
+                } else {
+                    ArrayList<CanonicalGene> allGeneSet = daoGeneOptimized.getAllGenes();
+                    for (CanonicalGene gene: allGeneSet) {
+                        entrezGeneIds.add(gene.getEntrezGeneId());
+                    }
+                }
+            }
+
+            //the actual calculation
+            ArrayList<ObjectNode> _result = new ArrayList<>();
             ORAnalysisDiscretizedDataProxy dataProxy =
                     new ORAnalysisDiscretizedDataProxy(
-                        gpId,
-                        profileType,
-                        alteredSampleIds,
-                        unalteredSampleIds,
-                        copyNumType,
-                        genes,
-                        geneSet
+                            gpId,
+                            gpStableId,
+                            profileType,
+                            copyNumType,
+                            alteredSampleIds,
+                            unalteredSampleIds,
+                            queriedGenes
                     );
+            if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString())) {
+                List<Integer> sampleIds = new ArrayList<>(alteredSampleIds);
+                sampleIds.addAll(unalteredSampleIds);
+                HashMap mutHm = DaoMutation.getSimplifiedMutations(gpId, sampleIds, entrezGeneIds);
+                //Assign every sample (included non mutated ones) values -- mutated -> Mutation Type, non-mutated -> "Non"
+                for (Long entrezGeneId : entrezGeneIds) {
+                    _result.add(dataProxy.process(entrezGeneId, null, (ArrayList)sampleIds, mutHm));
+                }
+            } else {
+                _result = DaoGeneticAlteration.getProcessedAlterationData(
+                        gpId,
+                        entrezGeneIds,
+                        dataProxy
+                );
+            }
 
+
+            //remove result entries without p values
+            for (int i = 0; i < _result.size(); i++) {
+                if (_result.get(i) == null) {
+                    _result.remove(i);
+                }
+            }
+
+            //sort result by p values
+            Collections.sort(_result, new pValueComparator());
+
+            //calculate adjusted p values (q values)
+            double[] originalPvalues = new double[_result.size()];
+            for (int i = 0; i < _result.size(); i++) {
+                originalPvalues[i] = _result.get(i).get("p-Value").asDouble();
+            }
+            BenjaminiHochbergFDR bhFDR = new BenjaminiHochbergFDR(originalPvalues);
+            bhFDR.calculate();
+            double[] adjustedPvalues = bhFDR.getAdjustedPvalues();
+            for (int j = 0; j < _result.size(); j++) {
+                _result.get(j).put("q-Value", adjustedPvalues[j]);
+            }
+
+            //convert array to arraynode
+            JsonNodeFactory factory = JsonNodeFactory.instance;
+            ArrayNode result = new ArrayNode(factory);
+            for (ObjectNode _result_node : _result) {
+                result.add(_result_node);
+            }
+
+            //return/write back result
             ObjectMapper mapper = new ObjectMapper();
             httpServletResponse.setContentType("application/json");
             PrintWriter out = httpServletResponse.getWriter();
-            mapper.writeValue(out, dataProxy.getResult());
+            mapper.writeValue(out, result);
 
         } catch (DaoException ex) {
             System.out.println(ex.getMessage());
@@ -134,7 +208,16 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
         }
     }
 
-    
+    class pValueComparator implements Comparator {
+        public int compare(Object o1, Object o2) {
+            ObjectNode obj1 = (ObjectNode) o1;
+            ObjectNode obj2 = (ObjectNode) o2;
+            if (obj1.get("p-Value").asDouble() > obj2.get("p-Value").asDouble()) return 1;
+            else if (obj1.get("p-Value").asDouble() == obj2.get("p-Value").asDouble()) return 0;
+            else return -1;
+        }
+    }
+
 }
 
 

@@ -544,15 +544,14 @@ class Validator(object):
             self.correctedFile.write('\t'.join(data) + '\n')
 
     def checkRepeatedColumns(self):
-        seen = []
+        seen = set()
         for col in self.cols:
             if col not in seen:
-                seen.append(col)
+                seen.add(col)
             else:
                 print >> OUTPUT_BUFFER,'\tWARNING: Repeated column header\n' + \
                     '\t\tColumn:\t' + col
                 exitcode = 1
-        self.cols = seen
 
     def checkBlankCells(self):
         if len(self.blankColumns) > 0:

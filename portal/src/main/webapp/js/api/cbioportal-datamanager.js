@@ -372,7 +372,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 						case "MRNA_EXPRESSION":
 							datum.mrna = parseFloat(d.profile_data, 10);
 							break;
-						case "PROTEIN_ARRAY_PROTEIN_LEVEL":
+						case "PROTEIN_LEVEL":
 							datum.rppa = parseFloat(d.profile_data, 10);
 							break;
 					}
@@ -465,7 +465,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 							default_oql_uniq["EXP>=2"] = true;
 							default_oql_uniq["EXP<=-2"] = true;
 							break;
-						case "PROTEIN_ARRAY_PROTEIN_LEVEL":
+						case "PROTEIN_LEVEL":
 							default_oql_uniq["PROT>=2"] = true;
 							default_oql_uniq["PROT<=-2"] = true;
 							break;

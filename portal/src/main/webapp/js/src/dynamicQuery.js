@@ -51,7 +51,7 @@ var PROFILE_MUTATION_EXTENDED = "PROFILE_MUTATION_EXTENDED";
 var PROFILE_COPY_NUMBER_ALTERATION = "PROFILE_COPY_NUMBER_ALTERATION"
 var PROFILE_MRNA_EXPRESSION = "PROFILE_MRNA_EXPRESSION";
 var PROFILE_PROTEIN = "PROFILE_PROTEIN";
-var PROFILE_RPPA = "PROFILE_RPPA";
+var PROFILE_PROTEIN_EXPRESSION = "PROFILE_PROTEIN_EXPRESSION";
 var PROFILE_METHYLATION = "PROFILE_METHYLATION"
 
 var caseSetSelectionOverriddenByUser = false;
@@ -283,7 +283,7 @@ function reviewCurrentSelections(){
     toggleThresholdPanel($("." + PROFILE_MRNA_EXPRESSION+"[type=checkbox]"), PROFILE_MRNA_EXPRESSION, "#z_score_threshold");
 
     // similarly with RPPA
-    toggleThresholdPanel($("." + PROFILE_RPPA+"[type=checkbox]"), PROFILE_RPPA, "#rppa_score_threshold");
+    toggleThresholdPanel($("." + PROFILE_PROTEIN_EXPRESSION+"[type=checkbox]"), PROFILE_PROTEIN_EXPRESSION, "#rppa_score_threshold");
 
     // determine whether optional arguments section should be shown or hidden
  //   if ($("#optional_args > input").length >= 1){
@@ -396,7 +396,7 @@ function updateDefaultCaseList() {
     var mutSelect = $("input.PROFILE_MUTATION_EXTENDED[type=checkbox]").prop('checked');
     var cnaSelect = $("input.PROFILE_COPY_NUMBER_ALTERATION[type=checkbox]").prop('checked');
     var expSelect = $("input.PROFILE_MRNA_EXPRESSION[type=checkbox]").prop('checked');
-    var rppaSelect = $("input.PROFILE_RPPA[type=checkbox]").prop('checked');
+    var rppaSelect = $("input.PROFILE_PROTEIN_EXPRESSION[type=checkbox]").prop('checked');
     var selectedCancerStudy = $('#select_single_study').val();
     var defaultCaseList = selectedCancerStudy+"_all";
     if (mutSelect && cnaSelect && !expSelect && !rppaSelect) {
@@ -549,7 +549,7 @@ function updateCancerStudyInformation() {
     addGenomicProfiles(cancer_study.genomic_profiles, "METHYLATION", PROFILE_METHYLATION, "DNA Methylation");
     addGenomicProfiles(cancer_study.genomic_profiles, "METHYLATION_BINARY", PROFILE_METHYLATION, "DNA Methylation");
     //addGenomicProfiles(cancer_study.genomic_profiles, "PROTEIN_LEVEL", PROFILE_PROTEIN, "Protein Level");
-    addGenomicProfiles(cancer_study.genomic_profiles, "PROTEIN_ARRAY_PROTEIN_LEVEL", PROFILE_RPPA, "Protein/phosphoprotein level (by RPPA)");
+    addGenomicProfiles(cancer_study.genomic_profiles, "PROTEIN_LEVEL", PROFILE_PROTEIN_EXPRESSION, "Protein/phosphoprotein level (by RPPA)");
 
 
     //  if no genomic profiles available, set message and disable submit button
@@ -599,8 +599,8 @@ function updateCancerStudyInformation() {
     });
 
     //  Set up an Event Handler for showing/hiding RPPA threshold input
-    $("." + PROFILE_RPPA).click(function(){
-       toggleThresholdPanel($(this), PROFILE_RPPA, "#rppa_score_threshold");
+    $("." + PROFILE_PROTEIN_EXPRESSION).click(function(){
+       toggleThresholdPanel($(this), PROFILE_PROTEIN_EXPRESSION, "#rppa_score_threshold");
     });
 
     // Set default selections and make sure all steps are visible
@@ -1367,7 +1367,7 @@ function addGenomicProfiles (genomic_profiles, targetAlterationType, targetClass
         + "</div>";
     }
 
-    if(targetClass == PROFILE_RPPA && downloadTab == false){
+    if(targetClass == PROFILE_PROTEIN_EXPRESSION && downloadTab == false){
         var inputName = 'RPPA_SCORE_THRESHOLD';
         profileHtml += "<div id='rppa_score_threshold' class='score_threshold'>Enter a RPPA z-score threshold &#177: "
         + "<input type='text' name='" + inputName + "' size='6' value='"

@@ -6,7 +6,7 @@ br	= b:[\n]
 	/ b:";"
 
 Number = word:[0-9]*("."[0-9]*)? { return word.join(""); }
-String = word:[-.@/a-zA-Z0-9]+ { return word.join("") }
+String = word:[-_.@/a-zA-Z0-9]+ { return word.join("") }
 
 sp = space:[ \t\r]+
 msp = space:[ \t\r]*

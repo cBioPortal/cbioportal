@@ -82,8 +82,7 @@ public class DaoGeneticAlteration {
         ObjectNode process(
             long entrezGeneId,
             String[] values,
-            ArrayList<Integer> orderedSampleList,
-            HashMap mutHm
+            ArrayList<Integer> orderedSampleList
         ) throws MathException;
     }
 
@@ -262,8 +261,7 @@ public class DaoGeneticAlteration {
                 ObjectNode datum = processor.process(
                     entrezGeneId,
                     values,
-                    orderedSampleList,
-                    null);
+                    orderedSampleList);
                 if (datum != null) result.add(datum);
             }
 

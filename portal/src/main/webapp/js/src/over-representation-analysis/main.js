@@ -210,33 +210,33 @@ var or_tab = (function() {
 
             //init sub tab contents
             if ($.inArray("MUTATION_EXTENDED", profile_type_list) !== -1) { // study has mutation data
-                //init_mutations_tab("all_genes");
-                init_mutations_tab("cancer_genes");
+                init_mutations_tab("all_genes");
+                //init_mutations_tab("cancer_genes");
             } else if ($.inArray("COPY_NUMBER_ALTERATION", profile_type_list) !== -1) {
-                //init_copy_num_tab("all_genes");
-                init_copy_num_tab("cancer_genes");
+                init_copy_num_tab("all_genes");
+                //init_copy_num_tab("cancer_genes");
             } else if ($.inArray("MRNA_EXPRESSION", profile_type_list) !== -1) {
-                //init_mrna_exp_tab("all_genes");
-                init_mrna_exp_tab("cancer_genes");
+                init_mrna_exp_tab("all_genes");
+                //init_mrna_exp_tab("cancer_genes");
             } else if ($.inArray("PROTEIN_LEVEL", profile_type_list) !== -1) {
-                //init_protein_exp_tab("all_genes");
-                init_protein_exp_tab("cancer_genes");
+                init_protein_exp_tab("all_genes");
+                //init_protein_exp_tab("cancer_genes");
             }
 
             //bind event listener
             $("#" + orAnalysis.ids.sub_tabs_div).on("tabsactivate", function(event, ui) {
                 if (ui.newTab.text() === orAnalysis.texts.sub_tab_copy_num) {
-                    //if ($("#" + orAnalysis.ids.sub_tab_copy_num).is(':empty')) init_copy_num_tab("all_genes");
-                    if ($("#" + orAnalysis.ids.sub_tab_copy_num).is(':empty')) init_copy_num_tab("cancer_genes");
+                    if ($("#" + orAnalysis.ids.sub_tab_copy_num).is(':empty')) init_copy_num_tab("all_genes");
+                    //if ($("#" + orAnalysis.ids.sub_tab_copy_num).is(':empty')) init_copy_num_tab("cancer_genes");
                 } else if (ui.newTab.text() === orAnalysis.texts.sub_tab_mutations) {
-                    //if ($("#" + orAnalysis.ids.sub_tab_copy_num).is(':empty')) init_mutations_tab("all_genes");
-                    if ($("#" + orAnalysis.ids.sub_tab_copy_num).is(':empty')) init_mutations_tab("cancer_genes");
+                    if ($("#" + orAnalysis.ids.sub_tab_copy_num).is(':empty')) init_mutations_tab("all_genes");
+                    //if ($("#" + orAnalysis.ids.sub_tab_copy_num).is(':empty')) init_mutations_tab("cancer_genes");
                 } else if (ui.newTab.text() === orAnalysis.texts.sub_tab_mrna_exp) {
-                    //if ($("#" + orAnalysis.ids.sub_tab_mrna_exp).is(':empty')) init_mrna_exp_tab("all_genes");
-                    if ($("#" + orAnalysis.ids.sub_tab_mrna_exp).is(':empty')) init_mrna_exp_tab("cancer_genes");
+                    if ($("#" + orAnalysis.ids.sub_tab_mrna_exp).is(':empty')) init_mrna_exp_tab("all_genes");
+                    //if ($("#" + orAnalysis.ids.sub_tab_mrna_exp).is(':empty')) init_mrna_exp_tab("cancer_genes");
                 } else if (ui.newTab.text() === orAnalysis.texts.sub_tab_protein_exp) {
-                    //if ($("#" + orAnalysis.ids.sub_tab_protein_exp).is(':empty')) init_protein_exp_tab("all_genes");
-                    if ($("#" + orAnalysis.ids.sub_tab_protein_exp).is(':empty')) init_protein_exp_tab("cancer_genes");
+                    if ($("#" + orAnalysis.ids.sub_tab_protein_exp).is(':empty')) init_protein_exp_tab("all_genes");
+                    //if ($("#" + orAnalysis.ids.sub_tab_protein_exp).is(':empty')) init_protein_exp_tab("cancer_genes");
                 }
             });
 
@@ -255,33 +255,33 @@ var or_tab = (function() {
 
         //update current selected sub tab only
         if (selectedTabTitle === orAnalysis.texts.sub_tab_mutations) {
-            //init_mutations_tab("all_genes");
-            init_mutations_tab("cancer_genes");
+            init_mutations_tab("all_genes");
+            //init_mutations_tab("cancer_genes");
         } else if (selectedTabTitle === orAnalysis.texts.sub_tab_copy_num) {
-            //init_copy_num_tab("all_genes");
-            init_copy_num_tab("cancer_genes");
+            init_copy_num_tab("all_genes");
+            //init_copy_num_tab("cancer_genes");
         } else if (selectedTabTitle === orAnalysis.texts.sub_tab_mrna_exp) {
-            //init_mrna_exp_tab("all_genes");
-            init_mrna_exp_tab("cancer_genes");
+            init_mrna_exp_tab("all_genes");
+            //init_mrna_exp_tab("cancer_genes");
         } else if (selectedTabTitle === orAnalysis.texts.sub_tab_protein_exp) {
-            //init_protein_exp_tab("all_genes");
-            init_protein_exp_tab("cancer_genes");
+            init_protein_exp_tab("all_genes");
+            //init_protein_exp_tab("cancer_genes");
         }
 
         //bind event listener
         $("#" + orAnalysis.ids.sub_tabs_div).on("tabsactivate", function(event, ui) {
             if (ui.newTab.text() === orAnalysis.texts.sub_tab_copy_num) {
-                //if ($("#" + orAnalysis.ids.sub_tab_copy_num).is(':empty')) init_copy_num_tab("all_genes");
-                if ($("#" + orAnalysis.ids.sub_tab_copy_num).is(':empty')) init_copy_num_tab("cancer_genes");
+                if ($("#" + orAnalysis.ids.sub_tab_copy_num).is(':empty')) init_copy_num_tab("all_genes");
+                //if ($("#" + orAnalysis.ids.sub_tab_copy_num).is(':empty')) init_copy_num_tab("cancer_genes");
             } else if (ui.newTab.text() === orAnalysis.texts.sub_tab_mutations) {
-                //if ($("#" + orAnalysis.ids.sub_tab_mutations).is(':empty')) init_mutations_tab("all_genes");
-                if ($("#" + orAnalysis.ids.sub_tab_mutations).is(':empty')) init_mutations_tab("cancer_genes");
+                if ($("#" + orAnalysis.ids.sub_tab_mutations).is(':empty')) init_mutations_tab("all_genes");
+                //if ($("#" + orAnalysis.ids.sub_tab_mutations).is(':empty')) init_mutations_tab("cancer_genes");
             } else if (ui.newTab.text() === orAnalysis.texts.sub_tab_mrna_exp) {
-                //if ($("#" + orAnalysis.ids.sub_tab_mrna_exp).is(':empty')) init_mrna_exp_tab("all_genes");
-                if ($("#" + orAnalysis.ids.sub_tab_mrna_exp).is(':empty')) init_mrna_exp_tab("cancer_genes");
+                if ($("#" + orAnalysis.ids.sub_tab_mrna_exp).is(':empty')) init_mrna_exp_tab("all_genes");
+                //if ($("#" + orAnalysis.ids.sub_tab_mrna_exp).is(':empty')) init_mrna_exp_tab("cancer_genes");
             } else if (ui.newTab.text() === orAnalysis.texts.sub_tab_protein_exp) {
-                //if ($("#" + orAnalysis.ids.sub_tab_protein_exp).is(':empty')) init_protein_exp_tab("all_genes");
-                if ($("#" + orAnalysis.ids.sub_tab_protein_exp).is(':empty')) init_protein_exp_tab("cancer_genes");
+                if ($("#" + orAnalysis.ids.sub_tab_protein_exp).is(':empty')) init_protein_exp_tab("all_genes");
+                //if ($("#" + orAnalysis.ids.sub_tab_protein_exp).is(':empty')) init_protein_exp_tab("cancer_genes");
             }
         });
 

@@ -153,7 +153,7 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
                 HashMap mutHm = DaoMutation.getSimplifiedMutations(gpId, sampleIds, entrezGeneIds);
                 //Assign every sample (included non mutated ones) values -- mutated -> Mutation Type, non-mutated -> "Non"
                 for (Long entrezGeneId : entrezGeneIds) {
-                    _result.add(dataProxy.process(entrezGeneId, null, (ArrayList)sampleIds, mutHm));
+                    _result.add(dataProxy.processMutHm(entrezGeneId, (ArrayList)sampleIds, mutHm));
                 }
             } else {
                 _result = DaoGeneticAlteration.getProcessedAlterationData(

@@ -72,28 +72,64 @@ public class ORAnalysisDiscretizedDataProxy implements DaoGeneticAlteration.Alte
 
     }
 
+    public ObjectNode processMutHm(long entrezGeneId, ArrayList<Integer> sampleList, HashMap mutHm) throws MathException {
+        ObjectNode _datum = mapper.createObjectNode();
+
+        //create map to pair sample and value
+        HashMap<Integer, String> mapSampleValue = new HashMap<>();
+        for (Integer sampleId : sampleList) {
+            String mutationStatus = "Non";
+            String tmpStr = new StringBuilder().append(Integer.toString(sampleId)).append(Long.toString(entrezGeneId)).toString();
+            if(mutHm.containsKey(tmpStr)) mutationStatus = "Mutated";
+            mapSampleValue.put(sampleId, mutationStatus);
+        }
+
+        //remove empty entry
+        Iterator it = mapSampleValue.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry)it.next();
+            if (pair.getValue().equals("NA") || pair.getValue().equals("NaN") || pair.getValue().equals("null")) {
+                it.remove();
+            }
+        }
+
+        //get Gene Name and Cytoband
+        DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
+        String geneName = daoGeneOptimized.getGene(entrezGeneId).getHugoGeneSymbolAllCaps();
+        String cytoband = daoGeneOptimized.getGene(entrezGeneId).getCytoband();
+
+        //statistics analysis
+        if (!(Arrays.asList(queriedGenes)).contains(geneName)) { //remove queried genes from result
+            _datum.put(COL_NAME_GENE, geneName);
+            _datum.put(COL_NAME_CYTOBAND, cytoband);
+            _datum.put(COL_NAME_PCT_ALTERED, calcPct(mapSampleValue, profileType, "altered"));
+            _datum.put(COL_NAME_PCT_UNALTERED, calcPct(mapSampleValue, profileType, "unaltered"));
+            _datum.put(COL_NAME_RATIO, calcRatio(
+                    calcPct(mapSampleValue, profileType, "altered"), calcPct(mapSampleValue, profileType, "unaltered")));
+            _datum.put(COL_NAME_DIRECTION, "place holder"); //calculation is done by the front-end
+            _datum.put(COL_NAME_P_VALUE, calcPval(mapSampleValue, profileType, geneticProfileStableId));
+            if (!(calcPct(mapSampleValue, profileType, "altered") == 0.0 &&
+                    calcPct(mapSampleValue, profileType, "unaltered") == 0.0) &&
+                    !Double.isNaN(calcPval(mapSampleValue, profileType, geneticProfileStableId))) {
+                return _datum;
+            }
+        }
+
+        return null;
+    }
+
     @Override
-    public ObjectNode process(long entrezGeneId, String[] values, ArrayList<Integer> sampleList, HashMap mutHm) throws MathException {
+    public ObjectNode process(long entrezGeneId, String[] values, ArrayList<Integer> sampleList) throws MathException {
 
         ObjectNode _datum = mapper.createObjectNode();
 
         //create map to pair sample and value
         HashMap<Integer, String> mapSampleValue = new HashMap<>();
-        if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString())) {
-            for (Integer sampleId : sampleList) {
-                String mutationStatus = "Non";
-                String tmpStr = new StringBuilder().append(Integer.toString(sampleId)).append(Long.toString(entrezGeneId)).toString();
-                if(mutHm.containsKey(tmpStr)) mutationStatus = "Mutated";
-                mapSampleValue.put(sampleId, mutationStatus);
-            }
-        } else {
-            for (int i = 0; i < values.length; i++) {
-                String value = values[i];
-                Integer sampleId = sampleList.get(i);
-                mapSampleValue.put(sampleId, value);
-            }
+        for (int i = 0; i < values.length; i++) {
+            String value = values[i];
+            Integer sampleId = sampleList.get(i);
+            mapSampleValue.put(sampleId, value);
         }
-
 
         //remove empty entry
         Iterator it = mapSampleValue.entrySet().iterator();
@@ -111,22 +147,6 @@ public class ORAnalysisDiscretizedDataProxy implements DaoGeneticAlteration.Alte
 
         //statistics analysis
         if (profileType.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION.toString())) {
-            if (!(Arrays.asList(queriedGenes)).contains(geneName)) { //remove queried genes from result
-                _datum.put(COL_NAME_GENE, geneName);
-                _datum.put(COL_NAME_CYTOBAND, cytoband);
-                _datum.put(COL_NAME_PCT_ALTERED, calcPct(mapSampleValue, profileType, "altered"));
-                _datum.put(COL_NAME_PCT_UNALTERED, calcPct(mapSampleValue, profileType, "unaltered"));
-                _datum.put(COL_NAME_RATIO, calcRatio(
-                        calcPct(mapSampleValue, profileType, "altered"), calcPct(mapSampleValue, profileType, "unaltered")));
-                _datum.put(COL_NAME_DIRECTION, "place holder"); //calculation is done by the front-end
-                _datum.put(COL_NAME_P_VALUE, calcPval(mapSampleValue, profileType, geneticProfileStableId));
-                if (!(calcPct(mapSampleValue, profileType, "altered") == 0.0 &&
-                        calcPct(mapSampleValue, profileType, "unaltered") == 0.0) &&
-                        !Double.isNaN(calcPval(mapSampleValue, profileType, geneticProfileStableId))) {
-                    return _datum;
-                }
-            }
-        } else if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString())) {
             if (!(Arrays.asList(queriedGenes)).contains(geneName)) { //remove queried genes from result
                 _datum.put(COL_NAME_GENE, geneName);
                 _datum.put(COL_NAME_CYTOBAND, cytoband);

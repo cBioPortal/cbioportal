@@ -553,16 +553,9 @@ public class QueryBuilder extends HttpServlet {
 
 	private void checkAndRedirectOnStudyStatus(HttpServletRequest request, HttpServletResponse response, String cancerStudyId) throws ServletException, IOException, DaoException
 	{
-		DaoCancerStudy.Status status = DaoCancerStudy.getStatus(cancerStudyId);
-		if (status != DaoCancerStudy.Status.AVAILABLE) {
-			if (status == DaoCancerStudy.Status.RECACHE) {
-				DaoCancerStudy.reCacheAll();
-			}
-			else {
+		if (DaoCancerStudy.getStatus(cancerStudyId) == DaoCancerStudy.Status.UNAVAILABLE) {
 			redirectStudyUnavailable(request, response);
-                        }
-                }       
-
+		}
 	}
 
 	private void redirectStudyUnavailable(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException

@@ -233,12 +233,12 @@ def insert_new_users(cursor, new_user_list):
         for user in new_user_list:
             print >> OUTPUT_FILE, "new user: %s" % user.google_email;
         cursor.executemany("insert into users values(%s, %s, %s)",
-                           [(user.google_email, user.name, user.enabled) for user in new_user_list])
+                           [(user.google_email.lower(), user.name, user.enabled) for user in new_user_list])
         for user in new_user_list:
             # authorities is semicolon delimited
             authorities = user.authorities
             cursor.executemany("insert into authorities values(%s, %s)",
-                               [(user.google_email, authority) for authority in authorities])
+                               [(user.google_email.lower(), authority) for authority in authorities])
     except MySQLdb.Error, msg:
         print >> OUTPUT_FILE, msg
         print >> ERROR_FILE, msg
@@ -260,7 +260,7 @@ def get_current_user_map(cursor):
     try:
         cursor.execute('select * from users')
         for row in cursor.fetchall():
-            to_return[row[0]] = User(row[0], row[0], row[1], row[2], 'not_used_here')
+            to_return[row[0].lower()] = User(row[0].lower(), row[0].lower(), row[1], row[2], 'not_used_here')
     except MySQLdb.Error, msg:
         print >> ERROR_FILE, msg
         return None
@@ -317,9 +317,9 @@ def get_new_user_map(spreadsheet, worksheet_feed, current_user_map, portal_name)
                 if google_email.lower() in to_return:
                     # there may be multiple entries per email address
                     # in google spreadsheet, combine entries
-                    user = to_return[google_email]
+                    user = to_return[google_email.lower()]
                     user.authorities.extend([portal_name + ':' + au for au in authorities.split(';')])
-                    to_return[google_email] = user
+                    to_return[google_email.lower()] = user
                 else:
                     to_return[google_email] = User(inst_email, google_email, name, 1,
                         [portal_name + ':' + au for au in authorities.split(';')])
@@ -338,11 +338,11 @@ def get_all_user_map(spreadsheet, worksheet_feed):
 
     for entry in worksheet_feed.entry:
         if spreadsheet == MSKCC_USER_SPREADSHEET:
-            inst_email = entry.custom[MSKCC_EMAIL_KEY].text.strip()
-            google_email = entry.custom[MSKCC_EMAIL_KEY].text.strip()
+            inst_email = entry.custom[MSKCC_EMAIL_KEY].text.strip().lower()
+            google_email = entry.custom[MSKCC_EMAIL_KEY].text.strip().lower()
         else:
-            inst_email = entry.custom[INST_EMAIL_KEY].text.strip()
-            google_email = entry.custom[OPENID_EMAIL_KEY].text.strip()
+            inst_email = entry.custom[INST_EMAIL_KEY].text.strip().lower()
+            google_email = entry.custom[OPENID_EMAIL_KEY].text.strip().lower()
         to_return[google_email] = User(inst_email, google_email, "not_used", 1, "not_used")
 
     return to_return
@@ -502,9 +502,9 @@ def get_email_parameters(google_spreadsheet,client):
     print >> OUTPUT_FILE, 'Getting email parameters from google spreadsheet'
     email_worksheet_feed = get_worksheet_feed(client, google_spreadsheet, IMPORTER_WORKSHEET)
     for entry in email_worksheet_feed.entry:
-    if entry.custom[SUBJECT_KEY].text is not None and entry.custom[BODY_KEY].text is not None:
-        subject = entry.custom[SUBJECT_KEY].text.strip()
-        body = entry.custom[BODY_KEY].text.strip()
+    	if entry.custom[SUBJECT_KEY].text is not None and entry.custom[BODY_KEY].text is not None:
+		subject = entry.custom[SUBJECT_KEY].text.strip()
+		body = entry.custom[BODY_KEY].text.strip()
     return subject, body
 
 # ------------------------------------------------------------------------------
@@ -591,10 +591,10 @@ def main():
                 if send_email_confirm == 'true':
                     subject,body = get_email_parameters(google_spreadsheet,client)
                     for new_user_key in new_user_map.keys():
-                    new_user = new_user_map[new_user_key]
-                    print >> OUTPUT_FILE, ('Sending confirmation email to new user: %s at %s' %
+                    	new_user = new_user_map[new_user_key]
+                    	print >> OUTPUT_FILE, ('Sending confirmation email to new user: %s at %s' %
                             (new_user.name, new_user.inst_email))
-                    send_mail([new_user.inst_email],subject,body)
+                    	send_mail([new_user.inst_email],subject,body)
 
             if google_spreadsheet == MSKCC_USER_SPREADSHEET:
                 add_unknown_users_to_spreadsheet(client, cursor, google_spreadsheet, portal_properties.google_worksheet)

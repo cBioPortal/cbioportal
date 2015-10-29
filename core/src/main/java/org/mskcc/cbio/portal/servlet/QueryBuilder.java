@@ -41,8 +41,12 @@ import org.mskcc.cbio.portal.util.AccessControl;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.*;
 
 import org.apache.commons.lang.*;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.owasp.validator.html.PolicyException;
+
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.*;
 import java.util.*;
@@ -111,6 +115,8 @@ public class QueryBuilder extends HttpServlet {
     public static final String SELECTED_PATIENT_SAMPLE_ID_MAP = "selected_patient_sample_id_map";
     private static final String DB_CONNECT_ERROR = ("An error occurred while trying to connect to the database." +
                                                     "  This could happen if the database does not contain any cancer studies.");
+
+    private static Log LOG = LogFactory.getLog(QueryBuilder.class);
     
 
     private ServletXssUtil servletXssUtil;
@@ -535,16 +541,9 @@ public class QueryBuilder extends HttpServlet {
 
 	private void checkAndRedirectOnStudyStatus(HttpServletRequest request, HttpServletResponse response, String cancerStudyId) throws ServletException, IOException, DaoException
 	{
-		DaoCancerStudy.Status status = DaoCancerStudy.getStatus(cancerStudyId);
-		if (status != DaoCancerStudy.Status.AVAILABLE) {
-			if (status == DaoCancerStudy.Status.RECACHE) {
-				DaoCancerStudy.reCacheAll();
-			}
-			else {
-				redirectStudyUnavailable(request, response);
-			}
+		if (DaoCancerStudy.getStatus(cancerStudyId) == DaoCancerStudy.Status.UNAVAILABLE) {
+			redirectStudyUnavailable(request, response);
 		}
-
 	}
 
 	private void redirectStudyUnavailable(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
@@ -576,6 +575,12 @@ public class QueryBuilder extends HttpServlet {
 													cancerStudyIdentifier + "'. ");
 					errorsExist = true;
 				}
+                else {
+                    UserDetails ud = accessControl.getUserDetails();
+                    if (ud != null) {
+                        LOG.info("QueryBuilder.validateForm: Query initiated by user: " + ud.getUsername());
+                    }
+                }
 						
                 if (geneticProfileIdSet.size() == 0) {
                     if (tabIndex == null || tabIndex.equals(QueryBuilder.TAB_DOWNLOAD)) {

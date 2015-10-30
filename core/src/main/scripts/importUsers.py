@@ -60,36 +60,13 @@ GOOGLE_ID = 'google.id'
 GOOGLE_PW = 'google.pw'
 CGDS_USERS_SPREADSHEET = 'users.spreadsheet'
 CGDS_USERS_WORKSHEET = 'users.worksheet'
-
-# Google spreadsheet name - used as keys to email subjects/body below
-GDAC_USER_SPREADSHEET = 'Request Access to the cBio GDAC Cancer Genomics Portal'
-SU2C_USER_SPREADSHEET = 'Request Access to the cBio SU2C Cancer Genomics Portal'
-PROSTATE_USER_SPREADSHEET = 'Request Access to the cBio Prostate Cancer Genomics Portal'
-GLIOMA_USER_SPREADSHEET = 'Request Access to the cBio Glioma Cancer Genomics Portal'
-ACC_USER_SPREADSHEET = 'Request Access to the cBio ACC Cancer Genomics Portal'
-TARGET_USER_SPREADSHEET = 'Request Access to the cBio TARGET Cancer Genomics Portal'
-MSKCC_USER_SPREADSHEET = 'Request Access to the cBio MSKCC Cancer Genomics Portal'
-TRIAGE_USER_SPREADSHEET = 'Request Access to the cBio MSKCC (Triage) Cancer Genomics Portal'
-SU2C_KRAS_USER_SPREADSHEET = 'Request Access to the cBio KRAS Cancer Genomics Portal'
-GENIE_USER_SPREADSHEET = 'Request Access to the cBio GENIE Cancer Genomics Portal'
-BETA_USER_SPREADSHEET = 'Request Access to the cBio Cancer Genomics Portal Beta'
+IMPORTER_SPREADSHEET = 'importer.spreadsheet'
 
 # Worksheet that contains email contents
 IMPORTER_WORKSHEET = 'import_user_email'
 
-
-# portal name (these should correspond to what is in property file of the respective portal)
-PORTAL_NAME = { GDAC_USER_SPREADSHEET : "gdac-portal",
-                PROSTATE_USER_SPREADSHEET : "prostate-portal",
-                GLIOMA_USER_SPREADSHEET : "glioma-portal",
-                ACC_USER_SPREADSHEET : "acc-portal",
-                SU2C_USER_SPREADSHEET : "su2c-portal",
-                TARGET_USER_SPREADSHEET : "target-portal",
-                MSKCC_USER_SPREADSHEET : "mskcc-portal",
-                TRIAGE_USER_SPREADSHEET : "triage-portal",
-                GENIE_USER_SPREADSHEET : "genie",
-                SU2C_KRAS_USER_SPREADSHEET : "kras",
-                BETA_USER_SPREADSHEET : "beta" }
+# Worksheet that contains portal names
+ACCESS_CONTROL_WORKSHEET = 'access_control'
 
 # column constants on google spreadsheet
 FULLNAME_KEY = "fullname"
@@ -102,6 +79,8 @@ LAB_PI_KEY = "labpi"
 TIMESTAMP_KEY = "timestamp"
 SUBJECT_KEY = "subject"
 BODY_KEY = "body"
+PORTAL_NAME_KEY = 'portalname'
+SPREADSHEET_NAME_KEY = 'spreadsheetname'
 
 # possible values in status column
 STATUS_APPROVED = "APPROVED"
@@ -123,7 +102,7 @@ class PortalProperties(object):
     def __init__(self,
                  cgds_database_host,
                  cgds_database_name, cgds_database_user, cgds_database_pw,
-                 google_id, google_pw, google_spreadsheet, google_worksheet):
+                 google_id, google_pw, google_spreadsheet, google_worksheet,google_importer_spreadsheet):
         self.cgds_database_host = cgds_database_host
         self.cgds_database_name = cgds_database_name
         self.cgds_database_user = cgds_database_user
@@ -132,6 +111,7 @@ class PortalProperties(object):
         self.google_pw = google_pw
         self.google_spreadsheet = google_spreadsheet
         self.google_worksheet = google_worksheet
+        self.google_importer_spreadsheet = google_importer_spreadsheet
 
 class User(object):
     def __init__(self, inst_email, google_email, name, enabled, authorities):
@@ -290,7 +270,7 @@ def get_user_authorities(cursor, google_email):
 # ------------------------------------------------------------------------------
 # get current users from google spreadsheet
 
-def get_new_user_map(spreadsheet, worksheet_feed, current_user_map, portal_name):
+def get_new_user_map(spreadsheet, worksheet_feed, current_user_map, portal_name,mskcc_user_spreadsheet):
 
     # map that we are returning
     # key is the institutional email address + google (in case user has multiple google ids)
@@ -301,7 +281,7 @@ def get_new_user_map(spreadsheet, worksheet_feed, current_user_map, portal_name)
         # we are only concerned with 'APPROVED' entries
         if (entry.custom[STATUS_KEY].text is not None and
             entry.custom[STATUS_KEY].text.strip() == STATUS_APPROVED):
-            if spreadsheet == MSKCC_USER_SPREADSHEET:
+            if spreadsheet == mskcc_user_spreadsheet:
                 inst_email = entry.custom[MSKCC_EMAIL_KEY].text.strip().lower()
                 google_email = entry.custom[MSKCC_EMAIL_KEY].text.strip().lower()
             else:
@@ -329,7 +309,7 @@ def get_new_user_map(spreadsheet, worksheet_feed, current_user_map, portal_name)
 # ------------------------------------------------------------------------------
 # get all users from google spreadsheet.  note only inst & google email is returned
 
-def get_all_user_map(spreadsheet, worksheet_feed):
+def get_all_user_map(spreadsheet, worksheet_feed,mskcc_user_spreadsheet):
 
     # map that we are returning
     # key is the institutional email address + google (in case user has multiple google ids)
@@ -337,7 +317,7 @@ def get_all_user_map(spreadsheet, worksheet_feed):
     to_return = {}
 
     for entry in worksheet_feed.entry:
-        if spreadsheet == MSKCC_USER_SPREADSHEET:
+        if spreadsheet == mskcc_user_spreadsheet:
             inst_email = entry.custom[MSKCC_EMAIL_KEY].text.strip().lower()
             google_email = entry.custom[MSKCC_EMAIL_KEY].text.strip().lower()
         else:
@@ -395,7 +375,8 @@ def get_portal_properties(portal_properties_filename):
         GOOGLE_ID not in properties or len(properties[GOOGLE_ID]) == 0 or
         GOOGLE_PW not in properties or len(properties[GOOGLE_PW]) == 0 or
         CGDS_USERS_SPREADSHEET not in properties or len(properties[CGDS_USERS_SPREADSHEET]) == 0 or
-        CGDS_USERS_WORKSHEET not in properties or len(properties[CGDS_USERS_WORKSHEET]) == 0):
+        CGDS_USERS_WORKSHEET not in properties or len(properties[CGDS_USERS_WORKSHEET]) == 0 or
+        IMPORTER_SPREADSHEET not in properties or len(properties[IMPORTER_SPREADSHEET]) == 0):
         print >> ERROR_FILE, 'Missing one or more required properties, please check property file'
         return None
     
@@ -407,13 +388,14 @@ def get_portal_properties(portal_properties_filename):
                             properties[GOOGLE_ID],
                             properties[GOOGLE_PW],
                             properties[CGDS_USERS_SPREADSHEET],
-                            properties[CGDS_USERS_WORKSHEET])
+                            properties[CGDS_USERS_WORKSHEET],
+                            properties[IMPORTER_SPREADSHEET])
 
 # ------------------------------------------------------------------------------
 # adds new users from the google spreadsheet into the cgds portal database
 # returns new user map if users have been inserted, None otherwise
 
-def manage_users(spreadsheet, cursor, worksheet_feed, portal_name):
+def manage_users(spreadsheet, cursor, worksheet_feed, portal_name, mskcc_user_spreadsheet):
 
     # get map of current portal users
     print >> OUTPUT_FILE, 'Getting list of current portal users'
@@ -426,7 +408,7 @@ def manage_users(spreadsheet, cursor, worksheet_feed, portal_name):
 
     # get list of new users and insert
     print >> OUTPUT_FILE, 'Checking for new users'
-    new_user_map = get_new_user_map(spreadsheet, worksheet_feed, current_user_map, portal_name)
+    new_user_map = get_new_user_map(spreadsheet, worksheet_feed, current_user_map, portal_name, mskcc_user_spreadsheet)
     if (len(new_user_map) > 0):
         print >> OUTPUT_FILE, 'We have %s new user(s) to add' % len(new_user_map)
         success = insert_new_users(cursor, new_user_map.values())
@@ -442,11 +424,11 @@ def manage_users(spreadsheet, cursor, worksheet_feed, portal_name):
 
 # ------------------------------------------------------------------------------
 # updates user study access
-def update_user_authorities(spreadsheet, cursor, worksheet_feed, portal_name):
+def update_user_authorities(spreadsheet, cursor, worksheet_feed, portal_name, mskcc_user_spreadsheet):
 
         # get map of current portal users
         print >> OUTPUT_FILE, 'Getting list of current portal users from spreadsheet'
-        all_user_map = get_new_user_map(spreadsheet, worksheet_feed, {}, portal_name)
+        all_user_map = get_new_user_map(spreadsheet, worksheet_feed, {}, portal_name, mskcc_user_spreadsheet)
         if all_user_map is None:
                 return None;
         print >> OUTPUT_FILE, 'Updating authorities for each user in current portal user list'
@@ -463,11 +445,11 @@ def update_user_authorities(spreadsheet, cursor, worksheet_feed, portal_name):
 # Adds unknown users to user spreadsheet. MSKCC users are given default access.
 # during MSK signon.  If this happens, we want to make sure they get into the google
 # spreadsheet for tracking purposes.
-def add_unknown_users_to_spreadsheet(client, cursor, spreadsheet, worksheet):
+def add_unknown_users_to_spreadsheet(client, cursor, spreadsheet, worksheet, mskcc_user_spreadsheet):
 
     # get map of all users in google spreadsheet and portal database
     worksheet_feed = get_worksheet_feed(client, spreadsheet, worksheet)
-    google_spreadsheet_user_map = get_all_user_map(spreadsheet, worksheet_feed)
+    google_spreadsheet_user_map = get_all_user_map(spreadsheet, worksheet_feed, mskcc_user_spreadsheet)
     portal_db_user_map = get_current_user_map(cursor)
     current_time = time.strftime("%m/%d/%y %H:%M:%S")
     # for each user in portal database not in google spreadsheet, insert user into google spreadsheet
@@ -506,6 +488,19 @@ def get_email_parameters(google_spreadsheet,client):
 		subject = entry.custom[SUBJECT_KEY].text.strip()
 		body = entry.custom[BODY_KEY].text.strip()
     return subject, body
+
+def get_portal_name_map(google_spreadsheet,client):
+    portal_name = {}
+    print >> OUTPUT_FILE, 'Getting access control parameter from google spreadsheet'
+    access_control_worksheet_feed = get_worksheet_feed(client,google_spreadsheet,ACCESS_CONTROL_WORKSHEET)
+    for entry in access_control_worksheet_feed.entry:
+        if entry.custom[PORTAL_NAME_KEY] is not None and entry.custom[SPREADSHEET_NAME_KEY] is not None: 
+            portal_name[entry.custom[SPREADSHEET_NAME_KEY].text.strip()] = entry.custom[PORTAL_NAME_KEY].text.strip()
+            if entry.custom[PORTAL_NAME_KEY].text.strip() == 'mskcc-portal':
+                mskcc_user_spreadsheet = entry.custom[SPREADSHEET_NAME_KEY]
+
+    return portal_name,mskcc_user_spreadsheet
+
 
 # ------------------------------------------------------------------------------
 # displays program usage (invalid args)
@@ -571,6 +566,8 @@ def main():
     # login to google and get spreadsheet feed
     client = google_login(secrets_filename, creds_filename, portal_properties.google_id, portal_properties.google_pw, sys.argv[0])
 
+    portal_name_map,mskcc_user_spreadsheet = get_portal_name_map(portal_properties.google_importer_spreadsheet,client)
+
     google_spreadsheets = portal_properties.google_spreadsheet.split(';')
 
     for google_spreadsheet in google_spreadsheets:
@@ -581,10 +578,10 @@ def main():
                                                 portal_properties.google_worksheet)
 
             # the 'guts' of the script
-            new_user_map = manage_users(google_spreadsheet, cursor, worksheet_feed, PORTAL_NAME[google_spreadsheet])
+            new_user_map = manage_users(google_spreadsheet, cursor, worksheet_feed, portal_name_map[google_spreadsheet], mskcc_user_spreadsheet)
 
             # update user authorities
-            update_user_authorities(google_spreadsheet, cursor, worksheet_feed, PORTAL_NAME[google_spreadsheet])
+            update_user_authorities(google_spreadsheet, cursor, worksheet_feed, portal_name_map[google_spreadsheet], mskcc_user_spreadsheet)
 
             # sending emails
             if new_user_map is not None:
@@ -596,7 +593,7 @@ def main():
                             (new_user.name, new_user.inst_email))
                     	send_mail([new_user.inst_email],subject,body)
 
-            if google_spreadsheet == MSKCC_USER_SPREADSHEET:
+            if google_spreadsheet == mskcc_user_spreadsheet:
                 add_unknown_users_to_spreadsheet(client, cursor, google_spreadsheet, portal_properties.google_worksheet)
 
     # clean up

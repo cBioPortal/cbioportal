@@ -255,8 +255,7 @@ var StudyViewBoilerplate ={
         // Build query button
         _form
             .attr({
-                //method: "post",
-                method: "get",
+                method: "post",
                 action: "index.do",
             })
             .css({

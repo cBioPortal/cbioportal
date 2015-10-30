@@ -145,7 +145,7 @@ public class DaoGeneticAlteration {
      */
     public String getGeneticAlteration(int geneticProfileId, int sampleId,
             long entrezGeneId) throws DaoException {
-        HashMap <Integer, String> sampleMap = getGeneticAlterationMap (geneticProfileId, entrezGeneId);
+        HashMap <Integer, String> sampleMap = getGeneticAlterationMap(geneticProfileId, entrezGeneId);
         if (sampleMap.containsKey(sampleId)) {
             return sampleMap.get(sampleId);
         } else {
@@ -228,7 +228,8 @@ public class DaoGeneticAlteration {
      */
     public static ArrayList<ObjectNode> getProcessedAlterationData(
             int geneticProfileId,               //queried profile internal id (num)
-            Set<Long> entrezGeneIds,            //list of genes in calculation gene pool (all genes or only cancer genes)
+            //Set<Long> entrezGeneIds,            //list of genes in calculation gene pool (all genes or only cancer genes)
+            int offSet,                         //OFFSET for LIMIT (to get only one segment of the genes)
             AlterationProcesser processor       //implemented interface
     ) throws DaoException, MathException {
 
@@ -246,9 +247,11 @@ public class DaoGeneticAlteration {
 
         try {
             con = JdbcUtil.getDbConnection(DaoGeneticAlteration.class);
+
             pstmt = con.prepareStatement("SELECT * FROM genetic_alteration WHERE"
                     + " GENETIC_PROFILE_ID = " + geneticProfileId
-                    + " AND ENTREZ_GENE_ID IN (" + StringUtils.join(entrezGeneIds, ",") + ")");
+                    + " LIMIT 3000 OFFSET " + offSet);
+
             rs = pstmt.executeQuery();
             while (rs.next()) {
                 long entrezGeneId = rs.getLong("ENTREZ_GENE_ID");

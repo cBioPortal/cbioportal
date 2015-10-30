@@ -24,8 +24,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.math.MathException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ArrayNode;
@@ -43,7 +41,7 @@ import org.mskcc.cbio.portal.stats.BenjaminiHochbergFDR;
 public class OverRepresentationAnalysisJSON extends HttpServlet  {
 
     private List synced_result = Collections.synchronizedList(new ArrayList());
-    private final int bin = 2000; //size of genes for each thread
+    private final int bin = 3000; //size of genes for each thread
     private final JsonNodeFactory factory = JsonNodeFactory.instance;
     private final ArrayNode result = new ArrayNode(factory);
 
@@ -193,10 +191,9 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
 
             } else {
 
-                Set<Long> genes = DaoGeneticAlteration.getGenesIdInProfile(gpId);
-                int nThread = (int)Math.floor(genes.size() / bin) + 1;
+                int genes_length = DaoGeneticAlteration.getGenesCountInProfile(gpId);
+                int nThread = (int)Math.floor(genes_length / bin) + 1;
                 Thread[] threads = new Thread[nThread];
-                final List<Set<Long>> gene_short_lists = splitGenes(bin, nThread, genes);
                 final AtomicInteger result_index = new AtomicInteger(-1);
 
                 for (int i = 0; i < nThread; i++) {
@@ -204,11 +201,11 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
                         @Override
                         public void run() {
                             result_index.incrementAndGet();
-                            Set<Long> gene_short_list = gene_short_lists.get(result_index.get());
                             try {
+                                int offSet = result_index.get() * bin;
                                 synced_result.addAll(DaoGeneticAlteration.getProcessedAlterationData(
                                         gpId,
-                                        gene_short_list,
+                                        offSet,
                                         dataProxy
                                 ));
                             } catch (DaoException e) {

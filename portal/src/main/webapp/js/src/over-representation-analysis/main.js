@@ -157,6 +157,7 @@ var or_tab = (function() {
             var _obj = profile_obj_list[_key];
             if ((_obj.GENETIC_ALTERATION_TYPE === orAnalysis.profile_type.protein_exp &&
                 _obj.STABLE_ID.toLowerCase().indexOf("zscores") === -1)) {
+                _obj.NAME = "Phosphoprotein / Protein expression (RPPA)";
                 _profile_list.push(_obj);
             }
         });

@@ -139,7 +139,30 @@ var StudyViewInitTopComponents = (function() {
             };
 
             cbio.download.initDownload(content, downloadOpts);
-        })
+        });
+
+        $("#study-view-form").submit(function(){
+            if(!QueryByGeneTextArea.isEmpty()){
+                // add the necessary fields to the form
+                QueryByGeneUtil.addStudyViewFields();
+                // set the case-list to studyId_all (which used to query)
+                //$("#study-view-header-left-case_set-id").val(window.caseSetId);
+                // clear the selected samples
+                //$("#study-view-header-left-case-ids").val("");
+            }
+        });
+
+        //$("#study-view-header-left-1").click(function () {
+        //    var genes = QueryByGeneTextArea.getGenes();
+        //    if(genes.length!=0){
+        //        $("#study-view-form")
+        //            .attr({
+        //                method: "post",
+        //                action: "http://stackoverflow.com/questions/12055435/append-json-data-to-post-request"
+        //            });
+        //    }
+        //});
+
     }
 
     //The selected id should be sample based. Check patient list if unidentified id exists.
@@ -183,7 +206,7 @@ var StudyViewInitTopComponents = (function() {
         $("#study-view-header-left-4").css('display','block');
 
         $("#study-view-header-left-3").css('display','block')
-        $("#study-view-header-left-3").text("Total number of samples selected: ");
+        $("#study-view-header-left-3").text("Samples selected: ");
         $("#study-view-header-left-5").css('display','block');
         $("#study-view-header-left-5").text(_resultLength);
 
@@ -236,6 +259,8 @@ var StudyViewInitTopComponents = (function() {
         init: function() {
             createDiv();
             addEvents();
+            //new QueryByGeneTextArea('#query-by-gene-textarea');
+            QueryByGeneTextArea.init('#query-by-gene-textarea');
         },
         
         changeHeader: changeHeader,

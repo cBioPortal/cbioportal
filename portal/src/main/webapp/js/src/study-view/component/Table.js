@@ -192,7 +192,7 @@ var Table = function() {
             hideReload();
         }
     }
-    
+
     function initDataTable() {
         var dataTableOpts = {
             "sDom": 'rt<f>',
@@ -311,6 +311,9 @@ var Table = function() {
                     var _gene = source[geneIndex];
                     if (type==='display') {
                         var str = '';
+                        // test
+                        str='<img src="images/plus.svg" class="tableIcon">';
+
                         if(_gene.toString().length > 6) {
                             str += '<span class="hasQtip" qtip="'+_gene+'">'+_gene.substring(0,4) + '...'+'</span>';
                         }else {
@@ -350,6 +353,8 @@ var Table = function() {
                 });
 
                 checkboxClick();
+                // add functionality for when the add gene icon is clicked
+                addGeneClickSetup();
             };
         }
         dataTable = $('#'+ divs.tableId +' table').dataTable(dataTableOpts);
@@ -435,6 +440,18 @@ var Table = function() {
             }
         });
         deleteTable();
+    }
+
+
+    function addGeneClickSetup(){
+        $('#'+divs.tableId+' table tbody tr td:first-child img').unbind('click');
+        $('#'+divs.tableId+' table tbody tr td:first-child img').click(function () {
+
+            if(callbacks.hasOwnProperty('addGeneClick')) {
+                // call addGeneClick with this row's data
+                callbacks.addGeneClick(dataTable.api().row($(this).parent().parent()).data());
+            }
+        });
     }
 
     function checkboxClick() {

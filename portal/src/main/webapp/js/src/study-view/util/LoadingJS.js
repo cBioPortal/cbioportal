@@ -57,6 +57,7 @@ var LoadingJS = (function(){
         
         var _folder = {
                 component: [
+                    'QueryByGeneTextArea',
                     'ScatterPlots',
                     'BreadCrumbs',
                     'PieChart', 
@@ -69,6 +70,7 @@ var LoadingJS = (function(){
                 util: [
                     'FnGetColumnData',
                     'StudyViewUtil',
+                    'QueryByGeneUtil',
                     'StudyViewPrototypes'
                 ],
                 view: [

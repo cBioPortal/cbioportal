@@ -96,6 +96,7 @@ var StudyViewInitTables = (function() {
                             }
                         );
                     };
+                    _worker.callbacks.addGeneClick = addGeneClick;
                     break;
                 case 'cna':
                     _worker.data.attr = [{
@@ -141,6 +142,7 @@ var StudyViewInitTables = (function() {
                             }
                         );
                     };
+                    //_worker.callbacks.addGeneClick = addGeneClick;
                     break;
                 default:
                     _worker.opts.title = 'Unknown';
@@ -156,6 +158,12 @@ var StudyViewInitTables = (function() {
             _worker.callbacks.rowClick = rowClick;
             workers.push(_worker);
         });
+    }
+
+    function addGeneClick(clickedRowData){
+        var clickedGene = clickedRowData[0];
+        QueryByGeneTextArea.addGene(clickedGene);
+
     }
     
     function rowClick(tableId, data, clickedRowData, rowSelected) {

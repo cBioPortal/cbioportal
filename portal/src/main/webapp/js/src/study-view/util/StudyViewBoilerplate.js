@@ -237,11 +237,12 @@ var StudyViewBoilerplate ={
             _span4 = $("<input type='button' />"),
             _span5 = $('<span></span>'),
             _span6 = $("<input type='button' />"),
-            _form = $('<form></form>'),
+            _form = $('<form id="study-view-form"></form>'),
             _input1 = $('<input></input>'),
             _input2 = $('<input></input>'),
             _input3 = $('<input></input>'),
-            _input4 = $('<input></input>');
+            _input4 = $('<input></input>'),
+            _queryByGene = $('<span></span>');
         
         _headerLeft.attr('id','study-view-header-left');
 
@@ -254,7 +255,8 @@ var StudyViewBoilerplate ={
         // Build query button
         _form
             .attr({
-                method: "post",
+                //method: "post",
+                method: "get",
                 action: "index.do",
             })
             .css({
@@ -271,6 +273,7 @@ var StudyViewBoilerplate ={
             .attr({
                 type: "hidden",
                 name: "case_set_id",
+                id: "study-view-header-left-case_set-id",
                 value: "-1"
             });
         _input3
@@ -306,7 +309,7 @@ var StudyViewBoilerplate ={
             .attr({
                 'id': 'study-view-header-left-3'
                 })
-            .text('Total number of samples selected: ');
+            .text('Samples selected: ');
 
        // tumormap.do?cancer_study_id=acyc_mskcc&case_id=9534#nav_case_ids=9534,6277
         //Build View cases button linking to patient view
@@ -328,9 +331,11 @@ var StudyViewBoilerplate ={
                 'class': 'study-view-header-button'})
             .val('Download');
 
+
         // span3 is now the first item, span5 added, image added
         _headerLeft.append(_span3);
         _headerLeft.append(_span5);
+        _headerLeft.append(_queryByGene);
         _headerLeft.append("<img id='arrow_studyview' src='images/arrow_studyview.png'>");
         _headerLeft.append(_form);
         _headerLeft.append(_span4);
@@ -341,6 +346,24 @@ var StudyViewBoilerplate ={
 
         _header.append(_headerLeft);
         _header.append(_headerRight);
+
+
+        _queryByGene
+            .attr({
+               'id': 'query-by-gene-span'
+            });
+
+        var queryByGeneTextArea = $('<textarea></textarea>');
+        queryByGeneTextArea
+            .attr({
+                'id': 'query-by-gene-textarea',
+                'class': 'expand expandFocusOut',
+                'rows': '1',
+                'cols': '10'
+            });
+
+        _queryByGene.append('<span id="queryByGeneTextSpan">Genes Selected: </span>');
+        _queryByGene.append(queryByGeneTextArea);
 
         // add a container for the breadcrumbs
         _breadcrumbs.attr({
@@ -438,7 +461,6 @@ var StudyViewBoilerplate ={
             "</table>",
 
     // added for breadcrumbs
-    // "<div class='breadcrumb_container' style='display: inline-block'>"+
     breadCrumbDiv:
         "<div class='breadcrumb_container'>"+
             "<span class='breadcrumb_item'></span>"+

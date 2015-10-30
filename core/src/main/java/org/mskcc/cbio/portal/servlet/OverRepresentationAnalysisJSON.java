@@ -19,10 +19,13 @@ package org.mskcc.cbio.portal.servlet;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.math.MathException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ArrayNode;
@@ -38,6 +41,11 @@ import org.mskcc.cbio.portal.stats.BenjaminiHochbergFDR;
  * 
  */
 public class OverRepresentationAnalysisJSON extends HttpServlet  {
+
+    private List synced_result = Collections.synchronizedList(new ArrayList());
+    private final int bin = 2000; //size of genes for each thread
+    private final JsonNodeFactory factory = JsonNodeFactory.instance;
+    private final ArrayNode result = new ArrayNode(factory);
 
     /**
      * Handles HTTP GET Request.
@@ -84,7 +92,7 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
 
             //Get genetic profile ID (int) & Type
             GeneticProfile gp = DaoGeneticProfile.getGeneticProfileByStableId(profileId);
-            int gpId = gp.getGeneticProfileId();
+            final int gpId = gp.getGeneticProfileId();
             String gpStableId = gp.getStableId();
             String profileType = gp.getGeneticAlterationType().toString();
 
@@ -136,8 +144,8 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
             }
 
             //the actual calculation
-            ArrayList<ObjectNode> _result = new ArrayList<>();
-            ORAnalysisDiscretizedDataProxy dataProxy =
+            synced_result.clear();
+            final ORAnalysisDiscretizedDataProxy dataProxy =
                     new ORAnalysisDiscretizedDataProxy(
                             gpId,
                             gpStableId,
@@ -148,26 +156,87 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
                             queriedGenes
                     );
             if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString())) {
-                List<Integer> sampleIds = new ArrayList<>(alteredSampleIds);
+                final List<Integer> sampleIds = new ArrayList<>(alteredSampleIds);
                 sampleIds.addAll(unalteredSampleIds);
-                HashMap mutHm = DaoMutation.getSimplifiedMutations(gpId, sampleIds, entrezGeneIds);
-                //Assign every sample (included non mutated ones) values -- mutated -> Mutation Type, non-mutated -> "Non"
-                for (Long entrezGeneId : entrezGeneIds) {
-                    _result.add(dataProxy.processMutHm(entrezGeneId, (ArrayList)sampleIds, mutHm));
+                final HashMap mutHm = DaoMutation.getSimplifiedMutations(gpId, sampleIds, entrezGeneIds);
+
+                //multi-threading settings
+                int nThread = (int)Math.floor(entrezGeneIds.size() / bin) + 1;
+                Thread[] threads = new Thread[nThread];
+                final List<Set<Long>> gene_short_lists = splitGenes(bin, nThread, entrezGeneIds);
+                final AtomicInteger result_index = new AtomicInteger(-1);
+
+                for (int i = 0; i < nThread; i++) {
+                    threads[i] = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            result_index.incrementAndGet();
+                            Set<Long> gene_short_list = gene_short_lists.get(result_index.get());
+                            for (Long entrezGeneId : gene_short_list) {
+                                try {
+                                    synced_result.add(dataProxy.processMutHm(entrezGeneId, (ArrayList)sampleIds, mutHm));
+                                } catch (MathException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                    });
+                    threads[i].start();
                 }
+                for (Thread thread : threads) {
+                    try {
+                        thread.join();
+                    }catch (InterruptedException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
+
             } else {
-                _result = DaoGeneticAlteration.getProcessedAlterationData(
-                        gpId,
-                        entrezGeneIds,
-                        dataProxy
-                );
+
+                Set<Long> genes = DaoGeneticAlteration.getGenesIdInProfile(gpId);
+                int nThread = (int)Math.floor(genes.size() / bin) + 1;
+                Thread[] threads = new Thread[nThread];
+                final List<Set<Long>> gene_short_lists = splitGenes(bin, nThread, genes);
+                final AtomicInteger result_index = new AtomicInteger(-1);
+
+                for (int i = 0; i < nThread; i++) {
+                    threads[i] = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            result_index.incrementAndGet();
+                            Set<Long> gene_short_list = gene_short_lists.get(result_index.get());
+                            try {
+                                synced_result.addAll(DaoGeneticAlteration.getProcessedAlterationData(
+                                        gpId,
+                                        gene_short_list,
+                                        dataProxy
+                                ));
+                            } catch (DaoException e) {
+                                e.printStackTrace();
+                            } catch (MathException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+                    threads[i].start();
+                }
+                for (Thread thread : threads) {
+                    try {
+                        thread.join();
+                    }catch (InterruptedException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
             }
 
-
-            //remove result entries without p values
-            for (int i = 0; i < _result.size(); i++) {
-                if (_result.get(i) == null) {
-                    _result.remove(i);
+            ArrayList<ObjectNode> _result = new ArrayList<>();
+            synchronized(synced_result) {
+                Iterator i = synced_result.iterator();
+                while (i.hasNext()) {
+                    ObjectNode obn = (ObjectNode)i.next();
+                    if (obn != null) {
+                        _result.add(obn);
+                    }
                 }
             }
 
@@ -186,9 +255,7 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
                 _result.get(j).put("q-Value", adjustedPvalues[j]);
             }
 
-            //convert array to arraynode
-            JsonNodeFactory factory = JsonNodeFactory.instance;
-            ArrayNode result = new ArrayNode(factory);
+            result.removeAll();
             for (ObjectNode _result_node : _result) {
                 result.add(_result_node);
             }
@@ -216,6 +283,23 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
             else if (obj1.get("p-Value").asDouble() == obj2.get("p-Value").asDouble()) return 0;
             else return -1;
         }
+    }
+
+    private List<Set<Long>> splitGenes(int bin, int nThread, Set<Long> entrezGeneIds) {
+        List<Long> all_genes = new ArrayList<>(entrezGeneIds);
+        List<Set<Long>> gene_short_lists = new ArrayList<>();
+        for (int i = 0; i < nThread; i++) {
+            List<Long> gene_short_list;
+            if ((i + 1) * bin >= all_genes.size()) {
+                gene_short_list = new ArrayList<>(all_genes.subList(i * bin, all_genes.size() - 1));
+                gene_short_list.add(all_genes.get(all_genes.size() - 1));
+            } else {
+                gene_short_list = new ArrayList<>(all_genes.subList(i * bin, (i + 1) * bin));
+            }
+            Set<Long> gene_short_set = new HashSet<>(gene_short_list);
+            gene_short_lists.add(gene_short_set);
+        }
+        return gene_short_lists;
     }
 
 }

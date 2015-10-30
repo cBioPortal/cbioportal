@@ -77,7 +77,7 @@ public class ORAnalysisDiscretizedDataProxy implements DaoGeneticAlteration.Alte
 
         //create map to pair sample and value
         HashMap<Integer, String> mapSampleValue = new HashMap<>();
-        for (Integer sampleId : sampleList) {
+        for (Integer sampleId : sampleList) { //Assign every sample (included non mutated ones) values -- mutated -> Mutation Type, non-mutated -> "Non"
             String mutationStatus = "Non";
             String tmpStr = new StringBuilder().append(Integer.toString(sampleId)).append(Long.toString(entrezGeneId)).toString();
             if(mutHm.containsKey(tmpStr)) mutationStatus = "Mutated";
@@ -412,22 +412,20 @@ public class ORAnalysisDiscretizedDataProxy implements DaoGeneticAlteration.Alte
         
         for (Integer alteredSampleId: alteredSampleIds) {
             if (singleGeneCaseValueMap.containsKey(alteredSampleId)) {
-                
                 if (profileType.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION.toString())) {
                     Double value = Double.parseDouble(singleGeneCaseValueMap.get(alteredSampleId));
-                    switch (copyNumType) {
-                        case "del":
-                            if (value == -2.0) {
-                                d += 1;
-                            } else {
-                                c += 1;
-                            }   break;
-                        case "amp":
-                            if (value == 2.0) {
-                                d += 1;
-                            } else {
-                                c += 1;
-                            }   break;
+                    if (copyNumType.equals("del")) {
+                        if (value == -2.0) {
+                            d += 1;
+                        } else {
+                            c += 1;
+                        }
+                    } else if (copyNumType.equals("amp")) {
+                        if (value == 2.0) {
+                            d += 1;
+                        } else {
+                            c += 1;
+                        }
                     }
                 } else if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString())) {
                     String value = singleGeneCaseValueMap.get(alteredSampleId);
@@ -437,27 +435,25 @@ public class ORAnalysisDiscretizedDataProxy implements DaoGeneticAlteration.Alte
                         d += 1;
                     }
                 }
-
-            } 
+            }
         }
         
         for (Integer unalteredSampleId: unalteredSampleIds) {
             if (singleGeneCaseValueMap.containsKey(unalteredSampleId)) {
                 if (profileType.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION.toString())) { 
                     Double value = Double.parseDouble(singleGeneCaseValueMap.get(unalteredSampleId));
-                    switch (copyNumType) {
-                        case "del":
-                            if (value == -2.0) {
-                                b += 1;
-                            } else {
-                                a += 1;
-                            }
-                        case "amp":
-                            if (value == 2.0) {
-                                b += 1;
-                            } else {
-                                a += 1;
-                            }
+                    if (copyNumType.equals("del")) {
+                        if (value == -2.0) {
+                            b += 1;
+                        } else {
+                            a += 1;
+                        }
+                    } else if (copyNumType.equals("amp")) {
+                        if (value == 2.0) {
+                            b += 1;
+                        } else {
+                            a += 1;
+                        }
                     }
                 } else if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString())) {
                     String value = singleGeneCaseValueMap.get(unalteredSampleId);

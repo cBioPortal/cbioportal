@@ -351,7 +351,7 @@ var StudyViewBoilerplate ={
         _headerRight.append(_span1);
 
         // add the success banner div to the header
-        _header.append(_successBanner);
+        //_header.append(_successBanner);
         _header.append(_headerLeft);
         _header.append(_headerRight);
 

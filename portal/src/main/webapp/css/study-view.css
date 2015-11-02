@@ -1112,3 +1112,13 @@ span.selectHighlight:hover{
     padding: 1px;
     border: 2px solid #1974b8;
 }
+
+span.geneSelected{
+    font-weight: bold;
+}
+
+#successBanner{
+    float: right;
+    line-height: 7px;
+    display: none;
+}

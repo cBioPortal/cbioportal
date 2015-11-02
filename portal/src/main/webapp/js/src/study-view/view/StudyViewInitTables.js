@@ -142,7 +142,7 @@ var StudyViewInitTables = (function() {
                             }
                         );
                     };
-                    //_worker.callbacks.addGeneClick = addGeneClick;
+                    _worker.callbacks.addGeneClick = addGeneClick;
                     break;
                 default:
                     _worker.opts.title = 'Unknown';
@@ -163,6 +163,33 @@ var StudyViewInitTables = (function() {
     function addGeneClick(clickedRowData){
         var clickedGene = clickedRowData[0];
         QueryByGeneTextArea.addGene(clickedGene);
+
+    }
+
+    function updateGeneHighlights(geneArray){
+        for(var i = 0; i < workers.length; i++) {
+            if(workers[i].callbacks.addGeneClick != undefined){
+                updateGeneHighlightTable(workers[i], geneArray);
+            }
+        }
+    }
+
+    function updateGeneHighlightTable(worker, geneArray){
+        console.log("update "+worker.opts.name);
+        var dataTable = worker.tableInstance.getDataTable();
+
+        dataTable.$("span.geneSelected").removeClass("geneSelected");
+
+        // think about better selector / way to do this at some point
+        // but as this is only a prototype, postpone.
+        for(var i=0; i<geneArray.length; i++){
+            if(worker.opts.name=="cna"){
+                dataTable.$("td[id$='-"+geneArray[i]+"-AMP']").parent().find(".selectHighlight").addClass("geneSelected")
+                dataTable.$("td[id$='-"+geneArray[i]+"-DEL']").parent().find(".selectHighlight").addClass("geneSelected")
+            }
+            else
+                dataTable.$("td[id$='-"+geneArray[i]+"']").parent().find(".selectHighlight").addClass("geneSelected")
+        }
 
     }
     
@@ -441,6 +468,7 @@ var StudyViewInitTables = (function() {
         init: init,
         redraw: redraw,
         clearAllSelected: clearAllSelected,
+        updateGeneHighlights: updateGeneHighlights,
         getInitStatus: function() {
             if(workers.length > 0) {
                 return true;

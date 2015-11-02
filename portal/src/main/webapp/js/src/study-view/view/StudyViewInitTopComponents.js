@@ -259,7 +259,7 @@ var StudyViewInitTopComponents = (function() {
         init: function() {
             createDiv();
             addEvents();
-            QueryByGeneTextArea.init('#query-by-gene-textarea', '#successBanner');
+            QueryByGeneTextArea.init('#query-by-gene-textarea', '#successBanner', StudyViewInitTables.updateGeneHighlights);
         },
         
         changeHeader: changeHeader,

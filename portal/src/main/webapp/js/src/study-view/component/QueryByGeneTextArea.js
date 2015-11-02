@@ -3,10 +3,10 @@ var QueryByGeneTextArea  = (function() {
     var geneList = new Array();
     var successBannerId;
     var areaId;
+    var updateGeneCallBack;
 
     function setFocusOutText(){
         var focusOutText="query genes - click to expand";
-        if(geneList.length==0) hideSuccessBanner();
         if(geneList.length==1) focusOutText = geneList[0];
         else if(geneList.length>1) focusOutText = geneList[0] + " and "+(geneList.length-1)+" more";
         $(areaId).val(focusOutText);
@@ -15,13 +15,6 @@ var QueryByGeneTextArea  = (function() {
     function setFocusInText(){
         $(areaId).val(geneList.join(" "));
     }
-
-    //function hideShowArea(){
-    //    if(hideWhenEmpty){
-    //        if(isEmpty()) $(areaId).parent().hide();
-    //        else $(areaId).parent().show();
-    //    }
-    //}
 
     function getNrGenes(){
         return geneList.length;
@@ -38,21 +31,17 @@ var QueryByGeneTextArea  = (function() {
     function showSuccessBanner(gene){
         if(successBannerId!=undefined) {
             $(successBannerId).text(gene+" added to your query");
-            $(successBannerId).show();
+            $(successBannerId).show().delay(3000).fadeOut(1000, "linear");
         }
     }
-
-    function hideSuccessBanner(){
-        $(successBannerId).fadeOut(2000, "linear");
-    }
-
 
     function addGene (gene){
         if(geneList.indexOf(gene)==-1) {
             geneList.push(gene);
             setFocusOutText();
             showSuccessBanner(gene);
-            //hideShowArea();
+
+            if(updateGeneCallBack != undefined) updateGeneCallBack(geneList);
         }
     }
 
@@ -70,7 +59,8 @@ var QueryByGeneTextArea  = (function() {
         // split the values that are in the textArea and remove the empty elements
         // TNF; IRF5 now becomes ["TNF", "IRF5"]
         // Problematic if e.g. "-" is allowed in a gene name
-        geneList = $.unique(removeEmptyElements($(areaId).val().split(/\W/))).reverse();
+        //geneList = $.unique(removeEmptyElements($(areaId).val().split(/\W/))).reverse();
+        geneList = $.unique(removeEmptyElements($(areaId).val().toUpperCase().split(/\W/))).reverse();
     }
 
     function performGeneValidation(){
@@ -88,14 +78,16 @@ var QueryByGeneTextArea  = (function() {
             updateGeneList();
             setFocusOutText();
             //hideShowArea();
+            if(updateGeneCallBack != undefined) updateGeneCallBack(geneList);
         });
 
         $(areaId).bind('input propertychange', validateGenes);
     }
 
-    function init(areaIdP, successBannerIdP){
+    function init(areaIdP, successBannerIdP, updateGeneCallBackP){
         areaId = areaIdP;
         successBannerId = successBannerIdP;
+        updateGeneCallBack = updateGeneCallBackP;
         setFocusOutText();
         initEvents();
     }

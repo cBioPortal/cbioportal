@@ -229,6 +229,7 @@ var StudyViewBoilerplate ={
             _headerLeft = $('<div></div>'),
             _headerRight = $('<div></div>'),
 
+            _successBanner = $('<div></div>'),
             _breadcrumbs = $('<div></div>'),
             _span3 = $('<span></span>'),
             // span for the number of items found
@@ -330,6 +331,12 @@ var StudyViewBoilerplate ={
                 'class': 'study-view-header-button'})
             .val('Download');
 
+        _successBanner
+            .attr({
+               id: 'successBanner',
+               class: 'alert alert-success fade in',
+               style: 'display: none'
+            });
 
         // span3 is now the first item, span5 added, image added
         _headerLeft.append(_span3);
@@ -343,6 +350,8 @@ var StudyViewBoilerplate ={
         _headerRight.attr('id','study-view-header-right');
         _headerRight.append(_span1);
 
+        // add the success banner div to the header
+        _header.append(_successBanner);
         _header.append(_headerLeft);
         _header.append(_headerRight);
 
@@ -361,7 +370,8 @@ var StudyViewBoilerplate ={
                 'cols': '10'
             });
 
-        _queryByGene.append('<span id="queryByGeneTextSpan">Genes Selected: </span>');
+        //_queryByGene.append('<span id="queryByGeneTextSpan">Genes Selected: </span>');
+        _queryByGene.append('<span id="queryByGeneTextSpan"></span>');
         _queryByGene.append(queryByGeneTextArea);
 
         // add a container for the breadcrumbs

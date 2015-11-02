@@ -311,13 +311,11 @@ var Table = function() {
                     var _gene = source[geneIndex];
                     if (type==='display') {
                         var str = '';
-                        // test
-                        str='<img src="images/plus.svg" class="tableIcon">';
 
                         if(_gene.toString().length > 6) {
-                            str += '<span class="hasQtip" qtip="'+_gene+'">'+_gene.substring(0,4) + '...'+'</span>';
+                            str += '<span class="hasQtip selectHighlight" qtip="'+_gene+'">'+_gene.substring(0,4) + '...'+'</span>';
                         }else {
-                            str += _gene;
+                            str += '<span class="selectHighlight">'+_gene+'</span>';
                         }
 
                         if(qvalIndex !== -1 && attr[qvalIndex].displayName && source[qvalIndex]) {
@@ -444,8 +442,8 @@ var Table = function() {
 
 
     function addGeneClickSetup(){
-        $('#'+divs.tableId+' table tbody tr td:first-child img').unbind('click');
-        $('#'+divs.tableId+' table tbody tr td:first-child img').click(function () {
+        $('#'+divs.tableId+' table tbody tr td:first-child span').unbind('click');
+        $('#'+divs.tableId+' table tbody tr td:first-child span').click(function () {
 
             if(callbacks.hasOwnProperty('addGeneClick')) {
                 // call addGeneClick with this row's data

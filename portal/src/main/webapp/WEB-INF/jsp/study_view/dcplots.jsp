@@ -38,6 +38,8 @@
 <link rel="stylesheet" type="text/css" href="css/study-view.css?<%=GlobalProperties.getAppVersion()%>">
 <link rel="stylesheet" type="text/css" href="css/introjs.min.css?<%=GlobalProperties.getAppVersion()%>">
 <link rel="stylesheet" type="text/css" href="css/introjs-rtl.min.css?<%=GlobalProperties.getAppVersion()%>">
+<link rel="stylesheet" type="text/css" href="css/bootstrap-alert.css?<%=GlobalProperties.getAppVersion()%>">
+
 
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script src="js/lib/packery.pkgd.min.js?<%=GlobalProperties.getAppVersion()%>"></script>

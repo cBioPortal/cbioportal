@@ -573,7 +573,7 @@ var orSubTabView = function() {
 
             //append profile selection dropdown menu for mrna sub-tab
             if (_profile_type === orAnalysis.profile_type.mrna) {
-                $("#" + _div_id + "_loading_img").empty()
+                $("#" + _div_id + "_loading_img").empty();
                 $("#" + _div_id).append("<div id='" + _div_id + orAnalysis.postfix.mrna_sub_tab_profile_selection_dropdown_menu + "_div'></div>");
                 if ($("#" + _div_id + orAnalysis.postfix.mrna_sub_tab_profile_selection_dropdown_menu + "_div").is(":empty")) {
                     if (_profile_type === orAnalysis.profile_type.mrna) {

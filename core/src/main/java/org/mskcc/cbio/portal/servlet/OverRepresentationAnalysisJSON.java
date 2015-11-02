@@ -40,7 +40,7 @@ import org.mskcc.cbio.portal.stats.BenjaminiHochbergFDR;
  */
 public class OverRepresentationAnalysisJSON extends HttpServlet  {
 
-    private List synced_result = Collections.synchronizedList(new ArrayList());
+
     private final int bin = 3000; //size of genes for each thread
     private final JsonNodeFactory factory = JsonNodeFactory.instance;
     private final ArrayNode result = new ArrayNode(factory);
@@ -142,6 +142,7 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
             }
 
             //the actual calculation
+            final List synced_result = Collections.synchronizedList(new ArrayList());
             synced_result.clear();
             final ORAnalysisDiscretizedDataProxy dataProxy =
                     new ORAnalysisDiscretizedDataProxy(

@@ -6,6 +6,7 @@ var QueryByGeneTextArea  = (function() {
 
     function setFocusOutText(){
         var focusOutText="query genes - click to expand";
+        if(geneList.length==0) hideSuccessBanner();
         if(geneList.length==1) focusOutText = geneList[0];
         else if(geneList.length>1) focusOutText = geneList[0] + " and "+(geneList.length-1)+" more";
         $(areaId).val(focusOutText);
@@ -37,8 +38,12 @@ var QueryByGeneTextArea  = (function() {
     function showSuccessBanner(gene){
         if(successBannerId!=undefined) {
             $(successBannerId).text(gene+" added to your query");
-            $(successBannerId).show().delay(3000).fadeOut(1000, "linear");
+            $(successBannerId).show();
         }
+    }
+
+    function hideSuccessBanner(){
+        $(successBannerId).fadeOut(2000, "linear");
     }
 
 

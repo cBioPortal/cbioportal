@@ -571,7 +571,7 @@ var orTable = function() {
                 document.getElementById(table_id + orAnalysis.postfix.datatable_update_query_button).disabled = true;
 
                 $("#" + _table_div).append("<table id='" + table_id + "' cellpadding='0' cellspacing='0' border='0' class='" + table_id + "_datatable_class'></table>");
-                $("#" + _table_div).append("<button id='" + table_id + "_download_btn'>Download Result</button>");
+                $("#" + _table_div).append("<button id='" + table_id + "_download_btn'>Download Complete Result</button>");
                 configTable();
                 attachFilters();
                 addHeaderQtips();

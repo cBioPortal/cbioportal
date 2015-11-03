@@ -350,7 +350,7 @@
 			<execution>
 			  <phase>test-compile</phase>
 			  <goals>
-				<!-- commented by cbio.py: execute</goal> -->
+				<goal>execute</goal>
 			  </goals>
 			  <configuration>
 				<!-- username & password gets put in .m2/settings.xml -->

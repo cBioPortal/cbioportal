@@ -214,6 +214,7 @@ var orTable = function() {
             "fnDrawCallback": function() {
                 event_listener_details_btn();
                 activateUpdateQueryBtns(table_id + orAnalysis.postfix.datatable_update_query_button);
+                activeDownloadBtn();
             },
             "bDeferRender": true,
             "iDisplayLength": 14
@@ -374,7 +375,6 @@ var orTable = function() {
             }
             $("#" + table_id + orAnalysis.postfix.update_query_gene_list).append("&nbsp;&nbsp;Selected genes: " + selected_genes.join(", "));
 
-
             if (selected_genes.length !== 0) {
                 document.getElementById(btn_id).disabled = false;
             } else {
@@ -436,6 +436,46 @@ var orTable = function() {
                 orPlots.init(_plots_div_id, _gene_name, profile_type, profile_id, table_title, aData[col_index.p_val]);
             }
         });
+    }
+
+    function activeDownloadBtn() {
+        $("#" + table_id + "_download_btn").click(function() {
+            cbio.download.clientSideDownload([get_tab_delimited_data()], "enrichments-analysis-result.txt");
+        });
+    }
+
+    function get_tab_delimited_data() {
+        var result_str = "";
+        //column headers
+        if (profile_type === orAnalysis.profile_type.copy_num || profile_type === orAnalysis.profile_type.mutations) {
+            result_str = "Gene\tCytoband\tPercentage of alteration(Altered)\tPercentage of Alteration(Unaltered)\t" +
+                "Log ratio\tp-Value\tq-Value\tDirection/Tendency\n";
+        } else if (profile_type === orAnalysis.profile_type.mrna || profile_type === orAnalysis.profile_type.protein_exp) {
+            result_str = "Gene\tCytoband\tMean of alteration(Altered)\tMean of Alteration(Unaltered)\t" +
+                "Standard Deviation of Alteration(Altered)\tStandard Deviation of Alteration(Unaltered)\t" +
+                "p-Value\tq-Value\n";
+        }
+        //content
+        _.each(data, function(entry) {
+            _.each(entry, function(column) {
+                if (column !== null) {
+                    if (column.indexOf("<input type='checkbox'") !== -1) {
+                        column = column.substring(column.indexOf(">") + 1);
+                    } else {
+                        column = column.replace("<img src=\"images/up1.png\"/>", "");
+                        column = column.replace("<img src=\"images/down1.png\"/>", "");
+                        column = column.replace("&nbsp;&nbsp;&nbsp;<span class='label label-or-analysis-significant'>", "<");
+                        column = column.replace("</span>", ">");
+                    }
+                    result_str += column + "\t";
+                } else {
+                    result_str += "NaN" + "\t";
+                }
+            });
+            result_str += "\n";
+        });
+
+        return result_str;
     }
 
     function define_titles() {
@@ -530,7 +570,8 @@ var orTable = function() {
                       "<span id='" + table_id + orAnalysis.postfix.update_query_gene_list + "'></span>");
                 document.getElementById(table_id + orAnalysis.postfix.datatable_update_query_button).disabled = true;
 
-                $("#" + _table_div).append("<table id='" + table_id + "' cellpadding='0' cellspacing='0' border='0' class='" + table_id + "_datatable_class'></table>"); 
+                $("#" + _table_div).append("<table id='" + table_id + "' cellpadding='0' cellspacing='0' border='0' class='" + table_id + "_datatable_class'></table>");
+                $("#" + _table_div).append("<button id='" + table_id + "_download_btn'>Download Complete Result</button>");
                 configTable();
                 attachFilters();
                 addHeaderQtips();
@@ -573,7 +614,7 @@ var orSubTabView = function() {
 
             //append profile selection dropdown menu for mrna sub-tab
             if (_profile_type === orAnalysis.profile_type.mrna) {
-                $("#" + _div_id + "_loading_img").empty()
+                $("#" + _div_id + "_loading_img").empty();
                 $("#" + _div_id).append("<div id='" + _div_id + orAnalysis.postfix.mrna_sub_tab_profile_selection_dropdown_menu + "_div'></div>");
                 if ($("#" + _div_id + orAnalysis.postfix.mrna_sub_tab_profile_selection_dropdown_menu + "_div").is(":empty")) {
                     if (_profile_type === orAnalysis.profile_type.mrna) {

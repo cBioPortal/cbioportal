@@ -4,10 +4,24 @@ var QueryByGeneTextArea  = (function() {
     var areaId;
     var updateGeneCallBack;
 
+    function createFocusOutText(){
+        var focusOutText = geneList[0];
+        var stringLength = focusOutText.length;
+
+        for(var i=1; i<geneList.length; i++){
+            stringLength+=geneList[i].length+2;
+            if(stringLength>15) {
+                focusOutText+= " and "+(geneList.length-i)+" more"; //12
+                break;
+            }
+            focusOutText+=", "+geneList[i];
+        }
+        return focusOutText
+    }
+
     function setFocusOutText(){
         var focusOutText="query genes - click to expand";
-        if(geneList.length==1) focusOutText = geneList[0];
-        else if(geneList.length>1) focusOutText = geneList[0] + " and "+(geneList.length-1)+" more";
+        if(geneList.length>0) focusOutText = createFocusOutText();
         setTextColour();
         $(areaId).val(focusOutText);
     }

@@ -175,7 +175,6 @@ var StudyViewInitTables = (function() {
     }
 
     function updateGeneHighlightTable(worker, geneArray){
-        console.log("update "+worker.opts.name);
         var dataTable = worker.tableInstance.getDataTable();
 
         dataTable.$("span.geneSelected").removeClass("geneSelected");

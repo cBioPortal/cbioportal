@@ -92,7 +92,7 @@ var BarChart = function(){
                 }
                 removeMarker();
                 // provide the postFilterCallback function with the chartID and the filter for the breadcrumbs
-                postFilterCallback(chart.chartID(), filter);
+                postFilterCallback(param.chartID, filter);
             }, 400);
         });
         barChart.on("postRedraw",function(chart){
@@ -648,6 +648,12 @@ var BarChart = function(){
             startPoint = (parseInt(param.distanceArray.min / 0.2)-1) * 0.2;
             emptyValueMapping = _tmpMaxDomain +0.2;
         
+        }else if( distanceMinMax <= 1 && param.distanceArray.min >=0 && param.distanceArray.max <= 1){
+
+            seperateDistance = 0.1;
+            startPoint = 0;
+            emptyValueMapping = 1.1;
+
         }else if( distanceMinMax >= 1 ){
             
             seperateDistance = (parseInt(distanceMinMax / (numOfGroups * divider)) + 1) * divider;
@@ -655,12 +661,6 @@ var BarChart = function(){
             startPoint = parseInt(param.distanceArray.min / seperateDistance) * seperateDistance;
             emptyValueMapping = _tmpMaxDomain+seperateDistance;
             
-        }else if( distanceMinMax < 1 && param.distanceArray.min >=0 && param.distanceArray.max <= 1){
-            
-            seperateDistance = 0.1;
-            startPoint = 0;
-            emptyValueMapping = 1.1;
-        
         }else{
             
             seperateDistance = 0.1;

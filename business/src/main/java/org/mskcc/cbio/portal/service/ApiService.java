@@ -277,9 +277,14 @@ public class ApiService {
 	}
 
 	@Transactional
-	public List<DBSample> getSamples(String study_id, List<String> sample_ids) {
-		return sampleMapper.getSamples(study_id, sample_ids);
+	public List<DBSample> getSamplesBySample(String study_id, List<String> sample_ids) {
+		return sampleMapper.getSamplesBySample(study_id, sample_ids);
 	}
+        
+        @Transactional
+        public List<DBSample> getSamplesByPatient(String study_id, List<String> patient_ids) {
+                return sampleMapper.getSamplesByPatient(study_id, patient_ids);
+        }
 	
 	@Transactional
 	public List<DBStudy> getStudies() {
@@ -290,4 +295,6 @@ public class ApiService {
 	public List<DBStudy> getStudies(List<String> study_ids) {
 		return studyMapper.getStudies(study_ids);
 	}
+
+
 }

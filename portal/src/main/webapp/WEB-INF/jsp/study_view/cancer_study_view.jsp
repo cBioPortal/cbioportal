@@ -40,6 +40,7 @@
 <%@ page import="java.util.List" %>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="org.json.simple.JSONValue" %>
+<%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
 
 <%
 request.setAttribute("tumormap", true);
@@ -201,7 +202,7 @@ if (cancerStudyViewError!=null) {
 
 <script type="text/javascript">
 var cancerStudyId = '<%=cancerStudy.getCancerStudyStableId()%>';
-var cancerStudyName = '<%=cancerStudy.getName()%>';
+var cancerStudyName = '<%=StringEscapeUtils.escapeJavaScript(cancerStudy.getName())%>';
 var mutationProfileId = <%=mutationProfileStableId==null%>?null:'<%=mutationProfileStableId%>';
 var cnaProfileId = <%=cnaProfileStableId==null%>?null:'<%=cnaProfileStableId%>';
 var hasCnaSegmentData = <%=hasCnaSegmentData%>;

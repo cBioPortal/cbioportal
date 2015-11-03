@@ -64,6 +64,16 @@ doTest("TP53:MUT; BRCA1: AMP HOMDEL EXP>=3 PROT<1", [{gene:"TP53", alterations:[
 										    {alteration_type: "cna", constr_val: "HOMDEL"},
 										    {alteration_type: "exp", constr_rel: ">=", constr_val: 3},
 										    {alteration_type: "prot", constr_rel: "<", constr_val: 1}]}])
+doTest("TP53:MUT;;;\n BRCA1: AMP HOMDEL EXP>=3 PROT<1", [{gene:"TP53", alterations:[{alteration_type: "mut"}]},
+							{gene:"BRCA1", alterations:[{alteration_type: "cna", constr_val: "AMP"}, 
+										    {alteration_type: "cna", constr_val: "HOMDEL"},
+										    {alteration_type: "exp", constr_rel: ">=", constr_val: 3},
+										    {alteration_type: "prot", constr_rel: "<", constr_val: 1}]}])
+doTest("TP53:MUT;\n BRCA1: AMP HOMDEL EXP>=3 PROT<1", [{gene:"TP53", alterations:[{alteration_type: "mut"}]},
+							{gene:"BRCA1", alterations:[{alteration_type: "cna", constr_val: "AMP"}, 
+										    {alteration_type: "cna", constr_val: "HOMDEL"},
+										    {alteration_type: "exp", constr_rel: ">=", constr_val: 3},
+										    {alteration_type: "prot", constr_rel: "<", constr_val: 1}]}])
 doTest("TP53:MUT\n BRCA1: AMP HOMDEL EXP>=3 PROT<1;", [{gene:"TP53", alterations:[{alteration_type: "mut"}]},
 							{gene:"BRCA1", alterations:[{alteration_type: "cna", constr_val: "AMP"}, 
 										    {alteration_type: "cna", constr_val: "HOMDEL"},

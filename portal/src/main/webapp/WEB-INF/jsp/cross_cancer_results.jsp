@@ -62,11 +62,18 @@
 	geneList = geneList.replaceAll("\n", " ").replaceAll("\r", "").replaceAll("/", "_");
 	geneList = servletXssUtil.getCleanerInput(geneList);
 
+
+    String oncokbUrl = (String) GlobalProperties.getOncoKBUrl();
+    String myCancerGenomeUrl = (String) GlobalProperties.getMyCancerGenomeUrl();
+    String oncokbGeneStatus = (String) GlobalProperties.getOncoKBGeneStatus();
+    boolean showHotspot = (Boolean) GlobalProperties.showHotspot();
+
 %>
 
 <jsp:include page="global/header.jsp" flush="true"/>
 
 <!-- for now, let's include these guys here and prevent clashes with the rest of the portal -->
+<script type="text/javascript" src="js/src/patient-view/OncoKBConnector.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/crosscancer.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <link href="css/data_table_ColVis.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 <link href="css/data_table_jui.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
@@ -111,6 +118,13 @@
 </table>
 
 <script>
+    var myCancerGenomeUrl = '<%=myCancerGenomeUrl%>';
+    var oncokbGeneStatus = <%=oncokbGeneStatus%>;
+    var showHotspot = <%=showHotspot%>;
+    var enableMyCancerGenome = myCancerGenomeUrl?true:false;
+
+    OncoKB.setUrl('<%=oncokbUrl%>');
+
     $(document).ready(function() {
         //Set Event listener for the modify query button (expand the hidden form)
         $("#modify_query_btn").click(function () {
@@ -318,6 +332,32 @@
 
         </div>
     </div>
+</script>
+
+<script type="text/template" id="mutation_table_protein_change_oncokb_template">
+    <span class='{{proteinChangeClass}}' alt='{{proteinChangeTip}}'>
+		<a>{{proteinChange}}</a>
+	</span>
+    <span class='mutation-table-additional-protein-change simple-tip'
+          alt='{{additionalProteinChangeTip}}'>
+        <img height=12 width=12 style='opacity:0.2' src='images/warning.gif'>
+    </span>
+    <span class='oncokb oncokb_alteration oncogenic' oncokbId='{{oncokbId}}'>
+        <img class='oncokb oncogenic loader' width="13" height="13" class="loader" src="images/ajax-loader.gif"/>
+    </span>
+    <span class='mcg' alt='{{mcgAlt}}'>
+        <img src='images/mcg_logo.png'>
+    </span>
+    <span class='chang_hotspot' alt='{{changHotspotAlt}}'>
+        <img width='13' height='13' src='images/oncokb-flame.svg'>
+    </span>
+    <a href='{{pdbMatchLink}}' class="mutation-table-3d-link">
+        <span class="mutation-table-3d-icon">3D</span>
+    </a>
+</script>
+
+<script type="text/template" id="mutation_table_oncokb_template">
+    <span class='oncokb oncokb_column' oncokbId='{{uniqueId}}'></span>
 </script>
 
 <script type="text/template" id="studies-with-no-data-tmpl">

@@ -1,7 +1,6 @@
 var QueryByGeneTextArea  = (function() {
     //
     var geneList = new Array();
-    var successBannerId;
     var areaId;
     var updateGeneCallBack;
 
@@ -9,7 +8,13 @@ var QueryByGeneTextArea  = (function() {
         var focusOutText="query genes - click to expand";
         if(geneList.length==1) focusOutText = geneList[0];
         else if(geneList.length>1) focusOutText = geneList[0] + " and "+(geneList.length-1)+" more";
+        setTextColour();
         $(areaId).val(focusOutText);
+    }
+
+    function setTextColour(){
+        if(geneList.length>0) $(areaId).css("color", "black");
+        else $(areaId).css("color", "darkgrey");
     }
 
     function setFocusInText(){
@@ -28,21 +33,18 @@ var QueryByGeneTextArea  = (function() {
         return geneList.join(" ");
     }
 
-    function showSuccessBanner(gene){
-        if(successBannerId!=undefined) {
-            $(successBannerId).text(gene+" added to your query");
-            $(successBannerId).show().delay(3000).fadeOut(1000, "linear");
-        }
-    }
-
-    function addGene (gene){
+    function addRemoveGene (gene){
         if(geneList.indexOf(gene)==-1) {
             geneList.push(gene);
-            setFocusOutText();
-            showSuccessBanner(gene);
-
-            if(updateGeneCallBack != undefined) updateGeneCallBack(geneList);
+            new Notification().createNotification(gene+" added to your query", "success");
         }
+        else{
+            var index = geneList.indexOf(gene);
+            geneList.splice(index, 1);
+            new Notification().createNotification(gene+" removed from your query", "success");
+        }
+        setFocusOutText();
+        if(updateGeneCallBack != undefined) updateGeneCallBack(geneList);
     }
 
     var validateGenes = _.debounce(function(e) {
@@ -84,9 +86,8 @@ var QueryByGeneTextArea  = (function() {
         $(areaId).bind('input propertychange', validateGenes);
     }
 
-    function init(areaIdP, successBannerIdP, updateGeneCallBackP){
+    function init(areaIdP, updateGeneCallBackP){
         areaId = areaIdP;
-        successBannerId = successBannerIdP;
         updateGeneCallBack = updateGeneCallBackP;
         setFocusOutText();
         initEvents();
@@ -94,7 +95,7 @@ var QueryByGeneTextArea  = (function() {
 
     return{
         init: init,
-        addGene: addGene,
+        addRemoveGene: addRemoveGene,
         getGenes: getGenes,
         getNrGenes: getNrGenes,
         isEmpty: isEmpty

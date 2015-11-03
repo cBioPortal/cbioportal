@@ -161,8 +161,8 @@ var StudyViewInitTables = (function() {
     }
 
     function addGeneClick(clickedRowData){
-        var clickedGene = clickedRowData[0];
-        QueryByGeneTextArea.addGene(clickedGene);
+        // clickedRowData[0] contains the gene
+        QueryByGeneTextArea.addRemoveGene(clickedRowData[0]);
 
     }
 

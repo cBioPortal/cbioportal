@@ -89,8 +89,7 @@ if (cancerStudyViewError!=null) {
 
 <jsp:include page="../global/header.jsp" flush="true" />
 
-<%--<table width="100%">--%>
-<table style="display: inline-block; width: 80%">
+<table width="100%">
     <tr>
         <td>
             <form method="post" action="index.do">
@@ -109,8 +108,6 @@ if (cancerStudyViewError!=null) {
         </td>
     </tr>
 </table>
-<%--Test successBanner--%>
-<span id="successBanner" class="alert alert-success fade in"></span>
 
 
 <div id="study-tabs">

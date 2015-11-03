@@ -370,7 +370,7 @@ var StudyViewBoilerplate ={
                 'cols': '10'
             });
 
-        //_queryByGene.append('<span id="queryByGeneTextSpan">Genes Selected: </span>');
+        //_queryByGene.append('<span id="queryByGeneTextSpan">Genes selected: </span>');
         _queryByGene.append('<span id="queryByGeneTextSpan"></span>');
         _queryByGene.append(queryByGeneTextArea);
 

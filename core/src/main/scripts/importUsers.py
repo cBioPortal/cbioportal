@@ -91,7 +91,7 @@ DEFAULT_AUTHORITIES = "PUBLIC;EXTENDED;MSKPUB"
 MSKCC_EMAIL_SUFFIX = "@mskcc.org"
 SMTP_SERVER = "cbio.mskcc.org"
 MESSAGE_FROM = "cbioportal-access@cbio.mskcc.org"
-MESSAGE_BCC = []
+MESSAGE_BCC = ["socci@cbio.mskcc.org", "bouviern@mskcc.org", "selcukls@mskcc.org", "jgao@cbio.mskcc.org", "schultz@cbio.mskcc.org", "grossb@cbio.mskcc.org","heinsz@mskcc.org"]
 
 
 
@@ -497,7 +497,7 @@ def get_portal_name_map(google_spreadsheet,client):
         if entry.custom[PORTAL_NAME_KEY] is not None and entry.custom[SPREADSHEET_NAME_KEY] is not None: 
             portal_name[entry.custom[SPREADSHEET_NAME_KEY].text.strip()] = entry.custom[PORTAL_NAME_KEY].text.strip()
             if entry.custom[PORTAL_NAME_KEY].text.strip() == 'mskcc-portal':
-                mskcc_user_spreadsheet = entry.custom[SPREADSHEET_NAME_KEY]
+                mskcc_user_spreadsheet = entry.custom[SPREADSHEET_NAME_KEY].text.strip()
 
     return portal_name,mskcc_user_spreadsheet
 
@@ -594,7 +594,7 @@ def main():
                     	send_mail([new_user.inst_email],subject,body)
 
             if google_spreadsheet == mskcc_user_spreadsheet:
-                add_unknown_users_to_spreadsheet(client, cursor, google_spreadsheet, portal_properties.google_worksheet)
+                add_unknown_users_to_spreadsheet(client, cursor, google_spreadsheet, portal_properties.google_worksheet,mskcc_user_spreadsheet)
 
     # clean up
     cursor.close()

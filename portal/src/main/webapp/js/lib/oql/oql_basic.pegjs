@@ -84,5 +84,6 @@ Mutation
 	/ "SPLICE"i { return {"type":"class", "value":"SPLICE"}; }
 	/ "TRUNC"i { return {"type":"class", "value":"TRUNC"}; }
         / "FUSION"i { return {"type":"class", "value":"FUSION"}; }
+        / letter:AminoAcid position:NaturalNumber string:String { return {"type":"name" , "value":(letter+position+string)};}
         / letter:AminoAcid position:NaturalNumber { return {"type":"position", "value":parseInt(position)}; }
 	/ mutation_name:String { return {"type":"name", "value":mutation_name}; }

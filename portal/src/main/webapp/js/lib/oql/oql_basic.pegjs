@@ -7,8 +7,10 @@ br	= [\n] b:br
         / [\n]
 	/ ";"
 
-Number = word:[0-9]*("."[0-9]*)? { return word.join(""); }
+Number = word:([-]?[0-9]*("."[0-9]*)?) { return word.join(""); }
+NaturalNumber = number:[0-9]+ { return number.join("");}
 String = word:[-_.@/a-zA-Z0-9]+ { return word.join("") }
+AminoAcid = letter:[GPAVLIMCFYWHKRQNEDST] { return letter; }
 
 sp = space:[ \t\r]+
 msp = space:[ \t\r]*
@@ -81,4 +83,6 @@ Mutation
 	/ "INFRAME"i { return {"type":"class", "value":"INFRAME"}; }
 	/ "SPLICE"i { return {"type":"class", "value":"SPLICE"}; }
 	/ "TRUNC"i { return {"type":"class", "value":"TRUNC"}; }
+        / "FUSION"i { return {"type":"class", "value":"FUSION"}; }
+        / letter:AminoAcid position:NaturalNumber { return {"type":"position", "value":parseInt(position)}; }
 	/ mutation_name:String { return {"type":"name", "value":mutation_name}; }

@@ -48,7 +48,7 @@ var plotsData = (function() {
             }
             
             var paramsGetProfileData = {  //webservice call to get profile data
-                cancer_study_id: window.PortalGlobals.getCancerStudyId(),
+                cancer_study_id: window.QuerySession.getCancerStudyIds()[0],
                 gene_list: $("#" + ids.sidebar[axis].gene).val(),
                 genetic_profile_id: $("#" + ids.sidebar[axis].profile_name).val(),
                 case_set_id: window.PortalGlobals.getCaseSetId(),
@@ -71,7 +71,7 @@ var plotsData = (function() {
             
             var paramsGetClinicalAttributes = { //webservice call to get clinical data
                 cmd : "getClinicalData",
-                cancer_study_id: window.PortalGlobals.getCancerStudyId(),
+                cancer_study_id: window.QuerySession.getCancerStudyIds()[0],
                 case_set_id : window.PortalGlobals.getCaseSetId(),
                 case_ids_key: window.PortalGlobals.getCaseIdsKey(),
                 format : "json"
@@ -204,7 +204,7 @@ var plotsData = (function() {
                     };
 
                     var paramsGetProfileData = {  //webservice call to get profile data
-                        cancer_study_id: window.PortalGlobals.getCancerStudyId(),
+                        cancer_study_id: window.QuerySession.getCancerStudyIds()[0],
                         gene_list: $("#" + ids.sidebar.y.gene).val(),
                         genetic_profile_id: cna_annotation_profile_name,
                         case_set_id: window.PortalGlobals.getCaseSetId(),

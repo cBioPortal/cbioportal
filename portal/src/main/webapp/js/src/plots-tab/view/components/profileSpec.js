@@ -3,7 +3,7 @@ var profileSpec = (function() {
     function appendGeneList(axis) {
         $("#" + ids.sidebar[axis].spec_div).append("<br><h5>Gene</h5>");
         $("#" + ids.sidebar[axis].spec_div).append("<select id='" + ids.sidebar[axis].gene + "'>");
-        $.each(window.PortalGlobals.getGeneList(), function(index, value) {
+        $.each(window.QuerySession.getQueryGenes(), function(index, value) {
             $("#" + ids.sidebar[axis].gene).append(
                     "<option value='" + value + "'>" + value + "</option>");
         });

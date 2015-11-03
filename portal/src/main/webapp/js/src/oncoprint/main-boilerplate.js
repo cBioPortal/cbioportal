@@ -139,7 +139,7 @@ requirejs(  ['OncoprintUtils'],
     var sortStatus=[];
 
     var cases = window.PortalGlobals.getCases();
-    var genes = window.PortalGlobals.getGeneListString().split(" ");
+    var genes = window.QuerySession.getQueryGenes();
 
     var outer_loader_img = $('#oncoprint #outer_loader_img');
     var inner_loader_img = $('#oncoprint #inner_loader_img');

@@ -472,7 +472,7 @@ window.setUpOncoprint = function(ctr_id, config) {
 						});
 					}
 
-					if (window.PortalGlobals.getCancerStudyId() !== null) {
+					if (window.QuerySession.getCancerStudyIds().length > 0) {
 						unused_clinical_attrs.unshift({attr_id: "FRACTION_GENOME_ALTERED",
 							datatype: "NUMBER",
 							description: "Fraction Genome Altered",

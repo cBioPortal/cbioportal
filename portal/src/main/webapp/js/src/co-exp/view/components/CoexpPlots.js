@@ -51,7 +51,7 @@ var CoexpPlots = function() {
 
     function getAlterationData(divName, geneX, geneY, pearson, spearman, profileId) {
         var paramsGetAlterationData = {
-            cancer_study_id: window.PortalGlobals.getCancerStudyId(),
+            cancer_study_id: window.QuerySession.getCancerStudyIds()[0],
             gene_list: geneX + " " + geneY,
             case_set_id: window.PortalGlobals.getCaseSetId(),
             case_ids_key: window.PortalGlobals.getCaseIdsKey(),

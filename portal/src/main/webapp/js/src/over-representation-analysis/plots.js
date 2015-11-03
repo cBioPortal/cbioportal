@@ -64,73 +64,80 @@ var orPlots = (function() {
 
     function data_process(result) {
 
-        var oncoprintData = or_util.sortOncoprintData(PortalDataColl.getOncoprintData());
+	window.QuerySession.getGenomicEventData().then(function(data) {
+		var order = {};
+		var sample_ids = window.QuerySession.getSampleIds();
+		for (var i=0; i<sample_ids.length; i++) {
+			order[sample_ids[i]] = i;
+		}
+		var oncoprintData = _.sort(data, function(d) { return order[d.sample];});
+		dotsArr = [];
+		dotsArr.length = 0;
+		window.QuerySession.getAlteredSamples().then(function(altered_sample_ids) {
+			$.each(Object.keys(result[gene]), function(index, _sampleId) {
+			    var _obj = result[gene][_sampleId];
+			    var _datum = {};
+			    if (!isNaN(_obj[profile_id])) {
+				if ($.inArray(_sampleId, altered_sample_ids) !== -1) { //sample is altered
+				    _datum.x_val = 0;
+				} else { //sample is unaltered
+				    _datum.x_val = 1;
+				}
 
-        dotsArr = [];
-        dotsArr.length = 0;
-        $.each(Object.keys(result[gene]), function(index, _sampleId) {
-            var _obj = result[gene][_sampleId];
-            var _datum = {};
-            if (!isNaN(_obj[profile_id])) {
+				//if rna seq data, apply log 10
+				if (profile_id.indexOf("rna_seq") !== -1 && _datum.y_val !== 0) _datum.y_val = Math.log(parseFloat(_obj[profile_id]) + 1.0) / Math.log(2);
+				else _datum.y_val = parseFloat(_obj[profile_id]);
 
-                if ($.inArray(_sampleId, window.PortalGlobals.getAlteredSampleIdArray()) !== -1) { //sample is altered
-                    _datum.x_val = 0;
-                } else { //sample is unaltered
-                    _datum.x_val = 1;
-                }
+				_datum.case_id = _sampleId;
+				if ($.inArray(_sampleId, altered_sample_ids) !== -1) { //sample is altered
 
-                //if rna seq data, apply log 10
-                if (profile_id.indexOf("rna_seq") !== -1 && _datum.y_val !== 0) _datum.y_val = Math.log(parseFloat(_obj[profile_id]) + 1.0) / Math.log(2);
-                else _datum.y_val = parseFloat(_obj[profile_id]);
+				    $.each(oncoprintData, function(outer_index, outer_obj) {
+					$.each(outer_obj.values, function(inner_key, inner_obj) {
+					    if (_sampleId === inner_obj.sample) {
+						var _str = "";
+						if (inner_obj.hasOwnProperty("mutation")) {
+						    _str += " MUT;";
+						}
+						if (inner_obj.hasOwnProperty("cna")) {
+						    if (inner_obj.cna === "AMPLIFIED") {
+							_str += " AMP;";
+						    } else if (inner_obj.cna === "GAINED") {
+							_str += " GAIN;";
+						    } else if (inner_obj.cna === "HEMIZYGOUSLYDELETED") {
+							_str += " HETLOSS;";
+						    } else if (inner_obj.cna === "HOMODELETED") {
+							_str += " HOMDEL;";
+						    }
+						}
+						if (inner_obj.hasOwnProperty("mrna")) {
+						    if (inner_obj.mrna === "UPREGULATED") {
+							_str += " UP;";
+						    } else if (inner_obj.mrna === "DOWNREGULATED") {
+							_str += " DOWN;";
+						    }
+						}
+						if (inner_obj.hasOwnProperty("rppa")) {
+						    if (inner_obj.rppa === "UPREGULATED") {
+							_str += " RPPA-UP;";
+						    } else if (inner_obj.rppa === "DOWNREGULATED") {
+							_str += " RPPA-DOWN;";
+						    }
+						}
+						if (_str !== "") {
+						    _str = inner_obj.gene + ":" + _str;
+						    _datum.alteration = _str;
+						}
+					    }
+					});
+				    });
+				}
+				dotsArr.push(_datum);
+			    }
+			});
 
-                _datum.case_id = _sampleId;
-                if ($.inArray(_sampleId, window.PortalGlobals.getAlteredSampleIdArray()) !== -1) { //sample is altered
-
-                    $.each(oncoprintData, function(outer_index, outer_obj) {
-                        $.each(outer_obj.values, function(inner_key, inner_obj) {
-                            if (_sampleId === inner_obj.sample) {
-                                var _str = "";
-                                if (inner_obj.hasOwnProperty("mutation")) {
-                                    _str += " MUT;";
-                                }
-                                if (inner_obj.hasOwnProperty("cna")) {
-                                    if (inner_obj.cna === "AMPLIFIED") {
-                                        _str += " AMP;";
-                                    } else if (inner_obj.cna === "GAINED") {
-                                        _str += " GAIN;";
-                                    } else if (inner_obj.cna === "HEMIZYGOUSLYDELETED") {
-                                        _str += " HETLOSS;";
-                                    } else if (inner_obj.cna === "HOMODELETED") {
-                                        _str += " HOMDEL;";
-                                    }
-                                }
-                                if (inner_obj.hasOwnProperty("mrna")) {
-                                    if (inner_obj.mrna === "UPREGULATED") {
-                                        _str += " UP;";
-                                    } else if (inner_obj.mrna === "DOWNREGULATED") {
-                                        _str += " DOWN;";
-                                    }
-                                }
-                                if (inner_obj.hasOwnProperty("rppa")) {
-                                    if (inner_obj.rppa === "UPREGULATED") {
-                                        _str += " RPPA-UP;";
-                                    } else if (inner_obj.rppa === "DOWNREGULATED") {
-                                        _str += " RPPA-DOWN;";
-                                    }
-                                }
-                                if (_str !== "") {
-                                    _str = inner_obj.gene + ":" + _str;
-                                    _datum.alteration = _str;
-                                }
-                            }
-                        });
-                    });
-                }
-                dotsArr.push(_datum);
-            }
-        });
-
-        generate_plots();
+			generate_plots();
+		});
+	});
     };
 
     var generate_plots = function() {
@@ -229,7 +236,7 @@ var orPlots = (function() {
             .attr("y", 580)
             .style("text-anchor", "middle")
             .style("font-size", "13px")
-            .text("Query: " + window.PortalGlobals.getGeneListString() + " (p-Value: " + p_value + ")");
+            .text("Query: " + window.QuerySession.getQueryGenes().join(" ") + " (p-Value: " + p_value + ")");
         axisTitleGroup.append("text")
             .attr("class", "rppa-plots-y-axis-title")
             .attr("transform", "rotate(-90)")
@@ -448,7 +455,7 @@ var orPlots = (function() {
             if (_p_value.indexOf("down1") !== -1) p_value = _p_value.replace("<img src=\"images/down1.png\"/>",  "");
 
             var params_get_profile_data = {
-                cancer_study_id: window.PortalGlobals.getCancerStudyId(),
+                cancer_study_id: window.QuerySession.getCancerStudyIds()[0],
                 gene_list: gene,
                 genetic_profile_id: profile_id,
                 case_set_id: window.PortalGlobals.getCaseSetId(),

@@ -21,9 +21,9 @@ $(document).ready(function() {
 				gene_data: response,
 				toolbar_selector: '#oncoprint-diagram-toolbar-buttons',
 				toolbar_fade_hitzone_selector: '#oncoprint',
-				sample_list: window.PortalGlobals.getCases().trim().split(/\s+/),
+				sample_list: window.QuerySession.getSampleIds(),
 				cancer_study_id: cancer_study_id_selected,
-				gene_order: window.PortalGlobals.getGeneListString().split(/\s+/),
+				gene_order: window.QuerySession.getQueryGenes(),
 
 				load_clinical_tracks: true,
 				swap_patient_sample: true,

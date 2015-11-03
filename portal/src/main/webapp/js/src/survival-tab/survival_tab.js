@@ -75,7 +75,7 @@ var SurvivalTab = (function() {
             var params = {
                 case_set_id: PortalGlobals.getCaseSetId(),
                 case_ids_key: PortalGlobals.getCaseIdsKey(),
-                cancer_study_id: PortalGlobals.getCancerStudyId(),
+                cancer_study_id: window.QuerySession.getCancerStudyIds()[0],
                 data_type: "os"
             };
             $.post("getSurvivalData.json", params, function(data) {

@@ -51,7 +51,7 @@ var DataProxyFactory = (function()
 			var servletParams = {};
 
 			//servletParams.geneticProfiles = PortalGlobals.getGeneticProfiles();
-			servletParams.geneticProfiles = PortalGlobals.getCancerStudyId() + "_mutations";
+			servletParams.geneticProfiles = window.QuerySession.getCancerStudyIds()[0] + "_mutations";
 
 			var caseSetId = PortalGlobals.getCaseSetId();
 			var caseIdsKey = PortalGlobals.getCaseIdsKey();
@@ -72,7 +72,7 @@ var DataProxyFactory = (function()
 			// last resort: send the actual case list as a long string
 			else
 			{
-				servletParams.caseList = PortalGlobals.getCases();
+				servletParams.caseList = QuerySession.getSampleIds();
 			}
 
 			// default servlet name for mutation data
@@ -81,7 +81,7 @@ var DataProxyFactory = (function()
 			// init mutation data proxy with the data servlet config
 			var proxy = new MutationDataProxy({
 				servletName: servletName,
-				geneList: PortalGlobals.getGeneListString(),
+				geneList: window.QuerySession.getQueryGenes().join(" "),
 				params: servletParams
 			});
 			proxy.init();

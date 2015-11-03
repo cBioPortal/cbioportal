@@ -312,10 +312,12 @@ var Table = function() {
                     if (type==='display') {
                         var str = '';
 
+                        // add qtip for selecting the gene
+                        str += '<span class="hasQtip selectHighlight" qtip="Click '+_gene+' to update your query">';
                         if(_gene.toString().length > 6) {
-                            str += '<span class="hasQtip selectHighlight" qtip="'+_gene+'">'+_gene.substring(0,4) + '...'+'</span>';
+                            str += _gene.substring(0,4) + '...'+'</span>';
                         }else {
-                            str += '<span class="selectHighlight">'+_gene+'</span>';
+                            str += _gene+'</span>';
                         }
 
                         if(qvalIndex !== -1 && attr[qvalIndex].displayName && source[qvalIndex]) {

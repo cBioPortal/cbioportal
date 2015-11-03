@@ -44,8 +44,8 @@ var or_tab = (function() {
 
     var alteredCaseList = [], unalteredCaseList = [];
     var profile_obj_list = {}, profile_type_list = [];
-    //var gene_set_opt = "all_genes";
-    var gene_set_opt = "cancer_genes";
+    var gene_set_opt = "all_genes";
+    //var gene_set_opt = "cancer_genes";
 
     //status of gene set option for each sub-tab
     var gene_set_stat = {

@@ -6,7 +6,6 @@ window.setUpOncoprint = function(ctr_id, config) {
 	
 	var sample_to_patient = config.sample_to_patient;
 	var gene_data = config.gene_data;
-	
 	var genetic_alteration_tracks = [];
 	var clinical_tracks = [];
 	
@@ -566,7 +565,7 @@ window.setUpOncoprint = function(ctr_id, config) {
 			});
 			$(toolbar_selector + " #select_clinical_attributes_chzn").mouseenter(function () {
 				$(toolbar_selector + " #select_clinical_attributes_chzn .chzn-search input").focus();
-			});
+			});                      
 			var onSelectClinicalAttribute = function(clinical_attr) {
 				var def = new $.Deferred();
 				oncoprintFadeTo(0.5);

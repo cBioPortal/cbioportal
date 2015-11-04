@@ -91,7 +91,7 @@ DEFAULT_AUTHORITIES = "PUBLIC;EXTENDED;MSKPUB"
 MSKCC_EMAIL_SUFFIX = "@mskcc.org"
 SMTP_SERVER = "cbio.mskcc.org"
 MESSAGE_FROM = "cbioportal-access@cbio.mskcc.org"
-MESSAGE_BCC = ["socci@cbio.mskcc.org", "bouviern@mskcc.org", "selcukls@mskcc.org", "jgao@cbio.mskcc.org", "schultz@cbio.mskcc.org", "grossb@cbio.mskcc.org","heinsz@mskcc.org"]
+MESSAGE_BCC = []
 
 
 

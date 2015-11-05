@@ -301,6 +301,47 @@ function reviewCurrentSelections(){
    }
 }
 
+// Get mapping if necessary
+function getMapping() {
+    if ($("#main_form").find("input[name=patient_case_select]:checked").val() === "patient") {
+	getMap().then(function() {
+            $("#main_form").submit();
+        });
+    }
+    else {	
+        $("#main_form").submit();
+    }
+    function setPatientSampleIdMap(_sampleMap) {
+        var samples_string = "";
+        for (var i=0,_len=_sampleMap.length; i<_len; i++) 
+        {
+            var d = _sampleMap[i];
+            samples_string += d.id + "\n";
+        };
+        return samples_string;
+    }
+    
+    function getMap() {
+	var def = new $.Deferred();
+        // Get input selection
+        var sampleIds = $("#custom_case_set_ids").val().trim().replace(/"/g,'').split(/\s+/);
+        // Get study selection
+        var studyId = $("#select_single_study").val();
+        if (sampleIds[0] !== "")
+        {
+            window.cbioportal_client.getSamples({study_id: [studyId],patient_ids: sampleIds}).then(function(sampleMap){
+                $("#custom_case_set_ids").val(setPatientSampleIdMap(sampleMap));
+		def.resolve();
+            });                
+        }
+        else {
+            def.resolve();
+        }
+        
+        return def;
+    }
+    
+}
 //  Determine whether to submit a cross-cancer query or
 //  a study-specific query
 function chooseAction(evt) {
@@ -310,20 +351,20 @@ function chooseAction(evt) {
 
     var selected_studies = $("#jstree").jstree(true).get_selected_leaves();
     while (selected_studies.length === 0 && !window.changingTabs) {
-	    // select all by default
-	    $("#jstree").jstree(true).select_node(window.jstree_root_id);
-	    selected_studies = $("#jstree").jstree(true).get_selected_leaves()
+            // select all by default
+            $("#jstree").jstree(true).select_node(window.jstree_root_id);
+            selected_studies = $("#jstree").jstree(true).get_selected_leaves()
     }    
     if (selected_studies.length > 1) {
-	$("#main_form").find("#select_multiple_studies").val("");
+        $("#main_form").find("#select_multiple_studies").val("");
         if ($("#tab_index").val() == 'tab_download') {
             $("#main_form").get(0).setAttribute('action','index.do');
         }
         else {
-		var dataPriority = $('#main_form').find('input[name=data_priority]:checked').val();
-		var newSearch = $('#main_form').serialize() + '&Action=Submit#crosscancer/overview/'+dataPriority+'/'+encodeURIComponent($('#gene_list').val())+'/'+encodeURIComponent(selected_studies.join(","));
-		evt.preventDefault();
-		window.location = 'cross_cancer.do?' + newSearch;
+                var dataPriority = $('#main_form').find('input[name=data_priority]:checked').val();
+                var newSearch = $('#main_form').serialize() + '&Action=Submit#crosscancer/overview/'+dataPriority+'/'+encodeURIComponent($('#gene_list').val())+'/'+encodeURIComponent(selected_studies.join(","));
+                evt.preventDefault();
+                window.location = 'cross_cancer.do?' + newSearch;
             //$("#main_form").get(0).setAttribute('action','cross_cancer.do');
         }
         if ( haveExpInQuery ) {
@@ -331,7 +372,7 @@ function chooseAction(evt) {
             evt.preventDefault();
         }
     } else if (selected_studies.length === 1) {
-	$("#main_form").find("#select_single_study").val(selected_studies[0]);
+        $("#main_form").find("#select_single_study").val(selected_studies[0]);
         $("#main_form").get(0).setAttribute('action','index.do');
 
         if ( haveExpInQuery ) {

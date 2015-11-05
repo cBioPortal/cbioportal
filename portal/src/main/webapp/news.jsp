@@ -43,6 +43,7 @@
 <script type="text/javascript" src="js/lib/backbone-min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <script type="text/javascript" src="js/lib/showdown.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/lib/showdown-github.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/url_based_content.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 
@@ -82,7 +83,8 @@
     $(document).ready( function() {
         // retrieve link for News and generate the page
         var newsLink = '<%= GlobalProperties.getNewsHtml()%>';
-        var generatePage = new GeneratePage(newsLink, "#newsPage");
+        var baseUrl = '<%= GlobalProperties.getBaseUrl()%>';
+        var generatePage = new GeneratePage(baseUrl, newsLink, "#newsPage");
         generatePage.init();
     });
 </script>

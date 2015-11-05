@@ -39,6 +39,7 @@
 <script type="text/javascript" src="js/lib/backbone-min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <script type="text/javascript" src="js/lib/showdown.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/lib/showdown-github.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/url_based_content.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <%
@@ -80,7 +81,8 @@
     $(document).ready( function() {
         // retrieve link for FAQ and generate the page
         var faqLink = '<%= GlobalProperties.getFaqHtml()%>';
-        var generatePage = new GeneratePage(faqLink, "#faqPage");
+        var baseUrl = '<%= GlobalProperties.getBaseUrl()%>';
+        var generatePage = new GeneratePage(baseUrl, faqLink, "#faqPage");
         generatePage.init();
     });
 </script>

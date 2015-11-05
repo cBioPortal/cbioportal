@@ -27,7 +27,7 @@ public class ExternalPageController {
     @Transactional
     @RequestMapping(value = "/getexternalpage.json", method = {RequestMethod.GET})
     public @ResponseBody Map<String, String> getExternalPage(@RequestParam(required = true) String sourceURL) throws IOException {
-        String decodedString, markdownText = "";
+        String decodedString, pageText = "";
 
         // decode the sourceURL and open a connection
         sourceURL = URLDecoder.decode(sourceURL, "UTF-8");
@@ -39,11 +39,11 @@ public class ExternalPageController {
 
         // read
         while ((decodedString = in.readLine()) != null) {
-            markdownText += decodedString + "\n";
+            pageText += decodedString + "\n";
         }
         in.close();
 
-        // turn the markdownText into a singletonMap for json and return
-        return Collections.singletonMap("response", markdownText);
+        // turn the pageText into a singletonMap for json and return
+        return Collections.singletonMap("response", pageText);
     }
 }

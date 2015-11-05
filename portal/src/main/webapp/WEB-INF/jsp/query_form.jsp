@@ -109,7 +109,7 @@
 //    String caseIdsKey = (String) request.getAttribute(QueryBuilder.CASE_IDS_KEY);
 %>
 
-
+<script type="text/javascript" src="js/lib/oql/oql-parser.js" charset="utf-8"></script>
 <script type="text/javascript">
     // Store the currently selected options as global variables;
     window.cancer_study_id_selected = '<%= localCancerTypeId%>';

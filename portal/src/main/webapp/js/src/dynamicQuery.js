@@ -304,6 +304,7 @@ function reviewCurrentSelections(){
 //  Determine whether to submit a cross-cancer query or
 //  a study-specific query
 function chooseAction(evt) {
+	alert("wtf");
     var haveExpInQuery = $("#gene_list").val().toUpperCase().search("EXP") > -1;
     $("#error_box").remove();
 
@@ -346,6 +347,15 @@ function chooseAction(evt) {
                 evt.preventDefault();
             }
         }
+    }
+    
+    
+    // validate OQL
+    try {
+	    oql_parser.parse($('#gene_list').val());
+    } catch (err) {
+	    createAnError("We've got a problem, bro");
+	    evt.preventDefault();
     }
 }
 

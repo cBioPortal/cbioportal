@@ -16,6 +16,15 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 
 		var parse = function(oql_query) {
 			var parsed = oql_parser.parse(oql_query);
+			
+			var datatypes_alterations = false;
+			for (var i=0; i<parsed.length; i++) {
+				if (parsed[i].gene === "DATATYPES") {
+					datatypes_alterations = parsed[i].alterations;
+				} else if (datatypes_alterations && !parsed[i].alterations) {
+					parsed[i].alterations = datatypes_alterations;
+				}
+			}
 			for (var i=0; i<parsed.length; i++) {
 				if (!parsed[i].alterations) {
 					parsed[i].alterations = oql_parser.parse("DUMMYGENE:"+config.default_oql+";")[0].alterations;

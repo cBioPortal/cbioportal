@@ -161,12 +161,15 @@ public class GlobalProperties {
     public static final String SKIN_CUSTOM_HEADER_TABS="skin.custom_header_tabs";
 
     // properties for the FAQ, about us, news and examples
+    public static final String SKIN_BASEURL="skin.baseurl";
+    public static final String DEFAULT_SKIN_BASEURL="https://github.com/cBioPortal/cbioportal/wiki/";
     public static final String SKIN_FAQ="skin.faq";
-    public static final String DEFAULT_SKIN_FAQ="https://github.com/cBioPortal/cbioportal/wiki/FAQ.md";
+    public static final String DEFAULT_SKIN_FAQ="FAQ.md";
     public static final String SKIN_ABOUT="skin.about";
-    public static final String DEFAULT_SKIN_ABOUT="https://github.com/cBioPortal/cbioportal/wiki/About-Us.md";
+    public static final String DEFAULT_SKIN_ABOUT="About-Us.md";
     public static final String SKIN_NEWS="skin.news";
-    public static final String DEFAULT_SKIN_NEWS="https://github.com/cBioPortal/cbioportal/wiki/News.md";
+    public static final String DEFAULT_SKIN_NEWS="News.md";
+
     public static final String SKIN_EXAMPLES_RIGHT_COLUMN="skin.examples_right_column";
     public static final String DEFAULT_SKIN_EXAMPLES_RIGHT_COLUMN="../../../content/examples.html";
     
@@ -337,6 +340,13 @@ public class GlobalProperties {
         String newsHtml = properties.getProperty(SKIN_NEWS);
         return (newsHtml == null) ? DEFAULT_SKIN_NEWS : getContentString(newsHtml);
     }
+    // get custom News html or the default
+    public static String getBaseUrl()
+    {
+        String baseUrl = properties.getProperty(SKIN_BASEURL);
+        return (baseUrl == null) ? DEFAULT_SKIN_BASEURL : baseUrl;
+    }
+
     // get custom Example Queries for the right column html or the default
     public static String getExamplesRightColumnHtml()
     {
@@ -345,7 +355,8 @@ public class GlobalProperties {
     }
 
     private static String getContentString(String contentString){
-        if(!contentString.startsWith("http")) return "content/"+contentString;
+        if(getBaseUrl().equalsIgnoreCase("")) return "content/"+contentString;
+//        if(!contentString.startsWith("http")) return "content/"+contentString;
         return contentString;
     }
 

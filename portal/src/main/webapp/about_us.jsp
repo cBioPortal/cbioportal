@@ -43,6 +43,7 @@
 <script type="text/javascript" src="js/lib/backbone-min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <script type="text/javascript" src="js/lib/showdown.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/lib/showdown-github.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/url_based_content.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <% request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::About Us"); %>
@@ -82,7 +83,8 @@
     $(document).ready( function() {
         // retrieve link for About Us and generate the page
         var aboutLink = '<%= GlobalProperties.getAboutHtml()%>';
-        var generatePage = new GeneratePage(aboutLink, "#aboutPage");
+        var baseUrl = '<%= GlobalProperties.getBaseUrl()%>';
+        var generatePage = new GeneratePage(baseUrl, aboutLink, "#aboutPage");
         generatePage.init();
     });
 </script>

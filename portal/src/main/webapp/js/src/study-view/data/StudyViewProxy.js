@@ -37,9 +37,13 @@ var StudyViewProxy = (function() {
     var parObject = {},
         sampleIdStr = '',
         patientIdStr = '',
-        samplePatientMapping = {},
+        patientToSampleMapping = {},
+        sampleToPatientMapping = {},
         ajaxParameters = {},
-        obtainDataObject = {};
+        obtainDataObject = {},
+
+    //The mapping between obtainDataObject.arr index and sampleID
+        sampleIdArrMapping = {};
 
     obtainDataObject.attr = [];
     obtainDataObject.arr = [];
@@ -58,14 +62,14 @@ var StudyViewProxy = (function() {
         }).done(function(d){
             var sampleIds = [],
                 patientIds = [];
-            parObject.samplePatientMapping = d;
+            patientToSampleMapping = d;
 
             for(var key in d) {
                 patientIds.push(key);
                 for(var i = 0; i< d[key].length; i++){
                     if(sampleIds.indexOf(d[key][i]) === -1) {
                         sampleIds.push(d[key][i]);
-                        samplePatientMapping[d[key][i]] = key;
+                        sampleToPatientMapping[d[key][i]] = key;
                     }
                 }
             }
@@ -143,12 +147,11 @@ var StudyViewProxy = (function() {
             //$.ajax({type: "POST", url: "mutations.json", data: ajaxParameters.mutatedGenesData})
         )
             .done(function(a1, a2, a3, a4, a5){
-                var _dataAttrMapArr = {}, //Map attrbute value with attribute name for each datum
-                    _keyNumMapping = {},
+                var _dataAttrMapArr = {}, //Map attribute value with attribute name for each datum
                     _data = a1[0].data,
                     _dataAttrOfa1 = {},
                     _dataLength = _data.length,
-                    _sampleIds = Object.keys(samplePatientMapping),
+                    _sampleIds = Object.keys(sampleToPatientMapping),
                     _sequencedSampleIds = [],
                     _locks=0;
 
@@ -165,12 +168,12 @@ var StudyViewProxy = (function() {
                     _dataAttrOfa1[caseAttr.attr_id] = caseAttr;
                 }
 
-                //Initial data array, not all of cases has MUTAION COUND OR COPY NUMBER ALTERATIONS.
+                //Initial data array, not all of cases has MUTATION COUNT OR COPY NUMBER ALTERATIONS.
                 for(var j = 0; j <  _sampleIds.length; j++){
                     var _caseDatum =  new CaseDatum();
                     _caseDatum.CASE_ID = _sampleIds[j];
-                    _caseDatum.PATIENT_ID = samplePatientMapping[_sampleIds[j]];
-                    _keyNumMapping[_sampleIds[j]] = j;
+                    _caseDatum.PATIENT_ID = sampleToPatientMapping[_sampleIds[j]];
+                    sampleIdArrMapping[_sampleIds[j]] = j;
                     obtainDataObject.arr.push(_caseDatum);
                 }
 
@@ -190,7 +193,7 @@ var StudyViewProxy = (function() {
                         }
                     }
 
-                    obtainDataObject.arr[_keyNumMapping[_sampleId]][_attrId] = _attrVal;
+                    obtainDataObject.arr[sampleIdArrMapping[_sampleId]][_attrId] = _attrVal;
                 }
 
                 for(var key in _dataAttrOfa1) {
@@ -243,7 +246,7 @@ var StudyViewProxy = (function() {
                             ++_newAttr.numOfNoneEmpty;
                         }
 
-                        obtainDataObject.arr[_keyNumMapping[sampleId]].MUTATION_COUNT = val;
+                        obtainDataObject.arr[sampleIdArrMapping[sampleId]].MUTATION_COUNT = val;
                         _keys[val] = 0;
                     }
                     _newAttr.keys = Object.keys(_keys);
@@ -274,7 +277,7 @@ var StudyViewProxy = (function() {
                             ++_newAttri.numOfNoneEmpty;
                         }
                         _keys[val] = 0;
-                        obtainDataObject.arr[_keyNumMapping[sampleId]].COPY_NUMBER_ALTERATIONS = val;
+                        obtainDataObject.arr[sampleIdArrMapping[sampleId]].COPY_NUMBER_ALTERATIONS = val;
                     }
                     _newAttri.keys = Object.keys(_keys);
                     obtainDataObject.attr.push(_newAttri);
@@ -342,10 +345,21 @@ var StudyViewProxy = (function() {
 
         for(var i = 0, _sampleIdsL = _sampleIds.length; i < _sampleIdsL; i++) {
             if(_patientIds.indexOf(_sampleIds[i]) === -1) {
-                _patientIds.push(samplePatientMapping[_sampleIds[i]]);
+                _patientIds.push(sampleToPatientMapping[_sampleIds[i]]);
             }
         }
         return _.uniq(_patientIds);
+    }
+
+    function getSampleIdsByPatientIds(_patientIds) {
+        var _sampleIds = [];
+
+        for(var i = 0, _patientIdsL = _patientIds.length; i < _patientIdsL; i++) {
+            if(_sampleIds.indexOf(_patientIds[i]) === -1) {
+                _sampleIds = _sampleIds.concat(patientToSampleMapping[_patientIds[i]]);
+            }
+        }
+        return _.uniq(_sampleIds);
     }
 
     //Webservice may retrun extra cases including there data
@@ -420,6 +434,20 @@ var StudyViewProxy = (function() {
         return deferred.promise();
     }
 
+    function getArrDataBySampleIds(sampleIds){
+        var  _arr = [];
+        if(sampleIds instanceof Array) {
+            var sampleL = sampleIds.length;
+            
+            for(var i = 0; i < sampleL; i++) {
+                if(sampleIdArrMapping.hasOwnProperty(sampleIds[i])) {
+                    _arr.push(obtainDataObject.arr[sampleIdArrMapping[sampleIds[i]]]);
+                }
+            }
+        }
+        return _arr;
+    }
+
     return {
         init: function(callbackFunc){
             initLocalParameters(function(){
@@ -429,11 +457,19 @@ var StudyViewProxy = (function() {
         },
 
         getArrData: function(){ return obtainDataObject.arr;},
+        getArrDataBySampleIds: getArrDataBySampleIds,
         getAttrData: function(){ return obtainDataObject.attr;},
         getMutatedGenesData: getMutatedGenesData,
         getGisticData: function(){return obtainDataObject.gistic;},
         getCNAData: getCNAData,
         getSampleidToPatientidMap: function(){return obtainDataObject.sampleidToPatientidMap;},
-        getPatientIdsBySampleIds: getPatientIdsBySampleIds
+        getPatientIdsBySampleIds: getPatientIdsBySampleIds,
+        getSampleIdsByPatientIds: getSampleIdsByPatientIds,
+        getPatientIds: function () {
+            return Object.keys(patientToSampleMapping);
+        },
+        getSampleIds: function () {
+            return Object.keys(sampleToPatientMapping);
+        }
     };
 }());

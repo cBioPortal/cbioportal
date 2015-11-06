@@ -63,6 +63,9 @@ skin.right_nav.show_data_sets=true
 skin.right_nav.show_examples=true
 skin.right_nav.show_testimonials=true
 
+# settings controlling what to show in the right navigation bar
+skin.study_view.link_text=To build your own case set, try out our enhanced Study View.
+
 # authentication
 ## is authentication enabled at all? (true, false)
 authenticate=false
@@ -86,6 +89,8 @@ saml.keystore.default-key=
 ## settings to connect to an Active Directory domain controller
 ad.domain=
 ad.url=
+# always show studies with this group
+always_show_study_group=
 
 # patient view settings
 patient_view_placeholder=false
@@ -97,7 +102,15 @@ tcga_path_report.url=https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftp
 
 # various url's
 segfile.url=http://cbio.mskcc.org/cancergenomics/gdac-portal/seg/
+
+# Enable OncoKB annotation
 oncokb.url=
+
+# Enable Chang's hotspot list (true, false)
+show.hotspot=true
+
+# My Cancer Genome link
+mycancergenome.url=http://www.mycancergenome.org
 
 # igv bam linking
 igv.bam.linking=
@@ -125,3 +138,4 @@ google_analytics_profile_id=
 
 # genomespace linking
 genomespace=true
+

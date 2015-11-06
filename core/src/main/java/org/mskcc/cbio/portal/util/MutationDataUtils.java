@@ -41,6 +41,7 @@ import org.mskcc.cbio.portal.html.special_gene.SpecialGeneFactory;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.web_api.GetMutationData;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.util.*;
@@ -98,6 +99,8 @@ public class MutationDataUtils {
 	public static final String MUTATION_COUNT = "mutationCount";
 	public static final String SPECIAL_GENE_DATA = "specialGeneData";
 	public static final String CNA_CONTEXT = "cna";
+    public static final String MY_CANCER_GENOME = "myCancerGenome";
+    public static final String IS_HOTSPOT = "isHotspot";
 
     /**
      * Generates an array (JSON array) of mutations for the given sample
@@ -110,8 +113,7 @@ public class MutationDataUtils {
      */
     public JSONArray getMutationData(String geneticProfileId,
                                         List<String> targetGeneList,
-                                        List<String> targetSampleList) throws DaoException
-    {
+                                        List<String> targetSampleList) throws DaoException, IOException {
         // final object to be send as JSON
         JSONArray mutationArray = new JSONArray();
 
@@ -206,8 +208,7 @@ public class MutationDataUtils {
             Map<Integer, Integer> countMap,
             Map<String,Map<Integer,String>> cnaDataMap,
             Map<Long, Set<CosmicMutationFrequency>> cosmic,
-			Map<Integer, ClinicalData> clinicalDataMap) throws DaoException
-    {
+			Map<Integer, ClinicalData> clinicalDataMap) throws DaoException, IOException {
         HashMap<String, Object> mutationData = new HashMap<String, Object>();
 
 
@@ -215,6 +216,14 @@ public class MutationDataUtils {
         String cancerStudyStableId = cancerStudy.getCancerStudyStableId();
         Sample sample = DaoSample.getSampleById(mutation.getSampleId());
         String linkToPatientView = GlobalProperties.getLinkToPatientView(sample.getStableId(), cancerStudyStableId);
+        List<String> mcgLinks;
+        Boolean isHotspot;
+        if (mutation.getMutationType().equalsIgnoreCase("Fusion")) {
+            mcgLinks = MyCancerGenomeLinkUtil.getMyCancerGenomeLinks(mutation.getGeneSymbol(), "fusion", false);
+        } else {
+            mcgLinks = MyCancerGenomeLinkUtil.getMyCancerGenomeLinks(mutation.getGeneSymbol(), mutation.getProteinChange(), false);
+        }
+        isHotspot = OncokbHotspotUtil.getOncokbHotspot(mutation.getGeneSymbol(), mutation.getProteinChange());
 
         // mutationId is not a unique id wrt the whole DB,
         // but it is unique wrt the returned data set
@@ -266,6 +275,8 @@ public class MutationDataUtils {
         mutationData.put(MUTATION_COUNT, countMap.get(mutation.getSampleId()));
         mutationData.put(SPECIAL_GENE_DATA, this.getSpecialGeneData(mutation));
         mutationData.put(CNA_CONTEXT, getCnaData(cnaDataMap, mutation));
+        mutationData.put(MY_CANCER_GENOME, mcgLinks);
+        mutationData.put(IS_HOTSPOT, isHotspot);
 
         return mutationData;
     }

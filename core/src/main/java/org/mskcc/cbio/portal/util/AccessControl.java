@@ -38,6 +38,7 @@ import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.web_api.ProtocolException;
 
 import org.springframework.security.access.prepost.PostFilter;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.List;
 
@@ -49,7 +50,7 @@ import java.util.List;
 public interface AccessControl {
 
     public static final String ALL_CANCER_STUDIES_ID = "all";
-    public static final String PUBLIC_CANCER_STUDIES_GROUP = "public";
+    public static final String PUBLIC_CANCER_STUDIES_GROUP = GlobalProperties.getAlwaysShowStudyGroup();
     public static final String ALL_TCGA_CANCER_STUDIES_ID = "all_tcga";
     public static final String ALL_TARGET_CANCER_STUDIES_ID = "all_nci_target";
     public static final String MULTIPLE_CANCER_STUDIES_ID = "multiple";
@@ -82,4 +83,6 @@ public interface AccessControl {
 	//@PreAuthorize("hasPermission(#stableStudyId, 'read')")
 	@PostFilter("hasPermission(filterObject, 'read')")
     List<CancerStudy> isAccessibleCancerStudy(String stableStudyId) throws DaoException;
+
+    UserDetails getUserDetails();
 }

@@ -8,7 +8,7 @@ $('#oncoprint_controls').html(_.template($('#main-controls-template').html())())
 var makeOncoprinter = (function() {
 	var processData = function(str) {
 		var gene_to_sample_to_datum = {};
-		var cna = {'AMP':'AMPLIFIED','GAIN':'GAINED', 'HETLOSS':'HETLOSS', 'HOMDEL':'HOMODELETED'};
+		var cna = {'AMP':'AMPLIFIED','GAIN':'GAINED', 'HETLOSS':'HEMIZYGOUSLYDELETED', 'HOMDEL':'HOMODELETED'};
 		var mrna = {'UP':'UPREGULATED', 'DOWN':'DOWNREGULATED'};
 		var rppa = {'PROT-UP': 'UPREGULATED', 'PROT-DOWN':'DOWNREGULATED'};
 		var lines = str.split('\n');

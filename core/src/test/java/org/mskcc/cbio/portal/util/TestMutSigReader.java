@@ -35,11 +35,8 @@ package org.mskcc.cbio.portal.util;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mskcc.cbio.portal.dao.DaoCancerStudy;
-import org.mskcc.cbio.portal.dao.DaoGeneticProfile;
-import org.mskcc.cbio.portal.dao.DaoMutSig;
-import org.mskcc.cbio.portal.model.CanonicalGene;
-import org.mskcc.cbio.portal.model.MutSig;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.*;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
@@ -64,7 +61,8 @@ public class TestMutSigReader {
 	int studyId;
 	
 	@Before 
-	public void setUp() {
+	public void setUp() throws DaoException
+	{
 		studyId = DaoCancerStudy.getCancerStudyByStableId("study_tcga_pub").getInternalId();
 		DaoGeneticProfile.reCache();
 	}

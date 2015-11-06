@@ -143,7 +143,7 @@
 				     out.println("</tr>");
 				 }
 				 out.println("</tbody></table>");
-				 out.println("<br>Total number of samples: <b>" + dataSetsUtil.getTotalNumberOfSamples() + "</b>");
+				 //out.println("<br>Total number of samples: <b>" + dataSetsUtil.getTotalNumberOfSamples() + "</b>");
 				 if (dataSetsFooter != null) {
 				     out.println("<br><br>" + dataSetsFooter + "</p>");
                  }

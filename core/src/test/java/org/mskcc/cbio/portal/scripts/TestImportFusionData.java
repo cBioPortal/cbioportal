@@ -65,7 +65,8 @@ public class TestImportFusionData
 	int geneticProfileId;
 	
 	@Before
-	public void setUp() {
+	public void setUp() throws DaoException
+	{
 		studyId = DaoCancerStudy.getCancerStudyByStableId("study_tcga_pub").getInternalId();
 		geneticProfileId = DaoGeneticProfile.getGeneticProfileByStableId("study_tcga_pub_mutations").getGeneticProfileId();
 

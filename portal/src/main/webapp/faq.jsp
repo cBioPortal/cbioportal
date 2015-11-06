@@ -82,7 +82,8 @@
         // retrieve link for FAQ and generate the page
         var faqLink = '<%= GlobalProperties.getFaqHtml()%>';
         var baseUrl = '<%= GlobalProperties.getBaseUrl()%>';
-        var generatePage = new GeneratePage(baseUrl, faqLink, "#faqPage");
+        var markdownDocumentation = '<%= GlobalProperties.isMarkdownDocumentation()%>';
+        var generatePage = new GeneratePage(baseUrl, faqLink, markdownDocumentation, "#faqPage");
         generatePage.init();
     });
 </script>

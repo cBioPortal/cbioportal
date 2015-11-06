@@ -163,6 +163,8 @@ public class GlobalProperties {
     // properties for the FAQ, about us, news and examples
     public static final String SKIN_BASEURL="skin.baseurl";
     public static final String DEFAULT_SKIN_BASEURL="https://github.com/cBioPortal/cbioportal/wiki/";
+    public static final String SKIN_DOCUMENTATION_MARKDOWN="skin.documentation.markdown";
+
     public static final String SKIN_FAQ="skin.faq";
     public static final String DEFAULT_SKIN_FAQ="FAQ.md";
     public static final String SKIN_ABOUT="skin.about";
@@ -347,6 +349,11 @@ public class GlobalProperties {
     {
         String baseUrl = properties.getProperty(SKIN_BASEURL);
         return (baseUrl == null) ? DEFAULT_SKIN_BASEURL : baseUrl;
+    }
+    public static boolean isMarkdownDocumentation()
+    {
+        String markdownFlag = properties.getProperty(SKIN_DOCUMENTATION_MARKDOWN);
+        return markdownFlag == null || Boolean.parseBoolean(markdownFlag);
     }
 
     // get custom Example Queries for the right column html or the default

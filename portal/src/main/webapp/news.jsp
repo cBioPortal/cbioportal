@@ -84,7 +84,8 @@
         // retrieve link for News and generate the page
         var newsLink = '<%= GlobalProperties.getNewsHtml()%>';
         var baseUrl = '<%= GlobalProperties.getBaseUrl()%>';
-        var generatePage = new GeneratePage(baseUrl, newsLink, "#newsPage");
+        var markdownDocumentation = '<%= GlobalProperties.isMarkdownDocumentation()%>';
+        var generatePage = new GeneratePage(baseUrl, newsLink, markdownDocumentation, "#newsPage");
         generatePage.init();
     });
 </script>

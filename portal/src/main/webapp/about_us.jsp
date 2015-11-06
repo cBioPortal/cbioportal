@@ -84,7 +84,8 @@
         // retrieve link for About Us and generate the page
         var aboutLink = '<%= GlobalProperties.getAboutHtml()%>';
         var baseUrl = '<%= GlobalProperties.getBaseUrl()%>';
-        var generatePage = new GeneratePage(baseUrl, aboutLink, "#aboutPage");
+        var markdownDocumentation = '<%= GlobalProperties.isMarkdownDocumentation()%>';
+        var generatePage = new GeneratePage(baseUrl, aboutLink, markdownDocumentation, "#aboutPage");
         generatePage.init();
     });
 </script>

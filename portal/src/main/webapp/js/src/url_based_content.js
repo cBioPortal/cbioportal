@@ -12,6 +12,7 @@ var GeneratedPageMainView = Backbone.View.extend({
     initialize : function (options) {
         this.servicePresenter = options.servicePresenter;
         this.baseURL = options.baseURL;
+        this.markdownDocumentation = options.markdownDocumentation;
         this.hash='';
         this.render();
     },
@@ -35,7 +36,8 @@ var GeneratedPageMainView = Backbone.View.extend({
             // if the target is internal, check whether the target has a hash; if so, remove it
             if(this.hash.length>0) target = target.substring(0, target.indexOf('#'));
             // if our base url is a wiki or github page, add md to our target to fetch markdown
-            if(this.isWikiPage()) target+=".md";
+            if(this.markdownDocumentation==='true') target+=".md";
+            if(this.baseURL.length==0) target="content/"+target;
             // fetch the target
             this.servicePresenter.fetchSourcePage(target);
         }
@@ -47,26 +49,22 @@ var GeneratedPageMainView = Backbone.View.extend({
             // the library replaces all non-word characters with nothing.
             // do the same with our hash to be able to scroll to it
             // this is a workaround for https://github.com/showdownjs/github-extension/issues/5
-            if(this.isWikiPage()) this.hash = this.hash.replace(/[^\w]/g, '').toLowerCase();
+            if(this.markdownDocumentation==='true') this.hash = this.hash.replace(/[^\w]/g, '').toLowerCase();
             // else remove the #
             else this.hash=this.hash.substring(1,this.hash.length);
             // find the element to scroll to and scroll to it
             var scrollToElement = document.getElementById(this.hash);
             scrollToElement.scrollIntoView();
         }
-    },
-
-    // if the baseURL contains wiki or github, assume it's a wiki-like page
-    // this will add .md to the pages
-    isWikiPage: function(){
-        if(this.baseURL.length==0) return false;
-        return this.baseURL.search(/wiki/)>0||this.baseURL.search(/github/)>0;
+        else window.scrollTo(0,0);
     },
 
     // retrieve the page and scroll to the hash
     render: function(){
         console.log(new Date() + ": GeneratedPageMainView render()");
         $(this.el).html(this.servicePresenter.getHTMLPage());
+        // give the image a max-width
+        $("img").css("max-width", "800px")
         this.scrollToHash();
     }
 });
@@ -82,18 +80,13 @@ var GeneratedPageMainView = Backbone.View.extend({
  * 'Presenter' layer
  * fetches the data from the webservice and transforms the data to a format that is ready to use by the views.
  */
-function ServicePresenter(baseURL){
+function ServicePresenter(baseURL, markdownDocumentation){
     // default HTML page is the loader
     var htmlPage="<img id='loader_img' src='images/ajax-loader.gif' alt='loading...'>";
     var serviceCallBack;
 
     function getErrorHtml(sourceURL){
         return new Date() + "<br>There was a problem retrieving the page located at: "+sourceURL+"<br>";
-    }
-
-    // returns whether sourceURL ends with md
-    function isMarkdownPage(sourceURL){
-        return sourceURL.endsWith(".md");
     }
 
     // return whether the baseURL starts with http
@@ -133,7 +126,7 @@ function ServicePresenter(baseURL){
             // the resultPage is stored in result.response
             var resultPage = result.response;
             // check whether it's a markdown page. If so, convert it; otherwise use the results as the htmlPage
-            if(isMarkdownPage(sourceURL))
+            if(markdownDocumentation==='true')
                 htmlPage = markdown2html(resultPage);
             else
                 htmlPage = resultPage;
@@ -157,7 +150,7 @@ function ServicePresenter(baseURL){
         .done(function(resultPage){
             console.log(new Date() + ': successfully retrieved internal page!');
             // check whether it's a markdown page. If so, convert it; otherwise use the results as the htmlPage
-            if(isMarkdownPage(sourceURL))
+            if(markdownDocumentation==='true')
                 htmlPage = markdown2html(resultPage);
             else
                 htmlPage = resultPage;
@@ -189,13 +182,10 @@ function ServicePresenter(baseURL){
     this.fetchSourcePage = function (sourceURL, callBack){
         if(callBack!=undefined) serviceCallBack = callBack;
         if(!isExternalContent())
-            // in that case, fetch the internal page
             fetchInternalPage(sourceURL);
-        // other url
         else
             fetchExternalPage(sourceURL);
     }
-
 }
 
 
@@ -206,7 +196,7 @@ function ServicePresenter(baseURL){
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-function GeneratePage(baseURL, sourceURL, targetDiv)
+function GeneratePage(baseURL, sourceURL, markdownDocumentation, targetDiv)
 {
     var generatedPageView;
 
@@ -215,21 +205,25 @@ function GeneratePage(baseURL, sourceURL, targetDiv)
         console.log(new Date() + ": init called!");
 
         // create a new presenter, with a call-back function
-        //var dmPresenter = new ServicePresenter(dmInitCallBack);
-        var servicePresenter = new ServicePresenter(baseURL);
+        var servicePresenter = new ServicePresenter(baseURL, markdownDocumentation);
 
         // create the view
         generatedPageView = new GeneratedPageMainView({
             servicePresenter: servicePresenter,
             baseURL: baseURL,
+            markdownDocumentation: markdownDocumentation,
             el: targetDiv
         });
 
-        var callBack = _.bind(generatedPageView.render, generatedPageView);
+        //Initialize presenter, which triggers the asynchronous services to get the
+        //data and calls the callback function once the data is received
+        //var callBack = _.bind(generatedPageView.render, generatedPageView);
+        //servicePresenter.fetchSourcePage(sourceURL, callBack);
 
         //Initialize presenter, which triggers the asynchronous services to get the
         //data and calls the callback function once the data is received
-        servicePresenter.fetchSourcePage(sourceURL, callBack);
+        _.bindAll(generatedPageView, 'render');
+        servicePresenter.fetchSourcePage(sourceURL, generatedPageView.render);
     };
 
 }

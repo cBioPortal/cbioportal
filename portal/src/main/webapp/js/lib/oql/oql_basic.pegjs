@@ -7,8 +7,13 @@ br	= [\n] b:br
         / [\n]
 	/ ";"
 
-Number = word:[0-9]*("."[0-9]*)? { return word.join(""); }
+NaturalNumber = number:[0-9]+ { return number.join("");}
+Number = "-" number: Number { return "-"+number;}
+        / whole_part:NaturalNumber "." decimal_part:NaturalNumber { return whole_part + "." + decimal_part;}
+        / "." decimal_part:NaturalNumber { return "."+decimal_part;}
+        / whole_part:NaturalNumber {return whole_part;}
 String = word:[-_.@/a-zA-Z0-9]+ { return word.join("") }
+AminoAcid = letter:[GPAVLIMCFYWHKRQNEDST] { return letter; }
 
 sp = space:[ \t\r]+
 msp = space:[ \t\r]*
@@ -24,7 +29,9 @@ EXP = "EXP"i
 PROT = "PROT"i
 
 Query
-	= listofgenes:ListOfGenes { return listofgenes.map(function(gene) { return {"gene":gene, "alterations":false}; }); }
+	= listofgenes:ListOfGenes msp br rest:Query { return listofgenes.map(function(gene) { return {"gene":gene, "alterations":false}; }).concat(rest); }
+        / listofgenes:ListOfGenes msp br { return listofgenes.map(function(gene) { return {"gene":gene, "alterations":false}; }); }
+        / listofgenes:ListOfGenes msp { return listofgenes.map(function(gene) { return {"gene":gene, "alterations":false}; }); }
 	/ msp first:SingleGeneQuery msp br rest:Query  { return [first].concat(rest); }
 	/ msp first:SingleGeneQuery msp br { return [first]; }
 	/ msp first:SingleGeneQuery msp { return [first]; }
@@ -81,4 +88,7 @@ Mutation
 	/ "INFRAME"i { return {"type":"class", "value":"INFRAME"}; }
 	/ "SPLICE"i { return {"type":"class", "value":"SPLICE"}; }
 	/ "TRUNC"i { return {"type":"class", "value":"TRUNC"}; }
+        / "FUSION"i { return {"type":"class", "value":"FUSION"}; }
+        / letter:AminoAcid position:NaturalNumber string:String { return {"type":"name" , "value":(letter+position+string)};}
+        / letter:AminoAcid position:NaturalNumber { return {"type":"position", "value":parseInt(position)}; }
 	/ mutation_name:String { return {"type":"name", "value":mutation_name}; }

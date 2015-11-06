@@ -123,7 +123,6 @@ public class FisherExact {
                     System.out.println("\ta=" + a + " b=" + b + " c=" + c + " d=" + d);
                 }
             }
-            System.out.println("");
         }
         if ((a * d) < (b * c)) {
             if (DEBUG) {

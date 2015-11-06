@@ -301,36 +301,110 @@ function reviewCurrentSelections(){
    }
 }
 
+
+var submitHandler = (function() {
+	var sample_mapping_completed = false;
+	return function() {
+		if (sample_mapping_completed) {
+			$('#main_form').submit();
+			sample_mapping_completed = false;
+		} else {
+			getMapping().then(function() {
+				sample_mapping_completed = true;
+				submitHandler();
+			});
+		}
+	};
+})();
+// Get mapping if necessary
+function getMapping() {
+    function setPatientSampleIdMap(_sampleMap) {
+        var samples_string = "";
+        for (var i=0,_len=_sampleMap.length; i<_len; i++) 
+        {
+            var d = _sampleMap[i];
+            samples_string += d.id + "\n";
+        };
+        return samples_string;
+    }
+    
+    function getMap() {
+	var def = new $.Deferred();
+        // Get input selection
+        var sampleIds = $("#custom_case_set_ids").val().trim().replace(/"/g,'').split(/\s+/);
+        // Get study selection
+        var studyId = $("#select_single_study").val();
+        if (sampleIds[0] !== "")
+        {
+            window.cbioportal_client.getSamples({study_id: [studyId],patient_ids: sampleIds}).then(function(sampleMap){
+                $("#custom_case_set_ids").val(setPatientSampleIdMap(sampleMap));
+		def.resolve();
+            });                
+        }
+        else {
+            def.resolve();
+        }
+        
+        return def;
+    }
+    if ($("#main_form").find("input[name=patient_case_select]:checked").val() === "patient") {
+	    return getMap();
+    } else {	
+	var def = new $.Deferred();
+	def.resolve();
+	return def.promise();
+    }
+}
 //  Determine whether to submit a cross-cancer query or
 //  a study-specific query
 function chooseAction(evt) {
     var haveExpInQuery = $("#gene_list").val().toUpperCase().search("EXP") > -1;
-    $("#error_box").remove();
+    $(".error_box").remove();
+    
+        
+    // validate OQL
+    try {
+	    oql_parser.parse($('#gene_list').val());
+    } catch (err) {
+	    var offset = err.offset;
+	    if (offset === $('#gene_list').val().length) {
+		createAnError("OQL syntax error after selected character; please fix and submit again.", $('#gene_list'));
+		$('#gene_list')[0].setSelectionRange(err.offset-1, err.offset);
+	    } else if (offset === 0) {
+		createAnError("OQL syntax error before selected character; please fix and submit again.", $('#gene_list'));
+		$('#gene_list')[0].setSelectionRange(err.offset, err.offset+1);
+	    } else {
+		createAnError("OQL syntax error at selected character; please fix and submit again.", $('#gene_list'));
+		$('#gene_list')[0].setSelectionRange(err.offset, err.offset+1);
+	    }
+	    return false;
+    }
 
     var selected_studies = $("#jstree").jstree(true).get_selected_leaves();
     while (selected_studies.length === 0 && !window.changingTabs) {
-	    // select all by default
-	    $("#jstree").jstree(true).select_node(window.jstree_root_id);
-	    selected_studies = $("#jstree").jstree(true).get_selected_leaves()
+            // select all by default
+            $("#jstree").jstree(true).select_node(window.jstree_root_id);
+            selected_studies = $("#jstree").jstree(true).get_selected_leaves()
     }    
     if (selected_studies.length > 1) {
-	$("#main_form").find("#select_multiple_studies").val("");
+	if ( haveExpInQuery ) {
+            createAnError("Expression filtering in the gene list is not supported when doing cross cancer queries.",  $('#gene_list'));
+            return false;
+        }
+        $("#main_form").find("#select_multiple_studies").val("");
         if ($("#tab_index").val() == 'tab_download') {
             $("#main_form").get(0).setAttribute('action','index.do');
         }
         else {
-		var dataPriority = $('#main_form').find('input[name=data_priority]:checked').val();
-		var newSearch = $('#main_form').serialize() + '&Action=Submit#crosscancer/overview/'+dataPriority+'/'+encodeURIComponent($('#gene_list').val())+'/'+encodeURIComponent(selected_studies.join(","));
-		evt.preventDefault();
-		window.location = 'cross_cancer.do?' + newSearch;
+                var dataPriority = $('#main_form').find('input[name=data_priority]:checked').val();
+                var newSearch = $('#main_form').serialize() + '&Action=Submit#crosscancer/overview/'+dataPriority+'/'+encodeURIComponent($('#gene_list').val())+'/'+encodeURIComponent(selected_studies.join(","));
+                evt.preventDefault();
+                window.location = 'cross_cancer.do?' + newSearch;
             //$("#main_form").get(0).setAttribute('action','cross_cancer.do');
         }
-        if ( haveExpInQuery ) {
-            createAnError("Expression filtering in the gene list is not supported when doing cross cancer queries.",  $('#gene_list'));
-            evt.preventDefault();
-        }
+        
     } else if (selected_studies.length === 1) {
-	$("#main_form").find("#select_single_study").val(selected_studies[0]);
+        $("#main_form").find("#select_single_study").val(selected_studies[0]);
         $("#main_form").get(0).setAttribute('action','index.do');
 
         if ( haveExpInQuery ) {
@@ -347,10 +421,11 @@ function chooseAction(evt) {
             }
         }
     }
+
 }
 
 function createAnError(errorText, targetElt) {
-	var errorBox = $("<div id='error_box'>").addClass("ui-state-error ui-corner-all exp_error_box");
+	var errorBox = $("<div class='error_box'>").addClass("ui-state-error ui-corner-all exp_error_box");
 	var errorButton = $("<span>").addClass("ui-icon ui-icon-alert exp_error_button");
 	var strongErrorText = $("<small>").html("Error: " + errorText + "<br>");
 	var errorTextBox = $("<span>").addClass("exp_error_text");
@@ -1161,7 +1236,7 @@ initialize_jstree(window.tab_index === "tab_download" ? flat_jstree_data : jstre
 		return window.localStorage.getItem(selectedStudiesStorageKey);
 	}
 	var onJSTreeChange = function () {
-		$("#error_box").remove();
+		$(".error_box").remove();
 		var select_single_study = $("#main_form").find("#select_single_study");
 		var select_multiple_studies = $("#main_form").find("#select_multiple_studies");
 		var selected_studies = $("#jstree").jstree(true).get_selected_leaves();

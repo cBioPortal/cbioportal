@@ -109,7 +109,7 @@
 //    String caseIdsKey = (String) request.getAttribute(QueryBuilder.CASE_IDS_KEY);
 %>
 
-
+<script type="text/javascript" src="js/lib/oql/oql-parser.js" charset="utf-8"></script>
 <script type="text/javascript">
     // Store the currently selected options as global variables;
     window.cancer_study_id_selected = '<%= localCancerTypeId%>';
@@ -148,67 +148,12 @@
         <p/>
         <% conditionallyOutputTransposeMatrixOption (localTabIndex, clientTranspose, out); %>
         &nbsp;<br/>
-        <input id="main_submit" class="ui-button ui-widget ui-state-default ui-corner-all" style="height: 34px;"
-                   name="<%= QueryBuilder.ACTION_NAME%>" value="<%= QueryBuilder.ACTION_SUBMIT %>"
-                   onclick="getMap()"/>
+        <input id="main_submit" class="ui-button ui-widget ui-state-default ui-corner-all" onclick="submitHandler()" style="height: 34px;" name="<%= QueryBuilder.ACTION_NAME%>" value="<%= QueryBuilder.ACTION_SUBMIT %>"/>
         <% conditionallyOutputGenomespaceOption(localTabIndex, out); %>
 
         </form>
     </div>
-</div>
-        
-<script type="text/javascript">
-    // Temporary - if custom patients selected, map the patients using the front end API and send the sample IDs to back
-    var samples_string;
-    function setPatientSampleIdMap(_sampleMap) {
-        samples_string = "";
-        for (var i=0,_len=_sampleMap.length; i<_len; i++) 
-        {
-            var d = _sampleMap[i];
-            samples_string += d.id + "\n";
-        };
-    }
-    
-    //make bool
-    function formSubmit(edit) {
-        var main_form = document.forms["main_form"];
-        if(edit === true)
-        {
-            main_form.<%= QueryBuilder.CASE_IDS %>.value = samples_string;
-              
-        }
-        main_form.submit();
-    }
-    function getMap() {
-        // Get radio button selection
-        var patientCaseRadio = document.getElementsByName('patient_case_select');
-        var patientCaseSelect = "";
-        for (var i = 0, length = patientCaseRadio.length;i<length;i++) 
-        {
-            if(patientCaseRadio[i].checked)
-            {
-                patientCaseSelect = patientCaseRadio[i].value;
-            }
-        }
-        
-        if(patientCaseSelect === "patient")
-        {
-            // Get input selection
-            var sampleIds = document.getElementsByName('<%= QueryBuilder.CASE_IDS%>')[0].value.trim().replace(/"/g,'').split(/\s+/);
-            // Get study selection
-            var studyId =document.getElementById('select_single_study').value.trim().replace(/"/g,'');
-            if (sampleIds[0] !== "")
-            {
-                    window.cbioportal_client.getSamples({study_id: [studyId],patient_ids: sampleIds}).then(function(sampleMap){
-                        setPatientSampleIdMap(sampleMap);
-                        formSubmit(true);
-                    });                
-            }
-        }
-        else { formSubmit(false); }
-    }
-</script>
-            
+</div>      
 
 <%!
     private void conditionallyOutputTransposeMatrixOption(String localTabIndex,

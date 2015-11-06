@@ -1,7 +1,7 @@
-# October 15, 2015
+# November 9, 2015
 * __New features__:
     * Link out to MyCancerGenome.org for mutations
-    * Summary of selection criteria in the study page
+    * Selection summary in the study page
 * __Improvements__:
     * Extended the enrichment analysis to all genes
     * Reimplemented Network tab based on Cytoscape.js (Adobe Flash is no longer required) 

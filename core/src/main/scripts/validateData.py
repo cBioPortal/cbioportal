@@ -454,7 +454,7 @@ class Validator(object):
             print >> OUTPUT_BUFFER, '\tWARNING: Missing columns'
             for m in missing:
                 print >> OUTPUT_BUFFER,'\t\t' + m
-            exitcode = 1
+            exitcode = 0
 
     # Checks lines after header, removing quotes
     def checkLine(self,line):
@@ -561,7 +561,7 @@ class Validator(object):
     def checkBlankCells(self):
         if len(self.blankColumns) > 0:
             print >> OUTPUT_BUFFER, '\tWARNING: Blank cells detected'
-            exitcode = 1
+            exitcode = 0
             for blank in self.blankColumns:
                 print >> OUTPUT_BUFFER, '\t\t' + blank
 
@@ -614,12 +614,12 @@ class CNAValidator(Validator):
         
         if not self.headers[0] == self.cols[0]:
             print >> OUTPUT_BUFFER, "\tWARNING: Invalid Header:\t" + self.headers[0] + " should be in column 1"
-            exitcode = 1
+            exitcode = 0
         if not self.headers[1] == self.cols[1]:
             print >> OUTPUT_BUFFER, "\tWARNING: Invalid Header:\t" + self.headers[1] + " should be in column 2"
             self.entrez_present = False
             self.addEntrez = True
-            exitcode = 1
+            exitcode = 0
 
         self.setSampleIdsFromColumns()
 
@@ -636,7 +636,7 @@ class CNAValidator(Validator):
             elif i == 1 and self.entrez_present:
                 if not self.checkInt(d.strip()) and not d.strip() == 'NA':
                     print >> OUTPUT_BUFFER, '\tWARNING: Invalid Data Type:\tColumn ' + str(i+1) + ' Line ' + str(self.lineCount) + 'Entrez_Gene_Id must be integer or NA'
-                    exitcode = 1
+                    exitcode = 0
             elif i == 0 and len(self.hugo_entrez_map) > 0:
                 if not d in self.hugo_entrez_map and len(self.hugo_entrez_map) != {}:
                     self.badHugos.append((d,self.lineCount))
@@ -648,7 +648,7 @@ class CNAValidator(Validator):
     def printBadValues(self,name,bads):
         if len(bads) > 0:
             print >> OUTPUT_BUFFER, '\tWARNING: ' + name + ' appears incorrect ' + str(len(bads)) + ' time(s) on line(s):'
-            exitcode = 1
+            exitcode = 0
             for bad in bads:
                 print >> OUTPUT_BUFFER, '\t\t' + str(bad[1]) + '\t' + str(bad[0])
 
@@ -681,7 +681,7 @@ class MutationsExtendedValidator(Validator):
 
         if self.cols[0:32] != self.headers[0:32]:
             print >> OUTPUT_BUFFER, '\tWARNING: Invalid Header:\tMust have following columns in specified order'
-            exitcode = 1
+            exitcode = 0
             for h in self.headers[0:32]:
                 print >> OUTPUT_BUFFER, '\t\t' + h
 
@@ -762,12 +762,12 @@ class MutationsExtendedValidator(Validator):
                 print >> OUTPUT_BUFFER, '\tWARNING: Missing entrez IDs'
                 self.entrez_present = False
                 self.addEntrez = True
-                exitcode = 1
+                exitcode = 0
             elif self.entrez_present and not value in self.hugo_entrez_map.values() and self.hugo_entrez_map != {}:
                 return False
             elif self.hugo_entrez_map.get(self.mafValues['Hugo_Symbol'])!= value and self.hugo_entrez_map != {}:
                 print >> OUTPUT_BUFFER, '\tWARNING: Line ' + str(self.lineCount) + ' Entrez gene ID does not match Hugo symbol'
-                exitcode = 1
+                exitcode = 0
         return True
     
 
@@ -910,7 +910,7 @@ class MutationsExtendedValidator(Validator):
             print >> OUTPUT_BUFFER, "\tWARNING: Hugo symbols appear incorrect " + str(len(self.hugo_warning_lines)) + ' time(s) on lines:'
             for hugo_warning in self.hugo_warning_lines:
                 print >> OUTPUT_BUFFER, '\t\t' + str(hugo_warning[1] + self.toplinecount) + '\t' + str(hugo_warning[0])
-            exitcode = 1
+            exitcode = 0
 
     class Factory:
         def create(self,filename,hugo_entrez_map,fix,verbose,stableId): return MutationsExtendedValidator(filename,hugo_entrez_map,fix,verbose,stableId)
@@ -935,7 +935,7 @@ class ClinicalValidator(Validator):
 
         if len(missing) > 0:
             print >> OUTPUT_BUFFER, '\tWARNING: header missing following columns:\n'
-            exitcode = 1
+            exitcode = 0
             for m in missing:
                 print >> OUTPUT_BUFFER, '\t\t' + m
 
@@ -950,7 +950,7 @@ class ClinicalValidator(Validator):
 
         if len(notUpper) > 0:
             print >> OUTPUT_BUFFER, '\tWARNING: Headers found not all caps:'
-            exitcode = 1
+            exitcode = 0
             for nu in notUpper:
                 print >> OUTPUT_BUFFER, '\t\t' + nu
 
@@ -996,7 +996,7 @@ class SegValidator(Validator):
 
         if self.cols != self.headers:
             print >> OUTPUT_BUFFER, '\tWARNING:Invalid Header:\tMust have following columns in specified order'
-            exitcode = 1
+            exitcode = 0
             for h in self.headers:
                 print >> OUTPUT_BUFFER, '\t\t' + h
 
@@ -1239,7 +1239,7 @@ def processCaseListDirectory(caseListDir,sampleIdSets):
                 print >> OUTPUT_BUFFER, 'WARNING: Unexpected field found in case list file\n' + \
                     '\tFile:\t' + getFileFromFilepath(case) + '\n' + \
                     '\tField:\t' + cd
-                exitcode = 1
+                exitcode = 0
 
         sampleIds = case_data.get('case_list_ids')
         if sampleIds is not None:
@@ -1356,7 +1356,7 @@ def main():
                     if field not in META_FIELD_MAP[pattern]:
                         print >> OUTPUT_BUFFER, 'WARNING: Field in metafile ' + getFileFromFilepath(f) + ' not present in schema\n' + \
                             '\tField: ' + field
-                        exitcode = 1
+                        exitcode = 0
 
                 # check that cancer study identifiers across files so far are consistent.
                 if cancerStudyId == '':
@@ -1426,7 +1426,7 @@ def main():
         checkSampleIds(sampleIdSets,clinIds,clinvalidatorname)
     else:
         print >> OUTPUT_BUFFER, '\tWARNING: No clinical file detected'
-        errorcode = 1
+        errorcode = 0
 
     print >> OUTPUT_BUFFER, '\nValidation complete'
 

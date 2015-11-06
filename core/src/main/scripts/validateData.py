@@ -590,11 +590,6 @@ class Validator(object):
         elif x.lower() == 'female':
             return 'Female'
         else: return x
-        
-
-
-
-
 
 # sub-class CNA validator
 class CNAValidator(Validator):
@@ -1371,10 +1366,7 @@ def main():
                         cancerStudyId.strip() + '\t\n\t' + meta['cancer_study_identifier'].strip() 
                     exitcode = 1
                 
-
                 stableid = meta.get('stable_id','corrected')
-
-
 
                 # check filenames for seg meta file, and get correct filename for the actual
                 if pattern == SEG_META_PATTERN: 

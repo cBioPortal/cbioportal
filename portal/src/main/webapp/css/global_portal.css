@@ -1454,6 +1454,7 @@ ul.ui-autocomplete li.ui-menu-item { font-size: 0.6em; text-align: left; }
     font-size: 11px !important;
 }
 ul.oncokb {
+    padding-top: 5px;
     padding-left: 20px;
 }
 ul.oncokb li {

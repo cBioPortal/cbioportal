@@ -194,8 +194,8 @@
                             } else if (type==='display') {
                                 var gene = mutations.getValue(source[0], "gene");
                                 var entrez = mutations.getValue(source[0], "entrez");
-//                                var tip = "<a href=\"http://www.ncbi.nlm.nih.gov/gene/"
-//                                    +entrez+"\">NCBI Gene</a>";
+                                var tip = "<a href=\"http://www.ncbi.nlm.nih.gov/gene/"
+                                    +entrez+"\">NCBI Gene</a>";
 //                                var sanger = mutations.getValue(source[0], 'sanger');
 //                                if (sanger) {
 //                                    tip += "<br/><a href=\"http://cancer.sanger.ac.uk/cosmic/gene/overview?ln="
@@ -206,6 +206,9 @@
                                     ret = "<span class='"+table_id+"-tip oncokb oncokb_gene' gene='"+gene+"' oncokbId='"+source[0]+"'>"+ret+"</span>";
                                 }else if(OncoKB.getAccess()){
                                     ret += "<img width='12' height='12' class='loader' src='images/ajax-loader.gif'/>";
+                                } else {
+                                    ret = "<div class='"+table_id
+                                            +"-tip' alt='"+tip+"'></div>";
                                 }
 
                                 return ret;

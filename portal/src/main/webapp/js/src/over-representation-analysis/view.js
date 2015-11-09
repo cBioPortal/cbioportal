@@ -30,9 +30,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-var orTable = function() {
+/**
+ * Over Representation (OR) data table. 
+ * @param plot_div: optional parameter, i.e. the div where to add a volcano plot representation of the data.
+                    If set, a volcano plot is rendered next to the data table. 
+ */
+var orTable = function(plot_div ) {
     
+	var self = this;
+	self.plot_div = plot_div;
+	
     var div_id, table_id, data, titles; //titles is formatted string of column names with html markdown in
     var col_index, orTableInstance, profile_type, profile_id, table_title;
     var selected_genes = [];
@@ -494,7 +501,8 @@ var orTable = function() {
             _title_str += "<th width='" + orAnalysis.col_width.unaltered_pct + "'>in unaltered group</th>";
         } else if (profile_type === orAnalysis.profile_type.mutations) {
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.gene + "'>Gene</th>";
-            _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.cytoband + "'>Cytoband</th>";
+            // removing cytoband to clear some space
+            //_title_str += "<th rowspan='2' width='" + orAnalysis.col_width.cytoband + "'>Cytoband</th>";
             _title_str += "<th colspan='2'>Percentage of alteration &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.pct + "'></th>";
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.log_ratio + "'>Log Ratio &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.log_ratio + "'></th>";
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.p_val + "'>p-Value &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.p_val + "'></th>";
@@ -593,7 +601,12 @@ var orTable = function() {
                     }
                 }
             }
-
+			//if plot_div is set, add a volcano plot:
+            if (self.plot_div != null) {
+	        	var volcanoPlot = new VolcanoPlot();
+	        	volcanoPlot.render(self.plot_div, null, null, _input_data);
+            }
+            
         }
     };
     
@@ -612,6 +625,8 @@ var orSubTabView = function() {
                 }
             });
 
+            $("#" + _div_id).css("padding-right","10px");
+            
             //append profile selection dropdown menu for mrna sub-tab
             if (_profile_type === orAnalysis.profile_type.mrna) {
                 $("#" + _div_id + "_loading_img").empty();
@@ -648,7 +663,15 @@ var orSubTabView = function() {
                 if (element.length === 0) {
                     var _table_div = _profile_obj.STABLE_ID.replace(/\./g, "_") + orAnalysis.postfix.datatable_div;
                     var _table_id = _profile_obj.STABLE_ID.replace(/\./g, "_") + orAnalysis.postfix.datatable_id;
-                    $("#" + _div_id).append("<div id='" + _table_div + "' style='width: 1200px; display:inline-block; padding: 10px;'></div>");
+                    var _plot_div = null;
+                    if (_profile_type == orAnalysis.profile_type.mutations) {
+                    	//if profile is of type "mutations" then we also want a volcano plot on the left side:
+                    	_plot_div = _profile_obj.STABLE_ID.replace(/\./g, "_") + orAnalysis.postfix.plot_div;
+                		$("#" + _div_id).append("<div id='" + _plot_div + "' style='width: 35%; display:block; margin-left: 0; margin-right: auto; float: left'></div>");
+                    	$("#" + _div_id).append("<div id='" + _table_div + "' style='width: 62%; display:table; margin-left: auto; margin-right: 0; '></div>");
+                    }
+                    else
+                    	$("#" + _div_id).append("<div id='" + _table_div + "' style='width: 100%; display:table; '></div>");
 
                     //if this is the last profile
                     var last_profile = false;
@@ -662,7 +685,7 @@ var orSubTabView = function() {
                     var param = new orAjaxParam(or_tab.getAlteredCaseList(), or_tab.getUnalteredCaseList(), _profile_obj.STABLE_ID, _gene_set);
                     var or_data = new orData();
                     or_data.init(param, _table_id);
-                    var or_table = new orTable();
+                    var or_table = new orTable(_plot_div);
                     if (_profile_obj.STABLE_ID.indexOf("rna_seq") !== -1) {
                         or_data.get(or_table.init, _div_id, _table_div, _table_id, _profile_obj.NAME + orAnalysis.postfix.title_log, _profile_type, _profile_obj.STABLE_ID.replace(/\./g, "_"), last_profile);
                     } else {
@@ -719,7 +742,6 @@ var orSubTabView = function() {
         }
     };
 }; //close orSubTabView
-
 
 
 

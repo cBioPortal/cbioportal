@@ -526,7 +526,7 @@ var ScatterPlots = function() {
     }
 
     return {
-        init: function(_options, _dataArr, _dataAttr, _brushOn) {    //Init with options
+        init: function(_options, _dataArr, _dataAttr, _brushOn, _drawCoExpInfo) {    //Init with options
             initSettings(_options, _dataAttr);
             convertData(_dataArr);
             initScaleX();
@@ -540,7 +540,8 @@ var ScatterPlots = function() {
             appendAxisTitleY(false);
             drawPlots();
             drawLegends();
-            drawCoExpInfo();
+            if (_drawCoExpInfo)
+            	drawCoExpInfo();
             addQtips();
         },
         // !!! Log Scale are only used by using RNA Seq Profile

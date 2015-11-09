@@ -85,8 +85,8 @@
             <button id='cc_plots_pdf_download'>PDF</button>
             <button id='cc_plots_data_download'>Data</button>
             <h5>Sort By</h5>
-            <input type="radio" name="cc_plots_profile_order_opt" value="alphabetic" checked/> Alphabetic
-            <input type="radio" name="cc_plots_profile_order_opt" value="mean"/> Mean
+            <input type="radio" name="cc_plots_profile_order_opt" onchange="ccPlots.update_profile_order()" value="alphabetic" checked/> Alphabetic
+            <input type="radio" name="cc_plots_profile_order_opt" onchange="ccPlots.update_profile_order()" value="mean"/> Mean
         </div>
     </tr>
     <tr>

@@ -192,7 +192,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 if (_opt === "alphabetic") {
                     _arr = _.sortBy(_arr, "CANCER_STUDY_SHORT_NAME");
                 } else if (_opt === "mean") {
-
+                    _arr = _.sortBy(_arr, "CANCER_STUDY_NAME");
                 }
                 return _arr;
             },
@@ -425,6 +425,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                         var _x = elem.x.scale(d.profileId) + elem.x.scale.rangeBand() / 2 + _.random(elem.x.scale.rangeBand() / 3 * (-1), elem.x.scale.rangeBand()/3);
                         var _y = elem.y.scale(parseInt(d.value));
                         $(this).attr("x_pos", _x);
+                        $(this).attr("y_pos", _y);
                         return "translate(" + _x + ", " + _y + ")";
                     });
 
@@ -725,6 +726,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 .attr("transform", function() {
                     var _y_val = (d3.select(this).attr("y_val") <= settings.log_scale.threshold_down)? Math.log(settings.log_scale.threshold_down)/Math.log(2):Math.log(d3.select(this).attr("y_val")) / Math.log(2);
                     var _y = elem.y.scale(_y_val);
+                    $(this).attr("y_pos", _y);
                     return "translate(" + d3.select(this).attr("x_pos") + ", " + _y + ")";
                 });
 
@@ -825,6 +827,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 .transition().duration(300)
                 .attr("transform", function() {
                     var _y = elem.y.scale(d3.select(this).attr("y_val"));
+                    $(this).attr("y_pos", _y);
                     return "translate(" + d3.select(this).attr("x_pos") + ", " + _y + ")";
                 });
 
@@ -854,6 +857,111 @@ var ccPlots = (function ($, _, Backbone, d3) {
 
         }
 
+        function update_profile_order(_input) {
+            //remove x axis
+            d3.select("#cc-plots-box").select(".x-axis").remove();
+            d3.select("#cc-plots-box").select(".x-axis-label").remove();
+            //redraw x axis
+            var x_axis_right = 0;
+            if (_.pluck(data.get_meta($('input[name=cc_plots_profile_order_opt]:checked').val()), "STABLE_ID").length < 8) {
+                x_axis_right = (_.pluck(data.get_meta($('input[name=cc_plots_profile_order_opt]:checked').val()), "STABLE_ID").length * 100 + 160);
+            } else {
+                x_axis_right = 980;
+            }
+            elem.x.scale = d3.scale.ordinal()
+                .domain(_.pluck(data.get_meta($('input[name=cc_plots_profile_order_opt]:checked').val()), "STABLE_ID"))
+                .rangeRoundBands([160, x_axis_right]);
+            elem.x.axis = d3.svg.axis()
+                .scale(elem.x.scale)
+                .orient("bottom");
+            elem.svg.append("g")
+                .style("stroke-width", 1.5)
+                .style("fill", "none")
+                .style("stroke", "grey")
+                .style("shape-rendering", "crispEdges")
+                .attr("class", "x-axis")
+                .attr("transform", "translate(0, 520)")
+                .call(elem.x.axis.ticks(data.get_meta($('input[name=cc_plots_profile_order_opt]:checked').val()).length))
+                .selectAll("text")
+                .data(data.get_meta($('input[name=cc_plots_profile_order_opt]:checked').val()))
+                .attr("class", "x-axis-label")
+                .style("font-family", "sans-serif")
+                .style("font-size", "12px")
+                .style("stroke-width", 0.5)
+                .style("stroke", "black")
+                .style("fill", "black")
+                .style("text-anchor", "end")
+                .attr("transform", function() { return "rotate(-30)"; })
+                .text(function(d) {
+                    return d.CANCER_STUDY_SHORT_NAME;
+                });
+            elem.svg.append("g")
+                .style("stroke-width", 1.5)
+                .style("fill", "none")
+                .style("stroke", "grey")
+                .style("shape-rendering", "crispEdges")
+                .attr("transform", "translate(0, 20)")
+                .call(elem.x.axis.tickFormat("").ticks(0).tickSize(0));
+            elem.svg.selectAll(".x-axis-label").each(function(d) {
+                $(this).qtip(
+                    {
+                        content: {text: "<font size=2>" + d.CANCER_STUDY_NAME + "</font>" },
+                        style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+                        show: {event: "mouseover"},
+                        hide: {fixed:true, delay: 100, event: "mouseout"},
+                        position: {my:'left bottom',at:'top right', viewport: $(window)}
+                    }
+                );
+            });
+            //shift dots
+            elem.dots.selectAll("path")
+                .transition().duration(300)
+                .attr("transform", function() {
+                    var _x = elem.x.scale(d3.select(this).attr("x_val")) + elem.x.scale.rangeBand() / 2 + _.random(elem.x.scale.rangeBand() / 3 * (-1), elem.x.scale.rangeBand()/3);
+                    $(this).attr("x_pos", _x);
+                    return "translate(" + _x + ", " + d3.select(this).attr("y_pos") + ")";
+                });
+            //box plots
+            var _data = _.filter(_.pluck(_input, "attributes"), function(item) {
+                return item.value !== "NaN"
+            });
+            var _box_plots_datum = {
+                    x_val: "",
+                    y_val: []
+                },
+                _box_plots_data_arr = [];
+            _.each(_.pluck(data.get_meta($('input[name=cc_plots_profile_order_opt]:checked').val()), "STABLE_ID"), function(_profile_id) {
+                var _tmp_y_val_arr = [];
+                if (document.getElementById("cc_plots_log_scale").checked) {
+                    _.each(_data, function(_data_item) {
+                        if (_data_item.profileId === _profile_id) {
+                            var _orig_val = parseFloat(_data_item.value), _scaled_val = 0;
+                            if (_orig_val <= settings.log_scale.threshold_down) {
+                                _scaled_val = Math.log(settings.log_scale.threshold_down) / Math.log(2);
+                            } else if (_orig_val >= settings.log_scale.threshold_up) {
+                                _scaled_val = Math.log(settings.log_scale.threshold_up) / Math.log(2);
+                            } else {
+                                _scaled_val = Math.log(_orig_val) / Math.log(2);
+                            }
+                            _tmp_y_val_arr.push(parseFloat(_scaled_val));
+                        }
+                    });
+                } else {
+                    _.each(_data, function(_data_item) {
+                        if (_data_item.profileId === _profile_id) {
+                            _tmp_y_val_arr.push(parseFloat(_data_item.value));
+                        }
+                    });
+                }
+                _tmp_y_val_arr.sort(function(a, b) { return (a - b); });
+                var _datum = jQuery.extend(true, {}, _box_plots_datum);
+                _datum.x_val = _profile_id;
+                _datum.y_val = _tmp_y_val_arr;
+                _box_plots_data_arr.push(_datum);
+            });
+            add_box_plots(_box_plots_data_arr);
+        }
+
         return {
             init: function () {
                 init_sidebar();
@@ -867,7 +975,8 @@ var ccPlots = (function ($, _, Backbone, d3) {
             apply_log_scale: apply_log_scale,
             remove_log_scale: remove_log_scale,
             init_sidebar: init_sidebar,
-            init_box: init_box
+            init_box: init_box,
+            update_profile_order: update_profile_order
         }
     }());
 
@@ -963,6 +1072,9 @@ var ccPlots = (function ($, _, Backbone, d3) {
             } else {
                 data.get($("#cc_plots_gene_list").val(), view.remove_log_scale);
             }
+        },
+        update_profile_order: function() {
+            data.get($("#cc_plots_gene_list").val(), view.update_profile_order);
         }
     }
 

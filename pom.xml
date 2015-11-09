@@ -8,9 +8,11 @@
     <artifactId>master</artifactId>
     <packaging>pom</packaging>
     <name>Portal Master</name>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.1.0-SNAPSHOT</version>
     <description>master maven module</description>
-    <url>http://code.google.com/p/cbio-cancer-genomics-portal/</url>
+    <scm>
+        <developerConnection>scm:git:https://github.com/cBioPortal/cbioportal.git</developerConnection>
+    </scm>
 
     <repositories>
     <repository>

@@ -8,7 +8,7 @@
     <artifactId>master</artifactId>
     <packaging>pom</packaging>
     <name>Portal Master</name>
-    <version>0.1.0</version>
+    <version>0.1.0-SNAPSHOT</version>
     <description>master maven module</description>
     <scm>
         <developerConnection>scm:git:https://github.com/cBioPortal/cbioportal.git</developerConnection>

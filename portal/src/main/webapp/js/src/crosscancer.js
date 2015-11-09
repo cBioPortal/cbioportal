@@ -618,6 +618,7 @@
                                     $(this).text(fixFloat($(this).text() * 100, 1) + "%" );
                                 });
 
+                            console.log(histData);
                             var genes = _.last(histData).genes;
                             var numOfGenes = genes.length;
                             var numOfStudies = histData.length;

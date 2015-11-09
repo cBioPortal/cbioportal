@@ -170,7 +170,7 @@ window.oncoprint_RuleSet = (function() {
 			g.each(function(d,i) {
 				var category = params.getCategory(d);
 				if (!params.color.hasOwnProperty(category) && category !== "NA") {
-					var new_color = d3_colors.pop();
+					var new_color = d3_colors.shift();
 					params.color[category] = new_color;
 					addColorRule(new_color, category);
 				}

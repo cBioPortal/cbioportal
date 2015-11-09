@@ -92,7 +92,7 @@ var BarChart = function(){
                 }
                 removeMarker();
                 // provide the postFilterCallback function with the chartID and the filter for the breadcrumbs
-                postFilterCallback(chart.chartID(), filter);
+                postFilterCallback(param.chartID, filter);
             }, 400);
         });
         barChart.on("postRedraw",function(chart){

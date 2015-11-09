@@ -59,7 +59,7 @@ var vals = {
         "MUTATION_EXTENDED": "mutation",
         "COPY_NUMBER_ALTERATION": "Copy Number",
         "MRNA_EXPRESSION": "mRNA",
-        "PROTEIN_ARRAY_PROTEIN_LEVEL": "RPPA Protein Level",
+        "PROTEIN_LEVEL": "Protein Level",
         "METHYLATION": "DNA Methylation"
     }
 };
@@ -67,7 +67,7 @@ var vals = {
 var genetic_profile_type_priority_list = [ //from low to high
     "MUTATION_EXTENDED",
     "METHYLATION",
-    "PROTEIN_ARRAY_PROTEIN_LEVEL",
+    "PROTEIN_LEVEL",
     "COPY_NUMBER_ALTERATION",
     "MRNA_EXPRESSION"    
 ];

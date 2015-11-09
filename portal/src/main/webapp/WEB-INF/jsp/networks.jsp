@@ -64,15 +64,19 @@
 %>
 
 <link href="css/network/network_ui.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/>
+<link href="css/network/cytoscape.js-panzoom.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/>
+
 
 <script type="text/javascript" src="js/lib/json2.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/lib/cytoscape_web/AC_OETags.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/lib/cytoscape_web/cytoscapeweb.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/lib/cytoscape_js/cytoscape.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/lib/cytoscape_js/cytoscape.js-panzoom.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/lib/cytoscape_js/layout.cose2.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <!-- <script type="text/javascript" src="js/src/network/network-ui.js?<%=GlobalProperties.getAppVersion()%>"></script> -->
 <script type="text/javascript" src="js/src/network/network-visualization.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/network/network-viz.js?<%=GlobalProperties.getAppVersion()%>"></script>
-
+<script type="text/javascript" src="js/src/network/GraphMLIO.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/network/network-viz2.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/network/cytoscape.renderer.canvas.portal-renderer.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <!-- for genomic data post request -->
 <script type="text/javascript" src="js/lib/d3.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
@@ -87,7 +91,7 @@
 		        z_score_threshold: <%=zScoreThreshold%>,
 		        rppa_score_threshold: <%=rppaScoreThreshold%>
 		    };
-	
+
             // show messages in graphml
             function showNetworkMessage(graphml, divNetMsg) {
                 var msgbegin = "<!--messages begin:";
@@ -101,9 +105,9 @@
                     if (msgs) {
                         $(divNetMsg).append(msgs.replace(/\n/g,"<br/>\n"));
                     }
-                }    
+                }
             }
-            
+
             function showXDebug(graphml) {
                 if (<%=useXDebug%>) {
                     var xdebugsbegin = "<!--xdebug messages begin:";
@@ -115,7 +119,7 @@
                         +xdebugmsgs.replace(/\n/g,"<br/>\n")+"</div>");
                 }
             }
-            
+
             var showNetwork = function() {
                 var networkParams = {<%=QueryBuilder.GENE_LIST%>:'<%=genes4Network%>',
                      <%=QueryBuilder.GENETIC_PROFILE_IDS%>:'<%=geneticProfileIds4Network%>',
@@ -128,26 +132,31 @@
                      netsrc:'<%=netSrc%>',
                      linkers:'<%=nLinker%>',
                      netsize:'<%=netSize%>',
-                     diffusion:'<%=diffusion%>'
+                     diffusion:'<%=diffusion%>',
                     };
                 // get the graphml data from the server
-                $.post("network.do", 
+                $.post("network.do",
                     networkParams,
                     function(graphml){
-                        if (typeof graphml !== "string") {
-                            if (window.ActiveXObject) { // IE 
-                                    graphml = (new XMLSerializer()).serializeToString(graphml); 
-                            } else { // Other browsers 
-                                    graphml = (new XMLSerializer()).serializeToString(graphml); 
-                            } 
+                        var gml2jsonConverter = new GraphMLToJSon(graphml);
+                        var json = gml2jsonConverter.toJSON();
+                        window.networkGraphJSON = json;
+
+                        if (typeof graphml !== "string")
+                        {
+                          if (window.ActiveXObject) { // IE
+                                  graphml = (new XMLSerializer()).serializeToString(graphml);
+                          } else { // Other browsers
+                                  graphml = (new XMLSerializer()).serializeToString(graphml);
+                          }
                         }
-                        send2cytoscapeweb(graphml, "cytoscapeweb", "network");
+
+                        //show debug message !
                         showXDebug(graphml);
                         showNetworkMessage(graphml, "#network #netmsg");
-                    }
-                );
+                    });
             }
-            
+
             $(document).ready(function() {
                 showNetwork();
             });

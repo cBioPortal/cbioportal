@@ -129,9 +129,6 @@ var orPlots = (function() {
                 dotsArr.push(_datum);
             }
         });
-        $.each(dotsArr, function(_index, obj) {
-            console.log(obj.y_val);
-        });
 
         generate_plots();
     };
@@ -390,9 +387,9 @@ var orPlots = (function() {
                     +cbio.util.getLinkToSampleView(cancer_study_id,d.case_id)
                     + "' target = '_blank'>" + d.case_id + "</a></strong><br>";
                 if (profile_type === orAnalysis.profile_type.mrna) {
-                    content += "mRNA expression: "
+                    content += "mRNA expression: ";
                 } else if (profile_type === orAnalysis.profile_type.protein_exp) {
-                    content += "RPPA score: "
+                    content += "RPPA score: ";
                 }
                 content += "<strong>" + parseFloat(d.y_val).toFixed(3) + "</strong><br>";
                 if (d.hasOwnProperty("alteration")) {
@@ -441,11 +438,7 @@ var orPlots = (function() {
             div_id = _div_id;
             gene = _gene;
             profile_type = _profile_type;
-            if (_profile_type === orAnalysis.profile_type.protein_exp) {
-                profile_id = _profile_id.substring(0, _profile_id.length - 8);
-            } else {
-                profile_id = _profile_id;
-            }
+            profile_id = _profile_id;
             profile_name = _profile_name;
             if (_p_value.indexOf("up1") !== -1) p_value = _p_value.replace("<img src=\"images/up1.png\"/>",  "");
             if (_p_value.indexOf("down1") !== -1) p_value = _p_value.replace("<img src=\"images/down1.png\"/>",  "");

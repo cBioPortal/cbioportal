@@ -18,92 +18,55 @@
     padding: 0 0 5px 0;
 }
 */
-#study-view-top-wrapper {
-    width: 100%;
-    float: left;
-    height: 40px;
+#study_view_add_chart_chzn {
+    margin-top: -3px;
+    width: 250px !important;
+    background-image: none !important;
 }
-#study-view-add-chart {
-    right:43px;
-    top: 0;
-    position: absolute;
-    z-index:21;
-    display: inline-block;
-    vertical-align: middle;
-    line-height: 30px;
-    font-family: Verdana,Arial,sans-serif;
-    font-size: 1.1em;
-    border: 1px solid #d3d3d3;
-    background: #e6e6e6;
-    font-weight: normal;
-    color: #555555;
-    max-width: 500px;
+
+#study_view_add_chart_chzn>a {
+    background-image: none;
+    height: 28px;
+    line-height: 28px;
 }
+
 #study-view-tutorial {
     right: 0;
     width: 80px;
     position: absolute;
     z-index:21;
 }
-#study-view-header-left-0 {
-/*    left: 0;*/
-    float: left;
-    width: 160px;
-    margin: 0 5px 0 0;
-    font-family: Verdana,Arial,sans-serif;
+#study-view-header-right-1 {
     font-size: 1.1em;
-    border: 1px solid #d3d3d3;
-    background: #e6e6e6;
-    font-weight: normal;
-    color: #555555;
+    width: 160px;
 }
 #study-view-header-left-1 {
-    /*left: 0;*/
-    float: left;
-    margin: 0 5px 0 0;
-    /*width: 190px;*/
-    font-family: Verdana,Arial,sans-serif;
     font-size: 1.1em;
-    border: 1px solid #d3d3d3;
-    background: #e6e6e6;
-    font-weight: normal;
-    color: #555555;
-    //height: 30px;
 }
 #study-view-header-left-2 {
-    /*left: 210px;*/
-    float: left;
-    margin: 0 5px 0 0;
-    font-family: Verdana,Arial,sans-serif;
-    font-size: 1.1em;
-    border: 1px solid #d3d3d3;
-    background: #e6e6e6;
-    font-weight: normal;
-    color: #555555;
+    float: none;
 }
 #study-view-header-left-3 {
-    /*position: absolute;*/
-    /*left: 410px;*/
-/*    height: 30px;
-    line-height: 30px;*/
-    /*top: 2px;*/
     float: left;
     border: 0;
     font-size: 13px;
     margin: 0;
     z-index: 21;
     vertical-align: middle;
-    padding: 0 10px;
+    padding: 0 10px 0 0;
     background-color: white;
     width: auto;
-    /*color: #2986e2;*/
     color: black;
     text-align: center;
     font-family: Verdana,Arial,sans-serif;
     font-size: 1.1em;
-    margin-top: 4px;
+    margin-top: 3px;
 }
+
 #study-view-header-left-4 {
+    font-size: 1.1em;
+}
+#study-view-header-left-6 {
     font-size: 1.1em;
 }
 #study-view-header-left-3:hover{
@@ -114,10 +77,16 @@
     margin: 0 5px 0 0;
     font-family: Verdana,Arial,sans-serif;
     font-size: 1.1em;
-    border: 1px solid #d3d3d3;
-    background: #e6e6e6;
+    border: 1px solid darkgray;
+    background: none;
     font-weight: normal;
     color: #555555;
+    padding: 5px 10px;
+    margin-top: -3px;
+    margin-right: 10px;
+    border: solid 1px;
+    border-radius: 5px;
+    border-color: darkgrey;
 }
 .study-view-header-button:hover {
     cursor: pointer;
@@ -200,13 +169,13 @@
     margin-right: 75px;
 }
 #study-view-header-function {
-    position: absolute;
-    top: 60px;
     width: 1200px;
-    height: 30px;
     background-color: white;
     z-index: 20;
     -webkit-backface-visibility: hidden;
+    border-bottom: 1px solid darkgray;
+    padding-bottom: 10px;
+    padding-top: 10px;
 }
 #study-view-scatter-plot-header {
     float: right;
@@ -294,6 +263,9 @@
 }
 .smallTable thead th {
     font-size: 10px !important;
+}
+.regularTable thead th {
+    font-size: 12px !important;
 }
 
 #dataTable_info {
@@ -1041,4 +1013,53 @@ div.DTTT_print_info {
     display: none;
     padding: 20px;
     z-index: 1000;
+}
+
+#breadcrumbs_container{
+    padding: 5px 10px 0 0;
+}
+.breadcrumb_container{
+    display:inline-block;
+}
+.breadcrumb_remove{
+    vertical-align: middle;
+    margin-top: -2px;
+    padding-right: 10px;
+}
+.breadcrumb_remove:hover{
+    cursor: pointer;
+}
+.breadcrumb_item{
+    padding: 0px 5px;
+    font-weight: bold;
+}
+#study-view-header-left{
+    display: inline-block;
+}
+#study-view-header-right {
+    float: right;
+}
+/* based on study-view-header-left-3 */
+#study-view-header-left-5 {
+    float: left;
+    margin: 0 5px 0 0;
+    font-family: Verdana,Arial,sans-serif;
+    font-size: 1.1em;
+    border: 1px solid darkgray;
+    background: none;
+    font-weight: normal;
+    color: orange;
+    padding: 5px 10px;
+    margin-top: -3px;
+    margin-right: 10px;
+    border: solid 1px;
+    border-radius: 5px;
+    border-color: darkgrey;
+}
+#arrow_studyview{
+    width: 25px;
+    height: 20px;
+    float: left;
+    padding: 0px 10px 0px 0px;
+    margin-top: 2px;
 }

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.mskcc.cbio.portal.persistence.ClinicalFieldMapper">
+
+<resultMap id="ClinicalFieldResult" type="DBClinicalField">
+    <id property="attr_id" column="ATTR_ID"/>
+    <result property="display_name" column="DISPLAY_NAME"/>
+    <result property="description" column="DESCRIPTION"/>
+    <result property="datatype" column="DATATYPE"/>
+    <result property="is_patient_attribute" column="PATIENT_ATTRIBUTE"/>
+    <result property="priority" column="PRIORITY"/>
+</resultMap>
+
+<select id="getSampleClinicalFieldsByStudy" resultMap="ClinicalFieldResult">
+    select distinct clinical_attribute.ATTR_ID,clinical_attribute.DISPLAY_NAME,clinical_attribute.DESCRIPTION,clinical_attribute.DATATYPE,clinical_attribute.PATIENT_ATTRIBUTE,clinical_attribute.PRIORITY from clinical_attribute
+                inner join clinical_sample on clinical_sample.ATTR_ID = clinical_attribute.ATTR_ID
+                inner join sample on clinical_sample.INTERNAL_ID = sample.INTERNAL_ID
+                inner join patient on sample.PATIENT_ID = patient.INTERNAL_ID
+                inner join cancer_study on patient.CANCER_STUDY_ID=cancer_study.CANCER_STUDY_ID
+    where cancer_study.CANCER_STUDY_IDENTIFIER=#{study_id}
+</select>
+<select id="getPatientClinicalFieldsByStudy" resultMap="ClinicalFieldResult">
+    select distinct clinical_attribute.ATTR_ID,clinical_attribute.DISPLAY_NAME,clinical_attribute.DESCRIPTION,clinical_attribute.DATATYPE,clinical_attribute.PATIENT_ATTRIBUTE,clinical_attribute.PRIORITY from clinical_attribute
+                inner join clinical_patient on clinical_patient.ATTR_ID = clinical_attribute.ATTR_ID
+                inner join patient on patient.INTERNAL_ID = clinical_patient.INTERNAL_ID
+                inner join cancer_study on patient.CANCER_STUDY_ID=cancer_study.CANCER_STUDY_ID
+    where cancer_study.CANCER_STUDY_IDENTIFIER=#{study_id}
+</select>
+<select id="getSampleClinicalFieldsBySample" resultMap="ClinicalFieldResult">
+    select distinct clinical_attribute.ATTR_ID,clinical_attribute.DISPLAY_NAME,clinical_attribute.DESCRIPTION,clinical_attribute.DATATYPE,clinical_attribute.PATIENT_ATTRIBUTE,clinical_attribute.PRIORITY from clinical_attribute
+                inner join clinical_sample on clinical_sample.ATTR_ID = clinical_attribute.ATTR_ID
+                inner join sample on clinical_sample.INTERNAL_ID = sample.INTERNAL_ID
+                inner join patient on sample.PATIENT_ID = patient.INTERNAL_ID
+                inner join cancer_study on patient.CANCER_STUDY_ID=cancer_study.CANCER_STUDY_ID
+    where cancer_study.CANCER_STUDY_IDENTIFIER=#{study_id}
+    and sample.STABLE_ID in <foreach item="item" collection="sample_ids" open="(" separator="," close=")">#{item}</foreach>
+</select>
+<select id="getPatientClinicalFieldsByPatient" resultMap="ClinicalFieldResult">
+    select distinct clinical_attribute.ATTR_ID,clinical_attribute.DISPLAY_NAME,clinical_attribute.DESCRIPTION,clinical_attribute.DATATYPE,clinical_attribute.PATIENT_ATTRIBUTE,clinical_attribute.PRIORITY from clinical_attribute
+                inner join clinical_patient on clinical_patient.ATTR_ID = clinical_attribute.ATTR_ID
+                inner join patient on patient.INTERNAL_ID = clinical_patient.INTERNAL_ID
+                inner join cancer_study on patient.CANCER_STUDY_ID=cancer_study.CANCER_STUDY_ID
+    where cancer_study.CANCER_STUDY_IDENTIFIER=#{study_id}
+    and patient.STABLE_ID in <foreach item="item" collection="patient_ids" open="(" separator="," close=")">#{item}</foreach>
+</select>
+
+<select id="getAllSampleClinicalFields" resultMap="ClinicalFieldResult">
+    select * from clinical_attribute where PATIENT_ATTRIBUTE=0
+</select>
+
+<select id="getAllPatientClinicalFields" resultMap="ClinicalFieldResult">
+    select * from clinical_attribute where PATIENT_ATTRIBUTE=1
+</select>
+    
+</mapper>

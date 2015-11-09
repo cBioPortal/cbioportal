@@ -44,7 +44,8 @@ var orAnalysis = (function() {
             sub_tab_mutations: "or-analysis-subtab-mutations",
             sub_tab_mrna_exp: "or-analysis-subtab-mrna-exp",
             sub_tab_advanced: "or-analysis-subtab-advanced",
-            sub_tab_protein_exp: "or-analysis-subtab-protein-exp"
+            sub_tab_protein_exp: "or-analysis-subtab-protein-exp",
+            gene_set_warning: "enrichments-tab-gene-set-warning"
         },
         texts: {
             sub_tab_copy_num: "Copy-number",
@@ -127,17 +128,6 @@ var orAnalysis = (function() {
                 p_val: 6,
                 q_val: 7,
                 plot: 8
-            },
-            phospho_exp: {
-                gene: 0,
-                altered_mean: 1,
-                unaltered_mean: 2,
-                altered_stdev: 3,
-                unaltered_stdev: 4,
-                p_val: 5,
-                q_val: 6,
-                plot: 7
-
             }
         },
         _title_ids : {

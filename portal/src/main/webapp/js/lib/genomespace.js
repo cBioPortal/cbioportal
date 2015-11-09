@@ -61,7 +61,7 @@ function getDataFilenameSuffixByProfile(genomicProfile)
     else if (genomicProfile == 'PROFILE_METHYLATION') {
         return 'methylation.txt';
     }
-    else if (genomicProfile == 'PROFILE_RPPA') {
+    else if (genomicProfile == 'PROFILE_PROTEIN_EXPRESSION') {
         return 'rppa.txt';
     }
 }

@@ -689,3 +689,11 @@ function _humanReadableCategory(category)
 	
 	return label;
 }
+
+function openStudyView(){
+	// retrieve the currently selected cancer study id
+	var cancerStudyId = $("#main_form").find("#select_single_study").val();
+
+	// go to the study view
+	window.open("study.do?cancer_study_id="+cancerStudyId, "_self");
+}

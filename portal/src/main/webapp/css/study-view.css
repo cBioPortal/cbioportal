@@ -1052,6 +1052,7 @@ div.DTTT_print_info {
     border: solid 1px;
     border-radius: 5px;
     border-color: darkgrey;
+    outline-offset: -2px;
 }
 #arrow_studyview{
     width: 25px;
@@ -1072,6 +1073,7 @@ textarea.expand{
     border: solid 1px;
     border-radius: 5px;
     border-color: darkgrey;
+    outline-offset: -2px;
     /*vertical-align: middle;*/
 }
 textarea.expandFocusOut{

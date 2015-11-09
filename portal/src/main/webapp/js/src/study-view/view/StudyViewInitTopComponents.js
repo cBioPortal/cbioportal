@@ -142,26 +142,29 @@ var StudyViewInitTopComponents = (function() {
         });
 
         $("#study-view-form").submit(function(){
-            if(!QueryByGeneTextArea.isEmpty()){
-                // add the necessary fields to the form
-                QueryByGeneUtil.addStudyViewFields();
-                // set the case-list to studyId_all (which used to query)
-                //$("#study-view-header-left-case_set-id").val(window.caseSetId);
-                // clear the selected samples
-                //$("#study-view-header-left-case-ids").val("");
-            }
+            // add the necessary fields to the form
+            if(!QueryByGeneTextArea.isEmpty()) QueryByGeneUtil.addStudyViewFields();
         });
 
-        //$("#study-view-header-left-1").click(function () {
-        //    var genes = QueryByGeneTextArea.getGenes();
-        //    if(genes.length!=0){
-        //        $("#study-view-form")
-        //            .attr({
-        //                method: "post",
-        //                action: "http://stackoverflow.com/questions/12055435/append-json-data-to-post-request"
-        //            });
-        //    }
-        //});
+        $("#study-view-header-left-1").hover(function () {
+            $("#query-by-gene-textarea").css("outline", "-webkit-focus-ring-color auto 5px");
+            $("#study-view-header-left-5").css("outline", "-webkit-focus-ring-color auto 5px");
+        }, function() {
+            $("#query-by-gene-textarea").css("outline", "");
+            $("#study-view-header-left-5").css("outline", "");
+        });
+
+        $("#study-view-header-left-4").hover(function () {
+            $("#study-view-header-left-5").css("outline", "-webkit-focus-ring-color auto 5px");
+        }, function() {
+            $("#study-view-header-left-5").css("outline", "");
+        });
+
+        $("#study-view-header-left-6").hover(function () {
+            $("#study-view-header-left-5").css("outline", "-webkit-focus-ring-color auto 5px");
+        }, function() {
+            $("#study-view-header-left-5").css("outline", "");
+        });
 
     }
 

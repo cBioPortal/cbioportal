@@ -81,6 +81,7 @@ var QueryByGeneTextArea  = (function() {
 
     function performGeneValidation(){
         console.log("no validation yet");
+        
     }
 
     function initEvents(){
@@ -93,7 +94,6 @@ var QueryByGeneTextArea  = (function() {
             $(this).switchClass("expandFocusIn", "expandFocusOut", 500);
             updateGeneList();
             setFocusOutText();
-            //hideShowArea();
             if(updateGeneCallBack != undefined) updateGeneCallBack(geneList);
         });
 

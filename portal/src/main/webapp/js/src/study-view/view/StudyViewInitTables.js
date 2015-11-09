@@ -177,21 +177,40 @@ var StudyViewInitTables = (function() {
     function updateGeneHighlightTable(worker, geneArray){
         var dataTable = worker.tableInstance.getDataTable();
 
-        dataTable.$("span.geneSelected").removeClass("geneSelected");
+        var curSelectedGenes = Array();
+        var curSelectedRows = dataTable.$("span.geneSelected");
 
-        // think about better selector / way to do this at some point
-        // but as this is only a prototype, postpone.
-        for(var i=0; i<geneArray.length; i++){
-            if(worker.opts.name=="cna"){
-                dataTable.$("td[id$='-"+geneArray[i]+"-AMP']").parent().find(".selectHighlight").addClass("geneSelected")
-                dataTable.$("td[id$='-"+geneArray[i]+"-DEL']").parent().find(".selectHighlight").addClass("geneSelected")
-            }
-            else
-                dataTable.$("td[id$='-"+geneArray[i]+"']").parent().find(".selectHighlight").addClass("geneSelected")
+        for(var i=0; i<curSelectedRows.length; i++){
+            curSelectedGenes.push(dataTable.api().row($(curSelectedRows[i]).parent().parent()).data()[0]);
         }
+        $.unique(curSelectedGenes);
 
+        var deselectGenes = _.difference(curSelectedGenes, geneArray);
+        var selectGenes = _.difference(geneArray, curSelectedGenes);
+
+        doUpdateGeneHighlightTable(dataTable, worker, deselectGenes, true);
+        doUpdateGeneHighlightTable(dataTable, worker, selectGenes, false);
     }
-    
+
+    function doUpdateGeneHighlightTable(dataTable, worker, array, deselect){
+        var item;
+        for(var i=0; i<array.length; i++) {
+            if (worker.opts.name == "cna")
+                item = dataTable.$("td[id*='-" + array[i] + "-']").parent().find(".selectHighlight");
+            else
+                item = dataTable.$("td[id$='-" + array[i] + "']").parent().find(".selectHighlight");
+
+            if(deselect) {
+                item.removeClass("geneSelected");
+                item.qtip('option', 'content.text', 'Click '+array[i]+' to add to your query');
+            }
+            else{
+                item.addClass("geneSelected");
+                item.qtip('option', 'content.text', 'Click '+array[i]+' to remove from your query');
+            }
+        }
+    }
+
     function rowClick(tableId, data, clickedRowData, rowSelected) {
         var dcCharts = StudyViewInitCharts.getCharts(),
             dcChartsL = dcCharts.length,

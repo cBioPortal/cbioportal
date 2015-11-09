@@ -313,7 +313,7 @@ var Table = function() {
                         var str = '';
 
                         // add qtip for selecting the gene
-                        str += '<span class="hasQtip selectHighlight" qtip="Click '+_gene+' to update your query">';
+                        str += '<span class="hasQtip selectHighlight" qtip="Click '+_gene+' to add to your query">';
                         if(_gene.toString().length > 6) {
                             str += _gene.substring(0,4) + '...'+'</span>';
                         }else {

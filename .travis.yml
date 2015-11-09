@@ -26,11 +26,8 @@ before_script:
     - cp src/main/resources/spring.security.url.intercepts .travis/src/main/resources
 
 script:
+    - pwd
     - export PORTAL_HOME=$(pwd)/.travis
-    - ls
-    - ls $PORTAL_HOME
-    - cp $PORTAL_HOME/src/main/resources/portal.properties.EXAMPLE $PORTAL_HOME/src/main/resources/portal.properties
-    - cp $PORTAL_HOME/src/main/resources/log4j.properties.EXAMPLE $PORTAL_HOME/src/main/resources/log4j.properties
     - ~/maven/$MAVEN_VERSION/bin/mvn -e -DPORTAL_HOME=$PORTAL_HOME -Ddb.user=travis -Ddb.password= clean install
 
 notifications:

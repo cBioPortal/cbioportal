@@ -56,6 +56,7 @@ var orAnalysis = (function() {
             null_result: "empt"
         },
         postfix: {
+        	plot_div: "_plot_div",
             datatable_class: "_datatable_class",
             datatable_div: "_datatable_div",
             datatable_id: "_datatable_table",
@@ -110,13 +111,12 @@ var orAnalysis = (function() {
             },
             mutations: {
                 gene: 0,
-                cytoband: 1,
-                altered_pct: 2,
-                unaltered_pct: 3,
-                log_ratio: 4,
-                p_val: 5,
-                q_val: 6,
-                direction: 7
+                altered_pct: 1,
+                unaltered_pct: 2,
+                log_ratio: 3,
+                p_val: 4,
+                q_val: 5,
+                direction: 6
             },
             protein_exp: {
                 gene: 0,

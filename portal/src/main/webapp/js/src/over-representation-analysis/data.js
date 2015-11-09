@@ -57,7 +57,6 @@ var orData = function() {
             } else if (_profile_type === orAnalysis.profile_type.mutations) {
 
                 _unit[orAnalysis.col_index.mutations.gene] = "<input type='checkbox' class='" + table_id + orAnalysis.postfix.datatable_gene_checkbox_class + "' value='" + _obj["Gene"] + "'>" + _obj["Gene"];
-                _unit[orAnalysis.col_index.mutations.cytoband] = _obj["Cytoband"];
                 _unit[orAnalysis.col_index.mutations.altered_pct] = (_obj["percentage of alteration in altered group"] * 100).toFixed(2) + "%";
                 _unit[orAnalysis.col_index.mutations.unaltered_pct] = (_obj["percentage of alteration in unaltered group"] * 100).toFixed(2) + "%";
                 _unit[orAnalysis.col_index.mutations.log_ratio] = (_obj["Log Ratio"] !== ">10" && _obj["Log Ratio"] !== "<-10")? parseFloat(_obj["Log Ratio"]).toFixed(2): _obj["Log Ratio"];

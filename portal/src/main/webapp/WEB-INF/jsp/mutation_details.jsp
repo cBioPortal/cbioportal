@@ -83,7 +83,9 @@
     var showHotspot = <%=showHotspot%>;
     var enableMyCancerGenome = myCancerGenomeUrl?true:false;
 
-    _mut3dVis = new Mutation3dVis("default3dView");
+    _mut3dVis = new Mutation3dVis("default3dView", {
+	    pdbUri: "api/proxy/jsmol/"
+    });
     _mut3dVis.init();
 
     OncoKB.setUrl('<%=oncokbUrl%>');

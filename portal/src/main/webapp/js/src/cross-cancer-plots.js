@@ -17,7 +17,8 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 STABLE_ID: "",
                 CANCER_STUDY_STABLE_ID: "",
                 CASE_SET_ID: "",
-                CANCER_STUDY_NAME: ""
+                CANCER_STUDY_NAME: "",
+                CANCER_STUDY_SHORT_NAME: ""
             }
         });
 
@@ -125,6 +126,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                                             _profile_obj.CANCER_STUDY_STABLE_ID = profileMetaListTmp.cancer_study_id;
                                             _profile_obj.CASE_SET_ID = profileMetaListTmp.cancer_study_id + "_all";
                                             _profile_obj.CANCER_STUDY_NAME = window.PortalMetaData["cancer_studies"][_study_obj.studyId].name;
+                                            _profile_obj.CANCER_STUDY_SHORT_NAME = window.PortalMetaData.cancer_studies[_study_obj.studyId].short_name;
                                         });
                                         profileMetaList.add(profileMetaListTmp.models);
                                         if (_study_index + 1 === window.studies.length) { //reach the end of the iteration
@@ -183,12 +185,16 @@ var ccPlots = (function ($, _, Backbone, d3) {
                     }));
                 }
             },
-            get_meta: function() {
-                //var _platform = $('input[name=cc_plots_platform]:checked').val();
-                return _.filter(_.pluck(profileMetaList.models, "attributes"), function(profile_obj) {
-                    //return (profile_obj.NAME.toLowerCase().indexOf(_platform) !== -1);
+            get_meta: function(_opt) {
+                var _arr = _.filter(_.pluck(profileMetaList.models, "attributes"), function(profile_obj) {
                     return (profile_obj.NAME.toLowerCase().indexOf("rsem") !== -1);
                 });
+                if (_opt === "alphabetic") {
+                    _arr = _.sortBy(_arr, "CANCER_STUDY_SHORT_NAME");
+                } else if (_opt === "mean") {
+
+                }
+                return _arr;
             },
             get_profile_name: function(_profile_id) {
                 var _profile_obj = _.filter(_.pluck(profileMetaList.models, "attributes"), function(_profile_item) { return _profile_item.STABLE_ID === _profile_id; });
@@ -246,26 +252,10 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 $("#cc_plots_data_download").click(function() {
                     cbio.download.clientSideDownload([ccPlots.get_tab_delimited_data()], "plots-data.txt");
                 });
-                //var _has_rsem = false, _has_rpkm = false;
-                //_.each(data.get_meta(), function(profile_item) {
-                //    if (profile_item.NAME.toLowerCase().indexOf("rsem") !== -1) _has_rsem = true;
-                //    if (profile_item.NAME.toLowerCase().indexOf("rpkm") !== -1) _has_rpkm = true;
-                //});
-                //if (!_has_rsem) {
-                //    document.getElementById("cc_plots_rsem").disabled = true;
-                //    $("#cc_plots_rsem_text").css("color", "grey");
-                //}
-                //if (!_has_rpkm) {
-                //    document.getElementById("cc_plots_rpkm").disabled = true;
-                //    $("#cc_plots_rpkm_text").css("color", "grey");
-                //}
-                //$('input[name=cc_plots_platform]:radio').change(function() {
-                //    ccPlots.update_platform();
-                //});
             },
             init_canvas = function() {
-                if (_.pluck(data.get_meta(), "STABLE_ID").length < 8) {
-                    settings.canvas_width = _.pluck(data.get_meta(), "STABLE_ID").length * 100 + 250;
+                if (_.pluck(data.get_meta($('input[name=cc_plots_profile_order_opt]:checked').val()), "STABLE_ID").length < 8) {
+                    settings.canvas_width = _.pluck(data.get_meta($('input[name=cc_plots_profile_order_opt]:checked').val()), "STABLE_ID").length * 100 + 250;
                 } else {
                     settings.canvas_width = 1070;
                 }
@@ -294,14 +284,14 @@ var ccPlots = (function ($, _, Backbone, d3) {
 
                 //x axis
                 var x_axis_right = 0;
-                if (_.pluck(data.get_meta(), "STABLE_ID").length < 8) {
-                    x_axis_right = (_.pluck(data.get_meta(), "STABLE_ID").length * 100 + 160);
+                if (_.pluck(data.get_meta($('input[name=cc_plots_profile_order_opt]:checked').val()), "STABLE_ID").length < 8) {
+                    x_axis_right = (_.pluck(data.get_meta($('input[name=cc_plots_profile_order_opt]:checked').val()), "STABLE_ID").length * 100 + 160);
                 } else {
                     x_axis_right = 980;
                 }
 
                 elem.x.scale = d3.scale.ordinal()
-                    .domain(_.pluck(data.get_meta(), "STABLE_ID"))
+                    .domain(_.pluck(data.get_meta($('input[name=cc_plots_profile_order_opt]:checked').val()), "STABLE_ID"))
                     .rangeRoundBands([160, x_axis_right]);
 
                 elem.x.axis = d3.svg.axis()
@@ -315,9 +305,9 @@ var ccPlots = (function ($, _, Backbone, d3) {
                     .style("shape-rendering", "crispEdges")
                     .attr("class", "x-axis")
                     .attr("transform", "translate(0, 520)")
-                    .call(elem.x.axis.ticks(data.get_meta().length))
+                    .call(elem.x.axis.ticks(data.get_meta($('input[name=cc_plots_profile_order_opt]:checked').val()).length))
                     .selectAll("text")
-                    .data(data.get_meta())
+                    .data(data.get_meta($('input[name=cc_plots_profile_order_opt]:checked').val()))
                     .attr("class", "x-axis-label")
                     .style("font-family", "sans-serif")
                     .style("font-size", "12px")
@@ -327,7 +317,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                     .style("text-anchor", "end")
                     .attr("transform", function() { return "rotate(-30)"; })
                     .text(function(d) {
-                        return window.PortalMetaData.cancer_studies[d.CANCER_STUDY_STABLE_ID].short_name;
+                        return d.CANCER_STUDY_SHORT_NAME;
                     });
                 elem.svg.append("g")
                     .style("stroke-width", 1.5)
@@ -455,8 +445,8 @@ var ccPlots = (function ($, _, Backbone, d3) {
                     .enter().append("g")
                     .attr("class", "legend")
                     .attr("transform", function(d, i) {
-                        if (_.pluck(data.get_meta(), "STABLE_ID").length < 8) {
-                            return "translate(" + (_.pluck(data.get_meta(), "STABLE_ID").length * 100 + 170) + ", " + (25 + i * 15) + ")";
+                        if (_.pluck(data.get_meta($('input[name=cc_plots_profile_order_opt]:checked').val()), "STABLE_ID").length < 8) {
+                            return "translate(" + (_.pluck(data.get_meta($('input[name=cc_plots_profile_order_opt]:checked').val()), "STABLE_ID").length * 100 + 170) + ", " + (25 + i * 15) + ")";
                         } else {
                             return "translate(990, " + (25 + i * 15) + ")";
                         }
@@ -537,7 +527,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                         y_val: []
                     },
                     _box_plots_data_arr = [];
-                _.each(_.pluck(data.get_meta(), "STABLE_ID"), function(_profile_id) {
+                _.each(_.pluck(data.get_meta($('input[name=cc_plots_profile_order_opt]:checked').val()), "STABLE_ID"), function(_profile_id) {
                     var _tmp_y_val_arr = [];
                     _.each(_data, function(_data_item) {
                         if (_data_item.profileId === _profile_id) {
@@ -689,8 +679,8 @@ var ccPlots = (function ($, _, Backbone, d3) {
 
             d3.select("#cc-plots-box").select(".y-axis").remove();
             var x_axis_right = 0;
-            if (_.pluck(data.get_meta(), "STABLE_ID").length < 8 ) {
-                x_axis_right = (_.pluck(data.get_meta(), "STABLE_ID").length * 100 + 160);
+            if (_.pluck(data.get_meta($('input[name=cc_plots_profile_order_opt]:checked').val()), "STABLE_ID").length < 8 ) {
+                x_axis_right = (_.pluck(data.get_meta($('input[name=cc_plots_profile_order_opt]:checked').val()), "STABLE_ID").length * 100 + 160);
             } else {
                 x_axis_right = 980;
             }
@@ -747,7 +737,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                     y_val: []
                 },
                 _box_plots_data_arr = [];
-            _.each(_.pluck(data.get_meta(), "STABLE_ID"), function(_profile_id) {
+            _.each(_.pluck(data.get_meta($('input[name=cc_plots_profile_order_opt]:checked').val()), "STABLE_ID"), function(_profile_id) {
                 var _tmp_y_val_arr = [];
                 _.each(_data, function(_data_item) {
                     if (_data_item.profileId === _profile_id) {
@@ -790,8 +780,8 @@ var ccPlots = (function ($, _, Backbone, d3) {
 
             d3.select("#cc-plots-box").select(".y-axis").remove();
             var x_axis_right = 0;
-            if (_.pluck(data.get_meta(), "STABLE_ID").length < 8) {
-                x_axis_right = (_.pluck(data.get_meta(), "STABLE_ID").length * 100 + 160);
+            if (_.pluck(data.get_meta($('input[name=cc_plots_profile_order_opt]:checked').val()), "STABLE_ID").length < 8) {
+                x_axis_right = (_.pluck(data.get_meta($('input[name=cc_plots_profile_order_opt]:checked').val()), "STABLE_ID").length * 100 + 160);
             } else {
                 x_axis_right = 980;
             }
@@ -847,7 +837,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                     y_val: []
                 },
                 _box_plots_data_arr = [];
-            _.each(_.pluck(data.get_meta(), "STABLE_ID"), function(_profile_id) {
+            _.each(_.pluck(data.get_meta($('input[name=cc_plots_profile_order_opt]:checked').val()), "STABLE_ID"), function(_profile_id) {
                 var _tmp_y_val_arr = [];
                 _.each(_data, function(_data_item) {
                     if (_data_item.profileId === _profile_id) {
@@ -874,10 +864,6 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 init_canvas();
                 data.get($("#cc_plots_gene_list").val(), init_box);
             },
-            //update_platform: function() {
-            //    init_canvas();
-            //    data.get($("#cc_plots_gene_list").val(), init_box);
-            //},
             apply_log_scale: apply_log_scale,
             remove_log_scale: remove_log_scale,
             init_sidebar: init_sidebar,
@@ -968,11 +954,6 @@ var ccPlots = (function ($, _, Backbone, d3) {
             $("#cc-plots-box").append("<img src='images/ajax-loader.gif' id='cc_plots_loading' style='padding:200px;'/>");
             view.update_gene();
         },
-        //update_platform: function() {
-        //    d3.select("#cc-plots-box").select("svg").remove();
-        //    $("#cc-plots-box").append("<img src='images/ajax-loader.gif' id='cc_plots_loading' style='padding:200px;'/>");
-        //    view.update_platform();
-        //},
         search_mutation: search_mutation,
         search_case_id: search_case_id,
         get_tab_delimited_data: get_tab_delimited_data,

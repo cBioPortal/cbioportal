@@ -474,7 +474,7 @@ var StudyViewInitCharts = (function(){
                 _title = $(this).parent().parent().find("charttitleh4").text();
            
             $($(this).parent().parent().parent()).css('display','none');
-            $('#study-view-add-chart').css('display','block');
+            $('#study_view_add_chart_chzn').css('display','inline-block');
 //            $('#study-view-add-chart ul')
 //                    .append($('<li></li>')
 //                        .attr('id','survival-' + _plotId)
@@ -497,8 +497,11 @@ var StudyViewInitCharts = (function(){
 
         $(".study-view-scatter-plot-delete").unbind('click');
         $(".study-view-scatter-plot-delete").click(function (){
+            // remove breadcrumbs for the chart
+            BreadCrumbs.deleteBreadCrumbsByChartId("study-view-scatter-plot");
+
             $("#study-view-scatter-plot").css('display','none');
-            $('#study-view-add-chart').css('display','block');
+            $('#study_view_add_chart_chzn').css('display','block');
 //            $('#study-view-add-chart ul')
 //                    .append($('<li></li>')
 //                        .attr('id','mutationCNA')
@@ -585,6 +588,9 @@ var StudyViewInitCharts = (function(){
                 deleteChart(_id,_valueA);
                 bondDragForLayout();
                 AddCharts.bindliClickFunc();
+
+                // delete histogram or pie chart breadcrumbs
+                //BreadCrumbs.deleteBreadCrumbsByChartId(_id);
         });
     }
     
@@ -621,6 +627,10 @@ var StudyViewInitCharts = (function(){
                 }
             }
         }
+    }
+
+    function clearScatterPlot(){
+        StudyViewInitScatterPlot.clearScatterPlot();
     }
     
     function makeNewPieChartInstance(_chartID, _pieInfo) {
@@ -763,18 +773,35 @@ var StudyViewInitCharts = (function(){
             StudyViewInitScatterPlot.setclearFlag(false);
         }
     }
-    
+
     /**
      * DC charts post filter callback function
      */
-    function postFilterCallbackFunc(){
+    function postFilterCallbackFunc(chartID, chartFilter){
         if(!StudyViewInitScatterPlot.getclearFlag() && !plotDataFlag){
             removeMarker();
             resetBars();
             redrawSpecialPlots();
+            // update the breadcrumbs
+            updateBreadCrumbs(chartID, chartFilter);
         }
     }
-    
+
+    function updateBreadCrumbs(chartID, chartFilter) {
+        var chartAttribute=displayedID[chartID];
+        var chartType = varType[chartAttribute];
+
+        if(chartType==="bar"){
+            //var crumbTip = chartFilter==null?"":chartAttribute+": "+chartFilter[0]+" - "+chartFilter[1];
+            //BreadCrumbs.updateBarChartBreadCrumb(chartID, chartAttribute, crumbTip, crumbTip, chartType);
+            BreadCrumbs.updateBarChartBreadCrumb(chartID, chartFilter, chartAttribute, chartType);
+        }
+        else if(chartType==="pie"){
+            //BreadCrumbs.updatePieChartBreadCrumb(chartID, chartFilter, chartAttribute+": "+chartFilter, chartFilter, chartType);
+            BreadCrumbs.updatePieChartBreadCrumb(chartID, chartFilter, chartAttribute, chartType);
+        }
+    }
+
     /**
      * DC charts plot data button callback function
      * @param {type} _casesInfo
@@ -785,7 +812,8 @@ var StudyViewInitCharts = (function(){
         resetBars(_selectedAttr[0]);
         redrawSpecialPlots(_casesInfo, _selectedAttr);
     }
-    
+
+
     /**
      * 
      * @returns {Boolean} whether current dc charts have filter
@@ -911,7 +939,7 @@ var StudyViewInitCharts = (function(){
     
     function deleteChart(_chartID,_value){
         var _options;
-        
+
         $("div").remove("#study-view-dc-chart-main-" + _chartID); 
         if(varChart[_chartID].getChart().hasFilter()){
             varChart[_chartID].getChart().filterAll();
@@ -937,7 +965,7 @@ var StudyViewInitCharts = (function(){
         });
         $('#study-view-add-chart').find('option:not(:first)').remove();
         $('#study-view-add-chart').append(_options);
-        $('#study-view-add-chart').css('display','block');
+        $('#study_view_add_chart_chzn').css('display','inline-block');
         varChart[_chartID] = "";
         removedChart.push(Number(_chartID));
     }
@@ -1142,9 +1170,13 @@ var StudyViewInitCharts = (function(){
         }
         
         if(_createdFlag) {
+
             _index = removedChart.indexOf(_chartID);
             if (_index > -1) {
                 removedChart.splice(_index, 1);
+            }else {
+                displayedID.push(_id)
+                varDisplay.push(_selectedAttrDisplay);
             }
 
             bondDragForLayout();
@@ -1152,12 +1184,12 @@ var StudyViewInitCharts = (function(){
 //            $('#study-view-add-chart ul').find('li[id="' + _selectedAttr + '"]').remove();
             $('#study-view-add-chart').find('option[id="' + _id + '"]').remove();
 //            if($('#study-view-add-chart ul').find('li').length === 0 ){
-            if($('#study-view-add-chart').find('option').length === 1 && 
+            if($('#study-view-add-chart').find('option').length === 1 &&
                     $('#study-view-add-chart').find('option').attr('id') === ''){
-                $('#study-view-add-chart').css('display','none');
+                $('#study_view_add_chart_chzn').css('display','none');
             }
-            
-//            $('#study-view-add-chart ul').css('height','100%');
+
+            $("#study-view-add-chart").trigger("liszt:updated");
         }
     }
     
@@ -1205,7 +1237,8 @@ var StudyViewInitCharts = (function(){
         setPlotDataFlag: function(_flag) {
             plotDataFlag = _flag;
         },
-        
+
+        clearScatterPlot: clearScatterPlot,
         redrawScatter: redrawScatter,
         redrawSpecialPlots: redrawSpecialPlots,
         filterChartsByGivingIDs: filterChartsByGivingIDs,

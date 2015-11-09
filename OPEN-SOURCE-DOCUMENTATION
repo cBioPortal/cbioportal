@@ -139,7 +139,7 @@ cbioportal@googlegroups.com.
 
 
 ant-1.7.0
---------- 
+---------
 Available under license:
 
 Apache License
@@ -345,7 +345,7 @@ Apache License
    limitations under the License.
 
 ant-launcher-1.7.0
------------------- 
+------------------
 Available under license:
 
 Apache License
@@ -551,7 +551,7 @@ Apache License
    limitations under the License.
 
 antlr-2.7.7
------------ 
+-----------
 Available under license:
 
 Redistribution and use in source and binary forms, with or without
@@ -580,7 +580,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 antlr-runtime-3.2
------------------ 
+-----------------
 Available under license:
 
 Redistribution and use in source and binary forms, with or without
@@ -609,12 +609,12 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 aopalliance-1.0
---------------- 
+---------------
 Available under license:
 
 Public Domain
 apache-log4j-extras-1.1
------------------------ 
+-----------------------
 Available under license:
 
 Apache License
@@ -820,7 +820,7 @@ Apache License
    limitations under the License.
 
 avalon-framework-4.0
--------------------- 
+--------------------
 Available under license:
 
 Apache License
@@ -1026,7 +1026,7 @@ Apache License
    limitations under the License.
 
 axis-1.4
--------- 
+--------
 Available under license:
 
 Apache License
@@ -1232,7 +1232,7 @@ Apache License
    limitations under the License.
 
 axis-jaxrpc-1.4
---------------- 
+---------------
 Available under license:
 
 Apache License
@@ -1438,7 +1438,7 @@ Apache License
    limitations under the License.
 
 batik-1.1.1
------------ 
+-----------
 Available under license:
 
 Apache License
@@ -1644,7 +1644,7 @@ Apache License
    limitations under the License.
 
 batik-1.5-fop-0.20-5
--------------------- 
+--------------------
 Available under license:
 
 Apache License
@@ -1850,7 +1850,7 @@ Apache License
    limitations under the License.
 
 batik-awt-util-1.6
------------------- 
+------------------
 Available under license:
 
 Apache License
@@ -2056,7 +2056,7 @@ Apache License
    limitations under the License.
 
 batik-bridge-1.6
----------------- 
+----------------
 Available under license:
 
 Apache License
@@ -2262,7 +2262,7 @@ Apache License
    limitations under the License.
 
 batik-css-1.6
-------------- 
+-------------
 Available under license:
 
 Apache License
@@ -2468,7 +2468,7 @@ Apache License
    limitations under the License.
 
 batik-css-1.7
-------------- 
+-------------
 Available under license:
 
 Apache License
@@ -2674,7 +2674,7 @@ Apache License
    limitations under the License.
 
 batik-dom-1.6
-------------- 
+-------------
 Available under license:
 
 Apache License
@@ -2880,7 +2880,7 @@ Apache License
    limitations under the License.
 
 batik-ext-1.7
-------------- 
+-------------
 Available under license:
 
 Apache License
@@ -3086,7 +3086,7 @@ Apache License
    limitations under the License.
 
 batik-gvt-1.6
-------------- 
+-------------
 Available under license:
 
 Apache License
@@ -3292,7 +3292,7 @@ Apache License
    limitations under the License.
 
 batik-parser-1.6
----------------- 
+----------------
 Available under license:
 
 Apache License
@@ -3498,7 +3498,7 @@ Apache License
    limitations under the License.
 
 batik-rasterizer-1.6
--------------------- 
+--------------------
 Available under license:
 
 Apache License
@@ -3704,7 +3704,7 @@ Apache License
    limitations under the License.
 
 batik-script-1.6
----------------- 
+----------------
 Available under license:
 
 Apache License
@@ -3910,7 +3910,7 @@ Apache License
    limitations under the License.
 
 batik-svg-dom-1.6
------------------ 
+-----------------
 Available under license:
 
 Apache License
@@ -4116,7 +4116,7 @@ Apache License
    limitations under the License.
 
 batik-transcoder-1.6
--------------------- 
+--------------------
 Available under license:
 
 Apache License
@@ -4322,7 +4322,7 @@ Apache License
    limitations under the License.
 
 batik-util-1.6
--------------- 
+--------------
 Available under license:
 
 Apache License
@@ -4528,7 +4528,7 @@ Apache License
    limitations under the License.
 
 batik-util-1.7
--------------- 
+--------------
 Available under license:
 
 Apache License
@@ -4734,7 +4734,7 @@ Apache License
    limitations under the License.
 
 batik-xml-1.6
-------------- 
+-------------
 Available under license:
 
 Apache License
@@ -4940,7 +4940,7 @@ Apache License
    limitations under the License.
 
 collections-generic-4.01
------------------------- 
+------------------------
 Available under license:
 
 Apache License
@@ -5146,7 +5146,7 @@ Apache License
    limitations under the License.
 
 commons-codec-1.2
------------------ 
+-----------------
 Available under license:
 
 Apache License
@@ -5352,7 +5352,7 @@ Apache License
    limitations under the License.
 
 commons-collections-3.2.1
-------------------------- 
+-------------------------
 Available under license:
 
 Apache License
@@ -5558,7 +5558,7 @@ Apache License
    limitations under the License.
 
 commons-dbcp-1.2.2
------------------- 
+------------------
 Available under license:
 
 Apache License
@@ -5764,7 +5764,7 @@ Apache License
    limitations under the License.
 
 commons-discovery-0.4_1
------------------------ 
+-----------------------
 Available under license:
 
 Apache License
@@ -5970,7 +5970,7 @@ Apache License
    limitations under the License.
 
 commons-fileupload-1.2.2
------------------------- 
+------------------------
 Available under license:
 
 Apache License
@@ -6176,7 +6176,7 @@ Apache License
    limitations under the License.
 
 commons-httpclient-3.1
----------------------- 
+----------------------
 Available under license:
 
 Apache License
@@ -6382,7 +6382,7 @@ Apache License
    limitations under the License.
 
 commons-io-2.4
--------------- 
+--------------
 Available under license:
 
 Apache License
@@ -6588,7 +6588,7 @@ Apache License
    limitations under the License.
 
 commons-lang-2.4
----------------- 
+----------------
 Available under license:
 
 Apache License
@@ -6794,7 +6794,7 @@ Apache License
    limitations under the License.
 
 commons-logging-1.1.1
---------------------- 
+---------------------
 Available under license:
 
 Apache License
@@ -7000,7 +7000,7 @@ Apache License
    limitations under the License.
 
 commons-math-2.2
----------------- 
+----------------
 Available under license:
 
 Apache License
@@ -7206,7 +7206,7 @@ Apache License
    limitations under the License.
 
 commons-math3-3.2
------------------ 
+-----------------
 Available under license:
 
 Apache License
@@ -7412,7 +7412,7 @@ Apache License
    limitations under the License.
 
 commons-pool-1.3
----------------- 
+----------------
 Available under license:
 
 Apache License
@@ -7618,7 +7618,7 @@ Apache License
    limitations under the License.
 
 fop-0.20.5
----------- 
+----------
 Available under license:
 
 Apache License
@@ -7824,7 +7824,7 @@ Apache License
    limitations under the License.
 
 guava-14.0.1
------------- 
+------------
 Available under license:
 
 Apache License
@@ -8030,7 +8030,7 @@ Apache License
    limitations under the License.
 
 guice-2.0
---------- 
+---------
 Available under license:
 
 Apache License
@@ -8236,7 +8236,7 @@ Apache License
    limitations under the License.
 
 httpclient-4.1.1
----------------- 
+----------------
 Available under license:
 
 Apache License
@@ -8442,7 +8442,7 @@ Apache License
    limitations under the License.
 
 httpcore-4.1
------------- 
+------------
 Available under license:
 
 Apache License
@@ -8648,7 +8648,7 @@ Apache License
    limitations under the License.
 
 jackson-core-asl-1.9.3
----------------------- 
+----------------------
 Available under license:
 
 Apache License
@@ -8854,7 +8854,7 @@ Apache License
    limitations under the License.
 
 jackson-mapper-asl-1.9.3
------------------------- 
+------------------------
 Available under license:
 
 Apache License
@@ -9060,7 +9060,7 @@ Apache License
    limitations under the License.
 
 jcip-annotations-1.0
--------------------- 
+--------------------
 Available under license:
 
 Apache License
@@ -9266,7 +9266,7 @@ Apache License
    limitations under the License.
 
 jopt-simple-3.0-rc2
-------------------- 
+-------------------
 Available under license:
 
 The MIT License (MIT)
@@ -9290,7 +9290,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 json-simple-1.1
---------------- 
+---------------
 Available under license:
 
 Apache License
@@ -9496,7 +9496,7 @@ Apache License
    limitations under the License.
 
 jstl-1.2
--------- 
+--------
 Available under license:
 
 COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0
@@ -9512,10 +9512,10 @@ COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0
             containing Original Software with files containing
             Modifications, in each case including portions thereof.
             1.4. "Executable" means the Covered Software in any form
-            other than Source Code. 
+            other than Source Code.
             1.5. "Initial Developer" means the individual or entity
             that first makes Original Software available under this
-            License. 
+            License.
             1.6. "Larger Work" means a work which combines Covered
             Software or portions thereof with code not governed by the
             terms of this License.
@@ -9525,22 +9525,22 @@ COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0
             grant or subsequently acquired, any and all of the rights
             conveyed herein.
             1.9. "Modifications" means the Source Code and Executable
-            form of any of the following: 
+            form of any of the following:
                   A. Any file that results from an addition to,
                   deletion from or modification of the contents of a
                   file containing Original Software or previous
-                  Modifications; 
+                  Modifications;
                   B. Any new file that contains any part of the
-                  Original Software or previous Modification; or 
+                  Original Software or previous Modification; or
                   C. Any new file that is contributed or otherwise made
                   available under the terms of this License.
             1.10. "Original Software" means the Source Code and
             Executable form of computer software code that is
-            originally released under this License. 
+            originally released under this License.
             1.11. "Patent Claims" means any patent claim(s), now owned
             or hereafter acquired, including without limitation,
             method, process, and apparatus claims, in any patent
-            Licensable by grantor. 
+            Licensable by grantor.
             1.12. "Source Code" means (a) the common form of computer
             software code in which modifications are made and (b)
             associated documentation included in or with such code.
@@ -9554,34 +9554,34 @@ COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0
             entity, whether by contract or otherwise, or (b) ownership
             of more than fifty percent (50%) of the outstanding shares
             or beneficial ownership of such entity.
-      2. License Grants. 
+      2. License Grants.
             2.1. The Initial Developer Grant.
             Conditioned upon Your compliance with Section 3.1 below and
             subject to third party intellectual property claims, the
             Initial Developer hereby grants You a world-wide,
-            royalty-free, non-exclusive license: 
+            royalty-free, non-exclusive license:
                   (a) under intellectual property rights (other than
                   patent or trademark) Licensable by Initial Developer,
                   to use, reproduce, modify, display, perform,
                   sublicense and distribute the Original Software (or
                   portions thereof), with or without Modifications,
-                  and/or as part of a Larger Work; and 
+                  and/or as part of a Larger Work; and
                   (b) under Patent Claims infringed by the making,
                   using or selling of Original Software, to make, have
                   made, use, practice, sell, and offer for sale, and/or
                   otherwise dispose of the Original Software (or
-                  portions thereof). 
+                  portions thereof).
                   (c) The licenses granted in Sections 2.1(a) and (b)
                   are effective on the date Initial Developer first
                   distributes or otherwise makes the Original Software
                   available to a third party under the terms of this
-                  License. 
+                  License.
                   (d) Notwithstanding Section 2.1(b) above, no patent
                   license is granted: (1) for code that You delete from
                   the Original Software, or (2) for infringements
                   caused by: (i) the modification of the Original
                   Software, or (ii) the combination of the Original
-                  Software with other software or devices. 
+                  Software with other software or devices.
             2.2. Contributor Grant.
             Conditioned upon Your compliance with Section 3.1 below and
             subject to third party intellectual property claims, each
@@ -9603,11 +9603,11 @@ COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0
                   Modifications made by that Contributor (or portions
                   thereof); and (2) the combination of Modifications
                   made by that Contributor with its Contributor Version
-                  (or portions of such combination). 
+                  (or portions of such combination).
                   (c) The licenses granted in Sections 2.2(a) and
                   2.2(b) are effective on the date Contributor first
                   distributes or otherwise makes the Modifications
-                  available to a third party. 
+                  available to a third party.
                   (d) Notwithstanding Section 2.2(b) above, no patent
                   license is granted: (1) for any code that Contributor
                   has deleted from the Contributor Version; (2) for
@@ -9617,7 +9617,7 @@ COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0
                   with other software (except as part of the
                   Contributor Version) or other devices; or (3) under
                   Patent Claims infringed by Covered Software in the
-                  absence of Modifications made by that Contributor. 
+                  absence of Modifications made by that Contributor.
       3. Distribution Obligations.
             3.1. Availability of Source Code.
             Any Covered Software that You distribute or otherwise make
@@ -9681,15 +9681,15 @@ COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0
             with other code not governed by the terms of this License
             and distribute the Larger Work as a single product. In such
             a case, You must make sure the requirements of this License
-            are fulfilled for the Covered Software. 
-      4. Versions of the License. 
+            are fulfilled for the Covered Software.
+      4. Versions of the License.
             4.1. New Versions.
             Sun Microsystems, Inc. is the initial license steward and
             may publish revised and/or new versions of this License
             from time to time. Each version will be given a
             distinguishing version number. Except as provided in
             Section 4.3, no one other than the license steward has the
-            right to modify this License. 
+            right to modify this License.
             4.2. Effect of New Versions.
             You may always continue to use, distribute or otherwise
             make the Covered Software available under the terms of the
@@ -9703,7 +9703,7 @@ COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0
             the Covered Software. Otherwise, You may also choose to
             use, distribute or otherwise make the Covered Software
             available under the terms of any subsequent version of the
-            License published by the license steward. 
+            License published by the license steward.
             4.3. Modified Versions.
             When You are an Initial Developer and You want to create a
             new license for Your Original Software, You may create and
@@ -9724,8 +9724,8 @@ COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0
       ANY NECESSARY SERVICING, REPAIR OR CORRECTION. THIS DISCLAIMER OF
       WARRANTY CONSTITUTES AN ESSENTIAL PART OF THIS LICENSE. NO USE OF
       ANY COVERED SOFTWARE IS AUTHORIZED HEREUNDER EXCEPT UNDER THIS
-      DISCLAIMER. 
-      6. TERMINATION. 
+      DISCLAIMER.
+      6. TERMINATION.
             6.1. This License and the rights granted hereunder will
             terminate automatically if You fail to comply with terms
             herein and fail to cure such breach within 30 days of
@@ -9776,7 +9776,7 @@ COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0
       8. U.S. GOVERNMENT END USERS.
       The Covered Software is a "commercial item," as that term is
       defined in 48 C.F.R. 2.101 (Oct. 1995), consisting of "commercial
-      computer software" (as that term is defined at 48 C.F.R. 
+      computer software" (as that term is defined at 48 C.F.R.
       252.227-7014(a)(1)) and "commercial computer software
       documentation" as such terms are used in 48 C.F.R. 12.212 (Sept.
       1995). Consistent with 48 C.F.R. 12.212 and 48 C.F.R. 227.7202-1
@@ -9817,7 +9817,7 @@ COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0
       of liability.
 
 jung-api-2.0.1
--------------- 
+--------------
 Available under license:
 
 Redistribution and use in source and binary forms, with or without
@@ -9846,7 +9846,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 jung-graph-impl-2.0.1
---------------------- 
+---------------------
 Available under license:
 
 Redistribution and use in source and binary forms, with or without
@@ -9875,7 +9875,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 junit-4.8.2
------------ 
+-----------
 Available under license:
 
 Eclipse Public License - v 1.0
@@ -10083,7 +10083,7 @@ after the cause of action arose. Each party waives its rights to a jury trial in
 any resulting litigation.
 
 log4j-1.2.16
------------- 
+------------
 Available under license:
 
 Apache License
@@ -10289,7 +10289,7 @@ Apache License
    limitations under the License.
 
 nekohtml-1.9.12
---------------- 
+---------------
 Available under license:
 
 Apache License
@@ -10495,7 +10495,7 @@ Apache License
    limitations under the License.
 
 opencsv-2.3
------------ 
+-----------
 Available under license:
 
 Apache License
@@ -10701,7 +10701,7 @@ Apache License
    limitations under the License.
 
 openid4java-nodeps-0.9.6
------------------------- 
+------------------------
 Available under license:
 
 Apache License
@@ -10907,7 +10907,7 @@ Apache License
    limitations under the License.
 
 org-apache-commons-dbcp-1.2.2-201002241055
------------------------------------------- 
+------------------------------------------
 Available under license:
 
 Apache License
@@ -11113,7 +11113,7 @@ Apache License
    limitations under the License.
 
 slf4j-api-1.6.6
---------------- 
+---------------
 Available under license:
 
 The MIT License (MIT)
@@ -11137,7 +11137,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 slf4j-log4j12-1.6.6
-------------------- 
+-------------------
 Available under license:
 
 The MIT License (MIT)
@@ -11161,7 +11161,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 spring-aop-3.0.6.RELEASE
------------------------- 
+------------------------
 Available under license:
 
 Apache License
@@ -11367,7 +11367,7 @@ Apache License
    limitations under the License.
 
 spring-asm-3.0.6.RELEASE
------------------------- 
+------------------------
 Available under license:
 
 Apache License
@@ -11573,7 +11573,7 @@ Apache License
    limitations under the License.
 
 spring-beans-3.0.6.RELEASE
--------------------------- 
+--------------------------
 Available under license:
 
 Apache License
@@ -11779,7 +11779,7 @@ Apache License
    limitations under the License.
 
 spring-context-3.0.6.RELEASE
----------------------------- 
+----------------------------
 Available under license:
 
 Apache License
@@ -11985,7 +11985,7 @@ Apache License
    limitations under the License.
 
 spring-core-3.0.6.RELEASE
-------------------------- 
+-------------------------
 Available under license:
 
 Apache License
@@ -12191,7 +12191,7 @@ Apache License
    limitations under the License.
 
 spring-expression-3.0.6.RELEASE
-------------------------------- 
+-------------------------------
 Available under license:
 
 Apache License
@@ -12397,7 +12397,7 @@ Apache License
    limitations under the License.
 
 spring-jdbc-3.0.6.RELEASE
-------------------------- 
+-------------------------
 Available under license:
 
 Apache License
@@ -12603,7 +12603,7 @@ Apache License
    limitations under the License.
 
 spring-orm-3.0.6.RELEASE
------------------------- 
+------------------------
 Available under license:
 
 Apache License
@@ -12809,7 +12809,7 @@ Apache License
    limitations under the License.
 
 spring-security-acl-3.1.0.RELEASE
---------------------------------- 
+---------------------------------
 Available under license:
 
 Apache License
@@ -13015,7 +13015,7 @@ Apache License
    limitations under the License.
 
 spring-security-config-3.1.0.RELEASE
------------------------------------- 
+------------------------------------
 Available under license:
 
 Apache License
@@ -13221,7 +13221,7 @@ Apache License
    limitations under the License.
 
 spring-security-core-3.1.0.RELEASE
----------------------------------- 
+----------------------------------
 Available under license:
 
 Apache License
@@ -13427,7 +13427,7 @@ Apache License
    limitations under the License.
 
 spring-security-crypto-3.1.0.RELEASE
------------------------------------- 
+------------------------------------
 Available under license:
 
 Apache License
@@ -13633,7 +13633,7 @@ Apache License
    limitations under the License.
 
 spring-security-openid-3.1.0.RELEASE
------------------------------------- 
+------------------------------------
 Available under license:
 
 Apache License
@@ -13839,7 +13839,7 @@ Apache License
    limitations under the License.
 
 spring-security-taglibs-3.1.0.RELEASE
-------------------------------------- 
+-------------------------------------
 Available under license:
 
 Apache License
@@ -14045,7 +14045,7 @@ Apache License
    limitations under the License.
 
 spring-security-web-3.1.0.RELEASE
---------------------------------- 
+---------------------------------
 Available under license:
 
 Apache License
@@ -14251,7 +14251,7 @@ Apache License
    limitations under the License.
 
 spring-tx-3.0.6.RELEASE
------------------------ 
+-----------------------
 Available under license:
 
 Apache License
@@ -14457,7 +14457,7 @@ Apache License
    limitations under the License.
 
 spring-web-3.0.6.RELEASE
------------------------- 
+------------------------
 Available under license:
 
 Apache License
@@ -14663,7 +14663,7 @@ Apache License
    limitations under the License.
 
 stringtemplate-3.2
------------------- 
+------------------
 Available under license:
 
 Redistribution and use in source and binary forms, with or without
@@ -14692,7 +14692,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 xalan-2.4.1
------------ 
+-----------
 Available under license:
 
 Apache License
@@ -14898,7 +14898,7 @@ Apache License
    limitations under the License.
 
 xercesImpl-2.11.0
------------------ 
+-----------------
 Available under license:
 
 Apache License
@@ -15104,7 +15104,7 @@ Apache License
    limitations under the License.
 
 xml-apis-1.0.b2
---------------- 
+---------------
 Available under license:
 
 Apache License
@@ -15310,7 +15310,7 @@ Apache License
    limitations under the License.
 
 xml-apis-ext-1.3.04
-------------------- 
+-------------------
 Available under license:
 
 Apache License
@@ -15516,7 +15516,7 @@ Apache License
    limitations under the License.
 
 xmlParserAPIs-2.0.2
-------------------- 
+-------------------
 Available under license:
 
 Apache License
@@ -15722,7 +15722,7 @@ Apache License
    limitations under the License.
 
 backbone-min
------------- 
+------------
 Available under license:
 
 The MIT License (MIT)
@@ -15746,7 +15746,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 bootstrap.min
-------------- 
+-------------
 Available under license:
 
 Apache License
@@ -15952,7 +15952,7 @@ Apache License
    limitations under the License.
 
 chosen.jquery
-------------- 
+-------------
 Available under license:
 
 The MIT License (MIT)
@@ -15976,7 +15976,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 chosen.jquery.min
------------------ 
+-----------------
 Available under license:
 
 The MIT License (MIT)
@@ -16000,7 +16000,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 cytoscape_web
-------------- 
+-------------
 Available under license:
 
 GNU LESSER GENERAL PUBLIC LICENSE
@@ -16170,7 +16170,7 @@ permanent authorization for you to choose that version for the
 Library.
 
 d3.min
------- 
+------
 Available under license:
 
 Redistribution and use in source and binary forms, with or without
@@ -16199,7 +16199,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 d3.v3.min
---------- 
+---------
 Available under license:
 
 Redistribution and use in source and binary forms, with or without
@@ -16228,7 +16228,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 jasmine-1.2.0
-------------- 
+-------------
 Available under license:
 
 The MIT License (MIT)
@@ -16252,7 +16252,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 corejmoljsv.z
-------------- 
+-------------
 Available under license:
 
 GNU LESSER GENERAL PUBLIC LICENSE
@@ -16422,7 +16422,7 @@ permanent authorization for you to choose that version for the
 Library.
 
 jquery-1.4.2.min
----------------- 
+----------------
 Available under license:
 
 The MIT License (MIT)
@@ -16446,12 +16446,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 jquery-formCookies
------------------- 
+------------------
 Available under license:
 
 Public Domain
 jquery-ui-1.8.14.custom.min
---------------------------- 
+---------------------------
 Available under license:
 
 The MIT License (MIT)
@@ -16475,7 +16475,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 jquery-ui.min
-------------- 
+-------------
 Available under license:
 
 The MIT License (MIT)
@@ -16499,7 +16499,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 jquery.address-1.4.min
----------------------- 
+----------------------
 Available under license:
 
 The MIT License (MIT)
@@ -16523,7 +16523,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 jquery.address.min
------------------- 
+------------------
 Available under license:
 
 The MIT License (MIT)
@@ -16547,7 +16547,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 jquery.cookie
-------------- 
+-------------
 Available under license:
 
 The MIT License (MIT)
@@ -16571,7 +16571,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 jquery.dataTables.ColVis.min
----------------------------- 
+----------------------------
 Available under license:
 
 Redistribution and use in source and binary forms, with or without
@@ -16600,7 +16600,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 jquery.dataTables.columnFilter
------------------------------- 
+------------------------------
 Available under license:
 
 Redistribution and use in source and binary forms, with or without
@@ -16629,7 +16629,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 jquery.dataTables.min
---------------------- 
+---------------------
 Available under license:
 
 Redistribution and use in source and binary forms, with or without
@@ -16658,7 +16658,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 jquery.dataTables.tableTools.min
--------------------------------- 
+--------------------------------
 Available under license:
 
 Redistribution and use in source and binary forms, with or without
@@ -16687,7 +16687,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 jquery.expander.min
-------------------- 
+-------------------
 Available under license:
 
 The MIT License (MIT)
@@ -16711,7 +16711,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 jquery.scrollTo.min
-------------------- 
+-------------------
 Available under license:
 
 The MIT License (MIT)
@@ -16735,7 +16735,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 jquery.highlight-4
------------------- 
+------------------
 Available under license:
 
 The MIT License (MIT)
@@ -16759,7 +16759,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 jquery.min
----------- 
+----------
 Available under license:
 
 The MIT License (MIT)
@@ -16783,7 +16783,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 jquery.popeye-2.1.min
---------------------- 
+---------------------
 Available under license:
 
 GNU GENERAL PUBLIC LICENSE
@@ -17462,7 +17462,7 @@ Public License instead of this License.  But first, please read
 <http://www.gnu.org/philosophy/why-not-lgpl.html>.
 
 jquery.qtip.min
---------------- 
+---------------
 Available under license:
 
 The MIT License (MIT)
@@ -17486,12 +17486,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 jquery.quovolver.mini
---------------------- 
+---------------------
 Available under license:
 
 Public Domain
 jquery.tipTip.minified
----------------------- 
+----------------------
 Available under license:
 
 The MIT License (MIT)
@@ -17515,7 +17515,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 jslab-stdlib
------------- 
+------------
 Available under license:
 
 GNU GENERAL PUBLIC LICENSE
@@ -18194,7 +18194,7 @@ Public License instead of this License.  But first, please read
 <http://www.gnu.org/philosophy/why-not-lgpl.html>.
 
 json2
------ 
+-----
 Available under license:
 
 Copyright (c) 2002 JSON.org
@@ -18208,7 +18208,7 @@ The Software shall be used for Good, not Evil.
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 jstree
------- 
+------
 Available under license:
 
 The MIT License (MIT)
@@ -18232,7 +18232,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 mailme
------- 
+------
 Available under license:
 
 The MIT License (MIT)
@@ -18256,7 +18256,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 openid-jquery
-------------- 
+-------------
 Available under license:
 
 Redistribution and use in source and binary forms, with or without
@@ -18285,7 +18285,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 raphael
-------- 
+-------
 Available under license:
 
 The MIT License (MIT)
@@ -18309,7 +18309,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ui.dropdownchecklist-1.4-min
----------------------------- 
+----------------------------
 Available under license:
 
 The MIT License (MIT)
@@ -18333,7 +18333,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ui.tabs.paging
--------------- 
+--------------
 Available under license:
 
 The MIT License (MIT)
@@ -18357,7 +18357,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 underscore-min
--------------- 
+--------------
 Available under license:
 
 The MIT License (MIT)
@@ -18381,7 +18381,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 dataTables.fixedColumns
------------------------ 
+-----------------------
 Available under license:
 
 Redistribution and use in source and binary forms, with or without
@@ -18410,7 +18410,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 dc
--- 
+--
 Available under license:
 
 Apache License
@@ -18616,7 +18616,7 @@ Apache License
    limitations under the License.
 
 crossfilter
------------ 
+-----------
 Available under license:
 
 Apache License
@@ -18822,7 +18822,7 @@ Apache License
    limitations under the License.
 
 packery.pkgd.min
----------------- 
+----------------
 Available under license:
 
 GNU GENERAL PUBLIC LICENSE
@@ -19501,7 +19501,7 @@ Public License instead of this License.  But first, please read
 <http://www.gnu.org/philosophy/why-not-lgpl.html>.
 
 d3.layout.cloud
---------------- 
+---------------
 Available under license:
 
 Copyright (c) 2012, Jason Davies.
@@ -19532,7 +19532,7 @@ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 draggabilly.pkgd.min
--------------------- 
+--------------------
 Available under license:
 
 The MIT License (MIT)
@@ -19556,7 +19556,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 FileSaver.min
-------------- 
+-------------
 Available under license:
 
 Copyright 2015 Eli Grey.
@@ -19568,7 +19568,7 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 Font Awesome (CSS)
------------------- 
+------------------
 Available under license:
 
 The MIT License (MIT)
@@ -19592,7 +19592,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 Font Awesome (Fonts)
--------------------- 
+--------------------
 Available under license:
 
 This Font Software is licensed under the SIL Open Font License, Version 1.1.
@@ -19613,7 +19613,7 @@ with others.
 
 The OFL allows the licensed fonts to be used, studied, modified and
 redistributed freely as long as they are not sold by themselves. The
-fonts, including any derivative works, can be bundled, embedded, 
+fonts, including any derivative works, can be bundled, embedded,
 redistributed and/or sold with any software provided that any reserved
 names are not used by derivative works. The fonts and derivatives,
 however, cannot be released under any other type of license. The
@@ -19686,4 +19686,3 @@ INCLUDING ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL
 DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
 OTHER DEALINGS IN THE FONT SOFTWARE.
-

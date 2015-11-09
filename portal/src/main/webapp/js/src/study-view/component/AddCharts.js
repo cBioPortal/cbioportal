@@ -34,17 +34,8 @@
 var AddCharts = (function(){
     var liClickCallback;
     
-    function addEvents() {
-        $('#study-view-add-chart ul').hide();
-        $('#study-view-add-chart').hover(function(){
-           $('#study-view-add-chart ul').stop().show(300);
-        }, function(){
-           $('#study-view-add-chart ul').stop().hide(300);
-        });
-    }
-    
-    function createDiv() {
-        $("#study-view-header-function").append(StudyViewBoilerplate.addChartDiv);
+    function createDiv(target) {
+        $(target).append(StudyViewBoilerplate.addChartDiv);
     }
     
     function initAddChartsButton(_param) {
@@ -91,11 +82,13 @@ var AddCharts = (function(){
                     .attr("id",_showedNames[i].name)
                     .text(_showedNames[i].displayName));
         }
-        
-        
-//        if($('#study-view-add-chart ul').find('li').length === 0 ){
+
+        $('#study-view-add-chart').chosen({
+            no_results_text: "Oops, nothing found!"
+        });
+
         if($('#study-view-add-chart').find('option').length === 1){
-            $('#study-view-add-chart').css('display','none');
+            $('#study_view_add_chart_chzn').css('display','none');
         }else{
             bindliClickFunc();
         }
@@ -112,11 +105,11 @@ var AddCharts = (function(){
                 _text = $(this).children(":selected").text();
             liClickCallback(_id, _text);
         });
+        $("#study-view-add-chart").trigger("liszt:updated");
     }
     return {
-        init: function() {
-            createDiv();
-//            addEvents();
+        init: function(target) {
+            createDiv(target);
         },
         
         initAddChartsButton: initAddChartsButton,

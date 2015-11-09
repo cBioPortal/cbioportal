@@ -157,11 +157,14 @@ public final class DaoCancerStudy {
             if (rs.next()) {
 				Integer status = rs.getInt(1);
 				if (rs.wasNull()) {
-					return Status.AVAILABLE;
+                                    return Status.AVAILABLE;
 				}
-				else {
-					return Status.values()[status];
-				}
+                                
+                                if (status>=Status.values().length) {
+                                    return Status.AVAILABLE;
+                                }
+
+                                return Status.values()[status];
             }
             else {
                 return Status.AVAILABLE;

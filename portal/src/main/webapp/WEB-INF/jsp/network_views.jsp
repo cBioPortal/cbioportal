@@ -501,10 +501,10 @@
 				mutationWidth: Math.ceil(data["PERCENT_MUTATED"] * 100)};
 
 			// compile the template using underscore
-			var template = _.template( $("#genomic_profile_template").html(), variables);
+			var template = _.template($("#genomic_profile_template").html());
 
 			// load the compiled HTML into the Backbone "el"
-			this.$el.html(template);
+			this.$el.html(template(variables));
 
 			// format after loading
 			this.format(options, variables);
@@ -579,10 +579,10 @@
 				geneSummary: options.data.geneSummary};
 
 			// compile the template using underscore
-			var template = _.template( $("#biogene_template").html(), variables);
+			var template = _.template( $("#biogene_template").html());
 
 			// load the compiled HTML into the Backbone "el"
-			this.$el.html(template);
+			this.$el.html(template(variables));
 
 			// format after loading
 			this.format(options, variables);

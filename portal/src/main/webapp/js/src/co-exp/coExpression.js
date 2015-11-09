@@ -72,7 +72,7 @@ var CoExpView = (function() {
                 $("#coexp-tabs-content").append("<div id='" + Prefix.divPrefix + cbio.util.safeProperty(value) + "'>" +
                     "<div id='" + Prefix.loadingImgPrefix + cbio.util.safeProperty(value) + "'>" +
                     "<table><tr><td><img style='padding:20px;' src='images/ajax-loader.gif'></td>" + 
-                    "<td>Calculating and rendering may take up to 1 minute.</td></tr></table>" + 
+                    "<td>Calculating and rendering... (this may take up to 1 minute)</td></tr></table>" +
                     "</div></div>");
             });
         }

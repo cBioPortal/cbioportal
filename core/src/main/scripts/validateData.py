@@ -362,16 +362,16 @@ exitcode = 0
 # Factory for creating validation objects of various types
 class ValidatorFactory:
     factories = {}
-    
-    @staticmethod
-    def addFactory(id,validatorFactory):
-        ValidatorFactory.factories.put[id] = validatorFactory
 
-    @staticmethod
-    def createValidator(id,filename,hugo_entrez_map,fix,verbose,stableId):
-        if not ValidatorFactory.factories.has_key(id):
-            ValidatorFactory.factories[id] = eval(id + '.Factory()')
-        return ValidatorFactory.factories[id].create(filename,hugo_entrez_map,fix,verbose,stableId)
+    @classmethod
+    def addFactory(cls, id,validatorFactory):
+        cls.factories.put[id] = validatorFactory
+
+    @classmethod
+    def createValidator(cls, id,filename,hugo_entrez_map,fix,verbose,stableId):
+        if not cls.factories.has_key(id):
+            cls.factories[id] = eval(id + '.Factory()')
+        return cls.factories[id].create(filename,hugo_entrez_map,fix,verbose,stableId)
 
 # basic validator obect
 class Validator(object):

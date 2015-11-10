@@ -8,11 +8,14 @@ var scatterPlotOptions = {
             yBottom: 320   //The bottom/starting point for y axis
         },
         style: { //Default style setting
-            fill: "#2986e2", 
-            stroke: "#2986e2",
-            stroke_width: "0",
-            size: "30",
-            shape: "circle" //default, may vary for different mutation types
+            fill: "#58ACFA", //light blue
+            stroke: "#0174DF", //dark blue
+            stroke_width: "1.2",
+            size: "20",
+            shape: "circle", //default, may vary for different mutation types
+            opacity: 0.4,
+            selection_mode: "fade_unselected",  //if not set, selection will be shown by placing red border on items
+            special_select_color: "lime" //needed when calling scatterPlot.specialSelectItems (as is the case here)
         },
 
         names: { 
@@ -42,7 +45,7 @@ var scatterPlotOptions = {
             yTitle: "-log10 p-value",
             title: "Volcano plot of log Ratio vs -log10 p-value",
             fileName: "",
-            xTitleHelp: "Log2 based ratio of (pct in altered / pct in unaltered)",
+            xTitleHelp: "log2 based ratio of (pct in altered / pct in unaltered)",
             yTitleHelp: "-log10 p-value, derived from Fisher Exact Test"
         },
         legends: []
@@ -67,6 +70,9 @@ function VolcanoPlot()
     var animationDuration = 1000;
     var maxStudyBarWidth = 30;
     
+    var self = this;
+    self.scatterPlot = null; 
+    
     /**
      * Trigger the rendering of the plot.
      * 
@@ -75,10 +81,11 @@ function VolcanoPlot()
      * @param dmPresenter: instance of DataManagerPresenter (see DataManagerPresenter in pancancer_study_summary.js)
      * 
      */
-	this.render = function(plotElName, model, dmPresenter, data){
-		this.model = model;
+	this.render = function(plotElName, model, dmPresenter, data, dataTable){
 		
-    	//how the code should be if we get the data via presenter layer:
+		this.model = model;
+		this.dataTable = dataTable;
+    	//how the code could be if we get the data via presenter layer:
 		//this.plotPresenter = new PlotPresenter(model, dmPresenter, geneId);
 		//Get data:
 	    //this.plotPresenter.getDataForPlot(function (plotData) {
@@ -97,8 +104,8 @@ function VolcanoPlot()
 		var plotData = [];
 		for (var i = 0; i < data.length; i++){
 			
-			var xValue = parseFloat(data[i][3].replace("<","").replace(">","")); //remove < and > from <-10 or >10 scenarios
-			var yValue = -Math.log10(data[i][4]);
+			var xValue = parseFloat(data[i]["Log Ratio"].replace("<","").replace(">","")); //remove < and > from <-10 or >10 scenarios
+			var yValue = -Math.log10(data[i]["p-Value"]);
 			if (xValue < plotDataAttr.min_x)
 				plotDataAttr.min_x = xValue;
 			if (xValue > plotDataAttr.max_x)
@@ -111,14 +118,24 @@ function VolcanoPlot()
 			var _scatterPlotItem = {
 					x_val : xValue,
 					y_val : yValue,
-					case_id : xValue + "_" + yValue,
-					qtip : "p-value: " + data[i][4] + ", log ratio: " + data[i][3],
+					case_id : data[i]["Gene"], // this ID is passed below to scatterPlotBrushCallBack on brushended
+					qtip : "p-value: " + data[i]["p-Value"] + ", log ratio: " + data[i]["Log Ratio"],
 			};
 			plotData.push(_scatterPlotItem);
 		}
 		drawPlot(plotData, null, plotElName, plotDataAttr);
 		
 	}
+	
+	this.specialSelectItems = function (selectedGenes, totalList) {
+		self.scatterPlot.specialSelectItems(selectedGenes, totalList);
+	}
+	
+	this.showRemainingItems = function(remainingGenes) {
+		self.scatterPlot.showRemainingItems(remainingGenes);
+	}
+	
+	
 	    
 	/**
 	 * Main function using D3js methods to render the histogram.
@@ -131,11 +148,28 @@ function VolcanoPlot()
     var drawPlot = function(plotData, model, plotElName, plotDataAttr) {
 		
 		var brushOn = true;
-		var scatterPlot = new ScatterPlots();
+		self.scatterPlot = new ScatterPlots();
 		scatterPlotOptions.names.body = plotElName;
-        scatterPlot.init(scatterPlotOptions, plotData, plotDataAttr, brushOn, false);            
-        //scatterPlot.jointBrushCallback(scatterPlotBrushCallBack);
-        //scatterPlot.jointClickCallback(scatterPlotClickCallBack);
+		self.scatterPlot.init(scatterPlotOptions, plotData, plotDataAttr, brushOn, false);            
+		self.scatterPlot.jointBrushCallback(scatterPlotBrushCallBack);
+        //scatterPlot.jointClickCallback(scatterPlotBrushCallBack);  //Option, but jointClickCallback not yet implemented (also not really needed yet). Would have to port some code from study-view/component/ScatterPlot.js
         $("#study-view-scatter-plot-header").css('display', 'none');   
     }
+    
+    
+    var scatterPlotBrushCallBack = function(brushedCaseIds) {
+    	//The ^ and $ pattern is to avoid scenarios where we have genes with similar names such as A1, A11 being matched by A1. 
+    	//Only first one (A1) should be matched in this case.
+    	var searchExpression = "^" + brushedCaseIds.join("$|^") + "$";
+    	
+    	//nb: one option could be to show all data if brushedCaseIds.length is 0, i.e. special case where user clicks on empty region of plot.
+    	//    But for this, the brushended() function of ScatterPlots also needs slight adjustment in the selection_mode: "fade_unselected" scenario.
+    	
+    	self.dataTable.DataTable().column( 0 ).search(
+    			searchExpression,
+    	        true,
+    	        true
+    	    ).draw();
+    }
+    
 }

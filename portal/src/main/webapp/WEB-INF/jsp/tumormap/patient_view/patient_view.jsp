@@ -550,7 +550,10 @@ function addMoreClinicalTooltip(elem) {
                     "sInfoFiltered": "",
                     "sLengthMenu": "Show _MENU_ per page"
                 },
-                "iDisplayLength": -1
+                "iDisplayLength": -1,
+                "headerCallback": function(nHead, aData, iStart, iEnd, aiDisplay) {
+                    $(nHead).remove();
+                }
             };
         } else {
             var caseId = $(this).attr('alt');
@@ -585,8 +588,15 @@ function addMoreClinicalTooltip(elem) {
                     "sInfoFiltered": "",
                     "sLengthMenu": "Show _MENU_ per page"
                 },
-                "iDisplayLength": -1
+                "iDisplayLength": -1,
+                "headerCallback": function(nHead, aData, iStart, iEnd, aiDisplay) {
+                    $(nHead).remove();
+                }
             };
+        }
+        if (clinicalData.length > 13) {
+            dataTable["scrollY"] = "350px";
+            dataTable["scrollCollapse"] = true;
         }
 
         if (clinicalData.length===0) {

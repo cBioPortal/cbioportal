@@ -332,7 +332,7 @@ CLINICAL_META_FIELDS = [
     'show_profile_in_analysis_tab',
     'profile_name',
     'profile_description'
-    ]
+]
 
 META_FIELD_MAP = {
     CNA_META_PATTERN:CNA_META_FIELDS,
@@ -354,7 +354,8 @@ exitcode = 0
 # ------------------------------------------------------------------------------
 # class definitions
 
-class ValidatorFactory:
+class ValidatorFactory(object):
+
     """Factory for creating validation objects of various types."""
 
     factories = {}
@@ -369,7 +370,15 @@ class ValidatorFactory:
 
 
 class Validator(object):
-    """Basic validator object."""
+
+    """Abstract validator class.
+
+    Subclassed by validators for specific data file types, which should
+    initialize a 'headers' attribute defining the required column headers
+    and may implement a processTopLine method to handle lines prefixed
+    with '#'.
+    """
+
     def __init__(self,filename,hugo_entrez_map,fix,verbose,stableId):
         self.filename = filename
         self.filenameShort = filename.split('/')[-1]
@@ -413,10 +422,9 @@ class Validator(object):
                 elif not self.end:
                     self.checkLine(line)
             else:
-                try:
-                    self.processTopLine(line)
-                except AttributeError:
-                    continue
+                processTopLine = getattr(self, 'processTopLine', None)
+                if processTopLine is not None:
+                    processTopLine(line)
 
         self.checkBlankCells()
         self.checkBlankLines()
@@ -439,7 +447,7 @@ class Validator(object):
 
         missing = []
         for x in self.headers:
-            if not x in self.cols:
+            if x not in self.cols:
                 missing.append(x)
 
         if len(missing) > 0:
@@ -484,6 +492,7 @@ class Validator(object):
 
     def checkLineBreaks(self):
         """Checks line breaks, reports to user."""
+        # TODO document these requirements
         print >> OUTPUT_BUFFER, '\tChecking line breaks'
         if "\r\n" in self.fileRead:
             self.lineEndings = "\r\n"
@@ -573,6 +582,7 @@ class Validator(object):
 
     def fixCase(self,x):
         """Correct yes no to Yes and No."""
+        # TODO document these requirements
         if x.lower() == 'yes':
             return 'Yes'
         elif x.lower() == 'no':
@@ -581,7 +591,8 @@ class Validator(object):
             return 'Male'
         elif x.lower() == 'female':
             return 'Female'
-        else: return x
+        else:
+            return x
 
 class CNAValidator(Validator):
     """Sub-class CNA validator."""
@@ -630,7 +641,7 @@ class CNAValidator(Validator):
                     print >> OUTPUT_BUFFER, '\tWARNING: Invalid Data Type:\tColumn ' + str(i+1) + ' Line ' + str(self.lineCount) + 'Entrez_Gene_Id must be integer or NA'
                     exitcode = 0
             elif i == 0 and len(self.hugo_entrez_map) > 0:
-                if not d in self.hugo_entrez_map and len(self.hugo_entrez_map) != {}:
+                if d not in self.hugo_entrez_map and len(self.hugo_entrez_map) != {}:
                     self.badHugos.append((d,self.lineCount))
 
         if self.fix:
@@ -644,8 +655,9 @@ class CNAValidator(Validator):
             for bad in bads:
                 print >> OUTPUT_BUFFER, '\t\t' + str(bad[1]) + '\t' + str(bad[0])
 
-    class Factory:
-        def create(self,filename,hugo_entrez_map,fix,verbose,stableId): return CNAValidator(filename,hugo_entrez_map,fix,verbose,stableId)
+    class Factory(object):
+        def create(self,filename,hugo_entrez_map,fix,verbose,stableId):
+            return CNAValidator(filename,hugo_entrez_map,fix,verbose,stableId)
 
 class MutationsExtendedValidator(Validator):
     """Sub-class mutations_extended validator."""
@@ -749,7 +761,7 @@ class MutationsExtendedValidator(Validator):
         """Checks if a value is a valid hugo - present in NCBI file.
 
         If no NCBI file given at runtime, does nothing."""
-        if not value in self.hugo_entrez_map and self.hugo_entrez_map != {}:
+        if value not in self.hugo_entrez_map and self.hugo_entrez_map != {}:
             self.hugo_warning_lines.append((value,self.lineCount))
         return True
 
@@ -761,9 +773,9 @@ class MutationsExtendedValidator(Validator):
                 self.entrez_present = False
                 self.addEntrez = True
                 exitcode = 0
-            elif self.entrez_present and not value in self.hugo_entrez_map.values() and self.hugo_entrez_map != {}:
+            elif self.entrez_present and value not in self.hugo_entrez_map.values() and self.hugo_entrez_map != {}:
                 return False
-            elif self.hugo_entrez_map.get(self.mafValues['Hugo_Symbol'])!= value and self.hugo_entrez_map != {}:
+            elif self.hugo_entrez_map.get(self.mafValues['Hugo_Symbol']) != value and self.hugo_entrez_map != {}:
                 print >> OUTPUT_BUFFER, '\tWARNING: Line ' + str(self.lineCount) + ' Entrez gene ID does not match Hugo symbol'
                 exitcode = 0
         return True
@@ -908,8 +920,9 @@ class MutationsExtendedValidator(Validator):
                 print >> OUTPUT_BUFFER, '\t\t' + str(hugo_warning[1] + self.toplinecount) + '\t' + str(hugo_warning[0])
             exitcode = 0
 
-    class Factory:
-        def create(self,filename,hugo_entrez_map,fix,verbose,stableId): return MutationsExtendedValidator(filename,hugo_entrez_map,fix,verbose,stableId)
+    class Factory(object):
+        def create(self,filename,hugo_entrez_map,fix,verbose,stableId):
+            return MutationsExtendedValidator(filename,hugo_entrez_map,fix,verbose,stableId)
 
 class ClinicalValidator(Validator):
     """Validator for clinical data files."""
@@ -972,8 +985,9 @@ class ClinicalValidator(Validator):
     def writeHeader(self,data):
         self.correctedFile.write('\t'.join(map(str.upper,data)) + '\n')
 
-    class Factory:
-        def create(self,filename,hugo_entrez_map,fix,verbose,stableId): return ClinicalValidator(filename,hugo_entrez_map,fix,verbose,stableId)
+    class Factory(object):
+        def create(self,filename,hugo_entrez_map,fix,verbose,stableId):
+            return ClinicalValidator(filename,hugo_entrez_map,fix,verbose,stableId)
 
 class SegValidator(Validator):
     """Validator for .seg files."""
@@ -1010,8 +1024,9 @@ class SegValidator(Validator):
             self.writeNewLine(data)
 
 
-    class Factory:
-        def create(self,filename,hugo_entrez_map,fix,verbose,stableId): return SegValidator(filename,hugo_entrez_map,fix,verbose,stableId)
+    class Factory(object):
+        def create(self,filename,hugo_entrez_map,fix,verbose,stableId):
+            return SegValidator(filename,hugo_entrez_map,fix,verbose,stableId)
 
 class Log2Validator(Validator):
     def __init__(self,filename,hugo_entrez_map,fix,verbose,stableId):
@@ -1035,8 +1050,9 @@ class Log2Validator(Validator):
         if self.fix:
             self.writeNewLine(data)
 
-    class Factory:
-        def create(self,filename,hugo_entrez_map,fix,verbose,stableId): return Log2Validator(filename,hugo_entrez_map,fix,verbose,stableId)
+    class Factory(object):
+        def create(self,filename,hugo_entrez_map,fix,verbose,stableId):
+            return Log2Validator(filename,hugo_entrez_map,fix,verbose,stableId)
 
 class ExpressionValidator(Validator):
     def __init__(self,filename,hugo_entrez_map,fix,verbose,stableId):
@@ -1060,8 +1076,9 @@ class ExpressionValidator(Validator):
         if self.fix:
             self.writeNewLine(data)
 
-    class Factory:
-        def create(self,filename,hugo_entrez_map,fix,verbose,stableId): return ExpressionValidator(filename,hugo_entrez_map,fix,verbose,stableId)
+    class Factory(object):
+        def create(self,filename,hugo_entrez_map,fix,verbose,stableId):
+            return ExpressionValidator(filename,hugo_entrez_map,fix,verbose,stableId)
 
 class FusionValidator(Validator):
     def __init__(self,filename,hugo_entrez_map,fix,verbose,stableId):
@@ -1084,8 +1101,9 @@ class FusionValidator(Validator):
         if self.fix:
             self.writeNewLine(data)
 
-    class Factory:
-        def create(self,filename,hugo_entrez_map,fix,verbose,stableId): return FusionValidator(filename,hugo_entrez_map,fix,verbose,stableId)
+    class Factory(object):
+        def create(self,filename,hugo_entrez_map,fix,verbose,stableId):
+            return FusionValidator(filename,hugo_entrez_map,fix,verbose,stableId)
 
 class MethylationValidator(Validator):
     def __init__(self,filename,hugo_entrez_map,fix,verbose,stableId):
@@ -1108,8 +1126,9 @@ class MethylationValidator(Validator):
         if self.fix:
             self.writeNewLine(data)
 
-    class Factory:
-        def create(self,filename,hugo_entrez_map,fix,verbose,stableId): return MethylationValidator(filename,hugo_entrez_map,fix,verbose,stableId)
+    class Factory(object):
+        def create(self,filename,hugo_entrez_map,fix,verbose,stableId):
+            return MethylationValidator(filename,hugo_entrez_map,fix,verbose,stableId)
 
 class RPPAValidator(Validator):
     def __init__(self,filename,hugo_entrez_map,fix,verbose,stableId):
@@ -1134,8 +1153,9 @@ class RPPAValidator(Validator):
 
         if self.fix:
             self.writeNewLine(data)
-    class Factory:
-        def create(self,filename,hugo_entrez_map,fix,verbose,stableId): return RPPAValidator(filename,hugo_entrez_map,fix,verbose,stableId)
+    class Factory(object):
+        def create(self,filename,hugo_entrez_map,fix,verbose,stableId):
+            return RPPAValidator(filename,hugo_entrez_map,fix,verbose,stableId)
 
 class TimelineValidator(Validator):
     def __init__(self,filename,hugo_entrez_map,fix,verbose,stableId):
@@ -1158,8 +1178,9 @@ class TimelineValidator(Validator):
         if self.fix:
             self.writeNewLine(data)
 
-    class Factory:
-        def create(self,filename,hugo_entrez_map,fix,verbose,stableId): return TimelineValidator(filename,hugo_entrez_map,fix,verbose,stableId)
+    class Factory(object):
+        def create(self,filename,hugo_entrez_map,fix,verbose,stableId):
+            return TimelineValidator(filename,hugo_entrez_map,fix,verbose,stableId)
 
 # ------------------------------------------------------------------------------
 # Functions
@@ -1203,7 +1224,7 @@ def printBadIds(cname,badIds):
     exitcode = 1
 
 def segMetaCheck(segvalidator,filenameCheck):
-    """Checks meta fle vs segment file on the name."""
+    """Checks meta file vs segment file on the name."""
     if filenameCheck != '':
         if not filenameCheck == segvalidator.filenameShort:
             print >> OUTPUT_BUFFER, 'Seg file name appears invalid \n' + \

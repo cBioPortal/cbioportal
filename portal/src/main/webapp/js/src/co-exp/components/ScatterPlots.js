@@ -653,7 +653,12 @@ var ScatterPlots = function() {
             });
         },
         /**
+         * This function will give the items found in the case_ids list 
+         * a special selection color. This is different from the normal selection
+         * color. 
          * 
+         * @param case_ids: list of items to give a *special*  color
+         * @param totalList: total list of items part of the current *normal* selection
          */
         specialSelectItems: function(case_ids, totalList) {
         	elem.dotsGroup.selectAll("path").each(function(d) {
@@ -665,7 +670,13 @@ var ScatterPlots = function() {
         		}
             });
         },
-        showRemainingItems: function(case_ids) {
+        /**
+         * This function can be used to show a *normal* selection made via an external source,
+         * e.g. via a filter in a datatable coupled to this plot. 
+         * 
+         * @param case_ids: list of items to give the *normal* selection style
+         */
+        showSelection: function(case_ids) {
         	elem.dotsGroup.selectAll("path").each(function(d) {
         		if (case_ids.indexOf(d.case_id) != -1) {
         			if (style.selection_mode && style.selection_mode === "fade_unselected") {

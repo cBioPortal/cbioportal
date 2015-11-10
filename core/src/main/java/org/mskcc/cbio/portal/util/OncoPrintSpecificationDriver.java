@@ -89,6 +89,11 @@ public class OncoPrintSpecificationDriver {
             checkboxInputOncoPrintGeneDisplaySpec.setDefaultExpression(zScoreThreshold, GeneticDataTypes.Expression);
          }
 
+         if (theGeneticProfile.getGeneticAlterationType() == GeneticAlterationType.PROTEIN_LEVEL
+                  && geneticProfileIdSet.contains(theGeneticProfile.getStableId())) {
+            checkboxInputOncoPrintGeneDisplaySpec.setDefaultExpression(rppaScoreThreshold, GeneticDataTypes.RPPA);
+         }
+
          if (theGeneticProfile.getGeneticAlterationType() == GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL
                   && geneticProfileIdSet.contains(theGeneticProfile.getStableId())) {
             checkboxInputOncoPrintGeneDisplaySpec.setDefaultExpression(rppaScoreThreshold, GeneticDataTypes.RPPA);

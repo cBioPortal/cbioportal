@@ -11,15 +11,10 @@
 # imports
 import sys
 import getopt
-import csv
 import os
-import string
 
-import ftplib
-import gzip
 import StringIO
 import inspect
-import re
 
 
 # ------------------------------------------------------------------------------
@@ -35,14 +30,14 @@ OUTPUT_FILE = sys.stdout
 # allows script to run with or without the hugoEntrezMap module
 hugoEntrezMapPresent = True
 try:
-    from hugoEntrezMap import *
+    from hugoEntrezMap import ftp_NCBI, parse_ncbi_file
 except ImportError:
     print >> OUTPUT_BUFFER, 'Skipping hugoEntrezMap'
     hugoEntrezMapPresent = False
 
 # Current NCBI build and build counterpart - used in one of the maf checks as well as .seq filename check
 NCBI_BUILD_NUMBER = 37
-GENOMIC_BUILD_COUNTERPART='hg19'
+GENOMIC_BUILD_COUNTERPART = 'hg19'
 
 
 # how we differentiate between files. Names are important!! 
@@ -361,17 +356,17 @@ exitcode = 0
 
 class ValidatorFactory:
     """Factory for creating validation objects of various types."""
+
     factories = {}
 
     @classmethod
-    def addFactory(cls, id,validatorFactory):
-        cls.factories.put[id] = validatorFactory
+    def createValidator(cls,validator_type,filename,hugo_entrez_map,fix,verbose,stableId):
+        if validator_type not in cls.factories:
+            # instantiate a factory for the given validator type
+            factory = globals()[validator_type].Factory()
+            cls.factories[validator_type] = factory
+        return cls.factories[validator_type].create(filename,hugo_entrez_map,fix,verbose,stableId)
 
-    @classmethod
-    def createValidator(cls, id,filename,hugo_entrez_map,fix,verbose,stableId):
-        if not cls.factories.has_key(id):
-            cls.factories[id] = eval(id + '.Factory()')
-        return cls.factories[id].create(filename,hugo_entrez_map,fix,verbose,stableId)
 
 class Validator(object):
     """Basic validator object."""
@@ -406,7 +401,6 @@ class Validator(object):
     def validate(self):
         """Validate method - initiates validation of file."""
         print >> OUTPUT_BUFFER, 'Validating ' + self.filename.split('/')[-1]
-        #lines = re.split("[\r\n]+",self.file.read())
 
         self.checkLineBreaks()
         self.checkQuotes()
@@ -1180,14 +1174,7 @@ def processMetafile(filename):
     return metaDictionary
 
 
-def checkSegFileMatch(meta,segvalidator):
-    """Check that the names match up in a segment file."""
-    if filenameCheck == segvalidator.filenameShort:
-        return True
-    return False
-
-
-def checkSampleIds (sampleIdSets,clinIds,cname):
+def checkSampleIds(sampleIdSets,clinIds,cname):
     """Checks that all ids seen in other genomic files are also present in the clinical file."""
     # TODO - refactor to take a list of ids instead of each individually
     badIds = []

@@ -6,9 +6,6 @@
 # imports
 import sys
 import getopt
-import csv
-import os
-import string
 
 import ftplib
 import gzip
@@ -69,11 +66,6 @@ def parse_ncbi_file(ncbi_zipped_file):
         hugo_entrez_map[columns[2]] = columns[1]
     return hugo_entrez_map
 
-# ------------------------------------------------------------------------------
-# looks up entrez ID from hugo gene
-def getEntrezID(hugo):
-    entrezID = HUGO_ENTREZ_MAP.get(hugo,'NA')
-    return entrezID
 
 # ------------------------------------------------------------------------------
 # displays program usage (invalid args)

@@ -229,6 +229,21 @@ var orTable = function(plot_div ) {
 
     }
     
+    /**
+     * Utility function (somewhat uggly workaround) to get the gene name from the gene column. 
+     * The issue here is that the gene column is not containing a plain value but it contains
+     * a checkbox. 
+     * 
+     * @param geneColumnData : gene column data as returned by data table (something like : "<input type='checkbox' class='large_2K_pan_cancer_brca_based_mutations_datatable_table_gene_checkbox_class' value='ABHD8'>ABHD8" )
+     * @returns : returns the characters after > . In example above this is ABHD8
+     */
+    function _getGeneName(geneColumnData) {
+    	var _gene_name = geneColumnData.substring(geneColumnData.indexOf(">") + 1, geneColumnData.length);
+    	return _gene_name; 
+    }
+    	
+    
+    
     function attachFilters() {
 
         if (profile_type === orAnalysis.profile_type.copy_num || profile_type === orAnalysis.profile_type.mutations) {
@@ -293,6 +308,15 @@ var orTable = function(plot_div ) {
                 } else {
                     _empty_fn();
                 }
+                
+                //Data items remaining after filter: 
+                var remainingItems = orTableInstance.DataTable().rows( {search:'applied'} ).data();
+                var remainingGenes = [];
+                for (var i = 0; i < remainingItems.length; i++) {
+                	remainingGenes.push(_getGeneName(remainingItems[i][0]));
+                }
+                self.volcanoPlot.showRemainingItems(remainingGenes);
+                
             });
         }
 
@@ -387,6 +411,16 @@ var orTable = function(plot_div ) {
             } else {
                 document.getElementById(btn_id).disabled = true;
             }
+            //If there is a plot, update plot to reflect selection:
+            if (self.plot_div != null) {
+            	var remainingItems = orTableInstance.DataTable().rows( {search:'applied'} ).data();
+                var remainingGenes = [];
+                for (var i = 0; i < remainingItems.length; i++) {
+                	remainingGenes.push(_getGeneName(remainingItems[i][0]));
+                }
+            	
+            	self.volcanoPlot.specialSelectItems(selected_genes, remainingGenes);
+            }
 
         });
 
@@ -432,7 +466,7 @@ var orTable = function(plot_div ) {
                 orTableInstance.fnClose(nTr);
             } else {
                 var aData = orTableInstance.fnGetData(nTr);
-                var _gene_name = aData[0].substring(aData[0].indexOf(">") + 1, aData[0].length);
+                var _gene_name = _getGeneName(aData[0]); 
                 var _plots_div_id = table_id + "_" + _gene_name + "_plots";
                 this.src = "images/details_close.png";
                 orTableInstance.fnOpen(nTr, "<div id=" + _plots_div_id + "><img style='padding:200px;' src='images/ajax-loader.gif'></div>", "rppa-details");
@@ -542,15 +576,21 @@ var orTable = function(plot_div ) {
     }
     
     return {
-        init: function(_input_data, _div_id, _table_div, _table_id, _table_title, _profile_type, _profile_id, _last_profile) {
+    	/**
+    	 * Init function to bind data to table and optionally to the plot and render it.
+    	 * 
+    	 * @param originalData : the original (json) data as received from orData.get() function
+    	 * @param _converted_data : the originalData converted to array format, compatible with the table render function
+    	 */
+        init: function(originalData, _converted_data, _div_id, _table_div, _table_id, _table_title, _profile_type, _profile_id, _last_profile) {
             
-            if (Object.keys(_input_data).length !== 0 &&
-                Object.keys(_input_data)[0] !== orAnalysis.texts.null_result &&
-                Object.keys(_input_data)[0] !== "") {
+            if (Object.keys(_converted_data).length !== 0 &&
+                Object.keys(_converted_data)[0] !== orAnalysis.texts.null_result &&
+                Object.keys(_converted_data)[0] !== "") {
             
                 div_id = _div_id;
                 table_id = _table_id;
-                data = _input_data;
+                data = _converted_data;
                 profile_type = _profile_type;
                 profile_id = _profile_id;
                 table_title = _table_title;
@@ -603,8 +643,8 @@ var orTable = function(plot_div ) {
             }
 			//if plot_div is set, add a volcano plot:
             if (self.plot_div != null) {
-	        	var volcanoPlot = new VolcanoPlot();
-	        	volcanoPlot.render(self.plot_div, null, null, _input_data);
+            	self.volcanoPlot = new VolcanoPlot();
+	        	self.volcanoPlot.render(self.plot_div, null, null, originalData, orTableInstance);
             }
             
         }
@@ -669,6 +709,8 @@ var orSubTabView = function() {
                     	_plot_div = _profile_obj.STABLE_ID.replace(/\./g, "_") + orAnalysis.postfix.plot_div;
                 		$("#" + _div_id).append("<div id='" + _plot_div + "' style='width: 35%; display:block; margin-left: 0; margin-right: auto; float: left'></div>");
                     	$("#" + _div_id).append("<div id='" + _table_div + "' style='width: 62%; display:table; margin-left: auto; margin-right: 0; '></div>");
+                    	//adding this to contain floated plot (see "float: left"  above):
+                    	$("#" + _div_id).css("overflow", "hidden");
                     }
                     else
                     	$("#" + _div_id).append("<div id='" + _table_div + "' style='width: 100%; display:table; '></div>");
@@ -713,31 +755,6 @@ var orSubTabView = function() {
                     }
                 }
             }
-
-        },
-        valid: function(_callback_func, _profile_list, _gene_set, _sub_div_id, _profile_type) {
-
-            var valid_profile_list = [], count = 0;
-
-            var push_valid_profile = function(_input_data, _profile_obj) {
-                count += 1;
-                if (Object.keys(_input_data).length !== 0 &&
-                    Object.keys(_input_data)[0] !== orAnalysis.texts.null_result &&
-                    Object.keys(_input_data)[0] !== "") {
-                    valid_profile_list.push(_profile_obj);
-                }
-                if (count === _profile_list.length) {
-                    _callback_func(_sub_div_id, valid_profile_list, _profile_type, _gene_set);
-                }
-            }
-
-            $.each(_profile_list, function(_index, _profile_obj) {
-                var param = new orAjaxParam(or_tab.getAlteredCaseList(), or_tab.getUnalteredCaseList(), _profile_obj.STABLE_ID, _gene_set);
-                var or_data = new orData();
-                var _table_id = _profile_obj.STABLE_ID + orAnalysis.postfix.datatable_id;
-                or_data.init(param, _table_id);
-                or_data.get(push_valid_profile, _profile_obj, "", "", "", "", "", "");
-            });
 
         }
     };

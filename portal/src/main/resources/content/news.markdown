@@ -1,3 +1,11 @@
+# November 9, 2015
+* __New features__:
+    * Links to MyCancerGenome.org for mutations
+    * Improved display of selection samples on the study view page
+* __Improvements__:
+    * "Enrichments" analysis is now run across all genes
+    * The "Network" tab is now using Cytoscape.js (Adobe Flash is no longer required)
+
 # August 21, 2015
 * All __TCGA data__ updated to the Firehose run of April 16, 2015.
 * __New feature__: Enrichments Analysis finds alterations that are enriched in either altered or unaltered samples.

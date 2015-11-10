@@ -309,13 +309,13 @@ var orTable = function(plot_div ) {
                     _empty_fn();
                 }
                 
-                //Data items remaining after filter: 
+                //Selected data items remaining after filter: 
                 var remainingItems = orTableInstance.DataTable().rows( {search:'applied'} ).data();
                 var remainingGenes = [];
                 for (var i = 0; i < remainingItems.length; i++) {
                 	remainingGenes.push(_getGeneName(remainingItems[i][0]));
                 }
-                self.volcanoPlot.showRemainingItems(remainingGenes);
+                self.volcanoPlot.selectItems(remainingGenes);
                 
             });
         }

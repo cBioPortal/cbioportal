@@ -3,6 +3,8 @@ var QueryByGeneTextArea  = (function() {
     var geneList = new Array();
     var areaId;
     var updateGeneCallBack;
+    var geneValidator;
+    var emptyAreaText = "query genes - click to expand";
 
     function createFocusOutText(){
         var focusOutText = geneList[0];
@@ -16,11 +18,11 @@ var QueryByGeneTextArea  = (function() {
             }
             focusOutText+=", "+geneList[i];
         }
-        return focusOutText
+        return focusOutText;
     }
 
     function setFocusOutText(){
-        var focusOutText="query genes - click to expand";
+        var focusOutText=emptyAreaText;
         if(geneList.length>0) focusOutText = createFocusOutText();
         setTextColour();
         $(areaId).val(focusOutText);
@@ -50,39 +52,68 @@ var QueryByGeneTextArea  = (function() {
     function addRemoveGene (gene){
         if(geneList.indexOf(gene)==-1) {
             geneList.push(gene);
-            new Notification().createNotification(gene+" added to your query", "success");
+            new Notification().createNotification(gene+" added to your query");
         }
         else{
             var index = geneList.indexOf(gene);
             geneList.splice(index, 1);
-            new Notification().createNotification(gene+" removed from your query", "success");
+            new Notification().createNotification(gene+" removed from your query");
         }
         setFocusOutText();
         if(updateGeneCallBack != undefined) updateGeneCallBack(geneList);
     }
 
-    var validateGenes = _.debounce(function(e) {
-        performGeneValidation();
-    }, 3000); // Maximum run of once per 3 seconds
+    //var validateGenes = _.debounce(function(e) {
+    //    performGeneValidation();
+    //}, 3000); // Maximum run of once per 3 seconds
+
+
 
     function removeEmptyElements(array){
         return array.filter(function(el){ return el !== "" });
     }
 
+
     function updateGeneList(){
         console.log("Updating Gene List");
-        performGeneValidation();
+        //performGeneValidation();
         // split the values that are in the textArea and remove the empty elements
         // TNF; IRF5 now becomes ["TNF", "IRF5"]
         // Problematic if e.g. "-" is allowed in a gene name
-        //geneList = $.unique(removeEmptyElements($(areaId).val().split(/\W/))).reverse();
-        geneList = $.unique(removeEmptyElements($(areaId).val().toUpperCase().split(/\W/))).reverse();
+
+        //geneList = $.unique(removeEmptyElements($(areaId).val().toUpperCase().split(/\W/))).reverse();
+
+        //geneList = $(areaId).val().toUpperCase().split(/\W/);
+
+        setFocusOut();
+
+        //if(updateGeneCallBack != undefined) updateGeneCallBack(geneList);
     }
 
-    function performGeneValidation(){
-        console.log("no validation yet");
-        
+    function setFocusOut(){
+        //geneList = $.unique(removeEmptyElements($(areaId).val().toUpperCase().split(/\W/))).reverse();
+        geneList = $.unique(removeEmptyElements($(areaId).val().toUpperCase().split(/[^a-zA-Z0-9-]/))).reverse();
+        if(geneValidator.noActiveNotifications() && !$(areaId).is(":focus")){
+            $(areaId).switchClass("expandFocusIn", "expandFocusOut", 500);
+            setFocusOutText();
+        }
+        if(updateGeneCallBack != undefined) updateGeneCallBack(geneList);
     }
+
+    // focusOut
+    // if banner exists --> stay big
+    // else go small
+    //  if small --> change text
+    // always update genelists
+    // always update tables
+
+    // geneValidator
+    // updateCallback
+
+    //function performGeneValidation(){
+    //    console.log("no validation yet");
+    //    GeneValidator.validateGenes();
+    //}
 
     function initEvents(){
         $(areaId).focusin(function () {
@@ -90,14 +121,24 @@ var QueryByGeneTextArea  = (function() {
             setFocusInText();
         });
 
+        // maybe not required; add to the updateList Callback?
         $(areaId).focusout(function () {
-            $(this).switchClass("expandFocusIn", "expandFocusOut", 500);
-            updateGeneList();
-            setFocusOutText();
-            if(updateGeneCallBack != undefined) updateGeneCallBack(geneList);
+            //geneList = $(areaId).val().toUpperCase().split(/\W/);
+            setFocusOut();
+            //if(updateGeneCallBack != undefined) updateGeneCallBack(geneList);
+
+            // if no banner do this.
+            //$(this).switchClass("expandFocusIn", "expandFocusOut", 500);
+            //updateGeneList();
+            //setFocusOutText();
+            //if(updateGeneCallBack != undefined) updateGeneCallBack(geneList);
         });
 
-        $(areaId).bind('input propertychange', validateGenes);
+        //$(areaId).bind('input propertychange', validateGenes);
+
+        geneValidator = new GeneValidator(areaId, emptyAreaText, updateGeneList);
+        //geneValidator.init();
+        //geneValidator.validateGenes();
     }
 
     function init(areaIdP, updateGeneCallBackP){

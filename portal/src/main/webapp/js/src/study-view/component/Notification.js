@@ -1,43 +1,49 @@
 // http://bootstrap-notify.remabledesigns.com/
 function Notification() {
 
-    function getNotificationType(notificationType){
-        var type;
-        switch (notificationType.toUpperCase()){
-            case "WARNING": type = "warning"; break;
-            case "ERROR": type = "error"; break;
-            case "INFO": type = "info"; break;
-            default: type="success";
-        }
-        return type;
-    }
+    var settings = {
+        message_type: "success", //success, warning, danger, info
+        allow_dismiss: false,
+        newest_on_top: false,
+        placement_from: "top",
+        placement_align: "center",
+        spacing: 10,
+        delay: 5000,
+        timer: 1000,
+        custom_class:"geneAddedNotification"
+    };
 
-    this.createNotification = function(notificationMessage, notificationType) {
-        var type = getNotificationType(notificationType);
+    this.createNotification = function(notificationMessage, options) {
+
+        //if the options isn’t null extend defaults with user options.
+        if ( options ) {
+            $.extend( settings, options );
+        }
 
         $.notify({
             message: notificationMessage,
         }, {
             // settings
             element: 'body',
-            type: type,
-            allow_dismiss: false,
-            newest_on_top: false,
+            type: settings.message_type,
+            allow_dismiss: settings.allow_dismiss,
+            newest_on_top: settings.newest_on_top,
             showProgressbar: false,
             placement: {
-                from: "top",
-                align: "center"
+                from: settings.placement_from,
+                align: settings.placement_align
             },
-            spacing: 10,
+            spacing: settings.spacing,
             z_index: 1031,
-            delay: 5000,
-            timer: 1000,
+            delay: settings.delay,
+            timer: settings.timer,
             animate: {
                 enter: 'animated fadeInDown',
                 exit: 'animated fadeOutUp'
             },
-            template: '<div data-notify="container" class="col-xs-11 col-sm-3 alert alert-{0}" style="width: 500px" role="alert">' +
-            '<button type="button" aria-hidden="true" class="close" data-notify="dismiss">×</button>' +
+            //template: '<div data-notify="container" class="col-xs-11 col-sm-3 alert alert-{0}" style="width: 500px" role="alert">' +
+            template: '<div data-notify="container" class="col-xs-11 col-sm-3 alert alert-{0} '+settings.custom_class+'" role="alert">' +
+            '<button type="button" style="display: none" aria-hidden="true" class="close" data-notify="dismiss" >×</button>' +
             '<span data-notify="icon"></span> ' +
             '<span data-notify="title">{1}</span> ' +
             '<span data-notify="message">{2}</span>' +
@@ -47,5 +53,7 @@ function Notification() {
             '<a href="{3}" target="{4}" data-notify="url"></a>' +
             '</div>'
         });
+
+
     }
 }

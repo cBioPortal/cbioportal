@@ -72,7 +72,8 @@ var LoadingJS = (function(){
                     'FnGetColumnData',
                     'StudyViewUtil',
                     'QueryByGeneUtil',
-                    'StudyViewPrototypes'
+                    'StudyViewPrototypes',
+                    'GeneValidator'
                 ],
                 view: [
                     'StudyViewInitCharts', 

@@ -1125,3 +1125,13 @@ span.geneSelected{
     line-height: 7px;
     display: none;
 }
+
+div.geneValidationNotification{
+    width:400px;
+    height: 15px;
+    font-size: 0.8em;
+}
+
+div.geneAddedNotification{
+    width:500px;
+}

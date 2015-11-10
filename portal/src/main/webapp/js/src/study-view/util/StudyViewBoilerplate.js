@@ -370,9 +370,17 @@ var StudyViewBoilerplate ={
                 'cols': '10'
             });
 
+        //var queryByGeneStatus = $('<p></p>');
+        //queryByGeneStatus
+        //    .attr({
+        //        'id': 'query-by-gene-status'
+        //    });
+
+
         //_queryByGene.append('<span id="queryByGeneTextSpan">Genes selected: </span>');
         _queryByGene.append('<span id="queryByGeneTextSpan"></span>');
         _queryByGene.append(queryByGeneTextArea);
+        //_queryByGene.append(queryByGeneStatus);
 
         // add a container for the breadcrumbs
         _breadcrumbs.attr({

@@ -166,7 +166,7 @@ var orData = function() {
             function timer() {
                 if (retrieved) {
                     clearInterval(tmp);
-                    callback_func(convert_data(data, _profile_type), _div_id, _table_div, _table_id, _table_title, _profile_type, _profile_id, _last_profile);
+                    callback_func(data, convert_data(data, _profile_type), _div_id, _table_div, _table_id, _table_title, _profile_type, _profile_id, _last_profile);
                 }
             }
         }

@@ -644,7 +644,7 @@ var orTable = function(plot_div ) {
 			//if plot_div is set, add a volcano plot:
             if (self.plot_div != null) {
             	self.volcanoPlot = new VolcanoPlot();
-	        	self.volcanoPlot.render(self.plot_div, null, null, originalData, orTableInstance);
+	        	self.volcanoPlot.render(self.plot_div, originalData, orTableInstance);
             }
             
         }

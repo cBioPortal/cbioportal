@@ -915,7 +915,7 @@ function outputClinicalData() {
     var info = info.concat(formatDiseaseInfo(patientInfo));
     var info = info.concat(formatPatientStatus(patientInfo));
     row += info.join(", ");
-    row += "</a></span><span id='topbar-cancer-study' style='text-align: right; float: right'>" + formatCancerStudyInfo()+ "</span><br />";
+    row += "</a></span><span id='topbar-cancer-study' style='text-align: right; float: right'>" + formatCancerStudyInfo(55)+ "</span><br />";
     $("#clinical_div").append(row);
     $("#nav_div").appendTo($("#topbar-cancer-study"));
 
@@ -1064,8 +1064,9 @@ function outputClinicalData() {
         return ret;
     }
 
-    function formatCancerStudyInfo() {
-        return "<a href=\"study.do?cancer_study_id="+cancerStudyId+"\"><b>"+cancerStudyName+"</b></a>";
+    function formatCancerStudyInfo(max_length) {
+        var studyNameShort = (cancerStudyName.length > max_length)? cancerStudyName.substring(0, max_length - 4) + "&nbsp;..." : cancerStudyName;
+        return "<a title='"+cancerStudyName+"' href=\"study.do?cancer_study_id="+cancerStudyId+"\"><b>"+studyNameShort+"</b></a>";
     }
 
     function formatNav() {

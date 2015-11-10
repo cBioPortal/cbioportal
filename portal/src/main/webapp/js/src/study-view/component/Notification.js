@@ -1,25 +1,25 @@
 // http://bootstrap-notify.remabledesigns.com/
 function Notification() {
 
+    // default settings
     var settings = {
         message_type: "success", //success, warning, danger, info
         allow_dismiss: false,
         newest_on_top: false,
         placement_from: "top",
-        placement_align: "center",
+        placement_align: "right",
         spacing: 10,
         delay: 5000,
         timer: 1000,
         custom_class:"geneAddedNotification"
     };
 
+    // create a notification
     this.createNotification = function(notificationMessage, options) {
-
         //if the options isn’t null extend defaults with user options.
-        if ( options ) {
-            $.extend( settings, options );
-        }
+        if (options) $.extend(settings, options);
 
+        // create the notification
         $.notify({
             message: notificationMessage,
         }, {
@@ -41,7 +41,6 @@ function Notification() {
                 enter: 'animated fadeInDown',
                 exit: 'animated fadeOutUp'
             },
-            //template: '<div data-notify="container" class="col-xs-11 col-sm-3 alert alert-{0}" style="width: 500px" role="alert">' +
             template: '<div data-notify="container" class="col-xs-11 col-sm-3 alert alert-{0} '+settings.custom_class+'" role="alert">' +
             '<button type="button" style="display: none" aria-hidden="true" class="close" data-notify="dismiss" >×</button>' +
             '<span data-notify="icon"></span> ' +

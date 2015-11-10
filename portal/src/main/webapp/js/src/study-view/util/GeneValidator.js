@@ -30,26 +30,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
+// based on gene-symbol-validator.js
 function GeneValidator(geneAreaId, emptyAreaMessage, updateGeneCallback){
     var self = this;
     var nrOfNotifications=0;
 
     this.init = function(){
-        console.log("init called for "+geneAreaId);
+        console.log(new Date() + " init called for "+geneAreaId);
         $(geneAreaId).bind('input propertychange', validateGenes);
     }
 
     var validateGenes = _.debounce(function(e){
-        console.log("validating "+geneAreaId);
+        console.log(new Date() + " validating genes in "+geneAreaId);
 
+        // if the content of the geneArea equals the emptyAreaMessage, return
+        // This prevents the validator from interpreting e.g. "This is an empty area, click here to add genes"
+        // as genes
         if(emptyAreaMessage===$(geneAreaId).val()) return;
 
-        clearAllBanners();
-        cleanArea();
+        // clear all existing notifications
+        clearAllNotifications();
+
+        // clean the textArea string, removing doubles and non-word characters (except -)
+        var genesStr = self.cleanAreaString().join(" ")
+        $(geneAreaId).val(genesStr);
 
         var genes = [];
-        var genesStr = $(geneAreaId).val();
 
         $.post('CheckGeneSymbol.json', { 'genes': genesStr })
             .done(function(symbolResults) {
@@ -61,31 +67,40 @@ function GeneValidator(geneAreaId, emptyAreaMessage, updateGeneCallback){
                     return;
                 }
 
+                // handle each symbol found
                 for(var j=0; j < symbolResults.length; j++) {
                     var valid = handleSymbol(symbolResults[j])
                     if(!valid) allValid = false;
                 }
 
-                //if(allValid) updateGeneCallback();
+                // call the callback function to ensure proper handling when all genes are actually valid
                 updateGeneCallback();
             })
             .fail(function(xhr,  textStatus, errorThrown){
-
+                addNotification("There was a problem: "+errorThrown, "danger");
             });
-    }, 3000);
+    }, 1000);
 
 
+    // return whether there are any active notifications
     this.noActiveNotifications = function(){
         return nrOfNotifications===0;
     }
 
+    // called when we're closing a notification
     this.validatorCallBack = function(){
-        console.log("callback!")
+        // decrease the number of existing notification by one
         nrOfNotifications--;
+        // call the updateGeneCallback
         updateGeneCallback();
     }
 
+    this.replaceAreaValue = function(geneName, newValue){
+        var regexp = new RegExp("\\b"+geneName+"\\b","g");
+        $(geneAreaId).val($(geneAreaId).val().replace(regexp, newValue).trim());
+    }
 
+    // create a notification of a certain type
     function addNotification(message, message_type){
         notificationSettings.message_type = message_type;
         new Notification().createNotification(message, notificationSettings);
@@ -93,53 +108,67 @@ function GeneValidator(geneAreaId, emptyAreaMessage, updateGeneCallback){
     }
 
 
-    function clearAllBanners(){
-        $(".alert").css("animation-iteration-count", "0");
-        $(".alert").qtip("destroy");
-        $(".alert").find("button").click();
+    function clearAllNotifications(){
+        // select the notifications of interest
+        // kill their animations to prevent them from blocking space, destroy any qtips remaining and call click to
+        // make the notifications disappear
+        $(".geneValidationNotification").css("animation-iteration-count", "0");
+        $(".geneValidationNotification").qtip("destroy");
+        $(".geneValidationNotification").find("button").click();
         nrOfNotifications=0;
     }
 
+    // helper for cleanAreaString
     function removeEmptyElements(array){
         return array.filter(function(el){ return el !== "" });
     }
 
-    function cleanArea(){
-        $(geneAreaId).val($.unique(removeEmptyElements($(geneAreaId).val().toUpperCase().split(/[^a-zA-Z0-9-]/))).reverse().join(" "));
+    // clean the geneArea's string
+    // takes the value, transforms it to uppercase, splits by non-word, removes empty elements
+    // and removes doubles
+    this.cleanAreaString = function(){
+        return $.unique(removeEmptyElements($(geneAreaId).val().toUpperCase().split(/[^a-zA-Z0-9-]/))).reverse()
     }
 
+    // handle one symbol
     function handleSymbol(aResult){
-        var multiple = false;
-        var foundSynonym = false;
         var valid = false;
 
-        // only 1 symbol
-        if( aResult.symbols.length == 1 ) {
-            multiple = false;
-            if(aResult.symbols[0].toUpperCase() != aResult.name.toUpperCase()) {
-                foundSynonym = true;
-            } else {
-                return true;
-            }
-        } else if( aResult.symbols.length > 1 ) {
-            multiple = true;
+        // 1 symbol
+        if(aResult.symbols.length == 1) {
+            if(aResult.symbols[0].toUpperCase() != aResult.name.toUpperCase())
+                handleSynonyms(aResult);
+            else
+                valid=true;
         }
-
-
-        if(multiple) {
-            handleMultiple(aResult);
-
-        } else if( foundSynonym ) {
-            handleSynonyms(aResult);
-
-        } else {
+        else if(aResult.symbols.length > 1)
+            handleMultiple(aResult)
+        else
             handleSymbolNotFound(aResult);
-        }
+
+
+
+        // only 1 symbol
+        //if( aResult.symbols.length == 1 ) {
+        //    multiple = false;
+        //    if(aResult.symbols[0].toUpperCase() != aResult.name.toUpperCase()) {
+        //        foundSynonym = true;
+        //    } else {
+        //        return true;
+        //    }
+        //} else if( aResult.symbols.length > 1 ) {
+        //    multiple = true;
+        //}
+        //
+        //if(multiple) handleMultiple(aResult);
+        //else if(foundSynonym)handleSynonyms(aResult);
+        //else handleSymbolNotFound(aResult);
 
         return valid;
 
     }
 
+    // case where we're dealing with an ambiguous gene symbol
     function handleMultiple(aResult){
         var gene = aResult.name;
         var symbols = aResult.symbols;
@@ -147,29 +176,29 @@ function GeneValidator(geneAreaId, emptyAreaMessage, updateGeneCallback){
         var tipText = "Ambiguous gene symbol. Click on one of the alternatives to replace it.";
         var notificationHTML="<span>Ambiguous gene symbol - "+gene+" ";
 
+        // create the dropdown
         var nameSelect = $("<select id="+gene+">").addClass("geneSelectBox").attr("name", gene);
-        $("<option>").attr("value", "")
-            .html("select a symbol")
-            .appendTo(nameSelect);
+        $("<option>").attr("value", "").html("select a symbol").appendTo(nameSelect);
         for(var k=0; k < symbols.length; k++) {
             var aSymbol = symbols[k];
-            //var anOption = $("<option>").attr("value", aSymbol).html(aSymbol);
+            // add class and data-notify to allow us to dismiss the notification
             var anOption = $("<option class='close' data-notify='dismiss'>").attr("value", aSymbol).html(aSymbol);
             anOption.appendTo(nameSelect);
         }
 
         notificationHTML+=nameSelect.prop('outerHTML')+"</span>";
-
         addNotification(notificationHTML, "warning");
 
+        // when the dropdown is changed
         $("#"+gene).change(function() {
-            var trueSymbol = $(this).attr('value');
-            var geneName = $(this).attr("name");
-            $(geneAreaId).val($(geneAreaId).val().replace(geneName, trueSymbol));
+            // replace the value in the text area
+            self.replaceAreaValue($(this).attr("name"), $(this).attr("value"));
 
+            // destroy the qtip if it's still there
             $(this).qtip("destroy");
             self.validatorCallBack();
 
+            // emulate a click on the selected child to dismiss the notification
             this.children[this.selectedIndex].click();
         });
 
@@ -177,6 +206,7 @@ function GeneValidator(geneAreaId, emptyAreaMessage, updateGeneCallback){
     }
 
 
+    // case when the symbol has synonyms
     function handleSynonyms(aResult){
         var gene = aResult.name;
         var trueSymbol = aResult.symbols[0];
@@ -193,17 +223,21 @@ function GeneValidator(geneAreaId, emptyAreaMessage, updateGeneCallback){
 
         addNotification(notificationHTML.prop('outerHTML'), "warning");
 
+        // add click event to our span
+        // due to the class and data-notify, the click also removes the notification
         $("#"+gene).click(function(){
-            $(geneAreaId).val($(geneAreaId).val().replace($(this).attr("id"), $(this).attr("symbol")));
-            //setTimeout(validateGenes, 500);
+            // replace the value in the text area
+            self.replaceAreaValue($(this).attr("id"), $(this).attr("symbol"));
+
+            // destroy the qtip if it's still here
             $(this).qtip("destroy");
             self.validatorCallBack();
         });
 
         addQtip(gene, tipText);
-
     }
 
+    // case when the symbol was not found
     function handleSymbolNotFound(aResult){
         var gene = aResult.name;
         var tipText = "Could not find gene symbol "+gene+". Click to remove it from the gene list.";
@@ -217,12 +251,13 @@ function GeneValidator(geneAreaId, emptyAreaMessage, updateGeneCallback){
 
         addNotification(notificationHTML.prop('outerHTML'), "warning");
 
+        // add click event to our span
+        // due to the class and data-notify, the click also removes the notification
         $("#"+gene).click(function(){
-            var geneName = $(this).attr("id");
-            var regexp = new RegExp("\\b"+geneName+"\\b","g")
+            // replace the value in the text area
+            self.replaceAreaValue($(this).attr("id"), "");
 
-            $(geneAreaId).val($(geneAreaId).val().replace(regexp, "").trim());
-
+            // destroy the qtip if it's still here
             $(this).qtip("destroy");
             self.validatorCallBack();
         });
@@ -230,6 +265,7 @@ function GeneValidator(geneAreaId, emptyAreaMessage, updateGeneCallback){
         addQtip(gene, tipText);
     }
 
+    // add a qtip to some identifier
     function addQtip(id, tipText){
         $("#"+id).qtip({
             content: {text: tipText},
@@ -241,6 +277,7 @@ function GeneValidator(geneAreaId, emptyAreaMessage, updateGeneCallback){
     }
 
 
+    // notification settings
     var notificationSettings = {
         message_type: "warning",
         custom_class: "geneValidationNotification",
@@ -251,17 +288,6 @@ function GeneValidator(geneAreaId, emptyAreaMessage, updateGeneCallback){
         timer: 0
     };
 
-
+    // when new object is created, called init();
     this.init();
-
-    //return {
-    //    validateGenes: validateGenes
-    //};
-
-
-
-
-
-
-
 }

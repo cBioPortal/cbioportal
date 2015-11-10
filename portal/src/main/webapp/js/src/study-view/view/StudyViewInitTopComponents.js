@@ -262,7 +262,7 @@ var StudyViewInitTopComponents = (function() {
         init: function() {
             createDiv();
             addEvents();
-            QueryByGeneTextArea.init('#query-by-gene-textarea', StudyViewInitTables.updateGeneHighlights);
+            QueryByGeneTextArea.init('#query-by-gene-textarea', '#study-view-header-left-1', StudyViewInitTables.updateGeneHighlights);
         },
         
         changeHeader: changeHeader,

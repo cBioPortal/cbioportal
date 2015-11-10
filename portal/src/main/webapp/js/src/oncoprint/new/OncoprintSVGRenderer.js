@@ -707,9 +707,9 @@
 		var self = this;
 		var root = $(this.container.node()).offset();
 		var svg = d3.select(document.createElementNS('http://www.w3.org/2000/svg', 'svg'));
-		svg.attr('width', this.getLabelAreaWidth() + this.getCellAreaWidth() + 'px');
 		this.renderLegend(true);
 		this.renderTrackLabels(undefined, undefined, full_labels);
+		svg.attr('width', Math.max($(this.legend_table.node()).width(), this.getLabelAreaWidth() + this.getCellAreaWidth()) + 'px');
 		svg.attr('height', $(this.container.node()).height()+'px');
 		(function addLabels() {
 			self.label_div.selectAll('.oncoprint-track-label').each(function() {
@@ -721,7 +721,7 @@
 				var text = text_elt.text();
 				svg.append('text').style('font-family', font).style('font-weight', weight).style('font-size', size)
 						.attr('transform', utils.translate(pos.left - root.left,pos.top - root.top))
-						.style('alignment-baseline', 'hanging')
+						.style('alignment-baseline', 'text-before-edge')
 						.text(text);	
 			});
 		})();

@@ -658,7 +658,7 @@ var ScatterPlots = function() {
          * color. 
          * 
          * @param case_ids: list of items to give a *special*  color
-         * @param totalList: total list of items part of the current *normal* selection
+         * @param totalList: total list of items that are part of the current *normal* selection
          */
         specialSelectItems: function(case_ids, totalList) {
         	elem.dotsGroup.selectAll("path").each(function(d) {

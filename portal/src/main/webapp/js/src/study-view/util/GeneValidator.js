@@ -146,26 +146,7 @@ function GeneValidator(geneAreaId, emptyAreaMessage, updateGeneCallback){
         else
             handleSymbolNotFound(aResult);
 
-
-
-        // only 1 symbol
-        //if( aResult.symbols.length == 1 ) {
-        //    multiple = false;
-        //    if(aResult.symbols[0].toUpperCase() != aResult.name.toUpperCase()) {
-        //        foundSynonym = true;
-        //    } else {
-        //        return true;
-        //    }
-        //} else if( aResult.symbols.length > 1 ) {
-        //    multiple = true;
-        //}
-        //
-        //if(multiple) handleMultiple(aResult);
-        //else if(foundSynonym)handleSynonyms(aResult);
-        //else handleSymbolNotFound(aResult);
-
         return valid;
-
     }
 
     // case where we're dealing with an ambiguous gene symbol

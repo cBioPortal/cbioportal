@@ -119,7 +119,8 @@ function VolcanoPlot()
 					x_val : xValue,
 					y_val : yValue,
 					case_id : data[i]["Gene"], // this ID is passed below to scatterPlotBrushCallBack on brushended
-					qtip : "p-value: " + data[i]["p-Value"] + ", log ratio: " + data[i]["Log Ratio"],
+					qtip : "p-value: " + cbio.util.toPrecision(parseFloat(data[i]["p-Value"]), 3, 0.01) + 
+						   ", log ratio: " + parseFloat(data[i]["Log Ratio"]).toFixed(2),
 			};
 			plotData.push(_scatterPlotItem);
 		}
@@ -131,8 +132,8 @@ function VolcanoPlot()
 		self.scatterPlot.specialSelectItems(selectedGenes, totalList);
 	}
 	
-	this.showRemainingItems = function(remainingGenes) {
-		self.scatterPlot.showRemainingItems(remainingGenes);
+	this.selectItems = function(genes) {
+		self.scatterPlot.showSelection(genes);
 	}
 	
 	

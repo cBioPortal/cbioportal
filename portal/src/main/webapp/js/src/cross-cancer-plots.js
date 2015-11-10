@@ -9,6 +9,8 @@ var ccPlots = (function ($, _, Backbone, d3) {
         var retrieved_genes = [], //list of genes that already retrieved data and stored here
             mut_proxy = "", mut_obj = {};
 
+        var mean_vals = []; //{gene: {profileId:"", mean:0}}
+
         var ProfileMeta = Backbone.Model.extend({
             defaults: {
                 GENETIC_ALTERATION_TYPE: "",
@@ -99,6 +101,20 @@ var ccPlots = (function ($, _, Backbone, d3) {
         var profileMetaList = new ProfileMetaList();
         var profileDataList = new ProfileDataList();
 
+        function findMedian(data) {
+            var m = data.map(function(v) {
+                return v;
+            }).sort(function(a, b) {
+                return a - b;
+            });
+            var middle = Math.floor((m.length - 1) / 2); // NB: operator precedence
+            if (m.length % 2) {
+                return m[middle];
+            } else {
+                return (m[middle] + m[middle + 1]) / 2.0;
+            }
+        }
+
         return {
             init: function (callback_func) {
                 var tmp = setInterval(function () {timer();}, 1000);
@@ -117,7 +133,6 @@ var ccPlots = (function ($, _, Backbone, d3) {
                                     _include_study = true;
                                 }
                             }
-
                             if (_include_study) {
                                 var profileMetaListTmp = new ProfileMetaListTmp(_study_obj.studyId);
                                 profileMetaListTmp.fetch({
@@ -146,7 +161,6 @@ var ccPlots = (function ($, _, Backbone, d3) {
                                     }
                                 });
                             }
-
                         });
                     }
                 }
@@ -166,6 +180,24 @@ var ccPlots = (function ($, _, Backbone, d3) {
                                         }
                                     });
                                 })
+
+                                //calculate mean value
+                                var _values = [];
+                                _.each(profileDataListTmp.models, function(_model) {
+                                    if (_model.attributes.value !== "NaN") {
+                                        _values.push(parseFloat(_model.attributes.value));
+                                    }
+                                });
+                                var _tmp_obj = {
+                                    profile_id: _profile_obj.STABLE_ID,
+                                    mean: findMedian(_values)
+                                };
+                                if (mean_vals.hasOwnProperty(_gene)) {
+                                    mean_vals[_gene].push(_tmp_obj);
+                                } else {
+                                    mean_vals[_gene] = [_tmp_obj];
+                                }
+
                                 profileDataList.add(profileDataListTmp.models);
 
                                 var _profileDataList_gene = _.filter(_.pluck(profileDataList.models, "attributes"), function(item) { return item.gene === $("#cc_plots_gene_list").val(); });
@@ -191,10 +223,24 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 });
                 if (_opt === "alphabetic") {
                     _arr = _.sortBy(_arr, "CANCER_STUDY_SHORT_NAME");
+                    return _arr;
                 } else if (_opt === "mean") {
-                    _arr = _.sortBy(_arr, "CANCER_STUDY_NAME");
+                    var cc_plots_mean_vals_time_out = setInterval(function () {
+                        cc_plots_mean_vals_timer();
+                    }, 1000);
+                    function cc_plots_mean_vals_timer() {
+                        if (mean_vals.length !== 0) {
+                            clearInterval(cc_plots_mean_vals_time_out);
+                            console.log(mean_vals);
+                            _.each(_arr, function(_obj) {
+                                _obj.mean = mean_vals[$("#cc_plots_gene_list").val()][_obj.STABLE_ID]["mean"];
+                            });
+                            console.log(_arr);
+                            _arr = _.sortBy(_arr, "CANCER_STUDY_NAME");
+                            return _arr;
+                        }
+                    }
                 }
-                return _arr;
             },
             get_profile_name: function(_profile_id) {
                 var _profile_obj = _.filter(_.pluck(profileMetaList.models, "attributes"), function(_profile_item) { return _profile_item.STABLE_ID === _profile_id; });

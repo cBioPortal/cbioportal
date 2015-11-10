@@ -58,6 +58,8 @@ import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.mskcc.cbio.portal.model.MutSig;
 import org.mskcc.cbio.portal.model.Sample;
 import org.mskcc.cbio.portal.util.InternalIdUtil;
+import org.mskcc.cbio.portal.util.MyCancerGenomeLinkUtil;
+import org.mskcc.cbio.portal.util.OncokbHotspotUtil;
 
 /**
  *
@@ -259,12 +261,22 @@ public class MutationsJSON extends HttpServlet {
         Map<String,List> data = initMap();
         Map<Long, Integer> mapMutationEventIndex = new HashMap<Long, Integer>();
         for (ExtendedMutation mutation : mutations) {
+            List<String> mcgLinks;
+            Boolean isHotspot;
+            if (mutation.getMutationType().equalsIgnoreCase("Fusion")) {
+                mcgLinks = MyCancerGenomeLinkUtil.getMyCancerGenomeLinks(mutation.getGeneSymbol(), "fusion", false);
+            } else {
+                mcgLinks = MyCancerGenomeLinkUtil.getMyCancerGenomeLinks(mutation.getGeneSymbol(), mutation.getProteinChange(), false);
+            }
+            isHotspot = OncokbHotspotUtil.getOncokbHotspot(mutation.getGeneSymbol(), mutation.getProteinChange());
             exportMutation(data, mapMutationEventIndex, mutation, cancerStudy,
                     drugs.get(mutation.getEntrezGeneId()), geneContextMap.get(mutation.getGeneSymbol()),
                     mutation.getKeyword()==null?1:keywordContextMap.get(mutation.getKeyword()),
                     cosmic.get(mutation.getMutationEventId()),
                     mrnaContext.get(mutation.getEntrezGeneId()),
                     cnaContext.get(mutation.getEntrezGeneId()),
+                    mcgLinks,
+                    isHotspot,
                     daoGeneOptimized);
         }
 
@@ -525,7 +537,7 @@ public class MutationsJSON extends HttpServlet {
         map.put("entrez", new ArrayList());
         map.put("gene", new ArrayList());
         map.put("aa", new ArrayList());
-	    map.put("aa-orig", new ArrayList());
+	map.put("aa-orig", new ArrayList());
         map.put("ref", new ArrayList());
         map.put("var", new ArrayList());
         map.put("type", new ArrayList());
@@ -545,6 +557,8 @@ public class MutationsJSON extends HttpServlet {
         map.put("normal-alt-count", new ArrayList());
         map.put("normal-ref-count", new ArrayList());
         map.put("validation", new ArrayList());
+        map.put("mycancergenome", new ArrayList());
+        map.put("is-hotspot", new ArrayList());
         
         return map;
     }
@@ -559,7 +573,7 @@ public class MutationsJSON extends HttpServlet {
     private void exportMutation(Map<String,List> data, Map<Long, Integer> mapMutationEventIndex,
             ExtendedMutation mutation, CancerStudy cancerStudy, Set<String> drugs,
             int geneContext, int keywordContext, Set<CosmicMutationFrequency> cosmic, Map<String,Object> mrna,
-            String cna, DaoGeneOptimized daoGeneOptimized) throws ServletException {
+            String cna, List<String> mycancergenomelinks, Boolean isHotspot, DaoGeneOptimized daoGeneOptimized) throws ServletException {
         Sample sample = DaoSample.getSampleById(mutation.getSampleId());
         Long eventId = mutation.getMutationEventId();
         Integer ix = mapMutationEventIndex.get(eventId);
@@ -586,7 +600,7 @@ public class MutationsJSON extends HttpServlet {
         data.get("entrez").add(mutation.getEntrezGeneId());
         data.get("gene").add(symbol);
         data.get("aa").add(mutation.getProteinChange());
-	    data.get("aa-orig").add(mutation.getAminoAcidChange());
+	data.get("aa-orig").add(mutation.getAminoAcidChange());
         data.get("ref").add(mutation.getReferenceAllele());
         data.get("var").add(mutation.getTumorSeqAllele());
         data.get("type").add(mutation.getMutationType());
@@ -598,6 +612,8 @@ public class MutationsJSON extends HttpServlet {
         data.get("validation").add(mutation.getValidationStatus());
         data.get("cna").add(cna);
         data.get("mrna").add(mrna);
+        data.get("mycancergenome").add(mycancergenomelinks);
+        data.get("is-hotspot").add(isHotspot);
         
         // cosmic
         data.get("cosmic").add(convertCosmicDataToMatrix(cosmic));

@@ -67,6 +67,7 @@ var PieChart = function(){
 
     var label =[],
         labelSize = 10,
+        sampleSize = 0,
         maxLabelNameLength = 0,
         maxLabelValue = 0,
         fontSize = labelSize;
@@ -78,9 +79,15 @@ var PieChart = function(){
 
     var titleLengthCutoff = 25;
 
-    //Pie chart categories: smallTable, largeTable
-    var category = 'smallTable';
+    //Pie chart categories: w1h1, w1h2, w2h1, w2h2
+    var category = ['w1','h1'];
     var currentView = 'pie'; //Default value: pie, table
+
+    var labelWLT = 30; //label length threshold for wider table
+    var labelHeaderWLT = 20; //label header length threshold for wider table
+
+    var labelLT = 5; //label length threshold
+    var labelHeaderLT = 4; //label header length threshold
 
     //This function is designed to draw Pie Labels based on current color the
     //Pie Chart has. Pagging function will be added when the number of labels
@@ -198,7 +205,7 @@ var PieChart = function(){
             }
         });
 
-        if(category === 'smallTable' && currentView === 'pie') {
+        if(category[1] === 'h1' && currentView === 'pie') {
             initMainDivQtip();
         }
         //else if(category === 'extendable'){
@@ -278,6 +285,8 @@ var PieChart = function(){
     function addFunctions() {
         if(selectedAttr !== 'CASE_ID'){
             pieChart.on("filtered", function(chart,filter){
+                console.log("filtered called for: "+chartID);
+
                 var _currentFilters = pieChart.filters();
 
                 if(_currentFilters.length === 0){
@@ -293,7 +302,8 @@ var PieChart = function(){
                 }
 
                 removeMarker();
-                postFilterCallback();
+                // provide the postFilterCallback function with the chartID and the filter for the breadcrumbs
+                postFilterCallback(chartID, filter);
             });
             pieChart.on("preRedraw",function(chart){
                 var _filters = pieChart.filters();
@@ -327,9 +337,9 @@ var PieChart = function(){
                 var _filters = pieChart.filters();
 
                 if(
-                        (!previousFilters.equals(_filters)
-                            && _filters.length === 0)
-                        || previousFilters.equals(_filters) ){
+                        (!previousFilters.equals(_filters) &&
+                        _filters.length === 0) ||
+                        previousFilters.equals(_filters) ){
                     addPieLabels();
                 }
                 previousFilters = jQuery.extend(true, [], _filters);
@@ -473,13 +483,18 @@ var PieChart = function(){
     function animateTable(){
         var height, width;
 
-        if(category === 'smallTable') {
-            height = '165px';
+        if(category[0] === 'w1') {
             width = '180px';
         }else{
-            height = '340px';
             width = '375px';
         }
+
+        if(category[1] === 'h1') {
+            height = '165px';
+        }else{
+            height = '340px';
+        }
+
         $("#"+DIV.mainDiv).animate({height: height, width: width, duration: 300, queue: false}, 300, function() {
             StudyViewInitCharts.getLayout().layout();
             $("#"+DIV.mainDiv).css('z-index', '');
@@ -830,11 +845,7 @@ var PieChart = function(){
                 _color.splice(NAIndex, 0, '#CCCCCC');
             }
 
-            if(selectedAttrKeys.length > 10) {
-                category = 'largeTable';
-            }else {
-                category = 'smallTable';
-            }
+            category[1] = selectedAttrKeys.length > 10?'h2':'h1';
         }
 
         pieChart
@@ -855,6 +866,7 @@ var PieChart = function(){
     function initLabelInfo() {
         var _labelID = 0;
 
+        sampleSize = 0;
         label.length = 0;
 
         $('#' + DIV.chartDiv + '>svg>g>g').each(function(){
@@ -882,11 +894,16 @@ var PieChart = function(){
                     _labelDatum.color = _color;
                     _labelDatum.parentID = DIV.chartDiv;
                     _labelDatum.value = _labelValue;
+                    sampleSize += _labelValue;
+
+                    if(maxLabelValue < _labelValue) {
+                        maxLabelValue = _labelValue;
+                    }
                     label.push(_labelDatum);
                 }
                 _labelID++;
             }else{
-                //StudyViewUtil.echoWarningMessg("Initial Lable Error");
+                StudyViewUtil.echoWarningMessg("Initial Label Error");
             }
         });
 
@@ -905,6 +922,7 @@ var PieChart = function(){
     //Initial global parameters by using passed object .
     function initParam(_param) {
         var _baseID = _param.baseID;
+        var _maxAttrL = 0; //maximum attribute length
 
         className = _param.chartDivClass,
         chartID = _param.chartID;
@@ -921,6 +939,18 @@ var PieChart = function(){
         DIV.labelTableID = "table-" + _baseID + "-dc-chart-" + chartID;
         DIV.labelTableTdID = "pieLabel-" + _baseID + "-dc-chart-" + chartID + "-";
         DIV.parentID = _baseID + "-charts";
+
+        _.each(selectedAttrKeys, function (key) {
+            if(key.length > _maxAttrL) {
+                _maxAttrL = key.length;
+            }
+        })
+
+        category[0]= _maxAttrL <= labelLT? 'w1' : 'w2';
+
+        if(['CANCER_TYPE', 'CANCER_TYPE_DETAILED'].indexOf(selectedAttr) !== -1) {
+            category[0] = 'w2';
+        }
     }
 
     //Remove drawed Pie Markder.
@@ -931,23 +961,25 @@ var PieChart = function(){
     //Called when the number of label biggen than 6, used by addPieLabels()
     function labelFunction() {
         var _tableDiv = '';
-        var _labelLT = 40; //label length threshold
-        var _labelHeaderLT = 20; //label header length threshold
+        var _labelLT = labelWLT; //label length threshold
+        var _labelHeaderLT = labelHeaderWLT; //label header length threshold
 
         _tableDiv += '<table';
 
-        if(category === 'smallTable') {
-            _labelLT = 10;
-            _labelHeaderLT = 10;
+        if(category[0] === 'w1') {
+            _labelLT = labelLT;
+            _labelHeaderLT = labelHeaderLT;
             _tableDiv += ' class="smallTable" ';
+        }else{
+            _tableDiv += ' class="regularTable" ';
         }
 
-        _tableDiv += '><thead><th>'+selectedAttrDisplay+'</th><th>#</th></thead><tbody>';
+        _tableDiv += '><thead><th>'+selectedAttrDisplay+'</th><th>#</th><th>Freq</th></thead><tbody>';
 
         for(var i=0; i< label.length; i++){
             var _tmpName = label[i].name;
 
-            if(_tmpName.length > _labelLT){
+            if(_tmpName.length >= _labelLT){
                 _tmpName = _tmpName.substring(0,_labelLT-2) + " ...";
             }
 
@@ -969,7 +1001,8 @@ var PieChart = function(){
                 _tmpName+'</span></span></td><td class="pieLabelValue" uniqueId="'+
                 DIV.labelTableTdID +label[i].id+'-'+i+
                 '"><span style="margin: 3px 0;padding-top: 3px;">'+label[i].value+
-                '</span><input type="checkbox" style="float:right; margin: 3px 0;" /></td>';
+                '</span><input type="checkbox" style="float:right; margin: 3px 0;" /></td>' +
+                '<td>' + (Number(label[i].value)/sampleSize* 100).toFixed(1) + '%' + '</td>';
 
             if(i % 1 === 0){
                 _tableDiv += '</tr>';
@@ -977,10 +1010,6 @@ var PieChart = function(){
 
             if(maxLabelNameLength < _tmpName.length) {
                 maxLabelNameLength = _tmpName.length;
-            }
-
-            if(maxLabelValue < label[i].value) {
-                maxLabelValue = label[i].value;
             }
         }
 
@@ -1000,7 +1029,7 @@ var PieChart = function(){
             var _th = $('#' + DIV.mainDiv).find('#' + DIV.labelTableID+'-0 thead th:nth-child(1)');
             _th.addClass('hasQtip');
             _th.attr('oValue', selectedAttrDisplay);
-            _th.text(selectedAttrDisplay.substring(0, maxLabelNameLength<_labelHeaderLT?_labelHeaderLT-2:maxLabelNameLength-3) + '...');
+            _th.text(selectedAttrDisplay.substring(0, maxLabelNameLength<=_labelHeaderLT?_labelHeaderLT-2:maxLabelNameLength-3) + '...');
         }
 
         if(['CANCER_TYPE', 'CANCER_TYPE_DETAILED'].indexOf(selectedAttr) !== -1){
@@ -1030,7 +1059,7 @@ var PieChart = function(){
     function initPieLabelDataTable(callback) {
         var _aaSorting = [], sScrollY = '255', sDom = 'rt<f>';
 
-        if(category === 'smallTable') {
+        if(category[1] === 'h1') {
             sScrollY = '120';
             sDom = 'rt'
         }

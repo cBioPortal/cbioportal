@@ -6,19 +6,16 @@
 <script type="text/javascript" src="js/src/over-representation-analysis/boilerplate.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <div class="section" id="or_analysis">
-    <div id="or-analysis-info-box" style="padding: 10px;">
-        <!--Gene Set
-        <select id="or_analysis_tab_gene_set_select">
-            <option value="cancer_genes">All Cancer Genes in cbio portal</option>
-            <option value="all_genes">All Genes in cbio portal</option>
-            <option value="custom_genes">Custom Gene Set</option>
-        </select>
-        <span id="or_analysis_tab_warning"></span>
-        <br>
-        <div id="or_analysis_tab_custom_gene_set_text_area"></div>
-        <br>-->
+    <div id="or-analysis-info-box" style="padding: 10px;margin-top: -40px;">
+        <%--Gene Set--%>
+        <%--<select id="or_analysis_tab_gene_set_select">--%>
+            <%--<option value="cancer_genes">All Cancer Genes in cbio portal</option>--%>
+            <%--<option value="all_genes">All Genes in cbio portal</option>--%>
+        <%--</select>--%>
+        <%--<span id="enrichments-tab-gene-set-warning" style="color:grey;"></span>--%>
+        <%--<br>--%>
     </div>
-    <div id="or-analysis-tabs" class="or-analysis-tabs" style="margin-top:-40px;">
+    <div id="or-analysis-tabs" class="or-analysis-tabs" style="margin-top:5px;">
         <ul id='or-analysis-tabs-list'></ul>
         <div id='or-analysis-tabs-content'></div>
     </div>
@@ -96,23 +93,17 @@
             }
         });
 
-//        //bind event listener to gene set selector
-//        $("#or_analysis_tab_gene_set_select").change(function() {
-//            if ($("#or_analysis_tab_gene_set_select").val() === "all_genes") {
-//                $("#or_analysis_tab_warning").append("<span style='color:red;'>Calculating and rendering may take up to 10 minutes...</span>");
-//                $("#or_analysis_tab_custom_gene_set_text_area").empty();
-//                or_tab.update();
-//            } else if ($("#or_analysis_tab_gene_set_select").val() === "custom_genes") {
-//                $("#or_analysis_tab_warning").empty();
-//                $("#or_analysis_tab_custom_gene_set_text_area").append("<br><textarea class='form-control' rows='5' id='or_analysis_tab_custom_gene_set_text_area_id'></textarea>");
-//                $("#or_analysis_tab_custom_gene_set_text_area").append("<button id='or_analysis_tab_custom_gene_set_submit_btn'>Submit Custom Gene Set</button>");
-//            } else {
-//                $("#or_analysis_tab_warning").empty();
-//                $("#or_analysis_tab_custom_gene_set_text_area").empty();
-//                or_tab.update();
-//            }
-//
-//        });
+        //bind event listener to gene set selector
+        $("#or_analysis_tab_gene_set_select").change(function() {
+            if ($("#or_analysis_tab_gene_set_select").val() === "cancer_genes") {
+                $("#" + orAnalysis.ids.gene_set_warning).empty();
+                or_tab.update();
+            } else if ($("#or_analysis_tab_gene_set_select").val() === "all_genes") {
+                $("#" + orAnalysis.ids.gene_set_warning).empty();
+                $("#" + orAnalysis.ids.gene_set_warning).append("Calculating and rendering...(this may a few seconds)");
+                or_tab.update();
+            }
+        });
 
     });
 </script>

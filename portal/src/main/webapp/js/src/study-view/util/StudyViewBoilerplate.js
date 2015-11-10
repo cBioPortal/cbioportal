@@ -224,28 +224,31 @@ var StudyViewBoilerplate ={
         fill: ""
     },
     
-    headerLeftDiv: function() {
+    headerDiv: function() {
         var _header = $('<div></div>'),
-//            _span1 = $('<span></span>'),
-//            _span2 = $('<span></span>'),
+            _headerLeft = $('<div></div>'),
+            _headerRight = $('<div></div>'),
+
+            _breadcrumbs = $('<div></div>'),
             _span3 = $('<span></span>'),
+            // span for the number of items found
             _span1 = $("<input type='button' />"),
             _span2 = $("<input type='button' />"),
             _span4 = $("<input type='button' />"),
-//            _span3 = $("<input type='button' />"),
+            _span5 = $('<span></span>'),
+            _span6 = $("<input type='button' />"),
             _form = $('<form></form>'),
             _input1 = $('<input></input>'),
             _input2 = $('<input></input>'),
             _input3 = $('<input></input>'),
             _input4 = $('<input></input>');
         
-        _header.attr('id','study-view-header-left');
+        _headerLeft.attr('id','study-view-header-left');
+
         _span1
             .attr({
-                'id': 'study-view-header-left-0',
+                'id': 'study-view-header-right-1',
                 'class': 'study-view-header-button'})
-//                'class': 'study-view-header study-view-header-left'})
-//            .text('Select cases by IDs');
             .val('Select cases by IDs');
 
         // Build query button
@@ -281,7 +284,7 @@ var StudyViewBoilerplate ={
             .attr({
                 type: "submit",
                 id: "study-view-header-left-1",
-                value: "Query all samples",
+                value: "Query",
 //                class: "study-view-header hidden"
                 class: "study-view-header-button"
             });
@@ -291,38 +294,66 @@ var StudyViewBoilerplate ={
         _form.append(_input4);
 
 
+        //Clear all button moved to after breadcrumbs
         _span2
             .attr({
                 'id': 'study-view-header-left-2',
-//                'class': 'study-view-header hidden'})
-//            .text('Reset all');
-                'class': 'hidden study-view-header-button'})
-            .val('Reset all');
-        
+                'class': 'study-view-header-clear-all'})
+            .val('Clear all');
+
+        // changed the initialisation for span 3
         _span3
             .attr({
-                'id': 'study-view-header-left-3',
-                'class': 'hidden'})
-            .text('');
-//            .val('Reset all');
+                'id': 'study-view-header-left-3'
+                })
+            .text('Total number of samples selected: ');
 
        // tumormap.do?cancer_study_id=acyc_mskcc&case_id=9534#nav_case_ids=9534,6277
         //Build View cases button linking to patient view
         _span4
             .attr({
                 'id': 'study-view-header-left-4',
-//                'class': 'study-view-header hidden'})
-//            .text('Reset all');
                 'class': 'study-view-header-button'})
-            .val('View all cases');
+            .val('View');
 
+        // span5 attributes
+        _span5.attr({
+            'id': 'study-view-header-left-5'
+        });
 
-        _header.append(_span1);
-        _header.append(_form);
-        _header.append(_span4);
-        _header.append(_span2);
-        _header.append(_span3);
-        
+        //Download button
+        _span6
+            .attr({
+                'id': 'study-view-header-left-6',
+                'class': 'study-view-header-button'})
+            .val('Download');
+
+        // span3 is now the first item, span5 added, image added
+        _headerLeft.append(_span3);
+        _headerLeft.append(_span5);
+        _headerLeft.append("<img id='arrow_studyview' src='images/arrow_studyview.png'>");
+        _headerLeft.append(_form);
+        _headerLeft.append(_span4);
+        _headerLeft.append(_span6);
+
+        _headerRight.attr('id','study-view-header-right');
+        _headerRight.append(_span1);
+
+        _header.append(_headerLeft);
+        _header.append(_headerRight);
+
+        // add a container for the breadcrumbs
+        _breadcrumbs.attr({
+            id: 'breadcrumbs_container',
+            class: 'hidden'
+        });
+        _breadcrumbs.append('<span style="float:left">Your selections: </span>');
+        _breadcrumbs.append('<div style="float:left" class="breadcrumbs_items"></div>');
+        _breadcrumbs.children('.breadcrumbs_items').append(_span2);
+
+        _header.append("<br/>");
+        _header.append(_breadcrumbs);
+
         return _header;
     },
     
@@ -335,7 +366,7 @@ var StudyViewBoilerplate ={
                 "<button type='button' id='study-view-case-select-custom-submit-btn' style='float: right;'>Select</button>" +
             "</div>",
     addChartDiv:
-            "<select id='study-view-add-chart'><option id=''>Add Chart</option></select>",
+            "<select id='study-view-add-chart' class='chosen-select'><option id=''>Add Chart</option></select>",
 //            "<div  id='study-view-add-chart' class='study-view-header'>" +
 //                "<span>Add Chart</span><br>" +
 //                "<ul>" +
@@ -404,6 +435,14 @@ var StudyViewBoilerplate ={
             "<tr>"+
             "</tr>"+
             "</tfoot>"+
-            "</table>"
-    
+            "</table>",
+
+    // added for breadcrumbs
+    // "<div class='breadcrumb_container' style='display: inline-block'>"+
+    breadCrumbDiv:
+        "<div class='breadcrumb_container'>"+
+            "<span class='breadcrumb_item'></span>"+
+            "<img class='breadcrumb_remove' src='images/remove_breadcrumb_icon.png'>"+
+        "</div>"
+
 };

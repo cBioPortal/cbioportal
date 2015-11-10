@@ -66,7 +66,8 @@ public class TestGetMutSig {
 	int studyId;
 	
 	@Before 
-	public void setUp() {
+	public void setUp() throws DaoException
+	{
 		studyId = DaoCancerStudy.getCancerStudyByStableId("study_tcga_pub").getInternalId();
 		DaoGeneticProfile.reCache();
 	}

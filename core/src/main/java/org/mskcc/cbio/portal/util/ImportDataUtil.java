@@ -44,7 +44,7 @@ public class ImportDataUtil
         addPatients(barcodes, getCancerStudy(geneticProfileId));
     }
 
-    public static CancerStudy getCancerStudy(int geneticProfileId)
+    public static CancerStudy getCancerStudy(int geneticProfileId) throws DaoException
     {
         GeneticProfile gp = DaoGeneticProfile.getGeneticProfileById(geneticProfileId);
         return DaoCancerStudy.getCancerStudyByInternalId(gp.getCancerStudyId());

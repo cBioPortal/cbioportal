@@ -36,42 +36,37 @@ request.setAttribute("include_network_legend", Boolean.FALSE);
 %>
 <!--link href="css/network/jquery-ui-1.8.14.custom.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/-->
 <link href="css/network/network_ui.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/>
-
-<script type="text/javascript" src="js/lib/cytoscape_web/AC_OETags.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/lib/cytoscape_web/cytoscapeweb.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/lib/cytoscape_js/cytoscape.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <!--script type="text/javascript" src="js/src/network/jquery-ui.min.js?<%=GlobalProperties.getAppVersion()%>"></script-->
 <!--script type="text/javascript" src="js/src/network/network-ui.js?<%=GlobalProperties.getAppVersion()%>"></script-->
-<script type="text/javascript" src="js/src/network/network-viz.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/network/network-viz2.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <script type="text/javascript">
     function buildCytoscapeWeb() {
         var genes = [];
         genes.push(genomicEventObs.cnas.overviewEventGenes);
         genes.push(genomicEventObs.mutations.overviewEventGenes);
-        
+
         var networkParams = {<%=org.mskcc.cbio.portal.servlet.QueryBuilder.GENE_LIST%>:genes.join(','),
                 netsize:'small'
             };
-        $.post("network.do", 
+        $.post("network.do",
             networkParams,
             function(graphml){
-                if (typeof data !== "string") { 
-                    if (window.ActiveXObject) { // IE 
-                            graphml = graphml.xml; 
-                    } else { // Other browsers 
-                            graphml = (new XMLSerializer()).serializeToString(graphml); 
-                    } 
-                }
-                send2cytoscapeweb(graphml,"cytoscapeweb");
-                
+                if (typeof data !== "string")
+                {
+                  var gml2jsonConverter = new GraphMLToJSon(graphml);
+                  var json = gml2jsonConverter.toJSON();
+                  send2cytoscapeweb(json, "cytoscapeweb", "network");
+
                 $("#network-resubmit-query").remove();
                 $("#slider_area").remove();
                 $('select#drop_down_select>option:eq(1)').attr('selected', true);
-            }
+               } 
         );
     }
-    
+
     $(document).ready(function(){
         genomicEventObs.subscribeMutCna(buildCytoscapeWeb);
     }

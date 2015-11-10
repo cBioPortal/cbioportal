@@ -57,7 +57,6 @@
 
 <div id="study-view-main" style="display: none;">
     <div id="study-view-header-function"></div>
-    <div id="study-view-top-wrapper"></div>
     
     <div id="study-view-charts"></div>
     

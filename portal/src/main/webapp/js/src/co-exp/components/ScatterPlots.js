@@ -297,6 +297,18 @@ var ScatterPlots = function() {
                     return d.fill;
                 }
             })
+            .attr("opacity", function(d) {
+            	//if item has a specific opacity, don't overwrite it. Only set it if not set yet:
+                if (d.opacity === null || d.opacity === "" || typeof d.opacity === "undefined") {
+                    //only set it if it is defined in style: 
+                	if (style.opacity)
+                		return style.opacity;
+                	else
+                		return 1;
+                } else {
+                    return d.opacity;
+                }
+            })
             .attr("stroke", function(d) {
                 if (d.stroke === null || d.stroke === "" || typeof d.stroke === "undefined") {
                     return style.stroke;
@@ -327,6 +339,13 @@ var ScatterPlots = function() {
                 .type(style.shape))
             .attr("fill", function(d) {
                 return style.fill;
+            })
+            .attr("opacity", function(d) {
+        	    //only set it if it is defined in style: 
+            	if (style.opacity)
+            		return style.opacity;
+            	else
+            		return 1;
             })
             .attr("stroke", function(d) {
                 return style.stroke;
@@ -445,13 +464,24 @@ var ScatterPlots = function() {
             if (d.x_val > extent[0][0] && d.x_val < extent[1][0] &&
                 d.y_val > extent[0][1] && d.y_val < extent[1][1]) {
                 //TODO: does not work with log scale applied scenario
-                $(this).attr("stroke", "red");
+            	if (style.selection_mode && style.selection_mode === "fade_unselected") { 
+	            	if ($(this).attr("fill") != style.special_select_color)
+	            		$(this).attr("fill", style.fill);
+	            	$(this).attr("stroke", style.stroke);
+            	}
+            	else {
+            		$(this).attr("stroke", "red");
+            	}
                 brushedCases.push(d.case_id);
             } else {
-                if(d.stroke === null || d.stroke === "" || typeof d.stroke === "undefined") {
+            	if (style.selection_mode && style.selection_mode === "fade_unselected") { 
+	                if ($(this).attr("fill") != style.special_select_color)
+	                	$(this).attr("fill", "lightgrey");
+	                $(this).attr("stroke", "lightgrey");
+            	}
+            	else if(d.stroke === null || d.stroke === "" || typeof d.stroke === "undefined") {
                     $(this).attr("stroke", style.stroke);    
-                }
-                $(this).attr("stroke", d.stroke);
+            	}
             }
         });
         d3.select(".brush").call(elem.brush.clear());
@@ -621,8 +651,45 @@ var ScatterPlots = function() {
                     $(this).attr("stroke", _datumArr[_index].fill);
                 }
             });
+        },
+        /**
+         * 
+         */
+        specialSelectItems: function(case_ids, totalList) {
+        	elem.dotsGroup.selectAll("path").each(function(d) {
+        		if (case_ids.indexOf(d.case_id) !== -1) {
+                    $(this).attr("fill", style.special_select_color);
+                }
+        		else if (totalList.indexOf(d.case_id) !== -1) {
+        			$(this).attr("fill", style.fill);
+        		}
+            });
+        },
+        showRemainingItems: function(case_ids) {
+        	elem.dotsGroup.selectAll("path").each(function(d) {
+        		if (case_ids.indexOf(d.case_id) != -1) {
+        			if (style.selection_mode && style.selection_mode === "fade_unselected") {
+        				//if for special selection case above
+        				if ($(this).attr("fill") != style.special_select_color)
+            				$(this).attr("fill", style.fill);
+            			$(this).attr("stroke", style.stroke);
+                	}
+        			else {
+        				$(this).attr("stroke", "red");
+        			}
+                }
+        		else {
+        			if (style.selection_mode && style.selection_mode === "fade_unselected") {
+	        			if ($(this).attr("fill") != style.special_select_color)
+	        				$(this).attr("fill", "lightgrey");
+	        			$(this).attr("stroke", "lightgrey");
+        			}
+        			else {
+        				$(this).attr("stroke", style.stroke);
+        			}
+        		}
+            });
         }
-
     };
 };
 

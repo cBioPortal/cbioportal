@@ -88,7 +88,7 @@ function VolcanoPlot() {
 			var _scatterPlotItem = {
 					x_val : xValue,
 					y_val : yValue,
-					case_id : data[i]["Gene"], // this ID is passed below to scatterPlotBrushCallBack on brushended
+					case_id : data[i]["Gene"], // case_id is the "item ID". This item ID is passed below to scatterPlotBrushCallBack on brushended
 					qtip : "p-value: " + cbio.util.toPrecision(parseFloat(data[i]["p-Value"]), 3, 0.01) + 
 						   ", log ratio: " + parseFloat(data[i]["Log Ratio"]).toFixed(2),
 			};
@@ -105,8 +105,8 @@ function VolcanoPlot() {
      * a special selection color. This is different from the normal selection
      * color. 
      * 
-     * @param specialSelectedItems: list of items to give a *special*  color
-     * @param totalList: total list of items that are part of the current *normal* selection
+     * @param specialSelectedItems: list of item IDs of the items that should get a *special*  color
+     * @param totalList: total list of item IDs that are part of the current *normal* selection
      */
 	this.specialSelectItems = function (specialSelectedItems, totalList) {
 		self.scatterPlot.specialSelectItems(specialSelectedItems, totalList);
@@ -116,7 +116,7 @@ function VolcanoPlot() {
      * This function can be used to show a *normal* selection made via an external source,
      * e.g. via a filter in the dataTable coupled to this plot. 
      * 
-     * @param items: list of items to give the *normal* selection style
+     * @param items: list of item IDs of the items that should get the *normal* selection style
      */
 	this.selectItems = function(items) {
 		self.scatterPlot.showSelection(items);
@@ -146,16 +146,16 @@ function VolcanoPlot() {
     
     /**
      * Callback function for brushended event. This function will ensure the dataTable in this.dataTable 
-     * is updated according to the items selected (brushedCaseIds). 
+     * is updated according to the items selected (brushedItemIds). 
      * 
-     * @param brushedCaseIds: the case ids selected by the brush action. 
+     * @param brushedItemIds: the item IDs selected by the brush action. 
      */
-    var scatterPlotBrushCallBack = function(brushedCaseIds) {
+    var scatterPlotBrushCallBack = function(brushedItemIds) {
     	//The ^ and $ pattern is to avoid scenarios where we have genes with similar names such as A1, A11 being matched by A1. 
     	//Only first one (A1) should be matched in this case.
-    	var searchExpression = "^" + brushedCaseIds.join("$|^") + "$";
+    	var searchExpression = "^" + brushedItemIds.join("$|^") + "$";
     	
-    	//nb: one option could devise an expression to show all data if brushedCaseIds.length is 0, i.e. the special case where user clicks on empty region of plot.
+    	//nb: one option could devise an expression to show all data if brushedItemIds.length is 0, i.e. the special case where user clicks on empty region of plot.
     	//    But for this, the brushended() function of ScatterPlots also needs slight adjustment in the selection_mode: "fade_unselected" scenario.
     	
     	//apply search expression to the dataTable: 

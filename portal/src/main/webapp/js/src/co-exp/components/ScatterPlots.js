@@ -657,8 +657,8 @@ var ScatterPlots = function() {
          * a special selection color. This is different from the normal selection
          * color. 
          * 
-         * @param case_ids: list of items to give a *special*  color
-         * @param totalList: total list of items that are part of the current *normal* selection
+         * @param case_ids: list of item IDs of the items that should get a *special*  color
+         * @param totalList: total list of item IDs that are part of the current *normal* selection
          */
         specialSelectItems: function(case_ids, totalList) {
         	elem.dotsGroup.selectAll("path").each(function(d) {
@@ -674,7 +674,7 @@ var ScatterPlots = function() {
          * This function can be used to show a *normal* selection made via an external source,
          * e.g. via a filter in a datatable coupled to this plot. 
          * 
-         * @param case_ids: list of items to give the *normal* selection style
+         * @param case_ids: list of item IDs of the items that should get the *normal* selection style
          */
         showSelection: function(case_ids) {
         	elem.dotsGroup.selectAll("path").each(function(d) {

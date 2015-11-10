@@ -60,7 +60,6 @@ function VolcanoPlot() {
      */
 	this.render = function(plotElName, data, dataTable){
 		
-		this.model = model;
 		this.dataTable = dataTable;
 		var plotDataAttr = {
 			    min_x: 0,

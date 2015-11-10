@@ -17,17 +17,8 @@ var scatterPlotOptions = {
             selection_mode: "fade_unselected",  //if not set, selection will be shown by placing red border on items
             special_select_color: "lime" //needed when calling scatterPlot.specialSelectItems (as is the case here)
         },
-
         names: { 
-            div: "study-view-scatter-plot",
-            header: "study-view-scatter-plot-header",
             body: "",
-            loading_img: "study-view-scatter-plot-loading-img",
-            control_panel: "study-view-scatter-plot-control-panel",
-            log_scale_x: "study-view-scatter-plot-log-scale-x",
-            log_scale_y: "study-view-scatter-plot-log-scale-y",
-            download_pdf: "study-view-scatter-plot-pdf",
-            download_svg: "study-view-scatter-plot-svg"         
         },
         elem: {
             svg: "",
@@ -43,8 +34,6 @@ var scatterPlotOptions = {
         text: {
             xTitle: "log Ratio",
             yTitle: "-log10 p-value",
-            title: "Volcano plot of log Ratio vs -log10 p-value",
-            fileName: "",
             xTitleHelp: "log2 based ratio of (pct in altered / pct in unaltered)",
             yTitleHelp: "-log10 p-value, derived from Fisher Exact Test"
         },
@@ -148,16 +137,25 @@ function VolcanoPlot()
 	 */
     var drawPlot = function(plotData, model, plotElName, plotDataAttr) {
 		
-		var brushOn = true;
+    	var brushOn = true;
+    	var drawCoExpInfo = false; //we don't want this...i.e. is not a co-expression plot in this case
+    	//reuse the ScatterPlots object from co-exp/components/ScatterPlots.js:
 		self.scatterPlot = new ScatterPlots();
 		scatterPlotOptions.names.body = plotElName;
-		self.scatterPlot.init(scatterPlotOptions, plotData, plotDataAttr, brushOn, false);            
+		//initialize with style options and the data to plot: 
+		self.scatterPlot.init(scatterPlotOptions, plotData, plotDataAttr, brushOn, drawCoExpInfo);            
 		self.scatterPlot.jointBrushCallback(scatterPlotBrushCallBack);
         //scatterPlot.jointClickCallback(scatterPlotBrushCallBack);  //Option, but jointClickCallback not yet implemented (also not really needed yet). Would have to port some code from study-view/component/ScatterPlot.js
-        $("#study-view-scatter-plot-header").css('display', 'none');   
+        //turn of plot header: 
+		//$("#study-view-scatter-plot-header").css('display', 'none');   
     }
     
-    
+    /**
+     * Callback function for brushended event. This function will ensure the dataTable in this.dataTable 
+     * is updated according to the items selected (brushedCaseIds). 
+     * 
+     * @param brushedCaseIds: the case ids selected by the brush action. 
+     */
     var scatterPlotBrushCallBack = function(brushedCaseIds) {
     	//The ^ and $ pattern is to avoid scenarios where we have genes with similar names such as A1, A11 being matched by A1. 
     	//Only first one (A1) should be matched in this case.
@@ -166,6 +164,7 @@ function VolcanoPlot()
     	//nb: one option could be to show all data if brushedCaseIds.length is 0, i.e. special case where user clicks on empty region of plot.
     	//    But for this, the brushended() function of ScatterPlots also needs slight adjustment in the selection_mode: "fade_unselected" scenario.
     	
+    	//apply search expression to the dataTable: 
     	self.dataTable.DataTable().column( 0 ).search(
     			searchExpression,
     	        true,

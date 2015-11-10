@@ -1,87 +1,67 @@
-var scatterPlotOptions = {
-        canvas: {  //position of components
-            width: 400,
-            height: 400,
-            xLeft: 80,     //The left/starting point for x axis
-            xRight: 380,   //The right/ending point for x axis
-            yTop: 10,      //The top/ending point for y axis
-            yBottom: 320   //The bottom/starting point for y axis
-        },
-        style: { //Default style setting
-            fill: "#58ACFA", //light blue
-            stroke: "#0174DF", //dark blue
-            stroke_width: "1.2",
-            size: "20",
-            shape: "circle", //default, may vary for different mutation types
-            opacity: 0.4,
-            selection_mode: "fade_unselected",  //if not set, selection will be shown by placing red border on items
-            special_select_color: "lime" //needed when calling scatterPlot.specialSelectItems (as is the case here)
-        },
-        names: { 
-            body: "",
-        },
-        elem: {
-            svg: "",
-            xScale: "",
-            yScale: "",
-            xAxis: "",
-            yAxis: "",
-            dotsGroup: "",
-            axisGroup: "",
-            axisTitleGroup: "",
-            brush: ""
-        },
-        text: {
-            xTitle: "log Ratio",
-            yTitle: "-log10 p-value",
-            xTitleHelp: "log2 based ratio of (pct in altered / pct in unaltered)",
-            yTitleHelp: "-log10 p-value, derived from Fisher Exact Test"
-        },
-        legends: []
-    };
-
-
 /**
- * Class to render the d3js volcano plot.
+ * Class to render the d3js volcano plot, coupling it to a dataTable 
+ * such that the dataTable displays the selections made in the plot 
+ * and vice-versa.
  */
-function VolcanoPlot()
-{
-	
-	// Some semi-global utilities
-    // Here are some options that we will use in this view
-    var width = 200;
-    var height = 200;
-    var paddingLeft = 10;
-    var paddingRight = 10;
-    var paddingTop = 10;
-    var histBottom = 400;
-    var fontFamily = "sans-serif";
-    var animationDuration = 1000;
-    var maxStudyBarWidth = 30;
-    
-    var self = this;
+function VolcanoPlot() {	
+
+	var self = this;
     self.scatterPlot = null; 
+
+    var scatterPlotOptions = {
+	    canvas: {  //size and relative position of plot
+	        width: 400,
+	        height: 400,
+	        xLeft: 80,     //The left/starting point for x axis
+	        xRight: 380,   //The right/ending point for x axis
+	        yTop: 10,      //The top/ending point for y axis
+	        yBottom: 320   //The bottom/starting point for y axis
+	    },
+	    style: { //style settings
+	        fill: "#58ACFA", //light blue
+	        stroke: "#0174DF", //dark blue
+	        stroke_width: "1.2",
+	        size: "20",
+	        shape: "circle", //default, may vary for different mutation types
+	        opacity: 0.4,
+	        selection_mode: "fade_unselected",  //if not set, selection will be shown by placing red border on items
+	        special_select_color: "lime" //needed when calling scatterPlot.specialSelectItems (as is the case here)
+	    },
+	    names: { 
+	        body: "", //set on the fly via this.render() to plotElName parameter value
+	    },
+	    elem: {
+	        svg: "",
+	        xScale: "",
+	        yScale: "",
+	        xAxis: "",
+	        yAxis: "",
+	        dotsGroup: "",
+	        axisGroup: "",
+	        axisTitleGroup: "",
+	        brush: ""
+	    },
+	    text: { //axis labels:
+	        xTitle: "log Ratio",
+	        yTitle: "-log10 p-value",
+	        xTitleHelp: "log2 based ratio of (pct in altered / pct in unaltered)",
+	        yTitleHelp: "-log10 p-value, derived from Fisher Exact Test"
+	    },
+	    legends: []
+	};    
+    
     
     /**
      * Trigger the rendering of the plot.
      * 
-     * @param plotEl: el where the plot should be rendered
-     * @param model: the model with the parameters for filtering if needed
-     * @param dmPresenter: instance of DataManagerPresenter (see DataManagerPresenter in pancancer_study_summary.js)
-     * 
+     * @param plotElName: el where the plot should be rendered
+     * @param data: data from dataTable, but in original form (json)
+     * @param dataTable: dataTable item to be updated when selections are made in plot
      */
-	this.render = function(plotElName, model, dmPresenter, data, dataTable){
+	this.render = function(plotElName, data, dataTable){
 		
 		this.model = model;
 		this.dataTable = dataTable;
-    	//how the code could be if we get the data via presenter layer:
-		//this.plotPresenter = new PlotPresenter(model, dmPresenter, geneId);
-		//Get data:
-	    //this.plotPresenter.getDataForPlot(function (plotData) {
-			//var plotData = null;
-	    	//draw plot
-	    	//drawPlot(plotData, model, plotElName);
-	    //});
 		var plotDataAttr = {
 			    min_x: 0,
 			    max_x: 0,
@@ -89,7 +69,8 @@ function VolcanoPlot()
 			    max_y: 0
 			};
 
-		
+		//build up plots x,y coordinates list based on data columns "Log Ratio" and "p-Value" received: 
+		//TODO this could be made generic to support also other data with different column names (perhaps add a presenter layer that makes the translation of the specific column names to the generic ones to be supported here)
 		var plotData = [];
 		for (var i = 0; i < data.length; i++){
 			
@@ -111,20 +92,35 @@ function VolcanoPlot()
 					qtip : "p-value: " + cbio.util.toPrecision(parseFloat(data[i]["p-Value"]), 3, 0.01) + 
 						   ", log ratio: " + parseFloat(data[i]["Log Ratio"]).toFixed(2),
 			};
+			//add to list:
 			plotData.push(_scatterPlotItem);
 		}
+		//draw the plot with the prepared x,y coordinates data:
 		drawPlot(plotData, null, plotElName, plotDataAttr);
 		
 	}
 	
-	this.specialSelectItems = function (selectedGenes, totalList) {
-		self.scatterPlot.specialSelectItems(selectedGenes, totalList);
+	/**
+     * This function will give the plot items corresponding to the specialSelectedItems list 
+     * a special selection color. This is different from the normal selection
+     * color. 
+     * 
+     * @param specialSelectedItems: list of items to give a *special*  color
+     * @param totalList: total list of items that are part of the current *normal* selection
+     */
+	this.specialSelectItems = function (specialSelectedItems, totalList) {
+		self.scatterPlot.specialSelectItems(specialSelectedItems, totalList);
 	}
 	
-	this.selectItems = function(genes) {
-		self.scatterPlot.showSelection(genes);
+	/**
+     * This function can be used to show a *normal* selection made via an external source,
+     * e.g. via a filter in the dataTable coupled to this plot. 
+     * 
+     * @param items: list of items to give the *normal* selection style
+     */
+	this.selectItems = function(items) {
+		self.scatterPlot.showSelection(items);
 	}
-	
 	
 	    
 	/**
@@ -146,8 +142,6 @@ function VolcanoPlot()
 		self.scatterPlot.init(scatterPlotOptions, plotData, plotDataAttr, brushOn, drawCoExpInfo);            
 		self.scatterPlot.jointBrushCallback(scatterPlotBrushCallBack);
         //scatterPlot.jointClickCallback(scatterPlotBrushCallBack);  //Option, but jointClickCallback not yet implemented (also not really needed yet). Would have to port some code from study-view/component/ScatterPlot.js
-        //turn of plot header: 
-		//$("#study-view-scatter-plot-header").css('display', 'none');   
     }
     
     /**
@@ -161,7 +155,7 @@ function VolcanoPlot()
     	//Only first one (A1) should be matched in this case.
     	var searchExpression = "^" + brushedCaseIds.join("$|^") + "$";
     	
-    	//nb: one option could be to show all data if brushedCaseIds.length is 0, i.e. special case where user clicks on empty region of plot.
+    	//nb: one option could devise an expression to show all data if brushedCaseIds.length is 0, i.e. the special case where user clicks on empty region of plot.
     	//    But for this, the brushended() function of ScatterPlots also needs slight adjustment in the selection_mode: "fade_unselected" scenario.
     	
     	//apply search expression to the dataTable: 

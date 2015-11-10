@@ -1,4 +1,4 @@
-window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_ids, sample_ids) {
+window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_ids, sample_ids, patient_case_select) {
 	var oql_parser = window.oql_parser;
 	var OQLHandler = (function (config) {
 		var default_config = {
@@ -6,6 +6,8 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			cna_key:"cna",
 			mutation_key:"mutation",
 			mutation_type_key:"mut_type",
+			mutation_pos_start_key:"mut_start_position",
+			mutation_pos_end_key:"mut_end_position",
 			prot_key:"rppa",
 			exp_key:"mrna",
 			default_oql:"MUT HOMDEL AMP"
@@ -14,6 +16,15 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 
 		var parse = function(oql_query) {
 			var parsed = oql_parser.parse(oql_query);
+			
+			var datatypes_alterations = false;
+			for (var i=0; i<parsed.length; i++) {
+				if (parsed[i].gene === "DATATYPES") {
+					datatypes_alterations = parsed[i].alterations;
+				} else if (datatypes_alterations && !parsed[i].alterations) {
+					parsed[i].alterations = datatypes_alterations;
+				}
+			}
 			for (var i=0; i<parsed.length; i++) {
 				if (!parsed[i].alterations) {
 					parsed[i].alterations = oql_parser.parse("DUMMYGENE:"+config.default_oql+";")[0].alterations;
@@ -30,6 +41,9 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		};
 		var isMUTClassCmd = function(cmd) {
 			return cmd.constr_type === "class";
+		};
+		var isMUTPositionCmd = function(cmd) {
+			return cmd.constr_type === "position";
 		};
 		var isMUTClass = function(mutation_str) {
 			return ["missense","nonsense","nonstart","nonstop","frameshift","inframe","splice","trunc"].indexOf(mutation_str.toLowerCase()) > -1;
@@ -75,6 +89,8 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 						} else {
 							if (isMUTClassCmd(cmd)) {
 								matches = (datum[config.mutation_type_key] === cmd.constr_val);
+							} else if (isMUTPositionCmd(cmd)) {
+								matches = (datum[config.mutation_pos_start_key] <= cmd.constr_val && datum[config.mutation_pos_end_key] >= cmd.constr_val);
 							} else {
 								matches = (datum[config.mutation_key].split(",").indexOf(cmd.constr_val) > -1);
 							}
@@ -227,6 +243,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			'oql_query': oql_query,
 			'cancer_study_ids': cancer_study_ids,
 			'sample_ids': sample_ids,
+                        'patient_case_select': patient_case_select,
 			'genetic_profile_ids': genetic_profile_ids,
 			'getOQLQuery': function() {
 				return this.oql_query;
@@ -243,6 +260,9 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			'getCancerStudyIds': function() {
 				return this.cancer_study_ids;
 			},
+                        'getSampleSelect': function() {
+                                return this.sample_select;
+                        },
 			'getGenomicEventData': function() {
 				var def = new $.Deferred();
 				var self = this;
@@ -316,7 +336,25 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 					def.reject();
 				});
 				return def.promise();
-			}
+			},
+                        'getPatientSampleIdMap': function () {
+                            var def = new $.Deferred();
+                            if(getPatientCaseSelect() === "patient")
+                                window.cbioportal_client.getSamples({study_id: getCancerStudyIds(),patient_ids: getSampleIds()}).then(function(_sampleMap){
+                                    var samplemap = makeSampleMap(_sampleMap);
+                                    def.resolve(samplemap);
+                                });
+                            else
+                            {
+                                window.cbioportal_clinet.getSample({study_id: getCancerStudyIds(),sample_ids: getSampleIds()}).then(function(_sampleMap){
+                                    var samplemap = makeSampleMap(_sampleMap);
+                                    def.resolve(samplemap);
+                                });
+                            }
+                            return def.promise();
+                        }
+                        
+                        
 		};
 		var fetchOncoprintGeneData = (function() {
 			var profile_types = {};
@@ -340,6 +378,8 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 					switch (profile_type) {
 						case "MUTATION_EXTENDED":
 							datum.mutation = (datum.mutation ? datum.mutation+","+d.amino_acid_change  : d.amino_acid_change);
+							datum.mut_start_position = parseInt(d.protein_start_position);
+							datum.mut_end_position = parseInt(d.protein_end_position);
 							break;
 						case "COPY_NUMBER_ALTERATION":
 							var cna_str = cna_string[d.profile_data];
@@ -350,7 +390,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 						case "MRNA_EXPRESSION":
 							datum.mrna = parseFloat(d.profile_data, 10);
 							break;
-						case "PROTEIN_ARRAY_PROTEIN_LEVEL":
+						case "PROTEIN_LEVEL":
 							datum.rppa = parseFloat(d.profile_data, 10);
 							break;
 					}
@@ -443,7 +483,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 							default_oql_uniq["EXP>=2"] = true;
 							default_oql_uniq["EXP<=-2"] = true;
 							break;
-						case "PROTEIN_ARRAY_PROTEIN_LEVEL":
+						case "PROTEIN_LEVEL":
 							default_oql_uniq["PROT>=2"] = true;
 							default_oql_uniq["PROT<=-2"] = true;
 							break;
@@ -506,6 +546,14 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			}
 			return ret;
 		};
+                var makeSampleMap = function(data) {
+                    var all_samples = {};
+                    for (var i=0,_len=data.length; i<_len; i++) {
+                        var d = data[i];
+                        all_samples[d.id]= d.patient_id;
+                    };
+                    return all_samples;
+                };
 		
 
 		return dm_ret;

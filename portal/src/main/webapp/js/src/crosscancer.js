@@ -400,7 +400,7 @@
                                         var sLink = _.template($("#study-link-tmpl").html());
                                         var link = $(sLink({
                                             study: d,
-                                            genes: orgQuery
+                                            genes: encodeURIComponent(orgQuery)
                                         })).attr("href");
 
                                         window.open(link);

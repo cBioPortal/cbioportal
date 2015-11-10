@@ -24,6 +24,8 @@ public class DBMutationData extends DBProfileData implements Serializable {
     public String chr;
     public String start_position;
     public String end_position;
+    public String protein_start_position;
+    public String protein_end_position;
     public String reference_allele;
     public String variant_allele;
     public String reference_read_count_tumor;

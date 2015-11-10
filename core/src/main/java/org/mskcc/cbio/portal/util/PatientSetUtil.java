@@ -76,8 +76,8 @@ public class PatientSetUtil
 				{
 					invalidSample.add(sampleId);
 				}
-			}
-		}
+                            }
+				}
 		
 		return invalidSample;
 	}

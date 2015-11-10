@@ -264,6 +264,9 @@
 .smallTable thead th {
     font-size: 10px !important;
 }
+.regularTable thead th {
+    font-size: 12px !important;
+}
 
 #dataTable_info {
     float: left;

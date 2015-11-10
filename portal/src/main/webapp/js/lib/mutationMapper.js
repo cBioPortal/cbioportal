@@ -11510,6 +11510,11 @@ function Mutation3dVis(name, options)
 
 			// run script
 			_3dApp.script(script, callback);
+
+			if (_container != null)
+			{
+				$(_container).resize();
+			}
 		};
 
 		var loadPdb = _scriptGen.loadPdb(pdbId, loadCallback);

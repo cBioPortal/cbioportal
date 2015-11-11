@@ -76,7 +76,7 @@
     } else {
 %>
 
-<div id="tabs" style="overflow: hidden">
+<div id="tabs">
     <ul>
     <%
         Boolean showMutTab = false;

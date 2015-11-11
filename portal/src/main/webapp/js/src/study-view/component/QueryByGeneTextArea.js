@@ -90,26 +90,23 @@ var QueryByGeneTextArea  = (function() {
             // switch from focusIn to focusOut and set the focus out text
             $(areaId).switchClass("expandFocusIn", "expandFocusOut", 500);
             setFocusOutText();
-            enableSubmitButton();
+            //enableSubmitButton();
         }
         // update the gene tables for highlighting
         if(updateGeneCallBack != undefined) updateGeneCallBack(geneList);
     }
 
-    function enableSubmitButton(){
-        $(submitButtonId).removeAttr('disabled').removeClass("disabled");
+    function validateGenes(callback){
+        geneValidator.validateGenes(callback, false);
     }
 
-    function disableSubmitButton(){
-        $(submitButtonId).attr('disabled','disabled').addClass("disabled");
-    }
 
     // initialise events
     function initEvents(){
         // add the focusin event
         $(areaId).focusin(function () {
             $(this).switchClass("expandFocusOut", "expandFocusIn", 500);
-            disableSubmitButton();
+            //disableSubmitButton();
             setFocusInText();
         });
 
@@ -136,7 +133,8 @@ var QueryByGeneTextArea  = (function() {
         addRemoveGene: addRemoveGene,
         getGenes: getGenes,
         getNrGenes: getNrGenes,
-        isEmpty: isEmpty
+        isEmpty: isEmpty,
+        validateGenes: validateGenes
     }
 
 })();

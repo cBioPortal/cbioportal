@@ -141,10 +141,15 @@ var StudyViewInitTopComponents = (function() {
             cbio.download.initDownload(content, downloadOpts);
         });
 
-        $("#study-view-form").submit(function(){
+
+        $("#study-view-form").click(function(event){
             // add the necessary fields to the form
-            if(!QueryByGeneTextArea.isEmpty()) QueryByGeneUtil.addStudyViewFields();
+            if(!QueryByGeneTextArea.isEmpty()) {
+                event.preventDefault();
+                QueryByGeneTextArea.validateGenes(decideSubmit, false);
+            }
         });
+
 
         $("#study-view-header-left-1").hover(function () {
             $("#query-by-gene-textarea").css("outline", "-webkit-focus-ring-color auto 5px");
@@ -166,6 +171,16 @@ var StudyViewInitTopComponents = (function() {
             $("#study-view-header-left-5").css("outline", "");
         });
 
+    }
+
+    // decide whether to proceed with the submit of the form
+    function decideSubmit(allValid){
+        // if all genes are valid, submit, otherwise show a notification
+        if(allValid){
+            QueryByGeneUtil.addStudyViewFields();
+            $("#study-view-form").trigger("submit");
+        }
+        else new Notification().createNotification("There were problems with the selected genes. Please fix.", {message_type: "danger"});
     }
 
     //The selected id should be sample based. Check patient list if unidentified id exists.

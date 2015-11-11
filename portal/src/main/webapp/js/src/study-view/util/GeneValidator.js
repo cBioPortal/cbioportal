@@ -35,13 +35,20 @@ function GeneValidator(geneAreaId, emptyAreaMessage, updateGeneCallback){
     var self = this;
     var nrOfNotifications=0;
 
+    var showNotification;
+
     this.init = function(){
         console.log(new Date() + " init called for "+geneAreaId);
-        $(geneAreaId).bind('input propertychange', validateGenes);
+        // create a debounced validator
+        var debouncedValidation = _.debounce(this.validateGenes, 1000);
+        $(geneAreaId).bind('input propertychange', debouncedValidation);
     }
 
-    var validateGenes = _.debounce(function(e){
+    this.validateGenes = function(callback, show){
         console.log(new Date() + " validating genes in "+geneAreaId);
+
+        // store whether to show notifications
+        showNotification=(show===undefined)?true:show;
 
         // if the content of the geneArea equals the emptyAreaMessage, return
         // This prevents the validator from interpreting e.g. "This is an empty area, click here to add genes"
@@ -49,22 +56,23 @@ function GeneValidator(geneAreaId, emptyAreaMessage, updateGeneCallback){
         if(emptyAreaMessage===$(geneAreaId).val()) return;
 
         // clear all existing notifications
-        clearAllNotifications();
+        if(showNotification) clearAllNotifications();
 
         // clean the textArea string, removing doubles and non-word characters (except -)
         var genesStr = self.cleanAreaString().join(" ")
         $(geneAreaId).val(genesStr);
 
         var genes = [];
+        var allValid = true;
 
         $.post('CheckGeneSymbol.json', { 'genes': genesStr })
             .done(function(symbolResults) {
-                var allValid = true;
+
 
                 // If the number of genes is more than 100, show an error
                 if(symbolResults.length > 100) {
                     addNotification("<b>You have entered more than 100 genes.</b><br>Please enter fewer genes for better performance", "danger");
-                    return;
+                    allValid=false;
                 }
 
                 // handle each symbol found
@@ -78,9 +86,12 @@ function GeneValidator(geneAreaId, emptyAreaMessage, updateGeneCallback){
             })
             .fail(function(xhr,  textStatus, errorThrown){
                 addNotification("There was a problem: "+errorThrown, "danger");
+                allValid=false;
+            })
+            .always(function(){
+                if($.isFunction(callback)) callback(allValid);
             });
-    }, 1000);
-
+    }
 
     // return whether there are any active notifications
     this.noActiveNotifications = function(){
@@ -102,8 +113,10 @@ function GeneValidator(geneAreaId, emptyAreaMessage, updateGeneCallback){
 
     // create a notification of a certain type
     function addNotification(message, message_type){
-        notificationSettings.message_type = message_type;
-        new Notification().createNotification(message, notificationSettings);
+        //if(showNotification) {
+            notificationSettings.message_type = message_type;
+            new Notification().createNotification(message, notificationSettings);
+        //}
         nrOfNotifications = $(".alert").length;
     }
 
@@ -136,14 +149,14 @@ function GeneValidator(geneAreaId, emptyAreaMessage, updateGeneCallback){
 
         // 1 symbol
         if(aResult.symbols.length == 1) {
-            if(aResult.symbols[0].toUpperCase() != aResult.name.toUpperCase())
+            if(aResult.symbols[0].toUpperCase() != aResult.name.toUpperCase() && showNotification)
                 handleSynonyms(aResult);
             else
                 valid=true;
         }
-        else if(aResult.symbols.length > 1)
+        else if(aResult.symbols.length > 1 && showNotification)
             handleMultiple(aResult)
-        else
+        else if(showNotification)
             handleSymbolNotFound(aResult);
 
         return valid;
@@ -263,7 +276,6 @@ function GeneValidator(geneAreaId, emptyAreaMessage, updateGeneCallback){
         message_type: "warning",
         custom_class: "geneValidationNotification",
         allow_dismiss: true,
-        placement_align: "right",
         spacing: 10,
         delay: 0,
         timer: 0

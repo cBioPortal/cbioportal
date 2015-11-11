@@ -394,7 +394,7 @@ public final class DaoCancerStudy {
     public static boolean doesCancerStudyExistByStableId(String cancerStudyStableId) {
         if (studyNeedsRecaching(cancerStudyStableId)) {
                     System.out.print("Study "+cancerStudyStableId+" updated.");
-            reCacheAll(System.currentTimeMillis());
+//            reCacheAll(System.currentTimeMillis());
         }
         return byStableId.containsKey(cancerStudyStableId);
     }

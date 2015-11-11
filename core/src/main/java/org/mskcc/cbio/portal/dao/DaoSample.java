@@ -204,6 +204,7 @@ public class DaoSample {
     {
         Map<String, Sample> samples = byCancerStudyIdAndStableSampleId.get(cancerStudyId);
         if (samples==null) {
+            System.err.println("Couldn't find sample "+stableSampleId+" in study "+cancerStudyId);
             return null;
         }
         

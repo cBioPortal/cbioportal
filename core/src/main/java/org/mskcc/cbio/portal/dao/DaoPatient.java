@@ -51,10 +51,6 @@ public class DaoPatient {
     private static final Map<Integer, Set<Patient>> byInternalCancerStudyId = new ConcurrentHashMap<Integer, Set<Patient>>();
     private static final MultiKeyMap byCancerIdAndStablePatientId = new MultiKeyMap();
 
-    static {
-        reCache();
-    }
-
     private static void clearCache()
     {
         byInternalId.clear();

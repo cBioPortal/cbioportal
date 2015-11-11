@@ -51,11 +51,7 @@ public final class DaoGeneticProfile {
     private static final Map<String,GeneticProfile> byStableId = new ConcurrentHashMap<String,GeneticProfile>();
     private static final Map<Integer,GeneticProfile> byInternalId = new ConcurrentHashMap<Integer,GeneticProfile>();
     private static final Map<Integer,List<GeneticProfile>> byStudy = new ConcurrentHashMap<Integer,List<GeneticProfile>>();
-    
-    static {
-        reCache();
-    }
-    
+
     public static synchronized void reCache() {
         byStableId.clear();
         byInternalId.clear();

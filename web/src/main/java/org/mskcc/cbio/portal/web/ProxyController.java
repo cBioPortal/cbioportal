@@ -71,7 +71,6 @@ public class ProxyController
   {
 
     RestTemplate restTemplate = new RestTemplate();
-    String[] parseJsonLink = {"oncokb", "oncokbSummary"};
     String URL = null;
 
     //Switch could be replaced by a filter function
@@ -81,12 +80,6 @@ public class ProxyController
         break;
       case "oncokbAccess":
         URL = oncokbURL + "access";
-        break;
-      case "oncokb":
-        URL = oncokbURL + "evidence.json";
-        break;
-      case "oncokbSummary":
-        URL = oncokbURL + "summary.json";
         break;
       default:
         URL = "";
@@ -100,15 +93,22 @@ public class ProxyController
 
     URI uri = new URI(URL);
 
-    String type = request.getContentType();
-    //For oncokb use, if request method is POST, use request body instead. Convert string request body to json string
-    if(method.equals(HttpMethod.POST) && Arrays.asList(parseJsonLink).contains(path)) {
-      JSONObject jsonObj = requestParamsToJSON(request);
-      body = jsonObj.toJSONString();
-    }
-
     ResponseEntity<String> responseEntity =
             restTemplate.exchange(uri, method, new HttpEntity<String>(body), String.class);
+
+    return responseEntity.getBody();
+  }
+
+  @RequestMapping(value="/oncokb", method = RequestMethod.POST)
+  public @ResponseBody String getOncoKB(@RequestBody JSONObject body, HttpMethod method,
+                                          HttpServletRequest request, HttpServletResponse response) throws URISyntaxException
+  {
+
+    RestTemplate restTemplate = new RestTemplate();
+    URI uri = new URI(oncokbURL + "evidence.json");
+
+    ResponseEntity<String> responseEntity =
+            restTemplate.exchange(uri, HttpMethod.POST, new HttpEntity<JSONObject>(body), String.class);
 
     return responseEntity.getBody();
   }

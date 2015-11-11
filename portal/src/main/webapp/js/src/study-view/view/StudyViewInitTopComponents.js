@@ -105,19 +105,32 @@ var StudyViewInitTopComponents = (function() {
             var content = '';
             var sampleIds = StudyViewInitCharts.getSelectedCasesID();
             var attr = StudyViewProxy.getAttrData();
-            var arr = StudyViewProxy.getArrDataBySampleIds(sampleIds);
-            attr.forEach(function(e) {
-                content += (e.display_name||'Unknown') + '\t';
-            });
-            content = content.slice(0,-1);
+            var arr = [];
+            var attrL = 0, arrL = 0;
+            var strA = [];
 
-            arr.forEach(function(e){
-                content += '\r\n';
-                attr.forEach(function(e1){
-                    content += e[e1.attr_id] + '\t';
-                });
-                content = content.slice(0,-1);
-            });
+            if (sampleIds.length === StudyViewProxy.getSampleIds().length) {
+                arr = StudyViewProxy.getArrData();
+            } else {
+                arr = StudyViewProxy.getArrDataBySampleIds(sampleIds);
+            }
+
+            attrL = attr.length;
+            for (var i = 0; i < attrL; i++) {
+                strA.push(attr[i].display_name || 'Unknown');
+            }
+            content = strA.join('\t');
+            strA.length =0;
+
+            arrL = arr.length;
+
+            for (var i = 0; i < arrL; i++) {
+                strA.length = 0;
+                for (var j = 0; j < attrL; j++) {
+                    strA.push(arr[i][attr[j].attr_id]);
+                }
+                content += '\r\n' + strA.join('\t');
+            }
 
             var downloadOpts = {
                 filename: StudyViewParams.params.studyId + "_clinical_data.txt",

@@ -40,6 +40,7 @@ import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.*;
 import org.owasp.validator.html.PolicyException;
+import org.springframework.security.core.userdetails.UserDetails;
 
 /**
  *
@@ -103,15 +104,9 @@ public class CancerStudyView extends HttpServlet {
     private boolean validate(HttpServletRequest request) throws DaoException {
         String cancerStudyID = request.getParameter(QueryBuilder.CANCER_STUDY_ID);
 
-		DaoCancerStudy.Status status = DaoCancerStudy.getStatus(cancerStudyID);
-		if (status != DaoCancerStudy.Status.AVAILABLE) {
-			if (status == DaoCancerStudy.Status.RECACHE) {
-				DaoCancerStudy.reCacheAll();
-			}
-			else {
-				request.setAttribute(ERROR, "The selected cancer study is currently being updated, please try back later.");
-				return false;
-			}
+		if (DaoCancerStudy.getStatus(cancerStudyID) == DaoCancerStudy.Status.UNAVAILABLE) {
+			request.setAttribute(ERROR, "The selected cancer study is currently being updated, please try back later.");
+			return false;
 		}
         
         CancerStudy cancerStudy = DaoCancerStudy
@@ -134,6 +129,12 @@ public class CancerStudyView extends HttpServlet {
                     "You are not authorized to view the cancer study with id: '" +
                     cancerStudyIdentifier + "'. ");
             return false;
+        }
+        else {
+            UserDetails ud = accessControl.getUserDetails();
+            if (ud != null) {
+                logger.info("CancerStudyView.validate: Query initiated by user: " + ud.getUsername());
+            }
         }
         
         String patientListId = (String)request.getAttribute(QueryBuilder.CASE_SET_ID);

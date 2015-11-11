@@ -76,7 +76,7 @@
     } else {
 %>
 
-<div id="tabs">
+<div id="tabs" style="overflow: hidden">
     <ul>
     <%
         Boolean showMutTab = false;
@@ -164,8 +164,7 @@
                 out.println ("<li><a href='#coexp' class='result-tab' id='coexp-result-tab'>Co-Expression</a></li>");
             }
             if (has_mrna || has_copy_no || showMutTab) {
-                out.println("<li><a href='#or_analysis' id='enrichments-result-tab' class='result-tab' style='height: 18px;'>Enrichments&nbsp;" +
-                 "<span class='new-feature-label'>&nbsp;New&nbsp;</span></a></li>");
+                out.println("<li><a href='#or_analysis' id='enrichments-result-tab' class='result-tab' style='height: 18px;'>Enrichments</a></li>");
             }
             if (has_survival) {
                 out.println ("<li><a href='#survival' class='result-tab' id='survival-result-tab'>Survival</a></li>");
@@ -269,39 +268,49 @@
 </form>
 
 <script type="text/javascript">
-    // initially hide network tab
-    $("div.section#network").attr('style', 'height: 0px; width: 0px; visibility: hidden;');
-
     // it is better to check selected tab after document gets ready
     $(document).ready(function() {
         var firstTime = true;
 
         $("#toggle_query_form").tipTip();
         // check if network tab is initially selected
-        // TODO this depends on aria-hidden attribute which may not be safe...
+        if ($("div.section#network").is(":visible"))
+        {
+            // init the network tab
+	        //send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
+	        //firstTime = false;
 
-        if ($("div.section#network").attr('aria-hidden') == "false"){
-            // make the network tab visible...
-            $("div.section#network").removeAttr('style');
+	        // TODO window.networkGraphJSON is null at this point,
+	        // this is a workaround to wait for graphJSON to get ready
+	        var interval = setInterval(function() {
+		        if (window.networkGraphJSON != null)
+		        {
+			        clearInterval(interval);
+			        if (firstTime)
+			        {
+				        send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
+				        firstTime = false;
+			        }
+		        }
+	        }, 50);
         }
-
 
         $("a.result-tab").click(function(){
 
             if($(this).attr("href")=="#network") {
-                // to fix problem of flash repainting
-                $("div.section#network").removeAttr('style');
-
                 if(firstTime)
                 {
                   send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
                   firstTime = false;
                 }
+	            else
+                {
+	                // TODO this is a workaround to adjust cytoscape canvas
+	                // and probably not the best way to do it...
+	                $(window).resize();
+                }
 
             } else {
-                // since we never allow display:none we should adjust visibility, height, and width properties
-                $("div.section#network").attr('style', 'height: 0px; width: 0px; visibility: hidden;');
-
                 if($(this).attr("href")=="#bookmark_email") {
                     $("#bookmark-link").attr("href",window.location.href);
                 }

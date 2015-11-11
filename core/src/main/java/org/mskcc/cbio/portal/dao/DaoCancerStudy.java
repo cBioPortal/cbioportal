@@ -66,11 +66,11 @@ public final class DaoCancerStudy {
     
     static {
         SpringUtil.initDataSource();
-        reCache();
+        reCacheAll();
     }
 
     public static synchronized void reCacheAll() {
-		reCache();
+		DaoCancerStudy.reCache();
 		DaoGeneticProfile.reCache();
 		DaoPatient.reCache();
 		DaoSample.reCache();

@@ -69,8 +69,7 @@ public final class DaoCancerStudy {
         reCache();
     }
 
-	public static void reCacheAll()
-	{
+    public static synchronized void reCacheAll() {
 		reCache();
 		DaoGeneticProfile.reCache();
 		DaoPatient.reCache();

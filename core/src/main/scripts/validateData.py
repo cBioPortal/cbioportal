@@ -381,7 +381,7 @@ class Validator(object):
 
     def __init__(self,filename,hugo_entrez_map,fix,verbose,stableId):
         self.filename = filename
-        self.filenameShort = filename.split('/')[-1]
+        self.filenameShort = os.path.basename(filename)
         self.file = open(filename, 'rU')
         self.lineCount = 0
         self.sampleIds = set()
@@ -404,12 +404,14 @@ class Validator(object):
         self.badChars = [' ']
 
         if fix:
-            self.correctedFilename = self.filename.split('/')[-1][:-4]+'_'+self.stableId+'.txt'
+            self.correctedFilename = '{basename}_{stable_id}.txt'.format(
+                basename=os.path.splitext(os.path.basename(self.filename))[0],
+                stable_id=self.stableId)
             self.correctedFile = open(self.correctedFilename,'w')
 
     def validate(self):
         """Validate method - initiates validation of file."""
-        print >> OUTPUT_BUFFER, 'Validating ' + self.filename.split('/')[-1]
+        print >> OUTPUT_BUFFER, 'Validating ' + os.path.basename(self.filename)
 
         self.checkLineBreaks()
         self.checkQuotes()
@@ -434,7 +436,7 @@ class Validator(object):
             self.correctedFile.close()
 
     def printComplete(self):
-        print >> OUTPUT_BUFFER, 'Validation of ' + self.filename.split('/')[-1] + ' complete\n'
+        print >> OUTPUT_BUFFER, 'Validation of ' + os.path.basename(self.filename) + ' complete\n'
 
     def checkHeader(self,line):
         """Header check function. Checks that header has the correct items, removes any quotes."""
@@ -1233,7 +1235,7 @@ def segMetaCheck(segvalidator,filenameCheck):
             exitcode = 1
 
 def getFileFromFilepath(f):
-    return f.split('/')[-1].strip()
+    return os.path.basename(f.strip())
 
 def processCaseListDirectory(caseListDir,sampleIdSets):
     print >> OUTPUT_BUFFER, 'Validating Case_Lists'
@@ -1382,7 +1384,7 @@ def main():
                     metafiles.append(SEG_META_PATTERN)
                     filenameMetaStringCheck = cancerStudyId + '_meta_cna_' + GENOMIC_BUILD_COUNTERPART + '_seg.txt'
                     filenameStringCheck = cancerStudyId + '_data_cna_' + GENOMIC_BUILD_COUNTERPART + '.seg'
-                    if filenameMetaStringCheck != f.split('/')[-1]:
+                    if filenameMetaStringCheck != os.path.basename(f):
                         print >> OUTPUT_BUFFER, 'Meta file for .seg named incorrectly.\n' + \
                             '\tExpected:\t' + filenameMetaStringCheck + '\n' + \
                             '\tFound:\t' + f
@@ -1390,7 +1392,7 @@ def main():
 
                     seg_data_filename = meta['data_filename']
                     if meta.get('reference_genome_id').strip() != GENOMIC_BUILD_COUNTERPART.strip():
-                        print >> OUTPUT_BUFFER, 'FATAL: reference_genome_id in ' + f.split('/')[-1].strip() + \
+                        print >> OUTPUT_BUFFER, 'FATAL: reference_genome_id in ' + os.path.basename(f.strip()) + \
                             ' incorrect\n\t\tExpected:\t' + GENOMIC_BUILD_COUNTERPART + \
                             '\n\t\tFound:\t' + meta.get('reference_genome_id').strip()
                         exitcode = 1

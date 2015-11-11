@@ -380,7 +380,7 @@ public final class DaoCancerStudy {
 	{
 		if (studyNeedsRecaching(stableId)) {
                     System.out.print("Study "+stableId+" updated.");
-			reCacheAll(System.currentTimeMillis());
+//			reCacheAll(System.currentTimeMillis());
 		}
         return byStableId.get(stableId);
     }

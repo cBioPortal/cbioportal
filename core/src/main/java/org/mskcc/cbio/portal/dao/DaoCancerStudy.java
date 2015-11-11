@@ -70,7 +70,7 @@ public final class DaoCancerStudy {
         reCacheAll(System.currentTimeMillis());
     }
 
-    public static synchronized void reCacheAll(long time) {
+    private static synchronized void reCacheAll(long time) {
         if (lastCached >= time) {
             return;
         }
@@ -363,9 +363,10 @@ public final class DaoCancerStudy {
      */
     public static CancerStudy getCancerStudyByInternalId(int internalId) throws DaoException
 	{
-		if (studyNeedsRecaching(null, internalId)) {
-                    System.out.print("Study "+internalId+" updated.");
-			reCacheAll(System.currentTimeMillis());
+		if (GlobalProperties.getRecacheStudyAfterUpdate()
+                        && studyNeedsRecaching(null, internalId)) {
+                    System.out.print("Study with internal ID of "+internalId+" updated.");
+                    reCacheAll(System.currentTimeMillis());
 		}
         return byInternalId.get(internalId);
     }
@@ -378,9 +379,10 @@ public final class DaoCancerStudy {
      */
     public static CancerStudy getCancerStudyByStableId(String stableId) throws DaoException
 	{
-		if (studyNeedsRecaching(stableId)) {
+		if (GlobalProperties.getRecacheStudyAfterUpdate()
+                        && studyNeedsRecaching(stableId)) {
                     System.out.print("Study "+stableId+" updated.");
-//			reCacheAll(System.currentTimeMillis());
+                    reCacheAll(System.currentTimeMillis());
 		}
         return byStableId.get(stableId);
     }
@@ -392,9 +394,10 @@ public final class DaoCancerStudy {
      * @return true if the CancerStudy exists, otherwise false
      */
     public static boolean doesCancerStudyExistByStableId(String cancerStudyStableId) {
-        if (studyNeedsRecaching(cancerStudyStableId)) {
-                    System.out.print("Study "+cancerStudyStableId+" updated.");
-//            reCacheAll(System.currentTimeMillis());
+        if (GlobalProperties.getRecacheStudyAfterUpdate()
+                        && studyNeedsRecaching(cancerStudyStableId)) {
+            System.out.print("Study "+cancerStudyStableId+" updated.");
+            reCacheAll(System.currentTimeMillis());
         }
         return byStableId.containsKey(cancerStudyStableId);
     }
@@ -407,8 +410,9 @@ public final class DaoCancerStudy {
      * @return true if the CancerStudy exists, otherwise false
      */
     public static boolean doesCancerStudyExistByInternalId(int internalCancerStudyId) {
-        if (studyNeedsRecaching(null, internalCancerStudyId)) {
-                    System.out.print("Study "+internalCancerStudyId+" updated.");
+        if (GlobalProperties.getRecacheStudyAfterUpdate()
+                        && studyNeedsRecaching(null, internalCancerStudyId)) {
+            System.out.print("Study with internal ID of "+internalCancerStudyId+" updated.");
             reCacheAll(System.currentTimeMillis());
         }
         return byInternalId.containsKey(internalCancerStudyId);
@@ -420,7 +424,8 @@ public final class DaoCancerStudy {
      * @return ArrayList of all CancerStudy Objects.
      */
     public static ArrayList<CancerStudy> getAllCancerStudies() {
-        if (cacheOutOfSyncWithDb()) {
+        if (GlobalProperties.getRecacheStudyAfterUpdate()
+                        && cacheOutOfSyncWithDb()) {
             System.out.print("cache out of sync updated.");
             reCacheAll(System.currentTimeMillis());
         }
@@ -432,7 +437,8 @@ public final class DaoCancerStudy {
      * @return number of cancer studies.
      */
     public static int getCount() {
-        if (cacheOutOfSyncWithDb()) {
+        if (GlobalProperties.getRecacheStudyAfterUpdate()
+                        && cacheOutOfSyncWithDb()) {
             System.out.print("cache out of sync updated.");
             reCacheAll(System.currentTimeMillis());
         }
@@ -549,7 +555,9 @@ public final class DaoCancerStudy {
             JdbcUtil.closeAll(DaoCancerStudy.class, con, pstmt, rs);
         }
         System.out.print("delete a study "+internalCancerStudyId);
-        reCacheAll(System.currentTimeMillis());
+        if (GlobalProperties.getRecacheStudyAfterUpdate()) {           
+            reCacheAll(System.currentTimeMillis());
+        }
     }
 
     /**
@@ -570,30 +578,29 @@ public final class DaoCancerStudy {
         return cancerStudy;
     }
 
-	private static boolean studyNeedsRecaching(String stableId, Integer ... internalId)
-	{
-        if (cacheOutOfSyncWithDb()) {
-            return true;
-        }
-		try {
-			java.util.Date importDate = null;
-			java.util.Date cacheDate = null;
-    		if (internalId.length > 0) {
-				importDate = getImportDate(null, internalId[0]);
-				cacheDate = cacheDateByInternalId.get(internalId[0]);
-			}
-			else {
-				if (stableId.equals(org.mskcc.cbio.portal.util.AccessControl.ALL_CANCER_STUDIES_ID)) {
-					return false;
-				}
-				importDate = getImportDate(stableId);
-				cacheDate = cacheDateByStableId.get(stableId);
-			}
-			return (importDate == null || cacheDate == null) ? true : cacheDate.before(importDate);
-		}
-		catch (ParseException e) {
-			return false;
-		}
+	private static boolean studyNeedsRecaching(String stableId, Integer ... internalId) {
+            if (cacheOutOfSyncWithDb()) {
+                return true;
+            }
+
+            try {
+                java.util.Date importDate = null;
+                java.util.Date cacheDate = null;
+                if (internalId.length > 0) {
+                    importDate = getImportDate(null, internalId[0]);
+                    cacheDate = cacheDateByInternalId.get(internalId[0]);
+                } else {
+                    if (stableId.equals(org.mskcc.cbio.portal.util.AccessControl.ALL_CANCER_STUDIES_ID)) {
+                        return false;
+                    }
+                    importDate = getImportDate(stableId);
+                    cacheDate = cacheDateByStableId.get(stableId);
+                }
+                
+                return (importDate == null || cacheDate == null) ? false : cacheDate.before(importDate);
+            } catch (ParseException e) {
+                    return false;
+            }
         catch (DaoException e) {
             return false;
         }

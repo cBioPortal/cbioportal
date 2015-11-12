@@ -51,7 +51,7 @@
         var histBottom = 400;
         var fontFamily = "sans-serif";
         var animationDuration = 1000;
-	var maxStudyBarWidth = 30;
+	    var maxStudyBarWidth = 30;
 
         var defaultQTipOptions = {
             content: {
@@ -1023,6 +1023,11 @@
                                                 tip: "OncoKB Annotation",
                                                 sType: "string",
                                                 sClass: "center-align-td"
+                                            },
+                                            proteinChange: {
+                                                sTitle: "AA change",
+                                                tip: "Protein Change<br/><input type='checkbox' id='oncokb-crosscancer'/>OncoKB ",
+                                                sType: "numeric"
                                             }
                                         },
                                         columnOrder: [
@@ -1133,6 +1138,31 @@
                                                     });
                                                 }
                                             }
+                                        },
+                                        columnSort: {
+                                            "proteinChange": function(datum) {
+                                                var proteinChange = datum.mutation.proteinChange;
+
+                                                //Use to change sort method
+                                                var flag = OncoKB.getCustomObject('DataTableSortFlag');
+                                                var matched = proteinChange.match(/.*[A-Z]([0-9]+)[^0-9]+/);
+
+                                                if(flag) {
+                                                    if(flag === 'oncokb') {
+                                                        if(!datum.oncokb) {
+                                                            return -Infinity;
+                                                        }
+                                                    }
+                                                }
+                                                if (matched && matched.length > 1)
+                                                {
+                                                    return parseInt(matched[1]);
+                                                }
+                                                else
+                                                {
+                                                    return -Infinity;
+                                                }
+                                            }
                                         }
                                     }
                                 }});
@@ -1199,6 +1229,11 @@
 	                            "Mutations", // name of the mutations tab
 	                            _mut3dVis);
 
+
+
+                            $('#oncokb-crosscancer').click(function () {
+                                OncoKB.addCustomObject('DataTableSortFlag', 'OncoKB');
+                            })
                             // end of mutation details
 
                         });

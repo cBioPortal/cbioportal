@@ -190,6 +190,7 @@
                         .collapseAll()
                         .toggleTrackCollapse("SPECIMEN")
                         .enableTrackTooltips(false)
+                        .enableZoom(false)
                         .addPostTimelineHook(plotCaseLabelsInTimeline);
                 timeline();
                 $("#timeline-container").show();

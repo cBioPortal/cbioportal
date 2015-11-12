@@ -69,6 +69,7 @@ table.customize-options td{
     width: 350px;
 }
 
+.diagram-total-nr-altered-samples-max-label,
 .diagram-min-nr-altered-samples-max-label {
 	float: right;
 	width: 50%;
@@ -106,4 +107,8 @@ table.customize-options td{
     color: gray;
 }
 
+
+.gene-details-tabs-ref{
+    font-size:11px!important;
+}
 

@@ -222,6 +222,7 @@ var CustomizeHistogramView = Backbone.View.extend({
      this.addSortByYAxisSelect();
      this.addSortByXAxisSelect();
      this.addNrAlteredSamplesSlider();
+     this.addNrTotalSamplesSlider();
      this.addShowGenomicAlterationTypesCheckbox();
      this.addcancerTypeDetailedView();
   },
@@ -291,6 +292,15 @@ var CustomizeHistogramView = Backbone.View.extend({
     	 model:this.model,
     	 dmPresenter:this.dmPresenter});
   },
+    // add the slider for total number of altered samples
+    addNrTotalSamplesSlider: function(){
+        new MinTotalSamplesSliderView({
+            gene:this.gene,
+            el:"#customize-total-nr-altered-samples-slider-"+this.gene,
+            dispatcher:this.dispatcher,
+            model:this.model,
+            dmPresenter:this.dmPresenter});
+    },
 
   // add checkbox for genomic alteration types
   addShowGenomicAlterationTypesCheckbox: function(){
@@ -405,6 +415,63 @@ var MinAlteredSamplesSliderView = Backbone.View.extend({
   }
 
 }); // end MinAlteredSamplesSliderView
+
+// min number of total samples
+var MinTotalSamplesSliderView = Backbone.View.extend({
+
+    initialize: function(options){
+        this.dispatcher = options.dispatcher;
+        this.gene = options.gene;
+        this.dmPresenter = options.dmPresenter;
+        this.render();
+        // call render when the model is changed
+        this.model.on("change", this.updateRender, this);
+    },
+
+    events: {
+        'slidechange .diagram-total-nr-altered-samples-slider': 'handleSliderChange'
+    },
+
+    //function for model.onchange above, it will check whether the slider max threshold needs
+    //to be updated:
+    updateRender: function(){
+        var renderNeeded = this.model.hasChanged("cancerType");
+        if (renderNeeded)
+            this.render();
+    },
+
+    render: function(){
+        // find the maximum number of samples for the cancertype
+        this.max = this.dmPresenter.getMaxSamplesForCancerType(this.model.get("cancerType"));
+
+        var templateFn = PanCancerTemplateCache.getTemplateFn("nr_total_samples_slider_template");
+        this.template = templateFn({min:0, max:this.max});
+
+        // add the template
+        $(this.el).html(this.template);
+
+        // create the jQuery ui slider
+        var sampleSlider = this.$el.find(".diagram-total-nr-altered-samples-slider");
+        sampleSlider.slider({
+            value: 0,
+            min: 0,
+            max: this.max
+        });
+        //synchronize model:
+        this.model.set("minTotalSamples", 0);
+    },
+
+    // handle change to the slider
+    handleSliderChange: function(e, ui) {
+        var sampleText = this.$el.find(".diagram-total-nr-alter-samples-value");
+        console.log("GENE: "+this.gene);
+        // update text
+        sampleText.html(ui.value);
+        // and notify the histogram
+        this.model.set("minTotalSamples", ui.value);
+    }
+
+}); // end MinTotalSamplesSliderView
 
 
 /**
@@ -589,6 +656,7 @@ var HistogramSettings = Backbone.Model.extend({
      sortXAxis: "Y-Axis Values",
      dataTypeYAxis: "Alteration Frequency",
      minAlteredSamples: "0",
+     minTotalSamples: "0",
      showGenomicAlterationTypes: true
   },
   initialize: function(options) {
@@ -953,7 +1021,27 @@ function DataManagerPresenter(dmInitCallBack)
 		}
 
 	}
-	
+
+    // maybe already stored somewhere?
+    this.getMaxSamplesForCancerType = function(cancerType){
+        var nrSamples= 0, max=0;
+        if (cancerType == "All") {
+            var cancerTypes = this.getCancerTypeList();
+            for (var i = 0; i < cancerTypes.length; i++) {
+                nrSamples = this.getTotalNrSamplesPerCancerType(cancerTypes[i], null);
+                if(nrSamples>max) max=nrSamples;
+            }
+        }
+        else {
+            var cancerTypes = this.getCancerTypeDetailedList(cancerType);
+            for (var i = 0; i < cancerTypes.length; i++) {
+                nrSamples = this.getTotalNrSamplesPerCancerType(cancerType, cancerTypes[i]);
+                if(nrSamples>max) max=nrSamples;
+            }
+        }
+        return max;
+    }
+
 	/**
 	 * Returns the gene list chosen by user in query form.
 	 */

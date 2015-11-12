@@ -44,6 +44,8 @@
 <script src="js/lib/bootstrap-notify.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
+<script type="text/javascript" src="js/lib/backbone-min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script src="js/lib/packery.pkgd.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script src="js/lib/draggabilly.pkgd.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script src="js/lib/intro.min.js?<%=GlobalProperties.getAppVersion()%>"></script>

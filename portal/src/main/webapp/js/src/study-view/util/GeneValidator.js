@@ -31,11 +31,12 @@
  */
 
 // based on gene-symbol-validator.js
-function GeneValidator(geneAreaId, emptyAreaMessage, updateGeneCallback){
+//function GeneValidator(geneAreaId, emptyAreaMessage, updateGeneCallback){
+function GeneValidator(geneAreaId, geneModel){
     var self = this;
     var nrOfNotifications=0;
 
-    var showNotification;
+    var showNotification=true;
 
     this.init = function(){
         console.log(new Date() + " init called for "+geneAreaId);
@@ -50,25 +51,19 @@ function GeneValidator(geneAreaId, emptyAreaMessage, updateGeneCallback){
         // store whether to show notifications
         showNotification=(show===undefined)?true:show;
 
-        // if the content of the geneArea equals the emptyAreaMessage, return
-        // This prevents the validator from interpreting e.g. "This is an empty area, click here to add genes"
-        // as genes
-        if(emptyAreaMessage===$(geneAreaId).val()) return;
-
         // clear all existing notifications
         if(showNotification) clearAllNotifications();
 
         // clean the textArea string, removing doubles and non-word characters (except -)
-        var genesStr = self.cleanAreaString().join(" ")
-        $(geneAreaId).val(genesStr);
+        var genesStr = geneModel.getCleanGeneString();
+            //self.cleanAreaString(geneModel.get("geneString")).join(" ")
+        //$(geneAreaId).val(genesStr);
 
         var genes = [];
         var allValid = true;
 
         $.post('CheckGeneSymbol.json', { 'genes': genesStr })
             .done(function(symbolResults) {
-
-
                 // If the number of genes is more than 100, show an error
                 if(symbolResults.length > 100) {
                     addNotification("<b>You have entered more than 100 genes.</b><br>Please enter fewer genes for better performance", "danger");
@@ -78,17 +73,19 @@ function GeneValidator(geneAreaId, emptyAreaMessage, updateGeneCallback){
                 // handle each symbol found
                 for(var j=0; j < symbolResults.length; j++) {
                     var valid = handleSymbol(symbolResults[j])
-                    if(!valid) allValid = false;
+                    if(!valid) {
+                        allValid = false;
+                    }
                 }
-
-                // call the callback function to ensure proper handling when all genes are actually valid
-                updateGeneCallback();
             })
             .fail(function(xhr,  textStatus, errorThrown){
                 addNotification("There was a problem: "+errorThrown, "danger");
                 allValid=false;
             })
             .always(function(){
+                // if not all valid, focus on the gene array for focusin trigger
+                if(!allValid) $(geneAreaId).focus();
+                // in case a submit was pressed, use the callback
                 if($.isFunction(callback)) callback(allValid);
             });
     }
@@ -98,17 +95,10 @@ function GeneValidator(geneAreaId, emptyAreaMessage, updateGeneCallback){
         return nrOfNotifications===0;
     }
 
-    // called when we're closing a notification
-    this.validatorCallBack = function(){
-        // decrease the number of existing notification by one
-        nrOfNotifications--;
-        // call the updateGeneCallback
-        updateGeneCallback();
-    }
-
     this.replaceAreaValue = function(geneName, newValue){
         var regexp = new RegExp("\\b"+geneName+"\\b","g");
-        $(geneAreaId).val($(geneAreaId).val().replace(regexp, newValue).trim());
+        var genesStr = geneModel.getCleanGeneString();
+        geneModel.set("geneString", genesStr.replace(regexp, newValue).trim());
     }
 
     // create a notification of a certain type
@@ -129,18 +119,6 @@ function GeneValidator(geneAreaId, emptyAreaMessage, updateGeneCallback){
         $(".geneValidationNotification").qtip("destroy");
         $(".geneValidationNotification").find("button").click();
         nrOfNotifications=0;
-    }
-
-    // helper for cleanAreaString
-    function removeEmptyElements(array){
-        return array.filter(function(el){ return el !== "" });
-    }
-
-    // clean the geneArea's string
-    // takes the value, transforms it to uppercase, splits by non-word, removes empty elements
-    // and removes doubles
-    this.cleanAreaString = function(){
-        return $.unique(removeEmptyElements($(geneAreaId).val().toUpperCase().split(/[^a-zA-Z0-9-]/))).reverse()
     }
 
     // handle one symbol
@@ -185,12 +163,12 @@ function GeneValidator(geneAreaId, emptyAreaMessage, updateGeneCallback){
 
         // when the dropdown is changed
         $("#"+gene).change(function() {
+            nrOfNotifications--;
             // replace the value in the text area
             self.replaceAreaValue($(this).attr("name"), $(this).attr("value"));
 
             // destroy the qtip if it's still there
             $(this).qtip("destroy");
-            self.validatorCallBack();
 
             // emulate a click on the selected child to dismiss the notification
             this.children[this.selectedIndex].click();
@@ -220,12 +198,12 @@ function GeneValidator(geneAreaId, emptyAreaMessage, updateGeneCallback){
         // add click event to our span
         // due to the class and data-notify, the click also removes the notification
         $("#"+gene).click(function(){
+            nrOfNotifications--;
             // replace the value in the text area
             self.replaceAreaValue($(this).attr("id"), $(this).attr("symbol"));
 
             // destroy the qtip if it's still here
             $(this).qtip("destroy");
-            self.validatorCallBack();
         });
 
         addQtip(gene, tipText);
@@ -248,12 +226,12 @@ function GeneValidator(geneAreaId, emptyAreaMessage, updateGeneCallback){
         // add click event to our span
         // due to the class and data-notify, the click also removes the notification
         $("#"+gene).click(function(){
+            nrOfNotifications--;
             // replace the value in the text area
             self.replaceAreaValue($(this).attr("id"), "");
 
             // destroy the qtip if it's still here
             $(this).qtip("destroy");
-            self.validatorCallBack();
         });
 
         addQtip(gene, tipText);

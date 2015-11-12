@@ -182,7 +182,7 @@ var StudyViewInitTopComponents = (function() {
         }
         else {
             new Notification().createNotification("There were problems with the selected genes. Please fix.", {message_type: "danger"});
-            QueryByGeneTextArea.setFocusOut();
+            $("#query-by-gene-textarea").focus();
         }
     }
 
@@ -280,7 +280,7 @@ var StudyViewInitTopComponents = (function() {
         init: function() {
             createDiv();
             addEvents();
-            QueryByGeneTextArea.init('#query-by-gene-textarea', '#study-view-header-left-1', StudyViewInitTables.updateGeneHighlights);
+            QueryByGeneTextArea.init('#query-by-gene-textarea', StudyViewInitTables.updateGeneHighlights);
         },
         
         changeHeader: changeHeader,

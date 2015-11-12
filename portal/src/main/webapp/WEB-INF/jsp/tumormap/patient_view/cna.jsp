@@ -137,6 +137,8 @@
                                     ret = "<span class='"+table_id+"-tip oncokb oncokb_gene' gene='"+gene+"' oncokbId='"+source[0]+"'>"+ret+"</span>";
                                 }else if(OncoKB.getAccess()){
                                     ret += "<img width='12' height='12' class='loader' src='images/ajax-loader.gif'/>";
+                                }else {
+                                    ret = "<span class='"+table_id+"-tip' alt='"+tip+"'>"+ret+"</span>";
                                 }
                                 return ret;
                             } else {

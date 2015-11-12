@@ -766,15 +766,15 @@ function DataManagerPresenter(dmInitCallBack)
 	console.log(new Date() + ": CALL to getGenomicEventData()");
 	window.QuerySession.getGenomicEventData()
 	.then(
-		function (data){
+		function (genomicEventData){
 			
 			console.log(new Date() + ": started processing getGenomicEventData() data");
 			
-			for (var i = 0; i < data.length; i++) {
+			for (var i = 0; i < genomicEventData.length; i++) {
 				//init alteration events, if not yet done
-				if (!self.sampleList[data[i].sample])
-					self.sampleList[data[i].sample] = {alterationEvents: []};
-				self.sampleList[data[i].sample].alterationEvents.push(data[i]); 
+				if (!self.sampleList[genomicEventData[i].sample])
+					self.sampleList[genomicEventData[i].sample] = {alterationEvents: []};
+				self.sampleList[genomicEventData[i].sample].alterationEvents.push(genomicEventData[i]);
 				
 			}
 			console.log(new Date() + ": finished processing getGenomicEventData() data");
@@ -788,35 +788,35 @@ function DataManagerPresenter(dmInitCallBack)
 			alert(" error found");//TODO - check how the error will come in and how we should present it. Logged in https://github.com/cBioPortal/cbioportal/issues/264
 		})
 	.then(
-		function (data){
+		function (sampleClinicalData){
 			//parse the data to the correct internal format. Here we can assume that the samples are only the ones 
 			//that comply with the query form parameters (e.g. the sample set ):
 			console.log(new Date() + ": started processing sample clinical atttributes (cancer types)");
 			
 			var sampleIdAndCancerTypeIdx = [];
-			for (var i = 0; i < data.length; i++)
+			for (var i = 0; i < sampleClinicalData.length; i++)
 			{
-				if (data[i].attr_id == "CANCER_TYPE")
+				if (sampleClinicalData[i].attr_id == "CANCER_TYPE")
 				{
 					//track cancer types and sample ids:
-					if (!self.cancerTypeList[data[i].attr_val])
-						self.cancerTypeList[data[i].attr_val] = {cancerTypeDetailed: [], sampleIds: []};
-					var cancerType = self.cancerTypeList[data[i].attr_val];
+					if (!self.cancerTypeList[sampleClinicalData[i].attr_val])
+						self.cancerTypeList[sampleClinicalData[i].attr_val] = {cancerTypeDetailed: [], sampleIds: []};
+					var cancerType = self.cancerTypeList[sampleClinicalData[i].attr_val];
 					//a sample contains only one cancer_type, so refer to it:
-					sampleIdAndCancerTypeIdx[data[i].sample] = cancerType;
-					cancerType.sampleIds.push(data[i].sample);
+					sampleIdAndCancerTypeIdx[sampleClinicalData[i].sample] = cancerType;
+					cancerType.sampleIds.push(sampleClinicalData[i].sample);
 					
 				}
 			}
-			for (var i = 0; i < data.length; i++)
+			for (var i = 0; i < sampleClinicalData.length; i++)
 			{
-				if (data[i].attr_id == "CANCER_TYPE_DETAILED")
+				if (sampleClinicalData[i].attr_id == "CANCER_TYPE_DETAILED")
 				{
 					//track cancer type detailed per cancer type:
-					var cancerType = sampleIdAndCancerTypeIdx[data[i].sample];
-					if (!cancerType.cancerTypeDetailed[data[i].attr_val])
-						cancerType.cancerTypeDetailed[data[i].attr_val] = {sampleIds: []};
-					cancerType.cancerTypeDetailed[data[i].attr_val].sampleIds.push(data[i].sample);
+					var cancerType = sampleIdAndCancerTypeIdx[sampleClinicalData[i].sample];
+					if (!cancerType.cancerTypeDetailed[sampleClinicalData[i].attr_val])
+						cancerType.cancerTypeDetailed[sampleClinicalData[i].attr_val] = {sampleIds: []};
+					cancerType.cancerTypeDetailed[sampleClinicalData[i].attr_val].sampleIds.push(sampleClinicalData[i].sample);
 				}
 			}
 			console.log(new Date() + ": finished processing sample clinical atttributes (cancer types)");
@@ -950,7 +950,7 @@ function DataManagerPresenter(dmInitCallBack)
 		        result.push(item);
 		    }
 		}		
-		return result;
+		return result.sort();
 	}
 	
 	/** 
@@ -972,7 +972,7 @@ function DataManagerPresenter(dmInitCallBack)
 			        result.push(item);
 			    }
 			}		
-			return result;
+			return result.sort();
 		}
 	}
 	

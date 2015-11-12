@@ -208,7 +208,7 @@
                                     ret += "<img width='12' height='12' class='loader' src='images/ajax-loader.gif'/>";
                                 } else {
                                     ret = "<div class='"+table_id
-                                            +"-tip' alt='"+tip+"'></div>";
+                                            +"-tip' alt='"+tip+"'>"+ret+"</div>";
                                 }
 
                                 return ret;

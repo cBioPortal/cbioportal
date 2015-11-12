@@ -38,7 +38,6 @@ import org.apache.commons.collections.map.MultiKeyMap;
 
 import java.sql.*;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * DAO to `patient`.
@@ -47,8 +46,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class DaoPatient {
 
-    private static final Map<Integer, Patient> byInternalId = new ConcurrentHashMap<Integer, Patient>();
-    private static final Map<Integer, Set<Patient>> byInternalCancerStudyId = new ConcurrentHashMap<Integer, Set<Patient>>();
+    private static final Map<Integer, Patient> byInternalId = new HashMap<Integer, Patient>();
+    private static final Map<Integer, Set<Patient>> byInternalCancerStudyId = new HashMap<Integer, Set<Patient>>();
     private static final MultiKeyMap byCancerIdAndStablePatientId = new MultiKeyMap();
 
     private static void clearCache()

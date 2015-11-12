@@ -40,7 +40,6 @@ import org.apache.commons.lang.StringUtils;
 import java.sql.*;
 import java.util.*;
 import java.text.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Analogous to and replaces the old DaoCancerType. A CancerStudy has a NAME and
@@ -59,10 +58,10 @@ public final class DaoCancerStudy {
 
     private DaoCancerStudy() {}
     
-    private static final Map<String, java.util.Date> cacheDateByStableId = new ConcurrentHashMap<String, java.util.Date>();
-    private static final Map<Integer, java.util.Date> cacheDateByInternalId = new ConcurrentHashMap<Integer, java.util.Date>();
-    private static final Map<String,CancerStudy> byStableId = new ConcurrentHashMap<String,CancerStudy>();
-    private static final Map<Integer,CancerStudy> byInternalId = new ConcurrentHashMap<Integer,CancerStudy>();
+    private static final Map<String, java.util.Date> cacheDateByStableId = new HashMap<String, java.util.Date>();
+    private static final Map<Integer, java.util.Date> cacheDateByInternalId = new HashMap<Integer, java.util.Date>();
+    private static final Map<String,CancerStudy> byStableId = new HashMap<String,CancerStudy>();
+    private static final Map<Integer,CancerStudy> byInternalId = new HashMap<Integer,CancerStudy>();
     private static long lastCached = Long.MIN_VALUE;
     
     static {

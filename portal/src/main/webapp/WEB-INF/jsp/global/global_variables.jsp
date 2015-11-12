@@ -366,7 +366,7 @@
     (function setUpDataManager() {
         var oql_html_conversion_vessel = document.createElement("div");
         oql_html_conversion_vessel.innerHTML = '<%=oql%>'.trim();
-        var converted_oql = oql_html_conversion_vessel.innerText.trim();
+        var converted_oql = oql_html_conversion_vessel.textContent.trim();
         window.QuerySession = window.initDatamanager('<%=geneticProfiles%>'.trim().split(/\s+/),
                                                             converted_oql,
                                                             ['<%=cancerTypeId%>'.trim()],

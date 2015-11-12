@@ -97,6 +97,9 @@ var QueryByGeneTextArea  = (function() {
     }
 
     function validateGenes(callback){
+        // set the content to focusIn to prevent validation on
+        // "g1, g2 and x more"
+        setFocusInText();
         geneValidator.validateGenes(callback, false);
     }
 
@@ -134,7 +137,8 @@ var QueryByGeneTextArea  = (function() {
         getGenes: getGenes,
         getNrGenes: getNrGenes,
         isEmpty: isEmpty,
-        validateGenes: validateGenes
+        validateGenes: validateGenes,
+        setFocusOut: setFocusOut
     }
 
 })();

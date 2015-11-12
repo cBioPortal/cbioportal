@@ -180,7 +180,10 @@ var StudyViewInitTopComponents = (function() {
             QueryByGeneUtil.addStudyViewFields();
             $("#study-view-form").trigger("submit");
         }
-        else new Notification().createNotification("There were problems with the selected genes. Please fix.", {message_type: "danger"});
+        else {
+            new Notification().createNotification("There were problems with the selected genes. Please fix.", {message_type: "danger"});
+            QueryByGeneTextArea.setFocusOut();
+        }
     }
 
     //The selected id should be sample based. Check patient list if unidentified id exists.

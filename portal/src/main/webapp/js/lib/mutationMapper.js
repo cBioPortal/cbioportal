@@ -10862,6 +10862,7 @@ function Mutation3dVis(name, options)
 			_3dApp = new JSmolWrapper();
 		}
 
+
 		// init app (with frames)
 		_3dApp.init(name, _options.appOptions, _options.frame);
 
@@ -12986,10 +12987,23 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 			if (colName != null)
 			{
 				var tip = _options.columns[colName].tip;
+				var opts = {};
 
-				//$(this).attr("alt", tip);
-				qTipOptionsHeader.content = {text: tip};
-				$(this).qtip(qTipOptionsHeader);
+				// merge qTip options with the provided options object
+				if(_.isObject(tip))
+				{
+					jQuery.extend(true, opts, qTipOptionsHeader, tip);
+				}
+				// if not an object, then assuming it is a string,
+				// just update the content
+				else
+				{
+					//$(this).attr("alt", tip);
+					qTipOptionsHeader.content = tip;
+					opts = qTipOptionsHeader;
+				}
+
+				$(this).qtip(opts);
 			}
 		});
 	}

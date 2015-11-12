@@ -38,7 +38,6 @@ import org.apache.commons.collections.map.MultiKeyMap;
 
 import java.sql.*;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * DAO to `sample`.
@@ -49,8 +48,8 @@ public class DaoSample {
 
     private static final int MISSING_CANCER_STUDY_ID = -1;
 
-    private static final Map<String, Sample> byStableId = new ConcurrentHashMap<String, Sample>();
-    private static final Map<Integer, Sample> byInternalId = new ConcurrentHashMap<Integer, Sample>();
+    private static final Map<String, Sample> byStableId = new HashMap<String, Sample>();
+    private static final Map<Integer, Sample> byInternalId = new HashMap<Integer, Sample>();
     private static final Map<Integer, Map<String, Sample>> byInternalPatientAndStableSampleId = new HashMap<Integer, Map<String, Sample>>();
     private static final Map<Integer, Map<String, Sample>> byCancerStudyIdAndStableSampleId = new HashMap<Integer, Map<String, Sample>>();
 

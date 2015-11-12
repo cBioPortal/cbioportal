@@ -60,10 +60,6 @@ public final class DaoClinicalData {
 
     private DaoClinicalData() {}
 
-    static {
-        reCache();
-    }
-
     public static synchronized void reCache()
     {
         clearCache();

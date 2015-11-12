@@ -54,10 +54,6 @@ public class DaoSample {
     private static final Map<Integer, Map<String, Sample>> byInternalPatientAndStableSampleId = new HashMap<Integer, Map<String, Sample>>();
     private static final Map<Integer, Map<String, Sample>> byCancerStudyIdAndStableSampleId = new HashMap<Integer, Map<String, Sample>>();
 
-    static {
-        reCache();
-    }
-
     private static void clearCache()
     {
         byStableId.clear();
@@ -204,6 +200,7 @@ public class DaoSample {
     {
         Map<String, Sample> samples = byCancerStudyIdAndStableSampleId.get(cancerStudyId);
         if (samples==null) {
+            System.err.println("Couldn't find sample "+stableSampleId+" in study "+cancerStudyId);
             return null;
         }
         

@@ -19,10 +19,14 @@ skin.authorization_message=Access to this portal is only available to authorized
 skin.right_nav.show_testimonials=true
 skin.data_sets_header=The portal currently contains data from the following cancer genomics studies.  The table below lists the number of available samples per data type and tumor.
 skin.data_sets_footer=Data sets of TCGA studies were downloaded from Broad Firehose (http://gdac.broadinstitute.org) and updated monthly. In some studies, data sets were from the TCGA working groups directly.
-skin.faq=faq.html
-skin.about=about_us.html
-skin.news=news.html
 skin.examples_right_column=examples.html
+
+# documentation pages
+skin.documentation.baseurl=https://github.com/cBioPortal/cbioportal/wiki/
+skin.documentation.markdown=true
+skin.documentation.faq=FAQ.md
+skin.documentation.about=About-Us.md
+skin.documentation.skin.news=News.md
 
 # setting controlling the logos
 skin.right_logo=mskcc_logo_3d_grey.jpg

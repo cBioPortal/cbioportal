@@ -1026,8 +1026,8 @@
                                             },
                                             proteinChange: {
                                                 sTitle: "AA change",
-                                                tip: "Protein Change<br/><input type='checkbox' id='oncokb-crosscancer'/>OncoKB ",
-                                                sType: "numeric"
+                                                tip: "<div>Protein Change<br/><br/>Sort by:<input type='radio' name='oncokbCrosscancer' value='oncokb'/>OncoKB<input type='radio' name='oncokbCrosscancer' value='aachange' checked/>Protein change",
+                                                sType: "sort-icons"
                                             }
                                         },
                                         columnOrder: [
@@ -1081,6 +1081,8 @@
                                                 }
 
                                                 var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_protein_change_oncokb_template");
+
+                                                OncoKB.addCustomObject('DataTableSortFlag', 'aachange');
                                                 return templateFn(vars);
                                             }
                                         },
@@ -1141,27 +1143,7 @@
                                         },
                                         columnSort: {
                                             "proteinChange": function(datum) {
-                                                var proteinChange = datum.mutation.proteinChange;
-
-                                                //Use to change sort method
-                                                var flag = OncoKB.getCustomObject('DataTableSortFlag');
-                                                var matched = proteinChange.match(/.*[A-Z]([0-9]+)[^0-9]+/);
-
-                                                if(flag) {
-                                                    if(flag === 'oncokb') {
-                                                        if(!datum.oncokb) {
-                                                            return -Infinity;
-                                                        }
-                                                    }
-                                                }
-                                                if (matched && matched.length > 1)
-                                                {
-                                                    return parseInt(matched[1]);
-                                                }
-                                                else
-                                                {
-                                                    return -Infinity;
-                                                }
+                                                return datum;
                                             }
                                         }
                                     }
@@ -1231,8 +1213,8 @@
 
 
 
-                            $('#oncokb-crosscancer').click(function () {
-                                OncoKB.addCustomObject('DataTableSortFlag', 'OncoKB');
+                            $('input[name="oncokbCrosscancer"]:radio').change(function () {
+                                    OncoKB.addCustomObject('DataTableSortFlag', this.value);
                             })
                             // end of mutation details
 

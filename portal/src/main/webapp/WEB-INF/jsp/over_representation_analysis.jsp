@@ -6,6 +6,7 @@
 <script type="text/javascript" src="js/src/over-representation-analysis/boilerplate.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/co-exp/components/ScatterPlots.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/over-representation-analysis/volcano_plot_view.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/over-representation-analysis/venn.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <div class="section" id="or_analysis">
     <div id="or-analysis-info-box" style="padding: 10px;margin-top: -40px;">

@@ -35,10 +35,11 @@
  * @param plot_div: optional parameter, i.e. the div where to add a volcano plot representation of the data.
                     If set, a volcano plot is rendered next to the data table. 
  */
-var orTable = function(plot_div ) {
+var orTable = function(plot_div, euler_div ) {
     
 	var self = this;
 	self.plot_div = plot_div;
+	self.euler_div = euler_div;
 	
     var div_id, table_id, data, titles; //titles is formatted string of column names with html markdown in
     var col_index, orTableInstance, profile_type, profile_id, table_title;
@@ -420,20 +421,76 @@ var orTable = function(plot_div ) {
                 }
             	
             	self.volcanoPlot.specialSelectItems(selected_genes, remainingGenes);
+            	
+                //show current clicked gene in euler diagram
+                var current_gene = $(this).attr("value");
+                var ratioAltInAlt = 0;
+                var ratioAltInUnalt = 0;
+                for (var i = 0; i < self.originalData.length; i++) {
+                	if (current_gene == self.originalData[i]["Gene"]) {
+                		ratioAltInAlt = self.originalData[i]["percentage of alteration in altered group"]; 
+                		ratioAltInUnalt = self.originalData[i]["percentage of alteration in unaltered group"];
+                		break;
+                	}
+                }
+                var totalSetSize = 2000; //TODO - retrieve this from main page - now just set to a fixed value for the prototype example.
+                var ratioAlt = 0.93; //TODO - retrieve this from main page - now just set to a fixed value for the prototype example.
+                var setSizeAlt = totalSetSize*ratioAlt;
+                var setSizeUnalt = totalSetSize*(1-ratioAlt);
+                var setSizeAltInAlt = setSizeAlt*ratioAltInAlt;
+                var setSizeAltInUnalt = setSizeUnalt*ratioAltInUnalt;
+                
+                var setA = 'A (' + Math.round(setSizeAlt) + ')';
+                var setB1 = 'B1 (' + Math.round(setSizeAltInAlt) + ')';
+                var setB2 = 'B2 (' + Math.round(setSizeAltInUnalt) + ')';
+                var setC = 'C (' + Math.round(setSizeUnalt) + ')';
+                
+            	var sets = [ {sets: [setA], size: setSizeAlt}, 
+            	             {sets: [setB1], size: setSizeAltInAlt},
+            	             {sets: [setB2], size: setSizeAltInUnalt},
+            	             {sets: [setC], size: setSizeUnalt},
+            	             {sets: [setA, setB1], size: setSizeAltInAlt},
+            	             {sets: [setB2, setC], size: setSizeAltInUnalt},
+            	             {sets: [setA, setC], size: 0} ];
+            	
+            	var needLegendInit = false;
+            	if (!self.chart) {
+            		self.chart = venn.VennDiagram();
+                	//add euler_diagram:
+                	$("#" + self.plot_div).append("<div id='"+ euler_div + "'/>");
+                	needLegendInit = true;
+            	}
+            	
+            	d3.select("#" + self.euler_div).datum(sets).call(self.chart);
+
+            	if (needLegendInit) {
+            		//legend:
+	            	$("#" + self.euler_div).append("<div id='legend_"+ self.euler_div+ "'/>");
+	        	}
+            	
+            	var setA_desc = 'A= samples where query genes are altered';
+				var setB1_desc = 'B1= samples where [' + current_gene + '] is altered in A';
+				var setB2_desc = 'B2= samples where [' + current_gene + '] is altered in C';
+				var setC_desc = 'C= samples where query genes are NOT altered';
+            	$("#legend_" + self.euler_div).html(setA_desc + "<br/>" +
+            			setB1_desc + "<br/>" +
+            			setB2_desc + "<br/>" +
+            			setC_desc);
             }
+
 
         });
 
         $("#" + btn_id).click(function() {
 
             if (window.PortalGlobals.getCaseSetId() !== "-1") {
-               var _start_pos_gene_list = document.URL.indexOf("gene_list=") + "gene_list=".length;
-		var _end_pos_gene_list = document.URL.indexOf("&", _start_pos_gene_list);
-		var pre_gene_list = document.URL.substring(0, _start_pos_gene_list);
-		var post_gene_list = document.URL.substring(_end_pos_gene_list);
-		var new_gene_list = encodeURIComponent(window.QuerySession.getOQLQuery() + "\n" + selected_genes.join("\n"));
-		var _new_url = pre_gene_list + new_gene_list + post_gene_list;
-		window.location.replace(_new_url);
+            	var _start_pos_gene_list = document.URL.indexOf("gene_list=") + "gene_list=".length;
+				var _end_pos_gene_list = document.URL.indexOf("&", _start_pos_gene_list);
+				var pre_gene_list = document.URL.substring(0, _start_pos_gene_list);
+				var post_gene_list = document.URL.substring(_end_pos_gene_list);
+				var new_gene_list = encodeURIComponent(window.QuerySession.getOQLQuery() + "\n" + selected_genes.join("\n"));
+				var _new_url = pre_gene_list + new_gene_list + post_gene_list;
+				window.location.replace(_new_url);
             } else {
                 var _original_url = document.URL.substring(0, document.URL.indexOf("index.do") + ("index.do").length);
 
@@ -584,6 +641,7 @@ var orTable = function(plot_div ) {
     	 */
         init: function(originalData, _converted_data, _div_id, _table_div, _table_id, _table_title, _profile_type, _profile_id, _last_profile) {
             
+        	self.originalData = originalData;
             if (Object.keys(_converted_data).length !== 0 &&
                 Object.keys(_converted_data)[0] !== orAnalysis.texts.null_result &&
                 Object.keys(_converted_data)[0] !== "") {
@@ -704,6 +762,7 @@ var orSubTabView = function() {
                     var _table_div = _profile_obj.STABLE_ID.replace(/\./g, "_") + orAnalysis.postfix.datatable_div;
                     var _table_id = _profile_obj.STABLE_ID.replace(/\./g, "_") + orAnalysis.postfix.datatable_id;
                     var _plot_div = null;
+                    var euler_div = null;
                     if (_profile_type == orAnalysis.profile_type.mutations) {
                     	//if profile is of type "mutations" then we also want a volcano plot on the left side:
                     	_plot_div = _profile_obj.STABLE_ID.replace(/\./g, "_") + orAnalysis.postfix.plot_div;
@@ -711,6 +770,9 @@ var orSubTabView = function() {
                     	$("#" + _div_id).append("<div id='" + _table_div + "' style='width: 62%; display:table; margin-left: auto; margin-right: 0; '></div>");
                     	//adding this to contain floated plot (see "float: left"  above):
                     	$("#" + _div_id).css("overflow", "hidden");
+                    	//for the euler diagram:
+                    	euler_div = "euler" + _plot_div;
+
                     }
                     else
                     	$("#" + _div_id).append("<div id='" + _table_div + "' style='width: 100%; display:table; '></div>");
@@ -727,7 +789,7 @@ var orSubTabView = function() {
                     var param = new orAjaxParam(or_tab.getAlteredCaseList(), or_tab.getUnalteredCaseList(), _profile_obj.STABLE_ID, _gene_set);
                     var or_data = new orData();
                     or_data.init(param, _table_id);
-                    var or_table = new orTable(_plot_div);
+                    var or_table = new orTable(_plot_div, euler_div);
                     if (_profile_obj.STABLE_ID.indexOf("rna_seq") !== -1) {
                         or_data.get(or_table.init, _div_id, _table_div, _table_id, _profile_obj.NAME + orAnalysis.postfix.title_log, _profile_type, _profile_obj.STABLE_ID.replace(/\./g, "_"), last_profile);
                     } else {

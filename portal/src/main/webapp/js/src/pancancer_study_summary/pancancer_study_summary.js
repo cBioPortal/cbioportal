@@ -365,7 +365,7 @@ var MinAlteredSamplesSliderView = Backbone.View.extend({
   },
 
   events: {
-     'slidechange .diagram-min-nr-altered-samples-slider': 'handleSliderChange'
+     'slidechange .diagram-general-slider': 'handleSliderChange'
   }, 
 
   //function for model.onchange above, it will check whether the slider max threshold needs
@@ -390,14 +390,14 @@ var MinAlteredSamplesSliderView = Backbone.View.extend({
          text = "Min. alteration ";
 	 }
 	 
-     var templateFn = PanCancerTemplateCache.getTemplateFn("nr_altered_samples_slider_template");
-     this.template = templateFn({min:0, max:this.max, suffix: suffix, text:text});
+     var templateFn = PanCancerTemplateCache.getTemplateFn("general_slider_template");
+     this.template = templateFn({min:0, init:0, max:this.max, suffix: suffix, text:text});
 
      // add the template
      $(this.el).html(this.template);
 
      // create the jQuery ui slider
-     var sampleSlider = this.$el.find(".diagram-min-nr-altered-samples-slider");
+     var sampleSlider = this.$el.find(".diagram-general-slider");
      sampleSlider.slider({ 
         value: 0, 
         min: 0, 
@@ -409,7 +409,7 @@ var MinAlteredSamplesSliderView = Backbone.View.extend({
 
   // handle change to the slider        
   handleSliderChange: function(e, ui) {
-     var sampleText = this.$el.find(".diagram-min-nr-alter-samples-value");
+     var sampleText = this.$el.find(".diagram-general-slider-value");
      console.log("GENE: "+this.gene);
      // update text 
      sampleText.html(ui.value);
@@ -432,7 +432,7 @@ var MinTotalSamplesSliderView = Backbone.View.extend({
     },
 
     events: {
-        'slidechange .diagram-total-nr-altered-samples-slider': 'handleSliderChange'
+        'slidechange .diagram-general-slider': 'handleSliderChange'
     },
 
     //function for model.onchange above, it will check whether the slider max threshold needs
@@ -447,14 +447,16 @@ var MinTotalSamplesSliderView = Backbone.View.extend({
         // find the maximum number of samples for the cancertype
         this.max = this.dmPresenter.getMaxSamplesForCancerType(this.model.get("cancerType"));
 
-        var templateFn = PanCancerTemplateCache.getTemplateFn("nr_total_samples_slider_template");
-        this.template = templateFn({min:0, max:this.max});
+        var templateFn = PanCancerTemplateCache.getTemplateFn("general_slider_template");
+        //this.template = templateFn({min:0, max:this.max});
+        this.template = templateFn({min:0, init:0, max:this.max, suffix: "", text:"Min. # total samples "});
+
 
         // add the template
         $(this.el).html(this.template);
 
         // create the jQuery ui slider
-        var sampleSlider = this.$el.find(".diagram-total-nr-altered-samples-slider");
+        var sampleSlider = this.$el.find(".diagram-general-slider");
         sampleSlider.slider({
             value: 0,
             min: 0,
@@ -466,7 +468,7 @@ var MinTotalSamplesSliderView = Backbone.View.extend({
 
     // handle change to the slider
     handleSliderChange: function(e, ui) {
-        var sampleText = this.$el.find(".diagram-total-nr-alter-samples-value");
+        var sampleText = this.$el.find(".diagram-general-slider-value");
         console.log("GENE: "+this.gene);
         // update text
         sampleText.html(ui.value);

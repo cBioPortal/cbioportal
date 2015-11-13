@@ -70,12 +70,17 @@ table.customize-options td{
     width: 350px;
 }
 
-.diagram-total-nr-altered-samples-max-label,
-.diagram-min-nr-altered-samples-max-label {
-	float: right;
-	width: 50%;
-	text-align: right;
+.diagram-general-slider-max-label{
+    float: right;
+    width: 50%;
+    text-align: right;
 }
+/*.diagram-total-nr-altered-samples-max-label,*/
+/*.diagram-min-nr-altered-samples-max-label {*/
+	/*float: right;*/
+	/*width: 50%;*/
+	/*text-align: right;*/
+/*}*/
 
 
 

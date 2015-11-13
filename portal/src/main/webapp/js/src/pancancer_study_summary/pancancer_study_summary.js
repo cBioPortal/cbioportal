@@ -293,14 +293,14 @@ var CustomizeHistogramView = Backbone.View.extend({
     	 dmPresenter:this.dmPresenter});
   },
     // add the slider for total number of altered samples
-    addNrTotalSamplesSlider: function(){
-        new MinTotalSamplesSliderView({
-            gene:this.gene,
-            el:"#customize-total-nr-altered-samples-slider-"+this.gene,
-            dispatcher:this.dispatcher,
-            model:this.model,
-            dmPresenter:this.dmPresenter});
-    },
+  addNrTotalSamplesSlider: function(){
+      new MinTotalSamplesSliderView({
+         gene:this.gene,
+         el:"#customize-total-nr-altered-samples-slider-"+this.gene,
+         dispatcher:this.dispatcher,
+         model:this.model,
+         dmPresenter:this.dmPresenter});
+  },
 
   // add checkbox for genomic alteration types
   addShowGenomicAlterationTypesCheckbox: function(){
@@ -380,15 +380,18 @@ var MinAlteredSamplesSliderView = Backbone.View.extend({
 	 //add % after the values or not:
 	 var suffix = "";
 	 this.max = this.dmPresenter.getMaxAlteredSamplesForCancerTypeAndGene(this.model.get("cancerType"), this.gene, this.model.get("dataTypeYAxis"));
-	 
+
+     var text = "Min. # altered samples ";
+
 	 if (this.model.get("dataTypeYAxis") == "Alteration Frequency") {
 		 suffix = "%";
 		 //in %, with 1 decimal:
 		 this.max = Math.round(parseFloat(this.max) * 1000)/10;
+         text = "Min. alteration ";
 	 }
 	 
      var templateFn = PanCancerTemplateCache.getTemplateFn("nr_altered_samples_slider_template");
-     this.template = templateFn({min:0, max:this.max, suffix: suffix});
+     this.template = templateFn({min:0, max:this.max, suffix: suffix, text:text});
 
      // add the template
      $(this.el).html(this.template);

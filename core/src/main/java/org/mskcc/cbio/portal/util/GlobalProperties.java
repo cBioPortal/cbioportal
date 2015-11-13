@@ -161,15 +161,15 @@ public class GlobalProperties {
     public static final String SKIN_CUSTOM_HEADER_TABS="skin.custom_header_tabs";
 
     // properties for the FAQ, about us, news and examples
-    public static final String SKIN_BASEURL="skin.baseurl";
+    public static final String SKIN_BASEURL="skin.documentation.baseurl";
     public static final String DEFAULT_SKIN_BASEURL="https://github.com/cBioPortal/cbioportal/wiki/";
     public static final String SKIN_DOCUMENTATION_MARKDOWN="skin.documentation.markdown";
 
-    public static final String SKIN_FAQ="skin.faq";
+    public static final String SKIN_FAQ="skin.documentation.faq";
     public static final String DEFAULT_SKIN_FAQ="FAQ.md";
-    public static final String SKIN_ABOUT="skin.about";
+    public static final String SKIN_ABOUT="skin.documentation.about";
     public static final String DEFAULT_SKIN_ABOUT="About-Us.md";
-    public static final String SKIN_NEWS="skin.news";
+    public static final String SKIN_NEWS="skin.documentation.news";
     public static final String DEFAULT_SKIN_NEWS="News.md";
 
     public static final String SKIN_EXAMPLES_RIGHT_COLUMN="skin.examples_right_column";

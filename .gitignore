@@ -1,4 +1,5 @@
 nb-configuration.xml
+nbactions-private.xml
 oncotator/src/main/resources/db.properties
 portal/Portal-Google-Code.ipr
 portal/Portal-Google-Code.iws

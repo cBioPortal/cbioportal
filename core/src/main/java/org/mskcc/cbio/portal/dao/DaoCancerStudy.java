@@ -40,7 +40,6 @@ import org.apache.commons.lang.StringUtils;
 import java.sql.*;
 import java.util.*;
 import java.text.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Analogous to and replaces the old DaoCancerType. A CancerStudy has a NAME and
@@ -59,24 +58,31 @@ public final class DaoCancerStudy {
 
     private DaoCancerStudy() {}
     
-    private static final Map<String, java.util.Date> cacheDateByStableId = new ConcurrentHashMap<String, java.util.Date>();
-    private static final Map<Integer, java.util.Date> cacheDateByInternalId = new ConcurrentHashMap<Integer, java.util.Date>();
-    private static final Map<String,CancerStudy> byStableId = new ConcurrentHashMap<String,CancerStudy>();
-    private static final Map<Integer,CancerStudy> byInternalId = new ConcurrentHashMap<Integer,CancerStudy>();
+    private static final Map<String, java.util.Date> cacheDateByStableId = new HashMap<String, java.util.Date>();
+    private static final Map<Integer, java.util.Date> cacheDateByInternalId = new HashMap<Integer, java.util.Date>();
+    private static final Map<String,CancerStudy> byStableId = new HashMap<String,CancerStudy>();
+    private static final Map<Integer,CancerStudy> byInternalId = new HashMap<Integer,CancerStudy>();
+    private static long lastCached = Long.MIN_VALUE;
     
     static {
         SpringUtil.initDataSource();
-        reCache();
+        reCacheAll(System.currentTimeMillis());
     }
 
-	public static void reCacheAll()
-	{
-		reCache();
-		DaoGeneticProfile.reCache();
-		DaoPatient.reCache();
-		DaoSample.reCache();
-		DaoClinicalData.reCache();
-	}
+    private static synchronized void reCacheAll(long time) {
+        if (lastCached >= time) {
+            return;
+        }
+        
+        System.out.println("Recaching... ");
+        DaoCancerStudy.reCache();
+        DaoGeneticProfile.reCache();
+        DaoPatient.reCache();
+        DaoSample.reCache();
+        DaoClinicalData.reCache();
+        System.out.println("Finished recaching... ");
+        lastCached = System.currentTimeMillis();
+    }
     
     private static synchronized void reCache() {
         cacheDateByStableId.clear();
@@ -356,8 +362,10 @@ public final class DaoCancerStudy {
      */
     public static CancerStudy getCancerStudyByInternalId(int internalId) throws DaoException
 	{
-		if (studyNeedsRecaching(null, internalId)) {
-			reCacheAll();
+		if (GlobalProperties.getRecacheStudyAfterUpdate()
+                        && studyNeedsRecaching(null, internalId)) {
+                    System.out.print("Study with internal ID of "+internalId+" updated.");
+                    reCacheAll(System.currentTimeMillis());
 		}
         return byInternalId.get(internalId);
     }
@@ -370,8 +378,10 @@ public final class DaoCancerStudy {
      */
     public static CancerStudy getCancerStudyByStableId(String stableId) throws DaoException
 	{
-		if (studyNeedsRecaching(stableId)) {
-			reCacheAll();
+		if (GlobalProperties.getRecacheStudyAfterUpdate()
+                        && studyNeedsRecaching(stableId)) {
+                    System.out.print("Study "+stableId+" updated.");
+                    reCacheAll(System.currentTimeMillis());
 		}
         return byStableId.get(stableId);
     }
@@ -383,8 +393,10 @@ public final class DaoCancerStudy {
      * @return true if the CancerStudy exists, otherwise false
      */
     public static boolean doesCancerStudyExistByStableId(String cancerStudyStableId) {
-        if (studyNeedsRecaching(cancerStudyStableId)) {
-            reCacheAll();
+        if (GlobalProperties.getRecacheStudyAfterUpdate()
+                        && studyNeedsRecaching(cancerStudyStableId)) {
+            System.out.print("Study "+cancerStudyStableId+" updated.");
+            reCacheAll(System.currentTimeMillis());
         }
         return byStableId.containsKey(cancerStudyStableId);
     }
@@ -397,8 +409,10 @@ public final class DaoCancerStudy {
      * @return true if the CancerStudy exists, otherwise false
      */
     public static boolean doesCancerStudyExistByInternalId(int internalCancerStudyId) {
-        if (studyNeedsRecaching(null, internalCancerStudyId)) {
-            reCacheAll();
+        if (GlobalProperties.getRecacheStudyAfterUpdate()
+                        && studyNeedsRecaching(null, internalCancerStudyId)) {
+            System.out.print("Study with internal ID of "+internalCancerStudyId+" updated.");
+            reCacheAll(System.currentTimeMillis());
         }
         return byInternalId.containsKey(internalCancerStudyId);
     }
@@ -409,8 +423,10 @@ public final class DaoCancerStudy {
      * @return ArrayList of all CancerStudy Objects.
      */
     public static ArrayList<CancerStudy> getAllCancerStudies() {
-        if (cacheOutOfSyncWithDb()) {
-            reCacheAll();
+        if (GlobalProperties.getRecacheStudyAfterUpdate()
+                        && cacheOutOfSyncWithDb()) {
+            System.out.print("cache out of sync updated.");
+            reCacheAll(System.currentTimeMillis());
         }
         return new ArrayList<CancerStudy>(byStableId.values());
     }
@@ -420,8 +436,10 @@ public final class DaoCancerStudy {
      * @return number of cancer studies.
      */
     public static int getCount() {
-        if (cacheOutOfSyncWithDb()) {
-            reCacheAll();
+        if (GlobalProperties.getRecacheStudyAfterUpdate()
+                        && cacheOutOfSyncWithDb()) {
+            System.out.print("cache out of sync updated.");
+            reCacheAll(System.currentTimeMillis());
         }
         return byStableId.size();
     }
@@ -535,7 +553,10 @@ public final class DaoCancerStudy {
         } finally {
             JdbcUtil.closeAll(DaoCancerStudy.class, con, pstmt, rs);
         }
-        reCacheAll();
+        System.out.print("delete a study "+internalCancerStudyId);
+        if (GlobalProperties.getRecacheStudyAfterUpdate()) {           
+            reCacheAll(System.currentTimeMillis());
+        }
     }
 
     /**
@@ -556,30 +577,29 @@ public final class DaoCancerStudy {
         return cancerStudy;
     }
 
-	private static boolean studyNeedsRecaching(String stableId, Integer ... internalId)
-	{
-        if (cacheOutOfSyncWithDb()) {
-            return true;
-        }
-		try {
-			java.util.Date importDate = null;
-			java.util.Date cacheDate = null;
-    		if (internalId.length > 0) {
-				importDate = getImportDate(null, internalId[0]);
-				cacheDate = cacheDateByInternalId.get(internalId[0]);
-			}
-			else {
-				if (stableId.equals(org.mskcc.cbio.portal.util.AccessControl.ALL_CANCER_STUDIES_ID)) {
-					return false;
-				}
-				importDate = getImportDate(stableId);
-				cacheDate = cacheDateByStableId.get(stableId);
-			}
-			return (importDate == null || cacheDate == null) ? true : cacheDate.before(importDate);
-		}
-		catch (ParseException e) {
-			return false;
-		}
+	private static boolean studyNeedsRecaching(String stableId, Integer ... internalId) {
+            if (cacheOutOfSyncWithDb()) {
+                return true;
+            }
+
+            try {
+                java.util.Date importDate = null;
+                java.util.Date cacheDate = null;
+                if (internalId.length > 0) {
+                    importDate = getImportDate(null, internalId[0]);
+                    cacheDate = cacheDateByInternalId.get(internalId[0]);
+                } else {
+                    if (stableId.equals(org.mskcc.cbio.portal.util.AccessControl.ALL_CANCER_STUDIES_ID)) {
+                        return false;
+                    }
+                    importDate = getImportDate(stableId);
+                    cacheDate = cacheDateByStableId.get(stableId);
+                }
+                
+                return (importDate == null || cacheDate == null) ? false : cacheDate.before(importDate);
+            } catch (ParseException e) {
+                    return false;
+            }
         catch (DaoException e) {
             return false;
         }

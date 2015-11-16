@@ -379,7 +379,11 @@ var MinAlteredSamplesSliderView = Backbone.View.extend({
   render: function(){
 	 //add % after the values or not:
 	 var suffix = "";
-	 this.max = this.dmPresenter.getMaxAlteredSamplesForCancerTypeAndGene(this.model.get("cancerType"), this.gene, this.model.get("dataTypeYAxis"));
+	 var minMax = this.dmPresenter.getMaxAlteredSamplesForCancerTypeAndGene(this.model.get("cancerType"), this.gene, this.model.get("dataTypeYAxis"));
+
+     this.max = minMax[1];
+
+     var init=minMax[0];
 
      var text = "Min. # altered samples ";
 
@@ -387,12 +391,14 @@ var MinAlteredSamplesSliderView = Backbone.View.extend({
 		 suffix = "%";
 		 //in %, with 1 decimal:
 		 this.max = Math.round(parseFloat(this.max) * 1000)/10;
+         init = Math.round(parseFloat(init) * 1000)/10;
+
          text = "Min. alteration ";
 	 }
 
      // initialise general template with initial value of 1
      var templateFn = PanCancerTemplateCache.getTemplateFn("general_slider_template");
-     this.template = templateFn({min:0, init:1, max:this.max, suffix: suffix, text:text});
+     this.template = templateFn({min:0, init:init, max:this.max, suffix: suffix, text:text});
 
      // add the template
      $(this.el).html(this.template);
@@ -400,10 +406,12 @@ var MinAlteredSamplesSliderView = Backbone.View.extend({
      // create the jQuery ui slider with initial value of 1
      var sampleSlider = this.$el.find(".diagram-general-slider");
      sampleSlider.slider({ 
-        value: 1,
+        value: init,
         min: 0, 
         max: this.max 
      });
+
+     this.model.set("minAlteredSamples", init);
   },
 
   // handle change to the slider        
@@ -995,30 +1003,43 @@ function DataManagerPresenter(dmInitCallBack)
 		if (cancerType == "All") {
 			//check max:
 			var max = 0;
+            var min=1;
 			var cancerTypes = this.getCancerTypeList();
 			for (var i = 0; i < cancerTypes.length; i++) {
 				var denominator = 1;
 				if (dataTypeYAxis == "Alteration Frequency")
-					denominator = this.getTotalNrSamplesPerCancerType(cancerTypes[i], null);
+                    denominator = this.getTotalNrSamplesPerCancerType(cancerTypes[i], null);
 				//this method call is repeated (also called to build histogram JSON data)...TODO - performance improvement could be gained here...tests will indicate if necessary
-				var value = this.getAlterationEvents(cancerTypes[i], null, geneId).all / denominator;				
+                var value = this.getAlterationEvents(cancerTypes[i], null, geneId).all / denominator;
+                var value2 = 1/denominator;
 				if (value > max)
 					max = value;
+                //if(value2<min)
+                //min = value2;
+                if(value>0 && value<min)
+                    min = value;
 			}
-			return max;
+
+			return [min, max];
 		}
 		else {
 			var max = 0;
+            var min=1;
 			var cancerTypes = this.getCancerTypeDetailedList(cancerType);
 			for (var i = 0; i < cancerTypes.length; i++) {
 				var denominator = 1;
 				if (dataTypeYAxis == "Alteration Frequency")
 					denominator = this.getTotalNrSamplesPerCancerType(cancerType, cancerTypes[i]);
 				var value = this.getAlterationEvents(cancerType, cancerTypes[i], geneId).all / denominator;
+                var value2 = 1/denominator;
 				if (value > max)
 					max = value;
+                //if(value2<min)
+                //min = value2;
+                if(value>0 && value<min)
+                    min = value;
 			}
-			return max;
+			return [min, max];
 		}
 
 	}

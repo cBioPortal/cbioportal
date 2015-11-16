@@ -370,7 +370,9 @@
         window.QuerySession = window.initDatamanager('<%=geneticProfiles%>'.trim().split(/\s+/),
                                                             converted_oql,
                                                             ['<%=cancerTypeId%>'.trim()],
-                                                            '<%=patients%>'.trim().split(/\s+/));
+                                                            '<%=patients%>'.trim().split(/\s+/),
+                                                            parseFloat('<%=zScoreThreshold%>'),
+                                                            parseFloat('<%=rppaScoreThreshold%>'));
     })();
 </script>
 

@@ -243,7 +243,7 @@ var CustomizeHistogramView = Backbone.View.extend({
          fields["cancerType"] = cancerType;
          fields["cancerTypeDetailed"] = self.dmPresenter.getCancerTypeDetailedList(cancerType);
          //also reset minAlteredSamples (for the slider):
-         fields["minAlteredSamples"] = 0;
+         fields["minAlteredSamples"] = 1;
     	 self.model.set(fields);
      }
      // create the dropdown and add it
@@ -389,22 +389,21 @@ var MinAlteredSamplesSliderView = Backbone.View.extend({
 		 this.max = Math.round(parseFloat(this.max) * 1000)/10;
          text = "Min. alteration ";
 	 }
-	 
+
+     // initialise general template with initial value of 1
      var templateFn = PanCancerTemplateCache.getTemplateFn("general_slider_template");
-     this.template = templateFn({min:0, init:0, max:this.max, suffix: suffix, text:text});
+     this.template = templateFn({min:0, init:1, max:this.max, suffix: suffix, text:text});
 
      // add the template
      $(this.el).html(this.template);
 
-     // create the jQuery ui slider
+     // create the jQuery ui slider with initial value of 1
      var sampleSlider = this.$el.find(".diagram-general-slider");
      sampleSlider.slider({ 
-        value: 0, 
+        value: 1,
         min: 0, 
         max: this.max 
      });
-     //synchronize model:
-     this.model.set("minAlteredSamples", 0);
   },
 
   // handle change to the slider        
@@ -451,7 +450,6 @@ var MinTotalSamplesSliderView = Backbone.View.extend({
         //this.template = templateFn({min:0, max:this.max});
         this.template = templateFn({min:0, init:0, max:this.max, suffix: "", text:"Min. # total samples "});
 
-
         // add the template
         $(this.el).html(this.template);
 
@@ -462,8 +460,6 @@ var MinTotalSamplesSliderView = Backbone.View.extend({
             min: 0,
             max: this.max
         });
-        //synchronize model:
-        this.model.set("minTotalSamples", 0);
     },
 
     // handle change to the slider
@@ -660,7 +656,7 @@ var HistogramSettings = Backbone.Model.extend({
      cancerTypeDetailed: "All",
      sortXAxis: "Y-Axis Values",
      dataTypeYAxis: "Alteration Frequency",
-     minAlteredSamples: "0",
+     minAlteredSamples: "1",
      minTotalSamples: "0",
      showGenomicAlterationTypes: true
   },

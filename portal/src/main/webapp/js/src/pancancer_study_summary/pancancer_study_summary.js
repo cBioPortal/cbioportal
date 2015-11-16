@@ -379,21 +379,20 @@ var MinAlteredSamplesSliderView = Backbone.View.extend({
   render: function(){
 	 //add % after the values or not:
 	 var suffix = "";
-	 var minMax = this.dmPresenter.getMaxAlteredSamplesForCancerTypeAndGene(this.model.get("cancerType"), this.gene, this.model.get("dataTypeYAxis"));
-
-     this.max = minMax[1];
-
-     var init=minMax[0];
+	 this.max = this.dmPresenter.getMaxAlteredSamplesForCancerTypeAndGene(this.model.get("cancerType"), this.gene, this.model.get("dataTypeYAxis"));
 
      var text = "Min. # altered samples ";
+     var init=1;
 
 	 if (this.model.get("dataTypeYAxis") == "Alteration Frequency") {
 		 suffix = "%";
 		 //in %, with 1 decimal:
 		 this.max = Math.round(parseFloat(this.max) * 1000)/10;
-         init = Math.round(parseFloat(init) * 1000)/10;
-
          text = "Min. alteration ";
+
+         // in the rare cases where the maximum alteration frequency is smaller than 1%
+         // set the init to 0
+         if(this.max<=init) init=0;
 	 }
 
      // initialise general template with initial value of 1
@@ -411,7 +410,7 @@ var MinAlteredSamplesSliderView = Backbone.View.extend({
         max: this.max 
      });
 
-     this.model.set("minAlteredSamples", init);
+     if(init==0) this.model.set("minAlteredSamples", init);
   },
 
   // handle change to the slider        
@@ -1003,43 +1002,30 @@ function DataManagerPresenter(dmInitCallBack)
 		if (cancerType == "All") {
 			//check max:
 			var max = 0;
-            var min=1;
 			var cancerTypes = this.getCancerTypeList();
 			for (var i = 0; i < cancerTypes.length; i++) {
 				var denominator = 1;
 				if (dataTypeYAxis == "Alteration Frequency")
-                    denominator = this.getTotalNrSamplesPerCancerType(cancerTypes[i], null);
+					denominator = this.getTotalNrSamplesPerCancerType(cancerTypes[i], null);
 				//this method call is repeated (also called to build histogram JSON data)...TODO - performance improvement could be gained here...tests will indicate if necessary
-                var value = this.getAlterationEvents(cancerTypes[i], null, geneId).all / denominator;
-                var value2 = 1/denominator;
+				var value = this.getAlterationEvents(cancerTypes[i], null, geneId).all / denominator;
 				if (value > max)
 					max = value;
-                //if(value2<min)
-                //min = value2;
-                if(value>0 && value<min)
-                    min = value;
 			}
-
-			return [min, max];
+			return max;
 		}
 		else {
 			var max = 0;
-            var min=1;
 			var cancerTypes = this.getCancerTypeDetailedList(cancerType);
 			for (var i = 0; i < cancerTypes.length; i++) {
 				var denominator = 1;
 				if (dataTypeYAxis == "Alteration Frequency")
 					denominator = this.getTotalNrSamplesPerCancerType(cancerType, cancerTypes[i]);
 				var value = this.getAlterationEvents(cancerType, cancerTypes[i], geneId).all / denominator;
-                var value2 = 1/denominator;
 				if (value > max)
 					max = value;
-                //if(value2<min)
-                //min = value2;
-                if(value>0 && value<min)
-                    min = value;
 			}
-			return [min, max];
+			return max;
 		}
 
 	}

@@ -1026,7 +1026,26 @@
                                             },
                                             proteinChange: {
                                                 sTitle: "AA change",
-                                                tip: "<div>Protein Change<br/><br/>Sort by:<input type='radio' name='oncokbCrosscancer' value='oncokb'/>OncoKB<input type='radio' name='oncokbCrosscancer' value='aachange' checked/>Protein change",
+                                                tip: {
+                                                    content: "<div class='mutationTableHeaderRadioLabel'>Protein Change<br/><br/><div><span style='float: left;margin-top: 3px;'>Sort by:</span>" +
+                                                    "<div style='float: left;margin-left: 5px;'><label><input type='radio' name='oncokbCrosscancer' value='oncokb'/> <img width='13' height='13' src='images/oncokb-oncogenic-1.svg'>OncoKB</label><br/>" +
+                                                    "<label><input type='radio' name='oncokbCrosscancer' value='hotspot' checked/> <img width='13' height='13' src='images/oncokb-flame.svg'>Hotspot</label><br/>" +
+                                                    "<label><input type='radio' name='oncokbCrosscancer' value='mycancergenome' checked/> <img width='13' height='13' src='images/mcg_logo.png'>My Cancer Genome</label><br/>" +
+                                                    "<label><input type='radio' name='oncokbCrosscancer' value='aachange' checked/> Protein change</label></div></div></div>",
+                                                    events: {
+                                                        render: function(event, api) {
+                                                            var flag = OncoKB.getCustomObject('DataTableSortFlag');
+                                                            if(flag) {
+                                                                $('input[name="oncokbCrosscancer"][value="' + flag + '"]:radio').prop('checked', true);
+                                                            }else{
+                                                                OncoKB.addCustomObject('DataTableSortFlag', 'aaChange');
+                                                            }
+                                                            $('input[name="oncokbCrosscancer"]:radio').change(function () {
+                                                                OncoKB.addCustomObject('DataTableSortFlag', this.value);
+                                                            });
+                                                        }
+                                                    }
+                                                },
                                                 sType: "sort-icons"
                                             }
                                         },
@@ -1212,10 +1231,6 @@
 	                            _mut3dVis);
 
 
-
-                            $('input[name="oncokbCrosscancer"]:radio').change(function () {
-                                    OncoKB.addCustomObject('DataTableSortFlag', this.value);
-                            })
                             // end of mutation details
 
                         });

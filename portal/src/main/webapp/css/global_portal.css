@@ -1462,3 +1462,6 @@ ul.oncokb li {
 .oncokb.oncokb_alteration svg{
     vertical-align: middle;
 }
+.mutationTableHeaderRadioLabel label img{
+    vertical-align: text-bottom;
+}

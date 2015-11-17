@@ -1,4 +1,4 @@
-window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_ids, sample_ids, patient_case_select) {
+window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_ids, sample_ids, z_score_threshold, rppa_score_threshold) {
 	var oql_parser = window.oql_parser;
 	var OQLHandler = (function (config) {
 		var default_config = {
@@ -10,7 +10,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			mutation_pos_end_key:"mut_end_position",
 			prot_key:"rppa",
 			exp_key:"mrna",
-			default_oql:"MUT HOMDEL AMP"
+			default_oql:""
 		};
 		config = config || default_config;
 
@@ -243,7 +243,6 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			'oql_query': oql_query,
 			'cancer_study_ids': cancer_study_ids,
 			'sample_ids': sample_ids,
-                        'patient_case_select': patient_case_select,
 			'genetic_profile_ids': genetic_profile_ids,
 			'getOQLQuery': function() {
 				return this.oql_query;
@@ -480,12 +479,12 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 							default_oql_uniq["HOMDEL"] = true;
 							break;
 						case "MRNA_EXPRESSION":
-							default_oql_uniq["EXP>=2"] = true;
-							default_oql_uniq["EXP<=-2"] = true;
+							default_oql_uniq["EXP>="+z_score_threshold] = true;
+							default_oql_uniq["EXP<=-"+z_score_threshold] = true;
 							break;
 						case "PROTEIN_LEVEL":
-							default_oql_uniq["PROT>=2"] = true;
-							default_oql_uniq["PROT<=-2"] = true;
+							default_oql_uniq["PROT>="+rppa_score_threshold] = true;
+							default_oql_uniq["PROT<=-"+rppa_score_threshold] = true;
 							break;
 					}
 				});

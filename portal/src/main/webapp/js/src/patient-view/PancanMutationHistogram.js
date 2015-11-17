@@ -122,12 +122,6 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
     var totalByKeyword = _.reduce(bykeyword_data, function(memo, datum){ return memo + datum.count; }, 0);
     var totalSequenced = _.reduce(cancer_study2meta_data, function(memo, datum){ return memo + datum.num_sequenced_samples; }, 0);
 
-    _.mixin({
-        unzip: function(array) {
-            return _.zip.apply(_, array);
-        }
-    });
-
     var all_data = bykeyword_data.concat(bygene_data);
     try {
         all_data = _.chain(all_data)

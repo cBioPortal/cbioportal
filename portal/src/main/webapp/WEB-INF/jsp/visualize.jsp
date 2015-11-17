@@ -297,19 +297,26 @@
 
         $("a.result-tab").click(function(){
 
-            if($(this).attr("href")=="#network") {
-                if(firstTime)
+            if($(this).attr("href")=="#network")
+            {
+              var interval = setInterval(function() {
+                if (window.networkGraphJSON != null)
                 {
-                  send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
-                  firstTime = false;
-                }
-	            else
-                {
-	                // TODO this is a workaround to adjust cytoscape canvas
-	                // and probably not the best way to do it...
-	                $(window).resize();
-                }
+                  clearInterval(interval);
+                  if(firstTime)
+                  {
+                    send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
+                    firstTime = false;
+                  }
+                else
+                  {
+                    // TODO this is a workaround to adjust cytoscape canvas
+                    // and probably not the best way to do it...
+                    $(window).resize();
+                  }
 
+                }
+              }, 50);
             } else {
                 if($(this).attr("href")=="#bookmark_email") {
                     $("#bookmark-link").attr("href",window.location.href);

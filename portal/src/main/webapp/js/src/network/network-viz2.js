@@ -241,7 +241,9 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 
 	layout: {
 		name: 'cose2',
-		randomize: true
+		randomize: true,
+		animate: false,
+		fit:true
 	},
 	wheelSensitivity: 0.2,
 

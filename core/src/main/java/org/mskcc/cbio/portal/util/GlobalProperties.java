@@ -183,6 +183,8 @@ public class GlobalProperties {
     public static final String ONCOKB_GENE_STATUS = "oncokb.geneStatus";
     public static final String SHOW_HOTSPOT = "show.hotspot";
     
+    public static final String RECACHE_STUDY_AFTER_UPDATE = "recache_study_after_update";
+    
     private static Log LOG = LogFactory.getLog(GlobalProperties.class);
     private static Properties properties = initializeProperties();
 
@@ -657,5 +659,13 @@ public class GlobalProperties {
     public static String getOncoKBGeneStatus()
     {
         return properties.getProperty(ONCOKB_GENE_STATUS);
+    }
+    
+    public static boolean getRecacheStudyAfterUpdate() {
+        String recacheStudyAfterUpdate = properties.getProperty(RECACHE_STUDY_AFTER_UPDATE);
+        if (recacheStudyAfterUpdate==null || recacheStudyAfterUpdate.isEmpty()) {
+            return false;
+        }
+        return Boolean.parseBoolean(recacheStudyAfterUpdate);
     }
 }

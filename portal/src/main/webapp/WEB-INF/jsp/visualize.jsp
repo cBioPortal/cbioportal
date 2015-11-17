@@ -288,6 +288,7 @@
 			        clearInterval(interval);
 			        if (firstTime)
 			        {
+                $(window).resize();
 				        send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
 				        firstTime = false;
 			        }
@@ -305,6 +306,7 @@
                   clearInterval(interval);
                   if(firstTime)
                   {
+                    $(window).resize();
                     send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
                     firstTime = false;
                   }

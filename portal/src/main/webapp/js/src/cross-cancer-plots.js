@@ -447,7 +447,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                         .size(20)
                         .type(function(d) {
                             $(this).attr("size", 20);
-                            $(this).attr("shape", mutationStyle.getSymbol(d.mutation_type));
+                            $(this).attr("ori_shape", mutationStyle.getSymbol(d.mutation_type));
                             $(this).attr("case_id", d.caseId);
                             $(this).attr("mutation", d.mutation);
                             $(this).attr("x_val", d.profileId);
@@ -455,9 +455,11 @@ var ccPlots = (function ($, _, Backbone, d3) {
                             return mutationStyle.getSymbol(d.mutation_type);
                         }))
                     .attr("fill", function(d) {
+                        $(this).attr("ori_fill", mutationStyle.getFill(d.mutation_type));
                         return mutationStyle.getFill(d.mutation_type);
                     })
                     .attr("stroke", function(d) {
+                        $(this).attr("ori_stroke", mutationStyle.getStroke(d.mutation_type));
                         return mutationStyle.getStroke(d.mutation_type);
                     })
                     .attr("stroke-width", 1.2)
@@ -539,7 +541,11 @@ var ccPlots = (function ($, _, Backbone, d3) {
                         .attr("d", d3.svg.symbol()
                             .size(200)
                             .type(function(d) {
-                                return $(this).attr("shape");
+                                if ($("#cc_plots_show_mut").is(':checked')) {
+                                    return $(this).attr("ori_shape");
+                                } else {
+                                    mutationStyle.getSymbol("non");
+                                }
                             })
                     );
                 };
@@ -554,7 +560,11 @@ var ccPlots = (function ($, _, Backbone, d3) {
                                 return $(this).attr("size");
                             })
                             .type(function(d) {
-                                return $(this).attr("shape");
+                                if ($("#cc_plots_show_mut").is(':checked')) {
+                                    return $(this).attr("ori_shape");
+                                } else {
+                                    mutationStyle.getSymbol("non");
+                                }
                             })
                     );
                 };
@@ -1002,6 +1012,32 @@ var ccPlots = (function ($, _, Backbone, d3) {
             add_box_plots(_box_plots_data_arr);
         }
 
+        function update_show_mut(_show) {
+            if (_show) {
+                elem.dots.selectAll("path")
+                    .attr("d", d3.svg.symbol()
+                        .size(20)
+                        .type(function(d) {
+                            return d3.select(this).attr("ori_shape");
+                        }))
+                    .attr("fill", function(d) {
+                        return d3.select(this).attr("ori_fill");
+                    })
+                    .attr("stroke", function(d) {
+                        return d3.select(this).attr("ori_stroke");
+                    });
+            } else {
+                elem.dots.selectAll("path")
+                    .attr("d", d3.svg.symbol()
+                        .size(20)
+                        .type(function() {
+                            return mutationStyle.getSymbol("non");
+                        }))
+                    .attr("fill", mutationStyle.getFill("non"))
+                    .attr("stroke", mutationStyle.getStroke("non"));
+            }
+        }
+
         return {
             init: function () {
                 init_sidebar();
@@ -1016,9 +1052,10 @@ var ccPlots = (function ($, _, Backbone, d3) {
             remove_log_scale: remove_log_scale,
             init_sidebar: init_sidebar,
             init_box: init_box,
-            update_profile_order: update_profile_order
+            update_profile_order: update_profile_order,
+            update_show_mut: update_show_mut
         }
-    }());
+    }()); //close view
 
     var search_mutation = function() {
         var searchToken = document.getElementById("mutation_search_keyword").value;
@@ -1030,16 +1067,16 @@ var ccPlots = (function ($, _, Backbone, d3) {
                         if (mutation_details.toUpperCase().indexOf(searchToken.toUpperCase()) !== -1) {
                             $(this).attr("d", d3.svg.symbol()
                                 .size(d3.select(this).attr("size") + 5)
-                                .type(d3.select(this).attr("shape")));
+                                .type(d3.select(this).attr("ori_shape")));
                         } else {
                             $(this).attr("d", d3.svg.symbol()
                                 .size(d3.select(this).attr("size"))
-                                .type(d3.select(this).attr("shape")));
+                                .type(d3.select(this).attr("ori_shape")));
                         }
                     } else {
                         $(this).attr("d", d3.svg.symbol()
                             .size(d3.select(this).attr("size"))
-                            .type(d3.select(this).attr("shape")));
+                            .type(d3.select(this).attr("ori_shape")));
                     }
                 }
             }
@@ -1057,16 +1094,16 @@ var ccPlots = (function ($, _, Backbone, d3) {
                             (searchToken.toUpperCase()) !== "TCGA" && (searchToken.toUpperCase()) !== "TCGA-") {
                             $(this).attr("d", d3.svg.symbol()
                                 .size(d3.select(this).attr("size") + 5)
-                                .type(d3.select(this).attr("shape")));
+                                .type(d3.select(this).attr("ori_shape")));
                         } else {
                             $(this).attr("d", d3.svg.symbol()
                                 .size(d3.select(this).attr("size"))
-                                .type(d3.select(this).attr("shape")));
+                                .type(d3.select(this).attr("ori_shape")));
                         }
                     } else {
                         $(this).attr("d", d3.svg.symbol()
                             .size(d3.select(this).attr("size"))
-                            .type(d3.select(this).attr("shape")));
+                            .type(d3.select(this).attr("ori_shape")));
                     }
                 }
             }
@@ -1115,6 +1152,9 @@ var ccPlots = (function ($, _, Backbone, d3) {
         },
         update_profile_order: function() {
             data.get($("#cc_plots_gene_list").val(), view.update_profile_order);
+        },
+        toggle_show_mut: function() {
+            view.update_show_mut($("#cc_plots_show_mut").is(':checked'));
         }
     }
 

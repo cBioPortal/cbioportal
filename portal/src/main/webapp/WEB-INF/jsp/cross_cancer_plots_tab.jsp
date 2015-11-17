@@ -58,6 +58,8 @@
         padding-right: 5px;
         display: inline-block;
         margin-bottom: 10px;
+        font-weight: bold;
+        color: grey;
     }
 
     #cc-plots-sidebar select {
@@ -87,6 +89,8 @@
             <h5>Sort By</h5>
             <input type="radio" name="cc_plots_profile_order_opt" onchange="ccPlots.update_profile_order()" value="alphabetic" checked/> Alphabetic
             <input type="radio" name="cc_plots_profile_order_opt" onchange="ccPlots.update_profile_order()" value="median"/> Median
+            <h5>Show Mutations</h5>
+            <input type="checkbox" id="cc_plots_show_mut" onchange="ccPlots.toggle_show_mut()" checked/>
         </div>
     </tr>
     <tr>

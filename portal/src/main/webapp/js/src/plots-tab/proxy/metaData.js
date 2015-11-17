@@ -70,7 +70,7 @@ var metaData = (function() {
             _datum.description = obj.description;
             clinicalAttrs.push(_datum);
         });
-        
+
         //sort genetic profiles
         for(var gene in geneticProfiles) {
             var _gene_obj = geneticProfiles[gene];

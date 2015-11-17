@@ -364,10 +364,15 @@
 
     };
     (function setUpDataManager() {
+        var oql_html_conversion_vessel = document.createElement("div");
+        oql_html_conversion_vessel.innerHTML = '<%=oql%>'.trim();
+        var converted_oql = oql_html_conversion_vessel.textContent.trim();
         window.QuerySession = window.initDatamanager('<%=geneticProfiles%>'.trim().split(/\s+/),
-                                                            '<%=oql%>'.trim(),
+                                                            converted_oql,
                                                             ['<%=cancerTypeId%>'.trim()],
-                                                            '<%=patients%>'.trim().split(/\s+/));
+                                                            '<%=patients%>'.trim().split(/\s+/),
+                                                            parseFloat('<%=zScoreThreshold%>'),
+                                                            parseFloat('<%=rppaScoreThreshold%>'));
     })();
 </script>
 

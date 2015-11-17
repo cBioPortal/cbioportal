@@ -38,8 +38,18 @@ var profileSpec = (function() {
             $.each(metaData.getGeneticProfilesMeta($("#" + ids.sidebar[axis].gene).val()), function(index, obj) {
                 if($.inArray(obj.type, _tmp) === -1 && 
                     obj.type !== "MUTATION_EXTENDED" &&
-                    obj.type !== "PROTEIN_LEVEL") //tmp: skip mutation profile
+                    obj.type !== "PROTEIN_ARRAY_PROTEIN_LEVEL") //tmp: skip mutation profile & PROTEIN_ARRAY_PROTEIN_LEVEL
                         _tmp.push(obj.type);
+            });
+
+            _tmp.sort(function(a, b) {
+                if (genetic_profile_type_priority_list.indexOf(a) < genetic_profile_type_priority_list.indexOf(b)) {
+                    return 1;
+                } else if (genetic_profile_type_priority_list.indexOf(a) > genetic_profile_type_priority_list.indexOf(b)) {
+                    return -1;
+                } else if (genetic_profile_type_priority_list.indexOf(a) === genetic_profile_type_priority_list.indexOf(b)) {
+                    return 0;
+                }
             });
 
             $.each(_tmp, function(index, value) {
@@ -48,11 +58,6 @@ var profileSpec = (function() {
             });
             $("#" + ids.sidebar[axis].spec_div).append("</select>");            
         }
-
-//        $("#" + ids.sidebar[axis].gene).change(function() {
-//            $("#" + ids.sidebar[axis].profile_type).empty();
-//            append();
-//        });
 
         $("#" + ids.sidebar[axis].profile_type).change(function() {
             regenerate_plots(axis);
@@ -73,11 +78,6 @@ var profileSpec = (function() {
                 }
             });
         };
-        
-//        $("#" + ids.sidebar[axis].gene).change(function() {
-//            $("#" + ids.sidebar[axis].profile_name).empty();
-//            append();
-//        });
 
         $("#" + ids.sidebar[axis].profile_type).change(function() {
             $("#" + ids.sidebar[axis].profile_name).empty();
@@ -119,10 +119,6 @@ var profileSpec = (function() {
  
         $("#" + ids.sidebar[axis].spec_div).append("<div id='" + ids.sidebar[axis].log_scale + "-div'></div>");
         append();
-        
-//        $("#" + ids.sidebar[axis].gene).change(function() {
-//            append();
-//        });
 
         $("#" + ids.sidebar[axis].profile_type).change(function() {
             append();

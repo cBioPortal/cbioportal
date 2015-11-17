@@ -76,7 +76,7 @@
     } else {
 %>
 
-<div id="tabs" style="overflow: hidden">
+<div id="tabs">
     <ul>
     <%
         Boolean showMutTab = false;
@@ -164,8 +164,7 @@
                 out.println ("<li><a href='#coexp' class='result-tab' id='coexp-result-tab'>Co-Expression</a></li>");
             }
             if (has_mrna || has_copy_no || showMutTab) {
-                out.println("<li><a href='#or_analysis' id='enrichments-result-tab' class='result-tab' style='height: 18px;'>Enrichments&nbsp;" +
-                 "<span class='new-feature-label'>&nbsp;New&nbsp;</span></a></li>");
+                out.println("<li><a href='#or_analysis' id='enrichments-result-tab' class='result-tab' style='height: 18px;'>Enrichments</a></li>");
             }
             if (has_survival) {
                 out.println ("<li><a href='#survival' class='result-tab' id='survival-result-tab'>Survival</a></li>");
@@ -173,7 +172,7 @@
             if (includeNetworks) {
                 out.println ("<li><a href='#network' class='result-tab' id='network-result-tab'>Network</a></li>");
             }
-            if (showIGVtab){
+            if (showIGVtab && !((String)request.getAttribute(QueryBuilder.CANCER_STUDY_ID)).equals("mskimpact")){
                 out.println ("<li><a href='#igv_tab' class='result-tab' id='igv-result-tab'>IGV</a></li>");
             }
             out.println ("<li><a href='#data_download' class='result-tab' id='data-download-result-tab'>Download</a></li>");
@@ -214,7 +213,7 @@
 
         <%@ include file="plots_tab.jsp" %>
 
-        <% if (showIGVtab) { %>
+        <% if (showIGVtab && !((String)request.getAttribute(QueryBuilder.CANCER_STUDY_ID)).equals("mskimpact")) { %>
             <%@ include file="igv.jsp" %>
         <% } %>
 

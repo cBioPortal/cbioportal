@@ -65,7 +65,7 @@ function PancancerStudySummaryHistogram()
     };
     
     var filterCriteriaChanged = function(model) {
-    	return model.hasChanged("cancerType") || model.hasChanged("cancerTypeDetailed") || model.hasChanged("minAlteredSamples");
+    	return model.hasChanged("cancerType") || model.hasChanged("cancerTypeDetailed") || model.hasChanged("minAlteredSamples") || model.hasChanged("minTotalSamples");;
     }
     
     
@@ -649,16 +649,23 @@ function HistogramPresenter(model, dmPresenter, geneId)
 		this.histData = this._getHistogramData();		
 		
 		var finalHistData = [];
-		//filter data on nr of samples:
+		//filter data on nr of altered samples:
 		var minAlteredSamples = model.get("minAlteredSamples");
-		
+
+		//filter data on nr of samples:
+		var minTotalSamples = model.get("minTotalSamples");
+
 		for (var i = 0; i < this.histData.length; i++) {
-			var yValue = getYValue(this.histData[i], "all", model.get("dataTypeYAxis"));
-			if (model.get("dataTypeYAxis") == "Alteration Frequency")
-				yValue = yValue*100; //multiply by 100 because minAlteredSamples is in %
-				
-			if (yValue >= minAlteredSamples)
-				finalHistData.push(this.histData[i]);
+			// retrieve the caseSetLength and check whether it meets the minimum number of samples requirement
+			var caseSetLength = this.histData[i].caseSetLength;
+			if(caseSetLength>=minTotalSamples) {
+				var yValue = getYValue(this.histData[i], "all", model.get("dataTypeYAxis"));
+				if (model.get("dataTypeYAxis") == "Alteration Frequency")
+					yValue = yValue * 100; //multiply by 100 because minAlteredSamples is in %
+
+				if (yValue >= minAlteredSamples)
+					finalHistData.push(this.histData[i]);
+			}
 		}
 		
 		this.histData = finalHistData;

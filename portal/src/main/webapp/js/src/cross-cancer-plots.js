@@ -9,7 +9,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
         var retrieved_genes = [], //list of genes that already retrieved data and stored here
             mut_proxy = "", mut_obj = {};
 
-        var mean_vals = []; //{gene: {profileId:"", mean:0}}
+        var median_vals = []; //{gene: {profileId:"", median:0}}
 
         var ProfileMeta = Backbone.Model.extend({
             defaults: {
@@ -181,7 +181,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                                     });
                                 })
 
-                                //calculate mean value
+                                //calculate median value
                                 var _values = [];
                                 _.each(profileDataListTmp.models, function(_model) {
                                     if (_model.attributes.value !== "NaN") {
@@ -190,12 +190,12 @@ var ccPlots = (function ($, _, Backbone, d3) {
                                 });
                                 var _tmp_obj = {
                                     profile_id: _profile_obj.STABLE_ID,
-                                    mean: findMedian(_values)
+                                    median: findMedian(_values)
                                 };
-                                if (mean_vals.hasOwnProperty(_gene)) {
-                                    mean_vals[_gene].push(_tmp_obj);
+                                if (median_vals.hasOwnProperty(_gene)) {
+                                    median_vals[_gene].push(_tmp_obj);
                                 } else {
-                                    mean_vals[_gene] = [_tmp_obj];
+                                    median_vals[_gene] = [_tmp_obj];
                                 }
 
                                 profileDataList.add(profileDataListTmp.models);
@@ -224,22 +224,16 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 if (_opt === "alphabetic") {
                     _arr = _.sortBy(_arr, "CANCER_STUDY_SHORT_NAME");
                     return _arr;
-                } else if (_opt === "mean") {
-                    var cc_plots_mean_vals_time_out = setInterval(function () {
-                        cc_plots_mean_vals_timer();
-                    }, 1000);
-                    function cc_plots_mean_vals_timer() {
-                        if (mean_vals.length !== 0) {
-                            clearInterval(cc_plots_mean_vals_time_out);
-                            console.log(mean_vals);
-                            _.each(_arr, function(_obj) {
-                                _obj.mean = mean_vals[$("#cc_plots_gene_list").val()][_obj.STABLE_ID]["mean"];
-                            });
-                            console.log(_arr);
-                            _arr = _.sortBy(_arr, "CANCER_STUDY_NAME");
-                            return _arr;
-                        }
-                    }
+                } else if (_opt === "median") {
+                    _.each(_arr, function(_obj) {
+                        _.each(median_vals[$("#cc_plots_gene_list").val()], function(_median_val_obj) {
+                            if (_median_val_obj.profile_id === _obj.STABLE_ID) {
+                                _obj["MEDIAN"] = _median_val_obj.median;
+                            }
+                        });
+                    });
+                    _arr = _.sortBy(_arr, "MEDIAN");
+                    return _arr;
                 }
             },
             get_profile_name: function(_profile_id) {
@@ -272,7 +266,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
             },
             settings = {
                 canvas_width: 0,
-                canvas_height: 605,
+                canvas_height: 615,
                 log_scale: {
                     threshold_down : 0.17677669529,  //-2.5 to 10
                     threshold_up : 1.2676506e+30

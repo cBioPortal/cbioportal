@@ -438,8 +438,9 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 
 			cy.panzoom(panProps);
 
+			cy.zoom(1.3);
+			//cy.fit([,100]);
 			cy.center();
-			cy.fit(cy.eles(),[,100]);
 
 		}});
 

@@ -467,6 +467,8 @@ var MinTotalSamplesSliderView = Backbone.View.extend({
             min: 0,
             max: this.max
         });
+
+        //this.model.set("minTotalSamples", 0);
     },
 
     // handle change to the slider

@@ -1,15 +1,36 @@
 /**
  * Created by suny1 on 11/18/15.
  */
-var PlotlyCCplots = (function (Plotly) {
+var PlotlyCCplots = (function (Plotly, _, $) {
 
     var data = [], layout = {};
 
     var fetch_data = function() {
 
+        var params = {
+            cancer_study_id: "acc_tcga",
+            gene_list: "SOX9",
+            genetic_profile_id: "acc_tcga_rna_seq_v2_mrna",
+            case_set_id: "acc_tcga_all",
+            case_ids_key: -1
+        };
+
+        $.post("getProfileData.json", params, new track(), "json");
+
     }
 
-    var define_tracks = function() {
+    var track = function(_profile_id) {
+        _data = _input;
+        console.log(_data);
+
+        return
+
+    };
+
+    var define_tracks = function(_input) {
+
+        console.log(_input);
+
         var non_mut = {
             x: [
                 -2.02,
@@ -121,8 +142,6 @@ var PlotlyCCplots = (function (Plotly) {
 
     var render = function() {
         fetch_data();
-        define_tracks();
-        define_layout();
         Plotly.newPlot('plotly_cc_plots_box', data, layout);
     }
 
@@ -132,5 +151,5 @@ var PlotlyCCplots = (function (Plotly) {
         }
     }
 
-}(window.Plotly));
+}(window.Plotly, window._, window.jQuery));
 

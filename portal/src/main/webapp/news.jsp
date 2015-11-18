@@ -53,7 +53,6 @@
     <table cellspacing="2px">
         <tr>
             <td>
-                <h1>What's New</h1>
                 <div id="newsPage" class="markdown"></div>
             </td>
         </tr>

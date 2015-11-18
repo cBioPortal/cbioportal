@@ -54,7 +54,6 @@
       <table cellspacing="2px">
         <tr>
             <td>
-                <h1>About Us</h1>
                 <div id="aboutPage" class="markdown"></div>
             </td>
         </tr>

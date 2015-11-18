@@ -362,7 +362,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 					} else {
 						window.cbioportal_client.getSamples({study_id: [this.getCancerStudyIds()[0]], sample_ids: this.getSampleIds()}).then(function(data) {
 							for (var i=0; i<data.length; i++) {
-								sample_to_patient[data.id] = data.patient_id;
+								sample_to_patient[data[i].id] = data[i].patient_id;
 							}
 							loaded = true;
 							def.resolve(sample_to_patient);
@@ -379,6 +379,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			var profile_types = {};
 			var sample_to_patient = {};
 			var data_fetched = false;
+			var data_fetching = false;
 
 			var makeOncoprintSampleData = function(webservice_gp_data) {
 				var cna_string = {"-2":"HOMODELETED","-1":"HEMIZYGOUSLYDELETED","0":undefined,"1":"GAINED","2":"AMPLIFIED"};
@@ -511,45 +512,48 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 				var default_oql = Object.keys(default_oql_uniq).join(" ");
 				OQLHandler.setDefaultOQL(default_oql);
 			};
+			var def = new $.Deferred();
 			return function() {
-				var def = $.Deferred();
 				try {
 					if (data_fetched) {
 						def.resolve();
 					} else {
-						$.when(window.cbioportal_client.getGeneticProfiles({genetic_profile_ids: dm_ret.getGeneticProfileIds()}),
-							window.cbioportal_client.getSamples({study_id: [cancer_study_ids[0]], sample_ids: sample_ids}))
-						.then(function(gp_response, sample_response) {
-							for (var i = 0; i < gp_response.length; i++) {
-								profile_types[gp_response[i].id] = gp_response[i].genetic_alteration_type;
-							}
-							setDefaultOQL();
+						if (!data_fetching) {
+							$.when(window.cbioportal_client.getGeneticProfiles({genetic_profile_ids: dm_ret.getGeneticProfileIds()}),
+								window.cbioportal_client.getSamples({study_id: [cancer_study_ids[0]], sample_ids: sample_ids}))
+							.then(function(gp_response, sample_response) {
+								for (var i = 0; i < gp_response.length; i++) {
+									profile_types[gp_response[i].id] = gp_response[i].genetic_alteration_type;
+								}
+								setDefaultOQL();
 
-							for (var i = 0; i < sample_response.length; i++) {
-								sample_to_patient[sample_response[i].id] = sample_response[i].patient_id;
-							}
-						}).fail(function() {
-							def.reject();
-						}).then(function() {
-							return window.cbioportal_client.getGeneticProfileData({genetic_profile_ids: dm_ret.getGeneticProfileIds(), genes: dm_ret.getQueryGenes(), sample_ids: dm_ret.getSampleIds()});
-						}).fail(function() {
-							def.reject();
-						}).then(function(response) {
-							var oql_process_result = OQLHandler.maskData(dm_ret.getOQLQuery(), makeOncoprintSampleData(response));
-							dm_ret.sample_gene_data = oql_process_result.data;
-							dm_ret.altered_samples = oql_process_result.altered;
-							dm_ret.unaltered_samples = oql_process_result.unaltered;
+								for (var i = 0; i < sample_response.length; i++) {
+									sample_to_patient[sample_response[i].id] = sample_response[i].patient_id;
+								}
+							}).fail(function() {
+								def.reject();
+							}).then(function() {
+								return window.cbioportal_client.getGeneticProfileData({genetic_profile_ids: dm_ret.getGeneticProfileIds(), genes: dm_ret.getQueryGenes(), sample_ids: dm_ret.getSampleIds()});
+							}).fail(function() {
+								def.reject();
+							}).then(function(response) {
+								var oql_process_result = OQLHandler.maskData(dm_ret.getOQLQuery(), makeOncoprintSampleData(response));
+								dm_ret.sample_gene_data = oql_process_result.data;
+								dm_ret.altered_samples = oql_process_result.altered;
+								dm_ret.unaltered_samples = oql_process_result.unaltered;
 
-							var oql_process_result_patient = OQLHandler.maskData(dm_ret.getOQLQuery(), makeOncoprintPatientData(dm_ret.sample_gene_data), true);
-							dm_ret.patient_gene_data = oql_process_result_patient.data;
-							dm_ret.altered_patients = oql_process_result_patient.altered;
-							dm_ret.unaltered_patients = oql_process_result_patient.unaltered;
+								var oql_process_result_patient = OQLHandler.maskData(dm_ret.getOQLQuery(), makeOncoprintPatientData(dm_ret.sample_gene_data), true);
+								dm_ret.patient_gene_data = oql_process_result_patient.data;
+								dm_ret.altered_patients = oql_process_result_patient.altered;
+								dm_ret.unaltered_patients = oql_process_result_patient.unaltered;
 
-							data_fetched = true;
-							def.resolve();
-						}).fail(function() {
-							def.reject();
-						});
+								data_fetched = true;
+								def.resolve();
+							}).fail(function() {
+								def.reject();
+							});
+							data_fetching = true;
+						}
 					}
 				} catch (err) {
 					def.reject();

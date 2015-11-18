@@ -52,7 +52,6 @@
     <table cellspacing="2px">
         <tr>
             <td>
-            <h1>Portal FAQs</h1>
                 <div id="faqPage" class="markdown"></div>
             </td>
         </tr>

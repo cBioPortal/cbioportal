@@ -183,7 +183,8 @@
         showCoexpTab = true;
     } 
     Object patientSampleIdMap = request.getAttribute(QueryBuilder.SELECTED_PATIENT_SAMPLE_ID_MAP);
-
+    
+    String patientCaseSelect = (String)request.getAttribute(QueryBuilder.PATIENT_CASE_SELECT);
     //list of altered & unaltered sample ids
     ArrayList<String> alteredSampleIdList = new ArrayList<String>();
     ArrayList<String> unalteredSampleIdList = new ArrayList<String>();
@@ -269,6 +270,8 @@
 
     var num_total_cases = 0, num_altered_cases = 0;
     var global_gene_data = {}, global_sample_ids = [];
+    var patientSampleIdMap = {};
+    var patientCaseSelect;
 
     window.PortalGlobals = {
 
@@ -305,7 +308,12 @@
         //samples
         setSampleIds: function(_inputArr) { global_sample_ids = _inputArr; },
         getSampleIds: function() { return global_sample_ids; },
+        
+        setPatientSampleIdMap: function(_patientSampleIdMap) {patientSampleIdMap = _patientSampleIdMap;},
 
+    
+        getPatientCaseSelect: function() {return '<%=patientCaseSelect%>';},
+        
         //patients
         getPatientSetName: function() { return '<%=patientSetName%>'; },
         getPatientSetDescription: function() {
@@ -356,10 +364,15 @@
 
     };
     (function setUpDataManager() {
+        var oql_html_conversion_vessel = document.createElement("div");
+        oql_html_conversion_vessel.innerHTML = '<%=oql%>'.trim();
+        var converted_oql = oql_html_conversion_vessel.textContent.trim();
         window.QuerySession = window.initDatamanager('<%=geneticProfiles%>'.trim().split(/\s+/),
-                                                            '<%=oql%>'.trim(),
+                                                            converted_oql,
                                                             ['<%=cancerTypeId%>'.trim()],
-                                                            '<%=patients%>'.trim().split(/\s+/));
+                                                            '<%=patients%>'.trim().split(/\s+/),
+                                                            parseFloat('<%=zScoreThreshold%>'),
+                                                            parseFloat('<%=rppaScoreThreshold%>'));
     })();
 </script>
 
@@ -381,7 +394,7 @@
 
         var _sampleIds = window.QuerySession.getSampleIds();
         window.PortalGlobals.setSampleIds(_sampleIds);
-
+        
         //Configure the summary line of alteration statstics
         var _stat_smry = "<h3 style='color:#686868;font-size:14px;'>Gene Set / Pathway is altered in <b>" + window.PortalGlobals.getNumOfAlteredCases() + " (" + window.PortalGlobals.getPercentageOfAlteredCases() + "%)" + "</b> of queried samples</h3>";
         $("#main_smry_stat_div").append(_stat_smry);

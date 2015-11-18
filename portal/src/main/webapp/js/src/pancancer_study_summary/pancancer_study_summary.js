@@ -221,6 +221,7 @@ var CustomizeHistogramView = Backbone.View.extend({
      this.addSortByYAxisSelect();
      this.addSortByXAxisSelect();
      this.addNrAlteredSamplesSlider();
+     this.addNrTotalSamplesSlider();
      this.addShowGenomicAlterationTypesCheckbox();
      this.addcancerTypeDetailedView();
   },
@@ -240,8 +241,8 @@ var CustomizeHistogramView = Backbone.View.extend({
          var cancerType = $(this).val();
          fields["cancerType"] = cancerType;
          fields["cancerTypeDetailed"] = self.dmPresenter.getCancerTypeDetailedList(cancerType);
-         //also reset minNrAlteredSamples (for the slider):
-         fields["minNrAlteredSamples"] = 0;
+         //also reset minAlteredSamples (for the slider):
+         fields["minAlteredSamples"] = 0;
     	 self.model.set(fields);
      }
      // create the dropdown and add it
@@ -253,7 +254,7 @@ var CustomizeHistogramView = Backbone.View.extend({
   addSortByYAxisSelect: function(){
 	 var self = this;
      // static options: 
-     var selOptions = ["Absolute Counts", "Alteration Frequency"];  
+     var selOptions = ["Alteration Frequency", "Absolute Counts"];  
      
      // handle the event for when the Sort By Y-Axis Select is changed
      var changeCallBack = function(){
@@ -283,12 +284,21 @@ var CustomizeHistogramView = Backbone.View.extend({
 
   // add the slider for minimum number of altered samples
   addNrAlteredSamplesSlider: function(){
-     new MinNrAlteredSamplesSliderView({
+     new MinAlteredSamplesSliderView({
     	 gene:this.gene, 
     	 el:"#customize-min-nr-altered-samples-slider-"+this.gene, 
     	 dispatcher:this.dispatcher, 
     	 model:this.model,
     	 dmPresenter:this.dmPresenter});
+  },
+    // add the slider for total number of altered samples
+  addNrTotalSamplesSlider: function(){
+      new MinTotalSamplesSliderView({
+         gene:this.gene,
+         el:"#customize-total-nr-altered-samples-slider-"+this.gene,
+         dispatcher:this.dispatcher,
+         model:this.model,
+         dmPresenter:this.dmPresenter});
   },
 
   // add checkbox for genomic alteration types
@@ -342,7 +352,7 @@ var fnCreateSelect = function(title, aData, callBack) {
  * View for the "Min nr of altered Samples" parameter, presented in the form of a slider. 
  * It is used as part of CustomizeHistogramView above.
  */
-var MinNrAlteredSamplesSliderView = Backbone.View.extend({
+var MinAlteredSamplesSliderView = Backbone.View.extend({
       
   initialize: function(options){
      this.dispatcher = options.dispatcher;
@@ -354,45 +364,118 @@ var MinNrAlteredSamplesSliderView = Backbone.View.extend({
   },
 
   events: {
-     'slidechange .diagram-min-nr-altered-samples-slider': 'handleSliderChange'
+     'slidechange .diagram-general-slider': 'handleSliderChange'
   }, 
 
   //function for model.onchange above, it will check whether the slider max threshold needs
   //to be udpated:
   updateRender: function(){
-	  var cancerTypeChanged = this.model.hasChanged("cancerType");
-	  if (cancerTypeChanged)
+	  var renderNeeded = this.model.hasChanged("cancerType") || this.model.hasChanged("dataTypeYAxis");
+	  if (renderNeeded)
 		  this.render();
   },
   
   render: function(){
-	 this.max = this.dmPresenter.getNrAlteredSamplesForCancerTypeAndGene(this.model.get("cancerType"), this.gene);
-     var templateFn = PanCancerTemplateCache.getTemplateFn("nr_altered_samples_slider_template");
-     this.template = templateFn({min:0, max:this.max});
+	 //add % after the values or not:
+	 var suffix = "";
+	 this.max = this.dmPresenter.getMaxAlteredSamplesForCancerTypeAndGene(this.model.get("cancerType"), this.gene, this.model.get("dataTypeYAxis"));
+
+     var text = "Min. # altered samples ";
+
+	 if (this.model.get("dataTypeYAxis") == "Alteration Frequency") {
+		 suffix = "%";
+		 //in %, with 1 decimal:
+		 this.max = Math.round(parseFloat(this.max) * 1000)/10;
+         text = "Min. alteration ";
+	 }
+	 
+     var templateFn = PanCancerTemplateCache.getTemplateFn("general_slider_template");
+     this.template = templateFn({min:0, init:0, max:this.max, suffix: suffix, text:text});
 
      // add the template
      $(this.el).html(this.template);
 
      // create the jQuery ui slider
-     var sampleSlider = this.$el.find(".diagram-min-nr-altered-samples-slider");
+     var sampleSlider = this.$el.find(".diagram-general-slider");
      sampleSlider.slider({ 
         value: 0, 
         min: 0, 
         max: this.max 
      });
+     //synchronize model:
+     this.model.set("minAlteredSamples", 0);
   },
 
   // handle change to the slider        
   handleSliderChange: function(e, ui) {
-     var sampleText = this.$el.find(".diagram-min-nr-alter-samples-value");
+     var sampleText = this.$el.find(".diagram-general-slider-value");
      console.log("GENE: "+this.gene);
      // update text 
      sampleText.html(ui.value);
      // and notify the histogram 
-     this.model.set("minNrAlteredSamples", ui.value);
+     this.model.set("minAlteredSamples", ui.value);
   }
 
-}); // end MinNrAlteredSamplesSliderView
+}); // end MinAlteredSamplesSliderView
+
+// min number of total samples
+var MinTotalSamplesSliderView = Backbone.View.extend({
+
+    initialize: function(options){
+        this.dispatcher = options.dispatcher;
+        this.gene = options.gene;
+        this.dmPresenter = options.dmPresenter;
+        this.render();
+        // call render when the model is changed
+        this.model.on("change", this.updateRender, this);
+    },
+
+    events: {
+        'slidechange .diagram-general-slider': 'handleSliderChange'
+    },
+
+    //function for model.onchange above, it will check whether the slider max threshold needs
+    //to be updated:
+    updateRender: function(){
+        var renderNeeded = this.model.hasChanged("cancerType");
+        if (renderNeeded)
+            this.render();
+    },
+
+    render: function(){
+        // find the maximum number of samples for the cancertype
+        this.max = this.dmPresenter.getMaxSamplesForCancerType(this.model.get("cancerType"));
+
+        var templateFn = PanCancerTemplateCache.getTemplateFn("general_slider_template");
+        //this.template = templateFn({min:0, max:this.max});
+        this.template = templateFn({min:0, init:0, max:this.max, suffix: "", text:"Min. # total samples "});
+
+
+        // add the template
+        $(this.el).html(this.template);
+
+        // create the jQuery ui slider
+        var sampleSlider = this.$el.find(".diagram-general-slider");
+        sampleSlider.slider({
+            value: 0,
+            min: 0,
+            max: this.max
+        });
+        //synchronize model:
+        this.model.set("minTotalSamples", 0);
+    },
+
+    // handle change to the slider
+    handleSliderChange: function(e, ui) {
+        var sampleText = this.$el.find(".diagram-general-slider-value");
+        console.log("GENE: "+this.gene);
+        // update text
+        sampleText.html(ui.value);
+        // and notify the histogram
+        this.model.set("minTotalSamples", ui.value);
+    }
+
+}); // end MinTotalSamplesSliderView
 
 
 /**
@@ -575,8 +658,9 @@ var HistogramSettings = Backbone.Model.extend({
      cancerType: "All",
      cancerTypeDetailed: "All",
      sortXAxis: "Y-Axis Values",
-     dataTypeYAxis: "Absolute Counts",
-     minNrAlteredSamples: "0",
+     dataTypeYAxis: "Alteration Frequency",
+     minAlteredSamples: "0",
+     minTotalSamples: "0",
      showGenomicAlterationTypes: true
   },
   initialize: function(options) {
@@ -686,15 +770,15 @@ function DataManagerPresenter(dmInitCallBack)
 	console.log(new Date() + ": CALL to getGenomicEventData()");
 	window.QuerySession.getGenomicEventData()
 	.then(
-		function (data){
+		function (genomicEventData){
 			
 			console.log(new Date() + ": started processing getGenomicEventData() data");
 			
-			for (var i = 0; i < data.length; i++) {
+			for (var i = 0; i < genomicEventData.length; i++) {
 				//init alteration events, if not yet done
-				if (!self.sampleList[data[i].sample])
-					self.sampleList[data[i].sample] = {alterationEvents: []};
-				self.sampleList[data[i].sample].alterationEvents.push(data[i]); 
+				if (!self.sampleList[genomicEventData[i].sample])
+					self.sampleList[genomicEventData[i].sample] = {alterationEvents: []};
+				self.sampleList[genomicEventData[i].sample].alterationEvents.push(genomicEventData[i]);
 				
 			}
 			console.log(new Date() + ": finished processing getGenomicEventData() data");
@@ -708,35 +792,35 @@ function DataManagerPresenter(dmInitCallBack)
 			alert(" error found");//TODO - check how the error will come in and how we should present it. Logged in https://github.com/cBioPortal/cbioportal/issues/264
 		})
 	.then(
-		function (data){
+		function (sampleClinicalData){
 			//parse the data to the correct internal format. Here we can assume that the samples are only the ones 
 			//that comply with the query form parameters (e.g. the sample set ):
 			console.log(new Date() + ": started processing sample clinical atttributes (cancer types)");
 			
 			var sampleIdAndCancerTypeIdx = [];
-			for (var i = 0; i < data.length; i++)
+			for (var i = 0; i < sampleClinicalData.length; i++)
 			{
-				if (data[i].attr_id == "CANCER_TYPE")
+				if (sampleClinicalData[i].attr_id == "CANCER_TYPE")
 				{
 					//track cancer types and sample ids:
-					if (!self.cancerTypeList[data[i].attr_val])
-						self.cancerTypeList[data[i].attr_val] = {cancerTypeDetailed: [], sampleIds: []};
-					var cancerType = self.cancerTypeList[data[i].attr_val];
+					if (!self.cancerTypeList[sampleClinicalData[i].attr_val])
+						self.cancerTypeList[sampleClinicalData[i].attr_val] = {cancerTypeDetailed: [], sampleIds: []};
+					var cancerType = self.cancerTypeList[sampleClinicalData[i].attr_val];
 					//a sample contains only one cancer_type, so refer to it:
-					sampleIdAndCancerTypeIdx[data[i].sample] = cancerType;
-					cancerType.sampleIds.push(data[i].sample);
+					sampleIdAndCancerTypeIdx[sampleClinicalData[i].sample] = cancerType;
+					cancerType.sampleIds.push(sampleClinicalData[i].sample);
 					
 				}
 			}
-			for (var i = 0; i < data.length; i++)
+			for (var i = 0; i < sampleClinicalData.length; i++)
 			{
-				if (data[i].attr_id == "CANCER_TYPE_DETAILED")
+				if (sampleClinicalData[i].attr_id == "CANCER_TYPE_DETAILED")
 				{
 					//track cancer type detailed per cancer type:
-					var cancerType = sampleIdAndCancerTypeIdx[data[i].sample];
-					if (!cancerType.cancerTypeDetailed[data[i].attr_val])
-						cancerType.cancerTypeDetailed[data[i].attr_val] = {sampleIds: []};
-					cancerType.cancerTypeDetailed[data[i].attr_val].sampleIds.push(data[i].sample);
+					var cancerType = sampleIdAndCancerTypeIdx[sampleClinicalData[i].sample];
+					if (!cancerType.cancerTypeDetailed[sampleClinicalData[i].attr_val])
+						cancerType.cancerTypeDetailed[sampleClinicalData[i].attr_val] = {sampleIds: []};
+					cancerType.cancerTypeDetailed[sampleClinicalData[i].attr_val].sampleIds.push(sampleClinicalData[i].sample);
 				}
 			}
 			console.log(new Date() + ": finished processing sample clinical atttributes (cancer types)");
@@ -870,7 +954,7 @@ function DataManagerPresenter(dmInitCallBack)
 		        result.push(item);
 		    }
 		}		
-		return result;
+		return result.sort();
 	}
 	
 	/** 
@@ -892,32 +976,37 @@ function DataManagerPresenter(dmInitCallBack)
 			        result.push(item);
 			    }
 			}		
-			return result;
+			return result.sort();
 		}
 	}
 	
 	/** 
-	 * Returns the max number of altered samples for given cancerType and gene.
-	 * If cancerType == "All", it will iterate over the main cancer types and
-	 * return the max number of samples of the cancer type that had the most 
-	 * altered samples for this gene. 
+	 * Returns information on: the max number or frequency (%) of altered samples
+	 * for the given cancerType and gene.
+	 * If cancerType == "All", it will iterate over the main cancer types. 
 	 * 
-	 * If cancerType == a specific main cancer type, it will iterate over its sub cancer types and
-	 * return the max number of samples of the sub cancer type that had the most 
-	 * altered samples for this gene. 
+	 * If cancerType == a specific main cancer type, it will iterate over its sub cancer types. 
 	 * 
+	 * @param cancerType: "All" or one of the main cancer types
+	 * @param geneId : gene id for which current tab was rendered
+	 * @param dataTypeYAxis: set to "Alteration Frequency" to return max in frequency %
+	 * 
+	 * @return : max as number of samples or frequency % (depending on the value of dataTypeYAxis)
 	 */
-	this.getNrAlteredSamplesForCancerTypeAndGene = function(cancerType, geneId) {
+	this.getMaxAlteredSamplesForCancerTypeAndGene = function(cancerType, geneId, dataTypeYAxis) {
 		
 		if (cancerType == "All") {
 			//check max:
 			var max = 0;
 			var cancerTypes = this.getCancerTypeList();
 			for (var i = 0; i < cancerTypes.length; i++) {
+				var denominator = 1;
+				if (dataTypeYAxis == "Alteration Frequency")
+					denominator = this.getTotalNrSamplesPerCancerType(cancerTypes[i], null);
 				//this method call is repeated (also called to build histogram JSON data)...TODO - performance improvement could be gained here...tests will indicate if necessary
-				var nrAlt = this.getAlterationEvents(cancerTypes[i], null, geneId).all;
-				if (nrAlt > max)
-					max = nrAlt;
+				var value = this.getAlterationEvents(cancerTypes[i], null, geneId).all / denominator;				
+				if (value > max)
+					max = value;
 			}
 			return max;
 		}
@@ -925,15 +1014,38 @@ function DataManagerPresenter(dmInitCallBack)
 			var max = 0;
 			var cancerTypes = this.getCancerTypeDetailedList(cancerType);
 			for (var i = 0; i < cancerTypes.length; i++) {
-				var nrAlt = this.getAlterationEvents(cancerType, cancerTypes[i], geneId).all;
-				if (nrAlt > max)
-					max = nrAlt;
+				var denominator = 1;
+				if (dataTypeYAxis == "Alteration Frequency")
+					denominator = this.getTotalNrSamplesPerCancerType(cancerType, cancerTypes[i]);
+				var value = this.getAlterationEvents(cancerType, cancerTypes[i], geneId).all / denominator;
+				if (value > max)
+					max = value;
 			}
 			return max;
 		}
 
 	}
-	
+
+    // maybe already stored somewhere?
+    this.getMaxSamplesForCancerType = function(cancerType){
+        var nrSamples= 0, max=0;
+        if (cancerType == "All") {
+            var cancerTypes = this.getCancerTypeList();
+            for (var i = 0; i < cancerTypes.length; i++) {
+                nrSamples = this.getTotalNrSamplesPerCancerType(cancerTypes[i], null);
+                if(nrSamples>max) max=nrSamples;
+            }
+        }
+        else {
+            var cancerTypes = this.getCancerTypeDetailedList(cancerType);
+            for (var i = 0; i < cancerTypes.length; i++) {
+                nrSamples = this.getTotalNrSamplesPerCancerType(cancerType, cancerTypes[i]);
+                if(nrSamples>max) max=nrSamples;
+            }
+        }
+        return max;
+    }
+
 	/**
 	 * Returns the gene list chosen by user in query form.
 	 */

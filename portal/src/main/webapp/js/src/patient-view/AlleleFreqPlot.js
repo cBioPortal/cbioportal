@@ -192,7 +192,7 @@ var AlleleFreqPlotMulti = function(div, data, options, order) {
     var plot_data = {};
     for (var k in data) {
         if (data.hasOwnProperty(k)) {
-            bandwidth[k] = utils.calculate_bandwidth(data[k]);
+            bandwidth[k] = Math.max(utils.calculate_bandwidth(data[k]), 0.01);
             kde[k] = utils.kernelDensityEstimator(utils.gaussianKernel(bandwidth[k]), x.ticks(100));
             plot_data[k] = kde[k](data[k]);
         }

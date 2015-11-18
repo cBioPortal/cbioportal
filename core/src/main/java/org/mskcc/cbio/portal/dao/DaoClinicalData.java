@@ -35,12 +35,10 @@ package org.mskcc.cbio.portal.dao;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.InternalIdUtil;
 
-import org.apache.commons.logging.*;
 import org.apache.commons.lang.StringUtils;
 
 import java.sql.*;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Data Access Object for `clinical` table
@@ -55,14 +53,10 @@ public final class DaoClinicalData {
     private static final String SAMPLE_INSERT = "INSERT INTO " + SAMPLE_TABLE + "(`INTERAL_ID`,`ATTR_ID`,`ATTR_VALUE` VALUES(?,?,?)";
     private static final String PATIENT_INSERT = "INSERT INTO " + PATIENT_TABLE + "(`INTERNAL_ID`,`ATTR_ID`,`ATTR_VALUE` VALUES(?,?,?)";
 
-    private static final Map<String, String> sampleAttributes = new ConcurrentHashMap<String, String>();
-    private static final Map<String, String> patientAttributes = new ConcurrentHashMap<String, String>();
+    private static final Map<String, String> sampleAttributes = new HashMap<String, String>();
+    private static final Map<String, String> patientAttributes = new HashMap<String, String>();
 
     private DaoClinicalData() {}
-
-    static {
-        reCache();
-    }
 
     public static synchronized void reCache()
     {

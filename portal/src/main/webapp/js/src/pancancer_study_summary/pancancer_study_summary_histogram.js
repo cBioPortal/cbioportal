@@ -1,3 +1,25 @@
+/**
+ * Global utility function:
+ * @return returns frequency of alterations
+ */ 
+var calculateFrequency = function(d, type) {
+    return d.alterations[type]/ d.caseSetLength;
+};
+
+/**
+ * Global utility function:
+ * @return returns either the number of alterations (in counts) or the frequency of alterations. 
+ */
+var getYValue = function(d, type, dataTypeYAxis) {
+    if (dataTypeYAxis == "Absolute Counts")
+	    return d.alterations[type];
+	else
+		return calculateFrequency(d, type);
+};
+  
+/**
+ * Class to render the d3js histogram.
+ */
 function PancancerStudySummaryHistogram()
 {
 	
@@ -38,24 +60,12 @@ function PancancerStudySummaryHistogram()
         }
     };
     
-    var calculateFrequency = function(d, type) {
-        return d.alterations[type]/ d.caseSetLength;
-    };
-
-    var getYValue = function(d, type, dataTypeYAxis) {
-	    if (dataTypeYAxis == "Absolute Counts")
-	    	return d.alterations[type];
-	    else
-	    	return calculateFrequency(d, type);
-    };
-  
-
     var getTypeOfCancer = function(study) {
     	return study.typeOfCancer; 
     };
     
     var filterCriteriaChanged = function(model) {
-    	return model.hasChanged("cancerType") || model.hasChanged("cancerTypeDetailed") || model.hasChanged("minNrAlteredSamples");
+    	return model.hasChanged("cancerType") || model.hasChanged("cancerTypeDetailed") || model.hasChanged("minAlteredSamples") || model.hasChanged("minTotalSamples");;
     }
     
     
@@ -639,12 +649,23 @@ function HistogramPresenter(model, dmPresenter, geneId)
 		this.histData = this._getHistogramData();		
 		
 		var finalHistData = [];
+		//filter data on nr of altered samples:
+		var minAlteredSamples = model.get("minAlteredSamples");
+
 		//filter data on nr of samples:
-		var minNrAlteredSamples = model.get("minNrAlteredSamples");
-		
+		var minTotalSamples = model.get("minTotalSamples");
+
 		for (var i = 0; i < this.histData.length; i++) {
-			if (this.histData[i].alterations.all >= minNrAlteredSamples)
-				finalHistData.push(this.histData[i]);
+			// retrieve the caseSetLength and check whether it meets the minimum number of samples requirement
+			var caseSetLength = this.histData[i].caseSetLength;
+			if(caseSetLength>=minTotalSamples) {
+				var yValue = getYValue(this.histData[i], "all", model.get("dataTypeYAxis"));
+				if (model.get("dataTypeYAxis") == "Alteration Frequency")
+					yValue = yValue * 100; //multiply by 100 because minAlteredSamples is in %
+
+				if (yValue >= minAlteredSamples)
+					finalHistData.push(this.histData[i]);
+			}
 		}
 		
 		this.histData = finalHistData;

@@ -41,8 +41,12 @@ import org.mskcc.cbio.portal.util.AccessControl;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.*;
 
 import org.apache.commons.lang.*;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.owasp.validator.html.PolicyException;
+
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.*;
 import java.util.*;
@@ -63,6 +67,7 @@ public class QueryBuilder extends HttpServlet {
     public static final String PROFILE_LIST_INTERNAL = "profile_list";
     public static final String CASE_SETS_INTERNAL = "case_sets";
     public static final String CANCER_STUDY_ID = "cancer_study_id";
+    public static final String PATIENT_CASE_SELECT = "patient_case_select";
     public static final String CANCER_STUDY_LIST = "cancer_study_list";
     public static final String HAS_SURVIVAL_DATA = "has_survival_data";
     public static final String GENETIC_PROFILE_IDS = "genetic_profile_ids";
@@ -111,7 +116,10 @@ public class QueryBuilder extends HttpServlet {
     public static final String SELECTED_PATIENT_SAMPLE_ID_MAP = "selected_patient_sample_id_map";
     private static final String DB_CONNECT_ERROR = ("An error occurred while trying to connect to the database." +
                                                     "  This could happen if the database does not contain any cancer studies.");
-    
+
+
+    private static Log LOG = LogFactory.getLog(QueryBuilder.class);
+
     public static final String CANCER_TYPES_MAP = "cancer_types_map"; 
 
     private ServletXssUtil servletXssUtil;
@@ -171,6 +179,8 @@ public class QueryBuilder extends HttpServlet {
 
         //  Get User Selected Action
         String action = httpServletRequest.getParameter(ACTION_NAME);
+        
+        String patientCaseSelect = httpServletRequest.getParameter(PATIENT_CASE_SELECT);
 
         //  Get User Selected Cancer Type
         String cancerTypeId = httpServletRequest.getParameter(CANCER_STUDY_ID);
@@ -237,7 +247,7 @@ public class QueryBuilder extends HttpServlet {
 	        {
 		        patientIds = patientIds.replaceAll("\\\\n", "\n").replaceAll("\\\\t", "\t");
 	        }
-
+         
             httpServletRequest.setAttribute(XDEBUG_OBJECT, xdebug);
 
 			checkAndRedirectOnStudyStatus(httpServletRequest, httpServletResponse, cancerTypeId);
@@ -247,7 +257,7 @@ public class QueryBuilder extends HttpServlet {
             if (action != null && action.equals(ACTION_SUBMIT) && (!errorsExist)) {
 
                 processData(cancerTypeId, geneticProfileIdSet, profileList, geneList, patientSetId,
-                            patientIds, patientSets, getServletContext(), httpServletRequest,
+                            patientIds, patientSets, patientCaseSelect, getServletContext(), httpServletRequest,
                             httpServletResponse, xdebug);
             } else {
                 if (errorsExist) {
@@ -319,6 +329,7 @@ public class QueryBuilder extends HttpServlet {
 							 String geneListStr,
 							 String patientSetId, String sampleIds,
 							 ArrayList<PatientList> patientSetList,
+                                                         String patientCaseSelect,
 							 ServletContext servletContext, HttpServletRequest request,
 							 HttpServletResponse response,
 							 XDebug xdebug) throws IOException, ServletException, DaoException {
@@ -341,6 +352,8 @@ public class QueryBuilder extends HttpServlet {
         }
         geneList = tempGeneList;
         request.setAttribute(GENE_LIST, geneList);
+        
+        request.setAttribute(PATIENT_CASE_SELECT, patientCaseSelect);
 
         xdebug.logMsg(this, "Using gene list geneList.toString():  " + geneList.toString());
         
@@ -374,7 +387,7 @@ public class QueryBuilder extends HttpServlet {
         }
         //if user specifies patients, add these to hashset, and send to GetMutationData
         else if (sampleIds != null)
-        {
+        {           
             String[] sampleIdSplit = sampleIds.split("\\s+");
             setOfSampleIds = new HashSet<String>();
             
@@ -386,11 +399,11 @@ public class QueryBuilder extends HttpServlet {
             
             sampleIds = sampleIds.replaceAll("\\s+", " ");
         }
-
+        
 		if (setOfSampleIds == null || setOfSampleIds.isEmpty()) {
 			redirectStudyUnavailable(request, response);
 		}
-
+                
         request.setAttribute(SET_OF_CASE_IDS, sampleIds);
         
         // Map user selected samples Ids to patient Ids
@@ -403,12 +416,12 @@ public class QueryBuilder extends HttpServlet {
             ArrayList<String> sampleIdList = new ArrayList<String>();
             sampleIdList.add(sampleId);
             
-            Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyInternalId, sampleId);
-            Patient patient = DaoPatient.getPatientById(sample.getInternalPatientId());
-            patientSampleIdMap.put(sampleId, patient.getStableId());
-        }
+                Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyInternalId, sampleId);
+                Patient patient = DaoPatient.getPatientById(sample.getInternalPatientId());
+                patientSampleIdMap.put(sampleId, patient.getStableId());
+            }
         request.setAttribute(SELECTED_PATIENT_SAMPLE_ID_MAP, patientSampleIdMap);
-
+         
         if (patientIdsKey == null)
         {
             patientIdsKey = PatientSetUtil.shortenPatientIds(sampleIds);
@@ -540,16 +553,9 @@ public class QueryBuilder extends HttpServlet {
 
 	private void checkAndRedirectOnStudyStatus(HttpServletRequest request, HttpServletResponse response, String cancerStudyId) throws ServletException, IOException, DaoException
 	{
-		DaoCancerStudy.Status status = DaoCancerStudy.getStatus(cancerStudyId);
-		if (status != DaoCancerStudy.Status.AVAILABLE) {
-			if (status == DaoCancerStudy.Status.RECACHE) {
-				DaoCancerStudy.reCacheAll();
-			}
-			else {
-				redirectStudyUnavailable(request, response);
-			}
+		if (DaoCancerStudy.getStatus(cancerStudyId) == DaoCancerStudy.Status.UNAVAILABLE) {
+			redirectStudyUnavailable(request, response);
 		}
-
 	}
 
 	private void redirectStudyUnavailable(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
@@ -581,6 +587,12 @@ public class QueryBuilder extends HttpServlet {
 													cancerStudyIdentifier + "'. ");
 					errorsExist = true;
 				}
+                else {
+                    UserDetails ud = accessControl.getUserDetails();
+                    if (ud != null) {
+                        LOG.info("QueryBuilder.validateForm: Query initiated by user: " + ud.getUsername());
+                    }
+                }
 						
                 if (geneticProfileIdSet.size() == 0) {
                     if (tabIndex == null || tabIndex.equals(QueryBuilder.TAB_DOWNLOAD)) {
@@ -602,7 +614,7 @@ public class QueryBuilder extends HttpServlet {
                 	if (patientIds.trim().length() == 0)
                 	{
                 		httpServletRequest.setAttribute(STEP3_ERROR_MSG,
-                				"Please enter at least one patient ID below. ");
+                				"Please enter at least one ID below. ");
                 		
                 		errorsExist = true;
                 	}

@@ -411,7 +411,7 @@ window.setUpOncoprint = function(ctr_id, config) {
 		var updatePercentAlteredIndicator = function() {
 			if (config.percent_altered_indicator_selector) {
 				if (!using_sample_data) {
-					$.when(window.QuerySession.getAlteredPatients(), window.QuerySession.getUnalteredPatients())
+					$.when(window.QuerySession.getAlteredSamples(), window.QuerySession.getUnalteredSamples())
 					.then(function(altered_pats, unaltered_pats) {
 						var altered_patient_count = altered_pats.length;
 						var unaltered_patient_count = unaltered_pats.length;

@@ -214,6 +214,7 @@ var orTable = function() {
             "fnDrawCallback": function() {
                 event_listener_details_btn();
                 activateUpdateQueryBtns(table_id + orAnalysis.postfix.datatable_update_query_button);
+                activeDownloadBtn();
             },
             "bDeferRender": true,
             "iDisplayLength": 14
@@ -374,7 +375,6 @@ var orTable = function() {
             }
             $("#" + table_id + orAnalysis.postfix.update_query_gene_list).append("&nbsp;&nbsp;Selected genes: " + selected_genes.join(", "));
 
-
             if (selected_genes.length !== 0) {
                 document.getElementById(btn_id).disabled = false;
             } else {
@@ -386,16 +386,13 @@ var orTable = function() {
         $("#" + btn_id).click(function() {
 
             if (window.PortalGlobals.getCaseSetId() !== "-1") {
-                var _start_pos_gene_list = document.URL.indexOf("gene_list=");
-                var _end_pos_gene_list = document.URL.indexOf("&", _start_pos_gene_list);
-                var _gene_str = document.URL.substring(_start_pos_gene_list + 10, _end_pos_gene_list);
-
-                var _original_url = document.URL;
-                var _new_url = _original_url.replace(_gene_str, _gene_str + "+" + selected_genes.join("+"));
-
-                if (selected_genes.length !== 0) {
-                    window.location.replace(_new_url);
-                }
+               var _start_pos_gene_list = document.URL.indexOf("gene_list=") + "gene_list=".length;
+		var _end_pos_gene_list = document.URL.indexOf("&", _start_pos_gene_list);
+		var pre_gene_list = document.URL.substring(0, _start_pos_gene_list);
+		var post_gene_list = document.URL.substring(_end_pos_gene_list);
+		var new_gene_list = encodeURIComponent(window.QuerySession.getOQLQuery() + "\n" + selected_genes.join("\n"));
+		var _new_url = pre_gene_list + new_gene_list + post_gene_list;
+		window.location.replace(_new_url);
             } else {
                 var _original_url = document.URL.substring(0, document.URL.indexOf("index.do") + ("index.do").length);
 
@@ -408,7 +405,7 @@ var orTable = function() {
                     "?" + "tab_index=tab_visualize" + "&" +
                     "cancer_study_id=" + window.PortalGlobals.getCancerStudyId() + "&" +
                     _tmp_profile_id_list +
-                    "gene_list=" + window.PortalGlobals.getGeneListString() + " " + selected_genes.join(" ") + "&" +
+                    "gene_list=" + window.QuerySession.getOQLQuery() + encodeURIComponent("\n") + selected_genes.join(encodeURIComponent("\n")) + "&" +
                     "case_set_id=" + window.PortalGlobals.getCaseSetId() + "&" +
                     "case_ids_key=" + window.PortalGlobals.getCaseIdsKey() + "&" +
                     "Action=Submit"
@@ -417,7 +414,6 @@ var orTable = function() {
                     window.location.replace(_new_url);
                 }
             }
-
         });
     }
 
@@ -438,12 +434,55 @@ var orTable = function() {
         });
     }
 
+    function activeDownloadBtn() {
+        $("#" + table_id + "_download_btn").click(function() {
+            cbio.download.clientSideDownload([get_tab_delimited_data()], "enrichments-analysis-result.txt");
+        });
+    }
+
+    function get_tab_delimited_data() {
+        var result_str = "";
+        //column headers
+        if (profile_type === orAnalysis.profile_type.copy_num || profile_type === orAnalysis.profile_type.mutations) {
+            result_str = "Gene\tCytoband\tPercentage of alteration(Altered)\tPercentage of Alteration(Unaltered)\t" +
+                "Log ratio\tp-Value\tq-Value\tDirection/Tendency\n";
+        } else if (profile_type === orAnalysis.profile_type.mrna) {
+            result_str = "Gene\tCytoband\tMean mRNA expression(Altered)\tMean mRNA expression(Unaltered)\t" +
+                "Standard deviation of mRNA expression(Altered)\tStandard deviation of mRNA expression(Unaltered)\t" +
+                "p-Value\tq-Value\n";
+        } else if (profile_type === orAnalysis.profile_type.protein_exp) {
+            result_str = "Gene\tCytoband\tMean protein expression(Altered)\tMean protein expression(Unaltered)\t" +
+                "Standard deviation of protein expression(Altered)\tStandard deviation of protein expression(Unaltered)\t" +
+                "p-Value\tq-Value\n";
+        }
+        //content
+        _.each(data, function(entry) {
+            _.each(entry, function(column) {
+                if (column !== null) {
+                    if (column.indexOf("<input type='checkbox'") !== -1) {
+                        column = column.substring(column.indexOf(">") + 1);
+                    } else {
+                        column = column.replace("<img src=\"images/up1.png\"/>", "");
+                        column = column.replace("<img src=\"images/down1.png\"/>", "");
+                        column = column.replace("&nbsp;&nbsp;&nbsp;<span class='label label-or-analysis-significant'>", "<");
+                        column = column.replace("</span>", ">");
+                    }
+                    result_str += column + "\t";
+                } else {
+                    result_str += "NaN" + "\t";
+                }
+            });
+            result_str += "\n";
+        });
+
+        return result_str;
+    }
+
     function define_titles() {
 
         var _title_str = "";
 
         if (profile_type === orAnalysis.profile_type.copy_num) {
-
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.gene + "'>Gene</th>";
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.cytoband + "'>Cytoband</th>";
             _title_str += "<th colspan='2'>Percentage of alteration &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.pct + "'></th>";
@@ -453,9 +492,7 @@ var orTable = function() {
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.direction + "'>Direction/Tendency &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.direction + "'></th>";
             _title_str += "</tr><tr><th width='" + orAnalysis.col_width.altered_pct + "'>in altered group</th>";
             _title_str += "<th width='" + orAnalysis.col_width.unaltered_pct + "'>in unaltered group</th>";
-
         } else if (profile_type === orAnalysis.profile_type.mutations) {
-
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.gene + "'>Gene</th>";
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.cytoband + "'>Cytoband</th>";
             _title_str += "<th colspan='2'>Percentage of alteration &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.pct + "'></th>";
@@ -465,13 +502,11 @@ var orTable = function() {
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.direction + "'>Direction/Tendency &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.direction + "'></th>";
             _title_str += "</tr><tr><th width='" + orAnalysis.col_width.altered_pct + "'>in altered group</th>";
             _title_str += "<th width='" + orAnalysis.col_width.unaltered_pct + "'>in unaltered group</th>";
-
         } else if (profile_type === orAnalysis.profile_type.mrna) {
-
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.gene + "'>Gene</th>";
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.cytoband + "'>Cytoband</th>";
-            _title_str += "<th colspan='2'>Mean of alteration &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.mean_alt + "'></th>";
-            _title_str += "<th colspan='2'>Standard deviation of alteration &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.stdev_alt + "'></th>";
+            _title_str += "<th colspan='2'>Mean mRNA expression &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.mean_alt + "'></th>";
+            _title_str += "<th colspan='2'>Standard deviation of mRNA expression &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.stdev_alt + "'></th>";
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.p_val + "'>p-Value &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.p_val_t_test + "'></th>";
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.q_val + "'>q-Value &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.q_val + "'></th>";
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.plot + "'>Plot</th>";
@@ -480,37 +515,19 @@ var orTable = function() {
             _title_str += "<th width='100'>in unaltered group</th>";
             _title_str += "<th width='100'>in altered group</th>";
             _title_str += "<th width='100'>in unaltered group</th>";
-
         } else if (profile_type === orAnalysis.profile_type.protein_exp) {
-
-            if (profile_id.indexOf("phospho") !== -1) {
-                _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.gene + "'>Gene</th>";
-                _title_str += "<th colspan='2'>Mean of alteration &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.mean_alt + "'></th>";
-                _title_str += "<th colspan='2'>Standard deviation of alteration &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.stdev_alt + "'></th>";
-                _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.p_val + "'>p-Value &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.p_val_t_test + "'></th>";
-                _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.q_val + "'>q-Value &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.q_val + "'></th>";
-                _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.plot + "'>Plot</th>";
-                _title_str += "</tr><tr>";
-                _title_str += "<th width='100'>in altered group</th>";
-                _title_str += "<th width='100'>in unaltered group</th>";
-                _title_str += "<th width='100'>in altered group</th>";
-                _title_str += "<th width='100'>in unaltered group</th>";
-            } else {
-                _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.gene + "'>Gene</th>";
-                _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.cytoband + "'>Cytoband</th>";
-                _title_str += "<th colspan='2'>Mean of alteration &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.mean_alt + "'></th>";
-                _title_str += "<th colspan='2'>Standard deviation of alteration &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.stdev_alt + "'></th>";
-                _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.p_val + "'>p-Value &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.p_val_t_test + "'></th>";
-                _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.q_val + "'>q-Value &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.q_val + "'></th>";
-                _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.plot + "'>Plot</th>";
-                _title_str += "</tr><tr>";
-                _title_str += "<th width='100'>in altered group</th>";
-                _title_str += "<th width='100'>in unaltered group</th>";
-                _title_str += "<th width='100'>in altered group</th>";
-                _title_str += "<th width='100'>in unaltered group</th>";
-            }
-
-
+            _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.gene + "'>Gene</th>";
+            _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.cytoband + "'>Cytoband</th>";
+            _title_str += "<th colspan='2'>Mean protein expression &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.mean_alt + "'></th>";
+            _title_str += "<th colspan='2'>Standard deviation of protein expression &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.stdev_alt + "'></th>";
+            _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.p_val + "'>p-Value &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.p_val_t_test + "'></th>";
+            _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.q_val + "'>q-Value &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.q_val + "'></th>";
+            _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.plot + "'>Plot</th>";
+            _title_str += "</tr><tr>";
+            _title_str += "<th width='100'>in altered group</th>";
+            _title_str += "<th width='100'>in unaltered group</th>";
+            _title_str += "<th width='100'>in altered group</th>";
+            _title_str += "<th width='100'>in unaltered group</th>";
         }
 
         return _title_str;
@@ -539,11 +556,7 @@ var orTable = function() {
                 } else if (profile_type === orAnalysis.profile_type.mrna) {
                     col_index = orAnalysis.col_index.mrna;
                 } else if (profile_type === orAnalysis.profile_type.protein_exp) {
-                    if (_profile_id.indexOf("phospho") !== -1) {
-                        col_index = orAnalysis.col_index.phospho_exp;
-                    } else {
-                        col_index = orAnalysis.col_index.protein_exp;
-                    }
+                    col_index = orAnalysis.col_index.protein_exp;
                 }
                 
                 titles = define_titles();
@@ -557,7 +570,8 @@ var orTable = function() {
                       "<span id='" + table_id + orAnalysis.postfix.update_query_gene_list + "'></span>");
                 document.getElementById(table_id + orAnalysis.postfix.datatable_update_query_button).disabled = true;
 
-                $("#" + _table_div).append("<table id='" + table_id + "' cellpadding='0' cellspacing='0' border='0' class='" + table_id + "_datatable_class'></table>"); 
+                $("#" + _table_div).append("<table id='" + table_id + "' cellpadding='0' cellspacing='0' border='0' class='" + table_id + "_datatable_class'></table>");
+                $("#" + _table_div).append("<button id='" + table_id + "_download_btn'>Download Complete Result</button>");
                 configTable();
                 attachFilters();
                 addHeaderQtips();
@@ -600,7 +614,7 @@ var orSubTabView = function() {
 
             //append profile selection dropdown menu for mrna sub-tab
             if (_profile_type === orAnalysis.profile_type.mrna) {
-                $("#" + _div_id + "_loading_img").empty()
+                $("#" + _div_id + "_loading_img").empty();
                 $("#" + _div_id).append("<div id='" + _div_id + orAnalysis.postfix.mrna_sub_tab_profile_selection_dropdown_menu + "_div'></div>");
                 if ($("#" + _div_id + orAnalysis.postfix.mrna_sub_tab_profile_selection_dropdown_menu + "_div").is(":empty")) {
                     if (_profile_type === orAnalysis.profile_type.mrna) {

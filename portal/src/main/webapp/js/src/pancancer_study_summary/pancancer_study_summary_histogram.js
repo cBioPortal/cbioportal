@@ -111,7 +111,14 @@ function PancancerStudySummaryHistogram()
 	 * @param histogramEl: el where the histogram should be rendered
 	 */
     var drawHistogram = function(histData, model, histogramEl) {
-		
+		// Add loading image to histogramEl
+		$(histogramEl).html("<div style='width:"+width+"px; height:"+height+"px'><img src='images/ajax-loader.gif'</div>");
+		// call continueDraHistogram with a 1 ms delay to ensure the image is shown
+		window.setTimeout(continueDrawHistogram, 1, histData, model, histogramEl);
+	}
+
+	var continueDrawHistogram = function(histData, model, histogramEl) {
+
     	var getY = function(d, type) {
     		return getYValue(d, type, model.get("dataTypeYAxis"));
     	};
@@ -157,10 +164,9 @@ function PancancerStudySummaryHistogram()
 		var isThereAmplification = false;
 		var isThereDeletion = false;
 		var isThereMultiple = false;
-		
-		// Empty the content
-	    $(histogramEl).html("");
-	
+
+		$(histogramEl).html("");
+
 	    // and initialize the histogram
 	    var histogram = d3.select(histogramEl)
 	        .append("svg")
@@ -493,7 +499,7 @@ function PancancerStudySummaryHistogram()
 	    ;
 	    	
 	    }
-	    
+
 	    return histogram;
 	};
 	    
@@ -553,8 +559,7 @@ function PancancerStudySummaryHistogram()
 			        });
 		    }
     	}
-        
-    };    
+    };
 	
 	/**
 	 * View for the qtip / tool tip showing the summary table with 

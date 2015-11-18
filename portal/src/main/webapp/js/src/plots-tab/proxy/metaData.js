@@ -19,8 +19,8 @@ var metaData = (function() {
     function fetchProfileMetaData() {
         var paramsGetProfiles = {
             cancer_study_id: window.QuerySession.getCancerStudyIds()[0],
-            case_set_id: window.PortalGlobals.getCaseSetId(),
-            case_ids_key: window.PortalGlobals.getCaseIdsKey(),
+            case_set_id: window.QuerySession.getCaseSetId(),
+            case_ids_key: window.QuerySession.getCaseIdsKey(),
             gene_list: window.QuerySession.getQueryGenes().join(" ")
         };
         $.post("getGeneticProfile.json", paramsGetProfiles, fetchClinicalAttrMetaData, "json");  
@@ -30,8 +30,8 @@ var metaData = (function() {
         var paramsGetClinicalAttributes = {
             cmd : "getClinicalData",
             cancer_study_id: window.QuerySession.getCancerStudyIds()[0],
-            case_set_id : window.PortalGlobals.getCaseSetId(),
-            case_ids_key: window.PortalGlobals.getCaseIdsKey(),
+            case_set_id : window.QuerySession.getCaseSetId(),
+            case_ids_key: window.QuerySession.getCaseIdsKey(),
             format : "json"
         };
         $.post("webservice.do", paramsGetClinicalAttributes, function(result) {

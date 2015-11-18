@@ -275,8 +275,8 @@ var CoExpView = (function() {
                     "<input type='hidden' name='cancer_study_id' value='" + window.QuerySession.getCancerStudyIds()[0] + "'>" +
                     "<input type='hidden' name='gene' value='" + geneId + "'>" +
                     "<input type='hidden' name='profile_id' value='" + $("#coexp-profile-selector :selected").val() + "'>" + 
-                    "<input type='hidden' name='case_set_id' value='" + window.PortalGlobals.getCaseSetId() + "'>" +
-                    "<input type='hidden' name='case_ids_key' value='" + window.PortalGlobals.getCaseIdsKey() + "'>" +
+                    "<input type='hidden' name='case_set_id' value='" + window.QuerySession.getCaseSetId() + "'>" +
+                    "<input type='hidden' name='case_ids_key' value='" + window.QuerySession.getCaseIdsKey() + "'>" +
                     "<input type='hidden' name='is_full_result' value='true'>" +
                     "<input type='submit' value='Download Full Results'></form>";
                 $("#" + Names.tableDivId).append(downloadFullResultForm);            
@@ -377,8 +377,8 @@ var CoExpView = (function() {
                          cancer_study_id: window.QuerySession.getCancerStudyIds()[0],
                          gene: _geneId,
                          profile_id: $("#coexp-profile-selector :selected").val(),
-                         case_set_id: window.PortalGlobals.getCaseSetId(),
-                         case_ids_key: window.PortalGlobals.getCaseIdsKey(),
+                         case_set_id: window.QuerySession.getCaseSetId(),
+                         case_ids_key: window.QuerySession.getCaseIdsKey(),
                          is_full_result: "false"
                     };
                     $.post(
@@ -465,8 +465,8 @@ var CoExpView = (function() {
             //Get all the genetic profiles with data available 
             var paramsGetProfiles = {
                 cancer_study_id: window.QuerySession.getCancerStudyIds()[0],
-                case_set_id: window.PortalGlobals.getCaseSetId(),
-                case_ids_key: window.PortalGlobals.getCaseIdsKey(),
+                case_set_id: window.QuerySession.getCaseSetId(),
+                case_ids_key: window.QuerySession.getCaseIdsKey(),
                 gene_list: window.QuerySession.getQueryGenes().join(" ")
             };
             $.post("getGeneticProfile.json", paramsGetProfiles, getGeneticProfileCallback, "json");

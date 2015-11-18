@@ -163,8 +163,8 @@ var DataDownloadTab = (function() {
                 var _download_form =
                     "<form name='download_tab_form_" + val + "_" + inner_obj.value + "' style='display:inline-block' action='getProfileData.json' method='post' target='_blank'>" +
                         "<input type='hidden' name='cancer_study_id' value='" + window.QuerySession.getCancerStudyIds()[0] + "'>" +
-                        "<input type='hidden' name='case_set_id' value='" + window.PortalGlobals.getCaseSetId() + "'>" +
-                        "<input type='hidden' name='case_ids_key' value='" + window.PortalGlobals.getCaseIdsKey() + "'>" + 
+                        "<input type='hidden' name='case_set_id' value='" + window.QuerySession.getCaseSetId() + "'>" +
+                        "<input type='hidden' name='case_ids_key' value='" + window.QuerySession.getCaseIdsKey() + "'>" + 
                         "<input type='hidden' name='genetic_profile_id' value='" + val + "'>" +
                         "<input type='hidden' name='gene_list' value='" + window.QuerySession.getQueryGenes().join(" ") + "'>" +
                         "<input type='hidden' name='force_download' value='true'>" +
@@ -180,10 +180,10 @@ var DataDownloadTab = (function() {
 
         //configure the download link (link back to the home page download data tab)
         var _sample_ids_str = "";
-        if (!(window.PortalGlobals.getCaseSetId() !== "" ||
-            window.PortalGlobals.getCaseIdsKey() !== "" ||
-            window.PortalGlobals.getCaseSetId() !== null ||
-            window.PortalGlobals.getCaseIdsKey() !== null)) {
+        if (!(window.QuerySession.getCaseSetId() !== "" ||
+            window.QuerySession.getCaseIdsKey() !== "" ||
+            window.QuerySession.getCaseSetId() !== null ||
+            window.QuerySession.getCaseIdsKey() !== null)) {
             $.each(window.QuerySession.getSampleIds(), function(index, val) {
                 _sample_ids_str += val + "+";
             });
@@ -191,8 +191,8 @@ var DataDownloadTab = (function() {
         }
         var _link = "index.do?" + 
                     "cancer_study_id=" + window.QuerySession.getCancerStudyIds()[0] + "&" + 
-                    "case_ids_key=" + window.PortalGlobals.getCaseIdsKey() + "&" + 
-                    "case_set_id=" + window.PortalGlobals.getCaseSetId() + "&" +
+                    "case_ids_key=" + window.QuerySession.getCaseIdsKey() + "&" + 
+                    "case_set_id=" + window.QuerySession.getCaseSetId() + "&" +
                     "case_ids=" + _sample_ids_str + "&" + 
                     "gene_list=" + window.QuerySession.getQueryGenes().join(" ") + "&" + 
                     "tab_index=tab_download";

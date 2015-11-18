@@ -1,4 +1,5 @@
-window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_ids, sample_ids, z_score_threshold, rppa_score_threshold) {
+window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_ids, sample_ids, z_score_threshold, rppa_score_threshold,
+					case_set_properties, cancer_study_names) {
 	var oql_parser = window.oql_parser;
 	var OQLHandler = (function (config) {
 		var default_config = {
@@ -25,11 +26,14 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 					parsed[i].alterations = datatypes_alterations;
 				}
 			}
-			for (var i=0; i<parsed.length; i++) {
-				if (!parsed[i].alterations) {
-					parsed[i].alterations = oql_parser.parse("DUMMYGENE:"+config.default_oql+";")[0].alterations;
-				}
-			};
+			
+			if (config.default_oql.length > 0) {
+				for (var i=0; i<parsed.length; i++) {
+					if (!parsed[i].alterations) {
+						parsed[i].alterations = oql_parser.parse("DUMMYGENE:"+config.default_oql+";")[0].alterations;
+					}
+				};
+			}
 			return parsed;
 		};
 		// Helper Functions
@@ -336,23 +340,39 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 				});
 				return def.promise();
 			},
-                        'getPatientSampleIdMap': function () {
-                            var def = new $.Deferred();
-                            if(getPatientCaseSelect() === "patient")
-                                window.cbioportal_client.getSamples({study_id: getCancerStudyIds(),patient_ids: getSampleIds()}).then(function(_sampleMap){
-                                    var samplemap = makeSampleMap(_sampleMap);
-                                    def.resolve(samplemap);
-                                });
-                            else
-                            {
-                                window.cbioportal_clinet.getSample({study_id: getCancerStudyIds(),sample_ids: getSampleIds()}).then(function(_sampleMap){
-                                    var samplemap = makeSampleMap(_sampleMap);
-                                    def.resolve(samplemap);
-                                });
-                            }
-                            return def.promise();
-                        }
-                        
+			'getCaseSetId': function() {
+				return case_set_properties.case_set_id;
+			},
+			'getCaseIdsKey': function() {
+				return case_set_properties.case_ids_key;
+			},
+			'getPatientSetName': function() {
+				return case_set_properties.patient_set_name;
+			},
+			'getPatientSetDescription': function() {
+				return case_set_properties.patient_set_description;
+			},
+                        'getPatientSampleIdMap': (function() {
+				var sample_to_patient = {};
+				var loaded = false;
+				return function() {
+					var def = new $.Deferred();
+					if (loaded) {
+						def.resolve(sample_to_patient);
+					} else {
+						window.cbioportal_client.getSamples({study_id: [this.getCancerStudyIds()[0]], sample_ids: this.getSampleIds()}).then(function(data) {
+							for (var i=0; i<data.length; i++) {
+								sample_to_patient[data.id] = data.patient_id;
+							}
+							loaded = true;
+							def.resolve(sample_to_patient);
+						}).fail(function() {
+							def.reject();
+						});
+					}
+					return def.promise();
+				};
+			})()
                         
 		};
 		var fetchOncoprintGeneData = (function() {
@@ -545,16 +565,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			}
 			return ret;
 		};
-                var makeSampleMap = function(data) {
-                    var all_samples = {};
-                    for (var i=0,_len=data.length; i<_len; i++) {
-                        var d = data[i];
-                        all_samples[d.id]= d.patient_id;
-                    };
-                    return all_samples;
-                };
 		
-
 		return dm_ret;
 	})();
 };

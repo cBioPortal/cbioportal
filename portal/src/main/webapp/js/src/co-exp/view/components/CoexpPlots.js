@@ -53,8 +53,8 @@ var CoexpPlots = function() {
         var paramsGetAlterationData = {
             cancer_study_id: window.QuerySession.getCancerStudyIds()[0],
             gene_list: geneX + " " + geneY,
-            case_set_id: window.PortalGlobals.getCaseSetId(),
-            case_ids_key: window.PortalGlobals.getCaseIdsKey(),
+            case_set_id: window.QuerySession.getCaseSetId(),
+            case_ids_key: window.QuerySession.getCaseIdsKey(),
             profile_id: profileId
         };
         $.post(

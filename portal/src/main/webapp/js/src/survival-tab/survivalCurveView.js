@@ -70,7 +70,7 @@ var SurvivalCurveView = function(_opts) {
         //confidenceIntervals = new ConfidenceIntervals();   
         
         //Split the data into different(altered/unaltered) groups  
-        var patientSampleIdMap = window.PortalGlobals.getPatientSampleIdMap();
+        var patientSampleIdMap = window.QuerySession.getPatientSampleIdMap();
         for (var key in _caseLists) {  
             if (_caseLists[key] === "altered") {
                 var tmpPatientId = patientSampleIdMap[key];        

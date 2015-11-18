@@ -372,12 +372,16 @@
                                                             ['<%=cancerTypeId%>'.trim()],
                                                             '<%=patients%>'.trim().split(/\s+/),
                                                             parseFloat('<%=zScoreThreshold%>'),
-                                                            parseFloat('<%=rppaScoreThreshold%>'));
+                                                            parseFloat('<%=rppaScoreThreshold%>'),
+                                                            {
+                                                                case_set_id: '<%=patientSetId%>',
+                                                                case_ids_key: '<%=patientIdsKey%>'
+                                                            });
     })();
 </script>
 
 <script>
-
+$(document).ready(function() {
     $.when(window.QuerySession.getAlteredSamples(), window.QuerySession.getUnalteredSamples()).then(function(altered_samples, unaltered_samples) {
         PortalDataCollManager.subscribeOncoprint(function() {
 
@@ -449,6 +453,7 @@
 
         });
     });
+});
 
 </script>
 

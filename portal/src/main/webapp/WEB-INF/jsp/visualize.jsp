@@ -30,8 +30,9 @@
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --%>
 
-<%@ include file="global/global_variables.jsp" %>
 
+<jsp:include page="global/js_include.jsp" flush="true" />
+<%@ include file="global/global_variables.jsp" %>
 <jsp:include page="global/header.jsp" flush="true" />
 <%@ page import="java.util.Map" %>
 

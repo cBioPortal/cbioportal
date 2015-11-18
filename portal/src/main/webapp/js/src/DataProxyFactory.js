@@ -53,8 +53,8 @@ var DataProxyFactory = (function()
 			//servletParams.geneticProfiles = PortalGlobals.getGeneticProfiles();
 			servletParams.geneticProfiles = window.QuerySession.getCancerStudyIds()[0] + "_mutations";
 
-			var caseSetId = PortalGlobals.getCaseSetId();
-			var caseIdsKey = PortalGlobals.getCaseIdsKey();
+			var caseSetId = window.QuerySession.getCaseSetId();
+			var caseIdsKey = window.QuerySession.getCaseIdsKey();
 
 			// first, try to retrieve mutation data by using a predefined case set id
 			if (caseSetId &&

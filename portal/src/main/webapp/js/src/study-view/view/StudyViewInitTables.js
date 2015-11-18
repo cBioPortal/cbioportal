@@ -163,43 +163,43 @@ var StudyViewInitTables = (function() {
     function addGeneClick(clickedRowData){
         // clickedRowData[0] contains the gene
         QueryByGeneTextArea.addRemoveGene(clickedRowData[0]);
-
     }
 
+    var curSelectedGenes=Array();
     function updateGeneHighlights(geneArray){
+        // loop the tables
         for(var i = 0; i < workers.length; i++) {
+            // if the table supports addGeneClick, update the highlights
             if(workers[i].callbacks.addGeneClick != undefined){
                 updateGeneHighlightTable(workers[i], geneArray);
             }
         }
+        // store the current geneArray as the current selected genes
+        curSelectedGenes = geneArray;
     }
 
     function updateGeneHighlightTable(worker, geneArray){
+        // get the dataTable, determine the deselected genes and the selected genes
         var dataTable = worker.tableInstance.getDataTable();
-
-        var curSelectedGenes = Array();
-        var curSelectedRows = dataTable.$("span.geneSelected");
-
-        for(var i=0; i<curSelectedRows.length; i++){
-            curSelectedGenes.push(dataTable.api().row($(curSelectedRows[i]).parent().parent()).data()[0]);
-        }
-        $.unique(curSelectedGenes);
-
         var deselectGenes = _.difference(curSelectedGenes, geneArray);
         var selectGenes = _.difference(geneArray, curSelectedGenes);
 
+        // update the highlighting
         doUpdateGeneHighlightTable(dataTable, worker, deselectGenes, true);
         doUpdateGeneHighlightTable(dataTable, worker, selectGenes, false);
     }
 
     function doUpdateGeneHighlightTable(dataTable, worker, array, deselect){
         var item;
+        // for all the genes
         for(var i=0; i<array.length; i++) {
+            // find the appropriate item
             if (worker.opts.name == "cna")
                 item = dataTable.$("td[id*='-" + array[i] + "-']").parent().find(".selectHighlight");
             else
                 item = dataTable.$("td[id$='-" + array[i] + "']").parent().find(".selectHighlight");
 
+            // change class and qtip
             if(deselect) {
                 item.removeClass("geneSelected");
                 item.qtip('option', 'content.text', 'Click '+array[i]+' to add to your query');

@@ -100,7 +100,7 @@ var QueryByGeneTextArea  = (function() {
         else setFocusInText();
 
         // update the highlighting in the tables
-        if(updateGeneCallBack != undefined) updateGeneCallBack(geneList);
+        //if(updateGeneCallBack != undefined) updateGeneCallBack(geneList);
     }
 
     // used by the focusOut event and by the updateTextArea

@@ -15,28 +15,29 @@ window.cbioportal_client = (function() {
 				dataType: "json"
 			});
 		};
-		var functionNameToEndpoint = {
-			'CancerTypes':'api/cancertypes',
-			'SampleClinicalData':'api/clinicaldata/samples',
-			'PatientClinicalData':'api/clinicaldata/patients',
-			'SampleClinicalAttributes':'api/clinicalattributes/samples',
-			'PatientClinicalAttributes':'api/clinicalattributes/patients',
-			'Genes':'api/genes',
-			'GeneticProfiles':'api/geneticprofiles',
-			'PatientLists':'api/patientlists',
-			'Patients':'api/patients',
-			'GeneticProfileData':'api/geneticprofiledata',
-			'Samples':'api/samples',
-			'Studies':'api/studies'
+		var functionNameToEndpointProperties = {
+			'CancerTypes':{ endpoint: 'api/cancertypes' },
+			'SampleClinicalData': { endpoint: 'api/clinicaldata/samples' },
+			'PatientClinicalData': { endpoint: 'api/clinicaldata/patients' },
+			'SampleClinicalAttributes': { endpoint: 'api/clinicalattributes/samples' },
+			'PatientClinicalAttributes': { endpoint: 'api/clinicalattributes/patients' },
+			'Genes': { endpoint: 'api/genes' },
+			'GeneticProfiles': { endpoint: 'api/geneticprofiles' },
+			'PatientLists': { endpoint: 'api/patientlists' },
+			'PatientListsMeta': { endpoint: 'api/patientlists', args: {metadata: true } },
+			'Patients': { endpoint: 'api/patients' },
+			'GeneticProfileData': { endpoint: 'api/geneticprofiledata' },
+			'Samples': { endpoint: 'api/samples' },
+			'Studies': { endpoint: 'api/studies' }
 		};
 		var ret = {};
-		for (var fn_name in functionNameToEndpoint) {
-			if (functionNameToEndpoint.hasOwnProperty(fn_name)) {
-				ret['get'+fn_name] = (function(endpt) {
+		for (var fn_name in functionNameToEndpointProperties) {
+			if (functionNameToEndpointProperties.hasOwnProperty(fn_name)) {
+				ret['get'+fn_name] = (function(props) {
 					return function(args) {
-						return getApiCallPromise(endpt, args);
+						return getApiCallPromise(props.endpoint, $.extend(true, {}, args, props.args));
 					};
-				})(functionNameToEndpoint[fn_name]);
+				})(functionNameToEndpointProperties[fn_name]);
 			}
 		}
 		return ret;
@@ -443,7 +444,8 @@ window.cbioportal_client = (function() {
 		getGenes: enforceRequiredArguments(makeOneIndexService('hugo_gene_symbols', function(d) { return d.hugo_gene_symbol;}, 'getGenes'), [[],["hugo_gene_symbols"]]),
 		getStudies: enforceRequiredArguments(makeOneIndexService('study_ids', function(d) { return d.id;}, 'getStudies'), [[], ["study_ids"]]),
 		getGeneticProfiles: enforceRequiredArguments(makeTwoIndexService('study_id', function(d) { return d.study_id;}, false, 'genetic_profile_ids', function(d) {return d.id; }, true, 'getGeneticProfiles'), [["study_id"],["genetic_profile_ids"]]),
-		getPatientLists: enforceRequiredArguments(makeTwoIndexService('study_id', function(d) { return d.study_id;}, false, 'patient_list_ids', function(d) {return d.id; }, true, 'getPatientLists'), [["study_id"], ["patient_list_ids"]]),
+		getPatientLists: enforceRequiredArguments(makeTwoIndexService('study_id', function(d) { return d.study_id;}, false, 'patient_list_ids', function(d) {return d.id; }, true, 'getPatientLists'), [[], ["study_id"], ["patient_list_ids"]]),
+		getPatientListsMeta: enforceRequiredArguments(makeTwoIndexService('study_id', function(d) { return d.study_id;}, false, 'patient_list_ids', function(d) {return d.id; }, true, 'getPatientListsMeta'), [[], ["study_id"], ["patient_list_ids"]]),
 		getSampleClinicalData: enforceRequiredArguments(makeHierIndexService(['study_id', 'attribute_ids', 'sample_ids'], ['study_id', 'attr_id', 'sample_id'], 'getSampleClinicalData'), [["study_id","attribute_ids"], ["study_id","attribute_ids","sample_ids"]]),
 		getPatientClinicalData: enforceRequiredArguments(makeHierIndexService(['study_id', 'attribute_ids', 'patient_ids'], ['study_id', 'attr_id', 'patient_id'], 'getPatientClinicalData'), [["study_id","attribute_ids"], ["study_id","attribute_ids","patient_ids"]]),
 		getPatients: enforceRequiredArguments(makeHierIndexService(['study_id', 'patient_ids'], ['study_id', 'id'], 'getPatients'), [["study_id"], ["study_id","patient_ids"]]),

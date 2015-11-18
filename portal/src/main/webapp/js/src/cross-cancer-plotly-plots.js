@@ -3,151 +3,96 @@
  */
 var PlotlyCCplots = (function (Plotly, _, $) {
 
-    var data = [], layout = {};
-
-    var fetch_data = function() {
-
-        var params = {
-            cancer_study_id: "acc_tcga",
-            gene_list: "SOX9",
-            genetic_profile_id: "acc_tcga_rna_seq_v2_mrna",
-            case_set_id: "acc_tcga_all",
-            case_ids_key: -1
-        };
-
-        $.post("getProfileData.json", params, new track(), "json");
-
-    }
-
-    var track = function(_profile_id) {
-        _data = _input;
-        console.log(_data);
-
-        return
-
-    };
-
-    var define_tracks = function(_input) {
-
-        console.log(_input);
-
-        var non_mut = {
-            x: [
-                -2.02,
-                -1.03,
-                0.07,
-                1.13,
-                2.14,
-                -2.09,
-                -1.14,
-                0.12,
-                1.09,
-                2.17,
-                -2.14,
-                -1.26,
-                0.02,
-                1.18,
-                2.15
-            ],
-            y: [
-                1.1,
-                6.2,
-                3.09,
-                6.78,
-                2.65,
-                1.1,
-                3.2,
-                5.09,
-                1.78,
-                7.65,
-                3.1,
-                9.2,
-                5.09,
-                2.78,
-                7.65
-            ],
-            mode: 'markers',
-            type: 'scatter',
-            name: 'Non Mut',
-            text: [
-                'A-1',
-                'A-2',
-                'A-3',
-                'A-4',
-                'A-5',
-                'A-1',
-                'A-2',
-                'A-3',
-                'A-4',
-                'A-5',
-                'A-1',
-                'A-2',
-                'A-3',
-                'A-4',
-                'A-5'
-            ],
-            marker: {
-                size: 8,
-                symbol: 'circle' },
-            hoverinfo: "x+y"
-        };
-
-        var mut = {
-            x: [
-                -2,
-                -1,
-                0,
-                1,
-                2
-            ],
-            y: [
-                4.64,
-                1.15,
-                7.12,
-                1.98,
-                4.35
-            ],
-            mode: 'markers',
-            type: 'scatter',
-            name: 'Muted',
-            text: ['B-a', 'B-b', 'B-c', 'B-d', 'B-e'],
-            marker: {
-                size: 8,
-                symbol: 'diamond' },
-            hoverinfo: "x+y+text"
-        };
-
-        var box = {
-            x: [],
-            y: [],
-            mode: 'markers'
-        }
-
-        data = [ non_mut, mut ];
-    }
-
-    var define_layout = function() {
-        layout = {
-            xaxis: {
-                range: [ -2.3, 2.3 ],
-                title: 'x axis title'
-            },
-            yaxis: {
-                range: [ 0, 8 ],
-                title: 'y axis title'
-            },
-            title:'Example Scatter Plots'
-        };
-    }
-
-    var render = function() {
-        fetch_data();
-        Plotly.newPlot('plotly_cc_plots_box', data, layout);
-    }
-
     return {
         init: function() {
-            render();
+
+            var profile_arr = [
+                "acc_tcga_rna_seq_v2_mrna",
+                "blca_tcga_rna_seq_v2_mrna",
+                "brca_tcga_rna_seq_v2_mrna",
+                "cesc_tcga_rna_seq_v2_mrna",
+                "chol_tcga_rna_seq_v2_mrna",
+                "coadread_tcga_rna_seq_v2_mrna",
+                "laml_tcga_rna_seq_v2_mrna",
+                "lgg_tcga_rna_seq_v2_mrna",
+                "gbm_tcga_rna_seq_v2_mrna",
+                "hnsc_tcga_rna_seq_v2_mrna",
+                "kich_tcga_rna_seq_v2_mrna",
+                "kirc_tcga_rna_seq_v2_mrna",
+                "kirp_tcga_rna_seq_v2_mrna",
+                "lihc_tcga_rna_seq_v2_mrna",
+                "luad_tcga_rna_seq_v2_mrna",
+                "lusc_tcga_rna_seq_v2_mrna",
+                "dlbc_tcga_rna_seq_v2_mrna",
+                "meso_tcga_rna_seq_v2_mrna",
+                "ov_tcga_rna_seq_v2_mrna",
+                "paad_tcga_rna_seq_v2_mrna",
+                "pcpg_tcga_rna_seq_v2_mrna",
+                "prad_tcga_rna_seq_v2_mrna",
+                "luad_tcga_rna_seq_v2_mrna",
+                "skcm_tcga_rna_seq_v2_mrna",
+                "sarc_tcga_rna_seq_v2_mrna",
+                "tgct_tcga_rna_seq_v2_mrna",
+                "thym_tcga_rna_seq_v2_mrna",
+                "thca_tcga_rna_seq_v2_mrna",
+                "ucec_tcga_rna_seq_v2_mrna",
+                "ucs_tcga_rna_seq_v2_mrna",
+                "uvm_tcga_rna_seq_v2_mrna",
+                "brca_tcga_pub2015_rna_seq_v2_mrna"
+            ];
+
+            var params = {
+                genes: ["SOX9"],
+                genetic_profile_ids: profile_arr
+            };
+
+            window.cbioportal_client.getGeneticProfileData(params).then(
+                function(_result) {
+
+                    var data = [];
+
+                    var non_mut_dots = {
+                        x: _.map(_.pluck(_result, "genetic_profile_id"), function(_profile_id){ return profile_arr.indexOf(_profile_id) + Math.random() * 0.3 - 0.15; }),
+                        y: _.pluck(_result, "profile_data"),
+                        mode: 'markers',
+                        type: 'scatter',
+                        name: 'Non Mut',
+                        marker: {
+                            size: 6,
+                            symbol: 'circle',
+                            color: "#00AAF8",
+                            opacity: 0.7,
+                            line: {
+                                color: "#0089C6",
+                                width: 0.1
+                            }
+                        },
+                        hoverinfo: "x+y"
+                    };
+                    data.push(non_mut_dots);
+
+                    _.each(profile_arr, function(_profile_id) {
+                        var _box = {
+                            y: _.pluck(_.filter(_result, function(_result_obj) { return _result_obj.genetic_profile_id == _profile_id; }), "profile_data"),
+                            x0: profile_arr.indexOf(_profile_id),
+                            type: 'box',
+                            opacity: 0.6,
+                            boxpoints: false,
+                            showlegend: false
+                        }
+                        data.push(_box);
+                    });
+
+                    var layout = {
+                        yaxis: {
+                            range: [ Math.min(_.pluck(_result, "profile_data")), Math.max(_.pluck(_result, "profile_data")) ],
+                            title: 'SOX9 Expression -- RNA Seq V2'
+                        }
+                    };
+
+                    Plotly.newPlot('plotly_cc_plots_box', data, layout);
+
+                });
         }
     }
 

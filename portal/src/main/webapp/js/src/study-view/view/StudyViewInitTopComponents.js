@@ -177,7 +177,7 @@ var StudyViewInitTopComponents = (function() {
     function decideSubmit(allValid){
         // if all genes are valid, submit, otherwise show a notification
         if(allValid){
-            QueryByGeneUtil.addStudyViewFields();
+            new QueryByGeneUtil().addStudyViewFields();
             $("#study-view-form").trigger("submit");
         }
         else {

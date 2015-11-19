@@ -333,30 +333,17 @@
     </div>
 </script>
 
-<script type="text/template" id="mutation_table_protein_change_oncokb_template">
-    <span class='{{proteinChangeClass}}' alt='{{proteinChangeTip}}'>
-		<a>{{proteinChange}}</a>
-	</span>
-    <span class='mutation-table-additional-protein-change simple-tip'
-          alt='{{additionalProteinChangeTip}}'>
-        <img height=12 width=12 style='opacity:0.2' src='images/warning.gif'>
-    </span>
+<script type="text/template" id="mutation_table_annotation_template">
     <span class='oncokb oncokb_alteration oncogenic' oncokbId='{{oncokbId}}'>
         <img class='oncokb oncogenic loader' width="13" height="13" class="loader" src="images/ajax-loader.gif"/>
     </span>
+    <span class='oncokb oncokb_column' oncokbId='{{oncokbId}}'></span>
     <span class='mcg' alt='{{mcgAlt}}'>
         <img src='images/mcg_logo.png'>
     </span>
     <span class='chang_hotspot' alt='{{changHotspotAlt}}'>
         <img width='13' height='13' src='images/oncokb-flame.svg'>
     </span>
-    <a href='{{pdbMatchLink}}' class="mutation-table-3d-link">
-        <span class="mutation-table-3d-icon">3D</span>
-    </a>
-</script>
-
-<script type="text/template" id="mutation_table_oncokb_template">
-    <span class='oncokb oncokb_column' oncokbId='{{uniqueId}}'></span>
 </script>
 
 <script type="text/template" id="studies-with-no-data-tmpl">

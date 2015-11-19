@@ -1018,78 +1018,33 @@
 	                            jQuery.extend(true, options, {view : {
                                     mutationTable: {
                                         columns: {
-                                            oncokb: {
-                                                sTitle: "oncokb",
-                                                tip: "OncoKB Annotation",
-                                                sType: "string",
-                                                sClass: "center-align-td"
-                                            },
-                                            proteinChange: {
-                                                sTitle: "AA change",
-                                                tip: {
-                                                    content: "<div class='mutationTableHeaderRadioLabel'>Protein Change<br/><br/><div><span style='float: left;margin-top: 3px;'>Sort by:</span>" +
-                                                    "<div style='float: left;margin-left: 5px;'><label><input type='radio' name='oncokbCrosscancer' value='oncokb'/> <img width='13' height='13' src='images/oncokb-oncogenic-1.svg'>OncoKB</label><br/>" +
-                                                    "<label><input type='radio' name='oncokbCrosscancer' value='hotspot' checked/> <img width='13' height='13' src='images/oncokb-flame.svg'>Hotspot</label><br/>" +
-                                                    "<label><input type='radio' name='oncokbCrosscancer' value='mycancergenome' checked/> <img width='13' height='13' src='images/mcg_logo.png'>My Cancer Genome</label><br/>" +
-                                                    "<label><input type='radio' name='oncokbCrosscancer' value='aachange' checked/> Protein change</label></div></div></div>",
-                                                    events: {
-                                                        render: function(event, api) {
-                                                            var flag = OncoKB.getCustomObject('DataTableSortFlag');
-                                                            if(flag) {
-                                                                $('input[name="oncokbCrosscancer"][value="' + flag + '"]:radio').prop('checked', true);
-                                                            }else{
-                                                                OncoKB.addCustomObject('DataTableSortFlag', 'aaChange');
-                                                            }
-                                                            $('input[name="oncokbCrosscancer"]:radio').change(function () {
-                                                                OncoKB.addCustomObject('DataTableSortFlag', this.value);
-                                                            });
-                                                        }
-                                                    }
-                                                },
-                                                sType: "sort-icons"
+                                            annotation: {
+                                                sTitle: "Annotation",
+                                                tip: "",
+                                                sType: "sort-icons",
+                                                sClass: "left-align-td"
                                             }
                                         },
                                         columnOrder: [
                                             "datum", "mutationId", "mutationSid", "caseId", "cancerStudy", "tumorType",
-                                            "proteinChange", "mutationType", "cna", "cBioPortal", "cosmic", "mutationStatus",
+                                            "proteinChange", 'annotation', "mutationType", "cna", "cBioPortal", "cosmic", "mutationStatus",
                                             "validationStatus", "mutationAssessor", "sequencingCenter", "chr",
                                             "startPos", "endPos", "referenceAllele", "variantAllele", "tumorFreq",
                                             "normalFreq", "tumorRefCount", "tumorAltCount", "normalRefCount",
-                                            "normalAltCount", "igvLink", "mutationCount", 'oncokb'
+                                            "normalAltCount", "igvLink", "mutationCount"
                                         ],
                                         columnVisibility: {
-                                            oncokb: 'visible'
+                                            annotation: 'visible'
                                         },
                                         columnRender: {
-                                            oncokb: function (datum) {
+                                            annotation: function (datum) {
                                                 var mutation = datum.mutation;
-
-                                                if (datum.oncokb == null) {
-                                                    // TODO make the image customizable?
-                                                    var vars = {loaderImage: "images/ajax-loader.gif", width: 15, height: 15};
-                                                    var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_placeholder_template");
-                                                    return templateFn(vars);
-                                                }
-                                                else {
-
-                                                    var vars = {};
-                                                    vars.uniqueId = datum.mutation.mutationSid;
-                                                    var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_oncokb_template");
-                                                    return templateFn(vars);
-                                                }
-                                            },
-                                            proteinChange: function (datum) {
-                                                var mutation = datum.mutation;
-                                                var proteinChange = MutationDetailsTableFormatter.getProteinChange(mutation);
                                                 var vars = {};
-                                                vars.proteinChange = proteinChange.text;
-                                                vars.proteinChangeClass = proteinChange.style;
-                                                vars.proteinChangeTip = proteinChange.tip;
-                                                vars.additionalProteinChangeTip = proteinChange.additionalTip;
-                                                vars.pdbMatchLink = MutationDetailsTableFormatter.getPdbMatchLink(mutation);
-                                                vars.oncokbId = mutation.mutationSid;
+                                                var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_annotation_template");
+
                                                 vars.mcgAlt = '';
                                                 vars.changHotspotAlt = '';
+                                                vars.oncokbId = mutation.mutationSid;
 
                                                 if(enableMyCancerGenome && mutation.myCancerGenome instanceof Array && mutation.myCancerGenome.length > 0) {
                                                     vars.mcgAlt = "<b>My Cancer Genome links:</b><br/><ul style=\"list-style-position: inside;padding-left:0;\"><li>"+mutation.myCancerGenome.join("</li><li>")+"</li></ul>";
@@ -1099,20 +1054,14 @@
                                                     vars.changHotspotAlt = "<b>Recurrent Hotspot</b><br/>This mutated amino acid was identified as a recurrent hotspot (statistical significance, q-value < 0.01) in a set of 11,119 tumor samples of various cancer types (based on <a href=&quot;http://www.ncbi.nlm.nih.gov/pubmed/26619011&quot; target=&quot;_blank&quot;>Chang, M. et al. Nature Biotech. 2015</a>).";
                                                 }
 
-                                                var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_protein_change_oncokb_template");
-
-                                                OncoKB.addCustomObject('DataTableSortFlag', 'aachange');
                                                 return templateFn(vars);
                                             }
                                         },
                                         columnTooltips: {
-                                            oncokb: function (selector, helper) {
-                                                oncokbInstance.addEvents(selector, 'column');
-                                            },
-                                            proteinChange: function (selector, helper) {
+                                            annotation: function (selector, helper) {
                                                 $(selector).find('span.mcg[alt=""]').remove();
                                                 $(selector).find('span.chang_hotspot[alt=""]').remove();
-                                                $(selector).find('span.mutation-table-additional-protein-change[alt=""]').remove();
+                                                oncokbInstance.addEvents(selector, 'column');
                                                 oncokbInstance.addEvents(selector, 'alteration');
 
                                                 $(selector).find('span.mcg').qtip({
@@ -1133,7 +1082,7 @@
                                             }
                                         },
                                         additionalData: {
-                                            oncokb: function (helper) {
+                                            annotation: function (helper) {
                                                 var indexMap = helper.indexMap;
                                                 var dataTable = helper.dataTable;
                                                 var tableData = dataTable.fnGetData();
@@ -1150,18 +1099,18 @@
                                                                 if (oncokbInstance.getVariant(ele[indexMap['datum']].mutation.mutationSid)) {
                                                                     if (oncokbInstance.getVariant(ele[indexMap['datum']].mutation.mutationSid).hasOwnProperty('evidence')) {
                                                                         ele[indexMap["datum"]].oncokb = oncokbInstance.getVariant(ele[indexMap['datum']].mutation.mutationSid).evidence;
-                                                                        dataTable.fnUpdate(null, i, indexMap["oncokb"], false, false);
+                                                                        dataTable.fnUpdate(null, i, indexMap["annotation"], false, false);
                                                                     }
                                                                 }
                                                             });
-                                                            dataTable.fnUpdate(null, 0, indexMap['oncokb']);
+                                                            dataTable.fnUpdate(null, 0, indexMap['annotation']);
                                                         }
                                                     });
                                                 }
                                             }
                                         },
                                         columnSort: {
-                                            "proteinChange": function(datum) {
+                                            "annotation": function(datum) {
                                                 return datum;
                                             }
                                         }

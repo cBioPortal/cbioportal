@@ -363,7 +363,7 @@
         getGeneData: function() { return global_gene_data; }
 
     };
-    (function setUpDataManager() {
+    (function setUpQuerySession() {
         var oql_html_conversion_vessel = document.createElement("div");
         oql_html_conversion_vessel.innerHTML = '<%=oql%>'.trim();
         var converted_oql = oql_html_conversion_vessel.textContent.trim();
@@ -375,14 +375,17 @@
                                                             parseFloat('<%=rppaScoreThreshold%>'),
                                                             {
                                                                 case_set_id: '<%=patientSetId%>',
-                                                                case_ids_key: '<%=patientIdsKey%>'
-                                                            });
+                                                                case_ids_key: '<%=patientIdsKey%>',
+                                                                case_set_name: '<%=patientSetName%>',
+                                                                case_set_description: '<%=patientSetDescription%>'
+                                                            },
+                                                            ['<%=cancerStudyName%>']);
     })();
 </script>
 
 <script>
 $(document).ready(function() {
-    $.when(window.QuerySession.getAlteredSamples(), window.QuerySession.getUnalteredSamples()).then(function(altered_samples, unaltered_samples) {
+    $.when(window.QuerySession.getAlteredSamples(), window.QuerySession.getUnalteredSamples(), window.QuerySession.getPatientSampleIdMap()).then(function(altered_samples, unaltered_samples, sample_patient_map) {
         PortalDataCollManager.subscribeOncoprint(function() {
 
             //calculate total alteration
@@ -409,8 +412,8 @@ $(document).ready(function() {
             //Configure the summary line of query
             var _query_smry = "<h3 style='font-size:110%;'><a href='study.do?cancer_study_id=" + 
                 window.QuerySession.getCancerStudyIds()[0] + "' target='_blank'>" + 
-                window.PortalGlobals.getCancerStudyName() + "</a><br>" + " " +  
-                "<small>" + window.PortalGlobals.getPatientSetName() + " (<b>" + _sampleIds.length + "</b> samples)" + " / " + 
+                window.QuerySession.getCancerStudyNames()[0] + "</a><br>" + " " +  
+                "<small>" + window.QuerySession.getPatientSetName() + " (<b>" + _sampleIds.length + "</b> samples)" + " / " + 
                 "<b>" + window.QuerySession.getQueryGenes().length + "</b>" + " Gene" + (window.QuerySession.getQueryGenes().length===1 ? "" : "s") + "<br></small></h3>"; 
             $("#main_smry_query_div").append(_query_smry);
 
@@ -434,17 +437,17 @@ $(document).ready(function() {
                 $(".query-toggle").toggle();
             });
 
-            var patiendIdList = window.PortalGlobals.getPatientSampleIdMap();
+
             var patientIdArray = [];
-            $.each(_sampleIds, function(index, sampleIdElement) {
-                    patientIdArray.push(patiendIdList[sampleIdElement]);
+            $.each(_sampleIds, function(index, sample_id) {
+                    patientIdArray.push(sample_patient_map[sample_id]);
             });
             patientIdArray = _.uniq(patientIdArray);
 
             //Oncoprint summary lines
-            $("#oncoprint_sample_set_description").append(window.PortalGlobals.getPatientSetDescription() + 
+            $("#oncoprint_sample_set_description").append(window.QuerySession.getPatientSetDescription() + 
                 "("+patientIdArray.length + " patients / " + _sampleIds.length + " samples)");
-            $("#oncoprint_sample_set_name").append(window.PortalGlobals.getPatientSetName());
+            $("#oncoprint_sample_set_name").append(window.QuerySession.getPatientSetName());
             $("#oncoprint_num_of_altered_cases").append(altered_samples.length);
             $("#oncoprint_percentage_of_altered_cases").append(altered_samples_percentage);
             if (patientIdArray.length !== _sampleIds.length) {

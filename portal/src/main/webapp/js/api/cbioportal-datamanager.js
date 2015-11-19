@@ -347,10 +347,10 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 				return case_set_properties.case_ids_key;
 			},
 			'getPatientSetName': function() {
-				return case_set_properties.patient_set_name;
+				return case_set_properties.case_set_name;
 			},
 			'getPatientSetDescription': function() {
-				return case_set_properties.patient_set_description;
+				return case_set_properties.case_set_description;
 			},
                         'getPatientSampleIdMap': (function() {
 				var sample_to_patient = {};
@@ -372,7 +372,10 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 					}
 					return def.promise();
 				};
-			})()
+			})(),
+			'getCancerStudyNames': function() {
+				return cancer_study_names;
+			}
                         
 		};
 		var fetchOncoprintGeneData = (function() {

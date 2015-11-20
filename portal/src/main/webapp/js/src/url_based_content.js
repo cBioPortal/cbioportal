@@ -27,7 +27,9 @@ var GeneratedPageMainView = Backbone.View.extend({
         this.hash = event.currentTarget.hash;
 
         // if target starts with http, open a new tab and navigate to the target
-        if(target.startsWith("http")) window.open(target);
+        if(target.startsWith("http")){
+            window.open(target);
+        }
         // if target starts with a hash, stay on the current page and scroll to the hash
         else if(target.startsWith("#")){
             this.scrollToHash();
@@ -43,20 +45,26 @@ var GeneratedPageMainView = Backbone.View.extend({
         }
     },
 
-    scrollToHash: function() {
-        if (this.hash.length > 0) {
+    scrollToHash: function(){
+        if (this.hash.length > 0){
             // if our base url is a wiki page, the page has been translated to markdown and
             // the library replaces all non-word characters with nothing.
             // do the same with our hash to be able to scroll to it
             // this is a workaround for https://github.com/showdownjs/github-extension/issues/5
-            if(this.markdownDocumentation==='true') this.hash = this.hash.replace(/[^\w]/g, '').toLowerCase();
+            if(this.markdownDocumentation==='true'){
+                this.hash = this.hash.replace(/[^\w]/g, '').toLowerCase();
+            }
             // else remove the #
-            else this.hash=this.hash.substring(1,this.hash.length);
+            else{
+                this.hash = this.hash.substring(1, this.hash.length);
+            }
             // find the element to scroll to and scroll to it
             var scrollToElement = document.getElementById(this.hash);
             scrollToElement.scrollIntoView();
         }
-        else window.scrollTo(0,0);
+        else{
+            window.scrollTo(0,0);
+        }
     },
 
     // retrieve the page and scroll to the hash
@@ -104,7 +112,9 @@ function ServicePresenter(baseURL, markdownDocumentation){
     function replacer(match, p1){
         // check whether the captured group starts with http
         // if it does, return as-is, otherwise attach the url to the baseURL
-        if(p1.match(/^http\.*/)) return 'src=\"'+p1+'\"';
+        if(p1.match(/^http\.*/)){
+            return 'src=\"'+p1+'\"';
+        }
         return 'src=\"'+baseURL+p1+'\"';
     }
 
@@ -126,10 +136,12 @@ function ServicePresenter(baseURL, markdownDocumentation){
             // the resultPage is stored in result.response
             var resultPage = result.response;
             // check whether it's a markdown page. If so, convert it; otherwise use the results as the htmlPage
-            if(markdownDocumentation==='true')
+            if(markdownDocumentation==='true') {
                 htmlPage = markdown2html(resultPage);
-            else
+            }
+            else {
                 htmlPage = resultPage;
+            }
             replaceImageTags();
         })
         .fail(function(jqxhr, textStatus, error) {
@@ -150,10 +162,12 @@ function ServicePresenter(baseURL, markdownDocumentation){
         .done(function(resultPage){
             console.log(new Date() + ': successfully retrieved internal page!');
             // check whether it's a markdown page. If so, convert it; otherwise use the results as the htmlPage
-            if(markdownDocumentation==='true')
+            if(markdownDocumentation==='true') {
                 htmlPage = markdown2html(resultPage);
-            else
+            }
+            else {
                 htmlPage = resultPage;
+            }
         })
         .fail(function(jqxhr, textStatus, error) {
             var err = textStatus + ", " + error;
@@ -180,11 +194,15 @@ function ServicePresenter(baseURL, markdownDocumentation){
 
     // determines what to do with the sourceURL
     this.fetchSourcePage = function (sourceURL, callBack){
-        if(callBack!=undefined) serviceCallBack = callBack;
-        if(!isExternalContent())
+        if(callBack!=undefined){
+            serviceCallBack = callBack;
+        }
+        if(!isExternalContent()) {
             fetchInternalPage(sourceURL);
-        else
+        }
+        else{
             fetchExternalPage(sourceURL);
+        }
     }
 }
 
@@ -196,12 +214,10 @@ function ServicePresenter(baseURL, markdownDocumentation){
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-function GeneratePage(baseURL, sourceURL, markdownDocumentation, targetDiv)
-{
+function GeneratePage(baseURL, sourceURL, markdownDocumentation, targetDiv){
     var generatedPageView;
 
-    this.init = function()
-    {
+    this.init = function(){
         console.log(new Date() + ": init called!");
 
         // create a new presenter, with a call-back function
@@ -217,13 +233,7 @@ function GeneratePage(baseURL, sourceURL, markdownDocumentation, targetDiv)
 
         //Initialize presenter, which triggers the asynchronous services to get the
         //data and calls the callback function once the data is received
-        //var callBack = _.bind(generatedPageView.render, generatedPageView);
-        //servicePresenter.fetchSourcePage(sourceURL, callBack);
-
-        //Initialize presenter, which triggers the asynchronous services to get the
-        //data and calls the callback function once the data is received
         _.bindAll(generatedPageView, 'render');
         servicePresenter.fetchSourcePage(sourceURL, generatedPageView.render);
     };
-
 }

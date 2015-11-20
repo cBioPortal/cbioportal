@@ -1190,6 +1190,11 @@ function outputClinicalData() {
             diseaseInfo.push("Serum PSA: "+serumPsa);
         }
 
+        var driverMutations = guessClinicalData(clinicalData,["DRIVER_MUTATIONS"]);
+        if (driverMutations!==null) {
+            diseaseInfo.push(driverMutations);
+        }
+
         return diseaseInfo;
     }
 

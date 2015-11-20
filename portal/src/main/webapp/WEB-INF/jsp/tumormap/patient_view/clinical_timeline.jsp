@@ -118,12 +118,33 @@
                 var timeData = clinicalTimelineParser(data);
                 if (timeData.length===0) return;
 
+                // order specimens by svg label number
+                var specimen = _.findWhere(timeData, {label:"SPECIMEN"});
+                if (specimen) {
+                    specimen.times = _.sortBy(specimen.times, function(x) {
+                        var sortOrder = Infinity;
+
+                        var specRefNum = _.filter(x.tooltip_tables[0], function(x) {
+                            return x[0] === "SPECIMEN_REFERENCE_NUMBER" || x[0] === "SpecimenReferenceNumber";
+                        });
+                        if (specRefNum) {
+                            if (specRefNum.length > 1) {
+                                console.warn("More than 1 specimen reference number found in tooltip table");
+                            }
+                            sortOrder = caseIds.indexOf(specRefNum[0][1]);
+                            if (sortOrder === -1) {
+                                sortOrder = Infinity;
+                            }
+                        }
+                        return sortOrder;
+                    });
+                }
+
                 // add DECEASED point to STATUS track
                 if ("CAISIS_OS_STATUS" in patientInfo &&
                     patientInfo["CAISIS_OS_STATUS"] === "DECEASED" &&
                     "CAISIS_OS_MONTHS" in patientInfo) {
                     var days = parseInt(parseInt(patientInfo["CAISIS_OS_MONTHS"])*30.4);
-                    console.log(days);
                     var timePoint = {
                         "starting_time":days,
                         "ending_time":days,
@@ -169,6 +190,7 @@
                         .collapseAll()
                         .toggleTrackCollapse("SPECIMEN")
                         .enableTrackTooltips(false)
+                        .enableZoom(false)
                         .addPostTimelineHook(plotCaseLabelsInTimeline);
                 timeline();
                 $("#timeline-container").show();

@@ -61,8 +61,8 @@ var AlleleFreqPlotUtils = (function() {
     // for all sample in samples
     var kernelDensityEstimator = function(kernel, x) {
         return function(sample) {
-            return x.map(function(x) {
-                return [x, d3.mean(sample, function(v) { return kernel(x - v); })];
+            return x.map(function(d) {
+                return [d, d3.mean(sample, function(v) { return kernel(d - v); })];
             });
         };
     };

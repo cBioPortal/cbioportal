@@ -365,7 +365,6 @@ public class GlobalProperties {
 
     private static String getContentString(String contentString){
         if(getBaseUrl().equalsIgnoreCase("")) return "content/"+contentString;
-//        if(!contentString.startsWith("http")) return "content/"+contentString;
         return contentString;
     }
 

@@ -139,8 +139,13 @@ var SurvivalCurve = function() {
     }
 
     function addQtips(_index) {
-        elem.dots[_index].selectAll('path').each(
-            function(d) {
+        var mouseOn = function(d) {
+            var dot = d3.select(this);
+            dot.transition()
+                .duration(400)
+                .style("opacity", .9);
+
+            if(! $(this).data('qtip' )) {
                 var content = "<font size='2'>";
                 content += text.qTips.id + ": " + "<strong><a href='"
                         + qtipFunc(cancer_study_id, d.case_id)
@@ -148,7 +153,7 @@ var SurvivalCurve = function() {
                 content += text.qTips.estimation + ": <strong>" + (d.survival_rate * 100).toFixed(2) + "%</strong><br>";
                 if (d.status === "0") { // If censored, mark it
                     content += text.qTips.censoredEvent + ": <strong>" + d.time.toFixed(2) + " </strong>months (censored)<br>";
-                } else { // status is 1, means event occured 
+                } else { // status is 1, means event occured
                     content += text.qTips.failureEvent + ": <strong>" + d.time.toFixed(2) + " </strong>months<br>";
                 }
                 content += "</font>";
@@ -157,20 +162,15 @@ var SurvivalCurve = function() {
                     {
                         content: {text: content},
                         style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow qtip-wide'},
-                        show: {event: "mouseover"},
+                        show: {
+                            event: "mouseover",
+                            ready: true
+                        },
                         hide: {fixed:true, delay: 100, event: "mouseout"},
                         position: {my:'left bottom',at:'top right'}
                     }
                 );
-
             }
-        );
-        
-        var mouseOn = function() {
-            var dot = d3.select(this);
-            dot.transition()
-                .duration(400)
-                .style("opacity", .9);
         };
 
         var mouseOff = function() {

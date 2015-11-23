@@ -62,8 +62,19 @@
 	//Initialize the pancancer study summary object which triggers the creation of the sub tabs,
 	//models and respective views, one per gene:
 	$(document).ready( function() {
-		var pancancerStudySummary = new PancancerStudySummary();
-		pancancerStudySummary.init();
+        var plots_tab_init=false;
+        // if not initialised, clicking the cancer types summary tab tab will create the object and call init
+        $("#tabs").bind("tabsactivate", function(event, ui) {
+            if (ui.newTab.text().trim().toLowerCase() === "cancer types summary") {
+                if (plots_tab_init === false) {
+                    var pancancerStudySummary = new PancancerStudySummary();
+                    pancancerStudySummary.init();
+                    $(window).trigger("resize");
+                } else {
+                    $(window).trigger("resize");
+                }
+            }
+        });
 	});
 </script>
 

@@ -273,27 +273,6 @@
         var firstTime = true;
 
         $("#toggle_query_form").tipTip();
-        // check if network tab is initially selected
-        if ($("div.section#network").is(":visible"))
-        {
-            // init the network tab
-	        //send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
-	        //firstTime = false;
-
-	        // TODO window.networkGraphJSON is null at this point,
-	        // this is a workaround to wait for graphJSON to get ready
-	        var interval = setInterval(function() {
-		        if (window.networkGraphJSON != null)
-		        {
-			        clearInterval(interval);
-			        if (firstTime)
-			        {
-				        send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
-				        firstTime = false;
-			        }
-		        }
-	        }, 50);
-        }
 
         $("a.result-tab").click(function(){
 

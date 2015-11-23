@@ -83,7 +83,7 @@
     
     function getSurvivalPlotsCaseList() {
         var def = new $.Deferred();
-        $.when(window.QuerySession.getAlteredSamples(), window.QuerySession.getUnalteredSamples(), function(altered_samples, unaltered_samples) {
+        $.when(window.QuerySession.getAlteredSamples(), window.QuerySession.getUnalteredSamples()).then(function(altered_samples, unaltered_samples) {
             var obj = {};
             $.each(altered_samples, function(_index, _sampleId) {
                 obj[_sampleId] = "altered";

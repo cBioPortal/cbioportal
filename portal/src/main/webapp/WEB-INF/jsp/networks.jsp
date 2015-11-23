@@ -81,6 +81,23 @@
 <script type="text/javascript" src="js/lib/d3.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <script type="text/javascript">
+    $(document).ready( function() {
+        // if not initialised, clicking the network tab will call showNetwork
+        var plots_tab_init=false;
+        $("#tabs").bind("tabsactivate", function(event, ui) {
+            if (ui.newTab.text().trim().toLowerCase() === "network") {
+                if (plots_tab_init === false) {
+                    showNetwork();
+                    $(window).trigger("resize");
+                } else {
+                    $(window).trigger("resize");
+                }
+            }
+        });
+    });
+
+
+
 
 			var genomicData = {};
 			// Send genomic data query again
@@ -154,12 +171,12 @@
                         //show debug message !
                         showXDebug(graphml);
                         showNetworkMessage(graphml, "#network #netmsg");
+
+                        // when the data is available call send2cytoscapeweb
+                        send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
                     });
             }
 
-            $(document).ready(function() {
-                showNetwork();
-            });
         </script>
 
 <jsp:include page="network_views.jsp"/>

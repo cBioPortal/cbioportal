@@ -403,7 +403,7 @@ $(document).ready(function() {
             var _sampleIds = window.QuerySession.getSampleIds();
             window.PortalGlobals.setSampleIds(_sampleIds);
             
-            var altered_samples_percentage = (100 * altered_samples.legnth / _sampleIds.length).toFixed(1);
+            var altered_samples_percentage = (100 * altered_samples.length / _sampleIds.length).toFixed(1);
 
             //Configure the summary line of alteration statstics
             var _stat_smry = "<h3 style='color:#686868;font-size:14px;'>Gene Set / Pathway is altered in <b>" + altered_samples.length + " (" + altered_samples_percentage + "%)" + "</b> of queried samples</h3>";

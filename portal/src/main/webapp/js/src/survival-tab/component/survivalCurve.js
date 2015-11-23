@@ -426,8 +426,8 @@ var SurvivalCurve = function() {
     }
     
     function removeCurve(_curveId){
-        $('#' + _curveId + '-dots').remove();
-        $('#' + _curveId + '-line').remove();
+        d3.selectAll('#' + _curveId + '-dots').remove();
+        d3.selectAll('#' + _curveId + '-line').remove();
         removeCurveCensoredDots(_curveId);
         delete curvesInfo[_curveId];
         //TODO: Add redraw curve label function

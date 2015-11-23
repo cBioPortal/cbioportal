@@ -689,7 +689,7 @@ function DataManagerPresenter(dmInitCallBack)
 	var self = this;
 	//keep track of samples and their respective alteration events 
 	self.sampleList = []; //each entry contains alterationEvents[] 
-	self.cancerTypeList = [];  //each entry contains cancerTypeDetailed[] and sample_ids[], each cancerTypeDetailed entry also contains sample_ids[]
+	var nrResponsesReceived = 0;
 	
 	//Initialize: run initial ws requests and data parsing. 
 	//This sequence of calls gets: 
@@ -713,12 +713,20 @@ function DataManagerPresenter(dmInitCallBack)
 			
 			//do the next call:
 			console.log(new Date() + ": CALL to get sample clinical atttributes (cancer types)");
-			return window.QuerySession.getSampleClinicalData(["CANCER_TYPE","CANCER_TYPE_DETAILED"]);
+			//this and next call below are in parallel, so the last one should call the dmInitCallBack:
+			nrResponsesReceived++;
+			if (nrResponsesReceived == 2) {
+				dmInitCallBack(self);
+			}
 		},
 		function(err){
 			// handle error, if any
 			alert(" error found");//TODO - check how the error will come in and how we should present it. Logged in https://github.com/cBioPortal/cbioportal/issues/264
-		})
+		});
+	
+	console.log(new Date() + ": CALL to getSampleClinicalData()");
+	self.cancerTypeList = [];  //each entry contains cancerTypeDetailed[] and sample_ids[], each cancerTypeDetailed entry also contains sample_ids[]
+	window.QuerySession.getSampleClinicalData(["CANCER_TYPE","CANCER_TYPE_DETAILED"])
 	.then(
 		function (data){
 			//parse the data to the correct internal format. Here we can assume that the samples are only the ones 
@@ -737,7 +745,6 @@ function DataManagerPresenter(dmInitCallBack)
 					//a sample contains only one cancer_type, so refer to it:
 					sampleIdAndCancerTypeIdx[data[i].sample] = cancerType;
 					cancerType.sampleIds.push(data[i].sample);
-					
 				}
 			}
 			for (var i = 0; i < data.length; i++)
@@ -752,7 +759,11 @@ function DataManagerPresenter(dmInitCallBack)
 				}
 			}
 			console.log(new Date() + ": finished processing sample clinical atttributes (cancer types)");
-			dmInitCallBack(self);
+			//this and next call above are in parallel, so the last one should call the dmInitCallBack:
+			nrResponsesReceived++;
+			if (nrResponsesReceived == 2) {
+				dmInitCallBack(self);
+			}
 		},
 		function(err){
 			// handle error, if any

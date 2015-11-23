@@ -62,22 +62,16 @@
         MutexData.setOncoprintData(PortalDataColl.getOncoprintData()); 
         $("#tabs").bind("tabsactivate", function(event, ui) {
             if (!MutexView.isTableInstanceExisted()) {
-                MutexData.init();
+            	//only call this part if tab is clicked :
                 if (ui.newTab.text().trim().toLowerCase() === "mutual exclusivity") {
-                    MutexView.resize();
+                	//calling asynch to ensure loading gif is shown:
+                    window.setTimeout(MutexData.init, 1); 
+                    window.setTimeout(MutexView.resize, 1);
                 }
             } else {
                 MutexView.resize();
             }
         });
-        if ($("#mutex").is(":visible")) {
-            if (!MutexView.isTableInstanceExisted()) {
-                MutexData.init();
-                MutexView.resize();
-            } else {
-                MutexView.resize();
-            }
-        }
     });
 </script>
 

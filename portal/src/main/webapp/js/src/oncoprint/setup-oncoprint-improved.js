@@ -464,7 +464,7 @@ window.setUpOncoprint = function(ctr_id, config) {
 					unused_clinical_attrs = _.sortBy(attrs.toJSON(), function (o) {
 						return o.display_name;
 					});
-					if (window.PortalGlobals.getMutationProfileId() !== null) {
+					if (window.QuerySession.getMutationProfileId() !== null) {
 						unused_clinical_attrs.unshift({attr_id: "# mutations",
 							datatype: "NUMBER",
 							description: "Number of mutations",
@@ -605,7 +605,7 @@ window.setUpOncoprint = function(ctr_id, config) {
 							clinicalMutationColl.fetch({
 								type: "POST",
 								data: {
-									mutation_profile: window.PortalGlobals.getMutationProfileId(),
+									mutation_profile: window.QuerySession.getMutationProfileId(),
 									cmd: "count_mutations",
 									case_ids: config.sample_list.join(" ")
 								},

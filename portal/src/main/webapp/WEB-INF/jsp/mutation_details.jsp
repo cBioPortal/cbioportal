@@ -90,7 +90,7 @@
 
     // Set up Mutation View
     $(document).ready(function () {
-        var sampleArray = _.keys(PortalGlobals.getPatientSampleIdMap());
+        var sampleArray = window.QuerySession.getSampleIds();
         var mutationProxy = DataProxyFactory.getDefaultMutationDataProxy();
 
 

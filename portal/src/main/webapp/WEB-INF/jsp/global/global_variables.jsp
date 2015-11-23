@@ -379,7 +379,10 @@
                                                                 case_set_name: '<%=patientSetName%>',
                                                                 case_set_description: '<%=patientSetDescription%>'
                                                             },
-                                                            ['<%=cancerStudyName%>']);
+                                                            ['<%=cancerStudyName%>'],
+                                                            {
+                                                                mutation_profile_id: <%=(mutationProfileID==null?"null":("'"+mutationProfileID+"'"))%>
+                                                            });
     })();
 </script>
 

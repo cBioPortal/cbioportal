@@ -95,8 +95,8 @@ var PieChart = function(){
     function addPieLabels() {
         var _filters =[];
 
-        $('#' + DIV.mainDiv + ' .study-view-pie-label').html("");
-        $('#' + DIV.mainDiv + ' .study-view-pie-label-copy').html("");
+        d3.selectAll('#' + DIV.mainDiv).selectAll('.study-view-pie-label').selectAll('*').remove();
+        d3.selectAll('#' + DIV.mainDiv).selectAll('.study-view-pie-label-copy').selectAll('*').remove();
 
         initLabelInfo();
         labelFunction();

@@ -13,6 +13,8 @@ import sys
 import getopt
 import os
 import logging
+import logging.handlers
+from collections import OrderedDict
 
 
 # ------------------------------------------------------------------------------
@@ -345,12 +347,6 @@ exitcode = 0
 # ------------------------------------------------------------------------------
 # class definitions
 
-# TODO override logging.handlers.MemoryHandler to collapse repeated messages
-# I'm thinking about keeping track of the LogRecord.module +
-# LogRecord.lineno + LogRecord.message (LogRecord.msg % LogRecord.args)
-# in CollapsingHandler.emit(), and flushing the message with aggregated
-# `line_number`s and `cause`s at some point.
-
 class ValidationMessageFormatter(logging.Formatter):
 
     """Logging formatter with optional fields for data validation messages.
@@ -369,35 +365,136 @@ class ValidationMessageFormatter(logging.Formatter):
                 '%(line_indicator)s%(column_indicator)s'
                 ' %(message)s%(cause_indicator)s')
 
+    @staticmethod
+    def format_aggregated(record,
+                          attr_name,
+                          single_fmt='%s',
+                          multiple_fmt='[%s]',
+                          join_string=', ',
+                          optional=False):
+        """Format a human-readable string for a field or its <field>_list.
+
+        As would be generated when using the CollapsingLogMessageHandler.
+        If `optional` is True and both the field and its list are absent,
+        return an empty string.
+        """
+        attr_val = getattr(record, attr_name, None)
+        attr_list = getattr(record, attr_name + '_list', None)
+        if attr_val is not None:
+            attr_indicator = single_fmt % attr_val
+        elif attr_list is not None:
+            string_list = list(str(val) for val in attr_list[:3])
+            num_skipped = len(attr_list) - len(string_list)
+            if num_skipped != 0:
+                string_list.append('(%d more)' % num_skipped)
+            attr_indicator = multiple_fmt % join_string.join(string_list)
+        elif optional:
+            attr_indicator = ''
+        else:
+            raise ValueError(
+                "Tried to format an absent non-optional log field: '%s'" %
+                attr_name)
+        return attr_indicator
+
     def format(self, record):
 
         """Generate descriptions for optional fields and format the record."""
 
-        def format_optional(record, attr_name, fmt=' %(attr_val)s:'):
-            """Format a human-readable description for an optional field."""
-            attr_indicator = ''
-            attr_val = getattr(record, attr_name, None)
-            if attr_val is not None:
-                attr_indicator = fmt % attr_val
-            return attr_indicator
 
-        if not hasattr(record, 'data_filename'):
-            if (
-                    hasattr(record, 'line_number') or
-                    hasattr(record, 'column_number')):
-                raise ValueError(
-                    'Tried to log about a line/column with no filename')
+        record.data_filename = self.format_aggregated(record,
+                                                      'data_filename',
+                                                      optional=True)
+        if not record.data_filename:
             record.data_filename = '-'
+        record.line_indicator = self.format_aggregated(
+            record,
+            'line_number',
+            ' line %d:',
+            ' lines [%s]:',
+            optional=True)
+        record.column_indicator = self.format_aggregated(
+            record,
+            'column_number',
+            ' column %d:',
+            ' columns [%s]:',
+            optional=True)
+        record.cause_indicator = self.format_aggregated(
+            record,
+            'cause',
+            "; found '%s'",
+            "; found ['%s']",
+            join_string="', '",
+            optional=True)
 
-        record.line_indicator = format_optional(record, 'line_number',
-                                                ' line %d:')
-        record.column_indicator = format_optional(record, 'column_number',
-                                                  ' column %d:')
-        record.cause_indicator = format_optional(record, 'cause',
-                                                 "; found '%s'")
+        if (
+                (record.line_indicator or record.column_indicator) and
+                record.data_filename == '-'):
+            raise ValueError(
+                'Tried to log about a line/column with no filename')
 
         return super(ValidationMessageFormatter, self).format(record)
 
+
+class CollapsingLogMessageHandler(logging.handlers.MemoryHandler):
+
+    """Logging handler that aggregates repeated log messages into one.
+
+    This collapses validation LogRecords based on the source code line that
+    emitted them and their formatted message, and flushes the resulting
+    records to another handler.
+    """
+
+    def flush(self):
+
+        """Aggregate LogRecords by message and send them to the target handler.
+
+        Fields that occur with multiple different values in LogRecords
+        emitted from the same line with the same message will be
+        collected in a field named <field_name>_list.
+        """
+
+        # group buffered LogRecords by their source code line and message
+        grouping_dict = OrderedDict()
+        for record in self.buffer:
+            identifying_tuple = (record.module,
+                                 record.lineno,
+                                 record.getMessage())
+            if identifying_tuple not in grouping_dict:
+                grouping_dict[identifying_tuple] = []
+            grouping_dict[identifying_tuple].append(record)
+
+        aggregated_buffer = []
+        # for each list of same-message records
+        for record_list in grouping_dict.values():
+            # make a dict to collect the fields for the aggregate record
+            aggregated_field_dict = {}
+            # for each field found in (the first of) the records
+            for field_name in record_list[0].__dict__:
+                # collect the values found for this field across the records
+                field_values = set(getattr(record, field_name)
+                                   for record in record_list)
+                # if this field has the same value in all records
+                if len(field_values) == 1:
+                    # use that value in the new dict
+                    aggregated_field_dict[field_name] = field_values.pop()
+                else:
+                    # set a <field>_list field instead
+                    aggregated_field_dict[field_name + '_list'] = \
+                        list(field_values)
+
+            # add a new log record with these fields tot the output buffer
+            aggregated_buffer.append(
+                logging.makeLogRecord(aggregated_field_dict))
+
+        # replace the buffer with the aggregated one and flush
+        self.buffer = aggregated_buffer
+        super(CollapsingLogMessageHandler, self).flush()
+
+    def shouldFlush(self, record):
+        """Flush when emitting an INFO message or a message without a file."""
+        return ((record.levelno == logging.INFO) or
+                ('data_filename' not in record.__dict__) or
+                super(CollapsingLogMessageHandler, self).shouldFlush(record))
 
 class CombiningLoggerAdapter(logging.LoggerAdapter):
     """LoggerAdapter that combines its own context info with that in calls."""
@@ -757,6 +854,7 @@ class MutationsExtendedValidator(Validator):
     def __init__(self,filename,hugo_entrez_map,fix,logger,stableId):
         super(MutationsExtendedValidator,self).__init__(filename,hugo_entrez_map,fix,logger,stableId)
         self.headers = MUTATIONS_HEADERS_ORDER
+        # TODO remove the attribute below, it violates the MAF standard
         self.sampleIdsHeader = set()
         self.mafValues = {}
         self.entrez_present = True
@@ -821,6 +919,7 @@ class MutationsExtendedValidator(Validator):
 
     def processTopLine(self,line):
         """Processes the top line, which contains sample ids used in study."""
+        # TODO remove this function, it violates the MAF standard
         self.headerPresent = True
         topline = [x.strip() for x in line.split(' ') if '#' not in x]
 
@@ -1425,8 +1524,12 @@ def main():
     # handlers and formatters that output different formats could be set here
     text_handler = logging.StreamHandler(sys.stdout)
     text_handler.setFormatter(ValidationMessageFormatter())
+    collapsing_text_handler = CollapsingLogMessageHandler(
+        capacity=3e6,
+        flushLevel=logging.CRITICAL,
+        target=text_handler)
 
-    logger.addHandler(text_handler)
+    logger.addHandler(collapsing_text_handler)
 
     if study_dir == '' or fix == '':
         usage()

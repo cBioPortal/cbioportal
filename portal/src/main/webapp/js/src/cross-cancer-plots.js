@@ -1038,6 +1038,16 @@ var ccPlots = (function ($, _, Backbone, d3) {
             }
         }
 
+        function update_show_sequenced(_show) {
+            window.cbioportal_client.
+            if (_show) {
+
+            } else {
+
+            }
+
+        }
+
         return {
             init: function () {
                 init_sidebar();
@@ -1053,7 +1063,8 @@ var ccPlots = (function ($, _, Backbone, d3) {
             init_sidebar: init_sidebar,
             init_box: init_box,
             update_profile_order: update_profile_order,
-            update_show_mut: update_show_mut
+            update_show_mut: update_show_mut,
+            update_show_sequenced: update_show_sequenced
         }
     }()); //close view
 
@@ -1155,6 +1166,9 @@ var ccPlots = (function ($, _, Backbone, d3) {
         },
         toggle_show_mut: function() {
             view.update_show_mut($("#cc_plots_show_mut").is(':checked'));
+        },
+        toggle_show_sequenced: function() {
+            view.update_show_sequenced($("#cc_plots_show_sequenced").is(':checked'));
         }
     }
 

@@ -1024,15 +1024,11 @@ var PieChart = function(){
         _tableDiv.push('</tbody></table>');
         _tableDivStr = _tableDiv.join('');
 
-        var pieLabelTable = $('#' + DIV.mainDiv)
-            .find('.study-view-pie-label')
-            .append(_tableDivStr);
+        d3.selectAll('#' + DIV.mainDiv).selectAll('.study-view-pie-label').html(_tableDivStr);
 
-        pieLabelTable.find('table').attr('id', DIV.labelTableID+'-0');
+        $('#' + DIV.mainDiv + ' .study-view-pie-label table').attr('id', DIV.labelTableID+'-0');
 
-        $('#' + DIV.mainDiv)
-            .find('.study-view-pie-label-copy')
-            .append(_tableDivStr);
+        d3.selectAll('#' + DIV.mainDiv).selectAll('.study-view-pie-label-copy').html(_tableDivStr);
 
         if(selectedAttrDisplay.length > maxLabelNameLength && selectedAttrDisplay.length > _labelHeaderLT) {
             var _th = $('#' + DIV.mainDiv).find('#' + DIV.labelTableID+'-0 thead th:nth-child(1)');
@@ -1041,7 +1037,7 @@ var PieChart = function(){
             _th.text(selectedAttrDisplay.substring(0, maxLabelNameLength<=_labelHeaderLT?_labelHeaderLT-2:maxLabelNameLength-3) + '...');
         }
 
-        if(tableAttrs.hasOwnProperty(selectedAttr)){
+        if(tableAttrs.hasOwnProperty(selectedAttr) && currentView !== 'table'){
             $("#"+DIV.chartDiv+"-table-icon").click();
         }
     }

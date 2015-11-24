@@ -571,21 +571,23 @@ function updateCaseListSmart() {
     $("#select_case_set").trigger("liszt:updated");
     $("#select_case_set_chzn .chzn-drop ul.chzn-results li")
         .each(function(i, e) {
-            $(e).qtip({
-                content: "<font size='2'>" + $($("#select_case_set option")[i]).attr("title") + "</font>",
-                style: {
-                    classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'
-                },
-                position: {
-                    my: 'left middle',
-                    at: 'middle right',
-                    viewport: $(window)
-                },
-	            show: "mouseover",
-	            hide: "mouseout"
-            });
-        }
-    );
+        	$(e).on('mouseover', function(event) {
+    		  $(this).qtip({
+   			     content: "<font size='2'>" + $($("#select_case_set option")[i]).attr("title") + "</font>",
+                 style: {
+                     classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'
+                 },
+                 position: {
+                     my: 'left middle',
+                     at: 'middle right',
+                     viewport: $(window)
+                 },
+ 	            hide: "mouseout"
+    		  });
+    		  //show the qtip:  
+    		  $(this).qtip("show");
+           })
+      });
 }
 
 // Called when and only when a cancer study is selected from the dropdown menu
@@ -651,8 +653,7 @@ function updateCancerStudyInformation() {
     //  Add the user-defined case list option
     $("#select_case_set").append("<option class='case_set_option' value='-1' "
         + "title='Specify you own case list'>User-defined Case List</option>");
-    updateCaseListSmart();
-
+    
     //  Set up Tip-Tip Event Handler for Case Set Pull-Down Menu
     //  commented out for now, as this did not work in Chrome or Safari
     //  $(".case_set_option").tipTip({defaultPosition: "right", delay:"100", edgeOffset: 25});

@@ -571,7 +571,7 @@ function updateCaseListSmart() {
     $("#select_case_set").trigger("liszt:updated");
     $("#select_case_set_chzn .chzn-drop ul.chzn-results li")
         .each(function(i, e) {
-        	$(e).on('mouseover', function(event) {
+        	$(e).one('mouseenter', function(event) {
     		  $(this).qtip({
    			     content: "<font size='2'>" + $($("#select_case_set option")[i]).attr("title") + "</font>",
                  style: {
@@ -582,7 +582,8 @@ function updateCaseListSmart() {
                      at: 'middle right',
                      viewport: $(window)
                  },
- 	            hide: "mouseout"
+                 show: "mouseover",
+ 	             hide: "mouseout"
     		  });
     		  //show the qtip:  
     		  $(this).qtip("show");

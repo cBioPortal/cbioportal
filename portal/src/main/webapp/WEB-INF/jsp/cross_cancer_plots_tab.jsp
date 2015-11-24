@@ -92,7 +92,7 @@
             <h5>Show Mutations</h5>
             <input type="checkbox" id="cc_plots_show_mut" onchange="ccPlots.toggle_show_mut()" checked/>
             <h5>Show Sequenced Samples Only</h5>
-            <input type="checkbox" id="cc_plots_show_sequenced" onchange="ccPlots.toggle_show_sequenced()" checked/>
+            <input type="checkbox" id="cc_plots_show_sequenced_only" onchange="ccPlots.toggle_show_sequenced()"/>
         </div>
     </tr>
     <tr>

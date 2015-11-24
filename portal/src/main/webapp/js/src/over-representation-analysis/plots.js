@@ -396,39 +396,44 @@ var orPlots = (function() {
                     content += "Alteration(s): " + d.alteration;
                 }
                 content = content + "</font>";
-
-                $(this).qtip(
+                //make qtip for an element on first mouseenter:
+                $(this).one('mouseenter', function(event) {
+                	$(this).qtip(
                     {
                         content: {text: content},
                         style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                         show: {event: "mouseover"},
                         hide: {fixed:true, delay: 100, event: "mouseout"},
                         position: {my:'left bottom',at:'top right', viewport: $(window)}
-                    }
-                );
-
-                var mouseOn = function() {
-                    var dot = d3.select(this);
-                    dot.transition()
-                        .ease("elastic")
-                        .duration(600)
-                        .delay(100)
-                        .attr("d", d3.svg.symbol().size(200).type("circle"));
-                };
-
-                var mouseOff = function() {
-                    var dot = d3.select(this);
-                    dot.transition()
-                        .ease("elastic")//TODO: default d3 symbol is circle (coincidence!)
-                        .duration(600)
-                        .delay(100)
-                        .attr("d", d3.svg.symbol().size(20).type("circle"));
-                };
-                elem.dotsGroup.selectAll("path").on("mouseover", mouseOn);
-                elem.dotsGroup.selectAll("path").on("mouseout", mouseOff);
+                    });
+                	//show the qtip:  
+          		  	$(this).qtip("show");
+                });
+                
             }
         );
 
+		//Add nice resize effect when item is hovered:
+        var mouseOn = function() {
+            var dot = d3.select(this);
+            dot.transition()
+                .ease("elastic")
+                .duration(600)
+                .delay(100)
+                .attr("d", d3.svg.symbol().size(200).type("circle"));
+        };
+
+        var mouseOff = function() {
+            var dot = d3.select(this);
+            dot.transition()
+                .ease("elastic")//TODO: default d3 symbol is circle (coincidence!)
+                .duration(600)
+                .delay(100)
+                .attr("d", d3.svg.symbol().size(20).type("circle"));
+        };
+        elem.dotsGroup.selectAll("path").on("mouseover", mouseOn);
+        elem.dotsGroup.selectAll("path").on("mouseout", mouseOff);
+        
     };
 
 

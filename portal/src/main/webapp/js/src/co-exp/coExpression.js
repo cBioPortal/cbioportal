@@ -443,7 +443,11 @@ var CoExpView = (function() {
     function getGeneticProfileCallback(result) {
         var _genes = window.PortalGlobals.getGeneList();
         //Init Profile selector
-        ProfileSelector.init(result[_genes[0]]); 
+        var _profile_list = {};
+        _.each(_genes, function(_gene) {
+            _profile_list = _.extend(_profile_list, result[_gene]);
+        });
+        ProfileSelector.init(_profile_list);
         if (profileList.length === 1) {
             $("#coexp-profile-selector-dropdown").hide();
         }

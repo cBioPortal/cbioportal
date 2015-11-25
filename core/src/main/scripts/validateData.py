@@ -1167,7 +1167,13 @@ class ClinicalValidator(Validator):
 
     """Validator for clinical data files."""
 
-    REQUIRED_HEADERS = ['SAMPLE_ID', 'PATIENT_ID']
+    REQUIRED_HEADERS = [
+        'PATIENT_ID',
+        'SAMPLE_ID',
+        'OS_MONTHS',
+        'OS_STATUS',
+        'DFS_MONTHS',
+        'DFS_STATUS']
     REQUIRE_COLUMN_ORDER = True
 
     def validate(self):
@@ -1192,8 +1198,9 @@ class ClinicalValidator(Validator):
     def checkLine(self,line):
         data = super(ClinicalValidator,self).checkLine(line)
         for col_index, value in enumerate(data):
+            # TODO check the values in the other cols, required and optional
             try:
-                if col_index == self.cols.index(self.REQUIRED_HEADERS[0]):
+                if col_index == self.cols.index(self.REQUIRED_HEADERS[1]):
                     self.sampleIds.add(value.strip())
             except ValueError:
                 continue

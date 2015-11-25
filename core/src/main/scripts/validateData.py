@@ -116,109 +116,6 @@ VALIDATOR_META_MAP = {
     VALIDATOR_IDS[TIMELINE_FILE_PATTERN]:TIMELINE_META_PATTERN
 }
 
-CNA_HEADERS = ['Hugo_symbol', 'Entrez_Gene_Id']
-CNA_VALUES = ['-2','-1','0','1','2','','NA']
-
-SEG_HEADERS = ['ID',
-    'chrom',
-    'loc.start',
-    'loc.end',
-    'num.mark',
-    'seg.mean'
-]
-
-CLINICAL_HEADERS = ['SAMPLE_ID','PATIENT_ID']
-
-LOG2_HEADERS = ['Hugo_Symbol','Entrez_Gene_Id']
-EXPRESSION_HEADERS = ['Hugo_Symbol','Entrez_Gene_Id']
-FUSION_HEADERS = ['Hugo_Symbol','Entrez_Gene_Id']
-METHYLATION_HEADERS = ['Hugo_Symbol','Entrez_Gene_Id']
-RPPA_HEADERS = ['Composite.Element.REF']
-TIMELINE_HEADERS = [
-    'PATIENT_ID',
-    'START_DATE',
-    'STOP_DATE',
-    'EVENT_TYPE'
-]
-
-MUTATIONS_HEADERS_ORDER = ['Hugo_Symbol',
-    'Entrez_Gene_Id',
-    'Center',
-    'NCBI_Build',
-    'Chromosome',
-    'Start_Position',
-    'End_Position',
-    'Strand',
-    'Variant_Classification',
-    'Variant_Type',
-    'Reference_Allele',
-    'Tumor_Seq_Allele1',
-    'Tumor_Seq_Allele2',
-    'dbSNP_RS',
-    'dbSNP_Val_Status',
-    'Tumor_Sample_Barcode',
-    'Matched_Norm_Sample_Barcode',
-    'Match_Norm_Seq_Allele1',
-    'Match_Norm_Seq_Allele2',
-    'Tumor_Validation_Allele1',
-    'Tumor_Validation_Allele2',
-    'Match_Norm_Validation_Allele1',
-    'Match_Norm_Validation_Allele2',
-    'Verification_Status',
-    'Validation_Status',
-    'Mutation_Status',
-    'Sequencing_Phase',
-    'Sequence_Source',
-    'Validation_Method',
-    'Score',
-    'BAM_File',
-    'Sequencer',
-    't_alt_count',
-    't_ref_count',
-    'n_alt_count',
-    'n_ref_count'
-]
-
-# Used for mapping column names to the corresponding function that does a check on the value.
-# This can be done for other filetypes besides maf - not currently implemented.
-MUTATIONS_CHECK_FUNCTION_MAP = {
-    'Hugo_Symbol':'checkValidHugo',
-    'Entrez_Gene_Id':'checkValidEntrez',
-    'Center':'checkCenter',
-    'NCBI_Build':'checkNCBIbuild',
-    'Chromosome':'checkChromosome',
-    'Start_Position':'checkStartPosition',
-    'End_Position':'checkEndPosition',
-    'Strand':'checkStrand',
-    'Variant_Classification':'checkVariantClassification',
-    'Variant_Type':'checkVariantType',
-    'Reference_Allele':'checkRefAllele',
-    'Tumor_Seq_Allele1':'checkTumorSeqAllele',
-    'Tumor_Seq_Allele2':'checkTumorSeqAllele',
-    'dbSNP_RS':'checkdbSNP_RS',
-    'dbSNP_Val_Status':'check_dbSNPValStatus',
-    'Tumor_Sample_Barcode':'checkTumorSampleBarcode',
-    'Matched_Norm_Sample_Barcode':'checkMatchedNormSampleBarcode',
-    'Match_Norm_Seq_Allele1':'checkMatchNormSeqAllele',
-    'Match_Norm_Seq_Allele2':'checkMatchNormSeqAllele',
-    'Tumor_Validation_Allele1':'checkTumorValidationAllele',
-    'Tumor_Validation_Allele2':'checkTumorValidationAllele',
-    'Match_Norm_Validation_Allele1':'checkMatchNormValidationAllele',
-    'Match_Norm_Validation_Allele2':'checkMatchNormValidationAllele',
-    'Verification_Status':'checkVerificationStatus',
-    'Validation_Status':'checkValidationStatus',
-    'Mutation_Status':'checkMutationStatus',
-    'Sequencing_Phase':'checkSequencingPhase',
-    'Sequence_Source':'checkSequenceSource',
-    'Validation_Method':'checkValidationMethod',
-    'Score':'checkScore',
-    'BAM_File':'checkBAMFile',
-    'Sequencer':'checkSequencer',
-    't_alt_count':'check_t_alt_count',
-    't_ref_count':'check_t_ref_count',
-    'n_alt_count':'check_n_alt_count',
-    'n_ref_count':'check_n_ref_count'
-}
 
 CNA_META_FIELDS = [
     'cancer_study_identifier',
@@ -530,9 +427,10 @@ class Validator(object):
     """Abstract validator class.
 
     Subclassed by validators for specific data file types, which should
-    initialize a 'headers' attribute defining the required column headers
-    and may implement a processTopLine method to handle lines prefixed
-    with '#'.
+    define a 'REQUIRED_HEADERS' attribute listing the required column
+    headers and a `REQUIRE_COLUMN_ORDER` boolean stating whether their
+    position is significant, and may implement a processTopLine method
+    to handle lines prefixed with '#'.
     """
 
     def __init__(self,filename,hugo_entrez_map,fix,logger,stableId):
@@ -543,14 +441,12 @@ class Validator(object):
         self.sampleIds = set()
         self.cols = []
         self.numCols = 0
-        self.invalidNumCols = False
         self.hugo_entrez_map = hugo_entrez_map
         self.lineEndings = ''
         self.fileRead = self.file.read()
         self.file.seek(0,0)
         self.end = False
         self.fix = fix
-        self.addEntrez = False
         self.studyId = ''
         self.headerWritten = False
         self.logger = CombiningLoggerAdapter(
@@ -563,6 +459,7 @@ class Validator(object):
             self.correctedFilename = '{basename}_{stable_id}.txt'.format(
                 basename=os.path.splitext(os.path.basename(self.filename))[0],
                 stable_id=self.stableId)
+            # TODO consider opening the file in validate()
             self.correctedFile = open(self.correctedFilename,'w')
 
     def validate(self):
@@ -585,6 +482,9 @@ class Validator(object):
                 elif not self.end:
                     self.checkLine(line)
             else:
+                # TODO make a function to parse initial multi-line comments,
+                # as these are required in clinical data files
+
                 # This method may or may not be implemented by subclasses
                 processTopLine = getattr(self, 'processTopLine', None)
                 if processTopLine is not None:
@@ -609,22 +509,12 @@ class Validator(object):
         self.checkRepeatedColumns()
 
         self.checkBadChar()
+        # 'REQUIRE_COLUMN_ORDER' should have been defined by the subclass
+        if self.REQUIRE_COLUMN_ORDER:  # pylint: disable=no-member
+            self.checkOrderedRequiredColumns()
+        else:
+            self.checkUnorderedRequiredColumns()
 
-        missing = []
-        # 'headers' should have been initialized by the subclass
-        for x in self.headers:  # pylint: disable=no-member
-            if x not in self.cols:
-                missing.append(x)
-
-        if len(missing) > 0:
-            if self.logger.isEnabledFor(logging.ERROR):
-                self.logger.error(
-                    'Missing columns: %s',
-                    ', '.join(missing),
-                    extra={'line_number': self.line_number,
-                           'cause': ', '.join(self.cols[:len(self.headers)]) +  # pylint: disable=no-member
-                                    ', (...)'})
-            exitcode = 0
 
     def checkLine(self,line):
 
@@ -638,25 +528,26 @@ class Validator(object):
             self.logger.error("Blank line",
                               extra={'line_number': self.line_number})
 
-        if data[0:2] == self.cols[0:2]:
+        if (
+                data[:self.numCols] == self.cols or
+                data[:len(self.REQUIRED_HEADERS)] == self.REQUIRED_HEADERS):  # pylint: disable=no-member
             if self.logger.isEnabledFor(logging.ERROR):
                 self.logger.error(
                     'Repeated header',
                     extra={'line_number': self.line_number,
-                           'cause': ', '.join(data[0:2]) + ', (...)'})
+                           'cause': ', '.join(data[:self.numCols])})
             exitcode = 1
 
         line_col_count = len(data)
 
-        if line_col_count != self.numCols and not self.invalidNumCols:
+        if line_col_count != self.numCols:
             self.logger.error('Expected %d columns based on header, '
                               'found %d',
                               self.numCols, line_col_count,
                               extra={'line_number': self.line_number})
-            self.invalidNumCols = True
             exitcode = 1
 
-        for col_index, col_name in enumerate(self.headers):  # pylint: disable=no-member
+        for col_index, col_name in enumerate(self.REQUIRED_HEADERS):  # pylint: disable=no-member
             if col_index < line_col_count and data[col_index] == '':
                 self.logger.error("Blank cell found in column '%s'",
                                   col_name,
@@ -666,6 +557,44 @@ class Validator(object):
         data = [self.fixCase(x) for x in data]
 
         return data
+
+    def checkUnorderedRequiredColumns(self):
+        """Check for missing column headers, independent of their position."""
+        num_errors = 0
+        # 'REQUIRED_HEADERS' should have been defined by the subclass
+        for col_name in self.REQUIRED_HEADERS:  # pylint: disable=no-member
+            if col_name not in self.cols:
+                num_errors += 1
+                if self.logger.isEnabledFor(logging.ERROR):
+                    self.logger.error(
+                        'Missing column: %s',
+                        col_name,
+                        extra={'line_number': self.line_number,
+                               'cause': ', '.join(self.cols[:len(self.REQUIRED_HEADERS)]) +  # pylint: disable=no-member
+                                        ', (...)'})
+        return num_errors
+
+    def checkOrderedRequiredColumns(self):
+        """Check if the column header for each position is correct."""
+        num_errors = 0
+        # 'REQUIRED_HEADERS' should have been defined by the subclass
+        for col_index, col_name in enumerate(self.REQUIRED_HEADERS):  # pylint: disable=no-member
+            if col_index >= self.numCols:
+                num_errors += 1
+                self.logger.error(
+                    "Invalid header: expected '%s' in column %d,"
+                    " found end of line",
+                    col_name, col_index + 1,
+                    extra={'line_number': self.line_number})
+            elif self.cols[col_index] != col_name:
+                num_errors += 1
+                self.logger.error(
+                    "Invalid header: expected '%s' in this column",
+                    col_name,
+                    extra={'line_number': self.line_number,
+                           'column_number': col_index + 1,
+                           'cause': self.cols[col_index]})
+        return num_errors
 
     def checkQuotes(self):
         if '"' in self.fileRead or '\'' in self.fileRead:
@@ -695,12 +624,6 @@ class Validator(object):
             self.logger.error('No line breaks recognized in file')
             exitcode = 1
 
-    def setSampleIdsFromColumns(self):
-        """If sample Ids are columns, extracts them and sets the sampleIds var."""
-        for i,col in enumerate(self.cols):
-            # TODO base this on the list of non-id columns for the data type
-            if i != 0 and 'hugo_symbol' not in col.lower() and 'entrez' not in col.lower() and col != '':
-                self.sampleIds.add(col.strip())
 
     def checkInt(self,value):
         """Checks if a value is an integer."""
@@ -710,23 +633,15 @@ class Validator(object):
         except ValueError:
             return False
 
-    def writeNewLine(self,data):
-
+    def writeNewLine(self, data):
+        """Write a line of data to the corrected file."""
         # replace blanks with 'NA'
         data = [x if x != '' else 'NA' for x in data]
+        self.correctedFile.write('\t'.join(data) + '\n')
 
-        if self.addEntrez:
-            data.insert(1,self.hugo_entrez_map.get(data[0],'NA'))
-            self.correctedFile.write('\t'.join(data) + '\n')
-        else:
-            self.correctedFile.write('\t'.join(data) + '\n')
-
-    def writeHeader(self,data):
-        if self.addEntrez:
-            data.insert(1,'Entrez_Gene_Id')
-            self.correctedFile.write('\t'.join(data) + '\n')
-        else:
-            self.correctedFile.write('\t'.join(data) + '\n')
+    def writeHeader(self, data):
+        """Write a column header to the corrected file."""
+        self.correctedFile.write('\t'.join(data) + '\n')
 
     def checkRepeatedColumns(self):
         seen = set()
@@ -765,102 +680,239 @@ class Validator(object):
         else:
             return x
 
-class CNAValidator(Validator):
-    """Sub-class CNA validator."""
-    def __init__(self,filename,hugo_entrez_map,fix,logger,stableId):
-        super(CNAValidator,self).__init__(filename,hugo_entrez_map,fix,logger,stableId)
-        self.headers = CNA_HEADERS
-        self.entrez_present = True
+class FeaturewiseFileValidator(Validator):
 
-    def validate(self):
-        super(CNAValidator,self).validate()
+    """Validates a file with rows for features and columns for ids and samples.
 
-        self.printComplete()
+    The first few columns (defined in the REQUIRED_HEADERS attribute)
+    identify the features/genes, and the rest correspond to the samples.
+
+    Subclasses should define a checkValue(self, value, col_index) function
+    to check a value in a sample column, and check the required columns
+    by overriding checkLine(self, line), which returns the list of values
+    found on the line.
+    """
+
+    REQUIRE_COLUMN_ORDER = True
+
+    def checkHeader(self, line):
+        """Validate the header and read sample IDs from it.
+
+        Return the number of fatal errors.
+        """
+        num_errors = super(FeaturewiseFileValidator, self).checkHeader(line)
+        self.setSampleIdsFromColumns()
+        return num_errors
+
+    def checkLine(self, line):
+        """Check the values in a data line."""
+        data = super(FeaturewiseFileValidator, self).checkLine(line)
+        for column_index, value in enumerate(data):
+            if column_index >= len(self.REQUIRED_HEADERS):  # pylint: disable=no-member
+                # checkValue() should be implemented by subclasses
+                self.checkValue(value, column_index)  # pylint: disable=no-member
+        return data
+
+    def setSampleIdsFromColumns(self):
+        """Extracts sample IDs from column headers and set self.sampleIds."""
+        # `REQUIRED_HEADERS` should have been set by a subclass
+        num_nonsample_headers = len(self.REQUIRED_HEADERS)  # pylint: disable=no-member
+        self.sampleIds = self.cols[num_nonsample_headers:]
+
+
+class GenewiseFileValidator(FeaturewiseFileValidator):
+
+    REQUIRED_HEADERS = ['Hugo_symbol', 'Entrez_Gene_Id']
+
+    def __init__(self, *args, **kwargs):
+        super(GenewiseFileValidator, self).__init__(*args, **kwargs)
+        self.entrez_missing = False
 
     def checkHeader(self,line):
+        """Validate the header and read sample IDs from it.
 
-        """Header validation for CNA files."""
+        Return the number of fatal errors.
+        """
+        num_errors = super(GenewiseFileValidator, self).checkHeader(line)
+        if self.numCols < 2 or self.cols[1] != self.REQUIRED_HEADERS[1]:
+            self.entrez_missing = True
+            # if fixing, do not count a missing Entrez column as a fatal error
+            if self.fix:
+                num_errors -= 1
+                # override REQUIRED_HEADERS with a copy in the instance
+                self.REQUIRED_HEADERS = list(self.REQUIRED_HEADERS)
+                # do not expect the Entrez ID column from now on
+                del self.REQUIRED_HEADERS[1]
+        return num_errors
 
-        super(CNAValidator,self).checkHeader(line)
-
-        for col_index, expected_col_name in enumerate(self.headers):
-            if col_index >= self.numCols:
-                self.logger.error(
-                    "Invalid header: expected '%s' in column %d,"
-                    " found end of line",
-                    expected_col_name, col_index + 1,
-                    extra={'line_number': self.line_number})
-            elif self.cols[col_index] != expected_col_name:
-                self.logger.error(
-                    "Invalid header: expected '%s' in this column",
-                    expected_col_name,
-                    extra={'line_number': self.line_number,
-                           'column_number': col_index + 1,
-                           'cause': self.cols[col_index]})
-
-        if self.cols[1] != self.headers[1]:
-            self.entrez_present = False
-            self.addEntrez = True
-
-        self.setSampleIdsFromColumns()
-
-        if self.fix:
-            self.writeHeader(self.cols)
-
-    def checkLine(self,line):
-
-        """Line validation for CNA files - checks that values are correct type."""
-
-        data = super(CNAValidator,self).checkLine(line)
-
+    def checkLine(self, line):
+        """Check the values in a data line."""
+        data = super(GenewiseFileValidator, self).checkLine(line)
         for column_index, value in enumerate(data):
-            if (
-                    value.strip() not in CNA_VALUES and
-                    column_index != 0 and
-                    not (column_index == 1 and self.entrez_present)):
-                if self.logger.isEnabledFor(logging.ERROR):
-                    self.logger.error(
-                        'Invalid CNA value: possible values are [%s]',
-                        ', '.join(CNA_VALUES),
-                        extra={'line_number': self.line_number,
-                               'column_number': column_index + 1,
-                               'cause': value})
-            # TODO base these indexes on the expected header for readability?
-            elif column_index == 0 and len(self.hugo_entrez_map) > 0:
+            if column_index == 0 and len(self.hugo_entrez_map) > 0:
                 if value not in self.hugo_entrez_map:
                     self.logger.warning(
                         'Hugo symbol appears incorrect',
                         extra={'line_number': self.line_number,
                                'column_number': column_index + 1,
                                'cause': value.strip()})
-            elif column_index == 1 and self.entrez_present:
+            elif not self.entrez_missing and column_index == 1:
                 if not self.checkInt(value.strip()) and not value.strip() == 'NA':
                     self.logger.warning(
                         'Invalid Data Type: Entrez_Gene_Id must be integer or NA',
                         extra={'column_number': column_index + 1,
                                'line_number': self.line_number,
                                'cause': value.strip()})
-                    exitcode = 0
+        return data
 
+    def writeNewLine(self, data):
+        if self.entrez_missing:
+            data.insert(1,self.hugo_entrez_map.get(data[0],'NA'))
+        super(GenewiseFileValidator, self).writeNewLine(data)
+
+    def writeHeader(self, data):
+        if self.entrez_missing:
+            data.insert(1,'Entrez_Gene_Id')
+        super(GenewiseFileValidator, self).writeHeader(data)
+
+
+class CNAValidator(GenewiseFileValidator):
+
+    """Sub-class CNA validator."""
+
+    ALLOWED_VALUES = ['-2','-1','0','1','2','','NA']
+
+    # TODO refactor so subclasses don't have to override for the final call
+    def validate(self):
+        super(CNAValidator,self).validate()
+        self.printComplete()
+
+    # TODO refactor so subclasses don't have to override for the final call
+    def checkHeader(self,line):
+        """Header validation for CNA files."""
+        super(CNAValidator,self).checkHeader(line)
+        if self.fix:
+            self.writeHeader(self.cols)
+
+    # TODO refactor so subclasses don't have to override for the final call
+    def checkLine(self,line):
+        """Line validation for CNA files - checks that values are correct type."""
+        data = super(CNAValidator,self).checkLine(line)
         if self.fix:
             self.writeNewLine(data)
+
+    def checkValue(self, value, col_index):
+        """Check a value in a sample column."""
+        if value not in self.ALLOWED_VALUES:
+            if self.logger.isEnabledFor(logging.ERROR):
+                self.logger.error(
+                    'Invalid CNA value: possible values are [%s]',
+                    ', '.join(self.ALLOWED_VALUES),
+                    extra={'line_number': self.line_number,
+                           'column_number': col_index + 1,
+                           'cause': value})
 
     class Factory(object):
         def create(self,filename,hugo_entrez_map,fix,logger,stableId):
             return CNAValidator(filename,hugo_entrez_map,fix,logger,stableId)
 
 class MutationsExtendedValidator(Validator):
+
     """Sub-class mutations_extended validator."""
+
+    MAF_HEADERS = [
+        'Hugo_Symbol',
+        'Entrez_Gene_Id',
+        'Center',
+        'NCBI_Build',
+        'Chromosome',
+        'Start_Position',
+        'End_Position',
+        'Strand',
+        'Variant_Classification',
+        'Variant_Type',
+        'Reference_Allele',
+        'Tumor_Seq_Allele1',
+        'Tumor_Seq_Allele2',
+        'dbSNP_RS',
+        'dbSNP_Val_Status',
+        'Tumor_Sample_Barcode',
+        'Matched_Norm_Sample_Barcode',
+        'Match_Norm_Seq_Allele1',
+        'Match_Norm_Seq_Allele2',
+        'Tumor_Validation_Allele1',
+        'Tumor_Validation_Allele2',
+        'Match_Norm_Validation_Allele1',
+        'Match_Norm_Validation_Allele2',
+        'Verification_Status',
+        'Validation_Status',
+        'Mutation_Status',
+        'Sequencing_Phase',
+        'Sequence_Source',
+        'Validation_Method',
+        'Score',
+        'BAM_File',
+        'Sequencer']
+    CUSTOM_HEADERS = [
+        't_alt_count',
+        't_ref_count',
+        'n_alt_count',
+        'n_ref_count']
+    REQUIRED_HEADERS = MAF_HEADERS + CUSTOM_HEADERS
+    REQUIRE_COLUMN_ORDER = True
+
+    # Used for mapping column names to the corresponding function that does a check on the value.
+    # This can be done for other filetypes besides maf - not currently implemented.
+    CHECK_FUNCTION_MAP = {
+        'Hugo_Symbol':'checkValidHugo',
+        'Entrez_Gene_Id':'checkValidEntrez',
+        'Center':'checkCenter',
+        'NCBI_Build':'checkNCBIbuild',
+        'Chromosome':'checkChromosome',
+        'Start_Position':'checkStartPosition',
+        'End_Position':'checkEndPosition',
+        'Strand':'checkStrand',
+        'Variant_Classification':'checkVariantClassification',
+        'Variant_Type':'checkVariantType',
+        'Reference_Allele':'checkRefAllele',
+        'Tumor_Seq_Allele1':'checkTumorSeqAllele',
+        'Tumor_Seq_Allele2':'checkTumorSeqAllele',
+        'dbSNP_RS':'checkdbSNP_RS',
+        'dbSNP_Val_Status':'check_dbSNPValStatus',
+        'Tumor_Sample_Barcode':'checkTumorSampleBarcode',
+        'Matched_Norm_Sample_Barcode':'checkMatchedNormSampleBarcode',
+        'Match_Norm_Seq_Allele1':'checkMatchNormSeqAllele',
+        'Match_Norm_Seq_Allele2':'checkMatchNormSeqAllele',
+        'Tumor_Validation_Allele1':'checkTumorValidationAllele',
+        'Tumor_Validation_Allele2':'checkTumorValidationAllele',
+        'Match_Norm_Validation_Allele1':'checkMatchNormValidationAllele',
+        'Match_Norm_Validation_Allele2':'checkMatchNormValidationAllele',
+        'Verification_Status':'checkVerificationStatus',
+        'Validation_Status':'checkValidationStatus',
+        'Mutation_Status':'checkMutationStatus',
+        'Sequencing_Phase':'checkSequencingPhase',
+        'Sequence_Source':'checkSequenceSource',
+        'Validation_Method':'checkValidationMethod',
+        'Score':'checkScore',
+        'BAM_File':'checkBAMFile',
+        'Sequencer':'checkSequencer',
+        't_alt_count':'check_t_alt_count',
+        't_ref_count':'check_t_ref_count',
+        'n_alt_count':'check_n_alt_count',
+        'n_ref_count':'check_n_ref_count'}
+
     def __init__(self,filename,hugo_entrez_map,fix,logger,stableId):
         super(MutationsExtendedValidator,self).__init__(filename,hugo_entrez_map,fix,logger,stableId)
-        self.headers = MUTATIONS_HEADERS_ORDER
-        # TODO remove the attribute below, it violates the MAF standard
-        self.sampleIdsHeader = set()
+        # TODO parse the version number in the comment on the first line,
+        # and reject unsupported versions (and/or override REQUIRED_HEADERS)
         self.mafValues = {}
-        self.entrez_present = True
+        self.entrez_missing = False
+        self.extraCols = []
         self.extra_exists = False
         self.extra = ''
+        # TODO remove the attributes below, they violate the MAF standard
         self.toplinecount = 0
+        self.sampleIdsHeader = set()
         self.headerPresent = False
 
     def validate(self):
@@ -868,21 +920,9 @@ class MutationsExtendedValidator(Validator):
         self.printComplete()
 
     def checkHeader(self,line):
-
-        super(MutationsExtendedValidator,self).checkHeader(line)  
-
-        if self.cols[0:32] != self.headers[0:32]:
-            if self.logger.isEnabledFor(logging.WARNING):
-                self.logger.warning(
-                    "Invalid header: expected, in order, '%s'",
-                    ', '.join(self.headers),
-                    extra={'line_number': self.line_number,
-                           'cause': ', '.join(self.cols[0:32])})
-            exitcode = 0
-
+        super(MutationsExtendedValidator,self).checkHeader(line)
         if self.fix:
-            self.writeHeader(self.cols)
-
+            self.writeHeader(line)
 
     def checkLine(self,line):
 
@@ -890,7 +930,7 @@ class MutationsExtendedValidator(Validator):
 
         From the column name (stored in self.cols), the
         corresponding function to check the value is selected from
-        MUTATIONS_CHECK_FUNCTION_MAP. Will emit a generic warning
+        CHECK_FUNCTION_MAP. Will emit a generic warning
         message if this function returns False. If the function sets
         self.extra_exists to True, self.extra will be used in this
         message.
@@ -898,11 +938,11 @@ class MutationsExtendedValidator(Validator):
 
         data = super(MutationsExtendedValidator,self).checkLine(line)
 
-        for col_index, value in enumerate(data[:len(self.headers)]):
+        for col_index, value in enumerate(data[:len(self.REQUIRED_HEADERS)]):
             # get the checking method for this column if available, or None
             checking_function = getattr(
                 self,
-                MUTATIONS_CHECK_FUNCTION_MAP.get(self.headers[col_index], ''),
+                self.CHECK_FUNCTION_MAP.get(self.REQUIRED_HEADERS[col_index], ''),
                 None)
             # if it is actually a method, and not None
             if callable(checking_function):
@@ -912,7 +952,7 @@ class MutationsExtendedValidator(Validator):
                     raise ValueError(('Checking function %s set a warning '
                                       'message but reported no warning') %
                                      checking_function.__name__)
-            self.mafValues[self.headers[col_index]] = value
+            self.mafValues[self.REQUIRED_HEADERS[col_index]] = value
 
         if self.fix:
             self.writeNewLine(data)
@@ -933,7 +973,7 @@ class MutationsExtendedValidator(Validator):
     def printDataInvalidStatement(self, value, col_index):
         """Prints out statement for invalid values detected."""
         message = ("Value in column '%s' appears invalid" %
-                   self.headers[col_index])
+                   self.REQUIRED_HEADERS[col_index])
         if self.extra_exists:
             message = self.extra
             self.extra = ''
@@ -947,19 +987,15 @@ class MutationsExtendedValidator(Validator):
 
     def writeNewLine(self,data):
         newline = []
-        for col in self.headers:
+        for col in self.REQUIRED_HEADERS:
             newline.append(self.mafValues.get(col,'NA'))
-        if not self.entrez_present:
+        if self.entrez_missing:
             newline[1] = self.hugo_entrez_map.get(newline[0],'NA')
+        super(MutationsExtendedValidator, self).writeNewLine(newline)
 
-        newline = [x if x != '' else 'NA' for x in newline]
-        self.correctedFile.write('\t'.join(newline) + '\n')
-
-    def writeHeader(self,data):
-        extraCols = [x for x in self.cols if x not in self.headers]
-        for ec in extraCols:
-            self.headers.append(ec)
-        self.correctedFile.write('\t'.join(self.headers) + '\n')
+    def writeHeader(self, data):
+        super(MutationsExtendedValidator, self).writeHeader(
+            self.REQUIRED_HEADERS)
 
     # These functions check values of the MAF according to their name.
     # The mapping of which function checks which value is a global value
@@ -976,12 +1012,11 @@ class MutationsExtendedValidator(Validator):
 
     def checkValidEntrez(self, value):
         """Checks if a value is a valid entrez id for the given hugo - needs to be present and match."""
-        if not self.entrez_present:
+        if self.entrez_missing:
             raise ValueError('Tried to check an Entrez id in a file without '
                              'Entrez ids')
         if value == '':
-            self.entrez_present = False
-            self.addEntrez = True
+            self.entrez_missing = True
         elif (
                 self.hugo_entrez_map != {} and
                 value not in self.hugo_entrez_map.values()):
@@ -1129,82 +1164,64 @@ class MutationsExtendedValidator(Validator):
             return MutationsExtendedValidator(filename,hugo_entrez_map,fix,logger,stableId)
 
 class ClinicalValidator(Validator):
+
     """Validator for clinical data files."""
-    def __init__(self,filename,hugo_entrez_map,fix,logger,stableId):
-        super(ClinicalValidator,self).__init__(filename,hugo_entrez_map,fix,logger,stableId)
-        self.headers = CLINICAL_HEADERS
+
+    REQUIRED_HEADERS = ['SAMPLE_ID', 'PATIENT_ID']
+    REQUIRE_COLUMN_ORDER = True
 
     def validate(self):
         super(ClinicalValidator,self).validate()
         self.printComplete()
 
+    # TODO validate the content of the comment lines before the column header
+
     def checkHeader(self,line):
         super(ClinicalValidator,self).checkHeader(line)
-
-        missing = []
-        for col in self.headers:
-            if col not in self.cols:
-                missing.append(col)
-
-        if len(missing) > 0:
-            if self.logger.isEnabledFor(logging.ERROR):
-                self.logger.error(
-                    "Header missing columns: '%s'",
-                    ', '.join(missing),
+        for col_name in self.cols:
+            if not col_name.isupper():
+                self.logger.warning(
+                    "Clinical header not in all caps",
                     extra={'line_number': self.line_number,
-                           'cause': ', '.join(self.cols[:len(self.headers)]) +
-                                    ', (...)'})
-
-        if self.cols[:2] != self.headers[:2]:
-            if self.logger.isEnabledFor(logging.ERROR):
-                self.logger.error(
-                    "Clinical data file header should start with '%s'",
-                    ', '.join(self.headers[:2]),
-                    extra={'line_number': self.line_number,
-                           'cause': ', '.join(self.cols[:2]) +
-                                    ', (...)'})
-
-        notUpper = []
-        for col in self.cols:
-            if not col.isupper():
-                notUpper.append(col)
-
-        if len(notUpper) > 0:
-            self.logger.warning(
-                "Clinical headers not in all caps",
-                extra={'line_number': self.line_number,
-                       'cause': ', '.join(notUpper)})
-            exitcode = 0
-
+                           'cause': col_name})
+                exitcode = 0
+        self.cols = [s.upper() for s in self.cols]
         if self.fix:
             self.writeHeader(self.cols)
 
-        self.cols = map(str.lower,self.cols)
-
     def checkLine(self,line):
         data = super(ClinicalValidator,self).checkLine(line)
-        for i,d in enumerate(data):
+        for col_index, value in enumerate(data):
             try:
-                if i == self.cols.index(self.headers[0].lower()):
-                    self.sampleIds.add(d.strip())
+                if col_index == self.cols.index(self.REQUIRED_HEADERS[0]):
+                    self.sampleIds.add(value.strip())
             except ValueError:
                 continue
-
         if self.fix:
             self.writeNewLine(data)
 
     def writeHeader(self,data):
-        self.correctedFile.write('\t'.join(map(str.upper,data)) + '\n')
+        self.correctedFile.write('\t'.join(data) + '\n')
 
     class Factory(object):
         def create(self,filename,hugo_entrez_map,fix,logger,stableId):
             return ClinicalValidator(filename,hugo_entrez_map,fix,logger,stableId)
 
+
 class SegValidator(Validator):
     """Validator for .seg files."""
+
+    REQUIRED_HEADERS = [
+        'ID',
+        'chrom',
+        'loc.start',
+        'loc.end',
+        'num.mark',
+        'seg.mean']
+    REQUIRE_COLUMN_ORDER = True
+
     def __init__(self,filename,hugo_entrez_map,fix,logger,stableId):
         super(SegValidator,self).__init__(filename,hugo_entrez_map,fix,logger,stableId)
-        self.headers = SEG_HEADERS
         self.sampleIds = set()
 
     def validate(self):
@@ -1213,17 +1230,6 @@ class SegValidator(Validator):
 
     def checkHeader(self,line):
         super(SegValidator,self).checkHeader(line)
-
-        if self.cols != self.headers:
-            if self.logger.isEnabledFor(logging.WARNING):
-                self.logger.warning(
-                    "Invalid header: expected, in order, '%s'",
-                    ', '.join(self.headers),
-                    extra={'line_number': self.line_number,
-                           'cause': ', '.join(self.cols[:len(self.headers)])
-                           })
-            exitcode = 0
-
         if self.fix:
             self.writeHeader(self.cols)
 
@@ -1231,10 +1237,10 @@ class SegValidator(Validator):
         data = super(SegValidator,self).checkLine(line)
 
         # if present, add sample id to set for later checks
-        for i,d in enumerate(data):
+        for col_index, value in enumerate(data):
             try:
-                if i == self.cols.index(self.headers[0].lower()):
-                    self.sampleIds.add(d.strip())
+                if col_index == self.cols.index(self.REQUIRED_HEADERS[0]):
+                    self.sampleIds.add(value.strip())
             except ValueError:
                 continue
 
@@ -1246,10 +1252,8 @@ class SegValidator(Validator):
         def create(self,filename,hugo_entrez_map,fix,logger,stableId):
             return SegValidator(filename,hugo_entrez_map,fix,logger,stableId)
 
-class Log2Validator(Validator):
-    def __init__(self,filename,hugo_entrez_map,fix,logger,stableId):
-        super(Log2Validator,self).__init__(filename,hugo_entrez_map,fix,logger,stableId)
-        self.headers = LOG2_HEADERS
+
+class Log2Validator(GenewiseFileValidator):
 
     def validate(self):
         super(Log2Validator,self).validate()
@@ -1257,25 +1261,25 @@ class Log2Validator(Validator):
 
     def checkHeader(self,line):
         super(Log2Validator,self).checkHeader(line)
-        self.setSampleIdsFromColumns()
-
         if self.fix:
             self.writeHeader(self.cols)
 
     def checkLine(self,line):
         data = super(Log2Validator,self).checkLine(line)
-
         if self.fix:
             self.writeNewLine(data)
+
+    def checkValue(self, value, col_index):
+        """Check a value in a sample column."""
+        # TODO check these values
+        pass
 
     class Factory(object):
         def create(self,filename,hugo_entrez_map,fix,logger,stableId):
             return Log2Validator(filename,hugo_entrez_map,fix,logger,stableId)
 
-class ExpressionValidator(Validator):
-    def __init__(self,filename,hugo_entrez_map,fix,logger,stableId):
-        super(ExpressionValidator,self).__init__(filename,hugo_entrez_map,fix,logger,stableId)
-        self.headers = EXPRESSION_HEADERS
+
+class ExpressionValidator(GenewiseFileValidator):
 
     def validate(self):
         super(ExpressionValidator,self).validate()
@@ -1283,25 +1287,37 @@ class ExpressionValidator(Validator):
 
     def checkHeader(self,line):
         super(ExpressionValidator,self).checkHeader(line)
-        self.setSampleIdsFromColumns()
-
         if self.fix:
             self.writeHeader(self.cols)
 
     def checkLine(self,line):
         data = super(ExpressionValidator,self).checkLine(line)
-
         if self.fix:
             self.writeNewLine(data)
+
+    def checkValue(self, value, col_index):
+        """Check a value in a sample column."""
+        # TODO check these values
+        pass
 
     class Factory(object):
         def create(self,filename,hugo_entrez_map,fix,logger,stableId):
             return ExpressionValidator(filename,hugo_entrez_map,fix,logger,stableId)
 
+
 class FusionValidator(Validator):
-    def __init__(self,filename,hugo_entrez_map,fix,logger,stableId):
-        super(FusionValidator,self).__init__(filename,hugo_entrez_map,fix,logger,stableId)
-        self.headers = FUSION_HEADERS
+
+    REQUIRED_HEADERS = [
+        'Hugo_Symbol',
+        'Entrez_Gene_Id',
+        'Center',
+        'Tumor_Sample_Barcode',
+        'Fusion',
+        'DNA support',
+        'RNA support',
+        'Method',
+        'Frame']
+    REQUIRE_COLUMN_ORDER = True
 
     def validate(self):
         super(FusionValidator,self).validate()
@@ -1323,10 +1339,8 @@ class FusionValidator(Validator):
         def create(self,filename,hugo_entrez_map,fix,logger,stableId):
             return FusionValidator(filename,hugo_entrez_map,fix,logger,stableId)
 
-class MethylationValidator(Validator):
-    def __init__(self,filename,hugo_entrez_map,fix,logger,stableId):
-        super(MethylationValidator,self).__init__(filename,hugo_entrez_map,fix,logger,stableId)
-        self.headers = METHYLATION_HEADERS
+
+class MethylationValidator(GenewiseFileValidator):
 
     def validate(self):
         super(MethylationValidator,self).validate()
@@ -1334,24 +1348,27 @@ class MethylationValidator(Validator):
 
     def checkHeader(self,line):
         super(MethylationValidator,self).checkHeader(line)
-
         if self.fix:
             self.writeHeader(self.cols)
 
     def checkLine(self,line):
         data = super(MethylationValidator,self).checkLine(line)
-
         if self.fix:
             self.writeNewLine(data)
+
+    def checkValue(self, value, col_index):
+        """Check a value in a sample column."""
+        # TODO check these values
+        pass
 
     class Factory(object):
         def create(self,filename,hugo_entrez_map,fix,logger,stableId):
             return MethylationValidator(filename,hugo_entrez_map,fix,logger,stableId)
 
-class RPPAValidator(Validator):
-    def __init__(self,filename,hugo_entrez_map,fix,logger,stableId):
-        super(RPPAValidator,self).__init__(filename,hugo_entrez_map,fix,logger,stableId)
-        self.headers = RPPA_HEADERS
+
+class RPPAValidator(FeaturewiseFileValidator):
+
+    REQUIRED_HEADERS = ['Composite.Element.REF']
 
     def validate(self):
         super(RPPAValidator,self).validate()
@@ -1359,29 +1376,35 @@ class RPPAValidator(Validator):
 
     def checkHeader(self,line):
         super(RPPAValidator,self).checkHeader(line)
-
-        # TODO try to do this in a more generic way, using the list of colnames
-
-        # for rppa, first column should be hugo|antibody, everything after should be sampleIds
-        self.sampleIds = [x.strip() for x in self.cols[1:] if self.cols[0] == RPPA_HEADERS[0]]
-
         if self.fix:
             self.writeHeader(self.cols)
 
     def checkLine(self,line):
         data = super(RPPAValidator,self).checkLine(line)
-
+        # TODO check the values in the first column
+        # for rppa, first column should be hugo|antibody, everything after should be sampleIds
         if self.fix:
             self.writeNewLine(data)
+
+
+    def checkValue(self, value, col_index):
+        """Check a value in a sample column."""
+        # TODO check these values
+        pass
 
     class Factory(object):
         def create(self,filename,hugo_entrez_map,fix,logger,stableId):
             return RPPAValidator(filename,hugo_entrez_map,fix,logger,stableId)
 
+
 class TimelineValidator(Validator):
-    def __init__(self,filename,hugo_entrez_map,fix,logger,stableId):
-        super(TimelineValidator,self).__init__(filename,hugo_entrez_map,fix,logger,stableId)
-        self.headers = TIMELINE_HEADERS
+
+    REQUIRED_HEADERS = [
+        'PATIENT_ID',
+        'START_DATE',
+        'STOP_DATE',
+        'EVENT_TYPE']
+    REQUIRE_COLUMN_ORDER = True
 
     def validate(self):
         super(TimelineValidator,self).validate()
@@ -1389,13 +1412,12 @@ class TimelineValidator(Validator):
 
     def checkHeader(self,line):
         super(TimelineValidator,self).checkHeader(line)
-
         if self.fix:
             self.writeHeader(self.cols)
 
     def checkLine(self,line):
         data = super(TimelineValidator,self).checkLine(line)
-
+        # TODO check the values
         if self.fix:
             self.writeNewLine(data)
 
@@ -1688,4 +1710,5 @@ def main():
 if __name__ == '__main__':
     main()
     # TODO base the return code on whether any error messages were emitted
+    # and remove the dysfunctional exitcode and errorcode variables
     sys.exit(exitcode)

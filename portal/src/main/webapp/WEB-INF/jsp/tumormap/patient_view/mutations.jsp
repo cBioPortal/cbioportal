@@ -65,10 +65,11 @@
                     content: {text: 'pancancer mutation bar chart is broken'},
                     events: {
                         render: function(event, api) {
+                            var byPositionData = genomicEventObs.pancan_mutation_frequencies.data[proteinPos];
                             var byKeywordData = genomicEventObs.pancan_mutation_frequencies.data[keyword];
                             var byHugoData = genomicEventObs.pancan_mutation_frequencies.data[gene];
                             var invisible_container = document.getElementById("pancan_mutations_histogram_container");
-                            var histogram = PancanMutationHistogram(byKeywordData, byHugoData, window.cancer_study_meta_data, invisible_container, {this_cancer_study: window.cancerStudyName});
+                            var histogram = PancanMutationHistogram(byPositionData, byKeywordData, byHugoData, window.cancer_study_meta_data, invisible_container, {this_cancer_study: window.cancerStudyName});
 
                             var title = "<div><div><h3>"+gene+" mutations across all cancer studies</h3></div>" +
                                         "<div style='float:right;'><button class='cross-cancer-download' file-type='pdf'>PDF</button>"+

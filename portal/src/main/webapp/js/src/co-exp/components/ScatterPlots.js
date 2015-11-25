@@ -194,7 +194,7 @@ var ScatterPlots = function() {
             .call(elem.yAxis.orient("left").ticks(0));
     }
 
-    function appendAxisTitleX(_applyLogScale) {
+    function appendAxisTitleX(_applyLogScale, size) {
         d3.select("#" + names.body).select(".plots-title-x").remove();
         d3.select("#" + names.body).select(".plots-title-x-help").remove();
         var _xTitle = "";
@@ -203,37 +203,54 @@ var ScatterPlots = function() {
         } else {
             _xTitle = text.xTitle;
         }
-        elem.axisTitleGroup.append("text")
-            .attr("x", canvas.xLeft + (canvas.xRight - canvas.xLeft) / 2)
-            .attr("y", canvas.yBottom + 60)
-            .style("text-anchor", "middle")
-            .style("font-size", "12px")
-            .style("font-weight", "bold") 
-            .attr("class", "plots-title-x")
-            .text(_xTitle);
-        elem.axisTitleGroup.append("svg:image")
-            .attr("xlink:href", "images/help.png")
-            .attr("class", "plots-title-x-help")
-            .attr("x", canvas.xLeft + (canvas.xRight - canvas.xLeft) / 2 + _xTitle.length / 2 * 8)
-            .attr("y", canvas.yBottom + 48)
-            .attr("width", "16")
-            .attr("height", "16");
-        elem.svg.select(".plots-title-x-help").each(
-            function() {
-                $(this).qtip(
-                    {
-                        content: {text: "<font size=1>" + text.xTitleHelp + "</font>" },
-                        style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
-                        show: {event: "mouseover"},
-                        hide: {fixed:true, delay: 100, event: "mouseout"},
-                        position: {my:'left bottom',at:'top right', viewport: $(window)}
-                    }
-                );
-            }
-        );
+        if(size === 'small')
+        {
+            elem.axisTitleGroup.append("text")
+                .attr("x", canvas.xLeft + (canvas.xRight - canvas.xLeft) / 2)
+                .attr("y", canvas.yBottom + 10)
+                .style("text-anchor", "middle")
+                .style("font-size", "5px")
+                .attr("class", "plots-title-x")
+                .text(_xTitle);        }
+        else
+        {
+            elem.axisTitleGroup.append("text")
+                .attr("x", canvas.xLeft + (canvas.xRight - canvas.xLeft) / 2)
+                .attr("y", canvas.yBottom + 60)
+                .style("text-anchor", "middle")
+                .style("font-size", "12px")
+                .style("font-weight", "bold")
+                .attr("class", "plots-title-x")
+                .text(_xTitle);
+        }
+
+        if(size === null)
+        {
+            elem.axisTitleGroup.append("svg:image")
+                .attr("xlink:href", "images/help.png")
+                .attr("class", "plots-title-x-help")
+                .attr("x", canvas.xLeft + (canvas.xRight - canvas.xLeft) / 2 + _xTitle.length / 2 * 8)
+                .attr("y", canvas.yBottom + 48)
+                .attr("width", "16")
+                .attr("height", "16");
+            elem.svg.select(".plots-title-x-help").each(
+                function() {
+                    $(this).qtip(
+                        {
+                            content: {text: "<font size=1>" + text.xTitleHelp + "</font>" },
+                            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+                            show: {event: "mouseover"},
+                            hide: {fixed:true, delay: 100, event: "mouseout"},
+                            position: {my:'left bottom',at:'top right', viewport: $(window)}
+                        }
+                    );
+                }
+            );
+        }
+
     }
 
-    function appendAxisTitleY(_applyLogScale) {
+    function appendAxisTitleY(_applyLogScale, size) {
         d3.select("#" + names.body).select(".plots-title-y").remove();
         d3.select("#" + names.body).select(".plots-title-y-help").remove();
         var _yTitle = "";
@@ -242,35 +259,54 @@ var ScatterPlots = function() {
         } else {
             _yTitle = text.yTitle;
         }
-        elem.axisTitleGroup.append("text")
-            .attr("transform", "rotate(-90)")
-            .attr("x", (canvas.yTop - canvas.yBottom) / 2 - canvas.yTop)
-            .attr("y", canvas.xLeft - 60)
-            .style("text-anchor", "middle")
-            .style("font-size", "12px")
-            .style("font-weight", "bold")
-            .attr("class", "plots-title-y") 
-            .text(_yTitle);
-        elem.axisTitleGroup.append("svg:image")
-            .attr("xlink:href", "images/help.png")
-            .attr("class", "plots-title-y-help")
-            .attr("x", canvas.xLeft - 72)
-            .attr("y", canvas.yBottom - (canvas.yBottom - canvas.yTop) / 2 - _yTitle.length / 2 * 8 - 20)
-            .attr("width", "16")
-            .attr("height", "16");
-        elem.svg.select(".plots-title-y-help").each(
-            function() {
-                $(this).qtip(
-                    {
-                        content: {text: "<font size=1>" + text.yTitleHelp + "</font>"},
-                        style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
-                        show: {event: "mouseover"},
-                        hide: {fixed:true, delay: 100, event: "mouseout"},
-                        position: {my:'right bottom',at:'top left', viewport: $(window)}
-                    }
-                );
-            }
-        );
+        if(size === 'small')
+        {
+            elem.axisTitleGroup.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("x", (canvas.yTop - canvas.yBottom) / 2 - canvas.yTop)
+                .attr("y", canvas.xLeft - 5)
+                .style("text-anchor", "middle")
+                .style("font-size", "5px")
+                .attr("class", "plots-title-y")
+                .text(_yTitle);
+        }
+        else
+        {
+            elem.axisTitleGroup.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("x", (canvas.yTop - canvas.yBottom) / 2 - canvas.yTop)
+                .attr("y", canvas.xLeft - 60)
+                .style("text-anchor", "middle")
+                .style("font-size", "12px")
+                .style("font-weight", "bold")
+                .attr("class", "plots-title-y")
+                .text(_yTitle);
+        }
+
+        if(size === null)
+        {
+            elem.axisTitleGroup.append("svg:image")
+                .attr("xlink:href", "images/help.png")
+                .attr("class", "plots-title-y-help")
+                .attr("x", canvas.xLeft - 72)
+                .attr("y", canvas.yBottom - (canvas.yBottom - canvas.yTop) / 2 - _yTitle.length / 2 * 8 - 20)
+                .attr("width", "16")
+                .attr("height", "16");
+            elem.svg.select(".plots-title-y-help").each(
+                function() {
+                    $(this).qtip(
+                        {
+                            content: {text: "<font size=1>" + text.yTitleHelp + "</font>"},
+                            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+                            show: {event: "mouseover"},
+                            hide: {fixed:true, delay: 100, event: "mouseout"},
+                            position: {my:'right bottom',at:'top left', viewport: $(window)}
+                        }
+                    );
+                }
+            );
+        }
+
     }
 
     function drawPlots() {
@@ -402,20 +438,24 @@ var ScatterPlots = function() {
             .text("Spearman: " + dataAttr.spearman);
     }
 
-    function addQtips() {
+    function addQtips(flag) {
+        var tempStr = '';
         elem.dotsGroup.selectAll('path').each(
             function(d) {
+                tempStr = d.case_id + '<br/>(' + d.x_val.toFixed(2) + ', ' + d.y_val + ')';
+
                 $(this).qtip(
                     {
-                        content: {text: "<font size=2>" + d.qtip},
+                        content: {text: "<font size=2>" + (flag === 'process' ? tempStr : d.qtip )},
                         style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                         show: {event: "mouseover"},
                         hide: {fixed:true, delay: 100, event: "mouseout"},
                         position: {my:'left bottom',at:'top right', viewport: $(window)}
-                    }
-                );
             }
         );
+    }
+     );
+
         //Hover Animation
         var mouseOn = function() {
             var dot = d3.select(this);
@@ -543,6 +583,40 @@ var ScatterPlots = function() {
             drawCoExpInfo();
             addQtips();
         },
+        //added by jiaojiao at Nov/25/2015
+        //for the scatter plot in patient view
+        initSmall: function(_options, _dataArr, _dataAttr, _brushOn) {    //Init with options
+            initSettings(_options, _dataAttr);
+            convertData(_dataArr);
+            initScaleX();
+            initScaleY();
+            initSvgCanvas(names.body, _brushOn);
+            initAxisX();
+            initAxisY();
+            appendAxisTitleX(false, 'small');
+            appendAxisTitleY(false, 'small');
+            drawPlots();
+            addQtips('process');
+
+        },
+
+        initBig: function(_options, _dataArr, _dataAttr, _brushOn) {    //Init with options
+            initSettings(_options, _dataAttr);
+            convertData(_dataArr);
+            initScaleX();
+            initScaleY();
+            initSvgCanvas(names.body, _brushOn);
+            initAxisX();
+            initAxisY();
+            generateAxisX();
+            generateAxisY();
+            appendAxisTitleX(false, 'big');
+            appendAxisTitleY(false, 'big');
+            drawPlots();
+            addQtips('process');
+
+        },
+
         // !!! Log Scale are only used by using RNA Seq Profile
         updateScaleX: function(_divName) {   //_applyLogScale: boolean, true for apply scale, false for  original value)
             var _applyLogScale = document.getElementById(_divName).checked;

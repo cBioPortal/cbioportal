@@ -1,4 +1,6 @@
 var clinical_attr_is_discretized = function(_axis) {
+	//TODO - performance improvement: set and read this from a model instead of doing this selection again and again thousands of times...
+
     var _type = metaData.getClinicalAttrType($("#" + ids.sidebar[_axis].clin_attr).val());
     if (_type === "STRING") return true;
     else return false;
@@ -12,6 +14,7 @@ var isEmpty = function(inputVal) {
 };
 
 var isSameGene = function () {
+	//TODO - performance improvement: set and read this from a model instead of doing this selection again and again thousands of times...
     var elt_x = document.getElementById(ids.sidebar.x.gene);
     var elt_y = document.getElementById(ids.sidebar.y.gene);
     if (elt_x.options[elt_x.selectedIndex].value === elt_y.options[elt_y.selectedIndex].value) {
@@ -21,6 +24,8 @@ var isSameGene = function () {
 };
 
 var isTwoGenes = function () {
+	//TODO - performance improvement: set and read this from a model instead of doing this selection again and again thousands of times...
+
     var elt_x = document.getElementById(ids.sidebar.x.gene);
     var elt_y = document.getElementById(ids.sidebar.y.gene);
     if (elt_x.options[elt_x.selectedIndex].value !== elt_y.options[elt_y.selectedIndex].value) {
@@ -30,6 +35,8 @@ var isTwoGenes = function () {
 };
 
 var genetic_vs_genetic = function() {
+	//TODO - performance improvement: set and read this from a model instead of doing this selection again and again thousands of times...
+
     if ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === $("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() && 
         $("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.genetic) {
         return true;
@@ -37,6 +44,8 @@ var genetic_vs_genetic = function() {
 };
 
 var genetic_vs_clinical = function() {
+	//TODO - performance improvement: set and read this from a model instead of doing this selection again and again thousands of times...
+
     var _type_x = $("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val();
     var _type_y = $("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val();
     if (_type_x !== _type_y) {
@@ -45,6 +54,8 @@ var genetic_vs_clinical = function() {
 };
 
 var clinical_vs_clinical = function() {
+	//TODO - performance improvement: set and read this from a model instead of doing this selection again and again thousands of times...
+
     if ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === $("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() && 
         $("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.clin) {
         return true;
@@ -194,18 +205,25 @@ var clear_plot_box = function() {
 };
 
 var regenerate_plots = function(_axis) {
-    if (_axis === "x" || _axis === "y") {
+
+	if (_axis === "x" || _axis === "y") {
         clear_plot_box();
         optSpec.init();
-        plotsData.fetch(_axis);
-        plotsbox.init();
+        //add this data fetching to end of queue so that changes in UI are done first:
+        //TODO - improve this by using a model (add to sidebar.js) instead of filling the ajax calls in plotsData.fetch with values from UI components!
+        window.setTimeout( function() {
+        						plotsData.fetch(_axis, plotsbox.init);
+        					}, 1);
     } else if (_axis === "xy") {
         clear_plot_box();
         optSpec.init();
-        plotsData.fetch("x");
-        plotsData.fetch("y");
-        plotsbox.init();
-
+        //add this data fetching to end of queue so that changes in UI are done first:
+        //TODO - improve this by using a model (add to sidebar.js) instead of filling the ajax calls in plotsData.fetch with values from UI components!
+        window.setTimeout( function() {
+						        plotsData.fetch("x", function () {
+						        	plotsData.fetch("y", plotsbox.init);
+						        });
+        					}, 1);
     }
 
 };

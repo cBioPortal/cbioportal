@@ -152,21 +152,19 @@ var sidebar = (function() {
     
     var mutation_copy_no_view_switch = function() {
         clear_plot_box();
-        plotsData.fetch("x");
-        plotsData.fetch("y");
-        plotsbox.init();       
+        //add this data fetching to end of queue so that changes in UI are done first:
+        //TODO - improve this by using a model (add to sidebar.js) instead of filling the ajax calls in plotsData.fetch with values from UI components!
+        window.setTimeout( function() {
+						        plotsData.fetch("x", function () {
+						        		plotsData.fetch("y", plotsbox.init);
+					        	});
+        					});
     };
     
     return {
         init: function() {
-            var tmp = setInterval(function () {timer();}, 1000);
-            function timer() {
-                if (metaData.getRetrieveStatus() !== -1) {
-                    clearInterval(tmp);
-                    render();
-                    listener();
-                }
-            }
+            render();
+            listener();
         },
         getStat: function(axis, opt) {
             return $("#" + ids.sidebar[axis][opt]).val();

@@ -259,6 +259,25 @@ class ValidationMessageFormatter(logging.Formatter):
     these will be expected in the field <fieldname>_list.
     """
 
+    def format(self, record, *args, **kwargs):
+        """Check consistency of expected fields and format the record."""
+        if (
+                (
+                    self.format_aggregated(record,
+                                           'line_number',
+                                           optional=True) or
+                    self.format_aggregated(record,
+                                           'column_number',
+                                           optional=True))
+                and not self.format_aggregated(record,
+                                               'data_filename',
+                                               optional=True)):
+            raise ValueError(
+                'Tried to log about a line/column with no filename')
+        return super(ValidationMessageFormatter, self).format(record,
+                                                              *args,
+                                                              **kwargs)
+
     @staticmethod
     def format_aggregated(record,
                           attr_name,
@@ -300,7 +319,7 @@ class LogfileStyleFormatter(ValidationMessageFormatter):
     def __init__(self):
         """Initialize a logging Formatter with an appropriate format string."""
         super(LogfileStyleFormatter, self).__init__(
-            fmt='%(levelname)s: %(data_filename)s:'
+            fmt='%(levelname)s: %(file_indicator)s:'
                 '%(line_indicator)s%(column_indicator)s'
                 ' %(message)s%(cause_indicator)s')
 
@@ -309,11 +328,11 @@ class LogfileStyleFormatter(ValidationMessageFormatter):
         """Generate descriptions for optional fields and format the record."""
 
 
-        record.data_filename = self.format_aggregated(record,
-                                                      'data_filename',
-                                                      optional=True)
-        if not record.data_filename:
-            record.data_filename = '-'
+        record.file_indicator = self.format_aggregated(record,
+                                                       'data_filename',
+                                                       optional=True)
+        if not record.file_indicator:
+            record.file_indicator = '-'
         record.line_indicator = self.format_aggregated(
             record,
             'line_number',
@@ -333,12 +352,6 @@ class LogfileStyleFormatter(ValidationMessageFormatter):
             "; found ['%s']",
             join_string="', '",
             optional=True)
-
-        if (
-                (record.line_indicator or record.column_indicator) and
-                record.data_filename == '-'):
-            raise ValueError(
-                'Tried to log about a line/column with no filename')
 
         return super(LogfileStyleFormatter, self).format(record)
 

@@ -253,14 +253,11 @@ class ValidationMessageFormatter(logging.Formatter):
     line_number - a line number within the above file (if applicable)
     column_number - a column number within the above file (if applicable)
     cause - the unexpected value found in the input (if applicable)
-    """
 
-    def __init__(self):
-        """Initialize a logging Formatter with an appropriate format string."""
-        super(ValidationMessageFormatter, self).__init__(
-            fmt='%(levelname)s: %(data_filename)s:'
-                '%(line_indicator)s%(column_indicator)s'
-                ' %(message)s%(cause_indicator)s')
+    If instead a message pertains to multiple values of one of these
+    fields (as the result of aggregation by CollapsingLogMessageHandler),
+    these will be expected in the field <fieldname>_list.
+    """
 
     @staticmethod
     def format_aggregated(record,
@@ -268,6 +265,7 @@ class ValidationMessageFormatter(logging.Formatter):
                           single_fmt='%s',
                           multiple_fmt='[%s]',
                           join_string=', ',
+                          max_join=3,
                           optional=False):
         """Format a human-readable string for a field or its <field>_list.
 
@@ -280,7 +278,7 @@ class ValidationMessageFormatter(logging.Formatter):
         if attr_val is not None:
             attr_indicator = single_fmt % attr_val
         elif attr_list is not None:
-            string_list = list(str(val) for val in attr_list[:3])
+            string_list = list(str(val) for val in attr_list[:max_join])
             num_skipped = len(attr_list) - len(string_list)
             if num_skipped != 0:
                 string_list.append('(%d more)' % num_skipped)
@@ -292,6 +290,19 @@ class ValidationMessageFormatter(logging.Formatter):
                 "Tried to format an absent non-optional log field: '%s'" %
                 attr_name)
         return attr_indicator
+
+
+
+class LogfileStyleFormatter(ValidationMessageFormatter):
+
+    """Formatter for validation messages in a simple one-per-line format."""
+
+    def __init__(self):
+        """Initialize a logging Formatter with an appropriate format string."""
+        super(LogfileStyleFormatter, self).__init__(
+            fmt='%(levelname)s: %(data_filename)s:'
+                '%(line_indicator)s%(column_indicator)s'
+                ' %(message)s%(cause_indicator)s')
 
     def format(self, record):
 
@@ -329,7 +340,7 @@ class ValidationMessageFormatter(logging.Formatter):
             raise ValueError(
                 'Tried to log about a line/column with no filename')
 
-        return super(ValidationMessageFormatter, self).format(record)
+        return super(LogfileStyleFormatter, self).format(record)
 
 
 class CollapsingLogMessageHandler(logging.handlers.MemoryHandler):
@@ -1552,7 +1563,7 @@ def main():
 
     # handlers and formatters that output different formats could be set here
     text_handler = logging.StreamHandler(sys.stdout)
-    text_handler.setFormatter(ValidationMessageFormatter())
+    text_handler.setFormatter(LogfileStyleFormatter())
     collapsing_text_handler = CollapsingLogMessageHandler(
         capacity=3e6,
         flushLevel=logging.CRITICAL,

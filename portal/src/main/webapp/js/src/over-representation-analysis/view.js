@@ -414,68 +414,101 @@ var orTable = function(plot_div, euler_div ) {
             }
             //If there is a plot, update plot to reflect selection:
             if (self.plot_div != null) {
-            	var remainingItems = orTableInstance.DataTable().rows( {search:'applied'} ).data();
+                var remainingItems = orTableInstance.DataTable().rows({search: 'applied'}).data();
                 var remainingGenes = [];
                 for (var i = 0; i < remainingItems.length; i++) {
-                	remainingGenes.push(_getGeneName(remainingItems[i][0]));
+                    remainingGenes.push(_getGeneName(remainingItems[i][0]));
                 }
-            	
-            	self.volcanoPlot.specialSelectItems(selected_genes, remainingGenes);
-            	
+
+                self.volcanoPlot.specialSelectItems(selected_genes, remainingGenes);
+
                 //show current clicked gene in euler diagram
                 var current_gene = $(this).attr("value");
                 var ratioAltInAlt = 0;
                 var ratioAltInUnalt = 0;
                 for (var i = 0; i < self.originalData.length; i++) {
-                	if (current_gene == self.originalData[i]["Gene"]) {
-                		ratioAltInAlt = self.originalData[i]["percentage of alteration in altered group"]; 
-                		ratioAltInUnalt = self.originalData[i]["percentage of alteration in unaltered group"];
-                		break;
-                	}
+                    if (current_gene == self.originalData[i]["Gene"]) {
+                        ratioAltInAlt = self.originalData[i]["percentage of alteration in altered group"];
+                        ratioAltInUnalt = self.originalData[i]["percentage of alteration in unaltered group"];
+                        break;
+                    }
                 }
+
+                if (ratioAltInAlt === "NaN") ratioAltInAlt = 0;
+                if (ratioAltInUnalt === "NaN") ratioAltInUnalt = 0;
+
+                console.log(ratioAltInAlt);
+                console.log(ratioAltInUnalt);
+
                 var totalSetSize = 2000; //TODO - retrieve this from main page - now just set to a fixed value for the prototype example.
                 var ratioAlt = 0.93; //TODO - retrieve this from main page - now just set to a fixed value for the prototype example.
-                var setSizeAlt = totalSetSize*ratioAlt;
-                var setSizeUnalt = totalSetSize*(1-ratioAlt);
-                var setSizeAltInAlt = setSizeAlt*ratioAltInAlt;
-                var setSizeAltInUnalt = setSizeUnalt*ratioAltInUnalt;
-                
-                var setA = 'A (' + Math.round(setSizeAlt) + ')';
-                var setB1 = 'B1 (' + Math.round(setSizeAltInAlt) + ')';
-                var setB2 = 'B2 (' + Math.round(setSizeAltInUnalt) + ')';
-                var setC = 'C (' + Math.round(setSizeUnalt) + ')';
-                
-            	var sets = [ {sets: [setA], size: setSizeAlt}, 
-            	             {sets: [setB1], size: setSizeAltInAlt},
-            	             {sets: [setB2], size: setSizeAltInUnalt},
-            	             {sets: [setC], size: setSizeUnalt},
-            	             {sets: [setA, setB1], size: setSizeAltInAlt},
-            	             {sets: [setB2, setC], size: setSizeAltInUnalt},
-            	             {sets: [setA, setC], size: 0} ];
-            	
-            	var needLegendInit = false;
-            	if (!self.chart) {
-            		self.chart = venn.VennDiagram();
-                	//add euler_diagram:
-                	$("#" + self.plot_div).append("<div id='"+ euler_div + "'/>");
-                	needLegendInit = true;
-            	}
-            	
-            	d3.select("#" + self.euler_div).datum(sets).call(self.chart);
+                var setSizeAlt = totalSetSize * ratioAlt;
+                var setSizeUnalt = totalSetSize * (1 - ratioAlt);
 
-            	if (needLegendInit) {
-            		//legend:
-	            	$("#" + self.euler_div).append("<div id='legend_"+ self.euler_div+ "'/>");
-	        	}
-            	
-            	var setA_desc = 'A= samples where query genes are altered';
-				var setB1_desc = 'B1= samples where [' + current_gene + '] is altered in A';
-				var setB2_desc = 'B2= samples where [' + current_gene + '] is altered in C';
-				var setC_desc = 'C= samples where query genes are NOT altered';
-            	$("#legend_" + self.euler_div).html(setA_desc + "<br/>" +
-            			setB1_desc + "<br/>" +
-            			setB2_desc + "<br/>" +
-            			setC_desc);
+                var setSizeAltInAlt = setSizeAlt * ratioAltInAlt;
+                var setSizeAltInUnalt = setSizeUnalt * ratioAltInUnalt;
+
+
+                var current_gene = $(this).attr("value");
+
+                $("#" + self.plot_div).append("<div id='" + euler_div + "'/>");
+
+                var bardata = [{
+                    barName: "QGenes",
+                    barPieceName: "QGenes Altered",
+                    barPieceValue: setSizeAlt
+                }, {
+                    barName: "QGenes",
+                    barPieceName: "QGenes Unaltered",
+                    barPieceValue: setSizeUnalt
+                }, {
+                    barName: current_gene,
+                    barPieceName: "QGenes Altered, TNF Unaltered",
+                    barPieceValue: setSizeAlt - setSizeAltInAlt
+                }, {
+                    barName: current_gene,
+                    barPieceName: "QGenes Altered, TNF Altered",
+                    barPieceValue: setSizeAltInAlt
+                }, {
+                    barName: current_gene,
+                    barPieceName: "QGenes Unaltered, TNF Altered",
+                    barPieceValue: setSizeUnalt - setSizeAltInUnalt
+                }, {
+                    barName: current_gene,
+                    barPieceName: "QGenes Unaltered, TNF Unaltered",
+                    barPieceValue: setSizeAltInUnalt
+                }];
+
+                if (!self.chart) {
+                    $("#" + self.plot_div).append("<div id='"+ euler_div + "'/>");
+                    self.chart = new stacked_histogram(bardata);
+                    self.chart.addStackedHistogram("#" + euler_div);
+                }
+
+
+                //var needLegendInit = false;
+                //if (!self.chart) {
+            		//self.chart = venn.VennDiagram();
+                //	//add euler_diagram:
+                //	$("#" + self.plot_div).append("<div id='"+ euler_div + "'/>");
+                //	needLegendInit = true;
+                //}
+                //
+                //d3.select("#" + self.euler_div).datum(sets).call(self.chart);
+                //
+                //if (needLegendInit) {
+            		////legend:
+	            	//$("#" + self.euler_div).append("<div id='legend_"+ self.euler_div+ "'/>");
+                //}
+                //
+                //var setA_desc = 'A= samples where query genes are altered';
+                //var setB1_desc = 'B1= samples where [' + current_gene + '] is altered in A';
+                //var setB2_desc = 'B2= samples where [' + current_gene + '] is altered in C';
+                //var setC_desc = 'C= samples where query genes are NOT altered';
+                //$("#legend_" + self.euler_div).html(setA_desc + "<br/>" +
+            		//	setB1_desc + "<br/>" +
+            		//	setB2_desc + "<br/>" +
+            		//	setC_desc);
             }
 
 

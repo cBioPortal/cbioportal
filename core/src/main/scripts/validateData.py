@@ -15,6 +15,7 @@ import os
 import logging
 import logging.handlers
 from collections import OrderedDict
+from cgi import escape as html_escape
 
 
 # ------------------------------------------------------------------------------
@@ -354,6 +355,55 @@ class LogfileStyleFormatter(ValidationMessageFormatter):
             optional=True)
 
         return super(LogfileStyleFormatter, self).format(record)
+
+
+class SimpleHtmlTableFormatter(ValidationMessageFormatter):
+    """Formatter writing messages to an order-of-appearance HTML table."""
+
+    def __init__(self):
+        """Initialize a logging Formatter with an appropriate format string."""
+        super(SimpleHtmlTableFormatter, self).__init__(
+            fmt='  <tr class="%(level_string)s">\n'
+                '    <td>%(file_string)s</td>\n'
+                '    <td>%(line_string)s</td>\n'
+                '    <td>%(column_string)s</td>\n'
+                '    <td>%(message_string)s</td>\n'
+                '    <td>%(cause_string)s</td>\n'
+                '  </tr>')
+
+    def format(self, record):
+
+        """Generate descriptions for optional fields and format the record."""
+
+        record.level_string = html_escape(
+            record.levelname.lower(),
+            quote=True)
+        record.message_string = html_escape(
+            record.getMessage())
+        record.file_string = html_escape(
+            self.format_aggregated(record,
+                                   'data_filename',
+                                   optional=True))
+        record.line_string = html_escape(
+            self.format_aggregated(record,
+                                   'line_number',
+                                   single_fmt='%d',
+                                   multiple_fmt='%s',
+                                   optional=True))
+        record.column_string = html_escape(
+            self.format_aggregated(record,
+                                   'column_number',
+                                   single_fmt='%d',
+                                   multiple_fmt='%s:',
+                                   optional=True))
+        record.cause_string = html_escape(
+            self.format_aggregated(record,
+                                   'cause',
+                                   single_fmt="%s",
+                                   multiple_fmt="%s",
+                                   optional=True))
+
+        return super(SimpleHtmlTableFormatter, self).format(record)
 
 
 class CollapsingLogMessageHandler(logging.handlers.MemoryHandler):
@@ -703,6 +753,7 @@ class Validator(object):
             return 'Female'
         else:
             return x
+
 
 class FeaturewiseFileValidator(Validator):
 
@@ -1576,7 +1627,7 @@ def main():
 
     # handlers and formatters that output different formats could be set here
     text_handler = logging.StreamHandler(sys.stdout)
-    text_handler.setFormatter(LogfileStyleFormatter())
+    text_handler.setFormatter(SimpleHtmlTableFormatter())
     collapsing_text_handler = CollapsingLogMessageHandler(
         capacity=3e6,
         flushLevel=logging.CRITICAL,

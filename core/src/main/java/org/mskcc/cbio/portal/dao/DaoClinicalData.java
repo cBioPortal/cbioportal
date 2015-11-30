@@ -35,12 +35,10 @@ package org.mskcc.cbio.portal.dao;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.InternalIdUtil;
 
-import org.apache.commons.logging.*;
 import org.apache.commons.lang.StringUtils;
 
 import java.sql.*;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Data Access Object for `clinical` table
@@ -55,14 +53,10 @@ public final class DaoClinicalData {
     private static final String SAMPLE_INSERT = "INSERT INTO " + SAMPLE_TABLE + "(`INTERAL_ID`,`ATTR_ID`,`ATTR_VALUE` VALUES(?,?,?)";
     private static final String PATIENT_INSERT = "INSERT INTO " + PATIENT_TABLE + "(`INTERNAL_ID`,`ATTR_ID`,`ATTR_VALUE` VALUES(?,?,?)";
 
-    private static final Map<String, String> sampleAttributes = new ConcurrentHashMap<String, String>();
-    private static final Map<String, String> patientAttributes = new ConcurrentHashMap<String, String>();
+    private static final Map<String, String> sampleAttributes = new HashMap<String, String>();
+    private static final Map<String, String> patientAttributes = new HashMap<String, String>();
 
     private DaoClinicalData() {}
-
-    static {
-        reCache();
-    }
 
     public static synchronized void reCache()
     {
@@ -612,6 +606,60 @@ public final class DaoClinicalData {
             }
 
             return ids;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoClinicalData.class, con, pstmt, rs);
+        }
+    }
+
+    // get cancerType from the clinical_sample table to determine whether we have multiple cancer types
+    // in one study
+    public static Map<String, List<String>> getCancerTypeInfo(int studyID) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try{
+            con = JdbcUtil.getDbConnection(DaoClinicalData.class);
+            pstmt = con.prepareStatement("select " +
+                    "distinct attr_value as attributeValue, " +
+                    "attr_id as attributeID " +
+                    "from clinical_sample " +
+                    "where attr_id in (?, ?) " +
+                    "and INTERNAL_ID in ( " +
+                    "   select INTERNAL_ID " +
+                    "   from sample " +
+                    "   where PATIENT_ID in ( " +
+                    "       select INTERNAL_ID " +
+                    "       from patient " +
+                    "       where CANCER_STUDY_ID = ? " +
+                    "       )" +
+                    "   )");
+            pstmt.setString(1, ClinicalAttribute.CANCER_TYPE);
+            pstmt.setString(2, ClinicalAttribute.CANCER_TYPE_DETAILED);
+            pstmt.setInt(3, studyID);
+            rs = pstmt.executeQuery();
+
+            // create a map for the results
+            Map<String, List<String>> result = new LinkedHashMap<String, List<String>>();
+            String attributeValue, attributeID;
+            List<String> attributeValues;
+            while (rs.next())
+            {
+                attributeValue = rs.getString("attributeValue");
+                attributeID = rs.getString("attributeID");
+                attributeValues = result.get(attributeID);
+                // if no attributeValues exists for the attributeID, add a new list
+                if(attributeValues==null){
+                    attributeValues = new ArrayList<String>();
+                    result.put(attributeID, attributeValues);
+                }
+                // add the attributeValue to the list
+                attributeValues.add(attributeValue);
+            }
+
+            return result;
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

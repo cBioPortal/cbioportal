@@ -65,7 +65,6 @@
 <%@ page import="org.codehaus.jackson.JsonFactory" %>
 <%@ page import="org.codehaus.jackson.map.ObjectMapper" %>
 
-
 <%
     //Security Instance
     ServletXssUtil xssUtil = ServletXssUtil.getInstance();
@@ -184,7 +183,8 @@
         showCoexpTab = true;
     } 
     Object patientSampleIdMap = request.getAttribute(QueryBuilder.SELECTED_PATIENT_SAMPLE_ID_MAP);
-
+    
+    String patientCaseSelect = (String)request.getAttribute(QueryBuilder.PATIENT_CASE_SELECT);
     //list of altered & unaltered sample ids
     ArrayList<String> alteredSampleIdList = new ArrayList<String>();
     ArrayList<String> unalteredSampleIdList = new ArrayList<String>();
@@ -201,6 +201,8 @@
 %>
 
 <!--Global Data Objects Manager-->
+<script type="text/javascript" src="js/lib/oql/oql-parser.js"></script>
+<script type="text/javascript" src="js/api/cbioportal-datamanager.js"></script>
 <script type="text/javascript">
     var PortalDataColl = (function() {
         var oncoprintData = null,
@@ -268,6 +270,8 @@
 
     var num_total_cases = 0, num_altered_cases = 0;
     var global_gene_data = {}, global_sample_ids = [];
+    var patientSampleIdMap = {};
+    var patientCaseSelect;
 
     window.PortalGlobals = {
 
@@ -304,7 +308,12 @@
         //samples
         setSampleIds: function(_inputArr) { global_sample_ids = _inputArr; },
         getSampleIds: function() { return global_sample_ids; },
+        
+        setPatientSampleIdMap: function(_patientSampleIdMap) {patientSampleIdMap = _patientSampleIdMap;},
 
+    
+        getPatientCaseSelect: function() {return '<%=patientCaseSelect%>';},
+        
         //patients
         getPatientSetName: function() { return '<%=patientSetName%>'; },
         getPatientSetDescription: function() {
@@ -354,6 +363,17 @@
         getGeneData: function() { return global_gene_data; }
 
     };
+    (function setUpDataManager() {
+        var oql_html_conversion_vessel = document.createElement("div");
+        oql_html_conversion_vessel.innerHTML = '<%=oql%>'.trim();
+        var converted_oql = oql_html_conversion_vessel.textContent.trim();
+        window.QuerySession = window.initDatamanager('<%=geneticProfiles%>'.trim().split(/\s+/),
+                                                            converted_oql,
+                                                            ['<%=cancerTypeId%>'.trim()],
+                                                            '<%=patients%>'.trim().split(/\s+/),
+                                                            parseFloat('<%=zScoreThreshold%>'),
+                                                            parseFloat('<%=rppaScoreThreshold%>'));
+    })();
 </script>
 
 <script>
@@ -372,15 +392,9 @@
             });
         });     
 
-        //extract the sample Ids array
-        var _sampleIds = [];
-        $.each(window.PortalGlobals.getGeneData(), function(index, obj) {
-            if ($.inArray(obj.sample, _sampleIds) === -1) {
-                _sampleIds.push(obj.sample);
-            }
-        });
+        var _sampleIds = window.QuerySession.getSampleIds();
         window.PortalGlobals.setSampleIds(_sampleIds);
-
+        
         //Configure the summary line of alteration statstics
         var _stat_smry = "<h3 style='color:#686868;font-size:14px;'>Gene Set / Pathway is altered in <b>" + window.PortalGlobals.getNumOfAlteredCases() + " (" + window.PortalGlobals.getPercentageOfAlteredCases() + "%)" + "</b> of queried samples</h3>";
         $("#main_smry_stat_div").append(_stat_smry);

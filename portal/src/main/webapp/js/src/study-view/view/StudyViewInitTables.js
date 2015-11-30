@@ -74,7 +74,11 @@ var StudyViewInitTables = (function() {
                             displayName: 'MutSig',
                             hidden: true
                         },{
+                        displayName: 'Sample IDs',
                             name: 'caseIds',
+                            hidden: true
+                        },{
+                            name: 'uniqueId',
                             hidden: true
                         }
                     ];
@@ -115,7 +119,11 @@ var StudyViewInitTables = (function() {
                             displayName: 'Gistic',
                             hidden: true
                         },{
+                            displayName: 'Sample IDs',
                             name: 'caseIds',
+                            hidden: true
+                        },{
+                            name: 'uniqueId',
                             hidden: true
                         }
                     ];
@@ -150,7 +158,7 @@ var StudyViewInitTables = (function() {
         });
     }
     
-    function rowClick(tableId, data) {
+    function rowClick(tableId, data, clickedRowData, rowSelected) {
         var dcCharts = StudyViewInitCharts.getCharts(),
             dcChartsL = dcCharts.length,
             worker = '',
@@ -222,19 +230,60 @@ var StudyViewInitTables = (function() {
             dcCharts[caseIdChartIndex].getChart().filter([selectedSamples]);
         }
         dc.redrawAll();
-        
+
+        updateBreadCrumb(workerIndex, clickedRowData, rowSelected);
         StudyViewInitCharts.resetBars();
         StudyViewInitCharts.redrawScatter();
         StudyViewInitCharts.redrawWSCharts(exceptionId);
     }
-    
+
+    //function updateBreadCrumb(clickedCell, shiftClicked){
+    function updateBreadCrumb(workerIndex, rowData, rowSelected){
+        // we need the id to be able to trigger the click event when the x from the breadcrumb is clicked
+        var worker = workers[workerIndex];
+        var chartId = worker.opts.tableId;
+
+        if(rowData) {
+            if(rowData.length ===0 && worker.data.selectedSamples.length === 0 && worker.data.selected.length === 0) {
+                BreadCrumbs.deleteBreadCrumbsByChartId(chartId);
+            }else{
+                var cellId = chartId + '-';
+                var chartFilter;
+                var crumbTipText = worker.opts.title+": ";
+                switch (worker.opts.name) {
+                    case 'mutatedGenes':
+                        cellId += rowData[6];
+                        chartFilter = rowData[6];
+                        crumbTipText += rowData[6];
+                        break;
+                    case 'cna':
+                        cellId += rowData[7];
+                        chartFilter = rowData[7];
+                        crumbTipText += rowData[7];
+                        break;
+                    default:
+                        break;
+                }
+                BreadCrumbs.updateTableBreadCrumb(chartId, chartFilter, "table", cellId, crumbTipText, rowSelected);
+            }
+        }
+    }
+
     function deleteTable(tableId, title) {
-        $('#' + tableId).css('display','none');
-        $('#study-view-add-chart').css('display','block');
+        $('#' + tableId + '-main').css('display','none');
+        $('#study_view_add_chart_chzn').css('display','block');
         $('#study-view-add-chart')
                 .append($('<option></option>')
-                    .attr('id',tableId + '-option')
+                    .attr('id',tableId + '-main' + '-option')
                     .text(title));
+        // delete breadcrumbs
+        workers.forEach(function (e, i) {
+            if(e.opts.tableId === tableId) {
+                e.data.selectedSamples = [];
+                e.data.selected = [];
+            }
+        });
+        rowClick(tableId, [], [], false);
         StudyViewInitCharts.bondDragForLayout();
         AddCharts.bindliClickFunc();
     }
@@ -279,6 +328,7 @@ var StudyViewInitTables = (function() {
                 }
 
                 datum.caseIds = data[i].caseIds;
+                datum.uniqueId = datum.gene;
                 genes.push(datum);
             }
         }
@@ -320,6 +370,7 @@ var StudyViewInitTables = (function() {
                     datum.qval = '';
                 }
                 datum.caseIds = data.caseIds[i];
+                datum.uniqueId = datum.gene + '-' + datum.altType;
                 genes.push(datum);
             }
         }

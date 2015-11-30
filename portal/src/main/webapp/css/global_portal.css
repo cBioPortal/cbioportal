@@ -127,7 +127,7 @@ A:hover {
     height: 750px;
 	/* never allow setting display to none
 	   this is to fix flash (CytoWeb) repaint problem */
-	display: block !important;
+	/*display: block !important;*/
 }
 
 .map table {
@@ -1123,6 +1123,7 @@ cursor: default;
     padding:10px;
     margin-top:6px;
     padding-top:10px;
+    overflow: hidden;
 }
 
 /* Main Query Form */
@@ -1427,6 +1428,12 @@ ul.ui-autocomplete li.ui-menu-item { font-size: 0.6em; text-align: left; }
    line-height: inherit !important;
    vertical-align: top !important;
 }
+.mutationsProteinChangeWarning {
+    opacity: 0.1;
+}
+.mutationsProteinChangeWarning:hover {
+    opacity: 1;
+}
 .new-feature-label {
     background-color: #d00000;
     border-radius: 3px;
@@ -1434,4 +1441,25 @@ ul.ui-autocomplete li.ui-menu-item { font-size: 0.6em; text-align: left; }
     font-size: 8px;
     margin-bottom: -2px;
     padding-bottom: -2px;
+}
+
+/* OncoKB integration styles */
+.oncokb-qtip {
+    max-width: 800px !important;
+}
+.oncokb-qtip-sm {
+    max-width: 400px !important;
+}
+.oncokb-qtip table.dataTable {
+    font-size: 11px !important;
+}
+ul.oncokb {
+    padding-top: 5px;
+    padding-left: 20px;
+}
+ul.oncokb li {
+    margin: 2px 0 2px 0;
+}
+.oncokb.oncokb_alteration svg{
+    vertical-align: middle;
 }

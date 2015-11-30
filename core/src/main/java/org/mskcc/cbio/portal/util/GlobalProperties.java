@@ -38,7 +38,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.util.*;
+import java.net.URL;
+
 
 /**
  * Utility class for getting / setting global properties.
@@ -168,6 +172,19 @@ public class GlobalProperties {
     
     public static final String ALWAYS_SHOW_STUDY_GROUP="always_show_study_group";
 
+    // property for text shown at the right side of the Select Patient/Case set, which
+    // links to the study view
+    public static final String SKIN_STUDY_VIEW_LINK_TEXT="skin.study_view.link_text";
+    public static final String DEFAULT_SKIN_STUDY_VIEW_LINK_TEXT="To build your own case set, try out our enhanced " +
+            "Study View.";
+
+
+    public static final String MYCANCERGENOME_URL = "mycancergenome.url";
+    public static final String ONCOKB_GENE_STATUS = "oncokb.geneStatus";
+    public static final String SHOW_HOTSPOT = "show.hotspot";
+    
+    public static final String RECACHE_STUDY_AFTER_UPDATE = "recache_study_after_update";
+    
     private static Log LOG = LogFactory.getLog(GlobalProperties.class);
     private static Properties properties = initializeProperties();
 
@@ -364,6 +381,11 @@ public class GlobalProperties {
     public static String getFooter(){
         String footer = properties.getProperty(SKIN_FOOTER);
         return (footer == null) ? DEFAULT_SKIN_FOOTER : footer;
+    }
+    // function for retrieving the studyview link text
+    public static String getStudyviewLinkText(){
+        String studyviewLinkText = properties.getProperty(SKIN_STUDY_VIEW_LINK_TEXT);
+        return (studyviewLinkText == null) ? DEFAULT_SKIN_STUDY_VIEW_LINK_TEXT : studyviewLinkText;
     }
 
     public static String getEmailContact()
@@ -583,7 +605,36 @@ public class GlobalProperties {
     
     public static String getOncoKBUrl()
     {
-        return properties.getProperty(ONCOKB_URL);
+        String oncokbUrl = properties.getProperty(ONCOKB_URL);
+
+        //Test connection of OncoKB website.
+        if(oncokbUrl != null && !oncokbUrl.isEmpty()) {
+            try {
+                URL url = new URL(oncokbUrl+"access");
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                if(conn.getResponseCode() != 200) {
+                    oncokbUrl = "";
+                }
+                conn.disconnect();
+                return oncokbUrl;
+            } catch (Exception e) {
+                return "";
+            }
+        }
+        return "";
+    }
+
+    public static boolean showHotspot() {
+        String hotspot = properties.getProperty(SHOW_HOTSPOT);
+        if (hotspot==null) {
+            return true; // show hotspots by default
+        }
+        
+        if(!hotspot.isEmpty()) {
+            return Boolean.parseBoolean(hotspot);
+        }else{
+            return false;
+        }
     }
 
     public static boolean filterGroupsByAppName() {
@@ -598,5 +649,23 @@ public class GlobalProperties {
         }
         
         return group;
+    }
+    
+    public static String getMyCancerGenomeUrl()
+    {
+        return properties.getProperty(MYCANCERGENOME_URL);
+    }
+    
+    public static String getOncoKBGeneStatus()
+    {
+        return properties.getProperty(ONCOKB_GENE_STATUS);
+    }
+    
+    public static boolean getRecacheStudyAfterUpdate() {
+        String recacheStudyAfterUpdate = properties.getProperty(RECACHE_STUDY_AFTER_UPDATE);
+        if (recacheStudyAfterUpdate==null || recacheStudyAfterUpdate.isEmpty()) {
+            return false;
+        }
+        return Boolean.parseBoolean(recacheStudyAfterUpdate);
     }
 }

@@ -40,6 +40,7 @@
 <%@ page import="java.util.List" %>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="org.json.simple.JSONValue" %>
+<%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
 
 <%
 request.setAttribute("tumormap", true);
@@ -168,6 +169,7 @@ if (cancerStudyViewError!=null) {
 <style type="text/css">
         @import "css/data_table_jui.css?<%=GlobalProperties.getAppVersion()%>";
         @import "css/data_table_ColVis.css?<%=GlobalProperties.getAppVersion()%>";
+        @import "css/bootstrap-chzn.css?<%=GlobalProperties.getAppVersion()%>";
         .ColVis {
                 float: left;
                 margin-bottom: 0
@@ -200,7 +202,7 @@ if (cancerStudyViewError!=null) {
 
 <script type="text/javascript">
 var cancerStudyId = '<%=cancerStudy.getCancerStudyStableId()%>';
-var cancerStudyName = '<%=cancerStudy.getName()%>';
+var cancerStudyName = '<%=StringEscapeUtils.escapeJavaScript(cancerStudy.getName())%>';
 var mutationProfileId = <%=mutationProfileStableId==null%>?null:'<%=mutationProfileStableId%>';
 var cnaProfileId = <%=cnaProfileStableId==null%>?null:'<%=cnaProfileStableId%>';
 var hasCnaSegmentData = <%=hasCnaSegmentData%>;

@@ -32,6 +32,7 @@
 
 package org.mskcc.cbio.portal.web;
 
+import org.json.simple.*;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
@@ -40,6 +41,8 @@ import org.springframework.beans.factory.annotation.*;
 
 import java.net.*;
 import javax.servlet.http.*;
+import java.util.Arrays;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/proxy")
@@ -52,6 +55,75 @@ public class ProxyController
   private String pdbDatabaseURL;
   @Value("${pdb.database.url}")
   public void setPDBDatabaseURL(String property) { this.pdbDatabaseURL = property; }
+
+  private String oncokbURL;
+  @Value("${oncokb.url}")
+  public void setOncoKBURL(String property) { this.oncokbURL = property; }
+
+  // This is a general proxy for future use.
+  // Please modify and improve it as needed with your best expertise. The author does not have fully understanding
+  // of JAVA proxy when creating this proxy.
+  // Created by Hongxin
+  @RequestMapping(value="/{path}")
+  public @ResponseBody String getProxyURL(@PathVariable String path,
+                                          @RequestBody String body, HttpMethod method,
+                                          HttpServletRequest request, HttpServletResponse response) throws URISyntaxException
+  {
+
+    RestTemplate restTemplate = new RestTemplate();
+    String URL = null;
+
+    //Switch could be replaced by a filter function
+    switch (path){
+      case "bitly":
+        URL = bitlyURL;
+        break;
+      case "oncokbAccess":
+        URL = oncokbURL + "access";
+        break;
+      default:
+        URL = "";
+        break;
+    }
+
+    //If request method is GET, include query string
+    if (method.equals(HttpMethod.GET) && request.getQueryString() != null){
+      URL +=  request.getQueryString();
+    }
+
+    URI uri = new URI(URL);
+
+    ResponseEntity<String> responseEntity =
+            restTemplate.exchange(uri, method, new HttpEntity<String>(body), String.class);
+
+    return responseEntity.getBody();
+  }
+
+  @RequestMapping(value="/oncokb", method = RequestMethod.POST)
+  public @ResponseBody String getOncoKB(@RequestBody JSONObject body, HttpMethod method,
+                                          HttpServletRequest request, HttpServletResponse response) throws URISyntaxException
+  {
+
+    RestTemplate restTemplate = new RestTemplate();
+    URI uri = new URI(oncokbURL + "evidence.json");
+
+    ResponseEntity<String> responseEntity =
+            restTemplate.exchange(uri, HttpMethod.POST, new HttpEntity<JSONObject>(body), String.class);
+
+    return responseEntity.getBody();
+  }
+
+
+  private JSONObject requestParamsToJSON(HttpServletRequest req) {
+    JSONObject jsonObj = new JSONObject();
+    Map<String, String[]> params = req.getParameterMap();
+    for (Map.Entry<String, String[]> entry : params.entrySet()) {
+      String v[] = entry.getValue();
+      Object o = (v.length == 1) ? v[0] : v;
+      jsonObj.put(entry.getKey(), o);
+    }
+    return jsonObj;
+  }
 
   @RequestMapping(value="/bitly")
   public @ResponseBody String getBitlyURL(@RequestBody String body, HttpMethod method,

@@ -35,11 +35,36 @@
 
 <script type="text/javascript">
     
-    var cnaTableIndices = cbio.util.arrayToAssociatedArrayIndices(["id","case_ids","gene","cytoband","alteration","mrna","altrate","drug"]);
+    var cnaTableIndices = cbio.util.arrayToAssociatedArrayIndices(["id","case_ids","gene","alteration","cytoband","mrna","altrate","drug", "oncokb"]);
     function buildCnaDataTable(cnas, cnaEventIds, table_id, sDom, iDisplayLength, sEmptyInfo) {
         var data = [];
+        var oncokbInstance;
+
+        if(OncoKB.getAccess()) {
+            oncokbInstance = new OncoKB.Instance();
+            if(oncokbGeneStatus){
+                oncokbInstance.setGeneStatus(oncokbGeneStatus);
+            }
+            oncokbInstance.setTumorType(OncoKB.utils.getTumorTypeFromClinicalDataMap(clinicalDataMap));
+        }
+
         for (var i=0, nEvents=cnaEventIds.length; i<nEvents; i++) {
-                data.push([cnaEventIds[i]]);
+            if(oncokbInstance) {
+                var _id = cnaEventIds[i];
+                var alter = '';
+                switch(cnas.getValue(_id, "alter")) {
+                    case 2:
+                        alter = 'amplification';
+                        break;
+                    case -2:
+                        alter = 'inactivating mutations';
+                        break;
+                    default:
+                        alter = null;
+                }
+                oncokbInstance.addVariant(_id, cnas.getValue(_id, "gene"), alter, null, alter);
+            }
+            data.push([cnaEventIds[i]]);
         }
         var oTable = $('#'+table_id).dataTable( {
                 "sDom": sDom, // selectable columns
@@ -102,13 +127,17 @@
                                 var entrez = cnas.getValue(source[0], "entrez");
                                 var tip = "<a href=\"http://www.ncbi.nlm.nih.gov/gene/"
                                     +entrez+"\">NCBI Gene</a>";
-                                var sanger = cnas.getValue(source[0], 'sanger');
-                                if (sanger) {
-                                    tip += "<br/><a href=\"http://cancer.sanger.ac.uk/cosmic/gene/overview?ln="
-                                        +gene+"\">Sanger Cancer Gene Census</a>";
-                                }
+//                                var sanger = cnas.getValue(source[0], 'sanger');
+//                                if (sanger) {
+//                                    tip += "<br/><a href=\"http://cancer.sanger.ac.uk/cosmic/gene/overview?ln="
+//                                        +gene+"\">Sanger Cancer Gene Census</a>";
+//                                }
                                 var ret = "<b>"+gene+"</b>";
-                                if (tip) {
+                                if(cnas.colExists('oncokb')) {
+                                    ret = "<span class='"+table_id+"-tip oncokb oncokb_gene' gene='"+gene+"' oncokbId='"+source[0]+"'>"+ret+"</span>";
+                                }else if(OncoKB.getAccess()){
+                                    ret += "<img width='12' height='12' class='loader' src='images/ajax-loader.gif'/>";
+                                }else {
                                     ret = "<span class='"+table_id+"-tip' alt='"+tip+"'>"+ret+"</span>";
                                 }
                                 return ret;
@@ -151,7 +180,15 @@
                                     break;
                                 default: strAlt='Unknown';
                                 }
-                                return "<b>"+strAlt+"</b>"
+                                strAlt = "<b>"+strAlt+"</b>";
+
+                                if(cnas.colExists('oncokb')) {
+                                    strAlt += "&nbsp;<span class='oncokb oncokb_alteration oncogenic' oncokbId='"+source[0]+"'></span>";
+                                }else if(OncoKB.getAccess()){
+                                    strAlt += '<img width="13" height="13" class="loader" src="images/ajax-loader.gif"/>';
+                                }
+
+                                return strAlt;
                             } else if (type==='filter') {
                                 switch(cnas.getValue(source[0], "alter")) {
                                 case 2: return 'AMP';
@@ -211,6 +248,7 @@
                     },
                     {// Drugs
                         "aTargets": [ cnaTableIndices['drug'] ],
+                        "bVisible": false,
                         "sClass": "center-align-td",
                         "mDataProp": 
                             function(source,type,value) {
@@ -238,6 +276,29 @@
                             }
                         },
                         "asSorting": ["desc", "asc"]
+                    },
+                    {// OncoKB column
+                        "aTargets": [ cnaTableIndices["oncokb"] ],
+                        "sClass": "center-align-td",
+                        "bSearchable": false,
+                        "bSortable" : false,
+                        "bVisible": OncoKB.getAccess(),
+                        "mDataProp":
+                                function(source,type,value) {
+                                    if (type==='set') {
+                                        return;
+                                    } else if (type==='display') {
+                                        var ret = '';
+                                        if(cnas.colExists('oncokb')) {
+                                            ret += "<span class='oncokb oncokb_column' oncokbId='"+source[0]+"'></span>";
+                                        }else{
+                                            ret += "<img width='13' height='13' class='loader' src='images/ajax-loader.gif'/>"
+                                        }
+                                        return ret;
+                                    } else {
+                                        return '';
+                                    }
+                                }
                     }
                 ],
                 "fnDrawCallback": function( oSettings ) {
@@ -248,6 +309,7 @@
                     plotCnaAltRate("."+table_id+"-cna-cohort",cnas);
                     addNoteTooltip("."+table_id+"-tip");
                     addDrugsTooltip("."+table_id+"-drug-tip", 'top right', 'bottom center');
+                    if(oncokbInstance) oncokbInstance.addEvents(this);
                 },
                 "bPaginate": true,
                 "sPaginationType": "two_button",
@@ -262,6 +324,24 @@
                 "aLengthMenu": [[5,10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]]
         } );
 
+        if(oncokbInstance) {
+            oncokbInstance.getEvidence().then(function () {
+                var tableData = oTable.fnGetData();
+                var oncokbEvidence = [];
+                _.each(tableData, function(ele, i) {
+                    oncokbEvidence.push(oncokbInstance.getVariant(ele[0]).evidence);
+                });
+                cnas.addData('oncokb', oncokbEvidence)
+                if (tableData.length > 0)
+                {
+                    _.each(tableData, function(ele, i) {
+                        oTable.fnUpdate(null, i, cnaTableIndices["alteration"], false, false);
+                    });
+
+                    oTable.fnUpdate(null, 0, cnaTableIndices['alteration']);
+                }
+            });
+        }
         oTable.css("width","100%");
         addNoteTooltip("#"+table_id+" th.cna-header");
         return oTable;

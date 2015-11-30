@@ -33,6 +33,7 @@
 <%@ include file="global/global_variables.jsp" %>
 
 <jsp:include page="global/header.jsp" flush="true" />
+<%@ page import="java.util.Map" %>
 
 <div class='main_smry'>
     <div id='main_smry_stat_div' style='float:right;margin-right:15px;margin-bottom:-5px;width:50%;text-align:right;'></div>
@@ -79,12 +80,14 @@
     <ul>
     <%
         Boolean showMutTab = false;
+        Boolean showCancerTypesSummary = false;
         if (geneWithScoreList.size() > 0) {
 
             Enumeration paramEnum = request.getParameterNames();
             StringBuffer buf = new StringBuffer(request.getAttribute(QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING) + "?");
 
-            while (paramEnum.hasMoreElements()) {
+            while (paramEnum.hasMoreElements())
+            {
                 String paramName = (String) paramEnum.nextElement();
                 String values[] = request.getParameterValues(paramName);
 
@@ -133,7 +136,22 @@
                 }
             }
 
+            // determine whether to show the cancerTypesSummaryTab
+            // retrieve the cancerTypesMap and create an iterator for the values
+            Map<String, List<String>>  cancerTypesMap = (Map<String, List<String>>) request.getAttribute(QueryBuilder.CANCER_TYPES_MAP);
+            if(cancerTypesMap.keySet().size() > 1) {
+            	showCancerTypesSummary = true;
+            }
+            else if (cancerTypesMap.keySet().size() == 1 && cancerTypesMap.values().iterator().next().size() > 1 )  {
+            	showCancerTypesSummary = true;
+            }
             out.println ("<li><a href='#summary' class='result-tab' id='oncoprint-result-tab'>OncoPrint</a></li>");
+            // if showCancerTypesSummary is try, add the list item
+            if(showCancerTypesSummary){
+                out.println ("<li><a href='#pancancer_study_summary' class='result-tab' title='Cancer types summary'>"
+                + "Cancer Types Summary</a></li>");
+            }
+
             if (computeLogOddsRatio && geneWithScoreList.size() > 1) {
                 out.println ("<li><a href='#mutex' class='result-tab' id='mutex-result-tab'>"
                 + "Mutual Exclusivity</a></li>");
@@ -146,8 +164,7 @@
                 out.println ("<li><a href='#coexp' class='result-tab' id='coexp-result-tab'>Co-Expression</a></li>");
             }
             if (has_mrna || has_copy_no || showMutTab) {
-                out.println("<li><a href='#or_analysis' id='enrichments-result-tab' class='result-tab' style='height: 18px;'>Enrichments&nbsp;" +
-                 "<span class='new-feature-label'>&nbsp;New&nbsp;</span></a></li>");
+                out.println("<li><a href='#or_analysis' id='enrichments-result-tab' class='result-tab' style='height: 18px;'>Enrichments</a></li>");
             }
             if (has_survival) {
                 out.println ("<li><a href='#survival' class='result-tab' id='survival-result-tab'>Survival</a></li>");
@@ -155,7 +172,7 @@
             if (includeNetworks) {
                 out.println ("<li><a href='#network' class='result-tab' id='network-result-tab'>Network</a></li>");
             }
-            if (showIGVtab){
+            if (showIGVtab && !((String)request.getAttribute(QueryBuilder.CANCER_STUDY_ID)).equals("mskimpact")){
                 out.println ("<li><a href='#igv_tab' class='result-tab' id='igv-result-tab'>IGV</a></li>");
             }
             out.println ("<li><a href='#data_download' class='result-tab' id='data-download-result-tab'>Download</a></li>");
@@ -189,9 +206,14 @@
             <%@ include file="oncoprint/main.jsp" %>
         </div>
 
+        <!-- if showCancerTypes is true, include cancer_types_summary.jsp -->
+        <% if(showCancerTypesSummary) { %>
+        <%@ include file="pancancer_study_summary.jsp" %>
+        <%}%>
+
         <%@ include file="plots_tab.jsp" %>
 
-        <% if (showIGVtab) { %>
+        <% if (showIGVtab && !((String)request.getAttribute(QueryBuilder.CANCER_STUDY_ID)).equals("mskimpact")) { %>
             <%@ include file="igv.jsp" %>
         <% } %>
 
@@ -202,7 +224,7 @@
         <% if (computeLogOddsRatio && geneWithScoreList.size() > 1) { %>
             <%@ include file="mutex_tab.jsp" %>
         <% } %>
-            
+
         <% if (mutationDetailLimitReached != null) {
             out.println("<div class=\"section\" id=\"mutation_details\">");
             out.println("<P>To retrieve mutation details, please specify "
@@ -220,7 +242,7 @@
         <% if (showCoexpTab) { %>
             <%@ include file="co_expression.jsp" %>
         <% } %>
-        
+
         <% if (has_mrna || has_copy_no || showMutTab) { %>
             <%@ include file="over_representation_analysis.jsp" %>
         <% } %>
@@ -246,31 +268,49 @@
 </form>
 
 <script type="text/javascript">
-    // initially hide network tab
-    $("div.section#network").attr('style', 'height: 0px; width: 0px; visibility: hidden;');
-
     // it is better to check selected tab after document gets ready
     $(document).ready(function() {
+        var firstTime = true;
 
         $("#toggle_query_form").tipTip();
         // check if network tab is initially selected
-        // TODO this depends on aria-hidden attribute which may not be safe...
-        
-        if ($("div.section#network").attr('aria-hidden') == "false"){
-            // make the network tab visible...
-            $("div.section#network").removeAttr('style');
+        if ($("div.section#network").is(":visible"))
+        {
+            // init the network tab
+	        //send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
+	        //firstTime = false;
+
+	        // TODO window.networkGraphJSON is null at this point,
+	        // this is a workaround to wait for graphJSON to get ready
+	        var interval = setInterval(function() {
+		        if (window.networkGraphJSON != null)
+		        {
+			        clearInterval(interval);
+			        if (firstTime)
+			        {
+				        send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
+				        firstTime = false;
+			        }
+		        }
+	        }, 50);
         }
-        
 
         $("a.result-tab").click(function(){
 
             if($(this).attr("href")=="#network") {
-                // to fix problem of flash repainting
-                $("div.section#network").removeAttr('style');
-            } else {
-                // since we never allow display:none we should adjust visibility, height, and width properties
-                $("div.section#network").attr('style', 'height: 0px; width: 0px; visibility: hidden;');
+                if(firstTime)
+                {
+                  send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
+                  firstTime = false;
+                }
+	            else
+                {
+	                // TODO this is a workaround to adjust cytoscape canvas
+	                // and probably not the best way to do it...
+	                $(window).resize();
+                }
 
+            } else {
                 if($(this).attr("href")=="#bookmark_email") {
                     $("#bookmark-link").attr("href",window.location.href);
                 }
@@ -332,8 +372,8 @@
             {
                 content: {text: "This analysis finds alterations " +
                 "(mutations, copy number alterations, mRNA expression changes, and protein expression changes, if available) " +
-                "that are enriched in either altered samples (with at least one alteration based on query) or unaltered samples. " +
-                "The analysis is only performed on annotated cancer genes. <a href='cancer_gene_list.jsp' target='_blank'>[List of Portal Cancer Genes]</a>"},
+                "that are enriched in either altered samples (with at least one alteration based on query) or unaltered samples. "},
+                //"The analysis is only performed on annotated cancer genes. <a href='cancer_gene_list.jsp' target='_blank'>[List of Portal Cancer Genes]</a>"},
                 style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow result-tab-qtip-content' },
                 show: {event: "mouseover", delay: 0},
                 hide: {fixed:true, delay: 100, event: "mouseout"},

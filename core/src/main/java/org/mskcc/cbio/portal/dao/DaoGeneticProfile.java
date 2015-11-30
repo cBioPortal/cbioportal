@@ -36,7 +36,6 @@ import org.mskcc.cbio.portal.model.*;
 
 import java.sql.*;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Analogous to and replaces the old DaoCancerType. A CancerStudy has a NAME and
@@ -48,14 +47,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class DaoGeneticProfile {
     private DaoGeneticProfile() {}
     
-    private static final Map<String,GeneticProfile> byStableId = new ConcurrentHashMap<String,GeneticProfile>();
-    private static final Map<Integer,GeneticProfile> byInternalId = new ConcurrentHashMap<Integer,GeneticProfile>();
-    private static final Map<Integer,List<GeneticProfile>> byStudy = new ConcurrentHashMap<Integer,List<GeneticProfile>>();
-    
-    static {
-        reCache();
-    }
-    
+    private static final Map<String,GeneticProfile> byStableId = new HashMap<String,GeneticProfile>();
+    private static final Map<Integer,GeneticProfile> byInternalId = new HashMap<Integer,GeneticProfile>();
+    private static final Map<Integer,List<GeneticProfile>> byStudy = new HashMap<Integer,List<GeneticProfile>>();
+
     public static synchronized void reCache() {
         byStableId.clear();
         byInternalId.clear();

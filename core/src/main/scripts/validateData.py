@@ -16,6 +16,7 @@ import logging
 import logging.handlers
 from collections import OrderedDict
 from cgi import escape as html_escape
+import textwrap
 
 
 # ------------------------------------------------------------------------------
@@ -404,6 +405,85 @@ class SimpleHtmlTableFormatter(ValidationMessageFormatter):
                                    optional=True))
 
         return super(SimpleHtmlTableFormatter, self).format(record)
+
+
+class SimpleHtmlTableHandler(logging.FileHandler):
+    """Logging handler writing HTML context for SimpleHtmlTableFormatter."""
+
+    def __init__(self, study_dir, *args, **kwargs):
+        """Set study directory name, then open specified file for logging."""
+        self.study_dir = study_dir
+        super(SimpleHtmlTableHandler, self).__init__(mode='w',
+                                                     *args, **kwargs)
+
+    def _open(self, *args, **kwargs):
+        """Open stream and write HTML headers up to the table row."""
+        stream = super(SimpleHtmlTableHandler, self)._open(*args, **kwargs)
+        stream.write(textwrap.dedent('''\
+            <!DOCTYPE html>
+            <html lang="en-US">
+            <head>
+              <meta charset="utf-8" />
+              <title>cBioPortal study data validation notes for '%(study_dir)s'</title>
+              <meta name="description" content="Results of validating the study in '%(study_dir)s' for import into cBioPortal" />
+              <!--[if lt IE 9]>
+              <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+              <![endif]-->
+              <style>
+              header, section, footer, aside, nav, main, article, figure {
+                display: block;
+              }
+              tr.info{
+                background-color: #ddddff;
+              }
+              tr.warning{
+                background-color: #ffddbb;
+              }
+              tr.error{
+                background-color: #ffbbbb;
+              }
+              </style>
+            </head>
+            <body>
+
+            <header>
+            <h1>cBioPortal study data validation notes for '%(study_dir)s'</h1>
+            </header>
+
+            <section>
+            <h2>Results</h2>
+            <table>
+              <tr>
+                <th>File name</th>
+                <th>Line number</th>
+                <th>Column number</th>
+                <th>Message</th>
+                <th>Value encountered</th>
+              </tr>
+            ''' % {'study_dir': html_escape(self.study_dir)}))
+        return stream
+
+    def close(self):
+        """Write HTML end tags and close the stream."""
+        self.acquire()
+        try:
+            if self.stream:
+                self.flush()
+                self.stream.write(textwrap.dedent('''\
+                    </table>
+                    </section>
+
+                    </body>
+                    </html>
+                    '''))
+                if hasattr(self.stream, "close"):
+                    self.stream.close()
+                self.stream = None
+            # Issue #19523: call unconditionally to
+            # prevent a handler leak when delay is set
+            logging.StreamHandler.close(self)
+        finally:
+            self.release()
 
 
 class CollapsingLogMessageHandler(logging.handlers.MemoryHandler):
@@ -1582,6 +1662,7 @@ def usage():
         ' -v (verbose output)'
         ' -c (create corrected files)'
         ' --directory=[path to directory]'
+        ' --html-table=[HTML output filename]'
         ' --hugo-entrez-map=[download or filename, optional]\n'
         'For output of warnings, use -v\n'
         'To generate corrected files, use -c'
@@ -1601,7 +1682,10 @@ def main():
 
     # parse command line options
     try:
-        opts, args = getopt.getopt(sys.argv[1:], 'vc', ['directory=','hugo-entrez-map='])
+        opts, args = getopt.getopt(
+            sys.argv[1:],
+            'vc',
+            ['directory=', 'hugo-entrez-map=', 'html-table='])
     except getopt.GetoptError, msg:
         print >> sys.stderr, msg
         usage()
@@ -1611,6 +1695,7 @@ def main():
     study_dir = ''
     hugo = ''
     fix = False
+    html_table_filename = ''
 
     hugo_entrez_map = {}
 
@@ -1618,6 +1703,8 @@ def main():
     for o, a in opts:
         if o == '--directory':
             study_dir = a
+        elif o == '--html-table':
+            html_table_filename = a
         elif o == '--hugo-entrez-map':
             hugo = a
         elif o == '-c':
@@ -1625,15 +1712,6 @@ def main():
         elif o == '-v':
             logger.setLevel("INFO")
 
-    # handlers and formatters that output different formats could be set here
-    text_handler = logging.StreamHandler(sys.stdout)
-    text_handler.setFormatter(SimpleHtmlTableFormatter())
-    collapsing_text_handler = CollapsingLogMessageHandler(
-        capacity=3e6,
-        flushLevel=logging.CRITICAL,
-        target=text_handler)
-
-    logger.addHandler(collapsing_text_handler)
 
     if study_dir == '' or fix == '':
         usage()
@@ -1643,6 +1721,30 @@ def main():
     if not os.path.exists(study_dir):
         print >> sys.stderr, 'directory cannot be found: ' + study_dir
         sys.exit(2)
+
+    # set default message handler
+    text_handler = logging.StreamHandler(sys.stdout)
+    text_handler.setFormatter(LogfileStyleFormatter())
+    collapsing_text_handler = CollapsingLogMessageHandler(
+        capacity=3e6,
+        flushLevel=logging.CRITICAL,
+        target=text_handler)
+    logger.addHandler(collapsing_text_handler)
+
+    # add html table handler if applicable
+    if html_table_filename:
+        html_table_handler = SimpleHtmlTableHandler(
+            study_dir,
+            html_table_filename)
+        html_table_handler.setFormatter(SimpleHtmlTableFormatter())
+        # TODO extend CollapsingLogMessageHandler to flush to multiple targets,
+        # and get rid of the duplicated buffering of messages here
+        collapsing_hthandler = CollapsingLogMessageHandler(
+            capacity=3e6,
+            flushLevel=logging.CRITICAL,
+            target=html_table_handler)
+        logger.addHandler(collapsing_hthandler)
+
 
     if hugo == 'download' and hugoEntrezMapPresent:
         hugo_entrez_map = ftp_NCBI()
@@ -1784,6 +1886,7 @@ def main():
         errorcode = 1
 
     logger.info('Validation complete')
+    logging.shutdown()
 
 
 # ------------------------------------------------------------------------------

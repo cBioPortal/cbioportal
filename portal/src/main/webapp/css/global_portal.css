@@ -1444,7 +1444,7 @@ ul.ui-autocomplete li.ui-menu-item { font-size: 0.6em; text-align: left; }
 
 /* OncoKB integration styles */
 .oncokb-qtip {
-    max-width: 800px !important;
+    max-width: 600px !important;
 }
 .oncokb-qtip-sm {
     max-width: 400px !important;

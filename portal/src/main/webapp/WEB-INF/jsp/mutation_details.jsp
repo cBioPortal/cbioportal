@@ -168,7 +168,7 @@
                             }
 
                             if(showHotspot && mutation['isHotspot']) {
-                                vars.changHotspotAlt = "<b>Recurrent Hotspot</b><br/>This mutated amino acid was identified as a recurrent hotspot (statistical significance, q-value < 0.01) in a set of 11,119 tumor samples of various cancer types (based on Chang, M. et al. Nature Biotech. 2015).";
+                                vars.changHotspotAlt = "<b>Recurrent Hotspot</b><br/>This mutated amino acid was identified as a recurrent hotspot (statistical significance, q-value < 0.01) in a set of 11,119 tumor samples of various cancer types (based on <a href='http://www.ncbi.nlm.nih.gov/pubmed/26619011' target='_blank'>Chang, M. et al. Nature Biotech. 2015</a>).";
                             }
 
                             var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_protein_change_oncokb_template");
@@ -254,7 +254,7 @@
                             }
 
                             if(showHotspot && mutation['isHotspot']) {
-                                vars.changHotspotAlt = "<b>Recurrent Hotspot</b><br/>This mutated amino acid was identified as a recurrent hotspot (statistical significance, q-value < 0.01) in a set of 11,119 tumor samples of various cancer types (based on Chang, M. et al. Nature Biotech. 2015).";
+                                vars.changHotspotAlt = "<b>Recurrent Hotspot</b><br/>This mutated amino acid was identified as a recurrent hotspot (statistical significance, q-value < 0.01) in a set of 11,119 tumor samples of various cancer types (based on <a href='http://www.ncbi.nlm.nih.gov/pubmed/26619011' target='_blank'>Chang, M. et al. Nature Biotech. 2015</a>).";
                             }
 
                             var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_protein_change_oncokb_template");

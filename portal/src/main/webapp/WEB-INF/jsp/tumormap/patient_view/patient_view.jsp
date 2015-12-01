@@ -419,10 +419,8 @@ var caseMetaData = {
 var oncokbGeneStatus = <%=oncokbGeneStatus%>;
 var showHotspot = <%=showHotspot%>;
 
-OncoKB.setUrl('<%=oncokbUrl%>');
-
-
 $(document).ready(function(){
+    OncoKB.setUrl('<%=oncokbUrl%>');
     if (print) $('#page_wrapper_table').css('width', '900px');
     tweaksStyles();
     outputClinicalData();

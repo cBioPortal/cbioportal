@@ -1015,7 +1015,7 @@
                                 if(oncokbGeneStatus) {
                                     oncokbInstance.setGeneStatus(oncokbGeneStatus);
                                 }
-                                options.view = {
+	                            jQuery.extend(true, options, {view : {
                                     mutationTable: {
                                         columns: {
                                             oncokb: {
@@ -1135,9 +1135,9 @@
                                             }
                                         }
                                     }
-                                }
+                                }});
                             }else{
-                                options.view = {
+	                            jQuery.extend(true, options, {view : {
                                     mutationTable: {
                                         columnRender: {
                                             proteinChange: function (datum) {
@@ -1189,7 +1189,7 @@
                                             }
                                         }
                                     }
-                                }
+                                }});
                             }
 
                             var defaultMapper = MutationViewsUtil.initMutationMapper(

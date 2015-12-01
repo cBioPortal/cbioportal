@@ -1,4 +1,4 @@
-/* v0.0.3-1-g626aac9 */
+/* v0.0.4 */
 // vim: ts=2 sw=2
 (function () {
   d3.timeline = function() {
@@ -14,7 +14,8 @@
         height = null,
         rowSeperatorsColor = null,
         backgroundColor = null,
-        tickFormat = { format: function(d) { var format = d3.time.format("%I %p"); return format(d) },
+        translateX = 0,
+        tickFormat = { format: function(d) { var format = d3.time.format("%I %p"); return format(d); },
           tickTime: d3.time.hours,
           tickInterval: 1,
           tickSize: 6,
@@ -327,9 +328,13 @@
 
         var zoom = d3.behavior.zoom().x(xScale).on("zoom", move);
 
+
         gParent
           .attr("class", "scrollable")
           .call(zoom);
+
+        zoom.translate([translateX, 0]);
+        zoom.event(gParent);
       }
 
       if (rotateTicks) {
@@ -657,7 +662,13 @@
       if (!arguments.length) return timeAxisTickFormat;
       timeAxisTickFormat = format;
       return timeline;
-    }
+    };
+
+    timeline.translate = function(x) {
+      if (!arguments.length) return translateX;
+      translateX = x;
+      return timeline;
+    };
 
     return timeline;
   };
@@ -666,13 +677,19 @@
 window.clinicalTimeline = (function(){
   var allData,
       colorCycle = d3.scale.category20(),
+      margin = {left: 200, right:30, top: 15, bottom:0},
       itemHeight = 6,
       itemMargin = 8,
       divId = null,
       width = null,
+      zoomFactor = 1,
       postTimelineHooks = [],
       enableTrackTooltips = true,
-      stackSlack = null;
+      enableZoom = true,
+      stackSlack = null,
+      translateX = 0,
+      beginning = "0",
+      ending = 0;
 
   function getTrack(data, track) {
     return data.filter(function(x) {
@@ -697,17 +714,30 @@ window.clinicalTimeline = (function(){
         stackSlack = 20;
       }
     }
+    var minDays = Math.min.apply(Math, [getMinStartingTime(allData), 0]);
+
+    if (ending === 0) {
+      ending = maxDays;
+    }
+    if (beginning === "0") {
+      beginning = minDays;
+    }
+    if (beginning === 0) {
+      beginning = "0";
+    }
 
     var chart = d3.timeline()
       .stack()
-      .margin({left:200, right:30, top:15, bottom:0})
+      .margin(margin)
       .tickFormat({
         format: function(d) { return formatTime(daysToTimeObject(d.valueOf())); },
-        tickValues: getTickValues(allData),
+        tickValues: getTickValues(beginning, ending, getZoomLevel(beginning, ending, width * zoomFactor)),
         tickSize: 6
       })
-      .beginning("0")
-      .ending(maxDays)
+      .translate(translateX)
+      .width(width * zoomFactor)
+      .beginning(beginning)
+      .ending(ending)
       .stackSlack(stackSlack)
       .orient('top')
       .itemHeight(itemHeight)
@@ -769,9 +799,129 @@ window.clinicalTimeline = (function(){
       x.setAttributeNS("http://www.w3.org/XML/1998/namespace", "xml:space", "preserve");
     });
 
+    if (enableZoom) {
+      addZoomOptions();
+    }
+
+    // Add white background for labels to prevent timepoint overlap
+    var g = d3.select(divId + " svg g");
+    var gBoundingBox = g[0][0].getBoundingClientRect();
+    d3.select(divId + " svg")
+      .insert("rect", ".timeline-label")
+      .attr("width", 130)
+      .attr("height", 20)
+      .attr("x", 0)
+      .attr("y", 0)
+      .style("fill", "rgb(255, 255, 255)");
+    d3.select(divId + " svg")
+      .insert("rect", ".timeline-label")
+      .attr("width", 190)
+      .attr("height", gBoundingBox.height - 15)
+      .attr("x", 0)
+      .attr("y", 20)
+      .style("fill", "rgb(255, 255, 255)");
+
+    // change mouse to pointer for all timeline items
+    $("[id^='timelineItem']").css("cursor", "pointer");
+
     postTimelineHooks.forEach(function(hook) {
       hook.call();
     });
+  }
+
+  /*
+   * Add rectangular zoom selection. Use brush to zoom. After zooming in, scroll mouse or drag to pan.
+   */
+  function addZoomOptions() {
+    var svg = d3.select(divId + " svg");
+    var g = d3.select(divId + " svg g");
+    var gBoundingBox = g[0][0].getBoundingClientRect();
+
+    if (zoomFactor === 1) {
+      // Add rectangular zoom selection
+      // zoom in after brush ends
+      var brushend = function() {
+        var xDaysRect = brush.extent()[0].valueOf();
+        zoomFactor = (parseInt(width) - parseInt(margin.left) - parseInt(margin.right)) / (parseInt(d3.select(".extent").attr("width")));
+        if (zoomFactor > 0) {
+          zoomFactor = Math.min(zoomFactor, getZoomFactor("days", beginning, ending, width));
+        } else {
+          zoomFactor = getZoomFactor("days", beginning, ending, width);
+        }
+        var xZoomScale = d3.time.scale()
+           .domain([beginning, ending])
+           .range([margin.left, width * zoomFactor - margin.right]);
+        translateX = -xZoomScale(xDaysRect);
+        $('.'+divId.substr(1)+'-qtip').qtip("hide");
+
+        d3.select(divId).style("visibility", "hidden");
+        timeline();
+        d3.select(divId).style("visibility", "visible");
+        var zoomBtn = d3.select(divId + " svg")
+          .insert("text")
+          .attr("transform", "translate("+(parseInt(svg.attr("width"))-70)+", "+parseInt(svg.attr("height")-5)+")")
+          .attr("class", "timeline-label")
+          .text("Zoom out")
+          .style("cursor", "zoom-out")
+          .attr("id", "timelineZoomOut");
+        zoomBtn.on("click", function() {
+          zoomFactor = 1;
+          beginning = "0";
+          ending = 0;
+          $('.'+divId.substr(1)+'-qtip').qtip("hide");
+          d3.select(divId).style("visibility", "hidden");
+          timeline();
+          d3.select(divId).style("visibility", "visible");
+          this.remove();
+        });
+      };
+
+      if (getZoomLevel(beginning, ending, width) !== "days") {
+        // add brush overlay
+        var xScale = d3.time.scale()
+           .domain([beginning, ending])
+           .range([margin.left - 10, width - margin.right + 10]);
+        var brush = d3.svg.brush()
+          .x(xScale)
+          .on("brush", function() {
+            var extent = d3.event.target.extent();
+          })
+          .on("brushend", brushend);
+        var overlayBrush = g.insert("g", ".axis")
+          .attr("id", "overlayBrush");
+        overlayBrush.attr("class", "brush")
+          .call(brush)
+          .selectAll('.extent,.background,.resize rect')
+            .attr("height", gBoundingBox.height)
+            .attr("y", 20)
+            .style("cursor", "zoom-in");
+        zoomExplanation = d3.select(divId + " svg")
+          .insert("text")
+          .attr("transform", "translate("+(parseInt(svg.attr("width"))-120)+", "+parseInt(svg.attr("height")-5)+")")
+          .attr("class", "timeline-label")
+          .text("")
+          .attr("id", "timelineZoomExplanation")
+          .text("Click + drag to zoom")
+          .style("visibility", "hidden");
+        d3.select('.background').on("mouseover", function() {
+            d3.select("#timelineZoomExplanation").style("visibility", "visible");
+        });
+        d3.select('.background').on("mouseout", function() {
+            d3.select("#timelineZoomExplanation").style("visibility", "hidden");
+        });
+      }
+    } else {
+      // Add panning explanation and visual indicator
+      zoomExplanation = d3.select(divId + " svg")
+        .insert("text")
+        .attr("transform", "translate("+(parseInt(svg.attr("width"))-180)+", "+parseInt(svg.attr("height")-5)+")")
+        .attr("class", "timeline-label")
+        .text("")
+        .attr("id", "timelineZoomExplanation")
+        .text("Scroll/drag to move")
+        .style("visibility", "visible");
+      d3.select(divId + " svg").style("cursor", "move");
+    }
   }
 
   /**
@@ -906,9 +1056,12 @@ window.clinicalTimeline = (function(){
 
     // remove track
     allData = allData.filter(function(x) {return x.label !== track;});
-    // Add new track
+    // Add old track with zero timeline points
     allData.splice(trackIndex, 0, {"label":track+"."+attr,"times":[],"visible":true,"split":true});
-    var attrValues = Object.keys(g);
+    // Stack tracks by minimum starting_time
+    var attrValues = _.sortBy(Object.keys(g), function(k) {
+      return _.min(_.pluck(g[k], "starting_time"));
+    });
     for (var i=0; i < attrValues.length; i++) {
       allData.splice(trackIndex+i+1, 0, {"label":indent+attrValues[i], "times":g[attrValues[i]], "visible":true,"split":true,"parent_track":track});
     }
@@ -1017,6 +1170,7 @@ window.clinicalTimeline = (function(){
             $(tooltipDiv).append(table);
           }
           $(this).html(tooltipDiv);
+          $(this).addClass(divId.substr(1) + "-qtip");
           // Detect when point it was clicked and store it
           api.elements.target.click(function(e) {
             if (api.wasClicked) {
@@ -1248,6 +1402,14 @@ window.clinicalTimeline = (function(){
       }));
   }
 
+  function getMinStartingTime(data) {
+      return Math.min.apply(Math, data.map(function (o){
+          return Math.min.apply(Math, o.times.map(function(t) {
+              return t.starting_time;
+          }));
+      }));
+  }
+
   function daysToTimeObject(dayCount) {
       var time = {};
       var daysPerYear = 365;
@@ -1257,43 +1419,136 @@ window.clinicalTimeline = (function(){
       time.y = dayCount > 0? Math.floor(dayCount / daysPerYear) : Math.ceil(dayCount / daysPerYear);
       time.m = dayCount > 0? Math.floor((dayCount % daysPerYear) / daysPerMonth) : Math.ceil((dayCount % daysPerYear) / daysPerMonth);
       time.d = Math.floor((dayCount % daysPerYear) % daysPerMonth);
+      time.toDays = function() {
+        return time.y * time.daysPerYear + time.m * time.daysPerMonth + time.d;
+      };
       return time;
   }
 
   function formatTime(time) {
       var dayFormat = [];
+      var m;
+      var d;
       if (time.y !== 0) {
-          dayFormat = dayFormat.concat(time.y+"y");
+        dayFormat = dayFormat.concat(time.y+"y");
       }
       if (time.m !== 0) {
-          dayFormat = dayFormat.concat(time.m+"m");
+        if (time.y !== 0) {
+          m = Math.abs(time.m);
+        } else {
+          m = time.m;
+        }
+        dayFormat = dayFormat.concat(m+"m");
       }
       if (time.d !== 0) {
-          dayFormat = dayFormat.concat(time.d+"d");
+        if (time.y !== 0 || time.m !== 0) {
+          d = Math.abs(time.d);
+        } else {
+          d = time.d;
+        }
+        dayFormat = dayFormat.concat(d+"d");
       }
       if (time.y === 0 && time.m === 0 && time.d === 0) {
-          dayFormat = [0];
+        dayFormat = [0];
       }
-      return dayFormat.join(" ");
+      return dayFormat.join("");
   }
 
-  function getTickValues(data) {
+  /*
+   * Return zoomLevel in human comprehensible form by determining the width in pixels of a single day
+   */
+  function getZoomLevel(beginning, ending, width) {
+    pixelsPerDay = parseFloat(parseInt(width) / difference(parseInt(beginning), parseInt(ending)));
+    if (pixelsPerDay < 1) {
+      return "years";
+    } else if (pixelsPerDay < 10){
+      return "months";
+    } else if (pixelsPerDay < 25){
+      return "10days";
+    } else if (pixelsPerDay < 50) {
+      return "3days";
+    } else {
+      return "days";
+    }
+  }
+
+  /*
+   * Return zoomFactor by specifying what kind of zoomLevel on the x axis (e.g.
+   * years, days) is desired
+   */
+  function getZoomFactor(zoomLevel, beginning, ending, width) {
+    switch(zoomLevel) {
+      case "years":
+        return 0.9 * difference(parseInt(beginning), parseInt(ending)) / parseInt(width);
+      case "months":
+        return 19 * difference(parseInt(beginning), parseInt(ending)) / parseInt(width);
+      case "10days":
+        return 34 * difference(parseInt(beginning), parseInt(ending)) / parseInt(width);
+      case "3days":
+        return 49 * difference(parseInt(beginning), parseInt(ending)) / parseInt(width);
+      case "days":
+        return 51 * difference(parseInt(beginning), parseInt(ending)) / parseInt(width);
+      default:
+        throw "Undefined zoomLevel: " + zoomLevel;
+    }
+  }
+
+  function roundUpDays(dayCount, zoomLevel) {
+    var rv;
+    var time = daysToTimeObject(dayCount);
+    additive = dayCount < 0? 1: -1;
+    switch(zoomLevel) {
+      case "years":
+        rv = (time.y + additive) * time.daysPerYear;
+        break;
+      case "months":
+        rv = time.y * time.daysPerYear + (time.m + additive) * time.daysPerMonth;
+        rv += Math.abs(time.m) === 11? (time.daysPerYear - 12*time.daysPerMonth) * additive : 0;
+        break;
+      case "3days":
+        rv = time.toDays() + (time.d % 3) * additive;
+        break;
+      default:
+        rv = dayCount;
+        break;
+    }
+    return rv;
+  }
+
+  function difference(a, b) {
+    return Math.max(a, b) - Math.min(a, b);
+  }
+
+  function getTickValues(beginning, ending, zoomLevel) {
       tickValues = [];
-      maxDays = Math.max.apply(Math, [getMaxEndingTime(allData), 1]);
-      maxTime = daysToTimeObject(maxDays);
-      if (maxTime.y >= 1) {
-          for (var i=0; i <= maxTime.y; i++) {
+      timePeriod = daysToTimeObject(difference(parseInt(beginning), parseInt(ending)));
+      maxTime = daysToTimeObject(parseInt(ending));
+      minTime = daysToTimeObject(parseInt(beginning));
+      var i;
+      if (zoomLevel === "years") {
+          tickValues.push(parseInt(beginning));
+          for (i=minTime.y; i < maxTime.y; i++) {
               tickValues.push(i * maxTime.daysPerYear);
           }
-      } else if (maxTime.y > 0 || maxTime.m  >= 1) {
-          for (var i=0; i <= maxTime.m + (maxTime.y * maxTime.daysPerYear) / maxTime.daysPerMonth; i++) {
-              tickValues.push(i * maxTime.daysPerMonth);
+      } else if (zoomLevel === "months") {
+          tickValues.push(parseInt(beginning));
+          for (i=minTime.m + minTime.y * 12 + 1; i < maxTime.m + maxTime.y * 12 - 1; i++) {
+              tickValues.push(i * maxTime.daysPerMonth + parseInt(i/12) * 5);
+          }
+      } else if (zoomLevel === "10days") {
+          for (i=parseInt(beginning); i < parseInt(ending) - 1; i+=10) {
+              tickValues.push(i);
+          }
+      } else if (zoomLevel === "3days") {
+          for (i=parseInt(beginning); i < parseInt(ending) - 1; i+=3) {
+              tickValues.push(i);
           }
       } else {
-          for (var i=0; i <= maxDays; i++) {
+          for (i=parseInt(beginning); i < parseInt(ending); i++) {
               tickValues.push(i);
           }
       }
+      tickValues.push(parseInt(ending));
       return tickValues;
   }
 
@@ -1302,6 +1557,15 @@ window.clinicalTimeline = (function(){
 
     if (b === true || b === false) {
       enableTrackTooltips = b;
+    }
+    return timeline;
+  };
+
+  timeline.enableZoom = function(b) {
+    if (!arguments.length) return enableZoom;
+
+    if (b === true || b === false) {
+      enableZoom = b;
     }
     return timeline;
   };
@@ -1363,6 +1627,50 @@ window.clinicalTimeline = (function(){
     }), 'label'));
 
     allData = data;
+    return timeline;
+  };
+
+  timeline.orderTrackTooltipTables = function(track, labels) {
+    trackData = getTrack(allData, track);
+    if (trackData.times.length === 0) {
+      return timeline;
+    }
+    // sort rows not in given labels
+    alphaSortRows = _.uniq(
+      trackData.times.map(function(t) {
+        return t.tooltip_tables.map(function(tt) {
+          return tt.map(function(row) {
+            if (labels.indexOf(row[0]) === -1) return row[0];
+          });
+        });
+    }).reduce(function(a,b) {
+        return a.concat(b);
+      }, []).reduce(function(a,b) {
+        return a.concat(b);
+      }, [])
+    ).sort();
+    allLabelRows = labels.concat(alphaSortRows);
+    trackData.times.forEach(function(t) {
+      for (var i=0; i < t.tooltip_tables.length; i++) {
+        var tt = t.tooltip_tables[i];
+        var sortTt = [];
+
+        for (var j=0; j < allLabelRows.length; j++) {
+          row = tt.filter(function(x) {return x[0] === allLabelRows[j];})[0];
+          if (row != null) {
+            sortTt = sortTt.concat([row]);
+          }
+        }
+        t.tooltip_tables[i] = sortTt;
+      }
+    });
+    return timeline;
+  };
+
+  timeline.orderAllTooltipTables = function(labels) {
+    allData.forEach(function(track) {
+      timeline.orderTrackTooltipTables(track.label, labels);
+    });
     return timeline;
   };
 

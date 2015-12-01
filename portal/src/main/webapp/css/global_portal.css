@@ -1123,7 +1123,6 @@ cursor: default;
     padding:10px;
     margin-top:6px;
     padding-top:10px;
-    overflow: hidden;
 }
 
 /* Main Query Form */
@@ -1454,6 +1453,7 @@ ul.ui-autocomplete li.ui-menu-item { font-size: 0.6em; text-align: left; }
     font-size: 11px !important;
 }
 ul.oncokb {
+    padding-top: 5px;
     padding-left: 20px;
 }
 ul.oncokb li {

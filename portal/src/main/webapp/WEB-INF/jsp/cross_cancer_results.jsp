@@ -172,7 +172,6 @@
                 <a href="#cc-mutations" id="cc-mutations-link" title="Mutation details, including mutation type,amino acid change, validation status and predicted functional consequence">Mutations</a>
             </li>
             <li><a href="#cc-plots" id="cc-plots-link" title="Plots with mRNA expression data">Expression</a></li>
-            <li><a href="#plotly-cc-plots" id="plotly-cc-plots-link" title="Plotly Evaluation">Plotly Expression Plots</a></li>
             <li>
                 <a href="#cc-download" id="cc-download-link" title="Download all alterations or copy and paste into Excel">Download</a>
             </li>
@@ -249,10 +248,6 @@
 
         <div class="section" id="cc-plots">
             <jsp:include page="cross_cancer_plots_tab.jsp" />
-        </div>
-
-        <div class="section" id="plotly-cc-plots">
-            <jsp:include page="plots_cc_plots_tab.jsp" />
         </div>
 
         <div class="section" id="cc-download">
@@ -421,7 +416,6 @@
                     "<option value='" + _gene + "'>" + _gene + "</option>");
         });
         ccPlots.init();
-        PlotlyCCplots.init();
     });
 </script>
 

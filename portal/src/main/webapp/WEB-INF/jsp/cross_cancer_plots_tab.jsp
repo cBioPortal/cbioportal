@@ -31,72 +31,18 @@
 --%>
 
 <style>
-    #cc-plots .cc-plots {
+    #cc_plots_box {
         border: 1px solid #aaaaaa;
         border-radius: 4px;
         margin: 15px;
-    }
-
-    #cc-plots-sidebar {
-        height: 25px;
         width: 1160px;
+        height: 840px;
     }
-
-    #cc-plots-sidebar h4 {
-        margin: 15px;
-        font-size: 12px;
-        color: grey;
-        background-color: white;
-        margin-top: -6px;
-        display: table;
-        padding: 5px;
-    }
-
-    #cc-plots-sidebar h5 {
-        margin-left: 20px;
-        padding-left: 5px;
-        padding-right: 5px;
-        display: inline-block;
-        margin-bottom: 10px;
-        font-weight: bold;
-        color: grey;
-    }
-
-    #cc-plots-sidebar select {
-        max-width: 180px;
-    }
-
-    #cc-plots-box {
-        width: 1160px;
-        height: 640px;
-    }
-
 </style>
 
 <table>
     <tr>
-        <div id="cc-plots-sidebar">
-            <h5>Gene</h5>
-            <span id="cc_plots_gene_list_select" onchange="ccPlots.update_gene();">
-                <select id="cc_plots_gene_list"></select>
-            </span>
-            <h5>Log Scale</h5>
-            <input type="checkbox" id="cc_plots_log_scale" onchange="ccPlots.toggle_log_scale()" checked/>
-            <h5>Download</h5>
-            <button id='cc_plots_svg_download'>SVG</button>
-            <button id='cc_plots_pdf_download'>PDF</button>
-            <button id='cc_plots_data_download'>Data</button>
-            <h5>Sort By</h5>
-            <input type="radio" name="cc_plots_profile_order_opt" onchange="ccPlots.update_profile_order()" value="alphabetic" checked/> Alphabetic
-            <input type="radio" name="cc_plots_profile_order_opt" onchange="ccPlots.update_profile_order()" value="median"/> Median
-            <h5>Show Mutations</h5>
-            <input type="checkbox" id="cc_plots_show_mut" onchange="ccPlots.toggle_show_mut()" checked/>
-        </div>
-    </tr>
-    <tr>
-        <div id="cc-plots-box" class="cc-plots" style="overflow: scroll;">
-            <img src="images/ajax-loader.gif" id="cc_plots_loading" style="padding:200px;"/>
-        </div>
+        <div id="cc_plots_box"></div>
     </tr>
 </table>
 

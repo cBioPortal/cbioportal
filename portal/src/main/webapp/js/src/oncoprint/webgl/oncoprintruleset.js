@@ -1,6 +1,3 @@
-exports = {};
-
-
 /* SHAPE SPEC
 {
 	'type':..,
@@ -12,7 +9,7 @@ exports = {};
 // type: attrs
 // rectangle: x, y, width, height, stroke, stroke-width, fill
 // triangle: x1, y1, x2, y2, x3, y3, stroke, stroke-width, fill
-// circle: x, y, radius, height, stroke, stroke-width, fill
+// ellipse: x, y, width, height, stroke, stroke-width, fill
 // line: x1, y1, x2, y2, stroke, stroke-width
 
 /* Rule Params
@@ -492,7 +489,7 @@ var GradientRuleSet = (function() {
 		 */
 		LinearInterpRuleSet.call(this, params);
 		this.color_range;
-		(function setUpColorRange() {
+		(function setUpColorRange(self) {
 			var color_start;
 			var color_end;
 			try {
@@ -508,13 +505,14 @@ var GradientRuleSet = (function() {
 					throw "wrong number of color components";
 				}
 			} catch (err) {
-				color_start = [0,0,0,0];
-				color_end = [255,255,255,1];
+				color_start = [0,0,0,1];
+				color_end = [255,0,0,1];
 			}
-			this.color_range = color_start.map(function(c, i) {
+			self.color_range = color_start.map(function(c, i) {
 				return [c, color_end[i]];
 			});
-		})();
+		})(this);
+		console.log(this.color_range);
 		this.gradient_rule;
 		this.updateLinearRules();
 			
@@ -538,8 +536,8 @@ var GradientRuleSet = (function() {
 						var t = interpFn(d[value_key]);
 						return "rgba("+color_range.map(
 							function(arr) {
-								return t*arr[0] 
-								+ (1-t)*arr[1];
+								return (1-t)*arr[0] 
+								+ t*arr[1];
 						}).join(",")+")";
 					}
 				}],
@@ -554,6 +552,7 @@ var BarRuleSet = (function() {
 	function BarRuleSet(params) {
 		LinearInterpRuleSet.call(this, params);
 		this.bar_rule;
+		this.fill = params.fill || 'rgba(0,0,255,1)';
 		this.updateLinearRules();
 	}
 	BarRuleSet.prototype = Object.create(LinearInterpRuleSet.prototype);
@@ -577,7 +576,8 @@ var BarRuleSet = (function() {
 					height: function(d) {
 						var t = interpFn(d[value_key]);
 						return t*100 + "%";
-					}
+					},
+					fill: this.fill
 				}],
 			exclude_from_legend: false
 		});
@@ -640,12 +640,11 @@ var Rule = (function () {
 	var addDefaultAbstractShapeParams = function (shape_params) {
 		var default_values = {'width': '100%', 'height': '100%', 'x': '0%', 'y': '0%', 'z': 0,
 			'x1': '0%', 'x2': '0%', 'x3': '0%', 'y1': '0%', 'y2': '0%', 'y3': '0%',
-			'stroke': 'rgba(0,0,0,0)', 'fill': 'rgba(23,23,23,1)', 'stroke-width': '0',
-			'radius': '50%'};
+			'stroke': 'rgba(0,0,0,0)', 'fill': 'rgba(23,23,23,1)', 'stroke-width': '0'};
 		var required_parameters_by_type = {
 			'rectangle': ['width', 'height', 'x', 'y', 'stroke', 'fill', 'stroke-width'],
 			'triangle': ['x1', 'x2', 'x3', 'y1', 'y2', 'y3', 'stroke', 'fill', 'stroke-width'],
-			'circle': ['radius', 'x', 'y', 'stroke', 'fill', 'stroke-width'],
+			'ellipse': ['width', 'height', 'x', 'y', 'stroke', 'fill', 'stroke-width'],
 			'line': ['x1', 'x2', 'y1', 'y2', 'stroke', 'stroke-width']
 		};
 		var complete_shape_params = {};
@@ -658,6 +657,7 @@ var Rule = (function () {
 				complete_shape_params[required_param] = default_values[required_param];
 			}
 		}
+		complete_shape_params.type = shape_params.type;
 		return complete_shape_params;
 	};
 	Rule.prototype.getConcreteShapesInRenderOrder = function (d, cell_width, cell_height) {
@@ -668,7 +668,7 @@ var Rule = (function () {
 			return [];
 		}
 		var concrete_shapes = [];
-		var width_axis_attrs = {"x": true, "x1": true, "x2": true, "x3": true, "width": true, "radius": true};
+		var width_axis_attrs = {"x": true, "x1": true, "x2": true, "x3": true, "width": true};
 		var height_axis_attrs = {"y": true, "y1": true, "y2": true, "y3": true, "height": true};
 		for (var i = 0, shapes_len = this.shapes.length; i < shapes_len; i++) {
 			var shape_spec = this.shapes[i];
@@ -711,3 +711,15 @@ var Rule = (function () {
 	
 	return Rule;
 })();
+
+module.exports = function(params) {
+	if (params.type === 'categorical') {
+		return new CategoricalRuleSet(params);
+	} else if (params.type === 'gradient') {
+		return new GradientRuleSet(params);
+	} else if (params.type === 'bar') {
+		return new BarRuleSet(params);
+	} else if (params.type === 'gene') {
+		return new GeneticAlterationRuleSet(params);
+	}
+}

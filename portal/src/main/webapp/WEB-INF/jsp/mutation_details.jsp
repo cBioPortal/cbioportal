@@ -86,10 +86,9 @@
     _mut3dVis = new Mutation3dVis("default3dView");
     _mut3dVis.init();
 
-    OncoKB.setUrl('<%=oncokbUrl%>');
-
     // Set up Mutation View
     $(document).ready(function () {
+        OncoKB.setUrl('<%=oncokbUrl%>');
         var sampleArray = _.keys(PortalGlobals.getPatientSampleIdMap());
         var mutationProxy = DataProxyFactory.getDefaultMutationDataProxy();
 

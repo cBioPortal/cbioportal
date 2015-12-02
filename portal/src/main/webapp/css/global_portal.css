@@ -1465,3 +1465,6 @@ ul.oncokb li {
 .mutationTableHeaderRadioLabel label img{
     vertical-align: text-bottom;
 }
+.qtip-content div.oncokb{
+    padding-top: 5px;
+}

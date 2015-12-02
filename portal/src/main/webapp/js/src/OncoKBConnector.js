@@ -391,10 +391,10 @@ var OncoKB = (function () {
     })();
 
     self.str = (function () {
-
-        function getMutationSummaryStr(oncokbInfo) {
-            var str = '<span><b style="color:#';
-            switch (oncokbInfo.oncogenic) {
+        function getOncogenicitySummary(oncokbInfo) {
+            var oncogenic = _.isObject(oncokbInfo)?(oncokbInfo.hasOwnProperty('oncogenic')?oncokbInfo.oncogenic:''):'';
+            var str = '<div class="oncokb"><span><b style="font-size:12px;color:#';
+            switch (oncogenic) {
                 case 0:
                     str += '2f4f4f">Non-Oncogenic Mutation';
                     break;
@@ -414,43 +414,49 @@ var OncoKB = (function () {
             //    str += '<span class="oncokb_oncogenic_moreInfo" style="float:right;"><a><i>Clinical summary</i></a></span><br/><span class="oncokb_oncogenic_description" style="display:none; color:black">' + oncokbInfo.oncogenicDescription + '</span><span class="oncokb_oncogenic_lessInfo" style="display:none;float:right"><a><i>Less Info</i></a></span></div>';
             //}
 
-            str += '</span>';
+            str += '</span></div>';
 
-            str += '<ul class="oncokb">';
+            return str;
+        }
+
+        function getOncogenicityFooterStr() {
+            return '<div class="oncokb" style="text-align:right;"><span><i>Powered by OncoKB(Beta)</i></span></div>'+
+                '<div><i>OncoKB is under development, please pardon errors and omissions. Please send feedback to '+
+                '<a href=&quot;mailto:oncokb@cbio.mskcc.org&quot; title=&quot;Contact us&quot;>oncokb@cbio.mskcc.org</a></i></div>';
+        }
+        function getMutationSummaryStr(oncokbInfo) {
+            var str = '';
             if (oncokbInfo.mutationEffect.hasOwnProperty('knownEffect')) {
-                str += '<li><b>' + oncokbInfo.mutationEffect.knownEffect + '</b>';
+                str += '<div class="oncokb"><span><b>' + oncokbInfo.mutationEffect.knownEffect + '</b>';
                 if (oncokbInfo.mutationEffect.hasOwnProperty('description') && oncokbInfo.mutationEffect.description) {
                     str += '<span class="oncokb_alt_moreInfo" style="float:right"><a><i>More Info</i></a></span><br/><span class="oncokb_mutation_effect" style="display:none">' + oncokbInfo.mutationEffect.description + '</span><span class="oncokb_alt_lessInfo" style="display:none;float:right"><a><i>Less Info</i></a></span></div>';
                 }
-
-                str += '</li>';
+                str += '</span></div>';
             }
 
             if (oncokbInfo.drugs.sensitivity.current.length > 0) {
-                str += '<li><b>FDA approved drugs:</b><br/>';
+                str += '<div class="oncokb"><span><b>FDA approved drugs:</b><br/>';
                 oncokbInfo.drugs.sensitivity.current.forEach(function (list) {
                     str += '- ' + treatmentsToStr(list.content) + '<br/>';
                 });
-                str += '</li>';
+                str += '</span></div>';
             }
 
             if (oncokbInfo.drugs.sensitivity.inOtherTumor.length > 0) {
-                str += '<li><b>FDA approved drugs in another cancer:</b><br/>';
+                str += '<div class="oncokb"><span><b>FDA approved drugs in another cancer:</b><br/>';
                 oncokbInfo.drugs.sensitivity.inOtherTumor.forEach(function (list) {
                     str += '- ' + treatmentsToStr(list.content) + '<br/>';
                 });
-                str += '</li>';
+                str += '</span></div>';
             }
 
             if (oncokbInfo.drugs.resistance.length > 0) {
-                str += '<li><b>Confers resistance to:</b><br/>';
+                str += '<div class="oncokb"><span><b>Confers resistance to:</b><br/>';
                 oncokbInfo.drugs.resistance.forEach(function (list) {
                     str += '- ' + treatmentsToStr(list.content) + '<br/>';
                 });
-                str += '</li>';
+                str += '</span></div>';
             }
-
-            str += '</ul>';
 
             return str;
         }
@@ -564,7 +570,7 @@ var OncoKB = (function () {
         }
 
         function getVUSsummary(isRecurrent, isHotspot) {
-            var str = ['<b>'];
+            var str = ['<div><span>'];
 
             if (isRecurrent || isHotspot) {
                 var types = [];
@@ -584,10 +590,12 @@ var OncoKB = (function () {
                 str.push('This rare variant is of unknown significance.');
             }
 
-            str.push('</b>');
+            str.push('</span></div>');
             return str.join('');
         }
         return {
+            getOncogenicitySummary: getOncogenicitySummary,
+            getOncogenicityFooterStr: getOncogenicityFooterStr,
             getMutationSummaryStr: getMutationSummaryStr,
             getTreatmentStr: getTreatmentStr,
             getTrialsStr: getTrialsStr,
@@ -1262,6 +1270,7 @@ OncoKB.Instance.prototype = {
                     if (self.variants.hasOwnProperty(oncokbId)){
                         var _tip = '', _oncogenicTip = '', _hotspotTip = '';
                         OncoKB.svgs.createOncogenicIcon(this, self.variants[oncokbId].evidence.oncogenic);
+                        _oncogenicTip += OncoKB.str.getOncogenicitySummary(self.variants[oncokbId].evidence);
                         if(_.isNumber(self.variants[oncokbId].evidence.oncogenic)) {
                             _oncogenicTip += OncoKB.str.getMutationSummaryStr(self.variants[oncokbId].evidence);
                         } else {
@@ -1270,7 +1279,7 @@ OncoKB.Instance.prototype = {
 
                         _hotspotTip = "<b>Recurrent Hotspot</b><br/>This mutated amino acid was identified as a recurrent hotspot (statistical significance, q-value < 0.01) in a set of 11,119 tumor samples of various cancer types (based on <a href='http://www.ncbi.nlm.nih.gov/pubmed/26619011' target='_blank'>Chang, M. et al. Nature Biotech. 2015</a>).";
 
-                        _oncogenicTip += '<span style="float:right;padding-top:5px;"><i>Powered by OncoKB(Beta)</i></span><br/><br/><i>OncoKB is under development, please pardon errors and omissions. Please send feedback to <a href="mailto:oncokb@cbio.mskcc.org" title="Contact us">oncokb@cbio.mskcc.org</a></i>';
+                        _oncogenicTip += OncoKB.str.getOncogenicityFooterStr();
 
                         if ($(this).hasClass('oncogenic')) {
                             _tip = _oncogenicTip;

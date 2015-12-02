@@ -72,7 +72,7 @@
     @import "css/mutationMapper.min.css?<%=GlobalProperties.getAppVersion()%>";
 </style>
 <script type="text/javascript"
-        src="js/src/patient-view/OncoKBConnector.js?<%=GlobalProperties.getAppVersion()%>"></script>
+        src="js/src/OncoKBConnector.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript">
 
     // TODO 3d Visualizer should be initialized before document get ready

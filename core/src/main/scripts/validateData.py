@@ -632,7 +632,10 @@ class Validator(object):
             if not line.startswith('#'):
                 uncommented_line_number += 1
                 if uncommented_line_number == 1:
-                    self.checkHeader(line)
+                    if self.checkHeader(line) > 0:
+                        self.logger.info(
+                            'Invalid column header, skipped data in file')
+                        break
                 elif not self.end:
                     self.checkLine(line)
             else:
@@ -651,31 +654,41 @@ class Validator(object):
     def printComplete(self):
         self.logger.info('Validation of file complete')
 
-    def checkHeader(self,line):
+    def checkHeader(self, line):
 
-        """Header check function. Checks that header has the correct items, removes any quotes."""
+        """Check that header has the correct items, removes any quotes.
+
+        Return the number of errors found.
+        """
+
+        num_errors = 0
 
         # TODO check for end-of-line whitespace
-        # TODO verify that this really is the desired behavior
+
+        # TODO verify that this really is the desired behavior,
+        # the csv module from the standard library might be a better option
         self.cols = [x.strip().replace('"','').replace('\'','') for x in line.strip().split('\t')]
         self.numCols = len(self.cols)
 
-        self.checkRepeatedColumns()
+        num_errors += self.checkRepeatedColumns()
+        num_errors += self.checkBadChar()
 
-        self.checkBadChar()
         # 'REQUIRE_COLUMN_ORDER' should have been defined by the subclass
         if self.REQUIRE_COLUMN_ORDER:  # pylint: disable=no-member
-            self.checkOrderedRequiredColumns()
+            num_errors += self.checkOrderedRequiredColumns()
         else:
-            self.checkUnorderedRequiredColumns()
+            num_errors += self.checkUnorderedRequiredColumns()
 
+        return num_errors
 
     def checkLine(self,line):
 
         """Checks lines after header, removing quotes."""
 
         # TODO check for end-of-line whitespace
-        # TODO verify that this is really the desired behavior
+
+        # TODO verify that this is really the desired behavior,
+        # the csv module from the standard library might be a better option
         data = [x.strip().replace('"','').replace('\'','') for x in line.split('\t')]
 
         if all(x == '' for x in data):
@@ -713,7 +726,10 @@ class Validator(object):
         return data
 
     def checkUnorderedRequiredColumns(self):
-        """Check for missing column headers, independent of their position."""
+        """Check for missing column headers, independent of their position.
+
+        Return the number of errors encountered.
+        """
         num_errors = 0
         # 'REQUIRED_HEADERS' should have been defined by the subclass
         for col_name in self.REQUIRED_HEADERS:  # pylint: disable=no-member
@@ -729,7 +745,10 @@ class Validator(object):
         return num_errors
 
     def checkOrderedRequiredColumns(self):
-        """Check if the column header for each position is correct."""
+        """Check if the column header for each position is correct.
+
+        Return the number of errors encountered.
+        """
         num_errors = 0
         # 'REQUIRED_HEADERS' should have been defined by the subclass
         for col_index, col_name in enumerate(self.REQUIRED_HEADERS):  # pylint: disable=no-member
@@ -798,27 +817,33 @@ class Validator(object):
         self.correctedFile.write('\t'.join(data) + '\n')
 
     def checkRepeatedColumns(self):
+        num_errors = 0
         seen = set()
         for col_num, col in enumerate(self.cols):
             if col not in seen:
                 seen.add(col)
             else:
+                num_errors += 1
                 self.logger.error('Repeated column header',
                                   extra={'line_number': self.line_number,
                                          'column_number': col_num,
                                          'cause': col})
                 exitcode = 1
+        return num_errors
 
     def checkBadChar(self):
         """Check for bad things in a header, such as spaces, etc."""
+        num_errors = 0
         for col_num, col_name in enumerate(self.cols):
             for bc in self.badChars:
                 if bc in col_name:
+                    num_errors += 1
                     self.logger.error("Bad character '%s' detected in header",
                                       bc,
                                       extra={'line_number': self.line_number,
                                              'column_number': col_num,
                                              'cause': col_name})
+        return num_errors
 
     def fixCase(self,x):
         """Correct yes no to Yes and No."""
@@ -945,9 +970,10 @@ class CNAValidator(GenewiseFileValidator):
     # TODO refactor so subclasses don't have to override for the final call
     def checkHeader(self,line):
         """Header validation for CNA files."""
-        super(CNAValidator,self).checkHeader(line)
+        num_errors = super(CNAValidator,self).checkHeader(line)
         if self.fix:
             self.writeHeader(self.cols)
+        return num_errors
 
     # TODO refactor so subclasses don't have to override for the final call
     def checkLine(self,line):
@@ -1075,9 +1101,10 @@ class MutationsExtendedValidator(Validator):
         self.printComplete()
 
     def checkHeader(self,line):
-        super(MutationsExtendedValidator,self).checkHeader(line)
+        num_errors = super(MutationsExtendedValidator,self).checkHeader(line)
         if self.fix:
             self.writeHeader(line)
+        return num_errors
 
     def checkLine(self,line):
 
@@ -1338,7 +1365,7 @@ class ClinicalValidator(Validator):
     # TODO validate the content of the comment lines before the column header
 
     def checkHeader(self,line):
-        super(ClinicalValidator,self).checkHeader(line)
+        num_errors = super(ClinicalValidator,self).checkHeader(line)
         for col_name in self.cols:
             if not col_name.isupper():
                 self.logger.warning(
@@ -1349,6 +1376,7 @@ class ClinicalValidator(Validator):
         self.cols = [s.upper() for s in self.cols]
         if self.fix:
             self.writeHeader(self.cols)
+        return num_errors
 
     def checkLine(self,line):
         data = super(ClinicalValidator,self).checkLine(line)
@@ -1391,9 +1419,10 @@ class SegValidator(Validator):
         self.printComplete()
 
     def checkHeader(self,line):
-        super(SegValidator,self).checkHeader(line)
+        num_errors = super(SegValidator,self).checkHeader(line)
         if self.fix:
             self.writeHeader(self.cols)
+        return num_errors
 
     def checkLine(self,line):
         data = super(SegValidator,self).checkLine(line)
@@ -1422,9 +1451,10 @@ class Log2Validator(GenewiseFileValidator):
         self.printComplete()
 
     def checkHeader(self,line):
-        super(Log2Validator,self).checkHeader(line)
+        num_errors = super(Log2Validator,self).checkHeader(line)
         if self.fix:
             self.writeHeader(self.cols)
+        return num_errors
 
     def checkLine(self,line):
         data = super(Log2Validator,self).checkLine(line)
@@ -1448,9 +1478,10 @@ class ExpressionValidator(GenewiseFileValidator):
         self.printComplete()
 
     def checkHeader(self,line):
-        super(ExpressionValidator,self).checkHeader(line)
+        num_errors = super(ExpressionValidator,self).checkHeader(line)
         if self.fix:
             self.writeHeader(self.cols)
+        return num_errors
 
     def checkLine(self,line):
         data = super(ExpressionValidator,self).checkLine(line)
@@ -1486,10 +1517,10 @@ class FusionValidator(Validator):
         self.printComplete()
 
     def checkHeader(self,line):
-        super(FusionValidator,self).checkHeader(line)
-
+        num_errors = super(FusionValidator,self).checkHeader(line)
         if self.fix:
             self.writeHeader(self.cols)
+        return num_errors
 
     def checkLine(self,line):
         data = super(FusionValidator,self).checkLine(line)
@@ -1509,9 +1540,10 @@ class MethylationValidator(GenewiseFileValidator):
         self.printComplete()
 
     def checkHeader(self,line):
-        super(MethylationValidator,self).checkHeader(line)
+        num_errors = super(MethylationValidator,self).checkHeader(line)
         if self.fix:
             self.writeHeader(self.cols)
+        return num_errors
 
     def checkLine(self,line):
         data = super(MethylationValidator,self).checkLine(line)
@@ -1537,9 +1569,10 @@ class RPPAValidator(FeaturewiseFileValidator):
         self.printComplete()
 
     def checkHeader(self,line):
-        super(RPPAValidator,self).checkHeader(line)
+        num_errors = super(RPPAValidator,self).checkHeader(line)
         if self.fix:
             self.writeHeader(self.cols)
+        return num_errors
 
     def checkLine(self,line):
         data = super(RPPAValidator,self).checkLine(line)
@@ -1573,9 +1606,10 @@ class TimelineValidator(Validator):
         self.printComplete()
 
     def checkHeader(self,line):
-        super(TimelineValidator,self).checkHeader(line)
+        num_errors = super(TimelineValidator,self).checkHeader(line)
         if self.fix:
             self.writeHeader(self.cols)
+        return num_errors
 
     def checkLine(self,line):
         data = super(TimelineValidator,self).checkLine(line)

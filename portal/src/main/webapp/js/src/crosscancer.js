@@ -1115,7 +1115,7 @@
                                                     _.each(tableData, function (ele, i) {
                                                         var _datum = ele[indexMap["datum"]];
                                                         var _mutation = ele[indexMap["datum"]].mutation;
-                                                        oncokbInstance.addVariant(_mutation.mutationSid, _mutation.geneSymbol, _mutation.proteinChange, _mutation.tumorType, null);
+                                                        oncokbInstance.addVariant(_mutation.mutationSid, _mutation.geneSymbol, _mutation.proteinChange, _mutation.tumorType, _mutation.mutationType);
                                                     });
                                                     oncokbInstance.getEvidence().done(function () {
                                                         var tableData = dataTable.fnGetData();

@@ -556,7 +556,7 @@ var orTable = function(plot_div, minionco_div ) {
                 orTableInstance.fnClose(nTr);
             } else {
                 var aData = orTableInstance.fnGetData(nTr);
-                var _gene_name = _getGeneName(aData[0]); 
+                var _gene_name = _getGeneName(aData[0]);
                 var _plots_div_id = table_id + "_" + _gene_name + "_plots";
                 this.src = "images/details_close.png";
                 orTableInstance.fnOpen(nTr, "<div id=" + _plots_div_id + "><img style='padding:200px;' src='images/ajax-loader.gif'></div>", "rppa-details");

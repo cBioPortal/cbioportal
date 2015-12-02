@@ -55,47 +55,52 @@ var DataDownloadTab = (function() {
             });        
         },
         calc_alt_type = function() {
+            var _genes = Object.keys(stat);
             strs.alt_type = "Case ID" + "\t";
-            $.each(Object.keys(stat), function(index, val) {
+            $.each(_genes, function(index, val) {
                 strs.alt_type += val + "\t";    
             });
             strs.alt_type += "\n";
             $.each(data, function(outer_index, outer_obj) {
                 strs.alt_type += outer_obj.key + "\t";
-                $.each(outer_obj.values, function(inner_key, inner_obj) {
-                    if (Object.keys(inner_obj).length === 2) {
-                        strs.alt_type += "  " + "\t";
-                    } else {
-                        if (inner_obj.hasOwnProperty("mutation")) {
-                            strs.alt_type += "MUT: " + inner_obj.mutation;
-                        }
-                        if (inner_obj.hasOwnProperty("cna")) {
-                            if (inner_obj.cna === "AMPLIFIED") {
-                                strs.alt_type += "AMP;";
-                            } else if (inner_obj.cna === "GAINED") {
-                                strs.alt_type += "GAIN;";
-                            } else if (inner_obj.cna === "HEMIZYGOUSLYDELETED") {
-                                strs.alt_type += "HETLOSS;";
-                            } else if (inner_obj.cna === "HOMODELETED") {
-                                strs.alt_type += "HOMDEL;";
+                $.each(_genes, function(_gene_index, _gene) {
+                    $.each(outer_obj.values, function(inner_index, inner_obj) {
+                        if (_gene === inner_obj.gene) {
+                            if (Object.keys(inner_obj).length === 2) {
+                                strs.alt_type += "  " + "\t";
+                            } else {
+                                if (inner_obj.hasOwnProperty("mutation")) {
+                                    strs.alt_type += "MUT: " + inner_obj.mutation;
+                                }
+                                if (inner_obj.hasOwnProperty("cna")) {
+                                    if (inner_obj.cna === "AMPLIFIED") {
+                                        strs.alt_type += "AMP;";
+                                    } else if (inner_obj.cna === "GAINED") {
+                                        strs.alt_type += "GAIN;";
+                                    } else if (inner_obj.cna === "HEMIZYGOUSLYDELETED") {
+                                        strs.alt_type += "HETLOSS;";
+                                    } else if (inner_obj.cna === "HOMODELETED") {
+                                        strs.alt_type += "HOMDEL;";
+                                    }
+                                }
+                                if (inner_obj.hasOwnProperty("mrna")) {
+                                    if (inner_obj.mrna === "UPREGULATED") {
+                                        strs.alt_type += "UP;";
+                                    } else if (inner_obj.mrna === "DOWNREGULATED") {
+                                        strs.alt_type += "DOWN;";
+                                    }
+                                }
+                                if (inner_obj.hasOwnProperty("rppa")) {
+                                    if (inner_obj.rppa === "UPREGULATED") {
+                                        strs.alt_type += "RPPA-UP;";
+                                    } else if (inner_obj.rppa === "DOWNREGULATED") {
+                                        strs.alt_type += "RPPA-DOWN;";
+                                    }
+                                }
+                                strs.alt_type += "\t";
                             }
                         }
-                        if (inner_obj.hasOwnProperty("mrna")) {
-                            if (inner_obj.mrna === "UPREGULATED") {
-                                strs.alt_type += "UP;";
-                            } else if (inner_obj.mrna === "DOWNREGULATED") {
-                                strs.alt_type += "DOWN;";
-                            }
-                        }
-                        if (inner_obj.hasOwnProperty("rppa")) {
-                            if (inner_obj.rppa === "UPREGULATED") {
-                                strs.alt_type += "RPPA-UP;";
-                            } else if (inner_obj.rppa === "DOWNREGULATED") {
-                                strs.alt_type += "RPPA-DOWN;";
-                            }
-                        }
-                        strs.alt_type += "\t";
-                    }
+                    });
                 });
                 strs.alt_type += "\n";
             });

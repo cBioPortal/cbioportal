@@ -17,7 +17,7 @@ OUTPUT_FILE = sys.stdout
 IMPORT_STUDY_CLASS = "org.mskcc.cbio.portal.scripts.ImportCancerStudy";
 REMOVE_STUDY_CLASS = "org.mskcc.cbio.portal.scripts.RemoveCancerStudy";
 IMPORT_CANCER_TYPE_CLASS = "org.mskcc.cbio.portal.scripts.ImportTypesOfCancers"
-IMPORT_PATIENT_LIST_CLASS = "org.mskcc.cbio.portal.scripts.ImportPatientList"
+IMPORT_CASE_LIST_CLASS = "org.mskcc.cbio.portal.scripts.ImportPatientList"
 
 IMPORTER_CLASSNAME_BY_ALTERATION_TYPE = { "CLINICAL" : "org.mskcc.cbio.portal.scripts.ImportClinicalData",
                                             "COPY_NUMBER_ALTERATION" : "org.mskcc.cbio.portal.scripts.ImportProfileData",
@@ -139,18 +139,11 @@ def run_java(*args):
         return
     print >> OUTPUT_FILE, ("Executing command: " + java_home +
                            "/bin/java {}\n".format(args).replace('(\'', '').replace('\', \'', ' ').replace('\')', ''))
-    process = Popen([ java_home + '/bin/java']+list(args), stdout=PIPE, stderr=PIPE)
+    process = Popen([ java_home + '/bin/java']+list(args), stdout=PIPE, stderr=STDOUT)
     ret = []
     while process.poll() is None:
         line = process.stdout.readline()
         if line != '' and line.endswith('\n'):
-            print >> OUTPUT_FILE, line
+            print >> OUTPUT_FILE, line.strip()
             ret.append(line[:-1])
-    stdout, stderr = process.communicate()
-    print >> OUTPUT_FILE, stdout
-    ret += stdout.split('\n')
-    if stderr != '':
-        print >> OUTPUT_FILE, stderr
-        ret += stderr.split('\n')
-    ret.remove('')
     return ret

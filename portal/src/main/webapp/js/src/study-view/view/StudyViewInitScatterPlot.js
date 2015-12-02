@@ -136,11 +136,17 @@ var StudyViewInitScatterPlot = (function() {
                 hide: {fixed:true, delay: 100, event: "mouseout"},
                 position: {my:'top center',at:'bottom center', viewport: $(window)},
                 content: {
-                    text:   "<div style='display:inline-block;float:left;margin: 0 2px'>"+
-                            "<button  id='study-view-scatter-plot-pdf'>PDF</button>"+          
+                    text:
+                            "<div style='display:inline-block;'>"+
+                            "<button id='study-view-scatter-plot-pdf' style=\"width:50px\">PDF</button>"+
                             "</div>"+
-                            "<div style='display:inline-block;float:left;margin: 0 2px'>"+
-                            "<button  id='study-view-scatter-plot-svg'>SVG</button>"+
+                            "<br>"+
+                            "<div style='display:inline-block;'>"+
+                            "<button id='study-view-scatter-plot-svg' style=\"width:50px\">SVG</button>"+
+                            "</div>"+
+                            "<br>"+
+                            "<div style='display:inline-block;'>"+
+                            "<button id='study-view-scatter-plot-tsv' style=\"width:50px\">TXT</button>"+
                             "</div>"
                 },
                 events: {
@@ -162,6 +168,29 @@ var StudyViewInitScatterPlot = (function() {
                                 _title, {
                                     filename: "Scatter_Plot_result-"+ StudyViewParams.params.studyId +".svg"
                                 });
+                        });
+                        $("#study-view-scatter-plot-tsv").click(function(){
+                            var content = '';
+                            
+                            content = content + 'Sample ID' + '\t';
+                            content = content + 'Fraction Genome Altered' + '\t';
+                            content = content + 'Mutation Count';
+                            
+                            for(var i = 0; i < scatterPlotArr.length; i++){
+                                content += '\r\n';
+                                content += scatterPlotArr[i].case_id + '\t';
+                                content += StudyViewUtil.restrictNumDigits(scatterPlotArr[i].x_val) + '\t';
+                                content += scatterPlotArr[i].y_val;
+                            }
+//
+                            var downloadOpts = {
+//                                filename: cancerStudyName + "_" + _title + ".txt",
+                                filename: StudyViewParams.params.studyId + "_" + _title + ".txt",
+                                contentType: "text/plain;charset=utf-8",
+                                preProcess: false
+                            };
+
+                            cbio.download.initDownload(content, downloadOpts);
                         });
                     }
                 }
@@ -197,6 +226,11 @@ var StudyViewInitScatterPlot = (function() {
         }else{
             $('#study-view-scatter-plot').css('display','none');
         }
+    }
+
+    // call the scatterPlot's clear function
+    function clearScatterPlot(){
+        scatterPlot.clearScatterPlot();
     }
     
     function setSVGElementValue(_svgParentDivId,_idNeedToSetValue,scatterPlotDataAttr, _title, downloadOptions){
@@ -279,13 +313,14 @@ var StudyViewInitScatterPlot = (function() {
      */
     function setStyle(_selectedCaseIds, _hasFilterFlag) {
         var _style = [];
+        var numOfSamples = StudyViewParams.params.sampleIds.length;
         
         if(initStatus){
-            for(var i=0 ; i< StudyViewParams.params.sampleIds.length ; i++){
+            for(var i=0 ; i< numOfSamples ; i++){
                 var styleDatum = {};
 
                 styleDatum.case_id = StudyViewParams.params.sampleIds[i];
-                if(_selectedCaseIds.length !== StudyViewParams.params.sampleIds.length){
+                if(_selectedCaseIds.length !== numOfSamples){
                     if(_selectedCaseIds.indexOf(StudyViewParams.params.sampleIds[i]) !== -1){
                         if(clickedCaseId !== ''){
                             styleDatum.fill = '#2986e2';
@@ -454,24 +489,28 @@ var StudyViewInitScatterPlot = (function() {
     In this case, we need to recalculate the max and min value in all samples.
     */
     function getMinMax(_arr){
+        var initialed = false;
         _arr.forEach(function(sample, index){
             if(sample.hasOwnProperty('COPY_NUMBER_ALTERATIONS') && sample.hasOwnProperty('MUTATION_COUNT')){
                 //Directly assign value of first sample to variable boundaryVal
-                if(index === 0){
-                    boundaryVal.max_x = boundaryVal.min_x = sample.COPY_NUMBER_ALTERATIONS;
-                    boundaryVal.max_y = boundaryVal.min_y = sample.MUTATION_COUNT;
-                }else{
-                    if(sample.COPY_NUMBER_ALTERATIONS < boundaryVal.min_x){
-                        boundaryVal.min_x = sample.COPY_NUMBER_ALTERATIONS;
-                    }
-                    if(sample.COPY_NUMBER_ALTERATIONS > boundaryVal.max_x){
-                        boundaryVal.max_x = sample.COPY_NUMBER_ALTERATIONS;
-                    }
-                    if(sample.MUTATION_COUNT < boundaryVal.min_y){
-                        boundaryVal.min_y = sample.MUTATION_COUNT;
-                    }
-                    if(sample.MUTATION_COUNT > boundaryVal.max_y){
-                        boundaryVal.max_y = sample.MUTATION_COUNT;
+                if(!isNaN(sample.COPY_NUMBER_ALTERATIONS) && !isNaN(sample.MUTATION_COUNT)){
+                    if (!initialed) {
+                        boundaryVal.max_x = boundaryVal.min_x = sample.COPY_NUMBER_ALTERATIONS;
+                        boundaryVal.max_y = boundaryVal.min_y = sample.MUTATION_COUNT;
+                        initialed = true;
+                    } else {
+                        if (sample.COPY_NUMBER_ALTERATIONS < boundaryVal.min_x) {
+                            boundaryVal.min_x = sample.COPY_NUMBER_ALTERATIONS;
+                        }
+                        if (sample.COPY_NUMBER_ALTERATIONS > boundaryVal.max_x) {
+                            boundaryVal.max_x = sample.COPY_NUMBER_ALTERATIONS;
+                        }
+                        if (sample.MUTATION_COUNT < boundaryVal.min_y) {
+                            boundaryVal.min_y = sample.MUTATION_COUNT;
+                        }
+                        if (sample.MUTATION_COUNT > boundaryVal.max_y) {
+                            boundaryVal.max_y = sample.MUTATION_COUNT;
+                        }
                     }
                 }
             }
@@ -485,6 +524,7 @@ var StudyViewInitScatterPlot = (function() {
             initComponent();
             initStatus = true;
         },
+        clearScatterPlot:clearScatterPlot,
 
         getScatterPlot: function() {
             if(scatterPlot === undefined){

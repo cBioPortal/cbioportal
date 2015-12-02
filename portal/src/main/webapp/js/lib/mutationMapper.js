@@ -1,3 +1,33 @@
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /**
  * Singleton utility class for DataTables related tasks.
  *
@@ -45,7 +75,7 @@ var DataTableUtil = (function()
 			var options = pair[1];
 
 			if (options.sTitle != null &&
-			    options.sTitle.length > 0)
+				options.sTitle.length > 0)
 			{
 				map[options.sTitle] = name;
 			}
@@ -485,6 +515,36 @@ var DataTableUtil = (function()
 	};
 })();
 
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /**
  * Singleton utility class for Mutation View related tasks.
  *
@@ -638,6 +698,36 @@ var MutationViewsUtil = (function()
 	};
 })();
 
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /**
  * Singleton utility class to format Mutation Details Table View content.
  *
@@ -680,16 +770,16 @@ var MutationDetailsTableFormatter = (function()
 		return {style: style, tip: tip, text: label};
 	}
 
-    /**
-     * Returns the text content, the css class, and the tooltip
-     * for the given case id value. If the length of the actual
-     * case id string is too long, then creates a short form of
-     * the case id ending with an ellipsis.
-     *
-     * @param caseId    actual case id string
-     * @return {{style: string, text: string, tip: string}}
-     * @private
-     */
+	/**
+	 * Returns the text content, the css class, and the tooltip
+	 * for the given case id value. If the length of the actual
+	 * case id string is too long, then creates a short form of
+	 * the case id ending with an ellipsis.
+	 *
+	 * @param caseId    actual case id string
+	 * @return {{style: string, text: string, tip: string}}
+	 * @private
+	 */
 	function getCaseId(caseId)
 	{
 		// TODO customize this length?
@@ -714,15 +804,15 @@ var MutationDetailsTableFormatter = (function()
 		return _getMutationType(_mutationTypeMap, value);
 	}
 
-    /**
-     * Returns the text content and the css class for the given
-     * mutation type value.
-     *
-     * @param map   map of <mutationType, {label, style}>
-     * @param value actual string value of the mutation type
-     * @return {{style: string, text: string}}
-     * @private
-     */
+	/**
+	 * Returns the text content and the css class for the given
+	 * mutation type value.
+	 *
+	 * @param map   map of <mutationType, {label, style}>
+	 * @param value actual string value of the mutation type
+	 * @return {{style: string, text: string}}
+	 * @private
+	 */
 	function _getMutationType(map, value)
 	{
 		var style, text;
@@ -748,14 +838,14 @@ var MutationDetailsTableFormatter = (function()
 	}
 
 	/**
-     * Returns the text content, the css class, and the tooltip
+	 * Returns the text content, the css class, and the tooltip
 	 * for the given mutation type value.
-     *
-     * @param map   map of <mutationStatus, {label, style, tooltip}>
-     * @param value actual string value of the mutation status
-     * @return {{style: string, text: string, tip: string}}
-     * @private
-     */
+	 *
+	 * @param map   map of <mutationStatus, {label, style, tooltip}>
+	 * @param value actual string value of the mutation status
+	 * @return {{style: string, text: string, tip: string}}
+	 * @private
+	 */
 	function _getMutationStatus(map, value)
 	{
 		var style = "simple-tip";
@@ -908,6 +998,19 @@ var MutationDetailsTableFormatter = (function()
 	{
 		var style = "mutation-table-protein-change";
 		var tip = "click to highlight the position on the diagram";
+		var additionalTip = "";
+
+		// TODO additional tooltips are enabled (hardcoded) only for msk-impact study for now
+		// this is cBioPortal specific implementation, we may want to make it generic in the future
+		if (mutation.aminoAcidChange != null &&
+			mutation.aminoAcidChange.length > 0 &&
+			mutation.aminoAcidChange != "NA" &&
+			mutation.cancerStudyShort.toLowerCase().indexOf("msk-impact") != -1 &&
+			isDifferentProteinChange(mutation.proteinChange, mutation.aminoAcidChange))
+		{
+			additionalTip = "The original annotation file indicates a different value: <b>" +
+				normalizeProteinChange(mutation.aminoAcidChange) + "</b>";
+		}
 
 		// TODO disabled temporarily, enable when isoform support completely ready
 //        if (!mutation.canonicalTranscript)
@@ -921,9 +1024,81 @@ var MutationDetailsTableFormatter = (function()
 //                "<br>Uniprot id: " + "<b>" + mutation.uniprotId + "</b>";
 //        }
 
-		return {text: mutation.proteinChange,
+		return {text: normalizeProteinChange(mutation.proteinChange),
 			style : style,
-			tip: tip};
+			tip: tip,
+			additionalTip: additionalTip};
+	}
+
+	/**
+	 * Checks if given 2 protein changes are completely different from each other.
+	 *
+	 * @param proteinChange
+	 * @param aminoAcidChange
+	 * @returns {boolean}
+	 */
+	function isDifferentProteinChange(proteinChange, aminoAcidChange)
+	{
+		var different = false;
+
+		proteinChange = normalizeProteinChange(proteinChange);
+		aminoAcidChange = normalizeProteinChange(aminoAcidChange);
+
+		// if the normalized strings are exact, no need to do anything further
+		if (aminoAcidChange !== proteinChange)
+		{
+			// assuming each uppercase letter represents a single protein
+			var proteinMatch1 = proteinChange.match(/[A-Z]/g);
+			var proteinMatch2 = aminoAcidChange.match(/[A-Z]/g);
+
+			// assuming the first numeric value is the location
+			var locationMatch1 = proteinChange.match(/[0-9]+/);
+			var locationMatch2 = aminoAcidChange.match(/[0-9]+/);
+
+			// assuming first lowercase value is somehow related to
+			var typeMatch1 = proteinChange.match(/([a-z]+)/);
+			var typeMatch2 = aminoAcidChange.match(/([a-z]+)/);
+
+			if (locationMatch1 && locationMatch2 &&
+				locationMatch1.length > 0 && locationMatch2.length > 0 &&
+				locationMatch1[0] != locationMatch2[0])
+			{
+				different = true;
+			}
+			else if (proteinMatch1 && proteinMatch2 &&
+				proteinMatch1.length > 0 && proteinMatch2.length > 0 &&
+				proteinMatch1[0] !== "X" && proteinMatch2[0] !== "X" &&
+				proteinMatch1[0] !== proteinMatch2[0])
+			{
+				different = true;
+			}
+			else if (proteinMatch1 && proteinMatch2 &&
+				proteinMatch1.length > 1 && proteinMatch2.length > 1 &&
+				proteinMatch1[1] !== proteinMatch2[1])
+			{
+				different = true;
+			}
+			else if (typeMatch1 && typeMatch2 &&
+				typeMatch1.length > 0 && typeMatch2.length > 0 &&
+				typeMatch1[0] !== typeMatch2[0])
+			{
+				different = true;
+			}
+		}
+
+		return different;
+	}
+
+	function normalizeProteinChange(proteinChange)
+	{
+		var prefix = "p.";
+
+		if (proteinChange.indexOf(prefix) != -1)
+		{
+			proteinChange = proteinChange.substr(proteinChange.indexOf(prefix) + prefix.length);
+		}
+
+		return proteinChange;
 	}
 
 	function getTumorType(mutation)
@@ -956,7 +1131,7 @@ var MutationDetailsTableFormatter = (function()
 
 		return {style: style,
 			count: text};
-    }
+	}
 
 	/**
 	 * Returns the css class and text for the given cosmic count.
@@ -1020,7 +1195,7 @@ var MutationDetailsTableFormatter = (function()
 		}
 
 		return {text: text, style: style};
-    }
+	}
 
 
 	/**
@@ -1101,6 +1276,36 @@ var MutationDetailsTableFormatter = (function()
 	}
 })();
 
+
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 /**
  * Singleton utility class for pileup related tasks.
@@ -1296,14 +1501,14 @@ var PileupUtil = (function()
 			pileup.count = mutations[key].length;
 			pileup.location = parseInt(key);
 			pileup.label = generateLabel(mutations[key]);
-	        // The following calculates dist of mutations by cancer type
-	        pileup.stats = _.chain(mutations[key])
-	            .groupBy(function(mut) { return mut.cancerType; })
-	            .sortBy(function(stat) { return -stat.length; })
-	            .reduce(function(seed, o) {
-	                seed.push({ cancerType: o[0].cancerType, count: o.length });
-	                return seed;
-	            }, []).value();
+			// The following calculates dist of mutations by cancer type
+			pileup.stats = _.chain(mutations[key])
+				.groupBy(function(mut) { return mut.cancerType; })
+				.sortBy(function(stat) { return -stat.length; })
+				.reduce(function(seed, o) {
+					seed.push({ cancerType: o[0].cancerType, count: o.length });
+					return seed;
+				}, []).value();
 
 			pileupList.push(new Pileup(pileup));
 		}
@@ -1351,7 +1556,7 @@ var PileupUtil = (function()
 	 * Generates a pileup label by joining all unique protein change
 	 * information in the given array of mutations.
 	 *
- 	 * @param mutations     a list of mutations
+	 * @param mutations     a list of mutations
 	 * @returns {string}    pileup label
 	 */
 	function generateLabel(mutations)
@@ -1363,7 +1568,7 @@ var PileupUtil = (function()
 		for (var i = 0; i < mutations.length; i++)
 		{
 			if (mutations[i].proteinChange != null &&
-			    mutations[i].proteinChange.length > 0)
+				mutations[i].proteinChange.length > 0)
 			{
 				mutationSet[mutations[i].proteinChange] = mutations[i].proteinChange;
 			}
@@ -1387,7 +1592,7 @@ var PileupUtil = (function()
 		if (mutationArray.length > 1)
 		{
 			startStr = cbio.util.lcss(mutationArray[0],
-			                          mutationArray[mutationArray.length - 1]);
+				mutationArray[mutationArray.length - 1]);
 
 //			console.log(mutationArray[0] + " n " +
 //			            mutationArray[mutationArray.length - 1] + " = " +
@@ -1433,6 +1638,36 @@ var PileupUtil = (function()
 		getMutationTypeGroups: generateTypeGroupArray
 	};
 })();
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /**
  * Singleton utility class to precompile & cache backbone templates.
  * Using precompiled templates increases rendering speed dramatically.
@@ -1480,6 +1715,36 @@ var BackboneTemplateCache = (function () {
 	};
 })();
 
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /**
  * Singleton utility class for data proxy related tasks.
  *
@@ -1515,8 +1780,8 @@ var DataProxyUtil = (function()
 					var mutationProxy = dataProxies["mutationProxy"];
 
 					if (mut3dVis != null &&
-					    mutationProxy != null &&
-					    mutationProxy.hasData())
+						mutationProxy != null &&
+						mutationProxy.hasData())
 					{
 						proxyOpts.options.mutationUtil = mutationProxy.getMutationUtil();
 						return true;
@@ -1556,7 +1821,7 @@ var DataProxyUtil = (function()
 			// custom pre process function for the proxy options
 			// before initialization
 			if (preProcessFn != null &&
-			    _.isFunction(preProcessFn))
+				_.isFunction(preProcessFn))
 			{
 				// if preprocess is not successful do not initialize
 				if (!preProcessFn(proxyOpts))
@@ -1567,18 +1832,8 @@ var DataProxyUtil = (function()
 
 			// init data proxy
 			var Constructor = proxyOpts.instanceClass;
-			instance = Constructor(proxyOpts.options);
-
-			if (proxyOpts.lazy)
-			{
-				// init without data
-				instance.initWithoutData(proxyOpts.servletName);
-			}
-			else
-			{
-				// init with full data
-				instance.initWithData(proxyOpts.data);
-			}
+			instance = new Constructor(proxyOpts.options);
+			instance.init();
 		}
 
 		return instance;
@@ -1589,6 +1844,36 @@ var DataProxyUtil = (function()
 		initDataProxy: initDataProxy
 	};
 })();
+
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 /**
  * Utility class to initialize the 3D mutation visualizer with JSmol (HTML5)
@@ -1644,12 +1929,12 @@ function JSmolWrapper()
 
 		// TODO send custom opts via GET? (i.e: jsmol_frame.jsp?name=n&width=400&...)
 		_frameHtml = '<iframe id="jsmol_frame" ' +
-		             'src="' + frame + '" ' +
-		             'seamless="seamless" ' +
-		             'width="' + w + '" ' +
-		             'height="' + h + '" ' +
-		             'frameBorder="0" ' +
-		             'scrolling="no"></iframe>';
+			'src="' + frame + '" ' +
+			'seamless="seamless" ' +
+			'width="' + w + '" ' +
+			'height="' + h + '" ' +
+			'frameBorder="0" ' +
+			'scrolling="no"></iframe>';
 
 		// add listener to process messages coming from the iFrame
 
@@ -1704,7 +1989,7 @@ function JSmolWrapper()
 					var callback = command.callback;
 
 					if (callback &&
-					    _.isFunction(callback))
+						_.isFunction(callback))
 					{
 						// call the registered callback function
 						callback();
@@ -1807,6 +2092,36 @@ function JSmolWrapper()
 		script: script
 	};
 }
+
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 /**
  * JmolScriptGenerator class (extends MolScriptGenerator)
@@ -1916,7 +2231,7 @@ function JmolScriptGenerator()
 			var posStr = "";
 
 			if (insertion != null &&
-			    insertion.length > 0)
+				insertion.length > 0)
 			{
 				posStr += "^" + insertion;
 			}
@@ -1925,12 +2240,12 @@ function JmolScriptGenerator()
 		};
 
 		var posStr = position.start.pdbPos +
-		             insertionStr(position.start.insertion);
+			insertionStr(position.start.insertion);
 
 		if (position.end.pdbPos > position.start.pdbPos)
 		{
 			posStr += "-" + position.end.pdbPos +
-			          insertionStr(position.end.insertion);
+				insertionStr(position.end.insertion);
 		}
 
 		return posStr;
@@ -1944,7 +2259,7 @@ function JmolScriptGenerator()
 	function selectSideChains(scriptPositions, chainId)
 	{
 		return "select ((" + scriptPositions.join(", ") + ") and :" + chainId + " and sidechain) or " +
-		"((" + scriptPositions.join(", ") + ") and :" + chainId + " and *.CA);"
+			"((" + scriptPositions.join(", ") + ") and :" + chainId + " and *.CA);"
 	}
 
 	function enableBallAndStick()
@@ -2056,6 +2371,36 @@ function JmolScriptGenerator()
 JmolScriptGenerator.prototype = new MolScriptGenerator();
 JmolScriptGenerator.prototype.constructor = JmolScriptGenerator;
 
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /**
  * Utility class to initialize the 3D mutation visualizer with Jmol (Java)
  * instance.
@@ -2087,6 +2432,9 @@ function JmolWrapper(useJava)
 	function init(name, options)
 	{
 		_options = jQuery.extend(true, {}, defaultOpts, options);
+
+		// disable the Jmol tracker
+		delete Jmol._tracker;
 
 		// init applet
 		_applet = Jmol.getApplet(name, _options);
@@ -2160,6 +2508,36 @@ function JmolWrapper(useJava)
 	};
 }
 
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /**
  * Utility class to create segments from a merged alignment.
  * (See PdbChainModel.mergeAlignments function for details of merged alignments)
@@ -2208,7 +2586,7 @@ function MergedAlignmentSegmentor(mergedAlignment)
 			segment.type = symbol;
 
 			while (str[end] == symbol &&
-			       end <= str.length)
+			end <= str.length)
 			{
 				end++;
 			}
@@ -2218,7 +2596,7 @@ function MergedAlignmentSegmentor(mergedAlignment)
 			segment.type = "regular";
 
 			while (!isSpecialSymbol(str[end]) &&
-			       end <= str.length)
+			end <= str.length)
 			{
 				end++;
 			}
@@ -2250,6 +2628,36 @@ function MergedAlignmentSegmentor(mergedAlignment)
 		getNextSegment: getNextSegment
 	};
 }
+
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 /**
  * Base (abstract) script generator class for molecular structure visualizers
@@ -2543,6 +2951,36 @@ function MolScriptGenerator()
 		return scriptPositions;
 	};
 }
+
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 /**
  * Utility class for processing collection of mutations.
@@ -2919,34 +3357,34 @@ var MutationDetailsUtil = function(mutations)
 			numGermline: numGermline};
 	};
 
-    /**
-     * Checks if there all mutations come from a single cancer study
-     *
-     * @param gene  hugo gene symbol
-     */
-    this.cancerStudyAllTheSame = function(gene)
-    {
-        var self = this;
-        gene = gene.toUpperCase();
-	    var mutations = _mutationGeneMap[gene];
+	/**
+	 * Checks if there all mutations come from a single cancer study
+	 *
+	 * @param gene  hugo gene symbol
+	 */
+	this.cancerStudyAllTheSame = function(gene)
+	{
+		var self = this;
+		gene = gene.toUpperCase();
+		var mutations = _mutationGeneMap[gene];
 
-        if (mutations != null)
-        {
-            var prevStudy = null;
+		if (mutations != null)
+		{
+			var prevStudy = null;
 
-            for (var i=0; i < mutations.length; i++)
-            {
-                var cancerStudy = mutations[i].cancerStudy;
-                if(prevStudy == null) {
-                    prevStudy = cancerStudy;
-                } else if(prevStudy != cancerStudy) {
-                    return false;
-                }
-            }
-        }
+			for (var i=0; i < mutations.length; i++)
+			{
+				var cancerStudy = mutations[i].cancerStudy;
+				if(prevStudy == null) {
+					prevStudy = cancerStudy;
+				} else if(prevStudy != cancerStudy) {
+					return false;
+				}
+			}
+		}
 
-        return true;
-    };
+		return true;
+	};
 
 	this._contains = function(gene, matchFn)
 	{
@@ -2972,7 +3410,7 @@ var MutationDetailsUtil = function(mutations)
 		return contains;
 	};
 
-    /**
+	/**
 	 * Checks if there is a germline mutation for the given gene.
 	 *
 	 * @param gene  hugo gene symbol
@@ -2981,7 +3419,7 @@ var MutationDetailsUtil = function(mutations)
 	{
 		return this._contains(gene, function(mutation) {
 			return (mutation.mutationStatus &&
-			        mutation.mutationStatus.toLowerCase() == GERMLINE);
+			mutation.mutationStatus.toLowerCase() == GERMLINE);
 		});
 	};
 
@@ -2994,7 +3432,7 @@ var MutationDetailsUtil = function(mutations)
 	{
 		return this._contains(gene, function(mutation) {
 			return (mutation.validationStatus &&
-			        mutation.validationStatus.toLowerCase() == VALID);
+			mutation.validationStatus.toLowerCase() == VALID);
 		});
 	};
 
@@ -3007,7 +3445,7 @@ var MutationDetailsUtil = function(mutations)
 	{
 		return this._contains(gene, function(mutation) {
 			return (mutation.igvLink &&
-			        mutation.igvLink != "NA");
+			mutation.igvLink != "NA");
 		});
 	};
 
@@ -3020,7 +3458,7 @@ var MutationDetailsUtil = function(mutations)
 	{
 		return this._contains(gene, function(mutation) {
 			return (mutation.tumorFreq &&
-			        mutation.tumorFreq != "NA");
+			mutation.tumorFreq != "NA");
 		});
 	};
 
@@ -3033,8 +3471,8 @@ var MutationDetailsUtil = function(mutations)
 	{
 		return this._contains(gene, function(mutation) {
 			return (mutation.cna &&
-			        mutation.cna != "NA" &&
-			        mutation.cna != "unknown");
+			mutation.cna != "NA" &&
+			mutation.cna != "unknown");
 		});
 	};
 
@@ -3042,7 +3480,7 @@ var MutationDetailsUtil = function(mutations)
 	{
 		return this._contains(gene, function(mutation) {
 			return (mutation.caseId &&
-			        mutation.caseId != "NA");
+			mutation.caseId != "NA");
 		});
 	};
 
@@ -3050,7 +3488,7 @@ var MutationDetailsUtil = function(mutations)
 	{
 		return this._contains(gene, function(mutation) {
 			return (mutation.chr &&
-			        mutation.chr != "NA");
+			mutation.chr != "NA");
 		});
 	};
 
@@ -3058,7 +3496,7 @@ var MutationDetailsUtil = function(mutations)
 	{
 		return this._contains(gene, function(mutation) {
 			return (mutation.startPos &&
-			        mutation.startPos > 0);
+			mutation.startPos > 0);
 		});
 	};
 
@@ -3066,7 +3504,7 @@ var MutationDetailsUtil = function(mutations)
 	{
 		return this._contains(gene, function(mutation) {
 			return (mutation.referenceAllele &&
-			        mutation.referenceAllele != "NA");
+			mutation.referenceAllele != "NA");
 		});
 	};
 
@@ -3074,7 +3512,7 @@ var MutationDetailsUtil = function(mutations)
 	{
 		return this._contains(gene, function(mutation) {
 			return (mutation.variantAllele &&
-			        mutation.variantAllele != "NA");
+			mutation.variantAllele != "NA");
 		});
 	};
 
@@ -3082,7 +3520,7 @@ var MutationDetailsUtil = function(mutations)
 	{
 		return this._contains(gene, function(mutation) {
 			return (mutation.endPos &&
-			        mutation.endPos > 0);
+			mutation.endPos > 0);
 		});
 	};
 
@@ -3090,7 +3528,7 @@ var MutationDetailsUtil = function(mutations)
 	{
 		return this._contains(gene, function(mutation) {
 			return (mutation.functionalImpactScore &&
-			        mutation.functionalImpactScore != "NA");
+			mutation.functionalImpactScore != "NA");
 		});
 	};
 
@@ -3098,8 +3536,8 @@ var MutationDetailsUtil = function(mutations)
 	{
 		return this._contains(gene, function(mutation) {
 			return (mutation.cosmic &&
-			        mutation.cosmicCount &&
-					mutation.cosmicCount > 0);
+			mutation.cosmicCount &&
+			mutation.cosmicCount > 0);
 		});
 	};
 
@@ -3107,7 +3545,7 @@ var MutationDetailsUtil = function(mutations)
 	{
 		return this._contains(gene, function(mutation) {
 			return (mutation.mutationType &&
-			        mutation.mutationType != "NA");
+			mutation.mutationType != "NA");
 		});
 	};
 
@@ -3115,7 +3553,7 @@ var MutationDetailsUtil = function(mutations)
 	{
 		return this._contains(gene, function(mutation) {
 			return (mutation.mutationCount &&
-			        mutation.mutationCount > 0);
+			mutation.mutationCount > 0);
 		});
 	};
 
@@ -3123,7 +3561,7 @@ var MutationDetailsUtil = function(mutations)
 	{
 		return this._contains(gene, function(mutation) {
 			return (mutation.keyword &&
-			        mutation.keyword != "NA");
+			mutation.keyword != "NA");
 		});
 	};
 
@@ -3131,7 +3569,7 @@ var MutationDetailsUtil = function(mutations)
 	{
 		return this._contains(gene, function(mutation) {
 			return (mutation.mutationEventId &&
-			        mutation.mutationEventId != "NA");
+			mutation.mutationEventId != "NA");
 		});
 	};
 
@@ -3185,7 +3623,7 @@ var MutationDetailsUtil = function(mutations)
 				var value = mutations[i][dataField];
 
 				if (value &&
-				    !_.contains(excludeList, value))
+					!_.contains(excludeList, value))
 				{
 					if (valueCountMap[value] === undefined)
 					{
@@ -3220,6 +3658,36 @@ var MutationDetailsUtil = function(mutations)
 		this.processMutationData(mutations);
 	}
 };
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /**
  * Utility class to parse the custom mutation input data.
  *
@@ -3259,6 +3727,7 @@ function MutationInputParser ()
 		"mutationStatus": "mutation_status",
 		"cna": "copy_number",
 		"proteinChange": "protein_change",
+		"aminoAcidChange": "amino_acid_change",
 		"endPos": "end_position",
 		//"refseqMrnaId": "",
 		"geneSymbol": "hugo_symbol",
@@ -3314,6 +3783,7 @@ function MutationInputParser ()
 			"mutationStatus": "",
 			"cna": "",
 			"proteinChange": "",
+			"aminoAcidChange": "",
 			"endPos": "",
 			"refseqMrnaId": "",
 			"geneSymbol": "",
@@ -3459,7 +3929,7 @@ function MutationInputParser ()
 
 			_.each(_data, function(mutation, idx) {
 				if (mutation.caseId != null &&
-				    mutation.caseId.length > 0)
+					mutation.caseId.length > 0)
 				{
 					sampleSet[mutation.caseId] = mutation.caseId;
 				}
@@ -3484,7 +3954,7 @@ function MutationInputParser ()
 
 			_.each(_data, function(mutation, idx) {
 				if (mutation.geneSymbol != null &&
-				    mutation.geneSymbol.length > 0)
+					mutation.geneSymbol.length > 0)
 				{
 					geneSet[mutation.geneSymbol.toUpperCase()] =
 						mutation.geneSymbol.toUpperCase();
@@ -3499,7 +3969,7 @@ function MutationInputParser ()
 
 	function nextId()
 	{
-	    _idCounter++;
+		_idCounter++;
 
 		return "stalone_mut_" + _idCounter;
 	}
@@ -3510,6 +3980,36 @@ function MutationInputParser ()
 		getGeneList: getGeneList
 	};
 }
+
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 /**
  * Singleton utility function for Pancancer Mutation Data.
@@ -3565,6 +4065,36 @@ var PancanMutationDataUtil = (function()
 		countByKey: countByKey
 	};
 })();
+
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 /**
  * Singleton utility class for PDB data related tasks.
@@ -3652,7 +4182,7 @@ var PdbDataUtil = (function()
 			var mol = pdbInfo.compound[key];
 
 			if (mol.molecule &&
-			    _.indexOf(mol.chain, chainId.toLowerCase()) != -1)
+				_.indexOf(mol.chain, chainId.toLowerCase()) != -1)
 			{
 				// chain is associated with this mol,
 				// get the organism info from the source
@@ -3683,12 +4213,12 @@ var PdbDataUtil = (function()
 			var mol = pdbInfo.compound[key];
 
 			if (_.indexOf(mol.chain, chainId.toLowerCase()) != -1 &&
-			    pdbInfo.source[mol.mol_id] != null)
+				pdbInfo.source[mol.mol_id] != null)
 			{
 				// chain is associated with this mol,
 				// get the organism info from the source
 				organism = pdbInfo.source[mol.mol_id].organism_scientific ||
-				           organism;
+					organism;
 
 				break;
 			}
@@ -3775,7 +4305,7 @@ var PdbDataUtil = (function()
 				if (overlap[0] != overlap[1])
 				{
 					console.log("[warning] alignment mismatch: " +
-					            prev.alignmentId + " & " + alignment.alignmentId);
+						prev.alignmentId + " & " + alignment.alignmentId);
 					console.log(overlap[0]);
 					console.log(overlap[1]);
 				}
@@ -3821,21 +4351,21 @@ var PdbDataUtil = (function()
 
 		// skip fusions or invalid locations
 		if (location == null ||
-		    type == "fusion")
+			type == "fusion")
 		{
 			return pdbMatch;
 		}
 
 		// iterate all chains to find the first matching position
 		for (var i=0;
-		     i < rowData.length && !pdbMatch;
-		     i++)
+			 i < rowData.length && !pdbMatch;
+			 i++)
 		{
 			var allocation = rowData[i];
 
 			for (var j=0;
-			     j < allocation.length && !pdbMatch;
-			     j++)
+				 j < allocation.length && !pdbMatch;
+				 j++)
 			{
 				var datum = allocation[j];
 
@@ -3843,7 +4373,7 @@ var PdbDataUtil = (function()
 
 				// use merged alignment to see if there is a match
 				var rangeWithin = location >= alignment.uniprotFrom &&
-				                  location <= alignment.uniprotTo;
+					location <= alignment.uniprotTo;
 
 				// check for match condition
 				if (rangeWithin && alignmentMatch(alignment, location))
@@ -4018,7 +4548,7 @@ var PdbDataUtil = (function()
 		{
 			rows[0].sort(function(a, b){
 				return (b.chain.mergedAlignment.mergedString.length -
-				        a.chain.mergedAlignment.mergedString.length);
+				a.chain.mergedAlignment.mergedString.length);
 			});
 		}
 
@@ -4038,7 +4568,7 @@ var PdbDataUtil = (function()
 		var overlap = true;
 
 		if (chain1.mergedAlignment.uniprotFrom >= chain2.mergedAlignment.uniprotTo ||
-		    chain2.mergedAlignment.uniprotFrom >= chain1.mergedAlignment.uniprotTo)
+			chain2.mergedAlignment.uniprotFrom >= chain1.mergedAlignment.uniprotTo)
 		{
 			// no conflict
 			overlap = false;
@@ -4094,8 +4624,8 @@ var PdbDataUtil = (function()
 
 			// continue to compare until the result is different than zero
 			for (var i=0;
-			     i < comparators.length && result == 0;
-			     i++)
+				 i < comparators.length && result == 0;
+				 i++)
 			{
 				var fn = comparators[i];
 				result = fn(a, b);
@@ -4114,21 +4644,21 @@ var PdbDataUtil = (function()
 	{
 		// higher value should comes first
 		return (b.chain.mergedAlignment.identity -
-		        a.chain.mergedAlignment.identity);
+		a.chain.mergedAlignment.identity);
 	}
 
 	function compareIdentityPerc(a, b)
 	{
 		// higher value should comes first
 		return (b.chain.mergedAlignment.identityPerc -
-		        a.chain.mergedAlignment.identityPerc);
+		a.chain.mergedAlignment.identityPerc);
 	}
 
 	function compareMergedLength(a, b)
 	{
 		// longer string should comes first in the sorted array
 		return (b.chain.mergedAlignment.mergedString.length -
-		        a.chain.mergedAlignment.mergedString.length);
+		a.chain.mergedAlignment.mergedString.length);
 	}
 
 	function comparePdbId(a, b)
@@ -4163,14 +4693,14 @@ var PdbDataUtil = (function()
 	{
 		// lower e value should comes first in the sorted array
 		return (getMinValue(a.chain.alignments, "eValue") -
-		        getMinValue(b.chain.alignments, "eValue"));
+		getMinValue(b.chain.alignments, "eValue"));
 	}
 
 	function compareIdentP(a, b)
 	{
 		// higher percentage should comes first in the sorted array
 		return (getMinValue(b.chain.alignments, "identityPerc") -
-		        getMinValue(a.chain.alignments, "identityPerc"));
+		getMinValue(a.chain.alignments, "identityPerc"));
 	}
 
 	/**
@@ -4234,6 +4764,36 @@ var PdbDataUtil = (function()
 		chainKey: chainKey
 	};
 })();
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /**
  * PymolScriptGenerator class (extends JmolScriptGenerator)
  *
@@ -4308,9 +4868,9 @@ function PymolScriptGenerator()
 		// TODO cartoon_transparency doesn't work for chain or residue selections
 		// see issue:  http://sourceforge.net/p/pymol/bugs/129/
 		return ("set transparency, " + (transparency / 10) + ", sele;\n" +
-		        "set cartoon_transparency, " + (transparency / 10) + ", sele;\n" +
-		        "set sphere_transparency, " + (transparency / 10) + ", sele;\n" +
-		        "set stick_transparency, " + (transparency / 10) + ", sele;");
+		"set cartoon_transparency, " + (transparency / 10) + ", sele;\n" +
+		"set sphere_transparency, " + (transparency / 10) + ", sele;\n" +
+		"set stick_transparency, " + (transparency / 10) + ", sele;");
 	}
 
 	function makeOpaque()
@@ -4342,7 +4902,7 @@ function PymolScriptGenerator()
 	{
 		// restrict to protein only
 		return "hide everything," +
-		       "not resn asp+glu+arg+lys+his+asn+thr+cys+gln+tyr+ser+gly+ala+leu+val+ile+met+trp+phe+pro";
+			"not resn asp+glu+arg+lys+his+asn+thr+cys+gln+tyr+ser+gly+ala+leu+val+ile+met+trp+phe+pro";
 	}
 
 	function formatColor(color)
@@ -4377,6 +4937,36 @@ PymolScriptGenerator.prototype = new JmolScriptGenerator();
 PymolScriptGenerator.prototype.constructor = PymolScriptGenerator;
 
 
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /**
  * Mutation Model.
  *
@@ -4388,18 +4978,19 @@ PymolScriptGenerator.prototype.constructor = PymolScriptGenerator;
 var MutationModel = Backbone.Model.extend({
 	initialize: function(attributes) {
 		this.mutationId = attributes.mutationId;
-        this.mutationSid = attributes.mutationSid;
+		this.mutationSid = attributes.mutationSid;
 		this.geneticProfileId = attributes.geneticProfileId;
 		this.mutationEventId = attributes.mutationEventId;
 		this.caseId = attributes.caseId;
 		this.geneSymbol = attributes.geneSymbol;
 		this.linkToPatientView = attributes.linkToPatientView;
-        this.cancerType = attributes.cancerType;
-        this.cancerStudy = attributes.cancerStudy;
-        this.cancerStudyShort = attributes.cancerStudyShort;
-        this.cancerStudyLink = attributes.cancerStudyLink;
+		this.cancerType = attributes.cancerType;
+		this.cancerStudy = attributes.cancerStudy;
+		this.cancerStudyShort = attributes.cancerStudyShort;
+		this.cancerStudyLink = attributes.cancerStudyLink;
 		this.tumorType = attributes.tumorType;
 		this.proteinChange = attributes.proteinChange;
+		this.aminoAcidChange = attributes.aminoAcidChange;
 		this.mutationType = attributes.mutationType;
 		this.cosmic = attributes.cosmic;
 		this.cosmicCount = this.calcCosmicCount(attributes.cosmic);
@@ -4436,6 +5027,8 @@ var MutationModel = Backbone.Model.extend({
 		this.specialGeneData = attributes.specialGeneData;
 		this.keyword = attributes.keyword;
 		this.cna = attributes.cna;
+		this.myCancerGenome = attributes.myCancerGenome;
+		this.isHotspot = attributes.isHotspot;
 	},
 	url: function() {
 		// TODO implement this to get the data from a web service
@@ -4456,9 +5049,9 @@ var MutationModel = Backbone.Model.extend({
 
 		// if not valid, then try protein change value
 		if (position == null ||
-		    position.length == 0 ||
-		    position == "NA" ||
-		    position < 0)
+			position.length == 0 ||
+			position == "NA" ||
+			position < 0)
 		{
 			position = this.getProteinChangeLocation();
 		}
@@ -4518,7 +5111,35 @@ var MutationCollection = Backbone.Collection.extend({
 	}
 });
 
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
 
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 var PdbAlignmentModel = Backbone.Model.extend({
 	initialize: function(attributes) {
@@ -4545,6 +5166,36 @@ var PdbAlignmentCollection = Backbone.Collection.extend({
 		// TODO add & set attributes if required
 	}
 });
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /**
  * PDB Chain Model.
  *
@@ -4573,6 +5224,36 @@ var PdbChainCollection = Backbone.Collection.extend({
 		// TODO add & set attributes if required
 	}
 });
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /**
  * PDB data model.
  *
@@ -4599,6 +5280,36 @@ var PdbCollection = Backbone.Collection.extend({
 	}
 });
 
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /**
  * Pileup Model.
  *
@@ -4617,6 +5328,36 @@ var Pileup = Backbone.Model.extend({
 		this.stats = attributes.stats;
 	}
 });
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /**
  * Tooltip view for the mutation table's cosmic column.
  *
@@ -4647,9 +5388,9 @@ var CosmicTipView = Backbone.View.extend({
 			"sDom": 'pt', // show the table and the pagination buttons
 			"aoColumnDefs": [
 				{"mRender": function ( data, type, full ) {
-						// TODO move this link into the template
-                        return '<a href="http://cancer.sanger.ac.uk/cosmic/mutation/overview?id='+data+'">'+data+'</a>';
-                    }, "aTargets": [0]},
+					// TODO move this link into the template
+					return '<a href="http://cancer.sanger.ac.uk/cosmic/mutation/overview?id='+data+'">'+data+'</a>';
+				}, "aTargets": [0]},
 				{"sType": "aa-change-col", "sClass": "left-align-td", "aTargets": [1]},
 				{"sType": "numeric", "sClass": "left-align-td", "aTargets": [2]}],
 			"bDestroy": false,
@@ -4663,8 +5404,8 @@ var CosmicTipView = Backbone.View.extend({
 		// TODO create a backbone template for the cosmic table row
 		// COSMIC data (as AA change & frequency pairs)
 		cosmic.forEach(function(c) {
-                        dataRows.push(c[0]+"</td><td>"+c[1]+"</td><td>"+c[2]);
-                    });
+			dataRows.push(c[0]+"</td><td>"+c[1]+"</td><td>"+c[2]);
+		});
 
 		return "<tr><td>" + dataRows.join("</td></tr><tr><td>") + "</td></tr>";
 	},
@@ -4682,25 +5423,85 @@ var CosmicTipView = Backbone.View.extend({
 		return templateFn(variables);
 	}
 });
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /**
-* This view will add new columns to the mutation stats table
-* model: { cancerType: "", count: 0 }
-*/
+ * This view will add new columns to the mutation stats table
+ * model: { cancerType: "", count: 0 }
+ */
 var LollipopTipStatsView = Backbone.View.extend({
 	initialize: function()
 	{
 
 	},
-    render: function()
-    {
-        var templateFn = BackboneTemplateCache.getTemplateFn("mutation_details_lollipop_tip_stats_template");
-        var thatEl = this.$el.find("table tbody");
-        _.each(this.model, function(statItem) {
-            thatEl.append(templateFn(statItem));
-        });
-        return this;
-    }
+	render: function()
+	{
+		var templateFn = BackboneTemplateCache.getTemplateFn("mutation_details_lollipop_tip_stats_template");
+		var thatEl = this.$el.find("table tbody");
+		_.each(this.model, function(statItem) {
+			thatEl.append(templateFn(statItem));
+		});
+		return this;
+	}
 });
+
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 /**
  * Tooltip view for the mutation diagram's lollipop circles.
@@ -4727,50 +5528,80 @@ var LollipopTipView = Backbone.View.extend({
 		// implement if necessary...
 	},
 
-    showStats: false,
-    setShowStats: function(showStats) {
-        this.showStats = showStats;
-    },
-    getShowStats: function(showStats) {
-        return this.showStats;
-    },
+	showStats: false,
+	setShowStats: function(showStats) {
+		this.showStats = showStats;
+	},
+	getShowStats: function(showStats) {
+		return this.showStats;
+	},
 
-    compileTemplate: function()
+	compileTemplate: function()
 	{
-        var thatModel = this.model;
-        var mutationStr = thatModel.count > 1 ? "mutations" : "mutation";
+		var thatModel = this.model;
+		var mutationStr = thatModel.count > 1 ? "mutations" : "mutation";
 
 		// pass variables in using Underscore.js template
 		var variables = {count: thatModel.count,
 			mutationStr: mutationStr,
 			label: thatModel.label
-        };
+		};
 
 		// compile the template using underscore
 		var templateFn = BackboneTemplateCache.getTemplateFn("mutation_details_lollipop_tip_template");
-        var compiledEl = $(templateFn(variables));
+		var compiledEl = $(templateFn(variables));
 
-        var statsEl = compiledEl.find(".lollipop-stats");
-        if(this.showStats)
-        {
-            (new LollipopTipStatsView({ el: statsEl, model: thatModel.stats })).render();
-            statsEl.find("table").dataTable({
-                "sDom": 't',
-                "bJQueryUI": true,
-                "bDestroy": true,
-                "aaSorting": [[ 1, "desc" ]],
-                "aoColumns": [
-                    { "bSortable": false },
-                    { "bSortable": false }
-                ]
-            });
-        } else {
-            statsEl.hide();
-        }
+		var statsEl = compiledEl.find(".lollipop-stats");
+		if(this.showStats)
+		{
+			(new LollipopTipStatsView({ el: statsEl, model: thatModel.stats })).render();
+			statsEl.find("table").dataTable({
+				"sDom": 't',
+				"bJQueryUI": true,
+				"bDestroy": true,
+				"aaSorting": [[ 1, "desc" ]],
+				"aoColumns": [
+					{ "bSortable": false },
+					{ "bSortable": false }
+				]
+			});
+		} else {
+			statsEl.hide();
+		}
 
-        return compiledEl.html();
+		return compiledEl.html();
 	}
 });
+
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 /**
  * Default mutation view for a single gene.
@@ -4839,7 +5670,7 @@ var MainMutationView = Backbone.View.extend({
 
 		// draw mutation diagram
 		var diagramView = self._initMutationDiagramView(
-				gene, mutationData, sequence, diagramOpts);
+			gene, mutationData, sequence, dataProxies, diagramOpts);
 
 		var diagram = diagramView.mutationDiagram;
 
@@ -4961,16 +5792,18 @@ var MainMutationView = Backbone.View.extend({
 	 * @param gene          hugo gene symbol
 	 * @param mutationData  mutation data (array of JSON objects)
 	 * @param sequenceData  sequence data (as a JSON object)
+	 * @param dataProxies   all available data proxies
 	 * @param options       [optional] diagram options
 	 * @return {Object}     initialized mutation diagram view
 	 */
-	_initMutationDiagramView: function (gene, mutationData, sequenceData, options)
+	_initMutationDiagramView: function (gene, mutationData, sequenceData, dataProxies, options)
 	{
 		var self = this;
 
 		var model = {mutations: mutationData,
 			sequence: sequenceData,
 			geneSymbol: gene,
+			dataProxies: dataProxies,
 			diagramOpts: options};
 
 		var diagramView = new MutationDiagramView({
@@ -5032,6 +5865,36 @@ var MainMutationView = Backbone.View.extend({
 		this.$el.find(".mutation-details-no-data-info").slideUp();
 	}
 });
+
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 /**
  * 3D visualizer controls view.
@@ -5143,6 +6006,36 @@ var Mutation3dView = Backbone.View.extend({
 	}
 });
 
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /**
  * Information view for the 3D Visualization panel.
  *
@@ -5178,7 +6071,7 @@ var Mutation3dVisInfoView = Backbone.View.extend({
 
 		// if no info provided, then hide the corresponding span
 		if (pdbInfo == null ||
-		    pdbInfo.length == 0)
+			pdbInfo.length == 0)
 		{
 			self.$el.find(".mutation-3d-pdb-info").hide();
 		}
@@ -5189,7 +6082,7 @@ var Mutation3dVisInfoView = Backbone.View.extend({
 		}
 
 		if (molInfo == null ||
-		    molInfo.length == 0)
+			molInfo.length == 0)
 		{
 			self.$el.find(".mutation-3d-mol-info").hide();
 		}
@@ -5225,6 +6118,36 @@ var Mutation3dVisInfoView = Backbone.View.extend({
 		self.$el.find(selector).expander(expanderOpts);
 	}
 });
+
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 /**
  * Actual 3D Visualizer view. This view is designed to contain the 3D
@@ -5439,7 +6362,7 @@ var Mutation3dVisView = Backbone.View.extend({
 
 			var script = mut3dVis.generatePymolScript();
 			var filename = self.$el.find(".mutation-3d-pdb-id").text().trim() + "_" +
-			               self.$el.find(".mutation-3d-chain-id").text().trim() + ".pml";
+				self.$el.find(".mutation-3d-chain-id").text().trim() + ".pml";
 
 			var downloadOpts = {
 				filename: filename,
@@ -5782,7 +6705,7 @@ var Mutation3dVisView = Backbone.View.extend({
 		// do not reload (just refresh) if no pdb id or chain is provided,
 		// or the provided chain and the previous chain are the same
 		if ((pdbId == null && chain == null) ||
-		    (pdbId == self.pdbId && chain == self.chain))
+			(pdbId == self.pdbId && chain == self.chain))
 		{
 			// just refresh
 			var mapped = mut3dVis.refresh();
@@ -6111,6 +7034,36 @@ var Mutation3dVisView = Backbone.View.extend({
 		warning.hide();
 	}
 });
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /**
  * Mutation Details Customization Panel View.
  *
@@ -6197,8 +7150,8 @@ var MutationCustomizePanelView = Backbone.View.extend({
 
 				// not a valid value, update with defaults
 				if (isNaN(input) ||
-				    input > maxValY ||
-				    input < 2)
+					input > maxValY ||
+					input < 2)
 				{
 					yAxisInput.val(diagram.getMaxY());
 				}
@@ -6215,6 +7168,36 @@ var MutationCustomizePanelView = Backbone.View.extend({
 		self.$el.slideToggle();
 	}
 });
+
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 /**
  * Default table view for the mutations.
@@ -6341,8 +7324,8 @@ var MutationDetailsTableView = Backbone.View.extend({
 		for (var i = 0; i < mutations.length; i++)
 		{
 			//var row = tableSelector.find("#" + mutations[i].mutationId);
-            var row = tableSelector.find("tr." + mutations[i].mutationSid);
-            row.addClass("mutation-table-highlight");
+			var row = tableSelector.find("tr." + mutations[i].mutationSid);
+			row.addClass("mutation-table-highlight");
 		}
 	},
 	/**
@@ -6466,6 +7449,36 @@ var MutationDetailsTableView = Backbone.View.extend({
 	}
 });
 
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /**
  * Default mutation details view for the entire mutation details tab.
  * Creates a separate MainMutationView (another Backbone view) for each gene.
@@ -6544,8 +7557,8 @@ var MutationDetailsView = Backbone.View.extend({
 //		var mainContent = self.$el.find(".mutation-details-content");
 //		mainContent.tabs("refresh");
 
-        // just trigger the window resize event,
-        // rest is handled by the resize handler in ui.tabs.paging plugin.
+		// just trigger the window resize event,
+		// rest is handled by the resize handler in ui.tabs.paging plugin.
 		// it would be better to directly call the resize handler of the plugin,
 		// but the function doesn't have public access...
 		$(window).trigger('resize');
@@ -6567,9 +7580,9 @@ var MutationDetailsView = Backbone.View.extend({
 			var templateFn = BackboneTemplateCache.getTemplateFn("default_mutation_details_main_content_template");
 
 			mainContent += templateFn(
-					{loaderImage: "images/ajax-loader.gif",
-						geneSymbol: gene,
-						geneId: cbio.util.safeProperty(gene)});
+				{loaderImage: "images/ajax-loader.gif",
+					geneSymbol: gene,
+					geneId: cbio.util.safeProperty(gene)});
 
 			templateFn = BackboneTemplateCache.getTemplateFn("default_mutation_details_list_content_template");
 
@@ -6626,6 +7639,36 @@ var MutationDetailsView = Backbone.View.extend({
 	}
 });
 
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /**
  * Mutation Diagram view.
  *
@@ -6666,6 +7709,7 @@ var MutationDiagramView = Backbone.View.extend({
 			self.model.geneSymbol,
 			self.model.mutations,
 			self.model.sequence,
+			self.model.dataProxies,
 			self.model.diagramOpts);
 
 		self.format();
@@ -6688,7 +7732,7 @@ var MutationDiagramView = Backbone.View.extend({
 		{
 			// init diagram toolbar
 			self._initToolbar(self.mutationDiagram,
-			                  self.model.geneSymbol);
+				self.model.geneSymbol);
 		}
 	},
 	/**
@@ -6697,10 +7741,11 @@ var MutationDiagramView = Backbone.View.extend({
 	 * @param gene          hugo gene symbol
 	 * @param mutationData  mutation data (array of JSON objects)
 	 * @param sequenceData  sequence data (as a JSON object)
+	 * @param dataProxies   all available data proxies
 	 * @param options       [optional] diagram options
 	 * @return {Object}     initialized mutation diagram view
 	 */
-	_initMutationDiagram: function (gene, mutationData, sequenceData, options)
+	_initMutationDiagram: function (gene, mutationData, sequenceData, dataProxies, options)
 	{
 		var self = this;
 
@@ -6713,7 +7758,7 @@ var MutationDiagramView = Backbone.View.extend({
 		// do not draw the diagram if there is a critical error with
 		// the sequence data
 		if (sequenceData["length"] == "" ||
-		    parseInt(sequenceData["length"]) <= 0)
+			parseInt(sequenceData["length"]) <= 0)
 		{
 			// return null to indicate an error
 			return null;
@@ -6731,14 +7776,14 @@ var MutationDiagramView = Backbone.View.extend({
 			sequence: sequenceData
 		};
 
-		var mutationDiagram = new MutationDiagram(gene, options, diagramData);
+		var mutationDiagram = new MutationDiagram(gene, options, diagramData, dataProxies);
 
 		// if no sequence data is provided, try to get it from the servlet
 		if (sequenceData == null)
 		{
 			// TODO use PfamDataProxy instance!!
 			$.getJSON("getPfamSequence.json",
-			{geneSymbol: self.geneSymbol},
+				{geneSymbol: self.geneSymbol},
 				function(data) {
 					if (data)
 					{
@@ -6746,7 +7791,7 @@ var MutationDiagramView = Backbone.View.extend({
 					}
 
 					mutationDiagram.initDiagram();
-			});
+				});
 		}
 		// if data is already there just init the diagram
 		else
@@ -6894,6 +7939,36 @@ var MutationDiagramView = Backbone.View.extend({
 	}
 });
 
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /**
  * Mutation Details Legend Panel View.
  *
@@ -6942,6 +8017,36 @@ var MutationHelpPanelView = Backbone.View.extend({
 		self.$el.slideToggle();
 	}
 });
+
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 /**
  * Tooltip view for the mutation table's cosmic column.
@@ -7000,10 +8105,10 @@ var PancanMutationHistTipView = Backbone.View.extend({
 
 		// init the histogram
 		var histogram = PancanMutationHistogram(byProteinPosData,
-		                                        byHugoData,
-		                                        metaData,
-		                                        container[0],
-		                                        {this_cancer_study: cancerStudy});
+			byHugoData,
+			metaData,
+			container[0],
+			{this_cancer_study: cancerStudy});
 
 		// update the overall count text
 		self.$el.find(".overall-count").html(histogram.overallCountText());
@@ -7038,6 +8143,36 @@ var PancanMutationHistTipView = Backbone.View.extend({
 		});
 	}
 });
+
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 /**
  * Tooltip view for the PDB panel chain rectangles.
@@ -7077,13 +8212,13 @@ var PdbChainTipView = Backbone.View.extend({
 		// TODO this can be implemented in a better way
 
 		if (pdbInfo != null ||
-		    pdbInfo.length > 0)
+			pdbInfo.length > 0)
 		{
 			variables.pdbInfo = ": " + pdbInfo;
 		}
 
 		if (molInfo != null ||
-		    molInfo.length > 0)
+			molInfo.length > 0)
 		{
 			variables.molInfo = ": " + molInfo;
 		}
@@ -7093,6 +8228,36 @@ var PdbChainTipView = Backbone.View.extend({
 		return templateFn(variables);
 	}
 });
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /**
  * PDB Panel View.
  *
@@ -7383,7 +8548,7 @@ var PdbPanelView = Backbone.View.extend({
 
 		// TODO make scroll parameters customizable?
 		container.scrollTo($(".pdb-selection-rectangle-group"),
-		                   {axis: 'y', duration: 800, offset: -150});
+			{axis: 'y', duration: 800, offset: -150});
 	},
 	clearTimers: function()
 	{
@@ -7431,6 +8596,36 @@ var PdbPanelView = Backbone.View.extend({
 		return panel;
 	}
 });
+
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 /**
  * PDB Table View.
@@ -7526,7 +8721,7 @@ var PdbTableView = Backbone.View.extend({
 
 		// TODO make scroll parameters customizable?
 		container.scrollTo($(selected),
-		                   {axis: 'y', duration: 800});
+			{axis: 'y', duration: 800});
 	},
 	/**
 	 * Initializes the PDB chain table.
@@ -7599,6 +8794,36 @@ var PdbTableView = Backbone.View.extend({
 });
 
 
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /**
  * Tooltip view for the mutation table's FIS column.
  *
@@ -7669,6 +8894,36 @@ var PredictedImpactTipView = Backbone.View.extend({
 });
 
 
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /**
  * Tooltip view for the mutation diagram's region rectangles.
  *
@@ -7703,13 +8958,262 @@ var RegionTipView = Backbone.View.extend({
 			type: this.model.type.toLowerCase(),
 			description: this.model.description,
 			start: this.model.start,
-			end: this.model.end};
+			end: this.model.end,
+			pfamAccession: this.model.pfamAccession,
+			mutationAlignerInfo: this.model.mutationAlignerInfo};
 
 		// compile the template using underscore
 		var templateFn = BackboneTemplateCache.getTemplateFn("mutation_details_region_tip_template");
 		return templateFn(variables);
 	}
 });
+
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * Base class for data proxy instances.
+ *
+ * @author Selcuk Onur Sumer
+ */
+function AbstractDataProxy(options)
+{
+	var self = this;
+
+	// default options
+	self._defaultOpts = {
+		initMode: "lazy", // "lazy" or "full"
+		servletName: "",  // name of the servlet to retrieve the actual data (used for AJAX query)
+		data: {}          // actual data, will be used only if it is a full init, i.e {initMode: "full"}
+	};
+
+	// merge options with default options to use defaults for missing values
+	self._options = jQuery.extend(true, {}, self._defaultOpts, options);
+
+	/**
+	 * Initializes the data proxy with respect to init mode.
+	 */
+	self.init = function()
+	{
+		if (self.isFullInit())
+		{
+			self.fullInit(self._options);
+		}
+		else
+		{
+			self.lazyInit(self._options);
+		}
+	};
+
+	/**
+	 * Initializes the proxy without actually grabbing anything from the server.
+	 * Provided servlet name will be used later.
+	 *
+	 * @param options   data proxy options
+	 */
+	self.lazyInit = function(options)
+	{
+		// no default implementation, can be overridden by subclasses
+	};
+
+	/**
+	 * Initializes with full data. Once initialized with full data,
+	 * this proxy class assumes that there will be no additional data.
+	 *
+	 * @param options   data proxy options
+	 */
+	self.fullInit = function(options)
+	{
+		// method body should be overridden by subclasses
+	};
+
+	/**
+	 * Checks if the initialization is full or lazy.
+	 *
+	 * @return {boolean} true if full init, false otherwise
+	 */
+	self.isFullInit = function()
+	{
+		return !(self._options.initMode.toLowerCase() === "lazy");
+	};
+}
+
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * This class is designed to retrieve Mutation Aligner data on demand.
+ *
+ * @param options  additional options
+ *
+ * @author Selcuk Onur Sumer
+ */
+function MutationAlignerDataProxy(options)
+{
+	var self = this;
+
+	// default options
+	var _defaultOpts = {
+		servletName: "getMutationAligner.json"
+	};
+
+	// merge options with default options to use defaults for missing values
+	var _options = jQuery.extend(true, {}, _defaultOpts, options);
+
+	// call super constructor to init options and other params
+	AbstractDataProxy.call(this, _options);
+	_options = self._options;
+
+	// map of <gene, data> pairs
+	var _maDataCache = {};
+
+	/**
+	 * Initializes with full PFAM data. Once initialized with full data,
+	 * this proxy class assumes that there will be no additional data.
+	 *
+	 * @param options   data proxy options
+	 */
+	function fullInit(options)
+	{
+		//assuming the given data is a map of <gene, sequence data> pairs
+		_maDataCache = options.data;
+	}
+
+	function getMutationAlignerData(servletParams, callback)
+	{
+		// TODO allow more than one accession at a time? (see MutationDataProxy)
+		var pfamAccession = servletParams.pfamAccession;
+
+		if (pfamAccession == null)
+		{
+			// no gene symbol provided, nothing to retrieve
+			callback(null);
+			return;
+		}
+
+		// retrieve data from the server if not cached
+		if (_maDataCache[pfamAccession] == undefined)
+		{
+			if (self.isFullInit())
+			{
+				callback(null);
+				return;
+			}
+
+			// process & cache the raw data
+			var processData = function(data) {
+				_maDataCache[pfamAccession] = data;
+
+				// forward the processed data to the provided callback function
+				callback(data);
+			};
+
+			// retrieve data from the servlet
+			$.getJSON(_options.servletName,
+				servletParams,
+				processData);
+		}
+		else
+		{
+			// data is already cached, just forward it
+			callback(_maDataCache[pfamAccession]);
+		}
+	}
+
+	// override required base functions
+	self.fullInit = fullInit;
+
+	// class specific functions
+	self.getMutationAlignerData = getMutationAlignerData;
+}
+
+// MutationAlignerDataProxy extends AbstractDataProxy...
+MutationAlignerDataProxy.prototype = new AbstractDataProxy();
+MutationAlignerDataProxy.prototype.constructor = MutationAlignerDataProxy;
+
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 /**
  * This class is designed to retrieve mutation data on demand, but it can be also
@@ -7721,14 +9225,21 @@ var RegionTipView = Backbone.View.extend({
  */
 function MutationDataProxy(options)
 {
+	var self = this;
+
 	// default options
 	var _defaultOpts = {
+		servletName: "getMutationData.json",
 		geneList: "", // list of target genes (genes of interest) as a string
-		params: {} // fixed servlet params
+		params: {}    // fixed servlet params
 	};
 
 	// merge options with default options to use defaults for missing values
 	var _options = jQuery.extend(true, {}, _defaultOpts, options);
+
+	// call super constructor to init options and other params
+	AbstractDataProxy.call(this, _options);
+	_options = self._options;
 
 	// MutationDetailsUtil instance
 	var _util = new MutationDetailsUtil();
@@ -7736,35 +9247,18 @@ function MutationDataProxy(options)
 	var _unsortedGeneList = _options.geneList.trim().split(/\s+/);
 	// alphabetically sorted list of target genes as an array of strings
 	var _geneList = _options.geneList.trim().split(/\s+/).sort();
-	// name of the mutation data servlet
-	var _servletName;
-	// flag to indicate if the initialization is full or lazy
-	var _fullInit;
-
-	/**
-	 * Initializes the proxy without actually grabbing anything from the server.
-	 * Provided servlet name and servlet parameters will be used for later invocation
-	 * of getMutationData function.
-	 *
-	 * @param servletName   name of the mutation data servlet (used for AJAX query)
-	 */
-	function lazyInit(servletName)
-	{
-		_servletName = servletName;
-		_fullInit = false;
-	}
 
 	/**
 	 * Initializes with full mutation data. Once initialized with full data,
 	 * this proxy class assumes that there will be no additional mutation data.
 	 *
-	 * @param mutationData  full mutation data
+	 * @param options   data proxy options
 	 */
-	function fullInit(mutationData)
+	function fullInit(options)
 	{
-		var mutations = new MutationCollection(mutationData);
+		var data = options.data;
+		var mutations = new MutationCollection(data);
 		_util.processMutationData(mutations);
-		_fullInit = true;
 	}
 
 	function getGeneList()
@@ -7813,7 +9307,7 @@ function MutationDataProxy(options)
 			var data = mutationMap[gene];
 
 			if (data == undefined ||
-			    data.length == 0)
+				data.length == 0)
 			{
 				// mutation data does not exist for this gene, add it to the list
 				genesToQuery.push(gene);
@@ -7826,7 +9320,7 @@ function MutationDataProxy(options)
 		});
 
 		// all data is already retrieved (full init)
-		if (_fullInit)
+		if (self.isFullInit())
 		{
 			// just forward the call the callback function
 			callback(mutationData);
@@ -7855,10 +9349,10 @@ function MutationDataProxy(options)
 				servletParams.geneList = genesToQuery.join(" ");
 
 				// retrieve data from the server
-				//$.post(_servletName, servletParams, process, "json");
+				//$.post(_options.servletName, servletParams, process, "json");
 				$.ajax({
 					type: "POST",
-					url: _servletName,
+					url: _options.servletName,
 					data: servletParams,
 					success: process,
 					error: function() {
@@ -7893,17 +9387,52 @@ function MutationDataProxy(options)
 		return true;
 	}
 
-	return {
-		initWithData : fullInit,
-		initWithoutData: lazyInit,
-		getMutationData: getMutationData,
-		getGeneList: getGeneList,
-		getRawGeneList: getRawGeneList,
-		getUnsortedGeneList: getUnsortedGeneList,
-		getMutationUtil: getMutationUtil,
-		hasData: hasData
-	};
+	// override required base functions
+	self.fullInit = fullInit;
+
+	// class specific functions
+	self.getMutationData = getMutationData;
+	self.getGeneList = getGeneList;
+	self.getRawGeneList = getRawGeneList;
+	self.getUnsortedGeneList = getUnsortedGeneList;
+	self.getMutationUtil = getMutationUtil;
+	self.hasData = hasData;
 }
+
+// MutationDataProxy extends AbstractDataProxy...
+MutationDataProxy.prototype = new AbstractDataProxy();
+MutationDataProxy.prototype.constructor = MutationDataProxy;
+
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /**
  * This class is designed to retrieve PFAM data on demand.
  *
@@ -7913,17 +9442,19 @@ function MutationDataProxy(options)
  */
 function PancanMutationDataProxy(options)
 {
+	var self = this;
+
 	// default options
-	var _defaultOpts = {};
+	var _defaultOpts = {
+		servletName: "pancancerMutations.json"
+	};
 
 	// merge options with default options to use defaults for missing values
 	var _options = jQuery.extend(true, {}, _defaultOpts, options);
 
-	// name of the PFAM data servlet
-	var _servletName;
-
-	// flag to indicate if the initialization is full or lazy
-	var _fullInit;
+	// call super constructor to init options and other params
+	AbstractDataProxy.call(this, _options);
+	_options = self._options;
 
 	// map of <keyword, data> pairs
 	var _cacheByKeyword = {};
@@ -7935,30 +9466,19 @@ function PancanMutationDataProxy(options)
 	var _cacheByGeneSymbol = {};
 
 	/**
-	 * Initializes the proxy without actually grabbing anything from the server.
-	 * Provided servlet name will be used later.
-	 *
-	 * @param servletName   name of the data servlet (used for AJAX query)
-	 */
-	function lazyInit(servletName)
-	{
-		_servletName = servletName;
-		_fullInit = false;
-	}
-
-	/**
 	 * Initializes with full data. Once initialized with full data,
 	 * this proxy class assumes that there will be no additional data.
 	 *
-	 * @param data
+	 * @param options   data proxy options
 	 */
-	function fullInit(data)
+	function fullInit(options)
 	{
+		var data = options.data;
+
 		_cacheByKeyword = data.byKeyword;
 		_cacheByProteinChange = data.byProteinChange;
 		_cacheByGeneSymbol = data.byGeneSymbol;
 		_cacheByProteinPosition = data.byProteinPosition;
-		_fullInit = true;
 	}
 
 	function getPancanData(servletParams, mutationUtil, callback)
@@ -8022,14 +9542,14 @@ function PancanMutationDataProxy(options)
 		var toQuery = getQueryContent(data);
 
 		if (toQuery.length > 0 &&
-		    !_fullInit)
+			!self.isFullInit())
 		{
 			// retrieve missing data from the servlet
-			$.getJSON(_servletName,
-			          {cmd: cmd, q: toQuery.join(",")},
-			          function(response) {
-				          processData(response, data, cache, fields, callback);
-			          }
+			$.getJSON(_options.servletName,
+				{cmd: cmd, q: toQuery.join(",")},
+				function(response) {
+					processData(response, data, cache, fields, callback);
+				}
 			);
 		}
 		// everything is already cached (or full init)
@@ -8124,12 +9644,46 @@ function PancanMutationDataProxy(options)
 		return toQuery
 	}
 
-	return {
-		initWithData: fullInit,
-		initWithoutData: lazyInit,
-		getPancanData: getPancanData
-	};
+	// override required base functions
+	self.fullInit = fullInit;
+
+	// class specific functions
+	self.getPancanData = getPancanData;
 }
+
+// PancanMutationDataProxy extends AbstractDataProxy...
+PancanMutationDataProxy.prototype = new AbstractDataProxy();
+PancanMutationDataProxy.prototype.constructor = PancanMutationDataProxy;
+
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 /**
  * This class is designed to retrieve PDB data on demand.
@@ -8140,19 +9694,20 @@ function PancanMutationDataProxy(options)
  */
 function PdbDataProxy(options)
 {
+	var self = this;
+
 	// default options
 	var _defaultOpts = {
+		servletName: "get3dPdb.json",
 		mutationUtil: {} // an instance of MutationDetailsUtil class
 	};
 
 	// merge options with default options to use defaults for missing values
 	var _options = jQuery.extend(true, {}, _defaultOpts, options);
 
-	// name of the PDB data servlet
-	var _servletName;
-
-	// flag to indicate if the initialization is full or lazy
-	var _fullInit;
+	// call super constructor to init options and other params
+	AbstractDataProxy.call(this, _options);
+	_options = self._options;
 
 	var _util = _options.mutationUtil;
 
@@ -8173,14 +9728,14 @@ function PdbDataProxy(options)
 	// map of <gene_pdbId_chainId, positionMap> pairs
 	var _positionMapCache = {};
 
-	function lazyInit(servletName)
+	/**
+	 *
+	 * @param options   data proxy options
+	 */
+	function fullInit(options)
 	{
-		_servletName = servletName;
-		_fullInit = false;
-	}
+		var data = options.data;
 
-	function fullInit(data)
-	{
 		// process pdb data
 		_.each(_.keys(data.pdbData), function(uniprotId) {
 			var pdbColl = PdbDataUtil.processPdbData(data.pdbData[uniprotId]);
@@ -8201,8 +9756,6 @@ function PdbDataProxy(options)
 
 		// set position data
 		_positionMapCache = data.positionData;
-
-		_fullInit = true;
 	}
 
 	/**
@@ -8220,7 +9773,7 @@ function PdbDataProxy(options)
 		var cacheKey = generatePositionMapCacheKey(gene, chain);
 
 		// do not retrieve data if it is already there
-		if (_fullInit || _positionMapCache[cacheKey] != null)
+		if (self.isFullInit() || _positionMapCache[cacheKey] != null)
 		{
 			callbackFn(_positionMapCache[cacheKey] || {});
 			return;
@@ -8237,15 +9790,15 @@ function PdbDataProxy(options)
 		// only add positions which fall between chain start & end positions
 		_.each(positions, function(ele, i) {
 			if (ele.start > -1 &&
-			    ele.start >= chain.mergedAlignment.uniprotFrom &&
-			    ele.start <= chain.mergedAlignment.uniprotTo)
+				ele.start >= chain.mergedAlignment.uniprotFrom &&
+				ele.start <= chain.mergedAlignment.uniprotTo)
 			{
 				positionObj[ele.start] = ele.start;
 			}
 
 			if (ele.end > ele.start &&
-			    ele.end >= chain.mergedAlignment.uniprotFrom &&
-			    ele.end <= chain.mergedAlignment.uniprotTo)
+				ele.end >= chain.mergedAlignment.uniprotFrom &&
+				ele.end <= chain.mergedAlignment.uniprotTo)
 			{
 				positionObj[ele.end] = ele.end;
 			}
@@ -8291,10 +9844,10 @@ function PdbDataProxy(options)
 					// if no start and end position found for this mutation,
 					// then it means this mutation position is not in this chain
 					if (start != null &&
-					    end != null)
+						end != null)
 					{
 						positionMap[mutations[i].mutationId] =
-							{start: start, end: end};
+						{start: start, end: end};
 					}
 				}
 			}
@@ -8314,10 +9867,10 @@ function PdbDataProxy(options)
 		if (positionData.length > 0)
 		{
 			// get pdb data for the current mutations
-			$.getJSON(_servletName,
-		          {positions: positionData.join(" "),
-			          alignments: alignmentData.join(" ")},
-		          processData);
+			$.getJSON(_options.servletName,
+				{positions: positionData.join(" "),
+					alignments: alignmentData.join(" ")},
+				processData);
 		}
 		// no position data: no need to query the server
 		else
@@ -8358,7 +9911,7 @@ function PdbDataProxy(options)
 	 */
 	function getPdbData(uniprotId, callback)
 	{
-		if (_fullInit)
+		if (self.isFullInit())
 		{
 			callback(_pdbDataCache[uniprotId]);
 			return;
@@ -8377,9 +9930,9 @@ function PdbDataProxy(options)
 			};
 
 			// retrieve data from the servlet
-			$.getJSON(_servletName,
-					{uniprotId: uniprotId},
-					processData);
+			$.getJSON(_options.servletName,
+				{uniprotId: uniprotId},
+				processData);
 		}
 		else
 		{
@@ -8401,8 +9954,8 @@ function PdbDataProxy(options)
 	function getPdbRowData(uniprotId, callback)
 	{
 		// retrieve data if not cached yet
-		if (!_fullInit &&
-		    _pdbRowDataCache[uniprotId] == undefined)
+		if (!self.isFullInit() &&
+			_pdbRowDataCache[uniprotId] == undefined)
 		{
 			getPdbData(uniprotId, function(pdbColl) {
 				// get the data & cache
@@ -8431,7 +9984,7 @@ function PdbDataProxy(options)
 	function getPdbDataSummary(uniprotId, callback)
 	{
 		// retrieve data from the server if not cached
-		if (!_fullInit &&
+		if (!self.isFullInit() &&
 			_pdbDataSummaryCache[uniprotId] == undefined)
 		{
 			// process & cache the raw data
@@ -8443,9 +9996,9 @@ function PdbDataProxy(options)
 			};
 
 			// retrieve data from the servlet
-			$.getJSON(_servletName,
-					{uniprotId: uniprotId, type: "summary"},
-					processData);
+			$.getJSON(_options.servletName,
+				{uniprotId: uniprotId, type: "summary"},
+				processData);
 		}
 		else
 		{
@@ -8496,7 +10049,7 @@ function PdbDataProxy(options)
 			var data = _pdbInfoCache[pdbId];
 
 			if (data == undefined ||
-			    data.length == 0)
+				data.length == 0)
 			{
 				// data does not exist for this pdb, add it to the list
 				pdbToQuery.push(pdbId);
@@ -8508,7 +10061,7 @@ function PdbDataProxy(options)
 			}
 		});
 
-		if (_fullInit)
+		if (self.isFullInit())
 		{
 			// no additional data to retrieve
 			callback(pdbData);
@@ -8542,8 +10095,8 @@ function PdbDataProxy(options)
 			servletParams.pdbIds = pdbToQuery.join(" ");
 
 			// retrieve data from the server
-			$.post(_servletName, servletParams, processData, "json");
-			//$.getJSON(_servletName, servletParams, processData, "json");
+			$.post(_options.servletName, servletParams, processData, "json");
+			//$.getJSON(_options.servletName, servletParams, processData, "json");
 		}
 		// data for all requested chains already cached
 		else
@@ -8553,16 +10106,50 @@ function PdbDataProxy(options)
 		}
 	}
 
-	return {
-		hasPdbData: hasPdbData,
-		initWithData: fullInit,
-		initWithoutData: lazyInit,
-		getPdbData: getPdbData,
-		getPdbRowData: getPdbRowData,
-		getPdbInfo: getPdbInfo,
-		getPositionMap: getPositionMap
-	};
+	// override required base functions
+	self.fullInit = fullInit;
+
+	// class specific functions
+	self.hasPdbData = hasPdbData;
+	self.getPdbData = getPdbData;
+	self.getPdbRowData = getPdbRowData;
+	self.getPdbInfo = getPdbInfo;
+	self.getPositionMap = getPositionMap;
 }
+
+// PdbDataProxy extends AbstractDataProxy...
+PdbDataProxy.prototype = new AbstractDataProxy();
+PdbDataProxy.prototype.constructor = PdbDataProxy;
+
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 /**
  * This class is designed to retrieve PFAM data on demand.
@@ -8573,45 +10160,33 @@ function PdbDataProxy(options)
  */
 function PfamDataProxy(options)
 {
+	var self = this;
+
 	// default options
-	var _defaultOpts = {};
+	var _defaultOpts = {
+		servletName: "getPfamSequence.json"
+	};
 
 	// merge options with default options to use defaults for missing values
 	var _options = jQuery.extend(true, {}, _defaultOpts, options);
 
-	// name of the PFAM data servlet
-	var _servletName;
-
-	// flag to indicate if the initialization is full or lazy
-	var _fullInit;
+	// call super constructor to init options and other params
+	AbstractDataProxy.call(this, _options);
+	_options = self._options;
 
 	// map of <gene, data> pairs
 	var _pfamDataCache = {};
 
 	/**
-	 * Initializes the proxy without actually grabbing anything from the server.
-	 * Provided servlet name will be used later.
-	 *
-	 * @param servletName   name of the PFAM data servlet (used for AJAX query)
-	 */
-	function lazyInit(servletName)
-	{
-		_servletName = servletName;
-		_fullInit = false;
-	}
-
-	/**
 	 * Initializes with full PFAM data. Once initialized with full data,
 	 * this proxy class assumes that there will be no additional data.
 	 *
-	 * @param pfamData  full PFAM data
+	 * @param options   data proxy options
 	 */
-	function fullInit(pfamData)
+	function fullInit(options)
 	{
 		//assuming the given data is a map of <gene, sequence data> pairs
-		_pfamDataCache = pfamData;
-
-		_fullInit = true;
+		_pfamDataCache = options.data;;
 	}
 
 	function getPfamData(servletParams, callback)
@@ -8629,7 +10204,7 @@ function PfamDataProxy(options)
 		// retrieve data from the server if not cached
 		if (_pfamDataCache[gene] == undefined)
 		{
-			if (_fullInit)
+			if (self.isFullInit())
 			{
 				callback(null);
 				return;
@@ -8644,9 +10219,9 @@ function PfamDataProxy(options)
 			};
 
 			// retrieve data from the servlet
-			$.getJSON(_servletName,
-			          servletParams,
-			          processData);
+			$.getJSON(_options.servletName,
+				servletParams,
+				processData);
 		}
 		else
 		{
@@ -8655,12 +10230,46 @@ function PfamDataProxy(options)
 		}
 	}
 
-	return {
-		initWithData: fullInit,
-		initWithoutData: lazyInit,
-		getPfamData: getPfamData
-	};
+	// override required base functions
+	self.fullInit = fullInit;
+
+	// class specific functions
+	self.getPfamData = getPfamData;
 }
+
+// PdbDataProxy extends AbstractDataProxy...
+PfamDataProxy.prototype = new AbstractDataProxy();
+PfamDataProxy.prototype.constructor = PfamDataProxy;
+
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 /**
  * This class is designed to retrieve cBio Portal specific data on demand.
@@ -8671,42 +10280,32 @@ function PfamDataProxy(options)
  */
 function PortalDataProxy(options)
 {
+	var self = this;
+
 	// default options
-	var _defaultOpts = {};
+	var _defaultOpts = {
+		servletName: "portalMetadata.json"
+	};
 
 	// merge options with default options to use defaults for missing values
 	var _options = jQuery.extend(true, {}, _defaultOpts, options);
 
-	var _servletName;
-	var _fullInit;
+	// call super constructor to init options and other params
+	AbstractDataProxy.call(this, _options);
+	_options = self._options;
 
 	// cache
 	var _data = {};
 
 	/**
-	 * Initializes the proxy without actually grabbing anything from the server.
-	 * Provided servlet name will be used later.
-	 *
-	 * @param servletName   name of the portal data servlet (used for AJAX query)
-	 */
-	function lazyInit(servletName)
-	{
-		_servletName = servletName;
-		_fullInit = false;
-	}
-
-	/**
 	 * Initializes with full portal data. Once initialized with full data,
 	 * this proxy class assumes that there will be no additional data.
 	 *
-	 * @param portalData  full portal data
+	 * @param options   data proxy options
 	 */
-	function fullInit(portalData)
+	function fullInit(options)
 	{
-		//assuming the given data is a map of <gene, sequence data> pairs
-		_data = portalData;
-
-		_fullInit = true;
+		_data = options.data;
 	}
 
 	function getPortalData(servletParams, callback)
@@ -8755,18 +10354,52 @@ function PortalDataProxy(options)
 		else
 		{
 			// retrieve data from the servlet
-			$.getJSON(_servletName,
-			          queryParams,
-			          processData);
+			$.getJSON(_options.servletName,
+				queryParams,
+				processData);
 		}
 	}
 
-	return {
-		initWithData: fullInit,
-		initWithoutData: lazyInit,
-		getPortalData: getPortalData
-	};
+	// override required base functions
+	self.fullInit = fullInit;
+
+	// class specific functions
+	self.getPortalData = getPortalData;
 }
+
+// PdbDataProxy extends AbstractDataProxy...
+PortalDataProxy.prototype = new AbstractDataProxy();
+PortalDataProxy.prototype.constructor = PortalDataProxy;
+
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 /**
  * Designed as a base (abstract) class for an advanced implementation of data tables
@@ -8955,7 +10588,7 @@ function AdvancedDataTable(options)
 	 * @return {object}     DataTable options
 	 */
 	self._initDataTableOpts = function(tableSelector, rows, columnOpts, nameMap,
-		indexMap, hiddenCols, excludedCols, nonSearchableCols)
+									   indexMap, hiddenCols, excludedCols, nonSearchableCols)
 	{
 		// method body should be overridden by subclasses
 		return null;
@@ -8975,7 +10608,7 @@ function AdvancedDataTable(options)
 	 * @return {object}     DataTable instance
 	 */
 	self._initDataTable = function(tableSelector, rows, columnOpts, nameMap,
-		indexMap, hiddenCols, excludedCols, nonSearchableCols)
+								   indexMap, hiddenCols, excludedCols, nonSearchableCols)
 	{
 		var tableOpts = self._initDataTableOpts(tableSelector, rows, columnOpts, nameMap,
 			indexMap, hiddenCols, excludedCols, nonSearchableCols);
@@ -9087,6 +10720,36 @@ function AdvancedDataTable(options)
 	};
 }
 
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /**
  * 3D Mutation Visualizer, currently built on Jmol/JSmol lib.
  *
@@ -9151,19 +10814,19 @@ function Mutation3dVis(name, options)
 		chainColor: "#888888", // color of the selected chain
 		chainTranslucency: 0, // translucency (opacity) of the selected chain
 		colorProteins: "uniform", // "uniform": single color, effective for all schemes
-		                          // "bySecondaryStructure": not effective for space-filling scheme
-		                          // "byAtomType": effective only for space-filling scheme
-		                          // "byChain": not effective for space-filling scheme
+								  // "bySecondaryStructure": not effective for space-filling scheme
+								  // "byAtomType": effective only for space-filling scheme
+								  // "byChain": not effective for space-filling scheme
 		colorMutations: "byMutationType", // "byMutationType": use mutation colors for type
-		                                  // "uniform": use a single color
-		                                  // "none": do not color (use default atom colors)
+										  // "uniform": use a single color
+										  // "none": do not color (use default atom colors)
 		mutationColor: "#8A2BE2",  // uniform color of the mutated residues
 		highlightColor: "#FFDD00", // color of the user-selected mutations
 		highlightGradient: ["#FFDD00", "#000000"], // gradient highlight colors used for glow effect
 		addGlowEffect: false, // whether to add glow effect to highlighted mutations
 		displaySideChain: "highlighted", // highlighted: display side chain for only selected mutations
-		                                 // all: display side chain for all mapped mutations
-		                                 // none: do not display side chain atoms
+										 // all: display side chain for all mapped mutations
+										 // none: do not display side chain atoms
 		defaultZoom: 100, // default (unfocused) zoom level
 		focusZoom: 250, // focused zoom level
 		containerPadding: 10, // padding for the vis container (this is to prevent overlapping)
@@ -9186,11 +10849,24 @@ function Mutation3dVis(name, options)
 	function init()
 	{
 		// init html5 version (Jsmol)
-		_3dApp = new JmolWrapper(false);
+		//_3dApp = new JmolWrapper(false);
 
-		// init app
-		//_3dApp.init(name, _options.appOptions, _options.frame);
-		_3dApp.init(name, _options.appOptions);
+		if (cbio.util.browser.msie)
+		{
+			// use Java version for IE
+			_3dApp = new JmolWrapper(true);
+		}
+		else
+		{
+			// init framed JSmol version for other browsers
+			_3dApp = new JSmolWrapper();
+		}
+
+		// init app (with frames)
+		_3dApp.init(name, _options.appOptions, _options.frame);
+
+		// init app (without frames frames)
+		//_3dApp.init(name, _options.appOptions);
 
 		// TODO memory leak -- eventually crashes the browser
 //		if (_options.addGlowEffect)
@@ -9826,7 +11502,7 @@ function Mutation3dVis(name, options)
 		var index = 0;
 		gradient.setNumberRange(0, range - 1);
 		gradient.setSpectrum(_options.highlightGradient[0].replace("#", ""),
-		                     _options.highlightGradient[1].replace("#", ""));
+			_options.highlightGradient[1].replace("#", ""));
 
 		// convert positions to script positions
 		var scriptPositions = null;
@@ -9839,14 +11515,14 @@ function Mutation3dVis(name, options)
 			{
 				// TODO update script position each time _highlighted is updated
 				if (scriptPositions == null ||
-				    scriptPositions.length != highlightCount)
+					scriptPositions.length != highlightCount)
 				{
 					scriptPositions = _scriptGen.highlightScriptPositions(_highlighted);
 				}
 			}
 
 			if (scriptPositions != null &&
-			    scriptPositions.length > 0)
+				scriptPositions.length > 0)
 			{
 				var color = "#" + gradient.colorAt(index);
 				var script = _scriptGen.highlightScript(
@@ -9927,6 +11603,36 @@ function Mutation3dVis(name, options)
 		generatePymolScript: generatePymolScript
 	};
 }
+
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 /**
  * MutationDetailsTable class (extends AdvancedDataTable)
@@ -10204,7 +11910,6 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 					return "excluded";
 				}
 			},
-			"cBioPortal": "excluded"
 			//"cBioPortal": function (util, gene) {
 			//	if (util.containsKeyword(gene) ||
 			//	    util.containsMutationEventId(gene))
@@ -10215,6 +11920,7 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 			//		return "excluded";
 			//	}
 			//}
+			"cBioPortal": "excluded"
 		},
 		// Indicates whether a column is searchable or not.
 		// Should be a boolean value or a function.
@@ -10262,6 +11968,7 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 				vars.proteinChange = proteinChange.text;
 				vars.proteinChangeClass = proteinChange.style;
 				vars.proteinChangeTip = proteinChange.tip;
+				vars.additionalProteinChangeTip = proteinChange.additionalTip;
 				vars.pdbMatchLink = MutationDetailsTableFormatter.getPdbMatchLink(mutation);
 
 				var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_protein_change_template");
@@ -10636,9 +12343,9 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 					portalProxy.getPortalData(
 						{cancerStudyMetaData: true, cancerStudyName: true}, function(portalData) {
 							addTooltip(additionalData.pancanFrequencies,
-							           portalData.cancerStudyMetaData,
-							           portalData.cancerStudyName);
-					});
+								portalData.cancerStudyMetaData,
+								portalData.cancerStudyName);
+						});
 				}
 			}
 		},
@@ -10667,9 +12374,9 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 					// get parameters from the server and call related igv function
 					$.getJSON(url, function(data) {
 						prepIGVLaunch(data.bamFileUrl,
-						              data.encodedLocus,
-						              data.referenceGenome,
-						              data.trackName);
+							data.encodedLocus,
+							data.referenceGenome,
+							data.trackName);
 					});
 				});
 			},
@@ -10992,7 +12699,7 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 	 * @private
 	 */
 	function initDataTableOpts(tableSelector, rows, columnOpts, nameMap,
-		indexMap, hiddenCols, excludedCols, nonSearchableCols)
+							   indexMap, hiddenCols, excludedCols, nonSearchableCols)
 	{
 		// generate column options for the data table
 		var columns = DataTableUtil.getColumnOptions(columnOpts,
@@ -11019,7 +12726,7 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 
 						// strip HTML content and use the main (visible) text only
 						if(sValue.indexOf("<") != -1 &&
-						   sValue.indexOf(">") != -1)
+							sValue.indexOf(">") != -1)
 						{
 							value = $(sValue).text();
 						}
@@ -11058,7 +12765,7 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 				// trigger the event only if the corresponding flag is set
 				// and there is a change in the search term
 				if (_eventActive &&
-				    _prevSearch != currSearch)
+					_prevSearch != currSearch)
 				{
 					// trigger corresponding event
 					_dispatcher.trigger(
@@ -11082,10 +12789,17 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 				$(nRow).addClass(mutation.mutationSid);
 				$(nRow).addClass("mutation-table-data-row");
 			},
-			"fnInitComplete": function(oSettings, json) {
+			"fnCreatedRow": function( nRow, aData, iDataIndex ) {
 				// TODO this may not be safe
+
 				// remove invalid links
-				$(tableSelector).find('a[href=""]').remove();
+				$(nRow).find('a[href=""]').remove();
+
+				// remove invalid protein change tips
+				$(nRow).find('span.mutation-table-additional-protein-change[alt=""]').remove();
+			},
+			"fnInitComplete": function(oSettings, json) {
+				//$(tableSelector).find('a[href=""]').remove();
 				//$(tableSelector).find('a[alt=""]').remove();
 				//$(tableSelector).find('a.igv-link[alt=""]').remove();
 
@@ -11106,9 +12820,9 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 				});
 			},
 			"fnHeaderCallback": function(nHead, aData, iStart, iEnd, aiDisplay) {
-			    $(nHead).find('th').addClass("mutation-details-table-header");
+				$(nHead).find('th').addClass("mutation-details-table-header");
 				self._addHeaderTooltips(nHead, nameMap);
-		    }
+			}
 //		    "fnFooterCallback": function(nFoot, aData, iStart, iEnd, aiDisplay) {
 //			    addFooterTooltips(nFoot, nameMap);
 //		    }
@@ -11319,6 +13033,36 @@ MutationDetailsTable.prototype = new AdvancedDataTable();
 MutationDetailsTable.prototype.constructor = MutationDetailsTable;
 
 
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /**
  * Constructor for the MutationDiagram class.
  *
@@ -11326,11 +13070,12 @@ MutationDetailsTable.prototype.constructor = MutationDetailsTable;
  * @param options       visual options object
  * @param data          object: {pileups: collection of Pileup instances,
  *                               sequence: sequence data as a JSON object}
+ * @param dataProxies   all available data proxies
  * @constructor
  *
  * @author Selcuk Onur Sumer
  */
-function MutationDiagram(geneSymbol, options, data)
+function MutationDiagram(geneSymbol, options, data, dataProxies)
 {
 	var self = this;
 
@@ -11344,6 +13089,7 @@ function MutationDiagram(geneSymbol, options, data)
 	// merge options with default options to use defaults for missing values
 	self.options = jQuery.extend(true, {}, self.defaultOpts, options);
 
+	self.dataProxies = dataProxies;
 	self.geneSymbol = geneSymbol; // hugo gene symbol
 	self.data = data; // processed initial (unfiltered) data
 	self.pileups = (data == null) ? null : data.pileups; // current pileups (updated after each filtering)
@@ -11476,11 +13222,11 @@ MutationDiagram.prototype.defaultOpts = {
 	 *
 	 * @param element   target svg element (lollipop data point)
 	 * @param pileup    a pileup model instance
-     * @param showStats whether to show cancer type distribution in the tooltip
+	 * @param showStats whether to show cancer type distribution in the tooltip
 	 */
 	lollipopTipFn: function (element, pileup, showStats) {
 		var tooltipView = new LollipopTipView({model: pileup});
-        tooltipView.setShowStats(showStats);
+		tooltipView.setShowStats(showStats);
 		var content = tooltipView.compileTemplate();
 
 		var options = {content: {text: content},
@@ -11496,24 +13242,43 @@ MutationDiagram.prototype.defaultOpts = {
 	 *
 	 * @param element   target svg element (region rectangle)
 	 * @param region    a JSON object representing the region
+	 * @param maProxy   mutation aligner proxy for additional region data
 	 */
-	regionTipFn: function (element, region) {
+	regionTipFn: function (element, region, maProxy) {
 		var model = {identifier: region.metadata.identifier,
 			type: region.type,
 			description: region.metadata.description,
 			start: region.metadata.start,
-			end: region.metadata.end};
+			end: region.metadata.end,
+			pfamAccession: region.metadata.accession,
+			mutationAlignerInfo: ""};
 
-		var tooltipView = new RegionTipView({model: model});
-		var content = tooltipView.compileTemplate();
+		maProxy.getMutationAlignerData(
+			{pfamAccession: region.metadata.accession},
+			function(data) {
+				// if the link is valid update model.mutationAligner
+				if (data != null &&
+					data.linkToMutationAligner != null &&
+					data.linkToMutationAligner.length > 0)
+				{
+					var templateFn = BackboneTemplateCache.getTemplateFn("mutation_aligner_info_template");
+					model.mutationAlignerInfo = templateFn({
+						linkToMutationAligner: data.linkToMutationAligner
+					});
+				}
 
-		var options = {content: {text: content},
-			hide: {fixed: true, delay: 100, event: 'mouseout'},
-			show: {event: 'mouseover'},
-			style: {classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'},
-			position: {my:'bottom left', at:'top center',viewport: $(window)}};
+				var tooltipView = new RegionTipView({model: model});
+				var content = tooltipView.compileTemplate();
 
-		$(element).qtip(options);
+				var options = {content: {text: content},
+					hide: {fixed: true, delay: 100, event: 'mouseout'},
+					show: {event: 'mouseover'},
+					style: {classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'},
+					position: {my:'bottom left', at:'top center',viewport: $(window)}};
+
+				$(element).qtip(options);
+			}
+		);
 	}
 };
 
@@ -11594,17 +13359,17 @@ MutationDiagram.prototype.initDiagram = function()
 
 	// init svg container
 	var svg = self.createSvg(container,
-	                         self.options.elWidth,
-	                         self.options.elHeight);
+		self.options.elWidth,
+		self.options.elHeight);
 
 	// save a reference for future access
 	self.svg = svg;
 
 	// draw the whole diagram
 	self.drawDiagram(svg,
-	                 bounds,
-	                 self.options,
-	                 self.data);
+		bounds,
+		self.options,
+		self.data);
 
 	// add default listeners
 	self.addDefaultListeners();
@@ -11623,9 +13388,9 @@ MutationDiagram.prototype.calcBounds = function(options)
 	var bounds = {};
 
 	bounds.width = options.elWidth -
-	               (options.marginLeft + options.marginRight);
+		(options.marginLeft + options.marginRight);
 	bounds.height = options.elHeight -
-	                (options.marginBottom + options.marginTop);
+		(options.marginBottom + options.marginTop);
 	bounds.x = options.marginLeft;
 	bounds.y = options.elHeight - options.marginBottom;
 
@@ -11838,12 +13603,12 @@ MutationDiagram.prototype.drawPlot = function(svg, pileups, options, bounds, xSc
 	for (var i = 0; i < pileups.length; i++)
 	{
 		self.drawLollipop(gData,
-				gLine,
-				pileups[i],
-				options,
-				bounds,
-				xScale,
-				yScale);
+			gLine,
+			pileups[i],
+			options,
+			bounds,
+			xScale,
+			yScale);
 	}
 
 	// draw lollipop labels
@@ -12332,7 +14097,7 @@ MutationDiagram.prototype.getLollipopFillColor = function(options, pileup)
 
 		// check tie condition
 		if (types.length > 1 &&
-		    types[0].count == types[1].count)
+			types[0].count == types[1].count)
 		{
 			var groups = PileupUtil.getMutationTypeGroups(pileup);
 
@@ -12424,7 +14189,7 @@ MutationDiagram.prototype.drawLollipopLabels = function (labels, pileups, option
 
 		// do not display any label if there are too many ties
 		if (count < numberOfTies &&
-		    numberOfTies > maxAllowedTie)
+			numberOfTies > maxAllowedTie)
 		{
 			count = 0;
 		}
@@ -12433,12 +14198,12 @@ MutationDiagram.prototype.drawLollipopLabels = function (labels, pileups, option
 
 	// show (lollipopLabelCount) label(s)
 	for (var i = 0;
-	     i < count && i < pileups.length;
-	     i++)
+		 i < count && i < pileups.length;
+		 i++)
 	{
 		// check for threshold value
 		if (pileups.length > 1 &&
-		    pileups[i].count < options.lollipopLabelThreshold)
+			pileups[i].count < options.lollipopLabelThreshold)
 		{
 			// do not processes remaining values below threshold
 			// (assuming mutations array is sorted)
@@ -12447,7 +14212,7 @@ MutationDiagram.prototype.drawLollipopLabels = function (labels, pileups, option
 
 		var x = xScale(pileups[i].location);
 		var y = yScale(Math.min(pileups[i].count, options.maxLengthY)) -
-		        (options.lollipopTextPadding);
+			(options.lollipopTextPadding);
 
 		// init text
 		var text = labels.append('text')
@@ -12509,7 +14274,7 @@ MutationDiagram.prototype.drawRegion = function(svg, region, options, bounds, xS
 	var addTooltip = options.regionTipFn;
 
 	// add tooltip to the rect
-	addTooltip(rect, region);
+	addTooltip(rect, region, self.dataProxies.mutationAlignerProxy);
 
 	if (options.showRegionText)
 	{
@@ -12519,7 +14284,7 @@ MutationDiagram.prototype.drawRegion = function(svg, region, options, bounds, xS
 		if (text)
 		{
 			// add tooltip to the text
-			addTooltip(text, region);
+			addTooltip(text, region, self.dataProxies.mutationAlignerProxy);
 		}
 	}
 
@@ -12646,8 +14411,8 @@ MutationDiagram.prototype.calcSequenceBounds = function (bounds, options)
 {
 	var x = bounds.x;
 	var y = bounds.y +
-	        Math.abs(options.regionHeight - options.seqHeight) / 2 +
-	        options.seqPadding;
+		Math.abs(options.regionHeight - options.seqHeight) / 2 +
+		options.seqPadding;
 	var width = bounds.width;
 	var height = options.seqHeight;
 
@@ -12694,11 +14459,11 @@ MutationDiagram.prototype.updatePlot = function(pileupData)
 
 	// re-draw plot area contents for new data
 	self.drawPlot(self.svg,
-	              pileups,
-	              self.options,
-	              self.bounds,
-	              self.xScale,
-	              self.yScale);
+		pileups,
+		self.options,
+		self.bounds,
+		self.xScale,
+		self.yScale);
 
 	// also re-add listeners
 	for (var selector in self.listeners)
@@ -12847,7 +14612,7 @@ MutationDiagram.prototype.removeListener = function(selector, event)
 
 	// remove listener from the map
 	if (self.listeners[selector] &&
-	    self.listeners[selector][event])
+		self.listeners[selector][event])
 	{
 		delete self.listeners[selector][event];
 	}
@@ -12866,7 +14631,7 @@ MutationDiagram.prototype.addDefaultListeners = function()
 		//  3) multi selection mode is on:
 		// this is to prevent reset due to an accidental click on background
 		var ignore = !self.isHighlighted() ||
-		             self.multiSelect;
+			self.multiSelect;
 
 		if (!ignore)
 		{
@@ -13091,10 +14856,10 @@ MutationDiagram.prototype.fadeIn = function(element, callback)
 		.style("opacity", 1)
 		.duration(self.options.fadeDuration)
 		.each("end", function() {
-			      if(_.isFunction(callback)) {
-				      callback(this);
-			      }
-		      });
+			if(_.isFunction(callback)) {
+				callback(this);
+			}
+		});
 };
 
 MutationDiagram.prototype.fadeOut = function(element, callback)
@@ -13105,10 +14870,10 @@ MutationDiagram.prototype.fadeOut = function(element, callback)
 		.style("opacity", 0)
 		.duration(self.options.fadeDuration)
 		.each("end", function() {
-			      if(_.isFunction(callback)) {
-				      callback(this);
-			      }
-		      });
+			if(_.isFunction(callback)) {
+				callback(this);
+			}
+		});
 };
 
 /**
@@ -13143,7 +14908,7 @@ MutationDiagram.prototype.isFiltered = function()
 	var filtered = false;
 
 	if (PileupUtil.countMutations(self.pileups) <
-	    PileupUtil.countMutations(self.data.pileups))
+		PileupUtil.countMutations(self.data.pileups))
 	{
 		filtered = true;
 	}
@@ -13160,6 +14925,36 @@ MutationDiagram.prototype.getMinY = function()
 {
 	return this.options.minLengthY;
 };
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /**
  * Constructor for MutationHistogram class.
  *
@@ -13196,6 +14991,36 @@ MutationHistogram.prototype.drawPlot = function(svg, pileups, options, bounds, x
 {
 	// TODO draw multi color animated histogram lines
 };
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /**
  * Constructor for the MutationPdbPanel class.
  *
@@ -13369,7 +15194,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 					//datum.color = color;
 
 					var y = options.marginTop +
-					        (rowStart + rowIdx) * (options.chainHeight + options.chainPadding);
+						(rowStart + rowIdx) * (options.chainHeight + options.chainPadding);
 
 					var gChain = drawChainRectangles(svg, chain, color, options, xScale, y);
 					gChain.datum(datum);
@@ -13746,8 +15571,8 @@ function MutationPdbPanel(options, data, proxy, xScale)
 
 		// create svg element & update its reference
 		var svg = createSvg(container,
-		                    _options.elWidth,
-		                    _levelHeight);
+			_options.elWidth,
+			_levelHeight);
 
 		_svg = svg;
 
@@ -13821,7 +15646,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 
 		// remove listener from the map
 		if (_listeners[selector] &&
-		    _listeners[selector][event])
+			_listeners[selector][event])
 		{
 			delete _listeners[selector][event];
 		}
@@ -13906,7 +15731,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 	 */
 	function toggleHeight()
 	{
-		 var nextLevel = drawNextLevel();
+		var nextLevel = drawNextLevel();
 
 		// resize panel
 		resizePanel(nextLevel);
@@ -13928,10 +15753,10 @@ function MutationPdbPanel(options, data, proxy, xScale)
 		{
 			// draw rectangles for the next level
 			drawPanel(_svg,
-			          _options,
-			          _rowData.slice(_options.numRows[_expansion], _options.numRows[nextLevel]),
-			          xScale,
-			          _options.numRows[_expansion]);
+				_options,
+				_rowData.slice(_options.numRows[_expansion], _options.numRows[nextLevel]),
+				xScale,
+				_options.numRows[_expansion]);
 
 			// also reapply the listeners for the new elements
 			reapplyListeners();
@@ -13957,8 +15782,8 @@ function MutationPdbPanel(options, data, proxy, xScale)
 
 		// expand until desired level
 		for (var i = _expansion;
-		     i < level && i < _maxExpansionLevel;
-		     i++)
+			 i < level && i < _maxExpansionLevel;
+			 i++)
 		{
 			nextLevel = drawNextLevel();
 		}
@@ -14210,7 +16035,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 			.transition().duration(duration)
 			.attr('y', y)
 			.each("end", function() {
-                if (_.isFunction(callback)) {
+				if (_.isFunction(callback)) {
 					callback();
 				}
 			});
@@ -14405,6 +16230,36 @@ function MutationPdbPanel(options, data, proxy, xScale)
 }
 
 
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /**
  * MutationPdbTable class (extends AdvancedDataTable)
  *
@@ -14527,7 +16382,7 @@ function MutationPdbTable(options)
 				// so set the display value by using the hidden
 				// column "datum"
 				return datum.chain.mergedAlignment.uniprotFrom + "-" +
-				       datum.chain.mergedAlignment.uniprotTo;
+					datum.chain.mergedAlignment.uniprotTo;
 			}
 		},
 		// default tooltip functions
@@ -14598,7 +16453,7 @@ function MutationPdbTable(options)
 			},
 			uniprotPos: function(datum) {
 				return datum.chain.mergedAlignment.uniprotFrom + "-" +
-				       datum.chain.mergedAlignment.uniprotTo;
+					datum.chain.mergedAlignment.uniprotTo;
 			}
 		},
 		// delay amount before applying the user entered filter query
@@ -14651,7 +16506,7 @@ function MutationPdbTable(options)
 	 * @private
 	 */
 	function initDataTableOpts(tableSelector, rows, columnOpts, nameMap,
-		indexMap, hiddenCols, excludedCols, nonSearchableCols)
+							   indexMap, hiddenCols, excludedCols, nonSearchableCols)
 	{
 		// generate column options for the data table
 		var columns = DataTableUtil.getColumnOptions(columnOpts,
@@ -14659,8 +16514,8 @@ function MutationPdbTable(options)
 
 		// these are the parametric data tables options
 		var tableOpts = {
-	        "aaData" : rows,
-	        "aoColumns" : columns,
+			"aaData" : rows,
+			"aoColumns" : columns,
 			"aoColumnDefs":[
 				{"bVisible": false,
 					"aTargets": hiddenCols},
@@ -14677,7 +16532,7 @@ function MutationPdbTable(options)
 			"fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
 				var datum = aData[indexMap["datum"]];
 				var key = PdbDataUtil.chainKey(datum.pdbId,
-				                               datum.chain.chainId);
+					datum.chain.chainId);
 				_rowMap[key] = nRow;
 				$(nRow).addClass("pdb-chain-table-data-row");
 			},
@@ -14814,30 +16669,33 @@ function MutationPdbTable(options)
 MutationPdbTable.prototype = new AdvancedDataTable();
 MutationPdbTable.prototype.constructor = MutationPdbTable;
 /*
- * Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
- * This library is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as published
- * by the Free Software Foundation; either version 2.1 of the License, or
- * any later version.
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
  *
- * This library is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
- * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
- * documentation provided hereunder is on an "as is" basis, and
- * Memorial Sloan-Kettering Cancer Center
- * has no obligations to provide maintenance, support,
- * updates, enhancements or modifications.  In no event shall
- * Memorial Sloan-Kettering Cancer Center
- * be liable to any party for direct, indirect, special,
- * incidental or consequential damages, including lost profits, arising
- * out of the use of this software and its documentation, even if
- * Memorial Sloan-Kettering Cancer Center
- * has been advised of the possibility of such damage.  See
- * the GNU Lesser General Public License for more details.
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this library; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 /**
@@ -14858,402 +16716,432 @@ MutationPdbTable.prototype.constructor = MutationPdbTable;
 // TODO make the histogram compatible for different data types (keyword, position data, mutation type, etc)
 function PancanMutationHistogram(byProteinPosData, byGeneData, cancer_study_meta_data, el, params) {
 
-    params = params || {};
-    if (params.sparkline) {
-        params = _.extend({
-            margin: {top: -12, right: 0, bottom: 0, left: 0},
-            width: 30,
-            height: 12,
-            this_cancer_study: undefined
-        }, params);
-    } else {
-        params = _.extend({
-            margin: {top:6, right: 10, bottom: 20, left: 40},
-            width: 600,
-            height: 300,
-            this_cancer_study: undefined
-        }, params);
-    }
+	params = params || {};
+	if (params.sparkline) {
+		params = _.extend({
+			margin: {top: -12, right: 0, bottom: 0, left: 0},
+			width: 30,
+			height: 12,
+			this_cancer_study: undefined
+		}, params);
+	} else {
+		params = _.extend({
+			margin: {top:6, right: 10, bottom: 20, left: 40},
+			width: 600,
+			height: 300,
+			this_cancer_study: undefined
+		}, params);
+	}
 
-    var cancer_study2meta_data = generate_cancer_study2datum(cancer_study_meta_data);
-    var all_cancer_studies = _.keys(cancer_study2meta_data);
+	var cancer_study2meta_data = generate_cancer_study2datum(cancer_study_meta_data);
+	var all_cancer_studies = _.keys(cancer_study2meta_data);
 
-    // --- data munging --- //
+	// --- data munging --- //
 
-    // copy
-    var bykeyword_data = deep_copy(byProteinPosData);
-    var bygene_data = deep_copy(byGeneData);
+	// copy
+	var bykeyword_data = deep_copy(byProteinPosData);
+	var bygene_data = deep_copy(byGeneData);
 
-    // extend
+	// extend
 	//var keyword = bykeyword_data[0].keyword;
 	var keyword = bykeyword_data[0].hugo + " " + bykeyword_data[0].protein_pos_start;
 
-    bykeyword_data = extend_by_zero_set(bykeyword_data)
-        .map(function(d) { d.keyword = keyword; return d; });     // make sure everything has a key.  TODO: remove this extra list traversal
-    bygene_data = extend_by_zero_set(bygene_data);
+	bykeyword_data = extend_by_zero_set(bykeyword_data)
+		.map(function(d) { d.keyword = keyword; return d; });     // make sure everything has a key.  TODO: remove this extra list traversal
+	bygene_data = extend_by_zero_set(bygene_data);
 
-    var cancer_study2datum = {
-        bykeyword: generate_cancer_study2datum(bykeyword_data),
-        bygene: generate_cancer_study2datum(bygene_data)
-    };
-    
-    var commonKeys = _.intersection( _.keys(cancer_study2datum.bykeyword), _.keys(cancer_study2datum.bygene) );
-    bykeyword_data = [];
-    bygene_data = [];
-    _.each(commonKeys, function(aKey) {
-	bykeyword_data.push(cancer_study2datum.bykeyword[aKey]);
-        bygene_data.push(cancer_study2datum.bygene[aKey]);
-    });
+	var cancer_study2datum = {
+		bykeyword: generate_cancer_study2datum(bykeyword_data),
+		bygene: generate_cancer_study2datum(bygene_data)
+	};
+
+	var commonKeys = _.intersection( _.keys(cancer_study2datum.bykeyword), _.keys(cancer_study2datum.bygene) );
+	bykeyword_data = [];
+	bygene_data = [];
+	_.each(commonKeys, function(aKey) {
+		bykeyword_data.push(cancer_study2datum.bykeyword[aKey]);
+		bygene_data.push(cancer_study2datum.bygene[aKey]);
+	});
 
 
-    if (bygene_data.length !== bykeyword_data.length) {
-        throw new Error("must be same length");
-    }
+	if (bygene_data.length !== bykeyword_data.length) {
+		throw new Error("must be same length");
+	}
 
-    if (bygene_data.length !== all_cancer_studies.length) {
-        throw new Error("there must be a datum for every cancer study and visa versa");
-    }
+	if (bygene_data.length !== all_cancer_studies.length) {
+		throw new Error("there must be a datum for every cancer study and visa versa");
+	}
 
-    // subtract off counts in bykeyword_data from bygene_data
-    // because the counts in bygene_data include the ones in bykeyword_data
-    // and we don't want to count the same thing twice.
-    bygene_data.forEach(function(bygene_datum) {
-        var bykeyword_datum = cancer_study2datum.bykeyword[bygene_datum.cancer_study];
-        var new_count = bygene_datum.count - bykeyword_datum.count;
+	// subtract off counts in bykeyword_data from bygene_data
+	// because the counts in bygene_data include the ones in bykeyword_data
+	// and we don't want to count the same thing twice.
+	bygene_data.forEach(function(bygene_datum) {
+		var bykeyword_datum = cancer_study2datum.bykeyword[bygene_datum.cancer_study];
+		var new_count = bygene_datum.count - bykeyword_datum.count;
 
-        if (new_count < 0) {
-            throw new Error("more mutations for a particular keyword than "
-                + "for all keywords of a particular gene");
-        }
+		if (new_count < 0) {
+			throw new Error("more mutations for a particular keyword than "
+				+ "for all keywords of a particular gene");
+		}
 
-        bygene_datum.count = new_count;
-    });
-    
-    var totalByGene = _.reduce(bygene_data, function(memo, datum){ return memo + datum.count; }, 0);
-    var totalByKeyword = _.reduce(bykeyword_data, function(memo, datum){ return memo + datum.count; }, 0);
-    var totalSequenced = _.reduce(cancer_study2meta_data, function(memo, datum){ return memo + datum.num_sequenced_samples; }, 0);
+		bygene_datum.count = new_count;
+	});
 
-    _.mixin({
-        unzip: function(array) {
-            return _.zip.apply(_, array);
-        }
-    });
+	var totalByGene = _.reduce(bygene_data, function(memo, datum){ return memo + datum.count; }, 0);
+	var totalByKeyword = _.reduce(bykeyword_data, function(memo, datum){ return memo + datum.count; }, 0);
+	var totalSequenced = _.reduce(cancer_study2meta_data, function(memo, datum){ return memo + datum.num_sequenced_samples; }, 0);
 
-    var all_data = bykeyword_data.concat(bygene_data);
-    try {
-        all_data = _.chain(all_data)
-            .map(compute_frequency)
-            .groupBy(function(d) {
-                return d.cancer_study;
-            })
-            .map(_.identity)    // extract groups
-            .sortBy(cancer_type)
-            .unzip()            // turn into layers for d3.stack
-            .value();
-    } catch(e) {
-        throw new Error(e);
-    }
+	_.mixin({
+		unzip: function(array) {
+			return _.zip.apply(_, array);
+		}
+	});
 
-    function deep_copy(list_of_objects) {
-        return list_of_objects.map(_.clone);
-    }
+	var all_data = bykeyword_data.concat(bygene_data);
+	try {
+		all_data = _.chain(all_data)
+			.map(compute_frequency)
+			.groupBy(function(d) {
+				return d.cancer_study;
+			})
+			.map(_.identity)    // extract groups
+			.sortBy(cancer_type)
+			.unzip()            // turn into layers for d3.stack
+			.value();
+	} catch(e) {
+		throw new Error(e);
+	}
 
-    function generate_cancer_study2datum(data) {
-        return _.reduce(data, function(acc, next) {
-            acc[next.cancer_study] = next;
-            return acc;
-        }, {});
-    }
+	function deep_copy(list_of_objects) {
+		return list_of_objects.map(_.clone);
+	}
 
-    function compute_frequency(d) {
-        var num_sequenced_samples = cancer_study2meta_data[d.cancer_study].num_sequenced_samples;
-        d.num_sequenced_samples = num_sequenced_samples;
-        d.frequency = d.count / num_sequenced_samples;
-        return d;
-    }
+	function generate_cancer_study2datum(data) {
+		return _.reduce(data, function(acc, next) {
+			acc[next.cancer_study] = next;
+			return acc;
+		}, {});
+	}
 
-    // takes a list of cancer studies (presumably one which contains all the
-    // cancer studies for a cancer type) and returns the total frequency in
-    // that list
-    //
-    // *signature:* `array -> number`
-    function total_frequency(group) {
-        var total_frequency = _.reduce(group, function(acc, next) { return acc + next.frequency }, 0);
-        return -1 * total_frequency;
-    }
+	function compute_frequency(d) {
+		var num_sequenced_samples = cancer_study2meta_data[d.cancer_study].num_sequenced_samples;
+		d.num_sequenced_samples = num_sequenced_samples;
+		d.frequency = d.count / num_sequenced_samples;
+		return d;
+	}
 
-    // returns the cancer type of a group
-    // *throws* error if not all elements in the list have the same cancer type
-    //
-    // *signature:* `array -> string`
-    function cancer_type(group) {
-        var cancerType = group[0].cancer_type;
-        if (!_.every(group, function(d) { return d.cancer_type === cancerType; })) {
-            throw new Error("not all data in a group have the same cancer type");
-        }
+	// takes a list of cancer studies (presumably one which contains all the
+	// cancer studies for a cancer type) and returns the total frequency in
+	// that list
+	//
+	// *signature:* `array -> number`
+	function total_frequency(group) {
+		var total_frequency = _.reduce(group, function(acc, next) { return acc + next.frequency }, 0);
+		return -1 * total_frequency;
+	}
 
-        return cancerType;
-    }
+	// returns the cancer type of a group
+	// *throws* error if not all elements in the list have the same cancer type
+	//
+	// *signature:* `array -> string`
+	function cancer_type(group) {
+		var cancerType = group[0].cancer_type;
+		if (!_.every(group, function(d) { return d.cancer_type === cancerType; })) {
+			throw new Error("not all data in a group have the same cancer type");
+		}
 
-    // add in missing cancer studies as data points with count = 0
-    function zero_set(data) {
-        var cancer_study2datum = generate_cancer_study2datum(data);
-        // TODO: this could be optimized by referring to the `cancer_study2datum` object
+		return cancerType;
+	}
 
-        function zero_datum(cancer_study) {
-            return {
-                cancer_study: cancer_study,
-                count: 0,
-                cancer_type: cancer_study2meta_data[cancer_study].cancer_type,
-                num_sequenced_samples: cancer_study2meta_data[cancer_study].num_sequenced_samples
-            };
-        }
+	// add in missing cancer studies as data points with count = 0
+	function zero_set(data) {
+		var cancer_study2datum = generate_cancer_study2datum(data);
+		// TODO: this could be optimized by referring to the `cancer_study2datum` object
 
-        return _.chain(all_cancer_studies)
-            .reduce(function(acc, study) {
-                if (!_.has(cancer_study2datum, study)) {
-                    // do all_cancer_studies *setminus* cancer_study2datum
-                    acc.push(study);
-                }
-                return acc;
-            }, [])
-            .map(zero_datum)
-            .value();
-    }
+		function zero_datum(cancer_study) {
+			return {
+				cancer_study: cancer_study,
+				count: 0,
+				cancer_type: cancer_study2meta_data[cancer_study].cancer_type,
+				num_sequenced_samples: cancer_study2meta_data[cancer_study].num_sequenced_samples
+			};
+		}
 
-    function extend_by_zero_set(data) {
-        return data.concat(zero_set(data));
-    }
+		return _.chain(all_cancer_studies)
+			.reduce(function(acc, study) {
+				if (!_.has(cancer_study2datum, study)) {
+					// do all_cancer_studies *setminus* cancer_study2datum
+					acc.push(study);
+				}
+				return acc;
+			}, [])
+			.map(zero_datum)
+			.value();
+	}
 
-    // --- visualization --- //
+	function extend_by_zero_set(data) {
+		return data.concat(zero_set(data));
+	}
 
-    // margin conventions http://bl.ocks.org/mbostock/3019563
-    var width = params.width - params.margin.left - params.margin.left;
-    var height = params.height - params.margin.top - params.margin.bottom;
+	// --- visualization --- //
 
-    var svg = d3.select(el).append("svg")
-        .attr("width", params.width)
-        .attr("height", params.height)
-        .append("g")
-        .attr("transform", "translate(" + params.margin.left + "," + params.margin.top + ")");
+	// margin conventions http://bl.ocks.org/mbostock/3019563
+	var width = params.width - params.margin.left - params.margin.left;
+	var height = params.height - params.margin.top - params.margin.bottom;
 
-    var stack = d3.layout.stack()
-            .x(function(d) { return d.cancer_study; })
-            .y(function(d) { return d.frequency; })
-        ;
+	var svg = d3.select(el).append("svg")
+		.attr("width", params.width)
+		.attr("height", params.height)
+		.append("g")
+		.attr("transform", "translate(" + params.margin.left + "," + params.margin.top + ")");
 
-    var layers = stack(all_data);
+	var stack = d3.layout.stack()
+			.x(function(d) { return d.cancer_study; })
+			.y(function(d) { return d.frequency; })
+		;
+
+	var layers = stack(all_data);
 //    console.log(layers);
 
-    var x = d3.scale.ordinal()
-        .domain(all_data[0].map(function(d) { return d.cancer_study; }))
-        .rangeBands([0, width], .1);
+	var x = d3.scale.ordinal()
+		.domain(all_data[0].map(function(d) { return d.cancer_study; }))
+		.rangeBands([0, width], .1);
 
-    // sparkline y axis does not scale: will always be from 0 to 1
-    var sparkline_y_threshold = .2
-    var yStackMax = params.sparkline ? sparkline_y_threshold
-        : d3.max(layers, function(layer) { return d3.max(layer, function(d) { return d.y0 + d.y; }); });
+	// sparkline y axis does not scale: will always be from 0 to 1
+	var sparkline_y_threshold = .2
+	var yStackMax = params.sparkline ? sparkline_y_threshold
+		: d3.max(layers, function(layer) { return d3.max(layer, function(d) { return d.y0 + d.y; }); });
 
-    var y = d3.scale.linear()
-        .domain([0, yStackMax])
-        .range([height, 0])
-        .clamp(true)
-        ;
+	var y = d3.scale.linear()
+			.domain([0, yStackMax])
+			.range([height, 0])
+			.clamp(true)
+		;
 
-    // --- bar chart ---
+	// --- bar chart ---
 
-    var googleblue = "LimeGreen";
-    var googlered = "Green";
+	var googleblue = "LimeGreen";
+	var googlered = "Green";
 
-    var layer = svg.selectAll(".layer")
-        .data(layers)
-        .enter().append("g")
-        .attr("class", "layer")
-        .style("fill", function(d, i) { return [googlered, googleblue][i]; });
+	var layer = svg.selectAll(".layer")
+		.data(layers)
+		.enter().append("g")
+		.attr("class", "layer")
+		.style("fill", function(d, i) { return [googlered, googleblue][i]; });
 
-    var rect = layer.selectAll("rect")
-        .data(function(d) { return d; })
-        .enter().append("rect")
-        .attr("x", function(d) { return x(d.cancer_study); })
-        .attr("y", function(d) { return y(d.y0 + d.y); })
-        .attr("width", function(d) { return x.rangeBand(); })
-        .attr("height", function(d) { return y(d.y0) - y(d.y0 + d.y); })
+	var rect = layer.selectAll("rect")
+		.data(function(d) { return d; })
+		.enter().append("rect")
+		.attr("x", function(d) { return x(d.cancer_study); })
+		.attr("y", function(d) { return y(d.y0 + d.y); })
+		.attr("width", function(d) { return x.rangeBand(); })
+		.attr("height", function(d) { return y(d.y0) - y(d.y0 + d.y); })
 
-    // *** kill process, do nothing more ***
-    if (params.sparkline) {
-        return {
-            el: el,
-            qtip: function() { throw new Error("don't qtip a sparkline"); }
-        };
-    }
+	// *** kill process, do nothing more ***
+	if (params.sparkline) {
+		return {
+			el: el,
+			qtip: function() { throw new Error("don't qtip a sparkline"); }
+		};
+	}
 
-    // --- axises --- //
+	// --- axises --- //
 
-    var percent_format = d3.format(yStackMax > .1 ? ".0%" : ".1%");
-    var yAxis = d3.svg.axis()
-        .scale(y)
-        .tickFormat(percent_format)
-        .orient("left");
-    yAxis.tickSize(yAxis.tickSize(), 0, 0);
+	var percent_format = d3.format(yStackMax > .1 ? ".0%" : ".1%");
+	var yAxis = d3.svg.axis()
+		.scale(y)
+		.tickFormat(percent_format)
+		.orient("left");
+	yAxis.tickSize(yAxis.tickSize(), 0, 0);
 
-    // list of element that represent the start and end of each cancer type in
-    // the sorted list of cancer studies
-    var study_start_ends = (function() {
-        var first = all_data[0][0];
+	// list of element that represent the start and end of each cancer type in
+	// the sorted list of cancer studies
+	var study_start_ends = (function() {
+		var first = all_data[0][0];
 
-        function new_element_from_datum(d) {
-            return {
-                cancer_type: d.cancer_type,
-                start: d.cancer_study,
-                end: d.cancer_study,
-                color: cancer_study2meta_data[d.cancer_study].color
-            };
-        }
+		function new_element_from_datum(d) {
+			return {
+				cancer_type: d.cancer_type,
+				start: d.cancer_study,
+				end: d.cancer_study,
+				color: cancer_study2meta_data[d.cancer_study].color
+			};
+		}
 
-        return _.chain(all_data[0])
-            .reduce(function(acc, next) {
-                var last = _.last(acc);
+		return _.chain(all_data[0])
+			.reduce(function(acc, next) {
+				var last = _.last(acc);
 
-                // beginning of a new cancer type, create a first cancer_study
-                if (last.cancer_type !== next.cancer_type) {
-                    return acc.concat(new_element_from_datum(next));
-                }
+				// beginning of a new cancer type, create a first cancer_study
+				if (last.cancer_type !== next.cancer_type) {
+					return acc.concat(new_element_from_datum(next));
+				}
 
-                // within a cancer type, continue updating the last
-                // cancer_study
-                if (last.cancer_type === next.cancer_type) {
-                    last.end = next.cancer_study;
-                    return acc;
-                }
+				// within a cancer type, continue updating the last
+				// cancer_study
+				if (last.cancer_type === next.cancer_type) {
+					last.end = next.cancer_study;
+					return acc;
+				}
 
-            }, [ new_element_from_datum(first) ])
-            .value();
-    }());
+			}, [ new_element_from_datum(first) ])
+			.value();
+	}());
 
-    // add the cancer type axis
-    svg.selectAll('line')
-        .data(study_start_ends)
-        .enter()
-        .append('line')
-        .attr('x1', function(d) { return x(d.start); })
-        .attr('x2', function(d) { return x(d.end) + x.rangeBand(); })
-        .attr('y1', height + params.margin.bottom / 3)
-        .attr('y2', height + params.margin.bottom / 3)
-        .style('stroke-width', 5)
-        .style('stroke', function(d) { return d.color; })
-    ;
+	// add the cancer type axis
+	svg.selectAll('line')
+		.data(study_start_ends)
+		.enter()
+		.append('line')
+		.attr('x1', function(d) { return x(d.start); })
+		.attr('x2', function(d) { return x(d.end) + x.rangeBand(); })
+		.attr('y1', height + params.margin.bottom / 3)
+		.attr('y2', height + params.margin.bottom / 3)
+		.style('stroke-width', 5)
+		.style('stroke', function(d) { return d.color; })
+	;
 
-    // append y axis
+	// append y axis
 
-    var yAxisEl = svg.append("g")
-        .call(yAxis)
-        .attr('stroke', '#000')
-        .attr('shape-rendering', 'crispEdges');
+	var yAxisEl = svg.append("g")
+		.call(yAxis)
+		.attr('stroke', '#000')
+		.attr('shape-rendering', 'crispEdges');
 
-    var hugo_gene_name = _.find(layers[0], function(d) { return d.hugo !== undefined; }).hugo;
-    var keyword = _.find(layers[0], function(d) { return d.keyword !== undefined; }).keyword;
+	var hugo_gene_name = _.find(layers[0], function(d) { return d.hugo !== undefined; }).hugo;
+	var keyword = _.find(layers[0], function(d) { return d.keyword !== undefined; }).keyword;
 
-    // star the current cancer study if this_cancer_study is provided.
-    if (!_.isUndefined(params.this_cancer_study)) {
-        star_this_cancer_study();
-    }
+	// star the current cancer study if this_cancer_study is provided.
+	if (!_.isUndefined(params.this_cancer_study)) {
+		star_this_cancer_study();
+	}
 
-    function star_this_cancer_study() {
-        var this_cancer_study_data = _.find(all_data[0], function(d) {
-            return d.cancer_study === params.this_cancer_study;
-        });
+	function star_this_cancer_study() {
+		var this_cancer_study_data = _.find(all_data[0], function(d) {
+			return d.cancer_study === params.this_cancer_study;
+		});
 
-        var this_cancer_type;
-        try {
-            this_cancer_type = this_cancer_study_data.cancer_type;
-        } catch(e) {
-            throw new Error(e + ": could not find this the corresponding datum for this cancer study, [" + params.this_cancer_study + "]");
-        }
+		var this_cancer_type;
+		try {
+			this_cancer_type = this_cancer_study_data.cancer_type;
+		} catch(e) {
+			throw new Error(e + ": could not find this the corresponding datum for this cancer study, [" + params.this_cancer_study + "]");
+		}
 
-        var find_this_cancer_studdy_datum = function(group) {
-            return _.find(group, function(d) {
-                return d.cancer_study === params.this_cancer_study;
-            });
-        };
+		var find_this_cancer_studdy_datum = function(group) {
+			return _.find(group, function(d) {
+				return d.cancer_study === params.this_cancer_study;
+			});
+		};
 
-        var this_cancer_type_group = _.zip.apply(null, all_data);
-        this_cancer_type_group = _.find(this_cancer_type_group, find_this_cancer_studdy_datum);
+		var this_cancer_type_group = _.zip.apply(null, all_data);
+		this_cancer_type_group = _.find(this_cancer_type_group, find_this_cancer_studdy_datum);
 
-        var total_freq = total_frequency(this_cancer_type_group);
+		var total_freq = total_frequency(this_cancer_type_group);
 
-        svg.append('text')
-            .text('*')
-            .attr('id', 'star')
-            .attr('x', x(params.this_cancer_study))
-            .attr('y', y(-1 * total_freq) + 10)
-            .style("font-family", "Helvetica Neue, Helvetica, Arial, sans-serif")
-            .style("font-size", (x.rangeBand()*3) + "px");
-    }
+		svg.append('text')
+			.text('*')
+			.attr('id', 'star')
+			.attr('x', x(params.this_cancer_study))
+			.attr('y', y(-1 * total_freq) + 10)
+			.style("font-family", "Helvetica Neue, Helvetica, Arial, sans-serif")
+			.style("font-size", (x.rangeBand()*3) + "px");
+	}
 
-    function qtip(svg) {
-        var mouseOverBar = d3.select(svg).selectAll('.mouseOver')
-            .data(all_cancer_studies)
-            .enter()
-            .append('rect')
-            .attr('class', 'mouseOver')
-            .attr('y', params.margin.top)
-            .attr('x', function(d) {
-                return x(d) + params.margin.left;
-            })
-            .attr('opacity', '0')
-            .attr('height', height + 5)
-            .attr('width', x.rangeBand())
-            .on('mouseover', function() { d3.select(this).attr('opacity', '0.25'); })
-            .on('mouseout', function() { d3.select(this).attr('opacity', '0'); });
+	function qtip(svg) {
+		var mouseOverBar = d3.select(svg).selectAll('.mouseOver')
+			.data(all_cancer_studies)
+			.enter()
+			.append('rect')
+			.attr('class', 'mouseOver')
+			.attr('y', params.margin.top)
+			.attr('x', function(d) {
+				return x(d) + params.margin.left;
+			})
+			.attr('opacity', '0')
+			.attr('height', height + 5)
+			.attr('width', x.rangeBand())
+			.on('mouseover', function() { d3.select(this).attr('opacity', '0.25'); })
+			.on('mouseout', function() { d3.select(this).attr('opacity', '0'); });
 
-        // add qtips for each bar
-        mouseOverBar.each(function(d) {
-            $(this).qtip({
-                content: {text: 'mouseover failed'},
-                position: {my:'left top', at:'center right', viewport: $(window)},
-                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-wide' },
-                hide: { fixed: true, delay: 100 },
-                events: {
-                    render: function(event, api) {
-                        var data = getRectsByCancerStudy(d).map(function(rect) { return rect[0].__data__; });
-                        var bykeyword = data.filter(function(d) { return _.has(d, "keyword"); })[0] || {};
-                        var bygene = data.filter(function(d) { return !_.has(d, "keyword"); })[0] || {};
-                        var cancer_study = bygene.cancer_study;     // there should always be a bygene datum
-                        var total = cancer_study2meta_data[cancer_study].num_sequenced_samples;
-                        var text = "<p style='font-weight:bold;'>" + cancer_study + "</p>"
-                            + countText(bykeyword, bygene, total);
+		// add qtips for each bar
+		mouseOverBar.each(function(d) {
+			$(this).qtip({
+				content: {text: 'mouseover failed'},
+				position: {my:'left top', at:'center right', viewport: $(window)},
+				style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-wide' },
+				hide: { fixed: true, delay: 100 },
+				events: {
+					render: function(event, api) {
+						var data = getRectsByCancerStudy(d).map(function(rect) { return rect[0].__data__; });
+						var bykeyword = data.filter(function(d) { return _.has(d, "keyword"); })[0] || {};
+						var bygene = data.filter(function(d) { return !_.has(d, "keyword"); })[0] || {};
+						var cancer_study = bygene.cancer_study;     // there should always be a bygene datum
+						var total = cancer_study2meta_data[cancer_study].num_sequenced_samples;
+						var text = "<p style='font-weight:bold;'>" + cancer_study + "</p>"
+							+ countText(bykeyword, bygene, total);
 
-                        api.set('content.text', text);
-                    }
-                }
-            });
-        });
-    }
+						api.set('content.text', text);
+					}
+				}
+			});
+		});
+	}
 
-    function qtip_template(d, total) {
-        var count = d.count || 0;
-        if (!('frequency' in d)) d.frequency = count / total;
-        var percent = (d.frequency * 100).toFixed(1)+'%';
-        return (_.template("<span><b>{{percent}}</b> (<b>{{count}}</b> of {{total}} sequenced samples)</span>"))({percent: percent, count: count, total: total});
-    }
-    
-    function countText(bykeyword, bygene, total) {
-        return "<p style='color: " + googlered + "; margin-bottom:0;'>"
-                + keyword  + ": "  + qtip_template(bykeyword, total) + "</p>"
-                + "<p style='color: " + googleblue + "; margin-top:0;'>"
-                + "Other " + hugo_gene_name +  " mutations: "  + qtip_template(bygene, total) + "</p>";
-    }
+	function qtip_template(d, total) {
+		var count = d.count || 0;
+		if (!('frequency' in d)) d.frequency = count / total;
+		var percent = (d.frequency * 100).toFixed(1)+'%';
+		return (_.template("<span><b>{{percent}}</b> (<b>{{count}}</b> of {{total}} sequenced samples)</span>"))({percent: percent, count: count, total: total});
+	}
 
-    function getRectsByCancerStudy(cancer_study) {
-        return rect.filter(function(d) { return d.cancer_study === cancer_study; });
-    }
+	function countText(bykeyword, bygene, total) {
+		return "<p style='color: " + googlered + "; margin-bottom:0;'>"
+			+ keyword  + ": "  + qtip_template(bykeyword, total) + "</p>"
+			+ "<p style='color: " + googleblue + "; margin-top:0;'>"
+			+ "Other " + hugo_gene_name +  " mutations: "  + qtip_template(bygene, total) + "</p>";
+	}
 
-    return {
-        el: el,
-        qtip: qtip,
-        overallCountText: function() {return countText({count:totalByKeyword}, {count:totalByGene}, totalSequenced);}
-    };
+	function getRectsByCancerStudy(cancer_study) {
+		return rect.filter(function(d) { return d.cancer_study === cancer_study; });
+	}
+
+	return {
+		el: el,
+		qtip: qtip,
+		overallCountText: function() {return countText({count:totalByKeyword}, {count:totalByGene}, totalSequenced);}
+	};
 };
+
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 /**
  * Controller class for the Main Mutation view.
@@ -15343,6 +17231,36 @@ function MainMutationController(mainMutationView, mutationDiagram)
 	init();
 }
 
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /**
  * Controller class for the 3D Mutation view.
  * Listens to the various events and make necessary changes
@@ -15362,8 +17280,8 @@ function MainMutationController(mainMutationView, mutationDiagram)
  * @author Selcuk Onur Sumer
  */
 function Mutation3dController(mutationDetailsView, mainMutationView,
-	mut3dVisView, mut3dView, mut3dVis, pdbProxy, mutationUtil,
-	mutationDiagram, mutationTable, geneSymbol)
+							  mut3dVisView, mut3dView, mut3dVis, pdbProxy, mutationUtil,
+							  mutationDiagram, mutationTable, geneSymbol)
 {
 	// we cannot get pdb panel view as a constructor parameter,
 	// since it is initialized after initializing this controller
@@ -15531,7 +17449,7 @@ function Mutation3dController(mutationDetailsView, mainMutationView,
 
 		// also update the pdb table (highlight the corresponding row)
 		if (!_chainSelectedByTable &&
-		    _pdbTableView != null)
+			_pdbTableView != null)
 		{
 			_pdbTableView.resetFilters();
 			_pdbTableView.selectChain(datum.pdbId, datum.chain.chainId);
@@ -15547,7 +17465,7 @@ function Mutation3dController(mutationDetailsView, mainMutationView,
 		// highlight mutations on the 3D view
 		// (highlight only if the corresponding view is visible)
 		if (mut3dView.isVisible() &&
-		    mutationDiagram.isHighlighted())
+			mutationDiagram.isHighlighted())
 		{
 			highlightSelected();
 		}
@@ -15580,8 +17498,8 @@ function Mutation3dController(mutationDetailsView, mainMutationView,
 	{
 		// init pdb table view if not initialized yet
 		if (_pdbTableView == null &&
-		    _pdbPanelView != null &&
-		    pdbColl.length > 0)
+			_pdbPanelView != null &&
+			pdbColl.length > 0)
 		{
 			_pdbTableView = _pdbPanelView.initPdbTableView(pdbColl, function(view, table) {
 				// we need to register a callback to add this event listener
@@ -15608,7 +17526,7 @@ function Mutation3dController(mutationDetailsView, mainMutationView,
 		}
 
 		if (_pdbPanelView != null &&
-		    _pdbTableView != null)
+			_pdbTableView != null)
 		{
 			_pdbPanelView.toggleTableControls();
 			_pdbTableView.toggleView();
@@ -15848,8 +17766,8 @@ function Mutation3dController(mutationDetailsView, mainMutationView,
 
 			// reload the visualizer content with the given pdb and chain
 			if (mut3dVisView != null &&
-			    _pdbPanelView != null &&
-			    pdbColl.length > 0)
+				_pdbPanelView != null &&
+				pdbColl.length > 0)
 			{
 				updateColorMapper();
 				_pdbPanelView.showView();
@@ -15889,6 +17807,36 @@ function Mutation3dController(mutationDetailsView, mainMutationView,
 
 	init();
 }
+
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 /**
  * Controller class for the Mutation Details view.
@@ -15964,9 +17912,9 @@ function MutationDetailsController(
 	 * Initializes mutation view for the given gene and cases.
 	 *
 	 * @param gene          hugo gene symbol
-     * @param cases         array of case ids (samples)
-     * @param diagramOpts   [optional] mutation diagram options
-     * @param tableOpts     [optional] mutation table options
+	 * @param cases         array of case ids (samples)
+	 * @param diagramOpts   [optional] mutation diagram options
+	 * @param tableOpts     [optional] mutation table options
 	 */
 	function initView(gene, cases, diagramOpts, tableOpts)
 	{
@@ -15976,8 +17924,8 @@ function MutationDetailsController(
 		{
 			// process data to add 3D match information
 			mutationData = processMutationData(mutationData,
-			                                   mutationProxy.getMutationUtil(),
-			                                   pdbRowData);
+				mutationProxy.getMutationUtil(),
+				pdbRowData);
 
 			// TODO a new util for each instance instead?
 //			var mutationUtil = new MutationDetailsUtil(
@@ -16007,7 +17955,7 @@ function MutationDetailsController(
 			var components = mainView.initComponents(_mut3dVisView);
 
 			if (mutationData == null ||
-			    mutationData.length == 0)
+				mutationData.length == 0)
 			{
 				mainView.showNoDataInfo();
 				components.tableView.hideView();
@@ -16021,7 +17969,7 @@ function MutationDetailsController(
 				components.tableView, components.diagram, mutationDetailsView);
 
 			if (mut3dVis &&
-			    _mut3dVisView)
+				_mut3dVisView)
 			{
 				new Mutation3dController(mutationDetailsView, mainView,
 					_mut3dVisView, components.view3d, mut3dVis,
@@ -16131,6 +18079,36 @@ function MutationDetailsController(
 	init();
 }
 
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /**
  * Singleton utility class to define custom events triggered by
  * Mutation Details components.
@@ -16185,6 +18163,36 @@ var MutationDetailsEvents = (function()
 		VIEW_3D_PANEL_CLOSED: _3dPanelClosed
 	};
 })();
+
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 /**
  * Controller class for the Mutation Table view.
@@ -16339,6 +18347,36 @@ function MutationDetailsTableController(tableView, mutationDiagram, mutationDeta
 	init();
 }
 
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /**
  * Controller class for the Mutation Diagram.
  * Listens to the various events and make necessary changes
@@ -16424,6 +18462,36 @@ function MutationDiagramController(mutationDiagram, mutationTable, mutationUtil)
 	init();
 }
 
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /**
  * Main wrapper for the whole mutation mapper instance.
  *
@@ -16450,33 +18518,27 @@ function MutationMapper(options)
 		view: {
 			mutationDiagram: {},
 			mutationTable: {},
-		    pdbPanel: {},
+			pdbPanel: {},
 			pdbTable: {},
 			vis3d: {}
 		},
 		// data proxy configuration
 		// instance: custom instance, if provided all other parameters are ignored
 		// instanceClass: constructor to initialize the data proxy
-		// lazy: indicates if it will be lazy init or full init
-		// servletName: name of the servlet to retrieve the actual data
-		// data: actual data. will be used only if it is a full init, i.e {lazy: false}
-		// options: options to be passed to the data proxy constructor
+		// options: options to be passed to the data proxy constructor (see AbstractDataProxy default options)
 		proxy: {
 			pfamProxy: {
 				instance: null,
 				instanceClass: PfamDataProxy,
-				lazy: true,
-				servletName: "getPfamSequence.json",
-				data: {},
-				options: {}
+				options: {
+					data: {}
+				}
 			},
 			mutationProxy: {
 				instance: null,
 				instanceClass: MutationDataProxy,
-				lazy: true,
-				servletName: "getMutationData.json",
-				data: {},
 				options: {
+					data: {},
 					params: {},
 					geneList: ""
 				}
@@ -16484,38 +18546,41 @@ function MutationMapper(options)
 			pdbProxy: {
 				instance: null,
 				instanceClass: PdbDataProxy,
-				lazy: true,
-				servletName: "get3dPdb.json",
-				data: {
-					pdbData: {},
-					infoData: {},
-					summaryData: {},
-					positionData: {}
-				},
 				options: {
+					data: {
+						pdbData: {},
+						infoData: {},
+						summaryData: {},
+						positionData: {}
+					},
 					mutationUtil: {}
 				}
 			},
 			pancanProxy: {
 				instance: null,
 				instanceClass: PancanMutationDataProxy,
-				lazy: true,
-				servletName: "pancancerMutations.json",
-				data: {
-					byKeyword: {},
-					byProteinChange: {},
-					byProteinPosition: {},
-					byGeneSymbol: {}
-				},
-				options: {}
+				options: {
+					data: {
+						byKeyword: {},
+						byProteinChange: {},
+						byProteinPosition: {},
+						byGeneSymbol: {}
+					}
+				}
+			},
+			mutationAlignerProxy: {
+				instance: null,
+				instanceClass: MutationAlignerDataProxy,
+				options: {
+					data: {}
+				}
 			},
 			portalProxy: {
 				instance: null,
 				instanceClass: PortalDataProxy,
-				lazy: true,
-				servletName: "portalMetadata.json",
-				data: {},
-				options: {}
+				options: {
+					data: {}
+				}
 			}
 		}
 	};

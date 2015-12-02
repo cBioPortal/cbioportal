@@ -5,7 +5,6 @@ The cBioPortal for Cancer Genomics is developed and maintained by the [Center fo
  * Jianjiong Gao
  * Benjamin Gross
  * S. Onur Sumer
- * B. Arman Aksoy
  * Yichao Sun
  * Hongxin Zhang
  * Fred Criscuolo
@@ -13,6 +12,8 @@ The cBioPortal for Cancer Genomics is developed and maintained by the [Center fo
  * Adam Abeshouse
  * Gideon Dresdner
  * Ritika Kundra
+ * Hsiao-Wei Chen
+ * Zachary Heins
  * Chris Sander
  * Nikolaus Schultz
  
@@ -20,16 +21,18 @@ The cBioPortal for Cancer Genomics is developed and maintained by the [Center fo
 
  * Ugur Dogrusoz
  * Istemi Bahceci
- * Sinan Sonlu
+ * M. Furkan Sahin
 
 ## Alumni
 
- * Ethan Cerami, now at Blueprint Medicines
- * Arthur Goldberg, now at Mount Sinai School of Medicine
+ * Ethan Cerami
+ * Arthur Goldberg
  * Michael Heuer
  * Anders Jacobsen
- * Erik Larsson, now at University of Gothenburg
- * Caitlin Byrne, MSKCC
+ * Erik Larsson
+ * Caitlin Byrne
+ * B. Arman Aksoy
+
 
 
 ## Funding for the cBioPortal for Cancer Genomics is provided in part from:

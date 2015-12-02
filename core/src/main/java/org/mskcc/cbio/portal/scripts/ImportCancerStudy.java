@@ -52,6 +52,7 @@ public class ImportCancerStudy {
         pMonitor.setConsoleMode(true);
 
         File file = new File(args[0]);
+		SpringUtil.initDataSource();
         CancerStudy cancerStudy = CancerStudyReader.loadCancerStudy(file);
         System.out.println ("Loaded the following cancer study:  ");
         System.out.println ("ID:  " + cancerStudy.getInternalId());

@@ -289,8 +289,6 @@
             $("#load-patient-table").css("cursor", "pointer");
             $("#load-patient-table").css("font-weight", "normal");
         });
-        $("#load-samples-table").click();
-        
         $("#load-patient-table").click( function() {
             $("#samples-table_wrapper").hide();
             $("#patient-table_wrapper").show();
@@ -301,11 +299,12 @@
             $("#load-samples-table").css("cursor", "pointer");
             $("#load-samples-table").css("font-weight", "normal");
         });
+        $("#load-patient-table").click();
     });
 </script>
 
 <h3 style="color: black;">Clinical Information</h3>
-<a id="load-samples-table" class="table-link activated">Samples</a> / <a id="load-patient-table" class="table-link">Patient</a>
+<a id="load-patient-table" class="table-link activated">Patient</a> / <a id="load-samples-table" class="table-link">Samples</a>
 <table id="samples-table">
 </table>
 <div id="samples_table_wait"><img src="images/ajax-loader.gif"/></div>

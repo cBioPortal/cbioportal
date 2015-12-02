@@ -16,8 +16,6 @@ var sidebar = (function() {
                 //reset the default value of x: default is always x copy num, y mrna
                 document.getElementById(ids.sidebar.x.profile_type).selectedIndex = "1";
                 profileSpec.updateProfileNameList("x");
-                //regenerate_plots("x");
-                //regenerate_plots("y");
             }
         //only have clincal data
         } else if ((metaData.getGeneticProfilesMeta(window.PortalGlobals.getGeneList()[0]).length === 0 || 
@@ -52,10 +50,9 @@ var sidebar = (function() {
                     _type_arr.push(obj.type);
             });
 
-            if (_type_arr.length > 1) {
+            if (_type_arr.length > 1) { //if there's only one profile type don't adjust the default settings
                 document.getElementById(ids.sidebar.x.profile_type).selectedIndex = "1";
                 profileSpec.updateProfileNameList("x");
-                //regenerate_plots("x");
             }
         }
 
@@ -67,27 +64,29 @@ var sidebar = (function() {
         $("#" + ids.sidebar.x.data_type).change(function() {
             if ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.genetic) {
                 profileSpec.init("x");
-                optSpec.init();
             } else if ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.clin) {
                 clinSpec.init("x");
             }
             profileSpec.appendLockGene();
+            optSpec.init();
             regenerate_plots("x");
         });
         $("#" + ids.sidebar.y.data_type).change(function() {
             if ($("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() === vals.data_type.genetic) {
                 profileSpec.init("y");
-                optSpec.init();
-                profileSpec.appendLockGene();
             } else if ($("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() === vals.data_type.clin) {
                 clinSpec.init("y");
             }
+            optSpec.init();
             regenerate_plots("y");
         });
+
+        //listener on view change button
         $("#" + ids.sidebar.util.view_switch).change(function() {
             mutation_copy_no_view_switch();
         });
-        
+
+        //listener on axis swap button
         $("#plots-tab-swap-btn").click(function() {
             //preserve the previous selection
             var _x_opts = {}, _y_opts = {};
@@ -112,7 +111,6 @@ var sidebar = (function() {
                 _y_opts.clin_attr_index = document.getElementById(ids.sidebar.y.clin_attr).selectedIndex;
                 
             }
-
             //swap
             if (_y_opts.data_type === vals.data_type.genetic) {
                 $("input:radio[name='" + ids.sidebar.x.data_type + "'][value='" + vals.data_type.genetic + "']").attr('checked', 'checked');
@@ -146,10 +144,8 @@ var sidebar = (function() {
                 $("#" + ids.sidebar.y.clin_attr).chosen().change();
                 $("#" + ids.sidebar.y.clin_attr).trigger("liszt:updated");
             }
-            
             //update plots
             regenerate_plots("xy");
-
         });
         
     };

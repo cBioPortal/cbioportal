@@ -62,15 +62,18 @@
 	geneList = geneList.replaceAll("\n", " ").replaceAll("\r", "").replaceAll("/", "_");
 	geneList = servletXssUtil.getCleanerInput(geneList);
 
-        
 
-    String bitlyUser = GlobalProperties.getBitlyUser();
-    String bitlyKey = GlobalProperties.getBitlyApiKey();
+    String oncokbUrl = (String) GlobalProperties.getOncoKBUrl();
+    String myCancerGenomeUrl = (String) GlobalProperties.getMyCancerGenomeUrl();
+    String oncokbGeneStatus = (String) GlobalProperties.getOncoKBGeneStatus();
+    boolean showHotspot = (Boolean) GlobalProperties.showHotspot();
+
 %>
 
 <jsp:include page="global/header.jsp" flush="true"/>
 
 <!-- for now, let's include these guys here and prevent clashes with the rest of the portal -->
+<script type="text/javascript" src="js/src/patient-view/OncoKBConnector.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/crosscancer.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <link href="css/data_table_ColVis.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 <link href="css/data_table_jui.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
@@ -115,21 +118,42 @@
 </table>
 
 <script>
-    //Set Event listener for the modify query button (expand the hidden form)
-    $("#modify_query_btn").click(function () {
-        $("#query_form_on_results_page").toggle();
-        if($("#modify_query_btn").hasClass("active")) {
-            $("#modify_query_btn").removeClass("active");
-        } else {
-            $("#modify_query_btn").addClass("active");    
-        }
+    var myCancerGenomeUrl = '<%=myCancerGenomeUrl%>';
+    var oncokbGeneStatus = <%=oncokbGeneStatus%>;
+    var showHotspot = <%=showHotspot%>;
+    var enableMyCancerGenome = myCancerGenomeUrl?true:false;
+
+    OncoKB.setUrl('<%=oncokbUrl%>');
+
+    $(document).ready(function() {
+        //Set Event listener for the modify query button (expand the hidden form)
+        $("#modify_query_btn").click(function () {
+            $("#query_form_on_results_page").toggle();
+            if($("#modify_query_btn").hasClass("active")) {
+                $("#modify_query_btn").removeClass("active");
+            } else {
+                $("#modify_query_btn").addClass("active");    
+            }
+        });
+        $("#toggle_query_form").click(function(event) {
+            event.preventDefault();
+            $('#query_form_on_results_page').toggle();
+            //  Toggle the icons
+            $(".query-toggle").toggle();
+        });
+        
+         $("a.result-tab").click(function(){
+            if($(this).attr("href")=="#bookmark_email") {
+                $("#bookmark-link").attr("href",window.location.href);
+            }
+        });
+
+        $("#bitly-generator").click(function() {
+             bitlyURL(window.location.href);
+        });
+
     });
-    $("#toggle_query_form").click(function(event) {
-        event.preventDefault();
-        $('#query_form_on_results_page').toggle();
-        //  Toggle the icons
-        $(".query-toggle").toggle();
-    });
+   
 </script>
 
 <!-- Crosscancer templates -->
@@ -229,14 +253,14 @@
         <div class="section" id="cc-bookmark">
             <h4>Right click</b> on the link below to bookmark your results or send by email:</h4>
             <br/>
-            <a href="<%=request.getAttribute(QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING)%>?tab_index=tab_visualize&cancer_study_id=all&gene_list={{genes}}&data_priority={{priority}}&Action=Submit">
+            <a  id="bookmark-link" href="#">
                 <%=request.getAttribute(QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING)%>?...
             </a>
             <br/>
             <br/>
 
             If you would like to use a <b>shorter URL that will not break in email postings</b>, you can use the<br><a href='https://bitly.com/'>bitly.com</a> service below:<BR>
-            <BR><form><input type="button" onClick="bitlyURL('<%=request.getAttribute(QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING)%>?tab_index=tab_visualize&cancer_study_id=all&gene_list={{genes}}&data_priority={{priority}}&Action=Submit', '<%=bitlyUser%>', '<%=bitlyKey%>')" value="Shorten URL"></form>
+            <BR><button type="button" id="bitly-generator">Shorten URL</button>
             <div id='bitly'></div>
         </div>
 
@@ -308,6 +332,32 @@
 
         </div>
     </div>
+</script>
+
+<script type="text/template" id="mutation_table_protein_change_oncokb_template">
+    <span class='{{proteinChangeClass}}' alt='{{proteinChangeTip}}'>
+		<a>{{proteinChange}}</a>
+	</span>
+    <span class='mutation-table-additional-protein-change simple-tip'
+          alt='{{additionalProteinChangeTip}}'>
+        <img height=12 width=12 style='opacity:0.2' src='images/warning.gif'>
+    </span>
+    <span class='oncokb oncokb_alteration oncogenic' oncokbId='{{oncokbId}}'>
+        <img class='oncokb oncogenic loader' width="13" height="13" class="loader" src="images/ajax-loader.gif"/>
+    </span>
+    <span class='mcg' alt='{{mcgAlt}}'>
+        <img src='images/mcg_logo.png'>
+    </span>
+    <span class='chang_hotspot' alt='{{changHotspotAlt}}'>
+        <img width='13' height='13' src='images/oncokb-flame.svg'>
+    </span>
+    <a href='{{pdbMatchLink}}' class="mutation-table-3d-link">
+        <span class="mutation-table-3d-icon">3D</span>
+    </a>
+</script>
+
+<script type="text/template" id="mutation_table_oncokb_template">
+    <span class='oncokb oncokb_column' oncokbId='{{uniqueId}}'></span>
 </script>
 
 <script type="text/template" id="studies-with-no-data-tmpl">

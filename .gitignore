@@ -1,4 +1,5 @@
 nb-configuration.xml
+nbactions-private.xml
 oncotator/src/main/resources/db.properties
 portal/Portal-Google-Code.ipr
 portal/Portal-Google-Code.iws
@@ -44,10 +45,9 @@ portal/src/main/resources/build.properties
 portal/src/main/resources/importer.properties
 portal/src/main/resources/log4j.properties
 portal/src/main/resources/logging.properties
-src/main/resources/build.properties
-src/main/resources/log4j.properties
-src/main/resources/logging.properties
-src/main/resources/portal.properties
+src/main/resources/importer.properties.*
+src/main/resources/portal.properties.*
+!src/main/resource/*.EXAMPLE
 firehose-importer/reference_data/gene_info
 portal.properties
 importer.properties
@@ -55,6 +55,8 @@ log4j.properties
 build.properties
 # use glob syntax
 syntax: glob
+*.pyc
+*.swp
 importer/*.log
 firehose-importer/*.txt
 portal/target/*
@@ -74,4 +76,7 @@ nbactions.xml
 */.settings/*
 */.classpath
 */.project
-*/dependency-reduced-pom.xml
+dependency-reduced-pom.xml
+
+
+/core/nbactions-private.xml

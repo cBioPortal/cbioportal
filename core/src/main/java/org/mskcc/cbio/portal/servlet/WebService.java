@@ -38,12 +38,14 @@ import org.mskcc.cbio.portal.web_api.*;
 import org.mskcc.cbio.portal.model.*;
 
 import org.json.simple.*;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.*;
 import java.util.*;
 import java.util.regex.Pattern;
 import javax.servlet.http.*;
 import javax.servlet.ServletException;
+import org.apache.log4j.Logger;
 
 /**
  * Core Web Service.
@@ -52,7 +54,7 @@ import javax.servlet.ServletException;
  * @author Arthur Goldberg goldberg@cbio.mskcc.org
  */
 public class WebService extends HttpServlet {
-
+    private static Logger logger = Logger.getLogger(WebService.class);
     public static final String CANCER_STUDY_ID = "cancer_study_id";
     public static final String CANCER_TYPE_ID = "cancer_type_id";
     public static final String GENETIC_PROFILE_ID = "genetic_profile_id";
@@ -215,6 +217,12 @@ public class WebService extends HttpServlet {
                 if (accessControl.isAccessibleCancerStudy(cancerStudyID).size() != 1) {
                     outputError(writer, "You are not authorized to view the cancer study identified by the request (" + cancerStudyID + ").");
                     return;
+                }
+                else {
+                    UserDetails ud = accessControl.getUserDetails();
+                    if (ud != null) {
+                        logger.info("WebService.processClient: Query initiated by user: " + ud.getUsername());
+                    }
                 }
             }
 

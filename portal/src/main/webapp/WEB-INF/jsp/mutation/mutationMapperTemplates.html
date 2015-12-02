@@ -305,6 +305,10 @@
 	<span class='{{proteinChangeClass}}' alt='{{proteinChangeTip}}'>
 		<a>{{proteinChange}}</a>
 	</span>
+    <span class='mutation-table-additional-protein-change simple-tip'
+          alt='{{additionalProteinChangeTip}}'>
+        <img height=12 width=12 style='opacity:0.2' src='images/warning.gif'>
+    </span>
 	<a href='{{pdbMatchLink}}' class="mutation-table-3d-link">
 		<span class="mutation-table-3d-icon">3D</span>
 	</a>
@@ -590,9 +594,17 @@
 </script>
 
 <script type="text/template" id="mutation_details_region_tip_template">
-	<span class="diagram-region-tip">
-		{{identifier}} {{type}}, {{description}} ({{start}} - {{end}})
-	</span>
+	<div class="diagram-region-tip">
+		<div>{{identifier}} {{type}}, {{description}} ({{start}} - {{end}})</div>
+        <div>
+            <a href="http://pfam.xfam.org/family/{{pfamAccession}}" class="diagram-pfam-link "target="_blank">PFAM</a>
+            {{mutationAlignerInfo}}
+        </div>
+	</div>
+</script>
+
+<script type="text/template" id="mutation_aligner_info_template">
+    <a href="{{linkToMutationAligner}}" target="_blank">Mutation Aligner</a>
 </script>
 
 <script type="text/template" id="mutation_details_lollipop_tip_template">

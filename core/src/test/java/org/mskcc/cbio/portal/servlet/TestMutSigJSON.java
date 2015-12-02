@@ -32,15 +32,18 @@
 
 package org.mskcc.cbio.portal.servlet;
 
-import junit.framework.TestCase;
-import org.junit.Test;
-import org.mskcc.cbio.portal.model.CanonicalGene;
-import org.mskcc.cbio.portal.model.MutSig;
-import org.mskcc.cbio.portal.servlet.MutSigJSON;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.HashSet;
 
-public class TestMutSigJSON extends TestCase {
+import org.junit.Test;
+import org.mskcc.cbio.portal.model.CanonicalGene;
+import org.mskcc.cbio.portal.model.MutSig;
+
+import static org.junit.Assert.*;
+
+public class TestMutSigJSON {
 
     @Test
     public void testMutSigtoMap()

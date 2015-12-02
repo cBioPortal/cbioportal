@@ -65,8 +65,8 @@ var StudyViewInitCharts = (function(){
         ndx, //Crossfilter dimension
         msnry,
         totalCharts,
-        mutatedGenes = [],
-        cna = [],
+        //mutatedGenes = [],
+        //cna = [],
         dataArr = {},
         pie = [], //Displayed attributes info, dataType: STRING, NUMBER, OR BOOLEAN
         bar = [], //Displayed attributes info, dataType: NUMBER
@@ -109,7 +109,18 @@ var StudyViewInitCharts = (function(){
         //functions
         plotDataFlag = false,
         
-        tableCharts = ['CANCER_TYPE', 'CANCER_TYPE_DETAILED'];
+        tableCharts = ['CANCER_TYPE', 'CANCER_TYPE_DETAILED'],
+
+        //table chart will always put ahead, and the higher prioirty, the bigger index(later will use array unshift for table charts)
+        priorityAttrs = ['CANCER_TYPE_DETAILED', 'CANCER_TYPE', 'PATIENT_ID', 'CASE_ID'],
+
+        //Study specific prioritise attributes
+        studyPrioritiseAttrs = {
+            'mskimpact': {
+                high: ['DARWIN_PATIENT_AGE', 'DARWIN_VITAL_STATUS'], //High priority
+                low: ['AGE','OS_STATUS'] //Low priority
+            }
+        };
     
     function allNumberElements(_array){
         var _length = _array.length;
@@ -124,87 +135,64 @@ var StudyViewInitCharts = (function(){
     }
     
     function initData(dataObtained) {
-        var _attrskeys = [], //number of keys for each attribute
-            _attr = dataObtained.attr,
+        var _attr = dataObtained.attr,
             _arr = dataObtained.arr,
             _attrLength = _attr.length,
             _arrLength = _arr.length,
             _studyDesc = "",
-            //table chart will always put ahead, and the higher prioirty, the bigger index(later will use array unshift for table charts)
-            _priorityAttrs = ['CANCER_TYPE_DETAILED', 'CANCER_TYPE', 'PATIENT_ID', 'CASE_ID'];
-        
-        mutatedGenes = dataObtained.mutatedGenes;   
-        cna = dataObtained.cna || '';
+            _highPriorityAttrs = [],
+            _lowPriorityAttrs = [];
+
+        _highPriorityAttrs.concat(priorityAttrs);
+
+        if(studyPrioritiseAttrs.hasOwnProperty(cancerStudyId)) {
+            _highPriorityAttrs = studyPrioritiseAttrs[cancerStudyId].high.concat(_highPriorityAttrs);
+            _lowPriorityAttrs = studyPrioritiseAttrs[cancerStudyId].low.concat(_lowPriorityAttrs);
+        }
+        //mutatedGenes = dataObtained.mutatedGenes;
+        //cna = dataObtained.cna || '';
         numOfCases = _arr.length;        
         ndx = crossfilter(_arr);
-        
-        //Calculate all keys for each attribute and rank by number of non-empty datum
-        for( var i = 0; i < _attrLength; i++ ){
-            var _varValuesNum = {},
-                _numofNonEmpty = 0;
-            var _attrskeysDatum = [];
-            
-            
-            _attrskeysDatum.push(i);
-            _attrskeysDatum.push(_attr[i]["attr_id"]);
-            
-            for( var j = 0; j < _arrLength; j++ ){
-                if(_attr[i]["attr_id"] === "PATIENT_ID" && 
-                        _arr[j]["PATIENT_ID"] === 'NA') {
-                    _varValuesNum.hasOwnProperty(_arr[j].CASE_ID)? _varValuesNum[_arr[j].CASE_ID]++ :_varValuesNum[_arr[j].CASE_ID]=0;
-                }else {
-                    if(_varValuesNum.hasOwnProperty(_arr[j][_attr[i]["attr_id"]])){
-                        _varValuesNum[_arr[j][_attr[i]["attr_id"]]]++;
-                    }else{
-                        _varValuesNum[_arr[j][_attr[i]["attr_id"]]]=0;
-                    }
-                    dataArr[_arr[j].CASE_ID] = _arr[j];
-                }
-            }
-            
-            for(var key in _varValuesNum) {
-                if( key !== "NA") {
-                    _numofNonEmpty += Number(_varValuesNum[key]);
-                }
-            }
-            _attrskeysDatum.push(Object.keys(_varValuesNum));
-            _attrskeysDatum.push(_numofNonEmpty);
-            _attrskeys.push(_attrskeysDatum);
-            _varValuesNum = null;
-            _attrskeysDatum = null;
+
+        //Save data based on CASE_ID
+        for( var j = 0; j < _arrLength; j++ ){
+            dataArr[_arr[j].CASE_ID] = _arr[j];
         }
-        
-        _attrskeys.sort(function(a, b) {
-            var aIndex = _priorityAttrs.indexOf(a[1]),
-                bIndex = _priorityAttrs.indexOf(b[1]);
-                
-             if(aIndex !== -1 && bIndex !== -1) {
-                return aIndex<bIndex?-1:1;
-            }else if(aIndex !== -1) {
+
+        _attr.sort(function(a, b) {
+            var aIndex = _highPriorityAttrs.indexOf(a.attr_id),
+                bIndex = _highPriorityAttrs.indexOf(b.attr_id),
+                laIndex = _lowPriorityAttrs.indexOf(a.attr_id),
+                lbIndex = _lowPriorityAttrs.indexOf(b.attr_id);
+
+            if (aIndex !== -1 && bIndex !== -1) {
+                return aIndex < bIndex ? -1 : 1;
+            } else if (aIndex !== -1) {
                 return -1;
-            }else if(bIndex !== -1) {
+            } else if (bIndex !== -1) {
                 return 1;
-            }else {
-                if(a[3] < b[3]) {
+            } else if (laIndex !== -1) {
+                return 1;
+            } else if (lbIndex !== -1) {
+                return -1;
+            } else {
+                if(a.numOfNoneEmpty < b.numOfNoneEmpty) {
                     return 1;
                 }else {
                     return -1;
                 }
             }
         });
-        
-        if(_attrskeys.length !== _attrLength) {
-            StudyViewUtil.echoWarningMessg("The length of sorted attrs is not equal to atts length");
-        }
+
         //Calculate the number of pie, bar charts
         //Initial varName, varType, distanceMinMaxArray, varDisplay
         for( var i = 0; i < _attrLength; i++ ){
-            var _attrIndex = _attrskeys[i][0];
-            var _attr_id = _attrskeys[i][1];
-            var _dataType = _attr[_attrIndex]["datatype"].toUpperCase();
+            var _attr_id = _attr[i].attr_id;
+            var _keys = _attr[i].keys;
+            var _dataType = _attr[i].datatype.toUpperCase();
             var _allNumber = false;
             var _createdChartsNum = pie.length + bar.length;
-            var _keys = _attrskeys[i][2];
+
              //If chart only has one category and it is NA, do not show this chart
             if(_keys.length === 1 && _keys[0] === 'NA'){
                 continue;
@@ -219,22 +207,20 @@ var StudyViewInitCharts = (function(){
             }
             
             if(_attr_id === "CASE_ID" ){
-                pie.push(_attr[_attrIndex]);
+                pie.push(_attr[i]);
             }else if(_attr_id === "PATIENT_ID") {
                 if(_keys.length !== Object.keys(dataArr).length) {
                     _studyDesc = "from " + _keys.length + " patients";
                 }
             }else if(_dataType === "NUMBER" || _dataType === "BOOLEAN" || _allNumber){ 
                 if(selectedCol(_attr_id) && _createdChartsNum < 21){                    
-                    if(_keys.length>10 || _attr_id === 'AGE' || _attr_id === 'MUTATION_COUNT' 
-                            || _attr_id === 'COPY_NUMBER_ALTERATIONS')
-                        bar.push(_attr[_attrIndex]);
+                    if(_keys.length>10 || _attr_id === 'AGE' || _attr_id === 'MUTATION_COUNT' || _attr_id === 'COPY_NUMBER_ALTERATIONS')
+                        bar.push(_attr[i]);
                     else
-                        pie.push(_attr[_attrIndex]);
+                        pie.push(_attr[i]);
                 }
 
-                if(_keys.length > 10 || _attr_id === 'AGE' || _attr_id === 'MUTATION_COUNT' 
-                        || _attr_id === 'COPY_NUMBER_ALTERATIONS'){
+                if(_keys.length > 10 || _attr_id === 'AGE' || _attr_id === 'MUTATION_COUNT' || _attr_id === 'COPY_NUMBER_ALTERATIONS'){
                     varType[_attr_id] = "bar";
                 }else{
                     varType[_attr_id] = "pie";
@@ -260,9 +246,9 @@ var StudyViewInitCharts = (function(){
                 varType[_attr_id] = "pie";
                 if(selectedCol(_attr_id) && _createdChartsNum < 21){
                     if (tableCharts.indexOf(_attr_id) !== -1) {
-                        pie.unshift(_attr[_attrIndex]);
+                        pie.unshift(_attr[i]);
                     } else {
-                        pie.push(_attr[_attrIndex]);
+                        pie.push(_attr[i]);
                     }
                 }
             }else {
@@ -272,11 +258,11 @@ var StudyViewInitCharts = (function(){
             if(_attr_id !== "PATIENT_ID") {
                 varKeys[_attr_id] = [];
                 varKeys[_attr_id] = _keys;
-                varDisplay.push(_attr[_attrIndex]["display_name"]);                
-                varName.push(_attr[_attrIndex]["attr_id"]);
+                varDisplay.push(_attr[i].display_name);
+                varName.push(_attr[i].attr_id);
             }
         }
-        
+
         $("#study-desc").append("&nbsp;&nbsp;<b>"+ Object.keys(dataArr).length +" samples " + _studyDesc+"</b>.");
         
         totalCharts = pie.length + bar.length;
@@ -290,8 +276,8 @@ var StudyViewInitCharts = (function(){
         if(
                 StudyViewUtil.arrayFindByValue(varName, 'MUTATION_COUNT') && 
                 StudyViewUtil.arrayFindByValue(varName, 'COPY_NUMBER_ALTERATIONS') &&
-                varKeys['MUTATION_COUNT'].length > 0 &&
-                varKeys['COPY_NUMBER_ALTERATIONS'].length > 0){
+                varKeys.MUTATION_COUNT.length > 0 &&
+                varKeys.COPY_NUMBER_ALTERATIONS.length > 0){
             initScatterPlot(_arr);
 
             //if(cancerStudyId.indexOf("mskimpact") !== -1){
@@ -305,12 +291,12 @@ var StudyViewInitCharts = (function(){
     function initSurvialPlotPrep(_arr){
         if(     (StudyViewUtil.arrayFindByValue(varName, 'OS_MONTHS') &&
             StudyViewUtil.arrayFindByValue(varName, 'OS_STATUS') &&
-            varKeys['OS_MONTHS'].length > 0 &&
-            varKeys['OS_STATUS'].length > 0) ||
+            varKeys.OS_MONTHS.length > 0 &&
+            varKeys.OS_STATUS.length > 0) ||
             (StudyViewUtil.arrayFindByValue(varName, 'DFS_MONTHS') &&
             StudyViewUtil.arrayFindByValue(varName, 'DFS_STATUS') &&
-            varKeys['DFS_MONTHS'].length > 0 &&
-            varKeys['DFS_STATUS'].length > 0)){
+            varKeys.DFS_MONTHS.length > 0 &&
+            varKeys.DFS_STATUS.length > 0)){
 
             initSurvivalPlot(_arr);
         }
@@ -318,39 +304,37 @@ var StudyViewInitCharts = (function(){
     
     function initTables() {
         var initParams = {data: {attr: [], arr: {}}, numOfCases: numOfCases};
-        
-        if(mutatedGenes && mutatedGenes.length > 0) {
+
+        if(hasMutation) {
             initParams.data.attr.push({
-                        name: 'mutatedGenes',
-                        displayName: 'Mutated Genes',
-                        webService: {
-                            type: 'POST',
-                            url: "mutations.json",
-                            data: {
-                                cmd: 'get_smg',
-                                case_list: '',
-                                mutation_profile: StudyViewParams.params.mutationProfileId
-                            }
+                    name: 'mutatedGenes',
+                    displayName: 'Mutated Genes',
+                    webService: {
+                        type: 'POST',
+                        url: "mutations.json",
+                        data: {
+                            cmd: 'get_smg',
+                            case_list: '',
+                            mutation_profile: StudyViewParams.params.mutationProfileId
                         }
-                    });
-            initParams.data.arr.mutatedGenes = mutatedGenes;
+                    }
+                });
         }
-        
-        if(cna) {
+
+        if(hasCNA) {
             initParams.data.attr.push({
-                        name: 'cna',
-                        displayName: 'Copy Number Altered Genes',
-                        webService: {
-                            type: 'POST',
-                            url: "Gistic.json",
-                            data: {
-                                selected_cancer_type: StudyViewParams.params.studyId
-                            }
+                    name: 'cna',
+                    displayName: 'Copy Number Altered Genes',
+                    webService: {
+                        type: 'POST',
+                        url: "Gistic.json",
+                        data: {
+                            selected_cancer_type: StudyViewParams.params.studyId
                         }
-                    });
-            initParams.data.arr.cna = cna;
+                    }
+                });
         }
-        
+
         StudyViewInitTables.init(initParams);
     }
         
@@ -459,8 +443,8 @@ var StudyViewInitCharts = (function(){
             
         if (StudyViewUtil.arrayFindByValue(varName, 'OS_MONTHS') && 
                 StudyViewUtil.arrayFindByValue(varName, 'OS_STATUS') &&
-                varKeys['OS_MONTHS'].length > 0 &&
-                varKeys['OS_STATUS'].length > 0) {
+                varKeys.OS_MONTHS.length > 0 &&
+                varKeys.OS_STATUS.length > 0) {
             _plotsInfo.OS=  {
                 name: "Overall Survival",
                 property: ["OS_MONTHS", "OS_STATUS"],
@@ -476,8 +460,8 @@ var StudyViewInitCharts = (function(){
         
         if (StudyViewUtil.arrayFindByValue(varName, 'DFS_MONTHS') && 
                 StudyViewUtil.arrayFindByValue(varName, 'DFS_STATUS') &&
-                varKeys['DFS_MONTHS'].length > 0 &&
-                varKeys['DFS_STATUS'].length > 0) {
+                varKeys.DFS_MONTHS.length > 0 &&
+                varKeys.DFS_STATUS.length > 0) {
             
             _plotsInfo.DFS=  {
                 name: "Disease Free Survival",
@@ -513,7 +497,7 @@ var StudyViewInitCharts = (function(){
                 _title = $(this).parent().parent().find("charttitleh4").text();
            
             $($(this).parent().parent().parent()).css('display','none');
-            $('#study-view-add-chart').css('display','block');
+            $('#study_view_add_chart_chzn').css('display','inline-block');
 //            $('#study-view-add-chart ul')
 //                    .append($('<li></li>')
 //                        .attr('id','survival-' + _plotId)
@@ -536,8 +520,11 @@ var StudyViewInitCharts = (function(){
 
         $(".study-view-scatter-plot-delete").unbind('click');
         $(".study-view-scatter-plot-delete").click(function (){
+            // remove breadcrumbs for the chart
+            BreadCrumbs.deleteBreadCrumbsByChartId("study-view-scatter-plot");
+
             $("#study-view-scatter-plot").css('display','none');
-            $('#study-view-add-chart').css('display','block');
+            $('#study_view_add_chart_chzn').css('display','block');
 //            $('#study-view-add-chart ul')
 //                    .append($('<li></li>')
 //                        .attr('id','mutationCNA')
@@ -570,18 +557,14 @@ var StudyViewInitCharts = (function(){
     function initDcCharts(_data) {
         var createdChartID = 0;
         
-        var tableIcons = [];
-        
         tableCharts.forEach(function(e, i){
             for(var i=0; i< pie.length ; i++){
                 if(pie[i].attr_id === e) {
                     makeNewPieChartInstance(createdChartID, pie[i]);
                     HTMLtagsMapUID["study-view-dc-chart-" + createdChartID] = createdChartID;
-                    attrNameMapUID[pie[i]["attr_id"]] = createdChartID;
-                    displayedID.push(pie[i]["attr_id"]);
+                    attrNameMapUID[pie[i].attr_id] = createdChartID;
+                    displayedID.push(pie[i].attr_id);
                     var tableIcon = $("#study-view-dc-chart-" + createdChartID + "-table-icon");
-                    if (tableIcon.css("display")!=="none")
-                        tableIcons.push(tableIcon);
                     createdChartID++;
                     break;
                 }else {
@@ -599,17 +582,17 @@ var StudyViewInitCharts = (function(){
             if (tableCharts.indexOf(pie[i].attr_id) === -1) {
                 makeNewPieChartInstance(createdChartID, pie[i]);
                 HTMLtagsMapUID["study-view-dc-chart-" + createdChartID] = createdChartID;
-                attrNameMapUID[pie[i]["attr_id"]] = createdChartID;
-                displayedID.push(pie[i]["attr_id"]);
+                attrNameMapUID[pie[i].attr_id] = createdChartID;
+                displayedID.push(pie[i].attr_id);
                 createdChartID++;
             }
         }
         
         for(var i=0; i< bar.length ; i++){
-            makeNewBarChartInstance(createdChartID, bar[i], distanceMinMaxArray[bar[i]['attr_id']]);
+            makeNewBarChartInstance(createdChartID, bar[i], distanceMinMaxArray[bar[i].attr_id]);
             HTMLtagsMapUID["study-view-dc-chart-" + createdChartID] = createdChartID;
-            attrNameMapUID[bar[i]["attr_id"]] = createdChartID;
-            displayedID.push(bar[i]["attr_id"]);            
+            attrNameMapUID[bar[i].attr_id] = createdChartID;
+            displayedID.push(bar[i].attr_id);
             createdChartID++;
         }
         
@@ -628,21 +611,20 @@ var StudyViewInitCharts = (function(){
                 deleteChart(_id,_valueA);
                 bondDragForLayout();
                 AddCharts.bindliClickFunc();
-        });
-        
-        tableIcons.forEach(function(tableIcon) {
-            tableIcon.click();
+
+                // delete histogram or pie chart breadcrumbs
+                //BreadCrumbs.deleteBreadCrumbsByChartId(_id);
         });
     }
     
     function getSelectedCases() {
-        return varChart[attrNameMapUID["CASE_ID"]]
+        return varChart[attrNameMapUID.CASE_ID]
                     .getChart()
                     .dimension()
                     .top(Infinity);
     }
     function getSelectedCasesID() {
-        var _cases = varChart[attrNameMapUID["CASE_ID"]]
+        var _cases = varChart[attrNameMapUID.CASE_ID]
                     .getChart()
                     .dimension()
                     .top(Infinity);
@@ -669,6 +651,10 @@ var StudyViewInitCharts = (function(){
             }
         }
     }
+
+    function clearScatterPlot(){
+        StudyViewInitScatterPlot.clearScatterPlot();
+    }
     
     function makeNewPieChartInstance(_chartID, _pieInfo) {
         var _params = {
@@ -676,6 +662,7 @@ var StudyViewInitCharts = (function(){
                 chartID: _chartID,
                 chartDivClass: 'study-view-pie-chart',
                 attrID: _pieInfo.attr_id,
+                attrKeys: _pieInfo.keys,
                 displayName: _pieInfo.display_name,
                 ndx: ndx,
                 chartColors: chartColors,
@@ -717,8 +704,8 @@ var StudyViewInitCharts = (function(){
         var _selectedCases = getSelectedCases().map(function(e){
             return e.CASE_ID;
         });
-        
-        StudyViewInitTables.redraw({
+
+        var redrawService = {
             selectedCases: _selectedCases,
             exceptionIds: exceptionIds,
             webService: {
@@ -741,7 +728,14 @@ var StudyViewInitCharts = (function(){
                     }
                 }
             }
-        });
+        };
+
+        if(numOfCases === _selectedCases.length) {
+            delete redrawService.webService.mutatedGenes.data.case_list;
+            delete redrawService.webService.cna.data.sample_id;
+        }
+
+        StudyViewInitTables.redraw(redrawService);
     }
     
     function redrawSpecialPlots(_casesInfo, _selectedAttr){
@@ -802,18 +796,35 @@ var StudyViewInitCharts = (function(){
             StudyViewInitScatterPlot.setclearFlag(false);
         }
     }
-    
+
     /**
      * DC charts post filter callback function
      */
-    function postFilterCallbackFunc(){
+    function postFilterCallbackFunc(chartID, chartFilter){
         if(!StudyViewInitScatterPlot.getclearFlag() && !plotDataFlag){
             removeMarker();
             resetBars();
             redrawSpecialPlots();
+            // update the breadcrumbs
+            updateBreadCrumbs(chartID, chartFilter);
         }
     }
-    
+
+    function updateBreadCrumbs(chartID, chartFilter) {
+        var chartAttribute=displayedID[chartID];
+        var chartType = varType[chartAttribute];
+
+        if(chartType==="bar"){
+            //var crumbTip = chartFilter==null?"":chartAttribute+": "+chartFilter[0]+" - "+chartFilter[1];
+            //BreadCrumbs.updateBarChartBreadCrumb(chartID, chartAttribute, crumbTip, crumbTip, chartType);
+            BreadCrumbs.updateBarChartBreadCrumb(chartID, chartFilter, chartAttribute, chartType);
+        }
+        else if(chartType==="pie"){
+            //BreadCrumbs.updatePieChartBreadCrumb(chartID, chartFilter, chartAttribute+": "+chartFilter, chartFilter, chartType);
+            BreadCrumbs.updatePieChartBreadCrumb(chartID, chartFilter, chartAttribute, chartType);
+        }
+    }
+
     /**
      * DC charts plot data button callback function
      * @param {type} _casesInfo
@@ -824,7 +835,8 @@ var StudyViewInitCharts = (function(){
         resetBars(_selectedAttr[0]);
         redrawSpecialPlots(_casesInfo, _selectedAttr);
     }
-    
+
+
     /**
      * 
      * @returns {Boolean} whether current dc charts have filter
@@ -950,7 +962,7 @@ var StudyViewInitCharts = (function(){
     
     function deleteChart(_chartID,_value){
         var _options;
-        
+
         $("div").remove("#study-view-dc-chart-main-" + _chartID); 
         if(varChart[_chartID].getChart().hasFilter()){
             varChart[_chartID].getChart().filterAll();
@@ -976,13 +988,13 @@ var StudyViewInitCharts = (function(){
         });
         $('#study-view-add-chart').find('option:not(:first)').remove();
         $('#study-view-add-chart').append(_options);
-        $('#study-view-add-chart').css('display','block');
+        $('#study_view_add_chart_chzn').css('display','inline-block');
         varChart[_chartID] = "";
         removedChart.push(Number(_chartID));
     }
         
     function changeHeader(){
-        var _dimention = varChart[attrNameMapUID["CASE_ID"]].getChart().dimension();
+        var _dimention = varChart[attrNameMapUID.CASE_ID].getChart().dimension();
         var _result = _dimention.top(Infinity);
         
         StudyViewInitTopComponents.changeHeader(_result, numOfCases, removedChart);
@@ -991,7 +1003,7 @@ var StudyViewInitCharts = (function(){
     //This filter is the same one which used in previous Google Charts Version,
     //should be revised later.
     function selectedCol(col) {
-        return col.toLowerCase().match(/(^age)|(gender)|(os_status)|(os_months)|(dfs_status)|(dfs_months)|(race)|(ethnicity)|(.*type.*)|(.*site.*)|(.*grade.*)|(.*stage.*)|(histology)|(tumor_type)|(subtype)|(tumor_site)|(.*score.*)|(mutation_count)|(copy_number_alterations)/);
+        return col.toLowerCase().match(/(^age)|(gender)|(sex)|(darwin_vital_status)|(darwin_patient_age)|(os_status)|(os_months)|(dfs_status)|(dfs_months)|(race)|(ethnicity)|(.*type.*)|(.*site.*)|(.*grade.*)|(.*stage.*)|(histology)|(tumor_type)|(subtype)|(tumor_site)|(.*score.*)|(mutation_count)|(copy_number_alterations)/);
     }
     
     function redrawChartsAfterDeletion(){
@@ -1011,7 +1023,7 @@ var StudyViewInitCharts = (function(){
             
             for(var i=0; i< _numOfCharts; i++){
                 if(removedChart.indexOf(i) === -1){
-                    if(attrNameMapUID['CASE_ID'] !== i){
+                    if(attrNameMapUID.CASE_ID !== i){
                         var _datum = $("#study-view-dc-chart-" + i),
                             _value = _datum.attr('oValue'),
                             _valueArray = _value.split(",");
@@ -1089,10 +1101,10 @@ var StudyViewInitCharts = (function(){
     }
     
     function filterChartsByGivingIDs(_ids){
-        var _caseIDChart = varChart[attrNameMapUID['CASE_ID']].getChart();
+        var _caseIDChart = varChart[attrNameMapUID.CASE_ID].getChart();
         
         if(_ids.length > 1){
-            StudyViewInitScatterPlot.setClickedCasesId('');;
+            StudyViewInitScatterPlot.setClickedCasesId('');
         }
         _ids = getStableIds(_ids);
         _caseIDChart.filterAll();
@@ -1141,9 +1153,10 @@ var StudyViewInitCharts = (function(){
                 }
 
                 if(_selectedChartType === 'pie'){
-                    makeNewPieChartInstance(_chartID, 
-                                            {attr_id:_id,
-                                                display_name:_selectedAttrDisplay});
+                    makeNewPieChartInstance(_chartID, {
+                        attr_id:_id,
+                        display_name:_selectedAttrDisplay,
+                        keys: varKeys[_id]});
                 }else{
                     makeNewBarChartInstance(_chartID,
                                             {attr_id:_id,
@@ -1180,9 +1193,13 @@ var StudyViewInitCharts = (function(){
         }
         
         if(_createdFlag) {
+
             _index = removedChart.indexOf(_chartID);
             if (_index > -1) {
                 removedChart.splice(_index, 1);
+            }else {
+                displayedID.push(_id)
+                varDisplay.push(_selectedAttrDisplay);
             }
 
             bondDragForLayout();
@@ -1190,12 +1207,12 @@ var StudyViewInitCharts = (function(){
 //            $('#study-view-add-chart ul').find('li[id="' + _selectedAttr + '"]').remove();
             $('#study-view-add-chart').find('option[id="' + _id + '"]').remove();
 //            if($('#study-view-add-chart ul').find('li').length === 0 ){
-            if($('#study-view-add-chart').find('option').length === 1 && 
+            if($('#study-view-add-chart').find('option').length === 1 &&
                     $('#study-view-add-chart').find('option').attr('id') === ''){
-                $('#study-view-add-chart').css('display','none');
+                $('#study_view_add_chart_chzn').css('display','none');
             }
-            
-//            $('#study-view-add-chart ul').css('height','100%');
+
+            $("#study-view-add-chart").trigger("liszt:updated");
         }
     }
     
@@ -1209,7 +1226,7 @@ var StudyViewInitCharts = (function(){
         },
         bondDragForLayout: bondDragForLayout,
         getFilteredResults: function() {
-            var _filteredResult = varChart[attrNameMapUID['CASE_ID']].getCluster().top(Infinity);
+            var _filteredResult = varChart[attrNameMapUID.CASE_ID].getCluster().top(Infinity);
             return _filteredResult;
         },
         
@@ -1233,7 +1250,7 @@ var StudyViewInitCharts = (function(){
         },
         
         getCaseIdChartIndex: function() {
-            return attrNameMapUID['CASE_ID'];
+            return attrNameMapUID.CASE_ID;
         },
         
         getPlotDataFlag: function() {
@@ -1243,7 +1260,8 @@ var StudyViewInitCharts = (function(){
         setPlotDataFlag: function(_flag) {
             plotDataFlag = _flag;
         },
-        
+
+        clearScatterPlot: clearScatterPlot,
         redrawScatter: redrawScatter,
         redrawSpecialPlots: redrawSpecialPlots,
         filterChartsByGivingIDs: filterChartsByGivingIDs,

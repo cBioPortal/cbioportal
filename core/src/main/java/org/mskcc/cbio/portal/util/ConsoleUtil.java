@@ -82,9 +82,7 @@ public class ConsoleUtil {
 
     public static void showWarnings(ProgressMonitor pMonitor) {
         ArrayList warningList = pMonitor.getWarnings();
-        if (warningList.size() == 0) {
-            System.err.println("\nNo warning/error messages generated.");
-        } else {
+        if (warningList.size() > 0) {
             System.err.println("\nWarnings / Errors:");
             System.err.println("-------------------");
             for (int i = 0; i < warningList.size(); i++) {

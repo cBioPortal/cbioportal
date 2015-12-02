@@ -1,3 +1,28 @@
+# November 9, 2015
+* __New features__:
+    * Links to MyCancerGenome.org for mutations
+    * Improved display of selection samples on the study view page
+* __Improvements__:
+    * "Enrichments" analysis is now run across all genes
+    * The "Network" tab is now using Cytoscape.js (Adobe Flash is no longer required)
+
+# August 21, 2015
+* All __TCGA data__ updated to the Firehose run of April 16, 2015.
+* __New feature__: Enrichments Analysis finds alterations that are enriched in either altered or unaltered samples.
+* __Improvement__: improved OncoPrint with better performance.
+
+# June 3, 2015
+* __Improvements__:
+    * Allowed downloading data in each chart/table in study summary page.
+    * Added log-rank test _p_-values to the survival plots in study summary page.
+    * Improved visualization of patient clinical data in patient-centric view.
+    * Added option to merge multiple samples for the same patient in OncoPrint.
+
+# April 28, 2015
+* __New features__:
+    * Redesigned query interface to allow selecting multiple cancer studies
+    * Redesigned __Plots__ tab
+
 # January 14, 2015
 * All TCGA data updated to the Firehose run of October 17, 2014
 

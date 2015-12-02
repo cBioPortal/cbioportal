@@ -68,6 +68,7 @@ import org.apache.log4j.Logger;
 import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.*;
 import java.util.*;
@@ -212,6 +213,11 @@ public class PatientView extends HttpServlet {
             request.setAttribute(ERROR, "Please specify cancer study ID. ");
             return false;
         }
+
+		if (cancerStudyUpdating(cancerStudyId)) {
+			request.setAttribute(ERROR, "The selected cancer study is currently being updated, please try back later.");
+			return false;
+		}
         
         CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
         if (cancerStudy==null) {
@@ -283,6 +289,12 @@ public class PatientView extends HttpServlet {
                     cancerStudyIdentifier + "'. ");
             return false;
         }
+        else {
+            UserDetails ud = accessControl.getUserDetails();
+            if (ud != null) {
+                logger.info("PatientView.validate: Query initiated by user: " + ud.getUsername());
+            }
+        }
         
         request.setAttribute(PATIENT_CASE_OBJ, samples);
         request.setAttribute(CANCER_STUDY, cancerStudy);
@@ -296,6 +308,11 @@ public class PatientView extends HttpServlet {
         
         return true;
     }
+
+	private boolean cancerStudyUpdating(String cancerStudyId) throws DaoException
+	{
+		return (DaoCancerStudy.getStatus(cancerStudyId) == DaoCancerStudy.Status.UNAVAILABLE);
+	}
     
     private void sortSampleIds(int cancerStudyId, int patientId, List<String> sampleIds) {
         if (sampleIds.size()==1) {
@@ -436,15 +453,13 @@ public class PatientView extends HttpServlet {
         Patient patient = DaoPatient.getPatientById(DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, sampleId).getInternalPatientId());
         String patientId = patient.getStableId();
         
-        // Add patient info to request if this is a patient view
-        if (isPatientView) {
-            List<ClinicalData> patientData = DaoClinicalData.getDataByPatientId(cancerStudyId, patientId);
-            Map<String,String> patientMap = new HashMap<String,String>();
-            for (ClinicalData cd: patientData) {
-                patientMap.put(cd.getAttrId(), cd.getAttrVal());
-            }
-            request.setAttribute(PATIENT_INFO, patientMap);
-        }
+        // Add patient info to request
+	List<ClinicalData> patientData = DaoClinicalData.getDataByPatientId(cancerStudyId, patientId);
+	Map<String,String> patientMap = new HashMap<String,String>();
+	for (ClinicalData cd: patientData) {
+	    patientMap.put(cd.getAttrId(), cd.getAttrVal());
+	}
+	request.setAttribute(PATIENT_INFO, patientMap);
 
         int numOfSamplesInPatient = DaoSample.getSamplesByPatientId(patient.getInternalId()).size();
         request.setAttribute("num_tumors", numOfSamplesInPatient);

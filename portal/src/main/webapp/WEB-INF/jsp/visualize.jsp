@@ -33,11 +33,12 @@
 <%@ include file="global/global_variables.jsp" %>
 
 <jsp:include page="global/header.jsp" flush="true" />
+<%@ page import="java.util.Map" %>
 
 <div class='main_smry'>
     <div id='main_smry_stat_div' style='float:right;margin-right:15px;margin-bottom:-5px;width:50%;text-align:right;'></div>
     <div id='main_smry_info_div'>
-        <table style='margin-left:0px;width=40%;margin-top:-10px;margin-bottom:-5px;' >
+        <table style='margin-left:0px;width:40%;margin-top:-10px;margin-bottom:-5px;' >
             <tr>
                 <td><div id='main_smry_modify_query_btn'><div></td>
                 <td><div id='main_smry_query_div' style='padding-left: 5px;'></div></td>
@@ -79,6 +80,7 @@
     <ul>
     <%
         Boolean showMutTab = false;
+        Boolean showCancerTypesSummary = false;
         if (geneWithScoreList.size() > 0) {
 
             Enumeration paramEnum = request.getParameterNames();
@@ -134,48 +136,47 @@
                 }
             }
 
-            out.println ("<li><a href='#summary' class='result-tab' title='Compact visualization of genomic alterations'>OncoPrint</a></li>");
+            // determine whether to show the cancerTypesSummaryTab
+            // retrieve the cancerTypesMap and create an iterator for the values
+            Map<String, List<String>>  cancerTypesMap = (Map<String, List<String>>) request.getAttribute(QueryBuilder.CANCER_TYPES_MAP);
+            if(cancerTypesMap.keySet().size() > 1) {
+            	showCancerTypesSummary = true;
+            }
+            else if (cancerTypesMap.keySet().size() == 1 && cancerTypesMap.values().iterator().next().size() > 1 )  {
+            	showCancerTypesSummary = true;
+            }
+            out.println ("<li><a href='#summary' class='result-tab' id='oncoprint-result-tab'>OncoPrint</a></li>");
+            // if showCancerTypesSummary is try, add the list item
+            if(showCancerTypesSummary){
+                out.println ("<li><a href='#pancancer_study_summary' class='result-tab' title='Cancer types summary'>"
+                + "Cancer Types Summary</a></li>");
+            }
 
             if (computeLogOddsRatio && geneWithScoreList.size() > 1) {
-                out.println ("<li><a href='#mutex' class='result-tab' title='Mutual exclusivity and co-occurrence analysis'>"
+                out.println ("<li><a href='#mutex' class='result-tab' id='mutex-result-tab'>"
                 + "Mutual Exclusivity</a></li>");
             }
-
-            //if ( has_mrna && (has_rppa || has_methylation || has_copy_no) ) {
-                out.println ("<li><a href='#plots' class='result-tab' title='Multiple plots, including CNA v. mRNA expression'>" + "Plots</a></li>");
-            //}
-
+            out.println ("<li><a href='#plots' class='result-tab' id='plots-result-tab'>Plots</a></li>");
             if (showMutTab){
-                out.println ("<li><a href='#mutation_details' class='result-tab' title='Mutation details, including mutation type, "
-                 + "amino acid change, validation status and predicted functional consequence'>"
-                 + "Mutations</a></li>");
+                out.println ("<li><a href='#mutation_details' class='result-tab' id='mutation-result-tab'>Mutations</a></li>");
             }
-
             if (showCoexpTab) {
-                out.println ("<li><a href='#coexp' class='result-tab' title='List of top co-expressed genes'>Co-Expression</a></li>");
+                out.println ("<li><a href='#coexp' class='result-tab' id='coexp-result-tab'>Co-Expression</a></li>");
             }
-
-            if (has_rppa) {
-                out.println ("<li><a href='#protein_exp' class='result-tab' title='Protein and Phopshoprotein changes using Reverse Phase Protein Array (RPPA) data'>"
-                + "Protein Changes</a></li>");
+            if (has_mrna || has_copy_no || showMutTab) {
+                out.println("<li><a href='#or_analysis' id='enrichments-result-tab' class='result-tab' style='height: 18px;'>Enrichments</a></li>");
             }
-
             if (has_survival) {
-                out.println ("<li><a href='#survival' class='result-tab' title='Survival analysis and Kaplan-Meier curves'>"
-                + "Survival</a></li>");
+                out.println ("<li><a href='#survival' class='result-tab' id='survival-result-tab'>Survival</a></li>");
             }
-
             if (includeNetworks) {
-                out.println ("<li><a href='#network' class='result-tab' title='Network visualization and analysis'>"
-                + "Network</a></li>");
+                out.println ("<li><a href='#network' class='result-tab' id='network-result-tab'>Network</a></li>");
             }
-
-            if (showIGVtab){
-                out.println ("<li><a href='#igv_tab' class='result-tab' title='Visualize copy number data via the Integrative Genomics Viewer (IGV).'>IGV</a></li>");
+            if (showIGVtab && !((String)request.getAttribute(QueryBuilder.CANCER_STUDY_ID)).equals("mskimpact")){
+                out.println ("<li><a href='#igv_tab' class='result-tab' id='igv-result-tab'>IGV</a></li>");
             }
-            out.println ("<li><a href='#data_download' class='result-tab' title='Download all alterations or copy and paste into Excel'>Download</a></li>");
-            out.println ("<li><a href='#bookmark_email' class='result-tab' title='Bookmark or generate a URL for email'>Bookmark</a></li>");
-            out.println ("<!--<li><a href='index.do' class='result-tab'>Create new query</a> -->");
+            out.println ("<li><a href='#data_download' class='result-tab' id='data-download-result-tab'>Download</a></li>");
+            out.println ("<li><a href='#bookmark_email' class='result-tab' id='bookmark-result-tab'>Bookmark</a></li>");
             out.println ("</ul>");
 
             out.println ("<div class=\"section\" id=\"bookmark_email\">");
@@ -188,13 +189,11 @@
             }
             else
             {
-                out.println ("<h4>Right click</b> on the link below to bookmark your results or send by email:</h4><br><a href='"
-                        + buf.toString() + "'>" + request.getAttribute
+                out.println ("<h4>Right click</b> on the link below to bookmark your results or send by email:</h4><br><a id='bookmark-link' href='#'>" + request.getAttribute
                         (QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING) + "?...</a>");
-                String longLink = buf.toString();
                 out.println("<br><br>");
                 out.println("If you would like to use a <b>shorter URL that will not break in email postings</b>, you can use the<br><a href='https://bitly.com/'>bitly.com</a> service below:<BR>");
-                out.println("<BR><form><input type=\"button\" onClick=\"bitlyURL('"+longLink+"', '"+bitlyUser+"', '"+bitlyKey+"')\" value=\"Shorten URL\"></form>");
+                out.println("<BR><button type='button' id='bitly-generator'>Shorten URL</button>");
                 out.println("<div id='bitly'></div>");
             }
 
@@ -207,35 +206,34 @@
             <%@ include file="oncoprint/main.jsp" %>
         </div>
 
-            <% //if ( has_mrna && (has_copy_no || has_methylation || has_copy_no) ) { %>
+        <!-- if showCancerTypes is true, include cancer_types_summary.jsp -->
+        <% if(showCancerTypesSummary) { %>
+        <%@ include file="pancancer_study_summary.jsp" %>
+        <%}%>
+
         <%@ include file="plots_tab.jsp" %>
-            <% //} %>
 
-            <% if (showIGVtab) { %>
-        <%@ include file="igv.jsp" %>
-            <% } %>
-
-            <% if (has_survival) { %>
-        <%@ include file="survival_tab.jsp" %>
-            <% } %>
-
-            <% if (computeLogOddsRatio && geneWithScoreList.size() > 1) { %>
-                <%@ include file="mutex_tab.jsp" %>
-            <% } %>
-            
-            <% if (mutationDetailLimitReached != null) {
-        out.println("<div class=\"section\" id=\"mutation_details\">");
-        out.println("<P>To retrieve mutation details, please specify "
-        + QueryBuilder.MUTATION_DETAIL_LIMIT + " or fewer genes.<BR>");
-        out.println("</div>");
-    } else if (showMutTab) { %>
-        <%@ include file="mutation_views.jsp" %>
-        <%@ include file="mutation_details.jsp" %>
-            <%  } %>
-
-        <% if (has_rppa) { %>
-            <%@ include file="protein_exp.jsp" %>
+        <% if (showIGVtab && !((String)request.getAttribute(QueryBuilder.CANCER_STUDY_ID)).equals("mskimpact")) { %>
+            <%@ include file="igv.jsp" %>
         <% } %>
+
+        <% if (has_survival) { %>
+            <%@ include file="survival_tab.jsp" %>
+        <% } %>
+
+        <% if (computeLogOddsRatio && geneWithScoreList.size() > 1) { %>
+            <%@ include file="mutex_tab.jsp" %>
+        <% } %>
+
+        <% if (mutationDetailLimitReached != null) {
+            out.println("<div class=\"section\" id=\"mutation_details\">");
+            out.println("<P>To retrieve mutation details, please specify "
+            + QueryBuilder.MUTATION_DETAIL_LIMIT + " or fewer genes.<BR>");
+            out.println("</div>");
+        } else if (showMutTab) { %>
+            <%@ include file="mutation_views.jsp" %>
+            <%@ include file="mutation_details.jsp" %>
+        <%  } %>
 
         <% if (includeNetworks) { %>
             <%@ include file="networks.jsp" %>
@@ -243,6 +241,10 @@
 
         <% if (showCoexpTab) { %>
             <%@ include file="co_expression.jsp" %>
+        <% } %>
+
+        <% if (has_mrna || has_copy_no || showMutTab) { %>
+            <%@ include file="over_representation_analysis.jsp" %>
         <% } %>
 
         <%@ include file="data_download.jsp" %>
@@ -266,36 +268,164 @@
 </form>
 
 <script type="text/javascript">
-    // initially hide network tab
-    $("div.section#network").attr('style', 'height: 0px; width: 0px; visibility: hidden;');
-
     // it is better to check selected tab after document gets ready
     $(document).ready(function() {
+        var firstTime = true;
 
         $("#toggle_query_form").tipTip();
         // check if network tab is initially selected
-        // TODO this depends on aria-hidden attribute which may not be safe...
-        
-        if ($("div.section#network").attr('aria-hidden') == "false"){
-            // make the network tab visible...
-            $("div.section#network").removeAttr('style');
+        if ($("div.section#network").is(":visible"))
+        {
+            // init the network tab
+	        //send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
+	        //firstTime = false;
+
+	        // TODO window.networkGraphJSON is null at this point,
+	        // this is a workaround to wait for graphJSON to get ready
+	        var interval = setInterval(function() {
+		        if (window.networkGraphJSON != null)
+		        {
+			        clearInterval(interval);
+			        if (firstTime)
+			        {
+				        send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
+				        firstTime = false;
+			        }
+		        }
+	        }, 50);
         }
 
+        $("a.result-tab").click(function(){
+
+            if($(this).attr("href")=="#network") {
+                if(firstTime)
+                {
+                  send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
+                  firstTime = false;
+                }
+	            else
+                {
+	                // TODO this is a workaround to adjust cytoscape canvas
+	                // and probably not the best way to do it...
+	                $(window).resize();
+                }
+
+            } else {
+                if($(this).attr("href")=="#bookmark_email") {
+                    $("#bookmark-link").attr("href",window.location.href);
+                }
+            }
+        });
+
+
+        $("#bitly-generator").click(function() {
+             bitlyURL(window.location.href);
+        });
+
+        //qtips
+        $("#oncoprint-result-tab").qtip(
+            {
+                content: {text: "Compact visualization of genomic alterations"},
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow result-tab-qtip-content' },
+                show: {event: "mouseover", delay: 0},
+                hide: {fixed:true, delay: 100, event: "mouseout"},
+                position: {my:'left top',at:'right bottom', viewport: $(window)}
+            }
+        );
+        $("#mutex-result-tab").qtip(
+            {
+                content: {text: "Mutual exclusivity and co-occurrence analysis"},
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow result-tab-qtip-content' },
+                show: {event: "mouseover", delay: 0},
+                hide: {fixed:true, delay: 100, event: "mouseout"},
+                position: {my:'left top',at:'right bottom', viewport: $(window)}
+            }
+        );
+        $("#plots-result-tab").qtip(
+            {
+                content: {text: "Multiple plots, including CNA v. mRNA expression"},
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow result-tab-qtip-content' },
+                show: {event: "mouseover", delay: 0},
+                hide: {fixed:true, delay: 100, event: "mouseout"},
+                position: {my:'left top',at:'right bottom', viewport: $(window)}
+            }
+        );
+        $("#mutation-result-tab").qtip(
+            {
+                content: {text: "Mutation details, including mutation type, amino acid change, validation status and predicted functional consequence"},
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow result-tab-qtip-content' },
+                show: {event: "mouseover", delay: 0},
+                hide: {fixed:true, delay: 100, event: "mouseout"},
+                position: {my:'left top',at:'right bottom', viewport: $(window)}
+            }
+        );
+        $("#coexp-result-tab").qtip(
+            {
+                content: {text: "List of top co-expressed genes"},
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow result-tab-qtip-content' },
+                show: {event: "mouseover", delay: 0},
+                hide: {fixed:true, delay: 100, event: "mouseout"},
+                position: {my:'left top',at:'right bottom', viewport: $(window)}
+            }
+        );
+        $("#enrichments-result-tab").qtip(
+            {
+                content: {text: "This analysis finds alterations " +
+                "(mutations, copy number alterations, mRNA expression changes, and protein expression changes, if available) " +
+                "that are enriched in either altered samples (with at least one alteration based on query) or unaltered samples. "},
+                //"The analysis is only performed on annotated cancer genes. <a href='cancer_gene_list.jsp' target='_blank'>[List of Portal Cancer Genes]</a>"},
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow result-tab-qtip-content' },
+                show: {event: "mouseover", delay: 0},
+                hide: {fixed:true, delay: 100, event: "mouseout"},
+                position: {my:'left top',at:'right bottom', viewport: $(window)}
+            }
+        );
+        $("#survival-result-tab").qtip(
+            {
+                content: {text: "Survival analysis and Kaplan-Meier curves"},
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow result-tab-qtip-content' },
+                show: {event: "mouseover", delay: 0},
+                hide: {fixed:true, delay: 100, event: "mouseout"},
+                position: {my:'left top',at:'right bottom', viewport: $(window)}
+            }
+        );
+        $("#network-result-tab").qtip(
+            {
+                content: {text: "Network visualization and analysis"},
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow result-tab-qtip-content' },
+                show: {event: "mouseover", delay: 0},
+                hide: {fixed:true, delay: 100, event: "mouseout"},
+                position: {my:'left top',at:'right bottom', viewport: $(window)}
+            }
+        );
+        $("#igv-result-tab").qtip(
+            {
+                content: {text: "Visualize copy number data via the Integrative Genomics Viewer (IGV)"},
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow result-tab-qtip-content' },
+                show: {event: "mouseover", delay: 0},
+                hide: {fixed:true, delay: 100, event: "mouseout"},
+                position: {my:'left top',at:'right bottom', viewport: $(window)}
+            }
+        );
+        $("#data-download-result-tab").qtip(
+            {
+                content: {text: "Download all alterations or copy and paste into Excel"},
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow result-tab-qtip-content' },
+                show: {event: "mouseover", delay: 0},
+                hide: {fixed:true, delay: 100, event: "mouseout"},
+                position: {my:'left top',at:'right bottom', viewport: $(window)}
+            }
+        );
+        $("#bookmark-result-tab").qtip(
+            {
+                content: {text: "Bookmark or generate a URL for email"},
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow result-tab-qtip-content' },
+                show: {event: "mouseover", delay: 0},
+                hide: {fixed:true, delay: 100, event: "mouseout"},
+                position: {my:'left top',at:'right bottom', viewport: $(window)}
+            }
+        );
     });
-
-    // to fix problem of flash repainting
-    $("a.result-tab").click(function(){
-
-        if($(this).attr("href")=="#network") {
-            $("div.section#network").removeAttr('style');
-        } else {
-            // since we never allow display:none we should adjust visibility, height, and width properties
-            $("div.section#network").attr('style', 'height: 0px; width: 0px; visibility: hidden;');
-        }
-    });
-
-    //  Set up Tip-Tip Event Handler for Genomic Profiles help
-    $(".result-tab").tipTip({defaultPosition: "bottom", delay:"100", edgeOffset: 10, maxWidth: 200});
 </script>
 
 
@@ -311,6 +441,10 @@
     }
     [class*="ui-button-text"] {
         margin: 3px;
+    }
+    .result-tab-qtip-content{
+        font-size: 13px;
+        line-height: 110%;
     }
 </style>
 

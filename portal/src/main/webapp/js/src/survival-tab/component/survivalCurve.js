@@ -313,12 +313,20 @@ var SurvivalCurve = function() {
             .text(yTitle);
     }
 
-    function addPvals() {
+    function addPvals(_pval) {
         elem.svg.append("text")
-            .attr("x", settings.chart_left + settings.chart_width + 10)
-            .attr("y", 110)
+            .attr("class","pval")
+            .attr("x", settings.pval_x)
+            .attr("y", settings.pval_y)
+            .attr("font-size", style.pval_font_size)
+            .attr("font-style", style.pval_font_style)
             .style("text-anchor", "front")
-            .text("Logrank Test P-Value: " + parseFloat(vals.pVal).toFixed(6));
+            .text(text.pValTitle + cbio.util.toPrecision(Number(_pval), 3, 0.001));
+    }
+
+    function updatePvals(pval) {
+        elem.svg.select('.pval')
+            .text(text.pValTitle + cbio.util.toPrecision(Number(pval), 3, 0.0001));
     }
 
     function appendInfoTable(_infoTableInputArr) {
@@ -399,6 +407,28 @@ var SurvivalCurve = function() {
             }
         });
     }
+
+    function updateSettings(newSettings){
+        if(newSettings){
+            for(var setting in newSettings) {
+                settings[setting] = newSettings[setting];
+            }
+        }
+    }
+
+    function updatePval(_pval) {
+        if (settings.include_pvalue && !isNaN(_pval)) {
+            if(elem.svg.select(".pval").empty()) {
+                addPvals(_pval);
+            }else{
+                updatePvals(_pval);
+            }
+        }else{
+            if(!elem.svg.select(".pval").empty()) {
+                elem.svg.select(".pval").remove();
+            }
+        }
+    }
     
     function addCurve(_obj){
         if(!(_obj.settings.curveId in curvesInfo)){
@@ -446,13 +476,22 @@ var SurvivalCurve = function() {
                         appendInfoTable(_infoTableInputArr);
                     }
                     if (_opts.settings.include_pvalue) {
-                        addPvals();
+                        addPvals(vals.pVal);
                     }            
             } else {
                 $("#" + divs.infoTableDivId).empty();
                 $("#" + divs.infoTableDivId).append("<span style='margin: 20px; color: grey;'>Survival data not available</span>");
             }
 
+        },
+        updateView: function(data, opts){
+            if(opts){
+                updateSettings(opts.settings);
+            }
+
+            if(data){
+                updatePval(data.pval);
+            }
         },
         addCurve: addCurve,
         removeCurve: removeCurve

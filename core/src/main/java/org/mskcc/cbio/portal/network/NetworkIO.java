@@ -57,30 +57,30 @@ import org.mskcc.cbio.portal.util.GlobalProperties;
  * @author jj
  */
 public final class NetworkIO {
-    
+
     public static enum NetworkSize {
         SMALL,
         MEDIUM,
         LARGE
     }
-    
+
     /**
      * private constructor for utility class.
      */
     private NetworkIO(){}
-    
+
     /**
      * Interface for get label from a node
      */
     public static interface NodeLabelHandler {
         /**
-         * 
+         *
          * @param node a node
          * @return label for the node
          */
         String getLabel(Node node);
     }
-    
+
     public static String getCPath2URL(Set<String> genes) {
         StringBuilder sbUrl = new StringBuilder(GlobalProperties.getPathwayCommonsUrl());
 			sbUrl.append("/graph?format=EXTENDED_BINARY_SIF&kind=NEIGHBORHOOD");
@@ -88,14 +88,14 @@ public final class NetworkIO {
             sbUrl.append("&source=urn:biopax:RelationshipXref:HGNC_");
             sbUrl.append(gene.toUpperCase());
         }
-        
+
         return sbUrl.toString();
     }
-    
-    public static Network readNetworkFromCPath2(Set<String> genes, boolean removeSelfEdge) 
+
+    public static Network readNetworkFromCPath2(Set<String> genes, boolean removeSelfEdge)
             throws DaoException, IOException {
         String cPath2Url = getCPath2URL(genes);
-        
+
         MultiThreadedHttpConnectionManager connectionManager =
                 ConnectionManager.getConnectionManager();
         HttpClient client = new HttpClient(connectionManager);
@@ -112,14 +112,14 @@ public final class NetworkIO {
                 //  Otherwise, throw HTTP Exception Object
                 throw new HttpException(statusCode + ": " + HttpStatus.getStatusText(statusCode)
                         + " Base URL:  " + cPath2Url);
-            }            
+            }
 
         } finally {
             //  Must release connection back to Apache Commons Connection Pool
             method.releaseConnection();
         }
     }
-    
+
     /**
      * Read a network from extended SIF of cPath2
      * @param isSif input stream of SIF
@@ -193,12 +193,12 @@ public final class NetworkIO {
             }
             network.addEdge(edge, strs[0], strs[2]);
         }
-        
+
         NetworkUtils.mergeNodesWithSameSymbol(network);
 
         return network;
     }
-    
+
     private static boolean isEdgeDirected(String interaction) {
         if (interaction==null) {
             return false;
@@ -207,51 +207,51 @@ public final class NetworkIO {
         if (interaction.equals(AbstractDrugInfoImporter.DRUG_INTERACTION_TYPE)) {
             return true;
         }
-        
+
         if (interaction.equals("COMPONENT_OF")) {
             return true;
         }
-        
+
         if (interaction.equals("CO_CONTROL")) {
             return false;
         }
-        
+
         if (interaction.equals("INTERACTS_WITH")) {
             return false;
         }
-        
+
         if (interaction.equals("IN_SAME_COMPONENT")) {
             return false;
         }
-        
+
         if (interaction.equals("METABOLIC_CATALYSIS")) {
             return true;
         }
-        
+
         if (interaction.equals("METABOLIC_CATALYSIS")) {
             return false;
         }
-        
+
         if (interaction.equals("SEQUENTIAL_CATALYSIS")) {
             return true;
         }
-        
+
         if (interaction.equals("STATE_CHANGE")) {
             return true;
         }
-        
+
         if (interaction.equals("GENERIC_OF")) {
             return true;
         }
-        
-        return false;        
+
+        return false;
     }
-    
+
     /**
      * Read network in CGDS database
      * @param genes
      * @return
-     * @throws Exception 
+     * @throws Exception
      */
     public static Network readNetworkFromCGDS(Set<String> genes, NetworkSize netSize,
             Collection<String> dataSources, boolean removeSelfEdge) throws DaoException {
@@ -272,13 +272,13 @@ public final class NetworkIO {
             if (removeSelfEdge && geneA == geneB) {
                 continue;
             }
-            
+
             String geneAID = Long.toString(geneA);
             String geneBID = Long.toString(geneB);
-            
+
             addNode(net, geneAID, entrezToHugo(entrezHugoMap, geneA, daoGeneOptimized));
             addNode(net, geneBID, entrezToHugo(entrezHugoMap, geneB, daoGeneOptimized));
-            
+
             String interactionType = interaction.getInteractionType();
             String pubmed = interaction.getPmids();
             String source = interaction.getSource();
@@ -297,7 +297,7 @@ public final class NetworkIO {
 
             net.addEdge(edge, geneAID, geneBID);
         }
-        
+
         Set<Node> seedNodes = addMissingGenesAndReturnSeedNodes(net, genes);
         classifyNodes(net, seedNodes);
         if (netSize==NetworkSize.MEDIUM) {
@@ -334,10 +334,10 @@ public final class NetworkIO {
 
             net.addEdge(edge, drugID, geneID);
         }
-        
+
         return net;
     }
-    
+
     private static Set<Node> addMissingGenesAndReturnSeedNodes(Network net, Set<String> seedGenes)
             throws DaoException {
         Set<Node> seedNodes = new HashSet<Node>(seedGenes.size());
@@ -348,22 +348,22 @@ public final class NetworkIO {
                 seedNodes.add(node);
             }
         }
-        
+
         Map<Long,String> entrezHugoMap = getEntrezHugoMap(missingGenes);
         for (Map.Entry<Long,String> entry : entrezHugoMap.entrySet()) {
             Node node = addNode(net, entry.getKey().toString(), entry.getValue());
             seedNodes.add(node);
         }
-        
+
         return seedNodes;
     }
-    
+
     private static void classifyNodes(Network net, Set<Node> seedNodes) {
         for (Node seed : seedNodes) {
             seed.setAttribute("IN_QUERY", "true");
             //seed.setAttribute("IN_MEDIUM", "true");
         }
-        
+
         for (Node node:  net.getNodes()) {
             if (seedNodes.contains(node)) {
                 continue;
@@ -372,11 +372,11 @@ public final class NetworkIO {
             node.setAttribute("IN_QUERY", "false"); //TODO: remove this
         }
     }
-    
+
     /**
      * remove linker nodes that connect to only one query gene
      * @param net
-     * @param seedNodes 
+     * @param seedNodes
      */
     private static void pruneMediumNetwork(final Network net, final Set<Node> seedNodes) {
         NetworkUtils.pruneNetwork(net, new NetworkUtils.NodeSelector() {
@@ -384,7 +384,7 @@ public final class NetworkIO {
                 if (seedNodes.contains(node)) {
                     return false;
                 }
-                
+
                 int seedDegree = 0;
                 for (Node neighbor : net.getNeighbors(node)) {
                     if (seedNodes.contains(neighbor)) {
@@ -397,7 +397,7 @@ public final class NetworkIO {
             }
         });
     }
-    
+
     private static Node addNode(Network net, String entrez, String hugo) {
         Node node = net.getNodeById(entrez);
         if (node != null) {
@@ -459,7 +459,7 @@ public final class NetworkIO {
         }
         return map;
     }
-    
+
     private static String entrezToHugo(Map<Long,String> mapEntrezHugo, long entrez,
             DaoGeneOptimized daoGeneOptimized) throws DaoException {
         String hugo = mapEntrezHugo.get(entrez);
@@ -469,16 +469,16 @@ public final class NetworkIO {
         }
         return hugo;
     }
-    
+
     /**
      * Write network to SIF format
      * @param network network to write
-     * @param nlh 
+     * @param nlh
      * @return a string in SIF format
-     */    
+     */
     public static String writeNetwork2Sif(Network network, NodeLabelHandler nlh) {
         StringBuilder sb = new StringBuilder();
-        
+
         for (Edge edge : network.getEdges()) {
             Node[] nodes = network.getNodes(edge);
             sb.append(nlh.getLabel(nodes[0]));
@@ -488,22 +488,22 @@ public final class NetworkIO {
             sb.append(nlh.getLabel(nodes[1]));
             sb.append("\n");
         }
-        
-        return sb.toString();   
+
+        return sb.toString();
     }
-    
+
     /**
      * Write network to GraphML format
      * @param network network to write
-     * @param nlh 
+     * @param nlh
      * @return a tring in GraphML format
-     */    
+     */
     public static String writeNetwork2GraphML(Network network, NodeLabelHandler nlh) {
         Map<String,String> mapNodeAttrNameType = new HashMap<String,String>();
         Map<String,String> mapEdgeAttrNameType = new HashMap<String,String>();
-        
+
         StringBuilder sbNodeEdge = new StringBuilder();
-        
+
         for (Node node : network.getNodes()) {
             sbNodeEdge.append("  <node id=\"");
             sbNodeEdge.append(node.getId());
@@ -511,15 +511,15 @@ public final class NetworkIO {
             sbNodeEdge.append("   <data key=\"label\">");
             sbNodeEdge.append(nlh.getLabel(node));
             sbNodeEdge.append("</data>\n");
-            
+
             sbNodeEdge.append("   <data key=\"type\">");
             sbNodeEdge.append(node.getType().toString());
             sbNodeEdge.append("</data>\n");
-            
+
             exportAttributes(node.getAttributes(),sbNodeEdge,mapNodeAttrNameType);
             sbNodeEdge.append("  </node>\n");
         }
-        
+
         for (Edge edge : network.getEdges()) {
             Node[] nodes = network.getNodes(edge);
             sbNodeEdge.append("  <edge source=\"");
@@ -529,20 +529,20 @@ public final class NetworkIO {
             sbNodeEdge.append("\" directed=\"");
             sbNodeEdge.append(Boolean.toString(edge.isDirected()));
             sbNodeEdge.append("\">\n");
-            
+
             sbNodeEdge.append("   <data key=\"type\">");
             sbNodeEdge.append(edge.getInteractionType());
             sbNodeEdge.append("</data>\n");
-            
+
             exportAttributes(edge.getAttributes(),sbNodeEdge,mapEdgeAttrNameType);
             sbNodeEdge.append("  </edge>\n");
         }
-        
+
         StringBuilder sb = new StringBuilder();
         sb.append("<graphml>\n");
         sb.append(" <key id=\"label\" for=\"node\" attr.name=\"label\" attr.type=\"string\"/>\n");
         sb.append(" <key id=\"type\" for=\"all\" attr.name=\"type\" attr.type=\"string\"/>\n");
-        
+
         for (Map.Entry<String,String> entry : mapNodeAttrNameType.entrySet()) {
             sb.append(" <key id=\"")
               .append(entry.getKey())
@@ -552,7 +552,7 @@ public final class NetworkIO {
               .append(entry.getValue())
               .append("\"/>\n");
         }
-        
+
         for (Map.Entry<String,String> entry : mapEdgeAttrNameType.entrySet()) {
             sb.append(" <key id=\"")
               .append(entry.getKey())
@@ -562,22 +562,22 @@ public final class NetworkIO {
               .append(entry.getValue())
               .append("\"/>\n");
         }
-        
-        sb.append(" <graph edgedefault=\"undirected\">\n");        
+
+        sb.append(" <graph edgedefault=\"undirected\">\n");
         sb.append(sbNodeEdge);
         sb.append(" </graph>\n");
-        
+
         sb.append("</graphml>\n");
-        
+
         return sb.toString();
     }
-    
-    private static void exportAttributes(Map<String,Object> attrs, 
+
+    private static void exportAttributes(Map<String,Object> attrs,
             StringBuilder to, Map<String,String> mapAttrNameType) {
         for (Map.Entry<String,Object> entry : attrs.entrySet()) {
             String attr = entry.getKey();
             Object value = entry.getValue();
-            
+
             to.append("   <data key=\"");
             to.append(attr);
             to.append("\">");
@@ -596,20 +596,20 @@ public final class NetworkIO {
             }
         }
     }
-    
+
     private static String getAttrType(Object obj) {
         if (obj instanceof Integer) {
             return "integer";
         }
-        
+
         if (obj instanceof Float || obj instanceof Double) {
             return "double";
         }
-        
+
         if (obj instanceof Boolean) {
             return "boolean";
         }
-        
+
         return "string";
     }
 }

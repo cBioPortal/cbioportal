@@ -31,10 +31,12 @@
 */
 
 package org.mskcc.cbio.portal.util;
-
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import junit.framework.Assert;
-import junit.framework.TestCase;
 
+import org.junit.Test;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ComparisonOp;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ConcreteDataTypeSpec;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.DiscreteDataTypeSetSpec;
@@ -48,10 +50,13 @@ import org.mskcc.cbio.portal.oncoPrintSpecLanguage.OncoPrintSpecification;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParsedFullDataTypeSpec;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.TestOncoPrintSpecificationLibrary;
 
-public class TestValueParser extends TestCase {
+import static org.junit.Assert.*;
+
+public class TestValueParser {
    // TODO: reorganize to test individual methods separately in different
    // methods
 
+	@Test
    public void testValueParser() {
 
       ValueParser parser = new ValueParser("COPY_NUMBER_ALTERATION:2;MUTATION_EXTENDED:C135F;MRNA_EXPRESSION:3;", 1.0);
@@ -251,6 +256,7 @@ public class TestValueParser extends TestCase {
 
    }
 
+	@Test
    public void testIsDiscreteTypeAltered() {
 
       OncoPrintGeneDisplaySpec theOncoPrintGeneDisplaySpec = TestOncoPrintSpecificationLibrary

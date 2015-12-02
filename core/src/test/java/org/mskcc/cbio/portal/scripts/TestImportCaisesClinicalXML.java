@@ -33,11 +33,10 @@
 package org.mskcc.cbio.portal.scripts;
 
 import java.io.File;
-import org.junit.After;
-import org.junit.AfterClass;
+
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 import org.mskcc.cbio.portal.dao.DaoPatient;
 import org.mskcc.cbio.portal.dao.DaoSample;
@@ -46,65 +45,56 @@ import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.Patient;
 import org.mskcc.cbio.portal.model.Sample;
 import org.mskcc.cbio.portal.model.TypeOfCancer;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
  * @author jgao
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
+@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+@Transactional
 public class TestImportCaisesClinicalXML {
     
-    public TestImportCaisesClinicalXML() {
-    }
-    
-    @BeforeClass
-    public static void setUpClass() {
+    @Before
+    public void setUp() {
         try {
-            ResetDatabase.resetDatabase();
             
             TypeOfCancer typeOfCancer = new TypeOfCancer();
             typeOfCancer.setTypeOfCancerId("prad");
             typeOfCancer.setName("prad");
             typeOfCancer.setShortName("prad");
             DaoTypeOfCancer.addTypeOfCancer(typeOfCancer);
+            
+            CancerStudy cancerStudy = new CancerStudy("prad","prad","prad","prad",true);
+            DaoCancerStudy.addCancerStudy(cancerStudy);
+            
+            int studyId = DaoCancerStudy.getCancerStudyByStableId("prad").getInternalId();
+
+            DaoPatient.addPatient(new Patient(cancerStudy, "97115001"));
+            DaoPatient.addPatient(new Patient(cancerStudy, "97115002"));
+            DaoPatient.addPatient(new Patient(cancerStudy, "97115003"));
+
+            int patient1 = DaoPatient.getPatientByCancerStudyAndPatientId(studyId, "97115001").getInternalId();
+            int patient2 = DaoPatient.getPatientByCancerStudyAndPatientId(studyId, "97115002").getInternalId();
+
+            DaoSample.addSample(new Sample("SC_9022-Tumor", patient1, "prad"));
+            DaoSample.addSample(new Sample("SC_9023-Tumor", patient2, "prad"));
+             
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
     
-    @AfterClass
-    public static void tearDownClass() {
-        
-    }
-    
-    @Before
-    public void setUp() {
-    }
-    
-    @After
-    public void tearDown() {
-    }
-
     // TODO add test methods here.
     // The methods must be annotated with annotation @Test. For example:
     //
      @Test
      public void test() throws Exception {
-        CancerStudy cancerStudy = new CancerStudy("prad","prad","prad","prad",true);
-        cancerStudy.setInternalId(1);
-        DaoCancerStudy.addCancerStudy(cancerStudy);
-
-        DaoPatient.addPatient(new Patient(cancerStudy, "97115001"));
-        DaoPatient.addPatient(new Patient(cancerStudy, "97115002"));
-        DaoPatient.addPatient(new Patient(cancerStudy, "97115003"));
-
-        int patient1 = DaoPatient.getPatientByCancerStudyAndPatientId(1, "97115001").getInternalId();
-        int patient2 = DaoPatient.getPatientByCancerStudyAndPatientId(1, "97115002").getInternalId();
-        //int patient3 = DaoPatient.getPatientByCancerStudyAndPatientId(1, "97115003").getInternalId();
-
-        DaoSample.addSample(new Sample("SC_9022-Tumor", patient1, "prad"));
-        DaoSample.addSample(new Sample("SC_9023-Tumor", patient2, "prad"));
-        //DaoSample.addSample(new Sample("SC_9024-Tumor", patient3, "test"));
-         
         File xmlFile = new File("target/test-classes/data_clinical_caises.xml");
         ImportCaisesClinicalXML.importData(xmlFile, 1);
      }

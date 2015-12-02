@@ -9,14 +9,23 @@ var profileSpec = (function() {
         });
         $("#" + ids.sidebar[axis].spec_div).append("</select>");
 
-        $("#" + ids.sidebar[axis].gene).change(function() {
-            regenerate_plots(axis);
-        });
-        
         if (axis === "y") {
-            $("#" + ids.sidebar.y.spec_div).append("<div id='" + 
-                    ids.sidebar.y.lock_gene + "-div' style='display:inline;'></div>");
+            $("#" + ids.sidebar.y.spec_div).append("<div id='" +
+            ids.sidebar.y.lock_gene + "-div' style='display:inline;'></div>");
         }
+
+        $("#" + ids.sidebar[axis].gene).change(function() {
+            if (axis === "y") {
+                regenerate_plots("y");
+            } else if (axis === "x") {
+                if(document.getElementById(ids.sidebar.y.lock_gene) !== null && document.getElementById(ids.sidebar.y.lock_gene).checked) {
+                    regenerate_plots("xy");
+                } else {
+                    regenerate_plots("x");
+                }
+            }
+        });
+
     }   
     
     function appendProfileTypeList(axis) {
@@ -29,8 +38,18 @@ var profileSpec = (function() {
             $.each(metaData.getGeneticProfilesMeta($("#" + ids.sidebar[axis].gene).val()), function(index, obj) {
                 if($.inArray(obj.type, _tmp) === -1 && 
                     obj.type !== "MUTATION_EXTENDED" &&
-                    obj.type !== "PROTEIN_LEVEL") //tmp: skip mutation profile
+                    obj.type !== "PROTEIN_ARRAY_PROTEIN_LEVEL") //tmp: skip mutation profile & PROTEIN_ARRAY_PROTEIN_LEVEL
                         _tmp.push(obj.type);
+            });
+
+            _tmp.sort(function(a, b) {
+                if (genetic_profile_type_priority_list.indexOf(a) < genetic_profile_type_priority_list.indexOf(b)) {
+                    return 1;
+                } else if (genetic_profile_type_priority_list.indexOf(a) > genetic_profile_type_priority_list.indexOf(b)) {
+                    return -1;
+                } else if (genetic_profile_type_priority_list.indexOf(a) === genetic_profile_type_priority_list.indexOf(b)) {
+                    return 0;
+                }
             });
 
             $.each(_tmp, function(index, value) {
@@ -39,11 +58,6 @@ var profileSpec = (function() {
             });
             $("#" + ids.sidebar[axis].spec_div).append("</select>");            
         }
-
-//        $("#" + ids.sidebar[axis].gene).change(function() {
-//            $("#" + ids.sidebar[axis].profile_type).empty();
-//            append();
-//        });
 
         $("#" + ids.sidebar[axis].profile_type).change(function() {
             regenerate_plots(axis);
@@ -64,11 +78,6 @@ var profileSpec = (function() {
                 }
             });
         };
-        
-//        $("#" + ids.sidebar[axis].gene).change(function() {
-//            $("#" + ids.sidebar[axis].profile_name).empty();
-//            append();
-//        });
 
         $("#" + ids.sidebar[axis].profile_type).change(function() {
             $("#" + ids.sidebar[axis].profile_name).empty();
@@ -84,7 +93,7 @@ var profileSpec = (function() {
     function updateProfileNameList(axis) {
         $("#" + ids.sidebar[axis].profile_name).empty();
         append();
-        
+
         function append() {
             $.each(metaData.getGeneticProfilesMeta($("#" + ids.sidebar[axis].gene).val()), function(index, obj) {
                 if (obj.type === $("#" + ids.sidebar[axis].profile_type).val()) {
@@ -110,10 +119,6 @@ var profileSpec = (function() {
  
         $("#" + ids.sidebar[axis].spec_div).append("<div id='" + ids.sidebar[axis].log_scale + "-div'></div>");
         append();
-        
-//        $("#" + ids.sidebar[axis].gene).change(function() {
-//            append();
-//        });
 
         $("#" + ids.sidebar[axis].profile_type).change(function() {
             append();
@@ -156,9 +161,8 @@ var profileSpec = (function() {
                 } else document.getElementById(ids.sidebar.y.gene).disabled = true;
             });
             $("#" + ids.sidebar.x.gene).change(function() {
-                if(document.getElementById(ids.sidebar.y.lock_gene).checked) {
+                if(document.getElementById(ids.sidebar.y.lock_gene) !== null && document.getElementById(ids.sidebar.y.lock_gene).checked) {
                     $("#" + ids.sidebar.y.gene).prop("selectedIndex", $("#" + ids.sidebar.x.gene).prop("selectedIndex"));
-                    //regenerate_plots("y");
                 }
             });
         }

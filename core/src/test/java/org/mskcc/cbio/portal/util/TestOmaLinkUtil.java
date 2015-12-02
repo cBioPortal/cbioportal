@@ -32,16 +32,18 @@
 
 package org.mskcc.cbio.portal.util;
 
-import junit.framework.TestCase;
+
 
 import java.net.MalformedURLException;
+
+import static org.junit.Assert.*;
 
 /**
  * Tests the OmaLink Utility Class.
  *
  * @author Ethan Cerami.
  */
-public class TestOmaLinkUtil extends TestCase {
+public class TestOmaLinkUtil {
     private String queryStringParams1 = "cm=var&fts=all&var=17,7517830,G,C";
     private String queryStringParams2 = "from=601&prot=EGFR_HUMAN&to=800&var=C620Y";
 

@@ -32,18 +32,12 @@
 
 package org.mskcc.cbio.portal.scripts;
 
-import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.dao.DaoTypeOfCancer;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.model.TypeOfCancer;
-import org.mskcc.cbio.portal.util.ConsoleUtil;
-import org.mskcc.cbio.portal.util.ProgressMonitor;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.Properties;
-import java.util.Scanner;
+import java.io.*;
+import java.util.*;
 
 /**
  * Load all the types of cancer and their names from a file.
@@ -67,6 +61,7 @@ public class ImportTypesOfCancers {
     }
 
     public static void load(ProgressMonitor pMonitor, File file) throws IOException, DaoException {
+		SpringUtil.initDataSource();
         ImportTypesOfCancers.load(pMonitor, file, true);
     }
 

@@ -181,16 +181,18 @@ $(document).ready(function() {
 					vars.caseIdClass = caseIdFormat.style;
 					vars.caseIdTip = caseIdFormat.tip;
 
+					var templateFn;
+
 					if (mutation.linkToPatientView)
 					{
-						return _.template(
-								$("#mutation_table_case_id_template").html(), vars);
+						templateFn = _.template($("#mutation_table_case_id_template").html());
 					}
 					else
 					{
-						return _.template(
-								$("#standalone_mutation_case_id_template").html(), vars);
+						templateFn = _.template($("#standalone_mutation_case_id_template").html());
 					}
+
+					return templateFn(vars);
 				}
 			}
 		};
@@ -204,8 +206,10 @@ $(document).ready(function() {
 			},
 			proxy: {
 				mutationProxy: {
-					lazy: false,
-					data: mutationData
+					options: {
+						initMode: "full",
+						data: mutationData
+					}
 				}
 			},
 			view: {

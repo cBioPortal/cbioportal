@@ -65,8 +65,26 @@ public class MySQLbulkLoader {
         return mySQLbulkLoader;
    }
    
+   /**
+    * Flushes all pending data from the bulk writer. Temporarily disables referential
+    * integrity while it does so, largely because MySQL uses a weird model and expects
+    * referential integrity at each record, not just at the end of the transaction.
+    * @return the number of rows added
+    * @throws DaoException
+    */
    public static int flushAll() throws DaoException {
         try {
+            Connection con = JdbcUtil.getDbConnection(MySQLbulkLoader.class);
+            PreparedStatement stmt = con.prepareStatement("SELECT @@foreign_key_checks;");
+            ResultSet result = stmt.executeQuery();
+            
+            result.first();
+            int checks = result.getInt(1);
+
+            stmt = con.prepareStatement("SET foreign_key_checks = ?;");
+            stmt.setLong(1, 0);
+            stmt.execute();
+            
             int n = 0;
             for (MySQLbulkLoader mySQLbulkLoader : mySQLbulkLoaders.values()) {
                 n += mySQLbulkLoader.loadDataFromTempFileIntoDBMS();
@@ -74,11 +92,16 @@ public class MySQLbulkLoader {
             
             mySQLbulkLoaders.clear();
             
+            stmt.setLong(1, checks);
+            stmt.execute();
+            
             return n;
         } catch (IOException e) {
             System.err.println("Could not open temp file");
             e.printStackTrace();
             return -1;
+        } catch (SQLException e) {
+        	throw new DaoException(e);
         }
     }
 

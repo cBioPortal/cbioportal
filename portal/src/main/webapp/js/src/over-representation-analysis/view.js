@@ -35,12 +35,12 @@
  * @param plot_div: optional parameter, i.e. the div where to add a volcano plot representation of the data.
                     If set, a volcano plot is rendered next to the data table. 
  */
-var orTable = function(plot_div, euler_div ) {
+var orTable = function(plot_div, minionco_div ) {
     
 	var self = this;
 	self.plot_div = plot_div;
-	self.euler_div = euler_div;
-	
+	self.euler_div = minionco_div;
+
     var div_id, table_id, data, titles; //titles is formatted string of column names with html markdown in
     var col_index, orTableInstance, profile_type, profile_id, table_title;
     var selected_genes = [];
@@ -422,96 +422,16 @@ var orTable = function(plot_div, euler_div ) {
 
                 self.volcanoPlot.specialSelectItems(selected_genes, remainingGenes);
 
-                //show current clicked gene in euler diagram
+                //show current clicked gene in mini onco
                 var current_gene = $(this).attr("value");
-                var ratioAltInAlt = 0;
-                var ratioAltInUnalt = 0;
-                for (var i = 0; i < self.originalData.length; i++) {
-                    if (current_gene == self.originalData[i]["Gene"]) {
-                        ratioAltInAlt = self.originalData[i]["percentage of alteration in altered group"];
-                        ratioAltInUnalt = self.originalData[i]["percentage of alteration in unaltered group"];
-                        break;
+                // fetch the alteredSamples
+                window.QuerySession.getAlteredSamples().then(
+                    function (setAlt) {
+                        // when we have the data, build the mini oncoprint
+                        buildMiniOnco(setAlt.length, current_gene);
                     }
-                }
-
-                if (ratioAltInAlt === "NaN") ratioAltInAlt = 0;
-                if (ratioAltInUnalt === "NaN") ratioAltInUnalt = 0;
-
-                console.log(ratioAltInAlt);
-                console.log(ratioAltInUnalt);
-
-                var totalSetSize = 2000; //TODO - retrieve this from main page - now just set to a fixed value for the prototype example.
-                var ratioAlt = 0.93; //TODO - retrieve this from main page - now just set to a fixed value for the prototype example.
-                var setSizeAlt = totalSetSize * ratioAlt;
-                var setSizeUnalt = totalSetSize * (1 - ratioAlt);
-
-                var setSizeAltInAlt = setSizeAlt * ratioAltInAlt;
-                var setSizeAltInUnalt = setSizeUnalt * ratioAltInUnalt;
-
-
-                var current_gene = $(this).attr("value");
-
-                $("#" + self.plot_div).append("<div id='" + euler_div + "'/>");
-
-                var bardata = [{
-                    barName: "QGenes",
-                    barPieceName: "QGenes Altered",
-                    barPieceValue: setSizeAlt
-                }, {
-                    barName: "QGenes",
-                    barPieceName: "QGenes Unaltered",
-                    barPieceValue: setSizeUnalt
-                }, {
-                    barName: current_gene,
-                    barPieceName: "QGenes Altered, TNF Unaltered",
-                    barPieceValue: setSizeAlt - setSizeAltInAlt
-                }, {
-                    barName: current_gene,
-                    barPieceName: "QGenes Altered, TNF Altered",
-                    barPieceValue: setSizeAltInAlt
-                }, {
-                    barName: current_gene,
-                    barPieceName: "QGenes Unaltered, TNF Altered",
-                    barPieceValue: setSizeUnalt - setSizeAltInUnalt
-                }, {
-                    barName: current_gene,
-                    barPieceName: "QGenes Unaltered, TNF Unaltered",
-                    barPieceValue: setSizeAltInUnalt
-                }];
-
-                if (!self.chart) {
-                    $("#" + self.plot_div).append("<div id='"+ euler_div + "'/>");
-                    self.chart = new stacked_histogram(bardata);
-                    self.chart.addStackedHistogram("#" + euler_div);
-                }
-
-
-                //var needLegendInit = false;
-                //if (!self.chart) {
-            		//self.chart = venn.VennDiagram();
-                //	//add euler_diagram:
-                //	$("#" + self.plot_div).append("<div id='"+ euler_div + "'/>");
-                //	needLegendInit = true;
-                //}
-                //
-                //d3.select("#" + self.euler_div).datum(sets).call(self.chart);
-                //
-                //if (needLegendInit) {
-            		////legend:
-	            	//$("#" + self.euler_div).append("<div id='legend_"+ self.euler_div+ "'/>");
-                //}
-                //
-                //var setA_desc = 'A= samples where query genes are altered';
-                //var setB1_desc = 'B1= samples where [' + current_gene + '] is altered in A';
-                //var setB2_desc = 'B2= samples where [' + current_gene + '] is altered in C';
-                //var setC_desc = 'C= samples where query genes are NOT altered';
-                //$("#legend_" + self.euler_div).html(setA_desc + "<br/>" +
-            		//	setB1_desc + "<br/>" +
-            		//	setB2_desc + "<br/>" +
-            		//	setC_desc);
+                )
             }
-
-
         });
 
         $("#" + btn_id).click(function() {
@@ -546,6 +466,86 @@ var orTable = function(plot_div, euler_div ) {
                 }
             }
         });
+    }
+
+    // build a mini oncoprint
+    // the mini oncoprint works as follows
+    // Bar1: Query Genes
+    //      - Altered Samples
+    //      - Unaltered Samples
+    // Bar2: Selected Gene
+    //      - Query Genes Altered and Selected Gene Unaltered Samples
+    //      - Query Genes Altered and Selected Gene Altered Samples
+    //      - Query Genes Unaltered and Selected Gene Altered Samples
+    //      - Query Genes Unaltered and Selected Gene Unaltered Samples
+    function buildMiniOnco(setSizeAlt, current_gene){
+        // find the ratios from the table
+        var ratioAltInAlt = 0;
+        var ratioAltInUnalt = 0;
+        for (var i = 0; i < self.originalData.length; i++) {
+            if (current_gene == self.originalData[i]["Gene"]) {
+                ratioAltInAlt = self.originalData[i]["percentage of alteration in altered group"];
+                ratioAltInUnalt = self.originalData[i]["percentage of alteration in unaltered group"];
+                break;
+            }
+        }
+
+        if (ratioAltInAlt === "NaN"){
+            ratioAltInAlt = 0;
+        }
+        if (ratioAltInUnalt === "NaN"){
+            ratioAltInUnalt = 0;
+        }
+
+        // retrieve the total number of samples and calculate the setsizes
+        var totalSetSize = window.QuerySession.getSampleIds().length;
+        var setSizeUnalt = totalSetSize - setSizeAlt;
+        var setSizeAltInAlt = setSizeAlt * ratioAltInAlt;
+        var setSizeAltInUnalt = setSizeUnalt * ratioAltInUnalt;
+
+        // create the bardata
+        var bardata = [{
+            barName: current_gene,
+            barPieceName: "QGenes Unaltered, "+current_gene+" Unaltered",
+            barPieceValue: setSizeUnalt - setSizeAltInUnalt,
+            color: "lightgrey"
+        }, {
+            barName: current_gene,
+            barPieceName: "QGenes Unaltered, "+current_gene+" Altered",
+            barPieceValue: setSizeAltInUnalt,
+            color: "#58ACFA"
+        }, {
+            barName: current_gene,
+            barPieceName: "QGenes Altered, "+current_gene+" Altered",
+            barPieceValue: setSizeAltInAlt,
+            color: "#58ACFA"
+        }, {
+            barName: current_gene,
+            barPieceName: "QGenes Altered, "+current_gene+" Unaltered",
+            barPieceValue: setSizeAlt - setSizeAltInAlt,
+            color: "lightgrey"
+        }, {
+            barName: "QGenes",
+            barPieceName: "QGenes Unaltered",
+            barPieceValue: setSizeUnalt,
+            color: "lightgrey"
+        },{
+            barName: "QGenes",
+            barPieceName: "QGenes Altered",
+            barPieceValue: setSizeAlt,
+            color: "#58ACFA"
+        }];
+
+        // if there is no mini-onco yet, append the div and create the histogram
+        if (!self.chart) {
+            $("#" + self.plot_div).append("<div id='" + minionco_div + "'/>");
+            self.chart = new stacked_histogram("#" + minionco_div);
+            self.chart.createStackedHistogram(bardata);
+        }
+        else{
+            self.chart.updateStackedHistogram(bardata);
+        }
+
     }
 
     function event_listener_details_btn() {

@@ -39,7 +39,7 @@ var orTable = function(plot_div, minionco_div ) {
     
 	var self = this;
 	self.plot_div = plot_div;
-	self.euler_div = minionco_div;
+	self.minionco_div = minionco_div;
 
     var div_id, table_id, data, titles; //titles is formatted string of column names with html markdown in
     var col_index, orTableInstance, profile_type, profile_id, table_title;
@@ -795,7 +795,7 @@ var orSubTabView = function() {
                     var _table_div = _profile_obj.STABLE_ID.replace(/\./g, "_") + orAnalysis.postfix.datatable_div;
                     var _table_id = _profile_obj.STABLE_ID.replace(/\./g, "_") + orAnalysis.postfix.datatable_id;
                     var _plot_div = null;
-                    var euler_div = null;
+                    var minionco_div = null;
                     if (_profile_type == orAnalysis.profile_type.mutations) {
                     	//if profile is of type "mutations" then we also want a volcano plot on the left side:
                     	_plot_div = _profile_obj.STABLE_ID.replace(/\./g, "_") + orAnalysis.postfix.plot_div;
@@ -804,7 +804,7 @@ var orSubTabView = function() {
                     	//adding this to contain floated plot (see "float: left"  above):
                     	$("#" + _div_id).css("overflow", "hidden");
                     	//for the euler diagram:
-                    	euler_div = "euler" + _plot_div;
+                    	minionco_div = "euler" + _plot_div;
 
                     }
                     else
@@ -822,7 +822,7 @@ var orSubTabView = function() {
                     var param = new orAjaxParam(or_tab.getAlteredCaseList(), or_tab.getUnalteredCaseList(), _profile_obj.STABLE_ID, _gene_set);
                     var or_data = new orData();
                     or_data.init(param, _table_id);
-                    var or_table = new orTable(_plot_div, euler_div);
+                    var or_table = new orTable(_plot_div, minionco_div);
                     if (_profile_obj.STABLE_ID.indexOf("rna_seq") !== -1) {
                         or_data.get(or_table.init, _div_id, _table_div, _table_id, _profile_obj.NAME + orAnalysis.postfix.title_log, _profile_type, _profile_obj.STABLE_ID.replace(/\./g, "_"), last_profile);
                     } else {

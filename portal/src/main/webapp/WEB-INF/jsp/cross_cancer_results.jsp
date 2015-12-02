@@ -170,7 +170,7 @@
             <li>
                 <a href="#cc-mutations" id="cc-mutations-link" title="Mutation details, including mutation type, amino acid change and predicted functional consequence">Mutations</a>
             </li>
-            <li><a href="#cc-plots" id="cc-plots-link" title="Plots with mRNA expression data">Expression</a></li>
+            <li><a href="#cc-plots" id="cc-plots-link" title="Plots with mRNA expression data (TCGA provisional studies only)">Expression</a></li>
             <li>
                 <a href="#cc-download" id="cc-download-link" title="Download all alterations or copy and paste into Excel">Download</a>
             </li>

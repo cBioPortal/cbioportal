@@ -871,19 +871,19 @@ var OncoKB = (function () {
             }
         }
 
-        function createOncogenicIcon(target, oncogenic) {
+        function createOncogenicIcon(target, oncogenic, hasResistanceDrugs) {
             var svg = d3.select(target)
                 .append("svg")
-                .attr("width", 14)
-                .attr("height", 14);
+                .attr("width", 17)
+                .attr("height", 16);
 
             var g = svg.append('g')
-                .attr('transform', 'translate(7, 7)');
+                .attr('transform', 'translate(7, 9)');
 
             var color = '#AAAAAA';
             switch (oncogenic) {
                 case 0:
-                    color = '#000';
+                    color = '#AAAAAA';
                     break;
                 case -1:
                     color = '#696969';
@@ -894,6 +894,10 @@ var OncoKB = (function () {
                 case 1:
                     color = '#007FFF';
                     break;
+            }
+
+            if(hasResistanceDrugs) {
+                color = '#007FFF';
             }
 
             //Append three circals
@@ -913,6 +917,15 @@ var OncoKB = (function () {
                 .attr('r', '1.5')
                 .attr('fill', color)
                 .attr('stroke', 'none');
+
+            if(hasResistanceDrugs) {
+                var resistanceDot = svg.append('g')
+                    .attr('transform', 'translate(13, 4)');
+
+                resistanceDot.append('circle')
+                    .attr('r', '4')
+                    .attr('fill', '#ffa500');
+            }
         }
 
         return {
@@ -1269,7 +1282,7 @@ OncoKB.Instance.prototype = {
                     $(this).empty();
                     if (self.variants.hasOwnProperty(oncokbId)){
                         var _tip = '', _oncogenicTip = '', _hotspotTip = '';
-                        OncoKB.svgs.createOncogenicIcon(this, self.variants[oncokbId].evidence.oncogenic);
+                        OncoKB.svgs.createOncogenicIcon(this, self.variants[oncokbId].evidence.oncogenic,self.variants[oncokbId].evidence.treatments.resistance.length>0);
                         _oncogenicTip += OncoKB.str.getOncogenicitySummary(self.variants[oncokbId].evidence);
                         if(_.isNumber(self.variants[oncokbId].evidence.oncogenic)) {
                             _oncogenicTip += OncoKB.str.getMutationSummaryStr(self.variants[oncokbId].evidence);

@@ -143,7 +143,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                                                 _profile_obj.CANCER_STUDY_STABLE_ID = profileMetaListTmp.cancer_study_id;
                                                 _profile_obj.CASE_SET_ID = profileMetaListTmp.cancer_study_id + "_all";
                                                 _profile_obj.CANCER_STUDY_NAME = window.PortalMetaData["cancer_studies"][_study_obj.studyId].name;
-                                                _profile_obj.CANCER_STUDY_SHORT_NAME = window.PortalMetaData.cancer_studies[_study_obj.studyId].short_name;
+                                                _profile_obj.CANCER_STUDY_SHORT_NAME = window.PortalMetaData.cancer_studies[_study_obj.studyId].short_name.replace("(TCGA)", "");
                                                 if (d[0] === undefined) {
                                                     _profile_obj.SEQ_CASE_IDS = [];
                                                 } else {
@@ -157,11 +157,11 @@ var ccPlots = (function ($, _, Backbone, d3) {
                                                     if (window.crossCancerMutationProxy !== undefined) {
                                                         clearInterval(_tmp);
                                                         mut_proxy = window.crossCancerMutationProxy;
-                                                        mut_proxy.getMutationData(window.studies.gene_list, _mutation_call_back);
                                                         function _mutation_call_back(_mut_obj) {
                                                             mut_obj = _mut_obj;
                                                             callback_func();
                                                         }
+                                                        mut_proxy.getMutationData(window.studies.gene_list, _mutation_call_back);
                                                     }
                                                 }
                                             }
@@ -1169,13 +1169,24 @@ var ccPlots = (function ($, _, Backbone, d3) {
         );
     };
 
-    var get_tab_delimited_data = function() {
+    function get_tab_delimited_data() {
         var result_str = "";
         result_str += "Sample Id" + "\t" + "Cancer Study" + "\t" + "Profile Name" + "\t" + "Mutation" + "\t" + "Value" + "\n";
         var assemble = function(result) {
             _.each(_.pluck(result, "attributes"), function(item) {
-                result_str += item.caseId + "\t" + data.get_cancer_study_name(item.profileId) + "\t" +
+                if (data.is_sequenced(item.profileId, item.caseId)) {
+                    if (item.mutation === "non" || item.mutation === "") {
+                        result_str += item.caseId + "\t" + data.get_cancer_study_name(item.profileId) + "\t" +
+                            data.get_profile_name(item.profileId) + "\t" + "No Mutation" + "\t" + item.value + "\n";
+                    } else {
+                        result_str += item.caseId + "\t" + data.get_cancer_study_name(item.profileId) + "\t" +
                             data.get_profile_name(item.profileId) + "\t" + item.mutation + "\t" + item.value + "\n";
+                    }
+                } else {
+                    result_str += item.caseId + "\t" + data.get_cancer_study_name(item.profileId) + "\t" +
+                        data.get_profile_name(item.profileId) + "\t" + "Not Sequenced" + "\t" + item.value + "\n";
+                }
+
             });
         }
         data.get($("#cc_plots_gene_list").val(), assemble);

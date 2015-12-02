@@ -87,7 +87,7 @@
             <button id='cc_plots_pdf_download'>PDF</button>
             <button id='cc_plots_data_download'>Data</button>
             <h5>Sort By</h5>
-            <input type="radio" name="cc_plots_profile_order_opt" onchange="ccPlots.update_profile_order()" value="alphabetic" checked/> Alphabetic
+            <input type="radio" name="cc_plots_profile_order_opt" onchange="ccPlots.update_profile_order()" value="alphabetic" checked/> Alphabetical
             <input type="radio" name="cc_plots_profile_order_opt" onchange="ccPlots.update_profile_order()" value="median"/> Median
             <h5>Show Mutations</h5>
             <input type="checkbox" id="cc_plots_show_mut" onchange="ccPlots.toggle_show_mut()" checked/>

@@ -617,7 +617,7 @@ var OncoKB = (function () {
                     types.push('COSMIC');
                 }
                 if (isHotspot) {
-                    types.push('Chang et al., Nat Biotechnol 2015');
+                    types.push('<a href=&quot;http://www.ncbi.nlm.nih.gov/pubmed/26619011&quot; target=&quot;_blank&quot;>Chang, M. et al. Nature Biotech. 2015</a>');
                 }
 
                 str.push(types.join(', '));
@@ -719,9 +719,9 @@ var OncoKB = (function () {
         }
 
         function createOncoKBColumnCell(target, data) {
-            //var svgWidth = calSvgWidth(data);
-            var svgWidth = 22;
+            var svgWidth = calSvgWidth(data);
             if (svgWidth > 0) {
+                svgWidth = 22;
                 var svg = d3.select($(target)[0])
                     .append("svg")
                     .attr("width", svgWidth)

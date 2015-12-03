@@ -1011,10 +1011,13 @@
 	                        };
 
                             if(OncoKB.getAccess()) {
-                                var oncokbInstance = new OncoKB.Instance();
-                                if(oncokbGeneStatus) {
-                                    oncokbInstance.setGeneStatus(oncokbGeneStatus);
-                                }
+                                var oncokbInstanceManager = new OncoKB.addInstanceManager();
+                                _.each(genes, function (gene) {
+                                    var instance = oncokbInstanceManager.addInstance(gene);
+                                    if(oncokbGeneStatus) {
+                                        instance.setGeneStatus(oncokbGeneStatus);
+                                    }
+                                });
 	                            jQuery.extend(true, options, {view : {
                                     mutationTable: {
                                         columns: {
@@ -1061,8 +1064,8 @@
                                             annotation: function (selector, helper) {
                                                 $(selector).find('span.mcg[alt=""]').remove();
                                                 $(selector).find('span.chang_hotspot[alt=""]').remove();
-                                                oncokbInstance.addEvents(selector, 'column');
-                                                oncokbInstance.addEvents(selector, 'alteration');
+                                                oncokbInstanceManager.getInstance(helper.gene).addEvents(selector, 'column');
+                                                oncokbInstanceManager.getInstance(helper.gene).addEvents(selector, 'alteration');
 
                                                 $(selector).find('span.mcg').qtip({
                                                     content: {attr: 'alt'},
@@ -1086,6 +1089,7 @@
                                                 var indexMap = helper.indexMap;
                                                 var dataTable = helper.dataTable;
                                                 var tableData = dataTable.fnGetData();
+                                                var oncokbInstance = oncokbInstanceManager.getInstance(helper.gene);
                                                 if (tableData.length > 0) {
                                                     _.each(tableData, function (ele, i) {
                                                         var _datum = ele[indexMap["datum"]];

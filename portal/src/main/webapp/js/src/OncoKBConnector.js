@@ -45,8 +45,35 @@ var OncoKB = (function () {
         sensitivity: ['4', '3', '2B', '2A', '1', '0'],
         resistance: ['R3', 'R2', 'R1']
     };
+    self.instanceManagers = {};
 
     self.oncogenic = [-1, 0, 2, 1];
+
+    function InstanceManager(id) {
+        this.id = id || 'OncoKB-InstanceManager-' + new Date().getTime(); //Manager ID, maybe used to distinguish between different managers
+        this.instances = {}; //key is the instance id
+    }
+
+    InstanceManager.prototype = {
+        addInstance: function (instanceId) {
+            var instance = new Instance(instanceId);
+            this.instances[instance.getId()] = instance;
+        },
+        removeInstance: function (instanceId) {
+            if (this.instances.hasOwnProperty(instanceId)) {
+                delete this.instances[instanceId];
+                return true;
+            } else {
+                return false;
+            }
+        },
+        getInstance: function (instanceId) {
+            return this.instances[instanceId];
+        },
+        getId: function () {
+            return this.id;
+        }
+    };
 
     function VariantPair() {
         this.id = '';
@@ -84,7 +111,7 @@ var OncoKB = (function () {
         }
     }
 
-    function Instance() {
+    function Instance(id) {
         this.initialized = false;
         this.dataReady = false;
         this.tumorType = ''; //Global tumor types
@@ -94,6 +121,7 @@ var OncoKB = (function () {
         this.variantCounter = 0;
         this.variants = {};
         this.evidence = {};
+        this.id = id || 'OncoKB-Instance-' + new Date().getTime();
     }
 
     function EvidenceRequestItem(gene, alteration, tumorType, consequence) {
@@ -102,6 +130,12 @@ var OncoKB = (function () {
         this.alteration = alteration || '';
         this.tumorType = tumorType || '';//tumor type
         this.consequence = consequence || '';
+    }
+
+    function addInstanceManager(instanceManagerId) {
+        var manager = new InstanceManager(instanceManagerId);
+        self.instanceManagers[manager.getId()] = manager;
+        return manager;
     }
 
     self.utils = (function () {
@@ -429,7 +463,7 @@ var OncoKB = (function () {
             if (oncokbInfo.mutationEffect.hasOwnProperty('knownEffect')) {
                 str += '<div class="oncokb"><span><b>' + oncokbInfo.mutationEffect.knownEffect + '</b>';
                 if (oncokbInfo.mutationEffect.hasOwnProperty('description') && oncokbInfo.mutationEffect.description) {
-                    str += '<span class="oncokb_alt_moreInfo" style="float:right"><a><i>More Info</i></a></span><br/><span class="oncokb_mutation_effect" style="display:none">' + oncokbInfo.mutationEffect.description + '</span><span class="oncokb_alt_lessInfo" style="display:none;float:right"><a><i>Less Info</i></a></span></div>';
+                    str += '<span class="oncokb_alt_moreInfo" style="text-align:right"><a><i>More Info</i></a></span><br/><span class="oncokb_mutation_effect" style="display:none">' + oncokbInfo.mutationEffect.description + '</span><span class="oncokb_alt_lessInfo" style="display:none;text-align:right"><a><i>Less Info</i></a></span></div>';
                 }
                 str += '</span></div>';
             }
@@ -883,10 +917,10 @@ var OncoKB = (function () {
             var color = '#AAAAAA';
             switch (oncogenic) {
                 case 0:
-                    color = '#AAAAAA';
+                    color = '#696969';
                     break;
                 case -1:
-                    color = '#696969';
+                    color = '#AAAAAA';
                     break;
                 case 2:
                     color = '#007FFF';
@@ -992,6 +1026,7 @@ var OncoKB = (function () {
     return {
         VariantPair: VariantPair,
         Instance: Instance,
+        addInstanceManager: addInstanceManager,
         EvidenceRequestItem: EvidenceRequestItem,
         Evidence: Evidence,
         access: self.connector.access,
@@ -1365,6 +1400,10 @@ OncoKB.Instance.prototype = {
                 });
             });
         }
+    },
+
+    getId: function () {
+        return this.id;
     }
 };
 

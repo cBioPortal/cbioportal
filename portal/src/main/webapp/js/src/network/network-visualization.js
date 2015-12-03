@@ -100,7 +100,7 @@ function NetworkVis(divId)
     this.ENTER_KEYCODE = "13";
 
     // name of the graph layout
-    this._graphLayout = {name: "cose2", randomize: true};
+    this._graphLayout = {name: "cose-bilkent", randomize: true};
     //var _graphLayout = {name: "ForceDirected", options:{weightAttr: "weight"}};
 
     // force directed layout options
@@ -3767,7 +3767,7 @@ NetworkVis.prototype._updateLayoutOptions = function()
     {
         options[this._layoutOptions[i].id] = this._layoutOptions[i].value;
     }
-    options['name']="cose2";
+    options['name']="cose-bilkent";
     this._graphLayout = options;
 };
 

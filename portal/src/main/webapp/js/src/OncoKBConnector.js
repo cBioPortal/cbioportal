@@ -465,7 +465,7 @@ var OncoKB = (function () {
             if (oncokbInfo.mutationEffect.hasOwnProperty('knownEffect')) {
                 str += '<div class="oncokb"><span><b>' + oncokbInfo.mutationEffect.knownEffect + '</b>';
                 if (oncokbInfo.mutationEffect.hasOwnProperty('description') && oncokbInfo.mutationEffect.description) {
-                    str += '<span class="oncokb_alt_moreInfo" style="text-align:right"><a><i>More Info</i></a></span><br/><span class="oncokb_mutation_effect" style="display:none">' + oncokbInfo.mutationEffect.description + '</span><span class="oncokb_alt_lessInfo" style="display:none;text-align:right"><a><i>Less Info</i></a></span></div>';
+                    str += '<span class="oncokb_alt_moreInfo" style="float:right"><a><i>More Info</i></a></span><br/><span class="oncokb_mutation_effect" style="display:none">' + oncokbInfo.mutationEffect.description + '</span><span class="oncokb_alt_lessInfo" style="display:none;float:right"><a><i>Less Info</i></a></span></div>';
                 }
                 str += '</span></div>';
             }
@@ -684,7 +684,7 @@ var OncoKB = (function () {
             var numOfItems = 0;
             var types = calNumTreatmentTypes(data.treatments);
             if (types > 0) {
-                numOfItems += 0.5 + types * 0.5;
+                numOfItems += 0.8 + types * 0.2;
             }
             if (data.progImp instanceof Array && data.progImp.length > 0) {
                 ++numOfItems;
@@ -719,8 +719,8 @@ var OncoKB = (function () {
         }
 
         function createOncoKBColumnCell(target, data) {
-            var svgWidth = calSvgWidth(data);
-
+            //var svgWidth = calSvgWidth(data);
+            var svgWidth = 22;
             if (svgWidth > 0) {
                 var svg = d3.select($(target)[0])
                     .append("svg")

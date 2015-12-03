@@ -419,10 +419,8 @@ var caseMetaData = {
 var oncokbGeneStatus = <%=oncokbGeneStatus%>;
 var showHotspot = <%=showHotspot%>;
 
-OncoKB.setUrl('<%=oncokbUrl%>');
-
-
 $(document).ready(function(){
+    OncoKB.setUrl('<%=oncokbUrl%>');
     if (print) $('#page_wrapper_table').css('width', '900px');
     tweaksStyles();
     outputClinicalData();
@@ -1188,6 +1186,11 @@ function outputClinicalData() {
         var serumPsa = guessClinicalData(clinicalData, ["SERUM_PSA"]);
         if (serumPsa!==null) {
             diseaseInfo.push("Serum PSA: "+serumPsa);
+        }
+
+        var driverMutations = guessClinicalData(clinicalData,["DRIVER_MUTATIONS"]);
+        if (driverMutations!==null) {
+            diseaseInfo.push(driverMutations);
         }
 
         return diseaseInfo;

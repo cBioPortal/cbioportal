@@ -36,6 +36,7 @@
 <head>
 <title><%= GlobalProperties.getTitle() %>::cBioPortal Login</title>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=Edge"/> 
 <%@ page import="org.mskcc.cbio.portal.util.DynamicState" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>

@@ -41,9 +41,10 @@ var OncoKB = (function () {
     self.accessible = false;
     self.instances = [];
     self.customObject = {};
-    self.levels =  {
+    self.levels = {
         sensitivity: ['4', '3', '2B', '2A', '1', '0'],
-        resistance: ['R3', 'R2', 'R1']
+        resistance: ['R3', 'R2', 'R1'],
+        all: ['4','R3', '3','R2', '2B', '2A','R1', '1', '0']
     };
     self.instanceManagers = {};
 
@@ -287,9 +288,9 @@ var OncoKB = (function () {
         }
 
         function getTumorTypeFromClinicalDataMap(clinicalDataMap) {
-            if(typeof clinicalDataMap === 'object') {
+            if (typeof clinicalDataMap === 'object') {
                 var keys = Object.keys(clinicalDataMap);
-                if(keys.length > 0 && clinicalDataMap[keys[0]].hasOwnProperty('CANCER_TYPE') && clinicalDataMap[keys[0]].CANCER_TYPE) {
+                if (keys.length > 0 && clinicalDataMap[keys[0]].hasOwnProperty('CANCER_TYPE') && clinicalDataMap[keys[0]].CANCER_TYPE) {
                     return clinicalDataMap[keys[0]].CANCER_TYPE;
                 }
             }
@@ -303,7 +304,7 @@ var OncoKB = (function () {
         }
 
         function getOncogenicIndex(oncogenic) {
-            if(oncogenic === 2) {
+            if (oncogenic === 2) {
                 oncogenic = 1; //Group likely oncogenic with oncogenic
             }
             return OncoKB.oncogenic.indexOf(oncogenic);
@@ -311,8 +312,8 @@ var OncoKB = (function () {
 
         function getTreatmentsLength(oncokbTreatments) {
             var count = 0;
-            for(var type in oncokbTreatments) {
-                if(oncokbTreatments[type] instanceof Array) {
+            for (var type in oncokbTreatments) {
+                if (oncokbTreatments[type] instanceof Array) {
                     count += oncokbTreatments[type].length;
                 }
             }
@@ -426,7 +427,7 @@ var OncoKB = (function () {
 
     self.str = (function () {
         function getOncogenicitySummary(oncokbInfo) {
-            var oncogenic = _.isObject(oncokbInfo)?(oncokbInfo.hasOwnProperty('oncogenic')?oncokbInfo.oncogenic:''):'';
+            var oncogenic = _.isObject(oncokbInfo) ? (oncokbInfo.hasOwnProperty('oncogenic') ? oncokbInfo.oncogenic : '') : '';
             var str = '<div class="oncokb"><span><b style="font-size:12px;color:#';
             switch (oncogenic) {
                 case 0:
@@ -454,10 +455,11 @@ var OncoKB = (function () {
         }
 
         function getOncogenicityFooterStr() {
-            return '<div class="oncokb" style="text-align:right;"><span><i>Powered by OncoKB(Beta)</i></span></div>'+
-                '<div><i>OncoKB is under development, please pardon errors and omissions. Please send feedback to '+
+            return '<div class="oncokb" style="text-align:right;"><span><i>Powered by OncoKB(Beta)</i></span></div>' +
+                '<div><i>OncoKB is under development, please pardon errors and omissions. Please send feedback to ' +
                 '<a href=&quot;mailto:oncokb@cbio.mskcc.org&quot; title=&quot;Contact us&quot;>oncokb@cbio.mskcc.org</a></i></div>';
         }
+
         function getMutationSummaryStr(oncokbInfo) {
             var str = '';
             if (oncokbInfo.mutationEffect.hasOwnProperty('knownEffect')) {
@@ -627,6 +629,7 @@ var OncoKB = (function () {
             str.push('</span></div>');
             return str.join('');
         }
+
         return {
             getOncogenicitySummary: getOncogenicitySummary,
             getOncogenicityFooterStr: getOncogenicityFooterStr,
@@ -639,7 +642,9 @@ var OncoKB = (function () {
     })();
 
     self.svgs = (function () {
-        function oncokbIcon(g, text, fill, fontSize) {
+        function oncokbIcon(g, text, fill, fontSize, textX, textY) {
+            textX = textX || 7;
+            textY = textY || 11;
             g.append("rect")
                 .attr("rx", '3')
                 .attr("ry", '3')
@@ -647,7 +652,7 @@ var OncoKB = (function () {
                 .attr('height', '14')
                 .attr("fill", fill);
             g.append("text")
-                .attr('transform', 'translate(7, 11)')
+                .attr('transform', 'translate(' + textX + ', ' + textY + ')')
                 .attr('text-anchor', 'middle')
                 .attr("font-size", fontSize)
                 .attr('font-family', 'Sans-serif')
@@ -656,13 +661,17 @@ var OncoKB = (function () {
                 .text(text);
         }
 
-        function oncokbLevelIcon(g, level, fill) {
+        function oncokbLevelIcon(g, level, fill, x, y, textX, textY) {
+            x = x || 13;
+            y = y || 0;
+            textX = textX || x || 13;
+            textY = textY || (y + 3) || 0;
             g.append("circle")
-                .attr('transform', 'translate(13, 0)')
+                .attr('transform', 'translate(' + x + ', ' + y + ')')
                 .attr('r', '6')
                 .attr("fill", fill);
             g.append("text")
-                .attr('transform', 'translate(13, 3)')
+                .attr('transform', 'translate(' + textX + ', ' + textY + ')')
                 .attr('text-anchor', 'middle')
                 .attr("font-size", '10')
                 .attr('font-family', 'Sans-serif')
@@ -673,12 +682,9 @@ var OncoKB = (function () {
 
         function calSvgWidth(data) {
             var numOfItems = 0;
-            if(Object.keys(data.treatments).length > 0) {
-                _.each(data.treatments, function (treatment, type) {
-                    if(_.isArray(treatment) && treatment.length > 0) {
-                        ++numOfItems;
-                    }
-                });
+            var types = calNumTreatmentTypes(data.treatments);
+            if (types > 0) {
+                numOfItems += 0.5 + types * 0.5;
             }
             if (data.progImp instanceof Array && data.progImp.length > 0) {
                 ++numOfItems;
@@ -692,6 +698,26 @@ var OncoKB = (function () {
             return 20 * numOfItems + (numOfItems > 0 ? 0 : (10 * (numOfItems - 1)));
         }
 
+        function calNumTreatmentTypes(treatments) {
+            var types = 0;
+            _.each(treatments, function (treatment, type) {
+                if (_.isArray(treatment) && treatment.length > 0) {
+                    ++types;
+                }
+            });
+            return types;
+        }
+
+        function getAllTreatments(treatments) {
+            var allTreatments = []
+            _.each(treatments, function (treatment, type) {
+                if (_.isArray(treatment) && treatment.length > 0) {
+                    allTreatments = allTreatments.concat(treatment);
+                }
+            });
+            return allTreatments;
+        }
+
         function createOncoKBColumnCell(target, data) {
             var svgWidth = calSvgWidth(data);
 
@@ -700,82 +726,95 @@ var OncoKB = (function () {
                     .append("svg")
                     .attr("width", svgWidth)
                     .attr("height", 20)
-                    .style('vertical-align','bottom');
+                    .style('vertical-align', 'bottom');
 
                 var qtipContext = '', i, g;
                 var itemNum = 0;
+                var types = calNumTreatmentTypes(data.treatments);
 
-                _.each(data.treatments, function (treatment, type) {
-                    if (treatment instanceof Array && treatment.length > 0) {
-                        var level = OncoKB.utils.getHighestLevel(treatment, type);
-                        var numberLevel = level.match(/\d+/)[0];
-                        var treatmentDataTable;
-                        g = svg.append("g")
-                            .attr("transform", "translate(" + itemNum*20 + ", 6)");
-                        oncokbIcon(g, 'Tx', "#5555CC", 9);
-                        oncokbLevelIcon(g, numberLevel, type==='resistance' ? '#ff0000' : '#008000');
-
-                        qtipContext = OncoKB.str.getTreatmentStr(treatment);
-
-                        g.on('mouseover', function () {
-                            if(!$(this).hasClass('qtip')) {
-                                $(this).qtip({
-                                    content: {text: qtipContext},
-                                    hide: {fixed: true, delay: 100, event: "mouseleave"},
-                                    style: {classes: 'qtip-light qtip-rounded qtip-shadow oncokb-qtip', tip: true},
-                                    show: {event: "mouseover", solo: true, delay: 0, ready: true},
-                                    position: {my: 'center right', at: 'center left', viewport: $(window)},
-                                    events: {
-                                        render: function (event, api) {
-                                            $(this).find('.oncokb-description-more').click(function () {
-                                                $(this).parent().parent().find('.oncokb-fullDescription').css('display', 'block');
-                                                $(this).parent().parent().find('.oncokb-shortDescription').css('display', 'none');
-                                                if (treatmentDataTable) {
-                                                    treatmentDataTable.fnAdjustColumnSizing();
-                                                }
-                                            });
-                                            treatmentDataTable = $(this).find('.oncokb-treatments-datatable').dataTable({
-                                                "columnDefs": [
-                                                    {
-                                                        "orderDataType": "oncokb-level-"+type,
-                                                        "targets": 1
-                                                    },
-                                                    {
-                                                        "type": "oncokb-level-"+type,
-                                                        "targets": 1
-                                                    },
-                                                    {
-                                                        "orderData": [1, 0],
-                                                        "targets": 1
-                                                    }
-                                                ],
-                                                "sDom": 'rt',
-                                                "bPaginate": false,
-                                                "bScrollCollapse": true,
-                                                "sScrollY": 400,
-                                                "autoWidth": true,
-                                                "order": [[1, "asc"]]
-                                            });
-                                        },
-                                        visible: function (event, api) {
+                if (types > 0) {
+                    var treatmentDataTable;
+                    var typeOrder = ['resistance', 'sensitivity'];
+                    g = svg.append("g")
+                        .attr("transform", "translate(" + itemNum * 20 + ", 6)");
+                    oncokbIcon(g, 'Tx', "#5555CC", 9, 7, types > 1 ? 12 : 11);
+                    if (types === 1) {
+                        _.each(data.treatments, function (treatment, type) {
+                            if (treatment instanceof Array && treatment.length > 0) {
+                                var level = OncoKB.utils.getHighestLevel(treatment, type);
+                                var numberLevel = level.match(/\d+/)[0];
+                                oncokbLevelIcon(g, numberLevel, type === 'resistance' ? '#ff0000' : '#008000');
+                            }
+                        });
+                    } else {
+                        var x = 8, y = 0;
+                        _.each(typeOrder, function (type, index) {
+                            var treatments = data.treatments[type];
+                            if (treatments instanceof Array && treatments.length > 0) {
+                                var level = OncoKB.utils.getHighestLevel(treatments, type);
+                                var numberLevel = level.match(/\d+/)[0];
+                                oncokbLevelIcon(g, numberLevel, type === 'resistance' ? '#ff0000' : '#008000', x + index * 6, y, (x + index * 6) - ((index === (typeOrder.length - 1)) ? 0 : 1), (y + 3));
+                            }
+                        })
+                    }
+                    qtipContext = OncoKB.str.getTreatmentStr(getAllTreatments(data.treatments));
+                    g.on('mouseover', function () {
+                        if (!$(this).hasClass('qtip')) {
+                            $(this).qtip({
+                                content: {text: qtipContext},
+                                hide: {fixed: true, delay: 100, event: "mouseleave"},
+                                style: {classes: 'qtip-light qtip-rounded qtip-shadow oncokb-qtip', tip: true},
+                                show: {event: "mouseover", solo: true, delay: 0, ready: true},
+                                position: {my: 'center right', at: 'center left', viewport: $(window)},
+                                events: {
+                                    render: function (event, api) {
+                                        $(this).find('.oncokb-description-more').click(function () {
+                                            $(this).parent().parent().find('.oncokb-fullDescription').css('display', 'block');
+                                            $(this).parent().parent().find('.oncokb-shortDescription').css('display', 'none');
                                             if (treatmentDataTable) {
                                                 treatmentDataTable.fnAdjustColumnSizing();
                                             }
+                                        });
+                                        treatmentDataTable = $(this).find('.oncokb-treatments-datatable').dataTable({
+                                            "columnDefs": [
+                                                {
+                                                    "orderDataType": "oncokb-level",
+                                                    "targets": 1
+                                                },
+                                                {
+                                                    "type": "oncokb-level",
+                                                    "targets": 1
+                                                },
+                                                {
+                                                    "orderData": [1, 0],
+                                                    "targets": 1
+                                                }
+                                            ],
+                                            "sDom": 'rt',
+                                            "bPaginate": false,
+                                            "bScrollCollapse": true,
+                                            "sScrollY": 400,
+                                            "autoWidth": true,
+                                            "order": [[1, "asc"]]
+                                        });
+                                    },
+                                    visible: function (event, api) {
+                                        if (treatmentDataTable) {
+                                            treatmentDataTable.fnAdjustColumnSizing();
                                         }
                                     }
-                                });
-                            }
-                        });
-
-                        itemNum++;
-                    }
-                });
+                                }
+                            });
+                        }
+                    });
+                    itemNum += 0.5 + 0.5 * calNumTreatmentTypes;
+                }
 
                 if (data.progImp instanceof Array && data.progImp.length > 0) {
                     var progImpDataTable;
 
                     g = svg.append("g")
-                        .attr("transform", "translate(" + itemNum*20 + ", 6)");
+                        .attr("transform", "translate(" + itemNum * 20 + ", 6)");
                     oncokbIcon(g, 'Px', "#5555CC", 9);
 
                     qtipContext = self.tooltips.oncokbColumn(data.progImp, 'PROGNOSTIC IMPLICATIONS', 'progImp');
@@ -820,7 +859,7 @@ var OncoKB = (function () {
                     var trialDataTable;
 
                     g = svg.append("g")
-                        .attr("transform", "translate(" + itemNum*20 + ", 6)");
+                        .attr("transform", "translate(" + itemNum * 20 + ", 6)");
                     oncokbIcon(g, 'CT', "#5555CC", 9);
 
                     qtipContext = '<table class="oncokb-trials-datatable"><thead><tr><th style="white-space:nowrap">TUMOR TYPE</th><th>TRIALS</th></tr></thead><tbody>';
@@ -863,7 +902,7 @@ var OncoKB = (function () {
                     var prevalenceDataTable;
 
                     g = svg.append("g")
-                        .attr("transform", "translate(" + itemNum*20 + ", 6)");
+                        .attr("transform", "translate(" + itemNum * 20 + ", 6)");
                     oncokbIcon(g, 'Pr', "#5555CC", 9);
 
                     qtipContext = self.tooltips.oncokbColumn(data.prevalence, 'PREVALENCE', 'prevalence');
@@ -930,7 +969,7 @@ var OncoKB = (function () {
                     break;
             }
 
-            if(hasResistanceDrugs) {
+            if (hasResistanceDrugs && oncogenic === 2) {
                 color = '#007FFF';
             }
 
@@ -952,7 +991,7 @@ var OncoKB = (function () {
                 .attr('fill', color)
                 .attr('stroke', 'none');
 
-            if(hasResistanceDrugs) {
+            if (hasResistanceDrugs && oncogenic === 2) {
                 var resistanceDot = svg.append('g')
                     .attr('transform', 'translate(13, 4)');
 
@@ -1042,7 +1081,7 @@ var OncoKB = (function () {
         svgs: self.svgs,
         setUrl: function (url) {
             self.url = url;
-            if(url) {
+            if (url) {
                 self.accessible = true;
             }
         }
@@ -1071,10 +1110,10 @@ OncoKB.Instance.prototype = {
         } else if (this.tumorType) {
             _variant.tumorType = this.tumorType;
         }
-        if(!isNaN(cosmicCount)) {
+        if (!isNaN(cosmicCount)) {
             _variant.cosmicCount = cosmicCount;
         }
-        if(isHotspot) {
+        if (isHotspot) {
             _variant.isHotspot = true;
         }
         this.variants[_variant.id] = _variant;
@@ -1130,13 +1169,13 @@ OncoKB.Instance.prototype = {
         for (var key in this.variants) {
             var variant = this.variants[key];
             var uniqueStr = variant.gene + variant.alteration + variant.tumorType + variant.consequence;
-            if(!oncokbEvidenceRequestItems.hasOwnProperty(uniqueStr)) {
+            if (!oncokbEvidenceRequestItems.hasOwnProperty(uniqueStr)) {
                 oncokbEvidenceRequestItems[uniqueStr] = new OncoKB.EvidenceRequestItem(variant.gene, variant.alteration, variant.tumorType, variant.consequence);
             }
             oncokbEvidenceRequestItems[uniqueStr].ids.push(variant.id);
         }
 
-        oncokbServiceData.queries = $.map(oncokbEvidenceRequestItems, function(value, index) {
+        oncokbServiceData.queries = $.map(oncokbEvidenceRequestItems, function (value, index) {
             value.id = value.ids.join('*ONCOKB*');
             delete value.ids;
             return value;
@@ -1173,7 +1212,7 @@ OncoKB.Instance.prototype = {
                             datum.oncogenicDescription = evidence.description;
                         } else if (evidence.evidenceType === 'MUTATION_EFFECT') {
                             var _datum = {};
-                            if(evidence.knownEffect) {
+                            if (evidence.knownEffect) {
                                 _datum.knownEffect = evidence.knownEffect;
                             }
                             if (description) {
@@ -1204,9 +1243,9 @@ OncoKB.Instance.prototype = {
                                 _treatment.content = evidence.treatments;
                                 _treatment.description = OncoKB.utils.findRegex(description) || 'No yet curated';
 
-                                if(OncoKB.levels.sensitivity.indexOf(OncoKB.utils.getLevel(evidence.levelOfEvidence)) !== -1) {
+                                if (OncoKB.levels.sensitivity.indexOf(OncoKB.utils.getLevel(evidence.levelOfEvidence)) !== -1) {
                                     sensitivityTreatments.push(_treatment);
-                                }else {
+                                } else {
                                     resistanceTreatments.push(_treatment);
                                 }
 
@@ -1244,7 +1283,7 @@ OncoKB.Instance.prototype = {
                         }
                     });
                     id.split('*ONCOKB*').forEach(function (_id) {
-                        if(self.variants.hasOwnProperty(_id)){
+                        if (self.variants.hasOwnProperty(_id)) {
                             self.variants[_id].evidence = datum;
                         }
                     })
@@ -1276,23 +1315,23 @@ OncoKB.Instance.prototype = {
 
     addEvents: function (target, type) {
         var self = this;
-        if(self.dataReady) {
-            if(typeof  type === 'undefined' || type === 'gene') {
+        if (self.dataReady) {
+            if (typeof  type === 'undefined' || type === 'gene') {
                 $(target).find('.oncokb_gene').each(function () {
                     var oncokbId = $(this).attr('oncokbId');
                     var gene = self.variants[oncokbId].evidence.gene;
                     var _tip = '';
 
-                    if(gene) {
+                    if (gene) {
                         if (gene.summary) {
                             _tip += '<b>Gene Summary</b><br/>' + gene.summary;
                         }
                         if (gene.background) {
                             _tip += '<br/><div><span class="oncokb_gene_moreInfo"><br/><a>More Info</a><i style="float:right">Powered by OncoKB(Beta)</i></span><br/><span class="oncokb_gene_background" style="display:none"><b>Gene Background</b><br/>' + gene.background + '<br/><i style="float:right">Powered by OncoKB(Beta)</i></span></div>';
                         }
-                    }else {
+                    } else {
                         _tip = "<a href=\"http://www.ncbi.nlm.nih.gov/gene/"
-                            + self.variants[oncokbId].gene +"\">NCBI Gene</a>";
+                            + self.variants[oncokbId].gene + "\">NCBI Gene</a>";
                     }
                     if (_tip !== '') {
                         $(this).css('display', '');
@@ -1310,19 +1349,19 @@ OncoKB.Instance.prototype = {
                 });
             }
 
-            if(typeof  type === 'undefined' || type === 'alteration') {
+            if (typeof  type === 'undefined' || type === 'alteration') {
                 $(target).find('.oncokb_alteration').each(function () {
                     var oncokbId = $(this).attr('oncokbId');
 
                     $(this).empty();
-                    if (self.variants.hasOwnProperty(oncokbId)){
+                    if (self.variants.hasOwnProperty(oncokbId)) {
                         var _tip = '', _oncogenicTip = '', _hotspotTip = '';
-                        OncoKB.svgs.createOncogenicIcon(this, self.variants[oncokbId].evidence.oncogenic,self.variants[oncokbId].evidence.treatments.resistance.length>0);
+                        OncoKB.svgs.createOncogenicIcon(this, self.variants[oncokbId].evidence.oncogenic, self.variants[oncokbId].evidence.treatments.resistance.length > 0);
                         _oncogenicTip += OncoKB.str.getOncogenicitySummary(self.variants[oncokbId].evidence);
-                        if(_.isNumber(self.variants[oncokbId].evidence.oncogenic)) {
+                        if (_.isNumber(self.variants[oncokbId].evidence.oncogenic)) {
                             _oncogenicTip += OncoKB.str.getMutationSummaryStr(self.variants[oncokbId].evidence);
                         } else {
-                            _oncogenicTip += OncoKB.str.getVUSsummary(self.variants[oncokbId].cosmicCount>=10, self.variants[oncokbId].isHotspot);
+                            _oncogenicTip += OncoKB.str.getVUSsummary(self.variants[oncokbId].cosmicCount >= 10, self.variants[oncokbId].isHotspot);
                         }
 
                         _hotspotTip = "<b>Recurrent Hotspot</b><br/>This mutated amino acid was identified as a recurrent hotspot (statistical significance, q-value < 0.01) in a set of 11,119 tumor samples of various cancer types (based on <a href='http://www.ncbi.nlm.nih.gov/pubmed/26619011' target='_blank'>Chang, M. et al. Nature Biotech. 2015</a>).";
@@ -1352,7 +1391,7 @@ OncoKB.Instance.prototype = {
                 });
             }
 
-            if(typeof  type === 'undefined' || type === 'column') {
+            if (typeof  type === 'undefined' || type === 'column') {
                 $(target).find('.oncokb_column').each(function () {
                     var oncokbId = $(this).attr('oncokbId');
 
@@ -1407,9 +1446,9 @@ OncoKB.Instance.prototype = {
     }
 };
 
-$.fn.dataTableExt.oSort['oncokb-level-sensitivity-asc'] = function (x, y) {
-    var xIndex = OncoKB.levels.sensitivity.indexOf(x);
-    var yIndex = OncoKB.levels.sensitivity.indexOf(y);
+$.fn.dataTableExt.oSort['oncokb-level-asc'] = function (x, y) {
+    var xIndex = OncoKB.levels.all.indexOf(x);
+    var yIndex = OncoKB.levels.all.indexOf(y);
     if (xIndex < yIndex) {
         return 1;
     } else {
@@ -1417,29 +1456,9 @@ $.fn.dataTableExt.oSort['oncokb-level-sensitivity-asc'] = function (x, y) {
     }
 };
 
-$.fn.dataTableExt.oSort['oncokb-level-sensitivity-desc'] = function (x, y) {
-    var xIndex = OncoKB.levels.sensitivity.indexOf(x);
-    var yIndex = OncoKB.levels.sensitivity.indexOf(y);
-    if (xIndex < yIndex) {
-        return -1;
-    } else {
-        return 1;
-    }
-};
-
-$.fn.dataTableExt.oSort['oncokb-level-resistance-asc'] = function (x, y) {
-    var xIndex = OncoKB.levels.resistance.indexOf(x);
-    var yIndex = OncoKB.levels.resistance.indexOf(y);
-    if (xIndex < yIndex) {
-        return 1;
-    } else {
-        return -1;
-    }
-};
-
-$.fn.dataTableExt.oSort['oncokb-level-resistance-desc'] = function (x, y) {
-    var xIndex = OncoKB.levels.resistance.indexOf(x);
-    var yIndex = OncoKB.levels.resistance.indexOf(y);
+$.fn.dataTableExt.oSort['oncokb-level-desc'] = function (x, y) {
+    var xIndex = OncoKB.levels.all.indexOf(x);
+    var yIndex = OncoKB.levels.all.indexOf(y);
     if (xIndex < yIndex) {
         return -1;
     } else {
@@ -1469,10 +1488,10 @@ $.fn.dataTableExt.oSort['sort-icons-asc'] = function (x, y) {
     }
 
     //Compare cosmicCount
-    if(x.mutation && _.isNumber(x.mutation.cosmicCount)) {
-        if(y.mutation && _.isNumber(y.mutation.cosmicCount)) {
-            return x.mutation.cosmicCount < y.mutation.cosmicCount?1:-1;
-        }else {
+    if (x.mutation && _.isNumber(x.mutation.cosmicCount)) {
+        if (y.mutation && _.isNumber(y.mutation.cosmicCount)) {
+            return x.mutation.cosmicCount < y.mutation.cosmicCount ? 1 : -1;
+        } else {
             return -1;
         }
     } else {
@@ -1504,10 +1523,10 @@ $.fn.dataTableExt.oSort['sort-icons-desc'] = function (x, y) {
     }
 
     //Compare cosmicCount
-    if(x.mutation && _.isNumber(x.mutation.cosmicCount)) {
-        if(y.mutation && _.isNumber(y.mutation.cosmicCount)) {
-            return x.mutation.cosmicCount < y.mutation.cosmicCount?-1:1;
-        }else {
+    if (x.mutation && _.isNumber(x.mutation.cosmicCount)) {
+        if (y.mutation && _.isNumber(y.mutation.cosmicCount)) {
+            return x.mutation.cosmicCount < y.mutation.cosmicCount ? -1 : 1;
+        } else {
             return 1;
         }
     } else {

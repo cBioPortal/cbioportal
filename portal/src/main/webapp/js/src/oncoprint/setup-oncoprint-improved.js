@@ -416,13 +416,13 @@ window.setUpOncoprint = function(ctr_id, config) {
 						var altered_patient_count = altered_pats.length;
 						var unaltered_patient_count = unaltered_pats.length;
 						var total_patient_count = altered_patient_count + unaltered_patient_count;
-						var percent_altered = Math.ceil(100 * altered_patient_count / total_patient_count);
+						var percent_altered = Math.round(100 * altered_patient_count / total_patient_count);
 						$(config.percent_altered_indicator_selector).text("Altered in " + altered_patient_count + " (" + percent_altered + "%) of " + total_patient_count + " cases/patients");
 					});
 				} else {
 					$.when(window.QuerySession.getAlteredSamples(), window.QuerySession.getUnalteredSamples())
 						.then(function(altered_samps, unaltered_samps) {
-					$(config.percent_altered_indicator_selector).text("Altered in "+ altered_samps.length + " ("+ Math.ceil(100 * altered_samps.length / (altered_samps.length + unaltered_samps.length)) +"%) of "+ (altered_samps.length + unaltered_samps.length) + " samples");
+					$(config.percent_altered_indicator_selector).text("Altered in "+ altered_samps.length + " ("+ Math.round(100 * altered_samps.length / (altered_samps.length + unaltered_samps.length)) +"%) of "+ (altered_samps.length + unaltered_samps.length) + " samples");
 					});
 				};
 			}

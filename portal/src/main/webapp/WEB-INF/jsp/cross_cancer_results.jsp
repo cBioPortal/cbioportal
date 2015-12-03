@@ -123,9 +123,8 @@
     var showHotspot = <%=showHotspot%>;
     var enableMyCancerGenome = myCancerGenomeUrl?true:false;
 
-    OncoKB.setUrl('<%=oncokbUrl%>');
-
     $(document).ready(function() {
+        OncoKB.setUrl('<%=oncokbUrl%>');
         //Set Event listener for the modify query button (expand the hidden form)
         $("#modify_query_btn").click(function () {
             $("#query_form_on_results_page").toggle();

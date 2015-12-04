@@ -149,20 +149,25 @@
                             oncokbInstanceManager.getInstance(helper.gene).addEvents(selector, 'column');
                             oncokbInstanceManager.getInstance(helper.gene).addEvents(selector, 'alteration');
 
-                            $(selector).find('span.mcg').qtip({
-                                content: {attr: 'alt'},
-                                show: {event: "mouseover"},
-                                hide: {fixed: true, delay: 100, event: "mouseout"},
-                                style: { classes: 'qtip-light qtip-rounded qtip-wide' },
-                                position: {my:'top left',at:'bottom center',viewport: $(window)}
+                            $(selector).find('span.mcg').one('mouseenter', function () {
+                                $(this).qtip({
+                                    content: {attr: 'alt'},
+                                    show: {event: "mouseover", ready: true},
+                                    hide: {fixed: true, delay: 100, event: "mouseout"},
+                                    style: { classes: 'qtip-light qtip-rounded qtip-wide' },
+                                    position: {my:'top left',at:'bottom center',viewport: $(window)}
+                                });
+
                             });
 
-                            $(selector).find('span.chang_hotspot').qtip({
-                                content: {attr: 'alt'},
-                                show: {event: "mouseover"},
-                                hide: {fixed: true, delay: 100, event: "mouseout"},
-                                style: { classes: 'qtip-light qtip-rounded qtip-wide' },
-                                position: {my:'top left',at:'bottom center',viewport: $(window)}
+                            $(selector).find('span.chang_hotspot').one('mouseenter', function () {
+                                $(this).qtip({
+                                    content: {attr: 'alt'},
+                                    show: {event: "mouseover", ready: true},
+                                    hide: {fixed: true, delay: 100, event: "mouseout"},
+                                    style: {classes: 'qtip-light qtip-rounded qtip-wide'},
+                                    position: {my: 'top left', at: 'bottom center', viewport: $(window)}
+                                });
                             });
                         }
                     },
@@ -250,20 +255,25 @@
                             $(selector).find('span.mcg[alt=""]').remove();
                             $(selector).find('span.chang_hotspot[alt=""]').remove();
                             $(selector).find('span.mutation-table-additional-protein-change[alt=""]').remove();
-                            $(selector).find('span.mcg').qtip({
-                                content: {attr: 'alt'},
-                                show: {event: "mouseover"},
-                                hide: {fixed: true, delay: 100, event: "mouseout"},
-                                style: { classes: 'qtip-light qtip-rounded qtip-wide' },
-                                position: {my:'top left',at:'bottom center',viewport: $(window)}
+                            $(selector).find('span.mcg').one('mouseenter', function () {
+                                $(this).qtip({
+                                    content: {attr: 'alt'},
+                                    show: {event: "mouseover", ready: true},
+                                    hide: {fixed: true, delay: 100, event: "mouseout"},
+                                    style: { classes: 'qtip-light qtip-rounded qtip-wide' },
+                                    position: {my:'top left',at:'bottom center',viewport: $(window)}
+                                });
+
                             });
 
-                            $(selector).find('span.chang_hotspot').qtip({
-                                content: {attr: 'alt'},
-                                show: {event: "mouseover"},
-                                hide: {fixed: true, delay: 100, event: "mouseout"},
-                                style: { classes: 'qtip-light qtip-rounded qtip-wide' },
-                                position: {my:'top left',at:'bottom center',viewport: $(window)}
+                            $(selector).find('span.chang_hotspot').one('mouseenter', function () {
+                                $(this).qtip({
+                                    content: {attr: 'alt'},
+                                    show: {event: "mouseover", ready: true},
+                                    hide: {fixed: true, delay: 100, event: "mouseout"},
+                                    style: {classes: 'qtip-light qtip-rounded qtip-wide'},
+                                    position: {my: 'top left', at: 'bottom center', viewport: $(window)}
+                                });
                             });
                         }
                     },

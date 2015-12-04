@@ -1337,7 +1337,6 @@ OncoKB.Instance.prototype = {
                     if (_tip !== '') {
                         $(this).css('display', '');
                         $(this).one('mouseenter', function () {
-                            $(this).qtip('destroy', true);
                             $(this).qtip({
                                 content: {text: _tip},
                                 show: {ready: true},
@@ -1383,7 +1382,6 @@ OncoKB.Instance.prototype = {
                         if (_tip !== '') {
                             $(this).css('display', '');
                             $(this).one('mouseenter', function () {
-                                $(this).qtip('destroy', true);
                                 $(this).qtip({
                                     content: {text: _tip},
                                     show: {ready: true},

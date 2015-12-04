@@ -26,8 +26,10 @@ before_script:
     - cp src/main/resources/spring.security.url.intercepts .travis/src/main/resources
 
 script:
-    - export PORTAL_HOME=$(pwd)/.travis
-    - ~/maven/$MAVEN_VERSION/bin/mvn -e -DPORTAL_HOME=$PORTAL_HOME -Ddb.user=travis -Ddb.password= test
+    - export PORTAL_HOME=$(pwd)
+    - cp $PORTAL_HOME/src/main/resources/portal.properties.EXAMPLE $PORTAL_HOME/src/main/resources/portal.properties
+    - cp $PORTAL_HOME/src/main/resources/log4j.properties.EXAMPLE $PORTAL_HOME/src/main/resources/log4j.properties
+    - ~/maven/$MAVEN_VERSION/bin/mvn -e -DPORTAL_HOME=$PORTAL_HOME -Ddb.user=travis -Ddb.password= clean install
 
 notifications:
   slack: cbioportal:S2qVTFTFMtizONhCOe8BYxS6

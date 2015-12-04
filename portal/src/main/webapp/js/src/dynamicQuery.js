@@ -216,6 +216,7 @@ function userClickedMainTab(tabAction) {
     window.changingTabs = true;
     //  Change hidden field value
     $("#tab_index").val(tabAction);
+    $("#main_form").get(0).elements["Action"].setAttribute("value","");
 
     //  Then, submit the form
     $("#main_form").submit();
@@ -361,27 +362,28 @@ function chooseAction(evt) {
     var haveExpInQuery = $("#gene_list").val().toUpperCase().search("EXP") > -1;
     $(".error_box").remove();
     
-        
-    // validate OQL
-    try {
-	    oql_parser.parse($('#gene_list').val());
-    } catch (err) {
-	    var offset = err.offset;
-	    if (offset === $('#gene_list').val().length) {
-		createAnError("OQL syntax error after selected character; please fix and submit again.", $('#gene_list'));
-		$('#gene_list')[0].setSelectionRange(err.offset-1, err.offset);
-	    } else if (offset === 0) {
-		createAnError("OQL syntax error before selected character; please fix and submit again.", $('#gene_list'));
-		$('#gene_list')[0].setSelectionRange(err.offset, err.offset+1);
-	    } else {
-		createAnError("OQL syntax error at selected character; please fix and submit again.", $('#gene_list'));
-		$('#gene_list')[0].setSelectionRange(err.offset, err.offset+1);
-	    }
-	    return false;
-    }
-
+       
+       if (!window.changingTabs) {
+		// validate OQL
+		try {
+			oql_parser.parse($('#gene_list').val());
+		} catch (err) {
+			var offset = err.offset;
+			if (offset === $('#gene_list').val().length) {
+			    createAnError("OQL syntax error after selected character; please fix and submit again.", $('#gene_list'));
+			    $('#gene_list')[0].setSelectionRange(err.offset-1, err.offset);
+			} else if (offset === 0) {
+			    createAnError("OQL syntax error before selected character; please fix and submit again.", $('#gene_list'));
+			    $('#gene_list')[0].setSelectionRange(err.offset, err.offset+1);
+			} else {
+			    createAnError("OQL syntax error at selected character; please fix and submit again.", $('#gene_list'));
+			    $('#gene_list')[0].setSelectionRange(err.offset, err.offset+1);
+			}
+			return false;
+		}
+       }
     var selected_studies = $("#jstree").jstree(true).get_selected_leaves();
-    while (selected_studies.length === 0 && !window.changingTabs) {
+    if (selected_studies.length === 0 && !window.changingTabs) {
             // select all by default
             $("#jstree").jstree(true).select_node(window.jstree_root_id);
             selected_studies = $("#jstree").jstree(true).get_selected_leaves()

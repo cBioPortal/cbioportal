@@ -139,7 +139,7 @@ SEG_HEADERS = ['ID',
     'seg.mean'
 ]
 
-CLINICAL_HEADERS = ['SAMPLE_ID']
+CLINICAL_HEADERS = ['SAMPLE_ID','PATIENT_ID']
 
 LOG2_HEADERS = ['Hugo_Symbol','Entrez_Gene_Id']
 EXPRESSION_HEADERS = ['Hugo_Symbol','Entrez_Gene_Id']
@@ -397,6 +397,7 @@ class Validator(object):
         self.blankColumns = set()
         self.stableId = stableId
         self.blankLines = 0
+        self.badChars = [' ']
 
         if fix:
             self.correctedFilename = self.filename.split('/')[-1][:-4]+'_'+self.stableId+'.txt'
@@ -442,6 +443,8 @@ class Validator(object):
 
         self.checkRepeatedColumns()
 
+        self.checkBadChar()
+
         missing = []
         for x in self.headers:
             if not x in self.cols:
@@ -451,7 +454,7 @@ class Validator(object):
             print >> OUTPUT_BUFFER, '\tWARNING: Missing columns'
             for m in missing:
                 print >> OUTPUT_BUFFER,'\t\t' + m
-            exitcode = 1
+            exitcode = 0
 
     # Checks lines after header, removing quotes
     def checkLine(self,line):
@@ -461,11 +464,11 @@ class Validator(object):
             self.blankLines += 1
 
         if data == self.cols or data[0:2] == self.cols[0:2]:
-            print >> OUTPUT_BUFFER, '\tWARNING: Repeated header'
+            print >> OUTPUT_BUFFER, '\tFATAL: Repeated header'
             exitcode = 1
         
         if len(data) != self.numCols and not self.invalidNumCols:
-            print >> OUTPUT_BUFFER, '\tWARNING: Expected ' + str(self.numCols) + ' columns based on header. Found ' + str(len(data)) + '\n' + \
+            print >> OUTPUT_BUFFER, '\tFATAL: Expected ' + str(self.numCols) + ' columns based on header. Found ' + str(len(data)) + '\n' + \
                 '\t\tLine: ' + str(self.lineCount)
             self.invalidNumCols = True
             exitcode = 1
@@ -477,11 +480,13 @@ class Validator(object):
                 except IndexError:
                     self.blankColumns.add('Column ' + str(i))
 
+        data = [self.fixCase(x) for x in data]
+
         return data
 
     def checkQuotes(self):
         if '"' in self.fileRead or '\'' in self.fileRead:
-            print >> OUTPUT_BUFFER, '\tWARNING: detected quotation marks in file\n' + \
+            print >> OUTPUT_BUFFER, '\tFATAL: detected quotation marks in file\n' + \
                 '\t\tFile:\t' + self.filenameShort
             exitcode = 1
 
@@ -549,22 +554,42 @@ class Validator(object):
             if col not in seen:
                 seen.add(col)
             else:
-                print >> OUTPUT_BUFFER,'\tWARNING: Repeated column header\n' + \
+                print >> OUTPUT_BUFFER,'\tFATAL: Repeated column header\n' + \
                     '\t\tColumn:\t' + col
                 exitcode = 1
 
     def checkBlankCells(self):
         if len(self.blankColumns) > 0:
             print >> OUTPUT_BUFFER, '\tWARNING: Blank cells detected'
-            exitcode = 1
+            exitcode = 0
             for blank in self.blankColumns:
                 print >> OUTPUT_BUFFER, '\t\t' + blank
 
     def checkBlankLines(self):
         if self.blankLines > 0:
-            print >> OUTPUT_BUFFER,'\tWarning: ' + str(self.blankLines) + ' blank lines detected'
+            print >> OUTPUT_BUFFER,'\tFATAL: ' + str(self.blankLines) + ' blank lines detected'
             exitcode = 1
 
+    # Check for bad things in a header, such as spaces, etc.
+    def checkBadChar(self):
+        bad_cols = [colName for bc in self.badChars for colName in self.cols if bc in colName]
+        if len(bad_cols) > 0:
+            print >> OUTPUT_BUFFER, '\tFATAL: bad characters detected in header:'
+            for bc in bad_cols:
+                print >> OUTPUT_BUFFER, '\t\t' + bc
+            exitcode = 1
+
+    # Correct yes no to Yes and No. 
+    def fixCase(self,x):
+        if x.lower() == 'yes':
+            return 'Yes'
+        elif x.lower() == 'no':
+            return 'No'
+        elif x.lower() == 'male':
+            return 'Male'
+        elif x.lower() == 'female':
+            return 'Female'
+        else: return x
 
 # sub-class CNA validator
 class CNAValidator(Validator):
@@ -589,12 +614,12 @@ class CNAValidator(Validator):
         
         if not self.headers[0] == self.cols[0]:
             print >> OUTPUT_BUFFER, "\tWARNING: Invalid Header:\t" + self.headers[0] + " should be in column 1"
-            exitcode = 1
+            exitcode = 0
         if not self.headers[1] == self.cols[1]:
             print >> OUTPUT_BUFFER, "\tWARNING: Invalid Header:\t" + self.headers[1] + " should be in column 2"
             self.entrez_present = False
             self.addEntrez = True
-            exitcode = 1
+            exitcode = 0
 
         self.setSampleIdsFromColumns()
 
@@ -611,7 +636,7 @@ class CNAValidator(Validator):
             elif i == 1 and self.entrez_present:
                 if not self.checkInt(d.strip()) and not d.strip() == 'NA':
                     print >> OUTPUT_BUFFER, '\tWARNING: Invalid Data Type:\tColumn ' + str(i+1) + ' Line ' + str(self.lineCount) + 'Entrez_Gene_Id must be integer or NA'
-                    exitcode = 1
+                    exitcode = 0
             elif i == 0 and len(self.hugo_entrez_map) > 0:
                 if not d in self.hugo_entrez_map and len(self.hugo_entrez_map) != {}:
                     self.badHugos.append((d,self.lineCount))
@@ -623,7 +648,7 @@ class CNAValidator(Validator):
     def printBadValues(self,name,bads):
         if len(bads) > 0:
             print >> OUTPUT_BUFFER, '\tWARNING: ' + name + ' appears incorrect ' + str(len(bads)) + ' time(s) on line(s):'
-            exitcode = 1
+            exitcode = 0
             for bad in bads:
                 print >> OUTPUT_BUFFER, '\t\t' + str(bad[1]) + '\t' + str(bad[0])
 
@@ -656,7 +681,7 @@ class MutationsExtendedValidator(Validator):
 
         if self.cols[0:32] != self.headers[0:32]:
             print >> OUTPUT_BUFFER, '\tWARNING: Invalid Header:\tMust have following columns in specified order'
-            exitcode = 1
+            exitcode = 0
             for h in self.headers[0:32]:
                 print >> OUTPUT_BUFFER, '\t\t' + h
 
@@ -681,7 +706,7 @@ class MutationsExtendedValidator(Validator):
                     else:
                         self.mafValues[self.cols[i]] = d
                 except IndexError:
-                    print >> OUTPUT_BUFFER, '\tWARNING: row ' + self.lineCount + ' has too many values'
+                    print >> OUTPUT_BUFFER, '\tFATAL: row ' + self.lineCount + ' has too many values'
                     exitcode = 1
 
         if self.fix:
@@ -737,12 +762,12 @@ class MutationsExtendedValidator(Validator):
                 print >> OUTPUT_BUFFER, '\tWARNING: Missing entrez IDs'
                 self.entrez_present = False
                 self.addEntrez = True
-                exitcode = 1
+                exitcode = 0
             elif self.entrez_present and not value in self.hugo_entrez_map.values() and self.hugo_entrez_map != {}:
                 return False
             elif self.hugo_entrez_map.get(self.mafValues['Hugo_Symbol'])!= value and self.hugo_entrez_map != {}:
                 print >> OUTPUT_BUFFER, '\tWARNING: Line ' + str(self.lineCount) + ' Entrez gene ID does not match Hugo symbol'
-                exitcode = 1
+                exitcode = 0
         return True
     
 
@@ -885,7 +910,7 @@ class MutationsExtendedValidator(Validator):
             print >> OUTPUT_BUFFER, "\tWARNING: Hugo symbols appear incorrect " + str(len(self.hugo_warning_lines)) + ' time(s) on lines:'
             for hugo_warning in self.hugo_warning_lines:
                 print >> OUTPUT_BUFFER, '\t\t' + str(hugo_warning[1] + self.toplinecount) + '\t' + str(hugo_warning[0])
-            exitcode = 1
+            exitcode = 0
 
     class Factory:
         def create(self,filename,hugo_entrez_map,fix,verbose,stableId): return MutationsExtendedValidator(filename,hugo_entrez_map,fix,verbose,stableId)
@@ -910,9 +935,13 @@ class ClinicalValidator(Validator):
 
         if len(missing) > 0:
             print >> OUTPUT_BUFFER, '\tWARNING: header missing following columns:\n'
-            exitcode = 1
+            exitcode = 0
             for m in missing:
                 print >> OUTPUT_BUFFER, '\t\t' + m
+
+        if self.cols[0:1] != self.headers[0:1]:
+            print >> OUTPUT_BUFFER, '\tFATAL: clinical header should begin SAMPLE_ID PATIENT_ID'
+            exitcode = 1
 
         notUpper = []
         for col in self.cols:
@@ -921,7 +950,7 @@ class ClinicalValidator(Validator):
 
         if len(notUpper) > 0:
             print >> OUTPUT_BUFFER, '\tWARNING: Headers found not all caps:'
-            exitcode = 1
+            exitcode = 0
             for nu in notUpper:
                 print >> OUTPUT_BUFFER, '\t\t' + nu
 
@@ -967,7 +996,7 @@ class SegValidator(Validator):
 
         if self.cols != self.headers:
             print >> OUTPUT_BUFFER, '\tWARNING:Invalid Header:\tMust have following columns in specified order'
-            exitcode = 1
+            exitcode = 0
             for h in self.headers:
                 print >> OUTPUT_BUFFER, '\t\t' + h
 
@@ -1210,7 +1239,7 @@ def processCaseListDirectory(caseListDir,sampleIdSets):
                 print >> OUTPUT_BUFFER, 'WARNING: Unexpected field found in case list file\n' + \
                     '\tFile:\t' + getFileFromFilepath(case) + '\n' + \
                     '\tField:\t' + cd
-                exitcode = 1
+                exitcode = 0
 
         sampleIds = case_data.get('case_list_ids')
         if sampleIds is not None:
@@ -1327,21 +1356,20 @@ def main():
                     if field not in META_FIELD_MAP[pattern]:
                         print >> OUTPUT_BUFFER, 'WARNING: Field in metafile ' + getFileFromFilepath(f) + ' not present in schema\n' + \
                             '\tField: ' + field
-                        exitcode = 1
+                        exitcode = 0
 
                 # check that cancer study identifiers across files so far are consistent.
                 if cancerStudyId == '':
                     cancerStudyId = meta['cancer_study_identifier'].strip()
                 elif cancerStudyId != meta['cancer_study_identifier'].strip():
-                    print >> ERROR_BUFFER, 'Cancer study identifier in metafiles do not match.\n\t' + \
+                    print >> OUTPUT_BUFFER, 'FATAL: Cancer study identifier is not consistent across files.\n\t' + \
                         cancerStudyId.strip() + '\t\n\t' + meta['cancer_study_identifier'].strip() 
                     exitcode = 1
-
-                stableids[pattern] = meta.get('stable_id','corrected')
-
+                
+                stableid = meta.get('stable_id','corrected')
 
                 # check filenames for seg meta file, and get correct filename for the actual
-                if pattern == SEG_META_PATTERN:
+                if pattern == SEG_META_PATTERN: 
                     metafiles.append(SEG_META_PATTERN)
                     filenameMetaStringCheck = cancerStudyId + '_meta_cna_' + GENOMIC_BUILD_COUNTERPART + '_seg.txt'
                     filenameStringCheck = cancerStudyId + '_data_cna_' + GENOMIC_BUILD_COUNTERPART + '.seg'
@@ -1353,7 +1381,7 @@ def main():
 
                     seg_data_filename = meta['data_filename']
                     if meta.get('reference_genome_id').strip() != GENOMIC_BUILD_COUNTERPART.strip():
-                        print >> OUTPUT_BUFFER, 'WARNING: reference_genome_id in ' + f.split('/')[-1].strip() + \
+                        print >> OUTPUT_BUFFER, 'FATAL: reference_genome_id in ' + f.split('/')[-1].strip() + \
                             ' incorrect\n\t\tExpected:\t' + GENOMIC_BUILD_COUNTERPART + \
                             '\n\t\tFound:\t' + meta.get('reference_genome_id').strip()
                         exitcode = 1
@@ -1379,11 +1407,7 @@ def main():
 
         # check if metafile exists for given file type (except clinical) and that the stable ids match
         if VALIDATOR_META_MAP.get(type(validator).__name__) not in metafiles:
-            print >> OUTPUT_BUFFER, 'WARNING: missing metafile for ' + validator.filenameShort + '\n'
-            exitcode = 1
-        elif stableids.get(VALIDATOR_META_MAP.get(type(validator).__name__),None) != validator.stableId:
-            print >> OUTPUT_BUFFER, 'WARNING: stable_id in meta and data files do not match\n' + \
-                '\tFile:\t' + validator.filenameShort
+            print >> OUTPUT_BUFFER, 'FATAL: missing metafile for ' + validator.filenameShort + '\n'
             exitcode = 1
         
         # check meta and file names match for seg files
@@ -1402,7 +1426,7 @@ def main():
         checkSampleIds(sampleIdSets,clinIds,clinvalidatorname)
     else:
         print >> OUTPUT_BUFFER, '\tWARNING: No clinical file detected'
-        errorcode = 1
+        errorcode = 0
 
     print >> OUTPUT_BUFFER, '\nValidation complete'
 

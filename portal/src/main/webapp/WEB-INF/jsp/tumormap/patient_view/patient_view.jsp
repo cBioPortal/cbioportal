@@ -419,10 +419,8 @@ var caseMetaData = {
 var oncokbGeneStatus = <%=oncokbGeneStatus%>;
 var showHotspot = <%=showHotspot%>;
 
-OncoKB.setUrl('<%=oncokbUrl%>');
-
-
 $(document).ready(function(){
+    OncoKB.setUrl('<%=oncokbUrl%>');
     if (print) $('#page_wrapper_table').css('width', '900px');
     tweaksStyles();
     outputClinicalData();
@@ -550,7 +548,10 @@ function addMoreClinicalTooltip(elem) {
                     "sInfoFiltered": "",
                     "sLengthMenu": "Show _MENU_ per page"
                 },
-                "iDisplayLength": -1
+                "iDisplayLength": -1,
+                "headerCallback": function(nHead, aData, iStart, iEnd, aiDisplay) {
+                    $(nHead).remove();
+                }
             };
         } else {
             var caseId = $(this).attr('alt');
@@ -585,8 +586,15 @@ function addMoreClinicalTooltip(elem) {
                     "sInfoFiltered": "",
                     "sLengthMenu": "Show _MENU_ per page"
                 },
-                "iDisplayLength": -1
+                "iDisplayLength": -1,
+                "headerCallback": function(nHead, aData, iStart, iEnd, aiDisplay) {
+                    $(nHead).remove();
+                }
             };
+        }
+        if (clinicalData.length > 13) {
+            dataTable["scrollY"] = "350px";
+            dataTable["scrollCollapse"] = true;
         }
 
         if (clinicalData.length===0) {
@@ -908,6 +916,9 @@ function outputClinicalData() {
     });
 
     row = "<span id='more-patient-info'><b><u><a href='"+cbio.util.getLinkToPatientView(cancerStudyId,patientId)+"'>"+patientId+"</a></b></u><a>&nbsp;";
+    if ("PATIENT_DISPLAY_NAME" in patientInfo) {
+        row +="("+patientInfo["PATIENT_DISPLAY_NAME"]+")&nbsp;";
+    }
     var info = [];
     var loc;
     if ("PRIMARY_SITE" in patientInfo) {loc = (" (" + patientInfo["PRIMARY_SITE"] + ")")} else {loc=""};
@@ -915,7 +926,7 @@ function outputClinicalData() {
     var info = info.concat(formatDiseaseInfo(patientInfo));
     var info = info.concat(formatPatientStatus(patientInfo));
     row += info.join(", ");
-    row += "</a></span><span id='topbar-cancer-study' style='text-align: right; float: right'>" + formatCancerStudyInfo()+ "</span><br />";
+    row += "</a></span><span id='topbar-cancer-study' style='text-align: right; float: right'>" + formatCancerStudyInfo(55)+ "</span><br />";
     $("#clinical_div").append(row);
     $("#nav_div").appendTo($("#topbar-cancer-study"));
 
@@ -932,6 +943,9 @@ function outputClinicalData() {
             sample_recs += "<svg width='12' height='12' class='case-label-header' alt='"+caseId+"'></svg>&nbsp;";
         }
         sample_recs += "<b><u><a style='color: #1974b8;' href='"+cbio.util.getLinkToSampleView(cancerStudyId,caseId)+"'>"+caseId+"</a></b></u><a>&nbsp;";
+        if ("SAMPLE_DISPLAY_NAME" in clinicalDataMap[caseId]) {
+            sample_recs +="("+clinicalDataMap[caseId]["SAMPLE_DISPLAY_NAME"]+")&nbsp;";
+        }
         var info = [];
         info = info.concat(formatDiseaseInfo(_.omit(clinicalDataMap[caseId], Object.keys(patientInfo))));
         sample_recs += info.join(",&nbsp;");
@@ -1064,8 +1078,9 @@ function outputClinicalData() {
         return ret;
     }
 
-    function formatCancerStudyInfo() {
-        return "<a href=\"study.do?cancer_study_id="+cancerStudyId+"\"><b>"+cancerStudyName+"</b></a>";
+    function formatCancerStudyInfo(max_length) {
+        var studyNameShort = (cancerStudyName.length > max_length)? cancerStudyName.substring(0, max_length - 4) + "&nbsp;..." : cancerStudyName;
+        return "<a title='"+cancerStudyName+"' href=\"study.do?cancer_study_id="+cancerStudyId+"\"><b>"+studyNameShort+"</b></a>";
     }
 
     function formatNav() {
@@ -1171,6 +1186,11 @@ function outputClinicalData() {
         var serumPsa = guessClinicalData(clinicalData, ["SERUM_PSA"]);
         if (serumPsa!==null) {
             diseaseInfo.push("Serum PSA: "+serumPsa);
+        }
+
+        var driverMutations = guessClinicalData(clinicalData,["DRIVER_MUTATIONS"]);
+        if (driverMutations!==null) {
+            diseaseInfo.push(driverMutations);
         }
 
         return diseaseInfo;

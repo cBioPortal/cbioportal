@@ -67,10 +67,10 @@ skin.right_nav.show_testimonials=true
 skin.study_view.link_text=To build your own case set, try out our enhanced Study View.
 
 # authentication
-## is authentication enabled at all? (true, false)
-authenticate=false
-## which method of authentication to use (false, googleplus, saml, openid)
+## is authorization enabled at all? (true, false)
 authorization=false
+## which method of authentication to use (false, googleplus, saml, openid)
+authenticate=false
 ## Should the permissions for groups and users be filtered by this instance's app.name?
 ## (true means the system only handles "CBIOPORTAL:someGroupPermission" groups, false means "someGroupPermission" works)
 filter_groups_by_appname=true
@@ -139,3 +139,5 @@ google_analytics_profile_id=
 # genomespace linking
 genomespace=true
 
+# set this to true if you update cancer studies in your production database without shutting the web server
+recache_study_after_update=false

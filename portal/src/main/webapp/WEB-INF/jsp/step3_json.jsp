@@ -50,14 +50,20 @@
 	 				Build Case Set
 	 			</a>
 	 			-->
-                <div style="padding-left: 10px">
+	 		</td>
+		</tr>
+        <tr>
+            <td></td>
+            <td>
+                <div>
                     <!-- add new link for the new functionality which links to the study view -->
                     <a id="build_case_set" onclick="openStudyView()" title="Build a Case Set via Study View">
                         <%= GlobalProperties.getStudyviewLinkText()%>
                     </a>
                 </div>
-	 		</td>
-		</tr>
+            </td>
+            <td></td>
+        </tr>
 	</table>
 	
 	<div id="custom_case_set_dialog" title="Build a Case Set">

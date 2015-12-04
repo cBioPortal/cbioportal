@@ -920,7 +920,7 @@ aka, "what people are saying" */
     background-position: 0px 10px;
     background-repeat: no-repeat;*/
     border: 1px dashed testimonials; /*setting transparent border prevents scroll bar from 'jumping'
-                                      between fade in/fade out of each quote */ 
+                                      between fade in/fade out of each quote */
 }
 
 /* actual quote from user */
@@ -1123,7 +1123,6 @@ cursor: default;
     padding:10px;
     margin-top:6px;
     padding-top:10px;
-    overflow: hidden;
 }
 
 /* Main Query Form */
@@ -1161,7 +1160,7 @@ cursor: default;
 #select_cancer_type_section label {
     margin: 0;
 }
-#select_cancer_type_section input[type=checkbox] { display:none; }  to hide the checkbox itself 
+#select_cancer_type_section input[type=checkbox] { display:none; }  to hide the checkbox itself
 #select_cancer_type_section input[type=checkbox] + label:before {
   font-family: FontAwesome;
   display: inline-block;
@@ -1170,7 +1169,7 @@ cursor: default;
 #select_cancer_type_section input[type=checkbox] + label:hover {
   cursor: pointer;
 }
-#select_cancer_type_section input[type=checkbox] + label:before { content: "\f096"; letter-spacing: 5px;}  unchecked icon 
+#select_cancer_type_section input[type=checkbox] + label:before { content: "\f096"; letter-spacing: 5px;}  unchecked icon
 
 #select_cancer_type_section input[type=checkbox]:checked + label:before { content: "\f046"; letter-spacing: 5px;}  checked icon */
 #select_cancer_type_section .step_header_search_result {
@@ -1188,7 +1187,7 @@ cursor: default;
     color: #ccc;
     display: none;
     z-index: 999;
-}  
+}
 .row.step_header_first_line, .row.step_header_bottom_line{
     margin: 0;
 }
@@ -1414,7 +1413,7 @@ ul.ui-autocomplete li.ui-menu-item { font-size: 0.6em; text-align: left; }
     fill-opacity: .125;
     shape-rendering: crispEdges;
     z-index: -1;
-} 
+}
 
 .qtip-ui-wide {
     max-width: 600px;
@@ -1454,6 +1453,7 @@ ul.ui-autocomplete li.ui-menu-item { font-size: 0.6em; text-align: left; }
     font-size: 11px !important;
 }
 ul.oncokb {
+    padding-top: 5px;
     padding-left: 20px;
 }
 ul.oncokb li {

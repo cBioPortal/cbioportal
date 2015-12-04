@@ -57,17 +57,19 @@
             $(oTable).find('.pancan_mutations_histogram_count').each(function() {
                 if ($(this).hasClass("initialized")) return;
                 $(this).addClass("initialized");
+                var proteinPos = $(this).attr('protein_pos');
                 var keyword = $(this).attr('keyword');
                 var gene = $(this).attr('gene');
-                $(this).html(genomicEventObs.pancan_mutation_frequencies.countByKey(keyword));
+                $(this).html(genomicEventObs.pancan_mutation_frequencies.countByKey(proteinPos));
                 $(this).qtip({
                     content: {text: 'pancancer mutation bar chart is broken'},
                     events: {
                         render: function(event, api) {
+                            var byPositionData = genomicEventObs.pancan_mutation_frequencies.data[proteinPos];
                             var byKeywordData = genomicEventObs.pancan_mutation_frequencies.data[keyword];
                             var byHugoData = genomicEventObs.pancan_mutation_frequencies.data[gene];
                             var invisible_container = document.getElementById("pancan_mutations_histogram_container");
-                            var histogram = PancanMutationHistogram(byKeywordData, byHugoData, window.cancer_study_meta_data, invisible_container, {this_cancer_study: window.cancerStudyName});
+                            var histogram = PancanMutationHistogram(byPositionData, byKeywordData, byHugoData, window.cancer_study_meta_data, invisible_container, {this_cancer_study: window.cancerStudyName});
 
                             var title = "<div><div><h3>"+gene+" mutations across all cancer studies</h3></div>" +
                                         "<div style='float:right;'><button class='cross-cancer-download' file-type='pdf'>PDF</button>"+
@@ -194,8 +196,8 @@
                             } else if (type==='display') {
                                 var gene = mutations.getValue(source[0], "gene");
                                 var entrez = mutations.getValue(source[0], "entrez");
-//                                var tip = "<a href=\"http://www.ncbi.nlm.nih.gov/gene/"
-//                                    +entrez+"\">NCBI Gene</a>";
+                                var tip = "<a href=\"http://www.ncbi.nlm.nih.gov/gene/"
+                                    +entrez+"\">NCBI Gene</a>";
 //                                var sanger = mutations.getValue(source[0], 'sanger');
 //                                if (sanger) {
 //                                    tip += "<br/><a href=\"http://cancer.sanger.ac.uk/cosmic/gene/overview?ln="
@@ -206,6 +208,9 @@
                                     ret = "<span class='"+table_id+"-tip oncokb oncokb_gene' gene='"+gene+"' oncokbId='"+source[0]+"'>"+ret+"</span>";
                                 }else if(OncoKB.getAccess()){
                                     ret += "<img width='12' height='12' class='loader' src='images/ajax-loader.gif'/>";
+                                } else {
+                                    ret = "<div class='"+table_id
+                                            +"-tip' alt='"+tip+"'>"+ret+"</div>";
                                 }
 
                                 return ret;
@@ -701,10 +706,11 @@
                             if (type === 'display') {
                                 var keyword = mutations.getValue(source[0], "key");
                                 var hugo = mutations.getValue(source[0], "gene");
+                                var proteinPos = hugo+"_"+mutations.getValue(source[0], "protein-start");
 
-                                var ret = "<div class='pancan_mutations_histogram_thumbnail' gene='"+hugo+"' keyword='"+keyword+"'></div>";
+                                var ret = "<div class='pancan_mutations_histogram_thumbnail' protein_pos='"+proteinPos+"' gene='"+hugo+"' keyword='"+keyword+"'></div>";
                                     ret += "<img width='15' height='15' class='pancan_mutations_histogram_wait' src='images/ajax-loader.gif'/>";
-                                    ret += "<div class='pancan_mutations_histogram_count' style='float:right' gene='"+hugo+"' keyword='"+keyword+"'></div>";
+                                    ret += "<div class='pancan_mutations_histogram_count' style='float:right' protein_pos='"+proteinPos+"' gene='"+hugo+"' keyword='"+keyword+"'></div>";
 
                                 return ret;
                             }
@@ -894,7 +900,7 @@
                     addNoteTooltip("."+table_id+"-tip");
                     addNoteTooltip("."+table_id+"-ma-tip",null,{my:'top right',at:'bottom center',viewport: $(window)});
                     if(showHotspot) {
-                        addNoteTooltip('.'+table_id+'-hotspot', '<b>Recurrent Hotspot</b><br/>This mutated amino acid was identified as a recurrent hotspot (statistical significance, q-value < 0.01) in a set of 11,119 tumor samples of various cancer types (based on Chang, M. et al. Nature Biotech. 2015).');
+                        addNoteTooltip('.'+table_id+'-hotspot', "<b>Recurrent Hotspot</b><br/>This mutated amino acid was identified as a recurrent hotspot (statistical significance, q-value < 0.01) in a set of 11,119 tumor samples of various cancer types (based on <a href='http://www.ncbi.nlm.nih.gov/pubmed/26619011' target='_blank'>Chang, M. et al. Nature Biotech. 2015</a>).");
                     }
                     addDrugsTooltip("."+table_id+"-drug-tip", 'top right', 'bottom center');
                     addCosmicTooltip(table_id);
@@ -1152,6 +1158,7 @@
                     var pancanMutationsUrl = "pancancerMutations.json";
                     var byKeywordResponse = [];
                     var byHugoResponse = [];
+                    var byProteinPosResponse = [];
 
                     function munge(response, key) {
                         // munge data to get it into the format: keyword -> corresponding datum
@@ -1176,10 +1183,12 @@
                                                 cmd: cmd,
                                                 q: accData
                                             }, function(batchData) {
-                                                if(cmd == "byKeywords") {
+                                                if(cmd === "byKeywords") {
                                                     byKeywordResponse = byKeywordResponse.concat(batchData);
-                                                } else if( cmd == "byHugos") {
+                                                } else if( cmd === "byHugos") {
                                                     byHugoResponse = byHugoResponse.concat(batchData);
+                                                } else if (cmd === "byProteinPos") {
+                                                    byProteinPosResponse = byProteinPosResponse.concat(batchData);
                                                 } else {
                                                     console.trace("Ooops! Something is wrong!");
                                                 }
@@ -1192,11 +1201,17 @@
                         return jobs;
                     };
 
-                    var jobs = splitJobs("byKeywords", genomicEventObs.mutations.data.key)
-                            .concat(splitJobs("byHugos", genomicEventObs.mutations.data.gene));
+                    var keys = genomicEventObs.mutations.data.key;
+                    var genes = genomicEventObs.mutations.data.gene;
+                    var positions = _.map(_.zip.apply(_, [genes, genomicEventObs.mutations.data['protein-start']]), function(pieces) {
+                                    return pieces[0]+"_"+pieces[1];
+                               });
+                    var jobs = splitJobs("byKeywords", keys)
+                            .concat(splitJobs("byHugos", genes))
+                            .concat(splitJobs("byProteinPos", positions));
                     $.when.apply($, jobs).done(function() {
                         genomicEventObs.pancan_mutation_frequencies.setData(
-                                _.extend(munge(byKeywordResponse, "keyword"), munge(byHugoResponse, "hugo")));
+                                _.extend(munge(byProteinPosResponse, "protein_start_with_hugo"), munge(byKeywordResponse, "keyword"), munge(byHugoResponse, "hugo")));
                         genomicEventObs.fire("pancan-mutation-frequency-built");
                     });
 

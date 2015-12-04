@@ -48,9 +48,9 @@
                <td><div id='customize-min-nr-altered-samples-slider-{{geneId}}'></div></td>
             </tr>
             <tr>
-               <td></td>
-               <td><div id='customize-sort-by-x-axis-{{geneId}}'></div></td>
                <td><div id='customize-show-genomic-alteration-types-{{geneId}}'></div></td>
+               <td><div id='customize-sort-by-x-axis-{{geneId}}'></div></td>
+               <td><div id='customize-total-nr-altered-samples-slider-{{geneId}}'></div></td>
             </tr>
             <tr>
                <td colspan="3">
@@ -73,27 +73,27 @@
         <br> <br>
 	  </script>
 
-
-      <!-- template for the slider, adapted from the mutationmapper-->
-      <script type="text/template" id="nr_altered_samples_slider_template">
-         <div class="diagram-min-nr-altered-samples-slider-area">
-            <table class='customize-options'>
-               <tr>
-                  <td width="30%" valign="top">
-                     <div class="diagram-min-nr-altered-samples-slider"></div>
-                     <span class="diagram-min-nr-altered-samples-min-label">{{min}}{{suffix}}</span>
-                     <span class="diagram-min-nr-altered-samples-max-label">{{max}}{{suffix}}</span>
-                  </td>
-                  <td valign="top">
-					<div class="slider-label">
-                     Show cancer types with 
-                     <span class="diagram-min-nr-alter-samples-value">0</span>{{suffix}}
-                     or more altered samples
-					</div>
-                  </td>
-               </tr>
-            </table>
-         </div>
+      <!-- template for general slider, adapted from the mutationmapper-->
+      <script type="text/template" id="general_slider_template">
+          <div class="diagram-general-slider-area">
+              <table class='customize-options'>
+                  <tr>
+                      <td width="30%" valign="top">
+                          <div class="slider-label">
+                              <span class="diagram-general-slider-text">{{text}}</span>
+                              <span class="diagram-general-slider-value">{{init}}</span>{{suffix}}
+                          </div>
+                      </td>
+                      <td valign="top">
+                          <div style="width:30%">
+                              <div class="diagram-general-slider"></div>
+                              <span class="diagram-general-slider-min-label">{{min}}{{suffix}}</span>
+                              <span class="diagram-general-slider-max-label">{{max}}{{suffix}}</span>
+                          </div>
+                      </td>
+                  </tr>
+              </table>
+          </div>
       </script>
 
 	<script type="text/template" id="cancer-type-tip-tmpl">

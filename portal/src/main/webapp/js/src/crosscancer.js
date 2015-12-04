@@ -1123,16 +1123,29 @@
                             }else{
 	                            jQuery.extend(true, options, {view : {
                                     mutationTable: {
+                                        columns: {
+                                            annotation: {
+                                                sTitle: "Annotation",
+                                                tip: "",
+                                                sType: "sort-icons",
+                                                sClass: "left-align-td"
+                                            }
+                                        },
+                                        columnOrder: [
+                                            "datum", "mutationId", "mutationSid", "caseId", "cancerStudy", "tumorType",
+                                            "proteinChange", 'annotation', "mutationType", "cna", "cBioPortal", "cosmic", "mutationStatus",
+                                            "validationStatus", "mutationAssessor", "sequencingCenter", "chr",
+                                            "startPos", "endPos", "referenceAllele", "variantAllele", "tumorFreq",
+                                            "normalFreq", "tumorRefCount", "tumorAltCount", "normalRefCount",
+                                            "normalAltCount", "igvLink", "mutationCount"
+                                        ],
+                                        columnVisibility: {
+                                            annotation: 'visible'
+                                        },
                                         columnRender: {
-                                            proteinChange: function (datum) {
+                                            annotation: function (datum) {
                                                 var mutation = datum.mutation;
-                                                var proteinChange = MutationDetailsTableFormatter.getProteinChange(mutation);
                                                 var vars = {};
-                                                vars.proteinChange = proteinChange.text;
-                                                vars.proteinChangeClass = proteinChange.style;
-                                                vars.proteinChangeTip = proteinChange.tip;
-                                                vars.additionalProteinChangeTip = proteinChange.additionalTip;
-                                                vars.pdbMatchLink = MutationDetailsTableFormatter.getPdbMatchLink(mutation);
                                                 vars.oncokbId = mutation.mutationSid;
                                                 vars.mcgAlt = '';
                                                 vars.changHotspotAlt = '';
@@ -1145,16 +1158,15 @@
                                                     vars.changHotspotAlt = "<b>Recurrent Hotspot</b><br/>This mutated amino acid was identified as a recurrent hotspot (statistical significance, q-value < 0.01) in a set of 11,119 tumor samples of various cancer types (based on <a href=&quot;http://www.ncbi.nlm.nih.gov/pubmed/26619011&quot; target=&quot;_blank&quot;>Chang, M. et al. Nature Biotech. 2015</a>).";
                                                 }
 
-                                                var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_protein_change_oncokb_template");
+                                                var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_annotation_template");
                                                 return templateFn(vars);
                                             }
                                         },
                                         columnTooltips: {
-                                            proteinChange: function (selector, helper) {
+                                            annotation: function (selector, helper) {
                                                 $(selector).find('span.oncokb').remove();
                                                 $(selector).find('span.mcg[alt=""]').remove();
                                                 $(selector).find('span.chang_hotspot[alt=""]').remove();
-                                                $(selector).find('span.mutation-table-additional-protein-change[alt=""]').remove();
                                                 $(selector).find('span.mcg').qtip({
                                                     content: {attr: 'alt'},
                                                     show: {event: "mouseover"},
@@ -1170,6 +1182,11 @@
                                                     style: { classes: 'qtip-light qtip-rounded qtip-wide' },
                                                     position: {my:'top left',at:'bottom center',viewport: $(window)}
                                                 });
+                                            }
+                                        },
+                                        columnSort: {
+                                            "annotation": function(datum) {
+                                                return datum;
                                             }
                                         }
                                     }

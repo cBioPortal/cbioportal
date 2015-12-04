@@ -1289,8 +1289,8 @@ OncoKB.Instance.prototype = {
                         }
                     })
                 });
-                self.dataReady = true;
             }
+            self.dataReady = true;
 
             deferred.resolve();
         })

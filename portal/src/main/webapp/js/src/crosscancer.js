@@ -1119,8 +1119,8 @@
                                                                     }
                                                                 }
                                                             });
-                                                            dataTable.fnUpdate(null, 0, indexMap['annotation']);
                                                         }
+                                                        dataTable.fnUpdate(null, 0, indexMap['annotation']);
                                                     });
                                                 }
                                             }

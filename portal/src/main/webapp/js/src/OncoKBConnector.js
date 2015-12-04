@@ -59,6 +59,7 @@ var OncoKB = (function () {
         addInstance: function (instanceId) {
             var instance = new Instance(instanceId);
             this.instances[instance.getId()] = instance;
+            return instance;
         },
         removeInstance: function (instanceId) {
             if (this.instances.hasOwnProperty(instanceId)) {
@@ -341,37 +342,37 @@ var OncoKB = (function () {
                 return OncoKB.utils.compareOncogenic(x.oncokb.oncogenic, y.oncokb.oncogenic);
             }
             if (category === 'oncokb') {
-                if (!x.oncokb || !x.oncokb.treatments[levelType] || x.oncokb.treatments[levelType].length === 0) {
-                    if (!y.oncokb || !y.oncokb.treatments[levelType] || y.oncokb.treatments[levelType].length === 0) {
+                if (!x.oncokb || !x.oncokb.hasOwnProperty('treatments') || !x.oncokb.treatments[levelType] || x.oncokb.treatments[levelType].length === 0) {
+                    if (!y.oncokb || !y.oncokb.hasOwnProperty('treatments')  || !y.oncokb.treatments[levelType] || y.oncokb.treatments[levelType].length === 0) {
                         return 0;
                     }
                     return yWeight;
                 }
-                if (!y.oncokb || !y.oncokb.treatments[levelType] || y.oncokb.treatments[levelType].length === 0) {
+                if (!y.oncokb || !y.oncokb.hasOwnProperty('treatments') || !y.oncokb.treatments[levelType] || y.oncokb.treatments[levelType].length === 0) {
                     return xWeight;
                 }
                 return OncoKB.utils.compareHighestLevel(x.oncokb.treatments[levelType], y.oncokb.treatments[levelType], levelType);
             }
             if (category === 'mycancergenome') {
-                if (!x.mutation.myCancerGenome || x.mutation.myCancerGenome.length === 0) {
+                if (!x.mutation || !x.mutation.myCancerGenome || x.mutation.myCancerGenome.length === 0) {
                     if (!y.mutation.myCancerGenome || y.mutation.myCancerGenome.length === 0) {
                         return 0;
                     }
                     return yWeight;
                 }
-                if (!y.mutation.myCancerGenome || y.mutation.myCancerGenome.length === 0) {
+                if (!y.mutation || !y.mutation.myCancerGenome || y.mutation.myCancerGenome.length === 0) {
                     return xWeight;
                 }
                 return 0;
             }
             if (category === 'hotspot') {
-                if (!x.mutation.hasOwnProperty('isHotspot') || !x.mutation.isHotspot) {
-                    if (!y.mutation.hasOwnProperty('isHotspot') || !y.mutation.isHotspot) {
+                if (!x.mutation || !x.mutation.hasOwnProperty('isHotspot') || !x.mutation.isHotspot) {
+                    if (!y.mutation || !y.mutation.hasOwnProperty('isHotspot') || !y.mutation.isHotspot) {
                         return 0;
                     }
                     return yWeight;
                 }
-                if (!y.mutation.hasOwnProperty('isHotspot') || !y.mutation.isHotspot) {
+                if (!y.mutation || !y.mutation.hasOwnProperty('isHotspot') || !y.mutation.isHotspot) {
                     return xWeight;
                 }
                 return 0;
@@ -1356,7 +1357,12 @@ OncoKB.Instance.prototype = {
                     $(this).empty();
                     if (self.variants.hasOwnProperty(oncokbId)) {
                         var _tip = '', _oncogenicTip = '', _hotspotTip = '';
-                        OncoKB.svgs.createOncogenicIcon(this, self.variants[oncokbId].evidence.oncogenic, self.variants[oncokbId].evidence.treatments.resistance.length > 0);
+                        if(self.variants[oncokbId].evidence.hasOwnProperty('oncogenic')) {
+                            OncoKB.svgs.createOncogenicIcon(this, self.variants[oncokbId].evidence.oncogenic,
+                                self.variants[oncokbId].evidence.hasOwnProperty('treatments')?self.variants[oncokbId].evidence.treatments.resistance.length > 0:false);
+                        }else {
+                            OncoKB.svgs.createOncogenicIcon(this, -1, false);
+                        }
                         _oncogenicTip += OncoKB.str.getOncogenicitySummary(self.variants[oncokbId].evidence);
                         if (_.isNumber(self.variants[oncokbId].evidence.oncogenic)) {
                             _oncogenicTip += OncoKB.str.getMutationSummaryStr(self.variants[oncokbId].evidence);

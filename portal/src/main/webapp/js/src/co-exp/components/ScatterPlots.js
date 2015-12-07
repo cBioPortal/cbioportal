@@ -66,7 +66,10 @@ var ScatterPlots = function() {
         dataArr = [],
         dataAttr = {};
 
-    var axis_edge = 0.1;
+      var axisXLogFlag = false,
+         axisYLogFlag = false;
+
+     var axis_edge = 0.1;
         log_scale_threshold = 0.17677669529;
 
     var updateBrushCallback = "";
@@ -135,6 +138,7 @@ var ScatterPlots = function() {
             .scale(elem.xScale)
             .orient("bottom")
             .tickSize(6, 0, 0);
+
     }
 
     function initAxisY() {
@@ -142,6 +146,7 @@ var ScatterPlots = function() {
             .scale(elem.yScale)
             .orient("left")
             .tickSize(6, 0, 0);
+
     }
 
     function generateAxisX() {
@@ -167,6 +172,7 @@ var ScatterPlots = function() {
             .style("shape-rendering", "crispEdges")
             .attr("transform", "translate(0, " + canvas.yTop + ")")
             .call(elem.xAxis.orient("bottom").ticks(0));
+
     }
 
     function generateAxisY() {
@@ -207,11 +213,55 @@ var ScatterPlots = function() {
         {
             elem.axisTitleGroup.append("text")
                 .attr("x", canvas.xLeft + (canvas.xRight - canvas.xLeft) / 2)
-                .attr("y", canvas.yBottom + 10)
+                .attr("y", canvas.yBottom + 8)
                 .style("text-anchor", "middle")
-                .style("font-size", "5px")
+                .style("font-size", "7px")
                 .attr("class", "plots-title-x")
                 .text(_xTitle);        }
+        else if(size === 'big')
+        {
+            elem.axisTitleGroup.append("text")
+                .attr("x", canvas.xLeft + (canvas.xRight - canvas.xLeft) / 2 - 17)
+                .attr("y", canvas.yBottom + 45)
+                .style("text-anchor", "middle")
+                .style("font-size", "12px")
+                .style("font-weight", "bold")
+                .attr("class", "plots-title-x")
+                .text(_xTitle);
+
+            if(axisXLogFlag) {
+                _checked = "checked";
+            }else {
+                _checked = "";
+            }
+
+            elem.axisTitleGroup.append("svg:foreignObject")
+                .attr("id", "plots-title-x-checkbox")
+                .attr("x", canvas.xLeft + (canvas.xRight - canvas.xLeft) / 2 + _xTitle.length / 2 * 8 - 47)
+                .attr("y", canvas.yBottom + 30)
+                .attr("width", "50")
+                .attr("height", "20")
+                .append("xhtml:body")
+                .style({"font-size": "11px", "margin": "0"})
+                .html("<input id='mut-cna-haxis-log' class='mut-cna-axis-log' type='checkbox' style='float:left' "+_checked+"/><span style='float:left; margin-top: 2px; font-size-adjust: 0.5;'>Log</span>");
+
+            $("#mut-cna-haxis-log").change(function() {
+                if($(this).prop("checked")){
+                    axisXLogFlag = true;
+                }else {
+                    axisXLogFlag = false;
+                }
+
+                if (axisXLogFlag) {
+                    updateAxisScaleX();
+                } else {
+                    initScaleX();
+                }
+                initAxisX();
+                generateAxisX();
+                updatePlotsLogScale("x", axisXLogFlag);
+            });
+        }
         else
         {
             elem.axisTitleGroup.append("text")
@@ -222,10 +272,6 @@ var ScatterPlots = function() {
                 .style("font-weight", "bold")
                 .attr("class", "plots-title-x")
                 .text(_xTitle);
-        }
-
-        if(size === null)
-        {
             elem.axisTitleGroup.append("svg:image")
                 .attr("xlink:href", "images/help.png")
                 .attr("class", "plots-title-x-help")
@@ -266,9 +312,54 @@ var ScatterPlots = function() {
                 .attr("x", (canvas.yTop - canvas.yBottom) / 2 - canvas.yTop)
                 .attr("y", canvas.xLeft - 5)
                 .style("text-anchor", "middle")
-                .style("font-size", "5px")
+                .style("font-size", "7px")
                 .attr("class", "plots-title-y")
                 .text(_yTitle);
+        }
+        else if(size === 'big')
+        {
+            elem.axisTitleGroup.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("x", (canvas.yTop - canvas.yBottom) / 2 - canvas.yTop)
+                .attr("y", canvas.xLeft - 60)
+                .style("text-anchor", "middle")
+                .style("font-size", "12px")
+                .style("font-weight", "bold")
+                .attr("class", "plots-title-y")
+                .text(_yTitle);
+
+
+            if(axisYLogFlag) {
+                _checked = "checked";
+            }else {
+                _checked = "";
+            }
+            elem.axisTitleGroup.append("svg:foreignObject")
+                .attr("id", "plots-title-y-checkbox")
+                .attr("transform", "rotate(-90)")
+                .attr("x", (canvas.yTop - canvas.yBottom) / 2 + _yTitle.length / 2 * 8-16)
+                .attr("y", canvas.xLeft - 75)
+                .attr("width", "50")
+                .attr("height", "20")
+                .append("xhtml:body")
+                .style({"font-size": "11px", "margin": "0"})
+                .html("<input id='mut-cna-vaxis-log' class='mut-cna-axis-log' type='checkbox' style='float:left' "+_checked+"/><span style='float:left; margin-top: 2px; font-size-adjust: 0.5;'>Log</span>");
+
+            $("#mut-cna-vaxis-log").change(function() {
+                if($(this).prop("checked")){
+                    axisYLogFlag = true;
+                }else {
+                    axisYLogFlag = false;
+                }
+                if (axisYLogFlag) {
+                    updateAxisScaleY();
+                } else {
+                    initScaleY();
+                }
+                initAxisY();
+                generateAxisY();
+                updatePlotsLogScale("y", axisYLogFlag);
+            });
         }
         else
         {
@@ -281,10 +372,6 @@ var ScatterPlots = function() {
                 .style("font-weight", "bold")
                 .attr("class", "plots-title-y")
                 .text(_yTitle);
-        }
-
-        if(size === null)
-        {
             elem.axisTitleGroup.append("svg:image")
                 .attr("xlink:href", "images/help.png")
                 .attr("class", "plots-title-y-help")
@@ -442,7 +529,10 @@ var ScatterPlots = function() {
         var tempStr = '';
         elem.dotsGroup.selectAll('path').each(
             function(d) {
-                tempStr = d.case_id + '<br/>(' + d.x_val.toFixed(2) + ', ' + d.y_val + ')';
+                tempStr = 'Fraction of CNA: <b>' + d.x_val.toFixed(2) + '</b>'
+                    + '<br/># of mutations: <b>' + d.y_val + '</b>'
+                    + '<br/><a target="_blank" href="http://www.cbioportal.org/case.do?cancer_study_id=ov_tcga_pub&sample_id=' + d.case_id + '">' + d.case_id + '</a>';
+
 
                 $(this).qtip(
                     {

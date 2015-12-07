@@ -40,7 +40,7 @@
 <style type="text/css" title="currentStyle">
 #genomic-overview-tip {
     position : absolute;
-    border : 1px solid gray;
+    border : 0px solid gray;
     background-color : #efefef;
     padding : 3px;
     z-index : 1000;
@@ -162,11 +162,10 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
             function(dt){
 
                 //start to get the plot values
-
-
                 dataArr = [];
                 var tempObj;
                 var tempX = [], tempY = [];
+                var highlightDot = {};
                 _.each(dt.Gf, function(item){
 
                     if(item.c[0].v !== null && item.c[1].v !== null && item.c[2].v !== null)
@@ -175,11 +174,28 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
                         tempObj.case_id = item.c[0].v;
                         tempObj.x_val = item.c[2].v;
                         tempObj.y_val = item.c[1].v;
-                        tempX.push(item.c[2].v);
-                        tempY.push(item.c[1].v);
-                        dataArr.push(tempObj);
+                        if(item.c[0].v === caseIdsStr)
+                        {
+                            highlightDot.fill = 'red';
+                            highlightDot.case_id = item.c[0].v;
+                            highlightDot.x_val = item.c[2].v;
+                            highlightDot.y_val = item.c[1].v;
+                        }
+                        else
+                        {
+                            tempX.push(item.c[2].v);
+                            tempY.push(item.c[1].v);
+                            dataArr.push(tempObj);
+                        }
+
+
                     }
                 });
+
+                //push the highlight dot to the data array last
+                tempX.push(highlightDot.x_val);
+                tempY.push(highlightDot.y_val);
+                dataArr.push(highlightDot);
 
                 dataAttr = {min_x: Math.min.apply(Math, tempX), max_x: Math.max.apply(Math, tempX), min_y: Math.min.apply(Math, tempY), max_y: Math.max.apply(Math, tempY), profile_name: "profile name test"};
 
@@ -208,11 +224,9 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
             show: {delay: 200, event: "mouseover" },
             hide: {fixed: true, delay: 100,  event: "mouseout"},
             style: { classes: 'qtip-light qtip-rounded patient-view-scatter-qtip-wide' },
-            position: {my:'top right',at:'top left',viewport: $(window)},
+            position: {my:'center right',at:'center left'},
             events: {
                 render: function(event, api) {
-                    //api.get('id');
-                   // openMutCnaScatterDialog();
                     openBigGraph();
                 }
             }
@@ -224,7 +238,7 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
 
         var plotsOpts = {"style":{"fill":"#58ACFA","stroke":"#0174DF","stroke_width":"0.1","size":"50","shape":"circle",
             "mutations":{"gene_x_mutate_fill":"#DBA901","gene_x_mutate_stroke":"#886A08","gene_y_mutate_fill":"#F5A9F2","gene_y_mutate_stroke":"#F7819F","gene_both_mutate_fill":"#FF0000","gene_both_mutate_stroke":"#B40404"}},
-            "canvas":{"width":540,"height":470,"xLeft":80,"xRight":500,"yTop":10,"yBottom":400},
+            "canvas":{"width":440,"height":350,"xLeft":80,"xRight":430,"yTop":10,"yBottom":300},
             "elem":{"svg":"","xScale":"","yScale":"","xAxis":"","yAxis":"","dotsGroup":"","axisGroup":"","axisTitleGroup":"","brush":""},
             "names":{"header":"coexp_plot_BRCA1_headerNew","body":"coexp_plot_BRCA1_bodyNew","div":"coexp_plot_BRCA1","loading_img":"coexp_plot_BRCA1_loading_img","log_scale_x":"coexp_plot_BRCA1_log_scale_x","log_scale_y":"coexp_plot_BRCA1_log_scale_y","show_mutations":"coexp_plot_BRCA1_show_mutations","download_pdf":"coexp_plot_BRCA1_download_pdf","download_svg":"coexp_plot_BRCA1_download_svg","control_panel":"coexp_plot_BRCA1undefined"},
             "text":{"xTitle":"Fraction of copy number altered genome","yTitle":"Mutation Count","xTitleHelp":"mRNA and microRNA Z-scores merged: mRNA expression Z-scores compared to diploid tumors (diploid for each gene), median values from all three mRNA expression platforms; and miRNA z-Scores compared to all tumours.","yTitleHelp":"mRNA and microRNA Z-scores merged: mRNA expression Z-scores compared to diploid tumors (diploid for each gene), median values from all three mRNA expression platforms; and miRNA z-Scores compared to all tumours.","title":"mRNA co-expression: BRCA1 vs. NBR2  ","fileName":"co_expression_result-BRCA1-NBR2",
@@ -238,21 +252,6 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
                 var coexpPlotsBig = new ScatterPlots();
 
                 coexpPlotsBig.initBig(plotsOpts, dataArr, dataAttr, false);
-
-                $(".mut-cna-axis-log").change(function() {
-                    var hLogTemp = $('#mut-cna-haxis-log').is(":checked");
-                    var vLogTemp = $('#mut-cna-vaxis-log').is(":checked");
-                    if(hLogTemp)
-                    {
-                        plotsOpts.xTitle = "Fraction of copy number altered genome (log)";
-                    }
-                    if(vLogTemp)
-                    {
-                        plotsOpts.yTitle = "Mutation Count (log)";
-                    }
-                    coexpPlotsBig.updateScaleX('mut-cna-haxis-log');
-                    coexpPlotsBig.updateScaleY('mut-cna-vaxis-log');
-                });
 
         $('#mut_cna_more_plot_msg').hide();
 
@@ -284,9 +283,9 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
 
 <style>
 fieldset.fieldset-border {
-    border: 1px solid #ccc !important;
+    /*border: 0px solid #ccc !important;
     -webkit-box-shadow:  0px 0px 0px 0px #000;
-            box-shadow:  0px 0px 0px 0px #000;
+            box-shadow:  0px 0px 0px 0px #000;*/
 }
 
 legend.legend-border {

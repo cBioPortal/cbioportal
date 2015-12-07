@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="css/jumbotron-narrow.css" rel="stylesheet">
+    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.4/jquery.mobile-1.4.4.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+    <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script src="http://code.jquery.com/mobile/1.4.4/jquery.mobile-1.4.4.min.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>cBioPortal Validator : Status Report </h1>
+        </div>
+
+        <div class="jumbotron">
+            <!-- alert alert-success or alert-warning -->
+            <div class="alert alert-success">
+	            Validation Status : <strong>success</strong>
+	        </div>
+
+                <div data-role="collapsible" class="acol">
+                    <h4>data_clinical.txt <span class="ui-li-count redCount" id="red_count">5</span></h4>
+                    <table style="width:100%">
+                        <tr>
+                            <th>Line Number</th>
+                            <th>Column Number</th>
+                            <th>Message</th>
+                            <th>Value Encountered</th>
+                        </tr>
+                        <tr class="red">
+                            <td>1</td>
+                            <td>5</td>
+                            <td>Missing column</td>
+                            <td>SampleID</td>
+                        </tr>
+                        <tr class="yellow">
+                            <td>4</td>
+                            <td>6</td>
+                            <td>Incorrect Gene</td>
+                            <td>acb</td>
+                        </tr>
+                        <tr class="blue">
+                            <td></td>
+                            <td></td>
+                            <td>Validation complete</td>
+                            <td></td>
+                        </tr>
+                    </table>
+                </div>
+                <div data-role="collapsible" class="ccol">
+                    <h4>data_mutation.txt <span class="ui-li-count yellowCount" id="yellow_count">5</span></h4>
+                </div>
+                <div data-role="collapsible" class="bcol">
+                    <h4>data_cna.txt<span class="ui-li-count greenCount" id="green_count">0</span></h4>
+                </div>
+                <div data-role="collapsible" class="dcol">
+                    <h4>data_random.txt<span class="ui-li-count greyCount" id="grey_count">0</span></h4>
+                </div>
+
+        </div>
+    </div>
+</body>
+</html>

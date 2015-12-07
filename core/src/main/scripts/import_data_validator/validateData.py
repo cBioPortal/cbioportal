@@ -486,6 +486,22 @@ class SimpleHtmlTableHandler(logging.FileHandler):
             self.release()
 
 
+class Jinja2HtmlHandler(logging.handlers.BufferingHandler):
+
+    """Logging handler that formats aggregated HTML reports using Jinja2."""
+
+    def __init__(self, study_dir, *args, **kwargs):
+        """Set study directory name, then initialize handler with buffer size."""
+        self.study_dir = study_dir
+        super(Jinja2HtmlHandler, self).__init__(*args, **kwargs)
+
+    def flush(self):
+        """Format the messages in a buffer using Jinja2"""
+        # TODO implement this method
+        # zap buffer to empty
+        super(Jinja2HtmlHandler, self).flush()
+
+
 class CollapsingLogMessageHandler(logging.handlers.MemoryHandler):
 
     """Logging handler that aggregates repeated log messages into one.
@@ -1696,7 +1712,8 @@ def usage():
         ' -v (verbose output)'
         ' -c (create corrected files)'
         ' --directory=[path to directory]'
-        ' --html-table=[HTML output filename]'
+        ' --html=[HTML output filename]'
+        ' --html-table=[minimal HTML output filename]'
         ' --hugo-entrez-map=[download or filename, optional]\n'
         'For output of warnings, use -v\n'
         'To generate corrected files, use -c'
@@ -1719,7 +1736,7 @@ def main():
         opts, args = getopt.getopt(
             sys.argv[1:],
             'vc',
-            ['directory=', 'hugo-entrez-map=', 'html-table='])
+            ['directory=', 'hugo-entrez-map=', 'html=', 'html-table='])
     except getopt.GetoptError, msg:
         print >> sys.stderr, msg
         usage()
@@ -1729,6 +1746,7 @@ def main():
     study_dir = ''
     hugo = ''
     fix = False
+    html_output_filename = ''
     html_table_filename = ''
 
     hugo_entrez_map = {}
@@ -1737,6 +1755,8 @@ def main():
     for o, a in opts:
         if o == '--directory':
             study_dir = a
+        elif o == '--html':
+            html_output_filename = a
         elif o == '--html-table':
             html_table_filename = a
         elif o == '--hugo-entrez-map':
@@ -1764,6 +1784,19 @@ def main():
         flushLevel=logging.CRITICAL,
         target=text_handler)
     logger.addHandler(collapsing_text_handler)
+
+    # add Jinja2 HTML handler if applicable
+    if html_output_filename:
+        html_handler = Jinja2HtmlHandler(
+            study_dir,
+            html_output_filename)
+        # TODO extend CollapsingLogMessageHandler to flush to multiple targets,
+        # and get rid of the duplicated buffering of messages here
+        collapsing_html_handler = CollapsingLogMessageHandler(
+            capacity=3e6,
+            flushLevel=logging.CRITICAL,
+            target=html_handler)
+        logger.addHandler(collapsing_html_handler)
 
     # add html table handler if applicable
     if html_table_filename:

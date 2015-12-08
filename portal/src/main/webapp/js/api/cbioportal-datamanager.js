@@ -532,21 +532,20 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 									profile_types[gp_response[i].id] = gp_response[i].genetic_alteration_type;
 								}
 								setDefaultOQL();
-
-								for (var i = 0; i < sample_response.length; i++) {
-									sample_to_patient[sample_response[i].id] = sample_response[i].patient_id;
-								}
-							}).fail(function() {
-								def.reject();
-							}).then(function() {
-								return window.cbioportal_client.getGeneticProfileData({genetic_profile_ids: dm_ret.getGeneticProfileIds(), genes: dm_ret.getQueryGenes(), sample_ids: dm_ret.getSampleIds()});
-							}).fail(function() {
-								def.reject();
-							}).then(function(response) {
-								var oql_process_result = OQLHandler.maskData(dm_ret.getOQLQuery(), makeOncoprintSampleData(response));
-								dm_ret.sample_gene_data = oql_process_result.data;
-								dm_ret.altered_samples = oql_process_result.altered;
-								dm_ret.unaltered_samples = oql_process_result.unaltered;
+							for (var i = 0; i < sample_response.length; i++) {
+								sample_to_patient[sample_response[i].id] = sample_response[i].patient_id;
+							}
+						}).fail(function() {
+							def.reject();
+						}).then(function() {
+							return window.cbioportal_client.getGeneticProfileDataBySample({genetic_profile_ids: dm_ret.getGeneticProfileIds(), genes: dm_ret.getQueryGenes(), sample_ids: dm_ret.getSampleIds()});
+						}).fail(function() {
+							def.reject();
+						}).then(function(response) {
+							var oql_process_result = OQLHandler.maskData(dm_ret.getOQLQuery(), makeOncoprintSampleData(response));
+							dm_ret.sample_gene_data = oql_process_result.data;
+							dm_ret.altered_samples = oql_process_result.altered;
+							dm_ret.unaltered_samples = oql_process_result.unaltered;
 
 								var oql_process_result_patient = OQLHandler.maskData(dm_ret.getOQLQuery(), makeOncoprintPatientData(dm_ret.sample_gene_data), true);
 								dm_ret.patient_gene_data = oql_process_result_patient.data;

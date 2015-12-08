@@ -209,6 +209,40 @@
         </strong>
       </div>
 
+        {% set file_record_list = record_list|selectattr('data_filename', 'defined') %}
+        {% for file_record_group in file_record_list|groupby('data_filename') %}
+        {% set file_level_list = file_record_group.list|map(attribute='levelname') %}
+        {% if 'ERROR' in file_level_list %}
+        {% set file_level = 'ERROR' %}
+        {% elif 'WARNING' in file_level_list %}
+        {% set file_level = 'WARNING' %}
+        {% else %}
+        {% set file_level = 'SUCCESS' %}
+        {% endif %}
+        <div data-role="collapsible" class="{{ {'ERROR': 'acol', 'WARNING': 'ccol', 'SUCCESS': 'bcol'}[file_level] }}">
+          <h4>{{ file_record_group.grouper|e }} <span class="ui-li-count ">{{ file_level }}</span></h4>
+          <table style="width:100%">
+            <tr>
+              <th>Line Number</th>
+              <th>Column Number</th>
+              <th>Message</th>
+              <th>Value Encountered</th>
+            </tr>
+            {% for record in file_record_group.list %}
+            <tr class="{% if record.levelname  == 'ERROR' %}red{% elif record.levelname == 'WARNING' %}yellow{% else %}blue{% endif %}">
+              <td>{{ record.line_number }}</td>
+              <td>{{record.column_number }}</td>
+              <td>{{ record.msg|e }}</td>
+              <td>{{ record.cause|e }}</td>
+            </tr>
+            {% endfor %}
+          </table>
+        </div>
+
+        {% endfor %}
+
+        <hline />
+
         <div data-role="collapsible" class="acol">
           <h4>data_clinical.txt <span class="ui-li-count redCount" id="red_count">5</span></h4>
           <table style="width:100%">

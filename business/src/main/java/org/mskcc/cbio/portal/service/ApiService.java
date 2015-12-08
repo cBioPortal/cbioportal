@@ -277,6 +277,9 @@ public class ApiService {
 							datum.hugo_gene_symbol = row.hugo_gene_symbol;
 							datum.entrez_gene_id = row.entrez_gene_id;
 							datum.profile_data = values[i];
+                                                        if (sample_list_id != null) {
+                                                            datum.sample_list_id = sample_list_id;
+                                                        }
 							ret.add(datum);
 						}
 					}

@@ -185,18 +185,28 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
   <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
   <script src="http://code.jquery.com/mobile/1.4.4/jquery.mobile-1.4.4.min.js"></script>
+  <title>cBioPortal Validator: Status Report </title>
 </head>
 
 <body>
   <div class="container">
     <div class="header">
-      <h1>cBioPortal Validator : Status Report </h1>
+      <h1>cBioPortal Validator: Status Report </h1>
     </div>
 
     <div class="jumbotron">
-      <!-- alert alert-success or alert-warning -->
-      <div class="alert alert-success">
-        Validation Status : <strong>success</strong>
+      <!--  alert alert-danger, alert-success or alert-warning -->
+      <div class="alert {% if max_level == 'ERROR' %}alert-danger{% elif max_level == 'WARNING' %}alert-warning{% else %}alert-success{% endif %}">
+        Validation status:
+        <strong>
+        {% if max_level == 'ERROR' %}
+          Failed
+        {% elif max_level == 'WARNING' %}
+          Please check
+        {% else %}
+          Success
+        {% endif %}
+        </strong>
       </div>
 
         <div data-role="collapsible" class="acol">

@@ -523,7 +523,11 @@ class Jinja2HtmlHandler(logging.handlers.BufferingHandler):
         import jinja2
         # get the directory name of the currently running script
         template_dir = os.path.dirname(__file__)
-        j_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir))
+        j_env = jinja2.Environment(
+            loader=jinja2.FileSystemLoader(template_dir),
+            # trim whitespace around Jinja2 operators
+            trim_blocks=True,
+            lstrip_blocks=True)
         template = j_env.get_template('validation_report_template.html.jinja')
         doc = template.render(
             study_dir=self.study_dir,

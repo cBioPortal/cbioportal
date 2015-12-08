@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.mskcc.cbio.portal.service.ApiService;
 import org.mskcc.cbio.portal.model.DBCancerType;
-import org.mskcc.cbio.portal.model.DBPatientList;
 import org.mskcc.cbio.portal.model.DBClinicalField;
 import org.mskcc.cbio.portal.model.DBClinicalPatientData;
 import org.mskcc.cbio.portal.model.DBClinicalSampleData;
@@ -18,6 +17,7 @@ import org.mskcc.cbio.portal.model.DBGeneticProfile;
 import org.mskcc.cbio.portal.model.DBPatient;
 import org.mskcc.cbio.portal.model.DBProfileData;
 import org.mskcc.cbio.portal.model.DBSample;
+import org.mskcc.cbio.portal.model.DBSampleList;
 import org.mskcc.cbio.portal.model.DBStudy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -113,14 +113,14 @@ public class ApiController {
     }
     
     @Transactional
-    @RequestMapping(value = "/patientlists", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody List<DBPatientList> getPatientLists(@RequestParam(required = false) String study_id, @RequestParam(required = false) List<String> patient_list_ids) {
+    @RequestMapping(value = "/samplelists", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody List<DBSampleList> getSampleLists(@RequestParam(required = false) String study_id, @RequestParam(required = false) List<String> sample_list_ids) {
 	    if (study_id != null) {
-		    return service.getPatientLists(study_id);
-	    } else if (patient_list_ids != null) {
-		    return service.getPatientLists(patient_list_ids);
+		    return service.getSampleLists(study_id);
+	    } else if (sample_list_ids != null) {
+		    return service.getSampleLists(sample_list_ids);
 	    } else {
-		    return service.getPatientLists();
+		    return service.getSampleLists();
 	    }
     }
     

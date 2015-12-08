@@ -88,8 +88,8 @@
 
     // Set up Mutation View
     $(document).ready(function () {
+        var sampleArray = window.QuerySession.getSampleIds();
         OncoKB.setUrl('<%=oncokbUrl%>');
-        var sampleArray = _.keys(PortalGlobals.getPatientSampleIdMap());
         var mutationProxy = DataProxyFactory.getDefaultMutationDataProxy();
 
 

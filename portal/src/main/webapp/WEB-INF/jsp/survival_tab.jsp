@@ -82,18 +82,24 @@
 <script>
     
     function getSurvivalPlotsCaseList() {
-        var obj = {};
-        $.each(window.PortalGlobals.getAlteredSampleIdList().split(" "), function(_index, _sampleId) {
-            obj[_sampleId] = "altered";
+        var def = new $.Deferred();
+        $.when(window.QuerySession.getAlteredSamples(), window.QuerySession.getUnalteredSamples()).then(function(altered_samples, unaltered_samples) {
+            var obj = {};
+            $.each(altered_samples, function(_index, _sampleId) {
+                obj[_sampleId] = "altered";
+            });
+            $.each(unaltered_samples, function(_index, _sampleId) {
+                obj[_sampleId] = "unaltered";
+            });
+            def.resolve(obj);
         });
-        $.each(window.PortalGlobals.getUnalteredSampleIdList().split(" "), function(_index, _sampleId) {
-            obj[_sampleId] = "unaltered";
-        });
-        return obj;
+        return def.promise();
     }
 
     $(document).ready(function() {
-        SurvivalTab.init(getSurvivalPlotsCaseList());
+        getSurvivalPlotsCaseList().then(function(case_list) {
+            SurvivalTab.init(case_list);
+        });
     });
     
 </script>

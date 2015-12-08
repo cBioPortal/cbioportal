@@ -62,48 +62,49 @@
 <script>
     $(document).ready( function() {
 
-        var caseListObj = {};
-        $.each(window.PortalGlobals.getAlteredSampleIdList().split(" "), function(_index, _sampleId) {
-            caseListObj[_sampleId] = "altered";
-        });
-        $.each(window.PortalGlobals.getUnalteredSampleIdList().split(" "), function(_index, _sampleId) {
-            caseListObj[_sampleId] = "unaltered";
-        });
-        
-        var or_tab_init = false;
-        $(window).trigger("resize");
-        if ($("#or_analysis").is(":visible")) {
-            or_tab.init(caseListObj);
-            or_tab_init = true;
+        $.when(window.QuerySession.getAlteredSamples(), window.QuerySession.getUnalteredSamples()).then(function(altered_samples, unaltered_samples) {
+            var caseListObj = {};
+            $.each(altered_samples, function(_index, _sampleId) {
+                caseListObj[_sampleId] = "altered";
+            });
+            $.each(unaltered_samples, function(_index, _sampleId) {
+                caseListObj[_sampleId] = "unaltered";
+            });
+
+            var or_tab_init = false;
             $(window).trigger("resize");
-        } else {
-            $(window).trigger("resize");
-        }
-        $("#tabs").bind("tabsactivate", function(event, ui) {
-            $(window).trigger("resize");
-            if (ui.newTab.text().trim().toLowerCase().indexOf("enrichments") !== -1) {
+            if ($("#or_analysis").is(":visible")) {
+                or_tab.init(caseListObj);
+                or_tab_init = true;
                 $(window).trigger("resize");
-                if (or_tab_init === false) {
-                    or_tab.init(caseListObj);
-                    or_tab_init = true;
+            } else {
+                $(window).trigger("resize");
+            }
+            $("#tabs").bind("tabsactivate", function(event, ui) {
+                $(window).trigger("resize");
+                if (ui.newTab.text().trim().toLowerCase().indexOf("enrichments") !== -1) {
                     $(window).trigger("resize");
-                } else {
-                    $(window).trigger("resize");
+                    if (or_tab_init === false) {
+                        or_tab.init(caseListObj);
+                        or_tab_init = true;
+                        $(window).trigger("resize");
+                    } else {
+                        $(window).trigger("resize");
+                    }
                 }
-            }
-        });
+            });
 
-        //bind event listener to gene set selector
-        $("#or_analysis_tab_gene_set_select").change(function() {
-            if ($("#or_analysis_tab_gene_set_select").val() === "cancer_genes") {
-                $("#" + orAnalysis.ids.gene_set_warning).empty();
-                or_tab.update();
-            } else if ($("#or_analysis_tab_gene_set_select").val() === "all_genes") {
-                $("#" + orAnalysis.ids.gene_set_warning).empty();
-                $("#" + orAnalysis.ids.gene_set_warning).append("Calculating and rendering...(this may a few seconds)");
-                or_tab.update();
-            }
+            //bind event listener to gene set selector
+            $("#or_analysis_tab_gene_set_select").change(function() {
+                if ($("#or_analysis_tab_gene_set_select").val() === "cancer_genes") {
+                    $("#" + orAnalysis.ids.gene_set_warning).empty();
+                    or_tab.update();
+                } else if ($("#or_analysis_tab_gene_set_select").val() === "all_genes") {
+                    $("#" + orAnalysis.ids.gene_set_warning).empty();
+                    $("#" + orAnalysis.ids.gene_set_warning).append("Calculating and rendering...(this may a few seconds)");
+                    or_tab.update();
+                }
+            });
         });
-
     });
 </script>

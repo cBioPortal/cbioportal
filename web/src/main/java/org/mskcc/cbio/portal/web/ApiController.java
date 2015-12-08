@@ -126,9 +126,12 @@ public class ApiController {
     
     @Transactional
     @RequestMapping(value = "/patients", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody List<DBPatient> getPatients(@RequestParam(required = true) String study_id, @RequestParam(required = false) List<String> patient_ids) {
+    public @ResponseBody List<DBPatient> getPatients(@RequestParam(required = true) String study_id, @RequestParam(required = false) List<String> patient_ids,
+							@RequestParam(required = false) List<String> sample_ids) {
 	    if (patient_ids != null) {
-		    return service.getPatients(study_id, patient_ids);
+		    return service.getPatientsByPatient(study_id, patient_ids);
+	    } else if (sample_ids != null) {
+		    return service.getPatientsBySample(study_id, sample_ids);
 	    } else {
 		    return service.getPatients(study_id);
 	    }

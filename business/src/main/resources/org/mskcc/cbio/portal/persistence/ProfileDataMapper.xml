@@ -141,7 +141,8 @@
         mutation.TUMOR_REF_COUNT as reference_read_count_tumor,
         mutation.NORMAL_REF_COUNT as reference_read_count_normal,
         mutation.TUMOR_ALT_COUNT as variant_read_count_tumor,
-        mutation.NORMAL_ALT_COUNT as variant_read_count_normal
+        mutation.NORMAL_ALT_COUNT as variant_read_count_normal,
+        patient_list.STABLE_ID as sample_list_id
     from mutation inner join mutation_event on mutation.MUTATION_EVENT_ID = mutation_event.MUTATION_EVENT_ID
                             inner join sample on mutation.SAMPLE_ID=sample.INTERNAL_ID
                             inner join gene on mutation.ENTREZ_GENE_ID=gene.ENTREZ_GENE_ID

@@ -233,6 +233,7 @@ public class ApiService {
 			List<DBProfileDataCaseList> ordered_sample_lists = profileDataMapper.getProfileCaseLists(non_mutation_profiles);
                         
 			Set<String> desired_samples = new HashSet<>();
+                        String queried_sample_list_id = null;
                         if (sample_list_id != null) {
                             List<String> sample_list_ids = new LinkedList<>();
                             sample_list_ids.add(sample_list_id);
@@ -240,6 +241,7 @@ public class ApiService {
                             for (DBSampleList list: sample_lists) {
                                 desired_samples.addAll(list.sample_ids);
                             }
+                            queried_sample_list_id = sample_list_id;
                         }
 			if (sample_ids != null) {
 				for (String sample: sample_ids) {
@@ -269,7 +271,7 @@ public class ApiService {
 				for (int i = 0; i < values.length; i++) {
 					if (!values[i].equals("")) {
 						String sample_id = stable_sample_id_map.get(sample_order_map.get(key_prefix + i));
-						if (desired_samples.contains(sample_id) || sample_ids == null) {
+						if (desired_samples.contains(sample_id) || desired_samples.isEmpty()) {
 							DBSimpleProfileData datum = new DBSimpleProfileData();
 							datum.sample_id = sample_id;
 							datum.genetic_profile_id = row.genetic_profile_id;
@@ -277,8 +279,8 @@ public class ApiService {
 							datum.hugo_gene_symbol = row.hugo_gene_symbol;
 							datum.entrez_gene_id = row.entrez_gene_id;
 							datum.profile_data = values[i];
-                                                        if (sample_list_id != null) {
-                                                            datum.sample_list_id = sample_list_id;
+                                                        if (queried_sample_list_id != null) {
+                                                            datum.sample_list_id = queried_sample_list_id;
                                                         }
 							ret.add(datum);
 						}

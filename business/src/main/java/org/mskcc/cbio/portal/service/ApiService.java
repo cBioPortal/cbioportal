@@ -15,7 +15,7 @@ import org.mskcc.cbio.portal.model.DBGeneticAltRow;
 import org.mskcc.cbio.portal.model.DBGeneticProfile;
 import org.mskcc.cbio.portal.model.DBMutationData;
 import org.mskcc.cbio.portal.model.DBPatient;
-import org.mskcc.cbio.portal.model.DBPatientList;
+import org.mskcc.cbio.portal.model.DBSampleList;
 import org.mskcc.cbio.portal.model.DBProfileData;
 import org.mskcc.cbio.portal.model.DBProfileDataCaseList;
 import org.mskcc.cbio.portal.model.DBSample;
@@ -26,7 +26,7 @@ import org.mskcc.cbio.portal.persistence.ClinicalDataMapper;
 import org.mskcc.cbio.portal.persistence.ClinicalFieldMapper;
 import org.mskcc.cbio.portal.persistence.GeneMapper;
 import org.mskcc.cbio.portal.persistence.GeneticProfileMapper;
-import org.mskcc.cbio.portal.persistence.PatientListMapper;
+import org.mskcc.cbio.portal.persistence.SampleListMapper;
 import org.mskcc.cbio.portal.persistence.PatientMapper;
 import org.mskcc.cbio.portal.persistence.ProfileDataMapper;
 import org.mskcc.cbio.portal.persistence.SampleMapper;
@@ -53,7 +53,7 @@ public class ApiService {
 	@Autowired
 	private GeneticProfileMapper geneticProfileMapper;
 	@Autowired
-	private PatientListMapper patientListMapper;
+	private SampleListMapper sampleListMapper;
 	@Autowired
 	private PatientMapper patientMapper;
 	@Autowired
@@ -146,43 +146,30 @@ public class ApiService {
 		return geneticProfileMapper.getGeneticProfiles(genetic_profile_ids);
 	}
 
+        @Transactional
+        private List<DBSampleList> makeCompleteSampleLists(List<DBSampleList> incomplete_lists) {
+            for (DBSampleList l : incomplete_lists) {
+                List<DBSample> sample_list = sampleListMapper.getList(l.id);
+                l.sample_ids = new ArrayList<>();
+                for (DBSample samp : sample_list) {
+                    l.sample_ids.add(samp.id);
+                }
+            }
+            return incomplete_lists;
+        }
 	@Transactional
-	public List<DBPatientList> getPatientLists() {
-		List<DBPatientList> incomplete_lists = patientListMapper.getAllIncompletePatientLists();
-		for (DBPatientList l: incomplete_lists) {
-			List<DBPatient> patient_list = patientListMapper.getList(l.id);
-			l.patient_ids = new ArrayList<>();
-			for (DBPatient pat: patient_list) {
-				l.patient_ids.add(pat.id);
-			}
-		}
-		return incomplete_lists;
+	public List<DBSampleList> getSampleLists() {
+		return makeCompleteSampleLists(sampleListMapper.getAllIncompleteSampleLists());
 	}
 
 	@Transactional
-	public List<DBPatientList> getPatientLists(String study_id) {
-		List<DBPatientList> incomplete_lists = patientListMapper.getIncompletePatientListsByStudy(study_id);
-		for (DBPatientList l: incomplete_lists) {
-			List<DBPatient> patient_list = patientListMapper.getList(l.id);
-			l.patient_ids = new ArrayList<>();
-			for (DBPatient pat: patient_list) {
-				l.patient_ids.add(pat.id);
-			}
-		}
-		return incomplete_lists;
+	public List<DBSampleList> getSampleLists(String study_id) {
+		return makeCompleteSampleLists(sampleListMapper.getIncompleteSampleListsByStudy(study_id));
 	}
 
 	@Transactional
-	public List<DBPatientList> getPatientLists(List<String> patient_list_ids) {
-		List<DBPatientList> incomplete_lists = patientListMapper.getIncompletePatientLists(patient_list_ids);
-		for (DBPatientList l: incomplete_lists) {
-			List<DBPatient> patient_list = patientListMapper.getList(l.id);
-			l.patient_ids = new ArrayList<>();
-			for (DBPatient pat: patient_list) {
-				l.patient_ids.add(pat.id);
-			}
-		}
-		return incomplete_lists;
+	public List<DBSampleList> getSampleLists(List<String> sample_list_ids) {
+		return makeCompleteSampleLists(sampleListMapper.getIncompleteSampleLists(sample_list_ids));
 	}
 
 	

@@ -486,20 +486,52 @@ class SimpleHtmlTableHandler(logging.FileHandler):
             self.release()
 
 
+# TODO fix the mysterious exceptions that seem to appear when using this handler
 class Jinja2HtmlHandler(logging.handlers.BufferingHandler):
 
     """Logging handler that formats aggregated HTML reports using Jinja2."""
 
-    def __init__(self, study_dir, *args, **kwargs):
-        """Set study directory name, then initialize handler with buffer size."""
+    def __init__(self, study_dir, output_filename, *args, **kwargs):
+        """Set study directory name, output filename and buffer size."""
         self.study_dir = study_dir
+        self.output_filename = output_filename
+        self.max_level = logging.NOTSET
+        self.closed = False
         super(Jinja2HtmlHandler, self).__init__(*args, **kwargs)
 
+    def emit(self, record):
+        """Buffer a message if the buffer is not full."""
+        self.max_level = max(self.max_level, record.levelno)
+        if len(self.buffer) < self.capacity:
+            return super(Jinja2HtmlHandler, self).emit(record)
+
     def flush(self):
-        """Format the messages in a buffer using Jinja2"""
-        # TODO implement this method
-        # zap buffer to empty
-        super(Jinja2HtmlHandler, self).flush()
+        """Do nothing; emit() caps the buffer and close() renders output."""
+        pass
+
+    def shouldFlush(self, record):
+        """Never flush; emit() caps the buffer and close() renders output."""
+        return False
+
+    def close(self):
+        """Render the HTML page and close the handler."""
+        # make sure to only close once
+        if self.closed:
+            return
+        self.closed = True
+        # require Jinja2 only if it is actually used
+        import jinja2
+        # get the directory name of the currently running script
+        template_dir = os.path.dirname(__file__)
+        j_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir))
+        template = j_env.get_template('validation_report_template.html.jinja')
+        doc = template.render(
+            study_dir=self.study_dir,
+            record_list=self.buffer,
+            max_level=logging.getLevelName(self.max_level))
+        with open(self.output_filename, 'w') as f:
+            f.write(doc)
+        return super(Jinja2HtmlHandler, self).close()
 
 
 class CollapsingLogMessageHandler(logging.handlers.MemoryHandler):
@@ -1787,9 +1819,15 @@ def main():
 
     # add Jinja2 HTML handler if applicable
     if html_output_filename:
+        try:
+            import jinja2  # pylint: disable=import-error
+        except ImportError:
+            raise ImportError('Aggregated HTML validation output requires Jinja2:'
+                              ' please install it or use simple HTML output.')
         html_handler = Jinja2HtmlHandler(
             study_dir,
-            html_output_filename)
+            html_output_filename,
+            capacity=3e6)
         # TODO extend CollapsingLogMessageHandler to flush to multiple targets,
         # and get rid of the duplicated buffering of messages here
         collapsing_html_handler = CollapsingLogMessageHandler(
@@ -1962,5 +2000,6 @@ def main():
 if __name__ == '__main__':
     main()
     # TODO base the return code on whether any error messages were emitted
-    # and remove the dysfunctional exitcode and errorcode variables
+    # and remove the dysfunctional exitcode and errorcode variables. Make sure
+    # to handle exceptions to avoid collisions
     sys.exit(exitcode)

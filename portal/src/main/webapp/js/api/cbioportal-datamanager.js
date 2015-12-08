@@ -511,7 +511,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 						}).fail(function() {
 							def.reject();
 						}).then(function() {
-							return window.cbioportal_client.getGeneticProfileData({genetic_profile_ids: dm_ret.getGeneticProfileIds(), genes: dm_ret.getQueryGenes(), sample_ids: dm_ret.getSampleIds()});
+							return window.cbioportal_client.getGeneticProfileDataBySample({genetic_profile_ids: dm_ret.getGeneticProfileIds(), genes: dm_ret.getQueryGenes(), sample_ids: dm_ret.getSampleIds()});
 						}).fail(function() {
 							def.reject();
 						}).then(function(response) {

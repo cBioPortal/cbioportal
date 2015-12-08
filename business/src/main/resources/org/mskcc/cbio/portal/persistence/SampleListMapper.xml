@@ -18,7 +18,7 @@
         patient_list.DESCRIPTION as description,
         cancer_study.CANCER_STUDY_IDENTIFIER as study_id
     from patient_list inner join cancer_study on cancer_study.CANCER_STUDY_ID = patient_list.CANCER_STUDY_ID
-    where patient_list.STABLE_ID in <foreach item="item" collection="patient_list_ids" open="(" separator = "," close=")">#{item}</foreach>
+    where patient_list.STABLE_ID in <foreach item="item" collection="sample_list_ids" open="(" separator = "," close=")">#{item}</foreach>
 </select>
 <select id="getAllIncompleteSampleLists" resultType="DBSampleList" parameterType="list">
     select

@@ -3,6 +3,7 @@ package org.mskcc.cbio.portal.service;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -190,11 +191,21 @@ public class ApiService {
 
 	@Transactional
 	public List<DBProfileData> getGeneticProfileData(List<String> genetic_profile_ids, List<String> genes) {
-		return getGeneticProfileData(genetic_profile_ids, genes, null);
+		return getGeneticProfileData(genetic_profile_ids, genes, null, null);
 	}
+        
+        @Transactional
+	public List<DBProfileData> getGeneticProfileDataBySampleList(List<String> genetic_profile_ids, List<String> genes, String sample_list_id) {
+		return getGeneticProfileData(genetic_profile_ids, genes, null, sample_list_id);
+	}
+        
+        @Transactional
+        public List<DBProfileData> getGeneticProfileDataBySample(List<String> genetic_profile_ids, List<String> genes, List<String> sample_ids) {
+            return getGeneticProfileData(genetic_profile_ids, genes, sample_ids, null);
+        }
 
 	@Transactional
-	public List<DBProfileData> getGeneticProfileData(List<String> genetic_profile_ids, List<String> genes, List<String> sample_ids) {
+	public List<DBProfileData> getGeneticProfileData(List<String> genetic_profile_ids, List<String> genes, List<String> sample_ids, String sample_list_id) {
 		List<DBGeneticProfile> profiles = getGeneticProfiles(genetic_profile_ids);
 		List<String> mutation_profiles = new ArrayList<>();
 		List<String> non_mutation_profiles = new ArrayList<>();
@@ -208,17 +219,28 @@ public class ApiService {
 		List<DBProfileData> ret = new ArrayList<>();
 		if (!mutation_profiles.isEmpty()) {
 			List<DBMutationData> to_add;
-			if (sample_ids == null) {
+			if (sample_ids == null && sample_list_id == null) {
 				to_add = profileDataMapper.getMutationData(mutation_profiles, genes);
-			} else {
+			} else if (sample_list_id == null) {
 				to_add = profileDataMapper.getMutationDataBySample(mutation_profiles, genes, sample_ids);
-			}
+			} else {
+                                to_add = profileDataMapper.getMutationDataBySampleList(mutation_profiles, genes, sample_list_id);
+                        }
 			ret.addAll(to_add);
 		}
 		if (!non_mutation_profiles.isEmpty()) {
 			List<DBGeneticAltRow> genetic_alt_rows = profileDataMapper.getGeneticAlterationRow(non_mutation_profiles, genes);
 			List<DBProfileDataCaseList> ordered_sample_lists = profileDataMapper.getProfileCaseLists(non_mutation_profiles);
+                        
 			Set<String> desired_samples = new HashSet<>();
+                        if (sample_list_id != null) {
+                            List<String> sample_list_ids = new LinkedList<>();
+                            sample_list_ids.add(sample_list_id);
+                            List<DBSampleList> sample_lists = getSampleLists(sample_list_ids);
+                            for (DBSampleList list: sample_lists) {
+                                desired_samples.addAll(list.sample_ids);
+                            }
+                        }
 			if (sample_ids != null) {
 				for (String sample: sample_ids) {
 					desired_samples.add(sample);

@@ -10,7 +10,6 @@ $(document).ready(function() {
 	$.when(window.QuerySession.getGenomicEventData(), window.QuerySession.getPatientSampleIdMap()).then(function(genomic_event_data, sample_patient_map) {
 			(function invokeOldDataManagers() {
 				var genes = window.QuerySession.getQueryGenes();
-				window.PortalGlobals.setGeneData(genomic_event_data)
 				window.PortalDataColl.setOncoprintData(utils.process_data(genomic_event_data, genes));
 				PortalDataColl.setOncoprintStat(utils.alteration_info(genomic_event_data));
 			})();

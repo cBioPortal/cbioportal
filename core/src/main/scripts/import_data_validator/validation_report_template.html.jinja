@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style type="text/css">
+    /* Space out content a bit */
+    body {
+      padding-top: 20px;
+      padding-bottom: 20px;
+    }
+
+    /* Everything but the jumbotron gets side spacing for mobile first views */
+    .header,
+    .marketing,
+    .footer {
+      padding-right: 15px;
+      padding-left: 15px;
+    }
+
+    /* Custom page header */
+    .header {
+      padding-bottom: 20px;
+      border-bottom: 1px solid #e5e5e5;
+      color:#337ab7;
+      text-align: center;
+
+    }
+    /* Make the masthead heading the same height as the navigation */
+    .header h3 {
+      margin-top: 0;
+      margin-bottom: 0;
+      line-height: 40px;
+    }
+
+    /* Custom page footer */
+    .footer {
+      padding-top: 19px;
+      color: #777;
+      border-top: 1px solid #e5e5e5;
+    }
+
+    /* Customize container */
+    @media (min-width: 768px) {
+      .container {
+      max-width: 1000px;
+      font-size:110%;
+      }
+    }
+
+    .container-narrow > hr {
+      margin: 30px 0;
+    }
+
+    /* Main marketing message and sign up button */
+    .jumbotron {
+      text-align: center;
+      border: 5px solid #eeeeee;
+      background-color: white !important;
+    }
+    .jumbotron .btn {
+      padding: 14px 24px;
+      font-size: 21px;
+    }
+
+    /* Supporting marketing content */
+    .marketing {
+      margin: 40px 0;
+    }
+    .marketing p + h4 {
+      margin-top: 28px;
+    }
+
+    /* Responsive: Portrait tablets and up */
+    @media screen and (min-width: 768px) {
+      /* Remove the padding we set earlier */
+      .header,
+      .marketing,
+      .footer {
+      padding-right: 0;
+      padding-left: 0;
+      }
+      /* Space out the masthead */
+      .header {
+      margin-bottom: 30px;
+      }
+    }
+
+    h4 {
+      background-color: #eeeeee;
+      padding-left: 5px;
+      padding-top: 10px;
+      padding-bottom: 10px;
+    }
+
+    .buffer {
+      padding-left:20px;
+    }
+
+    .acol .ui-collapsible-heading-collapsed > .ui-collapsible-heading-toggle {
+      background: rgba(244,67,54,0.7) !important;
+      text-shadow: none;
+    }
+
+    .bcol .ui-collapsible-heading-collapsed > .ui-collapsible-heading-toggle {
+      background:rgba(139,195,74,0.7) !important;
+      text-shadow: none;
+    }
+
+    .ccol .ui-collapsible-heading-collapsed > .ui-collapsible-heading-toggle {
+      background:rgba(255,235,59,0.7) !important;
+      text-shadow: none;
+    }
+    .dcol .ui-collapsible-heading-collapsed > .ui-collapsible-heading-toggle {
+      background:rgba(158,158,158,0.7) !important;
+      text-shadow: none;
+    }
+
+    .redCount {
+      color:  rgba(244,67,54,1);
+      background-color: white;
+      text-shadow: none;
+    }
+    .greenCount {
+      color: rgba(139,195,74,1);
+      background-color: white;
+      text-shadow: none;
+    }
+
+    .yellowCount {
+      color: rgba(255,235,59,1);
+      background-color: white;
+      text-shadow: none;
+    }
+    .greyCount {
+      color: rgba(158,158,158,1);
+      background-color: white;
+      text-shadow: none;
+    }
+
+    table, th, td {
+      border: 1px solid black;
+      border-collapse: collapse;
+      text-align: center;
+      text-shadow: none;
+    }
+
+    tr th {
+      padding: 5px;
+      text-align: center;
+    }
+
+    tr.red td {
+      padding: 5px;
+      background-color: rgba(244,67,54,0.7);
+      color: black;
+    }
+    tr.green td {
+      padding: 10px;
+      background-color: rgba(139,195,74,0.7);
+      color: black;
+    }
+    tr.yellow td {
+      padding: 5px;
+      background-color: rgba(255,235,59,0.7);
+      color: black;
+    }
+    tr.blue td {
+      padding: 5px;
+      background-color: rgba(51,122,183,0.7);
+      color: black;
+    }
+    tr.grey td {
+      padding: 5px;
+      background-color: rgba(158,158,158,0.7);
+      color: black;
+    }
+
+    .bgmd-cyan {
+      background-color: #00BCD4!important;
+    }
+  </style>
+  <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.4/jquery.mobile-1.4.4.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+  <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+  <script src="http://code.jquery.com/mobile/1.4.4/jquery.mobile-1.4.4.min.js"></script>
+  <title>cBioPortal Validator: Status Report </title>
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>cBioPortal Validator: Status Report </h1>
+    </div>
+
+    <div class="jumbotron">
+      <!--  alert alert-danger, alert-success or alert-warning -->
+      <div class="alert {% if max_level == 'ERROR' %}alert-danger{% elif max_level == 'WARNING' %}alert-warning{% else %}alert-success{% endif %}">
+        Validation status:
+        <strong>
+        {% if max_level == 'ERROR' %}
+          Failed
+        {% elif max_level == 'WARNING' %}
+          Please check
+        {% else %}
+          Success
+        {% endif %}
+        </strong>
+      </div>
+
+        {% set file_record_list = record_list|selectattr('data_filename', 'defined') %}
+        {% for file_record_group in file_record_list|groupby('data_filename') %}
+        {% set file_level_list = file_record_group.list|map(attribute='levelname') %}
+        {% if 'ERROR' in file_level_list %}
+        {% set file_level = 'ERROR' %}
+        {% elif 'WARNING' in file_level_list %}
+        {% set file_level = 'WARNING' %}
+        {% else %}
+        {% set file_level = 'SUCCESS' %}
+        {% endif %}
+        <div data-role="collapsible" class="{{ {'ERROR': 'acol', 'WARNING': 'ccol', 'SUCCESS': 'bcol'}[file_level] }}">
+          <h4>{{ file_record_group.grouper|e }} <span class="ui-li-count ">{{ file_level }}</span></h4>
+          <table style="width:100%">
+            <tr>
+              <th>Line Number</th>
+              <th>Column Number</th>
+              <th>Message</th>
+              <th>Value Encountered</th>
+            </tr>
+            {% for record in file_record_group.list %}
+            <tr class="{% if record.levelname  == 'ERROR' %}red{% elif record.levelname == 'WARNING' %}yellow{% else %}blue{% endif %}">
+              <td>{{ record.line_number }}</td>
+              <td>{{record.column_number }}</td>
+              <td>{{ record.msg|e }}</td>
+              <td>{{ record.cause|e }}</td>
+            </tr>
+            {% endfor %}
+          </table>
+        </div>
+
+        {% endfor %}
+
+        <hline />
+
+        <div data-role="collapsible" class="acol">
+          <h4>data_clinical.txt <span class="ui-li-count redCount" id="red_count">5</span></h4>
+          <table style="width:100%">
+            <tr>
+              <th>Line Number</th>
+              <th>Column Number</th>
+              <th>Message</th>
+              <th>Value Encountered</th>
+            </tr>
+            <tr class="red">
+              <td>1</td>
+              <td>5</td>
+              <td>Missing column</td>
+              <td>SampleID</td>
+            </tr>
+            <tr class="yellow">
+              <td>4</td>
+              <td>6</td>
+              <td>Incorrect Gene</td>
+              <td>acb</td>
+            </tr>
+            <tr class="blue">
+              <td></td>
+              <td></td>
+              <td>Validation complete</td>
+              <td></td>
+            </tr>
+          </table>
+        </div>
+        <div data-role="collapsible" class="ccol">
+          <h4>data_mutation.txt <span class="ui-li-count yellowCount" id="yellow_count">5</span></h4>
+        </div>
+        <div data-role="collapsible" class="bcol">
+          <h4>data_cna.txt<span class="ui-li-count greenCount" id="green_count">0</span></h4>
+        </div>
+        <div data-role="collapsible" class="dcol">
+          <h4>data_random.txt<span class="ui-li-count greyCount" id="grey_count">0</span></h4>
+        </div>
+
+    </div>
+  </div>
+</body>
+</html>

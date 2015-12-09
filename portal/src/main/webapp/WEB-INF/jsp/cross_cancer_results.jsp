@@ -151,6 +151,17 @@
              bitlyURL(window.location.href);
         });
 
+        $("#modify_query_btn").click(function() {
+            var chosenElements = document.getElementsByClassName('jstree-clicked');
+            if(chosenElements.length > 0)
+            {
+                var treeDiv = document.getElementById('jstree');
+                var topPos = chosenElements[0].offsetTop;
+                var originalPos = treeDiv.offsetTop;
+                treeDiv.scrollTop = topPos - originalPos;
+            }
+        });
+
     });
    
 </script>

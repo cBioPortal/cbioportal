@@ -369,6 +369,12 @@ cbio.util = (function() {
         return "case.do?cancer_study_id=" + cancerStudyId + "&sample_id=" + sampleId;
     }
 
+    /**
+     * Adds qTip to the provided target when first time mouse enter
+     *
+     * @param target qTip target, could be a class name, id or any jquery acceptable element
+     * @param qTipOpts qTip initialization options
+     */
     function addTargetedQTip(target, qTipOpts) {
         if(target) {
             var opts = {
@@ -383,9 +389,10 @@ cbio.util = (function() {
                 $(this).qtip(opts);
             });
         } else {
-            console.log('Please pass in the qTip target.');
+            console.error('qTip target is not defined.');
         }
     }
+
     return {
         toPrecision: toPrecision,
         getObjectLength: getObjectLength,

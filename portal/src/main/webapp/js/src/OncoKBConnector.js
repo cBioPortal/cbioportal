@@ -1104,7 +1104,7 @@ OncoKB.Instance.prototype = {
         _variant.id = id;
         _variant.gene = gene || '';
         _variant.alteration = mutation || '';
-        _variant.consequence = consequence || '';
+        _variant.consequence = _.isString(consequence)?OncoKB.utils.consequenceConverter(consequence): '';
 
         if (tt) {
             _variant.tumorType = tt;

@@ -973,6 +973,15 @@
 	                        var el = "#mutation_details";
 	                        $(el).html("");
 
+                            var columnOrder = [
+                                "datum", "mutationId", "mutationSid", "caseId", "cancerStudy", "tumorType",
+                                "proteinChange", 'annotation', "mutationType", "cna", "cBioPortal", "cosmic", "mutationStatus",
+                                "validationStatus", "mutationAssessor", "sequencingCenter", "chr",
+                                "startPos", "endPos", "referenceAllele", "variantAllele", "tumorFreq",
+                                "normalFreq", "tumorRefCount", "tumorAltCount", "normalRefCount",
+                                "normalAltCount", "igvLink", "mutationCount"
+                            ];
+
 	                        var options = {
 		                        el: el,
 		                        data: {
@@ -988,38 +997,6 @@
 				                        showStats: true
 			                        },
 			                        mutationTable: {
-				                        // TODO define custom functions where necessary
-				                        columnVisibility: {
-					                        "cancerStudy": "visible",
-					                        // exclude tumor type for now
-					                        "tumorType": "excluded"
-				                        },
-				                        dataTableOpts: {
-					                        "sDom": '<"H"<"mutation_datatables_filter"f>C<"mutation_datatables_info"i>>t<"F"<"mutation_datatables_download"T><"datatable-paging"pl>>',
-					                        "deferRender": true,
-					                        "bPaginate": true,
-					                        "sPaginationType": "two_button",
-					                        "bLengthChange": true,
-					                        "iDisplayLength": 50,
-					                        "aLengthMenu": [[5, 10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]],
-					                        "oLanguage": {
-						                        "sLengthMenu": "Show _MENU_ per page"
-					                        }
-				                        }
-			                        }
-		                        }
-	                        };
-
-                            if(OncoKB.getAccess()) {
-                                var oncokbInstanceManager = new OncoKB.addInstanceManager();
-                                _.each(genes, function (gene) {
-                                    var instance = oncokbInstanceManager.addInstance(gene);
-                                    if(oncokbGeneStatus) {
-                                        instance.setGeneStatus(oncokbGeneStatus);
-                                    }
-                                });
-	                            jQuery.extend(true, options, {view : {
-                                    mutationTable: {
                                         columns: {
                                             annotation: {
                                                 sTitle: "Annotation",
@@ -1028,16 +1005,18 @@
                                                 sClass: "left-align-td"
                                             }
                                         },
-                                        columnOrder: [
-                                            "datum", "mutationId", "mutationSid", "caseId", "cancerStudy", "tumorType",
-                                            "proteinChange", 'annotation', "mutationType", "cna", "cBioPortal", "cosmic", "mutationStatus",
-                                            "validationStatus", "mutationAssessor", "sequencingCenter", "chr",
-                                            "startPos", "endPos", "referenceAllele", "variantAllele", "tumorFreq",
-                                            "normalFreq", "tumorRefCount", "tumorAltCount", "normalRefCount",
-                                            "normalAltCount", "igvLink", "mutationCount"
-                                        ],
-                                        columnVisibility: {
-                                            annotation: 'visible'
+                                        columnOrder: columnOrder,
+                                        // TODO define custom functions where necessary
+				                        columnVisibility: {
+					                        "cancerStudy": "visible",
+					                        // exclude tumor type for now
+					                        "tumorType": "excluded",
+                                            'annotation': 'visible'
+				                        },
+                                        columnSort: {
+                                            "annotation": function(datum) {
+                                                return datum;
+                                            }
                                         },
                                         columnRender: {
                                             annotation: function (datum) {
@@ -1060,6 +1039,67 @@
                                                 return templateFn(vars);
                                             }
                                         },
+                                        columnTooltips: {
+                                            annotation: function (selector, helper) {
+                                                $(selector).find('span.oncokb').remove();
+                                                $(selector).find('span.mcg[alt=""]').remove();
+                                                $(selector).find('span.chang_hotspot[alt=""]').remove();
+                                                $(selector).find('span.mcg').one('mouseenter', function () {
+                                                    $(this).qtip({
+                                                        content: {attr: 'alt'},
+                                                        show: {event: "mouseover"},
+                                                        hide: {fixed: true, delay: 100, event: "mouseout"},
+                                                        style: {classes: 'qtip-light qtip-rounded qtip-wide'},
+                                                        position: {
+                                                            my: 'top left',
+                                                            at: 'bottom center',
+                                                            viewport: $(window)
+                                                        }
+                                                    });
+                                                });
+
+                                                $(selector).find('span.chang_hotspot').one('mouseenter', function () {
+                                                    $(this).qtip({
+                                                        content: {attr: 'alt'},
+                                                        show: {event: "mouseover"},
+                                                        hide: {fixed: true, delay: 100, event: "mouseout"},
+                                                        style: {classes: 'qtip-light qtip-rounded qtip-wide'},
+                                                        position: {
+                                                            my: 'top left',
+                                                            at: 'bottom center',
+                                                            viewport: $(window)
+                                                        }
+                                                    });
+                                                });
+                                            }
+                                        },
+                                        dataTableOpts: {
+					                        "sDom": '<"H"<"mutation_datatables_filter"f>C<"mutation_datatables_info"i>>t<"F"<"mutation_datatables_download"T><"datatable-paging"pl>>',
+					                        "deferRender": true,
+					                        "bPaginate": true,
+					                        "sPaginationType": "two_button",
+					                        "bLengthChange": true,
+					                        "iDisplayLength": 50,
+					                        "aLengthMenu": [[5, 10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]],
+					                        "oLanguage": {
+						                        "sLengthMenu": "Show _MENU_ per page"
+					                        },
+                                            'aaSorting': [[columnOrder.indexOf('annotation'), 'asc']]
+				                        }
+			                        }
+		                        }
+	                        };
+
+                            if(OncoKB.getAccess()) {
+                                var oncokbInstanceManager = new OncoKB.addInstanceManager();
+                                _.each(genes, function (gene) {
+                                    var instance = oncokbInstanceManager.addInstance(gene);
+                                    if(oncokbGeneStatus) {
+                                        instance.setGeneStatus(oncokbGeneStatus);
+                                    }
+                                });
+	                            jQuery.extend(true, options, {view : {
+                                    mutationTable: {
                                         columnTooltips: {
                                             annotation: function (selector, helper) {
                                                 $(selector).find('span.mcg[alt=""]').remove();
@@ -1125,94 +1165,7 @@
                                                 }
                                             }
                                         },
-                                        columnSort: {
-                                            "annotation": function(datum) {
-                                                return datum;
-                                            }
-                                        }
-                                    }
-                                }});
-                            }else{
-	                            jQuery.extend(true, options, {view : {
-                                    mutationTable: {
-                                        columns: {
-                                            annotation: {
-                                                sTitle: "Annotation",
-                                                tip: "",
-                                                sType: "sort-icons",
-                                                sClass: "left-align-td"
-                                            }
-                                        },
-                                        columnOrder: [
-                                            "datum", "mutationId", "mutationSid", "caseId", "cancerStudy", "tumorType",
-                                            "proteinChange", 'annotation', "mutationType", "cna", "cBioPortal", "cosmic", "mutationStatus",
-                                            "validationStatus", "mutationAssessor", "sequencingCenter", "chr",
-                                            "startPos", "endPos", "referenceAllele", "variantAllele", "tumorFreq",
-                                            "normalFreq", "tumorRefCount", "tumorAltCount", "normalRefCount",
-                                            "normalAltCount", "igvLink", "mutationCount"
-                                        ],
-                                        columnVisibility: {
-                                            annotation: 'visible'
-                                        },
-                                        columnRender: {
-                                            annotation: function (datum) {
-                                                var mutation = datum.mutation;
-                                                var vars = {};
-                                                vars.oncokbId = mutation.mutationSid;
-                                                vars.mcgAlt = '';
-                                                vars.changHotspotAlt = '';
 
-                                                if(enableMyCancerGenome && mutation.myCancerGenome instanceof Array && mutation.myCancerGenome.length > 0) {
-                                                    vars.mcgAlt = "<b>My Cancer Genome links:</b><br/><ul style=\"list-style-position: inside;padding-left:0;\"><li>"+mutation.myCancerGenome.join("</li><li>")+"</li></ul>";
-                                                }
-
-                                                if(showHotspot && mutation['isHotspot']) {
-                                                    vars.changHotspotAlt = "<b>Recurrent Hotspot</b><br/>This mutated amino acid was identified as a recurrent hotspot (statistical significance, q-value < 0.01) in a set of 11,119 tumor samples of various cancer types (based on <a href=&quot;http://www.ncbi.nlm.nih.gov/pubmed/26619011&quot; target=&quot;_blank&quot;>Chang, M. et al. Nature Biotech. 2015</a>).";
-                                                }
-
-                                                var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_annotation_template");
-                                                return templateFn(vars);
-                                            }
-                                        },
-                                        columnTooltips: {
-                                            annotation: function (selector, helper) {
-                                                $(selector).find('span.oncokb').remove();
-                                                $(selector).find('span.mcg[alt=""]').remove();
-                                                $(selector).find('span.chang_hotspot[alt=""]').remove();
-                                                $(selector).find('span.mcg').one('mouseenter', function () {
-                                                    $(this).qtip({
-                                                        content: {attr: 'alt'},
-                                                        show: {event: "mouseover"},
-                                                        hide: {fixed: true, delay: 100, event: "mouseout"},
-                                                        style: {classes: 'qtip-light qtip-rounded qtip-wide'},
-                                                        position: {
-                                                            my: 'top left',
-                                                            at: 'bottom center',
-                                                            viewport: $(window)
-                                                        }
-                                                    });
-                                                });
-
-                                                $(selector).find('span.chang_hotspot').one('mouseenter', function () {
-                                                    $(this).qtip({
-                                                        content: {attr: 'alt'},
-                                                        show: {event: "mouseover"},
-                                                        hide: {fixed: true, delay: 100, event: "mouseout"},
-                                                        style: {classes: 'qtip-light qtip-rounded qtip-wide'},
-                                                        position: {
-                                                            my: 'top left',
-                                                            at: 'bottom center',
-                                                            viewport: $(window)
-                                                        }
-                                                    });
-                                                });
-                                            }
-                                        },
-                                        columnSort: {
-                                            "annotation": function(datum) {
-                                                return datum;
-                                            }
-                                        }
                                     }
                                 }});
                             }

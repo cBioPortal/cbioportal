@@ -229,12 +229,6 @@ var ScatterPlots = function() {
                 .attr("class", "plots-title-x")
                 .text(_xTitle);
 
-            if(axisXLogFlag) {
-                _checked = "checked";
-            }else {
-                _checked = "";
-            }
-
             elem.axisTitleGroup.append("svg:foreignObject")
                 .attr("id", "plots-title-x-checkbox")
                 .attr("x", canvas.xLeft + (canvas.xRight - canvas.xLeft) / 2 + _xTitle.length / 2 * 8 - 47)
@@ -243,7 +237,7 @@ var ScatterPlots = function() {
                 .attr("height", "20")
                 .append("xhtml:body")
                 .style({"font-size": "11px", "margin": "0"})
-                .html("<input id='mut-cna-haxis-log' class='mut-cna-axis-log' type='checkbox' style='float:left' "+_checked+"/><span style='float:left; margin-top: 2px; font-size-adjust: 0.5;'>Log</span>");
+                .html("<input id='mut-cna-haxis-log' class='mut-cna-axis-log' type='checkbox' style='float:left' "+(axisXLogFlag ? "checked" : "")+"/><span style='float:left; margin-top: 2px; font-size-adjust: 0.5;'>Log</span>");
 
             $("#mut-cna-haxis-log").change(function() {
                 if($(this).prop("checked")){
@@ -329,11 +323,6 @@ var ScatterPlots = function() {
                 .text(_yTitle);
 
 
-            if(axisYLogFlag) {
-                _checked = "checked";
-            }else {
-                _checked = "";
-            }
             elem.axisTitleGroup.append("svg:foreignObject")
                 .attr("id", "plots-title-y-checkbox")
                 .attr("transform", "rotate(-90)")
@@ -343,7 +332,7 @@ var ScatterPlots = function() {
                 .attr("height", "20")
                 .append("xhtml:body")
                 .style({"font-size": "11px", "margin": "0"})
-                .html("<input id='mut-cna-vaxis-log' class='mut-cna-axis-log' type='checkbox' style='float:left' "+_checked+"/><span style='float:left; margin-top: 2px; font-size-adjust: 0.5;'>Log</span>");
+                .html("<input id='mut-cna-vaxis-log' class='mut-cna-axis-log' type='checkbox' style='float:left' "+(axisYLogFlag ? "checked" : "")+"/><span style='float:left; margin-top: 2px; font-size-adjust: 0.5;'>Log</span>");
 
             $("#mut-cna-vaxis-log").change(function() {
                 if($(this).prop("checked")){
@@ -529,9 +518,14 @@ var ScatterPlots = function() {
         var tempStr = '';
         elem.dotsGroup.selectAll('path').each(
             function(d) {
+                var urlStr = window.location.href;
+                var start = urlStr.indexOf("cancer_study_id=");
+                var end = urlStr.indexOf("&sample_id") !== -1 ? urlStr.indexOf("&sample_id") : urlStr.indexOf("&case_id");
+                var cancer_study_id = urlStr.substr(start+16,end-start-16);
+
                 tempStr = 'Fraction of CNA: <b>' + d.x_val.toFixed(2) + '</b>'
                     + '<br/># of mutations: <b>' + d.y_val + '</b>'
-                    + '<br/><a target="_blank" href="http://www.cbioportal.org/case.do?cancer_study_id=ov_tcga_pub&sample_id=' + d.case_id + '">' + d.case_id + '</a>';
+                    + '<br/><a target="_blank" href="case.do?cancer_study_id=' + cancer_study_id + '&sample_id=' + d.case_id + '">' + d.case_id + '</a>';
 
 
                 $(this).qtip(

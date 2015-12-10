@@ -39,21 +39,7 @@
 </style>
 
 <div>
-    <%--<legend style="color:blue;font-weight:bold;">Mutation Count vs CNA</legend>--%>
     <div id="case-id-div" style="float:left;"></div>
     <div id="mut-cna-scatter-plot" class="large-plot-div">
-        <%--<img src="images/ajax-loader.gif"/>--%>
     </div>
-    <%--<table style="display:block;width:100%;" class="mut-cna-config">--%>
-        <%--<tr width="100%">--%>
-                <%--<td align="center">--%>
-                    <%--H-Axis scale: <input type="radio" name="mut-cna-haxis-log" class="mut-cna-axis-log" value="normal" checked="checked"/>linear &nbsp;--%>
-                    <%--<input type="radio" name="mut-cna-haxis-log" class="mut-cna-axis-log" value="log" id="mut-cna-haxis-log"/>log<br/>--%>
-                    <%--V-Axis scale: <input type="radio" name="mut-cna-vaxis-log" class="mut-cna-axis-log" value="normal" checked="checked"/>linear &nbsp;--%>
-                    <%--<input type="radio" name="mut-cna-vaxis-log" class="mut-cna-axis-log" value="log" id="mut-cna-vaxis-log"/>log--%>
-                <%--</td>--%>
-                <%--&lt;%&ndash;<td id="case-id-div" align="right">&ndash;%&gt;--%>
-                <%--&lt;%&ndash;</td>&ndash;%&gt;--%>
-        <%--</tr>--%>
-    <%--</table>--%>
 </div>

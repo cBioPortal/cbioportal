@@ -110,7 +110,6 @@ _mut3dVis.init();
 $(document).ready(function() {
 	function processInput(input)
 	{
-		//var sampleArray = PortalGlobals.getCases().trim().split(/\s+/);
 		var parser = new MutationInputParser();
 
 		// parse the provided input string

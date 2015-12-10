@@ -2,9 +2,9 @@ var sidebar = (function() {
     
     var render = function() {
         //only have profile data
-        if (metaData.getClinAttrsMeta().length === 0 && metaData.getGeneticProfilesMeta(window.PortalGlobals.getGeneList()[0]).length !== 0) { 
-            if (metaData.getGeneticProfilesMeta(window.PortalGlobals.getGeneList()[0]).length === 1 && 
-                metaData.getGeneticProfilesMeta(window.PortalGlobals.getGeneList()[0])[0].type === "MUTATION_EXTENDED") {
+        if (metaData.getClinAttrsMeta().length === 0 && metaData.getGeneticProfilesMeta(window.QuerySession.getQueryGenes()[0]).length !== 0) { 
+            if (metaData.getGeneticProfilesMeta(window.QuerySession.getQueryGenes()[0]).length === 1 && 
+                metaData.getGeneticProfilesMeta(window.QuerySession.getQueryGenes()[0])[0].type === "MUTATION_EXTENDED") {
                 $("#plots").empty();
                 $("#plots").append("No data available for generating plots.");               
             } else {
@@ -18,9 +18,9 @@ var sidebar = (function() {
                 profileSpec.updateProfileNameList("x");
             }
         //only have clincal data
-        } else if ((metaData.getGeneticProfilesMeta(window.PortalGlobals.getGeneList()[0]).length === 0 || 
-                   (metaData.getGeneticProfilesMeta(window.PortalGlobals.getGeneList()[0]).length === 1 && 
-                    metaData.getGeneticProfilesMeta(window.PortalGlobals.getGeneList()[0])[0].type === "MUTATION_EXTENDED"))&& 
+        } else if ((metaData.getGeneticProfilesMeta(window.QuerySession.getQueryGenes()[0]).length === 0 || 
+                   (metaData.getGeneticProfilesMeta(window.QuerySession.getQueryGenes()[0]).length === 1 && 
+                    metaData.getGeneticProfilesMeta(window.QuerySession.getQueryGenes()[0])[0].type === "MUTATION_EXTENDED"))&& 
                    metaData.getClinAttrsMeta().length !== 0) { 
             $("#" + ids.sidebar.x.data_type).hide();
             $("#" + ids.sidebar.y.data_type).hide(); 
@@ -30,9 +30,9 @@ var sidebar = (function() {
             clinSpec.init("y");
             optSpec.init();  
         //no plots data at all
-        } else if ((metaData.getGeneticProfilesMeta(window.PortalGlobals.getGeneList()[0]).length === 0 ||
-                    metaData.getGeneticProfilesMeta(window.PortalGlobals.getGeneList()[0]).length === 1 && 
-                    metaData.getGeneticProfilesMeta(window.PortalGlobals.getGeneList()[0])[0].type === "MUTATION_EXTENDED") && 
+        } else if ((metaData.getGeneticProfilesMeta(window.QuerySession.getQueryGenes()[0]).length === 0 ||
+                    metaData.getGeneticProfilesMeta(window.QuerySession.getQueryGenes()[0]).length === 1 && 
+                    metaData.getGeneticProfilesMeta(window.QuerySession.getQueryGenes()[0])[0].type === "MUTATION_EXTENDED") && 
                     metaData.getClinAttrsMeta().length === 0) { 
             $("#plots").empty();
             $("#plots").append("No data available for generating plots.");

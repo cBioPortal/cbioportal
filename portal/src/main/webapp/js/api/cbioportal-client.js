@@ -174,14 +174,13 @@ window.cbioportal_client = (function() {
 			}
 		};
 
-		var flatten = function(ret){
-			//console.log("flatten: " + ret.length);
-			var chunkSize = 90000;
-			var n_chunks = Math.ceil(ret.length/chunkSize);
+		var flatten = function(list_of_lists){
+			var chunk_size = 90000; // empirically, seems to work. If stack overflow occurs, decrease this.
+			var n_chunks = Math.ceil(list_of_lists.length/chunk_size);
 			var flattened = [];
-			//first round of flattening, in chunks of chunkSize to avoid stack size problems in concat.apply:
+			//first round of flattening, in chunks of chunk_size to avoid stack size problems in concat.apply:
 			for (var k=0; k<n_chunks; k++) {
-				flattened.push([].concat.apply([], ret.slice(k*chunkSize, (k+1)*chunkSize)));
+				flattened.push([].concat.apply([], list_of_lists.slice(k*chunk_size, (k+1)*chunk_size)));
 			}
 			//final round, flattening the lists of lists to a single list:
 			return [].concat.apply([], flattened);
@@ -190,7 +189,7 @@ window.cbioportal_client = (function() {
 		this.getData = function (key_list_list) {
 			var intermediate = [map];
 			var ret = [];
-			var i, j, k;
+			var i, k;
 			key_list_list = key_list_list || [];
 			var key_list_index = 0;
 			while (intermediate.length > 0) {
@@ -214,8 +213,9 @@ window.cbioportal_client = (function() {
 				key_list_index += 1;
 			}
 			//flatten, if data is found (when not found, it means it is a missing key)
-			if (ret.length > 0)
+			if (ret.length > 0) {
 				ret = flatten(ret);
+			}
 			return ret;
 		};
 		this.missingKeys = function(key_list_list) {

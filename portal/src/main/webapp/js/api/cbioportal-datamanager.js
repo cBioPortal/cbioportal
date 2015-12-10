@@ -540,10 +540,8 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 							}).then(function() {
                                                             if (case_set_properties.case_set_id === "-1") {
                                                                 // custom case list
-                                                                console.log("by samples");
 								return window.cbioportal_client.getGeneticProfileDataBySample({genetic_profile_ids: dm_ret.getGeneticProfileIds(), genes: dm_ret.getQueryGenes(), sample_ids: dm_ret.getSampleIds()});
                                                             } else {
-                                                                console.log("by sample list");
                                                                 return window.cbioportal_client.getGeneticProfileDataBySampleList({genetic_profile_ids: dm_ret.getGeneticProfileIds(), genes: dm_ret.getQueryGenes(), sample_list_id: [case_set_properties.case_set_id]});
                                                             }
 							}).fail(function() {

@@ -144,13 +144,13 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			return ret;
 		};
 		var maskGeneData = function (data, parsed_oql_query_line, is_patient_data) {
-			return data.map(function (d) {
-				if (d[config.gene_key] === parsed_oql_query_line.gene) {
-					return maskDatum(d, parsed_oql_query_line.alterations, is_patient_data);
-				} else {
-					return d;
+			//iterate over data items and mask the data for the items related to the 
+			for (var i = 0; i < data.length; i++) {
+				if (data[i][config.gene_key] === parsed_oql_query_line.gene) { //TODO - change to gene_field_name, gene_key is a bit misleading
+					data[i] = maskDatum(data[i], parsed_oql_query_line.alterations, is_patient_data);
 				}
-			});
+			}
+			return data;
 		};
 		
 		//-------------------
@@ -532,14 +532,18 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 									profile_types[gp_response[i].id] = gp_response[i].genetic_alteration_type;
 								}
 								setDefaultOQL();
-
 								for (var i = 0; i < sample_response.length; i++) {
 									sample_to_patient[sample_response[i].id] = sample_response[i].patient_id;
 								}
 							}).fail(function() {
 								def.reject();
 							}).then(function() {
-								return window.cbioportal_client.getGeneticProfileData({genetic_profile_ids: dm_ret.getGeneticProfileIds(), genes: dm_ret.getQueryGenes(), sample_ids: dm_ret.getSampleIds()});
+                                                            if (case_set_properties.case_set_id === "-1") {
+                                                                // custom case list
+								return window.cbioportal_client.getGeneticProfileDataBySample({genetic_profile_ids: dm_ret.getGeneticProfileIds(), genes: dm_ret.getQueryGenes(), sample_ids: dm_ret.getSampleIds()});
+                                                            } else {
+                                                                return window.cbioportal_client.getGeneticProfileDataBySampleList({genetic_profile_ids: dm_ret.getGeneticProfileIds(), genes: dm_ret.getQueryGenes(), sample_list_id: [case_set_properties.case_set_id]});
+                                                            }
 							}).fail(function() {
 								def.reject();
 							}).then(function(response) {

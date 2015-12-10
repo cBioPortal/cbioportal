@@ -152,21 +152,14 @@ var sidebar = (function() {
     
     var mutation_copy_no_view_switch = function() {
         clear_plot_box();
-        plotsData.fetch("x");
-        plotsData.fetch("y");
-        plotsbox.init();       
+        //update plots
+        regenerate_plots("xy");
     };
     
     return {
         init: function() {
-            var tmp = setInterval(function () {timer();}, 1000);
-            function timer() {
-                if (metaData.getRetrieveStatus() !== -1) {
-                    clearInterval(tmp);
-                    render();
-                    listener();
-                }
-            }
+            render();
+            listener();
         },
         getStat: function(axis, opt) {
             return $("#" + ids.sidebar[axis][opt]).val();

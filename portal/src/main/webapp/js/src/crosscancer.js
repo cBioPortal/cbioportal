@@ -36,7 +36,9 @@
 	// TODO 3d Visualizer should be initialized before document get ready
 	// ...due to incompatible Jmol initialization behavior
 	var _mut3dVis = null;
-	_mut3dVis = new Mutation3dVis("crossCancer3dView");
+	_mut3dVis = new Mutation3dVis("crossCancer3dView", {
+		pdbUri: "api/proxy/jsmol/"
+	});
 	_mut3dVis.init();
 
 	// Prepare eveything only if the page is ready to load

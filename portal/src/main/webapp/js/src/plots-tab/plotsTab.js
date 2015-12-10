@@ -32,11 +32,16 @@ var plotsTab = (function() {
         init: function() {
    
             clear_plot_box();
-            metaData.fetch(); 
-            sidebar.init();
-            plotsData.fetch("x");
-            plotsData.fetch("y");
-            plotsbox.init();
+            metaData.fetch(
+            	//fetch data, and then continue with callback below:
+	            function () { 
+	            	sidebar.init();
+	            	//TODO - make sure the items set in sidebar.init above are set by using a model (add to sidebar.js) instead of filling the ajax calls in plotsData.fetch with values from UI components!
+	            	
+	                plotsData.fetch("x", function () {
+	                	plotsData.fetch("y", plotsbox.init);
+	                });
+	            });
             
         }
         

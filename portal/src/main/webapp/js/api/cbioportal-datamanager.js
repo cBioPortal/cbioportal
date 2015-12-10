@@ -144,13 +144,13 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			return ret;
 		};
 		var maskGeneData = function (data, parsed_oql_query_line, is_patient_data) {
-			return data.map(function (d) {
-				if (d[config.gene_key] === parsed_oql_query_line.gene) {
-					return maskDatum(d, parsed_oql_query_line.alterations, is_patient_data);
-				} else {
-					return d;
+			//iterate over data items and mask the data for the items related to the 
+			for (var i = 0; i < data.length; i++) {
+				if (data[i][config.gene_key] === parsed_oql_query_line.gene) { //TODO - change to gene_field_name, gene_key is a bit misleading
+					data[i] = maskDatum(data[i], parsed_oql_query_line.alterations, is_patient_data);
 				}
-			});
+			}
+			return data;
 		};
 		
 		//-------------------

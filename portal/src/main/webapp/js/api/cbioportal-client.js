@@ -173,6 +173,20 @@ window.cbioportal_client = (function() {
 				map_entry.push(data[i]);
 			}
 		};
+
+		var flatten = function(ret){
+			//console.log("flatten: " + ret.length);
+			var chunkSize = 90000;
+			var n_chunks = Math.ceil(ret.length/chunkSize);
+			var flattened = [];
+			//first round of flattening, in chunks of chunkSize to avoid stack size problems in concat.apply:
+			for (var k=0; k<n_chunks; k++) {
+				flattened.push([].concat.apply([], ret.slice(k*chunkSize, (k+1)*chunkSize)));
+			}
+			//final round, flattening the lists of lists to a single list:
+			return [].concat.apply([], flattened);
+		};
+		
 		this.getData = function (key_list_list) {
 			var intermediate = [map];
 			var ret = [];
@@ -184,7 +198,7 @@ window.cbioportal_client = (function() {
 				for (i = 0; i<intermediate.length; i++) {
 					var obj = intermediate[i];
 					if (Object.prototype.toString.call(obj) === '[object Array]') {
-						ret = ret.concat(obj);
+						ret.push(obj);
 					} else {
 						if (key_list_index < key_list_list.length) {
 							var keys = key_list_list[key_list_index] || Object.keys(obj);
@@ -199,6 +213,9 @@ window.cbioportal_client = (function() {
 				intermediate = tmp_intermediate;
 				key_list_index += 1;
 			}
+			//flatten, if data is found (when not found, it means it is a missing key)
+			if (ret.length > 0)
+				ret = flatten(ret);
 			return ret;
 		};
 		this.missingKeys = function(key_list_list) {

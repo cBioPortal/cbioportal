@@ -384,6 +384,17 @@ cbio.util = (function() {
                 position: {my: 'top left', at: 'bottom right', viewport: $(window)}
             };
 
+	        // check if target[0] is SVG
+	        if (target[0] && target[0].ownerSVGElement)
+	        {
+		        target = target[0];
+	        }
+	        // check if target[0][0] is SVG
+	        else if (target[0] && target[0][0] && target[0][0].ownerSVGElement)
+	        {
+		        target = target[0][0];
+	        }
+
             jQuery.extend(true, opts, qTipOpts);
             $(target).one('mouseenter', function () {
                 $(this).qtip(opts);

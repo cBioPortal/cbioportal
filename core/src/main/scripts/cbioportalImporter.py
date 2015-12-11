@@ -125,6 +125,7 @@ def process_case_lists(jvm_args,study_files):
 
 def create_case_list(study_files, case_properties):
     if can_create_case(study_files,case_properties):
+        return
         
 
 def can_create_case(study_files, case_properties):

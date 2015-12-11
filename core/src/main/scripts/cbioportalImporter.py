@@ -185,7 +185,7 @@ def process(jvm_args, study_directory, command):
 
 def usage():
     print >> OUTPUT_FILE, ('cbioportalImporter.py --jvm-args (args to jvm) ' +
-							'--command [%s] --study-directory <path to directory> '+ % (COMMANDS))
+							'--command [%s] --study-directory <path to directory> ' % (COMMANDS))
 
 def check_args(command, jvm_args, study_directory):
     if (jvm_args == '' or command not in COMMANDS or study_directory == ''):
@@ -196,7 +196,7 @@ def check_files(study_directory):
     # check existence of directory
     if not os.path.exists(study_directory):
         print >> ERROR_FILE, 'Study cannot be found: ' + study_directory
-            sys.exit(2)
+        sys.exit(2)
 
 def main():
     # parse command line options
@@ -217,7 +217,7 @@ def main():
             jvm_args = a
         elif o == '--study-directory':
             study_directory = a
-        elif o == '--command'
+        elif o == '--command':
             command = a
 
     check_args(command, jvm_args, study_directory)

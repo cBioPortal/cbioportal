@@ -170,7 +170,7 @@ def process(jvm_args, study_directory, command):
             metadata = read_meta(meta_file)
             if metadata.get('meta_file_type') == 'meta_clinical':
                 import_study_data(jvm_args, f, metadata.get('data_file_path'))
-            else
+            else:
                 non_clinical_metafiles.add(f)
 
     # Now, import everything else

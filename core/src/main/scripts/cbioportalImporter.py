@@ -102,7 +102,7 @@ def read_meta(meta_file):
 
 def create_cancer_type_file(study_meta, study_directory):
     cancer_type_file = open(study_directory + '/' + 'cancer_type.txt','w')
-    cancer_type_file.wrtie(study_meta.get('type_of_cancer') + '\t' + study_meta.get('type_of_cancer') + '\t' + study_meta.get('type_of_cancer') + '\t' + study_meta.get('dedicated_color') + '\t' + study_meta.get('type_of_cancer'))
+    cancer_type_file.write(study_meta.get('type_of_cancer') + '\t' + study_meta.get('type_of_cancer') + '\t' + study_meta.get('type_of_cancer') + '\t' + study_meta.get('dedicated_color') + '\t' + study_meta.get('type_of_cancer'))
     cancer_type_file.close()
 
 def process_case_lists(jvm_args,study_files):

@@ -151,7 +151,7 @@ def process(jvm_args, study_directory, command):
         print >> ERROR_FILE, 'meta_study.txt cannot be found'
         sys.exit(2)
 
-    if command = REMOVE_STUDY:
+    if command == REMOVE_STUDY:
         remove_study(jvm_args, meta_filename)
         return
 

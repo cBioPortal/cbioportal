@@ -184,8 +184,7 @@ def process(jvm_args, study_directory, command):
 
 def usage():
     print >> OUTPUT_FILE, ('cbioportalImporter.py --jvm-args (args to jvm) ' +
-							'--command [%s] --meta-filename <path to metafile> ' +
-							'--data-filename <path to datafile>' % (COMMANDS))
+							'--command [%s] --study-directory <path to directory> '+ % (COMMANDS))
 
 def check_args(command, jvm_args, study_directory):
     if (jvm_args == '' or command not in COMMANDS or study_directory == ''):

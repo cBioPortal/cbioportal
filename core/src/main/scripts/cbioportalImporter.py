@@ -174,7 +174,7 @@ def process(jvm_args, study_directory, command):
                 non_clinical_metafiles.add(f)
 
     # Now, import everything else
-    for f in non_clinical_metafiles
+    for f in non_clinical_metafiles:
         meta_file = open(f, 'r')
         metadata = read_meta(meta_file)
         files_found.append

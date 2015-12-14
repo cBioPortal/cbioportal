@@ -132,7 +132,9 @@ def get_metafile_properties(meta_filename):
                             properties["stable_id"],
                             properties["show_profile_in_analysis_tab"],
                             properties["profile_name"],
-                            properties["profile_description"])
+                            properties["profile_description"],
+                            properties["meta_file_type"],
+                            properties["data_file_path"])
 
 def run_java(*args):
     java_home = os.environ['JAVA_HOME']

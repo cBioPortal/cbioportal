@@ -70,7 +70,7 @@ def import_case_list(jvm_args, meta_filename):
     args.append(meta_filename)
     run_java(*args)
 
-def process_case_lists(jvm_args,study_files):
+def process_case_lists(jvm_args, study_files):
     for f in study_files:
         if 'case_lists' in f:
             if os.path.isdir(f):
@@ -90,7 +90,7 @@ def process_command(jvm_args, command, meta_filename, data_filename):
     elif command == IMPORT_CASE_LIST:
         import_case_list(jvm_args, meta_filename)
 
-def process_directory(jvm_args, study_directory, command):
+def process_directory(jvm_args, command, study_directory):
     study_files = [study_directory + '/' + x for x in os.listdir(study_directory)]
     meta_study_filename = ''
     study_meta = {}
@@ -188,7 +188,7 @@ def main():
     check_args(command, jvm_args, study_directory, meta_filename, data_filename)
     check_files(study_directory, meta_filename, data_filename)
     if study_directory != '':
-        process_directory(jvm_args, study_directory, command)
+        process_directory(jvm_args, command, study_directory, command)
     else:
         process_command(jvm_args, command, meta_filename, data_filename)
 

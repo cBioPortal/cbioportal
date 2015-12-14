@@ -114,31 +114,13 @@ public class ApiController {
     
     @Transactional
     @RequestMapping(value = "/patientlists", method = {RequestMethod.GET, RequestMethod.POST})
-<<<<<<< HEAD
     public @ResponseBody List<DBPatientList> getPatientLists(@RequestParam(required = false) String study_id, @RequestParam(required = false) List<String> patient_list_ids) {
 		if (study_id != null) {
 		    return service.getPatientLists(study_id);
 	    } else if (patient_list_ids != null) {
 		    return service.getPatientLists(patient_list_ids);
-=======
-    public @ResponseBody List<DBPatientList> getPatientLists(@RequestParam(required = false) String study_id, @RequestParam(required = false) List<String> patient_list_ids, @RequestParam(required = false) Boolean metadata) {
-	    if (metadata == null || metadata == false) {
-		if (study_id != null) {
-			return service.getPatientLists(study_id);
-		} else if (patient_list_ids != null) {
-			return service.getPatientLists(patient_list_ids);
-		} else {
-			return service.getPatientLists();
-		}
->>>>>>> cross-cancer-plots
 	    } else {
-		if (study_id != null) {
-			return service.getIncompletePatientLists(study_id);
-		} else if (patient_list_ids != null) {
-			return service.getIncompletePatientLists(patient_list_ids);
-		} else {
-			return service.getIncompletePatientLists();
-		}
+		    return service.getPatientLists();
 	    }
     }
     

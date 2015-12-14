@@ -56,7 +56,7 @@ class MetafileProperties(object):
     def __init__(self,
                  cancer_study_identifier, genetic_alteration_type,
                  datatype, stable_id, show_profile_in_analysis_tab,
-                 profile_description, profile_name):
+                 profile_description, profile_name, meta_file_type, data_file_path):
         self.cancer_study_identifier = cancer_study_identifier
         self.genetic_alteration_type = genetic_alteration_type
         self.datatype = datatype
@@ -64,6 +64,8 @@ class MetafileProperties(object):
         self.show_profile_in_analysis_tab = show_profile_in_analysis_tab
         self.profile_description = profile_description
         self.profile_name = profile_name
+        self.meta_file_type = meta_file_type
+        self.data_file_path = data_file_path
 
 # ------------------------------------------------------------------------------
 # sub-routines

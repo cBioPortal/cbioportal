@@ -22,28 +22,6 @@ IMPORT_CASE_LIST = "import-case-list"
 
 COMMANDS = [IMPORT_STUDY, REMOVE_STUDY]
 
-# ------------------------------------------------------------------------------
-# case lists structure
-
-CASE_LISTS = [
-    {'CASE_LIST_FILENAME' : 'cases_all.txt', 'STAGING_FILENAME' : 'data_CNA.txt|data_RNA_Seq_mRNA_median_Zscores.txt|data_RNA_Seq_v2_mRNA_median_Zscores.txt|data_mRNA_median_Zscores.txt|data_mutations_extended.txt|data_methylation_27.txt|data_methylation_hm450.txt|data_rppa.txt', 'META_STABLE_ID' : '<CANCER_STUDY>_all', 'META_CASE_LIST_CATEGORY' : 'all_cases_in_study', 'META_CANCER_STUDY_ID' : '<CANCER_STUDY>', 'META_CASE_LIST_NAME' : 'All Tumors', 'META_CASE_LIST_DESCRIPTION' : 'All tumor samples (<NUM_CASES> samples)'},
-    {'CASE_LIST_FILENAME' : 'cases_cna.txt', 'STAGING_FILENAME' : 'data_CNA.txt', 'META_STABLE_ID' : '<CANCER_STUDY>_cna', 'META_CASE_LIST_CATEGORY' : 'all_cases_with_cna_data', 'META_CANCER_STUDY_ID' : '<CANCER_STUDY>', 'META_CASE_LIST_NAME' : 'Tumors CNA', 'META_CASE_LIST_DESCRIPTION' : 'All tumors with CNA data (<NUM_CASES> samples)'},
-    {'CASE_LIST_FILENAME' : 'cases_cnaseq.txt', 'STAGING_FILENAME' : 'data_CNA.txt&data_mutations_extended.txt', 'META_STABLE_ID' : '<CANCER_STUDY>_cnaseq', 'META_CASE_LIST_CATEGORY' : 'all_cases_with_mutation_and_cna_data', 'META_CANCER_STUDY_ID' : '<CANCER_STUDY>', 'META_CASE_LIST_NAME' : 'Tumors with sequencing and CNA data', 'META_CASE_LIST_DESCRIPTION' : 'All tumor samples that have CNA and sequencing data (<NUM_CASES> samples)'},
-    {'CASE_LIST_FILENAME' : 'cases_complete.txt', 'STAGING_FILENAME' : 'data_RNA_Seq_v2_mRNA_median_Zscores.txt&data_CNA.txt&data_mutations_extended.txt', 'META_STABLE_ID' : '<CANCER_STUDY>_3way_complete', 'META_CASE_LIST_CATEGORY' : 'all_cases_with_mutation_and_cna_and_mrna_data', 'META_CANCER_STUDY_ID' : '<CANCER_STUDY>', 'META_CASE_LIST_NAME' : 'All Complete Tumors', 'META_CASE_LIST_DESCRIPTION' : 'All tumor samples that have mRNA, CNA and sequencing data (<NUM_CASES> samples)'},
-    {'CASE_LIST_FILENAME' : 'cases_complete.txt', 'STAGING_FILENAME' : 'data_RNA_Seq_expression_median.txt&data_CNA.txt&data_mutations_extended.txt', 'META_STABLE_ID' : '<CANCER_STUDY>_3way_complete', 'META_CASE_LIST_CATEGORY' : 'all_cases_with_mutation_and_cna_and_mrna_data', 'META_CANCER_STUDY_ID' : '<CANCER_STUDY>', 'META_CASE_LIST_NAME' : 'All Complete Tumors', 'META_CASE_LIST_DESCRIPTION' : 'All tumor samples that have mRNA, CNA and sequencing data (<NUM_CASES> samples)'},
-    {'CASE_LIST_FILENAME' : 'cases_complete.txt', 'STAGING_FILENAME' : 'data_mRNA_median_Zscores.txt&data_CNA.txt&data_mutations_extended.txt', 'META_STABLE_ID' : '<CANCER_STUDY>_3way_complete', 'META_CASE_LIST_CATEGORY' : 'all_cases_with_mutation_and_cna_and_mrna_data', 'META_CANCER_STUDY_ID' : '<CANCER_STUDY>', 'META_CASE_LIST_NAME' : 'All Complete Tumors', 'META_CASE_LIST_DESCRIPTION' : 'All tumor samples that have mRNA, CNA and sequencing data (<NUM_CASES> samples)'},
-    {'CASE_LIST_FILENAME' : 'cases_complete.txt', 'STAGING_FILENAME' : 'data_expression_Zscores.txt&data_CNA.txt&data_mutations_extended.txt', 'META_STABLE_ID' : '<CANCER_STUDY>_3way_complete', 'META_CASE_LIST_CATEGORY' : 'all_cases_with_mutation_and_cna_and_mrna_data', 'META_CANCER_STUDY_ID' : '<CANCER_STUDY>', 'META_CASE_LIST_NAME' : 'All Complete Tumors', 'META_CASE_LIST_DESCRIPTION' : 'All tumor samples that have mRNA, CNA and sequencing data (<NUM_CASES> samples)'},
-    {'CASE_LIST_FILENAME' : 'cases_log2CNA.txt', 'STAGING_FILENAME' : 'data_log2CNA.txt', 'META_STABLE_ID' : '<CANCER_STUDY>_log2CNA', 'META_CASE_LIST_CATEGORY' : 'all_cases_with_log2_cna_data', 'META_CANCER_STUDY_ID' : '<CANCER_STUDY>', 'META_CASE_LIST_NAME' : 'Tumors log2 copy-number', 'META_CASE_LIST_DESCRIPTION' : 'All tumors with log2 copy-number data (<NUM_CASES> samples)'},
-    {'CASE_LIST_FILENAME' : 'cases_methylation_hm27.txt', 'STAGING_FILENAME' : 'data_methylation_hm27.txt', 'META_STABLE_ID' : '<CANCER_STUDY>_methylation_hm27', 'META_CASE_LIST_CATEGORY' : 'all_cases_with_methylation_data', 'META_CANCER_STUDY_ID' : '<CANCER_STUDY>', 'META_CASE_LIST_NAME' : 'Tumors with methylation data (HM27)', 'META_CASE_LIST_DESCRIPTION' : 'All samples with methylation (HM27) data (<NUM_CASES> samples)'},
-    {'CASE_LIST_FILENAME' : 'cases_methylation_hm450.txt', 'STAGING_FILENAME' : 'data_methylation_hm450.txt', 'META_STABLE_ID' : '<CANCER_STUDY>_methylation_hm450', 'META_CASE_LIST_CATEGORY' : 'all_cases_with_methylation_data', 'META_CANCER_STUDY_ID' : '<CANCER_STUDY>', 'META_CASE_LIST_NAME' : 'Tumors with methylation data (HM450)', 'META_CASE_LIST_DESCRIPTION' : 'All samples with methylation (HM450) data (<NUM_CASES> samples)'},
-    {'CASE_LIST_FILENAME' : 'cases_miRNA.txt', 'STAGING_FILENAME' : 'data_miRNA_median_Zscores.txt', 'META_STABLE_ID' : '<CANCER_STUDY>_microrna', 'META_CASE_LIST_CATEGORY' : 'all_cases_with_microrna_data', 'META_CANCER_STUDY_ID' : '<CANCER_STUDY>', 'META_CASE_LIST_NAME' : 'Tumors with microRNA data (microRNA-Seq)', 'META_CASE_LIST_DESCRIPTION' : 'All samples with microRNA data (<NUM_CASES> samples)'},
-    {'CASE_LIST_FILENAME' : 'cases_mRNA_U133.txt', 'STAGING_FILENAME' : 'data_expression_Zscores.txt', 'META_STABLE_ID' : '<CANCER_STUDY>_mrna_U133', 'META_CASE_LIST_CATEGORY' : 'all_cases_with_mrna_array_data', 'META_CANCER_STUDY_ID' : '<CANCER_STUDY>', 'META_CASE_LIST_NAME' : 'Tumors with mRNA data (U133 microarray only)', 'META_CASE_LIST_DESCRIPTION' : 'All samples with mRNA expression data (<NUM_CASES> samples)'},
-    {'CASE_LIST_FILENAME' : 'cases_mRNA.txt', 'STAGING_FILENAME' : 'data_mRNA_median_Zscores.txt', 'META_STABLE_ID' : '<CANCER_STUDY>_mrna', 'META_CASE_LIST_CATEGORY' : 'all_cases_with_mrna_array_data', 'META_CANCER_STUDY_ID' : '<CANCER_STUDY>', 'META_CASE_LIST_NAME' : 'Tumors with mRNA data (Agilent microarray)', 'META_CASE_LIST_DESCRIPTION' : 'All samples with mRNA expression data (<NUM_CASES> samples)'},
-    {'CASE_LIST_FILENAME' : 'cases_RNA_Seq_mRNA.txt', 'STAGING_FILENAME' : 'data_RNA_Seq_expression_median.txt', 'META_STABLE_ID' : '<CANCER_STUDY>_rna_seq_mrna', 'META_CASE_LIST_CATEGORY' : 'all_cases_with_mrna_rnaseq_data', 'META_CANCER_STUDY_ID' : '<CANCER_STUDY>', 'META_CASE_LIST_NAME' : 'Tumors with mRNA data (RNA Seq)', 'META_CASE_LIST_DESCRIPTION' : 'All samples with mRNA expression data (<NUM_CASES> samples)'},
-    {'CASE_LIST_FILENAME' : 'cases_RNA_Seq_v2_mRNA.txt', 'STAGING_FILENAME' : 'data_RNA_Seq_v2_mRNA_median_Zscores.txt', 'META_STABLE_ID' : '<CANCER_STUDY>_rna_seq_v2_mrna', 'META_CASE_LIST_CATEGORY' : 'all_cases_with_mrna_rnaseq_data', 'META_CANCER_STUDY_ID' : '<CANCER_STUDY>', 'META_CASE_LIST_NAME' : 'Tumors with mRNA data (RNA Seq V2)', 'META_CASE_LIST_DESCRIPTION' : 'All samples with mRNA expression data (<NUM_CASES> samples)'},
-    {'CASE_LIST_FILENAME' : 'cases_rppa.txt', 'STAGING_FILENAME' : 'data_rppa.txt', 'META_STABLE_ID' : '<CANCER_STUDY>_rppa', 'META_CASE_LIST_CATEGORY' : 'all_cases_with_rppa_data', 'META_CANCER_STUDY_ID' : '<CANCER_STUDY>', 'META_CASE_LIST_NAME' : 'Tumors with RPPA data', 'META_CASE_LIST_DESCRIPTION' : 'Tumors with reverse phase protein array (RPPA) data for about 200 antibodies (<NUM_CASES> samples)'},
-    {'CASE_LIST_FILENAME' : 'cases_sequenced.txt', 'STAGING_FILENAME' : 'data_mutations_extended.txt', 'META_STABLE_ID' : '<CANCER_STUDY>_sequenced', 'META_CASE_LIST_CATEGORY' : 'all_cases_with_mutation_data', 'META_CANCER_STUDY_ID' : '<CANCER_STUDY>', 'META_CASE_LIST_NAME' : 'Sequenced Tumors', 'META_CASE_LIST_DESCRIPTION' : 'All (Next-Gen) sequenced samples (<NUM_CASES> samples)'},
-]
 
 # ------------------------------------------------------------------------------
 # sub-routines
@@ -92,13 +70,6 @@ def import_case_list(jvm_args, meta_filename):
 	args.append(meta_filename)
 	run_java(*args)
 
-def read_meta(meta_file):
-    meta = {}
-    for line in meta_file:
-        line = line.strip()
-        line_data = line.split(':')
-        meta[line_data[0]] = line_data[1]
-    return meta
 
 def create_cancer_type_file(study_meta, study_directory):
     cancer_type_file = open(study_directory + '/' + 'cancer_type.txt','w')
@@ -115,41 +86,22 @@ def process_case_lists(jvm_args,study_files):
                 for case_list in case_list_files:
                     import_case_list(jvm_args,case_list)
 
-    # now, lets go through the other case lists we can create based on data files available
-    for case in CASE_LISTS:
-        case_list_filename = case['CASE_LIST_FILENAME']
-        for case_list in case_list_files:
-            if case_list_filename not in case_list:
-                # we should make it if possible!
-                create_case_list(study_files,case)
-
-def create_case_list(study_files, case_properties):
-    if can_create_case(study_files,case_properties):
-        return
-        
-
-def can_create_case(study_files, case_properties):
-    staging_files_needed = case_properties['STAGING_FILENAME'].split('|')
-    for staging_file in staging_files_needed:
-        found = False
-        for f in study_files:
-            if staging_file in f:
-                found = True
-        if not found:
-            return found
-    return found
-
 def process(jvm_args, study_directory, command):
     study_files = [study_directory + '/' + x for x in os.listdir(study_directory)]
-    meta_filename = study_directory + '/' + "meta_study.txt"
+    meta_filename = ''
     study_meta = {}
 
-    if meta_filename in study_files:
-        meta_file = open(meta_filename,'r')
-        study_meta = read_meta(meta_file)
-    else:
-        print >> ERROR_FILE, 'meta_study.txt cannot be found'
-        sys.exit(2)
+    for f in study_files:
+        if 'meta' in f:
+            metadata = get_properties(f);
+            if 'meta_study' in metadata.values():
+                study_meta = metadata
+                meta_filename = f
+
+
+    if len(study_meta == 0):
+        print >> ERROR_FILE, 'No meta_study file found'
+        sys.exit(1)
 
     if command == REMOVE_STUDY:
         remove_study(jvm_args, meta_filename)
@@ -166,8 +118,7 @@ def process(jvm_args, study_directory, command):
     # Next, we need to import clinical files
     for f in study_files:
         if 'meta' in f:
-            meta_file = open(f, 'r')
-            metadata = read_meta(meta_file)
+            metadata = get_properties(f)
             if metadata.get('meta_file_type') == 'meta_clinical':
                 import_study_data(jvm_args, f, metadata.get('data_file_path'))
             else:
@@ -176,12 +127,14 @@ def process(jvm_args, study_directory, command):
     # Now, import everything else
     for f in non_clinical_metafiles:
         meta_file = open(f, 'r')
-        metadata = read_meta(meta_file)
+        metadata = get_properties(f)
         files_found.append
         import_study_data(jvm_args, f, metadata.get('data_file_path'))
 
-    # Lets add some caselists! Not yet ready!!! But Soon!
-    # process_case_lists(jvm_args,study_files)
+    # do the case lists
+    process_case_lists(jvm_args,study_files)
+
+
 
 def usage():
     print >> OUTPUT_FILE, ('cbioportalImporter.py --jvm-args (args to jvm) ' +

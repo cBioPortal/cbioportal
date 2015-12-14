@@ -27,25 +27,25 @@ COMMANDS = [IMPORT_STUDY, REMOVE_STUDY]
 # sub-routines
 
 def import_cancer_type(jvm_args, meta_filename):
-	args = jvm_args.split(' ')
-	args.append(IMPORT_CANCER_TYPE_CLASS);
-	args.append(meta_filename)
-	args.append("false") # don't clobber existing table
-	run_java(*args)
+    args = jvm_args.split(' ')
+    args.append(IMPORT_CANCER_TYPE_CLASS);
+    args.append(meta_filename)
+    args.append("false") # don't clobber existing table
+    run_java(*args)
 
 def import_study(jvm_args, meta_filename):
-	args = jvm_args.split(' ')
-	args.append(IMPORT_STUDY_CLASS);
-	args.append(meta_filename)
-	run_java(*args)
+    args = jvm_args.split(' ')
+    args.append(IMPORT_STUDY_CLASS);
+    args.append(meta_filename)
+    run_java(*args)
 
 def remove_study(jvm_args, meta_filename):
-	args = jvm_args.split(' ')
-	args.append(REMOVE_STUDY_CLASS);
-	metastudy_properties = get_metastudy_properties(meta_filename)
-	args.append(metastudy_properties.cancer_study_identifier)
-	run_java(*args)
-	
+    args = jvm_args.split(' ')
+    args.append(REMOVE_STUDY_CLASS);
+    metastudy_properties = get_metastudy_properties(meta_filename)
+    args.append(metastudy_properties.cancer_study_identifier)
+    run_java(*args)
+
 def import_study_data(jvm_args, meta_filename, data_filename):
     args = jvm_args.split(' ')
     metafile_properties = get_metafile_properties(meta_filename)
@@ -65,17 +65,10 @@ def import_study_data(jvm_args, meta_filename, data_filename):
     run_java(*args)
 
 def import_case_list(jvm_args, meta_filename):
-	args = jvm_args.split(' ')
-	args.append(IMPORT_CASE_LIST_CLASS);
-	args.append(meta_filename)
-	run_java(*args)
-
-
-def create_cancer_type_file(study_meta, study_directory):
-    # this needs to be better defined
-    cancer_type_file = open(study_directory + '/' + 'cancer_type.txt','w')
-    cancer_type_file.write(study_meta.get('type_of_cancer') + '\t' + study_meta.get('type_of_cancer') + '\t' + study_meta.get('type_of_cancer') + '\t' + study_meta.get('dedicated_color') + '\t' + study_meta.get('type_of_cancer'))
-    cancer_type_file.close()
+    args = jvm_args.split(' ')
+    args.append(IMPORT_CASE_LIST_CLASS);
+    args.append(meta_filename)
+    run_java(*args)
 
 def process_case_lists(jvm_args,study_files):
     for f in study_files:
@@ -87,47 +80,44 @@ def process_case_lists(jvm_args,study_files):
 
 def process(jvm_args, study_directory, command):
     study_files = [study_directory + '/' + x for x in os.listdir(study_directory)]
-    meta_filename = ''
+    meta_study_filename = ''
     study_meta = {}
+    clinical_metafiles = []
+    non_clinical_metafiles = []
 
     for f in study_files:
         if 'meta' in f:
             metadata = get_properties(f);
             if 'meta_study' in metadata.values():
                 study_meta = metadata
-                meta_filename = f
-
+                meta_study_filename = f
+                import_study(jvm_args,f)
+            if 'meta_cancer_type' in metadata.values():
+                cancer_type_meta = metadata
+            if 'meta_clinical' in metadata.values():
+                clinical_metafiles.append(f)
+            else:
+                non_clinical_metafiles.append(f)
 
     if len(study_meta) == 0:
         print >> ERROR_FILE, 'No meta_study file found'
         sys.exit(1)
 
     if command == REMOVE_STUDY:
-        remove_study(jvm_args, meta_filename)
+        remove_study(jvm_args, meta_study_filename)
         return
 
-    create_cancer_type_file(study_meta, study_directory)
-
     # First, import cancer type
-    import_cancer_type(jvm_args,study_directory + '/' + 'cancer_type.txt')
-
-    non_clinical_metafiles = []
-    files_found = []
+    import_cancer_type(jvm_args, cancer_type_meta.get('data_file_path'))
 
     # Next, we need to import clinical files
-    for f in study_files:
-        if 'meta' in f:
-            metadata = get_properties(f)
-            if metadata.get('meta_file_type') == 'meta_clinical':
-                import_study_data(jvm_args, f, metadata.get('data_file_path'))
-            else:
-                non_clinical_metafiles.append(f)
+    for f in clinical_metafiles:
+        metadata = get_properties(f)
+        import_study_data(jvm_args, f, metadata.get('data_file_path'))
 
     # Now, import everything else
     for f in non_clinical_metafiles:
-        meta_file = open(f, 'r')
         metadata = get_properties(f)
-        files_found.append
         import_study_data(jvm_args, f, metadata.get('data_file_path'))
 
     # do the case lists

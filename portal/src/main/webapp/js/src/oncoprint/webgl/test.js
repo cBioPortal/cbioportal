@@ -1,5 +1,6 @@
 $(document).ready(function() {
 	var Oncoprint = require('./oncoprint.js');
+	window.RuleSet = require('./oncoprintruleset.js');
 	console.log($('#svg'));
 	var o = new Oncoprint($('#svg'), $('#canvas'));
 	var data = [{sample:'a', data:5}, {sample:'b', data:10}];

@@ -122,7 +122,7 @@ def process(jvm_args, study_directory, command):
             if metadata.get('meta_file_type') == 'meta_clinical':
                 import_study_data(jvm_args, f, metadata.get('data_file_path'))
             else:
-                non_clinical_metafiles.add(f)
+                non_clinical_metafiles.append(f)
 
     # Now, import everything else
     for f in non_clinical_metafiles:

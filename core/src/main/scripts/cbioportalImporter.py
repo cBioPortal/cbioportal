@@ -72,13 +72,12 @@ def import_case_list(jvm_args, meta_filename):
 
 
 def create_cancer_type_file(study_meta, study_directory):
+    # this needs to be better defined
     cancer_type_file = open(study_directory + '/' + 'cancer_type.txt','w')
     cancer_type_file.write(study_meta.get('type_of_cancer') + '\t' + study_meta.get('type_of_cancer') + '\t' + study_meta.get('type_of_cancer') + '\t' + study_meta.get('dedicated_color') + '\t' + study_meta.get('type_of_cancer'))
     cancer_type_file.close()
 
 def process_case_lists(jvm_args,study_files):
-    case_list_files = []
-    # see if there are any case lists first
     for f in study_files:
         if 'case_lists' in f:
             if os.path.isdir(f):

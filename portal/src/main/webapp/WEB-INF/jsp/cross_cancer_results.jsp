@@ -38,7 +38,7 @@
 <%
     String siteTitle = GlobalProperties.getTitle();
     request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle);
-	ServletXssUtil servletXssUtil = ServletXssUtil.getInstance();
+    ServletXssUtil servletXssUtil = ServletXssUtil.getInstance();
 
     // Get priority settings
     Integer dataPriority;
@@ -49,18 +49,18 @@
         dataPriority = 0;
     }
 
-	String geneList = request.getParameter(QueryBuilder.GENE_LIST);
-        //String cancerStudyList = request.getParameter(QueryBuilder.CANCER_STUDY_LIST);
+    String geneList = request.getParameter(QueryBuilder.GENE_LIST);
+    //String cancerStudyList = request.getParameter(QueryBuilder.CANCER_STUDY_LIST);
 
-	// we need the raw gene list
-	if (request instanceof XssRequestWrapper)
-	{
-		geneList = ((XssRequestWrapper)request).getRawParameter(QueryBuilder.GENE_LIST);
-                //cancerStudyList = ((XssRequestWrapper)request).getRawParameter(QueryBuilder.CANCER_STUDY_LIST);
-	}
+    // we need the raw gene list
+    if (request instanceof XssRequestWrapper)
+    {
+        geneList = ((XssRequestWrapper)request).getRawParameter(QueryBuilder.GENE_LIST);
+        //cancerStudyList = ((XssRequestWrapper)request).getRawParameter(QueryBuilder.CANCER_STUDY_LIST);
+    }
 
-	geneList = geneList.replaceAll("\n", " ").replaceAll("\r", "").replaceAll("/", "_");
-	geneList = servletXssUtil.getCleanerInput(geneList);
+    geneList = geneList.replaceAll("\n", " ").replaceAll("\r", "").replaceAll("/", "_");
+    geneList = servletXssUtil.getCleanerInput(geneList);
 
 
     String oncokbUrl = (String) GlobalProperties.getOncoKBUrl();
@@ -131,7 +131,7 @@
             if($("#modify_query_btn").hasClass("active")) {
                 $("#modify_query_btn").removeClass("active");
             } else {
-                $("#modify_query_btn").addClass("active");    
+                $("#modify_query_btn").addClass("active");
             }
         });
         $("#toggle_query_form").click(function(event) {
@@ -140,15 +140,15 @@
             //  Toggle the icons
             $(".query-toggle").toggle();
         });
-        
-         $("a.result-tab").click(function(){
+
+        $("a.result-tab").click(function(){
             if($(this).attr("href")=="#bookmark_email") {
                 $("#bookmark-link").attr("href",window.location.href);
             }
         });
 
         $("#bitly-generator").click(function() {
-             bitlyURL(window.location.href);
+            bitlyURL(window.location.href);
         });
 
         $("#modify_query_btn").click(function() {
@@ -163,7 +163,7 @@
         });
 
     });
-   
+
 </script>
 
 <!-- Crosscancer templates -->

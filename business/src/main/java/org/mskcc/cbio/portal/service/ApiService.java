@@ -147,6 +147,21 @@ public class ApiService {
 	}
 
 	@Transactional
+	public List<DBPatientList> getIncompletePatientLists() {
+		return patientListMapper.getAllIncompletePatientLists();
+	}
+
+	@Transactional
+	public List<DBPatientList> getIncompletePatientLists(String study_id) {
+		return patientListMapper.getIncompletePatientListsByStudy(study_id);
+	}
+
+	@Transactional
+	public List<DBPatientList> getIncompletePatientLists(List<String> patient_list_ids) {
+		return patientListMapper.getIncompletePatientLists(patient_list_ids);
+	}
+	
+	@Transactional
 	public List<DBPatientList> getPatientLists() {
 		List<DBPatientList> incomplete_lists = patientListMapper.getAllIncompletePatientLists();
 		for (DBPatientList l: incomplete_lists) {

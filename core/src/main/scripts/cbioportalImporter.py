@@ -99,7 +99,7 @@ def process(jvm_args, study_directory, command):
                 meta_filename = f
 
 
-    if len(study_meta == 0):
+    if len(study_meta) == 0:
         print >> ERROR_FILE, 'No meta_study file found'
         sys.exit(1)
 

@@ -954,7 +954,7 @@ class FeaturewiseFileValidator(Validator):
 
 class GenewiseFileValidator(FeaturewiseFileValidator):
 
-    REQUIRED_HEADERS = ['Hugo_symbol', 'Entrez_Gene_Id']
+    REQUIRED_HEADERS = ['Hugo_Symbol', 'Entrez_Gene_Id']
 
     def __init__(self, *args, **kwargs):
         super(GenewiseFileValidator, self).__init__(*args, **kwargs)

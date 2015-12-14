@@ -20,7 +20,7 @@ REMOVE_STUDY = "remove-study"
 IMPORT_STUDY_DATA = "import-study-data"
 IMPORT_CASE_LIST = "import-case-list"
 
-COMMANDS = [IMPORT_STUDY, REMOVE_STUDY]
+COMMANDS = [IMPORT_CANCER_TYPE, IMPORT_STUDY, REMOVE_STUDY, IMPORT_STUDY_DATA, IMPORT_CASE_LIST]
 
 
 # ------------------------------------------------------------------------------
@@ -78,7 +78,19 @@ def process_case_lists(jvm_args,study_files):
                 for case_list in case_list_files:
                     import_case_list(jvm_args,case_list)
 
-def process(jvm_args, study_directory, command):
+def process_command(jvm_args, command, meta_filename, data_filename):
+    if command == IMPORT_CANCER_TYPE:
+        import_cancer_type(jvm_args, meta_filename)
+    elif command == IMPORT_STUDY:
+        import_study(jvm_args, meta_filename)
+    elif command == REMOVE_STUDY:
+        remove_study(jvm_args, meta_filename)
+    elif command == IMPORT_STUDY_DATA:
+        import_study_data(jvm_args, meta_filename, data_filename)
+    elif command == IMPORT_CASE_LIST:
+        import_case_list(jvm_args, meta_filename)
+
+def process_directory(jvm_args, study_directory, command):
     study_files = [study_directory + '/' + x for x in os.listdir(study_directory)]
     meta_study_filename = ''
     study_meta = {}
@@ -127,23 +139,28 @@ def process(jvm_args, study_directory, command):
 
 def usage():
     print >> OUTPUT_FILE, ('cbioportalImporter.py --jvm-args (args to jvm) ' +
-							'--command [%s] --study-directory <path to directory> ' % (COMMANDS))
+							'--command [%s] --study-directory <path to directory> --meta-filename <path to metafile> --data-filename <path to datafile>' % (COMMANDS))
 
-def check_args(command, jvm_args, study_directory):
-    if (jvm_args == '' or command not in COMMANDS or study_directory == ''):
+def check_args(command, jvm_args, study_directory, meta_filename, data_filename):
+    if jvm_args == '' or command not in COMMANDS or (study_directory == '' and data_filename == '') or (study_directory != '' and data_filename != '') or (study_directory != '' and command != 'import-study' and command != 'remove-study'):
         usage()
         sys.exit(2)
 
-def check_files(study_directory):
+def check_files(study_directory, meta_filename, data_filename):
     # check existence of directory
-    if not os.path.exists(study_directory):
+    if not os.path.exists(study_directory) and study_directory != '':
         print >> ERROR_FILE, 'Study cannot be found: ' + study_directory
         sys.exit(2)
+    if len(meta_filename) > 0 and not os.path.exists(meta_filename):
+        print >> ERROR_FILE, 'meta-file cannot be found: ' + meta_filename
+        sys.exit(2)
+    if len(data_filename) > 0 and not os.path.exists(data_filename):
+        print >> ERROR_FILE, 'data-file cannot be found:' + data_filename
 
 def main():
     # parse command line options
     try:
-        opts, args = getopt.getopt(sys.argv[1:], '', ['command=', 'jvm-args=','study-directory='])
+        opts, args = getopt.getopt(sys.argv[1:], '', ['command=', 'jvm-args=', 'study-directory=', 'meta-filename=', 'data-filename='])
     except getopt.error, msg:
         print >> ERROR_FILE, msg
         usage()
@@ -153,6 +170,8 @@ def main():
     jvm_args = ''
     study_directory = ''
     command = ''
+    meta_filename = ''
+    data_filename = ''
 
     for o, a in opts:
         if o == '--jvm-args':
@@ -161,10 +180,17 @@ def main():
             study_directory = a
         elif o == '--command':
             command = a
+        elif o == '--meta-filename':
+            meta_filename = a
+        elif o == '--data-filename':
+            data_filename = a
 
-    check_args(command, jvm_args, study_directory)
-    check_files(study_directory)
-    process(jvm_args, study_directory, command)
+    check_args(command, jvm_args, study_directory, meta_filename, data_filename)
+    check_files(study_directory, meta_filename, data_filename)
+    if study_directory != '':
+        process_directory(jvm_args, study_directory, command)
+    else:
+        process_command(jvm_args, command, meta_filename, data_filename)
 
 # ------------------------------------------------------------------------------
 # ready to roll

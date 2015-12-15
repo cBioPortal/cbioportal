@@ -66,6 +66,22 @@ var ScatterPlots = function() {
         dataArr = [],
         dataAttr = {};
 
+     var lineOptions={
+            strokeWidth: 1,
+            stroke: "black",
+            strokeDasharray: "none",
+            markerEnd: "none",
+            scaleX: true,
+            scaleY: true
+        };
+
+     var labelOptions= {
+         transform: "rotate(0)",
+         stroke: "black",
+         //dy: "1em",
+         textAnchor: "middle"
+     };
+
     var axis_edge = 0.1;
         log_scale_threshold = 0.17677669529;
 
@@ -89,6 +105,15 @@ var ScatterPlots = function() {
                 dataArr.push(obj);
             }
         });
+
+        if(elem.symmetricX) {
+            if (Math.abs(dataAttr.min_x) < dataAttr.max_x) {
+                dataAttr.min_x = dataAttr.max_x * -1;
+            }
+            else {
+                dataAttr.max_x = dataAttr.min_x * -1;
+            }
+        }
     }
 
     function initSvgCanvas(divName, _brushOn) {
@@ -555,6 +580,58 @@ var ScatterPlots = function() {
             .range([canvas.yBottom, canvas.yTop]);
     }
 
+     function getXDomain(){
+          return elem.xScale.domain();
+     }
+
+     function getYDomain(){
+         return elem.yScale.domain();
+     }
+
+     // add line to the scatterplot
+     // pathInfo: [{x:xFrom, y:yFrom}, {x:xTo, y:yTo}]
+     function addLine(pathInfo, options){
+         var newOptions = $.extend({}, lineOptions, options);
+         var line = d3.svg.line()
+            .x(function(d){
+                 if(newOptions.scaleX) {
+                     return elem.xScale(d.x);
+                 }
+                 else {
+                     return d.x;
+                 }
+             })
+            .y(function(d){
+                 if(newOptions.scaleY) {
+                     return elem.yScale(d.y);
+                 }
+                 else {
+                     return d.y;
+                 }
+             })
+
+         elem.svg.append("svg:path")
+            .attr("d", line(pathInfo))
+            .attr("marker-end", newOptions.markerEnd)
+            .style("stroke-width", newOptions.strokeWidth)
+            .style("stroke", newOptions.stroke)
+            .style("stroke-dasharray", newOptions.strokeDasharray);
+     }
+
+     function addLabel(labelValue, coordinates, options){
+         var newOptions = $.extend({}, labelOptions, options);
+
+         elem.svg.append("text")
+            .attr("transform", newOptions.transform)
+            .attr("stroke", newOptions.stroke)
+            .attr("x", coordinates.x)
+            .attr("y", coordinates.y)
+            //.attr("dy", newOptions.dy)
+            .style("text-anchor", newOptions.textAnchor)
+            .text(labelValue);
+
+     }
+
     return {
         init: function(_options, _dataArr, _dataAttr, _brushOn, _drawCoExpInfo) {    //Init with options
             initSettings(_options, _dataAttr);
@@ -670,6 +747,11 @@ var ScatterPlots = function() {
         		}
             });
         },
+
+        addLabel: addLabel,
+        addLine: addLine,
+        getXDomain: getXDomain,
+        getYDomain: getYDomain,
         /**
          * This function can be used to show a *normal* selection made via an external source,
          * e.g. via a filter in a datatable coupled to this plot. 

@@ -39,8 +39,9 @@ function VolcanoPlot() {
 	        dotsGroup: "",
 	        axisGroup: "",
 	        axisTitleGroup: "",
-	        brush: ""
-	    },
+	        brush: "",
+			symmetricX: true
+		},
 	    text: { //axis labels:
 	        xTitle: "log Ratio",
 	        yTitle: "-log10 p-value",
@@ -83,7 +84,7 @@ function VolcanoPlot() {
 				plotDataAttr.min_y = yValue;
 			if (yValue > plotDataAttr.max_y)
 				plotDataAttr.max_y = yValue;
-			
+
 			var _scatterPlotItem = {
 					x_val : xValue,
 					y_val : yValue,
@@ -96,9 +97,9 @@ function VolcanoPlot() {
 		}
 		//draw the plot with the prepared x,y coordinates data:
 		drawPlot(plotData, null, plotElName, plotDataAttr);
-		
+
 	}
-	
+
 	/**
      * This function will give the plot items corresponding to the specialSelectedItems list 
      * a special selection color. This is different from the normal selection
@@ -141,7 +142,66 @@ function VolcanoPlot() {
 		self.scatterPlot.init(scatterPlotOptions, plotData, plotDataAttr, brushOn, drawCoExpInfo);            
 		self.scatterPlot.jointBrushCallback(scatterPlotBrushCallBack);
         //scatterPlot.jointClickCallback(scatterPlotBrushCallBack);  //Option, but jointClickCallback not yet implemented (also not really needed yet). Would have to port some code from study-view/component/ScatterPlot.js
+
+		addLines();
+		addExtraLabels(plotElName);
     }
+
+	function addExtraLabels(plotElName) {
+		var labelLineOptions = {
+			markerEnd: "url(#triangle-end)",
+			scaleX: false,
+			scaleY: false
+		};
+
+		var svg = d3.select("#" + plotElName + " svg");
+		var defs = svg.append("defs");
+		defs.append("marker")
+			.attr("id", "triangle-end")
+			.attr("viewBox", "0 0 10 10")
+			.attr("refX", 10)
+			.attr("refY", 5)
+			.attr("markerWidth", 6)
+			.attr("markerHeight", 6)
+			.attr("orient", "auto")
+			.append("path")
+			.attr("d", "M 0 0 L 10 5 L 0 10 z");
+
+		var canvas= {
+			width: 400,
+			height: 400
+		};
+
+		var labelOptions={
+			transform: "rotate(-90)"
+		};
+		self.scatterPlot.addLabel("Significance", {x: 0-canvas.height/3, y: canvas.width-15}, labelOptions);
+		self.scatterPlot.addLine([{x:canvas.width-5, y:80}, {x:canvas.width-5, y:20}], labelLineOptions);
+
+		labelOptions={
+			stroke: "red"
+		};
+		self.scatterPlot.addLabel("Mutual Exclusion", {x: canvas.width/4, y: canvas.height-50}, labelOptions);
+		self.scatterPlot.addLine([{x:canvas.width/3, y:canvas.height-40}, {x:canvas.width/4, y:canvas.height-40}], labelLineOptions);
+
+
+		labelOptions={
+			stroke: "green"
+		};
+		self.scatterPlot.addLabel("Co-occurence", {x: canvas.width*0.66, y: canvas.height-50}, labelOptions);
+		self.scatterPlot.addLine([{x:canvas.width*0.66, y:canvas.height-40}, {x:canvas.width*0.75, y:canvas.height-40}], labelLineOptions);
+	}
+
+	function addLines(){
+		var xDomain = self.scatterPlot.getXDomain();
+		var yDomain = self.scatterPlot.getYDomain();
+		var pValue = -Math.log10(orAnalysis.settings.p_val_threshold);
+		var pValueLineOptions = {
+			strokeDasharray: "3, 3",
+		};
+		self.scatterPlot.addLine([{x:0, y:yDomain[0]}, {x:0, y:yDomain[1]}]);
+		self.scatterPlot.addLine([{x:xDomain[0], y:pValue}, {x:xDomain[1], y:pValue}], pValueLineOptions);
+	}
     
     /**
      * Callback function for brushended event. This function will ensure the dataTable in this.dataTable 

@@ -145,7 +145,7 @@ var orTable = function(plot_div, minionco_div ) {
         );
 
         //Configure the datatable with  jquery
-        orTableInstance = $("#" + table_id).dataTable({
+        orTableInstance = $("#" + table_id).DataTable({
             "sDom": "<'H'f<'" + table_id + "_filter'>>t<'F'ip>",
             "bPaginate": true,
             "sPaginationType": "full_numbers",
@@ -161,9 +161,15 @@ var orTable = function(plot_div, minionco_div ) {
             },
             "aoColumnDefs": [
                 {
+                    "aTargets": [ col_index.gene ],
+                    "mRender": function ( gene, type, full )  {
+                        return  '<span class="selectHighlight">'+gene+'</span>';
+                    }
+                },
+                {
                     "sType": 'or-analysis-p-value',
                     "bSearchable": false,
-                    "aTargets": [ col_index.p_val ]
+                    "aTargets": [ col_index.p_val ],
                 },
                 {
                     "sType": 'or-analysis-q-value',
@@ -184,7 +190,7 @@ var orTable = function(plot_div, minionco_div ) {
                     "aTargets": [ col_index.plot ]
                 }
             ],
-            "fnRowCallback": function(nRow, aData) {
+            "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
                 //bold gene names
                 $('td:eq(' + col_index.gene + ')', nRow).css("font-weight", "bold");
                 
@@ -218,6 +224,21 @@ var orTable = function(plot_div, minionco_div ) {
                         $('td:eq(' + col_index.q_val + ')', nRow).css("font-weight", "bold");
                     }
                 }
+
+                $('td', nRow).on('click', function() {
+                    var colIdx = orTableInstance.cell(this).index().column;
+
+                    if(colIdx==0){
+                        if($(this).hasClass('geneSelected')){
+                            $(this).removeClass('geneSelected');
+                        }
+                        else{
+                            $(this).addClass('geneSelected');
+                        }
+
+                    };
+                });
+
             },
             "fnDrawCallback": function() {
                 event_listener_details_btn();

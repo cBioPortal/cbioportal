@@ -62,6 +62,16 @@
         background-color : white;
         width: 600px;
     }
+    span.selectHighlight:hover{
+        padding: 1px;
+        border: 2px solid #1974b8;
+        cursor: pointer;
+    }
+
+    span.geneSelected{
+        font-weight: bold;
+    }
+
 </style>
 
 <script>

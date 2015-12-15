@@ -256,7 +256,6 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 var _profile_obj = _.filter(_.pluck(profileMetaList.models, "attributes"), function(profile_obj) {
                     return (profile_obj.STABLE_ID === _profile_id);
                 })[0];
-                console.log(_profile_obj);
                 //TODO: should return list of samples instead list of patients.
                 return $.inArray(_sample_id.substring(0, _sample_id.length - 3), _profile_obj.SEQ_CASE_IDS) !== -1;
             }
@@ -523,7 +522,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                     .attr("class", function(d) {
                         if (d.text === "Not sequenced") {
                             return "not-sequenced-legend"
-                        } else if (d.text === "No mutation") {
+                        } else if (d.text === "Not mutated") {
                             return "no-mutation-legend";
                         } else {
                             return "non-fixed-legend";
@@ -1184,7 +1183,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 if (data.is_sequenced(item.profileId, item.caseId)) {
                     if (item.mutation === "non" || item.mutation === "") {
                         result_str += item.caseId + "\t" + data.get_cancer_study_name(item.profileId) + "\t" +
-                            data.get_profile_name(item.profileId) + "\t" + "No Mutation" + "\t" + item.value + "\n";
+                            data.get_profile_name(item.profileId) + "\t" + "Not Mutated" + "\t" + item.value + "\n";
                     } else {
                         result_str += item.caseId + "\t" + data.get_cancer_study_name(item.profileId) + "\t" +
                             data.get_profile_name(item.profileId) + "\t" + item.mutation + "\t" + item.value + "\n";

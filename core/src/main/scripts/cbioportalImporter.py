@@ -49,14 +49,21 @@ def remove_study(jvm_args, meta_filename):
 def import_study_data(jvm_args, meta_filename, data_filename):
     args = jvm_args.split(' ')
     metafile_properties = get_metafile_properties(meta_filename)
-    importer = IMPORTER_CLASSNAME_BY_ALTERATION_TYPE[metafile_properties.genetic_alteration_type]
+    if metafile_properties.meta_file_type != '':
+        importer = IMPORTER_CLASSNAME_BY_ALTERATION_TYPE[metafile_properties.meta_file_type]
+    elif metafile_properties.genetic_alteration_type != '':
+        importer = IMPORTER_CLASSNAME_BY_ALTERATION_TYPE[metafile_properties.genetic_alteration_type]
+    else:
+        print >> ERROR_FILE, 'Missing meta_file_type in metafile: ' + meta_filename
+        return
+
     args.append(importer)
     if IMPORTER_REQUIRES_METADATA[importer]:
         args.append("--meta")
         args.append(meta_filename)
         args.append("--loadMode")
         args.append("bulkload")
-    if metafile_properties.genetic_alteration_type == 'CLINICAL':
+    if metafile_properties.genetic_alteration_type == 'CLINICAL' or metafile_properties.meta_file_type == 'meta_clinical':
         args.append(data_filename)
         args.append(metafile_properties.cancer_study_identifier)
     else:
@@ -100,13 +107,13 @@ def process_directory(jvm_args, command, study_directory):
     for f in study_files:
         if 'meta' in f:
             metadata = get_properties(f);
-            if 'meta_study' in metadata.values():
+            if 'meta_study' in metadata.get('meta_file_type'):
                 study_meta = metadata
                 meta_study_filename = f
                 import_study(jvm_args,f)
-            if 'meta_cancer_type' in metadata.values():
+            if 'meta_cancer_type' in metadata.get('meta_file_type'):
                 cancer_type_meta = metadata
-            if 'meta_clinical' in metadata.values():
+            if 'meta_clinical' in metadata.get('meta_file_type'):
                 clinical_metafiles.append(f)
             else:
                 non_clinical_metafiles.append(f)

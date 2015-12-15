@@ -80,17 +80,17 @@ if __name__ == '__main__':
     print >> sys.stderr , "#######################################################################"
 
     if exitcode == 1:
-        print >> sys.stderr , color.BOLD + "Errors. Go fix your files" + color.END
+        print >> sys.stderr , color.BOLD + "Errors. Please fix your files before importing" + color.END
     elif exitcode == 3:
         if args.override_warning:
             print >> sys.stderr ,  color.BOLD + "Overriding Warnings. Importing Files now" + color.END
             run_import(study_dir)
         else:
-            print >> sys.stderr, color.BOLD + "Warnings. Go fix your files" + color.END
+            print >> sys.stderr, color.BOLD + "Warnings. Please fix your files or import with override warning option" + color.END
 
 
     elif exitcode == 0:
-        print  >> sys.stderr, color.BOLD + "All cool. Study importing now" + color.END
+        print  >> sys.stderr, color.BOLD + "Everything looks good. Study importing now" + color.END
         run_import(study_dir)
 
     print >> sys.stderr, "#######################################################################\n\n"

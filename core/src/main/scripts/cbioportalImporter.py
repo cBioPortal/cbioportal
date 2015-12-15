@@ -106,17 +106,18 @@ def process_directory(jvm_args, command, study_directory):
 
     for f in study_files:
         if 'meta_' in f:
-            metadata = get_properties(f);
+            metadata = get_properties(f)
             if 'meta_study' in metadata.get('meta_file_type'):
                 study_meta = metadata
                 meta_study_filename = f
                 import_study(jvm_args,f)
-            if 'meta_cancer_type' in metadata.get('meta_file_type'):
+            elif 'meta_cancer_type' in metadata.get('meta_file_type'):
                 cancer_type_meta = metadata
-            if 'meta_clinical' in metadata.get('meta_file_type'):
+            elif 'meta_clinical' in metadata.get('meta_file_type'):
                 clinical_metafiles.append(f)
             else:
                 non_clinical_metafiles.append(f)
+
 
     if len(study_meta) == 0:
         print >> ERROR_FILE, 'No meta_study file found'
@@ -132,12 +133,12 @@ def process_directory(jvm_args, command, study_directory):
     # Next, we need to import clinical files
     for f in clinical_metafiles:
         metadata = get_properties(f)
-        import_study_data(jvm_args, f, metadata.get('data_file_path'))
+        import_study_data(jvm_args, f, os.path.join(study_directory,metadata.get('data_file_path')))
 
     # Now, import everything else
     for f in non_clinical_metafiles:
         metadata = get_properties(f)
-        import_study_data(jvm_args, f, metadata.get('data_file_path'))
+        import_study_data(jvm_args, f, os.path.join(study_directory,metadata.get('data_file_path')))
 
     # do the case lists
     process_case_lists(jvm_args,study_files)
@@ -195,7 +196,7 @@ def main():
     check_args(command, jvm_args, study_directory, meta_filename, data_filename)
     check_files(study_directory, meta_filename, data_filename)
     if study_directory != '':
-        process_directory(jvm_args, command, study_directory, command)
+        process_directory(jvm_args, command, study_directory)
     else:
         process_command(jvm_args, command, meta_filename, data_filename)
 

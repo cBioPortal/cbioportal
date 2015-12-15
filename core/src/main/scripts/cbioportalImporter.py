@@ -105,7 +105,7 @@ def process_directory(jvm_args, command, study_directory):
     non_clinical_metafiles = []
 
     for f in study_files:
-        if 'meta' in f:
+        if 'meta_' in f:
             metadata = get_properties(f);
             if 'meta_study' in metadata.get('meta_file_type'):
                 study_meta = metadata

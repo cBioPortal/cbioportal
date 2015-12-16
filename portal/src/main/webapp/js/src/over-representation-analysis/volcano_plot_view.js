@@ -89,8 +89,9 @@ function VolcanoPlot() {
 					x_val : xValue,
 					y_val : yValue,
 					case_id : data[i]["Gene"], // case_id is the "item ID". This item ID is passed below to scatterPlotBrushCallBack on brushended
-					qtip : "p-value: " + cbio.util.toPrecision(parseFloat(data[i]["p-Value"]), 3, 0.01) + 
-						   ", log ratio: " + parseFloat(data[i]["Log Ratio"]).toFixed(2),
+					qtip : "Click to add "+data[i]["Gene"]+"<br>"+
+						   "p-value: " + cbio.util.toPrecision(parseFloat(data[i]["p-Value"]), 3, 0.01) +
+						   ", log ratio: " + parseFloat(data[i]["Log Ratio"]).toFixed(2)
 			};
 			//add to list:
 			plotData.push(_scatterPlotItem);
@@ -132,7 +133,6 @@ function VolcanoPlot() {
 	 * @param plotDataAttr: object containing info on data size (x and y min/max)
 	 */
     var drawPlot = function(plotData, model, plotElName, plotDataAttr) {
-		
     	var brushOn = true;
     	var drawCoExpInfo = false; //we don't want this...i.e. is not a co-expression plot in this case
     	//reuse the ScatterPlots object from co-exp/components/ScatterPlots.js:
@@ -144,66 +144,109 @@ function VolcanoPlot() {
         //scatterPlot.jointClickCallback(scatterPlotBrushCallBack);  //Option, but jointClickCallback not yet implemented (also not really needed yet). Would have to port some code from study-view/component/ScatterPlot.js
 
 		addLines();
-		addExtraLabels(plotElName);
+		addExtraLabels();
     }
 
-	function addExtraLabels(plotElName) {
+
+	function addExtraLabels() {
+		var canvasWidth = scatterPlotOptions.canvas.width;
+		var canvasHeight = scatterPlotOptions.canvas.height;
+
+		// Label + arrow for significance
+		var markerEnd = "triangle-end1";
+		// options for the first label
+		var labelOptions={
+			transform: "rotate(-90)",
+			fill: "black"
+		};
+		// options for the first arrow
 		var labelLineOptions = {
-			markerEnd: "url(#triangle-end)",
+			id: markerEnd,
+			markerEnd: "url(#"+markerEnd+")",
+			stroke: labelOptions.fill
+		};
+		self.scatterPlot.addLabel("significance", {x: 0-canvasHeight/3, y: canvasWidth-2}, labelOptions);
+		addArrow(labelLineOptions, [{x:canvasWidth-5, y:80}, {x:canvasWidth-5, y:20}]);
+
+		// Label + arrow for mutual exclusion
+		markerEnd = "triangle-end2";
+		// options for the second label
+		labelOptions={
+			fill: "rgb(180, 4, 4)"
+		};
+		// options for the second arrow
+		labelLineOptions = {
+			id: markerEnd,
+			markerEnd: "url(#"+markerEnd+")",
+			stroke: labelOptions.fill
+		};
+		self.scatterPlot.addLabel("mutual exclusivity", {x: 160, y: canvasHeight-47}, labelOptions);
+		addArrow(labelLineOptions, [{x:150, y:canvasHeight-40}, {x:85, y:canvasHeight-40}]);
+
+		// Label + arrow for co-occurence
+		markerEnd = "triangle-end3";
+		// options for the third label
+		labelOptions={
+			fill: "rgb(59, 124, 59)"
+		};
+		// options for the third arrow
+		labelLineOptions = {
+			id: markerEnd,
+			markerEnd: "url(#"+markerEnd+")",
+			stroke: labelOptions.fill
+		};
+		self.scatterPlot.addLabel("co-occurence", {x: 300, y: canvasHeight-47}, labelOptions);
+		addArrow(labelLineOptions, [{x:305, y:canvasHeight-40}, {x:370, y:canvasHeight-40}])
+	}
+
+
+	// draw the lines for the scatterplot
+	function addLines(){
+		// retrieve the domains for max and min x and y
+		var xDomain = self.scatterPlot.getXDomain();
+		var yDomain = self.scatterPlot.getYDomain();
+		// determine the converted pValue
+		var pValue = -Math.log10(orAnalysis.settings.p_val_threshold);
+		// option for dotted line
+		var pValueLineOptions = {
+			strokeDasharray: "3, 3"
+		};
+		self.scatterPlot.addLine([{x:0, y:yDomain[0]}, {x:0, y:yDomain[1]}]);
+		self.scatterPlot.addLine([{x:xDomain[0], y:pValue}, {x:xDomain[1], y:pValue}], pValueLineOptions);
+	}
+
+	// add an arrow
+	function addArrow(labelLineOptions, labelLineCoordinates){
+		// arrows are outside of graph, so don't scale the coordinates
+		var defaultOptions = {
 			scaleX: false,
 			scaleY: false
 		};
+		$.extend(labelLineOptions, defaultOptions);
+		// add the arrowhead definition
+		addArrowHead(labelLineOptions);
+		// add the line with arrowhead
+		self.scatterPlot.addLine(labelLineCoordinates, labelLineOptions);
+	}
 
-		var svg = d3.select("#" + plotElName + " svg");
-		var defs = svg.append("defs");
-		defs.append("marker")
-			.attr("id", "triangle-end")
+	// add arrowhead marker
+	function addArrowHead(labelLineOptions){
+		var svg = d3.select("#" + scatterPlotOptions.names.body + " svg");
+		svg.append("marker")
+			.attr("id", labelLineOptions.id)
 			.attr("viewBox", "0 0 10 10")
 			.attr("refX", 10)
 			.attr("refY", 5)
 			.attr("markerWidth", 6)
 			.attr("markerHeight", 6)
 			.attr("orient", "auto")
+			.attr("fill", labelLineOptions.stroke)
 			.append("path")
 			.attr("d", "M 0 0 L 10 5 L 0 10 z");
-
-		var canvas= {
-			width: 400,
-			height: 400
-		};
-
-		var labelOptions={
-			transform: "rotate(-90)"
-		};
-		self.scatterPlot.addLabel("Significance", {x: 0-canvas.height/3, y: canvas.width-15}, labelOptions);
-		self.scatterPlot.addLine([{x:canvas.width-5, y:80}, {x:canvas.width-5, y:20}], labelLineOptions);
-
-		labelOptions={
-			stroke: "red"
-		};
-		self.scatterPlot.addLabel("Mutual Exclusion", {x: canvas.width/4, y: canvas.height-50}, labelOptions);
-		self.scatterPlot.addLine([{x:canvas.width/3, y:canvas.height-40}, {x:canvas.width/4, y:canvas.height-40}], labelLineOptions);
-
-
-		labelOptions={
-			stroke: "green"
-		};
-		self.scatterPlot.addLabel("Co-occurence", {x: canvas.width*0.66, y: canvas.height-50}, labelOptions);
-		self.scatterPlot.addLine([{x:canvas.width*0.66, y:canvas.height-40}, {x:canvas.width*0.75, y:canvas.height-40}], labelLineOptions);
 	}
 
-	function addLines(){
-		var xDomain = self.scatterPlot.getXDomain();
-		var yDomain = self.scatterPlot.getYDomain();
-		var pValue = -Math.log10(orAnalysis.settings.p_val_threshold);
-		var pValueLineOptions = {
-			strokeDasharray: "3, 3",
-		};
-		self.scatterPlot.addLine([{x:0, y:yDomain[0]}, {x:0, y:yDomain[1]}]);
-		self.scatterPlot.addLine([{x:xDomain[0], y:pValue}, {x:xDomain[1], y:pValue}], pValueLineOptions);
-	}
-    
-    /**
+
+	/**
      * Callback function for brushended event. This function will ensure the dataTable in this.dataTable 
      * is updated according to the items selected (brushedItemIds). 
      * 

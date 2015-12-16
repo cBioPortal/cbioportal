@@ -77,8 +77,7 @@ var ScatterPlots = function() {
 
      var labelOptions= {
          transform: "rotate(0)",
-         stroke: "black",
-         //dy: "1em",
+         fill: "black",
          textAnchor: "middle"
      };
 
@@ -623,11 +622,16 @@ var ScatterPlots = function() {
 
          elem.svg.append("text")
             .attr("transform", newOptions.transform)
-            .attr("stroke", newOptions.stroke)
+            .attr("fill", newOptions.fill)
             .attr("x", coordinates.x)
             .attr("y", coordinates.y)
-            //.attr("dy", newOptions.dy)
             .style("text-anchor", newOptions.textAnchor)
+            //.style("fill", "none")
+
+            .attr("shape-rendering", "crispEdges")
+             .attr("color-rendering", "optimizeQuality")
+             // .style("font-family", "sans-serif")
+            // .style("font-size", "12px")
             .text(labelValue);
 
      }

@@ -62,16 +62,24 @@
         background-color : white;
         width: 600px;
     }
+
+    /* elements for table gene highlighting */
+    span.selectHighlight{
+        padding: 1px;
+        border: 2px solid transparent;
+        width: 150%;
+    }
     span.selectHighlight:hover{
         padding: 1px;
         border: 2px solid #1974b8;
         cursor: pointer;
     }
-
     span.geneSelected{
         font-weight: bold;
     }
-
+    div.geneCheckboxDiv{
+        width: 100px;
+    }
 </style>
 
 <script>

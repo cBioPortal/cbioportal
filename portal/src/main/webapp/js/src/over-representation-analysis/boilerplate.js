@@ -73,10 +73,10 @@ var orAnalysis = (function() {
             protein_exp: "PROTEIN_LEVEL"
         },
         col_width : {
-            gene: 150,
+            gene: 170, //150
             cytoband: 100,
-            altered_pct: 90,
-            unaltered_pct: 90,
+            altered_pct: 80, //90
+            unaltered_pct: 80, //90
             log_ratio: 80,
             p_val: 80,
             q_val: 80,

@@ -145,7 +145,7 @@ var orTable = function(plot_div, minionco_div ) {
         );
 
         //Configure the datatable with  jquery
-        orTableInstance = $("#" + table_id).DataTable({
+        orTableInstance = $("#" + table_id).dataTable({
             "sDom": "<'H'f<'" + table_id + "_filter'>>t<'F'ip>",
             "bPaginate": true,
             "sPaginationType": "full_numbers",
@@ -161,10 +161,7 @@ var orTable = function(plot_div, minionco_div ) {
             },
             "aoColumnDefs": [
                 {
-                    "aTargets": [ col_index.gene ],
-                    "mRender": function ( gene, type, full )  {
-                        return  '<span class="selectHighlight">'+gene+'</span>';
-                    }
+                    "aTargets": [ col_index.gene ]
                 },
                 {
                     "sType": 'or-analysis-p-value',
@@ -192,7 +189,7 @@ var orTable = function(plot_div, minionco_div ) {
             ],
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
                 //bold gene names
-                $('td:eq(' + col_index.gene + ')', nRow).css("font-weight", "bold");
+                //$('td:eq(' + col_index.gene + ')', nRow).css("font-weight", "bold");
                 
                 if (profile_type === orAnalysis.profile_type.copy_num || profile_type === orAnalysis.profile_type.mutations) {
                     if (aData[col_index.log_ratio] > 0 || aData[col_index.log_ratio] === ">10") {
@@ -225,32 +222,70 @@ var orTable = function(plot_div, minionco_div ) {
                     }
                 }
 
-                $('td', nRow).on('click', function() {
-                    var colIdx = orTableInstance.cell(this).index().column;
+                // check for click on table
+                //$('td', nRow).on('click', function() {
+                //    // retrieve the column index
+                //    var colIndex = orTableInstance.api().cell(this).index().column;
+                //
+                //    // if gene column, (un)highlight the gene and show the mini-onco
+                //    if(colIndex==0){
+                //        var textElement = $(this).find(".selectHighlight");
+                //        if(textElement.hasClass('geneSelected')){
+                //            textElement.removeClass('geneSelected');
+                //        }
+                //        else{
+                //            textElement.addClass('geneSelected');
+                //
+                //        }
+                //    };
+                //});
 
-                    if(colIdx==0){
-                        if($(this).hasClass('geneSelected')){
-                            $(this).removeClass('geneSelected');
-                        }
-                        else{
-                            $(this).addClass('geneSelected');
-                        }
 
-                    };
-                });
 
             },
             "fnDrawCallback": function() {
                 event_listener_details_btn();
                 activateUpdateQueryBtns(table_id + orAnalysis.postfix.datatable_update_query_button);
                 activeDownloadBtn();
+                addGeneClick();
             },
             "bDeferRender": true,
             "iDisplayLength": 14
         });
 
     }
-    
+
+    var oldSelectedGene="";
+
+    function addGeneClick(){
+        $('.selectHighlight').on('click', function() {
+            // if previously selected gene is clicked
+            if($(this).hasClass('geneSelected')){
+                $(oldSelectedGene).removeClass('geneSelected');
+                // hide the mini-onco
+                $("#"+minionco_div).css("display", "none")
+            }
+            // if new gene is clicked
+            else{
+                $(oldSelectedGene).removeClass('geneSelected');
+                // highlight our current gene
+                $(this).addClass('geneSelected');
+
+                // show clicked gene in mini onco
+                var current_gene = $(this).text();
+                // fetch the alteredSamples
+                window.QuerySession.getAlteredSamples().then(
+                    function (setAlt) {
+                        // when we have the data, build the mini oncoprint
+                        buildMiniOnco(setAlt.length, current_gene);
+                    }
+                )
+            }
+            // remove the geneSelected highlighting from the previously selected gene
+            oldSelectedGene = $(this);
+        });
+    }
+
     /**
      * Utility function (somewhat uggly workaround) to get the gene name from the gene column. 
      * The issue here is that the gene column is not containing a plain value but it contains
@@ -442,16 +477,6 @@ var orTable = function(plot_div, minionco_div ) {
                 }
 
                 self.volcanoPlot.specialSelectItems(selected_genes, remainingGenes);
-
-                //show current clicked gene in mini onco
-                var current_gene = $(this).attr("value");
-                // fetch the alteredSamples
-                window.QuerySession.getAlteredSamples().then(
-                    function (setAlt) {
-                        // when we have the data, build the mini oncoprint
-                        buildMiniOnco(setAlt.length, current_gene);
-                    }
-                )
             }
         });
 
@@ -565,6 +590,7 @@ var orTable = function(plot_div, minionco_div ) {
         }
         else{
             self.chart.updateStackedHistogram(bardata);
+            $("#"+minionco_div).css("display", "block")
         }
 
     }
@@ -825,7 +851,7 @@ var orSubTabView = function() {
                     	//adding this to contain floated plot (see "float: left"  above):
                     	$("#" + _div_id).css("overflow", "hidden");
                     	//for the euler diagram:
-                    	minionco_div = "euler" + _plot_div;
+                    	minionco_div = "minionco" + _plot_div;
 
                     }
                     else

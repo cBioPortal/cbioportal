@@ -42,7 +42,7 @@
 
 <table>
     <tr>
-        <div id="cc_plots_box"></div>
+        <div id="cc_plots_box"><img style='padding:200px;' src='images/ajax-loader.gif'></div>
     </tr>
 </table>
 

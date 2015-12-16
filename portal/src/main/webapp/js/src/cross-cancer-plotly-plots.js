@@ -38,6 +38,26 @@ var ccPlots = (function (Plotly, _, $) {
 
     var study_ids = [], mrna_profiles = [], profile_data = {};
 
+    var fetch_profile_data = function(_queried_study_ids) {
+
+        var _param_mrna_profile_arr = _.map(_queried_study_ids, function(_study_id) { return _study_id + "_rna_seq_v2_mrna"});
+        var _param_mut_profile_arr = _.map(_queried_study_ids, function(_study_id) { return _study_id + "_mutations"});
+
+        var params = {
+            genes: ["SOX9"],
+            genetic_profile_ids: _param_mrna_profile_arr.concat(_param_mut_profile_arr)
+        };
+
+        window.cbioportal_client.getGeneticProfileData(params).then(
+            function(_result) {
+                profile_data = _result;
+                study_ids = _.uniq(_.pluck(_result, "study_id"));
+                mrna_profiles =  _.map(study_ids, function(_study_id) { return _study_id + "_rna_seq_v2_mrna"});
+                render();
+            });
+
+    }
+
     var render = function() {
 
 
@@ -156,25 +176,7 @@ var ccPlots = (function (Plotly, _, $) {
 
     }
 
-    var fetch_profile_data = function(_queried_study_ids) {
 
-        var _param_mrna_profile_arr = _.map(_queried_study_ids, function(_study_id) { return _study_id + "_rna_seq_v2_mrna"});
-        var _param_mut_profile_arr = _.map(_queried_study_ids, function(_study_id) { return _study_id + "_mutations"});
-
-        var params = {
-            genes: ["SOX9"],
-            genetic_profile_ids: _param_mrna_profile_arr.concat(_param_mut_profile_arr)
-        };
-
-        window.cbioportal_client.getGeneticProfileData(params).then(
-            function(_result) {
-                profile_data = _result;
-                study_ids = _.uniq(_.pluck(_result, "study_id"));
-                mrna_profiles =  _.map(study_ids, function(_study_id) { return _study_id + "_rna_seq_v2_mrna"});
-                render();
-            });
-
-    }
 
     return {
         init: function() {
@@ -183,6 +185,7 @@ var ccPlots = (function (Plotly, _, $) {
             function timer() {
                 if (window.studies !== undefined) {
                     clearInterval(tmp);
+                    $("#cc_plots_box").empty();
                     fetch_profile_data(_.pluck(_.pluck(window.studies.models, "attributes"), "studyId"));
                 }
             }

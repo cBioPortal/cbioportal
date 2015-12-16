@@ -20,16 +20,27 @@ IMPORT_CANCER_TYPE_CLASS = "org.mskcc.cbio.portal.scripts.ImportTypesOfCancers"
 IMPORT_CASE_LIST_CLASS = "org.mskcc.cbio.portal.scripts.ImportPatientList"
 
 IMPORTER_CLASSNAME_BY_ALTERATION_TYPE = { "CLINICAL" : "org.mskcc.cbio.portal.scripts.ImportClinicalData",
+                                            "meta_clinical" : "org.mskcc.cbio.portal.scripts.ImportClinicalData",
                                             "COPY_NUMBER_ALTERATION" : "org.mskcc.cbio.portal.scripts.ImportProfileData",
+                                            "meta_CNA" : "org.mskcc.cbio.portal.scripts.ImportProfileData",
                                             "FUSION" : "org.mskcc.cbio.portal.scripts.ImportProfileData",
+                                            "meta_fusion" : "org.mskcc.cbio.portal.scripts.ImportProfileData",
                                             "GISTIC" : "org.mskcc.cbio.portal.scripts.ImportGisticData",
+                                            "meta_gistic" : "org.mskcc.cbio.portal.scripts.ImportGisticData",
                                             "METHYLATION" : "org.mskcc.cbio.portal.scripts.ImportProfileData",
+                                            "meta_methylation" : "org.mskcc.cbio.portal.scripts.ImportProfileData",
                                             "MRNA_EXPRESSION" : "org.mskcc.cbio.portal.scripts.ImportProfileData",
+                                            "meta_expression" : "org.mskcc.cbio.portal.scripts.ImportProfileData",
                                             "MUTATION_EXTENDED" : "org.mskcc.cbio.portal.scripts.ImportProfileData",
+                                            "meta_mutations_extended" : "org.mskcc.cbio.portal.scripts.ImportProfileData",
                                             "MUTATION_SIGNIFICANCE" : "org.mskcc.cbio.portal.scripts.ImportMutSigData",
+                                            "meta_mutation_significance" : "org.mskcc.cbio.portal.scripts.ImportMutSigData",
                                             "RPPA" : "org.mskcc.cbio.portal.scripts.ImportProteinArrayData",
+                                            "meta_rppa" : "org.mskcc.cbio.portal.scripts.ImportProteinArrayData",
                                             "SEGMENT" : "org.mskcc.cbio.portal.scripts.ImportCopyNumberSegmentData",
-                                            "TIMELINE" : "org.mskcc.cbio.portal.scripts.ImportTimelineData" }
+                                            "meta_segment" : "org.mskcc.cbio.portal.scripts.ImportCopyNumberSegmentData",
+                                            "TIMELINE" : "org.mskcc.cbio.portal.scripts.ImportTimelineData",
+                                            "meta_timeline" : "org.mskcc.cbio.portal.scripts.ImportTimelineData"}
 
 IMPORTER_REQUIRES_METADATA = { "org.mskcc.cbio.portal.scripts.ImportClinicalData" : False,
                                 "org.mskcc.cbio.portal.scripts.ImportCopyNumberSegmentData" : False,
@@ -56,7 +67,7 @@ class MetafileProperties(object):
     def __init__(self,
                  cancer_study_identifier, genetic_alteration_type,
                  datatype, stable_id, show_profile_in_analysis_tab,
-                 profile_description, profile_name):
+                 profile_description, profile_name, meta_file_type, data_file_path):
         self.cancer_study_identifier = cancer_study_identifier
         self.genetic_alteration_type = genetic_alteration_type
         self.datatype = datatype
@@ -64,6 +75,8 @@ class MetafileProperties(object):
         self.show_profile_in_analysis_tab = show_profile_in_analysis_tab
         self.profile_description = profile_description
         self.profile_name = profile_name
+        self.meta_file_type = meta_file_type
+        self.data_file_path = data_file_path
 
 # ------------------------------------------------------------------------------
 # sub-routines
@@ -130,15 +143,17 @@ def get_metafile_properties(meta_filename):
                             properties["stable_id"],
                             properties["show_profile_in_analysis_tab"],
                             properties["profile_name"],
-                            properties["profile_description"])
+                            properties["profile_description"],
+                            properties["meta_file_type"],
+                            properties["data_file_path"])
 
 def run_java(*args):
     java_home = os.environ['JAVA_HOME']
     if len(java_home) == 0:
         print >> ERROR_FILE, "$JAVA_HOME must be defined"
         return
-    print >> OUTPUT_FILE, ("Executing command: " + java_home +
-                           "/bin/java {}\n".format(args).replace('(\'', '').replace('\', \'', ' ').replace('\')', ''))
+    #print >> OUTPUT_FILE, ("Executing command: " + java_home +
+                           #"/bin/java {}\n".format(args).replace('(\'', '').replace('\', \'', ' ').replace('\')', ''))
     process = Popen([ java_home + '/bin/java']+list(args), stdout=PIPE, stderr=STDOUT)
     ret = []
     while process.poll() is None:

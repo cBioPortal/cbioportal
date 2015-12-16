@@ -210,7 +210,7 @@ var StudyViewBoilerplate ={
             title: "Mutation Count vs CNA",
             fileName: "",
             xTitleHelp: "Fraction of genome that has log2 copy number value above 0.2 or bellow -0.2",
-            yTitleHelp: "Number of sometic non-synonymous mutations"
+            yTitleHelp: "Number of somatic non-synonymous mutations"
         },
         legends: []
     },

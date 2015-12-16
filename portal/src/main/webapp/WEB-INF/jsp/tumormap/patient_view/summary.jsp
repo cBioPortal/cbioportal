@@ -73,7 +73,8 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
     google.load('visualization', '1', {packages:['table','corechart']}); 
     $(document).ready(function(){
         if (<%=noData%>) {
-            $('div#summary').html("No mutation or copy number profile data is available for this tumor.");
+            $('div#genomics-overview').html("No mutation or copy number profile data is available for this tumor.");
+            $('#mut-cna-scatter').hide();
             return;
         }
         

@@ -36,7 +36,9 @@
 	// TODO 3d Visualizer should be initialized before document get ready
 	// ...due to incompatible Jmol initialization behavior
 	var _mut3dVis = null;
-	_mut3dVis = new Mutation3dVis("crossCancer3dView");
+	_mut3dVis = new Mutation3dVis("crossCancer3dView", {
+		pdbUri: "api/proxy/jsmol/"
+	});
 	_mut3dVis.init();
 
 	// Prepare eveything only if the page is ready to load
@@ -1016,7 +1018,7 @@
                                 if(oncokbGeneStatus) {
                                     oncokbInstance.setGeneStatus(oncokbGeneStatus);
                                 }
-                                options.view = {
+	                            jQuery.extend(true, options, {view : {
                                     mutationTable: {
                                         columns: {
                                             oncokb: {
@@ -1073,7 +1075,7 @@
                                                 }
 
                                                 if(showHotspot && mutation['isHotspot']) {
-                                                    vars.changHotspotAlt = "<b>Recurrent Hotspot</b><br/>This mutated amino acid was identified as a recurrent hotspot (statistical significance, q-value < 0.01) in a set of 11,119 tumor samples of various cancer types (based on Chang, M. et al. Nature Biotech. 2015).";
+                                                    vars.changHotspotAlt = "<b>Recurrent Hotspot</b><br/>This mutated amino acid was identified as a recurrent hotspot (statistical significance, q-value < 0.01) in a set of 11,119 tumor samples of various cancer types (based on <a href=&quot;http://www.ncbi.nlm.nih.gov/pubmed/26619011&quot; target=&quot;_blank&quot;>Chang, M. et al. Nature Biotech. 2015</a>).";
                                                 }
 
                                                 var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_protein_change_oncokb_template");
@@ -1136,9 +1138,9 @@
                                             }
                                         }
                                     }
-                                }
+                                }});
                             }else{
-                                options.view = {
+	                            jQuery.extend(true, options, {view : {
                                     mutationTable: {
                                         columnRender: {
                                             proteinChange: function (datum) {
@@ -1159,7 +1161,7 @@
                                                 }
 
                                                 if(showHotspot && mutation['isHotspot']) {
-                                                    vars.changHotspotAlt = "<b>Recurrent Hotspot</b><br/>This mutated amino acid was identified as a recurrent hotspot (statistical significance, q-value < 0.01) in a set of 11,119 tumor samples of various cancer types (based on Chang, M. et al. Nature Biotech. 2015).";
+                                                    vars.changHotspotAlt = "<b>Recurrent Hotspot</b><br/>This mutated amino acid was identified as a recurrent hotspot (statistical significance, q-value < 0.01) in a set of 11,119 tumor samples of various cancer types (based on <a href=&quot;http://www.ncbi.nlm.nih.gov/pubmed/26619011&quot; target=&quot;_blank&quot;>Chang, M. et al. Nature Biotech. 2015</a>).";
                                                 }
 
                                                 var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_protein_change_oncokb_template");
@@ -1190,7 +1192,7 @@
                                             }
                                         }
                                     }
-                                }
+                                }});
                             }
 
                             var defaultMapper = MutationViewsUtil.initMutationMapper(

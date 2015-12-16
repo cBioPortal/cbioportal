@@ -1,1 +1,0 @@
-Clazz.declarePackage ("javajs");

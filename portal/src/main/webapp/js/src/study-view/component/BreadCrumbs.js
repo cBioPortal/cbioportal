@@ -71,11 +71,11 @@ var BreadCrumbs = (function() {
             var chartType = $(this).attr("chartType");
 
             if(chartType=="bar"){
-                var chart = StudyViewInitCharts.getChartsByID(chartId-1).getChart();
+                var chart = StudyViewInitCharts.getChartsByID(chartId).getChart();
                 chart.filter(chartFilter.split(","))
             }
             else if(chartType=="pie"){
-                var chart = StudyViewInitCharts.getChartsByID(chartId-1).getChart();
+                var chart = StudyViewInitCharts.getChartsByID(chartId).getChart();
                 chart.filter(chartFilter);
             }
             else if(chartType=="table"){
@@ -259,7 +259,7 @@ var BreadCrumbs = (function() {
         var chartId = $(this).attr("chartID");
         var chartFilter = $(this).attr("chartFilter");
         // get the actual chart
-        var chart = StudyViewInitCharts.getChartsByID(chartId-1).getChart();
+        var chart = StudyViewInitCharts.getChartsByID(chartId).getChart();
         // remove the filter by calling the chart's filter function with the filter
         chart.filter(chartFilter);
         // call the redraw function to redraw the pie-charts and histograms
@@ -271,7 +271,7 @@ var BreadCrumbs = (function() {
         // retrieve the chart id
         var chartId = $(this).attr("chartID");
         // get the actual chart
-        var chart = StudyViewInitCharts.getChartsByID(chartId-1).getChart();
+        var chart = StudyViewInitCharts.getChartsByID(chartId).getChart();
         // remove the filter by calling the chart's filter function with null
         chart.filter(null);
         // call the redraw function to redraw the pie-charts and histograms

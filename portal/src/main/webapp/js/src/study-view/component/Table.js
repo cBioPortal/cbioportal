@@ -192,7 +192,7 @@ var Table = function() {
             hideReload();
         }
     }
-    
+
     function initDataTable() {
         var dataTableOpts = {
             "sDom": 'rt<f>',
@@ -311,10 +311,13 @@ var Table = function() {
                     var _gene = source[geneIndex];
                     if (type==='display') {
                         var str = '';
+
+                        // add qtip for selecting the gene
+                        str += '<span class="hasQtip selectHighlight" qtip="Click '+_gene+' to add to your query">';
                         if(_gene.toString().length > 6) {
-                            str += '<span class="hasQtip" qtip="'+_gene+'">'+_gene.substring(0,4) + '...'+'</span>';
+                            str += _gene.substring(0,4) + '...'+'</span>';
                         }else {
-                            str += _gene;
+                            str += _gene+'</span>';
                         }
 
                         if(qvalIndex !== -1 && attr[qvalIndex].displayName && source[qvalIndex]) {
@@ -350,6 +353,8 @@ var Table = function() {
                 });
 
                 checkboxClick();
+                // add functionality for when the add gene icon is clicked
+                addGeneClickSetup();
             };
         }
         dataTable = $('#'+ divs.tableId +' table').dataTable(dataTableOpts);
@@ -435,6 +440,18 @@ var Table = function() {
             }
         });
         deleteTable();
+    }
+
+
+    function addGeneClickSetup(){
+        $('#'+divs.tableId+' table tbody tr td:first-child span').unbind('click');
+        $('#'+divs.tableId+' table tbody tr td:first-child span').click(function () {
+
+            if(callbacks.hasOwnProperty('addGeneClick')) {
+                // call addGeneClick with this row's data
+                callbacks.addGeneClick(dataTable.api().row($(this).parent().parent()).data());
+            }
+        });
     }
 
     function checkboxClick() {

@@ -187,12 +187,14 @@ window.cbioportal_client = (function() {
 					if (Object.prototype.toString.call(obj) === '[object Array]') {
 						ret = ret.concat(obj);
 					} else {
-                                                var keys = key_list_list[key_list_index] || Object.keys(obj);
-                                                for (k = 0; k<keys.length; k++) {
-                                                        if (obj.hasOwnProperty(keys[k])) {
-                                                                tmp_intermediate.push(obj[keys[k]]);
-                                                        }
-                                                }
+						if (key_list_index < key_list_list.length) {
+							var keys = key_list_list[key_list_index] || Object.keys(obj);
+							for (k = 0; k<keys.length; k++) {
+								if (obj.hasOwnProperty(keys[k])) {
+									tmp_intermediate.push(obj[keys[k]]);
+								}
+							}
+						}
 					}
 				}
 				intermediate = tmp_intermediate;
@@ -255,7 +257,7 @@ window.cbioportal_client = (function() {
 					def.reject();
 				}
 				return def.promise();
-			};
+			}
 		})();
 	};
 	var makeTwoIndexService = function(arg_name1, indexKeyFn1, index1_always_add, arg_name2, indexKeyFn2, index2_always_add, service_fn_name) {
@@ -319,7 +321,7 @@ window.cbioportal_client = (function() {
 					def.reject();
 				}
 				return def.promise();
-			};
+			}
 		})();
 	};
 
@@ -335,17 +337,12 @@ window.cbioportal_client = (function() {
 			return function(args) {
 				var def = new $.Deferred();
 				try {
-                                        var undefined_indices = [];
 					var arg_list_list = arg_names.map(function (a) {
 						return args[a];
 					});
-                                        for(var i = 0,_len = arg_list_list.length;i<_len;i++) {
-                                            if(typeof(arg_list_list[i]) === "undefined") {
-                                                undefined_indices.push(i);
-                                            }
-                                        }
-                                        arg_list_list = arg_list_list.filter( Boolean );
-                                        
+					while (typeof arg_list_list[arg_list_list.length - 1] === "undefined") {
+						arg_list_list.pop();
+					}
 					if (arg_list_list.length < arg_names.length) {
 						var missing_arg_set_list = arg_list_list.map(function (a) {
 							return {};
@@ -366,14 +363,7 @@ window.cbioportal_client = (function() {
 						if (missing_arg_set_list[0].length > 0) {
 							var webservice_args = {};
 							for (var i = 0; i < missing_arg_set_list.length; i++) {
-                                                                if (missing_arg_set_list[i].length > 0) {
-                                                                    if (undefined_indices.indexOf(i) > -1 && undefined_indices.indexOf(i+1) <= -1) {
-                                                                        webservice_args[arg_names[i+1]] = missing_arg_set_list[i];
-                                                                    }
-                                                                    else if ( undefined_indices.indexOf(i) <= -1) {
-                                                                        webservice_args[arg_names[i]] = missing_arg_set_list[i];
-                                                                    }
-                                                                }
+								webservice_args[arg_names[i]] = missing_arg_set_list[i];
 							}
 							raw_service[service_fn_name](webservice_args).then(function (data) {
 								for (var j = 0; j < missing_key_combs.length; j++) {
@@ -429,7 +419,7 @@ window.cbioportal_client = (function() {
 				}
 				if (!matches_one) {
 					var def = new $.Deferred();
-					var msg = "Given arguments not acceptable; need a combination in the following list: ";
+					var msg = "Given arguments not acceptable; need a combination in the following list: "
 					msg += list_of_arg_combinations.map(function(arg_combo) { return arg_combo.join(","); }).join(";");
 					def.reject({msg: msg});
 					return def.promise();
@@ -437,7 +427,7 @@ window.cbioportal_client = (function() {
 					return fnPtr(args);
 				}
 			};
-	};
+	}
 
 	var cached_service = {
 		getCancerTypes: enforceRequiredArguments(makeOneIndexService('cancer_type_ids', function(d) { return d.id;}, 'getCancerTypes'), [[], ["cancer_type_ids"]]),
@@ -449,7 +439,8 @@ window.cbioportal_client = (function() {
 		getSampleClinicalData: enforceRequiredArguments(makeHierIndexService(['study_id', 'attribute_ids', 'sample_ids'], ['study_id', 'attr_id', 'sample_id'], 'getSampleClinicalData'), [["study_id","attribute_ids"], ["study_id","attribute_ids","sample_ids"]]),
 		getPatientClinicalData: enforceRequiredArguments(makeHierIndexService(['study_id', 'attribute_ids', 'patient_ids'], ['study_id', 'attr_id', 'patient_id'], 'getPatientClinicalData'), [["study_id","attribute_ids"], ["study_id","attribute_ids","patient_ids"]]),
 		getPatients: enforceRequiredArguments(makeHierIndexService(['study_id', 'patient_ids'], ['study_id', 'id'], 'getPatients'), [["study_id"], ["study_id","patient_ids"]]),
-		getSamples: enforceRequiredArguments(makeHierIndexService(['study_id', 'patient_ids', 'sample_ids'], ['study_id', 'patient_id','id'], 'getSamples'), [["study_id"], ["study_id", "sample_ids"],["study_id","patient_ids"]]),
+		getSamples: enforceRequiredArguments(makeHierIndexService(['study_id', 'sample_ids'], ['study_id', 'id'], 'getSamples'), [["study_id"], ["study_id", "sample_ids"]]),
+		getSamplesByPatient: enforceRequiredArguments(makeHierIndexService(['study_id', 'patient_ids'], ['study_id', 'patient_id'], 'getSamples'), [["study_id"], ["study_id", "patient_ids"]]),
 		getGeneticProfileData: enforceRequiredArguments(makeHierIndexService(['genetic_profile_ids', 'genes', 'sample_ids'], ['genetic_profile_id', 'hugo_gene_symbol', 'sample_id'], 'getGeneticProfileData'), [["genetic_profile_ids","genes"], ["genetic_profile_ids","genes","sample_ids"]]),
 		getSampleClinicalAttributes: enforceRequiredArguments(function(args) {
 			return raw_service.getSampleClinicalAttributes(args);

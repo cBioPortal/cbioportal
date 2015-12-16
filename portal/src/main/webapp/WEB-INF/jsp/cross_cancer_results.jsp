@@ -38,7 +38,7 @@
 <%
     String siteTitle = GlobalProperties.getTitle();
     request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle);
-	ServletXssUtil servletXssUtil = ServletXssUtil.getInstance();
+    ServletXssUtil servletXssUtil = ServletXssUtil.getInstance();
 
     // Get priority settings
     Integer dataPriority;
@@ -49,18 +49,18 @@
         dataPriority = 0;
     }
 
-	String geneList = request.getParameter(QueryBuilder.GENE_LIST);
-        //String cancerStudyList = request.getParameter(QueryBuilder.CANCER_STUDY_LIST);
+    String geneList = request.getParameter(QueryBuilder.GENE_LIST);
+    //String cancerStudyList = request.getParameter(QueryBuilder.CANCER_STUDY_LIST);
 
-	// we need the raw gene list
-	if (request instanceof XssRequestWrapper)
-	{
-		geneList = ((XssRequestWrapper)request).getRawParameter(QueryBuilder.GENE_LIST);
-                //cancerStudyList = ((XssRequestWrapper)request).getRawParameter(QueryBuilder.CANCER_STUDY_LIST);
-	}
+    // we need the raw gene list
+    if (request instanceof XssRequestWrapper)
+    {
+        geneList = ((XssRequestWrapper)request).getRawParameter(QueryBuilder.GENE_LIST);
+        //cancerStudyList = ((XssRequestWrapper)request).getRawParameter(QueryBuilder.CANCER_STUDY_LIST);
+    }
 
-	geneList = geneList.replaceAll("\n", " ").replaceAll("\r", "").replaceAll("/", "_");
-	geneList = servletXssUtil.getCleanerInput(geneList);
+    geneList = geneList.replaceAll("\n", " ").replaceAll("\r", "").replaceAll("/", "_");
+    geneList = servletXssUtil.getCleanerInput(geneList);
 
 
     String oncokbUrl = (String) GlobalProperties.getOncoKBUrl();
@@ -83,6 +83,7 @@
 <link href="css/data_table_jui.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 <link href="css/mutationMapper.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 <link href="css/crosscancer.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
+
 
 <%
     // Means that user landed on this page with the old way.
@@ -127,16 +128,15 @@
     var showHotspot = <%=showHotspot%>;
     var enableMyCancerGenome = myCancerGenomeUrl?true:false;
 
-    OncoKB.setUrl('<%=oncokbUrl%>');
-
     $(document).ready(function() {
+        OncoKB.setUrl('<%=oncokbUrl%>');
         //Set Event listener for the modify query button (expand the hidden form)
         $("#modify_query_btn").click(function () {
             $("#query_form_on_results_page").toggle();
             if($("#modify_query_btn").hasClass("active")) {
                 $("#modify_query_btn").removeClass("active");
             } else {
-                $("#modify_query_btn").addClass("active");    
+                $("#modify_query_btn").addClass("active");
             }
         });
         $("#toggle_query_form").click(function(event) {
@@ -145,20 +145,31 @@
             //  Toggle the icons
             $(".query-toggle").toggle();
         });
-        
-         $("a.result-tab").click(function(){
+
+        $("a.result-tab").click(function(){
             if($(this).attr("href")=="#bookmark_email") {
                 $("#bookmark-link").attr("href",window.location.href);
             }
         });
 
         $("#bitly-generator").click(function() {
-             bitlyURL(window.location.href);
+            bitlyURL(window.location.href);
         });
+
+        $("#modify_query_btn").click(function() {
+            var chosenElements = document.getElementsByClassName('jstree-clicked');
+            if(chosenElements.length > 0)
+            {
+                var treeDiv = document.getElementById('jstree');
+                var topPos = chosenElements[0].offsetTop;
+                var originalPos = treeDiv.offsetTop;
+                treeDiv.scrollTop = topPos - originalPos;
+            }
+
+        });
+
     });
 
-
-   
 </script>
 
 <!-- Crosscancer templates -->
@@ -169,9 +180,11 @@
                 <a href="#cc-overview" id="cc-overview-link" title="Compact visualization of genomic alterations">Overview</a>
             </li>
             <li>
-                <a href="#cc-mutations" id="cc-mutations-link" title="Mutation details, including mutation type,amino acid change, validation status and predicted functional consequence">Mutations</a>
+                <a href="#cc-mutations" id="cc-mutations-link" title="Mutation details, including mutation type, amino acid change and predicted functional consequence">Mutations</a>
             </li>
-            <li><a href="#cc-plots" id="cc-plots-link" title="Plots with mRNA expression data">Expression</a></li>
+            <li>
+                <a href="#cc-plots" id="cc-plots-link" title="Plots with mRNA expression data (TCGA provisional only)">Expression</a>
+            </li>
             <li>
                 <a href="#cc-download" id="cc-download-link" title="Download all alterations or copy and paste into Excel">Download</a>
             </li>
@@ -245,11 +258,9 @@
                 <img src="images/ajax-loader.gif"/>
             </div>
         </div>
-
         <div class="section" id="cc-plots">
             <jsp:include page="cross_cancer_plots_tab.jsp" />
         </div>
-
         <div class="section" id="cc-download">
             <div class='copy_tables'>
                 <br>
@@ -401,10 +412,9 @@
     <h1>Default cross-cancer view</h1>
 </script>
 
-
-
 <script>
     $(document).ready(function() {
+        //cross-cancer-plots
         var _cc_plots_gene_list = "";
         _.each(window.location.search.split("&"), function(param) {
             if (param.indexOf("gene_list") !== -1) {

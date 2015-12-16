@@ -385,7 +385,7 @@ var orTable = function() {
 
         $("#" + btn_id).click(function() {
 
-            if (window.PortalGlobals.getCaseSetId() !== "-1") {
+            if (window.QuerySession.getCaseSetId() !== "-1") {
                var _start_pos_gene_list = document.URL.indexOf("gene_list=") + "gene_list=".length;
 		var _end_pos_gene_list = document.URL.indexOf("&", _start_pos_gene_list);
 		var pre_gene_list = document.URL.substring(0, _start_pos_gene_list);
@@ -398,16 +398,16 @@ var orTable = function() {
 
                 //genetic profiles separate
                 var _tmp_profile_id_list = "";
-                $.each(window.PortalGlobals.getGeneticProfiles().split(/\s+/), function(index, _profile_id) {
+                $.each(window.QuerySession.getGeneticProfileIds(), function(index, _profile_id) {
                     _tmp_profile_id_list += "genetic_profile_ids=" + _profile_id + "&";
                 });
                 var _new_url = _original_url.concat(
                     "?" + "tab_index=tab_visualize" + "&" +
-                    "cancer_study_id=" + window.PortalGlobals.getCancerStudyId() + "&" +
+                    "cancer_study_id=" + window.QuerySession.getCancerStudyIds()[0] + "&" +
                     _tmp_profile_id_list +
                     "gene_list=" + window.QuerySession.getOQLQuery() + encodeURIComponent("\n") + selected_genes.join(encodeURIComponent("\n")) + "&" +
-                    "case_set_id=" + window.PortalGlobals.getCaseSetId() + "&" +
-                    "case_ids_key=" + window.PortalGlobals.getCaseIdsKey() + "&" +
+                    "case_set_id=" + window.QuerySession.getCaseSetId() + "&" +
+                    "case_ids_key=" + window.QuerySession.getCaseIdsKey() + "&" +
                     "Action=Submit"
                 );
                 if (selected_genes.length !== 0) {

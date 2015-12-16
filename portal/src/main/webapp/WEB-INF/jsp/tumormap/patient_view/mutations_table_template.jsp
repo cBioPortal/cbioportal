@@ -37,6 +37,7 @@
                         <th class="mut-header" alt="Cases/Samples"><b>Tumors</b></th>
                         <th class="mut-header" alt="HUGO symbol of mutated genes"><b>Gene</b></th>
                         <th class="mut-header" alt="Protein change"><b>Protein<br/>Change</b></th>
+                        <th class="mut-header" alt=""><b>Annotation</b></th>
                         <th class="mut-header" alt="Chromosome"><b>Chr</b></th>
                         <th class="mut-header" alt="Start postion on chromosome"><b>Start</b></th>
                         <th class="mut-header" alt="End postion on chromosome"><b>End</b></th>
@@ -58,6 +59,5 @@
                         <th class="mut-header" alt="COSMIC occurrences"><b>COSMIC</b></th>
                         <th class="mut-header" alt="Functional Impact predicted by MutationAssessor (missense mutations only)"><b>Mutation<br/>Assessor</b></th>
                         <th class="mut-header" alt="Potential Drugs"><b>Drugs</b></th>
-                        <th class="mut-header" alt="OncoKB"><b>OncoKB</b><img id='oncokb-help' src='images/help.png'/></th>
                     </tr>
                 </thead>

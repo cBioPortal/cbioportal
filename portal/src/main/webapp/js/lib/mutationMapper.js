@@ -7370,13 +7370,13 @@ var MutationDetailsTableView = Backbone.View.extend({
 		}
 
 		// disable event triggering before filtering, otherwise it creates a chain reaction
-		self.tableUtil.setEventActive(false);
+		self.tableUtil.setFilterEventActive(false);
 
 		// apply filter
 		self._applyFilter(oTable, regex, asRegex, updateBox, limit);
 
 		// enable events after filtering
-		self.tableUtil.setEventActive(true);
+		self.tableUtil.setFilterEventActive(true);
 	},
 	/**
 	 * Resets all table filters (rolls back to initial state)
@@ -7400,14 +7400,14 @@ var MutationDetailsTableView = Backbone.View.extend({
 		var oTable = self.tableUtil.getDataTable();
 
 		// disable event triggering before filtering, otherwise it creates a chain reaction
-		self.tableUtil.setEventActive(false);
+		self.tableUtil.setFilterEventActive(false);
 
 		// re-apply last manual filter string
 		var searchStr = self.tableUtil.getManualSearch();
 		self._applyFilter(oTable, searchStr, false);
 
 		// enable events after filtering
-		self.tableUtil.setEventActive(true);
+		self.tableUtil.setFilterEventActive(true);
 	},
 	/**
 	 * Filters the given data table with the provided filter string.
@@ -10862,6 +10862,7 @@ function Mutation3dVis(name, options)
 			_3dApp = new JSmolWrapper();
 		}
 
+
 		// init app (with frames)
 		_3dApp.init(name, _options.appOptions, _options.frame);
 
@@ -12669,8 +12670,8 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 	// custom event dispatcher
 	var _dispatcher = self._dispatcher;
 
-	// flag used to switch events on/off
-	var _eventActive = true;
+	// flag used to switch filter event on/off
+	var _filterEventActive = true;
 
 	// this is used to check if search string is changed after each redraw
 	var _prevSearch = "";
@@ -12764,7 +12765,7 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 
 				// trigger the event only if the corresponding flag is set
 				// and there is a change in the search term
-				if (_eventActive &&
+				if (_filterEventActive &&
 					_prevSearch != currSearch)
 				{
 					// trigger corresponding event
@@ -12779,6 +12780,18 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 
 				// update prev search string reference for future use
 				_prevSearch = currSearch;
+
+				// trigger redraw event
+				_dispatcher.trigger(
+					MutationDetailsEvents.MUTATION_TABLE_REDRAWN,
+					tableSelector);
+
+				// TODO this may not be safe: prevent rendering of invalid links in the corresponding render function
+				// remove invalid links
+				$(tableSelector).find('a[href=""]').remove();
+
+				// remove invalid protein change tips
+				$(tableSelector).find('span.mutation-table-additional-protein-change[alt=""]').remove();
 			},
 			"fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
 				var mutation = aData[indexMap["datum"]].mutation;
@@ -12789,15 +12802,9 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 				$(nRow).addClass(mutation.mutationSid);
 				$(nRow).addClass("mutation-table-data-row");
 			},
-			"fnCreatedRow": function( nRow, aData, iDataIndex ) {
-				// TODO this may not be safe
-
-				// remove invalid links
-				$(nRow).find('a[href=""]').remove();
-
-				// remove invalid protein change tips
-				$(nRow).find('span.mutation-table-additional-protein-change[alt=""]').remove();
-			},
+			//"fnCreatedRow": function(nRow, aData, iDataIndex) {
+			//
+			//},
 			"fnInitComplete": function(oSettings, json) {
 				//$(tableSelector).find('a[href=""]').remove();
 				//$(tableSelector).find('a[alt=""]').remove();
@@ -12813,6 +12820,7 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 //					MutationDetailsEvents.MUTATION_TABLE_READY);
 
 				self._loadAdditionalData({
+					gene: gene,
 					dataProxies: dataProxies,
 					indexMap: self.getIndexMap(),
 					additionalData: _additionalData,
@@ -12822,6 +12830,11 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 			"fnHeaderCallback": function(nHead, aData, iStart, iEnd, aiDisplay) {
 				$(nHead).find('th').addClass("mutation-details-table-header");
 				self._addHeaderTooltips(nHead, nameMap);
+
+				//Trigger fnHeader callback function
+				_dispatcher.trigger(
+					MutationDetailsEvents.MUTATION_TABLE_HEADER_CREATED,
+					tableSelector);
 			}
 //		    "fnFooterCallback": function(nFoot, aData, iStart, iEnd, aiDisplay) {
 //			    addFooterTooltips(nFoot, nameMap);
@@ -12943,9 +12956,9 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 	 *
 	 * @param active    boolean value
 	 */
-	function setEventActive(active)
+	function setFilterEventActive(active)
 	{
-		_eventActive = active;
+		_filterEventActive = active;
 	}
 
 	/**
@@ -12986,10 +12999,23 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 			if (colName != null)
 			{
 				var tip = _options.columns[colName].tip;
+				var opts = {};
 
-				//$(this).attr("alt", tip);
-				qTipOptionsHeader.content = {text: tip};
-				$(this).qtip(qTipOptionsHeader);
+				// merge qTip options with the provided options object
+				if(_.isObject(tip))
+				{
+					jQuery.extend(true, opts, qTipOptionsHeader, tip);
+				}
+				// if not an object, then assuming it is a string,
+				// just update the content
+				else
+				{
+					//$(this).attr("alt", tip);
+					qTipOptionsHeader.content = tip;
+					opts = qTipOptionsHeader;
+				}
+
+				$(this).qtip(opts);
 			}
 		});
 	}
@@ -13020,7 +13046,7 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 	this._addHeaderTooltips = addHeaderTooltips;
 
 	// additional public functions
-	this.setEventActive = setEventActive;
+	this.setFilterEventActive = setFilterEventActive;
 	this.getManualSearch = getManualSearch;
 	this.cleanFilters = cleanFilters;
 	//this.selectRow = selectRow;
@@ -18125,6 +18151,8 @@ var MutationDetailsEvents = (function()
 	var _diagramPlotUpdated = "mutationDiagramPlotUpdated";
 	var _diagramPlotReset = "mutationDiagramPlotReset";
 	var _mutationTableFiltered = "mutationTableFiltered";
+	var _mutationTableRedrawn = "mutationTableRedrawn";
+	var _mutationTableHeaderCreated = "mutationTableHeaderCreated";
 	var _proteinChangeLinkClicked = "mutationTableProteinChangeLinkClicked";
 	var _pdbLinkClicked = "mutationTablePdbLinkClicked";
 	var _pdbPanelResizeStarted = "mutationPdbPanelResizeStarted";
@@ -18148,6 +18176,8 @@ var MutationDetailsEvents = (function()
 		DIAGRAM_PLOT_UPDATED: _diagramPlotUpdated,
 		DIAGRAM_PLOT_RESET: _diagramPlotReset,
 		MUTATION_TABLE_FILTERED: _mutationTableFiltered,
+		MUTATION_TABLE_REDRAWN: _mutationTableRedrawn,
+		MUTATION_TABLE_HEADER_CREATED: _mutationTableHeaderCreated,
 		PROTEIN_CHANGE_LINK_CLICKED: _proteinChangeLinkClicked,
 		PDB_LINK_CLICKED: _pdbLinkClicked,
 		PDB_PANEL_RESIZE_STARTED: _pdbPanelResizeStarted,

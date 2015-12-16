@@ -323,7 +323,6 @@ var ScatterPlots = function() {
             .attr("width", "50")
             .attr("height", "15")
             // removed the xhtml:body tag as it interfered with the banner functionality. The log checkbox still seems to be working fine
-            //.append("xhtml:body")
             .style({"font-size": "11px", "margin": "0"})
             .html("<input id='study-view-scatter-plot-log-scale-x' type='checkbox' style='float:left' "+_checked+"/><span style='float:left; margin-top: 2px; font-size-adjust: 0.5;'>Log</span>");
         $("#study-view-scatter-plot-log-scale-x").change(function() {
@@ -391,7 +390,6 @@ var ScatterPlots = function() {
             .attr("width", "50")
             .attr("height", "15")
             // removed the xhtml:body tag as it interfered with the banner functionality. The log checkbox still seems to be working fine
-            //.append("xhtml:body")
             .style({"font-size": "11px", "margin": "0"})
             .html("<input id='study-view-scatter-plot-log-scale-y' type='checkbox' style='float:left' "+_checked+"/><span style='float:left; margin-top: 2px; font-size-adjust: 0.5;'>Log</span>");
         

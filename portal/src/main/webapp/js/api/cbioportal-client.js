@@ -186,12 +186,12 @@ window.cbioportal_client = (function() {
 					if (Object.prototype.toString.call(obj) === '[object Array]') {
 						ret = ret.concat(obj);
 					} else {
-                                                var keys = key_list_list[key_list_index] || Object.keys(obj);
-                                                for (k = 0; k<keys.length; k++) {
-                                                        if (obj.hasOwnProperty(keys[k])) {
-                                                                tmp_intermediate.push(obj[keys[k]]);
-                                                        }
-                                                }
+						var keys = (key_list_index < key_list_list.length && key_list_list[key_list_index]) || Object.keys(obj);
+						for (k = 0; k<keys.length; k++) {
+							if (obj.hasOwnProperty(keys[k])) {
+								tmp_intermediate.push(obj[keys[k]]);
+							}
+						}
 					}
 				}
 				intermediate = tmp_intermediate;

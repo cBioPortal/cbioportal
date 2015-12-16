@@ -147,6 +147,21 @@ public class ApiService {
 	}
 
 	@Transactional
+	public List<DBPatientList> getIncompletePatientLists() {
+		return patientListMapper.getAllIncompletePatientLists();
+	}
+
+	@Transactional
+	public List<DBPatientList> getIncompletePatientLists(String study_id) {
+		return patientListMapper.getIncompletePatientListsByStudy(study_id);
+	}
+
+	@Transactional
+	public List<DBPatientList> getIncompletePatientLists(List<String> patient_list_ids) {
+		return patientListMapper.getIncompletePatientLists(patient_list_ids);
+	}
+	
+	@Transactional
 	public List<DBPatientList> getPatientLists() {
 		List<DBPatientList> incomplete_lists = patientListMapper.getAllIncompletePatientLists();
 		for (DBPatientList l: incomplete_lists) {
@@ -185,14 +200,20 @@ public class ApiService {
 		return incomplete_lists;
 	}
 
+	
 	@Transactional
 	public List<DBPatient> getPatients(String study_id) {
 		return patientMapper.getPatientsByStudy(study_id);
 	}
 
 	@Transactional
-	public List<DBPatient> getPatients(String study_id, List<String> patient_ids) {
-		return patientMapper.getPatients(study_id, patient_ids);
+	public List<DBPatient> getPatientsByPatient(String study_id, List<String> patient_ids) {
+		return patientMapper.getPatientsByPatient(study_id, patient_ids);
+	}
+	
+	@Transactional
+	public List<DBPatient> getPatientsBySample(String study_id, List<String> sample_ids) {
+		return patientMapper.getPatientsBySample(study_id, sample_ids);
 	}
 
 	@Transactional

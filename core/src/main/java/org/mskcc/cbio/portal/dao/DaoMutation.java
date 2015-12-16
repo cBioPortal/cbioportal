@@ -1228,6 +1228,7 @@ public final class DaoMutation {
 				String hugo = gene.getHugoGeneSymbolAllCaps();
 
 				d.put("protein_pos_start", proteinPosStart);
+				d.put("protein_start_with_hugo", hugo+"_"+proteinPosStart);
 				d.put("hugo", hugo);
 				d.put("cancer_study", name);
 				d.put("cancer_type", cancerType);

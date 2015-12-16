@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/cbioportal/cbioportal.png?label=ready&title=Ready)](https://waffle.io/cbioportal/cbioportal)
 # cBioPortal
 
 [![Build Status](https://travis-ci.org/cBioPortal/cbioportal.svg?branch=master)](https://travis-ci.org/cBioPortal/cbioportal)

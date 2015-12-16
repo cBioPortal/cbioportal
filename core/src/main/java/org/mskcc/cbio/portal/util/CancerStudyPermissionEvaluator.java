@@ -102,7 +102,7 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
                 return false;
             }
 
-            UserDetails user = (UserDetails) authentication.getPrincipal();
+            Object user = authentication.getPrincipal();
             if (user != null) {
                 return hasPermission(cancerStudy, user);
             } else {

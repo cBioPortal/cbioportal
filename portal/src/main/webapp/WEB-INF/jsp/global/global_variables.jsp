@@ -201,6 +201,9 @@
 %>
 
 <!--Global Data Objects Manager-->
+<script type="text/javascript" src="js/lib/jquery.min.js?<%=GlobalProperties.getAppVersion()%>">
+    //needed for data manager
+</script>
 <script type="text/javascript" src="js/lib/oql/oql-parser.js"></script>
 <script type="text/javascript" src="js/api/cbioportal-datamanager.js"></script>
 <script type="text/javascript">
@@ -363,7 +366,7 @@
         getGeneData: function() { return global_gene_data; }
 
     };
-    (function setUpDataManager() {
+    (function setUpQuerySession() {
         var oql_html_conversion_vessel = document.createElement("div");
         oql_html_conversion_vessel.innerHTML = '<%=oql%>'.trim();
         var converted_oql = oql_html_conversion_vessel.textContent.trim();
@@ -372,79 +375,94 @@
                                                             ['<%=cancerTypeId%>'.trim()],
                                                             '<%=patients%>'.trim().split(/\s+/),
                                                             parseFloat('<%=zScoreThreshold%>'),
-                                                            parseFloat('<%=rppaScoreThreshold%>'));
+                                                            parseFloat('<%=rppaScoreThreshold%>'),
+                                                            {
+                                                                case_set_id: '<%=patientSetId%>',
+                                                                case_ids_key: '<%=patientIdsKey%>',
+                                                                case_set_name: '<%=patientSetName%>',
+                                                                case_set_description: '<%=patientSetDescription%>'
+                                                            },
+                                                            ['<%=cancerStudyName%>'],
+                                                            {
+                                                                mutation_profile_id: <%=(mutationProfileID==null?"null":("'"+mutationProfileID+"'"))%>
+                                                            });
     })();
 </script>
 
 <script>
+$(document).ready(function() {
+    $.when(window.QuerySession.getAlteredSamples(), window.QuerySession.getUnalteredSamples(), window.QuerySession.getPatientSampleIdMap()).then(function(altered_samples, unaltered_samples, sample_patient_map) {
+        PortalDataCollManager.subscribeOncoprint(function() {
 
-    PortalDataCollManager.subscribeOncoprint(function() {
+            //calculate total alteration
+            var _dataArr = PortalDataColl.getOncoprintData();
+            num_total_cases = _dataArr.length;
+            $.each(_dataArr, function(outerIndex, outerObj) {
+                $.each(outerObj.values, function(innerIndex, innerObj) {
+                    if(Object.keys(innerObj).length > 2) { // has more than 2 fields -- indicates existence of alteration
+                        num_altered_cases += 1;
+                        return false;
+                    }
+                });
+            });     
 
-        //calculate total alteration
-        var _dataArr = PortalDataColl.getOncoprintData();
-        num_total_cases = _dataArr.length;
-        $.each(_dataArr, function(outerIndex, outerObj) {
-            $.each(outerObj.values, function(innerIndex, innerObj) {
-                if(Object.keys(innerObj).length > 2) { // has more than 2 fields -- indicates existence of alteration
-                    num_altered_cases += 1;
-                    return false;
+            var _sampleIds = window.QuerySession.getSampleIds();
+            window.PortalGlobals.setSampleIds(_sampleIds);
+            
+            var altered_samples_percentage = (100 * altered_samples.length / _sampleIds.length).toFixed(1);
+
+            //Configure the summary line of alteration statstics
+            var _stat_smry = "<h3 style='color:#686868;font-size:14px;'>Gene Set / Pathway is altered in <b>" + altered_samples.length + " (" + altered_samples_percentage + "%)" + "</b> of queried samples</h3>";
+            $("#main_smry_stat_div").append(_stat_smry);
+
+            //Configure the summary line of query
+            var _query_smry = "<h3 style='font-size:110%;'><a href='study.do?cancer_study_id=" + 
+                window.QuerySession.getCancerStudyIds()[0] + "' target='_blank'>" + 
+                window.QuerySession.getCancerStudyNames()[0] + "</a><br>" + " " +  
+                "<small>" + window.QuerySession.getPatientSetName() + " (<b>" + _sampleIds.length + "</b> samples)" + " / " + 
+                "<b>" + window.QuerySession.getQueryGenes().length + "</b>" + " Gene" + (window.QuerySession.getQueryGenes().length===1 ? "" : "s") + "<br></small></h3>"; 
+            $("#main_smry_query_div").append(_query_smry);
+
+            //Append the modify query button
+            var _modify_query_btn = "<button type='button' class='btn btn-primary' data-toggle='button' id='modify_query_btn'>Modify Query</button>";
+            $("#main_smry_modify_query_btn").append(_modify_query_btn);
+
+            //Set Event listener for the modify query button (expand the hidden form)
+            $("#modify_query_btn").click(function () {
+                $("#query_form_on_results_page").toggle();
+                if($("#modify_query_btn").hasClass("active")) {
+                    $("#modify_query_btn").removeClass("active");
+                } else {
+                    $("#modify_query_btn").addClass("active");    
                 }
             });
-        });     
+            $("#toggle_query_form").click(function(event) {
+                event.preventDefault();
+                $('#query_form_on_results_page').toggle();
+                //  Toggle the icons
+                $(".query-toggle").toggle();
+            });
 
-        var _sampleIds = window.QuerySession.getSampleIds();
-        window.PortalGlobals.setSampleIds(_sampleIds);
-        
-        //Configure the summary line of alteration statstics
-        var _stat_smry = "<h3 style='color:#686868;font-size:14px;'>Gene Set / Pathway is altered in <b>" + window.PortalGlobals.getNumOfAlteredCases() + " (" + window.PortalGlobals.getPercentageOfAlteredCases() + "%)" + "</b> of queried samples</h3>";
-        $("#main_smry_stat_div").append(_stat_smry);
 
-        //Configure the summary line of query
-        var _query_smry = "<h3 style='font-size:110%;'><a href='study.do?cancer_study_id=" + 
-            window.PortalGlobals.getCancerStudyId() + "' target='_blank'>" + 
-            window.PortalGlobals.getCancerStudyName() + "</a><br>" + " " +  
-            "<small>" + window.PortalGlobals.getPatientSetName() + " (<b>" + window.PortalGlobals.getNumOfTotalCases() + "</b> samples)" + " / " + 
-            "<b>" + window.PortalGlobals.getGeneList().length + "</b>" + (window.PortalGlobals.getGeneList().length===1?" Gene":" Genes") + "<br></small></h3>"; 
-        $("#main_smry_query_div").append(_query_smry);
+            var patientIdArray = [];
+            $.each(_sampleIds, function(index, sample_id) {
+                    patientIdArray.push(sample_patient_map[sample_id]);
+            });
+            patientIdArray = _.uniq(patientIdArray);
 
-        //Append the modify query button
-        var _modify_query_btn = "<button type='button' class='btn btn-primary' data-toggle='button' id='modify_query_btn'>Modify Query</button>";
-        $("#main_smry_modify_query_btn").append(_modify_query_btn);
-
-        //Set Event listener for the modify query button (expand the hidden form)
-        $("#modify_query_btn").click(function () {
-            $("#query_form_on_results_page").toggle();
-            if($("#modify_query_btn").hasClass("active")) {
-                $("#modify_query_btn").removeClass("active");
-            } else {
-                $("#modify_query_btn").addClass("active");    
+            //Oncoprint summary lines
+            $("#oncoprint_sample_set_description").append(window.QuerySession.getPatientSetDescription() + 
+                "("+patientIdArray.length + " patients / " + _sampleIds.length + " samples)");
+            $("#oncoprint_sample_set_name").append(window.QuerySession.getPatientSetName());
+            $("#oncoprint_num_of_altered_cases").append(altered_samples.length);
+            $("#oncoprint_percentage_of_altered_cases").append(altered_samples_percentage);
+            if (patientIdArray.length !== _sampleIds.length) {
+                $("#switchPatientSample").show();
             }
-        });
-        $("#toggle_query_form").click(function(event) {
-            event.preventDefault();
-            $('#query_form_on_results_page').toggle();
-            //  Toggle the icons
-            $(".query-toggle").toggle();
-        });
 
-        var patiendIdList = window.PortalGlobals.getPatientSampleIdMap();
-        var patientIdArray = [];
-        $.each(_sampleIds, function(index, sampleIdElement) {
-                patientIdArray.push(patiendIdList[sampleIdElement]);
         });
-        patientIdArray = _.uniq(patientIdArray);
-
-        //Oncoprint summary lines
-        $("#oncoprint_sample_set_description").append(window.PortalGlobals.getPatientSetDescription() + 
-            "("+patientIdArray.length + " patients / " + window.PortalGlobals.getNumOfTotalCases() + " samples)");
-        $("#oncoprint_sample_set_name").append(window.PortalGlobals.getPatientSetName());
-        $("#oncoprint_num_of_altered_cases").append(window.PortalGlobals.getNumOfAlteredCases());
-        $("#oncoprint_percentage_of_altered_cases").append(window.PortalGlobals.getPercentageOfAlteredCases());
-        if (patientIdArray.length !== window.PortalGlobals.getNumOfTotalCases()) {
-            $("#switchPatientSample").show();
-        }
-
     });
+});
 
 </script>
 

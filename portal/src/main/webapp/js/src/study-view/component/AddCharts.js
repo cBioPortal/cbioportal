@@ -104,6 +104,7 @@ var AddCharts = (function(){
             var _id = $(this).children(":selected").attr('id'),
                 _text = $(this).children(":selected").text();
             liClickCallback(_id, _text);
+            $('.chzn-container-active').trigger('click');
         });
         $("#study-view-add-chart").trigger("liszt:updated");
     }

@@ -11288,7 +11288,6 @@ function Mutation3dVis(name, options)
 		// init framed JSmol version
 		//_3dApp = new JSmolWrapper();
 
-
 		// init app (with frames)
 		//_3dApp.init(name, _options.appOptions, _options.frame);
 
@@ -11514,6 +11513,7 @@ function Mutation3dVis(name, options)
 
 			if (_container != null)
 			{
+				// workaround to fix the problem where canvas is initially invisible
 				$(_container).resize();
 			}
 		};
@@ -12672,7 +12672,9 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 		columnTooltips: {
 			"simple": function(selector, helper) {
 				var qTipOptions = MutationViewsUtil.defaultTableTooltipOpts();
-				$(selector).find('.simple-tip').qtip(qTipOptions);
+				//$(selector).find('.simple-tip').qtip(qTipOptions);
+				cbio.util.addTargetedQTip($(selector).find('.simple-tip'), qTipOptions);
+
 				//tableSelector.find('.best_effect_transcript').qtip(qTipOptions);
 				//tableSelector.find('.cc-short-study-name').qtip(qTipOptions);
 				//$('#mutation_details .mutation_details_table td').qtip(qTipOptions);
@@ -12706,7 +12708,8 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 						cosmicView.render();
 					}};
 
-					$(label).qtip(qTipOptsCosmic);
+					//$(label).qtip(qTipOptsCosmic);
+					cbio.util.addTargetedQTip(label, qTipOptsCosmic);
 				});
 			},
 			"mutationAssessor": function(selector, helper) {
@@ -12744,7 +12747,8 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 						fisTipView.render();
 					}};
 
-					$(this).qtip(qTipOptsOma);
+					//$(this).qtip(qTipOptsOma);
+					cbio.util.addTargetedQTip(this, qTipOptsOma);
 				});
 			},
 			"cBioPortal": function(selector, helper) {
@@ -12760,7 +12764,8 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 						var mutation = mutationUtil.getMutationIdMap()[mutationId];
 						var cancerStudy = cancerStudyName || mutation.cancerStudy;
 
-						$(ele).qtip({
+						//$(ele).qtip({
+						cbio.util.addTargetedQTip(ele, {
 							content: {text: 'pancancer mutation bar chart is broken'},
 							events: {
 								render: function(event, api) {
@@ -13216,8 +13221,7 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 				// trigger the event only if the corresponding flag is set
 				// and there is a change in the search term
 				if (_filterEventActive &&
-					_prevSearch != currSearch)
-
+				    _prevSearch != currSearch)
 				{
 					// trigger corresponding event
 					_dispatcher.trigger(
@@ -13286,7 +13290,7 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 				_dispatcher.trigger(
 					MutationDetailsEvents.MUTATION_TABLE_HEADER_CREATED,
 					tableSelector);
-			}
+		    }
 //		    "fnFooterCallback": function(nFoot, aData, iStart, iEnd, aiDisplay) {
 //			    addFooterTooltips(nFoot, nameMap);
 //		    }
@@ -13466,7 +13470,8 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 					opts = qTipOptionsHeader;
 				}
 
-				$(this).qtip(opts);
+				//$(this).qtip(opts);
+				cbio.util.addTargetedQTip(this, opts);
 			}
 		});
 	}
@@ -13486,7 +13491,8 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 		qTipOptionsFooter.position = {my:'top center', at:'bottom center', viewport: $(window)};
 
 		//tableSelector.find('tfoot th').qtip(qTipOptionsFooter);
-		$(nFoot).find("th").qtip(qTipOptionsFooter);
+		//$(nFoot).find("th").qtip(qTipOptionsFooter);
+		cbio.util.addTargetedQTip($(nFoot).find("th"), qTipOptionsFooter);
 	}
 
 	// override required functions
@@ -13712,7 +13718,8 @@ MutationDiagram.prototype.defaultOpts = {
 			style: {classes: 'qtip-light qtip-rounded qtip-shadow cc-ui-tooltip'},
 			position: {my:'bottom left', at:'top center',viewport: $(window)}};
 
-		$(element).qtip(options);
+		//$(element).qtip(options);
+		cbio.util.addTargetedQTip(element, options, "mouseover");
 	},
 	/**
 	 * Default region tooltip function.
@@ -13753,7 +13760,8 @@ MutationDiagram.prototype.defaultOpts = {
 					style: {classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'},
 					position: {my:'bottom left', at:'top center',viewport: $(window)}};
 
-				$(element).qtip(options);
+				//$(element).qtip(options);
+				cbio.util.addTargetedQTip(element, options);
 			}
 		);
 	}
@@ -15574,7 +15582,8 @@ function MutationPdbPanel(options, data, proxy, xScale)
 					style: {classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'},
 					position: {my:'bottom left', at:'top center',viewport: $(window)}};
 
-				$(element).qtip(options);
+				//$(element).qtip(options);
+				cbio.util.addTargetedQTip(element, options);
 			});
 		},
 		/**
@@ -15593,7 +15602,8 @@ function MutationPdbPanel(options, data, proxy, xScale)
 				style: {classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow qtip-wide'},
 				position: {my:'bottom left', at:'top center',viewport: $(window)}};
 
-			$(element).qtip(options);
+			//$(element).qtip(options);
+			cbio.util.addTargetedQTip(element, options);
 		}
 	};
 
@@ -16866,7 +16876,8 @@ function MutationPdbTable(options)
 		columnTooltips: {
 			"simple": function(selector) {
 				var qTipOptions = MutationViewsUtil.defaultTableTooltipOpts();
-				$(selector).find('.simple-tip').qtip(qTipOptions);
+				//$(selector).find('.simple-tip').qtip(qTipOptions);
+				cbio.util.addTargetedQTip($(selector).find('.simple-tip'), options);
 			}
 		},
 		// default event listener config

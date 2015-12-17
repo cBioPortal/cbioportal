@@ -185,13 +185,13 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
   <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
   <script src="http://code.jquery.com/mobile/1.4.4/jquery.mobile-1.4.4.min.js"></script>
-  <title>cBioPortal Validator: Status Report </title>
+  <title>cBioPortal validation report: study in '{{ study_dir }}'</title>
 </head>
 
 <body>
   <div class="container">
     <div class="header">
-      <h1>cBioPortal Validator: Status Report </h1>
+      <h1>cBioPortal validation report: study in '{{ study_dir }}'</h1>
     </div>
 
     <div class="jumbotron">
@@ -210,9 +210,8 @@
       </div>
 
       <div>
-      {% set file_record_list = record_list|selectattr('data_filename', 'defined') %}
-      {% for file_record_group in file_record_list|groupby('data_filename') %}
-        {% set file_level_list = file_record_group.list|map(attribute='levelname')|list %}
+      {% macro format_file(filename, file_record_list) %}
+        {% set file_level_list = file_record_list|map(attribute='levelname')|list %}
         {% if 'ERROR' in file_level_list %}
           {% set file_level = 'ERROR' %}
         {% elif 'WARNING' in file_level_list %}
@@ -230,7 +229,7 @@
                               'WARNING': 'yellow',
                               'SUCCESS': 'green',
                               'UNKNOWN': 'grey'}[file_level] %}
-          <h4>{{ file_record_group.grouper|e }}<span class="ui-li-count {{ file_color }}Count">{{ file_level }}</span></h4>
+          <h4>{{ filename|e }}<span class="ui-li-count {{ file_color }}Count">{{ file_level_list|length }}</span></h4>
           <table style="width:100%">
             <tr>
               <th>Line Number</th>
@@ -238,7 +237,7 @@
               <th>Message</th>
               <th>Value Encountered</th>
             </tr>
-            {% for record in file_record_group.list %}
+            {% for record in file_record_list %}
             {% if record.levelname  == 'ERROR' %}
             {% set record_class = 'red' %}
             {% elif record.levelname == 'WARNING' %}
@@ -249,56 +248,33 @@
             {% set record_class = 'grey' %}
             {% endif %}
             <tr class="{{ record_class }}">
-              <td>{{ record.line_number }}</td>
-              <td>{{ record.column_number }}</td>
+              {% macro format_aggregated(record, attr_name) %}
+                  {% if record[attr_name + '_list'] is defined -%}
+                    {{ (record[attr_name + '_list'][:3]|join(', ') +
+                        ', (' +
+                        record[attr_name + '_list'][3:]|length|string +
+                        ' more)')|e }}
+                  {%- else -%}
+                    {{ record[attr_name]|e }}
+                  {%- endif %}
+              {% endmacro %}
+              <td>{{ format_aggregated(record, 'line_number') }}</td>
+              <td>{{ format_aggregated(record, 'column_number') }}</td>
               <td>{{ record.getMessage()|e }}</td>
-              <td>{{ record.cause|e }}</td>
+              <td>{{ format_aggregated(record, 'cause') }}</td>
             </tr>
             {% endfor %}
           </table>
         </div>
 
-      {% endfor %}
-
-        <div data-role="collapsible" class="acol">
-          <h4>data_clinical.txt <span class="ui-li-count redCount" id="red_count">5</span></h4>
-          <table style="width:100%">
-            <tr>
-              <th>Line Number</th>
-              <th>Column Number</th>
-              <th>Message</th>
-              <th>Value Encountered</th>
-            </tr>
-            <tr class="red">
-              <td>1</td>
-              <td>5</td>
-              <td>Missing column</td>
-              <td>SampleID</td>
-            </tr>
-            <tr class="yellow">
-              <td>4</td>
-              <td>6</td>
-              <td>Incorrect Gene</td>
-              <td>acb</td>
-            </tr>
-            <tr class="blue">
-              <td></td>
-              <td></td>
-              <td>Validation complete</td>
-              <td></td>
-            </tr>
-          </table>
-        </div>
-        <div data-role="collapsible" class="ccol">
-          <h4>data_mutation.txt <span class="ui-li-count yellowCount" id="yellow_count">5</span></h4>
-        </div>
-        <div data-role="collapsible" class="bcol">
-          <h4>data_cna.txt<span class="ui-li-count greenCount" id="green_count">0</span></h4>
-        </div>
-        <div data-role="collapsible" class="dcol">
-          <h4>data_random.txt<span class="ui-li-count greyCount" id="grey_count">0</span></h4>
-        </div>
-
+      {% endmacro %}
+      {% set filerelated_record_list = record_list|selectattr('data_filename', 'defined') %}
+      {% for file_record_group in filerelated_record_list|groupby('data_filename') -%}
+        {{ format_file(file_record_group.grouper, file_record_group.list) }}
+      {%- endfor %}
+      {% set fileless_record_list = record_list|selectattr('data_filename', 'undefined')|list -%}
+      {{ format_file('General', fileless_record_list) }}
+      </div>
     </div>
   </div>
 </body>

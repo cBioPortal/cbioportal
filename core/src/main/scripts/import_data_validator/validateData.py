@@ -1784,7 +1784,7 @@ def usage():
 # ------------------------------------------------------------------------------
 def interface():
     parser = argparse.ArgumentParser(description='cBioPortal meta Importer')
-    parser.add_argument('-d', '--directory', type=str, required=True,
+    parser.add_argument('-s', '--directory', type=str, required=True,
                         help='path to directory.')
     parser.add_argument('-hugo', '--hugo_entrez_map',type=str, required=True,
                         help='Path to Hugo gene Symbol')
@@ -1794,7 +1794,7 @@ def interface():
                         help='Path to html report')
     parser.add_argument('-v', '--validate', required=True,action="store_true",
                         help='Validate')
-    parser.add_argument('-c', '--fix', required=False,action="store_true",
+    parser.add_argument('-f', '--fix', required=False,action="store_true",
                         help='Fix files')
 
     parser = parser.parse_args()
@@ -1811,7 +1811,7 @@ def main_validate(args):
 
 
     # process the options
-    study_dir = args.directory
+    study_dir = args.study_directory
     hugo = args.hugo_entrez_map
     fix = args.fix
     html_table_filename = args.html_simple_table

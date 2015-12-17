@@ -8,6 +8,7 @@
 import os
 import sys
 import getopt
+import argparse
 from cbioportal_common import *
 
 # ------------------------------------------------------------------------------
@@ -28,20 +29,20 @@ COMMANDS = [IMPORT_CANCER_TYPE, IMPORT_STUDY, REMOVE_STUDY, IMPORT_STUDY_DATA, I
 
 def import_cancer_type(jvm_args, meta_filename):
     args = jvm_args.split(' ')
-    args.append(IMPORT_CANCER_TYPE_CLASS);
+    args.append(IMPORT_CANCER_TYPE_CLASS)
     args.append(meta_filename)
     args.append("false") # don't clobber existing table
     run_java(*args)
 
 def import_study(jvm_args, meta_filename):
     args = jvm_args.split(' ')
-    args.append(IMPORT_STUDY_CLASS);
+    args.append(IMPORT_STUDY_CLASS)
     args.append(meta_filename)
     run_java(*args)
 
 def remove_study(jvm_args, meta_filename):
     args = jvm_args.split(' ')
-    args.append(REMOVE_STUDY_CLASS);
+    args.append(REMOVE_STUDY_CLASS)
     metastudy_properties = get_metastudy_properties(meta_filename)
     args.append(metastudy_properties.cancer_study_identifier)
     run_java(*args)
@@ -73,7 +74,7 @@ def import_study_data(jvm_args, meta_filename, data_filename):
 
 def import_case_list(jvm_args, meta_filename):
     args = jvm_args.split(' ')
-    args.append(IMPORT_CASE_LIST_CLASS);
+    args.append(IMPORT_CASE_LIST_CLASS)
     args.append(meta_filename)
     run_java(*args)
 
@@ -128,7 +129,7 @@ def process_directory(jvm_args, command, study_directory):
         return
 
     # First, import cancer type
-    import_cancer_type(jvm_args, cancer_type_meta.get('data_file_path'))
+    #import_cancer_type(jvm_args, cancer_type_meta.get('data_file_path'))
 
     # Next, we need to import clinical files
     for f in clinical_metafiles:
@@ -147,7 +148,9 @@ def process_directory(jvm_args, command, study_directory):
 
 def usage():
     print >> OUTPUT_FILE, ('cbioportalImporter.py --jvm-args (args to jvm) ' +
-							'--command [%s] --study-directory <path to directory> --meta-filename <path to metafile> --data-filename <path to datafile>' % (COMMANDS))
+                           '--command [%s] --study_directory <path to directory> '
+                           '--meta_filename <path to metafile>'
+                           '--data_filename <path to datafile>' % (COMMANDS))
 
 def check_args(command, jvm_args, study_directory, meta_filename, data_filename):
     if jvm_args == '' or command not in COMMANDS or (study_directory == '' and data_filename == '') or (study_directory != '' and data_filename != '') or (study_directory != '' and command != 'import-study' and command != 'remove-study'):
@@ -159,41 +162,39 @@ def check_files(study_directory, meta_filename, data_filename):
     if not os.path.exists(study_directory) and study_directory != '':
         print >> ERROR_FILE, 'Study cannot be found: ' + study_directory
         sys.exit(2)
-    if len(meta_filename) > 0 and not os.path.exists(meta_filename):
+    if meta_filename and not os.path.exists(meta_filename):
         print >> ERROR_FILE, 'meta-file cannot be found: ' + meta_filename
         sys.exit(2)
-    if len(data_filename) > 0 and not os.path.exists(data_filename):
+    if data_filename  and not os.path.exists(data_filename):
         print >> ERROR_FILE, 'data-file cannot be found:' + data_filename
 
-def main():
-    # parse command line options
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], '', ['command=', 'jvm-args=', 'study-directory=', 'meta-filename=', 'data-filename='])
-    except getopt.error, msg:
-        print >> ERROR_FILE, msg
-        usage()
-        sys.exit(2)
+def interface():
+    parser = argparse.ArgumentParser(description='cBioPortal meta Importer')
+    parser.add_argument('-c', '--command', type=str, required=True,
+                        help='Command for import.')
+    parser.add_argument('-s', '--study_directory',type=str, required=True,
+                        help='Path to Study Directory')
+    parser.add_argument('-jvm', '--jvm_args',type=str, required=True,
+                        help='JVM arguments')
+    parser.add_argument('-meta', '--meta_filename',type=str, required=False,
+                        help='Path to meta file')
+    parser.add_argument('-data', '--data_filename', type=str, required=False,
+                        help='Path to Data file')
+
+    parser = parser.parse_args()
+    return parser
+
+
+def main(args):
 
     # process the options
-    jvm_args = ''
-    study_directory = ''
-    command = ''
-    meta_filename = ''
-    data_filename = ''
+    jvm_args = args.jvm_args
+    study_directory = args.study_directory
+    command = args.command
+    meta_filename = args.meta_filename
+    data_filename = args.data_filename
 
-    for o, a in opts:
-        if o == '--jvm-args':
-            jvm_args = a
-        elif o == '--study-directory':
-            study_directory = a
-        elif o == '--command':
-            command = a
-        elif o == '--meta-filename':
-            meta_filename = a
-        elif o == '--data-filename':
-            data_filename = a
-
-    check_args(command, jvm_args, study_directory, meta_filename, data_filename)
+    #check_args(command, jvm_args, study_directory, meta_filename, data_filename)
     check_files(study_directory, meta_filename, data_filename)
     if study_directory != '':
         process_directory(jvm_args, command, study_directory)
@@ -204,4 +205,5 @@ def main():
 # ready to roll
 
 if __name__ == '__main__':
-    main()
+    args = interface()
+    main(args)

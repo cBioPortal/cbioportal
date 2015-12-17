@@ -40,7 +40,7 @@
 <style type="text/css" title="currentStyle">
 #genomic-overview-tip {
     position : absolute;
-    border : 1px solid gray;
+    border : 0px solid gray;
     background-color : #efefef;
     padding : 3px;
     z-index : 1000;
@@ -69,11 +69,17 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
 <script type="text/javascript" src="js/src/patient-view/genomic-overview.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/cancer-study-view/scatter-plot-mut-cna.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/cancer-study-view/load-clinical-data.js?<%=GlobalProperties.getAppVersion()%>"></script>
+
+<script type="text/javascript" src="js/src/co-exp/components/ScatterPlots.js?<%=GlobalProperties.getAppVersion()%>"></script>
+
 <script type="text/javascript">
+    var dataAttr = {};
+    var dataArr = [];
     google.load('visualization', '1', {packages:['table','corechart']}); 
     $(document).ready(function(){
         if (<%=noData%>) {
-            $('div#summary').html("No mutation or copy number profile data is available for this tumor.");
+            $('div#genomics-overview').html("No mutation or copy number profile data is available for this tumor.");
+            $('#mut-cna-scatter').hide();
             return;
         }
         
@@ -155,6 +161,47 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
             <%=mutationProfileStableId==null%>?null:'<%=mutationProfileStableId%>',
             hasCnaSegmentData,
             function(dt){
+
+                //start to get the plot values
+                dataArr = [];
+                var tempObj;
+                var tempX = [], tempY = [];
+                var highlightDot = {};
+                _.each(dt.Gf, function(item){
+
+                    if(item.c[0].v !== null && item.c[1].v !== null && item.c[2].v !== null)
+                    {
+                        tempObj = {};
+                        tempObj.case_id = item.c[0].v;
+                        tempObj.x_val = item.c[2].v;
+                        tempObj.y_val = item.c[1].v;
+                        if(item.c[0].v === caseIdsStr)
+                        {
+                            highlightDot.fill = 'red';
+                            highlightDot.case_id = item.c[0].v;
+                            highlightDot.x_val = item.c[2].v;
+                            highlightDot.y_val = item.c[1].v;
+                        }
+                        else
+                        {
+                            tempX.push(item.c[2].v);
+                            tempY.push(item.c[1].v);
+                            dataArr.push(tempObj);
+                        }
+
+
+                    }
+                });
+
+                //push the highlight dot to the data array last
+                tempX.push(highlightDot.x_val);
+                tempY.push(highlightDot.y_val);
+                dataArr.push(highlightDot);
+
+                dataAttr = {min_x: Math.min.apply(Math, tempX), max_x: Math.max.apply(Math, tempX), min_y: Math.min.apply(Math, tempY), max_y: Math.max.apply(Math, tempY), profile_name: "profile name test"};
+
+
+                //the end to get plot values
                 var maxMut = dt.getColumnRange(1).max;
                 var vLog = maxMut>1000;
                 if (vLog) $('#mut-cna-vaxis-log').attr('checked',true);
@@ -178,39 +225,68 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
             show: {delay: 200, event: "mouseover" },
             hide: {fixed: true, delay: 100,  event: "mouseout"},
             style: { classes: 'qtip-light qtip-rounded patient-view-scatter-qtip-wide' },
-            position: {my:'top right',at:'top left',viewport: $(window)},
+            position: {my:'center right',at:'center left'},
             events: {
                 render: function(event, api) {
-                    openMutCnaScatterDialog();
+                    openBigGraph();
                 }
             }
         }
         $('#'+scatterPlotDiv).qtip(params);
     }
 
+    function openBigGraph(){
+
+        var plotsOpts = {"style":{"fill":"#58ACFA","stroke":"#0174DF","stroke_width":"0.1","size":"50","shape":"circle",
+            "mutations":{"gene_x_mutate_fill":"#DBA901","gene_x_mutate_stroke":"#886A08","gene_y_mutate_fill":"#F5A9F2","gene_y_mutate_stroke":"#F7819F","gene_both_mutate_fill":"#FF0000","gene_both_mutate_stroke":"#B40404"}},
+            "canvas":{"width":440,"height":350,"xLeft":80,"xRight":430,"yTop":10,"yBottom":300},
+            "elem":{"svg":"","xScale":"","yScale":"","xAxis":"","yAxis":"","dotsGroup":"","axisGroup":"","axisTitleGroup":"","brush":""},
+            "names":{"header":"coexp_plot_BRCA1_headerNew","body":"coexp_plot_BRCA1_bodyNew","div":"coexp_plot_BRCA1","loading_img":"coexp_plot_BRCA1_loading_img","log_scale_x":"coexp_plot_BRCA1_log_scale_x","log_scale_y":"coexp_plot_BRCA1_log_scale_y","show_mutations":"coexp_plot_BRCA1_show_mutations","download_pdf":"coexp_plot_BRCA1_download_pdf","download_svg":"coexp_plot_BRCA1_download_svg","control_panel":"coexp_plot_BRCA1undefined"},
+            "text":{"xTitle":"Fraction of copy number altered genome","yTitle":"Mutation Count","xTitleHelp":"mRNA and microRNA Z-scores merged: mRNA expression Z-scores compared to diploid tumors (diploid for each gene), median values from all three mRNA expression platforms; and miRNA z-Scores compared to all tumours.","yTitleHelp":"mRNA and microRNA Z-scores merged: mRNA expression Z-scores compared to diploid tumors (diploid for each gene), median values from all three mRNA expression platforms; and miRNA z-Scores compared to all tumours.","title":"mRNA co-expression: BRCA1 vs. NBR2  ","fileName":"co_expression_result-BRCA1-NBR2",
+                "legends":{"gene_x_mut":"gene_x mutated","gene_y_mut":"gene_y mutated","gene_both_mut":"Both mutated","non_mut":"Neither mutated"}}};
+
+
+
+                $("#case-id-div").empty();
+                $("#case-id-div").append("<div id='" + plotsOpts.names.body + "'></div>");
+
+                var coexpPlotsBig = new ScatterPlots();
+
+                coexpPlotsBig.initBig(plotsOpts, dataArr, dataAttr, false);
+
+        $('#mut_cna_more_plot_msg').hide();
+
+
+    }
+
     function scatterPlotMutVsCna(dt,hLog,vLog,scatterPlotDiv,caseIdDiv) {
-        var emId = {};
-        caseIds.forEach(function(caseId) {
-            emId[caseId] = true;}
-        );
-        
-        var scatter = plotMutVsCna(null,scatterPlotDiv,caseIdDiv,cancerStudyId,dt,emId,2,1,null,hLog,vLog);
-        google.visualization.events.addListener(scatter, 'select', function(e){
-            var s = scatter.getSelection();
-            if (s.length>1) return;
-            if (caseIdDiv) {
-                var caseId = s.length===0 ? null : dt.getValue(s[0].row,0);
-                $('#case-id-div').html("<a href='"+cbio.util.getLinkToSampleView(cancerStudyId,caseId)+"'>"+caseId+"</a>");
-            }
-        });
+
+        var plotsOpts = {"style":{"fill":"#58ACFA","stroke":"#0174DF","stroke_width":"1.2","size":"20","shape":"circle",
+            "mutations":{"gene_x_mutate_fill":"#DBA901","gene_x_mutate_stroke":"#886A08","gene_y_mutate_fill":"#F5A9F2","gene_y_mutate_stroke":"#F7819F","gene_both_mutate_fill":"#FF0000","gene_both_mutate_stroke":"#B40404"}},
+            "canvas":{"width":100,"height":100,"xLeft":10,"xRight":90,"yTop":10,"yBottom":90},
+            "elem":{"svg":"","xScale":"","yScale":"","xAxis":"","yAxis":"","dotsGroup":"","axisGroup":"","axisTitleGroup":"","brush":""},
+            "names":{"header":"coexp_plot_BRCA1_header","body":"coexp_plot_BRCA1_body","div":"coexp_plot_BRCA1","loading_img":"coexp_plot_BRCA1_loading_img","log_scale_x":"coexp_plot_BRCA1_log_scale_x","log_scale_y":"coexp_plot_BRCA1_log_scale_y","show_mutations":"coexp_plot_BRCA1_show_mutations","download_pdf":"coexp_plot_BRCA1_download_pdf","download_svg":"coexp_plot_BRCA1_download_svg","control_panel":"coexp_plot_BRCA1undefined"},
+            "text":{"xTitle":"Fraction of copy...","yTitle":"Mutation Count","xTitleHelp":"","yTitleHelp":"","title":"Scatter Plot","fileName":"",
+                "legends":{"gene_x_mut":"gene_x mutated","gene_y_mut":"gene_y mutated","gene_both_mut":"Both mutated","non_mut":"Neither mutated"}},"legends":[{"fill":"#DBA901","stroke":"#886A08","size":"20","shape":"circle","stroke_width":"1.2","text":"BRCA1 mutated"},
+                {"fill":"#58ACFA","stroke":"#0174DF","size":"20","shape":"circle","stroke_width":"1.2","text":"Neither mutated"}]};
+
+
+        $("#" + scatterPlotDiv).empty();
+        $("#" + scatterPlotDiv).append("<div id='" + plotsOpts.names.body + "'></div>");
+
+        var coexpPlots = new ScatterPlots();
+        coexpPlots.initSmall(plotsOpts, dataArr, dataAttr, false);
+
+        $('#mut_cna_more_plot_msg').hide();
+
     }
 </script>
 
 <style>
 fieldset.fieldset-border {
-    border: 1px solid #ccc !important;
+    /*border: 0px solid #ccc !important;
     -webkit-box-shadow:  0px 0px 0px 0px #000;
-            box-shadow:  0px 0px 0px 0px #000;
+            box-shadow:  0px 0px 0px 0px #000;*/
 }
 
 legend.legend-border {
@@ -263,7 +339,7 @@ legend.legend-border {
     </tr>
 </table>
 
-<div id="mut_cna_scatter_dialog" title="Mutation VS Copy Number Alteration" style="display:none; width:600; height:600;font-size: 11px; text-align: left;.ui-dialog {padding: 0em;};">
+<div id="mut_cna_scatter_dialog" title="Mutation VS Copy Number Alteration" style="display:none; width:600; height:600;font-size: 11px; text-align: center;.ui-dialog {padding: 0em;};">
     <%@ include file="../cancer_study_view/mut_cna_scatter_plot.jsp" %>
     <p id='mut_cna_more_plot_msg'>Each dot represents a tumor sample in <a href='<%=linkToCancerStudy%>'><%=cancerStudy.getName()%></a>.<p>
 </div>

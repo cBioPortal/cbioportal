@@ -198,8 +198,8 @@ var StudyViewInitMutationsTab = (function(){
         
         $('#smg_wrapper_table').show();
         
+        oTable.fnAdjustColumnSizing();
         if ($('#study-tab-mutations-a').hasClass('selected')) {
-            oTable.fnAdjustColumnSizing();
             $('#study-tab-mutations-a').addClass("tab-clicked")
         }
         

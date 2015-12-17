@@ -15,28 +15,29 @@ window.cbioportal_client = (function() {
 				dataType: "json"
 			});
 		};
-		var functionNameToEndpoint = {
-			'CancerTypes':'api/cancertypes',
-			'SampleClinicalData':'api/clinicaldata/samples',
-			'PatientClinicalData':'api/clinicaldata/patients',
-			'SampleClinicalAttributes':'api/clinicalattributes/samples',
-			'PatientClinicalAttributes':'api/clinicalattributes/patients',
-			'Genes':'api/genes',
-			'GeneticProfiles':'api/geneticprofiles',
-			'SampleLists':'api/samplelists',
-			'Patients':'api/patients',
-			'GeneticProfileData':'api/geneticprofiledata',
-			'Samples':'api/samples',
-			'Studies':'api/studies'
+		var functionNameToEndpointProperties = {
+			'CancerTypes':{ endpoint: 'api/cancertypes' },
+			'SampleClinicalData': { endpoint: 'api/clinicaldata/samples' },
+			'PatientClinicalData': { endpoint: 'api/clinicaldata/patients' },
+			'SampleClinicalAttributes': { endpoint: 'api/clinicalattributes/samples' },
+			'PatientClinicalAttributes': { endpoint: 'api/clinicalattributes/patients' },
+			'Genes': { endpoint: 'api/genes' },
+			'GeneticProfiles': { endpoint: 'api/geneticprofiles' },
+			'SampleLists': { endpoint: 'api/samplelists' },
+			'SampleListsMeta': { endpoint: 'api/samplelists', args: {metadata: true } },
+			'Patients': { endpoint: 'api/patients' },
+			'GeneticProfileData': { endpoint: 'api/geneticprofiledata' },
+			'Samples': { endpoint: 'api/samples' },
+			'Studies': { endpoint: 'api/studies' }
 		};
 		var ret = {};
-		for (var fn_name in functionNameToEndpoint) {
-			if (functionNameToEndpoint.hasOwnProperty(fn_name)) {
-				ret['get'+fn_name] = (function(endpt) {
+		for (var fn_name in functionNameToEndpointProperties) {
+			if (functionNameToEndpointProperties.hasOwnProperty(fn_name)) {
+				ret['get'+fn_name] = (function(props) {
 					return function(args) {
-						return getApiCallPromise(endpt, args);
+						return getApiCallPromise(props.endpoint, $.extend(true, {}, args, props.args));
 					};
-				})(functionNameToEndpoint[fn_name]);
+				})(functionNameToEndpointProperties[fn_name]);
 			}
 		}
 		return ret;
@@ -200,12 +201,10 @@ window.cbioportal_client = (function() {
 					if (Object.prototype.toString.call(obj) === '[object Array]') {
 						ret.push(obj);
 					} else {
-						if (key_list_index < key_list_list.length) {
-							var keys = key_list_list[key_list_index] || Object.keys(obj);
-							for (k = 0; k<keys.length; k++) {
-								if (obj.hasOwnProperty(keys[k])) {
-									tmp_intermediate.push(obj[keys[k]]);
-								}
+						var keys = (key_list_index < key_list_list.length && key_list_list[key_list_index]) || Object.keys(obj);
+						for (k = 0; k<keys.length; k++) {
+							if (obj.hasOwnProperty(keys[k])) {
+								tmp_intermediate.push(obj[keys[k]]);
 							}
 						}
 					}

@@ -32,10 +32,6 @@
 
 package org.mskcc.cbio.portal.dao;
 
-import org.apache.commons.math.MathException;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.node.ArrayNode;
-import org.codehaus.jackson.node.JsonNodeFactory;
 import org.codehaus.jackson.node.ObjectNode;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 
@@ -83,7 +79,7 @@ public class DaoGeneticAlteration {
             long entrezGeneId,
             String[] values,
             ArrayList<Integer> orderedSampleList
-        ) throws MathException;
+        );
     }
 
     /**
@@ -231,7 +227,7 @@ public class DaoGeneticAlteration {
             //Set<Long> entrezGeneIds,            //list of genes in calculation gene pool (all genes or only cancer genes)
             int offSet,                         //OFFSET for LIMIT (to get only one segment of the genes)
             AlterationProcesser processor       //implemented interface
-    ) throws DaoException, MathException {
+    ) throws DaoException {
 
         ArrayList<ObjectNode> result = new ArrayList<>();
 

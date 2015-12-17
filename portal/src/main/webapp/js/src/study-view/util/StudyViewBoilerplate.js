@@ -210,7 +210,7 @@ var StudyViewBoilerplate ={
             title: "Mutation Count vs CNA",
             fileName: "",
             xTitleHelp: "Fraction of genome that has log2 copy number value above 0.2 or bellow -0.2",
-            yTitleHelp: "Number of sometic non-synonymous mutations"
+            yTitleHelp: "Number of somatic non-synonymous mutations"
         },
         legends: []
     },
@@ -229,6 +229,7 @@ var StudyViewBoilerplate ={
             _headerLeft = $('<div></div>'),
             _headerRight = $('<div></div>'),
 
+            _successBanner = $('<div></div>'),
             _breadcrumbs = $('<div></div>'),
             _span3 = $('<span></span>'),
             // span for the number of items found
@@ -237,11 +238,12 @@ var StudyViewBoilerplate ={
             _span4 = $("<input type='button' />"),
             _span5 = $('<span></span>'),
             _span6 = $("<input type='button' />"),
-            _form = $('<form></form>'),
+            _form = $('<form id="study-view-form"></form>'),
             _input1 = $('<input></input>'),
             _input2 = $('<input></input>'),
             _input3 = $('<input></input>'),
-            _input4 = $('<input></input>');
+            _input4 = $('<input></input>'),
+            _queryByGene = $('<span></span>');
         
         _headerLeft.attr('id','study-view-header-left');
 
@@ -271,6 +273,7 @@ var StudyViewBoilerplate ={
             .attr({
                 type: "hidden",
                 name: "case_set_id",
+                id: "study-view-header-left-case_set-id",
                 value: "-1"
             });
         _input3
@@ -306,7 +309,7 @@ var StudyViewBoilerplate ={
             .attr({
                 'id': 'study-view-header-left-3'
                 })
-            .text('Total number of samples selected: ');
+            .text('Samples selected: ');
 
        // tumormap.do?cancer_study_id=acyc_mskcc&case_id=9534#nav_case_ids=9534,6277
         //Build View cases button linking to patient view
@@ -328,9 +331,17 @@ var StudyViewBoilerplate ={
                 'class': 'study-view-header-button'})
             .val('Download');
 
+        _successBanner
+            .attr({
+               id: 'successBanner',
+               class: 'alert alert-success fade in',
+               style: 'display: none'
+            });
+
         // span3 is now the first item, span5 added, image added
         _headerLeft.append(_span3);
         _headerLeft.append(_span5);
+        _headerLeft.append(_queryByGene);
         _headerLeft.append("<img id='arrow_studyview' src='images/arrow_studyview.png'>");
         _headerLeft.append(_form);
         _headerLeft.append(_span4);
@@ -339,8 +350,37 @@ var StudyViewBoilerplate ={
         _headerRight.attr('id','study-view-header-right');
         _headerRight.append(_span1);
 
+        // add the success banner div to the header
+        //_header.append(_successBanner);
         _header.append(_headerLeft);
         _header.append(_headerRight);
+
+
+        _queryByGene
+            .attr({
+               'id': 'query-by-gene-span'
+            });
+
+        var queryByGeneTextArea = $('<textarea></textarea>');
+        queryByGeneTextArea
+            .attr({
+                'id': 'query-by-gene-textarea',
+                'class': 'expand expandFocusOut',
+                'rows': '1',
+                'cols': '10'
+            });
+
+        //var queryByGeneStatus = $('<p></p>');
+        //queryByGeneStatus
+        //    .attr({
+        //        'id': 'query-by-gene-status'
+        //    });
+
+
+        //_queryByGene.append('<span id="queryByGeneTextSpan">Genes selected: </span>');
+        _queryByGene.append('<span id="queryByGeneTextSpan"></span>');
+        _queryByGene.append(queryByGeneTextArea);
+        //_queryByGene.append(queryByGeneStatus);
 
         // add a container for the breadcrumbs
         _breadcrumbs.attr({
@@ -438,7 +478,6 @@ var StudyViewBoilerplate ={
             "</table>",
 
     // added for breadcrumbs
-    // "<div class='breadcrumb_container' style='display: inline-block'>"+
     breadCrumbDiv:
         "<div class='breadcrumb_container'>"+
             "<span class='breadcrumb_item'></span>"+

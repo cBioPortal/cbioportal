@@ -230,7 +230,7 @@
                               'WARNING': 'yellow',
                               'SUCCESS': 'green',
                               'UNKNOWN': 'grey'}[file_level] %}
-          <h4>{{ file_record_group.grouper|e }}<span class="ui-li-count {{ file_color }}Count">{{ file_level }}</span></h4>
+          <h4>{{ file_record_group.grouper|e }}<span class="ui-li-count {{ file_color }}Count">{{ file_level_list|length }}</span></h4>
           <table style="width:100%">
             <tr>
               <th>Line Number</th>

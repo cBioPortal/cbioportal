@@ -366,7 +366,8 @@ var Table = function() {
             show: {event: "mouseover"},
             hide: {fixed: true, delay: 200, event: "mouseout"},
             style: { classes: 'qtip-light qtip-rounded' },
-            position: {my:'top right',at:'bottom center',viewport: $(window)}
+            // changed positioning of the qtips
+            position: {my:'center right',at:'center left',viewport: $(window)}
         });
     }
     

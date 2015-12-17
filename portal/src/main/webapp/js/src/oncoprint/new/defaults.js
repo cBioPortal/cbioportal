@@ -126,6 +126,11 @@ window.oncoprint_defaults = (function() {
 			shape: 'large-right-arrow',
 			color: 'black',
 			legend_label: 'Fusion'
+		},
+		'OTHER':{
+			shape: 'middle-rect',
+			color: '#90EE90',
+			legend_label: 'Mutation'
 		}
 	};
 	

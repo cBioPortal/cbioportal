@@ -98,8 +98,8 @@ var PieChart = function(){
     function addPieLabels() {
         var _filters =[];
 
-        d3.selectAll('#' + DIV.mainDiv).selectAll('.study-view-pie-label').selectAll('*').remove();
-        d3.selectAll('#' + DIV.mainDiv).selectAll('.study-view-pie-label-copy').selectAll('*').remove();
+        d3.select('#' + DIV.mainDiv).select('.study-view-pie-label').selectAll('*').remove();
+        d3.select('#' + DIV.mainDiv).select('.study-view-pie-label-copy').selectAll('*').remove();
 
         initLabelInfo();
         labelFunction();
@@ -1024,11 +1024,11 @@ var PieChart = function(){
         _tableDiv.push('</tbody></table>');
         _tableDivStr = _tableDiv.join('');
 
-        d3.selectAll('#' + DIV.mainDiv).selectAll('.study-view-pie-label').html(_tableDivStr);
+        d3.select('#' + DIV.mainDiv).select('.study-view-pie-label').html(_tableDivStr);
 
         $('#' + DIV.mainDiv + ' .study-view-pie-label table').attr('id', DIV.labelTableID+'-0');
 
-        d3.selectAll('#' + DIV.mainDiv).selectAll('.study-view-pie-label-copy').html(_tableDivStr);
+        d3.select('#' + DIV.mainDiv).select('.study-view-pie-label-copy').html(_tableDivStr);
 
         if(selectedAttrDisplay.length > maxLabelNameLength && selectedAttrDisplay.length > _labelHeaderLT) {
             var _th = $('#' + DIV.mainDiv).find('#' + DIV.labelTableID+'-0 thead th:nth-child(1)');

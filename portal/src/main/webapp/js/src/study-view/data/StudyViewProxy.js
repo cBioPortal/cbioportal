@@ -448,33 +448,31 @@ var StudyViewProxy = (function() {
             gistic: [],
             gene: []
         };
-        if (sampleIds instanceof Array) {
-            if (sampleIds.length === this.getSampleIds().length) {
-                return obtainDataObject.cna;
-            }
-            if (obtainDataObject['cnaSampleBased']) {
-                var geneSpecific = {};
-                var numOfSample = sampleIds.length;
-                for (var i = 0; i < numOfSample; i++) {
-                    if (obtainDataObject.cnaSampleBased[sampleIds[i]]) {
-                        for (var j = 0, numOfGenes = obtainDataObject.cnaSampleBased[sampleIds[i]].length; j < numOfGenes; j++) {
-                            var key = obtainDataObject.cnaSampleBased[sampleIds[i]][j].gene + obtainDataObject.cnaSampleBased[sampleIds[i]][j].alter;
-                            if (_.isUndefined(geneSpecific[key])) {
-                                geneSpecific[key] = obtainDataObject.cnaSampleBased[sampleIds[i]][j];
-                                geneSpecific[key].caseIds = [];
-                            }
-                            geneSpecific[key].caseIds.push(sampleIds[i]);
+        if (sampleIds.length === this.getSampleIds().length) {
+            return obtainDataObject.cna;
+        }
+        if (obtainDataObject['cnaSampleBased']) {
+            var geneSpecific = {};
+            var numOfSample = sampleIds.length;
+            for (var i = 0; i < numOfSample; i++) {
+                if (obtainDataObject.cnaSampleBased[sampleIds[i]]) {
+                    for (var j = 0, numOfGenes = obtainDataObject.cnaSampleBased[sampleIds[i]].length; j < numOfGenes; j++) {
+                        var key = obtainDataObject.cnaSampleBased[sampleIds[i]][j].gene + obtainDataObject.cnaSampleBased[sampleIds[i]][j].alter;
+                        if (_.isUndefined(geneSpecific[key])) {
+                            geneSpecific[key] = obtainDataObject.cnaSampleBased[sampleIds[i]][j];
+                            geneSpecific[key].caseIds = [];
                         }
+                        geneSpecific[key].caseIds.push(sampleIds[i]);
                     }
                 }
-                _.values(geneSpecific).map(function (item) {
-                    data.alter.push(item.alter);
-                    data.caseIds.push(item.caseIds);
-                    data.cytoband.push(item.cytoband);
-                    data.gistic.push(item.gistic);
-                    data.gene.push(item.gene);
-                });
             }
+            _.values(geneSpecific).map(function (item) {
+                data.alter.push(item.alter);
+                data.caseIds.push(item.caseIds);
+                data.cytoband.push(item.cytoband);
+                data.gistic.push(item.gistic);
+                data.gene.push(item.gene);
+            });
         }
 
         return data;

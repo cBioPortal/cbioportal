@@ -525,7 +525,7 @@ var PieChart = function(){
                 _key = 'NA';
             }
 
-            if(!_caseIds.hasOwnProperty(_key)){
+            if(_.isUndefined(_caseIds[_key])){
                 _caseIds[_key] = [];
             }
             _caseIds[_key].push(_cases[i].CASE_ID);

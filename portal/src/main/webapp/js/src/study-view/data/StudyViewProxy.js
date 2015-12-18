@@ -159,7 +159,7 @@ var StudyViewProxy = (function() {
                 for(var i= 0; i < a1[0].attributes.length; i++){
                     var caseAttr = new CaseAttr();
                     caseAttr.attr_id =  a1[0].attributes[i].attr_id.toUpperCase();
-                    if(a1[0].attributes[i].hasOwnProperty('display_name') && a1[0].attributes[i].display_name){
+                    if(a1[0].attributes[i].display_name){
                         caseAttr.display_name = a1[0].attributes[i].display_name;
                     } else {
                         //Fallback to using ID if there is no display_name
@@ -257,7 +257,7 @@ var StudyViewProxy = (function() {
                 }else {
                     var cnaLength = obtainDataObject.arr.length;
                     for(var i = 0; i < cnaLength; i++) {
-                        if(obtainDataObject.arr[i].hasOwnProperty('MUTATION_COUNT')) {
+                        if(obtainDataObject.arr[i]['MUTATION_COUNT']) {
                             delete obtainDataObject.arr[i].MUTATION_COUNT;
                         }
                     }
@@ -287,7 +287,7 @@ var StudyViewProxy = (function() {
                 }else {
                     var cnaLength = obtainDataObject.arr.length;
                     for(var i = 0; i < cnaLength; i++) {
-                        if(obtainDataObject.arr[i].hasOwnProperty('COPY_NUMBER_ALTERATIONS')) {
+                        if(obtainDataObject.arr[i]['COPY_NUMBER_ALTERATIONS']) {
                             delete obtainDataObject.arr[i].COPY_NUMBER_ALTERATIONS;
                         }
                     }
@@ -396,7 +396,7 @@ var StudyViewProxy = (function() {
     function getCNAData(){
         var deferred = $.Deferred();
 
-        if(obtainDataObject.hasOwnProperty('cna') && obtainDataObject.cna){
+        if(obtainDataObject.cna){
             deferred.resolve(obtainDataObject.cna);
         }else{
             if(hasCNA) {
@@ -425,7 +425,7 @@ var StudyViewProxy = (function() {
                 var caseIds = data.caseIds[i];
 
                 for (var j = 0, caseIdsL = caseIds.length; j < caseIdsL; j++) {
-                    if (!converted.hasOwnProperty(caseIds[j])) {
+                    if (_.isUndefined(converted[caseIds[j]])) {
                         converted[caseIds[j]] = [];
                     }
                     converted[caseIds[j]].push({
@@ -452,14 +452,14 @@ var StudyViewProxy = (function() {
             if (sampleIds.length === this.getSampleIds().length) {
                 return obtainDataObject.cna;
             }
-            if (obtainDataObject.hasOwnProperty('cnaSampleBased')) {
+            if (obtainDataObject['cnaSampleBased']) {
                 var geneSpecific = {};
                 var numOfSample = sampleIds.length;
                 for (var i = 0; i < numOfSample; i++) {
-                    if (obtainDataObject.cnaSampleBased.hasOwnProperty(sampleIds[i])) {
+                    if (obtainDataObject.cnaSampleBased[sampleIds[i]]) {
                         for (var j = 0, numOfGenes = obtainDataObject.cnaSampleBased[sampleIds[i]].length; j < numOfGenes; j++) {
                             var key = obtainDataObject.cnaSampleBased[sampleIds[i]][j].gene + obtainDataObject.cnaSampleBased[sampleIds[i]][j].alter;
-                            if (!geneSpecific.hasOwnProperty(key)) {
+                            if (_.isUndefined(geneSpecific[key])) {
                                 geneSpecific[key] = obtainDataObject.cnaSampleBased[sampleIds[i]][j];
                                 geneSpecific[key].caseIds = [];
                             }
@@ -489,7 +489,7 @@ var StudyViewProxy = (function() {
                 var caseIds = data[i].caseIds;
 
                 for (var j = 0, caseIdsL = caseIds.length; j < caseIdsL; j++) {
-                    if (!converted.hasOwnProperty(caseIds[j])) {
+                    if (_.isUndefined(converted[caseIds[j]])) {
                         converted[caseIds[j]] = [];
                     }
                     converted[caseIds[j]].push(data[i]);
@@ -505,14 +505,14 @@ var StudyViewProxy = (function() {
             if(sampleIds.length === this.getSampleIds().length) {
                 return obtainDataObject.mutatedGenes;
             }
-            if(obtainDataObject.hasOwnProperty('mutatedGenesSampleBased')){
+            if(_.isObject(obtainDataObject['mutatedGenesSampleBased'])){
                 var geneSpecific = {};
                 var numOfSample = sampleIds.length;
                 for (var i = 0; i < numOfSample; i++) {
-                    if (obtainDataObject.mutatedGenesSampleBased.hasOwnProperty(sampleIds[i])) {
+                    if (obtainDataObject.mutatedGenesSampleBased[sampleIds[i]]) {
                         for (var j = 0, numOfGenes = obtainDataObject.mutatedGenesSampleBased[sampleIds[i]].length; j < numOfGenes; j++) {
                             var  geneSymbol = obtainDataObject.mutatedGenesSampleBased[sampleIds[i]][j].gene_symbol;
-                            if (!geneSpecific.hasOwnProperty(geneSymbol)) {
+                            if (_.isUndefined(geneSpecific[geneSymbol])) {
                                 geneSpecific[geneSymbol] = obtainDataObject.mutatedGenesSampleBased[sampleIds[i]][j];
                                 geneSpecific[geneSymbol].caseIds = [];
                             }

@@ -2034,6 +2034,8 @@ def main_validate(args):
 
     logger.info('Validation complete')
     logging.shutdown()
+    del logging._handlerList[:]  # workaround for harmless exceptions on exit
+
     return exitcode
 
 # ------------------------------------------------------------------------------

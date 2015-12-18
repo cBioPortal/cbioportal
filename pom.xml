@@ -6,7 +6,7 @@
     <artifactId>master</artifactId>
     <packaging>pom</packaging>
     <name>Portal Master</name>
-    <version>0.2.0-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
     <description>master maven module</description>
     <scm>
         <developerConnection>scm:git:https://github.com/cBioPortal/cbioportal.git</developerConnection>
@@ -126,6 +126,57 @@
 		<final-war-name>cbioportal</final-war-name>
 	  </properties>
 	</profile>
+    <profile>
+      <!-- copy files in heroku/ to root dir -->
+      <id>heroku</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-resources-plugin</artifactId>
+            <version>2.7</version>
+            <dependencies>
+              <dependency>
+                <groupId>org.apache.maven.shared</groupId>
+                <artifactId>maven-filtering</artifactId>
+                <version>1.3</version>
+              </dependency>
+            </dependencies>
+            <executions>
+              <execution>
+                <id>copy-resources</id>
+                <phase>validate</phase>
+                <goals><goal>copy-resources</goal></goals>
+                <configuration>
+                  <outputDirectory>.</outputDirectory>
+                  <resources>
+                    <resource>
+                      <directory>heroku/</directory>
+                      <filtering>true</filtering>
+                    </resource>
+                  </resources>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+              <execution>
+              <phase>validate</phase>
+              <goals><goal>run</goal></goals>
+              <configuration>
+                <tasks>
+                  <copy file="${PORTAL_HOME}/src/main/resources/portal.properties.EXAMPLE"
+                    tofile="${PORTAL_HOME}/src/main/resources/portal.properties" />
+                </tasks>
+              </configuration>
+              </execution>
+            </executions>
+            </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
 
   <!-- properties -->

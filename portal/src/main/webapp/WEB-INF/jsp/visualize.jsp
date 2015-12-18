@@ -30,8 +30,8 @@
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --%>
 
-<%@ include file="global/global_variables.jsp" %>
 
+<%@ include file="global/global_variables.jsp" %>
 <jsp:include page="global/header.jsp" flush="true" />
 <%@ page import="java.util.Map" %>
 
@@ -76,7 +76,7 @@
     } else {
 %>
 
-<div id="tabs" style="overflow: hidden">
+<div id="tabs">
     <ul>
     <%
         Boolean showMutTab = false;
@@ -172,7 +172,7 @@
             if (includeNetworks) {
                 out.println ("<li><a href='#network' class='result-tab' id='network-result-tab'>Network</a></li>");
             }
-            if (showIGVtab){
+            if (showIGVtab && !((String)request.getAttribute(QueryBuilder.CANCER_STUDY_ID)).equals("mskimpact")){
                 out.println ("<li><a href='#igv_tab' class='result-tab' id='igv-result-tab'>IGV</a></li>");
             }
             out.println ("<li><a href='#data_download' class='result-tab' id='data-download-result-tab'>Download</a></li>");
@@ -213,7 +213,7 @@
 
         <%@ include file="plots_tab.jsp" %>
 
-        <% if (showIGVtab) { %>
+        <% if (showIGVtab && !((String)request.getAttribute(QueryBuilder.CANCER_STUDY_ID)).equals("mskimpact")) { %>
             <%@ include file="igv.jsp" %>
         <% } %>
 
@@ -273,22 +273,52 @@
         var firstTime = true;
 
         $("#toggle_query_form").tipTip();
+        // check if network tab is initially selected
+        if ($("div.section#network").is(":visible"))
+        {
+            // init the network tab
+	        //send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
+	        //firstTime = false;
+
+	        // TODO window.networkGraphJSON is null at this point,
+	        // this is a workaround to wait for graphJSON to get ready
+	        var interval = setInterval(function() {
+		        if (window.networkGraphJSON != null)
+		        {
+			        clearInterval(interval);
+			        if (firstTime)
+			        {
+                $(window).resize();
+				        send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
+				        firstTime = false;
+			        }
+		        }
+	        }, 50);
+        }
 
         $("a.result-tab").click(function(){
 
-            if($(this).attr("href")=="#network") {
-                if(firstTime)
+            if($(this).attr("href")=="#network")
+            {
+              var interval = setInterval(function() {
+                if (window.networkGraphJSON != null)
                 {
-                  send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
-                  firstTime = false;
-                }
-	            else
-                {
-	                // TODO this is a workaround to adjust cytoscape canvas
-	                // and probably not the best way to do it...
-	                $(window).resize();
-                }
+                  clearInterval(interval);
+                  if(firstTime)
+                  {
+                    $(window).resize();
+                    send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
+                    firstTime = false;
+                  }
+                else
+                  {
+                    // TODO this is a workaround to adjust cytoscape canvas
+                    // and probably not the best way to do it...
+                    $(window).resize();
+                  }
 
+                }
+              }, 50);
             } else {
                 if($(this).attr("href")=="#bookmark_email") {
                     $("#bookmark-link").attr("href",window.location.href);

@@ -240,8 +240,10 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 	elements: elements,
 
 	layout: {
-		name: 'cose2',
-		randomize: true
+		name: 'cose-bilkent',
+		randomize: true,
+		animate: false,
+		fit:true,
 	},
 	wheelSensitivity: 0.2,
 
@@ -250,15 +252,10 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 	{
 		window.cy = this;
 
-
-		// giddy up...
-		cy.fit();
-
 		var netVis = new NetworkVis(networkDivId);
 
 		// init UI of the network tab
 		netVis.initNetworkUI(cy);
-
 
 		cy.on('mouseover', 'node', function(evt){
 			if (!this.isParent()) {
@@ -270,6 +267,7 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 				});
 			}
 		});
+
 		cy.on('mousemove', 'node', function(evt){
 			if (!this.isParent()) {
 				this._private.style['mouse-position-x'] = evt.cyPosition.x;
@@ -437,8 +435,15 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 			zoomInIcon: 'fa fa-plus',
 			zoomOutIcon: 'fa fa-minus',
 			resetIcon: 'fa fa-expand'    });
+
 			cy.panzoom(panProps);
+
+			cy.zoom(1.3);
+			//cy.fit([,100]);
+			cy.center();
+
 		}});
+
 
 	}
 

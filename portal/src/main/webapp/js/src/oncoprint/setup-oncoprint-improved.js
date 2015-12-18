@@ -5,99 +5,12 @@ window.setUpOncoprint = function(ctr_id, config) {
 	var sampleViewUrl, patientViewUrl;
 	
 	var sample_to_patient = config.sample_to_patient;
-	var gene_data = config.gene_data;
+	var sample_gene_data = config.sample_gene_data;
+	var patient_gene_data = config.patient_gene_data;
 	
 	var genetic_alteration_tracks = [];
 	var clinical_tracks = [];
 	
-	var splitIdString = function(str) {
-		str = str.trim();
-		if (str.length > 0) {
-			return str.split(/\s+/);
-		} else {
-			return [];
-		}
-	};
-	var annotateMutationTypes = function(data) {
-		var ret = _.map(data, function (d) {
-			if (d.mutation) {
-				var mutations = d.mutation.split(",");
-				var hasIndel = false;
-				if (mutations.length > 1) {
-					for (var i = 0, _len = mutations.length; i < _len; i++) {
-						if (/\bfusion\b/i.test(mutations[i])) {
-							d.mut_type = 'FUSION';
-						} else if (!(/^[A-z]([0-9]+)[A-z]$/g).test(mutations[i])) {
-							d.mut_type = 'TRUNC';
-						} else if ((/^([A-Z]+)([0-9]+)((del)|(ins))$/g).test(mutations[i])) {
-							hasIndel = true;
-						}
-					}
-					d.mut_type = d.mut_type || (hasIndel ? 'INFRAME' : 'MISSENSE');
-				} else {
-					if (/\bfusion\b/i.test(mutations)) {
-						d.mut_type = 'FUSION';
-					} else if ((/^[A-z]([0-9]+)[A-z]$/g).test(mutations)) {
-						d.mut_type = 'MISSENSE';
-					} else if ((/^([A-Z]+)([0-9]+)((del)|(ins))$/g).test(mutations)) {
-						d.mut_type = 'INFRAME';
-					} else {
-						d.mut_type = 'TRUNC';
-					}
-				}
-			}
-			return d;
-		});
-		return ret;
-	};
-
-	var makePatientData__Gene = function(sample_data) {
-		var ret = {};
-		// TEMPORARY: just use an arbitrary sample. TODO: fix this properly
-		var extremeness = {
-			cna: {
-				'AMPLIFIED': 2,
-				'GAINED': 1,
-				'HEMIZYGOUSLYDELETED': 1,
-				'HOMODELETED': 2,
-				undefined: 0
-			},
-			mrna: {
-				'UPREGULATED': 1,
-				'DOWNREGULATED': 1,
-				undefined: 0
-			},
-			rppa: {
-				'UPREGULATED': 1,
-				'DOWNREGULATED': 1,
-				undefined: 0
-			}
-		};
-		_.each(sample_data, function (d) {
-			var patient_id = sample_to_patient[d.sample];
-			ret[patient_id] = ret[patient_id] || {patient: patient_id, gene:d.gene, na: true};
-			var new_datum = ret[patient_id];
-			if (!d.hasOwnProperty("na")) {
-				delete new_datum["na"];
-			}
-			_.each(d, function(val, key) {
-				if (key === 'mutation') {
-					new_datum['mutation'] = (new_datum['mutation'] && (new_datum['mutation']+','+val)) || val;
-				} else if (extremeness.hasOwnProperty(key)) {
-					if (extremeness[key][val] > extremeness[key][new_datum[key]]) {
-						new_datum[key] = val;
-					}
-				}
-			});
-		});
-		return _.map(Object.keys(ret), function (k) {
-			var d = ret[k];
-			if (d.mutation) {
-				d.mutation = _.uniq(d.mutation.split(',').filter(function(x) { return x.trim().length > 0; })).join(",");
-			}
-			return d;
-		});
-	};
 	var makePatientData__Clinical = function(sample_data, aggregation_method) {
 		var ret = {};
 		if (aggregation_method === 'category') {
@@ -310,21 +223,28 @@ window.setUpOncoprint = function(ctr_id, config) {
 	})();
 	(function createGeneticAlterationTracks() {
 		var genes = {};
-		_.each(gene_data, function (d) {
+		_.each(sample_gene_data, function (d) {
 			genes[d.gene] = true;
 		});
 		genes = Object.keys(genes);
-		_.each(gene_data, function (d) {
+		_.each(sample_gene_data, function (d) {
 			var gene = d.gene;
 			sample_data__gene[gene] = sample_data__gene[gene] || [];
 			sample_data__gene[gene].push(d);
 		});
-		_.each(sample_data__gene, function (data, gene) {
-			sample_data__gene[gene] = annotateMutationTypes(data);
+		if (patient_gene_data) {
+		    _.each(patient_gene_data, function(d) {
+			    var gene = d.gene;
+			    patient_data__gene[gene] = patient_data__gene[gene] || [];
+			    patient_data__gene[gene].push(d);
+		    });
+		}
+		/*_.each(sample_data__gene, function (data, gene) {
+			sample_data__gene[gene] = data;
 			if (config.swap_patient_sample) {
 				patient_data__gene[gene] = annotateMutationTypes(makePatientData__Gene(data));
 			}
-		});
+		});*/
 		genes = config.gene_order || genes;
 		
 		(function populateOncoprintWithProgressUpdates() {
@@ -416,13 +336,13 @@ window.setUpOncoprint = function(ctr_id, config) {
 						var altered_patient_count = altered_pats.length;
 						var unaltered_patient_count = unaltered_pats.length;
 						var total_patient_count = altered_patient_count + unaltered_patient_count;
-						var percent_altered = Math.ceil(100 * altered_patient_count / total_patient_count);
+						var percent_altered = Math.round(100 * altered_patient_count / total_patient_count);
 						$(config.percent_altered_indicator_selector).text("Altered in " + altered_patient_count + " (" + percent_altered + "%) of " + total_patient_count + " cases/patients");
 					});
 				} else {
 					$.when(window.QuerySession.getAlteredSamples(), window.QuerySession.getUnalteredSamples())
 						.then(function(altered_samps, unaltered_samps) {
-					$(config.percent_altered_indicator_selector).text("Altered in "+ altered_samps.length + " ("+ Math.ceil(100 * altered_samps.length / (altered_samps.length + unaltered_samps.length)) +"%) of "+ (altered_samps.length + unaltered_samps.length) + " samples");
+					$(config.percent_altered_indicator_selector).text("Altered in "+ altered_samps.length + " ("+ Math.round(100 * altered_samps.length / (altered_samps.length + unaltered_samps.length)) +"%) of "+ (altered_samps.length + unaltered_samps.length) + " samples");
 					});
 				};
 			}
@@ -464,7 +384,7 @@ window.setUpOncoprint = function(ctr_id, config) {
 					unused_clinical_attrs = _.sortBy(attrs.toJSON(), function (o) {
 						return o.display_name;
 					});
-					if (window.PortalGlobals.getMutationProfileId() !== null) {
+					if (window.QuerySession.getMutationProfileId() !== null) {
 						unused_clinical_attrs.unshift({attr_id: "# mutations",
 							datatype: "NUMBER",
 							description: "Number of mutations",
@@ -472,7 +392,7 @@ window.setUpOncoprint = function(ctr_id, config) {
 						});
 					}
 
-					if (window.PortalGlobals.getCancerStudyId() !== null) {
+					if (window.QuerySession.getCancerStudyIds().length > 0) {
 						unused_clinical_attrs.unshift({attr_id: "FRACTION_GENOME_ALTERED",
 							datatype: "NUMBER",
 							description: "Fraction Genome Altered",
@@ -605,7 +525,7 @@ window.setUpOncoprint = function(ctr_id, config) {
 							clinicalMutationColl.fetch({
 								type: "POST",
 								data: {
-									mutation_profile: window.PortalGlobals.getMutationProfileId(),
+									mutation_profile: window.QuerySession.getMutationProfileId(),
 									cmd: "count_mutations",
 									case_ids: config.sample_list.join(" ")
 								},

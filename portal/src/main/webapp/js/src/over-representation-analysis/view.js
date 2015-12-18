@@ -385,7 +385,7 @@ var orTable = function() {
 
         $("#" + btn_id).click(function() {
 
-            if (window.PortalGlobals.getCaseSetId() !== "-1") {
+            if (window.QuerySession.getCaseSetId() !== "-1") {
                var _start_pos_gene_list = document.URL.indexOf("gene_list=") + "gene_list=".length;
 		var _end_pos_gene_list = document.URL.indexOf("&", _start_pos_gene_list);
 		var pre_gene_list = document.URL.substring(0, _start_pos_gene_list);
@@ -398,16 +398,16 @@ var orTable = function() {
 
                 //genetic profiles separate
                 var _tmp_profile_id_list = "";
-                $.each(window.PortalGlobals.getGeneticProfiles().split(/\s+/), function(index, _profile_id) {
+                $.each(window.QuerySession.getGeneticProfileIds(), function(index, _profile_id) {
                     _tmp_profile_id_list += "genetic_profile_ids=" + _profile_id + "&";
                 });
                 var _new_url = _original_url.concat(
                     "?" + "tab_index=tab_visualize" + "&" +
-                    "cancer_study_id=" + window.PortalGlobals.getCancerStudyId() + "&" +
+                    "cancer_study_id=" + window.QuerySession.getCancerStudyIds()[0] + "&" +
                     _tmp_profile_id_list +
                     "gene_list=" + window.QuerySession.getOQLQuery() + encodeURIComponent("\n") + selected_genes.join(encodeURIComponent("\n")) + "&" +
-                    "case_set_id=" + window.PortalGlobals.getCaseSetId() + "&" +
-                    "case_ids_key=" + window.PortalGlobals.getCaseIdsKey() + "&" +
+                    "case_set_id=" + window.QuerySession.getCaseSetId() + "&" +
+                    "case_ids_key=" + window.QuerySession.getCaseIdsKey() + "&" +
                     "Action=Submit"
                 );
                 if (selected_genes.length !== 0) {
@@ -446,9 +446,13 @@ var orTable = function() {
         if (profile_type === orAnalysis.profile_type.copy_num || profile_type === orAnalysis.profile_type.mutations) {
             result_str = "Gene\tCytoband\tPercentage of alteration(Altered)\tPercentage of Alteration(Unaltered)\t" +
                 "Log ratio\tp-Value\tq-Value\tDirection/Tendency\n";
-        } else if (profile_type === orAnalysis.profile_type.mrna || profile_type === orAnalysis.profile_type.protein_exp) {
-            result_str = "Gene\tCytoband\tMean of alteration(Altered)\tMean of Alteration(Unaltered)\t" +
-                "Standard Deviation of Alteration(Altered)\tStandard Deviation of Alteration(Unaltered)\t" +
+        } else if (profile_type === orAnalysis.profile_type.mrna) {
+            result_str = "Gene\tCytoband\tMean mRNA expression(Altered)\tMean mRNA expression(Unaltered)\t" +
+                "Standard deviation of mRNA expression(Altered)\tStandard deviation of mRNA expression(Unaltered)\t" +
+                "p-Value\tq-Value\n";
+        } else if (profile_type === orAnalysis.profile_type.protein_exp) {
+            result_str = "Gene\tCytoband\tMean protein expression(Altered)\tMean protein expression(Unaltered)\t" +
+                "Standard deviation of protein expression(Altered)\tStandard deviation of protein expression(Unaltered)\t" +
                 "p-Value\tq-Value\n";
         }
         //content
@@ -501,8 +505,8 @@ var orTable = function() {
         } else if (profile_type === orAnalysis.profile_type.mrna) {
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.gene + "'>Gene</th>";
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.cytoband + "'>Cytoband</th>";
-            _title_str += "<th colspan='2'>Mean of alteration &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.mean_alt + "'></th>";
-            _title_str += "<th colspan='2'>Standard deviation of alteration &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.stdev_alt + "'></th>";
+            _title_str += "<th colspan='2'>Mean mRNA expression &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.mean_alt + "'></th>";
+            _title_str += "<th colspan='2'>Standard deviation of mRNA expression &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.stdev_alt + "'></th>";
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.p_val + "'>p-Value &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.p_val_t_test + "'></th>";
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.q_val + "'>q-Value &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.q_val + "'></th>";
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.plot + "'>Plot</th>";
@@ -514,8 +518,8 @@ var orTable = function() {
         } else if (profile_type === orAnalysis.profile_type.protein_exp) {
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.gene + "'>Gene</th>";
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.cytoband + "'>Cytoband</th>";
-            _title_str += "<th colspan='2'>Mean of alteration &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.mean_alt + "'></th>";
-            _title_str += "<th colspan='2'>Standard deviation of alteration &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.stdev_alt + "'></th>";
+            _title_str += "<th colspan='2'>Mean protein expression &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.mean_alt + "'></th>";
+            _title_str += "<th colspan='2'>Standard deviation of protein expression &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.stdev_alt + "'></th>";
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.p_val + "'>p-Value &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.p_val_t_test + "'></th>";
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.q_val + "'>q-Value &nbsp;<img class='help-img-icon' src='" + orAnalysis.settings.help_icon_img_src + "' id='" + table_id + orAnalysis._title_ids.q_val + "'></th>";
             _title_str += "<th rowspan='2' width='" + orAnalysis.col_width.plot + "'>Plot</th>";

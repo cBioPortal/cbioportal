@@ -294,7 +294,7 @@
 		if (rule_set && rule_set.alteredData) {
 			var data = this.oncoprint.getTrackData(track_id);
 			var num_altered = rule_set.alteredData(data).length;
-			var percent_altered = Math.floor(100 * num_altered / data.length);
+			var percent_altered = Math.round(100 * num_altered / data.length);
 			this.altered_data_percentage[track_id] = percent_altered;
 		}
 	};

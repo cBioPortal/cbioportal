@@ -18,10 +18,10 @@ var metaData = (function() {
 
     function fetchProfileMetaData() {
         var paramsGetProfiles = {
-            cancer_study_id: window.PortalGlobals.getCancerStudyId(),
-            case_set_id: window.PortalGlobals.getCaseSetId(),
-            case_ids_key: window.PortalGlobals.getCaseIdsKey(),
-            gene_list: window.PortalGlobals.getGeneListString()
+            cancer_study_id: window.QuerySession.getCancerStudyIds()[0],
+            case_set_id: window.QuerySession.getCaseSetId(),
+            case_ids_key: window.QuerySession.getCaseIdsKey(),
+            gene_list: window.QuerySession.getQueryGenes().join(" ")
         };
         $.post("getGeneticProfile.json", paramsGetProfiles, fetchClinicalAttrMetaData, "json");  
     }
@@ -29,9 +29,9 @@ var metaData = (function() {
     function fetchClinicalAttrMetaData(profileMetaDataResult) {
         var paramsGetClinicalAttributes = {
             cmd : "getClinicalData",
-            cancer_study_id: window.PortalGlobals.getCancerStudyId(),
-            case_set_id : window.PortalGlobals.getCaseSetId(),
-            case_ids_key: window.PortalGlobals.getCaseIdsKey(),
+            cancer_study_id: window.QuerySession.getCancerStudyIds()[0],
+            case_set_id : window.QuerySession.getCaseSetId(),
+            case_ids_key: window.QuerySession.getCaseIdsKey(),
             format : "json"
         };
         $.post("webservice.do", paramsGetClinicalAttributes, function(result) {
@@ -70,7 +70,7 @@ var metaData = (function() {
             _datum.description = obj.description;
             clinicalAttrs.push(_datum);
         });
-        
+
         //sort genetic profiles
         for(var gene in geneticProfiles) {
             var _gene_obj = geneticProfiles[gene];

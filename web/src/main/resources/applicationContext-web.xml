@@ -23,6 +23,7 @@
 
     <!-- enable component scanning -->    
     <context:component-scan base-package="org.mskcc.cbio.portal.web" />
+    <context:component-scan base-package="org.mskcc.cbio.portal.documentation" />
 
     <!-- annotation-driven MVC controllers -->
     <mvc:annotation-driven />

@@ -34,7 +34,7 @@
 
 var StudyViewInitTables = (function() {
     var workers = [];
-    
+
     function init(input,callback) {
         initData(input);
         initTables();
@@ -42,18 +42,18 @@ var StudyViewInitTables = (function() {
             callback();
         }
     }
-    
+
     function initData(input) {
         var attr = input.data.attr,
             numOfCases = input.numOfCases;
-        
+
         attr.forEach(function(e, i) {
             var _worker = {};
-            
+
             _worker.opts = {};
             _worker.data = {};
             _worker.callbacks = {};
-            
+
             switch (e.name) {
                 case 'mutatedGenes':
                     _worker.data.attr = [{
@@ -96,6 +96,7 @@ var StudyViewInitTables = (function() {
                             }
                         );
                     };
+                    _worker.callbacks.addGeneClick = addGeneClick;
                     break;
                 case 'cna':
                     _worker.data.attr = [{
@@ -141,6 +142,7 @@ var StudyViewInitTables = (function() {
                             }
                         );
                     };
+                    _worker.callbacks.addGeneClick = addGeneClick;
                     break;
                 default:
                     _worker.opts.title = 'Unknown';
@@ -151,13 +153,63 @@ var StudyViewInitTables = (function() {
             _worker.opts.name = e.name;
             _worker.opts.tableId = 'study-view-table-' + e.name;
             _worker.opts.parentId = 'study-view-charts';
-            _worker.opts.webService = e.webService;
             _worker.callbacks.deleteTable = deleteTable;
             _worker.callbacks.rowClick = rowClick;
             workers.push(_worker);
         });
     }
-    
+
+    function addGeneClick(clickedRowData){
+        // clickedRowData[0] contains the gene
+        QueryByGeneTextArea.addRemoveGene(clickedRowData[0]);
+    }
+
+    var curSelectedGenes=Array();
+    function updateGeneHighlights(geneArray){
+        // loop the tables
+        for(var i = 0; i < workers.length; i++) {
+            // if the table supports addGeneClick, update the highlights
+            if(workers[i].callbacks.addGeneClick != undefined){
+                updateGeneHighlightTable(workers[i], geneArray);
+            }
+        }
+        // store the current geneArray as the current selected genes
+        curSelectedGenes = geneArray;
+    }
+
+    function updateGeneHighlightTable(worker, geneArray){
+        // get the dataTable, determine the deselected genes and the selected genes
+        var dataTable = worker.tableInstance.getDataTable();
+        var deselectGenes = _.difference(curSelectedGenes, geneArray);
+        var selectGenes = _.difference(geneArray, curSelectedGenes);
+
+        // update the highlighting
+        doUpdateGeneHighlightTable(dataTable, worker, deselectGenes, true);
+        doUpdateGeneHighlightTable(dataTable, worker, selectGenes, false);
+    }
+
+    function doUpdateGeneHighlightTable(dataTable, worker, array, deselect){
+        var item;
+        // for all the genes
+        for(var i=0; i<array.length; i++) {
+            // find the appropriate item
+            if (worker.opts.name == "cna")
+                item = dataTable.$("td[id*='-" + array[i] + "-']").parent().find(".selectHighlight");
+            else
+                item = dataTable.$("td[id$='-" + array[i] + "']").parent().find(".selectHighlight");
+
+            // change class and qtip
+            if(deselect) {
+                item.removeClass("geneSelected");
+                item.qtip('option', 'content.text', 'Click '+array[i]+' to add to your query');
+            }
+            else{
+                item.addClass("geneSelected");
+                item.qtip('option', 'content.text', 'Click '+array[i]+' to remove from your query');
+            }
+        }
+    }
+
     function rowClick(tableId, data, clickedRowData, rowSelected) {
         var dcCharts = StudyViewInitCharts.getCharts(),
             dcChartsL = dcCharts.length,
@@ -168,7 +220,7 @@ var StudyViewInitTables = (function() {
             Ids = [],
             exceptionId = [],
             caseIdChartIndex = StudyViewInitCharts.getCaseIdChartIndex();;
-        
+
         //Find reletive table data
         for(var i = 0; i < workers.length; i++) {
             if(workers[i].opts.tableId === tableId)  {
@@ -177,7 +229,7 @@ var StudyViewInitTables = (function() {
                 break;
             }
         }
-        
+
         switch (worker.opts.name) {
             case 'mutatedGenes':
                 for(var i=0; i < numOfSelectedRows; i++) {
@@ -192,9 +244,9 @@ var StudyViewInitTables = (function() {
             default:
                 break;
         }
-        
+
         workers[workerIndex].data.selected= Ids;
-        
+
         if(Ids.length === 0) {
             workers[workerIndex].data.selectedSamples.length=0;
             workers.forEach(function(e, i){
@@ -287,7 +339,7 @@ var StudyViewInitTables = (function() {
         StudyViewInitCharts.bondDragForLayout();
         AddCharts.bindliClickFunc();
     }
-    
+
     function initTables() {
         StudyViewUtil.addCytobandSorting();
         workers.forEach(function(e, i){
@@ -299,7 +351,7 @@ var StudyViewInitTables = (function() {
             }, i);
         });
     }
-    
+
     function mutatedGenesData(data, numOfCases) {
         var genes = [];
 
@@ -309,7 +361,7 @@ var StudyViewInitTables = (function() {
                     caseIds = data[i].caseIds;
 
                 datum.gene = data[i].gene_symbol;
-                datum.numOfMutations = Number(data[i].num_muts);
+                datum.numOfMutations = caseIds.length;
                 datum.samples = caseIds.filter(function(elem, pos) {
                     return caseIds.indexOf(elem) === pos;
                 }).length;
@@ -334,7 +386,7 @@ var StudyViewInitTables = (function() {
         }
         return genes;
     }
-    
+
     function cnaData(data, numOfCases) {
 
         var genes = [];
@@ -376,11 +428,11 @@ var StudyViewInitTables = (function() {
         }
         return genes;
     }
-    
+
     function redraw(data){
         var numSelectedCasesL = data.selectedCases.length,
             exceptionIds = [];
-    
+
         if(data.hasOwnProperty('exceptionIds') && typeof data.exceptionIds === 'object'){
             exceptionIds = data.exceptionIds;
         }
@@ -390,34 +442,31 @@ var StudyViewInitTables = (function() {
                 e.tableInstance.startLoading();
             }
         });
-        
-        workers.forEach(function(e, i){
-            if(exceptionIds.indexOf(e.opts.tableId) === -1){
-                if(numSelectedCasesL.length !== 0){
-                    $.ajax(data.webService[e.opts.name])
-                        .done(function(d){
-                            switch (e.opts.name) {
-                                case 'mutatedGenes':
-                                    workers[i].data.arr = mutatedGenesData(d, numSelectedCasesL);
-                                    break;
-                                case 'cna':
-                                    workers[i].data.arr = cnaData(d, numSelectedCasesL);
-                                    break;
-                                default:
-                                    break;
-                            }
-                            e.tableInstance.redraw(workers[i].data, function(){
-                                e.tableInstance.stopLoading();
-                            });
-                        });
-                }else{
+
+        workers.forEach(function (e, i) {
+            if (exceptionIds.indexOf(e.opts.tableId) === -1) {
+                if (numSelectedCasesL.length !== 0) {
+                    switch (e.opts.name) {
+                        case 'mutatedGenes':
+                            workers[i].data.arr = mutatedGenesData(StudyViewProxy.getMutatedGeneDataBasedOnSampleIds(data.selectedCases), numSelectedCasesL);
+                            break;
+                        case 'cna':
+                            workers[i].data.arr = cnaData(StudyViewProxy.getCNABasedOnSampleIds(data.selectedCases), numSelectedCasesL);
+                            break;
+                        default:
+                            break;
+                    }
+                    e.tableInstance.redraw(workers[i].data, function () {
+                        e.tableInstance.stopLoading();
+                    });
+                } else {
                     workers[i].data.arr = [];
-                    e.tableInstance.redraw(workers[i].data);;
+                    e.tableInstance.redraw(workers[i].data);
                 }
             }
         });
     }
-    
+
     function clearAllSelected() {
         workers.forEach(function(e, i){
             if(workers[i].data.hasOwnProperty('selectedSamples')){
@@ -428,11 +477,12 @@ var StudyViewInitTables = (function() {
             }
         });
     }
-    
+
     return {
         init: init,
         redraw: redraw,
         clearAllSelected: clearAllSelected,
+        updateGeneHighlights: updateGeneHighlights,
         getInitStatus: function() {
             if(workers.length > 0) {
                 return true;
@@ -446,5 +496,5 @@ var StudyViewInitTables = (function() {
             });
         }
     };
-    
+
 })();

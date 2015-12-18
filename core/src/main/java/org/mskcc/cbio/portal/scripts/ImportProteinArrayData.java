@@ -76,10 +76,10 @@ public class ImportProteinArrayData {
         FileReader reader = new FileReader(arrayData);
         BufferedReader buf = new BufferedReader(reader);
         String line = buf.readLine();
-        String[] firstLine = line.split("\t");
-        String[] sampleIds = Arrays.copyOfRange(firstLine, 1, firstLine.length-1);
-        ImportDataUtil.addPatients(sampleIds, profile.getGeneticProfileId());
-        ImportDataUtil.addSamples(sampleIds, profile.getGeneticProfileId());
+        String[] sampleIds = line.split("\t");
+//        sampleIds = Arrays.copyOfRange(sampleIds, 1, sampleIds.length);
+//        ImportDataUtil.addPatients(sampleIds, profile.getGeneticProfileId());
+//        ImportDataUtil.addSamples(sampleIds, profile.getGeneticProfileId());
         Sample[] samples = new Sample[sampleIds.length-1];
         for (int i=1; i<sampleIds.length; i++) {
             samples[i-1] = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, StableIdUtil.getSampleId(sampleIds[i]));

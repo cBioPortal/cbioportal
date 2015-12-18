@@ -1,23 +1,16 @@
 package org.mskcc.cbio.portal.or_analysis;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.commons.math.MathException;
-import org.apache.commons.math.stat.StatUtils;
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
-import org.apache.commons.math.stat.inference.TestUtils;
+import org.apache.commons.math3.stat.StatUtils;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.apache.commons.math3.stat.inference.TestUtils;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.node.ArrayNode;
-import org.codehaus.jackson.node.JsonNodeFactory;
 import org.codehaus.jackson.node.ObjectNode;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.dao.DaoGeneticAlteration;
-import org.mskcc.cbio.portal.dao.DaoGeneticProfile;
 import org.mskcc.cbio.portal.model.GeneticAlterationType;
-import org.mskcc.cbio.portal.model.GeneticProfile;
-import org.mskcc.cbio.portal.stats.BenjaminiHochbergFDR;
 import org.mskcc.cbio.portal.stats.FisherExact;
 
 /**
@@ -61,7 +54,7 @@ public class ORAnalysisDiscretizedDataProxy implements DaoGeneticAlteration.Alte
             String copyNumType,
             List<Integer> alteredSampleIds,
             List<Integer> unalteredSampleIds,
-            String[] queriedGenes) throws DaoException, IllegalArgumentException, MathException {
+            String[] queriedGenes) throws DaoException, IllegalArgumentException {
 
         this.geneticProfileId = geneticProfileId;
         this.geneticProfileStableId = geneticProfileStableId;
@@ -73,7 +66,7 @@ public class ORAnalysisDiscretizedDataProxy implements DaoGeneticAlteration.Alte
 
     }
 
-    public ObjectNode processMutHm(long entrezGeneId, ArrayList<Integer> sampleList, HashMap mutHm) throws MathException {
+    public ObjectNode processMutHm(long entrezGeneId, ArrayList<Integer> sampleList, HashMap mutHm) {
         ObjectNode _datum = mapper.createObjectNode();
 
         //create map to pair sample and value
@@ -120,7 +113,7 @@ public class ORAnalysisDiscretizedDataProxy implements DaoGeneticAlteration.Alte
     }
 
     @Override
-    public ObjectNode process(long entrezGeneId, String[] values, ArrayList<Integer> sampleList) throws MathException {
+    public ObjectNode process(long entrezGeneId, String[] values, ArrayList<Integer> sampleList) {
 
         ObjectNode _datum = mapper.createObjectNode();
 
@@ -405,7 +398,7 @@ public class ORAnalysisDiscretizedDataProxy implements DaoGeneticAlteration.Alte
     }
 
     private double calcPval(HashMap<Integer, String> singleGeneCaseValueMap, String profileType, String profileStableId)
-            throws IllegalArgumentException, MathException {
+            throws IllegalArgumentException {
         double _p_value = 0.0;
         if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString()) ||
                 profileType.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION.toString())) {
@@ -418,7 +411,7 @@ public class ORAnalysisDiscretizedDataProxy implements DaoGeneticAlteration.Alte
     }
 
     private double runTTest(HashMap<Integer, String> singleGeneCaseValueMap, String profileStableId)
-            throws IllegalArgumentException, MathException {
+            throws IllegalArgumentException {
 
         double[] unalteredArray = new double[unalteredSampleIds.size()];
         double[] alteredArray = new double[alteredSampleIds.size()];

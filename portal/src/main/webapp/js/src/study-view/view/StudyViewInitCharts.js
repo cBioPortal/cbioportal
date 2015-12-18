@@ -308,30 +308,14 @@ var StudyViewInitCharts = (function(){
         if(hasMutation) {
             initParams.data.attr.push({
                     name: 'mutatedGenes',
-                    displayName: 'Mutated Genes',
-                    webService: {
-                        type: 'POST',
-                        url: "mutations.json",
-                        data: {
-                            cmd: 'get_smg',
-                            case_list: '',
-                            mutation_profile: StudyViewParams.params.mutationProfileId
-                        }
-                    }
+                    displayName: 'Mutated Genes'
                 });
         }
 
         if(hasCNA) {
             initParams.data.attr.push({
                     name: 'cna',
-                    displayName: 'Copy Number Altered Genes',
-                    webService: {
-                        type: 'POST',
-                        url: "Gistic.json",
-                        data: {
-                            selected_cancer_type: StudyViewParams.params.studyId
-                        }
-                    }
+                    displayName: 'Copy Number Altered Genes'
                 });
         }
 
@@ -707,33 +691,8 @@ var StudyViewInitCharts = (function(){
 
         var redrawService = {
             selectedCases: _selectedCases,
-            exceptionIds: exceptionIds,
-            webService: {
-                'mutatedGenes': {
-                    type: 'POST',
-                    url: "mutations.json",
-                    data: {
-                        cmd: 'get_smg',
-                        case_list: _selectedCases.join(' '),
-                        mutation_profile: StudyViewParams.params.mutationProfileId
-                    }
-                },
-                'cna': {
-                    type: 'POST',
-                    url: "cna.json",
-                    data: {
-                        sample_id: _selectedCases.join(' '),
-                        cna_profile:  StudyViewParams.params.cnaProfileId,
-                        cbio_genes_filter: true
-                    }
-                }
-            }
+            exceptionIds: exceptionIds
         };
-
-        if(numOfCases === _selectedCases.length) {
-            delete redrawService.webService.mutatedGenes.data.case_list;
-            delete redrawService.webService.cna.data.sample_id;
-        }
 
         StudyViewInitTables.redraw(redrawService);
     }

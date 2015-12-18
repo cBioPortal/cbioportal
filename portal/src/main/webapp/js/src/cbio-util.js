@@ -77,7 +77,7 @@ cbio.util = (function() {
         }
         return aa;
     };
-        
+
     var uniqueElementsOfArray = function(arr) {
         var ret = [];
         var aa = {};
@@ -263,7 +263,7 @@ cbio.util = (function() {
 
 		return origin;
 	};
-        
+
         var sortByAttribute = function(objs, attrName) {
             function compare(a,b) {
                 if (a[attrName] < b[attrName])
@@ -275,7 +275,7 @@ cbio.util = (function() {
             objs.sort(compare);
             return objs;
         };
-        
+
 	/**
 	 * Replaces problematic characters with an underscore for the given string.
 	 * Those characters cause problems with the properties of an HTML object,
@@ -364,9 +364,44 @@ cbio.util = (function() {
     function getLinkToPatientView(cancerStudyId, patientId) {
         return "case.do?cancer_study_id=" + cancerStudyId + "&case_id=" + patientId;
     }
-    
+
     function getLinkToSampleView(cancerStudyId, sampleId) {
         return "case.do?cancer_study_id=" + cancerStudyId + "&sample_id=" + sampleId;
+    }
+
+    /**
+     * Adds qTip to the provided target when first time mouse enter
+     *
+     * @param target qTip target, could be a class name, id or any jquery acceptable element
+     * @param qTipOpts qTip initialization options
+     */
+    function addTargetedQTip(target, qTipOpts) {
+        if(target) {
+            var opts = {
+                show: {ready: true},
+                hide: {fixed: true, delay: 100},
+                style: {classes: 'qtip-light qtip-rounded qtip-shadow', tip: true},
+                position: {my: 'top left', at: 'bottom right', viewport: $(window)}
+            };
+
+	        // check if target[0] is SVG
+	        if (target[0] && target[0].ownerSVGElement)
+	        {
+		        target = target[0];
+	        }
+	        // check if target[0][0] is SVG
+	        else if (target[0] && target[0][0] && target[0][0].ownerSVGElement)
+	        {
+		        target = target[0][0];
+	        }
+
+            jQuery.extend(true, opts, qTipOpts);
+            $(target).one('mouseenter', function () {
+                $(this).qtip(opts);
+            });
+        } else {
+            console.error('qTip target is not defined.');
+        }
     }
 
     return {
@@ -387,7 +422,8 @@ cbio.util = (function() {
 	    getTargetWindow: getTargetWindow,
 	    getTargetDocument: getTargetDocument,
         getLinkToPatientView: getLinkToPatientView,
-        getLinkToSampleView: getLinkToSampleView
+        getLinkToSampleView: getLinkToSampleView,
+        addTargetedQTip: addTargetedQTip
     };
 
 })();

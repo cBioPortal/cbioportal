@@ -37,7 +37,7 @@ import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.*;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import java.io.*;
 import java.util.*;
@@ -76,7 +76,8 @@ public class ImportProteinArrayData {
         FileReader reader = new FileReader(arrayData);
         BufferedReader buf = new BufferedReader(reader);
         String line = buf.readLine();
-        String[] sampleIds = line.split("\t");
+        String[] firstLine = line.split("\t");
+        String[] sampleIds = Arrays.copyOfRange(firstLine, 1, firstLine.length-1);
         ImportDataUtil.addPatients(sampleIds, profile.getGeneticProfileId());
         ImportDataUtil.addSamples(sampleIds, profile.getGeneticProfileId());
         Sample[] samples = new Sample[sampleIds.length-1];

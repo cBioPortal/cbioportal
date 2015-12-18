@@ -459,20 +459,18 @@ var StudyViewProxy = (function() {
                     for (var j = 0, numOfGenes = obtainDataObject.cnaSampleBased[sampleIds[i]].length; j < numOfGenes; j++) {
                         var key = obtainDataObject.cnaSampleBased[sampleIds[i]][j].gene + obtainDataObject.cnaSampleBased[sampleIds[i]][j].alter;
                         if (_.isUndefined(geneSpecific[key])) {
-                            geneSpecific[key] = obtainDataObject.cnaSampleBased[sampleIds[i]][j];
-                            geneSpecific[key].caseIds = [];
+                            var datum = obtainDataObject.cnaSampleBased[sampleIds[i]][j];
+                            geneSpecific[key] = data.caseIds.length;
+                            data.alter.push(datum.alter);
+                            data.caseIds.push([]);
+                            data.cytoband.push(datum.cytoband);
+                            data.gistic.push(datum.gistic);
+                            data.gene.push(datum.gene);
                         }
-                        geneSpecific[key].caseIds.push(sampleIds[i]);
+                        data.caseIds[geneSpecific[key]].push(sampleIds[i]);
                     }
                 }
             }
-            _.values(geneSpecific).map(function (item) {
-                data.alter.push(item.alter);
-                data.caseIds.push(item.caseIds);
-                data.cytoband.push(item.cytoband);
-                data.gistic.push(item.gistic);
-                data.gene.push(item.gene);
-            });
         }
 
         return data;

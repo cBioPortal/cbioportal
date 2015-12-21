@@ -1784,13 +1784,11 @@ def usage():
 # ------------------------------------------------------------------------------
 def interface():
     parser = argparse.ArgumentParser(description='cBioPortal meta Importer')
-    parser.add_argument('-s', '--directory', type=str, required=True,
+    parser.add_argument('-s', '--study_directory', type=str, required=True,
                         help='path to directory.')
     parser.add_argument('-hugo', '--hugo_entrez_map',type=str, required=True,
                         help='Path to Hugo gene Symbol')
     parser.add_argument('-html', '--html_table',type=str, required=False,
-                        help='Path to html report')
-    parser.add_argument('-html_simple', '--html_simple_table',type=str, required=False,
                         help='Path to html report')
     parser.add_argument('-v', '--validate', required=True,action="store_true",
                         help='Validate')
@@ -1813,8 +1811,12 @@ def main_validate(args):
     # process the options
     study_dir = args.study_directory
     hugo = args.hugo_entrez_map
-    fix = args.fix
-    html_table_filename = args.html_simple_table
+
+    try:
+        fix = args.fix
+    except AttributeError:
+        fix = False
+
     html_output_filename = args.html_table
 
     hugo_entrez_map = {}
@@ -1839,7 +1841,6 @@ def main_validate(args):
 
     # add html table handler if applicable
     if html_output_filename:
-
         try:
             import jinja2  # pylint: disable=import-error
         except ImportError:
@@ -1856,21 +1857,6 @@ def main_validate(args):
             flushLevel=logging.CRITICAL,
             target=html_handler)
         logger.addHandler(collapsing_html_handler)
-
-    # add html table handler if applicable
-    if html_table_filename:
-        html_table_handler = SimpleHtmlTableHandler(
-            study_dir,
-            html_table_filename)
-        html_table_handler.setFormatter(SimpleHtmlTableFormatter())
-        # TODO extend CollapsingLogMessageHandler to flush to multiple targets,
-        # and get rid of the duplicated buffering of messages here
-        collapsing_hthandler = CollapsingLogMessageHandler(
-            capacity=3e6,
-            flushLevel=logging.CRITICAL,
-            target=html_table_handler)
-        logger.addHandler(collapsing_hthandler)
-
 
 
     if hugo == 'download' and hugoEntrezMapPresent:

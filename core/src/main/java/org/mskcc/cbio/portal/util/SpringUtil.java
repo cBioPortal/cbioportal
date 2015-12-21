@@ -57,7 +57,7 @@ public class SpringUtil
 		return accessControl;
     }
 
-	public static void initDataSource()
+	public static synchronized void initDataSource()
 	{
 		if (SpringUtil.context == null) {
 			context = new ClassPathXmlApplicationContext("classpath:applicationContext-business.xml");

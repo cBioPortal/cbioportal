@@ -83,7 +83,15 @@ var mutationStyle = (function() {  //Key and "typeName" are always identical
         fill : "#00AAF8",
         stroke : "#0089C6",
         legendText : "Neither mutated"
+    },
+    {
+        typeName: "non_sequenced",
+        symbol : "circle",
+        fill : "white",
+        stroke : "#0089C6",
+        legendText : "Not sequenced"
     }
+
 ];
     
     return {
@@ -113,6 +121,15 @@ var mutationStyle = (function() {  //Key and "typeName" are always identical
                 }
             });            
             return _result;           
+        },
+        getText: function(_typeName) {
+            var _result = "";
+            $.each(styleSheet, function(index, obj) {
+                if (obj.typeName === _typeName) {
+                    _result = obj.legendText;
+                }
+            });
+            return _result;
         },
         getGlyph: function(_typeName) { //retrieve the whole object
             var _result = {};

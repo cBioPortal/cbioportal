@@ -4,7 +4,7 @@
   <parent>
 	<artifactId>master</artifactId>
 	<groupId>org.mskcc.cbio</groupId>
-	<version>0.2.0-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>cbioportal</artifactId>
@@ -130,9 +130,52 @@
 			  </resources>
             </configuration>
 		  </execution>
-		</executions>
-	  </plugin>
-
+      </executions>
+  </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.3</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals><goal>copy</goal></goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.github.jsimone</groupId>
+                                    <artifactId>webapp-runner</artifactId>
+                                    <version>8.0.24.0</version>
+                                    <destFileName>webapp-runner.jar</destFileName>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>2.5</version>
+                <executions>
+                    <execution>
+                        <id>clean-jar-artifacts</id>
+                        <phase>install</phase>
+                        <goals><goal>clean</goal></goals>
+                        <configuration>
+                            <excludeDefaultDirectories>true</excludeDefaultDirectories>
+                            <filesets>
+                                <fileset>
+                                    <directory>${PORTAL_HOME}/portal/target</directory>
+                                    <excludes>
+                                        <exclude>*.war</exclude>
+                                        <exclude>dependency/webapp-runner.jar</exclude>
+                                    </excludes>
+                                </fileset>
+                            </filesets>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
 	</plugins>
 
 	<!-- properties file used for filtering our context file in resources -->

@@ -5,7 +5,7 @@
   <parent>
 	<artifactId>master</artifactId>
 	<groupId>org.mskcc.cbio</groupId>
-	<version>0.2.0-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>core</artifactId>
@@ -100,16 +100,11 @@
 	  <artifactId>commons-lang</artifactId>
 	  <version>2.4</version>
 	</dependency>
-	<dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-math</artifactId>
-      <version>2.2</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-math3</artifactId>
-      <version>3.2</version>
-    </dependency>
+        <dependency>
+          <groupId>org.apache.commons</groupId>
+          <artifactId>commons-math3</artifactId>
+          <version>3.2</version>
+        </dependency>
 
 	<!-- guava -->
 	<dependency>
@@ -353,7 +348,7 @@
 				<!-- username & password gets put in .m2/settings.xml -->
 				<settingsKey>settingsKey</settingsKey>
 				<driver>com.mysql.jdbc.Driver</driver>
-				<url>jdbc:mysql://localhost:3306/cgds_test</url>
+                <url>jdbc:mysql://localhost:3306/cgds_test</url>
 				<sqlCommand>SET storage_engine=INNODB</sqlCommand>
 				<sqlCommand>SET SESSION sql_mode = 'ANSI_QUOTES'</sqlCommand>
 				<srcFiles>
@@ -363,10 +358,36 @@
 				<!-- added encoding to prevent Unknown initial character set index '192' received from server error -->
 				<encoding>UTF-8</encoding>
 				<driverProperties>characterEncoding=utf8, connectionCollation=utf8_general_ci</driverProperties>
+                <!--all executions are ignored if -DskipTests -->
+                <skip>${skipTests}</skip>
 			  </configuration>
 			</execution>
 		  </executions>
 		</plugin>
+
+          <!-- remove temp build files -->
+          <plugin>
+              <artifactId>maven-clean-plugin</artifactId>
+              <version>2.5</version>
+              <executions>
+                  <execution>
+                      <id>clean-artifacts</id>
+                      <phase>install</phase>
+                      <goals><goal>clean</goal></goals>
+                      <configuration>
+                          <excludeDefaultDirectories>true</excludeDefaultDirectories>
+                          <filesets>
+                              <fileset>
+                                  <directory>target</directory>
+                                  <excludes>
+                                      <exclude>*.war</exclude>
+                                  </excludes>
+                              </fileset>
+                          </filesets>
+                      </configuration>
+                  </execution>
+              </executions>
+          </plugin>
 
 	  </plugins>
 

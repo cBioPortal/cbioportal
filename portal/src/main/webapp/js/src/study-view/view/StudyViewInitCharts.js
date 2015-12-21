@@ -109,7 +109,18 @@ var StudyViewInitCharts = (function(){
         //functions
         plotDataFlag = false,
         
-        tableCharts = ['CANCER_TYPE', 'CANCER_TYPE_DETAILED'];
+        tableCharts = ['CANCER_TYPE', 'CANCER_TYPE_DETAILED'],
+
+        //table chart will always put ahead, and the higher prioirty, the bigger index(later will use array unshift for table charts)
+        priorityAttrs = ['CANCER_TYPE_DETAILED', 'CANCER_TYPE', 'PATIENT_ID', 'CASE_ID'],
+
+        //Study specific prioritise attributes
+        studyPrioritiseAttrs = {
+            'mskimpact': {
+                high: ['DARWIN_PATIENT_AGE', 'DARWIN_VITAL_STATUS'], //High priority
+                low: ['AGE','OS_STATUS'] //Low priority
+            }
+        };
     
     function allNumberElements(_array){
         var _length = _array.length;
@@ -129,9 +140,15 @@ var StudyViewInitCharts = (function(){
             _attrLength = _attr.length,
             _arrLength = _arr.length,
             _studyDesc = "",
-            //table chart will always put ahead, and the higher prioirty, the bigger index(later will use array unshift for table charts)
-            _priorityAttrs = ['CANCER_TYPE_DETAILED', 'CANCER_TYPE', 'PATIENT_ID', 'CASE_ID'];
+            _highPriorityAttrs = [],
+            _lowPriorityAttrs = [];
 
+        _highPriorityAttrs.concat(priorityAttrs);
+
+        if(studyPrioritiseAttrs.hasOwnProperty(cancerStudyId)) {
+            _highPriorityAttrs = studyPrioritiseAttrs[cancerStudyId].high.concat(_highPriorityAttrs);
+            _lowPriorityAttrs = studyPrioritiseAttrs[cancerStudyId].low.concat(_lowPriorityAttrs);
+        }
         //mutatedGenes = dataObtained.mutatedGenes;
         //cna = dataObtained.cna || '';
         numOfCases = _arr.length;        
@@ -143,16 +160,22 @@ var StudyViewInitCharts = (function(){
         }
 
         _attr.sort(function(a, b) {
-            var aIndex = _priorityAttrs.indexOf(a.attr_id),
-                bIndex = _priorityAttrs.indexOf(b.attr_id);
-                
-             if(aIndex !== -1 && bIndex !== -1) {
-                return aIndex<bIndex?-1:1;
-            }else if(aIndex !== -1) {
+            var aIndex = _highPriorityAttrs.indexOf(a.attr_id),
+                bIndex = _highPriorityAttrs.indexOf(b.attr_id),
+                laIndex = _lowPriorityAttrs.indexOf(a.attr_id),
+                lbIndex = _lowPriorityAttrs.indexOf(b.attr_id);
+
+            if (aIndex !== -1 && bIndex !== -1) {
+                return aIndex < bIndex ? -1 : 1;
+            } else if (aIndex !== -1) {
                 return -1;
-            }else if(bIndex !== -1) {
+            } else if (bIndex !== -1) {
                 return 1;
-            }else {
+            } else if (laIndex !== -1) {
+                return 1;
+            } else if (lbIndex !== -1) {
+                return -1;
+            } else {
                 if(a.numOfNoneEmpty < b.numOfNoneEmpty) {
                     return 1;
                 }else {
@@ -285,30 +308,14 @@ var StudyViewInitCharts = (function(){
         if(hasMutation) {
             initParams.data.attr.push({
                     name: 'mutatedGenes',
-                    displayName: 'Mutated Genes',
-                    webService: {
-                        type: 'POST',
-                        url: "mutations.json",
-                        data: {
-                            cmd: 'get_smg',
-                            case_list: '',
-                            mutation_profile: StudyViewParams.params.mutationProfileId
-                        }
-                    }
+                    displayName: 'Mutated Genes'
                 });
         }
 
         if(hasCNA) {
             initParams.data.attr.push({
                     name: 'cna',
-                    displayName: 'Copy Number Altered Genes',
-                    webService: {
-                        type: 'POST',
-                        url: "Gistic.json",
-                        data: {
-                            selected_cancer_type: StudyViewParams.params.studyId
-                        }
-                    }
+                    displayName: 'Copy Number Altered Genes'
                 });
         }
 
@@ -684,33 +691,8 @@ var StudyViewInitCharts = (function(){
 
         var redrawService = {
             selectedCases: _selectedCases,
-            exceptionIds: exceptionIds,
-            webService: {
-                'mutatedGenes': {
-                    type: 'POST',
-                    url: "mutations.json",
-                    data: {
-                        cmd: 'get_smg',
-                        case_list: _selectedCases.join(' '),
-                        mutation_profile: StudyViewParams.params.mutationProfileId
-                    }
-                },
-                'cna': {
-                    type: 'POST',
-                    url: "cna.json",
-                    data: {
-                        sample_id: _selectedCases.join(' '),
-                        cna_profile:  StudyViewParams.params.cnaProfileId,
-                        cbio_genes_filter: true
-                    }
-                }
-            }
+            exceptionIds: exceptionIds
         };
-
-        if(numOfCases === _selectedCases.length) {
-            delete redrawService.webService.mutatedGenes.data.case_list;
-            delete redrawService.webService.cna.data.sample_id;
-        }
 
         StudyViewInitTables.redraw(redrawService);
     }
@@ -980,7 +962,7 @@ var StudyViewInitCharts = (function(){
     //This filter is the same one which used in previous Google Charts Version,
     //should be revised later.
     function selectedCol(col) {
-        return col.toLowerCase().match(/(^age)|(gender)|(sex)|(os_status)|(os_months)|(dfs_status)|(dfs_months)|(race)|(ethnicity)|(.*type.*)|(.*site.*)|(.*grade.*)|(.*stage.*)|(histology)|(tumor_type)|(subtype)|(tumor_site)|(.*score.*)|(mutation_count)|(copy_number_alterations)/);
+        return col.toLowerCase().match(/(^age)|(gender)|(sex)|(darwin_vital_status)|(darwin_patient_age)|(os_status)|(os_months)|(dfs_status)|(dfs_months)|(race)|(ethnicity)|(.*type.*)|(.*site.*)|(.*grade.*)|(.*stage.*)|(histology)|(tumor_type)|(subtype)|(tumor_site)|(.*score.*)|(mutation_count)|(copy_number_alterations)/);
     }
     
     function redrawChartsAfterDeletion(){

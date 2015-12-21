@@ -560,6 +560,10 @@ table #network_wrapper{
  * ########################################################
  */
 
+ #relations_tab{
+	 	overflow-y: auto;
+ }
+
 #relations_tab .percent-bar
 {
 	margin: 0.2em 0.5em 0 2.5em;

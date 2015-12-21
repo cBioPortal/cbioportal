@@ -139,7 +139,51 @@ var StudyViewInitTopComponents = (function() {
             };
 
             cbio.download.initDownload(content, downloadOpts);
-        })
+        });
+
+
+        $("#study-view-form").click(function(event){
+            // add the necessary fields to the form
+            if(!QueryByGeneTextArea.isEmpty()) {
+                event.preventDefault();
+                QueryByGeneTextArea.validateGenes(decideSubmit, false);
+            }
+        });
+
+
+        $("#study-view-header-left-1").hover(function () {
+            $("#query-by-gene-textarea").css("outline", "-webkit-focus-ring-color auto 5px");
+            $("#study-view-header-left-5").css("outline", "-webkit-focus-ring-color auto 5px");
+        }, function() {
+            $("#query-by-gene-textarea").css("outline", "");
+            $("#study-view-header-left-5").css("outline", "");
+        });
+
+        $("#study-view-header-left-4").hover(function () {
+            $("#study-view-header-left-5").css("outline", "-webkit-focus-ring-color auto 5px");
+        }, function() {
+            $("#study-view-header-left-5").css("outline", "");
+        });
+
+        $("#study-view-header-left-6").hover(function () {
+            $("#study-view-header-left-5").css("outline", "-webkit-focus-ring-color auto 5px");
+        }, function() {
+            $("#study-view-header-left-5").css("outline", "");
+        });
+
+    }
+
+    // decide whether to proceed with the submit of the form
+    function decideSubmit(allValid){
+        // if all genes are valid, submit, otherwise show a notification
+        if(allValid){
+            new QueryByGeneUtil().addStudyViewFields();
+            $("#study-view-form").trigger("submit");
+        }
+        else {
+            new Notification().createNotification("There were problems with the selected genes. Please fix.", {message_type: "danger"});
+            $("#query-by-gene-textarea").focus();
+        }
     }
 
     //The selected id should be sample based. Check patient list if unidentified id exists.
@@ -183,7 +227,7 @@ var StudyViewInitTopComponents = (function() {
         $("#study-view-header-left-4").css('display','block');
 
         $("#study-view-header-left-3").css('display','block')
-        $("#study-view-header-left-3").text("Total number of samples selected: ");
+        $("#study-view-header-left-3").text("Samples selected: ");
         $("#study-view-header-left-5").css('display','block');
         $("#study-view-header-left-5").text(_resultLength);
 
@@ -236,6 +280,7 @@ var StudyViewInitTopComponents = (function() {
         init: function() {
             createDiv();
             addEvents();
+            QueryByGeneTextArea.init('#query-by-gene-textarea', StudyViewInitTables.updateGeneHighlights);
         },
         
         changeHeader: changeHeader,

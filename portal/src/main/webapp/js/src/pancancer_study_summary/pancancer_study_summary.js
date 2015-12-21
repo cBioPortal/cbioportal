@@ -85,12 +85,11 @@ var CancerSummaryMainView = Backbone.View.extend({
      var mainContent = "";
      var listContent = "";
 
-     // create a test gene list for the tabs
+     // retrieve the gene list for the tabs
      var geneList = self.dmPresenter.getGeneList();
 
      // create a div for for each gene
-     //_.each(self.model.geneProxy.getGeneList(), function(gene, idx) {
-         _.each(geneList, function(gene, idx) {
+     _.each(geneList, function(gene, idx) {
  
             // get the template for the main content and apply it
         var templateFn = PanCancerTemplateCache.getTemplateFn("gene_details_main_content_template");
@@ -243,7 +242,7 @@ var CustomizeHistogramView = Backbone.View.extend({
          fields["cancerType"] = cancerType;
          fields["cancerTypeDetailed"] = self.dmPresenter.getCancerTypeDetailedList(cancerType);
          //also reset minAlteredSamples (for the slider):
-         fields["minAlteredSamples"] = 0;
+         fields["minAlteredSamples"] = 1;
     	 self.model.set(fields);
      }
      // create the dropdown and add it
@@ -382,29 +381,35 @@ var MinAlteredSamplesSliderView = Backbone.View.extend({
 	 this.max = this.dmPresenter.getMaxAlteredSamplesForCancerTypeAndGene(this.model.get("cancerType"), this.gene, this.model.get("dataTypeYAxis"));
 
      var text = "Min. # altered samples ";
+     var init=1;
 
 	 if (this.model.get("dataTypeYAxis") == "Alteration Frequency") {
 		 suffix = "%";
 		 //in %, with 1 decimal:
 		 this.max = Math.round(parseFloat(this.max) * 1000)/10;
          text = "Min. alteration ";
+
+         // in the rare cases where the maximum alteration frequency is smaller than 1%
+         // set the init to 0
+         if(this.max<=init) init=0;
 	 }
-	 
+
+     // initialise general template with initial value of 1
      var templateFn = PanCancerTemplateCache.getTemplateFn("general_slider_template");
-     this.template = templateFn({min:0, init:0, max:this.max, suffix: suffix, text:text});
+     this.template = templateFn({min:0, init:init, max:this.max, suffix: suffix, text:text});
 
      // add the template
      $(this.el).html(this.template);
 
-     // create the jQuery ui slider
+     // create the jQuery ui slider with initial value of 1
      var sampleSlider = this.$el.find(".diagram-general-slider");
      sampleSlider.slider({ 
-        value: 0, 
+        value: init,
         min: 0, 
         max: this.max 
      });
-     //synchronize model:
-     this.model.set("minAlteredSamples", 0);
+
+     if(init==0) this.model.set("minAlteredSamples", init);
   },
 
   // handle change to the slider        
@@ -451,7 +456,6 @@ var MinTotalSamplesSliderView = Backbone.View.extend({
         //this.template = templateFn({min:0, max:this.max});
         this.template = templateFn({min:0, init:0, max:this.max, suffix: "", text:"Min. # total samples "});
 
-
         // add the template
         $(this.el).html(this.template);
 
@@ -462,8 +466,8 @@ var MinTotalSamplesSliderView = Backbone.View.extend({
             min: 0,
             max: this.max
         });
-        //synchronize model:
-        this.model.set("minTotalSamples", 0);
+
+        //this.model.set("minTotalSamples", 0);
     },
 
     // handle change to the slider
@@ -660,7 +664,7 @@ var HistogramSettings = Backbone.Model.extend({
      cancerTypeDetailed: "All",
      sortXAxis: "Y-Axis Values",
      dataTypeYAxis: "Alteration Frequency",
-     minAlteredSamples: "0",
+     minAlteredSamples: "1",
      minTotalSamples: "0",
      showGenomicAlterationTypes: true
   },
@@ -1005,7 +1009,7 @@ function DataManagerPresenter(dmInitCallBack)
 				if (dataTypeYAxis == "Alteration Frequency")
 					denominator = this.getTotalNrSamplesPerCancerType(cancerTypes[i], null);
 				//this method call is repeated (also called to build histogram JSON data)...TODO - performance improvement could be gained here...tests will indicate if necessary
-				var value = this.getAlterationEvents(cancerTypes[i], null, geneId).all / denominator;				
+				var value = this.getAlterationEvents(cancerTypes[i], null, geneId).all / denominator;
 				if (value > max)
 					max = value;
 			}

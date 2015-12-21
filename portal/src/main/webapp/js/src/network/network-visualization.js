@@ -100,7 +100,7 @@ function NetworkVis(divId)
     this.ENTER_KEYCODE = "13";
 
     // name of the graph layout
-    this._graphLayout = {name: "cose2", randomize: true};
+    this._graphLayout = {name: "cose-bilkent", randomize: true};
     //var _graphLayout = {name: "ForceDirected", options:{weightAttr: "weight"}};
 
     // force directed layout options
@@ -1985,7 +1985,7 @@ NetworkVis.prototype._defaultOptsArray = function()
         [ { id: "gravity", label: "Gravity",       value: 0.4,   tip: "Gravitonal constant to keep graph components together" },
             { id: "fit",         label: "Graph fitting",      value: true,    tip: "Whether or not to fit the network into canvas after layout" },
             { id: "edgeElasticity",  label: "Edge elasticity",  value: 0.45, tip: "Divisor to computer edge forces" },
-            { id: "animate",        label: "Animation", value: true,    tip: "Whether or not to display network during layout" },
+            { id: "animate",        label: "Animation", value: false,    tip: "Whether or not to display network during layout" },
             { id: "randomize",        label: "Randomize", value: true,    tip: "Uncheck for incremental layout" },
             { id: "padding", label: "Padding value",  value: 10,      tip: "Padding on fit" },
             { id: "nodeRepulsion", label: "Node Repulsion",  value: 4500,  tip: "Node repulsion (non-overlapping) multiplier" },
@@ -3767,7 +3767,7 @@ NetworkVis.prototype._updateLayoutOptions = function()
     {
         options[this._layoutOptions[i].id] = this._layoutOptions[i].value;
     }
-    options['name']="cose2";
+    options['name']="cose-bilkent";
     this._graphLayout = options;
 };
 

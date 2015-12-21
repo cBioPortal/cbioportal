@@ -161,7 +161,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                                                             mut_obj = _mut_obj;
                                                             callback_func();
                                                         }
-                                                        mut_proxy.getMutationData(window.studies.gene_list, _mutation_call_back);
+                                                        mut_proxy.getMutationData(window.ccQueriedGenes.join(" "), _mutation_call_back);
                                                     }
                                                 }
                                             }
@@ -337,6 +337,19 @@ var ccPlots = (function ($, _, Backbone, d3) {
                     if (_data_item.mutation_type === "" ) { _data_item.mutation_type = "non"; }
                 });
 
+                function bubble_up(_arr, _index) {
+                    for (var i = _index; i > 0; i--) {
+                        var _tmp_obj = _arr[i - 1];
+                        _arr[i - 1] = _arr[i];
+                        _arr[i] = _tmp_obj;
+                    }
+                }
+                $.each(_data, function(_index, _data_item) {
+                    if ((data.is_sequenced(_data_item.profileId, _data_item.caseId)) && _data_item.mutation === "non") {
+                        bubble_up(_data, _index);
+                    }
+                });
+
                 //x axis
                 var x_axis_right = 0;
                 if (_.pluck(data.get_meta($('input[name=cc_plots_profile_order_opt]:checked').val()), "STABLE_ID").length < 8) {
@@ -488,12 +501,23 @@ var ccPlots = (function ($, _, Backbone, d3) {
                         }
                     })
                     .attr("stroke", function(d) {
-                        $(this).attr("ori_stroke", mutationStyle.getStroke(d.mutation_type));
-                        return mutationStyle.getStroke(d.mutation_type);
+                        if (d.mutation !== "non") {
+                            $(this).attr("ori_stroke", mutationStyle.getStroke(d.mutation_type));
+                            return mutationStyle.getStroke(d.mutation_type);
+                        } else {
+                            if (data.is_sequenced(d.profileId, d.caseId)) {
+                                $(this).attr("ori_stroke", mutationStyle.getStroke(d.mutation_type));
+                                return mutationStyle.getStroke(d.mutation_type);
+                            } else {
+                                $(this).attr("ori_stroke", "gray");
+                                return "gray";
+                            }
+                        }
+
                     })
                     .attr("stroke-width", 1.2)
                     .attr("transform", function(d) {
-                        var _x = elem.x.scale(d.profileId) + elem.x.scale.rangeBand() / 2 + _.random(elem.x.scale.rangeBand() / 3 * (-1), elem.x.scale.rangeBand()/3);
+                        var _x = elem.x.scale(d.profileId) + elem.x.scale.rangeBand() / 2 + _.random(elem.x.scale.rangeBand() / 5 * (-1), elem.x.scale.rangeBand()/5);
                         var _y = elem.y.scale(parseInt(d.value));
                         $(this).attr("x_pos", _x);
                         $(this).attr("y_pos", _y);
@@ -525,7 +549,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                         } else if (d.text === "Not mutated") {
                             return "no-mutation-legend";
                         } else {
-                            return "non-fixed-legend";
+                            return "other-legend";
                         }
                     })
                     .attr("transform", function(d, i) {
@@ -654,7 +678,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                         var yl = obj.y_val.length;
                         var _data = obj.y_val;
 
-                        width = elem.x.scale.rangeBand() / 2 - 10;
+                        width = elem.x.scale.rangeBand() / 2 - 5;
                         midLine = elem.x.scale(obj.x_val) + elem.x.scale.rangeBand() / 2;
                         if (yl % 2 === 0) {
                             mean = elem.y.scale((_data[(yl / 2)-1] + _data[yl / 2]) / 2);
@@ -1007,7 +1031,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
             elem.dots.selectAll("path")
                 .transition().duration(300)
                 .attr("transform", function() {
-                    var _x = elem.x.scale(d3.select(this).attr("x_val")) + elem.x.scale.rangeBand() / 2 + _.random(elem.x.scale.rangeBand() / 3 * (-1), elem.x.scale.rangeBand()/3);
+                    var _x = elem.x.scale(d3.select(this).attr("x_val")) + elem.x.scale.rangeBand() / 2 + _.random(elem.x.scale.rangeBand() / 5 * (-1), elem.x.scale.rangeBand()/5);
                     $(this).attr("x_pos", _x);
                     return "translate(" + _x + ", " + d3.select(this).attr("y_pos") + ")";
                 });
@@ -1066,7 +1090,11 @@ var ccPlots = (function ($, _, Backbone, d3) {
                     .attr("stroke", function(d) {
                         return d3.select(this).attr("ori_stroke");
                     });
-                d3.selectAll(".non-fixed-legend")
+                d3.selectAll(".no-mutation-legend")
+                    .attr("opacity", 1);
+                d3.selectAll(".not-sequenced-legend")
+                    .attr("opacity", 1);
+                d3.selectAll(".other-legend")
                     .attr("opacity", 1);
             } else {
                 elem.dots.selectAll("path")
@@ -1076,29 +1104,50 @@ var ccPlots = (function ($, _, Backbone, d3) {
                             return mutationStyle.getSymbol("non");
                         }))
                     .attr("fill", function(d) {
-                        if (d3.select(this).attr("ori_fill") !== "none") {
+                        //if (d3.select(this).attr("ori_fill") !== "none") {
                             return mutationStyle.getFill("non");
-                        } else {
-                            return d3.select(this).attr("ori_fill");
-                        }
+                        //} else {
+                        //    return d3.select(this).attr("ori_fill");
+                        // }
                     })
                     .attr("stroke", mutationStyle.getStroke("non"));
-                d3.selectAll(".non-fixed-legend")
+                d3.selectAll(".no-mutation-legend")
+                    .attr("opacity", 0);
+                d3.selectAll(".not-sequenced-legend")
+                    .attr("opacity", 0);
+                d3.selectAll(".other-legend")
                     .attr("opacity", 0);
             }
         }
 
         function update_show_sequenced() {
-            if ($("#cc_plots_show_sequenced_only").is(':checked')) {
-                d3.selectAll(".not-sequenced-sample")
-                    .attr("opacity", 0);
+
+            if (!$("#cc_plots_show_mut").is(':checked')) {
                 d3.selectAll(".not-sequenced-legend")
                     .attr("opacity", 0);
+                d3.selectAll(".no-mutation-legend")
+                    .attr("opacity", 0);
+                d3.selectAll(".other-legend")
+                    .attr("opacity", 0);
+                if ($("#cc_plots_show_sequenced_only").is(':checked')) {
+                    d3.selectAll(".not-sequenced-sample")
+                        .attr("opacity", 0);
+                } else {
+                    d3.selectAll(".not-sequenced-sample")
+                        .attr("opacity", 1);
+                }
             } else {
-                d3.selectAll(".not-sequenced-sample")
-                    .attr("opacity", 1);
-                d3.selectAll(".not-sequenced-legend")
-                    .attr("opacity", 1);
+                if ($("#cc_plots_show_sequenced_only").is(':checked')) {
+                    d3.selectAll(".not-sequenced-sample")
+                        .attr("opacity", 0);
+                    d3.selectAll(".not-sequenced-legend")
+                        .attr("opacity", 0);
+                } else {
+                    d3.selectAll(".not-sequenced-sample")
+                        .attr("opacity", 1);
+                    d3.selectAll(".not-sequenced-legend")
+                        .attr("opacity", 1);
+                }
             }
         }
 

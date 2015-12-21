@@ -400,18 +400,19 @@
 
 <script>
     $(document).ready(function() {
-        //cross-cancer-plots
         var _cc_plots_gene_list = "";
-        _.each(window.location.search.split("&"), function(param) {
-            if (param.indexOf("gene_list") !== -1) {
-                _cc_plots_gene_list = param.substring(param.indexOf("=") + 1, param.length);
+        var tmp = setInterval(function () {timer();}, 1000);
+        function timer() {
+            if (window.ccQueriedGenes !== undefined) {
+                clearInterval(tmp);
+                _cc_plots_gene_list = _cc_plots_gene_list;
+                _.each(window.ccQueriedGenes, function (_gene) {
+                    $("#cc_plots_gene_list").append(
+                        "<option value='" + _gene + "'>" + _gene + "</option>");
+                });
+                ccPlots.init();
             }
-        });
-        _.each(_cc_plots_gene_list.split("+"), function (_gene) {
-            $("#cc_plots_gene_list").append(
-                    "<option value='" + _gene + "'>" + _gene + "</option>");
-        });
-        ccPlots.init();
+        }
     });
 </script>
 

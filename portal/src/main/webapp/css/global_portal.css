@@ -1447,7 +1447,7 @@ ul.ui-autocomplete li.ui-menu-item { font-size: 0.6em; text-align: left; }
 
 /* OncoKB integration styles */
 .oncokb-qtip {
-    max-width: 800px !important;
+    max-width: 600px !important;
 }
 .oncokb-qtip-sm {
     max-width: 400px !important;
@@ -1464,4 +1464,10 @@ ul.oncokb li {
 }
 .oncokb.oncokb_alteration svg{
     vertical-align: middle;
+}
+.mutationTableHeaderRadioLabel label img{
+    vertical-align: text-bottom;
+}
+.qtip-content div.oncokb{
+    padding-top: 5px;
 }

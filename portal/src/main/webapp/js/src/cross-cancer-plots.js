@@ -256,7 +256,6 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 var _profile_obj = _.filter(_.pluck(profileMetaList.models, "attributes"), function(profile_obj) {
                     return (profile_obj.STABLE_ID === _profile_id);
                 })[0];
-                console.log(_profile_obj);
                 //TODO: should return list of samples instead list of patients.
                 return $.inArray(_sample_id.substring(0, _sample_id.length - 3), _profile_obj.SEQ_CASE_IDS) !== -1;
             }

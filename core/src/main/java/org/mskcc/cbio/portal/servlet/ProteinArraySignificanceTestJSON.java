@@ -50,8 +50,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.math.stat.StatUtils;
-import org.apache.commons.math.stat.inference.TestUtils;
+import org.apache.commons.math3.stat.StatUtils;
+import org.apache.commons.math3.stat.inference.TestUtils;
 import org.apache.log4j.Logger;
 
 import org.json.simple.JSONArray;

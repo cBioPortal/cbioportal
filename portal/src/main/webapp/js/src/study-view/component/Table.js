@@ -135,8 +135,8 @@ var Table = function() {
 
     function initTable(data) {
         var table = $('#' + divs.tableId);
-        var tableHeaderStr = '';
-        var tableBodyStr = '';
+        var tableHeaderStr = [];
+        var tableBodyStr = [];
         var i = 0, j = 0;
         var hasSelected = false;
         var selectedKeys = [];
@@ -154,40 +154,39 @@ var Table = function() {
         if(typeof data === 'object' && data.hasOwnProperty('selectedSamples')) {
             selectedSamples = data.selectedSamples;
         }
-        var tableHtml = '<table><thead><tr></tr></thead><tbody></tbody></table>';
-        table.html(tableHtml);
+        var tableHtml = ['<table><thead><tr>']; //
 
-        var tableHeader = table.find('table thead tr');
         
         //Append table header
         for(i=0; i< attrL; i++){
-            tableHeaderStr += '<th style=" white-space: nowrap;" ';
+            tableHeaderStr.push('<th style=" white-space: nowrap;" ');
             if(attr[i].hasOwnProperty('qtip')) {
-                tableHeaderStr += ' class="hasQtip" qtip="' + attr[i].qtip + '"';
+                tableHeaderStr.push(' class="hasQtip" qtip="' + attr[i].qtip + '"');
             }
-            tableHeaderStr += '>'+ attr[i].displayName||'Unknown' +'</th>';
+            tableHeaderStr.push('>'+ attr[i].displayName||'Unknown' +'</th>');
         }
-        tableHeader.append(tableHeaderStr);
-        
-        var tableBody = table.find('tbody');
+        tableHtml.push(tableHeaderStr.join(''));
+        tableHtml.push('</tr></thead><tbody>');//
         
         //Append table body
         for(i = 0; i < arrL; i++){
 
             if(typeof data === 'object' && data.selected instanceof Array && data.selected.length > 0 && datumIsSelected(data.selected, arr[i])) {
-                tableBodyStr += '<tr class="highlightRow" style="white-space: nowrap;">';
+                tableBodyStr.push('<tr class="highlightRow" style="white-space: nowrap;">');
             }else{
-                tableBodyStr += '<tr style="white-space: nowrap;">';
+                tableBodyStr.push('<tr style="white-space: nowrap;">');
             }
 
             for(j = 0; j < attrL; j++) {
                 // added an id for the clickable component
-                tableBodyStr += '<td' + ( (attr[j].name === 'samples' && +arr[i].hasOwnProperty('uniqueId')) ? ' id='+ divs.tableId + '-' + arr[i].uniqueId : '') + '>' + arr[i][attr[j].name] + '</td>';
+                tableBodyStr.push('<td' + ( (attr[j].name === 'samples' && +arr[i].hasOwnProperty('uniqueId')) ? ' id='+ divs.tableId + '-' + arr[i].uniqueId : '') + '>' + arr[i][attr[j].name] + '</td>');
             }
-            tableBodyStr += '</tr>';
+            tableBodyStr.push('</tr>');
         }
-        tableBody.append(tableBodyStr);
+        tableHtml.push(tableBodyStr.join(''));
+        tableHtml.push('</tbody></table>');
 
+        table.html(tableHtml.join(''));
         if(selectedSamples.length === 0){
             hideReload();
         }

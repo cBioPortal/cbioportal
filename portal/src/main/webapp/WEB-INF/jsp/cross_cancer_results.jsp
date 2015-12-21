@@ -38,7 +38,7 @@
 <%
     String siteTitle = GlobalProperties.getTitle();
     request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle);
-	ServletXssUtil servletXssUtil = ServletXssUtil.getInstance();
+    ServletXssUtil servletXssUtil = ServletXssUtil.getInstance();
 
     // Get priority settings
     Integer dataPriority;
@@ -49,18 +49,18 @@
         dataPriority = 0;
     }
 
-	String geneList = request.getParameter(QueryBuilder.GENE_LIST);
-        //String cancerStudyList = request.getParameter(QueryBuilder.CANCER_STUDY_LIST);
+    String geneList = request.getParameter(QueryBuilder.GENE_LIST);
+    //String cancerStudyList = request.getParameter(QueryBuilder.CANCER_STUDY_LIST);
 
-	// we need the raw gene list
-	if (request instanceof XssRequestWrapper)
-	{
-		geneList = ((XssRequestWrapper)request).getRawParameter(QueryBuilder.GENE_LIST);
-                //cancerStudyList = ((XssRequestWrapper)request).getRawParameter(QueryBuilder.CANCER_STUDY_LIST);
-	}
+    // we need the raw gene list
+    if (request instanceof XssRequestWrapper)
+    {
+        geneList = ((XssRequestWrapper)request).getRawParameter(QueryBuilder.GENE_LIST);
+        //cancerStudyList = ((XssRequestWrapper)request).getRawParameter(QueryBuilder.CANCER_STUDY_LIST);
+    }
 
-	geneList = geneList.replaceAll("\n", " ").replaceAll("\r", "").replaceAll("/", "_");
-	geneList = servletXssUtil.getCleanerInput(geneList);
+    geneList = geneList.replaceAll("\n", " ").replaceAll("\r", "").replaceAll("/", "_");
+    geneList = servletXssUtil.getCleanerInput(geneList);
 
 
     String oncokbUrl = (String) GlobalProperties.getOncoKBUrl();
@@ -73,12 +73,16 @@
 <jsp:include page="global/header.jsp" flush="true"/>
 
 <!-- for now, let's include these guys here and prevent clashes with the rest of the portal -->
-<script type="text/javascript" src="js/src/patient-view/OncoKBConnector.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/OncoKBConnector.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/crosscancer.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/plots-tab/util/plotsUtil.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/plots-tab/util/stylesheet.js?<%=GlobalProperties.getAppVersion()%>"></script>
+
 <link href="css/data_table_ColVis.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 <link href="css/data_table_jui.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 <link href="css/mutationMapper.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 <link href="css/crosscancer.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
+
 
 <%
     // Means that user landed on this page with the old way.
@@ -151,7 +155,7 @@
             if($("#modify_query_btn").hasClass("active")) {
                 $("#modify_query_btn").removeClass("active");
             } else {
-                $("#modify_query_btn").addClass("active");    
+                $("#modify_query_btn").addClass("active");
             }
             waitForElementToDisplay('.jstree-clicked', '5');
         });
@@ -161,20 +165,19 @@
             //  Toggle the icons
             $(".query-toggle").toggle();
         });
-        
-         $("a.result-tab").click(function(){
+
+        $("a.result-tab").click(function(){
             if($(this).attr("href")=="#bookmark_email") {
                 $("#bookmark-link").attr("href",window.location.href);
             }
         });
 
         $("#bitly-generator").click(function() {
-             bitlyURL(window.location.href);
+            bitlyURL(window.location.href);
         });
 
-
     });
-   
+
 </script>
 
 <!-- Crosscancer templates -->
@@ -185,7 +188,10 @@
                 <a href="#cc-overview" id="cc-overview-link" title="Compact visualization of genomic alterations">Overview</a>
             </li>
             <li>
-                <a href="#cc-mutations" id="cc-mutations-link" title="Mutation details, including mutation type,amino acid change, validation status and predicted functional consequence">Mutations</a>
+                <a href="#cc-mutations" id="cc-mutations-link" title="Mutation details, including mutation type, amino acid change and predicted functional consequence">Mutations</a>
+            </li>
+            <li>
+                <a href="#cc-plots" id="cc-plots-link" title="Plots with mRNA expression data (TCGA provisional only)">Expression</a>
             </li>
             <li>
                 <a href="#cc-download" id="cc-download-link" title="Download all alterations or copy and paste into Excel">Download</a>
@@ -260,7 +266,9 @@
                 <img src="images/ajax-loader.gif"/>
             </div>
         </div>
-
+        <div class="section" id="cc-plots">
+            <jsp:include page="cross_cancer_plots_tab.jsp" />
+        </div>
         <div class="section" id="cc-download">
             <div class='copy_tables'>
                 <br>
@@ -355,30 +363,17 @@
     </div>
 </script>
 
-<script type="text/template" id="mutation_table_protein_change_oncokb_template">
-    <span class='{{proteinChangeClass}}' alt='{{proteinChangeTip}}'>
-		<a>{{proteinChange}}</a>
-	</span>
-    <span class='mutation-table-additional-protein-change simple-tip'
-          alt='{{additionalProteinChangeTip}}'>
-        <img height=12 width=12 style='opacity:0.2' src='images/warning.gif'>
-    </span>
+<script type="text/template" id="mutation_table_annotation_template">
     <span class='oncokb oncokb_alteration oncogenic' oncokbId='{{oncokbId}}'>
         <img class='oncokb oncogenic loader' width="13" height="13" class="loader" src="images/ajax-loader.gif"/>
     </span>
+    <span class='oncokb oncokb_column' oncokbId='{{oncokbId}}'></span>
     <span class='mcg' alt='{{mcgAlt}}'>
         <img src='images/mcg_logo.png'>
     </span>
     <span class='chang_hotspot' alt='{{changHotspotAlt}}'>
         <img width='13' height='13' src='images/oncokb-flame.svg'>
     </span>
-    <a href='{{pdbMatchLink}}' class="mutation-table-3d-link">
-        <span class="mutation-table-3d-icon">3D</span>
-    </a>
-</script>
-
-<script type="text/template" id="mutation_table_oncokb_template">
-    <span class='oncokb oncokb_column' oncokbId='{{uniqueId}}'></span>
 </script>
 
 <script type="text/template" id="studies-with-no-data-tmpl">
@@ -412,7 +407,23 @@
     <h1>Default cross-cancer view</h1>
 </script>
 
-
+<script>
+    $(document).ready(function() {
+        var _cc_plots_gene_list = "";
+        var tmp = setInterval(function () {timer();}, 1000);
+        function timer() {
+            if (window.ccQueriedGenes !== undefined) {
+                clearInterval(tmp);
+                _cc_plots_gene_list = _cc_plots_gene_list;
+                _.each(window.ccQueriedGenes, function (_gene) {
+                    $("#cc_plots_gene_list").append(
+                        "<option value='" + _gene + "'>" + _gene + "</option>");
+                });
+                ccPlots.init();
+            }
+        }
+    });
+</script>
 
 </div>
 </td>

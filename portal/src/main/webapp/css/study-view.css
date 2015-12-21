@@ -1055,6 +1055,7 @@ div.DTTT_print_info {
     border: solid 1px;
     border-radius: 5px;
     border-color: darkgrey;
+    outline-offset: -2px;
 }
 #arrow_studyview{
     width: 25px;
@@ -1062,4 +1063,76 @@ div.DTTT_print_info {
     float: left;
     padding: 0px 10px 0px 0px;
     margin-top: 2px;
+}
+textarea.expand{
+    margin: 0 5px 0 0;
+    font-family: Verdana,Arial,sans-serif;
+    background: none;
+    font-weight: normal;
+    color: darkgrey;
+    padding: 5px 10px;
+    margin-top: -3px;
+    margin-right: 10px;
+    border: solid 1px;
+    border-radius: 5px;
+    border-color: darkgrey;
+    outline-offset: -2px;
+    /*vertical-align: middle;*/
+}
+textarea.expandFocusOut{
+    width: 175px;
+    font-size: 0.8em;
+    height: 18px;
+    line-height: 17px;
+}
+textarea.expandFocusIn{
+    height: 5em;
+    width: 200px;
+    font-size: 1.0em;
+}
+#query-by-gene-span{
+    float: left;
+    padding: 0 10px 0 0;
+    /*display: none;*/
+}
+#queryByGeneTextSpan{
+    vertical-align: top;
+    padding: 0 10px 0 0;
+    background-color: white;
+    width: auto;
+    color: black;
+    text-align: center;
+    font-family: Verdana,Arial,sans-serif;
+    font-size: 1.1em;
+    margin-top: 3px;
+    display: inline-block;
+}
+img.tableIcon{
+    width:15px;
+    margin-bottom: -3px;
+    padding-right: 3px;
+}
+
+span.selectHighlight:hover{
+    padding: 1px;
+    border: 2px solid #1974b8;
+    cursor: pointer;
+}
+
+span.geneSelected{
+    font-weight: bold;
+}
+
+div.geneValidationNotification,
+div.geneAddedNotification{
+    width:400px;
+    height: 15px;
+    font-size: 0.8em;
+}
+input.disabled{
+    color: darkgrey;
+    background-color: lightgrey;
+}
+span.close{
+cursor: pointer;
 }

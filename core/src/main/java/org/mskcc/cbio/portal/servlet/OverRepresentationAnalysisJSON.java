@@ -24,7 +24,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.math.MathException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ArrayNode;
 import org.codehaus.jackson.node.JsonNodeFactory;
@@ -174,7 +173,7 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
                             for (Long entrezGeneId : gene_short_list) {
                                 try {
                                     synced_result.add(dataProxy.processMutHm(entrezGeneId, (ArrayList)sampleIds, mutHm));
-                                } catch (MathException e) {
+                                } catch (Exception e) {
                                     e.printStackTrace();
                                 }
                             }
@@ -211,7 +210,7 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
                                 ));
                             } catch (DaoException e) {
                                 e.printStackTrace();
-                            } catch (MathException e) {
+                            } catch (Exception e) {
                                 e.printStackTrace();
                             }
                         }
@@ -264,11 +263,7 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
             PrintWriter out = httpServletResponse.getWriter();
             mapper.writeValue(out, result);
 
-        } catch (DaoException ex) {
-            System.out.println(ex.getMessage());
-        } catch (IllegalArgumentException ex) {
-            System.out.println(ex.getMessage());
-        } catch (MathException ex) {
+        } catch (Exception ex) {
             System.out.println(ex.getMessage());
         }
     }

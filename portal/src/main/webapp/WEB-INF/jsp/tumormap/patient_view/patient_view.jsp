@@ -388,7 +388,7 @@ if (patientViewError!=null) {
 </style>
 
 <script type="text/javascript" src="js/src/patient-view/genomic-event-observer.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/patient-view/OncoKBConnector.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/OncoKBConnector.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script src="js/lib/dataTables.tableTools.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript">
 
@@ -916,12 +916,13 @@ function outputClinicalData() {
     });
 
     row = "<span id='more-patient-info'><b><u><a href='"+cbio.util.getLinkToPatientView(cancerStudyId,patientId)+"'>"+patientId+"</a></b></u><a>&nbsp;";
-    if ("PATIENT_DISPLAY_NAME" in patientInfo) {
+    var hasPatientInfo = Object.keys(patientInfo).length > 0;
+    if (hasPatientInfo && "PATIENT_DISPLAY_NAME" in patientInfo) {
         row +="("+patientInfo["PATIENT_DISPLAY_NAME"]+")&nbsp;";
     }
     var info = [];
     var loc;
-    if ("PRIMARY_SITE" in patientInfo) {loc = (" (" + patientInfo["PRIMARY_SITE"] + ")")} else {loc=""};
+    if (hasPatientInfo && "PRIMARY_SITE" in patientInfo) {loc = (" (" + patientInfo["PRIMARY_SITE"] + ")")} else {loc=""};
     var info = info.concat(formatPatientInfo(patientInfo).join(", ") + loc);
     var info = info.concat(formatDiseaseInfo(patientInfo));
     var info = info.concat(formatPatientStatus(patientInfo));
@@ -935,6 +936,7 @@ function outputClinicalData() {
     var sample_recs = "";
     var nr_in_head = 5;
     var is_expanded = false;
+    var hasClinicalData = Object.keys(clinicalDataMap).length > 0;
     for (var i=0; i<n; i++) {
         var caseId = caseIds[i];
 
@@ -943,7 +945,7 @@ function outputClinicalData() {
             sample_recs += "<svg width='12' height='12' class='case-label-header' alt='"+caseId+"'></svg>&nbsp;";
         }
         sample_recs += "<b><u><a style='color: #1974b8;' href='"+cbio.util.getLinkToSampleView(cancerStudyId,caseId)+"'>"+caseId+"</a></b></u><a>&nbsp;";
-        if ("SAMPLE_DISPLAY_NAME" in clinicalDataMap[caseId]) {
+        if (hasClinicalData && "SAMPLE_DISPLAY_NAME" in clinicalDataMap[caseId]) {
             sample_recs +="("+clinicalDataMap[caseId]["SAMPLE_DISPLAY_NAME"]+")&nbsp;";
         }
         var info = [];

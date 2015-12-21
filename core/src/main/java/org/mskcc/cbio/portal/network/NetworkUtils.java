@@ -56,10 +56,20 @@ public final class NetworkUtils {
             return null;
         }
 
-        Pattern pattern = Pattern.compile("HGNC:([^;]+)");
+        Pattern pattern = Pattern.compile("HGNC Symbol:([^;]+)|HGNC SYMBOL:([^;]+)|HGNC:([^;]+)");
         Matcher matcher = pattern.matcher(strXrefs);
-        if (matcher.find()) {
-            return matcher.group(1).toUpperCase();
+        if (matcher.find()) 
+        {
+        	if (matcher.group(1) != null) {
+        		return matcher.group(1).toUpperCase();
+			}
+        	else if (matcher.group(2) != null) {
+        		return matcher.group(2).toUpperCase();
+			}
+        	else {
+        		return matcher.group(3).toUpperCase();
+			}
+            
         } else {
             return null;
         }

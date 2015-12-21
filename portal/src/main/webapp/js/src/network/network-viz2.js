@@ -181,12 +181,24 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 					return "#A583AB";
 				}
 
-				switch (ele._private.data['type']){
-					case "IN_SAME_COMPONENT": return "#904930"; break;
-					case "REACTS_WITH": return "#7B7EF7"; break;
-					case "DRUG_TARGET": return "#E6A90F"; break;
-					case "STATE_CHANGE": return "#67C1A9"; break;
+				switch (ele._private.data['type'].toLowerCase())
+				{
+					case "controls-state-change-of": return "#A12525"; break;
+					case "controls-transport-of": return "#2F4DC5"; break;
+					case "controls-phosphorylation-of": return "#E8FA1E"; break;
+					case "controls-expression-of": return "#169127"; break;
+					case "catalysis-precedes": return "#313077"; break;
+					case "consumption-controled-by": return "#11968F"; break;
+					case "controls-production-of": return "#176381"; break;
+					case "controls-transport-of-chemical": return "#602190"; break;
+					case "used-to-produce": return "#A92297"; break;
+					case "chemical-affects": return "#786E43"; break;
+					case "in-complex-with": return "#6B3A27"; break;
+					case "interacts-with": return "#39A8D5"; break;
+					case "neighbor-of": return "#E10E54"; break;
+					case "reacts-with": return "#A6DC50"; break;
 					case "MERGED": return "#646464"; break;
+					case "DRUG_TARGET": return "#FFB600"; break;
 					default: return "#A583AB"; break;
 				}
 			},
@@ -194,11 +206,25 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 			{
 				if (ele._private.data['type'] === undefined)
 				{
-					return "#A583AB";
+					return "none";
 				}
 
-				switch (ele._private.data['type']){
-					case "STATE_CHANGE": return "triangle"; break;
+				switch (ele._private.data['type'].toLowerCase())
+				{
+					case "controls-state-change-of": return "triangle"; break;
+					case "controls-transport-of": return "triangle"; break;
+					case "controls-phosphorylation-of": return "triangle"; break;
+					case "controls-expression-of": return "triangle"; break;
+					case "catalysis-precedes": return "triangle"; break;
+					case "consumption-controled-by": return "triangle"; break;
+					case "controls-production-of": return "triangle"; break;
+					case "controls-transport-of-chemical": return "triangle"; break;
+					case "used-to-produce": return "triangle"; break;
+					case "chemical-affects": return "triangle"; break;
+					case "in-complex-with": return "none"; break;
+					case "interacts-with": return "none"; break;
+					case "neighbor-of": return "none"; break;
+					case "reacts-with": return "none"; break;
 					case "DRUG_TARGET": return "tee"; break;
 					default: return "none"; break;
 				}
@@ -210,11 +236,23 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 					return "#A583AB";
 				}
 
-				switch (ele._private.data['type']){
-					case "IN_SAME_COMPONENT": return "#904930"; break;
-					case "REACTS_WITH": return "#7B7EF7"; break;
-					case "DRUG_TARGET": return "#E6A90F"; break;
-					case "STATE_CHANGE": return "#67C1A9"; break;
+				switch (ele._private.data['type'].toLowerCase())
+				{
+					case "controls-state-change-of": return "#A12525"; break;
+					case "controls-transport-of": return "#2F4DC5"; break;
+					case "controls-phosphorylation-of": return "#E8FA1E"; break;
+					case "controls-expression-of": return "#169127"; break;
+					case "catalysis-precedes": return "#313077"; break;
+					case "consumption-controled-by": return "#11968F"; break;
+					case "controls-production-of": return "#176381"; break;
+					case "controls-transport-of-chemical": return "#602190"; break;
+					case "used-to-produce": return "#A92297"; break;
+					case "chemical-affects": return "#786E43"; break;
+					case "in-complex-with": return "#6B3A27"; break;
+					case "interacts-with": return "#39A8D5"; break;
+					case "neighbor-of": return "#E10E54"; break;
+					case "reacts-with": return "#A6DC50"; break;
+					case "DRUG_TARGET": return "#FFB600"; break;
 					default: return "#A583AB"; break;
 				}
 			},

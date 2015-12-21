@@ -83,9 +83,9 @@ public final class NetworkIO {
 
     public static String getCPath2URL(Set<String> genes) {
         StringBuilder sbUrl = new StringBuilder(GlobalProperties.getPathwayCommonsUrl());
-			sbUrl.append("/graph?format=EXTENDED_BINARY_SIF&kind=NEIGHBORHOOD");
+			sbUrl.append("/graph?format=EXTENDED_BINARY_SIF&kind=PATHSBETWEEN");
         for (String gene : genes) {
-            sbUrl.append("&source=urn:biopax:RelationshipXref:HGNC_");
+            sbUrl.append("&source=");
             sbUrl.append(gene.toUpperCase());
         }
 
@@ -183,11 +183,11 @@ public final class NetworkIO {
             Edge edge = new Edge(isDirect, interaction);
 
             for (int i=3; i<strs.length&&i<edgeHeaders.length; i++) {
-                if (edgeHeaders[i].equals("INTERACTION_PUBMED_ID")
+                /*if (edgeHeaders[i].equals("INTERACTION_PUBMED_ID")
                         && !strs[i].startsWith("PubMed:")) {
                     //TODO: REMOVE THIS CHECK AFTER THE CPATH2 PUBMED ISSUE IS FIXED
                     continue;
-                }
+                }*/
 
                 edge.addAttribute(edgeHeaders[i], strs[i]);
             }
@@ -199,6 +199,7 @@ public final class NetworkIO {
         return network;
     }
 
+//TODO FIX THIS PART FOR NEW INTERACTION TYPES !!
     private static boolean isEdgeDirected(String interaction) {
         if (interaction==null) {
             return false;

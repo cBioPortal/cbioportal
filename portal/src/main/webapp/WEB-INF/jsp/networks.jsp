@@ -71,6 +71,8 @@
 <script type="text/javascript" src="js/lib/cytoscape_js/cytoscape.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/lib/cytoscape_js/cytoscape.js-panzoom.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/lib/cytoscape_js/layout.cose2.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/network/FileSaver.js?<%=GlobalProperties.getAppVersion()%>"></script>
+
 
 <!-- <script type="text/javascript" src="js/src/network/network-ui.js?<%=GlobalProperties.getAppVersion()%>"></script> -->
 <script type="text/javascript" src="js/src/network/network-visualization.js?<%=GlobalProperties.getAppVersion()%>"></script>
@@ -142,6 +144,8 @@
                         var json = gml2jsonConverter.toJSON();
                         window.networkGraphJSON = json;
 
+
+
                         if (typeof graphml !== "string")
                         {
                           if (window.ActiveXObject) { // IE
@@ -150,6 +154,9 @@
                                   graphml = (new XMLSerializer()).serializeToString(graphml);
                           }
                         }
+
+                        var blob = new Blob([graphml], {type: "text/plain;charset=utf-8"});
+                        saveAs(blob, "graph.txt");
 
                         //show debug message !
                         showXDebug(graphml);

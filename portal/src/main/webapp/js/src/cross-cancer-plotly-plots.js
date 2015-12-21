@@ -60,12 +60,31 @@ var ccPlots = (function (Plotly, _, $) {
 
     var render = function() {
 
-
         var data = [];
+
+        //merge genomic profile data into mutation profile data for mutated samples
+        var _mut_data = _.filter(profile_data, function(_obj) { return _obj.hasOwnProperty("mutation_status"); });
+        var _tmp_profile_group = _.filter(profile_data, function(_obj) { return !(_obj.hasOwnProperty("mutation_status")); }); //profile data only
+        _.each(_tmp_profile_group, function(_profile_obj) {
+            var mutation_type = "non";
+            var mutation_details = "";
+            _.each(_mut_data, function(_mut_obj) {
+                if (_profile_obj.study_id === _mut_obj.study_id &&
+                    _profile_obj.sample_id === _mut_obj.sample_id) {
+                    mutation_type = _mut_obj.mutation_type; //TODO: set a priority list for mutation type
+                    mutation_details += _mut_obj.amino_acid_change + ", ";
+                }
+            });
+            _profile_obj.mutation_type = mutation_type;
+            _profile_obj.mutation_details = mutation_details.substring(0, mutation_details.length - 2);
+        });
+
+        //separate groups
+        var _non_mut_group = _.filter(_tmp_profile_group, function(_obj) { return _obj.mutation_type === "non"; });
+        var _mix_mut_group = _.filter(_tmp_profile_group, function(_obj) { return _obj.mutation_type !== "non"; });
 
         // ---- define tracks ----
         // no mutation
-        var _non_mut_group = _.filter(profile_data, function(_obj) { return !(_obj.hasOwnProperty("mutation_status")); });
         var non_mut_track = {
             x: _.map(_.pluck(_non_mut_group, "study_id"), function(_study_id){ return study_ids.indexOf(_study_id) + Math.random() * 0.3 - 0.15; }),
             y: _.pluck(_non_mut_group, "profile_data"),
@@ -81,6 +100,27 @@ var ccPlots = (function (Plotly, _, $) {
         };
         data.push(non_mut_track);
 
+        //mutated tracks
+        var _mut_types = _.uniq(_.pluck(_mix_mut_group, "mutation_type"));
+        _.each(_mut_types, function(_mut_type) {
+            var _mut_group = _.filter(_mix_mut_group, function(_obj) { return _obj.mutation_type === _mut_type; });
+            var _mut_track = {
+                x: _.map(_.pluck(_mut_group, "study_id"), function(_study_id){ return study_ids.indexOf(_study_id) + Math.random() * 0.3 - 0.15; }),
+                y: _.pluck(_mut_group, "profile_data"),
+                mode: 'markers',
+                type: 'scatter',
+                name: _mut_type,
+                marker: {
+                    color: '#1C1C1C',
+                    size: 6,
+                    line: {color: '#B40404', width: 1.2}
+                },
+                hoverinfo: "x+y"
+            };
+            data.push(_mut_track);
+        });
+
+
         //box plots
         _.each(mrna_profiles, function(_profile_id) {
             var _box = {
@@ -89,12 +129,13 @@ var ccPlots = (function (Plotly, _, $) {
                 type: 'box',
                 opacity: 0.6,
                 marker: {
-                    color: 'grey'
+                    color: 'grey',
+                    size: 7
                 },
                 line: { width: 1},
                 boxpoints: false,
                 showlegend: false
-            }
+            };
             data.push(_box);
         });
 

@@ -60,13 +60,15 @@
 <script>
     PortalDataCollManager.subscribeOncoprint(function() {
         MutexData.setOncoprintData(PortalDataColl.getOncoprintData()); 
+        var tab_init=false;
         $("#tabs").bind("tabsactivate", function(event, ui) {
-            if (!MutexView.isTableInstanceExisted()) {
+            if (!tab_init) {
             	//only call this part if tab is clicked :
                 if (ui.newTab.text().trim().toLowerCase() === "mutual exclusivity") {
                 	//calling asynch to ensure loading gif is shown:
                     window.setTimeout(MutexData.init, 1); 
                     window.setTimeout(MutexView.resize, 1);
+                	tab_init=true;
                 }
             } else {
                 MutexView.resize();

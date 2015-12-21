@@ -83,12 +83,13 @@
 <script type="text/javascript">
     $(document).ready( function() {
         // if not initialised, clicking the network tab will call showNetwork
-        var plots_tab_init=false;
+        var tab_init=false;
         $("#tabs").bind("tabsactivate", function(event, ui) {
             if (ui.newTab.text().trim().toLowerCase() === "network") {
-                if (plots_tab_init === false) {
+                if (tab_init === false) {
                     showNetwork();
                     $(window).trigger("resize");
+                    tab_init=true;
                 } else {
                     $(window).trigger("resize");
                 }

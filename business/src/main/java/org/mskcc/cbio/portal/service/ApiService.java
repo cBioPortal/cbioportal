@@ -148,9 +148,9 @@ public class ApiService {
 	}
 
         @Transactional
-        private List<DBSampleList> makeCompleteSampleLists(List<DBSampleList> incomplete_lists) {
+        private List<DBSampleList> addSampleIdsToSampleLists(List<DBSampleList> incomplete_lists) {
             for (DBSampleList l : incomplete_lists) {
-                List<DBSample> sample_list = sampleListMapper.getList(l.id);
+                List<DBSample> sample_list = sampleListMapper.getSampleIds(l.id);
                 l.sample_ids = new ArrayList<>();
                 for (DBSample samp : sample_list) {
                     l.sample_ids.add(samp.id);
@@ -160,17 +160,17 @@ public class ApiService {
         }
 	@Transactional
 	public List<DBSampleList> getSampleLists() {
-		return makeCompleteSampleLists(sampleListMapper.getAllIncompleteSampleLists());
+		return addSampleIdsToSampleLists(sampleListMapper.getAllIncompleteSampleLists());
 	}
 
 	@Transactional
 	public List<DBSampleList> getSampleLists(String study_id) {
-		return makeCompleteSampleLists(sampleListMapper.getIncompleteSampleListsByStudy(study_id));
+		return addSampleIdsToSampleLists(sampleListMapper.getIncompleteSampleListsByStudy(study_id));
 	}
 
 	@Transactional
 	public List<DBSampleList> getSampleLists(List<String> sample_list_ids) {
-		return makeCompleteSampleLists(sampleListMapper.getIncompleteSampleLists(sample_list_ids));
+		return addSampleIdsToSampleLists(sampleListMapper.getIncompleteSampleLists(sample_list_ids));
 	}
 
 	

@@ -28,32 +28,37 @@ ERROR_FILE = sys.stderr
 OUTPUT_FILE = sys.stdout
 
 # global for callback function use
-NCBI_DATA = []
+ncbi_data = []
 
 # ------------------------------------------------------------------------------
 # functions
 
 # establishes connection to ncbi ftp server and downloads the gene_info file for entrez gene id mapping
 def ftp_NCBI():
-    ftp = ftplib.FTP(NCBI_SERVER)
-    ftp.login(FTP_USER,FTP_PASS)
+    try:
+        ftp = ftplib.FTP(NCBI_SERVER)
+        ftp.login(FTP_USER,FTP_PASS)
 
-    ftp.retrbinary('RETR ' + NCBI_FILE, callback=handle_binary)
+        ftp.retrbinary('RETR ' + NCBI_FILE, callback=handle_binary)
 
-    zippedData = ''.join(NCBI_DATA)
-    ncbi_zipped_file = StringIO.StringIO(zippedData)
+        zippedData = ''.join(ncbi_data)
+        ncbi_zipped_file = StringIO.StringIO(zippedData)
     
-    return parse_ncbi_file(ncbi_zipped_file)
+        return parse_ncbi_file(ncbi_zipped_file)
+    except ftplib.all_errors:
+        print >> ERROR_FILE, 'Unable to connect and retreive gene info from NCBI'
 
 # ------------------------------------------------------------------------------
 # helper function for downloading binary from ncbi
 def handle_binary(data):
-    NCBI_DATA.append(data)
+    ncbi_data.append(data)
 
 # ------------------------------------------------------------------------------
 # parses and creates dictionary mapping of hugo - entrez gene ids
-def parse_ncbi_file(ncbi_zipped_file):
+def parse_ncbi_file(ncbi_zipped_filename):
     hugo_entrez_map = {}
+
+    ncbi_zipped_file = open(ncbi_zipped_filename)
 
     unzipping = gzip.GzipFile(fileobj=ncbi_zipped_file)
     ncbi_unzipped_file = unzipping.read()
@@ -106,13 +111,11 @@ def main():
         hugo_entrez_map = ftp_NCBI()
     else:
         # check if file exists
-        try:
-            ncbi_file = open(filepath,'r')
-        except IOError:
+        if not os.path.exists(filepath):
             print >> ERROR_FILE, 'file cannot be found: ' + filepath
             sys.exit(2)
 
-        hugo_entrez_map = parse_ncbi_file(ncbi_file)
+        hugo_entrez_map = parse_ncbi_file(filepath)
             
 
     print hugo_entrez_map

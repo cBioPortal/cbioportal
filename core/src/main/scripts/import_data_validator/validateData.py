@@ -23,16 +23,19 @@ import textwrap
 # globals
 
 # allows script to run with or without the hugoEntrezMap module
-hugoEntrezMapPresent = True
+hugo_entrez_module_present = True
 try:
     from hugoEntrezMap import ftp_NCBI, parse_ncbi_file
 except ImportError:
     print >> sys.stderr, 'Could not find hugoEntrezMap, skipping'
-    hugoEntrezMapPresent = False
+    hugo_entrez_module_present = False
 
 # Current NCBI build and build counterpart - used in one of the maf checks as well as .seq filename check
 NCBI_BUILD_NUMBER = 37
 GENOMIC_BUILD_COUNTERPART = 'hg19'
+
+# NCBI Hugo-entrez file name
+HUGO_ENTREZ_FILENAME = 'Homo_sapiens.gene_info.gz'
 
 
 # how we differentiate between files. Names are important!! 
@@ -1854,24 +1857,18 @@ def main():
             target=html_table_handler)
         logger.addHandler(collapsing_hthandler)
 
-
-    if hugo == 'download' and hugoEntrezMapPresent:
-        hugo_entrez_map = ftp_NCBI()
-    elif hugo != '' and hugoEntrezMapPresent:
-        try:
-            ncbi_file = open(hugo,'r')
-        except IOError:
-            print >> sys.stderr, 'file cannot be found: ' + hugo
-            sys.exit(2)
-
-        hugo_entrez_map = parse_ncbi_file(ncbi_file)
-
+    # if the hugo_entrez file from ncbi exists in the same directory, use it. Otherwise, download it.
+    if hugo_entrez_module_present:
+        if os.path.exists(HUGO_ENTREZ_FILENAME):
+            hugo_entrez_map = parse_ncbi_file(HUGO_ENTREZ_FILENAME)
+        else:
+            hugo_entrez_map = ftp_NCBI()
+    
     # Get all files in study_dir
     filenames = [os.path.join(study_dir, x) for x in os.listdir(study_dir)]
     cancerStudyId = ''
     filenameMetaStringCheck = ''
     filenameStringCheck = ''
-
 
     # Create validators based on filenames
     validators = []

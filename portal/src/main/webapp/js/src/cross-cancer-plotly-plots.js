@@ -36,24 +36,33 @@
 
 var ccPlots = (function (Plotly, _, $) {
 
-    var study_ids = [], mrna_profiles = [], profile_data = {};
+    var study_ids = [], study_meta = [], mrna_profiles = [], profile_data = {};
 
     var fetch_profile_data = function(_queried_study_ids) {
 
         var _param_mrna_profile_arr = _.map(_queried_study_ids, function(_study_id) { return _study_id + "_rna_seq_v2_mrna"});
         var _param_mut_profile_arr = _.map(_queried_study_ids, function(_study_id) { return _study_id + "_mutations"});
 
-        var params = {
+        var _get_genetic_profile_params = {
             genes: ["SOX9"],
             genetic_profile_ids: _param_mrna_profile_arr.concat(_param_mut_profile_arr)
         };
 
-        window.cbioportal_client.getGeneticProfileData(params).then(
+        window.cbioportal_client.getGeneticProfileData(_get_genetic_profile_params).then(
             function(_result) {
                 profile_data = _result;
                 study_ids = _.uniq(_.pluck(_result, "study_id"));
                 mrna_profiles =  _.map(study_ids, function(_study_id) { return _study_id + "_rna_seq_v2_mrna"});
-                render();
+
+                var _get_study_params = {
+                    study_ids : study_ids
+                };
+                window.cbioportal_client.getStudies(_get_study_params).then(
+                    function(_study_meta) {
+                        study_meta = _study_meta;
+                        render();
+                    }
+                );
             });
 
     }
@@ -83,6 +92,9 @@ var ccPlots = (function (Plotly, _, $) {
         var _non_mut_group = _.filter(_tmp_profile_group, function(_obj) { return _obj.mutation_type === "non"; });
         var _mix_mut_group = _.filter(_tmp_profile_group, function(_obj) { return _obj.mutation_type !== "non"; });
 
+        console.log(_non_mut_group);
+        console.log(_mix_mut_group);
+
         // ---- define tracks ----
         // no mutation
         var non_mut_track = {
@@ -91,18 +103,21 @@ var ccPlots = (function (Plotly, _, $) {
             mode: 'markers',
             type: 'scatter',
             name: 'No Mutation',
+            text: _.pluck(_non_mut_group, "sample_id"),
             marker: {
                 color: '#00AAF8',
                 size: 5,
                 line: {color: '#0089C6', width: 1.2}
             },
-            hoverinfo: "x+y"
+            hoverinfo: "y+text"
         };
         data.push(non_mut_track);
 
         //mutated tracks
+        var _mut_shapes = ["triangle-up", "diamond", "cross", "square", "triangle-down", "pentagon", "hourglass"],
+            _mut_colors = ["#DF7401", "#1C1C1C", "#DF7401", "#1C1C1C", "#DF7401", "#1C1C1C", "#DF7401"];
         var _mut_types = _.uniq(_.pluck(_mix_mut_group, "mutation_type"));
-        _.each(_mut_types, function(_mut_type) {
+        $.each(_mut_types, function(_index, _mut_type) {
             var _mut_group = _.filter(_mix_mut_group, function(_obj) { return _obj.mutation_type === _mut_type; });
             var _mut_track = {
                 x: _.map(_.pluck(_mut_group, "study_id"), function(_study_id){ return study_ids.indexOf(_study_id) + Math.random() * 0.3 - 0.15; }),
@@ -111,9 +126,10 @@ var ccPlots = (function (Plotly, _, $) {
                 type: 'scatter',
                 name: _mut_type,
                 marker: {
-                    color: '#1C1C1C',
+                    color: _mut_colors[_index],
                     size: 6,
-                    line: {color: '#B40404', width: 1.2}
+                    line: {color: '#B40404', width: 1.2},
+                    symbol: _mut_shapes[_index]
                 },
                 hoverinfo: "x+y"
             };
@@ -139,57 +155,6 @@ var ccPlots = (function (Plotly, _, $) {
             data.push(_box);
         });
 
-                //var _mut_mixed_group = _.filter(_result, function(_result_obj) { return _result_obj.hasOwnProperty("mutation_status"); });
-
-                ////categorize mutations
-                ////TODO: join for cases with multiple mutations
-                //var _mut_groups = {};
-                //_.each(_mut_mixed_group, function(_mut_obj) {
-                //    if (!_mut_groups.hasOwnProperty(_mut_obj.mutation_type)) {
-                //        _mut_groups[_mut_obj.mutation_type] = [];
-                //    }
-                //    _mut_groups[_mut_obj.mutation_type].push(_mut_obj);
-                //});
-                //
-                ////get profile data for mutated cases
-                //_.each(_mut_mixed_group, function(_mut_obj) {
-                //    _.each(_non_mut_group, function(_non_mut_obj) {
-                //        if (_non_mut_obj.sample_id === _mut_obj.sample_id) {
-                //            _mut_obj.profile_data = _non_mut_obj.profile_data;
-                //        }
-                //    });
-                //});
-
-                ////remove all the mutated cases from non-mut group
-                ////TODO: numbers doesn't match, check again
-                //_non_mut_group = _.filter(_non_mut_group, function(_result_obj) { return ($.inArray( _result_obj.sample_id, _.pluck(_mut_mixed_group, "sample_id")) == -1); });
-
-
-
-
-
-                //$.each(Object.keys(_mut_groups), function(_index, _mut_type) {
-                //
-                //    var shapes = ['diamond', 'triangle-down', 'circle', 'pentagon', 'square'];
-                //    var _mut_group = _mut_groups[_mut_type];
-                //
-                //    var _mut_track = {
-                //        x: _.map(_.pluck(_mut_group, "study_id"), function(_study_id){ return study_arr.indexOf(_study_id) + Math.random() * 0.3 - 0.15; }),
-                //        y: _.pluck(_mut_group, "profile_data"),
-                //        mode: 'markers',
-                //        type: 'scatter',
-                //        name: _mut_group[0].mutation_type,
-                //        marker: {
-                //            size: 10,
-                //            symbol: shapes[_index],
-                //            color: '#FF3333'
-                //        }
-                //    };
-                //    data.push(_mut_track);
-                //});
-
-
-
         // ---- define layout ----
         var vals = [];
         for (var i = 0 ; i < mrna_profiles.length; i++) {
@@ -203,7 +168,7 @@ var ccPlots = (function (Plotly, _, $) {
             },
             xaxis: {
                 tickmode: "array",
-                ticktext: study_ids,
+                ticktext: _.pluck(study_meta, "short_name"),
                 tickvals: vals,
                 tickangle: 45
             },

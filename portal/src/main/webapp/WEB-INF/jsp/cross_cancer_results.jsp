@@ -126,7 +126,27 @@
     var oncokbGeneStatus = <%=oncokbGeneStatus%>;
     var showHotspot = <%=showHotspot%>;
     var enableMyCancerGenome = myCancerGenomeUrl?true:false;
-
+    
+   function waitForElementToDisplay(selector, time) {
+        if(document.querySelector(selector) !== null) {
+            
+           var chosenElements = document.getElementsByClassName('jstree-clicked');
+            if(chosenElements.length > 0)
+            {
+                var treeDiv = document.getElementById('jstree');
+                var topPos = chosenElements[0].offsetTop;
+                var originalPos = treeDiv.offsetTop;
+                treeDiv.scrollTop = topPos - originalPos;
+            }
+           
+            return;
+        }
+        else {
+            setTimeout(function() {
+                waitForElementToDisplay(selector, time);
+            }, time);
+        }
+    }
     $(document).ready(function() {
         OncoKB.setUrl('<%=oncokbUrl%>');
         //Set Event listener for the modify query button (expand the hidden form)
@@ -137,6 +157,7 @@
             } else {
                 $("#modify_query_btn").addClass("active");
             }
+            waitForElementToDisplay('.jstree-clicked', '5');
         });
         $("#toggle_query_form").click(function(event) {
             event.preventDefault();
@@ -153,18 +174,6 @@
 
         $("#bitly-generator").click(function() {
             bitlyURL(window.location.href);
-        });
-
-        $("#modify_query_btn").click(function() {
-            var chosenElements = document.getElementsByClassName('jstree-clicked');
-            if(chosenElements.length > 0)
-            {
-                var treeDiv = document.getElementById('jstree');
-                var topPos = chosenElements[0].offsetTop;
-                var originalPos = treeDiv.offsetTop;
-                treeDiv.scrollTop = topPos - originalPos;
-            }
-
         });
 
     });

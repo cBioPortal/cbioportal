@@ -583,7 +583,7 @@ class Validator(object):
 
         # TODO verify that this really is the desired behavior,
         # the csv module from the standard library might be a better option
-        self.cols = [x.strip().replace('"','').replace('\'','') for x in line.strip().split('\t')]
+        self.cols = [x.strip().replace('"','').replace('\'','') for x in line.split('\t')]
         self.numCols = len(self.cols)
 
         num_errors += self.checkRepeatedColumns()

@@ -9,6 +9,7 @@ import os
 import sys
 import getopt
 import argparse
+import re
 from cbioportal_common import *
 
 # ------------------------------------------------------------------------------
@@ -106,7 +107,7 @@ def process_directory(jvm_args, study_directory):
     cancer_type_meta = {}
 
     for f in study_files:
-        if 'meta_' in f:
+        if re.search(r'(\b|_)meta(\b|_)', f):
             metadata = get_properties(f)
             if 'meta_study' in metadata.get('meta_file_type'):
                 study_meta = metadata

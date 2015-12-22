@@ -18,6 +18,7 @@ from collections import OrderedDict
 from cgi import escape as html_escape
 import textwrap
 import argparse
+import re
 
 
 
@@ -67,8 +68,6 @@ META_FILE_PATTERNS = [
     RPPA_META_PATTERN,
     TIMELINE_META_PATTERN
 ]
-
-META_PATTERN = "meta_"
 
 VALIDATOR_IDS = {CNA_META_PATTERN:'CNAValidator',
                  MUTATION_META_PATTERN:'MutationsExtendedValidator',
@@ -1899,7 +1898,7 @@ def main_validate(args):
         # metafile validation and information gathering. Simpler than the big files, so no classes.
         # just need to get some values out, and also verify that no extra fields are specified
 
-        if META_PATTERN in f:
+        if re.search(r'(\b|_)meta(\b|_)', f):
             meta = processMetafile(f)
 
             if "meta_file_type" not in meta:

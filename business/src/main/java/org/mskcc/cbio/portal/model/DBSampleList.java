@@ -12,15 +12,15 @@ import java.util.List;
  *
  * @author abeshoua
  */
-public class DBPatientList implements Serializable {
+public class DBSampleList implements Serializable {
     public String id;
     public String name;
     public String description;
     public String study_id;
-    public List<String> patient_ids;
+    public List<String> sample_ids;
     
-    public DBPatientList discardList() {
-        this.patient_ids = null;
+    public DBSampleList discardList() {
+        this.sample_ids = null;
         return this;
     }
 }

@@ -416,7 +416,14 @@ var StudyViewProxy = (function() {
         return deferred.promise();
     }
 
-    //Change the CNA data base on sample ID
+    /**
+     * Convert copy number alteration data into sample ID based object.
+     * It will be used to quickly get selected samples' CNA data.
+     *
+     * @param data  Object  It contains caseIds, alter, cytoban, gene and gistic information. Each attribute is an array.
+     *                      Reminder: the length for each attribute should be the same.
+     * @returns {{}} Sample ID based CNA data.
+     */
     function convertCNAData(data) {
         var converted = {};
 
@@ -440,6 +447,12 @@ var StudyViewProxy = (function() {
         return converted;
     }
 
+    /**
+     * Only return selected samples' copy number alterations data.
+     *
+     * @param sampleIds Array   List of sample IDs.
+     * @returns data    Object  Keep the original CNA data format.
+     */
     function getCNABasedOnSampleIds(sampleIds) {
         var data = {
             alter: [],
@@ -480,7 +493,13 @@ var StudyViewProxy = (function() {
         return data;
     }
 
-    //Change the mutated gene data base on sample ID
+    /**
+     * Convert mutated gene data into sample ID based object.
+     * It will be used to quickly get selected samples' mutated gene data.
+     *
+     * @param   data    Array  It is the list of mutated genes. Each item contains caseIds, cytoband, gene_symbol, length and num_muts.
+     * @returns {{}}    Object Sample ID based mutated genes data.
+     */
     function convertMutatedGeneData(data) {
         var converted = {};
 
@@ -499,6 +518,12 @@ var StudyViewProxy = (function() {
         return converted;
     }
 
+    /**
+     * Only return selected samples' mutated gene data.
+     *
+     * @param sampleIds Array   List of sample IDs.
+     * @returns data    Array   List of mutated genes data. Its order is the same with sample IDs.
+     */
     function getMutatedGeneDataBasedOnSampleIds(sampleIds) {
         var data = [];
         if (sampleIds instanceof Array) {

@@ -49,22 +49,13 @@ def interface():
                         help='Path to Hugo gene Symbol')
     parser.add_argument('-html', '--html_table',type=str, required=False,
                         help='Path to html report')
-    parser.add_argument('-html_simple', '--html_simple_table',type=str, required=False,
-                        help='Path to html report')
     parser.add_argument('-v', '--validate', required=True,action="store_true",
                         help='Validate')
-    parser.add_argument('-f', '--fix', required=False,action="store_true",
-                        help='Fix files')
     parser.add_argument('-o', '--override_warning',type=int, required=False,default=0,
-                        help='Fix files')
-    parser.add_argument('-c', '--command', type=str, required=True,
-                        help='Command for import.')
-    parser.add_argument('-jvm', '--jvm_args',type=str, required=True,
-                        help='JVM arguments')
-    parser.add_argument('-meta', '--meta_filename',type=str, required=False,
-                        help='Path to meta file')
-    parser.add_argument('-data', '--data_filename', type=str, required=False,
-                        help='Path to Data file')
+                        help='Override warnings')
+    parser.add_argument('-jar', '--jar_path',type=str, required=True,
+                        help='Path to core jar file.')
+
 
     parser = parser.parse_args()
     return parser

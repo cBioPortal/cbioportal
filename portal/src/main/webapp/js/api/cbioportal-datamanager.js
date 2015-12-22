@@ -230,13 +230,14 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			return ret;
 		};
 		var maskGeneData = function (data, parsed_oql_query_line, is_patient_data) {
-			return data.map(function (d) {
-				if (d[config.gene_key] === parsed_oql_query_line.gene) {
-					return maskDatum(d, parsed_oql_query_line.alterations, is_patient_data);
-				} else {
-					return d;
+			//iterate over data items and mask the data for the items related to the 
+			var masked_data = data.slice();
+			for (var i = 0; i < masked_data.length; i++) {
+				if (masked_data[i][config.gene_key] === parsed_oql_query_line.gene) { //TODO - change to gene_field_name, gene_key is a bit misleading
+					masked_data[i] = maskDatum(masked_data[i], parsed_oql_query_line.alterations, is_patient_data);
 				}
-			});
+			}
+			return masked_data;
 		};
 		
 		//-------------------
@@ -261,27 +262,28 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 				var id_key = (is_patient_data ? "patient" : "sample");
 				// Mask all data
 				var i, _len;
+				var masked_data = data;
 				for (i = 0, _len = parse_res.length; i < _len; i++) {
-					data = maskGeneData(data, parse_res[i], is_patient_data);
+					masked_data = maskGeneData(masked_data, parse_res[i], is_patient_data);
 				}
 				// Collect altered/unaltered groups
 				var altered = {};
 				var unaltered = {};
-				for (i = 0, _len = data.length; i < _len; i++) {
-					var d = data[i];
+				for (i = 0, _len = masked_data.length; i < _len; i++) {
+					var d = masked_data[i];
 					if (isDatumAltered(d)) {
 						altered[d[id_key]] = true;
 					}
 				}
-				for (i = 0, _len = data.length; i < _len; i++) {
-					var d = data[i];
+				for (i = 0, _len = masked_data.length; i < _len; i++) {
+					var d = masked_data[i];
 					var id = d[id_key]
 					unmarkDatumAltered(d);
 					if (!altered.hasOwnProperty(id)) {
 						unaltered[id] = true;
 					}
 				}
-				return {data: data, altered: Object.keys(altered), unaltered: Object.keys(unaltered)};
+				return {data: masked_data, altered: Object.keys(altered), unaltered: Object.keys(unaltered)};
 			},
 			setDefaultOQL: function(alterations) {
 				config.default_oql = alterations;
@@ -569,7 +571,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 
 				return ret;
 			};
-			var makeOncoprintPatientData = function(oncoprint_sample_data) {
+			var makePatientData = function(sample_data) {
 				var pat_to_gene_to_datum = {};
 				var extremeness = {
 					cna: {
@@ -590,8 +592,8 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 						undefined: 0
 					}
 				};
-				for (var i=0, _len=oncoprint_sample_data.length; i<_len; i++) {
-					var d = oncoprint_sample_data[i];
+				for (var i=0, _len=sample_data.length; i<_len; i++) {
+					var d = sample_data[i];
 					var patient_id = sample_to_patient[d.sample];
 					var gene = d.gene;
 					pat_to_gene_to_datum[patient_id] = pat_to_gene_to_datum[patient_id] || {};
@@ -654,14 +656,20 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 									profile_types[gp_response[i].id] = gp_response[i].genetic_alteration_type;
 								}
 								setDefaultOQL();
-
 								for (var i = 0; i < sample_response.length; i++) {
 									sample_to_patient[sample_response[i].id] = sample_response[i].patient_id;
 								}
 							}).fail(function() {
 								def.reject();
 							}).then(function() {
-								return window.cbioportal_client.getGeneticProfileData({genetic_profile_ids: dm_ret.getGeneticProfileIds(), genes: dm_ret.getQueryGenes(), sample_ids: dm_ret.getSampleIds()});
+                                                            if (case_set_properties.case_set_id === "-1") {
+                                                                // custom case list
+                                                                console.log("by samples");
+								return window.cbioportal_client.getGeneticProfileDataBySample({genetic_profile_ids: dm_ret.getGeneticProfileIds(), genes: dm_ret.getQueryGenes(), sample_ids: dm_ret.getSampleIds()});
+                                                            } else {
+                                                                console.log("by sample list");
+                                                                return window.cbioportal_client.getGeneticProfileDataBySampleList({genetic_profile_ids: dm_ret.getGeneticProfileIds(), genes: dm_ret.getQueryGenes(), sample_list_id: [case_set_properties.case_set_id]});
+                                                            }
 							}).fail(function() {
 								def.reject();
 							}).then(function(response) {
@@ -672,7 +680,8 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 								dm_ret.altered_samples = oql_process_result.altered;
 								dm_ret.unaltered_samples = oql_process_result.unaltered;
 
-								var oql_process_result_patient = OQLHandler.maskData(dm_ret.getOQLQuery(), makeOncoprintPatientData(unmasked_sample_data), true);
+
+								var oql_process_result_patient = OQLHandler.maskData(dm_ret.getOQLQuery(), makePatientData(unmasked_sample_data), true);
 								dm_ret.patient_gene_data = oql_process_result_patient.data;
 								dm_ret.altered_patients = oql_process_result_patient.altered;
 								dm_ret.unaltered_patients = oql_process_result_patient.unaltered;

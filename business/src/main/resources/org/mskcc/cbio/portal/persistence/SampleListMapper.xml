@@ -3,7 +3,7 @@
 
 <mapper namespace="org.mskcc.cbio.portal.persistence.SampleListMapper">
 
-<select id="getList" resultType="DBSample">
+<select id="getSampleIds" resultType="DBSample">
     select 
         sample.STABLE_ID as id
     from patient_list_list inner join sample on sample.INTERNAL_ID = patient_list_list.PATIENT_ID

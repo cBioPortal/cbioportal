@@ -15,8 +15,9 @@ import org.mskcc.cbio.portal.model.DBSampleList;
  * @author abeshoua
  */
 public interface SampleListMapper {
+	// By 'Incomplete' we mean without the actual sample lists, only the metadata
 	List<DBSampleList> getIncompleteSampleLists(@Param("sample_list_ids") List<String> sample_list_ids);
 	List<DBSampleList> getIncompleteSampleListsByStudy(@Param("study_id") String study_id);
 	List<DBSampleList> getAllIncompleteSampleLists();
-	List<DBSample> getList(@Param("list_id") String list_id);
+	List<DBSample> getSampleIds(@Param("list_id") String list_id);
 }

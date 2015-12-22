@@ -68,7 +68,6 @@ var sidebar = (function() {
                 clinSpec.init("x");
             }
             profileSpec.appendLockGene();
-            optSpec.init();
             regenerate_plots("x");
         });
         $("#" + ids.sidebar.y.data_type).change(function() {
@@ -77,7 +76,6 @@ var sidebar = (function() {
             } else if ($("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() === vals.data_type.clin) {
                 clinSpec.init("y");
             }
-            optSpec.init();
             regenerate_plots("y");
         });
 

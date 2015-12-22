@@ -338,6 +338,9 @@ var scatterPlots = (function() {
                     .attr("fill", function(d){
                         return mutationInterpreter.getFill(d);
                     })
+                    .style("opacity", function(d){
+                        return mutationInterpreter.getOpacity();
+                    })
                     .attr("stroke", function(d){
                         return mutationInterpreter.getStroke(d);
                     })
@@ -390,6 +393,9 @@ var scatterPlots = (function() {
                 .attr("fill", function(d){
                     return mutationInterpreter.getFill(d);
                 })
+                .style("opacity", function(d){
+                    return mutationInterpreter.getOpacity();
+                })
                 .attr("stroke", function(d){
                     return mutationInterpreter.getStroke(d);
                 })
@@ -440,6 +446,9 @@ var scatterPlots = (function() {
                     }))
                 .attr("fill", function(d){
                     return mutationInterpreter.getFill(d);
+                })
+                .style("opacity", function(d){
+                    return mutationInterpreter.getOpacity();
                 })
                 .attr("stroke", function(d){
                     return mutationInterpreter.getStroke(d);

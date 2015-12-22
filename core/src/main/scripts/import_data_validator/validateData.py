@@ -351,133 +351,6 @@ class LogfileStyleFormatter(ValidationMessageFormatter):
         return super(LogfileStyleFormatter, self).format(record)
 
 
-class SimpleHtmlTableFormatter(ValidationMessageFormatter):
-    """Formatter writing messages to an order-of-appearance HTML table."""
-
-    def __init__(self):
-        """Initialize a logging Formatter with an appropriate format string."""
-        super(SimpleHtmlTableFormatter, self).__init__(
-            fmt='  <tr class="%(level_string)s">\n'
-                '    <td>%(file_string)s</td>\n'
-                '    <td>%(line_string)s</td>\n'
-                '    <td>%(column_string)s</td>\n'
-                '    <td>%(message_string)s</td>\n'
-                '    <td>%(cause_string)s</td>\n'
-                '  </tr>')
-
-    def format(self, record):
-
-        """Generate descriptions for optional fields and format the record."""
-
-        record.level_string = html_escape(
-            record.levelname.lower(),
-            quote=True)
-        record.message_string = html_escape(
-            record.getMessage())
-        record.file_string = html_escape(
-            self.format_aggregated(record,
-                                   'data_filename',
-                                   optional=True))
-        record.line_string = html_escape(
-            self.format_aggregated(record,
-                                   'line_number',
-                                   single_fmt='%d',
-                                   multiple_fmt='%s',
-                                   optional=True))
-        record.column_string = html_escape(
-            self.format_aggregated(record,
-                                   'column_number',
-                                   single_fmt='%d',
-                                   multiple_fmt='%s:',
-                                   optional=True))
-        record.cause_string = html_escape(
-            self.format_aggregated(record,
-                                   'cause',
-                                   single_fmt="%s",
-                                   multiple_fmt="%s",
-                                   optional=True))
-
-        return super(SimpleHtmlTableFormatter, self).format(record)
-
-
-class SimpleHtmlTableHandler(logging.FileHandler):
-    """Logging handler writing HTML context for SimpleHtmlTableFormatter."""
-
-    def __init__(self, study_dir, *args, **kwargs):
-        """Set study directory name, then open specified file for logging."""
-        self.study_dir = study_dir
-        super(SimpleHtmlTableHandler, self).__init__(mode='w',
-                                                     *args, **kwargs)
-
-    def _open(self, *args, **kwargs):
-        """Open stream and write HTML headers up to the table row."""
-        stream = super(SimpleHtmlTableHandler, self)._open(*args, **kwargs)
-        stream.write(textwrap.dedent('''\
-            <!DOCTYPE html>
-            <html lang="en-US">
-            <head>
-              <meta charset="utf-8" />
-              <title>cBioPortal study data validation notes for '%(study_dir)s'</title>
-              <meta name="description" content="Results of validating the study in '%(study_dir)s' for import into cBioPortal" />
-              <!--[if lt IE 9]>
-              <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-              <![endif]-->
-              <style>
-              header, section, footer, aside, nav, main, article, figure {
-                display: block;
-              }
-              tr.info{
-                background-color: #ddddff;
-              }
-              tr.warning{
-                background-color: #ffddbb;
-              }
-              tr.error{
-                background-color: #ffbbbb;
-              }
-              </style>
-            </head>
-            <body>
-
-            <header>
-            <h1>cBioPortal study data validation notes for '%(study_dir)s'</h1>
-            </header>
-
-            <section>
-            <h2>Results</h2>
-            <table>
-              <tr>
-                <th>File name</th>
-                <th>Line number</th>
-                <th>Column number</th>
-                <th>Message</th>
-                <th>Value encountered</th>
-              </tr>
-            ''' % {'study_dir': html_escape(self.study_dir)}))
-        return stream
-
-    def close(self):
-        """Write HTML end tags and close the stream."""
-        self.acquire()
-        try:
-            if self.stream:
-                self.flush()
-                self.stream.write(textwrap.dedent('''\
-                    </table>
-                    </section>
-
-                    </body>
-                    </html>
-                    '''))
-                if hasattr(self.stream, "close"):
-                    self.stream.close()
-                self.stream = None
-            # Issue #19523: call unconditionally to
-            # prevent a handler leak when delay is set
-            logging.StreamHandler.close(self)
-        finally:
-            self.release()
-
 class Jinja2HtmlHandler(logging.handlers.BufferingHandler):
 
     """Logging handler that formats aggregated HTML reports using Jinja2."""
@@ -1829,8 +1702,8 @@ def main_validate(args):
         try:
             import jinja2  # pylint: disable=import-error
         except ImportError:
-            raise ImportError('Aggregated HTML validation output requires Jinja2:'
-                              ' please install it or use simple HTML output.')
+            raise ImportError('HTML validation output requires Jinja2:'
+                              ' please install it first.')
         html_handler = Jinja2HtmlHandler(
             study_dir,
             html_output_filename,

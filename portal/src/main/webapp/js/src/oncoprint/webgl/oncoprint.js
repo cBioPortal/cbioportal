@@ -1,6 +1,6 @@
 var OncoprintModel = require('./oncoprintmodel.js');
 var OncoprintSVGCellView = require('./oncoprintsvgcellview.js');
-//var OncoprintWebGLCellView = require('oncoprintwebglcellview.js');
+var OncoprintWebGLCellView = require('./oncoprintwebglcellview.js');
 var OncoprintLabelView = require('./oncoprintlabelview.js');
 var OncoprintRuleSet = require('./oncoprintruleset.js');
 
@@ -17,8 +17,8 @@ var Oncoprint = (function() {
 		this.model = new OncoprintModel();
 		
 		// Precisely one of the following should be uncommented
-		this.cell_view = new OncoprintSVGCellView($svg_dev);
-		// this.cell_view = new OncoprintWebGLCellView($canvas_dev)
+		// this.cell_view = new OncoprintSVGCellView($svg_dev);
+		this.cell_view = new OncoprintWebGLCellView($canvas_dev)
 		
 		this.label_view = new OncoprintLabelView();
 	}

@@ -35,7 +35,7 @@ NCBI_BUILD_NUMBER = 37
 GENOMIC_BUILD_COUNTERPART = 'hg19'
 
 # NCBI Hugo-entrez file name
-HUGO_ENTREZ_FILENAME = os.path.join(os.getcwd(), 'Homo_sapiens.gene_info.gz')
+HUGO_ENTREZ_FILENAME = os.path.join(os.path.dirname(__file__), 'Homo_sapiens.gene_info.gz')
 
 
 # how we differentiate between files. Names are important!! 

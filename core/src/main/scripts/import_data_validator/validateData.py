@@ -1757,31 +1757,21 @@ def main_validate(args):
         # just need to get some values out, and also verify that no extra fields are specified
 
         if re.search(r'(\b|_)meta(\b|_)', f):
+
             meta = processMetafile(f)
 
-            if "meta_file_type" not in meta:
-                logger.warning(
-                        'Unrecognized meta file',
-                        extra={'data_filename': getFileFromFilepath(f),
-                        'cause': "meta file type"})
-
-                if exitcode == 0:
-                    exitcode = 3
+            if 'meta_file_type' not in meta:
+                logger.error("Missing field 'meta_file_type' in meta file'",
+                               extra={'data_filename': f})
+                exitcode = 1
                 continue
 
             meta_file_type = meta["meta_file_type"]
             if meta_file_type not in META_FILE_PATTERNS:
-                logger.warning(
-                        'Unrecognized meta file',
-                        extra={'data_filename': getFileFromFilepath(f),
-                        'cause': "meta file type"})
-                logger.warning(
-                        'File not validated',
-                        extra={'data_filename': meta["data_file_path"],
-                        'cause': "Incorrect meta file type"})
-
-                if exitcode == 0:
-                    exitcode = 3
+                logger.error('Unknown meta_file_type',
+                             extra={'data_filename': f,
+                                    'cause': meta_file_type})
+                exitcode = 1
                 continue
 
             for field in meta:
@@ -1795,7 +1785,7 @@ def main_validate(args):
 
 
 
-            if "data_file_path" in meta:
+            if 'data_file_path' in meta:
                 data_file = meta["data_file_path"]
                 if meta_file_type in META_TO_FILE_MAP:
                     META_TO_FILE_MAP[meta_file_type].append(os.path.join(study_dir, data_file))

@@ -45,16 +45,16 @@ def interface():
     parser = argparse.ArgumentParser(description='cBioPortal meta Importer')
     parser.add_argument('-s', '--study_directory', type=str, required=True,
                         help='path to directory.')
-    parser.add_argument('-hugo', '--hugo_entrez_map',type=str, required=True,
-                        help='Path to Hugo gene Symbol')
-    parser.add_argument('-html', '--html_table',type=str, required=False,
-                        help='Path to html report')
-    parser.add_argument('-v', '--validate', required=True,action="store_true",
-                        help='Validate')
-    parser.add_argument('-o', '--override_warning',type=int, required=False,default=0,
-                        help='Override warnings')
-    parser.add_argument('-jar', '--jar_path',type=str, required=True,
-                        help='Path to core jar file.')
+    parser.add_argument('-hugo', '--hugo_entrez_map', type=str, required=True,
+                        help='path to Hugo gene Symbol')
+    parser.add_argument('-html', '--html_table', type=str, required=False,
+                        help='path to html report')
+    parser.add_argument('-v', '--verbose', required=False, action="store_true",
+                        help='list warnings in addition to fatal errors')
+    parser.add_argument('-o', '--override_warning', type=int, required=False, default=0,
+                        help='override warnings and continue importing')
+    parser.add_argument('-jar', '--jar_path', type=str, required=True,
+                        help='path to core jar file.')
 
 
     parser = parser.parse_args()

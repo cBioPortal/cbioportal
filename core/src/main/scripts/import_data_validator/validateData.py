@@ -1786,23 +1786,25 @@ def interface():
     parser = argparse.ArgumentParser(description='cBioPortal meta Importer')
     parser.add_argument('-s', '--study_directory', type=str, required=True,
                         help='path to directory.')
-    parser.add_argument('-hugo', '--hugo_entrez_map',type=str, required=True,
-                        help='Path to Hugo gene Symbol')
-    parser.add_argument('-html', '--html_table',type=str, required=False,
-                        help='Path to html report')
-    parser.add_argument('-v', '--validate', required=True,action="store_true",
-                        help='Validate')
-    parser.add_argument('-f', '--fix', required=False,action="store_true",
-                        help='Fix files')
+    parser.add_argument('-hugo', '--hugo_entrez_map', type=str, required=True,
+                        help='path to Hugo gene Symbol')
+    parser.add_argument('-html', '--html_table', type=str, required=False,
+                        help='path to html report output file')
+    parser.add_argument('-v', '--verbose', required=False, action="store_true",
+                        help='list warnings in addition to fatal errors')
+    parser.add_argument('-f', '--fix', required=False, action="store_true",
+                        help='fix files')
 
     parser = parser.parse_args()
     return parser
 
 
 def main_validate(args):
-    global exitcode
 
     """Main function."""
+
+    global exitcode
+
     # get a logger to emit messages
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.ERROR)
@@ -1821,7 +1823,7 @@ def main_validate(args):
 
     hugo_entrez_map = {}
 
-    if args.validate:
+    if args.verbose:
         logger.setLevel("INFO")
 
 

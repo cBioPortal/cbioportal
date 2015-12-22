@@ -808,7 +808,7 @@ class FeaturewiseFileValidator(Validator):
         Return the number of fatal errors.
         """
         num_errors = super(FeaturewiseFileValidator, self).checkHeader(line)
-        self.setSampleIdsFromColumns()
+        num_errors += self.setSampleIdsFromColumns()
         return num_errors
 
     def checkLine(self, line):
@@ -822,9 +822,18 @@ class FeaturewiseFileValidator(Validator):
 
     def setSampleIdsFromColumns(self):
         """Extracts sample IDs from column headers and set self.sampleIds."""
+        global exitcode
+        num_errors = 0
         # `REQUIRED_HEADERS` should have been set by a subclass
         num_nonsample_headers = len(self.REQUIRED_HEADERS)  # pylint: disable=no-member
+        if len(self.cols[num_nonsample_headers:]) == 0:
+            self.logger.error('No sample columns',
+                              extra={'line_number': self.line_number,
+                                     'column_number': num_nonsample_headers})
+            exitcode = 1
+            num_errors += 1
         self.sampleIds = self.cols[num_nonsample_headers:]
+        return num_errors
 
 
 class GenewiseFileValidator(FeaturewiseFileValidator):
@@ -899,16 +908,8 @@ class CNAValidator(GenewiseFileValidator):
 
     # TODO refactor so subclasses don't have to override for the final call
     def checkHeader(self,line):
-        global exitcode
         """Header validation for CNA files."""
         num_errors = super(CNAValidator,self).checkHeader(line)
-        if len(self.cols) < 2:
-            self.logger.error(
-                    'Missing Sample column',
-                    extra={'line_number': self.line_number,
-                           'column_number':1 ,
-                           'cause': ''})
-            exitcode = 1
         if self.fix:
             self.writeHeader(self.cols)
         return num_errors

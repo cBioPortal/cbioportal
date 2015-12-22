@@ -838,7 +838,7 @@ class FeaturewiseFileValidator(Validator):
 
 class GenewiseFileValidator(FeaturewiseFileValidator):
 
-    REQUIRED_HEADERS = ['Hugo_Symbol']
+    REQUIRED_HEADERS = ['Hugo_Symbol', 'Entrez_Gene_Id']
 
     def __init__(self, *args, **kwargs):
         super(GenewiseFileValidator, self).__init__(*args, **kwargs)
@@ -851,7 +851,6 @@ class GenewiseFileValidator(FeaturewiseFileValidator):
         """
         num_errors = super(GenewiseFileValidator, self).checkHeader(line)
 
-        '''
         if self.numCols < 2 or self.cols[1] != self.REQUIRED_HEADERS[1]:
             self.entrez_missing = True
             # if fixing, do not count a missing Entrez column as a fatal error
@@ -861,7 +860,6 @@ class GenewiseFileValidator(FeaturewiseFileValidator):
                 self.REQUIRED_HEADERS = list(self.REQUIRED_HEADERS)
                 # do not expect the Entrez ID column from now on
                 del self.REQUIRED_HEADERS[1]
-        '''
         return num_errors
 
     def checkLine(self, line):

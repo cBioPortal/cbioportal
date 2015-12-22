@@ -406,19 +406,7 @@ var orPlots = (function() {
                 }
                 content = content + "</font>";
                 //make qtip for an element on first mouseenter:
-                $(this).one('mouseenter', function(event) {
-                	$(this).qtip(
-                    {
-                        content: {text: content},
-                        style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
-                        show: {event: "mouseover"},
-                        hide: {fixed:true, delay: 100, event: "mouseout"},
-                        position: {my:'left bottom',at:'top right', viewport: $(window)}
-                    });
-                	//show the qtip:  
-          		  	$(this).qtip("show");
-                });
-                
+            	cbio.util.addTargetedQTip($(this), { content: {text: content} });
             }
         );
 

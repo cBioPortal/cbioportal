@@ -571,23 +571,13 @@ function updateCaseListSmart() {
     $("#select_case_set").trigger("liszt:updated");
     $("#select_case_set_chzn .chzn-drop ul.chzn-results li")
         .each(function(i, e) {
-        	$(e).one('mouseenter', function(event) {
-    		  $(this).qtip({
-   			     content: "<font size='2'>" + $($("#select_case_set option")[i]).attr("title") + "</font>",
-                 style: {
-                     classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'
-                 },
-                 position: {
-                     my: 'left middle',
-                     at: 'middle right',
-                     viewport: $(window)
-                 },
-                 show: "mouseover",
- 	             hide: "mouseout"
-    		  });
-    		  //show the qtip:  
-    		  $(this).qtip("show");
-           })
+        	//make qtip for an element on first mouseenter:
+        	cbio.util.addTargetedQTip($(e), {
+        		content: "<font size='2'>" + $($("#select_case_set option")[i]).attr("title") + "</font>",
+        		style: {
+        			classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'
+                }
+        	}); 
       });
 }
 

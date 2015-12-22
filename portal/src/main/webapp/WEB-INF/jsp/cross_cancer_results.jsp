@@ -126,10 +126,10 @@
     var oncokbGeneStatus = <%=oncokbGeneStatus%>;
     var showHotspot = <%=showHotspot%>;
     var enableMyCancerGenome = myCancerGenomeUrl?true:false;
-    
+
    function waitForElementToDisplay(selector, time) {
         if(document.querySelector(selector) !== null) {
-            
+
            var chosenElements = document.getElementsByClassName('jstree-clicked');
             if(chosenElements.length > 0)
             {
@@ -138,7 +138,7 @@
                 var originalPos = treeDiv.offsetTop;
                 treeDiv.scrollTop = topPos - originalPos;
             }
-           
+
             return;
         }
         else {
@@ -188,7 +188,7 @@
                 <a href="#cc-overview" id="cc-overview-link" title="Compact visualization of genomic alterations">Overview</a>
             </li>
             <li>
-                <a href="#cc-mutations" id="cc-mutations-link" title="Mutation details, including mutation type, amino acid change and predicted functional consequence">Mutations</a>
+                <a href="#cc-mutations" id="cc-mutations-link" title="Mutation details, including mutation type, predicted functional consequence">Mutations</a>
             </li>
             <li>
                 <a href="#cc-plots" id="cc-plots-link" title="Plots with mRNA expression data (TCGA provisional only)">Expression</a>
@@ -414,12 +414,34 @@
         function timer() {
             if (window.ccQueriedGenes !== undefined) {
                 clearInterval(tmp);
-                _cc_plots_gene_list = _cc_plots_gene_list;
-                _.each(window.ccQueriedGenes, function (_gene) {
-                    $("#cc_plots_gene_list").append(
-                        "<option value='" + _gene + "'>" + _gene + "</option>");
+                var cc_plots_tab_init = false;
+                if ($("#cc-plots").is(":visible")) {
+                    _cc_plots_gene_list = _cc_plots_gene_list;
+                    _.each(window.ccQueriedGenes, function (_gene) {
+                        $("#cc_plots_gene_list").append(
+                            "<option value='" + _gene + "'>" + _gene + "</option>");
+                    });
+                    ccPlots.init();
+                    cc_plots_tab_init = true;
+                } else {
+                    $(window).trigger("resize");
+                }
+                $("#tabs").bind("tabsactivate", function(event, ui) {
+                    if (ui.newTab.text().trim().toLowerCase() === "expression") {
+                        if (cc_plots_tab_init === false) {
+                            _cc_plots_gene_list = _cc_plots_gene_list;
+                            _.each(window.ccQueriedGenes, function (_gene) {
+                                $("#cc_plots_gene_list").append(
+                                    "<option value='" + _gene + "'>" + _gene + "</option>");
+                            });
+                            ccPlots.init();
+                            cc_plots_tab_init = true;
+                            $(window).trigger("resize");
+                        } else {
+                            $(window).trigger("resize");
+                        }
+                    }
                 });
-                ccPlots.init();
             }
         }
     });

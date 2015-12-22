@@ -135,7 +135,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                                 }
                             }
                             if (_include_study) {
-                                window.cbioportal_client.getPatientLists({patient_list_ids: [_study_obj.studyId + "_sequenced"]}).then(function(d) {
+                                window.cbioportal_client.getSampleLists({sample_list_ids: [_study_obj.studyId + "_sequenced"]}).then(function(d) {
                                     var profileMetaListTmp = new ProfileMetaListTmp(_study_obj.studyId);
                                     profileMetaListTmp.fetch({
                                         success: function (profileMetaListTmp) {
@@ -147,7 +147,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                                                 if (d[0] === undefined) {
                                                     _profile_obj.SEQ_CASE_IDS = [];
                                                 } else {
-                                                    _profile_obj.SEQ_CASE_IDS = d[0].patient_ids;
+                                                    _profile_obj.SEQ_CASE_IDS = d[0].sample_ids;
                                                 }
                                             });
                                             profileMetaList.add(profileMetaListTmp.models);
@@ -256,8 +256,7 @@ var ccPlots = (function ($, _, Backbone, d3) {
                 var _profile_obj = _.filter(_.pluck(profileMetaList.models, "attributes"), function(profile_obj) {
                     return (profile_obj.STABLE_ID === _profile_id);
                 })[0];
-                //TODO: should return list of samples instead list of patients.
-                return $.inArray(_sample_id.substring(0, _sample_id.length - 3), _profile_obj.SEQ_CASE_IDS) !== -1;
+                return $.inArray(_sample_id, _profile_obj.SEQ_CASE_IDS) !== -1;
             }
         }
 
@@ -710,7 +709,6 @@ var ccPlots = (function ($, _, Backbone, d3) {
                         top = _scaled_arr[index_top];
                         var index_bottom = searchIndexBottom(_scaled_arr, (quan1 + 1.5 * IQR));
                         bottom = _scaled_arr[index_bottom];
-
 
                         elem.box_plots.append("rect")
                             .attr("x", midLine - width)

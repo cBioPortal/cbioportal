@@ -1681,7 +1681,6 @@ def usage():
     print >> sys.stderr, (
         'validateData.py'
         ' -v (verbose output)'
-        ' -c (create corrected files)'
         ' --directory=[path to directory]'
         ' --html=[HTML output filename]'
         ' --html-table=[minimal HTML output filename]'

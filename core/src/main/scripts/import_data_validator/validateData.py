@@ -1685,8 +1685,7 @@ def usage():
         ' --html=[HTML output filename]'
         ' --html-table=[minimal HTML output filename]'
         ' --hugo-entrez-map=[download or filename, optional]\n'
-        'For output of warnings, use -v\n'
-        'To generate corrected files, use -c'
+        'For output of warnings, use -v'
         '\n##############################################\n'
         'Follow file naming conventions in the github wiki:\n'
         'https://github.com/cBioPortal/cbioportal/wiki/File-Formats')

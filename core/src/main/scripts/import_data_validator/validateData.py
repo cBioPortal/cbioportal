@@ -1277,12 +1277,12 @@ class MutationsExtendedValidator(Validator):
     
     def check_n_alt_count(self, value):
         if not self.checkInt(value) and value != '':
-            return False        
+            return False
         return True
     
     def check_n_ref_count(self, value):
         if not self.checkInt(value) and value != '':
-            return False        
+            return False
         return True
 
     class Factory(object):
@@ -1297,7 +1297,7 @@ class ClinicalValidator(Validator):
         'PATIENT_ID',
         'SAMPLE_ID'
     ]
-    REQUIRE_COLUMN_ORDER = True
+    REQUIRE_COLUMN_ORDER = False
 
     def validate(self):
         super(ClinicalValidator,self).validate()
@@ -1326,7 +1326,7 @@ class ClinicalValidator(Validator):
         for col_index, value in enumerate(data):
             # TODO check the values in the other cols, required and optional
             try:
-                if col_index == self.cols.index(self.REQUIRED_HEADERS[1]):
+                if col_index == self.cols.index('SAMPLE_ID'):
                     self.sampleIds.add(value.strip())
             except ValueError:
                 continue

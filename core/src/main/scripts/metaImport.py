@@ -7,8 +7,6 @@ from import_data_validator import validateData
 import cbioportalImporter
 import sys
 import argparse
-import os
-import subprocess
 
 
 #======================================================================================

@@ -7,7 +7,6 @@
 
 import os
 import sys
-import getopt
 import argparse
 import re
 from cbioportal_common import *

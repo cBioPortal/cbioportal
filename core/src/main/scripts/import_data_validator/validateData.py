@@ -10,7 +10,6 @@
 
 # imports
 import sys
-import getopt
 import os
 import logging
 import logging.handlers
@@ -1764,21 +1763,6 @@ def processCaseListDirectory(caseListDir,sampleIdSets, logger):
             sampleIdSets.append(sampleIds)
 
     logger.info('Validation of case lists complete')
-
-def usage():
-    """Displays program usage (invalid args)."""
-    print >> sys.stderr, (
-        'validateData.py'
-        ' -v (verbose output)'
-        ' -c (create corrected files)'
-        ' --directory=[path to directory]'
-        ' --html-table=[HTML output filename]'
-        ' --hugo-entrez-map=[download or filename, optional]\n'
-        'For output of warnings, use -v\n'
-        'To generate corrected files, use -c'
-        '\n##############################################\n'
-        'Follow file naming conventions in the github wiki:\n'
-        'https://github.com/cBioPortal/cbioportal/wiki/File-Formats')
 
 # ------------------------------------------------------------------------------
 def interface():

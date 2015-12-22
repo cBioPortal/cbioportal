@@ -847,16 +847,6 @@ class Validator(object):
         except ValueError:
             return False
 
-    def writeNewLine(self, data):
-        """Write a line of data to the corrected file."""
-        # replace blanks with 'NA'
-        data = [x if x != '' else 'NA' for x in data]
-        self.correctedFile.write('\t'.join(data) + '\n')
-
-    def writeHeader(self, data):
-        """Write a column header to the corrected file."""
-        self.correctedFile.write('\t'.join(data) + '\n')
-
     def checkRepeatedColumns(self):
         num_errors = 0
         seen = set()
@@ -978,17 +968,6 @@ class GenewiseFileValidator(FeaturewiseFileValidator):
                                'line_number': self.line_number,
                                'cause': value.strip()})
         return data
-
-    def writeNewLine(self, data):
-        if self.entrez_missing:
-            data.insert(1,self.hugo_entrez_map.get(data[0],'NA'))
-        super(GenewiseFileValidator, self).writeNewLine(data)
-
-    def writeHeader(self, data):
-        if self.entrez_missing:
-            data.insert(1,'Entrez_Gene_Id')
-        super(GenewiseFileValidator, self).writeHeader(data)
-
 
 class CNAValidator(GenewiseFileValidator):
 
@@ -1188,18 +1167,6 @@ class MutationsExtendedValidator(Validator):
                    'column_number': col_index + 1,
                    'cause': value})
         exitcode = 0
-
-    def writeNewLine(self,data):
-        newline = []
-        for col in self.REQUIRED_HEADERS:
-            newline.append(self.mafValues.get(col,'NA'))
-        if self.entrez_missing:
-            newline[1] = self.hugo_entrez_map.get(newline[0],'NA')
-        super(MutationsExtendedValidator, self).writeNewLine(newline)
-
-    def writeHeader(self, data):
-        super(MutationsExtendedValidator, self).writeHeader(
-            self.REQUIRED_HEADERS)
 
     # These functions check values of the MAF according to their name.
     # The mapping of which function checks which value is a global value
@@ -1408,9 +1375,6 @@ class ClinicalValidator(Validator):
                     self.sampleIds.add(value.strip())
             except ValueError:
                 continue
-
-    def writeHeader(self,data):
-        self.correctedFile.write('\t'.join(data) + '\n')
 
     class Factory(object):
         def create(self,filename,hugo_entrez_map,logger,stableId):
@@ -1705,7 +1669,7 @@ def main():
         opts, args = getopt.getopt(
             sys.argv[1:],
             'v',
-            ['directory=', 'hugo-entrez-map=', 'html=', 'html-table='])
+            ['directory=', 'html=', 'html-table='])
     except getopt.GetoptError, msg:
         print >> sys.stderr, msg
         usage()
@@ -1713,7 +1677,6 @@ def main():
 
     # process the options
     study_dir = ''
-    hugo = ''
     html_output_filename = ''
     html_table_filename = ''
 
@@ -1727,8 +1690,6 @@ def main():
             html_output_filename = a
         elif o == '--html-table':
             html_table_filename = a
-        elif o == '--hugo-entrez-map':
-            hugo = a
         elif o == '-v':
             logger.setLevel("INFO")
 

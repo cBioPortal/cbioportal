@@ -1176,9 +1176,9 @@ var ScatterPlots = function() {
 
             for(var i=0 ; i< dataCopyL ; i++){
                 var _case_id = dataCopy[i].case_id;
-                if(highlightCases.hasOwnProperty(_case_id)) {
+                if(highlightCases[_case_id]) {
                     _highlightTmpDataArr.push(jQuery.extend(dataCopy[i],_datumArr[highlightCases[_case_id]]));
-                }else if(caseIdList.hasOwnProperty(_case_id)){
+                }else if(caseIdList[_case_id]){
                     _tmpDataArr.push(jQuery.extend(dataCopy[i],_datumArr[caseIdList[_case_id]]));
                 }
             }

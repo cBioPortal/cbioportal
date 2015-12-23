@@ -237,7 +237,7 @@ var StudyViewBoilerplate ={
             _span2 = $("<input type='button' />"),
             _span4 = $("<input type='button' />"),
             _span5 = $('<span></span>'),
-            _span6 = $("<input type='button' />"),
+            _span6 = $("<span></span>"),
             _form = $('<form id="study-view-form"></form>'),
             _input1 = $('<input></input>'),
             _input2 = $('<input></input>'),
@@ -313,15 +313,16 @@ var StudyViewBoilerplate ={
 
        // tumormap.do?cancer_study_id=acyc_mskcc&case_id=9534#nav_case_ids=9534,6277
         //Build View cases button linking to patient view
-        _span4
-            .attr({
-                'id': 'study-view-header-left-4',
-                'class': 'study-view-header-button'})
-            .val('View');
+        //_span4
+        //    .attr({
+        //        'id': 'study-view-header-left-4',
+        //        'class': 'study-view-header-button'})
+        //    .val('View');
 
         // span5 attributes
         _span5.attr({
-            'id': 'study-view-header-left-5'
+            'id': 'study-view-header-left-5',
+            'class': 'study-view-header-button'
         });
 
         //Download button
@@ -329,7 +330,7 @@ var StudyViewBoilerplate ={
             .attr({
                 'id': 'study-view-header-left-6',
                 'class': 'study-view-header-button'})
-            .val('Download');
+            .html('<img src="images/in.svg" />');
 
         _successBanner
             .attr({
@@ -341,11 +342,11 @@ var StudyViewBoilerplate ={
         // span3 is now the first item, span5 added, image added
         _headerLeft.append(_span3);
         _headerLeft.append(_span5);
+        _headerLeft.append(_span6);
         _headerLeft.append(_queryByGene);
         _headerLeft.append("<img id='arrow_studyview' src='images/arrow_studyview.png'>");
         _headerLeft.append(_form);
-        _headerLeft.append(_span4);
-        _headerLeft.append(_span6);
+        //_headerLeft.append(_span4);
 
         _headerRight.attr('id','study-view-header-right');
         _headerRight.append(_span1);

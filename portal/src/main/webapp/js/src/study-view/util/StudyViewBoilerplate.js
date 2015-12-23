@@ -311,14 +311,6 @@ var StudyViewBoilerplate ={
                 })
             .text('Samples selected: ');
 
-       // tumormap.do?cancer_study_id=acyc_mskcc&case_id=9534#nav_case_ids=9534,6277
-        //Build View cases button linking to patient view
-        //_span4
-        //    .attr({
-        //        'id': 'study-view-header-left-4',
-        //        'class': 'study-view-header-button'})
-        //    .val('View');
-
         // span5 attributes
         _span5.attr({
             'id': 'study-view-header-left-5',
@@ -346,7 +338,6 @@ var StudyViewBoilerplate ={
         _headerLeft.append(_queryByGene);
         _headerLeft.append("<img id='arrow_studyview' src='images/arrow_studyview.png'>");
         _headerLeft.append(_form);
-        //_headerLeft.append(_span4);
 
         _headerRight.attr('id','study-view-header-right');
         _headerRight.append(_span1);

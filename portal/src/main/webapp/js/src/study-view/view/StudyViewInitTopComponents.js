@@ -224,7 +224,6 @@ var StudyViewInitTopComponents = (function() {
      
 
         $("#study-view-header-left-1").css('display','block');
-        //$("#study-view-header-left-4").css('display','block');
 
         $("#study-view-header-left-3").css('display','block')
         $("#study-view-header-left-3").text("Samples selected: ");
@@ -236,17 +235,6 @@ var StudyViewInitTopComponents = (function() {
                 $("#study-view-header-left-1").css('display','none');
                 //$("#study-view-header-left-4").css('display','none');
             }
-            //else if(_resultLength === 1){
-            //    $("#study-view-header-left-4").css('display','none');
-            //    $("#study-view-header-left-3").css('display','block');
-            //    $("#study-view-header-left-3").html("");
-            //    $("#study-view-header-left-3")
-            //            .append("<a title='Go to sample view' href='"
-            //            + cbio.util.getLinkToSampleView(StudyViewParams.params.studyId, _caseID[0])
-            //            + "'><span style='color: red'>" + _caseID[0] +
-            //            "</span></a>" + " is selected.");
-            //    $("#study-view-header-left-5").css('display','none');
-            //}
         }
         $("#study-view-header-left-case-ids").val(_caseID.join(" "));
     }

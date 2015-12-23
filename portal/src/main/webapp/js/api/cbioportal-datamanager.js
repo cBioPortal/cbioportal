@@ -214,15 +214,9 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			    var mutation_type_key = config.mutation_type_key;
 			    matching_mutations.sort(function(a,b) { return mutation_rendering_priority[a[mutation_type_key]] - mutation_rendering_priority[b[mutation_type_key]]; });
 			    ret[config.mutation_type_key] = matching_mutations[0][config.mutation_type_key];
-			    var type = ret[config.mutation_type_key];
-			    ret[config.mutation_key] = "";
-			    for (var j=0; j<matching_mutations.length; j++) {
-				if (matching_mutations[j][config.mutation_type_key] !== type) {
-				    break;
-				} else {
-				    ret[config.mutation_key] += matching_mutations[j][config.mutation_amino_acid_change_key];
-				}
-			    }
+			    ret[config.mutation_key] = matching_mutations.map(function(m) {
+				return m[config.mutation_amino_acid_change_key];
+			    }).join(",");
 			}
 			if (altered) {
 				markDatumAltered(ret);
@@ -494,6 +488,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 				case "nonframeshift":
 				case "nonframeshift insertion":
 				case "nonframeshift_insertion":
+				case "targeted_region":
 				    ret = "INFRAME";
 				    break;
 				default:

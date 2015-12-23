@@ -92,8 +92,9 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		
 		var getMatchingMutationsByAminoAcidChange = function(mutations, target_amino_acid_change, relation) {
 		    var ret = [];
+		    target_amino_acid_change = target_amino_acid_change.toLowerCase();
 		    for (var i=0; i<mutations.length; i++) {
-			var proposition = (mutations[i][config.mutation_amino_acid_change_key] === target_amino_acid_change);
+			var proposition = (mutations[i][config.mutation_amino_acid_change_key].toLowerCase() === target_amino_acid_change);
 			if (relation === "!=") {
 			    proposition = !proposition;
 			}

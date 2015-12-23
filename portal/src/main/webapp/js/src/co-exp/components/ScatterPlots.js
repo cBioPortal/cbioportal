@@ -236,7 +236,7 @@ var ScatterPlots = function() {
                 .attr("width", "50")
                 .attr("height", "20")
                 .append("xhtml:body")
-                .style({"font-size": "11px", "margin": "0"})
+                .attr("style", "font-size:'11px';margin:0;")
                 .html("<input id='mut-cna-haxis-log' class='mut-cna-axis-log' type='checkbox' style='float:left' "+(axisXLogFlag ? "checked" : "")+"/><span style='float:left; margin-top: 2px; font-size-adjust: 0.5;'>Log</span>");
 
             $("#mut-cna-haxis-log").change(function() {
@@ -331,7 +331,7 @@ var ScatterPlots = function() {
                 .attr("width", "50")
                 .attr("height", "20")
                 .append("xhtml:body")
-                .style({"font-size": "11px", "margin": "0"})
+                .attr("style", "font-size:'11px';margin:0;")
                 .html("<input id='mut-cna-vaxis-log' class='mut-cna-axis-log' type='checkbox' style='float:left' "+(axisYLogFlag ? "checked" : "")+"/><span style='float:left; margin-top: 2px; font-size-adjust: 0.5;'>Log</span>");
 
             $("#mut-cna-vaxis-log").change(function() {

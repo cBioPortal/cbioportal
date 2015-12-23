@@ -92,24 +92,26 @@ var ccPlots = (function (Plotly, _, $) {
         var _non_mut_group = _.filter(_tmp_profile_group, function(_obj) { return _obj.mutation_type === "non"; });
         var _mix_mut_group = _.filter(_tmp_profile_group, function(_obj) { return _obj.mutation_type !== "non"; });
 
-        console.log(_non_mut_group);
-        console.log(_mix_mut_group);
-
         // ---- define tracks ----
         // no mutation
+        //assemble array of qtip text
+        var _qtips = [];
+        _.each(_non_mut_group, function(_non_mut_obj) {
+            _qtips.push("Sample Id: " + _non_mut_obj.sample_id + "<br>" + "Expression: " + _non_mut_obj.profile_data);
+        });
         var non_mut_track = {
             x: _.map(_.pluck(_non_mut_group, "study_id"), function(_study_id){ return study_ids.indexOf(_study_id) + Math.random() * 0.3 - 0.15; }),
             y: _.pluck(_non_mut_group, "profile_data"),
             mode: 'markers',
             type: 'scatter',
             name: 'No Mutation',
-            text: _.pluck(_non_mut_group, "sample_id"),
+            text: _qtips,
             marker: {
                 color: '#00AAF8',
                 size: 5,
                 line: {color: '#0089C6', width: 1.2}
             },
-            hoverinfo: "y+text"
+            hoverinfo: "text"
         };
         data.push(non_mut_track);
 
@@ -119,19 +121,25 @@ var ccPlots = (function (Plotly, _, $) {
         var _mut_types = _.uniq(_.pluck(_mix_mut_group, "mutation_type"));
         $.each(_mut_types, function(_index, _mut_type) {
             var _mut_group = _.filter(_mix_mut_group, function(_obj) { return _obj.mutation_type === _mut_type; });
+            //assemble array of qtip text
+            var _qtips = [];
+            _.each(_mut_group, function(_mut_obj) {
+                _qtips.push("Sample Id: " + _mut_obj.sample_id + "<br>" + "Expression: " + _mut_obj.profile_data + "<br>" + "Mutation Type: " + _mut_obj.mutation_type);
+            });
             var _mut_track = {
                 x: _.map(_.pluck(_mut_group, "study_id"), function(_study_id){ return study_ids.indexOf(_study_id) + Math.random() * 0.3 - 0.15; }),
                 y: _.pluck(_mut_group, "profile_data"),
                 mode: 'markers',
                 type: 'scatter',
                 name: _mut_type,
+                text: _qtips,
                 marker: {
                     color: _mut_colors[_index],
                     size: 6,
                     line: {color: '#B40404', width: 1.2},
                     symbol: _mut_shapes[_index]
                 },
-                hoverinfo: "x+y"
+                hoverinfo: "text"
             };
             data.push(_mut_track);
         });

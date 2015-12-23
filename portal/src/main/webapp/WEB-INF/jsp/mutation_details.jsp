@@ -70,13 +70,15 @@
     var showHotspot = <%=showHotspot%>;
     var enableMyCancerGenome = myCancerGenomeUrl?true:false;
 
-    _mut3dVis = new Mutation3dVis("default3dView");
+    _mut3dVis = new Mutation3dVis("default3dView", {
+	    pdbUri: "api/proxy/jsmol/"
+    });
     _mut3dVis.init();
 
     // Set up Mutation View
     $(document).ready(function () {
+        var sampleArray = window.QuerySession.getSampleIds();
         OncoKB.setUrl('<%=oncokbUrl%>');
-        var sampleArray = _.keys(PortalGlobals.getPatientSampleIdMap());
         var mutationProxy = DataProxyFactory.getDefaultMutationDataProxy();
 
         var columnOrder = [

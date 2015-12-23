@@ -96,6 +96,7 @@ var StudyViewInitTables = (function() {
                             }
                         );
                     };
+                    _worker.callbacks.addGeneClick = addGeneClick;
                     break;
                 case 'cna':
                     _worker.data.attr = [{
@@ -141,6 +142,7 @@ var StudyViewInitTables = (function() {
                             }
                         );
                     };
+                    _worker.callbacks.addGeneClick = addGeneClick;
                     break;
                 default:
                     _worker.opts.title = 'Unknown';
@@ -155,6 +157,57 @@ var StudyViewInitTables = (function() {
             _worker.callbacks.rowClick = rowClick;
             workers.push(_worker);
         });
+    }
+
+    function addGeneClick(clickedRowData){
+        // clickedRowData[0] contains the gene
+        QueryByGeneTextArea.addRemoveGene(clickedRowData[0]);
+    }
+
+    var curSelectedGenes=Array();
+    function updateGeneHighlights(geneArray){
+        // loop the tables
+        for(var i = 0; i < workers.length; i++) {
+            // if the table supports addGeneClick, update the highlights
+            if(workers[i].callbacks.addGeneClick != undefined){
+                updateGeneHighlightTable(workers[i], geneArray);
+            }
+        }
+        // store the current geneArray as the current selected genes
+        curSelectedGenes = geneArray;
+    }
+
+    function updateGeneHighlightTable(worker, geneArray){
+        // get the dataTable, determine the deselected genes and the selected genes
+        var dataTable = worker.tableInstance.getDataTable();
+        var deselectGenes = _.difference(curSelectedGenes, geneArray);
+        var selectGenes = _.difference(geneArray, curSelectedGenes);
+
+        // update the highlighting
+        doUpdateGeneHighlightTable(dataTable, worker, deselectGenes, true);
+        doUpdateGeneHighlightTable(dataTable, worker, selectGenes, false);
+    }
+
+    function doUpdateGeneHighlightTable(dataTable, worker, array, deselect){
+        var item;
+        // for all the genes
+        for(var i=0; i<array.length; i++) {
+            // find the appropriate item
+            if (worker.opts.name == "cna")
+                item = dataTable.$("td[id*='-" + array[i] + "-']").parent().find(".selectHighlight");
+            else
+                item = dataTable.$("td[id$='-" + array[i] + "']").parent().find(".selectHighlight");
+
+            // change class and qtip
+            if(deselect) {
+                item.removeClass("geneSelected");
+                item.qtip('option', 'content.text', 'Click '+array[i]+' to add to your query');
+            }
+            else{
+                item.addClass("geneSelected");
+                item.qtip('option', 'content.text', 'Click '+array[i]+' to remove from your query');
+            }
+        }
     }
 
     function rowClick(tableId, data, clickedRowData, rowSelected) {
@@ -429,6 +482,7 @@ var StudyViewInitTables = (function() {
         init: init,
         redraw: redraw,
         clearAllSelected: clearAllSelected,
+        updateGeneHighlights: updateGeneHighlights,
         getInitStatus: function() {
             if(workers.length > 0) {
                 return true;

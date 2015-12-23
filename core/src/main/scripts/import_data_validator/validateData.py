@@ -1020,12 +1020,13 @@ class MutationsExtendedValidator(Validator):
         't_alt_count':'check_t_alt_count',
         't_ref_count':'check_t_ref_count',
         'n_alt_count':'check_n_alt_count',
-        'n_ref_count':'check_n_ref_count'}
+        'n_ref_count':'check_n_ref_count',
+        'Amino_Acid_Change': 'checkAminoAcidChange'}
 
     def __init__(self,filename,hugo_entrez_map,fix,logger,stableId):
         super(MutationsExtendedValidator,self).__init__(filename,hugo_entrez_map,fix,logger,stableId)
-        # TODO parse the version number in the comment on the first line,
-        # and reject unsupported versions (and/or override REQUIRED_HEADERS)
+        # TODO consider making this attribute a local var in in checkLine(),
+        # it really only makes sense there
         self.mafValues = {}
         self.entrez_missing = False
         self.extraCols = []
@@ -1059,22 +1060,22 @@ class MutationsExtendedValidator(Validator):
         """
 
         data = super(MutationsExtendedValidator,self).checkLine(line)
+        self.mafValues = {}
 
-        for col_index, value in enumerate(data[:len(self.REQUIRED_HEADERS)]):
+        for col_name in self.REQUIRED_HEADERS:
+            col_index = self.cols.index(col_name)
+            value = data[col_index]
             # get the checking method for this column if available, or None
             checking_function = getattr(
                 self,
-                self.CHECK_FUNCTION_MAP.get(self.REQUIRED_HEADERS[col_index], ''),
-                None)
-            # if it is actually a method, and not None
-            if callable(checking_function):
-                if not checking_function(value):
-                    self.printDataInvalidStatement(value, col_index)
-                elif self.extra_exists or self.extra != '':
-                    raise ValueError(('Checking function %s set a warning '
-                                      'message but reported no warning') %
-                                     checking_function.__name__)
-            self.mafValues[self.REQUIRED_HEADERS[col_index]] = value
+                self.CHECK_FUNCTION_MAP[col_name])
+            if not checking_function(value):
+                self.printDataInvalidStatement(value, col_index)
+            elif self.extra_exists or self.extra != '':
+                raise ValueError(('Checking function %s set a warning '
+                                  'message but reported no warning') %
+                                 checking_function.__name__)
+            self.mafValues[col_name] = value
 
         if self.fix:
             self.writeNewLine(data)
@@ -1093,10 +1094,10 @@ class MutationsExtendedValidator(Validator):
             self.correctedFile.write(line)
 
     def printDataInvalidStatement(self, value, col_index):
-        global exitcode
         """Prints out statement for invalid values detected."""
+        global exitcode
         message = ("Value in column '%s' appears invalid" %
-                   self.REQUIRED_HEADERS[col_index])
+                   self.cols[col_index])
         if self.extra_exists:
             message = self.extra
             self.extra = ''
@@ -1146,6 +1147,8 @@ class MutationsExtendedValidator(Validator):
                 value not in self.hugo_entrez_map.values()):
             return False
         elif (
+                # TODO check this only after all columns are read,
+                # this function skips the test if Hugo_Symbol is parsed later
                 self.hugo_entrez_map != {} and
                 'Hugo_Symbol' in self.mafValues and
                 (self.hugo_entrez_map.get(self.mafValues['Hugo_Symbol']) !=
@@ -1281,6 +1284,11 @@ class MutationsExtendedValidator(Validator):
     def check_n_ref_count(self, value):
         if not self.checkInt(value) and value != '':
             return False
+        return True
+
+    def checkAminoAcidChange(self, value):
+        """Test whether a string is a valid amino acid change specification."""
+        # TODO implement this test
         return True
 
     class Factory(object):

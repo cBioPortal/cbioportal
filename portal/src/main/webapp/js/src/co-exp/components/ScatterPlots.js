@@ -518,9 +518,15 @@ var ScatterPlots = function() {
         var tempStr = '';
         elem.dotsGroup.selectAll('path').each(
             function(d) {
+                // TODO: this is very hacky code, 
+                // cancer_study_id should probably passed in from data
+                // or better, qtip content should be passed in from data.
                 var urlStr = window.location.href;
                 var start = urlStr.indexOf("cancer_study_id=");
-                var end = urlStr.indexOf("&sample_id") !== -1 ? urlStr.indexOf("&sample_id") : urlStr.indexOf("&case_id");
+                var end = urlStr.indexOf("&", start);
+                if (end===-1) {
+                    end = urlStr.length;
+                }
                 var cancer_study_id = urlStr.substr(start+16,end-start-16);
 
                 tempStr = 'Fraction of CNA: <b>' + d.x_val.toFixed(2) + '</b>'

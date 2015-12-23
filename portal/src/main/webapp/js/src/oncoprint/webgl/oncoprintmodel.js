@@ -102,28 +102,39 @@ var OncoprintModel = (function() {
 		return this.track_groups;
 	}
 	
-	OncoprintModel.prototype.addTrack = function(track_id, target_group,
+	OncoprintModel.prototype.addTracks = function(params_list) {
+	    for (var i=0; i<params_list.length; i++) {
+		var params = params_list[i];
+		addTrack(this, params.track_id, params.target_group,
+			params.track_height, params.track_padding,
+			params.data_id_key, params.tooltipFn,
+			params.removable, params.label,
+			params.sortCmpFn, params.sort_direction_changeable,
+			params.data, params.rule_set);
+	    }
+	}
+	var addTrack = function(model, track_id, target_group,
 						track_height, track_padding,
 						data_id_key, tooltipFn,
 						removable, label,
 						sortCmpFn, sort_direction_changeable,
 						data, rule_set) {
-		this.track_label[track_id] = ifndef(label, "Label");
-		this.track_height[track_id] = ifndef(track_height, 20);
-		this.track_padding[track_id] = ifndef(track_padding, 5);
-		this.track_data_id_key[track_id] = ifndef(data_id_key, 'id');
-		this.track_tooltip_fn[track_id] = ifndef(tooltipFn, function(d) { return d+''; });
-		this.track_removable[track_id] = ifndef(removable, false);
-		this.track_sort_cmp_fn[track_id] = ifndef(sortCmpFn, function(a,b) { return 0; });
-		this.track_sort_direction_changeable[track_id] = ifndef(sort_direction_changeable, false);
-		this.track_data[track_id] = ifndef(data, []);
-		this.track_rule_set[track_id] = ifndef(rule_set, undefined);
+		model.track_label[track_id] = ifndef(label, "Label");
+		model.track_height[track_id] = ifndef(track_height, 20);
+		model.track_padding[track_id] = ifndef(track_padding, 5);
+		model.track_data_id_key[track_id] = ifndef(data_id_key, 'id');
+		model.track_tooltip_fn[track_id] = ifndef(tooltipFn, function(d) { return d+''; });
+		model.track_removable[track_id] = ifndef(removable, false);
+		model.track_sort_cmp_fn[track_id] = ifndef(sortCmpFn, function(a,b) { return 0; });
+		model.track_sort_direction_changeable[track_id] = ifndef(sort_direction_changeable, false);
+		model.track_data[track_id] = ifndef(data, []);
+		model.track_rule_set[track_id] = ifndef(rule_set, undefined);
 		
 		target_group = ifndef(target_group, 0);
-		while (target_group >= this.track_groups.length) {
-			this.track_groups.push([]);
+		while (target_group >= model.track_groups.length) {
+			model.track_groups.push([]);
 		}
-		this.track_groups[target_group].push(track_id);
+		model.track_groups[target_group].push(track_id);
 	}
 	
 	var _getContainingTrackGroup = function(oncoprint_model, track_id, return_reference) {
@@ -159,7 +170,27 @@ var OncoprintModel = (function() {
 				containing_track_group.indexOf(track_id), 1);
 		}
 	}
-	
+	OncoprintModel.prototype.getTrackTop = function(track_id) {
+		var groups = this.getTrackGroups();
+		var y = 0;
+		for (var i=0; i<groups.length; i++) {
+			var group = groups[i];
+			var found = false;
+			for (var j=0; j<group.length; j++) {
+				if (group[j] === track_id) {
+					found = true;
+					break;
+				}
+				y += 2*this.getTrackPadding(group[j]);
+				y += this.getTrackHeight(group[j]);
+			}
+			y += this.getTrackGroupPadding();
+			if (found) {
+				break;
+			}
+		}
+		return y;
+	}
 	OncoprintModel.prototype.getContainingTrackGroup = function(track_id) {
 		return _getContainingTrackGroup(this, track_id, false);
 	}

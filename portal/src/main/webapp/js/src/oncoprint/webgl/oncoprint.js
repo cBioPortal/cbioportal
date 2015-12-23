@@ -23,20 +23,27 @@ var Oncoprint = (function() {
 		this.label_view = new OncoprintLabelView();
 	}
 	
-	Oncoprint.prototype.addTrack = function(params) {
+	Oncoprint.prototype.addTracks = function(params_list) {
 		// Update model
-		var track_id = nextTrackId();
-		this.model.addTrack(track_id, params.target_group,
+		var track_ids = [];
+		params_list = params_list.map(function(o) {
+		    o.track_id = nextTrackId();
+		    o.rule_set = OncoprintRuleSet(o.rule_set_params);
+		    track_ids.push(o.track_id);
+		    return o;
+		});
+		this.model.addTracks(params_list);
+				/*track_id, params.target_group,
 				params.track_height, params.track_padding,
 				params.data_id_key, params.tooltipFn,
 				params.removable, params.label,
 				params.sortCmpFn, params.sort_direction_changeable,
-				params.data, OncoprintRuleSet(params.rule_set_params));
+				params.data, OncoprintRuleSet(params.rule_set_params));*/
 		// Update views
-		this.cell_view.addTrack(this.model, track_id);
-		this.label_view.addTrack(this.model, track_id);
+		this.cell_view.addTracks(this.model, track_ids);
+		//this.label_view.addTracks(this.model, track_ids);
 				
-		return track_id;
+		return track_ids;
 	}
 	
 	Oncoprint.prototype.removeTrack = function(track_id) {

@@ -47,8 +47,10 @@ var OncoprintSVGCellView = (function() {
 		}
 	}
 	
-	OncoprintSVGCellView.prototype.addTrack = function(model, track_id) {
-		renderTrack(this, model, track_id);
+	OncoprintSVGCellView.prototype.addTracks = function(model, track_ids) {
+	    for (var i=0; i<track_ids.length; i++) {
+		renderTrack(this, model, track_ids[i]);
+	    }
 	}
 	
 	OncoprintSVGCellView.prototype.renderShape = function(shape, x, y) {
@@ -103,27 +105,6 @@ var OncoprintSVGCellView = (function() {
 		// TODO: implement
 	}
 	
-	OncoprintSVGCellView.prototype.getTrackTop = function(model, track_id) {
-		var groups = model.getTrackGroups();
-		var y = 0;
-		for (var i=0; i<groups.length; i++) {
-			var group = groups[i];
-			var found = false;
-			for (var j=0; j<group.length; j++) {
-				if (group[j] === track_id) {
-					found = true;
-					break;
-				}
-				y += 2*model.getTrackPadding(group[j]);
-				y += model.getTrackHeight(group[j]);
-			}
-			y += model.getTrackGroupPadding();
-			if (found) {
-				break;
-			}
-		}
-		return y;
-	}
 	OncoprintSVGCellView.prototype.setCellPadding = function() {
 		// TODO: what parameters
 		// TODO: implementation

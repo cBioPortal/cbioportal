@@ -11,9 +11,17 @@ $(document).ready(function() {
 		value_key: 'data',
 		value_range:[0,10]
 	};
-	o.addTrack({'data':data, 'rule_set_params': rule_set_params});
-	o.addTrack({'data':data, 'rule_set_params': rule_set_params});
-	o.addTrack({'data':data, 'rule_set_params': rule_set_params});
-	o.addTrack({'data':data, 'rule_set_params': rule_set_params, 'target_group':1});
-	window.o = o;
+	o.addTracks([{'data':data, 'rule_set_params': rule_set_params},
+		    {'data':data, 'rule_set_params': rule_set_params},
+		    {'data':data, 'rule_set_params': rule_set_params},
+		    {'data':data, 'rule_set_params': rule_set_params, 'target_group':1},
+		    {'data':data, 'rule_set_params':rule_set_params, 'target_group':2}]);
+		
+	window.addTracks = function() {
+	    var tracks_to_add = [];
+	    for (var i=0; i<30; i++) {
+		tracks_to_add.push({'data':data, 'rule_set_params':rule_set_params, 'target_group':3});
+	    }
+	    o.addTracks(tracks_to_add);
+	}
 });

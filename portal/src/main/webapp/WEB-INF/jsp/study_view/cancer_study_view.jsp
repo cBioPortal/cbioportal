@@ -211,6 +211,7 @@ var caseSetId = '<%=caseSetId%>';
 var caseIds = <%=jsonCaseIds%>;
 var cancer_study_id = cancerStudyId; //Some components using this as global ID
 var appVersion = <%=GlobalProperties.getAppVersion()%>?<%=GlobalProperties.getAppVersion()%>:'0000001';
+//TODO - disable these to test without tables
 var hasMutation = <%=hasMutation%>;
 var hasCNA = <%=hasCNA%>;
 

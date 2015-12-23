@@ -611,9 +611,7 @@ class Validator(object):
             self.logger.error("Blank line",
                               extra={'line_number': self.line_number})
 
-        if (
-                data[:self.numCols] == self.cols or
-                data[:len(self.REQUIRED_HEADERS)] == self.REQUIRED_HEADERS):  # pylint: disable=no-member
+        if data[:self.numCols] == self.cols:
             if self.logger.isEnabledFor(logging.ERROR):
                 self.logger.error(
                     'Repeated header',
@@ -630,7 +628,7 @@ class Validator(object):
                               extra={'line_number': self.line_number})
             exitcode = 1
 
-        for col_index, col_name in enumerate(self.REQUIRED_HEADERS):  # pylint: disable=no-member
+        for col_index, col_name in enumerate(self.cols):
             if col_index < line_col_count and data[col_index] == '':
                 self.logger.error("Blank cell found in column '%s'",
                                   col_name,

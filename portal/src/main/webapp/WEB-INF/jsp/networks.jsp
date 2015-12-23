@@ -82,18 +82,24 @@
 
 <script type="text/javascript">
     $(document).ready( function() {
-        // if not initialised, clicking the network tab will call showNetwork
-        var tab_init=false;
+    	//whether this tab has already been initialized or not:
+    	var tab_init = false;
+    	//function that will listen to tab changes and init this one when applicable:
+    	function tabsUpdate() {
+    		if ($("#network").is(":visible")) {
+	    		if (tab_init === false) {
+		        	showNetwork();
+		            tab_init = true;
+		            console.log("network tab initialized");
+		        }
+		        $(window).trigger("resize");
+	    	}
+    	}
+        //this is for the scenario where the tab is open by default (as part of URL >> #tab_name at the end of URL):
+    	tabsUpdate();
+        //this is for the scenario where the user navigates to this tab:
         $("#tabs").bind("tabsactivate", function(event, ui) {
-            if (ui.newTab.text().trim().toLowerCase() === "network") {
-                if (tab_init === false) {
-                    showNetwork();
-                    $(window).trigger("resize");
-                    tab_init=true;
-                } else {
-                    $(window).trigger("resize");
-                }
-            }
+        	tabsUpdate();
         });
     });
 

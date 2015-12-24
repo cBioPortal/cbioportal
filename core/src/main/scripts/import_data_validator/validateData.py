@@ -1288,7 +1288,8 @@ class MutationsExtendedValidator(Validator):
 
     def checkAminoAcidChange(self, value):
         """Test whether a string is a valid amino acid change specification."""
-        # TODO implement this test
+        # TODO implement this test, may require bundling the hgvs package:
+        # https://pypi.python.org/pypi/hgvs/
         return True
 
     class Factory(object):
@@ -1742,7 +1743,7 @@ def main_validate(args):
 
 
 
-    # Create validators based on filenames
+    # Create validators based on meta files
     validators = []
 
     metafiles = []
@@ -1766,17 +1767,28 @@ def main_validate(args):
 
             if 'meta_file_type' not in meta:
                 logger.error("Missing field 'meta_file_type' in meta file'",
-                               extra={'data_filename': f})
+                               extra={'data_filename': getFileFromFilepath(f)})
                 exitcode = 1
+                # skip this file (can't validate unknown file types)
                 continue
 
             meta_file_type = meta["meta_file_type"]
             if meta_file_type not in META_FILE_PATTERNS:
                 logger.error('Unknown meta_file_type',
-                             extra={'data_filename': f,
+                             extra={'data_filename': getFileFromFilepath(f),
                                     'cause': meta_file_type})
                 exitcode = 1
+                # skip this file (can't validate unknown file types)
                 continue
+
+            for field in META_FIELD_MAP[meta_file_type]:
+                if field not in meta:
+                    logger.error("Missing field '%s' in meta file",
+                                 field,
+                                 extra={'data_filename': getFileFromFilepath(f)})
+                    exitcode = 1
+                    # skip this file (the field may be required for validation)
+                    continue
 
             for field in meta:
                 if field not in META_FIELD_MAP[meta_file_type]:
@@ -1786,15 +1798,6 @@ def main_validate(args):
                                'cause': field})
                     if exitcode == 0:
                         exitcode = 3
-
-
-
-            if 'data_file_path' in meta:
-                data_file = meta["data_file_path"]
-                if meta_file_type in META_TO_FILE_MAP:
-                    META_TO_FILE_MAP[meta_file_type].append(os.path.join(study_dir, data_file))
-                else:
-                    META_TO_FILE_MAP[meta_file_type] = [os.path.join(study_dir, data_file)]
 
             # check that cancer study identifiers across files so far are consistent.
             if cancerStudyId == '':
@@ -1808,13 +1811,9 @@ def main_validate(args):
                            'cause': meta['cancer_study_identifier'].strip()})
                 exitcode = 1
 
-            stableid = meta.get('stable_id','corrected')
-            stableids[meta_file_type] = stableid
-
-
             # check filenames for seg meta file, and get correct filename for the actual
             if meta_file_type == SEG_META_PATTERN:
-                metafiles.append(SEG_META_PATTERN)
+                # TODO fix this check, using data_file_path
                 filenameMetaStringCheck = cancerStudyId + '_meta_cna_' + GENOMIC_BUILD_COUNTERPART + '_seg.txt'
                 if filenameMetaStringCheck != os.path.basename(f):
                     logger.error(
@@ -1831,12 +1830,27 @@ def main_validate(args):
                                'cause': meta.get('reference_genome_id').strip()})
                     exitcode = 1
 
+            # if this file type requires a data file, remember the file name
+            if 'data_file_path' in META_FIELD_MAP[meta_file_type]:
+                data_file = meta['data_file_path']
+                stableid = meta['stable_id']
+                if meta_file_type in META_TO_FILE_MAP:
+                    META_TO_FILE_MAP[meta_file_type].append(os.path.join(study_dir, data_file))
+                    stableids[meta_file_type].append(stableid)
+                else:
+                    META_TO_FILE_MAP[meta_file_type] = [os.path.join(study_dir, data_file)]
+                    stableids[meta_file_type] = [stableid]
+
             metafiles.append(meta_file_type)
 
 
     for meta_file_type in META_TO_FILE_MAP:
-        for data_file in META_TO_FILE_MAP[meta_file_type]:
-            stableid = stableids.get(meta_file_type, 'corrected')
+        for file_index, data_file in enumerate(META_TO_FILE_MAP[meta_file_type]):
+            # TODO give validators access to all meta fields instead of just one
+            stableid = stableids[meta_file_type][file_index]
+            # TODO make hugo_entrez_map a global 'final':
+            # it isn't supposed to change after initialisation, so that would
+            # make things more readable
             validators.append(ValidatorFactory.createValidator(VALIDATOR_IDS[meta_file_type],data_file,hugo_entrez_map,fix,logger,stableid))
 
 

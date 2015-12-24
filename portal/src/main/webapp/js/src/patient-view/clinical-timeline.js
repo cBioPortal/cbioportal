@@ -423,7 +423,10 @@
         if ("display" in d && d.display === "square") {
           return itemHeight;
         } else {
-          return ((d.ending_time - d.starting_time) * scaleFactor);
+          var width = ((d.ending_time - d.starting_time) * scaleFactor)
+          if (width < 5)
+            width = 5
+          return width;
         }
       }
 

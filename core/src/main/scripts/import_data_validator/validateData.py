@@ -513,8 +513,6 @@ class Validator(object):
         self.numCols = 0
         self.hugo_entrez_map = hugo_entrez_map
         self.lineEndings = ''
-        self.fileRead = self.file.read()
-        self.file.seek(0,0)
         self.end = False
         self.fix = fix
         self.studyId = ''
@@ -538,8 +536,11 @@ class Validator(object):
 
         self.logger.info('Starting validation of file')
 
+        self.fileRead = self.file.read()
+        self.file.seek(0)
         self.checkLineBreaks()
         self.checkQuotes()
+        del self.fileRead
 
         uncommented_line_number = 0
         for line_index, line in enumerate(self.file):
@@ -1698,7 +1699,7 @@ def main_validate(args):
     text_handler = logging.StreamHandler(sys.stdout)
     text_handler.setFormatter(LogfileStyleFormatter())
     collapsing_text_handler = CollapsingLogMessageHandler(
-        capacity=3e6,
+        capacity=1e6,
         flushLevel=logging.CRITICAL,
         target=text_handler)
     logger.addHandler(collapsing_text_handler)
@@ -1713,11 +1714,11 @@ def main_validate(args):
         html_handler = Jinja2HtmlHandler(
             study_dir,
             html_output_filename,
-            capacity=3e6)
+            capacity=1e5)
         # TODO extend CollapsingLogMessageHandler to flush to multiple targets,
         # and get rid of the duplicated buffering of messages here
         collapsing_html_handler = CollapsingLogMessageHandler(
-            capacity=3e6,
+            capacity=1e6,
             flushLevel=logging.CRITICAL,
             target=html_handler)
         logger.addHandler(collapsing_html_handler)

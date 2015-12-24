@@ -112,7 +112,7 @@ var OncoprintWebGLCellView = (function() {
 	})(this);
     }
     
-    var renderAllTracks = function(view, model) {
+    var renderAllTracks = function(view) {
 	view.ctx.clear(view.ctx.COLOR_BUFFER_BIT | view.ctx.DEPTH_BUFFER_BIT);
 	var vertex_position_buffer = view.vertex_position_buffer;
 	var vertex_color_buffer = view.vertex_color_buffer;
@@ -148,6 +148,12 @@ var OncoprintWebGLCellView = (function() {
 	view.ctx.uniformMatrix4fv(view.shader_program.mvMatrixUniform, false, view.mvMatrix);
 	view.ctx.drawArrays(view.ctx.TRIANGLES, 0, vertex_position_buffer.numItems);
     }
+    var addVertexColor = function(vertex_color_array, rgba_str, n_times) {
+	var color = extractRGBA(rgba_str);
+	for (var h=0; h<n_times; h++) {
+	    vertex_color_array.push(color[0], color[1], color[2], color[3]);
+	}
+    }
     var computeVertexPositionsAndColors = function(view, model, track_id) {
 	var vertex_position_array = [];
 	var vertex_color_array = [];
@@ -170,10 +176,7 @@ var OncoprintWebGLCellView = (function() {
 		    vertex_position_array.push(x+width, y+height, j);
 		    vertex_position_array.push(x, y+height, j);
 		    
-		    var fill = extractRGBA(shape.fill);
-		    for (var h=0; h<6; h++) {
-			vertex_color_array.push(fill[0], fill[1], fill[2], fill[3]);
-		    }
+		    addVertexColor(vertex_color_array, shape.fill, 6);
 		    
 		    // Stroke
 		    var stroke_width = parseFloat(shape['stroke-width']);
@@ -186,20 +189,15 @@ var OncoprintWebGLCellView = (function() {
 			vertex_position_array.push(x+width+stroke_width, y+height+stroke_width, j-0.1);
 			vertex_position_array.push(x-stroke_width, y+height+stroke_width, j-0.1);
 			
-			var stroke = extractRGBA(shape.stroke);
-			for (var h=0; h<6; h++) {
-			    vertex_color_array.push(stroke[0], stroke[1], stroke[2], stroke[3]);
-			}
+			addVertexColor(vertex_color_array, shape.stroke, 6)
 		    }
 		} else if (shape.type === "triangle") {
 		    vertex_position_array.push(shape.x1, shape.y1, j);
 		    vertex_position_array.push(shape.x2, shape.y2, j);
 		    vertex_position_array.push(shape.x3, shape.y3, j);
 		    
-		    var fill = extractRGBA(shape.fill);
-		    for (var h=0; h<3; h++) {
-			vertex_color_array.push(fill[0], fill[1], fill[2], fill[3]);
-		    }
+		    addVertexColor(vertex_color_array, shape.fill, 3);
+		    
 		} else if (shape.type === "ellipse") {
 		} else if (shape.type === "line") {
 		}

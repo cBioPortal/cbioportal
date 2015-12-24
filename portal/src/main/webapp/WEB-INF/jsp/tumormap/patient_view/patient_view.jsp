@@ -554,7 +554,22 @@ function addMoreClinicalTooltip(elem) {
                 }
             };
         } else {
+            // check if sample has clinical data
             var caseId = $(this).attr('alt');
+            if (!clinicalDataMap[caseId]) {
+                var pos = {my:'top left',at:'bottom left'};
+                thisElem.qtip({
+                    content: {
+                        text: "No clinical data"
+                    },
+                    show: {event: "mouseover"},
+                    hide: {fixed: true, delay: 100, event: "mouseout"},
+                    style: { classes: 'qtip-light qtip-rounded qtip-wide' },
+                    position: pos,
+                });
+                return;
+            }
+            // if it does have clinical data, make datatable
             clinicalData = [];
             for (var key in clinicalDataMap[caseId]) {
                 clinicalData.push([clinicalAttributes && clinicalAttributes[key]["displayName"] || key, clinicalDataMap[caseId][key]]);

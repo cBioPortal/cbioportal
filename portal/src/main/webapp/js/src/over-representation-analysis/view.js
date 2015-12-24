@@ -161,7 +161,22 @@ var orTable = function(plot_div, minionco_div ) {
             },
             "aoColumnDefs": [
                 {
-                    "aTargets": [ col_index.gene ]
+                    "aTargets": [col_index.gene],
+                    "mDataProp": function (data, type, val) {
+                        // for display, add the tags; for other purposes (e.g. filtering), use the data
+                        if ( type === 'display' ) {
+                            // functionality for scatterplot currently only added to mutations
+                            // when other tabs will also support this, this if will no longer be necessary
+                            if(profile_type === orAnalysis.profile_type.mutations){
+                                return "<div class='geneCheckboxDiv'>" +
+                                    "<input type='checkbox' class='" +table_id + orAnalysis.postfix.datatable_gene_checkbox_class + "' value='"+ data[col_index.gene] + "'>" +
+                                    "<span class='selectHighlight'>" + data[col_index.gene] + "</span>" +
+                                    "</div>";
+                            }
+                            return "<input type='checkbox' class='" +table_id + orAnalysis.postfix.datatable_gene_checkbox_class + "' value='"+ data[col_index.gene] + "'>" + data[col_index.gene];
+                        }
+                        return data[col_index.gene];
+                    }
                 },
                 {
                     "sType": 'or-analysis-p-value',
@@ -189,7 +204,7 @@ var orTable = function(plot_div, minionco_div ) {
             ],
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
                 //bold gene names
-                //$('td:eq(' + col_index.gene + ')', nRow).css("font-weight", "bold");
+                $('td:eq(' + col_index.gene + ')', nRow).css("font-weight", "bold");
                 
                 if (profile_type === orAnalysis.profile_type.copy_num || profile_type === orAnalysis.profile_type.mutations) {
                     if (aData[col_index.log_ratio] > 0 || aData[col_index.log_ratio] === ">10") {
@@ -221,33 +236,16 @@ var orTable = function(plot_div, minionco_div ) {
                         $('td:eq(' + col_index.q_val + ')', nRow).css("font-weight", "bold");
                     }
                 }
-
-                // check for click on table
-                //$('td', nRow).on('click', function() {
-                //    // retrieve the column index
-                //    var colIndex = orTableInstance.api().cell(this).index().column;
-                //
-                //    // if gene column, (un)highlight the gene and show the mini-onco
-                //    if(colIndex==0){
-                //        var textElement = $(this).find(".selectHighlight");
-                //        if(textElement.hasClass('geneSelected')){
-                //            textElement.removeClass('geneSelected');
-                //        }
-                //        else{
-                //            textElement.addClass('geneSelected');
-                //
-                //        }
-                //    };
-                //});
-
-
-
             },
             "fnDrawCallback": function() {
                 event_listener_details_btn();
                 activateUpdateQueryBtns(table_id + orAnalysis.postfix.datatable_update_query_button);
                 activeDownloadBtn();
-                addGeneClick();
+
+                // For now only add geneclick listener to the mutation table
+                if(profile_type === orAnalysis.profile_type.mutations){
+                    addGeneClick();
+                }
             },
             "bDeferRender": true,
             "iDisplayLength": 14
@@ -255,34 +253,11 @@ var orTable = function(plot_div, minionco_div ) {
 
     }
 
-    var oldSelectedGene="";
-
+    // when a gene in the table is click, show the gene in the mini-onco
     function addGeneClick(){
         $('.selectHighlight').on('click', function() {
-            // if previously selected gene is clicked
-            if($(this).hasClass('geneSelected')){
-                $(oldSelectedGene).removeClass('geneSelected');
-                // hide the mini-onco
-                $("#"+minionco_div).css("display", "none")
-            }
-            // if new gene is clicked
-            else{
-                $(oldSelectedGene).removeClass('geneSelected');
-                // highlight our current gene
-                $(this).addClass('geneSelected');
-
-                // show clicked gene in mini onco
-                var current_gene = $(this).text();
-                // fetch the alteredSamples
-                window.QuerySession.getAlteredSamples().then(
-                    function (setAlt) {
-                        // when we have the data, build the mini oncoprint
-                        buildMiniOnco(setAlt.length, current_gene);
-                    }
-                )
-            }
-            // remove the geneSelected highlighting from the previously selected gene
-            oldSelectedGene = $(this);
+            var current_gene = $(this).text();
+            self.miniOnco.render(current_gene);
         });
     }
 
@@ -295,12 +270,10 @@ var orTable = function(plot_div, minionco_div ) {
      * @returns : returns the characters after > . In example above this is ABHD8
      */
     function _getGeneName(geneColumnData) {
-    	var _gene_name = geneColumnData.substring(geneColumnData.indexOf(">") + 1, geneColumnData.length);
+        var _gene_name = $(geneColumnData).find("input")[0].value;
     	return _gene_name; 
     }
-    	
-    
-    
+
     function attachFilters() {
 
         if (profile_type === orAnalysis.profile_type.copy_num || profile_type === orAnalysis.profile_type.mutations) {
@@ -365,14 +338,16 @@ var orTable = function(plot_div, minionco_div ) {
                 } else {
                     _empty_fn();
                 }
-                
-                //Selected data items remaining after filter: 
-                var remainingItems = orTableInstance.DataTable().rows( {search:'applied'} ).data();
-                var remainingGenes = [];
-                for (var i = 0; i < remainingItems.length; i++) {
-                	remainingGenes.push(_getGeneName(remainingItems[i][0]));
+
+                if(self.volcanoPlot) {
+                    //Selected data items remaining after filter:
+                    var remainingItems = orTableInstance.DataTable().rows({search: 'applied'}).data();
+                    var remainingGenes = [];
+                    for (var i = 0; i < remainingItems.length; i++) {
+                        remainingGenes.push(remainingItems[i][0]);
+                    }
+                    self.volcanoPlot.selectItems(remainingGenes);
                 }
-                self.volcanoPlot.selectItems(remainingGenes);
                 
             });
         }
@@ -470,13 +445,7 @@ var orTable = function(plot_div, minionco_div ) {
             }
             //If there is a plot, update plot to reflect selection:
             if (self.plot_div != null) {
-                var remainingItems = orTableInstance.DataTable().rows({search: 'applied'}).data();
-                var remainingGenes = [];
-                for (var i = 0; i < remainingItems.length; i++) {
-                    remainingGenes.push(_getGeneName(remainingItems[i][0]));
-                }
-
-                self.volcanoPlot.specialSelectItems(selected_genes, remainingGenes);
+                self.volcanoPlot.specialSelectItems(selected_genes);
             }
         });
 
@@ -514,87 +483,6 @@ var orTable = function(plot_div, minionco_div ) {
         });
     }
 
-    // build a mini oncoprint
-    // the mini oncoprint works as follows
-    // Bar1: Query Genes
-    //      - Altered Samples
-    //      - Unaltered Samples
-    // Bar2: Selected Gene
-    //      - Query Genes Altered and Selected Gene Unaltered Samples
-    //      - Query Genes Altered and Selected Gene Altered Samples
-    //      - Query Genes Unaltered and Selected Gene Altered Samples
-    //      - Query Genes Unaltered and Selected Gene Unaltered Samples
-    function buildMiniOnco(setSizeAlt, current_gene){
-        // find the ratios from the table
-        var ratioAltInAlt = 0;
-        var ratioAltInUnalt = 0;
-        for (var i = 0; i < self.originalData.length; i++) {
-            if (current_gene == self.originalData[i]["Gene"]) {
-                ratioAltInAlt = self.originalData[i]["percentage of alteration in altered group"];
-                ratioAltInUnalt = self.originalData[i]["percentage of alteration in unaltered group"];
-                break;
-            }
-        }
-
-        if (ratioAltInAlt === "NaN"){
-            ratioAltInAlt = 0;
-        }
-        if (ratioAltInUnalt === "NaN"){
-            ratioAltInUnalt = 0;
-        }
-
-        // retrieve the total number of samples and calculate the setsizes
-        var totalSetSize = window.QuerySession.getSampleIds().length;
-        var setSizeUnalt = totalSetSize - setSizeAlt;
-        var setSizeAltInAlt = setSizeAlt * ratioAltInAlt;
-        var setSizeAltInUnalt = setSizeUnalt * ratioAltInUnalt;
-
-        // create the bardata
-        var bardata = [{
-            barName: current_gene,
-            barPieceName: "QGenes Unaltered, "+current_gene+" Unaltered",
-            barPieceValue: setSizeUnalt - setSizeAltInUnalt,
-            color: "lightgrey"
-        }, {
-            barName: current_gene,
-            barPieceName: "QGenes Unaltered, "+current_gene+" Altered",
-            barPieceValue: setSizeAltInUnalt,
-            color: "#58ACFA"
-        }, {
-            barName: current_gene,
-            barPieceName: "QGenes Altered, "+current_gene+" Altered",
-            barPieceValue: setSizeAltInAlt,
-            color: "#58ACFA"
-        }, {
-            barName: current_gene,
-            barPieceName: "QGenes Altered, "+current_gene+" Unaltered",
-            barPieceValue: setSizeAlt - setSizeAltInAlt,
-            color: "lightgrey"
-        }, {
-            barName: "QGenes",
-            barPieceName: "QGenes Unaltered",
-            barPieceValue: setSizeUnalt,
-            color: "lightgrey"
-        },{
-            barName: "QGenes",
-            barPieceName: "QGenes Altered",
-            barPieceValue: setSizeAlt,
-            color: "#58ACFA"
-        }];
-
-        // if there is no mini-onco yet, append the div and create the histogram
-        if (!self.chart) {
-            $("#" + self.plot_div).append("<div id='" + minionco_div + "'/>");
-            self.chart = new stacked_histogram("#" + minionco_div);
-            self.chart.createStackedHistogram(bardata);
-        }
-        else{
-            self.chart.updateStackedHistogram(bardata);
-            $("#"+minionco_div).css("display", "block")
-        }
-
-    }
-
     function event_listener_details_btn() {
         $("." + table_id + "_or_analysis_details_img").click( function () {
             var nTr = this.parentNode.parentNode;
@@ -603,7 +491,9 @@ var orTable = function(plot_div, minionco_div ) {
                 orTableInstance.fnClose(nTr);
             } else {
                 var aData = orTableInstance.fnGetData(nTr);
-                var _gene_name = _getGeneName(aData[0]);
+                //TEST
+                //var _gene_name = _getGeneName(aData[0]);
+                var _gene_name = aData[0];
                 var _plots_div_id = table_id + "_" + _gene_name + "_plots";
                 this.src = "images/details_close.png";
                 orTableInstance.fnOpen(nTr, "<div id=" + _plots_div_id + "><img style='padding:200px;' src='images/ajax-loader.gif'></div>", "rppa-details");
@@ -720,7 +610,7 @@ var orTable = function(plot_div, minionco_div ) {
     	 * @param _converted_data : the originalData converted to array format, compatible with the table render function
     	 */
         init: function(originalData, _converted_data, _div_id, _table_div, _table_id, _table_title, _profile_type, _profile_id, _last_profile) {
-            
+
         	self.originalData = originalData;
             if (Object.keys(_converted_data).length !== 0 &&
                 Object.keys(_converted_data)[0] !== orAnalysis.texts.null_result &&
@@ -781,8 +671,9 @@ var orTable = function(plot_div, minionco_div ) {
             }
 			//if plot_div is set, add a volcano plot:
             if (self.plot_div != null) {
+                self.miniOnco = new MiniOnco(self.plot_div, minionco_div, originalData);
             	self.volcanoPlot = new VolcanoPlot();
-	        	self.volcanoPlot.render(self.plot_div, originalData, orTableInstance);
+	        	self.volcanoPlot.render(self.plot_div, originalData, orTableInstance, self.miniOnco);
             }
             
         }

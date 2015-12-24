@@ -57,6 +57,8 @@
 
 var ScatterPlots = function() {
 
+    var prevSpecialSelection=new Array();
+
     var style = {},
         canvas = {}, //positions
         elem = {},
@@ -132,7 +134,7 @@ var ScatterPlots = function() {
                 .attr("class", "brush")
                 .call(elem.brush);
         }
-      
+
         elem.dotsGroup = elem.svg.append("svg:g");
         elem.axisGroup = elem.svg.append("svg:g");
         elem.axisTitleGroup = elem.svg.append("svg:g");
@@ -739,17 +741,26 @@ var ScatterPlots = function() {
          * color. 
          * 
          * @param case_ids: list of item IDs of the items that should get a *special*  color
-         * @param totalList: total list of item IDs that are part of the current *normal* selection
          */
-        specialSelectItems: function(case_ids, totalList) {
-        	elem.dotsGroup.selectAll("path").each(function(d) {
-        		if (case_ids.indexOf(d.case_id) !== -1) {
-                    $(this).attr("fill", style.special_select_color);
-                }
-        		else if (totalList.indexOf(d.case_id) !== -1) {
-        			$(this).attr("fill", style.fill);
-        		}
-            });
+        specialSelectItems: function(case_ids) {
+            var addSpecialSelect = _.difference(case_ids, prevSpecialSelection);
+            var removeSpecialSelect = _.difference(prevSpecialSelection, case_ids);
+
+            var allPathElements = elem.dotsGroup.selectAll("path");
+
+            for(var i=0; i<addSpecialSelect.length; i++){
+                // find the proper element by filtering the data based on case_id
+                var curElement = allPathElements.filter(function(d) {return d.case_id==addSpecialSelect[i]})
+                curElement.attr("fill", style.special_select_color);
+            }
+
+            for(var i=0; i<removeSpecialSelect.length; i++){
+                // find the proper element by filtering the data based on case_id
+                var curElement = allPathElements.filter(function(d) {return d.case_id==removeSpecialSelect[i]})
+                curElement.attr("fill", style.fill);
+            }
+
+            prevSpecialSelection = case_ids.slice();
         },
 
         addLabel: addLabel,

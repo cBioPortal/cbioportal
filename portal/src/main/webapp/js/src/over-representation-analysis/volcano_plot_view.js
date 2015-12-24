@@ -20,7 +20,7 @@ function VolcanoPlot() {
 	    style: { //style settings
 	        fill: "#58ACFA", //light blue
 	        stroke: "#0174DF", //dark blue
-	        stroke_width: "1.2",
+	        stroke_width: "0", // set stroke width to 0 to improve performance!
 	        size: "20",
 	        shape: "circle", //default, may vary for different mutation types
 	        opacity: 0.4,
@@ -60,7 +60,8 @@ function VolcanoPlot() {
      * @param dataTable: dataTable item to be updated when selections are made in plot
      */
 	this.render = function(plotElName, data, dataTable){
-		
+
+
 		this.dataTable = dataTable;
 		var plotDataAttr = {
 			    min_x: 0,
@@ -132,19 +133,20 @@ function VolcanoPlot() {
 	 * @param plotEl: el where the plot should be rendered
 	 * @param plotDataAttr: object containing info on data size (x and y min/max)
 	 */
-    var drawPlot = function(plotData, model, plotElName, plotDataAttr) {
+    var drawPlot = function(plotData, model, plotElName, plotDataAttr) {/*
     	var brushOn = true;
     	var drawCoExpInfo = false; //we don't want this...i.e. is not a co-expression plot in this case
     	//reuse the ScatterPlots object from co-exp/components/ScatterPlots.js:
 		self.scatterPlot = new ScatterPlots();
 		scatterPlotOptions.names.body = plotElName;
 		//initialize with style options and the data to plot: 
-		self.scatterPlot.init(scatterPlotOptions, plotData, plotDataAttr, brushOn, drawCoExpInfo);            
+		self.scatterPlot.init(scatterPlotOptions, plotData, plotDataAttr, brushOn, drawCoExpInfo);
 		self.scatterPlot.jointBrushCallback(scatterPlotBrushCallBack);
         //scatterPlot.jointClickCallback(scatterPlotBrushCallBack);  //Option, but jointClickCallback not yet implemented (also not really needed yet). Would have to port some code from study-view/component/ScatterPlot.js
 
 		addLines();
-		addExtraLabels();
+		addExtraLabels();*/
+		new ScatterPlotlyTest(plotElName, plotData, plotDataAttr);
     }
 
 
@@ -253,14 +255,14 @@ function VolcanoPlot() {
      * @param brushedItemIds: the item IDs selected by the brush action. 
      */
     var scatterPlotBrushCallBack = function(brushedItemIds) {
-    	//The ^ and $ pattern is to avoid scenarios where we have genes with similar names such as A1, A11 being matched by A1. 
+    	//The ^ and $ pattern is to avoid scenarios where we have genes with similar names such as A1, A11 being matched by A1.
     	//Only first one (A1) should be matched in this case.
     	var searchExpression = "^" + brushedItemIds.join("$|^") + "$";
-    	
+
     	//nb: one option could devise an expression to show all data if brushedItemIds.length is 0, i.e. the special case where user clicks on empty region of plot.
     	//    But for this, the brushended() function of ScatterPlots also needs slight adjustment in the selection_mode: "fade_unselected" scenario.
-    	
-    	//apply search expression to the dataTable: 
+
+    	//apply search expression to the dataTable:
     	self.dataTable.DataTable().column( 0 ).search(
     			searchExpression,
     	        true,

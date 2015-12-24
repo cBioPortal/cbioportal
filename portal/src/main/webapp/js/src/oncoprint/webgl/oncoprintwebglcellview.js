@@ -169,11 +169,27 @@ var OncoprintWebGLCellView = (function() {
 		    vertex_position_array.push(x, y, j);
 		    vertex_position_array.push(x+width, y+height, j);
 		    vertex_position_array.push(x, y+height, j);
-		    // todo: stroke-width
 		    
 		    var fill = extractRGBA(shape.fill);
 		    for (var h=0; h<6; h++) {
 			vertex_color_array.push(fill[0], fill[1], fill[2], fill[3]);
+		    }
+		    
+		    // Stroke
+		    var stroke_width = parseFloat(shape['stroke-width']);
+		    if (stroke_width > 0) {
+			vertex_position_array.push(x-stroke_width, y-stroke_width, j-0.1);
+			vertex_position_array.push(x+width+stroke_width, y-stroke_width, j-0.1);
+			vertex_position_array.push(x+width+stroke_width, y+height+stroke_width, j-0.1);
+		    
+			vertex_position_array.push(x-stroke_width, y-stroke_width, j-0.1);
+			vertex_position_array.push(x+width+stroke_width, y+height+stroke_width, j-0.1);
+			vertex_position_array.push(x-stroke_width, y+height+stroke_width, j-0.1);
+			
+			var stroke = extractRGBA(shape.stroke);
+			for (var h=0; h<6; h++) {
+			    vertex_color_array.push(stroke[0], stroke[1], stroke[2], stroke[3]);
+			}
 		    }
 		} else if (shape.type === "triangle") {
 		    vertex_position_array.push(shape.x1, shape.y1, j);

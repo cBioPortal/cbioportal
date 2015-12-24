@@ -577,7 +577,9 @@ var BarRuleSet = (function() {
 						var t = interpFn(d[value_key]);
 						return t*100 + "%";
 					},
-					fill: this.fill
+					fill: this.fill,
+					'stroke-width': 1,
+					stroke: 'rgba(0,255,0,1)'
 				}],
 			exclude_from_legend: false
 		});

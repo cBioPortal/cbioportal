@@ -62,47 +62,47 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		};
 		
 		var getMatchingMutationsByType = function(mutations, oql_target_type, relation) {
-		    var ret = [];
-		    for (var i=0; i<mutations.length; i++) {
+			var ret = [];
+			for (var i=0; i<mutations.length; i++) {
 			var type = mutations[i][config.mutation_type_key];
 			var proposition = (type === oql_target_type || (oql_target_type === "TRUNC" && type !== "MISSENSE" && type !== "INFRAME"));
 			if (relation === "!=") {
-			    proposition = !proposition;
+				proposition = !proposition;
 			}
 			if (proposition) {
-			    ret.push(i);
+				ret.push(i);
 			}
-		    }
-		    return ret;
+			}
+			return ret;
 		};
 		
 		var getMatchingMutationsByPosition = function(mutations, target_pos, relation) {
-		    var ret = [];
-		    for (var i=0; i<mutations.length; i++) {
+			var ret = [];
+			for (var i=0; i<mutations.length; i++) {
 			var proposition = (mutations[i][config.mutation_pos_start_key] <= target_pos && mutations[i][config.mutation_pos_end_key] >= target_pos);
 			if (relation === "!=") {
-			    proposition = !proposition;
+				proposition = !proposition;
 			}
 			if (proposition) {
-			    ret.push(i);
+				ret.push(i);
 			}
-		    }
-		    return ret;
+			}
+			return ret;
 		};
 		
 		var getMatchingMutationsByAminoAcidChange = function(mutations, target_amino_acid_change, relation) {
-		    var ret = [];
-		    target_amino_acid_change = target_amino_acid_change.toLowerCase();
-		    for (var i=0; i<mutations.length; i++) {
+			var ret = [];
+			target_amino_acid_change = target_amino_acid_change.toLowerCase();
+			for (var i=0; i<mutations.length; i++) {
 			var proposition = (mutations[i][config.mutation_amino_acid_change_key].toLowerCase() === target_amino_acid_change);
 			if (relation === "!=") {
-			    proposition = !proposition;
+				proposition = !proposition;
 			}
 			if (proposition) {
-			    ret.push(i);
+				ret.push(i);
 			}
-		    }
-		    return ret;
+			}
+			return ret;
 		};
 		
 		
@@ -118,18 +118,18 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 		};
 		// Filtering
 		var getOncoprintMutationType = function(type) {
-			    var ret = "";
-			    switch (type) {
+				var ret = "";
+				switch (type) {
 				case "MISSENSE":
 				case "FUSION":
 				case "INFRAME":
-				    ret = type;
-				    break;
+					ret = type;
+					break;
 				default:
-				    ret = "TRUNC";
-				    break;
-			    }
-			    return ret;
+					ret = "TRUNC";
+					break;
+				}
+				return ret;
 		};
 		var maskDatum = function(datum, alteration_cmds, is_patient_data) {
 			// to be passed in: datum and OQL alteration commands corresponding to that gene
@@ -139,7 +139,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			ret[id_key] = datum[id_key];
 			var altered = false;
 			var oql_cna_attr_to_oncoprint_cna_attr = {"amp":"AMPLIFIED","homdel":"HOMODELETED","hetloss":"HEMIZYGOUSLYDELETED","gain":"GAINED"};
-			var mutation_rendering_priority = {"TRUNC":0,"FUSION":1,"INFRAME":2,"MISSENSE":3}
+			var mutation_rendering_priority = {"FUSION":0,"TRUNC":1,"INFRAME":2,"MISSENSE":3}
 			
 			var cmd;
 			var matching_mutations = {};
@@ -155,7 +155,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 					if (datum[config.mutation_key]) {
 						if (!cmd.constr_rel) {
 							for (var j=0; j< datum[config.mutation_key].length; j++) {
-							    cmd_matching_mutations.push(j);
+								cmd_matching_mutations.push(j);
 							}
 						} else {
 							if (isMUTClassCmd(cmd)) {
@@ -170,8 +170,8 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 					if (cmd_matching_mutations.length > 0) {
 						altered = true;
 						for (var j=0; j<cmd_matching_mutations.length; j++) {
-						    matching_mutations[cmd_matching_mutations[j]] = true;
-						    //matching_mutations[j][config.mutation_type_key] = getOncoprintMutationType(matching_mutations[j][config.mutation_type_key]);
+							matching_mutations[cmd_matching_mutations[j]] = true;
+							//matching_mutations[j][config.mutation_type_key] = getOncoprintMutationType(matching_mutations[j][config.mutation_type_key]);
 						}
 					}
 				} else {
@@ -205,19 +205,19 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 				}
 			}
 			matching_mutations = Object.keys(matching_mutations).map(function(x) { 
-			    var mut = datum[config.mutation_key][x]; 
-			    var new_mut = {};
-			    new_mut[config.mutation_type_key] = getOncoprintMutationType(mut[config.mutation_type_key]);
-			    new_mut[config.mutation_amino_acid_change_key] = mut[config.mutation_amino_acid_change_key];
-			    return new_mut;
+				var mut = datum[config.mutation_key][x]; 
+				var new_mut = {};
+				new_mut[config.mutation_type_key] = getOncoprintMutationType(mut[config.mutation_type_key]);
+				new_mut[config.mutation_amino_acid_change_key] = mut[config.mutation_amino_acid_change_key];
+				return new_mut;
 			});
 			if (matching_mutations.length > 0) {
-			    var mutation_type_key = config.mutation_type_key;
-			    matching_mutations.sort(function(a,b) { return mutation_rendering_priority[a[mutation_type_key]] - mutation_rendering_priority[b[mutation_type_key]]; });
-			    ret[config.mutation_type_key] = matching_mutations[0][config.mutation_type_key];
-			    ret[config.mutation_key] = matching_mutations.map(function(m) {
+				var mutation_type_key = config.mutation_type_key;
+				matching_mutations.sort(function(a,b) { return mutation_rendering_priority[a[mutation_type_key]] - mutation_rendering_priority[b[mutation_type_key]]; });
+				ret[config.mutation_type_key] = matching_mutations[0][config.mutation_type_key];
+				ret[config.mutation_key] = matching_mutations.map(function(m) {
 				return m[config.mutation_amino_acid_change_key];
-			    }).join(",");
+				}).join(",");
 			}
 			if (altered) {
 				markDatumAltered(ret);
@@ -314,9 +314,9 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			'getCancerStudyIds': function() {
 				return this.cancer_study_ids;
 			},
-                        'getSampleSelect': function() {
-                                return this.sample_select;
-                        },
+						'getSampleSelect': function() {
+								return this.sample_select;
+						},
 			'getGenomicEventData': function() {
 				var def = new $.Deferred();
 				var self = this;
@@ -403,7 +403,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			'getPatientSetDescription': function() {
 				return case_set_properties.case_set_description;
 			},
-                        'getPatientSampleIdMap': (function() {
+						'getPatientSampleIdMap': (function() {
 				var sample_to_patient = {};
 				var loaded = false;
 				return function() {
@@ -430,7 +430,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			'getMutationProfileId': function() {
 				return profile_ids.mutation_profile_id;
 			}
-                        
+						
 		};
 		var fetchOncoprintGeneData = (function() {
 			var profile_types = {};
@@ -440,14 +440,14 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 
 			
 			var getMutationType = function(d) {
-			    var ret = "";
-			    var type = d.mutation_type.toLowerCase();
-			    switch (type) {
+				var ret = "";
+				var type = d.mutation_type.toLowerCase();
+				switch (type) {
 				case "missense_mutation":
 				case "missense":
 				case "missense_variant":
-				    ret = "MISSENSE";
-				    break;
+					ret = "MISSENSE";
+					break;
 				case "frame_shift_ins":
 				case "frame_shift_del":
 				case "frameshift":
@@ -455,13 +455,13 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 				case "frameshift_insertion":
 				case "de_novo_start_outofframe":
 				case "frameshift_variant":
-				    ret = "FRAMESHIFT";
-				    break;
+					ret = "FRAMESHIFT";
+					break;
 				case "nonsense_mutation":
 				case "nonsense":
 				case "stopgain_snv":
-				    ret = "NONSENSE";
-				    break;
+					ret = "NONSENSE";
+					break;
 				case "splice_site":
 				case "splice":
 				case "splice site":
@@ -469,19 +469,19 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 				case "splice_site_snp":
 				case "splice_site_del":
 				case "splice_site_indel":
-				    ret = "SPLICE";
-				    break;
+					ret = "SPLICE";
+					break;
 				case "translation_start_site":
 				case "start_codon_snp":
 				case "start_codon_del":
-				    ret = "NONSTART";
-				    break;
+					ret = "NONSTART";
+					break;
 				case "nonstop_mutation":
-				    ret = "NONSTOP";
-				    break;
+					ret = "NONSTOP";
+					break;
 				case "fusion":
-				    ret = "FUSION";
-				    break;
+					ret = "FUSION";
+					break;
 				case "in_frame_del":
 				case "in_frame_ins":
 				case "indel":
@@ -490,13 +490,13 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 				case "nonframeshift insertion":
 				case "nonframeshift_insertion":
 				case "targeted_region":
-				    ret = "INFRAME";
-				    break;
+					ret = "INFRAME";
+					break;
 				default:
-				    ret = "OTHER";
-				    break;
-			    }
-			    return ret;
+					ret = "OTHER";
+					break;
+				}
+				return ret;
 			};
 			
 			var makeSampleData = function(webservice_gp_data) {
@@ -567,9 +567,16 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 
 				return ret;
 			};
-			var makePatientData = function(sample_data) {
+			var makePatientData = function(oql_process_result) {
 				var pat_to_gene_to_datum = {};
 				var extremeness = {
+					mut_type: {
+						'FUSION': 4,
+						'TRUNC': 3,
+						'INFRAME': 2,
+						'MISSENSE': 1,
+						undefined: 0
+					},
 					cna: {
 						'AMPLIFIED': 2,
 						'GAINED': 1,
@@ -588,6 +595,9 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 						undefined: 0
 					}
 				};
+								
+				//combine data
+				var sample_data = oql_process_result.data;
 				for (var i=0, _len=sample_data.length; i<_len; i++) {
 					var d = sample_data[i];
 					var patient_id = sample_to_patient[d.sample];
@@ -602,17 +612,31 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 								new_datum[key] = val;
 							}
 						} else if (key === "mutation") {
-						    new_datum['mutation'] = (new_datum['mutation'] || []).concat(d['mutation']);
+							new_datum['mutation'] = (new_datum['mutation'] || []).concat(d['mutation']);
 						}
 					});
 				};
-				var ret = [];
+				var patient_data = [];
 				objEach(pat_to_gene_to_datum, function(gene_to_datum, samp) {
 					objEach(gene_to_datum, function(datum, gene) {
-						ret.push(datum);
+						if ("mutation" in datum) {
+							datum.mutation = datum.mutation.join(",");
+						}
+						patient_data.push(datum);
 					});
 				});
-				return ret;
+
+				// combine altered
+				// a patient is altered if at least one of its samples is altered
+				var altered_samples = oql_process_result.altered;
+				var altered_patients = _.uniq(_.map(altered_samples, function(s) {return sample_to_patient[s]}));
+
+				// combine unaltered
+				// a patient is unaltered if none of its samples are altered
+				var unaltered_samples = oql_process_result.unaltered;
+				var unaltered_patients = _.difference(_.uniq(_.map(unaltered_samples, function(s) {return sample_to_patient[s]})), altered_patients);
+								
+				return {data:patient_data, altered: altered_patients, unaltered:unaltered_patients};
 			};
 			var setDefaultOQL = function() {
 				var default_oql_uniq = {};
@@ -658,14 +682,14 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 							}).fail(function() {
 								def.reject();
 							}).then(function() {
-                                                            if (case_set_properties.case_set_id === "-1") {
-                                                                // custom case list
-                                                                console.log("by samples");
+															if (case_set_properties.case_set_id === "-1") {
+																// custom case list
+																console.log("by samples");
 								return window.cbioportal_client.getGeneticProfileDataBySample({genetic_profile_ids: dm_ret.getGeneticProfileIds(), genes: dm_ret.getQueryGenes(), sample_ids: dm_ret.getSampleIds()});
-                                                            } else {
-                                                                console.log("by sample list");
-                                                                return window.cbioportal_client.getGeneticProfileDataBySampleList({genetic_profile_ids: dm_ret.getGeneticProfileIds(), genes: dm_ret.getQueryGenes(), sample_list_id: [case_set_properties.case_set_id]});
-                                                            }
+															} else {
+																console.log("by sample list");
+																return window.cbioportal_client.getGeneticProfileDataBySampleList({genetic_profile_ids: dm_ret.getGeneticProfileIds(), genes: dm_ret.getQueryGenes(), sample_list_id: [case_set_properties.case_set_id]});
+															}
 							}).fail(function() {
 								def.reject();
 							}).then(function(response) {
@@ -676,8 +700,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 								dm_ret.altered_samples = oql_process_result.altered;
 								dm_ret.unaltered_samples = oql_process_result.unaltered;
 
-
-								var oql_process_result_patient = OQLHandler.maskData(dm_ret.getOQLQuery(), makePatientData(unmasked_sample_data), true);
+								var oql_process_result_patient = makePatientData(oql_process_result);
 								dm_ret.patient_gene_data = oql_process_result_patient.data;
 								dm_ret.altered_patients = oql_process_result_patient.altered;
 								dm_ret.unaltered_patients = oql_process_result_patient.unaltered;

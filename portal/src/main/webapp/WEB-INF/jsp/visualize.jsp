@@ -248,7 +248,6 @@
         <% } %>
 
         <%@ include file="data_download.jsp" %>
-        <%@ include file="image_tabs_data.jsp" %>
 
 </div> <!-- end tabs div -->
 <% } %>

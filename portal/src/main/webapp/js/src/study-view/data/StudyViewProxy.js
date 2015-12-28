@@ -155,6 +155,9 @@ var StudyViewProxy = (function() {
                     _sequencedSampleIds = [],
                     _locks=0;
 
+                //Keep original data format.
+                obtainDataObject.webserviceData = a1[0];
+
                 //Uppercase all attr_id
                 for(var i= 0; i < a1[0].attributes.length; i++){
                     var caseAttr = new CaseAttr();
@@ -631,6 +634,9 @@ var StudyViewProxy = (function() {
                 }
                 return exist;
             }
+        },
+        getWebserviceData: function() {
+            return obtainDataObject.webserviceData;
         }
     };
 }());

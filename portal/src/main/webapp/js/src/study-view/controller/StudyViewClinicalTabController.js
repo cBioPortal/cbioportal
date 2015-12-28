@@ -28,28 +28,53 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 
 /*
  * This class is designed to control the logic for Clinial Tab in Study View
- * 
+ *
  * @autor Hongxin Zhang
- * 
+ *
  */
 
 
-var StudyViewClinicalTabController = (function(){
-    function init(){
-        StudyViewInitClinicalTab.init(
-            'clinical_table',
-            'clinical-data-table-div',
-            {
-                "arr": StudyViewProxy.getArrData(),
-                "attr": StudyViewProxy.getAttrData()
-            });
+var StudyViewClinicalTabController = (function () {
+    function init() {
+        //StudyViewInitClinicalTab.init(
+        //    'clinical_table',
+        //    'clinical-data-table-div',
+        //    {
+        //        "arr": StudyViewProxy.getArrData(),
+        //        "attr": StudyViewProxy.getAttrData()
+        //    });
+        var json = StudyViewProxy.getWebserviceData(), testElement;
+
+        json.attributes.push({
+            attr_id: 'sample',
+            datatype: 'STRING',
+            display_name: 'SAMPLE ID'
+        });
+
+        testElement = React.createElement(EnhancedFixedDataTable, {
+            input: json,
+            filter: "ALL",
+            download: "ALL",
+            showHide: true,
+            hideFilter: true,
+            scroller: true,
+            fixed: ["sample"],
+            uniqueId: "sample",
+            rowHeight: 30,
+            tableWidth: 1100,
+            maxHeight: 500,
+            headerHeight: 30,
+            groupHeaderHeight: 40
+        });
+
+        ReactDOM.render(testElement, document.getElementById('clinical-data-table-div'));
     }
-    
+
     return {
         init: init
     };

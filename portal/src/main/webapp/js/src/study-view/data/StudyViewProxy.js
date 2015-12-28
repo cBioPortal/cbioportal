@@ -155,6 +155,9 @@ var StudyViewProxy = (function() {
                     _sequencedSampleIds = [],
                     _locks=0;
 
+                //Keep original data format.
+                obtainDataObject.webserviceData = a1[0];
+
                 //Uppercase all attr_id
                 for(var i= 0; i < a1[0].attributes.length; i++){
                     var caseAttr = new CaseAttr();
@@ -387,9 +390,9 @@ var StudyViewProxy = (function() {
     function toPascalCase(str) {
         var arr = str.split(/\s|_/);
 //        for(var i=0,l=arr.length; i<l; i++) {
-//            arr[i] = arr[i].substr(0,1).toUpperCase() + 
+//            arr[i] = arr[i].substr(0,1).toUpperCase() +
 //                     (arr[i].length > 1 ? arr[i].substr(1).toLowerCase() : "");
-//        } 
+//        }
         return arr.join(" ");
     }
 
@@ -609,6 +612,9 @@ var StudyViewProxy = (function() {
         },
         getSampleIds: function () {
             return Object.keys(sampleToPatientMapping);
+        },
+        getWebserviceData: function() {
+            return obtainDataObject.webserviceData;
         }
     };
 }());

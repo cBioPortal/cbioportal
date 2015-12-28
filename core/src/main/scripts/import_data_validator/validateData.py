@@ -10,13 +10,15 @@
 
 # imports
 import sys
-import getopt
 import os
 import logging
 import logging.handlers
 from collections import OrderedDict
 from cgi import escape as html_escape
 import textwrap
+import argparse
+import re
+
 
 
 # ------------------------------------------------------------------------------
@@ -37,49 +39,24 @@ GENOMIC_BUILD_COUNTERPART = 'hg19'
 
 # how we differentiate between files. Names are important!! 
 # meta files are checked before the corresponding file
-SEG_FILE_PATTERN = '_data_cna_' + GENOMIC_BUILD_COUNTERPART + '.seg'
+
 SEG_META_PATTERN = '_meta_cna_' + GENOMIC_BUILD_COUNTERPART + '_seg.txt'
-
-MUTATION_FILE_PATTERN = '_mutations_extended.txt'
-MUTATION_META_PATTERN = 'meta_mutations_extended.txt'
-
-CNA_FILE_PATTERN = '_CNA'
+STUDY_META_PATTERN = 'meta_study'
+MUTATION_META_PATTERN = 'meta_mutations_extended'
 CNA_META_PATTERN = 'meta_CNA'
-
-CLINICAL_FILE_PATTERN = '_clinical'
 CLINICAL_META_PATTERN = 'meta_clinical'
-
-LOG2_FILE_PATTERN = '_log2CNA'
 LOG2_META_PATTERN = 'meta_log2CNA'
-
-EXPRESSION_FILE_PATTERN = '_expression'
 EXPRESSION_META_PATTERN = 'meta_expression'
-
-FUSION_FILE_PATTERN = '_fusions'
 FUSION_META_PATTERN = 'meta_fusions'
-
-METHYLATION_FILE_PATTERN = '_methylation'
 METHYLATION_META_PATTERN = 'meta_methylation'
-
-RPPA_FILE_PATTERN = '_rppa'
 RPPA_META_PATTERN = 'meta_rppa'
-
-TIMELINE_FILE_PATTERN = '_timeline_'
 TIMELINE_META_PATTERN = 'meta_timeline'
 
-FILE_PATTERNS = [SEG_FILE_PATTERN,
-    MUTATION_FILE_PATTERN,
-    CNA_FILE_PATTERN,
-    CLINICAL_FILE_PATTERN,
-    LOG2_FILE_PATTERN,
-    EXPRESSION_FILE_PATTERN,
-    FUSION_FILE_PATTERN,
-    METHYLATION_FILE_PATTERN,
-    RPPA_FILE_PATTERN,
-    TIMELINE_FILE_PATTERN
-]
+META_TO_FILE_MAP = {}
 
-META_PATTERNS = [SEG_META_PATTERN,
+META_FILE_PATTERNS = [
+    STUDY_META_PATTERN,
+    SEG_META_PATTERN,
     MUTATION_META_PATTERN,
     CNA_META_PATTERN,
     CLINICAL_META_PATTERN,
@@ -91,33 +68,17 @@ META_PATTERNS = [SEG_META_PATTERN,
     TIMELINE_META_PATTERN
 ]
 
-
-VALIDATOR_IDS = {CNA_FILE_PATTERN:'CNAValidator',
-                 MUTATION_FILE_PATTERN:'MutationsExtendedValidator',
-                 CLINICAL_FILE_PATTERN:'ClinicalValidator',
-                 SEG_FILE_PATTERN:'SegValidator',
-                 LOG2_FILE_PATTERN:'Log2Validator',
-                 EXPRESSION_FILE_PATTERN:'ExpressionValidator',
-                 FUSION_FILE_PATTERN:'FusionValidator',
-                 METHYLATION_FILE_PATTERN:'MethylationValidator',
-                 RPPA_FILE_PATTERN:'RPPAValidator',
-                 TIMELINE_FILE_PATTERN:'TimelineValidator'
+VALIDATOR_IDS = {CNA_META_PATTERN:'CNAValidator',
+                 MUTATION_META_PATTERN:'MutationsExtendedValidator',
+                 CLINICAL_META_PATTERN:'ClinicalValidator',
+                 SEG_META_PATTERN:'SegValidator',
+                 LOG2_META_PATTERN:'Log2Validator',
+                 EXPRESSION_META_PATTERN:'ExpressionValidator',
+                 FUSION_META_PATTERN:'FusionValidator',
+                 METHYLATION_META_PATTERN:'MethylationValidator',
+                 RPPA_META_PATTERN:'RPPAValidator',
+                 TIMELINE_META_PATTERN:'TimelineValidator'
                  }
-
-
-VALIDATOR_META_MAP = {
-    VALIDATOR_IDS[MUTATION_FILE_PATTERN]:MUTATION_META_PATTERN,
-    VALIDATOR_IDS[CNA_FILE_PATTERN]:CNA_META_PATTERN,
-    VALIDATOR_IDS[CLINICAL_FILE_PATTERN]:CLINICAL_META_PATTERN,
-    VALIDATOR_IDS[SEG_FILE_PATTERN]:SEG_META_PATTERN,
-    VALIDATOR_IDS[LOG2_FILE_PATTERN]:LOG2_META_PATTERN,
-    VALIDATOR_IDS[EXPRESSION_FILE_PATTERN]:EXPRESSION_META_PATTERN,
-    VALIDATOR_IDS[FUSION_FILE_PATTERN]:FUSION_META_PATTERN,
-    VALIDATOR_IDS[METHYLATION_FILE_PATTERN]:METHYLATION_META_PATTERN,
-    VALIDATOR_IDS[RPPA_FILE_PATTERN]:RPPA_META_PATTERN,
-    VALIDATOR_IDS[TIMELINE_FILE_PATTERN]:TIMELINE_META_PATTERN
-}
-
 
 CNA_META_FIELDS = [
     'cancer_study_identifier',
@@ -126,7 +87,9 @@ CNA_META_FIELDS = [
     'stable_id',
     'show_profile_in_analysis_tab',
     'profile_name',
-    'profile_description'
+    'profile_description',
+    'meta_file_type',
+    'data_file_path'
 ]
 
 MUTATION_META_FIELDS = [
@@ -136,7 +99,9 @@ MUTATION_META_FIELDS = [
     'stable_id',
     'show_profile_in_analysis_tab',
     'profile_name',
-    'profile_description'
+    'profile_description',
+    'meta_file_type',
+    'data_file_path'
 ]
 
 SEG_META_FIELDS = [
@@ -149,7 +114,9 @@ SEG_META_FIELDS = [
     'profile_description',
     'reference_genome_id',
     'data_filename',
-    'description'
+    'description',
+    'meta_file_type',
+    'data_file_path'
 ]
 
 LOG2_META_FIELDS = [
@@ -159,7 +126,9 @@ LOG2_META_FIELDS = [
     'stable_id',
     'show_profile_in_analysis_tab',
     'profile_name',
-    'profile_description'
+    'profile_description',
+    'meta_file_type',
+    'data_file_path'
 ]
 
 EXPRESSION_META_FIELDS = [
@@ -169,7 +138,9 @@ EXPRESSION_META_FIELDS = [
     'stable_id',
     'show_profile_in_analysis_tab',
     'profile_name',
-    'profile_description'
+    'profile_description',
+    'meta_file_type',
+    'data_file_path'
 ]
 
 METHYLATION_META_FIELDS = [
@@ -179,7 +150,9 @@ METHYLATION_META_FIELDS = [
     'stable_id',
     'show_profile_in_analysis_tab',
     'profile_name',
-    'profile_description'
+    'profile_description',
+    'meta_file_type',
+    'data_file_path'
 ]
 
 FUSION_META_FIELDS = [
@@ -189,7 +162,9 @@ FUSION_META_FIELDS = [
     'stable_id',
     'show_profile_in_analysis_tab',
     'profile_name',
-    'profile_description'
+    'profile_description',
+    'meta_file_type',
+    'data_file_path'
 ]
 
 RPPA_META_FIELDS = [
@@ -199,12 +174,16 @@ RPPA_META_FIELDS = [
     'stable_id',
     'show_profile_in_analysis_tab',
     'profile_name',
-    'profile_description'
+    'profile_description',
+    'meta_file_type',
+    'data_file_path'
 ]
 
 TIMELINE_META_FIELDS = [
     'cancer_study_identifier',
-    'genetic_alteration_type'
+    'genetic_alteration_type',
+    'meta_file_type',
+    'data_file_path'
 ]
 
 CASE_LIST_FIELDS = [
@@ -223,10 +202,24 @@ CLINICAL_META_FIELDS = [
     'stable_id',
     'show_profile_in_analysis_tab',
     'profile_name',
-    'profile_description'
+    'profile_description',
+    'meta_file_type',
+    'data_file_path'
+]
+
+STUDY_META_FIELDS = [
+    'cancer_study_identifier',
+    'type_of_cancer',
+    'name',
+    'description',
+    'groups',
+    'dedicated_color',
+    'short_name',
+    'meta_file_type'
 ]
 
 META_FIELD_MAP = {
+    STUDY_META_PATTERN:STUDY_META_FIELDS,
     CNA_META_PATTERN:CNA_META_FIELDS,
     CLINICAL_META_PATTERN:CLINICAL_META_FIELDS,
     LOG2_META_PATTERN:LOG2_META_FIELDS,
@@ -238,9 +231,6 @@ META_FIELD_MAP = {
     RPPA_META_PATTERN:RPPA_META_FIELDS,
     TIMELINE_META_PATTERN:TIMELINE_META_FIELDS
 }
-
-# allows pass/fail to be passed programatically throughout program. If failure condition found, set to 1
-exitcode = 0
 
 
 # ------------------------------------------------------------------------------
@@ -358,135 +348,31 @@ class LogfileStyleFormatter(ValidationMessageFormatter):
         return super(LogfileStyleFormatter, self).format(record)
 
 
-class SimpleHtmlTableFormatter(ValidationMessageFormatter):
-    """Formatter writing messages to an order-of-appearance HTML table."""
+class MaxLevelTrackingHandler(logging.Handler):
+
+    """Handler that does nothing but track the maximum msg level emitted."""
 
     def __init__(self):
-        """Initialize a logging Formatter with an appropriate format string."""
-        super(SimpleHtmlTableFormatter, self).__init__(
-            fmt='  <tr class="%(level_string)s">\n'
-                '    <td>%(file_string)s</td>\n'
-                '    <td>%(line_string)s</td>\n'
-                '    <td>%(column_string)s</td>\n'
-                '    <td>%(message_string)s</td>\n'
-                '    <td>%(cause_string)s</td>\n'
-                '  </tr>')
+        """Initialize the handler with an attribute to track the level."""
+        super(MaxLevelTrackingHandler, self).__init__()
+        self.max_level = logging.NOTSET
 
-    def format(self, record):
+    def emit(self, record):
+        """Update the maximum level with a new record."""
+        self.max_level = max(self.max_level, record.levelno)
 
-        """Generate descriptions for optional fields and format the record."""
-
-        record.level_string = html_escape(
-            record.levelname.lower(),
-            quote=True)
-        record.message_string = html_escape(
-            record.getMessage())
-        record.file_string = html_escape(
-            self.format_aggregated(record,
-                                   'data_filename',
-                                   optional=True))
-        record.line_string = html_escape(
-            self.format_aggregated(record,
-                                   'line_number',
-                                   single_fmt='%d',
-                                   multiple_fmt='%s',
-                                   optional=True))
-        record.column_string = html_escape(
-            self.format_aggregated(record,
-                                   'column_number',
-                                   single_fmt='%d',
-                                   multiple_fmt='%s:',
-                                   optional=True))
-        record.cause_string = html_escape(
-            self.format_aggregated(record,
-                                   'cause',
-                                   single_fmt="%s",
-                                   multiple_fmt="%s",
-                                   optional=True))
-
-        return super(SimpleHtmlTableFormatter, self).format(record)
+    def get_exit_status(self):
+        """Return an exit status for the validator script based on max_level."""
+        if self.max_level <= logging.INFO:
+            return 0
+        elif self.max_level == logging.WARNING:
+            return 3
+        elif self.max_level == logging.ERROR:
+            return 1
+        else:
+            return 2
 
 
-class SimpleHtmlTableHandler(logging.FileHandler):
-    """Logging handler writing HTML context for SimpleHtmlTableFormatter."""
-
-    def __init__(self, study_dir, *args, **kwargs):
-        """Set study directory name, then open specified file for logging."""
-        self.study_dir = study_dir
-        super(SimpleHtmlTableHandler, self).__init__(mode='w',
-                                                     *args, **kwargs)
-
-    def _open(self, *args, **kwargs):
-        """Open stream and write HTML headers up to the table row."""
-        stream = super(SimpleHtmlTableHandler, self)._open(*args, **kwargs)
-        stream.write(textwrap.dedent('''\
-            <!DOCTYPE html>
-            <html lang="en-US">
-            <head>
-              <meta charset="utf-8" />
-              <title>cBioPortal study data validation notes for '%(study_dir)s'</title>
-              <meta name="description" content="Results of validating the study in '%(study_dir)s' for import into cBioPortal" />
-              <!--[if lt IE 9]>
-              <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-              <![endif]-->
-              <style>
-              header, section, footer, aside, nav, main, article, figure {
-                display: block;
-              }
-              tr.info{
-                background-color: #ddddff;
-              }
-              tr.warning{
-                background-color: #ffddbb;
-              }
-              tr.error{
-                background-color: #ffbbbb;
-              }
-              </style>
-            </head>
-            <body>
-
-            <header>
-            <h1>cBioPortal study data validation notes for '%(study_dir)s'</h1>
-            </header>
-
-            <section>
-            <h2>Results</h2>
-            <table>
-              <tr>
-                <th>File name</th>
-                <th>Line number</th>
-                <th>Column number</th>
-                <th>Message</th>
-                <th>Value encountered</th>
-              </tr>
-            ''' % {'study_dir': html_escape(self.study_dir)}))
-        return stream
-
-    def close(self):
-        """Write HTML end tags and close the stream."""
-        self.acquire()
-        try:
-            if self.stream:
-                self.flush()
-                self.stream.write(textwrap.dedent('''\
-                    </table>
-                    </section>
-
-                    </body>
-                    </html>
-                    '''))
-                if hasattr(self.stream, "close"):
-                    self.stream.close()
-                self.stream = None
-            # Issue #19523: call unconditionally to
-            # prevent a handler leak when delay is set
-            logging.StreamHandler.close(self)
-        finally:
-            self.release()
-
-
-# TODO fix the mysterious exceptions that seem to appear when using this handler
 class Jinja2HtmlHandler(logging.handlers.BufferingHandler):
 
     """Logging handler that formats aggregated HTML reports using Jinja2."""
@@ -599,6 +485,7 @@ class CollapsingLogMessageHandler(logging.handlers.MemoryHandler):
                 ('data_filename' not in record.__dict__) or
                 super(CollapsingLogMessageHandler, self).shouldFlush(record))
 
+
 class CombiningLoggerAdapter(logging.LoggerAdapter):
     """LoggerAdapter that combines its own context info with that in calls."""
     def process(self, msg, kwargs):
@@ -649,8 +536,6 @@ class Validator(object):
         self.numCols = 0
         self.hugo_entrez_map = hugo_entrez_map
         self.lineEndings = ''
-        self.fileRead = self.file.read()
-        self.file.seek(0,0)
         self.end = False
         self.fix = fix
         self.studyId = ''
@@ -674,8 +559,11 @@ class Validator(object):
 
         self.logger.info('Starting validation of file')
 
+        self.fileRead = self.file.read()
+        self.file.seek(0)
         self.checkLineBreaks()
         self.checkQuotes()
+        del self.fileRead
 
         uncommented_line_number = 0
         for line_index, line in enumerate(self.file):
@@ -719,7 +607,7 @@ class Validator(object):
 
         # TODO verify that this really is the desired behavior,
         # the csv module from the standard library might be a better option
-        self.cols = [x.strip().replace('"','').replace('\'','') for x in line.strip().split('\t')]
+        self.cols = [x.strip().replace('"','').replace('\'','') for x in line.split('\t')]
         self.numCols = len(self.cols)
 
         num_errors += self.checkRepeatedColumns()
@@ -734,7 +622,6 @@ class Validator(object):
         return num_errors
 
     def checkLine(self,line):
-
         """Checks lines after header, removing quotes."""
 
         # TODO check for end-of-line whitespace
@@ -747,15 +634,12 @@ class Validator(object):
             self.logger.error("Blank line",
                               extra={'line_number': self.line_number})
 
-        if (
-                data[:self.numCols] == self.cols or
-                data[:len(self.REQUIRED_HEADERS)] == self.REQUIRED_HEADERS):  # pylint: disable=no-member
+        if data[:self.numCols] == self.cols:
             if self.logger.isEnabledFor(logging.ERROR):
                 self.logger.error(
                     'Repeated header',
                     extra={'line_number': self.line_number,
                            'cause': ', '.join(data[:self.numCols])})
-            exitcode = 1
 
         line_col_count = len(data)
 
@@ -764,15 +648,13 @@ class Validator(object):
                               'found %d',
                               self.numCols, line_col_count,
                               extra={'line_number': self.line_number})
-            exitcode = 1
 
-        for col_index, col_name in enumerate(self.REQUIRED_HEADERS):  # pylint: disable=no-member
+        for col_index, col_name in enumerate(self.cols):
             if col_index < line_col_count and data[col_index] == '':
                 self.logger.error("Blank cell found in column '%s'",
                                   col_name,
                                   extra={'line_number': self.line_number,
                                          'column_number': col_index + 1})
-
         data = [self.fixCase(x) for x in data]
 
         return data
@@ -824,21 +706,18 @@ class Validator(object):
     def checkQuotes(self):
         if '"' in self.fileRead or '\'' in self.fileRead:
             self.logger.warning('Found quotation marks in file')
-            exitcode = 0
 
     def checkLineBreaks(self):
         """Checks line breaks, reports to user."""
         # TODO document these requirements
         if "\r\n" in self.fileRead:
             self.lineEndings = "\r\n"
-            exitcode = 1
             self.logger.error('DOS-style line breaks detected (\\r\\n), '
                               'should be Unix-style (\\n)')
             if self.fix:
                 self.logger.info('Corrected file will have Unix (\\n) line breaks')
         elif "\r" in self.fileRead:
             self.lineEndings = "\r"
-            exitcode = 1
             self.logger.error('Classic Mac OS-style line breaks detected '
                               '(\\r), should be Unix-style (\\n)')
             if self.fix:
@@ -847,7 +726,6 @@ class Validator(object):
             self.lineEndings = "\n"
         else:
             self.logger.error('No line breaks recognized in file')
-            exitcode = 1
 
 
     def checkInt(self,value):
@@ -880,7 +758,6 @@ class Validator(object):
                                   extra={'line_number': self.line_number,
                                          'column_number': col_num,
                                          'cause': col})
-                exitcode = 1
         return num_errors
 
     def checkBadChar(self):
@@ -933,7 +810,7 @@ class FeaturewiseFileValidator(Validator):
         Return the number of fatal errors.
         """
         num_errors = super(FeaturewiseFileValidator, self).checkHeader(line)
-        self.setSampleIdsFromColumns()
+        num_errors += self.setSampleIdsFromColumns()
         return num_errors
 
     def checkLine(self, line):
@@ -947,9 +824,16 @@ class FeaturewiseFileValidator(Validator):
 
     def setSampleIdsFromColumns(self):
         """Extracts sample IDs from column headers and set self.sampleIds."""
+        num_errors = 0
         # `REQUIRED_HEADERS` should have been set by a subclass
         num_nonsample_headers = len(self.REQUIRED_HEADERS)  # pylint: disable=no-member
+        if len(self.cols[num_nonsample_headers:]) == 0:
+            self.logger.error('No sample columns',
+                              extra={'line_number': self.line_number,
+                                     'column_number': num_nonsample_headers})
+            num_errors += 1
         self.sampleIds = self.cols[num_nonsample_headers:]
+        return num_errors
 
 
 class GenewiseFileValidator(FeaturewiseFileValidator):
@@ -966,6 +850,7 @@ class GenewiseFileValidator(FeaturewiseFileValidator):
         Return the number of fatal errors.
         """
         num_errors = super(GenewiseFileValidator, self).checkHeader(line)
+
         if self.numCols < 2 or self.cols[1] != self.REQUIRED_HEADERS[1]:
             self.entrez_missing = True
             # if fixing, do not count a missing Entrez column as a fatal error
@@ -1044,7 +929,6 @@ class CNAValidator(GenewiseFileValidator):
                     extra={'line_number': self.line_number,
                            'column_number': col_index + 1,
                            'cause': value})
-
     class Factory(object):
         def create(self,filename,hugo_entrez_map,fix,logger,stableId):
             return CNAValidator(filename,hugo_entrez_map,fix,logger,stableId)
@@ -1091,8 +975,12 @@ class MutationsExtendedValidator(Validator):
         't_ref_count',
         'n_alt_count',
         'n_ref_count']
-    REQUIRED_HEADERS = MAF_HEADERS + CUSTOM_HEADERS
-    REQUIRE_COLUMN_ORDER = True
+    REQUIRED_HEADERS = [
+       'Tumor_Sample_Barcode',
+        'Hugo_Symbol',
+        'Amino_Acid_Change'
+    ]
+    REQUIRE_COLUMN_ORDER = False
 
     # Used for mapping column names to the corresponding function that does a check on the value.
     # This can be done for other filetypes besides maf - not currently implemented.
@@ -1132,12 +1020,13 @@ class MutationsExtendedValidator(Validator):
         't_alt_count':'check_t_alt_count',
         't_ref_count':'check_t_ref_count',
         'n_alt_count':'check_n_alt_count',
-        'n_ref_count':'check_n_ref_count'}
+        'n_ref_count':'check_n_ref_count',
+        'Amino_Acid_Change': 'checkAminoAcidChange'}
 
     def __init__(self,filename,hugo_entrez_map,fix,logger,stableId):
         super(MutationsExtendedValidator,self).__init__(filename,hugo_entrez_map,fix,logger,stableId)
-        # TODO parse the version number in the comment on the first line,
-        # and reject unsupported versions (and/or override REQUIRED_HEADERS)
+        # TODO consider making this attribute a local var in in checkLine(),
+        # it really only makes sense there
         self.mafValues = {}
         self.entrez_missing = False
         self.extraCols = []
@@ -1171,22 +1060,22 @@ class MutationsExtendedValidator(Validator):
         """
 
         data = super(MutationsExtendedValidator,self).checkLine(line)
+        self.mafValues = {}
 
-        for col_index, value in enumerate(data[:len(self.REQUIRED_HEADERS)]):
+        for col_name in self.REQUIRED_HEADERS:
+            col_index = self.cols.index(col_name)
+            value = data[col_index]
             # get the checking method for this column if available, or None
             checking_function = getattr(
                 self,
-                self.CHECK_FUNCTION_MAP.get(self.REQUIRED_HEADERS[col_index], ''),
-                None)
-            # if it is actually a method, and not None
-            if callable(checking_function):
-                if not checking_function(value):
-                    self.printDataInvalidStatement(value, col_index)
-                elif self.extra_exists or self.extra != '':
-                    raise ValueError(('Checking function %s set a warning '
-                                      'message but reported no warning') %
-                                     checking_function.__name__)
-            self.mafValues[self.REQUIRED_HEADERS[col_index]] = value
+                self.CHECK_FUNCTION_MAP[col_name])
+            if not checking_function(value):
+                self.printDataInvalidStatement(value, col_index)
+            elif self.extra_exists or self.extra != '':
+                raise ValueError(('Checking function %s set a warning '
+                                  'message but reported no warning') %
+                                 checking_function.__name__)
+            self.mafValues[col_name] = value
 
         if self.fix:
             self.writeNewLine(data)
@@ -1207,7 +1096,7 @@ class MutationsExtendedValidator(Validator):
     def printDataInvalidStatement(self, value, col_index):
         """Prints out statement for invalid values detected."""
         message = ("Value in column '%s' appears invalid" %
-                   self.REQUIRED_HEADERS[col_index])
+                   self.cols[col_index])
         if self.extra_exists:
             message = self.extra
             self.extra = ''
@@ -1217,7 +1106,6 @@ class MutationsExtendedValidator(Validator):
             extra={'line_number': self.line_number,
                    'column_number': col_index + 1,
                    'cause': value})
-        exitcode = 0
 
     def writeNewLine(self,data):
         newline = []
@@ -1256,6 +1144,8 @@ class MutationsExtendedValidator(Validator):
                 value not in self.hugo_entrez_map.values()):
             return False
         elif (
+                # TODO check this only after all columns are read,
+                # this function skips the test if Hugo_Symbol is parsed later
                 self.hugo_entrez_map != {} and
                 'Hugo_Symbol' in self.mafValues and
                 (self.hugo_entrez_map.get(self.mafValues['Hugo_Symbol']) !=
@@ -1385,12 +1275,18 @@ class MutationsExtendedValidator(Validator):
     
     def check_n_alt_count(self, value):
         if not self.checkInt(value) and value != '':
-            return False        
+            return False
         return True
     
     def check_n_ref_count(self, value):
         if not self.checkInt(value) and value != '':
-            return False        
+            return False
+        return True
+
+    def checkAminoAcidChange(self, value):
+        """Test whether a string is a valid amino acid change specification."""
+        # TODO implement this test, may require bundling the hgvs package:
+        # https://pypi.python.org/pypi/hgvs/
         return True
 
     class Factory(object):
@@ -1403,12 +1299,9 @@ class ClinicalValidator(Validator):
 
     REQUIRED_HEADERS = [
         'PATIENT_ID',
-        'SAMPLE_ID',
-        'OS_MONTHS',
-        'OS_STATUS',
-        'DFS_MONTHS',
-        'DFS_STATUS']
-    REQUIRE_COLUMN_ORDER = True
+        'SAMPLE_ID'
+    ]
+    REQUIRE_COLUMN_ORDER = False
 
     def validate(self):
         super(ClinicalValidator,self).validate()
@@ -1424,7 +1317,6 @@ class ClinicalValidator(Validator):
                     "Clinical header not in all caps",
                     extra={'line_number': self.line_number,
                            'cause': col_name})
-                exitcode = 0
         self.cols = [s.upper() for s in self.cols]
         if self.fix:
             self.writeHeader(self.cols)
@@ -1435,7 +1327,7 @@ class ClinicalValidator(Validator):
         for col_index, value in enumerate(data):
             # TODO check the values in the other cols, required and optional
             try:
-                if col_index == self.cols.index(self.REQUIRED_HEADERS[1]):
+                if col_index == self.cols.index('SAMPLE_ID'):
                     self.sampleIds.add(value.strip())
             except ValueError:
                 continue
@@ -1681,7 +1573,10 @@ def processMetafile(filename):
     metafile = open(filename,'rU')
     metaDictionary = {}
     for line in metafile:
-        metaDictionary[line.split(':')[0]]=''.join(line.split(':')[1:])
+        ##Removed new line char
+        key = line.strip().split(':')[0]
+        val = ''.join(line.strip().split(':')[1:])
+        metaDictionary[key.strip()] = val.strip()
 
     return metaDictionary
 
@@ -1711,13 +1606,11 @@ def segMetaCheck(segvalidator,filenameCheck):
             segvalidator.logger.error(
                 "Wrong .seg file name; '%s' specified in meta file",
                 filenameCheck)
-            exitcode = 1
 
 def getFileFromFilepath(f):
     return os.path.basename(f.strip())
 
 def processCaseListDirectory(caseListDir,sampleIdSets, logger):
-
     logger.info('Validating case lists')
 
     case_lists = [os.path.join(caseListDir, x) for x in os.listdir(caseListDir)]
@@ -1732,7 +1625,6 @@ def processCaseListDirectory(caseListDir,sampleIdSets, logger):
                     'Unrecognized field found in case list file',
                     extra={'data_filename': getFileFromFilepath(case),
                            'cause': cd})
-                exitcode = 0
 
         sampleIds = case_data.get('case_list_ids')
         if sampleIds is not None:
@@ -1741,118 +1633,87 @@ def processCaseListDirectory(caseListDir,sampleIdSets, logger):
 
     logger.info('Validation of case lists complete')
 
-def usage():
-    """Displays program usage (invalid args)."""
-    print >> sys.stderr, (
-        'validateData.py'
-        ' -v (verbose output)'
-        ' -c (create corrected files)'
-        ' --directory=[path to directory]'
-        ' --html=[HTML output filename]'
-        ' --html-table=[minimal HTML output filename]'
-        ' --hugo-entrez-map=[download or filename, optional]\n'
-        'For output of warnings, use -v\n'
-        'To generate corrected files, use -c'
-        '\n##############################################\n'
-        'Follow file naming conventions in the github wiki:\n'
-        'https://github.com/cBioPortal/cbioportal/wiki/File-Formats')
-
 # ------------------------------------------------------------------------------
+def interface():
+    parser = argparse.ArgumentParser(description='cBioPortal meta Importer')
+    parser.add_argument('-s', '--study_directory', type=str, required=True,
+                        help='path to directory.')
+    parser.add_argument('-hugo', '--hugo_entrez_map', type=str, required=True,
+                        help='path to Hugo gene Symbol')
+    parser.add_argument('-html', '--html_table', type=str, required=False,
+                        help='path to html report output file')
+    parser.add_argument('-v', '--verbose', required=False, action="store_true",
+                        help='list warnings in addition to fatal errors')
+    parser.add_argument('-f', '--fix', required=False, action="store_true",
+                        help='fix files')
 
-def main():
+    parser = parser.parse_args()
+    return parser
+
+
+def main_validate(args):
 
     """Main function."""
 
     # get a logger to emit messages
     logger = logging.getLogger(__name__)
-    logger.setLevel(logging.ERROR)
-
-    # parse command line options
-    try:
-        opts, args = getopt.getopt(
-            sys.argv[1:],
-            'vc',
-            ['directory=', 'hugo-entrez-map=', 'html=', 'html-table='])
-    except getopt.GetoptError, msg:
-        print >> sys.stderr, msg
-        usage()
-        sys.exit(2)
+    logger.setLevel(logging.INFO)
+    exit_status_handler = MaxLevelTrackingHandler()
+    logger.addHandler(exit_status_handler)
 
     # process the options
-    study_dir = ''
-    hugo = ''
-    fix = False
-    html_output_filename = ''
-    html_table_filename = ''
+    study_dir = args.study_directory
+    hugo = args.hugo_entrez_map
+
+    try:
+        fix = args.fix
+    except AttributeError:
+        fix = False
+
+    html_output_filename = args.html_table
 
     hugo_entrez_map = {}
 
-
-    for o, a in opts:
-        if o == '--directory':
-            study_dir = a
-        elif o == '--html':
-            html_output_filename = a
-        elif o == '--html-table':
-            html_table_filename = a
-        elif o == '--hugo-entrez-map':
-            hugo = a
-        elif o == '-c':
-            fix = True
-        elif o == '-v':
-            logger.setLevel("INFO")
-
-
-    if study_dir == '' or fix == '':
-        usage()
-        sys.exit(2)
+    verbose = False
+    if args.verbose:
+        verbose = True
 
     # check existence of directory
     if not os.path.exists(study_dir):
         print >> sys.stderr, 'directory cannot be found: ' + study_dir
-        sys.exit(2)
+        return 2
 
     # set default message handler
     text_handler = logging.StreamHandler(sys.stdout)
     text_handler.setFormatter(LogfileStyleFormatter())
     collapsing_text_handler = CollapsingLogMessageHandler(
-        capacity=3e6,
+        capacity=1e6,
         flushLevel=logging.CRITICAL,
         target=text_handler)
+    if not verbose:
+        collapsing_text_handler.setLevel(logging.ERROR)
     logger.addHandler(collapsing_text_handler)
 
-    # add Jinja2 HTML handler if applicable
+    # add html table handler if applicable
     if html_output_filename:
         try:
             import jinja2  # pylint: disable=import-error
         except ImportError:
-            raise ImportError('Aggregated HTML validation output requires Jinja2:'
-                              ' please install it or use simple HTML output.')
+            raise ImportError('HTML validation output requires Jinja2:'
+                              ' please install it first.')
         html_handler = Jinja2HtmlHandler(
             study_dir,
             html_output_filename,
-            capacity=3e6)
+            capacity=1e5)
         # TODO extend CollapsingLogMessageHandler to flush to multiple targets,
         # and get rid of the duplicated buffering of messages here
         collapsing_html_handler = CollapsingLogMessageHandler(
-            capacity=3e6,
+            capacity=1e6,
             flushLevel=logging.CRITICAL,
             target=html_handler)
+        if not verbose:
+            collapsing_html_handler.setLevel(logging.ERROR)
         logger.addHandler(collapsing_html_handler)
-
-    # add html table handler if applicable
-    if html_table_filename:
-        html_table_handler = SimpleHtmlTableHandler(
-            study_dir,
-            html_table_filename)
-        html_table_handler.setFormatter(SimpleHtmlTableFormatter())
-        # TODO extend CollapsingLogMessageHandler to flush to multiple targets,
-        # and get rid of the duplicated buffering of messages here
-        collapsing_hthandler = CollapsingLogMessageHandler(
-            capacity=3e6,
-            flushLevel=logging.CRITICAL,
-            target=html_table_handler)
-        logger.addHandler(collapsing_hthandler)
 
 
     if hugo == 'download' and hugoEntrezMapPresent:
@@ -1862,7 +1723,7 @@ def main():
             ncbi_file = open(hugo,'r')
         except IOError:
             print >> sys.stderr, 'file cannot be found: ' + hugo
-            sys.exit(2)
+            return 2
 
         hugo_entrez_map = parse_ncbi_file(ncbi_file)
 
@@ -1873,7 +1734,9 @@ def main():
     filenameStringCheck = ''
 
 
-    # Create validators based on filenames
+
+
+    # Create validators based on meta files
     validators = []
 
     metafiles = []
@@ -1884,93 +1747,104 @@ def main():
     clinvalidator = None
 
     for f in filenames:
-        metafile = False
-
         # process case list directory if found
         if os.path.isdir(f) and getFileFromFilepath(f) == 'case_lists':
             processCaseListDirectory(f, sampleIdSets, logger)
 
         # metafile validation and information gathering. Simpler than the big files, so no classes.
         # just need to get some values out, and also verify that no extra fields are specified
-        for pattern in META_PATTERNS:
-            if pattern in f:
-                meta = processMetafile(f)
-                metafile = True
 
-                for field in meta:
-                    if field not in META_FIELD_MAP[pattern]:
-                        logger.warning(
-                            'Unrecognized field in meta file',
-                            extra={'data_filename': getFileFromFilepath(f),
-                                   'cause': field})
-                        exitcode = 0
+        if re.search(r'(\b|_)meta(\b|_)', f):
 
-                # check that cancer study identifiers across files so far are consistent.
-                if cancerStudyId == '':
-                    cancerStudyId = meta['cancer_study_identifier'].strip()
-                elif cancerStudyId != meta['cancer_study_identifier'].strip():
-                    logger.error(
-                        "Cancer study identifier is not consistent across "
-                        "files, expected '%s'",
-                        cancerStudyId.strip(),
+            meta = processMetafile(f)
+
+            if 'meta_file_type' not in meta:
+                logger.error("Missing field 'meta_file_type' in meta file'",
+                               extra={'data_filename': getFileFromFilepath(f)})
+                # skip this file (can't validate unknown file types)
+                continue
+
+            meta_file_type = meta["meta_file_type"]
+            if meta_file_type not in META_FILE_PATTERNS:
+                logger.error('Unknown meta_file_type',
+                             extra={'data_filename': getFileFromFilepath(f),
+                                    'cause': meta_file_type})
+                # skip this file (can't validate unknown file types)
+                continue
+
+            for field in META_FIELD_MAP[meta_file_type]:
+                if field not in meta:
+                    logger.error("Missing field '%s' in meta file",
+                                 field,
+                                 extra={'data_filename': getFileFromFilepath(f)})
+                    # skip this file (the field may be required for validation)
+                    continue
+
+            for field in meta:
+                if field not in META_FIELD_MAP[meta_file_type]:
+                    logger.warning(
+                        'Unrecognized field in meta file',
                         extra={'data_filename': getFileFromFilepath(f),
-                               'cause': meta['cancer_study_identifier'].strip()})
-                    exitcode = 1
+                               'cause': field})
 
-                stableid = meta.get('stable_id','corrected')
+            # check that cancer study identifiers across files so far are consistent.
+            if cancerStudyId == '':
+                cancerStudyId = meta['cancer_study_identifier'].strip()
+            elif cancerStudyId != meta['cancer_study_identifier'].strip():
+                logger.error(
+                    "Cancer study identifier is not consistent across "
+                    "files, expected '%s'",
+                    cancerStudyId.strip(),
+                    extra={'data_filename': getFileFromFilepath(f),
+                           'cause': meta['cancer_study_identifier'].strip()})
 
-                # check filenames for seg meta file, and get correct filename for the actual
-                if pattern == SEG_META_PATTERN: 
-                    metafiles.append(SEG_META_PATTERN)
-                    filenameMetaStringCheck = cancerStudyId + '_meta_cna_' + GENOMIC_BUILD_COUNTERPART + '_seg.txt'
-                    filenameStringCheck = cancerStudyId + '_data_cna_' + GENOMIC_BUILD_COUNTERPART + '.seg'
-                    if filenameMetaStringCheck != os.path.basename(f):
-                        logger.error(
-                            "Meta file for .seg file named incorrectly, expected '%s'",
-                            filenameMetaStringCheck,
-                            extra={'cause': f})
-                        exitcode = 1
+            # check filenames for seg meta file, and get correct filename for the actual
+            if meta_file_type == SEG_META_PATTERN:
+                # TODO fix this check, using data_file_path
+                filenameMetaStringCheck = cancerStudyId + '_meta_cna_' + GENOMIC_BUILD_COUNTERPART + '_seg.txt'
+                if filenameMetaStringCheck != os.path.basename(f):
+                    logger.error(
+                        "Meta file for .seg file named incorrectly, expected '%s'",
+                        filenameMetaStringCheck,
+                        extra={'cause': f})
 
-                    if (
-                            meta.get('reference_genome_id').strip() !=
-                            GENOMIC_BUILD_COUNTERPART.strip()):
-                        logger.error(
-                            'Reference_genome_id is not %s',
-                            GENOMIC_BUILD_COUNTERPART,
-                            extra={'data_filename': os.path.basename(f.strip()),
-                                   'cause': meta.get('reference_genome_id').strip()})
-                        exitcode = 1
+                if (meta.get('reference_genome_id').strip() != GENOMIC_BUILD_COUNTERPART.strip()):
+                    logger.error(
+                        'Reference_genome_id is not %s',
+                        GENOMIC_BUILD_COUNTERPART,
+                        extra={'data_filename': os.path.basename(f.strip()),
+                               'cause': meta.get('reference_genome_id').strip()})
 
-                metafiles.append(pattern)
+            # if this file type requires a data file, remember the file name
+            if 'data_file_path' in META_FIELD_MAP[meta_file_type]:
+                data_file = meta['data_file_path']
+                stableid = meta['stable_id']
+                if meta_file_type in META_TO_FILE_MAP:
+                    META_TO_FILE_MAP[meta_file_type].append(os.path.join(study_dir, data_file))
+                    stableids[meta_file_type].append(stableid)
+                else:
+                    META_TO_FILE_MAP[meta_file_type] = [os.path.join(study_dir, data_file)]
+                    stableids[meta_file_type] = [stableid]
 
-    for f in filenames:
-        # TODO refactor this needlessly duplicated loop
-        metafile = False
-        for pattern in META_PATTERNS:
-            if pattern in f:
-                metafile = True
+            metafiles.append(meta_file_type)
 
-        # TODO determine data file type based on associated meta file;
-        # that way, the only file pattern necessary is /\bmeta\b/. As it is
-        # now, 'meta_RNA_Seq_v2_expression_median_normals.txt' is assumed to
-        # be a data file because it doesn't match /meta_expression/.
 
-        # create the validator objects
-        for pattern in FILE_PATTERNS:
-            if pattern in f and not metafile:
-                stableid = stableids.get(VALIDATOR_META_MAP[VALIDATOR_IDS[pattern]],'corrected')
-                validators.append(ValidatorFactory.createValidator(VALIDATOR_IDS[pattern],f,hugo_entrez_map,fix,logger,stableid))
+    for meta_file_type in META_TO_FILE_MAP:
+        for file_index, data_file in enumerate(META_TO_FILE_MAP[meta_file_type]):
+            # TODO give validators access to all meta fields instead of just one
+            stableid = stableids[meta_file_type][file_index]
+            # TODO make hugo_entrez_map a global 'final':
+            # it isn't supposed to change after initialisation, so that would
+            # make things more readable
+            validators.append(ValidatorFactory.createValidator(VALIDATOR_IDS[meta_file_type],data_file,hugo_entrez_map,fix,logger,stableid))
+
 
     # validate all the files
+
     for validator in validators:
         validator.validate()
         sampleIdSets.append(validator.sampleIds)
 
-        # check if metafile exists for given file type (except clinical) and that the stable ids match
-        if VALIDATOR_META_MAP.get(type(validator).__name__) not in metafiles:
-            logger.error('Missing metafile',
-                         extra={'data_filename': validator.filenameShort})
-            exitcode = 1
 
         # check meta and file names match for seg files
         if type(validator).__name__ == 'SegValidator':
@@ -1979,7 +1853,7 @@ def main():
         # get all the ids in the clinical validator for the check below
         if type(validator).__name__ == 'ClinicalValidator':
             if clinvalidator is not None:
-                logger.error(
+                logger.warning(
                     'Found multiple clinical data files',
                     extra={'data_filename':
                            (clinvalidator.filenameShort + ', ' +
@@ -1992,19 +1866,24 @@ def main():
         checkSampleIds(sampleIdSets,clinvalidator)
     else:
         logger.error('No clinical file detected')
-        errorcode = 1
 
     logger.info('Validation complete')
+    exit_status = exit_status_handler.get_exit_status()
     logging.shutdown()
     del logging._handlerList[:]  # workaround for harmless exceptions on exit
 
+    return exit_status
 
 # ------------------------------------------------------------------------------
 # vamanos 
 
 if __name__ == '__main__':
-    main()
-    # TODO base the return code on whether any error messages were emitted
-    # and remove the dysfunctional exitcode and errorcode variables. Make sure
-    # to handle exceptions to avoid collisions
-    sys.exit(exitcode)
+    # parse command line options
+    args = interface()
+    # run the script
+    exit_status = main_validate(args)
+    print >>sys.stderr, ('Validation of study {status}.'.format(
+        status={0: 'succeeded',
+                1: 'failed',
+                2: 'not performed as problems occurred',
+                3: 'succeeded with warnings'}.get(exit_status, 'unknown')))

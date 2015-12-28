@@ -232,9 +232,6 @@ META_FIELD_MAP = {
     TIMELINE_META_PATTERN:TIMELINE_META_FIELDS
 }
 
-# allows pass/fail to be passed programatically throughout program. If failure condition found, set to 1
-exitcode = 0
-
 
 # ------------------------------------------------------------------------------
 # class definitions
@@ -625,7 +622,6 @@ class Validator(object):
         return num_errors
 
     def checkLine(self,line):
-        global exitcode
         """Checks lines after header, removing quotes."""
 
         # TODO check for end-of-line whitespace
@@ -644,7 +640,6 @@ class Validator(object):
                     'Repeated header',
                     extra={'line_number': self.line_number,
                            'cause': ', '.join(data[:self.numCols])})
-            exitcode = 1
 
         line_col_count = len(data)
 
@@ -653,7 +648,6 @@ class Validator(object):
                               'found %d',
                               self.numCols, line_col_count,
                               extra={'line_number': self.line_number})
-            exitcode = 1
 
         for col_index, col_name in enumerate(self.cols):
             if col_index < line_col_count and data[col_index] == '':
@@ -661,13 +655,11 @@ class Validator(object):
                                   col_name,
                                   extra={'line_number': self.line_number,
                                          'column_number': col_index + 1})
-                exitcode = 1
         data = [self.fixCase(x) for x in data]
 
         return data
 
     def checkUnorderedRequiredColumns(self):
-        global exitcode
         """Check for missing column headers, independent of their position.
 
         Return the number of errors encountered.
@@ -684,11 +676,9 @@ class Validator(object):
                         extra={'line_number': self.line_number,
                                'cause': ', '.join(self.cols[:len(self.REQUIRED_HEADERS)]) +  # pylint: disable=no-member
                                         ', (...)'})
-                    exitcode = 1
         return num_errors
 
     def checkOrderedRequiredColumns(self):
-        global exitcode
         """Check if the column header for each position is correct.
 
         Return the number of errors encountered.
@@ -703,7 +693,6 @@ class Validator(object):
                     " found end of line",
                     col_name, col_index + 1,
                     extra={'line_number': self.line_number})
-                exitcode = 1
             elif self.cols[col_index] != col_name:
                 num_errors += 1
                 self.logger.error(
@@ -712,30 +701,23 @@ class Validator(object):
                     extra={'line_number': self.line_number,
                            'column_number': col_index + 1,
                            'cause': self.cols[col_index]})
-                exitcode = 1
         return num_errors
 
     def checkQuotes(self):
-        global exitcode
         if '"' in self.fileRead or '\'' in self.fileRead:
             self.logger.warning('Found quotation marks in file')
-            if exitcode == 0:
-                exitcode = 3
 
     def checkLineBreaks(self):
-        global exitcode
         """Checks line breaks, reports to user."""
         # TODO document these requirements
         if "\r\n" in self.fileRead:
             self.lineEndings = "\r\n"
-            exitcode = 1
             self.logger.error('DOS-style line breaks detected (\\r\\n), '
                               'should be Unix-style (\\n)')
             if self.fix:
                 self.logger.info('Corrected file will have Unix (\\n) line breaks')
         elif "\r" in self.fileRead:
             self.lineEndings = "\r"
-            exitcode = 1
             self.logger.error('Classic Mac OS-style line breaks detected '
                               '(\\r), should be Unix-style (\\n)')
             if self.fix:
@@ -744,7 +726,6 @@ class Validator(object):
             self.lineEndings = "\n"
         else:
             self.logger.error('No line breaks recognized in file')
-            exitcode = 1
 
 
     def checkInt(self,value):
@@ -766,7 +747,6 @@ class Validator(object):
         self.correctedFile.write('\t'.join(data) + '\n')
 
     def checkRepeatedColumns(self):
-        global exitcode
         num_errors = 0
         seen = set()
         for col_num, col in enumerate(self.cols):
@@ -778,12 +758,10 @@ class Validator(object):
                                   extra={'line_number': self.line_number,
                                          'column_number': col_num,
                                          'cause': col})
-                exitcode = 1
         return num_errors
 
     def checkBadChar(self):
         """Check for bad things in a header, such as spaces, etc."""
-        global exitcode
         num_errors = 0
         for col_num, col_name in enumerate(self.cols):
             for bc in self.badChars:
@@ -794,7 +772,6 @@ class Validator(object):
                                       extra={'line_number': self.line_number,
                                              'column_number': col_num,
                                              'cause': col_name})
-                    exitcode = 1
         return num_errors
 
     def fixCase(self,x):
@@ -847,7 +824,6 @@ class FeaturewiseFileValidator(Validator):
 
     def setSampleIdsFromColumns(self):
         """Extracts sample IDs from column headers and set self.sampleIds."""
-        global exitcode
         num_errors = 0
         # `REQUIRED_HEADERS` should have been set by a subclass
         num_nonsample_headers = len(self.REQUIRED_HEADERS)  # pylint: disable=no-member
@@ -855,7 +831,6 @@ class FeaturewiseFileValidator(Validator):
             self.logger.error('No sample columns',
                               extra={'line_number': self.line_number,
                                      'column_number': num_nonsample_headers})
-            exitcode = 1
             num_errors += 1
         self.sampleIds = self.cols[num_nonsample_headers:]
         return num_errors
@@ -945,7 +920,6 @@ class CNAValidator(GenewiseFileValidator):
             self.writeNewLine(data)
 
     def checkValue(self, value, col_index):
-        global  exitcode
         """Check a value in a sample column."""
         if value not in self.ALLOWED_VALUES:
             if self.logger.isEnabledFor(logging.ERROR):
@@ -955,7 +929,6 @@ class CNAValidator(GenewiseFileValidator):
                     extra={'line_number': self.line_number,
                            'column_number': col_index + 1,
                            'cause': value})
-                exitcode = 1
     class Factory(object):
         def create(self,filename,hugo_entrez_map,fix,logger,stableId):
             return CNAValidator(filename,hugo_entrez_map,fix,logger,stableId)
@@ -1122,7 +1095,6 @@ class MutationsExtendedValidator(Validator):
 
     def printDataInvalidStatement(self, value, col_index):
         """Prints out statement for invalid values detected."""
-        global exitcode
         message = ("Value in column '%s' appears invalid" %
                    self.cols[col_index])
         if self.extra_exists:
@@ -1134,8 +1106,6 @@ class MutationsExtendedValidator(Validator):
             extra={'line_number': self.line_number,
                    'column_number': col_index + 1,
                    'cause': value})
-        if exitcode == 0:
-            exitcode = 3
 
     def writeNewLine(self,data):
         newline = []
@@ -1340,7 +1310,6 @@ class ClinicalValidator(Validator):
     # TODO validate the content of the comment lines before the column header
 
     def checkHeader(self,line):
-        global exitcode
         num_errors = super(ClinicalValidator,self).checkHeader(line)
         for col_name in self.cols:
             if not col_name.isupper():
@@ -1348,8 +1317,6 @@ class ClinicalValidator(Validator):
                     "Clinical header not in all caps",
                     extra={'line_number': self.line_number,
                            'cause': col_name})
-                if exitcode == 0:
-                    exitcode = 3
         self.cols = [s.upper() for s in self.cols]
         if self.fix:
             self.writeHeader(self.cols)
@@ -1633,20 +1600,17 @@ def checkSampleIds(sampleIdSets,clinical_validator):
                 extra={'cause': idseen})
 
 def segMetaCheck(segvalidator,filenameCheck):
-    global exitcode
     """Checks meta file vs segment file on the name."""
     if filenameCheck != '':
         if not filenameCheck == segvalidator.filenameShort:
             segvalidator.logger.error(
                 "Wrong .seg file name; '%s' specified in meta file",
                 filenameCheck)
-            exitcode = 1
 
 def getFileFromFilepath(f):
     return os.path.basename(f.strip())
 
 def processCaseListDirectory(caseListDir,sampleIdSets, logger):
-    global exitcode
     logger.info('Validating case lists')
 
     case_lists = [os.path.join(caseListDir, x) for x in os.listdir(caseListDir)]
@@ -1661,7 +1625,6 @@ def processCaseListDirectory(caseListDir,sampleIdSets, logger):
                     'Unrecognized field found in case list file',
                     extra={'data_filename': getFileFromFilepath(case),
                            'cause': cd})
-                #exitcode = 0
 
         sampleIds = case_data.get('case_list_ids')
         if sampleIds is not None:
@@ -1691,8 +1654,6 @@ def interface():
 def main_validate(args):
 
     """Main function."""
-
-    global exitcode
 
     # get a logger to emit messages
     logger = logging.getLogger(__name__)
@@ -1800,7 +1761,6 @@ def main_validate(args):
             if 'meta_file_type' not in meta:
                 logger.error("Missing field 'meta_file_type' in meta file'",
                                extra={'data_filename': getFileFromFilepath(f)})
-                exitcode = 1
                 # skip this file (can't validate unknown file types)
                 continue
 
@@ -1809,7 +1769,6 @@ def main_validate(args):
                 logger.error('Unknown meta_file_type',
                              extra={'data_filename': getFileFromFilepath(f),
                                     'cause': meta_file_type})
-                exitcode = 1
                 # skip this file (can't validate unknown file types)
                 continue
 
@@ -1818,7 +1777,6 @@ def main_validate(args):
                     logger.error("Missing field '%s' in meta file",
                                  field,
                                  extra={'data_filename': getFileFromFilepath(f)})
-                    exitcode = 1
                     # skip this file (the field may be required for validation)
                     continue
 
@@ -1828,8 +1786,6 @@ def main_validate(args):
                         'Unrecognized field in meta file',
                         extra={'data_filename': getFileFromFilepath(f),
                                'cause': field})
-                    if exitcode == 0:
-                        exitcode = 3
 
             # check that cancer study identifiers across files so far are consistent.
             if cancerStudyId == '':
@@ -1841,7 +1797,6 @@ def main_validate(args):
                     cancerStudyId.strip(),
                     extra={'data_filename': getFileFromFilepath(f),
                            'cause': meta['cancer_study_identifier'].strip()})
-                exitcode = 1
 
             # check filenames for seg meta file, and get correct filename for the actual
             if meta_file_type == SEG_META_PATTERN:
@@ -1852,7 +1807,6 @@ def main_validate(args):
                         "Meta file for .seg file named incorrectly, expected '%s'",
                         filenameMetaStringCheck,
                         extra={'cause': f})
-                    exitcode = 1
 
                 if (meta.get('reference_genome_id').strip() != GENOMIC_BUILD_COUNTERPART.strip()):
                     logger.error(
@@ -1860,7 +1814,6 @@ def main_validate(args):
                         GENOMIC_BUILD_COUNTERPART,
                         extra={'data_filename': os.path.basename(f.strip()),
                                'cause': meta.get('reference_genome_id').strip()})
-                    exitcode = 1
 
             # if this file type requires a data file, remember the file name
             if 'data_file_path' in META_FIELD_MAP[meta_file_type]:
@@ -1905,8 +1858,6 @@ def main_validate(args):
                     extra={'data_filename':
                            (clinvalidator.filenameShort + ', ' +
                             validator.filenameShort)})
-                if exitcode == 0:
-                    exitcode = 3
             clinvalidator = validator
 
     # make sure that lla samples seen across all files are present in the clinical file
@@ -1915,7 +1866,6 @@ def main_validate(args):
         checkSampleIds(sampleIdSets,clinvalidator)
     else:
         logger.error('No clinical file detected')
-        exitcode = 1
 
     logger.info('Validation complete')
     exit_status = exit_status_handler.get_exit_status()

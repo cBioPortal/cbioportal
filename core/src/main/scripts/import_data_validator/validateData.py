@@ -351,6 +351,31 @@ class LogfileStyleFormatter(ValidationMessageFormatter):
         return super(LogfileStyleFormatter, self).format(record)
 
 
+class MaxLevelTrackingHandler(logging.Handler):
+
+    """Handler that does nothing but track the maximum msg level emitted."""
+
+    def __init__(self):
+        """Initialize the handler with an attribute to track the level."""
+        super(MaxLevelTrackingHandler, self).__init__()
+        self.max_level = logging.NOTSET
+
+    def emit(self, record):
+        """Update the maximum level with a new record."""
+        self.max_level = max(self.max_level, record.levelno)
+
+    def get_exit_status(self):
+        """Return an exit status for the validator script based on max_level."""
+        if self.max_level <= logging.INFO:
+            return 0
+        elif self.max_level == logging.WARNING:
+            return 3
+        elif self.max_level == logging.ERROR:
+            return 1
+        else:
+            return 2
+
+
 class Jinja2HtmlHandler(logging.handlers.BufferingHandler):
 
     """Logging handler that formats aggregated HTML reports using Jinja2."""
@@ -462,6 +487,7 @@ class CollapsingLogMessageHandler(logging.handlers.MemoryHandler):
         return ((record.levelno == logging.INFO) or
                 ('data_filename' not in record.__dict__) or
                 super(CollapsingLogMessageHandler, self).shouldFlush(record))
+
 
 class CombiningLoggerAdapter(logging.LoggerAdapter):
     """LoggerAdapter that combines its own context info with that in calls."""
@@ -1670,8 +1696,9 @@ def main_validate(args):
 
     # get a logger to emit messages
     logger = logging.getLogger(__name__)
-    logger.setLevel(logging.ERROR)
-
+    logger.setLevel(logging.INFO)
+    exit_status_handler = MaxLevelTrackingHandler()
+    logger.addHandler(exit_status_handler)
 
     # process the options
     study_dir = args.study_directory
@@ -1686,14 +1713,14 @@ def main_validate(args):
 
     hugo_entrez_map = {}
 
+    verbose = False
     if args.verbose:
-        logger.setLevel("INFO")
-
+        verbose = True
 
     # check existence of directory
     if not os.path.exists(study_dir):
         print >> sys.stderr, 'directory cannot be found: ' + study_dir
-        sys.exit(2)
+        return 2
 
     # set default message handler
     text_handler = logging.StreamHandler(sys.stdout)
@@ -1702,6 +1729,8 @@ def main_validate(args):
         capacity=1e6,
         flushLevel=logging.CRITICAL,
         target=text_handler)
+    if not verbose:
+        collapsing_text_handler.setLevel(logging.ERROR)
     logger.addHandler(collapsing_text_handler)
 
     # add html table handler if applicable
@@ -1721,6 +1750,8 @@ def main_validate(args):
             capacity=1e6,
             flushLevel=logging.CRITICAL,
             target=html_handler)
+        if not verbose:
+            collapsing_html_handler.setLevel(logging.ERROR)
         logger.addHandler(collapsing_html_handler)
 
 
@@ -1731,7 +1762,7 @@ def main_validate(args):
             ncbi_file = open(hugo,'r')
         except IOError:
             print >> sys.stderr, 'file cannot be found: ' + hugo
-            sys.exit(2)
+            return 2
 
         hugo_entrez_map = parse_ncbi_file(ncbi_file)
 
@@ -1887,18 +1918,22 @@ def main_validate(args):
         exitcode = 1
 
     logger.info('Validation complete')
+    exit_status = exit_status_handler.get_exit_status()
     logging.shutdown()
     del logging._handlerList[:]  # workaround for harmless exceptions on exit
 
-    return exitcode
+    return exit_status
 
 # ------------------------------------------------------------------------------
 # vamanos 
 
 if __name__ == '__main__':
-    exitcode = 0
-        # parse command line options
+    # parse command line options
     args = interface()
-    exitcode = main_validate(args)
-
-    #sys.exit(exitcode)
+    # run the script
+    exit_status = main_validate(args)
+    print >>sys.stderr, ('Validation of study {status}.'.format(
+        status={0: 'succeeded',
+                1: 'failed',
+                2: 'not performed as problems occurred',
+                3: 'succeeded with warnings'}.get(exit_status, 'unknown')))

@@ -1744,8 +1744,6 @@ def main_validate(args):
 
     stableids = {}
 
-    clinvalidator = None
-
     for f in filenames:
         # process case list directory if found
         if os.path.isdir(f) and getFileFromFilepath(f) == 'case_lists':
@@ -1828,44 +1826,59 @@ def main_validate(args):
 
             metafiles.append(meta_file_type)
 
+    if CLINICAL_META_PATTERN not in META_TO_FILE_MAP:
+        logger.error('No clinical file detected')
+        return exit_status_handler.get_exit_status()
 
+    if len(META_TO_FILE_MAP[CLINICAL_META_PATTERN]) != 1:
+        if logger.isEnabledFor(logging.ERROR):
+            logger.error(
+                'Multiple clinical files detected',
+                extra={'cause':', '.join(
+                    getFileFromFilepath(f) for f in
+                    META_TO_FILE_MAP[CLINICAL_META_PATTERN])})
+
+    clinvalidator = ValidatorFactory.createValidator(
+        VALIDATOR_IDS[CLINICAL_META_PATTERN],
+        META_TO_FILE_MAP[CLINICAL_META_PATTERN][0],
+        hugo_entrez_map,
+        fix,
+        logger,
+        stableids[CLINICAL_META_PATTERN][0])
+
+    # parse the clinical data file
+    clinvalidator.validate()
+
+    # create validators for non-clinical data files
     for meta_file_type in META_TO_FILE_MAP:
+        if meta_file_type == CLINICAL_META_PATTERN:
+            continue
         for file_index, data_file in enumerate(META_TO_FILE_MAP[meta_file_type]):
             # TODO give validators access to all meta fields instead of just one
             stableid = stableids[meta_file_type][file_index]
             # TODO make hugo_entrez_map a global 'final':
             # it isn't supposed to change after initialisation, so that would
             # make things more readable
-            validators.append(ValidatorFactory.createValidator(VALIDATOR_IDS[meta_file_type],data_file,hugo_entrez_map,fix,logger,stableid))
+            validators.append(ValidatorFactory.createValidator(
+                VALIDATOR_IDS[meta_file_type],
+                data_file,
+                hugo_entrez_map,
+                fix,
+                logger,
+                stableid))
 
-
-    # validate all the files
-
+    # validate non-clinical data files
     for validator in validators:
         validator.validate()
         sampleIdSets.append(validator.sampleIds)
-
 
         # check meta and file names match for seg files
         if type(validator).__name__ == 'SegValidator':
             segMetaCheck(validator,filenameStringCheck)
 
-        # get all the ids in the clinical validator for the check below
-        if type(validator).__name__ == 'ClinicalValidator':
-            if clinvalidator is not None:
-                logger.warning(
-                    'Found multiple clinical data files',
-                    extra={'data_filename':
-                           (clinvalidator.filenameShort + ', ' +
-                            validator.filenameShort)})
-            clinvalidator = validator
-
     # make sure that lla samples seen across all files are present in the clinical file
     logger.info('Checking sample identifiers')
-    if clinvalidator is not None:
-        checkSampleIds(sampleIdSets,clinvalidator)
-    else:
-        logger.error('No clinical file detected')
+    checkSampleIds(sampleIdSets,clinvalidator)
 
     logger.info('Validation complete')
     exit_status = exit_status_handler.get_exit_status()

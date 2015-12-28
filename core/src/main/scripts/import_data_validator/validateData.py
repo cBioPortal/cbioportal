@@ -1742,8 +1742,6 @@ def main_validate(args):
     metafiles = []
     sampleIdSets = []
 
-    stableids = {}
-
     for f in filenames:
         # process case list directory if found
         if os.path.isdir(f) and getFileFromFilepath(f) == 'case_lists':
@@ -1816,13 +1814,12 @@ def main_validate(args):
             # if this file type requires a data file, remember the file name
             if 'data_file_path' in META_FIELD_MAP[meta_file_type]:
                 data_file = meta['data_file_path']
-                stableid = meta['stable_id']
                 if meta_file_type in META_TO_FILE_MAP:
-                    META_TO_FILE_MAP[meta_file_type].append(os.path.join(study_dir, data_file))
-                    stableids[meta_file_type].append(stableid)
+                    META_TO_FILE_MAP[meta_file_type].append(
+                        (meta, os.path.join(study_dir, data_file)))
                 else:
-                    META_TO_FILE_MAP[meta_file_type] = [os.path.join(study_dir, data_file)]
-                    stableids[meta_file_type] = [stableid]
+                    META_TO_FILE_MAP[meta_file_type] = [
+                        (meta, os.path.join(study_dir, data_file))]
 
             metafiles.append(meta_file_type)
 
@@ -1835,16 +1832,19 @@ def main_validate(args):
             logger.error(
                 'Multiple clinical files detected',
                 extra={'cause':', '.join(
-                    getFileFromFilepath(f) for f in
+                    getFileFromFilepath(f[1]) for f in
                     META_TO_FILE_MAP[CLINICAL_META_PATTERN])})
 
+    # create a validator for the clinical data file
+    clinical_filename = META_TO_FILE_MAP[CLINICAL_META_PATTERN][0][1]
+    clinical_stableid = META_TO_FILE_MAP[CLINICAL_META_PATTERN][0][0]['stable_id']
     clinvalidator = ValidatorFactory.createValidator(
         VALIDATOR_IDS[CLINICAL_META_PATTERN],
-        META_TO_FILE_MAP[CLINICAL_META_PATTERN][0],
+        clinical_filename,
         hugo_entrez_map,
         fix,
         logger,
-        stableids[CLINICAL_META_PATTERN][0])
+        clinical_stableid)
 
     # parse the clinical data file
     clinvalidator.validate()
@@ -1853,15 +1853,15 @@ def main_validate(args):
     for meta_file_type in META_TO_FILE_MAP:
         if meta_file_type == CLINICAL_META_PATTERN:
             continue
-        for file_index, data_file in enumerate(META_TO_FILE_MAP[meta_file_type]):
+        for meta, filename in META_TO_FILE_MAP[meta_file_type]:
             # TODO give validators access to all meta fields instead of just one
-            stableid = stableids[meta_file_type][file_index]
+            stableid = meta['stable_id']
             # TODO make hugo_entrez_map a global 'final':
             # it isn't supposed to change after initialisation, so that would
             # make things more readable
             validators.append(ValidatorFactory.createValidator(
                 VALIDATOR_IDS[meta_file_type],
-                data_file,
+                filename,
                 hugo_entrez_map,
                 fix,
                 logger,

@@ -53,6 +53,7 @@ RPPA_META_PATTERN = 'meta_rppa'
 TIMELINE_META_PATTERN = 'meta_timeline'
 
 META_TO_FILE_MAP = {}
+DEFINED_SAMPLE_IDS = ()
 
 META_FILE_PATTERNS = [
     STUDY_META_PATTERN,
@@ -192,7 +193,7 @@ CASE_LIST_FIELDS = [
     'case_list_name',
     'case_list_description',
     'case_list_ids',
-    'case_list_category'
+    # TODO: define 'case_list_category' when optional meta fields are supported
 ]
 
 CLINICAL_META_FIELDS = [
@@ -531,7 +532,6 @@ class Validator(object):
         self.filenameShort = os.path.basename(filename)
         self.file = open(filename, 'rU')
         self.line_number = 0
-        self.sampleIds = set()
         self.cols = []
         self.numCols = 0
         self.hugo_entrez_map = hugo_entrez_map
@@ -736,6 +736,10 @@ class Validator(object):
         except ValueError:
             return False
 
+    def isSampleIdDefined(self, sample_id):
+        """Check whether a sample id is defined and return a boolean."""
+        return sample_id in DEFINED_SAMPLE_IDS
+
     def writeNewLine(self, data):
         """Write a line of data to the corrected file."""
         # replace blanks with 'NA'
@@ -804,6 +808,10 @@ class FeaturewiseFileValidator(Validator):
 
     REQUIRE_COLUMN_ORDER = True
 
+    def __init__(self, *args, **kwargs):
+        super(FeaturewiseFileValidator, self).__init__(*args, **kwargs)
+        self.sampleIds = []
+
     def checkHeader(self, line):
         """Validate the header and read sample IDs from it.
 
@@ -833,6 +841,14 @@ class FeaturewiseFileValidator(Validator):
                                      'column_number': num_nonsample_headers})
             num_errors += 1
         self.sampleIds = self.cols[num_nonsample_headers:]
+        for index, sample_id in enumerate(self.sampleIds):
+            if not self.isSampleIdDefined(sample_id):
+                self.logger.error(
+                    'Sample ID not defined in clinical file',
+                    extra={'line_number': self.line_number,
+                           'column_number': num_nonsample_headers + index + 1,
+                           'cause': sample_id})
+                num_errors += 1
         return num_errors
 
 
@@ -1065,13 +1081,20 @@ class MutationsExtendedValidator(Validator):
         for col_name in self.REQUIRED_HEADERS:
             col_index = self.cols.index(col_name)
             value = data[col_index]
+            if col_name == 'Tumor_Sample_Barcode':
+                if not self.isSampleIdDefined(value):
+                    self.logger.error(
+                        'Sample ID not defined in clinical file',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
             # get the checking method for this column if available, or None
             checking_function = getattr(
                 self,
                 self.CHECK_FUNCTION_MAP[col_name])
             if not checking_function(value):
                 self.printDataInvalidStatement(value, col_index)
-            elif self.extra_exists or self.extra != '':
+            elif self.extra_exists or self.extra:
                 raise ValueError(('Checking function %s set a warning '
                                   'message but reported no warning') %
                                  checking_function.__name__)
@@ -1172,16 +1195,12 @@ class MutationsExtendedValidator(Validator):
     
     def checkStartPosition(self, value):
         return True
- 
+
     def checkEndPosition(self, value):
         return True
-   
+
     def checkTumorSampleBarcode(self, value):
-        self.sampleIds.add(value.strip())
-        if self.headerPresent and value not in self.sampleIdsHeader:
-            self.extra = 'Tumor sample id not in sample ids from header'
-            self.extra_exists = True
-            return False
+        """Issue no warnings, as this field is checked in `checkLine()`."""
         return True
 
     def checkNCBIbuild(self, value):
@@ -1303,6 +1322,10 @@ class ClinicalValidator(Validator):
     ]
     REQUIRE_COLUMN_ORDER = False
 
+    def __init__(self, *args, **kwargs):
+        super(ClinicalValidator, self).__init__(*args, **kwargs)
+        self.sampleIds = set()
+
     def validate(self):
         super(ClinicalValidator,self).validate()
         self.printComplete()
@@ -1326,11 +1349,14 @@ class ClinicalValidator(Validator):
         data = super(ClinicalValidator,self).checkLine(line)
         for col_index, value in enumerate(data):
             # TODO check the values in the other cols, required and optional
-            try:
-                if col_index == self.cols.index('SAMPLE_ID'):
-                    self.sampleIds.add(value.strip())
-            except ValueError:
-                continue
+            if col_index == self.cols.index('SAMPLE_ID'):
+                if DEFINED_SAMPLE_IDS and value not in DEFINED_SAMPLE_IDS:
+                    self.logger.error(
+                        'Defining new sample id in secondary clinical file',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
+                self.sampleIds.add(value.strip())
         if self.fix:
             self.writeNewLine(data)
 
@@ -1356,7 +1382,6 @@ class SegValidator(Validator):
 
     def __init__(self,filename,hugo_entrez_map,fix,logger,stableId):
         super(SegValidator,self).__init__(filename,hugo_entrez_map,fix,logger,stableId)
-        self.sampleIds = set()
 
     def validate(self):
         super(SegValidator,self).validate()
@@ -1371,14 +1396,15 @@ class SegValidator(Validator):
     def checkLine(self,line):
         data = super(SegValidator,self).checkLine(line)
 
-        # if present, add sample id to set for later checks
+        # TODO check values in all other columns too
         for col_index, value in enumerate(data):
-            try:
-                if col_index == self.cols.index(self.REQUIRED_HEADERS[0]):
-                    self.sampleIds.add(value.strip())
-            except ValueError:
-                continue
-
+            if col_index == self.cols.index(self.REQUIRED_HEADERS[0]):
+                if not self.isSampleIdDefined(value):
+                    self.logger.error(
+                        'Sample ID not defined in clinical file',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
         if self.fix:
             self.writeNewLine(data)
 
@@ -1581,24 +1607,6 @@ def processMetafile(filename):
     return metaDictionary
 
 
-def checkSampleIds(sampleIdSets,clinical_validator):
-    """Checks that all ids seen in other genomic files are also present in the clinical file."""
-    # TODO - refactor to take a list of ids instead of each individually
-
-    idsSeen = set()
-
-    # construct set of all ids seen across files
-    for idSet in sampleIdSets:
-        for idseen in idSet:
-            idsSeen.add(idseen)
-
-    # check if these ids were found in the clinical data file
-    for idseen in idsSeen:
-        if idseen not in clinical_validator.sampleIds and idseen != '':
-            clinical_validator.logger.error(
-                'Missing a sample ID found in the study',
-                extra={'cause': idseen})
-
 def segMetaCheck(segvalidator,filenameCheck):
     """Checks meta file vs segment file on the name."""
     if filenameCheck != '':
@@ -1607,10 +1615,11 @@ def segMetaCheck(segvalidator,filenameCheck):
                 "Wrong .seg file name; '%s' specified in meta file",
                 filenameCheck)
 
+
 def getFileFromFilepath(f):
     return os.path.basename(f.strip())
 
-def processCaseListDirectory(caseListDir,sampleIdSets, logger):
+def processCaseListDirectory(caseListDir, logger):
     logger.info('Validating case lists')
 
     case_lists = [os.path.join(caseListDir, x) for x in os.listdir(caseListDir)]
@@ -1619,6 +1628,19 @@ def processCaseListDirectory(caseListDir,sampleIdSets, logger):
 
         case_data = processMetafile(case)
 
+        missing_fields = []
+        for field in CASE_LIST_FIELDS:
+            if field not in case_data:
+                logger.error(
+                    "Missing field '%s' in case list file",
+                    field,
+                    extra={'data_filename': getFileFromFilepath(case)})
+                missing_fields.append(field)
+
+        if missing_fields:
+            # skip this file (the fields may be required for validation)
+            continue
+
         for cd in case_data:
             if cd.strip() not in CASE_LIST_FIELDS and cd.strip() != '':
                 logger.warning(
@@ -1626,10 +1648,14 @@ def processCaseListDirectory(caseListDir,sampleIdSets, logger):
                     extra={'data_filename': getFileFromFilepath(case),
                            'cause': cd})
 
-        sampleIds = case_data.get('case_list_ids')
-        if sampleIds is not None:
-            sampleIds = set([x.strip() for x in sampleIds.split('\t')])
-            sampleIdSets.append(sampleIds)
+        sampleIds = case_data['case_list_ids']
+        sampleIds = set([x.strip() for x in sampleIds.split('\t')])
+        for value in sampleIds:
+            if value not in DEFINED_SAMPLE_IDS:
+                logger.error(
+                    'Sample id not defined in clinical file',
+                    extra={'data_filename': getFileFromFilepath(case),
+                           'cause': value})
 
     logger.info('Validation of case lists complete')
 
@@ -1654,6 +1680,9 @@ def interface():
 def main_validate(args):
 
     """Main function."""
+
+    global META_TO_FILE_MAP
+    global DEFINED_SAMPLE_IDS
 
     # get a logger to emit messages
     logger = logging.getLogger(__name__)
@@ -1733,19 +1762,12 @@ def main_validate(args):
     filenameMetaStringCheck = ''
     filenameStringCheck = ''
 
-
-
-
     # Create validators based on meta files
     validators = []
 
     metafiles = []
-    sampleIdSets = []
 
     for f in filenames:
-        # process case list directory if found
-        if os.path.isdir(f) and getFileFromFilepath(f) == 'case_lists':
-            processCaseListDirectory(f, sampleIdSets, logger)
 
         # metafile validation and information gathering. Simpler than the big files, so no classes.
         # just need to get some values out, and also verify that no extra fields are specified
@@ -1756,7 +1778,7 @@ def main_validate(args):
 
             if 'meta_file_type' not in meta:
                 logger.error("Missing field 'meta_file_type' in meta file'",
-                               extra={'data_filename': getFileFromFilepath(f)})
+                             extra={'data_filename': getFileFromFilepath(f)})
                 # skip this file (can't validate unknown file types)
                 continue
 
@@ -1768,13 +1790,17 @@ def main_validate(args):
                 # skip this file (can't validate unknown file types)
                 continue
 
+            missing_fields = []
             for field in META_FIELD_MAP[meta_file_type]:
                 if field not in meta:
                     logger.error("Missing field '%s' in meta file",
                                  field,
                                  extra={'data_filename': getFileFromFilepath(f)})
-                    # skip this file (the field may be required for validation)
-                    continue
+                    missing_fields.append(field)
+
+            if missing_fields:
+                # skip this file (the fields may be required for validation)
+                continue
 
             for field in meta:
                 if field not in META_FIELD_MAP[meta_file_type]:
@@ -1848,6 +1874,7 @@ def main_validate(args):
 
     # parse the clinical data file
     clinvalidator.validate()
+    DEFINED_SAMPLE_IDS = clinvalidator.sampleIds
 
     # create validators for non-clinical data files
     for meta_file_type in META_TO_FILE_MAP:
@@ -1870,15 +1897,16 @@ def main_validate(args):
     # validate non-clinical data files
     for validator in validators:
         validator.validate()
-        sampleIdSets.append(validator.sampleIds)
 
         # check meta and file names match for seg files
         if type(validator).__name__ == 'SegValidator':
             segMetaCheck(validator,filenameStringCheck)
 
-    # make sure that lla samples seen across all files are present in the clinical file
-    logger.info('Checking sample identifiers')
-    checkSampleIds(sampleIdSets,clinvalidator)
+    case_list_dirname = os.path.join(study_dir, 'case_lists')
+    if not os.path.isdir(case_list_dirname):
+        logger.error("No directory named 'case_lists' found")
+    else:
+        processCaseListDirectory(case_list_dirname, logger)
 
     logger.info('Validation complete')
     exit_status = exit_status_handler.get_exit_status()

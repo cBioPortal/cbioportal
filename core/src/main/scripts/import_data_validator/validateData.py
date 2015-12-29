@@ -736,9 +736,19 @@ class Validator(object):
         except ValueError:
             return False
 
-    def isSampleIdDefined(self, sample_id):
-        """Check whether a sample id is defined and return a boolean."""
-        return sample_id in DEFINED_SAMPLE_IDS
+    def checkSampleId(self, sample_id, column_number):
+        """Check whether a sample id is defined, logging an error if not.
+
+        Return True if the sample id was valid, False otherwise.
+        """
+        if sample_id not in DEFINED_SAMPLE_IDS:
+            self.logger.error(
+                'Sample ID not defined in clinical file',
+                extra={'line_number': self.line_number,
+                       'column_number': column_number,
+                       'cause': sample_id})
+            return False
+        return True
 
     def writeNewLine(self, data):
         """Write a line of data to the corrected file."""
@@ -842,12 +852,9 @@ class FeaturewiseFileValidator(Validator):
             num_errors += 1
         self.sampleIds = self.cols[num_nonsample_headers:]
         for index, sample_id in enumerate(self.sampleIds):
-            if not self.isSampleIdDefined(sample_id):
-                self.logger.error(
-                    'Sample ID not defined in clinical file',
-                    extra={'line_number': self.line_number,
-                           'column_number': num_nonsample_headers + index + 1,
-                           'cause': sample_id})
+            if not self.checkSampleId(
+                    sample_id,
+                    column_number=num_nonsample_headers + index + 1):
                 num_errors += 1
         return num_errors
 
@@ -1082,12 +1089,7 @@ class MutationsExtendedValidator(Validator):
             col_index = self.cols.index(col_name)
             value = data[col_index]
             if col_name == 'Tumor_Sample_Barcode':
-                if not self.isSampleIdDefined(value):
-                    self.logger.error(
-                        'Sample ID not defined in clinical file',
-                        extra={'line_number': self.line_number,
-                               'column_number': col_index + 1,
-                               'cause': value})
+                self.checkSampleId(value, column_number=col_index + 1)
             # get the checking method for this column if available, or None
             checking_function = getattr(
                 self,
@@ -1399,12 +1401,7 @@ class SegValidator(Validator):
         # TODO check values in all other columns too
         for col_index, value in enumerate(data):
             if col_index == self.cols.index(self.REQUIRED_HEADERS[0]):
-                if not self.isSampleIdDefined(value):
-                    self.logger.error(
-                        'Sample ID not defined in clinical file',
-                        extra={'line_number': self.line_number,
-                               'column_number': col_index + 1,
-                               'cause': value})
+                self.checkSampleId(value, column_number=col_index + 1)
         if self.fix:
             self.writeNewLine(data)
 

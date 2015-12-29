@@ -230,7 +230,8 @@ META_FIELD_MAP = {
     METHYLATION_META_PATTERN:EXPRESSION_META_FIELDS,
     FUSION_META_PATTERN:FUSION_META_FIELDS,
     RPPA_META_PATTERN:RPPA_META_FIELDS,
-    TIMELINE_META_PATTERN:TIMELINE_META_FIELDS
+    TIMELINE_META_PATTERN:TIMELINE_META_FIELDS,
+    'case_list': CASE_LIST_FIELDS
 }
 
 
@@ -1591,59 +1592,117 @@ class TimelineValidator(Validator):
 # ------------------------------------------------------------------------------
 # Functions
 
-def processMetafile(filename):
-    """Process a metafile. returns a dictionary of values in the file."""
-    metafile = open(filename,'rU')
+def processMetafile(filename, cancerStudyId, logger, case_list=False):
+
+    """Validate a metafile and return a dictionary of values read from it.
+
+    Return `None` if the file is invalid. If `case_list` is True,
+    validate the file as a case list instead of a meta file.
+    """
+
     metaDictionary = {}
-    for line in metafile:
-        ##Removed new line char
-        key = line.strip().split(':')[0]
-        val = ''.join(line.strip().split(':')[1:])
-        metaDictionary[key.strip()] = val.strip()
+    with open(filename,'rU') as metafile:
+        for line_index, line in enumerate(metafile):
+            if ': ' not in line:
+                logger.error(
+                    "Invalid %s file entry, no ': ' found",
+                    {True: 'case list', False: 'meta'}[case_list],
+                    extra={'data_filename': getFileFromFilepath(filename),
+                           'line_number': line_index + 1})
+                return None
+            key, val = line.rstrip().split(': ', 1)
+            metaDictionary[key] = val
+
+    if case_list:
+        meta_file_type = 'case_list'
+    else:
+        if 'meta_file_type' not in metaDictionary:
+            logger.error("Missing field 'meta_file_type' in meta file'",
+                         extra={'data_filename': getFileFromFilepath(filename)})
+            # skip this file (can't validate unknown file types)
+            return None
+
+        meta_file_type = metaDictionary["meta_file_type"]
+        if meta_file_type not in META_FILE_PATTERNS:
+            logger.error('Unknown meta_file_type',
+                         extra={'data_filename': getFileFromFilepath(filename),
+                                'cause': meta_file_type})
+            # skip this file (can't validate unknown file types)
+            return None
+
+    missing_fields = []
+    for field in META_FIELD_MAP[meta_file_type]:
+        if field not in metaDictionary:
+            logger.error("Missing field '%s' in %s file",
+                         field,
+                         {True: 'case list', False: 'meta'}[case_list],
+                         extra={'data_filename': getFileFromFilepath(filename)})
+            missing_fields.append(field)
+
+    if missing_fields:
+        # skip this file (the fields may be required for validation)
+        return None
+
+    for field in metaDictionary:
+        if field not in META_FIELD_MAP[meta_file_type]:
+            logger.warning(
+                'Unrecognized field in %s file',
+                {True: 'case list', False: 'meta'}[case_list],
+                extra={'data_filename': getFileFromFilepath(filename),
+                       'cause': field})
+
+    # check that cancer study identifiers across files so far are consistent.
+    if cancerStudyId and (cancerStudyId !=
+                          metaDictionary['cancer_study_identifier'].strip()):
+        logger.error(
+            "Cancer study identifier is not consistent across "
+            "files, expected '%s'",
+            cancerStudyId.strip(),
+            extra={'data_filename': getFileFromFilepath(filename),
+                   'cause': metaDictionary['cancer_study_identifier'].strip()})
+
+    # check fields specific to seg meta file
+    if meta_file_type == SEG_META_PATTERN:
+
+        if metaDictionary['data_filename'] != metaDictionary['data_file_path']:
+            logger.error(
+                'data_filename and data_file_path differ in seg data file',
+                extra={'data_filename': getFileFromFilepath(filename),
+                       'cause': (metaDictionary['data_filename'] + ', ' +
+                                 metaDictionary['data_file_path'])})
+
+        if metaDictionary['reference_genome_id'] != GENOMIC_BUILD_COUNTERPART:
+            logger.error(
+                'Reference_genome_id is not %s',
+                GENOMIC_BUILD_COUNTERPART,
+                extra={'data_filename': getFileFromFilepath(filename),
+                       'cause': metaDictionary['reference_genome_id']})
+
+    # if this file type doesn't take a data file, make sure one isn't parsed
+    if (
+            'data_file_path' in metaDictionary and
+            'data_file_path' not in META_FIELD_MAP[meta_file_type]):
+        del metaDictionary['data_file_path']
 
     return metaDictionary
-
-
-def segMetaCheck(segvalidator,filenameCheck):
-    """Checks meta file vs segment file on the name."""
-    if filenameCheck != '':
-        if not filenameCheck == segvalidator.filenameShort:
-            segvalidator.logger.error(
-                "Wrong .seg file name; '%s' specified in meta file",
-                filenameCheck)
 
 
 def getFileFromFilepath(f):
     return os.path.basename(f.strip())
 
-def processCaseListDirectory(caseListDir, logger):
+
+def processCaseListDirectory(caseListDir, cancerStudyId, logger):
+
     logger.info('Validating case lists')
 
     case_lists = [os.path.join(caseListDir, x) for x in os.listdir(caseListDir)]
 
     for case in case_lists:
 
-        case_data = processMetafile(case)
-
-        missing_fields = []
-        for field in CASE_LIST_FIELDS:
-            if field not in case_data:
-                logger.error(
-                    "Missing field '%s' in case list file",
-                    field,
-                    extra={'data_filename': getFileFromFilepath(case)})
-                missing_fields.append(field)
-
-        if missing_fields:
-            # skip this file (the fields may be required for validation)
+        case_data = processMetafile(case, cancerStudyId, logger,
+                                    case_list=True)
+        if case_data is None:
             continue
-
-        for cd in case_data:
-            if cd.strip() not in CASE_LIST_FIELDS and cd.strip() != '':
-                logger.warning(
-                    'Unrecognized field found in case list file',
-                    extra={'data_filename': getFileFromFilepath(case),
-                           'cause': cd})
 
         sampleIds = case_data['case_list_ids']
         sampleIds = set([x.strip() for x in sampleIds.split('\t')])
@@ -1762,89 +1821,27 @@ def main_validate(args):
     # Create validators based on meta files
     validators = []
 
-    metafiles = []
-
     for f in filenames:
 
         # metafile validation and information gathering. Simpler than the big files, so no classes.
         # just need to get some values out, and also verify that no extra fields are specified
 
         if re.search(r'(\b|_)meta(\b|_)', f):
-
-            meta = processMetafile(f)
-
-            if 'meta_file_type' not in meta:
-                logger.error("Missing field 'meta_file_type' in meta file'",
-                             extra={'data_filename': getFileFromFilepath(f)})
-                # skip this file (can't validate unknown file types)
+            meta = processMetafile(f, cancerStudyId, logger)
+            if meta is None:
                 continue
-
-            meta_file_type = meta["meta_file_type"]
-            if meta_file_type not in META_FILE_PATTERNS:
-                logger.error('Unknown meta_file_type',
-                             extra={'data_filename': getFileFromFilepath(f),
-                                    'cause': meta_file_type})
-                # skip this file (can't validate unknown file types)
-                continue
-
-            missing_fields = []
-            for field in META_FIELD_MAP[meta_file_type]:
-                if field not in meta:
-                    logger.error("Missing field '%s' in meta file",
-                                 field,
-                                 extra={'data_filename': getFileFromFilepath(f)})
-                    missing_fields.append(field)
-
-            if missing_fields:
-                # skip this file (the fields may be required for validation)
-                continue
-
-            for field in meta:
-                if field not in META_FIELD_MAP[meta_file_type]:
-                    logger.warning(
-                        'Unrecognized field in meta file',
-                        extra={'data_filename': getFileFromFilepath(f),
-                               'cause': field})
-
-            # check that cancer study identifiers across files so far are consistent.
-            if cancerStudyId == '':
+            if not cancerStudyId:
                 cancerStudyId = meta['cancer_study_identifier'].strip()
-            elif cancerStudyId != meta['cancer_study_identifier'].strip():
-                logger.error(
-                    "Cancer study identifier is not consistent across "
-                    "files, expected '%s'",
-                    cancerStudyId.strip(),
-                    extra={'data_filename': getFileFromFilepath(f),
-                           'cause': meta['cancer_study_identifier'].strip()})
-
-            # check filenames for seg meta file, and get correct filename for the actual
-            if meta_file_type == SEG_META_PATTERN:
-                # TODO fix this check, using data_file_path
-                filenameMetaStringCheck = cancerStudyId + '_meta_cna_' + GENOMIC_BUILD_COUNTERPART + '_seg.txt'
-                if filenameMetaStringCheck != os.path.basename(f):
-                    logger.error(
-                        "Meta file for .seg file named incorrectly, expected '%s'",
-                        filenameMetaStringCheck,
-                        extra={'cause': f})
-
-                if (meta.get('reference_genome_id').strip() != GENOMIC_BUILD_COUNTERPART.strip()):
-                    logger.error(
-                        'Reference_genome_id is not %s',
-                        GENOMIC_BUILD_COUNTERPART,
-                        extra={'data_filename': os.path.basename(f.strip()),
-                               'cause': meta.get('reference_genome_id').strip()})
-
-            # if this file type requires a data file, remember the file name
-            if 'data_file_path' in META_FIELD_MAP[meta_file_type]:
-                data_file = meta['data_file_path']
+            meta_file_type = meta['meta_file_type']
+            data_file_path = meta.get('data_file_path')
+            if data_file_path is not None:
                 if meta_file_type in META_TO_FILE_MAP:
                     META_TO_FILE_MAP[meta_file_type].append(
-                        (meta, os.path.join(study_dir, data_file)))
+                        (meta, os.path.join(study_dir, data_file_path)))
                 else:
                     META_TO_FILE_MAP[meta_file_type] = [
-                        (meta, os.path.join(study_dir, data_file))]
+                        (meta, os.path.join(study_dir, data_file_path))]
 
-            metafiles.append(meta_file_type)
 
     if CLINICAL_META_PATTERN not in META_TO_FILE_MAP:
         logger.error('No clinical file detected')
@@ -1895,15 +1892,11 @@ def main_validate(args):
     for validator in validators:
         validator.validate()
 
-        # check meta and file names match for seg files
-        if type(validator).__name__ == 'SegValidator':
-            segMetaCheck(validator,filenameStringCheck)
-
     case_list_dirname = os.path.join(study_dir, 'case_lists')
     if not os.path.isdir(case_list_dirname):
         logger.error("No directory named 'case_lists' found")
     else:
-        processCaseListDirectory(case_list_dirname, logger)
+        processCaseListDirectory(case_list_dirname, cancerStudyId, logger)
 
     logger.info('Validation complete')
     exit_status = exit_status_handler.get_exit_status()

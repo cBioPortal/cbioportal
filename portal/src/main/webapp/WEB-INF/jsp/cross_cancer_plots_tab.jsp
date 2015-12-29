@@ -31,6 +31,19 @@
 --%>
 
 <style>
+    #cc-plots-sidebar {
+        height: 25px;
+        width: 1160px;
+    }
+    #cc-plots-sidebar h5 {
+        margin-left: 20px;
+        padding-left: 5px;
+        padding-right: 5px;
+        display: inline-block;
+        margin-bottom: 10px;
+        font-weight: bold;
+        color: grey;
+    }
     #cc_plots_box {
         border: 1px solid #aaaaaa;
         border-radius: 4px;
@@ -42,7 +55,20 @@
 
 <table>
     <tr>
-        <div id="cc_plots_box"><img style='padding:200px;' src='images/ajax-loader.gif'></div>
+        <div id="cc-plots-sidebar">
+            <h5>Gene</h5>
+            <span id="cc_plots_gene_list_select" onchange="ccPlots.update_gene();">
+                <select id="cc_plots_gene_list"></select>
+            </span>
+            <h5>Sort By</h5>
+            <input type="radio" name="cc_plots_profile_order_opt" onchange="ccPlots.update_profile_order()" value="alphabetic" checked/> Cancer Study
+            <input type="radio" name="cc_plots_profile_order_opt" onchange="ccPlots.update_profile_order()" value="median"/> Median
+            <h5>Log Scale</h5>
+            <input type="checkbox" id="cc_plots_log_scale" onchange="ccPlots.toggle_log_scale()" checked/>
+        </div>
+    </tr>
+    <tr>
+        <div id="cc_plots_box"><img style='padding:300px;' src='images/ajax-loader.gif'></div>
     </tr>
 </table>
 

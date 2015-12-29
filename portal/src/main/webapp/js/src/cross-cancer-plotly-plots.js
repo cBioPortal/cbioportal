@@ -38,13 +38,15 @@ var ccPlots = (function (Plotly, _, $) {
 
     var study_ids = [], study_meta = [], mrna_profiles = [], profile_data = {};
 
+    var gene = [], apply_log_scale = false;
+
     var fetch_profile_data = function(_queried_study_ids) {
 
         var _param_mrna_profile_arr = _.map(_queried_study_ids, function(_study_id) { return _study_id + "_rna_seq_v2_mrna"});
         var _param_mut_profile_arr = _.map(_queried_study_ids, function(_study_id) { return _study_id + "_mutations"});
 
         var _get_genetic_profile_params = {
-            genes: ["SOX9"],
+            genes: gene,
             genetic_profile_ids: _param_mrna_profile_arr.concat(_param_mut_profile_arr)
         };
 
@@ -52,6 +54,7 @@ var ccPlots = (function (Plotly, _, $) {
             function(_result) {
                 profile_data = _result;
                 study_ids = _.uniq(_.pluck(_result, "study_id"));
+                //TODO: apply legit ways to extract profiles, now it's a hack, assuming every study has ONE rna seq v2 profile, and named under the SAME convention
                 mrna_profiles =  _.map(study_ids, function(_study_id) { return _study_id + "_rna_seq_v2_mrna"});
 
                 var _get_study_params = {
@@ -92,16 +95,35 @@ var ccPlots = (function (Plotly, _, $) {
         var _non_mut_group = _.filter(_tmp_profile_group, function(_obj) { return _obj.mutation_type === "non"; });
         var _mix_mut_group = _.filter(_tmp_profile_group, function(_obj) { return _obj.mutation_type !== "non"; });
 
+        //calculate log values
+        _.map(_non_mut_group, function(_non_mut_obj){
+            var _ori_val = _non_mut_obj.profile_data;
+            _non_mut_obj.logged_profile_data = Math.log(_ori_val) / Math.log(2);
+            return _non_mut_obj;
+        });
+        _.map(_mix_mut_group, function(_mut_obj){
+            var _ori_val = _mut_obj.profile_data;
+            _mut_obj.logged_profile_data = Math.log(_ori_val) / Math.log(2);
+            return _mut_obj;
+        });
+
         // ---- define tracks ----
         // no mutation
         //assemble array of qtip text
         var _qtips = [];
         _.each(_non_mut_group, function(_non_mut_obj) {
-            _qtips.push("Sample Id: " + _non_mut_obj.sample_id + "<br>" + "Expression: " + _non_mut_obj.profile_data);
+            _qtips.push("Study: " +  _non_mut_obj.study_id + "<br>" +"Sample Id: " + _non_mut_obj.sample_id + "<br>" + "Expression: " + _non_mut_obj.profile_data);
         });
+        //assemble y axis values
+        var _y = [];
+        if (apply_log_scale) {
+            _y = _.pluck(_non_mut_group, "logged_profile_data");
+        } else {
+            _y = _.pluck(_non_mut_group, "profile_data");
+        }
         var non_mut_track = {
             x: _.map(_.pluck(_non_mut_group, "study_id"), function(_study_id){ return study_ids.indexOf(_study_id) + Math.random() * 0.3 - 0.15; }),
-            y: _.pluck(_non_mut_group, "profile_data"),
+            y: _y,
             mode: 'markers',
             type: 'scatter',
             name: 'No Mutation',
@@ -124,11 +146,17 @@ var ccPlots = (function (Plotly, _, $) {
             //assemble array of qtip text
             var _qtips = [];
             _.each(_mut_group, function(_mut_obj) {
-                _qtips.push("Sample Id: " + _mut_obj.sample_id + "<br>" + "Expression: " + _mut_obj.profile_data + "<br>" + "Mutation Type: " + _mut_obj.mutation_type);
+                _qtips.push("Study: " + _mut_obj.study_id + "<br>" + "Sample Id: " + _mut_obj.sample_id + "<br>" + "Expression: " + _mut_obj.profile_data + "<br>" + "Mutation Type: " + _mut_obj.mutation_type);
             });
+            var _y = [];
+            if (apply_log_scale) {
+                _y = _.pluck(_mut_group, "logged_profile_data");
+            } else {
+                _y = _.pluck(_mut_group, "profile_data");
+            }
             var _mut_track = {
                 x: _.map(_.pluck(_mut_group, "study_id"), function(_study_id){ return study_ids.indexOf(_study_id) + Math.random() * 0.3 - 0.15; }),
-                y: _.pluck(_mut_group, "profile_data"),
+                y: _y,
                 mode: 'markers',
                 type: 'scatter',
                 name: _mut_type,
@@ -144,11 +172,16 @@ var ccPlots = (function (Plotly, _, $) {
             data.push(_mut_track);
         });
 
-
         //box plots
         _.each(mrna_profiles, function(_profile_id) {
+            var _y = [];
+            if (apply_log_scale) {
+                _y = _.pluck(_.filter(_non_mut_group.concat(_mix_mut_group), function(_result_obj) { return _result_obj.genetic_profile_id == _profile_id; }), "logged_profile_data");
+            } else {
+                _y = _.pluck(_.filter(_non_mut_group.concat(_mix_mut_group), function(_result_obj) { return _result_obj.genetic_profile_id == _profile_id; }), "profile_data");
+            }
             var _box = {
-                y: _.pluck(_.filter(_non_mut_group, function(_result_obj) { return _result_obj.genetic_profile_id == _profile_id; }), "profile_data"),
+                y: _y,
                 x0: mrna_profiles.indexOf(_profile_id),
                 type: 'box',
                 opacity: 0.6,
@@ -169,10 +202,11 @@ var ccPlots = (function (Plotly, _, $) {
             vals.push(i);
         }
         var layout = {
+            hovermode:'closest',
             margin: {
                 t: 20,
                 b: 200,
-                l: 100
+                l: 110
             },
             xaxis: {
                 tickmode: "array",
@@ -181,12 +215,21 @@ var ccPlots = (function (Plotly, _, $) {
                 tickangle: 45
             },
             yaxis: {
-                range: [ Math.min(_.pluck(profile_data, "profile_data")), Math.max(_.pluck(profile_data, "profile_data")) ],
-                title: 'SOX9 Expression -- RNA Seq V2'
+                title: apply_log_scale?gene + ' Expression --- RNA Seq V2 (log)':gene + " Expression --- RNA Seq V2"
             }
         };
 
-        Plotly.newPlot('cc_plots_box', data, layout);
+        $("#cc-plots-box").empty();
+        Plotly.newPlot('cc_plots_box', data, layout, {showLink: false});
+
+        //link to sample view
+        var ccPlotsElem = document.getElementById('cc_plots_box');
+        ccPlotsElem.on('plotly_click', function(data){
+            var _pts = data.points[0].fullData.text[data.points[0].pointNumber];
+            var _pts_study = _pts.substring(_pts.indexOf("Study: ") + 7, _pts.indexOf("Sample Id: ") - 4);
+            var _pts_sample_id = _pts.substring(_pts.indexOf("Sample Id: ") + 11, _pts.indexOf("Expression: ") - 4);
+            window.open(cbio.util.getLinkToSampleView(_pts_study, _pts_sample_id));
+        });
 
     }
 
@@ -194,18 +237,38 @@ var ccPlots = (function (Plotly, _, $) {
 
     return {
         init: function() {
-
             var tmp = setInterval(function () {timer();}, 1000);
             function timer() {
                 if (window.studies !== undefined) {
                     clearInterval(tmp);
+
+                    //default settings
+                    gene = [];
+                    gene.length = 0;
+                    gene.push($("#cc_plots_gene_list").val());
+                    apply_log_scale = document.getElementById("cc_plots_log_scale").checked;
+
                     $("#cc_plots_box").empty();
                     fetch_profile_data(_.pluck(_.pluck(window.studies.models, "attributes"), "studyId"));
                 }
             }
-
+        },
+        update_gene: function() {
+            gene = [];
+            gene.length = 0;
+            gene.push($("#cc_plots_gene_list").val());
+            $("#cc-plots-box").empty();
+            $("#cc-plots-box").append("<img src='images/ajax-loader.gif' id='cc_plots_loading' style='padding:200px;'/>");
+            fetch_profile_data(_.pluck(_.pluck(window.studies.models, "attributes"), "studyId"));
+        },
+        update_profile_order: function() {},
+        toggle_log_scale: function() {
+            apply_log_scale = document.getElementById("cc_plots_log_scale").checked;
+            $("#cc-plots-box").empty();
+            $("#cc-plots-box").append("<img src='images/ajax-loader.gif' id='cc_plots_loading' style='padding:200px;'/>");
+            fetch_profile_data(_.pluck(_.pluck(window.studies.models, "attributes"), "studyId"));
         }
-    }
+    };
 
 }(window.Plotly, window._, window.jQuery));
 

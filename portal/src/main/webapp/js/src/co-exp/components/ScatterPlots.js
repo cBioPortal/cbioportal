@@ -236,7 +236,7 @@ var ScatterPlots = function() {
                 .attr("width", "50")
                 .attr("height", "20")
                 .append("xhtml:body")
-                .style({"font-size": "11px", "margin": "0"})
+                .attr("style", "font-size:'11px';margin:0;")
                 .html("<input id='mut-cna-haxis-log' class='mut-cna-axis-log' type='checkbox' style='float:left' "+(axisXLogFlag ? "checked" : "")+"/><span style='float:left; margin-top: 2px; font-size-adjust: 0.5;'>Log</span>");
 
             $("#mut-cna-haxis-log").change(function() {
@@ -331,7 +331,7 @@ var ScatterPlots = function() {
                 .attr("width", "50")
                 .attr("height", "20")
                 .append("xhtml:body")
-                .style({"font-size": "11px", "margin": "0"})
+                .attr("style", "font-size:'11px';margin:0;")
                 .html("<input id='mut-cna-vaxis-log' class='mut-cna-axis-log' type='checkbox' style='float:left' "+(axisYLogFlag ? "checked" : "")+"/><span style='float:left; margin-top: 2px; font-size-adjust: 0.5;'>Log</span>");
 
             $("#mut-cna-vaxis-log").change(function() {
@@ -514,23 +514,13 @@ var ScatterPlots = function() {
             .text("Spearman: " + dataAttr.spearman);
     }
 
-    function addQtips(flag) {
-        var tempStr = '';
+    function addQtips() {
+       
         elem.dotsGroup.selectAll('path').each(
             function(d) {
-                var urlStr = window.location.href;
-                var start = urlStr.indexOf("cancer_study_id=");
-                var end = urlStr.indexOf("&sample_id") !== -1 ? urlStr.indexOf("&sample_id") : urlStr.indexOf("&case_id");
-                var cancer_study_id = urlStr.substr(start+16,end-start-16);
-
-                tempStr = 'Fraction of CNA: <b>' + d.x_val.toFixed(2) + '</b>'
-                    + '<br/># of mutations: <b>' + d.y_val + '</b>'
-                    + '<br/><a target="_blank" href="case.do?cancer_study_id=' + cancer_study_id + '&sample_id=' + d.case_id + '">' + d.case_id + '</a>';
-
-
                 $(this).qtip(
                     {
-                        content: {text: "<font size=2>" + (flag === 'process' ? tempStr : d.qtip )},
+                        content: {text: "<font size=2>" + d.qtip},
                         style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                         show: {event: "mouseover"},
                         hide: {fixed:true, delay: 100, event: "mouseout"},
@@ -680,7 +670,7 @@ var ScatterPlots = function() {
             appendAxisTitleX(false, 'small');
             appendAxisTitleY(false, 'small');
             drawPlots();
-            addQtips('process');
+            addQtips();
 
         },
 
@@ -697,7 +687,7 @@ var ScatterPlots = function() {
             appendAxisTitleX(false, 'big');
             appendAxisTitleY(false, 'big');
             drawPlots();
-            addQtips('process');
+            addQtips();
 
         },
 

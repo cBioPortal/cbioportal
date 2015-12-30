@@ -127,6 +127,26 @@
     var showHotspot = <%=showHotspot%>;
     var enableMyCancerGenome = myCancerGenomeUrl?true:false;
 
+   function waitForElementToDisplay(selector, time) {
+        if(document.querySelector(selector) !== null) {
+
+           var chosenElements = document.getElementsByClassName('jstree-clicked');
+            if(chosenElements.length > 0)
+            {
+                var treeDiv = document.getElementById('jstree');
+                var topPos = chosenElements[0].offsetTop;
+                var originalPos = treeDiv.offsetTop;
+                treeDiv.scrollTop = topPos - originalPos;
+            }
+
+            return;
+        }
+        else {
+            setTimeout(function() {
+                waitForElementToDisplay(selector, time);
+            }, time);
+        }
+    }
     $(document).ready(function() {
         OncoKB.setUrl('<%=oncokbUrl%>');
         //Set Event listener for the modify query button (expand the hidden form)
@@ -137,6 +157,7 @@
             } else {
                 $("#modify_query_btn").addClass("active");
             }
+            waitForElementToDisplay('.jstree-clicked', '5');
         });
         $("#toggle_query_form").click(function(event) {
             event.preventDefault();
@@ -155,18 +176,6 @@
             bitlyURL(window.location.href);
         });
 
-        $("#modify_query_btn").click(function() {
-            var chosenElements = document.getElementsByClassName('jstree-clicked');
-            if(chosenElements.length > 0)
-            {
-                var treeDiv = document.getElementById('jstree');
-                var topPos = chosenElements[0].offsetTop;
-                var originalPos = treeDiv.offsetTop;
-                treeDiv.scrollTop = topPos - originalPos;
-            }
-
-        });
-
     });
 
 </script>
@@ -179,7 +188,7 @@
                 <a href="#cc-overview" id="cc-overview-link" title="Compact visualization of genomic alterations">Overview</a>
             </li>
             <li>
-                <a href="#cc-mutations" id="cc-mutations-link" title="Mutation details, including mutation type, amino acid change and predicted functional consequence">Mutations</a>
+                <a href="#cc-mutations" id="cc-mutations-link" title="Mutation details, including mutation type, predicted functional consequence">Mutations</a>
             </li>
             <li>
                 <a href="#cc-plots" id="cc-plots-link" title="Plots with mRNA expression data (TCGA provisional only)">Expression</a>
@@ -400,18 +409,41 @@
 
 <script>
     $(document).ready(function() {
-        //cross-cancer-plots
         var _cc_plots_gene_list = "";
-        _.each(window.location.search.split("&"), function(param) {
-            if (param.indexOf("gene_list") !== -1) {
-                _cc_plots_gene_list = param.substring(param.indexOf("=") + 1, param.length);
+        var tmp = setInterval(function () {timer();}, 1000);
+        function timer() {
+            if (window.ccQueriedGenes !== undefined) {
+                clearInterval(tmp);
+                var cc_plots_tab_init = false;
+                if ($("#cc-plots").is(":visible")) {
+                    _cc_plots_gene_list = _cc_plots_gene_list;
+                    _.each(window.ccQueriedGenes, function (_gene) {
+                        $("#cc_plots_gene_list").append(
+                            "<option value='" + _gene + "'>" + _gene + "</option>");
+                    });
+                    ccPlots.init();
+                    cc_plots_tab_init = true;
+                } else {
+                    $(window).trigger("resize");
+                }
+                $("#tabs").bind("tabsactivate", function(event, ui) {
+                    if (ui.newTab.text().trim().toLowerCase() === "expression") {
+                        if (cc_plots_tab_init === false) {
+                            _cc_plots_gene_list = _cc_plots_gene_list;
+                            _.each(window.ccQueriedGenes, function (_gene) {
+                                $("#cc_plots_gene_list").append(
+                                    "<option value='" + _gene + "'>" + _gene + "</option>");
+                            });
+                            ccPlots.init();
+                            cc_plots_tab_init = true;
+                            $(window).trigger("resize");
+                        } else {
+                            $(window).trigger("resize");
+                        }
+                    }
+                });
             }
-        });
-        _.each(_cc_plots_gene_list.split("+"), function (_gene) {
-            $("#cc_plots_gene_list").append(
-                    "<option value='" + _gene + "'>" + _gene + "</option>");
-        });
-        ccPlots.init();
+        }
     });
 </script>
 

@@ -167,6 +167,7 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
                 var tempObj;
                 var tempX = [], tempY = [];
                 var highlightDot = {};
+          
                 _.each(dt.Gf, function(item){
 
                     if(item.c[0].v !== null && item.c[1].v !== null && item.c[2].v !== null)
@@ -175,12 +176,20 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
                         tempObj.case_id = item.c[0].v;
                         tempObj.x_val = item.c[2].v;
                         tempObj.y_val = item.c[1].v;
+                        tempObj.qtip = 'Fraction of CNA: <b>' + item.c[2].v.toFixed(2) + '</b>'
+                    + '<br/># of mutations: <b>' + item.c[1].v + '</b>'
+                    + '<br/><a target="_blank" href="case.do?cancer_study_id=' + cancerStudyId + '&sample_id=' + item.c[0].v + '">' + item.c[0].v + '</a>';
+
                         if(item.c[0].v === caseIdsStr)
-                        {
+                        {  
                             highlightDot.fill = 'red';
                             highlightDot.case_id = item.c[0].v;
                             highlightDot.x_val = item.c[2].v;
                             highlightDot.y_val = item.c[1].v;
+                            highlightDot.qtip = 'Fraction of CNA: <b>' + item.c[2].v.toFixed(2) + '</b>'
+                    + '<br/># of mutations: <b>' + item.c[1].v + '</b>'
+                    + '<br/><a target="_blank" href="case.do?cancer_study_id=' + cancerStudyId + '&sample_id=' + item.c[0].v + '">' + item.c[0].v + '</a>';
+
                         }
                         else
                         {
@@ -192,11 +201,15 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
 
                     }
                 });
-
+               
                 //push the highlight dot to the data array last
-                tempX.push(highlightDot.x_val);
-                tempY.push(highlightDot.y_val);
-                dataArr.push(highlightDot);
+                if(!_.isEmpty(highlightDot))
+                {
+                    tempX.push(highlightDot.x_val);
+                    tempY.push(highlightDot.y_val);
+                    dataArr.push(highlightDot);
+                }
+                
 
                 dataAttr = {min_x: Math.min.apply(Math, tempX), max_x: Math.max.apply(Math, tempX), min_y: Math.min.apply(Math, tempY), max_y: Math.max.apply(Math, tempY), profile_name: "profile name test"};
 
@@ -309,7 +322,7 @@ legend.legend-border {
 <%}%>
 
 <%if(showGenomicOverview){%>
-<fieldset class="fieldset-border">
+<fieldset class="fieldset-border ui-widget-content">
 <legend class="legend-border">Genomic Overview</legend>
 <table>
     <tr>

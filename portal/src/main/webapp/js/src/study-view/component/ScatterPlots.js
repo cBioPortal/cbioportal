@@ -322,8 +322,7 @@ var ScatterPlots = function() {
             .attr("y", canvas.yBottom + 48)
             .attr("width", "50")
             .attr("height", "15")
-            // removed the xhtml:body tag as it interfered with the banner functionality. The log checkbox still seems to be working fine
-            .style({"font-size": "11px", "margin": "0"})
+            .attr("style", "font-size:'11px';margin:0;")
             .html("<input id='study-view-scatter-plot-log-scale-x' type='checkbox' style='float:left' "+_checked+"/><span style='float:left; margin-top: 2px; font-size-adjust: 0.5;'>Log</span>");
         $("#study-view-scatter-plot-log-scale-x").change(function() {
             if($(this).prop("checked")){
@@ -389,8 +388,7 @@ var ScatterPlots = function() {
             .attr("y", canvas.xLeft - 72)
             .attr("width", "50")
             .attr("height", "15")
-            // removed the xhtml:body tag as it interfered with the banner functionality. The log checkbox still seems to be working fine
-            .style({"font-size": "11px", "margin": "0"})
+            .attr("style", "font-size:'11px';margin:0;")
             .html("<input id='study-view-scatter-plot-log-scale-y' type='checkbox' style='float:left' "+_checked+"/><span style='float:left; margin-top: 2px; font-size-adjust: 0.5;'>Log</span>");
         
         $("#study-view-scatter-plot-log-scale-y").change(function() {
@@ -1178,9 +1176,9 @@ var ScatterPlots = function() {
 
             for(var i=0 ; i< dataCopyL ; i++){
                 var _case_id = dataCopy[i].case_id;
-                if(highlightCases.hasOwnProperty(_case_id)) {
+                if(highlightCases[_case_id]) {
                     _highlightTmpDataArr.push(jQuery.extend(dataCopy[i],_datumArr[highlightCases[_case_id]]));
-                }else if(caseIdList.hasOwnProperty(_case_id)){
+                }else if(caseIdList[_case_id]){
                     _tmpDataArr.push(jQuery.extend(dataCopy[i],_datumArr[caseIdList[_case_id]]));
                 }
             }

@@ -32,7 +32,7 @@
 
 <style>
     #cc-plots-sidebar {
-        height: 25px;
+        height: 45px;
         width: 1160px;
     }
     #cc-plots-sidebar h5 {

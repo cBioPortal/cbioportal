@@ -554,7 +554,22 @@ function addMoreClinicalTooltip(elem) {
                 }
             };
         } else {
+            // check if sample has clinical data
             var caseId = $(this).attr('alt');
+            if (!clinicalDataMap[caseId]) {
+                var pos = {my:'top left',at:'bottom left'};
+                thisElem.qtip({
+                    content: {
+                        text: "No clinical data"
+                    },
+                    show: {event: "mouseover"},
+                    hide: {fixed: true, delay: 100, event: "mouseout"},
+                    style: { classes: 'qtip-light qtip-rounded qtip-wide' },
+                    position: pos,
+                });
+                return;
+            }
+            // if it does have clinical data, make datatable
             clinicalData = [];
             for (var key in clinicalDataMap[caseId]) {
                 clinicalData.push([clinicalAttributes && clinicalAttributes[key]["displayName"] || key, clinicalDataMap[caseId][key]]);
@@ -916,13 +931,16 @@ function outputClinicalData() {
     });
 
     row = "<span id='more-patient-info'><b><u><a href='"+cbio.util.getLinkToPatientView(cancerStudyId,patientId)+"'>"+patientId+"</a></b></u><a>&nbsp;";
-    var hasPatientInfo = Object.keys(patientInfo).length > 0;
-    if (hasPatientInfo && "PATIENT_DISPLAY_NAME" in patientInfo) {
+    var patientDisplayName = guessClinicalData(patientInfo, ["PATIENT_DISPLAY_NAME"]);
+    if (patientDisplayName !== null) {
         row +="("+patientInfo["PATIENT_DISPLAY_NAME"]+")&nbsp;";
     }
     var info = [];
-    var loc;
-    if (hasPatientInfo && "PRIMARY_SITE" in patientInfo) {loc = (" (" + patientInfo["PRIMARY_SITE"] + ")")} else {loc=""};
+    var loc = "";
+    var primarySite = guessClinicalData(patientInfo, ["PRIMARY_SITE"]);
+    if (primarySite !== null) {
+        loc = (" (" + primarySite + ")");
+    }
     var info = info.concat(formatPatientInfo(patientInfo).join(", ") + loc);
     var info = info.concat(formatDiseaseInfo(patientInfo));
     var info = info.concat(formatPatientStatus(patientInfo));
@@ -936,7 +954,6 @@ function outputClinicalData() {
     var sample_recs = "";
     var nr_in_head = 5;
     var is_expanded = false;
-    var hasClinicalData = Object.keys(clinicalDataMap).length > 0;
     for (var i=0; i<n; i++) {
         var caseId = caseIds[i];
 
@@ -945,8 +962,9 @@ function outputClinicalData() {
             sample_recs += "<svg width='12' height='12' class='case-label-header' alt='"+caseId+"'></svg>&nbsp;";
         }
         sample_recs += "<b><u><a style='color: #1974b8;' href='"+cbio.util.getLinkToSampleView(cancerStudyId,caseId)+"'>"+caseId+"</a></b></u><a>&nbsp;";
-        if (hasClinicalData && "SAMPLE_DISPLAY_NAME" in clinicalDataMap[caseId]) {
-            sample_recs +="("+clinicalDataMap[caseId]["SAMPLE_DISPLAY_NAME"]+")&nbsp;";
+        var sampleDisplayName = guessClinicalData(clinicalDataMap[caseId], ["SAMPLE_DISPLAY_NAME"]);
+        if (sampleDisplayName!==null) {
+            sample_recs +="("+sampleDisplayName+")&nbsp;";
         }
         var info = [];
         info = info.concat(formatDiseaseInfo(_.omit(clinicalDataMap[caseId], Object.keys(patientInfo))));

@@ -322,7 +322,7 @@ legend.legend-border {
 <%}%>
 
 <%if(showGenomicOverview){%>
-<fieldset class="fieldset-border">
+<fieldset class="fieldset-border ui-widget-content">
 <legend class="legend-border">Genomic Overview</legend>
 <table>
     <tr>

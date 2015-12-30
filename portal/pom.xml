@@ -9,7 +9,7 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>cbioportal</artifactId>
   <packaging>war</packaging>
-  <name>cBio Cancer Genomics Portal</name>
+  <name>cBioPortal</name>
   <url>http://maven.apache.org</url>
 
   <dependencies>

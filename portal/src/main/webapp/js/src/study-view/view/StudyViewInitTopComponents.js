@@ -174,6 +174,13 @@ var StudyViewInitTopComponents = (function() {
             $("#study-view-header-left-5").css("outline", "");
         });
 
+        $('#study-view-header-left-5').qtip({
+            content: {text: 'Click to view the selected cases' },
+            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+            show: {event: 'mouseover'},
+            hide: {fixed:true, delay: 100, event: 'mouseout'},
+            position: {my:'bottom center', at:'top center', viewport: $(window)}
+        });
     }
 
     // decide whether to proceed with the submit of the form

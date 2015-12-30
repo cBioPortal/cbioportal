@@ -38,6 +38,8 @@ var ccPlots = (function (Plotly, _, $) {
 
     var study_ids = [], study_meta = [], mrna_profiles = [], profile_data = {};
 
+    var data = []; //for rendering
+
     var gene = [], apply_log_scale = false, study_order;
 
     var fetch_profile_data = function(_queried_study_ids) {
@@ -46,10 +48,10 @@ var ccPlots = (function (Plotly, _, $) {
         var _param_mut_profile_arr = _.map(_queried_study_ids, function(_study_id) { return _study_id + "_mutations"; });
         var _get_genetic_profile_params = {
             genes: gene,
-            genetic_profile_ids: (_param_mrna_profile_arr.concat(_param_mut_profile_arr)).concat(_param_sequenced_profile_arr)
+            genetic_profile_ids: _param_mrna_profile_arr.concat(_param_mut_profile_arr)
         };
 
-        window.cbioportal_client.getGeneticProfileData(_get_genetic_profile_params).then(
+        window.cbioportal_client.getGeneticProfileDataBySample(_get_genetic_profile_params).then(
             function(_result) {
 
                 profile_data = _result;
@@ -63,9 +65,6 @@ var ccPlots = (function (Plotly, _, $) {
                     _vals = _.map(_vals, function(_val) { return parseFloat(_val); });
                     var _median_val = findMedian(_vals);
                     _study_id_median_val_objs.push({study_id: _study_group[0].study_id, median_val: _median_val});
-                    //_.each(_study_group, function(_profile_data_obj) {
-                    //    _profile_data_obj.group_median_val = _median_val;
-                    //});
                 });
                 function findMedian(_input_data) {
                     var m = _input_data.map(function(v) {
@@ -109,62 +108,115 @@ var ccPlots = (function (Plotly, _, $) {
                             });
                         });
 
-                        window.cbioportal_client.getSampleLists({sample_list_ids: [_study_obj.studyId + "_sequenced"]})
+                        //get sequenced sample lists
+                        var _sample_list_ids = _.map(study_ids, function(_study_id) { return _study_id + "_sequenced"; });
+                        window.cbioportal_client.getSampleLists({sample_list_ids: _sample_list_ids}).then(function(_sequenced_sample_lists) {
 
-                        render();
+                            //merge genomic profile data into mutation profile data for mutated samples
+                            var _mut_data = _.filter(profile_data, function(_obj) { return _obj.hasOwnProperty("mutation_status"); });
+                            var _tmp_profile_group = _.filter(profile_data, function(_obj) { return !(_obj.hasOwnProperty("mutation_status")); }); //profile data only
+                            _.each(_tmp_profile_group, function(_profile_obj) {
+                                var mutation_type = "non";
+                                var mutation_details = "";
+                                _.each(_mut_data, function(_mut_obj) {
+                                    if (_profile_obj.study_id === _mut_obj.study_id &&
+                                        _profile_obj.sample_id === _mut_obj.sample_id) {
+                                        mutation_type = _mut_obj.mutation_type; //TODO: set a priority list for mutation type
+                                        mutation_details += _mut_obj.amino_acid_change + ", ";
+                                    }
+                                });
+                                _profile_obj.mutation_type = mutation_type;
+                                _profile_obj.mutation_details = mutation_details.substring(0, mutation_details.length - 2);
+                            });
+
+                            //separate groups
+                            var _non_mut_or_not_sequenced_group = _.filter(_tmp_profile_group, function(_obj) { return _obj.mutation_type === "non"; });
+                            var _mix_mut_group = _.filter(_tmp_profile_group, function(_obj) { return _obj.mutation_type !== "non"; });
+
+                            //calculate log values
+                            _.map(_non_mut_or_not_sequenced_group, function(_non_mut_obj){
+                                var _ori_val = _non_mut_obj.profile_data;
+                                _non_mut_obj.logged_profile_data = Math.log(_ori_val) / Math.log(2);
+                                return _non_mut_obj;
+                            });
+                            _.map(_mix_mut_group, function(_mut_obj){
+                                var _ori_val = _mut_obj.profile_data;
+                                _mut_obj.logged_profile_data = Math.log(_ori_val) / Math.log(2);
+                                return _mut_obj;
+                            });
+
+                            //mark sequenced/non-sequenced samples
+                            var _non_mut_study_groups = _.groupBy(_non_mut_or_not_sequenced_group, "study_id"); //only samples without mutation can be possibly not sequenced, therefore skip the mix_mut_group
+                            _.each(_non_mut_study_groups, function(_non_mut_study_group) {
+                                _.each(_sequenced_sample_lists, function(_sequenced_sample_list) {
+                                    if (_sequenced_sample_list.study_id === _non_mut_study_group[0].study_id) {
+                                        var _sequenced_sample_ids = _sequenced_sample_list.sample_ids;
+                                        _.each(_non_mut_study_group, function(_non_mut_obj) {
+                                            if(_.contains(_sequenced_sample_ids, _non_mut_obj.sample_id)) {
+                                                _non_mut_obj.sequenced = true;
+                                            } else {
+                                                _non_mut_obj.sequenced = false;
+                                            }
+                                        });
+                                    }
+                                });
+                            });
+                            _.each(_mix_mut_group, function(_mut_obj) {
+                                _mut_obj.sequenced = true;
+                            });
+                            var _non_mut_group = _.filter(_non_mut_or_not_sequenced_group, function(_obj) { return _obj.sequenced === true; });
+                            var _not_sequenced_group = _.filter(_non_mut_or_not_sequenced_group, function(_obj) { return _obj.sequenced === false; });
+
+                            render(_non_mut_group, _not_sequenced_group, _mix_mut_group);
+
+                        });
+
                     }
                 );
             });
 
     }
 
-    var render = function() {
-
-        var data = [];
-
-        //merge genomic profile data into mutation profile data for mutated samples
-        var _mut_data = _.filter(profile_data, function(_obj) { return _obj.hasOwnProperty("mutation_status"); });
-        var _tmp_profile_group = _.filter(profile_data, function(_obj) { return !(_obj.hasOwnProperty("mutation_status")); }); //profile data only
-        _.each(_tmp_profile_group, function(_profile_obj) {
-            var mutation_type = "non";
-            var mutation_details = "";
-            _.each(_mut_data, function(_mut_obj) {
-                if (_profile_obj.study_id === _mut_obj.study_id &&
-                    _profile_obj.sample_id === _mut_obj.sample_id) {
-                    mutation_type = _mut_obj.mutation_type; //TODO: set a priority list for mutation type
-                    mutation_details += _mut_obj.amino_acid_change + ", ";
-                }
-            });
-            _profile_obj.mutation_type = mutation_type;
-            _profile_obj.mutation_details = mutation_details.substring(0, mutation_details.length - 2);
-        });
-
-        //separate groups
-        var _non_mut_group = _.filter(_tmp_profile_group, function(_obj) { return _obj.mutation_type === "non"; });
-        var _mix_mut_group = _.filter(_tmp_profile_group, function(_obj) { return _obj.mutation_type !== "non"; });
-
-        //calculate log values
-        _.map(_non_mut_group, function(_non_mut_obj){
-            var _ori_val = _non_mut_obj.profile_data;
-            _non_mut_obj.logged_profile_data = Math.log(_ori_val) / Math.log(2);
-            return _non_mut_obj;
-        });
-        _.map(_mix_mut_group, function(_mut_obj){
-            var _ori_val = _mut_obj.profile_data;
-            _mut_obj.logged_profile_data = Math.log(_ori_val) / Math.log(2);
-            return _mut_obj;
-        });
+    var render = function(_non_mut_group, _not_sequenced_group, _mix_mut_group) {
 
         // ---- define tracks ----
-        // no mutation
-        //assemble array of qtip text
-        var _qtips = [];
+
+        //not sequenced track
+        var _qtips = []; //assemble array of qtip text
+        _.each(_not_sequenced_group, function(_obj) {
+            _qtips.push("Study: " +  _obj.study_name + "<br>" +"Sample Id: " + _obj.sample_id + "<br>" + "Expression: " + _obj.profile_data);
+        });
+        var _y = []; //assemble y axis values
+        if (apply_log_scale) {
+            _y = _.pluck(_not_sequenced_group, "logged_profile_data");
+        } else {
+            _y = _.pluck(_not_sequenced_group, "profile_data");
+        }
+        var not_sequenced_track = {
+            x: _.map(_.pluck(_not_sequenced_group, "study_id"), function(_study_id){ return study_ids.indexOf(_study_id) + Math.random() * 0.3 - 0.15; }),
+            y: _y,
+            mode: 'markers',
+            type: 'scatter',
+            name: 'Not Sequenced',
+            text: _qtips,
+            opacity: 0.6,
+            marker: {
+                size: 5,
+                color: 'white',
+                line: {color: 'grey', width: 1.2}
+            },
+            hoverinfo: "text",
+            study_id: _.pluck(_not_sequenced_group, "study_id"),
+            sample_id: _.pluck(_not_sequenced_group, "sample_id")
+        };
+        data.push(not_sequenced_track);
+
+        // no mutation track
+        var _qtips = []; //assemble array of qtip text
         _.each(_non_mut_group, function(_non_mut_obj) {
             _qtips.push("Study: " +  _non_mut_obj.study_name + "<br>" +"Sample Id: " + _non_mut_obj.sample_id + "<br>" + "Expression: " + _non_mut_obj.profile_data);
         });
-
-        //assemble y axis values
-        var _y = [];
+        var _y = []; //assemble y axis values
         if (apply_log_scale) {
             _y = _.pluck(_non_mut_group, "logged_profile_data");
         } else {
@@ -189,11 +241,9 @@ var ccPlots = (function (Plotly, _, $) {
         data.push(non_mut_track);
 
         //mutated tracks
-        var _mut_shapes = ["triangle-up", "diamond", "cross", "square", "triangle-down", "pentagon", "hourglass"],
-            _mut_colors = ["#DF7401", "#1C1C1C", "#DF7401", "#1C1C1C", "#DF7401", "#1C1C1C", "#DF7401"];
-        var _mut_types = _.uniq(_.pluck(_mix_mut_group, "mutation_type"));
+        var _mut_types = _.uniq(_.map(_.uniq(_.pluck(_mix_mut_group, "mutation_type")), function(_ori_type) { return mutationTranslator(_ori_type); }));
         $.each(_mut_types, function(_index, _mut_type) {
-            var _mut_group = _.filter(_mix_mut_group, function(_obj) { return _obj.mutation_type === _mut_type; });
+            var _mut_group = _.filter(_mix_mut_group, function(_obj) { return mutationTranslator(_obj.mutation_type) === _mut_type; });
             //assemble array of qtip text
             var _qtips = [];
             _.each(_mut_group, function(_mut_obj) {
@@ -210,13 +260,13 @@ var ccPlots = (function (Plotly, _, $) {
                 y: _y,
                 mode: 'markers',
                 type: 'scatter',
-                name: _mut_type,
+                name: mutationStyle.getText(_mut_type),
                 text: _qtips,
                 marker: {
-                    color: _mut_colors[_index],
+                    color: mutationStyle.getFill(_mut_type),
                     size: 6,
-                    line: {color: '#B40404', width: 1.2},
-                    symbol: _mut_shapes[_index]
+                    line: {color: mutationStyle.getStroke(_mut_type), width: 1.2},
+                    symbol: mutationStyle.getSymbol(_mut_type)
                 },
                 hoverinfo: "text",
                 study_id: _.pluck(_mut_group, "study_id"),
@@ -226,18 +276,19 @@ var ccPlots = (function (Plotly, _, $) {
         });
 
         //box plots
+        var _joint_profile_group = _not_sequenced_group.concat(_non_mut_group.concat(_mix_mut_group));
         _.each(mrna_profiles, function(_profile_id) {
             var _y = [];
             if (apply_log_scale) {
-                _y = _.pluck(_.filter(_non_mut_group.concat(_mix_mut_group), function(_result_obj) { return _result_obj.genetic_profile_id == _profile_id; }), "logged_profile_data");
+                _y = _.pluck(_.filter(_joint_profile_group, function(_result_obj) { return _result_obj.genetic_profile_id == _profile_id; }), "logged_profile_data");
             } else {
-                _y = _.pluck(_.filter(_non_mut_group.concat(_mix_mut_group), function(_result_obj) { return _result_obj.genetic_profile_id == _profile_id; }), "profile_data");
+                _y = _.pluck(_.filter(_joint_profile_group, function(_result_obj) { return _result_obj.genetic_profile_id == _profile_id; }), "profile_data");
             }
             var _box = {
                 y: _y,
                 x0: mrna_profiles.indexOf(_profile_id),
                 type: 'box',
-                opacity: 0.6,
+                opacity: 0.7,
                 marker: {
                     color: 'grey',
                     size: 7
@@ -327,4 +378,223 @@ var ccPlots = (function (Plotly, _, $) {
     };
 
 }(window.Plotly, window._, window.jQuery));
+
+var mutationStyle = (function() {  //Key and "typeName" are always identical
+    var styleSheet = [
+        {
+            typeName : "Frameshift",
+            symbol : "triangle-down",
+            fill : "#1C1C1C",
+            stroke : "#B40404",
+            legendText : "Frameshift"
+        },
+        {
+            typeName: "Nonsense",
+            symbol : "diamond",
+            fill : "#1C1C1C",
+            stroke : "#B40404",
+            legendText : "Nonsense"
+        },
+        {
+            typeName : "Splice",
+            symbol : "triangle-up",
+            fill : "#A4A4A4",
+            stroke : "#B40404",
+            legendText : "Splice"
+        },
+        {
+            typeName : "In_frame",
+            symbol : "square",
+            fill : "#DF7401",
+            stroke : "#B40404",
+            legendText : "In_frame"
+        },
+        {
+            typeName : "Nonstart",
+            symbol : "cross",
+            fill : "#DF7401",
+            stroke : "#B40404",
+            legendText : "Nonstart"
+        },
+        {
+            typeName : "Nonstop",
+            symbol : "triangle-up",
+            fill : "#1C1C1C",
+            stroke : "#B40404",
+            legendText : "Nonstop"
+        },
+        {
+            typeName : "Missense",
+            symbol : "circle",
+            fill : "#DF7401",
+            stroke : "#B40404",
+            legendText : "Missense"
+        },
+        {
+            typeName: "Other",
+            symbol: "square",
+            fill : "#1C1C1C",
+            stroke : "#B40404",
+            legendText : "Other"
+        },
+        {
+            typeName : "non",
+            symbol : "circle",
+            fill : "#00AAF8",
+            stroke : "#0089C6",
+            legendText : "Not mutated"
+        },
+        {
+            typeName: "one_mut",
+            symbol : "circle",
+            fill : "#DBA901",
+            stroke : "#886A08",
+            legendText : "One Gene mutated"
+        },
+        {
+            typeName : "both_mut",
+            symbol : "circle",
+            fill : "#FF0000",
+            stroke : "#B40404",
+            legendText : "Both mutated"
+        },
+        {
+            typeName : "non_mut",
+            symbol : "circle",
+            fill : "#00AAF8",
+            stroke : "#0089C6",
+            legendText : "Neither mutated"
+        },
+        {
+            typeName: "non_sequenced",
+            symbol : "circle",
+            fill : "white",
+            stroke : "gray",
+            legendText : "Not sequenced"
+        }
+
+    ];
+
+    return {
+        getSymbol: function(_typeName) {
+            var _result = "";
+            $.each(styleSheet, function(index, obj) {
+                if (obj.typeName === _typeName) {
+                    _result = obj.symbol;
+                }
+            });
+            return _result;
+        },
+        getFill: function(_typeName) {
+            var _result = "";
+            $.each(styleSheet, function(index, obj) {
+                if (obj.typeName === _typeName) {
+                    _result = obj.fill;
+                }
+            });
+            return _result;
+        },
+        getStroke: function(_typeName) {
+            var _result = "";
+            $.each(styleSheet, function(index, obj) {
+                if (obj.typeName === _typeName) {
+                    _result = obj.stroke;
+                }
+            });
+            return _result;
+        },
+        getText: function(_typeName) {
+            var _result = "";
+            $.each(styleSheet, function(index, obj) {
+                if (obj.typeName === _typeName) {
+                    _result = obj.legendText;
+                }
+            });
+            return _result;
+        },
+        getGlyph: function(_typeName) { //retrieve the whole object
+            var _result = {};
+            $.each(styleSheet, function(index, obj) {
+                if (obj.typeName === _typeName) {
+                    _result = obj;
+                }
+            });
+            return _result;
+        }
+    };
+
+}());
+
+var mutationTranslator = function(mutationDetail) {
+
+    vocabulary = {
+        frameshift : {
+            type : "Frameshift",
+            vals: [
+                "Frame_Shift_Del",
+                "Frame_Shift_Ins",
+                "frameshift insertion",
+                "frameshift",
+                "frameshift_insertion",
+                "Frameshift deletion",
+                "FRAMESHIFT_CODING"
+            ]
+        },
+        nonsense : {
+            type : "Nonsense",
+            vals: ["Nonsense_Mutation", "Nonsense"]
+        },
+        splice : {
+            type : "Splice",
+            vals : [
+                "Splice_Site",
+                "Splice_Site_SNP",
+                "splicing",
+                "splice",
+                "ESSENTIAL_SPLICE_SITE"
+            ]
+        },
+        in_frame : {
+            type : "In_frame",
+            vals : [
+                "In_Frame_Del",
+                "In_Frame_Ins"
+            ]
+        },
+        nonstart : {
+            type : "Nonstart",
+            vals : ["Translation_Start_Site"]
+        },
+        nonstop : {
+            type : "Nonstop",
+            vals : ["NonStop_Mutation"]
+        },
+        missense : {
+            type : "Missense",
+            vals : [
+                "Missense_Mutation",
+                "Missense"
+            ]
+        },
+        other: {
+            type : "Other",
+            vals : [
+                "COMPLEX_INDEL",
+                "5'Flank",
+                "Fusion",
+                "vIII deletion",
+                "Exon skipping",
+                "exon14skip"
+            ]
+        }
+    };
+
+    for(var key in vocabulary) {
+        if ($.inArray(mutationDetail, vocabulary[key].vals) !== -1) {
+            return vocabulary[key].type;
+        }
+    }
+    return vocabulary.other.type; //categorize all other mutations as other
+
+};
 

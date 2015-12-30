@@ -42,18 +42,18 @@ import org.springframework.transaction.annotation.Transactional;
 import static org.junit.Assert.*;
 
 /**
- * JUnit test for GetPatientLists class.
+ * JUnit test for GetSampleLists class.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
 @TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
 @Transactional
-public class TestGetPatientList {
+public class TestGetSampleList {
 
    @Test
-   public void testGetPatientList() throws Exception {
+   public void testGetSampleList() throws Exception {
 
-      String[] patientList = GetPatientLists.getPatientListsAsTable("study_tcga_pub").split("\n");
-      assertTrue(patientList[1].startsWith("study_tcga_pub_all\tAll Tumors\tAll tumor samples (14 samples)\t1\tTCGA-A1-A0SB-01"));
+      String[] sampleList = GetSampleLists.getSampleListsAsTable("study_tcga_pub").split("\n");
+      assertTrue(sampleList[1].startsWith("study_tcga_pub_all\tAll Tumors\tAll tumor samples (14 samples)\t1\tTCGA-A1-A0SB-01"));
    }
 }

@@ -299,13 +299,13 @@ public class ImportProteinArrayData {
         DaoProteinArrayInfo daoPAI = DaoProteinArrayInfo.getInstance();
         DaoProteinArrayTarget daoPAT = DaoProteinArrayTarget.getInstance();
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-        DaoPatientList daoPatientList = new DaoPatientList();
+        DaoSampleList daoSampleList = new DaoSampleList();
         ArrayList<CancerStudy> studies = DaoCancerStudy.getAllCancerStudies();
         for (CancerStudy study : studies) {
             int studyId = study.getInternalId();
-            PatientList patientlist = daoPatientList.getPatientListByStableId(study.getCancerStudyStableId()+"_RPPA");
-            if (patientlist==null) continue;
-            List<Integer> sampleIds = InternalIdUtil.getInternalSampleIds(studyId, patientlist.getPatientList());
+            SampleList sampleList = daoSampleList.getSampleListByStableId(study.getCancerStudyStableId()+"_RPPA");
+            if (sampleList==null) continue;
+            List<Integer> sampleIds = InternalIdUtil.getInternalSampleIds(studyId, sampleList.getSampleList());
             ArrayList<ProteinArrayInfo> phosphoArrays = daoPAI.getProteinArrayInfoForType(
                     studyId, Collections.singleton("phosphorylation"));
             ArrayList<ProteinArrayInfo> proteinArrays = daoPAI.getProteinArrayInfoForType(

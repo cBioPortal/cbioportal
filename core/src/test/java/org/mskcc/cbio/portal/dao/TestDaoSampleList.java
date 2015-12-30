@@ -52,7 +52,7 @@ import static org.junit.Assert.*;
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
 @TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
 @Transactional
-public class TestDaoPatientList {
+public class TestDaoSampleList {
 	
 	CancerStudy study;
 	
@@ -69,27 +69,27 @@ public class TestDaoPatientList {
 	}
 
 	@Test
-    public void testDaoPatientList() throws DaoException {
-        DaoPatientList daoPatientList = new DaoPatientList();
-        PatientList patientList = new PatientList();
-        patientList.setName("Name0");
-        patientList.setDescription("Description0");
-        patientList.setStableId("stable_0");
-        patientList.setCancerStudyId(study.getInternalId());
-        patientList.setPatientListCategory(PatientListCategory.ALL_CASES_WITH_CNA_DATA);
-        ArrayList<String> patients = new ArrayList<String>();
-        patients.add("TCGA-1-S1");
-        patients.add("TCGA-2-S1");
-        patientList.setPatientList(patients);
-        daoPatientList.addPatientList(patientList);
+    public void testDaoSampleList() throws DaoException {
+        DaoSampleList daoSampleList = new DaoSampleList();
+        SampleList sampleList = new SampleList();
+        sampleList.setName("Name0");
+        sampleList.setDescription("Description0");
+        sampleList.setStableId("stable_0");
+        sampleList.setCancerStudyId(study.getInternalId());
+        sampleList.setSampleListCategory(SampleListCategory.ALL_CASES_WITH_CNA_DATA);
+        ArrayList<String> samples = new ArrayList<String>();
+        samples.add("TCGA-1-S1");
+        samples.add("TCGA-2-S1");
+        sampleList.setSampleList(samples);
+        daoSampleList.addSampleList(sampleList);
         
         // Only patients with samples are returned. No samples, no returny in the listy.
-        PatientList patientListFromDb = daoPatientList.getPatientListByStableId("stable_0");
-        assertEquals("Name0", patientListFromDb.getName());
-        assertEquals("Description0", patientListFromDb.getDescription());
-        assertEquals(PatientListCategory.ALL_CASES_WITH_CNA_DATA, patientListFromDb.getPatientListCategory());
-        assertEquals("stable_0", patientListFromDb.getStableId());
-        assertEquals(2, patientListFromDb.getPatientList().size());
+        SampleList sampleListFromDb = daoSampleList.getSampleListByStableId("stable_0");
+        assertEquals("Name0", sampleListFromDb.getName());
+        assertEquals("Description0", sampleListFromDb.getDescription());
+        assertEquals(SampleListCategory.ALL_CASES_WITH_CNA_DATA, sampleListFromDb.getSampleListCategory());
+        assertEquals("stable_0", sampleListFromDb.getStableId());
+        assertEquals(2, sampleListFromDb.getSampleList().size());
     }
 
 }

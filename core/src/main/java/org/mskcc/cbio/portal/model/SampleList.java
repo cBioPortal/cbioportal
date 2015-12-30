@@ -38,34 +38,34 @@ import java.util.ArrayList;
 /**
  * Class to store information of patient list.
  */
-public class PatientList {
+public class SampleList {
    private String            stableId;
-   private int               patientListId;
+   private int               sampleListId;
    private int               cancerStudyId;
    private String            name;
    private String            description;
-   private PatientListCategory  patientListCategory;
-   private ArrayList<String> patientList;
+   private SampleListCategory  sampleListCategory;
+   private ArrayList<String> sampleList;
 
-   public PatientList() {
+   public SampleList() {
       super();
    }
 
    /**
     * A constructor for all the NON NULL fields in a sample_list
     * @param stableId
-    * @param patientListId
+    * @param sampleListId
     * @param cancerStudyId
     * @param name
     */
-   public PatientList(String stableId, int patientListId, int cancerStudyId, String name,
-                      PatientListCategory patientListCategory) {
+   public SampleList(String stableId, int sampleListId, int cancerStudyId, String name,
+                      SampleListCategory sampleListCategory) {
       super();
       this.stableId = stableId;
-      this.patientListId = patientListId;
+      this.sampleListId = sampleListId;
       this.cancerStudyId = cancerStudyId;
       this.name = name;
-      this.patientListCategory = patientListCategory;
+      this.sampleListCategory = sampleListCategory;
    }
 
    public String getStableId() {
@@ -76,12 +76,12 @@ public class PatientList {
       this.stableId = stableId;
    }
 
-   public int getPatientListId() {
-      return patientListId;
+   public int getSampleListId() {
+      return sampleListId;
    }
 
-   public void setPatientListId(int patientListId) {
-      this.patientListId = patientListId;
+   public void setSampleListId(int sampleListId) {
+      this.sampleListId = sampleListId;
    }
 
    public int getCancerStudyId() {
@@ -100,12 +100,12 @@ public class PatientList {
       this.name = name;
    }
 
-   public PatientListCategory getPatientListCategory() {
-       return patientListCategory;
+   public SampleListCategory getSampleListCategory() {
+       return sampleListCategory;
    }
 
-   public void setPatientListCategory(PatientListCategory patientListCategory) {
-       this.patientListCategory = patientListCategory;
+   public void setSampleListCategory(SampleListCategory sampleListCategory) {
+       this.sampleListCategory = sampleListCategory;
    }
 
    public String getDescription() {
@@ -116,24 +116,24 @@ public class PatientList {
       this.description = description;
    }
 
-   public ArrayList<String> getPatientList() {
-      return patientList;
+   public ArrayList<String> getSampleList() {
+      return sampleList;
    }
 
-   public void setPatientList(ArrayList<String> patientList) {
-      this.patientList = patientList;
+   public void setSampleList(ArrayList<String> sampleList) {
+      this.sampleList = sampleList;
    }
 
     @Override
     public String toString() {
         return this.getClass().getName() + "{"
                 + "stableId " + this.stableId
-                + ", patientListId " + this.patientListId
-                + ", patientListId " + this.cancerStudyId
+                + ", sampleListId " + this.sampleListId
+                + ", sampleListId " + this.cancerStudyId
                 + ", name " + this.name
                 + ", description " + this.description
-                + ", PatientListCategory " + this.patientListCategory
-                + ", patientList " + this.patientList
+                + ", SampleListCategory " + this.sampleListCategory
+                + ", sampleList " + this.sampleList
                 + "}";
     }
 
@@ -143,9 +143,9 @@ public class PatientList {
      *
      * @return space-delimited list of patient IDs.
      */
-    public String getPatientListAsString() {
+    public String getSampleListAsString() {
         StringBuilder str = new StringBuilder();
-        for (String patientId : patientList) {
+        for (String patientId : sampleList) {
             str.append(patientId).append(" ");
         }
         return str.toString();

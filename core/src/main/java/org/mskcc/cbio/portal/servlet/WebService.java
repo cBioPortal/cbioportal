@@ -234,7 +234,7 @@ public class WebService extends HttpServlet {
                 getProfileData(httpServletRequest, writer);
             } else if (cmd.equals("getCaseLists")) {
                 // PROVIDES CANCER_STUDY_ID
-                getPatientLists(httpServletRequest, writer);
+                getSampleLists(httpServletRequest, writer);
             } else if (cmd.equals("getClinicalData")) {
                 // PROVIDES case_set_id
                 getClinicalData(httpServletRequest, writer);
@@ -362,14 +362,14 @@ public class WebService extends HttpServlet {
         }
     }
 
-    private void getPatientLists(HttpServletRequest httpServletRequest, PrintWriter writer)
+    private void getSampleLists(HttpServletRequest httpServletRequest, PrintWriter writer)
             throws DaoException {
 
         String cancerStudyStableId = WebserviceParserUtils.getCancerStudyId(httpServletRequest);
         if (cancerStudyStableId == null) {
             outputMissingParameterError(writer, CANCER_STUDY_ID);
         } else {
-            String out = GetPatientLists.getPatientListsAsTable(cancerStudyStableId);
+            String out = GetSampleLists.getSampleListsAsTable(cancerStudyStableId);
             writer.print(out);
         }
     }

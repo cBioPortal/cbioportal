@@ -63,6 +63,18 @@ var ccPlots = (function (Plotly, _, $) {
                 window.cbioportal_client.getStudies(_get_study_params).then(
                     function(_study_meta) {
                         study_meta = _study_meta;
+
+                        //map study full name to each sample
+                        _.each(_.filter(profile_data, function(_obj) { return !(_obj.hasOwnProperty("mutation_status")); }), function(_profile_data_obj) {
+                            _.each(study_meta, function(_study_meta_obj) {
+                                if(_study_meta_obj.id === _profile_data_obj.study_id) {
+                                    _profile_data_obj.study_name = _study_meta_obj.name;
+                                    _profile_data_obj.study_description = _study_meta_obj.description;
+                                    _profile_data_obj.study_short_name = _study_meta_obj.short_name;
+                                }
+                            });
+                        });
+
                         render();
                     }
                 );
@@ -112,8 +124,9 @@ var ccPlots = (function (Plotly, _, $) {
         //assemble array of qtip text
         var _qtips = [];
         _.each(_non_mut_group, function(_non_mut_obj) {
-            _qtips.push("Study: " +  _non_mut_obj.study_id + "<br>" +"Sample Id: " + _non_mut_obj.sample_id + "<br>" + "Expression: " + _non_mut_obj.profile_data);
+            _qtips.push("Study: " +  _non_mut_obj.study_name + "<br>" +"Sample Id: " + _non_mut_obj.sample_id + "<br>" + "Expression: " + _non_mut_obj.profile_data);
         });
+
         //assemble y axis values
         var _y = [];
         if (apply_log_scale) {
@@ -133,7 +146,9 @@ var ccPlots = (function (Plotly, _, $) {
                 size: 5,
                 line: {color: '#0089C6', width: 1.2}
             },
-            hoverinfo: "text"
+            hoverinfo: "text",
+            study_id: _.pluck(_non_mut_group, "study_id"),
+            sample_id: _.pluck(_non_mut_group, "sample_id")
         };
         data.push(non_mut_track);
 
@@ -146,7 +161,7 @@ var ccPlots = (function (Plotly, _, $) {
             //assemble array of qtip text
             var _qtips = [];
             _.each(_mut_group, function(_mut_obj) {
-                _qtips.push("Study: " + _mut_obj.study_id + "<br>" + "Sample Id: " + _mut_obj.sample_id + "<br>" + "Expression: " + _mut_obj.profile_data + "<br>" + "Mutation Type: " + _mut_obj.mutation_type);
+                _qtips.push("Study: " + _mut_obj.study_name + "<br>" + "Sample Id: " + _mut_obj.sample_id + "<br>" + "Expression: " + _mut_obj.profile_data + "<br>" + "Mutation Type: " + _mut_obj.mutation_type);
             });
             var _y = [];
             if (apply_log_scale) {
@@ -167,7 +182,9 @@ var ccPlots = (function (Plotly, _, $) {
                     line: {color: '#B40404', width: 1.2},
                     symbol: _mut_shapes[_index]
                 },
-                hoverinfo: "text"
+                hoverinfo: "text",
+                study_id: _.pluck(_mut_group, "study_id"),
+                sample_id: _.pluck(_mut_group, "sample_id")
             };
             data.push(_mut_track);
         });
@@ -225,10 +242,9 @@ var ccPlots = (function (Plotly, _, $) {
         //link to sample view
         var ccPlotsElem = document.getElementById('cc_plots_box');
         ccPlotsElem.on('plotly_click', function(data){
-            var _pts = data.points[0].fullData.text[data.points[0].pointNumber];
-            var _pts_study = _pts.substring(_pts.indexOf("Study: ") + 7, _pts.indexOf("Sample Id: ") - 4);
-            var _pts_sample_id = _pts.substring(_pts.indexOf("Sample Id: ") + 11, _pts.indexOf("Expression: ") - 4);
-            window.open(cbio.util.getLinkToSampleView(_pts_study, _pts_sample_id));
+            var _pts_study_id = data.points[0].data.study_id[data.points[0].pointNumber];
+            var _pts_sample_id = data.points[0].data.sample_id[data.points[0].pointNumber];
+            window.open(cbio.util.getLinkToSampleView(_pts_study_id, _pts_sample_id));
         });
 
     }

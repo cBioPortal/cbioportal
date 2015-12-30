@@ -1190,6 +1190,18 @@ cursor: pointer;
 .EFDT-table-prefix {
     margin-bottom: 10px;
 }
-.form-control {
-    height: inherit;
+.EFDT-headerFilters .form-control {
+    height: inherit !important;
+}
+
+.EFDT-result-info {
+    float: left;
+}
+
+.EFDT-result-info-content {
+    display: inline-block;
+    white-space: nowrap;
+    padding: 6px 12px;
+    font-size: 14px;
+    line-height: 1.428571429;
 }

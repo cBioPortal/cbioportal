@@ -38,22 +38,56 @@ var ccPlots = (function (Plotly, _, $) {
 
     var study_ids = [], study_meta = [], mrna_profiles = [], profile_data = {};
 
-    var gene = [], apply_log_scale = false;
+    var gene = [], apply_log_scale = false, study_order;
 
     var fetch_profile_data = function(_queried_study_ids) {
 
-        var _param_mrna_profile_arr = _.map(_queried_study_ids, function(_study_id) { return _study_id + "_rna_seq_v2_mrna"});
-        var _param_mut_profile_arr = _.map(_queried_study_ids, function(_study_id) { return _study_id + "_mutations"});
-
+        var _param_mrna_profile_arr = _.map(_queried_study_ids, function(_study_id) { return _study_id + "_rna_seq_v2_mrna"; });
+        var _param_mut_profile_arr = _.map(_queried_study_ids, function(_study_id) { return _study_id + "_mutations"; });
         var _get_genetic_profile_params = {
             genes: gene,
-            genetic_profile_ids: _param_mrna_profile_arr.concat(_param_mut_profile_arr)
+            genetic_profile_ids: (_param_mrna_profile_arr.concat(_param_mut_profile_arr)).concat(_param_sequenced_profile_arr)
         };
 
         window.cbioportal_client.getGeneticProfileData(_get_genetic_profile_params).then(
             function(_result) {
+
                 profile_data = _result;
-                study_ids = _.uniq(_.pluck(_result, "study_id"));
+
+                //calculate median profile value for each study
+                var _study_id_median_val_objs = [];
+                var _profile_data_objs = _.filter(_result, function(_obj) { return !(_obj.hasOwnProperty("mutation_status")); })
+                var _study_groups = _.groupBy(_profile_data_objs, "study_id");
+                _.each(_study_groups, function(_study_group) {
+                    var _vals = _.filter(_.pluck(_study_group, "profile_data"), function(_val) { return _val !== "NaN"; });
+                    _vals = _.map(_vals, function(_val) { return parseFloat(_val); });
+                    var _median_val = findMedian(_vals);
+                    _study_id_median_val_objs.push({study_id: _study_group[0].study_id, median_val: _median_val});
+                    //_.each(_study_group, function(_profile_data_obj) {
+                    //    _profile_data_obj.group_median_val = _median_val;
+                    //});
+                });
+                function findMedian(_input_data) {
+                    var m = _input_data.map(function(v) {
+                        return v;
+                    }).sort(function(a, b) {
+                        return a - b;
+                    });
+                    var middle = Math.floor((m.length - 1) / 2); // NB: operator precedence
+                    if (m.length % 2) {
+                        return m[middle];
+                    } else {
+                        return (m[middle] + m[middle + 1]) / 2.0;
+                    }
+                }
+
+                if (study_order === "median") {
+                    _study_id_median_val_objs = _.sortBy(_study_id_median_val_objs, "median_val");
+                    study_ids = _.pluck(_study_id_median_val_objs, "study_id");
+                } else {
+                    study_ids = _.uniq(_.pluck(_profile_data_objs, "study_id"));
+                }
+
                 //TODO: apply legit ways to extract profiles, now it's a hack, assuming every study has ONE rna seq v2 profile, and named under the SAME convention
                 mrna_profiles =  _.map(study_ids, function(_study_id) { return _study_id + "_rna_seq_v2_mrna"});
 
@@ -74,6 +108,8 @@ var ccPlots = (function (Plotly, _, $) {
                                 }
                             });
                         });
+
+                        window.cbioportal_client.getSampleLists({sample_list_ids: [_study_obj.studyId + "_sequenced"]})
 
                         render();
                     }
@@ -161,7 +197,7 @@ var ccPlots = (function (Plotly, _, $) {
             //assemble array of qtip text
             var _qtips = [];
             _.each(_mut_group, function(_mut_obj) {
-                _qtips.push("Study: " + _mut_obj.study_name + "<br>" + "Sample Id: " + _mut_obj.sample_id + "<br>" + "Expression: " + _mut_obj.profile_data + "<br>" + "Mutation Type: " + _mut_obj.mutation_type);
+                _qtips.push("Study: " + _mut_obj.study_name + "<br>" + "Sample Id: " + _mut_obj.sample_id + "<br>" + "Expression: " + _mut_obj.profile_data + "<br>" + "Mutation Type: " + _mut_obj.mutation_type + "<br>" + "Mutation Details: " + _mut_obj.mutation_details);
             });
             var _y = [];
             if (apply_log_scale) {
@@ -249,8 +285,6 @@ var ccPlots = (function (Plotly, _, $) {
 
     }
 
-
-
     return {
         init: function() {
             var tmp = setInterval(function () {timer();}, 1000);
@@ -263,6 +297,7 @@ var ccPlots = (function (Plotly, _, $) {
                     gene.length = 0;
                     gene.push($("#cc_plots_gene_list").val());
                     apply_log_scale = document.getElementById("cc_plots_log_scale").checked;
+                    study_order = $('input[name=cc_plots_study_order_opt]:checked').val();
 
                     $("#cc_plots_box").empty();
                     fetch_profile_data(_.pluck(_.pluck(window.studies.models, "attributes"), "studyId"));
@@ -277,7 +312,12 @@ var ccPlots = (function (Plotly, _, $) {
             $("#cc-plots-box").append("<img src='images/ajax-loader.gif' id='cc_plots_loading' style='padding:200px;'/>");
             fetch_profile_data(_.pluck(_.pluck(window.studies.models, "attributes"), "studyId"));
         },
-        update_profile_order: function() {},
+        update_study_order: function() {
+            study_order = $('input[name=cc_plots_study_order_opt]:checked').val();
+            $("#cc-plots-box").empty();
+            $("#cc-plots-box").append("<img src='images/ajax-loader.gif' id='cc_plots_loading' style='padding:200px;'/>");
+            fetch_profile_data(_.pluck(_.pluck(window.studies.models, "attributes"), "studyId"));
+        },
         toggle_log_scale: function() {
             apply_log_scale = document.getElementById("cc_plots_log_scale").checked;
             $("#cc-plots-box").empty();

@@ -61,8 +61,8 @@
                 <select id="cc_plots_gene_list"></select>
             </span>
             <h5>Sort By</h5>
-            <input type="radio" name="cc_plots_profile_order_opt" onchange="ccPlots.update_profile_order()" value="alphabetic" checked/> Cancer Study
-            <input type="radio" name="cc_plots_profile_order_opt" onchange="ccPlots.update_profile_order()" value="median"/> Median
+            <input type="radio" name="cc_plots_study_order_opt" onchange="ccPlots.update_study_order()" value="alphabetic" checked/> Cancer Study
+            <input type="radio" name="cc_plots_study_order_opt" onchange="ccPlots.update_study_order()" value="median"/> Median
             <h5>Log Scale</h5>
             <input type="checkbox" id="cc_plots_log_scale" onchange="ccPlots.toggle_log_scale()" checked/>
         </div>

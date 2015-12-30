@@ -359,7 +359,9 @@ var StudyViewProxy = (function() {
 
         for(var i = 0, _patientIdsL = _patientIds.length; i < _patientIdsL; i++) {
             if(_sampleIds.indexOf(_patientIds[i]) === -1) {
-                _sampleIds = _sampleIds.concat(patientToSampleMapping[_patientIds[i]]);
+                if(!_.isUndefined(patientToSampleMapping[_patientIds[i]])) {
+                    _sampleIds = _sampleIds.concat(patientToSampleMapping[_patientIds[i]]);
+                }
             }
         }
         return _.uniq(_sampleIds);
@@ -386,10 +388,6 @@ var StudyViewProxy = (function() {
 
     function toPascalCase(str) {
         var arr = str.split(/\s|_/);
-//        for(var i=0,l=arr.length; i<l; i++) {
-//            arr[i] = arr[i].substr(0,1).toUpperCase() + 
-//                     (arr[i].length > 1 ? arr[i].substr(1).toLowerCase() : "");
-//        } 
         return arr.join(" ");
     }
 
@@ -609,6 +607,20 @@ var StudyViewProxy = (function() {
         },
         getSampleIds: function () {
             return Object.keys(sampleToPatientMapping);
+        },
+        sampleIdExist: function (id) {
+            if (_.isString(id)) {
+                return sampleToPatientMapping.hasOwnProperty(id);
+            } else if (_.isArray(id)) {
+                var exist = true;
+                for (var i = 0, size = id.length; i < size; i++) {
+                    if (!sampleToPatientMapping.hasOwnProperty(id[i])) {
+                        exist = false;
+                    }
+                    break;
+                }
+                return exist;
+            }
         }
     };
 }());

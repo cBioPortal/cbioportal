@@ -63,6 +63,8 @@ var StudyViewClinicalTabController = (function () {
             showHide: true,
             hideFilter: true,
             scroller: true,
+            resultInfo: true,
+            groupHeader: true,
             fixed: ["sample"],
             uniqueId: "sample",
             rowHeight: 30,

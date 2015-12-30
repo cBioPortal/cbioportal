@@ -68,7 +68,7 @@ var StudyViewClinicalTabController = (function () {
             fixed: ["sample"],
             uniqueId: "sample",
             rowHeight: 30,
-            tableWidth: 1100,
+            tableWidth: 1200,
             maxHeight: 500,
             headerHeight: 30,
             groupHeaderHeight: 40

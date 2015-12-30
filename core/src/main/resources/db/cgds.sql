@@ -43,9 +43,9 @@ drop table IF EXISTS uniprot_id_mapping;
 drop table IF EXISTS gene_alias;
 drop table IF EXISTS gene;
 drop table IF EXISTS clinical_sample;
-drop table IF EXISTS patient_list_list;
+drop table IF EXISTS sample_list_list;
 drop table IF EXISTS sample;
-drop table IF EXISTS patient_list;
+drop table IF EXISTS sample_list;
 drop table IF EXISTS clinical_patient;
 drop table IF EXISTS patient;
 drop table IF EXISTS authorities;
@@ -168,9 +168,9 @@ CREATE TABLE `sample` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `patient_list`
+-- Table structure for table `sample_list`
 --
-CREATE TABLE `patient_list` (
+CREATE TABLE `sample_list` (
   `LIST_ID` int(11) NOT NULL auto_increment,
   `STABLE_ID` varchar(255) NOT NULL,
   `CATEGORY` varchar(255) NOT NULL,
@@ -185,10 +185,10 @@ CREATE TABLE `patient_list` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `patient_list_list`
+-- Table structure for table `sample_list_list`
 --
 -- TODO rename the PATIENT_ID column, which is misleading
-CREATE TABLE `patient_list_list` (
+CREATE TABLE `sample_list_list` (
   `LIST_ID` int(11) NOT NULL,
   `PATIENT_ID` int(11) NOT NULL,
   PRIMARY KEY  (`LIST_ID`,`PATIENT_ID`),

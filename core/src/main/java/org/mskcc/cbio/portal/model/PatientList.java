@@ -52,7 +52,7 @@ public class PatientList {
    }
 
    /**
-    * A constructor for all the NON NULL fields in a patient_list
+    * A constructor for all the NON NULL fields in a sample_list
     * @param stableId
     * @param patientListId
     * @param cancerStudyId

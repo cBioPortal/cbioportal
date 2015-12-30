@@ -1065,7 +1065,7 @@ var StudyViewInitCharts = (function(){
         if(_ids.length > 1){
             StudyViewInitScatterPlot.setClickedCasesId('');
         }
-        _ids = getStableIds(_ids);
+        // _ids = getStableIds(_ids);
         _caseIDChart.filterAll();
         _caseIDChart.filter([_ids]);
         dc.redrawAll();

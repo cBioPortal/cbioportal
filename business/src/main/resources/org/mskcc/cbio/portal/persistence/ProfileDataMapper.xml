@@ -148,7 +148,7 @@
                             inner join gene on mutation.ENTREZ_GENE_ID=gene.ENTREZ_GENE_ID
                             inner join genetic_profile on genetic_profile.GENETIC_PROFILE_ID=mutation.GENETIC_PROFILE_ID
                             inner join cancer_study on genetic_profile.CANCER_STUDY_ID=cancer_study.CANCER_STUDY_ID
-                            inner join sample_list_list on sample_list_list.PATIENT_ID=sample.INTERNAL_ID
+                            inner join sample_list_list on sample_list_list.SAMPLE_ID=sample.INTERNAL_ID
                             inner join sample_list on sample_list.LIST_ID=sample_list_list.LIST_ID
     where genetic_profile.STABLE_ID in
     <foreach item="item" collection="mutation_profile_ids" open="(" separator="," close=")">

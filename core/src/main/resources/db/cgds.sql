@@ -184,12 +184,11 @@ CREATE TABLE `sample_list` (
 --
 -- Table structure for table `sample_list_list`
 --
--- TODO rename the PATIENT_ID column, which is misleading
 CREATE TABLE `sample_list_list` (
   `LIST_ID` int(11) NOT NULL,
-  `PATIENT_ID` int(11) NOT NULL,
-  PRIMARY KEY  (`LIST_ID`,`PATIENT_ID`),
-  FOREIGN KEY (`PATIENT_ID`) REFERENCES `sample` (`INTERNAL_ID`) ON DELETE CASCADE
+  `SAMPLE_ID` int(11) NOT NULL,
+  PRIMARY KEY  (`LIST_ID`,`SAMPLE_ID`),
+  FOREIGN KEY (`SAMPLE_ID`) REFERENCES `sample` (`INTERNAL_ID`) ON DELETE CASCADE
 );
 
 -- --------------------------------------------------------

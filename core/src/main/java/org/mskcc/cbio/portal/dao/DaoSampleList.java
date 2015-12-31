@@ -246,7 +246,7 @@ public class DaoSampleList {
         ResultSet rs = null;
         int skippedPatients = 0;
         try {
-            StringBuilder sql = new StringBuilder("INSERT INTO sample_list_list (`LIST_ID`, `PATIENT_ID`) VALUES ");
+            StringBuilder sql = new StringBuilder("INSERT INTO sample_list_list (`LIST_ID`, `SAMPLE_ID`) VALUES ");
             // NOTE - as of 12/12/14, patient lists contain sample ids
             for (String sampleId : sampleList.getSampleList()) {
                 Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(sampleList.getCancerStudyId(), sampleId);
@@ -287,7 +287,7 @@ public class DaoSampleList {
             ArrayList<String> patientIds = new ArrayList<String>();
             while (rs.next()) {
                 // NOTE - as of 12/12/14, patient lists contain sample ids
-                Sample sample = DaoSample.getSampleById(rs.getInt("PATIENT_ID"));
+                Sample sample = DaoSample.getSampleById(rs.getInt("SAMPLE_ID"));
 				patientIds.add(sample.getStableId());
 			}
             return patientIds;

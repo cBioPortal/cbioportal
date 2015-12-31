@@ -6,7 +6,7 @@
 <select id="getSampleIds" resultType="DBSample">
     select 
         sample.STABLE_ID as id
-    from sample_list_list inner join sample on sample.INTERNAL_ID = sample_list_list.PATIENT_ID
+    from sample_list_list inner join sample on sample.INTERNAL_ID = sample_list_list.SAMPLE_ID
                                                     inner join sample_list on sample_list_list.LIST_ID = sample_list.LIST_ID
         where sample_list.STABLE_ID = #{list_id}
 </select>

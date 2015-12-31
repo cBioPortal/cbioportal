@@ -243,9 +243,6 @@ public class WebService extends HttpServlet {
             } else if (cmd.equals("getMutationData")) {
                 // PROVIDES genetic_profile_id
                 getMutationData(httpServletRequest, writer);
-            } else if (cmd.equals("getMutationFrequency")) {
-                // PROVIDES CANCER_STUDY_ID
-                getMutationFrequency(httpServletRequest, writer);
             } else {
                 throw new ProtocolException("Unrecognized command: " + cmd);
             }
@@ -335,19 +332,6 @@ public class WebService extends HttpServlet {
             throws DaoException, ProtocolException {
         String out = GetTypesOfCancer.getCancerStudies();
         writer.print(out);
-    }
-
-    private void getMutationFrequency(HttpServletRequest httpServletRequest, PrintWriter writer)
-            throws DaoException, ProtocolException {
-
-        String cancerStudyId = WebserviceParserUtils.getCancerStudyId(httpServletRequest);
-        if (cancerStudyId == null) {
-            outputMissingParameterError(writer, CANCER_STUDY_ID);
-        } else {
-            String out = GetMutationFrequencies.getMutationFrequencies(Integer.parseInt(cancerStudyId),
-                    httpServletRequest);
-            writer.print(out);
-        }
     }
 
     private void getGeneticProfiles(HttpServletRequest httpServletRequest, PrintWriter writer)

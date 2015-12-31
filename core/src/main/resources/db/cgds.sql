@@ -29,7 +29,6 @@ drop table IF EXISTS interaction;
 drop table IF EXISTS clinical_attribute;
 drop table IF EXISTS entity_attribute;
 drop table IF EXISTS attribute_metadata;
-drop table IF EXISTS mutation_frequency;
 drop table if EXISTS mutation_count;
 drop table IF EXISTS mutation;
 drop table IF EXISTS mutation_event;
@@ -375,18 +374,6 @@ CREATE TABLE `mutation_count` (
   FOREIGN KEY (`GENETIC_PROFILE_ID`) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`) ON DELETE CASCADE,
   FOREIGN KEY (`SAMPLE_ID`) REFERENCES `sample` (`INTERNAL_ID`) ON DELETE CASCADE
 );
-
---
--- Table structure for table `mutation_frequency`
---
-CREATE TABLE `mutation_frequency` (
-  `ENTREZ_GENE_ID` int(11) NOT NULL,
-  `SOMATIC_MUTATION_RATE` double NOT NULL,
-  `CANCER_STUDY_ID` int(11) NOT NULL,
-  FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE,
-  FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`)
-);
-
 
 -- --------------------------------------------------------
 

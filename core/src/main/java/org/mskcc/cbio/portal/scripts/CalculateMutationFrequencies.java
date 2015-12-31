@@ -71,8 +71,6 @@ public class CalculateMutationFrequencies {
 
         //  Delete all Existing Mutation Frequency Records
         pMonitor.setCurrentMessage("Deleting all existing mutation frequency records");
-        DaoMutationFrequency daoMutationFrequency = new DaoMutationFrequency();
-        daoMutationFrequency.deleteAllRecords();
 
         //  Get all mutations
         ArrayList<ExtendedMutation> mutationList = DaoMutation.getAllMutations();
@@ -120,14 +118,6 @@ public class CalculateMutationFrequencies {
                         + formatter.format(gene.getSomaticMutationFrequency()));
             }
         }
-
-        pMonitor.setCurrentMessage("Storing results to database.");
-        for (int i=0; i<geneList.size(); i++) {
-            CanonicalGene gene = geneList.get(i);
-            daoMutationFrequency.addGene(gene.getEntrezGeneId(), gene.getSomaticMutationFrequency(),
-                    sampleSet.getCancerStudyId());
-        }
-
     }
 }
 

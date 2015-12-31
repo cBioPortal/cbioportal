@@ -31,7 +31,6 @@ DELETE FROM interaction;
 DELETE FROM clinical_attribute;
 DELETE FROM entity_attribute;
 DELETE FROM attribute_metadata;
-DELETE FROM mutation_frequency;
 DELETE FROM mutation_count;
 DELETE FROM mutation;
 DELETE FROM mutation_event;

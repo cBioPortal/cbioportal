@@ -109,8 +109,6 @@ public class ImportTabDelimData {
      * @throws DaoException Database Error.
      */
     public void importData() throws IOException, DaoException {
-        DaoMicroRna daoMicroRna = new DaoMicroRna();
-        microRnaIdSet = daoMicroRna.getEntireSet();
 
         geneticProfile = DaoGeneticProfile.getGeneticProfileById(geneticProfileId);
 

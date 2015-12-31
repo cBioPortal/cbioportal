@@ -35,8 +35,6 @@ DELETE FROM mutation_frequency;
 DELETE FROM mutation_count;
 DELETE FROM mutation;
 DELETE FROM mutation_event;
-DELETE FROM micro_rna;
-DELETE FROM micro_rna_alteration;
 DELETE FROM sample_profile;
 DELETE FROM genetic_profile_samples;
 DELETE FROM genetic_alteration;

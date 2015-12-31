@@ -87,7 +87,7 @@ public class GetSampleLists {
                     buf.append(sampleList.getDescription()).append("\t");
                     buf.append(sampleList.getCancerStudyId()).append("\t");
                     for (String aSample : sampleList.getSampleList()) {
-                        buf.append(aPatient).append(" ");
+                        buf.append(aSample).append(" ");
                     }
                     buf.append("\n");
                 }

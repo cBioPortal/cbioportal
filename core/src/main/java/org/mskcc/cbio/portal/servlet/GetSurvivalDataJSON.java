@@ -81,7 +81,7 @@ public class GetSurvivalDataJSON extends HttpServlet {
                           HttpServletResponse httpServletResponse) throws ServletException, IOException {
 
         String cancerStudyIdentifier = httpServletRequest.getParameter("cancer_study_id");
-        String sampleSeetId = httpServletRequest.getParameter("case_set_id");
+        String sampleSetId = httpServletRequest.getParameter("case_set_id");
         String sampleIdsKey = httpServletRequest.getParameter("case_ids_key");
         //So far only accept single data type
         String dataType = httpServletRequest.getParameter("data_type");
@@ -96,21 +96,21 @@ public class GetSurvivalDataJSON extends HttpServlet {
             DaoSampleList daoSampleList = new DaoSampleList();
             SampleList sampleList;
             ArrayList<String> sampleIdList = new ArrayList<String>();
-            if (sampleSeetId.equals("-1") && sampleIdsKey.length() != 0) {
+            if (sampleSetId.equals("-1") && sampleIdsKey.length() != 0) {
                 String strSampleIds = SampleSetUtil.getSampleIds(sampleIdsKey);
                 String[] sampleArray = strSampleIds.split("\\s+");
                 for (String item : sampleArray) {
                     sampleIdList.add(item);
                 }
             } else {
-                sampleList = daoSampleList.getSampleListByStableId(sampleSeetId);
+                sampleList = daoSampleList.getSampleListByStableId(sampleSetId);
                 sampleIdList = sampleList.getSampleList();
             }
 
             //Get Clinical Data List - NOTE - as of 12/12/14, patient lists contain sample ids
-            HashSet<String> sampleIdListHashSet = new HashSet<String>(InternalIdUtil.getStableSampleIdsFromSampleIds(cancerStudyId, sampleIdList));
+            HashSet<String> patientIdListHashSet = new HashSet<String>(InternalIdUtil.getStablePatientIdsFromSampleIds(cancerStudyId, sampleIdList));
             List<Patient> clinicalDataList =
-                    GetClinicalData.getClinicalData(cancerStudyId, sampleIdListHashSet);
+                    GetClinicalData.getClinicalData(cancerStudyId, patientIdListHashSet);
 
             //Assemble JSON object (key <-- patient id)
             JSONObject results = new JSONObject();

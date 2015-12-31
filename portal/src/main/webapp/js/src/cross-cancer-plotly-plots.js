@@ -42,6 +42,9 @@ var ccPlots = (function (Plotly, _, $) {
 
     var gene = [], apply_log_scale = false, study_order;
 
+    var threshold_down = 0.17677669529,  //-2.5 to 10
+        threshold_up = 1.2676506e+30;
+
     var fetch_profile_data = function(_queried_study_ids) {
 
         var _param_mrna_profile_arr = _.map(_queried_study_ids, function(_study_id) { return _study_id + "_rna_seq_v2_mrna"; });
@@ -136,12 +139,24 @@ var ccPlots = (function (Plotly, _, $) {
                             //calculate log values
                             _.map(_non_mut_or_not_sequenced_group, function(_non_mut_obj){
                                 var _ori_val = _non_mut_obj.profile_data;
-                                _non_mut_obj.logged_profile_data = Math.log(_ori_val) / Math.log(2);
+                                if (_ori_val <= threshold_down) {
+                                    _non_mut_obj.logged_profile_data = Math.log(threshold_down) / Math.log(2);
+                                } else if (_ori_val >= threshold_up) {
+                                    _non_mut_obj.logged_profile_data = Math.log(threshold_up) / Math.log(2);
+                                } else {
+                                    _non_mut_obj.logged_profile_data = Math.log(_ori_val) / Math.log(2);
+                                }
                                 return _non_mut_obj;
                             });
                             _.map(_mix_mut_group, function(_mut_obj){
                                 var _ori_val = _mut_obj.profile_data;
-                                _mut_obj.logged_profile_data = Math.log(_ori_val) / Math.log(2);
+                                if (_ori_val <= threshold_down) {
+                                    _mut_obj.logged_profile_data = Math.log(threshold_down) / Math.log(2);
+                                } else if (_ori_val >= threshold_up) {
+                                    _mut_obj.logged_profile_data = Math.log(threshold_up) / Math.log(2);
+                                } else {
+                                    _mut_obj.logged_profile_data = Math.log(_ori_val) / Math.log(2);
+                                }
                                 return _mut_obj;
                             });
 

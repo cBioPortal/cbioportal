@@ -84,11 +84,10 @@ public class WebApiUtil {
                                 MicroRna microRna = new MicroRna(geneId);
                                 geneList.add(microRna);
                             }
-                            }
                         } else {
                             MicroRna microRna = new MicroRna(geneId);
                             geneList.add(microRna);
-                        }
+						 }
                     } else {
 	                    if (xssUtil != null) {
 		                    geneId = xssUtil.getCleanerInput(geneId);

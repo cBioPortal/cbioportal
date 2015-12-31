@@ -33,8 +33,6 @@ drop table IF EXISTS mutation_frequency;
 drop table if EXISTS mutation_count;
 drop table IF EXISTS mutation;
 drop table IF EXISTS mutation_event;
-drop table IF EXISTS micro_rna;
-drop table IF EXISTS micro_rna_alteration;
 drop table IF EXISTS sample_profile;
 drop table IF EXISTS genetic_profile_samples;
 drop table IF EXISTS genetic_alteration;
@@ -287,26 +285,6 @@ CREATE TABLE `sample_profile` (
   `GENETIC_PROFILE_ID` int(11) NOT NULL,
   FOREIGN KEY (`GENETIC_PROFILE_ID`) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`) ON DELETE CASCADE,
   FOREIGN KEY (`SAMPLE_ID`) REFERENCES `sample` (`INTERNAL_ID`) ON DELETE CASCADE
-);
-
--- --------------------------------------------------------
-
-CREATE TABLE `micro_rna_alteration` (
-  `GENETIC_PROFILE_ID` int(11) NOT NULL,
-  `MICRO_RNA_ID` varchar(50) NOT NULL,
-  `VALUES` longtext NOT NULL,
-  UNIQUE KEY `QUICK_LOOK_UP1` (`GENETIC_PROFILE_ID`,`MICRO_RNA_ID`),
-  FOREIGN KEY (`GENETIC_PROFILE_ID`) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`) ON DELETE CASCADE
-);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `micro_rna`
---
-CREATE TABLE `micro_rna` (
-  `ID` varchar(50) NOT NULL,
-  `VARIANT_ID` varchar(50) NOT NULL
 );
 
 -- --------------------------------------------------------

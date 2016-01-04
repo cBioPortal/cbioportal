@@ -457,8 +457,7 @@ var OncoKB = (function () {
 
         function getOncogenicityFooterStr() {
             return '<div class="oncokb" style="text-align:right;"><span><i>Powered by OncoKB(Beta)</i></span></div>' +
-                '<div><i>OncoKB is under development, please pardon errors and omissions. Please send feedback to ' +
-                '<a href=&quot;mailto:oncokb@cbio.mskcc.org&quot; title=&quot;Contact us&quot;>oncokb@cbio.mskcc.org</a></i></div>';
+                '<div><i>OncoKB is under development, please pardon errors and omissions. <button class="oncokbFeedback">Send feedback</button></div>';
         }
 
         function getMutationSummaryStr(oncokbInfo) {
@@ -1387,7 +1386,25 @@ OncoKB.Instance.prototype = {
                                     show: {ready: true},
                                     hide: {fixed: true, delay: 100},
                                     style: {classes: 'qtip-light qtip-rounded qtip-shadow', tip: true},
-                                    position: {my: 'top left', at: 'bottom right', viewport: $(window)}
+                                    position: {my: 'top left', at: 'bottom right', viewport: $(window)},
+                                    events: {
+                                        render: function (event, api) {
+                                            var user = userName==='anonymousUser'?'':userName;
+                                            var dialog = new BootstrapDialog({
+                                                message: function(dialogRef){
+                                                    var $message = $('<iframe src="https://docs.google.com/forms/d/1lt6TtecxHrhIE06gAKVF_JW4zKFoowNFzxn6PJv4g7A/viewform?entry.1744186665=' + self.variants[oncokbId].gene + '&entry.1671960263=' + self.variants[oncokbId].alteration + '&entry.118699694&entry.1568641202&entry.1381123986='+user+'&embedded=true" width="550" height="830" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>');
+                                                    return $message;
+                                                },
+                                                closable: true
+                                            });
+                                            api.elements.content.find('.oncokbFeedback').click(function () {
+                                                dialog.realize();
+                                                dialog.getModalHeader().hide();
+                                                dialog.getModalFooter().hide();
+                                                dialog.open();
+                                            });
+                                        }
+                                    }
                                 });
                             });
                         }

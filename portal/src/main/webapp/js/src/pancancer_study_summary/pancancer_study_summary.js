@@ -764,39 +764,13 @@ function GeneDetailsController(cancerSummaryMainView, dispatcher, dmPresenter){
 function DataManagerPresenter(dmInitCallBack)
 {
 	var self = this;
-	//keep track of samples and their respective alteration events 
-	self.sampleList = []; //each entry contains alterationEvents[] 
 	var callbackA_done = new $.Deferred();
     var callbackB_done = new $.Deferred();
 	
 	//Initialize: run initial ws requests and data parsing. 
 	//This sequence of calls gets: 
-	//  - all genomic event data, for all queried genes, according to selected profiles and OQL criteria.
 	//  - all sample clinical atttribute values for attributes CANCER_TYPE and CANCER_TYPE_DETAILED
-	console.log(new Date() + ": CALL to getGenomicEventData()");
-	window.QuerySession.getGenomicEventData()
-	.then(
-		function (genomicEventData){
-			
-			console.log(new Date() + ": started processing getGenomicEventData() data");
-			
-			for (var i = 0; i < genomicEventData.length; i++) {
-				//init alteration events, if not yet done
-				if (!self.sampleList[genomicEventData[i].sample])
-					self.sampleList[genomicEventData[i].sample] = {alterationEvents: []};
-				self.sampleList[genomicEventData[i].sample].alterationEvents.push(genomicEventData[i]);
-				
-			}
-			console.log(new Date() + ": finished processing getGenomicEventData() data");
-			
-			//signal "done":
-			callbackA_done.resolve();
-		},
-		function(err){
-			// handle error, if any
-			alert(" error found");//TODO - check how the error will come in and how we should present it. Logged in https://github.com/cBioPortal/cbioportal/issues/264
-		});
-	
+	//  - all genomic event data, for all queried genes, according to selected profiles and OQL criteria.
 	console.log(new Date() + ": CALL to getSampleClinicalData()");
 	self.cancerTypeList = [];  //each entry contains cancerTypeDetailed[] and sample_ids[], each cancerTypeDetailed entry also contains sample_ids[]
 	window.QuerySession.getSampleClinicalData(["CANCER_TYPE","CANCER_TYPE_DETAILED"])
@@ -839,6 +813,32 @@ function DataManagerPresenter(dmInitCallBack)
 			// handle error, if any
 			alert(" error found");
 		});	
+    
+	console.log(new Date() + ": CALL to getGenomicEventData()");
+	//keep track of samples and their respective alteration events 
+	self.sampleList = []; //each entry contains alterationEvents[] 
+	window.QuerySession.getGenomicEventData()
+	.then(
+		function (genomicEventData){
+			
+			console.log(new Date() + ": started processing getGenomicEventData() data");
+			
+			for (var i = 0; i < genomicEventData.length; i++) {
+				//init alteration events, if not yet done
+				if (!self.sampleList[genomicEventData[i].sample])
+					self.sampleList[genomicEventData[i].sample] = {alterationEvents: []};
+				self.sampleList[genomicEventData[i].sample].alterationEvents.push(genomicEventData[i]);
+				
+			}
+			console.log(new Date() + ": finished processing getGenomicEventData() data");
+			
+			//signal "done":
+			callbackA_done.resolve();
+		},
+		function(err){
+			// handle error, if any
+			alert(" error found");//TODO - check how the error will come in and how we should present it. Logged in https://github.com/cBioPortal/cbioportal/issues/264
+		});
 	
 	//when both calls above are done processing, then we want to continue with dmInitCallBack:
 	$.when(callbackA_done, callbackB_done).then(function () {

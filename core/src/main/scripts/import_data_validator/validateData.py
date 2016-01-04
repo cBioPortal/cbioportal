@@ -531,7 +531,6 @@ class Validator(object):
     def __init__(self,filename,hugo_entrez_map,fix,logger,stableId):
         self.filename = filename
         self.filenameShort = os.path.basename(filename)
-        self.file = open(filename, 'rU')
         self.line_number = 0
         self.cols = []
         self.numCols = 0
@@ -560,35 +559,35 @@ class Validator(object):
 
         self.logger.info('Starting validation of file')
 
-        self.fileRead = self.file.read()
-        self.file.seek(0)
-        self.checkLineBreaks()
-        self.checkQuotes()
-        del self.fileRead
+        with open(self.filename, 'rU') as data_file:
+            fileRead = data_file.read()
+            data_file.seek(0)
+            self.checkLineBreaks(fileRead)
+            self.checkQuotes(fileRead)
+            del fileRead
 
-        uncommented_line_number = 0
-        for line_index, line in enumerate(self.file):
-            self.line_number = line_index + 1
-            # TODO test for # lines after non-# lines
-            if not line.startswith('#'):
-                uncommented_line_number += 1
-                if uncommented_line_number == 1:
-                    if self.checkHeader(line) > 0:
-                        self.logger.info(
-                            'Invalid column header, skipped data in file')
-                        break
-                elif not self.end:
-                    self.checkLine(line)
-            else:
-                # TODO make a function to parse initial multi-line comments,
-                # as these are required in clinical data files
+            uncommented_line_number = 0
+            for line_index, line in enumerate(data_file):
+                self.line_number = line_index + 1
+                # TODO test for # lines after non-# lines
+                if not line.startswith('#'):
+                    uncommented_line_number += 1
+                    if uncommented_line_number == 1:
+                        if self.checkHeader(line) > 0:
+                            self.logger.info(
+                                'Invalid column header, skipped data in file')
+                            break
+                    elif not self.end:
+                        self.checkLine(line)
+                else:
+                    # TODO make a function to parse initial multi-line comments,
+                    # as these are required in clinical data files
 
-                # This method may or may not be implemented by subclasses
-                processTopLine = getattr(self, 'processTopLine', None)
-                if processTopLine is not None:
-                    processTopLine(line)
+                    # This method may or may not be implemented by subclasses
+                    processTopLine = getattr(self, 'processTopLine', None)
+                    if processTopLine is not None:
+                        processTopLine(line)
 
-        self.file.close()
         if self.fix:
             self.correctedFile.close()
 
@@ -704,26 +703,26 @@ class Validator(object):
                            'cause': self.cols[col_index]})
         return num_errors
 
-    def checkQuotes(self):
-        if '"' in self.fileRead or '\'' in self.fileRead:
+    def checkQuotes(self, fileRead):
+        if '"' in fileRead or '\'' in fileRead:
             self.logger.warning('Found quotation marks in file')
 
-    def checkLineBreaks(self):
+    def checkLineBreaks(self, fileRead):
         """Checks line breaks, reports to user."""
         # TODO document these requirements
-        if "\r\n" in self.fileRead:
+        if "\r\n" in fileRead:
             self.lineEndings = "\r\n"
             self.logger.error('DOS-style line breaks detected (\\r\\n), '
                               'should be Unix-style (\\n)')
             if self.fix:
                 self.logger.info('Corrected file will have Unix (\\n) line breaks')
-        elif "\r" in self.fileRead:
+        elif "\r" in fileRead:
             self.lineEndings = "\r"
             self.logger.error('Classic Mac OS-style line breaks detected '
                               '(\\r), should be Unix-style (\\n)')
             if self.fix:
                 self.logger.info('Corrected file will have Unix (\\n) line breaks')
-        elif "\n" in self.fileRead:
+        elif "\n" in fileRead:
             self.lineEndings = "\n"
         else:
             self.logger.error('No line breaks recognized in file')

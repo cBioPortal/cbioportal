@@ -159,7 +159,7 @@ var StudyViewProxy = (function() {
                 for(var i= 0; i < a1[0].attributes.length; i++){
                     var caseAttr = new CaseAttr();
                     caseAttr.attr_id =  a1[0].attributes[i].attr_id.toUpperCase();
-                    if(a1[0].attributes[i].display_name){
+                    if(_.isString(a1[0].attributes[i].display_name)){
                         caseAttr.display_name = a1[0].attributes[i].display_name;
                     } else {
                         //Fallback to using ID if there is no display_name
@@ -257,7 +257,7 @@ var StudyViewProxy = (function() {
                 }else {
                     var cnaLength = obtainDataObject.arr.length;
                     for(var i = 0; i < cnaLength; i++) {
-                        if(obtainDataObject.arr[i]['MUTATION_COUNT']) {
+                        if(!_.isUndefined(obtainDataObject.arr[i]['MUTATION_COUNT'])) {
                             delete obtainDataObject.arr[i].MUTATION_COUNT;
                         }
                     }
@@ -287,7 +287,7 @@ var StudyViewProxy = (function() {
                 }else {
                     var cnaLength = obtainDataObject.arr.length;
                     for(var i = 0; i < cnaLength; i++) {
-                        if(obtainDataObject.arr[i]['COPY_NUMBER_ALTERATIONS']) {
+                        if(!_.isUndefined(obtainDataObject.arr[i]['COPY_NUMBER_ALTERATIONS'])) {
                             delete obtainDataObject.arr[i].COPY_NUMBER_ALTERATIONS;
                         }
                     }
@@ -387,16 +387,16 @@ var StudyViewProxy = (function() {
     function toPascalCase(str) {
         var arr = str.split(/\s|_/);
 //        for(var i=0,l=arr.length; i<l; i++) {
-//            arr[i] = arr[i].substr(0,1).toUpperCase() + 
+//            arr[i] = arr[i].substr(0,1).toUpperCase() +
 //                     (arr[i].length > 1 ? arr[i].substr(1).toLowerCase() : "");
-//        } 
+//        }
         return arr.join(" ");
     }
 
     function getCNAData(){
         var deferred = $.Deferred();
 
-        if(obtainDataObject.cna){
+        if(!_.isUndefined(obtainDataObject.cna)){
             deferred.resolve(obtainDataObject.cna);
         }else{
             if(hasCNA) {
@@ -464,7 +464,7 @@ var StudyViewProxy = (function() {
         if (sampleIds.length === this.getSampleIds().length) {
             return obtainDataObject.cna;
         }
-        if (obtainDataObject['cnaSampleBased']) {
+        if (!_.isUndefined(obtainDataObject['cnaSampleBased'])) {
             var geneSpecific = {};
             var numOfSample = sampleIds.length;
             for (var i = 0; i < numOfSample; i++) {

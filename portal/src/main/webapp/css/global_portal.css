@@ -1471,3 +1471,9 @@ ul.oncokb li {
 .qtip-content div.oncokb{
     padding-top: 5px;
 }
+
+/* BootstrapDialog styles*/
+.modal-dialog {
+    height:870px;
+    padding: 0;
+}

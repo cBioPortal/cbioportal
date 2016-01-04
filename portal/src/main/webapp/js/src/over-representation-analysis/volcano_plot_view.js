@@ -197,7 +197,7 @@ function VolcanoPlot() {
 			markerEnd: "url(#"+markerEnd+")",
 			stroke: labelOptions.fill
 		};
-		self.scatterPlot.addLabel("co-occurence", {x: 300, y: canvasHeight-47}, labelOptions);
+		self.scatterPlot.addLabel("co-occurrence", {x: 300, y: canvasHeight-47}, labelOptions);
 		addArrow(labelLineOptions, [{x:305, y:canvasHeight-40}, {x:370, y:canvasHeight-40}])
 	}
 

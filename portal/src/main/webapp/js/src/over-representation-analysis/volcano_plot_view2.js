@@ -140,6 +140,7 @@ function VolcanoPlot() {
         self.scatterPlot.addTrace(pValTrace);
 
         // create mutual exclusivity trace and add it
+        // markers are set to invisible as a workaround to improve the text's positioning
         var mutualExclusivityTrace = {
             x:[minX*axisMargin, (minX)*0.75, 0],
             y:[0, 0, 0],
@@ -148,28 +149,35 @@ function VolcanoPlot() {
             textfont: {
                 color: 'rgb(180, 4, 4)'
             },
-            mode: 'lines+text',
+            mode: 'lines+markers+text',
             type: 'scatter',
             hoverinfo: 'none',
-            marker: {
+            line: {
                 color: 'rgb(180, 4, 4)'
+            },
+            marker: {
+                color: 'rgba(0, 0, 0, 0)'
             }
         };
         self.scatterPlot.addTrace(mutualExclusivityTrace);
 
         // create co-occurence trace and add it
+        // markers are set to invisible as a workaround to improve the text's positioning
         var coOccurrenceTrace = {
             x:[0, (maxX)*0.75, maxX*axisMargin],
             y:[0, 0, 0],
-            text: ['', 'co-occurence -->', ''],
+            text: ['', 'co-occurrence -->', ''],
             textposition: 'bottom',
             textfont: {
                 color: 'rgb(59, 124, 59)'
             },
-            mode: 'lines+text',
+            mode: 'lines+markers+text',
             hoverinfo: 'none',
-            marker: {
+            line: {
                 color: 'rgb(59, 124, 59)'
+            },
+            marker: {
+                color: 'rgba(0, 0, 0, 0)'
             }
         };
         self.scatterPlot.addTrace(coOccurrenceTrace);

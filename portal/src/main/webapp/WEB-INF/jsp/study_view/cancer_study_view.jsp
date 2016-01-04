@@ -30,17 +30,12 @@
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --%>
 
-<%@ page import="org.json.simple.JSONValue"%>
-<%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
-<%@ page import="org.mskcc.cbio.portal.servlet.CancerStudyView" %>
-<%@ page import="org.mskcc.cbio.portal.servlet.PatientView" %>
+<%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
+<%@ page import="org.json.simple.JSONValue" %>
 <%@ page import="org.mskcc.cbio.portal.model.CancerStudy" %>
 <%@ page import="org.mskcc.cbio.portal.model.GeneticProfile" %>
-<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
+<%@ page import="org.mskcc.cbio.portal.servlet.*" %>
 <%@ page import="java.util.List" %>
-<%@ page import="org.apache.commons.lang.StringUtils" %>
-<%@ page import="org.json.simple.JSONValue" %>
-<%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
 
 <%
 request.setAttribute("tumormap", true);
@@ -236,6 +231,7 @@ $('#study-tab-mutations-a').click(function(){
     if (!$(this).parent().hasClass('ui-state-disabled') && !$(this).hasClass("tab-clicked")) {
         StudyViewMutationsTabController.init();
         $(this).addClass("tab-clicked");
+        StudyViewMutationsTabController.getDataTable().fnAdjustColumnSizing();
     }
 });
 
@@ -243,6 +239,7 @@ $('#study-tab-cna-a').click(function(){
     if (!$(this).parent().hasClass('ui-state-disabled') && !$(this).hasClass("tab-clicked")) {
         StudyViewCNATabController.init();
         $(this).addClass("tab-clicked");
+        StudyViewCNATabController.getDataTable().fnAdjustColumnSizing();
     }
 });
 </script>

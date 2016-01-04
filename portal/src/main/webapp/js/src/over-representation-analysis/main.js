@@ -75,7 +75,7 @@ var or_tab = (function() {
         $.each(Object.keys(profile_obj_list), function(_index, _key) {
             var _obj = profile_obj_list[_key];
             if (_obj.GENETIC_ALTERATION_TYPE === orAnalysis.profile_type.copy_num) {
-                var _token = _obj.STABLE_ID.replace(window.PortalGlobals.getCancerStudyId(), "");
+                var _token = _obj.STABLE_ID.replace(window.QuerySession.getCancerStudyIds()[0], "");
                 if ($.inArray(_token.toLowerCase(), discretized_cna_profile_keywords) !== -1) {
                     _profile_list.push(_obj);
                 }
@@ -173,7 +173,7 @@ var or_tab = (function() {
             method: "POST",
             url: "getGeneticProfile.json",
             data: {
-                cancer_study_id: window.PortalGlobals.getCancerStudyId()
+                cancer_study_id: window.QuerySession.getCancerStudyIds()[0]
             }
         }).done(function(result){
 

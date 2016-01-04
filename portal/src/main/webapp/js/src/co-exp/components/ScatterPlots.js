@@ -57,8 +57,6 @@
 
 var ScatterPlots = function() {
 
-    var prevSpecialSelection=new Array();
-
     var style = {},
         canvas = {}, //positions
         elem = {},
@@ -68,22 +66,10 @@ var ScatterPlots = function() {
         dataArr = [],
         dataAttr = {};
 
-     var lineOptions={
-            strokeWidth: 1,
-            stroke: "black",
-            strokeDasharray: "none",
-            markerEnd: "none",
-            scaleX: true,
-            scaleY: true
-        };
+      var axisXLogFlag = false,
+         axisYLogFlag = false;
 
-     var labelOptions= {
-         transform: "rotate(0)",
-         fill: "black",
-         textAnchor: "middle"
-     };
-
-    var axis_edge = 0.1;
+     var axis_edge = 0.1;
         log_scale_threshold = 0.17677669529;
 
     var updateBrushCallback = "";
@@ -106,15 +92,6 @@ var ScatterPlots = function() {
                 dataArr.push(obj);
             }
         });
-
-        if(elem.symmetricX) {
-            if (Math.abs(dataAttr.min_x) < dataAttr.max_x) {
-                dataAttr.min_x = dataAttr.max_x * -1;
-            }
-            else {
-                dataAttr.max_x = dataAttr.min_x * -1;
-            }
-        }
     }
 
     function initSvgCanvas(divName, _brushOn) {
@@ -134,7 +111,7 @@ var ScatterPlots = function() {
                 .attr("class", "brush")
                 .call(elem.brush);
         }
-
+      
         elem.dotsGroup = elem.svg.append("svg:g");
         elem.axisGroup = elem.svg.append("svg:g");
         elem.axisTitleGroup = elem.svg.append("svg:g");
@@ -161,6 +138,7 @@ var ScatterPlots = function() {
             .scale(elem.xScale)
             .orient("bottom")
             .tickSize(6, 0, 0);
+
     }
 
     function initAxisY() {
@@ -168,6 +146,7 @@ var ScatterPlots = function() {
             .scale(elem.yScale)
             .orient("left")
             .tickSize(6, 0, 0);
+
     }
 
     function generateAxisX() {
@@ -193,6 +172,7 @@ var ScatterPlots = function() {
             .style("shape-rendering", "crispEdges")
             .attr("transform", "translate(0, " + canvas.yTop + ")")
             .call(elem.xAxis.orient("bottom").ticks(0));
+
     }
 
     function generateAxisY() {
@@ -220,7 +200,7 @@ var ScatterPlots = function() {
             .call(elem.yAxis.orient("left").ticks(0));
     }
 
-    function appendAxisTitleX(_applyLogScale) {
+    function appendAxisTitleX(_applyLogScale, size) {
         d3.select("#" + names.body).select(".plots-title-x").remove();
         d3.select("#" + names.body).select(".plots-title-x-help").remove();
         var _xTitle = "";
@@ -229,37 +209,88 @@ var ScatterPlots = function() {
         } else {
             _xTitle = text.xTitle;
         }
-        elem.axisTitleGroup.append("text")
-            .attr("x", canvas.xLeft + (canvas.xRight - canvas.xLeft) / 2)
-            .attr("y", canvas.yBottom + 60)
-            .style("text-anchor", "middle")
-            .style("font-size", "12px")
-            .style("font-weight", "bold") 
-            .attr("class", "plots-title-x")
-            .text(_xTitle);
-        elem.axisTitleGroup.append("svg:image")
-            .attr("xlink:href", "images/help.png")
-            .attr("class", "plots-title-x-help")
-            .attr("x", canvas.xLeft + (canvas.xRight - canvas.xLeft) / 2 + _xTitle.length / 2 * 8)
-            .attr("y", canvas.yBottom + 48)
-            .attr("width", "16")
-            .attr("height", "16");
-        elem.svg.select(".plots-title-x-help").each(
-            function() {
-                $(this).qtip(
-                    {
-                        content: {text: "<font size=1>" + text.xTitleHelp + "</font>" },
-                        style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
-                        show: {event: "mouseover"},
-                        hide: {fixed:true, delay: 100, event: "mouseout"},
-                        position: {my:'left bottom',at:'top right', viewport: $(window)}
-                    }
-                );
-            }
-        );
+        if(size === 'small')
+        {
+            elem.axisTitleGroup.append("text")
+                .attr("x", canvas.xLeft + (canvas.xRight - canvas.xLeft) / 2)
+                .attr("y", canvas.yBottom + 8)
+                .style("text-anchor", "middle")
+                .style("font-size", "7px")
+                .attr("class", "plots-title-x")
+                .text(_xTitle);        }
+        else if(size === 'big')
+        {
+            elem.axisTitleGroup.append("text")
+                .attr("x", canvas.xLeft + (canvas.xRight - canvas.xLeft) / 2 - 17)
+                .attr("y", canvas.yBottom + 45)
+                .style("text-anchor", "middle")
+                .style("font-size", "12px")
+                .style("font-weight", "bold")
+                .attr("class", "plots-title-x")
+                .text(_xTitle);
+
+            elem.axisTitleGroup.append("svg:foreignObject")
+                .attr("id", "plots-title-x-checkbox")
+                .attr("x", canvas.xLeft + (canvas.xRight - canvas.xLeft) / 2 + _xTitle.length / 2 * 8 - 47)
+                .attr("y", canvas.yBottom + 30)
+                .attr("width", "50")
+                .attr("height", "20")
+                .append("xhtml:body")
+                .attr("style", "font-size:'11px';margin:0;")
+                .html("<input id='mut-cna-haxis-log' class='mut-cna-axis-log' type='checkbox' style='float:left' "+(axisXLogFlag ? "checked" : "")+"/><span style='float:left; margin-top: 2px; font-size-adjust: 0.5;'>Log</span>");
+
+            $("#mut-cna-haxis-log").change(function() {
+                if($(this).prop("checked")){
+                    axisXLogFlag = true;
+                }else {
+                    axisXLogFlag = false;
+                }
+
+                if (axisXLogFlag) {
+                    updateAxisScaleX();
+                } else {
+                    initScaleX();
+                }
+                initAxisX();
+                generateAxisX();
+                updatePlotsLogScale("x", axisXLogFlag);
+            });
+        }
+        else
+        {
+            elem.axisTitleGroup.append("text")
+                .attr("x", canvas.xLeft + (canvas.xRight - canvas.xLeft) / 2)
+                .attr("y", canvas.yBottom + 60)
+                .style("text-anchor", "middle")
+                .style("font-size", "12px")
+                .style("font-weight", "bold")
+                .attr("class", "plots-title-x")
+                .text(_xTitle);
+            elem.axisTitleGroup.append("svg:image")
+                .attr("xlink:href", "images/help.png")
+                .attr("class", "plots-title-x-help")
+                .attr("x", canvas.xLeft + (canvas.xRight - canvas.xLeft) / 2 + _xTitle.length / 2 * 8)
+                .attr("y", canvas.yBottom + 48)
+                .attr("width", "16")
+                .attr("height", "16");
+            elem.svg.select(".plots-title-x-help").each(
+                function() {
+                    $(this).qtip(
+                        {
+                            content: {text: "<font size=1>" + text.xTitleHelp + "</font>" },
+                            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+                            show: {event: "mouseover"},
+                            hide: {fixed:true, delay: 100, event: "mouseout"},
+                            position: {my:'left bottom',at:'top right', viewport: $(window)}
+                        }
+                    );
+                }
+            );
+        }
+
     }
 
-    function appendAxisTitleY(_applyLogScale) {
+    function appendAxisTitleY(_applyLogScale, size) {
         d3.select("#" + names.body).select(".plots-title-y").remove();
         d3.select("#" + names.body).select(".plots-title-y-help").remove();
         var _yTitle = "";
@@ -268,35 +299,90 @@ var ScatterPlots = function() {
         } else {
             _yTitle = text.yTitle;
         }
-        elem.axisTitleGroup.append("text")
-            .attr("transform", "rotate(-90)")
-            .attr("x", (canvas.yTop - canvas.yBottom) / 2 - canvas.yTop)
-            .attr("y", canvas.xLeft - 60)
-            .style("text-anchor", "middle")
-            .style("font-size", "12px")
-            .style("font-weight", "bold")
-            .attr("class", "plots-title-y") 
-            .text(_yTitle);
-        elem.axisTitleGroup.append("svg:image")
-            .attr("xlink:href", "images/help.png")
-            .attr("class", "plots-title-y-help")
-            .attr("x", canvas.xLeft - 72)
-            .attr("y", canvas.yBottom - (canvas.yBottom - canvas.yTop) / 2 - _yTitle.length / 2 * 8 - 20)
-            .attr("width", "16")
-            .attr("height", "16");
-        elem.svg.select(".plots-title-y-help").each(
-            function() {
-                $(this).qtip(
-                    {
-                        content: {text: "<font size=1>" + text.yTitleHelp + "</font>"},
-                        style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
-                        show: {event: "mouseover"},
-                        hide: {fixed:true, delay: 100, event: "mouseout"},
-                        position: {my:'right bottom',at:'top left', viewport: $(window)}
-                    }
-                );
-            }
-        );
+        if(size === 'small')
+        {
+            elem.axisTitleGroup.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("x", (canvas.yTop - canvas.yBottom) / 2 - canvas.yTop)
+                .attr("y", canvas.xLeft - 5)
+                .style("text-anchor", "middle")
+                .style("font-size", "7px")
+                .attr("class", "plots-title-y")
+                .text(_yTitle);
+        }
+        else if(size === 'big')
+        {
+            elem.axisTitleGroup.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("x", (canvas.yTop - canvas.yBottom) / 2 - canvas.yTop)
+                .attr("y", canvas.xLeft - 60)
+                .style("text-anchor", "middle")
+                .style("font-size", "12px")
+                .style("font-weight", "bold")
+                .attr("class", "plots-title-y")
+                .text(_yTitle);
+
+
+            elem.axisTitleGroup.append("svg:foreignObject")
+                .attr("id", "plots-title-y-checkbox")
+                .attr("transform", "rotate(-90)")
+                .attr("x", (canvas.yTop - canvas.yBottom) / 2 + _yTitle.length / 2 * 8-16)
+                .attr("y", canvas.xLeft - 75)
+                .attr("width", "50")
+                .attr("height", "20")
+                .append("xhtml:body")
+                .attr("style", "font-size:'11px';margin:0;")
+                .html("<input id='mut-cna-vaxis-log' class='mut-cna-axis-log' type='checkbox' style='float:left' "+(axisYLogFlag ? "checked" : "")+"/><span style='float:left; margin-top: 2px; font-size-adjust: 0.5;'>Log</span>");
+
+            $("#mut-cna-vaxis-log").change(function() {
+                if($(this).prop("checked")){
+                    axisYLogFlag = true;
+                }else {
+                    axisYLogFlag = false;
+                }
+                if (axisYLogFlag) {
+                    updateAxisScaleY();
+                } else {
+                    initScaleY();
+                }
+                initAxisY();
+                generateAxisY();
+                updatePlotsLogScale("y", axisYLogFlag);
+            });
+        }
+        else
+        {
+            elem.axisTitleGroup.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("x", (canvas.yTop - canvas.yBottom) / 2 - canvas.yTop)
+                .attr("y", canvas.xLeft - 60)
+                .style("text-anchor", "middle")
+                .style("font-size", "12px")
+                .style("font-weight", "bold")
+                .attr("class", "plots-title-y")
+                .text(_yTitle);
+            elem.axisTitleGroup.append("svg:image")
+                .attr("xlink:href", "images/help.png")
+                .attr("class", "plots-title-y-help")
+                .attr("x", canvas.xLeft - 72)
+                .attr("y", canvas.yBottom - (canvas.yBottom - canvas.yTop) / 2 - _yTitle.length / 2 * 8 - 20)
+                .attr("width", "16")
+                .attr("height", "16");
+            elem.svg.select(".plots-title-y-help").each(
+                function() {
+                    $(this).qtip(
+                        {
+                            content: {text: "<font size=1>" + text.yTitleHelp + "</font>"},
+                            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+                            show: {event: "mouseover"},
+                            hide: {fixed:true, delay: 100, event: "mouseout"},
+                            position: {my:'right bottom',at:'top left', viewport: $(window)}
+                        }
+                    );
+                }
+            );
+        }
+
     }
 
     function drawPlots() {
@@ -321,18 +407,6 @@ var ScatterPlots = function() {
                     return style.fill;
                 } else {
                     return d.fill;
-                }
-            })
-            .attr("opacity", function(d) {
-            	//if item has a specific opacity, don't overwrite it. Only set it if not set yet:
-                if (d.opacity === null || d.opacity === "" || typeof d.opacity === "undefined") {
-                    //only set it if it is defined in style: 
-                	if (style.opacity)
-                		return style.opacity;
-                	else
-                		return 1;
-                } else {
-                    return d.opacity;
                 }
             })
             .attr("stroke", function(d) {
@@ -365,13 +439,6 @@ var ScatterPlots = function() {
                 .type(style.shape))
             .attr("fill", function(d) {
                 return style.fill;
-            })
-            .attr("opacity", function(d) {
-        	    //only set it if it is defined in style: 
-            	if (style.opacity)
-            		return style.opacity;
-            	else
-            		return 1;
             })
             .attr("stroke", function(d) {
                 return style.stroke;
@@ -448,6 +515,7 @@ var ScatterPlots = function() {
     }
 
     function addQtips() {
+       
         elem.dotsGroup.selectAll('path').each(
             function(d) {
                 $(this).qtip(
@@ -457,10 +525,11 @@ var ScatterPlots = function() {
                         show: {event: "mouseover"},
                         hide: {fixed:true, delay: 100, event: "mouseout"},
                         position: {my:'left bottom',at:'top right', viewport: $(window)}
-                    }
-                );
             }
         );
+    }
+     );
+
         //Hover Animation
         var mouseOn = function() {
             var dot = d3.select(this);
@@ -490,24 +559,13 @@ var ScatterPlots = function() {
             if (d.x_val > extent[0][0] && d.x_val < extent[1][0] &&
                 d.y_val > extent[0][1] && d.y_val < extent[1][1]) {
                 //TODO: does not work with log scale applied scenario
-            	if (style.selection_mode && style.selection_mode === "fade_unselected") { 
-	            	if ($(this).attr("fill") != style.special_select_color)
-	            		$(this).attr("fill", style.fill);
-	            	$(this).attr("stroke", style.stroke);
-            	}
-            	else {
-            		$(this).attr("stroke", "red");
-            	}
+                $(this).attr("stroke", "red");
                 brushedCases.push(d.case_id);
             } else {
-            	if (style.selection_mode && style.selection_mode === "fade_unselected") { 
-	                if ($(this).attr("fill") != style.special_select_color)
-	                	$(this).attr("fill", "lightgrey");
-	                $(this).attr("stroke", "lightgrey");
-            	}
-            	else if(d.stroke === null || d.stroke === "" || typeof d.stroke === "undefined") {
+                if(d.stroke === null || d.stroke === "" || typeof d.stroke === "undefined") {
                     $(this).attr("stroke", style.stroke);    
-            	}
+                }
+                $(this).attr("stroke", d.stroke);
             }
         });
         d3.select(".brush").call(elem.brush.clear());
@@ -581,65 +639,8 @@ var ScatterPlots = function() {
             .range([canvas.yBottom, canvas.yTop]);
     }
 
-     function getXDomain(){
-          return elem.xScale.domain();
-     }
-
-     function getYDomain(){
-         return elem.yScale.domain();
-     }
-
-     // add line to the scatterplot
-     // pathInfo: [{x:xFrom, y:yFrom}, {x:xTo, y:yTo}]
-     function addLine(pathInfo, options){
-         var newOptions = $.extend({}, lineOptions, options);
-         var line = d3.svg.line()
-            .x(function(d){
-                 if(newOptions.scaleX) {
-                     return elem.xScale(d.x);
-                 }
-                 else {
-                     return d.x;
-                 }
-             })
-            .y(function(d){
-                 if(newOptions.scaleY) {
-                     return elem.yScale(d.y);
-                 }
-                 else {
-                     return d.y;
-                 }
-             })
-
-         elem.svg.append("svg:path")
-            .attr("d", line(pathInfo))
-            .attr("marker-end", newOptions.markerEnd)
-            .style("stroke-width", newOptions.strokeWidth)
-            .style("stroke", newOptions.stroke)
-            .style("stroke-dasharray", newOptions.strokeDasharray);
-     }
-
-     function addLabel(labelValue, coordinates, options){
-         var newOptions = $.extend({}, labelOptions, options);
-
-         elem.svg.append("text")
-            .attr("transform", newOptions.transform)
-            .attr("fill", newOptions.fill)
-            .attr("x", coordinates.x)
-            .attr("y", coordinates.y)
-            .style("text-anchor", newOptions.textAnchor)
-            //.style("fill", "none")
-
-            .attr("shape-rendering", "crispEdges")
-             .attr("color-rendering", "optimizeQuality")
-             // .style("font-family", "sans-serif")
-            // .style("font-size", "12px")
-            .text(labelValue);
-
-     }
-
     return {
-        init: function(_options, _dataArr, _dataAttr, _brushOn, _drawCoExpInfo) {    //Init with options
+        init: function(_options, _dataArr, _dataAttr, _brushOn) {    //Init with options
             initSettings(_options, _dataAttr);
             convertData(_dataArr);
             initScaleX();
@@ -653,10 +654,43 @@ var ScatterPlots = function() {
             appendAxisTitleY(false);
             drawPlots();
             drawLegends();
-            if (_drawCoExpInfo)
-            	drawCoExpInfo();
+            drawCoExpInfo();
             addQtips();
         },
+        //added by jiaojiao at Nov/25/2015
+        //for the scatter plot in patient view
+        initSmall: function(_options, _dataArr, _dataAttr, _brushOn) {    //Init with options
+            initSettings(_options, _dataAttr);
+            convertData(_dataArr);
+            initScaleX();
+            initScaleY();
+            initSvgCanvas(names.body, _brushOn);
+            initAxisX();
+            initAxisY();
+            appendAxisTitleX(false, 'small');
+            appendAxisTitleY(false, 'small');
+            drawPlots();
+            addQtips();
+
+        },
+
+        initBig: function(_options, _dataArr, _dataAttr, _brushOn) {    //Init with options
+            initSettings(_options, _dataAttr);
+            convertData(_dataArr);
+            initScaleX();
+            initScaleY();
+            initSvgCanvas(names.body, _brushOn);
+            initAxisX();
+            initAxisY();
+            generateAxisX();
+            generateAxisY();
+            appendAxisTitleX(false, 'big');
+            appendAxisTitleY(false, 'big');
+            drawPlots();
+            addQtips();
+
+        },
+
         // !!! Log Scale are only used by using RNA Seq Profile
         updateScaleX: function(_divName) {   //_applyLogScale: boolean, true for apply scale, false for  original value)
             var _applyLogScale = document.getElementById(_divName).checked;
@@ -734,70 +768,8 @@ var ScatterPlots = function() {
                     $(this).attr("stroke", _datumArr[_index].fill);
                 }
             });
-        },
-        /**
-         * This function will give the items found in the case_ids list 
-         * a special selection color. This is different from the normal selection
-         * color. 
-         * 
-         * @param case_ids: list of item IDs of the items that should get a *special*  color
-         */
-        specialSelectItems: function(case_ids) {
-            var addSpecialSelect = _.difference(case_ids, prevSpecialSelection);
-            var removeSpecialSelect = _.difference(prevSpecialSelection, case_ids);
-
-            var allPathElements = elem.dotsGroup.selectAll("path");
-
-            for(var i=0; i<addSpecialSelect.length; i++){
-                // find the proper element by filtering the data based on case_id
-                var curElement = allPathElements.filter(function(d) {return d.case_id==addSpecialSelect[i]})
-                curElement.attr("fill", style.special_select_color);
-            }
-
-            for(var i=0; i<removeSpecialSelect.length; i++){
-                // find the proper element by filtering the data based on case_id
-                var curElement = allPathElements.filter(function(d) {return d.case_id==removeSpecialSelect[i]})
-                curElement.attr("fill", style.fill);
-            }
-
-            prevSpecialSelection = case_ids.slice();
-        },
-
-        addLabel: addLabel,
-        addLine: addLine,
-        getXDomain: getXDomain,
-        getYDomain: getYDomain,
-        /**
-         * This function can be used to show a *normal* selection made via an external source,
-         * e.g. via a filter in a datatable coupled to this plot. 
-         * 
-         * @param case_ids: list of item IDs of the items that should get the *normal* selection style
-         */
-        showSelection: function(case_ids) {
-        	elem.dotsGroup.selectAll("path").each(function(d) {
-        		if (case_ids.indexOf(d.case_id) != -1) {
-        			if (style.selection_mode && style.selection_mode === "fade_unselected") {
-        				//if for special selection case above
-        				if ($(this).attr("fill") != style.special_select_color)
-            				$(this).attr("fill", style.fill);
-            			$(this).attr("stroke", style.stroke);
-                	}
-        			else {
-        				$(this).attr("stroke", "red");
-        			}
-                }
-        		else {
-        			if (style.selection_mode && style.selection_mode === "fade_unselected") {
-	        			if ($(this).attr("fill") != style.special_select_color)
-	        				$(this).attr("fill", "lightgrey");
-	        			$(this).attr("stroke", "lightgrey");
-        			}
-        			else {
-        				$(this).attr("stroke", style.stroke);
-        			}
-        		}
-            });
         }
+
     };
 };
 

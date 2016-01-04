@@ -373,7 +373,6 @@ table #network_wrapper{
 {
 	width: 280px;
 	height: 666px;
-	overflow-y: auto;
 }
 
 #network_tabs .tabs-button
@@ -560,6 +559,10 @@ table #network_wrapper{
  * ########## Interactions (Relations) Tab ################
  * ########################################################
  */
+
+ #relations_tab{
+	 	overflow-y: auto;
+ }
 
 #relations_tab .percent-bar
 {

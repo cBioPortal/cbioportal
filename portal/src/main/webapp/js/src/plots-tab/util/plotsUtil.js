@@ -146,7 +146,7 @@ var discretized_cna_profile_keywords = [
 var is_profile_discretized = function(axis) {
     var elt = document.getElementById(ids.sidebar[axis].profile_name);
     var _profile_name = elt.options[elt.selectedIndex].value;
-    var _token = _profile_name.replace(window.PortalGlobals.getCancerStudyId(), "");
+    var _token = _profile_name.replace(window.QuerySession.getCancerStudyIds()[0], "");
     //if ($.inArray(_token, discretizedDataList) !== -1) return true;
     if ($.inArray(_token.toLowerCase(), discretized_cna_profile_keywords) !== -1) return true;
     return false;

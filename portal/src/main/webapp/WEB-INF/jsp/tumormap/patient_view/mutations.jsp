@@ -41,9 +41,9 @@
 
 <script type="text/javascript">
     var mutTableIndices =
-            ["id","case_ids","gene","aa","chr","start","end","ref","_var","validation","type",
+            ["id","case_ids","gene","aa", "annotation", "chr","start","end","ref","_var","validation","type",
              "tumor_freq","tumor_var_reads","tumor_ref_reads","norm_freq","norm_var_reads",
-             "norm_ref_reads","bam","cna","mrna","altrate","pancan_mutations", "cosmic","ma","drug", "oncokb"];
+             "norm_ref_reads","bam","cna","mrna","altrate","pancan_mutations", "cosmic","ma","drug"];
 
     mutTableIndices = cbio.util.arrayToAssociatedArrayIndices(mutTableIndices);
 
@@ -57,17 +57,19 @@
             $(oTable).find('.pancan_mutations_histogram_count').each(function() {
                 if ($(this).hasClass("initialized")) return;
                 $(this).addClass("initialized");
+                var proteinPos = $(this).attr('protein_pos');
                 var keyword = $(this).attr('keyword');
                 var gene = $(this).attr('gene');
-                $(this).html(genomicEventObs.pancan_mutation_frequencies.countByKey(keyword));
+                $(this).html(genomicEventObs.pancan_mutation_frequencies.countByKey(proteinPos));
                 $(this).qtip({
                     content: {text: 'pancancer mutation bar chart is broken'},
                     events: {
                         render: function(event, api) {
+                            var byPositionData = genomicEventObs.pancan_mutation_frequencies.data[proteinPos];
                             var byKeywordData = genomicEventObs.pancan_mutation_frequencies.data[keyword];
                             var byHugoData = genomicEventObs.pancan_mutation_frequencies.data[gene];
                             var invisible_container = document.getElementById("pancan_mutations_histogram_container");
-                            var histogram = PancanMutationHistogram(byKeywordData, byHugoData, window.cancer_study_meta_data, invisible_container, {this_cancer_study: window.cancerStudyName});
+                            var histogram = PancanMutationHistogram(byPositionData, byKeywordData, byHugoData, window.cancer_study_meta_data, invisible_container, {this_cancer_study: window.cancerStudyName});
 
                             var title = "<div><div><h3>"+gene+" mutations across all cancer studies</h3></div>" +
                                         "<div style='float:right;'><button class='cross-cancer-download' file-type='pdf'>PDF</button>"+
@@ -118,8 +120,9 @@
         var data = [];
         var oncokbInstance;
         if(OncoKB.getAccess()) {
-            oncokbInstance = new OncoKB.Instance();
-            if(oncokbGeneStatus){
+            var oncokbInstanceManager = new OncoKB.addInstanceManager();
+            oncokbInstance = oncokbInstanceManager.addInstance('patient-mutation');
+            if(oncokbGeneStatus) {
                 oncokbInstance.setGeneStatus(oncokbGeneStatus);
             }
             oncokbInstance.setTumorType(OncoKB.utils.getTumorTypeFromClinicalDataMap(clinicalDataMap));
@@ -127,7 +130,7 @@
         for (var i=0, nEvents=mutEventIds.length; i<nEvents; i++) {
             var _id = mutEventIds[i];
             if(oncokbInstance) {
-                oncokbInstance.addVariant(_id, mutations.getValue(_id, "gene"), mutations.getValue(_id, "aa"), null, mutations.getValue(_id, "type"));
+                oncokbInstance.addVariant(_id, mutations.getValue(_id, "gene"), mutations.getValue(_id, "aa"), null, mutations.getValue(_id, "type"), findCosmic(mutations.getValue(_id, "cosmic"), mutations.getValue(_id, "aa")), mutations.getValue(_id, "is-hotspot"));
             }
             data.push([mutEventIds[i]]);
         }
@@ -217,6 +220,63 @@
                             }
                         }
                     },
+                    {// annotation
+                        "aTargets": [ mutTableIndices["annotation"] ],
+                        "sClass": "no-wrap-td",
+                        "sType": "sort-icons",
+                        "mDataProp": function(source,type,value) {
+                            if (type === 'set') {
+                                return;
+                            } else if (type === 'display') {
+                                var ret = "";
+                                var aa = mutations.getValue(source[0], 'aa');
+                                if (aa.length > 2 && aa.substring(0, 2) == 'p.')
+                                    aa = aa.substring(2);
+                                if (mutations.colExists('oncokb')) {
+                                    var oncokbInfo = mutations.getValue(source[0], 'oncokb');
+
+                                    ret += "&nbsp;<span class='oncokb oncokb_alteration oncogenic' oncokbId='" + source[0] + "'></span>";
+                                    ret += "<span class='oncokb oncokb_column' oncokbId='" + source[0] + "'></span>";
+                                } else if (OncoKB.getAccess()) {
+                                    ret += '<img width="13" height="13" class="loader" src="images/ajax-loader.gif"/>';
+                                }
+
+                                var mcg = mutations.getValue(source[0], 'mycancergenome');
+                                if (!cbio.util.checkNullOrUndefined(mcg) && mcg.length) {
+                                    ret += "&nbsp;<span class='" + table_id + "-tip'" +
+                                            "alt='<b>My Cancer Genome links:</b><br/><ul style=\"list-style-position: inside;padding-left:0;\"><li>" + mcg.join("</li><li>") + "</li></ul>'>" +
+                                            "<img src='images/mcg_logo.png'></span>";
+                                }
+                                if (showHotspot && mutations.getValue(source[0], 'is-hotspot')) {
+                                    ret += "<span class='" + table_id + "-hotspot' alteration='" + aa + "' oncokbId='" + source[0] + "' style='margin-left:5px;'><img width='13' height='13' src='images/oncokb-flame.svg'></span>";
+                                }
+                                return ret;
+                            } else if (type === 'sort') {
+                                var datum = {
+                                    mutation: {
+                                        myCancerGenome: [],
+                                        isHotspot: false
+                                    },
+                                    oncokb:{}
+                                };
+
+                                if(mutations.colExists('mycancergenome')) {
+                                    datum.mutation.myCancerGenome = mutations.getValue(source[0], 'mycancergenome');
+                                }
+
+                                if(mutations.colExists('is-hotspot')) {
+                                    datum.mutation.isHotspot = mutations.getValue(source[0], 'is-hotspot');
+                                }
+
+                                if (mutations.colExists('oncokb')) {
+                                    datum.oncokb = mutations.getValue(source[0], 'oncokb');
+                                }
+                                return datum;
+                            } else {
+                                return mutations.getValue(source[0], 'aa');
+                            }
+                        }
+                    },
                     {// aa change
                         "aTargets": [ mutTableIndices["aa"] ],
                         "sClass": "no-wrap-td",
@@ -231,24 +291,6 @@
                                 if (mutations.getValue(source[0],'status')==="Germline")
                                     ret += "&nbsp;<span style='background-color:red;font-size:x-small;' class='"
                                             +table_id+"-tip' alt='Germline mutation'>Germline</span>";
-                                if(mutations.colExists('oncokb')) {
-                                    var oncokbInfo = mutations.getValue(source[0], 'oncokb');
-
-                                    ret += "&nbsp;<span class='oncokb oncokb_alteration oncogenic' oncokbId='"+source[0]+"'></span>";
-                                }else if(OncoKB.getAccess()){
-                                    ret += '<img width="13" height="13" class="loader" src="images/ajax-loader.gif"/>';
-                                }
-
-                                var mcg = mutations.getValue(source[0], 'mycancergenome');
-                                if (!cbio.util.checkNullOrUndefined(mcg) && mcg.length) {
-                                    ret += "&nbsp;<span class='"+table_id+"-tip'" +
-                                       "alt='<b>My Cancer Genome links:</b><br/><ul style=\"list-style-position: inside;padding-left:0;\"><li>"+mcg.join("</li><li>")+"</li></ul>'>" +
-                                       "<img src='images/mcg_logo.png'></span>";
-                                }
-
-                                if(showHotspot && mutations.getValue(source[0], 'is-hotspot')) {
-                                    ret += "<span class='"+table_id+"-hotspot' alteration='"+aa+"' oncokbId='"+source[0]+"' style='margin-left:5px;'><img width='13' height='13' src='images/oncokb-flame.svg'></span>";
-                                }
 
                                 var aaOriginal = mutations.getValue(source[0], 'aa-orig');
 
@@ -704,10 +746,11 @@
                             if (type === 'display') {
                                 var keyword = mutations.getValue(source[0], "key");
                                 var hugo = mutations.getValue(source[0], "gene");
+                                var proteinPos = hugo+"_"+mutations.getValue(source[0], "protein-start");
 
-                                var ret = "<div class='pancan_mutations_histogram_thumbnail' gene='"+hugo+"' keyword='"+keyword+"'></div>";
+                                var ret = "<div class='pancan_mutations_histogram_thumbnail' protein_pos='"+proteinPos+"' gene='"+hugo+"' keyword='"+keyword+"'></div>";
                                     ret += "<img width='15' height='15' class='pancan_mutations_histogram_wait' src='images/ajax-loader.gif'/>";
-                                    ret += "<div class='pancan_mutations_histogram_count' style='float:right' gene='"+hugo+"' keyword='"+keyword+"'></div>";
+                                    ret += "<div class='pancan_mutations_histogram_count' style='float:right' protein_pos='"+proteinPos+"' gene='"+hugo+"' keyword='"+keyword+"'></div>";
 
                                 return ret;
                             }
@@ -862,28 +905,6 @@
                             }
                         },
                         "asSorting": ["desc", "asc"]
-                    },{// OncoKB column
-                        "aTargets": [ mutTableIndices["oncokb"] ],
-                        "sClass": "center-align-td",
-                        "bSearchable": false,
-                        "bSortable" : false,
-                        "bVisible": OncoKB.getAccess(),
-                        "mDataProp":
-                            function(source,type,value) {
-                                if (type==='set') {
-                                    return;
-                                } else if (type==='display') {
-                                    var ret = '';
-                                    if(mutations.colExists('oncokb')) {
-                                        ret += "<span class='oncokb oncokb_column' oncokbId='"+source[0]+"'></span>";
-                                    }else{
-                                        ret += "<img width='13' height='13' class='loader' src='images/ajax-loader.gif'/>"
-                                    }
-                                    return ret;
-                                } else {
-                                    return '';
-                                }
-                            }
                     }
                 ],
                 "fnDrawCallback": function( oSettings ) {
@@ -897,17 +918,21 @@
                     addNoteTooltip("."+table_id+"-tip");
                     addNoteTooltip("."+table_id+"-ma-tip",null,{my:'top right',at:'bottom center',viewport: $(window)});
                     if(showHotspot) {
-                        addNoteTooltip('.'+table_id+'-hotspot', '<b>Recurrent Hotspot</b><br/>This mutated amino acid was identified as a recurrent hotspot (statistical significance, q-value < 0.01) in a set of 11,119 tumor samples of various cancer types (based on Chang, M. et al. Nature Biotech. 2015).');
+                        addNoteTooltip('.'+table_id+'-hotspot', "<b>Recurrent Hotspot</b><br/>This mutated amino acid was identified as a recurrent hotspot (statistical significance, q-value < 0.01) in a set of 11,119 tumor samples of various cancer types (based on <a href='http://www.ncbi.nlm.nih.gov/pubmed/26619011' target='_blank'>Chang, M. et al. Nature Biotech. 2015</a>).");
                     }
                     addDrugsTooltip("."+table_id+"-drug-tip", 'top right', 'bottom center');
                     addCosmicTooltip(table_id);
                     listenToBamIgvClick(".igv-link");
                     drawPanCanThumbnails(this);
-                    if(oncokbInstance) oncokbInstance.addEvents(this);
+                    if(oncokbInstance){
+                        oncokbInstance.addEvents(this, 'gene');
+                        oncokbInstance.addEvents(this, 'alteration');
+                        oncokbInstance.addEvents(this, 'column');
+                    }
                 },
                 "bPaginate": true,
                 "sPaginationType": "two_button",
-                "aaSorting": [[mutTableIndices["cosmic"],'desc'],[mutTableIndices["altrate"],'desc']],
+                "aaSorting": [[mutTableIndices["cosmic"],'desc'],[mutTableIndices["altrate"],'desc'], [mutTableIndices["gene"], 'asc']],
                 "oLanguage": {
                     "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
                     "sInfoFiltered": "",
@@ -929,10 +954,10 @@
                 if (tableData.length > 0)
                 {
                     _.each(tableData, function(ele, i) {
-                        oTable.fnUpdate(null, i, mutTableIndices["aa"], false, false);
+                        oTable.fnUpdate(null, i, mutTableIndices["annotation"], false, false);
                     });
 
-                    oTable.fnUpdate(null, 0, mutTableIndices['aa']);
+                    oTable.fnUpdate(null, 0, mutTableIndices['annotation']);
                 }
             });
         }
@@ -945,6 +970,20 @@
 //        });
 
         return oTable;
+    }
+
+    function findCosmic(mutationCosmicArray, aa) {
+        var count = 0;
+
+        if (_.isArray(mutationCosmicArray)) {
+            _.each(mutationCosmicArray, function (item) {
+                if (item[1] === aa) {
+                    count += item[2];
+                }
+            })
+        }
+
+        return count;
     }
 
     function listenToBamIgvClick(elem) {
@@ -1155,6 +1194,7 @@
                     var pancanMutationsUrl = "pancancerMutations.json";
                     var byKeywordResponse = [];
                     var byHugoResponse = [];
+                    var byProteinPosResponse = [];
 
                     function munge(response, key) {
                         // munge data to get it into the format: keyword -> corresponding datum
@@ -1179,10 +1219,12 @@
                                                 cmd: cmd,
                                                 q: accData
                                             }, function(batchData) {
-                                                if(cmd == "byKeywords") {
+                                                if(cmd === "byKeywords") {
                                                     byKeywordResponse = byKeywordResponse.concat(batchData);
-                                                } else if( cmd == "byHugos") {
+                                                } else if( cmd === "byHugos") {
                                                     byHugoResponse = byHugoResponse.concat(batchData);
+                                                } else if (cmd === "byProteinPos") {
+                                                    byProteinPosResponse = byProteinPosResponse.concat(batchData);
                                                 } else {
                                                     console.trace("Ooops! Something is wrong!");
                                                 }
@@ -1195,11 +1237,17 @@
                         return jobs;
                     };
 
-                    var jobs = splitJobs("byKeywords", genomicEventObs.mutations.data.key)
-                            .concat(splitJobs("byHugos", genomicEventObs.mutations.data.gene));
+                    var keys = genomicEventObs.mutations.data.key;
+                    var genes = genomicEventObs.mutations.data.gene;
+                    var positions = _.map(_.zip.apply(_, [genes, genomicEventObs.mutations.data['protein-start']]), function(pieces) {
+                                    return pieces[0]+"_"+pieces[1];
+                               });
+                    var jobs = splitJobs("byKeywords", keys)
+                            .concat(splitJobs("byHugos", genes))
+                            .concat(splitJobs("byProteinPos", positions));
                     $.when.apply($, jobs).done(function() {
                         genomicEventObs.pancan_mutation_frequencies.setData(
-                                _.extend(munge(byKeywordResponse, "keyword"), munge(byHugoResponse, "hugo")));
+                                _.extend(munge(byProteinPosResponse, "protein_start_with_hugo"), munge(byKeywordResponse, "keyword"), munge(byHugoResponse, "hugo")));
                         genomicEventObs.fire("pancan-mutation-frequency-built");
                     });
 

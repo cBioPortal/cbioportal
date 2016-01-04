@@ -388,7 +388,7 @@ if (patientViewError!=null) {
 </style>
 
 <script type="text/javascript" src="js/src/patient-view/genomic-event-observer.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/patient-view/OncoKBConnector.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/OncoKBConnector.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script src="js/lib/dataTables.tableTools.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript">
 
@@ -419,10 +419,8 @@ var caseMetaData = {
 var oncokbGeneStatus = <%=oncokbGeneStatus%>;
 var showHotspot = <%=showHotspot%>;
 
-OncoKB.setUrl('<%=oncokbUrl%>');
-
-
 $(document).ready(function(){
+    OncoKB.setUrl('<%=oncokbUrl%>');
     if (print) $('#page_wrapper_table').css('width', '900px');
     tweaksStyles();
     outputClinicalData();
@@ -556,7 +554,22 @@ function addMoreClinicalTooltip(elem) {
                 }
             };
         } else {
+            // check if sample has clinical data
             var caseId = $(this).attr('alt');
+            if (!clinicalDataMap[caseId]) {
+                var pos = {my:'top left',at:'bottom left'};
+                thisElem.qtip({
+                    content: {
+                        text: "No clinical data"
+                    },
+                    show: {event: "mouseover"},
+                    hide: {fixed: true, delay: 100, event: "mouseout"},
+                    style: { classes: 'qtip-light qtip-rounded qtip-wide' },
+                    position: pos,
+                });
+                return;
+            }
+            // if it does have clinical data, make datatable
             clinicalData = [];
             for (var key in clinicalDataMap[caseId]) {
                 clinicalData.push([clinicalAttributes && clinicalAttributes[key]["displayName"] || key, clinicalDataMap[caseId][key]]);
@@ -918,12 +931,16 @@ function outputClinicalData() {
     });
 
     row = "<span id='more-patient-info'><b><u><a href='"+cbio.util.getLinkToPatientView(cancerStudyId,patientId)+"'>"+patientId+"</a></b></u><a>&nbsp;";
-    if ("PATIENT_DISPLAY_NAME" in patientInfo) {
+    var patientDisplayName = guessClinicalData(patientInfo, ["PATIENT_DISPLAY_NAME"]);
+    if (patientDisplayName !== null) {
         row +="("+patientInfo["PATIENT_DISPLAY_NAME"]+")&nbsp;";
     }
     var info = [];
-    var loc;
-    if ("PRIMARY_SITE" in patientInfo) {loc = (" (" + patientInfo["PRIMARY_SITE"] + ")")} else {loc=""};
+    var loc = "";
+    var primarySite = guessClinicalData(patientInfo, ["PRIMARY_SITE"]);
+    if (primarySite !== null) {
+        loc = (" (" + primarySite + ")");
+    }
     var info = info.concat(formatPatientInfo(patientInfo).join(", ") + loc);
     var info = info.concat(formatDiseaseInfo(patientInfo));
     var info = info.concat(formatPatientStatus(patientInfo));
@@ -945,8 +962,9 @@ function outputClinicalData() {
             sample_recs += "<svg width='12' height='12' class='case-label-header' alt='"+caseId+"'></svg>&nbsp;";
         }
         sample_recs += "<b><u><a style='color: #1974b8;' href='"+cbio.util.getLinkToSampleView(cancerStudyId,caseId)+"'>"+caseId+"</a></b></u><a>&nbsp;";
-        if ("SAMPLE_DISPLAY_NAME" in clinicalDataMap[caseId]) {
-            sample_recs +="("+clinicalDataMap[caseId]["SAMPLE_DISPLAY_NAME"]+")&nbsp;";
+        var sampleDisplayName = guessClinicalData(clinicalDataMap[caseId], ["SAMPLE_DISPLAY_NAME"]);
+        if (sampleDisplayName!==null) {
+            sample_recs +="("+sampleDisplayName+")&nbsp;";
         }
         var info = [];
         info = info.concat(formatDiseaseInfo(_.omit(clinicalDataMap[caseId], Object.keys(patientInfo))));
@@ -1188,6 +1206,11 @@ function outputClinicalData() {
         var serumPsa = guessClinicalData(clinicalData, ["SERUM_PSA"]);
         if (serumPsa!==null) {
             diseaseInfo.push("Serum PSA: "+serumPsa);
+        }
+
+        var driverMutations = guessClinicalData(clinicalData,["DRIVER_MUTATIONS"]);
+        if (driverMutations!==null) {
+            diseaseInfo.push(driverMutations);
         }
 
         return diseaseInfo;

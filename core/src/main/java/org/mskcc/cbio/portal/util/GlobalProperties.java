@@ -36,6 +36,7 @@ import org.mskcc.cbio.portal.servlet.QueryBuilder;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -299,6 +300,14 @@ public class GlobalProperties {
         return properties.getProperty(AUTHENTICATE);
     }
 
+    /**
+     * Return authenticated username
+     * @return String userName 
+     * Return authenticated username. If the user is not authenticated, 'anonymousUser' will be returned.
+     */
+    public static String getAuthenticatedUserName() {
+        return SecurityContextHolder.getContext().getAuthentication().getName();
+    }
 	public static boolean usersMustBeAuthorized() {
         return Boolean.parseBoolean(properties.getProperty(AUTHORIZATION));
 	}

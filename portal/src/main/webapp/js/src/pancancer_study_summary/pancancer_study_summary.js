@@ -241,8 +241,9 @@ var CustomizeHistogramView = Backbone.View.extend({
          var cancerType = $(this).val();
          fields["cancerType"] = cancerType;
          fields["cancerTypeDetailed"] = self.dmPresenter.getCancerTypeDetailedList(cancerType);
-         //also reset minAlteredSamples (for the slider):
+         //also reset minAlteredSamples and minTotalSamples (for the sliders):
          fields["minAlteredSamples"] = 1;
+         fields["minTotalSamples"] = 0;
     	 self.model.set(fields);
      }
      // create the dropdown and add it
@@ -391,7 +392,12 @@ var MinAlteredSamplesSliderView = Backbone.View.extend({
 
          // in the rare cases where the maximum alteration frequency is smaller than 1%
          // set the init to 0
-         if(this.max<=init) init=0;
+         if(this.max<=init) {
+        	 init=0;  
+        	 //in this case we also set the model...again...with this value:
+        	 console.log("Special case (max<=1) for 'Min. alteration'...");
+        	 this.model.set("minAlteredSamples", init);
+         }
 	 }
 
      // initialise general template with initial value of 1
@@ -408,8 +414,6 @@ var MinAlteredSamplesSliderView = Backbone.View.extend({
         min: 0, 
         max: this.max 
      });
-
-     if(init==0) this.model.set("minAlteredSamples", init);
   },
 
   // handle change to the slider        
@@ -418,7 +422,7 @@ var MinAlteredSamplesSliderView = Backbone.View.extend({
      console.log("GENE: "+this.gene);
      // update text 
      sampleText.html(ui.value);
-     // and notify the histogram 
+     // and notify the histogram via model change:
      this.model.set("minAlteredSamples", ui.value);
   }
 
@@ -466,8 +470,6 @@ var MinTotalSamplesSliderView = Backbone.View.extend({
             min: 0,
             max: this.max
         });
-
-        //this.model.set("minTotalSamples", 0);
     },
 
     // handle change to the slider
@@ -476,7 +478,7 @@ var MinTotalSamplesSliderView = Backbone.View.extend({
         console.log("GENE: "+this.gene);
         // update text
         sampleText.html(ui.value);
-        // and notify the histogram
+        // and notify the histogram via model change:
         this.model.set("minTotalSamples", ui.value);
     }
 

@@ -65,7 +65,7 @@ function PancancerStudySummaryHistogram()
     };
     
     var filterCriteriaChanged = function(model) {
-    	return model.hasChanged("cancerType") || model.hasChanged("cancerTypeDetailed") || model.hasChanged("minAlteredSamples") || model.hasChanged("minTotalSamples");;
+    	return model.hasChanged("cancerType") || model.hasChanged("cancerTypeDetailed") || model.hasChanged("minAlteredSamples") || model.hasChanged("minTotalSamples");
     }
     
     
@@ -84,6 +84,7 @@ function PancancerStudySummaryHistogram()
 		//if data will change, e.g. because a cancer type was added or removed to the 
 		//filter criteria, then get processed data again: 
 	    if (filterCriteriaChanged(model)) {
+	    	console.log("Filter criteria changed, filtering/sorting data again...");
 	    	//get data via presenter layer:
 			this.histogramPresenter = new HistogramPresenter(model, dmPresenter, geneId);
 			//Get data:

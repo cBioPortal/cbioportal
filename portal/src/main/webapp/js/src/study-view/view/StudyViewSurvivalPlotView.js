@@ -1181,7 +1181,7 @@ var StudyViewSurvivalPlotView = (function() {
                 StudyViewUtil.changePosition(
                         '#' + opts[i].divs.main,
                         '#' + opts[i].divs.bodyLabel,
-                        "#dc-plots");
+                        "#summary");
             }
         }
     }

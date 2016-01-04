@@ -37,7 +37,6 @@ var StudyViewInitCNATab = (function(){
     
     function init(_data){
         data = _data;
-        $('#gistic_wrapper_table').hide();
         loadGisticData(StudyViewParams.params.cancerStudyId);
     }
     

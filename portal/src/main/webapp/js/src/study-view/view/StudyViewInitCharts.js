@@ -412,7 +412,7 @@ var StudyViewInitCharts = (function(){
                     StudyViewUtil.changePosition(
                             '#study-view-scatter-plot',
                             '#study-view-scatter-plot-side',
-                            "#dc-plots");
+                            "#summary");
                 }
             });
             

@@ -59,7 +59,7 @@
 
 
 
-<div id="dc-plots-loading-wait">
+<div id="summary-loading-wait">
     <img src="images/ajax-loader.gif"/>
 </div>
 

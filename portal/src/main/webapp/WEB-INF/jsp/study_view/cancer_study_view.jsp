@@ -108,7 +108,7 @@ if (cancerStudyViewError!=null) {
 <div id="study-tabs">
     <ul>
         
-    <li id="li-1"><a href='#dc-plots' id='study-tab-dc-plots-a' class='study-tab' title='Study Summary'>Study Summary</a></li>
+    <li id="li-1"><a href='#summary' id='study-tab-summary-a' class='study-tab' title='Study Summary'>Study Summary</a></li>
     <!--<li><a href='#clinical-plots' class='study-tab' title='DC Plots'>Study Summary</a></li>-->
     <li><a href='#clinical' id='study-tab-clinical-a' class='study-tab' title='Clinical Data'>Clinical Data</a></li>
     
@@ -122,7 +122,7 @@ if (cancerStudyViewError!=null) {
     
     </ul>
     
-    <div class="study-section" id="dc-plots">
+    <div class="study-section" id="summary">
         <%@ include file="dcplots.jsp" %>
     </div>
     
@@ -211,7 +211,21 @@ var hasCNA = <%=hasCNA%>;
 
 
 $("#study-tabs").tabs({disabled: true});
-$("#study-tabs").tabs("enable", 0);
+
+$('#study-tab-summary-a').click(function () {
+    if (!$(this).parent().hasClass('ui-state-disabled') && !$(this).hasClass("tab-clicked")) {
+        var _data = StudyViewProxy.getAllData();
+        if (!(_data.attr.length === 1 && _data.attr[0].attr_id === 'CASE_ID')) {
+            StudyViewSummaryTabController.init(_data);
+        } else {
+            $("#summary-loading-wait").css('display', 'none');
+            $("#summary").append("<div style='width:100%'>" +
+                "There isn't any information for this study.</div>");
+        }
+        $('#study-tab-summary-a').addClass("tab-clicked");
+    }
+    window.location.hash = '#summary';
+});
 
 $('#study-tab-clinical-a').click(function(){
     if (!$(this).parent().hasClass('ui-state-disabled') && !$(this).hasClass("tab-clicked")) {
@@ -225,6 +239,7 @@ $('#study-tab-clinical-a').click(function(){
             $('#study-tab-clinical-a').addClass("tab-clicked");
         }, 200);
     }
+    window.location.hash = '#clinical';
 });
 
 $('#study-tab-mutations-a').click(function(){
@@ -233,6 +248,7 @@ $('#study-tab-mutations-a').click(function(){
         $(this).addClass("tab-clicked");
         StudyViewMutationsTabController.getDataTable().fnAdjustColumnSizing();
     }
+    window.location.hash = '#mutations';
 });
 
 $('#study-tab-cna-a').click(function(){
@@ -241,6 +257,7 @@ $('#study-tab-cna-a').click(function(){
         $(this).addClass("tab-clicked");
         StudyViewCNATabController.getDataTable().fnAdjustColumnSizing();
     }
+    window.location.hash = '#cna';
 });
 </script>
 

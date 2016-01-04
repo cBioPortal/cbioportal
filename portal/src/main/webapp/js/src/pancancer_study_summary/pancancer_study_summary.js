@@ -766,7 +766,8 @@ function DataManagerPresenter(dmInitCallBack)
 	var self = this;
 	//keep track of samples and their respective alteration events 
 	self.sampleList = []; //each entry contains alterationEvents[] 
-	var nrResponsesReceived = 0;
+	var callbackA_done = new $.Deferred();
+    var callbackB_done = new $.Deferred();
 	
 	//Initialize: run initial ws requests and data parsing. 
 	//This sequence of calls gets: 
@@ -788,13 +789,8 @@ function DataManagerPresenter(dmInitCallBack)
 			}
 			console.log(new Date() + ": finished processing getGenomicEventData() data");
 			
-			//do the next call:
-			console.log(new Date() + ": CALL to get sample clinical atttributes (cancer types)");
-			//this and next call below are in parallel, so the last one should call the dmInitCallBack:
-			nrResponsesReceived++;
-			if (nrResponsesReceived == 2) {
-				dmInitCallBack(self);
-			}
+			//signal "done":
+			callbackA_done.resolve();
 		},
 		function(err){
 			// handle error, if any
@@ -835,17 +831,20 @@ function DataManagerPresenter(dmInitCallBack)
 					cancerType.cancerTypeDetailed[sampleClinicalData[i].attr_val].sampleIds.push(sampleClinicalData[i].sample);
 				}
 			}
-			console.log(new Date() + ": finished processing sample clinical atttributes (cancer types)");
-			//this and next call above are in parallel, so the last one should call the dmInitCallBack:
-			nrResponsesReceived++;
-			if (nrResponsesReceived == 2) {
-				dmInitCallBack(self);
-			}
+			console.log(new Date() + ": finished processing getSampleClinicalData()");
+			//signal "done":
+			callbackB_done.resolve();
 		},
 		function(err){
 			// handle error, if any
 			alert(" error found");
 		});	
+	
+	//when both calls above are done processing, then we want to continue with dmInitCallBack:
+	$.when(callbackA_done, callbackB_done).then(function () {
+		console.log(new Date() + ": getGenomicEventData() and getSampleClinicalData() DONE, continuing with dmInitCallBack...");
+		dmInitCallBack(self);
+	});
 
 
 	/**

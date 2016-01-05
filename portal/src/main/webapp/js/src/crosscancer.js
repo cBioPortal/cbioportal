@@ -1277,7 +1277,7 @@
                     lossCount: study.alterations.cnaLoss,
                     multipleCount: study.alterations.other,
                     // and create the link
-                    studyLink: templateFunction({ study: study, genes: genes })
+                    studyLink: templateFunction({ study: study, genes: genes.replace(/\n/g, ' ') })
                 };
 
                 this.$el.html(this.template(summary));

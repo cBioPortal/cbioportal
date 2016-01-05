@@ -242,7 +242,8 @@ var CustomizeHistogramView = Backbone.View.extend({
          fields["cancerType"] = cancerType;
          fields["cancerTypeDetailed"] = self.dmPresenter.getCancerTypeDetailedList(cancerType);
          //also reset minAlteredSamples and minTotalSamples (for the sliders):
-         fields["minAlteredSamples"] = 1;
+         var max = self.dmPresenter.getMaxAlteredSamplesForCancerTypeAndGene(cancerType, self.gene, self.model.get("dataTypeYAxis"));
+         fields["minAlteredSamples"] = self.dmPresenter.getMinAlteredSamples(self.model.get("dataTypeYAxis"), max);
          fields["minTotalSamples"] = 0;
     	 self.model.set(fields);
      }
@@ -263,7 +264,8 @@ var CustomizeHistogramView = Backbone.View.extend({
         var fields = {};
         fields["dataTypeYAxis"] = $(this).val();
         //also reset minAlteredSamples:
-        fields["minAlteredSamples"] = 1;
+        var max = self.dmPresenter.getMaxAlteredSamplesForCancerTypeAndGene(self.model.get("cancerType"), self.gene, fields["dataTypeYAxis"]);
+        fields["minAlteredSamples"] = self.dmPresenter.getMinAlteredSamples(fields["dataTypeYAxis"], max);
         self.model.set(fields);        
      }
      // create the dropdown and add it
@@ -393,15 +395,7 @@ var MinAlteredSamplesSliderView = Backbone.View.extend({
 		 //in %, with 1 decimal:
 		 this.max = Math.round(parseFloat(this.max) * 1000)/10;
          text = "Min. alteration ";
-
-         // in the rare cases where the maximum alteration frequency is smaller than 1%
-         // set the init to 0
-         if(this.max<=init) {
-        	 init=0;  
-        	 //in this case we also set the model...again...with this value:
-        	 console.log("Special case (max<=1) for 'Min. alteration'...");
-        	 this.model.set("minAlteredSamples", init);
-         }
+         init = this.dmPresenter.getMinAlteredSamples(this.model.get("dataTypeYAxis"), this.max);
 	 }
 
      // initialise general template with initial value of 1
@@ -683,6 +677,11 @@ var HistogramSettings = Backbone.Model.extend({
 	  }
 	  else
 		  this.set("cancerTypeDetailed", options.dmPresenter.getCancerTypeList()); 
+	  
+	  //initialize minAlteredSamples:
+	  var max = options.dmPresenter.getMaxAlteredSamplesForCancerTypeAndGene(this.get("cancerType"), options.gene, this.get("dataTypeYAxis"));
+	  this.set("minAlteredSamples", options.dmPresenter.getMinAlteredSamples(this.get("dataTypeYAxis"), max));
+	  
       console.log("HistogramSettings model Created");
   }
 });
@@ -726,7 +725,7 @@ function GeneDetailsController(cancerSummaryMainView, dispatcher, dmPresenter){
 
    // create the content of a tab, triggered when tab 
    function createTabContent(gene){
-      var histogramSettings = new HistogramSettings({dmPresenter: dmPresenter});
+      var histogramSettings = new HistogramSettings({dmPresenter: dmPresenter, gene: gene});
 
       // create a ButtonsView, providing the gene, the dispatcher and the el
       var buttonsView = new ButtonsView({
@@ -1015,7 +1014,8 @@ function DataManagerPresenter(dmInitCallBack)
 	 * @return : max as number of samples or frequency % (depending on the value of dataTypeYAxis)
 	 */
 	this.getMaxAlteredSamplesForCancerTypeAndGene = function(cancerType, geneId, dataTypeYAxis) {
-		
+		//TODO : result of this function could be cached if performance becomes a problem
+		console.log("Calculate getMaxAlteredSamplesForCancerTypeAndGene...");
 		if (cancerType == "All") {
 			//check max:
 			var max = 0;
@@ -1072,6 +1072,29 @@ function DataManagerPresenter(dmInitCallBack)
 	 */
 	this.getGeneList = function(){
 		return window.QuerySession.getQueryGenes();
+	}
+	
+	/**
+	 * Returns the value to be set as minimum altered samples. Depends on given max,
+	 * if max is < 1 (can happen when dataTypeYAxis == "Alteration Frequency" in some rare cases) then
+	 * then this function returns 0. This is to avoid the scenario where no histogram is
+	 * showed at all in this case.
+	 */
+	this.getMinAlteredSamples = function(dataTypeYAxis, max) {
+	     var defaultMinAlteredSamples=1;
+
+		 if (dataTypeYAxis == "Alteration Frequency") {
+			 //in %, with 1 decimal:
+			 max = Math.round(parseFloat(this.max) * 1000)/10;
+
+	         // in the rare cases where the maximum alteration frequency is smaller than 1%
+	         // set the defaultMinAlteredSamples to 0
+	         if(max<=defaultMinAlteredSamples) {
+	        	 console.log("Special case (max<=1) for 'Min. alteration'...");
+	        	 defaultMinAlteredSamples = 0;  
+	         }
+		 }
+         return defaultMinAlteredSamples;
 	}
 	
 }

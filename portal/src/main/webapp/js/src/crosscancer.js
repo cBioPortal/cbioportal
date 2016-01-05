@@ -1256,7 +1256,8 @@
                 var study = this.model.study;
                 var metaData = this.model.metaData;
                 var genes = this.model.genes;
-
+                var templateFunction = _.template($("#study-link-tmpl").html());
+              
                 var summary = {
                     name: metaData.cancer_studies[study.studyId].name,
                     caseSetLength: study.caseSetLength,
@@ -1277,7 +1278,7 @@
                     lossCount: study.alterations.cnaLoss,
                     multipleCount: study.alterations.other,
                     // and create the link
-                    studyLink: _.template($("#study-link-tmpl").html(), { study: study, genes: genes } )
+                    studyLink: templateFunction({ study: study, genes: genes })
                 };
 
                 this.$el.html(this.template(summary));

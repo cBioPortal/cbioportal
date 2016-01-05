@@ -225,7 +225,7 @@ var StudyViewProxy = (function() {
                     }
                 }
 
-                //Add new attribute MUTATIOIN COUNT for each case if have any
+                //Add new attribute MUTATION COUNT for each case if have any
                 if(Object.keys(filteredA2).length !== 0){
                     var _newAttr = new CaseAttr();
                     _newAttr.attr_id = 'MUTATION_COUNT';
@@ -255,9 +255,8 @@ var StudyViewProxy = (function() {
                     _newAttr.keys = Object.keys(_keys);
                     obtainDataObject.attr.push(_newAttr);
                 }else {
-                    var cnaLength = obtainDataObject.arr.length;
-                    for(var i = 0; i < cnaLength; i++) {
-                        if(!_.isUndefined(obtainDataObject.arr[i]['MUTATION_COUNT'])) {
+                    for(var i = 0, arrSize = obtainDataObject.arr.length; i < arrSize; i++) {
+                        if (!_.isUndefined(obtainDataObject.arr[i].MUTATION_COUNT)) {
                             delete obtainDataObject.arr[i].MUTATION_COUNT;
                         }
                     }
@@ -285,9 +284,8 @@ var StudyViewProxy = (function() {
                     _newAttri.keys = Object.keys(_keys);
                     obtainDataObject.attr.push(_newAttri);
                 }else {
-                    var cnaLength = obtainDataObject.arr.length;
-                    for(var i = 0; i < cnaLength; i++) {
-                        if(!_.isUndefined(obtainDataObject.arr[i]['COPY_NUMBER_ALTERATIONS'])) {
+                    for(var i = 0, arrSize = obtainDataObject.arr.length; i < arrSize; i++) {
+                        if(!_.isUndefined(obtainDataObject.arr[i].COPY_NUMBER_ALTERATIONS)) {
                             delete obtainDataObject.arr[i].COPY_NUMBER_ALTERATIONS;
                         }
                     }
@@ -464,7 +462,7 @@ var StudyViewProxy = (function() {
         if (sampleIds.length === this.getSampleIds().length) {
             return obtainDataObject.cna;
         }
-        if (!_.isUndefined(obtainDataObject['cnaSampleBased'])) {
+        if (!_.isUndefined(obtainDataObject.cnaSampleBased)) {
             var geneSpecific = {};
             var numOfSample = sampleIds.length;
             for (var i = 0; i < numOfSample; i++) {
@@ -526,7 +524,7 @@ var StudyViewProxy = (function() {
             if(sampleIds.length === this.getSampleIds().length) {
                 return obtainDataObject.mutatedGenes;
             }
-            if(_.isObject(obtainDataObject['mutatedGenesSampleBased'])){
+            if(_.isObject(obtainDataObject.mutatedGenesSampleBased)){
                 var geneSpecific = {};
                 var numOfSample = sampleIds.length;
                 for (var i = 0; i < numOfSample; i++) {

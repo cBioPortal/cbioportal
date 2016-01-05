@@ -432,16 +432,16 @@ var OncoKB = (function () {
             var str = '<div class="oncokb"><span><b style="font-size:12px;color:#';
             switch (oncogenic) {
                 case 0:
-                    str += '2f4f4f">Non-Oncogenic Mutation';
+                    str += '2f4f4f">Not oncogenic';
                     break;
                 case 1:
-                    str += 'ff0000">Known Oncogenic Mutation';
+                    str += 'ff0000">Known oncogenic';
                     break;
                 case 2:
-                    str += 'ff69b4">Likely Oncogenic Mutation';
+                    str += 'ff69b4">Likely oncogenic';
                     break;
                 default:
-                    str += '2f4f4f">Unknown Oncogenicity';
+                    str += '2f4f4f">Unknown to be oncogenic';
                     break;
             }
             str += '</b>';

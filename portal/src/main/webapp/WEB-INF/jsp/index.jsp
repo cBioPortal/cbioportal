@@ -108,7 +108,7 @@ $(document).ready(function(){
 <p id="ie10-warning" style="background-color:red;display:none;">
     <img src="images/warning.gif"/>
     You are using an old version of Internet Explorer. For better performance, we recommend
-    using <b>Google Chrome, Firefox, Safari, or Internet Explorer V11 to visit this web site.</b>.
+    using <b>Google Chrome, Firefox, Safari, or Internet Explorer V11 to visit this web site</b>.
 </p>
 
     <table cellspacing="2px">

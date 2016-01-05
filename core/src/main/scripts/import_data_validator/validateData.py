@@ -504,7 +504,8 @@ class ValidatorFactory(object):
 
     """Factory for creating validation objects of various types."""
 
-    # TODO remove this singleton factory, multiple files are multiple files
+    # TODO remove the Validator.create() method overrides,
+    # they do nothing but wrap the constructor in unnecessary instance methods
 
     factories = {}
 
@@ -519,13 +520,13 @@ class ValidatorFactory(object):
 
 class Validator(object):
 
-    """Abstract validator class.
+    """Abstract validator class for tab-delimited data files.
 
     Subclassed by validators for specific data file types, which should
     define a 'REQUIRED_HEADERS' attribute listing the required column
     headers and a `REQUIRE_COLUMN_ORDER` boolean stating whether their
-    position is significant, and may implement a processTopLine method
-    to handle lines prefixed with '#'.
+    position is significant, and may implement a processTopLines method to
+    handle a list of lines prefixed with '#' before the tsv header line.
     """
 
     def __init__(self,filename,hugo_entrez_map,fix,logger,stableId):
@@ -562,31 +563,49 @@ class Validator(object):
         with open(self.filename, 'rU') as data_file:
             fileRead = data_file.read()
             data_file.seek(0)
-            self.checkLineBreaks(fileRead)
             self.checkQuotes(fileRead)
             del fileRead
 
-            uncommented_line_number = 0
-            for line_index, line in enumerate(data_file):
-                self.line_number = line_index + 1
-                # TODO test for # lines after non-# lines
-                if not line.startswith('#'):
-                    uncommented_line_number += 1
-                    if uncommented_line_number == 1:
-                        if self.checkHeader(line) > 0:
-                            self.logger.info(
-                                'Invalid column header, skipped data in file')
-                            break
-                    elif not self.end:
-                        self.checkLine(line)
+            # parse any block of start-of-file comment lines and the tsv header
+            top_comments = []
+            line_number = 0
+            for line_number, line in enumerate(data_file,
+                                               start=line_number + 1):
+                self.line_number = line_number
+                if line.startswith('#'):
+                    top_comments.append(line)
                 else:
-                    # TODO make a function to parse initial multi-line comments,
-                    # as these are required in clinical data files
-
+                    # parse the start-of-file comment lines
                     # This method may or may not be implemented by subclasses
-                    processTopLine = getattr(self, 'processTopLine', None)
-                    if processTopLine is not None:
-                        processTopLine(line)
+                    processTopLines = getattr(self, 'processTopLines', None)
+                    if processTopLines is not None:
+                        processTopLines(top_comments)
+                    # parse the first non-commented line as the tsv header
+                    if self.checkHeader(line) > 0:
+                        self.logger.info(
+                            'Invalid column header, skipped data in file')
+                        self.end = True
+                    # end of the file's header
+                    break
+            # if the loop wasn't broken by a non-commented line
+            else:
+                self.logger.error('No column header or data found in file',
+                                  extra={'line_number': self.line_number})
+
+            # read through the data lines of the file
+            if not self.end:
+                for line_number, line in enumerate(data_file,
+                                                   start=line_number + 1):
+                    self.line_number = line_number
+                    if line.startswith('#'):
+                        self.logger.error(
+                            "Data line starting with '#' skipped",
+                            extra={'line_number': self.line_number})
+                        continue
+                    self.checkLine(line)
+
+            # now all lines have been read
+            self.checkLineBreaks(data_file.newlines)
 
         if self.fix:
             self.correctedFile.close()
@@ -707,22 +726,22 @@ class Validator(object):
         if '"' in fileRead or '\'' in fileRead:
             self.logger.warning('Found quotation marks in file')
 
-    def checkLineBreaks(self, fileRead):
+    def checkLineBreaks(self, linebreaks):
         """Checks line breaks, reports to user."""
         # TODO document these requirements
-        if "\r\n" in fileRead:
+        if "\r\n" in linebreaks:
             self.lineEndings = "\r\n"
             self.logger.error('DOS-style line breaks detected (\\r\\n), '
                               'should be Unix-style (\\n)')
             if self.fix:
                 self.logger.info('Corrected file will have Unix (\\n) line breaks')
-        elif "\r" in fileRead:
+        elif "\r" in linebreaks:
             self.lineEndings = "\r"
             self.logger.error('Classic Mac OS-style line breaks detected '
                               '(\\r), should be Unix-style (\\n)')
             if self.fix:
                 self.logger.info('Corrected file will have Unix (\\n) line breaks')
-        elif "\n" in fileRead:
+        elif "\n" in linebreaks:
             self.lineEndings = "\n"
         else:
             self.logger.error('No line breaks recognized in file')
@@ -1105,9 +1124,14 @@ class MutationsExtendedValidator(Validator):
         if self.fix:
             self.writeNewLine(data)
 
-    def processTopLine(self,line):
+    def processTopLines(self, line_list):
         """Processes the top line, which contains sample ids used in study."""
         # TODO remove this function, it violates the MAF standard
+
+        if not line_list:
+            return
+        line = line_list[0]
+
         self.headerPresent = True
         topline = [x.strip() for x in line.split(' ') if '#' not in x]
 

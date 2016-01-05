@@ -387,9 +387,9 @@ var StudyViewProxy = (function() {
     function toPascalCase(str) {
         var arr = str.split(/\s|_/);
 //        for(var i=0,l=arr.length; i<l; i++) {
-//            arr[i] = arr[i].substr(0,1).toUpperCase() + 
+//            arr[i] = arr[i].substr(0,1).toUpperCase() +
 //                     (arr[i].length > 1 ? arr[i].substr(1).toLowerCase() : "");
-//        } 
+//        }
         return arr.join(" ");
     }
 
@@ -534,7 +534,8 @@ var StudyViewProxy = (function() {
                         for (var j = 0, numOfGenes = obtainDataObject.mutatedGenesSampleBased[sampleIds[i]].length; j < numOfGenes; j++) {
                             var  geneSymbol = obtainDataObject.mutatedGenesSampleBased[sampleIds[i]][j].gene_symbol;
                             if (_.isUndefined(geneSpecific[geneSymbol])) {
-                                geneSpecific[geneSymbol] = obtainDataObject.mutatedGenesSampleBased[sampleIds[i]][j];
+                                // create a copy of the object to preserve the original
+                                geneSpecific[geneSymbol] = jQuery.extend(true, {}, obtainDataObject.mutatedGenesSampleBased[sampleIds[i]][j]);
                                 geneSpecific[geneSymbol].caseIds = [];
                             }
                             geneSpecific[geneSymbol].caseIds.push(sampleIds[i]);

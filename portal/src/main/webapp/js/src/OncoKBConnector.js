@@ -457,7 +457,9 @@ var OncoKB = (function () {
 
         function getOncogenicityFooterStr() {
             return '<div class="oncokb" style="text-align:right;"><span><i>Powered by OncoKB(Beta)</i></span></div>' +
-                '<div><i>OncoKB is under development, please pardon errors and omissions. <button class="oncokbFeedback">Send feedback</button></div>';
+                '<div><i>OncoKB is under development. To report errors or missing annotation about this variant, please ' + 
+                '<span class="oncokbFeedback">send us feedback</span>. For general feedback, please send an email to ' +
+                '<a href=&quot;mailto:oncokb@cbio.mskcc.org&quot; title=&quot;Contact us&quot;>oncokb@cbio.mskcc.org</a></i></div>';
         }
 
         function getMutationSummaryStr(oncokbInfo) {
@@ -1392,8 +1394,18 @@ OncoKB.Instance.prototype = {
                                             var user = userName==='anonymousUser'?'':userName;
                                             var dialog = new BootstrapDialog({
                                                 message: function(dialogRef){
-                                                    var $message = $('<iframe src="https://docs.google.com/forms/d/1lt6TtecxHrhIE06gAKVF_JW4zKFoowNFzxn6PJv4g7A/viewform?entry.1744186665=' + self.variants[oncokbId].gene + '&entry.1671960263=' + self.variants[oncokbId].alteration + '&entry.118699694&entry.1568641202&entry.1381123986='+user+'&embedded=true" width="550" height="830" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>');
-                                                    return $message;
+                                                    var div = $('<div></div>');
+                                                    var closeIcon = $('<div><span class="bootstrap-dialog-close">x</span></div>');
+                                                    var message = $('<div><iframe src="https://docs.google.com/forms/d/1lt6TtecxHrhIE06gAKVF_JW4zKFoowNFzxn6PJv4g7A/viewform?entry.1744186665=' + self.variants[oncokbId].gene + '&entry.1671960263=' + self.variants[oncokbId].alteration + '&entry.118699694&entry.1568641202&entry.1381123986=' + user + '&embedded=true" width="550" height="880" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>');
+
+                                                    closeIcon
+                                                        .find('.bootstrap-dialog-close')
+                                                        .on('click', {dialogRef: dialogRef}, function (event) {
+                                                            event.data.dialogRef.close();
+                                                        });
+                                                    div.append(closeIcon);
+                                                    div.append(message);
+                                                    return div;
                                                 },
                                                 closable: true
                                             });

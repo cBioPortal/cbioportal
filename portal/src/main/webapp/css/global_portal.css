@@ -1471,9 +1471,21 @@ ul.oncokb li {
 .qtip-content div.oncokb{
     padding-top: 5px;
 }
+.oncokbFeedback {
+    text-decoration: underline;
+}
+.oncokbFeedback:hover, .bootstrap-dialog-close:hover {
+    cursor: pointer;
+}
+.bootstrap-dialog-close {
+    float: right;
+    width: 100%;
+    text-align: right;
+    color: grey;
+}
 
 /* BootstrapDialog styles*/
 .modal-dialog {
-    height:870px;
+    height:920px;
     padding: 0;
 }

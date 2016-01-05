@@ -71,10 +71,10 @@
 		{
 			var version = cbio.util.browser.version;
 			//version = /^([0-9]+)/.exec(version);
-			if (version && version.length && parseInt(version) <= 8)
+			if (version && version.length && parseInt(version) <= 10)
 			{
 				// show warning messages for IE 8 or below
-				document.getElementById("ie8-warning").style.display = "block";
+				document.getElementById("ie10-warning").style.display = "block";
 			}
 		};
 
@@ -97,18 +97,18 @@ $(document).ready(function(){
 //	if (cbio.util.browser.msie) {
 //        var version = cbio.util.browser.version;
 //        //version = /^([0-9]+)/.exec(version);
-//        if (version && version.length && parseInt(version) <= 8)
+//        if (version && version.length && parseInt(version) <= 10)
 //        {
-//            $('#ie8-warning').show();
+//            $('#ie10-warning').show();
 //        }
 //    }
 });
 </script>
 
-<p id="ie8-warning" style="background-color:red;display:none;">
+<p id="ie10-warning" style="background-color:red;display:none;">
     <img src="images/warning.gif"/>
     You are using an old version of Internet Explorer. For better performance, we recommend
-    using <b>Google Chrome, Firefox, Safari, or Internet Explorer V9 or above to visit this web site.</b>.
+    using <b>Google Chrome, Firefox, Safari, or Internet Explorer V11 to visit this web site.</b>.
 </p>
 
     <table cellspacing="2px">

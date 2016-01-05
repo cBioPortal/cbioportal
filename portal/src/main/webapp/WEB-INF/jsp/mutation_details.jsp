@@ -34,6 +34,7 @@
     String myCancerGenomeUrl = (String) GlobalProperties.getMyCancerGenomeUrl();
     String oncokbGeneStatus = (String) GlobalProperties.getOncoKBGeneStatus();
     boolean showHotspot = (Boolean) GlobalProperties.showHotspot();
+    String userName = GlobalProperties.getAuthenticatedUserName();
 %>
 
 <div class='section' id='mutation_details'>
@@ -57,7 +58,11 @@
     @import "css/data_table_jui.css?<%=GlobalProperties.getAppVersion()%>";
     @import "css/data_table_ColVis.css?<%=GlobalProperties.getAppVersion()%>";
     @import "css/mutationMapper.min.css?<%=GlobalProperties.getAppVersion()%>";
+    @import "css/bootstrap.min.css?<%=GlobalProperties.getAppVersion()%>";
+    @import "css/bootstrap-dialog.css?<%=GlobalProperties.getAppVersion()%>";
 </style>
+<script type="text/javascript" src="js/lib/bootstrap.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/lib/bootstrap-dialog.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript"
         src="js/src/OncoKBConnector.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript">
@@ -69,6 +74,7 @@
     var oncokbGeneStatus = <%=oncokbGeneStatus%>;
     var showHotspot = <%=showHotspot%>;
     var enableMyCancerGenome = myCancerGenomeUrl?true:false;
+    var userName = '<%=userName%>';
 
     _mut3dVis = new Mutation3dVis("default3dView", {
 	    pdbUri: "api/proxy/jsmol/"

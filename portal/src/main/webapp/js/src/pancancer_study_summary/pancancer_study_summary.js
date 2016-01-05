@@ -259,8 +259,12 @@ var CustomizeHistogramView = Backbone.View.extend({
      
      // handle the event for when the Sort By Y-Axis Select is changed
      var changeCallBack = function(){
-        //console.log("sortByYAxisSelect changed to "+event.currentTarget.value);
-        self.model.set("dataTypeYAxis", $(this).val());
+        console.log("sortByYAxisSelect changed to "+event.currentTarget.value);
+        var fields = {};
+        fields["dataTypeYAxis"] = $(this).val();
+        //also reset minAlteredSamples:
+        fields["minAlteredSamples"] = 1;
+        self.model.set(fields);        
      }
      // create the dropdown and add it
      $("#customize-data-type-y-axis-"+this.gene).append(fnCreateSelect(
@@ -423,7 +427,7 @@ var MinAlteredSamplesSliderView = Backbone.View.extend({
      // update text 
      sampleText.html(ui.value);
      // and notify the histogram via model change:
-     this.model.set("minAlteredSamples", ui.value);
+     this.model.set("minAlteredSamples", parseInt(ui.value));
   }
 
 }); // end MinAlteredSamplesSliderView
@@ -666,8 +670,8 @@ var HistogramSettings = Backbone.Model.extend({
      cancerTypeDetailed: "All",
      sortXAxis: "Y-Axis Values",
      dataTypeYAxis: "Alteration Frequency",
-     minAlteredSamples: "1",
-     minTotalSamples: "0",
+     minAlteredSamples: 1,
+     minTotalSamples: 0,
      showGenomicAlterationTypes: true
   },
   initialize: function(options) {

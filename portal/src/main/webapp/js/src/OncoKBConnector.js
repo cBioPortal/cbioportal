@@ -456,7 +456,7 @@ var OncoKB = (function () {
         }
 
         function getOncogenicityFooterStr() {
-            return '<div class="oncokb" style="text-align:right;"><span><i>Powered by OncoKB(Beta)</i></span></div>' +
+            return '<div class="oncokb"><button class="oncokbFeedback-btn">Feedback</button><span style="float: right;"><i>Powered by OncoKB(Beta)</i></span></div>' +
                 '<div><i>OncoKB is under development. To report errors or missing annotation about this variant, please ' + 
                 '<span class="oncokbFeedback">send us feedback</span>. For general feedback, please send an email to ' +
                 '<a href=&quot;mailto:oncokb@cbio.mskcc.org&quot; title=&quot;Contact us&quot;>oncokb@cbio.mskcc.org</a></i></div>';
@@ -1409,7 +1409,8 @@ OncoKB.Instance.prototype = {
                                                 },
                                                 closable: true
                                             });
-                                            api.elements.content.find('.oncokbFeedback').click(function () {
+                                            api.elements.content.find('.oncokbFeedback, .oncokbFeedback-btn').click(function () {
+                                                api.hide();
                                                 dialog.realize();
                                                 dialog.getModalHeader().hide();
                                                 dialog.getModalFooter().hide();

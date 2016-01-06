@@ -1367,8 +1367,8 @@ class SegValidator(Validator):
         'seg.mean']
     REQUIRE_COLUMN_ORDER = True
 
-    def __init__(self,hugo_entrez_map,fix,logger,meta_dict):
-        super(SegValidator,self).__init__(hugo_entrez_map,fix,logger,meta_dict)
+    def __init__(self,hugo_entrez_map,logger,meta_dict):
+        super(SegValidator,self).__init__(hugo_entrez_map,logger,meta_dict)
 
     def validate(self):
         super(SegValidator,self).validate()

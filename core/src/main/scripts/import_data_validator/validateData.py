@@ -510,12 +510,12 @@ class ValidatorFactory(object):
     factories = {}
 
     @classmethod
-    def createValidator(cls, validator_type, filename, hugo_entrez_map, fix, logger, stableId):
+    def createValidator(cls, validator_type, hugo_entrez_map, fix, logger, meta_dict):
         if validator_type not in cls.factories:
             # instantiate a factory for the given validator type
             factory = globals()[validator_type].Factory()
             cls.factories[validator_type] = factory
-        return cls.factories[validator_type].create(filename,hugo_entrez_map,fix,logger,stableId)
+        return cls.factories[validator_type].create(hugo_entrez_map,fix,logger,meta_dict)
 
 
 class Validator(object):
@@ -527,32 +527,31 @@ class Validator(object):
     headers and a `REQUIRE_COLUMN_ORDER` boolean stating whether their
     position is significant, and may implement a processTopLines method to
     handle a list of lines prefixed with '#' before the tsv header line.
+    
+    :param hugo_entrez_map: path Entrez to Hugo mapping file
+    :param logger: logger instance for writing the log messages  
+    :param meta_dict: dictionary of fields found in corresponding meta file
+                     (such as stable id and data file name 
     """
 
-    def __init__(self,filename,hugo_entrez_map,fix,logger,stableId):
-        self.filename = filename
-        self.filenameShort = os.path.basename(filename)
+    def __init__(self,hugo_entrez_map,logger,meta_dict):
+        self.filename = meta_dict['data_file_path']
+        self.filenameShort = os.path.basename(self.filename)
         self.line_number = 0
         self.cols = []
         self.numCols = 0
         self.hugo_entrez_map = hugo_entrez_map
         self.lineEndings = ''
         self.end = False
-        self.fix = fix
+        self.fix = False
         self.studyId = ''
         self.headerWritten = False
         self.logger = CombiningLoggerAdapter(
             logger,
             extra={'data_filename': self.filenameShort})
-        self.stableId = stableId
+        self.meta_dict = meta_dict
         self.badChars = [' ']
 
-        if fix:
-            self.correctedFilename = '{basename}_{stable_id}.txt'.format(
-                basename=os.path.splitext(os.path.basename(self.filename))[0],
-                stable_id=self.stableId)
-            # TODO consider opening the file in validate()
-            self.correctedFile = open(self.correctedFilename,'w')
 
     def validate(self):
 
@@ -972,8 +971,8 @@ class CNAValidator(GenewiseFileValidator):
                            'column_number': col_index + 1,
                            'cause': value})
     class Factory(object):
-        def create(self,filename,hugo_entrez_map,fix,logger,stableId):
-            return CNAValidator(filename,hugo_entrez_map,fix,logger,stableId)
+        def create(self,hugo_entrez_map,fix,logger,meta_dict):
+            return CNAValidator(hugo_entrez_map,fix,logger,meta_dict)
 
 class MutationsExtendedValidator(Validator):
 
@@ -1027,8 +1026,8 @@ class MutationsExtendedValidator(Validator):
         'n_ref_count':'check_n_ref_count',
         'Amino_Acid_Change': 'checkAminoAcidChange'}
 
-    def __init__(self,filename,hugo_entrez_map,fix,logger,stableId):
-        super(MutationsExtendedValidator,self).__init__(filename,hugo_entrez_map,fix,logger,stableId)
+    def __init__(self,hugo_entrez_map,fix,logger,meta_dict):
+        super(MutationsExtendedValidator,self).__init__(hugo_entrez_map,fix,logger,meta_dict)
         # TODO consider making this attribute a local var in in checkLine(),
         # it really only makes sense there
         self.mafValues = {}
@@ -1297,8 +1296,8 @@ class MutationsExtendedValidator(Validator):
         return True
 
     class Factory(object):
-        def create(self,filename,hugo_entrez_map,fix,logger,stableId):
-            return MutationsExtendedValidator(filename,hugo_entrez_map,fix,logger,stableId)
+        def create(self,hugo_entrez_map,fix,logger,meta_dict):
+            return MutationsExtendedValidator(hugo_entrez_map,fix,logger,meta_dict)
 
 class ClinicalValidator(Validator):
 
@@ -1352,8 +1351,8 @@ class ClinicalValidator(Validator):
         self.correctedFile.write('\t'.join(data) + '\n')
 
     class Factory(object):
-        def create(self,filename,hugo_entrez_map,fix,logger,stableId):
-            return ClinicalValidator(filename,hugo_entrez_map,fix,logger,stableId)
+        def create(self,hugo_entrez_map,fix,logger,meta_dict):
+            return ClinicalValidator(hugo_entrez_map,fix,logger,meta_dict)
 
 
 class SegValidator(Validator):
@@ -1368,8 +1367,8 @@ class SegValidator(Validator):
         'seg.mean']
     REQUIRE_COLUMN_ORDER = True
 
-    def __init__(self,filename,hugo_entrez_map,fix,logger,stableId):
-        super(SegValidator,self).__init__(filename,hugo_entrez_map,fix,logger,stableId)
+    def __init__(self,hugo_entrez_map,fix,logger,meta_dict):
+        super(SegValidator,self).__init__(hugo_entrez_map,fix,logger,meta_dict)
 
     def validate(self):
         super(SegValidator,self).validate()
@@ -1393,8 +1392,8 @@ class SegValidator(Validator):
 
 
     class Factory(object):
-        def create(self,filename,hugo_entrez_map,fix,logger,stableId):
-            return SegValidator(filename,hugo_entrez_map,fix,logger,stableId)
+        def create(self,hugo_entrez_map,fix,logger,meta_dict):
+            return SegValidator(hugo_entrez_map,fix,logger,meta_dict)
 
 
 class Log2Validator(GenewiseFileValidator):
@@ -1420,8 +1419,8 @@ class Log2Validator(GenewiseFileValidator):
         pass
 
     class Factory(object):
-        def create(self,filename,hugo_entrez_map,fix,logger,stableId):
-            return Log2Validator(filename,hugo_entrez_map,fix,logger,stableId)
+        def create(self,hugo_entrez_map,fix,logger,meta_dict):
+            return Log2Validator(hugo_entrez_map,fix,logger,meta_dict)
 
 
 class ExpressionValidator(GenewiseFileValidator):
@@ -1447,8 +1446,8 @@ class ExpressionValidator(GenewiseFileValidator):
         pass
 
     class Factory(object):
-        def create(self,filename,hugo_entrez_map,fix,logger,stableId):
-            return ExpressionValidator(filename,hugo_entrez_map,fix,logger,stableId)
+        def create(self,hugo_entrez_map,fix,logger,meta_dict):
+            return ExpressionValidator(hugo_entrez_map,fix,logger,meta_dict)
 
 
 class FusionValidator(Validator):
@@ -1482,8 +1481,8 @@ class FusionValidator(Validator):
             self.writeNewLine(data)
 
     class Factory(object):
-        def create(self,filename,hugo_entrez_map,fix,logger,stableId):
-            return FusionValidator(filename,hugo_entrez_map,fix,logger,stableId)
+        def create(self,hugo_entrez_map,fix,logger,meta_dict):
+            return FusionValidator(hugo_entrez_map,fix,logger,meta_dict)
 
 
 class MethylationValidator(GenewiseFileValidator):
@@ -1509,8 +1508,8 @@ class MethylationValidator(GenewiseFileValidator):
         pass
 
     class Factory(object):
-        def create(self,filename,hugo_entrez_map,fix,logger,stableId):
-            return MethylationValidator(filename,hugo_entrez_map,fix,logger,stableId)
+        def create(self,hugo_entrez_map,fix,logger,meta_dict):
+            return MethylationValidator(hugo_entrez_map,fix,logger,meta_dict)
 
 
 class RPPAValidator(FeaturewiseFileValidator):
@@ -1541,8 +1540,8 @@ class RPPAValidator(FeaturewiseFileValidator):
         pass
 
     class Factory(object):
-        def create(self,filename,hugo_entrez_map,fix,logger,stableId):
-            return RPPAValidator(filename,hugo_entrez_map,fix,logger,stableId)
+        def create(self,hugo_entrez_map,fix,logger,meta_dict):
+            return RPPAValidator(hugo_entrez_map,fix,logger,meta_dict)
 
 
 class TimelineValidator(Validator):
@@ -1571,8 +1570,8 @@ class TimelineValidator(Validator):
             self.writeNewLine(data)
 
     class Factory(object):
-        def create(self,filename,hugo_entrez_map,fix,logger,stableId):
-            return TimelineValidator(filename,hugo_entrez_map,fix,logger,stableId)
+        def create(self,hugo_entrez_map,fix,logger,meta_dict):
+            return TimelineValidator(hugo_entrez_map,fix,logger,meta_dict)
 
 # ------------------------------------------------------------------------------
 # Functions
@@ -1583,6 +1582,11 @@ def processMetafile(filename, cancerStudyId, logger, case_list=False):
 
     Return `None` if the file is invalid. If `case_list` is True,
     validate the file as a case list instead of a meta file.
+    
+    :param filename: name of the meta file
+    :param cancerStudyId: cancer study id found in the first meta file. All subsequent 
+                          metafiles should comply to this in the field 'cancer_study_identifier' 
+    :param case_list: whether this meta file is a case list (special case)
     """
 
     metaDictionary = {}
@@ -1809,7 +1813,9 @@ def main_validate(args):
     for f in filenames:
 
         # metafile validation and information gathering. Simpler than the big files, so no classes.
-        # just need to get some values out, and also verify that no extra fields are specified
+        # just need to get some values out, and also verify that no extra fields are specified.
+        # Building up the map META_TO_FILE_MAP allows us to validate some scenarios like "there should 
+        # be only one clinical data file" (see below).
 
         if re.search(r'(\b|_)meta(\b|_)', f):
             meta = processMetafile(f, cancerStudyId, logger)
@@ -1841,15 +1847,13 @@ def main_validate(args):
                     META_TO_FILE_MAP[CLINICAL_META_PATTERN])})
 
     # create a validator for the clinical data file
-    clinical_filename = META_TO_FILE_MAP[CLINICAL_META_PATTERN][0][1]
-    clinical_stableid = META_TO_FILE_MAP[CLINICAL_META_PATTERN][0][0]['stable_id']
+    clinical_meta = META_TO_FILE_MAP[CLINICAL_META_PATTERN][0][0]
     clinvalidator = ValidatorFactory.createValidator(
         VALIDATOR_IDS[CLINICAL_META_PATTERN],
-        clinical_filename,
         hugo_entrez_map,
         fix,
         logger,
-        clinical_stableid)
+        clinical_meta)
 
     # parse the clinical data file
     clinvalidator.validate()
@@ -1859,19 +1863,16 @@ def main_validate(args):
     for meta_file_type in META_TO_FILE_MAP:
         if meta_file_type == CLINICAL_META_PATTERN:
             continue
-        for meta, filename in META_TO_FILE_MAP[meta_file_type]:
-            # TODO give validators access to all meta fields instead of just one
-            stableid = meta['stable_id']
+        for meta in META_TO_FILE_MAP[meta_file_type]:
             # TODO make hugo_entrez_map a global 'final':
             # it isn't supposed to change after initialisation, so that would
             # make things more readable
             validators.append(ValidatorFactory.createValidator(
                 VALIDATOR_IDS[meta_file_type],
-                filename,
                 hugo_entrez_map,
                 fix,
                 logger,
-                stableid))
+                meta))
 
     # validate non-clinical data files
     for validator in validators:

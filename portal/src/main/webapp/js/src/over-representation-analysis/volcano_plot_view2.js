@@ -113,6 +113,11 @@ function VolcanoPlot() {
         self.scatterPlot.addPlotLayoutOptions(axisOptions);
     }
 
+    // for IE compatibility
+    Math.log10 = function (x) {
+        return Math.log(x) / Math.LN10;
+    };
+
     function drawPlot(dataTrace, model, plotElName, plotDataOptions) {
 
         var axisMargin=1.25;

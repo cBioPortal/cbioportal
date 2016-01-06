@@ -961,44 +961,6 @@ class MutationsExtendedValidator(Validator):
 
     """Sub-class mutations_extended validator."""
 
-    MAF_HEADERS = [
-        'Hugo_Symbol',
-        'Entrez_Gene_Id',
-        'Center',
-        'NCBI_Build',
-        'Chromosome',
-        'Start_Position',
-        'End_Position',
-        'Strand',
-        'Variant_Classification',
-        'Variant_Type',
-        'Reference_Allele',
-        'Tumor_Seq_Allele1',
-        'Tumor_Seq_Allele2',
-        'dbSNP_RS',
-        'dbSNP_Val_Status',
-        'Tumor_Sample_Barcode',
-        'Matched_Norm_Sample_Barcode',
-        'Match_Norm_Seq_Allele1',
-        'Match_Norm_Seq_Allele2',
-        'Tumor_Validation_Allele1',
-        'Tumor_Validation_Allele2',
-        'Match_Norm_Validation_Allele1',
-        'Match_Norm_Validation_Allele2',
-        'Verification_Status',
-        'Validation_Status',
-        'Mutation_Status',
-        'Sequencing_Phase',
-        'Sequence_Source',
-        'Validation_Method',
-        'Score',
-        'BAM_File',
-        'Sequencer']
-    CUSTOM_HEADERS = [
-        't_alt_count',
-        't_ref_count',
-        'n_alt_count',
-        'n_ref_count']
     REQUIRED_HEADERS = [
        'Tumor_Sample_Barcode',
         'Hugo_Symbol',
@@ -1717,11 +1679,11 @@ def processCaseListDirectory(caseListDir, cancerStudyId, logger):
 
 # ------------------------------------------------------------------------------
 def interface():
-    parser = argparse.ArgumentParser(description='cBioPortal meta Importer')
+    parser = argparse.ArgumentParser(description='cBioPortal meta Validator')
     parser.add_argument('-s', '--study_directory', type=str, required=True,
                         help='path to directory.')
     parser.add_argument('-hugo', '--hugo_entrez_map', type=str, required=True,
-                        help='path to Hugo gene Symbol')
+                        help='path Entrez to Hugo mapping file')
     parser.add_argument('-html', '--html_table', type=str, required=False,
                         help='path to html report output file')
     parser.add_argument('-v', '--verbose', required=False, action="store_true",

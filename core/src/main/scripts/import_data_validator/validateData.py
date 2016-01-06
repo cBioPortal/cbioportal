@@ -53,6 +53,7 @@ RPPA_META_PATTERN = 'meta_rppa'
 TIMELINE_META_PATTERN = 'meta_timeline'
 
 META_TO_FILE_MAP = {}
+DEFINED_SAMPLE_IDS = ()
 
 META_FILE_PATTERNS = [
     STUDY_META_PATTERN,
@@ -192,7 +193,7 @@ CASE_LIST_FIELDS = [
     'case_list_name',
     'case_list_description',
     'case_list_ids',
-    'case_list_category'
+    # TODO: define 'case_list_category' when optional meta fields are supported
 ]
 
 CLINICAL_META_FIELDS = [
@@ -229,7 +230,8 @@ META_FIELD_MAP = {
     METHYLATION_META_PATTERN:EXPRESSION_META_FIELDS,
     FUSION_META_PATTERN:FUSION_META_FIELDS,
     RPPA_META_PATTERN:RPPA_META_FIELDS,
-    TIMELINE_META_PATTERN:TIMELINE_META_FIELDS
+    TIMELINE_META_PATTERN:TIMELINE_META_FIELDS,
+    'case_list': CASE_LIST_FIELDS
 }
 
 
@@ -502,56 +504,54 @@ class ValidatorFactory(object):
 
     """Factory for creating validation objects of various types."""
 
-    # TODO remove this singleton factory, multiple files are multiple files
+    # TODO remove the Validator.create() method overrides,
+    # they do nothing but wrap the constructor in unnecessary instance methods
 
     factories = {}
 
     @classmethod
-    def createValidator(cls, validator_type, filename, hugo_entrez_map, fix, logger, stableId):
+    def createValidator(cls, validator_type, hugo_entrez_map, fix, logger, meta_dict):
         if validator_type not in cls.factories:
             # instantiate a factory for the given validator type
             factory = globals()[validator_type].Factory()
             cls.factories[validator_type] = factory
-        return cls.factories[validator_type].create(filename,hugo_entrez_map,fix,logger,stableId)
+        return cls.factories[validator_type].create(hugo_entrez_map,fix,logger,meta_dict)
 
 
 class Validator(object):
 
-    """Abstract validator class.
+    """Abstract validator class for tab-delimited data files.
 
     Subclassed by validators for specific data file types, which should
     define a 'REQUIRED_HEADERS' attribute listing the required column
     headers and a `REQUIRE_COLUMN_ORDER` boolean stating whether their
-    position is significant, and may implement a processTopLine method
-    to handle lines prefixed with '#'.
+    position is significant, and may implement a processTopLines method to
+    handle a list of lines prefixed with '#' before the tsv header line.
+    
+    :param hugo_entrez_map: path Entrez to Hugo mapping file
+    :param logger: logger instance for writing the log messages  
+    :param meta_dict: dictionary of fields found in corresponding meta file
+                     (such as stable id and data file name 
     """
 
-    def __init__(self,filename,hugo_entrez_map,fix,logger,stableId):
-        self.filename = filename
-        self.filenameShort = os.path.basename(filename)
-        self.file = open(filename, 'rU')
+    def __init__(self,hugo_entrez_map,logger,meta_dict):
+        self.filename = meta_dict['data_file_path']
+        self.filenameShort = os.path.basename(self.filename)
         self.line_number = 0
-        self.sampleIds = set()
         self.cols = []
         self.numCols = 0
         self.hugo_entrez_map = hugo_entrez_map
         self.lineEndings = ''
         self.end = False
-        self.fix = fix
+        self.fix = False
         self.studyId = ''
         self.headerWritten = False
         self.logger = CombiningLoggerAdapter(
             logger,
             extra={'data_filename': self.filenameShort})
-        self.stableId = stableId
+        self.meta_dict = meta_dict
         self.badChars = [' ']
 
-        if fix:
-            self.correctedFilename = '{basename}_{stable_id}.txt'.format(
-                basename=os.path.splitext(os.path.basename(self.filename))[0],
-                stable_id=self.stableId)
-            # TODO consider opening the file in validate()
-            self.correctedFile = open(self.correctedFilename,'w')
 
     def validate(self):
 
@@ -559,35 +559,53 @@ class Validator(object):
 
         self.logger.info('Starting validation of file')
 
-        self.fileRead = self.file.read()
-        self.file.seek(0)
-        self.checkLineBreaks()
-        self.checkQuotes()
-        del self.fileRead
+        with open(self.filename, 'rU') as data_file:
+            fileRead = data_file.read()
+            data_file.seek(0)
+            self.checkQuotes(fileRead)
+            del fileRead
 
-        uncommented_line_number = 0
-        for line_index, line in enumerate(self.file):
-            self.line_number = line_index + 1
-            # TODO test for # lines after non-# lines
-            if not line.startswith('#'):
-                uncommented_line_number += 1
-                if uncommented_line_number == 1:
+            # parse any block of start-of-file comment lines and the tsv header
+            top_comments = []
+            line_number = 0
+            for line_number, line in enumerate(data_file,
+                                               start=line_number + 1):
+                self.line_number = line_number
+                if line.startswith('#'):
+                    top_comments.append(line)
+                else:
+                    # parse the start-of-file comment lines
+                    # This method may or may not be implemented by subclasses
+                    processTopLines = getattr(self, 'processTopLines', None)
+                    if processTopLines is not None:
+                        processTopLines(top_comments)
+                    # parse the first non-commented line as the tsv header
                     if self.checkHeader(line) > 0:
                         self.logger.info(
                             'Invalid column header, skipped data in file')
-                        break
-                elif not self.end:
-                    self.checkLine(line)
+                        self.end = True
+                    # end of the file's header
+                    break
+            # if the loop wasn't broken by a non-commented line
             else:
-                # TODO make a function to parse initial multi-line comments,
-                # as these are required in clinical data files
+                self.logger.error('No column header or data found in file',
+                                  extra={'line_number': self.line_number})
 
-                # This method may or may not be implemented by subclasses
-                processTopLine = getattr(self, 'processTopLine', None)
-                if processTopLine is not None:
-                    processTopLine(line)
+            # read through the data lines of the file
+            if not self.end:
+                for line_number, line in enumerate(data_file,
+                                                   start=line_number + 1):
+                    self.line_number = line_number
+                    if line.startswith('#'):
+                        self.logger.error(
+                            "Data line starting with '#' skipped",
+                            extra={'line_number': self.line_number})
+                        continue
+                    self.checkLine(line)
 
-        self.file.close()
+            # now all lines have been read
+            self.checkLineBreaks(data_file.newlines)
+
         if self.fix:
             self.correctedFile.close()
 
@@ -703,26 +721,26 @@ class Validator(object):
                            'cause': self.cols[col_index]})
         return num_errors
 
-    def checkQuotes(self):
-        if '"' in self.fileRead or '\'' in self.fileRead:
+    def checkQuotes(self, fileRead):
+        if '"' in fileRead or '\'' in fileRead:
             self.logger.warning('Found quotation marks in file')
 
-    def checkLineBreaks(self):
+    def checkLineBreaks(self, linebreaks):
         """Checks line breaks, reports to user."""
         # TODO document these requirements
-        if "\r\n" in self.fileRead:
+        if "\r\n" in linebreaks:
             self.lineEndings = "\r\n"
             self.logger.error('DOS-style line breaks detected (\\r\\n), '
                               'should be Unix-style (\\n)')
             if self.fix:
                 self.logger.info('Corrected file will have Unix (\\n) line breaks')
-        elif "\r" in self.fileRead:
+        elif "\r" in linebreaks:
             self.lineEndings = "\r"
             self.logger.error('Classic Mac OS-style line breaks detected '
                               '(\\r), should be Unix-style (\\n)')
             if self.fix:
                 self.logger.info('Corrected file will have Unix (\\n) line breaks')
-        elif "\n" in self.fileRead:
+        elif "\n" in linebreaks:
             self.lineEndings = "\n"
         else:
             self.logger.error('No line breaks recognized in file')
@@ -735,6 +753,20 @@ class Validator(object):
             return True
         except ValueError:
             return False
+
+    def checkSampleId(self, sample_id, column_number):
+        """Check whether a sample id is defined, logging an error if not.
+
+        Return True if the sample id was valid, False otherwise.
+        """
+        if sample_id not in DEFINED_SAMPLE_IDS:
+            self.logger.error(
+                'Sample ID not defined in clinical file',
+                extra={'line_number': self.line_number,
+                       'column_number': column_number,
+                       'cause': sample_id})
+            return False
+        return True
 
     def writeNewLine(self, data):
         """Write a line of data to the corrected file."""
@@ -804,6 +836,10 @@ class FeaturewiseFileValidator(Validator):
 
     REQUIRE_COLUMN_ORDER = True
 
+    def __init__(self, *args, **kwargs):
+        super(FeaturewiseFileValidator, self).__init__(*args, **kwargs)
+        self.sampleIds = []
+
     def checkHeader(self, line):
         """Validate the header and read sample IDs from it.
 
@@ -833,6 +869,11 @@ class FeaturewiseFileValidator(Validator):
                                      'column_number': num_nonsample_headers})
             num_errors += 1
         self.sampleIds = self.cols[num_nonsample_headers:]
+        for index, sample_id in enumerate(self.sampleIds):
+            if not self.checkSampleId(
+                    sample_id,
+                    column_number=num_nonsample_headers + index + 1):
+                num_errors += 1
         return num_errors
 
 
@@ -930,51 +971,13 @@ class CNAValidator(GenewiseFileValidator):
                            'column_number': col_index + 1,
                            'cause': value})
     class Factory(object):
-        def create(self,filename,hugo_entrez_map,fix,logger,stableId):
-            return CNAValidator(filename,hugo_entrez_map,fix,logger,stableId)
+        def create(self,hugo_entrez_map,fix,logger,meta_dict):
+            return CNAValidator(hugo_entrez_map,fix,logger,meta_dict)
 
 class MutationsExtendedValidator(Validator):
 
     """Sub-class mutations_extended validator."""
 
-    MAF_HEADERS = [
-        'Hugo_Symbol',
-        'Entrez_Gene_Id',
-        'Center',
-        'NCBI_Build',
-        'Chromosome',
-        'Start_Position',
-        'End_Position',
-        'Strand',
-        'Variant_Classification',
-        'Variant_Type',
-        'Reference_Allele',
-        'Tumor_Seq_Allele1',
-        'Tumor_Seq_Allele2',
-        'dbSNP_RS',
-        'dbSNP_Val_Status',
-        'Tumor_Sample_Barcode',
-        'Matched_Norm_Sample_Barcode',
-        'Match_Norm_Seq_Allele1',
-        'Match_Norm_Seq_Allele2',
-        'Tumor_Validation_Allele1',
-        'Tumor_Validation_Allele2',
-        'Match_Norm_Validation_Allele1',
-        'Match_Norm_Validation_Allele2',
-        'Verification_Status',
-        'Validation_Status',
-        'Mutation_Status',
-        'Sequencing_Phase',
-        'Sequence_Source',
-        'Validation_Method',
-        'Score',
-        'BAM_File',
-        'Sequencer']
-    CUSTOM_HEADERS = [
-        't_alt_count',
-        't_ref_count',
-        'n_alt_count',
-        'n_ref_count']
     REQUIRED_HEADERS = [
        'Tumor_Sample_Barcode',
         'Hugo_Symbol',
@@ -1023,8 +1026,8 @@ class MutationsExtendedValidator(Validator):
         'n_ref_count':'check_n_ref_count',
         'Amino_Acid_Change': 'checkAminoAcidChange'}
 
-    def __init__(self,filename,hugo_entrez_map,fix,logger,stableId):
-        super(MutationsExtendedValidator,self).__init__(filename,hugo_entrez_map,fix,logger,stableId)
+    def __init__(self,hugo_entrez_map,fix,logger,meta_dict):
+        super(MutationsExtendedValidator,self).__init__(hugo_entrez_map,fix,logger,meta_dict)
         # TODO consider making this attribute a local var in in checkLine(),
         # it really only makes sense there
         self.mafValues = {}
@@ -1065,13 +1068,15 @@ class MutationsExtendedValidator(Validator):
         for col_name in self.REQUIRED_HEADERS:
             col_index = self.cols.index(col_name)
             value = data[col_index]
+            if col_name == 'Tumor_Sample_Barcode':
+                self.checkSampleId(value, column_number=col_index + 1)
             # get the checking method for this column if available, or None
             checking_function = getattr(
                 self,
                 self.CHECK_FUNCTION_MAP[col_name])
             if not checking_function(value):
                 self.printDataInvalidStatement(value, col_index)
-            elif self.extra_exists or self.extra != '':
+            elif self.extra_exists or self.extra:
                 raise ValueError(('Checking function %s set a warning '
                                   'message but reported no warning') %
                                  checking_function.__name__)
@@ -1080,9 +1085,14 @@ class MutationsExtendedValidator(Validator):
         if self.fix:
             self.writeNewLine(data)
 
-    def processTopLine(self,line):
+    def processTopLines(self, line_list):
         """Processes the top line, which contains sample ids used in study."""
         # TODO remove this function, it violates the MAF standard
+
+        if not line_list:
+            return
+        line = line_list[0]
+
         self.headerPresent = True
         topline = [x.strip() for x in line.split(' ') if '#' not in x]
 
@@ -1172,16 +1182,12 @@ class MutationsExtendedValidator(Validator):
     
     def checkStartPosition(self, value):
         return True
- 
+
     def checkEndPosition(self, value):
         return True
-   
+
     def checkTumorSampleBarcode(self, value):
-        self.sampleIds.add(value.strip())
-        if self.headerPresent and value not in self.sampleIdsHeader:
-            self.extra = 'Tumor sample id not in sample ids from header'
-            self.extra_exists = True
-            return False
+        """Issue no warnings, as this field is checked in `checkLine()`."""
         return True
 
     def checkNCBIbuild(self, value):
@@ -1290,8 +1296,8 @@ class MutationsExtendedValidator(Validator):
         return True
 
     class Factory(object):
-        def create(self,filename,hugo_entrez_map,fix,logger,stableId):
-            return MutationsExtendedValidator(filename,hugo_entrez_map,fix,logger,stableId)
+        def create(self,hugo_entrez_map,fix,logger,meta_dict):
+            return MutationsExtendedValidator(hugo_entrez_map,fix,logger,meta_dict)
 
 class ClinicalValidator(Validator):
 
@@ -1302,6 +1308,10 @@ class ClinicalValidator(Validator):
         'SAMPLE_ID'
     ]
     REQUIRE_COLUMN_ORDER = False
+
+    def __init__(self, *args, **kwargs):
+        super(ClinicalValidator, self).__init__(*args, **kwargs)
+        self.sampleIds = set()
 
     def validate(self):
         super(ClinicalValidator,self).validate()
@@ -1326,11 +1336,14 @@ class ClinicalValidator(Validator):
         data = super(ClinicalValidator,self).checkLine(line)
         for col_index, value in enumerate(data):
             # TODO check the values in the other cols, required and optional
-            try:
-                if col_index == self.cols.index('SAMPLE_ID'):
-                    self.sampleIds.add(value.strip())
-            except ValueError:
-                continue
+            if col_index == self.cols.index('SAMPLE_ID'):
+                if DEFINED_SAMPLE_IDS and value not in DEFINED_SAMPLE_IDS:
+                    self.logger.error(
+                        'Defining new sample id in secondary clinical file',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
+                self.sampleIds.add(value.strip())
         if self.fix:
             self.writeNewLine(data)
 
@@ -1338,8 +1351,8 @@ class ClinicalValidator(Validator):
         self.correctedFile.write('\t'.join(data) + '\n')
 
     class Factory(object):
-        def create(self,filename,hugo_entrez_map,fix,logger,stableId):
-            return ClinicalValidator(filename,hugo_entrez_map,fix,logger,stableId)
+        def create(self,hugo_entrez_map,fix,logger,meta_dict):
+            return ClinicalValidator(hugo_entrez_map,fix,logger,meta_dict)
 
 
 class SegValidator(Validator):
@@ -1354,9 +1367,8 @@ class SegValidator(Validator):
         'seg.mean']
     REQUIRE_COLUMN_ORDER = True
 
-    def __init__(self,filename,hugo_entrez_map,fix,logger,stableId):
-        super(SegValidator,self).__init__(filename,hugo_entrez_map,fix,logger,stableId)
-        self.sampleIds = set()
+    def __init__(self,hugo_entrez_map,logger,meta_dict):
+        super(SegValidator,self).__init__(hugo_entrez_map,logger,meta_dict)
 
     def validate(self):
         super(SegValidator,self).validate()
@@ -1371,21 +1383,17 @@ class SegValidator(Validator):
     def checkLine(self,line):
         data = super(SegValidator,self).checkLine(line)
 
-        # if present, add sample id to set for later checks
+        # TODO check values in all other columns too
         for col_index, value in enumerate(data):
-            try:
-                if col_index == self.cols.index(self.REQUIRED_HEADERS[0]):
-                    self.sampleIds.add(value.strip())
-            except ValueError:
-                continue
-
+            if col_index == self.cols.index(self.REQUIRED_HEADERS[0]):
+                self.checkSampleId(value, column_number=col_index + 1)
         if self.fix:
             self.writeNewLine(data)
 
 
     class Factory(object):
-        def create(self,filename,hugo_entrez_map,fix,logger,stableId):
-            return SegValidator(filename,hugo_entrez_map,fix,logger,stableId)
+        def create(self,hugo_entrez_map,fix,logger,meta_dict):
+            return SegValidator(hugo_entrez_map,fix,logger,meta_dict)
 
 
 class Log2Validator(GenewiseFileValidator):
@@ -1411,8 +1419,8 @@ class Log2Validator(GenewiseFileValidator):
         pass
 
     class Factory(object):
-        def create(self,filename,hugo_entrez_map,fix,logger,stableId):
-            return Log2Validator(filename,hugo_entrez_map,fix,logger,stableId)
+        def create(self,hugo_entrez_map,fix,logger,meta_dict):
+            return Log2Validator(hugo_entrez_map,fix,logger,meta_dict)
 
 
 class ExpressionValidator(GenewiseFileValidator):
@@ -1438,8 +1446,8 @@ class ExpressionValidator(GenewiseFileValidator):
         pass
 
     class Factory(object):
-        def create(self,filename,hugo_entrez_map,fix,logger,stableId):
-            return ExpressionValidator(filename,hugo_entrez_map,fix,logger,stableId)
+        def create(self,hugo_entrez_map,fix,logger,meta_dict):
+            return ExpressionValidator(hugo_entrez_map,fix,logger,meta_dict)
 
 
 class FusionValidator(Validator):
@@ -1473,8 +1481,8 @@ class FusionValidator(Validator):
             self.writeNewLine(data)
 
     class Factory(object):
-        def create(self,filename,hugo_entrez_map,fix,logger,stableId):
-            return FusionValidator(filename,hugo_entrez_map,fix,logger,stableId)
+        def create(self,hugo_entrez_map,fix,logger,meta_dict):
+            return FusionValidator(hugo_entrez_map,fix,logger,meta_dict)
 
 
 class MethylationValidator(GenewiseFileValidator):
@@ -1500,8 +1508,8 @@ class MethylationValidator(GenewiseFileValidator):
         pass
 
     class Factory(object):
-        def create(self,filename,hugo_entrez_map,fix,logger,stableId):
-            return MethylationValidator(filename,hugo_entrez_map,fix,logger,stableId)
+        def create(self,hugo_entrez_map,fix,logger,meta_dict):
+            return MethylationValidator(hugo_entrez_map,fix,logger,meta_dict)
 
 
 class RPPAValidator(FeaturewiseFileValidator):
@@ -1532,8 +1540,8 @@ class RPPAValidator(FeaturewiseFileValidator):
         pass
 
     class Factory(object):
-        def create(self,filename,hugo_entrez_map,fix,logger,stableId):
-            return RPPAValidator(filename,hugo_entrez_map,fix,logger,stableId)
+        def create(self,hugo_entrez_map,fix,logger,meta_dict):
+            return RPPAValidator(hugo_entrez_map,fix,logger,meta_dict)
 
 
 class TimelineValidator(Validator):
@@ -1562,84 +1570,147 @@ class TimelineValidator(Validator):
             self.writeNewLine(data)
 
     class Factory(object):
-        def create(self,filename,hugo_entrez_map,fix,logger,stableId):
-            return TimelineValidator(filename,hugo_entrez_map,fix,logger,stableId)
+        def create(self,hugo_entrez_map,fix,logger,meta_dict):
+            return TimelineValidator(hugo_entrez_map,fix,logger,meta_dict)
 
 # ------------------------------------------------------------------------------
 # Functions
 
-def processMetafile(filename):
-    """Process a metafile. returns a dictionary of values in the file."""
-    metafile = open(filename,'rU')
+def processMetafile(filename, cancerStudyId, logger, case_list=False):
+
+    """Validate a metafile and return a dictionary of values read from it.
+
+    Return `None` if the file is invalid. If `case_list` is True,
+    validate the file as a case list instead of a meta file.
+    
+    :param filename: name of the meta file
+    :param cancerStudyId: cancer study id found in the first meta file. All subsequent 
+                          metafiles should comply to this in the field 'cancer_study_identifier' 
+    :param case_list: whether this meta file is a case list (special case)
+    """
+
     metaDictionary = {}
-    for line in metafile:
-        ##Removed new line char
-        key = line.strip().split(':')[0]
-        val = ''.join(line.strip().split(':')[1:])
-        metaDictionary[key.strip()] = val.strip()
+    with open(filename,'rU') as metafile:
+        for line_index, line in enumerate(metafile):
+            if ': ' not in line:
+                logger.error(
+                    "Invalid %s file entry, no ': ' found",
+                    {True: 'case list', False: 'meta'}[case_list],
+                    extra={'data_filename': getFileFromFilepath(filename),
+                           'line_number': line_index + 1})
+                return None
+            key, val = line.rstrip().split(': ', 1)
+            metaDictionary[key] = val
+
+    if case_list:
+        meta_file_type = 'case_list'
+    else:
+        if 'meta_file_type' not in metaDictionary:
+            logger.error("Missing field 'meta_file_type' in meta file'",
+                         extra={'data_filename': getFileFromFilepath(filename)})
+            # skip this file (can't validate unknown file types)
+            return None
+
+        meta_file_type = metaDictionary["meta_file_type"]
+        if meta_file_type not in META_FILE_PATTERNS:
+            logger.error('Unknown meta_file_type',
+                         extra={'data_filename': getFileFromFilepath(filename),
+                                'cause': meta_file_type})
+            # skip this file (can't validate unknown file types)
+            return None
+
+    missing_fields = []
+    for field in META_FIELD_MAP[meta_file_type]:
+        if field not in metaDictionary:
+            logger.error("Missing field '%s' in %s file",
+                         field,
+                         {True: 'case list', False: 'meta'}[case_list],
+                         extra={'data_filename': getFileFromFilepath(filename)})
+            missing_fields.append(field)
+
+    if missing_fields:
+        # skip this file (the fields may be required for validation)
+        return None
+
+    for field in metaDictionary:
+        if field not in META_FIELD_MAP[meta_file_type]:
+            logger.warning(
+                'Unrecognized field in %s file',
+                {True: 'case list', False: 'meta'}[case_list],
+                extra={'data_filename': getFileFromFilepath(filename),
+                       'cause': field})
+
+    # check that cancer study identifiers across files so far are consistent.
+    if cancerStudyId and (cancerStudyId !=
+                          metaDictionary['cancer_study_identifier'].strip()):
+        logger.error(
+            "Cancer study identifier is not consistent across "
+            "files, expected '%s'",
+            cancerStudyId.strip(),
+            extra={'data_filename': getFileFromFilepath(filename),
+                   'cause': metaDictionary['cancer_study_identifier'].strip()})
+
+    # check fields specific to seg meta file
+    if meta_file_type == SEG_META_PATTERN:
+
+        if metaDictionary['data_filename'] != metaDictionary['data_file_path']:
+            logger.error(
+                'data_filename and data_file_path differ in seg data file',
+                extra={'data_filename': getFileFromFilepath(filename),
+                       'cause': (metaDictionary['data_filename'] + ', ' +
+                                 metaDictionary['data_file_path'])})
+
+        if metaDictionary['reference_genome_id'] != GENOMIC_BUILD_COUNTERPART:
+            logger.error(
+                'Reference_genome_id is not %s',
+                GENOMIC_BUILD_COUNTERPART,
+                extra={'data_filename': getFileFromFilepath(filename),
+                       'cause': metaDictionary['reference_genome_id']})
+
+    # if this file type doesn't take a data file, make sure one isn't parsed
+    if (
+            'data_file_path' in metaDictionary and
+            'data_file_path' not in META_FIELD_MAP[meta_file_type]):
+        del metaDictionary['data_file_path']
 
     return metaDictionary
 
 
-def checkSampleIds(sampleIdSets,clinical_validator):
-    """Checks that all ids seen in other genomic files are also present in the clinical file."""
-    # TODO - refactor to take a list of ids instead of each individually
-
-    idsSeen = set()
-
-    # construct set of all ids seen across files
-    for idSet in sampleIdSets:
-        for idseen in idSet:
-            idsSeen.add(idseen)
-
-    # check if these ids were found in the clinical data file
-    for idseen in idsSeen:
-        if idseen not in clinical_validator.sampleIds and idseen != '':
-            clinical_validator.logger.error(
-                'Missing a sample ID found in the study',
-                extra={'cause': idseen})
-
-def segMetaCheck(segvalidator,filenameCheck):
-    """Checks meta file vs segment file on the name."""
-    if filenameCheck != '':
-        if not filenameCheck == segvalidator.filenameShort:
-            segvalidator.logger.error(
-                "Wrong .seg file name; '%s' specified in meta file",
-                filenameCheck)
-
 def getFileFromFilepath(f):
     return os.path.basename(f.strip())
 
-def processCaseListDirectory(caseListDir,sampleIdSets, logger):
+
+def processCaseListDirectory(caseListDir, cancerStudyId, logger):
+
     logger.info('Validating case lists')
 
     case_lists = [os.path.join(caseListDir, x) for x in os.listdir(caseListDir)]
 
     for case in case_lists:
 
-        case_data = processMetafile(case)
+        case_data = processMetafile(case, cancerStudyId, logger,
+                                    case_list=True)
+        if case_data is None:
+            continue
 
-        for cd in case_data:
-            if cd.strip() not in CASE_LIST_FIELDS and cd.strip() != '':
-                logger.warning(
-                    'Unrecognized field found in case list file',
+        sampleIds = case_data['case_list_ids']
+        sampleIds = set([x.strip() for x in sampleIds.split('\t')])
+        for value in sampleIds:
+            if value not in DEFINED_SAMPLE_IDS:
+                logger.error(
+                    'Sample id not defined in clinical file',
                     extra={'data_filename': getFileFromFilepath(case),
-                           'cause': cd})
-
-        sampleIds = case_data.get('case_list_ids')
-        if sampleIds is not None:
-            sampleIds = set([x.strip() for x in sampleIds.split('\t')])
-            sampleIdSets.append(sampleIds)
+                           'cause': value})
 
     logger.info('Validation of case lists complete')
 
 # ------------------------------------------------------------------------------
 def interface():
-    parser = argparse.ArgumentParser(description='cBioPortal meta Importer')
+    parser = argparse.ArgumentParser(description='cBioPortal meta Validator')
     parser.add_argument('-s', '--study_directory', type=str, required=True,
                         help='path to directory.')
     parser.add_argument('-hugo', '--hugo_entrez_map', type=str, required=True,
-                        help='path to Hugo gene Symbol')
+                        help='path Entrez to Hugo mapping file')
     parser.add_argument('-html', '--html_table', type=str, required=False,
                         help='path to html report output file')
     parser.add_argument('-v', '--verbose', required=False, action="store_true",
@@ -1654,6 +1725,9 @@ def interface():
 def main_validate(args):
 
     """Main function."""
+
+    global META_TO_FILE_MAP
+    global DEFINED_SAMPLE_IDS
 
     # get a logger to emit messages
     logger = logging.getLogger(__name__)
@@ -1733,139 +1807,82 @@ def main_validate(args):
     filenameMetaStringCheck = ''
     filenameStringCheck = ''
 
-
-
-
     # Create validators based on meta files
     validators = []
 
-    metafiles = []
-    sampleIdSets = []
-
-    stableids = {}
-
-    clinvalidator = None
-
     for f in filenames:
-        # process case list directory if found
-        if os.path.isdir(f) and getFileFromFilepath(f) == 'case_lists':
-            processCaseListDirectory(f, sampleIdSets, logger)
 
         # metafile validation and information gathering. Simpler than the big files, so no classes.
-        # just need to get some values out, and also verify that no extra fields are specified
+        # just need to get some values out, and also verify that no extra fields are specified.
+        # Building up the map META_TO_FILE_MAP allows us to validate some scenarios like "there should 
+        # be only one clinical data file" (see below).
 
         if re.search(r'(\b|_)meta(\b|_)', f):
-
-            meta = processMetafile(f)
-
-            if 'meta_file_type' not in meta:
-                logger.error("Missing field 'meta_file_type' in meta file'",
-                               extra={'data_filename': getFileFromFilepath(f)})
-                # skip this file (can't validate unknown file types)
+            meta = processMetafile(f, cancerStudyId, logger)
+            if meta is None:
                 continue
-
-            meta_file_type = meta["meta_file_type"]
-            if meta_file_type not in META_FILE_PATTERNS:
-                logger.error('Unknown meta_file_type',
-                             extra={'data_filename': getFileFromFilepath(f),
-                                    'cause': meta_file_type})
-                # skip this file (can't validate unknown file types)
-                continue
-
-            for field in META_FIELD_MAP[meta_file_type]:
-                if field not in meta:
-                    logger.error("Missing field '%s' in meta file",
-                                 field,
-                                 extra={'data_filename': getFileFromFilepath(f)})
-                    # skip this file (the field may be required for validation)
-                    continue
-
-            for field in meta:
-                if field not in META_FIELD_MAP[meta_file_type]:
-                    logger.warning(
-                        'Unrecognized field in meta file',
-                        extra={'data_filename': getFileFromFilepath(f),
-                               'cause': field})
-
-            # check that cancer study identifiers across files so far are consistent.
-            if cancerStudyId == '':
+            if not cancerStudyId:
                 cancerStudyId = meta['cancer_study_identifier'].strip()
-            elif cancerStudyId != meta['cancer_study_identifier'].strip():
-                logger.error(
-                    "Cancer study identifier is not consistent across "
-                    "files, expected '%s'",
-                    cancerStudyId.strip(),
-                    extra={'data_filename': getFileFromFilepath(f),
-                           'cause': meta['cancer_study_identifier'].strip()})
-
-            # check filenames for seg meta file, and get correct filename for the actual
-            if meta_file_type == SEG_META_PATTERN:
-                # TODO fix this check, using data_file_path
-                filenameMetaStringCheck = cancerStudyId + '_meta_cna_' + GENOMIC_BUILD_COUNTERPART + '_seg.txt'
-                if filenameMetaStringCheck != os.path.basename(f):
-                    logger.error(
-                        "Meta file for .seg file named incorrectly, expected '%s'",
-                        filenameMetaStringCheck,
-                        extra={'cause': f})
-
-                if (meta.get('reference_genome_id').strip() != GENOMIC_BUILD_COUNTERPART.strip()):
-                    logger.error(
-                        'Reference_genome_id is not %s',
-                        GENOMIC_BUILD_COUNTERPART,
-                        extra={'data_filename': os.path.basename(f.strip()),
-                               'cause': meta.get('reference_genome_id').strip()})
-
-            # if this file type requires a data file, remember the file name
-            if 'data_file_path' in META_FIELD_MAP[meta_file_type]:
-                data_file = meta['data_file_path']
-                stableid = meta['stable_id']
+            meta_file_type = meta['meta_file_type']
+            data_file_path = meta.get('data_file_path')
+            if data_file_path is not None:
                 if meta_file_type in META_TO_FILE_MAP:
-                    META_TO_FILE_MAP[meta_file_type].append(os.path.join(study_dir, data_file))
-                    stableids[meta_file_type].append(stableid)
+                    META_TO_FILE_MAP[meta_file_type].append(
+                        (meta, os.path.join(study_dir, data_file_path)))
                 else:
-                    META_TO_FILE_MAP[meta_file_type] = [os.path.join(study_dir, data_file)]
-                    stableids[meta_file_type] = [stableid]
-
-            metafiles.append(meta_file_type)
+                    META_TO_FILE_MAP[meta_file_type] = [
+                        (meta, os.path.join(study_dir, data_file_path))]
 
 
+    if CLINICAL_META_PATTERN not in META_TO_FILE_MAP:
+        logger.error('No clinical file detected')
+        return exit_status_handler.get_exit_status()
+
+    if len(META_TO_FILE_MAP[CLINICAL_META_PATTERN]) != 1:
+        if logger.isEnabledFor(logging.ERROR):
+            logger.error(
+                'Multiple clinical files detected',
+                extra={'cause':', '.join(
+                    getFileFromFilepath(f[1]) for f in
+                    META_TO_FILE_MAP[CLINICAL_META_PATTERN])})
+
+    # create a validator for the clinical data file
+    clinical_meta = META_TO_FILE_MAP[CLINICAL_META_PATTERN][0][0]
+    clinvalidator = ValidatorFactory.createValidator(
+        VALIDATOR_IDS[CLINICAL_META_PATTERN],
+        hugo_entrez_map,
+        fix,
+        logger,
+        clinical_meta)
+
+    # parse the clinical data file
+    clinvalidator.validate()
+    DEFINED_SAMPLE_IDS = clinvalidator.sampleIds
+
+    # create validators for non-clinical data files
     for meta_file_type in META_TO_FILE_MAP:
-        for file_index, data_file in enumerate(META_TO_FILE_MAP[meta_file_type]):
-            # TODO give validators access to all meta fields instead of just one
-            stableid = stableids[meta_file_type][file_index]
+        if meta_file_type == CLINICAL_META_PATTERN:
+            continue
+        for meta in META_TO_FILE_MAP[meta_file_type]:
             # TODO make hugo_entrez_map a global 'final':
             # it isn't supposed to change after initialisation, so that would
             # make things more readable
-            validators.append(ValidatorFactory.createValidator(VALIDATOR_IDS[meta_file_type],data_file,hugo_entrez_map,fix,logger,stableid))
+            validators.append(ValidatorFactory.createValidator(
+                VALIDATOR_IDS[meta_file_type],
+                hugo_entrez_map,
+                fix,
+                logger,
+                meta))
 
-
-    # validate all the files
-
+    # validate non-clinical data files
     for validator in validators:
         validator.validate()
-        sampleIdSets.append(validator.sampleIds)
 
-
-        # check meta and file names match for seg files
-        if type(validator).__name__ == 'SegValidator':
-            segMetaCheck(validator,filenameStringCheck)
-
-        # get all the ids in the clinical validator for the check below
-        if type(validator).__name__ == 'ClinicalValidator':
-            if clinvalidator is not None:
-                logger.warning(
-                    'Found multiple clinical data files',
-                    extra={'data_filename':
-                           (clinvalidator.filenameShort + ', ' +
-                            validator.filenameShort)})
-            clinvalidator = validator
-
-    # make sure that lla samples seen across all files are present in the clinical file
-    logger.info('Checking sample identifiers')
-    if clinvalidator is not None:
-        checkSampleIds(sampleIdSets,clinvalidator)
+    case_list_dirname = os.path.join(study_dir, 'case_lists')
+    if not os.path.isdir(case_list_dirname):
+        logger.error("No directory named 'case_lists' found")
     else:
-        logger.error('No clinical file detected')
+        processCaseListDirectory(case_list_dirname, cancerStudyId, logger)
 
     logger.info('Validation complete')
     exit_status = exit_status_handler.get_exit_status()

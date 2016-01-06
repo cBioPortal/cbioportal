@@ -39,7 +39,7 @@ class ValidateDataTester(unittest.TestCase):
         
     def test_column_order_validation_SegValidator(self):
         '''
-        seg validator needs its columns in specific order. 
+        seg validator needs its columns in a specific order. 
         Here we serve a file with wrong order and expect validator to log this:
         '''
         meta_dict = {
@@ -69,7 +69,7 @@ class ValidateDataTester(unittest.TestCase):
         
     def test_column_order_validation_ClinicalValidator(self):
         '''
-        ClinicalValidator does NOT need its columns in specific order. 
+        ClinicalValidator does NOT need its columns in a specific order. 
         Here we serve files with different order and no errors or warnings
         '''
         meta_dict = {

@@ -12,16 +12,18 @@ hugo_mapping_file = 'Homo_sapiens.gene_info.gz'
 ncbi_file = open(hugo_mapping_file)
 hugo_entrez_map = parse_ncbi_file(ncbi_file)
 
-# set default message handler
-text_handler = logging.StreamHandler(sys.stdout)
-# use the formatter also used in the validation code:
-text_handler.setFormatter(LogfileStyleFormatter())
-mem_handler = logging.handlers.MemoryHandler(
-    capacity=1e6,
-    flushLevel=logging.CRITICAL,
-    target=text_handler)
-logger = logging.getLogger(__name__)
-logger.addHandler(mem_handler)
+def get_logger():
+    # set default message handler
+    text_handler = logging.StreamHandler(sys.stdout)
+    # use the formatter also used in the validation code:
+    text_handler.setFormatter(LogfileStyleFormatter())
+    mem_handler = logging.handlers.MemoryHandler(
+        capacity=1e6,
+        flushLevel=logging.CRITICAL,
+        target=text_handler)
+    logger = logging.getLogger(__name__)
+    logger.addHandler(mem_handler)
+    return logger
 
 # Test cases
 class ValidateDataTester(unittest.TestCase):
@@ -47,13 +49,11 @@ class ValidateDataTester(unittest.TestCase):
                     'description': 'Segment data, wrong order, testing the validator'        
                     }
         
-        # make sure log buffer is empty:
-        mem_handler.flush()
         # set level according to this test case:
+        logger = get_logger()
         logger.setLevel(logging.ERROR)
         seg_validator = SegValidator(hugo_entrez_map,logger,meta_dict)
         seg_validator.validate()
         # we expect 1 error about first column that is wrong:
-        self.assertEqual(1, len(mem_handler.buffer))
-        mem_handler.flush()
+        self.assertEqual(1, len(logger.handlers[0].buffer))
         

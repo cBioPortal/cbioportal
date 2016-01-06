@@ -84,6 +84,21 @@
     div.geneCheckboxDiv{
         width: 100px;
     }
+    div.loaderIcon{
+        width: 100%;
+        display:none;
+        position: absolute;
+        left: 65%;
+        top: 30%;
+    }
+
+    div.loaderIconLoading{
+        display:block;
+    }
+
+    table.tableLoading{
+        opacity: 0.5;
+    }
 </style>
 
 <script>

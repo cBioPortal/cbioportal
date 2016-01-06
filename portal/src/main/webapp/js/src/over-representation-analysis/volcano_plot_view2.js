@@ -16,9 +16,10 @@ function VolcanoPlot() {
      * @param dataTable: dataTable item to be updated when selections are made in plot
      * @param miniOnco: miniOnco item to be updated when plot item is clicked
      */
-    this.render = function(plotElName, data, dataTable, miniOnco){
-        this.dataTable = dataTable;
-        this.miniOnco = miniOnco;
+
+    this.render = function(orTable){
+        self.orTable = orTable;
+        self.miniOnco = orTable.miniOnco;
 
         var plotDataAttr = {
             min_x: 0,
@@ -30,10 +31,10 @@ function VolcanoPlot() {
         };
 
         // prepare the data
-        var dataTrace = createDataTrace(data, plotDataAttr)
+        var dataTrace = createDataTrace(orTable.originalData, plotDataAttr)
 
         //draw the plot with the prepared x,y coordinates data:
-        drawPlot(dataTrace, null, plotElName, plotDataAttr);
+        drawPlot(dataTrace, null, orTable.plot_div, plotDataAttr);
     }
 
     // create data trace based on data and fill plotDataAttr with min and max values
@@ -95,9 +96,9 @@ function VolcanoPlot() {
                 title: '-log10 p-value'
             },
             yaxis2:{
-                title: 'significance -->',
+                title: 'significance &#8594;', // &#8594; is code for -->
                 titlefont: {
-                    color: 'black'
+                    color: 'black',
                 },
                 showgrid: false,
                 showticklabels: false,
@@ -144,10 +145,10 @@ function VolcanoPlot() {
         var mutualExclusivityTrace = {
             x:[minX*axisMargin, (minX)*0.75, 0],
             y:[0, 0, 0],
-            text: ['', '<-- mutual exclusivity', ''],
+            text: ['', '&#8592; mutual exclusivity', ''], // &#8592; is code for <--
             textposition: 'bottom',
             textfont: {
-                color: 'rgb(180, 4, 4)'
+                color: 'rgb(180, 4, 4)',
             },
             mode: 'lines+markers+text',
             type: 'scatter',
@@ -166,10 +167,10 @@ function VolcanoPlot() {
         var coOccurrenceTrace = {
             x:[0, (maxX)*0.75, maxX*axisMargin],
             y:[0, 0, 0],
-            text: ['', 'co-occurrence -->', ''],
+            text: ['', 'co-occurrence  &#8594;', ''], // &#8594; is code for  -->
             textposition: 'bottom',
             textfont: {
-                color: 'rgb(59, 124, 59)'
+                color: 'rgb(59, 124, 59)',
             },
             mode: 'lines+markers+text',
             hoverinfo: 'none',
@@ -198,18 +199,7 @@ function VolcanoPlot() {
 
     // search the table for the dragged genes
     function handlePlotDraggedCallback(genesDragged){
-        var searchExpression = "";
-
-        // if no genes, search will be with an empty filter, otherwise create a (maybe extremely long...) searchExpression
-        if(genesDragged.length>0){
-            searchExpression = "^" + genesDragged.join("$|^") + "$";
-        }
-        //apply search expression to the dataTable:
-        self.dataTable.DataTable().column(0).search(
-            searchExpression,
-            true,
-            false
-        ).draw();
+        self.orTable.searchTable(genesDragged);
     }
 
     /**

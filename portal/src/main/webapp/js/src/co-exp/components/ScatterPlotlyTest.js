@@ -9,32 +9,38 @@ var ScatterPlotlyTest = function(divName, plotData) {
     var defaultPlotLayout={
         autosize: false,
         width: 400,
-        height: 450,
+        height: 400,
         margin: {
             l: 50,
-            r: 50,
-            b: 100,
-            t: 100,
+            r: 10,
+            b: 75,
+            t: 50,
             pad: 4
         },
         hovermode:'closest',
         showlegend: false,
         xaxis: {
+            titlefont: {
+                color: 'black',
+                family: 'Verdana, Arial, sans-serif'
+            },
             autorange: true,
             showgrid: true,
             zeroline: true,
             showline: false,
             autotick: true,
-            ticks: 'outside',
             showticklabels: true
         },
         yaxis: {
+            titlefont: {
+                color: 'black',
+                family: 'Verdana, Arial, sans-serif'
+            },
             autorange: true,
             showgrid: true,
             zeroline: true,
             showline: false,
             autotick: true,
-            ticks: 'outside',
             showticklabels: true
         }
     };
@@ -57,7 +63,7 @@ var ScatterPlotlyTest = function(divName, plotData) {
 
     // add / overwrite some layout options if desired
     this.addPlotLayoutOptions = function(newOptions){
-        $.extend(defaultPlotLayout, newOptions);
+        $.extend(true, defaultPlotLayout, newOptions);
     }
 
     // add a trace with datapoints
@@ -113,7 +119,6 @@ var ScatterPlotlyTest = function(divName, plotData) {
         // on unhover, set the stroke-width to 0, which will cause the symbol to shrink back to its original size
         .on('plotly_unhover', function(data){
             var curElement = getHoveredElement(data);
-            //curElement.style('fill', getDataTrace().marker.color);
             curElement.style('stroke-width', 0);
         });
     }
@@ -181,7 +186,7 @@ var ScatterPlotlyTest = function(divName, plotData) {
 
 
     // colour the selection in lightgrey and restore to the marker.color
-    // optionally provide inverse to color the not-select to lightgrey
+    // optionally provide inverse to color the not-selected to lightgrey
     this.showSelection = function(case_ids, inverse){
         if(inverse){
             case_ids = _.difference(dataTrace.text, case_ids);

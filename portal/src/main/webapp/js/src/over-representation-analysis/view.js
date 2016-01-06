@@ -35,11 +35,12 @@
  * @param plot_div: optional parameter, i.e. the div where to add a volcano plot representation of the data.
                     If set, a volcano plot is rendered next to the data table.
  */
-var orTable = function(plot_div, minionco_div ) {
+var orTable = function(plot_div, minionco_div, loading_div) {
 
 	var self = this;
 	self.plot_div = plot_div;
 	self.minionco_div = minionco_div;
+    self.loading_div = loading_div;
 
     var div_id, table_id, data, titles; //titles is formatted string of column names with html markdown in
     var col_index, orTableInstance, profile_type, profile_id, table_title;
@@ -253,7 +254,7 @@ var orTable = function(plot_div, minionco_div ) {
 
     }
 
-    // when a gene in the table is click, show the gene in the mini-onco
+    // when a gene in the table is clicked, show the gene in the mini-onco
     function addGeneClick(){
         $('.selectHighlight').on('click', function() {
             var current_gene = $(this).text();
@@ -261,17 +262,44 @@ var orTable = function(plot_div, minionco_div ) {
         });
     }
 
+    function startLoading() {
+        $("#" + table_id).addClass('tableLoading');
+        $('#' + loading_div).addClass('loaderIconLoading');
+    }
+
+    function stopLoading() {
+        $("#" + table_id).removeClass('tableLoading');
+        $('#' + loading_div).removeClass('loaderIconLoading');
+    }
+
     /**
-     * Utility function (somewhat uggly workaround) to get the gene name from the gene column.
-     * The issue here is that the gene column is not containing a plain value but it contains
-     * a checkbox.
+     * Search the table by building a regular expression
+     * Shows the loading icon while searching
      *
-     * @param geneColumnData : gene column data as returned by data table (something like : "<input type='checkbox' class='large_2K_pan_cancer_brca_based_mutations_datatable_table_gene_checkbox_class' value='ABHD8'>ABHD8" )
-     * @returns : returns the characters after > . In example above this is ABHD8
+     * @param selection: list of genes to search for
      */
-    function _getGeneName(geneColumnData) {
-        var _gene_name = $(geneColumnData).find("input")[0].value;
-    	return _gene_name;
+    this.searchTable = function(selection) {
+        // set loading icon for table
+        startLoading();
+
+        // add timeout to actually show the loading image
+        setTimeout(function() {
+            var searchExpression = "";
+
+            // if no genes, search will be with an empty filter, otherwise create a (maybe extremely long...) searchExpression
+            if (selection.length > 0) {
+                searchExpression = "^" + selection.join("$|^") + "$";
+            }
+            //apply search expression to the dataTable:
+            orTableInstance.DataTable().column(0).search(
+                searchExpression,
+                true,
+                false
+            ).draw();
+
+            // stop loading
+            stopLoading();
+        }, 1);
     }
 
     function attachFilters() {
@@ -671,12 +699,12 @@ var orTable = function(plot_div, minionco_div ) {
             if (self.plot_div != null) {
                 self.miniOnco = new MiniOnco(self.plot_div, minionco_div, originalData);
             	self.volcanoPlot = new VolcanoPlot();
-	        	self.volcanoPlot.render(self.plot_div, originalData, orTableInstance, self.miniOnco);
+	        	//self.volcanoPlot.render(self.plot_div, originalData, orTableInstance, self.miniOnco);
+                self.volcanoPlot.render(self);
             }
 
         }
     };
-
 }; //close orTable
 
 var orSubTabView = function() {
@@ -732,14 +760,20 @@ var orSubTabView = function() {
                     var _table_id = _profile_obj.STABLE_ID.replace(/\./g, "_") + orAnalysis.postfix.datatable_id;
                     var _plot_div = null;
                     var minionco_div = null;
+                    var loading_div=null;
                     if (_profile_type == orAnalysis.profile_type.mutations) {
                     	//if profile is of type "mutations" then we also want a volcano plot on the left side:
                     	_plot_div = _profile_obj.STABLE_ID.replace(/\./g, "_") + orAnalysis.postfix.plot_div;
-                		$("#" + _div_id).append("<div id='" + _plot_div + "' style='width: 35%; display:block; margin-left: 0; margin-right: auto; float: left'></div>");
+                		$("#" + _div_id).append("<div id='" + _plot_div + "' style='width: 35%; display:block; margin-left: 0; margin-right: auto; margin-top: 10px; float: left'></div>");
                     	$("#" + _div_id).append("<div id='" + _table_div + "' style='width: 62%; display:table; margin-left: auto; margin-right: 0; '></div>");
+
+                        // add a loading image when drag-selecting the scatterplot
+                        loading_div = _table_div + "_loading_img";
+                        $("#" + _div_id).append("<div id='" + loading_div + "' class='loaderIcon'><img src='images/ajax-loader.gif'/></div>");
+
                     	//adding this to contain floated plot (see "float: left"  above):
                     	$("#" + _div_id).css("overflow", "hidden");
-                    	//for the euler diagram:
+                    	//for the mini-onco diagram:
                     	minionco_div = "minionco" + _plot_div;
                     }
                     else {
@@ -758,7 +792,7 @@ var orSubTabView = function() {
                     var param = new orAjaxParam(or_tab.getAlteredCaseList(), or_tab.getUnalteredCaseList(), _profile_obj.STABLE_ID, _gene_set);
                     var or_data = new orData();
                     or_data.init(param, _table_id);
-                    var or_table = new orTable(_plot_div, minionco_div);
+                    var or_table = new orTable(_plot_div, minionco_div, loading_div);
                     if (_profile_obj.STABLE_ID.indexOf("rna_seq") !== -1) {
                         or_data.get(or_table.init, _div_id, _table_div, _table_id, _profile_obj.NAME + orAnalysis.postfix.title_log, _profile_type, _profile_obj.STABLE_ID.replace(/\./g, "_"), last_profile);
                     } else {

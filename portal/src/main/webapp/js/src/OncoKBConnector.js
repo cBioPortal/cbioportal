@@ -102,6 +102,7 @@ var OncoKB = (function () {
             resistance: []
         }; //separated by level type
         this.trials = [];
+        this.isVUS = false;
         this.oncogenic = ''; //-1 unknown, 0 not oncogenic, 1 oncogenic, 2 likely
         this.mutationEffect = {};
         this.drugs = {
@@ -119,7 +120,7 @@ var OncoKB = (function () {
         this.tumorType = ''; //Global tumor types
         this.source = 'cbioportal';
         this.geneStatus = 'Complete';
-        this.evidenceTypes = 'GENE_SUMMARY,GENE_BACKGROUND,ONCOGENIC,MUTATION_EFFECT,STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_SENSITIVITY,STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_RESISTANCE';
+        this.evidenceTypes = 'GENE_SUMMARY,GENE_BACKGROUND,ONCOGENIC,MUTATION_EFFECT,VUS,STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_SENSITIVITY,STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_RESISTANCE';
         this.variantCounter = 0;
         this.variants = {};
         this.evidence = {};
@@ -946,7 +947,7 @@ var OncoKB = (function () {
             }
         }
 
-        function createOncogenicIcon(target, oncogenic, hasResistanceDrugs) {
+        function createOncogenicIcon(target, oncogenic, hasResistanceDrugs, notExist) {
             var svg = d3.select(target)
                 .append("svg")
                 .attr("width", 17)
@@ -1000,6 +1001,15 @@ var OncoKB = (function () {
                 resistanceDot.append('circle')
                     .attr('r', '4')
                     .attr('fill', '#ffa500');
+            }
+
+            if(_.isBoolean(notExist) && notExist) {
+                var questionMark = svg.append('g')
+                    .attr('transform', 'translate(3.5, 3)');
+                var pathD = 'M4.714 8.411v1.607q0 0.107-0.080 0.188t-0.188 0.080h-1.607q-0.107 0-0.188-0.080t-0.080-0.188v-1.607q0-0.107 0.080-0.188t0.188-0.080h1.607q0.107 0 0.188 0.080t0.080 0.188zM6.83 4.393q0 0.362-0.104 0.676t-0.234 0.512-0.368 0.398-0.385 0.291-0.408 0.238q-0.275 0.154-0.459 0.435t-0.184 0.449q0 0.114-0.080 0.218t-0.188 0.104h-1.607q-0.1 0-0.171-0.124t-0.070-0.251v-0.301q0-0.556 0.435-1.048t0.958-0.727q0.395-0.181 0.563-0.375t0.167-0.509q0-0.281-0.311-0.496t-0.72-0.214q-0.435 0-0.723 0.194-0.234 0.167-0.717 0.77-0.087 0.107-0.208 0.107-0.080 0-0.167-0.054l-1.098-0.837q-0.087-0.067-0.104-0.167t0.037-0.188q1.071-1.781 3.107-1.781 0.536 0 1.078 0.208t0.978 0.556 0.71 0.854 0.275 1.061z';
+                questionMark.append('path')
+                    .attr('fill', '#444')
+                    .attr('d', pathD);
             }
         }
 
@@ -1089,6 +1099,23 @@ var OncoKB = (function () {
         }
     };
 })();
+
+OncoKB.Evidence.prototype = {
+    variantNotExist: function() {
+        if (!this.isVUS && this.oncogenic === '' &&
+            Object.keys(this.mutationEffect) &&
+            this.treatments.resistance.length === 0 &&
+            this.trials.length === 0 &&
+            this.prevalence.length === 0 &&
+            this.progImp.length === 0 &&
+            this.treatments.sensitivity.length === 0) {
+
+            return true;
+        }else {
+            return false;
+        }
+    }
+}
 
 OncoKB.Instance.prototype = {
     getHash: function (gene, mutation, tt, consequence) {
@@ -1221,6 +1248,8 @@ OncoKB.Instance.prototype = {
                                 _datum.description = OncoKB.utils.findRegex(description);
                             }
                             datum.alteration.push(_datum);
+                        } else if (evidence.evidenceType === 'VUS') {
+                            datum.isVUS = true;
                         } else if (evidence.evidenceType === 'PREVALENCE') {
                             datum.prevalence.push({
                                 tumorType: evidence.tumorType.name,
@@ -1359,7 +1388,9 @@ OncoKB.Instance.prototype = {
                         var _tip = '', _oncogenicTip = '', _hotspotTip = '';
                         if(self.variants[oncokbId].evidence.hasOwnProperty('oncogenic')) {
                             OncoKB.svgs.createOncogenicIcon(this, self.variants[oncokbId].evidence.oncogenic,
-                                self.variants[oncokbId].evidence.hasOwnProperty('treatments')?self.variants[oncokbId].evidence.treatments.resistance.length > 0:false);
+                                self.variants[oncokbId].evidence.hasOwnProperty('treatments') ? self.variants[oncokbId].evidence.treatments.resistance.length > 0 : false,
+                                self.variants[oncokbId].evidence.variantNotExist()
+                            );
                         }else {
                             OncoKB.svgs.createOncogenicIcon(this, -1, false);
                         }

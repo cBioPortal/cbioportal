@@ -542,7 +542,6 @@ class Validator(object):
         self.hugo_entrez_map = hugo_entrez_map
         self.lineEndings = ''
         self.end = False
-        self.fix = False
         self.studyId = ''
         self.headerWritten = False
         self.logger = CombiningLoggerAdapter(
@@ -604,9 +603,6 @@ class Validator(object):
 
             # now all lines have been read
             self.checkLineBreaks(data_file.newlines)
-
-        if self.fix:
-            self.correctedFile.close()
 
     def printComplete(self):
         self.logger.info('Validation of file complete')
@@ -731,14 +727,10 @@ class Validator(object):
             self.lineEndings = "\r\n"
             self.logger.error('DOS-style line breaks detected (\\r\\n), '
                               'should be Unix-style (\\n)')
-            if self.fix:
-                self.logger.info('Corrected file will have Unix (\\n) line breaks')
         elif "\r" in linebreaks:
             self.lineEndings = "\r"
             self.logger.error('Classic Mac OS-style line breaks detected '
                               '(\\r), should be Unix-style (\\n)')
-            if self.fix:
-                self.logger.info('Corrected file will have Unix (\\n) line breaks')
         elif "\n" in linebreaks:
             self.lineEndings = "\n"
         else:
@@ -766,16 +758,6 @@ class Validator(object):
                        'cause': sample_id})
             return False
         return True
-
-    def writeNewLine(self, data):
-        """Write a line of data to the corrected file."""
-        # replace blanks with 'NA'
-        data = [x if x != '' else 'NA' for x in data]
-        self.correctedFile.write('\t'.join(data) + '\n')
-
-    def writeHeader(self, data):
-        """Write a column header to the corrected file."""
-        self.correctedFile.write('\t'.join(data) + '\n')
 
     def checkRepeatedColumns(self):
         num_errors = 0
@@ -893,13 +875,6 @@ class GenewiseFileValidator(FeaturewiseFileValidator):
 
         if self.numCols < 2 or self.cols[1] != self.REQUIRED_HEADERS[1]:
             self.entrez_missing = True
-            # if fixing, do not count a missing Entrez column as a fatal error
-            if self.fix:
-                num_errors -= 1
-                # override REQUIRED_HEADERS with a copy in the instance
-                self.REQUIRED_HEADERS = list(self.REQUIRED_HEADERS)
-                # do not expect the Entrez ID column from now on
-                del self.REQUIRED_HEADERS[1]
         return num_errors
 
     def checkLine(self, line):
@@ -922,16 +897,6 @@ class GenewiseFileValidator(FeaturewiseFileValidator):
                                'cause': value.strip()})
         return data
 
-    def writeNewLine(self, data):
-        if self.entrez_missing:
-            data.insert(1,self.hugo_entrez_map.get(data[0],'NA'))
-        super(GenewiseFileValidator, self).writeNewLine(data)
-
-    def writeHeader(self, data):
-        if self.entrez_missing:
-            data.insert(1,'Entrez_Gene_Id')
-        super(GenewiseFileValidator, self).writeHeader(data)
-
 
 class CNAValidator(GenewiseFileValidator):
 
@@ -943,21 +908,6 @@ class CNAValidator(GenewiseFileValidator):
     def validate(self):
         super(CNAValidator,self).validate()
         self.printComplete()
-
-    # TODO refactor so subclasses don't have to override for the final call
-    def checkHeader(self,line):
-        """Header validation for CNA files."""
-        num_errors = super(CNAValidator,self).checkHeader(line)
-        if self.fix:
-            self.writeHeader(self.cols)
-        return num_errors
-
-    # TODO refactor so subclasses don't have to override for the final call
-    def checkLine(self,line):
-        """Line validation for CNA files - checks that values are correct type."""
-        data = super(CNAValidator,self).checkLine(line)
-        if self.fix:
-            self.writeNewLine(data)
 
     def checkValue(self, value, col_index):
         """Check a value in a sample column."""
@@ -1043,12 +993,6 @@ class MutationsExtendedValidator(Validator):
         super(MutationsExtendedValidator,self).validate()
         self.printComplete()
 
-    def checkHeader(self,line):
-        num_errors = super(MutationsExtendedValidator,self).checkHeader(line)
-        if self.fix:
-            self.writeHeader(line)
-        return num_errors
-
     def checkLine(self,line):
 
         """Each value in each line is checked individually.
@@ -1081,9 +1025,6 @@ class MutationsExtendedValidator(Validator):
                                  checking_function.__name__)
             self.mafValues[col_name] = value
 
-        if self.fix:
-            self.writeNewLine(data)
-
     def processTopLines(self, line_list):
         """Processes the top line, which contains sample ids used in study."""
         # TODO remove this function, it violates the MAF standard
@@ -1099,9 +1040,6 @@ class MutationsExtendedValidator(Validator):
         for sampleId in topline:
             self.sampleIdsHeader.add(sampleId)
 
-        if self.fix:
-            self.correctedFile.write(line)
-
     def printDataInvalidStatement(self, value, col_index):
         """Prints out statement for invalid values detected."""
         message = ("Value in column '%s' appears invalid" %
@@ -1115,18 +1053,6 @@ class MutationsExtendedValidator(Validator):
             extra={'line_number': self.line_number,
                    'column_number': col_index + 1,
                    'cause': value})
-
-    def writeNewLine(self,data):
-        newline = []
-        for col in self.REQUIRED_HEADERS:
-            newline.append(self.mafValues.get(col,'NA'))
-        if self.entrez_missing:
-            newline[1] = self.hugo_entrez_map.get(newline[0],'NA')
-        super(MutationsExtendedValidator, self).writeNewLine(newline)
-
-    def writeHeader(self, data):
-        super(MutationsExtendedValidator, self).writeHeader(
-            self.REQUIRED_HEADERS)
 
     # These functions check values of the MAF according to their name.
     # The mapping of which function checks which value is a global value
@@ -1327,8 +1253,6 @@ class ClinicalValidator(Validator):
                     extra={'line_number': self.line_number,
                            'cause': col_name})
         self.cols = [s.upper() for s in self.cols]
-        if self.fix:
-            self.writeHeader(self.cols)
         return num_errors
 
     def checkLine(self,line):
@@ -1343,11 +1267,6 @@ class ClinicalValidator(Validator):
                                'column_number': col_index + 1,
                                'cause': value})
                 self.sampleIds.add(value.strip())
-        if self.fix:
-            self.writeNewLine(data)
-
-    def writeHeader(self,data):
-        self.correctedFile.write('\t'.join(data) + '\n')
 
     class Factory(object):
         def create(self,hugo_entrez_map,logger,meta_dict):
@@ -1373,12 +1292,6 @@ class SegValidator(Validator):
         super(SegValidator,self).validate()
         self.printComplete()
 
-    def checkHeader(self,line):
-        num_errors = super(SegValidator,self).checkHeader(line)
-        if self.fix:
-            self.writeHeader(self.cols)
-        return num_errors
-
     def checkLine(self,line):
         data = super(SegValidator,self).checkLine(line)
 
@@ -1386,9 +1299,6 @@ class SegValidator(Validator):
         for col_index, value in enumerate(data):
             if col_index == self.cols.index(self.REQUIRED_HEADERS[0]):
                 self.checkSampleId(value, column_number=col_index + 1)
-        if self.fix:
-            self.writeNewLine(data)
-
 
     class Factory(object):
         def create(self,hugo_entrez_map,logger,meta_dict):
@@ -1400,17 +1310,6 @@ class Log2Validator(GenewiseFileValidator):
     def validate(self):
         super(Log2Validator,self).validate()
         self.printComplete()
-
-    def checkHeader(self,line):
-        num_errors = super(Log2Validator,self).checkHeader(line)
-        if self.fix:
-            self.writeHeader(self.cols)
-        return num_errors
-
-    def checkLine(self,line):
-        data = super(Log2Validator,self).checkLine(line)
-        if self.fix:
-            self.writeNewLine(data)
 
     def checkValue(self, value, col_index):
         """Check a value in a sample column."""
@@ -1427,17 +1326,6 @@ class ExpressionValidator(GenewiseFileValidator):
     def validate(self):
         super(ExpressionValidator,self).validate()
         self.printComplete()
-
-    def checkHeader(self,line):
-        num_errors = super(ExpressionValidator,self).checkHeader(line)
-        if self.fix:
-            self.writeHeader(self.cols)
-        return num_errors
-
-    def checkLine(self,line):
-        data = super(ExpressionValidator,self).checkLine(line)
-        if self.fix:
-            self.writeNewLine(data)
 
     def checkValue(self, value, col_index):
         """Check a value in a sample column."""
@@ -1467,17 +1355,9 @@ class FusionValidator(Validator):
         super(FusionValidator,self).validate()
         self.printComplete()
 
-    def checkHeader(self,line):
-        num_errors = super(FusionValidator,self).checkHeader(line)
-        if self.fix:
-            self.writeHeader(self.cols)
-        return num_errors
-
     def checkLine(self,line):
         data = super(FusionValidator,self).checkLine(line)
-
-        if self.fix:
-            self.writeNewLine(data)
+        # TODO check the values
 
     class Factory(object):
         def create(self,hugo_entrez_map,logger,meta_dict):
@@ -1489,17 +1369,6 @@ class MethylationValidator(GenewiseFileValidator):
     def validate(self):
         super(MethylationValidator,self).validate()
         self.printComplete()
-
-    def checkHeader(self,line):
-        num_errors = super(MethylationValidator,self).checkHeader(line)
-        if self.fix:
-            self.writeHeader(self.cols)
-        return num_errors
-
-    def checkLine(self,line):
-        data = super(MethylationValidator,self).checkLine(line)
-        if self.fix:
-            self.writeNewLine(data)
 
     def checkValue(self, value, col_index):
         """Check a value in a sample column."""
@@ -1519,18 +1388,11 @@ class RPPAValidator(FeaturewiseFileValidator):
         super(RPPAValidator,self).validate()
         self.printComplete()
 
-    def checkHeader(self,line):
-        num_errors = super(RPPAValidator,self).checkHeader(line)
-        if self.fix:
-            self.writeHeader(self.cols)
-        return num_errors
-
     def checkLine(self,line):
         data = super(RPPAValidator,self).checkLine(line)
         # TODO check the values in the first column
         # for rppa, first column should be hugo|antibody, everything after should be sampleIds
-        if self.fix:
-            self.writeNewLine(data)
+        return data
 
 
     def checkValue(self, value, col_index):
@@ -1556,17 +1418,9 @@ class TimelineValidator(Validator):
         super(TimelineValidator,self).validate()
         self.printComplete()
 
-    def checkHeader(self,line):
-        num_errors = super(TimelineValidator,self).checkHeader(line)
-        if self.fix:
-            self.writeHeader(self.cols)
-        return num_errors
-
     def checkLine(self,line):
         data = super(TimelineValidator,self).checkLine(line)
         # TODO check the values
-        if self.fix:
-            self.writeNewLine(data)
 
     class Factory(object):
         def create(self,hugo_entrez_map,logger,meta_dict):
@@ -1714,8 +1568,6 @@ def interface(args=None):
                         help='path to html report output file')
     parser.add_argument('-v', '--verbose', required=False, action="store_true",
                         help='list warnings in addition to fatal errors')
-    parser.add_argument('-f', '--fix', required=False, action="store_true",
-                        help='fix files')
 
     parser = parser.parse_args(args)
     return parser
@@ -1738,12 +1590,6 @@ def main_validate(args):
     # process the options
     STUDY_DIR = args.study_directory
     hugo = args.hugo_entrez_map
-
-    try:
-        fix = args.fix
-    except AttributeError:
-        fix = False
-
     html_output_filename = args.html_table
 
     hugo_entrez_map = {}

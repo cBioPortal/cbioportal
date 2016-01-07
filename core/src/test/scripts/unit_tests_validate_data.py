@@ -44,15 +44,7 @@ class ValidateDataTester(unittest.TestCase):
         '''
         meta_dict = {
                     'data_file_path': 'data_seg_wrong_order.txt',
-                    'cancer_study_identifier': 'test_column_order_validation',
-                    'genetic_alteration_type': 'SEGMENT',
-                    'datatype': 'SEGMENT',
                     'stable_id': 'test_column_order_validation_segment',
-                    'show_profile_in_analysis_tab': 'false',
-                    'profile_description': 'test_column_order_validation',
-                    'profile_name': 'test_column_order_validation',
-                    'reference_genome_id': 'hg19',
-                    'description': 'Segment data, wrong order, testing the validator'        
                     }
         
         # set level according to this test case:
@@ -74,13 +66,7 @@ class ValidateDataTester(unittest.TestCase):
         '''
         meta_dict = {
                     'data_file_path': 'data_clin_order1.txt',
-                    'cancer_study_identifier': 'test_column_order_validation',
-                    'genetic_alteration_type': 'CLINICAL',
-                    'datatype': ';:FREE-FORM',
                     'stable_id': 'test_column_order_validation_segment',
-                    'show_profile_in_analysis_tab': 'false',
-                    'profile_description': 'test_column_order_validation',
-                    'profile_name': 'test_column_order_validation',
                     }
         
         

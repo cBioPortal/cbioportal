@@ -8,6 +8,7 @@ import unittest
 import logging
 import sys
 from import_data_validator.hugoEntrezMap import parse_ncbi_file
+from import_data_validator import validateData
 from import_data_validator.validateData import SegValidator, LogfileStyleFormatter, ClinicalValidator
 from uuid import uuid4
 
@@ -41,8 +42,9 @@ class ValidateDataTester(unittest.TestCase):
         seg validator needs its columns in a specific order. 
         Here we serve a file with wrong order and expect validator to log this:
         '''
+        validateData.STUDY_DIR = "test_data"
         meta_dict = {
-                    'data_file_path': 'test_data/data_seg_wrong_order.txt',
+                    'data_file_path': 'data_seg_wrong_order.txt',
                     'stable_id': 'test_column_order_validation_segment',
                     }
         
@@ -63,8 +65,9 @@ class ValidateDataTester(unittest.TestCase):
         ClinicalValidator does NOT need its columns in a specific order. 
         Here we serve files with different order and no errors or warnings
         '''
+        validateData.STUDY_DIR = "test_data"
         meta_dict = {
-                    'data_file_path': 'test_data/data_clin_order1.txt',
+                    'data_file_path': 'data_clin_order1.txt',
                     'stable_id': 'test_column_order_validation_segment',
                     }
         
@@ -77,7 +80,7 @@ class ValidateDataTester(unittest.TestCase):
         # we expect no errors or warnings
         self.assertEqual(0, len(logger.handlers[0].buffer))
         # if the file has another order, this is also OK:
-        meta_dict['data_file_path'] = 'test_data/data_clin_order2.txt'
+        meta_dict['data_file_path'] = 'data_clin_order2.txt'
         validator = ClinicalValidator(hugo_entrez_map,logger,meta_dict)
         validator.validate()
         # again, we expect no errors or warnings

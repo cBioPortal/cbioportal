@@ -28,7 +28,6 @@ import requests
 # Current NCBI build and build counterpart - used in one of the maf checks as well as .seq filename check
 NCBI_BUILD_NUMBER = 37
 GENOMIC_BUILD_COUNTERPART = 'hg19'
-STUDY_DIR = ''
 
 # how we differentiate between data TYPES. 
 
@@ -46,6 +45,8 @@ TIMELINE_META_PATTERN = 'meta_timeline'
 
 META_TYPE_TO_META_DICT = {}
 DEFINED_SAMPLE_IDS = ()
+STUDY_DIR = ''
+
 
 META_FILE_PATTERNS = [
     STUDY_META_PATTERN,
@@ -1602,6 +1603,7 @@ def main_validate(args):
     global META_TYPE_TO_META_DICT
     global DEFINED_SAMPLE_IDS
     global SERVER_URL
+    global STUDY_DIR
 
     # get a logger to emit messages
     logger = logging.getLogger(__name__)

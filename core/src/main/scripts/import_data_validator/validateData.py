@@ -14,11 +14,10 @@ import os
 import logging
 import logging.handlers
 from collections import OrderedDict
-from cgi import escape as html_escape
-import textwrap
 import argparse
 import re
-
+import csv
+import itertools
 
 
 # ------------------------------------------------------------------------------
@@ -541,7 +540,6 @@ class Validator(object):
         self.numCols = 0
         self.hugo_entrez_map = hugo_entrez_map
         self.lineEndings = ''
-        self.end = False
         self.studyId = ''
         self.headerWritten = False
         self.logger = CombiningLoggerAdapter(
@@ -558,10 +556,6 @@ class Validator(object):
         self.logger.info('Starting validation of file')
 
         with open(self.filename, 'rU') as data_file:
-            fileRead = data_file.read()
-            data_file.seek(0)
-            self.checkQuotes(fileRead)
-            del fileRead
 
             # parse any block of start-of-file comment lines and the tsv header
             top_comments = []
@@ -572,55 +566,81 @@ class Validator(object):
                 if line.startswith('#'):
                     top_comments.append(line)
                 else:
-                    # parse the start-of-file comment lines
-                    # This method may or may not be implemented by subclasses
-                    processTopLines = getattr(self, 'processTopLines', None)
-                    if processTopLines is not None:
-                        processTopLines(top_comments)
-                    # parse the first non-commented line as the tsv header
-                    if self.checkHeader(line) > 0:
-                        self.logger.info(
-                            'Invalid column header, skipped data in file')
-                        self.end = True
+                    header_line = line
                     # end of the file's header
                     break
             # if the loop wasn't broken by a non-commented line
             else:
                 self.logger.error('No column header or data found in file',
                                   extra={'line_number': self.line_number})
+                return
+
+            # parse the start-of-file comment lines
+            # This method may or may not be implemented by subclasses
+            processTopLines = getattr(self, 'processTopLines', None)
+            if processTopLines is not None:
+                processTopLines(top_comments)
+
+            # read five data lines to detect quotes in the tsv file
+            first_data_lines = []
+            for i, line in enumerate(data_file):
+                first_data_lines.append(line)
+                if i >= 4:
+                    break
+            sample_content = header_line + ''.join(first_data_lines)
+            dialect = csv.Sniffer().sniff(sample_content, '\t')
+            # sniffer assumes " if no quote character exists
+            if dialect.quotechar == '"' and not (
+                    dialect.delimiter + '"' in sample_content or
+                    '"' + dialect.delimiter in sample_content):
+                dialect.quoting = csv.QUOTE_NONE
+            if not self.checkTsvDialect(dialect):
+                return
+
+            # parse the first non-commented line as the tsv header
+            header_cols = csv.reader([header_line], dialect).next()
+            if self.checkHeader(header_cols) > 0:
+                self.logger.info(
+                    'Invalid column header, skipped data in file')
+                return
+
 
             # read through the data lines of the file
-            if not self.end:
-                for line_number, line in enumerate(data_file,
-                                                   start=line_number + 1):
-                    self.line_number = line_number
-                    if line.startswith('#'):
-                        self.logger.error(
-                            "Data line starting with '#' skipped",
-                            extra={'line_number': self.line_number})
-                        continue
-                    self.checkLine(line)
+            csvreader = csv.reader(itertools.chain(first_data_lines,
+                                                   data_file),
+                                   dialect)
+            # TODO check for end-of-line whitespace
+            for line_number, fields in enumerate(csvreader,
+                                                 start=line_number + 1):
+                self.line_number = line_number
+                if fields[0].startswith('#'):
+                    self.logger.error(
+                        "Data line starting with '#' skipped",
+                        extra={'line_number': self.line_number})
+                    continue
+                self.checkLine(fields)
 
-            # now all lines have been read
+
+            # now all lines have been read (in universal newline mode)
             self.checkLineBreaks(data_file.newlines)
 
     def printComplete(self):
         self.logger.info('Validation of file complete')
 
-    def checkHeader(self, line):
+    def checkHeader(self, cols):
 
-        """Check that header has the correct items, removes any quotes.
+        """Check that the header has the correct items and set self.cols.
 
-        Return the number of errors found.
+        :param cols: The list of column headers to be validated
+
+        :return the number of errors found.
         """
 
         num_errors = 0
 
         # TODO check for end-of-line whitespace
 
-        # TODO verify that this really is the desired behavior,
-        # the csv module from the standard library might be a better option
-        self.cols = [x.strip().replace('"','').replace('\'','') for x in line.split('\t')]
+        self.cols = cols
         self.numCols = len(self.cols)
 
         num_errors += self.checkRepeatedColumns()
@@ -634,14 +654,11 @@ class Validator(object):
 
         return num_errors
 
-    def checkLine(self,line):
-        """Checks lines after header, removing quotes."""
+    def checkLine(self, data):
+        """Check data values from a line after the file header.
 
-        # TODO check for end-of-line whitespace
-
-        # TODO verify that this is really the desired behavior,
-        # the csv module from the standard library might be a better option
-        data = [x.strip().replace('"','').replace('\'','') for x in line.split('\t')]
+        :param data: The list of values parsed from the line
+        """
 
         if all(x == '' for x in data):
             self.logger.error("Blank line",
@@ -668,9 +685,6 @@ class Validator(object):
                                   col_name,
                                   extra={'line_number': self.line_number,
                                          'column_number': col_index + 1})
-        data = [self.fixCase(x) for x in data]
-
-        return data
 
     def checkUnorderedRequiredColumns(self):
         """Check for missing column headers, independent of their position.
@@ -716,9 +730,16 @@ class Validator(object):
                            'cause': self.cols[col_index]})
         return num_errors
 
-    def checkQuotes(self, fileRead):
-        if '"' in fileRead or '\'' in fileRead:
-            self.logger.warning('Found quotation marks in file')
+    def checkTsvDialect(self, dialect):
+        """Check if a csv.Dialect subclass describes a valid cBio data file."""
+        if dialect.delimiter != '\t':
+            self.logger.error('Not a tab-delimited file',
+                              extra={'cause': repr(dialect.delimiter)[1:-1]})
+            return False
+        if dialect.quoting != csv.QUOTE_NONE:
+            self.logger.error('Found quoted fields in file',
+                              extra={'cause': repr(dialect.quotechar)[1:-1]})
+        return True
 
     def checkLineBreaks(self, linebreaks):
         """Checks line breaks, reports to user."""
@@ -787,20 +808,6 @@ class Validator(object):
                                              'cause': col_name})
         return num_errors
 
-    def fixCase(self,x):
-        """Correct yes no to Yes and No."""
-        # TODO document these requirements
-        if x.lower() == 'yes':
-            return 'Yes'
-        elif x.lower() == 'no':
-            return 'No'
-        elif x.lower() == 'male':
-            return 'Male'
-        elif x.lower() == 'female':
-            return 'Female'
-        else:
-            return x
-
 
 class FeaturewiseFileValidator(Validator):
 
@@ -811,8 +818,7 @@ class FeaturewiseFileValidator(Validator):
 
     Subclasses should define a checkValue(self, value, col_index) function
     to check a value in a sample column, and check the required columns
-    by overriding checkLine(self, line), which returns the list of values
-    found on the line.
+    by overriding and extending checkLine(self, data).
     """
 
     REQUIRE_COLUMN_ORDER = True
@@ -821,23 +827,24 @@ class FeaturewiseFileValidator(Validator):
         super(FeaturewiseFileValidator, self).__init__(*args, **kwargs)
         self.sampleIds = []
 
-    def checkHeader(self, line):
+    def checkHeader(self, cols, *args, **kwargs):
         """Validate the header and read sample IDs from it.
 
         Return the number of fatal errors.
         """
-        num_errors = super(FeaturewiseFileValidator, self).checkHeader(line)
+        num_errors = super(FeaturewiseFileValidator, self).checkHeader(cols,
+                                                                       *args,
+                                                                       **kwargs)
         num_errors += self.setSampleIdsFromColumns()
         return num_errors
 
-    def checkLine(self, line):
+    def checkLine(self, data, *args, **kwargs):
         """Check the values in a data line."""
-        data = super(FeaturewiseFileValidator, self).checkLine(line)
+        super(FeaturewiseFileValidator, self).checkLine(data, *args, **kwargs)
         for column_index, value in enumerate(data):
             if column_index >= len(self.REQUIRED_HEADERS):  # pylint: disable=no-member
                 # checkValue() should be implemented by subclasses
                 self.checkValue(value, column_index)  # pylint: disable=no-member
-        return data
 
     def setSampleIdsFromColumns(self):
         """Extracts sample IDs from column headers and set self.sampleIds."""
@@ -866,20 +873,22 @@ class GenewiseFileValidator(FeaturewiseFileValidator):
         super(GenewiseFileValidator, self).__init__(*args, **kwargs)
         self.entrez_missing = False
 
-    def checkHeader(self,line):
+    def checkHeader(self, cols, *args, **kwargs):
         """Validate the header and read sample IDs from it.
 
         Return the number of fatal errors.
         """
-        num_errors = super(GenewiseFileValidator, self).checkHeader(line)
+        num_errors = super(GenewiseFileValidator, self).checkHeader(cols,
+                                                                    *args,
+                                                                    **kwargs)
 
         if self.numCols < 2 or self.cols[1] != self.REQUIRED_HEADERS[1]:
             self.entrez_missing = True
         return num_errors
 
-    def checkLine(self, line):
+    def checkLine(self, data, *args, **kwargs):
         """Check the values in a data line."""
-        data = super(GenewiseFileValidator, self).checkLine(line)
+        super(GenewiseFileValidator, self).checkLine(data, *args, **kwargs)
         for column_index, value in enumerate(data):
             if column_index == 0 and len(self.hugo_entrez_map) > 0:
                 if value not in self.hugo_entrez_map:
@@ -895,7 +904,6 @@ class GenewiseFileValidator(FeaturewiseFileValidator):
                         extra={'column_number': column_index + 1,
                                'line_number': self.line_number,
                                'cause': value.strip()})
-        return data
 
 
 class CNAValidator(GenewiseFileValidator):
@@ -993,7 +1001,7 @@ class MutationsExtendedValidator(Validator):
         super(MutationsExtendedValidator,self).validate()
         self.printComplete()
 
-    def checkLine(self,line):
+    def checkLine(self, data, *args, **kwargs):
 
         """Each value in each line is checked individually.
 
@@ -1005,7 +1013,7 @@ class MutationsExtendedValidator(Validator):
         message.
         """
 
-        data = super(MutationsExtendedValidator,self).checkLine(line)
+        super(MutationsExtendedValidator,self).checkLine(data, *args, **kwargs)
         self.mafValues = {}
 
         for col_name in self.REQUIRED_HEADERS:
@@ -1244,8 +1252,10 @@ class ClinicalValidator(Validator):
 
     # TODO validate the content of the comment lines before the column header
 
-    def checkHeader(self,line):
-        num_errors = super(ClinicalValidator,self).checkHeader(line)
+    def checkHeader(self, cols, *args, **kwargs):
+        num_errors = super(ClinicalValidator,self).checkHeader(cols,
+                                                               *args,
+                                                               **kwargs)
         for col_name in self.cols:
             if not col_name.isupper():
                 self.logger.warning(
@@ -1255,8 +1265,8 @@ class ClinicalValidator(Validator):
         self.cols = [s.upper() for s in self.cols]
         return num_errors
 
-    def checkLine(self,line):
-        data = super(ClinicalValidator,self).checkLine(line)
+    def checkLine(self, data, *args, **kwargs):
+        super(ClinicalValidator,self).checkLine(data, *args, **kwargs)
         for col_index, value in enumerate(data):
             # TODO check the values in the other cols, required and optional
             if col_index == self.cols.index('SAMPLE_ID'):
@@ -1292,8 +1302,8 @@ class SegValidator(Validator):
         super(SegValidator,self).validate()
         self.printComplete()
 
-    def checkLine(self,line):
-        data = super(SegValidator,self).checkLine(line)
+    def checkLine(self, data, *args, **kwargs):
+        super(SegValidator,self).checkLine(data, *args, **kwargs)
 
         # TODO check values in all other columns too
         for col_index, value in enumerate(data):
@@ -1355,8 +1365,8 @@ class FusionValidator(Validator):
         super(FusionValidator,self).validate()
         self.printComplete()
 
-    def checkLine(self,line):
-        data = super(FusionValidator,self).checkLine(line)
+    def checkLine(self, data, *args, **kwargs):
+        super(FusionValidator,self).checkLine(data, *args, **kwargs)
         # TODO check the values
 
     class Factory(object):
@@ -1388,12 +1398,10 @@ class RPPAValidator(FeaturewiseFileValidator):
         super(RPPAValidator,self).validate()
         self.printComplete()
 
-    def checkLine(self,line):
-        data = super(RPPAValidator,self).checkLine(line)
+    def checkLine(self, data, *args, **kwargs):
+        super(RPPAValidator,self).checkLine(data, *args, **kwargs)
         # TODO check the values in the first column
         # for rppa, first column should be hugo|antibody, everything after should be sampleIds
-        return data
-
 
     def checkValue(self, value, col_index):
         """Check a value in a sample column."""
@@ -1418,8 +1426,8 @@ class TimelineValidator(Validator):
         super(TimelineValidator,self).validate()
         self.printComplete()
 
-    def checkLine(self,line):
-        data = super(TimelineValidator,self).checkLine(line)
+    def checkLine(self, data, *args, **kwargs):
+        super(TimelineValidator,self).checkLine(data, *args, **kwargs)
         # TODO check the values
 
     class Factory(object):

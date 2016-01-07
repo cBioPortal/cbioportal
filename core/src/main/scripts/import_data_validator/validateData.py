@@ -37,8 +37,7 @@ NCBI_BUILD_NUMBER = 37
 GENOMIC_BUILD_COUNTERPART = 'hg19'
 
 
-# how we differentiate between files. Names are important!! 
-# meta files are checked before the corresponding file
+# how we differentiate between data TYPES. 
 
 SEG_META_PATTERN = '_meta_cna_' + GENOMIC_BUILD_COUNTERPART + '_seg.txt'
 STUDY_META_PATTERN = 'meta_study'
@@ -52,7 +51,7 @@ METHYLATION_META_PATTERN = 'meta_methylation'
 RPPA_META_PATTERN = 'meta_rppa'
 TIMELINE_META_PATTERN = 'meta_timeline'
 
-META_TO_FILE_MAP = {}
+META_TYPE_TO_META_DICT = {}
 DEFINED_SAMPLE_IDS = ()
 
 META_FILE_PATTERNS = [
@@ -510,12 +509,12 @@ class ValidatorFactory(object):
     factories = {}
 
     @classmethod
-    def createValidator(cls, validator_type, hugo_entrez_map, fix, logger, meta_dict):
+    def createValidator(cls, validator_type, hugo_entrez_map, logger, meta_dict):
         if validator_type not in cls.factories:
             # instantiate a factory for the given validator type
             factory = globals()[validator_type].Factory()
             cls.factories[validator_type] = factory
-        return cls.factories[validator_type].create(hugo_entrez_map,fix,logger,meta_dict)
+        return cls.factories[validator_type].create(hugo_entrez_map,logger,meta_dict)
 
 
 class Validator(object):
@@ -535,7 +534,7 @@ class Validator(object):
     """
 
     def __init__(self,hugo_entrez_map,logger,meta_dict):
-        self.filename = meta_dict['data_file_path']
+        self.filename = os.path.join(STUDY_DIR, meta_dict['data_file_path'])
         self.filenameShort = os.path.basename(self.filename)
         self.line_number = 0
         self.cols = []
@@ -971,8 +970,8 @@ class CNAValidator(GenewiseFileValidator):
                            'column_number': col_index + 1,
                            'cause': value})
     class Factory(object):
-        def create(self,hugo_entrez_map,fix,logger,meta_dict):
-            return CNAValidator(hugo_entrez_map,fix,logger,meta_dict)
+        def create(self,hugo_entrez_map,logger,meta_dict):
+            return CNAValidator(hugo_entrez_map,logger,meta_dict)
 
 class MutationsExtendedValidator(Validator):
 
@@ -1026,8 +1025,8 @@ class MutationsExtendedValidator(Validator):
         'n_ref_count':'check_n_ref_count',
         'Amino_Acid_Change': 'checkAminoAcidChange'}
 
-    def __init__(self,hugo_entrez_map,fix,logger,meta_dict):
-        super(MutationsExtendedValidator,self).__init__(hugo_entrez_map,fix,logger,meta_dict)
+    def __init__(self,hugo_entrez_map,logger,meta_dict):
+        super(MutationsExtendedValidator,self).__init__(hugo_entrez_map,logger,meta_dict)
         # TODO consider making this attribute a local var in in checkLine(),
         # it really only makes sense there
         self.mafValues = {}
@@ -1296,8 +1295,8 @@ class MutationsExtendedValidator(Validator):
         return True
 
     class Factory(object):
-        def create(self,hugo_entrez_map,fix,logger,meta_dict):
-            return MutationsExtendedValidator(hugo_entrez_map,fix,logger,meta_dict)
+        def create(self,hugo_entrez_map,logger,meta_dict):
+            return MutationsExtendedValidator(hugo_entrez_map,logger,meta_dict)
 
 class ClinicalValidator(Validator):
 
@@ -1351,8 +1350,8 @@ class ClinicalValidator(Validator):
         self.correctedFile.write('\t'.join(data) + '\n')
 
     class Factory(object):
-        def create(self,hugo_entrez_map,fix,logger,meta_dict):
-            return ClinicalValidator(hugo_entrez_map,fix,logger,meta_dict)
+        def create(self,hugo_entrez_map,logger,meta_dict):
+            return ClinicalValidator(hugo_entrez_map,logger,meta_dict)
 
 
 class SegValidator(Validator):
@@ -1392,8 +1391,8 @@ class SegValidator(Validator):
 
 
     class Factory(object):
-        def create(self,hugo_entrez_map,fix,logger,meta_dict):
-            return SegValidator(hugo_entrez_map,fix,logger,meta_dict)
+        def create(self,hugo_entrez_map,logger,meta_dict):
+            return SegValidator(hugo_entrez_map,logger,meta_dict)
 
 
 class Log2Validator(GenewiseFileValidator):
@@ -1419,8 +1418,8 @@ class Log2Validator(GenewiseFileValidator):
         pass
 
     class Factory(object):
-        def create(self,hugo_entrez_map,fix,logger,meta_dict):
-            return Log2Validator(hugo_entrez_map,fix,logger,meta_dict)
+        def create(self,hugo_entrez_map,logger,meta_dict):
+            return Log2Validator(hugo_entrez_map,logger,meta_dict)
 
 
 class ExpressionValidator(GenewiseFileValidator):
@@ -1446,8 +1445,8 @@ class ExpressionValidator(GenewiseFileValidator):
         pass
 
     class Factory(object):
-        def create(self,hugo_entrez_map,fix,logger,meta_dict):
-            return ExpressionValidator(hugo_entrez_map,fix,logger,meta_dict)
+        def create(self,hugo_entrez_map,logger,meta_dict):
+            return ExpressionValidator(hugo_entrez_map,logger,meta_dict)
 
 
 class FusionValidator(Validator):
@@ -1481,8 +1480,8 @@ class FusionValidator(Validator):
             self.writeNewLine(data)
 
     class Factory(object):
-        def create(self,hugo_entrez_map,fix,logger,meta_dict):
-            return FusionValidator(hugo_entrez_map,fix,logger,meta_dict)
+        def create(self,hugo_entrez_map,logger,meta_dict):
+            return FusionValidator(hugo_entrez_map,logger,meta_dict)
 
 
 class MethylationValidator(GenewiseFileValidator):
@@ -1508,8 +1507,8 @@ class MethylationValidator(GenewiseFileValidator):
         pass
 
     class Factory(object):
-        def create(self,hugo_entrez_map,fix,logger,meta_dict):
-            return MethylationValidator(hugo_entrez_map,fix,logger,meta_dict)
+        def create(self,hugo_entrez_map,logger,meta_dict):
+            return MethylationValidator(hugo_entrez_map,logger,meta_dict)
 
 
 class RPPAValidator(FeaturewiseFileValidator):
@@ -1540,8 +1539,8 @@ class RPPAValidator(FeaturewiseFileValidator):
         pass
 
     class Factory(object):
-        def create(self,hugo_entrez_map,fix,logger,meta_dict):
-            return RPPAValidator(hugo_entrez_map,fix,logger,meta_dict)
+        def create(self,hugo_entrez_map,logger,meta_dict):
+            return RPPAValidator(hugo_entrez_map,logger,meta_dict)
 
 
 class TimelineValidator(Validator):
@@ -1570,8 +1569,8 @@ class TimelineValidator(Validator):
             self.writeNewLine(data)
 
     class Factory(object):
-        def create(self,hugo_entrez_map,fix,logger,meta_dict):
-            return TimelineValidator(hugo_entrez_map,fix,logger,meta_dict)
+        def create(self,hugo_entrez_map,logger,meta_dict):
+            return TimelineValidator(hugo_entrez_map,logger,meta_dict)
 
 # ------------------------------------------------------------------------------
 # Functions
@@ -1705,7 +1704,7 @@ def processCaseListDirectory(caseListDir, cancerStudyId, logger):
     logger.info('Validation of case lists complete')
 
 # ------------------------------------------------------------------------------
-def interface():
+def interface(args=None):
     parser = argparse.ArgumentParser(description='cBioPortal meta Validator')
     parser.add_argument('-s', '--study_directory', type=str, required=True,
                         help='path to directory.')
@@ -1718,7 +1717,7 @@ def interface():
     parser.add_argument('-f', '--fix', required=False, action="store_true",
                         help='fix files')
 
-    parser = parser.parse_args()
+    parser = parser.parse_args(args)
     return parser
 
 
@@ -1726,8 +1725,9 @@ def main_validate(args):
 
     """Main function."""
 
-    global META_TO_FILE_MAP
+    global META_TYPE_TO_META_DICT
     global DEFINED_SAMPLE_IDS
+    global STUDY_DIR
 
     # get a logger to emit messages
     logger = logging.getLogger(__name__)
@@ -1736,7 +1736,7 @@ def main_validate(args):
     logger.addHandler(exit_status_handler)
 
     # process the options
-    study_dir = args.study_directory
+    STUDY_DIR = args.study_directory
     hugo = args.hugo_entrez_map
 
     try:
@@ -1753,8 +1753,8 @@ def main_validate(args):
         verbose = True
 
     # check existence of directory
-    if not os.path.exists(study_dir):
-        print >> sys.stderr, 'directory cannot be found: ' + study_dir
+    if not os.path.exists(STUDY_DIR):
+        print >> sys.stderr, 'directory cannot be found: ' + STUDY_DIR
         return 2
 
     # set default message handler
@@ -1776,7 +1776,7 @@ def main_validate(args):
             raise ImportError('HTML validation output requires Jinja2:'
                               ' please install it first.')
         html_handler = Jinja2HtmlHandler(
-            study_dir,
+            STUDY_DIR,
             html_output_filename,
             capacity=1e5)
         # TODO extend CollapsingLogMessageHandler to flush to multiple targets,
@@ -1802,7 +1802,7 @@ def main_validate(args):
         hugo_entrez_map = parse_ncbi_file(ncbi_file)
 
     # Get all files in study_dir
-    filenames = [os.path.join(study_dir, x) for x in os.listdir(study_dir)]
+    filenames = [os.path.join(STUDY_DIR, x) for x in os.listdir(STUDY_DIR)]
     cancerStudyId = ''
     filenameMetaStringCheck = ''
     filenameStringCheck = ''
@@ -1814,7 +1814,7 @@ def main_validate(args):
 
         # metafile validation and information gathering. Simpler than the big files, so no classes.
         # just need to get some values out, and also verify that no extra fields are specified.
-        # Building up the map META_TO_FILE_MAP allows us to validate some scenarios like "there should 
+        # Building up the map META_TYPE_TO_META_DICT allows us to validate some scenarios like "there should 
         # be only one clinical data file" (see below).
 
         if re.search(r'(\b|_)meta(\b|_)', f):
@@ -1826,32 +1826,29 @@ def main_validate(args):
             meta_file_type = meta['meta_file_type']
             data_file_path = meta.get('data_file_path')
             if data_file_path is not None:
-                if meta_file_type in META_TO_FILE_MAP:
-                    META_TO_FILE_MAP[meta_file_type].append(
-                        (meta, os.path.join(study_dir, data_file_path)))
+                if meta_file_type in META_TYPE_TO_META_DICT:
+                    META_TYPE_TO_META_DICT[meta_file_type].append(meta)
                 else:
-                    META_TO_FILE_MAP[meta_file_type] = [
-                        (meta, os.path.join(study_dir, data_file_path))]
+                    META_TYPE_TO_META_DICT[meta_file_type] = [meta]
 
 
-    if CLINICAL_META_PATTERN not in META_TO_FILE_MAP:
+    if CLINICAL_META_PATTERN not in META_TYPE_TO_META_DICT:
         logger.error('No clinical file detected')
         return exit_status_handler.get_exit_status()
 
-    if len(META_TO_FILE_MAP[CLINICAL_META_PATTERN]) != 1:
+    if len(META_TYPE_TO_META_DICT[CLINICAL_META_PATTERN]) != 1:
         if logger.isEnabledFor(logging.ERROR):
             logger.error(
                 'Multiple clinical files detected',
                 extra={'cause':', '.join(
                     getFileFromFilepath(f[1]) for f in
-                    META_TO_FILE_MAP[CLINICAL_META_PATTERN])})
+                    META_TYPE_TO_META_DICT[CLINICAL_META_PATTERN])})
 
     # create a validator for the clinical data file
-    clinical_meta = META_TO_FILE_MAP[CLINICAL_META_PATTERN][0][0]
+    clinical_meta = META_TYPE_TO_META_DICT[CLINICAL_META_PATTERN][0]
     clinvalidator = ValidatorFactory.createValidator(
         VALIDATOR_IDS[CLINICAL_META_PATTERN],
         hugo_entrez_map,
-        fix,
         logger,
         clinical_meta)
 
@@ -1860,17 +1857,16 @@ def main_validate(args):
     DEFINED_SAMPLE_IDS = clinvalidator.sampleIds
 
     # create validators for non-clinical data files
-    for meta_file_type in META_TO_FILE_MAP:
+    for meta_file_type in META_TYPE_TO_META_DICT:
         if meta_file_type == CLINICAL_META_PATTERN:
             continue
-        for meta in META_TO_FILE_MAP[meta_file_type]:
+        for meta in META_TYPE_TO_META_DICT[meta_file_type]:
             # TODO make hugo_entrez_map a global 'final':
             # it isn't supposed to change after initialisation, so that would
             # make things more readable
             validators.append(ValidatorFactory.createValidator(
                 VALIDATOR_IDS[meta_file_type],
                 hugo_entrez_map,
-                fix,
                 logger,
                 meta))
 
@@ -1878,7 +1874,7 @@ def main_validate(args):
     for validator in validators:
         validator.validate()
 
-    case_list_dirname = os.path.join(study_dir, 'case_lists')
+    case_list_dirname = os.path.join(STUDY_DIR, 'case_lists')
     if not os.path.isdir(case_list_dirname):
         logger.error("No directory named 'case_lists' found")
     else:

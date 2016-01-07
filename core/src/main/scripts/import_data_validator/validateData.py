@@ -819,20 +819,18 @@ class FeaturewiseFileValidator(Validator):
         super(FeaturewiseFileValidator, self).__init__(*args, **kwargs)
         self.sampleIds = []
 
-    def checkHeader(self, cols, *args, **kwargs):
+    def checkHeader(self, cols):
         """Validate the header and read sample IDs from it.
 
         Return the number of fatal errors.
         """
-        num_errors = super(FeaturewiseFileValidator, self).checkHeader(cols,
-                                                                       *args,
-                                                                       **kwargs)
+        num_errors = super(FeaturewiseFileValidator, self).checkHeader(cols)
         num_errors += self.setSampleIdsFromColumns()
         return num_errors
 
-    def checkLine(self, data, *args, **kwargs):
+    def checkLine(self, data):
         """Check the values in a data line."""
-        super(FeaturewiseFileValidator, self).checkLine(data, *args, **kwargs)
+        super(FeaturewiseFileValidator, self).checkLine(data)
         for column_index, value in enumerate(data):
             if column_index >= len(self.REQUIRED_HEADERS):  # pylint: disable=no-member
                 # checkValue() should be implemented by subclasses
@@ -865,22 +863,20 @@ class GenewiseFileValidator(FeaturewiseFileValidator):
         super(GenewiseFileValidator, self).__init__(*args, **kwargs)
         self.entrez_missing = False
 
-    def checkHeader(self, cols, *args, **kwargs):
+    def checkHeader(self, cols):
         """Validate the header and read sample IDs from it.
 
         Return the number of fatal errors.
         """
-        num_errors = super(GenewiseFileValidator, self).checkHeader(cols,
-                                                                    *args,
-                                                                    **kwargs)
+        num_errors = super(GenewiseFileValidator, self).checkHeader(cols)
 
         if self.numCols < 2 or self.cols[1] != self.REQUIRED_HEADERS[1]:
             self.entrez_missing = True
         return num_errors
 
-    def checkLine(self, data, *args, **kwargs):
+    def checkLine(self, data):
         """Check the values in a data line."""
-        super(GenewiseFileValidator, self).checkLine(data, *args, **kwargs)
+        super(GenewiseFileValidator, self).checkLine(data)
         for column_index, value in enumerate(data):
             if column_index == 0 and len(self.hugo_entrez_map) > 0:
                 if value not in self.hugo_entrez_map:
@@ -993,7 +989,7 @@ class MutationsExtendedValidator(Validator):
         super(MutationsExtendedValidator,self).validate()
         self.printComplete()
 
-    def checkLine(self, data, *args, **kwargs):
+    def checkLine(self, data):
 
         """Each value in each line is checked individually.
 
@@ -1005,7 +1001,7 @@ class MutationsExtendedValidator(Validator):
         message.
         """
 
-        super(MutationsExtendedValidator,self).checkLine(data, *args, **kwargs)
+        super(MutationsExtendedValidator,self).checkLine(data)
         self.mafValues = {}
 
         for col_name in self.REQUIRED_HEADERS:
@@ -1244,10 +1240,8 @@ class ClinicalValidator(Validator):
 
     # TODO validate the content of the comment lines before the column header
 
-    def checkHeader(self, cols, *args, **kwargs):
-        num_errors = super(ClinicalValidator,self).checkHeader(cols,
-                                                               *args,
-                                                               **kwargs)
+    def checkHeader(self, cols):
+        num_errors = super(ClinicalValidator,self).checkHeader(cols)
         for col_name in self.cols:
             if not col_name.isupper():
                 self.logger.warning(
@@ -1257,8 +1251,8 @@ class ClinicalValidator(Validator):
         self.cols = [s.upper() for s in self.cols]
         return num_errors
 
-    def checkLine(self, data, *args, **kwargs):
-        super(ClinicalValidator,self).checkLine(data, *args, **kwargs)
+    def checkLine(self, data):
+        super(ClinicalValidator,self).checkLine(data)
         for col_index, value in enumerate(data):
             # TODO check the values in the other cols, required and optional
             if col_index == self.cols.index('SAMPLE_ID'):
@@ -1294,8 +1288,8 @@ class SegValidator(Validator):
         super(SegValidator,self).validate()
         self.printComplete()
 
-    def checkLine(self, data, *args, **kwargs):
-        super(SegValidator,self).checkLine(data, *args, **kwargs)
+    def checkLine(self, data):
+        super(SegValidator,self).checkLine(data)
 
         # TODO check values in all other columns too
         for col_index, value in enumerate(data):
@@ -1357,8 +1351,8 @@ class FusionValidator(Validator):
         super(FusionValidator,self).validate()
         self.printComplete()
 
-    def checkLine(self, data, *args, **kwargs):
-        super(FusionValidator,self).checkLine(data, *args, **kwargs)
+    def checkLine(self, data):
+        super(FusionValidator,self).checkLine(data)
         # TODO check the values
 
     class Factory(object):
@@ -1390,8 +1384,8 @@ class RPPAValidator(FeaturewiseFileValidator):
         super(RPPAValidator,self).validate()
         self.printComplete()
 
-    def checkLine(self, data, *args, **kwargs):
-        super(RPPAValidator,self).checkLine(data, *args, **kwargs)
+    def checkLine(self, data):
+        super(RPPAValidator,self).checkLine(data)
         # TODO check the values in the first column
         # for rppa, first column should be hugo|antibody, everything after should be sampleIds
 
@@ -1418,8 +1412,8 @@ class TimelineValidator(Validator):
         super(TimelineValidator,self).validate()
         self.printComplete()
 
-    def checkLine(self, data, *args, **kwargs):
-        super(TimelineValidator,self).checkLine(data, *args, **kwargs)
+    def checkLine(self, data):
+        super(TimelineValidator,self).checkLine(data)
         # TODO check the values
 
     class Factory(object):

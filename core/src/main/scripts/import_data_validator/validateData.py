@@ -18,19 +18,11 @@ from cgi import escape as html_escape
 import textwrap
 import argparse
 import re
-
+from hugoEntrezMap import ftp_NCBI, parse_ncbi_file
 
 
 # ------------------------------------------------------------------------------
 # globals
-
-# allows script to run with or without the hugoEntrezMap module
-hugoEntrezMapPresent = True
-try:
-    from hugoEntrezMap import ftp_NCBI, parse_ncbi_file
-except ImportError:
-    print >> sys.stderr, 'Could not find hugoEntrezMap, skipping'
-    hugoEntrezMapPresent = False
 
 # Current NCBI build and build counterpart - used in one of the maf checks as well as .seq filename check
 NCBI_BUILD_NUMBER = 37
@@ -1703,13 +1695,21 @@ def processCaseListDirectory(caseListDir, cancerStudyId, logger):
 
     logger.info('Validation of case lists complete')
 
+def get_hugo_entrez_map(server_url):
+    '''
+    Returns a dict with hugo symbols and respective entrezId, e.g.:
+    # dict: {'LOC105377913': '105377913', 'LOC105377912': '105377912',  hugo: entrez, hugo: entrez...
+    '''
+    
+
+
 # ------------------------------------------------------------------------------
 def interface(args=None):
     parser = argparse.ArgumentParser(description='cBioPortal meta Validator')
     parser.add_argument('-s', '--study_directory', type=str, required=True,
                         help='path to directory.')
-    parser.add_argument('-hugo', '--hugo_entrez_map', type=str, required=True,
-                        help='path Entrez to Hugo mapping file')
+    parser.add_argument('-u', '--url_server', type=str, required=False, default='http://localhost/cbioportal',
+                        help='(optional) URL to cBioPortal server. You can set this if your URL is other then http://localhost/cbioportal')
     parser.add_argument('-html', '--html_table', type=str, required=False,
                         help='path to html report output file')
     parser.add_argument('-v', '--verbose', required=False, action="store_true",
@@ -1728,6 +1728,7 @@ def main_validate(args):
     global META_TYPE_TO_META_DICT
     global DEFINED_SAMPLE_IDS
     global STUDY_DIR
+    global SERVER_URL
 
     # get a logger to emit messages
     logger = logging.getLogger(__name__)
@@ -1737,16 +1738,14 @@ def main_validate(args):
 
     # process the options
     STUDY_DIR = args.study_directory
-    hugo = args.hugo_entrez_map
-
+    SERVER_URL = args.url_server
+    
     try:
         fix = args.fix
     except AttributeError:
         fix = False
 
     html_output_filename = args.html_table
-
-    hugo_entrez_map = {}
 
     verbose = False
     if args.verbose:
@@ -1790,16 +1789,7 @@ def main_validate(args):
         logger.addHandler(collapsing_html_handler)
 
 
-    if hugo == 'download' and hugoEntrezMapPresent:
-        hugo_entrez_map = ftp_NCBI()
-    elif hugo != '' and hugoEntrezMapPresent:
-        try:
-            ncbi_file = open(hugo,'r')
-        except IOError:
-            print >> sys.stderr, 'file cannot be found: ' + hugo
-            return 2
-
-        hugo_entrez_map = parse_ncbi_file(ncbi_file)
+    hugo_entrez_map = get_hugo_entrez_map(SERVER_URL)
 
     # Get all files in study_dir
     filenames = [os.path.join(STUDY_DIR, x) for x in os.listdir(STUDY_DIR)]

@@ -5,10 +5,10 @@ version 3, or (at your option) any later version.
 '''
 
 import unittest
-import validateData
+from import_data_validator import validateData
 
 # globals:
-hugo_mapping_file = 'test_data/Homo_sapiens.gene_info.gz'
+server = 'http://localhost:8080/cbioportal'
 
 # Test cases around running the complete validateData script (such as "does it return the correct exit status?" 
 # or "does it generate the html report when requested?", etc)
@@ -28,11 +28,13 @@ class ValidateDataSystemTester(unittest.TestCase):
         
         #Build up arguments and run
         args = ['--study_directory','test_data/study_es_1/', 
-                    '--hugo_entrez_map', hugo_mapping_file, '-v'] # -q instead ??
+                    '--url_server', server, '-v'] # -q instead ??
         args = validateData.interface(args)
         # Execute main function with arguments provided through sys.argv
         exit_status = validateData.main_validate(args)
         self.assertEquals(0, exit_status)
+        
+        #//PA - http://localhost:8080/cbioportal/api/genes TO validate genes
         
         
         # ======= study 2 : errors, expected exit_status = 1

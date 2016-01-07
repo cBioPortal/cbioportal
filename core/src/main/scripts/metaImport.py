@@ -43,8 +43,8 @@ def interface():
     parser = argparse.ArgumentParser(description='cBioPortal meta Importer')
     parser.add_argument('-s', '--study_directory', type=str, required=True,
                         help='path to directory.')
-    parser.add_argument('-hugo', '--hugo_entrez_map', type=str, required=True,
-                        help='path to Hugo gene Symbol')
+    parser.add_argument('-u', '--url_server', type=str, required=True,
+                        help='URL to cBioPortal server, e.g. http://localhost:8080/cbioportal')
     parser.add_argument('-html', '--html_table', type=str, required=False,
                         help='path to html report')
     parser.add_argument('-v', '--verbose', required=False, action="store_true",

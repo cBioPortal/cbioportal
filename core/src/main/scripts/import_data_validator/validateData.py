@@ -18,6 +18,8 @@ import argparse
 import re
 import csv
 import itertools
+import json
+import requests
 
 
 # ------------------------------------------------------------------------------
@@ -26,7 +28,7 @@ import itertools
 # Current NCBI build and build counterpart - used in one of the maf checks as well as .seq filename check
 NCBI_BUILD_NUMBER = 37
 GENOMIC_BUILD_COUNTERPART = 'hg19'
-
+STUDY_DIR = ''
 
 # how we differentiate between data TYPES. 
 
@@ -1556,7 +1558,25 @@ def get_hugo_entrez_map(server_url):
     Returns a dict with hugo symbols and respective entrezId, e.g.:
     # dict: {'LOC105377913': '105377913', 'LOC105377912': '105377912',  hugo: entrez, hugo: entrez...
     '''
-    
+    try:
+        service = server_url + "/api/genes"
+        response = requests.get(service)
+        if response.status_code != 200:
+            raise Exception( "Connection error for URL: " + server_url + 
+                             ". Got response: " + str(response.status_code) + " for service " + service)
+        
+        json_data = json.loads(response.text)
+        # json_data is list of dicts, each entry containing e.g. dict: {'hugo_gene_symbol': 'SRXN1', 'entrez_gene_id': '140809'}
+        # We want to transform this to the format dict: {hugo: entrez, hugo: entrez...
+        result_dict = {}
+        for data_item in json_data:
+            result_dict[data_item['hugo_gene_symbol']] = data_item['entrez_gene_id']
+        
+        return result_dict
+        
+    except Exception, e:
+        raise Exception( "Connection error for URL: " + server_url + 
+                         ". Administrator: please check if [" + server_url + "] is accessible. Message: " + str(e.message))
 
 
 # ------------------------------------------------------------------------------
@@ -1581,7 +1601,6 @@ def main_validate(args):
 
     global META_TYPE_TO_META_DICT
     global DEFINED_SAMPLE_IDS
-    global STUDY_DIR
     global SERVER_URL
 
     # get a logger to emit messages

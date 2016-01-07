@@ -4,7 +4,6 @@ This code is licensed under the GNU Affero General Public License (AGPL),
 version 3, or (at your option) any later version.
 '''
 
-from pkg_resources import resource_filename  # @UnresolvedImport # pylint: disable=E0611
 import unittest
 import logging
 import sys
@@ -14,7 +13,7 @@ from uuid import uuid4
 
 
 # globals:
-hugo_mapping_file = 'Homo_sapiens.gene_info.gz'
+hugo_mapping_file = 'test_data/Homo_sapiens.gene_info.gz'
 ncbi_file = open(hugo_mapping_file)
 hugo_entrez_map = parse_ncbi_file(ncbi_file)
 
@@ -43,7 +42,7 @@ class ValidateDataTester(unittest.TestCase):
         Here we serve a file with wrong order and expect validator to log this:
         '''
         meta_dict = {
-                    'data_file_path': 'data_seg_wrong_order.txt',
+                    'data_file_path': 'test_data/data_seg_wrong_order.txt',
                     'stable_id': 'test_column_order_validation_segment',
                     }
         
@@ -65,7 +64,7 @@ class ValidateDataTester(unittest.TestCase):
         Here we serve files with different order and no errors or warnings
         '''
         meta_dict = {
-                    'data_file_path': 'data_clin_order1.txt',
+                    'data_file_path': 'test_data/data_clin_order1.txt',
                     'stable_id': 'test_column_order_validation_segment',
                     }
         
@@ -78,7 +77,7 @@ class ValidateDataTester(unittest.TestCase):
         # we expect no errors or warnings
         self.assertEqual(0, len(logger.handlers[0].buffer))
         # if the file has another order, this is also OK:
-        meta_dict['data_file_path'] = 'data_clin_order2.txt'
+        meta_dict['data_file_path'] = 'test_data/data_clin_order2.txt'
         validator = ClinicalValidator(hugo_entrez_map,logger,meta_dict)
         validator.validate()
         # again, we expect no errors or warnings

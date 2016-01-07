@@ -7,8 +7,8 @@ version 3, or (at your option) any later version.
 import unittest
 import logging
 import sys
-from hugoEntrezMap import parse_ncbi_file
-from validateData import SegValidator, LogfileStyleFormatter, ClinicalValidator
+from import_data_validator.hugoEntrezMap import parse_ncbi_file
+from import_data_validator.validateData import SegValidator, LogfileStyleFormatter, ClinicalValidator
 from uuid import uuid4
 
 

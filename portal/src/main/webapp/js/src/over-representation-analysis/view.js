@@ -254,7 +254,9 @@ var orTable = function(plot_div, minionco_div, loading_div) {
 
     }
 
-    // when a gene in the table is clicked, show the gene in the mini-onco
+    /**
+     * when a gene in the table is clicked, show the gene in the mini-onco
+     */
     function addGeneClick(){
         $('.selectHighlight').on('click', function() {
             var current_gene = $(this).text();
@@ -262,11 +264,17 @@ var orTable = function(plot_div, minionco_div, loading_div) {
         });
     }
 
+    /**
+     * show the loading icon and decrease visibility of table
+     */
     function startLoading() {
         $("#" + table_id).addClass('tableLoading');
         $('#' + loading_div).addClass('loaderIconLoading');
     }
 
+    /**
+     * hide the loading icon and restore the visibility of table
+     */
     function stopLoading() {
         $("#" + table_id).removeClass('tableLoading');
         $('#' + loading_div).removeClass('loaderIconLoading');

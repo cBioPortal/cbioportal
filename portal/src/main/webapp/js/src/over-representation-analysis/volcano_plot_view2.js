@@ -1,3 +1,26 @@
+/*
+ * Copyright (c) 2016 The Hyve B.V.
+ * This code is licensed under the GNU Affero General Public License,
+ * version 3, or (at your option) any later version.
+ */
+
+/*
+ * This file is part of cBioPortal.
+ *
+ * cBioPortal is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /**
  * Class to render the d3js volcano plot, coupling it to a dataTable
  * such that the dataTable displays the selections made in the plot
@@ -11,21 +34,17 @@ function VolcanoPlot() {
     /**
      * Trigger the rendering of the plot.
      *
-     * @param plotElName: el where the plot should be rendered
-     * @param data: data from dataTable, but in original form (json)
-     * @param dataTable: dataTable item to be updated when selections are made in plot
-     * @param miniOnco: miniOnco item to be updated when plot item is clicked
+     * @param orTable: the orTable, which contains the miniOnca, originalData, etc.
      */
-
     this.render = function(orTable){
         self.orTable = orTable;
         self.miniOnco = orTable.miniOnco;
 
         var plotDataAttr = {
-            min_x: 0,
-            max_x: 0,
-            min_y: 0,
-            max_y: 0,
+            min_x: 99,
+            max_x: -99,
+            min_y: 99,
+            max_y: -99,
             abs_max_x: 0,
             abs_max_y: 0
         };
@@ -34,10 +53,15 @@ function VolcanoPlot() {
         var dataTrace = createDataTrace(orTable.originalData, plotDataAttr)
 
         //draw the plot with the prepared x,y coordinates data:
-        drawPlot(dataTrace, null, orTable.plot_div, plotDataAttr);
+        drawPlot(dataTrace, orTable.plot_div, plotDataAttr);
     }
 
-    // create data trace based on data and fill plotDataAttr with min and max values
+    /**
+     * create data trace based on data and fill plotDataAttr with min and max values
+     * @param data
+     * @param plotDataAttr
+     * @returns {{x: Array, y: Array, text: Array}}
+     */
     function createDataTrace(data, plotDataAttr){
         var xValues=[], yValues=[], labels=[];
 
@@ -56,6 +80,7 @@ function VolcanoPlot() {
                 plotDataAttr.min_y = yValue;
             }
             if (yValue > plotDataAttr.max_y) {
+                console.log(yValue+" "+plotDataAttr.max_y);
                 plotDataAttr.max_y = yValue;
             }
 
@@ -87,6 +112,9 @@ function VolcanoPlot() {
         return dataTrace;
     }
 
+    /**
+     * extra layout options: title axis and second y-axis
+     */
     function addPlotLayoutOptions(){
         var axisOptions = {
             xaxis:{
@@ -113,20 +141,29 @@ function VolcanoPlot() {
         self.scatterPlot.addPlotLayoutOptions(axisOptions);
     }
 
-    // for IE compatibility
+    /**
+     * for IE compatibility
+     * @param x
+     * @returns {number}
+     */
     Math.log10 = function (x) {
         return Math.log(x) / Math.LN10;
     };
 
-    function drawPlot(dataTrace, model, plotElName, plotDataOptions) {
-
+    /**
+     * creates the scatterplot and adds all the necessary components
+     * @param dataTrace: data formatted in the ploty way
+     * @param plotElName: element where the plot should be added
+     * @param plotDataAttr: contains information about max and min x and y values
+     */
+    function drawPlot(dataTrace, plotElName, plotDataAttr) {
         var axisMargin=1.25;
-        var minX = -1*plotDataOptions.abs_max_x;
-        var maxX = plotDataOptions.abs_max_x;
+        var minX = -1*plotDataAttr.abs_max_x;
+        var maxX = plotDataAttr.abs_max_x;
         var pVal = -Math.log10(orAnalysis.settings.p_val_threshold);
 
         // create the plot and add extra layout options for the axis
-        self.scatterPlot = new ScatterPlotlyTest(plotElName, dataTrace);
+        self.scatterPlot = new ScatterPlot(plotElName, dataTrace, plotDataAttr);
         addPlotLayoutOptions();
 
         // create pVal trace (the dotted line in the plot) and add it
@@ -167,7 +204,7 @@ function VolcanoPlot() {
         };
         self.scatterPlot.addTrace(mutualExclusivityTrace);
 
-        // create co-occurence trace and add it
+        // create co-occurrence trace and add it
         // markers are set to invisible as a workaround to improve the text's positioning
         var coOccurrenceTrace = {
             x:[0, (maxX)*0.75, maxX*axisMargin],
@@ -196,13 +233,19 @@ function VolcanoPlot() {
         self.scatterPlot.addDragListener(handlePlotDraggedCallback);
     }
 
-    // show the miniOnce for the clicked gene
+    /**
+     * show the miniOnce for the clicked gene
+     * @param pointClicked: point, which contains the gene as text, which should be shown in the mini-onco
+     */
     function handlePlotClickCallback(pointClicked){
         var geneClicked = pointClicked.data.text[pointClicked.pointNumber]
         self.miniOnco.render(geneClicked)
     }
 
-    // search the table for the dragged genes
+    /**
+     * search the table for the dragged genes
+     * @param genesDragged: genes to search for in the table
+     */
     function handlePlotDraggedCallback(genesDragged){
         self.orTable.searchTable(genesDragged);
     }

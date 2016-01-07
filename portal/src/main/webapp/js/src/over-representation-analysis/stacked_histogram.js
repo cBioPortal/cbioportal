@@ -1,35 +1,62 @@
-// stacked_histogram is a horizontal stacked histogram visualisation
-// each object provided requires:
-//      barName - the label used on the y-axis
-//      barPieceName - defines part of the bar for the barName
-//      barPieceValue - the value the piece has
-//      color - the color of the barpiece
-//
-// The following would be a valid structure:
-// var bardata = [{
-//      barName: TNF,
-//      barPieceName: "Query Genes Unaltered, TNF Unaltered",
-//      barPieceValue: 100,
-//      color: "lightgrey"
-//  }, {
-//      barName: TNF,
-//      barPieceName: "Query Genes Unaltered, TNF Altered",
-//      barPieceValue: 150,
-//      color: "red"
-//  }, {
-//      barName: "QGenes",
-//      barPieceName: "QGenes Altered",
-//      barPieceValue: 200,
-//      color: "blue"
-//  }];
-//
-//  The stacked_histogram automatically creates 0-width elements for the missing barpieces, to end
-//  with a structure which has all components for all bars
-//  Hence, in the example, we'd end up with 6 rectangles, of which 3 or 0 width.
-//
-//  As an alternative, we could instead enforce the user to specify all components explicitly
-//
-// Based on http://jsfiddle.net/datashaman/rBfy5/4/light/
+/*
+ * Copyright (c) 2016 The Hyve B.V.
+ * This code is licensed under the GNU Affero General Public License,
+ * version 3, or (at your option) any later version.
+ */
+
+/*
+ * This file is part of cBioPortal.
+ *
+ * cBioPortal is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * stacked_histogram is a horizontal stacked histogram visualisation
+ * each object provided requires:
+ *      barName - the label used on the y-axis
+ *      barPieceName - defines part of the bar for the barName
+ *      barPieceValue - the value the piece has
+ *      color - the color of the barpiece
+ *
+ * The following would be a valid structure:
+ * var bardata = [{
+*      barName: TNF,
+*      barPieceName: "Query Genes Unaltered, TNF Unaltered",
+*      barPieceValue: 100,
+*      color: "lightgrey"
+*  }, {
+*      barName: TNF,
+*      barPieceName: "Query Genes Unaltered, TNF Altered",
+*      barPieceValue: 150,
+*      color: "red"
+*  }, {
+*      barName: "QGenes",
+*      barPieceName: "QGenes Altered",
+*      barPieceValue: 200,
+*      color: "blue"
+*  }];
+ *
+ *  The stacked_histogram automatically creates 0-width elements for the missing barpieces, to end
+ *  with a structure which has all components for all bars
+ *  Hence, in the example, we'd end up with 6 rectangles, of which 3 or 0 width.
+ *
+ *  As an alternative, we could instead enforce the user to specify all components explicitly
+ *
+ * Based on http://jsfiddle.net/datashaman/rBfy5/4/light/
+ *
+ * @param divId: where the stacked histogram should be placed
+ */
 function stacked_histogram(divId) {
     var margins = {
         top: 12,
@@ -42,7 +69,10 @@ function stacked_histogram(divId) {
     var animationDuration=500;
     var dataset, yAxisComponent, groups;
 
-    // transform the barData to the format required by the d3 component
+    /**
+     * transform the barData to the format required by the d3 component
+     * @param barData: data to be used for the stacked histogram
+     */
     function transformData(barData){
         dataset = new Array();
         // find all the barnames and barpieces
@@ -101,7 +131,10 @@ function stacked_histogram(divId) {
         });
     }
 
-    // create histogram based on the barData
+    /**
+     * create histogram based on the barData
+     * @param barData: data to be used for the histogram
+     */
     this.createStackedHistogram = function(barData){
         // transform the data to the necessary format
         transformData(barData);
@@ -190,7 +223,11 @@ function stacked_histogram(divId) {
         yAxisComponent.call(yAxis);
     }
 
-    // show a qtip for the rectangle
+    /**
+     * show a qtip for the rectangle
+     * @param element: contains the label to be used
+     * @param rectangle: element to which the qtip should be added (or updated)
+     */
     function showTip(element, rectangle){
         // if no qtip exists add one
         if(rectangle.attr("data-hasqtip")==undefined) {
@@ -210,7 +247,10 @@ function stacked_histogram(divId) {
         rectangle.qtip("show");
     }
 
-    // get a y-scale
+    /**
+     * get a y-scale
+     * @returns y-scale
+     */
     function getYScale(){
         // determine the yLabels
         var yLabels = dataset[0].map(function (d) {
@@ -224,7 +264,11 @@ function stacked_histogram(divId) {
         return yScale;
     }
 
-    // get a y-axis based on the scale
+    /**
+     * get a y-axis based on the scale
+     * @param yScale
+     * @returns y-axis
+     */
     function getYAxis(yScale){
         var yAxis = d3.svg.axis()
             .scale(yScale)
@@ -232,7 +276,10 @@ function stacked_histogram(divId) {
         return yAxis;
     }
 
-    // get an x-scale
+    /**
+     * get an x-scale
+     * @returns x-scale
+     */
     function getXScale(){
         // find the maximum x; for each group find the maximum and then return the maximum of these maxima
         var xMax = d3.max(dataset, function (group) {

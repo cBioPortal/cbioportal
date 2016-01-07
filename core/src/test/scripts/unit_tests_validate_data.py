@@ -33,7 +33,7 @@ def getNewLogger():
     logger.handlers[0].flush()
     return logger
 
-# Test cases
+# Test cases for the various Validator classes found in validateData script
 class ValidateDataTester(unittest.TestCase):
     
         

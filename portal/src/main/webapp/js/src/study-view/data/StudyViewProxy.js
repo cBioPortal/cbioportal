@@ -501,13 +501,19 @@ var StudyViewProxy = (function() {
 
         if (data) {
             for (var i = 0, dataL = data.length; i < dataL; i++) {
-                var caseIds = data[i].caseIds;
+                var gene = data[i];
+                var geneSymbol = gene.gene_symbol;
+                var caseIds = gene.caseIds;
 
                 for (var j = 0, caseIdsL = caseIds.length; j < caseIdsL; j++) {
                     if (_.isUndefined(converted[caseIds[j]])) {
-                        converted[caseIds[j]] = [];
+                        converted[caseIds[j]] = {};
                     }
-                    converted[caseIds[j]].push(data[i]);
+                    if (_.isUndefined(converted[caseIds[j]][geneSymbol])) {
+                        converted[caseIds[j]][geneSymbol] = _.extend({}, gene);
+                        converted[caseIds[j]][geneSymbol].num_muts = 0;
+                    }
+                    ++converted[caseIds[j]][geneSymbol].num_muts;
                 }
             }
         }
@@ -531,13 +537,16 @@ var StudyViewProxy = (function() {
                 var numOfSample = sampleIds.length;
                 for (var i = 0; i < numOfSample; i++) {
                     if (obtainDataObject.mutatedGenesSampleBased[sampleIds[i]]) {
-                        for (var j = 0, numOfGenes = obtainDataObject.mutatedGenesSampleBased[sampleIds[i]].length; j < numOfGenes; j++) {
-                            var  geneSymbol = obtainDataObject.mutatedGenesSampleBased[sampleIds[i]][j].gene_symbol;
+                        var sample = obtainDataObject.mutatedGenesSampleBased[sampleIds[i]];
+                        for(var geneSymbol in sample) {
                             if (_.isUndefined(geneSpecific[geneSymbol])) {
-                                geneSpecific[geneSymbol] = obtainDataObject.mutatedGenesSampleBased[sampleIds[i]][j];
+                                geneSpecific[geneSymbol] = _.extend({}, sample[geneSymbol]);
                                 geneSpecific[geneSymbol].caseIds = [];
+                                geneSpecific[geneSymbol].num_muts = 0;
                             }
+                            geneSpecific[geneSymbol].num_muts += sample[geneSymbol].num_muts;
                             geneSpecific[geneSymbol].caseIds.push(sampleIds[i]);
+
                         }
                     }
                 }

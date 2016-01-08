@@ -304,7 +304,7 @@ public final class MyCancerGenomeLinkUtil {
                         mapCancerLink = new TreeMap<String,String>();
                         mapVariantCancerLink.put(mutation, mapCancerLink);
                     }
-                    mapCancerLink.put(cancer, "<a \"target=\"_blank\" href=\">"+ href +"\">"+ entry.getValue() + " in " + cancer +"</a>");
+                    mapCancerLink.put(cancer, "<a \"target=\"_blank\" href=\""+ href +"\">"+ entry.getValue() + " in " + cancer +"</a>");
                 }
 
             } else {

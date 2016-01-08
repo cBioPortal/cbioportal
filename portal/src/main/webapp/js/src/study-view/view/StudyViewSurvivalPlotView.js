@@ -79,7 +79,7 @@ var StudyViewSurvivalPlotView = (function() {
      * @returns {Array} return name array of saved curves
      */
     function getSavedCurveName(_id) {
-        if (savedCurveInfo[_id]) {
+        if (_.isObject(savedCurveInfo[_id])) {
             return Object.keys(savedCurveInfo[_id]);
         } else {
             return [];
@@ -1181,7 +1181,7 @@ var StudyViewSurvivalPlotView = (function() {
                 StudyViewUtil.changePosition(
                         '#' + opts[i].divs.main,
                         '#' + opts[i].divs.bodyLabel,
-                        "#dc-plots");
+                        "#summary");
             }
         }
     }

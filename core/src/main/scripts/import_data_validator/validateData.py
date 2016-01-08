@@ -74,143 +74,145 @@ VALIDATOR_IDS = {CNA_META_PATTERN:'CNAValidator',
                  TIMELINE_META_PATTERN:'TimelineValidator'
                  }
 
-CNA_META_FIELDS = [
-    'cancer_study_identifier',
-    'genetic_alteration_type',
-    'datatype',
-    'stable_id',
-    'show_profile_in_analysis_tab',
-    'profile_name',
-    'profile_description',
-    'meta_file_type',
-    'data_file_path'
-]
+CNA_META_FIELDS = {
+    'cancer_study_identifier': True,
+    'genetic_alteration_type': True,
+    'datatype': True,
+    'stable_id': True,
+    'show_profile_in_analysis_tab': True,
+    'profile_name': True,
+    'profile_description': True,
+    'meta_file_type': True,
+    'data_file_path': True
+}
 
-MUTATION_META_FIELDS = [
-    'cancer_study_identifier',
-    'genetic_alteration_type',
-    'datatype',
-    'stable_id',
-    'show_profile_in_analysis_tab',
-    'profile_name',
-    'profile_description',
-    'meta_file_type',
-    'data_file_path'
-]
+MUTATION_META_FIELDS = {
+    'cancer_study_identifier': True,
+    'genetic_alteration_type': True,
+    'datatype': True,
+    'stable_id': True,
+    'show_profile_in_analysis_tab': True,
+    'profile_name': True,
+    'profile_description': True,
+    'meta_file_type': True,
+    'data_file_path': True
+}
 
-SEG_META_FIELDS = [
-    'cancer_study_identifier',
-    'genetic_alteration_type',
-    'datatype',
-    'stable_id',
-    'show_profile_in_analysis_tab',
-    'profile_name',
-    'profile_description',
-    'reference_genome_id',
-    'data_filename',
-    'description',
-    'meta_file_type',
-    'data_file_path'
-]
+SEG_META_FIELDS = {
+    'cancer_study_identifier': True,
+    'genetic_alteration_type': True,
+    'datatype': True,
+    'stable_id': True,
+    'show_profile_in_analysis_tab': True,
+    'profile_name': True,
+    'profile_description': True,
+    'reference_genome_id': True,
+    'data_filename': True,
+    'description': True,
+    'meta_file_type': True,
+    'data_file_path': True
+}
 
-LOG2_META_FIELDS = [
-    'cancer_study_identifier',
-    'genetic_alteration_type',
-    'datatype',
-    'stable_id',
-    'show_profile_in_analysis_tab',
-    'profile_name',
-    'profile_description',
-    'meta_file_type',
-    'data_file_path'
-]
+LOG2_META_FIELDS = {
+    'cancer_study_identifier': True,
+    'genetic_alteration_type': True,
+    'datatype': True,
+    'stable_id': True,
+    'show_profile_in_analysis_tab': True,
+    'profile_name': True,
+    'profile_description': True,
+    'meta_file_type': True,
+    'data_file_path': True
+}
 
-EXPRESSION_META_FIELDS = [
-    'cancer_study_identifier',
-    'genetic_alteration_type',
-    'datatype',
-    'stable_id',
-    'show_profile_in_analysis_tab',
-    'profile_name',
-    'profile_description',
-    'meta_file_type',
-    'data_file_path'
-]
+EXPRESSION_META_FIELDS = {
+    'cancer_study_identifier': True,
+    'genetic_alteration_type': True,
+    'datatype': True,
+    'stable_id': True,
+    'show_profile_in_analysis_tab': True,
+    'profile_name': True,
+    'profile_description': True,
+    'meta_file_type': True,
+    'data_file_path': True
+}
 
-METHYLATION_META_FIELDS = [
-    'cancer_study_identifier',
-    'genetic_alteration_type',
-    'datatype',
-    'stable_id',
-    'show_profile_in_analysis_tab',
-    'profile_name',
-    'profile_description',
-    'meta_file_type',
-    'data_file_path'
-]
+METHYLATION_META_FIELDS = {
+    'cancer_study_identifier': True,
+    'genetic_alteration_type': True,
+    'datatype': True,
+    'stable_id': True,
+    'show_profile_in_analysis_tab': True,
+    'profile_name': True,
+    'profile_description': True,
+    'meta_file_type': True,
+    'data_file_path': True
+}
 
-FUSION_META_FIELDS = [
-    'cancer_study_identifier',
-    'genetic_alteration_type',
-    'datatype',
-    'stable_id',
-    'show_profile_in_analysis_tab',
-    'profile_name',
-    'profile_description',
-    'meta_file_type',
-    'data_file_path'
-]
+FUSION_META_FIELDS = {
+    'cancer_study_identifier': True,
+    'genetic_alteration_type': True,
+    'datatype': True,
+    'stable_id': True,
+    'show_profile_in_analysis_tab': True,
+    'profile_name': True,
+    'profile_description': True,
+    'meta_file_type': True,
+    'data_file_path': True
+}
 
-RPPA_META_FIELDS = [
-    'cancer_study_identifier',
-    'genetic_alteration_type',
-    'datatype',
-    'stable_id',
-    'show_profile_in_analysis_tab',
-    'profile_name',
-    'profile_description',
-    'meta_file_type',
-    'data_file_path'
-]
+RPPA_META_FIELDS = {
+    'cancer_study_identifier': True,
+    'genetic_alteration_type': True,
+    'datatype': True,
+    'stable_id': True,
+    'show_profile_in_analysis_tab': True,
+    'profile_name': True,
+    'profile_description': True,
+    'meta_file_type': True,
+    'data_file_path': True
+}
 
-TIMELINE_META_FIELDS = [
-    'cancer_study_identifier',
-    'genetic_alteration_type',
-    'meta_file_type',
-    'data_file_path'
-]
+TIMELINE_META_FIELDS = {
+    'cancer_study_identifier': True,
+    'genetic_alteration_type': True,
+    'meta_file_type': True,
+    'data_file_path': True
+}
 
-CASE_LIST_FIELDS = [
-    'cancer_study_identifier',
-    'stable_id',
-    'case_list_name',
-    'case_list_description',
-    'case_list_ids',
+CASE_LIST_FIELDS = {
+    'cancer_study_identifier': True,
+    'stable_id': True,
+    'case_list_name': True,
+    'case_list_description': True,
+    'case_list_ids': True,
     # TODO: define 'case_list_category' when optional meta fields are supported
-]
+}
 
-CLINICAL_META_FIELDS = [
-    'cancer_study_identifier',
-    'genetic_alteration_type',
-    'datatype',
-    'stable_id',
-    'show_profile_in_analysis_tab',
-    'profile_name',
-    'profile_description',
-    'meta_file_type',
-    'data_file_path'
-]
+CLINICAL_META_FIELDS = {
+    'cancer_study_identifier': True,
+    'genetic_alteration_type': True,
+    'datatype': True,
+    'stable_id': True,
+    'show_profile_in_analysis_tab': True,
+    'profile_name': True,
+    'profile_description': True,
+    'meta_file_type': True,
+    'data_file_path': True
+}
 
-STUDY_META_FIELDS = [
-    'cancer_study_identifier',
-    'type_of_cancer',
-    'name',
-    'description',
-    'groups',
-    'dedicated_color',
-    'short_name',
-    'meta_file_type'
-]
+STUDY_META_FIELDS = {
+    'cancer_study_identifier': True,
+    'type_of_cancer': True,
+    'name': True,
+    'description': True,
+    'groups': True,
+    'dedicated_color': True,
+    'short_name': True,
+    'meta_file_type': True,
+    'citation': False,
+    'pmid': False
+}
 
 META_FIELD_MAP = {
     STUDY_META_PATTERN:STUDY_META_FIELDS,
@@ -335,8 +337,8 @@ class LogfileStyleFormatter(ValidationMessageFormatter):
         record.cause_indicator = self.format_aggregated(
             record,
             'cause',
-            "; found '%s'",
-            "; found ['%s']",
+            "; found in file: '%s'",
+            "; found in file: ['%s']",
             join_string="', '",
             optional=True)
 
@@ -732,8 +734,9 @@ class Validator(object):
                               extra={'cause': repr(dialect.delimiter)[1:-1]})
             return False
         if dialect.quoting != csv.QUOTE_NONE:
-            self.logger.error('Found quoted fields in file',
-                              extra={'cause': repr(dialect.quotechar)[1:-1]})
+            self.logger.error('Found quotation marks around field(s) in the first rows of the file. '
+                              'Fields and values should not be surrounded by quotation marks.',
+                              extra={'cause': 'Found quotation marks of the type: [' + repr(dialect.quotechar)[1:-1] + '] '} )
         return True
 
     def checkLineBreaks(self, linebreaks):
@@ -883,8 +886,9 @@ class GenewiseFileValidator(FeaturewiseFileValidator):
         for column_index, value in enumerate(data):
             if column_index == 0 and len(self.hugo_entrez_map) > 0:
                 if value not in self.hugo_entrez_map:
-                    self.logger.warning(
-                        'Hugo symbol appears incorrect',
+                    # TODO - change to new logic that gives preference to EntrezID checks
+                    self.logger.error(
+                        'Hugo symbol not present in your cBioPortal instance',
                         extra={'line_number': self.line_number,
                                'column_number': column_index + 1,
                                'cause': value.strip()})
@@ -1471,7 +1475,8 @@ def processMetafile(filename, cancerStudyId, logger, case_list=False):
 
     missing_fields = []
     for field in META_FIELD_MAP[meta_file_type]:
-        if field not in metaDictionary:
+        mandatory = META_FIELD_MAP[meta_file_type][field]
+        if field not in metaDictionary and mandatory:
             logger.error("Missing field '%s' in %s file",
                          field,
                          {True: 'case list', False: 'meta'}[case_list],
@@ -1521,7 +1526,13 @@ def processMetafile(filename, cancerStudyId, logger, case_list=False):
     if (
             'data_file_path' in metaDictionary and
             'data_file_path' not in META_FIELD_MAP[meta_file_type]):
-        del metaDictionary['data_file_path']
+        
+        logger.warning(
+                'File \'%s\' referenced by meta file will not be processed'
+                ' as the attribute data_file_path is not expected in this meta file.',
+                metaDictionary['data_file_path'], 
+                extra={'data_filename': getFileFromFilepath(filename),
+                       'cause': field})
 
     return metaDictionary
 
@@ -1685,7 +1696,8 @@ def main_validate(args):
                 cancerStudyId = meta['cancer_study_identifier'].strip()
             meta_file_type = meta['meta_file_type']
             data_file_path = meta.get('data_file_path')
-            if data_file_path is not None:
+            # check if data_file_path is set AND if data_file_path is a supported field according to META_FIELD_MAP:
+            if data_file_path is not None and 'data_file_path' in META_FIELD_MAP[meta_file_type]:
                 if meta_file_type in META_TYPE_TO_META_DICT:
                     META_TYPE_TO_META_DICT[meta_file_type].append(meta)
                 else:

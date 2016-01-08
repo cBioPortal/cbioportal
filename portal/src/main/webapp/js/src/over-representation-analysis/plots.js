@@ -70,7 +70,7 @@ var orPlots = (function() {
 		for (var i=0; i<sample_ids.length; i++) {
 			order[sample_ids[i]] = i;
 		}
-		var oncoprintData = _.sort(data, function(d) { return order[d.sample];});
+		var oncoprintData = _.sortBy(data, function(d) { return order[d.sample];});
 		dotsArr = [];
 		dotsArr.length = 0;
 		window.QuerySession.getAlteredSamples().then(function(altered_sample_ids) {
@@ -90,45 +90,42 @@ var orPlots = (function() {
 
 				_datum.case_id = _sampleId;
 				if ($.inArray(_sampleId, altered_sample_ids) !== -1) { //sample is altered
-
-				    $.each(oncoprintData, function(outer_index, outer_obj) {
-					$.each(outer_obj.values, function(inner_key, inner_obj) {
+				    $.each(oncoprintData, function(_index, inner_obj) {
 					    if (_sampleId === inner_obj.sample) {
-						var _str = "";
-						if (inner_obj.hasOwnProperty("mutation")) {
-						    _str += " MUT;";
-						}
-						if (inner_obj.hasOwnProperty("cna")) {
-						    if (inner_obj.cna === "AMPLIFIED") {
-							_str += " AMP;";
-						    } else if (inner_obj.cna === "GAINED") {
-							_str += " GAIN;";
-						    } else if (inner_obj.cna === "HEMIZYGOUSLYDELETED") {
-							_str += " HETLOSS;";
-						    } else if (inner_obj.cna === "HOMODELETED") {
-							_str += " HOMDEL;";
-						    }
-						}
-						if (inner_obj.hasOwnProperty("mrna")) {
-						    if (inner_obj.mrna === "UPREGULATED") {
-							_str += " UP;";
-						    } else if (inner_obj.mrna === "DOWNREGULATED") {
-							_str += " DOWN;";
-						    }
-						}
-						if (inner_obj.hasOwnProperty("rppa")) {
-						    if (inner_obj.rppa === "UPREGULATED") {
-							_str += " RPPA-UP;";
-						    } else if (inner_obj.rppa === "DOWNREGULATED") {
-							_str += " RPPA-DOWN;";
-						    }
-						}
-						if (_str !== "") {
-						    _str = inner_obj.gene + ":" + _str;
-						    _datum.alteration = _str;
-						}
+                            var _str = "";
+                            if (inner_obj.hasOwnProperty("mutation")) {
+                                _str += " MUT;";
+                            }
+                            if (inner_obj.hasOwnProperty("cna")) {
+                                if (inner_obj.cna === "AMPLIFIED") {
+                                _str += " AMP;";
+                                } else if (inner_obj.cna === "GAINED") {
+                                _str += " GAIN;";
+                                } else if (inner_obj.cna === "HEMIZYGOUSLYDELETED") {
+                                _str += " HETLOSS;";
+                                } else if (inner_obj.cna === "HOMODELETED") {
+                                _str += " HOMDEL;";
+                                }
+                            }
+                            if (inner_obj.hasOwnProperty("mrna")) {
+                                if (inner_obj.mrna === "UPREGULATED") {
+                                _str += " UP;";
+                                } else if (inner_obj.mrna === "DOWNREGULATED") {
+                                _str += " DOWN;";
+                                }
+                            }
+                            if (inner_obj.hasOwnProperty("rppa")) {
+                                if (inner_obj.rppa === "UPREGULATED") {
+                                _str += " RPPA-UP;";
+                                } else if (inner_obj.rppa === "DOWNREGULATED") {
+                                _str += " RPPA-DOWN;";
+                                }
+                            }
+                            if (_str !== "") {
+                                _str = inner_obj.gene + ":" + _str;
+                                _datum.alteration = _str;
+                            }
 					    }
-					});
 				    });
 				}
 				dotsArr.push(_datum);

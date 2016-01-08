@@ -5,391 +5,395 @@ var OncoprintWebGLCellView = require('./oncoprintwebglcellview.js');
 var OncoprintLabelView = require('./oncoprintlabelview.js');
 var OncoprintRuleSet = require('./oncoprintruleset.js');
 
-var Oncoprint = (function() {
-	// this is the controller
-	var nextTrackId = (function() {
-		var ctr = 0;
-		return function() {
-			ctr += 1;
-			return ctr;
-		}
-	})();
-	function Oncoprint($svg_dev, $canvas_dev) {
-		this.model = new OncoprintModel();
-		
-		// Precisely one of the following should be uncommented
-		// this.cell_view = new OncoprintSVGCellView($svg_dev);
-		this.cell_view = new OncoprintWebGLCellView($canvas_dev)
-		
-		this.label_view = new OncoprintLabelView();
+var Oncoprint = (function () {
+    // this is the controller
+    var nextTrackId = (function () {
+	var ctr = 0;
+	return function () {
+	    ctr += 1;
+	    return ctr;
 	}
-	
-	Oncoprint.prototype.addTracks = function(params_list) {
-		// Update model
-		var track_ids = [];
-		params_list = params_list.map(function(o) {
-		    o.track_id = nextTrackId();
-		    o.rule_set = OncoprintRuleSet(o.rule_set_params);
-		    track_ids.push(o.track_id);
-		    return o;
-		});
-		this.model.addTracks(params_list);
-				/*track_id, params.target_group,
-				params.track_height, params.track_padding,
-				params.data_id_key, params.tooltipFn,
-				params.removable, params.label,
-				params.sortCmpFn, params.sort_direction_changeable,
-				params.data, OncoprintRuleSet(params.rule_set_params));*/
-		// Update views
-		this.cell_view.addTracks(this.model, track_ids);
-		//this.label_view.addTracks(this.model, track_ids);
-				
-		return track_ids;
-	}
-	
-	Oncoprint.prototype.removeTrack = function(track_id) {
-		// Update model
-		this.model.removeTrack(track_id);
-		// Update views
-		this.cell_view.removeTrack(this.model, track_id);
-		this.label_view.removeTrack(this.model, track_id);
-	}
-	
-	Oncoprint.prototype.getZoom = function() {
-		return this.model.getZoom();
-	}
-	
-	Oncoprint.prototype.setZoom = function(z) {
-		// Update model
-		this.model.setZoom(z);
-		// Update views
-		this.cell_view.setZoom(this.model, z);
-	}
-	
-	Oncoprint.prototype.setTrackData = function(track_id, data) {
-		this.model.setTrackData(track_id, data);
-		this.cell_view.setTrackData(this.model, track_id);
-	}
-	
-	Oncoprint.prototype.setRuleSet = function(track_id, rule_set_params) {
-		this.model.setRuleSet(track_id, OncoprintRuleSet(rule_set_params));
-		this.cell_view.setTrackData(this.model, track_id);
-	}
-	
-	
-	return Oncoprint;
+    })();
+    function Oncoprint($svg_dev, $canvas_dev) {
+	this.model = new OncoprintModel();
+
+	// Precisely one of the following should be uncommented
+	// this.cell_view = new OncoprintSVGCellView($svg_dev);
+	this.cell_view = new OncoprintWebGLCellView($canvas_dev)
+
+	this.label_view = new OncoprintLabelView();
+    }
+
+    Oncoprint.prototype.addTracks = function (params_list) {
+	// Update model
+	var track_ids = [];
+	params_list = params_list.map(function (o) {
+	    o.track_id = nextTrackId();
+	    o.rule_set = OncoprintRuleSet(o.rule_set_params);
+	    track_ids.push(o.track_id);
+	    return o;
+	});
+	this.model.addTracks(params_list);
+	/*track_id, params.target_group,
+	 params.track_height, params.track_padding,
+	 params.data_id_key, params.tooltipFn,
+	 params.removable, params.label,
+	 params.sortCmpFn, params.sort_direction_changeable,
+	 params.data, OncoprintRuleSet(params.rule_set_params));*/
+	// Update views
+	this.cell_view.addTracks(this.model, track_ids);
+	//this.label_view.addTracks(this.model, track_ids);
+
+	return track_ids;
+    }
+
+    Oncoprint.prototype.removeTrack = function (track_id) {
+	// Update model
+	this.model.removeTrack(track_id);
+	// Update views
+	this.cell_view.removeTrack(this.model, track_id);
+	this.label_view.removeTrack(this.model, track_id);
+    }
+
+    Oncoprint.prototype.getZoom = function () {
+	return this.model.getZoom();
+    }
+
+    Oncoprint.prototype.setZoom = function (z) {
+	// Update model
+	this.model.setZoom(z);
+	// Update views
+	this.cell_view.setZoom(this.model, z);
+    }
+
+    Oncoprint.prototype.setTrackData = function (track_id, data) {
+	this.model.setTrackData(track_id, data);
+	this.cell_view.setTrackData(this.model, track_id);
+    }
+
+    Oncoprint.prototype.setRuleSet = function (track_id, rule_set_params) {
+	this.model.setRuleSet(track_id, OncoprintRuleSet(rule_set_params));
+	this.cell_view.setTrackData(this.model, track_id);
+    }
+
+
+    return Oncoprint;
 })();
 module.exports = Oncoprint;
 },{"./oncoprintlabelview.js":2,"./oncoprintmodel.js":3,"./oncoprintruleset.js":4,"./oncoprintsvgcellview.js":5,"./oncoprintwebglcellview.js":6}],2:[function(require,module,exports){
 // FIRST PASS: no optimization
-var OncoprintLabelView = (function() {
-	function OncoprintLabelView() {
-		//TODO: what parameters
-		// TODO: implementation
-	}
-	OncoprintLabelView.prototype.removeTrack = function(model, track_id) {
-		// TODO: what parameters
-		// TODO: implementation
-	}
-	OncoprintLabelView.prototype.moveTrack = function() {
-		// TODO: what parameters
-		// TODO: implementation
-	}
-	OncoprintLabelView.prototype.addTrack = function(model, track_id) {
-		// TODO: what parameters
-		// TODO: implementation
-	}
-	OncoprintLabelView.prototype.setTrackData = function() {
-		// TODO: what parameters
-		// TODO: implementation
-	}
-	OncoprintLabelView.prototype.setCellPadding = function() {
-		// TODO: what parameters
-		// TODO: implementation
-	}
-	OncoprintLabelView.prototype.setZoom = function() {
-		// TODO: what parameters
-		// TODO: implementation
-	}
-	OncoprintLabelView.prototype.setOrder = function() {
-		// TODO: what parameters
-		// TODO: implementation
-	}
-	
-	return OncoprintLabelView;
+var OncoprintLabelView = (function () {
+    function OncoprintLabelView() {
+	//TODO: what parameters
+	// TODO: implementation
+    }
+    OncoprintLabelView.prototype.removeTrack = function (model, track_id) {
+	// TODO: what parameters
+	// TODO: implementation
+    }
+    OncoprintLabelView.prototype.moveTrack = function () {
+	// TODO: what parameters
+	// TODO: implementation
+    }
+    OncoprintLabelView.prototype.addTrack = function (model, track_id) {
+	// TODO: what parameters
+	// TODO: implementation
+    }
+    OncoprintLabelView.prototype.setTrackData = function () {
+	// TODO: what parameters
+	// TODO: implementation
+    }
+    OncoprintLabelView.prototype.setCellPadding = function () {
+	// TODO: what parameters
+	// TODO: implementation
+    }
+    OncoprintLabelView.prototype.setZoom = function () {
+	// TODO: what parameters
+	// TODO: implementation
+    }
+    OncoprintLabelView.prototype.setOrder = function () {
+	// TODO: what parameters
+	// TODO: implementation
+    }
+
+    return OncoprintLabelView;
 })();
 
 module.exports = OncoprintLabelView;
 },{}],3:[function(require,module,exports){
 function ifndef(x, val) {
-	return (typeof x === "undefined" ? val : x);
+    return (typeof x === "undefined" ? val : x);
 }
 
-var OncoprintModel = (function() {
-	function OncoprintModel(init_cell_padding, init_cell_padding_on, 
-				init_zoom, init_cell_width,
-				init_track_group_padding) {
-		this.ids = [];
-		this.visible_ids = {};
-		this.track_groups = [];
-		this.zoom = ifndef(init_zoom, 1);
-		
-		this.cell_padding = ifndef(init_cell_padding, 10);
-		this.cell_padding_on = ifndef(init_cell_padding_on, true);
-		this.cell_width = ifndef(init_cell_width, 10);
-		this.track_group_padding = ifndef(init_track_group_padding, 10);
-		
-		this.track_data = {};
-		this.track_rule_set = {};
-		this.track_label = {};
-		this.track_height = {};
-		this.track_padding = {};
-		this.track_data_id_key = {};
-		this.track_tooltip_fn = {};
-		this.track_removable = {};
-		this.track_sort_cmp_fn = {};
-		this.track_sort_direction_changeable = {};
+var OncoprintModel = (function () {
+    function OncoprintModel(init_cell_padding, init_cell_padding_on,
+	    init_zoom, init_cell_width,
+	    init_track_group_padding) {
+	this.ids = [];
+	this.visible_ids = {};
+	this.track_groups = [];
+	this.zoom = ifndef(init_zoom, 1);
+
+	this.cell_padding = ifndef(init_cell_padding, 10);
+	this.cell_padding_on = ifndef(init_cell_padding_on, true);
+	this.cell_width = ifndef(init_cell_width, 10);
+	this.track_group_padding = ifndef(init_track_group_padding, 10);
+
+	this.track_data = {};
+	this.track_rule_set = {};
+	this.track_label = {};
+	this.track_height = {};
+	this.track_padding = {};
+	this.track_data_id_key = {};
+	this.track_tooltip_fn = {};
+	this.track_removable = {};
+	this.track_sort_cmp_fn = {};
+	this.track_sort_direction_changeable = {};
+    }
+
+    OncoprintModel.prototype.toggleCellPadding = function () {
+	this.cell_padding_on = !this.cell_padding_on;
+	return this.cell_padding_on;
+    }
+
+    OncoprintModel.prototype.getCellPadding = function () {
+	return (this.cell_padding * this.zoom) * (+this.cell_padding_on);
+    }
+
+    OncoprintModel.prototype.getZoom = function () {
+	return this.zoom;
+    }
+
+    OncoprintModel.prototype.setZoom = function (z) {
+	if (z <= 1 && z >= 0) {
+	    this.zoom = z;
 	}
-	
-	OncoprintModel.prototype.toggleCellPadding = function() {
-		this.cell_padding_on = !this.cell_padding_on;
-		return this.cell_padding_on;
-	}
-	
-	OncoprintModel.prototype.getCellPadding = function() {
-		return (this.cell_padding*this.zoom)*(+this.cell_padding_on);
-	}
-	
-	OncoprintModel.prototype.getZoom = function() {
-		return this.zoom;
-	}
-	
-	OncoprintModel.prototype.setZoom = function(z) {
-		if (z <= 1 && z >= 0) {
-			this.zoom = z;
-		}
-		return this.zoom;
-	}
-	
-	OncoprintModel.prototype.getCellWidth = function() {
-		return this.cell_width * this.zoom;
-	}
-	
-	OncoprintModel.prototype.getTrackHeight = function(track_id) {
-		return this.track_height[track_id];
-	}
-	
-	OncoprintModel.prototype.getTrackPadding = function(track_id) {
-		return this.track_padding[track_id];
-	}
-	
-	OncoprintModel.prototype.getIds = function() {
-		return this.ids;
-	}
-	
-	OncoprintModel.prototype.getVisibleIds = function() {
-		var visible_ids = this.visible_ids;
-		return this.ids.filter(function(id) {
-			return !!visible_ids[id];
-		});
-	}
-	
-	OncoprintModel.prototype.setIds = function(ids) {
-		this.ids = ids.slice();
-	}
-	
-	OncoprintModel.prototype.hideIds = function(to_hide, show_others) {
-		var ids = this.ids;
-		if (show_others) {
-			for (var i=0, len=ids.length; i<len; i++) {
-				this.visible_ids[ids[i]] = true;
-			}
-		}
-		for (var j=0, len=to_hide.length; j<len; j++) {
-			this.visible_ids[to_hide[j]] = false;
-		}
-	}
-	
-	OncoprintModel.prototype.moveTrackGroup = function(from_index, to_index) {
-		var new_groups = [];
-		var group_to_move = this.track_groups[from_index];
-		for (var i=0; i<this.track_groups.length; i++) {
-			if (i !== from_index && i !== to_index) {
-				new_groups.push(this.track_groups[i]);
-			}
-			if (i === to_index) {
-				new_groups.push(group_to_move);
-			}
-		}
-		this.track_groups = new_groups;
-		return this.track_groups;
-	}
-	
-	OncoprintModel.prototype.addTracks = function(params_list) {
-	    for (var i=0; i<params_list.length; i++) {
-		var params = params_list[i];
-		addTrack(this, params.track_id, params.target_group,
-			params.track_height, params.track_padding,
-			params.data_id_key, params.tooltipFn,
-			params.removable, params.label,
-			params.sortCmpFn, params.sort_direction_changeable,
-			params.data, params.rule_set);
+	return this.zoom;
+    }
+
+    OncoprintModel.prototype.getCellWidth = function () {
+	return this.cell_width * this.zoom;
+    }
+
+    OncoprintModel.prototype.getTrackHeight = function (track_id) {
+	return this.track_height[track_id];
+    }
+
+    OncoprintModel.prototype.getTrackPadding = function (track_id) {
+	return this.track_padding[track_id];
+    }
+
+    OncoprintModel.prototype.getIds = function () {
+	return this.ids;
+    }
+
+    OncoprintModel.prototype.getVisibleIds = function () {
+	var visible_ids = this.visible_ids;
+	return this.ids.filter(function (id) {
+	    return !!visible_ids[id];
+	});
+    }
+
+    OncoprintModel.prototype.setIds = function (ids) {
+	this.ids = ids.slice();
+    }
+
+    OncoprintModel.prototype.hideIds = function (to_hide, show_others) {
+	var ids = this.ids;
+	if (show_others) {
+	    for (var i = 0, len = ids.length; i < len; i++) {
+		this.visible_ids[ids[i]] = true;
 	    }
 	}
-	var addTrack = function(model, track_id, target_group,
-						track_height, track_padding,
-						data_id_key, tooltipFn,
-						removable, label,
-						sortCmpFn, sort_direction_changeable,
-						data, rule_set) {
-		model.track_label[track_id] = ifndef(label, "Label");
-		model.track_height[track_id] = ifndef(track_height, 20);
-		model.track_padding[track_id] = ifndef(track_padding, 5);
-		model.track_data_id_key[track_id] = ifndef(data_id_key, 'id');
-		model.track_tooltip_fn[track_id] = ifndef(tooltipFn, function(d) { return d+''; });
-		model.track_removable[track_id] = ifndef(removable, false);
-		model.track_sort_cmp_fn[track_id] = ifndef(sortCmpFn, function(a,b) { return 0; });
-		model.track_sort_direction_changeable[track_id] = ifndef(sort_direction_changeable, false);
-		model.track_data[track_id] = ifndef(data, []);
-		model.track_rule_set[track_id] = ifndef(rule_set, undefined);
-		
-		target_group = ifndef(target_group, 0);
-		while (target_group >= model.track_groups.length) {
-			model.track_groups.push([]);
-		}
-		model.track_groups[target_group].push(track_id);
+	for (var j = 0, len = to_hide.length; j < len; j++) {
+	    this.visible_ids[to_hide[j]] = false;
 	}
-	
-	var _getContainingTrackGroup = function(oncoprint_model, track_id, return_reference) {
-		var group;
-		for (var i=0; i<oncoprint_model.track_groups.length; i++) {
-			if (oncoprint_model.track_groups[i].indexOf(track_id) > -1) {
-				group = oncoprint_model.track_groups[i];
-				break;
-			}
-		}
-		if (group) {
-			return (return_reference ? group : group.slice());
-		} else {
-			return undefined;
-		}
-	}
-	
-	OncoprintModel.prototype.removeTrack = function(track_id) {
-		delete this.track_data[track_id];
-		delete this.track_rule_set[track_id];
-		delete this.track_label[track_id];
-		delete this.track_height[track_id];
-		delete this.track_padding[track_id];
-		delete this.track_data_id_key[track_id];
-		delete this.track_tooltip_fn[track_id];
-		delete this.track_removable[track_id];
-		delete this.track_sort_cmp_fn[track_id];
-		delete this.track_sort_direction_changeable[track_id];
-		
-		var containing_track_group = _getContainingTrackGroup(this, track_id, true);
-		if (containing_track_group) {
-			containing_track_group.splice(
-				containing_track_group.indexOf(track_id), 1);
-		}
-	}
-	OncoprintModel.prototype.getTrackTop = function(track_id) {
-		var groups = this.getTrackGroups();
-		var y = 0;
-		for (var i=0; i<groups.length; i++) {
-			var group = groups[i];
-			var found = false;
-			for (var j=0; j<group.length; j++) {
-				if (group[j] === track_id) {
-					found = true;
-					break;
-				}
-				y += 2*this.getTrackPadding(group[j]);
-				y += this.getTrackHeight(group[j]);
-			}
-			y += this.getTrackGroupPadding();
-			if (found) {
-				break;
-			}
-		}
-		return y;
-	}
-	OncoprintModel.prototype.getContainingTrackGroup = function(track_id) {
-		return _getContainingTrackGroup(this, track_id, false);
-	}
-	
-	OncoprintModel.prototype.getTrackGroups = function() {
-		// TODO: make read-only
-		return this.track_groups;
-	}
-	
-	OncoprintModel.prototype.getTracks = function() {
-		var ret = [];
-		for (var i=0; i<this.track_groups.length; i++) {
-			for (var j=0; j<this.track_groups[i].length; j++) {
-				ret.push(this.track_groups[i][j]);
-			}
-		}
-		return ret;
-	}
-	
-	OncoprintModel.prototype.moveTrack = function(track_id, new_position) {
-		var track_group = _getContainingTrackGroup(this, track_id, true);
-		if (track_group) {
-			track_group.splice(track_group.indexOf(track_id), 1);
-			track_group.splice(new_position, 0, track_id);
-		}
-	}
-	
-	OncoprintModel.prototype.getTrackLabel = function(track_id) {
-		return this.track_label[track_id];
-	}
-	
-	OncoprintModel.prototype.getTrackTooltipFn = function(track_id) {
-		return this.track_tooltip_fn[track_id];
-	}
-	
-	OncoprintModel.prototype.getTrackDataIdKey = function(track_id) {
-		return this.track_data_id_key[track_id];
-	}
-	
-	OncoprintModel.prototype.getTrackGroupPadding = function() {
-		return this.track_group_padding;
-	}
-	
-	OncoprintModel.prototype.isTrackRemovable = function(track_id) {
-		return this.track_removable[track_id];
-	}
-	
-	OncoprintModel.prototype.getRuleSet = function(track_id) {
-		return this.track_rule_set[track_id];
-	}
-	
-	OncoprintModel.prototype.setRuleSet = function(track_id, rule_set) {
-		this.track_rule_set[track_id] = rule_set;
-	}
-	
-	OncoprintModel.prototype.getTrackData = function(track_id) {
-		return this.track_data[track_id];
-	}
-	
-	OncoprintModel.prototype.setTrackData = function(track_id, data) {
-		this.track_data[track_id] = data;
-	}
+    }
 
-	return OncoprintModel;
+    OncoprintModel.prototype.moveTrackGroup = function (from_index, to_index) {
+	var new_groups = [];
+	var group_to_move = this.track_groups[from_index];
+	for (var i = 0; i < this.track_groups.length; i++) {
+	    if (i !== from_index && i !== to_index) {
+		new_groups.push(this.track_groups[i]);
+	    }
+	    if (i === to_index) {
+		new_groups.push(group_to_move);
+	    }
+	}
+	this.track_groups = new_groups;
+	return this.track_groups;
+    }
+
+    OncoprintModel.prototype.addTracks = function (params_list) {
+	for (var i = 0; i < params_list.length; i++) {
+	    var params = params_list[i];
+	    addTrack(this, params.track_id, params.target_group,
+		    params.track_height, params.track_padding,
+		    params.data_id_key, params.tooltipFn,
+		    params.removable, params.label,
+		    params.sortCmpFn, params.sort_direction_changeable,
+		    params.data, params.rule_set);
+	}
+    }
+    var addTrack = function (model, track_id, target_group,
+	    track_height, track_padding,
+	    data_id_key, tooltipFn,
+	    removable, label,
+	    sortCmpFn, sort_direction_changeable,
+	    data, rule_set) {
+	model.track_label[track_id] = ifndef(label, "Label");
+	model.track_height[track_id] = ifndef(track_height, 20);
+	model.track_padding[track_id] = ifndef(track_padding, 5);
+	model.track_data_id_key[track_id] = ifndef(data_id_key, 'id');
+	model.track_tooltip_fn[track_id] = ifndef(tooltipFn, function (d) {
+	    return d + '';
+	});
+	model.track_removable[track_id] = ifndef(removable, false);
+	model.track_sort_cmp_fn[track_id] = ifndef(sortCmpFn, function (a, b) {
+	    return 0;
+	});
+	model.track_sort_direction_changeable[track_id] = ifndef(sort_direction_changeable, false);
+	model.track_data[track_id] = ifndef(data, []);
+	model.track_rule_set[track_id] = ifndef(rule_set, undefined);
+
+	target_group = ifndef(target_group, 0);
+	while (target_group >= model.track_groups.length) {
+	    model.track_groups.push([]);
+	}
+	model.track_groups[target_group].push(track_id);
+    }
+
+    var _getContainingTrackGroup = function (oncoprint_model, track_id, return_reference) {
+	var group;
+	for (var i = 0; i < oncoprint_model.track_groups.length; i++) {
+	    if (oncoprint_model.track_groups[i].indexOf(track_id) > -1) {
+		group = oncoprint_model.track_groups[i];
+		break;
+	    }
+	}
+	if (group) {
+	    return (return_reference ? group : group.slice());
+	} else {
+	    return undefined;
+	}
+    }
+
+    OncoprintModel.prototype.removeTrack = function (track_id) {
+	delete this.track_data[track_id];
+	delete this.track_rule_set[track_id];
+	delete this.track_label[track_id];
+	delete this.track_height[track_id];
+	delete this.track_padding[track_id];
+	delete this.track_data_id_key[track_id];
+	delete this.track_tooltip_fn[track_id];
+	delete this.track_removable[track_id];
+	delete this.track_sort_cmp_fn[track_id];
+	delete this.track_sort_direction_changeable[track_id];
+
+	var containing_track_group = _getContainingTrackGroup(this, track_id, true);
+	if (containing_track_group) {
+	    containing_track_group.splice(
+		    containing_track_group.indexOf(track_id), 1);
+	}
+    }
+    OncoprintModel.prototype.getTrackTop = function (track_id) {
+	var groups = this.getTrackGroups();
+	var y = 0;
+	for (var i = 0; i < groups.length; i++) {
+	    var group = groups[i];
+	    var found = false;
+	    for (var j = 0; j < group.length; j++) {
+		if (group[j] === track_id) {
+		    found = true;
+		    break;
+		}
+		y += 2 * this.getTrackPadding(group[j]);
+		y += this.getTrackHeight(group[j]);
+	    }
+	    y += this.getTrackGroupPadding();
+	    if (found) {
+		break;
+	    }
+	}
+	return y;
+    }
+    OncoprintModel.prototype.getContainingTrackGroup = function (track_id) {
+	return _getContainingTrackGroup(this, track_id, false);
+    }
+
+    OncoprintModel.prototype.getTrackGroups = function () {
+	// TODO: make read-only
+	return this.track_groups;
+    }
+
+    OncoprintModel.prototype.getTracks = function () {
+	var ret = [];
+	for (var i = 0; i < this.track_groups.length; i++) {
+	    for (var j = 0; j < this.track_groups[i].length; j++) {
+		ret.push(this.track_groups[i][j]);
+	    }
+	}
+	return ret;
+    }
+
+    OncoprintModel.prototype.moveTrack = function (track_id, new_position) {
+	var track_group = _getContainingTrackGroup(this, track_id, true);
+	if (track_group) {
+	    track_group.splice(track_group.indexOf(track_id), 1);
+	    track_group.splice(new_position, 0, track_id);
+	}
+    }
+
+    OncoprintModel.prototype.getTrackLabel = function (track_id) {
+	return this.track_label[track_id];
+    }
+
+    OncoprintModel.prototype.getTrackTooltipFn = function (track_id) {
+	return this.track_tooltip_fn[track_id];
+    }
+
+    OncoprintModel.prototype.getTrackDataIdKey = function (track_id) {
+	return this.track_data_id_key[track_id];
+    }
+
+    OncoprintModel.prototype.getTrackGroupPadding = function () {
+	return this.track_group_padding;
+    }
+
+    OncoprintModel.prototype.isTrackRemovable = function (track_id) {
+	return this.track_removable[track_id];
+    }
+
+    OncoprintModel.prototype.getRuleSet = function (track_id) {
+	return this.track_rule_set[track_id];
+    }
+
+    OncoprintModel.prototype.setRuleSet = function (track_id, rule_set) {
+	this.track_rule_set[track_id] = rule_set;
+    }
+
+    OncoprintModel.prototype.getTrackData = function (track_id) {
+	return this.track_data[track_id];
+    }
+
+    OncoprintModel.prototype.setTrackData = function (track_id, data) {
+	this.track_data[track_id] = data;
+    }
+
+    return OncoprintModel;
 })();
 
 module.exports = OncoprintModel;
 },{}],4:[function(require,module,exports){
 /* SHAPE SPEC
-{
-	'type':..,
-	'x':..,
-	'y':..,
-	...
-}
-*/
+ {
+ 'type':..,
+ 'x':..,
+ 'y':..,
+ ...
+ }
+ */
 // type: attrs
 // rectangle: x, y, width, height, stroke, stroke-width, fill
 // triangle: x1, y1, x2, y2, x3, y3, stroke, stroke-width, fill
@@ -408,838 +412,843 @@ module.exports = OncoprintModel;
  */
 
 function makeIdCounter() {
-	var id = 0;
-	return function () {
-		id += 1;
-		return id;
-	};
+    var id = 0;
+    return function () {
+	id += 1;
+	return id;
+    };
 }
 
 function shallowExtend(target, source) {
-	var ret = {};
-	for (var key in target) {
-		if (target.hasOwnProperty(key)) {
-			ret[key] = target[key];
-		}
+    var ret = {};
+    for (var key in target) {
+	if (target.hasOwnProperty(key)) {
+	    ret[key] = target[key];
 	}
-	for (var key in source) {
-		if (source.hasOwnProperty(key)) {
-			ret[key] = source[key];
-		}
+    }
+    for (var key in source) {
+	if (source.hasOwnProperty(key)) {
+	    ret[key] = source[key];
 	}
-	return ret;
+    }
+    return ret;
 }
 
 
 var NA_SHAPES = [
-	{
-		'type': 'rectangle',
-		'fill': 'rgba(238, 238, 238, 1)',
-		'z': '0',
-	},
-	{
-		'type': 'line',
-		'x1': '0%',
-		'y1': '0%',
-		'x2': '100%',
-		'y2': '100%',
-		'stroke': 'rgba(85, 85, 85, 1)',
-		'stroke-width': '1',
-	},
+    {
+	'type': 'rectangle',
+	'fill': 'rgba(238, 238, 238, 1)',
+	'z': '0',
+    },
+    {
+	'type': 'line',
+	'x1': '0%',
+	'y1': '0%',
+	'x2': '100%',
+	'y2': '100%',
+	'stroke': 'rgba(85, 85, 85, 1)',
+	'stroke-width': '1',
+    },
 ];
 var NA_STRING = "na";
 var NA_LABEL = "N/A";
 
 var DEFAULT_GENETIC_ALTERATION_PARAMS = {
-	'*': {
-		shapes: [{
-			'type': 'rectangle',
-			'fill': 'rgba(211, 211, 211, 1)',
-			}],
-		exclude_from_legend: true,
-		z: -1
+    '*': {
+	shapes: [{
+		'type': 'rectangle',
+		'fill': 'rgba(211, 211, 211, 1)',
+	    }],
+	exclude_from_legend: true,
+	z: -1
+    },
+    'cna': {
+	'AMPLIFIED': {
+	    shapes: [{
+		    'type': 'rectangle',
+		    'fill': 'rgba(255,0,0,1)',
+		    'x': '0%',
+		    'y': '0%',
+		    'width': '100%',
+		    'height': '100%',
+		}],
+	    legend_label: 'Amplification',
+	    z: 0
 	},
-	'cna': {
-		'AMPLIFIED': {
-			shapes: [{
-					'type': 'rectangle',
-					'fill': 'rgba(255,0,0,1)',
-					'x': '0%',
-					'y': '0%',
-					'width': '100%',
-					'height': '100%',
-				}],
-			legend_label: 'Amplification',
-			z: 0
-		},
-		'GAINED': {
-			shapes: [{
-					'type': 'rectangle',
-					'fill': 'rgba(255,182,193,1)',
-					'x': '0%',
-					'y': '0%',
-					'width': '100%',
-					'height': '100%',
-				}],
-			legend_label: 'Gain',
-			z: 0
-		},
-		'HOMODELETED': {
-			shapes: [{
-					'type': 'rectangle',
-					'fill': 'rgba(0,0,255,1)',
-					'x': '0%',
-					'y': '0%',
-					'width': '100%',
-					'height': '100%',
-				}],
-			legend_label: 'Deep Deletion', 
-			z: 0
-		},
-		'HEMIZYGOUSLYDELETED': {
-			shapes: [{
-					'type': 'rectangle',
-					'fill': 'rgba(143, 216, 216,1)',
-					'x': '0%',
-					'y': '0%',
-					'width': '100%',
-					'height': '100%',
-				}],
-			legend_label: 'Shallow Deletion',
-			z: 0
-		}
+	'GAINED': {
+	    shapes: [{
+		    'type': 'rectangle',
+		    'fill': 'rgba(255,182,193,1)',
+		    'x': '0%',
+		    'y': '0%',
+		    'width': '100%',
+		    'height': '100%',
+		}],
+	    legend_label: 'Gain',
+	    z: 0
 	},
-	'mrna': {
-		'UPREGULATED': {
-			shapes: [{
-					'type': 'rectangle',
-					'fill': 'rgba(0, 0, 0, 0)',
-					'stroke': 'rgba(255, 153, 153, 1)',
-					'x': '0%',
-					'y': '0%',
-					'width': '100%',
-					'height': '100%',
-				}],
-			legend_label: 'mRNA Upregulation',
-			z: 1
-		},
-		'DOWNREGULATED': {
-			shapes: [{
-					'type': 'rectangle',
-					'fill': 'rgba(0, 0, 0, 0)',
-					'stroke': 'rgba(102, 153, 204, 1)',
-					'x': '0%',
-					'y': '0%',
-					'width': '100%',
-					'height': '100%',
-				}],
-			legend_label: 'mRNA Downregulation',
-			z: 1
-		},
+	'HOMODELETED': {
+	    shapes: [{
+		    'type': 'rectangle',
+		    'fill': 'rgba(0,0,255,1)',
+		    'x': '0%',
+		    'y': '0%',
+		    'width': '100%',
+		    'height': '100%',
+		}],
+	    legend_label: 'Deep Deletion',
+	    z: 0
 	},
-	'rppa': {
-		'UPREGULATED': {
-			shapes: [{
-					'type': 'triangle',
-					'x1': '50%',
-					'y1': '0%',
-					'x2': '100%',
-					'y2': '33.33%',
-					'x3': '0%',
-					'y3': '33.33%',
-					'fill': 'rgba(0,0,0,1)'
-				}],
-			legend_label: 'Protein Upregulation',
-			z: 2
-		},
-		'DOWNREGULATED': {
-			shapes: [{
-					'type': 'triangle',
-					'x1': '50%',
-					'y1': '100%',
-					'x2': '100%',
-					'y2': '66.66%',
-					'x3': '0%',
-					'y3': '66.66%',
-					'fill': 'rgba(0,0,0,1)'
-				}],
-			legend_label: 'Protein Downregulation',
-			z: 2
-		}
-	},
-	'mut': {
-		'MISSENSE': {
-			shapes: [{
-					'type': 'rectangle',
-					'fill': 'rgba(0, 255, 0, 1)',
-					'x': '0%',
-					'y': '33.33%',
-					'width': '100%',
-					'height': '33.33%',
-				}],
-			legend_label: 'Missense Mutation',
-			z: 3
-		},
-		'INFRAME': {
-			shapes: [{
-					'type': 'rectangle',
-					'fill': 'rgba(159, 129, 112, 1)',
-					'x': '0%',
-					'y': '33.33%',
-					'width': '100%',
-					'height': '33.33%',
-				}],
-			legend_label: 'Inframe Mutation',
-			z: 3
-		},
-		'TRUNC': {
-			shapes: [{
-					'type': 'rectangle',
-					'fill': 'rgba(0, 0, 0, 1)',
-					'x': '0%',
-					'y': '33.33%',
-					'width': '100%',
-					'height': '33.33%',
-				}],
-			legend_label: 'Truncating Mutation',
-			z: 3
-		},
-		'FUSION': {
-			shapes: [{
-					'type': 'triangle',
-					'fill': 'rgba(0, 0, 0, 1)',
-					'x1': '0%',
-					'y1': '0%',
-					'x2': '100%',
-					'y2': '50%',
-					'x3': '0%',
-					'y3': '100%',
-				}],
-			legend_label: 'Fusion',
-			z: 3
-		}
+	'HEMIZYGOUSLYDELETED': {
+	    shapes: [{
+		    'type': 'rectangle',
+		    'fill': 'rgba(143, 216, 216,1)',
+		    'x': '0%',
+		    'y': '0%',
+		    'width': '100%',
+		    'height': '100%',
+		}],
+	    legend_label: 'Shallow Deletion',
+	    z: 0
 	}
+    },
+    'mrna': {
+	'UPREGULATED': {
+	    shapes: [{
+		    'type': 'rectangle',
+		    'fill': 'rgba(0, 0, 0, 0)',
+		    'stroke': 'rgba(255, 153, 153, 1)',
+		    'x': '0%',
+		    'y': '0%',
+		    'width': '100%',
+		    'height': '100%',
+		}],
+	    legend_label: 'mRNA Upregulation',
+	    z: 1
+	},
+	'DOWNREGULATED': {
+	    shapes: [{
+		    'type': 'rectangle',
+		    'fill': 'rgba(0, 0, 0, 0)',
+		    'stroke': 'rgba(102, 153, 204, 1)',
+		    'x': '0%',
+		    'y': '0%',
+		    'width': '100%',
+		    'height': '100%',
+		}],
+	    legend_label: 'mRNA Downregulation',
+	    z: 1
+	},
+    },
+    'rppa': {
+	'UPREGULATED': {
+	    shapes: [{
+		    'type': 'triangle',
+		    'x1': '50%',
+		    'y1': '0%',
+		    'x2': '100%',
+		    'y2': '33.33%',
+		    'x3': '0%',
+		    'y3': '33.33%',
+		    'fill': 'rgba(0,0,0,1)'
+		}],
+	    legend_label: 'Protein Upregulation',
+	    z: 2
+	},
+	'DOWNREGULATED': {
+	    shapes: [{
+		    'type': 'triangle',
+		    'x1': '50%',
+		    'y1': '100%',
+		    'x2': '100%',
+		    'y2': '66.66%',
+		    'x3': '0%',
+		    'y3': '66.66%',
+		    'fill': 'rgba(0,0,0,1)'
+		}],
+	    legend_label: 'Protein Downregulation',
+	    z: 2
+	}
+    },
+    'mut': {
+	'MISSENSE': {
+	    shapes: [{
+		    'type': 'rectangle',
+		    'fill': 'rgba(0, 255, 0, 1)',
+		    'x': '0%',
+		    'y': '33.33%',
+		    'width': '100%',
+		    'height': '33.33%',
+		}],
+	    legend_label: 'Missense Mutation',
+	    z: 3
+	},
+	'INFRAME': {
+	    shapes: [{
+		    'type': 'rectangle',
+		    'fill': 'rgba(159, 129, 112, 1)',
+		    'x': '0%',
+		    'y': '33.33%',
+		    'width': '100%',
+		    'height': '33.33%',
+		}],
+	    legend_label: 'Inframe Mutation',
+	    z: 3
+	},
+	'TRUNC': {
+	    shapes: [{
+		    'type': 'rectangle',
+		    'fill': 'rgba(0, 0, 0, 1)',
+		    'x': '0%',
+		    'y': '33.33%',
+		    'width': '100%',
+		    'height': '33.33%',
+		}],
+	    legend_label: 'Truncating Mutation',
+	    z: 3
+	},
+	'FUSION': {
+	    shapes: [{
+		    'type': 'triangle',
+		    'fill': 'rgba(0, 0, 0, 1)',
+		    'x1': '0%',
+		    'y1': '0%',
+		    'x2': '100%',
+		    'y2': '50%',
+		    'x3': '0%',
+		    'y3': '100%',
+		}],
+	    legend_label: 'Fusion',
+	    z: 3
+	}
+    }
 };
 
 var RuleSet = (function () {
-	var getRuleSetId = makeIdCounter();
-	var getRuleId = makeIdCounter();
+    var getRuleSetId = makeIdCounter();
+    var getRuleId = makeIdCounter();
 
-	function RuleSet(params) {
-		/* params:
-		 * - legend_label
-		 * - exclude_from_legend
-		 */
-		this.rule_map = {};
-		this.rule_set_id = getRuleSetId();
-		this.z_map = {};
-		this.legend_label = params.legend_label;
-		this.exclude_from_legend = params.exclude_from_legend;
-		this.recently_used_rule_ids = {};
-	}
+    function RuleSet(params) {
+	/* params:
+	 * - legend_label
+	 * - exclude_from_legend
+	 */
+	this.rule_map = {};
+	this.rule_set_id = getRuleSetId();
+	this.z_map = {};
+	this.legend_label = params.legend_label;
+	this.exclude_from_legend = params.exclude_from_legend;
+	this.recently_used_rule_ids = {};
+    }
 
-	RuleSet.prototype.getLegendLabel = function () {
-		return this.legend_label;
-	}
+    RuleSet.prototype.getLegendLabel = function () {
+	return this.legend_label;
+    }
 
-	RuleSet.prototype.getRuleSetId = function () {
-		return this.rule_set_id;
-	}
-	
-	RuleSet.prototype.addRules = function (list_of_params) {
-		var self = this;
-		return list_of_params.map(function(params) {
-			return self.addRule(params);
+    RuleSet.prototype.getRuleSetId = function () {
+	return this.rule_set_id;
+    }
+
+    RuleSet.prototype.addRules = function (list_of_params) {
+	var self = this;
+	return list_of_params.map(function (params) {
+	    return self.addRule(params);
+	});
+    }
+
+    RuleSet.prototype.addRule = function (params) {
+	var rule_id = getRuleId();
+	var z = (typeof params.z === "undefined" ? rule_id : params.z);
+	this.rule_map[rule_id] = new Rule(params);
+	this.z_map[rule_id] = parseFloat(z);
+	return rule_id;
+    }
+
+    RuleSet.prototype.removeRule = function (rule_id) {
+	delete this.rule_map[rule_id];
+    }
+
+    RuleSet.prototype.getRule = function (rule_id) {
+	return this.rule_map[rule_id];
+    }
+
+    RuleSet.prototype.getRulesInRenderOrder = function () {
+	var self = this;
+	return Object.keys(this.rule_map).sort(function (rule_id1, rule_id2) {
+	    if (self.z_map[rule_id1] < self.z_map[rule_id2]) {
+		return -1;
+	    } else if (self.z_map[rule_id1] > self.z_map[rule_id2]) {
+		return 1;
+	    } else {
+		return 0;
+	    }
+	}).map(function (rule_id) {
+	    return {id: rule_id, rule: self.getRule(rule_id)};
+	});
+    }
+
+    RuleSet.prototype.isExcludedFromLegend = function () {
+	return this.exclude_from_legend;
+    }
+
+    RuleSet.prototype.clearRecentlyUsedRules = function () {
+	this.recently_used_rule_ids = {};
+    }
+
+    RuleSet.prototype.markRecentlyUsedRule = function (rule_id) {
+	this.recently_used_rule_ids[rule_id] = true;
+    }
+
+    RuleSet.prototype.getRecentlyUsedRules = function () {
+	var self = this;
+	return Object.keys(this.recently_used_rule_ids).map(
+		function (rule_id) {
+		    return self.getRule(rule_id);
 		});
-	}
-	
-	RuleSet.prototype.addRule = function (params) {
-		var rule_id = getRuleId();
-		var z = (typeof params.z === "undefined" ? rule_id : params.z);
-		this.rule_map[rule_id] = new Rule(params);
-		this.z_map[rule_id] = parseFloat(z);
-		return rule_id;
-	}
+    }
 
-	RuleSet.prototype.removeRule = function (rule_id) {
-		delete this.rule_map[rule_id];
-	}
+    RuleSet.prototype.apply = function (data, cell_width, cell_height) {
+	// Returns a list of lists of concrete shapes, in the same order as data
+	this.clearRecentlyUsedRules();
 
-	RuleSet.prototype.getRule = function (rule_id) {
-		return this.rule_map[rule_id];
-	}
+	var rules = this.getRulesInRenderOrder();
+	var rules_len = rules.length;
+	var self = this;
 
-	RuleSet.prototype.getRulesInRenderOrder = function () {
-		var self = this;
-		return Object.keys(this.rule_map).sort(function (rule_id1, rule_id2) {
-			if (self.z_map[rule_id1] < self.z_map[rule_id2]) {
-				return -1;
-			} else if (self.z_map[rule_id1] > self.z_map[rule_id2]) {
-				return 1;
-			} else {
-				return 0;
-			}
-		}).map(function (rule_id) {
-			return {id: rule_id, rule: self.getRule(rule_id)};
-		});
-	}
-
-	RuleSet.prototype.isExcludedFromLegend = function () {
-		return this.exclude_from_legend;
-	}
-
-	RuleSet.prototype.clearRecentlyUsedRules = function() {
-		this.recently_used_rule_ids = {};
-	}
-	
-	RuleSet.prototype.markRecentlyUsedRule = function(rule_id) {
-		this.recently_used_rule_ids[rule_id] = true;
-	}
-	
-	RuleSet.prototype.getRecentlyUsedRules = function() {
-		var self = this;
-		return Object.keys(this.recently_used_rule_ids).map(
-			function(rule_id) {
-				return self.getRule(rule_id);
-			});
-	}
-	
-	RuleSet.prototype.apply = function (data, cell_width, cell_height) {
-		// Returns a list of lists of concrete shapes, in the same order as data
-		this.clearRecentlyUsedRules();
-		
-		var rules = this.getRulesInRenderOrder();
-		var rules_len = rules.length;
-		var self = this;
-		
-		return data.map(function (d) {
-			var concrete_shapes = [];
-			for (var j = 0; j < rules_len; j++) {
-				var rule_concrete_shapes = 
-					rules[j].rule.getConcreteShapesInRenderOrder(
-					d, cell_width, cell_height);
-				if (rule_concrete_shapes.length > 0) {
-					self.markRecentlyUsedRule(rules[j].id);
-				}
-				concrete_shapes = concrete_shapes.concat(
-					rule_concrete_shapes);
-			}
-			return concrete_shapes;
-		});
-	}
-	return RuleSet;
+	return data.map(function (d) {
+	    var concrete_shapes = [];
+	    for (var j = 0; j < rules_len; j++) {
+		var rule_concrete_shapes =
+			rules[j].rule.getConcreteShapesInRenderOrder(
+			d, cell_width, cell_height);
+		if (rule_concrete_shapes.length > 0) {
+		    self.markRecentlyUsedRule(rules[j].id);
+		}
+		concrete_shapes = concrete_shapes.concat(
+			rule_concrete_shapes);
+	    }
+	    return concrete_shapes;
+	});
+    }
+    return RuleSet;
 })();
 
 var CategoricalRuleSet = (function () {
-	var colors = ["#3366cc", "#dc3912", "#ff9900", "#109618",
-		"#990099", "#0099c6", "#dd4477", "#66aa00",
-		"#b82e2e", "#316395", "#994499", "#22aa99",
-		"#aaaa11", "#6633cc", "#e67300", "#8b0707",
-		"#651067", "#329262", "#5574a6", "#3b3eac",
-		"#b77322", "#16d620", "#b91383", "#f4359e",
-		"#9c5935", "#a9c413", "#2a778d", "#668d1c",
-		"#bea413", "#0c5922", "#743411"]; // Source: D3
-	
-	function CategoricalRuleSet(params) {
-		/* params
-		 * - category_key
-		 * - categoryToColor
-		 */
-		RuleSet.call(this, params);
-		this.category_key = params.category_key;
-		this.category_to_color = params.category_to_color;
-		for (var category in this.category_to_color) {
-			if (this.category_to_color.hasOwnProperty(category)) {
-				addCategoryRule(this, category, this.category_to_color[category]);
-			}
-		}
-		this.addRule({
-			condition: function(d) {
-				return d[params.category_key] === NA_STRING;
-			},
-			shapes: NA_SHAPES,
-			legend_label: NA_LABEL,
-			exclude_from_legend: false
-		});
-	}
-	CategoricalRuleSet.prototype = Object.create(RuleSet.prototype);
+    var colors = ["#3366cc", "#dc3912", "#ff9900", "#109618",
+	"#990099", "#0099c6", "#dd4477", "#66aa00",
+	"#b82e2e", "#316395", "#994499", "#22aa99",
+	"#aaaa11", "#6633cc", "#e67300", "#8b0707",
+	"#651067", "#329262", "#5574a6", "#3b3eac",
+	"#b77322", "#16d620", "#b91383", "#f4359e",
+	"#9c5935", "#a9c413", "#2a778d", "#668d1c",
+	"#bea413", "#0c5922", "#743411"]; // Source: D3
 
-	var addCategoryRule = function (ruleset, category, color) {
-		var rule_params = {
-			condition: function (d) {
-				return d[ruleset.category_key] === category;
-			},
-			shapes: [{
-					type: 'rectangle',
-					fill: color,
-				}],
-			legend_label: category,
-			exclude_from_legend: false
-		};
-		ruleset.addRule(rule_params);
+    function CategoricalRuleSet(params) {
+	/* params
+	 * - category_key
+	 * - categoryToColor
+	 */
+	RuleSet.call(this, params);
+	this.category_key = params.category_key;
+	this.category_to_color = params.category_to_color;
+	for (var category in this.category_to_color) {
+	    if (this.category_to_color.hasOwnProperty(category)) {
+		addCategoryRule(this, category, this.category_to_color[category]);
+	    }
+	}
+	this.addRule({
+	    condition: function (d) {
+		return d[params.category_key] === NA_STRING;
+	    },
+	    shapes: NA_SHAPES,
+	    legend_label: NA_LABEL,
+	    exclude_from_legend: false
+	});
+    }
+    CategoricalRuleSet.prototype = Object.create(RuleSet.prototype);
+
+    var addCategoryRule = function (ruleset, category, color) {
+	var rule_params = {
+	    condition: function (d) {
+		return d[ruleset.category_key] === category;
+	    },
+	    shapes: [{
+		    type: 'rectangle',
+		    fill: color,
+		}],
+	    legend_label: category,
+	    exclude_from_legend: false
 	};
-	
-	CategoricalRuleSet.prototype.apply = function(data, cell_width, cell_height) {
-		// First ensure there is a color for all categories
-		for (var i = 0, data_len = data.length; i<data_len; i++) {
-			var category = data[i][this.category_key];
-			if (!this.category_to_color.hasOwnProperty(category)) {
-				var color = colors.pop();
-				this.category_to_color[category] = color;
-				addCategoryRule(this, category, color);
-			}
-		}
-		// Then propagate the call up
-		return RuleSet.prototype.apply.call(this, data, cell_width, cell_height);
-	};
-	
-	return CategoricalRuleSet;
+	ruleset.addRule(rule_params);
+    };
+
+    CategoricalRuleSet.prototype.apply = function (data, cell_width, cell_height) {
+	// First ensure there is a color for all categories
+	for (var i = 0, data_len = data.length; i < data_len; i++) {
+	    var category = data[i][this.category_key];
+	    if (!this.category_to_color.hasOwnProperty(category)) {
+		var color = colors.pop();
+		this.category_to_color[category] = color;
+		addCategoryRule(this, category, color);
+	    }
+	}
+	// Then propagate the call up
+	return RuleSet.prototype.apply.call(this, data, cell_width, cell_height);
+    };
+
+    return CategoricalRuleSet;
 })();
 
-var LinearInterpRuleSet = (function() {
-	function LinearInterpRuleSet(params) {
-		/* params
-		 * - value_key
-		 * - value_range
-		 */
-		RuleSet.call(this, params);
-		this.value_key = params.value_key;
-		this.value_range = params.value_range;
-		this.inferred_value_range;
-		
-		this.addRule({
-			condition: function(d) {
-				return isNaN(d[params.value_key]);
-			},
-			shapes: NA_SHAPES,
-			legend_label: NA_LABEL,
-			exclude_from_legend: false
-		});
-		
-		this.makeInterpFn = function() {
-			var range = getEffectiveValueRange(this);
-			if (range[0] === range[1]) {
-				// Make sure non-zero denominator
-				range[0] -= range[0]/2;
-				range[1] += range[1]/2;
-			}
-			var range_spread = range[1] - range[0];
-			var range_lower = range[0];
-			return function(val) {
-				return (val - range_lower) / range_spread;
-			};
-		};
+var LinearInterpRuleSet = (function () {
+    function LinearInterpRuleSet(params) {
+	/* params
+	 * - value_key
+	 * - value_range
+	 */
+	RuleSet.call(this, params);
+	this.value_key = params.value_key;
+	this.value_range = params.value_range;
+	this.inferred_value_range;
+
+	this.addRule({
+	    condition: function (d) {
+		return isNaN(d[params.value_key]);
+	    },
+	    shapes: NA_SHAPES,
+	    legend_label: NA_LABEL,
+	    exclude_from_legend: false
+	});
+
+	this.makeInterpFn = function () {
+	    var range = getEffectiveValueRange(this);
+	    if (range[0] === range[1]) {
+		// Make sure non-zero denominator
+		range[0] -= range[0] / 2;
+		range[1] += range[1] / 2;
+	    }
+	    var range_spread = range[1] - range[0];
+	    var range_lower = range[0];
+	    return function (val) {
+		return (val - range_lower) / range_spread;
+	    };
+	};
+    }
+    LinearInterpRuleSet.prototype = Object.create(RuleSet.prototype);
+
+    var getEffectiveValueRange = function (ruleset) {
+	var ret = [ruleset.value_range[0], ruleset.value_range[1]];
+	if (typeof ret[0] === "undefined") {
+	    ret[0] = ruleset.inferred_value_range[0];
 	}
-	LinearInterpRuleSet.prototype = Object.create(RuleSet.prototype);
-	
-	var getEffectiveValueRange = function(ruleset) {
-		var ret = [ruleset.value_range[0], ruleset.value_range[1]];
-		if (typeof ret[0] === "undefined") {
-			ret[0] = ruleset.inferred_value_range[0];
-		}
-		if (typeof ret[1] === "undefined") {
-			ret[1] = ruleset.inferred_value_range[1];
-		}
-		return ret;
-	};
-	
-	LinearInterpRuleSet.prototype.apply = function(data, cell_width, cell_height) {
-		// First find value range
-		var value_min = Number.POSITIVE_INFINITY;
-		var value_max = Number.NEGATIVE_INFINITY;
-		for (var i = 0, datalen = data.length; i < datalen; i++) {
-			var d = data[i];
-			value_min = Math.min(value_min, d[this.value_key]);
-			value_max = Math.max(value_max, d[this.value_key]);
-		}
-		this.inferred_value_range = [value_min, value_max];
-		this.updateLinearRules();
-		
-		// Then propagate the call up
-		return RuleSet.prototype.apply.call(this, data, cell_width, cell_height);
-	};
-	
-	LinearInterpRuleSet.prototype.updateLinearRules = function() {
-		throw "Not implemented in abstract class";
-	};
-	
-	return LinearInterpRuleSet;
+	if (typeof ret[1] === "undefined") {
+	    ret[1] = ruleset.inferred_value_range[1];
+	}
+	return ret;
+    };
+
+    LinearInterpRuleSet.prototype.apply = function (data, cell_width, cell_height) {
+	// First find value range
+	var value_min = Number.POSITIVE_INFINITY;
+	var value_max = Number.NEGATIVE_INFINITY;
+	for (var i = 0, datalen = data.length; i < datalen; i++) {
+	    var d = data[i];
+	    value_min = Math.min(value_min, d[this.value_key]);
+	    value_max = Math.max(value_max, d[this.value_key]);
+	}
+	this.inferred_value_range = [value_min, value_max];
+	this.updateLinearRules();
+
+	// Then propagate the call up
+	return RuleSet.prototype.apply.call(this, data, cell_width, cell_height);
+    };
+
+    LinearInterpRuleSet.prototype.updateLinearRules = function () {
+	throw "Not implemented in abstract class";
+    };
+
+    return LinearInterpRuleSet;
 })();
 
-var GradientRuleSet = (function() {
-	function GradientRuleSet(params) {
-		/* params
-		 * - color_range
-		 */
-		LinearInterpRuleSet.call(this, params);
-		this.color_range;
-		(function setUpColorRange(self) {
-			var color_start;
-			var color_end;
-			try {
-				color_start = params.color_range[0]
-					.match(/rgba\(([\d.,]+)\)/)
-					.split(',')
-					.map(parseFloat);
-				color_end = params.color_range[1]
-					.match(/rgba\(([\d.,]+)\)/)
-					.split(',')
-					.map(parseFloat);
-				if (color_start.length !== 4 || color_end.length !== 4) {
-					throw "wrong number of color components";
-				}
-			} catch (err) {
-				color_start = [0,0,0,1];
-				color_end = [255,0,0,1];
-			}
-			self.color_range = color_start.map(function(c, i) {
-				return [c, color_end[i]];
-			});
-		})(this);
-		console.log(this.color_range);
-		this.gradient_rule;
-		this.updateLinearRules();
-			
-	}
-	GradientRuleSet.prototype = Object.create(LinearInterpRuleSet.prototype);
-	
-	GradientRuleSet.prototype.updateLinearRules = function() {
-		if (typeof this.gradient_rule !== "undefined") {
-			this.removeRule(this.gradient_rule);
+var GradientRuleSet = (function () {
+    function GradientRuleSet(params) {
+	/* params
+	 * - color_range
+	 */
+	LinearInterpRuleSet.call(this, params);
+	this.color_range;
+	(function setUpColorRange(self) {
+	    var color_start;
+	    var color_end;
+	    try {
+		color_start = params.color_range[0]
+			.match(/rgba\(([\d.,]+)\)/)
+			.split(',')
+			.map(parseFloat);
+		color_end = params.color_range[1]
+			.match(/rgba\(([\d.,]+)\)/)
+			.split(',')
+			.map(parseFloat);
+		if (color_start.length !== 4 || color_end.length !== 4) {
+		    throw "wrong number of color components";
 		}
-		var interpFn = this.makeInterpFn();
-		var value_key = this.value_key;
-		var color_range = this.color_range;
-		this.gradient_rule = this.addRule({
-			condition: function(d) {
-				return !isNaN(d[value_key]);
-			},
-			shapes: [{
-					type: 'rectangle',
-					fill: function(d) {
-						var t = interpFn(d[value_key]);
-						return "rgba("+color_range.map(
-							function(arr) {
-								return (1-t)*arr[0] 
-								+ t*arr[1];
-						}).join(",")+")";
-					}
-				}],
-			exclude_from_legend: false
-		});
-	};
-	
-	return GradientRuleSet;
+	    } catch (err) {
+		color_start = [0, 0, 0, 1];
+		color_end = [255, 0, 0, 1];
+	    }
+	    self.color_range = color_start.map(function (c, i) {
+		return [c, color_end[i]];
+	    });
+	})(this);
+	console.log(this.color_range);
+	this.gradient_rule;
+	this.updateLinearRules();
+
+    }
+    GradientRuleSet.prototype = Object.create(LinearInterpRuleSet.prototype);
+
+    GradientRuleSet.prototype.updateLinearRules = function () {
+	if (typeof this.gradient_rule !== "undefined") {
+	    this.removeRule(this.gradient_rule);
+	}
+	var interpFn = this.makeInterpFn();
+	var value_key = this.value_key;
+	var color_range = this.color_range;
+	this.gradient_rule = this.addRule({
+	    condition: function (d) {
+		return !isNaN(d[value_key]);
+	    },
+	    shapes: [{
+		    type: 'rectangle',
+		    fill: function (d) {
+			var t = interpFn(d[value_key]);
+			return "rgba(" + color_range.map(
+				function (arr) {
+				    return (1 - t) * arr[0]
+					    + t * arr[1];
+				}).join(",") + ")";
+		    }
+		}],
+	    exclude_from_legend: false
+	});
+    };
+
+    return GradientRuleSet;
 })();
 
-var BarRuleSet = (function() {
-	function BarRuleSet(params) {
-		LinearInterpRuleSet.call(this, params);
-		this.bar_rule;
-		this.fill = params.fill || 'rgba(0,0,255,1)';
-		this.updateLinearRules();
+var BarRuleSet = (function () {
+    function BarRuleSet(params) {
+	LinearInterpRuleSet.call(this, params);
+	this.bar_rule;
+	this.fill = params.fill || 'rgba(0,0,255,1)';
+	this.updateLinearRules();
+    }
+    BarRuleSet.prototype = Object.create(LinearInterpRuleSet.prototype);
+
+    BarRuleSet.prototype.updateLinearRules = function () {
+	if (typeof this.bar_rule !== "undefined") {
+	    this.removeRule(this.bar_rule);
 	}
-	BarRuleSet.prototype = Object.create(LinearInterpRuleSet.prototype);
-	
-	BarRuleSet.prototype.updateLinearRules = function() {
-		if (typeof this.bar_rule !== "undefined") {
-			this.removeRule(this.bar_rule);
-		}
-		var interpFn = this.makeInterpFn();
-		var value_key = this.value_key;
-		this.bar_rule = this.addRule({
-			condition: function(d) {
-				return !isNaN(d[value_key]);
-			},
-			shapes: [{
-					type: 'rectangle',
-					y: function(d) {
-						var t = interpFn(d[value_key]);
-						return (1-t)*100 + "%";
-					},
-					height: function(d) {
-						var t = interpFn(d[value_key]);
-						return t*100 + "%";
-					},
-					fill: this.fill,
-					'stroke-width': 1,
-					stroke: 'rgba(0,255,0,1)'
-				}],
-			exclude_from_legend: false
-		});
-	};
-	
-	return BarRuleSet;
+	var interpFn = this.makeInterpFn();
+	var value_key = this.value_key;
+	this.bar_rule = this.addRule({
+	    condition: function (d) {
+		return !isNaN(d[value_key]);
+	    },
+	    shapes: [{
+		    //type: 'rectangle',
+		    type: 'ellipse',
+		    y: function (d) {
+			var t = interpFn(d[value_key]);
+			return (1 - t) * 100 + "%";
+		    },
+		    height: function (d) {
+			var t = interpFn(d[value_key]);
+			return t * 100 + "%";
+		    },
+		    fill: this.fill,
+		    'stroke-width': 1,
+		    stroke: 'rgba(0,255,0,1)'
+		}],
+	    exclude_from_legend: false
+	});
+    };
+
+    return BarRuleSet;
 })();
 
-var GeneticAlterationRuleSet = (function() {
-	function GeneticAlterationRuleSet(params) {
-		/* params:
-		 * - rule_params
-		 */
-		RuleSet.call(this, params);
-		this.addRule({
-			condition: function(d) {
-				return d.hasOwnProperty(NA_STRING);
-			},
-			shapes: NA_SHAPES,
-			legend_label: NA_LABEL,
-			exclude_from_legend: false
-		});
-		(function addRules() {
-			var rule_params = params.rule_params;
-			for (var key in rule_params) {
-				if (rule_params.hasOwnProperty(key)) {
-					var key_rule_params = rule_params[key];
-					if (key === '*') {
-						this.addRule(rule_params['*']);
-					} else {
-						for (var value in key_rule_params) {
-							if (key_rule_params.hasOwnProperty(value)) {
-								var condition = (value === '*' ?
-										function(d) { return d.hasOwnProperty(key); } :
-										function(d) { return d[key] === value; });
-								this.addRule(
-									shallowExtend(key_rule_params[value], 
-									{'condition': condition}));
-							}
-						}
-					}
-				}
+var GeneticAlterationRuleSet = (function () {
+    function GeneticAlterationRuleSet(params) {
+	/* params:
+	 * - rule_params
+	 */
+	RuleSet.call(this, params);
+	this.addRule({
+	    condition: function (d) {
+		return d.hasOwnProperty(NA_STRING);
+	    },
+	    shapes: NA_SHAPES,
+	    legend_label: NA_LABEL,
+	    exclude_from_legend: false
+	});
+	(function addRules() {
+	    var rule_params = params.rule_params;
+	    for (var key in rule_params) {
+		if (rule_params.hasOwnProperty(key)) {
+		    var key_rule_params = rule_params[key];
+		    if (key === '*') {
+			this.addRule(rule_params['*']);
+		    } else {
+			for (var value in key_rule_params) {
+			    if (key_rule_params.hasOwnProperty(value)) {
+				var condition = (value === '*' ?
+					function (d) {
+					    return d.hasOwnProperty(key);
+					} :
+					function (d) {
+					    return d[key] === value;
+					});
+				this.addRule(
+					shallowExtend(key_rule_params[value],
+						{'condition': condition}));
+			    }
 			}
-		})();
-	}
-	GeneticAlterationRuleSet.prototype = Object.create(RuleSet.prototype);
-	
-	return GeneticAlterationRuleSet;
+		    }
+		}
+	    }
+	})();
+    }
+    GeneticAlterationRuleSet.prototype = Object.create(RuleSet.prototype);
+
+    return GeneticAlterationRuleSet;
 })();
 
 var Rule = (function () {
-	function Rule(params) {
-		this.condition = params.condition || function (d) {
-			return true;
-		};
-		this.shapes = params.shapes.map(addDefaultAbstractShapeParams);
-		this.legend_label = params.legend_label || "";
-		this.exclude_from_legend = params.exclude_from_legend;
-	}
-	var addDefaultAbstractShapeParams = function (shape_params) {
-		var default_values = {'width': '100%', 'height': '100%', 'x': '0%', 'y': '0%', 'z': 0,
-			'x1': '0%', 'x2': '0%', 'x3': '0%', 'y1': '0%', 'y2': '0%', 'y3': '0%',
-			'stroke': 'rgba(0,0,0,0)', 'fill': 'rgba(23,23,23,1)', 'stroke-width': '0'};
-		var required_parameters_by_type = {
-			'rectangle': ['width', 'height', 'x', 'y', 'stroke', 'fill', 'stroke-width'],
-			'triangle': ['x1', 'x2', 'x3', 'y1', 'y2', 'y3', 'stroke', 'fill', 'stroke-width'],
-			'ellipse': ['width', 'height', 'x', 'y', 'stroke', 'fill', 'stroke-width'],
-			'line': ['x1', 'x2', 'y1', 'y2', 'stroke', 'stroke-width']
-		};
-		var complete_shape_params = {};
-		var required_parameters = required_parameters_by_type[shape_params.type];
-		for (var i = 0; i < required_parameters.length; i++) {
-			var required_param = required_parameters[i];
-			if (shape_params.hasOwnProperty(required_param)) {
-				complete_shape_params[required_param] = shape_params[required_param];
-			} else {
-				complete_shape_params[required_param] = default_values[required_param];
-			}
-		}
-		complete_shape_params.type = shape_params.type;
-		return complete_shape_params;
+    function Rule(params) {
+	this.condition = params.condition || function (d) {
+	    return true;
 	};
-	Rule.prototype.getConcreteShapesInRenderOrder = function (d, cell_width, cell_height) {
-		// Turns abstract shapes into concrete shapes (i.e. computes
-		// real values from percentages), and returns them in z-order; 
-		// or returns empty list if the rule condition is not met.
-		if (!this.condition(d)) {
-			return [];
-		}
-		var concrete_shapes = [];
-		var width_axis_attrs = {"x": true, "x1": true, "x2": true, "x3": true, "width": true};
-		var height_axis_attrs = {"y": true, "y1": true, "y2": true, "y3": true, "height": true};
-		for (var i = 0, shapes_len = this.shapes.length; i < shapes_len; i++) {
-			var shape_spec = this.shapes[i];
-			var attrs = Object.keys(shape_spec);
-			var concrete_shape = {};
-			for (var j = 0, attrs_len = attrs.length; j < attrs_len; j++) {
-				var attr_name = attrs[j];
-				var attr_val = shape_spec[attr_name];
-				if (typeof attr_val === 'function') {
-					attr_val = attr_val(d);
-				}
-				var percent = (typeof attr_val === 'string') && attr_val.match(/([\d.]+)%/);
-				percent = percent && percent.length > 1 && percent[1];
-				if (percent) {
-					var multiplier = parseFloat(percent) / 100.0;
-					if (width_axis_attrs.hasOwnProperty(attr_name)) {
-						attr_val = multiplier * cell_width;
-					} else if (height_axis_attrs.hasOwnProperty(attr_name)) {
-						attr_val = multiplier * cell_height;
-					}
-				}
-				concrete_shape[attr_name] = attr_val + '';
-			}
-			concrete_shapes.push(concrete_shape);
-		}
-		return concrete_shapes.sort(function (shape1, shape2) {
-			if (shape1.z < shape2.z) {
-				return -1;
-			} else if (shape1.z > shape2.z) {
-				return 1;
-			} else {
-				return 0;
-			}
-		});
+	this.shapes = params.shapes.map(addDefaultAbstractShapeParams);
+	this.legend_label = params.legend_label || "";
+	this.exclude_from_legend = params.exclude_from_legend;
+    }
+    var addDefaultAbstractShapeParams = function (shape_params) {
+	var default_values = {'width': '100%', 'height': '100%', 'x': '0%', 'y': '0%', 'z': 0,
+	    'x1': '0%', 'x2': '0%', 'x3': '0%', 'y1': '0%', 'y2': '0%', 'y3': '0%',
+	    'stroke': 'rgba(0,0,0,0)', 'fill': 'rgba(23,23,23,1)', 'stroke-width': '0'};
+	var required_parameters_by_type = {
+	    'rectangle': ['width', 'height', 'x', 'y', 'stroke', 'fill', 'stroke-width'],
+	    'triangle': ['x1', 'x2', 'x3', 'y1', 'y2', 'y3', 'stroke', 'fill', 'stroke-width'],
+	    'ellipse': ['width', 'height', 'x', 'y', 'stroke', 'fill', 'stroke-width'],
+	    'line': ['x1', 'x2', 'y1', 'y2', 'stroke', 'stroke-width']
+	};
+	var complete_shape_params = {};
+	var required_parameters = required_parameters_by_type[shape_params.type];
+	for (var i = 0; i < required_parameters.length; i++) {
+	    var required_param = required_parameters[i];
+	    if (shape_params.hasOwnProperty(required_param)) {
+		complete_shape_params[required_param] = shape_params[required_param];
+	    } else {
+		complete_shape_params[required_param] = default_values[required_param];
+	    }
 	}
+	complete_shape_params.type = shape_params.type;
+	return complete_shape_params;
+    };
+    Rule.prototype.getConcreteShapesInRenderOrder = function (d, cell_width, cell_height) {
+	// Turns abstract shapes into concrete shapes (i.e. computes
+	// real values from percentages), and returns them in z-order; 
+	// or returns empty list if the rule condition is not met.
+	if (!this.condition(d)) {
+	    return [];
+	}
+	var concrete_shapes = [];
+	var width_axis_attrs = {"x": true, "x1": true, "x2": true, "x3": true, "width": true};
+	var height_axis_attrs = {"y": true, "y1": true, "y2": true, "y3": true, "height": true};
+	for (var i = 0, shapes_len = this.shapes.length; i < shapes_len; i++) {
+	    var shape_spec = this.shapes[i];
+	    var attrs = Object.keys(shape_spec);
+	    var concrete_shape = {};
+	    for (var j = 0, attrs_len = attrs.length; j < attrs_len; j++) {
+		var attr_name = attrs[j];
+		var attr_val = shape_spec[attr_name];
+		if (typeof attr_val === 'function') {
+		    attr_val = attr_val(d);
+		}
+		var percent = (typeof attr_val === 'string') && attr_val.match(/([\d.]+)%/);
+		percent = percent && percent.length > 1 && percent[1];
+		if (percent) {
+		    var multiplier = parseFloat(percent) / 100.0;
+		    if (width_axis_attrs.hasOwnProperty(attr_name)) {
+			attr_val = multiplier * cell_width;
+		    } else if (height_axis_attrs.hasOwnProperty(attr_name)) {
+			attr_val = multiplier * cell_height;
+		    }
+		}
+		concrete_shape[attr_name] = attr_val + '';
+	    }
+	    concrete_shapes.push(concrete_shape);
+	}
+	return concrete_shapes.sort(function (shape1, shape2) {
+	    if (shape1.z < shape2.z) {
+		return -1;
+	    } else if (shape1.z > shape2.z) {
+		return 1;
+	    } else {
+		return 0;
+	    }
+	});
+    }
 
-	Rule.prototype.isExcludedFromLegend = function () {
-		return this.exclude_from_legend;
-	}
-	
-	return Rule;
+    Rule.prototype.isExcludedFromLegend = function () {
+	return this.exclude_from_legend;
+    }
+
+    return Rule;
 })();
 
-module.exports = function(params) {
-	if (params.type === 'categorical') {
-		return new CategoricalRuleSet(params);
-	} else if (params.type === 'gradient') {
-		return new GradientRuleSet(params);
-	} else if (params.type === 'bar') {
-		return new BarRuleSet(params);
-	} else if (params.type === 'gene') {
-		return new GeneticAlterationRuleSet(params);
-	}
+module.exports = function (params) {
+    if (params.type === 'categorical') {
+	return new CategoricalRuleSet(params);
+    } else if (params.type === 'gradient') {
+	return new GradientRuleSet(params);
+    } else if (params.type === 'bar') {
+	return new BarRuleSet(params);
+    } else if (params.type === 'gene') {
+	return new GeneticAlterationRuleSet(params);
+    }
 }
 },{}],5:[function(require,module,exports){
 // FIRST PASS: no optimization
-var OncoprintSVGCellView = (function() {
-	function OncoprintSVGCellView($svg) {
-		this.$svg = $svg;
-		this.track_shapes = {};
+var OncoprintSVGCellView = (function () {
+    function OncoprintSVGCellView($svg) {
+	this.$svg = $svg;
+	this.track_shapes = {};
+    }
+    OncoprintSVGCellView.prototype.removeTrack = function (model, track_id) {
+	// TODO: what parameters
+	// TODO: implementation
+    }
+    OncoprintSVGCellView.prototype.moveTrack = function () {
+	// TODO: what parameters
+	// TODO: implementation
+    }
+
+    var renderTrack = function (cell_view, model, track_id) {
+	cell_view.track_shapes[track_id] = cell_view.track_shapes[track_id] || [];
+	var track_shapes = cell_view.track_shapes[track_id];
+	while (track_shapes.length > 0) {
+	    var elt = track_shapes.pop();
+	    elt.parentNode.removeChild(elt);
 	}
-	OncoprintSVGCellView.prototype.removeTrack = function(model, track_id) {
-		// TODO: what parameters
-		// TODO: implementation
-	}
-	OncoprintSVGCellView.prototype.moveTrack = function() {
-		// TODO: what parameters
-		// TODO: implementation
-	}
-	
-	var renderTrack = function(cell_view, model, track_id) {
-		cell_view.track_shapes[track_id] = cell_view.track_shapes[track_id] || [];
-		var track_shapes = cell_view.track_shapes[track_id];
-		while (track_shapes.length > 0) {
-			var elt = track_shapes.pop();
-			elt.parentNode.removeChild(elt);
-		}
-		
-		var y = cell_view.getTrackTop(model, track_id) + model.getTrackPadding(track_id);
-		// Now y is the top of the cells
-		var cell_width = model.getCellWidth();
-		var cell_padding = model.getCellPadding();
-		var cell_height = model.getTrackHeight(track_id);
-		
-		var shape_list_list = model.getRuleSet(track_id).apply(
-						model.getTrackData(track_id),
-						cell_width,
-						cell_height);
-		for (var i=0; i<shape_list_list.length; i++) {
-			var x = i*(cell_width + cell_padding);
-			var shape_list = shape_list_list[i];
-			for (var j=0; j<shape_list.length; j++) {
-				track_shapes.push(cell_view.renderShape(shape_list[j], x, y)); 
-			}
-		}
-	}
-	
-	var renderTracks = function(cell_view, model) {
-		var tracks = model.getTracks();
-		for (var i=0; i<tracks.length; i++) {
-			renderTrack(cell_view, model, tracks[i]);
-		}
-	}
-	
-	OncoprintSVGCellView.prototype.addTracks = function(model, track_ids) {
-	    for (var i=0; i<track_ids.length; i++) {
-		renderTrack(this, model, track_ids[i]);
+
+	var y = cell_view.getTrackTop(model, track_id) + model.getTrackPadding(track_id);
+	// Now y is the top of the cells
+	var cell_width = model.getCellWidth();
+	var cell_padding = model.getCellPadding();
+	var cell_height = model.getTrackHeight(track_id);
+
+	var shape_list_list = model.getRuleSet(track_id).apply(
+		model.getTrackData(track_id),
+		cell_width,
+		cell_height);
+	for (var i = 0; i < shape_list_list.length; i++) {
+	    var x = i * (cell_width + cell_padding);
+	    var shape_list = shape_list_list[i];
+	    for (var j = 0; j < shape_list.length; j++) {
+		track_shapes.push(cell_view.renderShape(shape_list[j], x, y));
 	    }
 	}
-	
-	OncoprintSVGCellView.prototype.renderShape = function(shape, x, y) {
-		var tag;
-		if (shape.type === 'rectangle') {
-			tag = this.renderRectangle(shape, x, y);
-		} else if (shape.type === 'triangle') {
-			tag = this.renderTriangle(shape, x, y);
-		} else if (shape.type === 'ellipse') {
-			tag = this.renderEllipse(shape, x, y);
-		} else if (shape.type === 'line') {
-			tag = this.renderLine(shape, x, y);
-		}
-		return tag;
+    }
+
+    var renderTracks = function (cell_view, model) {
+	var tracks = model.getTracks();
+	for (var i = 0; i < tracks.length; i++) {
+	    renderTrack(cell_view, model, tracks[i]);
 	}
-	
-	var makeSVGTag = function(tag, attrs) {
-		var el= document.createElementNS('http://www.w3.org/2000/svg', tag);
-		for (var k in attrs) {
-			if (attrs.hasOwnProperty(k)) {
-				el.setAttribute(k, attrs[k]);
-			}
-		}
-		return el;
+    }
+
+    OncoprintSVGCellView.prototype.addTracks = function (model, track_ids) {
+	for (var i = 0; i < track_ids.length; i++) {
+	    renderTrack(this, model, track_ids[i]);
 	}
-	OncoprintSVGCellView.prototype.renderRectangle = function(rectangle, x, y) {
-		var new_rect = makeSVGTag('rect', {
-			'x': x+parseFloat(rectangle.x),
-			'y': y+parseFloat(rectangle.y),
-			'width': rectangle.width,
-			'height': rectangle.height,
-			'stroke': rectangle.stroke,
-			'stroke-width': rectangle['stroke-width'],
-			'fill': rectangle.fill
-		});
-		this.$svg[0].appendChild(new_rect);
-		return new_rect;
+    }
+
+    OncoprintSVGCellView.prototype.renderShape = function (shape, x, y) {
+	var tag;
+	if (shape.type === 'rectangle') {
+	    tag = this.renderRectangle(shape, x, y);
+	} else if (shape.type === 'triangle') {
+	    tag = this.renderTriangle(shape, x, y);
+	} else if (shape.type === 'ellipse') {
+	    tag = this.renderEllipse(shape, x, y);
+	} else if (shape.type === 'line') {
+	    tag = this.renderLine(shape, x, y);
 	}
-	
-	OncoprintSVGCellView.prototype.renderTriangle = function(rectangle, x, y,
-							cell_width, cell_height) {
-		// TODO: implement
+	return tag;
+    }
+
+    var makeSVGTag = function (tag, attrs) {
+	var el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+	for (var k in attrs) {
+	    if (attrs.hasOwnProperty(k)) {
+		el.setAttribute(k, attrs[k]);
+	    }
 	}
-	
-	OncoprintSVGCellView.prototype.renderEllipse = function(rectangle, x, y,
-							cell_width, cell_height) {
-		// TODO: implement
-	}
-	
-	OncoprintSVGCellView.prototype.renderLine = function(rectangle, x, y,
-							cell_width, cell_height) {
-		// TODO: implement
-	}
-	
-	OncoprintSVGCellView.prototype.setCellPadding = function() {
-		// TODO: what parameters
-		// TODO: implementation
-	}
-	
-	
-	OncoprintSVGCellView.prototype.setZoom = function(model, z) {
-		renderTracks(this, model);
-	}
-	OncoprintSVGCellView.prototype.setOrder = function() {
-		// TODO: what parameters
-		// TODO: implementation
-	}
-	
-	OncoprintSVGCellView.prototype.setTrackData = function(model, track_id) {
-		renderTrack(this, model, track_id);
-	}
-	
-	OncoprintSVGCellView.prototype.setRuleSet = function(model, track_id) {
-		renderTrack(this, model, track_id);
-	}
-	
-	return OncoprintSVGCellView;
+	return el;
+    }
+    OncoprintSVGCellView.prototype.renderRectangle = function (rectangle, x, y) {
+	var new_rect = makeSVGTag('rect', {
+	    'x': x + parseFloat(rectangle.x),
+	    'y': y + parseFloat(rectangle.y),
+	    'width': rectangle.width,
+	    'height': rectangle.height,
+	    'stroke': rectangle.stroke,
+	    'stroke-width': rectangle['stroke-width'],
+	    'fill': rectangle.fill
+	});
+	this.$svg[0].appendChild(new_rect);
+	return new_rect;
+    }
+
+    OncoprintSVGCellView.prototype.renderTriangle = function (rectangle, x, y,
+	    cell_width, cell_height) {
+	// TODO: implement
+    }
+
+    OncoprintSVGCellView.prototype.renderEllipse = function (rectangle, x, y,
+	    cell_width, cell_height) {
+	// TODO: implement
+    }
+
+    OncoprintSVGCellView.prototype.renderLine = function (rectangle, x, y,
+	    cell_width, cell_height) {
+	// TODO: implement
+    }
+
+    OncoprintSVGCellView.prototype.setCellPadding = function () {
+	// TODO: what parameters
+	// TODO: implementation
+    }
+
+
+    OncoprintSVGCellView.prototype.setZoom = function (model, z) {
+	renderTracks(this, model);
+    }
+    OncoprintSVGCellView.prototype.setOrder = function () {
+	// TODO: what parameters
+	// TODO: implementation
+    }
+
+    OncoprintSVGCellView.prototype.setTrackData = function (model, track_id) {
+	renderTrack(this, model, track_id);
+    }
+
+    OncoprintSVGCellView.prototype.setRuleSet = function (model, track_id) {
+	renderTrack(this, model, track_id);
+    }
+
+    return OncoprintSVGCellView;
 })();
 
 module.exports = OncoprintSVGCellView;
@@ -1299,70 +1308,70 @@ var createShader = function (view, source, type) {
 
     return shader;
 }
-    
-var OncoprintWebGLCellView = (function() {
+
+var OncoprintWebGLCellView = (function () {
     function OncoprintWebGLCellView($canvas) {
 	this.$canvas = $canvas;
 	this.track_shapes = {};
 	this.ctx = getCanvasContext(this.$canvas);
-	
+
 	this.vertex_position_buffer = this.ctx.createBuffer();
 	this.vertex_color_buffer = this.ctx.createBuffer();
-	
+
 	this.vertex_position_array = {};
 	this.vertex_color_array = {};
-	
-	this.ctx.viewport(0,0,this.ctx.viewportWidth,this.ctx.viewportHeight);
+
+	this.ctx.viewport(0, 0, this.ctx.viewportWidth, this.ctx.viewportHeight);
 	this.ctx.enable(this.ctx.DEPTH_TEST);
-	
+
 	(function initializeShaders(self) {// Initialize shaders
 	    var vertex_shader_source = ['attribute vec3 aVertexPosition;',
-				    'attribute vec4 aVertexColor;',
-				    '',
-				    'uniform mat4 uMVMatrix;',
-				    'uniform mat4 uPMatrix;',
-				    'varying vec4 vColor;',
-				    'void main(void) {',
-				    '	gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);',
-				    '	vColor = aVertexColor;',
-				    '}'].join('\n');
+		'attribute vec4 aVertexColor;',
+		'',
+		'uniform mat4 uMVMatrix;',
+		'uniform mat4 uPMatrix;',
+		'varying vec4 vColor;',
+		'void main(void) {',
+		'	gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);',
+		'	vColor = aVertexColor;',
+		'}'].join('\n');
 	    var fragment_shader_source = ['precision mediump float;',
-					'varying vec4 vColor;',
-					'',
-					'void main(void) {',
-					'   gl_FragColor = vColor;',
-					'}'].join('\n');
+		'varying vec4 vColor;',
+		'',
+		'void main(void) {',
+		'   gl_FragColor = vColor;',
+		'}'].join('\n');
 	    var vertex_shader = createShader(self, vertex_shader_source, 'VERTEX_SHADER');
 	    var fragment_shader = createShader(self, fragment_shader_source, 'FRAGMENT_SHADER');
-	    
+
 	    var shader_program = createShaderProgram(self, vertex_shader, fragment_shader);
 	    shader_program.vertexPositionAttribute = self.ctx.getAttribLocation(shader_program, 'aVertexPosition');
 	    self.ctx.enableVertexAttribArray(shader_program.vertexPositionAttribute);
 	    shader_program.vertexColorAttribute = self.ctx.getAttribLocation(shader_program, 'aVertexColor');
 	    self.ctx.enableVertexAttribArray(shader_program.vertexColorAttribute);
-	    
+
 	    shader_program.pMatrixUniform = self.ctx.getUniformLocation(shader_program, 'uPMatrix');
 	    shader_program.mvMatrixUniform = self.ctx.getUniformLocation(shader_program, 'uMVMatrix');
-	    
+
 	    self.shader_program = shader_program;
 	})(this);
-	
+
 	(function initializeMatrices(self) {
 	    var mvMatrix = gl_matrix.mat4.create();
-	    gl_matrix.mat4.lookAt(mvMatrix, [0,0,1], [0,0,0], [0,1,0]);
+	    gl_matrix.mat4.lookAt(mvMatrix, [0, 0, 1], [0, 0, 0], [0, 1, 0]);
 	    self.mvMatrix = mvMatrix;
-	    
+
 	    var pMatrix = gl_matrix.mat4.create();
 	    gl_matrix.mat4.ortho(pMatrix, 0, self.ctx.viewportWidth, self.ctx.viewportHeight, 0, -1, 100); // y axis inverted so that y increases down like SVG
 	    self.pMatrix = pMatrix;
 	})(this);
     }
-    
-    var renderAllTracks = function(view, model) {
+
+    var renderAllTracks = function (view) {
 	view.ctx.clear(view.ctx.COLOR_BUFFER_BIT | view.ctx.DEPTH_BUFFER_BIT);
 	var vertex_position_buffer = view.vertex_position_buffer;
 	var vertex_color_buffer = view.vertex_color_buffer;
-	
+
 	// Combine all vertex data
 	var vertex_position_array = [];
 	var vertex_color_array = [];
@@ -1377,76 +1386,111 @@ var OncoprintWebGLCellView = (function() {
 	view.ctx.bufferData(view.ctx.ARRAY_BUFFER, new Float32Array(vertex_position_array), view.ctx.STATIC_DRAW);
 	vertex_position_buffer.itemSize = 3;
 	vertex_position_buffer.numItems = vertex_position_array.length / vertex_position_buffer.itemSize;
-	
+
 	view.ctx.bindBuffer(view.ctx.ARRAY_BUFFER, vertex_color_buffer);
 	view.ctx.bufferData(view.ctx.ARRAY_BUFFER, new Float32Array(vertex_color_array), view.ctx.STATIC_DRAW);
 	vertex_color_buffer.itemSize = 4;
 	vertex_color_buffer.numItems = vertex_color_array.length / vertex_color_buffer.itemSize;
-	
+
 	view.ctx.useProgram(view.shader_program);
 	view.ctx.bindBuffer(view.ctx.ARRAY_BUFFER, vertex_position_buffer);
 	view.ctx.vertexAttribPointer(view.shader_program.vertexPositionAttribute, vertex_position_buffer.itemSize, view.ctx.FLOAT, false, 0, 0);
-	
+
 	view.ctx.bindBuffer(view.ctx.ARRAY_BUFFER, vertex_color_buffer);
 	view.ctx.vertexAttribPointer(view.shader_program.vertexColorAttribute, vertex_color_buffer.itemSize, view.ctx.FLOAT, false, 0, 0);
-	
+
 	view.ctx.uniformMatrix4fv(view.shader_program.pMatrixUniform, false, view.pMatrix);
 	view.ctx.uniformMatrix4fv(view.shader_program.mvMatrixUniform, false, view.mvMatrix);
 	view.ctx.drawArrays(view.ctx.TRIANGLES, 0, vertex_position_buffer.numItems);
     }
-    var computeVertexPositionsAndColors = function(view, model, track_id) {
+    var addVertexColor = function (vertex_color_array, rgba_str, n_times) {
+	var color = extractRGBA(rgba_str);
+	for (var h = 0; h < n_times; h++) {
+	    vertex_color_array.push(color[0], color[1], color[2], color[3]);
+	}
+    }
+    var computeVertexPositionsAndColors = function (view, model, track_id) {
 	var vertex_position_array = [];
 	var vertex_color_array = [];
 	var shape_list_list = model.getRuleSet(track_id).apply(model.getTrackData(track_id), 10, 10);
 	var offset_x_inc = model.getCellPadding() + model.getCellWidth();
 	var offset_y = model.getTrackTop(track_id);
+	var halfsqrt2 = Math.sqrt(2) / 2;
 	// Compute vertex and color arrays
-	for (var i=0; i<shape_list_list.length; i++) {
+	for (var i = 0; i < shape_list_list.length; i++) {
 	    var shape_list = shape_list_list[i];
 	    var offset_x = offset_x_inc * i;
-	    for (var j=0; j<shape_list.length; j++) {
+	    for (var j = 0; j < shape_list.length; j++) {
 		var shape = shape_list[j];
 		if (shape.type === "rectangle") {
-		    var x = parseFloat(shape.x) + offset_x, y = parseFloat(shape.y) + offset_y, height=parseFloat(shape.height), width=parseFloat(shape.width);
+		    var x = parseFloat(shape.x) + offset_x, y = parseFloat(shape.y) + offset_y, height = parseFloat(shape.height), width = parseFloat(shape.width);
 		    vertex_position_array.push(x, y, j);
-		    vertex_position_array.push(x+width, y, j);
-		    vertex_position_array.push(x+width, y+height, j);
-		    
+		    vertex_position_array.push(x + width, y, j);
+		    vertex_position_array.push(x + width, y + height, j);
+
 		    vertex_position_array.push(x, y, j);
-		    vertex_position_array.push(x+width, y+height, j);
-		    vertex_position_array.push(x, y+height, j);
-		    
-		    var fill = extractRGBA(shape.fill);
-		    for (var h=0; h<6; h++) {
-			vertex_color_array.push(fill[0], fill[1], fill[2], fill[3]);
-		    }
-		    
+		    vertex_position_array.push(x + width, y + height, j);
+		    vertex_position_array.push(x, y + height, j);
+
+		    addVertexColor(vertex_color_array, shape.fill, 6);
+
 		    // Stroke
 		    var stroke_width = parseFloat(shape['stroke-width']);
 		    if (stroke_width > 0) {
-			vertex_position_array.push(x-stroke_width, y-stroke_width, j-0.1);
-			vertex_position_array.push(x+width+stroke_width, y-stroke_width, j-0.1);
-			vertex_position_array.push(x+width+stroke_width, y+height+stroke_width, j-0.1);
-		    
-			vertex_position_array.push(x-stroke_width, y-stroke_width, j-0.1);
-			vertex_position_array.push(x+width+stroke_width, y+height+stroke_width, j-0.1);
-			vertex_position_array.push(x-stroke_width, y+height+stroke_width, j-0.1);
-			
-			var stroke = extractRGBA(shape.stroke);
-			for (var h=0; h<6; h++) {
-			    vertex_color_array.push(stroke[0], stroke[1], stroke[2], stroke[3]);
-			}
+			vertex_position_array.push(x - stroke_width, y - stroke_width, j - 0.1);
+			vertex_position_array.push(x + width + stroke_width, y - stroke_width, j - 0.1);
+			vertex_position_array.push(x + width + stroke_width, y + height + stroke_width, j - 0.1);
+
+			vertex_position_array.push(x - stroke_width, y - stroke_width, j - 0.1);
+			vertex_position_array.push(x + width + stroke_width, y + height + stroke_width, j - 0.1);
+			vertex_position_array.push(x - stroke_width, y + height + stroke_width, j - 0.1);
+
+			addVertexColor(vertex_color_array, shape.stroke, 6);
 		    }
 		} else if (shape.type === "triangle") {
 		    vertex_position_array.push(shape.x1, shape.y1, j);
 		    vertex_position_array.push(shape.x2, shape.y2, j);
 		    vertex_position_array.push(shape.x3, shape.y3, j);
-		    
-		    var fill = extractRGBA(shape.fill);
-		    for (var h=0; h<3; h++) {
-			vertex_color_array.push(fill[0], fill[1], fill[2], fill[3]);
-		    }
+
+		    addVertexColor(vertex_color_array, shape.fill, 3);
 		} else if (shape.type === "ellipse") {
+		    var center = {x: offset_x + parseFloat(shape.x) + parseFloat(shape.width) / 2, y: offset_y + parseFloat(shape.y) + parseFloat(shape.height) / 2};
+		    var horzrad = parseFloat(shape.width) / 2;
+		    var vertrad = parseFloat(shape.height) / 2;
+
+		    vertex_position_array.push(center.x, center.y, j);
+		    vertex_position_array.push(center.x + horzrad, center.y, j);
+		    vertex_position_array.push(center.x + halfsqrt2 * horzrad, center.y + halfsqrt2 * vertrad, j);
+
+		    vertex_position_array.push(center.x, center.y, j);
+		    vertex_position_array.push(center.x + halfsqrt2 * horzrad, center.y + halfsqrt2 * vertrad, j);
+		    vertex_position_array.push(center.x, center.y + vertrad, j);
+
+		    vertex_position_array.push(center.x, center.y, j);
+		    vertex_position_array.push(center.x, center.y + vertrad, j);
+		    vertex_position_array.push(center.x - halfsqrt2 * horzrad, center.y + halfsqrt2 * vertrad, j);
+
+		    vertex_position_array.push(center.x, center.y, j);
+		    vertex_position_array.push(center.x - halfsqrt2 * horzrad, center.y + halfsqrt2 * vertrad, j);
+		    vertex_position_array.push(center.x - horzrad, center.y, j);
+
+		    vertex_position_array.push(center.x, center.y, j);
+		    vertex_position_array.push(center.x - horzrad, center.y, j);
+		    vertex_position_array.push(center.x - halfsqrt2 * horzrad, center.y - halfsqrt2 * vertrad, j);
+
+		    vertex_position_array.push(center.x, center.y, j);
+		    vertex_position_array.push(center.x - halfsqrt2 * horzrad, center.y - halfsqrt2 * vertrad, j);
+		    vertex_position_array.push(center.x, center.y - vertrad, j);
+
+		    vertex_position_array.push(center.x, center.y, j);
+		    vertex_position_array.push(center.x, center.y - vertrad, j);
+		    vertex_position_array.push(center.x + halfsqrt2 * horzrad, center.y - halfsqrt2 * vertrad, j);
+
+		    vertex_position_array.push(center.x, center.y, j);
+		    vertex_position_array.push(center.x + halfsqrt2 * horzrad, center.y - halfsqrt2 * vertrad, j);
+		    vertex_position_array.push(center.x + horzrad, center.y, j);
+
+		    addVertexColor(vertex_color_array, shape.fill, 3 * 8);
 		} else if (shape.type === "line") {
 		}
 	    }
@@ -1454,15 +1498,15 @@ var OncoprintWebGLCellView = (function() {
 	view.vertex_position_array[track_id] = vertex_position_array;
 	view.vertex_color_array[track_id] = vertex_color_array;
     }
-    OncoprintWebGLCellView.prototype.isUsable = function() {
+    OncoprintWebGLCellView.prototype.isUsable = function () {
 	return this.ctx !== null;
     }
-    OncoprintWebGLCellView.prototype.removeTrack = function(model, track_id) {
+    OncoprintWebGLCellView.prototype.removeTrack = function (model, track_id) {
     }
-    OncoprintWebGLCellView.prototype.moveTrack = function(model, track_id) {
+    OncoprintWebGLCellView.prototype.moveTrack = function (model, track_id) {
     }
-    OncoprintWebGLCellView.prototype.addTracks = function(model, track_ids) {
-	for (var i=0; i<track_ids.length; i++) {
+    OncoprintWebGLCellView.prototype.addTracks = function (model, track_ids) {
+	for (var i = 0; i < track_ids.length; i++) {
 	    computeVertexPositionsAndColors(this, model, track_ids[i]);
 	}
 	renderAllTracks(this, model);
@@ -1471,6 +1515,7 @@ var OncoprintWebGLCellView = (function() {
 })();
 
 module.exports = OncoprintWebGLCellView;
+
 },{"gl-matrix":8}],7:[function(require,module,exports){
 $(document).ready(function() {
 	var Oncoprint = require('./oncoprint.js');

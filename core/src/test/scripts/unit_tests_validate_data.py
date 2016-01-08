@@ -18,6 +18,7 @@ hugo_mapping_file = 'test_data/Homo_sapiens.gene_info.gz'
 ncbi_file = open(hugo_mapping_file)
 hugo_entrez_map = parse_ncbi_file(ncbi_file)
 
+
 def getNewLogger():
     # set default message handler
     text_handler = logging.StreamHandler(sys.stdout)
@@ -33,13 +34,15 @@ def getNewLogger():
     logger.handlers[0].flush()
     return logger
 
+
 # Test cases for the various Validator classes found in validateData script
+
+
 class ValidateDataTester(unittest.TestCase):
-    
-        
+
     def test_column_order_validation_SegValidator(self):
         '''
-        seg validator needs its columns in a specific order. 
+        seg validator needs its columns in a specific order.
         Here we serve a file with wrong order and expect validator to log this:
         '''
         validateData.STUDY_DIR = "test_data"
@@ -47,7 +50,7 @@ class ValidateDataTester(unittest.TestCase):
                     'data_file_path': 'data_seg_wrong_order.txt',
                     'stable_id': 'test_column_order_validation_segment',
                     }
-        
+
         # set level according to this test case:
         logger = getNewLogger()
         logger.setLevel(logging.ERROR)
@@ -58,11 +61,11 @@ class ValidateDataTester(unittest.TestCase):
         # check if both messages come from checkOrderedRequiredColumns: 
         for error in logger.handlers[0].buffer:
             self.assertEqual("ERROR", error.levelname)
-            self.assertEqual("checkOrderedRequiredColumns", error.funcName)
-        
+            self.assertEqual("_checkOrderedRequiredColumns", error.funcName)
+
     def test_column_order_validation_ClinicalValidator(self):
         '''
-        ClinicalValidator does NOT need its columns in a specific order. 
+        ClinicalValidator does NOT need its columns in a specific order.
         Here we serve files with different order and no errors or warnings
         '''
         validateData.STUDY_DIR = "test_data"
@@ -70,8 +73,7 @@ class ValidateDataTester(unittest.TestCase):
                     'data_file_path': 'data_clin_order1.txt',
                     'stable_id': 'test_column_order_validation_segment',
                     }
-        
-        
+
         # set level according to this test case:
         logger = getNewLogger()
         logger.setLevel(logging.WARNING)
@@ -85,5 +87,3 @@ class ValidateDataTester(unittest.TestCase):
         validator.validate()
         # again, we expect no errors or warnings
         self.assertEqual(0, len(logger.handlers[0].buffer))
-        
-    

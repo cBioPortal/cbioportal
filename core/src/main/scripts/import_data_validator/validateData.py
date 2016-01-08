@@ -380,6 +380,8 @@ class Jinja2HtmlHandler(logging.handlers.BufferingHandler):
         self.output_filename = output_filename
         self.max_level = logging.NOTSET
         self.closed = False
+        # get the directory name of the currently running script
+        self.template_dir = os.path.dirname(__file__)
         super(Jinja2HtmlHandler, self).__init__(*args, **kwargs)
 
     def emit(self, record):
@@ -404,10 +406,8 @@ class Jinja2HtmlHandler(logging.handlers.BufferingHandler):
         self.closed = True
         # require Jinja2 only if it is actually used
         import jinja2
-        # get the directory name of the currently running script
-        template_dir = os.path.dirname(__file__)
         j_env = jinja2.Environment(
-            loader=jinja2.FileSystemLoader(template_dir),
+            loader=jinja2.FileSystemLoader(self.template_dir),
             # trim whitespace around Jinja2 operators
             trim_blocks=True,
             lstrip_blocks=True)
@@ -499,18 +499,10 @@ class ValidatorFactory(object):
 
     """Factory for creating validation objects of various types."""
 
-    # TODO remove the Validator.create() method overrides,
-    # they do nothing but wrap the constructor in unnecessary instance methods
-
-    factories = {}
-
-    @classmethod
-    def createValidator(cls, validator_type, hugo_entrez_map, logger, meta_dict):
-        if validator_type not in cls.factories:
-            # instantiate a factory for the given validator type
-            factory = globals()[validator_type].Factory()
-            cls.factories[validator_type] = factory
-        return cls.factories[validator_type].create(hugo_entrez_map,logger,meta_dict)
+    @staticmethod
+    def createValidator(validator_type, hugo_entrez_map, logger, meta_dict):
+        ValidatorClass = globals()[validator_type]
+        return ValidatorClass(hugo_entrez_map, logger, meta_dict)
 
 
 class Validator(object):
@@ -520,9 +512,12 @@ class Validator(object):
     Subclassed by validators for specific data file types, which should
     define a 'REQUIRED_HEADERS' attribute listing the required column
     headers and a `REQUIRE_COLUMN_ORDER` boolean stating whether their
-    position is significant, and may implement a processTopLines method to
-    handle a list of lines prefixed with '#' before the tsv header line.
-    
+    position is significant.
+
+    The methods `processTopLines`, `checkHeader`, `checkLine` and `onComplete`
+    may be overridden (calling the superclass method) to perform any
+    appropriate validation tasks.
+
     :param hugo_entrez_map: path Entrez to Hugo mapping file
     :param logger: logger instance for writing the log messages  
     :param meta_dict: dictionary of fields found in corresponding meta file
@@ -536,7 +531,7 @@ class Validator(object):
         self.cols = []
         self.numCols = 0
         self.hugo_entrez_map = hugo_entrez_map
-        self.lineEndings = ''
+        self.newlines = ('',)
         self.studyId = ''
         self.headerWritten = False
         self.logger = CombiningLoggerAdapter(
@@ -545,10 +540,9 @@ class Validator(object):
         self.meta_dict = meta_dict
         self.badChars = [' ']
 
-
     def validate(self):
 
-        """Validate method - initiates validation of file."""
+        """Validate the data file."""
 
         self.logger.info('Starting validation of file')
 
@@ -573,10 +567,7 @@ class Validator(object):
                 return
 
             # parse the start-of-file comment lines
-            # This method may or may not be implemented by subclasses
-            processTopLines = getattr(self, 'processTopLines', None)
-            if processTopLines is not None:
-                processTopLines(top_comments)
+            self.processTopLines(top_comments)
 
             # read five data lines to detect quotes in the tsv file
             first_data_lines = []
@@ -585,13 +576,13 @@ class Validator(object):
                 if i >= 4:
                     break
             sample_content = header_line + ''.join(first_data_lines)
-            dialect = csv.Sniffer().sniff(sample_content, '\t')
+            dialect = csv.Sniffer().sniff(sample_content)
             # sniffer assumes " if no quote character exists
             if dialect.quotechar == '"' and not (
                     dialect.delimiter + '"' in sample_content or
                     '"' + dialect.delimiter in sample_content):
                 dialect.quoting = csv.QUOTE_NONE
-            if not self.checkTsvDialect(dialect):
+            if not self._checkTsvDialect(dialect):
                 return
 
             # parse the first non-commented line as the tsv header
@@ -601,12 +592,10 @@ class Validator(object):
                     'Invalid column header, skipped data in file')
                 return
 
-
             # read through the data lines of the file
             csvreader = csv.reader(itertools.chain(first_data_lines,
                                                    data_file),
                                    dialect)
-            # TODO check for end-of-line whitespace
             for line_number, fields in enumerate(csvreader,
                                                  start=line_number + 1):
                 self.line_number = line_number
@@ -617,12 +606,24 @@ class Validator(object):
                     continue
                 self.checkLine(fields)
 
+            # (tuple of) string(s) of the newlines read (for 'rU' mode files)
+            self.newlines = data_file.newlines
 
-            # now all lines have been read (in universal newline mode)
-            self.checkLineBreaks(data_file.newlines)
+        # after the entire file has been read
+        self.onComplete()
 
-    def printComplete(self):
+    def onComplete(self):
+        """Perform final validations after all lines have been checked.
+
+        Overriding methods should call this superclass method *after* their own
+        validations, as it logs the message that validation was completed.
+        """
+        self._checkLineBreaks()
         self.logger.info('Validation of file complete')
+
+    def processTopLines(self, line_list):
+        """Overide to parse any list of comment lines above the TSV header."""
+        pass
 
     def checkHeader(self, cols):
 
@@ -640,14 +641,14 @@ class Validator(object):
         self.cols = cols
         self.numCols = len(self.cols)
 
-        num_errors += self.checkRepeatedColumns()
+        num_errors += self._checkRepeatedColumns()
         num_errors += self.checkBadChar()
 
         # 'REQUIRE_COLUMN_ORDER' should have been defined by the subclass
         if self.REQUIRE_COLUMN_ORDER:  # pylint: disable=no-member
-            num_errors += self.checkOrderedRequiredColumns()
+            num_errors += self._checkOrderedRequiredColumns()
         else:
-            num_errors += self.checkUnorderedRequiredColumns()
+            num_errors += self._checkUnorderedRequiredColumns()
 
         return num_errors
 
@@ -683,7 +684,7 @@ class Validator(object):
                                   extra={'line_number': self.line_number,
                                          'column_number': col_index + 1})
 
-    def checkUnorderedRequiredColumns(self):
+    def _checkUnorderedRequiredColumns(self):
         """Check for missing column headers, independent of their position.
 
         Return the number of errors encountered.
@@ -702,7 +703,7 @@ class Validator(object):
                                         ', (...)'})
         return num_errors
 
-    def checkOrderedRequiredColumns(self):
+    def _checkOrderedRequiredColumns(self):
         """Check if the column header for each position is correct.
 
         Return the number of errors encountered.
@@ -727,7 +728,7 @@ class Validator(object):
                            'cause': self.cols[col_index]})
         return num_errors
 
-    def checkTsvDialect(self, dialect):
+    def _checkTsvDialect(self, dialect):
         """Check if a csv.Dialect subclass describes a valid cBio data file."""
         if dialect.delimiter != '\t':
             self.logger.error('Not a tab-delimited file',
@@ -739,22 +740,18 @@ class Validator(object):
                               extra={'cause': 'Found quotation marks of the type: [' + repr(dialect.quotechar)[1:-1] + '] '} )
         return True
 
-    def checkLineBreaks(self, linebreaks):
+    def _checkLineBreaks(self):
         """Checks line breaks, reports to user."""
         # TODO document these requirements
-        if "\r\n" in linebreaks:
-            self.lineEndings = "\r\n"
+        if "\r\n" in self.newlines:
             self.logger.error('DOS-style line breaks detected (\\r\\n), '
                               'should be Unix-style (\\n)')
-        elif "\r" in linebreaks:
-            self.lineEndings = "\r"
+        elif "\r" in self.newlines:
             self.logger.error('Classic Mac OS-style line breaks detected '
                               '(\\r), should be Unix-style (\\n)')
-        elif "\n" in linebreaks:
-            self.lineEndings = "\n"
-        else:
-            self.logger.error('No line breaks recognized in file')
-
+        elif self.newlines != '\n':
+            self.logger.error('No line breaks recognized in file',
+                              extra={'cause': repr(self.newlines)[1:-1]})
 
     def checkInt(self,value):
         """Checks if a value is an integer."""
@@ -778,7 +775,7 @@ class Validator(object):
             return False
         return True
 
-    def checkRepeatedColumns(self):
+    def _checkRepeatedColumns(self):
         num_errors = 0
         seen = set()
         for col_num, col in enumerate(self.cols):
@@ -907,11 +904,6 @@ class CNAValidator(GenewiseFileValidator):
 
     ALLOWED_VALUES = ['-2','-1','0','1','2','','NA']
 
-    # TODO refactor so subclasses don't have to override for the final call
-    def validate(self):
-        super(CNAValidator,self).validate()
-        self.printComplete()
-
     def checkValue(self, value, col_index):
         """Check a value in a sample column."""
         if value not in self.ALLOWED_VALUES:
@@ -922,9 +914,7 @@ class CNAValidator(GenewiseFileValidator):
                     extra={'line_number': self.line_number,
                            'column_number': col_index + 1,
                            'cause': value})
-    class Factory(object):
-        def create(self,hugo_entrez_map,logger,meta_dict):
-            return CNAValidator(hugo_entrez_map,logger,meta_dict)
+
 
 class MutationsExtendedValidator(Validator):
 
@@ -979,7 +969,7 @@ class MutationsExtendedValidator(Validator):
         'Amino_Acid_Change': 'checkAminoAcidChange'}
 
     def __init__(self,hugo_entrez_map,logger,meta_dict):
-        super(MutationsExtendedValidator,self).__init__(hugo_entrez_map,logger,meta_dict)
+        super(MutationsExtendedValidator, self).__init__(hugo_entrez_map,logger,meta_dict)
         # TODO consider making this attribute a local var in in checkLine(),
         # it really only makes sense there
         self.mafValues = {}
@@ -991,10 +981,6 @@ class MutationsExtendedValidator(Validator):
         self.toplinecount = 0
         self.sampleIdsHeader = set()
         self.headerPresent = False
-
-    def validate(self):
-        super(MutationsExtendedValidator,self).validate()
-        self.printComplete()
 
     def checkLine(self, data):
 
@@ -1008,7 +994,7 @@ class MutationsExtendedValidator(Validator):
         message.
         """
 
-        super(MutationsExtendedValidator,self).checkLine(data)
+        super(MutationsExtendedValidator, self).checkLine(data)
         self.mafValues = {}
 
         for col_name in self.REQUIRED_HEADERS:
@@ -1211,7 +1197,7 @@ class MutationsExtendedValidator(Validator):
         if not self.checkInt(value) and value != '':
             return False
         return True
-    
+
     def check_n_ref_count(self, value):
         if not self.checkInt(value) and value != '':
             return False
@@ -1223,9 +1209,6 @@ class MutationsExtendedValidator(Validator):
         # https://pypi.python.org/pypi/hgvs/
         return True
 
-    class Factory(object):
-        def create(self,hugo_entrez_map,logger,meta_dict):
-            return MutationsExtendedValidator(hugo_entrez_map,logger,meta_dict)
 
 class ClinicalValidator(Validator):
 
@@ -1241,14 +1224,13 @@ class ClinicalValidator(Validator):
         super(ClinicalValidator, self).__init__(*args, **kwargs)
         self.sampleIds = set()
 
-    def validate(self):
-        super(ClinicalValidator,self).validate()
-        self.printComplete()
-
-    # TODO validate the content of the comment lines before the column header
+    def processTopLines(self, line_list):
+        """Validate the the attribute definitions above the column header."""
+        # TODO implement this validation
+        pass
 
     def checkHeader(self, cols):
-        num_errors = super(ClinicalValidator,self).checkHeader(cols)
+        num_errors = super(ClinicalValidator, self).checkHeader(cols)
         for col_name in self.cols:
             if not col_name.isupper():
                 self.logger.warning(
@@ -1259,7 +1241,7 @@ class ClinicalValidator(Validator):
         return num_errors
 
     def checkLine(self, data):
-        super(ClinicalValidator,self).checkLine(data)
+        super(ClinicalValidator, self).checkLine(data)
         for col_index, value in enumerate(data):
             # TODO check the values in the other cols, required and optional
             if col_index == self.cols.index('SAMPLE_ID'):
@@ -1270,10 +1252,6 @@ class ClinicalValidator(Validator):
                                'column_number': col_index + 1,
                                'cause': value})
                 self.sampleIds.add(value.strip())
-
-    class Factory(object):
-        def create(self,hugo_entrez_map,logger,meta_dict):
-            return ClinicalValidator(hugo_entrez_map,logger,meta_dict)
 
 
 class SegValidator(Validator):
@@ -1288,56 +1266,29 @@ class SegValidator(Validator):
         'seg.mean']
     REQUIRE_COLUMN_ORDER = True
 
-    def __init__(self,hugo_entrez_map,logger,meta_dict):
-        super(SegValidator,self).__init__(hugo_entrez_map,logger,meta_dict)
-
-    def validate(self):
-        super(SegValidator,self).validate()
-        self.printComplete()
-
     def checkLine(self, data):
-        super(SegValidator,self).checkLine(data)
+        super(SegValidator, self).checkLine(data)
 
         # TODO check values in all other columns too
         for col_index, value in enumerate(data):
             if col_index == self.cols.index(self.REQUIRED_HEADERS[0]):
                 self.checkSampleId(value, column_number=col_index + 1)
 
-    class Factory(object):
-        def create(self,hugo_entrez_map,logger,meta_dict):
-            return SegValidator(hugo_entrez_map,logger,meta_dict)
-
 
 class Log2Validator(GenewiseFileValidator):
-
-    def validate(self):
-        super(Log2Validator,self).validate()
-        self.printComplete()
 
     def checkValue(self, value, col_index):
         """Check a value in a sample column."""
         # TODO check these values
         pass
-
-    class Factory(object):
-        def create(self,hugo_entrez_map,logger,meta_dict):
-            return Log2Validator(hugo_entrez_map,logger,meta_dict)
 
 
 class ExpressionValidator(GenewiseFileValidator):
 
-    def validate(self):
-        super(ExpressionValidator,self).validate()
-        self.printComplete()
-
     def checkValue(self, value, col_index):
         """Check a value in a sample column."""
         # TODO check these values
         pass
-
-    class Factory(object):
-        def create(self,hugo_entrez_map,logger,meta_dict):
-            return ExpressionValidator(hugo_entrez_map,logger,meta_dict)
 
 
 class FusionValidator(Validator):
@@ -1354,45 +1305,25 @@ class FusionValidator(Validator):
         'Frame']
     REQUIRE_COLUMN_ORDER = True
 
-    def validate(self):
-        super(FusionValidator,self).validate()
-        self.printComplete()
-
     def checkLine(self, data):
-        super(FusionValidator,self).checkLine(data)
+        super(FusionValidator, self).checkLine(data)
         # TODO check the values
-
-    class Factory(object):
-        def create(self,hugo_entrez_map,logger,meta_dict):
-            return FusionValidator(hugo_entrez_map,logger,meta_dict)
 
 
 class MethylationValidator(GenewiseFileValidator):
-
-    def validate(self):
-        super(MethylationValidator,self).validate()
-        self.printComplete()
 
     def checkValue(self, value, col_index):
         """Check a value in a sample column."""
         # TODO check these values
         pass
 
-    class Factory(object):
-        def create(self,hugo_entrez_map,logger,meta_dict):
-            return MethylationValidator(hugo_entrez_map,logger,meta_dict)
-
 
 class RPPAValidator(FeaturewiseFileValidator):
 
     REQUIRED_HEADERS = ['Composite.Element.REF']
 
-    def validate(self):
-        super(RPPAValidator,self).validate()
-        self.printComplete()
-
     def checkLine(self, data):
-        super(RPPAValidator,self).checkLine(data)
+        super(RPPAValidator, self).checkLine(data)
         # TODO check the values in the first column
         # for rppa, first column should be hugo|antibody, everything after should be sampleIds
 
@@ -1400,10 +1331,6 @@ class RPPAValidator(FeaturewiseFileValidator):
         """Check a value in a sample column."""
         # TODO check these values
         pass
-
-    class Factory(object):
-        def create(self,hugo_entrez_map,logger,meta_dict):
-            return RPPAValidator(hugo_entrez_map,logger,meta_dict)
 
 
 class TimelineValidator(Validator):
@@ -1415,17 +1342,10 @@ class TimelineValidator(Validator):
         'EVENT_TYPE']
     REQUIRE_COLUMN_ORDER = True
 
-    def validate(self):
-        super(TimelineValidator,self).validate()
-        self.printComplete()
-
     def checkLine(self, data):
-        super(TimelineValidator,self).checkLine(data)
+        super(TimelineValidator, self).checkLine(data)
         # TODO check the values
 
-    class Factory(object):
-        def create(self,hugo_entrez_map,logger,meta_dict):
-            return TimelineValidator(hugo_entrez_map,logger,meta_dict)
 
 # ------------------------------------------------------------------------------
 # Functions

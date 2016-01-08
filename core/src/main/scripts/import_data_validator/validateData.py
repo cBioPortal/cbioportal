@@ -497,18 +497,10 @@ class ValidatorFactory(object):
 
     """Factory for creating validation objects of various types."""
 
-    # TODO remove the Validator.create() method overrides,
-    # they do nothing but wrap the constructor in unnecessary instance methods
-
-    factories = {}
-
-    @classmethod
-    def createValidator(cls, validator_type, hugo_entrez_map, logger, meta_dict):
-        if validator_type not in cls.factories:
-            # instantiate a factory for the given validator type
-            factory = globals()[validator_type].Factory()
-            cls.factories[validator_type] = factory
-        return cls.factories[validator_type].create(hugo_entrez_map,logger,meta_dict)
+    @staticmethod
+    def createValidator(validator_type, hugo_entrez_map, logger, meta_dict):
+        ValidatorClass = globals()[validator_type]
+        return ValidatorClass(hugo_entrez_map, logger, meta_dict)
 
 
 class Validator(object):
@@ -602,7 +594,6 @@ class Validator(object):
             csvreader = csv.reader(itertools.chain(first_data_lines,
                                                    data_file),
                                    dialect)
-            # TODO check for end-of-line whitespace
             for line_number, fields in enumerate(csvreader,
                                                  start=line_number + 1):
                 self.line_number = line_number
@@ -916,9 +907,6 @@ class CNAValidator(GenewiseFileValidator):
                            'column_number': col_index + 1,
                            'cause': value})
 
-    class Factory(object):
-        def create(self,hugo_entrez_map,logger,meta_dict):
-            return CNAValidator(hugo_entrez_map,logger,meta_dict)
 
 class MutationsExtendedValidator(Validator):
 
@@ -973,7 +961,7 @@ class MutationsExtendedValidator(Validator):
         'Amino_Acid_Change': 'checkAminoAcidChange'}
 
     def __init__(self,hugo_entrez_map,logger,meta_dict):
-        super(MutationsExtendedValidator,self).__init__(hugo_entrez_map,logger,meta_dict)
+        super(MutationsExtendedValidator, self).__init__(hugo_entrez_map,logger,meta_dict)
         # TODO consider making this attribute a local var in in checkLine(),
         # it really only makes sense there
         self.mafValues = {}
@@ -998,7 +986,7 @@ class MutationsExtendedValidator(Validator):
         message.
         """
 
-        super(MutationsExtendedValidator,self).checkLine(data)
+        super(MutationsExtendedValidator, self).checkLine(data)
         self.mafValues = {}
 
         for col_name in self.REQUIRED_HEADERS:
@@ -1201,7 +1189,7 @@ class MutationsExtendedValidator(Validator):
         if not self.checkInt(value) and value != '':
             return False
         return True
-    
+
     def check_n_ref_count(self, value):
         if not self.checkInt(value) and value != '':
             return False
@@ -1213,9 +1201,6 @@ class MutationsExtendedValidator(Validator):
         # https://pypi.python.org/pypi/hgvs/
         return True
 
-    class Factory(object):
-        def create(self,hugo_entrez_map,logger,meta_dict):
-            return MutationsExtendedValidator(hugo_entrez_map,logger,meta_dict)
 
 class ClinicalValidator(Validator):
 
@@ -1237,7 +1222,7 @@ class ClinicalValidator(Validator):
         pass
 
     def checkHeader(self, cols):
-        num_errors = super(ClinicalValidator,self).checkHeader(cols)
+        num_errors = super(ClinicalValidator, self).checkHeader(cols)
         for col_name in self.cols:
             if not col_name.isupper():
                 self.logger.warning(
@@ -1248,7 +1233,7 @@ class ClinicalValidator(Validator):
         return num_errors
 
     def checkLine(self, data):
-        super(ClinicalValidator,self).checkLine(data)
+        super(ClinicalValidator, self).checkLine(data)
         for col_index, value in enumerate(data):
             # TODO check the values in the other cols, required and optional
             if col_index == self.cols.index('SAMPLE_ID'):
@@ -1259,10 +1244,6 @@ class ClinicalValidator(Validator):
                                'column_number': col_index + 1,
                                'cause': value})
                 self.sampleIds.add(value.strip())
-
-    class Factory(object):
-        def create(self,hugo_entrez_map,logger,meta_dict):
-            return ClinicalValidator(hugo_entrez_map,logger,meta_dict)
 
 
 class SegValidator(Validator):
@@ -1278,16 +1259,12 @@ class SegValidator(Validator):
     REQUIRE_COLUMN_ORDER = True
 
     def checkLine(self, data):
-        super(SegValidator,self).checkLine(data)
+        super(SegValidator, self).checkLine(data)
 
         # TODO check values in all other columns too
         for col_index, value in enumerate(data):
             if col_index == self.cols.index(self.REQUIRED_HEADERS[0]):
                 self.checkSampleId(value, column_number=col_index + 1)
-
-    class Factory(object):
-        def create(self,hugo_entrez_map,logger,meta_dict):
-            return SegValidator(hugo_entrez_map,logger,meta_dict)
 
 
 class Log2Validator(GenewiseFileValidator):
@@ -1297,10 +1274,6 @@ class Log2Validator(GenewiseFileValidator):
         # TODO check these values
         pass
 
-    class Factory(object):
-        def create(self,hugo_entrez_map,logger,meta_dict):
-            return Log2Validator(hugo_entrez_map,logger,meta_dict)
-
 
 class ExpressionValidator(GenewiseFileValidator):
 
@@ -1308,10 +1281,6 @@ class ExpressionValidator(GenewiseFileValidator):
         """Check a value in a sample column."""
         # TODO check these values
         pass
-
-    class Factory(object):
-        def create(self,hugo_entrez_map,logger,meta_dict):
-            return ExpressionValidator(hugo_entrez_map,logger,meta_dict)
 
 
 class FusionValidator(Validator):
@@ -1329,12 +1298,8 @@ class FusionValidator(Validator):
     REQUIRE_COLUMN_ORDER = True
 
     def checkLine(self, data):
-        super(FusionValidator,self).checkLine(data)
+        super(FusionValidator, self).checkLine(data)
         # TODO check the values
-
-    class Factory(object):
-        def create(self,hugo_entrez_map,logger,meta_dict):
-            return FusionValidator(hugo_entrez_map,logger,meta_dict)
 
 
 class MethylationValidator(GenewiseFileValidator):
@@ -1344,17 +1309,13 @@ class MethylationValidator(GenewiseFileValidator):
         # TODO check these values
         pass
 
-    class Factory(object):
-        def create(self,hugo_entrez_map,logger,meta_dict):
-            return MethylationValidator(hugo_entrez_map,logger,meta_dict)
-
 
 class RPPAValidator(FeaturewiseFileValidator):
 
     REQUIRED_HEADERS = ['Composite.Element.REF']
 
     def checkLine(self, data):
-        super(RPPAValidator,self).checkLine(data)
+        super(RPPAValidator, self).checkLine(data)
         # TODO check the values in the first column
         # for rppa, first column should be hugo|antibody, everything after should be sampleIds
 
@@ -1362,10 +1323,6 @@ class RPPAValidator(FeaturewiseFileValidator):
         """Check a value in a sample column."""
         # TODO check these values
         pass
-
-    class Factory(object):
-        def create(self,hugo_entrez_map,logger,meta_dict):
-            return RPPAValidator(hugo_entrez_map,logger,meta_dict)
 
 
 class TimelineValidator(Validator):
@@ -1378,12 +1335,9 @@ class TimelineValidator(Validator):
     REQUIRE_COLUMN_ORDER = True
 
     def checkLine(self, data):
-        super(TimelineValidator,self).checkLine(data)
+        super(TimelineValidator, self).checkLine(data)
         # TODO check the values
 
-    class Factory(object):
-        def create(self,hugo_entrez_map,logger,meta_dict):
-            return TimelineValidator(hugo_entrez_map,logger,meta_dict)
 
 # ------------------------------------------------------------------------------
 # Functions

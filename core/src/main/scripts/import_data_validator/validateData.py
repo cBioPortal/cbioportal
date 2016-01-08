@@ -534,7 +534,7 @@ class Validator(object):
         self.cols = []
         self.numCols = 0
         self.hugo_entrez_map = hugo_entrez_map
-        self.lineEndings = ''
+        self.newlines = ('',)
         self.studyId = ''
         self.headerWritten = False
         self.logger = CombiningLoggerAdapter(
@@ -543,10 +543,9 @@ class Validator(object):
         self.meta_dict = meta_dict
         self.badChars = [' ']
 
-
     def validate(self):
 
-        """Validate method - initiates validation of file."""
+        """Validate the data file."""
 
         self.logger.info('Starting validation of file')
 
@@ -599,7 +598,6 @@ class Validator(object):
                     'Invalid column header, skipped data in file')
                 return
 
-
             # read through the data lines of the file
             csvreader = csv.reader(itertools.chain(first_data_lines,
                                                    data_file),
@@ -615,11 +613,19 @@ class Validator(object):
                     continue
                 self.checkLine(fields)
 
+            # (tuple of) string(s) of the newlines read (for 'rU' mode files)
+            self.newlines = data_file.newlines
 
-            # now all lines have been read (in universal newline mode)
-            self.checkLineBreaks(data_file.newlines)
+        # after the entire file has been read
+        self.onComplete()
 
-    def printComplete(self):
+    def onComplete(self):
+        """Perform final validations after all lines are checked.
+
+        Overriding methods should call this superclass method *after* their own
+        validations, as it logs the message that validation was completed.
+        """
+        self.checkLineBreaks()
         self.logger.info('Validation of file complete')
 
     def checkHeader(self, cols):
@@ -736,22 +742,18 @@ class Validator(object):
                               extra={'cause': repr(dialect.quotechar)[1:-1]})
         return True
 
-    def checkLineBreaks(self, linebreaks):
+    def checkLineBreaks(self):
         """Checks line breaks, reports to user."""
         # TODO document these requirements
-        if "\r\n" in linebreaks:
-            self.lineEndings = "\r\n"
+        if "\r\n" in self.newlines:
             self.logger.error('DOS-style line breaks detected (\\r\\n), '
                               'should be Unix-style (\\n)')
-        elif "\r" in linebreaks:
-            self.lineEndings = "\r"
+        elif "\r" in self.newlines:
             self.logger.error('Classic Mac OS-style line breaks detected '
                               '(\\r), should be Unix-style (\\n)')
-        elif "\n" in linebreaks:
-            self.lineEndings = "\n"
-        else:
-            self.logger.error('No line breaks recognized in file')
-
+        elif self.newlines != '\n':
+            self.logger.error('No line breaks recognized in file',
+                              extra={'cause': repr(self.newlines)[1:-1]})
 
     def checkInt(self,value):
         """Checks if a value is an integer."""
@@ -903,11 +905,6 @@ class CNAValidator(GenewiseFileValidator):
 
     ALLOWED_VALUES = ['-2','-1','0','1','2','','NA']
 
-    # TODO refactor so subclasses don't have to override for the final call
-    def validate(self):
-        super(CNAValidator,self).validate()
-        self.printComplete()
-
     def checkValue(self, value, col_index):
         """Check a value in a sample column."""
         if value not in self.ALLOWED_VALUES:
@@ -918,6 +915,7 @@ class CNAValidator(GenewiseFileValidator):
                     extra={'line_number': self.line_number,
                            'column_number': col_index + 1,
                            'cause': value})
+
     class Factory(object):
         def create(self,hugo_entrez_map,logger,meta_dict):
             return CNAValidator(hugo_entrez_map,logger,meta_dict)
@@ -987,10 +985,6 @@ class MutationsExtendedValidator(Validator):
         self.toplinecount = 0
         self.sampleIdsHeader = set()
         self.headerPresent = False
-
-    def validate(self):
-        super(MutationsExtendedValidator,self).validate()
-        self.printComplete()
 
     def checkLine(self, data):
 
@@ -1237,11 +1231,10 @@ class ClinicalValidator(Validator):
         super(ClinicalValidator, self).__init__(*args, **kwargs)
         self.sampleIds = set()
 
-    def validate(self):
-        super(ClinicalValidator,self).validate()
-        self.printComplete()
-
-    # TODO validate the content of the comment lines before the column header
+    def processTopLines(self, line_list):
+        """Validate the the attribute definitions above the column header."""
+        # TODO implement this validation
+        pass
 
     def checkHeader(self, cols):
         num_errors = super(ClinicalValidator,self).checkHeader(cols)
@@ -1284,13 +1277,6 @@ class SegValidator(Validator):
         'seg.mean']
     REQUIRE_COLUMN_ORDER = True
 
-    def __init__(self,hugo_entrez_map,logger,meta_dict):
-        super(SegValidator,self).__init__(hugo_entrez_map,logger,meta_dict)
-
-    def validate(self):
-        super(SegValidator,self).validate()
-        self.printComplete()
-
     def checkLine(self, data):
         super(SegValidator,self).checkLine(data)
 
@@ -1306,10 +1292,6 @@ class SegValidator(Validator):
 
 class Log2Validator(GenewiseFileValidator):
 
-    def validate(self):
-        super(Log2Validator,self).validate()
-        self.printComplete()
-
     def checkValue(self, value, col_index):
         """Check a value in a sample column."""
         # TODO check these values
@@ -1321,10 +1303,6 @@ class Log2Validator(GenewiseFileValidator):
 
 
 class ExpressionValidator(GenewiseFileValidator):
-
-    def validate(self):
-        super(ExpressionValidator,self).validate()
-        self.printComplete()
 
     def checkValue(self, value, col_index):
         """Check a value in a sample column."""
@@ -1350,10 +1328,6 @@ class FusionValidator(Validator):
         'Frame']
     REQUIRE_COLUMN_ORDER = True
 
-    def validate(self):
-        super(FusionValidator,self).validate()
-        self.printComplete()
-
     def checkLine(self, data):
         super(FusionValidator,self).checkLine(data)
         # TODO check the values
@@ -1364,10 +1338,6 @@ class FusionValidator(Validator):
 
 
 class MethylationValidator(GenewiseFileValidator):
-
-    def validate(self):
-        super(MethylationValidator,self).validate()
-        self.printComplete()
 
     def checkValue(self, value, col_index):
         """Check a value in a sample column."""
@@ -1382,10 +1352,6 @@ class MethylationValidator(GenewiseFileValidator):
 class RPPAValidator(FeaturewiseFileValidator):
 
     REQUIRED_HEADERS = ['Composite.Element.REF']
-
-    def validate(self):
-        super(RPPAValidator,self).validate()
-        self.printComplete()
 
     def checkLine(self, data):
         super(RPPAValidator,self).checkLine(data)
@@ -1410,10 +1376,6 @@ class TimelineValidator(Validator):
         'STOP_DATE',
         'EVENT_TYPE']
     REQUIRE_COLUMN_ORDER = True
-
-    def validate(self):
-        super(TimelineValidator,self).validate()
-        self.printComplete()
 
     def checkLine(self, data):
         super(TimelineValidator,self).checkLine(data)

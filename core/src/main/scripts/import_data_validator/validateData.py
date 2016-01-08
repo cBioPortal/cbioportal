@@ -510,8 +510,11 @@ class Validator(object):
     Subclassed by validators for specific data file types, which should
     define a 'REQUIRED_HEADERS' attribute listing the required column
     headers and a `REQUIRE_COLUMN_ORDER` boolean stating whether their
-    position is significant, and may implement a processTopLines method to
-    handle a list of lines prefixed with '#' before the tsv header line.
+    position is significant.
+
+    The methods `processTopLines`, `checkHeader`, `checkLine` and `onComplete`
+    may be overridden (calling the superclass method) to perform any
+    appropriate validation tasks.
 
     :param hugo_entrez_map: path Entrez to Hugo mapping file
     :param logger: logger instance for writing the log messages  
@@ -562,10 +565,7 @@ class Validator(object):
                 return
 
             # parse the start-of-file comment lines
-            # This method may or may not be implemented by subclasses
-            processTopLines = getattr(self, 'processTopLines', None)
-            if processTopLines is not None:
-                processTopLines(top_comments)
+            self.processTopLines(top_comments)
 
             # read five data lines to detect quotes in the tsv file
             first_data_lines = []
@@ -580,7 +580,7 @@ class Validator(object):
                     dialect.delimiter + '"' in sample_content or
                     '"' + dialect.delimiter in sample_content):
                 dialect.quoting = csv.QUOTE_NONE
-            if not self.checkTsvDialect(dialect):
+            if not self._checkTsvDialect(dialect):
                 return
 
             # parse the first non-commented line as the tsv header
@@ -611,13 +611,17 @@ class Validator(object):
         self.onComplete()
 
     def onComplete(self):
-        """Perform final validations after all lines are checked.
+        """Perform final validations after all lines have been checked.
 
         Overriding methods should call this superclass method *after* their own
         validations, as it logs the message that validation was completed.
         """
-        self.checkLineBreaks()
+        self._checkLineBreaks()
         self.logger.info('Validation of file complete')
+
+    def processTopLines(self, line_list):
+        """Overide to parse any list of comment lines above the TSV header."""
+        pass
 
     def checkHeader(self, cols):
 
@@ -635,14 +639,14 @@ class Validator(object):
         self.cols = cols
         self.numCols = len(self.cols)
 
-        num_errors += self.checkRepeatedColumns()
+        num_errors += self._checkRepeatedColumns()
         num_errors += self.checkBadChar()
 
         # 'REQUIRE_COLUMN_ORDER' should have been defined by the subclass
         if self.REQUIRE_COLUMN_ORDER:  # pylint: disable=no-member
-            num_errors += self.checkOrderedRequiredColumns()
+            num_errors += self._checkOrderedRequiredColumns()
         else:
-            num_errors += self.checkUnorderedRequiredColumns()
+            num_errors += self._checkUnorderedRequiredColumns()
 
         return num_errors
 
@@ -678,7 +682,7 @@ class Validator(object):
                                   extra={'line_number': self.line_number,
                                          'column_number': col_index + 1})
 
-    def checkUnorderedRequiredColumns(self):
+    def _checkUnorderedRequiredColumns(self):
         """Check for missing column headers, independent of their position.
 
         Return the number of errors encountered.
@@ -697,7 +701,7 @@ class Validator(object):
                                         ', (...)'})
         return num_errors
 
-    def checkOrderedRequiredColumns(self):
+    def _checkOrderedRequiredColumns(self):
         """Check if the column header for each position is correct.
 
         Return the number of errors encountered.
@@ -722,7 +726,7 @@ class Validator(object):
                            'cause': self.cols[col_index]})
         return num_errors
 
-    def checkTsvDialect(self, dialect):
+    def _checkTsvDialect(self, dialect):
         """Check if a csv.Dialect subclass describes a valid cBio data file."""
         if dialect.delimiter != '\t':
             self.logger.error('Not a tab-delimited file',
@@ -733,7 +737,7 @@ class Validator(object):
                               extra={'cause': repr(dialect.quotechar)[1:-1]})
         return True
 
-    def checkLineBreaks(self):
+    def _checkLineBreaks(self):
         """Checks line breaks, reports to user."""
         # TODO document these requirements
         if "\r\n" in self.newlines:
@@ -768,7 +772,7 @@ class Validator(object):
             return False
         return True
 
-    def checkRepeatedColumns(self):
+    def _checkRepeatedColumns(self):
         num_errors = 0
         seen = set()
         for col_num, col in enumerate(self.cols):

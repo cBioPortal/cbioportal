@@ -378,6 +378,8 @@ class Jinja2HtmlHandler(logging.handlers.BufferingHandler):
         self.output_filename = output_filename
         self.max_level = logging.NOTSET
         self.closed = False
+        # get the directory name of the currently running script
+        self.template_dir = os.path.dirname(__file__)
         super(Jinja2HtmlHandler, self).__init__(*args, **kwargs)
 
     def emit(self, record):
@@ -402,10 +404,8 @@ class Jinja2HtmlHandler(logging.handlers.BufferingHandler):
         self.closed = True
         # require Jinja2 only if it is actually used
         import jinja2
-        # get the directory name of the currently running script
-        template_dir = os.path.dirname(__file__)
         j_env = jinja2.Environment(
-            loader=jinja2.FileSystemLoader(template_dir),
+            loader=jinja2.FileSystemLoader(self.template_dir),
             # trim whitespace around Jinja2 operators
             trim_blocks=True,
             lstrip_blocks=True)
@@ -520,7 +520,7 @@ class Validator(object):
     headers and a `REQUIRE_COLUMN_ORDER` boolean stating whether their
     position is significant, and may implement a processTopLines method to
     handle a list of lines prefixed with '#' before the tsv header line.
-    
+
     :param hugo_entrez_map: path Entrez to Hugo mapping file
     :param logger: logger instance for writing the log messages  
     :param meta_dict: dictionary of fields found in corresponding meta file

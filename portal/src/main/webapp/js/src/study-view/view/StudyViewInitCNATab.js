@@ -33,10 +33,10 @@
 //
 var StudyViewInitCNATab = (function(){
     var data = [];
+    var dataTable;
     
     function init(_data){
         data = _data;
-        $('#gistic_wrapper_table').hide();
         loadGisticData(StudyViewParams.params.cancerStudyId);
     }
     
@@ -53,7 +53,7 @@ var StudyViewInitCNATab = (function(){
                 ix.push([i]);
         }
 
-        var oTable = $('#gistic_table').dataTable( {
+        dataTable = $('#gistic_table').dataTable( {
             "sScrollY": "500px",
             "bPaginate": false,
             "bScrollCollapse": true,
@@ -159,27 +159,18 @@ var StudyViewInitCNATab = (function(){
             }
         });
 
-        oTable.css("width","100%");
+        dataTable.css("width","100%");
 
         $('.gistic-table-name').html(n+" copy number alteration peaks by <a href='http://www.broadinstitute.org/cancer/pub/GISTIC2/'>GISTIC2</a>");
         $('.gistic-table-name').addClass('data-table-name');
 
         $('#gistic_wrapper_table').show();
-        
-        if ($('#study-tab-cna-a').hasClass('selected')) {
-            oTable.fnAdjustColumnSizing();
-            $('#study-tab-cna-a').addClass("tab-clicked")
-        }
-        
-        $('#study-tab-cna-a').click(function(){
-            if (!$(this).hasClass("tab-clicked")) {
-                oTable.fnAdjustColumnSizing();
-                $(this).addClass("tab-clicked");
-            }
-        });
     }
     return{
-        init: init
+        init: init,
+        getDataTable: function () {
+            return dataTable;
+        } 
     };
 })();
 

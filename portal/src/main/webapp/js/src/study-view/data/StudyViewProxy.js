@@ -618,6 +618,9 @@ var StudyViewProxy = (function() {
         },
         getSampleIds: function () {
             return Object.keys(sampleToPatientMapping);
+        },
+        getAllData: function () {
+            return obtainDataObject;
         }
     };
 }());

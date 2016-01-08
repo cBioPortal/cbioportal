@@ -582,7 +582,7 @@ class Validator(object):
                 if i >= 4:
                     break
             sample_content = header_line + ''.join(first_data_lines)
-            dialect = csv.Sniffer().sniff(sample_content, '\t')
+            dialect = csv.Sniffer().sniff(sample_content)
             # sniffer assumes " if no quote character exists
             if dialect.quotechar == '"' and not (
                     dialect.delimiter + '"' in sample_content or

@@ -159,7 +159,7 @@ var StudyViewProxy = (function() {
                 for(var i= 0; i < a1[0].attributes.length; i++){
                     var caseAttr = new CaseAttr();
                     caseAttr.attr_id =  a1[0].attributes[i].attr_id.toUpperCase();
-                    if(a1[0].attributes[i].display_name){
+                    if(_.isString(a1[0].attributes[i].display_name)){
                         caseAttr.display_name = a1[0].attributes[i].display_name;
                     } else {
                         //Fallback to using ID if there is no display_name
@@ -225,7 +225,7 @@ var StudyViewProxy = (function() {
                     }
                 }
 
-                //Add new attribute MUTATIOIN COUNT for each case if have any
+                //Add new attribute MUTATION COUNT for each case if have any
                 if(Object.keys(filteredA2).length !== 0){
                     var _newAttr = new CaseAttr();
                     _newAttr.attr_id = 'MUTATION_COUNT';
@@ -255,9 +255,8 @@ var StudyViewProxy = (function() {
                     _newAttr.keys = Object.keys(_keys);
                     obtainDataObject.attr.push(_newAttr);
                 }else {
-                    var cnaLength = obtainDataObject.arr.length;
-                    for(var i = 0; i < cnaLength; i++) {
-                        if(obtainDataObject.arr[i]['MUTATION_COUNT']) {
+                    for(var i = 0, arrSize = obtainDataObject.arr.length; i < arrSize; i++) {
+                        if (!_.isUndefined(obtainDataObject.arr[i].MUTATION_COUNT)) {
                             delete obtainDataObject.arr[i].MUTATION_COUNT;
                         }
                     }
@@ -285,9 +284,8 @@ var StudyViewProxy = (function() {
                     _newAttri.keys = Object.keys(_keys);
                     obtainDataObject.attr.push(_newAttri);
                 }else {
-                    var cnaLength = obtainDataObject.arr.length;
-                    for(var i = 0; i < cnaLength; i++) {
-                        if(obtainDataObject.arr[i]['COPY_NUMBER_ALTERATIONS']) {
+                    for(var i = 0, arrSize = obtainDataObject.arr.length; i < arrSize; i++) {
+                        if(!_.isUndefined(obtainDataObject.arr[i].COPY_NUMBER_ALTERATIONS)) {
                             delete obtainDataObject.arr[i].COPY_NUMBER_ALTERATIONS;
                         }
                     }
@@ -387,16 +385,16 @@ var StudyViewProxy = (function() {
     function toPascalCase(str) {
         var arr = str.split(/\s|_/);
 //        for(var i=0,l=arr.length; i<l; i++) {
-//            arr[i] = arr[i].substr(0,1).toUpperCase() + 
+//            arr[i] = arr[i].substr(0,1).toUpperCase() +
 //                     (arr[i].length > 1 ? arr[i].substr(1).toLowerCase() : "");
-//        } 
+//        }
         return arr.join(" ");
     }
 
     function getCNAData(){
         var deferred = $.Deferred();
 
-        if(obtainDataObject.cna){
+        if(!_.isUndefined(obtainDataObject.cna)){
             deferred.resolve(obtainDataObject.cna);
         }else{
             if(hasCNA) {
@@ -464,7 +462,7 @@ var StudyViewProxy = (function() {
         if (sampleIds.length === this.getSampleIds().length) {
             return obtainDataObject.cna;
         }
-        if (obtainDataObject['cnaSampleBased']) {
+        if (!_.isUndefined(obtainDataObject.cnaSampleBased)) {
             var geneSpecific = {};
             var numOfSample = sampleIds.length;
             for (var i = 0; i < numOfSample; i++) {
@@ -532,7 +530,7 @@ var StudyViewProxy = (function() {
             if(sampleIds.length === this.getSampleIds().length) {
                 return obtainDataObject.mutatedGenes;
             }
-            if(_.isObject(obtainDataObject['mutatedGenesSampleBased'])){
+            if(_.isObject(obtainDataObject.mutatedGenesSampleBased)){
                 var geneSpecific = {};
                 var numOfSample = sampleIds.length;
                 for (var i = 0; i < numOfSample; i++) {

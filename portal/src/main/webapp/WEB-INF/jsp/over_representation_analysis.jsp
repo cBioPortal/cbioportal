@@ -6,15 +6,7 @@
 <script type="text/javascript" src="js/src/over-representation-analysis/boilerplate.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <div class="section" id="or_analysis">
-    <div id="or-analysis-info-box" style="padding: 10px;margin-top: -40px;">
-        <%--Gene Set--%>
-        <%--<select id="or_analysis_tab_gene_set_select">--%>
-            <%--<option value="cancer_genes">All Cancer Genes in cbio portal</option>--%>
-            <%--<option value="all_genes">All Genes in cbio portal</option>--%>
-        <%--</select>--%>
-        <%--<span id="enrichments-tab-gene-set-warning" style="color:grey;"></span>--%>
-        <%--<br>--%>
-    </div>
+    <div id="or-analysis-info-box" style="padding: 10px;margin-top: -40px;"></div>
     <div id="or-analysis-tabs" class="or-analysis-tabs" style="margin-top:5px;">
         <ul id='or-analysis-tabs-list'></ul>
         <div id='or-analysis-tabs-content'></div>

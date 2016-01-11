@@ -732,12 +732,14 @@ class Validator(object):
         """Check if a csv.Dialect subclass describes a valid cBio data file."""
         if dialect.delimiter != '\t':
             self.logger.error('Not a tab-delimited file',
-                              extra={'cause': repr(dialect.delimiter)[1:-1]})
+                              extra={'cause': 'delimiters of type: [%s]' %
+                                              repr(dialect.delimiter)[1:-1]})
             return False
         if dialect.quoting != csv.QUOTE_NONE:
             self.logger.error('Found quotation marks around field(s) in the first rows of the file. '
                               'Fields and values should not be surrounded by quotation marks.',
-                              extra={'cause': 'Found quotation marks of the type: [' + repr(dialect.quotechar)[1:-1] + '] '} )
+                              extra={'cause': 'quotation marks of type: [%s]' %
+                                              repr(dialect.quotechar)[1:-1]})
         return True
 
     def _checkLineBreaks(self):

@@ -567,7 +567,8 @@ class Validator(object):
                 return
 
             # parse the start-of-file comment lines
-            self.processTopLines(top_comments)
+            if not self.processTopLines(top_comments):
+                return
 
             # read five data lines to detect quotes in the tsv file
             first_data_lines = []
@@ -622,8 +623,12 @@ class Validator(object):
         self.logger.info('Validation of file complete')
 
     def processTopLines(self, line_list):
-        """Overide to parse any list of comment lines above the TSV header."""
-        pass
+        """Hook to parse any list of comment lines above the TSV header.
+
+        Return False if these lines are invalid and the file cannot be
+        parsed, True otherwise.
+        """
+        return True
 
     def checkHeader(self, cols):
 
@@ -1021,7 +1026,7 @@ class MutationsExtendedValidator(Validator):
         # TODO remove this function, it violates the MAF standard
 
         if not line_list:
-            return
+            return True
         line = line_list[0]
 
         self.headerPresent = True
@@ -1030,6 +1035,7 @@ class MutationsExtendedValidator(Validator):
         self.toplinecount += 1
         for sampleId in topline:
             self.sampleIdsHeader.add(sampleId)
+        return True
 
     def printDataInvalidStatement(self, value, col_index):
         """Prints out statement for invalid values detected."""
@@ -1225,11 +1231,51 @@ class ClinicalValidator(Validator):
     def __init__(self, *args, **kwargs):
         super(ClinicalValidator, self).__init__(*args, **kwargs)
         self.sampleIds = set()
+        self.attr_defs = []
 
     def processTopLines(self, line_list):
-        """Validate the the attribute definitions above the column header."""
-        # TODO implement this validation
-        pass
+
+        """Parse the the attribute definitions above the column header."""
+
+        if not line_list:
+            self.logger.error(
+                'No data type header comments found in clinical data file',
+                extra={'line_number': self.line_number})
+            return False
+        if len(line_list) != 5:
+            self.logger.error(
+                '%d comment lines at top of clinical data file, expected 5',
+                len(line_list))
+            return False
+
+        # remove the # signs
+        line_list = [line[1:] for line in line_list]
+
+        attr_defs = None
+        num_attrs = 0
+        csvreader = csv.reader(line_list,
+                               delimiter='\t',
+                               quoting=csv.QUOTE_NONE,
+                               strict=True)
+        for row in csvreader:
+
+            if attr_defs is None:
+                # make a list of as many lists as long as there are columns
+                num_attrs = len(row)
+                attr_defs = [[]] * num_attrs
+            elif len(row) != num_attrs:
+                self.logger.error(
+                    'Varying numbers of columns in clinical header (%d, %d)',
+                    num_attrs,
+                    len(row),
+                    extra={'line_number': csvreader.line_num})
+                return False
+
+            for index, value in enumerate(row):
+                attr_defs[index].append(value)
+
+        self.attr_defs = attr_defs
+        return True
 
     def checkHeader(self, cols):
         num_errors = super(ClinicalValidator, self).checkHeader(cols)

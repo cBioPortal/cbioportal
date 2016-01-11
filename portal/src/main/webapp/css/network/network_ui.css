@@ -606,6 +606,14 @@ table #network_wrapper{
 #relations_tab #edge_source_filter
 {
 	padding-top: 1em;
+	font-size: 9px;
+	font-weight: normal;
+}
+
+#relations_tab label
+{
+	font-size: 12px;
+	font-weight: normal;
 }
 
 /*

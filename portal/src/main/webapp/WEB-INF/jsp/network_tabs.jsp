@@ -70,7 +70,7 @@ if (includeHelpTab==null) {
 		    		<span class="slider-max"><label>MAX</label></span>
 		    		<div id="weight_slider_bar"></div>
 	    		</div>
-	    		
+
 	    		<div id="affinity_slider_area" class="hidden-network-ui">
 	    			<span class="slider-value">
 	    				<input id="affinity_slider_field" type="text" value="0.80"/>
@@ -98,7 +98,7 @@ if (includeHelpTab==null) {
 							<span class="ui-button-icon-primary ui-icon ui-icon-circle-plus"></span>
 						</button>
 					</td>
-					<td>					
+					<td>
 						<input type="text" id="search_box" value=""/>
 					</td>
 					<td>
@@ -120,7 +120,7 @@ if (includeHelpTab==null) {
 	        			</td>
 	        		</tr>
         		</table>
-			</div>			
+			</div>
 		</div>
 		<div id="gene_list_area">
 		</div>
@@ -131,76 +131,6 @@ if (includeHelpTab==null) {
 	        	<tr class="edge-type-header">
 	        		<td>
 	        			<label class="heading">Type:</label>
-	        		</td>
-	        	</tr>
-	        	<tr class="in-same-component">
-		        	<td class="edge-type-checkbox">
-		        		<input id="in_same_component_check" type="checkbox" checked="checked">
-		        		<label>In Same Component</label>
-		        	</td>
-	        	</tr>
-	        	<tr class="in-same-component">
-	        		<td>
-	        			<div class="percent-bar"></div>	        			
-	        		</td>
-	        		<td>
-	        			<div class="percent-value"></div>
-	        		</td>
-	        	</tr>
-	        	<tr class="reacts-with">
-		        	<td class="edge-type-checkbox">
-		        		<input id="reacts_with_check" type="checkbox" checked="checked">
-		        		<label>Reacts with</label>
-		        	</td>
-	        	</tr>
-	        	<tr class="reacts-with">
-	        		<td>
-	        			<div class="percent-bar"></div>	        			
-	        		</td>
-	        		<td>
-	        			<div class="percent-value"></div>
-	        		</td>
-	        	</tr>
-	        	<tr class="state-change">
-		        	<td class="edge-type-checkbox">
-		        		<input id="state_change_check" type="checkbox" checked="checked">
-		        		<label>State Change</label>
-		        	</td>
-	        	</tr>
-	        	<tr class="state-change">
-	        		<td>
-	        			<div class="percent-bar"></div>
-	        		</td>
-	        		<td>
-	        			<div class="percent-value"></div>
-	        		</td>
-	        	</tr>
-	        	<tr class="targeted-by-drug">
-		        	<td class="edge-type-checkbox">
-		        		<input id="targeted_by_drug_check" type="checkbox" checked="checked">
-		        		<label>Targeted by Drug</label>
-		        	</td>
-	        	</tr>
-	        	<tr class="targeted-by-drug">
-	        		<td>
-	        			<div class="percent-bar"></div>	        			
-	        		</td>
-	        		<td>
-	        			<div class="percent-value"></div>
-	        		</td>
-	        	</tr>
-	        	<tr class="other">
-		        	<td class="edge-type-checkbox">
-		        		<input id="other_check" type="checkbox" checked="checked">
-		        		<label>Other</label>
-		        	</td>
-	        	</tr>
-	        	<tr class="other">
-	        		<td>
-	        			<div class="percent-bar"></div>	        			
-	        		</td>
-	        		<td>
-	        			<div class="percent-value"></div>
 	        		</td>
 	        	</tr>
 	        </table>
@@ -218,7 +148,7 @@ if (includeHelpTab==null) {
         			<td>
         				<label class="button-text">Update</label>
         			</td>
-        			<td> 
+        			<td>
         				<button id="update_edges" class="tabs-button" title="Update">
 					        <span class="ui-button-icon-primary ui-icon ui-icon-refresh"></span>
         				</button>

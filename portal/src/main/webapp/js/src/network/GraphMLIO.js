@@ -108,8 +108,6 @@ GraphMLToJSon.prototype.processEdge = function (theEdge)
     source = source.replace(/[ ,'-]/g, "_");
     target = target.replace(/[ ,'-]/g, "_");
 
-    console.log(source +" " + target);
-
     cyData.id = id;
     cyData.source = source;
     cyData.target = target;
@@ -150,7 +148,6 @@ GraphMLToJSon.prototype.processNode = function (theNode, pid)
 
   //TODO WORKAROUND TO SOLVE Cytoscape.js problem where ids with spaces are not accepted
   id = id.replace(/[ ,'-]/g, "_");
-  console.log(id);
 
   var nodeData = $(theNode).children('data');
   var cyData = {};

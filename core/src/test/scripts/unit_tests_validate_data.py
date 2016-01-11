@@ -62,6 +62,7 @@ class ValidateDataTester(unittest.TestCase):
         for error in logger.handlers[0].buffer:
             self.assertEqual("ERROR", error.levelname)
             self.assertEqual("_checkOrderedRequiredColumns", error.funcName)
+        logger.handlers[0].buffer = []
 
     def test_column_order_validation_ClinicalValidator(self):
         '''
@@ -87,18 +88,30 @@ class ValidateDataTester(unittest.TestCase):
         validator.validate()
         # again, we expect no errors or warnings
         self.assertEqual(0, len(logger.handlers[0].buffer))
+        logger.handlers[0].buffer = []
 
 
 class LogBufferTestCase(unittest.TestCase):
 
+    '''Superclass for testcases that want to capture log records emitted.
+
+    Defines a self.logger to log to, and a method get_log_records() to
+    collect the list of LogRecords emitted by this logger. In addition,
+    defines a function print_log_records to format a list of LogRecords
+    to standard output.
+    '''
+
     def setUp(self):
+        '''Set up a logger with a buffering handler.'''
         self.logger = logging.getLogger(self.__class__.__name__)
         self.logger.setLevel(logging.INFO)
         handler = logging.handlers.BufferingHandler(capacity=1e6)
+        self.orig_handlers = self.logger.handlers
         self.logger.handlers = [handler]
 
     def tearDown(self):
-        self.logger.handlers = []
+        '''Remove the logger handler (and any buffer it may have).'''
+        self.logger.handlers = self.orig_handlers
 
     def get_log_records(self):
         '''Get the log records written to the logger since the last call.'''
@@ -108,7 +121,12 @@ class LogBufferTestCase(unittest.TestCase):
 
     @staticmethod
     def print_log_records(record_list):
-        '''Pretty-print a list of log records to standard output.'''
+        '''Pretty-print a list of log records to standard output.
+
+        This can be used if, while writing unit tests, you want to see
+        what the messages currently are. The final unit tests committed
+        to version control should not print log messages.
+        '''
         formatter = validateData.LogfileStyleFormatter()
         for record in record_list:
             print formatter.format(record)
@@ -116,20 +134,29 @@ class LogBufferTestCase(unittest.TestCase):
 
 class DataFileTestCase(LogBufferTestCase):
 
+    '''Superclass for testcases validating a particular data file.
+
+    Provides a validate() method to validate the data file with a
+    particular validator class and collect the log records emitted.
+    '''
+
     def setUp(self):
+        '''Set up for validating a file in the test_data directory.'''
         super(DataFileTestCase, self).setUp()
         self.orig_study_dir = validateData.STUDY_DIR
         validateData.STUDY_DIR = 'test_data'
 
     def tearDown(self):
-        super(DataFileTestCase, self).tearDown()
+        '''Restore the environment to before setUp() was called.'''
         validateData.STUDY_DIR = self.orig_study_dir
+        super(DataFileTestCase, self).tearDown()
 
-    def validate(self, data_filename, ValidatorClass, extra_meta_fields=None):
+    def validate(self, data_filename, validator_class, extra_meta_fields=None):
+        '''Validate a file with a Validator and return the log records.'''
         meta_dict = {'data_file_path': data_filename}
         if extra_meta_fields is not None:
             meta_dict.update(extra_meta_fields)
-        validator = ValidatorClass(hugo_entrez_map, self.logger, meta_dict)
+        validator = validator_class(hugo_entrez_map, self.logger, meta_dict)
         validator.validate()
         return self.get_log_records()
 
@@ -139,31 +166,41 @@ class ClinicalColumnDefsTestCase(DataFileTestCase):
     '''Tests for validations of the column definitions in a clinical file.'''
 
     def test_correct_definitions(self):
+        '''Test when all record definitions match with portal.'''
         record_list = self.validate('data_clin_coldefs_correct.txt',
                                     validateData.ClinicalValidator)
+        # expecting two info messages only
         self.assertEqual(len(record_list), 2)
         for record in record_list:
             self.assertEqual(record.levelno, logging.INFO)
 
-    def test_wrong_displayname(self):
+    def test_wrong_definitions(self):
+        '''Test when record definitions do not match with portal.'''
         record_list = self.validate('data_clin_coldefs_wrong_display_name.txt',
                                     validateData.ClinicalValidator)
+        # expecting two info messages in addition to the errors
         self.assertEqual(len(record_list), 3)
+        # error about the display name of OS_MONTHS
         self.assertEqual(record_list[1].levelno, logging.ERROR)
-        self.assertEqual(record_list[1].column_number, 4)
         self.assertEqual(record_list[1].line_number, 1)
+        self.assertEqual(record_list[1].column_number, 4)
 
     def test_unknown_attribute(self):
+        '''Test when a new attribute is defined in the data file.'''
         record_list = self.validate('data_clin_coldefs_unknown_attribute.txt',
                                     validateData.ClinicalValidator)
+        # expecting two info messages only
         self.assertEqual(len(record_list), 2)
         for record in record_list:
             self.assertEqual(record.levelno, logging.INFO)
 
-    def test_invalid_priority(self):
+    def test_invalid_definitions(self):
+        '''Test when new attributes are defined with invalid properties.'''
         record_list = self.validate('data_clin_coldefs_invalid_priority.txt',
                                     validateData.ClinicalValidator)
+        # expecting two info messages in addition to the errors
         self.assertEqual(len(record_list), 3)
+        # error about the non-numeric priority of the SAUSAGE column
         self.assertEqual(record_list[1].levelno, logging.ERROR)
         self.assertEqual(record_list[1].column_number, 4)
         self.assertEqual(record_list[1].line_number, 5)

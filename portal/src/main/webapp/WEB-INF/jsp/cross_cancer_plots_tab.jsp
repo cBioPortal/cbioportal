@@ -38,7 +38,7 @@
     }
 
     #cc-plots-sidebar {
-        height: 25px;
+        height: 45px;
         width: 1160px;
     }
 
@@ -80,15 +80,16 @@
             <span id="cc_plots_gene_list_select" onchange="ccPlots.update_gene();">
                 <select id="cc_plots_gene_list"></select>
             </span>
-            <h5>Log Scale</h5>
-            <input type="checkbox" id="cc_plots_log_scale" onchange="ccPlots.toggle_log_scale()" checked/>
             <h5>Download</h5>
             <button id='cc_plots_svg_download'>SVG</button>
             <button id='cc_plots_pdf_download'>PDF</button>
             <button id='cc_plots_data_download'>Data</button>
             <h5>Sort By</h5>
-            <input type="radio" name="cc_plots_profile_order_opt" onchange="ccPlots.update_profile_order()" value="alphabetic" checked/> Alphabetical
+            <input type="radio" name="cc_plots_profile_order_opt" onchange="ccPlots.update_profile_order()" value="alphabetic" checked/> Cancer Study
             <input type="radio" name="cc_plots_profile_order_opt" onchange="ccPlots.update_profile_order()" value="median"/> Median
+            <br>
+            <h5>Log Scale</h5>
+            <input type="checkbox" id="cc_plots_log_scale" onchange="ccPlots.toggle_log_scale()" checked/>
             <h5>Show Mutations</h5>
             <input type="checkbox" id="cc_plots_show_mut" onchange="ccPlots.toggle_show_mut()" checked/>
             <h5>Show Sequenced Samples Only</h5>

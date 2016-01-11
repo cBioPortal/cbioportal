@@ -188,8 +188,7 @@
         $("#tabs").bind("tabsactivate", function(event, ui) {
         	tabsUpdate();
         });
-    });    
-    
+    });
 </script>
 
 

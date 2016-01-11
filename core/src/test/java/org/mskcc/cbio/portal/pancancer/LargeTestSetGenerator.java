@@ -156,20 +156,25 @@ public class LargeTestSetGenerator {
 		FileWriter resultFile = new FileWriter(outputDir + "/data_clinical.txt");
 		//write header, with CANCER_TYPE, CANCER_TYPE_DETAILED in pos 3 and 4:
 		if (nrSubTypes > 0) {
-			resultFile.write("#1\t1\t1\t\t\t1\t1\t1\t1\n");
-			resultFile.write("#PATIENT\tSAMPLE\tSAMPLE\tSAMPLE\tSAMPLE\tPATIENT\tPATIENT\tPATIENT\tPATIENT\n");
+			//Display Name: The display name for each clinical attribute.
 			resultFile.write("#Patient Identifier\t#Sample Identifier\tSubtype\tCancer Type\tCancer Type Detailed\tOverall Survival Status\tOverall Survival (Months)\tDisease Free Status\tDisease Free (Months)\n");
+			//Description: Long(er) description of each clinical attribute.
 			resultFile.write("#Patient identifier\t#Sample identifier\tSubtype description\tCancer Type\tCancer Type Detailed\tOverall survival status\tOverall survival in months since diagnosis\tDisease free status\tDisease free in months since treatment\n");
+			//Datatype: The datatype of each clinical attribute (must be one of: STRING, NUMBER, BOOLEAN).
 			resultFile.write("#STRING\t#STRING\tSTRING\tSTRING\tSTRING\tSTRING\tNUMBER\tSTRING\tNUMBER\n");
+			//Attribute Type: The type of each clinical attribute, e.g. should this attribute be attached to a PATIENT or SAMPLE.
+			resultFile.write("#PATIENT\tSAMPLE\tSAMPLE\tSAMPLE\tSAMPLE\tPATIENT\tPATIENT\tPATIENT\tPATIENT\n");
+			//Priority: A number which indicates the importance of each attribute. In the future, higher priority attributes will appear in more prominent places than lower priority ones on relevant pages. A lower number indicates a higher priority.
+			resultFile.write("#1\t1\t1\t\t\t1\t1\t1\t1\n");
 			resultFile.write("PATIENT_ID\tSAMPLE_ID\tSUBTYPE\tCANCER_TYPE\tCANCER_TYPE_DETAILED\tOS_STATUS\tOS_MONTHS\tDFS_STATUS\tDFS_MONTHS\n");
 		}
 		else {
 			//shorter, without CANCER_TYPE_DETAILED
-			resultFile.write("#1\t1\t1\t\t\t1\t1\t1\n");
-			resultFile.write("#PATIENT\tSAMPLE\tSAMPLE\tSAMPLE\tPATIENT\tPATIENT\tPATIENT\tPATIENT\n");
 			resultFile.write("#Patient Identifier\t#Sample Identifier\tSubtype\tCancer Type\tOverall Survival Status\tOverall Survival (Months)\tDisease Free Status\tDisease Free (Months)\n");
 			resultFile.write("#Patient identifier\t#Sample identifier\tSubtype description\tCancer Type\tOverall survival status\tOverall survival in months since diagnosis\tDisease free status\tDisease free in months since treatment\n");
 			resultFile.write("#STRING\t#STRING\tSTRING\tSTRING\tSTRING\tNUMBER\tSTRING\tNUMBER\n");
+			resultFile.write("#PATIENT\tSAMPLE\tSAMPLE\tSAMPLE\tPATIENT\tPATIENT\tPATIENT\tPATIENT\n");
+			resultFile.write("#1\t1\t1\t\t\t1\t1\t1\n");
 			resultFile.write("PATIENT_ID\tSAMPLE_ID\tSUBTYPE\tCANCER_TYPE\tOS_STATUS\tOS_MONTHS\tDFS_STATUS\tDFS_MONTHS\n");
 		}
 		

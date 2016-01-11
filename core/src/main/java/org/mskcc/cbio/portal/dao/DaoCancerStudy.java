@@ -554,9 +554,7 @@ public final class DaoCancerStudy {
             JdbcUtil.closeAll(DaoCancerStudy.class, con, pstmt, rs);
         }
         System.out.print("delete a study "+internalCancerStudyId);
-        if (GlobalProperties.getRecacheStudyAfterUpdate()) {           
-            reCacheAll(System.currentTimeMillis());
-        }
+        reCacheAll(System.currentTimeMillis());
     }
 
     /**

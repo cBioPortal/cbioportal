@@ -377,13 +377,6 @@ cbio.util = (function() {
      */
     function addTargetedQTip(target, qTipOpts) {
         if(target) {
-            var opts = {
-                show: {ready: true},
-                hide: {fixed: true, delay: 100},
-                style: {classes: 'qtip-light qtip-rounded qtip-shadow', tip: true},
-                position: {my: 'top left', at: 'bottom right', viewport: $(window)}
-            };
-
 	        // check if target[0] is SVG
 	        if (target[0] && target[0].ownerSVGElement)
 	        {
@@ -395,13 +388,25 @@ cbio.util = (function() {
 		        target = target[0][0];
 	        }
 
-            jQuery.extend(true, opts, qTipOpts);
-            $(target).one('mouseenter', function () {
-                $(this).qtip(opts);
-            });
+            $(target).off('mouseenter', qTipMouseEnterHandler);
+            $(target).one('mouseenter', {qTipOpts: qTipOpts}, qTipMouseEnterHandler);
         } else {
             console.error('qTip target is not defined.');
         }
+    }
+
+    function qTipMouseEnterHandler(event) {
+        var opts = {
+            show: {ready: true},
+            hide: {fixed: true, delay: 100},
+            style: {classes: 'qtip-light qtip-rounded qtip-shadow', tip: true},
+            position: {my: 'top left', at: 'bottom right', viewport: $(window)}
+        };
+
+        var qTipOpts = event.data.qTipOpts;
+        jQuery.extend(true, opts, qTipOpts);
+
+        $(this).qtip(opts);
     }
 
     return {

@@ -70,13 +70,14 @@ var orPlots = (function() {
 		for (var i=0; i<sample_ids.length; i++) {
 			order[sample_ids[i]] = i;
 		}
-		var oncoprintData = _.sort(data, function(d) { return order[d.sample];});
+		var oncoprintData = _.sortBy(data, function(d) { return order[d.sample];});
 		dotsArr = [];
 		dotsArr.length = 0;
 		window.QuerySession.getAlteredSamples().then(function(altered_sample_ids) {
 			$.each(Object.keys(result[gene]), function(index, _sampleId) {
 			    var _obj = result[gene][_sampleId];
 			    var _datum = {};
+			    _datum.alteration = "";
 			    if (!isNaN(_obj[profile_id])) {
 				if ($.inArray(_sampleId, altered_sample_ids) !== -1) { //sample is altered
 				    _datum.x_val = 0;
@@ -91,44 +92,45 @@ var orPlots = (function() {
 				_datum.case_id = _sampleId;
 				if ($.inArray(_sampleId, altered_sample_ids) !== -1) { //sample is altered
 
-				    $.each(oncoprintData, function(outer_index, outer_obj) {
-					$.each(outer_obj.values, function(inner_key, inner_obj) {
+					//iterate over items (alteration info for each gene in each sample):
+				    $.each(oncoprintData, function(inner_key, inner_obj) {
+				    	//if sample is the current sample, then analyze alterations:
 					    if (_sampleId === inner_obj.sample) {
-						var _str = "";
-						if (inner_obj.hasOwnProperty("mutation")) {
-						    _str += " MUT;";
-						}
-						if (inner_obj.hasOwnProperty("cna")) {
-						    if (inner_obj.cna === "AMPLIFIED") {
-							_str += " AMP;";
-						    } else if (inner_obj.cna === "GAINED") {
-							_str += " GAIN;";
-						    } else if (inner_obj.cna === "HEMIZYGOUSLYDELETED") {
-							_str += " HETLOSS;";
-						    } else if (inner_obj.cna === "HOMODELETED") {
-							_str += " HOMDEL;";
-						    }
-						}
-						if (inner_obj.hasOwnProperty("mrna")) {
-						    if (inner_obj.mrna === "UPREGULATED") {
-							_str += " UP;";
-						    } else if (inner_obj.mrna === "DOWNREGULATED") {
-							_str += " DOWN;";
-						    }
-						}
-						if (inner_obj.hasOwnProperty("rppa")) {
-						    if (inner_obj.rppa === "UPREGULATED") {
-							_str += " RPPA-UP;";
-						    } else if (inner_obj.rppa === "DOWNREGULATED") {
-							_str += " RPPA-DOWN;";
-						    }
-						}
-						if (_str !== "") {
-						    _str = inner_obj.gene + ":" + _str;
-						    _datum.alteration = _str;
-						}
+					    	var _str = "";
+							if (inner_obj.hasOwnProperty("mutation")) {
+							    _str += " MUT;";
+							}
+							if (inner_obj.hasOwnProperty("cna")) {
+							    if (inner_obj.cna === "AMPLIFIED") {
+								_str += " AMP;";
+							    } else if (inner_obj.cna === "GAINED") {
+								_str += " GAIN;";
+							    } else if (inner_obj.cna === "HEMIZYGOUSLYDELETED") {
+								_str += " HETLOSS;";
+							    } else if (inner_obj.cna === "HOMODELETED") {
+								_str += " HOMDEL;";
+							    }
+							}
+							if (inner_obj.hasOwnProperty("mrna")) {
+							    if (inner_obj.mrna === "UPREGULATED") {
+								_str += " UP;";
+							    } else if (inner_obj.mrna === "DOWNREGULATED") {
+								_str += " DOWN;";
+							    }
+							}
+							if (inner_obj.hasOwnProperty("rppa")) {
+							    if (inner_obj.rppa === "UPREGULATED") {
+								_str += " RPPA-UP;";
+							    } else if (inner_obj.rppa === "DOWNREGULATED") {
+								_str += " RPPA-DOWN;";
+							    }
+							}
+							if (_str !== "") {
+							    _str = inner_obj.gene + ":" + _str;
+							    //record all alterations found for this sample:
+							    _datum.alteration += _str;
+							}
 					    }
-					});
 				    });
 				}
 				dotsArr.push(_datum);
@@ -403,39 +405,32 @@ var orPlots = (function() {
                     content += "Alteration(s): " + d.alteration;
                 }
                 content = content + "</font>";
-
-                $(this).qtip(
-                    {
-                        content: {text: content},
-                        style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
-                        show: {event: "mouseover"},
-                        hide: {fixed:true, delay: 100, event: "mouseout"},
-                        position: {my:'left bottom',at:'top right', viewport: $(window)}
-                    }
-                );
-
-                var mouseOn = function() {
-                    var dot = d3.select(this);
-                    dot.transition()
-                        .ease("elastic")
-                        .duration(600)
-                        .delay(100)
-                        .attr("d", d3.svg.symbol().size(200).type("circle"));
-                };
-
-                var mouseOff = function() {
-                    var dot = d3.select(this);
-                    dot.transition()
-                        .ease("elastic")//TODO: default d3 symbol is circle (coincidence!)
-                        .duration(600)
-                        .delay(100)
-                        .attr("d", d3.svg.symbol().size(20).type("circle"));
-                };
-                elem.dotsGroup.selectAll("path").on("mouseover", mouseOn);
-                elem.dotsGroup.selectAll("path").on("mouseout", mouseOff);
+                //make qtip for an element on first mouseenter:
+            	cbio.util.addTargetedQTip($(this), { content: {text: content} });
             }
         );
 
+		//Add nice resize effect when item is hovered:
+        var mouseOn = function() {
+            var dot = d3.select(this);
+            dot.transition()
+                .ease("elastic")
+                .duration(600)
+                .delay(100)
+                .attr("d", d3.svg.symbol().size(200).type("circle"));
+        };
+
+        var mouseOff = function() {
+            var dot = d3.select(this);
+            dot.transition()
+                .ease("elastic")//TODO: default d3 symbol is circle (coincidence!)
+                .duration(600)
+                .delay(100)
+                .attr("d", d3.svg.symbol().size(20).type("circle"));
+        };
+        elem.dotsGroup.selectAll("path").on("mouseover", mouseOn);
+        elem.dotsGroup.selectAll("path").on("mouseout", mouseOff);
+        
     };
 
 

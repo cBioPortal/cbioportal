@@ -46,7 +46,7 @@ TIMELINE_META_PATTERN = 'meta_timeline'
 META_TYPE_TO_META_DICT = {}
 DEFINED_SAMPLE_IDS = ()
 STUDY_DIR = ''
-
+SERVER_URL = 'http://localhost/cbioportal'
 
 META_FILE_PATTERNS = [
     STUDY_META_PATTERN,
@@ -186,7 +186,7 @@ CASE_LIST_FIELDS = {
     'case_list_name': True,
     'case_list_description': True,
     'case_list_ids': True,
-    # TODO: define 'case_list_category' when optional meta fields are supported
+    'case_list_category': False
 }
 
 CLINICAL_META_FIELDS = {
@@ -753,7 +753,7 @@ class Validator(object):
             self.logger.error('No line breaks recognized in file',
                               extra={'cause': repr(self.newlines)[1:-1]})
 
-    def checkInt(self,value):
+    def checkInt(self, value):
         """Checks if a value is an integer."""
         try:
             int(value)
@@ -1485,30 +1485,30 @@ def processCaseListDirectory(caseListDir, cancerStudyId, logger):
 
     logger.info('Validation of case lists complete')
 
-def get_hugo_entrez_map(server_url):
+
+def request_from_portal_api(service_url, logger):
+    """Send a request to the portal API and return the decoded JSON object."""
+    if logger.isEnabledFor(logging.INFO):
+        url_split = service_url.split('/api/', 1)
+        logger.info("Requesting %s from portal at '%s'",
+                    url_split[1], url_split[0])
+    response = requests.get(service_url)
+    response.raise_for_status()
+    return response.json()
+
+
+def get_hugo_entrez_map(server_url, logger):
     '''
     Returns a dict with hugo symbols and respective entrezId, e.g.:
     # dict: {'LOC105377913': '105377913', 'LOC105377912': '105377912',  hugo: entrez, hugo: entrez...
     '''
-    try:
-        service = server_url + "/api/genes"
-        response = requests.get(service)
-        if response.status_code != 200:
-            raise Exception( "Connection error for URL: " + server_url + 
-                             ". Got response: " + str(response.status_code) + " for service " + service)
-        
-        json_data = json.loads(response.text)
-        # json_data is list of dicts, each entry containing e.g. dict: {'hugo_gene_symbol': 'SRXN1', 'entrez_gene_id': '140809'}
-        # We want to transform this to the format dict: {hugo: entrez, hugo: entrez...
-        result_dict = {}
-        for data_item in json_data:
-            result_dict[data_item['hugo_gene_symbol']] = data_item['entrez_gene_id']
-        
-        return result_dict
-        
-    except Exception, e:
-        raise Exception( "Connection error for URL: " + server_url + 
-                         ". Administrator: please check if [" + server_url + "] is accessible. Message: " + str(e.message))
+    json_data = request_from_portal_api(server_url + '/api/genes', logger)
+    # json_data is list of dicts, each entry containing e.g. dict: {'hugo_gene_symbol': 'SRXN1', 'entrez_gene_id': '140809'}
+    # We want to transform this to the format dict: {hugo: entrez, hugo: entrez...
+    result_dict = {}
+    for data_item in json_data:
+        result_dict[data_item['hugo_gene_symbol']] = data_item['entrez_gene_id']
+    return result_dict
 
 
 # ------------------------------------------------------------------------------
@@ -1516,8 +1516,10 @@ def interface(args=None):
     parser = argparse.ArgumentParser(description='cBioPortal meta Validator')
     parser.add_argument('-s', '--study_directory', type=str, required=True,
                         help='path to directory.')
-    parser.add_argument('-u', '--url_server', type=str, required=False, default='http://localhost/cbioportal',
-                        help='(optional) URL to cBioPortal server. You can set this if your URL is other then http://localhost/cbioportal')
+    parser.add_argument('-u', '--url_server', type=str, required=False,
+                        default='http://localhost/cbioportal',
+                        help='URL to cBioPortal server. You can set this if '
+                             'your URL is not http://localhost/cbioportal')
     parser.add_argument('-html', '--html_table', type=str, required=False,
                         help='path to html report output file')
     parser.add_argument('-v', '--verbose', required=False, action="store_true",
@@ -1589,14 +1591,11 @@ def main_validate(args):
             collapsing_html_handler.setLevel(logging.ERROR)
         logger.addHandler(collapsing_html_handler)
 
-
-    hugo_entrez_map = get_hugo_entrez_map(SERVER_URL)
+    hugo_entrez_map = get_hugo_entrez_map(SERVER_URL, logger)
 
     # Get all files in study_dir
     filenames = [os.path.join(STUDY_DIR, x) for x in os.listdir(STUDY_DIR)]
     cancerStudyId = ''
-    filenameMetaStringCheck = ''
-    filenameStringCheck = ''
 
     # Create validators based on meta files
     validators = []
@@ -1623,7 +1622,6 @@ def main_validate(args):
                 else:
                     META_TYPE_TO_META_DICT[meta_file_type] = [meta]
 
-
     if CLINICAL_META_PATTERN not in META_TYPE_TO_META_DICT:
         logger.error('No clinical file detected')
         return exit_status_handler.get_exit_status()
@@ -1632,7 +1630,7 @@ def main_validate(args):
         if logger.isEnabledFor(logging.ERROR):
             logger.error(
                 'Multiple clinical files detected',
-                extra={'cause':', '.join(
+                extra={'cause': ', '.join(
                     getFileFromFilepath(f[1]) for f in
                     META_TYPE_TO_META_DICT[CLINICAL_META_PATTERN])})
 

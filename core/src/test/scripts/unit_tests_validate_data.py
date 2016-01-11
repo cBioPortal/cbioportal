@@ -17,6 +17,17 @@ from uuid import uuid4
 hugo_mapping_file = 'test_data/Homo_sapiens.gene_info.gz'
 ncbi_file = open(hugo_mapping_file)
 hugo_entrez_map = parse_ncbi_file(ncbi_file)
+# hard-code known clinical attributes
+KNOWN_PATIENT_ATTRS = {
+    "PATIENT_ID": {"display_name":"Patient Identifier","description":"Identifier to uniquely specify a patient.","datatype":"STRING","is_patient_attribute":"1","priority":"1"},
+    "OS_STATUS": {"display_name":"Overall Survival Status","description":"Overall patient survival status.","datatype":"STRING","is_patient_attribute":"1","priority":"1"},
+    "OS_MONTHS": {"display_name":"Overall Survival (Months)","description":"Overall survival in months since initial diagonosis.","datatype":"NUMBER","is_patient_attribute":"1","priority":"1"},
+    "DFS_STATUS": {"display_name":"Disease Free Status","description":"Disease free status since initial treatment.","datatype":"STRING","is_patient_attribute":"1","priority":"1"},
+    "DFS_MONTHS": {"display_name":"Disease Free (Months)","description":"Disease free (months) since initial treatment.","datatype":"NUMBER","is_patient_attribute":"1","priority":"1"}
+}
+KNOWN_SAMPLE_ATTRS = {
+    "SAMPLE_ID": {"display_name":"Sample Identifier","description":"A unique sample identifier.","datatype":"STRING","is_patient_attribute":"0","priority":"1"},
+}
 
 
 def getNewLogger():
@@ -145,10 +156,17 @@ class DataFileTestCase(LogBufferTestCase):
         super(DataFileTestCase, self).setUp()
         self.orig_study_dir = validateData.STUDY_DIR
         validateData.STUDY_DIR = 'test_data'
+        # hard-code known clinical attributes instead of contacting a portal
+        self.orig_srv_patient_attrs = validateData.ClinicalValidator.srv_patient_attrs
+        validateData.ClinicalValidator.srv_patient_attrs = KNOWN_PATIENT_ATTRS
+        self.orig_srv_sample_attrs = validateData.ClinicalValidator.srv_sample_attrs
+        validateData.ClinicalValidator.srv_sample_attrs = KNOWN_SAMPLE_ATTRS
 
     def tearDown(self):
         '''Restore the environment to before setUp() was called.'''
         validateData.STUDY_DIR = self.orig_study_dir
+        validateData.ClinicalValidator.srv_patient_attrs = self.orig_srv_patient_attrs
+        validateData.ClinicalValidator.srv_sample_attrs = self.orig_srv_sample_attrs
         super(DataFileTestCase, self).tearDown()
 
     def validate(self, data_filename, validator_class, extra_meta_fields=None):

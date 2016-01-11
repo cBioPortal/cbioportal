@@ -18,7 +18,6 @@ import argparse
 import re
 import csv
 import itertools
-import json
 import requests
 
 
@@ -1228,6 +1227,9 @@ class ClinicalValidator(Validator):
     ]
     REQUIRE_COLUMN_ORDER = False
 
+    srv_sample_attrs = None
+    srv_patient_attrs = None
+
     def __init__(self, *args, **kwargs):
         super(ClinicalValidator, self).__init__(*args, **kwargs)
         self.sampleIds = set()
@@ -1278,14 +1280,27 @@ class ClinicalValidator(Validator):
         return True
 
     def checkHeader(self, cols):
+
         num_errors = super(ClinicalValidator, self).checkHeader(cols)
+
         for col_name in self.cols:
             if not col_name.isupper():
                 self.logger.warning(
                     "Clinical header not in all caps",
                     extra={'line_number': self.line_number,
                            'cause': col_name})
-        self.cols = [s.upper() for s in self.cols]
+
+        if self.numCols != len(self.attr_defs):
+            self.logger.error(
+                'Varying numbers of columns in clinical header (%d, %d)',
+                len(self.attr_defs),
+                len(self.cols),
+                extra={'line_number': self.line_number})
+            num_errors += 1
+        self.request_attrs(self.logger.logger)
+        for index, col_name in enumerate(self.cols):
+            pass  # TODO implement validations for self.attr_defs
+
         return num_errors
 
     def checkLine(self, data):
@@ -1300,6 +1315,32 @@ class ClinicalValidator(Validator):
                                'column_number': col_index + 1,
                                'cause': value})
                 self.sampleIds.add(value.strip())
+
+    @classmethod
+    def request_attrs(cls, logger):
+        '''Set cls.srv_sample_attrs and cls.srv_patient_attrs from portal.'''
+        if cls.srv_sample_attrs is None:
+            cls.srv_sample_attrs = cls._request_attrs(SERVER_URL +
+                                                      '/api/samples',
+                                                      logger)
+        if cls.srv_patient_attrs is None:
+            cls.srv_patient_attrs = cls._request_attrs(SERVER_URL +
+                                                       '/api/patients',
+                                                       logger)
+
+    @classmethod
+    def _request_attrs(cls, service_url, logger):
+        '''Request attribute definitions from a portal API url
+
+        And return as a dict indexed by attribute ID (column header).
+        '''
+        json_data = request_from_portal_api(service_url, logger)
+        attr_dict = {}
+        for attr in json_data:
+            attr_without_id = dict(attr)
+            del attr_without_id['attr_id']
+            attr_dict[attr['attr_id']] = attr_without_id
+        return attr_dict
 
 
 class SegValidator(Validator):
@@ -1541,7 +1582,13 @@ def request_from_portal_api(service_url, logger):
         logger.info("Requesting %s from portal at '%s'",
                     url_split[1], url_split[0])
     response = requests.get(service_url)
-    response.raise_for_status()
+    try:
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as e:
+        raise IOError(
+            'Connection error for URL: {url}. Administrator: please check if '
+            '[{url}] is accessible. Message: {msg}'.format(url=service_url,
+                                                           msg=e.message))
     return response.json()
 
 

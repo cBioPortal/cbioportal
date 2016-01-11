@@ -2,7 +2,7 @@
 #Patient identifier	Sample identifier	Overall survival in months since diagnosis	Overall survival status	Disease free in months since treatment	Disease free status	Baked beans
 #STRING	STRING	NUMBER	STRING	NUMBER	STRING	STRING
 #PATIENT	SAMPLE	PATIENT	PATIENT	PATIENT	PATIENT	SAMPLE
-#1	1	1	1	1	1	42
+#1	1	1	1	1	1	tomato
 PATIENT_ID	SAMPLE_ID	OS_MONTHS	OS_STATUS	DFS_MONTHS	DFS_STATUS	SAUSAGE
 TEST-PAT1	TEST-PAT1-SAMPLE1	272	LIVING	272	Recurred/Progressed	Spam
 TEST-PAT1	TEST-PAT1-SAMPLE2	208	LIVING	208	Recurred/Progressed	Spam

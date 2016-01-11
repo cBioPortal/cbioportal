@@ -621,6 +621,7 @@
                                 });
 
                             var genes = _.last(histData).genes;
+                            window.ccQueriedGenes =  genes;
                             var numOfGenes = genes.length;
                             var numOfStudies = histData.length;
 

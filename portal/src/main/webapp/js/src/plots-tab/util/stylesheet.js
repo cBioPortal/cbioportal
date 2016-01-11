@@ -61,7 +61,7 @@ var mutationStyle = (function() {  //Key and "typeName" are always identical
         symbol : "circle",
         fill : "#00AAF8",
         stroke : "#0089C6",
-        legendText : "No mutation"
+        legendText : "Not mutated"
     },
     {
         typeName: "one_mut",
@@ -88,12 +88,19 @@ var mutationStyle = (function() {  //Key and "typeName" are always identical
         typeName: "non_sequenced",
         symbol : "circle",
         fill : "white",
-        stroke : "#0089C6",
+        stroke : "gray",
         legendText : "Not sequenced"
+    },
+    {
+        typeName : "clin_clin",
+        symbol : "circle",
+        fill : "#00AAF8",
+        stroke : "grey",
+        opacity: 0.6
     }
 
 ];
-    
+
     return {
         getSymbol: function(_typeName) {
             var _result = "";
@@ -101,7 +108,7 @@ var mutationStyle = (function() {  //Key and "typeName" are always identical
                 if (obj.typeName === _typeName) {
                     _result = obj.symbol;
                 }
-            });            
+            });
             return _result;
         },
         getFill: function(_typeName) {
@@ -109,6 +116,15 @@ var mutationStyle = (function() {  //Key and "typeName" are always identical
             $.each(styleSheet, function(index, obj) {
                 if (obj.typeName === _typeName) {
                     _result = obj.fill;
+                }
+            });
+            return _result;
+        },
+        getOpacity: function(_typeName) {
+            var _result = "";
+            $.each(styleSheet, function(index, obj) {
+                if (obj.typeName === _typeName) {
+                    _result = obj.opacity;
                 }
             });            
             return _result;            
@@ -119,8 +135,8 @@ var mutationStyle = (function() {  //Key and "typeName" are always identical
                 if (obj.typeName === _typeName) {
                     _result = obj.stroke;
                 }
-            });            
-            return _result;           
+            });
+            return _result;
         },
         getText: function(_typeName) {
             var _result = "";
@@ -137,8 +153,8 @@ var mutationStyle = (function() {  //Key and "typeName" are always identical
                 if (obj.typeName === _typeName) {
                     _result = obj;
                 }
-            });            
-            return _result;           
+            });
+            return _result;
         }
     };
 
@@ -146,7 +162,7 @@ var mutationStyle = (function() {  //Key and "typeName" are always identical
 
 var gisticStyle = (function() {
    var stylesheet = [
-    {    
+    {
         type: "Amplification",
         value: "2",
         stroke : "#FF0000",
@@ -186,8 +202,8 @@ var gisticStyle = (function() {
          legendText : "Deep Deletion",
          fill: "transparent"
      }
-   ]; 
-    
+   ];
+
     return {
         getSymbol: function(_value) {
             var _result = "";
@@ -217,5 +233,5 @@ var gisticStyle = (function() {
             return _result;
         }
     };
-    
+
 }());

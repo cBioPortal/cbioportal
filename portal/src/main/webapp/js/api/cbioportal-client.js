@@ -23,8 +23,8 @@ window.cbioportal_client = (function() {
 			'PatientClinicalAttributes': { endpoint: 'api/clinicalattributes/patients' },
 			'Genes': { endpoint: 'api/genes' },
 			'GeneticProfiles': { endpoint: 'api/geneticprofiles' },
-			'PatientLists': { endpoint: 'api/patientlists' },
-			'PatientListsMeta': { endpoint: 'api/patientlists', args: {metadata: true } },
+			'SampleLists': { endpoint: 'api/samplelists' },
+			'SampleListsMeta': { endpoint: 'api/samplelists', args: {metadata: true } },
 			'Patients': { endpoint: 'api/patients' },
 			'GeneticProfileData': { endpoint: 'api/geneticprofiledata' },
 			'Samples': { endpoint: 'api/samples' },
@@ -174,6 +174,20 @@ window.cbioportal_client = (function() {
 				map_entry.push(data[i]);
 			}
 		};
+
+		var flatten = function(list_of_lists){
+			//console.log("flatten: " + ret.length);
+			var chunk_size = 90000;
+			var n_chunks = Math.ceil(list_of_lists.length/chunk_size);
+			var flattened = [];
+			//first round of flattening, in chunks of chunkSize to avoid stack size problems in concat.apply:
+			for (var k=0; k<n_chunks; k++) {
+				flattened.push([].concat.apply([], list_of_lists.slice(k*chunk_size, (k+1)*chunk_size)));
+			}
+			//final round, flattening the lists of lists to a single list:
+			return [].concat.apply([], flattened);
+		};
+		
 		this.getData = function (key_list_list) {
 			var intermediate = [map];
 			var ret = [];
@@ -185,7 +199,7 @@ window.cbioportal_client = (function() {
 				for (i = 0; i<intermediate.length; i++) {
 					var obj = intermediate[i];
 					if (Object.prototype.toString.call(obj) === '[object Array]') {
-						ret = ret.concat(obj);
+						ret.push(obj);
 					} else {
 						var keys = (key_list_index < key_list_list.length && key_list_list[key_list_index]) || Object.keys(obj);
 						for (k = 0; k<keys.length; k++) {
@@ -197,6 +211,10 @@ window.cbioportal_client = (function() {
 				}
 				intermediate = tmp_intermediate;
 				key_list_index += 1;
+			}
+			//flatten, if data is found (when not found, it means it is a missing key)
+			if (ret.length > 0) {
+				ret = flatten(ret);
 			}
 			return ret;
 		};
@@ -432,14 +450,14 @@ window.cbioportal_client = (function() {
 		getGenes: enforceRequiredArguments(makeOneIndexService('hugo_gene_symbols', function(d) { return d.hugo_gene_symbol;}, 'getGenes'), [[],["hugo_gene_symbols"]]),
 		getStudies: enforceRequiredArguments(makeOneIndexService('study_ids', function(d) { return d.id;}, 'getStudies'), [[], ["study_ids"]]),
 		getGeneticProfiles: enforceRequiredArguments(makeTwoIndexService('study_id', function(d) { return d.study_id;}, false, 'genetic_profile_ids', function(d) {return d.id; }, true, 'getGeneticProfiles'), [["study_id"],["genetic_profile_ids"]]),
-		getPatientLists: enforceRequiredArguments(makeTwoIndexService('study_id', function(d) { return d.study_id;}, false, 'patient_list_ids', function(d) {return d.id; }, true, 'getPatientLists'), [[], ["study_id"], ["patient_list_ids"]]),
-		getPatientListsMeta: enforceRequiredArguments(makeTwoIndexService('study_id', function(d) { return d.study_id;}, false, 'patient_list_ids', function(d) {return d.id; }, true, 'getPatientListsMeta'), [[], ["study_id"], ["patient_list_ids"]]),
+		getSampleLists: enforceRequiredArguments(makeTwoIndexService('study_id', function(d) { return d.study_id;}, false, 'sample_list_ids', function(d) {return d.id; }, true, 'getSampleLists'), [["study_id"], ["sample_list_ids"]]),
 		getSampleClinicalData: enforceRequiredArguments(makeHierIndexService(['study_id', 'attribute_ids', 'sample_ids'], ['study_id', 'attr_id', 'sample_id'], 'getSampleClinicalData'), [["study_id","attribute_ids"], ["study_id","attribute_ids","sample_ids"]]),
 		getPatientClinicalData: enforceRequiredArguments(makeHierIndexService(['study_id', 'attribute_ids', 'patient_ids'], ['study_id', 'attr_id', 'patient_id'], 'getPatientClinicalData'), [["study_id","attribute_ids"], ["study_id","attribute_ids","patient_ids"]]),
 		getPatients: enforceRequiredArguments(makeHierIndexService(['study_id', 'patient_ids'], ['study_id', 'id'], 'getPatients'), [["study_id"], ["study_id","patient_ids"]]),
 		getSamples: enforceRequiredArguments(makeHierIndexService(['study_id', 'sample_ids'], ['study_id', 'id'], 'getSamples'), [["study_id"], ["study_id", "sample_ids"]]),
 		getSamplesByPatient: enforceRequiredArguments(makeHierIndexService(['study_id', 'patient_ids'], ['study_id', 'patient_id'], 'getSamples'), [["study_id"], ["study_id", "patient_ids"]]),
-		getGeneticProfileData: enforceRequiredArguments(makeHierIndexService(['genetic_profile_ids', 'genes', 'sample_ids'], ['genetic_profile_id', 'hugo_gene_symbol', 'sample_id'], 'getGeneticProfileData'), [["genetic_profile_ids","genes"], ["genetic_profile_ids","genes","sample_ids"]]),
+		getGeneticProfileDataBySample: enforceRequiredArguments(makeHierIndexService(['genetic_profile_ids', 'genes', 'sample_ids'], ['genetic_profile_id', 'hugo_gene_symbol', 'sample_id'], 'getGeneticProfileData'), [["genetic_profile_ids","genes"], ["genetic_profile_ids","genes","sample_ids"]]),
+                getGeneticProfileDataBySampleList: enforceRequiredArguments(makeHierIndexService(['genetic_profile_ids', 'genes', 'sample_list_id'], ['genetic_profile_id', 'hugo_gene_symbol', 'sample_list_id'], 'getGeneticProfileData'), [["genetic_profile_ids","genes"], ["genetic_profile_ids","genes","sample_list_id"]]),
 		getSampleClinicalAttributes: enforceRequiredArguments(function(args) {
 			return raw_service.getSampleClinicalAttributes(args);
 		}, [["study_id"], ["study_id","sample_ids"]]),

@@ -390,6 +390,32 @@
 </script>
 
 <script>
+//Jiaojiao Dec/21/2015
+//The program won't be able to get clicked checkbox elements before they got initialized and displayed. 
+//Need to check every 5ms to see if checkboxes are ready or not. 
+//If not ready keep waiting, if ready, then scroll to the first selected study
+
+ function waitForElementToDisplay(selector, time) {
+        if(document.querySelector(selector) !== null) {
+            
+           var chosenElements = document.getElementsByClassName('jstree-clicked');
+            if(chosenElements.length > 0)
+            {
+                var treeDiv = document.getElementById('jstree');
+                var topPos = chosenElements[0].offsetTop;
+                var originalPos = treeDiv.offsetTop;
+                treeDiv.scrollTop = topPos - originalPos;
+            }
+           
+            return;
+        }
+        else {
+            setTimeout(function() {
+                waitForElementToDisplay(selector, time);
+            }, time);
+        }
+    }
+    
 $(document).ready(function() {
     $.when(window.QuerySession.getAlteredSamples(), window.QuerySession.getUnalteredSamples(), window.QuerySession.getPatientSampleIdMap()).then(function(altered_samples, unaltered_samples, sample_patient_map) {
         PortalDataCollManager.subscribeOncoprint(function() {
@@ -435,6 +461,7 @@ $(document).ready(function() {
                 } else {
                     $("#modify_query_btn").addClass("active");    
                 }
+                 waitForElementToDisplay('.jstree-clicked', '5');
             });
             $("#toggle_query_form").click(function(event) {
                 event.preventDefault();
@@ -459,10 +486,20 @@ $(document).ready(function() {
             if (patientIdArray.length !== _sampleIds.length) {
                 $("#switchPatientSample").show();
             }
+            
+        });
+   
+         
+        $("#toggle_query_form").click(function(event) {
+            event.preventDefault();
+            $('#query_form_on_results_page').toggle();
+            //  Toggle the icons
+            $(".query-toggle").toggle();
+        });
 
         });
     });
-});
+
 
 </script>
 

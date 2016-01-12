@@ -23,7 +23,10 @@ KNOWN_PATIENT_ATTRS = {
     "OS_STATUS": {"display_name":"Overall Survival Status","description":"Overall patient survival status.","datatype":"STRING","is_patient_attribute":"1","priority":"1"},
     "OS_MONTHS": {"display_name":"Overall Survival (Months)","description":"Overall survival in months since initial diagnosis.","datatype":"NUMBER","is_patient_attribute":"1","priority":"1"},
     "DFS_STATUS": {"display_name":"Disease Free Status","description":"Disease free status since initial treatment.","datatype":"STRING","is_patient_attribute":"1","priority":"1"},
-    "DFS_MONTHS": {"display_name":"Disease Free (Months)","description":"Disease free (months) since initial treatment.","datatype":"NUMBER","is_patient_attribute":"1","priority":"1"}
+    "DFS_MONTHS": {"display_name":"Disease Free (Months)","description":"Disease free (months) since initial treatment.","datatype":"NUMBER","is_patient_attribute":"1","priority":"1"},
+    "SUBTYPE": {"display_name":"Subtype","description":"Subtype description.","datatype":"STRING","is_patient_attribute":"0","priority":"1"},
+    "CANCER_TYPE": {"display_name":"Cancer Type","description":"Disease type.","datatype":"STRING","is_patient_attribute":"0","priority":"1"},
+    "CANCER_TYPE_DETAILED": {"display_name":"Cancer Type Detailed","description":"Cancer Type Detailed.","datatype":"STRING","is_patient_attribute":"0","priority":"1"}
 }
 KNOWN_SAMPLE_ATTRS = {
     "SAMPLE_ID": {"display_name":"Sample Identifier","description":"A unique sample identifier.","datatype":"STRING","is_patient_attribute":"0","priority":"1"},
@@ -92,6 +95,10 @@ class ValidateDataTester(unittest.TestCase):
         logger = getNewLogger()
         try:
             logger.setLevel(logging.WARNING)
+            # hard-code known clinical attributes instead of contacting a portal
+            mock_srv_attrs = dict(KNOWN_PATIENT_ATTRS)
+            mock_srv_attrs.update(KNOWN_SAMPLE_ATTRS)
+            ClinicalValidator.srv_attrs = mock_srv_attrs
             validator = ClinicalValidator(hugo_entrez_map,logger,meta_dict)
             validator.validate()
             # we expect no errors or warnings

@@ -1,5 +1,5 @@
-#Patient Identifier	Sample Identifier	Overall Survival (Months)	foo	Disease Free (Months)	Disease Free Status
-#Patient identifier	Sample identifier	Overall survival in months since diagnosis	Overall survival status	Disease free in months since treatment	Disease free status
+#Patient Identifier	Sample Identifier	Spam	Overall Survival Status	Disease Free (Months)	Disease Free Status
+#Identifier to uniquely specify a patient.	A unique sample identifier.	Overall survival in months since initial diagnosis.	Overall patient survival status.	Disease free (months) since initial treatment.	Disease free status since initial treatment.
 #STRING	STRING	NUMBER	STRING	NUMBER	STRING
 #PATIENT	SAMPLE	PATIENT	PATIENT	PATIENT	PATIENT
 #1	1	1	1	1	1

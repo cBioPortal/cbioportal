@@ -1,5 +1,5 @@
 #Patient Identifier	Sample Identifier	Overall Survival (Months)	Overall Survival Status	Disease Free (Months)	Disease Free Status	Eggs
-#Patient identifier	Sample identifier	Overall survival in months since diagnosis	Overall survival status	Disease free in months since treatment	Disease free status	Baked beans
+#Identifier to uniquely specify a patient.	A unique sample identifier.	Overall survival in months since initial diagnosis.	Overall patient survival status.	Disease free (months) since initial treatment.	Disease free status since initial treatment.	Baked beans
 #STRING	STRING	NUMBER	STRING	NUMBER	STRING	STRING
 #PATIENT	SAMPLE	PATIENT	PATIENT	PATIENT	PATIENT	SAMPLE
 #1	1	1	1	1	1	tomato

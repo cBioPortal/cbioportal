@@ -1231,8 +1231,7 @@ class ClinicalValidator(Validator):
     ]
     REQUIRE_COLUMN_ORDER = False
 
-    srv_sample_attrs = None
-    srv_patient_attrs = None
+    srv_attrs = None
 
     def __init__(self, *args, **kwargs):
         super(ClinicalValidator, self).__init__(*args, **kwargs)
@@ -1243,15 +1242,22 @@ class ClinicalValidator(Validator):
 
         """Parse the the attribute definitions above the column header."""
 
+        LINE_NAMES = ('display_name',
+                      'description',
+                      'datatype',
+                      'attribute_type',
+                      'priority')
+
         if not line_list:
             self.logger.error(
                 'No data type header comments found in clinical data file',
                 extra={'line_number': self.line_number})
             return False
-        if len(line_list) != 5:
+        if len(line_list) != len(LINE_NAMES):
             self.logger.error(
-                '%d comment lines at top of clinical data file, expected 5',
-                len(line_list))
+                '%d comment lines at start of clinical data file, expected %d',
+                len(line_list),
+                len(LINE_NAMES))
             return False
 
         # remove the # signs
@@ -1263,36 +1269,78 @@ class ClinicalValidator(Validator):
                                delimiter='\t',
                                quoting=csv.QUOTE_NONE,
                                strict=True)
-        for row in csvreader:
+        invalid_values = False
+        for line_index, row in enumerate(csvreader):
 
             if attr_defs is None:
                 # make a list of as many lists as long as there are columns
                 num_attrs = len(row)
-                attr_defs = [[]] * num_attrs
+                attr_defs = [OrderedDict() for i in range(num_attrs)]
             elif len(row) != num_attrs:
                 self.logger.error(
                     'Varying numbers of columns in clinical header (%d, %d)',
                     num_attrs,
                     len(row),
-                    extra={'line_number': csvreader.line_num})
+                    extra={'line_number': line_index + 1})
                 return False
 
-            for index, value in enumerate(row):
-                attr_defs[index].append(value)
+            for col_index, value in enumerate(row):
+
+                # test for invalid values in these (otherwise parseable) lines
+                if value in ('', 'NA'):
+                    self.logger.error(
+                        'Empty %s field in clinical attribute definition',
+                        LINE_NAMES[line_index],
+                        extra={'line_number': line_index + 1,
+                               'column_number': col_index + 1,
+                               'cause': value})
+                    invalid_values = True
+                if LINE_NAMES[line_index] in ('display_name', 'description'):
+                    pass
+                elif LINE_NAMES[line_index] == 'datatype':
+                    VALID_DATATYPES = ('STRING', 'NUMBER', 'BOOLEAN')
+                    if value not in VALID_DATATYPES:
+                        self.logger.error(
+                            'Invalid data type definition, must be one of'
+                            ' [%s]',
+                            ', '.join(VALID_DATATYPES),
+                            extra={'line_number': line_index + 1,
+                                   'colum_number': col_index + 1,
+                                   'cause': value})
+                        invalid_values = True
+                elif LINE_NAMES[line_index] == 'attribute_type':
+                    VALID_ATTR_TYPES = ('PATIENT', 'SAMPLE')
+                    if value not in VALID_ATTR_TYPES:
+                        self.logger.error(
+                            'Invalid attribute type definition, must be one of'
+                            ' [%s]',
+                            ', '.join(VALID_ATTR_TYPES),
+                            extra={'line_number': line_index + 1,
+                                   'colum_number': col_index + 1,
+                                   'cause': value})
+                        invalid_values = True
+                elif LINE_NAMES[line_index] == 'priority':
+                    try:
+                        if int(value) < 1:
+                            raise ValueError()
+                    except ValueError:
+                        self.logger.error(
+                            'Priority definition must be a positive integer',
+                            extra={'line_number': line_index + 1,
+                                   'column_number': col_index + 1,
+                                   'cause': value})
+                        invalid_values = True
+                else:
+                    raise ValueError('Unknown clinical header line name')
+
+                attr_defs[col_index][LINE_NAMES[line_index]] = value
 
         self.attr_defs = attr_defs
-        return True
+        return not invalid_values
 
     def checkHeader(self, cols):
 
         num_errors = super(ClinicalValidator, self).checkHeader(cols)
-
-        for col_name in self.cols:
-            if not col_name.isupper():
-                self.logger.warning(
-                    "Clinical header not in all caps",
-                    extra={'line_number': self.line_number,
-                           'cause': col_name})
 
         if self.numCols != len(self.attr_defs):
             self.logger.error(
@@ -1301,9 +1349,43 @@ class ClinicalValidator(Validator):
                 len(self.cols),
                 extra={'line_number': self.line_number})
             num_errors += 1
+        # use the non-file-related base logger for this class method
         self.request_attrs(self.logger.logger)
-        for index, col_name in enumerate(self.cols):
-            pass  # TODO implement validations for self.attr_defs
+        for col_index, col_name in enumerate(self.cols):
+            if not col_name.isupper():
+                self.logger.warning(
+                    "Clinical header not in all caps",
+                    extra={'line_number': self.line_number,
+                           'cause': col_name})
+            srv_attr = self.srv_attrs.get(col_name)
+            if srv_attr is None:
+                self.logger.warning(
+                    'New %s-level attribute will be added to the portal',
+                    self.attr_defs[col_index]['attribute_type'].lower(),
+                    extra={'line_number': self.line_number,
+                           'column_number': col_index + 1,
+                           'cause': col_name})
+            else:
+                # copy the dict to make local changes
+                srv_attr = dict(srv_attr)
+                # compare defined values with existing ones
+                if 'attribute_type' in srv_attr:
+                    raise ValueError(
+                        'attribute_type unexpectedly defined by portal API')
+                if srv_attr['is_patient_attribute'] == '1':
+                    srv_attr['attribute_type'] = 'PATIENT'
+                else:
+                    srv_attr['attribute_type'] = 'SAMPLE'
+                for attr_property in self.attr_defs[col_index]:
+                    value = self.attr_defs[col_index][attr_property]
+                    if value != srv_attr[attr_property]:
+                        self.logger.error(
+                            "%s property for attribute '%s' does not match "
+                            "the portal, '%s' expected",
+                            attr_property, col_name, srv_attr[attr_property],
+                            extra={'column_number': col_index + 1,
+                                   'cause': value})
+                        num_errors += 1
 
         return num_errors
 
@@ -1323,14 +1405,20 @@ class ClinicalValidator(Validator):
     @classmethod
     def request_attrs(cls, logger):
         '''Set cls.srv_sample_attrs and cls.srv_patient_attrs from portal.'''
-        if cls.srv_sample_attrs is None:
-            cls.srv_sample_attrs = cls._request_attrs(SERVER_URL +
-                                                      '/api/samples',
-                                                      logger)
-        if cls.srv_patient_attrs is None:
-            cls.srv_patient_attrs = cls._request_attrs(SERVER_URL +
-                                                       '/api/patients',
-                                                       logger)
+        if cls.srv_attrs is None:
+            cls.srv_attrs = cls._request_attrs(
+                SERVER_URL + '/api/clinicalattributes/patients', logger)
+            srv_sample_attrs = cls._request_attrs(
+                SERVER_URL + '/api/clinicalattributes/samples', logger)
+            id_overlap = (set(cls.srv_attrs.keys()) &
+                          set(srv_sample_attrs.keys()))
+            if id_overlap:
+                raise ValueError(
+                    'The portal returned these clinical attributes both for'
+                    'samples and for patients: {}'.format(
+                        ', '.join(id_overlap)))
+            else:
+                cls.srv_attrs.update(srv_sample_attrs)
 
     @classmethod
     def _request_attrs(cls, service_url, logger):

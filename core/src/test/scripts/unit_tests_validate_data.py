@@ -21,7 +21,7 @@ hugo_entrez_map = parse_ncbi_file(ncbi_file)
 KNOWN_PATIENT_ATTRS = {
     "PATIENT_ID": {"display_name":"Patient Identifier","description":"Identifier to uniquely specify a patient.","datatype":"STRING","is_patient_attribute":"1","priority":"1"},
     "OS_STATUS": {"display_name":"Overall Survival Status","description":"Overall patient survival status.","datatype":"STRING","is_patient_attribute":"1","priority":"1"},
-    "OS_MONTHS": {"display_name":"Overall Survival (Months)","description":"Overall survival in months since initial diagonosis.","datatype":"NUMBER","is_patient_attribute":"1","priority":"1"},
+    "OS_MONTHS": {"display_name":"Overall Survival (Months)","description":"Overall survival in months since initial diagnosis.","datatype":"NUMBER","is_patient_attribute":"1","priority":"1"},
     "DFS_STATUS": {"display_name":"Disease Free Status","description":"Disease free status since initial treatment.","datatype":"STRING","is_patient_attribute":"1","priority":"1"},
     "DFS_MONTHS": {"display_name":"Disease Free (Months)","description":"Disease free (months) since initial treatment.","datatype":"NUMBER","is_patient_attribute":"1","priority":"1"}
 }
@@ -161,16 +161,15 @@ class DataFileTestCase(LogBufferTestCase):
         self.orig_study_dir = validateData.STUDY_DIR
         validateData.STUDY_DIR = 'test_data'
         # hard-code known clinical attributes instead of contacting a portal
-        self.orig_srv_patient_attrs = validateData.ClinicalValidator.srv_patient_attrs
-        validateData.ClinicalValidator.srv_patient_attrs = KNOWN_PATIENT_ATTRS
-        self.orig_srv_sample_attrs = validateData.ClinicalValidator.srv_sample_attrs
-        validateData.ClinicalValidator.srv_sample_attrs = KNOWN_SAMPLE_ATTRS
+        self.orig_srv_attrs = validateData.ClinicalValidator.srv_attrs
+        mock_srv_attrs = dict(KNOWN_PATIENT_ATTRS)
+        mock_srv_attrs.update(KNOWN_SAMPLE_ATTRS)
+        validateData.ClinicalValidator.srv_attrs = mock_srv_attrs
 
     def tearDown(self):
         '''Restore the environment to before setUp() was called.'''
         validateData.STUDY_DIR = self.orig_study_dir
-        validateData.ClinicalValidator.srv_patient_attrs = self.orig_srv_patient_attrs
-        validateData.ClinicalValidator.srv_sample_attrs = self.orig_srv_sample_attrs
+        validateData.ClinicalValidator.srv_attrs = self.orig_srv_attrs
         super(DataFileTestCase, self).tearDown()
 
     def validate(self, data_filename, validator_class, extra_meta_fields=None):
@@ -191,7 +190,7 @@ class ClinicalColumnDefsTestCase(DataFileTestCase):
         '''Test when all record definitions match with portal.'''
         record_list = self.validate('data_clin_coldefs_correct.txt',
                                     validateData.ClinicalValidator)
-        # expecting two info messages only
+        # expecting two info messages: at start and end of file
         self.assertEqual(len(record_list), 2)
         for record in record_list:
             self.assertEqual(record.levelno, logging.INFO)
@@ -200,29 +199,30 @@ class ClinicalColumnDefsTestCase(DataFileTestCase):
         '''Test when record definitions do not match with portal.'''
         record_list = self.validate('data_clin_coldefs_wrong_display_name.txt',
                                     validateData.ClinicalValidator)
-        # expecting two info messages in addition to the errors
+        # expecting two info messages with an error in between
         self.assertEqual(len(record_list), 3)
         # error about the display name of OS_MONTHS
         self.assertEqual(record_list[1].levelno, logging.ERROR)
-        self.assertEqual(record_list[1].line_number, 1)
-        self.assertEqual(record_list[1].column_number, 4)
+        self.assertEqual(record_list[1].column_number, 3)
+        self.assertIn('display_name', record_list[1].getMessage())
 
     def test_unknown_attribute(self):
         '''Test when a new attribute is defined in the data file.'''
         record_list = self.validate('data_clin_coldefs_unknown_attribute.txt',
                                     validateData.ClinicalValidator)
-        # expecting two info messages only
-        self.assertEqual(len(record_list), 2)
-        for record in record_list:
-            self.assertEqual(record.levelno, logging.INFO)
+        # expecting two info messages with a warning in between
+        self.assertEqual(len(record_list), 3)
+        self.assertEqual(record_list[1].levelno, logging.WARNING)
+        self.assertEqual(record_list[1].column_number, 7)
+        self.assertIn('will be added', record_list[1].getMessage().lower())
 
     def test_invalid_definitions(self):
         '''Test when new attributes are defined with invalid properties.'''
         record_list = self.validate('data_clin_coldefs_invalid_priority.txt',
                                     validateData.ClinicalValidator)
-        # expecting two info messages in addition to the errors
+        # expecting two info messages with an error in between
         self.assertEqual(len(record_list), 3)
         # error about the non-numeric priority of the SAUSAGE column
         self.assertEqual(record_list[1].levelno, logging.ERROR)
-        self.assertEqual(record_list[1].column_number, 4)
         self.assertEqual(record_list[1].line_number, 5)
+        self.assertEqual(record_list[1].column_number, 7)

@@ -338,6 +338,9 @@ var scatterPlots = (function() {
                     .attr("fill", function(d){
                         return mutationInterpreter.getFill(d);
                     })
+                    .style("opacity", function(d){
+                        return mutationInterpreter.getOpacity();
+                    })
                     .attr("stroke", function(d){
                         return mutationInterpreter.getStroke(d);
                     })
@@ -390,6 +393,9 @@ var scatterPlots = (function() {
                 .attr("fill", function(d){
                     return mutationInterpreter.getFill(d);
                 })
+                .style("opacity", function(d){
+                    return mutationInterpreter.getOpacity();
+                })
                 .attr("stroke", function(d){
                     return mutationInterpreter.getStroke(d);
                 })
@@ -440,6 +446,9 @@ var scatterPlots = (function() {
                     }))
                 .attr("fill", function(d){
                     return mutationInterpreter.getFill(d);
+                })
+                .style("opacity", function(d){
+                    return mutationInterpreter.getOpacity();
                 })
                 .attr("stroke", function(d){
                     return mutationInterpreter.getStroke(d);
@@ -877,15 +886,8 @@ var scatterPlots = (function() {
                 });
             }
 
-            $(this).qtip(
-                {
-                    content: {text: _content},
-                    style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
-                    show: {event: "mouseover"},
-                    hide: {fixed:true, delay: 100, event: "mouseout"},
-                    position: {my:'left bottom',at:'top right', viewport: $(window)}
-                }
-            );
+            //make qtip for an element on first mouseenter:
+            cbio.util.addTargetedQTip($(this), {content: {text: _content}});           
         });
         var mouseOn = function() {
             var dot = d3.select(this);

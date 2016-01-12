@@ -1352,7 +1352,7 @@ OncoKB.Instance.prototype = {
                     var gene = self.variants[oncokbId].evidence.gene;
                     var _tip = '';
 
-                    if (gene) {
+                    if (_.isObject(gene) && Object.keys(gene).length > 0) {
                         if (gene.summary) {
                             _tip += '<b>Gene Summary</b><br/>' + gene.summary;
                         }

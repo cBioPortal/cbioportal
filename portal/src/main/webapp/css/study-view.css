@@ -1142,7 +1142,7 @@ cursor: pointer;
     margin-right: 5px;
 }
 
-.EFDT-showHide, .EFDT-download {
+.EFDT-show-hide, .EFDT-fixed-choose, .EFDT-download {
     float: left;
 }
 .dropdown-checkbox-toggle {
@@ -1169,6 +1169,10 @@ cursor: pointer;
     border-radius: 4px
 }
 
+.EFDT-header-filters-reset {
+    cursor: pointer;
+    text-decoration: underline;
+}
 
 .EFDT-download-btn {
     float: left;
@@ -1189,8 +1193,10 @@ cursor: pointer;
 
 .EFDT-table-prefix {
     margin-bottom: 10px;
+    width:1200px;
 }
-.EFDT-headerFilters .form-control {
+.EFDT-header-filters .form-control {
+    width: 86%  !important;
     height: inherit !important;
 }
 

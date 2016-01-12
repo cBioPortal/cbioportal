@@ -64,16 +64,18 @@ class ValidateDataTester(unittest.TestCase):
 
         # set level according to this test case:
         logger = getNewLogger()
-        logger.setLevel(logging.ERROR)
-        validator = SegValidator(hugo_entrez_map,logger,meta_dict)
-        validator.validate()
-        # we expect 2 errors about columns in wrong order:
-        self.assertEqual(2, len(logger.handlers[0].buffer))
-        # check if both messages come from checkOrderedRequiredColumns: 
-        for error in logger.handlers[0].buffer:
-            self.assertEqual("ERROR", error.levelname)
-            self.assertEqual("_checkOrderedRequiredColumns", error.funcName)
-        logger.handlers[0].buffer = []
+        try:
+            logger.setLevel(logging.ERROR)
+            validator = SegValidator(hugo_entrez_map,logger,meta_dict)
+            validator.validate()
+            # we expect 2 errors about columns in wrong order:
+            self.assertEqual(2, len(logger.handlers[0].buffer))
+            # check if both messages come from checkOrderedRequiredColumns:
+            for error in logger.handlers[0].buffer:
+                self.assertEqual("ERROR", error.levelname)
+                self.assertEqual("_checkOrderedRequiredColumns", error.funcName)
+        finally:
+            logger.handlers = []
 
     def test_column_order_validation_ClinicalValidator(self):
         '''
@@ -88,18 +90,20 @@ class ValidateDataTester(unittest.TestCase):
 
         # set level according to this test case:
         logger = getNewLogger()
-        logger.setLevel(logging.WARNING)
-        validator = ClinicalValidator(hugo_entrez_map,logger,meta_dict)
-        validator.validate()
-        # we expect no errors or warnings
-        self.assertEqual(0, len(logger.handlers[0].buffer))
-        # if the file has another order, this is also OK:
-        meta_dict['data_file_path'] = 'data_clin_order2.txt'
-        validator = ClinicalValidator(hugo_entrez_map,logger,meta_dict)
-        validator.validate()
-        # again, we expect no errors or warnings
-        self.assertEqual(0, len(logger.handlers[0].buffer))
-        logger.handlers[0].buffer = []
+        try:
+            logger.setLevel(logging.WARNING)
+            validator = ClinicalValidator(hugo_entrez_map,logger,meta_dict)
+            validator.validate()
+            # we expect no errors or warnings
+            self.assertEqual(0, len(logger.handlers[0].buffer))
+            # if the file has another order, this is also OK:
+            meta_dict['data_file_path'] = 'data_clin_order2.txt'
+            validator = ClinicalValidator(hugo_entrez_map,logger,meta_dict)
+            validator.validate()
+            # again, we expect no errors or warnings
+            self.assertEqual(0, len(logger.handlers[0].buffer))
+        finally:
+            logger.handlers = []
 
 
 class LogBufferTestCase(unittest.TestCase):

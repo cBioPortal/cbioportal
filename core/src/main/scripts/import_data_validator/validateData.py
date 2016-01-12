@@ -567,6 +567,8 @@ class Validator(object):
 
             # parse the start-of-file comment lines
             if not self.processTopLines(top_comments):
+                self.logger.info(
+                    'Invalid header comments, skipped data in file')
                 return
 
             # read five data lines to detect quotes in the tsv file
@@ -583,6 +585,8 @@ class Validator(object):
                     '"' + dialect.delimiter in sample_content):
                 dialect.quoting = csv.QUOTE_NONE
             if not self._checkTsvDialect(dialect):
+                self.logger.info(
+                    'Invalid file format, skipped data in file')
                 return
 
             # parse the first non-commented line as the tsv header
@@ -736,13 +740,13 @@ class Validator(object):
         """Check if a csv.Dialect subclass describes a valid cBio data file."""
         if dialect.delimiter != '\t':
             self.logger.error('Not a tab-delimited file',
-                              extra={'cause': 'delimiters of type: [%s]' %
-                                              repr(dialect.delimiter)[1:-1]})
+                              extra={'cause': 'delimiters of type: %s' %
+                                              repr(dialect.delimiter)})
             return False
         if dialect.quoting != csv.QUOTE_NONE:
             self.logger.error('Found quotation marks around field(s) in the first rows of the file. '
                               'Fields and values should not be surrounded by quotation marks.',
-                              extra={'cause': 'quotation marks of type: [%s]' %
+                              extra={'cause': 'quotation marks of type: [%s] ' %
                                               repr(dialect.quotechar)[1:-1]})
         return True
 

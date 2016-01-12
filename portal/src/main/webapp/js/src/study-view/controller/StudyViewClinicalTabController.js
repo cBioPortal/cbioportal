@@ -65,6 +65,7 @@ var StudyViewClinicalTabController = (function () {
             scroller: true,
             resultInfo: true,
             groupHeader: true,
+            fixedChoose: true,
             fixed: ["sample"],
             uniqueId: "sample",
             rowHeight: 30,

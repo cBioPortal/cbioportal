@@ -204,6 +204,54 @@ var ColumnHider = React.createClass({displayName: "ColumnHider",
     }
 });
 
+// Choose fixed columns component
+var PinColumns = React.createClass({displayName: "PinColumns",
+    tableCols: [],// For the checklist
+
+    // Updates fixed column settings
+    pinColumns: function (list) {
+        var cols = this.props.cols;
+        for (var i = 0; i < list.length; i++) {
+            cols[i].fixed = list[i].isChecked;
+        }
+        this.props.updateCols(cols, this.props.filters);
+    },
+
+    // Prepares tableCols
+    componentWillMount: function () {
+        var cols = this.props.cols;
+        var colsL = cols.length;
+        for (var i = 0; i < colsL; i++) {
+            this.tableCols.push({id: cols[i].name, label: cols[i].displayName, isChecked: cols[i].fixed});
+        }
+    },
+
+    componentDidMount: function () {
+        var pinColumns = this.pinColumns;
+
+        // Dropdown checklist
+        $("#pin_column_checklist").dropdownCheckbox({
+            data: this.tableCols,
+            autosearch: true,
+            title: "Choose Fixed Columns",
+            hideHeader: false,
+            showNbSelected: true
+        });
+
+        // Handles dropdown checklist event
+        $("#pin_column_checklist").on("change", function () {
+            var list = ($("#pin_column_checklist").dropdownCheckbox("items"));
+            pinColumns(list);
+        });
+    },
+
+    render: function () {
+        return (
+            React.createElement("div", {id: "pin_column_checklist", className: "EFDT-top-btn"})
+        );
+    }
+});
+
 // Column scroller component
 var ColumnScroller = React.createClass({displayName: "ColumnScroller",
     // Scrolls to user selected column
@@ -237,11 +285,24 @@ var ColumnScroller = React.createClass({displayName: "ColumnScroller",
 
 // Filter component
 var Filter = React.createClass({displayName: "Filter",
+    getInitialState: function() {
+        return {key: ''};
+    },
+    handleChange: function(event) {
+        this.setState({key: event.target.value});
+        this.props.onFilterKeywordChange(event);
+    },
+    componentWillUpdate: function () {
+        if(!_.isUndefined(this.props.filter) && this.props.filter.key !== this.state.key && this.props.filter.key === '' && this.props.filter.reset) {
+            this.state.key = '';
+            this.props.filter.reset = false;
+        }
+    },
     render: function () {
         switch (this.props.type) {
             case "NUMBER":
                 return (
-                    React.createElement("div", {className: "EFDT-headerFilters"},
+                    React.createElement("div", {className: "EFDT-header-filters"},
                         React.createElement("span", {id: "range-"+this.props.name}),
 
                         React.createElement("div", {className: "rangeSlider", "data-max": this.props.max,
@@ -250,9 +311,12 @@ var Filter = React.createClass({displayName: "Filter",
                 );
             case "STRING":
                 return (
-                    React.createElement("div", {className: "EFDT-headerFilters"},
-                        React.createElement("input", {className: "form-control", placeholder: "Input a keyword", "data-column": this.props.name,
-                            onChange: this.props.onFilterKeywordChange})
+                    React.createElement("div", {className: "EFDT-header-filters"},
+                        React.createElement("input", {className: "form-control",
+                            placeholder: this.props.hasOwnProperty('placeholder')?this.props.placeholder:"Input a keyword",
+                            "data-column": this.props.name,
+                            value: this.state.key,
+                            onChange: this.handleChange})
                     )
                 );
         }
@@ -268,9 +332,17 @@ var TablePrefix = React.createClass({displayName: "TablePrefix",
                 React.createElement("div", null,
 
                     this.props.hider ?
-                        React.createElement("div", {className: "EFDT-showHide"},
+                        React.createElement("div", {className: "EFDT-show-hide"},
                             React.createElement(ColumnHider, {cols: this.props.cols, filters: this.props.filters,
                                 hideFilter: this.props.hideFilter,
+                                updateCols: this.props.updateCols})
+                        ) :
+                        "",
+
+
+                    this.props.fixedChoose ?
+                        React.createElement("div", {className: "EFDT-fixed-choose"},
+                            React.createElement(PinColumns, {cols: this.props.cols, filters: this.props.filters,
                                 updateCols: this.props.updateCols})
                         ) :
                         "",
@@ -285,7 +357,11 @@ var TablePrefix = React.createClass({displayName: "TablePrefix",
                             React.createElement("span", {className: "EFDT-result-info-content"},
                                 "Showing ", this.props.filteredRowsSize, " samples",
 
-                                this.props.filteredRowsSize !== this.props.rowsSize ? ' (filtered from ' + this.props.rowsSize + ')' : ''
+                                this.props.filteredRowsSize !== this.props.rowsSize ?
+                                    React.createElement("span", null, ' (filtered from ' + this.props.rowsSize + ') ',
+                                        React.createElement("span", {className: "EFDT-header-filters-reset", onClick: this.props.onResetFilters}, "Reset")
+                                    )
+                                    : ''
 
                             )
                         ) :
@@ -315,7 +391,9 @@ var HeaderWrapper = React.createClass({displayName: "HeaderWrapper",
             React.createElement("div", {className: "EFDT-header"},
                 React.createElement("a", {href: "#", onClick: this.props.sortNSet.bind(null, this.props.cellDataKey)},
                     React.createElement(QtipWrapper, {rawLabel: columnData.displayName}),
-                    columnData.sortFlag ? columnData.sortDirArrow : ""
+                    columnData.sortFlag ?
+                        React.createElement("div", {className: columnData.sortDirArrow})
+                        : ""
                 )
             )
         );
@@ -371,8 +449,8 @@ var TableMainPart = React.createClass({displayName: "TableMainPart",
 
     // Destroys Qtip before update rendering
     componentWillUpdate: function () {
-        console.log('number of elments which has "hasQtip" as class name: ', $('.hasQtip').size());
-        console.log('number of elments which has "hasQtip" as class name under class EFDT: ', $('.EFDT-table .hasQtip').size());
+        //console.log('number of elments which has "hasQtip" as class name: ', $('.hasQtip').size());
+        //console.log('number of elments which has "hasQtip" as class name under class EFDT: ', $('.EFDT-table .hasQtip').size());
 
         $('.EFDT-table .hasQtip')
             .each(function () {
@@ -406,8 +484,9 @@ var TableMainPart = React.createClass({displayName: "TableMainPart",
                         if (props.groupHeader) {
                             column = React.createElement(ColumnGroup, {
                                     header:
-                                        React.createElement(Filter, {type: col.type, name: col.name,
-                                            max: col.max, min: col.min,
+                                        React.createElement(Filter, {type: props.filters[col.name].type, name: col.name,
+                                            max: col.max, min: col.min, filter: props.filters[col.name],
+                                            placeholder: "Filter column",
                                             onFilterKeywordChange: props.onFilterKeywordChange}
                                         ),
 
@@ -417,8 +496,8 @@ var TableMainPart = React.createClass({displayName: "TableMainPart",
                                 React.createElement(Column, {
                                     header:
                                         React.createElement(HeaderWrapper, {cellDataKey: col.name, columnData: {displayName:col.displayName,sortFlag:props.sortBy === col.name,
-                                            sortDirArrow:props.sortDirArrow,filterAll:props.filterAll,type:col.type},
-                                            sortNSet: props.sortNSet, filter: props.filter}
+                                            sortDirArrow:props.sortDirArrow,filterAll:props.filterAll,type:props.filters[col.name].type},
+                                            sortNSet: props.sortNSet, filter: props.filters[col.name]}
                                         ),
 
                                     cell: React.createElement(CustomizeCell, {data: rows, field: col.name, filterAll: props.filterAll}),
@@ -431,8 +510,8 @@ var TableMainPart = React.createClass({displayName: "TableMainPart",
                             column = React.createElement(Column, {
                                 header:
                                     React.createElement(HeaderWrapper, {cellDataKey: col.name, columnData: {displayName:col.displayName,sortFlag:props.sortBy === col.name,
-                                        sortDirArrow:props.sortDirArrow,filterAll:props.filterAll,type:col.type},
-                                        sortNSet: props.sortNSet, filter: props.filter}
+                                        sortDirArrow:props.sortDirArrow,filterAll:props.filterAll,type:col.filter.type},
+                                        sortNSet: props.sortNSet, filter: props.filters[col.name]}
                                     ),
 
                                 cell: React.createElement(CustomizeCell, {data: rows, field: col.name, filterAll: props.filterAll}),
@@ -482,7 +561,7 @@ var EnhancedFixedDataTable = React.createClass({displayName: "EnhancedFixedDataT
                             }
                         }
                     } else if (filters[col].type == "NUMBER") {
-                        if (_.isNumber(row[col])) {
+                        if (!isNaN(row[col])) {
                             if (Number(row[col]) < filters[col].min) {
                                 return false;
                             }
@@ -606,9 +685,38 @@ var EnhancedFixedDataTable = React.createClass({displayName: "EnhancedFixedDataT
 
     // Operations when filter range changes
     onFilterRangeChange: function (column, min, max) {
+        ++this.state.filterTimer;
+
+        var self = this;
+        var id = setTimeout(function () {
+            var filters = self.state.filters;
+            filters[column].min = min;
+            filters[column].max = max;
+            self.filterSortNSet(self.state.filterAll, filters, self.state.sortBy);
+            --self.state.filterTimer;
+        }, 500);
+
+        if (this.state.filterTimer > 1) {
+            clearTimeout(id);
+            --self.state.filterTimer;
+        }
+    },
+
+    // Operations when filter range changes
+    onResetFilters: function (column, min, max) {
         var filters = this.state.filters;
-        filters[column].min = min;
-        filters[column].max = max;
+        _.each(filters, function (filter) {
+            if(!_.isUndefined(filter._key)) {
+                filter.key = filter._key;
+            }
+            if(!_.isUndefined(filter._min)) {
+                filter.min = filter._min;
+            }
+            if(!_.isUndefined(filter._max)) {
+                filter.max = filter._max;
+            }
+            filter.reset = true;
+        })
         this.filterSortNSet(this.state.filterAll, filters, this.state.sortBy);
     },
 
@@ -685,14 +793,25 @@ var EnhancedFixedDataTable = React.createClass({displayName: "EnhancedFixedDataT
                         min = cell < min ? cell : min;
                     }
                 }
-                col.max = max;
-                col.min = min;
-                filters[col.name] = {type: "NUMBER", min: min, max: max, hide: false};
+                if (max === -Number.MAX_VALUE || min === Number.MIN_VALUE) {
+                    filters[col.name] = {type: "STRING", key: "", _key: "", hide: false};
+                } else {
+                    col.max = max;
+                    col.min = min;
+                    filters[col.name] = {type: "NUMBER", min: min, _min: min, max: max, _max: max, hide: false};
+                }
             } else {
-                filters[col.name] = {type: "STRING", key: "", hide: false};
+                filters[col.name] = {type: "STRING", key: "", _key: "", hide: false};
             }
         }
 
+        cols = _.sortBy(cols, function(obj){
+            if(!_.isUndefined(obj.displayName)) {
+                return obj.displayName;
+            } else {
+                return obj.name;
+            }
+        });
         this.rows = rows;
         return {
             cols: cols,
@@ -748,13 +867,14 @@ var EnhancedFixedDataTable = React.createClass({displayName: "EnhancedFixedDataT
     },
 
     render: function () {
-        var sortDirArrow = this.state.sortDir === this.SortTypes.DESC ? ' ↓' : ' ↑';
+        var sortDirArrow = this.state.sortDir === this.SortTypes.DESC ? 'fa fa-sort-desc' : 'fa fa-sort-asc';
 
         return (
             React.createElement("div", {className: "EFDT-table"},
-                React.createElement("div", {className: "EFDT-tablePrefix row"},
+                React.createElement("div", {className: "EFDT-table-prefix row"},
                     React.createElement(TablePrefix, {cols: this.state.cols, rows: this.rows,
                         onFilterKeywordChange: this.onFilterKeywordChange,
+                        onResetFilters: this.onResetFilters,
                         filters: this.state.filters,
                         updateCols: this.updateCols,
                         updateGoToColumn: this.updateGoToColumn,
@@ -763,6 +883,7 @@ var EnhancedFixedDataTable = React.createClass({displayName: "EnhancedFixedDataT
                         hideFilter: this.props.hideFilter,
                         getData: this.props.download,
                         hider: this.props.showHide,
+                        fixedChoose: this.props.fixedChoose,
                         resultInfo: this.props.resultInfo,
                         rowsSize: this.state.rowsSize,
                         filteredRowsSize: this.state.filteredRows.length}
@@ -770,6 +891,7 @@ var EnhancedFixedDataTable = React.createClass({displayName: "EnhancedFixedDataT
                 ),
                 React.createElement("div", {className: "EFDT-tableMain row"},
                     React.createElement(TableMainPart, {cols: this.state.cols, filteredRows: this.state.filteredRows,
+                        filters: this.state.filters,
                         sortNSet: this.sortNSet, onFilterKeywordChange: this.onFilterKeywordChange,
                         goToColumn: this.state.goToColumn, sortBy: this.state.sortBy,
                         sortDirArrow: sortDirArrow, filterAll: this.state.filterAll,

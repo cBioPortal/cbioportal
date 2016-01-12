@@ -41,6 +41,9 @@ var StudyViewMutationsTabController = (function() {
     return {
         init: function() {
             init();
+        },
+        getDataTable: function () {
+            return StudyViewInitMutationsTab.getDataTable();
         }
     };
 })();

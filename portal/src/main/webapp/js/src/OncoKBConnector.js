@@ -86,7 +86,7 @@ var OncoKB = (function () {
         this.consequence = '';
         this.evidenceType = '';
         this.source = 'cbioportal';
-        this.evidence = {};
+        this.evidence = new OncoKB.Evidence();
         this.cosmicCount = '';
         this.isHotspot = false;
     }
@@ -330,6 +330,13 @@ var OncoKB = (function () {
                 yWeight = -1;
             }
 
+            if(OncoKB.utils.variantNotExist(x.oncokb)) {
+                return yWeight;
+            }
+            if(OncoKB.utils.variantNotExist(y.oncokb)) {
+                return xWeight;
+            }
+            
             if (category === 'oncogenic') {
                 if (!x.oncokb || !x.oncokb.hasOwnProperty('oncogenic') || OncoKB.utils.getOncogenicIndex(x.oncokb.oncogenic) === -1) {
                     if (!y.oncokb || !y.oncokb.hasOwnProperty('oncogenic') || OncoKB.utils.getOncogenicIndex(y.oncokb.oncogenic) === -1) {
@@ -379,7 +386,22 @@ var OncoKB = (function () {
                 return 0;
             }
         }
+        
+        function variantNotExist(variantInfo) {
+            if (_.isObject(variantInfo) && !variantInfo.isVUS && variantInfo.oncogenic === '' &&
+                Object.keys(variantInfo.mutationEffect) &&
+                variantInfo.treatments.resistance.length === 0 &&
+                variantInfo.trials.length === 0 &&
+                variantInfo.prevalence.length === 0 &&
+                variantInfo.progImp.length === 0 &&
+                variantInfo.treatments.sensitivity.length === 0) {
 
+                return true;
+            }else {
+                return false;
+            }
+        }
+        
         return {
             findRegex: findRegex,
             consequenceConverter: consequenceConverter,
@@ -390,7 +412,8 @@ var OncoKB = (function () {
             compareIcons: compareIcons,
             getOncogenicIndex: getOncogenicIndex,
             getTumorTypeFromClinicalDataMap: getTumorTypeFromClinicalDataMap,
-            getTreatmentsLength: getTreatmentsLength
+            getTreatmentsLength: getTreatmentsLength,
+            variantNotExist: variantNotExist
         };
     })();
 
@@ -608,27 +631,29 @@ var OncoKB = (function () {
             return str;
         }
 
-        function getVUSsummary(isRecurrent, isHotspot) {
+        function getVUSsummary(isRecurrent, isHotspot, variantNotExist) {
             var str = ['<div><span>'];
-
-            if (isRecurrent || isHotspot) {
-                var types = [];
-
-                str.push('Due to its recurrence in cancer (');
-
-                if (isRecurrent) {
-                    types.push('COSMIC');
-                }
-                if (isHotspot) {
-                    types.push('<a href=&quot;http://www.ncbi.nlm.nih.gov/pubmed/26619011&quot; target=&quot;_blank&quot;>Chang, M. et al. Nature Biotech. 2015</a>');
-                }
-
-                str.push(types.join(', '));
-                str.push('), this variant may be oncogenic.');
+            if (variantNotExist) {
+                str.push('No information.');
             } else {
-                str.push('This rare variant is of unknown significance.');
-            }
+                if (isRecurrent || isHotspot) {
+                    var types = [];
 
+                    str.push('Due to its recurrence in cancer (');
+
+                    if (isRecurrent) {
+                        types.push('COSMIC');
+                    }
+                    if (isHotspot) {
+                        types.push('<a href=&quot;http://www.ncbi.nlm.nih.gov/pubmed/26619011&quot; target=&quot;_blank&quot;>Chang, M. et al. Nature Biotech. 2015</a>');
+                    }
+
+                    str.push(types.join(', '));
+                    str.push('), this variant may be oncogenic.');
+                } else {
+                    str.push('This rare variant is of unknown significance.');
+                }
+            }
             str.push('</span></div>');
             return str.join('');
         }
@@ -972,8 +997,8 @@ var OncoKB = (function () {
                     break;
             }
 
-            if (hasResistanceDrugs && oncogenic === 2) {
-                color = '#007FFF';
+            if(_.isBoolean(notExist) && notExist) {
+                color = '#D4D4D4';
             }
 
             //Append three circals
@@ -1001,15 +1026,6 @@ var OncoKB = (function () {
                 resistanceDot.append('circle')
                     .attr('r', '4')
                     .attr('fill', '#ffa500');
-            }
-
-            if(_.isBoolean(notExist) && notExist) {
-                var questionMark = svg.append('g')
-                    .attr('transform', 'translate(3.5, 3)');
-                var pathD = 'M4.714 8.411v1.607q0 0.107-0.080 0.188t-0.188 0.080h-1.607q-0.107 0-0.188-0.080t-0.080-0.188v-1.607q0-0.107 0.080-0.188t0.188-0.080h1.607q0.107 0 0.188 0.080t0.080 0.188zM6.83 4.393q0 0.362-0.104 0.676t-0.234 0.512-0.368 0.398-0.385 0.291-0.408 0.238q-0.275 0.154-0.459 0.435t-0.184 0.449q0 0.114-0.080 0.218t-0.188 0.104h-1.607q-0.1 0-0.171-0.124t-0.070-0.251v-0.301q0-0.556 0.435-1.048t0.958-0.727q0.395-0.181 0.563-0.375t0.167-0.509q0-0.281-0.311-0.496t-0.72-0.214q-0.435 0-0.723 0.194-0.234 0.167-0.717 0.77-0.087 0.107-0.208 0.107-0.080 0-0.167-0.054l-1.098-0.837q-0.087-0.067-0.104-0.167t0.037-0.188q1.071-1.781 3.107-1.781 0.536 0 1.078 0.208t0.978 0.556 0.71 0.854 0.275 1.061z';
-                questionMark.append('path')
-                    .attr('fill', '#444')
-                    .attr('d', pathD);
             }
         }
 
@@ -1099,23 +1115,6 @@ var OncoKB = (function () {
         }
     };
 })();
-
-OncoKB.Evidence.prototype = {
-    variantNotExist: function() {
-        if (!this.isVUS && this.oncogenic === '' &&
-            Object.keys(this.mutationEffect) &&
-            this.treatments.resistance.length === 0 &&
-            this.trials.length === 0 &&
-            this.prevalence.length === 0 &&
-            this.progImp.length === 0 &&
-            this.treatments.sensitivity.length === 0) {
-
-            return true;
-        }else {
-            return false;
-        }
-    }
-}
 
 OncoKB.Instance.prototype = {
     getHash: function (gene, mutation, tt, consequence) {
@@ -1386,19 +1385,23 @@ OncoKB.Instance.prototype = {
                     $(this).empty();
                     if (self.variants.hasOwnProperty(oncokbId)) {
                         var _tip = '', _oncogenicTip = '', _hotspotTip = '';
+                        var variantNotExist = OncoKB.utils.variantNotExist(self.variants[oncokbId].evidence);
+
                         if(self.variants[oncokbId].evidence.hasOwnProperty('oncogenic')) {
                             OncoKB.svgs.createOncogenicIcon(this, self.variants[oncokbId].evidence.oncogenic,
                                 self.variants[oncokbId].evidence.hasOwnProperty('treatments') ? self.variants[oncokbId].evidence.treatments.resistance.length > 0 : false,
-                                self.variants[oncokbId].evidence.variantNotExist()
+                                variantNotExist
                             );
                         }else {
                             OncoKB.svgs.createOncogenicIcon(this, -1, false);
                         }
-                        _oncogenicTip += OncoKB.str.getOncogenicitySummary(self.variants[oncokbId].evidence);
+                        if (!variantNotExist) {
+                            _oncogenicTip += OncoKB.str.getOncogenicitySummary(self.variants[oncokbId].evidence);
+                        }
                         if (_.isNumber(self.variants[oncokbId].evidence.oncogenic)) {
                             _oncogenicTip += OncoKB.str.getMutationSummaryStr(self.variants[oncokbId].evidence);
                         } else {
-                            _oncogenicTip += OncoKB.str.getVUSsummary(self.variants[oncokbId].cosmicCount >= 10, self.variants[oncokbId].isHotspot);
+                            _oncogenicTip += OncoKB.str.getVUSsummary(self.variants[oncokbId].cosmicCount >= 10, self.variants[oncokbId].isHotspot, variantNotExist);
                         }
 
                         _hotspotTip = "<b>Recurrent Hotspot</b><br/>This mutated amino acid was identified as a recurrent hotspot (statistical significance, q-value < 0.01) in a set of 11,119 tumor samples of various cancer types (based on <a href='http://www.ncbi.nlm.nih.gov/pubmed/26619011' target='_blank'>Chang, M. et al. Nature Biotech. 2015</a>).";

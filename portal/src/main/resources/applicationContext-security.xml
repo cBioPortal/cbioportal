@@ -62,13 +62,13 @@
 	   </b:property>
 	</b:bean>
 
-    <http entry-point-ref="authenticationEntryPoint" use-expressions="true"> 
+    <http entry-point-ref="authenticationEntryPoint" use-expressions="true">
         ${url.intercepts}
 
         <!-- used for google+ authentication (spring social) -->
         <custom-filter ref="socialAuthenticationFilter" before="PRE_AUTH_FILTER" />
 
-        <!--  logout actions -->      
+        <!--  logout actions -->
         <logout logout-success-url="/login.jsp?logout_success=true" delete-cookies="JSESSIONID"/>
         <!-- to enable access from matlab, r, python, etc clients -->
         <session-management session-fixation-protection="none"/>
@@ -94,7 +94,7 @@
         </authentication-provider>
         <authentication-provider ref="socialAuthenticationProvider"/>
     </authentication-manager>
-    
+
     <!-- beans used to compare token returned by authentication-provider against portal user db tables -->
     <b:bean id="userDetailsService" class="org.mskcc.cbio.portal.authentication.googleplus.PortalUserDetailsService">
         <b:constructor-arg ref="portalUserDAO"/>
@@ -105,7 +105,7 @@
         <b:constructor-arg index="0" ref="usersConnectionRepository" />
         <b:constructor-arg index="1" ref="socialUserDetailsService" />
     </b:bean>
-    
+
     <b:bean id="socialUserDetailsService" class="org.mskcc.cbio.portal.authentication.googleplus.GoogleplusUserDetailsService">
         <b:constructor-arg index="0" ref="userDetailsService" />
     </b:bean>
@@ -114,7 +114,7 @@
     <!--Implementation of UserIdSource that returns the Spring Security Authentication's name as the user ID -->
     <b:bean id="userIdSource" class="org.springframework.social.security.AuthenticationNameUserIdSource"/>
 
-    <b:bean id="usersConnectionRepository" 
+    <b:bean id="usersConnectionRepository"
             class="org.springframework.social.connect.mem.InMemoryUsersConnectionRepository">
         <b:constructor-arg ref="connectionFactoryLocator" />
         <b:property name="connectionSignUp" ref="connectionSignUp"/>
@@ -137,7 +137,7 @@
         <b:constructor-arg value="${googleplus.consumer.key}" />
         <b:constructor-arg value="${googleplus.consumer.secret}" />
     </b:bean>
-   
+
     <!-- end googleplus beans -->
     </b:beans>
 
@@ -153,7 +153,7 @@
 	   </b:property>
 	</b:bean>
 
-    <http use-expressions="true"> 
+    <http use-expressions="true">
         ${url.intercepts}
 
         <openid-login login-page="/login.jsp" default-target-url="/index.do" user-service-ref="customUserService" authentication-failure-url="/login.jsp?login_error=true">
@@ -172,7 +172,7 @@
             </attribute-exchange>
       </openid-login>
 
-        <!--  logout actions -->      
+        <!--  logout actions -->
         <logout logout-success-url="/login.jsp?logout_success=true"/>
         <!-- to enable access from matlab, r, python, etc clients -->
         <session-management session-fixation-protection="none"/>
@@ -462,6 +462,15 @@
             <session-management session-fixation-protection="none"/>
         </http>
 
+        <b:bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+            <b:property name="staticMethod" value="org.mskcc.cbio.portal.util.SpringUtil.setAccessControl"/>
+            <b:property name="arguments">
+                <b:list>
+                    <b:ref bean="accessControl"/>
+                </b:list>
+            </b:property>
+        </b:bean>
+
         <!-- Add Authentication Manager -->
         <authentication-manager>
             <authentication-provider ref="adAuthenticationProvider" />
@@ -473,7 +482,7 @@
         </b:bean>
     </b:beans>
 
-    <!-- authenticate is off beans --> 
+    <!-- authenticate is off beans -->
     <b:beans profile="false">
     <global-method-security pre-post-annotations="disabled"/>
     <http pattern="/**" security="none"/>

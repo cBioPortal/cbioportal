@@ -719,7 +719,7 @@ var EnhancedFixedDataTable = React.createClass({displayName: "EnhancedFixedDataT
             }
             filter.reset = true;
         })
-        this.filterSortNSet(this.state.filterAll, filters, this.state.sortBy);
+        this.filterSortNSet('', filters, this.state.sortBy);
     },
 
     updateCols: function (cols, filters) {

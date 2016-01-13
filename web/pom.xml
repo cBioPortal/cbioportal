@@ -4,7 +4,7 @@
   <parent>
     <artifactId>master</artifactId>
     <groupId>org.mskcc.cbio</groupId>
-    <version>1.0.3-SNAPSHOT</version>
+    <version>${portal.version}</version>
   </parent>
 
   <!-- module metadata -->

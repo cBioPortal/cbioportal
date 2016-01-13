@@ -8,7 +8,7 @@ var FileGrabber = React.createClass({displayName: "FileGrabber",
         this.state.formatData = formatData;
 
         var blob = new Blob([formatData], {type: 'text/plain'});
-        var fileName = "data.txt";
+        var fileName = this.props.downloadFileName ? this.props.downloadFileName : "data.txt";
 
         var downloadLink = document.createElement("a");
         downloadLink.download = fileName;
@@ -119,7 +119,7 @@ var DataGrabber = React.createClass({displayName: "DataGrabber",
             React.createElement("div", null,
                 React.createElement("div", {className: "EFDT-download-btn EFDT-top-btn"},
 
-                    getData != "COPY" ? React.createElement(FileGrabber, {content: content}) : React.createElement("div", null)
+                    getData != "COPY" ? React.createElement(FileGrabber, {content: content, downloadFileName: this.props.downloadFileName}) : React.createElement("div", null)
 
                 ),
                 React.createElement("div", {className: "EFDT-download-btn EFDT-top-btn"},
@@ -285,15 +285,15 @@ var ColumnScroller = React.createClass({displayName: "ColumnScroller",
 
 // Filter component
 var Filter = React.createClass({displayName: "Filter",
-    getInitialState: function() {
+    getInitialState: function () {
         return {key: ''};
     },
-    handleChange: function(event) {
+    handleChange: function (event) {
         this.setState({key: event.target.value});
         this.props.onFilterKeywordChange(event);
     },
     componentWillUpdate: function () {
-        if(!_.isUndefined(this.props.filter) && this.props.filter.key !== this.state.key && this.props.filter.key === '' && this.props.filter.reset) {
+        if (!_.isUndefined(this.props.filter) && this.props.filter.key !== this.state.key && this.props.filter.key === '' && this.props.filter.reset) {
             this.state.key = '';
             this.props.filter.reset = false;
         }
@@ -349,6 +349,7 @@ var TablePrefix = React.createClass({displayName: "TablePrefix",
 
                     React.createElement("div", {className: "EFDT-download"},
                         React.createElement(DataGrabber, {cols: this.props.cols, rows: this.props.rows,
+                            downloadFileName: this.props.downloadFileName,
                             getData: this.props.getData})
                     ),
 
@@ -490,6 +491,7 @@ var TableMainPart = React.createClass({displayName: "TableMainPart",
                                             onFilterKeywordChange: props.onFilterKeywordChange}
                                         ),
 
+                                    key: col.name,
                                     fixed: col.fixed,
                                     align: "center"
                                 },
@@ -702,17 +704,17 @@ var EnhancedFixedDataTable = React.createClass({displayName: "EnhancedFixedDataT
         }
     },
 
-    // Operations when filter range changes
+    // Operations when reset all filters
     onResetFilters: function (column, min, max) {
         var filters = this.state.filters;
         _.each(filters, function (filter) {
-            if(!_.isUndefined(filter._key)) {
+            if (!_.isUndefined(filter._key)) {
                 filter.key = filter._key;
             }
-            if(!_.isUndefined(filter._min)) {
+            if (!_.isUndefined(filter._min)) {
                 filter.min = filter._min;
             }
-            if(!_.isUndefined(filter._max)) {
+            if (!_.isUndefined(filter._max)) {
                 filter.max = filter._max;
             }
             filter.reset = true;
@@ -805,8 +807,8 @@ var EnhancedFixedDataTable = React.createClass({displayName: "EnhancedFixedDataT
             }
         }
 
-        cols = _.sortBy(cols, function(obj){
-            if(!_.isUndefined(obj.displayName)) {
+        cols = _.sortBy(cols, function (obj) {
+            if (!_.isUndefined(obj.displayName)) {
                 return obj.displayName;
             } else {
                 return obj.name;
@@ -836,14 +838,24 @@ var EnhancedFixedDataTable = React.createClass({displayName: "EnhancedFixedDataT
         var onFilterRangeChange = this.onFilterRangeChange;
         $('.rangeSlider')
             .each(function () {
-                var min = Number($(this).attr('data-min')), max = Number($(this).attr('data-max')),
-                    column = $(this).attr('data-column');
+                var min = Math.floor(Number($(this).attr('data-min')) * 1000) / 1000, max = Math.round(Number($(this).attr('data-max')) * 1000) / 1000,
+                    column = $(this).attr('data-column'), diff = max - min, step = 1;
+
+                if (diff < 0.01) {
+                    step = 0.001;
+                } else if (diff < 0.1) {
+                    step = 0.01;
+                } else if (diff < 2) {
+                    step = 0.1;
+                }
+
                 $(this).slider({
                     range: true,
                     min: min,
                     max: max,
+                    step: step,
                     values: [min, max],
-                    slide: function (event, ui) {
+                    change: function (event, ui) {
                         $("#range-" + column).text(ui.values[0] + " to " + ui.values[1]);
                         onFilterRangeChange(column, ui.values[0], ui.values[1]);
                     }
@@ -862,7 +874,8 @@ var EnhancedFixedDataTable = React.createClass({displayName: "EnhancedFixedDataT
             scroller: false,
             resultInfo: true,
             groupHeader: true,
-            fixed: []
+            fixed: [],
+            downloadFileName: 'data.txt'
         };
     },
 
@@ -882,6 +895,7 @@ var EnhancedFixedDataTable = React.createClass({displayName: "EnhancedFixedDataT
                         filter: this.props.filter,
                         hideFilter: this.props.hideFilter,
                         getData: this.props.download,
+                        downloadFileName: this.props.downloadFileName,
                         hider: this.props.showHide,
                         fixedChoose: this.props.fixedChoose,
                         resultInfo: this.props.resultInfo,

@@ -470,9 +470,9 @@ var OncoKB = (function () {
             }
             str += '</b>';
 
-            //if(oncokbInfo.oncogenicDescription && oncokbInfo.oncogenicDescription !== 'null') {
-            //    str += '<span class="oncokb_oncogenic_moreInfo" style="float:right;"><a><i>Clinical summary</i></a></span><br/><span class="oncokb_oncogenic_description" style="display:none; color:black">' + oncokbInfo.oncogenicDescription + '</span><span class="oncokb_oncogenic_lessInfo" style="display:none;float:right"><a><i>Less Info</i></a></span></div>';
-            //}
+            if(oncokbInfo.oncogenicDescription && oncokbInfo.oncogenicDescription !== 'null') {
+                str += '<span class="oncokb_oncogenic_moreInfo" style="float:right;"><a><i>Clinical summary</i></a></span><br/><span class="oncokb_oncogenic_description" style="display:none; color:black">' + oncokbInfo.oncogenicDescription + '</span><span class="oncokb_oncogenic_lessInfo" style="display:none;float:right"><a><i>Less Info</i></a></span></div>';
+            }
 
             str += '</span></div>';
 
@@ -491,7 +491,7 @@ var OncoKB = (function () {
             if (oncokbInfo.mutationEffect.hasOwnProperty('knownEffect')) {
                 str += '<div class="oncokb"><span><b>' + oncokbInfo.mutationEffect.knownEffect + '</b>';
                 if (oncokbInfo.mutationEffect.hasOwnProperty('description') && oncokbInfo.mutationEffect.description) {
-                    str += '<span class="oncokb_alt_moreInfo" style="float:right"><a><i>More Info</i></a></span><br/><span class="oncokb_mutation_effect" style="display:none">' + oncokbInfo.mutationEffect.description + '</span><span class="oncokb_alt_lessInfo" style="display:none;float:right"><a><i>Less Info</i></a></span></div>';
+                    str += '<span class="oncokb_alt_moreInfo" style="float:right"><a><i>Biological summary</i></a></span><br/><span class="oncokb_mutation_effect" style="display:none">' + oncokbInfo.mutationEffect.description + '</span><span class="oncokb_alt_lessInfo" style="display:none;float:right"><a><i>Less Info</i></a></span></div>';
                 }
                 str += '</span></div>';
             }

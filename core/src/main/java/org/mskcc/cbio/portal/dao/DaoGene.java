@@ -58,11 +58,9 @@ final class DaoGene {
     private DaoGene() {
     }
     
-    private static int fakeEntrezId = -1;
+    private static int fakeEntrezId = 0;
     private static synchronized int getNextFakeEntrezId() throws DaoException {
-        while (getGene(fakeEntrezId)!=null) {
-            fakeEntrezId --;
-        }
+        while (getGene(--fakeEntrezId)!=null);
         return fakeEntrezId;
     }
     
@@ -87,35 +85,35 @@ final class DaoGene {
             addGeneAliases(gene);
             // return 1 because normal insert will return 1 if no error occurs
             return 1;
-        } else {
-            Connection con = null;
-            PreparedStatement pstmt = null;
-            ResultSet rs = null;
-            try {
-                int rows = 0;
-                CanonicalGene existingGene = getGene(gene.getEntrezGeneId());
-                if (existingGene == null) {
-                    con = JdbcUtil.getDbConnection(DaoGene.class);
-                    pstmt = con.prepareStatement
-                            ("INSERT INTO gene (`ENTREZ_GENE_ID`,`HUGO_GENE_SYMBOL`,`TYPE`,`CYTOBAND`,`LENGTH`) "
-                                    + "VALUES (?,?,?,?,?)");
-                    pstmt.setLong(1, gene.getEntrezGeneId());
-                    pstmt.setString(2, gene.getHugoGeneSymbolAllCaps());
-                    pstmt.setString(3, gene.getType());
-                    pstmt.setString(4, gene.getCytoband());
-                    pstmt.setInt(5, gene.getLength());
-                    rows += pstmt.executeUpdate();
+        }
+        
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            int rows = 0;
+            CanonicalGene existingGene = getGene(gene.getEntrezGeneId());
+            if (existingGene == null) {
+                con = JdbcUtil.getDbConnection(DaoGene.class);
+                pstmt = con.prepareStatement
+                        ("INSERT INTO gene (`ENTREZ_GENE_ID`,`HUGO_GENE_SYMBOL`,`TYPE`,`CYTOBAND`,`LENGTH`) "
+                                + "VALUES (?,?,?,?,?)");
+                pstmt.setLong(1, gene.getEntrezGeneId());
+                pstmt.setString(2, gene.getHugoGeneSymbolAllCaps());
+                pstmt.setString(3, gene.getType());
+                pstmt.setString(4, gene.getCytoband());
+                pstmt.setInt(5, gene.getLength());
+                rows += pstmt.executeUpdate();
 
-                }
-
-                rows += addGeneAliases(gene);
-
-                return rows;
-            } catch (SQLException e) {
-                throw new DaoException(e);
-            } finally {
-                JdbcUtil.closeAll(DaoGene.class, con, pstmt, rs);
             }
+
+            rows += addGeneAliases(gene);
+
+            return rows;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoGene.class, con, pstmt, rs);
         }
     }
     

@@ -1380,10 +1380,13 @@ class ClinicalValidator(Validator):
                     value = self.attr_defs[col_index][attr_property]
                     if value != srv_attr[attr_property]:
                         self.logger.error(
-                            "%s property for attribute '%s' does not match "
+                            "%s definition for attribute '%s' does not match "
                             "the portal, '%s' expected",
-                            attr_property, col_name, srv_attr[attr_property],
-                            extra={'column_number': col_index + 1,
+                            attr_property.capitalize(),
+                            col_name,
+                            srv_attr[attr_property],
+                            extra={'line_number': self.attr_defs[col_index].keys().index(attr_property),
+                                   'column_number': col_index + 1,
                                    'cause': value})
                         num_errors += 1
 

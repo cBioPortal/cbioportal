@@ -126,38 +126,38 @@ final class DaoGene {
      * @throws DaoException Database Error.
      */
     public static int addGeneAliases(CanonicalGene gene)  throws DaoException {
+        if (MySQLbulkLoader.isBulkLoad()) {
+            //  write to the temp file maintained by the MySQLbulkLoader
+            Set<String> aliases = gene.getAliases();
+            for (String alias : aliases) {
+                MySQLbulkLoader.getMySQLbulkLoader("gene_alias").insertRecord(
+                        Long.toString(gene.getEntrezGeneId()),
+                        alias);
+
+            }
+            // return 1 because normal insert will return 1 if no error occurs
+            return 1;
+        }
+        
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            if (MySQLbulkLoader.isBulkLoad()) {
-                //  write to the temp file maintained by the MySQLbulkLoader
-                Set<String> aliases = gene.getAliases();
-                for (String alias : aliases) {
-                    MySQLbulkLoader.getMySQLbulkLoader("gene_alias").insertRecord(
-                            Long.toString(gene.getEntrezGeneId()),
-                            alias);
-
+            con = JdbcUtil.getDbConnection(DaoGene.class);
+            Set<String> aliases = gene.getAliases();
+            Set<String> existingAliases = getAliases(gene.getEntrezGeneId());
+            int rows = 0;
+            for (String alias : aliases) {
+                if (!existingAliases.contains(alias)) {
+                    pstmt = con.prepareStatement("INSERT INTO gene_alias "
+                            + "(`ENTREZ_GENE_ID`,`GENE_ALIAS`) VALUES (?,?)");
+                    pstmt.setLong(1, gene.getEntrezGeneId());
+                    pstmt.setString(2, alias);
+                    rows += pstmt.executeUpdate();
                 }
-                // return 1 because normal insert will return 1 if no error occurs
-                return 1;
-            } else {
-                    con = JdbcUtil.getDbConnection(DaoGene.class);
-                    Set<String> aliases = gene.getAliases();
-                    Set<String> existingAliases = getAliases(gene.getEntrezGeneId());
-                    int rows = 0;
-                    for (String alias : aliases) {
-                        if (!existingAliases.contains(alias)) {
-                            pstmt = con.prepareStatement("INSERT INTO gene_alias "
-                                    + "(`ENTREZ_GENE_ID`,`GENE_ALIAS`) VALUES (?,?)");
-                            pstmt.setLong(1, gene.getEntrezGeneId());
-                            pstmt.setString(2, alias);
-                            rows += pstmt.executeUpdate();
-                        }
-                    }
-                    
-                    return rows;
             }
+
+            return rows;
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

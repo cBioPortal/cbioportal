@@ -41,33 +41,36 @@
 
 var StudyViewClinicalTabController = (function () {
     function init() {
-        //StudyViewInitClinicalTab.init(
-        //    'clinical_table',
-        //    'clinical-data-table-div',
-        //    {
-        //        "arr": StudyViewProxy.getArrData(),
-        //        "attr": StudyViewProxy.getAttrData()
-        //    });
-        var json = StudyViewProxy.getWebserviceData(), testElement;
+        var arr = StudyViewProxy.getArrData(), attr = $.extend(true, [], StudyViewProxy.getAttrData()), testElement, data = [];
 
-        json.attributes.push({
-            attr_id: 'sample',
-            datatype: 'STRING',
-            display_name: 'SAMPLE ID'
+        _.each(arr, function (datum) {
+            for (var key in datum) {
+                if(key !== 'CASE_ID') {
+                    data.push({
+                        attr_id: key,
+                        attr_val: datum[key],
+                        CASE_ID: datum.CASE_ID
+                    });
+                }
+            }
         });
 
         testElement = React.createElement(EnhancedFixedDataTable, {
-            input: json,
+            input: {
+                data: data,
+                attributes: attr
+            },
             filter: "ALL",
             download: "ALL",
+            downloadFileName: StudyViewParams.params.studyId + '_clinical_data.tsv',
             showHide: true,
             hideFilter: true,
             scroller: true,
             resultInfo: true,
             groupHeader: true,
             fixedChoose: true,
-            fixed: ["sample"],
-            uniqueId: "sample",
+            fixed: ["CASE_ID", 'PATIENT_ID'],
+            uniqueId: "CASE_ID",
             rowHeight: 30,
             tableWidth: 1200,
             maxHeight: 500,

@@ -165,8 +165,12 @@ var StudyViewProxy = (function() {
                     if(_.isString(a1[0].attributes[i].display_name)){
                         caseAttr.display_name = a1[0].attributes[i].display_name;
                     } else {
-                        //Fallback to using ID if there is no display_name
-                        caseAttr.display_name =  a1[0].attributes[i].attr_id;
+                        if (caseAttr.attr_id === 'CASE_ID') {
+                            caseAttr.display_name = "Sample ID";
+                        } else {
+                            //Fallback to using ID if there is no display_name
+                            caseAttr.display_name = caseAttr.attr_id;
+                        }
                     }
                     caseAttr.display_name = toPascalCase(caseAttr.display_name);
                     caseAttr.datatype = a1[0].attributes[i].datatype;

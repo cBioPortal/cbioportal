@@ -981,13 +981,13 @@ var OncoKB = (function () {
             var g = svg.append('g')
                 .attr('transform', 'translate(7, 9)');
 
-            var color = '#AAAAAA';
+            var color;
             switch (oncogenic) {
                 case 0:
-                    color = '#696969';
+                    color = '#66B2FF';
                     break;
                 case -1:
-                    color = '#AAAAAA';
+                    color = '#696969';
                     break;
                 case 2:
                     color = '#007FFF';
@@ -995,10 +995,13 @@ var OncoKB = (function () {
                 case 1:
                     color = '#007FFF';
                     break;
+                default:
+                    color = '#696969';
+                    break;
             }
 
             if(_.isBoolean(notExist) && notExist) {
-                color = '#D4D4D4';
+                color = '#AAAAAA';
             }
 
             //Append three circals

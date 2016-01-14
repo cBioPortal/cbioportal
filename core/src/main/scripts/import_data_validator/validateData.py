@@ -18,7 +18,6 @@ import argparse
 import re
 import csv
 import itertools
-import json
 import requests
 
 
@@ -46,7 +45,7 @@ TIMELINE_META_PATTERN = 'meta_timeline'
 META_TYPE_TO_META_DICT = {}
 DEFINED_SAMPLE_IDS = ()
 STUDY_DIR = ''
-
+SERVER_URL = 'http://localhost/cbioportal'
 
 META_FILE_PATTERNS = [
     STUDY_META_PATTERN,
@@ -186,7 +185,7 @@ CASE_LIST_FIELDS = {
     'case_list_name': True,
     'case_list_description': True,
     'case_list_ids': True,
-    # TODO: define 'case_list_category' when optional meta fields are supported
+    'case_list_category': False
 }
 
 CLINICAL_META_FIELDS = {
@@ -567,7 +566,10 @@ class Validator(object):
                 return
 
             # parse the start-of-file comment lines
-            self.processTopLines(top_comments)
+            if not self.processTopLines(top_comments):
+                self.logger.info(
+                    'Invalid header comments, skipped data in file')
+                return
 
             # read five data lines to detect quotes in the tsv file
             first_data_lines = []
@@ -583,6 +585,8 @@ class Validator(object):
                     '"' + dialect.delimiter in sample_content):
                 dialect.quoting = csv.QUOTE_NONE
             if not self._checkTsvDialect(dialect):
+                self.logger.info(
+                    'Invalid file format, skipped data in file')
                 return
 
             # parse the first non-commented line as the tsv header
@@ -622,8 +626,12 @@ class Validator(object):
         self.logger.info('Validation of file complete')
 
     def processTopLines(self, line_list):
-        """Overide to parse any list of comment lines above the TSV header."""
-        pass
+        """Hook to parse any list of comment lines above the TSV header.
+
+        Return False if these lines are invalid and the file cannot be
+        parsed, True otherwise.
+        """
+        return True
 
     def checkHeader(self, cols):
 
@@ -732,12 +740,14 @@ class Validator(object):
         """Check if a csv.Dialect subclass describes a valid cBio data file."""
         if dialect.delimiter != '\t':
             self.logger.error('Not a tab-delimited file',
-                              extra={'cause': repr(dialect.delimiter)[1:-1]})
+                              extra={'cause': 'delimiters of type: %s' %
+                                              repr(dialect.delimiter)})
             return False
         if dialect.quoting != csv.QUOTE_NONE:
             self.logger.error('Found quotation marks around field(s) in the first rows of the file. '
                               'Fields and values should not be surrounded by quotation marks.',
-                              extra={'cause': 'Found quotation marks of the type: [' + repr(dialect.quotechar)[1:-1] + '] '} )
+                              extra={'cause': 'quotation marks of type: [%s] ' %
+                                              repr(dialect.quotechar)[1:-1]})
         return True
 
     def _checkLineBreaks(self):
@@ -753,7 +763,7 @@ class Validator(object):
             self.logger.error('No line breaks recognized in file',
                               extra={'cause': repr(self.newlines)[1:-1]})
 
-    def checkInt(self,value):
+    def checkInt(self, value):
         """Checks if a value is an integer."""
         try:
             int(value)
@@ -1019,7 +1029,7 @@ class MutationsExtendedValidator(Validator):
         # TODO remove this function, it violates the MAF standard
 
         if not line_list:
-            return
+            return True
         line = line_list[0]
 
         self.headerPresent = True
@@ -1028,6 +1038,7 @@ class MutationsExtendedValidator(Validator):
         self.toplinecount += 1
         for sampleId in topline:
             self.sampleIdsHeader.add(sampleId)
+        return True
 
     def printDataInvalidStatement(self, value, col_index):
         """Prints out statement for invalid values detected."""
@@ -1220,24 +1231,165 @@ class ClinicalValidator(Validator):
     ]
     REQUIRE_COLUMN_ORDER = False
 
+    srv_attrs = None
+
     def __init__(self, *args, **kwargs):
         super(ClinicalValidator, self).__init__(*args, **kwargs)
         self.sampleIds = set()
+        self.attr_defs = []
 
     def processTopLines(self, line_list):
-        """Validate the the attribute definitions above the column header."""
-        # TODO implement this validation
-        pass
+
+        """Parse the the attribute definitions above the column header."""
+
+        LINE_NAMES = ('display_name',
+                      'description',
+                      'datatype',
+                      'attribute_type',
+                      'priority')
+
+        if not line_list:
+            self.logger.error(
+                'No data type header comments found in clinical data file',
+                extra={'line_number': self.line_number})
+            return False
+        if len(line_list) != len(LINE_NAMES):
+            self.logger.error(
+                '%d comment lines at start of clinical data file, expected %d',
+                len(line_list),
+                len(LINE_NAMES))
+            return False
+
+        # remove the # signs
+        line_list = [line[1:] for line in line_list]
+
+        attr_defs = None
+        num_attrs = 0
+        csvreader = csv.reader(line_list,
+                               delimiter='\t',
+                               quoting=csv.QUOTE_NONE,
+                               strict=True)
+        invalid_values = False
+        for line_index, row in enumerate(csvreader):
+
+            if attr_defs is None:
+                # make a list of as many lists as long as there are columns
+                num_attrs = len(row)
+                attr_defs = [OrderedDict() for i in range(num_attrs)]
+            elif len(row) != num_attrs:
+                self.logger.error(
+                    'Varying numbers of columns in clinical header (%d, %d)',
+                    num_attrs,
+                    len(row),
+                    extra={'line_number': line_index + 1})
+                return False
+
+            for col_index, value in enumerate(row):
+
+                # test for invalid values in these (otherwise parseable) lines
+                if value in ('', 'NA'):
+                    self.logger.error(
+                        'Empty %s field in clinical attribute definition',
+                        LINE_NAMES[line_index],
+                        extra={'line_number': line_index + 1,
+                               'column_number': col_index + 1,
+                               'cause': value})
+                    invalid_values = True
+                if LINE_NAMES[line_index] in ('display_name', 'description'):
+                    pass
+                elif LINE_NAMES[line_index] == 'datatype':
+                    VALID_DATATYPES = ('STRING', 'NUMBER', 'BOOLEAN')
+                    if value not in VALID_DATATYPES:
+                        self.logger.error(
+                            'Invalid data type definition, must be one of'
+                            ' [%s]',
+                            ', '.join(VALID_DATATYPES),
+                            extra={'line_number': line_index + 1,
+                                   'colum_number': col_index + 1,
+                                   'cause': value})
+                        invalid_values = True
+                elif LINE_NAMES[line_index] == 'attribute_type':
+                    VALID_ATTR_TYPES = ('PATIENT', 'SAMPLE')
+                    if value not in VALID_ATTR_TYPES:
+                        self.logger.error(
+                            'Invalid attribute type definition, must be one of'
+                            ' [%s]',
+                            ', '.join(VALID_ATTR_TYPES),
+                            extra={'line_number': line_index + 1,
+                                   'colum_number': col_index + 1,
+                                   'cause': value})
+                        invalid_values = True
+                elif LINE_NAMES[line_index] == 'priority':
+                    try:
+                        if int(value) < 1:
+                            raise ValueError()
+                    except ValueError:
+                        self.logger.error(
+                            'Priority definition must be a positive integer',
+                            extra={'line_number': line_index + 1,
+                                   'column_number': col_index + 1,
+                                   'cause': value})
+                        invalid_values = True
+                else:
+                    raise ValueError('Unknown clinical header line name')
+
+                attr_defs[col_index][LINE_NAMES[line_index]] = value
+
+        self.attr_defs = attr_defs
+        return not invalid_values
 
     def checkHeader(self, cols):
+
         num_errors = super(ClinicalValidator, self).checkHeader(cols)
-        for col_name in self.cols:
+
+        if self.numCols != len(self.attr_defs):
+            self.logger.error(
+                'Varying numbers of columns in clinical header (%d, %d)',
+                len(self.attr_defs),
+                len(self.cols),
+                extra={'line_number': self.line_number})
+            num_errors += 1
+        # use the non-file-related base logger for this class method
+        self.request_attrs(self.logger.logger)
+        for col_index, col_name in enumerate(self.cols):
             if not col_name.isupper():
                 self.logger.warning(
                     "Clinical header not in all caps",
                     extra={'line_number': self.line_number,
                            'cause': col_name})
-        self.cols = [s.upper() for s in self.cols]
+            srv_attr = self.srv_attrs.get(col_name)
+            if srv_attr is None:
+                self.logger.warning(
+                    'New %s-level attribute will be added to the portal',
+                    self.attr_defs[col_index]['attribute_type'].lower(),
+                    extra={'line_number': self.line_number,
+                           'column_number': col_index + 1,
+                           'cause': col_name})
+            else:
+                # copy the dict to make local changes
+                srv_attr = dict(srv_attr)
+                # compare defined values with existing ones
+                if 'attribute_type' in srv_attr:
+                    raise ValueError(
+                        'attribute_type unexpectedly defined by portal API')
+                if srv_attr['is_patient_attribute'] == '1':
+                    srv_attr['attribute_type'] = 'PATIENT'
+                else:
+                    srv_attr['attribute_type'] = 'SAMPLE'
+                for attr_property in self.attr_defs[col_index]:
+                    value = self.attr_defs[col_index][attr_property]
+                    if value != srv_attr[attr_property]:
+                        self.logger.error(
+                            "%s definition for attribute '%s' does not match "
+                            "the portal, '%s' expected",
+                            attr_property.capitalize(),
+                            col_name,
+                            srv_attr[attr_property],
+                            extra={'line_number': self.attr_defs[col_index].keys().index(attr_property),
+                                   'column_number': col_index + 1,
+                                   'cause': value})
+                        num_errors += 1
+
         return num_errors
 
     def checkLine(self, data):
@@ -1252,6 +1404,38 @@ class ClinicalValidator(Validator):
                                'column_number': col_index + 1,
                                'cause': value})
                 self.sampleIds.add(value.strip())
+
+    @classmethod
+    def request_attrs(cls, logger):
+        '''Set cls.srv_sample_attrs and cls.srv_patient_attrs from portal.'''
+        if cls.srv_attrs is None:
+            cls.srv_attrs = cls._request_attrs(
+                SERVER_URL + '/api/clinicalattributes/patients', logger)
+            srv_sample_attrs = cls._request_attrs(
+                SERVER_URL + '/api/clinicalattributes/samples', logger)
+            id_overlap = (set(cls.srv_attrs.keys()) &
+                          set(srv_sample_attrs.keys()))
+            if id_overlap:
+                raise ValueError(
+                    'The portal returned these clinical attributes both for'
+                    'samples and for patients: {}'.format(
+                        ', '.join(id_overlap)))
+            else:
+                cls.srv_attrs.update(srv_sample_attrs)
+
+    @classmethod
+    def _request_attrs(cls, service_url, logger):
+        '''Request attribute definitions from a portal API url
+
+        And return as a dict indexed by attribute ID (column header).
+        '''
+        json_data = request_from_portal_api(service_url, logger)
+        attr_dict = {}
+        for attr in json_data:
+            attr_without_id = dict(attr)
+            del attr_without_id['attr_id']
+            attr_dict[attr['attr_id']] = attr_without_id
+        return attr_dict
 
 
 class SegValidator(Validator):
@@ -1485,30 +1669,36 @@ def processCaseListDirectory(caseListDir, cancerStudyId, logger):
 
     logger.info('Validation of case lists complete')
 
-def get_hugo_entrez_map(server_url):
+
+def request_from_portal_api(service_url, logger):
+    """Send a request to the portal API and return the decoded JSON object."""
+    if logger.isEnabledFor(logging.INFO):
+        url_split = service_url.split('/api/', 1)
+        logger.info("Requesting %s from portal at '%s'",
+                    url_split[1], url_split[0])
+    response = requests.get(service_url)
+    try:
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as e:
+        raise IOError(
+            'Connection error for URL: {url}. Administrator: please check if '
+            '[{url}] is accessible. Message: {msg}'.format(url=service_url,
+                                                           msg=e.message))
+    return response.json()
+
+
+def get_hugo_entrez_map(server_url, logger):
     '''
     Returns a dict with hugo symbols and respective entrezId, e.g.:
     # dict: {'LOC105377913': '105377913', 'LOC105377912': '105377912',  hugo: entrez, hugo: entrez...
     '''
-    try:
-        service = server_url + "/api/genes"
-        response = requests.get(service)
-        if response.status_code != 200:
-            raise Exception( "Connection error for URL: " + server_url + 
-                             ". Got response: " + str(response.status_code) + " for service " + service)
-        
-        json_data = json.loads(response.text)
-        # json_data is list of dicts, each entry containing e.g. dict: {'hugo_gene_symbol': 'SRXN1', 'entrez_gene_id': '140809'}
-        # We want to transform this to the format dict: {hugo: entrez, hugo: entrez...
-        result_dict = {}
-        for data_item in json_data:
-            result_dict[data_item['hugo_gene_symbol']] = data_item['entrez_gene_id']
-        
-        return result_dict
-        
-    except Exception, e:
-        raise Exception( "Connection error for URL: " + server_url + 
-                         ". Administrator: please check if [" + server_url + "] is accessible. Message: " + str(e.message))
+    json_data = request_from_portal_api(server_url + '/api/genes', logger)
+    # json_data is list of dicts, each entry containing e.g. dict: {'hugo_gene_symbol': 'SRXN1', 'entrez_gene_id': '140809'}
+    # We want to transform this to the format dict: {hugo: entrez, hugo: entrez...
+    result_dict = {}
+    for data_item in json_data:
+        result_dict[data_item['hugo_gene_symbol']] = data_item['entrez_gene_id']
+    return result_dict
 
 
 # ------------------------------------------------------------------------------
@@ -1516,8 +1706,10 @@ def interface(args=None):
     parser = argparse.ArgumentParser(description='cBioPortal meta Validator')
     parser.add_argument('-s', '--study_directory', type=str, required=True,
                         help='path to directory.')
-    parser.add_argument('-u', '--url_server', type=str, required=False, default='http://localhost/cbioportal',
-                        help='(optional) URL to cBioPortal server. You can set this if your URL is other then http://localhost/cbioportal')
+    parser.add_argument('-u', '--url_server', type=str, required=False,
+                        default='http://localhost/cbioportal',
+                        help='URL to cBioPortal server. You can set this if '
+                             'your URL is not http://localhost/cbioportal')
     parser.add_argument('-html', '--html_table', type=str, required=False,
                         help='path to html report output file')
     parser.add_argument('-v', '--verbose', required=False, action="store_true",
@@ -1589,14 +1781,11 @@ def main_validate(args):
             collapsing_html_handler.setLevel(logging.ERROR)
         logger.addHandler(collapsing_html_handler)
 
-
-    hugo_entrez_map = get_hugo_entrez_map(SERVER_URL)
+    hugo_entrez_map = get_hugo_entrez_map(SERVER_URL, logger)
 
     # Get all files in study_dir
     filenames = [os.path.join(STUDY_DIR, x) for x in os.listdir(STUDY_DIR)]
     cancerStudyId = ''
-    filenameMetaStringCheck = ''
-    filenameStringCheck = ''
 
     # Create validators based on meta files
     validators = []
@@ -1623,7 +1812,6 @@ def main_validate(args):
                 else:
                     META_TYPE_TO_META_DICT[meta_file_type] = [meta]
 
-
     if CLINICAL_META_PATTERN not in META_TYPE_TO_META_DICT:
         logger.error('No clinical file detected')
         return exit_status_handler.get_exit_status()
@@ -1632,7 +1820,7 @@ def main_validate(args):
         if logger.isEnabledFor(logging.ERROR):
             logger.error(
                 'Multiple clinical files detected',
-                extra={'cause':', '.join(
+                extra={'cause': ', '.join(
                     getFileFromFilepath(f[1]) for f in
                     META_TYPE_TO_META_DICT[CLINICAL_META_PATTERN])})
 

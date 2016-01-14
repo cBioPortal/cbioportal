@@ -390,11 +390,6 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
 //                sortStatus.splice(indexNum, 1);
 //                removeClinicalAttribute();
 //            });// enable delete symbol "x" function
-            $('#oncoprint_diagram_slider_icon').css('height',function(){ 
-            var is_firefox = navigator.userAgent.indexOf("Firefox") !== -1;
-            var result = is_firefox ? '34px' : '15px';
-            return result;
-            }); 
         
             $('#oncoprinter_diagram_sortby_group' ).on( 'click', '.dropdown-menu li', function( event ) {
                 var $target = $( event.currentTarget );

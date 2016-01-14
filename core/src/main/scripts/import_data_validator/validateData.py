@@ -1044,13 +1044,13 @@ class MutationsExtendedValidator(Validator):
 
     def printDataInvalidStatement(self, value, col_index):
         """Prints out statement for invalid values detected."""
-        message = ("Value in column '%s' appears invalid" %
+        message = ("Value in column '%s' is invalid" %
                    self.cols[col_index])
         if self.extra_exists:
             message = self.extra
             self.extra = ''
             self.extra_exists = False
-        self.logger.warning(
+        self.logger.error(
             message,
             extra={'line_number': self.line_number,
                    'column_number': col_index + 1,
@@ -1393,7 +1393,7 @@ class ClinicalValidator(Validator):
                             attr_property.capitalize(),
                             col_name,
                             transl_attr_properties[attr_property],
-                            extra={'line_number': self.attr_defs[col_index].keys().index(attr_property),
+                            extra={'line_number': self.attr_defs[col_index].keys().index(attr_property) + 1,
                                    'column_number': col_index + 1,
                                    'cause': value})
                         num_errors += 1
@@ -1646,7 +1646,7 @@ def processMetafile(filename, cancerStudyId, logger, case_list=False):
                 ' as the attribute data_file_path is not expected in this meta file.',
                 metaDictionary['data_file_path'], 
                 extra={'data_filename': getFileFromFilepath(filename),
-                       'cause': field})
+                       'cause': metaDictionary['data_file_path']})
 
     return metaDictionary
 

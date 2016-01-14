@@ -1801,6 +1801,7 @@ def main_validate(args):
 
     # get a logger to emit messages
     logger = logging.getLogger(__name__)
+    logger.handlers = []
     logger.setLevel(logging.INFO)
     exit_status_handler = MaxLevelTrackingHandler()
     logger.addHandler(exit_status_handler)
@@ -1965,8 +1966,6 @@ def main_validate(args):
 
     logger.info('Validation complete')
     exit_status = exit_status_handler.get_exit_status()
-    logging.shutdown()
-    del logging._handlerList[:]  # workaround for harmless exceptions on exit
 
     return exit_status
 
@@ -1974,12 +1973,16 @@ def main_validate(args):
 # vamanos 
 
 if __name__ == '__main__':
-    # parse command line options
-    args = interface()
-    # run the script
-    exit_status = main_validate(args)
-    print >>sys.stderr, ('Validation of study {status}.'.format(
-        status={0: 'succeeded',
-                1: 'failed',
-                2: 'not performed as problems occurred',
-                3: 'succeeded with warnings'}.get(exit_status, 'unknown')))
+    try:
+        # parse command line options
+        args = interface()
+        # run the script
+        exit_status = main_validate(args)
+        print >>sys.stderr, ('Validation of study {status}.'.format(
+            status={0: 'succeeded',
+                    1: 'failed',
+                    2: 'not performed as problems occurred',
+                    3: 'succeeded with warnings'}.get(exit_status, 'unknown')))
+    finally:
+        logging.shutdown()
+        del logging._handlerList[:]  # workaround for harmless exceptions on exit

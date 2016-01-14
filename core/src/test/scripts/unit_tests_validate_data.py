@@ -6,14 +6,14 @@ version 3, or (at your option) any later version.
 
 import unittest
 import logging
-from import_data_validator.hugoEntrezMap import parse_ncbi_file
+import hugoEntrezMap
 from import_data_validator import validateData
 
 
 # globals:
 hugo_mapping_file = 'test_data/Homo_sapiens.gene_info.gz'
 ncbi_file = open(hugo_mapping_file)
-hugo_entrez_map = parse_ncbi_file(ncbi_file)
+hugo_entrez_map = hugoEntrezMap.parse_ncbi_file(ncbi_file)
 # hard-code known clinical attributes
 KNOWN_PATIENT_ATTRS = {
     "PATIENT_ID": {"display_name":"Patient Identifier","description":"Identifier to uniquely specify a patient.","datatype":"STRING","is_patient_attribute":"1","priority":"1"},
@@ -28,6 +28,26 @@ KNOWN_PATIENT_ATTRS = {
 KNOWN_SAMPLE_ATTRS = {
     "SAMPLE_ID": {"display_name":"Sample Identifier","description":"A unique sample identifier.","datatype":"STRING","is_patient_attribute":"0","priority":"1"},
 }
+
+
+# TODO - something like this could be done for a web-services stub:
+# def dumy_request_from_portal_api(service_url, logger):
+#     """Send a request to the portal API and return the decoded JSON object."""
+#     if logger.isEnabledFor(logging.INFO):
+#         url_split = service_url.split('/api/', 1)
+#         logger.info("Requesting %s from portal at '%s'",
+#                     url_split[1], url_split[0])
+#     response = requests.get(service_url)
+#     try:
+#         response.raise_for_status()
+#     except requests.exceptions.HTTPError as e:
+#         raise IOError(
+#             'Connection error for URL: {url}. Administrator: please check if '
+#             '[{url}] is accessible. Message: {msg}'.format(url=service_url,
+#                                                            msg=e.message))
+#     return response.json()
+# 
+# validateData.request_from_portal_api = dumy_request_from_portal_api
 
 
 class LogBufferTestCase(unittest.TestCase):

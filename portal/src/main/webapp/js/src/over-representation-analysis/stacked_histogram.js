@@ -60,12 +60,12 @@
 function stacked_histogram(divId) {
     var margins = {
         top: 12,
-        left: 75,
+        left: 100,
         right: 24,
         bottom: 24
     };
-    var width = 400 - margins.left - margins.right;
-    var height = 100 - margins.top - margins.bottom;
+    var width = 350 - margins.left - margins.right;
+    var height = 85 - margins.top - margins.bottom;
     var animationDuration=500;
     var dataset, yAxisComponent, groups;
 
@@ -144,6 +144,7 @@ function stacked_histogram(divId) {
             .append('svg')
             .attr('width', width + margins.left + margins.right)
             .attr('height', height + margins.top + margins.bottom)
+            .style('padding-left', '20px')
             .append('g')
             .attr('transform', 'translate(' + margins.left + ',' + margins.top + ')');
 
@@ -188,6 +189,9 @@ function stacked_histogram(divId) {
         yAxisComponent = svg.append("g")
             .attr("class", "axis")
             .call(yAxis);
+
+        addYAxisToolTip(yAxisComponent);
+
     }
 
     // update the histogram
@@ -202,8 +206,6 @@ function stacked_histogram(divId) {
 
         // update the data
         groups.data(dataset);
-
-        var type = 'linear';
 
         // update the rectangle with a transition
         groups.selectAll('rect')
@@ -274,6 +276,40 @@ function stacked_histogram(divId) {
             .scale(yScale)
             .orient('left');
         return yAxis;
+    }
+
+    /**
+     * adds small information symbols to the y-axis.
+     * @param yaxis
+     */
+    function addYAxisToolTip(yaxis){
+        var cnt=0;
+        // for each y-axis tick
+        yaxis.selectAll(".tick")[0].forEach(function(d1) {
+
+            // add an image
+            var curImage = yaxis.append("svg:image")
+                .attr("xlink:href", "images/info.png")
+                .attr("class", "plots-title-x-help")
+                .attr("x", -100)
+                .attr("y", 8+(cnt*20))
+                .attr("width", "10")
+                .attr("height", "10");
+
+            // determine the axisText
+            var axisText = "Query Genes selected by user";
+            if(cnt>0) axisText = "Gene selected in table";
+
+            // create an element with a tipLabel, which is what the showTip function expects
+            var element = {
+                tipLabel: axisText
+            };
+
+            // add the tooltip
+            showTip(element, $(curImage));
+
+            cnt++;
+        });
     }
 
     /**

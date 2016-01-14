@@ -70,12 +70,12 @@ function MiniOnco(plotDiv, miniOncoDiv, originalData){
             barPieceValue: setSizeAlt - setSizeAltInAlt,
             color: "lightgrey"
         }, {
-            barName: "QGenes",
+            barName: "Query Genes",
             barPieceName: "QGenes Unaltered",
             barPieceValue: setSizeUnalt,
             color: "lightgrey"
         },{
-            barName: "QGenes",
+            barName: "Query Genes",
             barPieceName: "QGenes Altered",
             barPieceValue: setSizeAlt,
             color: "#58ACFA"

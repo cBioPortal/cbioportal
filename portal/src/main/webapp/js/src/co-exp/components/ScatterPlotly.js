@@ -26,22 +26,12 @@
  *
  * @param divName: where the plot has to be created
  * @param plotData: the data, provided in the plotly way. PlotData should contain an x, y and text array
- * @param plotDataAttr: contains information about the max and min x and y values
  */
-var ScatterPlot = function(divName, plotData, plotDataAttr) {
+var ScatterPlot = function(divName, plotData) {
     var self=this;
     var prevSpecialSelection=[], prevSelection=[];
     var traces=[];
     var dataTrace;
-
-    // used for determining whether to filter the execute the drag callback
-    var prevDraggedData={
-        xMin: plotDataAttr.min_x,
-        xMax: plotDataAttr.max_x,
-        yMin: plotDataAttr.min_y,
-        yMax: plotDataAttr.max_y
-    };
-
 
     // default layout options for the plot
     var defaultPlotLayout={
@@ -57,6 +47,7 @@ var ScatterPlot = function(divName, plotData, plotDataAttr) {
         },
         hovermode:'closest',
         showlegend: false,
+        dragmode: 'select', // box select
         xaxis: {
             titlefont: {
                 color: 'black',
@@ -125,98 +116,38 @@ var ScatterPlot = function(divName, plotData, plotDataAttr) {
         addHover();
     }
 
+
     /**
-     * Based on the eventData, determine which points are in the current area. Also determine the minX, maxX, minY and maxY
-     * for the datapoints to possibly prevent the callback from occurring.
-     * @param eventData: contains the boundaries of the current area. However this data can have multiple formats. For example:
-     *    autoscale button clicked: Object {xaxis.autorange: true, yaxis.autorange: true}
-     *    zoom button clicked: Object {xaxis.range: Array[2], yaxis.range: Array[2]}
-     *    drag zoom: Object {xaxis.range[0]: <value>, xaxis.range[1]: <value>, yaxis.range[0]: <value>, yaxis.range[1]: <value>}
-     *    pan follows drag zoom, however, if you pan along one axis, the other axis will have not have its range defined
-     * @returns {*}: the genes found in the current area and the max and min x and y vales of the dragged genes
+     * adds a drag listener to the plotly plot
+     * @param callback
      */
-    function findDraggedGenes(eventData){
-        var draggedGenes=[];
-        var xVal, yVal, xMin=99, xMax=-99, yMin=99, yMax=-99;
+    this.addDragListener = function(callback) {
+        var graphDiv = document.getElementById(divName);
 
-        // if autoscale has been clicked, reset the values to their originals
-        if(autoscaleButtonClicked(eventData)){
-            draggedGenes = dataTrace.text;
-            xMin = plotDataAttr.min_x;
-            xMax = plotDataAttr.max_x;
-            yMin = plotDataAttr.min_y;
-            yMax = plotDataAttr.max_y;
-        }
+        graphDiv.on('plotly_selected', function (eventData) {
+            // workaround for a bug: if you click in the graph while the drag-mode is enabled,
+            // eventData is undefined
+            if(eventData!=undefined) {
+                var draggedData = [];
+                // find the gene name of the selected point
+                eventData.points.forEach(function (pt) {
+                    draggedData.push(dataTrace.text[pt.pointNumber]);
+                });
 
-        else {
-            var xLeft, xRight, yBottom, yTop;
-            // when clicking the zoom in or zoom out button, the eventdata follows a different format
-            if(zoomButtonClicked(eventData)){
-                xLeft = eventData['xaxis.range'][0];
-                xRight = eventData['xaxis.range'][1];
-                yBottom = eventData['yaxis.range'][0];
-                yTop = eventData['yaxis.range'][1];
-            }
-            // zoom by dragging or pan
-            else {
-                // when you drag over the edge of the plot and when you pan on only one axis, plotly doesn't set the ranges
-                // in such as case, set it to the previous value
-                xLeft = eventData['xaxis.range[0]'] === undefined ? prevDraggedData.xMin : eventData['xaxis.range[0]'];
-                xRight = eventData['xaxis.range[1]'] === undefined ? prevDraggedData.xMax : eventData['xaxis.range[1]'];
-                yBottom = eventData['yaxis.range[0]'] === undefined ? prevDraggedData.yMin : eventData['yaxis.range[0]'];
-                yTop = eventData['yaxis.range[1]'] === undefined ? prevDraggedData.yMax : eventData['yaxis.range[1]'];
-            }
-
-            // loop over the array, retrieve the x and y of the points and check which points are inside the selected range
-            for (var i = 0; i < dataTrace.x.length; i++) {
-                xVal = dataTrace.x[i];
-                yVal = dataTrace.y[i];
-                // check whether the point is in the area
-                if (xVal >= xLeft && xVal <= xRight && yVal >= yBottom && yVal <= yTop) {
-                    // add it for filtering
-                    draggedGenes.push(dataTrace.text[i]);
-                    // keep track of minimum and maximum to possibly prevent filtering
-                    if (xVal < xMin){
-                        xMin = xVal;
-                    }
-                    if (xVal > xMax){
-                        xMax = xVal;
-                    }
-                    if (yVal < yMin){
-                        yMin = yVal;
-                    }
-                    if (yVal > yMax){
-                        yMax = yVal;
-                    }
+                // if all points are selected clear the filter
+                if (draggedData.length == dataTrace.text.length) {
+                    callback([]);
+                }
+                // if no points are selected, filter everything
+                else if (draggedData.length == 0) {
+                    callback(["FilterAll"]);
+                }
+                // otherwise filer using the found gene names
+                else {
+                    callback(draggedData);
                 }
             }
-        }
-
-        return {
-            xMin: xMin,
-            xMax: xMax,
-            yMin: yMin,
-            yMax: yMax,
-            draggedGenes: draggedGenes
-        };
-    }
-
-    /**
-     * Check whether autoscale is clicked
-     * @param eventData: when autoscale is clicked, the eventData contains autorange for both axis
-     * @returns {boolean}
-     */
-    function autoscaleButtonClicked(eventData){
-        return eventData['xaxis.autorange'] && eventData['yaxis.autorange'];
-    }
-
-    /**
-     * Check whether either zoom in or zoom out was clicked
-     * @param eventData: when the zoom in or zoom out button is clicked, the eventData follows a different format
-     * @returns {boolean}
-     */
-    function zoomButtonClicked(eventData){
-        return eventData['xaxis.range'] != undefined;
+        });
     }
 
     /**
@@ -265,37 +196,6 @@ var ScatterPlot = function(divName, plotData, plotDataAttr) {
         // closest point
         myPlot.on('plotly_click', function(data){
             callback(data.points[0]);
-        });
-    }
-
-    /**
-     * add drag functionality
-     * @param callback: callback function when drag occurs
-     */
-    this.addDragListener = function(callback){
-        // plotly currently doesn't expose many events, so for the drag functionality
-        // we need to use the plotly_relayout
-        // this also fires when someone double-clicks (zoom-out)
-        $('#'+divName).on('plotly_relayout', function(event,eventdata){
-            // find the dragged genes and xMin, xMax, yMin and yMax for the data
-            var draggedData = findDraggedGenes(eventdata);
-
-            // if the previously dragged data's min and max coordinates are the same as the currently
-            // dragged data min and max coordinates, this implies that the datapoints in the area must be the same
-            // if that is the case, do not execute the callback
-            if(prevDraggedData.xMax!=draggedData.xMax || prevDraggedData.xMin!=draggedData.xMin || prevDraggedData.yMax!=draggedData.yMax || prevDraggedData.yMin!=draggedData.yMin){
-                // if the draggedData contains all the genes, return an empty list
-                if(draggedData.draggedGenes.length == dataTrace.text.length) {
-                    callback([]);
-                }
-                else if(draggedData.draggedGenes.length==0){
-                    callback(["FilterAll"]);
-                }
-                else {
-                    callback(draggedData.draggedGenes);
-                }
-            }
-            prevDraggedData = draggedData;
         });
     }
 

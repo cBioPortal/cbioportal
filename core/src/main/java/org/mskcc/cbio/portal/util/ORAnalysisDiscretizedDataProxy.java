@@ -1,4 +1,4 @@
-package org.mskcc.cbio.portal.or_analysis;
+package org.mskcc.cbio.portal.util;
 
 import java.util.*;
 
@@ -22,7 +22,6 @@ import org.mskcc.cbio.portal.stats.FisherExact;
  */
 public class ORAnalysisDiscretizedDataProxy implements DaoGeneticAlteration.AlterationProcesser {
 
-    private int geneticProfileId;
     private String geneticProfileStableId;
     private String profileType;
     private String[] queriedGenes;
@@ -39,7 +38,6 @@ public class ORAnalysisDiscretizedDataProxy implements DaoGeneticAlteration.Alte
     private final String COL_NAME_RATIO = "Log Ratio";
     private final String COL_NAME_DIRECTION = "Direction/Tendency";
     private final String COL_NAME_P_VALUE = "p-Value";
-    private final String COL_NAME_Q_VALUE = "q-Value";
     private final String COL_NAME_MEAN_ALTERED = "mean of alteration in altered group";
     private final String COL_NAME_MEAN_UNALTERED = "mean of alteration in unaltered group";
     private final String COL_NAME_STDEV_ALTERED = "standard deviation of alteration in altered group";
@@ -48,7 +46,6 @@ public class ORAnalysisDiscretizedDataProxy implements DaoGeneticAlteration.Alte
 
     public ORAnalysisDiscretizedDataProxy(
 
-            int geneticProfileId,
             String geneticProfileStableId,
             String profileType,
             String copyNumType,
@@ -56,7 +53,6 @@ public class ORAnalysisDiscretizedDataProxy implements DaoGeneticAlteration.Alte
             List<Integer> unalteredSampleIds,
             String[] queriedGenes) throws DaoException, IllegalArgumentException {
 
-        this.geneticProfileId = geneticProfileId;
         this.geneticProfileStableId = geneticProfileStableId;
         this.profileType = profileType;
         this.copyNumType = copyNumType;
@@ -96,8 +92,8 @@ public class ORAnalysisDiscretizedDataProxy implements DaoGeneticAlteration.Alte
         if (!(Arrays.asList(queriedGenes)).contains(geneName)) { //remove queried genes from result
             _datum.put(COL_NAME_GENE, geneName);
             _datum.put(COL_NAME_CYTOBAND, cytoband);
-            _datum.put(COL_NAME_PCT_ALTERED, calcPct(mapSampleValue, profileType, "altered"));
-            _datum.put(COL_NAME_PCT_UNALTERED, calcPct(mapSampleValue, profileType, "unaltered"));
+            _datum.put(COL_NAME_PCT_ALTERED, Integer.toString(countAltered(mapSampleValue, profileType, "altered")) + "////" + Double.toString(calcPct(mapSampleValue, profileType, "altered")));
+            _datum.put(COL_NAME_PCT_UNALTERED, Integer.toString(countAltered(mapSampleValue, profileType, "unaltered")) + "////" + Double.toString(calcPct(mapSampleValue, profileType, "unaltered")));
             _datum.put(COL_NAME_RATIO, calcRatio(
                     calcPct(mapSampleValue, profileType, "altered"), calcPct(mapSampleValue, profileType, "unaltered")));
             _datum.put(COL_NAME_DIRECTION, "place holder"); //calculation is done by the front-end
@@ -144,8 +140,8 @@ public class ORAnalysisDiscretizedDataProxy implements DaoGeneticAlteration.Alte
             if (!(Arrays.asList(queriedGenes)).contains(geneName)) { //remove queried genes from result
                 _datum.put(COL_NAME_GENE, geneName);
                 _datum.put(COL_NAME_CYTOBAND, cytoband);
-                _datum.put(COL_NAME_PCT_ALTERED, calcPct(mapSampleValue, profileType, "altered"));
-                _datum.put(COL_NAME_PCT_UNALTERED, calcPct(mapSampleValue, profileType, "unaltered"));
+                _datum.put(COL_NAME_PCT_ALTERED, Integer.toString(countAltered(mapSampleValue, profileType, "altered")) + "////" + Double.toString(calcPct(mapSampleValue, profileType, "altered")));
+                _datum.put(COL_NAME_PCT_UNALTERED, Integer.toString(countAltered(mapSampleValue, profileType, "unaltered")) + "////" + Double.toString(calcPct(mapSampleValue, profileType, "unaltered")));
                 _datum.put(COL_NAME_RATIO, calcRatio(
                         calcPct(mapSampleValue, profileType, "altered"), calcPct(mapSampleValue, profileType, "unaltered")));
                 _datum.put(COL_NAME_DIRECTION, "place holder"); //calculation is done by the front-end
@@ -301,6 +297,95 @@ public class ORAnalysisDiscretizedDataProxy implements DaoGeneticAlteration.Alte
 
     }
 
+    //count alterations in different groups (altered/unaltered) (only for mutation tab and cna tab)
+    private int countAltered(HashMap<Integer, String> singleGeneCaseValueMap, String profileType, String groupType) {
+
+        int _count = 0; //altered samples count
+
+        if (profileType.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION.toString()) && copyNumType.equals("del")) {
+            switch (groupType) {
+                case "altered":
+                    for (Integer alteredSampleId : alteredSampleIds) {
+                        if (singleGeneCaseValueMap.containsKey(alteredSampleId)) {
+                            try {
+                                if (Double.parseDouble(singleGeneCaseValueMap.get(alteredSampleId)) == -2.0) {
+                                    _count += 1;
+                                }
+                            } catch (NumberFormatException e) {
+                                e.getStackTrace();
+                            }
+                        }
+                    }
+                    break;
+                case "unaltered":
+                    for (Integer unalteredSampleId : unalteredSampleIds) {
+                        if (singleGeneCaseValueMap.containsKey(unalteredSampleId)) {
+                            try {
+                                if (Double.parseDouble(singleGeneCaseValueMap.get(unalteredSampleId)) == -2.0) {
+                                    _count += 1;
+                                }
+                            } catch (NumberFormatException e) {
+                                e.getStackTrace();
+                            }
+                        }
+                    }
+                    break;
+            }
+        } else if (profileType.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION.toString()) && copyNumType.equals("amp")) {
+            switch (groupType) {
+                case "altered":
+                    for (Integer alteredSampleId : alteredSampleIds) {
+                        if (singleGeneCaseValueMap.containsKey(alteredSampleId)) {
+                            try {
+                                if (Double.parseDouble(singleGeneCaseValueMap.get(alteredSampleId)) == 2.0) {
+                                    _count += 1;
+                                }
+                            } catch (NumberFormatException e) {
+                                e.getStackTrace();
+                            }
+                        }
+                    }
+                    break;
+                case "unaltered":
+                    for (Integer unalteredSampleId : unalteredSampleIds) {
+                        if (singleGeneCaseValueMap.containsKey(unalteredSampleId)) {
+                            try {
+                                if (Double.parseDouble(singleGeneCaseValueMap.get(unalteredSampleId)) == 2.0) {
+                                    _count += 1;
+                                }
+                            } catch (NumberFormatException e) {
+                                e.getStackTrace();
+                            }
+                        }
+                    }
+                    break;
+            }
+        } else if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString())) {
+            switch (groupType) {
+                case "altered":
+                    for (Integer alteredSampleId : alteredSampleIds) {
+                        if (singleGeneCaseValueMap.containsKey(alteredSampleId)) {
+                            if (!singleGeneCaseValueMap.get(alteredSampleId).equals("Non")) {
+                                _count += 1;
+                            }
+                        }
+                    }
+                    break;
+                case "unaltered":
+                    for (Integer unalteredSampleId : unalteredSampleIds) {
+                        if (singleGeneCaseValueMap.containsKey(unalteredSampleId)) {
+                            if (!singleGeneCaseValueMap.get(unalteredSampleId).equals("Non")) {
+                                _count += 1;
+                            }
+                        }
+                    }
+                    break;
+            }
+        }
+
+        return _count;
+    }
+
     private double calcPct(HashMap<Integer, String> singleGeneCaseValueMap, String profileType, String groupType) { // group type: altered or unaltered
 
         double _result_pct = 0, _count = 0; //altered samples count
@@ -319,7 +404,7 @@ public class ORAnalysisDiscretizedDataProxy implements DaoGeneticAlteration.Alte
                             }
                         }
                     }
-                    _result_pct = (double) (_count / alteredSampleIds.size());
+                    _result_pct = _count / alteredSampleIds.size();
                     break;
                 case "unaltered":
                     for (Integer unalteredSampleId : unalteredSampleIds) {
@@ -333,7 +418,7 @@ public class ORAnalysisDiscretizedDataProxy implements DaoGeneticAlteration.Alte
                             }
                         }
                     }
-                    _result_pct = (double) (_count / unalteredSampleIds.size());
+                    _result_pct = _count / unalteredSampleIds.size();
                     break;
             }
         } else if (profileType.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION.toString()) && copyNumType.equals("amp")) {
@@ -350,7 +435,7 @@ public class ORAnalysisDiscretizedDataProxy implements DaoGeneticAlteration.Alte
                             }
                         }
                     }
-                    _result_pct = (double) (_count / alteredSampleIds.size());
+                    _result_pct = _count / alteredSampleIds.size();
                     break;
                 case "unaltered":
                     for (Integer unalteredSampleId : unalteredSampleIds) {
@@ -364,7 +449,7 @@ public class ORAnalysisDiscretizedDataProxy implements DaoGeneticAlteration.Alte
                             }
                         }
                     }
-                    _result_pct = (double) (_count / unalteredSampleIds.size());
+                    _result_pct = _count / unalteredSampleIds.size();
                     break;
             }
         } else if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString())) {
@@ -377,7 +462,7 @@ public class ORAnalysisDiscretizedDataProxy implements DaoGeneticAlteration.Alte
                             }
                         }
                     }
-                    _result_pct = (double) (_count / alteredSampleIds.size());
+                    _result_pct = _count / alteredSampleIds.size();
                     break;
                 case "unaltered":
                     for (Integer unalteredSampleId : unalteredSampleIds) {
@@ -387,10 +472,9 @@ public class ORAnalysisDiscretizedDataProxy implements DaoGeneticAlteration.Alte
                             }
                         }
                     }
-                    _result_pct = (double) (_count / unalteredSampleIds.size());
+                    _result_pct = _count / unalteredSampleIds.size();
                     break;
             }
-        } else if (profileType.equals(GeneticAlterationType.MRNA_EXPRESSION.toString())) { //calculate mean
         }
 
         return _result_pct;

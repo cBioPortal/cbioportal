@@ -412,7 +412,7 @@ var StudyViewInitCharts = (function(){
                     StudyViewUtil.changePosition(
                             '#study-view-scatter-plot',
                             '#study-view-scatter-plot-side',
-                            "#dc-plots");
+                            "#summary");
                 }
             });
 
@@ -1067,7 +1067,7 @@ var StudyViewInitCharts = (function(){
         if(_ids.length > 1){
             StudyViewInitScatterPlot.setClickedCasesId('');
         }
-        _ids = getStableIds(_ids);
+        // _ids = getStableIds(_ids);
         _caseIDChart.filterAll();
         _caseIDChart.filter([_ids]);
         dc.redrawAll();

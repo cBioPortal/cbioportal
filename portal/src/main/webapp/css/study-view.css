@@ -900,33 +900,6 @@ Style for search box in dataTable of Summaery Tab
     top: 30%;
 }
 
-/* These five styles are designed for study view tabs. 
-#dc-plots {
-    border: 1px solid #aaaaaa;
-    border-radius: 5px;
-    border-top-left-radius: 0;
-}
-#clinical-plots {
-    border: 1px solid #aaaaaa;
-    border-radius: 5px;
-    border-top-left-radius: 0;
-}
-#mutations {
-    border: 1px solid #aaaaaa;
-    border-radius: 5px;
-    border-top-left-radius: 0;
-}
-#clinical {
-    border: 1px solid #aaaaaa;
-    border-radius: 5px;
-    border-top-left-radius: 0;
-}
-#cna {
-    border: 1px solid #aaaaaa;
-    border-radius: 5px;
-    border-top-left-radius: 0;
-}*/
-
 /* tag styles */
 /*
 ul {
@@ -1038,6 +1011,12 @@ div.DTTT_print_info {
 }
 #study-view-header-right {
     float: right;
+}
+#gistic_wrapper_table {
+    display: none;
+}
+#smg_wrapper_table {
+    display: none;
 }
 /* based on study-view-header-left-3 */
 #study-view-header-left-5 {

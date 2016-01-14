@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 import org.mskcc.cbio.portal.service.ApiService;
 import org.mskcc.cbio.portal.model.DBCancerType;
+import org.mskcc.cbio.portal.model.DBAltCount;
+import org.mskcc.cbio.portal.model.DBAltCountInput;
 import org.mskcc.cbio.portal.model.DBPatientList;
 import org.mskcc.cbio.portal.model.DBClinicalField;
 import org.mskcc.cbio.portal.model.DBClinicalPatientData;
@@ -42,6 +44,18 @@ public class ApiController {
         } else {
 		return service.getCancerTypes(cancer_type_ids);
         }
+    }
+
+    @Transactional
+    @RequestMapping(value = "/mutation", method = {RequestMethod.GET})
+    public @ResponseBody List<DBAltCount> getMutations(@RequestParam(required = true) String type, @RequestParam(required = true) Boolean per_study, @RequestParam(required = true) List<String> inputIDs, @RequestParam(required = true) List<String> genes, @RequestParam(required = true) List<Integer> starts, @RequestParam(required = true) List<Integer> ends) {
+        return service.getMutations(type, per_study, inputIDs, genes, starts, ends);
+    }
+    
+    @Transactional
+    @RequestMapping(value = "/mutation", method = {RequestMethod.POST})
+    public @ResponseBody List<DBAltCount> getMutations(@RequestBody DBAltCountInput body) {
+         return service.getMutationsJSON(body);
     }
 
     @Transactional

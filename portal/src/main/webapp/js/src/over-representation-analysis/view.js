@@ -792,21 +792,19 @@ var orSubTabView = function() {
                 if (element.length === 0) {
                     var _table_div = _profile_obj.STABLE_ID.replace(/\./g, "_") + orAnalysis.postfix.datatable_div;
                     var _table_id = _profile_obj.STABLE_ID.replace(/\./g, "_") + orAnalysis.postfix.datatable_id;
-
-                  	//Add volcano plot
-                   	var _plot_div = _profile_obj.STABLE_ID.replace(/\./g, "_") + orAnalysis.postfix.plot_div;
-               		$("#" + _div_id).append("<div id='" + _plot_div + "' style='width: 35%; display:block; margin-left: 0; margin-right: auto; margin-top: 10px; float: left'></div>");
-                   	$("#" + _div_id).append("<div id='" + _table_div + "' style='width: 62%; display:table; margin-left: auto; margin-right: 0; '></div>");
-
-                    // add a loading image when drag-selecting the scatterplot
+                    var _plot_div = _profile_obj.STABLE_ID.replace(/\./g, "_") + orAnalysis.postfix.plot_div;
                     var loading_div = _table_div + "_loading_img";
-                    $("#" + _div_id).append("<div id='" + loading_div + "' class='loaderIcon'><img src='images/ajax-loader.gif'/></div>");
+                    //for the mini-onco diagram
+                    var minionco_div = "minionco" + _plot_div;
 
-                   	//adding this to contain floated plot (see "float: left"  above):
-                  	$("#" + _div_id).css("overflow", "hidden");
-
-                   	//for the mini-onco diagram
-                   	var minionco_div = "minionco" + _plot_div;
+                    var html = "<div id='"+_profile_obj.STABLE_ID.replace(/\./g, "_")+"_container' style='float: left; position: relative'>"+
+                        "<div id='" + _plot_div + "' style='width: 35%; display:block; margin-left: 0; margin-right: auto; margin-top: 10px; float: left'></div>"+
+                        "<div id='" + _table_div + "' style='width: 62%; display:table; margin-left: auto; margin-right: 0; '></div>"+
+                        "<div id='" + loading_div + "' class='loaderIcon'><img src='images/ajax-loader.gif'/></div>"+
+                        "</div>";
+                    $("#" + _div_id).append(html);
+                    //adding this to contain floated plot (see "float: left"  above):
+                    $("#" + _div_id).css("overflow", "hidden");
 
                     //if this is the last profile
                     var last_profile = false;

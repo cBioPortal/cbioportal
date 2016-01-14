@@ -472,17 +472,19 @@ class CollapsingLogMessageHandler(logging.handlers.MemoryHandler):
             aggregated_field_dict = {}
             # for each field found in (the first of) the records
             for field_name in record_list[0].__dict__:
-                # collect the values found for this field across the records
-                field_values = set(getattr(record, field_name)
-                                   for record in record_list)
+                # collect the values found for this field across the records.
+                # Use the keys of an OrderedDict, as OrderedSet is for some
+                # reason not to be found in the Python standard library.
+                field_values = OrderedDict((record.__dict__[field_name], None)
+                                           for record in record_list)
                 # if this field has the same value in all records
                 if len(field_values) == 1:
                     # use that value in the new dict
-                    aggregated_field_dict[field_name] = field_values.pop()
+                    aggregated_field_dict[field_name] = field_values.popitem()[0]
                 else:
                     # set a <field>_list field instead
                     aggregated_field_dict[field_name + '_list'] = \
-                        list(field_values)
+                        list(field_values.keys())
 
             # add a new log record with these fields tot the output buffer
             aggregated_buffer.append(

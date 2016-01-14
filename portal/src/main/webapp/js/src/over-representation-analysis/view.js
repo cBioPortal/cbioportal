@@ -882,31 +882,6 @@ var orSubTabView = function() {
                 }
             }
 
-        },
-        valid: function(_callback_func, _profile_list, _gene_set, _sub_div_id, _profile_type) {
-
-            var valid_profile_list = [], count = 0;
-
-            var push_valid_profile = function(_input_data, _profile_obj) {
-                count += 1;
-                if (Object.keys(_input_data).length !== 0 &&
-                    Object.keys(_input_data)[0] !== orAnalysis.texts.null_result &&
-                    Object.keys(_input_data)[0] !== "") {
-                    valid_profile_list.push(_profile_obj);
-                }
-                if (count === _profile_list.length) {
-                    _callback_func(_sub_div_id, valid_profile_list, _profile_type, _gene_set);
-                }
-            }
-
-            $.each(_profile_list, function(_index, _profile_obj) {
-                var param = new orAjaxParam(or_tab.getAlteredCaseList(), or_tab.getUnalteredCaseList(), _profile_obj.STABLE_ID, _gene_set);
-                var or_data = new orData();
-                var _table_id = _profile_obj.STABLE_ID + orAnalysis.postfix.datatable_id;
-                or_data.init(param, _table_id);
-                or_data.get(push_valid_profile, _profile_obj, "", "", "", "", "", "");
-            });
-
         }
     };
 }; //close orSubTabView

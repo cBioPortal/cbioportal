@@ -24,50 +24,42 @@ function MiniOnco(plotDiv, miniOncoDiv, originalData){
 
     // create the bar data which will be used to create the stacked histogram
     function createBarData(setSizeAlt, current_gene){
-        // find the ratios from the table
-        var ratioAltInAlt = 0;
-        var ratioAltInUnalt = 0;
+        // find the numbers in the table
+        var nrAltInAlt = 0;
+        var nrAltInUnalt = 0;
         for (var i = 0; i < originalData.length; i++) {
             if (current_gene == originalData[i]["Gene"]) {
-                ratioAltInAlt = originalData[i]["percentage of alteration in altered group"];
-                ratioAltInUnalt = originalData[i]["percentage of alteration in unaltered group"];
+                // the cell contains something like 30////0.2345, so the first entry gives us our number
+                nrAltInAlt = Number(originalData[i]["percentage of alteration in altered group"].split("\/")[0]);
+                nrAltInUnalt = Number(originalData[i]["percentage of alteration in unaltered group"].split("\/")[0]);
                 break;
             }
-        }
-
-        if (ratioAltInAlt === "NaN"){
-            ratioAltInAlt = 0;
-        }
-        if (ratioAltInUnalt === "NaN"){
-            ratioAltInUnalt = 0;
         }
 
         // retrieve the total number of samples and calculate the setsizes
         var totalSetSize = window.QuerySession.getSampleIds().length;
         var setSizeUnalt = totalSetSize - setSizeAlt;
-        var setSizeAltInAlt = setSizeAlt * ratioAltInAlt;
-        var setSizeAltInUnalt = setSizeUnalt * ratioAltInUnalt;
 
         // create the bardata
         var bardata = [{
             barName: current_gene,
             barPieceName: "QGenes Unaltered, "+current_gene+" Unaltered",
-            barPieceValue: setSizeUnalt - setSizeAltInUnalt,
+            barPieceValue: setSizeUnalt - nrAltInUnalt,
             color: "lightgrey"
         }, {
             barName: current_gene,
             barPieceName: "QGenes Unaltered, "+current_gene+" Altered",
-            barPieceValue: setSizeAltInUnalt,
+            barPieceValue: nrAltInUnalt,
             color: "#58ACFA"
         }, {
             barName: current_gene,
             barPieceName: "QGenes Altered, "+current_gene+" Altered",
-            barPieceValue: setSizeAltInAlt,
+            barPieceValue: nrAltInAlt,
             color: "#58ACFA"
         }, {
             barName: current_gene,
             barPieceName: "QGenes Altered, "+current_gene+" Unaltered",
-            barPieceValue: setSizeAlt - setSizeAltInAlt,
+            barPieceValue: setSizeAlt - nrAltInAlt,
             color: "lightgrey"
         }, {
             barName: "Query Genes",

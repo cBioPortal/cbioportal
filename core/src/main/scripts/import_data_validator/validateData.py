@@ -533,16 +533,18 @@ class Validator(object):
     position is significant.
 
     The methods `processTopLines`, `checkHeader`, `checkLine` and `onComplete`
-    may be overridden (calling the superclass method) to perform any
+    may be overridden (calling their superclass methods) to perform any
     appropriate validation tasks.
-
-    :param hugo_entrez_map: path Entrez to Hugo mapping file
-    :param logger: logger instance for writing the log messages  
-    :param meta_dict: dictionary of fields found in corresponding meta file
-                     (such as stable id and data file name 
     """
 
     def __init__(self,hugo_entrez_map,logger,meta_dict):
+        """Initialize a validator for a particular data file.
+
+        :param hugo_entrez_map: path Entrez to Hugo mapping file
+        :param logger: logger instance for writing the log messages
+        :param meta_dict: dictionary of fields found in corresponding meta file
+                         (such as stable id and data file name)
+        """
         self.filename = os.path.join(STUDY_DIR, meta_dict['data_file_path'])
         self.filenameShort = os.path.basename(self.filename)
         self.line_number = 0
@@ -584,10 +586,10 @@ class Validator(object):
                                   extra={'line_number': self.line_number})
                 return
 
-            # parse the start-of-file comment lines
+            # parse start-of-file comment lines, if any
             if not self.processTopLines(top_comments):
-                self.logger.info(
-                    'Invalid header comments, skipped data in file')
+                self.logger.error(
+                    'Invalid header comments, file cannot be parsed')
                 return
 
             # read five data lines to detect quotes in the tsv file
@@ -604,15 +606,15 @@ class Validator(object):
                     '"' + dialect.delimiter in sample_content):
                 dialect.quoting = csv.QUOTE_NONE
             if not self._checkTsvDialect(dialect):
-                self.logger.info(
-                    'Invalid file format, skipped data in file')
+                self.logger.error(
+                    'Invalid file format, file cannot be parsed')
                 return
 
             # parse the first non-commented line as the tsv header
             header_cols = csv.reader([header_line], dialect).next()
             if self.checkHeader(header_cols) > 0:
-                self.logger.info(
-                    'Invalid column header, skipped data in file')
+                self.logger.error(
+                    'Invalid column header, file cannot be parsed')
                 return
 
             # read through the data lines of the file
@@ -645,7 +647,7 @@ class Validator(object):
         self.logger.info('Validation of file complete')
 
     def processTopLines(self, line_list):
-        """Hook to parse any list of comment lines above the TSV header.
+        """Hook to validate any list of comment lines above the TSV header.
 
         Return False if these lines are invalid and the file cannot be
         parsed, True otherwise.
@@ -1353,7 +1355,7 @@ class ClinicalValidator(Validator):
                                    'cause': value})
                         invalid_values = True
                 else:
-                    raise ValueError('Unknown clinical header line name')
+                    raise Exception('Unknown clinical header line name')
 
                 attr_defs[col_index][LINE_NAMES[line_index]] = value
 
@@ -1377,8 +1379,9 @@ class ClinicalValidator(Validator):
                     "Clinical header not in all caps",
                     extra={'line_number': self.line_number,
                            'cause': col_name})
-            srv_attr = self.srv_attrs.get(col_name)
-            if srv_attr is None:
+            # look up how the attribute is defined in the portal
+            srv_attr_properties = self.srv_attrs.get(col_name)
+            if srv_attr_properties is None:
                 self.logger.warning(
                     'New %s-level attribute will be added to the portal',
                     self.attr_defs[col_index]['attribute_type'].lower(),
@@ -1386,25 +1389,30 @@ class ClinicalValidator(Validator):
                            'column_number': col_index + 1,
                            'cause': col_name})
             else:
-                # copy the dict to make local changes
-                srv_attr = dict(srv_attr)
-                # compare defined values with existing ones
-                if 'attribute_type' in srv_attr:
-                    raise ValueError(
-                        'attribute_type unexpectedly defined by portal API')
-                if srv_attr['is_patient_attribute'] == '1':
-                    srv_attr['attribute_type'] = 'PATIENT'
-                else:
-                    srv_attr['attribute_type'] = 'SAMPLE'
+                # translate one property having a different format in the API
+                transl_attr_properties = {}
+                for prop in srv_attr_properties:
+                    # define the 'attribute_type' property as it is found in
+                    # files, based on 'is_patient_attribute' from the API
+                    if prop == 'is_patient_attribute':
+                        if srv_attr_properties[prop] == '1':
+                            transl_attr_properties['attribute_type'] = 'PATIENT'
+                        else:
+                            transl_attr_properties['attribute_type'] = 'SAMPLE'
+                    # all of the other properties just match the file format
+                    elif prop in ('display_name', 'description',
+                                  'datatype', 'priority'):
+                        transl_attr_properties[prop] = srv_attr_properties[prop]
+                # compare values defined in the file with the existing ones
                 for attr_property in self.attr_defs[col_index]:
                     value = self.attr_defs[col_index][attr_property]
-                    if value != srv_attr[attr_property]:
+                    if value != transl_attr_properties[attr_property]:
                         self.logger.error(
                             "%s definition for attribute '%s' does not match "
                             "the portal, '%s' expected",
                             attr_property,
                             col_name,
-                            srv_attr[attr_property],
+                            transl_attr_properties[attr_property],
                             extra={'line_number': self.attr_defs[col_index].keys().index(attr_property),
                                    'column_number': col_index + 1,
                                    'cause': value})
@@ -1438,6 +1446,8 @@ class ClinicalValidator(Validator):
                 server_url + '/api/clinicalattributes/samples',
                 logger,
                 id_field='attr_id')
+            # if this happens, the database has changed and this script needs
+            # to be updated
             id_overlap = (set(cls.srv_attrs.keys()) &
                           set(srv_sample_attrs.keys()))
             if id_overlap:

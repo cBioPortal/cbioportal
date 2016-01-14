@@ -903,7 +903,7 @@ class GenewiseFileValidator(FeaturewiseFileValidator):
                                'cause': value.strip()})
             elif not self.entrez_missing and column_index == 1:
                 if not self.checkInt(value.strip()) and not value.strip() == 'NA':
-                    self.logger.warning(
+                    self.logger.error(
                         'Invalid Data Type: Entrez_Gene_Id must be integer or NA',
                         extra={'column_number': column_index + 1,
                                'line_number': self.line_number,

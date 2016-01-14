@@ -393,6 +393,8 @@ pre code{
     display: block;
 }
 
+
+/* OncoPrint styles*/
 .oncoprint_accordion_panel {
     background-color: #FFFFFF;
 }
@@ -463,6 +465,16 @@ pre code{
     color: #FF0000;
 	display: none;
     padding-left:25px;
+}
+
+.oncoprint-content-area {
+    max-width: 1200px;
+}
+
+#oncoprint_zoom_slider {
+    height: 16px;
+    width: 80px;
+    border: 0;
 }
 
 #frequency_plot {

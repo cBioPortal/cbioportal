@@ -471,10 +471,106 @@ pre code{
     max-width: 1200px;
 }
 
-#oncoprint_zoom_slider {
-    height: 16px;
+input[type=range]#oncoprint_zoom_slider {
+    /*removes default webkit styles*/
+    -webkit-appearance: none;
+
+    /*fix for FF unable to apply focus style bug */
+    border: none;
+
+    /*required for proper track sizing in FF*/
     width: 80px;
-    border: 0;
+    height: 16px;
+
+    background: transparent;
+}
+
+input[type=range]#oncoprint_zoom_slider::-webkit-slider-runnable-track {
+    width: 80px;
+    height: 5px;
+    background: #ddd;
+    border: none;
+    border-radius: 3px;
+}
+
+input[type=range]#oncoprint_zoom_slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    border: none;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: grey;
+    margin-top: -5px;
+}
+
+input[type=range]#oncoprint_zoom_slider:focus {
+    outline: none;
+}
+
+input[type=range]#oncoprint_zoom_slider:focus::-webkit-slider-runnable-track {
+    background: #ccc;
+}
+
+input[type=range]#oncoprint_zoom_slider::-moz-range-track {
+    width: 80px;
+    height: 5px;
+    background: #ddd;
+    border: none;
+    border-radius: 3px;
+}
+
+input[type=range]#oncoprint_zoom_slider::-moz-range-thumb {
+    border: none;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: grey;
+}
+
+/*hide the outline behind the border*/
+input[type=range]#oncoprint_zoom_slider:-moz-focusring {
+    outline: 1px solid white;
+    outline-offset: -1px;
+}
+
+input[type=range]#oncoprint_zoom_slider::-ms-track {
+    width: 80px;
+
+    /*remove bg colour from the track, we'll use ms-fill-lower and ms-fill-upper instead */
+    background: transparent;
+
+    /*leave room for the larger thumb to overflow with a transparent border */
+    border-color: transparent;
+    border-width: 6px 0;
+
+    /*remove default tick marks*/
+    color: transparent;
+}
+
+input[type=range]#oncoprint_zoom_slider::-ms-fill-lower {
+    background: #777;
+    border-radius: 10px;
+}
+
+input[type=range]#oncoprint_zoom_slider::-ms-fill-upper {
+    background: #ddd;
+    border-radius: 10px;
+}
+
+input[type=range]#oncoprint_zoom_slider::-ms-thumb {
+    border: none;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: grey;
+}
+
+input[type=range]#oncoprint_zoom_slider:focus::-ms-fill-lower {
+    background: #888;
+}
+
+input[type=range]#oncoprint_zoom_slider:focus::-ms-fill-upper {
+    background: #ccc;
 }
 
 #frequency_plot {

@@ -11,7 +11,6 @@ import org.mskcc.cbio.portal.service.ApiService;
 import org.mskcc.cbio.portal.model.DBCancerType;
 import org.mskcc.cbio.portal.model.DBAltCount;
 import org.mskcc.cbio.portal.model.DBAltCountInput;
-import org.mskcc.cbio.portal.model.DBPatientList;
 import org.mskcc.cbio.portal.model.DBClinicalField;
 import org.mskcc.cbio.portal.model.DBClinicalPatientData;
 import org.mskcc.cbio.portal.model.DBClinicalSampleData;

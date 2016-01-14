@@ -206,12 +206,13 @@ class ClinicalColumnDefsTestCase(DataFileTestCase):
         '''Test when record definitions do not match with portal.'''
         record_list = self.validate('data_clin_coldefs_wrong_display_name.txt',
                                     validateData.ClinicalValidator)
-        # expecting two info messages with an error in between
+        # expecting an info message followed by the error, and another error as
+        # the rest of the file cannot be parsed
         self.assertEqual(len(record_list), 3)
         # error about the display name of OS_MONTHS
         self.assertEqual(record_list[1].levelno, logging.ERROR)
         self.assertEqual(record_list[1].column_number, 3)
-        self.assertIn('display_name', record_list[1].getMessage())
+        self.assertIn('display_name', record_list[1].getMessage().lower())
 
     def test_unknown_attribute(self):
         '''Test when a new attribute is defined in the data file.'''
@@ -227,7 +228,8 @@ class ClinicalColumnDefsTestCase(DataFileTestCase):
         '''Test when new attributes are defined with invalid properties.'''
         record_list = self.validate('data_clin_coldefs_invalid_priority.txt',
                                     validateData.ClinicalValidator)
-        # expecting two info messages with an error in between
+        # expecting an info message followed by the error, and another error as
+        # the rest of the file cannot be parsed
         self.assertEqual(len(record_list), 3)
         # error about the non-numeric priority of the SAUSAGE column
         self.assertEqual(record_list[1].levelno, logging.ERROR)

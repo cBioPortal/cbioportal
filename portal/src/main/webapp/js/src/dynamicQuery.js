@@ -332,12 +332,12 @@ function getMapping() {
     function getMap() {
 	var def = new $.Deferred();
         // Get input selection
-        var sampleIds = $("#custom_case_set_ids").val().trim().replace(/"/g,'').split(/\s+/);
+        var caseIds = $("#custom_case_set_ids").val().trim().replace(/"/g,'').split(/\s+/);
         // Get study selection
         var studyId = $("#select_single_study").val();
-        if (sampleIds[0] !== "")
+        if (caseIds[0] !== "")
         {
-            window.cbioportal_client.getSamples({study_id: [studyId],patient_ids: sampleIds}).then(function(sampleMap){
+            window.cbioportal_client.getSamplesByPatient({study_id: [studyId],patient_ids: caseIds}).then(function(sampleMap){
                 $("#custom_case_set_ids").val(setPatientSampleIdMap(sampleMap));
 		def.resolve();
             });                

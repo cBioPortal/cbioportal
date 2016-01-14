@@ -3232,6 +3232,8 @@ NetworkVis.prototype._initControlFunctions = function()
     $(this.mainMenuSelector + " #network_menu a").unbind(); // TODO temporary workaround (there is listener attaching itself to every 'a's)
     $(this.mainMenuSelector + " #network_menu a").click(handleMenuEvent);
 
+    $(this.networkTabsSelector + " #help_tab a").click(handleMenuEvent);
+
     // add button listeners
 
     $(this.settingsDialogSelector + " #save_layout_settings").click(saveSettings);

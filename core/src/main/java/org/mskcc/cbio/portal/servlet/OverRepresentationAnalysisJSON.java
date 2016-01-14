@@ -4,14 +4,14 @@
  * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
  * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
  * documentation provided hereunder is on an "as is" basis, and
- * Memorial Sloan-Kettering Cancer Center 
+ * Memorial Sloan-Kettering Cancer Center
  * has no obligations to provide maintenance, support,
  * updates, enhancements or modifications.  In no event shall
  * Memorial Sloan-Kettering Cancer Center
  * be liable to any party for direct, indirect, special,
  * incidental or consequential damages, including lost profits, arising
  * out of the use of this software and its documentation, even if
- * Memorial Sloan-Kettering Cancer Center 
+ * Memorial Sloan-Kettering Cancer Center
  * has been advised of the possibility of such damage.
 */
 
@@ -24,19 +24,18 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.math.MathException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ArrayNode;
 import org.codehaus.jackson.node.JsonNodeFactory;
 import org.codehaus.jackson.node.ObjectNode;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.or_analysis.ORAnalysisDiscretizedDataProxy;
+import org.mskcc.cbio.portal.util.ORAnalysisDiscretizedDataProxy;
 import org.mskcc.cbio.portal.stats.BenjaminiHochbergFDR;
 
 /**
- * Calculate over representation scores 
- * 
+ * Calculate over representation scores
+ *
  */
 public class OverRepresentationAnalysisJSON extends HttpServlet  {
 
@@ -66,7 +65,7 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
      */
     protected void doPost(HttpServletRequest httpServletRequest,
                           HttpServletResponse httpServletResponse) throws ServletException, IOException {
-        
+
         try {
             //Extract parameters
             String cancerStudyId = httpServletRequest.getParameter("cancer_study_id");
@@ -76,7 +75,6 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
             String[] unalteredCaseList = _unalteredCaseList.split("\\s+");
             String profileId = httpServletRequest.getParameter("profile_id");
             String[] queriedGenes = httpServletRequest.getParameter("gene_list").split("\\s+");
-            String geneSetOpt = httpServletRequest.getParameter("gene_set"); //cancer genes(default), all genes, custom genes
 
             //calculate deep deletion and amplification separately
             String copyNumType = "none";
@@ -97,19 +95,19 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
             //Get cancer study internal id (int)
             CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
             int cancerStudyInternalId = cancerStudy.getInternalId();
-            
+
             //Get Internal Sample Ids (int)
             List<Integer> alteredSampleIds = new ArrayList<>();
             List<Integer> unalteredSampleIds = new ArrayList<>();
             for(String alteredSampleId : alteredCaseList) {
-                Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyInternalId, alteredSampleId);   
-                alteredSampleIds.add(sample.getInternalId()); 
-            }   
+                Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyInternalId, alteredSampleId);
+                alteredSampleIds.add(sample.getInternalId());
+            }
             alteredSampleIds.retainAll(DaoSampleProfile.getAllSampleIdsInProfile(gpId));
             for(String unalteredSampleId : unalteredCaseList) {
-                Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyInternalId, unalteredSampleId);   
-                unalteredSampleIds.add(sample.getInternalId()); 
-            }   
+                Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyInternalId, unalteredSampleId);
+                unalteredSampleIds.add(sample.getInternalId());
+            }
             unalteredSampleIds.retainAll(DaoSampleProfile.getAllSampleIdsInProfile(gpId));
 
             //get gene IDs
@@ -122,22 +120,12 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
                     profileGeneIds.add(profileGene.getEntrezGeneId());
                 }
             }
-            if (geneSetOpt.equals("cancer_genes")) {
-                Set<CanonicalGene> cancerGeneSet = daoGeneOptimized.getCbioCancerGenes();
-                for (CanonicalGene cancerGene : cancerGeneSet) {
-                    entrezGeneIds.add(cancerGene.getEntrezGeneId());
-                }
-                if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString())) { //overlap two gene sets for mutation profile
-                    entrezGeneIds.retainAll(profileGeneIds);
-                }
-            } else if (geneSetOpt.equals("all_genes")) {
-                if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString())) {
-                    entrezGeneIds.addAll(profileGeneIds);
-                } else {
-                    ArrayList<CanonicalGene> allGeneSet = daoGeneOptimized.getAllGenes();
-                    for (CanonicalGene gene: allGeneSet) {
-                        entrezGeneIds.add(gene.getEntrezGeneId());
-                    }
+            if (profileType.equals(GeneticAlterationType.MUTATION_EXTENDED.toString())) {
+                entrezGeneIds.addAll(profileGeneIds);
+            } else {
+                ArrayList<CanonicalGene> allGeneSet = daoGeneOptimized.getAllGenes();
+                for (CanonicalGene gene: allGeneSet) {
+                    entrezGeneIds.add(gene.getEntrezGeneId());
                 }
             }
 
@@ -146,7 +134,6 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
             synced_result.clear();
             final ORAnalysisDiscretizedDataProxy dataProxy =
                     new ORAnalysisDiscretizedDataProxy(
-                            gpId,
                             gpStableId,
                             profileType,
                             copyNumType,
@@ -174,7 +161,7 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
                             for (Long entrezGeneId : gene_short_list) {
                                 try {
                                     synced_result.add(dataProxy.processMutHm(entrezGeneId, (ArrayList)sampleIds, mutHm));
-                                } catch (MathException e) {
+                                } catch (Exception e) {
                                     e.printStackTrace();
                                 }
                             }
@@ -211,7 +198,7 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
                                 ));
                             } catch (DaoException e) {
                                 e.printStackTrace();
-                            } catch (MathException e) {
+                            } catch (Exception e) {
                                 e.printStackTrace();
                             }
                         }
@@ -264,11 +251,7 @@ public class OverRepresentationAnalysisJSON extends HttpServlet  {
             PrintWriter out = httpServletResponse.getWriter();
             mapper.writeValue(out, result);
 
-        } catch (DaoException ex) {
-            System.out.println(ex.getMessage());
-        } catch (IllegalArgumentException ex) {
-            System.out.println(ex.getMessage());
-        } catch (MathException ex) {
+        } catch (Exception ex) {
             System.out.println(ex.getMessage());
         }
     }

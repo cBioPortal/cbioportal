@@ -70,45 +70,46 @@ var SurvivalCurveView = function(_opts) {
         //confidenceIntervals = new ConfidenceIntervals();   
         
         //Split the data into different(altered/unaltered) groups  
-        var patientSampleIdMap = window.PortalGlobals.getPatientSampleIdMap();
-        for (var key in _caseLists) {  
-            if (_caseLists[key] === "altered") {
-                var tmpPatientId = patientSampleIdMap[key];        
-                alteredGroup.push(tmpPatientId);
-            }
-            else if (_caseLists[key] === "unaltered") {
-                var tmpPatientId = patientSampleIdMap[key];  
-                unalteredGroup.push(tmpPatientId);    
-            }
-        }
+        window.QuerySession.getPatientSampleIdMap().then(function(patientSampleIdMap) {
+		for (var key in _caseLists) {  
+		    if (_caseLists[key] === "altered") {
+			var tmpPatientId = patientSampleIdMap[key];        
+			alteredGroup.push(tmpPatientId);
+		    }
+		    else if (_caseLists[key] === "unaltered") {
+			var tmpPatientId = patientSampleIdMap[key];  
+			unalteredGroup.push(tmpPatientId);    
+		    }
+		}
 
-        //Init data instances for different groups
-        var alteredDataInst = new SurvivalCurveProxy();
-        var unalteredDataInst = new SurvivalCurveProxy();
-        alteredDataInst.init(_data, alteredGroup, kmEstimator, logRankTest);
-        unalteredDataInst.init(_data, unalteredGroup, kmEstimator, logRankTest);
+		//Init data instances for different groups
+		var alteredDataInst = new SurvivalCurveProxy();
+		var unalteredDataInst = new SurvivalCurveProxy();
+		alteredDataInst.init(_data, alteredGroup, kmEstimator, logRankTest);
+		unalteredDataInst.init(_data, unalteredGroup, kmEstimator, logRankTest);
 
-        //Individual settings 
-        var unalteredSettingsInst = jQuery.extend(true, {}, SurvivalCurveBroilerPlate.subGroupSettings);
-        unalteredSettingsInst.line_color = "blue";
-        unalteredSettingsInst.mouseover_color = "#81BEF7";
-        unalteredSettingsInst.legend = "Cases without Alteration(s) in Query Gene(s)";
-        var alteredSettingsInst = jQuery.extend(true, {}, SurvivalCurveBroilerPlate.subGroupSettings);
-        alteredSettingsInst.line_color = "red";
-        alteredSettingsInst.mouseover_color = "#F5BCA9";
-        alteredSettingsInst.legend = "Cases with Alteration(s) in Query Gene(s)";
-        
-        //Assemble the input
-        var alteredInputInst = {},
-            unalteredInputInst = {};
-        alteredInputInst.data = alteredDataInst;
-        alteredInputInst.settings = alteredSettingsInst;
-        unalteredInputInst.data = unalteredDataInst;
-        unalteredInputInst.settings = unalteredSettingsInst;
+		//Individual settings 
+		var unalteredSettingsInst = jQuery.extend(true, {}, SurvivalCurveBroilerPlate.subGroupSettings);
+		unalteredSettingsInst.line_color = "blue";
+		unalteredSettingsInst.mouseover_color = "#81BEF7";
+		unalteredSettingsInst.legend = "Cases without Alteration(s) in Query Gene(s)";
+		var alteredSettingsInst = jQuery.extend(true, {}, SurvivalCurveBroilerPlate.subGroupSettings);
+		alteredSettingsInst.line_color = "red";
+		alteredSettingsInst.mouseover_color = "#F5BCA9";
+		alteredSettingsInst.legend = "Cases with Alteration(s) in Query Gene(s)";
 
-        //render the curve
-        inputArr = [alteredInputInst, unalteredInputInst];
-        logRankTest.calc(inputArr[0].data.getData(), inputArr[1].data.getData(), pValCallBackFunc);
+		//Assemble the input
+		var alteredInputInst = {},
+		    unalteredInputInst = {};
+		alteredInputInst.data = alteredDataInst;
+		alteredInputInst.settings = alteredSettingsInst;
+		unalteredInputInst.data = unalteredDataInst;
+		unalteredInputInst.settings = unalteredSettingsInst;
+
+		//render the curve
+		inputArr = [alteredInputInst, unalteredInputInst];
+		logRankTest.calc(inputArr[0].data.getData(), inputArr[1].data.getData(), pValCallBackFunc);
+	});
     };
 
     return {

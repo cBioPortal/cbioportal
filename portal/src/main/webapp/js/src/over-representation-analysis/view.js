@@ -58,8 +58,6 @@ var orTable = function(plot_div, minionco_div, loading_div) {
                 if (b.indexOf("down1") !== -1) b = b.replace("<img src=\"images/down1.png\"/>",  "");
             }
 
-            //if (a === "<0.001") { a = 0.0009; }
-            //if (b === "<0.001") { b = 0.0009; }
             if (parseFloat(a) > parseFloat(b)) return -1;
             else if (parseFloat(a) < parseFloat(b)) return 1;
             else return 0;
@@ -73,8 +71,6 @@ var orTable = function(plot_div, minionco_div, loading_div) {
                 if (b.indexOf("down1") !== -1) b = b.replace("<img src=\"images/down1.png\"/>",  "");
             }
 
-            //if (a === "<0.001") { a = 0.0009; }
-            //if (b === "<0.001") { b = 0.0009; }
             if (parseFloat(a) > parseFloat(b)) return 1;
             else if (parseFloat(a) < parseFloat(b)) return -1;
             else return 0;
@@ -88,8 +84,6 @@ var orTable = function(plot_div, minionco_div, loading_div) {
                 if (b.indexOf("down1") !== -1) b = b.replace("<img src=\"images/down1.png\"/>",  "");
             }
 
-            //if (a === "<0.001") { a = 0.0009; }
-            //if (b === "<0.001") { b = 0.0009; }
             if (parseFloat(a) > parseFloat(b)) return -1;
             else if (parseFloat(a) < parseFloat(b)) return 1;
             else return 0;
@@ -103,8 +97,6 @@ var orTable = function(plot_div, minionco_div, loading_div) {
                 if (b.indexOf("down1") !== -1) b = b.replace("<img src=\"images/down1.png\"/>",  "");
             }
 
-            //if (a === "<0.001") { a = 0.0009; }
-            //if (b === "<0.001") { b = 0.0009; }
             if (parseFloat(a) > parseFloat(b)) return 1;
             else if (parseFloat(a) < parseFloat(b)) return -1;
             else return 0;
@@ -136,6 +128,34 @@ var orTable = function(plot_div, minionco_div, loading_div) {
                 else if (a < b) return -1;
                 else return 0;
             }
+        };
+        jQuery.fn.dataTableExt.oSort['or-analysis-pct-altered-desc'] = function(a,b) {
+            a = parseFloat(a.substring(a.indexOf("(") + 1, a.indexOf(")") - 1));
+            b = parseFloat(b.substring(b.indexOf("(") + 1, b.indexOf(")") - 1));
+            if (a > b) return -1;
+            else if (a < b) return 1;
+            else return 0;
+        };
+        jQuery.fn.dataTableExt.oSort['or-analysis-pct-altered-asc'] = function(a,b) {
+            a = parseFloat(a.substring(a.indexOf("(") + 1, a.indexOf(")") - 1));
+            b = parseFloat(b.substring(b.indexOf("(") + 1, b.indexOf(")") - 1));
+            if (a > b) return 1;
+            else if (a < b) return -1;
+            else return 0;
+        };
+        jQuery.fn.dataTableExt.oSort['or-analysis-pct-unaltered-desc'] = function(a,b) {
+            a = parseFloat(a.substring(a.indexOf("(") + 1, a.indexOf(")") - 1));
+            b = parseFloat(b.substring(b.indexOf("(") + 1, b.indexOf(")") - 1));
+            if (a > b) return -1;
+            else if (a < b) return 1;
+            else return 0;
+        };
+        jQuery.fn.dataTableExt.oSort['or-analysis-pct-unaltered-asc'] = function(a,b) {
+            a = parseFloat(a.substring(a.indexOf("(") + 1, a.indexOf(")") - 1));
+            b = parseFloat(b.substring(b.indexOf("(") + 1, b.indexOf(")") - 1));
+            if (a > b) return 1;
+            else if (a < b) return -1;
+            else return 0;
         };
 
         //Draw out the markdown of the datatable
@@ -194,6 +214,16 @@ var orTable = function(plot_div, minionco_div, loading_div) {
                     "aTargets": [ col_index.log_ratio ]
                 },
                 {
+                    "sType": 'or-analysis-pct-altered',
+                    "bSearchable": false,
+                    "aTargets": [col_index.altered_pct]
+                },
+                {
+                    "sType": 'or-analysis-pct-unaltered',
+                    "bSearchable": false,
+                    "aTargets": [col_index.unaltered_pct]
+                },
+                {
                     "bSearchable": false,
                     "bSortable": false,
                     "mRender": function () {
@@ -201,6 +231,7 @@ var orTable = function(plot_div, minionco_div, loading_div) {
                     },
                     "aTargets": [ col_index.plot ]
                 }
+
             ],
             "fnRowCallback": function(nRow, aData) {
                 //bold gene names
@@ -850,6 +881,31 @@ var orSubTabView = function() {
                     }
                 }
             }
+
+        },
+        valid: function(_callback_func, _profile_list, _gene_set, _sub_div_id, _profile_type) {
+
+            var valid_profile_list = [], count = 0;
+
+            var push_valid_profile = function(_input_data, _profile_obj) {
+                count += 1;
+                if (Object.keys(_input_data).length !== 0 &&
+                    Object.keys(_input_data)[0] !== orAnalysis.texts.null_result &&
+                    Object.keys(_input_data)[0] !== "") {
+                    valid_profile_list.push(_profile_obj);
+                }
+                if (count === _profile_list.length) {
+                    _callback_func(_sub_div_id, valid_profile_list, _profile_type, _gene_set);
+                }
+            }
+
+            $.each(_profile_list, function(_index, _profile_obj) {
+                var param = new orAjaxParam(or_tab.getAlteredCaseList(), or_tab.getUnalteredCaseList(), _profile_obj.STABLE_ID, _gene_set);
+                var or_data = new orData();
+                var _table_id = _profile_obj.STABLE_ID + orAnalysis.postfix.datatable_id;
+                or_data.init(param, _table_id);
+                or_data.get(push_valid_profile, _profile_obj, "", "", "", "", "", "");
+            });
 
         }
     };

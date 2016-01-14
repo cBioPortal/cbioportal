@@ -170,12 +170,6 @@
 <script>
     $(document).ready( function() {
         var plots_tab_init = false;
-        if ($("#plots").is(":visible")) {
-            plotsTab.init();
-            plots_tab_init = true;
-        } else {
-            $(window).trigger("resize");
-        }
         $("#tabs").bind("tabsactivate", function(event, ui) {
             if (ui.newTab.text().trim().toLowerCase() === "plots") {
                 if (plots_tab_init === false) {

@@ -1254,6 +1254,9 @@ class ClinicalValidator(Validator):
         super(ClinicalValidator, self).__init__(*args, **kwargs)
         self.sampleIds = set()
         self.attr_defs = []
+        # initialize a class variable if undefined, logging info messages to
+        # the underlying non-file-related logger
+        self.request_attrs(SERVER_URL, self.logger.logger)
 
     def processTopLines(self, line_list):
 
@@ -1366,8 +1369,6 @@ class ClinicalValidator(Validator):
                 len(self.cols),
                 extra={'line_number': self.line_number})
             num_errors += 1
-        # use the non-file-related base logger for this class method
-        self.request_attrs(self.logger.logger)
         for col_index, col_name in enumerate(self.cols):
             if not col_name.isupper():
                 self.logger.warning(
@@ -1413,6 +1414,7 @@ class ClinicalValidator(Validator):
         super(ClinicalValidator, self).checkLine(data)
         for col_index, value in enumerate(data):
             # TODO check the values in the other cols, required and optional
+            # TODO check if cancer types in clinical attributes are defined
             if col_index == self.cols.index('SAMPLE_ID'):
                 if DEFINED_SAMPLE_IDS and value not in DEFINED_SAMPLE_IDS:
                     self.logger.error(
@@ -1423,24 +1425,25 @@ class ClinicalValidator(Validator):
                 self.sampleIds.add(value.strip())
 
     @classmethod
-    def request_attrs(cls, logger):
-        """Set cls.srv_sample_attrs and cls.srv_patient_attrs from portal."""
+    def request_attrs(cls, server_url, logger):
+        """Initialize cls.srv_attrs using the portal API."""
         if cls.srv_attrs is None:
             cls.srv_attrs = request_from_portal_api(
-                SERVER_URL + '/api/clinicalattributes/patients',
+                server_url + '/api/clinicalattributes/patients',
                 logger,
                 id_field='attr_id')
             srv_sample_attrs = request_from_portal_api(
-                SERVER_URL + '/api/clinicalattributes/samples',
+                server_url + '/api/clinicalattributes/samples',
                 logger,
                 id_field='attr_id')
             id_overlap = (set(cls.srv_attrs.keys()) &
                           set(srv_sample_attrs.keys()))
             if id_overlap:
                 raise ValueError(
-                    'The portal returned these clinical attributes both for'
-                    'samples and for patients: {}'.format(
-                        ', '.join(id_overlap)))
+                    'The portal at {url} returned these clinical attributes '
+                    'both for samples and for patients: {attrs}'.format(
+                        url=server_url,
+                        attrs=', '.join(id_overlap)))
             else:
                 cls.srv_attrs.update(srv_sample_attrs)
 

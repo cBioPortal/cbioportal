@@ -37,6 +37,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -55,8 +56,19 @@ import org.mskcc.cbio.portal.model.CanonicalGene;
  */
 public final class MyCancerGenomeLinkUtil {
     private MyCancerGenomeLinkUtil() {}
-    private static Map<String,Map<String, Map<String, String>>> linkMap = null;
+    private final static Map<String,Map<String, Map<String, String>>> LINK_MAP
+            = new HashMap<String,Map<String, Map<String, String>>>();
+    
+    static {
+        String mcgUrl = GlobalProperties.getMyCancerGenomeUrl();
+        if(mcgUrl != null && !mcgUrl.isEmpty()) {
+            Map<String, String> mapCancerTypeLink = getCancerTypeLinks();
 
+            for (Map.Entry<String,String> entry : mapCancerTypeLink.entrySet()) {
+                getVariantLinksForCancerType(LINK_MAP, entry.getValue(), GlobalProperties.getMyCancerGenomeUrl()+entry.getKey());
+            }
+        };
+    }
 
     /**
      *
@@ -69,12 +81,7 @@ public final class MyCancerGenomeLinkUtil {
 
         String mcgUrl = GlobalProperties.getMyCancerGenomeUrl();
         if(mcgUrl != null && !mcgUrl.isEmpty()) {
-            if (linkMap==null) {
-                linkMap = getMyCancerGenomeLinks();
-            }
-
-
-            Map<String, Map<String, String>> mapVariantCancerLink = linkMap.get(gene);
+            Map<String, Map<String, String>> mapVariantCancerLink = LINK_MAP.get(gene);
             if (mapVariantCancerLink != null) {
                 Map<String, String> mapCancerLink = mapVariantCancerLink.get(alteration);
                 if (mapCancerLink != null) {
@@ -97,59 +104,57 @@ public final class MyCancerGenomeLinkUtil {
      * @return Map<Cancer, URL>
      * @throws IOException 
      */
-    private static Map<String, String> getCancerTypeLinks() throws IOException {
+    private static Map<String, String> getCancerTypeLinks() {
         Map<String, String> mapCancerLink = new HashMap<String, String>();
         
-        URL url = new URL(GlobalProperties.getMyCancerGenomeUrl()+"/sitemap");
-        InputStream is = url.openStream();
-        BufferedReader in = new BufferedReader(new InputStreamReader(is));
+        try {
+            URL url = new URL(GlobalProperties.getMyCancerGenomeUrl()+"/sitemap");
+            InputStream is = url.openStream();
+            BufferedReader in = new BufferedReader(new InputStreamReader(is));
 
-        String line;
-        while ((line = in.readLine()) != null
-                && !line.contains("<a id=\"cancer_types\">")) {}
+            String line;
+            while ((line = in.readLine()) != null
+                    && !line.contains("<a id=\"cancer_types\">")) {}
 
-        if (line==null) {
-            System.err.println("MyCancerGenome format change: no cancer_types in site map");
-            return mapCancerLink;
+            if (line==null) {
+                System.err.println("MyCancerGenome format change: no cancer_types in site map");
+                return mapCancerLink;
+            }
+
+            line = in.readLine();
+            
+            in.close();
+
+            return getLinks(line, "<a href=\"([^\"]+)\">([^<]+)</a>");
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         
-        line = in.readLine();
-        
-        return getLinks(line, "<a href=\"([^\"]+)\">([^<]+)</a>");
-    }
-
-    /**
-     *
-     * @return Map<Gene, Map<Varaint, Map<Cancer, URL>>>
-     * @throws IOException
-     */
-    private static Map<String,Map<String, Map<String, String>>> getMyCancerGenomeLinks() throws IOException {
-        Map<String,Map<String, Map<String, String>>> mapGeneVariantCancerLink
-                = new HashMap<String,Map<String, Map<String, String>>>();
-
-        Map<String, String> mapCancerTypeLink = getCancerTypeLinks();
-        
-        for (Map.Entry<String,String> entry : mapCancerTypeLink.entrySet()) {
-            getVariantLinksForCancerType(mapGeneVariantCancerLink, entry.getValue(), GlobalProperties.getMyCancerGenomeUrl()+entry.getKey());
-        }
-        
-        return mapGeneVariantCancerLink;
+        return Collections.emptyMap();
     }
         
     private static void getVariantLinksForCancerType(Map<String,Map<String, Map<String, String>>> mapGeneVariantCancerLink,
-            String cancer, String cancerink) throws IOException {
+            String cancer, String cancerink) {
         
-        URL url = new URL(cancerink);
-        
-        InputStream is = url.openStream();
-        BufferedReader in = new BufferedReader(new InputStreamReader(is));
-        
-        StringBuilder sb = new StringBuilder();
-        for (String line = in.readLine(); line != null; line = in.readLine()) {
-            sb.append(line);
+        String content = null;
+        try {
+            URL url = new URL(cancerink);
+
+            InputStream is = url.openStream();
+            BufferedReader in = new BufferedReader(new InputStreamReader(is));
+
+            StringBuilder sb = new StringBuilder();
+            for (String line = in.readLine(); line != null; line = in.readLine()) {
+                sb.append(line);
+            }
+            
+            content = sb.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
         }
         
-        Map<String, String> links = getLinks(sb.toString(), "<a [^>]*href=\"("+cancerink+"[^\"]+)\"[^>]*>([^<]+)</a>");
+        Map<String, String> links = getLinks(content, "<a [^>]*href=\"("+cancerink+"[^\"]+)\"[^>]*>([^<]+)</a>");
 
         Pattern pM = Pattern.compile("([A-Z0-9\\-]+) +c\\. *[^ ]+ +\\((.+)\\)",Pattern.CASE_INSENSITIVE);
         Pattern pM2 = Pattern.compile("([A-Z0-9\\-]+) ?\\(([A-Z0-9\\-]+)\\) c\\. *[^ ]+ \\((.+)\\)",Pattern.CASE_INSENSITIVE);
@@ -323,10 +328,6 @@ public final class MyCancerGenomeLinkUtil {
             links.put(href, text);
         }
         return links;
-    }
-
-    public static void main(String[] args) throws IOException {
-        getMyCancerGenomeLinks();
     }
 }
 

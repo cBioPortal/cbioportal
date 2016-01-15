@@ -92,9 +92,6 @@ public class DaoGeneticAlteration {
      */
     public int addGeneticAlterations(int geneticProfileId, long entrezGeneId, String[] values)
             throws DaoException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
         StringBuffer valueBuffer = new StringBuffer();
         for (String value:  values) {
             if (value.contains(DELIM)) {
@@ -103,26 +100,30 @@ public class DaoGeneticAlteration {
             }
             valueBuffer.append(value).append(DELIM);
         }
-
+        
+       if (MySQLbulkLoader.isBulkLoad() ) {
+          //  write to the temp file maintained by the MySQLbulkLoader
+          MySQLbulkLoader.getMySQLbulkLoader("genetic_alteration").insertRecord(Integer.toString( geneticProfileId ),
+                  Long.toString( entrezGeneId ), valueBuffer.toString());
+          // return 1 because normal insert will return 1 if no error occurs
+          return 1;
+        } 
+       
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        
         try {
-           if (MySQLbulkLoader.isBulkLoad() ) {
-              //  write to the temp file maintained by the MySQLbulkLoader
-              MySQLbulkLoader.getMySQLbulkLoader("genetic_alteration").insertRecord(Integer.toString( geneticProfileId ),
-                      Long.toString( entrezGeneId ), valueBuffer.toString());
-              // return 1 because normal insert will return 1 if no error occurs
-              return 1;
-           } else {
-                con = JdbcUtil.getDbConnection(DaoGeneticAlteration.class);
-                pstmt = con.prepareStatement
-                        ("INSERT INTO genetic_alteration (GENETIC_PROFILE_ID, " +
-                                " ENTREZ_GENE_ID," +
-                                " VALUES) "
-                                + "VALUES (?,?,?)");
-                pstmt.setInt(1, geneticProfileId);
-                pstmt.setLong(2, entrezGeneId);
-                pstmt.setString(3, valueBuffer.toString());
-                return pstmt.executeUpdate();
-           }
+            con = JdbcUtil.getDbConnection(DaoGeneticAlteration.class);
+            pstmt = con.prepareStatement
+                    ("INSERT INTO genetic_alteration (GENETIC_PROFILE_ID, " +
+                            " ENTREZ_GENE_ID," +
+                            " VALUES) "
+                            + "VALUES (?,?,?)");
+            pstmt.setInt(1, geneticProfileId);
+            pstmt.setLong(2, entrezGeneId);
+            pstmt.setString(3, valueBuffer.toString());
+            return pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

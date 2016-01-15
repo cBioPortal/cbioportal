@@ -566,7 +566,7 @@ table #network_wrapper{
 
 #relations_tab .percent-bar
 {
-	margin: 0.2em 0.5em 0 2.5em;
+	/*margin: 0.2em 0.5em 0 2.5em;*/
 	height: 0.3em;
 	border-right: 0px solid #b0b0b0;
 	clear: both;
@@ -603,7 +603,7 @@ table #network_wrapper{
 	width: 245px;
 }
 
-#relations_tab #edge_source_filter
+#edge_source_filter
 {
 	padding-top: 1em;
 	font-size: 9px;

@@ -6,7 +6,7 @@ var OncoprintModel = (function () {
     function OncoprintModel(init_cell_padding, init_cell_padding_on,
 	    init_zoom, init_cell_width,
 	    init_track_group_padding) {
-	this.ids = [];
+	this.id_order = [];
 	this.visible_ids = {};
 	this.track_groups = [];
 	this.zoom = ifndef(init_zoom, 1);
@@ -17,6 +17,7 @@ var OncoprintModel = (function () {
 	this.track_group_padding = ifndef(init_track_group_padding, 10);
 
 	this.track_data = {};
+	this.display_track_data = {}; // in order
 	this.track_rule_set = {};
 	this.track_label = {};
 	this.track_height = {};
@@ -60,26 +61,30 @@ var OncoprintModel = (function () {
 	return this.track_padding[track_id];
     }
 
-    OncoprintModel.prototype.getIds = function () {
-	return this.ids;
+    OncoprintModel.prototype.getIdOrder = function () {
+	return this.id_order;
     }
 
     OncoprintModel.prototype.getVisibleIds = function () {
 	var visible_ids = this.visible_ids;
-	return this.ids.filter(function (id) {
+	return this.id_order.filter(function (id) {
 	    return !!visible_ids[id];
 	});
     }
 
-    OncoprintModel.prototype.setIds = function (ids) {
-	this.ids = ids.slice();
+    OncoprintModel.prototype.setIdOrder = function (ids) {
+	this.id_order = ids.slice();
+	var track_ids = this.getTracks();
+	for (var i=0; i<track_ids.length; i++) {
+	    this.computeDisplayTrackData(track_ids[i]);
+	}
     }
 
     OncoprintModel.prototype.hideIds = function (to_hide, show_others) {
-	var ids = this.ids;
+	var id_order = this.id_order;
 	if (show_others) {
-	    for (var i = 0, len = ids.length; i < len; i++) {
-		this.visible_ids[ids[i]] = true;
+	    for (var i = 0, len = id_order.length; i < len; i++) {
+		this.visible_ids[id_order[i]] = true;
 	    }
 	}
 	for (var j = 0, len = to_hide.length; j < len; j++) {
@@ -131,7 +136,9 @@ var OncoprintModel = (function () {
 	    return 0;
 	});
 	model.track_sort_direction_changeable[track_id] = ifndef(sort_direction_changeable, false);
-	model.track_data[track_id] = ifndef(data, []);
+	
+	model.setTrackData(track_id, ifndef(data, []));
+	
 	model.track_rule_set[track_id] = ifndef(rule_set, undefined);
 
 	target_group = ifndef(target_group, 0);
@@ -251,11 +258,18 @@ var OncoprintModel = (function () {
     }
 
     OncoprintModel.prototype.getTrackData = function (track_id) {
-	return this.track_data[track_id];
+	return this.display_track_data[track_id];
     }
 
     OncoprintModel.prototype.setTrackData = function (track_id, data) {
 	this.track_data[track_id] = data;
+	this.computeDisplayTrackData(track_id);
+    }
+    
+    OncoprintModel.prototype.computeDisplayTrackData = function(track_id) {
+	// TODO: 
+	// (1) Visible ids
+	// (2) In id order
     }
 
     return OncoprintModel;

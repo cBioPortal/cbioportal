@@ -33,12 +33,6 @@ var Oncoprint = (function () {
 	    return o;
 	});
 	this.model.addTracks(params_list);
-	/*track_id, params.target_group,
-	 params.track_height, params.track_padding,
-	 params.data_id_key, params.tooltipFn,
-	 params.removable, params.label,
-	 params.sortCmpFn, params.sort_direction_changeable,
-	 params.data, OncoprintRuleSet(params.rule_set_params));*/
 	// Update views
 	this.cell_view.addTracks(this.model, track_ids);
 	//this.label_view.addTracks(this.model, track_ids);
@@ -75,7 +69,15 @@ var Oncoprint = (function () {
 	this.cell_view.setTrackData(this.model, track_id);
     }
 
-
+    Oncoprint.prototype.sort = function(group_order) {
+    }
+    
+    Oncoprint.prototype.setIdOrder = function(ids) {
+	// Update model
+	this.model.setIdOrder(ids);
+	// Update views
+	this.cell_view.setIdOrder(this, ids);
+    }
     return Oncoprint;
 })();
 module.exports = Oncoprint;

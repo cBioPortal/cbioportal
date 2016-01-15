@@ -69,16 +69,6 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils', 'InputData'
             $new_zoomer_el.empty();
             zoom = OncoprintUtils.zoomSetup($new_zoomer_el, oncoprint.zoom);
 
-            $('#oncoprint_zoom_slider').hover(
-            function () {
-            $(this).css('fill', '#0000FF');
-            $(this).css('font-size', '18px');
-            $(this).css('cursor', 'pointer');
-            },
-            function () {
-            $(this).css('fill', '#87CEFA');
-            $(this).css('font-size', '12px');
-            });
             $('#oncoprint_zoom_slider').qtip({
                 content: {text: 'zoom in and out oncoprint'},
                 position: {my:'bottom middle', at:'top middle', viewport: $(window)},

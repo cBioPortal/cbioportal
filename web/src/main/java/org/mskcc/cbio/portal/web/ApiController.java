@@ -47,13 +47,14 @@ public class ApiController {
     }
 
     @Transactional
-    @RequestMapping(value = "/mutation", method = {RequestMethod.GET})
-    public @ResponseBody List<DBAltCount> getMutations(@RequestParam(required = true) String type, @RequestParam(required = true) Boolean per_study, @RequestParam(required = true) List<String> inputIDs, @RequestParam(required = true) List<String> genes, @RequestParam(required = true) List<Integer> starts, @RequestParam(required = true) List<Integer> ends) {
-        return service.getMutations(type, per_study, inputIDs, genes, starts, ends);
+    @RequestMapping(value = "/mutation_count", method = {RequestMethod.GET})
+    public @ResponseBody List<DBAltCount> getMutations(@RequestParam(required = true) String type, @RequestParam(required = true) Boolean per_study, @RequestParam(required = true) List<String> ids, @RequestParam(required = true) List<String> genes, @RequestParam(required = true) List<Integer> starts, @RequestParam(required = true) List<Integer> ends, @RequestParam(required = false) List<String> echo) {
+        return service.getMutations(type, per_study, ids, genes, starts, ends, echo);
+        
     }
     
     @Transactional
-    @RequestMapping(value = "/mutation", method = {RequestMethod.POST})
+    @RequestMapping(value = "/mutation_count", method = {RequestMethod.POST})
     public @ResponseBody List<DBAltCount> getMutations(@RequestBody DBAltCountInput body) {
          return service.getMutationsJSON(body);
     }

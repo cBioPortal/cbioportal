@@ -16,7 +16,16 @@ public class DBAltCountInput implements Serializable {
     public String type;
     public Boolean per_study ;
     public List<DBAltCountInputData> data; 
+    public List<String> echo;
 
+    public List<String> getEcho() {
+        return echo;
+    }
+
+    public void setEcho(List<String> echo) {
+        this.echo = echo;
+    }
+    
     public String getType() {
         return type;
     }

@@ -81,7 +81,7 @@ public class ApiService {
 	}
 
         @Transactional
-	public List<DBAltCount> getMutations(String type, Boolean per_study, List<String> inputIDs,  List<String> genes, List<Integer> starts, List<Integer> ends) {
+	public List<DBAltCount> getMutations(String type, Boolean per_study, List<String> ids,  List<String> genes, List<Integer> starts, List<Integer> ends, List<String> echo) {
 
             List<DBAltCount> mutationCounts = new ArrayList<DBAltCount>();
 
@@ -94,8 +94,29 @@ public class ApiService {
                         
                         for(DBAltCount ele: mutationMapper.getMutationsPerStudy(genes.get(i), starts.get(i), ends.get(i)) )
                         {
-                           ele.inputID = inputIDs.get(i);
-                            mutationCounts.add(ele); 
+                            if(echo == null){
+                             ele.id = ids.get(i);
+                             ele.gene = genes.get(i);
+                             ele.start = starts.get(i);
+                             ele.end = ends.get(i);
+                            }  
+                            else{
+                                for(String output: echo)
+                                {
+                                   
+                                    if(output.equals("id")){
+                                        ele.id = ids.get(i);
+                                    }else if(output.equals("gene")){
+                                        ele.gene = genes.get(i);
+                                    }else if(output.equals("start")){
+                                        ele.start = starts.get(i);
+                                    }else if(output.equals("end")){
+                                        ele.end = ends.get(i);
+                                    }
+                                }
+                             
+                            }
+                           mutationCounts.add(ele); 
                         }
                        
                     }
@@ -103,7 +124,28 @@ public class ApiService {
                     {
                         for(DBAltCount ele: mutationMapper.getMutations(genes.get(i), starts.get(i), ends.get(i)))
                         {
-                            ele.inputID = inputIDs.get(i);
+                            if(echo == null){
+                             ele.id = ids.get(i);
+                             ele.gene = genes.get(i);
+                             ele.start = starts.get(i);
+                             ele.end = ends.get(i);
+                            }  
+                            else{
+                                for(String output: echo)
+                                {
+                                   
+                                    if(output.equals("id")){
+                                        ele.id = ids.get(i);
+                                    }else if(output.equals("gene")){
+                                        ele.gene = genes.get(i);
+                                    }else if(output.equals("start")){
+                                        ele.start = starts.get(i);
+                                    }else if(output.equals("end")){
+                                        ele.end = ends.get(i);
+                                    }
+                                }
+                             
+                            }
                             mutationCounts.add(ele); 
                         }
                          
@@ -119,6 +161,7 @@ public class ApiService {
             String type = body.getType();
             Boolean per_study = body.getPer_study();
             List<DBAltCountInputData> data = body.getData();
+            List<String> echo = body.getEcho();
             
             List<DBAltCount> mutationCounts = new ArrayList<DBAltCount>();
 
@@ -132,7 +175,29 @@ public class ApiService {
                         
                         for(DBAltCount ele: mutationMapper.getMutationsPerStudy(item.getGene(), item.getStart(), item.getEnd()) )
                         {
-                           ele.inputID = item.getId();
+                            if(echo == null){
+                             ele.id = item.getId();
+                             ele.gene = item.getGene();
+                             ele.start = item.getStart();
+                             ele.end = item.getEnd();
+                            }  
+                            else{
+                                for(String output: echo)
+                                {
+                                   
+                                    if(output.equals("id")){
+                                        ele.id = item.getId();
+                                    }else if(output.equals("gene")){
+                                        ele.gene = item.getGene();
+                                    }else if(output.equals("start")){
+                                        ele.start = item.getStart();
+                                    }else if(output.equals("end")){
+                                        ele.end = item.getEnd();
+                                    }
+                                }
+                             
+                            }
+                       
                             mutationCounts.add(ele); 
                         }
                        
@@ -141,7 +206,28 @@ public class ApiService {
                     {
                         for(DBAltCount ele: mutationMapper.getMutations(item.getGene(), item.getStart(), item.getEnd()))
                         {
-                            ele.inputID = item.getId();
+                            if(echo == null){
+                             ele.id = item.getId();
+                             ele.gene = item.getGene();
+                             ele.start = item.getStart();
+                             ele.end = item.getEnd();
+                            }  
+                            else{
+                                for(String output: echo)
+                                {
+                                   
+                                    if(output.equals("id")){
+                                        ele.id = item.getId();
+                                    }else if(output.equals("gene")){
+                                        ele.gene = item.getGene();
+                                    }else if(output.equals("start")){
+                                        ele.start = item.getStart();
+                                    }else if(output.equals("end")){
+                                        ele.end = item.getEnd();
+                                    }
+                                }
+                             
+                            }
                             mutationCounts.add(ele); 
                         }
                          

@@ -30,12 +30,12 @@ GENOMIC_BUILD_COUNTERPART = 'hg19'
 
 # study-specific globals
 STUDY_DIR = None
-META_TYPE_TO_META_DICT = None
 DEFINED_SAMPLE_IDS = None
 DEFINED_CANCER_TYPES = None
 
 SERVER_URL = 'http://localhost/cbioportal'
 PORTAL_CANCER_TYPES = None
+HUGO_ENTREZ_MAP = None
 
 # ----------------------------------------------------------------------------
 # how we differentiate between data types based on the meta_file_type field
@@ -1258,9 +1258,6 @@ class ClinicalValidator(Validator):
         super(ClinicalValidator, self).__init__(*args, **kwargs)
         self.sampleIds = set()
         self.attr_defs = []
-        # initialize a class variable if undefined, logging info messages to
-        # the underlying non-file-related logger
-        self.request_attrs(SERVER_URL, self.logger.logger)
 
     def processTopLines(self, line_list):
 
@@ -1437,27 +1434,26 @@ class ClinicalValidator(Validator):
     @classmethod
     def request_attrs(cls, server_url, logger):
         """Initialize cls.srv_attrs using the portal API."""
-        if cls.srv_attrs is None:
-            cls.srv_attrs = request_from_portal_api(
-                server_url + '/api/clinicalattributes/patients',
-                logger,
-                id_field='attr_id')
-            srv_sample_attrs = request_from_portal_api(
-                server_url + '/api/clinicalattributes/samples',
-                logger,
-                id_field='attr_id')
-            # if this happens, the database has changed and this script needs
-            # to be updated
-            id_overlap = (set(cls.srv_attrs.keys()) &
-                          set(srv_sample_attrs.keys()))
-            if id_overlap:
-                raise ValueError(
-                    'The portal at {url} returned these clinical attributes '
-                    'both for samples and for patients: {attrs}'.format(
-                        url=server_url,
-                        attrs=', '.join(id_overlap)))
-            else:
-                cls.srv_attrs.update(srv_sample_attrs)
+        cls.srv_attrs = request_from_portal_api(
+            server_url + '/api/clinicalattributes/patients',
+            logger,
+            id_field='attr_id')
+        srv_sample_attrs = request_from_portal_api(
+            server_url + '/api/clinicalattributes/samples',
+            logger,
+            id_field='attr_id')
+        # if this happens, the database structure has changed and this script
+        # needs to be updated
+        id_overlap = (set(cls.srv_attrs.keys()) &
+                      set(srv_sample_attrs.keys()))
+        if id_overlap:
+            raise ValueError(
+                'The portal at {url} returned these clinical attributes '
+                'both for samples and for patients: {attrs}'.format(
+                    url=server_url,
+                    attrs=', '.join(id_overlap)))
+        else:
+            cls.srv_attrs.update(srv_sample_attrs)
 
 
 class SegValidator(Validator):
@@ -1556,7 +1552,7 @@ class TimelineValidator(Validator):
 # ------------------------------------------------------------------------------
 # Functions
 
-def processMetafile(filename, study_id, logger, case_list=False):
+def parse_metadata_file(filename, logger, study_id=None, case_list=False):
 
     """Validate a metafile and return a dictionary of values read from it.
 
@@ -1564,9 +1560,9 @@ def processMetafile(filename, study_id, logger, case_list=False):
     validate the file as a case list instead of a meta file.
     
     :param filename: name of the meta file
-    :param study_id: cancer study id found in the first meta file. All subsequent
-                     metafiles should comply to this in the field 'cancer_study_identifier'
     :param logger: the logging.Logger instance to log warnings and errors to
+    :param study_id: cancer study id found in previous files (or None). All subsequent
+                     meta files should comply to this in the field 'cancer_study_identifier'
     :param case_list: whether this meta file is a case list (special case)
     """
 
@@ -1693,6 +1689,75 @@ def processMetafile(filename, study_id, logger, case_list=False):
     return metaDictionary
 
 
+def process_metadata_files(directory, logger):
+
+    """Parse the meta files in a directory and create data file validators.
+
+    Return a tuple of:
+        1. a dict listing the data file validator (or None) for each meta file
+           by file type,
+        2. a list of cancer type ids that have been defined in this study, and
+        3. the study id
+
+    Possible file types are listed in META_FILE_PATTERNS.
+    """
+
+    # get filenames for all meta files in the directory
+    filenames = [os.path.join(directory, f) for
+                 f in os.listdir(directory) if
+                 re.search(r'(\b|_)meta(\b|_)', f)]
+
+    study_id = None
+    study_cancer_type = None
+    validators_by_type = {}
+    defined_cancer_types = []
+
+    for filename in filenames:
+
+        meta = parse_metadata_file(filename, logger, study_id)
+        if meta is None:
+            continue
+        if study_id is None:
+            study_id = meta['cancer_study_identifier']
+        meta_file_type = meta['meta_file_type']
+        if meta_file_type == STUDY_META_PATTERN:
+            if study_cancer_type is not None:
+                logger.error(
+                    'Encountered a second meta_study file',
+                    extra={'data_filename': getFileFromFilepath(filename)})
+            study_cancer_type = meta['type_of_cancer']
+        if meta_file_type == CANCER_TYPE_META_PATTERN:
+            file_cancer_type = meta['type_of_cancer']
+            if file_cancer_type in defined_cancer_types:
+                logger.error(
+                    'Cancer type defined a second time in study',
+                    extra={'data_filename': getFileFromFilepath(filename),
+                           'cause': file_cancer_type})
+            defined_cancer_types.append(meta['type_of_cancer'])
+        # create a list for the file type in the dict
+        if meta_file_type not in validators_by_type:
+            validators_by_type[meta_file_type] = []
+        # check if data_file_path is set AND if data_file_path is a supported field according to META_FIELD_MAP:
+        if 'data_file_path' in meta and 'data_file_path' in META_FIELD_MAP[meta_file_type]:
+            validators_by_type[meta_file_type].append(
+                ValidatorFactory.createValidator(
+                    VALIDATOR_IDS[meta_file_type],
+                    HUGO_ENTREZ_MAP,
+                    logger,
+                    meta))
+        else:
+            validators_by_type[meta_file_type].append(None)
+
+    if not (study_cancer_type in PORTAL_CANCER_TYPES or
+            study_cancer_type in DEFINED_CANCER_TYPES):
+        logger.error(
+            'Cancer type of study is neither known to the portal nor defined '
+            'in a meta_cancer_type file',
+            extra={'cause': study_cancer_type})
+
+    return validators_by_type, defined_cancer_types, study_id
+
+
 def getFileFromFilepath(f):
     return os.path.basename(f.strip())
 
@@ -1705,8 +1770,8 @@ def processCaseListDirectory(caseListDir, cancerStudyId, logger):
 
     for case in case_lists:
 
-        case_data = processMetafile(case, cancerStudyId, logger,
-                                    case_list=True)
+        case_data = parse_metadata_file(case, logger, cancerStudyId,
+                                        case_list=True)
         if case_data is None:
             continue
 
@@ -1731,10 +1796,9 @@ def request_from_portal_api(service_url, logger, id_field=None):
     [{'id': 'spam', 'val1': 1}, {'id':'eggs', 'val1':42}] ->
     {'spam': {'val1': 1}, 'eggs': {'val1': 42}}
     """
-    if logger.isEnabledFor(logging.INFO):
-        url_split = service_url.split('/api/', 1)
-        logger.info("Requesting %s from portal at '%s'",
-                    url_split[1], url_split[0])
+    url_split = service_url.split('/api/', 1)
+    logger.info("Requesting %s from portal at '%s'",
+                url_split[1], url_split[0])
     response = requests.get(service_url)
     try:
         response.raise_for_status()
@@ -1761,6 +1825,7 @@ def get_hugo_entrez_map(server_url, logger):
     Returns a dict with hugo symbols and respective entrezId, e.g.:
     # dict: {'LOC105377913': '105377913', 'LOC105377912': '105377912',  hugo: entrez, hugo: entrez...
     """
+    # TODO implement an API call for gene aliases and include those in the map
     json_data = request_from_portal_api(server_url + '/api/genes', logger)
     # json_data is list of dicts, each entry containing e.g. dict: {'hugo_gene_symbol': 'SRXN1', 'entrez_gene_id': '140809'}
     # We want to transform this to the format dict: {hugo: entrez, hugo: entrez...
@@ -1792,12 +1857,14 @@ def main_validate(args):
 
     """Main function."""
 
-    global META_TYPE_TO_META_DICT
+    # global study properties
+    global STUDY_DIR
     global DEFINED_SAMPLE_IDS
     global DEFINED_CANCER_TYPES
+    # global portal properties
     global SERVER_URL
     global PORTAL_CANCER_TYPES
-    global STUDY_DIR
+    global HUGO_ENTREZ_MAP
 
     # get a logger to emit messages
     logger = logging.getLogger(__name__)
@@ -1853,116 +1920,55 @@ def main_validate(args):
             collapsing_html_handler.setLevel(logging.ERROR)
         logger.addHandler(collapsing_html_handler)
 
-    hugo_entrez_map = get_hugo_entrez_map(SERVER_URL, logger)
-
-    # Get all files in study_dir
-    filenames = [os.path.join(STUDY_DIR, x) for x in os.listdir(STUDY_DIR)]
-    cancerStudyId = None
-    studyCancerType = None
-    # cancer types defined in the portal
+    # Entrez values for Hugo symbols in the portal
+    HUGO_ENTREZ_MAP = get_hugo_entrez_map(SERVER_URL, logger)
+    # retrieve cancer types defined in the portal
     PORTAL_CANCER_TYPES = request_from_portal_api(
         SERVER_URL + '/api/cancertypes',
         logger,
         id_field='id')
+    # retrieve clinical attributes defined in the portal
+    ClinicalValidator.request_attrs(SERVER_URL, logger)
 
-    # Create validators based on meta files
-    validators = []
+    # walk over the meta files in the dir and get properties of the study
+    (validators_by_meta_type,
+     DEFINED_CANCER_TYPES,
+     study_id) = process_metadata_files(STUDY_DIR, logger)
 
-    defined_cancer_types = []
-    meta_type_to_meta_dict = {}
-    for f in filenames:
-
-        # metafile validation and information gathering. Simpler than the big files, so no classes.
-        # just need to get some values out, and also verify that no extra fields are specified.
-        # Building up the map META_TYPE_TO_META_DICT allows us to validate some scenarios like "there should 
-        # be only one clinical data file" (see below).
-
-        if re.search(r'(\b|_)meta(\b|_)', f):
-            meta = processMetafile(f, cancerStudyId, logger)
-            if meta is None:
-                continue
-            if cancerStudyId is None:
-                cancerStudyId = meta['cancer_study_identifier']
-            meta_file_type = meta['meta_file_type']
-            if meta_file_type == STUDY_META_PATTERN:
-                if studyCancerType is not None:
-                    logger.error(
-                        'Encountered a second meta_study file',
-                        extra={'data_filename': getFileFromFilepath(f)})
-                studyCancerType = meta['type_of_cancer']
-            if meta_file_type == CANCER_TYPE_META_PATTERN:
-                file_cancer_type = meta['type_of_cancer']
-                if file_cancer_type in defined_cancer_types:
-                    logger.error(
-                        'Cancer type defined a second time in study',
-                        extra={'data_filename': getFileFromFilepath(f),
-                               'cause': file_cancer_type})
-                defined_cancer_types.append(meta['type_of_cancer'])
-            # check if data_file_path is set AND if data_file_path is a supported field according to META_FIELD_MAP:
-            data_file_path = meta.get('data_file_path')
-            if data_file_path is not None and 'data_file_path' in META_FIELD_MAP[meta_file_type]:
-                if meta_file_type in meta_type_to_meta_dict:
-                    meta_type_to_meta_dict[meta_file_type].append(meta)
-                else:
-                    meta_type_to_meta_dict[meta_file_type] = [meta]
-
-    META_TYPE_TO_META_DICT = meta_type_to_meta_dict
-    DEFINED_CANCER_TYPES = tuple(defined_cancer_types)
-
-    if not (studyCancerType in PORTAL_CANCER_TYPES or
-            studyCancerType in DEFINED_CANCER_TYPES):
-        logger.error(
-            'Cancer type of study is neither known to the portal nor defined '
-            'in a meta_cancer_type file',
-            extra={'cause': studyCancerType})
-
-    if CLINICAL_META_PATTERN not in META_TYPE_TO_META_DICT:
+    if CLINICAL_META_PATTERN not in validators_by_meta_type:
         logger.error('No clinical file detected')
         return exit_status_handler.get_exit_status()
 
-    if len(META_TYPE_TO_META_DICT[CLINICAL_META_PATTERN]) != 1:
+    if len(validators_by_meta_type[CLINICAL_META_PATTERN]) != 1:
         if logger.isEnabledFor(logging.ERROR):
             logger.error(
                 'Multiple clinical files detected',
                 extra={'cause': ', '.join(
-                    getFileFromFilepath(f[1]) for f in
-                    META_TYPE_TO_META_DICT[CLINICAL_META_PATTERN])})
+                    validator.filenameShort for validator in
+                    validators_by_meta_type[CLINICAL_META_PATTERN])})
 
-    # create a validator for the clinical data file
-    clinical_meta = META_TYPE_TO_META_DICT[CLINICAL_META_PATTERN][0]
-    clinvalidator = ValidatorFactory.createValidator(
-        VALIDATOR_IDS[CLINICAL_META_PATTERN],
-        hugo_entrez_map,
-        logger,
-        clinical_meta)
-
-    # parse the clinical data file
+    # get the validator for the clinical data file
+    clinvalidator = validators_by_meta_type[CLINICAL_META_PATTERN][0]
+    # parse the clinical data file to get defined sample ids for this study
     clinvalidator.validate()
     DEFINED_SAMPLE_IDS = clinvalidator.sampleIds
 
-    # create validators for non-clinical data files
-    for meta_file_type in META_TYPE_TO_META_DICT:
+    # validate non-clinical data files
+    for meta_file_type in validators_by_meta_type:
+        # skip clinical files, they have already been validated
         if meta_file_type == CLINICAL_META_PATTERN:
             continue
-        for meta in META_TYPE_TO_META_DICT[meta_file_type]:
-            # TODO make hugo_entrez_map a global 'final':
-            # it isn't supposed to change after initialisation, so that would
-            # make things more readable
-            validators.append(ValidatorFactory.createValidator(
-                VALIDATOR_IDS[meta_file_type],
-                hugo_entrez_map,
-                logger,
-                meta))
-
-    # validate non-clinical data files
-    for validator in validators:
-        validator.validate()
+        for validator in validators_by_meta_type[meta_file_type]:
+            # if there was no validator for this meta file
+            if validator is None:
+                continue
+            validator.validate()
 
     case_list_dirname = os.path.join(STUDY_DIR, 'case_lists')
     if not os.path.isdir(case_list_dirname):
         logger.error("No directory named 'case_lists' found")
     else:
-        processCaseListDirectory(case_list_dirname, cancerStudyId, logger)
+        processCaseListDirectory(case_list_dirname, study_id, logger)
 
     logger.info('Validation complete')
     exit_status = exit_status_handler.get_exit_status()

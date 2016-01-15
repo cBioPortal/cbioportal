@@ -1472,6 +1472,12 @@ class SegValidator(Validator):
         'seg.mean']
     REQUIRE_COLUMN_ORDER = True
 
+    def __init__(self, *args, **kwargs):
+        """Initialize validator to track coverage of the genome."""
+        super(SegValidator, self).__init__(*args, **kwargs)
+        self.chromosome_lengths = self.load_chromosome_lengths(
+            GENOMIC_BUILD_COUNTERPART)
+
     def checkLine(self, data):
         super(SegValidator, self).checkLine(data)
 
@@ -1479,6 +1485,21 @@ class SegValidator(Validator):
         for col_index, value in enumerate(data):
             if col_index == self.cols.index(self.REQUIRED_HEADERS[0]):
                 self.checkSampleId(value, column_number=col_index + 1)
+
+    @staticmethod
+    def load_chromosome_lengths(genome_build):
+        """Get the length of each chromosome from USCS and return a dict."""
+        chrom_length_dict = {}
+        for line in chromosome_file:
+            # skip comment lines
+            if line.startswith('#'):
+                continue
+            line.split('\t', 1)
+            # skip unplaced sequences
+            if line[1].endswith('_random') or line[1].startswith('chrUn_'):
+                continue
+            # TODO
+        return chrom_length_dict
 
 
 class Log2Validator(GenewiseFileValidator):

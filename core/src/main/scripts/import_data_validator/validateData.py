@@ -1995,7 +1995,8 @@ def main_validate(args):
     clinvalidator.validate()
     if not clinvalidator.fileCouldBeParsed:
         logger.error("Clinical file could not be parsed. Please fix the problems found there first before continuing.")
-        
+        return exit_status_handler.get_exit_status()
+    
     DEFINED_SAMPLE_IDS = clinvalidator.sampleIds
 
     # validate non-clinical data files

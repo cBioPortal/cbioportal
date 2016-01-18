@@ -63,3 +63,17 @@ class ValidateDataSystemTester(unittest.TestCase):
         # Execute main function with arguments provided through sys.argv
         exit_status = validateData.main_validate(args)
         self.assertEquals(3, exit_status)
+
+    def test_html_output(self):
+        '''
+        Test if html file is correctly generated when 'html_table' is given
+        '''
+        #Build up arguments and run
+        args = ['--study_directory','test_data/study_es_0/', 
+                    '--url_server', server, '-v', '--html_table', 'test_data/study_es_0/result_report.html']
+        args = validateData.interface(args)
+        # Execute main function with arguments provided through sys.argv
+        exit_status = validateData.main_validate(args)
+        self.assertEquals(0, exit_status)
+        
+        

@@ -806,6 +806,52 @@ class Validator(object):
             return False
         return True
 
+    def checkGeneIdentification(self, gene_symbol=None, entrez_id=None):
+        """Check if a symbol-Entrez pair is valid, logging an error if not.
+
+        It is considered valid in these three cases:
+            1. only the Entrez id is not None, and it is defined in the portal
+            2. only the symbol is not None, and it is unambiguously defined in
+               the portal
+            3. both are given, and the symbol is defined in the portal to match
+               the Entrez id
+
+        Return True if the pair was valid, False otherwise.
+        """
+        if entrez_id is not None:
+            if gene_symbol is not None:
+                if entrez_id not in HUGO_ENTREZ_MAP[gene_symbol]:
+                    self.logger.error(
+                        'Gene symbol does not match given Entrez id',
+                        extra={'line_number': self.line_number,
+                               'cause': gene_symbol + ', ' + entrez_id})
+                    return False
+            else:
+                if entrez_id not in (gid for
+                                     gid in (HUGO_ENTREZ_MAP[sym] for
+                                             sym in HUGO_ENTREZ_MAP)):
+                    self.logger.error(
+                        'Entrez gene id not known to the cBioPortal instance.',
+                        extra={'line_number': self.line_number,
+                               'cause': entrez_id})
+        elif gene_symbol is not None:
+            if gene_symbol not in HUGO_ENTREZ_MAP:
+                self.logger.error(
+                    'Gene symbol not known to the cBioPortal instance.',
+                    extra={'line_number': self.line_number,
+                           'cause': gene_symbol})
+            elif len(gene_symbol) > 1:
+                self.logger.error(
+                    'Ambiguous gene symbol, please use a synonym or, if '
+                    'possible, provide an Entrez id',
+                    extra={'line_number': self.line_number,
+                           'cause': gene_symbol})
+        else:
+            self.logger.error(
+                'No Entrez id or gene symbol provided for gene',
+                extra={'line_number': self.line_number})
+        return True
+
     def _checkRepeatedColumns(self):
         num_errors = 0
         seen = set()
@@ -911,23 +957,14 @@ class GenewiseFileValidator(FeaturewiseFileValidator):
     def checkLine(self, data):
         """Check the values in a data line."""
         super(GenewiseFileValidator, self).checkLine(data)
-        for column_index, value in enumerate(data):
-            if column_index == 0 and len(self.hugo_entrez_map) > 0:
-                if value not in self.hugo_entrez_map:
-                    # TODO - change to new logic that gives preference to EntrezID checks
-                    self.logger.error(
-                        'Hugo symbol not present in your cBioPortal instance',
-                        extra={'line_number': self.line_number,
-                               'column_number': column_index + 1,
-                               'cause': value.strip()})
-            elif not self.entrez_missing and column_index == 1:
-                if not self.checkInt(value.strip()) and not value.strip() == 'NA':
-                    self.logger.error(
-                        'Invalid Data Type: Entrez_Gene_Id must be integer or NA',
-                        extra={'column_number': column_index + 1,
-                               'line_number': self.line_number,
-                               'cause': value.strip()})
-
+        hugo_symbol = data[self.cols.index('Hugo_Symbol')]
+        entrez_id = data[self.cols.index('Entrez_Gene_Id')]
+        # treat NA or the empty string as a missing value
+        if hugo_symbol in ('NA', ''):
+            hugo_symbol = None
+        if entrez_id in ('NA', ''):
+            entrez_id = None
+        self.checkGeneIdentification(hugo_symbol, entrez_id)
 
 class CNAValidator(GenewiseFileValidator):
 
@@ -952,9 +989,12 @@ class MutationsExtendedValidator(Validator):
     """Sub-class mutations_extended validator."""
 
     REQUIRED_HEADERS = [
-       'Tumor_Sample_Barcode',
-        'Hugo_Symbol',
+        'Tumor_Sample_Barcode',
         'Amino_Acid_Change'
+    ]
+    OPTIONAL_HEADERS = [
+        'Hugo_Symbol',
+        'Entrez_Gene_Id'
     ]
     REQUIRE_COLUMN_ORDER = False
 
@@ -1003,7 +1043,6 @@ class MutationsExtendedValidator(Validator):
         super(MutationsExtendedValidator, self).__init__(hugo_entrez_map,logger,meta_dict)
         # TODO consider making this attribute a local var in in checkLine(),
         # it really only makes sense there
-        self.mafValues = {}
         self.entrez_missing = False
         self.extraCols = []
         self.extra_exists = False
@@ -1012,6 +1051,16 @@ class MutationsExtendedValidator(Validator):
         self.toplinecount = 0
         self.sampleIdsHeader = set()
         self.headerPresent = False
+
+    def checkHeader(self, cols):
+        """Validate header, requiring at least one gene id column."""
+        num_errors = super(MutationsExtendedValidator, self).checkHeader(cols)
+        if not ('Hugo_Symbol' in self.cols or 'Entrez_Gene_Id' in self.cols):
+            self.logger.error('At least one of the columns Hugo_Symbol or '
+                              'Entrez_Gene_Id needs to be present.',
+                              extra={'line_number': self.line_number})
+        num_errors += 1
+        return num_errors
 
     def checkLine(self, data):
 
@@ -1026,9 +1075,8 @@ class MutationsExtendedValidator(Validator):
         """
 
         super(MutationsExtendedValidator, self).checkLine(data)
-        self.mafValues = {}
 
-        for col_name in self.REQUIRED_HEADERS:
+        for col_name in self.REQUIRED_HEADERS + self.OPTIONAL_HEADERS:
             col_index = self.cols.index(col_name)
             value = data[col_index]
             if col_name == 'Tumor_Sample_Barcode':
@@ -1040,10 +1088,22 @@ class MutationsExtendedValidator(Validator):
             if not checking_function(value):
                 self.printDataInvalidStatement(value, col_index)
             elif self.extra_exists or self.extra:
-                raise ValueError(('Checking function %s set a warning '
-                                  'message but reported no warning') %
-                                 checking_function.__name__)
-            self.mafValues[col_name] = value
+                raise RuntimeError(('Checking function %s set an error '
+                                    'message but reported no error') %
+                                   checking_function.__name__)
+        hugo_symbol = None
+        entrez_id = None
+        if 'Hugo_Symbol' in self.cols:
+            hugo_symbol = data[self.cols.index('Hugo_Symbol')]
+            # treat the empty string as a missing value
+            if hugo_symbol == '':
+                hugo_symbol = None
+        if 'Entrez_Gene_Id' in self.cols:
+            entrez_id = data[self.cols.index('Entrez_Gene_Id')]
+            # treat the empty string as a missing value
+            if hugo_symbol == '':
+                hugo_symbol = None
+        self.checkGeneIdentification(hugo_symbol, entrez_id)
 
     def processTopLines(self, line_list):
         """Processes the top line, which contains sample ids used in study."""
@@ -1082,36 +1142,11 @@ class MutationsExtendedValidator(Validator):
     # the function name that is created to check it.
 
     def checkValidHugo(self,value):
-        """Checks if a value is a valid Hugo symbol listed in the NCBI file.
-
-        If no NCBI file given at runtime, does nothing.
-        """
-        return (self.hugo_entrez_map == {}) or (value in self.hugo_entrez_map)
+        """Issue no errors, as this field is checked in `checkLine()`."""
+        return True
 
     def checkValidEntrez(self, value):
-        """Checks if a value is a valid entrez id for the given hugo - needs to be present and match."""
-        if self.entrez_missing:
-            raise ValueError('Tried to check an Entrez id in a file without '
-                             'Entrez ids')
-        if value == '':
-            self.entrez_missing = True
-        elif (
-                self.hugo_entrez_map != {} and
-                value not in self.hugo_entrez_map.values()):
-            return False
-        elif (
-                # TODO check this only after all columns are read,
-                # this function skips the test if Hugo_Symbol is parsed later
-                self.hugo_entrez_map != {} and
-                'Hugo_Symbol' in self.mafValues and
-                (self.hugo_entrez_map.get(self.mafValues['Hugo_Symbol']) !=
-                    value)):
-            self.extra =  \
-                'Entrez gene id does not match Hugo symbol ({} -> {})'.format(
-                    self.mafValues['Hugo_Symbol'],
-                    self.hugo_entrez_map[self.mafValues['Hugo_Symbol']])
-            self.extra_exists = True
-            return False
+        """Issue no errors, as this field is checked in `checkLine()`."""
         return True
 
     def checkCenter(self, value):

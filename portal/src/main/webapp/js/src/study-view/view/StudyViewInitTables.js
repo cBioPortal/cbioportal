@@ -499,7 +499,7 @@ var StudyViewInitTables = (function() {
     // find the worker for a tableId
     function findWorker(tableId){
         for(var i=0; i<workers.length; i++){
-            if (workers[i].opts.tableId == tableId) {
+            if (workers[i].opts.tableId === tableId) {
                 return workers[i];
             }
         }

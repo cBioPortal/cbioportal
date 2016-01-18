@@ -694,7 +694,7 @@ var StudyViewInitCharts = (function(){
 
         var redrawService = {
             selectedCases: _selectedCases,
-            exceptionIds: exceptionIds==undefined?[]:exceptionIds
+            exceptionIds: _.isUndefined(exceptionIds)?[]:exceptionIds
         };
         return redrawService;
     }

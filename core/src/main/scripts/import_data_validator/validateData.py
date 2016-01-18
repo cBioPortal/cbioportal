@@ -532,6 +532,9 @@ class Validator(object):
     appropriate validation tasks.
     """
 
+    REQUIRED_HEADERS = []
+    REQUIRE_COLUMN_ORDER = True
+
     def __init__(self,hugo_entrez_map,logger,meta_dict):
         """Initialize a validator for a particular data file.
 
@@ -672,8 +675,7 @@ class Validator(object):
         num_errors += self._checkRepeatedColumns()
         num_errors += self.checkBadChar()
 
-        # 'REQUIRE_COLUMN_ORDER' should have been defined by the subclass
-        if self.REQUIRE_COLUMN_ORDER:  # pylint: disable=no-member
+        if self.REQUIRE_COLUMN_ORDER:
             num_errors += self._checkOrderedRequiredColumns()
         else:
             num_errors += self._checkUnorderedRequiredColumns()
@@ -718,17 +720,16 @@ class Validator(object):
         Return the number of errors encountered.
         """
         num_errors = 0
-        # 'REQUIRED_HEADERS' should have been defined by the subclass
-        for col_name in self.REQUIRED_HEADERS:  # pylint: disable=no-member
+        for col_name in self.REQUIRED_HEADERS:
             if col_name not in self.cols:
+                self.logger.error(
+                    'Missing column: %s',
+                    col_name,
+                    extra={'line_number': self.line_number,
+                           'cause': ', '.join(
+                                    self.cols[:len(self.REQUIRED_HEADERS)]) +
+                                ', (...)'})
                 num_errors += 1
-                if self.logger.isEnabledFor(logging.ERROR):
-                    self.logger.error(
-                        'Missing column: %s',
-                        col_name,
-                        extra={'line_number': self.line_number,
-                               'cause': ', '.join(self.cols[:len(self.REQUIRED_HEADERS)]) +  # pylint: disable=no-member
-                                        ', (...)'})
         return num_errors
 
     def _checkOrderedRequiredColumns(self):
@@ -737,8 +738,7 @@ class Validator(object):
         Return the number of errors encountered.
         """
         num_errors = 0
-        # 'REQUIRED_HEADERS' should have been defined by the subclass
-        for col_index, col_name in enumerate(self.REQUIRED_HEADERS):  # pylint: disable=no-member
+        for col_index, col_name in enumerate(self.REQUIRED_HEADERS):
             if col_index >= self.numCols:
                 num_errors += 1
                 self.logger.error(
@@ -884,18 +884,23 @@ class FeaturewiseFileValidator(Validator):
 
     """Validates a file with rows for features and columns for ids and samples.
 
-    The first few columns (defined in the REQUIRED_HEADERS attribute)
-    identify the features/genes, and the rest correspond to the samples.
+    The first few columns (collectively defined in the class attributes
+    REQUIRED_HEADERS and OPTIONAL_HEADERS) identify the features
+    (e.g. genes) and the rest correspond to the samples.
 
-    Subclasses should define a checkValue(self, value, col_index) function
-    to check a value in a sample column, and check the required columns
-    by overriding and extending checkLine(self, data).
+    Subclasses should override the checkValue(self, value, col_index)
+    function to check value in a sample column, and check the non-sample
+    columns by overriding and extending checkLine(self, data). The method
+    can find the headers of these columns in self.nonsample_cols.
     """
 
+    OPTIONAL_HEADERS = []
     REQUIRE_COLUMN_ORDER = True
 
     def __init__(self, *args, **kwargs):
         super(FeaturewiseFileValidator, self).__init__(*args, **kwargs)
+        self.nonsample_cols = []
+        self.num_nonsample_cols = 0
         self.sampleIds = []
 
     def checkHeader(self, cols):
@@ -904,43 +909,57 @@ class FeaturewiseFileValidator(Validator):
         Return the number of fatal errors.
         """
         num_errors = super(FeaturewiseFileValidator, self).checkHeader(cols)
-        num_errors += self.setSampleIdsFromColumns()
+        supported_headers = self.REQUIRED_HEADERS
+        # collect the non-sample columns headers, assuming order is required
+        for col_index, col_name in enumerate(self.cols):
+            if col_name == supported_headers[col_index]:
+                self.nonsample_cols.append(col_name)
+            else:
+                # reached the sample id columns
+                break
+        self.num_nonsample_cols = len(self.nonsample_cols)
+        num_errors += self._set_sample_ids_from_columns()
         return num_errors
 
     def checkLine(self, data):
         """Check the values in a data line."""
         super(FeaturewiseFileValidator, self).checkLine(data)
         for column_index, value in enumerate(data):
-            if column_index >= len(self.REQUIRED_HEADERS):  # pylint: disable=no-member
+            if column_index >= len(self.nonsample_cols):
                 # checkValue() should be implemented by subclasses
-                self.checkValue(value, column_index)  # pylint: disable=no-member
+                self.checkValue(value, column_index)
 
-    def setSampleIdsFromColumns(self):
+    def checkValue(self, value, column_index):
+        """Override to validate a value in a sample column."""
+        raise NotImplementedError('The {} class did not provide a method to '
+                                  'validate values in sample columns.'.format(
+                                      self.__class__.__name__))
+
+    def _set_sample_ids_from_columns(self):
         """Extracts sample IDs from column headers and set self.sampleIds."""
         num_errors = 0
-        # `REQUIRED_HEADERS` should have been set by a subclass
-        num_nonsample_headers = len(self.REQUIRED_HEADERS)  # pylint: disable=no-member
-        if len(self.cols[num_nonsample_headers:]) == 0:
-            self.logger.error('No sample columns',
-                              extra={'line_number': self.line_number,
-                                     'column_number': num_nonsample_headers})
+        # check whether any sample columns are present
+        if len(self.cols[self.num_nonsample_cols:]) == 0:
+            self.logger.error('No sample columns found',
+                              extra={'line_number': self.line_number})
             num_errors += 1
-        self.sampleIds = self.cols[num_nonsample_headers:]
+        # set self.sampleIds to the list of sample column names
+        self.sampleIds = self.cols[self.num_nonsample_cols:]
+        # validate each sample id
         for index, sample_id in enumerate(self.sampleIds):
             if not self.checkSampleId(
                     sample_id,
-                    column_number=num_nonsample_headers + index + 1):
+                    column_number=self.num_nonsample_cols + index + 1):
                 num_errors += 1
         return num_errors
 
 
 class GenewiseFileValidator(FeaturewiseFileValidator):
 
-    REQUIRED_HEADERS = ['Hugo_Symbol', 'Entrez_Gene_Id']
+    OPTIONAL_HEADERS = ['Hugo_Symbol', 'Entrez_Gene_Id']
 
     def __init__(self, *args, **kwargs):
         super(GenewiseFileValidator, self).__init__(*args, **kwargs)
-        self.entrez_missing = False
 
     def checkHeader(self, cols):
         """Validate the header and read sample IDs from it.
@@ -948,22 +967,26 @@ class GenewiseFileValidator(FeaturewiseFileValidator):
         Return the number of fatal errors.
         """
         num_errors = super(GenewiseFileValidator, self).checkHeader(cols)
-
-        if self.numCols < 2 or self.cols[1] != self.REQUIRED_HEADERS[1]:
-            self.entrez_missing = True
+        if not ('Hugo_Symbol' in self.nonsample_cols or
+                'Entrez_Gene_Id' in self.nonsample_cols):
+            self.logger.error('At least one of the columns Hugo_Symbol or '
+                              'Entrez_Gene_Id needs to be present.',
+                              extra={'line_number': self.line_number})
+            num_errors += 1
         return num_errors
 
     def checkLine(self, data):
         """Check the values in a data line."""
         super(GenewiseFileValidator, self).checkLine(data)
-        hugo_symbol = data[self.cols.index('Hugo_Symbol')]
-        entrez_id = data[self.cols.index('Entrez_Gene_Id')]
+        hugo_symbol = data[self.nonsample_cols.index('Hugo_Symbol')]
+        entrez_id = data[self.nonsample_cols.index('Entrez_Gene_Id')]
         # treat NA or the empty string as a missing value
         if hugo_symbol in ('NA', ''):
             hugo_symbol = None
         if entrez_id in ('NA', ''):
             entrez_id = None
         self.checkGeneIdentification(hugo_symbol, entrez_id)
+
 
 class CNAValidator(GenewiseFileValidator):
 

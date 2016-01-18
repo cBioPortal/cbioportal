@@ -549,6 +549,8 @@ class Validator(object):
         self.newlines = ('',)
         self.studyId = ''
         self.headerWritten = False
+        # This one is set to True if file could be parsed/read until the end (happens in onComplete)
+        self.fileCouldBeParsed = False
         self.logger = CombiningLoggerAdapter(
             logger,
             extra={'data_filename': self.filenameShort})
@@ -639,6 +641,8 @@ class Validator(object):
         validations, as it logs the message that validation was completed.
         """
         self._checkLineBreaks()
+        # finalize:
+        self.fileCouldBeParsed = True
         self.logger.info('Validation of file complete')
 
     def processTopLines(self, line_list):
@@ -1946,6 +1950,9 @@ def main_validate(args):
     clinvalidator = validators_by_meta_type[CLINICAL_META_PATTERN][0]
     # parse the clinical data file to get defined sample ids for this study
     clinvalidator.validate()
+    if not clinvalidator.fileCouldBeParsed:
+        logger.error("Clinical file could not be parsed. Please fix the problems found there first before continuing.")
+        
     DEFINED_SAMPLE_IDS = clinvalidator.sampleIds
 
     # validate non-clinical data files
@@ -1961,7 +1968,7 @@ def main_validate(args):
 
     case_list_dirname = os.path.join(STUDY_DIR, 'case_lists')
     if not os.path.isdir(case_list_dirname):
-        logger.error("No directory named 'case_lists' found")
+        logger.warning("No directory named 'case_lists' found")
     else:
         processCaseListDirectory(case_list_dirname, study_id, logger)
 

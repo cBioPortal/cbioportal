@@ -1811,11 +1811,19 @@ def request_from_portal_api(service_url, logger, id_field=None):
         return json_data
     else:
         transformed_dict = {}
+        # return a dict indexed by the specified field of said
+        # dictionaries. E.g.:
+        #[{'id': 'spam', 'val1': 1}, {'id':'eggs', 'val1':42}] ->
+        # {'spam': {'val1': 1}, 'eggs': {'val1': 42}}
         for attr in json_data:
             # make a copy of the attr dict
-            attr_without_id = dict(attr)
-            del attr_without_id[id_field]
-            transformed_dict[attr[id_field]] = attr_without_id
+            attr_dict = dict(attr)
+            # remove id field:
+            if not id_field in attr_dict:
+                raise RuntimeError('Unexpected error while calling web-service. '
+                                   'Please check if given {url} is correct'.format(url=service_url))
+            del attr_dict[id_field]
+            transformed_dict[attr[id_field]] = attr_dict
         return transformed_dict
 
 

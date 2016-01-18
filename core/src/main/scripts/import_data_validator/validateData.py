@@ -1058,7 +1058,7 @@ class MutationsExtendedValidator(Validator):
             self.logger.error('At least one of the columns Hugo_Symbol or '
                               'Entrez_Gene_Id needs to be present.',
                               extra={'line_number': self.line_number})
-        num_errors += 1
+            num_errors += 1
         return num_errors
 
     def checkLine(self, data):

@@ -414,12 +414,8 @@ class Jinja2HtmlHandler(logging.handlers.BufferingHandler):
         """Never flush; emit() caps the buffer and close() renders output."""
         return False
 
-    def close(self):
-        """Render the HTML page and close the handler."""
-        # make sure to only close once
-        if self.closed:
-            return
-        self.closed = True
+    def generateHtml(self):
+        """Render the HTML page for the current content in self.buffer """
         # require Jinja2 only if it is actually used
         import jinja2
         j_env = jinja2.Environment(
@@ -434,7 +430,6 @@ class Jinja2HtmlHandler(logging.handlers.BufferingHandler):
             max_level=logging.getLevelName(self.max_level))
         with open(self.output_filename, 'w') as f:
             f.write(doc)
-        return super(Jinja2HtmlHandler, self).close()
 
 
 class CollapsingLogMessageHandler(logging.handlers.MemoryHandler):
@@ -554,6 +549,8 @@ class Validator(object):
         self.newlines = ('',)
         self.studyId = ''
         self.headerWritten = False
+        # This one is set to True if file could be parsed/read until the end (happens in onComplete)
+        self.fileCouldBeParsed = False
         self.logger = CombiningLoggerAdapter(
             logger,
             extra={'data_filename': self.filenameShort})
@@ -644,6 +641,8 @@ class Validator(object):
         validations, as it logs the message that validation was completed.
         """
         self._checkLineBreaks()
+        # finalize:
+        self.fileCouldBeParsed = True
         self.logger.info('Validation of file complete')
 
     def processTopLines(self, line_list):
@@ -1847,11 +1846,19 @@ def request_from_portal_api(service_url, logger, id_field=None):
         return json_data
     else:
         transformed_dict = {}
+        # return a dict indexed by the specified field of said
+        # dictionaries. E.g.:
+        #[{'id': 'spam', 'val1': 1}, {'id':'eggs', 'val1':42}] ->
+        # {'spam': {'val1': 1}, 'eggs': {'val1': 42}}
         for attr in json_data:
             # make a copy of the attr dict
-            attr_without_id = dict(attr)
-            del attr_without_id[id_field]
-            transformed_dict[attr[id_field]] = attr_without_id
+            attr_dict = dict(attr)
+            # remove id field:
+            if not id_field in attr_dict:
+                raise RuntimeError('Unexpected error while calling web-service. '
+                                   'Please check if given {url} is correct'.format(url=service_url))
+            del attr_dict[id_field]
+            transformed_dict[attr[id_field]] = attr_dict
         return transformed_dict
 
 
@@ -1934,13 +1941,13 @@ def main_validate(args):
         collapsing_text_handler.setLevel(logging.ERROR)
     logger.addHandler(collapsing_text_handler)
 
+    collapsing_html_handler = None
+    html_handler = None
     # add html table handler if applicable
     if html_output_filename:
-        try:
-            import jinja2  # pylint: disable=import-error
-        except ImportError:
-            raise ImportError('HTML validation output requires Jinja2:'
-                              ' please install it first.')
+        # just to make sure users get dependency error at start:
+        import jinja2  # pylint: disable=import-error
+
         html_handler = Jinja2HtmlHandler(
             STUDY_DIR,
             html_output_filename,
@@ -1986,6 +1993,9 @@ def main_validate(args):
     clinvalidator = validators_by_meta_type[CLINICAL_META_PATTERN][0]
     # parse the clinical data file to get defined sample ids for this study
     clinvalidator.validate()
+    if not clinvalidator.fileCouldBeParsed:
+        logger.error("Clinical file could not be parsed. Please fix the problems found there first before continuing.")
+        
     DEFINED_SAMPLE_IDS = clinvalidator.sampleIds
 
     # validate non-clinical data files
@@ -2001,12 +2011,16 @@ def main_validate(args):
 
     case_list_dirname = os.path.join(STUDY_DIR, 'case_lists')
     if not os.path.isdir(case_list_dirname):
-        logger.error("No directory named 'case_lists' found")
+        logger.warning("No directory named 'case_lists' found")
     else:
         processCaseListDirectory(case_list_dirname, study_id, logger)
 
     logger.info('Validation complete')
     exit_status = exit_status_handler.get_exit_status()
+    
+    if html_handler is not None:
+        collapsing_html_handler.flush()
+        html_handler.generateHtml()
 
     return exit_status
 

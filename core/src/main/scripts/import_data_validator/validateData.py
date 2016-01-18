@@ -1065,7 +1065,6 @@ class MutationsExtendedValidator(Validator):
         super(MutationsExtendedValidator, self).__init__(hugo_entrez_map,logger,meta_dict)
         # TODO consider making this attribute a local var in in checkLine(),
         # it really only makes sense there
-        self.entrez_missing = False
         self.extraCols = []
         self.extra_exists = False
         self.extra = ''
@@ -1123,8 +1122,8 @@ class MutationsExtendedValidator(Validator):
         if 'Entrez_Gene_Id' in self.cols:
             entrez_id = data[self.cols.index('Entrez_Gene_Id')]
             # treat the empty string as a missing value
-            if hugo_symbol == '':
-                hugo_symbol = None
+            if entrez_id == '':
+                entrez_id = None
         self.checkGeneIdentification(hugo_symbol, entrez_id)
 
     def processTopLines(self, line_list):

@@ -28,6 +28,10 @@ KNOWN_PATIENT_ATTRS = {
 KNOWN_SAMPLE_ATTRS = {
     "SAMPLE_ID": {"display_name":"Sample Identifier","description":"A unique sample identifier.","datatype":"STRING","is_patient_attribute":"0","priority":"1"},
 }
+KNOWN_CANCER_TYPES = {
+    "brca": {"name":"Invasive Breast Carcinoma","color":"HotPink"},
+    "prad": {"name":"Prostate Adenocarcinoma","color":"Cyan"}
+}
 
 
 # TODO - something like this could be done for a web-services stub:
@@ -214,3 +218,32 @@ class ClinicalColumnDefsTestCase(DataFileTestCase):
         self.assertEqual(record_list[1].levelno, logging.ERROR)
         self.assertEqual(record_list[1].line_number, 5)
         self.assertEqual(record_list[1].column_number, 7)
+
+class CancerTypeValidationTestCase(LogBufferTestCase):
+
+    """Tests for validations of cancer type meta files in a study."""
+
+    def test_new_cancer_type(self):
+        """Test when a study defines a new cancer type."""
+        #{"id":"luad","name":"Lung Adenocarcinoma","color":"Gainsboro"}
+        pass # TODO
+
+    def test_cancer_type_file_format_error(self):
+        """Test when a cancer type file does not make sense."""
+        pass  # TODO
+
+    def test_cancer_type_matching_portal(self):
+        """Test when an existing cancer type is defined exactly as known."""
+        pass  # TODO
+
+    def test_cancer_type_disagreeing_with_portal(self):
+        """Test when an existing cancer type is redefined by a study."""
+        pass  # TODO
+
+    def test_cancer_type_defined_twice(self):
+        """Test when a study defines the same cancer type id twice.
+
+        No difference is assumed between matching and disagreeing definitions;
+        this validation just fails as it never makes sense to do this.
+        """
+        pass  # TODO

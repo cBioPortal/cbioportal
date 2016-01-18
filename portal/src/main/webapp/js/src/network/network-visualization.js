@@ -1310,7 +1310,7 @@ NetworkVis.prototype.updateEdges = function()
     this._vis.nodes().forEach(function( ele ){
         if (showAllNodeVisibility(ele) === false){
           ele.css('visibility', 'hidden');
-          self._vis.elements(':selected').unselect();
+          ele.unselect();
           ele._private.selectable=false;
         }
         else {
@@ -1327,7 +1327,7 @@ NetworkVis.prototype.updateEdges = function()
     this._vis.edges().forEach(function( ele ){
         if (edgeVisibility(ele) === false){
           ele.css('visibility', 'hidden');
-          self._vis.elements(':selected').unselect();
+          ele.unselect();
           ele._private.selectable=false;
         }
         else {
@@ -1342,7 +1342,6 @@ NetworkVis.prototype.updateEdges = function()
           ele.css('visibility', 'hidden');
           ele._private.selectable=false;
           ele.unselect();
-
         }
         else {
           ele.css('visibility', 'visible');
@@ -2755,7 +2754,7 @@ NetworkVis.prototype._filterBySlider = function()
     this._vis.nodes().forEach(function( ele ){
         if (sliderVisibility(ele) === false){
           ele.css('visibility', 'hidden');
-          self._vis.elements(':selected').unselect();
+          ele.unselect();
           ele._private.selectable = false;
         }
         else{
@@ -2978,8 +2977,8 @@ NetworkVis.prototype._initGenesTab = function()
     $(this.genesTabSelector + " #search_genes").button({icons: {primary: 'ui-icon-search'},
                                   text: false});
 
-    $(this.relationsTabSelector + " #update_edges").button({icons: {primary: 'ui-icon-refresh'},
-                                  text: false});
+    /*$(this.relationsTabSelector + " #update_edges").button({icons: {primary: 'ui-icon-refresh'},
+                                  text: false});*/
 
     // re-submit button is initially disabled
     $(this.genesTabSelector + " #re-submit_query").button({icons: {primary: 'ui-icon-play'},
@@ -3400,10 +3399,12 @@ NetworkVis.prototype._initControlFunctions = function()
     };
 
     var closeInteractionTypePopUp = function () {
+        self.updateEdges();
         $(self.interactionTypeVisibilitySelector).dialog('close');
     };
 
     var closeInteractionSourcePopUp = function () {
+        self.updateEdges();
         $(self.interactionSourceVisibilitySelector).dialog('close');
     };
 
@@ -3464,7 +3465,7 @@ NetworkVis.prototype._initControlFunctions = function()
     $(this.genesTabSelector + " #unhide_genes").click(unhideAll);
     $(this.genesTabSelector + " #re-submit_query").click(reRunQuery);
 
-    $(this.relationsTabSelector + " #update_edges").click(updateEdges);
+    /*$(this.relationsTabSelector + " #update_edges").click(updateEdges);*/
 
     $('#showInteractionTypeVisibilityUI').click(showInteractionTypeVisibility);
     $('#showInteractionSourceVisibilityUI').click(showInteractionSourceVisibility);

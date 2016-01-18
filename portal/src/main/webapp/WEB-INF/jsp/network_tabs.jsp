@@ -142,7 +142,7 @@ if (includeHelpTab==null) {
 	        	</tr>
 	        </table>
 	    </div>
-        <div class="footer">
+        <!-- <div class="footer">
         	<table>
         		<tr>
         			<td>
@@ -155,7 +155,7 @@ if (includeHelpTab==null) {
         			</td>
         		</tr>
         	</table>
-		</div>
+		</div> -->
     </div>
 	<div id="element_details_tab">
 		<div class="error">

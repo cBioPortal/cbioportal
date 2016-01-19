@@ -36,7 +36,8 @@ KNOWN_CANCER_TYPES = {
 }
 
 # mock-code sample ids defined in a study
-DEFINED_SAMPLE_IDS = ["TCGA-A1-A0SB-01", "TCGA-A1-A0SD-01", "TCGA-A1-A0SE-01", "TCGA-A1-A0SH-01", "TCGA-A2-A04U-01"]
+DEFINED_SAMPLE_IDS = ["TCGA-A1-A0SB-01", "TCGA-A1-A0SD-01", "TCGA-A1-A0SE-01", "TCGA-A1-A0SH-01", "TCGA-A2-A04U-01",
+"TCGA-B6-A0RS-01", "TCGA-BH-A0HP-01", "TCGA-BH-A18P-01", "TCGA-BH-A18H-01", "TCGA-C8-A138-01", "TCGA-A2-A0EY-01", "TCGA-A8-A08G-01"]
 
 
 # TODO - something like this could be done for a web-services stub:
@@ -317,7 +318,7 @@ class GeneIdColumnPresenceTestCase(PostClinicalDataFileTestCase):
         pass  # TODO
 
 
-class MutationsSpecialCasesTestCase(DataFileTestCase):
+class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
     
     def test_normal_samples_list_in_maf(self):
         '''

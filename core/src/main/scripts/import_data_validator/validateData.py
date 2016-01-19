@@ -214,12 +214,12 @@ STUDY_META_FIELDS = {
     'type_of_cancer': True,
     'name': True,
     'description': True,
-    'groups': True,
-    'dedicated_color': True,
     'short_name': True,
+    'dedicated_color': True,
     'meta_file_type': True,
     'citation': False,
-    'pmid': False
+    'pmid': False,
+    'groups': False
 }
 
 CANCER_TYPE_META_FIELDS = {
@@ -227,7 +227,8 @@ CANCER_TYPE_META_FIELDS = {
     'name': True,
     'clinical_trial_keywords': True,
     'dedicated_color': True,
-    'short_name': True
+    'short_name': True,
+    'meta_file_type': True
 }
 
 META_FIELD_MAP = {
@@ -1695,6 +1696,7 @@ def parse_metadata_file(filename, logger, study_id=None, case_list=False):
 
     # check that cancer study identifiers across files so far are consistent.
     if (
+            meta_file_type != CANCER_TYPE_META_PATTERN and
             study_id is not None and
             study_id != metaDictionary['cancer_study_identifier']):
         logger.error(

@@ -459,10 +459,10 @@ var OncoKB = (function () {
                     str += '2f4f4f">Not oncogenic';
                     break;
                 case 1:
-                    str += 'ff0000">Known oncogenic';
+                    str += '007fff">Known oncogenic';
                     break;
                 case 2:
-                    str += 'ff69b4">Likely oncogenic';
+                    str += '007fff">Likely oncogenic';
                     break;
                 default:
                     str += '2f4f4f">Unknown to be oncogenic';

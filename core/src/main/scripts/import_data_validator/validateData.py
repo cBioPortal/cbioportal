@@ -984,13 +984,18 @@ class GenewiseFileValidator(FeaturewiseFileValidator):
     def checkLine(self, data):
         """Check the values in a data line."""
         super(GenewiseFileValidator, self).checkLine(data)
-        hugo_symbol = data[self.nonsample_cols.index('Hugo_Symbol')]
-        entrez_id = data[self.nonsample_cols.index('Entrez_Gene_Id')]
-        # treat NA or the empty string as a missing value
-        if hugo_symbol in ('NA', ''):
-            hugo_symbol = None
-        if entrez_id in ('NA', ''):
-            entrez_id = None
+        hugo_symbol = None
+        entrez_id = None
+        if 'Hugo_Symbol' in self.nonsample_cols:
+            hugo_symbol = data[self.nonsample_cols.index('Hugo_Symbol')]
+            # treat NA or the empty string as a missing value
+            if hugo_symbol in ('NA', ''):
+                hugo_symbol = None
+        if 'Entrez_Gene_Id' in self.nonsample_cols:
+            entrez_id = data[self.nonsample_cols.index('Entrez_Gene_Id')]
+            # treat NA or the empty string as a missing value
+            if entrez_id in ('NA', ''):
+                entrez_id = None
         self.checkGeneIdentification(hugo_symbol, entrez_id)
 
 

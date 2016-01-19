@@ -191,22 +191,22 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
   <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
   <script src="http://code.jquery.com/mobile/1.4.4/jquery.mobile-1.4.4.min.js"></script>
-  <title>cBioPortal validation report: study in 'test_data/study_es_0/'</title>
+  <title>cBioPortal validation report: study in 'test_data/study_maf_test/'</title>
 </head>
 
 <body>
   <div class="container">
     <div class="header">
       <h1>cBioPortal validation report</h1>
-      <h4>study in 'test_data/study_es_0/'</h4>
+      <h4>study in 'test_data/study_maf_test/'</h4>
     </div>
 
     <div class="jumbotron">
       <!--  alert alert-danger, alert-success or alert-warning -->
-      <div class="alert alert-success">
+      <div class="alert alert-danger">
         Validation status:
         <strong>
-          Success
+          Failed
         </strong>
       </div>
 
@@ -266,8 +266,8 @@
         </div>
 
 
-        <div data-role="collapsible" class="bcol">
-          <h4>brca_tcga_pub.maf<span class="ui-li-count greenCount">2</span></h4>
+        <div data-role="collapsible" class="acol">
+          <h4>brca_tcga_pub.maf<span class="ui-li-count redCount">3</span></h4>
           <table style="width:100%">
             <tr>
               <th>Line Number</th>
@@ -281,29 +281,11 @@
               <td>Starting validation of file</td>
               <td></td>
             </tr>
-            <tr class="blue">
-              <td></td>
-              <td></td>
-              <td>Validation of file complete</td>
-              <td></td>
-            </tr>
-          </table>
-        </div>
-
-        <div data-role="collapsible" class="bcol">
-          <h4>data_CNA.txt<span class="ui-li-count greenCount">2</span></h4>
-          <table style="width:100%">
-            <tr>
-              <th>Line Number</th>
-              <th>Column Number</th>
-              <th>Message</th>
-              <th>Value Encountered</th>
-            </tr>
-            <tr class="blue">
-              <td></td>
-              <td></td>
-              <td>Starting validation of file</td>
-              <td></td>
+            <tr class="red">
+              <td>7, 8, 9, (6 more)</td>
+              <td>17</td>
+              <td>Normal sample id not in list of sample ids configured in corresponding metafile. Please check your metafile field &#39;normal_samples_list&#39;.</td>
+              <td>TCGA-A2-A0EY-10, TCGA-A8-A08G-10, TCGA-B6-A0IQ-10, (6 more)</td>
             </tr>
             <tr class="blue">
               <td></td>
@@ -316,78 +298,6 @@
 
         <div data-role="collapsible" class="bcol">
           <h4>data_clinical2.txt<span class="ui-li-count greenCount">2</span></h4>
-          <table style="width:100%">
-            <tr>
-              <th>Line Number</th>
-              <th>Column Number</th>
-              <th>Message</th>
-              <th>Value Encountered</th>
-            </tr>
-            <tr class="blue">
-              <td></td>
-              <td></td>
-              <td>Starting validation of file</td>
-              <td></td>
-            </tr>
-            <tr class="blue">
-              <td></td>
-              <td></td>
-              <td>Validation of file complete</td>
-              <td></td>
-            </tr>
-          </table>
-        </div>
-
-        <div data-role="collapsible" class="bcol">
-          <h4>data_expression_median.txt<span class="ui-li-count greenCount">2</span></h4>
-          <table style="width:100%">
-            <tr>
-              <th>Line Number</th>
-              <th>Column Number</th>
-              <th>Message</th>
-              <th>Value Encountered</th>
-            </tr>
-            <tr class="blue">
-              <td></td>
-              <td></td>
-              <td>Starting validation of file</td>
-              <td></td>
-            </tr>
-            <tr class="blue">
-              <td></td>
-              <td></td>
-              <td>Validation of file complete</td>
-              <td></td>
-            </tr>
-          </table>
-        </div>
-
-        <div data-role="collapsible" class="bcol">
-          <h4>data_log2CNA.txt<span class="ui-li-count greenCount">2</span></h4>
-          <table style="width:100%">
-            <tr>
-              <th>Line Number</th>
-              <th>Column Number</th>
-              <th>Message</th>
-              <th>Value Encountered</th>
-            </tr>
-            <tr class="blue">
-              <td></td>
-              <td></td>
-              <td>Starting validation of file</td>
-              <td></td>
-            </tr>
-            <tr class="blue">
-              <td></td>
-              <td></td>
-              <td>Validation of file complete</td>
-              <td></td>
-            </tr>
-          </table>
-        </div>
-
-        <div data-role="collapsible" class="bcol">
-          <h4>data_methylation_hm27.txt<span class="ui-li-count greenCount">2</span></h4>
           <table style="width:100%">
             <tr>
               <th>Line Number</th>

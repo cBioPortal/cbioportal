@@ -1720,7 +1720,7 @@ def parse_metadata_file(filename, logger, study_id=None, case_list=False):
             invalid_fields_found = False
             for field in metaDictionary:
                 if (
-                        field in CANCER_TYPE_META_FIELDS and
+                        field in existing_info and
                         field != 'cancer_type_id' and
                         metaDictionary[field] != existing_info[field]):
                     logger.error(

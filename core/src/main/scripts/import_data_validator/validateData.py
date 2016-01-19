@@ -911,16 +911,24 @@ class FeaturewiseFileValidator(Validator):
         Return the number of fatal errors.
         """
         num_errors = super(FeaturewiseFileValidator, self).checkHeader(cols)
-        supported_headers = self.REQUIRED_HEADERS + self.OPTIONAL_HEADERS
+        if num_errors > 0:
+            return num_errors
         # collect the non-sample columns headers, assuming order is required
-        for col_index, col_name in enumerate(self.cols):
-            if (
-                    col_index < len(supported_headers) and
-                    col_name == supported_headers[col_index]):
+        self.nonsample_cols = list(self.REQUIRED_HEADERS)
+        # start looking for optional cols at the index after the required ones
+        col_index = len(self.nonsample_cols)
+        # start with the first optional column
+        for col_name in self.OPTIONAL_HEADERS:
+            # if the next column header in the file is the optional one we are
+            # looking for
+            if self.cols[col_index] == col_name:
+                # add it to the list of non-sample columns in the file
                 self.nonsample_cols.append(col_name)
+                # any subsequent optional column will be at the next index
+                col_index += 1
             else:
-                # reached the sample id columns
-                break
+                # look for the next optional column at the same index
+                pass
         self.num_nonsample_cols = len(self.nonsample_cols)
         num_errors += self._set_sample_ids_from_columns()
         return num_errors

@@ -819,7 +819,13 @@ class Validator(object):
         """
         if entrez_id is not None:
             if gene_symbol is not None:
-                if entrez_id not in HUGO_ENTREZ_MAP[gene_symbol]:
+                if gene_symbol not in HUGO_ENTREZ_MAP:
+                    self.logger.error(
+                        'Gene symbol not known to the cBioPortal instance.',
+                        extra={'line_number': self.line_number,
+                               'cause': gene_symbol})
+                    return False
+                elif entrez_id not in HUGO_ENTREZ_MAP[gene_symbol]:
                     self.logger.error(
                         'Gene symbol does not match given Entrez id',
                         extra={'line_number': self.line_number,
@@ -833,22 +839,26 @@ class Validator(object):
                         'Entrez gene id not known to the cBioPortal instance.',
                         extra={'line_number': self.line_number,
                                'cause': entrez_id})
+                    return False
         elif gene_symbol is not None:
             if gene_symbol not in HUGO_ENTREZ_MAP:
                 self.logger.error(
                     'Gene symbol not known to the cBioPortal instance.',
                     extra={'line_number': self.line_number,
                            'cause': gene_symbol})
+                return False
             elif len(gene_symbol) > 1:
                 self.logger.error(
                     'Ambiguous gene symbol, please use a synonym or, if '
                     'possible, provide an Entrez id',
                     extra={'line_number': self.line_number,
                            'cause': gene_symbol})
+                return False
         else:
             self.logger.error(
                 'No Entrez id or gene symbol provided for gene',
                 extra={'line_number': self.line_number})
+            return False
         return True
 
     def _checkRepeatedColumns(self):
@@ -909,10 +919,12 @@ class FeaturewiseFileValidator(Validator):
         Return the number of fatal errors.
         """
         num_errors = super(FeaturewiseFileValidator, self).checkHeader(cols)
-        supported_headers = self.REQUIRED_HEADERS
+        supported_headers = self.REQUIRED_HEADERS + self.OPTIONAL_HEADERS
         # collect the non-sample columns headers, assuming order is required
         for col_index, col_name in enumerate(self.cols):
-            if col_name == supported_headers[col_index]:
+            if (
+                    col_index < len(supported_headers) and
+                    col_name == supported_headers[col_index]):
                 self.nonsample_cols.append(col_name)
             else:
                 # reached the sample id columns

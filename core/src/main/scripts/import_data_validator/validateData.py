@@ -821,20 +821,19 @@ class Validator(object):
             if gene_symbol is not None:
                 if gene_symbol not in self.hugo_entrez_map:
                     self.logger.error(
-                        'Gene symbol not known to the cBioPortal instance.',
+                        'Gene symbol not known to the cBioPortal instance',
                         extra={'line_number': self.line_number,
                                'cause': gene_symbol})
                     return False
-                elif entrez_id not in self.hugo_entrez_map[gene_symbol]:
+                elif self.hugo_entrez_map[gene_symbol] != entrez_id:
                     self.logger.error(
                         'Gene symbol does not match given Entrez id',
                         extra={'line_number': self.line_number,
                                'cause': gene_symbol + ', ' + entrez_id})
                     return False
             else:
-                if entrez_id not in (gid for
-                                     gid in (self.hugo_entrez_map[sym] for
-                                             sym in self.hugo_entrez_map)):
+                if entrez_id not in (self.hugo_entrez_map[sym] for
+                                     sym in self.hugo_entrez_map):
                     self.logger.error(
                         'Entrez gene id not known to the cBioPortal instance.',
                         extra={'line_number': self.line_number,
@@ -844,13 +843,6 @@ class Validator(object):
             if gene_symbol not in self.hugo_entrez_map:
                 self.logger.error(
                     'Gene symbol not known to the cBioPortal instance.',
-                    extra={'line_number': self.line_number,
-                           'cause': gene_symbol})
-                return False
-            elif len(gene_symbol) > 1:
-                self.logger.error(
-                    'Ambiguous gene symbol, please use a synonym or, if '
-                    'possible, provide an Entrez id',
                     extra={'line_number': self.line_number,
                            'cause': gene_symbol})
                 return False
@@ -967,6 +959,8 @@ class FeaturewiseFileValidator(Validator):
 
 
 class GenewiseFileValidator(FeaturewiseFileValidator):
+
+    """FeatureWiseValidator that has Hugo and/or Entrez as feature columns."""
 
     OPTIONAL_HEADERS = ['Hugo_Symbol', 'Entrez_Gene_Id']
 

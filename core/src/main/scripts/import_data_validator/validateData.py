@@ -1085,8 +1085,6 @@ class MutationsExtendedValidator(Validator):
             if col_name in self.cols:
                 col_index = self.cols.index(col_name)
                 value = data[col_index]
-                if col_name == 'Tumor_Sample_Barcode':
-                    self.checkSampleId(value, column_number=col_index + 1)
                 # get the checking method for this column if available, or None
                 checking_function = getattr(
                     self,
@@ -1097,6 +1095,13 @@ class MutationsExtendedValidator(Validator):
                     raise RuntimeError(('Checking function %s set an error '
                                         'message but reported no error') %
                                        checking_function.__name__)
+        
+        # validate Tumor_Sample_Barcode value to make sure it exists in study sample list:
+        sample_id_column_index = self.cols.index('Tumor_Sample_Barcode')
+        value = data[sample_id_column_index]
+        self.checkSampleId(value, column_number=sample_id_column_index + 1)
+               
+        # parse hugo and entrez to validate them together: 
         hugo_symbol = None
         entrez_id = None
         if 'Hugo_Symbol' in self.cols:
@@ -1109,6 +1114,7 @@ class MutationsExtendedValidator(Validator):
             # treat the empty string as a missing value
             if entrez_id == '':
                 entrez_id = None
+        # validate hugo and entrez together:
         self.checkGeneIdentification(hugo_symbol, entrez_id)
 
     def printDataInvalidStatement(self, value, col_index):

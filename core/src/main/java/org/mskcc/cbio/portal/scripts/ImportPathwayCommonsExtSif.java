@@ -80,6 +80,10 @@ public class ImportPathwayCommonsExtSif {
             }
             
             String parts[] = line.split("\t");
+            
+            if (parts.length<4) {
+                continue;
+            }
 
             String geneAId = parts[0];
 
@@ -91,7 +95,7 @@ public class ImportPathwayCommonsExtSif {
                 if (geneB != null) {
                     String interactionType = parts[1];
                     String dataSource = parts[3];
-                    String pmids = parts[4].replaceAll(";", ",");
+                    String pmids = parts.length<=4 ? null : parts[4].replaceAll(";", ",");
                     String expTypes = null;
 
                     daoInteraction.addInteraction(geneA, geneB, interactionType, dataSource,

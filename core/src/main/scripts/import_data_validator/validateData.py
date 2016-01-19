@@ -819,13 +819,13 @@ class Validator(object):
         """
         if entrez_id is not None:
             if gene_symbol is not None:
-                if gene_symbol not in HUGO_ENTREZ_MAP:
+                if gene_symbol not in self.hugo_entrez_map:
                     self.logger.error(
                         'Gene symbol not known to the cBioPortal instance.',
                         extra={'line_number': self.line_number,
                                'cause': gene_symbol})
                     return False
-                elif entrez_id not in HUGO_ENTREZ_MAP[gene_symbol]:
+                elif entrez_id not in self.hugo_entrez_map[gene_symbol]:
                     self.logger.error(
                         'Gene symbol does not match given Entrez id',
                         extra={'line_number': self.line_number,
@@ -833,15 +833,15 @@ class Validator(object):
                     return False
             else:
                 if entrez_id not in (gid for
-                                     gid in (HUGO_ENTREZ_MAP[sym] for
-                                             sym in HUGO_ENTREZ_MAP)):
+                                     gid in (self.hugo_entrez_map[sym] for
+                                             sym in self.hugo_entrez_map)):
                     self.logger.error(
                         'Entrez gene id not known to the cBioPortal instance.',
                         extra={'line_number': self.line_number,
                                'cause': entrez_id})
                     return False
         elif gene_symbol is not None:
-            if gene_symbol not in HUGO_ENTREZ_MAP:
+            if gene_symbol not in self.hugo_entrez_map:
                 self.logger.error(
                     'Gene symbol not known to the cBioPortal instance.',
                     extra={'line_number': self.line_number,

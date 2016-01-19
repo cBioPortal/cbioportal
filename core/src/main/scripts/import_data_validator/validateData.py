@@ -829,7 +829,7 @@ class Validator(object):
                     self.logger.error(
                         'Gene symbol does not match given Entrez id',
                         extra={'line_number': self.line_number,
-                               'cause': gene_symbol + ', ' + entrez_id})
+                               'cause': '(' + gene_symbol + ',' + entrez_id + ')'})
                     return False
             else:
                 if entrez_id not in self.hugo_entrez_map.values():

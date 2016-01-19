@@ -326,7 +326,7 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         record_list = self.validate('data_cna_genecol_presence_both_invalid_hugo.txt',
                                     validateData.CNAValidator)
         self.print_log_records(record_list)
-        # expecting two info messages: 
+        # expecting two error messages: 
         self.assertEqual(len(record_list), 2)
         for record in record_list:
             self.assertEqual(record.levelno, logging.ERROR)
@@ -349,8 +349,52 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         self.assertIn('-116983', record_list[0].cause)
         self.assertIn('-375790', record_list[1].cause)
 
+    def test_both_name_and_entrez_but_invalid_couple(self):
+        """Test when a file has both the Hugo name and Entrez ID columns, both valid, but association is invalid."""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_cna_genecol_presence_both_invalid_couple.txt',
+                                    validateData.CNAValidator)
+        self.print_log_records(record_list)
+        # expecting two error messages: 
+        self.assertEqual(len(record_list), 2)
+        for record in record_list:
+            self.assertEqual(record.levelno, logging.ERROR)
+        # expecting these to be the cause:    
+        self.assertIn('ACAP3', record_list[0].cause)
+        self.assertIn('116983', record_list[1].cause)
+
+    def test_name_only_but_invalid(self):
+        """Test when a file has a Hugo name column but none for Entrez IDs, and hugo is wrong."""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_cna_genecol_presence_hugo_only_invalid.txt',
+                                    validateData.CNAValidator)
+        self.print_log_records(record_list)
+        # expecting two error messages: 
+        self.assertEqual(len(record_list), 2)
+        for record in record_list:
+            self.assertEqual(record.levelno, logging.ERROR)
+        # expecting these to be the cause:    
+        self.assertEqual(record_list[0].cause, 'xxATAD3A')
+        self.assertEqual(record_list[1].cause, 'xxATAD3B')
+            
+            
+
+    def test_entrez_only_but_invalid(self):
+        """Test when a file has an Entrez ID column but none for Hugo names, and entrez is wrong."""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_cna_genecol_presence_entrez_only_invalid.txt',
+                                    validateData.CNAValidator)
+        self.print_log_records(record_list)
+        # expecting two error messages: 
+        self.assertEqual(len(record_list), 2)
+        for record in record_list:
+            self.assertEqual(record.levelno, logging.ERROR)
+        # expecting these to be the cause:    
+        self.assertEqual(record_list[0].cause, '-54998')
+        self.assertEqual(record_list[1].cause, '-126792')
 
 
+# TODO- manual check if entrez/hugo combi is indeed in ncbi.gz file
 
 class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
     

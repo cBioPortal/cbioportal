@@ -247,3 +247,32 @@ class CancerTypeValidationTestCase(LogBufferTestCase):
         this validation just fails as it never makes sense to do this.
         """
         pass  # TODO
+
+
+class MutationsSpecialCasesTestCase(DataFileTestCase):
+    
+    def test_normal_samples_list_in_maf(self):
+        '''
+        For mutations MAF files there is a column called "Matched_Norm_Sample_Barcode". 
+        In the respective meta file it is possible to give a list of sample codes against which this 
+        column "Matched_Norm_Sample_Barcode" is validated. Here we test if this 
+        validation works well.
+        '''
+        # set level according to this test case:
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_mutations_invalid_norm_samples.maf',
+                                    validateData.MutationsExtendedValidator, 
+                                    {'normal_samples_list': 
+                                     'TCGA-B6-A0RS-10,TCGA-BH-A0HP-10,TCGA-BH-A18P-11, TCGA-BH-A18H-10'})
+        # we expect 2 errors about columns in wrong order,
+        # and one about the file not being parseable:
+        self.assertEqual(len(record_list), 3)
+        # check if both messages come from checkOrderedRequiredColumns:
+        found_one_of_the_expected = False
+        for error in record_list[:2]:
+            self.assertEqual("ERROR", error.levelname)
+            self.assertEqual("printDataInvalidStatement", error.funcName)
+            if "TCGA-C8-A138-10" == error.cause: 
+                found_one_of_the_expected = True
+                 
+        self.assertEqual(True, found_one_of_the_expected)

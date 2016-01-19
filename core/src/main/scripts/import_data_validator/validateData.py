@@ -821,20 +821,18 @@ class Validator(object):
             if gene_symbol is not None:
                 if gene_symbol not in self.hugo_entrez_map:
                     self.logger.error(
-                        'Gene symbol not known to the cBioPortal instance.',
+                        'Gene symbol not known to the cBioPortal instance',
                         extra={'line_number': self.line_number,
                                'cause': gene_symbol})
                     return False
-                elif entrez_id not in self.hugo_entrez_map[gene_symbol]:
+                elif self.hugo_entrez_map[gene_symbol] != entrez_id:
                     self.logger.error(
                         'Gene symbol does not match given Entrez id',
                         extra={'line_number': self.line_number,
                                'cause': gene_symbol + ', ' + entrez_id})
                     return False
             else:
-                if entrez_id not in (gid for
-                                     gid in (self.hugo_entrez_map[sym] for
-                                             sym in self.hugo_entrez_map)):
+                if entrez_id not in self.hugo_entrez_map.values():
                     self.logger.error(
                         'Entrez gene id not known to the cBioPortal instance.',
                         extra={'line_number': self.line_number,
@@ -844,13 +842,6 @@ class Validator(object):
             if gene_symbol not in self.hugo_entrez_map:
                 self.logger.error(
                     'Gene symbol not known to the cBioPortal instance.',
-                    extra={'line_number': self.line_number,
-                           'cause': gene_symbol})
-                return False
-            elif len(gene_symbol) > 1:
-                self.logger.error(
-                    'Ambiguous gene symbol, please use a synonym or, if '
-                    'possible, provide an Entrez id',
                     extra={'line_number': self.line_number,
                            'cause': gene_symbol})
                 return False
@@ -919,16 +910,24 @@ class FeaturewiseFileValidator(Validator):
         Return the number of fatal errors.
         """
         num_errors = super(FeaturewiseFileValidator, self).checkHeader(cols)
-        supported_headers = self.REQUIRED_HEADERS + self.OPTIONAL_HEADERS
+        if num_errors > 0:
+            return num_errors
         # collect the non-sample columns headers, assuming order is required
-        for col_index, col_name in enumerate(self.cols):
-            if (
-                    col_index < len(supported_headers) and
-                    col_name == supported_headers[col_index]):
+        self.nonsample_cols = list(self.REQUIRED_HEADERS)
+        # start looking for optional cols at the index after the required ones
+        col_index = len(self.nonsample_cols)
+        # start with the first optional column
+        for col_name in self.OPTIONAL_HEADERS:
+            # if the next column header in the file is the optional one we are
+            # looking for
+            if self.cols[col_index] == col_name:
+                # add it to the list of non-sample columns in the file
                 self.nonsample_cols.append(col_name)
+                # any subsequent optional column will be at the next index
+                col_index += 1
             else:
-                # reached the sample id columns
-                break
+                # look for the next optional column at the same index
+                pass
         self.num_nonsample_cols = len(self.nonsample_cols)
         num_errors += self._set_sample_ids_from_columns()
         return num_errors
@@ -968,6 +967,8 @@ class FeaturewiseFileValidator(Validator):
 
 class GenewiseFileValidator(FeaturewiseFileValidator):
 
+    """FeatureWiseValidator that has Hugo and/or Entrez as feature columns."""
+
     OPTIONAL_HEADERS = ['Hugo_Symbol', 'Entrez_Gene_Id']
 
     def __init__(self, *args, **kwargs):
@@ -990,13 +991,18 @@ class GenewiseFileValidator(FeaturewiseFileValidator):
     def checkLine(self, data):
         """Check the values in a data line."""
         super(GenewiseFileValidator, self).checkLine(data)
-        hugo_symbol = data[self.nonsample_cols.index('Hugo_Symbol')]
-        entrez_id = data[self.nonsample_cols.index('Entrez_Gene_Id')]
-        # treat NA or the empty string as a missing value
-        if hugo_symbol in ('NA', ''):
-            hugo_symbol = None
-        if entrez_id in ('NA', ''):
-            entrez_id = None
+        hugo_symbol = None
+        entrez_id = None
+        if 'Hugo_Symbol' in self.nonsample_cols:
+            hugo_symbol = data[self.nonsample_cols.index('Hugo_Symbol')]
+            # treat NA or the empty string as a missing value
+            if hugo_symbol in ('NA', ''):
+                hugo_symbol = None
+        if 'Entrez_Gene_Id' in self.nonsample_cols:
+            entrez_id = data[self.nonsample_cols.index('Entrez_Gene_Id')]
+            # treat NA or the empty string as a missing value
+            if entrez_id in ('NA', ''):
+                entrez_id = None
         self.checkGeneIdentification(hugo_symbol, entrez_id)
 
 

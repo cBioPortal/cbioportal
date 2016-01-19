@@ -28,10 +28,15 @@ KNOWN_PATIENT_ATTRS = {
 KNOWN_SAMPLE_ATTRS = {
     "SAMPLE_ID": {"display_name":"Sample Identifier","description":"A unique sample identifier.","datatype":"STRING","is_patient_attribute":"0","priority":"1"},
 }
+
+# hard-code known cancer types
 KNOWN_CANCER_TYPES = {
     "brca": {"name":"Invasive Breast Carcinoma","color":"HotPink"},
     "prad": {"name":"Prostate Adenocarcinoma","color":"Cyan"}
 }
+
+# mock-code sample ids defined in a study
+DEFINED_SAMPLE_IDS = ["TCGA-A1-A0SB-01", "TCGA-A1-A0SD-01", "TCGA-A1-A0SE-01", "TCGA-A1-A0SH-01", "TCGA-A2-A04U-01"]
 
 
 # TODO - something like this could be done for a web-services stub:
@@ -128,6 +133,26 @@ class DataFileTestCase(LogBufferTestCase):
         validator = validator_class(hugo_entrez_map, self.logger, meta_dict)
         validator.validate()
         return self.get_log_records()
+
+
+class PostClinicalDataFileTestCase(DataFileTestCase):
+
+    """Superclass for validating data files to be read after clinical files.
+
+    I.e. DEFINED_SAMPLE_IDS will be initialised with a list of sample
+    identifiers defined in the study.
+    """
+
+    def setUp(self):
+        """Prepare for validating a file by setting the samples defined."""
+        super(PostClinicalDataFileTestCase, self).setUp()
+        self.orig_defined_sample_ids = validateData.DEFINED_SAMPLE_IDS
+        validateData.DEFINED_SAMPLE_IDS = DEFINED_SAMPLE_IDS
+
+    def tearDown(self):
+        """Restore the environment to before setUp() was called."""
+        validateData.DEFINED_SAMPLE_IDS = self.orig_defined_sample_ids
+        super(PostClinicalDataFileTestCase, self).tearDown()
 
 
 # ----------------------------------------------------------------------------
@@ -247,6 +272,48 @@ class CancerTypeValidationTestCase(LogBufferTestCase):
         No difference is assumed between matching and disagreeing definitions;
         this validation just fails as it never makes sense to do this.
         """
+        pass  # TODO
+
+class GeneIdColumnPresenceTestCase(PostClinicalDataFileTestCase):
+
+    """Tests validating gene-wise files with different combinations of gene id columns."""
+
+    def test_both_name_and_entrez(self):
+        """Test when a file has both the Hugo name and Entrez ID columns."""
+        record_list = self.validate('data_cna_genecol_presence_both.txt',
+                                    validateData.CNAValidator)
+        # expecting two info messages: at start and end of file
+        self.assertEqual(len(record_list), 2)
+        for record in record_list:
+            self.assertEqual(record.levelno, logging.INFO)
+
+    def test_name_only(self):
+        """Test when a file has a Hugo name column but none for Entrez IDs."""
+        record_list = self.validate('data_cna_genecol_presence_hugo_only.txt',
+                                    validateData.CNAValidator)
+        # expecting two info messages: at start and end of file
+        self.assertEqual(len(record_list), 2)
+        for record in record_list:
+            self.assertEqual(record.levelno, logging.INFO)
+
+    def test_entrez_only(self):
+        """Test when a file has an Entrez ID column but none for Hugo names."""
+        record_list = self.validate('data_cna_genecol_presence_entrez_only.txt',
+                                    validateData.CNAValidator)
+        # expecting two info messages: at start and end of file
+        self.assertEqual(len(record_list), 2)
+        for record in record_list:
+            self.assertEqual(record.levelno, logging.INFO)
+
+    def test_neither_name_nor_entrez(self):
+        """Test when a file lacks both the Entrez ID and Hugo name columns."""
+        record_list = self.validate('data_cna_genecol_presence_neither.txt',
+                                    validateData.CNAValidator)
+        # two errors after the info: the first makes the file unparsable
+        self.assertEqual(len(record_list), 3)
+        for record in record_list[1:]:
+            self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record_list[1].line_number, 1)
         pass  # TODO
 
 

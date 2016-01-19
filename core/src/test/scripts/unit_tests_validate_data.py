@@ -275,7 +275,7 @@ class CancerTypeValidationTestCase(LogBufferTestCase):
         """
         pass  # TODO
 
-class GeneIdColumnPresenceTestCase(PostClinicalDataFileTestCase):
+class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
 
     """Tests validating gene-wise files with different combinations of gene id columns."""
 
@@ -316,6 +316,40 @@ class GeneIdColumnPresenceTestCase(PostClinicalDataFileTestCase):
             self.assertEqual(record.levelno, logging.ERROR)
         self.assertEqual(record_list[1].line_number, 1)
         pass  # TODO
+
+    """Tests validating gene-wise files with different combinations of gene id columns,
+    now with invalid Entrez ID and/or Hugo names """
+
+    def test_both_name_and_entrez_but_invalid_hugo(self):
+        """Test when a file has both the Hugo name and Entrez ID columns, but hugo is invalid."""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_cna_genecol_presence_both_invalid_hugo.txt',
+                                    validateData.CNAValidator)
+        self.print_log_records(record_list)
+        # expecting two info messages: 
+        self.assertEqual(len(record_list), 2)
+        for record in record_list:
+            self.assertEqual(record.levelno, logging.ERROR)
+        # expecting these to be the cause:    
+        self.assertEqual(record_list[0].cause, 'xxACAP3')
+        self.assertEqual(record_list[1].cause, 'xxAGRN')
+        
+
+    def test_both_name_and_entrez_but_invalid_entrez(self):
+        """Test when a file has both the Hugo name and Entrez ID columns, but entrez is invalid."""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_cna_genecol_presence_both_invalid_entrez.txt',
+                                    validateData.CNAValidator)
+        self.print_log_records(record_list)
+        # expecting two error messages: 
+        self.assertEqual(len(record_list), 2)
+        for record in record_list:
+            self.assertEqual(record.levelno, logging.ERROR)
+        # expecting these to be the cause:    
+        self.assertIn('-116983', record_list[0].cause)
+        self.assertIn('-375790', record_list[1].cause)
+
+
 
 
 class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):

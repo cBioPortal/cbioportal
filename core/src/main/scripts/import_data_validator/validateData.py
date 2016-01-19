@@ -1696,8 +1696,8 @@ def parse_metadata_file(filename, logger, study_id=None, case_list=False):
 
     # check that cancer study identifiers across files so far are consistent.
     if (
-            meta_file_type != CANCER_TYPE_META_PATTERN and
             study_id is not None and
+            'cancer_study_identifier' in metaDictionary and
             study_id != metaDictionary['cancer_study_identifier']):
         logger.error(
             "Cancer study identifier is not consistent across "
@@ -1794,7 +1794,7 @@ def process_metadata_files(directory, logger):
         meta = parse_metadata_file(filename, logger, study_id)
         if meta is None:
             continue
-        if study_id is None:
+        if study_id is None and 'cancer_study_identifier' in meta:
             study_id = meta['cancer_study_identifier']
         meta_file_type = meta['meta_file_type']
         if meta_file_type == STUDY_META_PATTERN:
@@ -1810,7 +1810,8 @@ def process_metadata_files(directory, logger):
                     'Cancer type defined a second time in study',
                     extra={'data_filename': getFileFromFilepath(filename),
                            'cause': file_cancer_type})
-            defined_cancer_types.append(meta['type_of_cancer'])
+            else:
+                defined_cancer_types.append(meta['type_of_cancer'])
         # create a list for the file type in the dict
         if meta_file_type not in validators_by_type:
             validators_by_type[meta_file_type] = []

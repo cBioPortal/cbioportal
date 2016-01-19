@@ -1817,7 +1817,7 @@ def process_metadata_files(directory, logger):
             validators_by_type[meta_file_type].append(None)
 
     if not (study_cancer_type in PORTAL_CANCER_TYPES or
-            study_cancer_type in DEFINED_CANCER_TYPES):
+            study_cancer_type in defined_cancer_types):
         logger.error(
             'Cancer type of study is neither known to the portal nor defined '
             'in a meta_cancer_type file',

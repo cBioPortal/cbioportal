@@ -35,7 +35,6 @@ DEFINED_CANCER_TYPES = None
 
 SERVER_URL = 'http://localhost/cbioportal'
 PORTAL_CANCER_TYPES = None
-HUGO_ENTREZ_MAP = None
 
 # ----------------------------------------------------------------------------
 # how we differentiate between data types based on the meta_file_type field
@@ -103,7 +102,8 @@ MUTATION_META_FIELDS = {
     'profile_name': True,
     'profile_description': True,
     'meta_file_type': True,
-    'data_file_path': True
+    'data_file_path': True,
+    'normal_samples_list': False
 }
 
 SEG_META_FIELDS = {
@@ -830,11 +830,10 @@ class Validator(object):
                     self.logger.error(
                         'Gene symbol does not match given Entrez id',
                         extra={'line_number': self.line_number,
-                               'cause': gene_symbol + ', ' + entrez_id})
+                               'cause': '(' + gene_symbol + ',' + entrez_id + ')'})
                     return False
             else:
-                if entrez_id not in (self.hugo_entrez_map[sym] for
-                                     sym in self.hugo_entrez_map):
+                if entrez_id not in self.hugo_entrez_map.values():
                     self.logger.error(
                         'Entrez gene id not known to the cBioPortal instance.',
                         extra={'line_number': self.line_number,
@@ -1034,52 +1033,21 @@ class MutationsExtendedValidator(Validator):
         'Tumor_Sample_Barcode',
         'Amino_Acid_Change'
     ]
-    OPTIONAL_HEADERS = [
-        'Hugo_Symbol',
-        'Entrez_Gene_Id'
-    ]
     REQUIRE_COLUMN_ORDER = False
 
     # Used for mapping column names to the corresponding function that does a check on the value.
     # This can be done for other filetypes besides maf - not currently implemented.
     CHECK_FUNCTION_MAP = {
-        'Hugo_Symbol':'checkValidHugo',
-        'Entrez_Gene_Id':'checkValidEntrez',
-        'Center':'checkCenter',
-        'NCBI_Build':'checkNCBIbuild',
-        'Chromosome':'checkChromosome',
-        'Start_Position':'checkStartPosition',
-        'End_Position':'checkEndPosition',
-        'Strand':'checkStrand',
-        'Variant_Classification':'checkVariantClassification',
-        'Variant_Type':'checkVariantType',
-        'Reference_Allele':'checkRefAllele',
-        'Tumor_Seq_Allele1':'checkTumorSeqAllele',
-        'Tumor_Seq_Allele2':'checkTumorSeqAllele',
-        'dbSNP_RS':'checkdbSNP_RS',
-        'dbSNP_Val_Status':'check_dbSNPValStatus',
-        'Tumor_Sample_Barcode':'checkTumorSampleBarcode',
         'Matched_Norm_Sample_Barcode':'checkMatchedNormSampleBarcode',
-        'Match_Norm_Seq_Allele1':'checkMatchNormSeqAllele',
-        'Match_Norm_Seq_Allele2':'checkMatchNormSeqAllele',
-        'Tumor_Validation_Allele1':'checkTumorValidationAllele',
-        'Tumor_Validation_Allele2':'checkTumorValidationAllele',
-        'Match_Norm_Validation_Allele1':'checkMatchNormValidationAllele',
-        'Match_Norm_Validation_Allele2':'checkMatchNormValidationAllele',
+        'NCBI_Build':'checkNCBIbuild',
         'Verification_Status':'checkVerificationStatus',
         'Validation_Status':'checkValidationStatus',
-        'Mutation_Status':'checkMutationStatus',
-        'Sequencing_Phase':'checkSequencingPhase',
-        'Sequence_Source':'checkSequenceSource',
-        'Validation_Method':'checkValidationMethod',
-        'Score':'checkScore',
-        'BAM_File':'checkBAMFile',
-        'Sequencer':'checkSequencer',
         't_alt_count':'check_t_alt_count',
         't_ref_count':'check_t_ref_count',
         'n_alt_count':'check_n_alt_count',
         'n_ref_count':'check_n_ref_count',
-        'Amino_Acid_Change': 'checkAminoAcidChange'}
+        'Amino_Acid_Change': 'checkAminoAcidChange'
+    }
 
     def __init__(self,hugo_entrez_map,logger,meta_dict):
         super(MutationsExtendedValidator, self).__init__(hugo_entrez_map,logger,meta_dict)
@@ -1088,10 +1056,6 @@ class MutationsExtendedValidator(Validator):
         self.extraCols = []
         self.extra_exists = False
         self.extra = ''
-        # TODO remove the attributes below, they violate the MAF standard
-        self.toplinecount = 0
-        self.sampleIdsHeader = set()
-        self.headerPresent = False
 
     def checkHeader(self, cols):
         """Validate header, requiring at least one gene id column."""
@@ -1117,21 +1081,28 @@ class MutationsExtendedValidator(Validator):
 
         super(MutationsExtendedValidator, self).checkLine(data)
 
-        for col_name in self.REQUIRED_HEADERS + self.OPTIONAL_HEADERS:
-            col_index = self.cols.index(col_name)
-            value = data[col_index]
-            if col_name == 'Tumor_Sample_Barcode':
-                self.checkSampleId(value, column_number=col_index + 1)
-            # get the checking method for this column if available, or None
-            checking_function = getattr(
-                self,
-                self.CHECK_FUNCTION_MAP[col_name])
-            if not checking_function(value):
-                self.printDataInvalidStatement(value, col_index)
-            elif self.extra_exists or self.extra:
-                raise RuntimeError(('Checking function %s set an error '
-                                    'message but reported no error') %
-                                   checking_function.__name__)
+        for col_name in self.CHECK_FUNCTION_MAP:
+            # if optional column was found, validate it:
+            if col_name in self.cols:
+                col_index = self.cols.index(col_name)
+                value = data[col_index]
+                # get the checking method for this column if available, or None
+                checking_function = getattr(
+                    self,
+                    self.CHECK_FUNCTION_MAP[col_name])
+                if not checking_function(value):
+                    self.printDataInvalidStatement(value, col_index)
+                elif self.extra_exists or self.extra:
+                    raise RuntimeError(('Checking function %s set an error '
+                                        'message but reported no error') %
+                                       checking_function.__name__)
+        
+        # validate Tumor_Sample_Barcode value to make sure it exists in study sample list:
+        sample_id_column_index = self.cols.index('Tumor_Sample_Barcode')
+        value = data[sample_id_column_index]
+        self.checkSampleId(value, column_number=sample_id_column_index + 1)
+               
+        # parse hugo and entrez to validate them together: 
         hugo_symbol = None
         entrez_id = None
         if 'Hugo_Symbol' in self.cols:
@@ -1144,23 +1115,8 @@ class MutationsExtendedValidator(Validator):
             # treat the empty string as a missing value
             if entrez_id == '':
                 entrez_id = None
+        # validate hugo and entrez together:
         self.checkGeneIdentification(hugo_symbol, entrez_id)
-
-    def processTopLines(self, line_list):
-        """Processes the top line, which contains sample ids used in study."""
-        # TODO remove this function, it violates the MAF standard
-
-        if not line_list:
-            return True
-        line = line_list[0]
-
-        self.headerPresent = True
-        topline = [x.strip() for x in line.split(' ') if '#' not in x]
-
-        self.toplinecount += 1
-        for sampleId in topline:
-            self.sampleIdsHeader.add(sampleId)
-        return True
 
     def printDataInvalidStatement(self, value, col_index):
         """Prints out statement for invalid values detected."""
@@ -1182,35 +1138,6 @@ class MutationsExtendedValidator(Validator):
     # another field name, add the map in the global corresponding to
     # the function name that is created to check it.
 
-    def checkValidHugo(self,value):
-        """Issue no errors, as this field is checked in `checkLine()`."""
-        return True
-
-    def checkValidEntrez(self, value):
-        """Issue no errors, as this field is checked in `checkLine()`."""
-        return True
-
-    def checkCenter(self, value):
-        return True
-
-    def checkChromosome(self, value):
-        if self.checkInt(value):
-            if 1 <= int(value) <= 22:
-                return True
-            return False
-        elif value in ('X', 'Y', 'M'):
-            return True
-        return False
-    
-    def checkStartPosition(self, value):
-        return True
-
-    def checkEndPosition(self, value):
-        return True
-
-    def checkTumorSampleBarcode(self, value):
-        """Issue no warnings, as this field is checked in `checkLine()`."""
-        return True
 
     def checkNCBIbuild(self, value):
         if self.checkInt(value) and value != '':
@@ -1218,45 +1145,17 @@ class MutationsExtendedValidator(Validator):
                 return False
         return True
     
-    def checkStrand(self, value):
-        if value != '+':
-            return False
-        return True
-    
-    def checkVariantClassification(self, value):
-        return True
-
-    def checkVariantType(self, value):
-        return True
-    
-    def checkRefAllele(self, value):
-        return True
-
-    def checkTumorSeqAllele(self, value):
-        return True
-    
-    def check_dbSNPRS(self, value):
-        return True
-
-    def check_dbSNPValStatus(self, value):
-        return True
-    
     def checkMatchedNormSampleBarcode(self, value):
         if value != '':
-            if self.headerPresent and value not in self.sampleIdsHeader:
-                self.extra = 'Normal sample id not in sample ids from header'
-                self.extra_exists = True
-                return False
+            if 'normal_samples_list' in self.meta_dict and self.meta_dict['normal_samples_list'] != '':
+                normal_samples_list = [x.strip() for x in self.meta_dict['normal_samples_list'].split(',')]
+                if value not in normal_samples_list:
+                    self.extra = "Normal sample id not in list of sample ids configured in corresponding metafile. " \
+                    "Please check your metafile field 'normal_samples_list'." 
+                    self.extra_exists = True
+                    return False
         return True
     
-    def checkMatchedNormSampleBarcodehNormSeqAllele(self, value):
-        return True
-    
-    def checkTumorValidationAllele(self, value):
-        return True
-    
-    def checkMatchNormValidationAllele(self, value):
-        return True
     
     def checkVerificationStatus(self, value):
         if value.lower() not in ('', 'verified', 'unknown'):
@@ -1268,27 +1167,6 @@ class MutationsExtendedValidator(Validator):
             return True
         if value.lower() not in ('valid', 'unknown', 'na', 'untested'):
             return False
-        return True
-    
-    def checkMutationStatus(self, value):
-        return True
-    
-    def checkSequencingPhase(self, value):
-        return True
-    
-    def checkSequenceSource(self, value):
-        return True
-    
-    def checkValidationMethod(self, value):
-        return True
-    
-    def checkScore(self, value):
-        return True
-    
-    def checkBAMFile(self, value):
-        return True
-    
-    def checkSequencer(self, value):
         return True
     
     def check_t_alt_count(self, value):
@@ -1645,15 +1523,16 @@ def parse_metadata_file(filename, logger, study_id=None, case_list=False):
     metaDictionary = {}
     with open(filename, 'rU') as metafile:
         for line_index, line in enumerate(metafile):
-            if ': ' not in line:
+            if ':' not in line:
                 logger.error(
-                    "Invalid %s file entry, no ': ' found",
+                    "Invalid %s file entry, no ':' found",
                     {True: 'case list', False: 'meta'}[case_list],
                     extra={'data_filename': getFileFromFilepath(filename),
                            'line_number': line_index + 1})
                 return None
-            key, val = line.rstrip().split(': ', 1)
-            metaDictionary[key] = val
+            key_value = line.split(':', 1)
+            if len(key_value) == 2:
+                metaDictionary[key_value[0]] = key_value[1].strip()
 
     if case_list:
         meta_file_type = 'case_list'
@@ -1766,7 +1645,7 @@ def parse_metadata_file(filename, logger, study_id=None, case_list=False):
     return metaDictionary
 
 
-def process_metadata_files(directory, logger):
+def process_metadata_files(directory, logger, hugo_entrez_map):
 
     """Parse the meta files in a directory and create data file validators.
 
@@ -1820,13 +1699,17 @@ def process_metadata_files(directory, logger):
             validators_by_type[meta_file_type].append(
                 ValidatorFactory.createValidator(
                     VALIDATOR_IDS[meta_file_type],
-                    HUGO_ENTREZ_MAP,
+                    hugo_entrez_map,
                     logger,
                     meta))
         else:
             validators_by_type[meta_file_type].append(None)
 
-    if not (study_cancer_type in PORTAL_CANCER_TYPES or
+    if study_cancer_type is None:
+        logger.error(
+            'Cancer type needs to be defined for a study. Verify that you have a study file '
+            'and have defined the cancer type correctly.')
+    elif not (study_cancer_type in PORTAL_CANCER_TYPES or
             study_cancer_type in defined_cancer_types):
         logger.error(
             'Cancer type of study is neither known to the portal nor defined '
@@ -1950,7 +1833,6 @@ def main_validate(args):
     # global portal properties
     global SERVER_URL
     global PORTAL_CANCER_TYPES
-    global HUGO_ENTREZ_MAP
 
     # get a logger to emit messages
     logger = logging.getLogger(__name__)
@@ -2006,8 +1888,6 @@ def main_validate(args):
             collapsing_html_handler.setLevel(logging.ERROR)
         logger.addHandler(collapsing_html_handler)
 
-    # Entrez values for Hugo symbols in the portal
-    HUGO_ENTREZ_MAP = get_hugo_entrez_map(SERVER_URL, logger)
     # retrieve cancer types defined in the portal
     PORTAL_CANCER_TYPES = request_from_portal_api(
         SERVER_URL + '/api/cancertypes',
@@ -2016,15 +1896,21 @@ def main_validate(args):
     # retrieve clinical attributes defined in the portal
     ClinicalValidator.request_attrs(SERVER_URL, logger)
 
+    # Entrez values for Hugo symbols in the portal
+    hugo_entrez_map = get_hugo_entrez_map(SERVER_URL, logger)
     # walk over the meta files in the dir and get properties of the study
     (validators_by_meta_type,
      DEFINED_CANCER_TYPES,
-     study_id) = process_metadata_files(STUDY_DIR, logger)
+     study_id) = process_metadata_files(STUDY_DIR, logger, hugo_entrez_map)
 
     if CLINICAL_META_PATTERN not in validators_by_meta_type:
         logger.error('No clinical file detected')
         return exit_status_handler.get_exit_status()
 
+    if STUDY_META_PATTERN not in validators_by_meta_type:
+        logger.error('No study file detected')
+        return exit_status_handler.get_exit_status()
+    
     if len(validators_by_meta_type[CLINICAL_META_PATTERN]) != 1:
         if logger.isEnabledFor(logging.ERROR):
             logger.error(

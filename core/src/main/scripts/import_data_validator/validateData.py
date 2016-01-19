@@ -1092,7 +1092,7 @@ class MutationsExtendedValidator(Validator):
             self.logger.error('At least one of the columns Hugo_Symbol or '
                               'Entrez_Gene_Id needs to be present.',
                               extra={'line_number': self.line_number})
-        num_errors += 1
+            num_errors += 1
         return num_errors
 
     def checkLine(self, data):
@@ -2029,7 +2029,8 @@ def main_validate(args):
     clinvalidator.validate()
     if not clinvalidator.fileCouldBeParsed:
         logger.error("Clinical file could not be parsed. Please fix the problems found there first before continuing.")
-        
+        return exit_status_handler.get_exit_status()
+    
     DEFINED_SAMPLE_IDS = clinvalidator.sampleIds
 
     # validate non-clinical data files

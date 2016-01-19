@@ -984,10 +984,10 @@ var OncoKB = (function () {
             var color;
             switch (oncogenic) {
                 case 0:
-                    color = '#66B2FF';
+                    color = '#696969';
                     break;
                 case -1:
-                    color = '#696969';
+                    color = '#AAAAAA';
                     break;
                 case 2:
                     color = '#007FFF';
@@ -996,14 +996,10 @@ var OncoKB = (function () {
                     color = '#007FFF';
                     break;
                 default:
-                    color = '#696969';
+                    color = '#AAAAAA';
                     break;
             }
-
-            if(_.isBoolean(notExist) && notExist) {
-                color = '#AAAAAA';
-            }
-
+            
             //Append three circals
             g.append('circle')
                 .attr('r', '6')
@@ -1011,17 +1007,20 @@ var OncoKB = (function () {
                 .attr('stroke-width', '2')
                 .attr('stroke', color);
 
-            g.append('circle')
-                .attr('r', '3')
-                .attr('fill', 'none')
-                .attr('stroke-width', '2')
-                .attr('stroke', color);
+            if(!_.isBoolean(notExist) || !notExist) {
+                g.append('circle')
+                    .attr('r', '3')
+                    .attr('fill', 'none')
+                    .attr('stroke-width', '2')
+                    .attr('stroke', color);
+    
+                g.append('circle')
+                    .attr('r', '1.5')
+                    .attr('fill', color)
+                    .attr('stroke', 'none');
 
-            g.append('circle')
-                .attr('r', '1.5')
-                .attr('fill', color)
-                .attr('stroke', 'none');
-
+            }
+            
             if (hasResistanceDrugs && oncogenic === 2) {
                 var resistanceDot = svg.append('g')
                     .attr('transform', 'translate(13, 4)');

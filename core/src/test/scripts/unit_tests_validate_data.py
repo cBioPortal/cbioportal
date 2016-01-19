@@ -377,7 +377,6 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         self.logger.setLevel(logging.ERROR)
         record_list = self.validate('data_cna_genecol_presence_both_invalid_hugo.txt',
                                     validateData.CNAValidator)
-        self.print_log_records(record_list)
         # expecting two info messages: 
         self.assertEqual(len(record_list), 2)
         for record in record_list:
@@ -391,7 +390,6 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         self.logger.setLevel(logging.ERROR)
         record_list = self.validate('data_cna_genecol_presence_both_invalid_entrez.txt',
                                     validateData.CNAValidator)
-        self.print_log_records(record_list)
         # expecting two error messages: 
         self.assertEqual(len(record_list), 2)
         for record in record_list:
@@ -418,7 +416,6 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
                                      'TCGA-B6-A0RS-10,TCGA-BH-A0HP-10,TCGA-BH-A18P-11, TCGA-BH-A18H-10'})
         # we expect 2 errors about columns in wrong order,
         # and one about the file not being parseable:
-        self.print_log_records(record_list)
         self.assertEqual(len(record_list), 3)
         # check if both messages come from printDataInvalidStatement:
         found_one_of_the_expected = False

@@ -35,7 +35,6 @@ DEFINED_CANCER_TYPES = None
 
 SERVER_URL = 'http://localhost/cbioportal'
 PORTAL_CANCER_TYPES = None
-HUGO_ENTREZ_MAP = None
 
 # ----------------------------------------------------------------------------
 # how we differentiate between data types based on the meta_file_type field
@@ -820,7 +819,7 @@ class Validator(object):
         """
         if entrez_id is not None:
             if gene_symbol is not None:
-                if entrez_id not in HUGO_ENTREZ_MAP[gene_symbol]:
+                if entrez_id not in self.hugo_entrez_map[gene_symbol]:
                     self.logger.error(
                         'Gene symbol does not match given Entrez id',
                         extra={'line_number': self.line_number,
@@ -828,14 +827,14 @@ class Validator(object):
                     return False
             else:
                 if entrez_id not in (gid for
-                                     gid in (HUGO_ENTREZ_MAP[sym] for
-                                             sym in HUGO_ENTREZ_MAP)):
+                                     gid in (self.hugo_entrez_map[sym] for
+                                             sym in self.hugo_entrez_map)):
                     self.logger.error(
                         'Entrez gene id not known to the cBioPortal instance.',
                         extra={'line_number': self.line_number,
                                'cause': entrez_id})
         elif gene_symbol is not None:
-            if gene_symbol not in HUGO_ENTREZ_MAP:
+            if gene_symbol not in self.hugo_entrez_map:
                 self.logger.error(
                     'Gene symbol not known to the cBioPortal instance.',
                     extra={'line_number': self.line_number,
@@ -1598,7 +1597,7 @@ def parse_metadata_file(filename, logger, study_id=None, case_list=False):
     return metaDictionary
 
 
-def process_metadata_files(directory, logger):
+def process_metadata_files(directory, logger, hugo_entrez_map):
 
     """Parse the meta files in a directory and create data file validators.
 
@@ -1651,7 +1650,7 @@ def process_metadata_files(directory, logger):
             validators_by_type[meta_file_type].append(
                 ValidatorFactory.createValidator(
                     VALIDATOR_IDS[meta_file_type],
-                    HUGO_ENTREZ_MAP,
+                    hugo_entrez_map,
                     logger,
                     meta))
         else:
@@ -1785,7 +1784,6 @@ def main_validate(args):
     # global portal properties
     global SERVER_URL
     global PORTAL_CANCER_TYPES
-    global HUGO_ENTREZ_MAP
 
     # get a logger to emit messages
     logger = logging.getLogger(__name__)
@@ -1841,8 +1839,6 @@ def main_validate(args):
             collapsing_html_handler.setLevel(logging.ERROR)
         logger.addHandler(collapsing_html_handler)
 
-    # Entrez values for Hugo symbols in the portal
-    HUGO_ENTREZ_MAP = get_hugo_entrez_map(SERVER_URL, logger)
     # retrieve cancer types defined in the portal
     PORTAL_CANCER_TYPES = request_from_portal_api(
         SERVER_URL + '/api/cancertypes',
@@ -1851,10 +1847,12 @@ def main_validate(args):
     # retrieve clinical attributes defined in the portal
     ClinicalValidator.request_attrs(SERVER_URL, logger)
 
+    # Entrez values for Hugo symbols in the portal
+    hugo_entrez_map = get_hugo_entrez_map(SERVER_URL, logger)
     # walk over the meta files in the dir and get properties of the study
     (validators_by_meta_type,
      DEFINED_CANCER_TYPES,
-     study_id) = process_metadata_files(STUDY_DIR, logger)
+     study_id) = process_metadata_files(STUDY_DIR, logger, hugo_entrez_map)
 
     if CLINICAL_META_PATTERN not in validators_by_meta_type:
         logger.error('No clinical file detected')

@@ -267,8 +267,9 @@ class MutationsSpecialCasesTestCase(DataFileTestCase):
                                      'TCGA-B6-A0RS-10,TCGA-BH-A0HP-10,TCGA-BH-A18P-11, TCGA-BH-A18H-10'})
         # we expect 2 errors about columns in wrong order,
         # and one about the file not being parseable:
+        self.print_log_records(record_list)
         self.assertEqual(len(record_list), 3)
-        # check if both messages come from checkOrderedRequiredColumns:
+        # check if both messages come from printDataInvalidStatement:
         found_one_of_the_expected = False
         for error in record_list[:2]:
             self.assertEqual("ERROR", error.levelname)

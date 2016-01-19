@@ -219,6 +219,7 @@ class ClinicalColumnDefsTestCase(DataFileTestCase):
         self.assertEqual(record_list[1].line_number, 5)
         self.assertEqual(record_list[1].column_number, 7)
 
+
 class CancerTypeValidationTestCase(LogBufferTestCase):
 
     """Tests for validations of cancer type meta files in a study."""

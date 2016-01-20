@@ -194,6 +194,10 @@ var ccPlots = (function (Plotly, _, $) {
 
     var render = function(_non_mut_group, _not_sequenced_group, _mix_mut_group) {
 
+        // ---- clean up data array ----
+        data = [];
+        data.length = 0;
+
         // ---- define tracks ----
 
         //not sequenced track
@@ -338,7 +342,7 @@ var ccPlots = (function (Plotly, _, $) {
             }
         };
 
-        $("#cc-plots-box").empty();
+        $("#cc_plots_box").empty();
         Plotly.newPlot('cc_plots_box', data, layout, {showLink: false});
 
         //link to sample view
@@ -374,20 +378,20 @@ var ccPlots = (function (Plotly, _, $) {
             gene = [];
             gene.length = 0;
             gene.push($("#cc_plots_gene_list").val());
-            $("#cc-plots-box").empty();
-            $("#cc-plots-box").append("<img src='images/ajax-loader.gif' id='cc_plots_loading' style='padding:200px;'/>");
+            $("#cc_plots_box").empty();
+            $("#cc_plots_box").append("<img src='images/ajax-loader.gif' id='cc_plots_loading' style='padding:200px;'/>");
             fetch_profile_data(_.pluck(_.pluck(window.studies.models, "attributes"), "studyId"));
         },
         update_study_order: function() {
             study_order = $('input[name=cc_plots_study_order_opt]:checked').val();
-            $("#cc-plots-box").empty();
-            $("#cc-plots-box").append("<img src='images/ajax-loader.gif' id='cc_plots_loading' style='padding:200px;'/>");
+            $("#cc_plots_box").empty();
+            $("#cc_plots_box").append("<img src='images/ajax-loader.gif' id='cc_plots_loading' style='padding:200px;'/>");
             fetch_profile_data(_.pluck(_.pluck(window.studies.models, "attributes"), "studyId"));
         },
         toggle_log_scale: function() {
             apply_log_scale = document.getElementById("cc_plots_log_scale").checked;
-            $("#cc-plots-box").empty();
-            $("#cc-plots-box").append("<img src='images/ajax-loader.gif' id='cc_plots_loading' style='padding:200px;'/>");
+            $("#cc_plots_box").empty();
+            $("#cc_plots_box").append("<img src='images/ajax-loader.gif' id='cc_plots_loading' style='padding:200px;'/>");
             fetch_profile_data(_.pluck(_.pluck(window.studies.models, "attributes"), "studyId"));
         }
     };

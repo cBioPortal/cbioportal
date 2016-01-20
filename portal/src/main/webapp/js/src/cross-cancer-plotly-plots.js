@@ -377,7 +377,6 @@ var ccPlots = (function (Plotly, _, $) {
                     apply_log_scale = document.getElementById("cc_plots_log_scale").checked;
                     study_order = $('input[name=cc_plots_study_order_opt]:checked').val();
 
-                    $("#cc_plots_box").empty();
                     fetch_profile_data(_.pluck(_.pluck(window.studies.models, "attributes"), "studyId"));
                 }
             }

@@ -295,10 +295,6 @@ if (patientViewError!=null) {
 </div>
 <jsp:include page="../../global/xdebug.jsp" flush="true" />
 
-<link href="css/jquery.qtip.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/>
-<link href="css/bootstrap.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
-<link href="css/bootstrap-dialog.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
-
 <style type="text/css" title="currentStyle">
         @import "css/data_table_jui.css?<%=GlobalProperties.getAppVersion()%>";
         @import "css/data_table_ColVis.css?<%=GlobalProperties.getAppVersion()%>";
@@ -390,8 +386,6 @@ if (patientViewError!=null) {
 </style>
 
 <script type="text/javascript" src="js/src/patient-view/genomic-event-observer.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/lib/bootstrap.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/lib/bootstrap-dialog.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/OncoKBConnector.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script src="js/lib/dataTables.tableTools.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript">
@@ -1388,6 +1382,5 @@ window["<%=PatientView.CANCER_STUDY_META_DATA_KEY_STRING%>"]
         = <%=jsonMapper.writeValueAsString(request.getAttribute(PatientView.CANCER_STUDY_META_DATA_KEY_STRING))%>;
 
 </script>
-<script src="js/lib/bootstrap.min.js?<%=GlobalProperties.getAppVersion()%>" type="text/javascript"></script>
 </body>
 </html>

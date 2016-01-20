@@ -58,11 +58,7 @@
     @import "css/data_table_jui.css?<%=GlobalProperties.getAppVersion()%>";
     @import "css/data_table_ColVis.css?<%=GlobalProperties.getAppVersion()%>";
     @import "css/mutationMapper.min.css?<%=GlobalProperties.getAppVersion()%>";
-    @import "css/bootstrap.min.css?<%=GlobalProperties.getAppVersion()%>";
-    @import "css/bootstrap-dialog.css?<%=GlobalProperties.getAppVersion()%>";
 </style>
-<script type="text/javascript" src="js/lib/bootstrap.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/lib/bootstrap-dialog.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript"
         src="js/src/OncoKBConnector.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript">

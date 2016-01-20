@@ -1380,7 +1380,7 @@ OncoKB.Instance.prototype = {
                                 content: {text: _tip},
                                 show: {ready: true},
                                 hide: {fixed: true, delay: 100},
-                                style: {classes: 'qtip-light qtip-rounded qtip-shadow', tip: true},
+                                style: {classes: 'qtip-light qtip-rounded qtip-shadow oncokb-qtip-sm', tip: true},
                                 position: {my: 'top left', at: 'bottom right', viewport: $(window)}
                             });
                         });
@@ -1432,8 +1432,8 @@ OncoKB.Instance.prototype = {
                                 qtipMaxWidthClass = 'oncokb-qtip'
                             } else if (length > 30) {
                                 qtipMaxWidthClass = 'oncokb-qtip-sm'
-                            } else if (length > 10) {
-                                qtipMaxWidthClass = 'oncokb-qtip-xm'
+                            } else {
+                                qtipMaxWidthClass = 'oncokb-qtip-xs'
                             }
                         }
                         

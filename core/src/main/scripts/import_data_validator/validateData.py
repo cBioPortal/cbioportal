@@ -1427,7 +1427,7 @@ class SegValidator(Validator):
         """Initialize validator to track coverage of the genome."""
         super(SegValidator, self).__init__(*args, **kwargs)
         self.chromosome_lengths = self.load_chromosome_lengths(
-            GENOMIC_BUILD_COUNTERPART)
+            self.meta_dict['reference_genome_id'])
 
     def checkLine(self, data):
         super(SegValidator, self).checkLine(data)
@@ -1440,7 +1440,11 @@ class SegValidator(Validator):
     @staticmethod
     def load_chromosome_lengths(genome_build):
 
-        """Get the length of each chromosome from USCS and return a dict."""
+        """Get the length of each chromosome from USCS and return a dict.
+
+        The dict will not include unplaced contigs, alternative haplotypes or
+        the mitochondrial chromosome.
+        """
 
         chrom_size_dict = {}
         chrom_size_url = (
@@ -1463,6 +1467,9 @@ class SegValidator(Validator):
                     continue
                 # skip entries for alternative haplotypes
                 if re.search(r'_hap[0-9]+$', cols[0]):
+                    continue
+                # skip the mitochondrial chromosome
+                if cols[0] == 'chrM':
                     continue
 
                 # remove the 'chr' prefix

@@ -191,52 +191,28 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
   <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
   <script src="http://code.jquery.com/mobile/1.4.4/jquery.mobile-1.4.4.min.js"></script>
-  <title>cBioPortal validation report: study in '{{ study_dir }}'</title>
+  <title>cBioPortal validation report: study in '../../../test/scripts/test_data/study_es_1/'</title>
 </head>
 
 <body>
   <div class="container">
     <div class="header">
       <h1>cBioPortal validation report</h1>
-      <h4>study in '{{ study_dir }}'</h4>
+      <h4>study in '../../../test/scripts/test_data/study_es_1/'</h4>
     </div>
 
     <div class="jumbotron">
       <!--  alert alert-danger, alert-success or alert-warning -->
-      <div class="alert {% if max_level == 'ERROR' %}alert-danger{% elif max_level == 'WARNING' %}alert-warning{% else %}alert-success{% endif %}">
+      <div class="alert alert-danger">
         Validation status:
         <strong>
-        {% if max_level == 'ERROR' %}
           Failed
-        {% elif max_level == 'WARNING' %}
-          Please check
-        {% else %}
-          Success
-        {% endif %}
         </strong>
       </div>
 
       <div>
-      {% macro generate_group_html(filename, file_record_list) %}
-        {% set file_level_list = file_record_list|map(attribute='levelname')|list %}
-        {% if 'ERROR' in file_level_list %}
-          {% set file_level = 'ERROR' %}
-        {% elif 'WARNING' in file_level_list %}
-          {% set file_level = 'WARNING' %}
-        {# I can't think of a way to check if any values are not INFO right now #}
-        {% else %}
-          {% set file_level = 'SUCCESS' %}
-        {% endif %}
-        {% set file_class = {'ERROR': 'acol',
-                             'WARNING': 'ccol',
-                             'SUCCESS': 'bcol',
-                             'UNKNOWN': 'dcol'}[file_level] %}
-        <div data-role="collapsible" class="{{ file_class }}">
-        {% set file_color =  {'ERROR': 'red',
-                              'WARNING': 'yellow',
-                              'SUCCESS': 'green',
-                              'UNKNOWN': 'grey'}[file_level] %}
-          <h4>{{ filename|e }}<span class="ui-li-count {{ file_color }}Count">{{ file_level_list|length }}</span></h4>
+        <div data-role="collapsible" class="bcol">
+          <h4>General<span class="ui-li-count greenCount">7</span></h4>
           <table style="width:100%">
             <tr>
               <th>Line Number</th>
@@ -244,43 +220,124 @@
               <th>Message</th>
               <th>Value Encountered</th>
             </tr>
-            {% for record in file_record_list %}
-            {% if record.levelname  == 'ERROR' %}
-            {% set record_class = 'red' %}
-            {% elif record.levelname == 'WARNING' %}
-            {% set record_class = 'yellow' %}
-            {% elif record.levelname == 'INFO' %}
-            {% set record_class = 'blue' %}
-            {% else %}
-            {% set record_class = 'grey' %}
-            {% endif %}
-            <tr class="{{ record_class }}">
-              {% macro format_aggregated(record, attr_name) %}
-                  {% if record[attr_name + '_list'] is defined -%}
-                    {{ (record[attr_name + '_list'][:3]|join(', ') +
-                        ', (' +
-                        record[attr_name + '_list'][3:]|length|string +
-                        ' more)')|e }}
-                  {%- else -%}
-                    {{ record[attr_name]|e }}
-                  {%- endif %}
-              {% endmacro %}
-              <td>{{ format_aggregated(record, 'line_number') }}</td>
-              <td>{{ format_aggregated(record, 'column_number') }}</td>
-              <td>{{ record.getMessage()|e }}</td>
-              <td>{{ format_aggregated(record, 'cause') }}</td>
+            <tr class="blue">
+              <td></td>
+              <td></td>
+              <td>Requesting genes from portal at &#39;http://localhost:8080/cbioportal&#39;</td>
+              <td></td>
             </tr>
-            {% endfor %}
+            <tr class="blue">
+              <td></td>
+              <td></td>
+              <td>Requesting cancertypes from portal at &#39;http://localhost:8080/cbioportal&#39;</td>
+              <td></td>
+            </tr>
+            <tr class="blue">
+              <td></td>
+              <td></td>
+              <td>Requesting clinicalattributes/patients from portal at &#39;http://localhost:8080/cbioportal&#39;</td>
+              <td></td>
+            </tr>
+            <tr class="blue">
+              <td></td>
+              <td></td>
+              <td>Requesting clinicalattributes/samples from portal at &#39;http://localhost:8080/cbioportal&#39;</td>
+              <td></td>
+            </tr>
+            <tr class="blue">
+              <td></td>
+              <td></td>
+              <td>Validating case lists</td>
+              <td></td>
+            </tr>
+            <tr class="blue">
+              <td></td>
+              <td></td>
+              <td>Validation of case lists complete</td>
+              <td></td>
+            </tr>
+            <tr class="blue">
+              <td></td>
+              <td></td>
+              <td>Validation complete</td>
+              <td></td>
+            </tr>
           </table>
         </div>
 
-      {% endmacro %}
-      {% set fileless_record_list = record_list|selectattr('data_filename', 'undefined')|list -%}
-      {{ generate_group_html('General', fileless_record_list) }}
-      {% set filerelated_record_list = record_list|selectattr('data_filename', 'defined') %}
-      {% for file_record_group in filerelated_record_list|groupby('data_filename') -%}
-        {{ generate_group_html(file_record_group.grouper, file_record_group.list) }}
-      {%- endfor %}
+
+        <div data-role="collapsible" class="acol">
+          <h4>cases_all.txt<span class="ui-li-count redCount">1</span></h4>
+          <table style="width:100%">
+            <tr>
+              <th>Line Number</th>
+              <th>Column Number</th>
+              <th>Message</th>
+              <th>Value Encountered</th>
+            </tr>
+            <tr class="red">
+              <td></td>
+              <td></td>
+              <td>Sample id not defined in clinical file</td>
+              <td>INVALID-A2-A0T2-01</td>
+            </tr>
+          </table>
+        </div>
+
+        <div data-role="collapsible" class="bcol">
+          <h4>data_clinical2.txt<span class="ui-li-count greenCount">2</span></h4>
+          <table style="width:100%">
+            <tr>
+              <th>Line Number</th>
+              <th>Column Number</th>
+              <th>Message</th>
+              <th>Value Encountered</th>
+            </tr>
+            <tr class="blue">
+              <td></td>
+              <td></td>
+              <td>Starting validation of file</td>
+              <td></td>
+            </tr>
+            <tr class="blue">
+              <td></td>
+              <td></td>
+              <td>Validation of file complete</td>
+              <td></td>
+            </tr>
+          </table>
+        </div>
+
+        <div data-role="collapsible" class="acol">
+          <h4>data_expression_median.txt<span class="ui-li-count redCount">3</span></h4>
+          <table style="width:100%">
+            <tr>
+              <th>Line Number</th>
+              <th>Column Number</th>
+              <th>Message</th>
+              <th>Value Encountered</th>
+            </tr>
+            <tr class="blue">
+              <td></td>
+              <td></td>
+              <td>Starting validation of file</td>
+              <td></td>
+            </tr>
+            <tr class="red">
+              <td>1</td>
+              <td>3</td>
+              <td>Sample ID not defined in clinical file</td>
+              <td>TEST2-A1-A0SD-01</td>
+            </tr>
+            <tr class="red">
+              <td></td>
+              <td></td>
+              <td>Invalid column header, file cannot be parsed</td>
+              <td></td>
+            </tr>
+          </table>
+        </div>
+
 
       </div>
     </div>

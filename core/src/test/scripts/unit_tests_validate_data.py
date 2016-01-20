@@ -29,6 +29,16 @@ KNOWN_SAMPLE_ATTRS = {
     "SAMPLE_ID": {"display_name":"Sample Identifier","description":"A unique sample identifier.","datatype":"STRING","is_patient_attribute":"0","priority":"1"},
 }
 
+# hard-code known cancer types
+KNOWN_CANCER_TYPES = {
+    "brca": {"name":"Invasive Breast Carcinoma","color":"HotPink"},
+    "prad": {"name":"Prostate Adenocarcinoma","color":"Cyan"}
+}
+
+# mock-code sample ids defined in a study
+DEFINED_SAMPLE_IDS = ["TCGA-A1-A0SB-01", "TCGA-A1-A0SD-01", "TCGA-A1-A0SE-01", "TCGA-A1-A0SH-01", "TCGA-A2-A04U-01",
+"TCGA-B6-A0RS-01", "TCGA-BH-A0HP-01", "TCGA-BH-A18P-01", "TCGA-BH-A18H-01", "TCGA-C8-A138-01", "TCGA-A2-A0EY-01", "TCGA-A8-A08G-01"]
+
 
 # TODO - something like this could be done for a web-services stub:
 # def dumy_request_from_portal_api(service_url, logger):
@@ -46,7 +56,7 @@ KNOWN_SAMPLE_ATTRS = {
 #             '[{url}] is accessible. Message: {msg}'.format(url=service_url,
 #                                                            msg=e.message))
 #     return response.json()
-# 
+#
 # validateData.request_from_portal_api = dumy_request_from_portal_api
 
 
@@ -124,6 +134,26 @@ class DataFileTestCase(LogBufferTestCase):
         validator = validator_class(hugo_entrez_map, self.logger, meta_dict)
         validator.validate()
         return self.get_log_records()
+
+
+class PostClinicalDataFileTestCase(DataFileTestCase):
+
+    """Superclass for validating data files to be read after clinical files.
+
+    I.e. DEFINED_SAMPLE_IDS will be initialised with a list of sample
+    identifiers defined in the study.
+    """
+
+    def setUp(self):
+        """Prepare for validating a file by setting the samples defined."""
+        super(PostClinicalDataFileTestCase, self).setUp()
+        self.orig_defined_sample_ids = validateData.DEFINED_SAMPLE_IDS
+        validateData.DEFINED_SAMPLE_IDS = DEFINED_SAMPLE_IDS
+
+    def tearDown(self):
+        """Restore the environment to before setUp() was called."""
+        validateData.DEFINED_SAMPLE_IDS = self.orig_defined_sample_ids
+        super(PostClinicalDataFileTestCase, self).tearDown()
 
 
 # ----------------------------------------------------------------------------
@@ -214,3 +244,229 @@ class ClinicalColumnDefsTestCase(DataFileTestCase):
         self.assertEqual(record_list[1].levelno, logging.ERROR)
         self.assertEqual(record_list[1].line_number, 5)
         self.assertEqual(record_list[1].column_number, 7)
+
+
+class CancerTypeValidationTestCase(LogBufferTestCase):
+
+    """Tests for validations of cancer type meta files in a study."""
+
+    def setUp(self):
+        """Initialize environment, hard-coding known cancer types."""
+        super(CancerTypeValidationTestCase, self).setUp()
+        self.orig_portal_cancer_types = validateData.PORTAL_CANCER_TYPES
+        validateData.PORTAL_CANCER_TYPES = KNOWN_CANCER_TYPES
+
+    def tearDown(self):
+        """Restore the environment to before setUp() was called."""
+        super(CancerTypeValidationTestCase, self).tearDown()
+        validateData.PORTAL_CANCER_TYPES = self.orig_portal_cancer_types
+
+    def test_new_cancer_type(self):
+        """Test when a study defines a new cancer type."""
+        # {"id":"luad","name":"Lung Adenocarcinoma","color":"Gainsboro"}
+        validateData.process_metadata_files(
+            'test_data/study_metacancertype_lung',
+            self.logger, hugo_entrez_map)
+        record_list = self.get_log_records()
+        # expecting a warning about a new cancer type being added
+        self.assertEqual(len(record_list), 1)
+        self.assertEqual(record_list[0].levelno, logging.WARNING)
+        self.assertEqual(record_list[0].cause, 'luad')
+
+    def test_cancer_type_file_format_error(self):
+        """Test when a new cancer type file does not make sense."""
+        self.logger.setLevel(logging.ERROR)
+        validateData.process_metadata_files(
+            'test_data/study_metacancertype_missing_color',
+            self.logger, hugo_entrez_map)
+        record_list = self.get_log_records()
+        # expecting two errors: one about the missing field and one about the
+        # undefined cancer type of the study
+        self.assertEqual(len(record_list), 2)
+        for record in record_list:
+            self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record_list[0].data_filename, 'meta_cancer_type.txt')
+        self.assertIn('dedicated_color', record_list[0].getMessage())
+        self.assertEqual(record_list[1].cause, 'luad')
+
+    def test_cancer_type_matching_portal(self):
+        """Test when an existing cancer type is defined exactly as known."""
+        validateData.process_metadata_files(
+            'test_data/study_metacancertype_confirming_existing',
+            self.logger, hugo_entrez_map)
+        record_list = self.get_log_records()
+        # expecting no messages, warnings or errors
+        self.assertEqual(len(record_list), 0)
+
+    def test_cancer_type_disagreeing_with_portal(self):
+        """Test when an existing cancer type is redefined by a study."""
+        validateData.process_metadata_files(
+            'test_data/study_metacancertype_redefining',
+            self.logger, hugo_entrez_map)
+        record_list = self.get_log_records()
+        # expecting an error message about the cancer type file, but none about
+        # the rest of the study as the portal defines a valid cancer type
+        self.assertEqual(len(record_list), 1)
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.data_filename, 'meta_cancer_type.txt')
+        self.assertEqual(record.cause, 'Breast Cancer')
+
+    def test_cancer_type_defined_twice(self):
+        """Test when a study defines the same cancer type id twice.
+
+        No difference is assumed between matching and disagreeing definitions;
+        this validation just fails as it never makes sense to do this.
+        """
+        self.logger.setLevel(logging.ERROR)
+        validateData.process_metadata_files(
+            'test_data/study_metacancertype_lung_twice',
+            self.logger, hugo_entrez_map)
+        record_list = self.get_log_records()
+        # expecting an error message about the doubly-defined cancer type
+        self.assertEqual(len(record_list), 1)
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.cause, 'luad')
+        self.assertIn('defined a second time', record.getMessage())
+
+class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
+
+    """Tests validating gene-wise files with different combinations of gene id columns,
+    now with invalid Entrez ID and/or Hugo names """
+
+    def test_both_name_and_entrez(self):
+        """Test when a file has both the Hugo name and Entrez ID columns."""
+        record_list = self.validate('data_cna_genecol_presence_both.txt',
+                                    validateData.CNAValidator)
+        # expecting two info messages: at start and end of file
+        self.assertEqual(len(record_list), 2)
+        for record in record_list:
+            self.assertEqual(record.levelno, logging.INFO)
+
+    def test_name_only(self):
+        """Test when a file has a Hugo name column but none for Entrez IDs."""
+        record_list = self.validate('data_cna_genecol_presence_hugo_only.txt',
+                                    validateData.CNAValidator)
+        # expecting two info messages: at start and end of file
+        self.assertEqual(len(record_list), 2)
+        for record in record_list:
+            self.assertEqual(record.levelno, logging.INFO)
+
+    def test_entrez_only(self):
+        """Test when a file has an Entrez ID column but none for Hugo names."""
+        record_list = self.validate('data_cna_genecol_presence_entrez_only.txt',
+                                    validateData.CNAValidator)
+        # expecting two info messages: at start and end of file
+        self.assertEqual(len(record_list), 2)
+        for record in record_list:
+            self.assertEqual(record.levelno, logging.INFO)
+
+    def test_neither_name_nor_entrez(self):
+        """Test when a file lacks both the Entrez ID and Hugo name columns."""
+        record_list = self.validate('data_cna_genecol_presence_neither.txt',
+                                    validateData.CNAValidator)
+        # two errors after the info: the first makes the file unparsable
+        self.assertEqual(len(record_list), 3)
+        for record in record_list[1:]:
+            self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record_list[1].line_number, 1)
+
+    """Tests validating gene-wise files with different combinations of gene id columns,
+    now with invalid Entrez ID and/or Hugo names """
+
+    def test_both_name_and_entrez_but_invalid_hugo(self):
+        """Test when a file has both the Hugo name and Entrez ID columns, but hugo is invalid."""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_cna_genecol_presence_both_invalid_hugo.txt',
+                                    validateData.CNAValidator)
+        # expecting two error messages:
+        self.assertEqual(len(record_list), 2)
+        for record in record_list:
+            self.assertEqual(record.levelno, logging.ERROR)
+        # expecting these to be the cause:
+        self.assertEqual(record_list[0].cause, 'xxACAP3')
+        self.assertEqual(record_list[1].cause, 'xxAGRN')
+
+    def test_both_name_and_entrez_but_invalid_entrez(self):
+        """Test when a file has both the Hugo name and Entrez ID columns, but entrez is invalid."""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_cna_genecol_presence_both_invalid_entrez.txt',
+                                    validateData.CNAValidator)
+        # expecting two error messages:
+        self.assertEqual(len(record_list), 2)
+        for record in record_list:
+            self.assertEqual(record.levelno, logging.ERROR)
+        # expecting these to be the cause:
+        self.assertIn('-116983', record_list[0].cause)
+        self.assertIn('-375790', record_list[1].cause)
+
+    def test_both_name_and_entrez_but_invalid_couple(self):
+        """Test when a file has both the Hugo name and Entrez ID columns, both valid, but association is invalid."""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_cna_genecol_presence_both_invalid_couple.txt',
+                                    validateData.CNAValidator)
+        # expecting two error messages:
+        self.assertEqual(len(record_list), 2)
+        for record in record_list:
+            self.assertEqual(record.levelno, logging.ERROR)
+        # expecting these to be the cause:
+        self.assertIn('ACAP3', record_list[0].cause)
+        self.assertIn('116983', record_list[1].cause)
+
+    def test_name_only_but_invalid(self):
+        """Test when a file has a Hugo name column but none for Entrez IDs, and hugo is wrong."""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_cna_genecol_presence_hugo_only_invalid.txt',
+                                    validateData.CNAValidator)
+        # expecting two error messages:
+        self.assertEqual(len(record_list), 2)
+        for record in record_list:
+            self.assertEqual(record.levelno, logging.ERROR)
+        # expecting these to be the cause:
+        self.assertEqual(record_list[0].cause, 'xxATAD3A')
+        self.assertEqual(record_list[1].cause, 'xxATAD3B')
+
+    def test_entrez_only_but_invalid(self):
+        """Test when a file has an Entrez ID column but none for Hugo names, and entrez is wrong."""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_cna_genecol_presence_entrez_only_invalid.txt',
+                                    validateData.CNAValidator)
+        # expecting two error messages:
+        self.assertEqual(len(record_list), 2)
+        for record in record_list:
+            self.assertEqual(record.levelno, logging.ERROR)
+        # expecting these to be the cause:
+        self.assertEqual(record_list[0].cause, '-54998')
+        self.assertEqual(record_list[1].cause, '-126792')
+
+
+# TODO- manual check if entrez/hugo combi is indeed in ncbi.gz file
+
+class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
+
+    def test_normal_samples_list_in_maf(self):
+        '''
+        For mutations MAF files there is a column called "Matched_Norm_Sample_Barcode".
+        In the respective meta file it is possible to give a list of sample codes against which this
+        column "Matched_Norm_Sample_Barcode" is validated. Here we test if this
+        validation works well.
+        '''
+        # set level according to this test case:
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_mutations_invalid_norm_samples.maf',
+                                    validateData.MutationsExtendedValidator,
+                                    {'normal_samples_list':
+                                     'TCGA-B6-A0RS-10,TCGA-BH-A0HP-10,TCGA-BH-A18P-11, TCGA-BH-A18H-10'})
+        # we expect 2 errors about columns in wrong order,
+        # and one about the file not being parseable:
+        self.assertEqual(len(record_list), 3)
+        # check if both messages come from printDataInvalidStatement:
+        found_one_of_the_expected = False
+        for error in record_list[:2]:
+            self.assertEqual("ERROR", error.levelname)
+            self.assertEqual("printDataInvalidStatement", error.funcName)
+            if "TCGA-C8-A138-10" == error.cause:
+                found_one_of_the_expected = True
+
+        self.assertEqual(True, found_one_of_the_expected)

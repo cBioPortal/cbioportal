@@ -63,3 +63,50 @@ class ValidateDataSystemTester(unittest.TestCase):
         # Execute main function with arguments provided through sys.argv
         exit_status = validateData.main_validate(args)
         self.assertEquals(3, exit_status)
+
+    def test_html_output(self):
+        '''
+        Test if html file is correctly generated when 'html_table' is given
+        '''
+        #Build up arguments and run
+        args = ['--study_directory','test_data/study_es_0/', 
+                    '--url_server', server, '-v', '--html_table', 'test_data/study_es_0/result_report.html']
+        args = validateData.interface(args)
+        # Execute main function with arguments provided through sys.argv
+        exit_status = validateData.main_validate(args)
+        # TODO - assert if html file is present
+        self.assertEquals(0, exit_status)
+     
+    def test_problem_in_clinical(self):
+        '''
+        When clinical file has a problem, we want the program to abort and give just this error 
+        before validating other files (because other files cannot be validated in case clinical is wrong).
+        Here we validate if script is giving proper error. 
+        '''
+        #Build up arguments and run
+        print '==test_problem_in_clinical=='
+        args = ['--study_directory','test_data/study_wr_clin/', 
+                    '--url_server', server, '-v', '--html_table', 'test_data/study_wr_clin/result_report.html']
+        args = validateData.interface(args)
+        # Execute main function with arguments provided through sys.argv
+        exit_status = validateData.main_validate(args)
+        self.assertEquals(1, exit_status)
+        # TODO - set logger in main_validate and read out buffer here to assert on nr of errors
+        
+    def test_normal_samples_list_in_maf(self):
+        '''
+        For mutations MAF files there is a column called "Matched_Norm_Sample_Barcode". 
+        In the respective meta file it is possible to give a list of sample codes against which this 
+        column "Matched_Norm_Sample_Barcode" is validated. Here we test if this 
+        validation works well.
+        '''
+        #Build up arguments and run
+        print '==test_normal_samples_list_in_maf=='
+        args = ['--study_directory','test_data/study_maf_test/', 
+                    '--url_server', server, '-v', '--html_table', 'test_data/study_maf_test/result_report.html']
+        args = validateData.interface(args)
+        # Execute main function with arguments provided through sys.argv
+        exit_status = validateData.main_validate(args)
+        # should fail because of errors with invalid Matched_Norm_Sample_Barcode values
+        self.assertEquals(1, exit_status)
+        

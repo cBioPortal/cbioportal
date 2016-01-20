@@ -201,7 +201,7 @@
     });
   </script>
 
-  <fieldset class="fieldset-border ui-widget-content">
+  <fieldset id="clinical-timeline-fieldset" class="ui-widget-content">
   <legend class="legend-border">Clinical Events</legend>
   <div id="timeline-container" style="display:hidden">
   <div id="timeline">

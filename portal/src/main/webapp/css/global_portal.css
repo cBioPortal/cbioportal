@@ -31,6 +31,38 @@ body {
   height:50px;
 }
 
+fieldset#login-fieldset, fieldset#clinical-timeline-fieldset, fieldset#patient-view-summary-fieldset {
+    padding: 5px 10px;
+}
+
+fieldset#login-fieldset {
+    border: 2px groove threedface;
+}
+
+fieldset#clinical-timeline-fieldset, fieldset#patient-view-summary-fieldset {
+    border: 1px solid #aaaaaa;
+}
+
+fieldset#login-fieldset > legend {
+    width: 96px;
+    border-bottom: none;
+    color: #666666;
+    font-family: verdana, arial, sans-serif;
+    font-size: 12px;
+    margin-bottom: 0;
+}
+
+fieldset#clinical-timeline-fieldset > legend,
+fieldset#patient-view-summary-fieldset > legend {
+    font-size: 12px !important;
+    text-align: left !important;
+    width: auto;
+    padding: 0 10px;
+    border-bottom: none;
+    color: #1974b8;
+    margin-bottom: 0px;
+}
+
 #header_site_name{
   font-size:24px;
   font-weight:bold;
@@ -1603,3 +1635,4 @@ ul.oncokb li {
     height:920px;
     padding: 0;
 }
+

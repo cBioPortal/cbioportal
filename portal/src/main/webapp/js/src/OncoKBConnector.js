@@ -80,6 +80,7 @@ var OncoKB = (function () {
     function VariantPair() {
         this.id = '';
         this.gene = '';
+        this.entrezGeneId = '';
         this.alteration = '';
         this.geneStatus = '';
         this.tumorType = '';//tumor type
@@ -1129,7 +1130,7 @@ OncoKB.Instance.prototype = {
 
     },
 
-    addVariant: function (id, gene, mutation, tt, consequence, cosmicCount, isHotspot) {
+    addVariant: function (id, entrezGeneId, gene, mutation, tt, consequence, cosmicCount, isHotspot) {
         var _variant = new OncoKB.VariantPair();
 
         if (!isNaN(id)) {
@@ -1137,6 +1138,7 @@ OncoKB.Instance.prototype = {
         }
 
         _variant.id = id;
+        _variant.entrezGeneId = Number(entrezGeneId);
         _variant.gene = gene || '';
         _variant.alteration = mutation || '';
         _variant.consequence = _.isString(consequence)?OncoKB.utils.consequenceConverter(consequence): '';
@@ -1367,9 +1369,9 @@ OncoKB.Instance.prototype = {
                         if (gene.background) {
                             _tip += '<br/><div><span class="oncokb_gene_moreInfo"><br/><a>More Info</a><i style="float:right">Powered by OncoKB(Beta)</i></span><br/><span class="oncokb_gene_background" style="display:none"><b>Gene Background</b><br/>' + gene.background + '<br/><i style="float:right">Powered by OncoKB(Beta)</i></span></div>';
                         }
-                    } else {
+                    } else if(_.isNumber(self.variants[oncokbId].entrezGeneId)){
                         _tip = "<a href=\"http://www.ncbi.nlm.nih.gov/gene/"
-                            + self.variants[oncokbId].gene + "\">NCBI Gene</a>";
+                            + self.variants[oncokbId].entrezGeneId + "\">NCBI Gene</a>";
                     }
                     if (_tip !== '') {
                         $(this).css('display', '');

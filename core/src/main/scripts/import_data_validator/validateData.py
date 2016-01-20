@@ -214,12 +214,12 @@ STUDY_META_FIELDS = {
     'type_of_cancer': True,
     'name': True,
     'description': True,
-    'groups': True,
-    'dedicated_color': True,
     'short_name': True,
+    'dedicated_color': True,
     'meta_file_type': True,
     'citation': False,
-    'pmid': False
+    'pmid': False,
+    'groups': False
 }
 
 CANCER_TYPE_META_FIELDS = {
@@ -227,7 +227,8 @@ CANCER_TYPE_META_FIELDS = {
     'name': True,
     'clinical_trial_keywords': True,
     'dedicated_color': True,
-    'short_name': True
+    'short_name': True,
+    'meta_file_type': True
 }
 
 META_FIELD_MAP = {
@@ -1575,6 +1576,7 @@ def parse_metadata_file(filename, logger, study_id=None, case_list=False):
     # check that cancer study identifiers across files so far are consistent.
     if (
             study_id is not None and
+            'cancer_study_identifier' in metaDictionary and
             study_id != metaDictionary['cancer_study_identifier']):
         logger.error(
             "Cancer study identifier is not consistent across "
@@ -1597,7 +1599,7 @@ def parse_metadata_file(filename, logger, study_id=None, case_list=False):
             invalid_fields_found = False
             for field in metaDictionary:
                 if (
-                        field in CANCER_TYPE_META_FIELDS and
+                        field in existing_info and
                         field != 'cancer_type_id' and
                         metaDictionary[field] != existing_info[field]):
                     logger.error(
@@ -1671,7 +1673,7 @@ def process_metadata_files(directory, logger, hugo_entrez_map):
         meta = parse_metadata_file(filename, logger, study_id)
         if meta is None:
             continue
-        if study_id is None:
+        if study_id is None and 'cancer_study_identifier' in meta:
             study_id = meta['cancer_study_identifier']
         meta_file_type = meta['meta_file_type']
         if meta_file_type == STUDY_META_PATTERN:
@@ -1687,7 +1689,8 @@ def process_metadata_files(directory, logger, hugo_entrez_map):
                     'Cancer type defined a second time in study',
                     extra={'data_filename': getFileFromFilepath(filename),
                            'cause': file_cancer_type})
-            defined_cancer_types.append(meta['type_of_cancer'])
+            else:
+                defined_cancer_types.append(meta['type_of_cancer'])
         # create a list for the file type in the dict
         if meta_file_type not in validators_by_type:
             validators_by_type[meta_file_type] = []

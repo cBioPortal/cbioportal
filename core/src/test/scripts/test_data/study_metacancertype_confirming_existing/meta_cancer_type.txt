@@ -1,0 +1,6 @@
+type_of_cancer: brca
+name: Invasive Breast Carcinoma
+clinical_trial_keywords: Spam,Spam,Spam
+dedicated_color: HotPink
+short_name: Spam
+meta_file_type: meta_cancer_type

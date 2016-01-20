@@ -68,16 +68,46 @@ var Oncoprint = (function () {
 	this.model.setRuleSet(track_id, OncoprintRuleSet(rule_set_params));
 	this.cell_view.setTrackData(this.model, track_id);
     }
+    
+    Oncoprint.prototype.setTrackGroupSortPriority = function(priority) {
+	this.model.setTrackGroupSortPriority(priority);
+	this.cell_view.setTrackGroupSortPriority(this.model);
+    }
 
-    Oncoprint.prototype.sort = function(group_order) {
+    Oncoprint.prototype.sort = function() {
+	this.model.sort();
+	this.cell_view.sort(this.model);
     }
     
+    Oncoprint.prototype.setRuleSet = function(track_id, rule_set_params) {
+	this.model.setRuleSet(track_id, OncoprintRuleSet(rule_set_params));
+	this.cell_view.setRuleSet(this.model);
+    }
+    
+    Oncoprint.prototype.setSortConfig = function(params) {
+	this.model.setSortConfig(params);
+	this.cell_view.setSortConfig(this.model);
+    }
     Oncoprint.prototype.setIdOrder = function(ids) {
 	// Update model
 	this.model.setIdOrder(ids);
 	// Update views
-	this.cell_view.setIdOrder(this, ids);
+	this.cell_view.setIdOrder(this.model, ids);
     }
+    
+    Oncoprint.prototype.suppressRendering = function() {
+	this.cell_view.suppressRendering();
+    }
+    
+    Oncoprint.prototype.releaseRendering = function() {
+	this.cell_view.releaseRendering();
+    }
+    
+    Oncoprint.prototype.hideIds = function(to_hide, show_others) {
+	this.model.hideIds(to_hide, show_others);
+	this.cell_view.hideIds(this.model);
+    }
+    
     return Oncoprint;
 })();
 module.exports = Oncoprint;

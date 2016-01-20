@@ -19,6 +19,10 @@
  * line: x1, y1, x2, y2, stroke, stroke-width
  */
 
+function ifndef(x, val) {
+    return (typeof x === "undefined" ? val : x);
+}
+
 function makeIdCounter() {
     var id = 0;
     return function () {
@@ -359,7 +363,7 @@ var CategoricalRuleSet = (function () {
 	 */
 	RuleSet.call(this, params);
 	this.category_key = params.category_key;
-	this.category_to_color = params.category_to_color;
+	this.category_to_color = ifndef(params.category_to_color, {});
 	for (var category in this.category_to_color) {
 	    if (this.category_to_color.hasOwnProperty(category)) {
 		addCategoryRule(this, category, this.category_to_color[category]);
@@ -722,6 +726,8 @@ module.exports = function (params) {
     } else if (params.type === 'bar') {
 	return new BarRuleSet(params);
     } else if (params.type === 'gene') {
-	return new GeneticAlterationRuleSet(params);
+	if (params.default === true) {
+	    return new GeneticAlterationRuleSet(DEFAULT_GENETIC_ALTERATION_PARAMS);
+	}
     }
 }

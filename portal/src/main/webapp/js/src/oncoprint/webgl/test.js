@@ -1,7 +1,6 @@
 $(document).ready(function() {
-	var Oncoprint = require('./oncoprint.js');
-	window.RuleSet = require('./oncoprintruleset.js');
-	var o = new Oncoprint($('#svg'), $('#canvas'));
+	
+	/*var o = new Oncoprint($('#svg'), $('#canvas'));
 	var data = [{sample:'a', data:5}, {sample:'b', data:10}];
 	while (data.length < 1000) {
 		data = data.concat(data);
@@ -23,5 +22,7 @@ $(document).ready(function() {
 		tracks_to_add.push({'data':data, 'rule_set_params':rule_set_params, 'target_group':3});
 	    }
 	    o.addTracks(tracks_to_add);
-	}
+	}*/
 });
+
+window.Oncoprint = require('./oncoprint.js');

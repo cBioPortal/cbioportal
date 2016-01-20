@@ -120,9 +120,11 @@
         <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/OncoprintSVGRenderer.js?<%=GlobalProperties.getAppVersion()%>"></script>
         <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/oncoprint.js?<%=GlobalProperties.getAppVersion()%>"></script>
         <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/OncoprintUtils.js?<%=GlobalProperties.getAppVersion()%>"></script>
-        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/setup-oncoprint-improved.js?<%=GlobalProperties.getAppVersion()%>"></script>
-        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/ruleset2.js"?<%=GlobalProperties.getAppVersion()%>"></script>
-        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/oncoprint-analysis-setup.js?<%=GlobalProperties.getAppVersion()%>"></script>
+        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/webgl/oncoprint-bundle.js?<%=GlobalProperties.getAppVersion()%>"></script>
+        <!--<script type="text/javascript" charset="utf-8" src="js/src/oncoprint/setup-oncoprint-improved.js?<%=GlobalProperties.getAppVersion()%>"></script>-->
+        <!--<script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/ruleset2.js"?<%=GlobalProperties.getAppVersion()%>"></script>-->
+        <!--<script type="text/javascript" charset="utf-8" src="js/src/oncoprint/oncoprint-analysis-setup.js?<%=GlobalProperties.getAppVersion()%>"></script>-->
+        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/webgl/setup.js?<%=GlobalProperties.getAppVersion()%>"></script>
         <!--<script data-main="js/src/oncoprint/main-boilerplate.js?<%=GlobalProperties.getAppVersion()%>" type="text/javascript" src="js/require.js?<%=GlobalProperties.getAppVersion()%>"></script>-->
     </div>
 </div>

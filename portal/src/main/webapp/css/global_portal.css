@@ -1553,11 +1553,15 @@ ul.ui-autocomplete li.ui-menu-item { font-size: 0.6em; text-align: left; }
 }
 
 /* OncoKB integration styles */
+/*Default max width is 280px*/
 .oncokb-qtip {
     max-width: 600px !important;
 }
 .oncokb-qtip-sm {
     max-width: 400px !important;
+}
+.oncokb-qtip-xs {
+    max-width: 330px !important;
 }
 .oncokb-qtip table.dataTable {
     font-size: 11px !important;
@@ -1582,6 +1586,9 @@ ul.oncokb li {
     text-decoration: underline;
 }
 .oncokbFeedback:hover, .bootstrap-dialog-close:hover {
+    cursor: pointer;
+}
+.oncokb .fa-angle-right:hover, .oncokb .fa-angle-down:hover {
     cursor: pointer;
 }
 .bootstrap-dialog-close {

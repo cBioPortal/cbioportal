@@ -14,11 +14,13 @@ window.CreateCBioPortalOncoprint = function(ctr_selector) {
 	var rule_set_params = {
 		type: 'gene',
 	};
+	oncoprint.suppressRendering();
 	for (var gene in data_by_gene) {
 	    if (data_by_gene.hasOwnProperty(gene)) {
 		oncoprint.addTracks([{'data':data_by_gene[gene], 'rule_set_params': rule_set_params, 'data_id_key':'sample'}]);
 	    }
 	}
+	oncoprint.releaseRendering();
     });
 }
 

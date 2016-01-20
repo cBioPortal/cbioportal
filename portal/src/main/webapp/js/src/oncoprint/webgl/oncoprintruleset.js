@@ -670,7 +670,7 @@ var Rule = (function () {
 	return complete_shape_params;
     };
     Rule.prototype.getConcreteShapes = function (d, cell_width, cell_height) {
-	// Turns abstract shapes into concrete shapes (i.e. computes
+	// Gets concrete shapes (i.e. computed
 	// real values from percentages) 
 	// or returns empty list if the rule condition is not met.
 	if (!this.condition(d)) {

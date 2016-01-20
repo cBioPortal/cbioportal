@@ -6,7 +6,11 @@ var OncoprintModel = (function () {
     function OncoprintModel(init_cell_padding, init_cell_padding_on,
 	    init_zoom, init_cell_width,
 	    init_track_group_padding) {
+		
 	this.id_order = [];
+	this.visible_id_order = [];
+	
+	
 	this.id_to_index = {};
 	
 	this.hidden_ids = {};
@@ -69,25 +73,36 @@ var OncoprintModel = (function () {
 
     var computeIdIndex = function(model) {
 	model.id_to_index = {};
-	var id_order = model.getIdOrder();
+	var id_order = model.getIdOrder(true);
 	for (var i=0; i<id_order.length; i++) {
 	    model.id_to_index[id_order[i]] = i;
 	}
     }
-    OncoprintModel.prototype.getIdOrder = function () {
-	return this.id_order;
+    var computeVisibleIdOrder = function(model) {
+	var hidden_ids = model.hidden_ids;
+	model.visible_id_order = model.id_order.filter(function (id) {
+	    return !hidden_ids[id];
+	});
+    }
+    OncoprintModel.prototype.getIdOrder = function (all) {
+	if (all) {
+	    return this.id_order; // TODO: should be read-only
+	} else {
+	    return this.visible_id_order;
+	}
     }
 
     OncoprintModel.prototype.getHiddenIds = function () {
 	var hidden_ids = this.hidden_ids;
 	return this.id_order.filter(function (id) {
-	    return !hidden_ids[id];
+	    return !!hidden_ids[id];
 	});
     }
 
     OncoprintModel.prototype.setIdOrder = function (ids) {
 	this.id_order = ids.slice();
 	computeIdIndex(this);
+	computeVisibleIdOrder(this);
 	
 	var track_ids = this.getTracks();
 	for (var i=0; i<track_ids.length; i++) {
@@ -96,13 +111,13 @@ var OncoprintModel = (function () {
     }
 
     OncoprintModel.prototype.hideIds = function (to_hide, show_others) {
-	var id_order = this.id_order;
 	if (show_others) {
 	    this.hidden_ids = {};
 	}
 	for (var j = 0, len = to_hide.length; j < len; j++) {
 	    this.hidden_ids[to_hide[j]] = true;
 	}
+	computeVisibleIdOrder(this);
     }
 
     OncoprintModel.prototype.moveTrackGroup = function (from_index, to_index) {
@@ -281,7 +296,8 @@ var OncoprintModel = (function () {
 
     OncoprintModel.prototype.setTrackData = function (track_id, data) {
 	this.track_data[track_id] = data;
-	if (this.getIdOrder().length < data.length) {
+	if (this.getIdOrder(true).length < data.length) {
+	    // TODO: handle this properly
 	    var data_id_key = this.getTrackDataIdKey(track_id);
 	    this.setIdOrder(data.map(function(x) { return x[data_id_key]; }));
 	}
@@ -314,7 +330,7 @@ var OncoprintModel = (function () {
 	var track_id_to_datum = this.track_id_to_datum;
 	
 	// TODO: optimize somehow?
-	var id_order = this.getIdOrder();
+	var id_order = this.getIdOrder(true);
 	id_order.sort(function(idA, idB) {
 	    var ret = 0;
 	    for (var h=0; h<track_sort_priority.length; h++) {

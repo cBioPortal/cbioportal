@@ -21,7 +21,7 @@ var extractRGBA = function (str) {
 	var b = parseInt(str[5] + str[6], 16);
 	str = 'rgba('+r+','+g+','+b+',1)';
     }
-    var match = str.match(/^rgba\(([0-9]+),([0-9]+),([0-9]+),([0-9.]+)\)$/);
+    var match = str.match(/^[\s]*rgba\([\s]*([0-9]+)[\s]*,[\s]*([0-9]+)[\s]*,[\s]*([0-9]+)[\s]*,[\s]*([0-9.]+)[\s]*\)[\s]*$/);
     if (match.length === 5) {
 	ret = [parseFloat(match[1]) / 255,
 	    parseFloat(match[2]) / 255,
@@ -168,7 +168,7 @@ var OncoprintWebGLCellView = (function () {
     var computeVertexPositionsAndColors = function (view, model, track_id) {
 	var vertex_position_array = [];
 	var vertex_color_array = [];
-	var shape_list_list = model.getRuleSet(track_id).apply(model.getTrackData(track_id), 10, 10);
+	var shape_list_list = model.getRuleSet(track_id).apply(model.getTrackData(track_id), model.getCellWidth(), model.getTrackHeight(track_id));
 	var offset_x_inc = model.getCellPadding() + model.getCellWidth();
 	var offset_y = model.getTrackTop(track_id);
 	var halfsqrt2 = Math.sqrt(2) / 2;

@@ -67,172 +67,174 @@ var NA_STRING = "na";
 var NA_LABEL = "N/A";
 
 var DEFAULT_GENETIC_ALTERATION_PARAMS = {
-    '*': {
-	shapes: [{
-		'type': 'rectangle',
-		'fill': 'rgba(211, 211, 211, 1)',
-	    }],
-	exclude_from_legend: true,
-	z: -1
-    },
-    'cna': {
-	'AMPLIFIED': {
+    rule_params: {
+	'*': {
 	    shapes: [{
 		    'type': 'rectangle',
-		    'fill': 'rgba(255,0,0,1)',
-		    'x': '0%',
-		    'y': '0%',
-		    'width': '100%',
-		    'height': '100%',
+		    'fill': 'rgba(211, 211, 211, 1)',
 		}],
-	    legend_label: 'Amplification',
-	    z: 0
+	    exclude_from_legend: true,
+	    z: -1
 	},
-	'GAINED': {
-	    shapes: [{
-		    'type': 'rectangle',
-		    'fill': 'rgba(255,182,193,1)',
-		    'x': '0%',
-		    'y': '0%',
-		    'width': '100%',
-		    'height': '100%',
-		}],
-	    legend_label: 'Gain',
-	    z: 0
+	'cna': {
+	    'AMPLIFIED': {
+		shapes: [{
+			'type': 'rectangle',
+			'fill': 'rgba(255,0,0,1)',
+			'x': '0%',
+			'y': '0%',
+			'width': '100%',
+			'height': '100%',
+		    }],
+		legend_label: 'Amplification',
+		z: 0
+	    },
+	    'GAINED': {
+		shapes: [{
+			'type': 'rectangle',
+			'fill': 'rgba(255,182,193,1)',
+			'x': '0%',
+			'y': '0%',
+			'width': '100%',
+			'height': '100%',
+		    }],
+		legend_label: 'Gain',
+		z: 0
+	    },
+	    'HOMODELETED': {
+		shapes: [{
+			'type': 'rectangle',
+			'fill': 'rgba(0,0,255,1)',
+			'x': '0%',
+			'y': '0%',
+			'width': '100%',
+			'height': '100%',
+		    }],
+		legend_label: 'Deep Deletion',
+		z: 0
+	    },
+	    'HEMIZYGOUSLYDELETED': {
+		shapes: [{
+			'type': 'rectangle',
+			'fill': 'rgba(143, 216, 216,1)',
+			'x': '0%',
+			'y': '0%',
+			'width': '100%',
+			'height': '100%',
+		    }],
+		legend_label: 'Shallow Deletion',
+		z: 0
+	    }
 	},
-	'HOMODELETED': {
-	    shapes: [{
-		    'type': 'rectangle',
-		    'fill': 'rgba(0,0,255,1)',
-		    'x': '0%',
-		    'y': '0%',
-		    'width': '100%',
-		    'height': '100%',
-		}],
-	    legend_label: 'Deep Deletion',
-	    z: 0
+	'mrna': {
+	    'UPREGULATED': {
+		shapes: [{
+			'type': 'rectangle',
+			'fill': 'rgba(0, 0, 0, 0)',
+			'stroke': 'rgba(255, 153, 153, 1)',
+			'x': '0%',
+			'y': '0%',
+			'width': '100%',
+			'height': '100%',
+		    }],
+		legend_label: 'mRNA Upregulation',
+		z: 1
+	    },
+	    'DOWNREGULATED': {
+		shapes: [{
+			'type': 'rectangle',
+			'fill': 'rgba(0, 0, 0, 0)',
+			'stroke': 'rgba(102, 153, 204, 1)',
+			'x': '0%',
+			'y': '0%',
+			'width': '100%',
+			'height': '100%',
+		    }],
+		legend_label: 'mRNA Downregulation',
+		z: 1
+	    },
 	},
-	'HEMIZYGOUSLYDELETED': {
-	    shapes: [{
-		    'type': 'rectangle',
-		    'fill': 'rgba(143, 216, 216,1)',
-		    'x': '0%',
-		    'y': '0%',
-		    'width': '100%',
-		    'height': '100%',
-		}],
-	    legend_label: 'Shallow Deletion',
-	    z: 0
-	}
-    },
-    'mrna': {
-	'UPREGULATED': {
-	    shapes: [{
-		    'type': 'rectangle',
-		    'fill': 'rgba(0, 0, 0, 0)',
-		    'stroke': 'rgba(255, 153, 153, 1)',
-		    'x': '0%',
-		    'y': '0%',
-		    'width': '100%',
-		    'height': '100%',
-		}],
-	    legend_label: 'mRNA Upregulation',
-	    z: 1
+	'rppa': {
+	    'UPREGULATED': {
+		shapes: [{
+			'type': 'triangle',
+			'x1': '50%',
+			'y1': '0%',
+			'x2': '100%',
+			'y2': '33.33%',
+			'x3': '0%',
+			'y3': '33.33%',
+			'fill': 'rgba(0,0,0,1)'
+		    }],
+		legend_label: 'Protein Upregulation',
+		z: 2
+	    },
+	    'DOWNREGULATED': {
+		shapes: [{
+			'type': 'triangle',
+			'x1': '50%',
+			'y1': '100%',
+			'x2': '100%',
+			'y2': '66.66%',
+			'x3': '0%',
+			'y3': '66.66%',
+			'fill': 'rgba(0,0,0,1)'
+		    }],
+		legend_label: 'Protein Downregulation',
+		z: 2
+	    }
 	},
-	'DOWNREGULATED': {
-	    shapes: [{
-		    'type': 'rectangle',
-		    'fill': 'rgba(0, 0, 0, 0)',
-		    'stroke': 'rgba(102, 153, 204, 1)',
-		    'x': '0%',
-		    'y': '0%',
-		    'width': '100%',
-		    'height': '100%',
-		}],
-	    legend_label: 'mRNA Downregulation',
-	    z: 1
-	},
-    },
-    'rppa': {
-	'UPREGULATED': {
-	    shapes: [{
-		    'type': 'triangle',
-		    'x1': '50%',
-		    'y1': '0%',
-		    'x2': '100%',
-		    'y2': '33.33%',
-		    'x3': '0%',
-		    'y3': '33.33%',
-		    'fill': 'rgba(0,0,0,1)'
-		}],
-	    legend_label: 'Protein Upregulation',
-	    z: 2
-	},
-	'DOWNREGULATED': {
-	    shapes: [{
-		    'type': 'triangle',
-		    'x1': '50%',
-		    'y1': '100%',
-		    'x2': '100%',
-		    'y2': '66.66%',
-		    'x3': '0%',
-		    'y3': '66.66%',
-		    'fill': 'rgba(0,0,0,1)'
-		}],
-	    legend_label: 'Protein Downregulation',
-	    z: 2
-	}
-    },
-    'mut': {
-	'MISSENSE': {
-	    shapes: [{
-		    'type': 'rectangle',
-		    'fill': 'rgba(0, 255, 0, 1)',
-		    'x': '0%',
-		    'y': '33.33%',
-		    'width': '100%',
-		    'height': '33.33%',
-		}],
-	    legend_label: 'Missense Mutation',
-	    z: 3
-	},
-	'INFRAME': {
-	    shapes: [{
-		    'type': 'rectangle',
-		    'fill': 'rgba(159, 129, 112, 1)',
-		    'x': '0%',
-		    'y': '33.33%',
-		    'width': '100%',
-		    'height': '33.33%',
-		}],
-	    legend_label: 'Inframe Mutation',
-	    z: 3
-	},
-	'TRUNC': {
-	    shapes: [{
-		    'type': 'rectangle',
-		    'fill': 'rgba(0, 0, 0, 1)',
-		    'x': '0%',
-		    'y': '33.33%',
-		    'width': '100%',
-		    'height': '33.33%',
-		}],
-	    legend_label: 'Truncating Mutation',
-	    z: 3
-	},
-	'FUSION': {
-	    shapes: [{
-		    'type': 'triangle',
-		    'fill': 'rgba(0, 0, 0, 1)',
-		    'x1': '0%',
-		    'y1': '0%',
-		    'x2': '100%',
-		    'y2': '50%',
-		    'x3': '0%',
-		    'y3': '100%',
-		}],
-	    legend_label: 'Fusion',
-	    z: 3
+	'mut_type': {
+	    'MISSENSE': {
+		shapes: [{
+			'type': 'rectangle',
+			'fill': 'rgba(0, 255, 0, 1)',
+			'x': '0%',
+			'y': '33.33%',
+			'width': '100%',
+			'height': '33.33%',
+		    }],
+		legend_label: 'Missense Mutation',
+		z: 3
+	    },
+	    'INFRAME': {
+		shapes: [{
+			'type': 'rectangle',
+			'fill': 'rgba(159, 129, 112, 1)',
+			'x': '0%',
+			'y': '33.33%',
+			'width': '100%',
+			'height': '33.33%',
+		    }],
+		legend_label: 'Inframe Mutation',
+		z: 3
+	    },
+	    'TRUNC': {
+		shapes: [{
+			'type': 'rectangle',
+			'fill': 'rgba(0, 0, 0, 1)',
+			'x': '0%',
+			'y': '33.33%',
+			'width': '100%',
+			'height': '33.33%',
+		    }],
+		legend_label: 'Truncating Mutation',
+		z: 3
+	    },
+	    'FUSION': {
+		shapes: [{
+			'type': 'triangle',
+			'fill': 'rgba(0, 0, 0, 1)',
+			'x1': '0%',
+			'y1': '0%',
+			'x2': '100%',
+			'y2': '50%',
+			'x3': '0%',
+			'y3': '100%',
+		    }],
+		legend_label: 'Fusion',
+		z: 3
+	    }
 	}
     }
 };
@@ -285,17 +287,9 @@ var RuleSet = (function () {
 	return this.rule_map[rule_id];
     }
 
-    RuleSet.prototype.getRulesInRenderOrder = function () {
+    RuleSet.prototype.getRules = function () {
 	var self = this;
-	return Object.keys(this.rule_map).sort(function (rule_id1, rule_id2) {
-	    if (self.z_map[rule_id1] < self.z_map[rule_id2]) {
-		return -1;
-	    } else if (self.z_map[rule_id1] > self.z_map[rule_id2]) {
-		return 1;
-	    } else {
-		return 0;
-	    }
-	}).map(function (rule_id) {
+	return Object.keys(this.rule_map).map(function (rule_id) {
 	    return {id: rule_id, rule: self.getRule(rule_id)};
 	});
     }
@@ -324,7 +318,7 @@ var RuleSet = (function () {
 	// Returns a list of lists of concrete shapes, in the same order as data
 	this.clearRecentlyUsedRules();
 
-	var rules = this.getRulesInRenderOrder();
+	var rules = this.getRules();
 	var rules_len = rules.length;
 	var self = this;
 
@@ -332,7 +326,7 @@ var RuleSet = (function () {
 	    var concrete_shapes = [];
 	    for (var j = 0; j < rules_len; j++) {
 		var rule_concrete_shapes =
-			rules[j].rule.getConcreteShapesInRenderOrder(
+			rules[j].rule.getConcreteShapes(
 			d, cell_width, cell_height);
 		if (rule_concrete_shapes.length > 0) {
 		    self.markRecentlyUsedRule(rules[j].id);
@@ -340,7 +334,15 @@ var RuleSet = (function () {
 		concrete_shapes = concrete_shapes.concat(
 			rule_concrete_shapes);
 	    }
-	    return concrete_shapes;
+	    return concrete_shapes.sort(function(shapeA, shapeB) {
+		if (shapeA.z < shapeB.z) {
+		    return -1;
+		} else if (shapeA.z > shapeB.z) {
+		    return 1;
+		} else {
+		    return 0;
+		}
+	    });
 	});
     }
     return RuleSet;
@@ -602,32 +604,33 @@ var GeneticAlterationRuleSet = (function () {
 	    legend_label: NA_LABEL,
 	    exclude_from_legend: false
 	});
-	(function addRules() {
+	(function addRules(self) {
 	    var rule_params = params.rule_params;
 	    for (var key in rule_params) {
 		if (rule_params.hasOwnProperty(key)) {
 		    var key_rule_params = rule_params[key];
 		    if (key === '*') {
-			this.addRule(rule_params['*']);
+			self.addRule(rule_params['*']);
 		    } else {
 			for (var value in key_rule_params) {
 			    if (key_rule_params.hasOwnProperty(value)) {
-				var condition = (value === '*' ?
+				var condition = (function(k,v) {
+				    return (v === '*' ?
 					function (d) {
-					    return d.hasOwnProperty(key);
+					    return d.hasOwnProperty(k);
 					} :
 					function (d) {
-					    return d[key] === value;
+					    return d[k] === v;
 					});
-				this.addRule(
-					shallowExtend(key_rule_params[value],
+				    })(key, value);
+				self.addRule(shallowExtend(key_rule_params[value],
 						{'condition': condition}));
 			    }
 			}
 		    }
 		}
 	    }
-	})();
+	})(this);
     }
     GeneticAlterationRuleSet.prototype = Object.create(RuleSet.prototype);
 
@@ -666,9 +669,9 @@ var Rule = (function () {
 	complete_shape_params.type = shape_params.type;
 	return complete_shape_params;
     };
-    Rule.prototype.getConcreteShapesInRenderOrder = function (d, cell_width, cell_height) {
+    Rule.prototype.getConcreteShapes = function (d, cell_width, cell_height) {
 	// Turns abstract shapes into concrete shapes (i.e. computes
-	// real values from percentages), and returns them in z-order; 
+	// real values from percentages) 
 	// or returns empty list if the rule condition is not met.
 	if (!this.condition(d)) {
 	    return [];
@@ -700,15 +703,7 @@ var Rule = (function () {
 	    }
 	    concrete_shapes.push(concrete_shape);
 	}
-	return concrete_shapes.sort(function (shape1, shape2) {
-	    if (shape1.z < shape2.z) {
-		return -1;
-	    } else if (shape1.z > shape2.z) {
-		return 1;
-	    } else {
-		return 0;
-	    }
-	});
+	return concrete_shapes;
     }
 
     Rule.prototype.isExcludedFromLegend = function () {
@@ -726,8 +721,7 @@ module.exports = function (params) {
     } else if (params.type === 'bar') {
 	return new BarRuleSet(params);
     } else if (params.type === 'gene') {
-	if (params.default === true) {
-	    return new GeneticAlterationRuleSet(DEFAULT_GENETIC_ALTERATION_PARAMS);
-	}
+	// TODO: specification of params
+	return new GeneticAlterationRuleSet(DEFAULT_GENETIC_ALTERATION_PARAMS);
     }
 }

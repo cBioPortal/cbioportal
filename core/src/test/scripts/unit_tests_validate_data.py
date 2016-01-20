@@ -171,7 +171,8 @@ class ColumnOrderTestCase(DataFileTestCase):
         # set level according to this test case:
         self.logger.setLevel(logging.ERROR)
         record_list = self.validate('data_seg_wrong_order.txt',
-                                    validateData.SegValidator)
+                                    validateData.SegValidator,
+                                    extra_meta_fields={'reference_genome_id': 'hg19'})
         # we expect 2 errors about columns in wrong order,
         # and one about the file not being parseable:
         self.assertEqual(len(record_list), 3)
@@ -470,3 +471,20 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
                 found_one_of_the_expected = True
 
         self.assertEqual(True, found_one_of_the_expected)
+
+
+class SegFileValidationTestCase(PostClinicalDataFileTestCase):
+
+    """Tests for the various validations of data in segment CNA data files."""
+
+    def test_unparsable_seg_columns(self):
+        """Validate .seg files with non-numeric values and an unsupported chromosome."""
+        pass  # TODO
+
+    def test_negative_length_segment(self):
+        """Validate a .seg where a start position is lower than its end position."""
+        pass  # TODO
+
+    def test_out_of_bounds_coordinates(self):
+        """Validate .seg files with regions spanning outside of the chromosome."""
+        pass  # TODO

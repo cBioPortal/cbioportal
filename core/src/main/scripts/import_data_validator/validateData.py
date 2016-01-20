@@ -789,6 +789,14 @@ class Validator(object):
         except ValueError:
             return False
 
+    def checkFloat(self, value):
+        """Check if a string represents a floating-point numeral."""
+        try:
+            float(value)
+            return True
+        except ValueError:
+            return False
+
     def checkSampleId(self, sample_id, column_number):
         """Check whether a sample id is defined, logging an error if not.
 
@@ -1428,10 +1436,68 @@ class SegValidator(Validator):
     def checkLine(self, data):
         super(SegValidator, self).checkLine(data)
 
-        # TODO check values in all other columns too
-        for col_index, value in enumerate(data):
-            if col_index == self.cols.index(self.REQUIRED_HEADERS[0]):
+        parsed_coords = {}
+        for col_index, col_name in enumerate(self.cols):
+            value = data[col_index]
+            if col_name == 'ID':
                 self.checkSampleId(value, column_number=col_index + 1)
+            elif col_name == 'chrom':
+                if value in self.chromosome_lengths:
+                    parsed_coords[col_name] = value
+                else:
+                    self.logger.error(
+                        ('Unknown chromosome, must be one of (%s)' %
+                         '|'.join(self.chromosome_lengths.keys())),
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
+            elif col_name in ('loc.start', 'loc.end'):
+                try:
+                    parsed_coords[col_name] = int(value)
+                except ValueError:
+                    self.logger.error(
+                        'Genomic position is not an integer',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
+                if value < 1 or (
+                        'chrom' in parsed_coords and
+                        value > self.chromosome_lengths[parsed_coords['chrom']]):
+                    self.logger.error(
+                        'Genomic position beyond end of chromosome '
+                        '(chr%(chr)s:1-%(end)s)',
+                        chr=parsed_coords.get('chrom') or '?',
+                        end=self.chromosome_lengths.get(
+                                parsed_coords.get('chrom')) or '?',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
+            elif col_name == 'num.mark':
+                if not self.checkInt(value):
+                    self.logger.error(
+                        'Number of probes is not an integer',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
+            elif col_name == 'seg.mean':
+                if not self.checkFloat(value):
+                    self.logger.error(
+                        'Mean segment copy number is not a number',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
+            else:
+                raise RuntimeError('Could not validate column type: ' +
+                                   col_name)
+
+        if (
+                'loc.start' in parsed_coords and 'loc.end' in parsed_coords and
+                parsed_coords['loc.start'] >= parsed_coords['loc.end']):
+            self.logger.error(
+                'Start position of segment is not lower than end position',
+                extra={'line_number': self.line_number,
+                       'cause': '{}/{}'.format(parsed_coords['loc.start'],
+                                               parsed_coords['loc.end'])})
 
     @staticmethod
     def load_chromosome_lengths(genome_build):
@@ -1873,14 +1939,76 @@ def interface(args=None):
     return parser
 
 
+def validate_study(study_dir, logger, hugo_entrez_map):
+
+    """Validate the study in study_dir, logging messages to the logger.
+
+    The argument hugo_entrez_map should be a dict listing the canonical
+    gene symbols and corresponding Entrez identifiers defined in the portal.
+    
+    
+    """
+
+    global DEFINED_CANCER_TYPES
+    global DEFINED_SAMPLE_IDS
+    global STUDY_DIR
+    STUDY_DIR = study_dir
+
+    # walk over the meta files in the dir and get properties of the study
+    (validators_by_meta_type,
+     DEFINED_CANCER_TYPES,
+     study_id) = process_metadata_files(study_dir, logger, hugo_entrez_map)
+
+    if CLINICAL_META_PATTERN not in validators_by_meta_type:
+        logger.error('No clinical file detected')
+        return
+
+    if STUDY_META_PATTERN not in validators_by_meta_type:
+        logger.error('No study file detected')
+        return
+
+    if len(validators_by_meta_type[CLINICAL_META_PATTERN]) != 1:
+        if logger.isEnabledFor(logging.ERROR):
+            logger.error(
+                'Multiple clinical files detected',
+                extra={'cause': ', '.join(
+                    validator.filenameShort for validator in
+                    validators_by_meta_type[CLINICAL_META_PATTERN])})
+
+    # get the validator for the clinical data file
+    clinvalidator = validators_by_meta_type[CLINICAL_META_PATTERN][0]
+    # parse the clinical data file to get defined sample ids for this study
+    clinvalidator.validate()
+    if not clinvalidator.fileCouldBeParsed:
+        logger.error("Clinical file could not be parsed. Please fix the problems found there first before continuing.")
+        return
+
+    DEFINED_SAMPLE_IDS = clinvalidator.sampleIds
+
+    # validate non-clinical data files
+    for meta_file_type in validators_by_meta_type:
+        # skip clinical files, they have already been validated
+        if meta_file_type == CLINICAL_META_PATTERN:
+            continue
+        for validator in validators_by_meta_type[meta_file_type]:
+            # if there was no validator for this meta file
+            if validator is None:
+                continue
+            validator.validate()
+
+    case_list_dirname = os.path.join(study_dir, 'case_lists')
+    if not os.path.isdir(case_list_dirname):
+        logger.warning("No directory named 'case_lists' found")
+    else:
+        processCaseListDirectory(case_list_dirname, study_id, logger)
+
+    logger.info('Validation complete')
+
+
 def main_validate(args):
 
-    """Main function."""
+    """Main function: process parsed arguments and validate the study."""
 
-    # global study properties
-    global STUDY_DIR
-    global DEFINED_SAMPLE_IDS
-    global DEFINED_CANCER_TYPES
     # global portal properties
     global SERVER_URL
     global PORTAL_CANCER_TYPES
@@ -1893,7 +2021,7 @@ def main_validate(args):
     logger.addHandler(exit_status_handler)
 
     # process the options
-    STUDY_DIR = args.study_directory
+    study_dir = args.study_directory
     SERVER_URL = args.url_server
 
     html_output_filename = args.html_table
@@ -1903,8 +2031,8 @@ def main_validate(args):
         verbose = True
 
     # check existence of directory
-    if not os.path.exists(STUDY_DIR):
-        print >> sys.stderr, 'directory cannot be found: ' + STUDY_DIR
+    if not os.path.exists(study_dir):
+        print >> sys.stderr, 'directory cannot be found: ' + study_dir
         return 2
 
     # set default message handler
@@ -1926,7 +2054,7 @@ def main_validate(args):
         import jinja2  # pylint: disable=import-error
 
         html_handler = Jinja2HtmlHandler(
-            STUDY_DIR,
+            study_dir,
             html_output_filename,
             capacity=1e5)
         # TODO extend CollapsingLogMessageHandler to flush to multiple targets,
@@ -1946,64 +2074,16 @@ def main_validate(args):
         id_field='id')
     # retrieve clinical attributes defined in the portal
     ClinicalValidator.request_attrs(SERVER_URL, logger)
-
     # Entrez values for Hugo symbols in the portal
     hugo_entrez_map = get_hugo_entrez_map(SERVER_URL, logger)
-    # walk over the meta files in the dir and get properties of the study
-    (validators_by_meta_type,
-     DEFINED_CANCER_TYPES,
-     study_id) = process_metadata_files(STUDY_DIR, logger, hugo_entrez_map)
 
-    if CLINICAL_META_PATTERN not in validators_by_meta_type:
-        logger.error('No clinical file detected')
-        return exit_status_handler.get_exit_status()
+    validate_study(study_dir, logger, hugo_entrez_map)
 
-    if STUDY_META_PATTERN not in validators_by_meta_type:
-        logger.error('No study file detected')
-        return exit_status_handler.get_exit_status()
-    
-    if len(validators_by_meta_type[CLINICAL_META_PATTERN]) != 1:
-        if logger.isEnabledFor(logging.ERROR):
-            logger.error(
-                'Multiple clinical files detected',
-                extra={'cause': ', '.join(
-                    validator.filenameShort for validator in
-                    validators_by_meta_type[CLINICAL_META_PATTERN])})
-
-    # get the validator for the clinical data file
-    clinvalidator = validators_by_meta_type[CLINICAL_META_PATTERN][0]
-    # parse the clinical data file to get defined sample ids for this study
-    clinvalidator.validate()
-    if not clinvalidator.fileCouldBeParsed:
-        logger.error("Clinical file could not be parsed. Please fix the problems found there first before continuing.")
-        return exit_status_handler.get_exit_status()
-    
-    DEFINED_SAMPLE_IDS = clinvalidator.sampleIds
-
-    # validate non-clinical data files
-    for meta_file_type in validators_by_meta_type:
-        # skip clinical files, they have already been validated
-        if meta_file_type == CLINICAL_META_PATTERN:
-            continue
-        for validator in validators_by_meta_type[meta_file_type]:
-            # if there was no validator for this meta file
-            if validator is None:
-                continue
-            validator.validate()
-
-    case_list_dirname = os.path.join(STUDY_DIR, 'case_lists')
-    if not os.path.isdir(case_list_dirname):
-        logger.warning("No directory named 'case_lists' found")
-    else:
-        processCaseListDirectory(case_list_dirname, study_id, logger)
-
-    logger.info('Validation complete')
-    exit_status = exit_status_handler.get_exit_status()
-    
     if html_handler is not None:
         collapsing_html_handler.flush()
         html_handler.generateHtml()
 
+    exit_status = exit_status_handler.get_exit_status()
     return exit_status
 
 # ------------------------------------------------------------------------------

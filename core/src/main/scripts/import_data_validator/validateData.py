@@ -19,6 +19,7 @@ import re
 import csv
 import itertools
 import requests
+import urllib2
 
 
 # ------------------------------------------------------------------------------
@@ -1438,18 +1439,44 @@ class SegValidator(Validator):
 
     @staticmethod
     def load_chromosome_lengths(genome_build):
+
         """Get the length of each chromosome from USCS and return a dict."""
-        chrom_length_dict = {}
-        for line in chromosome_file:
-            # skip comment lines
-            if line.startswith('#'):
-                continue
-            line.split('\t', 1)
-            # skip unplaced sequences
-            if line[1].endswith('_random') or line[1].startswith('chrUn_'):
-                continue
-            # TODO
-        return chrom_length_dict
+
+        chrom_size_dict = {}
+        chrom_size_url = (
+            'http://hgdownload.cse.ucsc.edu'
+            '/goldenPath/{build}/bigZips/{build}.chrom.sizes').format(
+                build=genome_build)
+        chrom_size_file = urllib2.urlopen(chrom_size_url)
+
+        for line in chrom_size_file:
+            try:
+                # skip comment lines
+                if line.startswith('#'):
+                    continue
+                cols = line.split('\t', 1)
+                if not (len(cols) == 2 and
+                        cols[0].startswith('chr')):
+                    raise IOError()
+                # skip unplaced sequences
+                if cols[0].endswith('_random') or cols[0].startswith('chrUn_'):
+                    continue
+                # skip entries for alternative haplotypes
+                if re.search(r'_hap[0-9]+$', cols[0]):
+                    continue
+
+                # remove the 'chr' prefix
+                chrom_name = cols[0][3:]
+                try:
+                    chrom_size = int(cols[1])
+                except ValueError:
+                    raise IOError()
+                chrom_size_dict[chrom_name] = chrom_size
+            except IOError:
+                raise IOError(
+                    "Unexpected response from {url}: {line}".format(
+                        url=chrom_size_url, line=repr(line)))
+        return chrom_size_dict
 
 
 class Log2Validator(GenewiseFileValidator):

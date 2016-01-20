@@ -1,0 +1,27 @@
+languages:
+    JavaScript: true
+    Python: true
+
+exclude_paths:
+- "test/*"
+
+engines:
+  rubocop:
+    enabled: true
+  golint:
+    enabled: true
+  gofmt:
+    enabled: true
+  csslint:
+    enabled: true
+
+ratings:
+   paths:
+   - app/**
+   - lib/**
+   - "**.rb"
+   - "**.go"
+
+exclude_paths:
+- spec/**/*
+- vendor/**/*

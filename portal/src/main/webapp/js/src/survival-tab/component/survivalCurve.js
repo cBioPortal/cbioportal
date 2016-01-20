@@ -139,8 +139,13 @@ var SurvivalCurve = function() {
     }
 
     function addQtips(_index) {
-        elem.dots[_index].selectAll('path').each(
-            function(d) {
+        var mouseOn = function(d) {
+            var dot = d3.select(this);
+            dot.transition()
+                .duration(400)
+                .style("opacity", .9);
+
+            if(! $(this).data('qtip' )) {
                 var content = "<font size='2'>";
                 content += text.qTips.id + ": " + "<strong><a href='"
                         + qtipFunc(cancer_study_id, d.case_id)
@@ -148,7 +153,7 @@ var SurvivalCurve = function() {
                 content += text.qTips.estimation + ": <strong>" + (d.survival_rate * 100).toFixed(2) + "%</strong><br>";
                 if (d.status === "0") { // If censored, mark it
                     content += text.qTips.censoredEvent + ": <strong>" + d.time.toFixed(2) + " </strong>months (censored)<br>";
-                } else { // status is 1, means event occured 
+                } else { // status is 1, means event occured
                     content += text.qTips.failureEvent + ": <strong>" + d.time.toFixed(2) + " </strong>months<br>";
                 }
                 content += "</font>";
@@ -157,20 +162,15 @@ var SurvivalCurve = function() {
                     {
                         content: {text: content},
                         style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow qtip-wide'},
-                        show: {event: "mouseover"},
+                        show: {
+                            event: "mouseover",
+                            ready: true
+                        },
                         hide: {fixed:true, delay: 100, event: "mouseout"},
                         position: {my:'left bottom',at:'top right'}
                     }
                 );
-
             }
-        );
-        
-        var mouseOn = function() {
-            var dot = d3.select(this);
-            dot.transition()
-                .duration(400)
-                .style("opacity", .9);
         };
 
         var mouseOff = function() {
@@ -347,9 +347,10 @@ var SurvivalCurve = function() {
         });
     }
 
-    function appendImgConverter() {               
+    function appendImgConverter(_inputArr) {
         $('#' + divs.headerDivId).append("<button id='" + divs.curveDivId + "_svg_download' style='font-size:12px;'>SVG</button>");
         $('#' + divs.headerDivId).append("<button id='" + divs.curveDivId + "_pdf_download' style='font-size:12px;'>PDF</button>");
+        $('#' + divs.headerDivId).append("<button id='" + divs.curveDivId + "_data_download' style='font-size:12px;'>Data</button>");
         $("#" + divs.curveDivId + "_svg_download").click(function() {
             var xmlSerializer = new XMLSerializer();
             var download_str = cbio.download.addSvgHeader(xmlSerializer.serializeToString($("#" + divs.curveDivId + " svg")[0]));
@@ -362,7 +363,42 @@ var SurvivalCurve = function() {
                 servletName: "svgtopdf.do"
             };
            cbio.download.initDownload($("#" + divs.curveDivId + " svg")[0], downloadOptions);
-       });
+        });
+        $("#" + divs.curveDivId + "_data_download").click(function() {
+            var final_str = "";
+            var file_name = "";
+            var div_id = this.id;
+            if (div_id.indexOf("os") !== -1) {
+                final_str += "Overall Survival Kaplan-Meier Estimate\n";
+                file_name = "os_survival_data.txt";
+            } else if (div_id.indexOf("dfs") !== -1) {
+                final_str += "Disease Free Survival Kaplan-Meier Estimate\n";
+                file_name = "dfs_survival_data.txt";
+            }
+            _.each(_inputArr, function(curve_obj) {
+                var _str = "\n" + curve_obj.settings.legend + "\n";
+                _str += "Case ID" + "\t" + "Number at Risk" + "\t" + "Status" + "\t" + "Survival Rate" + "\t" + "Time (months)" + "\n" ;
+                _.each(curve_obj.data.getData(), function(data_obj) {
+                    //translate status
+                    var _txt_status = "";
+                    if (div_id.indexOf("os") !== -1) {
+                        if (data_obj.status === "0") _txt_status = "censored";
+                        else if (data_obj.status === "1") _txt_status = "deceased";
+                    } else if (div_id.indexOf("dfs") !== -1) {
+                        if (data_obj.status === "0") _txt_status = "censored";
+                        else if (data_obj.status === "1") _txt_status = "relapsed";
+                    }
+                    //assemble
+                    _str += data_obj.case_id + "\t" +
+                            data_obj.num_at_risk + "\t" +
+                            _txt_status + "\t" +
+                            data_obj.survival_rate + "\t" +
+                            data_obj.time + "\n";
+                });
+                final_str += _str;
+            });
+            cbio.download.clientSideDownload([final_str], file_name);
+        });
     }
     
     function drawCurve(_inputArr, _obj){
@@ -377,7 +413,7 @@ var SurvivalCurve = function() {
         drawLines(data.getData(), opts, _curve.id);
         
         //First element is used to draw lines and its case_id is NA, this dot 
-        //will not be needed for drawing censored dots and invisiable dots. 
+        //will not be needed for drawing censored dots and invisible dots.
         //Then remove move it in here.
         data.getData().shift();
         drawCensoredDots(data.getData(), opts, _curve.id);
@@ -390,11 +426,11 @@ var SurvivalCurve = function() {
     }
     
     function removeCurve(_curveId){
-        $('#' + _curveId + '-dots').remove();
-        $('#' + _curveId + '-line').remove();
+        d3.selectAll('#' + _curveId + '-dots').remove();
+        d3.selectAll('#' + _curveId + '-line').remove();
         removeCurveCensoredDots(_curveId);
         delete curvesInfo[_curveId];
-        //TODO: Add redraw curve lable function
+        //TODO: Add redraw curve label function
     }
     
     function removeCurveCensoredDots(_curveId){
@@ -457,6 +493,7 @@ var SurvivalCurve = function() {
                     return false;
                 }
             });
+
             if (!_empty_data) {
                     initCanvas();
                     initAxis(_inputArr);
@@ -465,7 +502,7 @@ var SurvivalCurve = function() {
                     $.each(_inputArr, function(index, obj) {
                         drawCurve(_inputArr, obj);
                     });
-                    appendImgConverter();
+                    appendImgConverter(_inputArr);
                     if (_opts.settings.include_info_table) {
                         var _infoTableInputArr = [];
                         $.each(_inputArr, function(index, obj) {

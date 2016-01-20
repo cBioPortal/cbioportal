@@ -166,11 +166,11 @@ var orAjaxParam = function(alteredCaseList, unalteredCaseList, profileId, geneSe
         _tmp_unaltered_case_id_list += _caseId + " ";
     });
     
-    this.cancer_study_id = window.PortalGlobals.getCancerStudyId();
+    this.cancer_study_id = window.QuerySession.getCancerStudyIds()[0];
     this.altered_case_id_list = _tmp_altered_case_id_list;
     this.unaltered_case_id_list = _tmp_unaltered_case_id_list;
     this.profile_id = profileId;
-    this.gene_list = window.PortalGlobals.getGeneListString();
+    this.gene_list = window.QuerySession.getQueryGenes().join(" ");
     this.gene_set = geneSet;
 };
 

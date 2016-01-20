@@ -182,6 +182,14 @@ var ccPlots = (function (Plotly, _, $) {
                             var _non_mut_group = _.filter(_non_mut_or_not_sequenced_group, function(_obj) { return _obj.sequenced === true; });
                             var _not_sequenced_group = _.filter(_non_mut_or_not_sequenced_group, function(_obj) { return _obj.sequenced === false; });
 
+                            //filter and only leave TCGA provisional data
+                            _non_mut_group = _.filter(_non_mut_group, function(_obj) { return _obj.study_id.indexOf("tcga_pub") === -1; });
+                            _not_sequenced_group = _.filter(_not_sequenced_group, function(_obj) { return _obj.study_id.indexOf("tcga_pub") === -1; });
+                            _mix_mut_group = _.filter(_mix_mut_group, function(_obj) { return _obj.study_id.indexOf("tcga_pub") === -1; });
+                            study_meta = _.filter(study_meta, function(_obj) { return _obj.id.indexOf("tcga_pub") === -1; });
+                            study_ids = _.filter(study_ids, function(study_id) { return study_id.indexOf("tcga_pub") === -1 });
+                            mrna_profiles = _.filter(mrna_profiles, function(mrna_profile) { return mrna_profile.indexOf("tcga_pub") === -1; });
+
                             render(_non_mut_group, _not_sequenced_group, _mix_mut_group);
 
                         });

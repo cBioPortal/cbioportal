@@ -56,7 +56,7 @@ DEFINED_SAMPLE_IDS = ["TCGA-A1-A0SB-01", "TCGA-A1-A0SD-01", "TCGA-A1-A0SE-01", "
 #             '[{url}] is accessible. Message: {msg}'.format(url=service_url,
 #                                                            msg=e.message))
 #     return response.json()
-# 
+#
 # validateData.request_from_portal_api = dumy_request_from_portal_api
 
 
@@ -380,12 +380,11 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         self.logger.setLevel(logging.ERROR)
         record_list = self.validate('data_cna_genecol_presence_both_invalid_hugo.txt',
                                     validateData.CNAValidator)
-        self.print_log_records(record_list)
-        # expecting two error messages: 
+        # expecting two error messages:
         self.assertEqual(len(record_list), 2)
         for record in record_list:
             self.assertEqual(record.levelno, logging.ERROR)
-        # expecting these to be the cause:    
+        # expecting these to be the cause:
         self.assertEqual(record_list[0].cause, 'xxACAP3')
         self.assertEqual(record_list[1].cause, 'xxAGRN')
 
@@ -394,12 +393,11 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         self.logger.setLevel(logging.ERROR)
         record_list = self.validate('data_cna_genecol_presence_both_invalid_entrez.txt',
                                     validateData.CNAValidator)
-        self.print_log_records(record_list)
-        # expecting two error messages: 
+        # expecting two error messages:
         self.assertEqual(len(record_list), 2)
         for record in record_list:
             self.assertEqual(record.levelno, logging.ERROR)
-        # expecting these to be the cause:    
+        # expecting these to be the cause:
         self.assertIn('-116983', record_list[0].cause)
         self.assertIn('-375790', record_list[1].cause)
 
@@ -408,12 +406,11 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         self.logger.setLevel(logging.ERROR)
         record_list = self.validate('data_cna_genecol_presence_both_invalid_couple.txt',
                                     validateData.CNAValidator)
-        self.print_log_records(record_list)
-        # expecting two error messages: 
+        # expecting two error messages:
         self.assertEqual(len(record_list), 2)
         for record in record_list:
             self.assertEqual(record.levelno, logging.ERROR)
-        # expecting these to be the cause:    
+        # expecting these to be the cause:
         self.assertIn('ACAP3', record_list[0].cause)
         self.assertIn('116983', record_list[1].cause)
 
@@ -422,28 +419,24 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         self.logger.setLevel(logging.ERROR)
         record_list = self.validate('data_cna_genecol_presence_hugo_only_invalid.txt',
                                     validateData.CNAValidator)
-        self.print_log_records(record_list)
-        # expecting two error messages: 
+        # expecting two error messages:
         self.assertEqual(len(record_list), 2)
         for record in record_list:
             self.assertEqual(record.levelno, logging.ERROR)
-        # expecting these to be the cause:    
+        # expecting these to be the cause:
         self.assertEqual(record_list[0].cause, 'xxATAD3A')
         self.assertEqual(record_list[1].cause, 'xxATAD3B')
-            
-            
 
     def test_entrez_only_but_invalid(self):
         """Test when a file has an Entrez ID column but none for Hugo names, and entrez is wrong."""
         self.logger.setLevel(logging.ERROR)
         record_list = self.validate('data_cna_genecol_presence_entrez_only_invalid.txt',
                                     validateData.CNAValidator)
-        self.print_log_records(record_list)
-        # expecting two error messages: 
+        # expecting two error messages:
         self.assertEqual(len(record_list), 2)
         for record in record_list:
             self.assertEqual(record.levelno, logging.ERROR)
-        # expecting these to be the cause:    
+        # expecting these to be the cause:
         self.assertEqual(record_list[0].cause, '-54998')
         self.assertEqual(record_list[1].cause, '-126792')
 
@@ -454,27 +447,26 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
 
     def test_normal_samples_list_in_maf(self):
         '''
-        For mutations MAF files there is a column called "Matched_Norm_Sample_Barcode". 
-        In the respective meta file it is possible to give a list of sample codes against which this 
-        column "Matched_Norm_Sample_Barcode" is validated. Here we test if this 
+        For mutations MAF files there is a column called "Matched_Norm_Sample_Barcode".
+        In the respective meta file it is possible to give a list of sample codes against which this
+        column "Matched_Norm_Sample_Barcode" is validated. Here we test if this
         validation works well.
         '''
         # set level according to this test case:
         self.logger.setLevel(logging.ERROR)
         record_list = self.validate('data_mutations_invalid_norm_samples.maf',
-                                    validateData.MutationsExtendedValidator, 
-                                    {'normal_samples_list': 
+                                    validateData.MutationsExtendedValidator,
+                                    {'normal_samples_list':
                                      'TCGA-B6-A0RS-10,TCGA-BH-A0HP-10,TCGA-BH-A18P-11, TCGA-BH-A18H-10'})
         # we expect 2 errors about columns in wrong order,
         # and one about the file not being parseable:
-        self.print_log_records(record_list)
         self.assertEqual(len(record_list), 3)
         # check if both messages come from printDataInvalidStatement:
         found_one_of_the_expected = False
         for error in record_list[:2]:
             self.assertEqual("ERROR", error.levelname)
             self.assertEqual("printDataInvalidStatement", error.funcName)
-            if "TCGA-C8-A138-10" == error.cause: 
+            if "TCGA-C8-A138-10" == error.cause:
                 found_one_of_the_expected = True
 
         self.assertEqual(True, found_one_of_the_expected)

@@ -431,8 +431,6 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record_list[0].cause, 'xxATAD3A')
         self.assertEqual(record_list[1].cause, 'xxATAD3B')
             
-            
-
     def test_entrez_only_but_invalid(self):
         """Test when a file has an Entrez ID column but none for Hugo names, and entrez is wrong."""
         self.logger.setLevel(logging.ERROR)
@@ -447,8 +445,6 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record_list[0].cause, '-54998')
         self.assertEqual(record_list[1].cause, '-126792')
 
-
-# TODO- manual check if entrez/hugo combi is indeed in ncbi.gz file
 
 class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
 

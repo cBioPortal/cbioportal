@@ -361,10 +361,8 @@ var StudyViewInitTables = (function() {
                     caseIds = data[i].caseIds;
 
                 datum.gene = data[i].gene_symbol;
-                datum.numOfMutations = caseIds.length;
-                datum.samples = caseIds.filter(function(elem, pos) {
-                    return caseIds.indexOf(elem) === pos;
-                }).length;
+                datum.numOfMutations = data[i].num_muts;
+                datum.samples = _.uniq(caseIds).length;
                 datum.sampleRate =
                     (datum.samples / Number(numOfCases)* 100).toFixed(1) + '%';
 

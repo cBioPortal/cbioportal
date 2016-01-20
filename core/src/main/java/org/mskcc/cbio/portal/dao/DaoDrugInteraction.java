@@ -70,10 +70,6 @@ public class DaoDrugInteraction {
                                   String dataSource,
                                   String experimentTypes,
                                   String pmids) throws DaoException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-
         if (interactionType == null) {
             throw new IllegalArgumentException ("Drug interaction type cannot be null");
         }
@@ -86,33 +82,37 @@ public class DaoDrugInteraction {
         if (pmids == null) {
             pmids = NA;
         }
+        
+        if (MySQLbulkLoader.isBulkLoad()) {
+            MySQLbulkLoader.getMySQLbulkLoader("drug_interaction").insertRecord(
+                    drug.getId(),
+                    Long.toString(targetGene.getEntrezGeneId()),
+                    interactionType,
+                    dataSource,
+                    experimentTypes,
+                    pmids);
 
+            return 1;
+        }
+
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        
         try {
-            if (MySQLbulkLoader.isBulkLoad()) {
-                MySQLbulkLoader.getMySQLbulkLoader("drug_interaction").insertRecord(
-                        drug.getId(),
-                        Long.toString(targetGene.getEntrezGeneId()),
-                        interactionType,
-                        dataSource,
-                        experimentTypes,
-                        pmids);
+            con = JdbcUtil.getDbConnection(DaoDrugInteraction.class);
+            pstmt = con.prepareStatement
+                    ("INSERT INTO drug_interaction (`DRUG`,`TARGET`, `INTERACTION_TYPE`," +
+                            "`DATA_SOURCE`, `EXPERIMENT_TYPES`, `PMIDS`)"
+                            + "VALUES (?,?,?,?,?,?)");
+            pstmt.setString(1, drug.getId());
+            pstmt.setLong(2, targetGene.getEntrezGeneId());
+            pstmt.setString(3, interactionType);
+            pstmt.setString(4, dataSource);
+            pstmt.setString(5, experimentTypes);
+            pstmt.setString(6, pmids);
 
-                return 1;
-            } else {
-                con = JdbcUtil.getDbConnection(DaoDrugInteraction.class);
-                pstmt = con.prepareStatement
-                        ("INSERT INTO drug_interaction (`DRUG`,`TARGET`, `INTERACTION_TYPE`," +
-                                "`DATA_SOURCE`, `EXPERIMENT_TYPES`, `PMIDS`)"
-                                + "VALUES (?,?,?,?,?,?)");
-                pstmt.setString(1, drug.getId());
-                pstmt.setLong(2, targetGene.getEntrezGeneId());
-                pstmt.setString(3, interactionType);
-                pstmt.setString(4, dataSource);
-                pstmt.setString(5, experimentTypes);
-                pstmt.setString(6, pmids);
-
-                return pstmt.executeUpdate();
-            }
+            return pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

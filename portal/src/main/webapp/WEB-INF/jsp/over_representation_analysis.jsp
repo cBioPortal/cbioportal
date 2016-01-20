@@ -6,8 +6,7 @@
 <script type="text/javascript" src="js/src/over-representation-analysis/boilerplate.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <div class="section" id="or_analysis">
-    <div id="or-analysis-info-box" style="padding: 10px;margin-top: -40px;">
-    </div>
+    <div id="or-analysis-info-box" style="padding: 10px;margin-top: -40px;"></div>
     <div id="or-analysis-tabs" class="or-analysis-tabs" style="margin-top:5px;">
         <ul id='or-analysis-tabs-list'></ul>
         <div id='or-analysis-tabs-content'></div>

@@ -477,6 +477,9 @@ class SegFileValidationTestCase(PostClinicalDataFileTestCase):
 
     """Tests for the various validations of data in segment CNA data files."""
 
+    def test_valid_seg(self):
+        """Validate a segment file without file format errors."""
+
     def test_unparsable_seg_columns(self):
         """Validate .seg files with non-numeric values and an unsupported chromosome."""
         pass  # TODO

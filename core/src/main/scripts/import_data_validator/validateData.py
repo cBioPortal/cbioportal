@@ -1499,6 +1499,13 @@ class SegValidator(Validator):
                        'cause': '{}/{}'.format(parsed_coords['loc.start'],
                                                parsed_coords['loc.end'])})
 
+        # TODO check for overlap and low genome coverage
+        # this could be implemented by sorting the segments for a patient
+        # by (chromosome and) start position and checking if the start position
+        # of each segment comes after the end position of the previous one,
+        # meanwhile adding up the number of (non-overlapping) bases covered on
+        # that chromosome in that patient.
+
     @staticmethod
     def load_chromosome_lengths(genome_build):
 

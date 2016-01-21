@@ -135,6 +135,8 @@ public class ImportExtendedMutationData{
 		} catch( IllegalArgumentException e) {
 			fileHasOMAData = false;
 		}
+        
+        Set<String> missingSamples = new HashSet<String>();
 
 		line = buf.readLine();
 
@@ -153,14 +155,19 @@ public class ImportExtendedMutationData{
 
 				// process case id
 				String barCode = record.getTumorSampleID();
-                ImportDataUtil.addPatients(new String[] { barCode }, geneticProfileId);
-                ImportDataUtil.addSamples(new String[] { barCode }, geneticProfileId);
 		        Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(geneticProfile.getCancerStudyId(),
                                                                             StableIdUtil.getSampleId(barCode));
 		        if (sample == null) {
-		        	assert StableIdUtil.isNormal(barCode);
-					line = buf.readLine();
-		        	continue;
+                    if (!missingSamples.contains(barCode)) {
+                        System.err.println("ERROR: Sample '" + barCode + "' not found. Please list all your samples and patients in your clinical data and import it first.");
+                        missingSamples.add(barCode);
+                    }
+                    if (StableIdUtil.isNormal(barCode)) {
+                        line = buf.readLine();
+                        continue;
+                    }
+                    //stop the import
+                    return;
 		        }
 				if( !DaoSampleProfile.sampleExistsInGeneticProfile(sample.getInternalId(), geneticProfileId)) {
 					DaoSampleProfile.addSampleProfile(sample.getInternalId(), geneticProfileId);

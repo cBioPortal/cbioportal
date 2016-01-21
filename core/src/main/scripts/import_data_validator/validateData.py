@@ -1499,7 +1499,7 @@ class SegValidator(Validator):
 
         if (
                 'loc.start' in parsed_coords and 'loc.end' in parsed_coords and
-                parsed_coords['loc.start'] >= parsed_coords['loc.end']):
+                parsed_coords['loc.start'] >= parsed_coords['loc.end'] - 1):
             self.logger.error(
                 'Start position of segment is not lower than end position',
                 extra={'line_number': self.line_number,

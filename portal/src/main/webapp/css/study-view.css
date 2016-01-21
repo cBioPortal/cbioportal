@@ -30,6 +30,10 @@ table {
     border-color: grey;
 }
 
+embed {
+    height: 20px !important;    
+}
+
 #study_view_add_chart_chzn {
     margin-top: -3px;
     width: 250px !important;
@@ -988,11 +992,12 @@ ul li a:hover, ul li a:focus {
 }
 #clinical_table_wrapper .DTTT_container.ui-buttonset.ui-buttonset-multi a {
     width: 50px;
-    height: 20px;
-    line-height: 20px;
+    height: 13px;
+    line-height: 13px;
 }
 #clinical_table_wrapper .DTTT_container.ui-buttonset.ui-buttonset-multi {
     float: left;
+    margin-bottom: 0;
 }
 div.DTTT_print_info {
     position: absolute;

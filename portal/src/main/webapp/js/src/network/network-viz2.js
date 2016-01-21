@@ -371,8 +371,8 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 		//Open SBGN pop up
 		cy.on('cxttap', 'edge', function(evt)
 		{
-			var sourceNodeID = evt.cyTarget.source()._private.data.id;
-			var targetNodeID = evt.cyTarget.target()._private.data.id;
+			var sourceNodeID = evt.cyTarget.source()._private.data.label;
+			var targetNodeID = evt.cyTarget.target()._private.data.label;
 			var popUpWidth = 1024;
 			var popupHeight = 600;
 

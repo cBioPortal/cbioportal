@@ -133,7 +133,7 @@ public class NetworkServlet extends HttpServlet {
 
             Network network;
             xdebug.startTimer();
-            /*if ("cpath2".equalsIgnoreCase(netSrc)) {
+            if ("cpath2".equalsIgnoreCase(netSrc)) {
                 network = NetworkIO.readNetworkFromCPath2(queryGenes, true);
                 if (logXDebug) {
                     xdebug.logMsg("GetPathwayCommonsNetwork", "<a href=\""+NetworkIO.getCPath2URL(queryGenes)
@@ -141,9 +141,9 @@ public class NetworkServlet extends HttpServlet {
                 }
             } else {
                 network = NetworkIO.readNetworkFromCGDS(queryGenes, netSize, dataSources, true);
-            }*/
+            }
 
-            network = NetworkIO.readNetworkFromCPath2(queryGenes, true);
+            //network = NetworkIO.readNetworkFromCPath2(queryGenes, true);
 
             xdebug.stopTimer();
             xdebug.logMsg(this, "Successfully retrieved networks from " + netSrc

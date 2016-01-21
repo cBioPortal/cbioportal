@@ -83,7 +83,7 @@ public final class NetworkIO {
 
     public static String getCPath2URL(Set<String> genes) {
         StringBuilder sbUrl = new StringBuilder(GlobalProperties.getPathwayCommonsUrl());
-			sbUrl.append("/graph?format=EXTENDED_BINARY_SIF&kind=PATHSBETWEEN");
+			sbUrl.append("/graph?format=EXTENDED_BINARY_SIF&kind=NEIGHBORHOOD");
         for (String gene : genes) {
             sbUrl.append("&source=");
             sbUrl.append(gene.toUpperCase());

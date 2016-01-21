@@ -109,61 +109,71 @@ function popUpSBGNView()
   //Add loading spinner
   container.append('<i class="fa fa-spinner fa-5x fa-spin"></i>');
 
-  $.get(pc2URL, function(data)
-  {
-    //Remove loading spinner !
-    container.empty();
+  $.ajax({
 
-    //Convert incoming SBGNML string to json
-    var graphData = sbgnmlToJson.convert(data)
-    var positionMap = {};
-
-    //add position information to data for preset layout
-    for (var i = 0; i < graphData.nodes.length; i++) {
-      var xPos = graphData.nodes[i].data.sbgnbbox.x;
-      var yPos = graphData.nodes[i].data.sbgnbbox.y;
-      positionMap[graphData.nodes[i].data.id] = {'x': xPos, 'y': yPos};
-    }
-
-    var cy = window.cy = cytoscape(
+    url: pc2URL,
+    type: "GET",
+    success: function(data)
     {
-      container: document.getElementById('sbgnCanvas'),
-      elements:graphData,
-      style: sbgnStyleSheet,
-      layout:
-      {
-        name: 'preset',
-        positions: positionMap
+      //Remove loading spinner !
+      container.empty();
+
+      //Convert incoming SBGNML string to json
+      var graphData = sbgnmlToJson.convert(data)
+      var positionMap = {};
+
+      //add position information to data for preset layout
+      for (var i = 0; i < graphData.nodes.length; i++) {
+        var xPos = graphData.nodes[i].data.sbgnbbox.x;
+        var yPos = graphData.nodes[i].data.sbgnbbox.y;
+        positionMap[graphData.nodes[i].data.id] = {'x': xPos, 'y': yPos};
+      }
+
+      var cy = window.cy = cytoscape(
+        {
+          container: document.getElementById('sbgnCanvas'),
+          elements:graphData,
+          style: sbgnStyleSheet,
+          layout:
+          {
+            name: 'preset',
+            positions: positionMap
+          },
+          showOverlay: false,
+          minZoom: 0.125,
+          maxZoom: 16,
+          boxSelectionEnabled: true,
+          motionBlur: true,
+          wheelSensitivity: 0.1,
+          ready: function ()
+          {
+            //refreshPaddings();
+
+            var panProps = ({
+              fitPadding: 10,
+            });
+            container.cytoscapePanzoom(panProps);
+
+            cy.on('mouseover', 'node', function (event) {
+            });
+
+            cy.on('cxttap', 'node', function (event)
+            {
+            });
+
+            cy.on('tap', 'node', function (event)
+            {
+            });
+          },
+
+        });
       },
-      showOverlay: false,
-      minZoom: 0.125,
-      maxZoom: 16,
-      boxSelectionEnabled: true,
-      motionBlur: true,
-      wheelSensitivity: 0.1,
-      ready: function ()
+      error: function(request, status, error)
       {
-        //refreshPaddings();
-
-        var panProps = ({
-          fitPadding: 10,
-        });
-        container.cytoscapePanzoom(panProps);
-
-        cy.on('mouseover', 'node', function (event) {
-        });
-
-        cy.on('cxttap', 'node', function (event)
-        {
-        });
-
-        cy.on('tap', 'node', function (event)
-        {
-        });
-
+        //Remove loading spinner !
+        container.empty();
+        if(error === "460")
+          container.text('Server responded with error ' + error + "-No Results (e.g., when a search or graph query found no data)");
       }
     });
-  });
-
-
-}
+  }

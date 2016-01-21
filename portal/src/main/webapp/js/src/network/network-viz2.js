@@ -368,6 +368,29 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 			}
 		});
 
+		//Open SBGN pop up
+		cy.on('cxttap', 'edge', function(evt)
+		{
+			var sourceNodeID = evt.cyTarget.source()._private.data.id;
+			var targetNodeID = evt.cyTarget.target()._private.data.id;
+			var popUpWidth = 1024;
+			var popupHeight = 600;
+
+			var strWindowFeatures =
+				"menubar=no,\
+				location=no,\
+				resizable=no,\
+				scrollbars=no,\
+				status=no,\
+				width="+popUpWidth+"px,\
+				height="+popupHeight+"px,\
+				left="+((window.innerWidth/2)-popUpWidth/2)+"px,\
+				top="+((window.innerHeight/2)-popupHeight/2)+"px";
+
+			var sbgnPageURL = "/cbioportal/sbgn-view.jsp";
+			windowObjectReference = window.open(sbgnPageURL+"?"+sourceNodeID+"&"+targetNodeID,"SBGN View", strWindowFeatures);
+		});
+
 		function updateDetailsTab(event)
 		{
 			if (tapped || edge ) {
@@ -481,7 +504,6 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 			cy.center();
 
 		}});
-
 
 	}
 

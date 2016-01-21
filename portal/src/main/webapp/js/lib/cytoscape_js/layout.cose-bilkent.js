@@ -1031,7 +1031,7 @@ FDLayoutConstants.getUserOptions = function (options) {
     FDLayoutConstants.DEFAULT_GRAVITY_STRENGTH = options.gravity;
   if (options.numIter != null)
     FDLayoutConstants.MAX_ITERATIONS = options.numIter;
-
+  
   layoutOptionsPack.incremental = !(options.randomize);
   layoutOptionsPack.animate = options.animate;
 }
@@ -4861,7 +4861,7 @@ _CoSELayout.prototype.getNodeDegreeWithChildren = function (node) {
 };
 
 _CoSELayout.prototype.groupZeroDegreeMembers = function () {
-  // array of [parent_id x oneDegreeNode_id]
+  // array of [parent_id x oneDegreeNode_id] 
   var tempMemberGroups = [];
   var memberGroups = [];
   var self = this;
@@ -4961,7 +4961,7 @@ _CoSELayout.prototype.clearCompounds = function (options) {
 
     childGraphMap[compoundOrder[i].id()] = compoundOrder[i].children();
 
-    // Remove children of compounds
+    // Remove children of compounds 
     lCompoundNode.child = null;
   }
 
@@ -5014,7 +5014,7 @@ _CoSELayout.prototype.repopulateZeroDegreeMembers = function (tiledPack) {
 };
 
 /**
- * This method places each zero degree member wrt given (x,y) coordinates (top left).
+ * This method places each zero degree member wrt given (x,y) coordinates (top left). 
  */
 _CoSELayout.prototype.adjustLocations = function (organization, x, y) {
   x += organization.compoundMargin;

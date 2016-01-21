@@ -13,10 +13,10 @@ var Oncoprint = (function () {
 	    return ctr;
 	}
     })();
-    function Oncoprint(ctr_selector) {
+    function Oncoprint(ctr_selector, width) {
 	var $label_canvas = $('<canvas width="150" height="250"></canvas>').appendTo(ctr_selector).css({'display':'inline-block'});
-	var $cell_canvas = $('<canvas width="1050" height="250"></canvas>').css({'position':'absolute', 'top':'0px', 'left':'0px'});
-	var $cell_div = $('<div>').css({'width':'1050px', 'height':'250px', 'overflow-x':'scroll', 'overflow-y':'hidden', 'display':'inline-block', 'position':'relative'}).appendTo(ctr_selector);
+	var $cell_canvas = $('<canvas width="'+width+'" height="250"></canvas>').css({'position':'absolute', 'top':'0px', 'left':'0px'});
+	var $cell_div = $('<div>').css({'width':width+'px', 'height':'250px', 'overflow-x':'scroll', 'overflow-y':'hidden', 'display':'inline-block', 'position':'relative'}).appendTo(ctr_selector);
 	$cell_canvas.appendTo($cell_div);
 	$('<div>').css({'width':'20000px', 'position':'absolute', 'top':'250px', 'left':'0px', 'height':'1px'}).appendTo($cell_div);
 	

@@ -1,6 +1,6 @@
 window.CreateCBioPortalOncoprint = function(ctr_selector) {
     $('#oncoprint #everything').show();
-    var oncoprint = new window.Oncoprint(ctr_selector);
+    var oncoprint = new window.Oncoprint(ctr_selector, 1050);
     QuerySession.getGenomicEventData().then(function(data) {
 	var data_by_gene = {};
 	for (var i=0; i<data.length; i++) {

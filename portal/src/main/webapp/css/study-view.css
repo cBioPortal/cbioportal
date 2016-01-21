@@ -18,6 +18,18 @@
     padding: 0 0 5px 0;
 }
 */
+table#study-view-main {
+    border-collapse: separate;
+    border-spacing: 2px;
+    border-color: grey;
+}
+
+#study-view-view-main * {
+    -webkit-box-sizing: content-box;
+    -moz-box-sizing: content-box;
+    box-sizing: content-box;
+}
+
 #study_view_add_chart_chzn {
     margin-top: -3px;
     width: 250px !important;
@@ -87,6 +99,7 @@
     border: solid 1px;
     border-radius: 5px;
     border-color: darkgrey;
+    line-height: 18px;
 }
 .study-view-header-button:hover {
     cursor: pointer;

@@ -83,15 +83,13 @@ var ccPlots = (function (Plotly, _, $) {
                     }
                 }
 
-                if (study_order === "median") {
-                    _study_id_median_val_objs = _.sortBy(_study_id_median_val_objs, "median_val");
-                    study_ids = _.pluck(_study_id_median_val_objs, "study_id");
-                } else {
-                    study_ids = _.uniq(_.pluck(_profile_data_objs, "study_id"));
-                }
-
-                //TODO: apply legit ways to extract profiles, now it's a hack, assuming every study has ONE rna seq v2 profile, and named under the SAME convention
-                mrna_profiles =  _.map(study_ids, function(_study_id) { return _study_id + "_rna_seq_v2_mrna"});
+                //if (study_order === "median") {
+                //    _study_id_median_val_objs = _.sortBy(_study_id_median_val_objs, "median_val");
+                //    study_ids = _.pluck(_study_id_median_val_objs, "study_id");
+                //} else {
+                //    study_ids = _.uniq(_.pluck(_profile_data_objs, "study_id"));
+                //}
+                study_ids = _.uniq(_.pluck(_profile_data_objs, "study_id"));
 
                 var _get_study_params = {
                     study_ids : study_ids
@@ -110,6 +108,19 @@ var ccPlots = (function (Plotly, _, $) {
                                 }
                             });
                         });
+
+                        //sort by study short name or median
+                        if (study_order === "median") {
+                            _study_id_median_val_objs = _.sortBy(_study_id_median_val_objs, "median_val");
+                            study_ids = _.pluck(_study_id_median_val_objs, "study_id");
+                            study_meta = _.sortBy(study_meta, function(_meta_obj){ return study_ids.indexOf(_meta_obj.id); });
+                        } else {
+                            study_ids = _.uniq(_.pluck(_.sortBy(profile_data, "study_short_name"), "study_id"));
+                            study_meta = _.sortBy(study_meta, "short_name");
+                        }
+
+                        //TODO: apply legit ways to extract profiles, now it's a hack, assuming every study has ONE rna seq v2 profile, and named under the SAME convention
+                        mrna_profiles =  _.map(study_ids, function(_study_id) { return _study_id + "_rna_seq_v2_mrna"});
 
                         //get sequenced sample lists
                         var _sample_list_ids = _.map(study_ids, function(_study_id) { return _study_id + "_sequenced"; });

@@ -3,7 +3,7 @@ var gl_matrix = require('gl-matrix');
 var getCanvasContext = function ($canvas) {
     try {
 	var canvas = $canvas[0];
-	var ctx = canvas.getContext("experimental-webgl");
+	var ctx = canvas.getContext("experimental-webgl", {alpha: false});
 	ctx.viewportWidth = canvas.width;
 	ctx.viewportHeight = canvas.height;
 	return ctx;
@@ -65,6 +65,8 @@ var OncoprintWebGLCellView = (function () {
     function OncoprintWebGLCellView($canvas) {
 	this.$canvas = $canvas;
 	this.ctx = getCanvasContext(this.$canvas);
+	
+	this.scroll_x = 0;
 
 	this.identified_shape_list_list = {};
 
@@ -77,8 +79,10 @@ var OncoprintWebGLCellView = (function () {
 
 	this.ctx.viewport(0, 0, this.ctx.viewportWidth, this.ctx.viewportHeight);
 	this.ctx.enable(this.ctx.DEPTH_TEST);
-
-	this.rendering_suppressed = false;
+	this.ctx.enable(this.ctx.BLEND);
+	this.ctx.blendEquation(this.ctx.FUNC_ADD);
+	this.ctx.blendFunc(this.ctx.SRC_ALPHA, this.ctx.ONE_MINUS_SRC_ALPHA);
+	this.ctx.depthMask(false);
 	
 	(function initializeShaders(self) {// Initialize shaders
 	    var vertex_shader_source = ['attribute vec3 aVertexPosition;',
@@ -123,22 +127,32 @@ var OncoprintWebGLCellView = (function () {
 	})(this);
     }
 
-    var renderAllTracks = function (view) {
+    var renderAllTracks = function (view, model) {
 	if (view.rendering_suppressed) {
 	    return;
 	}
+	
+	
+	view.ctx.clearColor(1.0,1.0,1.0,1.0);
 	view.ctx.clear(view.ctx.COLOR_BUFFER_BIT | view.ctx.DEPTH_BUFFER_BIT);
+	
 	var vertex_position_buffer = view.vertex_position_buffer;
 	var vertex_color_buffer = view.vertex_color_buffer;
 
-	// Combine all vertex data
+	// Combine all vertex data, clipping any triangle which are totally out
 	var vertex_position_array = [];
 	var vertex_color_array = [];
+	
+	var scroll_x = view.scroll_x;
+	
 	for (var track_id in view.vertex_position_array) {
 	    if (view.vertex_position_array.hasOwnProperty(track_id)) {
 		vertex_position_array = vertex_position_array.concat(view.vertex_position_array[track_id]);
 		vertex_color_array = vertex_color_array.concat(view.vertex_color_array[track_id]);
 	    }
+	}
+	for (var i=0; i<vertex_position_array.length; i+=3) {
+	    vertex_position_array[i] -= scroll_x;
 	}
 	// Populate buffers
 	view.ctx.bindBuffer(view.ctx.ARRAY_BUFFER, vertex_position_buffer);
@@ -200,7 +214,21 @@ var OncoprintWebGLCellView = (function () {
 	    for (var j = 0; j < shape_list.length; j++) {
 		var shape = shape_list[j];
 		if (shape.type === "rectangle") {
+		    // Stroke
 		    var x = parseFloat(shape.x) + offset_x, y = parseFloat(shape.y), height = parseFloat(shape.height), width = parseFloat(shape.width);
+		    var stroke_width = parseFloat(shape['stroke-width']);
+		    if (stroke_width > 0) {
+			vertex_position_array.push(x - stroke_width, y - stroke_width, -3);
+			vertex_position_array.push(x + width + stroke_width, y - stroke_width, -3);
+			vertex_position_array.push(x + width + stroke_width, y + height + stroke_width, -3);
+
+			vertex_position_array.push(x - stroke_width, y - stroke_width, -3);
+			vertex_position_array.push(x + width + stroke_width, y + height + stroke_width, -3);
+			vertex_position_array.push(x - stroke_width, y + height + stroke_width, -3);
+
+			addVertexColor(vertex_color_array, shape.stroke, 6);
+		    }
+		    
 		    vertex_position_array.push(x, y, j);
 		    vertex_position_array.push(x + width, y, j);
 		    vertex_position_array.push(x + width, y + height, j);
@@ -210,20 +238,6 @@ var OncoprintWebGLCellView = (function () {
 		    vertex_position_array.push(x, y + height, j);
 
 		    addVertexColor(vertex_color_array, shape.fill, 6);
-
-		    // Stroke
-		    var stroke_width = parseFloat(shape['stroke-width']);
-		    if (stroke_width > 0) {
-			vertex_position_array.push(x - stroke_width, y - stroke_width, j - 0.1);
-			vertex_position_array.push(x + width + stroke_width, y - stroke_width, j - 0.1);
-			vertex_position_array.push(x + width + stroke_width, y + height + stroke_width, j - 0.1);
-
-			vertex_position_array.push(x - stroke_width, y - stroke_width, j - 0.1);
-			vertex_position_array.push(x + width + stroke_width, y + height + stroke_width, j - 0.1);
-			vertex_position_array.push(x - stroke_width, y + height + stroke_width, j - 0.1);
-
-			addVertexColor(vertex_color_array, shape.stroke, 6);
-		    }
 		} else if (shape.type === "triangle") {
 		    vertex_position_array.push(offset_x + parseFloat(shape.x1), parseFloat(shape.y1), j);
 		    vertex_position_array.push(offset_x + parseFloat(shape.x2), parseFloat(shape.y2), j);
@@ -365,6 +379,10 @@ var OncoprintWebGLCellView = (function () {
 	// TODO: implement
     }
     
+    OncoprintWebGLCellView.prototype.scroll = function(offset) {
+	this.scroll_x = offset;
+	renderAllTracks(this);
+    }
     return OncoprintWebGLCellView;
 })();
 

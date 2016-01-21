@@ -72,6 +72,7 @@ var DEFAULT_GENETIC_ALTERATION_PARAMS = {
 	    shapes: [{
 		    'type': 'rectangle',
 		    'fill': 'rgba(211, 211, 211, 1)',
+		    'z': -1
 		}],
 	    exclude_from_legend: true,
 	    z: -1
@@ -85,9 +86,9 @@ var DEFAULT_GENETIC_ALTERATION_PARAMS = {
 			'y': '0%',
 			'width': '100%',
 			'height': '100%',
+			'z':0,
 		    }],
 		legend_label: 'Amplification',
-		z: 0
 	    },
 	    'GAINED': {
 		shapes: [{
@@ -97,9 +98,9 @@ var DEFAULT_GENETIC_ALTERATION_PARAMS = {
 			'y': '0%',
 			'width': '100%',
 			'height': '100%',
+			'z':0,
 		    }],
 		legend_label: 'Gain',
-		z: 0
 	    },
 	    'HOMODELETED': {
 		shapes: [{
@@ -109,9 +110,9 @@ var DEFAULT_GENETIC_ALTERATION_PARAMS = {
 			'y': '0%',
 			'width': '100%',
 			'height': '100%',
+			'z':0,
 		    }],
 		legend_label: 'Deep Deletion',
-		z: 0
 	    },
 	    'HEMIZYGOUSLYDELETED': {
 		shapes: [{
@@ -121,9 +122,9 @@ var DEFAULT_GENETIC_ALTERATION_PARAMS = {
 			'y': '0%',
 			'width': '100%',
 			'height': '100%',
+			'z':0,
 		    }],
 		legend_label: 'Shallow Deletion',
-		z: 0
 	    }
 	},
 	'mrna': {
@@ -132,26 +133,28 @@ var DEFAULT_GENETIC_ALTERATION_PARAMS = {
 			'type': 'rectangle',
 			'fill': 'rgba(0, 0, 0, 0)',
 			'stroke': 'rgba(255, 153, 153, 1)',
+			'stroke-width': '2',
 			'x': '0%',
 			'y': '0%',
 			'width': '100%',
 			'height': '100%',
+			'z': -2,
 		    }],
 		legend_label: 'mRNA Upregulation',
-		z: 1
 	    },
 	    'DOWNREGULATED': {
 		shapes: [{
 			'type': 'rectangle',
 			'fill': 'rgba(0, 0, 0, 0)',
 			'stroke': 'rgba(102, 153, 204, 1)',
+			'stroke-width': '2',
 			'x': '0%',
 			'y': '0%',
 			'width': '100%',
 			'height': '100%',
+			'z': -2,
 		    }],
 		legend_label: 'mRNA Downregulation',
-		z: 1
 	    },
 	},
 	'rppa': {
@@ -164,10 +167,10 @@ var DEFAULT_GENETIC_ALTERATION_PARAMS = {
 			'y2': '33.33%',
 			'x3': '0%',
 			'y3': '33.33%',
-			'fill': 'rgba(0,0,0,1)'
+			'fill': 'rgba(0,0,0,1)',
+			'z':2,
 		    }],
 		legend_label: 'Protein Upregulation',
-		z: 2
 	    },
 	    'DOWNREGULATED': {
 		shapes: [{
@@ -178,24 +181,24 @@ var DEFAULT_GENETIC_ALTERATION_PARAMS = {
 			'y2': '66.66%',
 			'x3': '0%',
 			'y3': '66.66%',
-			'fill': 'rgba(0,0,0,1)'
+			'fill': 'rgba(0,0,0,1)',
+			'z':2,
 		    }],
 		legend_label: 'Protein Downregulation',
-		z: 2
 	    }
 	},
 	'mut_type': {
 	    'MISSENSE': {
 		shapes: [{
 			'type': 'rectangle',
-			'fill': 'rgba(0, 255, 0, 1)',
+			'fill': '#008000',
 			'x': '0%',
 			'y': '33.33%',
 			'width': '100%',
 			'height': '33.33%',
+			'z':3.2,
 		    }],
 		legend_label: 'Missense Mutation',
-		z: 3
 	    },
 	    'INFRAME': {
 		shapes: [{
@@ -205,9 +208,9 @@ var DEFAULT_GENETIC_ALTERATION_PARAMS = {
 			'y': '33.33%',
 			'width': '100%',
 			'height': '33.33%',
+			'z':3.2,
 		    }],
 		legend_label: 'Inframe Mutation',
-		z: 3
 	    },
 	    'TRUNC': {
 		shapes: [{
@@ -217,9 +220,9 @@ var DEFAULT_GENETIC_ALTERATION_PARAMS = {
 			'y': '33.33%',
 			'width': '100%',
 			'height': '33.33%',
+			'z':3.2,
 		    }],
 		legend_label: 'Truncating Mutation',
-		z: 3
 	    },
 	    'FUSION': {
 		shapes: [{
@@ -231,9 +234,9 @@ var DEFAULT_GENETIC_ALTERATION_PARAMS = {
 			'y2': '50%',
 			'x3': '0%',
 			'y3': '100%',
+			'z':3.1,
 		    }],
 		legend_label: 'Fusion',
-		z: 3
 	    }
 	}
     }
@@ -335,9 +338,9 @@ var RuleSet = (function () {
 			rule_concrete_shapes);
 	    }
 	    return concrete_shapes.sort(function(shapeA, shapeB) {
-		if (shapeA.z < shapeB.z) {
+		if (parseFloat(shapeA.z) < parseFloat(shapeB.z)) {
 		    return -1;
-		} else if (shapeA.z > shapeB.z) {
+		} else if (parseFloat(shapeA.z) > parseFloat(shapeB.z)) {
 		    return 1;
 		} else {
 		    return 0;
@@ -651,10 +654,10 @@ var Rule = (function () {
 	    'x1': '0%', 'x2': '0%', 'x3': '0%', 'y1': '0%', 'y2': '0%', 'y3': '0%',
 	    'stroke': 'rgba(0,0,0,0)', 'fill': 'rgba(23,23,23,1)', 'stroke-width': '0'};
 	var required_parameters_by_type = {
-	    'rectangle': ['width', 'height', 'x', 'y', 'stroke', 'fill', 'stroke-width'],
-	    'triangle': ['x1', 'x2', 'x3', 'y1', 'y2', 'y3', 'stroke', 'fill', 'stroke-width'],
-	    'ellipse': ['width', 'height', 'x', 'y', 'stroke', 'fill', 'stroke-width'],
-	    'line': ['x1', 'x2', 'y1', 'y2', 'stroke', 'stroke-width']
+	    'rectangle': ['width', 'height', 'x', 'y', 'z', 'stroke', 'fill', 'stroke-width'],
+	    'triangle': ['x1', 'x2', 'x3', 'y1', 'y2', 'y3', 'z', 'stroke', 'fill', 'stroke-width'],
+	    'ellipse': ['width', 'height', 'x', 'y', 'z', 'stroke', 'fill', 'stroke-width'],
+	    'line': ['x1', 'x2', 'y1', 'y2', 'z', 'stroke', 'stroke-width']
 	};
 	var complete_shape_params = {};
 	var required_parameters = required_parameters_by_type[shape_params.type];

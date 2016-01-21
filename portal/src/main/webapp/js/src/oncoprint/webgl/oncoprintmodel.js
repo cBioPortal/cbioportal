@@ -19,9 +19,9 @@ var OncoprintModel = (function () {
 	
 	this.zoom = ifndef(init_zoom, 1);
 
-	this.cell_padding = ifndef(init_cell_padding, 10);
+	this.cell_padding = ifndef(init_cell_padding, 9);
 	this.cell_padding_on = ifndef(init_cell_padding_on, true);
-	this.cell_width = ifndef(init_cell_width, 10);
+	this.cell_width = ifndef(init_cell_width, 6);
 	this.track_group_padding = ifndef(init_track_group_padding, 10);
 
 	this.track_data = {};
@@ -158,7 +158,7 @@ var OncoprintModel = (function () {
 	    sortCmpFn, sort_direction_changeable,
 	    data, rule_set) {
 	model.track_label[track_id] = ifndef(label, "Label");
-	model.track_height[track_id] = ifndef(track_height, 20);
+	model.track_height[track_id] = ifndef(track_height, 23);
 	model.track_padding[track_id] = ifndef(track_padding, 5);
 	
 	model.setTrackDataIdKey(track_id, ifndef(data_id_key, 'id'));

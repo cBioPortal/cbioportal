@@ -174,9 +174,9 @@ var OncoprintModel = (function () {
 	
 	this.zoom = ifndef(init_zoom, 1);
 
-	this.cell_padding = ifndef(init_cell_padding, 10);
+	this.cell_padding = ifndef(init_cell_padding, 9);
 	this.cell_padding_on = ifndef(init_cell_padding_on, true);
-	this.cell_width = ifndef(init_cell_width, 10);
+	this.cell_width = ifndef(init_cell_width, 6);
 	this.track_group_padding = ifndef(init_track_group_padding, 10);
 
 	this.track_data = {};
@@ -313,7 +313,7 @@ var OncoprintModel = (function () {
 	    sortCmpFn, sort_direction_changeable,
 	    data, rule_set) {
 	model.track_label[track_id] = ifndef(label, "Label");
-	model.track_height[track_id] = ifndef(track_height, 20);
+	model.track_height[track_id] = ifndef(track_height, 23);
 	model.track_padding[track_id] = ifndef(track_padding, 5);
 	
 	model.setTrackDataIdKey(track_id, ifndef(data_id_key, 'id'));
@@ -599,6 +599,7 @@ var DEFAULT_GENETIC_ALTERATION_PARAMS = {
 	    shapes: [{
 		    'type': 'rectangle',
 		    'fill': 'rgba(211, 211, 211, 1)',
+		    'z': -1
 		}],
 	    exclude_from_legend: true,
 	    z: -1
@@ -612,9 +613,9 @@ var DEFAULT_GENETIC_ALTERATION_PARAMS = {
 			'y': '0%',
 			'width': '100%',
 			'height': '100%',
+			'z':0,
 		    }],
 		legend_label: 'Amplification',
-		z: 0
 	    },
 	    'GAINED': {
 		shapes: [{
@@ -624,9 +625,9 @@ var DEFAULT_GENETIC_ALTERATION_PARAMS = {
 			'y': '0%',
 			'width': '100%',
 			'height': '100%',
+			'z':0,
 		    }],
 		legend_label: 'Gain',
-		z: 0
 	    },
 	    'HOMODELETED': {
 		shapes: [{
@@ -636,9 +637,9 @@ var DEFAULT_GENETIC_ALTERATION_PARAMS = {
 			'y': '0%',
 			'width': '100%',
 			'height': '100%',
+			'z':0,
 		    }],
 		legend_label: 'Deep Deletion',
-		z: 0
 	    },
 	    'HEMIZYGOUSLYDELETED': {
 		shapes: [{
@@ -648,9 +649,9 @@ var DEFAULT_GENETIC_ALTERATION_PARAMS = {
 			'y': '0%',
 			'width': '100%',
 			'height': '100%',
+			'z':0,
 		    }],
 		legend_label: 'Shallow Deletion',
-		z: 0
 	    }
 	},
 	'mrna': {
@@ -659,26 +660,28 @@ var DEFAULT_GENETIC_ALTERATION_PARAMS = {
 			'type': 'rectangle',
 			'fill': 'rgba(0, 0, 0, 0)',
 			'stroke': 'rgba(255, 153, 153, 1)',
+			'stroke-width': '2',
 			'x': '0%',
 			'y': '0%',
 			'width': '100%',
 			'height': '100%',
+			'z': -2,
 		    }],
 		legend_label: 'mRNA Upregulation',
-		z: 1
 	    },
 	    'DOWNREGULATED': {
 		shapes: [{
 			'type': 'rectangle',
 			'fill': 'rgba(0, 0, 0, 0)',
 			'stroke': 'rgba(102, 153, 204, 1)',
+			'stroke-width': '2',
 			'x': '0%',
 			'y': '0%',
 			'width': '100%',
 			'height': '100%',
+			'z': -2,
 		    }],
 		legend_label: 'mRNA Downregulation',
-		z: 1
 	    },
 	},
 	'rppa': {
@@ -691,10 +694,10 @@ var DEFAULT_GENETIC_ALTERATION_PARAMS = {
 			'y2': '33.33%',
 			'x3': '0%',
 			'y3': '33.33%',
-			'fill': 'rgba(0,0,0,1)'
+			'fill': 'rgba(0,0,0,1)',
+			'z':2,
 		    }],
 		legend_label: 'Protein Upregulation',
-		z: 2
 	    },
 	    'DOWNREGULATED': {
 		shapes: [{
@@ -705,24 +708,24 @@ var DEFAULT_GENETIC_ALTERATION_PARAMS = {
 			'y2': '66.66%',
 			'x3': '0%',
 			'y3': '66.66%',
-			'fill': 'rgba(0,0,0,1)'
+			'fill': 'rgba(0,0,0,1)',
+			'z':2,
 		    }],
 		legend_label: 'Protein Downregulation',
-		z: 2
 	    }
 	},
 	'mut_type': {
 	    'MISSENSE': {
 		shapes: [{
 			'type': 'rectangle',
-			'fill': 'rgba(0, 255, 0, 1)',
+			'fill': '#008000',
 			'x': '0%',
 			'y': '33.33%',
 			'width': '100%',
 			'height': '33.33%',
+			'z':3.2,
 		    }],
 		legend_label: 'Missense Mutation',
-		z: 3
 	    },
 	    'INFRAME': {
 		shapes: [{
@@ -732,9 +735,9 @@ var DEFAULT_GENETIC_ALTERATION_PARAMS = {
 			'y': '33.33%',
 			'width': '100%',
 			'height': '33.33%',
+			'z':3.2,
 		    }],
 		legend_label: 'Inframe Mutation',
-		z: 3
 	    },
 	    'TRUNC': {
 		shapes: [{
@@ -744,9 +747,9 @@ var DEFAULT_GENETIC_ALTERATION_PARAMS = {
 			'y': '33.33%',
 			'width': '100%',
 			'height': '33.33%',
+			'z':3.2,
 		    }],
 		legend_label: 'Truncating Mutation',
-		z: 3
 	    },
 	    'FUSION': {
 		shapes: [{
@@ -758,9 +761,9 @@ var DEFAULT_GENETIC_ALTERATION_PARAMS = {
 			'y2': '50%',
 			'x3': '0%',
 			'y3': '100%',
+			'z':3.1,
 		    }],
 		legend_label: 'Fusion',
-		z: 3
 	    }
 	}
     }
@@ -862,9 +865,9 @@ var RuleSet = (function () {
 			rule_concrete_shapes);
 	    }
 	    return concrete_shapes.sort(function(shapeA, shapeB) {
-		if (shapeA.z < shapeB.z) {
+		if (parseFloat(shapeA.z) < parseFloat(shapeB.z)) {
 		    return -1;
-		} else if (shapeA.z > shapeB.z) {
+		} else if (parseFloat(shapeA.z) > parseFloat(shapeB.z)) {
 		    return 1;
 		} else {
 		    return 0;
@@ -1178,10 +1181,10 @@ var Rule = (function () {
 	    'x1': '0%', 'x2': '0%', 'x3': '0%', 'y1': '0%', 'y2': '0%', 'y3': '0%',
 	    'stroke': 'rgba(0,0,0,0)', 'fill': 'rgba(23,23,23,1)', 'stroke-width': '0'};
 	var required_parameters_by_type = {
-	    'rectangle': ['width', 'height', 'x', 'y', 'stroke', 'fill', 'stroke-width'],
-	    'triangle': ['x1', 'x2', 'x3', 'y1', 'y2', 'y3', 'stroke', 'fill', 'stroke-width'],
-	    'ellipse': ['width', 'height', 'x', 'y', 'stroke', 'fill', 'stroke-width'],
-	    'line': ['x1', 'x2', 'y1', 'y2', 'stroke', 'stroke-width']
+	    'rectangle': ['width', 'height', 'x', 'y', 'z', 'stroke', 'fill', 'stroke-width'],
+	    'triangle': ['x1', 'x2', 'x3', 'y1', 'y2', 'y3', 'z', 'stroke', 'fill', 'stroke-width'],
+	    'ellipse': ['width', 'height', 'x', 'y', 'z', 'stroke', 'fill', 'stroke-width'],
+	    'line': ['x1', 'x2', 'y1', 'y2', 'z', 'stroke', 'stroke-width']
 	};
 	var complete_shape_params = {};
 	var required_parameters = required_parameters_by_type[shape_params.type];
@@ -1392,7 +1395,7 @@ var gl_matrix = require('gl-matrix');
 var getCanvasContext = function ($canvas) {
     try {
 	var canvas = $canvas[0];
-	var ctx = canvas.getContext("experimental-webgl");
+	var ctx = canvas.getContext("experimental-webgl", {alpha: false});
 	ctx.viewportWidth = canvas.width;
 	ctx.viewportHeight = canvas.height;
 	return ctx;
@@ -1454,6 +1457,8 @@ var OncoprintWebGLCellView = (function () {
     function OncoprintWebGLCellView($canvas) {
 	this.$canvas = $canvas;
 	this.ctx = getCanvasContext(this.$canvas);
+	
+	this.scroll_x = 0;
 
 	this.identified_shape_list_list = {};
 
@@ -1466,8 +1471,10 @@ var OncoprintWebGLCellView = (function () {
 
 	this.ctx.viewport(0, 0, this.ctx.viewportWidth, this.ctx.viewportHeight);
 	this.ctx.enable(this.ctx.DEPTH_TEST);
-
-	this.rendering_suppressed = false;
+	this.ctx.enable(this.ctx.BLEND);
+	this.ctx.blendEquation(this.ctx.FUNC_ADD);
+	this.ctx.blendFunc(this.ctx.SRC_ALPHA, this.ctx.ONE_MINUS_SRC_ALPHA);
+	this.ctx.depthMask(false);
 	
 	(function initializeShaders(self) {// Initialize shaders
 	    var vertex_shader_source = ['attribute vec3 aVertexPosition;',
@@ -1512,22 +1519,32 @@ var OncoprintWebGLCellView = (function () {
 	})(this);
     }
 
-    var renderAllTracks = function (view) {
+    var renderAllTracks = function (view, model) {
 	if (view.rendering_suppressed) {
 	    return;
 	}
+	
+	
+	view.ctx.clearColor(1.0,1.0,1.0,1.0);
 	view.ctx.clear(view.ctx.COLOR_BUFFER_BIT | view.ctx.DEPTH_BUFFER_BIT);
+	
 	var vertex_position_buffer = view.vertex_position_buffer;
 	var vertex_color_buffer = view.vertex_color_buffer;
 
-	// Combine all vertex data
+	// Combine all vertex data, clipping any triangle which are totally out
 	var vertex_position_array = [];
 	var vertex_color_array = [];
+	
+	var scroll_x = view.scroll_x;
+	
 	for (var track_id in view.vertex_position_array) {
 	    if (view.vertex_position_array.hasOwnProperty(track_id)) {
 		vertex_position_array = vertex_position_array.concat(view.vertex_position_array[track_id]);
 		vertex_color_array = vertex_color_array.concat(view.vertex_color_array[track_id]);
 	    }
+	}
+	for (var i=0; i<vertex_position_array.length; i+=3) {
+	    vertex_position_array[i] -= scroll_x;
 	}
 	// Populate buffers
 	view.ctx.bindBuffer(view.ctx.ARRAY_BUFFER, vertex_position_buffer);
@@ -1589,7 +1606,21 @@ var OncoprintWebGLCellView = (function () {
 	    for (var j = 0; j < shape_list.length; j++) {
 		var shape = shape_list[j];
 		if (shape.type === "rectangle") {
+		    // Stroke
 		    var x = parseFloat(shape.x) + offset_x, y = parseFloat(shape.y), height = parseFloat(shape.height), width = parseFloat(shape.width);
+		    var stroke_width = parseFloat(shape['stroke-width']);
+		    if (stroke_width > 0) {
+			vertex_position_array.push(x - stroke_width, y - stroke_width, -3);
+			vertex_position_array.push(x + width + stroke_width, y - stroke_width, -3);
+			vertex_position_array.push(x + width + stroke_width, y + height + stroke_width, -3);
+
+			vertex_position_array.push(x - stroke_width, y - stroke_width, -3);
+			vertex_position_array.push(x + width + stroke_width, y + height + stroke_width, -3);
+			vertex_position_array.push(x - stroke_width, y + height + stroke_width, -3);
+
+			addVertexColor(vertex_color_array, shape.stroke, 6);
+		    }
+		    
 		    vertex_position_array.push(x, y, j);
 		    vertex_position_array.push(x + width, y, j);
 		    vertex_position_array.push(x + width, y + height, j);
@@ -1599,20 +1630,6 @@ var OncoprintWebGLCellView = (function () {
 		    vertex_position_array.push(x, y + height, j);
 
 		    addVertexColor(vertex_color_array, shape.fill, 6);
-
-		    // Stroke
-		    var stroke_width = parseFloat(shape['stroke-width']);
-		    if (stroke_width > 0) {
-			vertex_position_array.push(x - stroke_width, y - stroke_width, j - 0.1);
-			vertex_position_array.push(x + width + stroke_width, y - stroke_width, j - 0.1);
-			vertex_position_array.push(x + width + stroke_width, y + height + stroke_width, j - 0.1);
-
-			vertex_position_array.push(x - stroke_width, y - stroke_width, j - 0.1);
-			vertex_position_array.push(x + width + stroke_width, y + height + stroke_width, j - 0.1);
-			vertex_position_array.push(x - stroke_width, y + height + stroke_width, j - 0.1);
-
-			addVertexColor(vertex_color_array, shape.stroke, 6);
-		    }
 		} else if (shape.type === "triangle") {
 		    vertex_position_array.push(offset_x + parseFloat(shape.x1), parseFloat(shape.y1), j);
 		    vertex_position_array.push(offset_x + parseFloat(shape.x2), parseFloat(shape.y2), j);
@@ -1752,6 +1769,11 @@ var OncoprintWebGLCellView = (function () {
     }
     OncoprintWebGLCellView.prototype.setRuleSet = function(model) {
 	// TODO: implement
+    }
+    
+    OncoprintWebGLCellView.prototype.scroll = function(offset) {
+	this.scroll_x = offset;
+	renderAllTracks(this);
     }
     return OncoprintWebGLCellView;
 })();

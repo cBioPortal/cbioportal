@@ -22,6 +22,7 @@ window.CreateCBioPortalOncoprint = function(ctr_selector) {
 	}
 	oncoprint.releaseRendering();
     });
+    window.oncoprint = oncoprint;
 }
 
 

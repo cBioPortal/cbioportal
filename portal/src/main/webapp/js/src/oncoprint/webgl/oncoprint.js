@@ -13,14 +13,30 @@ var Oncoprint = (function () {
 	    return ctr;
 	}
     })();
-    function Oncoprint($svg_dev, $canvas_dev) {
+    function Oncoprint(ctr_selector) {
+	var $label_canvas = $('<canvas width="150" height="250"></canvas>').appendTo(ctr_selector).css({'display':'inline-block'});
+	var $cell_canvas = $('<canvas width="1050" height="250"></canvas>').css({'position':'absolute', 'top':'0px', 'left':'0px'});
+	var $cell_div = $('<div>').css({'width':'1050px', 'height':'250px', 'overflow-x':'scroll', 'overflow-y':'hidden', 'display':'inline-block', 'position':'relative'}).appendTo(ctr_selector);
+	$cell_canvas.appendTo($cell_div);
+	$('<div>').css({'width':'20000px', 'position':'absolute', 'top':'250px', 'left':'0px', 'height':'1px'}).appendTo($cell_div);
+	
 	this.model = new OncoprintModel();
 
 	// Precisely one of the following should be uncommented
 	// this.cell_view = new OncoprintSVGCellView($svg_dev);
-	this.cell_view = new OncoprintWebGLCellView($canvas_dev)
+	this.cell_view = new OncoprintWebGLCellView($cell_canvas);
 
-	this.label_view = new OncoprintLabelView();
+	this.label_view = new OncoprintLabelView($label_canvas);
+	
+	
+	// We need to handle scrolling this way because for some reason huge 
+	//  canvas elements have terrible resolution.
+	var cell_view = this.cell_view;
+	$cell_div.scroll(function() {
+	    var scroll_left = $cell_div.scrollLeft();
+	    $cell_canvas.css('left', scroll_left);
+	    cell_view.scroll(scroll_left);
+	});
     }
 
     Oncoprint.prototype.addTracks = function (params_list) {
@@ -35,7 +51,7 @@ var Oncoprint = (function () {
 	this.model.addTracks(params_list);
 	// Update views
 	this.cell_view.addTracks(this.model, track_ids);
-	//this.label_view.addTracks(this.model, track_ids);
+	this.label_view.addTracks(this.model, track_ids);
 
 	return track_ids;
     }

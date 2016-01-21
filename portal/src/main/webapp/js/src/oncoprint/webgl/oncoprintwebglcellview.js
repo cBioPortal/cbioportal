@@ -132,7 +132,6 @@ var OncoprintWebGLCellView = (function () {
 	    return;
 	}
 	
-	
 	view.ctx.clearColor(1.0,1.0,1.0,1.0);
 	view.ctx.clear(view.ctx.COLOR_BUFFER_BIT | view.ctx.DEPTH_BUFFER_BIT);
 	

@@ -14,14 +14,28 @@ var Oncoprint = (function () {
 	    return ctr;
 	}
     })();
-    function Oncoprint($svg_dev, $canvas_dev) {
+    function Oncoprint(ctr_selector) {
+	var $label_canvas = $('<canvas width="150" height="250"></canvas>').appendTo(ctr_selector).css({'display':'inline-block'});
+	var $cell_canvas = $('<canvas width="1050" height="250"></canvas>').css({'position':'absolute', 'top':'0px', 'left':'0px'});
+	var $cell_div = $('<div>').css({'width':'1050px', 'height':'250px', 'overflow-x':'scroll', 'overflow-y':'hidden', 'display':'inline-block', 'position':'relative'}).appendTo(ctr_selector);
+	$cell_canvas.appendTo($cell_div);
+	$('<div>').css({'width':'20000px', 'position':'absolute', 'top':'250px', 'left':'0px', 'height':'1px'}).appendTo($cell_div);
+	
 	this.model = new OncoprintModel();
 
 	// Precisely one of the following should be uncommented
 	// this.cell_view = new OncoprintSVGCellView($svg_dev);
-	this.cell_view = new OncoprintWebGLCellView($canvas_dev)
+	this.cell_view = new OncoprintWebGLCellView($cell_canvas);
 
-	this.label_view = new OncoprintLabelView();
+	this.label_view = new OncoprintLabelView($label_canvas);
+	
+	var cell_view = this.cell_view;
+	
+	$cell_div.scroll(function() {
+	    var scroll_left = $cell_div.scrollLeft();
+	    $cell_canvas.css('left', scroll_left);
+	    cell_view.scroll(scroll_left);
+	});
     }
 
     Oncoprint.prototype.addTracks = function (params_list) {
@@ -36,7 +50,7 @@ var Oncoprint = (function () {
 	this.model.addTracks(params_list);
 	// Update views
 	this.cell_view.addTracks(this.model, track_ids);
-	//this.label_view.addTracks(this.model, track_ids);
+	this.label_view.addTracks(this.model, track_ids);
 
 	return track_ids;
     }
@@ -115,21 +129,28 @@ module.exports = Oncoprint;
 },{"./oncoprintlabelview.js":2,"./oncoprintmodel.js":3,"./oncoprintruleset.js":4,"./oncoprintsvgcellview.js":5,"./oncoprintwebglcellview.js":6}],2:[function(require,module,exports){
 // FIRST PASS: no optimization
 var OncoprintLabelView = (function () {
-    function OncoprintLabelView() {
-	//TODO: what parameters
-	// TODO: implementation
+    function OncoprintLabelView($canvas) {
+	this.$canvas = $canvas;
+	this.ctx = $canvas[0].getContext('2d');
+	this.ctx.font = "20px serif";
+	this.ctx.textAlign="start";
+	this.ctx.textBaseline="top";
+    }
+    var renderAllLabels = function(view, model) {
+	view.ctx.clearRect(0,0,view.$canvas[0].width,view.$canvas[0].height);
+	var tracks = model.getTracks();
+	for (var i=0; i<tracks.length; i++) {
+	    view.ctx.fillText(model.getTrackLabel(tracks[i]), 0, model.getTrackTop(tracks[i]));
+	}
     }
     OncoprintLabelView.prototype.removeTrack = function (model, track_id) {
-	// TODO: what parameters
-	// TODO: implementation
+	renderAllLabels(this, model);
     }
-    OncoprintLabelView.prototype.moveTrack = function () {
-	// TODO: what parameters
-	// TODO: implementation
+    OncoprintLabelView.prototype.moveTrack = function (model) {
+	renderAllLabels(this, model);
     }
-    OncoprintLabelView.prototype.addTrack = function (model, track_id) {
-	// TODO: what parameters
-	// TODO: implementation
+    OncoprintLabelView.prototype.addTracks = function (model, track_ids) {
+	renderAllLabels(this, model);
     }
     OncoprintLabelView.prototype.setTrackData = function () {
 	// TODO: what parameters
@@ -140,10 +161,6 @@ var OncoprintLabelView = (function () {
 	// TODO: implementation
     }
     OncoprintLabelView.prototype.setZoom = function () {
-	// TODO: what parameters
-	// TODO: implementation
-    }
-    OncoprintLabelView.prototype.setOrder = function () {
 	// TODO: what parameters
 	// TODO: implementation
     }
@@ -174,7 +191,7 @@ var OncoprintModel = (function () {
 	
 	this.zoom = ifndef(init_zoom, 1);
 
-	this.cell_padding = ifndef(init_cell_padding, 9);
+	this.cell_padding = ifndef(init_cell_padding, 3);
 	this.cell_padding_on = ifndef(init_cell_padding_on, true);
 	this.cell_width = ifndef(init_cell_width, 6);
 	this.track_group_padding = ifndef(init_track_group_padding, 10);
@@ -1523,7 +1540,6 @@ var OncoprintWebGLCellView = (function () {
 	if (view.rendering_suppressed) {
 	    return;
 	}
-	
 	
 	view.ctx.clearColor(1.0,1.0,1.0,1.0);
 	view.ctx.clear(view.ctx.COLOR_BUFFER_BIT | view.ctx.DEPTH_BUFFER_BIT);

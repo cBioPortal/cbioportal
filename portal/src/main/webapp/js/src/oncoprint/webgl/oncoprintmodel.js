@@ -19,7 +19,7 @@ var OncoprintModel = (function () {
 	
 	this.zoom = ifndef(init_zoom, 1);
 
-	this.cell_padding = ifndef(init_cell_padding, 9);
+	this.cell_padding = ifndef(init_cell_padding, 3);
 	this.cell_padding_on = ifndef(init_cell_padding_on, true);
 	this.cell_width = ifndef(init_cell_width, 6);
 	this.track_group_padding = ifndef(init_track_group_padding, 10);

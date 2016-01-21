@@ -1460,12 +1460,13 @@ class SegValidator(Validator):
                         extra={'line_number': self.line_number,
                                'column_number': col_index + 1,
                                'cause': value})
-                if value < 1 or (
+                # 0 is the first base, and loc.end is not part of the segment
+                if value < 0 or (
                         'chrom' in parsed_coords and
                         value > self.chromosome_lengths[parsed_coords['chrom']]):
                     self.logger.error(
                         'Genomic position beyond end of chromosome '
-                        '(chr%(chr)s:1-%(end)s)',
+                        '(chr%(chr)s:0-%(end)s)',
                         chr=parsed_coords.get('chrom') or '?',
                         end=self.chromosome_lengths.get(
                                 parsed_coords.get('chrom')) or '?',

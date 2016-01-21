@@ -24,6 +24,72 @@ function MiniOnco(plotDiv, miniOncoDiv, originalData){
 
     // create the bar data which will be used to create the stacked histogram
     function createBarData(setSizeAlt, current_gene){
+        var bardata;
+        // retrieve the total number of samples and calculate the setsizes
+        var totalSetSize = window.QuerySession.getSampleIds().length;
+        var setSizeUnalt = totalSetSize - setSizeAlt;
+
+        if(!stackedHistogram){
+            bardata = createEmptyBar(setSizeUnalt, setSizeAlt);
+            //bardata = createSelectedGeneData(current_gene, setSizeUnalt, setSizeAlt);
+        }
+        else{
+            bardata = createSelectedGeneData(current_gene, setSizeUnalt, setSizeAlt);
+        }
+
+        bardata.push({
+            barName: "Query Genes",
+            barPieceName: "Query Genes Unaltered: "+setSizeUnalt,
+            barPieceValue: setSizeUnalt,
+            color: "lightgrey"
+        });
+
+        bardata.push({
+            barName: "Query Genes",
+            barPieceName: "Query Genes Altered: "+setSizeAlt,
+            barPieceValue: setSizeAlt,
+            color: "#58ACFA"
+        });
+
+        return bardata;
+    }
+
+    /**
+     * Creates an empty row for when the mini-onco is created
+     * @param setSizeUnalt
+     * @param setSizeAlt
+     * @returns {*[]}
+     */
+    function createEmptyBar(setSizeUnalt, setSizeAlt){
+        return [{
+            barName: "None selected",
+            barPieceName: "Select gene in table or volcano plot",
+            barPieceValue: setSizeUnalt + setSizeAlt,
+            color: "lightgrey",
+            opacity: 0
+        },{
+            barName: "None selected",
+            barPieceName: "dummy1",
+            barPieceValue: 0,
+            color: "#58ACFA",
+            opacity: 0
+        },{
+            barName: "None selected",
+            barPieceName: "dummy2",
+            barPieceValue: 0,
+            color: "#58ACFA",
+            opacity: 0
+        },{
+            barName: "None selected",
+            barPieceName: "dummy3",
+            barPieceValue: 0,
+            color: "lightgrey",
+            opacity: 0
+        }
+        ];
+    }
+
+    function createSelectedGeneData(current_gene, setSizeUnalt, setSizeAlt){
         // find the numbers in the table
         var nrAltInAlt = 0;
         var nrAltInUnalt = 0;
@@ -36,44 +102,28 @@ function MiniOnco(plotDiv, miniOncoDiv, originalData){
             }
         }
 
-        // retrieve the total number of samples and calculate the setsizes
-        var totalSetSize = window.QuerySession.getSampleIds().length;
-        var setSizeUnalt = totalSetSize - setSizeAlt;
-
-        // create the bardata
-        var bardata = [{
+        var selectedGeneData = [{
             barName: current_gene,
-            barPieceName: "QGenes Unaltered, "+current_gene+" Unaltered",
+            barPieceName: "Query Genes Unaltered, "+current_gene+" Unaltered: "+(setSizeUnalt - nrAltInUnalt),
             barPieceValue: setSizeUnalt - nrAltInUnalt,
             color: "lightgrey"
         }, {
             barName: current_gene,
-            barPieceName: "QGenes Unaltered, "+current_gene+" Altered",
+            barPieceName: "Query Genes Unaltered, "+current_gene+" Altered: "+nrAltInUnalt,
             barPieceValue: nrAltInUnalt,
             color: "#58ACFA"
         }, {
             barName: current_gene,
-            barPieceName: "QGenes Altered, "+current_gene+" Altered",
+            barPieceName: "Query Genes Altered, "+current_gene+" Altered: "+nrAltInAlt,
             barPieceValue: nrAltInAlt,
             color: "#58ACFA"
         }, {
             barName: current_gene,
-            barPieceName: "QGenes Altered, "+current_gene+" Unaltered",
+            barPieceName: "Query Genes Altered, "+current_gene+" Unaltered: "+(setSizeAlt - nrAltInAlt),
             barPieceValue: setSizeAlt - nrAltInAlt,
             color: "lightgrey"
-        }, {
-            barName: "Query Genes",
-            barPieceName: "QGenes Unaltered",
-            barPieceValue: setSizeUnalt,
-            color: "lightgrey"
-        },{
-            barName: "Query Genes",
-            barPieceName: "QGenes Altered",
-            barPieceValue: setSizeAlt,
-            color: "#58ACFA"
         }];
-
-        return bardata;
+        return selectedGeneData;
     }
 
     // create or update the histogram
@@ -83,10 +133,13 @@ function MiniOnco(plotDiv, miniOncoDiv, originalData){
             $("#" + plotDiv).append("<div id='" + miniOncoDiv + "'/>");
             stackedHistogram = new stacked_histogram("#" + miniOncoDiv);
             stackedHistogram.createStackedHistogram(bardata);
+            stackedHistogram.addTextToLane("None selected", "Select gene in table or volcano plot");
+
         }
         else{
+            stackedHistogram.removeTextFromLane("None selected");
             stackedHistogram.updateStackedHistogram(bardata);
-            $("#"+miniOncoDiv).css("display", "block")
+            $("#"+miniOncoDiv).css("display", "block");
         }
     }
 

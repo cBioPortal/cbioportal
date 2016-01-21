@@ -67,7 +67,7 @@ function stacked_histogram(divId) {
     var width = 350 - margins.left - margins.right;
     var height = 85 - margins.top - margins.bottom;
     var animationDuration=500;
-    var dataset, yAxisComponent, groups;
+    var dataset, yAxisComponent, groups, svg;
 
     /**
      * transform the barData to the format required by the d3 component
@@ -96,16 +96,24 @@ function stacked_histogram(divId) {
                 // set a default for non-existing data
                 var value = 0;
                 var barColor = "black";
+                var opacity=1;
                 if (result.length > 0) {
                     value = result[0].barPieceValue;
                     barColor = result[0].color;
+                    if(!_.isUndefined(result[0].opacity)){
+                        opacity = result[0].opacity;
+                    }
                 }
+
+                // tipLabel
+                //var tipLabel = barPieces[i] + (barNames[j]==="None selected"?"":": "+Math.round(value));
                 // add the data and create a tipLabel for the tooltip
                 data.push({
                     x: barNames[j],
                     y: value,
                     color: barColor,
-                    tipLabel: barPieces[i]+": "+Math.round(value)
+                    opacity: opacity,
+                    tipLabel: barPieces[i]
                 });
             }
             data.name = barPieces[i];
@@ -125,6 +133,7 @@ function stacked_histogram(divId) {
                     y: d.x,
                     x0: d.y0,
                     color: d.color,
+                    opacity: d.opacity,
                     tipLabel: d.tipLabel
                 };
             });
@@ -140,7 +149,7 @@ function stacked_histogram(divId) {
         transformData(barData);
 
         // append the svg with a width and height
-        var svg = d3.select(divId)
+        svg = d3.select(divId)
             .append('svg')
             .attr('width', width + margins.left + margins.right)
             .attr('height', height + margins.top + margins.bottom)
@@ -181,6 +190,9 @@ function stacked_histogram(divId) {
             .style('fill', function (d) {
                 return d.color;
             })
+            .style('opacity', function (d) {
+                return d.opacity;
+            })
             .on("mouseover", function(d) {
                 showTip(d, $(this));
             });
@@ -194,7 +206,47 @@ function stacked_histogram(divId) {
 
     }
 
-    // update the histogram
+    /**
+     * creates a clean id based on the divId and the barName
+     * @param barName
+     * @returns {string}
+     */
+    function getCleanedTextId(barName){
+        return (divId+barName+"_text").replace(/\W/g,'_');
+    }
+
+    /**
+     * Add text to a lane / barName
+     * @param barName: name of the lane
+     * @param text: text to show
+     */
+    this.addTextToLane = function(barName, text){
+        var yScale = getYScale();
+        var yPos = yScale(barName) + yScale.rangeBand()*0.75;
+
+        svg.append("g")
+            .append("text")
+            .attr("id", getCleanedTextId(barName))
+            .attr("x", 5)
+            .attr("y", yPos)
+            .text(text)
+            .attr("font-family", "Verdana, Arial, sans-serif")
+            .attr("font-size", "11px")
+            .attr("fill", "black");
+    }
+
+    /**
+     * Remove text from a lane / barName
+     * @param barName
+     */
+    this.removeTextFromLane = function(barName){
+        $("#"+getCleanedTextId(barName)).remove();
+    }
+
+    /**
+     * Update the stacked histogram with new data
+     * @param barData
+     */
     this.updateStackedHistogram = function(barData){
         // transform the data to the necessary format
         transformData(barData);
@@ -219,6 +271,9 @@ function stacked_histogram(divId) {
             })
             .attr('width', function (d) {
                 return xScale(d.x);
+            })
+            .style('opacity', function (d) {
+                return d.opacity;
             });
 
         // update the y-axis
@@ -283,22 +338,29 @@ function stacked_histogram(divId) {
      * @param yaxis
      */
     function addYAxisToolTip(yaxis){
-        var cnt=0;
-        // for each y-axis tick
-        yaxis.selectAll(".tick")[0].forEach(function(d1) {
+        var yScale = getYScale();
+        var imgHeight = 10;
+        var ticks = yaxis.selectAll(".tick")[0];
+
+        for(var i=0; i<ticks.length; i++){
+            var curTick = ticks[i];
+            var data = d3.select(curTick).data();
+            // determine the y position for the image. Determine the y offset via the yScale, determine the height
+            // of the bars, divide by 2 and compensate for the height of the image which you would like centered
+            var yPos = yScale(data) + yScale.rangeBand()*0.5 - imgHeight/2;
 
             // add an image
             var curImage = yaxis.append("svg:image")
                 .attr("xlink:href", "images/info.png")
                 .attr("class", "plots-title-x-help")
                 .attr("x", -100)
-                .attr("y", 8+(cnt*20))
+                .attr("y", yPos)
                 .attr("width", "10")
-                .attr("height", "10");
+                .attr("height", imgHeight);
 
             // determine the axisText
             var axisText = "Query Genes selected by user";
-            if(cnt>0) axisText = "Gene selected in table";
+            if(i>0) axisText = "Gene selected in table";
 
             // create an element with a tipLabel, which is what the showTip function expects
             var element = {
@@ -307,9 +369,7 @@ function stacked_histogram(divId) {
 
             // add the tooltip
             showTip(element, $(curImage));
-
-            cnt++;
-        });
+        }
     }
 
     /**

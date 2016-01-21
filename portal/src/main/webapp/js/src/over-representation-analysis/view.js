@@ -760,7 +760,10 @@ var orTable = function(plot_div, minionco_div, loading_div) {
             }
 			//if plot_div is set, add a volcano plot:
             if (self.plot_div != null) {
+                // create mini onco and render it
                 self.miniOnco = new MiniOnco(self.plot_div, minionco_div, originalData);
+                self.miniOnco.render("none");
+                // create volcanoplot and render it
             	self.volcanoPlot = new VolcanoPlot();
                 self.volcanoPlot.render(self);
             }

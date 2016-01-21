@@ -171,7 +171,9 @@ class ColumnOrderTestCase(DataFileTestCase):
         # set level according to this test case:
         self.logger.setLevel(logging.ERROR)
         record_list = self.validate('data_seg_wrong_order.txt',
-                                    validateData.SegValidator)
+                                    validateData.SegValidator,
+                                    extra_meta_fields={'reference_genome_id':
+                                                           'hg19'})
         # we expect 2 errors about columns in wrong order,
         # and one about the file not being parseable:
         self.assertEqual(len(record_list), 3)
@@ -468,3 +470,67 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
                 found_one_of_the_expected = True
 
         self.assertEqual(True, found_one_of_the_expected)
+
+
+class SegFileValidationTestCase(PostClinicalDataFileTestCase):
+
+    """Tests for the various validations of data in segment CNA data files."""
+
+    def test_valid_seg(self):
+        """Validate a segment file without file format errors."""
+        record_list = self.validate('data_seg_valid.seg',
+                                    validateData.SegValidator,
+                                    extra_meta_fields={'reference_genome_id':
+                                                           'hg19'})
+        # expecting nothing but the info messages at start and end of file
+        self.assertEqual(len(record_list), 2)
+        for record in record_list:
+            self.assertEqual(record.levelno, logging.INFO)
+
+
+    def test_unparsable_seg_columns(self):
+        """Validate .seg files with non-numeric values and an unsupported chromosome."""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_seg_nonsense_values.seg',
+                                    validateData.SegValidator,
+                                    extra_meta_fields={'reference_genome_id':
+                                                           'hg19'})
+        self.assertEqual(len(record_list), 3)
+        for record in record_list:
+            self.assertEqual(record.levelno, logging.ERROR)
+            self.assertEqual(record.line_number, 28)
+        # unknown chromosome
+        self.assertEqual(record_list[0].column_number, 2)
+        # non-integral start position
+        self.assertEqual(record_list[1].column_number, 3)
+        # non-rational mean copy number
+        self.assertEqual(record_list[2].column_number, 6)
+
+    def test_negative_length_segment(self):
+        """Validate a .seg where a start position is lower than its end position."""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_seg_end_before_start.seg',
+                                    validateData.SegValidator,
+                                    extra_meta_fields={'reference_genome_id':
+                                                           'hg19'})
+        self.assertEqual(len(record_list), 1)
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.line_number, 11)
+
+    def test_out_of_bounds_coordinates(self):
+        """Validate .seg files with regions spanning outside of the chromosome."""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_seg_out_of_bounds.seg',
+                                    validateData.SegValidator,
+                                    extra_meta_fields={'reference_genome_id':
+                                                           'hg19'})
+        self.assertEqual(len(record_list), 2)
+        for record in record_list:
+            self.assertEqual(record.levelno, logging.ERROR)
+        # start position before start of chromosome
+        self.assertEqual(record_list[0].line_number, 36)
+        self.assertEqual(record_list[0].column_number, 3)
+        # end position after end of chromosome
+        self.assertEqual(record_list[1].line_number, 41)
+        self.assertEqual(record_list[1].column_number, 4)

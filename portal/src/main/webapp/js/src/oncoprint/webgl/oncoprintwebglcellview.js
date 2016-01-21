@@ -209,8 +209,8 @@ var OncoprintWebGLCellView = (function () {
 	view.vertex_position_array[track_id] = positions_with_y_offset;
     }
     var computeVertexPositionsWithoutYOffsetAndVertexColors = function (view, model, track_id) {
-	view.vertex_position_array_without_y_offset[track_id] = view.vertex_position_array_without_y_offset[track_id] || {};
-	view.vertex_color_array[track_id] = view.vertex_color_array[track_id] || {};
+	view.vertex_position_array_without_y_offset[track_id] = {};
+	view.vertex_color_array[track_id] = {};
 	
 	var identified_shape_list_list = view.identified_shape_list_list[track_id];
 	var id_order = model.getIdOrder();
@@ -401,6 +401,16 @@ var OncoprintWebGLCellView = (function () {
     
     OncoprintWebGLCellView.prototype.scroll = function(offset) {
 	this.scroll_x = offset;
+	renderAllTracks(this);
+    }
+    
+    OncoprintWebGLCellView.prototype.setZoom = function(model) {
+	var track_ids = model.getTracks();
+	for (var i=0; i<track_ids.length; i++) {
+	    computeIdentifiedShapeListList(this, model, track_ids[i]);
+	    computeVertexPositionsWithoutYOffsetAndVertexColors(this, model, track_ids[i]);
+	    computeVertexPositionsWithYOffset(this, model, track_ids[i]);
+	}
 	renderAllTracks(this);
     }
     return OncoprintWebGLCellView;

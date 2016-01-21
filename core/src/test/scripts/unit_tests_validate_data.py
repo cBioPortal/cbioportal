@@ -443,8 +443,6 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record_list[1].cause, '-126792')
 
 
-# TODO- manual check if entrez/hugo combi is indeed in ncbi.gz file
-
 class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
 
     def test_normal_samples_list_in_maf(self):

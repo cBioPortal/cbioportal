@@ -32,13 +32,13 @@
 
 
 var orTable = function() {
-    
+
     var div_id, table_id, data, titles; //titles is formatted string of column names with html markdown in
     var col_index, orTableInstance, profile_type, profile_id, table_title;
     var selected_genes = [];
 
     function configTable() {
-        
+
         //sortings
         jQuery.fn.dataTableExt.oSort['or-analysis-p-value-desc'] = function(a,b) {
 
@@ -49,8 +49,6 @@ var orTable = function() {
                 if (b.indexOf("down1") !== -1) b = b.replace("<img src=\"images/down1.png\"/>",  "");
             }
 
-            //if (a === "<0.001") { a = 0.0009; }
-            //if (b === "<0.001") { b = 0.0009; }
             if (parseFloat(a) > parseFloat(b)) return -1;
             else if (parseFloat(a) < parseFloat(b)) return 1;
             else return 0;
@@ -64,8 +62,6 @@ var orTable = function() {
                 if (b.indexOf("down1") !== -1) b = b.replace("<img src=\"images/down1.png\"/>",  "");
             }
 
-            //if (a === "<0.001") { a = 0.0009; }
-            //if (b === "<0.001") { b = 0.0009; }
             if (parseFloat(a) > parseFloat(b)) return 1;
             else if (parseFloat(a) < parseFloat(b)) return -1;
             else return 0;
@@ -79,8 +75,6 @@ var orTable = function() {
                 if (b.indexOf("down1") !== -1) b = b.replace("<img src=\"images/down1.png\"/>",  "");
             }
 
-            //if (a === "<0.001") { a = 0.0009; }
-            //if (b === "<0.001") { b = 0.0009; }
             if (parseFloat(a) > parseFloat(b)) return -1;
             else if (parseFloat(a) < parseFloat(b)) return 1;
             else return 0;
@@ -94,8 +88,6 @@ var orTable = function() {
                 if (b.indexOf("down1") !== -1) b = b.replace("<img src=\"images/down1.png\"/>",  "");
             }
 
-            //if (a === "<0.001") { a = 0.0009; }
-            //if (b === "<0.001") { b = 0.0009; }
             if (parseFloat(a) > parseFloat(b)) return 1;
             else if (parseFloat(a) < parseFloat(b)) return -1;
             else return 0;
@@ -128,7 +120,35 @@ var orTable = function() {
                 else return 0;
             }
         };
-        
+        jQuery.fn.dataTableExt.oSort['or-analysis-pct-altered-desc'] = function(a,b) {
+            a = parseFloat(a.substring(a.indexOf("(") + 1, a.indexOf(")") - 1));
+            b = parseFloat(b.substring(b.indexOf("(") + 1, b.indexOf(")") - 1));
+            if (a > b) return -1;
+            else if (a < b) return 1;
+            else return 0;
+        };
+        jQuery.fn.dataTableExt.oSort['or-analysis-pct-altered-asc'] = function(a,b) {
+            a = parseFloat(a.substring(a.indexOf("(") + 1, a.indexOf(")") - 1));
+            b = parseFloat(b.substring(b.indexOf("(") + 1, b.indexOf(")") - 1));
+            if (a > b) return 1;
+            else if (a < b) return -1;
+            else return 0;
+        };
+        jQuery.fn.dataTableExt.oSort['or-analysis-pct-unaltered-desc'] = function(a,b) {
+            a = parseFloat(a.substring(a.indexOf("(") + 1, a.indexOf(")") - 1));
+            b = parseFloat(b.substring(b.indexOf("(") + 1, b.indexOf(")") - 1));
+            if (a > b) return -1;
+            else if (a < b) return 1;
+            else return 0;
+        };
+        jQuery.fn.dataTableExt.oSort['or-analysis-pct-unaltered-asc'] = function(a,b) {
+            a = parseFloat(a.substring(a.indexOf("(") + 1, a.indexOf(")") - 1));
+            b = parseFloat(b.substring(b.indexOf("(") + 1, b.indexOf(")") - 1));
+            if (a > b) return 1;
+            else if (a < b) return -1;
+            else return 0;
+        };
+
         //Draw out the markdown of the datatable
         $("#" + table_id).append(
             "<thead style='font-size:60%;'>" +
@@ -168,6 +188,16 @@ var orTable = function() {
                     "aTargets": [ col_index.log_ratio ]
                 },
                 {
+                    "sType": 'or-analysis-pct-altered',
+                    "bSearchable": false,
+                    "aTargets": [col_index.altered_pct]
+                },
+                {
+                    "sType": 'or-analysis-pct-unaltered',
+                    "bSearchable": false,
+                    "aTargets": [col_index.unaltered_pct]
+                },
+                {
                     "bSearchable": false,
                     "bSortable": false,
                     "mRender": function () {
@@ -175,17 +205,18 @@ var orTable = function() {
                     },
                     "aTargets": [ col_index.plot ]
                 }
+
             ],
             "fnRowCallback": function(nRow, aData) {
                 //bold gene names
                 $('td:eq(' + col_index.gene + ')', nRow).css("font-weight", "bold");
-                
+
                 if (profile_type === orAnalysis.profile_type.copy_num || profile_type === orAnalysis.profile_type.mutations) {
                     if (aData[col_index.log_ratio] > 0 || aData[col_index.log_ratio] === ">10") {
                         $('td:eq('+ col_index.log_ratio +')', nRow).css("color", "#3B7C3B");
                     } else if (aData[col_index.log_ratio] < 0 || aData[col_index.log_ratio] === "<-10") {
                         $('td:eq(' + col_index.log_ratio + ')', nRow).css("color", "#B40404");
-                    } 
+                    }
                     //bold siginicant pvalue and qvalue
                     if (aData[col_index.p_val] === "<0.001" ||
                         aData[col_index.p_val] < orAnalysis.settings.p_val_threshold) { //significate p value
@@ -194,7 +225,7 @@ var orTable = function() {
                     if (aData[col_index.q_val] === "<0.001" ||
                         aData[col_index.q_val] < orAnalysis.settings.p_val_threshold) { //significate q value
                         $('td:eq(' + col_index.q_val + ')', nRow).css("font-weight", "bold");
-                    } 
+                    }
                 } else if (profile_type === orAnalysis.profile_type.mrna || profile_type === orAnalysis.profile_type.protein_exp) {
                     var _p_val = aData[col_index.p_val],
                         _q_val = aData[col_index.q_val];
@@ -202,7 +233,7 @@ var orTable = function() {
                     if (_p_val.indexOf("down1") !== -1) _p_val = _p_val.replace("<img src=\"images/down1.png\"/>",  "");
                     if (_q_val.indexOf("up1") !== -1) _q_val = _q_val.replace("<img src=\"images/up1.png\"/>",  "");
                     if (_q_val.indexOf("down1") !== -1) _q_val = _q_val.replace("<img src=\"images/down1.png\"/>",  "");
-                    
+
                     if (_p_val === "<0.001" || _p_val < orAnalysis.settings.p_val_threshold) {
                         $('td:eq(' + col_index.p_val + ')', nRow).css("font-weight", "bold");
                     }
@@ -221,7 +252,7 @@ var orTable = function() {
         });
 
     }
-    
+
     function attachFilters() {
 
         if (profile_type === orAnalysis.profile_type.copy_num || profile_type === orAnalysis.profile_type.mutations) {
@@ -290,7 +321,7 @@ var orTable = function() {
         }
 
     }
-    
+
     function addHeaderQtips() {
         $("#" + table_id + orAnalysis._title_ids.gene).qtip({
             content: { text:"Select gene(s) you are interested and click 'add to query' button to re-query alone with the new genes."},
@@ -305,21 +336,21 @@ var orTable = function() {
             show: {event: "mouseover"},
             hide: {fixed:true, delay: 100, event: "mouseout"},
             position: {my:'left bottom',at:'top right',viewport: $(window)}
-        });  
+        });
         $("#" + table_id + orAnalysis._title_ids.log_ratio).qtip({
             content: { text:"Log2 based ratio of (pct in altered / pct in unaltered)"},
             style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow qtip-ui-wide'},
             show: {event: "mouseover"},
             hide: {fixed:true, delay: 100, event: "mouseout"},
             position: {my:'left bottom',at:'top right',viewport: $(window)}
-        });  
+        });
         $("#" + table_id + orAnalysis._title_ids.p_val).qtip({
             content: { text:"Derived from Fisher Exact Test"},
             style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow qtip-ui-wide'},
             show: {event: "mouseover"},
             hide: {fixed:true, delay: 100, event: "mouseout"},
             position: {my:'left bottom',at:'top right',viewport: $(window)}
-        });        
+        });
         $("#" + table_id + orAnalysis._title_ids.q_val).qtip({
             content: { text:"Derived from Benjamini-Hochberg procedure"},
             style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow qtip-ui-wide'},
@@ -329,7 +360,7 @@ var orTable = function() {
         });
         $("#" + table_id + orAnalysis._title_ids.direction).qtip({
             content: { text:'Log odds ratio > 0&nbsp;&nbsp;&nbsp;: Enriched in altered group<br>' +
-                            'Log odds ratio <= 0&nbsp;: Enriched in unaltered group<br>' + 
+                            'Log odds ratio <= 0&nbsp;: Enriched in unaltered group<br>' +
                             'p-Value < 0.05&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: Significant association'},
             style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow qtip-ui-wide'},
             show: {event: "mouseover"},
@@ -385,7 +416,7 @@ var orTable = function() {
 
         $("#" + btn_id).click(function() {
 
-            if (window.PortalGlobals.getCaseSetId() !== "-1") {
+            if (window.QuerySession.getCaseSetId() !== "-1") {
                var _start_pos_gene_list = document.URL.indexOf("gene_list=") + "gene_list=".length;
 		var _end_pos_gene_list = document.URL.indexOf("&", _start_pos_gene_list);
 		var pre_gene_list = document.URL.substring(0, _start_pos_gene_list);
@@ -398,16 +429,16 @@ var orTable = function() {
 
                 //genetic profiles separate
                 var _tmp_profile_id_list = "";
-                $.each(window.PortalGlobals.getGeneticProfiles().split(/\s+/), function(index, _profile_id) {
+                $.each(window.QuerySession.getGeneticProfileIds(), function(index, _profile_id) {
                     _tmp_profile_id_list += "genetic_profile_ids=" + _profile_id + "&";
                 });
                 var _new_url = _original_url.concat(
                     "?" + "tab_index=tab_visualize" + "&" +
-                    "cancer_study_id=" + window.PortalGlobals.getCancerStudyId() + "&" +
+                    "cancer_study_id=" + window.QuerySession.getCancerStudyIds()[0] + "&" +
                     _tmp_profile_id_list +
                     "gene_list=" + window.QuerySession.getOQLQuery() + encodeURIComponent("\n") + selected_genes.join(encodeURIComponent("\n")) + "&" +
-                    "case_set_id=" + window.PortalGlobals.getCaseSetId() + "&" +
-                    "case_ids_key=" + window.PortalGlobals.getCaseIdsKey() + "&" +
+                    "case_set_id=" + window.QuerySession.getCaseSetId() + "&" +
+                    "case_ids_key=" + window.QuerySession.getCaseIdsKey() + "&" +
                     "Action=Submit"
                 );
                 if (selected_genes.length !== 0) {
@@ -532,21 +563,21 @@ var orTable = function() {
 
         return _title_str;
     }
-    
+
     return {
         init: function(_input_data, _div_id, _table_div, _table_id, _table_title, _profile_type, _profile_id, _last_profile) {
-            
+
             if (Object.keys(_input_data).length !== 0 &&
                 Object.keys(_input_data)[0] !== orAnalysis.texts.null_result &&
                 Object.keys(_input_data)[0] !== "") {
-            
+
                 div_id = _div_id;
                 table_id = _table_id;
                 data = _input_data;
                 profile_type = _profile_type;
                 profile_id = _profile_id;
                 table_title = _table_title;
-                
+
                 $("#" + div_id + "_loading_img").empty();
 
                 if (profile_type === orAnalysis.profile_type.copy_num) {
@@ -558,7 +589,7 @@ var orTable = function() {
                 } else if (profile_type === orAnalysis.profile_type.protein_exp) {
                     col_index = orAnalysis.col_index.protein_exp;
                 }
-                
+
                 titles = define_titles();
 
                 $("#" + _table_div).empty();
@@ -596,7 +627,7 @@ var orTable = function() {
 
         }
     };
-    
+
 }; //close orTable
 
 var orSubTabView = function() {

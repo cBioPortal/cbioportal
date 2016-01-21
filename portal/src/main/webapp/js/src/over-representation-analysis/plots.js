@@ -64,30 +64,33 @@ var orPlots = (function() {
 
     function data_process(result) {
 
-        var oncoprintData = or_util.sortOncoprintData(PortalDataColl.getOncoprintData());
+        window.QuerySession.getGenomicEventData().then(function(data) {
+            var order = {};
+            var sample_ids = window.QuerySession.getSampleIds();
+            for (var i=0; i<sample_ids.length; i++) {
+                order[sample_ids[i]] = i;
+            }
+            var oncoprintData = _.sortBy(data, function(d) { return order[d.sample];});
+            dotsArr = [];
+            dotsArr.length = 0;
+            window.QuerySession.getAlteredSamples().then(function(altered_sample_ids) {
+                $.each(Object.keys(result[gene]), function(index, _sampleId) {
+                    var _obj = result[gene][_sampleId];
+                    var _datum = {};
+                    if (!isNaN(_obj[profile_id])) {
+                    if ($.inArray(_sampleId, altered_sample_ids) !== -1) { //sample is altered
+                        _datum.x_val = 0;
+                    } else { //sample is unaltered
+                        _datum.x_val = 1;
+                    }
 
-        dotsArr = [];
-        dotsArr.length = 0;
-        $.each(Object.keys(result[gene]), function(index, _sampleId) {
-            var _obj = result[gene][_sampleId];
-            var _datum = {};
-            if (!isNaN(_obj[profile_id])) {
+                    //if rna seq data, apply log 10
+                    if (profile_id.indexOf("rna_seq") !== -1 && _datum.y_val !== 0) _datum.y_val = Math.log(parseFloat(_obj[profile_id]) + 1.0) / Math.log(2);
+                    else _datum.y_val = parseFloat(_obj[profile_id]);
 
-                if ($.inArray(_sampleId, window.PortalGlobals.getAlteredSampleIdArray()) !== -1) { //sample is altered
-                    _datum.x_val = 0;
-                } else { //sample is unaltered
-                    _datum.x_val = 1;
-                }
-
-                //if rna seq data, apply log 10
-                if (profile_id.indexOf("rna_seq") !== -1 && _datum.y_val !== 0) _datum.y_val = Math.log(parseFloat(_obj[profile_id]) + 1.0) / Math.log(2);
-                else _datum.y_val = parseFloat(_obj[profile_id]);
-
-                _datum.case_id = _sampleId;
-                if ($.inArray(_sampleId, window.PortalGlobals.getAlteredSampleIdArray()) !== -1) { //sample is altered
-
-                    $.each(oncoprintData, function(outer_index, outer_obj) {
-                        $.each(outer_obj.values, function(inner_key, inner_obj) {
+                    _datum.case_id = _sampleId;
+                    if ($.inArray(_sampleId, altered_sample_ids) !== -1) { //sample is altered
+                        $.each(oncoprintData, function(_index, inner_obj) {
                             if (_sampleId === inner_obj.sample) {
                                 var _str = "";
                                 if (inner_obj.hasOwnProperty("mutation")) {
@@ -95,27 +98,27 @@ var orPlots = (function() {
                                 }
                                 if (inner_obj.hasOwnProperty("cna")) {
                                     if (inner_obj.cna === "AMPLIFIED") {
-                                        _str += " AMP;";
+                                    _str += " AMP;";
                                     } else if (inner_obj.cna === "GAINED") {
-                                        _str += " GAIN;";
+                                    _str += " GAIN;";
                                     } else if (inner_obj.cna === "HEMIZYGOUSLYDELETED") {
-                                        _str += " HETLOSS;";
+                                    _str += " HETLOSS;";
                                     } else if (inner_obj.cna === "HOMODELETED") {
-                                        _str += " HOMDEL;";
+                                    _str += " HOMDEL;";
                                     }
                                 }
                                 if (inner_obj.hasOwnProperty("mrna")) {
                                     if (inner_obj.mrna === "UPREGULATED") {
-                                        _str += " UP;";
+                                    _str += " UP;";
                                     } else if (inner_obj.mrna === "DOWNREGULATED") {
-                                        _str += " DOWN;";
+                                    _str += " DOWN;";
                                     }
                                 }
                                 if (inner_obj.hasOwnProperty("rppa")) {
                                     if (inner_obj.rppa === "UPREGULATED") {
-                                        _str += " RPPA-UP;";
+                                    _str += " RPPA-UP;";
                                     } else if (inner_obj.rppa === "DOWNREGULATED") {
-                                        _str += " RPPA-DOWN;";
+                                    _str += " RPPA-DOWN;";
                                     }
                                 }
                                 if (_str !== "") {
@@ -124,13 +127,15 @@ var orPlots = (function() {
                                 }
                             }
                         });
-                    });
-                }
-                dotsArr.push(_datum);
-            }
+                    }
+                    dotsArr.push(_datum);
+                    }
+                });
+
+                generate_plots();
+            });
         });
 
-        generate_plots();
     };
 
     var generate_plots = function() {
@@ -139,7 +144,9 @@ var orPlots = (function() {
 
         //attach headers & download button
         var _title = "Boxplots of " + profile_name + " data for altered and unaltered cases " +
-            "<button id='" + div_id + "_enrichments_pdf_download'>PDF</button>";
+            "<button id='" + div_id + "_enrichments_pdf_download'>PDF</button>" +
+            "<button id='" + div_id + "_enrichments_svg_download'>SVG</button>" +
+            "<button id='" + div_id + "_enrichments_data_download'>Data</button>";
         $("#" + div_id).append(_title);
         $("#" + div_id + "_enrichments_pdf_download").click(function() {
             var downloadOptions = {
@@ -149,6 +156,26 @@ var orPlots = (function() {
             };
             cbio.download.initDownload($("#" + div_id + " svg")[0], downloadOptions);
         });
+        $("#" + div_id + "_enrichments_svg_download").click(function() {
+            var xmlSerializer = new XMLSerializer();
+            var download_str = cbio.download.addSvgHeader(xmlSerializer.serializeToString($("#" + div_id + " svg")[0]));
+            cbio.download.clientSideDownload([download_str], "enrichments-plots.svg", "application/svg+xml");
+        });
+        $("#" + div_id + "_enrichments_data_download").click(function() {
+            cbio.download.clientSideDownload([get_tab_delimited_data()], "enrichments-plots-data.txt");
+        });
+
+        function get_tab_delimited_data() {
+            var result_str = "Sample Id" + "\t" + gene + ", " + profile_name + "\t" + "Alteration" + "\n";
+            _.each(dotsArr, function(dot) {
+                if (dot.hasOwnProperty("alteration")) {
+                    result_str += dot.case_id + "\t" + dot.y_val + "\t" + dot.alteration + "\n";
+                } else {
+                    result_str += dot.case_id + "\t" + dot.y_val + "\t" + "Non" + "\n";
+                }
+            });
+            return result_str;
+        }
 
         //init canvas
         elem.svg = d3.select("#" + div_id)
@@ -229,7 +256,7 @@ var orPlots = (function() {
             .attr("y", 580)
             .style("text-anchor", "middle")
             .style("font-size", "13px")
-            .text("Query: " + window.PortalGlobals.getGeneListString() + " (p-Value: " + p_value + ")");
+            .text("Query: " + window.QuerySession.getQueryGenes().join(" ") + " (p-Value: " + p_value + ")");
         axisTitleGroup.append("text")
             .attr("class", "rppa-plots-y-axis-title")
             .attr("transform", "rotate(-90)")
@@ -444,11 +471,11 @@ var orPlots = (function() {
             if (_p_value.indexOf("down1") !== -1) p_value = _p_value.replace("<img src=\"images/down1.png\"/>",  "");
 
             var params_get_profile_data = {
-                cancer_study_id: window.PortalGlobals.getCancerStudyId(),
+                cancer_study_id: window.QuerySession.getCancerStudyIds()[0],
                 gene_list: gene,
                 genetic_profile_id: profile_id,
-                case_set_id: window.PortalGlobals.getCaseSetId(),
-                case_ids_key: window.PortalGlobals.getCaseIdsKey()
+                case_set_id: window.QuerySession.getCaseSetId(),
+                case_ids_key: window.QuerySession.getCaseIdsKey()
             }
             $.post("getProfileData.json", params_get_profile_data, data_process, "json");
 

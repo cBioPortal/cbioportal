@@ -34,16 +34,44 @@
 
 var StudyViewMainController = (function() {
     var callbackFunc = function (_data) {
-        for(var i=1, tabsL = $('#study-tabs').find('li').length; i < tabsL; i++) {
+        var urlHash = window.location.hash;
+        for(var i=0, tabsL = $('#study-tabs').find('li').length; i < tabsL; i++) {
             $('#study-tabs').tabs('enable', i);
         }
         StudyViewPrototypes.init();
-        if(!(_data.attr.length === 1 && _data.attr[0].attr_id === 'CASE_ID')) {
-            StudyViewSummaryTabController.init(_data);
+        if(!_.isUndefined(urlHash)) {
+            switch (urlHash) {
+                case '#cna':
+                    if($('#study-tab-cna-a').length == 0) {
+                        $('#study-tab-summary-a').click();
+                    }else {
+                        $('#study-tab-cna-a').click();
+                    }
+                    break;
+                case '#mutations':
+                    if($('#study-tab-mutations-a').length == 0) {
+                        $('#study-tab-summary-a').click();
+                    }else {
+                        $('#study-tab-mutations-a').click();
+                    }
+                    break;
+                case '#clinical':
+                    if($('#study-tab-clinical-a').length == 0) {
+                        $('#study-tab-summary-a').click();
+                    }else {
+                        $('#study-tab-clinical-a').click();
+                    }
+                    break;
+                case '#summary':
+                    $('#study-tab-summary-a').click();
+                    break;
+                default:
+                    $('#study-tab-summary-a').click();
+                    break;
+                    
+            }
         }else {
-            $("#dc-plots-loading-wait").css('display', 'none');
-            $("#dc-plots").append("<div style='width:100%'>"+
-                "There isn't any information for this study.</div>");
+            $('#study-tab-summary-a').click();
         }
     };
     

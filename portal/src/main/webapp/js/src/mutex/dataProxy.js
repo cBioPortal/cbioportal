@@ -75,7 +75,7 @@ var MutexData = (function() {
 		};
 
 	function countEventCombinations() {
-            var _geneArr = window.PortalGlobals.getGeneList();
+            var _geneArr = window.QuerySession.getQueryGenes();
             //eliminate genes with no alteration
             var _gene_arr = []; //only genes with alterations
             $.each(_geneArr, function(index, _gene) {
@@ -208,7 +208,7 @@ var MutexData = (function() {
 
             //eliminate genes with no alteration
             var _gene_arr = []; //only genes with alterations
-            $.each(window.PortalGlobals.getGeneList(), function(index, _gene) {
+            $.each(window.QuerySession.getQueryGenes(), function(index, _gene) {
                 var _has_alteration = false;
                 $.each(oncoprintData, function(index, _data_obj) {
                     $.each(_data_obj.values, function(_index, _single_gene_obj) {

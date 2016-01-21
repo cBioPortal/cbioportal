@@ -210,6 +210,15 @@ table {
     display: none;
     z-index: 1;
 }
+
+#study-view-case-select-custom-dialog input[type="radio"] {
+    margin: 3px;
+}
+
+#study-view-case-select-custom-dialog {
+    margin: 3px 0;
+}
+
 #clinical_table_info {
     float: left;
 }
@@ -273,6 +282,10 @@ table {
 }
 .study-view-qtip table.dataTable td.pieLabelValue {
     padding: 3px 2px 3px 0 !important;
+}
+
+#qtip-study-view-case-select-custom-dialog .qtip-title {
+    font-size: 14px;
 }
 .smallTable thead th {
     font-size: 10px !important;

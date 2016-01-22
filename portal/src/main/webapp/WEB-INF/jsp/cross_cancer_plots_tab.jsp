@@ -67,6 +67,10 @@
             <input type="checkbox" id="cc_plots_log_scale" onchange="ccPlots.toggle_log_scale()" checked/>
             <h5>Show Mutations</h5>
             <input type="checkbox" id="cc_plots_show_mutations" onchange="ccPlots.toggle_show_mutations()" checked/>
+            <h5>Download</h5>
+            <button id="cc_plots_pdf_download" type="button">PDF</button>
+            <button id="cc_plots_svg_download" type="button">SVG</button>
+            <button id="cc_plots_data_download" type="button">Data</button>
         </div>
     </tr>
     <tr>

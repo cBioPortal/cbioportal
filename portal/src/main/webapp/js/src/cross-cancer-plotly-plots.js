@@ -424,6 +424,24 @@ var ccPlots = (function (Plotly, _, $) {
                     show_mutations = document.getElementById("cc_plots_show_mutations").checked;
                     study_order = $('input[name=cc_plots_study_order_opt]:checked').val();
 
+                    //init download buttons
+                    $("#cc_plots_svg_download").click(function() {
+                        var xmlSerializer = new XMLSerializer();
+                        var main_plots_str = xmlSerializer.serializeToString($("#cc_plots_box svg")[0]);
+                        main_plots_str = main_plots_str.substring(0, main_plots_str.length - 6);
+                        var legend_str = xmlSerializer.serializeToString($("#cc_plots_box svg")[2]);
+                        legend_str = legend_str.substring(legend_str.indexOf(">") + 1, legend_str.length);
+                        cbio.download.clientSideDownload([main_plots_str + legend_str], "cross-cancer-plots-download.svg", "application/svg+xml");
+                    });
+                    $("#cc_plots_pdf_download").click(function() {
+                        var downloadOptions = {
+                            filename: "cross-cancer-plots-download.pdf",
+                            contentType: "application/pdf",
+                            servletName: "svgtopdf.do"
+                        };
+                        cbio.download.initDownload($("#cc_plots_box svg")[0], downloadOptions);
+                    });
+
                     fetch_profile_data(_.pluck(_.pluck(window.studies.models, "attributes"), "studyId"));
                 }
             }

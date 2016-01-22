@@ -83,16 +83,8 @@ var ccPlots = (function (Plotly, _, $) {
                     }
                 }
 
-                //if (study_order === "median") {
-                //    _study_id_median_val_objs = _.sortBy(_study_id_median_val_objs, "median_val");
-                //    study_ids = _.pluck(_study_id_median_val_objs, "study_id");
-                //} else {
-                //    study_ids = _.uniq(_.pluck(_profile_data_objs, "study_id"));
-                //}
-                study_ids = _.uniq(_.pluck(_profile_data_objs, "study_id"));
-
                 var _get_study_params = {
-                    study_ids : study_ids
+                    study_ids : _.uniq(_.pluck(_profile_data_objs, "study_id"))
                 };
                 window.cbioportal_client.getStudies(_get_study_params).then(
                     function(_study_meta) {
@@ -193,13 +185,22 @@ var ccPlots = (function (Plotly, _, $) {
                             var _non_mut_group = _.filter(_non_mut_or_not_sequenced_group, function(_obj) { return _obj.sequenced === true; });
                             var _not_sequenced_group = _.filter(_non_mut_or_not_sequenced_group, function(_obj) { return _obj.sequenced === false; });
 
-                            //filter and only leave TCGA provisional data
+                            //exclude non provisional study
                             _non_mut_group = _.filter(_non_mut_group, function(_obj) { return _obj.study_id.indexOf("tcga_pub") === -1; });
                             _not_sequenced_group = _.filter(_not_sequenced_group, function(_obj) { return _obj.study_id.indexOf("tcga_pub") === -1; });
                             _mix_mut_group = _.filter(_mix_mut_group, function(_obj) { return _obj.study_id.indexOf("tcga_pub") === -1; });
                             study_meta = _.filter(study_meta, function(_obj) { return _obj.id.indexOf("tcga_pub") === -1; });
                             study_ids = _.filter(study_ids, function(study_id) { return study_id.indexOf("tcga_pub") === -1 });
                             mrna_profiles = _.filter(mrna_profiles, function(mrna_profile) { return mrna_profile.indexOf("tcga_pub") === -1; });
+
+                            //exclude esophagus
+                            var _tmp_target_study_obj = _.filter(study_meta, function(obj) { return obj.name.indexOf("Esophageal") !== -1 });
+                            _non_mut_group = _.filter(_non_mut_group, function(_obj) { return _obj.study_name.indexOf("Esophageal") === -1; });
+                            _not_sequenced_group = _.filter(_not_sequenced_group, function(_obj) { return _obj.study_name.indexOf("Esophageal") === -1; });
+                            _mix_mut_group = _.filter(_mix_mut_group, function(_obj) { return _obj.study_name.indexOf("Esophageal") === -1; });
+                            study_meta = _.filter(study_meta, function(_obj) { return _obj.name.indexOf("Esophageal") === -1; });
+                            study_ids = _.filter(study_ids, function(study_id) { return study_id.indexOf(_tmp_target_study_obj[0].id) === -1; });
+                            mrna_profiles = _.filter(mrna_profiles, function(mrna_profile) { return mrna_profile.indexOf(_tmp_target_study_obj[0].id) === -1; });
 
                             render(_non_mut_group, _not_sequenced_group, _mix_mut_group);
 

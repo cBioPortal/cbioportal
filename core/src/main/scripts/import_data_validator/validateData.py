@@ -1693,8 +1693,8 @@ def validate_types_and_id(metaDictionary, logger, filename):
     allowed combinations found in src/main/resources/validator/allowed_data_types.txt
     """
     alt_type_datatype_and_stable_id = {}
-    script_dir = os.path.dirname(__file__)
-    allowed_data_types_file_name = os.path.join(script_dir, "allowed_data_types.txt")
+    #script_dir = os.path.dirname(__file__)
+    #allowed_data_types_file_name = os.path.join(script_dir, "allowed_data_types.txt")
     # TODO - implement validation. For now, return True
     return True
 

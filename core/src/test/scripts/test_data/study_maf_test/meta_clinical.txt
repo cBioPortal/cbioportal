@@ -5,5 +5,4 @@ stable_id: brca_tcga_pub_clinical
 show_profile_in_analysis_tab: false
 profile_description: Sample clinical data for this study. 
 profile_name: Sample clinical data for brca_tcga_pub.
-meta_file_type: meta_clinical
 data_file_path: data_clinical2.txt

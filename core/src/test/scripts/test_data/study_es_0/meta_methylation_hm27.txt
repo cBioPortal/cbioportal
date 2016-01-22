@@ -5,5 +5,4 @@ stable_id: brca_tcga_pub_methylation_hm27
 profile_description: Methylation beta-values (HM27 platform). For genes with multiple methylation probes, the probe least correlated with expression is selected.
 show_profile_in_analysis_tab: false
 profile_name: Methylation (HM27)
-meta_file_type: meta_methylation
 data_file_path: data_methylation_hm27.txt

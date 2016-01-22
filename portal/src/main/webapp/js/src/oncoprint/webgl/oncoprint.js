@@ -14,31 +14,41 @@ var Oncoprint = (function () {
 	}
     })();
     function Oncoprint(ctr_selector, width) {
+	var self = this;
 	var $label_canvas = $('<canvas width="150" height="250"></canvas>').appendTo(ctr_selector).css({'display':'inline-block'});
 	var $cell_canvas = $('<canvas width="'+width+'" height="250"></canvas>').css({'position':'absolute', 'top':'0px', 'left':'0px'});
-	var $cell_div = $('<div>').css({'width':width+'px', 'height':'250px', 'overflow-x':'scroll', 'overflow-y':'hidden', 'display':'inline-block', 'position':'relative'}).appendTo(ctr_selector);
+	var $cell_div = $('<div>').css({'width':width, 'height':'250', 'overflow-x':'scroll', 'overflow-y':'hidden', 'display':'inline-block', 'position':'relative'}).appendTo(ctr_selector);
 	$cell_canvas.appendTo($cell_div);
-	$('<div>').css({'width':'20000px', 'position':'absolute', 'top':'250px', 'left':'0px', 'height':'1px'}).appendTo($cell_div);
+	var $dummy_scroll_div = $('<div>').css({'width':'20000', 'position':'absolute', 'top':'0', 'left':'0px', 'height':'1px'}).appendTo($cell_div);
 	
 	this.model = new OncoprintModel();
 
 	// Precisely one of the following should be uncommented
 	// this.cell_view = new OncoprintSVGCellView($svg_dev);
-	this.cell_view = new OncoprintWebGLCellView($cell_canvas);
+	this.cell_view = new OncoprintWebGLCellView($cell_div, $cell_canvas, $dummy_scroll_div);
 
 	this.label_view = new OncoprintLabelView($label_canvas);
+	this.label_view.setDragCallback(function(target_track, new_previous_track) {
+	    self.moveTrack(target_track, new_previous_track);
+	});
 	
 	
 	// We need to handle scrolling this way because for some reason huge 
 	//  canvas elements have terrible resolution.
 	var cell_view = this.cell_view;
+	var model = this.model;
 	$cell_div.scroll(function() {
 	    var scroll_left = $cell_div.scrollLeft();
 	    $cell_canvas.css('left', scroll_left);
-	    cell_view.scroll(scroll_left);
+	    cell_view.scroll(model, scroll_left);
 	});
     }
 
+    Oncoprint.prototype.moveTrack = function(target_track, new_previous_track) {
+	this.model.moveTrack(target_track, new_previous_track);
+	this.cell_view.moveTrack(this.model);
+	this.label_view.moveTrack(this.model);
+    }
     Oncoprint.prototype.addTracks = function (params_list) {
 	// Update model
 	var track_ids = [];
@@ -116,12 +126,17 @@ var Oncoprint = (function () {
     }
     
     Oncoprint.prototype.releaseRendering = function() {
-	this.cell_view.releaseRendering();
+	this.cell_view.releaseRendering(this.model);
     }
     
     Oncoprint.prototype.hideIds = function(to_hide, show_others) {
 	this.model.hideIds(to_hide, show_others);
 	this.cell_view.hideIds(this.model);
+    }
+    
+    Oncoprint.prototype.setCellPaddingOn = function(cell_padding_on) {
+	this.model.setCellPaddingOn(cell_padding_on);
+	this.cell_view.setCellPaddingOn(this.model);
     }
     
     return Oncoprint;

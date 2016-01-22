@@ -620,7 +620,7 @@ var GeneticAlterationRuleSet = (function () {
 				var condition = (function(k,v) {
 				    return (v === '*' ?
 					function (d) {
-					    return (typeof d[k] !== undefined);
+					    return (typeof d[k] !== 'undefined');
 					} :
 					function (d) {
 					    return d[k] === v;

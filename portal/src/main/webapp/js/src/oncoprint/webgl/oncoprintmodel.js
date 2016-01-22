@@ -23,6 +23,7 @@ var OncoprintModel = (function () {
 	this.cell_padding_on = ifndef(init_cell_padding_on, true);
 	this.cell_width = ifndef(init_cell_width, 6);
 	this.track_group_padding = ifndef(init_track_group_padding, 10);
+	this.bottom_padding = 20;
 
 	this.track_data = {};
 	this.display_track_data = {}; // in order
@@ -70,6 +71,9 @@ var OncoprintModel = (function () {
     OncoprintModel.prototype.getTrackPadding = function (track_id) {
 	return this.track_padding[track_id];
     }
+    OncoprintModel.prototype.getBottomPadding = function() {
+	return this.bottom_padding;
+    }
 
     var computeIdIndex = function(model) {
 	model.id_to_index = {};
@@ -83,6 +87,10 @@ var OncoprintModel = (function () {
 	model.visible_id_order = model.id_order.filter(function (id) {
 	    return !hidden_ids[id];
 	});
+    }
+    
+    OncoprintModel.prototype.setCellPaddingOn = function(cell_padding_on) {
+	this.cell_padding_on = cell_padding_on;
     }
     OncoprintModel.prototype.getIdOrder = function (all) {
 	if (all) {
@@ -228,12 +236,28 @@ var OncoprintModel = (function () {
 		y += 2 * this.getTrackPadding(group[j]);
 		y += this.getTrackHeight(group[j]);
 	    }
-	    y += this.getTrackGroupPadding();
 	    if (found) {
 		break;
 	    }
+	    y += this.getTrackGroupPadding();
 	}
 	return y;
+    }
+    OncoprintModel.prototype.getTrackTops = function (track_id) {
+	var tops = {};
+	var groups = this.getTrackGroups();
+	var y = 0;
+	for (var i = 0; i < groups.length; i++) {
+	    var group = groups[i];
+	    for (var j = 0; j < group.length; j++) {
+		var track_id = group[j];
+		tops[track_id] = y;
+		y += 2 * this.getTrackPadding(track_id);
+		y += this.getTrackHeight(track_id);
+	    }
+	    y += this.getTrackGroupPadding();
+	}
+	return tops;
     }
     OncoprintModel.prototype.getContainingTrackGroup = function (track_id) {
 	return _getContainingTrackGroup(this, track_id, false);
@@ -254,10 +278,12 @@ var OncoprintModel = (function () {
 	return ret;
     }
 
-    OncoprintModel.prototype.moveTrack = function (track_id, new_position) {
+    OncoprintModel.prototype.moveTrack = function (track_id, new_previous_track) {
+	console.log(track_id + "," + new_previous_track);
 	var track_group = _getContainingTrackGroup(this, track_id, true);
 	if (track_group) {
 	    track_group.splice(track_group.indexOf(track_id), 1);
+	    var new_position = (new_previous_track === null ? 0 : track_group.indexOf(new_previous_track)+1);
 	    track_group.splice(new_position, 0, track_id);
 	}
     }

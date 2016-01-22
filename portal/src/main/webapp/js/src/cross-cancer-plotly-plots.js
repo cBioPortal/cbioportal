@@ -40,10 +40,11 @@ var ccPlots = (function (Plotly, _, $) {
 
     var data = []; //for rendering
 
-    var gene = [], apply_log_scale = false, study_order;
+    var gene = [], apply_log_scale = false, study_order, show_mutations = false;
 
     var threshold_down = 0.17677669529,  //-2.5 to 10
-        threshold_up = 1.2676506e+30;
+        threshold_up = 1.2676506e+30,
+        jitter_value = 0.4;
 
     var fetch_profile_data = function(_queried_study_ids) {
 
@@ -220,121 +221,153 @@ var ccPlots = (function (Plotly, _, $) {
 
         // ---- define tracks ----
 
-        //not sequenced track
-        var _qtips = []; //assemble array of qtip text
-        _.each(_not_sequenced_group, function(_obj) {
-            _qtips.push("Study: " +  _obj.study_name + "<br>" +"Sample Id: " + _obj.sample_id + "<br>" + "Expression: " + _obj.profile_data);
-        });
-        var _y = []; //assemble y axis values
-        if (apply_log_scale) {
-            _y = _.pluck(_not_sequenced_group, "logged_profile_data");
-        } else {
-            _y = _.pluck(_not_sequenced_group, "profile_data");
-        }
-        var not_sequenced_track = {
-            x: _.map(_.pluck(_not_sequenced_group, "study_id"), function(_study_id){ return study_ids.indexOf(_study_id) + Math.random() * 0.3 - 0.15; }),
-            y: _y,
-            mode: 'markers',
-            type: 'scatter',
-            name: 'Not Sequenced',
-            text: _qtips,
-            opacity: 0.6,
-            marker: {
-                size: 5,
-                color: 'white',
-                line: {color: 'grey', width: 1.2}
-            },
-            hoverinfo: "text",
-            study_id: _.pluck(_not_sequenced_group, "study_id"),
-            sample_id: _.pluck(_not_sequenced_group, "sample_id")
-        };
-        data.push(not_sequenced_track);
-
-        // no mutation track
-        var _qtips = []; //assemble array of qtip text
-        _.each(_non_mut_group, function(_non_mut_obj) {
-            _qtips.push("Study: " +  _non_mut_obj.study_name + "<br>" +"Sample Id: " + _non_mut_obj.sample_id + "<br>" + "Expression: " + _non_mut_obj.profile_data);
-        });
-        var _y = []; //assemble y axis values
-        if (apply_log_scale) {
-            _y = _.pluck(_non_mut_group, "logged_profile_data");
-        } else {
-            _y = _.pluck(_non_mut_group, "profile_data");
-        }
-        var non_mut_track = {
-            x: _.map(_.pluck(_non_mut_group, "study_id"), function(_study_id){ return study_ids.indexOf(_study_id) + Math.random() * 0.3 - 0.15; }),
-            y: _y,
-            mode: 'markers',
-            type: 'scatter',
-            name: 'No Mutation',
-            text: _qtips,
-            marker: {
-                color: '#00AAF8',
-                size: 5,
-                line: {color: '#0089C6', width: 1.2}
-            },
-            hoverinfo: "text",
-            study_id: _.pluck(_non_mut_group, "study_id"),
-            sample_id: _.pluck(_non_mut_group, "sample_id")
-        };
-        data.push(non_mut_track);
-
-        //mutated tracks
-        var _mut_types = _.uniq(_.map(_.uniq(_.pluck(_mix_mut_group, "mutation_type")), function(_ori_type) { return mutationTranslator(_ori_type); }));
-        $.each(_mut_types, function(_index, _mut_type) {
-            var _mut_group = _.filter(_mix_mut_group, function(_obj) { return mutationTranslator(_obj.mutation_type) === _mut_type; });
-            //assemble array of qtip text
-            var _qtips = [];
-            _.each(_mut_group, function(_mut_obj) {
-                _qtips.push("Study: " + _mut_obj.study_name + "<br>" + "Sample Id: " + _mut_obj.sample_id + "<br>" + "Expression: " + _mut_obj.profile_data + "<br>" + "Mutation Type: " + _mut_obj.mutation_type + "<br>" + "Mutation Details: " + _mut_obj.mutation_details);
+        if (show_mutations) { //show mutations
+            //not sequenced track
+            var _qtips = []; //assemble array of qtip text
+            _.each(_not_sequenced_group, function(_obj) {
+                _qtips.push("Study: " +  _obj.study_name + "<br>" +"Sample Id: " + _obj.sample_id + "<br>" + "Expression: " + _obj.profile_data);
             });
-            var _y = [];
+            var _y = []; //assemble y axis values
             if (apply_log_scale) {
-                _y = _.pluck(_mut_group, "logged_profile_data");
+                _y = _.pluck(_not_sequenced_group, "logged_profile_data");
             } else {
-                _y = _.pluck(_mut_group, "profile_data");
+                _y = _.pluck(_not_sequenced_group, "profile_data");
             }
-            var _mut_track = {
-                x: _.map(_.pluck(_mut_group, "study_id"), function(_study_id){ return study_ids.indexOf(_study_id) + Math.random() * 0.3 - 0.15; }),
+            var not_sequenced_track = {
+                x: _.map(_.pluck(_not_sequenced_group, "study_id"), function(_study_id){ return study_ids.indexOf(_study_id) + Math.random() * jitter_value - jitter_value / 2; }),
                 y: _y,
                 mode: 'markers',
                 type: 'scatter',
-                name: mutationStyle.getText(_mut_type),
+                name: 'Not Sequenced',
                 text: _qtips,
+                opacity: 0.6,
                 marker: {
-                    color: mutationStyle.getFill(_mut_type),
-                    size: 6,
-                    line: {color: mutationStyle.getStroke(_mut_type), width: 1.2},
-                    symbol: mutationStyle.getSymbol(_mut_type)
+                    size: 5,
+                    color: 'white',
+                    line: {color: 'grey', width: 1.2}
                 },
                 hoverinfo: "text",
-                study_id: _.pluck(_mut_group, "study_id"),
-                sample_id: _.pluck(_mut_group, "sample_id")
+                study_id: _.pluck(_not_sequenced_group, "study_id"),
+                sample_id: _.pluck(_not_sequenced_group, "sample_id")
             };
-            data.push(_mut_track);
-        });
+            data.push(not_sequenced_track);
+
+            // no mutation track
+            var _qtips = []; //assemble array of qtip text
+            _.each(_non_mut_group, function(_non_mut_obj) {
+                _qtips.push("Study: " +  _non_mut_obj.study_name + "<br>" +"Sample Id: " + _non_mut_obj.sample_id + "<br>" + "Expression: " + _non_mut_obj.profile_data);
+            });
+            var _y = []; //assemble y axis values
+            if (apply_log_scale) {
+                _y = _.pluck(_non_mut_group, "logged_profile_data");
+            } else {
+                _y = _.pluck(_non_mut_group, "profile_data");
+            }
+            var non_mut_track = {
+                x: _.map(_.pluck(_non_mut_group, "study_id"), function(_study_id){ return study_ids.indexOf(_study_id) + Math.random() * jitter_value - jitter_value / 2; }),
+                y: _y,
+                mode: 'markers',
+                type: 'scatter',
+                name: 'No Mutation',
+                text: _qtips,
+                marker: {
+                    color: '#00AAF8',
+                    size: 5,
+                    line: {color: '#0089C6', width: 1.2}
+                },
+                hoverinfo: "text",
+                study_id: _.pluck(_non_mut_group, "study_id"),
+                sample_id: _.pluck(_non_mut_group, "sample_id")
+            };
+            data.push(non_mut_track);
+
+            //mutated tracks
+            var _mut_types = _.uniq(_.map(_.uniq(_.pluck(_mix_mut_group, "mutation_type")), function(_ori_type) { return mutationTranslator(_ori_type); }));
+            $.each(_mut_types, function(_index, _mut_type) {
+                var _mut_group = _.filter(_mix_mut_group, function(_obj) { return mutationTranslator(_obj.mutation_type) === _mut_type; });
+                //assemble array of qtip text
+                var _qtips = [];
+                _.each(_mut_group, function(_mut_obj) {
+                    _qtips.push("Study: " + _mut_obj.study_name + "<br>" + "Sample Id: " + _mut_obj.sample_id + "<br>" + "Expression: " + _mut_obj.profile_data + "<br>" + "Mutation Type: " + _mut_obj.mutation_type + "<br>" + "Mutation Details: " + _mut_obj.mutation_details);
+                });
+                var _y = [];
+                if (apply_log_scale) {
+                    _y = _.pluck(_mut_group, "logged_profile_data");
+                } else {
+                    _y = _.pluck(_mut_group, "profile_data");
+                }
+                var _mut_track = {
+                    x: _.map(_.pluck(_mut_group, "study_id"), function(_study_id){ return study_ids.indexOf(_study_id) + Math.random() * jitter_value - jitter_value / 2; }),
+                    y: _y,
+                    mode: 'markers',
+                    type: 'scatter',
+                    name: mutationStyle.getText(_mut_type),
+                    text: _qtips,
+                    marker: {
+                        color: mutationStyle.getFill(_mut_type),
+                        size: 6,
+                        line: {color: mutationStyle.getStroke(_mut_type), width: 1.2},
+                        symbol: mutationStyle.getSymbol(_mut_type)
+                    },
+                    hoverinfo: "text",
+                    study_id: _.pluck(_mut_group, "study_id"),
+                    sample_id: _.pluck(_mut_group, "sample_id")
+                };
+                data.push(_mut_track);
+            });
+        } else { //not showing mutations
+            var _qtips = []; //assemble array of qtip text
+            _.each(_non_mut_group.concat(_mix_mut_group, _not_sequenced_group), function(_obj) {
+                _qtips.push("Study: " +  _obj.study_name + "<br>" +"Sample Id: " + _obj.sample_id + "<br>" + "Expression: " + _obj.profile_data);
+            });
+            var _y = []; //assemble y axis values
+            if (apply_log_scale) {
+                _y = _.pluck(_non_mut_group, "logged_profile_data");
+            } else {
+                _y = _.pluck(_non_mut_group, "profile_data");
+            }
+
+            var plain_track = {
+                x: _.map(_.pluck(_non_mut_group.concat(_mix_mut_group, _not_sequenced_group), "study_id"), function(_study_id){ return study_ids.indexOf(_study_id) + Math.random() * jitter_value - jitter_value / 2; }),
+                y: _y,
+                mode: 'markers',
+                type: 'scatter',
+                name: '',
+                text: _qtips,
+                marker: {
+                    color: '#00AAF8',
+                    size: 5,
+                    line: {color: '#0089C6', width: 1.2}
+                },
+                hoverinfo: "text",
+                study_id: _.pluck(_non_mut_group.concat(_mix_mut_group, _not_sequenced_group), "study_id"),
+                sample_id: _.pluck(_non_mut_group.concat(_mix_mut_group, _not_sequenced_group), "sample_id")
+            };
+            data.push(plain_track);
+        }
 
         //box plots
         var _joint_profile_group = _not_sequenced_group.concat(_non_mut_group.concat(_mix_mut_group));
         _.each(mrna_profiles, function(_profile_id) {
             var _y = [];
             if (apply_log_scale) {
-                _y = _.pluck(_.filter(_joint_profile_group, function(_result_obj) { return _result_obj.genetic_profile_id == _profile_id; }), "logged_profile_data");
+                _y = _.pluck(_.filter(_joint_profile_group, function(_result_obj) { return _result_obj.genetic_profile_id === _profile_id; }), "logged_profile_data");
             } else {
-                _y = _.pluck(_.filter(_joint_profile_group, function(_result_obj) { return _result_obj.genetic_profile_id == _profile_id; }), "profile_data");
+                _y = _.pluck(_.filter(_joint_profile_group, function(_result_obj) { return _result_obj.genetic_profile_id === _profile_id; }), "profile_data");
             }
             var _box = {
                 y: _y,
                 x0: mrna_profiles.indexOf(_profile_id),
                 type: 'box',
-                opacity: 0.7,
+                opacity: 1,
                 marker: {
                     color: 'grey',
                     size: 7
                 },
                 line: { width: 1},
                 boxpoints: false,
-                showlegend: false
+                showlegend: false,
+                whiskerwidth: 1
             };
             data.push(_box);
         });
@@ -346,6 +379,7 @@ var ccPlots = (function (Plotly, _, $) {
         }
         var layout = {
             hovermode:'closest',
+            showlegend: show_mutations?true:false,
             margin: {
                 t: 20,
                 b: 200,
@@ -387,6 +421,7 @@ var ccPlots = (function (Plotly, _, $) {
                     gene.length = 0;
                     gene.push($("#cc_plots_gene_list").val());
                     apply_log_scale = document.getElementById("cc_plots_log_scale").checked;
+                    show_mutations = document.getElementById("cc_plots_show_mutations").checked;
                     study_order = $('input[name=cc_plots_study_order_opt]:checked').val();
 
                     fetch_profile_data(_.pluck(_.pluck(window.studies.models, "attributes"), "studyId"));
@@ -409,6 +444,12 @@ var ccPlots = (function (Plotly, _, $) {
         },
         toggle_log_scale: function() {
             apply_log_scale = document.getElementById("cc_plots_log_scale").checked;
+            $("#cc_plots_box").empty();
+            $("#cc_plots_box").append("<img src='images/ajax-loader.gif' id='cc_plots_loading' style='padding:200px;'/>");
+            fetch_profile_data(_.pluck(_.pluck(window.studies.models, "attributes"), "studyId"));
+        },
+        toggle_show_mutations: function() {
+            show_mutations = document.getElementById("cc_plots_show_mutations").checked;
             $("#cc_plots_box").empty();
             $("#cc_plots_box").append("<img src='images/ajax-loader.gif' id='cc_plots_loading' style='padding:200px;'/>");
             fetch_profile_data(_.pluck(_.pluck(window.studies.models, "attributes"), "studyId"));

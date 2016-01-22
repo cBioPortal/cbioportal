@@ -65,6 +65,8 @@
             <input type="radio" name="cc_plots_study_order_opt" onchange="ccPlots.update_study_order()" value="median"/> Median
             <h5>Log Scale</h5>
             <input type="checkbox" id="cc_plots_log_scale" onchange="ccPlots.toggle_log_scale()" checked/>
+            <h5>Show Mutations</h5>
+            <input type="checkbox" id="cc_plots_show_mutations" onchange="ccPlots.toggle_show_mutations()" checked/>
         </div>
     </tr>
     <tr>

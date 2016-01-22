@@ -493,7 +493,7 @@ var OncoKB = (function () {
             return '<div class="oncokb"><button class="oncokbFeedback-btn">Feedback</button><span style="float: right;"><i>   Powered by OncoKB(Beta)</i> <i class="fa fa-angle-right oncokb_footer_moreInfo"></i><i class="fa fa-angle-down oncokb_footer_lessInfo" style="display: none;"></i></span>' +
                 '<br/><div class="oncokb_footer" style="color: grey; display: none;"><i>OncoKB is under development. To report errors or missing annotation about this variant, please ' + 
                 '<span class="oncokbFeedback">send us feedback</span>. For general feedback, please send an email to ' +
-                '<a href=&quot;mailto:oncokb@cbio.mskcc.org&quot; title=&quot;Contact us&quot;>oncokb@cbio.mskcc.org</a></i></div></div>';
+                '<a href="mailto:oncokb@cbio.mskcc.org" title="Contact us">oncokb@cbio.mskcc.org</a></i></div></div>';
         }
 
         function getMutationSummaryStr(oncokbInfo) {

@@ -62,6 +62,8 @@ public class ImportExtendedMutationData{
 	private File mutationFile;
 	private int geneticProfileId;
 	private MutationFilter myMutationFilter;
+    private TreeSet<String> warnings;
+    private HashMap<String, Integer> warningCounts;
 
 	/**
 	 * construct an ImportExtendedMutationData with no white lists.
@@ -76,6 +78,14 @@ public class ImportExtendedMutationData{
 		// create default MutationFilter
 		myMutationFilter = new MutationFilter( );
 	}
+
+    private void addWarning(String w) {
+        warnings.add(w);
+        if (!warningCounts.containsKey(w)) {
+            warningCounts.put(w, 0);
+        }
+        warningCounts.put(w,warningCounts.get(w)+1);
+    }
 
 	/**
 	 * Construct an ImportExtendedMutationData with germline and somatic whitelists.
@@ -135,7 +145,8 @@ public class ImportExtendedMutationData{
 		} catch( IllegalArgumentException e) {
 			fileHasOMAData = false;
 		}
-
+        warnings = new TreeSet<>();
+        warningCounts = new HashMap<>();
 		line = buf.readLine();
 
         GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileById(geneticProfileId);
@@ -171,14 +182,14 @@ public class ImportExtendedMutationData{
 				if (validationStatus == null ||
 				    validationStatus.equalsIgnoreCase("Wildtype"))
 				{
-					pMonitor.logWarning("Skipping entry with Validation_Status: Wildtype");
+                    addWarning("Skipping entry with Validation_Status: Wildtype");
 					line = buf.readLine();
 					continue;
 				}
 
 				String chr = DaoGeneOptimized.normalizeChr(record.getChr().toUpperCase());
 				if (chr==null) {
-					pMonitor.logWarning("Skipping entry with chromosome value: " + record.getChr());
+                    addWarning("Skipping entry with chromosome value: " + record.getChr());
 					line = buf.readLine();
 					continue;
 				}
@@ -242,7 +253,7 @@ public class ImportExtendedMutationData{
 				// skip RNA mutations
 				if (mutationType != null && mutationType.equalsIgnoreCase("rna"))
 				{
-					pMonitor.logWarning("Skipping entry with mutation type: RNA");
+                    addWarning("Skipping entry with mutation type: RNA");
 					line = buf.readLine();
 					continue;
 				}
@@ -279,9 +290,9 @@ public class ImportExtendedMutationData{
 				}
 
 				if(gene == null) {
-					pMonitor.logWarning("Gene not found:  " + geneSymbol + " ["
-					                    + entrezGeneId + "]. Ignoring it "
-					                    + "and all mutation data associated with it!");
+                    addWarning("Gene not found:  " + geneSymbol + " ["
+                        + entrezGeneId + "]. Ignoring it "
+                        + "and all mutation data associated with it!");
 				} else {
 					ExtendedMutation mutation = new ExtendedMutation();
 
@@ -381,6 +392,12 @@ public class ImportExtendedMutationData{
                     }
                 }
                 
+        for(Iterator<String> sit = warnings.iterator(); sit.hasNext(); ) {
+            String w = sit.next();
+            System.err.print(warningCounts.get(w)+"x ");
+            System.err.println(w);
+        }
+
 		if( MySQLbulkLoader.isBulkLoad()) {
 			MySQLbulkLoader.flushAll();
 		}

@@ -1,0 +1,5 @@
+type_of_cancer: brca
+name: Breast Cancer
+clinical_trial_keywords: Spam,Spam,Spam
+dedicated_color: HotPink
+short_name: Spam

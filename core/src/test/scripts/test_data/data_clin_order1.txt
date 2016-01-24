@@ -1,9 +1,9 @@
-#1	1	1			1	1	1	1
+#Patient Identifier	Sample Identifier	Subtype	Cancer Type	Cancer Type Detailed	Overall Survival Status	Overall Survival (Months)	Disease Free Status	Disease Free (Months)
+#Identifier to uniquely specify a patient.	A unique sample identifier.	Subtype description.	Disease type.	Cancer Type Detailed.	Overall patient survival status.	Overall survival in months since initial diagnosis.	Disease free status since initial treatment.	Disease free (months) since initial treatment.
+#STRING	STRING	STRING	STRING	STRING	STRING	NUMBER	STRING	NUMBER
 #PATIENT	SAMPLE	SAMPLE	SAMPLE	SAMPLE	PATIENT	PATIENT	PATIENT	PATIENT
-#Patient Identifier	#Sample Identifier	Subtype	Cancer Type	Cancer Type Detailed	Overall Survival Status	Overall Survival (Months)	Disease Free Status	Disease Free (Months)
-#Patient identifier	#Sample identifier	Subtype description	Cancer Type	Cancer Type Detailed	Overall survival status	Overall survival in months since diagnosis	Disease free status	Disease free in months since treatment
-#STRING	#STRING	STRING	STRING	STRING	STRING	NUMBER	STRING	NUMBER
-SAMPLE_ID	PATIENT_ID	SUBTYPE	CANCER_TYPE	CANCER_TYPE_DETAILED	OS_STATUS	DFS_MONTHS	DFS_STATUS	OS_MONTHS
+#1	1	1	1	1	1	1	1	1
+PATIENT_ID	SAMPLE_ID	SUBTYPE	CANCER_TYPE	CANCER_TYPE_DETAILED	OS_STATUS	OS_MONTHS	DFS_STATUS	DFS_MONTHS
 TEST-PAT1	TEST-PAT1-SAMPLE1	Luminal A	Cancer_type20	Cancer_type20_Sub16	LIVING	272	Recurred/Progressed	272
 TEST-PAT1	TEST-PAT1-SAMPLE2	Luminal B	Cancer_type27	Cancer_type27_Sub16	LIVING	208	Recurred/Progressed	208
 TEST-PAT1	TEST-PAT1-SAMPLE3	basal-like	Cancer_type8	Cancer_type8_Sub13	DECEASED	60	Recurred/Progressed	60

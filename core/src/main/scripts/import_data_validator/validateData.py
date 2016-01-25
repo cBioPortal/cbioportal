@@ -535,7 +535,6 @@ class Validator(object):
             logger,
             extra={'data_filename': self.filenameShort})
         self.meta_dict = meta_dict
-        self.badChars = [' ']
 
     def validate(self):
 
@@ -650,7 +649,6 @@ class Validator(object):
         self.numCols = len(self.cols)
 
         num_errors += self._checkRepeatedColumns()
-        num_errors += self.checkBadChar()
 
         if self.REQUIRE_COLUMN_ORDER:
             num_errors += self._checkOrderedRequiredColumns()
@@ -849,20 +847,6 @@ class Validator(object):
                                   extra={'line_number': self.line_number,
                                          'column_number': col_num,
                                          'cause': col})
-        return num_errors
-
-    def checkBadChar(self):
-        """Check for bad things in a header, such as spaces, etc."""
-        num_errors = 0
-        for col_num, col_name in enumerate(self.cols):
-            for bc in self.badChars:
-                if bc in col_name:
-                    num_errors += 1
-                    self.logger.error("Bad character '%s' detected in header",
-                                      bc,
-                                      extra={'line_number': self.line_number,
-                                             'column_number': col_num,
-                                             'cause': col_name})
         return num_errors
 
 

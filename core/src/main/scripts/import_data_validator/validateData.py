@@ -19,7 +19,6 @@ import re
 import csv
 import itertools
 import requests
-import urllib2
 
 
 # ------------------------------------------------------------------------------
@@ -1527,9 +1526,13 @@ class SegValidator(Validator):
             'http://hgdownload.cse.ucsc.edu'
             '/goldenPath/{build}/bigZips/{build}.chrom.sizes').format(
                 build=genome_build)
-        chrom_size_file = urllib2.urlopen(chrom_size_url)
-
-        for line in chrom_size_file:
+        r = requests.get(chrom_size_url)
+        try:
+            r.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            raise IOError('Error retrieving chromosome lengths from UCSC: ' +
+                          e.message)
+        for line in r.text.splitlines():
             try:
                 # skip comment lines
                 if line.startswith('#'):
@@ -1891,6 +1894,9 @@ def request_from_portal_api(service_url, logger, id_field=None):
     url_split = service_url.split('/api/', 1)
     logger.info("Requesting %s from portal at '%s'",
                 url_split[1], url_split[0])
+    # this may raise a requests.exceptions.RequestException subclass,
+    # usually because the URL provided on the command line was invalid or
+    # did not include the http:// part
     response = requests.get(service_url)
     try:
         response.raise_for_status()

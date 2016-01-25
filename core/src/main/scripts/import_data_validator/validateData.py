@@ -505,16 +505,6 @@ class CombiningLoggerAdapter(logging.LoggerAdapter):
         return msg, kwargs
 
 
-class ValidatorFactory(object):
-
-    """Factory for creating validation objects of various types."""
-
-    @staticmethod
-    def createValidator(validator_type, hugo_entrez_map, logger, meta_dict):
-        ValidatorClass = globals()[validator_type]
-        return ValidatorClass(hugo_entrez_map, logger, meta_dict)
-
-
 class Validator(object):
 
     """Abstract validator class for tab-delimited data files.
@@ -1830,9 +1820,8 @@ def process_metadata_files(directory, logger, hugo_entrez_map):
             validators_by_type[meta_file_type] = []
         # check if data_file_path is set AND if data_file_path is a supported field according to META_FIELD_MAP:
         if 'data_file_path' in meta and 'data_file_path' in META_FIELD_MAP[meta_file_type]:
-            validators_by_type[meta_file_type].append(
-                ValidatorFactory.createValidator(
-                    VALIDATOR_IDS[meta_file_type],
+            validator_class = globals()[VALIDATOR_IDS[meta_file_type]]
+            validators_by_type[meta_file_type].append(validator_class(
                     hugo_entrez_map,
                     logger,
                     meta))

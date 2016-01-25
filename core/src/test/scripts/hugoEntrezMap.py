@@ -63,7 +63,9 @@ def parse_ncbi_file(ncbi_zipped_file):
         if line[0] == '#':
             continue
         columns = line.split('\t')
-        hugo_entrez_map[columns[2]] = columns[1]
+        if columns[2] not in hugo_entrez_map:
+            hugo_entrez_map[columns[2]] = []
+        hugo_entrez_map[columns[2]].append(columns[1])
     return hugo_entrez_map
 
 

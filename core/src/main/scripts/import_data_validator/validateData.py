@@ -808,14 +808,15 @@ class Validator(object):
                         extra={'line_number': self.line_number,
                                'cause': gene_symbol})
                     return False
-                elif self.hugo_entrez_map[gene_symbol] != entrez_id:
+                elif entrez_id not in self.hugo_entrez_map[gene_symbol]:
                     self.logger.error(
                         'Gene symbol does not match given Entrez id',
                         extra={'line_number': self.line_number,
                                'cause': '(' + gene_symbol + ',' + entrez_id + ')'})
                     return False
             else:
-                if entrez_id not in self.hugo_entrez_map.values():
+                if entrez_id not in itertools.chain(
+                        *self.hugo_entrez_map.values()):
                     self.logger.error(
                         'Entrez gene id not known to the cBioPortal instance.',
                         extra={'line_number': self.line_number,
@@ -1956,16 +1957,18 @@ def request_from_portal_api(service_url, logger, id_field=None):
 
 def get_hugo_entrez_map(server_url, logger):
     """
-    Returns a dict with hugo symbols and respective entrezId, e.g.:
-    # dict: {'LOC105377913': '105377913', 'LOC105377912': '105377912',  hugo: entrez, hugo: entrez...
+    Returns a dict with hugo symbols and respective entrezIds, e.g.:
+    # dict: {'LOC105377913': ['105377913'], 'LOC105377912': ['105377912'],  hugo: [entrez], hugo: [entrez, entrez]...
     """
-    # TODO implement an API call for gene aliases and include those in the map
     json_data = request_from_portal_api(server_url + '/api/genes', logger)
     # json_data is list of dicts, each entry containing e.g. dict: {'hugo_gene_symbol': 'SRXN1', 'entrez_gene_id': '140809'}
     # We want to transform this to the format dict: {hugo: entrez, hugo: entrez...
     result_dict = {}
     for data_item in json_data:
-        result_dict[data_item['hugo_gene_symbol']] = data_item['entrez_gene_id']
+        if data_item['hugo_gene_symbol'] not in result_dict:
+            result_dict[data_item['hugo_gene_symbol']] = []
+        result_dict[data_item['hugo_gene_symbol']].append(
+                data_item['entrez_gene_id'])
     return result_dict
 
 

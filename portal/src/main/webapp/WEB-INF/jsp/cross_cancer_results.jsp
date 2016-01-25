@@ -67,6 +67,7 @@
     String myCancerGenomeUrl = (String) GlobalProperties.getMyCancerGenomeUrl();
     String oncokbGeneStatus = (String) GlobalProperties.getOncoKBGeneStatus();
     boolean showHotspot = (Boolean) GlobalProperties.showHotspot();
+    String userName = GlobalProperties.getAuthenticatedUserName();
 
 %>
 
@@ -78,6 +79,7 @@
 <script type="text/javascript" src="js/src/plots-tab/util/plotsUtil.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/plots-tab/util/stylesheet.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
+<link href="css/bootstrap-dialog.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 <link href="css/data_table_ColVis.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 <link href="css/data_table_jui.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 <link href="css/mutationMapper.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
@@ -126,6 +128,7 @@
     var oncokbGeneStatus = <%=oncokbGeneStatus%>;
     var showHotspot = <%=showHotspot%>;
     var enableMyCancerGenome = myCancerGenomeUrl?true:false;
+    var userName = '<%=userName%>';
 
    function waitForElementToDisplay(selector, time) {
         if(document.querySelector(selector) !== null) {

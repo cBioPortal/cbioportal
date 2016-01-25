@@ -121,6 +121,7 @@ boolean showGenomicOverview = showMutations | hasCnaSegmentData;
 boolean showClinicalTrials = GlobalProperties.showClinicalTrialsTab();
 boolean showDrugs = GlobalProperties.showDrugsTab();
 boolean showSamplesTable = isPatientView;
+String userName = GlobalProperties.getAuthenticatedUserName();
 
 double[] genomicOverviewCopyNumberCnaCutoff = GlobalProperties.getPatientViewGenomicOverviewCnaCutoff();
 
@@ -294,9 +295,6 @@ if (patientViewError!=null) {
 </div>
 <jsp:include page="../../global/xdebug.jsp" flush="true" />
 
-<link href="css/jquery.qtip.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/>
-<link href="css/bootstrap.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
-
 <style type="text/css" title="currentStyle">
         @import "css/data_table_jui.css?<%=GlobalProperties.getAppVersion()%>";
         @import "css/data_table_ColVis.css?<%=GlobalProperties.getAppVersion()%>";
@@ -418,6 +416,7 @@ var caseMetaData = {
 };
 var oncokbGeneStatus = <%=oncokbGeneStatus%>;
 var showHotspot = <%=showHotspot%>;
+var userName = '<%=userName%>';
 
 $(document).ready(function(){
     OncoKB.setUrl('<%=oncokbUrl%>');
@@ -1383,6 +1382,5 @@ window["<%=PatientView.CANCER_STUDY_META_DATA_KEY_STRING%>"]
         = <%=jsonMapper.writeValueAsString(request.getAttribute(PatientView.CANCER_STUDY_META_DATA_KEY_STRING))%>;
 
 </script>
-<script src="js/lib/bootstrap.min.js?<%=GlobalProperties.getAppVersion()%>" type="text/javascript"></script>
 </body>
 </html>

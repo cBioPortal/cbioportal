@@ -458,14 +458,14 @@ function initTabs() {
 
 function fixCytoscapeWebRedraw() {
     // to initially hide the network tab
-    $("#pathways").attr('style', 'display: none !important; height: 0px; width: 0px; visibility: hidden;');
+    $("#tab_pathways").attr('style', 'display: none !important; height: 0px; width: 0px; visibility: hidden;');
 
     // to fix problem of flash repainting
     $("a.patient-tab").click(function(){
-        if($(this).attr("href")==="#pathways") {
-            $("#pathways").removeAttr('style');
+        if($(this).attr("href")==="#tab_pathways") {
+            $("#tab_pathways").removeAttr('style');
         } else {
-            $("#pathways").attr('style', 'display: block !important; height: 0px; width: 0px; visibility: hidden;');
+            $("#tab_pathways").attr('style', 'display: block !important; height: 0px; width: 0px; visibility: hidden;');
         }
     });
 }
@@ -476,7 +476,7 @@ function switchToTab(toTab) {
     $('#patient-tabs').tabs("option",
 		"active",
 		$('#patient-tabs ul a[href="#'+toTab+'"]').parent().index());
-    if (toTab==='images') {
+    if (toTab==='tab_images') {
         loadImages();
     }
 }

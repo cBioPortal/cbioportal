@@ -200,8 +200,10 @@ var ccPlots = (function (Plotly, _, $) {
                             _not_sequenced_group = _.filter(_not_sequenced_group, function(_obj) { return _obj.study_name.indexOf("Esophageal") === -1; });
                             _mix_mut_group = _.filter(_mix_mut_group, function(_obj) { return _obj.study_name.indexOf("Esophageal") === -1; });
                             study_meta = _.filter(study_meta, function(_obj) { return _obj.name.indexOf("Esophageal") === -1; });
-                            study_ids = _.filter(study_ids, function(study_id) { return study_id.indexOf(_tmp_target_study_obj[0].id) === -1; });
-                            mrna_profiles = _.filter(mrna_profiles, function(mrna_profile) { return mrna_profile.indexOf(_tmp_target_study_obj[0].id) === -1; });
+                            if (_tmp_target_study_obj.length !== 0) {
+                                study_ids = _.filter(study_ids, function(study_id) { return study_id.indexOf(_tmp_target_study_obj[0].id) === -1; });
+                                mrna_profiles = _.filter(mrna_profiles, function(mrna_profile) { return mrna_profile.indexOf(_tmp_target_study_obj[0].id) === -1; });
+                            }
 
                             render(_non_mut_group, _not_sequenced_group, _mix_mut_group);
 
@@ -434,12 +436,30 @@ var ccPlots = (function (Plotly, _, $) {
                         cbio.download.clientSideDownload([main_plots_str + legend_str], "cross-cancer-plots-download.svg", "application/svg+xml");
                     });
                     $("#cc_plots_pdf_download").click(function() {
+                        var xmlSerializer = new XMLSerializer();
+                        var main_plots_str = xmlSerializer.serializeToString($("#cc_plots_box svg")[0]);
+                        main_plots_str = main_plots_str.substring(0, main_plots_str.length - 6);
+                        var legend_str = xmlSerializer.serializeToString($("#cc_plots_box svg")[2]);
+                        legend_str = legend_str.substring(legend_str.indexOf(">") + 1, legend_str.length);
+                        var final_pdf_str = main_plots_str + legend_str;
+
+                        final_pdf_str = final_pdf_str.replace(/"/g, "'");
+                        final_pdf_str = final_pdf_str.replace("xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'", "");
+                        final_pdf_str = final_pdf_str.replace(/text-anchor='end'/g, "");
+                        final_pdf_str = final_pdf_str.replace(/text-anchor='start'/g, "");
+                        final_pdf_str = final_pdf_str.replace(/text-anchor='middle'/g, "");
+                        final_pdf_str = final_pdf_str.replace(/text-anchor: start;/g, "");
+                        final_pdf_str = final_pdf_str.replace(/font-family: 'Open Sans',/g, "");
+                        final_pdf_str = final_pdf_str.replace(/fill: transparent;/g, "fill-opacity: 0;");
+                        final_pdf_str = final_pdf_str.replace(/'/g, "\"");
+
                         var downloadOptions = {
-                            filename: "cross-cancer-plots-download.pdf",
+                            filename: "cross-cancer-plots.pdf",
                             contentType: "application/pdf",
                             servletName: "svgtopdf.do"
                         };
-                        cbio.download.initDownload($("#cc_plots_box svg")[0], downloadOptions);
+                        cbio.download.initDownload(final_pdf_str, downloadOptions);
+
                     });
 
                     fetch_profile_data(_.pluck(_.pluck(window.studies.models, "attributes"), "studyId"));

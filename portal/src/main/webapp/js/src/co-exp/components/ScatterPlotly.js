@@ -123,6 +123,7 @@ var ScatterPlot = function(divName, plotData) {
      */
     this.addDragListener = function(callback) {
         var graphDiv = document.getElementById(divName);
+        addDoubleClick(callback);
 
         graphDiv.on('plotly_selected', function (eventData) {
             // workaround for a bug: if you click in the graph while the drag-mode is enabled,
@@ -146,6 +147,32 @@ var ScatterPlot = function(divName, plotData) {
                 else {
                     callback(draggedData);
                 }
+            }
+        });
+    }
+
+    /**
+     * add functionality for filter clearing on double-click
+     * This is a workaround until plotly allows you to make the distinction
+     * @param callback
+     */
+    function addDoubleClick(callback){
+        var clickCount = 0;
+        var myPlot = document.getElementById(divName);
+        var singleClickTimer;
+        myPlot.addEventListener('click', function() {
+            clickCount++;
+            // if the clickCount is 1, set a timer which resets the clickCount to 0
+            // if within the 400ms there is another click, we assume it's a double-click and clear the filter
+            // by callin the callback with an empty array
+            if (clickCount === 1) {
+                singleClickTimer = setTimeout(function() {
+                    clickCount = 0;
+                }, 400);
+            } else if (clickCount === 2) {
+                clearTimeout(singleClickTimer);
+                clickCount = 0;
+                callback([]);
             }
         });
     }

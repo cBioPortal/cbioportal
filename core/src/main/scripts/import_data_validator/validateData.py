@@ -89,7 +89,6 @@ CNA_META_FIELDS = {
     'show_profile_in_analysis_tab': True,
     'profile_name': True,
     'profile_description': True,
-    'meta_file_type': True,
     'data_file_path': True
 }
 
@@ -101,7 +100,6 @@ MUTATION_META_FIELDS = {
     'show_profile_in_analysis_tab': True,
     'profile_name': True,
     'profile_description': True,
-    'meta_file_type': True,
     'data_file_path': True,
     'normal_samples_list': False
 }
@@ -114,7 +112,6 @@ SEG_META_FIELDS = {
     'reference_genome_id': True,
     'data_filename': True,
     'description': True,
-    'meta_file_type': True,
     'data_file_path': True
 }
 
@@ -126,7 +123,6 @@ LOG2_META_FIELDS = {
     'show_profile_in_analysis_tab': True,
     'profile_name': True,
     'profile_description': True,
-    'meta_file_type': True,
     'data_file_path': True
 }
 
@@ -138,7 +134,6 @@ EXPRESSION_META_FIELDS = {
     'show_profile_in_analysis_tab': True,
     'profile_name': True,
     'profile_description': True,
-    'meta_file_type': True,
     'data_file_path': True
 }
 
@@ -150,7 +145,6 @@ METHYLATION_META_FIELDS = {
     'show_profile_in_analysis_tab': True,
     'profile_name': True,
     'profile_description': True,
-    'meta_file_type': True,
     'data_file_path': True
 }
 
@@ -162,7 +156,6 @@ FUSION_META_FIELDS = {
     'show_profile_in_analysis_tab': True,
     'profile_name': True,
     'profile_description': True,
-    'meta_file_type': True,
     'data_file_path': True
 }
 
@@ -174,14 +167,12 @@ RPPA_META_FIELDS = {
     'show_profile_in_analysis_tab': True,
     'profile_name': True,
     'profile_description': True,
-    'meta_file_type': True,
     'data_file_path': True
 }
 
 TIMELINE_META_FIELDS = {
     'cancer_study_identifier': True,
     'genetic_alteration_type': True,
-    'meta_file_type': True,
     'data_file_path': True
 }
 
@@ -202,7 +193,6 @@ CLINICAL_META_FIELDS = {
     'show_profile_in_analysis_tab': True,
     'profile_name': True,
     'profile_description': True,
-    'meta_file_type': True,
     'data_file_path': True
 }
 
@@ -212,7 +202,7 @@ STUDY_META_FIELDS = {
     'name': True,
     'description': True,
     'short_name': True,
-    'meta_file_type': True,
+    'dedicated_color': True,
     'citation': False,
     'pmid': False,
     'groups': False
@@ -223,8 +213,7 @@ CANCER_TYPE_META_FIELDS = {
     'name': True,
     'clinical_trial_keywords': True,
     'dedicated_color': True,
-    'short_name': True,
-    'meta_file_type': True
+    'short_name': True
 }
 
 META_FIELD_MAP = {
@@ -1628,9 +1617,82 @@ class TimelineValidator(Validator):
 # ------------------------------------------------------------------------------
 # Functions
 
+def get_meta_file_type(metaDictionary, logger, filename):
+    '''
+     Returns one of the metatypes :
+        SEG_META_PATTERN = 'meta_segment'
+        STUDY_META_PATTERN = 'meta_study'
+        CANCER_TYPE_META_PATTERN = 'meta_cancer_type'
+        MUTATION_META_PATTERN = 'meta_mutations_extended'
+        CNA_META_PATTERN = 'meta_CNA'
+        CLINICAL_META_PATTERN = 'meta_clinical'
+        LOG2_META_PATTERN = 'meta_log2CNA'
+        EXPRESSION_META_PATTERN = 'meta_expression'
+        FUSION_META_PATTERN = 'meta_fusions'
+        METHYLATION_META_PATTERN = 'meta_methylation'
+        RPPA_META_PATTERN = 'meta_rppa'
+        TIMELINE_META_PATTERN = 'meta_timeline'
+    '''
+    # GENETIC_ALTERATION_TYPE    DATATYPE    meta
+    alt_type_datatype_to_meta = {
+                                    #clinical and timeline
+                                    ("CLINICAL", "CLINICAL"): CLINICAL_META_PATTERN,
+                                    ("CLINICAL", "TIMELINE"): TIMELINE_META_PATTERN,
+                                    #rppa
+                                    ("PROTEIN_LEVEL", "LOG2-VALUE"): RPPA_META_PATTERN,
+                                    ("PROTEIN_LEVEL", "Z-SCORE"): RPPA_META_PATTERN,
+                                    #cna
+                                    ("COPY_NUMBER_ALTERATION", "DISCRETE"): CNA_META_PATTERN,
+                                    #("COPY_NUMBER_ALTERATION", "CONTINUOUS"): CNA_META_PATTERN, ?? TODO - add later, when documented
+                                    #log2cna
+                                    ("COPY_NUMBER_ALTERATION", "LOG2-VALUE"): LOG2_META_PATTERN,
+                                    #expression
+                                    ("MRNA_EXPRESSION", "CONTINUOUS"): EXPRESSION_META_PATTERN,
+                                    ("MRNA_EXPRESSION_NORMALS", "CONTINUOUS"): EXPRESSION_META_PATTERN,
+                                    ("MRNA_EXPRESSION", "Z-SCORE"): EXPRESSION_META_PATTERN,
+                                    ("MRNA_EXPRESSION", "DISCRETE"): EXPRESSION_META_PATTERN,
+                                    #mutations
+                                    ("MUTATION_EXTENDED", "MAF"): MUTATION_META_PATTERN,
+                                    #others
+                                    ("COPY_NUMBER_ALTERATION", "SEG"): SEG_META_PATTERN,
+                                    ("METHYLATION", "CONTINUOUS"): METHYLATION_META_PATTERN,
+                                    ("FUSION", "FUSION"): FUSION_META_PATTERN
+                                }
+    result = None
+    if 'genetic_alteration_type' in metaDictionary and 'datatype' in metaDictionary:
+        genetic_alteration_type = metaDictionary['genetic_alteration_type']
+        data_type = metaDictionary['datatype']
+        if (genetic_alteration_type, data_type) not in alt_type_datatype_to_meta:
+            logger.error('Could not determine the file type. Please check your meta files for correct configuration.',
+                         extra={'data_filename': getFileFromFilepath(filename),
+                                'cause': 'genetic_alteration_type: ' + metaDictionary['genetic_alteration_type'] + 
+                                         ', datatype: ' + metaDictionary['datatype']})
+        else:
+            result = alt_type_datatype_to_meta[(genetic_alteration_type, data_type)]
+    elif 'cancer_study_identifier' in metaDictionary and 'type_of_cancer' in metaDictionary:
+        result = STUDY_META_PATTERN
+    elif 'type_of_cancer' in metaDictionary:
+        result = CANCER_TYPE_META_PATTERN
+    else:
+        logger.error('Could not determine the file type. Did not find expected meta file fields. Please check your meta files for correct configuration.',
+                         extra={'data_filename': getFileFromFilepath(filename)})
+        
+    return result
+
+def validate_types_and_id(metaDictionary, logger, filename):
+    """Validate a genetic_alteration_type, datatype (and stable_id in some cases) against the predefined 
+    allowed combinations found in src/main/resources/validator/allowed_data_types.txt
+    """
+    alt_type_datatype_and_stable_id = {}
+    #script_dir = os.path.dirname(__file__)
+    #allowed_data_types_file_name = os.path.join(script_dir, "allowed_data_types.txt")
+    # TODO - implement validation. For now, return True
+    return True
+
 def parse_metadata_file(filename, logger, study_id=None, case_list=False):
 
-    """Validate a metafile and return a dictionary of values read from it.
+    """Validate a metafile and return a dictionary of values read from it and 
+    the meta_file_type according to get_meta_file_type.
 
     Return `None` if the file is invalid. If `case_list` is True,
     validate the file as a case list instead of a meta file.
@@ -1659,17 +1721,8 @@ def parse_metadata_file(filename, logger, study_id=None, case_list=False):
     if case_list:
         meta_file_type = 'case_list'
     else:
-        if 'meta_file_type' not in metaDictionary:
-            logger.error("Missing field 'meta_file_type' in meta file'",
-                         extra={'data_filename': getFileFromFilepath(filename)})
-            # skip this file (can't validate unknown file types)
-            return None
-
-        meta_file_type = metaDictionary["meta_file_type"]
-        if meta_file_type not in META_FILE_PATTERNS:
-            logger.error('Unknown meta_file_type',
-                         extra={'data_filename': getFileFromFilepath(filename),
-                                'cause': meta_file_type})
+        meta_file_type = get_meta_file_type(metaDictionary, logger, filename)
+        if meta_file_type is None:
             # skip this file (can't validate unknown file types)
             return None
 
@@ -1685,6 +1738,11 @@ def parse_metadata_file(filename, logger, study_id=None, case_list=False):
 
     if missing_fields:
         # skip this file (the fields may be required for validation)
+        return None
+    
+    # validate genetic_alteration_type, datatype, stable_id
+    valid_types_and_id = validate_types_and_id(metaDictionary, logger, filename)
+    if not valid_types_and_id:
         return None
 
     for field in metaDictionary:
@@ -1764,7 +1822,7 @@ def parse_metadata_file(filename, logger, study_id=None, case_list=False):
             extra={'data_filename': getFileFromFilepath(filename),
                    'cause': metaDictionary['data_file_path']})
 
-    return metaDictionary
+    return metaDictionary,meta_file_type
 
 
 def process_metadata_files(directory, logger, hugo_entrez_map):
@@ -1792,12 +1850,12 @@ def process_metadata_files(directory, logger, hugo_entrez_map):
 
     for filename in filenames:
 
-        meta = parse_metadata_file(filename, logger, study_id)
-        if meta is None:
+        meta_tuple = parse_metadata_file(filename, logger, study_id)
+        if meta_tuple is None:
             continue
+        meta, meta_file_type = meta_tuple
         if study_id is None and 'cancer_study_identifier' in meta:
             study_id = meta['cancer_study_identifier']
-        meta_file_type = meta['meta_file_type']
         if meta_file_type == STUDY_META_PATTERN:
             if study_cancer_type is not None:
                 logger.error(
@@ -1850,11 +1908,12 @@ def processCaseListDirectory(caseListDir, cancerStudyId, logger):
 
     for case in case_lists:
 
-        case_data = parse_metadata_file(case, logger, cancerStudyId,
+        case_data_tuple = parse_metadata_file(case, logger, cancerStudyId,
                                         case_list=True)
-        if case_data is None:
+        if case_data_tuple is None:
             continue
 
+        case_data = case_data_tuple[0]
         sampleIds = case_data['case_list_ids']
         sampleIds = set([x.strip() for x in sampleIds.split('\t')])
         for value in sampleIds:

@@ -3,4 +3,4 @@ type_of_cancer: luad
 name: Spam (spam)
 description: Baked beans
 short_name: Spam
-meta_file_type: meta_study
+dedicated_color: Tomato

@@ -829,6 +829,13 @@ class Validator(object):
                     extra={'line_number': self.line_number,
                            'cause': gene_symbol})
                 return False
+            elif len(self.hugo_entrez_map[gene_symbol]) > 1:
+                self.logger.error(
+                    'Gene symbol maps to multiple Entrez ids (%s), '
+                    'please specify which one you mean',
+                    '/'.join(self.hugo_entrez_map[gene_symbol]),
+                    extra={'line_number': self.line_number,
+                          'cause': gene_symbol})
         else:
             self.logger.error(
                 'No Entrez id or gene symbol provided for gene',

@@ -29,10 +29,10 @@ NCBI_BUILD_NUMBER = 37
 GENOMIC_BUILD_COUNTERPART = 'hg19'
 
 # study-specific globals
-STUDY_DIR = None
 DEFINED_SAMPLE_IDS = None
 DEFINED_CANCER_TYPES = None
 
+# portal-specific globals
 SERVER_URL = 'http://localhost/cbioportal'
 PORTAL_CANCER_TYPES = None
 
@@ -522,15 +522,16 @@ class Validator(object):
     REQUIRED_HEADERS = []
     REQUIRE_COLUMN_ORDER = True
 
-    def __init__(self,hugo_entrez_map,logger,meta_dict):
+    def __init__(self, study_dir, meta_dict, logger, hugo_entrez_map):
         """Initialize a validator for a particular data file.
 
-        :param hugo_entrez_map: path Entrez to Hugo mapping file
-        :param logger: logger instance for writing the log messages
+        :param study_dir: the path at which the study files can be found
         :param meta_dict: dictionary of fields found in corresponding meta file
                          (such as stable id and data file name)
+        :param logger: logger instance for writing the log messages
+        :param hugo_entrez_map: dictionary of Hugo-Entrez mapping in the portal
         """
-        self.filename = os.path.join(STUDY_DIR, meta_dict['data_file_path'])
+        self.filename = os.path.join(study_dir, meta_dict['data_file_path'])
         self.filenameShort = os.path.basename(self.filename)
         self.line_number = 0
         self.cols = []
@@ -966,9 +967,6 @@ class GenewiseFileValidator(FeaturewiseFileValidator):
 
     OPTIONAL_HEADERS = ['Hugo_Symbol', 'Entrez_Gene_Id']
 
-    def __init__(self, *args, **kwargs):
-        super(GenewiseFileValidator, self).__init__(*args, **kwargs)
-
     def checkHeader(self, cols):
         """Validate the header and read sample IDs from it.
 
@@ -1043,8 +1041,8 @@ class MutationsExtendedValidator(Validator):
         'Amino_Acid_Change': 'checkAminoAcidChange'
     }
 
-    def __init__(self,hugo_entrez_map,logger,meta_dict):
-        super(MutationsExtendedValidator, self).__init__(hugo_entrez_map,logger,meta_dict)
+    def __init__(self, *args, **kwargs):
+        super(MutationsExtendedValidator, self).__init__(*args, **kwargs)
         # TODO consider making this attribute a local var in in checkLine(),
         # it really only makes sense there
         self.extraCols = []
@@ -1822,9 +1820,7 @@ def process_metadata_files(directory, logger, hugo_entrez_map):
         if 'data_file_path' in meta and 'data_file_path' in META_FIELD_MAP[meta_file_type]:
             validator_class = globals()[VALIDATOR_IDS[meta_file_type]]
             validators_by_type[meta_file_type].append(validator_class(
-                    hugo_entrez_map,
-                    logger,
-                    meta))
+                    directory, meta, logger, hugo_entrez_map))
         else:
             validators_by_type[meta_file_type].append(None)
 
@@ -1960,8 +1956,6 @@ def validate_study(study_dir, logger, hugo_entrez_map):
 
     global DEFINED_CANCER_TYPES
     global DEFINED_SAMPLE_IDS
-    global STUDY_DIR
-    STUDY_DIR = study_dir
 
     # walk over the meta files in the dir and get properties of the study
     (validators_by_meta_type,

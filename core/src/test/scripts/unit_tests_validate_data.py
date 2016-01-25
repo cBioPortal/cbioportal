@@ -112,8 +112,6 @@ class DataFileTestCase(LogBufferTestCase):
     def setUp(self):
         """Set up for validating a file in the test_data directory."""
         super(DataFileTestCase, self).setUp()
-        self.orig_study_dir = validateData.STUDY_DIR
-        validateData.STUDY_DIR = 'test_data'
         # hard-code known clinical attributes instead of contacting a portal
         self.orig_srv_attrs = validateData.ClinicalValidator.srv_attrs
         mock_srv_attrs = dict(KNOWN_PATIENT_ATTRS)
@@ -122,7 +120,6 @@ class DataFileTestCase(LogBufferTestCase):
 
     def tearDown(self):
         """Restore the environment to before setUp() was called."""
-        validateData.STUDY_DIR = self.orig_study_dir
         validateData.ClinicalValidator.srv_attrs = self.orig_srv_attrs
         super(DataFileTestCase, self).tearDown()
 
@@ -131,7 +128,8 @@ class DataFileTestCase(LogBufferTestCase):
         meta_dict = {'data_file_path': data_filename}
         if extra_meta_fields is not None:
             meta_dict.update(extra_meta_fields)
-        validator = validator_class(hugo_entrez_map, self.logger, meta_dict)
+        validator = validator_class('test_data', meta_dict,
+                                    self.logger, hugo_entrez_map)
         validator.validate()
         return self.get_log_records()
 

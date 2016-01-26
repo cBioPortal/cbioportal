@@ -9,7 +9,18 @@ import os
 import sys
 import argparse
 import re
-from cbioportal_common import *
+from cbioportal_common import OUTPUT_FILE
+from cbioportal_common import ERROR_FILE
+from cbioportal_common import IMPORTER_CLASSNAME_BY_ALTERATION_TYPE
+from cbioportal_common import IMPORTER_REQUIRES_METADATA
+from cbioportal_common import IMPORT_CANCER_TYPE_CLASS
+from cbioportal_common import IMPORT_STUDY_CLASS
+from cbioportal_common import REMOVE_STUDY_CLASS
+from cbioportal_common import IMPORT_CASE_LIST_CLASS
+from cbioportal_common import get_metastudy_properties
+from cbioportal_common import get_metafile_properties
+from cbioportal_common import get_properties
+from cbioportal_common import run_java
 
 # ------------------------------------------------------------------------------
 # globals

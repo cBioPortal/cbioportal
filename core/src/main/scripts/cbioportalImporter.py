@@ -185,7 +185,7 @@ def check_dir(study_directory):
 
 def interface():
     parser = argparse.ArgumentParser(description='cBioPortal meta Importer')
-    parser.add_argument('-c', '--command', type=str, required=True,
+    parser.add_argument('-c', '--command', type=str, required=False,
                         help='Command for import.')
     parser.add_argument('-s', '--study_directory',type=str, required=False,
                         help='Path to Study Directory')

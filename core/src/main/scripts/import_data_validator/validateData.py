@@ -1288,6 +1288,8 @@ class ClinicalValidator(Validator):
 
     def checkHeader(self, cols):
 
+        """Validate the attributes defined in the column headers and above."""
+
         num_errors = super(ClinicalValidator, self).checkHeader(cols)
 
         if self.numCols != len(self.attr_defs):

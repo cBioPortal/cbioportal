@@ -1761,7 +1761,7 @@ window.OncoprintUtils = (function() {
     };
     var zoomSetup = function(div, fun) {
         
-        return $('<input>', { id: "oncoprint_zoom_slider",type:'range', width: "80",height:"16", min: .1, max: 1, step: .01, value: 1, change: function(event, ui) {
+        return $('<input>', { id: "oncoprint_zoom_slider",type:'range', min: .1, max: 1, step: .01, value: 1, change: function(event, ui) {
                     fun(this.value, 'animation');       // N.B.
                 }}).appendTo($(div));
     };

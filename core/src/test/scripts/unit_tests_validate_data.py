@@ -486,6 +486,32 @@ class SegFileValidationTestCase(PostClinicalDataFileTestCase):
 
     """Tests for the various validations of data in segment CNA data files."""
 
+    def setUp(self):
+        """Override a static method to skip a UCSC HTTP query in each test."""
+        super(SegFileValidationTestCase, self).setUp()
+        @staticmethod
+        def load_chromosome_lengths(genome_build):
+            if genome_build != 'hg19':
+                raise ValueError(
+                        "load_chromosome_lengths() called with genome build '{}'".format(
+                            genome_build))
+            return {u'1': 249250621, u'10': 135534747, u'11': 135006516,
+                    u'12': 133851895, u'13': 115169878, u'14': 107349540,
+                    u'15': 102531392, u'16': 90354753, u'17': 81195210,
+                    u'18': 78077248, u'19': 59128983, u'2': 243199373,
+                    u'20': 63025520, u'21': 48129895, u'22': 51304566,
+                    u'3': 198022430, u'4': 191154276, u'5': 180915260,
+                    u'6': 171115067, u'7': 159138663, u'8': 146364022,
+                    u'9': 141213431, u'X': 155270560, u'Y': 59373566}
+        self.orig_chromlength_method = validateData.SegValidator.load_chromosome_lengths
+        validateData.SegValidator.load_chromosome_lengths = load_chromosome_lengths
+
+
+    def tearDown(self):
+        """Restore the environment to before setUp() was called."""
+        super(SegFileValidationTestCase, self).tearDown()
+        validateData.SegValidator.load_chromosome_lengths = self.orig_chromlength_method
+
     def test_valid_seg(self):
         """Validate a segment file without file format errors."""
         record_list = self.validate('data_seg_valid.seg',

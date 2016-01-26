@@ -303,20 +303,24 @@ var StudyViewInitCharts = (function(){
     }
     
     function initTables() {
-        var initParams = {data: {attr: [], arr: {}}, numOfCases: numOfCases};
+        var initParams = {data: {attr: [], arr: {}}, numberOfSamples: {}};
 
         if(hasMutation) {
+            var numberOfSequencedSamples = StudyViewProxy.getSequencedSampleIds().length;
             initParams.data.attr.push({
                     name: 'mutatedGenes',
-                    displayName: 'Mutated Genes'
+                    displayName: 'Mutated Genes (<span id="number-of-selected-sequenced-samples">'+numberOfSequencedSamples+'</span> profiled samples)'
                 });
+            initParams.numberOfSamples.numberOfSequencedSamples = numberOfSequencedSamples;
         }
 
         if(hasCNA) {
+            var numberOfCnaSamples = StudyViewProxy.getCnaSampleIds().length;
             initParams.data.attr.push({
                     name: 'cna',
-                    displayName: 'Copy Number Altered Genes'
+                    displayName: 'CNA Genes (<span id="number-of-selected-cna-samples">'+numberOfCnaSamples+'</span> profiled samples)'
                 });
+            initParams.numberOfSamples.numberOfCnaSamples = numberOfCnaSamples;
         }
 
         StudyViewInitTables.init(initParams);

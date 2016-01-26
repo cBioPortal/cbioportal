@@ -147,6 +147,7 @@ var OncoprintWebGLCellView = (function () {
 	view.$dummy_scroll_div.css('width', width);
 	view.$canvas[0].height = height;
 	view.$container.css('height', height);
+	view.$container.scrollLeft(Math.min(view.$container.scrollLeft(),width-view.visible_area_width))
 	getContextAndSetUpMatrices(view);
     }
     var renderAllTracks = function (view, model) {
@@ -435,7 +436,17 @@ var OncoprintWebGLCellView = (function () {
 	renderAllTracks(this, model);
     }
     
-    OncoprintWebGLCellView.prototype.setZoom = function(model) {
+    OncoprintWebGLCellView.prototype.setHorzZoom = function(model) {
+	var track_ids = model.getTracks();
+	for (var i=0; i<track_ids.length; i++) {
+	    computeIdentifiedShapeListList(this, model, track_ids[i]);
+	    computeVertexPositionsWithoutYOffsetAndVertexColors(this, model, track_ids[i]);
+	    computeVertexPositionsWithYOffset(this, model, track_ids[i]);
+	}
+	renderAllTracks(this, model);
+    }
+    
+    OncoprintWebGLCellView.prototype.setVertZoom = function(model) {
 	var track_ids = model.getTracks();
 	for (var i=0; i<track_ids.length; i++) {
 	    computeIdentifiedShapeListList(this, model, track_ids[i]);

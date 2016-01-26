@@ -4,8 +4,8 @@ function ifndef(x, val) {
 
 var OncoprintModel = (function () {
     function OncoprintModel(init_cell_padding, init_cell_padding_on,
-	    init_zoom, init_cell_width,
-	    init_track_group_padding) {
+	    init_horz_zoom, init_vert_zoom, 
+	    init_cell_width, init_track_group_padding) {
 		
 	this.id_order = [];
 	this.visible_id_order = [];
@@ -17,7 +17,8 @@ var OncoprintModel = (function () {
 	this.track_groups = [];
 	this.track_group_sort_priority = [];
 	
-	this.zoom = ifndef(init_zoom, 1);
+	this.horz_zoom = ifndef(init_horz_zoom, 1);
+	this.vert_zoom = ifndef(init_vert_zoom, 1);
 
 	this.cell_padding = ifndef(init_cell_padding, 3);
 	this.cell_padding_on = ifndef(init_cell_padding_on, true);
@@ -46,30 +47,49 @@ var OncoprintModel = (function () {
     }
 
     OncoprintModel.prototype.getCellPadding = function () {
-	return (this.cell_padding * this.zoom) * (+this.cell_padding_on);
+	return (this.cell_padding * this.horz_zoom) * (+this.cell_padding_on);
     }
 
-    OncoprintModel.prototype.getZoom = function () {
-	return this.zoom;
+    OncoprintModel.prototype.getHorzZoom = function () {
+	return this.horz_zoom;
     }
 
-    OncoprintModel.prototype.setZoom = function (z) {
+    OncoprintModel.prototype.setHorzZoom = function (z) {
 	if (z <= 1 && z >= 0) {
-	    this.zoom = z;
+	    this.horz_zoom = z;
+	} else if (z > 1) {
+	    this.horz_zoom = 1;
+	} else if (z < 0) {
+	    this.horz_zoom = 0;
 	}
-	return this.zoom;
+	return this.horz_zoom;
+    }
+    
+    OncoprintModel.prototype.getVertZoom = function() {
+	return this.vert_zoom;
+    }
+    
+    OncoprintModel.prototype.setVertZoom = function (z) {
+	if (z <= 1 && z >= 0) {
+	    this.vert_zoom = z;
+	} else if (z > 1) {
+	    this.vert_zoom = 1;
+	} else if (z < 0) {
+	    this.vert_zoom = 0;
+	}
+	return this.vert_zoom;
     }
 
     OncoprintModel.prototype.getCellWidth = function () {
-	return this.cell_width * this.zoom;
+	return this.cell_width * this.horz_zoom;
     }
 
     OncoprintModel.prototype.getTrackHeight = function (track_id) {
-	return this.track_height[track_id];
+	return this.track_height[track_id] * this.vert_zoom;
     }
 
     OncoprintModel.prototype.getTrackPadding = function (track_id) {
-	return this.track_padding[track_id];
+	return this.track_padding[track_id] * this.vert_zoom;
     }
     OncoprintModel.prototype.getBottomPadding = function() {
 	return this.bottom_padding;
@@ -279,7 +299,6 @@ var OncoprintModel = (function () {
     }
 
     OncoprintModel.prototype.moveTrack = function (track_id, new_previous_track) {
-	console.log(track_id + "," + new_previous_track);
 	var track_group = _getContainingTrackGroup(this, track_id, true);
 	if (track_group) {
 	    track_group.splice(track_group.indexOf(track_id), 1);
@@ -316,6 +335,10 @@ var OncoprintModel = (function () {
 	this.track_rule_set[track_id] = rule_set;
     }
 
+    OncoprintModel.prototype.getTrackSortComparator = function(track_id) {
+	return this.track_sort_cmp_fn[track_id];
+    }
+    
     OncoprintModel.prototype.getTrackData = function (track_id) {
 	return this.display_track_data[track_id];
     }
@@ -347,27 +370,42 @@ var OncoprintModel = (function () {
     }
     
     OncoprintModel.prototype.sort = function() {
+	var track_group_sort_priority = this.track_group_sort_priority;
 	var track_groups = this.getTrackGroups();
-	var track_sort_priority = this.track_group_sort_priority.map(function(x) {
-	    return track_groups[x];
-	}).reduce(function(acc, next) {
+	var track_groups_in_sort_order;
+	
+	if (track_group_sort_priority.length < track_groups.length) {
+	    track_groups_in_sort_order = track_groups;
+	} else {
+	    track_groups_in_sort_order = track_group_sort_priority.map(function(x) {
+		return track_groups[x];
+	    });
+	}
+	
+	var track_sort_priority = track_groups_in_sort_order.reduce(function(acc, next) {
 	    return acc.concat(next);
 	}, []);
-	var track_id_to_datum = this.track_id_to_datum;
 	
-	// TODO: optimize somehow?
-	var id_order = this.getIdOrder(true);
-	id_order.sort(function(idA, idB) {
-	    var ret = 0;
-	    for (var h=0; h<track_sort_priority.length; h++) {
-		var track_id = track_sort_priority[h];
-		ret = this.track_sort_cmp_fn[track_id](track_id_to_datum[idA], track_id_to_datum[idB]);
-		if (ret !== 0) {
+	var precomputed_comparators = {};
+	for (var i=0; i<track_sort_priority.length; i++) {
+	    var track_id = track_sort_priority[i];
+	    precomputed_comparators[track_id] = new PrecomputedComparator(this.getTrackData(track_id),
+									  this.getTrackSortComparator(track_id),
+									  this.getTrackDataIdKey(track_id));
+	}
+	
+	var combinedComparator = function(idA, idB) {
+	    var res = 0;
+	    for (var i=0; i<track_sort_priority.length; i++) {
+		res = precomputed_comparators[track_sort_priority[i]].compare(idA, idB);
+		if (res !== 0) {
 		    break;
 		}
 	    }
-	    return ret;
-	});
+	    return res;
+	}
+	var id_order = this.getIdOrder(true);
+	id_order.sort(combinedComparator);
 	this.setIdOrder(id_order);
     }
     
@@ -394,4 +432,60 @@ var OncoprintModel = (function () {
     return OncoprintModel;
 })();
 
+var PrecomputedComparator = (function() {
+    function PrecomputedComparator(list, comparator, element_identifier_key) {
+	var sorted_list = list.sort(comparator);
+	this.change_points = []; // i is a change point iff comp(elt[i], elt[i+1]) < 0
+	for (var i=0; i<sorted_list.length; i++) {
+	    if (i === sorted_list.length - 1) {
+		break;
+	    }
+	    if (comparator(sorted_list[i], sorted_list[i+1]) < 0) {
+		this.change_points.push(i);
+	    }
+	}
+	// Note that by this process change_points is sorted
+	this.id_to_index = {};
+	for (var i=0; i<sorted_list.length; i++) {
+	    this.id_to_index[sorted_list[i][element_identifier_key]] = i;
+	}
+    }
+    PrecomputedComparator.prototype.compare = function(idA, idB) {
+	var indA = this.id_to_index[idA];
+	var indB = this.id_to_index[idB];
+	var should_negate_result = false;
+	if (indA === indB) {
+	    return 0;
+	} else if (indA > indB) {
+	    // switch if necessary to make process WLOG
+	    var tmp = indA;
+	    indA = indB;
+	    indB = tmp;
+	    should_negate_result = true;
+	}
+	// See if any changepoints in [indA, indB)
+	var upper_bd_excl = this.change_points.length;
+	var lower_bd_incl = 0;
+	var middle;
+	var res = 0;
+	while (true) {
+	    middle = Math.floor((lower_bd_incl + upper_bd_excl) / 2);
+	    if (lower_bd_incl === upper_bd_excl) {
+		break;
+	    } else if (this.change_points[middle] >= indB) {
+		upper_bd_excl = middle;
+	    } else if (this.change_points[middle] < indA) {
+		lower_bd_incl = middle+1;
+	    } else {
+		res = -1;
+		break;
+	    }
+	}
+	if (should_negate_result) {
+	    res = res * -1;
+	}
+	return res;
+    }
+    return PrecomputedComparator;
+})();
 module.exports = OncoprintModel;

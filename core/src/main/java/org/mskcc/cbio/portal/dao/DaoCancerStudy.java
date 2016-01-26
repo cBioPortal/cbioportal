@@ -351,7 +351,6 @@ public final class DaoCancerStudy {
         }
 
         setImportDate(cancerStudy.getInternalId());
-        reCache();
     }
 
     /**
@@ -362,11 +361,6 @@ public final class DaoCancerStudy {
      */
     public static CancerStudy getCancerStudyByInternalId(int internalId) throws DaoException
 	{
-		if (GlobalProperties.getRecacheStudyAfterUpdate()
-                        && studyNeedsRecaching(null, internalId)) {
-                    System.out.print("Study with internal ID of "+internalId+" updated.");
-                    reCacheAll(System.currentTimeMillis());
-		}
         return byInternalId.get(internalId);
     }
 
@@ -378,11 +372,6 @@ public final class DaoCancerStudy {
      */
     public static CancerStudy getCancerStudyByStableId(String stableId) throws DaoException
 	{
-		if (GlobalProperties.getRecacheStudyAfterUpdate()
-                        && studyNeedsRecaching(stableId)) {
-                    System.out.print("Study "+stableId+" updated.");
-                    reCacheAll(System.currentTimeMillis());
-		}
         return byStableId.get(stableId);
     }
 
@@ -393,11 +382,6 @@ public final class DaoCancerStudy {
      * @return true if the CancerStudy exists, otherwise false
      */
     public static boolean doesCancerStudyExistByStableId(String cancerStudyStableId) {
-        if (GlobalProperties.getRecacheStudyAfterUpdate()
-                        && studyNeedsRecaching(cancerStudyStableId)) {
-            System.out.print("Study "+cancerStudyStableId+" updated.");
-            reCacheAll(System.currentTimeMillis());
-        }
         return byStableId.containsKey(cancerStudyStableId);
     }
 
@@ -409,11 +393,6 @@ public final class DaoCancerStudy {
      * @return true if the CancerStudy exists, otherwise false
      */
     public static boolean doesCancerStudyExistByInternalId(int internalCancerStudyId) {
-        if (GlobalProperties.getRecacheStudyAfterUpdate()
-                        && studyNeedsRecaching(null, internalCancerStudyId)) {
-            System.out.print("Study with internal ID of "+internalCancerStudyId+" updated.");
-            reCacheAll(System.currentTimeMillis());
-        }
         return byInternalId.containsKey(internalCancerStudyId);
     }
 
@@ -423,11 +402,6 @@ public final class DaoCancerStudy {
      * @return ArrayList of all CancerStudy Objects.
      */
     public static ArrayList<CancerStudy> getAllCancerStudies() {
-        if (GlobalProperties.getRecacheStudyAfterUpdate()
-                        && cacheOutOfSyncWithDb()) {
-            System.out.print("cache out of sync updated.");
-            reCacheAll(System.currentTimeMillis());
-        }
         return new ArrayList<CancerStudy>(byStableId.values());
     }
 
@@ -436,11 +410,6 @@ public final class DaoCancerStudy {
      * @return number of cancer studies.
      */
     public static int getCount() {
-        if (GlobalProperties.getRecacheStudyAfterUpdate()
-                        && cacheOutOfSyncWithDb()) {
-            System.out.print("cache out of sync updated.");
-            reCacheAll(System.currentTimeMillis());
-        }
         return byStableId.size();
     }
 
@@ -554,7 +523,6 @@ public final class DaoCancerStudy {
             JdbcUtil.closeAll(DaoCancerStudy.class, con, pstmt, rs);
         }
         System.out.print("delete a study "+internalCancerStudyId);
-        reCacheAll(System.currentTimeMillis());
     }
 
     /**

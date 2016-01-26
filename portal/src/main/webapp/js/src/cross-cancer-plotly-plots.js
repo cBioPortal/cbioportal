@@ -36,7 +36,7 @@
 
 var ccPlots = (function (Plotly, _, $) {
 
-    var study_ids = [], study_meta = [], mrna_profiles = [], profile_data = {};
+    var study_ids = [], study_meta = [], mrna_profiles = [], profile_data = {}, formatted_data = {};
 
     var data = []; //for rendering
 
@@ -204,6 +204,9 @@ var ccPlots = (function (Plotly, _, $) {
                                 study_ids = _.filter(study_ids, function(study_id) { return study_id.indexOf(_tmp_target_study_obj[0].id) === -1; });
                                 mrna_profiles = _.filter(mrna_profiles, function(mrna_profile) { return mrna_profile.indexOf(_tmp_target_study_obj[0].id) === -1; });
                             }
+
+                            //join groups
+                            formatted_data = _non_mut_group.concat(_mix_mut_group, _not_sequenced_group);
 
                             render(_non_mut_group, _not_sequenced_group, _mix_mut_group);
 
@@ -461,6 +464,25 @@ var ccPlots = (function (Plotly, _, $) {
                         cbio.download.initDownload(final_pdf_str, downloadOptions);
 
                     });
+                    $("#cc_plots_data_download").click(function() {
+                        var get_tab_delimited_data = function() {
+                            var result_str = "Sample Id" + "\t" + "Cancer Study" + "\t" + "Profile Name" + "\t" + "Gene" + "\t" + "Mutation" + "\t" + "Value" + "\n";
+                            _.each(formatted_data, function(_obj) {
+                                if ( _obj.sequenced) {
+                                    if (_obj.mutation_type === "non" ) {
+                                        result_str += _obj.sample_id + "\t" + _obj.study_name + "\t" + "RNA Seq V2" + "\t" + gene[0] + "\t" + "Not Mutated" + "\t" + _obj.profile_data + "\n";
+                                    } else {
+                                        result_str += _obj.sample_id + "\t" + _obj.study_name + "\t" + "RNA Seq V2" + "\t" + gene[0] + "\t" + _obj.mutation_details + "\t" + _obj.profile_data + "\n";
+                                    }
+                                } else {
+                                    result_str += _obj.sample_id + "\t" + _obj.study_name + "\t" + "RNA Seq V2" + "\t" + gene[0] + "\t" + "Not Sequenced" + "\t" + _obj.profile_data + "\n";
+                                }
+                            });
+                            return result_str;
+                        };
+                        cbio.download.clientSideDownload([get_tab_delimited_data()], "plots-data.txt");
+                    });
+
 
                     fetch_profile_data(_.pluck(_.pluck(window.studies.models, "attributes"), "studyId"));
                 }

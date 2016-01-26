@@ -85,10 +85,10 @@ var StudyViewInitTables = (function() {
                     _worker.data.getData = function (callback, workerId){
                         StudyViewProxy.getMutatedGenesData().then(
                             function( data ) {
-                                callback(mutatedGenesData(data, numOfCases), workerId);
+                                callback(mutatedGenesData(data, input.numberOfSamples.numberOfSequencedSamples), workerId);
                             },
                             function( status ) {
-                                callback(mutatedGenesData(null, numOfCases), workerId);
+                                callback(mutatedGenesData(null, input.numberOfSamples.numberOfSequencedSamples), workerId);
                                 console.log( status + ", you fail this time" );
                             },
                             function( status ) {
@@ -131,10 +131,10 @@ var StudyViewInitTables = (function() {
                     _worker.data.getData = function (callback, workerId){
                         StudyViewProxy.getCNAData().then(
                             function( data ) {
-                                callback(cnaData(data, numOfCases), workerId);
+                                callback(cnaData(data, input.numberOfSamples.numberOfCnaSamples), workerId);
                             },
                             function( status ) {
-                                callback(cnaData(null, numOfCases), workerId);
+                                callback(cnaData(null, input.numberOfSamples.numberOfCnaSamples), workerId);
                                 console.log( status + ", you fail this time" );
                             },
                             function( status ) {
@@ -356,6 +356,7 @@ var StudyViewInitTables = (function() {
         var genes = [];
 
         if(data) {
+            $('#number-of-selected-sequenced-samples').html(numOfCases);
             for(var i = 0, dataL = data.length; i < dataL; i++){
                 var datum = {},
                     caseIds = data[i].caseIds;
@@ -390,6 +391,7 @@ var StudyViewInitTables = (function() {
         var genes = [];
 
         if(data) {
+            $('#number-of-selected-cna-samples').html(numOfCases);
             for(var i = 0, dataL = data.gene.length; i < dataL; i++){
                 var datum = {},
                     _altType = '';
@@ -446,10 +448,18 @@ var StudyViewInitTables = (function() {
                 if (numSelectedCasesL.length !== 0) {
                     switch (e.opts.name) {
                         case 'mutatedGenes':
-                            workers[i].data.arr = mutatedGenesData(StudyViewProxy.getMutatedGeneDataBasedOnSampleIds(data.selectedCases), numSelectedCasesL);
+                            var selectedSequencedSamples = _.intersection(
+                                    StudyViewProxy.getSequencedSampleIds(),
+                                    data.selectedCases
+                                    );
+                            workers[i].data.arr = mutatedGenesData(StudyViewProxy.getMutatedGeneDataBasedOnSampleIds(data.selectedCases), selectedSequencedSamples.length);
                             break;
                         case 'cna':
-                            workers[i].data.arr = cnaData(StudyViewProxy.getCNABasedOnSampleIds(data.selectedCases), numSelectedCasesL);
+                            var selectedCnaSamples = _.intersection(
+                                    StudyViewProxy.getCnaSampleIds(),
+                                    data.selectedCases
+                                    );
+                            workers[i].data.arr = cnaData(StudyViewProxy.getCNABasedOnSampleIds(data.selectedCases), selectedCnaSamples.length);
                             break;
                         default:
                             break;

@@ -43,7 +43,8 @@ def interface():
                         help='path to html report')
     parser.add_argument('-v', '--verbose', required=False, action='store_true',
                         help='list warnings in addition to fatal errors')
-    parser.add_argument('-o', '--override_warning', type=int, required=False, default=0,
+    parser.add_argument('-o', '--override_warning', required=False,
+                        action='store_true',
                         help='override warnings and continue importing')
     parser.add_argument('-jar', '--jar_path', type=str, required=True,
                         help='path to core jar file.')

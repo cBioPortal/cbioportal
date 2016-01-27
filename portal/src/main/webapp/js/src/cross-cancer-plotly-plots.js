@@ -167,6 +167,13 @@ var ccPlots = (function (Plotly, _, $) {
                             //mark sequenced/non-sequenced samples
                             var _non_mut_study_groups = _.groupBy(_non_mut_or_not_sequenced_group, "study_id"); //only samples without mutation can be possibly not sequenced, therefore skip the mix_mut_group
                             _.each(_non_mut_study_groups, function(_non_mut_study_group) {
+                                //for studies that non of the samples are sequenced
+                                if ($.inArray(_non_mut_study_group[0].study_id, _.uniq(_.pluck(_sequenced_sample_lists, "study_id"))) === -1) {
+                                    _.each(_non_mut_study_group, function(_non_mut_obj) {
+                                        _non_mut_obj.sequenced = false;
+                                    });
+                                }
+                                //for studies that part of the samples are sequenced
                                 _.each(_sequenced_sample_lists, function(_sequenced_sample_list) {
                                     if (_sequenced_sample_list.study_id === _non_mut_study_group[0].study_id) {
                                         var _sequenced_sample_ids = _sequenced_sample_list.sample_ids;

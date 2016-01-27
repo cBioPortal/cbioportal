@@ -1599,15 +1599,17 @@ def validate_types_and_id(metaDictionary, logger, filename):
                                genetic_alteration_type, data_type)
         # validate stable_id:
         elif stable_id not in alt_type_datatype_and_stable_id[(genetic_alteration_type, data_type)]:
-            logger.error('Invalid stable id for genetic_alteration_type, data_type ', 
-                         extra={'filename_': filename, 
-                                'cause': ','.join([genetic_alteration_type, data_type, stable_id]) +
-                                '. Expected one of ' + ','.join(alt_type_datatype_and_stable_id[(genetic_alteration_type, data_type)])
-                                }
+            logger.error("Invalid stable id for genetic_alteration_type '%s', "
+                         "data_type '%s'; expected one of [%s]",
+                        genetic_alteration_type,
+                        data_type,
+                        ', '.join(alt_type_datatype_and_stable_id[(genetic_alteration_type, data_type)]),
+                        extra={'filename_': filename,
+                               'cause': stable_id}
                         )
         else:
             result = True
-        
+
     else:
         result = True
     

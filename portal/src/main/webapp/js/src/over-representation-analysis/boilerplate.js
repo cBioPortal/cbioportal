@@ -32,9 +32,9 @@
 
 
 var orAnalysis = (function() {
-    
+
     return {
-        
+
         ids: {
             main_div: "or_analysis",
             sub_tabs_div: "or-analysis-tabs",
@@ -56,6 +56,7 @@ var orAnalysis = (function() {
             null_result: "empt"
         },
         postfix: {
+        	plot_div: "_plot_div",
             datatable_class: "_datatable_class",
             datatable_div: "_datatable_div",
             datatable_id: "_datatable_table",
@@ -72,62 +73,61 @@ var orAnalysis = (function() {
             protein_exp: "PROTEIN_LEVEL"
         },
         col_width : {
-            gene: 90,
+            gene: 170, //150
             cytoband: 100,
-            altered_pct: 110,
-            unaltered_pct: 110,
+            altered_pct: 80, //90
+            unaltered_pct: 80, //90
             log_ratio: 80,
             p_val: 80,
             q_val: 80,
-            altered_mean: 100,
-            unaltered_mean: 100,
-            altered_stdev: 100,
-            unaltered_stdev: 100,
+            altered_mean: 95,
+            unaltered_mean: 95,
+            altered_stdev: 95,
+            unaltered_stdev: 95,
             direction: 250,
             plot: 50
         },
         col_index: {
             copy_num: {
                 gene: 0,
-                cytoband: 1,
-                altered_pct: 2,
-                unaltered_pct: 3,
-                log_ratio: 4,
-                p_val: 5,
-                q_val: 6,
-                direction: 7
+                //cytoband: 1,
+                altered_pct: 1,
+                unaltered_pct: 2,
+                log_ratio: 3,
+                p_val: 4,
+                q_val: 5,
+                direction: 6
             },
             mrna: {
                 gene: 0,
-                cytoband: 1,
-                altered_mean: 2,
-                unaltered_mean: 3,
-                altered_stdev: 4,
-                unaltered_stdev: 5,
-                p_val: 6,
-                q_val: 7,
-                plot: 8
+                //cytoband: 1,
+                altered_mean: 1,
+                unaltered_mean: 2,
+                altered_stdev: 3,
+                unaltered_stdev: 4,
+                p_val: 5,
+                q_val: 6,
+                plot: 7
             },
             mutations: {
                 gene: 0,
-                cytoband: 1,
-                altered_pct: 2,
-                unaltered_pct: 3,
-                log_ratio: 4,
-                p_val: 5,
-                q_val: 6,
-                direction: 7
+                altered_pct: 1,
+                unaltered_pct: 2,
+                log_ratio: 3,
+                p_val: 4,
+                q_val: 5,
+                direction: 6
             },
             protein_exp: {
                 gene: 0,
-                cytoband: 1,
-                altered_mean: 2,
-                unaltered_mean: 3,
-                altered_stdev: 4,
-                unaltered_stdev: 5,
-                p_val: 6,
-                q_val: 7,
-                plot: 8
+                //cytoband: 1,
+                altered_mean: 1,
+                unaltered_mean: 2,
+                altered_stdev: 3,
+                unaltered_stdev: 4,
+                p_val: 5,
+                q_val: 6,
+                plot: 7
             }
         },
         _title_ids : {
@@ -152,11 +152,11 @@ var orAnalysis = (function() {
             cooccurrence: "Tendency towards co-occurrence"
         }
     };
-    
+
 }());
 
 var orAjaxParam = function(alteredCaseList, unalteredCaseList, profileId, geneSet) {
-    
+
     //convert case id array into a string
     var _tmp_altered_case_id_list = "", _tmp_unaltered_case_id_list = "";
     $.each(alteredCaseList, function(index, _caseId) {
@@ -165,7 +165,7 @@ var orAjaxParam = function(alteredCaseList, unalteredCaseList, profileId, geneSe
     $.each(unalteredCaseList, function(index, _caseId) {
         _tmp_unaltered_case_id_list += _caseId + " ";
     });
-    
+
     this.cancer_study_id = window.QuerySession.getCancerStudyIds()[0];
     this.altered_case_id_list = _tmp_altered_case_id_list;
     this.unaltered_case_id_list = _tmp_unaltered_case_id_list;

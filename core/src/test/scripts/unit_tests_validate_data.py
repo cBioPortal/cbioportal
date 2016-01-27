@@ -285,7 +285,7 @@ class CancerTypeValidationTestCase(LogBufferTestCase):
         self.assertEqual(len(record_list), 2)
         for record in record_list:
             self.assertEqual(record.levelno, logging.ERROR)
-        self.assertEqual(record_list[0].filename_, 'meta_cancer_type.txt')
+        self.assertIn('meta_cancer_type.txt', record_list[0].filename_)
         self.assertIn('dedicated_color', record_list[0].getMessage())
         self.assertEqual(record_list[1].cause, 'luad')
 
@@ -309,7 +309,7 @@ class CancerTypeValidationTestCase(LogBufferTestCase):
         self.assertEqual(len(record_list), 1)
         record = record_list.pop()
         self.assertEqual(record.levelno, logging.ERROR)
-        self.assertEqual(record.filename_, 'meta_cancer_type.txt')
+        self.assertIn('meta_cancer_type.txt', record.filename_)
         self.assertEqual(record.cause, 'Breast Cancer')
 
     def test_cancer_type_defined_twice(self):

@@ -274,6 +274,8 @@ class LogfileStyleFormatter(ValidationMessageFormatter):
                                                        optional=True)
         if not record.file_indicator:
             record.file_indicator = '-'
+        else:
+            record.file_indicator = os.path.basename(record.file_indicator.strip())
         record.line_indicator = self.format_aggregated(
             record,
             'line_number',
@@ -1599,7 +1601,8 @@ def validate_types_and_id(metaDictionary, logger, filename):
         # validate stable_id:
         elif stable_id not in alt_type_datatype_and_stable_id[(genetic_alteration_type, data_type)]:
             logger.error('Invalid stable id for genetic_alteration_type, data_type ', 
-                         extra={'cause': ','.join([genetic_alteration_type, data_type, stable_id]) +
+                         extra={'filename_': filename, 
+                                'cause': ','.join([genetic_alteration_type, data_type, stable_id]) +
                                 '. Expected one of ' + ','.join(alt_type_datatype_and_stable_id[(genetic_alteration_type, data_type)])
                                 }
                         )
@@ -1634,7 +1637,7 @@ def parse_metadata_file(filename, logger, study_id=None, case_list=False):
                 logger.error(
                     "Invalid %s file entry, no ':' found",
                     {True: 'case list', False: 'meta'}[case_list],
-                    extra={'filename_': getFileFromFilepath(filename),
+                    extra={'filename_': filename,
                            'line_number': line_index + 1})
                 return None
             key_value = line.split(':', 1)
@@ -1656,7 +1659,7 @@ def parse_metadata_file(filename, logger, study_id=None, case_list=False):
             logger.error("Missing field '%s' in %s file",
                          field,
                          {True: 'case list', False: 'meta'}[case_list],
-                         extra={'filename_': getFileFromFilepath(filename)}) 
+                         extra={'filename_': filename}) 
             missing_fields.append(field)
 
     if missing_fields:
@@ -1675,7 +1678,7 @@ def parse_metadata_file(filename, logger, study_id=None, case_list=False):
             logger.warning(
                 'Unrecognized field in %s file',
                 {True: 'case list', False: 'meta'}[case_list],
-                extra={'filename_': getFileFromFilepath(filename),
+                extra={'filename_': filename,
                        'cause': field})
 
     # check that cancer study identifiers across files so far are consistent.
@@ -1687,7 +1690,7 @@ def parse_metadata_file(filename, logger, study_id=None, case_list=False):
             "Cancer study identifier is not consistent across "
             "files, expected '%s'",
             study_id,
-            extra={'filename_': getFileFromFilepath(filename),
+            extra={'filename_': filename,
                    'cause': metaDictionary['cancer_study_identifier']})
         return None
 
@@ -1697,7 +1700,7 @@ def parse_metadata_file(filename, logger, study_id=None, case_list=False):
         if file_cancer_type not in PORTAL_CANCER_TYPES:
             logger.warning(
                 'New disease type will be added to the portal',
-                extra={'filename_': getFileFromFilepath(filename),
+                extra={'filename_': filename,
                        'cause': file_cancer_type})
         else:
             existing_info = PORTAL_CANCER_TYPES[file_cancer_type]
@@ -1712,7 +1715,7 @@ def parse_metadata_file(filename, logger, study_id=None, case_list=False):
                         "portal, '%s' expected",
                         field,
                         existing_info[field],
-                        extra={'filename_': getFileFromFilepath(filename),
+                        extra={'filename_': filename,
                                'cause': metaDictionary[field]})
                     invalid_fields_found = True
             if invalid_fields_found:
@@ -1725,7 +1728,7 @@ def parse_metadata_file(filename, logger, study_id=None, case_list=False):
             logger.error(
                 'Reference_genome_id is not %s',
                 GENOMIC_BUILD_COUNTERPART,
-                extra={'filename_': getFileFromFilepath(filename),
+                extra={'filename_': filename,
                        'cause': metaDictionary['reference_genome_id']})
             return None
 
@@ -1769,14 +1772,14 @@ def process_metadata_files(directory, logger, hugo_entrez_map):
             if study_cancer_type is not None:
                 logger.error(
                     'Encountered a second meta_study file',
-                    extra={'filename_': getFileFromFilepath(filename)})
+                    extra={'filename_': filename})
             study_cancer_type = meta['type_of_cancer']
         if meta_file_type == cbioportal_common.MetaFileTypes.CANCER_TYPE:
             file_cancer_type = meta['type_of_cancer']
             if file_cancer_type in defined_cancer_types:
                 logger.error(
                     'Cancer type defined a second time in study',
-                    extra={'filename_': getFileFromFilepath(filename),
+                    extra={'filename_': filename,
                            'cause': file_cancer_type})
             else:
                 defined_cancer_types.append(meta['type_of_cancer'])
@@ -1805,10 +1808,6 @@ def process_metadata_files(directory, logger, hugo_entrez_map):
     return validators_by_type, defined_cancer_types, study_id
 
 
-def getFileFromFilepath(f):
-    return os.path.basename(f.strip())
-
-
 def processCaseListDirectory(caseListDir, cancerStudyId, logger):
 
     logger.info('Validating case lists')
@@ -1829,7 +1828,7 @@ def processCaseListDirectory(caseListDir, cancerStudyId, logger):
             if value not in DEFINED_SAMPLE_IDS:
                 logger.error(
                     'Sample id not defined in clinical file',
-                    extra={'filename_': getFileFromFilepath(case),
+                    extra={'filename_': case,
                            'cause': value})
 
     logger.info('Validation of case lists complete')

@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/usr/bin/env python2.7
 
 # ------------------------------------------------------------------------------
 # Script which imports portal data.
@@ -120,7 +120,9 @@ def process_directory(jvm_args, study_directory):
     cancer_type_meta = {}
 
     for f in study_files:
-        if re.search(r'(\b|_)meta(\b|_)', f):
+        if (re.search(r'(\b|_)meta(\b|_)', f) and
+                 not f.startswith('.') and 
+                 not f.endswith('~')):
             metadata = get_properties(f)
             if MetaFileTypes.STUDY in metadata.get('meta_file_type'):
                 study_meta = metadata

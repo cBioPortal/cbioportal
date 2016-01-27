@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/usr/bin/env python2.7
 
 # ------------------------------------------------------------------------------
 # Data validation script - validates files before import into portal.
@@ -1748,7 +1748,9 @@ def process_metadata_files(directory, logger, hugo_entrez_map):
     # get filenames for all meta files in the directory
     filenames = [os.path.join(directory, f) for
                  f in os.listdir(directory) if
-                 re.search(r'(\b|_)meta(\b|_)', f)]
+                 re.search(r'(\b|_)meta(\b|_)', f) and
+                 not f.startswith('.') and 
+                 not f.endswith('~')]
 
     study_id = None
     study_cancer_type = None

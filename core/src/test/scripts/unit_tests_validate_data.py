@@ -570,3 +570,42 @@ class SegFileValidationTestCase(PostClinicalDataFileTestCase):
         # end position after end of chromosome
         self.assertEqual(record_list[1].line_number, 41)
         self.assertEqual(record_list[1].column_number, 4)
+
+    
+class StableIdValidationTestCase(LogBufferTestCase):
+
+    """Tests to ensure stable_id validation works correctly."""
+    def setUp(self):
+        """Initialize environment, hard-coding known cancer types (needed by validateData.process_metadata_files)."""
+        super(StableIdValidationTestCase, self).setUp()
+        self.orig_portal_cancer_types = validateData.PORTAL_CANCER_TYPES
+        validateData.PORTAL_CANCER_TYPES = KNOWN_CANCER_TYPES
+
+    def tearDown(self):
+        """Restore the environment to before setUp() was called."""
+        super(StableIdValidationTestCase, self).tearDown()
+        validateData.PORTAL_CANCER_TYPES = self.orig_portal_cancer_types
+
+    def test_unnecessary_and_wrong_stable_id(self):
+        """Tests to check behavior when stable_id is not needed (warning) or wrong(error)."""
+        validateData.process_metadata_files(
+            'test_data/study_metastableid',
+            self.logger, hugo_entrez_map)
+        record_list = self.get_log_records()
+        self.print_log_records(record_list)
+        # expecting 1 warning, 1 error:
+        self.assertEqual(len(record_list), 2)
+        # get both into a variable to avoid dependency on order:
+        for record in record_list:
+            if record.levelno == logging.ERROR:
+                error = record
+            else:
+                warning = record
+        
+        # expecting one error about wrong stable_id in meta_expression:
+        self.assertEqual(error.levelno, logging.ERROR)
+        self.assertIn('mrna_test', error.cause)
+        
+        # expecting one warning about stable_id not being recognized in clinical:
+        self.assertEqual(warning.levelno, logging.WARNING)
+        self.assertEqual(warning.cause, 'stable_id')

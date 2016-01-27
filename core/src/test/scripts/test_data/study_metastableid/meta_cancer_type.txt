@@ -1,0 +1,5 @@
+type_of_cancer: brca
+name: Invasive Breast Carcinoma
+clinical_trial_keywords: breast
+short_name: breast
+dedicated_color: pink

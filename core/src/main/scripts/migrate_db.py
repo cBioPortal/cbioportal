@@ -19,6 +19,7 @@ VERSION_TABLE = 'version'
 
 class PortalProperties(object):
     """ Properties object class, just has fields for db conn """
+
     def __init__(self, database_host, database_name, database_user, database_pw):
         self.database_host = database_host
         self.database_name = database_name
@@ -43,6 +44,7 @@ def get_db_cursor(portal_properties):
 
 def get_portal_properties(properties_filename):
     """ Returns a properties object """
+    
     properties = {}
     properties_file = open(properties_filename, 'r')
 
@@ -52,9 +54,9 @@ def get_portal_properties(properties_filename):
         # skip line if its blank or a comment
         if len(line) == 0 or line.startswith('#'):
             continue
+        
         # store name/value
         property = line.split('=')
-        # spreadsheet url contains an '=' sign
         if len(property) != 2:
             print >> ERROR_FILE, 'Skipping invalid entry in proeprty file: ' + line
             continue
@@ -67,6 +69,7 @@ def get_portal_properties(properties_filename):
         DATABASE_PW not in properties or len(properties[DATABASE_PW]) == 0):
         print >> ERROR_FILE, 'Missing one or more required properties, please check property file'
         return none
+    
     # return an instance of PortalProperties
     return PortalProperties(properties[DATABASE_HOST],
                             properties[DATABASE_NAME],
@@ -94,7 +97,7 @@ def get_db_version(cursor):
     try:
         cursor.execute('select version_number from version')
         for row in cursor.fetchall():
-            version = row[0].lower()
+            version = row[0]
     except MySQLdb.Error, msg:
         print >> ERROR_FILE, msg
         return None
@@ -162,6 +165,7 @@ def main():
     if cursor is not None:
         db_version = get_db_version(cursor)
     run_migration(db_version, sql_scripts, cursor)
+
 # do main
 if __name__ == '__main__':
     main()

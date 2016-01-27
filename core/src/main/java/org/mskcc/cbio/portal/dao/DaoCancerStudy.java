@@ -57,22 +57,18 @@ public final class DaoCancerStudy {
 	}
 
     private DaoCancerStudy() {}
-    
+
     private static final Map<String, java.util.Date> cacheDateByStableId = new HashMap<String, java.util.Date>();
     private static final Map<Integer, java.util.Date> cacheDateByInternalId = new HashMap<Integer, java.util.Date>();
     private static final Map<String,CancerStudy> byStableId = new HashMap<String,CancerStudy>();
     private static final Map<Integer,CancerStudy> byInternalId = new HashMap<Integer,CancerStudy>();
-    private static long lastCached = Long.MIN_VALUE;
     
     static {
         SpringUtil.initDataSource();
-        reCacheAll(System.currentTimeMillis());
+        reCacheAll();
     }
 
-    private static synchronized void reCacheAll(long time) {
-        if (lastCached >= time) {
-            return;
-        }
+    private static synchronized void reCacheAll() {
         
         System.out.println("Recaching... ");
         DaoCancerStudy.reCache();
@@ -81,7 +77,6 @@ public final class DaoCancerStudy {
         DaoSample.reCache();
         DaoClinicalData.reCache();
         System.out.println("Finished recaching... ");
-        lastCached = System.currentTimeMillis();
     }
     
     private static synchronized void reCache() {
@@ -99,7 +94,6 @@ public final class DaoCancerStudy {
             while (rs.next()) {
                 CancerStudy cancerStudy = extractCancerStudy(rs);
                 cacheCancerStudy(cancerStudy, new java.util.Date());
-				setStatus(Status.AVAILABLE, cancerStudy.getCancerStudyStableId());
             }
 		} catch (DaoException e) {
 			e.printStackTrace();
@@ -306,7 +300,7 @@ public final class DaoCancerStudy {
         CancerStudy existing = getCancerStudyByStableId(stableId);
         if (existing!=null) {
             if (overwrite) {
-				setStatus(Status.UNAVAILABLE, stableId);
+				//setStatus(Status.UNAVAILABLE, stableId);
                 deleteCancerStudy(existing.getInternalId());
             } else {
                 throw new DaoException("Cancer study " + stableId + "is already imported.");
@@ -350,7 +344,7 @@ public final class DaoCancerStudy {
             JdbcUtil.closeAll(DaoCancerStudy.class, con, pstmt, rs);
         }
 
-        setImportDate(cancerStudy.getInternalId());
+        reCacheAll();
     }
 
     /**
@@ -440,7 +434,7 @@ public final class DaoCancerStudy {
     {
         CancerStudy study = getCancerStudyByStableId(cancerStudyStableId);
         if (study != null){
-			setStatus(Status.UNAVAILABLE, cancerStudyStableId);
+			//setStatus(Status.UNAVAILABLE, cancerStudyStableId);
             deleteCancerStudy(study.getInternalId());
         }
     }
@@ -522,6 +516,7 @@ public final class DaoCancerStudy {
         } finally {
             JdbcUtil.closeAll(DaoCancerStudy.class, con, pstmt, rs);
         }
+        reCacheAll();
         System.out.print("delete a study "+internalCancerStudyId);
     }
 

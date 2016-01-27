@@ -80,6 +80,7 @@ class MetastudyProperties(object):
         self.description = description
         self.short_name = short_name
 
+
 class MetafileProperties(object):
     def __init__(self,
                  cancer_study_identifier, genetic_alteration_type,
@@ -163,9 +164,6 @@ def get_meta_file_type(metaDictionary, logger=None, filename=''):
     return result
 
 
-def importer_requires_metadata_file(importer_classname):
-	return IMPORTER_REQUIRES_METADATA[importer_classname]
-
 def get_properties(filename):
     properties = {}
     file = open(filename, 'r')
@@ -182,6 +180,7 @@ def get_properties(filename):
         properties[property[0]] = property[1].strip()
     file.close()
     return properties
+
 
 def get_metastudy_properties(meta_filename):
     properties = get_properties(meta_filename)
@@ -201,7 +200,7 @@ def get_metastudy_properties(meta_filename):
                             properties["name"],
                             properties["description"],
                             properties["short_name"])
-	
+
 def get_metafile_properties(meta_filename):
     properties = get_properties(meta_filename)
     if ("show_profile_in_analysis_tab not in analysis_tab" not in properties):
@@ -209,25 +208,26 @@ def get_metafile_properties(meta_filename):
 
     # error check
     if ("cancer_study_identifier" not in properties or len(properties["cancer_study_identifier"]) == 0 or
-    	"genetic_alteration_type" not in properties or len(properties["genetic_alteration_type"]) == 0 or
-    	"datatype" not in properties or len(properties["datatype"]) == 0 or
-    	"stable_id" not in properties or len(properties["stable_id"]) == 0 or
-    	"show_profile_in_analysis_tab" not in properties or len(properties["show_profile_in_analysis_tab"]) == 0 or
-    	"profile_name" not in properties or len(properties["profile_name"]) == 0 or
-    	"profile_description" not in properties or len(properties["profile_description"]) == 0):
+        "genetic_alteration_type" not in properties or len(properties["genetic_alteration_type"]) == 0 or
+        "datatype" not in properties or len(properties["datatype"]) == 0 or
+        "stable_id" not in properties or len(properties["stable_id"]) == 0 or
+        "show_profile_in_analysis_tab" not in properties or len(properties["show_profile_in_analysis_tab"]) == 0 or
+        "profile_name" not in properties or len(properties["profile_name"]) == 0 or
+        "profile_description" not in properties or len(properties["profile_description"]) == 0):
         print >> ERROR_FILE, 'Missing one or more required properties, please check metadata file'
         return None
-    
+
     # return an instance of PortalProperties
-    return MetafileProperties(properties["cancer_study_identifier"],
-    						properties["genetic_alteration_type"],
-                            properties["datatype"],
-                            properties["stable_id"],
-                            properties["show_profile_in_analysis_tab"],
-                            properties["profile_name"],
-                            properties["profile_description"],
-                            properties["meta_file_type"],
-                            properties["data_filename"])
+    return MetafileProperties(
+        properties["cancer_study_identifier"],
+        properties["genetic_alteration_type"],
+        properties["datatype"],
+        properties["stable_id"],
+        properties["show_profile_in_analysis_tab"],
+        properties["profile_name"],
+        properties["profile_description"],
+        properties["meta_file_type"],
+        properties["data_filename"])
 
 def run_java(*args):
     java_home = os.environ['JAVA_HOME']
@@ -235,7 +235,7 @@ def run_java(*args):
         print >> ERROR_FILE, "$JAVA_HOME must be defined"
         return
     #print >> OUTPUT_FILE, ("Executing command: " + java_home +
-                           #"/bin/java {}\n".format(args).replace('(\'', '').replace('\', \'', ' ').replace('\')', ''))
+    #                       "/bin/java {}\n".format(args).replace('(\'', '').replace('\', \'', ' ').replace('\')', ''))
     process = Popen([ java_home + '/bin/java']+list(args), stdout=PIPE, stderr=STDOUT)
     ret = []
     while process.poll() is None:

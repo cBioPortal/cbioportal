@@ -92,13 +92,11 @@ def import_case_list(jvm_args, meta_filename):
     args.append(meta_filename)
     run_java(*args)
 
-def process_case_lists(jvm_args, study_files):
-    for f in study_files:
-        if 'case_lists' in f:
-            if os.path.isdir(f):
-                case_list_files = [f + '/' + x for x in os.listdir(f)]
-                for case_list in case_list_files:
-                    import_case_list(jvm_args,case_list)
+def process_case_lists(jvm_args, case_list_dir):
+    case_list_files = (os.path.join(case_list_dir, x) for
+                       x in os.listdir(case_list_dir))
+    for case_list in case_list_files:
+        import_case_list(jvm_args,case_list)
 
 def process_command(jvm_args, command, meta_filename, data_filename):
     if command == IMPORT_CANCER_TYPE:
@@ -113,30 +111,31 @@ def process_command(jvm_args, command, meta_filename, data_filename):
         import_case_list(jvm_args, meta_filename)
 
 def process_directory(jvm_args, study_directory):
-    study_files = [study_directory + '/' + x for x in os.listdir(study_directory)]
+    meta_filenames = (
+        os.path.join(study_directory, f) for
+        f in os.listdir(study_directory) if
+        re.search(r'(\b|_)meta(\b|_)', f) and
+        not (f.startswith('.') or f.endswith('~')))
     study_meta = {}
     clinical_metafiles = []
     non_clinical_metafiles = []
     cancer_type_meta = {}
 
-    for f in study_files:
-        if (re.search(r'(\b|_)meta(\b|_)', f) and
-                 not f.startswith('.') and 
-                 not f.endswith('~')):
-            metadata = get_properties(f)
-            if MetaFileTypes.STUDY in metadata.get('meta_file_type'):
-                study_meta = metadata
-                #First remove study if exists
-                remove_study(jvm_args,f)
-                #Then import study
-                import_study(jvm_args,f)
-            elif MetaFileTypes.CANCER_TYPE in metadata.get('meta_file_type'):
-                # TODO this is a bug, make it a .append()
-                cancer_type_meta = metadata
-            elif MetaFileTypes.CLINICAL in metadata.get('meta_file_type'):
-                clinical_metafiles.append(f)
-            else:
-                non_clinical_metafiles.append(f)
+    for f in meta_filenames:
+        metadata = get_properties(f)
+        if MetaFileTypes.STUDY in metadata.get('meta_file_type'):
+            study_meta = metadata
+            #First remove study if exists
+            remove_study(jvm_args,f)
+            #Then import study
+            import_study(jvm_args,f)
+        elif MetaFileTypes.CANCER_TYPE in metadata.get('meta_file_type'):
+            # TODO this is a bug, make it a .append()
+            cancer_type_meta = metadata
+        elif MetaFileTypes.CLINICAL in metadata.get('meta_file_type'):
+            clinical_metafiles.append(f)
+        else:
+            non_clinical_metafiles.append(f)
 
     if len(study_meta) == 0:
         print >> ERROR_FILE, 'No meta_study file found'
@@ -157,8 +156,9 @@ def process_directory(jvm_args, study_directory):
         import_study_data(jvm_args, f, os.path.join(study_directory,metadata.get('data_filename')))
 
     # do the case lists
-    process_case_lists(jvm_args,study_files)
-
+    case_list_dirname = os.path.join(study_directory, 'case_lists')
+    if os.path.isdir(case_list_dirname):
+        process_case_lists(jvm_args, case_list_dirname)
 
 
 def usage():

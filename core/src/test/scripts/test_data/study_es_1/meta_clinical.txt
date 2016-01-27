@@ -4,4 +4,4 @@ datatype: FREE-FORM
 show_profile_in_analysis_tab: false
 profile_description: Sample clinical data for this study. 
 profile_name: Sample clinical data for brca_tcga_pub.
-data_file_path: data_clinical2.txt
+data_filename: data_clinical2.txt

@@ -98,7 +98,7 @@ class MetafileProperties(object):
     def __init__(self,
                  cancer_study_identifier, genetic_alteration_type,
                  datatype, stable_id, show_profile_in_analysis_tab,
-                 profile_description, profile_name, meta_file_type, data_file_path):
+                 profile_description, profile_name, meta_file_type, data_filename):
         self.cancer_study_identifier = cancer_study_identifier
         self.genetic_alteration_type = genetic_alteration_type
         self.datatype = datatype
@@ -107,7 +107,7 @@ class MetafileProperties(object):
         self.profile_description = profile_description
         self.profile_name = profile_name
         self.meta_file_type = meta_file_type
-        self.data_file_path = data_file_path
+        self.data_filename = data_filename
 
 
 # ------------------------------------------------------------------------------
@@ -160,7 +160,7 @@ def get_meta_file_type(metaDictionary, logger, filename):
         data_type = metaDictionary['datatype']
         if (genetic_alteration_type, data_type) not in alt_type_datatype_to_meta:
             logger.error('Could not determine the file type. Please check your meta files for correct configuration.',
-                         extra={'data_filename': os.path.basename(filename),
+                         extra={'filename_': os.path.basename(filename),
                                 'cause': 'genetic_alteration_type: ' + metaDictionary['genetic_alteration_type'] +
                                          ', datatype: ' + metaDictionary['datatype']})
         else:
@@ -171,7 +171,7 @@ def get_meta_file_type(metaDictionary, logger, filename):
         result = MetaFileTypes.CANCER_TYPE
     else:
         logger.error('Could not determine the file type. Did not find expected meta file fields. Please check your meta files for correct configuration.',
-                         extra={'data_filename': os.path.basename(filename)})
+                         extra={'filename_': os.path.basename(filename)})
 
     return result
 
@@ -240,7 +240,7 @@ def get_metafile_properties(meta_filename):
                             properties["profile_name"],
                             properties["profile_description"],
                             properties["meta_file_type"],
-                            properties["data_file_path"])
+                            properties["data_filename"])
 
 def run_java(*args):
     java_home = os.environ['JAVA_HOME']

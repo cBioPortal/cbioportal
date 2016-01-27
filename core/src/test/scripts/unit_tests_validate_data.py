@@ -125,7 +125,7 @@ class DataFileTestCase(LogBufferTestCase):
 
     def validate(self, data_filename, validator_class, extra_meta_fields=None):
         """Validate a file with a Validator and return the log records."""
-        meta_dict = {'data_file_path': data_filename}
+        meta_dict = {'data_filename': data_filename}
         if extra_meta_fields is not None:
             meta_dict.update(extra_meta_fields)
         validator = validator_class('test_data', meta_dict,
@@ -285,7 +285,7 @@ class CancerTypeValidationTestCase(LogBufferTestCase):
         self.assertEqual(len(record_list), 2)
         for record in record_list:
             self.assertEqual(record.levelno, logging.ERROR)
-        self.assertEqual(record_list[0].data_filename, 'meta_cancer_type.txt')
+        self.assertEqual(record_list[0].filename_, 'meta_cancer_type.txt')
         self.assertIn('dedicated_color', record_list[0].getMessage())
         self.assertEqual(record_list[1].cause, 'luad')
 
@@ -309,7 +309,7 @@ class CancerTypeValidationTestCase(LogBufferTestCase):
         self.assertEqual(len(record_list), 1)
         record = record_list.pop()
         self.assertEqual(record.levelno, logging.ERROR)
-        self.assertEqual(record.data_filename, 'meta_cancer_type.txt')
+        self.assertEqual(record.filename_, 'meta_cancer_type.txt')
         self.assertEqual(record.cause, 'Breast Cancer')
 
     def test_cancer_type_defined_twice(self):

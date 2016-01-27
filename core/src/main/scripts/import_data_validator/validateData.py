@@ -20,6 +20,11 @@ import csv
 import itertools
 import requests
 
+# insert parent directory scripts/ to import search path,
+# after the directory of the script itself
+sys.path.insert(1, os.path.dirname(os.path.dirname(__file__)))
+import cbioportal_common
+
 
 # ------------------------------------------------------------------------------
 # globals
@@ -39,46 +44,29 @@ PORTAL_CANCER_TYPES = None
 
 # ----------------------------------------------------------------------------
 
-class MetaFileTypes(object):
-    """how we differentiate between data types."""
-    SEG = 'meta_segment'
-    STUDY = 'meta_study'
-    CANCER_TYPE = 'meta_cancer_type'
-    MUTATION = 'meta_mutations_extended'
-    CNA = 'meta_CNA'
-    CLINICAL = 'meta_clinical'
-    LOG2 = 'meta_log2CNA'
-    EXPRESSION = 'meta_expression'
-    FUSION = 'meta_fusions'
-    METHYLATION = 'meta_methylation'
-    RPPA = 'meta_rppa'
-    TIMELINE = 'meta_timeline'
-    CASE_LIST = 'case_list'
-
-
 VALIDATOR_IDS = {
-    MetaFileTypes.CNA:'CNAValidator',
-    MetaFileTypes.MUTATION:'MutationsExtendedValidator',
-    MetaFileTypes.CLINICAL:'ClinicalValidator',
-    MetaFileTypes.SEG:'SegValidator',
-    MetaFileTypes.LOG2:'Log2Validator',
-    MetaFileTypes.EXPRESSION:'ExpressionValidator',
-    MetaFileTypes.FUSION:'FusionValidator',
-    MetaFileTypes.METHYLATION:'MethylationValidator',
-    MetaFileTypes.RPPA:'RPPAValidator',
-    MetaFileTypes.TIMELINE:'TimelineValidator'
+    cbioportal_common.MetaFileTypes.CNA:'CNAValidator',
+    cbioportal_common.MetaFileTypes.MUTATION:'MutationsExtendedValidator',
+    cbioportal_common.MetaFileTypes.CLINICAL:'ClinicalValidator',
+    cbioportal_common.MetaFileTypes.SEG:'SegValidator',
+    cbioportal_common.MetaFileTypes.LOG2:'Log2Validator',
+    cbioportal_common.MetaFileTypes.EXPRESSION:'ExpressionValidator',
+    cbioportal_common.MetaFileTypes.FUSION:'FusionValidator',
+    cbioportal_common.MetaFileTypes.METHYLATION:'MethylationValidator',
+    cbioportal_common.MetaFileTypes.RPPA:'RPPAValidator',
+    cbioportal_common.MetaFileTypes.TIMELINE:'TimelineValidator'
 }
 
 # fields allowed in each meta file type, maps to True if required
 META_FIELD_MAP = {
-    MetaFileTypes.CANCER_TYPE: {
+    cbioportal_common.MetaFileTypes.CANCER_TYPE: {
         'type_of_cancer': True,
         'name': True,
         'clinical_trial_keywords': True,
         'dedicated_color': True,
         'short_name': True
     },
-    MetaFileTypes.STUDY: {
+    cbioportal_common.MetaFileTypes.STUDY: {
         'cancer_study_identifier': True,
         'type_of_cancer': True,
         'name': True,
@@ -89,7 +77,7 @@ META_FIELD_MAP = {
         'pmid': False,
         'groups': False
     },
-    MetaFileTypes.CLINICAL: {
+    cbioportal_common.MetaFileTypes.CLINICAL: {
         'cancer_study_identifier': True,
         'genetic_alteration_type': True,
         'datatype': True,
@@ -99,7 +87,7 @@ META_FIELD_MAP = {
         'profile_description': True,
         'data_file_path': True
     },
-    MetaFileTypes.CNA: {
+    cbioportal_common.MetaFileTypes.CNA: {
         'cancer_study_identifier': True,
         'genetic_alteration_type': True,
         'datatype': True,
@@ -109,7 +97,7 @@ META_FIELD_MAP = {
         'profile_description': True,
         'data_file_path': True
     },
-    MetaFileTypes.LOG2: {
+    cbioportal_common.MetaFileTypes.LOG2: {
         'cancer_study_identifier': True,
         'genetic_alteration_type': True,
         'datatype': True,
@@ -119,7 +107,7 @@ META_FIELD_MAP = {
         'profile_description': True,
         'data_file_path': True
     },
-    MetaFileTypes.SEG: {
+    cbioportal_common.MetaFileTypes.SEG: {
         'cancer_study_identifier': True,
         'genetic_alteration_type': True,
         'datatype': True,
@@ -129,7 +117,7 @@ META_FIELD_MAP = {
         'description': True,
         'data_file_path': True
     },
-    MetaFileTypes.MUTATION: {
+    cbioportal_common.MetaFileTypes.MUTATION: {
         'cancer_study_identifier': True,
         'genetic_alteration_type': True,
         'datatype': True,
@@ -140,7 +128,7 @@ META_FIELD_MAP = {
         'data_file_path': True,
         'normal_samples_list': False
     },
-    MetaFileTypes.EXPRESSION: {
+    cbioportal_common.MetaFileTypes.EXPRESSION: {
         'cancer_study_identifier': True,
         'genetic_alteration_type': True,
         'datatype': True,
@@ -150,7 +138,7 @@ META_FIELD_MAP = {
         'profile_description': True,
         'data_file_path': True
     },
-    MetaFileTypes.METHYLATION: {
+    cbioportal_common.MetaFileTypes.METHYLATION: {
         'cancer_study_identifier': True,
         'genetic_alteration_type': True,
         'datatype': True,
@@ -160,7 +148,7 @@ META_FIELD_MAP = {
         'profile_description': True,
         'data_file_path': True
     },
-    MetaFileTypes.RPPA: {
+    cbioportal_common.MetaFileTypes.RPPA: {
         'cancer_study_identifier': True,
         'genetic_alteration_type': True,
         'datatype': True,
@@ -170,7 +158,7 @@ META_FIELD_MAP = {
         'profile_description': True,
         'data_file_path': True
     },
-    MetaFileTypes.FUSION: {
+    cbioportal_common.MetaFileTypes.FUSION: {
         'cancer_study_identifier': True,
         'genetic_alteration_type': True,
         'datatype': True,
@@ -180,12 +168,12 @@ META_FIELD_MAP = {
         'profile_description': True,
         'data_file_path': True
     },
-    MetaFileTypes.TIMELINE: {
+    cbioportal_common.MetaFileTypes.TIMELINE: {
         'cancer_study_identifier': True,
         'genetic_alteration_type': True,
         'data_file_path': True
     },
-    MetaFileTypes.CASE_LIST: {
+    cbioportal_common.MetaFileTypes.CASE_LIST: {
         'cancer_study_identifier': True,
         'stable_id': True,
         'case_list_name': True,
@@ -1577,43 +1565,43 @@ class TimelineValidator(Validator):
 def get_meta_file_type(metaDictionary, logger, filename):
     '''
      Returns one of the metatypes :
-        MetaFileTypes.SEG = 'meta_segment'
-        MetaFileTypes.STUDY = 'meta_study'
-        MetaFileTypes.CANCER_TYPE = 'meta_cancer_type'
-        MetaFileTypes.MUTATION = 'meta_mutations_extended'
-        MetaFileTypes.CNA = 'meta_CNA'
-        MetaFileTypes.CLINICAL = 'meta_clinical'
-        MetaFileTypes.LOG2 = 'meta_log2CNA'
-        MetaFileTypes.EXPRESSION = 'meta_expression'
-        MetaFileTypes.FUSION = 'meta_fusions'
-        MetaFileTypes.METHYLATION = 'meta_methylation'
-        MetaFileTypes.RPPA = 'meta_rppa'
-        MetaFileTypes.TIMELINE = 'meta_timeline'
+        cbioportal_common.MetaFileTypes.SEG = 'meta_segment'
+        cbioportal_common.MetaFileTypes.STUDY = 'meta_study'
+        cbioportal_common.MetaFileTypes.CANCER_TYPE = 'meta_cancer_type'
+        cbioportal_common.MetaFileTypes.MUTATION = 'meta_mutations_extended'
+        cbioportal_common.MetaFileTypes.CNA = 'meta_CNA'
+        cbioportal_common.MetaFileTypes.CLINICAL = 'meta_clinical'
+        cbioportal_common.MetaFileTypes.LOG2 = 'meta_log2CNA'
+        cbioportal_common.MetaFileTypes.EXPRESSION = 'meta_expression'
+        cbioportal_common.MetaFileTypes.FUSION = 'meta_fusions'
+        cbioportal_common.MetaFileTypes.METHYLATION = 'meta_methylation'
+        cbioportal_common.MetaFileTypes.RPPA = 'meta_rppa'
+        cbioportal_common.MetaFileTypes.TIMELINE = 'meta_timeline'
     '''
     # GENETIC_ALTERATION_TYPE    DATATYPE    meta
     alt_type_datatype_to_meta = {
                                     #clinical and timeline
-                                    ("CLINICAL", "CLINICAL"): MetaFileTypes.CLINICAL,
-                                    ("CLINICAL", "TIMELINE"): MetaFileTypes.TIMELINE,
+                                    ("CLINICAL", "CLINICAL"): cbioportal_common.MetaFileTypes.CLINICAL,
+                                    ("CLINICAL", "TIMELINE"): cbioportal_common.MetaFileTypes.TIMELINE,
                                     #rppa
-                                    ("PROTEIN_LEVEL", "LOG2-VALUE"): MetaFileTypes.RPPA,
-                                    ("PROTEIN_LEVEL", "Z-SCORE"): MetaFileTypes.RPPA,
+                                    ("PROTEIN_LEVEL", "LOG2-VALUE"): cbioportal_common.MetaFileTypes.RPPA,
+                                    ("PROTEIN_LEVEL", "Z-SCORE"): cbioportal_common.MetaFileTypes.RPPA,
                                     #cna
-                                    ("COPY_NUMBER_ALTERATION", "DISCRETE"): MetaFileTypes.CNA,
-                                    #("COPY_NUMBER_ALTERATION", "CONTINUOUS"): MetaFileTypes.CNA, ?? TODO - add later, when documented
+                                    ("COPY_NUMBER_ALTERATION", "DISCRETE"): cbioportal_common.MetaFileTypes.CNA,
+                                    #("COPY_NUMBER_ALTERATION", "CONTINUOUS"): cbioportal_common.MetaFileTypes.CNA, ?? TODO - add later, when documented
                                     #log2cna
-                                    ("COPY_NUMBER_ALTERATION", "LOG2-VALUE"): MetaFileTypes.LOG2,
+                                    ("COPY_NUMBER_ALTERATION", "LOG2-VALUE"): cbioportal_common.MetaFileTypes.LOG2,
                                     #expression
-                                    ("MRNA_EXPRESSION", "CONTINUOUS"): MetaFileTypes.EXPRESSION,
-                                    ("MRNA_EXPRESSION_NORMALS", "CONTINUOUS"): MetaFileTypes.EXPRESSION,
-                                    ("MRNA_EXPRESSION", "Z-SCORE"): MetaFileTypes.EXPRESSION,
-                                    ("MRNA_EXPRESSION", "DISCRETE"): MetaFileTypes.EXPRESSION,
+                                    ("MRNA_EXPRESSION", "CONTINUOUS"): cbioportal_common.MetaFileTypes.EXPRESSION,
+                                    ("MRNA_EXPRESSION_NORMALS", "CONTINUOUS"): cbioportal_common.MetaFileTypes.EXPRESSION,
+                                    ("MRNA_EXPRESSION", "Z-SCORE"): cbioportal_common.MetaFileTypes.EXPRESSION,
+                                    ("MRNA_EXPRESSION", "DISCRETE"): cbioportal_common.MetaFileTypes.EXPRESSION,
                                     #mutations
-                                    ("MUTATION_EXTENDED", "MAF"): MetaFileTypes.MUTATION,
+                                    ("MUTATION_EXTENDED", "MAF"): cbioportal_common.MetaFileTypes.MUTATION,
                                     #others
-                                    ("COPY_NUMBER_ALTERATION", "SEG"): MetaFileTypes.SEG,
-                                    ("METHYLATION", "CONTINUOUS"): MetaFileTypes.METHYLATION,
-                                    ("FUSION", "FUSION"): MetaFileTypes.FUSION
+                                    ("COPY_NUMBER_ALTERATION", "SEG"): cbioportal_common.MetaFileTypes.SEG,
+                                    ("METHYLATION", "CONTINUOUS"): cbioportal_common.MetaFileTypes.METHYLATION,
+                                    ("FUSION", "FUSION"): cbioportal_common.MetaFileTypes.FUSION
                                 }
     result = None
     if 'genetic_alteration_type' in metaDictionary and 'datatype' in metaDictionary:
@@ -1627,9 +1615,9 @@ def get_meta_file_type(metaDictionary, logger, filename):
         else:
             result = alt_type_datatype_to_meta[(genetic_alteration_type, data_type)]
     elif 'cancer_study_identifier' in metaDictionary and 'type_of_cancer' in metaDictionary:
-        result = MetaFileTypes.STUDY
+        result = cbioportal_common.MetaFileTypes.STUDY
     elif 'type_of_cancer' in metaDictionary:
-        result = MetaFileTypes.CANCER_TYPE
+        result = cbioportal_common.MetaFileTypes.CANCER_TYPE
     else:
         logger.error('Could not determine the file type. Did not find expected meta file fields. Please check your meta files for correct configuration.',
                          extra={'data_filename': getFileFromFilepath(filename)})
@@ -1677,7 +1665,7 @@ def parse_metadata_file(filename, logger, study_id=None, case_list=False):
                 metaDictionary[key_value[0]] = key_value[1].strip()
 
     if case_list:
-        meta_file_type = MetaFileTypes.CASE_LIST
+        meta_file_type = cbioportal_common.MetaFileTypes.CASE_LIST
     else:
         meta_file_type = get_meta_file_type(metaDictionary, logger, filename)
         if meta_file_type is None:
@@ -1725,7 +1713,7 @@ def parse_metadata_file(filename, logger, study_id=None, case_list=False):
         return None
 
     # compare a meta_cancer_type file with the portal instance
-    if meta_file_type == MetaFileTypes.CANCER_TYPE:
+    if meta_file_type == cbioportal_common.MetaFileTypes.CANCER_TYPE:
         file_cancer_type = metaDictionary.get('type_of_cancer')
         if file_cancer_type not in PORTAL_CANCER_TYPES:
             logger.warning(
@@ -1752,7 +1740,7 @@ def parse_metadata_file(filename, logger, study_id=None, case_list=False):
                 return None
 
     # check fields specific to seg meta file
-    if meta_file_type == MetaFileTypes.SEG:
+    if meta_file_type == cbioportal_common.MetaFileTypes.SEG:
 
         if metaDictionary['data_filename'] != metaDictionary['data_file_path']:
             logger.error(
@@ -1793,7 +1781,7 @@ def process_metadata_files(directory, logger, hugo_entrez_map):
         2. a list of cancer type ids that have been defined in this study, and
         3. the study id
 
-    Possible file types are listed in MetaFileTypes.
+    Possible file types are listed in cbioportal_common.MetaFileTypes.
     """
 
     # get filenames for all meta files in the directory
@@ -1814,13 +1802,13 @@ def process_metadata_files(directory, logger, hugo_entrez_map):
         meta, meta_file_type = meta_tuple
         if study_id is None and 'cancer_study_identifier' in meta:
             study_id = meta['cancer_study_identifier']
-        if meta_file_type == MetaFileTypes.STUDY:
+        if meta_file_type == cbioportal_common.MetaFileTypes.STUDY:
             if study_cancer_type is not None:
                 logger.error(
                     'Encountered a second meta_study file',
                     extra={'data_filename': getFileFromFilepath(filename)})
             study_cancer_type = meta['type_of_cancer']
-        if meta_file_type == MetaFileTypes.CANCER_TYPE:
+        if meta_file_type == cbioportal_common.MetaFileTypes.CANCER_TYPE:
             file_cancer_type = meta['type_of_cancer']
             if file_cancer_type in defined_cancer_types:
                 logger.error(
@@ -1981,24 +1969,24 @@ def validate_study(study_dir, logger, hugo_entrez_map):
      DEFINED_CANCER_TYPES,
      study_id) = process_metadata_files(study_dir, logger, hugo_entrez_map)
 
-    if MetaFileTypes.CLINICAL not in validators_by_meta_type:
+    if cbioportal_common.MetaFileTypes.CLINICAL not in validators_by_meta_type:
         logger.error('No clinical file detected')
         return
 
-    if MetaFileTypes.STUDY not in validators_by_meta_type:
+    if cbioportal_common.MetaFileTypes.STUDY not in validators_by_meta_type:
         logger.error('No study file detected')
         return
 
-    if len(validators_by_meta_type[MetaFileTypes.CLINICAL]) != 1:
+    if len(validators_by_meta_type[cbioportal_common.MetaFileTypes.CLINICAL]) != 1:
         if logger.isEnabledFor(logging.ERROR):
             logger.error(
                 'Multiple clinical files detected',
                 extra={'cause': ', '.join(
                     validator.filenameShort for validator in
-                    validators_by_meta_type[MetaFileTypes.CLINICAL])})
+                    validators_by_meta_type[cbioportal_common.MetaFileTypes.CLINICAL])})
 
     # get the validator for the clinical data file
-    clinvalidator = validators_by_meta_type[MetaFileTypes.CLINICAL][0]
+    clinvalidator = validators_by_meta_type[cbioportal_common.MetaFileTypes.CLINICAL][0]
     # parse the clinical data file to get defined sample ids for this study
     clinvalidator.validate()
     if not clinvalidator.fileCouldBeParsed:
@@ -2010,7 +1998,7 @@ def validate_study(study_dir, logger, hugo_entrez_map):
     # validate non-clinical data files
     for meta_file_type in validators_by_meta_type:
         # skip clinical files, they have already been validated
-        if meta_file_type == MetaFileTypes.CLINICAL:
+        if meta_file_type == cbioportal_common.MetaFileTypes.CLINICAL:
             continue
         for validator in validators_by_meta_type[meta_file_type]:
             # if there was no validator for this meta file

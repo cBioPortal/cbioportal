@@ -4,9 +4,11 @@
 # Common components used by various cbioportal scripts.
 # ------------------------------------------------------------------------------
 
+
 import os
 import sys
 from subprocess import *
+
 
 # ------------------------------------------------------------------------------
 # globals
@@ -19,36 +21,62 @@ REMOVE_STUDY_CLASS = "org.mskcc.cbio.portal.scripts.RemoveCancerStudy";
 IMPORT_CANCER_TYPE_CLASS = "org.mskcc.cbio.portal.scripts.ImportTypesOfCancers"
 IMPORT_CASE_LIST_CLASS = "org.mskcc.cbio.portal.scripts.ImportPatientList"
 
-IMPORTER_CLASSNAME_BY_ALTERATION_TYPE = { "CLINICAL" : "org.mskcc.cbio.portal.scripts.ImportClinicalData",
-                                            "meta_clinical" : "org.mskcc.cbio.portal.scripts.ImportClinicalData",
-                                            "COPY_NUMBER_ALTERATION" : "org.mskcc.cbio.portal.scripts.ImportProfileData",
-                                            "meta_CNA" : "org.mskcc.cbio.portal.scripts.ImportProfileData",
-                                            "FUSION" : "org.mskcc.cbio.portal.scripts.ImportProfileData",
-                                            "meta_fusion" : "org.mskcc.cbio.portal.scripts.ImportProfileData",
-                                            "GISTIC" : "org.mskcc.cbio.portal.scripts.ImportGisticData",
-                                            "meta_gistic" : "org.mskcc.cbio.portal.scripts.ImportGisticData",
-                                            "METHYLATION" : "org.mskcc.cbio.portal.scripts.ImportProfileData",
-                                            "meta_methylation" : "org.mskcc.cbio.portal.scripts.ImportProfileData",
-                                            "MRNA_EXPRESSION" : "org.mskcc.cbio.portal.scripts.ImportProfileData",
-                                            "meta_expression" : "org.mskcc.cbio.portal.scripts.ImportProfileData",
-                                            "MUTATION_EXTENDED" : "org.mskcc.cbio.portal.scripts.ImportProfileData",
-                                            "meta_mutations_extended" : "org.mskcc.cbio.portal.scripts.ImportProfileData",
-                                            "MUTATION_SIGNIFICANCE" : "org.mskcc.cbio.portal.scripts.ImportMutSigData",
-                                            "meta_mutation_significance" : "org.mskcc.cbio.portal.scripts.ImportMutSigData",
-                                            "RPPA" : "org.mskcc.cbio.portal.scripts.ImportProteinArrayData",
-                                            "meta_rppa" : "org.mskcc.cbio.portal.scripts.ImportProteinArrayData",
-                                            "SEGMENT" : "org.mskcc.cbio.portal.scripts.ImportCopyNumberSegmentData",
-                                            "meta_segment" : "org.mskcc.cbio.portal.scripts.ImportCopyNumberSegmentData",
-                                            "TIMELINE" : "org.mskcc.cbio.portal.scripts.ImportTimelineData",
-                                            "meta_timeline" : "org.mskcc.cbio.portal.scripts.ImportTimelineData"}
+class MetaFileTypes(object):
+    """how we differentiate between data types."""
+    STUDY = 'meta_study'
+    CANCER_TYPE = 'meta_cancer_type'
+    CLINICAL = 'meta_clinical'
+    CNA = 'meta_CNA'
+    LOG2 = 'meta_log2CNA'
+    SEG = 'meta_segment'
+    EXPRESSION = 'meta_expression'
+    MUTATION = 'meta_mutations_extended'
+    METHYLATION = 'meta_methylation'
+    FUSION = 'meta_fusions'
+    RPPA = 'meta_rppa'
+    TIMELINE = 'meta_timeline'
+    CASE_LIST = 'case_list'
 
-IMPORTER_REQUIRES_METADATA = { "org.mskcc.cbio.portal.scripts.ImportClinicalData" : False,
-                                "org.mskcc.cbio.portal.scripts.ImportCopyNumberSegmentData" : False,
-                                "org.mskcc.cbio.portal.scripts.ImportGisticData" : False,
-                                "org.mskcc.cbio.portal.scripts.ImportMutSigData" : False,
-                                "org.mskcc.cbio.portal.scripts.ImportProteinArrayData" : False,
-								"org.mskcc.cbio.portal.scripts.ImportProfileData" : True,
-                                "org.mskcc.cbio.portal.scripts.ImportTimelineData" : True }
+IMPORTER_CLASSNAME_BY_META_TYPE = {
+    MetaFileTypes.CLINICAL: "org.mskcc.cbio.portal.scripts.ImportClinicalData",
+    MetaFileTypes.CNA: "org.mskcc.cbio.portal.scripts.ImportProfileData",
+    # TODO: check if this is correct
+    MetaFileTypes.LOG2: "org.mskcc.cbio.portal.scripts.ImportProfileData",
+    MetaFileTypes.FUSION: "org.mskcc.cbio.portal.scripts.ImportProfileData",
+    MetaFileTypes.METHYLATION: "org.mskcc.cbio.portal.scripts.ImportProfileData",
+    MetaFileTypes.EXPRESSION: "org.mskcc.cbio.portal.scripts.ImportProfileData",
+    MetaFileTypes.MUTATION: "org.mskcc.cbio.portal.scripts.ImportProfileData",
+    MetaFileTypes.RPPA: "org.mskcc.cbio.portal.scripts.ImportProteinArrayData",
+    MetaFileTypes.SEG: "org.mskcc.cbio.portal.scripts.ImportCopyNumberSegmentData",
+    MetaFileTypes.TIMELINE: "org.mskcc.cbio.portal.scripts.ImportTimelineData"
+    # TODO: enable when documented
+    #MetaFileTypes.GISTIC: "org.mskcc.cbio.portal.scripts.ImportGisticData",
+    #MetaFileTypes.MUTATION_SIGNIFICANCE"org.mskcc.cbio.portal.scripts.ImportMutSigData",
+}
+
+IMPORTER_CLASSNAME_BY_ALTERATION_TYPE = {
+    "CLINICAL" : "org.mskcc.cbio.portal.scripts.ImportClinicalData",
+    "COPY_NUMBER_ALTERATION" : "org.mskcc.cbio.portal.scripts.ImportProfileData",
+    "FUSION" : "org.mskcc.cbio.portal.scripts.ImportProfileData",
+    "GISTIC" : "org.mskcc.cbio.portal.scripts.ImportGisticData",
+    "METHYLATION" : "org.mskcc.cbio.portal.scripts.ImportProfileData",
+    "MRNA_EXPRESSION" : "org.mskcc.cbio.portal.scripts.ImportProfileData",
+    "MUTATION_EXTENDED" : "org.mskcc.cbio.portal.scripts.ImportProfileData",
+    "MUTATION_SIGNIFICANCE" : "org.mskcc.cbio.portal.scripts.ImportMutSigData",
+    "RPPA" : "org.mskcc.cbio.portal.scripts.ImportProteinArrayData",
+    "SEGMENT" : "org.mskcc.cbio.portal.scripts.ImportCopyNumberSegmentData",
+    "TIMELINE" : "org.mskcc.cbio.portal.scripts.ImportTimelineData"
+}
+
+IMPORTER_REQUIRES_METADATA = {
+    "org.mskcc.cbio.portal.scripts.ImportClinicalData" : False,
+    "org.mskcc.cbio.portal.scripts.ImportCopyNumberSegmentData" : False,
+    "org.mskcc.cbio.portal.scripts.ImportGisticData" : False,
+    "org.mskcc.cbio.portal.scripts.ImportMutSigData" : False,
+    "org.mskcc.cbio.portal.scripts.ImportProteinArrayData" : False,
+    "org.mskcc.cbio.portal.scripts.ImportProfileData" : True,
+    "org.mskcc.cbio.portal.scripts.ImportTimelineData" : True
+}
 
 # ------------------------------------------------------------------------------
 # class definitions
@@ -77,6 +105,7 @@ class MetafileProperties(object):
         self.profile_name = profile_name
         self.meta_file_type = meta_file_type
         self.data_file_path = data_file_path
+
 
 # ------------------------------------------------------------------------------
 # sub-routines

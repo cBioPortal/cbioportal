@@ -11,6 +11,8 @@ import argparse
 import re
 from cbioportal_common import OUTPUT_FILE
 from cbioportal_common import ERROR_FILE
+from cbioportal_common import MetaFileTypes
+from cbioportal_common import IMPORTER_CLASSNAME_BY_META_TYPE
 from cbioportal_common import IMPORTER_CLASSNAME_BY_ALTERATION_TYPE
 from cbioportal_common import IMPORTER_REQUIRES_METADATA
 from cbioportal_common import IMPORT_CANCER_TYPE_CLASS
@@ -21,6 +23,7 @@ from cbioportal_common import get_metastudy_properties
 from cbioportal_common import get_metafile_properties
 from cbioportal_common import get_properties
 from cbioportal_common import run_java
+
 
 # ------------------------------------------------------------------------------
 # globals
@@ -62,7 +65,7 @@ def import_study_data(jvm_args, meta_filename, data_filename):
     args = jvm_args.split(' ')
     metafile_properties = get_metafile_properties(meta_filename)
     if metafile_properties.meta_file_type != '':
-        importer = IMPORTER_CLASSNAME_BY_ALTERATION_TYPE[metafile_properties.meta_file_type]
+        importer = IMPORTER_CLASSNAME_BY_META_TYPE[metafile_properties.meta_file_type]
     elif metafile_properties.genetic_alteration_type != '':
         importer = IMPORTER_CLASSNAME_BY_ALTERATION_TYPE[metafile_properties.genetic_alteration_type]
     else:
@@ -75,7 +78,7 @@ def import_study_data(jvm_args, meta_filename, data_filename):
         args.append(meta_filename)
         args.append("--loadMode")
         args.append("bulkload")
-    if metafile_properties.genetic_alteration_type == 'CLINICAL' or metafile_properties.meta_file_type == 'meta_clinical':
+    if metafile_properties.genetic_alteration_type == 'CLINICAL' or metafile_properties.meta_file_type == MetaFileTypes.CLINICAL:
         args.append(data_filename)
         args.append(metafile_properties.cancer_study_identifier)
     else:
@@ -119,25 +122,23 @@ def process_directory(jvm_args, study_directory):
     for f in study_files:
         if re.search(r'(\b|_)meta(\b|_)', f):
             metadata = get_properties(f)
-            if 'meta_study' in metadata.get('meta_file_type'):
+            if MetaFileTypes.STUDY in metadata.get('meta_file_type'):
                 study_meta = metadata
                 #First remove study if exists
                 remove_study(jvm_args,f)
                 #Then import study
                 import_study(jvm_args,f)
-            elif 'meta_cancer_type' in metadata.get('meta_file_type'):
+            elif MetaFileTypes.CANCER_TYPE in metadata.get('meta_file_type'):
+                # TODO this is a bug, make it a .append()
                 cancer_type_meta = metadata
-            elif 'meta_clinical' in metadata.get('meta_file_type'):
+            elif MetaFileTypes.CLINICAL in metadata.get('meta_file_type'):
                 clinical_metafiles.append(f)
             else:
                 non_clinical_metafiles.append(f)
 
-
     if len(study_meta) == 0:
         print >> ERROR_FILE, 'No meta_study file found'
         sys.exit(1)
-
-
 
     # First, import cancer type
     if cancer_type_meta != {}:

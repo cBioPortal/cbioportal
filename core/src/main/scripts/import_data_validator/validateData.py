@@ -72,7 +72,6 @@ META_FIELD_MAP = {
         'name': True,
         'description': True,
         'short_name': True,
-        'dedicated_color': True,
         'citation': False,
         'pmid': False,
         'groups': False

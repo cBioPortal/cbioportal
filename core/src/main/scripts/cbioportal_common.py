@@ -7,7 +7,7 @@
 
 import os
 import sys
-from subprocess import *
+from subprocess import Popen, PIPE, STDOUT
 
 
 # ------------------------------------------------------------------------------
@@ -16,8 +16,8 @@ from subprocess import *
 ERROR_FILE = sys.stderr
 OUTPUT_FILE = sys.stdout
 
-IMPORT_STUDY_CLASS = "org.mskcc.cbio.portal.scripts.ImportCancerStudy";
-REMOVE_STUDY_CLASS = "org.mskcc.cbio.portal.scripts.RemoveCancerStudy";
+IMPORT_STUDY_CLASS = "org.mskcc.cbio.portal.scripts.ImportCancerStudy"
+REMOVE_STUDY_CLASS = "org.mskcc.cbio.portal.scripts.RemoveCancerStudy"
 IMPORT_CANCER_TYPE_CLASS = "org.mskcc.cbio.portal.scripts.ImportTypesOfCancers"
 IMPORT_CASE_LIST_CLASS = "org.mskcc.cbio.portal.scripts.ImportPatientList"
 
@@ -38,20 +38,23 @@ class MetaFileTypes(object):
     CASE_LIST = 'case_list'
 
 IMPORTER_CLASSNAME_BY_META_TYPE = {
+    MetaFileTypes.STUDY: IMPORT_STUDY_CLASS,
+    MetaFileTypes.CANCER_TYPE: IMPORT_CANCER_TYPE_CLASS,
     MetaFileTypes.CLINICAL: "org.mskcc.cbio.portal.scripts.ImportClinicalData",
     MetaFileTypes.CNA: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     # TODO: check if this is correct
     MetaFileTypes.LOG2: "org.mskcc.cbio.portal.scripts.ImportProfileData",
-    MetaFileTypes.FUSION: "org.mskcc.cbio.portal.scripts.ImportProfileData",
-    MetaFileTypes.METHYLATION: "org.mskcc.cbio.portal.scripts.ImportProfileData",
+    MetaFileTypes.SEG: "org.mskcc.cbio.portal.scripts.ImportCopyNumberSegmentData",
     MetaFileTypes.EXPRESSION: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.MUTATION: "org.mskcc.cbio.portal.scripts.ImportProfileData",
+    MetaFileTypes.METHYLATION: "org.mskcc.cbio.portal.scripts.ImportProfileData",
+    MetaFileTypes.FUSION: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.RPPA: "org.mskcc.cbio.portal.scripts.ImportProteinArrayData",
-    MetaFileTypes.SEG: "org.mskcc.cbio.portal.scripts.ImportCopyNumberSegmentData",
-    MetaFileTypes.TIMELINE: "org.mskcc.cbio.portal.scripts.ImportTimelineData"
+    MetaFileTypes.TIMELINE: "org.mskcc.cbio.portal.scripts.ImportTimelineData",
+    MetaFileTypes.CASE_LIST: IMPORT_CASE_LIST_CLASS
     # TODO: enable when documented
     #MetaFileTypes.GISTIC: "org.mskcc.cbio.portal.scripts.ImportGisticData",
-    #MetaFileTypes.MUTATION_SIGNIFICANCE"org.mskcc.cbio.portal.scripts.ImportMutSigData",
+    #MetaFileTypes.MUTATION_SIGNIFICANCE: "org.mskcc.cbio.portal.scripts.ImportMutSigData"
 }
 
 IMPORTER_CLASSNAME_BY_ALTERATION_TYPE = {
@@ -109,6 +112,69 @@ class MetafileProperties(object):
 
 # ------------------------------------------------------------------------------
 # sub-routines
+
+def get_meta_file_type(metaDictionary, logger, filename):
+    """
+     Returns one of the metatypes :
+        MetaFileTypes.SEG = 'meta_segment'
+        MetaFileTypes.STUDY = 'meta_study'
+        MetaFileTypes.CANCER_TYPE = 'meta_cancer_type'
+        MetaFileTypes.MUTATION = 'meta_mutations_extended'
+        MetaFileTypes.CNA = 'meta_CNA'
+        MetaFileTypes.CLINICAL = 'meta_clinical'
+        MetaFileTypes.LOG2 = 'meta_log2CNA'
+        MetaFileTypes.EXPRESSION = 'meta_expression'
+        MetaFileTypes.FUSION = 'meta_fusions'
+        MetaFileTypes.METHYLATION = 'meta_methylation'
+        MetaFileTypes.RPPA = 'meta_rppa'
+        MetaFileTypes.TIMELINE = 'meta_timeline'
+    """
+    # GENETIC_ALTERATION_TYPE    DATATYPE    meta
+    alt_type_datatype_to_meta = {
+        #clinical and timeline
+        ("CLINICAL", "CLINICAL"): MetaFileTypes.CLINICAL,
+        ("CLINICAL", "TIMELINE"): MetaFileTypes.TIMELINE,
+        #rppa
+        ("PROTEIN_LEVEL", "LOG2-VALUE"): MetaFileTypes.RPPA,
+        ("PROTEIN_LEVEL", "Z-SCORE"): MetaFileTypes.RPPA,
+        #cna
+        ("COPY_NUMBER_ALTERATION", "DISCRETE"): MetaFileTypes.CNA,
+        #("COPY_NUMBER_ALTERATION", "CONTINUOUS"): MetaFileTypes.CNA, ?? TODO - add later, when documented
+        #log2cna
+        ("COPY_NUMBER_ALTERATION", "LOG2-VALUE"): MetaFileTypes.LOG2,
+        #expression
+        ("MRNA_EXPRESSION", "CONTINUOUS"): MetaFileTypes.EXPRESSION,
+        ("MRNA_EXPRESSION_NORMALS", "CONTINUOUS"): MetaFileTypes.EXPRESSION,
+        ("MRNA_EXPRESSION", "Z-SCORE"): MetaFileTypes.EXPRESSION,
+        ("MRNA_EXPRESSION", "DISCRETE"): MetaFileTypes.EXPRESSION,
+        #mutations
+        ("MUTATION_EXTENDED", "MAF"): MetaFileTypes.MUTATION,
+        #others
+        ("COPY_NUMBER_ALTERATION", "SEG"): MetaFileTypes.SEG,
+        ("METHYLATION", "CONTINUOUS"): MetaFileTypes.METHYLATION,
+        ("FUSION", "FUSION"): MetaFileTypes.FUSION
+    }
+    result = None
+    if 'genetic_alteration_type' in metaDictionary and 'datatype' in metaDictionary:
+        genetic_alteration_type = metaDictionary['genetic_alteration_type']
+        data_type = metaDictionary['datatype']
+        if (genetic_alteration_type, data_type) not in alt_type_datatype_to_meta:
+            logger.error('Could not determine the file type. Please check your meta files for correct configuration.',
+                         extra={'data_filename': os.path.basename(filename),
+                                'cause': 'genetic_alteration_type: ' + metaDictionary['genetic_alteration_type'] +
+                                         ', datatype: ' + metaDictionary['datatype']})
+        else:
+            result = alt_type_datatype_to_meta[(genetic_alteration_type, data_type)]
+    elif 'cancer_study_identifier' in metaDictionary and 'type_of_cancer' in metaDictionary:
+        result = MetaFileTypes.STUDY
+    elif 'type_of_cancer' in metaDictionary:
+        result = MetaFileTypes.CANCER_TYPE
+    else:
+        logger.error('Could not determine the file type. Did not find expected meta file fields. Please check your meta files for correct configuration.',
+                         extra={'data_filename': os.path.basename(filename)})
+
+    return result
+
 
 def importer_requires_metadata_file(importer_classname):
 	return IMPORTER_REQUIRES_METADATA[importer_classname]

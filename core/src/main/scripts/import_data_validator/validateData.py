@@ -1562,69 +1562,6 @@ class TimelineValidator(Validator):
 # ------------------------------------------------------------------------------
 # Functions
 
-def get_meta_file_type(metaDictionary, logger, filename):
-    '''
-     Returns one of the metatypes :
-        cbioportal_common.MetaFileTypes.SEG = 'meta_segment'
-        cbioportal_common.MetaFileTypes.STUDY = 'meta_study'
-        cbioportal_common.MetaFileTypes.CANCER_TYPE = 'meta_cancer_type'
-        cbioportal_common.MetaFileTypes.MUTATION = 'meta_mutations_extended'
-        cbioportal_common.MetaFileTypes.CNA = 'meta_CNA'
-        cbioportal_common.MetaFileTypes.CLINICAL = 'meta_clinical'
-        cbioportal_common.MetaFileTypes.LOG2 = 'meta_log2CNA'
-        cbioportal_common.MetaFileTypes.EXPRESSION = 'meta_expression'
-        cbioportal_common.MetaFileTypes.FUSION = 'meta_fusions'
-        cbioportal_common.MetaFileTypes.METHYLATION = 'meta_methylation'
-        cbioportal_common.MetaFileTypes.RPPA = 'meta_rppa'
-        cbioportal_common.MetaFileTypes.TIMELINE = 'meta_timeline'
-    '''
-    # GENETIC_ALTERATION_TYPE    DATATYPE    meta
-    alt_type_datatype_to_meta = {
-                                    #clinical and timeline
-                                    ("CLINICAL", "CLINICAL"): cbioportal_common.MetaFileTypes.CLINICAL,
-                                    ("CLINICAL", "TIMELINE"): cbioportal_common.MetaFileTypes.TIMELINE,
-                                    #rppa
-                                    ("PROTEIN_LEVEL", "LOG2-VALUE"): cbioportal_common.MetaFileTypes.RPPA,
-                                    ("PROTEIN_LEVEL", "Z-SCORE"): cbioportal_common.MetaFileTypes.RPPA,
-                                    #cna
-                                    ("COPY_NUMBER_ALTERATION", "DISCRETE"): cbioportal_common.MetaFileTypes.CNA,
-                                    #("COPY_NUMBER_ALTERATION", "CONTINUOUS"): cbioportal_common.MetaFileTypes.CNA, ?? TODO - add later, when documented
-                                    #log2cna
-                                    ("COPY_NUMBER_ALTERATION", "LOG2-VALUE"): cbioportal_common.MetaFileTypes.LOG2,
-                                    #expression
-                                    ("MRNA_EXPRESSION", "CONTINUOUS"): cbioportal_common.MetaFileTypes.EXPRESSION,
-                                    ("MRNA_EXPRESSION_NORMALS", "CONTINUOUS"): cbioportal_common.MetaFileTypes.EXPRESSION,
-                                    ("MRNA_EXPRESSION", "Z-SCORE"): cbioportal_common.MetaFileTypes.EXPRESSION,
-                                    ("MRNA_EXPRESSION", "DISCRETE"): cbioportal_common.MetaFileTypes.EXPRESSION,
-                                    #mutations
-                                    ("MUTATION_EXTENDED", "MAF"): cbioportal_common.MetaFileTypes.MUTATION,
-                                    #others
-                                    ("COPY_NUMBER_ALTERATION", "SEG"): cbioportal_common.MetaFileTypes.SEG,
-                                    ("METHYLATION", "CONTINUOUS"): cbioportal_common.MetaFileTypes.METHYLATION,
-                                    ("FUSION", "FUSION"): cbioportal_common.MetaFileTypes.FUSION
-                                }
-    result = None
-    if 'genetic_alteration_type' in metaDictionary and 'datatype' in metaDictionary:
-        genetic_alteration_type = metaDictionary['genetic_alteration_type']
-        data_type = metaDictionary['datatype']
-        if (genetic_alteration_type, data_type) not in alt_type_datatype_to_meta:
-            logger.error('Could not determine the file type. Please check your meta files for correct configuration.',
-                         extra={'data_filename': getFileFromFilepath(filename),
-                                'cause': 'genetic_alteration_type: ' + metaDictionary['genetic_alteration_type'] + 
-                                         ', datatype: ' + metaDictionary['datatype']})
-        else:
-            result = alt_type_datatype_to_meta[(genetic_alteration_type, data_type)]
-    elif 'cancer_study_identifier' in metaDictionary and 'type_of_cancer' in metaDictionary:
-        result = cbioportal_common.MetaFileTypes.STUDY
-    elif 'type_of_cancer' in metaDictionary:
-        result = cbioportal_common.MetaFileTypes.CANCER_TYPE
-    else:
-        logger.error('Could not determine the file type. Did not find expected meta file fields. Please check your meta files for correct configuration.',
-                         extra={'data_filename': getFileFromFilepath(filename)})
-        
-    return result
-
-
 def validate_types_and_id(metaDictionary, logger, filename):
     """Validate a genetic_alteration_type, datatype (and stable_id in some cases) against the predefined 
     allowed combinations found in src/main/resources/validator/allowed_data_types.txt
@@ -1667,7 +1604,7 @@ def parse_metadata_file(filename, logger, study_id=None, case_list=False):
     if case_list:
         meta_file_type = cbioportal_common.MetaFileTypes.CASE_LIST
     else:
-        meta_file_type = get_meta_file_type(metaDictionary, logger, filename)
+        meta_file_type = cbioportal_common.get_meta_file_type(metaDictionary, logger, filename)
         if meta_file_type is None:
             # skip this file (can't validate unknown file types)
             return None

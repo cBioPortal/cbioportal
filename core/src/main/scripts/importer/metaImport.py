@@ -6,10 +6,12 @@ __author__ = 'priti'
 # Import
 # ----------------------------------------------------------------------------
 
-from import_data_validator import validateData
-import cbioportalImporter
+
 import sys
 import argparse
+
+import validateData
+import cbioportalImporter
 
 
 # ----------------------------------------------------------------------------

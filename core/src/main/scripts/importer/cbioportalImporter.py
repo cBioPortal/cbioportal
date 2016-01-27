@@ -9,6 +9,7 @@ import os
 import sys
 import argparse
 import re
+
 import cbioportal_common
 from cbioportal_common import OUTPUT_FILE
 from cbioportal_common import ERROR_FILE

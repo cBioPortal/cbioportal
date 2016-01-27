@@ -3,4 +3,3 @@ type_of_cancer: brca
 name: Spam (spam)
 description: Baked beans
 short_name: Spam
-dedicated_color: Tomato

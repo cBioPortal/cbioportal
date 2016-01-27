@@ -95,8 +95,6 @@ public final class DaoCancerStudy {
                 CancerStudy cancerStudy = extractCancerStudy(rs);
                 cacheCancerStudy(cancerStudy, new java.util.Date());
             }
-		} catch (DaoException e) {
-			e.printStackTrace();
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {

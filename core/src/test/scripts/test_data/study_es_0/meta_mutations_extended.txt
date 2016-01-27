@@ -5,4 +5,4 @@ stable_id: mutations
 show_profile_in_analysis_tab: true
 profile_description: Mutation data from whole exome sequencing.
 profile_name: Mutations
-data_file_path: brca_tcga_pub.maf
+data_filename: brca_tcga_pub.maf

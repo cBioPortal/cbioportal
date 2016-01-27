@@ -84,7 +84,7 @@ META_FIELD_MAP = {
         'show_profile_in_analysis_tab': True,
         'profile_name': True,
         'profile_description': True,
-        'data_file_path': True
+        'data_filename': True
     },
     cbioportal_common.MetaFileTypes.CNA: {
         'cancer_study_identifier': True,
@@ -94,7 +94,7 @@ META_FIELD_MAP = {
         'show_profile_in_analysis_tab': True,
         'profile_name': True,
         'profile_description': True,
-        'data_file_path': True
+        'data_filename': True
     },
     cbioportal_common.MetaFileTypes.LOG2: {
         'cancer_study_identifier': True,
@@ -104,7 +104,7 @@ META_FIELD_MAP = {
         'show_profile_in_analysis_tab': True,
         'profile_name': True,
         'profile_description': True,
-        'data_file_path': True
+        'data_filename': True
     },
     cbioportal_common.MetaFileTypes.SEG: {
         'cancer_study_identifier': True,
@@ -114,7 +114,7 @@ META_FIELD_MAP = {
         'reference_genome_id': True,
         'data_filename': True,
         'description': True,
-        'data_file_path': True
+        'data_filename': True
     },
     cbioportal_common.MetaFileTypes.MUTATION: {
         'cancer_study_identifier': True,
@@ -124,7 +124,7 @@ META_FIELD_MAP = {
         'show_profile_in_analysis_tab': True,
         'profile_name': True,
         'profile_description': True,
-        'data_file_path': True,
+        'data_filename': True,
         'normal_samples_list': False
     },
     cbioportal_common.MetaFileTypes.EXPRESSION: {
@@ -135,7 +135,7 @@ META_FIELD_MAP = {
         'show_profile_in_analysis_tab': True,
         'profile_name': True,
         'profile_description': True,
-        'data_file_path': True
+        'data_filename': True
     },
     cbioportal_common.MetaFileTypes.METHYLATION: {
         'cancer_study_identifier': True,
@@ -145,7 +145,7 @@ META_FIELD_MAP = {
         'show_profile_in_analysis_tab': True,
         'profile_name': True,
         'profile_description': True,
-        'data_file_path': True
+        'data_filename': True
     },
     cbioportal_common.MetaFileTypes.RPPA: {
         'cancer_study_identifier': True,
@@ -155,7 +155,7 @@ META_FIELD_MAP = {
         'show_profile_in_analysis_tab': True,
         'profile_name': True,
         'profile_description': True,
-        'data_file_path': True
+        'data_filename': True
     },
     cbioportal_common.MetaFileTypes.FUSION: {
         'cancer_study_identifier': True,
@@ -165,12 +165,12 @@ META_FIELD_MAP = {
         'show_profile_in_analysis_tab': True,
         'profile_name': True,
         'profile_description': True,
-        'data_file_path': True
+        'data_filename': True
     },
     cbioportal_common.MetaFileTypes.TIMELINE: {
         'cancer_study_identifier': True,
         'genetic_alteration_type': True,
-        'data_file_path': True
+        'data_filename': True
     },
     cbioportal_common.MetaFileTypes.CASE_LIST: {
         'cancer_study_identifier': True,
@@ -191,7 +191,7 @@ class ValidationMessageFormatter(logging.Formatter):
     """Logging formatter with optional fields for data validation messages.
 
     These fields are:
-    data_filename - the name of the file the message is about (if applicable)
+    filename_ - the name of the file the message is about (if applicable)
     line_number - a line number within the above file (if applicable)
     column_number - a column number within the above file (if applicable)
     cause - the unexpected value found in the input (if applicable)
@@ -212,7 +212,7 @@ class ValidationMessageFormatter(logging.Formatter):
                                            'column_number',
                                            optional=True))
                 and not self.format_aggregated(record,
-                                               'data_filename',
+                                               'filename_',
                                                optional=True)):
             raise ValueError(
                 'Tried to log about a line/column with no filename')
@@ -270,7 +270,7 @@ class LogfileStyleFormatter(ValidationMessageFormatter):
 
 
         record.file_indicator = self.format_aggregated(record,
-                                                       'data_filename',
+                                                       'filename_',
                                                        optional=True)
         if not record.file_indicator:
             record.file_indicator = '-'
@@ -428,7 +428,7 @@ class CollapsingLogMessageHandler(logging.handlers.MemoryHandler):
     def shouldFlush(self, record):
         """Flush when emitting an INFO message or a message without a file."""
         return ((record.levelno == logging.INFO) or
-                ('data_filename' not in record.__dict__) or
+                ('filename_' not in record.__dict__) or
                 super(CollapsingLogMessageHandler, self).shouldFlush(record))
 
 
@@ -470,7 +470,7 @@ class Validator(object):
         :param logger: logger instance for writing the log messages
         :param hugo_entrez_map: dictionary of Hugo-Entrez mapping in the portal
         """
-        self.filename = os.path.join(study_dir, meta_dict['data_file_path'])
+        self.filename = os.path.join(study_dir, meta_dict['data_filename'])
         self.filenameShort = os.path.basename(self.filename)
         self.line_number = 0
         self.cols = []
@@ -483,7 +483,7 @@ class Validator(object):
         self.fileCouldBeParsed = False
         self.logger = CombiningLoggerAdapter(
             logger,
-            extra={'data_filename': self.filenameShort})
+            extra={'filename_': self.filenameShort})
         self.meta_dict = meta_dict
 
     def validate(self):
@@ -1634,7 +1634,7 @@ def parse_metadata_file(filename, logger, study_id=None, case_list=False):
                 logger.error(
                     "Invalid %s file entry, no ':' found",
                     {True: 'case list', False: 'meta'}[case_list],
-                    extra={'data_filename': getFileFromFilepath(filename),
+                    extra={'filename_': getFileFromFilepath(filename),
                            'line_number': line_index + 1})
                 return None
             key_value = line.split(':', 1)
@@ -1656,7 +1656,7 @@ def parse_metadata_file(filename, logger, study_id=None, case_list=False):
             logger.error("Missing field '%s' in %s file",
                          field,
                          {True: 'case list', False: 'meta'}[case_list],
-                         extra={'data_filename': getFileFromFilepath(filename)})
+                         extra={'filename_': getFileFromFilepath(filename)}) 
             missing_fields.append(field)
 
     if missing_fields:
@@ -1675,7 +1675,7 @@ def parse_metadata_file(filename, logger, study_id=None, case_list=False):
             logger.warning(
                 'Unrecognized field in %s file',
                 {True: 'case list', False: 'meta'}[case_list],
-                extra={'data_filename': getFileFromFilepath(filename),
+                extra={'filename_': getFileFromFilepath(filename),
                        'cause': field})
 
     # check that cancer study identifiers across files so far are consistent.
@@ -1687,7 +1687,7 @@ def parse_metadata_file(filename, logger, study_id=None, case_list=False):
             "Cancer study identifier is not consistent across "
             "files, expected '%s'",
             study_id,
-            extra={'data_filename': getFileFromFilepath(filename),
+            extra={'filename_': getFileFromFilepath(filename),
                    'cause': metaDictionary['cancer_study_identifier']})
         return None
 
@@ -1697,7 +1697,7 @@ def parse_metadata_file(filename, logger, study_id=None, case_list=False):
         if file_cancer_type not in PORTAL_CANCER_TYPES:
             logger.warning(
                 'New disease type will be added to the portal',
-                extra={'data_filename': getFileFromFilepath(filename),
+                extra={'filename_': getFileFromFilepath(filename),
                        'cause': file_cancer_type})
         else:
             existing_info = PORTAL_CANCER_TYPES[file_cancer_type]
@@ -1712,7 +1712,7 @@ def parse_metadata_file(filename, logger, study_id=None, case_list=False):
                         "portal, '%s' expected",
                         field,
                         existing_info[field],
-                        extra={'data_filename': getFileFromFilepath(filename),
+                        extra={'filename_': getFileFromFilepath(filename),
                                'cause': metaDictionary[field]})
                     invalid_fields_found = True
             if invalid_fields_found:
@@ -1721,31 +1721,13 @@ def parse_metadata_file(filename, logger, study_id=None, case_list=False):
     # check fields specific to seg meta file
     if meta_file_type == cbioportal_common.MetaFileTypes.SEG:
 
-        if metaDictionary['data_filename'] != metaDictionary['data_file_path']:
-            logger.error(
-                'data_filename and data_file_path differ in seg data file',
-                extra={'data_filename': getFileFromFilepath(filename),
-                       'cause': (metaDictionary['data_filename'] + ', ' +
-                                 metaDictionary['data_file_path'])})
-            return None
         if metaDictionary['reference_genome_id'] != GENOMIC_BUILD_COUNTERPART:
             logger.error(
                 'Reference_genome_id is not %s',
                 GENOMIC_BUILD_COUNTERPART,
-                extra={'data_filename': getFileFromFilepath(filename),
+                extra={'filename_': getFileFromFilepath(filename),
                        'cause': metaDictionary['reference_genome_id']})
             return None
-
-    # if this file type doesn't take a data file, make sure one isn't parsed
-    if (
-            'data_file_path' in metaDictionary and
-            'data_file_path' not in META_FIELD_MAP[meta_file_type]):
-        logger.warning(
-            "File '%s' referenced by meta file will not be processed as the "
-            "attribute data_file_path is not expected in this meta file",
-            metaDictionary['data_file_path'],
-            extra={'data_filename': getFileFromFilepath(filename),
-                   'cause': metaDictionary['data_file_path']})
 
     return metaDictionary,meta_file_type
 
@@ -1785,22 +1767,22 @@ def process_metadata_files(directory, logger, hugo_entrez_map):
             if study_cancer_type is not None:
                 logger.error(
                     'Encountered a second meta_study file',
-                    extra={'data_filename': getFileFromFilepath(filename)})
+                    extra={'filename_': getFileFromFilepath(filename)})
             study_cancer_type = meta['type_of_cancer']
         if meta_file_type == cbioportal_common.MetaFileTypes.CANCER_TYPE:
             file_cancer_type = meta['type_of_cancer']
             if file_cancer_type in defined_cancer_types:
                 logger.error(
                     'Cancer type defined a second time in study',
-                    extra={'data_filename': getFileFromFilepath(filename),
+                    extra={'filename_': getFileFromFilepath(filename),
                            'cause': file_cancer_type})
             else:
                 defined_cancer_types.append(meta['type_of_cancer'])
         # create a list for the file type in the dict
         if meta_file_type not in validators_by_type:
             validators_by_type[meta_file_type] = []
-        # check if data_file_path is set AND if data_file_path is a supported field according to META_FIELD_MAP:
-        if 'data_file_path' in meta and 'data_file_path' in META_FIELD_MAP[meta_file_type]:
+        # check if data_filename is set AND if data_filename is a supported field according to META_FIELD_MAP:
+        if 'data_filename' in meta and 'data_filename' in META_FIELD_MAP[meta_file_type]:
             validator_class = globals()[VALIDATOR_IDS[meta_file_type]]
             validators_by_type[meta_file_type].append(validator_class(
                     directory, meta, logger, hugo_entrez_map))
@@ -1845,7 +1827,7 @@ def processCaseListDirectory(caseListDir, cancerStudyId, logger):
             if value not in DEFINED_SAMPLE_IDS:
                 logger.error(
                     'Sample id not defined in clinical file',
-                    extra={'data_filename': getFileFromFilepath(case),
+                    extra={'filename_': getFileFromFilepath(case),
                            'cause': value})
 
     logger.info('Validation of case lists complete')

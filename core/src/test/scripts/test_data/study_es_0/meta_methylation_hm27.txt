@@ -5,4 +5,4 @@ stable_id: methylation_hm27
 profile_description: Methylation beta-values (HM27 platform). For genes with multiple methylation probes, the probe least correlated with expression is selected.
 show_profile_in_analysis_tab: false
 profile_name: Methylation (HM27)
-data_file_path: data_methylation_hm27.txt
+data_filename: data_methylation_hm27.txt

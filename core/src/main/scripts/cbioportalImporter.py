@@ -142,17 +142,17 @@ def process_directory(jvm_args, study_directory):
 
     # First, import cancer type
     if cancer_type_meta != {}:
-        import_cancer_type(jvm_args, cancer_type_meta.get('data_file_path'))
+        import_cancer_type(jvm_args, cancer_type_meta.get('data_filename'))
 
     # Next, we need to import clinical files
     for f in clinical_metafiles:
         metadata = get_properties(f)
-        import_study_data(jvm_args, f, os.path.join(study_directory,metadata.get('data_file_path')))
+        import_study_data(jvm_args, f, os.path.join(study_directory,metadata.get('data_filename')))
 
     # Now, import everything else
     for f in non_clinical_metafiles:
         metadata = get_properties(f)
-        import_study_data(jvm_args, f, os.path.join(study_directory,metadata.get('data_file_path')))
+        import_study_data(jvm_args, f, os.path.join(study_directory,metadata.get('data_filename')))
 
     # do the case lists
     process_case_lists(jvm_args,study_files)

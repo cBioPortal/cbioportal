@@ -9,11 +9,11 @@ import os
 import sys
 import argparse
 import re
+import cbioportal_common
 from cbioportal_common import OUTPUT_FILE
 from cbioportal_common import ERROR_FILE
 from cbioportal_common import MetaFileTypes
 from cbioportal_common import IMPORTER_CLASSNAME_BY_META_TYPE
-from cbioportal_common import IMPORTER_CLASSNAME_BY_ALTERATION_TYPE
 from cbioportal_common import IMPORTER_REQUIRES_METADATA
 from cbioportal_common import IMPORT_CANCER_TYPE_CLASS
 from cbioportal_common import IMPORT_STUDY_CLASS
@@ -64,13 +64,13 @@ def remove_study(jvm_args, meta_filename):
 def import_study_data(jvm_args, meta_filename, data_filename):
     args = jvm_args.split(' ')
     metafile_properties = get_metafile_properties(meta_filename)
-    if metafile_properties.meta_file_type != '':
-        importer = IMPORTER_CLASSNAME_BY_META_TYPE[metafile_properties.meta_file_type]
-    elif metafile_properties.genetic_alteration_type != '':
-        importer = IMPORTER_CLASSNAME_BY_ALTERATION_TYPE[metafile_properties.genetic_alteration_type]
-    else:
-        print >> ERROR_FILE, 'Missing meta_file_type in metafile: ' + meta_filename
+
+    meta_file_type = cbioportal_common.get_meta_file_type(metafile_properties)
+    if meta_file_type is None:
+        print >> ERROR_FILE, ("Could not determine meta file type, consider "
+                              "running the validator script.")
         return
+    importer = IMPORTER_CLASSNAME_BY_META_TYPE[metafile_properties.meta_file_type]
 
     args.append(importer)
     if IMPORTER_REQUIRES_METADATA[importer]:
@@ -78,7 +78,7 @@ def import_study_data(jvm_args, meta_filename, data_filename):
         args.append(meta_filename)
         args.append("--loadMode")
         args.append("bulkload")
-    if metafile_properties.genetic_alteration_type == 'CLINICAL' or metafile_properties.meta_file_type == MetaFileTypes.CLINICAL:
+    if meta_file_type == MetaFileTypes.CLINICAL:
         args.append(data_filename)
         args.append(metafile_properties.cancer_study_identifier)
     else:

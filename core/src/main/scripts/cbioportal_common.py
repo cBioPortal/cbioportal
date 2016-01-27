@@ -57,20 +57,6 @@ IMPORTER_CLASSNAME_BY_META_TYPE = {
     #MetaFileTypes.MUTATION_SIGNIFICANCE: "org.mskcc.cbio.portal.scripts.ImportMutSigData"
 }
 
-IMPORTER_CLASSNAME_BY_ALTERATION_TYPE = {
-    "CLINICAL" : "org.mskcc.cbio.portal.scripts.ImportClinicalData",
-    "COPY_NUMBER_ALTERATION" : "org.mskcc.cbio.portal.scripts.ImportProfileData",
-    "FUSION" : "org.mskcc.cbio.portal.scripts.ImportProfileData",
-    "GISTIC" : "org.mskcc.cbio.portal.scripts.ImportGisticData",
-    "METHYLATION" : "org.mskcc.cbio.portal.scripts.ImportProfileData",
-    "MRNA_EXPRESSION" : "org.mskcc.cbio.portal.scripts.ImportProfileData",
-    "MUTATION_EXTENDED" : "org.mskcc.cbio.portal.scripts.ImportProfileData",
-    "MUTATION_SIGNIFICANCE" : "org.mskcc.cbio.portal.scripts.ImportMutSigData",
-    "RPPA" : "org.mskcc.cbio.portal.scripts.ImportProteinArrayData",
-    "SEGMENT" : "org.mskcc.cbio.portal.scripts.ImportCopyNumberSegmentData",
-    "TIMELINE" : "org.mskcc.cbio.portal.scripts.ImportTimelineData"
-}
-
 IMPORTER_REQUIRES_METADATA = {
     "org.mskcc.cbio.portal.scripts.ImportClinicalData" : False,
     "org.mskcc.cbio.portal.scripts.ImportCopyNumberSegmentData" : False,
@@ -113,7 +99,7 @@ class MetafileProperties(object):
 # ------------------------------------------------------------------------------
 # sub-routines
 
-def get_meta_file_type(metaDictionary, logger, filename):
+def get_meta_file_type(metaDictionary, logger=None, filename=''):
     """
      Returns one of the metatypes :
         MetaFileTypes.SEG = 'meta_segment'
@@ -159,10 +145,11 @@ def get_meta_file_type(metaDictionary, logger, filename):
         genetic_alteration_type = metaDictionary['genetic_alteration_type']
         data_type = metaDictionary['datatype']
         if (genetic_alteration_type, data_type) not in alt_type_datatype_to_meta:
-            logger.error('Could not determine the file type. Please check your meta files for correct configuration.',
-                         extra={'data_filename': os.path.basename(filename),
-                                'cause': 'genetic_alteration_type: ' + metaDictionary['genetic_alteration_type'] +
-                                         ', datatype: ' + metaDictionary['datatype']})
+            if logger is not None:
+                logger.error('Could not determine the file type. Please check your meta files for correct configuration.',
+                             extra={'data_filename': os.path.basename(filename),
+                                    'cause': 'genetic_alteration_type: ' + metaDictionary['genetic_alteration_type'] +
+                                             ', datatype: ' + metaDictionary['datatype']})
         else:
             result = alt_type_datatype_to_meta[(genetic_alteration_type, data_type)]
     elif 'cancer_study_identifier' in metaDictionary and 'type_of_cancer' in metaDictionary:
@@ -170,8 +157,9 @@ def get_meta_file_type(metaDictionary, logger, filename):
     elif 'type_of_cancer' in metaDictionary:
         result = MetaFileTypes.CANCER_TYPE
     else:
-        logger.error('Could not determine the file type. Did not find expected meta file fields. Please check your meta files for correct configuration.',
-                         extra={'data_filename': os.path.basename(filename)})
+        if logger is not None:
+            logger.error('Could not determine the file type. Did not find expected meta file fields. Please check your meta files for correct configuration.',
+                             extra={'data_filename': os.path.basename(filename)})
 
     return result
 

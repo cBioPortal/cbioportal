@@ -66,161 +66,133 @@ VALIDATOR_IDS = {
     MetaFileTypes.FUSION:'FusionValidator',
     MetaFileTypes.METHYLATION:'MethylationValidator',
     MetaFileTypes.RPPA:'RPPAValidator',
-    MetaFileTypes.TIMELINE:'TimelineValidator'}
+    MetaFileTypes.TIMELINE:'TimelineValidator'
+}
 
-
-# ----------------------------------------------------------------------------
 # fields allowed in each meta file type, maps to True if required
-
-CNA_META_FIELDS = {
-    'cancer_study_identifier': True,
-    'genetic_alteration_type': True,
-    'datatype': True,
-    'stable_id': True,
-    'show_profile_in_analysis_tab': True,
-    'profile_name': True,
-    'profile_description': True,
-    'data_file_path': True
-}
-
-MUTATION_META_FIELDS = {
-    'cancer_study_identifier': True,
-    'genetic_alteration_type': True,
-    'datatype': True,
-    'stable_id': True,
-    'show_profile_in_analysis_tab': True,
-    'profile_name': True,
-    'profile_description': True,
-    'data_file_path': True,
-    'normal_samples_list': False
-}
-
-SEG_META_FIELDS = {
-    'cancer_study_identifier': True,
-    'genetic_alteration_type': True,
-    'datatype': True,
-    'show_profile_in_analysis_tab': True,
-    'reference_genome_id': True,
-    'data_filename': True,
-    'description': True,
-    'data_file_path': True
-}
-
-LOG2_META_FIELDS = {
-    'cancer_study_identifier': True,
-    'genetic_alteration_type': True,
-    'datatype': True,
-    'stable_id': True,
-    'show_profile_in_analysis_tab': True,
-    'profile_name': True,
-    'profile_description': True,
-    'data_file_path': True
-}
-
-EXPRESSION_META_FIELDS = {
-    'cancer_study_identifier': True,
-    'genetic_alteration_type': True,
-    'datatype': True,
-    'stable_id': True,
-    'show_profile_in_analysis_tab': True,
-    'profile_name': True,
-    'profile_description': True,
-    'data_file_path': True
-}
-
-METHYLATION_META_FIELDS = {
-    'cancer_study_identifier': True,
-    'genetic_alteration_type': True,
-    'datatype': True,
-    'stable_id': True,
-    'show_profile_in_analysis_tab': True,
-    'profile_name': True,
-    'profile_description': True,
-    'data_file_path': True
-}
-
-FUSION_META_FIELDS = {
-    'cancer_study_identifier': True,
-    'genetic_alteration_type': True,
-    'datatype': True,
-    'stable_id': True,
-    'show_profile_in_analysis_tab': True,
-    'profile_name': True,
-    'profile_description': True,
-    'data_file_path': True
-}
-
-RPPA_META_FIELDS = {
-    'cancer_study_identifier': True,
-    'genetic_alteration_type': True,
-    'datatype': True,
-    'stable_id': True,
-    'show_profile_in_analysis_tab': True,
-    'profile_name': True,
-    'profile_description': True,
-    'data_file_path': True
-}
-
-TIMELINE_META_FIELDS = {
-    'cancer_study_identifier': True,
-    'genetic_alteration_type': True,
-    'data_file_path': True
-}
-
-CASE_LIST_FIELDS = {
-    'cancer_study_identifier': True,
-    'stable_id': True,
-    'case_list_name': True,
-    'case_list_description': True,
-    'case_list_ids': True,
-    'case_list_category': False
-}
-
-CLINICAL_META_FIELDS = {
-    'cancer_study_identifier': True,
-    'genetic_alteration_type': True,
-    'datatype': True,
-    'stable_id': True,
-    'show_profile_in_analysis_tab': True,
-    'profile_name': True,
-    'profile_description': True,
-    'data_file_path': True
-}
-
-STUDY_META_FIELDS = {
-    'cancer_study_identifier': True,
-    'type_of_cancer': True,
-    'name': True,
-    'description': True,
-    'short_name': True,
-    'dedicated_color': True,
-    'citation': False,
-    'pmid': False,
-    'groups': False
-}
-
-CANCER_TYPE_META_FIELDS = {
-    'type_of_cancer': True,
-    'name': True,
-    'clinical_trial_keywords': True,
-    'dedicated_color': True,
-    'short_name': True
-}
-
 META_FIELD_MAP = {
-    MetaFileTypes.STUDY:STUDY_META_FIELDS,
-    MetaFileTypes.CANCER_TYPE:CANCER_TYPE_META_FIELDS,
-    MetaFileTypes.CNA:CNA_META_FIELDS,
-    MetaFileTypes.CLINICAL:CLINICAL_META_FIELDS,
-    MetaFileTypes.LOG2:LOG2_META_FIELDS,
-    MetaFileTypes.MUTATION:MUTATION_META_FIELDS,
-    MetaFileTypes.SEG:SEG_META_FIELDS,
-    MetaFileTypes.EXPRESSION:EXPRESSION_META_FIELDS,
-    MetaFileTypes.METHYLATION:EXPRESSION_META_FIELDS,
-    MetaFileTypes.FUSION:FUSION_META_FIELDS,
-    MetaFileTypes.RPPA:RPPA_META_FIELDS,
-    MetaFileTypes.TIMELINE:TIMELINE_META_FIELDS,
-    MetaFileTypes.CASE_LIST: CASE_LIST_FIELDS
+    MetaFileTypes.CANCER_TYPE: {
+        'type_of_cancer': True,
+        'name': True,
+        'clinical_trial_keywords': True,
+        'dedicated_color': True,
+        'short_name': True
+    },
+    MetaFileTypes.STUDY: {
+        'cancer_study_identifier': True,
+        'type_of_cancer': True,
+        'name': True,
+        'description': True,
+        'short_name': True,
+        'dedicated_color': True,
+        'citation': False,
+        'pmid': False,
+        'groups': False
+    },
+    MetaFileTypes.CLINICAL: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'datatype': True,
+        'stable_id': True,
+        'show_profile_in_analysis_tab': True,
+        'profile_name': True,
+        'profile_description': True,
+        'data_file_path': True
+    },
+    MetaFileTypes.CNA: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'datatype': True,
+        'stable_id': True,
+        'show_profile_in_analysis_tab': True,
+        'profile_name': True,
+        'profile_description': True,
+        'data_file_path': True
+    },
+    MetaFileTypes.LOG2: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'datatype': True,
+        'stable_id': True,
+        'show_profile_in_analysis_tab': True,
+        'profile_name': True,
+        'profile_description': True,
+        'data_file_path': True
+    },
+    MetaFileTypes.SEG: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'datatype': True,
+        'show_profile_in_analysis_tab': True,
+        'reference_genome_id': True,
+        'data_filename': True,
+        'description': True,
+        'data_file_path': True
+    },
+    MetaFileTypes.MUTATION: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'datatype': True,
+        'stable_id': True,
+        'show_profile_in_analysis_tab': True,
+        'profile_name': True,
+        'profile_description': True,
+        'data_file_path': True,
+        'normal_samples_list': False
+    },
+    MetaFileTypes.EXPRESSION: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'datatype': True,
+        'stable_id': True,
+        'show_profile_in_analysis_tab': True,
+        'profile_name': True,
+        'profile_description': True,
+        'data_file_path': True
+    },
+    MetaFileTypes.METHYLATION: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'datatype': True,
+        'stable_id': True,
+        'show_profile_in_analysis_tab': True,
+        'profile_name': True,
+        'profile_description': True,
+        'data_file_path': True
+    },
+    MetaFileTypes.RPPA: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'datatype': True,
+        'stable_id': True,
+        'show_profile_in_analysis_tab': True,
+        'profile_name': True,
+        'profile_description': True,
+        'data_file_path': True
+    },
+    MetaFileTypes.FUSION: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'datatype': True,
+        'stable_id': True,
+        'show_profile_in_analysis_tab': True,
+        'profile_name': True,
+        'profile_description': True,
+        'data_file_path': True
+    },
+    MetaFileTypes.TIMELINE: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'data_file_path': True
+    },
+    MetaFileTypes.CASE_LIST: {
+        'cancer_study_identifier': True,
+        'stable_id': True,
+        'case_list_name': True,
+        'case_list_description': True,
+        'case_list_ids': True,
+        'case_list_category': False
+    }
 }
 
 

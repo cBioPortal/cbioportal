@@ -268,13 +268,10 @@ class LogfileStyleFormatter(ValidationMessageFormatter):
         """Generate descriptions for optional fields and format the record."""
 
 
-        record.file_indicator = self.format_aggregated(record,
-                                                       'filename_',
-                                                       optional=True)
-        if not record.file_indicator:
+        if not hasattr(record, 'filename_'):
             record.file_indicator = '-'
         else:
-            record.file_indicator = os.path.basename(record.file_indicator.strip())
+            record.file_indicator = os.path.basename(record.filename_.strip())
         record.line_indicator = self.format_aggregated(
             record,
             'line_number',
@@ -394,6 +391,7 @@ class CollapsingLogMessageHandler(logging.handlers.MemoryHandler):
         for record in self.buffer:
             identifying_tuple = (record.module,
                                  record.lineno,
+                                 getattr(record, 'filename_', None),
                                  record.getMessage())
             if identifying_tuple not in grouping_dict:
                 grouping_dict[identifying_tuple] = []

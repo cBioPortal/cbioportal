@@ -361,6 +361,8 @@ class Jinja2HtmlHandler(logging.handlers.BufferingHandler):
             # trim whitespace around Jinja2 operators
             trim_blocks=True,
             lstrip_blocks=True)
+        # refer to this function so that it can be used in the template:
+        j_env.filters['os.path.basename'] = os.path.basename
         template = j_env.get_template('validation_report_template.html.jinja')
         doc = template.render(
             study_dir=self.study_dir,

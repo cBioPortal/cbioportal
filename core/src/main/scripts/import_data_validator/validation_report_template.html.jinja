@@ -236,7 +236,7 @@
                               'WARNING': 'yellow',
                               'SUCCESS': 'green',
                               'UNKNOWN': 'grey'}[file_level] %}
-          <h4>{{ filename|e }}<span class="ui-li-count {{ file_color }}Count">{{ file_level_list|length }}</span></h4>
+          <h4>{{ filename.strip()|os.path.basename|e }}<span class="ui-li-count {{ file_color }}Count">{{ file_level_list|length }}</span></h4>
           <table style="width:100%">
             <tr>
               <th>Line Number</th>

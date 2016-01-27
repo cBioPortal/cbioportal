@@ -19,10 +19,6 @@ import re
 import csv
 import itertools
 import requests
-
-# insert parent directory scripts/ to import search path,
-# after the directory of the script itself
-sys.path.insert(1, os.path.dirname(os.path.dirname(__file__)))
 import cbioportal_common
 
 

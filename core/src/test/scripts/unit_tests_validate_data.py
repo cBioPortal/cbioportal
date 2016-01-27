@@ -7,7 +7,7 @@ version 3, or (at your option) any later version.
 import unittest
 import logging
 import hugoEntrezMap
-from import_data_validator import validateData
+from importer import validateData
 
 
 # globals:

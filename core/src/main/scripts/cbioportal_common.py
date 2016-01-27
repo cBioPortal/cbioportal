@@ -130,7 +130,6 @@ def get_meta_file_type(metaDictionary, logger=None, filename=''):
         ("COPY_NUMBER_ALTERATION", "LOG2-VALUE"): MetaFileTypes.LOG2,
         #expression
         ("MRNA_EXPRESSION", "CONTINUOUS"): MetaFileTypes.EXPRESSION,
-        ("MRNA_EXPRESSION_NORMALS", "CONTINUOUS"): MetaFileTypes.EXPRESSION,
         ("MRNA_EXPRESSION", "Z-SCORE"): MetaFileTypes.EXPRESSION,
         ("MRNA_EXPRESSION", "DISCRETE"): MetaFileTypes.EXPRESSION,
         #mutations

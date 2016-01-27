@@ -189,7 +189,6 @@ CLINICAL_META_FIELDS = {
     'cancer_study_identifier': True,
     'genetic_alteration_type': True,
     'datatype': True,
-    'stable_id': True,
     'show_profile_in_analysis_tab': True,
     'profile_name': True,
     'profile_description': True,
@@ -1678,8 +1677,8 @@ def validate_types_and_id(metaDictionary, logger, filename):
     """Validate a genetic_alteration_type, datatype (and stable_id in some cases) against the predefined 
     allowed combinations found in ./allowed_data_types.txt
     """
-    # this validation only applies to items that have genetic_alteration_type and datatype
-    if 'genetic_alteration_type' in metaDictionary and 'datatype' in metaDictionary:
+    # this validation only applies to items that have genetic_alteration_type and datatype and stable_id
+    if 'genetic_alteration_type' in metaDictionary and 'datatype' in metaDictionary and 'stable_id' in metaDictionary:
         alt_type_datatype_and_stable_id = {}
         script_dir = os.path.dirname(__file__)
         allowed_data_types_file_name = os.path.join(script_dir, "allowed_data_types.txt")
@@ -1701,14 +1700,11 @@ def validate_types_and_id(metaDictionary, logger, filename):
                     alt_type_datatype_and_stable_id[(genetic_alteration_type, data_type)].append(line_cols[2])
         # init:        
         result = False
-        stable_id = '' # some types (like clinical) do not have/need a stable id, this is also reflected in allowed_data_types.txt
-        # get stable id, if available:
-        if 'stable_id' in metaDictionary:
-            stable_id = metaDictionary['stable_id']
+        stable_id = metaDictionary['stable_id']
         genetic_alteration_type = metaDictionary['genetic_alteration_type']
         data_type = metaDictionary['datatype']
         # validate the genetic_alteration_type/data_type combination:
-        if (genetic_alteration_type, data_type) not in alt_type_datatype_and_stable_id: #add not in
+        if (genetic_alteration_type, data_type) not in alt_type_datatype_and_stable_id: 
             # unexpected as this is already validated in get_meta_file_type
             raise RuntimeError('Unexpected error: genetic_alteration_type and data_type combination not found in allowed_data_types.txt.', 
                                genetic_alteration_type, data_type)
@@ -1780,9 +1776,11 @@ def parse_metadata_file(filename, logger, study_id=None, case_list=False):
         return None
     
     # validate genetic_alteration_type, datatype, stable_id
-    valid_types_and_id = validate_types_and_id(metaDictionary, logger, filename)
-    if not valid_types_and_id:
-        return None
+    stable_id_mandatory = 'stable_id' in META_FIELD_MAP[meta_file_type] and META_FIELD_MAP[meta_file_type]['stable_id']
+    if stable_id_mandatory:
+        valid_types_and_id = validate_types_and_id(metaDictionary, logger, filename)
+        if not valid_types_and_id:
+            return None
 
     for field in metaDictionary:
         if field not in META_FIELD_MAP[meta_file_type]:

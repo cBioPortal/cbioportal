@@ -2065,9 +2065,9 @@ def main_validate(args):
 if __name__ == '__main__':
     try:
         # parse command line options
-        args = interface()
+        parsed_args = interface()
         # run the script
-        exit_status = main_validate(args)
+        exit_status = main_validate(parsed_args)
         print >>sys.stderr, ('Validation of study {status}.'.format(
             status={0: 'succeeded',
                     1: 'failed',

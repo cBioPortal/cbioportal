@@ -166,19 +166,19 @@ def get_meta_file_type(metaDictionary, logger=None, filename=''):
 
 def get_properties(filename):
     properties = {}
-    file = open(filename, 'r')
-    for line in file:
+    file_ = open(filename, 'r')
+    for line in file_:
         line = line.strip()
         # skip line if its blank or a comment
         if len(line) == 0:
             continue
         # store name/value
-        property = line.split(': ', 1)
-        if (len(property) != 2):
-            print >> ERROR_FILE, 'Skipping invalid entry in file: ' + line
+        property_ = line.split(': ', 1)
+        if (len(property_) != 2):
+            print >> ERROR_FILE, 'Skipping invalid entry in file_: ' + line
             continue
-        properties[property[0]] = property[1].strip()
-    file.close()
+        properties[property_[0]] = property_[1].strip()
+    file_.close()
     return properties
 
 

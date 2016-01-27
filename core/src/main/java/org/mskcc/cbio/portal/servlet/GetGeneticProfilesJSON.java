@@ -117,6 +117,8 @@ public class GetGeneticProfilesJSON extends HttpServlet  {
                         tmpProfileObj.put("GENETIC_ALTERATION_TYPE", geneticProfile.getGeneticAlterationType().toString());
                         tmpProfileObj.put("CANCER_STUDY_ID", geneticProfile.getCancerStudyId());
                         tmpProfileObj.put("SHOW_PROFILE_IN_ANALYSIS_TAB", geneticProfile.showProfileInAnalysisTab());
+                        // added datatype to be able to make distinction between log data and non-log data
+                        tmpProfileObj.put("DATATYPE", geneticProfile.getDatatype());
                         result.put(geneticProfile.getStableId(), tmpProfileObj);
                     }
                     httpServletResponse.setContentType("application/json");
@@ -161,6 +163,8 @@ public class GetGeneticProfilesJSON extends HttpServlet  {
                                     tmpProfileObj.put("GENETIC_ALTERATION_TYPE", geneticProfile.getGeneticAlterationType().toString());
                                     tmpProfileObj.put("CANCER_STUDY_ID", geneticProfile.getCancerStudyId());
                                     tmpProfileObj.put("SHOW_PROFILE_IN_ANALYSIS_TAB", geneticProfile.showProfileInAnalysisTab());
+                                    // added datatype to be able to make distinction between log data and non-log data
+                                    tmpProfileObj.put("DATATYPE", geneticProfile.getDatatype());
                                     tmpResult.put(geneticProfile.getStableId(), tmpProfileObj);
                                 }
                             }

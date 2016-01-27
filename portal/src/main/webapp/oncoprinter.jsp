@@ -87,16 +87,17 @@
             <div id="div-data-format-exp" style="background-color:#eee;display:none;">
                 <h4>Data format</h4>
                 The data should contain three tab-delimited columns. 
-                The first row is a header row, which contains: <code>Sample Gene    Alteration</code>. 
+                The first row is a header row, which contains: <code>Sample Gene    Alteration  Type</code>. 
                 Each following row contains a single genomic event in a single sample. 
                 You can also list samples without any events at the end of the list so that the percentages can be properly calculated.
-                Note: Any row which has an entry in the Gene (2nd) column must also have an entry in the Alteration (3rd) column
+                Note: Any row which has an entry in the Gene (2nd) column must also have an entry in the Alteration (3rd) and Type (4th) columns
                <ol>
                     <li>Sample: Sample ID</li>
                     <li>Gene: Gene symbol (or other gene identifier)</li>
                     <li>Alteration: Definition of the alteration event
                         <ul>
-                            <li>Supported alteration types: Mutation event: amino acid change or any other information about the mutation</li>
+                            <li>Mutation event: amino acid change or any other information about the mutation</li>
+                            <li>Fusion event: fusion information</li>
                             <li>Copy number alteration (CNA) - please use one of the four events below: 
                                 <ul>
                                     <li>AMP: high level amplification</li>
@@ -116,6 +117,25 @@
                                     <li>PROT-UP: RPPA Upregulation</li>
                                     <li>PROT-DOWN: RPPA Downregulation</li>
                                 </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>Type: Definition of the alteration type. It has to be one of the following.
+                        <ul>
+                            <li>For a mutation event, please use one of the three mutation types below: 
+                                <ul>
+                                    <li>MISSENSE: a missense mutation</li>
+                                    <li>INFRAME: a inframe mutation</li>
+                                    <li>TRUNC: a truncation mutation</li>
+                                </ul>
+                            </li>
+                            <li>FUSION: a fusion event
+                            </li>
+                            <li>CNA: a copy number alteration event
+                            </li>
+                            <li>EXP: a expression event
+                            </li>
+                            <li style="display:none">PROT: a protein expression event
                             </li>
                         </ul>
                     </li>
@@ -237,7 +257,7 @@
             <button type="button" class="btn btn-default" id="oncoprint-diagram-downloads-icon" style="background-color:#efefef;margin:0px"><img class="oncoprint-diagram-downloads-icon" src="images/in.svg" alt="icon" width="16" height="16" /></button>      
             <div class="btn-group btn-group-sm">
                 <button type="button" id="oncoprint_zoomout" class="btn btn-default" style="background-color:#efefef;margin:0px"><img src="images/zoom-out.svg" alt="icon" width="16" height="16" /></button>
-                <span class="btn btn-default" id="oncoprint_diagram_slider_icon" style="background-color:#efefef;width: 120px;display:inline"></span> 
+                <span class="btn btn-default" id="oncoprint_diagram_slider_icon" style="background-color:#efefef;width: 100px;display:inline"></span> 
                 <button type="button" id="oncoprint_zoomin" class="btn btn-default" style="background-color:#efefef;margin:0px"><img src="images/zoom-in.svg" alt="icon" width="16" height="16" /></button>
             </div>
         </div>

@@ -377,6 +377,7 @@ public class ImportTabDelimData {
             if (phosphoGene==null) {
                 phosphoGene = new CanonicalGene(phosphoSymbol, aliases);
                 phosphoGene.setType(CanonicalGene.PHOSPHOPROTEIN_TYPE);
+                phosphoGene.setCytoband(gene.getCytoband());
                 daoGene.addGene(phosphoGene);
             }
             phosphoGenes.add(phosphoGene);

@@ -32,7 +32,7 @@ IMPORTER_CLASSNAME_BY_ALTERATION_TYPE = { "CLINICAL" : "org.mskcc.cbio.portal.sc
                                             "TIMELINE" : "org.mskcc.cbio.portal.scripts.ImportTimelineData" }
 
 IMPORTER_REQUIRES_METADATA = { "org.mskcc.cbio.portal.scripts.ImportClinicalData" : False,
-                                "org.mskcc.cbio.portal.scripts.ImportCopyNumberSegmentData" : False,
+                                "org.mskcc.cbio.portal.scripts.ImportCopyNumberSegmentData" : True,
                                 "org.mskcc.cbio.portal.scripts.ImportGisticData" : False,
                                 "org.mskcc.cbio.portal.scripts.ImportMutSigData" : False,
                                 "org.mskcc.cbio.portal.scripts.ImportProteinArrayData" : False,

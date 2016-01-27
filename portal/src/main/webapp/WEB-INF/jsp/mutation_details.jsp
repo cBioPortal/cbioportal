@@ -34,6 +34,7 @@
     String myCancerGenomeUrl = (String) GlobalProperties.getMyCancerGenomeUrl();
     String oncokbGeneStatus = (String) GlobalProperties.getOncoKBGeneStatus();
     boolean showHotspot = (Boolean) GlobalProperties.showHotspot();
+    String userName = GlobalProperties.getAuthenticatedUserName();
 %>
 
 <div class='section' id='mutation_details'>
@@ -69,6 +70,7 @@
     var oncokbGeneStatus = <%=oncokbGeneStatus%>;
     var showHotspot = <%=showHotspot%>;
     var enableMyCancerGenome = myCancerGenomeUrl?true:false;
+    var userName = '<%=userName%>';
 
     _mut3dVis = new Mutation3dVis("default3dView", {
 	    pdbUri: "api/proxy/jsmol/"
@@ -223,7 +225,7 @@
                                     _.each(tableData, function (ele, i) {
                                         var _datum = ele[indexMap["datum"]];
                                         var _mutation = ele[indexMap["datum"]].mutation;
-                                        oncokbInstance.addVariant(_mutation.mutationSid, _mutation.geneSymbol, _mutation.proteinChange, _mutation.tumorType, _mutation.mutationType, _mutation.cosmicCount, _mutation.isHotspot);
+                                        oncokbInstance.addVariant(_mutation.mutationSid, '', _mutation.geneSymbol, _mutation.proteinChange, _mutation.tumorType, _mutation.mutationType, _mutation.cosmicCount, _mutation.isHotspot);
                                     });
                                     oncokbInstance.getEvidence().done(function () {
                                         var tableData = dataTable.fnGetData();

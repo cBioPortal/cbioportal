@@ -4,13 +4,10 @@
 # here. The validator will check if the users used the right combinations and can also warn them
 # when specific important combinations were found to be missing in their study directory. 
 GENETIC_ALTERATION_TYPE	DATATYPE	STABLE_ID
-CLINICAL	CLINICAL	
-CLINICAL	TIMELINE	
 COPY_NUMBER_ALTERATION	DISCRETE	cna
 COPY_NUMBER_ALTERATION	DISCRETE	cna_rae
 COPY_NUMBER_ALTERATION	DISCRETE	cna_consensus
 COPY_NUMBER_ALTERATION	DISCRETE	gistic
-COPY_NUMBER_ALTERATION	SEG	
 COPY_NUMBER_ALTERATION	CONTINUOUS	linear_CNA
 COPY_NUMBER_ALTERATION	LOG2-VALUE	log2CNA
 GISTIC_GENES_AMP	Q-VALUE	gistic_genes_amp

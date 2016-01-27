@@ -11,6 +11,7 @@
 # imports
 import sys
 import os
+import logging
 import logging.handlers
 from collections import OrderedDict
 import argparse
@@ -18,7 +19,7 @@ import re
 import csv
 import itertools
 import requests
-from . import cbioportal_common
+import cbioportal_common
 
 
 # ------------------------------------------------------------------------------

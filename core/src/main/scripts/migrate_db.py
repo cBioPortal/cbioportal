@@ -85,7 +85,7 @@ def get_db_version(cursor):
     try:
         cursor.execute('select table_name from information_schema.tables')
         for row in cursor.fetchall():
-            if VERSION_TABLE in row[0].lower():
+            if VERSION_TABLE == row[0].lower().strip():
                 version_table_exists = True
     except MySQLdb.Error, msg:
         print >> ERROR_FILE, msg
@@ -107,7 +107,7 @@ def get_db_version(cursor):
 
 def is_version_larger(version1, version2):
     """ Checks if version 1 is larger than version 2 """
-
+    
     if version1[0] > version2[0]:
         return True
     if version2[0] > version1[0]:
@@ -138,13 +138,13 @@ def run_migration(db_version, sql_filename, cursor):
     run_line = False
 
     for line in sql_file:
-        if line.startswith('#'):
+        if line.startswith('##'):
             sql_version = tuple(map(int, line.split(':')[1].strip().split('.')))
             run_line = is_version_larger(sql_version, db_version)
             continue
 
         # skip blank lines
-        if len(line.strip()) < 1:
+        if len(line.strip()) < 1 or line.startswith('#'):
             continue
         # only execute sql line if the last version seen in the file is greater than the db_version
         if run_line:

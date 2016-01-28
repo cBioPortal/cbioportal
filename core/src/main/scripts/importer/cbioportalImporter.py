@@ -120,7 +120,7 @@ def process_directory(jvm_args, study_directory):
     study_meta = {}
     clinical_metafiles = []
     non_clinical_metafiles = []
-    cancer_type_meta = {}
+    cancer_type_metafiles = []
 
     for f in meta_filenames:
         metadata = get_properties(f)
@@ -137,8 +137,7 @@ def process_directory(jvm_args, study_directory):
             #Then import study
             import_study(jvm_args,f)
         elif meta_file_type == MetaFileTypes.CANCER_TYPE:
-            # TODO this is a bug, make it a .append()
-            cancer_type_meta = metadata
+            cancer_type_metafiles.append(f)
         elif meta_file_type == MetaFileTypes.CLINICAL:
             clinical_metafiles.append(f)
         else:
@@ -148,8 +147,8 @@ def process_directory(jvm_args, study_directory):
         print >> ERROR_FILE, 'No meta_study file found'
         sys.exit(1)
 
-    # First, import cancer type
-    if cancer_type_meta != {}:
+    # First, import cancer types
+    for f in cancer_type_metafiles:
         import_cancer_type(jvm_args, f)
 
     # Next, we need to import clinical files

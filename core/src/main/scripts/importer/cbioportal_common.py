@@ -8,8 +8,9 @@
 import os
 import sys
 import csv
-from subprocess import Popen, PIPE, STDOUT
 import logging
+from collections import OrderedDict
+from subprocess import Popen, PIPE, STDOUT
 
 
 # ------------------------------------------------------------------------------
@@ -303,6 +304,72 @@ class LogfileStyleFormatter(ValidationMessageFormatter):
             optional=True)
 
         return super(LogfileStyleFormatter, self).format(record)
+
+
+class CollapsingLogMessageHandler(logging.handlers.MemoryHandler):
+
+    """Logging handler that aggregates repeated log messages into one.
+
+    This collapses validation LogRecords based on the source code line that
+    emitted them and their formatted message, and flushes the resulting
+    records to another handler.
+    """
+
+    def flush(self):
+
+        """Aggregate LogRecords by message and send them to the target handler.
+
+        Fields that occur with multiple different values in LogRecords
+        emitted from the same line with the same message (and optional
+        'filename_' attribute) will be collected in a field named
+        <field_name>_list.
+        """
+
+        # group buffered LogRecords by their source code line and message
+        grouping_dict = OrderedDict()
+        for record in self.buffer:
+            identifying_tuple = (record.module,
+                                 record.lineno,
+                                 getattr(record, 'filename_', None),
+                                 record.getMessage())
+            if identifying_tuple not in grouping_dict:
+                grouping_dict[identifying_tuple] = []
+            grouping_dict[identifying_tuple].append(record)
+
+        aggregated_buffer = []
+        # for each list of same-message records
+        for record_list in grouping_dict.values():
+            # make a dict to collect the fields for the aggregate record
+            aggregated_field_dict = {}
+            # for each field found in (the first of) the records
+            for field_name in record_list[0].__dict__:
+                # collect the values found for this field across the records.
+                # Use the keys of an OrderedDict, as OrderedSet is for some
+                # reason not to be found in the Python standard library.
+                field_values = OrderedDict((record.__dict__[field_name], None)
+                                           for record in record_list)
+                # if this field has the same value in all records
+                if len(field_values) == 1:
+                    # use that value in the new dict
+                    aggregated_field_dict[field_name] = field_values.popitem()[0]
+                else:
+                    # set a <field>_list field instead
+                    aggregated_field_dict[field_name + '_list'] = \
+                        list(field_values.keys())
+
+            # add a new log record with these fields tot the output buffer
+            aggregated_buffer.append(
+                logging.makeLogRecord(aggregated_field_dict))
+
+        # replace the buffer with the aggregated one and flush
+        self.buffer = aggregated_buffer
+        super(CollapsingLogMessageHandler, self).flush()
+
+    def shouldFlush(self, record):
+        """Flush when emitting an INFO message or a message without a file."""
+        return ((record.levelno == logging.INFO) or
+                ('filename_' not in record.__dict__) or
+                super(CollapsingLogMessageHandler, self).shouldFlush(record))
 
 
 class MetastudyProperties(object):

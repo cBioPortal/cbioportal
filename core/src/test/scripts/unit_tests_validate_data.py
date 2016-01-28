@@ -5,10 +5,12 @@ version 3, or (at your option) any later version.
 """
 
 import unittest
-import logging
-import hugoEntrezMap
+import logging.handlers
+
+from importer import cbioportal_common
 from importer import validateData
 
+import hugoEntrezMap
 
 # globals:
 hugo_mapping_file = 'test_data/Homo_sapiens.gene_info.gz'
@@ -96,7 +98,7 @@ class LogBufferTestCase(unittest.TestCase):
         what the messages currently are. The final unit tests committed
         to version control should not print log messages.
         """
-        formatter = validateData.LogfileStyleFormatter()
+        formatter = cbioportal_common.LogfileStyleFormatter()
         for record in record_list:
             print formatter.format(record)
 

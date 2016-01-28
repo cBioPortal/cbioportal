@@ -396,7 +396,7 @@ class MetafileProperties(object):
 # ------------------------------------------------------------------------------
 # sub-routines
 
-def get_meta_file_type(metaDictionary, logger=None, filename=''):
+def get_meta_file_type(metaDictionary, logger, filename):
     """
      Returns one of the metatypes :
         MetaFileTypes.SEG = 'meta_segment'
@@ -440,23 +440,23 @@ def get_meta_file_type(metaDictionary, logger=None, filename=''):
     if 'genetic_alteration_type' in metaDictionary and 'datatype' in metaDictionary:
         genetic_alteration_type = metaDictionary['genetic_alteration_type']
         data_type = metaDictionary['datatype']
-        if (genetic_alteration_type, data_type) not in alt_type_datatype_to_meta:
-            if logger is not None:
-                logger.error('Could not determine the file type. Please check your meta files for correct configuration.',
-                             extra={'filename_': os.path.basename(filename),
-                                    'cause': 'genetic_alteration_type: ' + metaDictionary['genetic_alteration_type'] +
-                                             ', datatype: ' + metaDictionary['datatype']})
-        else:
+        if (genetic_alteration_type, data_type) in alt_type_datatype_to_meta:
             result = alt_type_datatype_to_meta[(genetic_alteration_type, data_type)]
+        else:
+            logger.error(
+                'Could not determine the file type. Please check your meta files for correct configuration.',
+                extra={'filename_': os.path.basename(filename),
+                       'cause': ('genetic_alteration_type: %s, '
+                                 'datatype: %s' % (
+                                     metaDictionary['genetic_alteration_type'],
+                                     metaDictionary['datatype']))})
     elif 'cancer_study_identifier' in metaDictionary and 'type_of_cancer' in metaDictionary:
         result = MetaFileTypes.STUDY
     elif 'type_of_cancer' in metaDictionary:
         result = MetaFileTypes.CANCER_TYPE
     else:
-        if logger is not None:
-            logger.error('Could not determine the file type. Did not find expected meta file fields. Please check your meta files for correct configuration.',
-                             extra={'filename_': os.path.basename(filename)})
-
+        logger.error('Could not determine the file type. Did not find expected meta file fields. Please check your meta files for correct configuration.',
+                         extra={'filename_': os.path.basename(filename)})
     return result
 
 

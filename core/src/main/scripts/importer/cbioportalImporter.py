@@ -8,6 +8,7 @@
 import os
 import sys
 import argparse
+import logging
 import re
 
 import cbioportal_common
@@ -28,6 +29,8 @@ from cbioportal_common import run_java
 
 # ------------------------------------------------------------------------------
 # globals
+
+LOGGER = None
 
 # commands
 IMPORT_CANCER_TYPE = "import-cancer-type"
@@ -66,10 +69,9 @@ def import_study_data(jvm_args, meta_filename, data_filename):
     args = jvm_args.split(' ')
     metafile_properties = get_metafile_properties(meta_filename)
 
-    meta_file_type = cbioportal_common.get_meta_file_type(metafile_properties)
+    meta_file_type = cbioportal_common.get_meta_file_type(
+        metafile_properties, filename=meta_filename, logger=LOGGER)
     if meta_file_type is None:
-        print >> ERROR_FILE, ("Could not determine meta file type, consider "
-                              "running the validator script.")
         return
     importer = IMPORTER_CLASSNAME_BY_META_TYPE[metafile_properties.meta_file_type]
 
@@ -215,9 +217,20 @@ def interface():
 
 def main(args):
 
+    global LOGGER
+
+    # get the logger with a handler to print logged error messages to stderr
+    module_logger = logging.getLogger(__name__)
+    error_handler = logging.StreamHandler(sys.stderr)
+    error_handler.setFormatter(cbioportal_common.LogfileStyleFormatter())
+    error_handler.setLevel(logging.ERROR)
+    module_logger.addHandler(error_handler)
+    LOGGER = module_logger
+
     # process the options
     jvm_args = "-Dspring.profiles.active=dbcp -cp " + args.jar_path
     study_directory = args.study_directory
+
 
     if study_directory != None:
         check_dir(study_directory)

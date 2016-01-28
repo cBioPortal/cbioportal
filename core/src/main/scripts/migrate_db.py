@@ -107,7 +107,6 @@ def get_db_version(cursor):
 def is_version_larger(version1, version2):
     """ Checks if version 1 is larger than version 2 """
 
-    print version1, version2
     if version1[0] > version2[0]:
         return True
     if version2[0] > version1[0]:

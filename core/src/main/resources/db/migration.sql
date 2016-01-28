@@ -11,4 +11,4 @@ DROP TABLE micro_rna;
 DROP TABLE micro_rna_alteration;
 DROP TABLE mutation_frequency;
 ALTER TABLE sample_list_list CHANGE PATIENT_ID SAMPLE_ID INT(11);
-INSERT INTO info VALUES ("1.1.0");
+UPDATE info SET DB_SCHEMA_VERSION="1.1.0";

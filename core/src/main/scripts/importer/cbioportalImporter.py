@@ -124,16 +124,22 @@ def process_directory(jvm_args, study_directory):
 
     for f in meta_filenames:
         metadata = get_properties(f)
-        if MetaFileTypes.STUDY in metadata.get('meta_file_type'):
+        meta_file_type = cbioportal_common.get_meta_file_type(metadata)
+        if meta_file_type is None:
+            print >> ERROR_FILE, (
+                    "Could not determine meta file type for {}, consider "
+                    "running the validator script.".format(f))
+            return
+        if meta_file_type == MetaFileTypes.STUDY:
             study_meta = metadata
             #First remove study if exists
             remove_study(jvm_args,f)
             #Then import study
             import_study(jvm_args,f)
-        elif MetaFileTypes.CANCER_TYPE in metadata.get('meta_file_type'):
+        elif meta_file_type == MetaFileTypes.CANCER_TYPE:
             # TODO this is a bug, make it a .append()
             cancer_type_meta = metadata
-        elif MetaFileTypes.CLINICAL in metadata.get('meta_file_type'):
+        elif meta_file_type == MetaFileTypes.CLINICAL:
             clinical_metafiles.append(f)
         else:
             non_clinical_metafiles.append(f)
@@ -144,17 +150,21 @@ def process_directory(jvm_args, study_directory):
 
     # First, import cancer type
     if cancer_type_meta != {}:
-        import_cancer_type(jvm_args, cancer_type_meta.get('data_filename'))
+        import_cancer_type(jvm_args, f)
 
     # Next, we need to import clinical files
     for f in clinical_metafiles:
         metadata = get_properties(f)
-        import_study_data(jvm_args, f, os.path.join(study_directory,metadata.get('data_filename')))
+        import_study_data(jvm_args, f,
+                          os.path.join(study_directory,
+                                       metadata['data_filename']))
 
     # Now, import everything else
     for f in non_clinical_metafiles:
         metadata = get_properties(f)
-        import_study_data(jvm_args, f, os.path.join(study_directory,metadata.get('data_filename')))
+        import_study_data(jvm_args, f,
+                          os.path.join(study_directory,
+                                       metadata.get('data_filename')))
 
     # do the case lists
     case_list_dirname = os.path.join(study_directory, 'case_lists')

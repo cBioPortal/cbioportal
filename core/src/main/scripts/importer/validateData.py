@@ -1673,7 +1673,7 @@ def validate_study(study_dir, logger, hugo_entrez_map):
 
     case_list_dirname = os.path.join(study_dir, 'case_lists')
     if not os.path.isdir(case_list_dirname):
-        logger.warning("No directory named 'case_lists' found")
+        logger.info("No directory named 'case_lists' found, so assuming no custom case lists.")
     else:
         processCaseListDirectory(case_list_dirname, study_id, logger)
 

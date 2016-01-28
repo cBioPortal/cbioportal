@@ -67,8 +67,10 @@ var makeGeneticAlterationComparator = function(distinguish_mutations) {
 	
 window.CreateCBioPortalOncoprintWithToolbar = function(ctr_selector, toolbar_selector) {
     $('#oncoprint #everything').show();
-    //$('#oncoprint #oncoprint-diagram-toolbar-buttons').show();
+    $('#oncoprint #oncoprint-diagram-toolbar-buttons').show();
     var oncoprint = new window.Oncoprint(ctr_selector, 1050);
+    var genetic_alteration_track_ids = [];
+    
     QuerySession.getGenomicEventData().then(function(data) {
 	var data_by_gene = {};
 	for (var i=0; i<data.length; i++) {
@@ -82,14 +84,16 @@ window.CreateCBioPortalOncoprintWithToolbar = function(ctr_selector, toolbar_sel
 		type: 'gene',
 	};
 	//oncoprint.suppressRendering();
-	oncoprint.addTracks(Object.keys(data_by_gene).map(function(gene) {
+	genetic_alteration_track_ids = genetic_alteration_track_ids.concat(oncoprint.addTracks(Object.keys(data_by_gene).map(function(gene) {
 	       return {'data':data_by_gene[gene], 'rule_set_params': rule_set_params, 'data_id_key':'sample', 'label':gene,
 		    'sortCmpFn': makeGeneticAlterationComparator(true)
 	    };
-	}));
+	})));
 	//oncoprint.releaseRendering();
     });
     window.oncoprint = oncoprint;
+    
+    
     
     
     
@@ -101,9 +105,13 @@ window.CreateCBioPortalOncoprintWithToolbar = function(ctr_selector, toolbar_sel
 	var cell_padding_on = true;
 	var unaltered_cases_hidden = false;
 	
+	var mutations_colored_by_type = true;
+	var sorted_by_mutation_type = false;
+	
 	var to_remove_on_destroy = [];
 	var to_remove_qtip_on_destroy = [];
 	var to_remove_click_evt_on_destroy = [];
+	
 	
 	var appendTo = function($elt, $target) {
 	    $elt.appendTo($target);
@@ -150,12 +158,12 @@ window.CreateCBioPortalOncoprintWithToolbar = function(ctr_selector, toolbar_sel
 	    });
 	    updateButton();
 	};
-	(function setUpZoom() {
+	var $zoom_slider = (function setUpZoom() {
 	    var zoom_elt = $(toolbar_selector + ' #oncoprint_diagram_slider_icon');
-	    var slider = $('<input>', {
+	    var $slider = $('<input>', {
 		id: "oncoprint_zoom_slider",
 		type: "range",
-		min: 0.1,
+		min: 0,
 		max: 1,
 		step: 0.01,
 		value: 1,
@@ -164,24 +172,26 @@ window.CreateCBioPortalOncoprintWithToolbar = function(ctr_selector, toolbar_sel
 		}
 	    });
 	    
-	    appendTo(slider, zoom_elt);
-	    addQTipTo(slider, {
+	    appendTo($slider, zoom_elt);
+	    addQTipTo($slider, {
 				content: {text: 'Zoom in/out of oncoprint'},
 				position: {my: 'bottom middle', at: 'top middle', viewport: $(window)},
 				style: {classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite'},
 				show: {event: "mouseover"},
 				hide: {fixed: true, delay: 100, event: "mouseout"}
 	    });
-	    setUpHoverEffect(slider);
+	    setUpHoverEffect($slider);
 	    
 	    onClick($(toolbar_selector + ' #oncoprint_zoomout'), function() {
-		slider[0].value = oncoprint.setHorzZoom(oncoprint.getHorzZoom() - zoom_increment);
-		slider.trigger('change');
+		$slider[0].value = oncoprint.setHorzZoom(oncoprint.getHorzZoom() - zoom_increment);
+		$slider.trigger('change');
 	    });
 	    onClick($(toolbar_selector + ' #oncoprint_zoomin'), function() {
-		slider[0].value = oncoprint.setHorzZoom(oncoprint.getHorzZoom() + zoom_increment);
-		slider.trigger('change');
+		$slider[0].value = oncoprint.setHorzZoom(oncoprint.getHorzZoom() + zoom_increment);
+		$slider.trigger('change');
 	    });
+	    
+	    return $slider;
 	})();
 	(function setUpToggleCellPadding() {
 	    setUpButton($(toolbar_selector + ' #oncoprint-diagram-removeWhitespace-icon'),
@@ -208,6 +218,39 @@ window.CreateCBioPortalOncoprintWithToolbar = function(ctr_selector, toolbar_sel
 			    }
 			});
 	    });
+	})();
+	(function setUpZoomToFit() {
+	    QuerySession.getAlteredSamples().then(function(altered_samples) {
+		setUpHoverEffect($(toolbar_selector + ' #oncoprint_zoomtofit'));
+		onClick($(toolbar_selector + ' #oncoprint_zoomtofit'), function() {
+		    $zoom_slider[0].value = oncoprint.zoomToFitHorz(altered_samples);
+		    $zoom_slider.trigger('change');
+		});
+	    });
+	})();
+	(function setUpChangeMutationRuleSet() {
+	    setUpButton($(toolbar_selector + ' #oncoprint_diagram_showmutationcolor_icon'),
+		['images/colormutations.svg', 'images/uncolormutations.svg', 'images/mutationcolorsort.svg'],
+		['Color-code mutations and sort by type', 'Show all mutations with the same color', 'Color-code mutations but don\'t sort by type'],
+		function() { 
+		    if (mutations_colored_by_type && !sorted_by_mutation_type) { 
+			return 0; 
+		    } else if (mutations_colored_by_type && sorted_by_mutation_type) { 
+			return 1;
+		    } else if (!mutations_colored_by_type) {
+			return 2;
+		    }
+		},
+		function() {
+		    if (mutations_colored_by_type && !sorted_by_mutation_type) {
+			sorted_by_mutation_type = true;
+		    } else if (mutations_colored_by_type && sorted_by_mutation_type) {
+			mutations_colored_by_type = false;
+		    } else if (!mutations_colored_by_type) {
+			mutations_colored_by_type = true;
+			sorted_by_mutation_type = false;
+		    }
+		});
 	})();
     })();
 }

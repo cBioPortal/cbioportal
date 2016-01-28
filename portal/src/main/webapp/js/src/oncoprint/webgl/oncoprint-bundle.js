@@ -115,7 +115,9 @@ var Oncoprint = (function () {
 	    }
 	    width_to_fit_in = ((furthest_right_id + 3) * (this.model.getCellWidth(true) + this.model.getCellPadding(true)));
 	}
-	this.setHorzZoom(Math.min(1, this.cell_view.visible_area_width / width_to_fit_in));
+	var zoom = Math.min(1, this.cell_view.visible_area_width / width_to_fit_in);
+	this.setHorzZoom(zoom);
+	return zoom;
     }
     Oncoprint.prototype.getHorzZoom = function () {
 	return this.model.getHorzZoom();

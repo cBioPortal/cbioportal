@@ -91,80 +91,114 @@ def get_db_version(cursor):
         return None
     
     if not version_table_exists:
-        return "0"
+        return (1,0,1)
 
     # Now query the table for the version number
     try:
         cursor.execute('select version_number from version')
         for row in cursor.fetchall():
-            version = row[0]
+            version = tuple(map(int, row[0].strip().split('.')))
     except MySQLdb.Error, msg:
         print >> ERROR_FILE, msg
         return None
 
     return version
 
-def run_script(script, cursor):
-    """ runs the MySQL script """
+def is_version_larger(version1, version2):
+    """ Checks if version 1 is larger than version 2 """
 
-    script_file = open(script, 'rU')
+    print version1, version2
+    if version1[0] > version2[0]:
+        return True
+    if version2[0] > version1[0]:
+        return False
+    if version1[1] > version2[1]:
+        return True
+    if version2[1] > version1[1]:
+        return False
+    if version1[2] > version2[2]:
+        return True
+    return False
+
+def run_migration(db_version, sql_filename, cursor):
+    """
+
+        Goes through the sql and runs lines based on the version numbers. SQL version should be stated as follows:
+
+        ##version: 1.0.0
+        INSERT INTO ...
+
+        ##version: 1.1.0
+        CREATE TABLE ...
     
-    try:
-        for line in script_file:
-            line = line.strip()
-            cursor.execute(line)
-    except MySQLdb.Error, msg:
-        print >>ERROR_FILE, msg
-        return None
+    """
+    
+    sql_file = open(sql_filename, 'r')
+    sql_version = (0,0,0)
+    run_line = False
 
-def run_migration(db_version, sql_scripts, cursor):
-    """ checks script version against db version and runs them in order """
+    for line in sql_file:
+        if line.startswith('#'):
+            sql_version = tuple(map(int, line.split(':')[1].strip().split('.')))
+            run_line = is_version_larger(sql_version, db_version)
+            continue
 
-    for script in sorted(sql_scripts):
-        script_version = '.'.join(os.path.basename(script).split('.')[0:-1])
-        print script_version
-        if script_version > db_version:
-            run_script(script, cursor)
+        # skip blank lines
+        if len(line.strip()) < 1:
+            continue
+        # only execute sql line if the last version seen in the file is greater than the db_version
+        if run_line:
+            try:
+                cursor.execute(line.strip())
+                print cursor.fetchall()
+            except MySQLdb.Error, msg:
+                print >> ERROR_FILE, msg
+                sys.exit(1)
+            
 
 def usage():
-    print >> OUTPUT_FILE, 'migrate_db.py --properties-file [portal properties file] --sql-directory [directory of sql scripts]'
+    print >> OUTPUT_FILE, 'migrate_db.py --properties-file [portal properties file] --sql [sql migration file]'
 
 def main():
     """ main function to run mysql migration """
     
     try:
-        opts, args = getopt.getopt(sys.argv[1:], '', ['properties-file=', 'sql-directory='])
+        opts, args = getopt.getopt(sys.argv[1:], '', ['properties-file=', 'sql='])
     except getopt.error, msg:
             print >> ERROR_FILE, msg
             usage()
             sys.exit(2)
 
     properties_filename = ''
-    sql_directory = ''
+    sql_filename = ''
 
     for o, a in opts:
         if o == '--properties-file':
             properties_filename = a
-        if o == '--sql-directory':
-            sql_directory = a
+        if o == '--sql':
+            sql_filename = a
 
     # check existence of properties file
     if not os.path.exists(properties_filename):
         print >> ERROR_FILE, 'properties file cannot be found'
         usage()
         sys.exit(2)
-    if not os.path.isdir(sql_directory):
-        print >> ERROR_FILE, 'sql directory cannot be found'
+    if not os.path.exists(sql_filename):
+        print >> ERROR_FILE, 'sql file cannot be found'
         usage()
         sys.exit(2)
-   
-    sql_scripts = [os.path.join(sql_directory, x) for x in os.listdir(sql_directory) if x.endswith(".sql")]
-    
+
+    # set up - get properties and db cursor
     portal_properties = get_portal_properties(properties_filename)
     cursor = get_db_cursor(portal_properties)
-    if cursor is not None:
-        db_version = get_db_version(cursor)
-    run_migration(db_version, sql_scripts, cursor)
+
+    if cursor is None:
+        print >> ERROR_FILE, 'failure connecting to sql database'
+        sys.exit(1)
+
+    # execute - get the database version and run the migration
+    db_version = get_db_version(cursor)
+    run_migration(db_version, sql_filename, cursor)
 
 # do main
 if __name__ == '__main__':

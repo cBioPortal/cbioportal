@@ -15,7 +15,8 @@ DATABASE_HOST = 'db.host'
 DATABASE_NAME = 'db.portal_db_name'
 DATABASE_USER = 'db.user'
 DATABASE_PW = 'db.password'
-VERSION_TABLE = 'version'
+VERSION_TABLE = 'info'
+VERSION_FIELD = 'DB_SCHEMA_VERSION'
 
 class PortalProperties(object):
     """ Properties object class, just has fields for db conn """
@@ -95,7 +96,7 @@ def get_db_version(cursor):
 
     # Now query the table for the version number
     try:
-        cursor.execute('select version_number from version')
+        cursor.execute('select ' + VERSION_FIELD + ' from ' + VERSION_TABLE)
         for row in cursor.fetchall():
             version = tuple(map(int, row[0].strip().split('.')))
     except MySQLdb.Error, msg:

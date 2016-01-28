@@ -37,6 +37,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -45,6 +46,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 
@@ -54,8 +56,19 @@ import org.mskcc.cbio.portal.model.CanonicalGene;
  */
 public final class MyCancerGenomeLinkUtil {
     private MyCancerGenomeLinkUtil() {}
-    private static Map<String,Map<String, Map<String, String>>> linkMap = null;
+    private final static Map<String,Map<String, Map<String, String>>> LINK_MAP
+            = new HashMap<String,Map<String, Map<String, String>>>();
+    
+    static {
+        String mcgUrl = GlobalProperties.getMyCancerGenomeUrl();
+        if(mcgUrl != null && !mcgUrl.isEmpty()) {
+            Map<String, String> mapCancerTypeLink = getCancerTypeLinks();
 
+            for (Map.Entry<String,String> entry : mapCancerTypeLink.entrySet()) {
+                getVariantLinksForCancerType(LINK_MAP, entry.getValue(), GlobalProperties.getMyCancerGenomeUrl()+entry.getKey());
+            }
+        };
+    }
 
     /**
      *
@@ -68,12 +81,7 @@ public final class MyCancerGenomeLinkUtil {
 
         String mcgUrl = GlobalProperties.getMyCancerGenomeUrl();
         if(mcgUrl != null && !mcgUrl.isEmpty()) {
-            if (linkMap==null) {
-                linkMap = getMyCancerGenomeLinks();
-            }
-
-
-            Map<String, Map<String, String>> mapVariantCancerLink = linkMap.get(gene);
+            Map<String, Map<String, String>> mapVariantCancerLink = LINK_MAP.get(gene);
             if (mapVariantCancerLink != null) {
                 Map<String, String> mapCancerLink = mapVariantCancerLink.get(alteration);
                 if (mapCancerLink != null) {
@@ -90,48 +98,79 @@ public final class MyCancerGenomeLinkUtil {
         }
         return list;
     }
-
+    
     /**
-     *
-     * @return Map<Gene, Map<Varaint, Map<Cancer, URL>>>
-     * @throws IOException
+     * 
+     * @return Map<Cancer, URL>
+     * @throws IOException 
      */
-    private static Map<String,Map<String, Map<String, String>>> getMyCancerGenomeLinks() throws IOException {
-        Map<String,Map<String, Map<String, String>>> mapGeneVariantCancerLink
-                = new HashMap<String,Map<String, Map<String, String>>>();
+    private static Map<String, String> getCancerTypeLinks() {
+        Map<String, String> mapCancerLink = new HashMap<String, String>();
+        
+        try {
+            URL url = new URL(GlobalProperties.getMyCancerGenomeUrl()+"/sitemap");
+            InputStream is = url.openStream();
+            BufferedReader in = new BufferedReader(new InputStreamReader(is));
 
-        URL url = new URL(GlobalProperties.getMyCancerGenomeUrl()+"/sitemap");
-        InputStream is = url.openStream();
-        BufferedReader in = new BufferedReader(new InputStreamReader(is));
+            String line;
+            while ((line = in.readLine()) != null
+                    && !line.contains("<a id=\"cancer_types\">")) {}
 
-        String line;
-        while ((line = in.readLine()) != null
-                && !line.contains("<a id=\"variants\">")) {}
+            if (line==null) {
+                System.err.println("MyCancerGenome format change: no cancer_types in site map");
+                return mapCancerLink;
+            }
 
-        if (line==null) {
-            System.err.println("MyCancerGenome format change");
-            return mapGeneVariantCancerLink;
+            line = in.readLine();
+            
+            in.close();
+
+            return getLinks(line, "<a href=\"([^\"]+)\">([^<]+)</a>");
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+        
+        return Collections.emptyMap();
+    }
+        
+    private static void getVariantLinksForCancerType(Map<String,Map<String, Map<String, String>>> mapGeneVariantCancerLink,
+            String cancer, String cancerink) {
+        
+        String content = null;
+        try {
+            URL url = new URL(cancerink);
 
-        line = in.readLine();
+            InputStream is = url.openStream();
+            BufferedReader in = new BufferedReader(new InputStreamReader(is));
 
-        Pattern pM = Pattern.compile("([A-Z0-9\\-]+) +c\\. *[^ ]+ +\\((.+)\\) Mutations? in (.+)",Pattern.CASE_INSENSITIVE);
-        Pattern pM2 = Pattern.compile("([A-Z0-9\\-]+) ?\\(([A-Z0-9\\-]+)\\) c\\. *[^ ]+ \\((.+)\\) Mutations? in (.+)",Pattern.CASE_INSENSITIVE);
-        Pattern pM3 = Pattern.compile("([A-Z0-9\\-]+) Mutations? in (.+)",Pattern.CASE_INSENSITIVE);
-        Pattern pA = Pattern.compile("([A-Z0-9\\-]+) Amplifications? in (.+)",Pattern.CASE_INSENSITIVE);
-        Pattern pA2 = Pattern.compile("([A-Z0-9\\-]+) \\(([A-Z0-9\\-]+)\\) Amplifications? in (.+)",Pattern.CASE_INSENSITIVE);
-        Pattern pF = Pattern.compile("([A-Z0-9\\-]+) Fusions? in (.+)",Pattern.CASE_INSENSITIVE);
-        Pattern pF2 = Pattern.compile("([A-Z0-9\\-]+) \\(([A-Z0-9\\-]+)\\) Fusions? in (.+)",Pattern.CASE_INSENSITIVE);
+            StringBuilder sb = new StringBuilder();
+            for (String line = in.readLine(); line != null; line = in.readLine()) {
+                sb.append(line);
+            }
+            
+            content = sb.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+        
+        Map<String, String> links = getLinks(content, "<a [^>]*href=\"("+cancerink+"[^\"]+)\"[^>]*>([^<]+)</a>");
+
+        Pattern pM = Pattern.compile("([A-Z0-9\\-]+) +c\\. *[^ ]+ +\\((.+)\\)",Pattern.CASE_INSENSITIVE);
+        Pattern pM2 = Pattern.compile("([A-Z0-9\\-]+) ?\\(([A-Z0-9\\-]+)\\) c\\. *[^ ]+ \\((.+)\\)",Pattern.CASE_INSENSITIVE);
+        Pattern pM3 = Pattern.compile("([A-Z0-9\\-]+) Mutations?",Pattern.CASE_INSENSITIVE);
+        Pattern pA = Pattern.compile("([A-Z0-9\\-]+) Amplifications?",Pattern.CASE_INSENSITIVE);
+        Pattern pA2 = Pattern.compile("([A-Z0-9\\-]+) \\(([A-Z0-9\\-]+)\\) Amplifications?",Pattern.CASE_INSENSITIVE);
+        Pattern pF = Pattern.compile("([A-Z0-9\\-]+) Fusions?",Pattern.CASE_INSENSITIVE);
+        Pattern pF2 = Pattern.compile("([A-Z0-9\\-]+) \\(([A-Z0-9\\-]+)\\) Fusions?",Pattern.CASE_INSENSITIVE);
 
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
 
-        Map<String,String> links = getLinks(line);
         for (Map.Entry<String,String> entry : links.entrySet()) {
             String href = entry.getKey();
-            String text = entry.getValue();
+            String text = StringEscapeUtils.unescapeHtml(entry.getValue());
             Set<String> geneSymbols = new HashSet<String>();
             String mutation = null;
-            String cancer = null;
             Matcher m = pM.matcher(text);
             if (m.matches()) {
                 CanonicalGene gene = daoGeneOptimized.getNonAmbiguousGene(m.group(1));
@@ -141,7 +180,6 @@ public final class MyCancerGenomeLinkUtil {
                 }
                 geneSymbols.add(gene.getHugoGeneSymbolAllCaps());
                 mutation = m.group(2);
-                cancer = m.group(3);
             } else {
                 m = pM2.matcher(text);
                 if (m.matches()) {
@@ -155,7 +193,6 @@ public final class MyCancerGenomeLinkUtil {
                     }
                     geneSymbols.add(gene.getHugoGeneSymbolAllCaps());
                     mutation = m.group(3);
-                    cancer = m.group(4);
                 } else {
                     m = pM3.matcher(text);
                     if (m.matches()) {
@@ -166,7 +203,6 @@ public final class MyCancerGenomeLinkUtil {
                         }
                         geneSymbols.add(gene.getHugoGeneSymbolAllCaps());
                         mutation = "mutation";
-                        cancer = m.group(2);
                     } else {
                         m = pA.matcher(text);
                         if (m.matches()) {
@@ -177,7 +213,6 @@ public final class MyCancerGenomeLinkUtil {
                             }
                             geneSymbols.add(gene.getHugoGeneSymbolAllCaps());
                             mutation = "amplification";
-                            cancer = m.group(2);
                         } else {
                             m = pA2.matcher(text);
                             if (m.matches()) {
@@ -191,7 +226,6 @@ public final class MyCancerGenomeLinkUtil {
                                 }
                                 geneSymbols.add(gene.getHugoGeneSymbolAllCaps());
                                 mutation = "amplification";
-                                cancer = m.group(3);
                             } else {
                                 m = pF.matcher(text);
                                 if (m.matches()) {
@@ -213,7 +247,6 @@ public final class MyCancerGenomeLinkUtil {
                                         continue;
                                     }
                                     mutation = "fusion";
-                                    cancer = m.group(2);
                                 } else {
                                     m = pF.matcher(text);
                                     if (m.matches()) {
@@ -250,7 +283,6 @@ public final class MyCancerGenomeLinkUtil {
                                             continue;
                                         }
                                         mutation = "fusion";
-                                        cancer = m.group(3);
                                     } else {
 
 
@@ -277,30 +309,25 @@ public final class MyCancerGenomeLinkUtil {
                         mapCancerLink = new TreeMap<String,String>();
                         mapVariantCancerLink.put(mutation, mapCancerLink);
                     }
-                    mapCancerLink.put(cancer, href);
+                    mapCancerLink.put(cancer, "<a \"target=\"_blank\" href=\""+ href +"\">"+ entry.getValue() + " in " + cancer +"</a>");
                 }
 
+            } else {
+                System.out.println("Cannot process "+text+" "+href);
             }
         }
-
-        return mapGeneVariantCancerLink;
     }
 
-    private static Map<String,String> getLinks(String str) {
+    private static Map<String,String> getLinks(String str, String pattern) {
         Map<String,String> links = new HashMap<String,String>();
-        Pattern p = Pattern.compile("(<a href=\"([^\"]+)\">([^<]+)</a>)");
+        Pattern p = Pattern.compile(pattern);
         Matcher m = p.matcher(str);
         while (m.find()) {
             String href = m.group(1);
-            href = href.replace("href=\"", "target=\"_blank\" href=\""+GlobalProperties.getMyCancerGenomeUrl());
-            String text = m.group(3);
+            String text = m.group(2);
             links.put(href, text);
         }
         return links;
-    }
-
-    public static void main(String[] args) throws IOException {
-        getMyCancerGenomeLinks();
     }
 }
 

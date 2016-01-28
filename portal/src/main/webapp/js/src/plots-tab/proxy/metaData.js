@@ -1,5 +1,7 @@
 var metaData = (function() {
     
+	var readyCallBackFunction;
+	
     var datum_genetic_profile_meta = {
             type: "",
             id: "",
@@ -18,10 +20,10 @@ var metaData = (function() {
 
     function fetchProfileMetaData() {
         var paramsGetProfiles = {
-            cancer_study_id: window.PortalGlobals.getCancerStudyId(),
-            case_set_id: window.PortalGlobals.getCaseSetId(),
-            case_ids_key: window.PortalGlobals.getCaseIdsKey(),
-            gene_list: window.PortalGlobals.getGeneListString()
+            cancer_study_id: window.QuerySession.getCancerStudyIds()[0],
+            case_set_id: window.QuerySession.getCaseSetId(),
+            case_ids_key: window.QuerySession.getCaseIdsKey(),
+            gene_list: window.QuerySession.getQueryGenes().join(" ")
         };
         $.post("getGeneticProfile.json", paramsGetProfiles, fetchClinicalAttrMetaData, "json");  
     }
@@ -29,13 +31,14 @@ var metaData = (function() {
     function fetchClinicalAttrMetaData(profileMetaDataResult) {
         var paramsGetClinicalAttributes = {
             cmd : "getClinicalData",
-            cancer_study_id: window.PortalGlobals.getCancerStudyId(),
-            case_set_id : window.PortalGlobals.getCaseSetId(),
-            case_ids_key: window.PortalGlobals.getCaseIdsKey(),
+            cancer_study_id: window.QuerySession.getCancerStudyIds()[0],
+            case_set_id : window.QuerySession.getCaseSetId(),
+            case_ids_key: window.QuerySession.getCaseIdsKey(),
             format : "json"
         };
         $.post("webservice.do", paramsGetClinicalAttributes, function(result) {
             registerMetaData(result.attributes, profileMetaDataResult);
+            readyCallBackFunction();
         }, "json");
     }
 
@@ -122,7 +125,13 @@ var metaData = (function() {
     }
     
     return {
-        fetch: function() {
+    	/**
+    	 * Fetch metadata 
+    	 * 
+    	 * @param readyCallBack: function to call when metadata retrieval is done
+    	 */
+        fetch: function(readyCallBack) {
+        	readyCallBackFunction = readyCallBack;
             retrieve_status = -1;
             fetchProfileMetaData();
         },

@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.mskcc.cbio.portal.service.ApiService;
 import org.mskcc.cbio.portal.model.DBCancerType;
-import org.mskcc.cbio.portal.model.DBPatientList;
 import org.mskcc.cbio.portal.model.DBClinicalField;
 import org.mskcc.cbio.portal.model.DBClinicalPatientData;
 import org.mskcc.cbio.portal.model.DBClinicalSampleData;
@@ -18,10 +17,11 @@ import org.mskcc.cbio.portal.model.DBGeneticProfile;
 import org.mskcc.cbio.portal.model.DBPatient;
 import org.mskcc.cbio.portal.model.DBProfileData;
 import org.mskcc.cbio.portal.model.DBSample;
+import org.mskcc.cbio.portal.model.DBSampleList;
 import org.mskcc.cbio.portal.model.DBStudy;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -113,22 +113,25 @@ public class ApiController {
     }
     
     @Transactional
-    @RequestMapping(value = "/patientlists", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody List<DBPatientList> getPatientLists(@RequestParam(required = false) String study_id, @RequestParam(required = false) List<String> patient_list_ids) {
+    @RequestMapping(value = "/samplelists", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody List<DBSampleList> getSampleLists(@RequestParam(required = false) String study_id, @RequestParam(required = false) List<String> sample_list_ids) {
 	    if (study_id != null) {
-		    return service.getPatientLists(study_id);
-	    } else if (patient_list_ids != null) {
-		    return service.getPatientLists(patient_list_ids);
+		    return service.getSampleLists(study_id);
+	    } else if (sample_list_ids != null) {
+		    return service.getSampleLists(sample_list_ids);
 	    } else {
-		    return service.getPatientLists();
+		    return service.getSampleLists();
 	    }
     }
     
     @Transactional
     @RequestMapping(value = "/patients", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody List<DBPatient> getPatients(@RequestParam(required = true) String study_id, @RequestParam(required = false) List<String> patient_ids) {
+    public @ResponseBody List<DBPatient> getPatients(@RequestParam(required = true) String study_id, @RequestParam(required = false) List<String> patient_ids,
+							@RequestParam(required = false) List<String> sample_ids) {
 	    if (patient_ids != null) {
-		    return service.getPatients(study_id, patient_ids);
+		    return service.getPatientsByPatient(study_id, patient_ids);
+	    } else if (sample_ids != null) {
+		    return service.getPatientsBySample(study_id, sample_ids);
 	    } else {
 		    return service.getPatients(study_id);
 	    }
@@ -136,12 +139,15 @@ public class ApiController {
     
     @Transactional
     @RequestMapping(value = "/geneticprofiledata", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody List<DBProfileData> getGeneticProfileData(@RequestParam(required = true) List<String> genetic_profile_ids, @RequestParam(required = true) List<String> genes, @RequestParam(required = false) List<String> sample_ids) {
-	    if (sample_ids == null) {
+    public @ResponseBody List<DBProfileData> getGeneticProfileData(@RequestParam(required = true) List<String> genetic_profile_ids, @RequestParam(required = true) List<String> genes, 
+                                                                    @RequestParam(required = false) List<String> sample_ids, @RequestParam(required = false) String sample_list_id) {
+	    if (sample_ids == null && sample_list_id == null) {
 		    return service.getGeneticProfileData(genetic_profile_ids, genes);
-	    } else {
-		    return service.getGeneticProfileData(genetic_profile_ids, genes, sample_ids);
-	    }
+            } else if (sample_ids != null) {
+                    return service.getGeneticProfileDataBySample(genetic_profile_ids, genes, sample_ids);
+            } else {
+                    return service.getGeneticProfileDataBySampleList(genetic_profile_ids, genes, sample_list_id);
+            }
     }
     
     @Transactional

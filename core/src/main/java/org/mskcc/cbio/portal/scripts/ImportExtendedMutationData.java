@@ -64,7 +64,7 @@ public class ImportExtendedMutationData{
 	private MutationFilter myMutationFilter;
 
 	/**
-	 * construct an ImportExtendedMutationData with no white lists.
+	 * construct an ImportExtendedMutationData.
 	 * Filter mutations according to the no argument MutationFilter().
 	 */
 	public ImportExtendedMutationData(File mutationFile, int geneticProfileId,
@@ -75,22 +75,6 @@ public class ImportExtendedMutationData{
 
 		// create default MutationFilter
 		myMutationFilter = new MutationFilter( );
-	}
-
-	/**
-	 * Construct an ImportExtendedMutationData with germline and somatic whitelists.
-	 * Filter mutations according to the 2 argument MutationFilter().
-	 */
-	public ImportExtendedMutationData( File mutationFile,
-			int geneticProfileId,
-			ProgressMonitor pMonitor,
-			String germline_white_list_file) throws IllegalArgumentException {
-		this.mutationFile = mutationFile;
-		this.geneticProfileId = geneticProfileId;
-		this.pMonitor = pMonitor;
-
-		// create MutationFilter
-		myMutationFilter = new MutationFilter(germline_white_list_file);
 	}
 
 	public void importData() throws IOException, DaoException {

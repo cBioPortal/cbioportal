@@ -75,7 +75,7 @@ var DataTableUtil = (function()
 			var options = pair[1];
 
 			if (options.sTitle != null &&
-				options.sTitle.length > 0)
+			    options.sTitle.length > 0)
 			{
 				map[options.sTitle] = name;
 			}
@@ -770,16 +770,16 @@ var MutationDetailsTableFormatter = (function()
 		return {style: style, tip: tip, text: label};
 	}
 
-	/**
-	 * Returns the text content, the css class, and the tooltip
-	 * for the given case id value. If the length of the actual
-	 * case id string is too long, then creates a short form of
-	 * the case id ending with an ellipsis.
-	 *
-	 * @param caseId    actual case id string
-	 * @return {{style: string, text: string, tip: string}}
-	 * @private
-	 */
+    /**
+     * Returns the text content, the css class, and the tooltip
+     * for the given case id value. If the length of the actual
+     * case id string is too long, then creates a short form of
+     * the case id ending with an ellipsis.
+     *
+     * @param caseId    actual case id string
+     * @return {{style: string, text: string, tip: string}}
+     * @private
+     */
 	function getCaseId(caseId)
 	{
 		// TODO customize this length?
@@ -804,15 +804,15 @@ var MutationDetailsTableFormatter = (function()
 		return _getMutationType(_mutationTypeMap, value);
 	}
 
-	/**
-	 * Returns the text content and the css class for the given
-	 * mutation type value.
-	 *
-	 * @param map   map of <mutationType, {label, style}>
-	 * @param value actual string value of the mutation type
-	 * @return {{style: string, text: string}}
-	 * @private
-	 */
+    /**
+     * Returns the text content and the css class for the given
+     * mutation type value.
+     *
+     * @param map   map of <mutationType, {label, style}>
+     * @param value actual string value of the mutation type
+     * @return {{style: string, text: string}}
+     * @private
+     */
 	function _getMutationType(map, value)
 	{
 		var style, text;
@@ -838,14 +838,14 @@ var MutationDetailsTableFormatter = (function()
 	}
 
 	/**
-	 * Returns the text content, the css class, and the tooltip
+     * Returns the text content, the css class, and the tooltip
 	 * for the given mutation type value.
-	 *
-	 * @param map   map of <mutationStatus, {label, style, tooltip}>
-	 * @param value actual string value of the mutation status
-	 * @return {{style: string, text: string, tip: string}}
-	 * @private
-	 */
+     *
+     * @param map   map of <mutationStatus, {label, style, tooltip}>
+     * @param value actual string value of the mutation status
+     * @return {{style: string, text: string, tip: string}}
+     * @private
+     */
 	function _getMutationStatus(map, value)
 	{
 		var style = "simple-tip";
@@ -1003,13 +1003,13 @@ var MutationDetailsTableFormatter = (function()
 		// TODO additional tooltips are enabled (hardcoded) only for msk-impact study for now
 		// this is cBioPortal specific implementation, we may want to make it generic in the future
 		if (mutation.aminoAcidChange != null &&
-			mutation.aminoAcidChange.length > 0 &&
+		    mutation.aminoAcidChange.length > 0 &&
 			mutation.aminoAcidChange != "NA" &&
 			mutation.cancerStudyShort.toLowerCase().indexOf("msk-impact") != -1 &&
-			isDifferentProteinChange(mutation.proteinChange, mutation.aminoAcidChange))
+		    isDifferentProteinChange(mutation.proteinChange, mutation.aminoAcidChange))
 		{
 			additionalTip = "The original annotation file indicates a different value: <b>" +
-				normalizeProteinChange(mutation.aminoAcidChange) + "</b>";
+			                normalizeProteinChange(mutation.aminoAcidChange) + "</b>";
 		}
 
 		// TODO disabled temporarily, enable when isoform support completely ready
@@ -1060,27 +1060,27 @@ var MutationDetailsTableFormatter = (function()
 			var typeMatch2 = aminoAcidChange.match(/([a-z]+)/);
 
 			if (locationMatch1 && locationMatch2 &&
-				locationMatch1.length > 0 && locationMatch2.length > 0 &&
-				locationMatch1[0] != locationMatch2[0])
+			    locationMatch1.length > 0 && locationMatch2.length > 0 &&
+			    locationMatch1[0] != locationMatch2[0])
 			{
 				different = true;
 			}
 			else if (proteinMatch1 && proteinMatch2 &&
-				proteinMatch1.length > 0 && proteinMatch2.length > 0 &&
-				proteinMatch1[0] !== "X" && proteinMatch2[0] !== "X" &&
-				proteinMatch1[0] !== proteinMatch2[0])
+			         proteinMatch1.length > 0 && proteinMatch2.length > 0 &&
+			         proteinMatch1[0] !== "X" && proteinMatch2[0] !== "X" &&
+			         proteinMatch1[0] !== proteinMatch2[0])
 			{
 				different = true;
 			}
 			else if (proteinMatch1 && proteinMatch2 &&
-				proteinMatch1.length > 1 && proteinMatch2.length > 1 &&
-				proteinMatch1[1] !== proteinMatch2[1])
+			         proteinMatch1.length > 1 && proteinMatch2.length > 1 &&
+			         proteinMatch1[1] !== proteinMatch2[1])
 			{
 				different = true;
 			}
 			else if (typeMatch1 && typeMatch2 &&
-				typeMatch1.length > 0 && typeMatch2.length > 0 &&
-				typeMatch1[0] !== typeMatch2[0])
+			         typeMatch1.length > 0 && typeMatch2.length > 0 &&
+			         typeMatch1[0] !== typeMatch2[0])
 			{
 				different = true;
 			}
@@ -1131,7 +1131,7 @@ var MutationDetailsTableFormatter = (function()
 
 		return {style: style,
 			count: text};
-	}
+    }
 
 	/**
 	 * Returns the css class and text for the given cosmic count.
@@ -1195,7 +1195,7 @@ var MutationDetailsTableFormatter = (function()
 		}
 
 		return {text: text, style: style};
-	}
+    }
 
 
 	/**
@@ -1501,14 +1501,14 @@ var PileupUtil = (function()
 			pileup.count = mutations[key].length;
 			pileup.location = parseInt(key);
 			pileup.label = generateLabel(mutations[key]);
-			// The following calculates dist of mutations by cancer type
-			pileup.stats = _.chain(mutations[key])
-				.groupBy(function(mut) { return mut.cancerType; })
-				.sortBy(function(stat) { return -stat.length; })
-				.reduce(function(seed, o) {
-					seed.push({ cancerType: o[0].cancerType, count: o.length });
-					return seed;
-				}, []).value();
+	        // The following calculates dist of mutations by cancer type
+	        pileup.stats = _.chain(mutations[key])
+	            .groupBy(function(mut) { return mut.cancerType; })
+	            .sortBy(function(stat) { return -stat.length; })
+	            .reduce(function(seed, o) {
+	                seed.push({ cancerType: o[0].cancerType, count: o.length });
+	                return seed;
+	            }, []).value();
 
 			pileupList.push(new Pileup(pileup));
 		}
@@ -1556,7 +1556,7 @@ var PileupUtil = (function()
 	 * Generates a pileup label by joining all unique protein change
 	 * information in the given array of mutations.
 	 *
-	 * @param mutations     a list of mutations
+ 	 * @param mutations     a list of mutations
 	 * @returns {string}    pileup label
 	 */
 	function generateLabel(mutations)
@@ -1568,7 +1568,7 @@ var PileupUtil = (function()
 		for (var i = 0; i < mutations.length; i++)
 		{
 			if (mutations[i].proteinChange != null &&
-				mutations[i].proteinChange.length > 0)
+			    mutations[i].proteinChange.length > 0)
 			{
 				mutationSet[mutations[i].proteinChange] = mutations[i].proteinChange;
 			}
@@ -1592,7 +1592,7 @@ var PileupUtil = (function()
 		if (mutationArray.length > 1)
 		{
 			startStr = cbio.util.lcss(mutationArray[0],
-				mutationArray[mutationArray.length - 1]);
+			                          mutationArray[mutationArray.length - 1]);
 
 //			console.log(mutationArray[0] + " n " +
 //			            mutationArray[mutationArray.length - 1] + " = " +
@@ -1780,8 +1780,8 @@ var DataProxyUtil = (function()
 					var mutationProxy = dataProxies["mutationProxy"];
 
 					if (mut3dVis != null &&
-						mutationProxy != null &&
-						mutationProxy.hasData())
+					    mutationProxy != null &&
+					    mutationProxy.hasData())
 					{
 						proxyOpts.options.mutationUtil = mutationProxy.getMutationUtil();
 						return true;
@@ -1821,7 +1821,7 @@ var DataProxyUtil = (function()
 			// custom pre process function for the proxy options
 			// before initialization
 			if (preProcessFn != null &&
-				_.isFunction(preProcessFn))
+			    _.isFunction(preProcessFn))
 			{
 				// if preprocess is not successful do not initialize
 				if (!preProcessFn(proxyOpts))
@@ -1929,12 +1929,12 @@ function JSmolWrapper()
 
 		// TODO send custom opts via GET? (i.e: jsmol_frame.jsp?name=n&width=400&...)
 		_frameHtml = '<iframe id="jsmol_frame" ' +
-			'src="' + frame + '" ' +
-			'seamless="seamless" ' +
-			'width="' + w + '" ' +
-			'height="' + h + '" ' +
-			'frameBorder="0" ' +
-			'scrolling="no"></iframe>';
+		             'src="' + frame + '" ' +
+		             'seamless="seamless" ' +
+		             'width="' + w + '" ' +
+		             'height="' + h + '" ' +
+		             'frameBorder="0" ' +
+		             'scrolling="no"></iframe>';
 
 		// add listener to process messages coming from the iFrame
 
@@ -1989,7 +1989,7 @@ function JSmolWrapper()
 					var callback = command.callback;
 
 					if (callback &&
-						_.isFunction(callback))
+					    _.isFunction(callback))
 					{
 						// call the registered callback function
 						callback();
@@ -2211,12 +2211,14 @@ function JmolScriptGenerator()
 	function setTransparency(transparency)
 	{
 		// TODO we should use the given transparency value...
-		return "color translucent;";
-	}
-
-	function makeOpaque()
-	{
-		return "color opaque;";
+		if (transparency > 0)
+		{
+			return "color translucent;";
+		}
+		else
+		{
+			return "color opaque;";
+		}
 	}
 
 	/**
@@ -2231,7 +2233,7 @@ function JmolScriptGenerator()
 			var posStr = "";
 
 			if (insertion != null &&
-				insertion.length > 0)
+			    insertion.length > 0)
 			{
 				posStr += "^" + insertion;
 			}
@@ -2240,12 +2242,12 @@ function JmolScriptGenerator()
 		};
 
 		var posStr = position.start.pdbPos +
-			insertionStr(position.start.insertion);
+		             insertionStr(position.start.insertion);
 
 		if (position.end.pdbPos > position.start.pdbPos)
 		{
 			posStr += "-" + position.end.pdbPos +
-				insertionStr(position.end.insertion);
+			          insertionStr(position.end.insertion);
 		}
 
 		return posStr;
@@ -2259,7 +2261,7 @@ function JmolScriptGenerator()
 	function selectSideChains(scriptPositions, chainId)
 	{
 		return "select ((" + scriptPositions.join(", ") + ") and :" + chainId + " and sidechain) or " +
-			"((" + scriptPositions.join(", ") + ") and :" + chainId + " and *.CA);"
+		"((" + scriptPositions.join(", ") + ") and :" + chainId + " and *.CA);"
 	}
 
 	function enableBallAndStick()
@@ -2353,7 +2355,6 @@ function JmolScriptGenerator()
 	this.cpkColor = cpkColor;
 	this.hideBoundMolecules = hideBoundMolecules;
 	this.setTransparency = setTransparency;
-	this.makeOpaque = makeOpaque;
 	this.scriptPosition = scriptPosition;
 	this.selectPositions = selectPositions;
 	this.selectSideChains = selectSideChains;
@@ -2586,7 +2587,7 @@ function MergedAlignmentSegmentor(mergedAlignment)
 			segment.type = symbol;
 
 			while (str[end] == symbol &&
-			end <= str.length)
+			       end <= str.length)
 			{
 				end++;
 			}
@@ -2596,7 +2597,7 @@ function MergedAlignmentSegmentor(mergedAlignment)
 			segment.type = "regular";
 
 			while (!isSpecialSymbol(str[end]) &&
-			end <= str.length)
+			       end <= str.length)
 			{
 				end++;
 			}
@@ -2628,6 +2629,448 @@ function MergedAlignmentSegmentor(mergedAlignment)
 		getNextSegment: getNextSegment
 	};
 }
+
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * Mol3DScriptGenerator class (extends MolScriptGenerator)
+ *
+ * Script generator for 3Dmol.js applications.
+ *
+ * @author Selcuk Onur Sumer
+ */
+function Mol3DScriptGenerator()
+{
+	// PDB URI to use to download PDB data
+	var _pdbUri = null;
+
+	// reference to the 3Dmol viewer.
+	var _viewer = null;
+
+	// latest selection
+	var _selected = null;
+
+	// latest style
+	var _style = null;
+
+	// latest color
+	var _color = null;
+
+	var _styleSpecs = {
+		ballAndStick: {stick: {}, sphere: {scale: 0.25}},
+		spaceFilling: {sphere: {scale: 0.6}},
+		cartoon: {cartoon: {}},
+		ribbon: {cartoon: {style: "ribbon"}},
+		trace: {cartoon: {style: "trace"}}
+	};
+
+	/**
+	 * Loads the pdb file for the given pdb ID.
+	 *
+	 * @param pdbId     pdb ID to load
+	 * @param callback  to be invoked after the model is loaded
+	 * @returns {string}
+	 */
+	function loadPdb(pdbId, callback)
+	{
+		// clear current content
+		_viewer.clear();
+
+		var options = {
+			doAssembly: true,
+			pdbUri: _pdbUri
+		};
+		// reload with the given pdbId
+		$3Dmol.download("pdb:" + pdbId, _viewer, options, callback);
+		return "$3Dmol";
+	}
+
+	function selectAll()
+	{
+		_selected = {};
+		return "";
+	}
+
+	function setScheme(schemeName)
+	{
+		_style = _.extend({}, _styleSpecs[schemeName]);
+		_viewer.setStyle(_selected, _style);
+		return "";
+	}
+
+	function setColor(color)
+	{
+		// save the color selection
+		_color = formatColor(color);
+
+		// update current style with color information
+		_.each(_style, function(ele) {
+			ele.color = _color;
+		});
+
+		_viewer.setStyle(_selected, _style);
+		return "";
+	}
+
+	function selectChain(chainId)
+	{
+		_selected = {chain: chainId};
+		return "";
+	}
+
+	function selectAlphaHelix(chainId)
+	{
+		_selected = {chain: chainId, ss: "h"};
+		return "";
+	}
+
+	function selectBetaSheet(chainId)
+	{
+		_selected = {chain: chainId, ss: "s"};
+		return "";
+	}
+
+	/**
+	 * Generates a position array for 3Dmol.js.
+	 *
+	 * @position object containing PDB position info
+	 * @return {Array} residue code (rescode) array for 3Dmol.js
+	 */
+	function scriptPosition(position)
+	{
+		var residues = [];
+		var start = parseInt(position.start.pdbPos);
+		var end = parseInt(position.end.pdbPos);
+
+		for (var i=start; i <= end; i++)
+		{
+			residues.push(i);
+		}
+
+		// TODO this may not be accurate if residues.length > 2
+
+		if (position.start.insertion)
+		{
+			residues[0] += "^" + position.start.insertion;
+		}
+
+		if (residues.length > 1 &&
+		    position.end.insertion)
+		{
+			residues[residues.length - 1] += "^" + position.end.insertion;
+		}
+
+		return residues;
+	}
+
+	function selectPositions(scriptPositions, chainId)
+	{
+		_selected = {rescode: scriptPositions, chain: chainId};
+		return "";
+	}
+
+	function selectSideChains(scriptPositions, chainId)
+	{
+		// TODO determine side chain atoms!
+		_selected = {
+			rescode: scriptPositions,
+			chain: chainId/*,
+			atom: ["CA"]*/
+		};
+		return "";
+	}
+
+	/**
+	 * Generates highlight script by using the converted highlight positions.
+	 *
+	 * @param scriptPositions   script positions
+	 * @param color             highlight color
+	 * @param options           visual style options
+	 * @param chain             a PdbChainModel instance
+	 * @return {Array} script lines as an array
+	 */
+	function highlightScript(scriptPositions, color, options, chain)
+	{
+		var self = this;
+		var script = [""];
+
+		// add highlight color
+		self.selectPositions(scriptPositions, chain.chainId);
+		self.setColor(color);
+
+		var displaySideChain = options.displaySideChain != "none";
+
+		// show/hide side chains
+		self.generateSideChainScript(scriptPositions, displaySideChain, options, chain);
+
+		return script;
+	}
+
+	function enableBallAndStick()
+	{
+		// extend current style with ball and stick
+		var style = _.extend({}, _style, _styleSpecs.ballAndStick);
+		// use the latest defined color
+		// (this is not the best function to set the side chain color, it should be set
+		// in a method like generateSideChainScript or generateVisualStyleScript)
+		style.sphere.color = _color;
+		style.stick.color = _color;
+		// update style of the selection
+		_viewer.setStyle(_selected, style);
+		return "";
+	}
+
+	function disableBallAndStick()
+	{
+		// looks like this method is obsolete for 3Dmol.js
+		//return "wireframe OFF; spacefill OFF;";
+		return "";
+	}
+
+	function rainbowColor(chainId)
+	{
+		_selected = {chain: chainId};
+		setColor("spectrum");
+		return "";
+	}
+
+	function cpkColor(chainId)
+	{
+		_selected = {chain: chainId};
+
+		_.each(_style, function(ele) {
+			// remove previous single color
+			delete ele.color;
+
+			// add default color scheme
+			ele.colors = $3Dmol.elementColors.defaultColors;
+		});
+
+		_viewer.setStyle(_selected, _style);
+		return "";
+	}
+
+	function formatColor(color)
+	{
+		// this is for 3Dmol.js compatibility
+		// (colors should start with an "0x" instead of "#")
+		return color.replace("#", "0x");
+	}
+
+	function setViewer(viewer)
+	{
+		_viewer = viewer;
+	}
+
+	function setPdbUri(pdbUri)
+	{
+		_pdbUri = pdbUri;
+	}
+
+	function hideBoundMolecules()
+	{
+		// since there is no built-in "restrict protein" command,
+		// we need to select all non-protein structure...
+		var selected = {
+			resn: [
+				"asp", "glu", "arg", "lys", "his", "asn", "thr", "cys", "gln", "tyr", "ser",
+				"gly", "ala", "leu", "val", "ile", "met", "trp", "phe", "pro",
+				"ASP", "GLU", "ARG", "LYS", "HIS", "ASN", "THR", "CYS", "GLN", "TYR", "SER",
+				"GLY", "ALA", "LEU", "VAL", "ILE", "MET", "TRP", "PHE", "PRO"
+			],
+			invert: true
+		};
+
+		var style = {sphere: {hidden: true}};
+		_viewer.setStyle(selected, style);
+	}
+
+	function setTransparency(transparency)
+	{
+		_.each(_style, function(ele) {
+			ele.opacity = (10 - transparency) / 10;
+		});
+
+		_viewer.setStyle(_selected, _style);
+	}
+
+	// class specific functions
+	this.setViewer = setViewer;
+	this.setPdbUri = setPdbUri;
+
+	// override required functions
+	this.loadPdb = loadPdb;
+	this.selectAll = selectAll;
+	this.setScheme = setScheme;
+	this.setColor = setColor;
+	this.selectChain = selectChain;
+	this.selectAlphaHelix = selectAlphaHelix;
+	this.selectBetaSheet = selectBetaSheet;
+	this.scriptPosition = scriptPosition;
+	this.selectPositions = selectPositions;
+	this.selectSideChains = selectSideChains;
+	this.highlightScript = highlightScript;
+	this.rainbowColor = rainbowColor;
+	this.cpkColor = cpkColor;
+	this.enableBallAndStick = enableBallAndStick;
+	this.disableBallAndStick = disableBallAndStick;
+	this.hideBoundMolecules = hideBoundMolecules;
+	this.setTransparency = setTransparency;
+}
+
+// JmolScriptGenerator extends MolScriptGenerator...
+Mol3DScriptGenerator.prototype = new MolScriptGenerator();
+Mol3DScriptGenerator.prototype.constructor = Mol3DScriptGenerator;
+
+
+/*
+ * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
+ * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
+ * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
+ * obligations to provide maintenance, support, updates, enhancements or
+ * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
+ * liable to any party for direct, indirect, special, incidental or
+ * consequential damages, including lost profits, arising out of the use of this
+ * software and its documentation, even if Memorial Sloan-Kettering Cancer
+ * Center has been advised of the possibility of such damage.
+ */
+
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * Utility class to initialize the 3D mutation visualizer with 3Dmol.js
+ *
+ * Note: This class is assumed to have the same interface
+ * (the same signature for all public functions) with the JmolWrapper.
+ *
+ * @author Selcuk Onur Sumer
+ */
+function Mol3DWrapper()
+{
+	// TODO default options
+	var defaultOpts = {};
+
+	var _options = null;
+	var _viewer = null;
+
+	/**
+	 * Initializes the visualizer.
+	 *
+	 * @param name      name of the application
+	 * @param options   app options
+	 */
+	function init(name, options)
+	{
+		_options = jQuery.extend(true, {}, defaultOpts, options);
+
+		// update wrapper reference
+		$(options.el).append("<div id='" + name + "' " +
+			"style='width: " + _options.width + "px; height: " + _options.height +
+			"px; margin: 0; padding: 0; border: 0;'></div>");
+		var wrapper = $("#" + name);
+		wrapper.hide();
+
+		var viewer = $3Dmol.createViewer(wrapper,
+			{defaultcolors: $3Dmol.elementColors.rasmol});
+		viewer.setBackgroundColor(0xffffff);
+
+		_viewer = viewer;
+	}
+
+	/**
+	 * Updates the container of the visualizer object.
+	 *
+	 * @param container container selector
+	 */
+	function updateContainer(container)
+	{
+		// move visualizer into its new container
+		if (_viewer != null)
+		{
+			_viewer.setContainer(container);
+		}
+	}
+
+	/**
+	 * Runs the given command as a script on the 3D visualizer object.
+	 *
+	 * @param command   command to send
+	 * @param callback  function to call after execution of the script
+	 */
+	function script(command, callback)
+	{
+		if (command != null &&
+		    _viewer != null)
+		{
+			// render after running the script
+			_viewer.render();
+		}
+
+		// call the callback function after script completed
+		if(_.isFunction(callback))
+		{
+			callback();
+		}
+	}
+
+	function getViewer()
+	{
+		return _viewer;
+	}
+
+	return {
+		init: init,
+		updateContainer: updateContainer,
+		getViewer: getViewer,
+		script: script
+	};
+}
+
+
 
 /*
  * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
@@ -2715,10 +3158,6 @@ function MolScriptGenerator()
 		return "";
 	};
 
-	this.makeOpaque = function() {
-		return "";
-	};
-
 	this.scriptPosition = function(position) {
 		return "";
 	};
@@ -2799,9 +3238,11 @@ function MolScriptGenerator()
 
 		script.push(self.setColor(options.defaultColor)); // set default color
 		//script.push("translucent [" + _options.defaultTranslucency + "];"); // set default opacity
+		script.push(self.setTransparency(options.defaultTranslucency));
 		script.push(self.selectChain(chain.chainId)); // select the chain
 		script.push(self.setColor(options.chainColor)); // set chain color
 		//script.push("translucent [" + _options.chainTranslucency + "];"); // set chain opacity
+		script.push(self.setTransparency(options.chainTranslucency));
 
 		// additional coloring for the selected chain
 		script.push(self.selectChain(chain.chainId));
@@ -2855,16 +3296,6 @@ function MolScriptGenerator()
 					options,
 					chain));
 		}
-
-		// TODO see if it is possible to set translucency value without specifying a color
-		// ...right now ignoring _options.defaultTranslucency and _options.chainTranslucency
-
-		// adjust structure transparency
-		script.push(self.selectAll());
-		script.push(self.setTransparency(options.defaultTranslucency));
-		//script.push("color translucent [" + _options.defaultTranslucency + "];");
-		script.push(self.selectChain(chain.chainId));
-		script.push(self.makeOpaque());
 
 		if (options.restrictProtein)
 		{
@@ -3357,34 +3788,34 @@ var MutationDetailsUtil = function(mutations)
 			numGermline: numGermline};
 	};
 
-	/**
-	 * Checks if there all mutations come from a single cancer study
-	 *
-	 * @param gene  hugo gene symbol
-	 */
-	this.cancerStudyAllTheSame = function(gene)
-	{
-		var self = this;
-		gene = gene.toUpperCase();
-		var mutations = _mutationGeneMap[gene];
+    /**
+     * Checks if there all mutations come from a single cancer study
+     *
+     * @param gene  hugo gene symbol
+     */
+    this.cancerStudyAllTheSame = function(gene)
+    {
+        var self = this;
+        gene = gene.toUpperCase();
+	    var mutations = _mutationGeneMap[gene];
 
-		if (mutations != null)
-		{
-			var prevStudy = null;
+        if (mutations != null)
+        {
+            var prevStudy = null;
 
-			for (var i=0; i < mutations.length; i++)
-			{
-				var cancerStudy = mutations[i].cancerStudy;
-				if(prevStudy == null) {
-					prevStudy = cancerStudy;
-				} else if(prevStudy != cancerStudy) {
-					return false;
-				}
-			}
-		}
+            for (var i=0; i < mutations.length; i++)
+            {
+                var cancerStudy = mutations[i].cancerStudy;
+                if(prevStudy == null) {
+                    prevStudy = cancerStudy;
+                } else if(prevStudy != cancerStudy) {
+                    return false;
+                }
+            }
+        }
 
-		return true;
-	};
+        return true;
+    };
 
 	this._contains = function(gene, matchFn)
 	{
@@ -3410,7 +3841,7 @@ var MutationDetailsUtil = function(mutations)
 		return contains;
 	};
 
-	/**
+    /**
 	 * Checks if there is a germline mutation for the given gene.
 	 *
 	 * @param gene  hugo gene symbol
@@ -3419,7 +3850,7 @@ var MutationDetailsUtil = function(mutations)
 	{
 		return this._contains(gene, function(mutation) {
 			return (mutation.mutationStatus &&
-			mutation.mutationStatus.toLowerCase() == GERMLINE);
+			        mutation.mutationStatus.toLowerCase() == GERMLINE);
 		});
 	};
 
@@ -3432,7 +3863,7 @@ var MutationDetailsUtil = function(mutations)
 	{
 		return this._contains(gene, function(mutation) {
 			return (mutation.validationStatus &&
-			mutation.validationStatus.toLowerCase() == VALID);
+			        mutation.validationStatus.toLowerCase() == VALID);
 		});
 	};
 
@@ -3445,7 +3876,7 @@ var MutationDetailsUtil = function(mutations)
 	{
 		return this._contains(gene, function(mutation) {
 			return (mutation.igvLink &&
-			mutation.igvLink != "NA");
+			        mutation.igvLink != "NA");
 		});
 	};
 
@@ -3458,7 +3889,7 @@ var MutationDetailsUtil = function(mutations)
 	{
 		return this._contains(gene, function(mutation) {
 			return (mutation.tumorFreq &&
-			mutation.tumorFreq != "NA");
+			        mutation.tumorFreq != "NA");
 		});
 	};
 
@@ -3471,8 +3902,8 @@ var MutationDetailsUtil = function(mutations)
 	{
 		return this._contains(gene, function(mutation) {
 			return (mutation.cna &&
-			mutation.cna != "NA" &&
-			mutation.cna != "unknown");
+			        mutation.cna != "NA" &&
+			        mutation.cna != "unknown");
 		});
 	};
 
@@ -3480,7 +3911,7 @@ var MutationDetailsUtil = function(mutations)
 	{
 		return this._contains(gene, function(mutation) {
 			return (mutation.caseId &&
-			mutation.caseId != "NA");
+			        mutation.caseId != "NA");
 		});
 	};
 
@@ -3488,7 +3919,7 @@ var MutationDetailsUtil = function(mutations)
 	{
 		return this._contains(gene, function(mutation) {
 			return (mutation.chr &&
-			mutation.chr != "NA");
+			        mutation.chr != "NA");
 		});
 	};
 
@@ -3496,7 +3927,7 @@ var MutationDetailsUtil = function(mutations)
 	{
 		return this._contains(gene, function(mutation) {
 			return (mutation.startPos &&
-			mutation.startPos > 0);
+			        mutation.startPos > 0);
 		});
 	};
 
@@ -3504,7 +3935,7 @@ var MutationDetailsUtil = function(mutations)
 	{
 		return this._contains(gene, function(mutation) {
 			return (mutation.referenceAllele &&
-			mutation.referenceAllele != "NA");
+			        mutation.referenceAllele != "NA");
 		});
 	};
 
@@ -3512,7 +3943,7 @@ var MutationDetailsUtil = function(mutations)
 	{
 		return this._contains(gene, function(mutation) {
 			return (mutation.variantAllele &&
-			mutation.variantAllele != "NA");
+			        mutation.variantAllele != "NA");
 		});
 	};
 
@@ -3520,7 +3951,7 @@ var MutationDetailsUtil = function(mutations)
 	{
 		return this._contains(gene, function(mutation) {
 			return (mutation.endPos &&
-			mutation.endPos > 0);
+			        mutation.endPos > 0);
 		});
 	};
 
@@ -3528,7 +3959,7 @@ var MutationDetailsUtil = function(mutations)
 	{
 		return this._contains(gene, function(mutation) {
 			return (mutation.functionalImpactScore &&
-			mutation.functionalImpactScore != "NA");
+			        mutation.functionalImpactScore != "NA");
 		});
 	};
 
@@ -3536,8 +3967,8 @@ var MutationDetailsUtil = function(mutations)
 	{
 		return this._contains(gene, function(mutation) {
 			return (mutation.cosmic &&
-			mutation.cosmicCount &&
-			mutation.cosmicCount > 0);
+			        mutation.cosmicCount &&
+					mutation.cosmicCount > 0);
 		});
 	};
 
@@ -3545,7 +3976,7 @@ var MutationDetailsUtil = function(mutations)
 	{
 		return this._contains(gene, function(mutation) {
 			return (mutation.mutationType &&
-			mutation.mutationType != "NA");
+			        mutation.mutationType != "NA");
 		});
 	};
 
@@ -3553,7 +3984,7 @@ var MutationDetailsUtil = function(mutations)
 	{
 		return this._contains(gene, function(mutation) {
 			return (mutation.mutationCount &&
-			mutation.mutationCount > 0);
+			        mutation.mutationCount > 0);
 		});
 	};
 
@@ -3561,7 +3992,7 @@ var MutationDetailsUtil = function(mutations)
 	{
 		return this._contains(gene, function(mutation) {
 			return (mutation.keyword &&
-			mutation.keyword != "NA");
+			        mutation.keyword != "NA");
 		});
 	};
 
@@ -3569,7 +4000,7 @@ var MutationDetailsUtil = function(mutations)
 	{
 		return this._contains(gene, function(mutation) {
 			return (mutation.mutationEventId &&
-			mutation.mutationEventId != "NA");
+			        mutation.mutationEventId != "NA");
 		});
 	};
 
@@ -3623,7 +4054,7 @@ var MutationDetailsUtil = function(mutations)
 				var value = mutations[i][dataField];
 
 				if (value &&
-					!_.contains(excludeList, value))
+				    !_.contains(excludeList, value))
 				{
 					if (valueCountMap[value] === undefined)
 					{
@@ -3929,7 +4360,7 @@ function MutationInputParser ()
 
 			_.each(_data, function(mutation, idx) {
 				if (mutation.caseId != null &&
-					mutation.caseId.length > 0)
+				    mutation.caseId.length > 0)
 				{
 					sampleSet[mutation.caseId] = mutation.caseId;
 				}
@@ -3954,7 +4385,7 @@ function MutationInputParser ()
 
 			_.each(_data, function(mutation, idx) {
 				if (mutation.geneSymbol != null &&
-					mutation.geneSymbol.length > 0)
+				    mutation.geneSymbol.length > 0)
 				{
 					geneSet[mutation.geneSymbol.toUpperCase()] =
 						mutation.geneSymbol.toUpperCase();
@@ -3969,7 +4400,7 @@ function MutationInputParser ()
 
 	function nextId()
 	{
-		_idCounter++;
+	    _idCounter++;
 
 		return "stalone_mut_" + _idCounter;
 	}
@@ -4182,7 +4613,7 @@ var PdbDataUtil = (function()
 			var mol = pdbInfo.compound[key];
 
 			if (mol.molecule &&
-				_.indexOf(mol.chain, chainId.toLowerCase()) != -1)
+			    _.indexOf(mol.chain, chainId.toLowerCase()) != -1)
 			{
 				// chain is associated with this mol,
 				// get the organism info from the source
@@ -4213,12 +4644,12 @@ var PdbDataUtil = (function()
 			var mol = pdbInfo.compound[key];
 
 			if (_.indexOf(mol.chain, chainId.toLowerCase()) != -1 &&
-				pdbInfo.source[mol.mol_id] != null)
+			    pdbInfo.source[mol.mol_id] != null)
 			{
 				// chain is associated with this mol,
 				// get the organism info from the source
 				organism = pdbInfo.source[mol.mol_id].organism_scientific ||
-					organism;
+				           organism;
 
 				break;
 			}
@@ -4305,7 +4736,7 @@ var PdbDataUtil = (function()
 				if (overlap[0] != overlap[1])
 				{
 					console.log("[warning] alignment mismatch: " +
-						prev.alignmentId + " & " + alignment.alignmentId);
+					            prev.alignmentId + " & " + alignment.alignmentId);
 					console.log(overlap[0]);
 					console.log(overlap[1]);
 				}
@@ -4351,21 +4782,21 @@ var PdbDataUtil = (function()
 
 		// skip fusions or invalid locations
 		if (location == null ||
-			type == "fusion")
+		    type == "fusion")
 		{
 			return pdbMatch;
 		}
 
 		// iterate all chains to find the first matching position
 		for (var i=0;
-			 i < rowData.length && !pdbMatch;
-			 i++)
+		     i < rowData.length && !pdbMatch;
+		     i++)
 		{
 			var allocation = rowData[i];
 
 			for (var j=0;
-				 j < allocation.length && !pdbMatch;
-				 j++)
+			     j < allocation.length && !pdbMatch;
+			     j++)
 			{
 				var datum = allocation[j];
 
@@ -4373,7 +4804,7 @@ var PdbDataUtil = (function()
 
 				// use merged alignment to see if there is a match
 				var rangeWithin = location >= alignment.uniprotFrom &&
-					location <= alignment.uniprotTo;
+				                  location <= alignment.uniprotTo;
 
 				// check for match condition
 				if (rangeWithin && alignmentMatch(alignment, location))
@@ -4548,7 +4979,7 @@ var PdbDataUtil = (function()
 		{
 			rows[0].sort(function(a, b){
 				return (b.chain.mergedAlignment.mergedString.length -
-				a.chain.mergedAlignment.mergedString.length);
+				        a.chain.mergedAlignment.mergedString.length);
 			});
 		}
 
@@ -4568,7 +4999,7 @@ var PdbDataUtil = (function()
 		var overlap = true;
 
 		if (chain1.mergedAlignment.uniprotFrom >= chain2.mergedAlignment.uniprotTo ||
-			chain2.mergedAlignment.uniprotFrom >= chain1.mergedAlignment.uniprotTo)
+		    chain2.mergedAlignment.uniprotFrom >= chain1.mergedAlignment.uniprotTo)
 		{
 			// no conflict
 			overlap = false;
@@ -4624,8 +5055,8 @@ var PdbDataUtil = (function()
 
 			// continue to compare until the result is different than zero
 			for (var i=0;
-				 i < comparators.length && result == 0;
-				 i++)
+			     i < comparators.length && result == 0;
+			     i++)
 			{
 				var fn = comparators[i];
 				result = fn(a, b);
@@ -4644,21 +5075,21 @@ var PdbDataUtil = (function()
 	{
 		// higher value should comes first
 		return (b.chain.mergedAlignment.identity -
-		a.chain.mergedAlignment.identity);
+		        a.chain.mergedAlignment.identity);
 	}
 
 	function compareIdentityPerc(a, b)
 	{
 		// higher value should comes first
 		return (b.chain.mergedAlignment.identityPerc -
-		a.chain.mergedAlignment.identityPerc);
+		        a.chain.mergedAlignment.identityPerc);
 	}
 
 	function compareMergedLength(a, b)
 	{
 		// longer string should comes first in the sorted array
 		return (b.chain.mergedAlignment.mergedString.length -
-		a.chain.mergedAlignment.mergedString.length);
+		        a.chain.mergedAlignment.mergedString.length);
 	}
 
 	function comparePdbId(a, b)
@@ -4693,14 +5124,14 @@ var PdbDataUtil = (function()
 	{
 		// lower e value should comes first in the sorted array
 		return (getMinValue(a.chain.alignments, "eValue") -
-		getMinValue(b.chain.alignments, "eValue"));
+		        getMinValue(b.chain.alignments, "eValue"));
 	}
 
 	function compareIdentP(a, b)
 	{
 		// higher percentage should comes first in the sorted array
 		return (getMinValue(b.chain.alignments, "identityPerc") -
-		getMinValue(a.chain.alignments, "identityPerc"));
+		        getMinValue(a.chain.alignments, "identityPerc"));
 	}
 
 	/**
@@ -4868,14 +5299,9 @@ function PymolScriptGenerator()
 		// TODO cartoon_transparency doesn't work for chain or residue selections
 		// see issue:  http://sourceforge.net/p/pymol/bugs/129/
 		return ("set transparency, " + (transparency / 10) + ", sele;\n" +
-		"set cartoon_transparency, " + (transparency / 10) + ", sele;\n" +
-		"set sphere_transparency, " + (transparency / 10) + ", sele;\n" +
-		"set stick_transparency, " + (transparency / 10) + ", sele;");
-	}
-
-	function makeOpaque()
-	{
-		return setTransparency(0);
+		        "set cartoon_transparency, " + (transparency / 10) + ", sele;\n" +
+		        "set sphere_transparency, " + (transparency / 10) + ", sele;\n" +
+		        "set stick_transparency, " + (transparency / 10) + ", sele;");
 	}
 
 	function enableBallAndStick()
@@ -4902,7 +5328,7 @@ function PymolScriptGenerator()
 	{
 		// restrict to protein only
 		return "hide everything," +
-			"not resn asp+glu+arg+lys+his+asn+thr+cys+gln+tyr+ser+gly+ala+leu+val+ile+met+trp+phe+pro";
+		       "not resn asp+glu+arg+lys+his+asn+thr+cys+gln+tyr+ser+gly+ala+leu+val+ile+met+trp+phe+pro";
 	}
 
 	function formatColor(color)
@@ -4923,7 +5349,6 @@ function PymolScriptGenerator()
 	this.cpkColor = cpkColor;
 	this.hideBoundMolecules = hideBoundMolecules;
 	this.setTransparency = setTransparency;
-	this.makeOpaque = makeOpaque;
 	this.selectPositions = selectPositions;
 	this.selectSideChains = selectSideChains;
 	this.enableBallAndStick = enableBallAndStick;
@@ -4978,16 +5403,16 @@ PymolScriptGenerator.prototype.constructor = PymolScriptGenerator;
 var MutationModel = Backbone.Model.extend({
 	initialize: function(attributes) {
 		this.mutationId = attributes.mutationId;
-		this.mutationSid = attributes.mutationSid;
+        this.mutationSid = attributes.mutationSid;
 		this.geneticProfileId = attributes.geneticProfileId;
 		this.mutationEventId = attributes.mutationEventId;
 		this.caseId = attributes.caseId;
 		this.geneSymbol = attributes.geneSymbol;
 		this.linkToPatientView = attributes.linkToPatientView;
-		this.cancerType = attributes.cancerType;
-		this.cancerStudy = attributes.cancerStudy;
-		this.cancerStudyShort = attributes.cancerStudyShort;
-		this.cancerStudyLink = attributes.cancerStudyLink;
+        this.cancerType = attributes.cancerType;
+        this.cancerStudy = attributes.cancerStudy;
+        this.cancerStudyShort = attributes.cancerStudyShort;
+        this.cancerStudyLink = attributes.cancerStudyLink;
 		this.tumorType = attributes.tumorType;
 		this.proteinChange = attributes.proteinChange;
 		this.aminoAcidChange = attributes.aminoAcidChange;
@@ -5049,9 +5474,9 @@ var MutationModel = Backbone.Model.extend({
 
 		// if not valid, then try protein change value
 		if (position == null ||
-			position.length == 0 ||
-			position == "NA" ||
-			position < 0)
+		    position.length == 0 ||
+		    position == "NA" ||
+		    position < 0)
 		{
 			position = this.getProteinChangeLocation();
 		}
@@ -5388,9 +5813,9 @@ var CosmicTipView = Backbone.View.extend({
 			"sDom": 'pt', // show the table and the pagination buttons
 			"aoColumnDefs": [
 				{"mRender": function ( data, type, full ) {
-					// TODO move this link into the template
-					return '<a href="http://cancer.sanger.ac.uk/cosmic/mutation/overview?id='+data+'">'+data+'</a>';
-				}, "aTargets": [0]},
+						// TODO move this link into the template
+                        return '<a href="http://cancer.sanger.ac.uk/cosmic/mutation/overview?id='+data+'">'+data+'</a>';
+                    }, "aTargets": [0]},
 				{"sType": "aa-change-col", "sClass": "left-align-td", "aTargets": [1]},
 				{"sType": "numeric", "sClass": "left-align-td", "aTargets": [2]}],
 			"bDestroy": false,
@@ -5404,8 +5829,8 @@ var CosmicTipView = Backbone.View.extend({
 		// TODO create a backbone template for the cosmic table row
 		// COSMIC data (as AA change & frequency pairs)
 		cosmic.forEach(function(c) {
-			dataRows.push(c[0]+"</td><td>"+c[1]+"</td><td>"+c[2]);
-		});
+                        dataRows.push(c[0]+"</td><td>"+c[1]+"</td><td>"+c[2]);
+                    });
 
 		return "<tr><td>" + dataRows.join("</td></tr><tr><td>") + "</td></tr>";
 	},
@@ -5462,15 +5887,15 @@ var LollipopTipStatsView = Backbone.View.extend({
 	{
 
 	},
-	render: function()
-	{
-		var templateFn = BackboneTemplateCache.getTemplateFn("mutation_details_lollipop_tip_stats_template");
-		var thatEl = this.$el.find("table tbody");
-		_.each(this.model, function(statItem) {
-			thatEl.append(templateFn(statItem));
-		});
-		return this;
-	}
+    render: function()
+    {
+        var templateFn = BackboneTemplateCache.getTemplateFn("mutation_details_lollipop_tip_stats_template");
+        var thatEl = this.$el.find("table tbody");
+        _.each(this.model, function(statItem) {
+            thatEl.append(templateFn(statItem));
+        });
+        return this;
+    }
 });
 
 /*
@@ -5528,48 +5953,48 @@ var LollipopTipView = Backbone.View.extend({
 		// implement if necessary...
 	},
 
-	showStats: false,
-	setShowStats: function(showStats) {
-		this.showStats = showStats;
-	},
-	getShowStats: function(showStats) {
-		return this.showStats;
-	},
+    showStats: false,
+    setShowStats: function(showStats) {
+        this.showStats = showStats;
+    },
+    getShowStats: function(showStats) {
+        return this.showStats;
+    },
 
-	compileTemplate: function()
+    compileTemplate: function()
 	{
-		var thatModel = this.model;
-		var mutationStr = thatModel.count > 1 ? "mutations" : "mutation";
+        var thatModel = this.model;
+        var mutationStr = thatModel.count > 1 ? "mutations" : "mutation";
 
 		// pass variables in using Underscore.js template
 		var variables = {count: thatModel.count,
 			mutationStr: mutationStr,
 			label: thatModel.label
-		};
+        };
 
 		// compile the template using underscore
 		var templateFn = BackboneTemplateCache.getTemplateFn("mutation_details_lollipop_tip_template");
-		var compiledEl = $(templateFn(variables));
+        var compiledEl = $(templateFn(variables));
 
-		var statsEl = compiledEl.find(".lollipop-stats");
-		if(this.showStats)
-		{
-			(new LollipopTipStatsView({ el: statsEl, model: thatModel.stats })).render();
-			statsEl.find("table").dataTable({
-				"sDom": 't',
-				"bJQueryUI": true,
-				"bDestroy": true,
-				"aaSorting": [[ 1, "desc" ]],
-				"aoColumns": [
-					{ "bSortable": false },
-					{ "bSortable": false }
-				]
-			});
-		} else {
-			statsEl.hide();
-		}
+        var statsEl = compiledEl.find(".lollipop-stats");
+        if(this.showStats)
+        {
+            (new LollipopTipStatsView({ el: statsEl, model: thatModel.stats })).render();
+            statsEl.find("table").dataTable({
+                "sDom": 't',
+                "bJQueryUI": true,
+                "bDestroy": true,
+                "aaSorting": [[ 1, "desc" ]],
+                "aoColumns": [
+                    { "bSortable": false },
+                    { "bSortable": false }
+                ]
+            });
+        } else {
+            statsEl.hide();
+        }
 
-		return compiledEl.html();
+        return compiledEl.html();
 	}
 });
 
@@ -5670,7 +6095,7 @@ var MainMutationView = Backbone.View.extend({
 
 		// draw mutation diagram
 		var diagramView = self._initMutationDiagramView(
-			gene, mutationData, sequence, dataProxies, diagramOpts);
+				gene, mutationData, sequence, dataProxies, diagramOpts);
 
 		var diagram = diagramView.mutationDiagram;
 
@@ -6071,7 +6496,7 @@ var Mutation3dVisInfoView = Backbone.View.extend({
 
 		// if no info provided, then hide the corresponding span
 		if (pdbInfo == null ||
-			pdbInfo.length == 0)
+		    pdbInfo.length == 0)
 		{
 			self.$el.find(".mutation-3d-pdb-info").hide();
 		}
@@ -6082,7 +6507,7 @@ var Mutation3dVisInfoView = Backbone.View.extend({
 		}
 
 		if (molInfo == null ||
-			molInfo.length == 0)
+		    molInfo.length == 0)
 		{
 			self.$el.find(".mutation-3d-mol-info").hide();
 		}
@@ -6200,7 +6625,12 @@ var Mutation3dVisView = Backbone.View.extend({
 		self.hideNoMapWarning();
 
 		// initially hide the help content
-		self.$el.find(".mutation-3d-vis-help-content").hide();
+		var helpContent = self.$el.find(".mutation-3d-vis-help-content");
+
+		// TODO use the self.options.viewer object to determine which content to display!
+		var helpTemplateFn = BackboneTemplateCache.getTemplateFn("3Dmol_basic_interaction");
+		helpContent.html(helpTemplateFn({}));
+		helpContent.hide();
 
 		// update the container of 3d visualizer
 		if (mut3dVis != null)
@@ -6362,7 +6792,7 @@ var Mutation3dVisView = Backbone.View.extend({
 
 			var script = mut3dVis.generatePymolScript();
 			var filename = self.$el.find(".mutation-3d-pdb-id").text().trim() + "_" +
-				self.$el.find(".mutation-3d-chain-id").text().trim() + ".pml";
+			               self.$el.find(".mutation-3d-chain-id").text().trim() + ".pml";
 
 			var downloadOpts = {
 				filename: filename,
@@ -6519,29 +6949,32 @@ var Mutation3dVisView = Backbone.View.extend({
 			// re-enable every color selection for protein
 			colorMenu.find("option").removeAttr("disabled");
 
-			var toDisable = null;
+			var toDisable = [];
 
 			// find the option to disable
 			if (selectedScheme == "spaceFilling")
 			{
 				// disable color by secondary structure option
-				toDisable = colorMenu.find("option[value='bySecondaryStructure']");
+				toDisable.push(colorMenu.find("option[value='bySecondaryStructure']"));
+				toDisable.push(colorMenu.find("option[value='byChain']"));
 			}
 			else
 			{
 				// disable color by atom type option
-				toDisable = colorMenu.find("option[value='byAtomType']");
+				toDisable.push(colorMenu.find("option[value='byAtomType']"));
 			}
 
-			// if the option to disable is currently selected, select the default option
-			if (toDisable.is(":selected"))
-			{
-				toDisable.removeAttr("selected");
-				colorMenu.find("option[value='uniform']").attr("selected", "selected");
-				selectedColor = "uniform";
-			}
+			_.each(toDisable, function(ele, idx) {
+				// if the option to disable is currently selected, select the default option
+				if (ele.is(":selected"))
+				{
+					ele.removeAttr("selected");
+					colorMenu.find("option[value='uniform']").attr("selected", "selected");
+					selectedColor = "uniform";
+				}
 
-			toDisable.attr("disabled", "disabled");
+				ele.attr("disabled", "disabled");
+			});
 
 			if (mut3dVis)
 			{
@@ -6570,8 +7003,6 @@ var Mutation3dVisView = Backbone.View.extend({
 		var self = this;
 		var zoomSlider = self.$el.find(".mutation-3d-zoom-slider");
 		var mut3dVis = self.options.mut3dVis;
-
-		// TODO make slider values customizable?
 
 		// helper function to transform slider value into an actual zoom value
 		var transformValue = function (value)
@@ -6705,7 +7136,7 @@ var Mutation3dVisView = Backbone.View.extend({
 		// do not reload (just refresh) if no pdb id or chain is provided,
 		// or the provided chain and the previous chain are the same
 		if ((pdbId == null && chain == null) ||
-			(pdbId == self.pdbId && chain == self.chain))
+		    (pdbId == self.pdbId && chain == self.chain))
 		{
 			// just refresh
 			var mapped = mut3dVis.refresh();
@@ -7150,8 +7581,8 @@ var MutationCustomizePanelView = Backbone.View.extend({
 
 				// not a valid value, update with defaults
 				if (isNaN(input) ||
-					input > maxValY ||
-					input < 2)
+				    input > maxValY ||
+				    input < 2)
 				{
 					yAxisInput.val(diagram.getMaxY());
 				}
@@ -7324,8 +7755,8 @@ var MutationDetailsTableView = Backbone.View.extend({
 		for (var i = 0; i < mutations.length; i++)
 		{
 			//var row = tableSelector.find("#" + mutations[i].mutationId);
-			var row = tableSelector.find("tr." + mutations[i].mutationSid);
-			row.addClass("mutation-table-highlight");
+            var row = tableSelector.find("tr." + mutations[i].mutationSid);
+            row.addClass("mutation-table-highlight");
 		}
 	},
 	/**
@@ -7370,13 +7801,13 @@ var MutationDetailsTableView = Backbone.View.extend({
 		}
 
 		// disable event triggering before filtering, otherwise it creates a chain reaction
-		self.tableUtil.setEventActive(false);
+		self.tableUtil.setFilterEventActive(false);
 
 		// apply filter
 		self._applyFilter(oTable, regex, asRegex, updateBox, limit);
 
 		// enable events after filtering
-		self.tableUtil.setEventActive(true);
+		self.tableUtil.setFilterEventActive(true);
 	},
 	/**
 	 * Resets all table filters (rolls back to initial state)
@@ -7400,14 +7831,14 @@ var MutationDetailsTableView = Backbone.View.extend({
 		var oTable = self.tableUtil.getDataTable();
 
 		// disable event triggering before filtering, otherwise it creates a chain reaction
-		self.tableUtil.setEventActive(false);
+		self.tableUtil.setFilterEventActive(false);
 
 		// re-apply last manual filter string
 		var searchStr = self.tableUtil.getManualSearch();
 		self._applyFilter(oTable, searchStr, false);
 
 		// enable events after filtering
-		self.tableUtil.setEventActive(true);
+		self.tableUtil.setFilterEventActive(true);
 	},
 	/**
 	 * Filters the given data table with the provided filter string.
@@ -7557,8 +7988,8 @@ var MutationDetailsView = Backbone.View.extend({
 //		var mainContent = self.$el.find(".mutation-details-content");
 //		mainContent.tabs("refresh");
 
-		// just trigger the window resize event,
-		// rest is handled by the resize handler in ui.tabs.paging plugin.
+        // just trigger the window resize event,
+        // rest is handled by the resize handler in ui.tabs.paging plugin.
 		// it would be better to directly call the resize handler of the plugin,
 		// but the function doesn't have public access...
 		$(window).trigger('resize');
@@ -7580,9 +8011,9 @@ var MutationDetailsView = Backbone.View.extend({
 			var templateFn = BackboneTemplateCache.getTemplateFn("default_mutation_details_main_content_template");
 
 			mainContent += templateFn(
-				{loaderImage: "images/ajax-loader.gif",
-					geneSymbol: gene,
-					geneId: cbio.util.safeProperty(gene)});
+					{loaderImage: "images/ajax-loader.gif",
+						geneSymbol: gene,
+						geneId: cbio.util.safeProperty(gene)});
 
 			templateFn = BackboneTemplateCache.getTemplateFn("default_mutation_details_list_content_template");
 
@@ -7732,7 +8163,7 @@ var MutationDiagramView = Backbone.View.extend({
 		{
 			// init diagram toolbar
 			self._initToolbar(self.mutationDiagram,
-				self.model.geneSymbol);
+			                  self.model.geneSymbol);
 		}
 	},
 	/**
@@ -7758,7 +8189,7 @@ var MutationDiagramView = Backbone.View.extend({
 		// do not draw the diagram if there is a critical error with
 		// the sequence data
 		if (sequenceData["length"] == "" ||
-			parseInt(sequenceData["length"]) <= 0)
+		    parseInt(sequenceData["length"]) <= 0)
 		{
 			// return null to indicate an error
 			return null;
@@ -7783,7 +8214,7 @@ var MutationDiagramView = Backbone.View.extend({
 		{
 			// TODO use PfamDataProxy instance!!
 			$.getJSON("getPfamSequence.json",
-				{geneSymbol: self.geneSymbol},
+			{geneSymbol: self.geneSymbol},
 				function(data) {
 					if (data)
 					{
@@ -7791,7 +8222,7 @@ var MutationDiagramView = Backbone.View.extend({
 					}
 
 					mutationDiagram.initDiagram();
-				});
+			});
 		}
 		// if data is already there just init the diagram
 		else
@@ -8105,10 +8536,10 @@ var PancanMutationHistTipView = Backbone.View.extend({
 
 		// init the histogram
 		var histogram = PancanMutationHistogram(byProteinPosData,
-			byHugoData,
-			metaData,
-			container[0],
-			{this_cancer_study: cancerStudy});
+		                                        byHugoData,
+		                                        metaData,
+		                                        container[0],
+		                                        {this_cancer_study: cancerStudy});
 
 		// update the overall count text
 		self.$el.find(".overall-count").html(histogram.overallCountText());
@@ -8212,13 +8643,13 @@ var PdbChainTipView = Backbone.View.extend({
 		// TODO this can be implemented in a better way
 
 		if (pdbInfo != null ||
-			pdbInfo.length > 0)
+		    pdbInfo.length > 0)
 		{
 			variables.pdbInfo = ": " + pdbInfo;
 		}
 
 		if (molInfo != null ||
-			molInfo.length > 0)
+		    molInfo.length > 0)
 		{
 			variables.molInfo = ": " + molInfo;
 		}
@@ -8548,7 +8979,7 @@ var PdbPanelView = Backbone.View.extend({
 
 		// TODO make scroll parameters customizable?
 		container.scrollTo($(".pdb-selection-rectangle-group"),
-			{axis: 'y', duration: 800, offset: -150});
+		                   {axis: 'y', duration: 800, offset: -150});
 	},
 	clearTimers: function()
 	{
@@ -8721,7 +9152,7 @@ var PdbTableView = Backbone.View.extend({
 
 		// TODO make scroll parameters customizable?
 		container.scrollTo($(selected),
-			{axis: 'y', duration: 800});
+		                   {axis: 'y', duration: 800});
 	},
 	/**
 	 * Initializes the PDB chain table.
@@ -9164,8 +9595,8 @@ function MutationAlignerDataProxy(options)
 
 			// retrieve data from the servlet
 			$.getJSON(_options.servletName,
-				servletParams,
-				processData);
+			          servletParams,
+			          processData);
 		}
 		else
 		{
@@ -9307,7 +9738,7 @@ function MutationDataProxy(options)
 			var data = mutationMap[gene];
 
 			if (data == undefined ||
-				data.length == 0)
+			    data.length == 0)
 			{
 				// mutation data does not exist for this gene, add it to the list
 				genesToQuery.push(gene);
@@ -9542,14 +9973,14 @@ function PancanMutationDataProxy(options)
 		var toQuery = getQueryContent(data);
 
 		if (toQuery.length > 0 &&
-			!self.isFullInit())
+		    !self.isFullInit())
 		{
 			// retrieve missing data from the servlet
 			$.getJSON(_options.servletName,
-				{cmd: cmd, q: toQuery.join(",")},
-				function(response) {
-					processData(response, data, cache, fields, callback);
-				}
+			          {cmd: cmd, q: toQuery.join(",")},
+			          function(response) {
+				          processData(response, data, cache, fields, callback);
+			          }
 			);
 		}
 		// everything is already cached (or full init)
@@ -9790,15 +10221,15 @@ function PdbDataProxy(options)
 		// only add positions which fall between chain start & end positions
 		_.each(positions, function(ele, i) {
 			if (ele.start > -1 &&
-				ele.start >= chain.mergedAlignment.uniprotFrom &&
-				ele.start <= chain.mergedAlignment.uniprotTo)
+			    ele.start >= chain.mergedAlignment.uniprotFrom &&
+			    ele.start <= chain.mergedAlignment.uniprotTo)
 			{
 				positionObj[ele.start] = ele.start;
 			}
 
 			if (ele.end > ele.start &&
-				ele.end >= chain.mergedAlignment.uniprotFrom &&
-				ele.end <= chain.mergedAlignment.uniprotTo)
+			    ele.end >= chain.mergedAlignment.uniprotFrom &&
+			    ele.end <= chain.mergedAlignment.uniprotTo)
 			{
 				positionObj[ele.end] = ele.end;
 			}
@@ -9844,10 +10275,10 @@ function PdbDataProxy(options)
 					// if no start and end position found for this mutation,
 					// then it means this mutation position is not in this chain
 					if (start != null &&
-						end != null)
+					    end != null)
 					{
 						positionMap[mutations[i].mutationId] =
-						{start: start, end: end};
+							{start: start, end: end};
 					}
 				}
 			}
@@ -9868,9 +10299,9 @@ function PdbDataProxy(options)
 		{
 			// get pdb data for the current mutations
 			$.getJSON(_options.servletName,
-				{positions: positionData.join(" "),
-					alignments: alignmentData.join(" ")},
-				processData);
+		          {positions: positionData.join(" "),
+			          alignments: alignmentData.join(" ")},
+		          processData);
 		}
 		// no position data: no need to query the server
 		else
@@ -9931,8 +10362,8 @@ function PdbDataProxy(options)
 
 			// retrieve data from the servlet
 			$.getJSON(_options.servletName,
-				{uniprotId: uniprotId},
-				processData);
+					{uniprotId: uniprotId},
+					processData);
 		}
 		else
 		{
@@ -9955,7 +10386,7 @@ function PdbDataProxy(options)
 	{
 		// retrieve data if not cached yet
 		if (!self.isFullInit() &&
-			_pdbRowDataCache[uniprotId] == undefined)
+		    _pdbRowDataCache[uniprotId] == undefined)
 		{
 			getPdbData(uniprotId, function(pdbColl) {
 				// get the data & cache
@@ -9997,8 +10428,8 @@ function PdbDataProxy(options)
 
 			// retrieve data from the servlet
 			$.getJSON(_options.servletName,
-				{uniprotId: uniprotId, type: "summary"},
-				processData);
+					{uniprotId: uniprotId, type: "summary"},
+					processData);
 		}
 		else
 		{
@@ -10049,7 +10480,7 @@ function PdbDataProxy(options)
 			var data = _pdbInfoCache[pdbId];
 
 			if (data == undefined ||
-				data.length == 0)
+			    data.length == 0)
 			{
 				// data does not exist for this pdb, add it to the list
 				pdbToQuery.push(pdbId);
@@ -10220,8 +10651,8 @@ function PfamDataProxy(options)
 
 			// retrieve data from the servlet
 			$.getJSON(_options.servletName,
-				servletParams,
-				processData);
+			          servletParams,
+			          processData);
 		}
 		else
 		{
@@ -10355,8 +10786,8 @@ function PortalDataProxy(options)
 		{
 			// retrieve data from the servlet
 			$.getJSON(_options.servletName,
-				queryParams,
-				processData);
+			          queryParams,
+			          processData);
 		}
 	}
 
@@ -10588,7 +11019,7 @@ function AdvancedDataTable(options)
 	 * @return {object}     DataTable options
 	 */
 	self._initDataTableOpts = function(tableSelector, rows, columnOpts, nameMap,
-									   indexMap, hiddenCols, excludedCols, nonSearchableCols)
+		indexMap, hiddenCols, excludedCols, nonSearchableCols)
 	{
 		// method body should be overridden by subclasses
 		return null;
@@ -10608,7 +11039,7 @@ function AdvancedDataTable(options)
 	 * @return {object}     DataTable instance
 	 */
 	self._initDataTable = function(tableSelector, rows, columnOpts, nameMap,
-								   indexMap, hiddenCols, excludedCols, nonSearchableCols)
+		indexMap, hiddenCols, excludedCols, nonSearchableCols)
 	{
 		var tableOpts = self._initDataTableOpts(tableSelector, rows, columnOpts, nameMap,
 			indexMap, hiddenCols, excludedCols, nonSearchableCols);
@@ -10801,6 +11232,7 @@ function Mutation3dVis(name, options)
 			debug: false,
 			color: "white"
 		},
+		pdbUri: "http://www.rcsb.org/pdb/files/", // default PDB database URI
 		frame: "jsmol_frame.html",  // default JSmol frame target
 		proteinScheme: "cartoon", // default style of the protein structure
 		restrictProtein: false, // restrict to protein only (hide other atoms)
@@ -10814,19 +11246,19 @@ function Mutation3dVis(name, options)
 		chainColor: "#888888", // color of the selected chain
 		chainTranslucency: 0, // translucency (opacity) of the selected chain
 		colorProteins: "uniform", // "uniform": single color, effective for all schemes
-								  // "bySecondaryStructure": not effective for space-filling scheme
-								  // "byAtomType": effective only for space-filling scheme
-								  // "byChain": not effective for space-filling scheme
+		                          // "bySecondaryStructure": not effective for space-filling scheme
+		                          // "byAtomType": effective only for space-filling scheme
+		                          // "byChain": not effective for space-filling scheme
 		colorMutations: "byMutationType", // "byMutationType": use mutation colors for type
-										  // "uniform": use a single color
-										  // "none": do not color (use default atom colors)
+		                                  // "uniform": use a single color
+		                                  // "none": do not color (use default atom colors)
 		mutationColor: "#8A2BE2",  // uniform color of the mutated residues
 		highlightColor: "#FFDD00", // color of the user-selected mutations
 		highlightGradient: ["#FFDD00", "#000000"], // gradient highlight colors used for glow effect
 		addGlowEffect: false, // whether to add glow effect to highlighted mutations
 		displaySideChain: "highlighted", // highlighted: display side chain for only selected mutations
-										 // all: display side chain for all mapped mutations
-										 // none: do not display side chain atoms
+		                                 // all: display side chain for all mapped mutations
+		                                 // none: do not display side chain atoms
 		defaultZoom: 100, // default (unfocused) zoom level
 		focusZoom: 250, // focused zoom level
 		containerPadding: 10, // padding for the vis container (this is to prevent overlapping)
@@ -10841,32 +11273,31 @@ function Mutation3dVis(name, options)
 	var _options = jQuery.extend(true, {}, defaultOpts, options);
 
 	// main script generator for the embedded visualizer
-	var _scriptGen = new JmolScriptGenerator();
+	//var _scriptGen = new JmolScriptGenerator();
+	var _scriptGen = new Mol3DScriptGenerator();
 
 	/**
 	 * Initializes the visualizer.
 	 */
 	function init()
 	{
+		// TODO make init optional (Jmol, JSmol, 3Dmol, etc.)
 		// init html5 version (Jsmol)
 		//_3dApp = new JmolWrapper(false);
 
-		if (cbio.util.browser.msie)
-		{
-			// use Java version for IE
-			_3dApp = new JmolWrapper(true);
-		}
-		else
-		{
-			// init framed JSmol version for other browsers
-			_3dApp = new JSmolWrapper();
-		}
+		// init framed JSmol version
+		//_3dApp = new JSmolWrapper();
 
 		// init app (with frames)
-		_3dApp.init(name, _options.appOptions, _options.frame);
+		//_3dApp.init(name, _options.appOptions, _options.frame);
 
 		// init app (without frames frames)
 		//_3dApp.init(name, _options.appOptions);
+
+		_3dApp = new Mol3DWrapper();
+		_3dApp.init(name, _options.appOptions);
+		_scriptGen.setViewer(_3dApp.getViewer());
+		_scriptGen.setPdbUri(_options.pdbUri);
 
 		// TODO memory leak -- eventually crashes the browser
 //		if (_options.addGlowEffect)
@@ -11064,18 +11495,38 @@ function Mutation3dVis(name, options)
 		// construct Jmol script string
 		var script = [];
 
-		script.push(_scriptGen.loadPdb(pdbId)); // load the corresponding pdb
-		script = script.concat(
-			_scriptGen.generateVisualStyleScript(_selection, _chain, _options));
+		// this callback is required for 3Dmol, since loadPdb function is async!
+		var loadCallback = function() {
+			script.push(loadPdb); // load the corresponding pdb
 
-		// TODO spin is currently disabled...
-		//script.push("spin " + _spin + ";");
+			script = script.concat(
+				_scriptGen.generateVisualStyleScript(_selection, _chain, _options));
 
-		// convert array into a string (to pass to Jmol)
-		script = script.join(" ");
+			// TODO spin is currently disabled...
+			//script.push("spin " + _spin + ";");
 
-		// run script
-		_3dApp.script(script, callback);
+			// convert array into a string (to pass to Jmol)
+			script = script.join(" ");
+
+			// run script
+			_3dApp.script(script, callback);
+
+			if (_container != null)
+			{
+				// workaround to fix the problem where canvas is initially invisible
+				$(_container).resize();
+			}
+		};
+
+		var loadPdb = _scriptGen.loadPdb(pdbId, loadCallback);
+
+		// any other script generator should return the actual script value,
+		// so this means callback function is NOT called within the script generator
+		// we need to call it explicitly
+		if (loadPdb != "$3Dmol")
+		{
+			loadCallback();
+		}
 
 		return mappedMutations;
 	}
@@ -11502,7 +11953,7 @@ function Mutation3dVis(name, options)
 		var index = 0;
 		gradient.setNumberRange(0, range - 1);
 		gradient.setSpectrum(_options.highlightGradient[0].replace("#", ""),
-			_options.highlightGradient[1].replace("#", ""));
+		                     _options.highlightGradient[1].replace("#", ""));
 
 		// convert positions to script positions
 		var scriptPositions = null;
@@ -11515,14 +11966,14 @@ function Mutation3dVis(name, options)
 			{
 				// TODO update script position each time _highlighted is updated
 				if (scriptPositions == null ||
-					scriptPositions.length != highlightCount)
+				    scriptPositions.length != highlightCount)
 				{
 					scriptPositions = _scriptGen.highlightScriptPositions(_highlighted);
 				}
 			}
 
 			if (scriptPositions != null &&
-				scriptPositions.length > 0)
+			    scriptPositions.length > 0)
 			{
 				var color = "#" + gradient.colorAt(index);
 				var script = _scriptGen.highlightScript(
@@ -12221,7 +12672,9 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 		columnTooltips: {
 			"simple": function(selector, helper) {
 				var qTipOptions = MutationViewsUtil.defaultTableTooltipOpts();
-				$(selector).find('.simple-tip').qtip(qTipOptions);
+				//$(selector).find('.simple-tip').qtip(qTipOptions);
+				cbio.util.addTargetedQTip($(selector).find('.simple-tip'), qTipOptions);
+
 				//tableSelector.find('.best_effect_transcript').qtip(qTipOptions);
 				//tableSelector.find('.cc-short-study-name').qtip(qTipOptions);
 				//$('#mutation_details .mutation_details_table td').qtip(qTipOptions);
@@ -12255,7 +12708,8 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 						cosmicView.render();
 					}};
 
-					$(label).qtip(qTipOptsCosmic);
+					//$(label).qtip(qTipOptsCosmic);
+					cbio.util.addTargetedQTip(label, qTipOptsCosmic);
 				});
 			},
 			"mutationAssessor": function(selector, helper) {
@@ -12293,7 +12747,8 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 						fisTipView.render();
 					}};
 
-					$(this).qtip(qTipOptsOma);
+					//$(this).qtip(qTipOptsOma);
+					cbio.util.addTargetedQTip(this, qTipOptsOma);
 				});
 			},
 			"cBioPortal": function(selector, helper) {
@@ -12309,7 +12764,8 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 						var mutation = mutationUtil.getMutationIdMap()[mutationId];
 						var cancerStudy = cancerStudyName || mutation.cancerStudy;
 
-						$(ele).qtip({
+						//$(ele).qtip({
+						cbio.util.addTargetedQTip(ele, {
 							content: {text: 'pancancer mutation bar chart is broken'},
 							events: {
 								render: function(event, api) {
@@ -12343,9 +12799,9 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 					portalProxy.getPortalData(
 						{cancerStudyMetaData: true, cancerStudyName: true}, function(portalData) {
 							addTooltip(additionalData.pancanFrequencies,
-								portalData.cancerStudyMetaData,
-								portalData.cancerStudyName);
-						});
+							           portalData.cancerStudyMetaData,
+							           portalData.cancerStudyName);
+					});
 				}
 			}
 		},
@@ -12374,9 +12830,9 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 					// get parameters from the server and call related igv function
 					$.getJSON(url, function(data) {
 						prepIGVLaunch(data.bamFileUrl,
-							data.encodedLocus,
-							data.referenceGenome,
-							data.trackName);
+						              data.encodedLocus,
+						              data.referenceGenome,
+						              data.trackName);
 					});
 				});
 			},
@@ -12669,8 +13125,8 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 	// custom event dispatcher
 	var _dispatcher = self._dispatcher;
 
-	// flag used to switch events on/off
-	var _eventActive = true;
+	// flag used to switch filter event on/off
+	var _filterEventActive = true;
 
 	// this is used to check if search string is changed after each redraw
 	var _prevSearch = "";
@@ -12699,7 +13155,7 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 	 * @private
 	 */
 	function initDataTableOpts(tableSelector, rows, columnOpts, nameMap,
-							   indexMap, hiddenCols, excludedCols, nonSearchableCols)
+		indexMap, hiddenCols, excludedCols, nonSearchableCols)
 	{
 		// generate column options for the data table
 		var columns = DataTableUtil.getColumnOptions(columnOpts,
@@ -12726,7 +13182,7 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 
 						// strip HTML content and use the main (visible) text only
 						if(sValue.indexOf("<") != -1 &&
-							sValue.indexOf(">") != -1)
+						   sValue.indexOf(">") != -1)
 						{
 							value = $(sValue).text();
 						}
@@ -12764,8 +13220,8 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 
 				// trigger the event only if the corresponding flag is set
 				// and there is a change in the search term
-				if (_eventActive &&
-					_prevSearch != currSearch)
+				if (_filterEventActive &&
+				    _prevSearch != currSearch)
 				{
 					// trigger corresponding event
 					_dispatcher.trigger(
@@ -12779,6 +13235,18 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 
 				// update prev search string reference for future use
 				_prevSearch = currSearch;
+
+				// trigger redraw event
+				_dispatcher.trigger(
+					MutationDetailsEvents.MUTATION_TABLE_REDRAWN,
+					tableSelector);
+
+				// TODO this may not be safe: prevent rendering of invalid links in the corresponding render function
+				// remove invalid links
+				$(tableSelector).find('a[href=""]').remove();
+
+				// remove invalid protein change tips
+				$(tableSelector).find('span.mutation-table-additional-protein-change[alt=""]').remove();
 			},
 			"fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
 				var mutation = aData[indexMap["datum"]].mutation;
@@ -12789,15 +13257,9 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 				$(nRow).addClass(mutation.mutationSid);
 				$(nRow).addClass("mutation-table-data-row");
 			},
-			"fnCreatedRow": function( nRow, aData, iDataIndex ) {
-				// TODO this may not be safe
-
-				// remove invalid links
-				$(nRow).find('a[href=""]').remove();
-
-				// remove invalid protein change tips
-				$(nRow).find('span.mutation-table-additional-protein-change[alt=""]').remove();
-			},
+			//"fnCreatedRow": function(nRow, aData, iDataIndex) {
+			//
+			//},
 			"fnInitComplete": function(oSettings, json) {
 				//$(tableSelector).find('a[href=""]').remove();
 				//$(tableSelector).find('a[alt=""]').remove();
@@ -12813,6 +13275,7 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 //					MutationDetailsEvents.MUTATION_TABLE_READY);
 
 				self._loadAdditionalData({
+					gene: gene,
 					dataProxies: dataProxies,
 					indexMap: self.getIndexMap(),
 					additionalData: _additionalData,
@@ -12820,9 +13283,14 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 				});
 			},
 			"fnHeaderCallback": function(nHead, aData, iStart, iEnd, aiDisplay) {
-				$(nHead).find('th').addClass("mutation-details-table-header");
+			    $(nHead).find('th').addClass("mutation-details-table-header");
 				self._addHeaderTooltips(nHead, nameMap);
-			}
+
+				//Trigger fnHeader callback function
+				_dispatcher.trigger(
+					MutationDetailsEvents.MUTATION_TABLE_HEADER_CREATED,
+					tableSelector);
+		    }
 //		    "fnFooterCallback": function(nFoot, aData, iStart, iEnd, aiDisplay) {
 //			    addFooterTooltips(nFoot, nameMap);
 //		    }
@@ -12943,9 +13411,9 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 	 *
 	 * @param active    boolean value
 	 */
-	function setEventActive(active)
+	function setFilterEventActive(active)
 	{
-		_eventActive = active;
+		_filterEventActive = active;
 	}
 
 	/**
@@ -12986,10 +13454,24 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 			if (colName != null)
 			{
 				var tip = _options.columns[colName].tip;
+				var opts = {};
 
-				//$(this).attr("alt", tip);
-				qTipOptionsHeader.content = {text: tip};
-				$(this).qtip(qTipOptionsHeader);
+				// merge qTip options with the provided options object
+				if(_.isObject(tip))
+				{
+					jQuery.extend(true, opts, qTipOptionsHeader, tip);
+				}
+				// if not an object, then assuming it is a string,
+				// just update the content
+				else
+				{
+					//$(this).attr("alt", tip);
+					qTipOptionsHeader.content = tip;
+					opts = qTipOptionsHeader;
+				}
+
+				//$(this).qtip(opts);
+				cbio.util.addTargetedQTip(this, opts);
 			}
 		});
 	}
@@ -13009,7 +13491,8 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 		qTipOptionsFooter.position = {my:'top center', at:'bottom center', viewport: $(window)};
 
 		//tableSelector.find('tfoot th').qtip(qTipOptionsFooter);
-		$(nFoot).find("th").qtip(qTipOptionsFooter);
+		//$(nFoot).find("th").qtip(qTipOptionsFooter);
+		cbio.util.addTargetedQTip($(nFoot).find("th"), qTipOptionsFooter);
 	}
 
 	// override required functions
@@ -13020,7 +13503,7 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 	this._addHeaderTooltips = addHeaderTooltips;
 
 	// additional public functions
-	this.setEventActive = setEventActive;
+	this.setFilterEventActive = setFilterEventActive;
 	this.getManualSearch = getManualSearch;
 	this.cleanFilters = cleanFilters;
 	//this.selectRow = selectRow;
@@ -13222,11 +13705,11 @@ MutationDiagram.prototype.defaultOpts = {
 	 *
 	 * @param element   target svg element (lollipop data point)
 	 * @param pileup    a pileup model instance
-	 * @param showStats whether to show cancer type distribution in the tooltip
+     * @param showStats whether to show cancer type distribution in the tooltip
 	 */
 	lollipopTipFn: function (element, pileup, showStats) {
 		var tooltipView = new LollipopTipView({model: pileup});
-		tooltipView.setShowStats(showStats);
+        tooltipView.setShowStats(showStats);
 		var content = tooltipView.compileTemplate();
 
 		var options = {content: {text: content},
@@ -13235,7 +13718,8 @@ MutationDiagram.prototype.defaultOpts = {
 			style: {classes: 'qtip-light qtip-rounded qtip-shadow cc-ui-tooltip'},
 			position: {my:'bottom left', at:'top center',viewport: $(window)}};
 
-		$(element).qtip(options);
+		//$(element).qtip(options);
+		cbio.util.addTargetedQTip(element, options, "mouseover");
 	},
 	/**
 	 * Default region tooltip function.
@@ -13258,8 +13742,8 @@ MutationDiagram.prototype.defaultOpts = {
 			function(data) {
 				// if the link is valid update model.mutationAligner
 				if (data != null &&
-					data.linkToMutationAligner != null &&
-					data.linkToMutationAligner.length > 0)
+				    data.linkToMutationAligner != null &&
+				    data.linkToMutationAligner.length > 0)
 				{
 					var templateFn = BackboneTemplateCache.getTemplateFn("mutation_aligner_info_template");
 					model.mutationAlignerInfo = templateFn({
@@ -13276,7 +13760,8 @@ MutationDiagram.prototype.defaultOpts = {
 					style: {classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'},
 					position: {my:'bottom left', at:'top center',viewport: $(window)}};
 
-				$(element).qtip(options);
+				//$(element).qtip(options);
+				cbio.util.addTargetedQTip(element, options);
 			}
 		);
 	}
@@ -13359,17 +13844,17 @@ MutationDiagram.prototype.initDiagram = function()
 
 	// init svg container
 	var svg = self.createSvg(container,
-		self.options.elWidth,
-		self.options.elHeight);
+	                         self.options.elWidth,
+	                         self.options.elHeight);
 
 	// save a reference for future access
 	self.svg = svg;
 
 	// draw the whole diagram
 	self.drawDiagram(svg,
-		bounds,
-		self.options,
-		self.data);
+	                 bounds,
+	                 self.options,
+	                 self.data);
 
 	// add default listeners
 	self.addDefaultListeners();
@@ -13388,9 +13873,9 @@ MutationDiagram.prototype.calcBounds = function(options)
 	var bounds = {};
 
 	bounds.width = options.elWidth -
-		(options.marginLeft + options.marginRight);
+	               (options.marginLeft + options.marginRight);
 	bounds.height = options.elHeight -
-		(options.marginBottom + options.marginTop);
+	                (options.marginBottom + options.marginTop);
 	bounds.x = options.marginLeft;
 	bounds.y = options.elHeight - options.marginBottom;
 
@@ -13603,12 +14088,12 @@ MutationDiagram.prototype.drawPlot = function(svg, pileups, options, bounds, xSc
 	for (var i = 0; i < pileups.length; i++)
 	{
 		self.drawLollipop(gData,
-			gLine,
-			pileups[i],
-			options,
-			bounds,
-			xScale,
-			yScale);
+				gLine,
+				pileups[i],
+				options,
+				bounds,
+				xScale,
+				yScale);
 	}
 
 	// draw lollipop labels
@@ -14097,7 +14582,7 @@ MutationDiagram.prototype.getLollipopFillColor = function(options, pileup)
 
 		// check tie condition
 		if (types.length > 1 &&
-			types[0].count == types[1].count)
+		    types[0].count == types[1].count)
 		{
 			var groups = PileupUtil.getMutationTypeGroups(pileup);
 
@@ -14189,7 +14674,7 @@ MutationDiagram.prototype.drawLollipopLabels = function (labels, pileups, option
 
 		// do not display any label if there are too many ties
 		if (count < numberOfTies &&
-			numberOfTies > maxAllowedTie)
+		    numberOfTies > maxAllowedTie)
 		{
 			count = 0;
 		}
@@ -14198,12 +14683,12 @@ MutationDiagram.prototype.drawLollipopLabels = function (labels, pileups, option
 
 	// show (lollipopLabelCount) label(s)
 	for (var i = 0;
-		 i < count && i < pileups.length;
-		 i++)
+	     i < count && i < pileups.length;
+	     i++)
 	{
 		// check for threshold value
 		if (pileups.length > 1 &&
-			pileups[i].count < options.lollipopLabelThreshold)
+		    pileups[i].count < options.lollipopLabelThreshold)
 		{
 			// do not processes remaining values below threshold
 			// (assuming mutations array is sorted)
@@ -14212,7 +14697,7 @@ MutationDiagram.prototype.drawLollipopLabels = function (labels, pileups, option
 
 		var x = xScale(pileups[i].location);
 		var y = yScale(Math.min(pileups[i].count, options.maxLengthY)) -
-			(options.lollipopTextPadding);
+		        (options.lollipopTextPadding);
 
 		// init text
 		var text = labels.append('text')
@@ -14411,8 +14896,8 @@ MutationDiagram.prototype.calcSequenceBounds = function (bounds, options)
 {
 	var x = bounds.x;
 	var y = bounds.y +
-		Math.abs(options.regionHeight - options.seqHeight) / 2 +
-		options.seqPadding;
+	        Math.abs(options.regionHeight - options.seqHeight) / 2 +
+	        options.seqPadding;
 	var width = bounds.width;
 	var height = options.seqHeight;
 
@@ -14459,11 +14944,11 @@ MutationDiagram.prototype.updatePlot = function(pileupData)
 
 	// re-draw plot area contents for new data
 	self.drawPlot(self.svg,
-		pileups,
-		self.options,
-		self.bounds,
-		self.xScale,
-		self.yScale);
+	              pileups,
+	              self.options,
+	              self.bounds,
+	              self.xScale,
+	              self.yScale);
 
 	// also re-add listeners
 	for (var selector in self.listeners)
@@ -14612,7 +15097,7 @@ MutationDiagram.prototype.removeListener = function(selector, event)
 
 	// remove listener from the map
 	if (self.listeners[selector] &&
-		self.listeners[selector][event])
+	    self.listeners[selector][event])
 	{
 		delete self.listeners[selector][event];
 	}
@@ -14631,7 +15116,7 @@ MutationDiagram.prototype.addDefaultListeners = function()
 		//  3) multi selection mode is on:
 		// this is to prevent reset due to an accidental click on background
 		var ignore = !self.isHighlighted() ||
-			self.multiSelect;
+		             self.multiSelect;
 
 		if (!ignore)
 		{
@@ -14856,10 +15341,10 @@ MutationDiagram.prototype.fadeIn = function(element, callback)
 		.style("opacity", 1)
 		.duration(self.options.fadeDuration)
 		.each("end", function() {
-			if(_.isFunction(callback)) {
-				callback(this);
-			}
-		});
+			      if(_.isFunction(callback)) {
+				      callback(this);
+			      }
+		      });
 };
 
 MutationDiagram.prototype.fadeOut = function(element, callback)
@@ -14870,10 +15355,10 @@ MutationDiagram.prototype.fadeOut = function(element, callback)
 		.style("opacity", 0)
 		.duration(self.options.fadeDuration)
 		.each("end", function() {
-			if(_.isFunction(callback)) {
-				callback(this);
-			}
-		});
+			      if(_.isFunction(callback)) {
+				      callback(this);
+			      }
+		      });
 };
 
 /**
@@ -14908,7 +15393,7 @@ MutationDiagram.prototype.isFiltered = function()
 	var filtered = false;
 
 	if (PileupUtil.countMutations(self.pileups) <
-		PileupUtil.countMutations(self.data.pileups))
+	    PileupUtil.countMutations(self.data.pileups))
 	{
 		filtered = true;
 	}
@@ -15097,7 +15582,8 @@ function MutationPdbPanel(options, data, proxy, xScale)
 					style: {classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'},
 					position: {my:'bottom left', at:'top center',viewport: $(window)}};
 
-				$(element).qtip(options);
+				//$(element).qtip(options);
+				cbio.util.addTargetedQTip(element, options);
 			});
 		},
 		/**
@@ -15116,7 +15602,8 @@ function MutationPdbPanel(options, data, proxy, xScale)
 				style: {classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow qtip-wide'},
 				position: {my:'bottom left', at:'top center',viewport: $(window)}};
 
-			$(element).qtip(options);
+			//$(element).qtip(options);
+			cbio.util.addTargetedQTip(element, options);
 		}
 	};
 
@@ -15194,7 +15681,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 					//datum.color = color;
 
 					var y = options.marginTop +
-						(rowStart + rowIdx) * (options.chainHeight + options.chainPadding);
+					        (rowStart + rowIdx) * (options.chainHeight + options.chainPadding);
 
 					var gChain = drawChainRectangles(svg, chain, color, options, xScale, y);
 					gChain.datum(datum);
@@ -15571,8 +16058,8 @@ function MutationPdbPanel(options, data, proxy, xScale)
 
 		// create svg element & update its reference
 		var svg = createSvg(container,
-			_options.elWidth,
-			_levelHeight);
+		                    _options.elWidth,
+		                    _levelHeight);
 
 		_svg = svg;
 
@@ -15646,7 +16133,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 
 		// remove listener from the map
 		if (_listeners[selector] &&
-			_listeners[selector][event])
+		    _listeners[selector][event])
 		{
 			delete _listeners[selector][event];
 		}
@@ -15731,7 +16218,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 	 */
 	function toggleHeight()
 	{
-		var nextLevel = drawNextLevel();
+		 var nextLevel = drawNextLevel();
 
 		// resize panel
 		resizePanel(nextLevel);
@@ -15753,10 +16240,10 @@ function MutationPdbPanel(options, data, proxy, xScale)
 		{
 			// draw rectangles for the next level
 			drawPanel(_svg,
-				_options,
-				_rowData.slice(_options.numRows[_expansion], _options.numRows[nextLevel]),
-				xScale,
-				_options.numRows[_expansion]);
+			          _options,
+			          _rowData.slice(_options.numRows[_expansion], _options.numRows[nextLevel]),
+			          xScale,
+			          _options.numRows[_expansion]);
 
 			// also reapply the listeners for the new elements
 			reapplyListeners();
@@ -15782,8 +16269,8 @@ function MutationPdbPanel(options, data, proxy, xScale)
 
 		// expand until desired level
 		for (var i = _expansion;
-			 i < level && i < _maxExpansionLevel;
-			 i++)
+		     i < level && i < _maxExpansionLevel;
+		     i++)
 		{
 			nextLevel = drawNextLevel();
 		}
@@ -16035,7 +16522,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 			.transition().duration(duration)
 			.attr('y', y)
 			.each("end", function() {
-				if (_.isFunction(callback)) {
+                if (_.isFunction(callback)) {
 					callback();
 				}
 			});
@@ -16382,14 +16869,15 @@ function MutationPdbTable(options)
 				// so set the display value by using the hidden
 				// column "datum"
 				return datum.chain.mergedAlignment.uniprotFrom + "-" +
-					datum.chain.mergedAlignment.uniprotTo;
+				       datum.chain.mergedAlignment.uniprotTo;
 			}
 		},
 		// default tooltip functions
 		columnTooltips: {
 			"simple": function(selector) {
 				var qTipOptions = MutationViewsUtil.defaultTableTooltipOpts();
-				$(selector).find('.simple-tip').qtip(qTipOptions);
+				//$(selector).find('.simple-tip').qtip(qTipOptions);
+				cbio.util.addTargetedQTip($(selector).find('.simple-tip'), options);
 			}
 		},
 		// default event listener config
@@ -16453,7 +16941,7 @@ function MutationPdbTable(options)
 			},
 			uniprotPos: function(datum) {
 				return datum.chain.mergedAlignment.uniprotFrom + "-" +
-					datum.chain.mergedAlignment.uniprotTo;
+				       datum.chain.mergedAlignment.uniprotTo;
 			}
 		},
 		// delay amount before applying the user entered filter query
@@ -16506,7 +16994,7 @@ function MutationPdbTable(options)
 	 * @private
 	 */
 	function initDataTableOpts(tableSelector, rows, columnOpts, nameMap,
-							   indexMap, hiddenCols, excludedCols, nonSearchableCols)
+		indexMap, hiddenCols, excludedCols, nonSearchableCols)
 	{
 		// generate column options for the data table
 		var columns = DataTableUtil.getColumnOptions(columnOpts,
@@ -16514,8 +17002,8 @@ function MutationPdbTable(options)
 
 		// these are the parametric data tables options
 		var tableOpts = {
-			"aaData" : rows,
-			"aoColumns" : columns,
+	        "aaData" : rows,
+	        "aoColumns" : columns,
 			"aoColumnDefs":[
 				{"bVisible": false,
 					"aTargets": hiddenCols},
@@ -16532,7 +17020,7 @@ function MutationPdbTable(options)
 			"fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
 				var datum = aData[indexMap["datum"]];
 				var key = PdbDataUtil.chainKey(datum.pdbId,
-					datum.chain.chainId);
+				                               datum.chain.chainId);
 				_rowMap[key] = nRow;
 				$(nRow).addClass("pdb-chain-table-data-row");
 			},
@@ -16716,401 +17204,401 @@ MutationPdbTable.prototype.constructor = MutationPdbTable;
 // TODO make the histogram compatible for different data types (keyword, position data, mutation type, etc)
 function PancanMutationHistogram(byProteinPosData, byGeneData, cancer_study_meta_data, el, params) {
 
-	params = params || {};
-	if (params.sparkline) {
-		params = _.extend({
-			margin: {top: -12, right: 0, bottom: 0, left: 0},
-			width: 30,
-			height: 12,
-			this_cancer_study: undefined
-		}, params);
-	} else {
-		params = _.extend({
-			margin: {top:6, right: 10, bottom: 20, left: 40},
-			width: 600,
-			height: 300,
-			this_cancer_study: undefined
-		}, params);
-	}
+    params = params || {};
+    if (params.sparkline) {
+        params = _.extend({
+            margin: {top: -12, right: 0, bottom: 0, left: 0},
+            width: 30,
+            height: 12,
+            this_cancer_study: undefined
+        }, params);
+    } else {
+        params = _.extend({
+            margin: {top:6, right: 10, bottom: 20, left: 40},
+            width: 600,
+            height: 300,
+            this_cancer_study: undefined
+        }, params);
+    }
 
-	var cancer_study2meta_data = generate_cancer_study2datum(cancer_study_meta_data);
-	var all_cancer_studies = _.keys(cancer_study2meta_data);
+    var cancer_study2meta_data = generate_cancer_study2datum(cancer_study_meta_data);
+    var all_cancer_studies = _.keys(cancer_study2meta_data);
 
-	// --- data munging --- //
+    // --- data munging --- //
 
-	// copy
-	var bykeyword_data = deep_copy(byProteinPosData);
-	var bygene_data = deep_copy(byGeneData);
+    // copy
+    var bykeyword_data = deep_copy(byProteinPosData);
+    var bygene_data = deep_copy(byGeneData);
 
-	// extend
+    // extend
 	//var keyword = bykeyword_data[0].keyword;
 	var keyword = bykeyword_data[0].hugo + " " + bykeyword_data[0].protein_pos_start;
 
-	bykeyword_data = extend_by_zero_set(bykeyword_data)
-		.map(function(d) { d.keyword = keyword; return d; });     // make sure everything has a key.  TODO: remove this extra list traversal
-	bygene_data = extend_by_zero_set(bygene_data);
+    bykeyword_data = extend_by_zero_set(bykeyword_data)
+        .map(function(d) { d.keyword = keyword; return d; });     // make sure everything has a key.  TODO: remove this extra list traversal
+    bygene_data = extend_by_zero_set(bygene_data);
 
-	var cancer_study2datum = {
-		bykeyword: generate_cancer_study2datum(bykeyword_data),
-		bygene: generate_cancer_study2datum(bygene_data)
-	};
+    var cancer_study2datum = {
+        bykeyword: generate_cancer_study2datum(bykeyword_data),
+        bygene: generate_cancer_study2datum(bygene_data)
+    };
+    
+    var commonKeys = _.intersection( _.keys(cancer_study2datum.bykeyword), _.keys(cancer_study2datum.bygene) );
+    bykeyword_data = [];
+    bygene_data = [];
+    _.each(commonKeys, function(aKey) {
+	bykeyword_data.push(cancer_study2datum.bykeyword[aKey]);
+        bygene_data.push(cancer_study2datum.bygene[aKey]);
+    });
 
-	var commonKeys = _.intersection( _.keys(cancer_study2datum.bykeyword), _.keys(cancer_study2datum.bygene) );
-	bykeyword_data = [];
-	bygene_data = [];
-	_.each(commonKeys, function(aKey) {
-		bykeyword_data.push(cancer_study2datum.bykeyword[aKey]);
-		bygene_data.push(cancer_study2datum.bygene[aKey]);
-	});
 
+    if (bygene_data.length !== bykeyword_data.length) {
+        throw new Error("must be same length");
+    }
 
-	if (bygene_data.length !== bykeyword_data.length) {
-		throw new Error("must be same length");
-	}
+    if (bygene_data.length !== all_cancer_studies.length) {
+        throw new Error("there must be a datum for every cancer study and visa versa");
+    }
 
-	if (bygene_data.length !== all_cancer_studies.length) {
-		throw new Error("there must be a datum for every cancer study and visa versa");
-	}
+    // subtract off counts in bykeyword_data from bygene_data
+    // because the counts in bygene_data include the ones in bykeyword_data
+    // and we don't want to count the same thing twice.
+    bygene_data.forEach(function(bygene_datum) {
+        var bykeyword_datum = cancer_study2datum.bykeyword[bygene_datum.cancer_study];
+        var new_count = bygene_datum.count - bykeyword_datum.count;
 
-	// subtract off counts in bykeyword_data from bygene_data
-	// because the counts in bygene_data include the ones in bykeyword_data
-	// and we don't want to count the same thing twice.
-	bygene_data.forEach(function(bygene_datum) {
-		var bykeyword_datum = cancer_study2datum.bykeyword[bygene_datum.cancer_study];
-		var new_count = bygene_datum.count - bykeyword_datum.count;
+        if (new_count < 0) {
+            throw new Error("more mutations for a particular keyword than "
+                + "for all keywords of a particular gene");
+        }
 
-		if (new_count < 0) {
-			throw new Error("more mutations for a particular keyword than "
-				+ "for all keywords of a particular gene");
-		}
+        bygene_datum.count = new_count;
+    });
+    
+    var totalByGene = _.reduce(bygene_data, function(memo, datum){ return memo + datum.count; }, 0);
+    var totalByKeyword = _.reduce(bykeyword_data, function(memo, datum){ return memo + datum.count; }, 0);
+    var totalSequenced = _.reduce(cancer_study2meta_data, function(memo, datum){ return memo + datum.num_sequenced_samples; }, 0);
 
-		bygene_datum.count = new_count;
-	});
+    _.mixin({
+        unzip: function(array) {
+            return _.zip.apply(_, array);
+        }
+    });
 
-	var totalByGene = _.reduce(bygene_data, function(memo, datum){ return memo + datum.count; }, 0);
-	var totalByKeyword = _.reduce(bykeyword_data, function(memo, datum){ return memo + datum.count; }, 0);
-	var totalSequenced = _.reduce(cancer_study2meta_data, function(memo, datum){ return memo + datum.num_sequenced_samples; }, 0);
+    var all_data = bykeyword_data.concat(bygene_data);
+    try {
+        all_data = _.chain(all_data)
+            .map(compute_frequency)
+            .groupBy(function(d) {
+                return d.cancer_study;
+            })
+            .map(_.identity)    // extract groups
+            .sortBy(cancer_type)
+            .unzip()            // turn into layers for d3.stack
+            .value();
+    } catch(e) {
+        throw new Error(e);
+    }
 
-	_.mixin({
-		unzip: function(array) {
-			return _.zip.apply(_, array);
-		}
-	});
+    function deep_copy(list_of_objects) {
+        return list_of_objects.map(_.clone);
+    }
 
-	var all_data = bykeyword_data.concat(bygene_data);
-	try {
-		all_data = _.chain(all_data)
-			.map(compute_frequency)
-			.groupBy(function(d) {
-				return d.cancer_study;
-			})
-			.map(_.identity)    // extract groups
-			.sortBy(cancer_type)
-			.unzip()            // turn into layers for d3.stack
-			.value();
-	} catch(e) {
-		throw new Error(e);
-	}
+    function generate_cancer_study2datum(data) {
+        return _.reduce(data, function(acc, next) {
+            acc[next.cancer_study] = next;
+            return acc;
+        }, {});
+    }
 
-	function deep_copy(list_of_objects) {
-		return list_of_objects.map(_.clone);
-	}
+    function compute_frequency(d) {
+        var num_sequenced_samples = cancer_study2meta_data[d.cancer_study].num_sequenced_samples;
+        d.num_sequenced_samples = num_sequenced_samples;
+        d.frequency = d.count / num_sequenced_samples;
+        return d;
+    }
 
-	function generate_cancer_study2datum(data) {
-		return _.reduce(data, function(acc, next) {
-			acc[next.cancer_study] = next;
-			return acc;
-		}, {});
-	}
+    // takes a list of cancer studies (presumably one which contains all the
+    // cancer studies for a cancer type) and returns the total frequency in
+    // that list
+    //
+    // *signature:* `array -> number`
+    function total_frequency(group) {
+        var total_frequency = _.reduce(group, function(acc, next) { return acc + next.frequency }, 0);
+        return -1 * total_frequency;
+    }
 
-	function compute_frequency(d) {
-		var num_sequenced_samples = cancer_study2meta_data[d.cancer_study].num_sequenced_samples;
-		d.num_sequenced_samples = num_sequenced_samples;
-		d.frequency = d.count / num_sequenced_samples;
-		return d;
-	}
+    // returns the cancer type of a group
+    // *throws* error if not all elements in the list have the same cancer type
+    //
+    // *signature:* `array -> string`
+    function cancer_type(group) {
+        var cancerType = group[0].cancer_type;
+        if (!_.every(group, function(d) { return d.cancer_type === cancerType; })) {
+            throw new Error("not all data in a group have the same cancer type");
+        }
 
-	// takes a list of cancer studies (presumably one which contains all the
-	// cancer studies for a cancer type) and returns the total frequency in
-	// that list
-	//
-	// *signature:* `array -> number`
-	function total_frequency(group) {
-		var total_frequency = _.reduce(group, function(acc, next) { return acc + next.frequency }, 0);
-		return -1 * total_frequency;
-	}
+        return cancerType;
+    }
 
-	// returns the cancer type of a group
-	// *throws* error if not all elements in the list have the same cancer type
-	//
-	// *signature:* `array -> string`
-	function cancer_type(group) {
-		var cancerType = group[0].cancer_type;
-		if (!_.every(group, function(d) { return d.cancer_type === cancerType; })) {
-			throw new Error("not all data in a group have the same cancer type");
-		}
+    // add in missing cancer studies as data points with count = 0
+    function zero_set(data) {
+        var cancer_study2datum = generate_cancer_study2datum(data);
+        // TODO: this could be optimized by referring to the `cancer_study2datum` object
 
-		return cancerType;
-	}
+        function zero_datum(cancer_study) {
+            return {
+                cancer_study: cancer_study,
+                count: 0,
+                cancer_type: cancer_study2meta_data[cancer_study].cancer_type,
+                num_sequenced_samples: cancer_study2meta_data[cancer_study].num_sequenced_samples
+            };
+        }
 
-	// add in missing cancer studies as data points with count = 0
-	function zero_set(data) {
-		var cancer_study2datum = generate_cancer_study2datum(data);
-		// TODO: this could be optimized by referring to the `cancer_study2datum` object
+        return _.chain(all_cancer_studies)
+            .reduce(function(acc, study) {
+                if (!_.has(cancer_study2datum, study)) {
+                    // do all_cancer_studies *setminus* cancer_study2datum
+                    acc.push(study);
+                }
+                return acc;
+            }, [])
+            .map(zero_datum)
+            .value();
+    }
 
-		function zero_datum(cancer_study) {
-			return {
-				cancer_study: cancer_study,
-				count: 0,
-				cancer_type: cancer_study2meta_data[cancer_study].cancer_type,
-				num_sequenced_samples: cancer_study2meta_data[cancer_study].num_sequenced_samples
-			};
-		}
+    function extend_by_zero_set(data) {
+        return data.concat(zero_set(data));
+    }
 
-		return _.chain(all_cancer_studies)
-			.reduce(function(acc, study) {
-				if (!_.has(cancer_study2datum, study)) {
-					// do all_cancer_studies *setminus* cancer_study2datum
-					acc.push(study);
-				}
-				return acc;
-			}, [])
-			.map(zero_datum)
-			.value();
-	}
+    // --- visualization --- //
 
-	function extend_by_zero_set(data) {
-		return data.concat(zero_set(data));
-	}
+    // margin conventions http://bl.ocks.org/mbostock/3019563
+    var width = params.width - params.margin.left - params.margin.left;
+    var height = params.height - params.margin.top - params.margin.bottom;
 
-	// --- visualization --- //
+    var svg = d3.select(el).append("svg")
+        .attr("width", params.width)
+        .attr("height", params.height)
+        .append("g")
+        .attr("transform", "translate(" + params.margin.left + "," + params.margin.top + ")");
 
-	// margin conventions http://bl.ocks.org/mbostock/3019563
-	var width = params.width - params.margin.left - params.margin.left;
-	var height = params.height - params.margin.top - params.margin.bottom;
+    var stack = d3.layout.stack()
+            .x(function(d) { return d.cancer_study; })
+            .y(function(d) { return d.frequency; })
+        ;
 
-	var svg = d3.select(el).append("svg")
-		.attr("width", params.width)
-		.attr("height", params.height)
-		.append("g")
-		.attr("transform", "translate(" + params.margin.left + "," + params.margin.top + ")");
-
-	var stack = d3.layout.stack()
-			.x(function(d) { return d.cancer_study; })
-			.y(function(d) { return d.frequency; })
-		;
-
-	var layers = stack(all_data);
+    var layers = stack(all_data);
 //    console.log(layers);
 
-	var x = d3.scale.ordinal()
-		.domain(all_data[0].map(function(d) { return d.cancer_study; }))
-		.rangeBands([0, width], .1);
+    var x = d3.scale.ordinal()
+        .domain(all_data[0].map(function(d) { return d.cancer_study; }))
+        .rangeBands([0, width], .1);
 
-	// sparkline y axis does not scale: will always be from 0 to 1
-	var sparkline_y_threshold = .2
-	var yStackMax = params.sparkline ? sparkline_y_threshold
-		: d3.max(layers, function(layer) { return d3.max(layer, function(d) { return d.y0 + d.y; }); });
+    // sparkline y axis does not scale: will always be from 0 to 1
+    var sparkline_y_threshold = .2
+    var yStackMax = params.sparkline ? sparkline_y_threshold
+        : d3.max(layers, function(layer) { return d3.max(layer, function(d) { return d.y0 + d.y; }); });
 
-	var y = d3.scale.linear()
-			.domain([0, yStackMax])
-			.range([height, 0])
-			.clamp(true)
-		;
+    var y = d3.scale.linear()
+        .domain([0, yStackMax])
+        .range([height, 0])
+        .clamp(true)
+        ;
 
-	// --- bar chart ---
+    // --- bar chart ---
 
-	var googleblue = "LimeGreen";
-	var googlered = "Green";
+    var googleblue = "LimeGreen";
+    var googlered = "Green";
 
-	var layer = svg.selectAll(".layer")
-		.data(layers)
-		.enter().append("g")
-		.attr("class", "layer")
-		.style("fill", function(d, i) { return [googlered, googleblue][i]; });
+    var layer = svg.selectAll(".layer")
+        .data(layers)
+        .enter().append("g")
+        .attr("class", "layer")
+        .style("fill", function(d, i) { return [googlered, googleblue][i]; });
 
-	var rect = layer.selectAll("rect")
-		.data(function(d) { return d; })
-		.enter().append("rect")
-		.attr("x", function(d) { return x(d.cancer_study); })
-		.attr("y", function(d) { return y(d.y0 + d.y); })
-		.attr("width", function(d) { return x.rangeBand(); })
-		.attr("height", function(d) { return y(d.y0) - y(d.y0 + d.y); })
+    var rect = layer.selectAll("rect")
+        .data(function(d) { return d; })
+        .enter().append("rect")
+        .attr("x", function(d) { return x(d.cancer_study); })
+        .attr("y", function(d) { return y(d.y0 + d.y); })
+        .attr("width", function(d) { return x.rangeBand(); })
+        .attr("height", function(d) { return y(d.y0) - y(d.y0 + d.y); })
 
-	// *** kill process, do nothing more ***
-	if (params.sparkline) {
-		return {
-			el: el,
-			qtip: function() { throw new Error("don't qtip a sparkline"); }
-		};
-	}
+    // *** kill process, do nothing more ***
+    if (params.sparkline) {
+        return {
+            el: el,
+            qtip: function() { throw new Error("don't qtip a sparkline"); }
+        };
+    }
 
-	// --- axises --- //
+    // --- axises --- //
 
-	var percent_format = d3.format(yStackMax > .1 ? ".0%" : ".1%");
-	var yAxis = d3.svg.axis()
-		.scale(y)
-		.tickFormat(percent_format)
-		.orient("left");
-	yAxis.tickSize(yAxis.tickSize(), 0, 0);
+    var percent_format = d3.format(yStackMax > .1 ? ".0%" : ".1%");
+    var yAxis = d3.svg.axis()
+        .scale(y)
+        .tickFormat(percent_format)
+        .orient("left");
+    yAxis.tickSize(yAxis.tickSize(), 0, 0);
 
-	// list of element that represent the start and end of each cancer type in
-	// the sorted list of cancer studies
-	var study_start_ends = (function() {
-		var first = all_data[0][0];
+    // list of element that represent the start and end of each cancer type in
+    // the sorted list of cancer studies
+    var study_start_ends = (function() {
+        var first = all_data[0][0];
 
-		function new_element_from_datum(d) {
-			return {
-				cancer_type: d.cancer_type,
-				start: d.cancer_study,
-				end: d.cancer_study,
-				color: cancer_study2meta_data[d.cancer_study].color
-			};
-		}
+        function new_element_from_datum(d) {
+            return {
+                cancer_type: d.cancer_type,
+                start: d.cancer_study,
+                end: d.cancer_study,
+                color: cancer_study2meta_data[d.cancer_study].color
+            };
+        }
 
-		return _.chain(all_data[0])
-			.reduce(function(acc, next) {
-				var last = _.last(acc);
+        return _.chain(all_data[0])
+            .reduce(function(acc, next) {
+                var last = _.last(acc);
 
-				// beginning of a new cancer type, create a first cancer_study
-				if (last.cancer_type !== next.cancer_type) {
-					return acc.concat(new_element_from_datum(next));
-				}
+                // beginning of a new cancer type, create a first cancer_study
+                if (last.cancer_type !== next.cancer_type) {
+                    return acc.concat(new_element_from_datum(next));
+                }
 
-				// within a cancer type, continue updating the last
-				// cancer_study
-				if (last.cancer_type === next.cancer_type) {
-					last.end = next.cancer_study;
-					return acc;
-				}
+                // within a cancer type, continue updating the last
+                // cancer_study
+                if (last.cancer_type === next.cancer_type) {
+                    last.end = next.cancer_study;
+                    return acc;
+                }
 
-			}, [ new_element_from_datum(first) ])
-			.value();
-	}());
+            }, [ new_element_from_datum(first) ])
+            .value();
+    }());
 
-	// add the cancer type axis
-	svg.selectAll('line')
-		.data(study_start_ends)
-		.enter()
-		.append('line')
-		.attr('x1', function(d) { return x(d.start); })
-		.attr('x2', function(d) { return x(d.end) + x.rangeBand(); })
-		.attr('y1', height + params.margin.bottom / 3)
-		.attr('y2', height + params.margin.bottom / 3)
-		.style('stroke-width', 5)
-		.style('stroke', function(d) { return d.color; })
-	;
+    // add the cancer type axis
+    svg.selectAll('line')
+        .data(study_start_ends)
+        .enter()
+        .append('line')
+        .attr('x1', function(d) { return x(d.start); })
+        .attr('x2', function(d) { return x(d.end) + x.rangeBand(); })
+        .attr('y1', height + params.margin.bottom / 3)
+        .attr('y2', height + params.margin.bottom / 3)
+        .style('stroke-width', 5)
+        .style('stroke', function(d) { return d.color; })
+    ;
 
-	// append y axis
+    // append y axis
 
-	var yAxisEl = svg.append("g")
-		.call(yAxis)
-		.attr('stroke', '#000')
-		.attr('shape-rendering', 'crispEdges');
+    var yAxisEl = svg.append("g")
+        .call(yAxis)
+        .attr('stroke', '#000')
+        .attr('shape-rendering', 'crispEdges');
 
-	var hugo_gene_name = _.find(layers[0], function(d) { return d.hugo !== undefined; }).hugo;
-	var keyword = _.find(layers[0], function(d) { return d.keyword !== undefined; }).keyword;
+    var hugo_gene_name = _.find(layers[0], function(d) { return d.hugo !== undefined; }).hugo;
+    var keyword = _.find(layers[0], function(d) { return d.keyword !== undefined; }).keyword;
 
-	// star the current cancer study if this_cancer_study is provided.
-	if (!_.isUndefined(params.this_cancer_study)) {
-		star_this_cancer_study();
-	}
+    // star the current cancer study if this_cancer_study is provided.
+    if (!_.isUndefined(params.this_cancer_study)) {
+        star_this_cancer_study();
+    }
 
-	function star_this_cancer_study() {
-		var this_cancer_study_data = _.find(all_data[0], function(d) {
-			return d.cancer_study === params.this_cancer_study;
-		});
+    function star_this_cancer_study() {
+        var this_cancer_study_data = _.find(all_data[0], function(d) {
+            return d.cancer_study === params.this_cancer_study;
+        });
 
-		var this_cancer_type;
-		try {
-			this_cancer_type = this_cancer_study_data.cancer_type;
-		} catch(e) {
-			throw new Error(e + ": could not find this the corresponding datum for this cancer study, [" + params.this_cancer_study + "]");
-		}
+        var this_cancer_type;
+        try {
+            this_cancer_type = this_cancer_study_data.cancer_type;
+        } catch(e) {
+            throw new Error(e + ": could not find this the corresponding datum for this cancer study, [" + params.this_cancer_study + "]");
+        }
 
-		var find_this_cancer_studdy_datum = function(group) {
-			return _.find(group, function(d) {
-				return d.cancer_study === params.this_cancer_study;
-			});
-		};
+        var find_this_cancer_studdy_datum = function(group) {
+            return _.find(group, function(d) {
+                return d.cancer_study === params.this_cancer_study;
+            });
+        };
 
-		var this_cancer_type_group = _.zip.apply(null, all_data);
-		this_cancer_type_group = _.find(this_cancer_type_group, find_this_cancer_studdy_datum);
+        var this_cancer_type_group = _.zip.apply(null, all_data);
+        this_cancer_type_group = _.find(this_cancer_type_group, find_this_cancer_studdy_datum);
 
-		var total_freq = total_frequency(this_cancer_type_group);
+        var total_freq = total_frequency(this_cancer_type_group);
 
-		svg.append('text')
-			.text('*')
-			.attr('id', 'star')
-			.attr('x', x(params.this_cancer_study))
-			.attr('y', y(-1 * total_freq) + 10)
-			.style("font-family", "Helvetica Neue, Helvetica, Arial, sans-serif")
-			.style("font-size", (x.rangeBand()*3) + "px");
-	}
+        svg.append('text')
+            .text('*')
+            .attr('id', 'star')
+            .attr('x', x(params.this_cancer_study))
+            .attr('y', y(-1 * total_freq) + 10)
+            .style("font-family", "Helvetica Neue, Helvetica, Arial, sans-serif")
+            .style("font-size", (x.rangeBand()*3) + "px");
+    }
 
-	function qtip(svg) {
-		var mouseOverBar = d3.select(svg).selectAll('.mouseOver')
-			.data(all_cancer_studies)
-			.enter()
-			.append('rect')
-			.attr('class', 'mouseOver')
-			.attr('y', params.margin.top)
-			.attr('x', function(d) {
-				return x(d) + params.margin.left;
-			})
-			.attr('opacity', '0')
-			.attr('height', height + 5)
-			.attr('width', x.rangeBand())
-			.on('mouseover', function() { d3.select(this).attr('opacity', '0.25'); })
-			.on('mouseout', function() { d3.select(this).attr('opacity', '0'); });
+    function qtip(svg) {
+        var mouseOverBar = d3.select(svg).selectAll('.mouseOver')
+            .data(all_cancer_studies)
+            .enter()
+            .append('rect')
+            .attr('class', 'mouseOver')
+            .attr('y', params.margin.top)
+            .attr('x', function(d) {
+                return x(d) + params.margin.left;
+            })
+            .attr('opacity', '0')
+            .attr('height', height + 5)
+            .attr('width', x.rangeBand())
+            .on('mouseover', function() { d3.select(this).attr('opacity', '0.25'); })
+            .on('mouseout', function() { d3.select(this).attr('opacity', '0'); });
 
-		// add qtips for each bar
-		mouseOverBar.each(function(d) {
-			$(this).qtip({
-				content: {text: 'mouseover failed'},
-				position: {my:'left top', at:'center right', viewport: $(window)},
-				style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-wide' },
-				hide: { fixed: true, delay: 100 },
-				events: {
-					render: function(event, api) {
-						var data = getRectsByCancerStudy(d).map(function(rect) { return rect[0].__data__; });
-						var bykeyword = data.filter(function(d) { return _.has(d, "keyword"); })[0] || {};
-						var bygene = data.filter(function(d) { return !_.has(d, "keyword"); })[0] || {};
-						var cancer_study = bygene.cancer_study;     // there should always be a bygene datum
-						var total = cancer_study2meta_data[cancer_study].num_sequenced_samples;
-						var text = "<p style='font-weight:bold;'>" + cancer_study + "</p>"
-							+ countText(bykeyword, bygene, total);
+        // add qtips for each bar
+        mouseOverBar.each(function(d) {
+            $(this).qtip({
+                content: {text: 'mouseover failed'},
+                position: {my:'left top', at:'center right', viewport: $(window)},
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-wide' },
+                hide: { fixed: true, delay: 100 },
+                events: {
+                    render: function(event, api) {
+                        var data = getRectsByCancerStudy(d).map(function(rect) { return rect[0].__data__; });
+                        var bykeyword = data.filter(function(d) { return _.has(d, "keyword"); })[0] || {};
+                        var bygene = data.filter(function(d) { return !_.has(d, "keyword"); })[0] || {};
+                        var cancer_study = bygene.cancer_study;     // there should always be a bygene datum
+                        var total = cancer_study2meta_data[cancer_study].num_sequenced_samples;
+                        var text = "<p style='font-weight:bold;'>" + cancer_study + "</p>"
+                            + countText(bykeyword, bygene, total);
 
-						api.set('content.text', text);
-					}
-				}
-			});
-		});
-	}
+                        api.set('content.text', text);
+                    }
+                }
+            });
+        });
+    }
 
-	function qtip_template(d, total) {
-		var count = d.count || 0;
-		if (!('frequency' in d)) d.frequency = count / total;
-		var percent = (d.frequency * 100).toFixed(1)+'%';
-		return (_.template("<span><b>{{percent}}</b> (<b>{{count}}</b> of {{total}} sequenced samples)</span>"))({percent: percent, count: count, total: total});
-	}
+    function qtip_template(d, total) {
+        var count = d.count || 0;
+        if (!('frequency' in d)) d.frequency = count / total;
+        var percent = (d.frequency * 100).toFixed(1)+'%';
+        return (_.template("<span><b>{{percent}}</b> (<b>{{count}}</b> of {{total}} sequenced samples)</span>"))({percent: percent, count: count, total: total});
+    }
+    
+    function countText(bykeyword, bygene, total) {
+        return "<p style='color: " + googlered + "; margin-bottom:0;'>"
+                + keyword  + ": "  + qtip_template(bykeyword, total) + "</p>"
+                + "<p style='color: " + googleblue + "; margin-top:0;'>"
+                + "Other " + hugo_gene_name +  " mutations: "  + qtip_template(bygene, total) + "</p>";
+    }
 
-	function countText(bykeyword, bygene, total) {
-		return "<p style='color: " + googlered + "; margin-bottom:0;'>"
-			+ keyword  + ": "  + qtip_template(bykeyword, total) + "</p>"
-			+ "<p style='color: " + googleblue + "; margin-top:0;'>"
-			+ "Other " + hugo_gene_name +  " mutations: "  + qtip_template(bygene, total) + "</p>";
-	}
+    function getRectsByCancerStudy(cancer_study) {
+        return rect.filter(function(d) { return d.cancer_study === cancer_study; });
+    }
 
-	function getRectsByCancerStudy(cancer_study) {
-		return rect.filter(function(d) { return d.cancer_study === cancer_study; });
-	}
-
-	return {
-		el: el,
-		qtip: qtip,
-		overallCountText: function() {return countText({count:totalByKeyword}, {count:totalByGene}, totalSequenced);}
-	};
+    return {
+        el: el,
+        qtip: qtip,
+        overallCountText: function() {return countText({count:totalByKeyword}, {count:totalByGene}, totalSequenced);}
+    };
 };
 
 /*
@@ -17280,8 +17768,8 @@ function MainMutationController(mainMutationView, mutationDiagram)
  * @author Selcuk Onur Sumer
  */
 function Mutation3dController(mutationDetailsView, mainMutationView,
-							  mut3dVisView, mut3dView, mut3dVis, pdbProxy, mutationUtil,
-							  mutationDiagram, mutationTable, geneSymbol)
+	mut3dVisView, mut3dView, mut3dVis, pdbProxy, mutationUtil,
+	mutationDiagram, mutationTable, geneSymbol)
 {
 	// we cannot get pdb panel view as a constructor parameter,
 	// since it is initialized after initializing this controller
@@ -17449,7 +17937,7 @@ function Mutation3dController(mutationDetailsView, mainMutationView,
 
 		// also update the pdb table (highlight the corresponding row)
 		if (!_chainSelectedByTable &&
-			_pdbTableView != null)
+		    _pdbTableView != null)
 		{
 			_pdbTableView.resetFilters();
 			_pdbTableView.selectChain(datum.pdbId, datum.chain.chainId);
@@ -17465,7 +17953,7 @@ function Mutation3dController(mutationDetailsView, mainMutationView,
 		// highlight mutations on the 3D view
 		// (highlight only if the corresponding view is visible)
 		if (mut3dView.isVisible() &&
-			mutationDiagram.isHighlighted())
+		    mutationDiagram.isHighlighted())
 		{
 			highlightSelected();
 		}
@@ -17498,8 +17986,8 @@ function Mutation3dController(mutationDetailsView, mainMutationView,
 	{
 		// init pdb table view if not initialized yet
 		if (_pdbTableView == null &&
-			_pdbPanelView != null &&
-			pdbColl.length > 0)
+		    _pdbPanelView != null &&
+		    pdbColl.length > 0)
 		{
 			_pdbTableView = _pdbPanelView.initPdbTableView(pdbColl, function(view, table) {
 				// we need to register a callback to add this event listener
@@ -17526,7 +18014,7 @@ function Mutation3dController(mutationDetailsView, mainMutationView,
 		}
 
 		if (_pdbPanelView != null &&
-			_pdbTableView != null)
+		    _pdbTableView != null)
 		{
 			_pdbPanelView.toggleTableControls();
 			_pdbTableView.toggleView();
@@ -17766,8 +18254,8 @@ function Mutation3dController(mutationDetailsView, mainMutationView,
 
 			// reload the visualizer content with the given pdb and chain
 			if (mut3dVisView != null &&
-				_pdbPanelView != null &&
-				pdbColl.length > 0)
+			    _pdbPanelView != null &&
+			    pdbColl.length > 0)
 			{
 				updateColorMapper();
 				_pdbPanelView.showView();
@@ -17912,9 +18400,9 @@ function MutationDetailsController(
 	 * Initializes mutation view for the given gene and cases.
 	 *
 	 * @param gene          hugo gene symbol
-	 * @param cases         array of case ids (samples)
-	 * @param diagramOpts   [optional] mutation diagram options
-	 * @param tableOpts     [optional] mutation table options
+     * @param cases         array of case ids (samples)
+     * @param diagramOpts   [optional] mutation diagram options
+     * @param tableOpts     [optional] mutation table options
 	 */
 	function initView(gene, cases, diagramOpts, tableOpts)
 	{
@@ -17924,8 +18412,8 @@ function MutationDetailsController(
 		{
 			// process data to add 3D match information
 			mutationData = processMutationData(mutationData,
-				mutationProxy.getMutationUtil(),
-				pdbRowData);
+			                                   mutationProxy.getMutationUtil(),
+			                                   pdbRowData);
 
 			// TODO a new util for each instance instead?
 //			var mutationUtil = new MutationDetailsUtil(
@@ -17955,7 +18443,7 @@ function MutationDetailsController(
 			var components = mainView.initComponents(_mut3dVisView);
 
 			if (mutationData == null ||
-				mutationData.length == 0)
+			    mutationData.length == 0)
 			{
 				mainView.showNoDataInfo();
 				components.tableView.hideView();
@@ -17969,7 +18457,7 @@ function MutationDetailsController(
 				components.tableView, components.diagram, mutationDetailsView);
 
 			if (mut3dVis &&
-				_mut3dVisView)
+			    _mut3dVisView)
 			{
 				new Mutation3dController(mutationDetailsView, mainView,
 					_mut3dVisView, components.view3d, mut3dVis,
@@ -18125,6 +18613,8 @@ var MutationDetailsEvents = (function()
 	var _diagramPlotUpdated = "mutationDiagramPlotUpdated";
 	var _diagramPlotReset = "mutationDiagramPlotReset";
 	var _mutationTableFiltered = "mutationTableFiltered";
+	var _mutationTableRedrawn = "mutationTableRedrawn";
+	var _mutationTableHeaderCreated = "mutationTableHeaderCreated";
 	var _proteinChangeLinkClicked = "mutationTableProteinChangeLinkClicked";
 	var _pdbLinkClicked = "mutationTablePdbLinkClicked";
 	var _pdbPanelResizeStarted = "mutationPdbPanelResizeStarted";
@@ -18148,6 +18638,8 @@ var MutationDetailsEvents = (function()
 		DIAGRAM_PLOT_UPDATED: _diagramPlotUpdated,
 		DIAGRAM_PLOT_RESET: _diagramPlotReset,
 		MUTATION_TABLE_FILTERED: _mutationTableFiltered,
+		MUTATION_TABLE_REDRAWN: _mutationTableRedrawn,
+		MUTATION_TABLE_HEADER_CREATED: _mutationTableHeaderCreated,
 		PROTEIN_CHANGE_LINK_CLICKED: _proteinChangeLinkClicked,
 		PDB_LINK_CLICKED: _pdbLinkClicked,
 		PDB_PANEL_RESIZE_STARTED: _pdbPanelResizeStarted,
@@ -18518,7 +19010,7 @@ function MutationMapper(options)
 		view: {
 			mutationDiagram: {},
 			mutationTable: {},
-			pdbPanel: {},
+		    pdbPanel: {},
 			pdbTable: {},
 			vis3d: {}
 		},

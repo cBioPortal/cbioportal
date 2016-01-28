@@ -35,6 +35,7 @@
 
 <script type="text/javascript" src="js/lib/jquery.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/lib/bootstrap.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/lib/bootstrap-dialog.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/lib/jquery-migrate.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type='text/javascript' src='https://www.google.com/jsapi?<%=GlobalProperties.getAppVersion()%>'></script>
 <script type="text/javascript" src="js/lib/jquery.cookie.js?<%=GlobalProperties.getAppVersion()%>"></script>
@@ -66,12 +67,13 @@
 <script src="https://gsui.genomespace.org/jsui/upload/gsuploadwindow.js" type="text/javascript"></script>
 
 
-<%--<script type="text/javascript" src="js/lib/jsmol/JSmol.min.nojq.js?<%=GlobalProperties.getAppVersion()%>"></script>--%>
+<%--<script type="text/javascript" src="js/lib/jsmol/JSmol.min.nojq.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/lib/jmol/JmolCore.js"></script>
 <script type="text/javascript" src="js/lib/jmol/JmolApplet.js"></script>
 <script type="text/javascript" src="js/lib/jmol/JmolControls.js"></script>
-<script type="text/javascript" src="js/lib/jmol/JmolApi.js"></script>
+<script type="text/javascript" src="js/lib/jmol/JmolApi.js"></script>--%>
 
+<script type="text/javascript" src="js/lib/3Dmol-nojquery-min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/lib/mutationMapper.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <script type="text/javascript">
@@ -98,3 +100,4 @@
 <script type="text/javascript" src="js/src/download-data-form-validation.js"></script>
 <script type="text/javascript" src="js/lib/jstree.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/api/cbioportal-client.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/cross-cancer-plots.js?<%=GlobalProperties.getAppVersion()%>"></script>

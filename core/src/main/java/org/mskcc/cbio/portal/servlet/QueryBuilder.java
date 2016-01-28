@@ -250,8 +250,6 @@ public class QueryBuilder extends HttpServlet {
          
             httpServletRequest.setAttribute(XDEBUG_OBJECT, xdebug);
 
-			checkAndRedirectOnStudyStatus(httpServletRequest, httpServletResponse, cancerTypeId);
-
             boolean errorsExist = validateForm(action, profileList, geneticProfileIdSet, geneList,
                                                patientSetId, patientIds, httpServletRequest);
             if (action != null && action.equals(ACTION_SUBMIT) && (!errorsExist)) {
@@ -333,8 +331,6 @@ public class QueryBuilder extends HttpServlet {
 							 ServletContext servletContext, HttpServletRequest request,
 							 HttpServletResponse response,
 							 XDebug xdebug) throws IOException, ServletException, DaoException {
-
-        checkAndRedirectOnStudyStatus(request, response, cancerStudyStableId);
 
         // parse geneList, written in the OncoPrintSpec language (except for changes by XSS clean)
         double zScore = ZScoreUtil.getZScore(geneticProfileIdSet, profileList, request);
@@ -550,13 +546,6 @@ public class QueryBuilder extends HttpServlet {
         writer.flush();
         writer.close();
     }
-
-	private void checkAndRedirectOnStudyStatus(HttpServletRequest request, HttpServletResponse response, String cancerStudyId) throws ServletException, IOException, DaoException
-	{
-		if (DaoCancerStudy.getStatus(cancerStudyId) == DaoCancerStudy.Status.UNAVAILABLE) {
-			redirectStudyUnavailable(request, response);
-		}
-	}
 
 	private void redirectStudyUnavailable(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
 	{

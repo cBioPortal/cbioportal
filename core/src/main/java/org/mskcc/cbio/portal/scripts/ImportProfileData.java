@@ -49,7 +49,6 @@ import org.mskcc.cbio.portal.util.*;
  */
 public class ImportProfileData{
 
-    public static final int ACTION_CLOBBER = 1;
     private static String usageLine;
     private static OptionParser parser;
 
@@ -69,17 +68,16 @@ public class ImportProfileData{
    public static void main(String[] args) throws Exception {
        Date start = new Date();
 
-       // use a real options parser, help avoid bugs
        usageLine = "Import 'profile' files that contain data matrices indexed by gene, case.\n" +
        		"command line usage for importProfileData:";
        /*
         * usage:
         * --data <data_file.txt> --meta <meta_file.txt> --dbmsAction [clobber (default)]  --loadMode
         *  [directLoad|bulkLoad (default)] " +
-        * --germlineWhiteList <filename> --acceptRemainingMutations --somaticWhiteList <filename>
         * --somaticWhiteList <filename>
         */
 
+       // using a real options parser, helps avoid bugs
        parser = new OptionParser();
        OptionSpec<Void> help = parser.accepts( "help", "print this help info" );
        OptionSpec<String> data = parser.accepts( "data",
@@ -91,9 +89,6 @@ public class ImportProfileData{
           .withRequiredArg().describedAs( "[clobber (default)]" ).ofType( String.class );
        OptionSpec<String> loadMode = parser.accepts( "loadMode", "direct (per record) or bulk load of data" )
           .withRequiredArg().describedAs( "[directLoad|bulkLoad (default)]" ).ofType( String.class );
-       OptionSpec<String> germlineWhiteList = parser.accepts( "germlineWhiteList",
-               "list of genes whose non-missense germline mutations should be loaded into the dbms; optional" )
-          .withRequiredArg().describedAs( "filename" ).ofType( String.class );
        OptionSet options = null;
       try {
          options = parser.parse( args );
@@ -120,14 +115,11 @@ public class ImportProfileData{
            quit( "'meta' argument required.");
        }
 
-       int updateAction = ACTION_CLOBBER;
        if( options.has( dbmsAction ) ){
           String actionArg = options.valueOf( dbmsAction );
-          if (actionArg.equalsIgnoreCase("clobber")) {
-             updateAction = ACTION_CLOBBER;
-         } else {
+          if (!actionArg.equalsIgnoreCase("clobber")) {
               quit( "Unknown dbmsAction action:  " + actionArg );
-         }
+          }
           System.err.println(" --> updateAction:  " + actionArg);
        }
        
@@ -162,15 +154,10 @@ public class ImportProfileData{
         pMonitor.setMaxValue(numLines);
         
         if (geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED)) {
-   		   
-   	      String germlineWhitelistFilename = null;
-            if( options.has( germlineWhiteList ) ){
-               germlineWhitelistFilename = options.valueOf( germlineWhiteList );
-            }
+
    
             ImportExtendedMutationData importer = new ImportExtendedMutationData( dataFile,
-                  geneticProfile.getGeneticProfileId(), pMonitor, 
-                  germlineWhitelistFilename);
+                  geneticProfile.getGeneticProfileId(), pMonitor);
             System.out.println( importer.toString() );
             importer.importData();
         }

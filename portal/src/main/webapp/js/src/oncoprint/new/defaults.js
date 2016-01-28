@@ -5,12 +5,17 @@ window.oncoprint_defaults = (function() {
 		var cna_order = utils.invert_array(['AMPLIFIED', 'HOMODELETED', 'GAINED', 'HEMIZYGOUSLYDELETED', 'DIPLOID', undefined]);
 		var mut_type_key = 'mut_type';
 		var mut_order = (function() {
+			var _order = utils.invert_array(['FUSION', 'TRUNC', 'INFRAME', 'MISSENSE', undefined, true, false]); 
 			if (!distinguish_mutations) {
 				return function(m) {
-					return +(typeof m === 'undefined');
+					if (m === 'FUSION') {
+					    return 0;
+					} else {
+					    return _order[!!m];
+					}
+					//return +(typeof m === 'undefined');
 				}
-			} else {
-				var _order = utils.invert_array(['TRUNC', 'INFRAME', 'MISSENSE', undefined]); 
+			} else { 
 				return function(m) {
 					return _order[m];
 				}
@@ -99,7 +104,12 @@ window.oncoprint_defaults = (function() {
 	};
 	var genetic_alteration_config_nondistinct_mutations = $.extend(true,{},genetic_alteration_config_base);
 	genetic_alteration_config_nondistinct_mutations.altered.mut_type = {
-		'*': {
+		'FUSION':{
+			shape: 'large-right-arrow',
+			color: 'black',
+			legend_label: 'Fusion'
+		},
+		'-FUSION':{
 			shape: 'middle-rect',
 			color: 'green',
 			legend_label: 'Mutation'
@@ -126,6 +136,11 @@ window.oncoprint_defaults = (function() {
 			shape: 'large-right-arrow',
 			color: 'black',
 			legend_label: 'Fusion'
+		},
+		'OTHER':{
+			shape: 'middle-rect',
+			color: '#90EE90',
+			legend_label: 'Mutation'
 		}
 	};
 	

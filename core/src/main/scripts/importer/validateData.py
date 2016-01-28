@@ -8,10 +8,10 @@
 #   Also checks for duplicate column headers, repeated header rows
 # ------------------------------------------------------------------------------
 
+
 # imports
 import sys
 import os
-import logging
 import logging.handlers
 from collections import OrderedDict
 import argparse
@@ -19,6 +19,7 @@ import re
 import csv
 import itertools
 import requests
+
 import cbioportal_common
 
 

@@ -20,19 +20,15 @@ var Oncoprint = (function () {
 	var $label_canvas = $('<canvas width="150" height="250"></canvas>').css({'display':'inline-block', 'position':'absolute', 'left':'0px', 'top':'0px'});
 	var $cell_div = $('<div>').css({'width':width, 'height':'250', 'overflow-x':'scroll', 'overflow-y':'hidden', 'display':'inline-block', 'position':'absolute', 'left':'150px', 'top':'0px'});
 	var $cell_canvas = $('<canvas width="'+width+'" height="250"></canvas>').css({'position':'absolute', 'top':'0px', 'left':'0px'});
-	var $loading_overlay = $('<canvas width="'+width+'" height="250"></canvas>').css({'position':'absolute', 'top':'0px', 'left':'0px'});
 	var $dummy_scroll_div = $('<div>').css({'width':'20000', 'position':'absolute', 'top':'0', 'left':'0px', 'height':'1px'});
 	
 	$label_canvas.appendTo($oncoprint_ctr);
 	$cell_div.appendTo($oncoprint_ctr);
-	$loading_overlay.appendTo($oncoprint_ctr);
 	
 	$cell_canvas.appendTo($cell_div);
 	$dummy_scroll_div.appendTo($cell_div);
 	
 	this.$container = $oncoprint_ctr;
-	window.$container = this.$container;
-	this.$loading_overlay = $loading_overlay;
 	
 	this.model = new OncoprintModel();
 
@@ -55,23 +51,10 @@ var Oncoprint = (function () {
 	    $cell_canvas.css('left', scroll_left);
 	    cell_view.scroll(model, scroll_left);
 	});
-	
-	showLoadingOverlay(this);
     }
 
-    var showLoadingOverlay = function(oncoprint, percent_completed, msg) {
-	oncoprint.$loading_overlay.show();
-	
-	var width = oncoprint.$container.width();
-	var height = oncoprint.$container.height();
-	oncoprint.$loading_overlay.width(width);
-	oncoprint.$loading_overlay.height(height);
-	
-	var ctx = oncoprint.$loading_overlay[0].getContext('2d');
-	ctx.fillStyle = 'rgba(255,255,255,0.8)';
-	ctx.fillRect(0,0,width,height);
-    }
-    var hideLoadingOverlay = function(oncoprint) {
+    var resizeContainer = function(oncoprint) {
+	oncoprint.$container.css({'min-height':oncoprint.model.getViewHeight()});
     }
     Oncoprint.prototype.moveTrack = function(target_track, new_previous_track) {
 	this.model.moveTrack(target_track, new_previous_track);
@@ -81,6 +64,8 @@ var Oncoprint = (function () {
 	if (this.keep_sorted) {
 	    this.sort();
 	}
+	
+	resizeContainer(this);
     }
     Oncoprint.prototype.addTracks = function (params_list) {
 	// Update model
@@ -91,6 +76,7 @@ var Oncoprint = (function () {
 	    track_ids.push(o.track_id);
 	    return o;
 	});
+	
 	this.model.addTracks(params_list);
 	// Update views
 	this.cell_view.addTracks(this.model, track_ids);
@@ -99,7 +85,7 @@ var Oncoprint = (function () {
 	if (this.keep_sorted) {
 	    this.sort();
 	}
-
+	resizeContainer(this);
 	return track_ids;
     }
 
@@ -113,8 +99,23 @@ var Oncoprint = (function () {
 	if (this.keep_sorted) {
 	    this.sort();
 	}
+	resizeContainer(this);
     }
 
+    Oncoprint.prototype.zoomToFitHorz = function(ids) {
+	var width_to_fit_in;
+	if (typeof ids === 'undefined') {
+	    width_to_fit_in = this.cell_view.getWidth(this.model, true);
+	} else {
+	    var furthest_right_id = -1;
+	    var id_order = this.model.getIdOrder();
+	    for (var i=0; i<ids.length; i++) {
+		furthest_right_id = Math.max(id_order.indexOf(ids[i]), furthest_right_id);
+	    }
+	    width_to_fit_in = ((furthest_right_id + 3) * (this.model.getCellWidth(true) + this.model.getCellPadding(true)));
+	}
+	this.setHorzZoom(Math.min(1, this.cell_view.visible_area_width / width_to_fit_in));
+    }
     Oncoprint.prototype.getHorzZoom = function () {
 	return this.model.getHorzZoom();
     }
@@ -124,7 +125,7 @@ var Oncoprint = (function () {
 	this.model.setHorzZoom(z);
 	// Update views
 	this.cell_view.setHorzZoom(this.model, z);
-	
+
 	return this.model.getHorzZoom();
     }
     
@@ -139,6 +140,7 @@ var Oncoprint = (function () {
 	this.cell_view.setVertZoom(this.model, z);
 	this.label_view.setVertZoom(this.model, z);
 	
+	resizeContainer(this);
 	return this.model.getVertZoom();
     }
 
@@ -149,13 +151,9 @@ var Oncoprint = (function () {
 	if (this.keep_sorted) {
 	    this.sort();
 	}
+	resizeContainer(this);
     }
 
-    Oncoprint.prototype.setRuleSet = function (track_id, rule_set_params) {
-	this.model.setRuleSet(track_id, OncoprintRuleSet(rule_set_params));
-	this.cell_view.setTrackData(this.model, track_id);
-    }
-    
     Oncoprint.prototype.setTrackGroupSortPriority = function(priority) {
 	this.model.setTrackGroupSortPriority(priority);
 	this.cell_view.setTrackGroupSortPriority(this.model);

@@ -139,11 +139,8 @@ var OncoprintWebGLCellView = (function () {
     }
 
     var resizeAndClear = function(view, model) {
-	var tracks = model.getTracks();
-	var last_track = tracks[tracks.length-1];
-	var height = model.getTrackTop(last_track)+model.getTrackHeight(last_track)+2*model.getTrackPadding(last_track)
-		    + model.getBottomPadding();
-	var width = (model.getCellWidth() + model.getCellPadding())*model.getIdOrder().length;
+	var height = model.getViewHeight();
+	var width = view.getWidth(model);
 	view.$dummy_scroll_div.css('width', width);
 	view.$canvas[0].height = height;
 	view.$container.css('height', height);
@@ -424,11 +421,17 @@ var OncoprintWebGLCellView = (function () {
 	computeVertexPositionsWithYOffset(this, model, track_id);
 	renderAllTracks(this, model);
     }
+    OncoprintWebGLCellView.prototype.setRuleSet = function(model, track_id) {
+	computeIdentifiedShapeListList(this, model, track_id);
+	computeVertexPositionsWithoutYOffsetAndVertexColors(this, model, track_id);
+	computeVertexPositionsWithYOffset(this, model, track_id);
+	renderAllTracks(this, model);
+    }
+    OncoprintWebGLCellView.prototype.linkRuleSet = function(model, track_id) {
+	this.setRuleSet(model, track_id);
+    }
     OncoprintWebGLCellView.prototype.setSortConfig = function(model) {
 	this.sort(model);
-    }
-    OncoprintWebGLCellView.prototype.setRuleSet = function(model) {
-	// TODO: implement
     }
     
     OncoprintWebGLCellView.prototype.scroll = function(model, offset) {
@@ -454,6 +457,10 @@ var OncoprintWebGLCellView = (function () {
 	    computeVertexPositionsWithYOffset(this, model, track_ids[i]);
 	}
 	renderAllTracks(this, model);
+    }
+    
+    OncoprintWebGLCellView.prototype.getWidth = function(model, base) {
+	return (model.getCellWidth(base) + model.getCellPadding(base))*model.getIdOrder().length;
     }
     
     OncoprintWebGLCellView.prototype.setCellPaddingOn = function(model) {

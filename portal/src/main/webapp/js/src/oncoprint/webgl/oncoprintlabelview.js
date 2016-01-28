@@ -9,6 +9,7 @@ var OncoprintLabelView = (function () {
 	this.labels = {};
 	this.tracks = [];
 	this.minimum_track_height = Number.POSITIVE_INFINITY;
+	this.maximum_label_width = Number.NEGATIVE_INFINITY;
 	
 	setUpContext(this);
 	
@@ -58,8 +59,10 @@ var OncoprintLabelView = (function () {
 	view.tracks = model.getTracks();
 	
 	view.minimum_track_height = Number.POSITIVE_INFINITY;
+	view.maximum_label_width = Number.NEGATIVE_INFINITY;
 	for (var i=0; i<view.tracks.length; i++) {
 	    view.minimum_track_height = Math.min(view.minimum_track_height, model.getTrackHeight(view.tracks[i]));
+	    view.maximum_label_width = Math.max(view.maximum_label_width, view.ctx.measureText(view.labels[view.tracks[i]]).width);
 	}
     }
     var setUpContext = function(view) {
@@ -68,11 +71,8 @@ var OncoprintLabelView = (function () {
 	view.ctx.textBaseline="top";
     }
     var resizeAndClear = function(view, model) {
-	var tracks = model.getTracks();
-	var last_track = tracks[tracks.length-1];
-	var height = model.getTrackTop(last_track)+model.getTrackHeight(last_track)+2*model.getTrackPadding(last_track)
-		    + model.getBottomPadding();
-	view.$canvas[0].height = height;
+	view.$canvas[0].height = model.getViewHeight();
+	view.$canvas[0].width = view.getWidth();
 	setUpContext(view);
     }
     var renderAllLabels = function(view) {
@@ -128,6 +128,9 @@ var OncoprintLabelView = (function () {
 	view.drag_callback(view.dragged_label_track_id, new_previous_track_id);
 	view.dragged_label_track_id = null;
 	renderAllLabels(view);
+    }
+    OncoprintLabelView.prototype.getWidth = function() {
+	return this.maximum_label_width + 40;
     }
     OncoprintLabelView.prototype.getFontSize = function() {
 	return Math.max(Math.min(this.base_font_size, this.minimum_track_height), 7);

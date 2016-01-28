@@ -7,6 +7,7 @@
 
 import os
 import sys
+import csv
 from subprocess import Popen, PIPE, STDOUT
 
 
@@ -36,6 +37,129 @@ class MetaFileTypes(object):
     RPPA = 'meta_rppa'
     TIMELINE = 'meta_timeline'
     CASE_LIST = 'case_list'
+
+# fields allowed in each meta file type, maps to True if required
+META_FIELD_MAP = {
+    MetaFileTypes.CANCER_TYPE: {
+        'type_of_cancer': True,
+        'name': True,
+        'clinical_trial_keywords': True,
+        'dedicated_color': True,
+        'short_name': True
+    },
+    MetaFileTypes.STUDY: {
+        'cancer_study_identifier': True,
+        'type_of_cancer': True,
+        'name': True,
+        'description': True,
+        'short_name': True,
+        'citation': False,
+        'pmid': False,
+        'groups': False
+    },
+    MetaFileTypes.CLINICAL: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'datatype': True,
+        'show_profile_in_analysis_tab': True,
+        'profile_name': True,
+        'profile_description': True,
+        'data_filename': True
+    },
+    MetaFileTypes.CNA: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'datatype': True,
+        'stable_id': True,
+        'show_profile_in_analysis_tab': True,
+        'profile_name': True,
+        'profile_description': True,
+        'data_filename': True
+    },
+    MetaFileTypes.LOG2: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'datatype': True,
+        'stable_id': True,
+        'show_profile_in_analysis_tab': True,
+        'profile_name': True,
+        'profile_description': True,
+        'data_filename': True
+    },
+    MetaFileTypes.SEG: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'datatype': True,
+        'show_profile_in_analysis_tab': True,
+        'reference_genome_id': True,
+        'data_filename': True,
+        'description': True
+    },
+    MetaFileTypes.MUTATION: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'datatype': True,
+        'stable_id': True,
+        'show_profile_in_analysis_tab': True,
+        'profile_name': True,
+        'profile_description': True,
+        'data_filename': True,
+        'normal_samples_list': False
+    },
+    MetaFileTypes.EXPRESSION: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'datatype': True,
+        'stable_id': True,
+        'show_profile_in_analysis_tab': True,
+        'profile_name': True,
+        'profile_description': True,
+        'data_filename': True
+    },
+    MetaFileTypes.METHYLATION: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'datatype': True,
+        'stable_id': True,
+        'show_profile_in_analysis_tab': True,
+        'profile_name': True,
+        'profile_description': True,
+        'data_filename': True
+    },
+    MetaFileTypes.RPPA: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'datatype': True,
+        'stable_id': True,
+        'show_profile_in_analysis_tab': True,
+        'profile_name': True,
+        'profile_description': True,
+        'data_filename': True
+    },
+    MetaFileTypes.FUSION: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'datatype': True,
+        'stable_id': True,
+        'show_profile_in_analysis_tab': True,
+        'profile_name': True,
+        'profile_description': True,
+        'data_filename': True
+    },
+    MetaFileTypes.TIMELINE: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'data_filename': True
+    },
+    MetaFileTypes.CASE_LIST: {
+        'cancer_study_identifier': True,
+        'stable_id': True,
+        'case_list_name': True,
+        'case_list_description': True,
+        'case_list_ids': True,
+        'case_list_category': False
+    }
+}
 
 IMPORTER_CLASSNAME_BY_META_TYPE = {
     MetaFileTypes.STUDY: IMPORT_STUDY_CLASS,
@@ -228,6 +352,184 @@ def get_metafile_properties(meta_filename):
         properties["profile_description"],
         properties["meta_file_type"],
         properties["data_filename"])
+
+
+def validate_types_and_id(metaDictionary, logger, filename):
+    """Validate a genetic_alteration_type, datatype (and stable_id in some cases) against the predefined
+    allowed combinations found in ./allowed_data_types.txt
+    """
+    result = True
+    # this validation only applies to items that have genetic_alteration_type and datatype and stable_id
+    if 'genetic_alteration_type' in metaDictionary and 'datatype' in metaDictionary and 'stable_id' in metaDictionary:
+        alt_type_datatype_and_stable_id = {}
+        script_dir = os.path.dirname(__file__)
+        allowed_data_types_file_name = os.path.join(script_dir, "allowed_data_types.txt")
+        data_line_nr = 0
+        # build up map alt_type_datatype_and_stable_id:
+        with open(allowed_data_types_file_name) as allowed_data_types_file:
+            for line in allowed_data_types_file:
+                if line.startswith("#"):
+                    continue
+                data_line_nr += 1
+                # skip header, so if line is not header then process as tab separated:
+                if (data_line_nr > 1):
+                    line_cols = csv.reader([line], delimiter='\t').next()
+                    genetic_alteration_type = line_cols[0]
+                    data_type = line_cols[1]
+                    # add to map:
+                    if (genetic_alteration_type, data_type) not in alt_type_datatype_and_stable_id:
+                        alt_type_datatype_and_stable_id[(genetic_alteration_type, data_type)] = []
+                    alt_type_datatype_and_stable_id[(genetic_alteration_type, data_type)].append(line_cols[2])
+        # init:
+        stable_id = metaDictionary['stable_id']
+        genetic_alteration_type = metaDictionary['genetic_alteration_type']
+        data_type = metaDictionary['datatype']
+        # validate the genetic_alteration_type/data_type combination:
+        if (genetic_alteration_type, data_type) not in alt_type_datatype_and_stable_id:
+            # unexpected as this is already validated in get_meta_file_type
+            raise RuntimeError('Unexpected error: genetic_alteration_type and data_type combination not found in allowed_data_types.txt.',
+                               genetic_alteration_type, data_type)
+        # validate stable_id:
+        elif stable_id not in alt_type_datatype_and_stable_id[(genetic_alteration_type, data_type)]:
+            logger.error("Invalid stable id for genetic_alteration_type '%s', "
+                         "data_type '%s'; expected one of [%s]",
+                        genetic_alteration_type,
+                        data_type,
+                        ', '.join(alt_type_datatype_and_stable_id[(genetic_alteration_type, data_type)]),
+                        extra={'filename_': filename,
+                               'cause': stable_id}
+                        )
+            result = False
+
+    return result
+
+
+def parse_metadata_file(filename,
+                        logger,
+                        study_id=None,
+                        known_cancer_types=None,
+                        genome_name=None,
+                        case_list=False):
+
+    """Validate a metafile and return a dictionary of values read from it and
+    the meta_file_type according to get_meta_file_type.
+
+    Return `None` if the file is invalid. If `case_list` is True,
+    validate the file as a case list instead of a meta file.
+
+    :param filename: name of the meta file
+    :param logger: the logging.Logger instance to log warnings and errors to
+    :param study_id: cancer study id found in previous files (or None). All subsequent
+                     meta files should comply to this in the field 'cancer_study_identifier'
+    :param known_cancer_types: dict of cancer types defined in the portal,
+                               for validation
+    :param genome_name: supported reference genome name, for validation
+    :param case_list: whether this meta file is a case list (special case)
+    """
+
+    metaDictionary = {}
+    with open(filename, 'rU') as metafile:
+        for line_index, line in enumerate(metafile):
+            if ':' not in line:
+                logger.error(
+                    "Invalid %s file entry, no ':' found",
+                    {True: 'case list', False: 'meta'}[case_list],
+                    extra={'filename_': filename,
+                           'line_number': line_index + 1})
+                return None
+            key_value = line.split(':', 1)
+            if len(key_value) == 2:
+                metaDictionary[key_value[0]] = key_value[1].strip()
+
+    if case_list:
+        meta_file_type = MetaFileTypes.CASE_LIST
+    else:
+        meta_file_type = get_meta_file_type(metaDictionary, logger, filename)
+        if meta_file_type is None:
+            # skip this file (can't validate unknown file types)
+            return None
+
+    missing_fields = []
+    for field in META_FIELD_MAP[meta_file_type]:
+        mandatory = META_FIELD_MAP[meta_file_type][field]
+        if field not in metaDictionary and mandatory:
+            logger.error("Missing field '%s' in %s file",
+                         field,
+                         {True: 'case list', False: 'meta'}[case_list],
+                         extra={'filename_': filename})
+            missing_fields.append(field)
+
+    if missing_fields:
+        # skip this file (the fields may be required for validation)
+        return None
+
+    # validate genetic_alteration_type, datatype, stable_id
+    stable_id_mandatory = 'stable_id' in META_FIELD_MAP[meta_file_type] and META_FIELD_MAP[meta_file_type]['stable_id']
+    if stable_id_mandatory:
+        valid_types_and_id = validate_types_and_id(metaDictionary, logger, filename)
+        if not valid_types_and_id:
+            return None
+
+    for field in metaDictionary:
+        if field not in META_FIELD_MAP[meta_file_type]:
+            logger.warning(
+                'Unrecognized field in %s file',
+                {True: 'case list', False: 'meta'}[case_list],
+                extra={'filename_': filename,
+                       'cause': field})
+
+    # check that cancer study identifiers across files so far are consistent.
+    if (
+            study_id is not None and
+            'cancer_study_identifier' in metaDictionary and
+            study_id != metaDictionary['cancer_study_identifier']):
+        logger.error(
+            "Cancer study identifier is not consistent across "
+            "files, expected '%s'",
+            study_id,
+            extra={'filename_': filename,
+                   'cause': metaDictionary['cancer_study_identifier']})
+        return None
+
+    if meta_file_type == MetaFileTypes.CANCER_TYPE:
+        # compare a meta_cancer_type file with the portal instance
+        if known_cancer_types is not None:
+            file_cancer_type = metaDictionary.get('type_of_cancer')
+            if file_cancer_type not in known_cancer_types:
+                logger.warning(
+                    'New disease type will be added to the portal',
+                    extra={'filename_': filename,
+                           'cause': file_cancer_type})
+            else:
+                existing_info = known_cancer_types[file_cancer_type]
+                invalid_fields_found = False
+                for field in metaDictionary:
+                    if (
+                            field in existing_info and
+                            field != 'cancer_type_id' and
+                            metaDictionary[field] != existing_info[field]):
+                        logger.error(
+                            "%s field of cancer type does not match the "
+                            "portal, '%s' expected",
+                            field,
+                            existing_info[field],
+                            extra={'filename_': filename,
+                                   'cause': metaDictionary[field]})
+                        invalid_fields_found = True
+                if invalid_fields_found:
+                    return None
+    # check fields specific to seg meta file
+    elif meta_file_type == MetaFileTypes.SEG:
+        if metaDictionary['reference_genome_id'] != genome_name:
+            logger.error(
+                'Reference_genome_id is not %s',
+                genome_name,
+                extra={'filename_': filename,
+                       'cause': metaDictionary['reference_genome_id']})
+            return None
+
+    return metaDictionary,meta_file_type
+
 
 def run_java(*args):
     java_home = os.environ['JAVA_HOME']

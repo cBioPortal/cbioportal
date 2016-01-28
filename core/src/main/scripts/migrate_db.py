@@ -150,7 +150,6 @@ def run_migration(db_version, sql_filename, cursor):
         if run_line:
             try:
                 cursor.execute(line.strip())
-                print cursor.fetchall()
             except MySQLdb.Error, msg:
                 print >> ERROR_FILE, msg
                 sys.exit(1)

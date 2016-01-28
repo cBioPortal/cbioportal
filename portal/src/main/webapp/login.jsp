@@ -121,8 +121,8 @@
                   <form name='loginForm' action="<c:url value='j_spring_security_check' />" method='POST'>
                 <% } %>
 
-                <fieldset>
-                  <legend style="width:96px;border-bottom:none;color:#666666;font-family:verdana,arial,sans-serif;font-size:12px;">
+                <fieldset id="login-fieldset">
+                  <legend>
                       Login to Portal:
                   </legend>
                   <p>

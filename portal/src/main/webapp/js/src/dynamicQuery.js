@@ -332,12 +332,12 @@ function getMapping() {
     function getMap() {
 	var def = new $.Deferred();
         // Get input selection
-        var sampleIds = $("#custom_case_set_ids").val().trim().replace(/"/g,'').split(/\s+/);
+        var caseIds = $("#custom_case_set_ids").val().trim().replace(/"/g,'').split(/\s+/);
         // Get study selection
         var studyId = $("#select_single_study").val();
-        if (sampleIds[0] !== "")
+        if (caseIds[0] !== "")
         {
-            window.cbioportal_client.getSamples({study_id: [studyId],patient_ids: sampleIds}).then(function(sampleMap){
+            window.cbioportal_client.getSamplesByPatient({study_id: [studyId],patient_ids: caseIds}).then(function(sampleMap){
                 $("#custom_case_set_ids").val(setPatientSampleIdMap(sampleMap));
 		def.resolve();
             });                
@@ -571,21 +571,14 @@ function updateCaseListSmart() {
     $("#select_case_set").trigger("liszt:updated");
     $("#select_case_set_chzn .chzn-drop ul.chzn-results li")
         .each(function(i, e) {
-            $(e).qtip({
-                content: "<font size='2'>" + $($("#select_case_set option")[i]).attr("title") + "</font>",
-                style: {
-                    classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'
-                },
-                position: {
-                    my: 'left middle',
-                    at: 'middle right',
-                    viewport: $(window)
-                },
-	            show: "mouseover",
-	            hide: "mouseout"
-            });
-        }
-    );
+        	//make qtip for an element on first mouseenter:
+        	cbio.util.addTargetedQTip($(e), {
+        		content: "<font size='2'>" + $($("#select_case_set option")[i]).attr("title") + "</font>",
+        		style: {
+        			classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'
+                }
+        	}); 
+      });
 }
 
 // Called when and only when a cancer study is selected from the dropdown menu
@@ -651,8 +644,7 @@ function updateCancerStudyInformation() {
     //  Add the user-defined case list option
     $("#select_case_set").append("<option class='case_set_option' value='-1' "
         + "title='Specify you own case list'>User-defined Case List</option>");
-    updateCaseListSmart();
-
+    
     //  Set up Tip-Tip Event Handler for Case Set Pull-Down Menu
     //  commented out for now, as this did not work in Chrome or Safari
     //  $(".case_set_option").tipTip({defaultPosition: "right", delay:"100", edgeOffset: 25});

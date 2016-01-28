@@ -57,22 +57,18 @@ public final class DaoCancerStudy {
 	}
 
     private DaoCancerStudy() {}
-    
+
     private static final Map<String, java.util.Date> cacheDateByStableId = new HashMap<String, java.util.Date>();
     private static final Map<Integer, java.util.Date> cacheDateByInternalId = new HashMap<Integer, java.util.Date>();
     private static final Map<String,CancerStudy> byStableId = new HashMap<String,CancerStudy>();
     private static final Map<Integer,CancerStudy> byInternalId = new HashMap<Integer,CancerStudy>();
-    private static long lastCached = Long.MIN_VALUE;
     
     static {
         SpringUtil.initDataSource();
-        reCacheAll(System.currentTimeMillis());
+        reCacheAll();
     }
 
-    private static synchronized void reCacheAll(long time) {
-        if (lastCached >= time) {
-            return;
-        }
+    private static synchronized void reCacheAll() {
         
         System.out.println("Recaching... ");
         DaoCancerStudy.reCache();
@@ -81,7 +77,6 @@ public final class DaoCancerStudy {
         DaoSample.reCache();
         DaoClinicalData.reCache();
         System.out.println("Finished recaching... ");
-        lastCached = System.currentTimeMillis();
     }
     
     private static synchronized void reCache() {
@@ -99,10 +94,7 @@ public final class DaoCancerStudy {
             while (rs.next()) {
                 CancerStudy cancerStudy = extractCancerStudy(rs);
                 cacheCancerStudy(cancerStudy, new java.util.Date());
-				setStatus(Status.AVAILABLE, cancerStudy.getCancerStudyStableId());
             }
-		} catch (DaoException e) {
-			e.printStackTrace();
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
@@ -306,7 +298,7 @@ public final class DaoCancerStudy {
         CancerStudy existing = getCancerStudyByStableId(stableId);
         if (existing!=null) {
             if (overwrite) {
-				setStatus(Status.UNAVAILABLE, stableId);
+				//setStatus(Status.UNAVAILABLE, stableId);
                 deleteCancerStudy(existing.getInternalId());
             } else {
                 throw new DaoException("Cancer study " + stableId + "is already imported.");
@@ -350,8 +342,7 @@ public final class DaoCancerStudy {
             JdbcUtil.closeAll(DaoCancerStudy.class, con, pstmt, rs);
         }
 
-        setImportDate(cancerStudy.getInternalId());
-        reCache();
+        reCacheAll();
     }
 
     /**
@@ -362,11 +353,6 @@ public final class DaoCancerStudy {
      */
     public static CancerStudy getCancerStudyByInternalId(int internalId) throws DaoException
 	{
-		if (GlobalProperties.getRecacheStudyAfterUpdate()
-                        && studyNeedsRecaching(null, internalId)) {
-                    System.out.print("Study with internal ID of "+internalId+" updated.");
-                    reCacheAll(System.currentTimeMillis());
-		}
         return byInternalId.get(internalId);
     }
 
@@ -378,11 +364,6 @@ public final class DaoCancerStudy {
      */
     public static CancerStudy getCancerStudyByStableId(String stableId) throws DaoException
 	{
-		if (GlobalProperties.getRecacheStudyAfterUpdate()
-                        && studyNeedsRecaching(stableId)) {
-                    System.out.print("Study "+stableId+" updated.");
-                    reCacheAll(System.currentTimeMillis());
-		}
         return byStableId.get(stableId);
     }
 
@@ -393,11 +374,6 @@ public final class DaoCancerStudy {
      * @return true if the CancerStudy exists, otherwise false
      */
     public static boolean doesCancerStudyExistByStableId(String cancerStudyStableId) {
-        if (GlobalProperties.getRecacheStudyAfterUpdate()
-                        && studyNeedsRecaching(cancerStudyStableId)) {
-            System.out.print("Study "+cancerStudyStableId+" updated.");
-            reCacheAll(System.currentTimeMillis());
-        }
         return byStableId.containsKey(cancerStudyStableId);
     }
 
@@ -409,11 +385,6 @@ public final class DaoCancerStudy {
      * @return true if the CancerStudy exists, otherwise false
      */
     public static boolean doesCancerStudyExistByInternalId(int internalCancerStudyId) {
-        if (GlobalProperties.getRecacheStudyAfterUpdate()
-                        && studyNeedsRecaching(null, internalCancerStudyId)) {
-            System.out.print("Study with internal ID of "+internalCancerStudyId+" updated.");
-            reCacheAll(System.currentTimeMillis());
-        }
         return byInternalId.containsKey(internalCancerStudyId);
     }
 
@@ -423,11 +394,6 @@ public final class DaoCancerStudy {
      * @return ArrayList of all CancerStudy Objects.
      */
     public static ArrayList<CancerStudy> getAllCancerStudies() {
-        if (GlobalProperties.getRecacheStudyAfterUpdate()
-                        && cacheOutOfSyncWithDb()) {
-            System.out.print("cache out of sync updated.");
-            reCacheAll(System.currentTimeMillis());
-        }
         return new ArrayList<CancerStudy>(byStableId.values());
     }
 
@@ -436,11 +402,6 @@ public final class DaoCancerStudy {
      * @return number of cancer studies.
      */
     public static int getCount() {
-        if (GlobalProperties.getRecacheStudyAfterUpdate()
-                        && cacheOutOfSyncWithDb()) {
-            System.out.print("cache out of sync updated.");
-            reCacheAll(System.currentTimeMillis());
-        }
         return byStableId.size();
     }
 
@@ -471,7 +432,7 @@ public final class DaoCancerStudy {
     {
         CancerStudy study = getCancerStudyByStableId(cancerStudyStableId);
         if (study != null){
-			setStatus(Status.UNAVAILABLE, cancerStudyStableId);
+			//setStatus(Status.UNAVAILABLE, cancerStudyStableId);
             deleteCancerStudy(study.getInternalId());
         }
     }
@@ -553,10 +514,8 @@ public final class DaoCancerStudy {
         } finally {
             JdbcUtil.closeAll(DaoCancerStudy.class, con, pstmt, rs);
         }
+        reCacheAll();
         System.out.print("delete a study "+internalCancerStudyId);
-        if (GlobalProperties.getRecacheStudyAfterUpdate()) {           
-            reCacheAll(System.currentTimeMillis());
-        }
     }
 
     /**

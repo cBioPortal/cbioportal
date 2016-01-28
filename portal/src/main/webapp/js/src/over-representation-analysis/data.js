@@ -32,11 +32,11 @@
 
 
 var orData = function() {
-    
+
     var data = [], retrieved = false, table_id, profile_id;
-    
+
     function convert_data(_input, _profile_type) {
-        
+
         var table_arr = [];
 
         $.each(_input, function(_index, _obj) {
@@ -44,26 +44,28 @@ var orData = function() {
             if (_obj !== null) {
                 var _unit = [];
                 if (_profile_type === orAnalysis.profile_type.copy_num) {
-                    _unit[orAnalysis.col_index.copy_num.gene] = "<input type='checkbox' class='" + table_id + orAnalysis.postfix.datatable_gene_checkbox_class + "' value='" + _obj["Gene"] + "'>" + _obj["Gene"];
-                    _unit[orAnalysis.col_index.copy_num.cytoband] = _obj["Cytoband"];
-                    _unit[orAnalysis.col_index.copy_num.altered_pct] = (_obj["percentage of alteration in altered group"] * 100).toFixed(2) + "%";
-                    _unit[orAnalysis.col_index.copy_num.unaltered_pct] = (_obj["percentage of alteration in unaltered group"] * 100).toFixed(2) + "%";
+                    _unit[orAnalysis.col_index.copy_num.gene] = _obj["Gene"];
+                    var _vals_altered_group = _obj["percentage of alteration in altered group"].split("////"); //count & percentage
+                    _unit[orAnalysis.col_index.copy_num.altered_pct] = _vals_altered_group[0] + " (" + (_vals_altered_group[1] * 100).toFixed(2) + "%)";
+                    var _vals_unaltered_group = _obj["percentage of alteration in unaltered group"].split("////"); //count & percentage
+                    _unit[orAnalysis.col_index.copy_num.unaltered_pct] = _vals_unaltered_group[0] + " (" + (_vals_unaltered_group[1] * 100).toFixed(2) + "%)";
                     _unit[orAnalysis.col_index.copy_num.log_ratio] = (_obj["Log Ratio"] !== ">10" && _obj["Log Ratio"] !== "<-10")? parseFloat(_obj["Log Ratio"]).toFixed(2): _obj["Log Ratio"];
                     _unit[orAnalysis.col_index.copy_num.direction] = define_direction(_profile_type, _obj["p-Value"], _obj["q-Value"], _obj["Log Ratio"]);
                     _unit[orAnalysis.col_index.copy_num.p_val] = trim_p_val_copy_num(_obj["p-Value"]);
                     _unit[orAnalysis.col_index.copy_num.q_val] = trim_p_val_copy_num(_obj["q-Value"]);
                 } else if (_profile_type === orAnalysis.profile_type.mutations) {
-                    _unit[orAnalysis.col_index.mutations.gene] = "<input type='checkbox' class='" + table_id + orAnalysis.postfix.datatable_gene_checkbox_class + "' value='" + _obj["Gene"] + "'>" + _obj["Gene"];
-                    _unit[orAnalysis.col_index.mutations.cytoband] = _obj["Cytoband"];
-                    _unit[orAnalysis.col_index.mutations.altered_pct] = (_obj["percentage of alteration in altered group"] * 100).toFixed(2) + "%";
-                    _unit[orAnalysis.col_index.mutations.unaltered_pct] = (_obj["percentage of alteration in unaltered group"] * 100).toFixed(2) + "%";
+                    _unit[orAnalysis.col_index.mutations.gene] = _obj["Gene"];
+                    var _vals_altered_group = _obj["percentage of alteration in altered group"].split("////"); //count & percentage
+                    _unit[orAnalysis.col_index.mutations.altered_pct] = _vals_altered_group[0] + " (" + (_vals_altered_group[1] * 100).toFixed(2) + "%)";
+                    var _vals_unaltered_group = _obj["percentage of alteration in unaltered group"].split("////"); //count & percentage
+                    _unit[orAnalysis.col_index.mutations.unaltered_pct] = _vals_unaltered_group[0] + " (" + (_vals_unaltered_group[1] * 100).toFixed(2) + "%)";
                     _unit[orAnalysis.col_index.mutations.log_ratio] = (_obj["Log Ratio"] !== ">10" && _obj["Log Ratio"] !== "<-10")? parseFloat(_obj["Log Ratio"]).toFixed(2): _obj["Log Ratio"];
                     _unit[orAnalysis.col_index.mutations.direction] = define_direction(_profile_type, _obj["p-Value"], _obj["q-Value"], _obj["Log Ratio"]);
                     _unit[orAnalysis.col_index.mutations.p_val] = trim_p_val_mutations(_obj["p-Value"]);
                     _unit[orAnalysis.col_index.mutations.q_val] = trim_p_val_mutations(_obj["q-Value"]);
                 } else if (_profile_type === orAnalysis.profile_type.mrna) {
-                    _unit[orAnalysis.col_index.mrna.gene] = "<input type='checkbox' class='" + table_id + orAnalysis.postfix.datatable_gene_checkbox_class + "' value='" + _obj["Gene"] + "'>" + _obj["Gene"];
-                    _unit[orAnalysis.col_index.mrna.cytoband] = _obj["Cytoband"];
+                    // moved the styling of the gene to view.js mDataProp
+                    _unit[orAnalysis.col_index.mrna.gene] = _obj["Gene"];
                     _unit[orAnalysis.col_index.mrna.altered_mean] = parseFloat(_obj["mean of alteration in altered group"]).toFixed(2);
                     _unit[orAnalysis.col_index.mrna.unaltered_mean] = parseFloat(_obj["mean of alteration in unaltered group"]).toFixed(2);
                     _unit[orAnalysis.col_index.mrna.altered_stdev] = parseFloat(_obj["standard deviation of alteration in altered group"]).toFixed(2);
@@ -71,8 +73,8 @@ var orData = function() {
                     _unit[orAnalysis.col_index.mrna.p_val] = trim_p_val_mrna(_obj["mean of alteration in altered group"], _obj["mean of alteration in unaltered group"], _obj["p-Value"]);
                     _unit[orAnalysis.col_index.mrna.q_val] = trim_p_val_mrna(_obj["mean of alteration in altered group"], _obj["mean of alteration in unaltered group"], _obj["q-Value"]);
                 } else if (_profile_type === orAnalysis.profile_type.protein_exp) {
-                    _unit[orAnalysis.col_index.protein_exp.gene] = "<input type='checkbox' class='" + table_id + orAnalysis.postfix.datatable_gene_checkbox_class + "' value='" + _obj["Gene"] + "'>" + _obj["Gene"];
-                    _unit[orAnalysis.col_index.protein_exp.cytoband] = _obj["Cytoband"];
+                    // moved the styling of the gene to view.js mDataProp
+                    _unit[orAnalysis.col_index.protein_exp.gene] = _obj["Gene"];
                     _unit[orAnalysis.col_index.protein_exp.altered_mean] = parseFloat(_obj["mean of alteration in altered group"]).toFixed(2);
                     _unit[orAnalysis.col_index.protein_exp.unaltered_mean] = parseFloat(_obj["mean of alteration in unaltered group"]).toFixed(2);
                     _unit[orAnalysis.col_index.protein_exp.altered_stdev] = parseFloat(_obj["standard deviation of alteration in altered group"]).toFixed(2);
@@ -83,21 +85,21 @@ var orData = function() {
                 table_arr.push(_unit);
             }
 
-        });  
+        });
         return table_arr;
     }
-    
+
     function trim_p_val_mutations(_input_str) {
         return cbio.util.toPrecision(parseFloat(_input_str), 3, 0.01);
     }
-    
+
     function trim_p_val_copy_num(_input_str) {
         return cbio.util.toPrecision(parseFloat(_input_str), 3, 0.01);
     }
-    
+
     function trim_p_val_mrna(_param1, _param2, _input_str) {
         var _result_str = cbio.util.toPrecision(parseFloat(_input_str), 3, 0.01);
-        
+
         if (parseFloat(_param1) > parseFloat(_param2)) {
             _result_str += "<img src=\"images/up1.png\"/>";
         } else {
@@ -105,13 +107,13 @@ var orData = function() {
         }
         return _result_str;
     }
-    
+
     function define_direction(_profile_type, _p_val, _q_val, _log_ratio) {
 
         var _result_str = "";
-        
+
         if (_profile_type === orAnalysis.profile_type.copy_num) {
-            
+
             if (_log_ratio === ">10") {
                 _result_str += orAnalysis.text.cooccurrence;
             } else if (_log_ratio === "<-10") {
@@ -136,12 +138,12 @@ var orData = function() {
             } else if (_log_ratio === 0) {
                 _result_str += "--"
             }
-        } 
-        
+        }
+
         if (_p_val < orAnalysis.settings.p_val_threshold && _q_val < orAnalysis.settings.p_val_threshold && _result_str !== "--") {
             _result_str += "&nbsp;&nbsp;&nbsp;<span class='label label-or-analysis-significant'>Significant</span>";
         }
-        
+
         return _result_str;
     }
 
@@ -153,21 +155,21 @@ var orData = function() {
                 url: "oranalysis.do",
                 method: "POST",
                 data: _param
-            })  
+            })
             .done(function(result) {
                 data = result;
                 retrieved = true;
             })
             .fail(function( jqXHR, textStatus ) {
                 alert( "Request failed: " + textStatus );
-            }); 
+            });
         },
-        get: function(callback_func, _div_id, _table_div, _table_id, _table_title, _profile_type, _profile_id, _last_profile) {
+        get: function(callback_func, _div_id, _table_div, _table_id, _table_title, _profile_type, _profile_id, _last_profile, data_type) {
             var tmp = setInterval(function () { timer(); }, 1000);
             function timer() {
                 if (retrieved) {
                     clearInterval(tmp);
-                    callback_func(convert_data(data, _profile_type), _div_id, _table_div, _table_id, _table_title, _profile_type, _profile_id, _last_profile);
+                    callback_func(data, convert_data(data, _profile_type), _div_id, _table_div, _table_id, _table_title, _profile_type, _profile_id, _last_profile, data_type);
                 }
             }
         }

@@ -58,116 +58,6 @@ VALIDATOR_IDS = {
 # ----------------------------------------------------------------------------
 # class definitions
 
-class ValidationMessageFormatter(logging.Formatter):
-
-    """Logging formatter with optional fields for data validation messages.
-
-    These fields are:
-    filename_ - the name of the file the message is about (if applicable)
-    line_number - a line number within the above file (if applicable)
-    column_number - a column number within the above file (if applicable)
-    cause - the unexpected value found in the input (if applicable)
-
-    If instead a message pertains to multiple values of one of these
-    fields (as the result of aggregation by CollapsingLogMessageHandler),
-    these will be expected in the field <fieldname>_list.
-    """
-
-    def format(self, record, *args, **kwargs):
-        """Check consistency of expected fields and format the record."""
-        if (
-                (
-                    self.format_aggregated(record,
-                                           'line_number',
-                                           optional=True) or
-                    self.format_aggregated(record,
-                                           'column_number',
-                                           optional=True))
-                and not self.format_aggregated(record,
-                                               'filename_',
-                                               optional=True)):
-            raise ValueError(
-                'Tried to log about a line/column with no filename')
-        return super(ValidationMessageFormatter, self).format(record,
-                                                              *args,
-                                                              **kwargs)
-
-    @staticmethod
-    def format_aggregated(record,
-                          attr_name,
-                          single_fmt='%s',
-                          multiple_fmt='[%s]',
-                          join_string=', ',
-                          max_join=3,
-                          optional=False):
-        """Format a human-readable string for a field or its <field>_list.
-
-        As would be generated when using the CollapsingLogMessageHandler.
-        If `optional` is True and both the field and its list are absent,
-        return an empty string.
-        """
-        attr_val = getattr(record, attr_name, None)
-        attr_list = getattr(record, attr_name + '_list', None)
-        if attr_val is not None:
-            attr_indicator = single_fmt % attr_val
-        elif attr_list is not None:
-            string_list = list(str(val) for val in attr_list[:max_join])
-            num_skipped = len(attr_list) - len(string_list)
-            if num_skipped != 0:
-                string_list.append('(%d more)' % num_skipped)
-            attr_indicator = multiple_fmt % join_string.join(string_list)
-        elif optional:
-            attr_indicator = ''
-        else:
-            raise ValueError(
-                "Tried to format an absent non-optional log field: '%s'" %
-                attr_name)
-        return attr_indicator
-
-
-class LogfileStyleFormatter(ValidationMessageFormatter):
-
-    """Formatter for validation messages in a simple one-per-line format."""
-
-    def __init__(self):
-        """Initialize a logging Formatter with an appropriate format string."""
-        super(LogfileStyleFormatter, self).__init__(
-            fmt='%(levelname)s: %(file_indicator)s:'
-                '%(line_indicator)s%(column_indicator)s'
-                ' %(message)s%(cause_indicator)s')
-
-    def format(self, record):
-
-        """Generate descriptions for optional fields and format the record."""
-
-
-        if not hasattr(record, 'filename_'):
-            record.file_indicator = '-'
-        else:
-            record.file_indicator = os.path.basename(record.filename_.strip())
-        record.line_indicator = self.format_aggregated(
-            record,
-            'line_number',
-            ' line %d:',
-            ' lines [%s]:',
-            optional=True)
-        record.column_indicator = self.format_aggregated(
-            record,
-            'column_number',
-            ' column %d:',
-            ' columns [%s]:',
-            optional=True)
-        record.cause_indicator = self.format_aggregated(
-            record,
-            'cause',
-            "; found in file: '%s'",
-            "; found in file: ['%s']",
-            join_string="', '",
-            optional=True)
-
-        return super(LogfileStyleFormatter, self).format(record)
-
-
 class MaxLevelTrackingHandler(logging.Handler):
 
     """Handler that does nothing but track the maximum msg level emitted."""
@@ -1712,7 +1602,7 @@ def main_validate(args):
 
     # set default message handler
     text_handler = logging.StreamHandler(sys.stdout)
-    text_handler.setFormatter(LogfileStyleFormatter())
+    text_handler.setFormatter(cbioportal_common.LogfileStyleFormatter())
     collapsing_text_handler = CollapsingLogMessageHandler(
         capacity=1e6,
         flushLevel=logging.CRITICAL,

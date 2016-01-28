@@ -73,9 +73,9 @@ var SurvivalTab = (function() {
             //Init Instances
             var survivalCurveViewOS = SurvivalCurveView(osOpts);
             var params = {
-                case_set_id: PortalGlobals.getCaseSetId(),
-                case_ids_key: PortalGlobals.getCaseIdsKey(),
-                cancer_study_id: PortalGlobals.getCancerStudyId(),
+                case_set_id: window.QuerySession.getCaseSetId(),
+                case_ids_key: window.QuerySession.getCaseIdsKey(),
+                cancer_study_id: window.QuerySession.getCancerStudyIds()[0],
                 data_type: "os"
             };
             $.post("getSurvivalData.json", params, function(data) {

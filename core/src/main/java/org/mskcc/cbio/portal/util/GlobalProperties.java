@@ -38,7 +38,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.util.*;
+import java.net.URL;
+
 
 /**
  * Utility class for getting / setting global properties.
@@ -157,17 +161,35 @@ public class GlobalProperties {
     public static final String SKIN_CUSTOM_HEADER_TABS="skin.custom_header_tabs";
 
     // properties for the FAQ, about us, news and examples
-    public static final String SKIN_FAQ="skin.faq";
-    public static final String DEFAULT_SKIN_FAQ="content/faq.html";
-    public static final String SKIN_ABOUT="skin.about";
-    public static final String DEFAULT_SKIN_ABOUT="content/about_us.html";
-    public static final String SKIN_NEWS="skin.news";
-    public static final String DEFAULT_SKIN_NEWS="content/news.html";
+    public static final String SKIN_BASEURL="skin.documentation.baseurl";
+    public static final String DEFAULT_SKIN_BASEURL="https://github.com/cBioPortal/cbioportal/wiki/";
+    public static final String SKIN_DOCUMENTATION_MARKDOWN="skin.documentation.markdown";
+
+    public static final String SKIN_FAQ="skin.documentation.faq";
+    public static final String DEFAULT_SKIN_FAQ="FAQ.md";
+    public static final String SKIN_ABOUT="skin.documentation.about";
+    public static final String DEFAULT_SKIN_ABOUT="About-Us.md";
+    public static final String SKIN_NEWS="skin.documentation.news";
+    public static final String DEFAULT_SKIN_NEWS="News.md";
+
     public static final String SKIN_EXAMPLES_RIGHT_COLUMN="skin.examples_right_column";
     public static final String DEFAULT_SKIN_EXAMPLES_RIGHT_COLUMN="../../../content/examples.html";
     
     public static final String ALWAYS_SHOW_STUDY_GROUP="always_show_study_group";
 
+    // property for text shown at the right side of the Select Patient/Case set, which
+    // links to the study view
+    public static final String SKIN_STUDY_VIEW_LINK_TEXT="skin.study_view.link_text";
+    public static final String DEFAULT_SKIN_STUDY_VIEW_LINK_TEXT="To build your own case set, try out our enhanced " +
+            "Study View.";
+
+
+    public static final String MYCANCERGENOME_URL = "mycancergenome.url";
+    public static final String ONCOKB_GENE_STATUS = "oncokb.geneStatus";
+    public static final String SHOW_HOTSPOT = "show.hotspot";
+    
+    public static final String RECACHE_STUDY_AFTER_UPDATE = "recache_study_after_update";
+    
     private static Log LOG = LogFactory.getLog(GlobalProperties.class);
     private static Properties properties = initializeProperties();
 
@@ -277,9 +299,8 @@ public class GlobalProperties {
         return properties.getProperty(AUTHENTICATE);
     }
 
-	public static boolean usersMustBeAuthorized()
-    {
-		return Boolean.parseBoolean(properties.getProperty(AUTHORIZATION));
+	public static boolean usersMustBeAuthorized() {
+        return Boolean.parseBoolean(properties.getProperty(AUTHORIZATION));
 	}
 
     public static String getAppName()
@@ -309,20 +330,32 @@ public class GlobalProperties {
     public static String getFaqHtml()
     {
         String faqHtml = properties.getProperty(SKIN_FAQ);
-        return (faqHtml == null) ? DEFAULT_SKIN_FAQ : "content/"+faqHtml;
+        return (faqHtml == null) ? DEFAULT_SKIN_FAQ : getContentString(faqHtml);
     }
     // get custom About html or the default
     public static String getAboutHtml()
     {
         String aboutHtml = properties.getProperty(SKIN_ABOUT);
-        return (aboutHtml == null) ? DEFAULT_SKIN_ABOUT : "content/"+aboutHtml;
+        return (aboutHtml == null) ? DEFAULT_SKIN_ABOUT : getContentString(aboutHtml);
     }
     // get custom News html or the default
     public static String getNewsHtml()
     {
         String newsHtml = properties.getProperty(SKIN_NEWS);
-        return (newsHtml == null) ? DEFAULT_SKIN_NEWS : "content/"+newsHtml;
+        return (newsHtml == null) ? DEFAULT_SKIN_NEWS : getContentString(newsHtml);
     }
+    // get custom News html or the default
+    public static String getBaseUrl()
+    {
+        String baseUrl = properties.getProperty(SKIN_BASEURL);
+        return (baseUrl == null) ? DEFAULT_SKIN_BASEURL : baseUrl;
+    }
+    public static boolean isMarkdownDocumentation()
+    {
+        String markdownFlag = properties.getProperty(SKIN_DOCUMENTATION_MARKDOWN);
+        return markdownFlag == null || Boolean.parseBoolean(markdownFlag);
+    }
+
     // get custom Example Queries for the right column html or the default
     public static String getExamplesRightColumnHtml()
     {
@@ -330,6 +363,10 @@ public class GlobalProperties {
         return (examplesRightColumnHtml == null) ? DEFAULT_SKIN_EXAMPLES_RIGHT_COLUMN : "../../../content/"+examplesRightColumnHtml;
     }
 
+    private static String getContentString(String contentString){
+        if(getBaseUrl().equalsIgnoreCase("")) return "content/"+contentString;
+        return contentString;
+    }
 
     // get the login contact html
     public static String getLoginContactHtml()
@@ -364,6 +401,11 @@ public class GlobalProperties {
     public static String getFooter(){
         String footer = properties.getProperty(SKIN_FOOTER);
         return (footer == null) ? DEFAULT_SKIN_FOOTER : footer;
+    }
+    // function for retrieving the studyview link text
+    public static String getStudyviewLinkText(){
+        String studyviewLinkText = properties.getProperty(SKIN_STUDY_VIEW_LINK_TEXT);
+        return (studyviewLinkText == null) ? DEFAULT_SKIN_STUDY_VIEW_LINK_TEXT : studyviewLinkText;
     }
 
     public static String getEmailContact()
@@ -583,7 +625,36 @@ public class GlobalProperties {
     
     public static String getOncoKBUrl()
     {
-        return properties.getProperty(ONCOKB_URL);
+        String oncokbUrl = properties.getProperty(ONCOKB_URL);
+
+        //Test connection of OncoKB website.
+        if(oncokbUrl != null && !oncokbUrl.isEmpty()) {
+            try {
+                URL url = new URL(oncokbUrl+"access");
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                if(conn.getResponseCode() != 200) {
+                    oncokbUrl = "";
+                }
+                conn.disconnect();
+                return oncokbUrl;
+            } catch (Exception e) {
+                return "";
+            }
+        }
+        return "";
+    }
+
+    public static boolean showHotspot() {
+        String hotspot = properties.getProperty(SHOW_HOTSPOT);
+        if (hotspot==null) {
+            return true; // show hotspots by default
+        }
+        
+        if(!hotspot.isEmpty()) {
+            return Boolean.parseBoolean(hotspot);
+        }else{
+            return false;
+        }
     }
 
     public static boolean filterGroupsByAppName() {
@@ -598,5 +669,23 @@ public class GlobalProperties {
         }
         
         return group;
+    }
+    
+    public static String getMyCancerGenomeUrl()
+    {
+        return properties.getProperty(MYCANCERGENOME_URL);
+    }
+    
+    public static String getOncoKBGeneStatus()
+    {
+        return properties.getProperty(ONCOKB_GENE_STATUS);
+    }
+    
+    public static boolean getRecacheStudyAfterUpdate() {
+        String recacheStudyAfterUpdate = properties.getProperty(RECACHE_STUDY_AFTER_UPDATE);
+        if (recacheStudyAfterUpdate==null || recacheStudyAfterUpdate.isEmpty()) {
+            return false;
+        }
+        return Boolean.parseBoolean(recacheStudyAfterUpdate);
     }
 }

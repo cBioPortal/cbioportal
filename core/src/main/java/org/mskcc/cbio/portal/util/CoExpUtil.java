@@ -64,23 +64,28 @@ public class CoExpUtil {
     }
 
 	public static GeneticProfile getPreferedGeneticProfile(String cancerStudyIdentifier) {
-        CancerStudy cs = DaoCancerStudy.getCancerStudyByStableId(cancerStudyIdentifier);
-        ArrayList<GeneticProfile> gps = DaoGeneticProfile.getAllGeneticProfiles(cs.getInternalId());
-        GeneticProfile final_gp = null;
-        for (GeneticProfile gp : gps) {
-            // TODO: support miRNA later
-            if (gp.getGeneticAlterationType() == GeneticAlterationType.MRNA_EXPRESSION) {
-                //rna seq profile (no z-scores applied) holds the highest priority)
-                if (gp.getStableId().toLowerCase().contains("rna_seq") &&
-                   !gp.getStableId().toLowerCase().contains("zscores")) {
-                    final_gp = gp;
-                    break;
-                } else if (!gp.getStableId().toLowerCase().contains("zscores")) {
-                    final_gp = gp;
-                }
-            }
-        }
-        return final_gp;
+		try {
+			CancerStudy cs = DaoCancerStudy.getCancerStudyByStableId(cancerStudyIdentifier);
+			ArrayList<GeneticProfile> gps = DaoGeneticProfile.getAllGeneticProfiles(cs.getInternalId());
+			GeneticProfile final_gp = null;
+			for (GeneticProfile gp : gps) {
+				// TODO: support miRNA later
+				if (gp.getGeneticAlterationType() == GeneticAlterationType.MRNA_EXPRESSION) {
+					//rna seq profile (no z-scores applied) holds the highest priority)
+					if (gp.getStableId().toLowerCase().contains("rna_seq") &&
+					   !gp.getStableId().toLowerCase().contains("zscores")) {
+						final_gp = gp;
+						break;
+					} else if (!gp.getStableId().toLowerCase().contains("zscores")) {
+						final_gp = gp;
+					}
+				}
+			}
+			return final_gp;
+		}
+		catch (DaoException e) {
+			return null;
+		}
     }
 
     public static Map<Long,double[]> getExpressionMap(int profileId, String patientSetId, String patientIdsKey) throws DaoException {

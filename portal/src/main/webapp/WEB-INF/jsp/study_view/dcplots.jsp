@@ -39,7 +39,13 @@
 <link rel="stylesheet" type="text/css" href="css/introjs.min.css?<%=GlobalProperties.getAppVersion()%>">
 <link rel="stylesheet" type="text/css" href="css/introjs-rtl.min.css?<%=GlobalProperties.getAppVersion()%>">
 
+<link rel="stylesheet" type="text/css" href="css/bootstrap-alert.css?<%=GlobalProperties.getAppVersion()%>">
+<link rel="stylesheet" type="text/css" href="css/animate.css?<%=GlobalProperties.getAppVersion()%>">
+<script src="js/lib/bootstrap-notify.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
+<script type="text/javascript" src="js/lib/backbone-min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script src="js/lib/packery.pkgd.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script src="js/lib/draggabilly.pkgd.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script src="js/lib/intro.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
@@ -51,13 +57,14 @@
 <script src="js/lib/d3.layout.cloud.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script data-main="js/src/study-view/main.js?<%=GlobalProperties.getAppVersion()%>" src="js/require.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
-<div id="dc-plots-loading-wait">
+
+
+<div id="summary-loading-wait">
     <img src="images/ajax-loader.gif"/>
 </div>
 
 <div id="study-view-main" style="display: none;">
     <div id="study-view-header-function"></div>
-    <div id="study-view-top-wrapper"></div>
     
     <div id="study-view-charts"></div>
     

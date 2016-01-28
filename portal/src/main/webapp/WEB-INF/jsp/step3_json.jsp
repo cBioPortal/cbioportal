@@ -38,18 +38,32 @@
 <div class="query_step_section" id="step3">
 	<table>
 		<tr>
-			<td>
-    		<span class="step_header">Select Patient/Case Set:</span>
+			<td width="23%">
+    		    <span class="step_header">Select Patient/Case Set:</span>
 			</td>
 			<td>
 				<select id="select_case_set" name="<%= QueryBuilder.CASE_SET_ID %>"></select>
 	 		</td>
 	 		<td>
+                <!--
 	 			<a id="build_custom_case_set" onclick="promptCustomCaseSetBuilder()" title="Build a Custom Case Set Based on Clinical Attributes">
 	 				Build Case Set
 	 			</a>
+	 			-->
 	 		</td>
 		</tr>
+        <tr>
+            <td></td>
+            <td>
+                <div>
+                    <!-- add new link for the new functionality which links to the study view -->
+                    <a id="build_case_set" onclick="openStudyView()" title="Build a Case Set via Study View">
+                        <%= GlobalProperties.getStudyviewLinkText()%>
+                    </a>
+                </div>
+            </td>
+            <td></td>
+        </tr>
 	</table>
 	
 	<div id="custom_case_set_dialog" title="Build a Case Set">
@@ -177,6 +191,10 @@ if (step3ErrorMsg != null) {
     <div id='custom_case_list_section' style="display:<%= customCaseListStyle %>;">
         <p><span style="font-size:80%">Enter case IDs below:</span></p>
 <textarea id='custom_case_set_ids' name='<%= QueryBuilder.CASE_IDS %>' rows=6 cols=80></textarea>
+<br/>
+<input type="radio" name='patient_case_select' value="sample" checked>By sample ID</input>
+<br/>
+<input type="radio" name='patient_case_select' value="patient">By patient ID</input>
     </div>
 
 <%

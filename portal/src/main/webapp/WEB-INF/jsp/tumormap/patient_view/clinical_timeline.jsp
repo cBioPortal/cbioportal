@@ -33,7 +33,7 @@
 
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 
-  <script src="js/src/patient-view/clinical-timeline.js?<%=GlobalProperties.getAppVersion()%>"></script>
+  <script src="js/src/patient-view/clinical-timeline.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
   <style type="text/css">
     .axis path,
@@ -73,17 +73,21 @@
         for (var i=0; i<caseIds.length; i++) {
             var caseId = caseIds[i];
             var clinicalData = clinicalDataMap[caseId];
-            var su2cSampleId = guessClinicalData(clinicalData,["SU2C_SAMPLE_ID"]);
-            if (!su2cSampleId) su2cSampleId = caseId;
+            var compareAgainstIds = [caseId];
+            var OtherSampleId = guessClinicalData(clinicalData,["OTHER_SAMPLE_ID"]);
+            if (OtherSampleId) {
+                compareAgainstIds = compareAgainstIds.concat(OtherSampleId);
+            }
             var circle = d3.selectAll(".timelineSeries_0").filter(function (x) {
                 if (x.tooltip_tables.length === 1) {
-                    return x.tooltip_tables[0].filter(function(x) {
+                    var specRefNum = x.tooltip_tables[0].filter(function(x) {
                         return x[0] === "SpecimenReferenceNumber" || x[0] === "SPECIMEN_REFERENCE_NUMBER";
-                    })[0][1] === su2cSampleId;
+                    })[0];
+                    if (specRefNum) {
+                        return compareAgainstIds.indexOf(specRefNum[1]) !== -1;
+                    }
                 }
-                else {
-                    return undefined;
-                }
+                return undefined;
             });
             if (circle[0][0]) {
                 var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
@@ -118,12 +122,33 @@
                 var timeData = clinicalTimelineParser(data);
                 if (timeData.length===0) return;
 
+                // order specimens by svg label number
+                var specimen = _.findWhere(timeData, {label:"Specimen"});
+                if (specimen) {
+                    specimen.times = _.sortBy(specimen.times, function(x) {
+                        var sortOrder = Infinity;
+
+                        var specRefNum = _.filter(x.tooltip_tables[0], function(x) {
+                            return x[0] === "SPECIMEN_REFERENCE_NUMBER" || x[0] === "SpecimenReferenceNumber";
+                        });
+                        if (specRefNum) {
+                            if (specRefNum.length > 1) {
+                                console.warn("More than 1 specimen reference number found in tooltip table");
+                            }
+                            sortOrder = caseIds.indexOf(specRefNum[0][1]);
+                            if (sortOrder === -1) {
+                                sortOrder = Infinity;
+                            }
+                        }
+                        return sortOrder;
+                    });
+                }
+
                 // add DECEASED point to STATUS track
                 if ("CAISIS_OS_STATUS" in patientInfo &&
                     patientInfo["CAISIS_OS_STATUS"] === "DECEASED" &&
                     "CAISIS_OS_MONTHS" in patientInfo) {
                     var days = parseInt(parseInt(patientInfo["CAISIS_OS_MONTHS"])*30.4);
-                    console.log(days);
                     var timePoint = {
                         "starting_time":days,
                         "ending_time":days,
@@ -156,19 +181,20 @@
                         .width(width)
                         .data(timeData)
                         .divId("#timeline")
-                        .setTimepointsDisplay("IMAGING", "square")
-                        .orderTracks(["SPECIMEN", "SURGERY", "STATUS", "DIAGNOSTICS", "DIAGNOSTIC", "IMAGING", "LAB_TEST", "TREATMENT"])
-                        .splitByClinicalAttribute("LAB_TEST", "TEST")
+                        .setTimepointsDisplay("Imaging", "square")
+                        .orderTracks(["Specimen", "Surgery", "Status", "Diagnostics", "Diagnostic", "Imaging", "Lab_test", "Treatment"])
+                        .splitByClinicalAttributes("Lab_test", "TEST")
                         .sizeByClinicalAttribute("PSA", "RESULT")
                         .sizeByClinicalAttribute("ALK", "RESULT")
                         .sizeByClinicalAttribute("TEST", "RESULT")
                         .sizeByClinicalAttribute("HGB", "RESULT")
                         .sizeByClinicalAttribute("PHOS", "RESULT")
                         .sizeByClinicalAttribute("LDH", "RESULT")
-                        .splitByClinicalAttribute("TREATMENT", "AGENT")
+                        .splitByClinicalAttributes("Treatment", ["SUBTYPE", "AGENT"])
                         .collapseAll()
-                        .toggleTrackCollapse("SPECIMEN")
+                        .toggleTrackCollapse("Specimen")
                         .enableTrackTooltips(false)
+                        .enableZoom(false)
                         .addPostTimelineHook(plotCaseLabelsInTimeline);
                 timeline();
                 $("#timeline-container").show();
@@ -178,7 +204,7 @@
     });
   </script>
 
-  <fieldset class="fieldset-border">
+  <fieldset class="fieldset-border ui-widget-content">
   <legend class="legend-border">Clinical Events</legend>
   <div id="timeline-container" style="display:hidden">
   <div id="timeline">

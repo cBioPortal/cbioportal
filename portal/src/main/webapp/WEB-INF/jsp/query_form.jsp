@@ -109,7 +109,7 @@
 //    String caseIdsKey = (String) request.getAttribute(QueryBuilder.CASE_IDS_KEY);
 %>
 
-
+<script type="text/javascript" src="js/lib/oql/oql-parser.js" charset="utf-8"></script>
 <script type="text/javascript">
     // Store the currently selected options as global variables;
     window.cancer_study_id_selected = '<%= localCancerTypeId%>';
@@ -135,7 +135,7 @@
 </script>
 <div class="main_query_panel">
     <div id="main_query_form">
-        <form id="main_form" action="index.do" method="post">
+        <form id="main_form" name="main_form" action="index.do" method="post">
         <%@ include file="step1_json.jsp" %>
         <%@ include file="step2_json.jsp" %>
         <%@ include file="step3_json.jsp" %>
@@ -148,12 +148,12 @@
         <p/>
         <% conditionallyOutputTransposeMatrixOption (localTabIndex, clientTranspose, out); %>
         &nbsp;<br/>
-        <input id="main_submit" class="ui-button ui-widget ui-state-default ui-corner-all" style="height: 34px;"
-                   type=submit name="<%= QueryBuilder.ACTION_NAME%>" value="<%= QueryBuilder.ACTION_SUBMIT %>"/>
+        <input id="main_submit" class="ui-button ui-widget ui-state-default ui-corner-all" onclick="submitHandler()" style="height: 34px;" name="<%= QueryBuilder.ACTION_NAME%>" value="<%= QueryBuilder.ACTION_SUBMIT %>"/>
         <% conditionallyOutputGenomespaceOption(localTabIndex, out); %>
+
         </form>
     </div>
-</div>
+</div>      
 
 <%!
     private void conditionallyOutputTransposeMatrixOption(String localTabIndex,

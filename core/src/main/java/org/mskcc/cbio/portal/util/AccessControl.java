@@ -38,6 +38,7 @@ import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.web_api.ProtocolException;
 
 import org.springframework.security.access.prepost.PostFilter;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.List;
 
@@ -82,4 +83,6 @@ public interface AccessControl {
 	//@PreAuthorize("hasPermission(#stableStudyId, 'read')")
 	@PostFilter("hasPermission(filterObject, 'read')")
     List<CancerStudy> isAccessibleCancerStudy(String stableStudyId) throws DaoException;
+
+    UserDetails getUserDetails();
 }

@@ -68,6 +68,7 @@ import org.apache.log4j.Logger;
 import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.*;
 import java.util.*;
@@ -283,6 +284,12 @@ public class PatientView extends HttpServlet {
                     cancerStudyIdentifier + "'. ");
             return false;
         }
+        else {
+            UserDetails ud = accessControl.getUserDetails();
+            if (ud != null) {
+                logger.info("PatientView.validate: Query initiated by user: " + ud.getUsername());
+            }
+        }
         
         request.setAttribute(PATIENT_CASE_OBJ, samples);
         request.setAttribute(CANCER_STUDY, cancerStudy);
@@ -296,7 +303,7 @@ public class PatientView extends HttpServlet {
         
         return true;
     }
-    
+
     private void sortSampleIds(int cancerStudyId, int patientId, List<String> sampleIds) {
         if (sampleIds.size()==1) {
             return;

@@ -53,15 +53,44 @@ var StudyViewWindowEvents = (function(){
             if (event.keyCode === 16){
                 shiftKeyDown = true;
                 shiftKeyDownEvent = event;
+                console.log("shift key down");
             }
         });
         $(window).on("keyup", function(event) {
             if (event.keyCode === 16){
                 shiftKeyDown = false;
                 shiftKeyDownEvent = null;
+                console.log("shift key up");
             }
         });
     }
+
+    function setShiftDown(){
+        shiftKeyDown = true;
+        shiftKeyDownEvent = "breadcrumb";
+        console.log("down");
+    }
+
+    function setShiftUp(){
+        shiftKeyDown = false;
+        shiftKeyDownEvent = null;
+        console.log("up");
+    }
+
+    //
+    //function setShiftKey(){
+    //    if(shiftKeyDownEvent!=="breadcrumb") {
+    //        origKeyDownEvent = shiftKeyDownEvent;
+    //        origShiftKeyDown = shiftKeyDown;
+    //        shiftKeyDownEvent = "breadcrumb";
+    //        shiftKeyDown = true;
+    //    }
+    //    else{
+    //        shiftKeyDown = origShiftKeyDown;
+    //        shiftKeyDownEvent = origKeyDownEvent
+    //    }
+    //}
+
     function initScrollEvent(){
         /*
         $(window).scroll(function(e){
@@ -154,7 +183,9 @@ var StudyViewWindowEvents = (function(){
         
         getShiftKeyDown: function() {
             return shiftKeyDown;
-        }
+        },
+        setShiftUp: setShiftUp,
+        setShiftDown: setShiftDown
     };
 })();
 

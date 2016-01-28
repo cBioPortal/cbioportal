@@ -32,7 +32,7 @@
 
 
 /**
- * 
+ *
  * Handling data reformating/calculation (odds-ratio, fisher exact test)
  * Reusing data from onco-print
  *
@@ -75,7 +75,7 @@ var MutexData = (function() {
 		};
 
 	function countEventCombinations() {
-            var _geneArr = window.PortalGlobals.getGeneList();
+            var _geneArr = window.QuerySession.getQueryGenes();
             //eliminate genes with no alteration
             var _gene_arr = []; //only genes with alterations
             $.each(_geneArr, function(index, _gene) {
@@ -88,8 +88,8 @@ var MutexData = (function() {
                             }
                         }
                     });
-                });                
-                if (_has_alteration) _gene_arr.push(_gene); 
+                });
+                if (_has_alteration) _gene_arr.push(_gene);
             });
 
             $.each(_gene_arr, function(outterIndex, outterObj) {
@@ -106,16 +106,16 @@ var MutexData = (function() {
                             _alteredGeneB = false;
                         $.each(singleCaseObj.values, function(singleGeneIndex, singleGeneObj) {
                             if (singleGeneObj.gene === _geneA) {
-                                if (Object.keys(singleGeneObj).length > 2) { 
+                                if (Object.keys(singleGeneObj).length > 2) {
                                 //if more than two fields(gene and sample) -- meaning there's alterations
                                         _alteredGeneA = true;
                                 }
                             } else if(singleGeneObj.gene === _geneB) {
-                                if (Object.keys(singleGeneObj).length > 2) { 
+                                if (Object.keys(singleGeneObj).length > 2) {
                                 //if more than two fields(gene and sample) -- meaning there's alterations
                                         _alteredGeneB = true;
                                 }
-                            }					
+                            }
                         });
                         if (_alteredGeneA === true && _alteredGeneB === true) {
                             _d += 1;
@@ -168,12 +168,12 @@ var MutexData = (function() {
                             } else if (_dataObj.log_odds_ratio > settings.log_odds_ratio_threshold) {
                                 _dataObj.association = label.co_occurance;
                                 if (_dataObj.p_value < settings.p_val_threshold) {
-                                    _dataObj.association += label.significant;                                    
+                                    _dataObj.association += label.significant;
                                 }
-                            } 
+                            }
                         } else {
-                            _dataObj.odds_ratio = "Infinity"; 
-                            _dataObj.log_odds_ratio = "Infinity"; 
+                            _dataObj.odds_ratio = "Infinity";
+                            _dataObj.log_odds_ratio = "Infinity";
                             _dataObj.association = label.co_occurance;
                             if (_dataObj.p_value < settings.p_val_threshold) {
                                 _dataObj.association += label.significant;
@@ -186,17 +186,17 @@ var MutexData = (function() {
 
     function buildStat() {
         $.each(dataArr, function(index, obj) {
-            if (obj.log_odds_ratio <= settings.log_odds_ratio_threshold || obj.log_odds_ratio === "-Infinity") {		
+            if (obj.log_odds_ratio <= settings.log_odds_ratio_threshold || obj.log_odds_ratio === "-Infinity") {
                 stat.num_of_mutex += 1;
                 if (obj.p_value < settings.p_val_threshold) {
                     stat.num_of_sig_mutex += 1;
-                }		
+                }
             } else if (obj.log_odds_ratio > settings.log_odds_ratio_threshold || obj.log_odds_ratio === "Infinity") {
                 stat.num_of_co_oc += 1;
                 if (obj.p_value < settings.p_val_threshold) {
                     stat.num_of_sig_co_oc += 1;
                 }
-            }  
+            }
         });
     }
 
@@ -208,7 +208,7 @@ var MutexData = (function() {
 
             //eliminate genes with no alteration
             var _gene_arr = []; //only genes with alterations
-            $.each(window.PortalGlobals.getGeneList(), function(index, _gene) {
+            $.each(window.QuerySession.getQueryGenes(), function(index, _gene) {
                 var _has_alteration = false;
                 $.each(oncoprintData, function(index, _data_obj) {
                     $.each(_data_obj.values, function(_index, _single_gene_obj) {
@@ -226,17 +226,19 @@ var MutexData = (function() {
                 countEventCombinations();
                 calc();
 
-                function abortTimer() {
-                    clearInterval(tid);
-                    buildStat();
-                    MutexView.init();
-                }
                 function detectInstance() {
                     if (dataArr.length !== 0) {
                         abortTimer();
                     }
                 }
-                var tid = setInterval(detectInstance, 600);
+                function abortTimer() {
+                    clearInterval(tid);
+                    buildStat();
+                    MutexView.init();
+                }
+								
+		var tid = setInterval(detectInstance, 600);
+
             } else {
                 $("#mutex").empty();
                 $("#mutex").append("Calculation could not be performed.");

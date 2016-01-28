@@ -32,20 +32,14 @@
 
 package org.mskcc.cbio.portal.dao;
 
-import org.mskcc.cbio.portal.model.GeneticAlterationType;
+import org.mskcc.cbio.portal.model.*;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import org.mskcc.cbio.portal.model.GeneticProfile;
+import java.sql.*;
+import java.util.*;
+
+/**
+ * Analogous to and replaces the old DaoCancerType. A CancerStudy has a NAME and
+ * DESCRIPTION. If PUBLIC is true a CancerStudy can be accessed by anyone,
 
 /**
  * Data access object for Genetic Profile table
@@ -56,11 +50,7 @@ public final class DaoGeneticProfile {
     private static final Map<String,GeneticProfile> byStableId = new HashMap<String,GeneticProfile>();
     private static final Map<Integer,GeneticProfile> byInternalId = new HashMap<Integer,GeneticProfile>();
     private static final Map<Integer,List<GeneticProfile>> byStudy = new HashMap<Integer,List<GeneticProfile>>();
-    
-    static {
-        reCache();
-    }
-    
+
     public static synchronized void reCache() {
         byStableId.clear();
         byInternalId.clear();

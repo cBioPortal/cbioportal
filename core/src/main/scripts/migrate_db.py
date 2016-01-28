@@ -91,7 +91,7 @@ def get_db_version(cursor):
         return None
     
     if not version_table_exists:
-        return (1,0,1)
+        return (0,0,0)
 
     # Now query the table for the version number
     try:

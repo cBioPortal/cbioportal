@@ -365,12 +365,6 @@ class CollapsingLogMessageHandler(logging.handlers.MemoryHandler):
         self.buffer = aggregated_buffer
         super(CollapsingLogMessageHandler, self).flush()
 
-    def shouldFlush(self, record):
-        """Flush when emitting an INFO message or a message without a file."""
-        return ((record.levelno == logging.INFO) or
-                ('filename_' not in record.__dict__) or
-                super(CollapsingLogMessageHandler, self).shouldFlush(record))
-
 
 class MetastudyProperties(object):
     def __init__(self,

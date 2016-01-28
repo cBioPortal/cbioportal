@@ -1515,7 +1515,6 @@ def main_validate(args):
 
     # get a logger to emit messages
     logger = logging.getLogger(__name__)
-    logger.handlers = []
     logger.setLevel(logging.INFO)
     exit_status_handler = MaxLevelTrackingHandler()
     logger.addHandler(exit_status_handler)

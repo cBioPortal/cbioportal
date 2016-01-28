@@ -231,6 +231,10 @@ var ccPlots = (function (Plotly, _, $) {
         data = [];
         data.length = 0;
 
+        // ---- filter out study ids that doesn't have data ----
+        var _valid_study_ids = _.uniq(_.pluck(formatted_data, "study_id"));
+        var finalized_study_ids = _.filter(study_ids, function(_id) { return $.inArray(_id, _valid_study_ids) !== -1; });
+        
         // ---- define tracks ----
 
         if (show_mutations) { //show mutations
@@ -246,7 +250,7 @@ var ccPlots = (function (Plotly, _, $) {
                 _y = _.pluck(_not_sequenced_group, "profile_data");
             }
             var not_sequenced_track = {
-                x: _.map(_.pluck(_not_sequenced_group, "study_id"), function(_study_id){ return study_ids.indexOf(_study_id) + Math.random() * jitter_value - jitter_value / 2; }),
+                x: _.map(_.pluck(_not_sequenced_group, "study_id"), function(_study_id){ return finalized_study_ids.indexOf(_study_id) + Math.random() * jitter_value - jitter_value / 2; }),
                 y: _y,
                 mode: 'markers',
                 type: 'scatter',
@@ -276,7 +280,7 @@ var ccPlots = (function (Plotly, _, $) {
                 _y = _.pluck(_non_mut_group, "profile_data");
             }
             var non_mut_track = {
-                x: _.map(_.pluck(_non_mut_group, "study_id"), function(_study_id){ return study_ids.indexOf(_study_id) + Math.random() * jitter_value - jitter_value / 2; }),
+                x: _.map(_.pluck(_non_mut_group, "study_id"), function(_study_id){ return finalized_study_ids.indexOf(_study_id) + Math.random() * jitter_value - jitter_value / 2; }),
                 y: _y,
                 mode: 'markers',
                 type: 'scatter',
@@ -309,7 +313,7 @@ var ccPlots = (function (Plotly, _, $) {
                     _y = _.pluck(_mut_group, "profile_data");
                 }
                 var _mut_track = {
-                    x: _.map(_.pluck(_mut_group, "study_id"), function(_study_id){ return study_ids.indexOf(_study_id) + Math.random() * jitter_value - jitter_value / 2; }),
+                    x: _.map(_.pluck(_mut_group, "study_id"), function(_study_id){ return finalized_study_ids.indexOf(_study_id) + Math.random() * jitter_value - jitter_value / 2; }),
                     y: _y,
                     mode: 'markers',
                     type: 'scatter',
@@ -329,18 +333,18 @@ var ccPlots = (function (Plotly, _, $) {
             });
         } else { //not showing mutations
             var _qtips = []; //assemble array of qtip text
-            _.each(_non_mut_group.concat(_mix_mut_group, _not_sequenced_group), function(_obj) {
+            _.each(formatted_data, function(_obj) {
                 _qtips.push("Study: " +  _obj.study_name + "<br>" +"Sample Id: " + _obj.sample_id + "<br>" + "Expression: " + _obj.profile_data);
             });
             var _y = []; //assemble y axis values
             if (apply_log_scale) {
-                _y = _.pluck(_non_mut_group, "logged_profile_data");
+                _y = _.pluck(formatted_data, "logged_profile_data");
             } else {
-                _y = _.pluck(_non_mut_group, "profile_data");
+                _y = _.pluck(formatted_data, "profile_data");
             }
 
             var plain_track = {
-                x: _.map(_.pluck(_non_mut_group.concat(_mix_mut_group, _not_sequenced_group), "study_id"), function(_study_id){ return study_ids.indexOf(_study_id) + Math.random() * jitter_value - jitter_value / 2; }),
+                x: _.map(_.pluck(formatted_data, "study_id"), function(_study_id){ return finalized_study_ids.indexOf(_study_id) + Math.random() * jitter_value - jitter_value / 2; }),
                 y: _y,
                 mode: 'markers',
                 type: 'scatter',
@@ -352,8 +356,8 @@ var ccPlots = (function (Plotly, _, $) {
                     line: {color: '#0089C6', width: 1.2}
                 },
                 hoverinfo: "text",
-                study_id: _.pluck(_non_mut_group.concat(_mix_mut_group, _not_sequenced_group), "study_id"),
-                sample_id: _.pluck(_non_mut_group.concat(_mix_mut_group, _not_sequenced_group), "sample_id")
+                study_id: _.pluck(formatted_data, "study_id"),
+                sample_id: _.pluck(formatted_data, "sample_id")
             };
             data.push(plain_track);
         }
@@ -386,8 +390,16 @@ var ccPlots = (function (Plotly, _, $) {
 
         // ---- define layout ----
         var vals = [];
-        for (var i = 0 ; i < mrna_profiles.length; i++) {
+        for (var i = 0 ; i < finalized_study_ids.length; i++) {
             vals.push(i);
+        }
+        var _study_short_names = [];
+        for (var j = 0 ; j < finalized_study_ids.length; j++) {
+            _.each(study_meta, function(_study_meta_obj) {
+                if (_study_meta_obj.id === finalized_study_ids[j]) {
+                    _study_short_names.push(_study_meta_obj.short_name);
+                }
+            });
         }
         var layout = {
             hovermode:'closest',
@@ -399,7 +411,7 @@ var ccPlots = (function (Plotly, _, $) {
             },
             xaxis: {
                 tickmode: "array",
-                ticktext: _.pluck(study_meta, "short_name"),
+                ticktext: _study_short_names,
                 tickvals: vals,
                 tickangle: 45
             },

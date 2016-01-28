@@ -51,6 +51,7 @@ drop table IF EXISTS entity_link;
 drop table IF EXISTS entity;
 drop table IF EXISTS cancer_study;
 drop table IF EXISTS type_of_cancer;
+drop table IF EXISTS info;
 -- --------------------------------------------------------
 
 --
@@ -719,4 +720,8 @@ CREATE TABLE `clinical_event_data` (
   `KEY` varchar(255) NOT NULL,
   `VALUE` varchar(5000) NOT NULL,
   FOREIGN KEY (`CLINICAL_EVENT_ID`) REFERENCES `clinical_event` (`CLINICAL_EVENT_ID`) ON DELETE CASCADE
+);
+
+CREATE TABLE `info` (
+    `DB_SCHEMA_VERSION` varchar(8)
 );

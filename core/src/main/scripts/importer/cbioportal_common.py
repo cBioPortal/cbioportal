@@ -623,13 +623,13 @@ def parse_metadata_file(filename,
 
 
 def run_java(*args):
-    java_home = os.environ['JAVA_HOME']
-    if len(java_home) == 0:
-        print >> ERROR_FILE, "$JAVA_HOME must be defined"
-        return
-    #print >> OUTPUT_FILE, ("Executing command: " + java_home +
-    #                       "/bin/java {}\n".format(args).replace('(\'', '').replace('\', \'', ' ').replace('\')', ''))
-    process = Popen([ java_home + '/bin/java']+list(args), stdout=PIPE, stderr=STDOUT)
+    java_home = os.environ.get('JAVA_HOME', '')
+    if java_home:
+        java_command = os.path.join(java_home, 'bin', 'java')
+    else:
+        java_command = 'java'
+    process = Popen([java_command] + list(args), stdout=PIPE, stderr=STDOUT,
+                    universal_newlines=True)
     ret = []
     while process.poll() is None:
         line = process.stdout.readline()

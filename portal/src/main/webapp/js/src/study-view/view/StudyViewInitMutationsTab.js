@@ -32,10 +32,10 @@
 
 var StudyViewInitMutationsTab = (function(){
     var data = [];
+    var dataTable;
     
     function init(_data){
         data = _data;
-        $('#smg_wrapper_table').hide();
         loadMutatedGenes(
             StudyViewParams.params.studyId, 
             StudyViewParams.params.mutationProfileId, 
@@ -57,7 +57,7 @@ var StudyViewInitMutationsTab = (function(){
             ix.push([i]);
         }
 
-        var oTable = $('#smg_table').dataTable( {
+        dataTable = $('#smg_table').dataTable( {
             "sScrollY": "500px",
             "bPaginate": false,
             "bScrollCollapse": true,
@@ -185,7 +185,7 @@ var StudyViewInitMutationsTab = (function(){
             }
         });
 
-        oTable.css("width","100%");
+        dataTable.css("width","100%");
 
         $('.smg-table-name').html(n+" mutated genes <img id='mutations-summary-help' src='images/help.png' title='Genes that <ul><li>are in the top 500 (randed by mutations per nucleotide) recurrently mutated (2 or more mutations)</li><li>or are cancer genes</li><li>or are detected by MutSig</li></ul>.'>");
         $('#mutations-summary-help').qtip({
@@ -197,21 +197,12 @@ var StudyViewInitMutationsTab = (function(){
         $('.smg-table-name').addClass('data-table-name');
         
         $('#smg_wrapper_table').show();
-        
-        if ($('#study-tab-mutations-a').hasClass('selected')) {
-            oTable.fnAdjustColumnSizing();
-            $('#study-tab-mutations-a').addClass("tab-clicked")
-        }
-        
-        $('#study-tab-mutations-a').click(function(){
-            if (!$(this).hasClass("tab-clicked")) {
-                oTable.fnAdjustColumnSizing();
-                $(this).addClass("tab-clicked");
-            }
-        });
     }
     
     return{
-        init: init
+        init: init,
+        getDataTable: function () {
+            return dataTable;
+        }
     };
 })();

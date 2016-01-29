@@ -78,16 +78,19 @@ var StudyViewInitTopComponents = (function() {
         
         $("#study-view-case-select-custom-submit-btn").click(function() {
             var ids = $('#study-view-case-select-custom-input').val().trim().split(/\s+/);
-            StudyViewInitCharts.filterChartsByGivingIDs(convertIds(ids));
+            var convertedIds = convertIds(ids);
             $('#study-view-header-right-1').qtip('toggle');
-            BreadCrumbs.updateSelectCaseIDdBreadCrumb('study-view-select-case', 'Custom', 'User defined cases', ids);
+            if(_.isArray(convertedIds) && convertedIds.length > 0) {
+                StudyViewInitCharts.filterChartsByGivingIDs(convertedIds);
+                BreadCrumbs.updateSelectCaseIDdBreadCrumb('study-view-select-case', 'Custom', 'User defined cases', ids);
+            }
         });
         
         $("#study-view-tutorial").click(function() {
             StudyViewInitIntroJS.init();
         });
 
-        $("#study-view-header-left-4").click(function() {
+        $("#study-view-header-left-5").click(function() {
             var _url;
             var _selectedCaseIds = StudyViewInitCharts.getSelectedCasesID();
             var _selectedPatientIds = StudyViewProxy.getPatientIdsBySampleIds(_selectedCaseIds);
@@ -139,28 +142,92 @@ var StudyViewInitTopComponents = (function() {
             };
 
             cbio.download.initDownload(content, downloadOpts);
-        })
+        });
+
+
+        $("#study-view-form").click(function(event){
+            // add the necessary fields to the form
+            if(!QueryByGeneTextArea.isEmpty()) {
+                event.preventDefault();
+                QueryByGeneTextArea.validateGenes(decideSubmit, false);
+            }
+        });
+
+
+        $("#study-view-header-left-1").hover(function () {
+            $("#query-by-gene-textarea").css("outline", "-webkit-focus-ring-color auto 5px");
+            $("#study-view-header-left-5").css("outline", "-webkit-focus-ring-color auto 5px");
+        }, function() {
+            $("#query-by-gene-textarea").css("outline", "");
+            $("#study-view-header-left-5").css("outline", "");
+        });
+
+        $("#study-view-header-left-5").hover(function () {
+            $("#study-view-header-left-5").css("outline", "-webkit-focus-ring-color auto 5px");
+        }, function() {
+            $("#study-view-header-left-5").css("outline", "");
+        });
+
+        $("#study-view-header-left-6").hover(function () {
+            $("#study-view-header-left-5").css("outline", "-webkit-focus-ring-color auto 5px");
+        }, function() {
+            $("#study-view-header-left-5").css("outline", "");
+        });
+
+        $('#study-view-header-left-5').qtip({
+            content: {text: 'Click to view the selected cases' },
+            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+            show: {event: 'mouseover'},
+            hide: {fixed:true, delay: 100, event: 'mouseout'},
+            position: {my:'bottom center', at:'top center', viewport: $(window)}
+        });
+    }
+
+    // decide whether to proceed with the submit of the form
+    function decideSubmit(allValid){
+        // if all genes are valid, submit, otherwise show a notification
+        if(allValid){
+            new QueryByGeneUtil().addStudyViewFields();
+            $("#study-view-form").trigger("submit");
+        }
+        else {
+            new Notification().createNotification("There were problems with the selected genes. Please fix.", {message_type: "danger"});
+            $("#query-by-gene-textarea").focus();
+        }
     }
 
     //The selected id should be sample based. Check patient list if unidentified id exists.
     function convertIds(ids) {
         var radioVal = $('input[name=study-view-case-select-custom-radio]:checked').val();
-        var sampleIds = ids;
-        if(radioVal === 'patient') {
-            sampleIds = StudyViewProxy.getSampleIdsByPatientIds(ids)
+        var sampleIds = [];
+        var unmapped = [];
+        if (radioVal === 'patient') {
+            _.each(ids, function (id) {
+                var mappedId = StudyViewProxy.getSampleIdsByPatientIds([id]);
+                if (_.isUndefined(mappedId) || _.isEmpty(mappedId)) {
+                    unmapped.push(id);
+                } else {
+                    sampleIds = sampleIds.concat(mappedId);
+                }
+            });
+        } else {
+            _.each(ids, function (id) {
+                if (StudyViewProxy.sampleIdExist(id)) {
+                    sampleIds.push(id);
+                } else {
+                    unmapped.push(id);
+                }
+            });
         }
-        //var sampleIds = StudyViewProxy.getSampleIds();
-        //var unidentifiedIds = [];
-        //var identifiedIds = [];
-        //_.each(ids, function(id){
-        //    if(sampleIds.indexOf(id) === -1) {
-        //        unidentifiedIds.push(id);
-        //    }else{
-        //        identifiedIds.push(id);
-        //    }
-        //});
-        //
-        //identifiedIds = identifiedIds.concat(StudyViewProxy.getSampleIdsByPatientIds(unidentifiedIds));
+
+        if (unmapped.length > 0) {
+            new Notification().createNotification(sampleIds.length +
+                ' samples selected. The following ' + (radioVal === 'patient' ? 'patient' : 'sample') +
+                ' ID' + (unmapped.length === 1 ? ' was' : 's were') + ' not found in this study: ' +
+                unmapped.join(', '), {message_type: 'warning'});
+        } else {
+            new Notification().createNotification(sampleIds.length + ' samples selected.', {message_type: 'info'});
+        }
 
         return sampleIds;
     }
@@ -180,27 +247,16 @@ var StudyViewInitTopComponents = (function() {
      
 
         $("#study-view-header-left-1").css('display','block');
-        $("#study-view-header-left-4").css('display','block');
 
         $("#study-view-header-left-3").css('display','block')
-        $("#study-view-header-left-3").text("Total number of samples selected: ");
+        $("#study-view-header-left-3").text("Samples selected: ");
         $("#study-view-header-left-5").css('display','block');
         $("#study-view-header-left-5").text(_resultLength);
 
         if(_resultLength !== _numOfCases){
             if(_resultLength === 0){
                 $("#study-view-header-left-1").css('display','none');
-                $("#study-view-header-left-4").css('display','none');
-            }else if(_resultLength === 1){
-                $("#study-view-header-left-4").css('display','none');
-                $("#study-view-header-left-3").css('display','block');
-                $("#study-view-header-left-3").html("");
-                $("#study-view-header-left-3")
-                        .append("<a title='Go to sample view' href='"
-                        + cbio.util.getLinkToSampleView(StudyViewParams.params.studyId, _caseID[0])
-                        + "'><span style='color: red'>" + _caseID[0] + 
-                        "</span></a>" + " is selected.");
-                $("#study-view-header-left-5").css('display','none');
+                //$("#study-view-header-left-4").css('display','none');
             }
         }
         $("#study-view-header-left-case-ids").val(_caseID.join(" "));
@@ -236,6 +292,7 @@ var StudyViewInitTopComponents = (function() {
         init: function() {
             createDiv();
             addEvents();
+            QueryByGeneTextArea.init('#query-by-gene-textarea', StudyViewInitTables.updateGeneHighlights);
         },
         
         changeHeader: changeHeader,

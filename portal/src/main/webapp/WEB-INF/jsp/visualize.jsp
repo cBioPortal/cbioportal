@@ -30,8 +30,8 @@
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --%>
 
-<%@ include file="global/global_variables.jsp" %>
 
+<%@ include file="global/global_variables.jsp" %>
 <jsp:include page="global/header.jsp" flush="true" />
 <%@ page import="java.util.Map" %>
 
@@ -164,7 +164,7 @@
                 out.println ("<li><a href='#coexp' class='result-tab' id='coexp-result-tab'>Co-Expression</a></li>");
             }
             if (has_mrna || has_copy_no || showMutTab) {
-                out.println("<li><a href='#or_analysis' id='enrichments-result-tab' class='result-tab' style='height: 18px;'>Enrichments</a></li>");
+                out.println("<li><a href='#or_analysis' id='enrichments-result-tab' class='result-tab'>Enrichments</a></li>");
             }
             if (has_survival) {
                 out.println ("<li><a href='#survival' class='result-tab' id='survival-result-tab'>Survival</a></li>");
@@ -248,7 +248,6 @@
         <% } %>
 
         <%@ include file="data_download.jsp" %>
-        <%@ include file="image_tabs_data.jsp" %>
 
 </div> <!-- end tabs div -->
 <% } %>
@@ -288,6 +287,7 @@
 			        clearInterval(interval);
 			        if (firstTime)
 			        {
+                $(window).resize();
 				        send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
 				        firstTime = false;
 			        }
@@ -297,19 +297,27 @@
 
         $("a.result-tab").click(function(){
 
-            if($(this).attr("href")=="#network") {
-                if(firstTime)
+            if($(this).attr("href")=="#network")
+            {
+              var interval = setInterval(function() {
+                if (window.networkGraphJSON != null)
                 {
-                  send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
-                  firstTime = false;
-                }
-	            else
-                {
-	                // TODO this is a workaround to adjust cytoscape canvas
-	                // and probably not the best way to do it...
-	                $(window).resize();
-                }
+                  clearInterval(interval);
+                  if(firstTime)
+                  {
+                    $(window).resize();
+                    send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
+                    firstTime = false;
+                  }
+                else
+                  {
+                    // TODO this is a workaround to adjust cytoscape canvas
+                    // and probably not the best way to do it...
+                    $(window).resize();
+                  }
 
+                }
+              }, 50);
             } else {
                 if($(this).attr("href")=="#bookmark_email") {
                     $("#bookmark-link").attr("href",window.location.href);

@@ -2,9 +2,9 @@ var sidebar = (function() {
     
     var render = function() {
         //only have profile data
-        if (metaData.getClinAttrsMeta().length === 0 && metaData.getGeneticProfilesMeta(window.PortalGlobals.getGeneList()[0]).length !== 0) { 
-            if (metaData.getGeneticProfilesMeta(window.PortalGlobals.getGeneList()[0]).length === 1 && 
-                metaData.getGeneticProfilesMeta(window.PortalGlobals.getGeneList()[0])[0].type === "MUTATION_EXTENDED") {
+        if (metaData.getClinAttrsMeta().length === 0 && metaData.getGeneticProfilesMeta(window.QuerySession.getQueryGenes()[0]).length !== 0) { 
+            if (metaData.getGeneticProfilesMeta(window.QuerySession.getQueryGenes()[0]).length === 1 && 
+                metaData.getGeneticProfilesMeta(window.QuerySession.getQueryGenes()[0])[0].type === "MUTATION_EXTENDED") {
                 $("#plots").empty();
                 $("#plots").append("No data available for generating plots.");               
             } else {
@@ -18,9 +18,9 @@ var sidebar = (function() {
                 profileSpec.updateProfileNameList("x");
             }
         //only have clincal data
-        } else if ((metaData.getGeneticProfilesMeta(window.PortalGlobals.getGeneList()[0]).length === 0 || 
-                   (metaData.getGeneticProfilesMeta(window.PortalGlobals.getGeneList()[0]).length === 1 && 
-                    metaData.getGeneticProfilesMeta(window.PortalGlobals.getGeneList()[0])[0].type === "MUTATION_EXTENDED"))&& 
+        } else if ((metaData.getGeneticProfilesMeta(window.QuerySession.getQueryGenes()[0]).length === 0 || 
+                   (metaData.getGeneticProfilesMeta(window.QuerySession.getQueryGenes()[0]).length === 1 && 
+                    metaData.getGeneticProfilesMeta(window.QuerySession.getQueryGenes()[0])[0].type === "MUTATION_EXTENDED"))&& 
                    metaData.getClinAttrsMeta().length !== 0) { 
             $("#" + ids.sidebar.x.data_type).hide();
             $("#" + ids.sidebar.y.data_type).hide(); 
@@ -30,9 +30,9 @@ var sidebar = (function() {
             clinSpec.init("y");
             optSpec.init();  
         //no plots data at all
-        } else if ((metaData.getGeneticProfilesMeta(window.PortalGlobals.getGeneList()[0]).length === 0 ||
-                    metaData.getGeneticProfilesMeta(window.PortalGlobals.getGeneList()[0]).length === 1 && 
-                    metaData.getGeneticProfilesMeta(window.PortalGlobals.getGeneList()[0])[0].type === "MUTATION_EXTENDED") && 
+        } else if ((metaData.getGeneticProfilesMeta(window.QuerySession.getQueryGenes()[0]).length === 0 ||
+                    metaData.getGeneticProfilesMeta(window.QuerySession.getQueryGenes()[0]).length === 1 && 
+                    metaData.getGeneticProfilesMeta(window.QuerySession.getQueryGenes()[0])[0].type === "MUTATION_EXTENDED") && 
                     metaData.getClinAttrsMeta().length === 0) { 
             $("#plots").empty();
             $("#plots").append("No data available for generating plots.");
@@ -68,7 +68,6 @@ var sidebar = (function() {
                 clinSpec.init("x");
             }
             profileSpec.appendLockGene();
-            optSpec.init();
             regenerate_plots("x");
         });
         $("#" + ids.sidebar.y.data_type).change(function() {
@@ -77,7 +76,6 @@ var sidebar = (function() {
             } else if ($("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() === vals.data_type.clin) {
                 clinSpec.init("y");
             }
-            optSpec.init();
             regenerate_plots("y");
         });
 
@@ -151,22 +149,14 @@ var sidebar = (function() {
     };
     
     var mutation_copy_no_view_switch = function() {
-        clear_plot_box();
-        plotsData.fetch("x");
-        plotsData.fetch("y");
-        plotsbox.init();       
+        //update plots
+        regenerate_plots("xy");
     };
     
     return {
         init: function() {
-            var tmp = setInterval(function () {timer();}, 1000);
-            function timer() {
-                if (metaData.getRetrieveStatus() !== -1) {
-                    clearInterval(tmp);
-                    render();
-                    listener();
-                }
-            }
+            render();
+            listener();
         },
         getStat: function(axis, opt) {
             return $("#" + ids.sidebar[axis][opt]).val();

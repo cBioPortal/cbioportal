@@ -36,7 +36,7 @@ import org.mskcc.cbio.portal.model.*;
 
 import java.util.*;
 
-import org.apache.commons.math.stat.correlation.PearsonsCorrelation;
+import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 
 /**
  * Utility Class for Retrieving Genetic Alteration Data.

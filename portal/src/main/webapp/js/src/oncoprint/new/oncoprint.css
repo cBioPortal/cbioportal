@@ -12,6 +12,7 @@
 	overflow: auto;
 	width: auto;
 	position:relative;
+        max-width: 1200px;
 }
 
 .oncoprint-cell-area {

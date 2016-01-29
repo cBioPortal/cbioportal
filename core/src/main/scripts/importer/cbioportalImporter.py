@@ -8,6 +8,7 @@
 import os
 import sys
 import argparse
+import logging
 import re
 
 import cbioportal_common
@@ -28,6 +29,8 @@ from cbioportal_common import run_java
 
 # ------------------------------------------------------------------------------
 # globals
+
+LOGGER = None
 
 # commands
 IMPORT_CANCER_TYPE = "import-cancer-type"
@@ -66,10 +69,9 @@ def import_study_data(jvm_args, meta_filename, data_filename):
     args = jvm_args.split(' ')
     metafile_properties = get_metafile_properties(meta_filename)
 
-    meta_file_type = cbioportal_common.get_meta_file_type(metafile_properties)
+    meta_file_type = cbioportal_common.get_meta_file_type(
+        metafile_properties, filename=meta_filename, logger=LOGGER)
     if meta_file_type is None:
-        print >> ERROR_FILE, ("Could not determine meta file type, consider "
-                              "running the validator script.")
         return
     importer = IMPORTER_CLASSNAME_BY_META_TYPE[metafile_properties.meta_file_type]
 
@@ -120,20 +122,25 @@ def process_directory(jvm_args, study_directory):
     study_meta = {}
     clinical_metafiles = []
     non_clinical_metafiles = []
-    cancer_type_meta = {}
+    cancer_type_metafiles = []
 
     for f in meta_filenames:
         metadata = get_properties(f)
-        if MetaFileTypes.STUDY in metadata.get('meta_file_type'):
+        meta_file_type = cbioportal_common.get_meta_file_type(metadata)
+        if meta_file_type is None:
+            print >> ERROR_FILE, (
+                    "Could not determine meta file type for {}, consider "
+                    "running the validator script.".format(f))
+            return
+        if meta_file_type == MetaFileTypes.STUDY:
             study_meta = metadata
             #First remove study if exists
             remove_study(jvm_args,f)
             #Then import study
             import_study(jvm_args,f)
-        elif MetaFileTypes.CANCER_TYPE in metadata.get('meta_file_type'):
-            # TODO this is a bug, make it a .append()
-            cancer_type_meta = metadata
-        elif MetaFileTypes.CLINICAL in metadata.get('meta_file_type'):
+        elif meta_file_type == MetaFileTypes.CANCER_TYPE:
+            cancer_type_metafiles.append(f)
+        elif meta_file_type == MetaFileTypes.CLINICAL:
             clinical_metafiles.append(f)
         else:
             non_clinical_metafiles.append(f)
@@ -142,19 +149,23 @@ def process_directory(jvm_args, study_directory):
         print >> ERROR_FILE, 'No meta_study file found'
         sys.exit(1)
 
-    # First, import cancer type
-    if cancer_type_meta != {}:
-        import_cancer_type(jvm_args, cancer_type_meta.get('data_filename'))
+    # First, import cancer types
+    for f in cancer_type_metafiles:
+        import_cancer_type(jvm_args, f)
 
     # Next, we need to import clinical files
     for f in clinical_metafiles:
         metadata = get_properties(f)
-        import_study_data(jvm_args, f, os.path.join(study_directory,metadata.get('data_filename')))
+        import_study_data(jvm_args, f,
+                          os.path.join(study_directory,
+                                       metadata['data_filename']))
 
     # Now, import everything else
     for f in non_clinical_metafiles:
         metadata = get_properties(f)
-        import_study_data(jvm_args, f, os.path.join(study_directory,metadata.get('data_filename')))
+        import_study_data(jvm_args, f,
+                          os.path.join(study_directory,
+                                       metadata.get('data_filename')))
 
     # do the case lists
     case_list_dirname = os.path.join(study_directory, 'case_lists')
@@ -206,9 +217,20 @@ def interface():
 
 def main(args):
 
+    global LOGGER
+
+    # get the logger with a handler to print logged error messages to stderr
+    module_logger = logging.getLogger(__name__)
+    error_handler = logging.StreamHandler(sys.stderr)
+    error_handler.setFormatter(cbioportal_common.LogfileStyleFormatter())
+    error_handler.setLevel(logging.ERROR)
+    module_logger.addHandler(error_handler)
+    LOGGER = module_logger
+
     # process the options
     jvm_args = "-Dspring.profiles.active=dbcp -cp " + args.jar_path
     study_directory = args.study_directory
+
 
     if study_directory != None:
         check_dir(study_directory)

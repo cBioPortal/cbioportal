@@ -7,6 +7,9 @@
 
 import os
 import sys
+import csv
+import logging
+from collections import OrderedDict
 from subprocess import Popen, PIPE, STDOUT
 
 
@@ -37,6 +40,129 @@ class MetaFileTypes(object):
     TIMELINE = 'meta_timeline'
     CASE_LIST = 'case_list'
 
+# fields allowed in each meta file type, maps to True if required
+META_FIELD_MAP = {
+    MetaFileTypes.CANCER_TYPE: {
+        'type_of_cancer': True,
+        'name': True,
+        'clinical_trial_keywords': True,
+        'dedicated_color': True,
+        'short_name': True
+    },
+    MetaFileTypes.STUDY: {
+        'cancer_study_identifier': True,
+        'type_of_cancer': True,
+        'name': True,
+        'description': True,
+        'short_name': True,
+        'citation': False,
+        'pmid': False,
+        'groups': False
+    },
+    MetaFileTypes.CLINICAL: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'datatype': True,
+        'show_profile_in_analysis_tab': True,
+        'profile_name': True,
+        'profile_description': True,
+        'data_filename': True
+    },
+    MetaFileTypes.CNA: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'datatype': True,
+        'stable_id': True,
+        'show_profile_in_analysis_tab': True,
+        'profile_name': True,
+        'profile_description': True,
+        'data_filename': True
+    },
+    MetaFileTypes.LOG2: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'datatype': True,
+        'stable_id': True,
+        'show_profile_in_analysis_tab': True,
+        'profile_name': True,
+        'profile_description': True,
+        'data_filename': True
+    },
+    MetaFileTypes.SEG: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'datatype': True,
+        'show_profile_in_analysis_tab': True,
+        'reference_genome_id': True,
+        'data_filename': True,
+        'description': True
+    },
+    MetaFileTypes.MUTATION: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'datatype': True,
+        'stable_id': True,
+        'show_profile_in_analysis_tab': True,
+        'profile_name': True,
+        'profile_description': True,
+        'data_filename': True,
+        'normal_samples_list': False
+    },
+    MetaFileTypes.EXPRESSION: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'datatype': True,
+        'stable_id': True,
+        'show_profile_in_analysis_tab': True,
+        'profile_name': True,
+        'profile_description': True,
+        'data_filename': True
+    },
+    MetaFileTypes.METHYLATION: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'datatype': True,
+        'stable_id': True,
+        'show_profile_in_analysis_tab': True,
+        'profile_name': True,
+        'profile_description': True,
+        'data_filename': True
+    },
+    MetaFileTypes.RPPA: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'datatype': True,
+        'stable_id': True,
+        'show_profile_in_analysis_tab': True,
+        'profile_name': True,
+        'profile_description': True,
+        'data_filename': True
+    },
+    MetaFileTypes.FUSION: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'datatype': True,
+        'stable_id': True,
+        'show_profile_in_analysis_tab': True,
+        'profile_name': True,
+        'profile_description': True,
+        'data_filename': True
+    },
+    MetaFileTypes.TIMELINE: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'data_filename': True
+    },
+    MetaFileTypes.CASE_LIST: {
+        'cancer_study_identifier': True,
+        'stable_id': True,
+        'case_list_name': True,
+        'case_list_description': True,
+        'case_list_ids': True,
+        'case_list_category': False
+    }
+}
+
 IMPORTER_CLASSNAME_BY_META_TYPE = {
     MetaFileTypes.STUDY: IMPORT_STUDY_CLASS,
     MetaFileTypes.CANCER_TYPE: IMPORT_CANCER_TYPE_CLASS,
@@ -59,7 +185,7 @@ IMPORTER_CLASSNAME_BY_META_TYPE = {
 
 IMPORTER_REQUIRES_METADATA = {
     "org.mskcc.cbio.portal.scripts.ImportClinicalData" : False,
-    "org.mskcc.cbio.portal.scripts.ImportCopyNumberSegmentData" : False,
+    "org.mskcc.cbio.portal.scripts.ImportCopyNumberSegmentData" : True,
     "org.mskcc.cbio.portal.scripts.ImportGisticData" : False,
     "org.mskcc.cbio.portal.scripts.ImportMutSigData" : False,
     "org.mskcc.cbio.portal.scripts.ImportProteinArrayData" : False,
@@ -69,6 +195,176 @@ IMPORTER_REQUIRES_METADATA = {
 
 # ------------------------------------------------------------------------------
 # class definitions
+
+class ValidationMessageFormatter(logging.Formatter):
+
+    """Logging formatter with optional fields for data validation messages.
+
+    These fields are:
+    filename_ - the name of the file the message is about (if applicable)
+    line_number - a line number within the above file (if applicable)
+    column_number - a column number within the above file (if applicable)
+    cause - the unexpected value found in the input (if applicable)
+
+    If instead a message pertains to multiple values of one of these
+    fields (as the result of aggregation by CollapsingLogMessageHandler),
+    these will be expected in the field <fieldname>_list.
+    """
+
+    def format(self, record, *args, **kwargs):
+        """Check consistency of expected fields and format the record."""
+        if (
+                (
+                    self.format_aggregated(record,
+                                           'line_number',
+                                           optional=True) or
+                    self.format_aggregated(record,
+                                           'column_number',
+                                           optional=True))
+                and not self.format_aggregated(record,
+                                               'filename_',
+                                               optional=True)):
+            raise ValueError(
+                'Tried to log about a line/column with no filename')
+        return super(ValidationMessageFormatter, self).format(record,
+                                                              *args,
+                                                              **kwargs)
+
+    @staticmethod
+    def format_aggregated(record,
+                          attr_name,
+                          single_fmt='%s',
+                          multiple_fmt='[%s]',
+                          join_string=', ',
+                          max_join=3,
+                          optional=False):
+        """Format a human-readable string for a field or its <field>_list.
+
+        As would be generated when using the CollapsingLogMessageHandler.
+        If `optional` is True and both the field and its list are absent,
+        return an empty string.
+        """
+        attr_val = getattr(record, attr_name, None)
+        attr_list = getattr(record, attr_name + '_list', None)
+        if attr_val is not None:
+            attr_indicator = single_fmt % attr_val
+        elif attr_list is not None:
+            string_list = list(str(val) for val in attr_list[:max_join])
+            num_skipped = len(attr_list) - len(string_list)
+            if num_skipped != 0:
+                string_list.append('(%d more)' % num_skipped)
+            attr_indicator = multiple_fmt % join_string.join(string_list)
+        elif optional:
+            attr_indicator = ''
+        else:
+            raise ValueError(
+                "Tried to format an absent non-optional log field: '%s'" %
+                attr_name)
+        return attr_indicator
+
+
+class LogfileStyleFormatter(ValidationMessageFormatter):
+
+    """Formatter for validation messages in a simple one-per-line format."""
+
+    def __init__(self):
+        """Initialize a logging Formatter with an appropriate format string."""
+        super(LogfileStyleFormatter, self).__init__(
+            fmt='%(levelname)s: %(file_indicator)s:'
+                '%(line_indicator)s%(column_indicator)s'
+                ' %(message)s%(cause_indicator)s')
+
+    def format(self, record):
+
+        """Generate descriptions for optional fields and format the record."""
+
+
+        if not hasattr(record, 'filename_'):
+            record.file_indicator = '-'
+        else:
+            record.file_indicator = os.path.basename(record.filename_.strip())
+        record.line_indicator = self.format_aggregated(
+            record,
+            'line_number',
+            ' line %d:',
+            ' lines [%s]:',
+            optional=True)
+        record.column_indicator = self.format_aggregated(
+            record,
+            'column_number',
+            ' column %d:',
+            ' columns [%s]:',
+            optional=True)
+        record.cause_indicator = self.format_aggregated(
+            record,
+            'cause',
+            "; found in file: '%s'",
+            "; found in file: ['%s']",
+            join_string="', '",
+            optional=True)
+
+        return super(LogfileStyleFormatter, self).format(record)
+
+
+class CollapsingLogMessageHandler(logging.handlers.MemoryHandler):
+
+    """Logging handler that aggregates repeated log messages into one.
+
+    This collapses validation LogRecords based on the source code line that
+    emitted them and their formatted message, and flushes the resulting
+    records to another handler.
+    """
+
+    def flush(self):
+
+        """Aggregate LogRecords by message and send them to the target handler.
+
+        Fields that occur with multiple different values in LogRecords
+        emitted from the same line with the same message (and optional
+        'filename_' attribute) will be collected in a field named
+        <field_name>_list.
+        """
+
+        # group buffered LogRecords by their source code line and message
+        grouping_dict = OrderedDict()
+        for record in self.buffer:
+            identifying_tuple = (record.module,
+                                 record.lineno,
+                                 getattr(record, 'filename_', None),
+                                 record.getMessage())
+            if identifying_tuple not in grouping_dict:
+                grouping_dict[identifying_tuple] = []
+            grouping_dict[identifying_tuple].append(record)
+
+        aggregated_buffer = []
+        # for each list of same-message records
+        for record_list in grouping_dict.values():
+            # make a dict to collect the fields for the aggregate record
+            aggregated_field_dict = {}
+            # for each field found in (the first of) the records
+            for field_name in record_list[0].__dict__:
+                # collect the values found for this field across the records.
+                # Use the keys of an OrderedDict, as OrderedSet is for some
+                # reason not to be found in the Python standard library.
+                field_values = OrderedDict((record.__dict__[field_name], None)
+                                           for record in record_list)
+                # if this field has the same value in all records
+                if len(field_values) == 1:
+                    # use that value in the new dict
+                    aggregated_field_dict[field_name] = field_values.popitem()[0]
+                else:
+                    # set a <field>_list field instead
+                    aggregated_field_dict[field_name + '_list'] = \
+                        list(field_values.keys())
+
+            # add a new log record with these fields tot the output buffer
+            aggregated_buffer.append(
+                logging.makeLogRecord(aggregated_field_dict))
+
+        # replace the buffer with the aggregated one and flush
+        self.buffer = aggregated_buffer
+        super(CollapsingLogMessageHandler, self).flush()
+
 
 class MetastudyProperties(object):
     def __init__(self,
@@ -100,7 +396,7 @@ class MetafileProperties(object):
 # ------------------------------------------------------------------------------
 # sub-routines
 
-def get_meta_file_type(metaDictionary, logger=None, filename=''):
+def get_meta_file_type(metaDictionary, logger, filename):
     """
      Returns one of the metatypes :
         MetaFileTypes.SEG = 'meta_segment'
@@ -144,23 +440,23 @@ def get_meta_file_type(metaDictionary, logger=None, filename=''):
     if 'genetic_alteration_type' in metaDictionary and 'datatype' in metaDictionary:
         genetic_alteration_type = metaDictionary['genetic_alteration_type']
         data_type = metaDictionary['datatype']
-        if (genetic_alteration_type, data_type) not in alt_type_datatype_to_meta:
-            if logger is not None:
-                logger.error('Could not determine the file type. Please check your meta files for correct configuration.',
-                             extra={'filename_': os.path.basename(filename),
-                                    'cause': 'genetic_alteration_type: ' + metaDictionary['genetic_alteration_type'] +
-                                             ', datatype: ' + metaDictionary['datatype']})
-        else:
+        if (genetic_alteration_type, data_type) in alt_type_datatype_to_meta:
             result = alt_type_datatype_to_meta[(genetic_alteration_type, data_type)]
+        else:
+            logger.error(
+                'Could not determine the file type. Please check your meta files for correct configuration.',
+                extra={'filename_': os.path.basename(filename),
+                       'cause': ('genetic_alteration_type: %s, '
+                                 'datatype: %s' % (
+                                     metaDictionary['genetic_alteration_type'],
+                                     metaDictionary['datatype']))})
     elif 'cancer_study_identifier' in metaDictionary and 'type_of_cancer' in metaDictionary:
         result = MetaFileTypes.STUDY
     elif 'type_of_cancer' in metaDictionary:
         result = MetaFileTypes.CANCER_TYPE
     else:
-        if logger is not None:
-            logger.error('Could not determine the file type. Did not find expected meta file fields. Please check your meta files for correct configuration.',
-                             extra={'filename_': os.path.basename(filename)})
-
+        logger.error('Could not determine the file type. Did not find expected meta file fields. Please check your meta files for correct configuration.',
+                         extra={'filename_': os.path.basename(filename)})
     return result
 
 
@@ -228,6 +524,184 @@ def get_metafile_properties(meta_filename):
         properties["profile_description"],
         properties["meta_file_type"],
         properties["data_filename"])
+
+
+def validate_types_and_id(metaDictionary, logger, filename):
+    """Validate a genetic_alteration_type, datatype (and stable_id in some cases) against the predefined
+    allowed combinations found in ./allowed_data_types.txt
+    """
+    result = True
+    # this validation only applies to items that have genetic_alteration_type and datatype and stable_id
+    if 'genetic_alteration_type' in metaDictionary and 'datatype' in metaDictionary and 'stable_id' in metaDictionary:
+        alt_type_datatype_and_stable_id = {}
+        script_dir = os.path.dirname(__file__)
+        allowed_data_types_file_name = os.path.join(script_dir, "allowed_data_types.txt")
+        data_line_nr = 0
+        # build up map alt_type_datatype_and_stable_id:
+        with open(allowed_data_types_file_name) as allowed_data_types_file:
+            for line in allowed_data_types_file:
+                if line.startswith("#"):
+                    continue
+                data_line_nr += 1
+                # skip header, so if line is not header then process as tab separated:
+                if (data_line_nr > 1):
+                    line_cols = csv.reader([line], delimiter='\t').next()
+                    genetic_alteration_type = line_cols[0]
+                    data_type = line_cols[1]
+                    # add to map:
+                    if (genetic_alteration_type, data_type) not in alt_type_datatype_and_stable_id:
+                        alt_type_datatype_and_stable_id[(genetic_alteration_type, data_type)] = []
+                    alt_type_datatype_and_stable_id[(genetic_alteration_type, data_type)].append(line_cols[2])
+        # init:
+        stable_id = metaDictionary['stable_id']
+        genetic_alteration_type = metaDictionary['genetic_alteration_type']
+        data_type = metaDictionary['datatype']
+        # validate the genetic_alteration_type/data_type combination:
+        if (genetic_alteration_type, data_type) not in alt_type_datatype_and_stable_id:
+            # unexpected as this is already validated in get_meta_file_type
+            raise RuntimeError('Unexpected error: genetic_alteration_type and data_type combination not found in allowed_data_types.txt.',
+                               genetic_alteration_type, data_type)
+        # validate stable_id:
+        elif stable_id not in alt_type_datatype_and_stable_id[(genetic_alteration_type, data_type)]:
+            logger.error("Invalid stable id for genetic_alteration_type '%s', "
+                         "data_type '%s'; expected one of [%s]",
+                        genetic_alteration_type,
+                        data_type,
+                        ', '.join(alt_type_datatype_and_stable_id[(genetic_alteration_type, data_type)]),
+                        extra={'filename_': filename,
+                               'cause': stable_id}
+                        )
+            result = False
+
+    return result
+
+
+def parse_metadata_file(filename,
+                        logger,
+                        study_id=None,
+                        known_cancer_types=None,
+                        genome_name=None,
+                        case_list=False):
+
+    """Validate a metafile and return a dictionary of values read from it and
+    the meta_file_type according to get_meta_file_type.
+
+    Return `None` if the file is invalid. If `case_list` is True,
+    validate the file as a case list instead of a meta file.
+
+    :param filename: name of the meta file
+    :param logger: the logging.Logger instance to log warnings and errors to
+    :param study_id: cancer study id found in previous files (or None). All subsequent
+                     meta files should comply to this in the field 'cancer_study_identifier'
+    :param known_cancer_types: dict of cancer types defined in the portal,
+                               for validation
+    :param genome_name: supported reference genome name, for validation
+    :param case_list: whether this meta file is a case list (special case)
+    """
+
+    metaDictionary = {}
+    with open(filename, 'rU') as metafile:
+        for line_index, line in enumerate(metafile):
+            if ':' not in line:
+                logger.error(
+                    "Invalid %s file entry, no ':' found",
+                    {True: 'case list', False: 'meta'}[case_list],
+                    extra={'filename_': filename,
+                           'line_number': line_index + 1})
+                return None
+            key_value = line.split(':', 1)
+            if len(key_value) == 2:
+                metaDictionary[key_value[0]] = key_value[1].strip()
+
+    if case_list:
+        meta_file_type = MetaFileTypes.CASE_LIST
+    else:
+        meta_file_type = get_meta_file_type(metaDictionary, logger, filename)
+        if meta_file_type is None:
+            # skip this file (can't validate unknown file types)
+            return None
+
+    missing_fields = []
+    for field in META_FIELD_MAP[meta_file_type]:
+        mandatory = META_FIELD_MAP[meta_file_type][field]
+        if field not in metaDictionary and mandatory:
+            logger.error("Missing field '%s' in %s file",
+                         field,
+                         {True: 'case list', False: 'meta'}[case_list],
+                         extra={'filename_': filename})
+            missing_fields.append(field)
+
+    if missing_fields:
+        # skip this file (the fields may be required for validation)
+        return None
+
+    # validate genetic_alteration_type, datatype, stable_id
+    stable_id_mandatory = 'stable_id' in META_FIELD_MAP[meta_file_type] and META_FIELD_MAP[meta_file_type]['stable_id']
+    if stable_id_mandatory:
+        valid_types_and_id = validate_types_and_id(metaDictionary, logger, filename)
+        if not valid_types_and_id:
+            return None
+
+    for field in metaDictionary:
+        if field not in META_FIELD_MAP[meta_file_type]:
+            logger.warning(
+                'Unrecognized field in %s file',
+                {True: 'case list', False: 'meta'}[case_list],
+                extra={'filename_': filename,
+                       'cause': field})
+
+    # check that cancer study identifiers across files so far are consistent.
+    if (
+            study_id is not None and
+            'cancer_study_identifier' in metaDictionary and
+            study_id != metaDictionary['cancer_study_identifier']):
+        logger.error(
+            "Cancer study identifier is not consistent across "
+            "files, expected '%s'",
+            study_id,
+            extra={'filename_': filename,
+                   'cause': metaDictionary['cancer_study_identifier']})
+        return None
+
+    if meta_file_type == MetaFileTypes.CANCER_TYPE:
+        # compare a meta_cancer_type file with the portal instance
+        if known_cancer_types is not None:
+            file_cancer_type = metaDictionary.get('type_of_cancer')
+            if file_cancer_type not in known_cancer_types:
+                logger.warning(
+                    'New disease type will be added to the portal',
+                    extra={'filename_': filename,
+                           'cause': file_cancer_type})
+            else:
+                existing_info = known_cancer_types[file_cancer_type]
+                invalid_fields_found = False
+                for field in metaDictionary:
+                    if (
+                            field in existing_info and
+                            field != 'cancer_type_id' and
+                            metaDictionary[field] != existing_info[field]):
+                        logger.error(
+                            "%s field of cancer type does not match the "
+                            "portal, '%s' expected",
+                            field,
+                            existing_info[field],
+                            extra={'filename_': filename,
+                                   'cause': metaDictionary[field]})
+                        invalid_fields_found = True
+                if invalid_fields_found:
+                    return None
+    # check fields specific to seg meta file
+    elif meta_file_type == MetaFileTypes.SEG:
+        if metaDictionary['reference_genome_id'] != genome_name:
+            logger.error(
+                'Reference_genome_id is not %s',
+                genome_name,
+                extra={'filename_': filename,
+                       'cause': metaDictionary['reference_genome_id']})
+            return None
+
+    return metaDictionary,meta_file_type
+
 
 def run_java(*args):
     java_home = os.environ['JAVA_HOME']

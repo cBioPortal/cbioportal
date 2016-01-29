@@ -365,6 +365,11 @@ class CollapsingLogMessageHandler(logging.handlers.MemoryHandler):
         self.buffer = aggregated_buffer
         super(CollapsingLogMessageHandler, self).flush()
 
+    def shouldFlush(self, record):
+        """Collapse and flush every time an info message is emitted."""
+        return (record.levelno == logging.INFO or
+                super(CollapsingLogMessageHandler, self).shouldFlush(record))
+
 
 # ------------------------------------------------------------------------------
 # sub-routines

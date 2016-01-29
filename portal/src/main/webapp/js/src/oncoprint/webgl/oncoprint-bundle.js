@@ -109,9 +109,9 @@ var Oncoprint = (function () {
 	    width_to_fit_in = this.cell_view.getWidth(this.model, true);
 	} else {
 	    var furthest_right_id = -1;
-	    var id_order = this.model.getIdOrder();
+	    var id_to_index_map = this.model.getIdToIndexMap();
 	    for (var i=0; i<ids.length; i++) {
-		furthest_right_id = Math.max(id_order.indexOf(ids[i]), furthest_right_id);
+		furthest_right_id = Math.max(id_to_index_map[ids[i]], furthest_right_id);
 	    }
 	    width_to_fit_in = ((furthest_right_id + 3) * (this.model.getCellWidth(true) + this.model.getCellPadding(true)));
 	}
@@ -216,7 +216,7 @@ var Oncoprint = (function () {
     return Oncoprint;
 })();
 module.exports = Oncoprint;
-},{"./oncoprintlabelview.js":2,"./oncoprintmodel.js":3,"./oncoprintruleset.js":4,"./oncoprintsvgcellview.js":5,"./oncoprintwebglcellview.js":6}],2:[function(require,module,exports){
+},{"./oncoprintlabelview.js":2,"./oncoprintmodel.js":3,"./oncoprintruleset.js":4,"./oncoprintsvgcellview.js":6,"./oncoprintwebglcellview.js":7}],2:[function(require,module,exports){
 var OncoprintLabelView = (function () {
     function OncoprintLabelView($canvas) {
 	var view = this;
@@ -508,6 +508,9 @@ var OncoprintModel = (function () {
 	} else {
 	    return this.visible_id_order;
 	}
+    }
+    OncoprintModel.prototype.getIdToIndexMap = function() {
+	return this.id_to_index;
     }
 
     OncoprintModel.prototype.getHiddenIds = function () {
@@ -906,6 +909,8 @@ module.exports = OncoprintModel;
  * ellipse: x, y, width, height, stroke, stroke-width, fill
  * line: x1, y1, x2, y2, stroke, stroke-width
  */
+
+var Shape = require('./oncoprintshape.js');
 
 function ifndef(x, val) {
     return (typeof x === "undefined" ? val : x);
@@ -1533,33 +1538,24 @@ var Rule = (function () {
 	this.condition = params.condition || function (d) {
 	    return true;
 	};
-	this.shapes = params.shapes.map(addDefaultAbstractShapeParams);
+	this.shapes = params.shapes.map(function(shape){ 
+	    if (shape.type === 'rectangle') {
+		return new Shape.Rectangle(shape);
+	    } else if (shape.type === 'triangle') {
+		return new Shape.Triangle(shape);
+	    } else if (shape.type === 'ellipse') {
+		return new Shape.Ellipse(shape);
+	    } else if (shape.type === 'line') {
+		return new Shape.Line(shape);
+	    }
+	});
 	this.legend_label = params.legend_label || "";
 	this.exclude_from_legend = params.exclude_from_legend;
+	this.legend_config = {'type':'simple', 'target': {'mut_type':'MISSENSE'}}; // or {'type':'number', 'range':[lower, upper]} or {'type':'color', 'range':['rgba(...)' or '#...', 'rgba(...)' or '#...']}
     }
-    var addDefaultAbstractShapeParams = function (shape_params) {
-	var default_values = {'width': '100%', 'height': '100%', 'x': '0%', 'y': '0%', 'z': 0,
-	    'x1': '0%', 'x2': '0%', 'x3': '0%', 'y1': '0%', 'y2': '0%', 'y3': '0%',
-	    'stroke': 'rgba(0,0,0,0)', 'fill': 'rgba(23,23,23,1)', 'stroke-width': '0'};
-	var required_parameters_by_type = {
-	    'rectangle': ['width', 'height', 'x', 'y', 'z', 'stroke', 'fill', 'stroke-width'],
-	    'triangle': ['x1', 'x2', 'x3', 'y1', 'y2', 'y3', 'z', 'stroke', 'fill', 'stroke-width'],
-	    'ellipse': ['width', 'height', 'x', 'y', 'z', 'stroke', 'fill', 'stroke-width'],
-	    'line': ['x1', 'x2', 'y1', 'y2', 'z', 'stroke', 'stroke-width']
-	};
-	var complete_shape_params = {};
-	var required_parameters = required_parameters_by_type[shape_params.type];
-	for (var i = 0; i < required_parameters.length; i++) {
-	    var required_param = required_parameters[i];
-	    if (shape_params.hasOwnProperty(required_param)) {
-		complete_shape_params[required_param] = shape_params[required_param];
-	    } else {
-		complete_shape_params[required_param] = default_values[required_param];
-	    }
-	}
-	complete_shape_params.type = shape_params.type;
-	return complete_shape_params;
-    };
+    Rule.prototype.getLegendConfig = function() {
+	return this.legend_config;
+    }
     Rule.prototype.getConcreteShapes = function (d, cell_width, cell_height) {
 	// Gets concrete shapes (i.e. computed
 	// real values from percentages) 
@@ -1568,31 +1564,8 @@ var Rule = (function () {
 	    return [];
 	}
 	var concrete_shapes = [];
-	var width_axis_attrs = {"x": true, "x1": true, "x2": true, "x3": true, "width": true};
-	var height_axis_attrs = {"y": true, "y1": true, "y2": true, "y3": true, "height": true};
 	for (var i = 0, shapes_len = this.shapes.length; i < shapes_len; i++) {
-	    var shape_spec = this.shapes[i];
-	    var attrs = Object.keys(shape_spec);
-	    var concrete_shape = {};
-	    for (var j = 0, attrs_len = attrs.length; j < attrs_len; j++) {
-		var attr_name = attrs[j];
-		var attr_val = shape_spec[attr_name];
-		if (typeof attr_val === 'function') {
-		    attr_val = attr_val(d);
-		}
-		var percent = (typeof attr_val === 'string') && attr_val.match(/([\d.]+)%/);
-		percent = percent && percent.length > 1 && percent[1];
-		if (percent) {
-		    var multiplier = parseFloat(percent) / 100.0;
-		    if (width_axis_attrs.hasOwnProperty(attr_name)) {
-			attr_val = multiplier * cell_width;
-		    } else if (height_axis_attrs.hasOwnProperty(attr_name)) {
-			attr_val = multiplier * cell_height;
-		    }
-		}
-		concrete_shape[attr_name] = attr_val + '';
-	    }
-	    concrete_shapes.push(concrete_shape);
+	    concrete_shapes.push(this.shapes[i].getComputedParams(d, cell_width, cell_height));
 	}
 	return concrete_shapes;
     }
@@ -1616,7 +1589,136 @@ module.exports = function (params) {
 	return new GeneticAlterationRuleSet(DEFAULT_GENETIC_ALTERATION_PARAMS);
     }
 }
-},{}],5:[function(require,module,exports){
+},{"./oncoprintshape.js":5}],5:[function(require,module,exports){
+var Shape = (function() {
+    var default_parameter_values = {
+	    'width': '100%', 
+	    'height': '100%', 
+	    'x': '0%', 
+	    'y': '0%', 
+	    'z': 0,
+	    'x1': '0%', 
+	    'x2': '0%', 
+	    'x3': '0%', 
+	    'y1': '0%', 
+	    'y2': '0%', 
+	    'y3': '0%',
+	    'stroke': 'rgba(0,0,0,0)', 
+	    'fill': 'rgba(23,23,23,1)', 
+	    'stroke-width': '0'
+    };
+    var parameter_name_to_dimension_index = {
+	'width': 0,
+	'x':0,
+	'x1':0,
+	'x2':0,
+	'x3':0,
+	'height':1,
+	'y':1,
+	'y1':1,
+	'y2':1,
+	'y3':1
+    };
+    function Shape(params) {
+	this.params = params;
+	this.marked_params = {};
+	this.completeWithDefaults();
+	this.markParameterTypes();
+    }
+    Shape.prototype.completeWithDefaults = function() {
+	var required_parameters = this.getRequiredParameters();
+	for (var i=0; i<required_parameters.length; i++) {
+	    var param = required_parameters[i];
+	    this.params[param] = (typeof this.params[param] === 'undefined' ? default_parameter_values[param] : this.params[param]);
+	}
+    }
+    Shape.prototype.markParameterTypes = function() {
+	var parameters = Object.keys(this.params);
+	for (var i=0; i<parameters.length; i++) {
+	    var param_name = parameters[i];
+	    var param_val = this.params[param_name];
+	    if (typeof param_val === 'function') {
+		this.marked_params[param_name] = {'type':'function', 'value':param_val};
+	    } else {
+		this.marked_params[param_name] = {'type':'value', 'value': param_val};
+	    }
+	}
+    }
+    Shape.prototype.getComputedParams = function(d, base_width, base_height) {
+	var computed_params = {};
+	var param_names = Object.keys(this.marked_params);
+	var dimensions = [base_width, base_height];
+	for (var i=0; i<param_names.length; i++) {
+	    var param_name = param_names[i];
+	    var param_val_map = this.marked_params[param_name];
+	    var param_val = param_val_map.value;
+	    if (param_name !== 'type') {
+		if (param_val_map.type === 'function') {
+		    param_val = param_val(d);
+		}
+		if (param_val[param_val.length-1] === '%') {
+		    param_val = parseFloat(param_val) / 100;
+		    param_val *= dimensions[parameter_name_to_dimension_index[param_name]];
+		}
+	    }
+	    computed_params[param_name] = param_val;
+	}
+	return computed_params;
+    };
+    return Shape;
+})();
+
+var Rectangle = (function() {
+    function Rectangle(params) {
+	Shape.call(this, params);
+    }
+    Rectangle.prototype = Object.create(Shape.prototype);
+    Rectangle.prototype.getRequiredParameters = function() {
+	return ['width', 'height', 'x', 'y', 'z', 'stroke', 'fill', 'stroke-width']; 
+    }
+    return Rectangle;
+})();
+
+var Triangle = (function() {
+    function Triangle(params) {
+	Shape.call(this, params);
+    }
+    Triangle.prototype = Object.create(Shape.prototype);
+    Triangle.prototype.getRequiredParameters = function() {
+	return ['x1', 'x2', 'x3', 'y1', 'y2', 'y3', 'z', 'stroke', 'fill', 'stroke-width']; 
+    }
+    return Triangle;
+})();
+
+var Ellipse = (function() {
+    function Ellipse(params) {
+	Shape.call(this, params);
+    }
+    Ellipse.prototype = Object.create(Shape.prototype);
+    Ellipse.prototype.getRequiredParameters = function() {
+	return ['width', 'height', 'x', 'y', 'z', 'stroke', 'fill', 'stroke-width']; 
+    }
+    return Ellipse;
+})();
+
+var Line = (function() {
+    function Line(params) {
+	Shape.call(this, params);
+    }
+    Line.prototype = Object.create(Shape.prototype);
+    Line.prototype.getRequiredParameters = function() {
+	return ['x1', 'x2', 'y1', 'y2', 'z', 'stroke', 'stroke-width']; 
+    }
+    return Line;
+})();
+
+module.exports = {
+    'Rectangle':Rectangle,
+    'Triangle':Triangle,
+    'Ellipse':Ellipse,
+    'Line':Line
+};
+},{}],6:[function(require,module,exports){
 // FIRST PASS: no optimization
 var OncoprintSVGCellView = (function () {
     function OncoprintSVGCellView($svg) {
@@ -1750,7 +1852,7 @@ var OncoprintSVGCellView = (function () {
 })();
 
 module.exports = OncoprintSVGCellView;
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 var gl_matrix = require('gl-matrix');
 
 var getCanvasContext = function ($canvas) {
@@ -2229,7 +2331,7 @@ var OncoprintWebGLCellView = (function () {
 
 module.exports = OncoprintWebGLCellView;
 
-},{"gl-matrix":8}],7:[function(require,module,exports){
+},{"gl-matrix":9}],8:[function(require,module,exports){
 $(document).ready(function() {
 	
 	/*var o = new Oncoprint($('#svg'), $('#canvas'));
@@ -2258,7 +2360,7 @@ $(document).ready(function() {
 });
 
 window.Oncoprint = require('./oncoprint.js');
-},{"./oncoprint.js":1}],8:[function(require,module,exports){
+},{"./oncoprint.js":1}],9:[function(require,module,exports){
 /**
  * @fileoverview gl-matrix - High performance matrix and vector operations
  * @author Brandon Jones
@@ -2296,7 +2398,7 @@ exports.quat = require("./gl-matrix/quat.js");
 exports.vec2 = require("./gl-matrix/vec2.js");
 exports.vec3 = require("./gl-matrix/vec3.js");
 exports.vec4 = require("./gl-matrix/vec4.js");
-},{"./gl-matrix/common.js":9,"./gl-matrix/mat2.js":10,"./gl-matrix/mat2d.js":11,"./gl-matrix/mat3.js":12,"./gl-matrix/mat4.js":13,"./gl-matrix/quat.js":14,"./gl-matrix/vec2.js":15,"./gl-matrix/vec3.js":16,"./gl-matrix/vec4.js":17}],9:[function(require,module,exports){
+},{"./gl-matrix/common.js":10,"./gl-matrix/mat2.js":11,"./gl-matrix/mat2d.js":12,"./gl-matrix/mat3.js":13,"./gl-matrix/mat4.js":14,"./gl-matrix/quat.js":15,"./gl-matrix/vec2.js":16,"./gl-matrix/vec3.js":17,"./gl-matrix/vec4.js":18}],10:[function(require,module,exports){
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -2350,7 +2452,7 @@ glMatrix.toRadian = function(a){
 
 module.exports = glMatrix;
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -2654,7 +2756,7 @@ mat2.LDU = function (L, D, U, a) {
 
 module.exports = mat2;
 
-},{"./common.js":9}],11:[function(require,module,exports){
+},{"./common.js":10}],12:[function(require,module,exports){
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -2973,7 +3075,7 @@ mat2d.frob = function (a) {
 
 module.exports = mat2d;
 
-},{"./common.js":9}],12:[function(require,module,exports){
+},{"./common.js":10}],13:[function(require,module,exports){
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -3540,7 +3642,7 @@ mat3.frob = function (a) {
 
 module.exports = mat3;
 
-},{"./common.js":9}],13:[function(require,module,exports){
+},{"./common.js":10}],14:[function(require,module,exports){
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -4825,7 +4927,7 @@ mat4.frob = function (a) {
 
 module.exports = mat4;
 
-},{"./common.js":9}],14:[function(require,module,exports){
+},{"./common.js":10}],15:[function(require,module,exports){
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -5380,7 +5482,7 @@ quat.str = function (a) {
 
 module.exports = quat;
 
-},{"./common.js":9,"./mat3.js":12,"./vec3.js":16,"./vec4.js":17}],15:[function(require,module,exports){
+},{"./common.js":10,"./mat3.js":13,"./vec3.js":17,"./vec4.js":18}],16:[function(require,module,exports){
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -5905,7 +6007,7 @@ vec2.str = function (a) {
 
 module.exports = vec2;
 
-},{"./common.js":9}],16:[function(require,module,exports){
+},{"./common.js":10}],17:[function(require,module,exports){
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -6616,7 +6718,7 @@ vec3.str = function (a) {
 
 module.exports = vec3;
 
-},{"./common.js":9}],17:[function(require,module,exports){
+},{"./common.js":10}],18:[function(require,module,exports){
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -7155,4 +7257,4 @@ vec4.str = function (a) {
 
 module.exports = vec4;
 
-},{"./common.js":9}]},{},[7]);
+},{"./common.js":10}]},{},[8]);

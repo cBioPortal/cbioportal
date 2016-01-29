@@ -119,6 +119,9 @@ var OncoprintModel = (function () {
 	    return this.visible_id_order;
 	}
     }
+    OncoprintModel.prototype.getIdToIndexMap = function() {
+	return this.id_to_index;
+    }
 
     OncoprintModel.prototype.getHiddenIds = function () {
 	var hidden_ids = this.hidden_ids;

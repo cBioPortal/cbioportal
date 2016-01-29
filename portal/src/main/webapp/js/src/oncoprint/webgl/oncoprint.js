@@ -108,9 +108,9 @@ var Oncoprint = (function () {
 	    width_to_fit_in = this.cell_view.getWidth(this.model, true);
 	} else {
 	    var furthest_right_id = -1;
-	    var id_order = this.model.getIdOrder();
+	    var id_to_index_map = this.model.getIdToIndexMap();
 	    for (var i=0; i<ids.length; i++) {
-		furthest_right_id = Math.max(id_order.indexOf(ids[i]), furthest_right_id);
+		furthest_right_id = Math.max(id_to_index_map[ids[i]], furthest_right_id);
 	    }
 	    width_to_fit_in = ((furthest_right_id + 3) * (this.model.getCellWidth(true) + this.model.getCellPadding(true)));
 	}

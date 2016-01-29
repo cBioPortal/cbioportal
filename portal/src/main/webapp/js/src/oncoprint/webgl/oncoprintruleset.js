@@ -19,6 +19,8 @@
  * line: x1, y1, x2, y2, stroke, stroke-width
  */
 
+var Shape = require('./oncoprintshape.js');
+
 function ifndef(x, val) {
     return (typeof x === "undefined" ? val : x);
 }
@@ -645,33 +647,24 @@ var Rule = (function () {
 	this.condition = params.condition || function (d) {
 	    return true;
 	};
-	this.shapes = params.shapes.map(addDefaultAbstractShapeParams);
+	this.shapes = params.shapes.map(function(shape){ 
+	    if (shape.type === 'rectangle') {
+		return new Shape.Rectangle(shape);
+	    } else if (shape.type === 'triangle') {
+		return new Shape.Triangle(shape);
+	    } else if (shape.type === 'ellipse') {
+		return new Shape.Ellipse(shape);
+	    } else if (shape.type === 'line') {
+		return new Shape.Line(shape);
+	    }
+	});
 	this.legend_label = params.legend_label || "";
 	this.exclude_from_legend = params.exclude_from_legend;
+	this.legend_config = {'type':'simple', 'target': {'mut_type':'MISSENSE'}}; // or {'type':'number', 'range':[lower, upper]} or {'type':'color', 'range':['rgba(...)' or '#...', 'rgba(...)' or '#...']}
     }
-    var addDefaultAbstractShapeParams = function (shape_params) {
-	var default_values = {'width': '100%', 'height': '100%', 'x': '0%', 'y': '0%', 'z': 0,
-	    'x1': '0%', 'x2': '0%', 'x3': '0%', 'y1': '0%', 'y2': '0%', 'y3': '0%',
-	    'stroke': 'rgba(0,0,0,0)', 'fill': 'rgba(23,23,23,1)', 'stroke-width': '0'};
-	var required_parameters_by_type = {
-	    'rectangle': ['width', 'height', 'x', 'y', 'z', 'stroke', 'fill', 'stroke-width'],
-	    'triangle': ['x1', 'x2', 'x3', 'y1', 'y2', 'y3', 'z', 'stroke', 'fill', 'stroke-width'],
-	    'ellipse': ['width', 'height', 'x', 'y', 'z', 'stroke', 'fill', 'stroke-width'],
-	    'line': ['x1', 'x2', 'y1', 'y2', 'z', 'stroke', 'stroke-width']
-	};
-	var complete_shape_params = {};
-	var required_parameters = required_parameters_by_type[shape_params.type];
-	for (var i = 0; i < required_parameters.length; i++) {
-	    var required_param = required_parameters[i];
-	    if (shape_params.hasOwnProperty(required_param)) {
-		complete_shape_params[required_param] = shape_params[required_param];
-	    } else {
-		complete_shape_params[required_param] = default_values[required_param];
-	    }
-	}
-	complete_shape_params.type = shape_params.type;
-	return complete_shape_params;
-    };
+    Rule.prototype.getLegendConfig = function() {
+	return this.legend_config;
+    }
     Rule.prototype.getConcreteShapes = function (d, cell_width, cell_height) {
 	// Gets concrete shapes (i.e. computed
 	// real values from percentages) 
@@ -680,31 +673,8 @@ var Rule = (function () {
 	    return [];
 	}
 	var concrete_shapes = [];
-	var width_axis_attrs = {"x": true, "x1": true, "x2": true, "x3": true, "width": true};
-	var height_axis_attrs = {"y": true, "y1": true, "y2": true, "y3": true, "height": true};
 	for (var i = 0, shapes_len = this.shapes.length; i < shapes_len; i++) {
-	    var shape_spec = this.shapes[i];
-	    var attrs = Object.keys(shape_spec);
-	    var concrete_shape = {};
-	    for (var j = 0, attrs_len = attrs.length; j < attrs_len; j++) {
-		var attr_name = attrs[j];
-		var attr_val = shape_spec[attr_name];
-		if (typeof attr_val === 'function') {
-		    attr_val = attr_val(d);
-		}
-		var percent = (typeof attr_val === 'string') && attr_val.match(/([\d.]+)%/);
-		percent = percent && percent.length > 1 && percent[1];
-		if (percent) {
-		    var multiplier = parseFloat(percent) / 100.0;
-		    if (width_axis_attrs.hasOwnProperty(attr_name)) {
-			attr_val = multiplier * cell_width;
-		    } else if (height_axis_attrs.hasOwnProperty(attr_name)) {
-			attr_val = multiplier * cell_height;
-		    }
-		}
-		concrete_shape[attr_name] = attr_val + '';
-	    }
-	    concrete_shapes.push(concrete_shape);
+	    concrete_shapes.push(this.shapes[i].getComputedParams(d, cell_width, cell_height));
 	}
 	return concrete_shapes;
     }

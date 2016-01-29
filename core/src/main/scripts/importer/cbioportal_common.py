@@ -92,7 +92,6 @@ META_FIELD_MAP = {
         'cancer_study_identifier': True,
         'genetic_alteration_type': True,
         'datatype': True,
-        'show_profile_in_analysis_tab': True,
         'reference_genome_id': True,
         'data_filename': True,
         'description': True
@@ -422,7 +421,7 @@ def get_meta_file_type(metaDictionary, logger, filename):
         ("PROTEIN_LEVEL", "Z-SCORE"): MetaFileTypes.RPPA,
         #cna
         ("COPY_NUMBER_ALTERATION", "DISCRETE"): MetaFileTypes.CNA,
-        #("COPY_NUMBER_ALTERATION", "CONTINUOUS"): MetaFileTypes.CNA, ?? TODO - add later, when documented
+        #("COPY_NUMBER_ALTERATION", "CONTINUOUS"): MetaFileTypes.CNA, 
         #log2cna
         ("COPY_NUMBER_ALTERATION", "LOG2-VALUE"): MetaFileTypes.LOG2,
         #expression

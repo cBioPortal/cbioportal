@@ -1433,8 +1433,9 @@ def interface(args=None):
                              'your URL is not http://localhost/cbioportal')
     parser.add_argument('-html', '--html_table', type=str, required=False,
                         help='path to html report output file')
-    parser.add_argument('-v', '--verbose', required=False, action="store_true",
-                        help='list warnings in addition to fatal errors')
+    parser.add_argument('-v', '--verbose', required=False, action='store_true',
+                        help='report status info messages in addition '
+                             'to errors and warnings')
 
     parser = parser.parse_args(args)
     return parser
@@ -1524,9 +1525,10 @@ def main_validate(args):
 
     html_output_filename = args.html_table
 
-    verbose = False
+    # determine the log level for terminal and html output
+    output_loglevel = logging.WARNING
     if args.verbose:
-        verbose = True
+        output_loglevel = logging.INFO
 
     # check existence of directory
     if not os.path.exists(study_dir):
@@ -1540,8 +1542,7 @@ def main_validate(args):
         capacity=1e6,
         flushLevel=logging.CRITICAL,
         target=text_handler)
-    if not verbose:
-        collapsing_text_handler.setLevel(logging.ERROR)
+    collapsing_text_handler.setLevel(output_loglevel)
     logger.addHandler(collapsing_text_handler)
 
     collapsing_html_handler = None
@@ -1561,8 +1562,7 @@ def main_validate(args):
             capacity=1e6,
             flushLevel=logging.CRITICAL,
             target=html_handler)
-        if not verbose:
-            collapsing_html_handler.setLevel(logging.ERROR)
+        collapsing_html_handler.setLevel(output_loglevel)
         logger.addHandler(collapsing_html_handler)
 
     # retrieve cancer types defined in the portal

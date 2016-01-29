@@ -45,7 +45,7 @@ def interface():
     parser.add_argument('-html', '--html_table', type=str, required=False,
                         help='path to html report')
     parser.add_argument('-v', '--verbose', required=False, action='store_true',
-                        help='list warnings in addition to fatal errors')
+                        help='report status info messages while validating')
     parser.add_argument('-o', '--override_warning', required=False,
                         action='store_true',
                         help='override warnings and continue importing')
@@ -66,7 +66,7 @@ if __name__ == '__main__':
     study_dir = args.study_directory
 
     # Validate the study directory.
-    print >> sys.stderr, "Starting validation...\n\n\n"
+    print >> sys.stderr, "Starting validation...\n"
     try:
         exitcode = validateData.main_validate(args)
     finally:

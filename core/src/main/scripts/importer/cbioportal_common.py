@@ -366,33 +366,6 @@ class CollapsingLogMessageHandler(logging.handlers.MemoryHandler):
         super(CollapsingLogMessageHandler, self).flush()
 
 
-class MetastudyProperties(object):
-    def __init__(self,
-                 type_of_cancer, cancer_study_identifier,
-                 name, description, short_name):
-        self.type_of_cancer = type_of_cancer
-        self.cancer_study_identifier = cancer_study_identifier
-        self.name = name
-        self.description = description
-        self.short_name = short_name
-
-
-class MetafileProperties(object):
-    def __init__(self,
-                 cancer_study_identifier, genetic_alteration_type,
-                 datatype, stable_id, show_profile_in_analysis_tab,
-                 profile_description, profile_name, meta_file_type, data_filename):
-        self.cancer_study_identifier = cancer_study_identifier
-        self.genetic_alteration_type = genetic_alteration_type
-        self.datatype = datatype
-        self.stable_id = stable_id
-        self.show_profile_in_analysis_tab = show_profile_in_analysis_tab
-        self.profile_description = profile_description
-        self.profile_name = profile_name
-        self.meta_file_type = meta_file_type
-        self.data_filename = data_filename
-
-
 # ------------------------------------------------------------------------------
 # sub-routines
 
@@ -458,72 +431,6 @@ def get_meta_file_type(metaDictionary, logger, filename):
         logger.error('Could not determine the file type. Did not find expected meta file fields. Please check your meta files for correct configuration.',
                          extra={'filename_': os.path.basename(filename)})
     return result
-
-
-def get_properties(filename):
-    properties = {}
-    file_ = open(filename, 'r')
-    for line in file_:
-        line = line.strip()
-        # skip line if its blank or a comment
-        if len(line) == 0:
-            continue
-        # store name/value
-        property_ = line.split(': ', 1)
-        if (len(property_) != 2):
-            print >> ERROR_FILE, 'Skipping invalid entry in file_: ' + line
-            continue
-        properties[property_[0]] = property_[1].strip()
-    file_.close()
-    return properties
-
-
-def get_metastudy_properties(meta_filename):
-    properties = get_properties(meta_filename)
-
-    # ignoring groups, pmid, citation - not needed
-    if ("type_of_cancer" not in properties or len(properties["type_of_cancer"]) == 0 or
-        "cancer_study_identifier" not in properties or len(properties["cancer_study_identifier"]) == 0 or
-        "name" not in properties or len(properties["name"]) == 0 or
-        "description" not in properties or len(properties["description"]) == 0 or
-        "short_name" not in properties or len(properties["short_name"]) == 0):
-        print >> ERROR_FILE, 'Missing one or more required properties, please check metastudy file'
-        return None
-
-    # return an instance of PortalProperties
-    return MetastudyProperties(properties["type_of_cancer"],
-                            properties["cancer_study_identifier"],
-                            properties["name"],
-                            properties["description"],
-                            properties["short_name"])
-
-def get_metafile_properties(meta_filename):
-    properties = get_properties(meta_filename)
-    if ("show_profile_in_analysis_tab not in analysis_tab" not in properties):
-        properties['show_profile_in_analysis_tab'] = 'false'
-
-    # error check
-    if ("cancer_study_identifier" not in properties or len(properties["cancer_study_identifier"]) == 0 or
-        "genetic_alteration_type" not in properties or len(properties["genetic_alteration_type"]) == 0 or
-        "datatype" not in properties or len(properties["datatype"]) == 0 or
-        "stable_id" not in properties or len(properties["stable_id"]) == 0 or
-        "show_profile_in_analysis_tab" not in properties or len(properties["show_profile_in_analysis_tab"]) == 0 or
-        "profile_name" not in properties or len(properties["profile_name"]) == 0 or
-        "profile_description" not in properties or len(properties["profile_description"]) == 0):
-        print >> ERROR_FILE, 'Missing one or more required properties, please check metadata file'
-        return None
-
-    # return an instance of PortalProperties
-    return MetafileProperties(
-        properties["cancer_study_identifier"],
-        properties["genetic_alteration_type"],
-        properties["datatype"],
-        properties["stable_id"],
-        properties["show_profile_in_analysis_tab"],
-        properties["profile_name"],
-        properties["profile_description"],
-        properties["meta_file_type"],
-        properties["data_filename"])
 
 
 def validate_types_and_id(metaDictionary, logger, filename):

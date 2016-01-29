@@ -73,12 +73,13 @@
 <jsp:include page="global/header.jsp" flush="true"/>
 
 <!-- for now, let's include these guys here and prevent clashes with the rest of the portal -->
-<script type="text/javascript" src="js/src/patient-view/OncoKBConnector.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/crosscancer.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="../../js/src/patient-view/OncoKBConnector.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="../../js/src/crosscancer.js?<%=GlobalProperties.getAppVersion()%>"></script>
+
 <link href="css/data_table_ColVis.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 <link href="css/data_table_jui.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 <link href="css/mutationMapper.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
-<link href="css/crosscancer.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
+<link href="../../css/crosscancer.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
 
 <%
     // Means that user landed on this page with the old way.
@@ -113,6 +114,7 @@
                 </div>
             </div>
             <!-- end results container -->
+       
         </td>
     </tr>
 </table>
@@ -184,31 +186,64 @@
                 </div>
                 <h3>Customize histogram</h3>
                 <table>
-                    <tr>
+
+            <tr>
                         <td>
-                            <span id="no-alterations-control">
-                                <input type="checkbox" id="histogram-remove-notaltered">
-                                <label for="histogram-remove-notaltered">Hide studies with no alteration</label>
-                            </span>
+                            Cancer Type: <select id="cancerTypes"><option value="all">All</option></select>
                         </td>
-                        <td>
+                      
+           
+                    <td width="30%"><div>
+                    Y-Axis Value: <select id="yAxis"><option value="Frequency">Alteration Frequency</option><option value="Count">Absolute Counts</option></select>
+                     </div> 
+                     </td>
+                    <td width="15%" valign="top"> 
+                        <span class="diagram-general-slider-text" id="sliderLabel">Min. alteration </span>
+                        <span class="diagram-general-slider-value" id="currentValue">0%</span>
+                    </td>
+                    <td width="20%" valign="top">  
+                        <div style="width:80%">
+                            <div id="sliderEventTest"></div>
+                            <span class="diagram-general-slider-min-label" id="minLabel">0</span>
+                            <span class="diagram-general-slider-max-label" style="float:right" id="maxLabel"></span>
+                    
+                        </div>
+                     </td>
+
+            </tr>
+    
+                  
+            
+                    <tr>
+                         <td>
                             <span id="no-colors-control">
                                 <input type="checkbox" id="histogram-show-colors" checked>
                                 <label for="histogram-show-colors">Show alteration types</label>
                             </span>
                         </td>
-                        <td>
-                            <span id="sort-by-control">
-                                Sort by:
-                                <select id="histogram-sort-by">
-                                    <option value="alteration">Alteration frequency</option>
-                                    <option value="name">Cancer study name</option>
-                                </select>
-                            </span>
-                        </td>
+                
+                        <td width="30%" valign="top">Sort X-Axis by: <select id="sortBy">
+                                                    <option value="YAxis">Y-Axis Values</option>
+                                                    <option value="CancerTypes">Cancer Types</option>
+                                            </select>
+                     </td>
+                       <td width="15%" valign="top"> 
+                        <span class="diagram-general-slider-text" >Min total sample number </span>
+                        <span class="diagram-general-slider-value" id="currentTotalSample">0</span>
+                    </td>
+                    <td width="20%" valign="top">  
+                        <div style="width:80%">
+                            <div id="totalSampleSlider"></div>
+                            <span class="diagram-general-slider-min-label">0</span>
+                            <span class="diagram-general-slider-max-label" style="float:right" id="maxLabelTotalSample"></span>
+                    
+                        </div>
+                     </td>
+
                     </tr>
-                    <tr>
-                        <td colspan="3">
+            
+            <tr>
+                    <td colspan="4">
                             <div id="show-hide-studies">
                                 <span class="triangle ui-icon ui-icon-triangle-1-e cc-triangle"></span>
                                 <span class="triangle ui-icon ui-icon-triangle-1-s cc-triangle cc-hide"></span>
@@ -221,7 +256,8 @@
                                 <br>
                             </div>
                         </td>
-                    </tr>
+                   
+            </tr>
                 </table>
             </div>
 
@@ -274,6 +310,7 @@
         </label>
     </div>
 </script>
+
 
 <script type="text/template" id="studies-with-no-data-item-tmpl">
     <li>{{name}}</li>

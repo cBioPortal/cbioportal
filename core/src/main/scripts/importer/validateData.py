@@ -522,7 +522,7 @@ class FeaturewiseFileValidator(Validator):
     """
 
     OPTIONAL_HEADERS = []
-    REQUIRE_COLUMN_ORDER = True
+    REQUIRE_COLUMN_ORDER = False
 
     def __init__(self, *args, **kwargs):
         super(FeaturewiseFileValidator, self).__init__(*args, **kwargs)
@@ -536,24 +536,15 @@ class FeaturewiseFileValidator(Validator):
         Return the number of fatal errors.
         """
         num_errors = super(FeaturewiseFileValidator, self).checkHeader(cols)
-        if num_errors > 0:
-            return num_errors
-        # collect the non-sample columns headers, assuming order is required
-        self.nonsample_cols = list(self.REQUIRED_HEADERS)
-        # start looking for optional cols at the index after the required ones
-        col_index = len(self.nonsample_cols)
-        # start with the first optional column
-        for col_name in self.OPTIONAL_HEADERS:
-            # if the next column header in the file is the optional one we are
-            # looking for
-            if self.cols[col_index] == col_name:
-                # add it to the list of non-sample columns in the file
+        
+        # collect non-sample columns:
+        for col_name in self.cols:
+            if col_name in self.REQUIRED_HEADERS + self.OPTIONAL_HEADERS:
+                # add it to the list of non-sample columns in the file:
                 self.nonsample_cols.append(col_name)
-                # any subsequent optional column will be at the next index
-                col_index += 1
             else:
-                # look for the next optional column at the same index
-                pass
+                # reached samples group
+                break
         self.num_nonsample_cols = len(self.nonsample_cols)
         num_errors += self._set_sample_ids_from_columns()
         return num_errors
@@ -595,6 +586,7 @@ class GenewiseFileValidator(FeaturewiseFileValidator):
 
     """FeatureWiseValidator that has Hugo and/or Entrez as feature columns."""
 
+    REQUIRED_HEADERS = []
     OPTIONAL_HEADERS = ['Hugo_Symbol', 'Entrez_Gene_Id']
 
     def checkHeader(self, cols):
@@ -603,10 +595,15 @@ class GenewiseFileValidator(FeaturewiseFileValidator):
         Return the number of fatal errors.
         """
         num_errors = super(GenewiseFileValidator, self).checkHeader(cols)
-        if not ('Hugo_Symbol' in self.nonsample_cols or
-                'Entrez_Gene_Id' in self.nonsample_cols):
+        if not ('Hugo_Symbol' in self.cols or
+                'Entrez_Gene_Id' in self.cols):
             self.logger.error('At least one of the columns Hugo_Symbol or '
                               'Entrez_Gene_Id needs to be present.',
+                              extra={'line_number': self.line_number})
+            num_errors += 1
+        elif not ('Hugo_Symbol' in self.cols[:2] or
+                  'Entrez_Gene_Id' in self.cols[:2]):
+            self.logger.error('Hugo_Symbol or Entrez_Gene_Id need to be in the first 2 columns of the file.',
                               extra={'line_number': self.line_number})
             num_errors += 1
         return num_errors
@@ -1572,7 +1569,7 @@ def main_validate(args):
         logger,
         id_field='id')
     # retrieve clinical attributes defined in the portal
-    ClinicalValidator.request_attrs(SERVER_URL, logger)
+    ClinicalValidator.request_attrs("http://localhost:8080/cbioportal", logger)
     # Entrez values for Hugo symbols in the portal
     hugo_entrez_map = get_hugo_entrez_map(SERVER_URL, logger)
 

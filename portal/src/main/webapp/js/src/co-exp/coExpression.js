@@ -61,14 +61,14 @@ var CoExpView = (function() {
     var Tabs = (function() {
 
         function appendTabsContent() {
-            $.each(window.PortalGlobals.getGeneList(), function(index, value) {
+            $.each(window.QuerySession.getQueryGenes(), function(index, value) {
                 $("#coexp-tabs-list").append("<li><a href='#" + Prefix.divPrefix + cbio.util.safeProperty(value) + 
                   "' class='coexp-tabs-ref'><span>" + value + "</span></a></li>");
             });
         }
 
         function appendLoadingImgs() {
-            $.each(window.PortalGlobals.getGeneList(), function(index, value) {
+            $.each(window.QuerySession.getQueryGenes(), function(index, value) {
                 $("#coexp-tabs-content").append("<div id='" + Prefix.divPrefix + cbio.util.safeProperty(value) + "'>" +
                     "<div id='" + Prefix.loadingImgPrefix + cbio.util.safeProperty(value) + "'>" +
                     "<table><tr><td><img style='padding:20px;' src='images/ajax-loader.gif'></td>" + 
@@ -139,7 +139,7 @@ var CoExpView = (function() {
 
         function bindListener() {
             $("#coexp-profile-selector").change(function() {
-                var geneIds = window.PortalGlobals.getGeneList();
+                var geneIds = window.QuerySession.getQueryGenes();
                 $.each(geneIds, function(index, value) {
                     //Distroy all the subview instances
                     var element =  document.getElementById(Prefix.tableDivPrefix + cbio.util.safeProperty(value));
@@ -272,11 +272,11 @@ var CoExpView = (function() {
             function attachDownloadFullResultButton() {
                 //Append download full result button at the bottom of the table
                 var downloadFullResultForm = "<form style='float:right;' action='getCoExp.do' method='post'>" +
-                    "<input type='hidden' name='cancer_study_id' value='" + window.PortalGlobals.getCancerStudyId() + "'>" +
+                    "<input type='hidden' name='cancer_study_id' value='" + window.QuerySession.getCancerStudyIds()[0] + "'>" +
                     "<input type='hidden' name='gene' value='" + geneId + "'>" +
                     "<input type='hidden' name='profile_id' value='" + $("#coexp-profile-selector :selected").val() + "'>" + 
-                    "<input type='hidden' name='case_set_id' value='" + window.PortalGlobals.getCaseSetId() + "'>" +
-                    "<input type='hidden' name='case_ids_key' value='" + window.PortalGlobals.getCaseIdsKey() + "'>" +
+                    "<input type='hidden' name='case_set_id' value='" + window.QuerySession.getCaseSetId() + "'>" +
+                    "<input type='hidden' name='case_ids_key' value='" + window.QuerySession.getCaseIdsKey() + "'>" +
                     "<input type='hidden' name='is_full_result' value='true'>" +
                     "<input type='submit' value='Download Full Results'></form>";
                 $("#" + Names.tableDivId).append(downloadFullResultForm);            
@@ -374,11 +374,11 @@ var CoExpView = (function() {
                     //Getting co-exp data (for currently selected gene/profile) from servlet
                     $("#" + Names.plotId).empty();
                     var paramsGetCoExpData = {
-                         cancer_study_id: window.PortalGlobals.getCancerStudyId(),
+                         cancer_study_id: window.QuerySession.getCancerStudyIds()[0],
                          gene: _geneId,
                          profile_id: $("#coexp-profile-selector :selected").val(),
-                         case_set_id: window.PortalGlobals.getCaseSetId(),
-                         case_ids_key: window.PortalGlobals.getCaseIdsKey(),
+                         case_set_id: window.QuerySession.getCaseSetId(),
+                         case_ids_key: window.QuerySession.getCaseIdsKey(),
                          is_full_result: "false"
                     };
                     $.post(
@@ -441,7 +441,7 @@ var CoExpView = (function() {
     };   //Closing coExpSubTabView
 
     function getGeneticProfileCallback(result) {
-        var _genes = window.PortalGlobals.getGeneList();
+        var _genes = window.QuerySession.getQueryGenes();
         //Init Profile selector
         var _profile_list = {};
         _.each(_genes, function(_gene) {
@@ -464,10 +464,10 @@ var CoExpView = (function() {
             Tabs.bindListenerToTabs();
             //Get all the genetic profiles with data available 
             var paramsGetProfiles = {
-                cancer_study_id: window.PortalGlobals.getCancerStudyId(),
-                case_set_id: window.PortalGlobals.getCaseSetId(),
-                case_ids_key: window.PortalGlobals.getCaseIdsKey(),
-                gene_list: window.PortalGlobals.getGeneListString()
+                cancer_study_id: window.QuerySession.getCancerStudyIds()[0],
+                case_set_id: window.QuerySession.getCaseSetId(),
+                case_ids_key: window.QuerySession.getCaseIdsKey(),
+                gene_list: window.QuerySession.getQueryGenes().join(" ")
             };
             $.post("getGeneticProfile.json", paramsGetProfiles, getGeneticProfileCallback, "json");
         },

@@ -31,6 +31,38 @@ body {
   height:50px;
 }
 
+fieldset#login-fieldset, fieldset#clinical-timeline-fieldset, fieldset#patient-view-summary-fieldset {
+    padding: 5px 10px;
+}
+
+fieldset#login-fieldset {
+    border: 2px groove threedface;
+}
+
+fieldset#clinical-timeline-fieldset, fieldset#patient-view-summary-fieldset {
+    border: 1px solid #aaaaaa;
+}
+
+fieldset#login-fieldset > legend {
+    width: 96px;
+    border-bottom: none;
+    color: #666666;
+    font-family: verdana, arial, sans-serif;
+    font-size: 12px;
+    margin-bottom: 0;
+}
+
+fieldset#clinical-timeline-fieldset > legend,
+fieldset#patient-view-summary-fieldset > legend {
+    font-size: 12px !important;
+    text-align: left !important;
+    width: auto;
+    padding: 0 10px;
+    border-bottom: none;
+    color: #1974b8;
+    margin-bottom: 0px;
+}
+
 #header_site_name{
   font-size:24px;
   font-weight:bold;
@@ -385,11 +417,16 @@ table td {
   font-size:14px;
   padding-bottom: 5px;
   border :1px;
-  padding: 10px 10px 10px 20px;
-  display: block;
+  /*padding: 10px 10px 10px 20px;*/
   color:black;
 }
 
+pre code{
+    display: block;
+}
+
+
+/* OncoPrint styles*/
 .oncoprint_accordion_panel {
     background-color: #FFFFFF;
 }
@@ -460,6 +497,111 @@ table td {
     color: #FF0000;
 	display: none;
     padding-left:25px;
+}
+
+.oncoprint-content-area {
+    max-width: 1200px;
+}
+
+input[type=range]#oncoprint_zoom_slider {
+    /*removes default webkit styles*/
+    -webkit-appearance: none;
+
+    /*fix for FF unable to apply focus style bug */
+    border: none;
+
+    /*required for proper track sizing in FF*/
+    width: 80px;
+    height: 16px;
+
+    background: transparent;
+    padding: 1px 2px
+}
+
+input[type=range]#oncoprint_zoom_slider:focus {
+    outline: none;
+}
+
+input[type=range]#oncoprint_zoom_slider:hover {
+    cursor: pointer;
+}
+
+/* Input range styles for Chrome, Safari and Opera*/
+input[type=range]#oncoprint_zoom_slider::-webkit-slider-runnable-track {
+    width: 80px;
+    height: 5px;
+    background: #ccc;
+    border: none;
+    border-radius: 3px;
+}
+
+input[type=range]#oncoprint_zoom_slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    border: none;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: grey;
+    margin-top: -5px;
+}
+
+/* Input range styles for FireFox*/
+input[type=range]#oncoprint_zoom_slider::-moz-range-track {
+    width: 80px;
+    height: 5px;
+    background: #ccc;
+    border: none;
+    border-radius: 3px;
+}
+
+input[type=range]#oncoprint_zoom_slider::-moz-range-thumb {
+    border: none;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: grey;
+}
+
+/* Input range styles for IE*/
+input[type=range]#oncoprint_zoom_slider::-ms-track {
+    width: 80px;
+
+    /*remove bg colour from the track, we'll use ms-fill-lower and ms-fill-upper instead */
+    background: transparent;
+
+    /*leave room for the larger thumb to overflow with a transparent border */
+    border-color: transparent;
+    border-width: 6px 0;
+
+    /*remove default tick marks*/
+    color: transparent;
+}
+
+input[type=range]#oncoprint_zoom_slider::-ms-fill-lower {
+    background: #ccc;
+    border-radius: 10px;
+}
+
+/* The thumb still can't overflow the track in IE. 
+We can fake a wide enough track by adding a thick transparent border on the top and bottom of the track. 
+We'll also move most of our styles to ::-ms-fill-lower and ::-ms-fill-upper instead of ::ms-track 
+to make sure things like border-radius render correctly.*/
+input[type=range]#oncoprint_zoom_slider::-ms-fill-upper {
+    background: #ccc;
+    border-radius: 10px;
+}
+
+input[type=range]#oncoprint_zoom_slider::-ms-thumb {
+    border: none;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: grey;
+}
+
+/* Disable IE range tooltip, it shows tooltip by default*/
+input[type="range"]#oncoprint_zoom_slider::-ms-tooltip {
+    display: none;
 }
 
 #frequency_plot {
@@ -1443,11 +1585,15 @@ ul.ui-autocomplete li.ui-menu-item { font-size: 0.6em; text-align: left; }
 }
 
 /* OncoKB integration styles */
+/*Default max width is 280px*/
 .oncokb-qtip {
-    max-width: 800px !important;
+    max-width: 600px !important;
 }
 .oncokb-qtip-sm {
     max-width: 400px !important;
+}
+.oncokb-qtip-xs {
+    max-width: 330px !important;
 }
 .oncokb-qtip table.dataTable {
     font-size: 11px !important;
@@ -1462,3 +1608,31 @@ ul.oncokb li {
 .oncokb.oncokb_alteration svg{
     vertical-align: middle;
 }
+.mutationTableHeaderRadioLabel label img{
+    vertical-align: text-bottom;
+}
+.qtip-content div.oncokb{
+    padding-top: 5px;
+}
+.oncokbFeedback {
+    text-decoration: underline;
+}
+.oncokbFeedback:hover, .bootstrap-dialog-close:hover {
+    cursor: pointer;
+}
+.oncokb .fa-angle-right:hover, .oncokb .fa-angle-down:hover {
+    cursor: pointer;
+}
+.bootstrap-dialog-close {
+    float: right;
+    width: 100%;
+    text-align: right;
+    color: grey;
+}
+
+/* BootstrapDialog styles*/
+.modal-dialog {
+    height:920px;
+    padding: 0;
+}
+

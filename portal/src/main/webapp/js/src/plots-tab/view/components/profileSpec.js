@@ -3,7 +3,7 @@ var profileSpec = (function() {
     function appendGeneList(axis) {
         $("#" + ids.sidebar[axis].spec_div).append("<br><h5>Gene</h5>");
         $("#" + ids.sidebar[axis].spec_div).append("<select id='" + ids.sidebar[axis].gene + "'>");
-        $.each(window.PortalGlobals.getGeneList(), function(index, value) {
+        $.each(window.QuerySession.getQueryGenes(), function(index, value) {
             $("#" + ids.sidebar[axis].gene).append(
                     "<option value='" + value + "'>" + value + "</option>");
         });
@@ -146,7 +146,10 @@ var profileSpec = (function() {
         if (document.getElementById(ids.sidebar.y.gene)) {
             document.getElementById(ids.sidebar.y.gene).disabled = false;
         }
-        if (genetic_vs_genetic()) {
+        //basically same check as genetic_vs_genetic() but here we do it directly as genetic_vs_genetic is initialized together 
+        //with other variables in plotsUtils which are not available yet (so a call to genetic_vs_genetic would fail here):
+        if ($("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === $("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() && 
+	            $("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.genetic) {
             $("#" + ids.sidebar.y.lock_gene + "-div").append(
                     "<input type='checkbox' id='" + 
                     ids.sidebar.y.lock_gene + 

@@ -289,13 +289,18 @@ public class CrossCancerJSON extends HttpServlet {
         ArrayList<ProfileData> profileDataList = new ArrayList<ProfileData>();
         Set<String> warningUnion = new HashSet<String>();
 
+
         for (GeneticProfile profile : defaultGeneticProfileSet.values()) {
-            GetProfileData remoteCall =
-                new GetProfileData(profile, geneList,
+            try {
+                GetProfileData remoteCall =
+                    new GetProfileData(profile, geneList,
                                    StringUtils.join(defaultPatientSet.getPatientList(), " "));
-            ProfileData pData = remoteCall.getProfileData();
-            warningUnion.addAll(remoteCall.getWarnings());
-            profileDataList.add(pData);
+                ProfileData pData = remoteCall.getProfileData();
+                warningUnion.addAll(remoteCall.getWarnings());
+                profileDataList.add(pData);
+            } catch (IllegalArgumentException e) {
+                e.getStackTrace();
+            }
         }
 
         ProfileMerger merger = new ProfileMerger(profileDataList);

@@ -26,6 +26,8 @@ var makeOncoprinter = (function() {
 			}
 			var gene = sline[1].trim();
 			var alteration = sline[2].trim();
+                        var type = sline[3].trim();
+                        
 			gene_to_sample_to_datum[gene] = gene_to_sample_to_datum[gene] || {};
 			gene_to_sample_to_datum[gene][sample] = gene_to_sample_to_datum[gene][sample] || {'gene':gene, 'sample':sample};
 			
@@ -37,6 +39,7 @@ var makeOncoprinter = (function() {
 				gene_to_sample_to_datum[gene][sample].rppa = rppa[alteration];
 			} else {
 				gene_to_sample_to_datum[gene][sample].mutation = alteration;
+                                gene_to_sample_to_datum[gene][sample].mut_type = type;
 			}
 		}
 		var ret = [];
@@ -63,7 +66,7 @@ var makeOncoprinter = (function() {
 			window.onc_obj.destroy();
 		}
 		window.onc_obj = window.setUpOncoprint('oncoprint_body', {
-			gene_data: data,
+			sample_gene_data: data,
 			toolbar_selector: '#oncoprint-diagram-toolbar-buttons',
 			toolbar_fade_hitzone_selector: '#oncoprint',
 			load_clinical_tracks: false,
@@ -78,12 +81,12 @@ var makeOncoprinter = (function() {
 
 var isInputValid = function(str) {
 	var lines = _.map(str.split('\n'), function(x) { return x.trim(); });
-	if (lines[0].split(/\s+/).length !== 3) {
+	if (lines[0].split(/\s+/).length !== 4) {
 		return false;
 	}
 	for (var i=1; i<lines.length; i++) {
 		var split_line_length = lines[i].split(/\s+/).length;
-		if (split_line_length !== 1 && split_line_length !== 3) {
+		if (split_line_length !== 1 && split_line_length !== 4) {
 			return false;
 		}
 	}

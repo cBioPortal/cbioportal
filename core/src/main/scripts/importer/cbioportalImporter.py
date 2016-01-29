@@ -76,6 +76,11 @@ def import_study_data(jvm_args, meta_filename, data_filename):
         # invalid file, skip
         return
 
+    if not data_filename.endswith(meta_file_dict['data_filename']):
+        print >> ERROR_FILE, ("'data_filename' in meta file contradicts "
+                              "data filename in command, skipping file")
+        return
+
     importer = IMPORTER_CLASSNAME_BY_META_TYPE[meta_file_type]
 
     args.append(importer)
@@ -153,9 +158,11 @@ def process_directory(jvm_args, study_directory):
         elif meta_file_type == MetaFileTypes.CANCER_TYPE:
             cancer_type_metafiles.append(f)
         elif meta_file_type == MetaFileTypes.CLINICAL:
-            clinical_filepairs.append((f, metadata['data_filename']))
+            clinical_filepairs.append(
+                (f, os.path.join(study_directory, metadata['data_filename'])))
         else:
-            non_clinical_filepairs.append((f, metadata['data_filename']))
+            non_clinical_filepairs.append(
+                (f, os.path.join(study_directory, metadata['data_filename'])))
 
     # First, import cancer types
     for f in cancer_type_metafiles:

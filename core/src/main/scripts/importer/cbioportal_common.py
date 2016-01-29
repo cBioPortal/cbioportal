@@ -586,8 +586,8 @@ def parse_metadata_file(filename,
     """Validate a metafile and return a dictionary of values read from it and
     the meta_file_type according to get_meta_file_type.
 
-    Return `None` if the file is invalid. If `case_list` is True,
-    validate the file as a case list instead of a meta file.
+    `meta_file_type` will be `None` if the file is invalid. If `case_list`
+    is True, read the file as a case list instead of a meta file.
 
     :param filename: name of the meta file
     :param logger: the logging.Logger instance to log warnings and errors to
@@ -608,7 +608,8 @@ def parse_metadata_file(filename,
                     {True: 'case list', False: 'meta'}[case_list],
                     extra={'filename_': filename,
                            'line_number': line_index + 1})
-                return None
+                meta_file_type = None
+                return metaDictionary, meta_file_type
             key_value = line.split(':', 1)
             if len(key_value) == 2:
                 metaDictionary[key_value[0]] = key_value[1].strip()
@@ -617,9 +618,9 @@ def parse_metadata_file(filename,
         meta_file_type = MetaFileTypes.CASE_LIST
     else:
         meta_file_type = get_meta_file_type(metaDictionary, logger, filename)
+        # if type could not be inferred, no further validations are possible
         if meta_file_type is None:
-            # skip this file (can't validate unknown file types)
-            return None
+            return metaDictionary, meta_file_type
 
     missing_fields = []
     for field in META_FIELD_MAP[meta_file_type]:
@@ -632,15 +633,19 @@ def parse_metadata_file(filename,
             missing_fields.append(field)
 
     if missing_fields:
-        # skip this file (the fields may be required for validation)
-        return None
+        meta_file_type = None
+        # all further checks would depend on these fields being present
+        return metaDictionary, meta_file_type
 
     # validate genetic_alteration_type, datatype, stable_id
-    stable_id_mandatory = 'stable_id' in META_FIELD_MAP[meta_file_type] and META_FIELD_MAP[meta_file_type]['stable_id']
+    stable_id_mandatory = META_FIELD_MAP[meta_file_type].get('stable_id',
+                                                             False)
     if stable_id_mandatory:
         valid_types_and_id = validate_types_and_id(metaDictionary, logger, filename)
         if not valid_types_and_id:
-            return None
+            # invalid meta file type
+            meta_file_type = None
+            return metaDictionary, meta_file_type
 
     for field in metaDictionary:
         if field not in META_FIELD_MAP[meta_file_type]:
@@ -661,8 +666,11 @@ def parse_metadata_file(filename,
             study_id,
             extra={'filename_': filename,
                    'cause': metaDictionary['cancer_study_identifier']})
-        return None
+        # not a valid meta file in this study
+        meta_file_type = None
+        return metaDictionary, meta_file_type
 
+    # type-specific validations
     if meta_file_type == MetaFileTypes.CANCER_TYPE:
         # compare a meta_cancer_type file with the portal instance
         if known_cancer_types is not None:
@@ -689,8 +697,7 @@ def parse_metadata_file(filename,
                                    'cause': metaDictionary[field]})
                         invalid_fields_found = True
                 if invalid_fields_found:
-                    return None
-    # check fields specific to seg meta file
+                    meta_file_type = None
     elif meta_file_type == MetaFileTypes.SEG:
         if metaDictionary['reference_genome_id'] != genome_name:
             logger.error(
@@ -698,9 +705,9 @@ def parse_metadata_file(filename,
                 genome_name,
                 extra={'filename_': filename,
                        'cause': metaDictionary['reference_genome_id']})
-            return None
+            meta_file_type = None
 
-    return metaDictionary,meta_file_type
+    return metaDictionary, meta_file_type
 
 
 def run_java(*args):

@@ -1288,12 +1288,11 @@ def process_metadata_files(directory, logger, hugo_entrez_map):
 
     for filename in filenames:
 
-        meta_tuple = cbioportal_common.parse_metadata_file(
+        meta, meta_file_type = cbioportal_common.parse_metadata_file(
             filename, logger, study_id,
             PORTAL_CANCER_TYPES, GENOMIC_BUILD_COUNTERPART)
-        if meta_tuple is None:
+        if meta_file_type is None:
             continue
-        meta, meta_file_type = meta_tuple
         if study_id is None and 'cancer_study_identifier' in meta:
             study_id = meta['cancer_study_identifier']
         if meta_file_type == cbioportal_common.MetaFileTypes.STUDY:
@@ -1344,12 +1343,12 @@ def processCaseListDirectory(caseListDir, cancerStudyId, logger):
 
     for case in case_lists:
 
-        case_data_tuple = cbioportal_common.parse_metadata_file(
+        case_data, meta_file_type = cbioportal_common.parse_metadata_file(
             case, logger, cancerStudyId, case_list=True)
-        if case_data_tuple is None:
+        # skip if invalid, errors have already been emitted
+        if meta_file_type is None:
             continue
 
-        case_data = case_data_tuple[0]
         sampleIds = case_data['case_list_ids']
         sampleIds = set([x.strip() for x in sampleIds.split('\t')])
         for value in sampleIds:

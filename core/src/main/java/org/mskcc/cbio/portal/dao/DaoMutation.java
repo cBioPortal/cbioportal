@@ -1193,10 +1193,10 @@ public final class DaoMutation {
 		ResultSet rs = null;
 		try {
 			con = JdbcUtil.getDbConnection(DaoMutation.class);
-
-			String sql = "SELECT ONCOTATOR_PROTEIN_POS_START, GENETIC_PROFILE_ID, mutation.ENTREZ_GENE_ID, count(DISTINCT SAMPLE_ID) FROM mutation, mutation_event " +
-			             "WHERE GENETIC_PROFILE_ID IN (" + StringUtils.join(internalProfileIds, ",") + ") " +
-			             "AND mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID " +
+                        //TODO: create where clause for mutation table to allow use of ENTREZ_GENE_ID index to filter results
+                        String sql = "SELECT ONCOTATOR_PROTEIN_POS_START, GENETIC_PROFILE_ID, mutation.ENTREZ_GENE_ID, count(DISTINCT SAMPLE_ID) FROM mutation, mutation_event " +
+                                     "WHERE GENETIC_PROFILE_ID IN (" + StringUtils.join(internalProfileIds, ",") + ") " +
+                                     "AND mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID " +
 			             //"AND concat(concat(mutation.ENTREZ_GENE_ID, '_'), ONCOTATOR_PROTEIN_POS_START)" +
 			             //"IN ('" + StringUtils.join(proteinPosStarts, "','") + "') " +
 			             "AND (mutation.ENTREZ_GENE_ID, ONCOTATOR_PROTEIN_POS_START)" +

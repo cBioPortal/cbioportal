@@ -60,9 +60,9 @@ def remove_study(jvm_args, meta_filename):
     args.append(REMOVE_STUDY_CLASS)
     meta_dict, meta_type = cbioportal_common.parse_metadata_file(
         meta_filename, logger=LOGGER)
-    if meta_type != MetaFileTypes.CANCER_TYPE:
+    if meta_type != MetaFileTypes.STUDY:
         # invalid file, skip
-        print >> ERROR_FILE, 'Not a cancer type meta file: ' + meta_filename
+        print >> ERROR_FILE, 'Not a study meta file: ' + meta_filename
         return
     args.append(meta_dict['cancer_study_identifier'])
     run_java(*args)

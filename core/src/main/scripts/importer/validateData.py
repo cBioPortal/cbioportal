@@ -224,7 +224,12 @@ class Validator(object):
                 if i >= 4:
                     break
             sample_content = header_line + ''.join(first_data_lines)
-            dialect = csv.Sniffer().sniff(sample_content)
+            try:
+                dialect = csv.Sniffer().sniff(sample_content)
+            except csv.Error:
+                self.logger.error('Not a valid tab separated file. Check if all lines have the same number of columns and if all separators are tabs.') 
+                return
+                
             # sniffer assumes " if no quote character exists
             if dialect.quotechar == '"' and not (
                     dialect.delimiter + '"' in sample_content or
@@ -601,9 +606,9 @@ class GenewiseFileValidator(FeaturewiseFileValidator):
                               'Entrez_Gene_Id needs to be present.',
                               extra={'line_number': self.line_number})
             num_errors += 1
-        elif not ('Hugo_Symbol' in self.cols[:2] or
-                  'Entrez_Gene_Id' in self.cols[:2]):
-            self.logger.error('Hugo_Symbol or Entrez_Gene_Id need to be in the first 2 columns of the file.',
+        elif not ('Hugo_Symbol' in self.nonsample_cols or
+                  'Entrez_Gene_Id' in self.nonsample_cols):
+            self.logger.error('Hugo_Symbol or Entrez_Gene_Id need to be placed before the sample ID columns of the file.',
                               extra={'line_number': self.line_number})
             num_errors += 1
         return num_errors

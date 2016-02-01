@@ -104,6 +104,7 @@ public class ImportGeneData {
                             genes = new HashSet<CanonicalGene>();
                             genesWithoutSymbolFromNomenClatureAuthority.put(geneSymbol, genes);
                         }
+                        genes.add(gene);
                     }
                     
                     if (gene!=null) {
@@ -153,7 +154,7 @@ public class ImportGeneData {
     
     private static void logDuplicateGeneSymbolWarning(ProgressMonitor pMonitor, String symbol, Set<CanonicalGene> genes) {
         StringBuilder sb = new StringBuilder();
-        sb.append("More than 1 gene has the same standard symbol ")
+        sb.append("More than 1 gene has the same symbol ")
                 .append(symbol)
                 .append(":");
         for (CanonicalGene gene : genes) {

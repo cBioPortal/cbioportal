@@ -66,15 +66,15 @@ public class GeneticProfileReader {
     *            if the description file cannot be read
     * @throws DaoException
     */
-   public static GeneticProfile loadGeneticProfile(File file /*, int updateAction*/ ) throws IOException, DaoException {
+   public static GeneticProfile loadGeneticProfile(File file) throws IOException, DaoException {
       GeneticProfile geneticProfile = loadGeneticProfileFromMeta(file);
       GeneticProfile existingGeneticProfile = DaoGeneticProfile.getGeneticProfileByStableId(geneticProfile
                .getStableId());
 
       if (existingGeneticProfile != null) {
          // the dbms already contains a GeneticProfile with the file's stable_id
-         System.out.println("Warning: Possible Error: Existing Profile Found with Stable ID:  "
-                  + existingGeneticProfile.getStableId());
+         System.out.println("Warning: Profile Found with same Stable ID as the one used in your data:  "
+                  + existingGeneticProfile.getStableId() + ". Data will be added to this previously loaded profile. ");
       } else {
          // add new profile
          DaoGeneticProfile.addGeneticProfile(geneticProfile);

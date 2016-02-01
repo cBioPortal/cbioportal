@@ -8,7 +8,7 @@
 import os
 import sys
 import csv
-import logging
+import logging.handlers
 from collections import OrderedDict
 from subprocess import Popen, PIPE, STDOUT
 
@@ -364,32 +364,10 @@ class CollapsingLogMessageHandler(logging.handlers.MemoryHandler):
         self.buffer = aggregated_buffer
         super(CollapsingLogMessageHandler, self).flush()
 
-
-class MetastudyProperties(object):
-    def __init__(self,
-                 type_of_cancer, cancer_study_identifier,
-                 name, description, short_name):
-        self.type_of_cancer = type_of_cancer
-        self.cancer_study_identifier = cancer_study_identifier
-        self.name = name
-        self.description = description
-        self.short_name = short_name
-
-
-class MetafileProperties(object):
-    def __init__(self,
-                 cancer_study_identifier, genetic_alteration_type,
-                 datatype, stable_id, show_profile_in_analysis_tab,
-                 profile_description, profile_name, meta_file_type, data_filename):
-        self.cancer_study_identifier = cancer_study_identifier
-        self.genetic_alteration_type = genetic_alteration_type
-        self.datatype = datatype
-        self.stable_id = stable_id
-        self.show_profile_in_analysis_tab = show_profile_in_analysis_tab
-        self.profile_description = profile_description
-        self.profile_name = profile_name
-        self.meta_file_type = meta_file_type
-        self.data_filename = data_filename
+    def shouldFlush(self, record):
+        """Collapse and flush every time an info message is emitted."""
+        return (record.levelno == logging.INFO or
+                super(CollapsingLogMessageHandler, self).shouldFlush(record))
 
 
 # ------------------------------------------------------------------------------
@@ -459,72 +437,6 @@ def get_meta_file_type(metaDictionary, logger, filename):
     return result
 
 
-def get_properties(filename):
-    properties = {}
-    file_ = open(filename, 'r')
-    for line in file_:
-        line = line.strip()
-        # skip line if its blank or a comment
-        if len(line) == 0:
-            continue
-        # store name/value
-        property_ = line.split(': ', 1)
-        if (len(property_) != 2):
-            print >> ERROR_FILE, 'Skipping invalid entry in file_: ' + line
-            continue
-        properties[property_[0]] = property_[1].strip()
-    file_.close()
-    return properties
-
-
-def get_metastudy_properties(meta_filename):
-    properties = get_properties(meta_filename)
-
-    # ignoring groups, pmid, citation - not needed
-    if ("type_of_cancer" not in properties or len(properties["type_of_cancer"]) == 0 or
-        "cancer_study_identifier" not in properties or len(properties["cancer_study_identifier"]) == 0 or
-        "name" not in properties or len(properties["name"]) == 0 or
-        "description" not in properties or len(properties["description"]) == 0 or
-        "short_name" not in properties or len(properties["short_name"]) == 0):
-        print >> ERROR_FILE, 'Missing one or more required properties, please check metastudy file'
-        return None
-
-    # return an instance of PortalProperties
-    return MetastudyProperties(properties["type_of_cancer"],
-                            properties["cancer_study_identifier"],
-                            properties["name"],
-                            properties["description"],
-                            properties["short_name"])
-
-def get_metafile_properties(meta_filename):
-    properties = get_properties(meta_filename)
-    if ("show_profile_in_analysis_tab not in analysis_tab" not in properties):
-        properties['show_profile_in_analysis_tab'] = 'false'
-
-    # error check
-    if ("cancer_study_identifier" not in properties or len(properties["cancer_study_identifier"]) == 0 or
-        "genetic_alteration_type" not in properties or len(properties["genetic_alteration_type"]) == 0 or
-        "datatype" not in properties or len(properties["datatype"]) == 0 or
-        "stable_id" not in properties or len(properties["stable_id"]) == 0 or
-        "show_profile_in_analysis_tab" not in properties or len(properties["show_profile_in_analysis_tab"]) == 0 or
-        "profile_name" not in properties or len(properties["profile_name"]) == 0 or
-        "profile_description" not in properties or len(properties["profile_description"]) == 0):
-        print >> ERROR_FILE, 'Missing one or more required properties, please check metadata file'
-        return None
-
-    # return an instance of PortalProperties
-    return MetafileProperties(
-        properties["cancer_study_identifier"],
-        properties["genetic_alteration_type"],
-        properties["datatype"],
-        properties["stable_id"],
-        properties["show_profile_in_analysis_tab"],
-        properties["profile_name"],
-        properties["profile_description"],
-        properties["meta_file_type"],
-        properties["data_filename"])
-
-
 def validate_types_and_id(metaDictionary, logger, filename):
     """Validate a genetic_alteration_type, datatype (and stable_id in some cases) against the predefined
     allowed combinations found in ./allowed_data_types.txt
@@ -585,8 +497,8 @@ def parse_metadata_file(filename,
     """Validate a metafile and return a dictionary of values read from it and
     the meta_file_type according to get_meta_file_type.
 
-    Return `None` if the file is invalid. If `case_list` is True,
-    validate the file as a case list instead of a meta file.
+    `meta_file_type` will be `None` if the file is invalid. If `case_list`
+    is True, read the file as a case list instead of a meta file.
 
     :param filename: name of the meta file
     :param logger: the logging.Logger instance to log warnings and errors to
@@ -607,7 +519,8 @@ def parse_metadata_file(filename,
                     {True: 'case list', False: 'meta'}[case_list],
                     extra={'filename_': filename,
                            'line_number': line_index + 1})
-                return None
+                meta_file_type = None
+                return metaDictionary, meta_file_type
             key_value = line.split(':', 1)
             if len(key_value) == 2:
                 metaDictionary[key_value[0]] = key_value[1].strip()
@@ -616,9 +529,9 @@ def parse_metadata_file(filename,
         meta_file_type = MetaFileTypes.CASE_LIST
     else:
         meta_file_type = get_meta_file_type(metaDictionary, logger, filename)
+        # if type could not be inferred, no further validations are possible
         if meta_file_type is None:
-            # skip this file (can't validate unknown file types)
-            return None
+            return metaDictionary, meta_file_type
 
     missing_fields = []
     for field in META_FIELD_MAP[meta_file_type]:
@@ -631,15 +544,19 @@ def parse_metadata_file(filename,
             missing_fields.append(field)
 
     if missing_fields:
-        # skip this file (the fields may be required for validation)
-        return None
+        meta_file_type = None
+        # all further checks would depend on these fields being present
+        return metaDictionary, meta_file_type
 
     # validate genetic_alteration_type, datatype, stable_id
-    stable_id_mandatory = 'stable_id' in META_FIELD_MAP[meta_file_type] and META_FIELD_MAP[meta_file_type]['stable_id']
+    stable_id_mandatory = META_FIELD_MAP[meta_file_type].get('stable_id',
+                                                             False)
     if stable_id_mandatory:
         valid_types_and_id = validate_types_and_id(metaDictionary, logger, filename)
         if not valid_types_and_id:
-            return None
+            # invalid meta file type
+            meta_file_type = None
+            return metaDictionary, meta_file_type
 
     for field in metaDictionary:
         if field not in META_FIELD_MAP[meta_file_type]:
@@ -660,8 +577,11 @@ def parse_metadata_file(filename,
             study_id,
             extra={'filename_': filename,
                    'cause': metaDictionary['cancer_study_identifier']})
-        return None
+        # not a valid meta file in this study
+        meta_file_type = None
+        return metaDictionary, meta_file_type
 
+    # type-specific validations
     if meta_file_type == MetaFileTypes.CANCER_TYPE:
         # compare a meta_cancer_type file with the portal instance
         if known_cancer_types is not None:
@@ -688,8 +608,7 @@ def parse_metadata_file(filename,
                                    'cause': metaDictionary[field]})
                         invalid_fields_found = True
                 if invalid_fields_found:
-                    return None
-    # check fields specific to seg meta file
+                    meta_file_type = None
     elif meta_file_type == MetaFileTypes.SEG:
         if metaDictionary['reference_genome_id'] != genome_name:
             logger.error(
@@ -697,19 +616,19 @@ def parse_metadata_file(filename,
                 genome_name,
                 extra={'filename_': filename,
                        'cause': metaDictionary['reference_genome_id']})
-            return None
+            meta_file_type = None
 
-    return metaDictionary,meta_file_type
+    return metaDictionary, meta_file_type
 
 
 def run_java(*args):
-    java_home = os.environ['JAVA_HOME']
-    if len(java_home) == 0:
-        print >> ERROR_FILE, "$JAVA_HOME must be defined"
-        return
-    #print >> OUTPUT_FILE, ("Executing command: " + java_home +
-    #                       "/bin/java {}\n".format(args).replace('(\'', '').replace('\', \'', ' ').replace('\')', ''))
-    process = Popen([ java_home + '/bin/java']+list(args), stdout=PIPE, stderr=STDOUT)
+    java_home = os.environ.get('JAVA_HOME', '')
+    if java_home:
+        java_command = os.path.join(java_home, 'bin', 'java')
+    else:
+        java_command = 'java'
+    process = Popen([java_command] + list(args), stdout=PIPE, stderr=STDOUT,
+                    universal_newlines=True)
     ret = []
     while process.poll() is None:
         line = process.stdout.readline()

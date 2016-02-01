@@ -21,9 +21,6 @@ from cbioportal_common import IMPORT_CANCER_TYPE_CLASS
 from cbioportal_common import IMPORT_STUDY_CLASS
 from cbioportal_common import REMOVE_STUDY_CLASS
 from cbioportal_common import IMPORT_CASE_LIST_CLASS
-from cbioportal_common import get_metastudy_properties
-from cbioportal_common import get_metafile_properties
-from cbioportal_common import get_properties
 from cbioportal_common import run_java
 
 
@@ -61,19 +58,30 @@ def import_study(jvm_args, meta_filename):
 def remove_study(jvm_args, meta_filename):
     args = jvm_args.split(' ')
     args.append(REMOVE_STUDY_CLASS)
-    metastudy_properties = get_metastudy_properties(meta_filename)
-    args.append(metastudy_properties.cancer_study_identifier)
+    meta_dict, meta_type = cbioportal_common.parse_metadata_file(
+        meta_filename, logger=LOGGER)
+    if meta_type != MetaFileTypes.STUDY:
+        # invalid file, skip
+        print >> ERROR_FILE, 'Not a study meta file: ' + meta_filename
+        return
+    args.append(meta_dict['cancer_study_identifier'])
     run_java(*args)
 
 def import_study_data(jvm_args, meta_filename, data_filename):
-    args = jvm_args.split(' ')
-    metafile_properties = get_metafile_properties(meta_filename)
 
-    meta_file_type = cbioportal_common.get_meta_file_type(
-        metafile_properties, filename=meta_filename, logger=LOGGER)
+    args = jvm_args.split(' ')
+    meta_file_dict, meta_file_type = cbioportal_common.parse_metadata_file(
+        meta_filename, logger=LOGGER)
     if meta_file_type is None:
+        # invalid file, skip
         return
-    importer = IMPORTER_CLASSNAME_BY_META_TYPE[metafile_properties.meta_file_type]
+
+    if not data_filename.endswith(meta_file_dict['data_filename']):
+        print >> ERROR_FILE, ("'data_filename' in meta file contradicts "
+                              "data filename in command, skipping file")
+        return
+
+    importer = IMPORTER_CLASSNAME_BY_META_TYPE[meta_file_type]
 
     args.append(importer)
     if IMPORTER_REQUIRES_METADATA[importer]:
@@ -83,10 +91,11 @@ def import_study_data(jvm_args, meta_filename, data_filename):
         args.append("bulkload")
     if meta_file_type == MetaFileTypes.CLINICAL:
         args.append(data_filename)
-        args.append(metafile_properties.cancer_study_identifier)
+        args.append(meta_file_dict['cancer_study_identifier'])
     else:
         args.append("--data")
         args.append(data_filename)
+
     run_java(*args)
 
 def import_case_list(jvm_args, meta_filename):
@@ -114,58 +123,66 @@ def process_command(jvm_args, command, meta_filename, data_filename):
         import_case_list(jvm_args, meta_filename)
 
 def process_directory(jvm_args, study_directory):
+
+    """Import an entire study directory based on meta files found."""
+
     meta_filenames = (
         os.path.join(study_directory, f) for
         f in os.listdir(study_directory) if
         re.search(r'(\b|_)meta(\b|_)', f) and
         not (f.startswith('.') or f.endswith('~')))
-    study_meta = {}
-    clinical_metafiles = []
-    non_clinical_metafiles = []
+    study_id = None
+    study_metafile = None
     cancer_type_metafiles = []
+    clinical_filepairs = []
+    non_clinical_filepairs = []
 
+    # read all meta files (excluding case lists) to determine what to import
     for f in meta_filenames:
-        metadata = get_properties(f)
-        meta_file_type = cbioportal_common.get_meta_file_type(metadata)
+        # parse meta file
+        metadata, meta_file_type = cbioportal_common.parse_metadata_file(
+            f, study_id=study_id, logger=LOGGER)
         if meta_file_type is None:
-            print >> ERROR_FILE, (
-                    "Could not determine meta file type for {}, consider "
-                    "running the validator script.".format(f))
-            return
+            # invalid meta file, let's die
+            raise RuntimeError('Invalid meta file: ' + f)
+        # remember study id to skip ones referencing a different one
+        if study_id is None and 'cancer_study_identifier' in metadata:
+            study_id = metadata['cancer_study_identifier']
+
         if meta_file_type == MetaFileTypes.STUDY:
-            study_meta = metadata
-            #First remove study if exists
-            remove_study(jvm_args,f)
-            #Then import study
-            import_study(jvm_args,f)
+            if study_metafile is not None:
+                raise RuntimeError(
+                    'Multiple meta_study files found: {} and {}'.format(
+                        study_metafile, f))
+            study_metafile = f
         elif meta_file_type == MetaFileTypes.CANCER_TYPE:
             cancer_type_metafiles.append(f)
         elif meta_file_type == MetaFileTypes.CLINICAL:
-            clinical_metafiles.append(f)
+            clinical_filepairs.append(
+                (f, os.path.join(study_directory, metadata['data_filename'])))
         else:
-            non_clinical_metafiles.append(f)
-
-    if len(study_meta) == 0:
-        print >> ERROR_FILE, 'No meta_study file found'
-        sys.exit(1)
+            non_clinical_filepairs.append(
+                (f, os.path.join(study_directory, metadata['data_filename'])))
 
     # First, import cancer types
     for f in cancer_type_metafiles:
         import_cancer_type(jvm_args, f)
 
+    # Then define the study
+    if study_metafile is None:
+        raise RuntimeError('No meta_study file found')
+    else:
+        # First remove study if exists
+        remove_study(jvm_args, study_metafile)
+        import_study(jvm_args, study_metafile)
+
     # Next, we need to import clinical files
-    for f in clinical_metafiles:
-        metadata = get_properties(f)
-        import_study_data(jvm_args, f,
-                          os.path.join(study_directory,
-                                       metadata['data_filename']))
+    for meta_filename, data_filename in clinical_filepairs:
+        import_study_data(jvm_args, meta_filename, data_filename)
 
     # Now, import everything else
-    for f in non_clinical_metafiles:
-        metadata = get_properties(f)
-        import_study_data(jvm_args, f,
-                          os.path.join(study_directory,
-                                       metadata.get('data_filename')))
+    for meta_filename, data_filename in non_clinical_filepairs:
+        import_study_data(jvm_args, meta_filename, data_filename)
 
     # do the case lists
     case_list_dirname = os.path.join(study_directory, 'case_lists')

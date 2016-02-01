@@ -49,14 +49,23 @@ public class ImportGeneData {
         Map<String, Set<CanonicalGene>> genesWithoutSymbolFromNomenClatureAuthority = new LinkedHashMap<>();
         try (FileReader reader = new FileReader(geneFile)) {
             BufferedReader buf = new BufferedReader(reader);
-            String line = buf.readLine();
-            while (line != null) {
+            String line;
+            while ((line = buf.readLine()) != null) {
                 if (pMonitor != null) {
                     pMonitor.incrementCurValue();
                     ConsoleUtil.showProgress(pMonitor);
                 }
-                if (!line.startsWith("#")) {
+                if (line.startsWith("#")) {
+                    continue;
+                }
+                
                     String parts[] = line.split("\t");
+                    int taxonimy = Integer.parseInt(parts[0]);
+                    if (taxonimy!=9606) {
+                        // only import human genes
+                        continue;
+                    }
+                    
                     int entrezGeneId = Integer.parseInt(parts[1]);
                     String geneSymbol = parts[2];
                     String locusTag = parts[3];
@@ -103,8 +112,6 @@ public class ImportGeneData {
                         }
                         gene.setType(type);
                     }
-                }
-                line = buf.readLine();
             }
         }
         

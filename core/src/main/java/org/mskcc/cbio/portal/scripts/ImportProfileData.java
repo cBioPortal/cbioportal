@@ -72,9 +72,7 @@ public class ImportProfileData{
        		"command line usage for importProfileData:";
        /*
         * usage:
-        * --data <data_file.txt> --meta <meta_file.txt> --dbmsAction [clobber (default)]  --loadMode
-        *  [directLoad|bulkLoad (default)] " +
-        * --somaticWhiteList <filename>
+        * --data <data_file.txt> --meta <meta_file.txt> --loadMode [directLoad|bulkLoad (default)] "
         */
 
        // using a real options parser, helps avoid bugs
@@ -84,9 +82,6 @@ public class ImportProfileData{
                "profile data file" ).withRequiredArg().describedAs( "data_file.txt" ).ofType( String.class );
        OptionSpec<String> meta = parser.accepts( "meta",
                "meta (description) file" ).withRequiredArg().describedAs( "meta_file.txt" ).ofType( String.class );
-       OptionSpec<String> dbmsAction = parser.accepts( "dbmsAction",
-               "database action; 'clobber' deletes exsiting data" )
-          .withRequiredArg().describedAs( "[clobber (default)]" ).ofType( String.class );
        OptionSpec<String> loadMode = parser.accepts( "loadMode", "direct (per record) or bulk load of data" )
           .withRequiredArg().describedAs( "[directLoad|bulkLoad (default)]" ).ofType( String.class );
        OptionSet options = null;
@@ -113,14 +108,6 @@ public class ImportProfileData{
           descriptorFile = new File( options.valueOf( meta ) );
        }else{
            quit( "'meta' argument required.");
-       }
-
-       if( options.has( dbmsAction ) ){
-          String actionArg = options.valueOf( dbmsAction );
-          if (!actionArg.equalsIgnoreCase("clobber")) {
-              quit( "Unknown dbmsAction action:  " + actionArg );
-          }
-          System.err.println(" --> updateAction:  " + actionArg);
        }
        
        MySQLbulkLoader.bulkLoadOn();

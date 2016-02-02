@@ -156,7 +156,8 @@ public class ImportExtendedMutationData{
                 ImportDataUtil.addPatients(new String[] { barCode }, geneticProfileId);
                 ImportDataUtil.addSamples(new String[] { barCode }, geneticProfileId);
 		        Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(geneticProfile.getCancerStudyId(),
-                                                                            StableIdUtil.getSampleId(barCode));
+                                                                            StableIdUtil.getSampleId(barCode),
+                                                                            pMonitor);
 		        if (sample == null) {
 		        	assert StableIdUtil.isNormal(barCode);
 					line = buf.readLine();
@@ -270,12 +271,12 @@ public class ImportExtendedMutationData{
 
 				if(gene == null) {
 					// If Entrez Gene ID Fails, try Symbol.
-					gene = daoGene.getNonAmbiguousGene(geneSymbol, chr);
+					gene = daoGene.getNonAmbiguousGene(geneSymbol, chr, pMonitor);
 				}
                                 
 				if (gene == null) { // should we use this first??
 					//gene = daoGene.getNonAmbiguousGene(oncotatorGeneSymbol, chr);
-					gene = daoGene.getNonAmbiguousGene(geneSymbol, chr);
+					gene = daoGene.getNonAmbiguousGene(geneSymbol, chr, pMonitor);
 				}
 
 				if(gene == null) {

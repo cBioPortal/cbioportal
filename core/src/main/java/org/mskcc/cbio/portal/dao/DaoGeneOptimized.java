@@ -46,6 +46,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.mskcc.cbio.portal.model.CanonicalGene;
+import org.mskcc.cbio.portal.util.ProgressMonitor;
 
 /**
  * A Utility Class that speeds access to Gene Info.
@@ -338,7 +339,16 @@ public class DaoGeneOptimized {
      * @param chr chromosome
      * @return a gene that can be non-ambiguously determined, or null if cannot.
      */
-    public CanonicalGene getNonAmbiguousGene(String geneId, String chr) {
+    public CanonicalGene getNonAmbiguousGene(String geneId, String chr) { return getNonAmbiguousGene(geneId, chr, null); }
+
+        /**
+         * Look for gene that can be non-ambiguously determined.
+         * @param geneId an Entrez Gene ID or HUGO symbol or gene alias
+         * @param chr chromosome
+         * @param pMonitor for import warnings
+         * @return a gene that can be non-ambiguously determined, or null if cannot.
+         */
+    public CanonicalGene getNonAmbiguousGene(String geneId, String chr, ProgressMonitor pMonitor) {
         List<CanonicalGene> genes = guessGene(geneId, chr);
         if (genes.isEmpty()) {
             return null;
@@ -360,8 +370,11 @@ public class DaoGeneOptimized {
             sb.append(",");
         }
         sb.deleteCharAt(sb.length()-1);
-        System.err.println(sb.toString());
         
+        if (pMonitor != null)
+            pMonitor.logWarning(sb.toString());
+        else
+            System.err.println(sb.toString());
         return null;
         
     }

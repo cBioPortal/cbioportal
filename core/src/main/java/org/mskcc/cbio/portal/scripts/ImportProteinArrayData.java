@@ -82,7 +82,7 @@ public class ImportProteinArrayData {
 //        ImportDataUtil.addSamples(sampleIds, profile.getGeneticProfileId());
         Sample[] samples = new Sample[sampleIds.length-1];
         for (int i=1; i<sampleIds.length; i++) {
-            samples[i-1] = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, StableIdUtil.getSampleId(sampleIds[i]));
+            samples[i-1] = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, StableIdUtil.getSampleId(sampleIds[i]), pMonitor);
         }
         
         ArrayList<Integer> internalSampleIds = new ArrayList<Integer>();
@@ -183,7 +183,7 @@ public class ImportProteinArrayData {
                             StringUtils.join(genes, "/"), residue, null);
             daoPAI.addProteinArrayInfo(pai);
             for (String symbol : genes) {
-                CanonicalGene gene = daoGene.getNonAmbiguousGene(symbol);
+                CanonicalGene gene = daoGene.getNonAmbiguousGene(symbol, null, pMonitor);
                 if (gene==null) {
                     System.err.println(symbol+" not exist");
                     continue;

@@ -106,7 +106,8 @@ public class ImportFusionData
                 ImportDataUtil.addPatients(new String[] { StableIdUtil.getPatientId(barCode) }, geneticProfileId);
                 ImportDataUtil.addSamples(new String[] { StableIdUtil.getSampleId(barCode) }, geneticProfileId);
 		        Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(geneticProfile.getCancerStudyId(),
-                                                                            StableIdUtil.getSampleId(barCode));
+                                                                            StableIdUtil.getSampleId(barCode),
+                                                                            pMonitor);
 		        if (sample == null) {
 		        	assert StableIdUtil.isNormal(barCode);
 		        	line = buf.readLine();
@@ -129,7 +130,7 @@ public class ImportFusionData
 
 				if (gene == null) {
 					// If Entrez Gene ID Fails, try Symbol.
-					gene = daoGene.getNonAmbiguousGene(geneSymbol);
+					gene = daoGene.getNonAmbiguousGene(geneSymbol, null, pMonitor);
 				}
 
 				if(gene == null)

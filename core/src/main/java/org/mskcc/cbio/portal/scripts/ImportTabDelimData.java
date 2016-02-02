@@ -141,7 +141,8 @@ public class ImportTabDelimData {
         ArrayList <Integer> filteredSampleIndices = new ArrayList<Integer>();
         for (int i = 0; i < sampleIds.length; i++) {
            Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(geneticProfile.getCancerStudyId(),
-                                                                       StableIdUtil.getSampleId(sampleIds[i]));
+                                                                       StableIdUtil.getSampleId(sampleIds[i]),
+                                                                       pMonitor);
            if (sample == null) {
                 assert StableIdUtil.isNormal(sampleIds[i]);
                 filteredSampleIndices.add(i);
@@ -234,7 +235,7 @@ public class ImportTabDelimData {
                         
                         if (genes==null && hugo != null) {
                             if (rppaProfile) {
-                                genes = parseRPPAGenes(hugo);
+                                genes = parseRPPAGenes(hugo, pMonitor);
                             } else {
                                 // deal with multiple symbols separate by |, use the first one
                                 int ix = hugo.indexOf("|");
@@ -339,7 +340,7 @@ public class ImportTabDelimData {
         }
     }
     
-    private List<CanonicalGene> parseRPPAGenes(String antibodyWithGene) throws DaoException {
+    private List<CanonicalGene> parseRPPAGenes(String antibodyWithGene, ProgressMonitor pMonitor) throws DaoException {
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         String[] parts = antibodyWithGene.split("\\|");
         String[] symbols = parts[0].split(" ");
@@ -347,7 +348,7 @@ public class ImportTabDelimData {
         
         List<CanonicalGene> genes = new ArrayList<CanonicalGene>();
         for (String symbol : symbols) {
-            CanonicalGene gene = daoGene.getNonAmbiguousGene(symbol);
+            CanonicalGene gene = daoGene.getNonAmbiguousGene(symbol, null, pMonitor);
             if (gene!=null) {
                 genes.add(gene);
             }

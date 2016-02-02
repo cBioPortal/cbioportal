@@ -87,7 +87,7 @@ public class ImportCopyNumberSegmentData {
             int numProbes = new BigDecimal((strs[4])).intValue();
             double segMean = Double.parseDouble(strs[5]);
             
-            Sample s = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, sampleId);
+            Sample s = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, sampleId, pMonitor);
             if (s == null) {
                 assert StableIdUtil.isNormal(sampleId);
                 continue;

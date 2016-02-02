@@ -90,7 +90,7 @@ public class ImportPatientList {
       ArrayList<String> sampleIDsList = new ArrayList<String>();
       String[] sampleIds = sampleListStr.split("\t");
       for (String sampleId : sampleIds) {
-         Sample s = DaoSample.getSampleByCancerStudyAndSampleId(theCancerStudy.getInternalId(), sampleId);
+         Sample s = DaoSample.getSampleByCancerStudyAndSampleId(theCancerStudy.getInternalId(), sampleId, pMonitor);
          if (s==null) {
 //            throw new RuntimeException("Sample does not exist: "+sampleId);
              System.err.println("Error: could not find sample "+sampleId);
@@ -109,7 +109,7 @@ public class ImportPatientList {
          } else if (!sampleIDsList.contains(s.getStableId())) {
             sampleIDsList.add(s.getStableId());
          } else {
-             System.err.println("Warning: duplicated sample ID "+s.getStableId()+" in case list "+stableId);
+             pMonitor.logWarning("Warning: duplicated sample ID "+s.getStableId()+" in case list "+stableId);
          }
       }
 

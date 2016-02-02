@@ -35,6 +35,7 @@ package org.mskcc.cbio.portal.dao;
 import org.mskcc.cbio.portal.model.*;
 
 import org.apache.commons.collections.map.MultiKeyMap;
+import org.mskcc.cbio.portal.util.ProgressMonitor;
 
 import java.sql.*;
 import java.util.*;
@@ -195,11 +196,17 @@ public class DaoSample {
         return new ArrayList<Sample>(samples.values());
     }
 
-    public static Sample getSampleByCancerStudyAndSampleId(int cancerStudyId, String stableSampleId)
+    public static Sample getSampleByCancerStudyAndSampleId(int cancerStudyId, String stableSampleId) { return getSampleByCancerStudyAndSampleId(cancerStudyId, stableSampleId, null); }
+
+
+    public static Sample getSampleByCancerStudyAndSampleId(int cancerStudyId, String stableSampleId, ProgressMonitor pMonitor)
     {
         Map<String, Sample> samples = byCancerStudyIdAndStableSampleId.get(cancerStudyId);
         if (samples==null) {
-            System.err.println("Couldn't find sample "+stableSampleId+" in study "+cancerStudyId);
+            if (pMonitor != null)
+                pMonitor.logWarning("Couldn't find sample "+stableSampleId+" in study "+cancerStudyId);
+            else
+                System.err.println("Couldn't find sample "+stableSampleId+" in study "+cancerStudyId);
             return null;
         }
         

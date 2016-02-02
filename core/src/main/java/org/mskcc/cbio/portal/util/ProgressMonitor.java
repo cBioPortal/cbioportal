@@ -33,6 +33,9 @@
 package org.mskcc.cbio.portal.util;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.TreeSet;
 
 /**
  * Monitors Progress of Long Term Tasks.
@@ -45,7 +48,8 @@ public class ProgressMonitor {
     private String currentMessage;
     private StringBuffer log = new StringBuffer();
     private boolean consoleMode;
-    private ArrayList<String> warningList = new ArrayList<String>();
+    private TreeSet<String> warnings = new TreeSet<>();
+    private HashMap<String, Integer> warningCounts = new HashMap<>();
 
     /**
      * Sets Console Flag.
@@ -155,10 +159,19 @@ public class ProgressMonitor {
     }
 
     public void logWarning(String warning) {
-        warningList.add(warning);
+        warnings.add(warning);
+        if (!warningCounts.containsKey(warning)) {
+            warningCounts.put(warning, 0);
+        }
+        warningCounts.put(warning, warningCounts.get(warning)+1);
     }
 
     public ArrayList<String> getWarnings() {
-        return warningList;
+        ArrayList<String> ret = new ArrayList<>();
+        for(Iterator<String> sit = warnings.iterator(); sit.hasNext(); ) {
+            String w = sit.next();
+            ret.add(w + "; "+warningCounts.get(w)+"x");
+        }
+        return ret;
     }
 }

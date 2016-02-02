@@ -32,6 +32,7 @@
 
 package org.mskcc.cbio.portal.util;
 
+import org.apache.log4j.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -47,6 +48,7 @@ public class ProgressMonitor {
     private int curValue;
     private String currentMessage;
     private StringBuffer log = new StringBuffer();
+    private static org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(ProgressMonitor.class);
     private boolean consoleMode;
     private TreeSet<String> warnings = new TreeSet<>();
     private HashMap<String, Integer> warningCounts = new HashMap<>();
@@ -159,6 +161,7 @@ public class ProgressMonitor {
     }
 
     public void logWarning(String warning) {
+        logger.log(Level.WARN, warning);
         warnings.add(warning);
         if (!warningCounts.containsKey(warning)) {
             warningCounts.put(warning, 0);

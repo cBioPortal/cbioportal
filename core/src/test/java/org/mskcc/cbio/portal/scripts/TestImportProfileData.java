@@ -89,8 +89,7 @@ public class TestImportProfileData {
 		int sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-AA-3664-01").getInternalId();
 
         geneticProfileId = DaoGeneticProfile.getGeneticProfileByStableId(studyStableId + "_breast_mutations").getGeneticProfileId();
-        //validateMutationAminoAcid (geneticProfileId, sampleId, 54407, "T433A"); //>> is failing because PROTEIN_CHANGE contains "MUTATED"!!
-        validateMutationAminoAcid (geneticProfileId, sampleId, 54407, "MUTATED"); //TODO - SHOULD BE T433A  ??? 
+        validateMutationAminoAcid (geneticProfileId, sampleId, 54407, "T433A");  
         
 	}
 	

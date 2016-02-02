@@ -1148,6 +1148,7 @@ public final class DaoMutation {
                 }
             }
         }
+        if (geneIdSet.size() == 0 || internalProfileIds.size() == 0) return new ArrayList<Map<String, Object>>(); //empty IN() clause would be a SQL error below
         try {
             con = JdbcUtil.getDbConnection(DaoMutation.class);
             String sql = "SELECT ONCOTATOR_PROTEIN_POS_START, GENETIC_PROFILE_ID, mutation.ENTREZ_GENE_ID, count(DISTINCT SAMPLE_ID) " +

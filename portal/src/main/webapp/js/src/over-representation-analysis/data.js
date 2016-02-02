@@ -44,8 +44,7 @@ var orData = function() {
             if (_obj !== null) {
                 var _unit = [];
                 if (_profile_type === orAnalysis.profile_type.copy_num) {
-                    _unit[orAnalysis.col_index.copy_num.gene] = "<input type='checkbox' class='" + table_id + orAnalysis.postfix.datatable_gene_checkbox_class + "' value='" + _obj["Gene"] + "'>" + _obj["Gene"];
-                    _unit[orAnalysis.col_index.copy_num.cytoband] = _obj["Cytoband"];
+                    _unit[orAnalysis.col_index.copy_num.gene] = _obj["Gene"];
                     var _vals_altered_group = _obj["percentage of alteration in altered group"].split("////"); //count & percentage
                     _unit[orAnalysis.col_index.copy_num.altered_pct] = _vals_altered_group[0] + " (" + (_vals_altered_group[1] * 100).toFixed(2) + "%)";
                     var _vals_unaltered_group = _obj["percentage of alteration in unaltered group"].split("////"); //count & percentage
@@ -55,8 +54,7 @@ var orData = function() {
                     _unit[orAnalysis.col_index.copy_num.p_val] = trim_p_val_copy_num(_obj["p-Value"]);
                     _unit[orAnalysis.col_index.copy_num.q_val] = trim_p_val_copy_num(_obj["q-Value"]);
                 } else if (_profile_type === orAnalysis.profile_type.mutations) {
-                    _unit[orAnalysis.col_index.mutations.gene] = "<input type='checkbox' class='" + table_id + orAnalysis.postfix.datatable_gene_checkbox_class + "' value='" + _obj["Gene"] + "'>" + _obj["Gene"];
-                    _unit[orAnalysis.col_index.mutations.cytoband] = _obj["Cytoband"];
+                    _unit[orAnalysis.col_index.mutations.gene] = _obj["Gene"];
                     var _vals_altered_group = _obj["percentage of alteration in altered group"].split("////"); //count & percentage
                     _unit[orAnalysis.col_index.mutations.altered_pct] = _vals_altered_group[0] + " (" + (_vals_altered_group[1] * 100).toFixed(2) + "%)";
                     var _vals_unaltered_group = _obj["percentage of alteration in unaltered group"].split("////"); //count & percentage
@@ -66,8 +64,8 @@ var orData = function() {
                     _unit[orAnalysis.col_index.mutations.p_val] = trim_p_val_mutations(_obj["p-Value"]);
                     _unit[orAnalysis.col_index.mutations.q_val] = trim_p_val_mutations(_obj["q-Value"]);
                 } else if (_profile_type === orAnalysis.profile_type.mrna) {
-                    _unit[orAnalysis.col_index.mrna.gene] = "<input type='checkbox' class='" + table_id + orAnalysis.postfix.datatable_gene_checkbox_class + "' value='" + _obj["Gene"] + "'>" + _obj["Gene"];
-                    _unit[orAnalysis.col_index.mrna.cytoband] = _obj["Cytoband"];
+                    // moved the styling of the gene to view.js mDataProp
+                    _unit[orAnalysis.col_index.mrna.gene] = _obj["Gene"];
                     _unit[orAnalysis.col_index.mrna.altered_mean] = parseFloat(_obj["mean of alteration in altered group"]).toFixed(2);
                     _unit[orAnalysis.col_index.mrna.unaltered_mean] = parseFloat(_obj["mean of alteration in unaltered group"]).toFixed(2);
                     _unit[orAnalysis.col_index.mrna.altered_stdev] = parseFloat(_obj["standard deviation of alteration in altered group"]).toFixed(2);
@@ -75,8 +73,8 @@ var orData = function() {
                     _unit[orAnalysis.col_index.mrna.p_val] = trim_p_val_mrna(_obj["mean of alteration in altered group"], _obj["mean of alteration in unaltered group"], _obj["p-Value"]);
                     _unit[orAnalysis.col_index.mrna.q_val] = trim_p_val_mrna(_obj["mean of alteration in altered group"], _obj["mean of alteration in unaltered group"], _obj["q-Value"]);
                 } else if (_profile_type === orAnalysis.profile_type.protein_exp) {
-                    _unit[orAnalysis.col_index.protein_exp.gene] = "<input type='checkbox' class='" + table_id + orAnalysis.postfix.datatable_gene_checkbox_class + "' value='" + _obj["Gene"] + "'>" + _obj["Gene"];
-                    _unit[orAnalysis.col_index.protein_exp.cytoband] = _obj["Cytoband"];
+                    // moved the styling of the gene to view.js mDataProp
+                    _unit[orAnalysis.col_index.protein_exp.gene] = _obj["Gene"];
                     _unit[orAnalysis.col_index.protein_exp.altered_mean] = parseFloat(_obj["mean of alteration in altered group"]).toFixed(2);
                     _unit[orAnalysis.col_index.protein_exp.unaltered_mean] = parseFloat(_obj["mean of alteration in unaltered group"]).toFixed(2);
                     _unit[orAnalysis.col_index.protein_exp.altered_stdev] = parseFloat(_obj["standard deviation of alteration in altered group"]).toFixed(2);
@@ -166,12 +164,12 @@ var orData = function() {
                 alert( "Request failed: " + textStatus );
             });
         },
-        get: function(callback_func, _div_id, _table_div, _table_id, _table_title, _profile_type, _profile_id, _last_profile) {
+        get: function(callback_func, _div_id, _table_div, _table_id, _table_title, _profile_type, _profile_id, _last_profile, data_type) {
             var tmp = setInterval(function () { timer(); }, 1000);
             function timer() {
                 if (retrieved) {
                     clearInterval(tmp);
-                    callback_func(convert_data(data, _profile_type), _div_id, _table_div, _table_id, _table_title, _profile_type, _profile_id, _last_profile);
+                    callback_func(data, convert_data(data, _profile_type), _div_id, _table_div, _table_id, _table_title, _profile_type, _profile_id, _last_profile, data_type);
                 }
             }
         }

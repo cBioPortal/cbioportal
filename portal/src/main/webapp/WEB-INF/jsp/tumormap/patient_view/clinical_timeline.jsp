@@ -73,15 +73,18 @@
         for (var i=0; i<caseIds.length; i++) {
             var caseId = caseIds[i];
             var clinicalData = clinicalDataMap[caseId];
+            var compareAgainstIds = [caseId];
             var OtherSampleId = guessClinicalData(clinicalData,["OTHER_SAMPLE_ID"]);
-            if (!OtherSampleId) OtherSampleId = caseId;
+            if (OtherSampleId) {
+                compareAgainstIds = compareAgainstIds.concat(OtherSampleId);
+            }
             var circle = d3.selectAll(".timelineSeries_0").filter(function (x) {
                 if (x.tooltip_tables.length === 1) {
                     var specRefNum = x.tooltip_tables[0].filter(function(x) {
                         return x[0] === "SpecimenReferenceNumber" || x[0] === "SPECIMEN_REFERENCE_NUMBER";
                     })[0];
                     if (specRefNum) {
-                        return specRefNum[1] === OtherSampleId;
+                        return compareAgainstIds.indexOf(specRefNum[1]) !== -1;
                     }
                 }
                 return undefined;
@@ -201,7 +204,7 @@
     });
   </script>
 
-  <fieldset class="fieldset-border ui-widget-content">
+  <fieldset id="clinical-timeline-fieldset" class="ui-widget-content">
   <legend class="legend-border">Clinical Events</legend>
   <div id="timeline-container" style="display:hidden">
   <div id="timeline">

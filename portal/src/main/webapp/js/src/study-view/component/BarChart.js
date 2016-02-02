@@ -520,7 +520,7 @@ var BarChart = function(){
 //                "dc.redrawAll();'>"+
 //                "<span title='Reset Chart' class='study-view-dc-chart-change'>"+
 //                "RESET</span></a>"+
-                "<img id='"+ DIV.chartDiv +"-reload-icon' class='study-view-title-icon hidden hover' src='images/reload-alt.svg'/>"+    
+                "<img id='"+ DIV.chartDiv +"-reload-icon' class='study-view-title-icon study-view-hidden hover' src='images/reload-alt.svg'/>"+    
                 _logCheckBox +
                 _plotDataDiv +
                 "<div id='"+ DIV.chartDiv+"-download-icon-wrapper' class='study-view-download-icon'><img id='"+ 

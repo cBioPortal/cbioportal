@@ -42,11 +42,11 @@ var StudyViewParams = {
         caseSetId: "",
         hasMutSig: ""
     },
-    
+
     summaryParams: {
         //This is dc charts transition duration, also set as timeout for redraw
         //special charts(survival mainly)
-        transitionDuration: 600
+        transitionDuration: 400
     }, // For Summary Tab
     mutationsParams: {}, // For Mutations Tab
     clinicalParams: {}, // For Clinical Tab

@@ -26,6 +26,7 @@ package org.mskcc.cbio.portal.scripts;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import org.junit.Before;
@@ -76,9 +77,6 @@ public class TestImportProfileData {
 	
 	@Test
 	public void testImportFile() throws Exception {
-        
-        
-		// TBD: change this to use getResourceAsStream()
         String[] args = {
         		"--data","target/test-classes/data_mutations_extended.txt",
         		"--meta","target/test-classes/meta_mutations_extended.txt"        		
@@ -86,12 +84,28 @@ public class TestImportProfileData {
         
         ImportProfileData.main(args);
         
-		studyId = DaoCancerStudy.getCancerStudyByStableId("study_tcga_pub").getInternalId();
+        String studyStableId = "study_tcga_pub";
+		studyId = DaoCancerStudy.getCancerStudyByStableId(studyStableId).getInternalId();
 		int sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-AA-3664-01").getInternalId();
 
-        geneticProfileId = DaoGeneticProfile.getGeneticProfileByStableId("breast_mutations").getGeneticProfileId();
+        geneticProfileId = DaoGeneticProfile.getGeneticProfileByStableId(studyStableId + "_breast_mutations").getGeneticProfileId();
         //validateMutationAminoAcid (geneticProfileId, sampleId, 54407, "T433A"); //>> is failing because PROTEIN_CHANGE contains "MUTATED"!!
-        validateMutationAminoAcid (geneticProfileId, sampleId, 54407, "MUTATED"); //TODO - SHOULD BE T433A  ???
+        validateMutationAminoAcid (geneticProfileId, sampleId, 54407, "MUTATED"); //TODO - SHOULD BE T433A  ??? 
+        
+	}
+	
+	
+	@Test
+	public void testException() throws Exception {
+
+        String[] args = {
+        		"--data","target/test-classes/data_mutations_extended.txt",
+        		"--meta","target/test-classes/meta_mutations_extended_wrong_stable_id.txt"        		
+        		};
+        
+        exception.expect(IllegalArgumentException.class);
+        ImportProfileData.main(args);
+        
         
 	}
 	
@@ -100,7 +114,7 @@ public class TestImportProfileData {
             String expectedAminoAcidChange) throws DaoException {
         ArrayList<ExtendedMutation> mutationList = DaoMutation.getMutations
                 (geneticProfileId, sampleId, entrezGeneId);
-        assertTrue(mutationList.size()>1);
+        assertEquals(1, mutationList.size());
         assertEquals(expectedAminoAcidChange, mutationList.get(0).getProteinChange());
     }
 

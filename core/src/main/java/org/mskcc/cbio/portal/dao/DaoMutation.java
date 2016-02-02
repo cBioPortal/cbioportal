@@ -40,6 +40,7 @@ import org.apache.commons.lang.StringUtils;
 
 import java.sql.*;
 import java.util.*;
+import java.util.regex.*;
 
 /**
  * Data access object for Mutation table
@@ -1191,17 +1192,26 @@ public final class DaoMutation {
 		Connection con = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
+		//performance fix: mutation table contains geneId; by filtering on a geneId set before table join, the temporary table needed is smaller.
+		//a geneticProfileId set filter alone can in some cases let almost all mutations into the temporary table
+		HashSet<String> geneIdSet = new HashSet<String>();
+		if (proteinPosStarts != null) {
+			Pattern geneIdPattern = Pattern.compile("\\(\\s*(\\d+)\\s*,");
+			for (String proteinPos : proteinPosStarts) {
+				Matcher geneIdMatcher = geneIdPattern.matcher(proteinPos);
+				if (geneIdMatcher.find()) {
+					geneIdSet.add(geneIdMatcher.group(1));
+				}
+			}
+		}
 		try {
 			con = JdbcUtil.getDbConnection(DaoMutation.class);
-                        //TODO: create where clause for mutation table to allow use of ENTREZ_GENE_ID index to filter results
-                        String sql = "SELECT ONCOTATOR_PROTEIN_POS_START, GENETIC_PROFILE_ID, mutation.ENTREZ_GENE_ID, count(DISTINCT SAMPLE_ID) FROM mutation, mutation_event " +
-                                     "WHERE GENETIC_PROFILE_ID IN (" + StringUtils.join(internalProfileIds, ",") + ") " +
-                                     "AND mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID " +
-			             //"AND concat(concat(mutation.ENTREZ_GENE_ID, '_'), ONCOTATOR_PROTEIN_POS_START)" +
-			             //"IN ('" + StringUtils.join(proteinPosStarts, "','") + "') " +
-			             "AND (mutation.ENTREZ_GENE_ID, ONCOTATOR_PROTEIN_POS_START)" +
-			             "IN (" + StringUtils.join(proteinPosStarts, ",") + ") " +
-			             "GROUP BY ONCOTATOR_PROTEIN_POS_START, GENETIC_PROFILE_ID";
+			String sql = "SELECT ONCOTATOR_PROTEIN_POS_START, GENETIC_PROFILE_ID, mutation.ENTREZ_GENE_ID, count(DISTINCT SAMPLE_ID) " +
+					"FROM mutation INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID " +
+					"WHERE mutation.ENTREZ_GENE_ID IN (" + StringUtils.join(geneIdSet, ",") + ") " +
+					"AND GENETIC_PROFILE_ID IN (" + StringUtils.join(internalProfileIds, ",") + ") " +
+					"AND (mutation.ENTREZ_GENE_ID, ONCOTATOR_PROTEIN_POS_START) IN (" + StringUtils.join(proteinPosStarts, ",") + ") " +
+					"GROUP BY ONCOTATOR_PROTEIN_POS_START, GENETIC_PROFILE_ID";
 
 			pstmt = con.prepareStatement(sql);
 			rs = pstmt.executeQuery();

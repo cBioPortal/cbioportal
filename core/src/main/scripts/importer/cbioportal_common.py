@@ -43,11 +43,9 @@ class MetaFileTypes(object):
 # fields allowed in each meta file type, maps to True if required
 META_FIELD_MAP = {
     MetaFileTypes.CANCER_TYPE: {
-        'type_of_cancer': True,
-        'name': True,
-        'clinical_trial_keywords': True,
-        'dedicated_color': True,
-        'short_name': True
+        'genetic_alteration_type': True,
+        'datatype': True,
+        'data_filename': True
     },
     MetaFileTypes.STUDY: {
         'cancer_study_identifier': True,
@@ -391,24 +389,26 @@ def get_meta_file_type(metaDictionary, logger, filename):
     """
     # GENETIC_ALTERATION_TYPE    DATATYPE    meta
     alt_type_datatype_to_meta = {
-        #clinical and timeline
+        # cancer type
+        ("CANCER_TYPE", "CANCER_TYPE"): MetaFileTypes.CANCER_TYPE,
+        # clinical and timeline
         ("CLINICAL", "CLINICAL"): MetaFileTypes.CLINICAL,
         ("CLINICAL", "TIMELINE"): MetaFileTypes.TIMELINE,
-        #rppa
+        # rppa
         ("PROTEIN_LEVEL", "LOG2-VALUE"): MetaFileTypes.RPPA,
         ("PROTEIN_LEVEL", "Z-SCORE"): MetaFileTypes.RPPA,
-        #cna
+        # cna
         ("COPY_NUMBER_ALTERATION", "DISCRETE"): MetaFileTypes.CNA,
         #("COPY_NUMBER_ALTERATION", "CONTINUOUS"): MetaFileTypes.CNA, 
-        #log2cna
+        # log2cna
         ("COPY_NUMBER_ALTERATION", "LOG2-VALUE"): MetaFileTypes.LOG2,
-        #expression
+        # expression
         ("MRNA_EXPRESSION", "CONTINUOUS"): MetaFileTypes.EXPRESSION,
         ("MRNA_EXPRESSION", "Z-SCORE"): MetaFileTypes.EXPRESSION,
         ("MRNA_EXPRESSION", "DISCRETE"): MetaFileTypes.EXPRESSION,
-        #mutations
+        # mutations
         ("MUTATION_EXTENDED", "MAF"): MetaFileTypes.MUTATION,
-        #others
+        # others
         ("COPY_NUMBER_ALTERATION", "SEG"): MetaFileTypes.SEG,
         ("METHYLATION", "CONTINUOUS"): MetaFileTypes.METHYLATION,
         ("FUSION", "FUSION"): MetaFileTypes.FUSION
@@ -490,7 +490,6 @@ def validate_types_and_id(metaDictionary, logger, filename):
 def parse_metadata_file(filename,
                         logger,
                         study_id=None,
-                        known_cancer_types=None,
                         genome_name=None,
                         case_list=False):
 
@@ -504,8 +503,6 @@ def parse_metadata_file(filename,
     :param logger: the logging.Logger instance to log warnings and errors to
     :param study_id: cancer study id found in previous files (or None). All subsequent
                      meta files should comply to this in the field 'cancer_study_identifier'
-    :param known_cancer_types: dict of cancer types defined in the portal,
-                               for validation
     :param genome_name: supported reference genome name, for validation
     :param case_list: whether this meta file is a case list (special case)
     """
@@ -582,34 +579,7 @@ def parse_metadata_file(filename,
         return metaDictionary, meta_file_type
 
     # type-specific validations
-    if meta_file_type == MetaFileTypes.CANCER_TYPE:
-        # compare a meta_cancer_type file with the portal instance
-        if known_cancer_types is not None:
-            file_cancer_type = metaDictionary.get('type_of_cancer')
-            if file_cancer_type not in known_cancer_types:
-                logger.warning(
-                    'New disease type will be added to the portal',
-                    extra={'filename_': filename,
-                           'cause': file_cancer_type})
-            else:
-                existing_info = known_cancer_types[file_cancer_type]
-                invalid_fields_found = False
-                for field in metaDictionary:
-                    if (
-                            field in existing_info and
-                            field != 'cancer_type_id' and
-                            metaDictionary[field] != existing_info[field]):
-                        logger.error(
-                            "%s field of cancer type does not match the "
-                            "portal, '%s' expected",
-                            field,
-                            existing_info[field],
-                            extra={'filename_': filename,
-                                   'cause': metaDictionary[field]})
-                        invalid_fields_found = True
-                if invalid_fields_found:
-                    meta_file_type = None
-    elif meta_file_type == MetaFileTypes.SEG:
+    if meta_file_type == MetaFileTypes.SEG:
         if metaDictionary['reference_genome_id'] != genome_name:
             logger.error(
                 'Reference_genome_id is not %s',

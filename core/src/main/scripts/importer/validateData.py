@@ -44,6 +44,7 @@ PORTAL_CANCER_TYPES = None
 VALIDATOR_IDS = {
     cbioportal_common.MetaFileTypes.CNA:'CNAValidator',
     cbioportal_common.MetaFileTypes.MUTATION:'MutationsExtendedValidator',
+    cbioportal_common.MetaFileTypes.CANCER_TYPE:'CancerTypeValidator',
     cbioportal_common.MetaFileTypes.CLINICAL:'ClinicalValidator',
     cbioportal_common.MetaFileTypes.SEG:'SegValidator',
     cbioportal_common.MetaFileTypes.LOG2:'Log2Validator',
@@ -225,11 +226,10 @@ class Validator(object):
                     break
             sample_content = header_line + ''.join(first_data_lines)
             try:
-                dialect = csv.Sniffer().sniff(sample_content)
+                dialect = csv.Sniffer().sniff(sample_content, delimiters='\t')
             except csv.Error:
                 self.logger.error('Not a valid tab separated file. Check if all lines have the same number of columns and if all separators are tabs.') 
                 return
-                
             # sniffer assumes " if no quote character exists
             if dialect.quotechar == '"' and not (
                     dialect.delimiter + '"' in sample_content or
@@ -1258,6 +1258,87 @@ class TimelineValidator(Validator):
         super(TimelineValidator, self).checkLine(data)
         # TODO check the values
 
+class CancerTypeValidator(Validator):
+
+    """Validator for tab-separated cancer type definition files."""
+
+    REQUIRED_HEADERS = []
+    REQUIRE_COLUMN_ORDER = True
+
+    COLS = (
+        'type_of_cancer',
+        'name',
+        'clinical_trial_keywords',
+        'dedicated_color',
+        'short_name'
+    )
+
+    def __init__(self, *args, **kwargs):
+        """Initialize a file validator with a defined_cancer_types field."""
+        super(CancerTypeValidator, self).__init__(*args, **kwargs)
+        self.cols = self.__class__.COLS
+        self.defined_cancer_types = []
+
+    def checkHeader(self, cols):
+        """Check the first uncommented line just like any other data line."""
+        return self.checkLine(cols)
+
+    def checkLine(self, data):
+        """Check a data line in a cancer type file."""
+        # track whether any errors are emitted while validating this line
+        tracking_handler = MaxLevelTrackingHandler()
+        self.logger.logger.addHandler(tracking_handler)
+        try:
+            if len(data) != 5:
+                self.logger.error('Lines in cancer type files must have these '
+                                  '5 columns, in order: [%s]',
+                                  ', '.join(self.cols),
+                                  extra={'line_number': self.line_number,
+                                         'cause': '<%d columns>' % len(data)})
+                # no assumptions can be made about the meaning of each column
+                return
+            line_cancer_type = data[self.cols.index('type_of_cancer')]
+            # check for blank fields
+            for col_index, field_name in enumerate(self.cols):
+                if data[col_index].strip() == '':
+                    self.logger.error(
+                        "Blank '%s' field for cancer type '%s'",
+                        field_name, line_cancer_type,
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1})
+            # check for duplicated (possibly inconsistent) cancer types
+            if line_cancer_type in self.defined_cancer_types:
+                self.logger.error(
+                    'Cancer type defined a second time in this file',
+                    extra={'line_number': self.line_number,
+                           'cause': line_cancer_type})
+            # compare the cancer_type definition with the portal instance
+            if line_cancer_type in PORTAL_CANCER_TYPES:
+                existing_info = PORTAL_CANCER_TYPES[line_cancer_type]
+                for col_index, field_name in enumerate(self.cols):
+                    if (
+                            field_name in existing_info and
+                            data[col_index] != existing_info[field_name]):
+                        self.logger.error(
+                            "'%s' field of cancer type '%s' does not match "
+                            "the portal, '%s' expected",
+                            field_name,
+                            line_cancer_type,
+                            existing_info[field_name],
+                            extra={'line_number': self.line_number,
+                                   'column_number': col_index + 1,
+                                   'cause': data[col_index]})
+            else:
+                self.logger.warning(
+                    'New disease type will be added to the portal',
+                    extra={'line_number': self.line_number,
+                           'cause': line_cancer_type})
+            # if no errors have been emitted while validating this line
+            if tracking_handler.max_level < logging.ERROR:
+                # add the cancer type defined on this line to the list
+                self.defined_cancer_types.append(line_cancer_type)
+        finally:
+            self.logger.logger.removeHandler(tracking_handler)
 
 # ------------------------------------------------------------------------------
 # Functions
@@ -1270,7 +1351,7 @@ def process_metadata_files(directory, logger, hugo_entrez_map):
     Return a tuple of:
         1. a dict listing the data file validator (or None) for each meta file
            by file type,
-        2. a list of cancer type ids that have been defined in this study, and
+        2. the cancer type of the study, and
         3. the study id
 
     Possible file types are listed in cbioportal_common.MetaFileTypes.
@@ -1286,13 +1367,11 @@ def process_metadata_files(directory, logger, hugo_entrez_map):
     study_id = None
     study_cancer_type = None
     validators_by_type = {}
-    defined_cancer_types = []
 
     for filename in filenames:
 
         meta, meta_file_type = cbioportal_common.parse_metadata_file(
-            filename, logger, study_id,
-            PORTAL_CANCER_TYPES, GENOMIC_BUILD_COUNTERPART)
+            filename, logger, study_id, GENOMIC_BUILD_COUNTERPART)
         if meta_file_type is None:
             continue
         if study_id is None and 'cancer_study_identifier' in meta:
@@ -1303,23 +1382,15 @@ def process_metadata_files(directory, logger, hugo_entrez_map):
                     'Encountered a second meta_study file',
                     extra={'filename_': filename})
             study_cancer_type = meta['type_of_cancer']
-        if meta_file_type == cbioportal_common.MetaFileTypes.CANCER_TYPE:
-            file_cancer_type = meta['type_of_cancer']
-            if file_cancer_type in defined_cancer_types:
-                logger.error(
-                    'Cancer type defined a second time in study',
-                    extra={'filename_': filename,
-                           'cause': file_cancer_type})
-            else:
-                defined_cancer_types.append(meta['type_of_cancer'])
         # create a list for the file type in the dict
         if meta_file_type not in validators_by_type:
             validators_by_type[meta_file_type] = []
         # check if data_filename is set AND if data_filename is a supported field according to META_FIELD_MAP:
         if 'data_filename' in meta and 'data_filename' in cbioportal_common.META_FIELD_MAP[meta_file_type]:
             validator_class = globals()[VALIDATOR_IDS[meta_file_type]]
-            validators_by_type[meta_file_type].append(validator_class(
-                    directory, meta, logger, hugo_entrez_map))
+            validator = validator_class(directory, meta, logger,
+                                        hugo_entrez_map)
+            validators_by_type[meta_file_type].append(validator)
         else:
             validators_by_type[meta_file_type].append(None)
 
@@ -1327,14 +1398,8 @@ def process_metadata_files(directory, logger, hugo_entrez_map):
         logger.error(
             'Cancer type needs to be defined for a study. Verify that you have a study file '
             'and have defined the cancer type correctly.')
-    elif not (study_cancer_type in PORTAL_CANCER_TYPES or
-            study_cancer_type in defined_cancer_types):
-        logger.error(
-            'Cancer type of study is neither known to the portal nor defined '
-            'in a meta_cancer_type file',
-            extra={'cause': study_cancer_type})
 
-    return validators_by_type, defined_cancer_types, study_id
+    return validators_by_type, study_cancer_type, study_id
 
 
 def processCaseListDirectory(caseListDir, cancerStudyId, logger):
@@ -1449,8 +1514,6 @@ def validate_study(study_dir, logger, hugo_entrez_map):
 
     The argument hugo_entrez_map should be a dict listing the canonical
     gene symbols and corresponding Entrez identifiers defined in the portal.
-    
-    
     """
 
     global DEFINED_CANCER_TYPES
@@ -1458,25 +1521,49 @@ def validate_study(study_dir, logger, hugo_entrez_map):
 
     # walk over the meta files in the dir and get properties of the study
     (validators_by_meta_type,
-     DEFINED_CANCER_TYPES,
+     study_cancer_type,
      study_id) = process_metadata_files(study_dir, logger, hugo_entrez_map)
 
+    # first parse and validate cancer type files
+    studydefined_cancer_types = []
+    if cbioportal_common.MetaFileTypes.CANCER_TYPE in validators_by_meta_type:
+        cancer_type_validators = validators_by_meta_type[
+                cbioportal_common.MetaFileTypes.CANCER_TYPE]
+        if len(cancer_type_validators) > 1:
+            logger.error(
+                'Multiple cancer type files detected',
+                extra={'cause': ', '.join(
+                    validator.filenameShort for validator in
+                    validators_by_meta_type[
+                            cbioportal_common.MetaFileTypes.CANCER_TYPE])})
+        else:
+            cancer_type_validators[0].validate()
+            studydefined_cancer_types = (
+                cancer_type_validators[0].defined_cancer_types)
+    DEFINED_CANCER_TYPES = studydefined_cancer_types
+
+    # next check the cancer type of the meta_study file
+    if cbioportal_common.MetaFileTypes.STUDY not in validators_by_meta_type:
+        logger.error('No valid study file detected')
+        return
+    if not (study_cancer_type in PORTAL_CANCER_TYPES or
+            study_cancer_type in DEFINED_CANCER_TYPES):
+        logger.error(
+            'Cancer type of study is neither known to the portal nor defined '
+            'in a cancer_type file',
+            extra={'cause': study_cancer_type})
+
+    # then validate the clinical data
     if cbioportal_common.MetaFileTypes.CLINICAL not in validators_by_meta_type:
         logger.error('No clinical file detected')
         return
-
-    if cbioportal_common.MetaFileTypes.STUDY not in validators_by_meta_type:
-        logger.error('No study file detected')
-        return
-
-    if len(validators_by_meta_type[cbioportal_common.MetaFileTypes.CLINICAL]) != 1:
+    if len(validators_by_meta_type[cbioportal_common.MetaFileTypes.CLINICAL]) > 1:
         if logger.isEnabledFor(logging.ERROR):
             logger.error(
                 'Multiple clinical files detected',
                 extra={'cause': ', '.join(
                     validator.filenameShort for validator in
                     validators_by_meta_type[cbioportal_common.MetaFileTypes.CLINICAL])})
-
     # get the validator for the clinical data file
     clinvalidator = validators_by_meta_type[cbioportal_common.MetaFileTypes.CLINICAL][0]
     # parse the clinical data file to get defined sample ids for this study
@@ -1484,13 +1571,13 @@ def validate_study(study_dir, logger, hugo_entrez_map):
     if not clinvalidator.fileCouldBeParsed:
         logger.error("Clinical file could not be parsed. Please fix the problems found there first before continuing.")
         return
-
     DEFINED_SAMPLE_IDS = clinvalidator.sampleIds
 
-    # validate non-clinical data files
+    # next validate non-clinical data files
     for meta_file_type in validators_by_meta_type:
-        # skip clinical files, they have already been validated
-        if meta_file_type == cbioportal_common.MetaFileTypes.CLINICAL:
+        # skip cancer type and clinical files, they have already been validated
+        if meta_file_type in (cbioportal_common.MetaFileTypes.CANCER_TYPE,
+                              cbioportal_common.MetaFileTypes.CLINICAL):
             continue
         for validator in validators_by_meta_type[meta_file_type]:
             # if there was no validator for this meta file
@@ -1498,6 +1585,7 @@ def validate_study(study_dir, logger, hugo_entrez_map):
                 continue
             validator.validate()
 
+    # finally validate case lists if present
     case_list_dirname = os.path.join(study_dir, 'case_lists')
     if not os.path.isdir(case_list_dirname):
         logger.info("No directory named 'case_lists' found, so assuming no custom case lists.")
@@ -1573,7 +1661,7 @@ def main_validate(args):
         logger,
         id_field='id')
     # retrieve clinical attributes defined in the portal
-    ClinicalValidator.request_attrs("http://localhost:8080/cbioportal", logger)
+    ClinicalValidator.request_attrs(SERVER_URL, logger)
     # Entrez values for Hugo symbols in the portal
     hugo_entrez_map = get_hugo_entrez_map(SERVER_URL, logger)
 

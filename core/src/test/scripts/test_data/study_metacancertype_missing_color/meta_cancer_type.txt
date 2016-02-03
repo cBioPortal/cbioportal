@@ -1,4 +1,0 @@
-type_of_cancer: luad
-name: Lung Adenocarcinoma
-clinical_trial_keywords: lung,pulmonary,adenocarcinoma of the lung
-short_name: Lung

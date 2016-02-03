@@ -121,6 +121,7 @@ boolean showGenomicOverview = showMutations | hasCnaSegmentData;
 boolean showClinicalTrials = GlobalProperties.showClinicalTrialsTab();
 boolean showDrugs = GlobalProperties.showDrugsTab();
 boolean showSamplesTable = isPatientView;
+String userName = GlobalProperties.getAuthenticatedUserName();
 
 double[] genomicOverviewCopyNumberCnaCutoff = GlobalProperties.getPatientViewGenomicOverviewCnaCutoff();
 
@@ -294,9 +295,6 @@ if (patientViewError!=null) {
 </div>
 <jsp:include page="../../global/xdebug.jsp" flush="true" />
 
-<link href="css/jquery.qtip.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet"/>
-<link href="css/bootstrap.min.css?<%=GlobalProperties.getAppVersion()%>" type="text/css" rel="stylesheet" />
-
 <style type="text/css" title="currentStyle">
         @import "css/data_table_jui.css?<%=GlobalProperties.getAppVersion()%>";
         @import "css/data_table_ColVis.css?<%=GlobalProperties.getAppVersion()%>";
@@ -418,6 +416,7 @@ var caseMetaData = {
 };
 var oncokbGeneStatus = <%=oncokbGeneStatus%>;
 var showHotspot = <%=showHotspot%>;
+var userName = '<%=userName%>';
 
 $(document).ready(function(){
     OncoKB.setUrl('<%=oncokbUrl%>');
@@ -458,14 +457,14 @@ function initTabs() {
 
 function fixCytoscapeWebRedraw() {
     // to initially hide the network tab
-    $("#pathways").attr('style', 'display: none !important; height: 0px; width: 0px; visibility: hidden;');
+    $("#tab_pathways").attr('style', 'display: none !important; height: 0px; width: 0px; visibility: hidden;');
 
     // to fix problem of flash repainting
     $("a.patient-tab").click(function(){
-        if($(this).attr("href")==="#pathways") {
-            $("#pathways").removeAttr('style');
+        if($(this).attr("href")==="#tab_pathways") {
+            $("#tab_pathways").removeAttr('style');
         } else {
-            $("#pathways").attr('style', 'display: block !important; height: 0px; width: 0px; visibility: hidden;');
+            $("#tab_pathways").attr('style', 'display: block !important; height: 0px; width: 0px; visibility: hidden;');
         }
     });
 }
@@ -476,7 +475,7 @@ function switchToTab(toTab) {
     $('#patient-tabs').tabs("option",
 		"active",
 		$('#patient-tabs ul a[href="#'+toTab+'"]').parent().index());
-    if (toTab==='images') {
+    if (toTab==='tab_images') {
         loadImages();
     }
 }
@@ -1383,6 +1382,5 @@ window["<%=PatientView.CANCER_STUDY_META_DATA_KEY_STRING%>"]
         = <%=jsonMapper.writeValueAsString(request.getAttribute(PatientView.CANCER_STUDY_META_DATA_KEY_STRING))%>;
 
 </script>
-<script src="js/lib/bootstrap.min.js?<%=GlobalProperties.getAppVersion()%>" type="text/javascript"></script>
 </body>
 </html>

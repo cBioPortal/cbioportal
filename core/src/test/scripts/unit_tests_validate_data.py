@@ -1,3 +1,5 @@
+#!/usr/bin/env python2.7
+
 """
 Copyright (c) 2016 The Hyve B.V.
 This code is licensed under the GNU Affero General Public License (AGPL),
@@ -5,6 +7,7 @@ version 3, or (at your option) any later version.
 """
 
 import unittest
+import sys
 import logging.handlers
 
 from importer import cbioportal_common
@@ -76,13 +79,19 @@ class LogBufferTestCase(unittest.TestCase):
         """Set up a logger with a buffering handler."""
         self.logger = logging.getLogger(self.__class__.__name__)
         self.logger.setLevel(logging.INFO)
-        handler = logging.handlers.BufferingHandler(capacity=1e6)
-        self.orig_handlers = self.logger.handlers
-        self.logger.handlers = [handler]
+        # add a handler to buffer log records for validation
+        self.buffer_handler = logging.handlers.BufferingHandler(capacity=1e6)
+        self.logger.addHandler(self.buffer_handler)
+        # add a handler to pretty-print log messages to the output
+        self.output_handler = logging.StreamHandler(sys.stdout)
+        self.output_handler.setFormatter(
+            cbioportal_common.LogfileStyleFormatter())
+        self.logger.addHandler(self.output_handler)
 
     def tearDown(self):
-        """Remove the logger handler (and any buffer it may have)."""
-        self.logger.handlers = self.orig_handlers
+        """Remove the logger handlers (and any buffers they may have)."""
+        self.logger.removeHandler(self.output_handler)
+        self.logger.removeHandler(self.buffer_handler)
 
     def get_log_records(self):
         """Get the log records written to the logger since the last call."""
@@ -96,7 +105,7 @@ class LogBufferTestCase(unittest.TestCase):
 
         This can be used if, while writing unit tests, you want to see
         what the messages currently are. The final unit tests committed
-        to version control should not print log messages.
+        to version control should not actively print log messages.
         """
         formatter = cbioportal_common.LogfileStyleFormatter()
         for record in record_list:
@@ -641,3 +650,6 @@ class StableIdValidationTestCase(StudyValidationTestCase):
         # expecting one warning about stable_id not being recognized in clinical:
         self.assertEqual(warning.levelno, logging.WARNING)
         self.assertEqual(warning.cause, 'stable_id')
+
+if __name__ == '__main__':
+    unittest.main(buffer=True)

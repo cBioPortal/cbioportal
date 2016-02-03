@@ -1306,6 +1306,8 @@ class CancerTypeValidator(Validator):
                         field_name, line_cancer_type,
                         extra={'line_number': self.line_number,
                                'column_number': col_index + 1})
+                # TODO validate whether the color field is one of the
+                # keywords on https://www.w3.org/TR/css3-color/#svg-color
             # check for duplicated (possibly inconsistent) cancer types
             if line_cancer_type in self.defined_cancer_types:
                 self.logger.error(

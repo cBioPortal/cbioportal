@@ -133,7 +133,7 @@ def process_directory(jvm_args, study_directory):
         not (f.startswith('.') or f.endswith('~')))
     study_id = None
     study_metafile = None
-    cancer_type_metafiles = []
+    cancer_type_filepairs = []
     clinical_filepairs = []
     non_clinical_filepairs = []
 
@@ -156,7 +156,8 @@ def process_directory(jvm_args, study_directory):
                         study_metafile, f))
             study_metafile = f
         elif meta_file_type == MetaFileTypes.CANCER_TYPE:
-            cancer_type_metafiles.append(f)
+            cancer_type_filepairs.append(
+                (f, os.path.join(study_directory, metadata['data_filename'])))
         elif meta_file_type == MetaFileTypes.CLINICAL:
             clinical_filepairs.append(
                 (f, os.path.join(study_directory, metadata['data_filename'])))
@@ -165,8 +166,8 @@ def process_directory(jvm_args, study_directory):
                 (f, os.path.join(study_directory, metadata['data_filename'])))
 
     # First, import cancer types
-    for f in cancer_type_metafiles:
-        import_cancer_type(jvm_args, f)
+    for meta_filename, data_filename in cancer_type_filepairs:
+        import_cancer_type(jvm_args, data_filename)
 
     # Then define the study
     if study_metafile is None:

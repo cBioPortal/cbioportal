@@ -72,7 +72,11 @@ public class ImportTypesOfCancers {
 
         while(scanner.hasNextLine()) {
             String[] tokens = scanner.nextLine().split("\t", -1);
-            assert tokens.length == 5;
+            if (tokens.length != 5) {
+                throw new IOException(
+                    "Cancer type file '" + file.getPath() +
+                    "' is not a five-column tab-delimited file");
+            }
 
             String typeOfCancerId = tokens[0].trim();
             aTypeOfCancer.setTypeOfCancerId(typeOfCancerId.toLowerCase());

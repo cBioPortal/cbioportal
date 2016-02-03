@@ -50,53 +50,58 @@ var sbgnStyleSheet = cytoscape.stylesheet()
 .css({
   'border-color': '#d67614',
   'target-arrow-color': '#000',
-  'text-outline-color': '#000'})
-  .selector("node:active")
-  .css({
-    'background-opacity': '0.7', 'overlay-color': '#d67614',
-    'overlay-padding': '14'
-  })
-  .selector("edge")
-  .css({
-    'line-color': '#555',
-    'target-arrow-fill': 'hollow',
-    'source-arrow-fill': 'hollow',
-    'width': 1.5,
-    'target-arrow-color': '#555',
-    'source-arrow-color': '#555',
-    'target-arrow-shape': 'data(sbgnclass)'
-  })
-  .selector("edge[sbgnclass='inhibition']")
-  .css({
-    'target-arrow-fill': 'filled'
-  })
-  .selector("edge[sbgnclass='consumption']")
-  .css({
-    'target-arrow-shape': 'none',
-    'source-arrow-shape': 'data(sbgnclass)',
-    'line-style': 'consumption'
-  })
-  .selector("edge[sbgnclass='production']")
-  .css({
-    'target-arrow-fill': 'filled',
-    'line-style': 'production'
-  })
-  .selector("edge:selected")
-  .css({
-    'line-color': '#d67614',
-    'source-arrow-color': '#d67614',
-    'target-arrow-color': '#d67614'
-  })
-  .selector("edge:active")
-  .css({
-    'background-opacity': '0.7', 'overlay-color': '#d67614',
-    'overlay-padding': '8'
-  })
-  .selector("core")
-  .css({
-    'selection-box-color': '#d67614',
-    'selection-box-opacity': '0.2', 'selection-box-border-color': '#d67614'
-  })
+<<<<<<< HEAD
+  'text-outline-color': '#000'
+})
+.selector("node:active")
+.css({
+  'background-opacity': '0.7',
+  'overlay-color': '#d67614',
+  'overlay-padding': '14'
+})
+.selector("edge")
+.css({
+  'line-color': '#555',
+  'target-arrow-fill': 'hollow',
+  'source-arrow-fill': 'hollow',
+  'width': 1.5,
+  'target-arrow-color': '#555',
+  'source-arrow-color': '#555',
+  'target-arrow-shape': 'data(sbgnclass)'
+})
+.selector("edge[sbgnclass='inhibition']")
+.css({
+  'target-arrow-fill': 'filled'
+})
+.selector("edge[sbgnclass='consumption']")
+.css({
+  'target-arrow-shape': 'none',
+  'source-arrow-shape': 'data(sbgnclass)',
+  'line-style': 'consumption'
+})
+.selector("edge[sbgnclass='production']")
+.css({
+  'target-arrow-fill': 'filled',
+  'line-style': 'production'
+})
+.selector("edge:selected")
+.css({
+  'line-color': '#d67614',
+  'source-arrow-color': '#d67614',
+  'target-arrow-color': '#d67614'
+})
+.selector("edge:active")
+.css({
+  'background-opacity': '0.7',
+  'overlay-color': '#d67614',
+  'overlay-padding': '8'
+})
+.selector("core")
+.css({
+  'selection-box-color': '#d67614',
+  'selection-box-opacity': '0.2',
+  'selection-box-border-color': '#d67614'
+}); // end of sbgnStyleSheet
 
   function popUpSBGNView()
   {
@@ -140,12 +145,10 @@ var sbgnStyleSheet = cytoscape.stylesheet()
           style: sbgnStyleSheet,
           layout:
           {
-            /*name: 'preset',
-            positions: positionMap*/
-            name: "cose-bilkent",
+            name: 'cose-bilkent',
             animate: false,
-            randomize: true,
-            fit: true
+	    randomize: true,
+	    fit: true
           },
           showOverlay: false,
           minZoom: 0.125,
@@ -172,10 +175,16 @@ var sbgnStyleSheet = cytoscape.stylesheet()
             cy.on('tap', 'node', function (event)
             {
             });
+          },
 
-          }
         });
-      });
-
-
-    }
+      },
+      error: function(request, status, error)
+      {
+        //Remove loading spinner !
+        container.empty();
+        if(error === "460")
+          container.text('Server responded with error ' + error + "-No Results (e.g., when a search or graph query found no data)");
+      }
+    });
+  }

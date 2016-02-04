@@ -1369,6 +1369,7 @@ def process_metadata_files(directory, logger, hugo_entrez_map):
     study_id = None
     study_cancer_type = None
     validators_by_type = {}
+    stable_ids = []
 
     for filename in filenames:
 
@@ -1376,6 +1377,17 @@ def process_metadata_files(directory, logger, hugo_entrez_map):
             filename, logger, study_id, GENOMIC_BUILD_COUNTERPART)
         if meta_file_type is None:
             continue
+        # validate stable_id to be unique (check can be removed once we deprecate this field):
+        if 'stable_id' in meta:
+            stable_id = meta['stable_id']
+            if stable_id in stable_ids:
+                # stable id already used in other meta file, give error:
+                logger.error(
+                    'stable_id repeated. It should be unique across all files in a study',
+                    extra={'filename_': filename,
+                           'cause': stable_id})
+            else:
+                stable_ids.append(stable_id)
         if study_id is None and 'cancer_study_identifier' in meta:
             study_id = meta['cancer_study_identifier']
         if meta_file_type == cbioportal_common.MetaFileTypes.STUDY:

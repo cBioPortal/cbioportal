@@ -635,17 +635,19 @@ class StableIdValidationTestCase(StudyValidationTestCase):
             self.logger, hugo_entrez_map)
         record_list = self.get_log_records()
         # expecting 1 warning, 1 error:
-        self.assertEqual(len(record_list), 2)
+        self.assertEqual(len(record_list), 3)
         # get both into a variable to avoid dependency on order:
+        errors = []
         for record in record_list:
             if record.levelno == logging.ERROR:
-                error = record
+                errors.append(record.cause)
             else:
                 warning = record
 
         # expecting one error about wrong stable_id in meta_expression:
-        self.assertEqual(error.levelno, logging.ERROR)
-        self.assertIn('mrna_test', error.cause)
+        self.assertEqual(len(errors), 2)
+        self.assertIn('mrna_test', errors)
+        self.assertIn('gistic', errors)
 
         # expecting one warning about stable_id not being recognized in clinical:
         self.assertEqual(warning.levelno, logging.WARNING)

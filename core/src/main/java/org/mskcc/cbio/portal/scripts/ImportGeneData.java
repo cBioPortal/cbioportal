@@ -200,7 +200,7 @@ public class ImportGeneData {
         pMonitor.setMaxValue(numLines);
         ImportGeneData.importData(pMonitor, geneFile);
         ConsoleUtil.showWarnings(pMonitor);
-        System.err.println("Done.");
+        System.err.println("Done. Restart tomcat to make sure the cache is replaced with the new data.");
         
         if (args.length>=2) {
             File suppGeneFile = new File(args[1]);

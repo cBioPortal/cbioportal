@@ -1278,7 +1278,7 @@ class CancerTypeValidator(Validator):
         'name',
         'clinical_trial_keywords',
         'dedicated_color',
-        'short_name'
+        'parent_type_of_cancer'
     )
 
     def __init__(self, *args, **kwargs):
@@ -1305,8 +1305,8 @@ class CancerTypeValidator(Validator):
                                          'cause': '<%d columns>' % len(data)})
                 # no assumptions can be made about the meaning of each column
                 return
-            line_cancer_type = data[self.cols.index('type_of_cancer')]
-            # check for blank fields
+            line_cancer_type = data[self.cols.index('type_of_cancer')].lower()
+            # check each column
             for col_index, field_name in enumerate(self.cols):
                 if data[col_index].strip() == '':
                     self.logger.error(
@@ -1316,6 +1316,16 @@ class CancerTypeValidator(Validator):
                                'column_number': col_index + 1})
                 # TODO validate whether the color field is one of the
                 # keywords on https://www.w3.org/TR/css3-color/#svg-color
+                if field_name == 'parent_type_of_cancer':
+                    parent_cancer_type = data[col_index].lower()
+                    if not (parent_cancer_type in PORTAL_CANCER_TYPES or
+                            parent_cancer_type in self.defined_cancer_types):
+                        self.logger.error(
+                            "Unknown parent for cancer type '%s'",
+                            line_cancer_type,
+                            extra={'line_number': self.line_number,
+                                   'column_number': col_index + 1,
+                                   'cause': data[col_index]})
             # check for duplicated (possibly inconsistent) cancer types
             if line_cancer_type in self.defined_cancer_types:
                 self.logger.error(
@@ -1325,10 +1335,24 @@ class CancerTypeValidator(Validator):
             # compare the cancer_type definition with the portal instance
             if line_cancer_type in PORTAL_CANCER_TYPES:
                 existing_info = PORTAL_CANCER_TYPES[line_cancer_type]
+                # depending on version, the API may not return this field
+                if 'short_name' in existing_info:
+                    if existing_info['short_name'].lower() != line_cancer_type:
+                        self.logger.error(
+                            "Attempting to validate against invalid cancer type "
+                            "in portal: short name '%s' does not match id '%s'",
+                            existing_info['short_name'],
+                            line_cancer_type,
+                            extra={'line_number': self.line_number})
+                        return
                 for col_index, field_name in enumerate(self.cols):
+                    value = data[col_index]
+                    # this field is loaded into the database in lowercase
+                    if field_name == 'parent_type_of_cancer':
+                        value = value.lower()
                     if (
                             field_name in existing_info and
-                            data[col_index] != existing_info[field_name]):
+                            value != existing_info[field_name]):
                         self.logger.error(
                             "'%s' field of cancer type '%s' does not match "
                             "the portal, '%s' expected",
@@ -1337,7 +1361,7 @@ class CancerTypeValidator(Validator):
                             existing_info[field_name],
                             extra={'line_number': self.line_number,
                                    'column_number': col_index + 1,
-                                   'cause': data[col_index]})
+                                   'cause': value})
             else:
                 self.logger.warning(
                     'New disease type will be added to the portal',

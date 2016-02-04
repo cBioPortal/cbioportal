@@ -36,6 +36,11 @@ KNOWN_SAMPLE_ATTRS = {
 
 # hard-code known cancer types
 KNOWN_CANCER_TYPES = {
+    # tissues as parents
+    "breast": {"name":"Breast","color":"HotPink"},
+    "prostate": {"name":"Prostate","color":"Cyan"},
+    "lung": {"name":"Lung","color":"Gainsboro"},
+    # cancer types
     "brca": {"name":"Invasive Breast Carcinoma","color":"HotPink"},
     "prad": {"name":"Prostate Adenocarcinoma","color":"Cyan"}
 }
@@ -308,6 +313,16 @@ class CancerTypeFileValidationTestCase(DataFileTestCase):
         record = record_list.pop()
         self.assertEqual(record.levelno, logging.ERROR)
         self.assertEqual(record.column_number, 4)
+
+    def test_cancer_type_undefined_parent(self):
+        """Test when a new cancer type's parent cancer type is not known."""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_cancertype_undefined_parent.txt',
+                                    validateData.CancerTypeValidator)
+        self.assertEqual(len(record_list), 1)
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.column_number, 5)
 
     def test_cancer_type_matching_portal(self):
         """Test when an existing cancer type is defined exactly as known."""

@@ -1282,6 +1282,11 @@ def process_metadata_files(directory, logger, hugo_entrez_map):
                  re.search(r'(\b|_)meta(\b|_)', f) and
                  not f.startswith('.') and 
                  not f.endswith('~')]
+    
+    if len(filenames) == 0:
+        logger.critical(
+                    'No meta files found in ' + directory +'. Please make sure the directory '\
+                    'is the path to the folder containing the files.')
 
     study_id = None
     study_cancer_type = None

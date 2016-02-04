@@ -1,3 +1,5 @@
+#!/usr/bin/env python2.7
+
 """
 Copyright (c) 2016 The Hyve B.V.
 This code is licensed under the GNU Affero General Public License (AGPL),
@@ -5,6 +7,7 @@ version 3, or (at your option) any later version.
 """
 
 import unittest
+import sys
 import logging.handlers
 
 from importer import cbioportal_common
@@ -76,13 +79,19 @@ class LogBufferTestCase(unittest.TestCase):
         """Set up a logger with a buffering handler."""
         self.logger = logging.getLogger(self.__class__.__name__)
         self.logger.setLevel(logging.INFO)
-        handler = logging.handlers.BufferingHandler(capacity=1e6)
-        self.orig_handlers = self.logger.handlers
-        self.logger.handlers = [handler]
+        # add a handler to buffer log records for validation
+        self.buffer_handler = logging.handlers.BufferingHandler(capacity=1e6)
+        self.logger.addHandler(self.buffer_handler)
+        # add a handler to pretty-print log messages to the output
+        self.output_handler = logging.StreamHandler(sys.stdout)
+        self.output_handler.setFormatter(
+            cbioportal_common.LogfileStyleFormatter())
+        self.logger.addHandler(self.output_handler)
 
     def tearDown(self):
-        """Remove the logger handler (and any buffer it may have)."""
-        self.logger.handlers = self.orig_handlers
+        """Remove the logger handlers (and any buffers they may have)."""
+        self.logger.removeHandler(self.output_handler)
+        self.logger.removeHandler(self.buffer_handler)
 
     def get_log_records(self):
         """Get the log records written to the logger since the last call."""
@@ -96,34 +105,46 @@ class LogBufferTestCase(unittest.TestCase):
 
         This can be used if, while writing unit tests, you want to see
         what the messages currently are. The final unit tests committed
-        to version control should not print log messages.
+        to version control should not actively print log messages.
         """
         formatter = cbioportal_common.LogfileStyleFormatter()
         for record in record_list:
             print formatter.format(record)
 
+class StudyValidationTestCase(LogBufferTestCase):
 
-class DataFileTestCase(LogBufferTestCase):
+    """Testcase for any functionality used while validating a study.
+
+    This class takes care of initialising globals that should have been
+    set before validate_study is called.
+    """
+
+    def setUp(self):
+        """Hard-code portal attributes."""
+        super(StudyValidationTestCase, self).setUp()
+        # set known clinical attributes
+        self.orig_srv_attrs = validateData.ClinicalValidator.srv_attrs
+        mock_srv_attrs = dict(KNOWN_PATIENT_ATTRS)
+        mock_srv_attrs.update(KNOWN_SAMPLE_ATTRS)
+        validateData.ClinicalValidator.srv_attrs = mock_srv_attrs
+        # set known cancer types
+        self.orig_portal_cancer_types = validateData.PORTAL_CANCER_TYPES
+        validateData.PORTAL_CANCER_TYPES = KNOWN_CANCER_TYPES
+
+    def tearDown(self):
+        """Restore the environment to before setUp() was called."""
+        validateData.ClinicalValidator.srv_attrs = self.orig_srv_attrs
+        validateData.PORTAL_CANCER_TYPES = self.orig_portal_cancer_types
+        super(StudyValidationTestCase, self).tearDown()
+
+
+class DataFileTestCase(StudyValidationTestCase):
 
     """Superclass for testcases validating a particular data file.
 
     Provides a validate() method to validate the data file with a
     particular validator class and collect the log records emitted.
     """
-
-    def setUp(self):
-        """Set up for validating a file in the test_data directory."""
-        super(DataFileTestCase, self).setUp()
-        # hard-code known clinical attributes instead of contacting a portal
-        self.orig_srv_attrs = validateData.ClinicalValidator.srv_attrs
-        mock_srv_attrs = dict(KNOWN_PATIENT_ATTRS)
-        mock_srv_attrs.update(KNOWN_SAMPLE_ATTRS)
-        validateData.ClinicalValidator.srv_attrs = mock_srv_attrs
-
-    def tearDown(self):
-        """Restore the environment to before setUp() was called."""
-        validateData.ClinicalValidator.srv_attrs = self.orig_srv_attrs
-        super(DataFileTestCase, self).tearDown()
 
     def validate(self, data_filename, validator_class, extra_meta_fields=None):
         """Validate a file with a Validator and return the log records."""
@@ -248,70 +269,65 @@ class ClinicalColumnDefsTestCase(DataFileTestCase):
         self.assertEqual(record_list[1].column_number, 7)
 
 
-class CancerTypeValidationTestCase(LogBufferTestCase):
+class CancerTypeFileValidationTestCase(DataFileTestCase):
 
-    """Tests for validations of cancer type meta files in a study."""
-
-    def setUp(self):
-        """Initialize environment, hard-coding known cancer types."""
-        super(CancerTypeValidationTestCase, self).setUp()
-        self.orig_portal_cancer_types = validateData.PORTAL_CANCER_TYPES
-        validateData.PORTAL_CANCER_TYPES = KNOWN_CANCER_TYPES
-
-    def tearDown(self):
-        """Restore the environment to before setUp() was called."""
-        super(CancerTypeValidationTestCase, self).tearDown()
-        validateData.PORTAL_CANCER_TYPES = self.orig_portal_cancer_types
+    """Tests for validations of cancer type files in a study."""
 
     def test_new_cancer_type(self):
         """Test when a study defines a new cancer type."""
         # {"id":"luad","name":"Lung Adenocarcinoma","color":"Gainsboro"}
-        validateData.process_metadata_files(
-            'test_data/study_metacancertype_lung',
-            self.logger, hugo_entrez_map)
-        record_list = self.get_log_records()
+        self.logger.setLevel(logging.WARNING)
+        record_list = self.validate('data_cancertype_lung.txt',
+                                    validateData.CancerTypeValidator)
         # expecting a warning about a new cancer type being added
         self.assertEqual(len(record_list), 1)
-        self.assertEqual(record_list[0].levelno, logging.WARNING)
-        self.assertEqual(record_list[0].cause, 'luad')
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.WARNING)
+        self.assertEqual(record.cause, 'luad')
+        self.assertIn('will be added', record.getMessage().lower())
 
-    def test_cancer_type_file_format_error(self):
-        """Test when a new cancer type file does not make sense."""
+    def test_cancer_type_missing_column(self):
+        """Test when a new cancer type file misses a column."""
         self.logger.setLevel(logging.ERROR)
-        validateData.process_metadata_files(
-            'test_data/study_metacancertype_missing_color',
-            self.logger, hugo_entrez_map)
-        record_list = self.get_log_records()
-        # expecting two errors: one about the missing field and one about the
-        # undefined cancer type of the study
-        self.assertEqual(len(record_list), 2)
-        for record in record_list:
-            self.assertEqual(record.levelno, logging.ERROR)
-        self.assertIn('meta_cancer_type.txt', record_list[0].filename_)
-        self.assertIn('dedicated_color', record_list[0].getMessage())
-        self.assertEqual(record_list[1].cause, 'luad')
-
-    def test_cancer_type_matching_portal(self):
-        """Test when an existing cancer type is defined exactly as known."""
-        validateData.process_metadata_files(
-            'test_data/study_metacancertype_confirming_existing',
-            self.logger, hugo_entrez_map)
-        record_list = self.get_log_records()
-        # expecting no messages, warnings or errors
-        self.assertEqual(len(record_list), 0)
-
-    def test_cancer_type_disagreeing_with_portal(self):
-        """Test when an existing cancer type is redefined by a study."""
-        validateData.process_metadata_files(
-            'test_data/study_metacancertype_redefining',
-            self.logger, hugo_entrez_map)
-        record_list = self.get_log_records()
-        # expecting an error message about the cancer type file, but none about
-        # the rest of the study as the portal defines a valid cancer type
+        record_list = self.validate('data_cancertype_missing_color_col.txt',
+                                    validateData.CancerTypeValidator)
+        # expecting an error about the number of columns
         self.assertEqual(len(record_list), 1)
         record = record_list.pop()
         self.assertEqual(record.levelno, logging.ERROR)
-        self.assertIn('meta_cancer_type.txt', record.filename_)
+        self.assertIn('columns', record.getMessage())
+
+
+    def test_cancer_type_missing_value(self):
+        """Test when a new cancer type has a blank required field."""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_cancertype_blank_color_col.txt',
+                                    validateData.CancerTypeValidator)
+        # expecting an error about the missing value
+        self.assertEqual(len(record_list), 1)
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.column_number, 4)
+
+    def test_cancer_type_matching_portal(self):
+        """Test when an existing cancer type is defined exactly as known."""
+        record_list = self.validate('data_cancertype_confirming_existing.txt',
+                                    validateData.CancerTypeValidator)
+        # expecting only the two info messages about the file being validated
+        self.assertEqual(len(record_list), 2)
+        for record in record_list:
+            self.assertEqual(record.levelno, logging.INFO)
+
+    def test_cancer_type_disagreeing_with_portal(self):
+        """Test when an existing cancer type is redefined by a study."""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_cancertype_redefining.txt',
+                                    validateData.CancerTypeValidator)
+        # expecting an error message about the cancer type file
+        self.assertEqual(len(record_list), 1)
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.column_number, 2)
         self.assertEqual(record.cause, 'Breast Cancer')
 
     def test_cancer_type_defined_twice(self):
@@ -321,10 +337,8 @@ class CancerTypeValidationTestCase(LogBufferTestCase):
         this validation just fails as it never makes sense to do this.
         """
         self.logger.setLevel(logging.ERROR)
-        validateData.process_metadata_files(
-            'test_data/study_metacancertype_lung_twice',
-            self.logger, hugo_entrez_map)
-        record_list = self.get_log_records()
+        record_list = self.validate('data_cancertype_lung_twice.txt',
+                                    validateData.CancerTypeValidator)
         # expecting an error message about the doubly-defined cancer type
         self.assertEqual(len(record_list), 1)
         record = record_list.pop()
@@ -573,20 +587,46 @@ class SegFileValidationTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record_list[1].line_number, 41)
         self.assertEqual(record_list[1].column_number, 4)
 
-    
-class StableIdValidationTestCase(LogBufferTestCase):
 
-    """Tests to ensure stable_id validation works correctly."""
+class StudyCompositionTestCase(StudyValidationTestCase):
+
+    """Tests for validations of the number of files of certain types."""
+
     def setUp(self):
-        """Initialize environment, hard-coding known cancer types (needed by validateData.process_metadata_files)."""
-        super(StableIdValidationTestCase, self).setUp()
-        self.orig_portal_cancer_types = validateData.PORTAL_CANCER_TYPES
-        validateData.PORTAL_CANCER_TYPES = KNOWN_CANCER_TYPES
+        """Store validateData globals changed by running validate_study()."""
+        super(StudyCompositionTestCase, self).setUp()
+        self.orig_defined_cancer_types = validateData.DEFINED_CANCER_TYPES
+        self.orig_defined_sample_ids = validateData.DEFINED_SAMPLE_IDS
 
     def tearDown(self):
         """Restore the environment to before setUp() was called."""
-        super(StableIdValidationTestCase, self).tearDown()
-        validateData.PORTAL_CANCER_TYPES = self.orig_portal_cancer_types
+        validateData.DEFINED_CANCER_TYPES = self.orig_defined_cancer_types
+        validateData.DEFINED_SAMPLE_IDS = self.orig_defined_sample_ids
+        super(StudyCompositionTestCase, self).tearDown()
+
+    def test_double_cancer_type_file(self):
+        """Check behavior when two cancer type files are supplied."""
+        self.logger.setLevel(logging.ERROR)
+        validateData.validate_study(
+            'test_data/study_cancertype_two_files',
+            self.logger, hugo_entrez_map)
+        record_list = self.get_log_records()
+        # expecting two errors: one about the two cancer type files, and
+        # about the cancer type of the study not having been defined
+        self.assertEqual(len(record_list), 2)
+        for record in record_list:
+            self.assertEqual(record.levelno, logging.ERROR)
+        # compare filenames mentioned in the 1st error independent of ordering
+        filenames_in_cause_string = set(record_list[0].cause.split(', ', 1))
+        self.assertEqual(filenames_in_cause_string,
+                         set(['cancer_type_luad.txt', 'cancer_type_lung.txt']))
+        # assert that the second error complains about the cancer type
+        self.assertEqual(record_list[1].cause, 'luad')
+
+
+class StableIdValidationTestCase(StudyValidationTestCase):
+
+    """Tests to ensure stable_id validation works correctly."""
 
     def test_unnecessary_and_wrong_stable_id(self):
         """Tests to check behavior when stable_id is not needed (warning) or wrong(error)."""
@@ -594,7 +634,6 @@ class StableIdValidationTestCase(LogBufferTestCase):
             'test_data/study_metastableid',
             self.logger, hugo_entrez_map)
         record_list = self.get_log_records()
-        self.print_log_records(record_list)
         # expecting 1 warning, 1 error:
         self.assertEqual(len(record_list), 3)
         # get both into a variable to avoid dependency on order:
@@ -604,12 +643,15 @@ class StableIdValidationTestCase(LogBufferTestCase):
                 errors.append(record.cause)
             else:
                 warning = record
-        
+
         # expecting one error about wrong stable_id in meta_expression:
         self.assertEqual(len(errors), 2)
         self.assertIn('mrna_test', errors)
-        self.assertIn('gistic', errors)        
-        
+        self.assertIn('gistic', errors)
+
         # expecting one warning about stable_id not being recognized in clinical:
         self.assertEqual(warning.levelno, logging.WARNING)
         self.assertEqual(warning.cause, 'stable_id')
+
+if __name__ == '__main__':
+    unittest.main(buffer=True)

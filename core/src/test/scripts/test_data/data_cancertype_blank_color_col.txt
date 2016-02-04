@@ -1,0 +1,1 @@
+luad	Lung Adenocarcinoma	lung,pulmonary,adenocarcinoma of the lung	  	Lung

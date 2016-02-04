@@ -456,6 +456,9 @@ class Validator(object):
 
         Return True if the pair was valid, False otherwise.
         """
+        # set to upper, as both maps contain symbols in upper
+        gene_symbol = gene_symbol.upper()
+        
         if entrez_id is not None:
             if gene_symbol is not None:
                 if gene_symbol not in self.hugo_entrez_map and gene_symbol not in self.aliases_entrez_map:
@@ -471,8 +474,8 @@ class Validator(object):
                                'cause': '(' + gene_symbol + ',' + entrez_id + ')'})
                     return False
             else:
-                if entrez_id not in (itertools.chain(*self.hugo_entrez_map.values()) + 
-                                    itertools.chain(*self.aliases_entrez_map.values())):
+                if entrez_id not in (itertools.chain(*self.hugo_entrez_map.values()) +  
+                                    itertools.chain(*self.aliases_entrez_map.values())): #this should be first check
                     self.logger.error(
                         'Entrez gene id not known to the cBioPortal instance.',
                         extra={'line_number': self.line_number,
@@ -1549,9 +1552,10 @@ def get_symbol_entrez_map(server_url, logger, retrieve_aliases = False):
     # We want to transform this to the format dict: {hugo: entrez, hugo: entrez...
     result_dict = {}
     for data_item in json_data:
-        if data_item[symbol_field_name] not in result_dict:
-            result_dict[data_item[symbol_field_name]] = []
-        result_dict[data_item[symbol_field_name]].append(
+        symbol = data_item[symbol_field_name].upper()
+        if symbol not in result_dict:
+            result_dict[symbol] = []
+        result_dict[symbol].append(
                 data_item['entrez_gene_id'])
     return result_dict
 

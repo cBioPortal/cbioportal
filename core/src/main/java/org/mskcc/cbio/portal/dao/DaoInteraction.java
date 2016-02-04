@@ -107,30 +107,30 @@ public class DaoInteraction {
         if (pmids == null) {
             pmids = NA;
         }
+        
+        if (MySQLbulkLoader.isBulkLoad()) {
+            //  write to the temp file maintained by the MySQLbulkLoader
+            MySQLbulkLoader.getMySQLbulkLoader("interaction").insertRecord(Long.toString(geneA.getEntrezGeneId()),
+                    Long.toString(geneB.getEntrezGeneId()), interactionType,
+                    dataSource, experimentTypes, pmids);
+
+            // return 1 because normal insert will return 1 if no error occurs
+            return 1;
+        }
 
         try {
-            if (MySQLbulkLoader.isBulkLoad()) {
-                //  write to the temp file maintained by the MySQLbulkLoader
-                MySQLbulkLoader.getMySQLbulkLoader("interaction").insertRecord(Long.toString(geneA.getEntrezGeneId()),
-                        Long.toString(geneB.getEntrezGeneId()), interactionType,
-                        dataSource, experimentTypes, pmids);
-
-                // return 1 because normal insert will return 1 if no error occurs
-                return 1;
-            } else {
-                con = JdbcUtil.getDbConnection(DaoInteraction.class);
-                pstmt = con.prepareStatement
-                        ("INSERT INTO interaction (`GENE_A`,`GENE_B`, `INTERACTION_TYPE`," +
-                                "`DATA_SOURCE`, `EXPERIMENT_TYPES`, `PMIDS`)"
-                                + "VALUES (?,?,?,?,?,?)");
-                pstmt.setLong(1, geneA.getEntrezGeneId());
-                pstmt.setLong(2, geneB.getEntrezGeneId());
-                pstmt.setString(3, interactionType);
-                pstmt.setString(4, dataSource);
-                pstmt.setString(5, experimentTypes);
-                pstmt.setString(6, pmids);
-                return pstmt.executeUpdate();
-            }
+            con = JdbcUtil.getDbConnection(DaoInteraction.class);
+            pstmt = con.prepareStatement
+                    ("INSERT INTO interaction (`GENE_A`,`GENE_B`, `INTERACTION_TYPE`," +
+                            "`DATA_SOURCE`, `EXPERIMENT_TYPES`, `PMIDS`)"
+                            + "VALUES (?,?,?,?,?,?)");
+            pstmt.setLong(1, geneA.getEntrezGeneId());
+            pstmt.setLong(2, geneB.getEntrezGeneId());
+            pstmt.setString(3, interactionType);
+            pstmt.setString(4, dataSource);
+            pstmt.setString(5, experimentTypes);
+            pstmt.setString(6, pmids);
+            return pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

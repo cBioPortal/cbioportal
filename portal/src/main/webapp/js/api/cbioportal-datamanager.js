@@ -311,6 +311,17 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			'getSampleIds': function() {
 				return this.sample_ids;
 			},
+			'getPatientIds': function() {
+				var def = new $.Deferred();
+				var patients = {};
+				window.cbioportal_client.getSamples({study_id: [this.getCancerStudyIds()[0]], sample_ids: this.getSampleIds()}).then(function(samples) {
+				    for (var i=0; i<samples.length; i++) {
+					patients[samples[i].patient_id] = true;
+				    }
+				    def.resolve(Object.keys(patients));
+				});
+				return def.promise();
+			},
 			'getCancerStudyIds': function() {
 				return this.cancer_study_ids;
 			},
@@ -390,6 +401,20 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 					def.reject();
 				});
 				return def.promise();
+			},
+			'getPatientClinicalAttributes': function() {
+			    var def = new $.Deferred();
+			    var self = this;
+			    this.getPatientIds().then(function(patient_ids) {
+				window.cbioportal_client.getPatientClinicalAttributes({study_id: [self.getCancerStudyIds()[0]], patient_ids: patient_ids}).then(function(attrs) {
+				    def.resolve(attrs);
+				}).fail(function() {
+				    def.reject();
+				});
+			    }).fail(function() {
+				def.reject();
+			    });
+			    return def.promise();
 			},
 			'getCaseSetId': function() {
 				return case_set_properties.case_set_id;

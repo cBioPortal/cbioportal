@@ -18,9 +18,9 @@ var Oncoprint = (function () {
 	var self = this;
 	var $oncoprint_ctr = $('<span></span>').css({'position':'relative', 'display':'inline-block'}).appendTo(ctr_selector);
 	
-	var $label_canvas = $('<canvas width="150" height="250"></canvas>').css({'display':'inline-block', 'position':'absolute', 'left':'0px', 'top':'0px'});
-	var $cell_div = $('<div>').css({'width':width, 'height':'250', 'overflow-x':'scroll', 'overflow-y':'hidden', 'display':'inline-block', 'position':'absolute', 'left':'150px', 'top':'0px'});
-	var $cell_canvas = $('<canvas width="'+width+'" height="250"></canvas>').css({'position':'absolute', 'top':'0px', 'left':'0px'});
+	var $label_canvas = $('<canvas width="150" height="250"></canvas>').css({'display':'inline-block', 'position':'absolute', 'left':'0px', 'top':'0px'}).addClass("noselect");
+	var $cell_div = $('<div>').css({'width':width, 'height':'250', 'overflow-x':'scroll', 'overflow-y':'hidden', 'display':'inline-block', 'position':'absolute', 'left':'150px', 'top':'0px'}).addClass("noselect");
+	var $cell_canvas = $('<canvas width="'+width+'" height="250"></canvas>').css({'position':'absolute', 'top':'0px', 'left':'0px'}).addClass("noselect");
 	var $dummy_scroll_div = $('<div>').css({'width':'20000', 'position':'absolute', 'top':'0', 'left':'0px', 'height':'1px'});
 	
 	$label_canvas.appendTo($oncoprint_ctr);
@@ -78,6 +78,7 @@ var Oncoprint = (function () {
 	    return o;
 	});
 	
+	this.suppressRendering();
 	this.model.addTracks(params_list);
 	// Update views
 	this.cell_view.addTracks(this.model, track_ids);
@@ -86,6 +87,7 @@ var Oncoprint = (function () {
 	if (this.keep_sorted) {
 	    this.sort();
 	}
+	this.releaseRendering();
 	resizeContainer(this);
 	return track_ids;
     }
@@ -103,7 +105,7 @@ var Oncoprint = (function () {
 	resizeContainer(this);
     }
 
-    Oncoprint.prototype.zoomToFitHorz = function(ids) {
+    Oncoprint.prototype.getZoomToFitHorz = function(ids) {
 	var width_to_fit_in;
 	if (typeof ids === 'undefined') {
 	    width_to_fit_in = this.cell_view.getWidth(this.model, true);
@@ -116,11 +118,14 @@ var Oncoprint = (function () {
 	    width_to_fit_in = ((furthest_right_id + 3) * (this.model.getCellWidth(true) + this.model.getCellPadding(true)));
 	}
 	var zoom = Math.min(1, this.cell_view.visible_area_width / width_to_fit_in);
-	this.setHorzZoom(zoom);
 	return zoom;
     }
     Oncoprint.prototype.getHorzZoom = function () {
 	return this.model.getHorzZoom();
+    }
+    
+    Oncoprint.prototype.getMinZoom = function() {
+	return this.model.getMinZoom();
     }
 
     Oncoprint.prototype.setHorzZoom = function (z) {
@@ -393,6 +398,7 @@ function ifndef(x, val) {
 }
 
 var OncoprintModel = (function () {
+    var MIN_ZOOM = 0.00001;
     function OncoprintModel(init_cell_padding, init_cell_padding_on,
 	    init_horz_zoom, init_vert_zoom, 
 	    init_cell_width, init_track_group_padding) {
@@ -444,13 +450,18 @@ var OncoprintModel = (function () {
 	return this.horz_zoom;
     }
 
+    OncoprintModel.prototype.getMinZoom = function() {
+	return MIN_ZOOM;
+    }
+    
     OncoprintModel.prototype.setHorzZoom = function (z) {
-	if (z <= 1 && z >= 0) {
+	var min_zoom = this.getMinZoom();
+	if (z <= 1 && z >= min_zoom) {
 	    this.horz_zoom = z;
 	} else if (z > 1) {
 	    this.horz_zoom = 1;
-	} else if (z < 0) {
-	    this.horz_zoom = 0;
+	} else if (z < min_zoom) {
+	    this.horz_zoom = min_zoom;
 	}
 	return this.horz_zoom;
     }
@@ -944,7 +955,7 @@ var NA_SHAPES = [
     {
 	'type': 'rectangle',
 	'fill': 'rgba(238, 238, 238, 1)',
-	'z': '0',
+	'z': 0,
     },
     {
 	'type': 'line',
@@ -952,8 +963,9 @@ var NA_SHAPES = [
 	'y1': '0%',
 	'x2': '100%',
 	'y2': '100%',
-	'stroke': 'rgba(85, 85, 85, 1)',
+	'stroke': 'rgba(85, 85, 85, 0.7)',
 	'stroke-width': '1',
+	'z':'1',
     },
 ];
 var NA_STRING = "na";
@@ -1144,12 +1156,12 @@ var RuleSet = (function () {
 	 * - legend_label
 	 * - exclude_from_legend
 	 */
-	this.rule_map = {};
 	this.rule_set_id = getRuleSetId();
-	this.z_map = {};
 	this.legend_label = params.legend_label;
 	this.exclude_from_legend = params.exclude_from_legend;
 	this.recently_used_rule_ids = {};
+	this.rules_with_id = [];
+	
     }
 
     RuleSet.prototype.getLegendLabel = function () {
@@ -1169,25 +1181,33 @@ var RuleSet = (function () {
 
     RuleSet.prototype.addRule = function (params) {
 	var rule_id = getRuleId();
-	var z = (typeof params.z === "undefined" ? rule_id : params.z);
-	this.rule_map[rule_id] = new Rule(params);
-	this.z_map[rule_id] = parseFloat(z);
+	this.rules_with_id.push({id: rule_id, rule: new Rule(params)});
 	return rule_id;
     }
-
+    
     RuleSet.prototype.removeRule = function (rule_id) {
-	delete this.rule_map[rule_id];
+	var index = -1;
+	for (var i=0; i<this.rules_with_id.length; i++) {
+	    if (this.rules_with_id[i].id === rule_id) {
+		index = i;
+		break;
+	    }
+	}
+	if (index > -1) {
+	    this.rules_with_id.splice(index, 1);
+	}
+	delete this.recently_used_rule_ids[rule_id];
     }
 
-    RuleSet.prototype.getRule = function (rule_id) {
-	return this.rule_map[rule_id];
-    }
-
-    RuleSet.prototype.getRules = function () {
-	var self = this;
-	return Object.keys(this.rule_map).map(function (rule_id) {
-	    return {id: rule_id, rule: self.getRule(rule_id)};
-	});
+    RuleSet.prototype.getRuleWithId = function (rule_id) {
+	var ret = null;
+	for (var i=0; i<this.rules_with_id.length; i++) {
+	    if (this.rules_with_id[i].id === rule_id) {
+		ret = this.rules_with_id[i];
+		break;
+	    }
+	}
+	return ret;
     }
 
     RuleSet.prototype.isExcludedFromLegend = function () {
@@ -1210,38 +1230,160 @@ var RuleSet = (function () {
 		});
     }
 
+    RuleSet.prototype.applyRulesToDatum = function (rules, datum, cell_width, cell_height) {
+	var concrete_shapes = [];
+	var rules_len = rules.length;
+	for (var j = 0; j < rules_len; j++) {
+	    var rule_concrete_shapes =
+		    rules[j].rule.apply(
+		    datum, cell_width, cell_height);
+	    if (rule_concrete_shapes.length > 0) {
+		this.markRecentlyUsedRule(rules[j].id);
+	    }
+	    concrete_shapes = concrete_shapes.concat(
+		    rule_concrete_shapes);
+	}
+	return concrete_shapes.sort(function (shapeA, shapeB) {
+	    if (parseFloat(shapeA.z) < parseFloat(shapeB.z)) {
+		return -1;
+	    } else if (parseFloat(shapeA.z) > parseFloat(shapeB.z)) {
+		return 1;
+	    } else {
+		return 0;
+	    }
+	});
+    }
     RuleSet.prototype.apply = function (data, cell_width, cell_height) {
 	// Returns a list of lists of concrete shapes, in the same order as data
 	this.clearRecentlyUsedRules();
 
-	var rules = this.getRules();
-	var rules_len = rules.length;
-	var self = this;
+	var ret = [];
+	for (var i=0; i<data.length; i++) {
+	    var rules = this.getRulesWithId(data[i]);
+	    ret.push(this.applyRulesToDatum(rules, data[i], cell_width, cell_height));
+	}
+	return ret;
+    }
+    
+    return RuleSet;
+})();
 
-	return data.map(function (d) {
-	    var concrete_shapes = [];
-	    for (var j = 0; j < rules_len; j++) {
-		var rule_concrete_shapes =
-			rules[j].rule.getConcreteShapes(
-			d, cell_width, cell_height);
-		if (rule_concrete_shapes.length > 0) {
-		    self.markRecentlyUsedRule(rules[j].id);
-		}
-		concrete_shapes = concrete_shapes.concat(
-			rule_concrete_shapes);
-	    }
-	    return concrete_shapes.sort(function(shapeA, shapeB) {
-		if (parseFloat(shapeA.z) < parseFloat(shapeB.z)) {
-		    return -1;
-		} else if (parseFloat(shapeA.z) > parseFloat(shapeB.z)) {
-		    return 1;
-		} else {
-		    return 0;
-		}
-	    });
+var LookupRuleSet = (function() {
+    function LookupRuleSet(params) {
+	RuleSet.call(this, params);
+	this.lookup_map_by_key_and_value = {};
+	this.lookup_map_by_key = {};
+	this.universal_rules = [];
+	
+	this.rule_id_to_condition = {};
+	
+	this.addRule(NA_STRING, true, {
+	    shapes: NA_SHAPES,
+	    legend_label: NA_LABEL,
+	    exclude_from_legend: false
 	});
     }
-    return RuleSet;
+    LookupRuleSet.prototype = Object.create(RuleSet.prototype);
+
+    LookupRuleSet.prototype.getRulesWithId = function (datum) {
+	var ret = [];
+	ret = ret.concat(this.universal_rules);
+	for (var key in datum) {
+	    if (typeof datum[key] !== 'undefined') {
+		var key_rule = this.lookup_map_by_key[key];
+		if (typeof key_rule !== 'undefined') {
+		    ret.push(key_rule);
+		}
+		var key_and_value_rule = (this.lookup_map_by_key_and_value[key] && this.lookup_map_by_key_and_value[key][datum[key]]) || undefined;
+		if (typeof key_and_value_rule !== 'undefined') {
+		    ret.push(key_and_value_rule);
+		}
+	    }
+	}
+	return ret;
+    }
+    
+    LookupRuleSet.prototype.addRule = function(condition_key, condition_value, params) {
+	var rule_id = RuleSet.prototype.addRule.call(this, params);
+
+	if (condition_key === null) {
+	    this.universal_rules.push(this.getRuleWithId(rule_id));
+	} else {
+	    if (condition_value === null) {
+		this.lookup_map_by_key[condition_key] = this.getRuleWithId(rule_id);
+	    } else {
+		this.lookup_map_by_key_and_value[condition_key] = this.lookup_map_by_key_and_value[condition_key] || {};
+		this.lookup_map_by_key_and_value[condition_key][condition_value] = this.getRuleWithId(rule_id);
+	    }
+	}
+	this.rule_id_to_condition[rule_id] = {key: condition_key, value: condition_value};
+	return rule_id;
+    }
+    
+    LookupRuleSet.prototype.removeRule = function(rule_id) {
+	RuleSet.prototype.removeRule.call(this, rule_id);
+
+	var condition = this.rule_id_to_condition[rule_id];
+	if (condition.key === null) {
+	    var index = -1;
+	    for (var i=0; i<this.universal_rules.length; i++) {
+		if (this.universal_rules[i].id === rule_id) {
+		    index = i;
+		    break;
+		}
+	    }
+	    if (index > -1) {
+		this.universal_rules.splice(index, 1);
+	    }
+	} else {
+	    if (condition.value === null) {
+		delete this.lookup_map_by_key[condition.key];
+	    } else {
+		delete this.lookup_map_by_key_and_value[condition.key][condition.value];
+	    }
+	}
+	delete this.rule_id_to_condition[rule_id];
+    }
+    return LookupRuleSet;
+})();
+
+var ConditionRuleSet = (function() {
+    function ConditionRuleSet(params) {
+	RuleSet.call(this, params);
+	this.rule_id_to_condition = {};
+	
+	this.addRule(function (d) {
+		return d[NA_STRING] === true;
+	    },
+	    { shapes: NA_SHAPES,
+	    legend_label: NA_LABEL,
+	    exclude_from_legend: false
+	    });
+    }
+    ConditionRuleSet.prototype = Object.create(RuleSet.prototype);
+    
+    ConditionRuleSet.prototype.getRulesWithId = function (datum) {
+	var ret = [];
+	for (var i=0; i<this.rules_with_id.length; i++) {
+	    if (this.rule_id_to_condition[this.rules_with_id[i].id](datum)) {
+		ret.push(this.rules_with_id[i]);
+	    }
+	}
+	return ret;
+    }
+    
+    ConditionRuleSet.prototype.addRule = function(condition, params) {
+	var rule_id = RuleSet.prototype.addRule.call(this, params);
+	this.rule_id_to_condition[rule_id] = condition;
+	return rule_id;
+    }
+    
+    ConditionRuleSet.prototype.removeRule = function(rule_id) {
+	RuleSet.prototype.removeRule.call(this, rule_id);
+	delete this.rule_id_to_condition(rule_id);
+    }
+    
+    return ConditionRuleSet;
 })();
 
 var CategoricalRuleSet = (function () {
@@ -1259,7 +1401,7 @@ var CategoricalRuleSet = (function () {
 	 * - category_key
 	 * - categoryToColor
 	 */
-	RuleSet.call(this, params);
+	LookupRuleSet.call(this, params);
 	this.category_key = params.category_key;
 	this.category_to_color = ifndef(params.category_to_color, {});
 	for (var category in this.category_to_color) {
@@ -1267,22 +1409,11 @@ var CategoricalRuleSet = (function () {
 		addCategoryRule(this, category, this.category_to_color[category]);
 	    }
 	}
-	this.addRule({
-	    condition: function (d) {
-		return d[params.category_key] === NA_STRING;
-	    },
-	    shapes: NA_SHAPES,
-	    legend_label: NA_LABEL,
-	    exclude_from_legend: false
-	});
     }
-    CategoricalRuleSet.prototype = Object.create(RuleSet.prototype);
+    CategoricalRuleSet.prototype = Object.create(LookupRuleSet.prototype);
 
     var addCategoryRule = function (ruleset, category, color) {
 	var rule_params = {
-	    condition: function (d) {
-		return d[ruleset.category_key] === category;
-	    },
 	    shapes: [{
 		    type: 'rectangle',
 		    fill: color,
@@ -1290,12 +1421,15 @@ var CategoricalRuleSet = (function () {
 	    legend_label: category,
 	    exclude_from_legend: false
 	};
-	ruleset.addRule(rule_params);
+	ruleset.addRule(ruleset.category_key, category, rule_params);
     };
 
     CategoricalRuleSet.prototype.apply = function (data, cell_width, cell_height) {
 	// First ensure there is a color for all categories
 	for (var i = 0, data_len = data.length; i < data_len; i++) {
+	    if (data[i][NA_STRING]) {
+		continue;
+	    }
 	    var category = data[i][this.category_key];
 	    if (!this.category_to_color.hasOwnProperty(category)) {
 		var color = colors.pop();
@@ -1304,7 +1438,7 @@ var CategoricalRuleSet = (function () {
 	    }
 	}
 	// Then propagate the call up
-	return RuleSet.prototype.apply.call(this, data, cell_width, cell_height);
+	return LookupRuleSet.prototype.apply.call(this, data, cell_width, cell_height);
     };
 
     return CategoricalRuleSet;
@@ -1316,19 +1450,10 @@ var LinearInterpRuleSet = (function () {
 	 * - value_key
 	 * - value_range
 	 */
-	RuleSet.call(this, params);
+	ConditionRuleSet.call(this, params);
 	this.value_key = params.value_key;
 	this.value_range = params.value_range;
 	this.inferred_value_range;
-
-	this.addRule({
-	    condition: function (d) {
-		return isNaN(d[params.value_key]);
-	    },
-	    shapes: NA_SHAPES,
-	    legend_label: NA_LABEL,
-	    exclude_from_legend: false
-	});
 
 	this.makeInterpFn = function () {
 	    var range = getEffectiveValueRange(this);
@@ -1344,10 +1469,10 @@ var LinearInterpRuleSet = (function () {
 	    };
 	};
     }
-    LinearInterpRuleSet.prototype = Object.create(RuleSet.prototype);
+    LinearInterpRuleSet.prototype = Object.create(ConditionRuleSet.prototype);
 
     var getEffectiveValueRange = function (ruleset) {
-	var ret = [ruleset.value_range[0], ruleset.value_range[1]];
+	var ret = (ruleset.value_range && [ruleset.value_range[0], ruleset.value_range[1]]) || [undefined, undefined];
 	if (typeof ret[0] === "undefined") {
 	    ret[0] = ruleset.inferred_value_range[0];
 	}
@@ -1363,14 +1488,23 @@ var LinearInterpRuleSet = (function () {
 	var value_max = Number.NEGATIVE_INFINITY;
 	for (var i = 0, datalen = data.length; i < datalen; i++) {
 	    var d = data[i];
+	    if (isNaN(d[this.value_key])) {
+		continue;
+	    }
 	    value_min = Math.min(value_min, d[this.value_key]);
 	    value_max = Math.max(value_max, d[this.value_key]);
+	}
+	if (value_min === Number.POSITIVE_INFINITY) {
+	    value_min = 0;
+	}
+	if (value_max === Number.NEGATIVE_INFINITY) {
+	    value_max = 0;
 	}
 	this.inferred_value_range = [value_min, value_max];
 	this.updateLinearRules();
 
 	// Then propagate the call up
-	return RuleSet.prototype.apply.call(this, data, cell_width, cell_height);
+	return ConditionRuleSet.prototype.apply.call(this, data, cell_width, cell_height);
     };
 
     LinearInterpRuleSet.prototype.updateLinearRules = function () {
@@ -1410,10 +1544,7 @@ var GradientRuleSet = (function () {
 		return [c, color_end[i]];
 	    });
 	})(this);
-	console.log(this.color_range);
 	this.gradient_rule;
-	this.updateLinearRules();
-
     }
     GradientRuleSet.prototype = Object.create(LinearInterpRuleSet.prototype);
 
@@ -1424,11 +1555,10 @@ var GradientRuleSet = (function () {
 	var interpFn = this.makeInterpFn();
 	var value_key = this.value_key;
 	var color_range = this.color_range;
-	this.gradient_rule = this.addRule({
-	    condition: function (d) {
-		return !isNaN(d[value_key]);
+	this.gradient_rule = this.addRule(function (d) {
+		return d[NA_STRING] !== true;
 	    },
-	    shapes: [{
+	    {shapes: [{
 		    type: 'rectangle',
 		    fill: function (d) {
 			var t = interpFn(d[value_key]);
@@ -1450,8 +1580,7 @@ var BarRuleSet = (function () {
     function BarRuleSet(params) {
 	LinearInterpRuleSet.call(this, params);
 	this.bar_rule;
-	this.fill = params.fill || 'rgba(0,0,255,1)';
-	this.updateLinearRules();
+	this.fill = params.fill || 'rgba(179,141,155,1)';
     }
     BarRuleSet.prototype = Object.create(LinearInterpRuleSet.prototype);
 
@@ -1461,11 +1590,10 @@ var BarRuleSet = (function () {
 	}
 	var interpFn = this.makeInterpFn();
 	var value_key = this.value_key;
-	this.bar_rule = this.addRule({
-	    condition: function (d) {
-		return !isNaN(d[value_key]);
+	this.bar_rule = this.addRule(function (d) {
+		return d[NA_STRING] !== true;
 	    },
-	    shapes: [{
+	    {shapes: [{
 		    type: 'rectangle',
 		    y: function (d) {
 			var t = interpFn(d[value_key]);
@@ -1476,8 +1604,6 @@ var BarRuleSet = (function () {
 			return t * 100 + "%";
 		    },
 		    fill: this.fill,
-		    'stroke-width': 1,
-		    stroke: 'rgba(0,255,0,1)'
 		}],
 	    exclude_from_legend: false
 	});
@@ -1491,36 +1617,18 @@ var GeneticAlterationRuleSet = (function () {
 	/* params:
 	 * - rule_params
 	 */
-	RuleSet.call(this, params);
-	this.addRule({
-	    condition: function (d) {
-		return d.hasOwnProperty(NA_STRING);
-	    },
-	    shapes: NA_SHAPES,
-	    legend_label: NA_LABEL,
-	    exclude_from_legend: false
-	});
+	LookupRuleSet.call(this, params);
 	(function addRules(self) {
 	    var rule_params = params.rule_params;
 	    for (var key in rule_params) {
 		if (rule_params.hasOwnProperty(key)) {
 		    var key_rule_params = rule_params[key];
 		    if (key === '*') {
-			self.addRule(rule_params['*']);
+			self.addRule(null, null, rule_params['*']);
 		    } else {
 			for (var value in key_rule_params) {
 			    if (key_rule_params.hasOwnProperty(value)) {
-				var condition = (function(k,v) {
-				    return (v === '*' ?
-					function (d) {
-					    return (typeof d[k] !== 'undefined');
-					} :
-					function (d) {
-					    return d[k] === v;
-					});
-				    })(key, value);
-				self.addRule(shallowExtend(key_rule_params[value],
-						{'condition': condition}));
+				self.addRule(key, (value === '*' ? null : value), key_rule_params[value]);
 			    }
 			}
 		    }
@@ -1528,16 +1636,13 @@ var GeneticAlterationRuleSet = (function () {
 	    }
 	})(this);
     }
-    GeneticAlterationRuleSet.prototype = Object.create(RuleSet.prototype);
+    GeneticAlterationRuleSet.prototype = Object.create(LookupRuleSet.prototype);
 
     return GeneticAlterationRuleSet;
 })();
 
 var Rule = (function () {
     function Rule(params) {
-	this.condition = params.condition || function (d) {
-	    return true;
-	};
 	this.shapes = params.shapes.map(function(shape){ 
 	    if (shape.type === 'rectangle') {
 		return new Shape.Rectangle(shape);
@@ -1556,13 +1661,9 @@ var Rule = (function () {
     Rule.prototype.getLegendConfig = function() {
 	return this.legend_config;
     }
-    Rule.prototype.getConcreteShapes = function (d, cell_width, cell_height) {
+    Rule.prototype.apply = function (d, cell_width, cell_height) {
 	// Gets concrete shapes (i.e. computed
-	// real values from percentages) 
-	// or returns empty list if the rule condition is not met.
-	if (!this.condition(d)) {
-	    return [];
-	}
+	// real values from percentages)
 	var concrete_shapes = [];
 	for (var i = 0, shapes_len = this.shapes.length; i < shapes_len; i++) {
 	    concrete_shapes.push(this.shapes[i].getComputedParams(d, cell_width, cell_height));
@@ -1621,7 +1722,7 @@ var Shape = (function() {
     };
     function Shape(params) {
 	this.params = params;
-	this.marked_params = {};
+	this.params_with_type = {};
 	this.completeWithDefaults();
 	this.markParameterTypes();
     }
@@ -1638,26 +1739,31 @@ var Shape = (function() {
 	    var param_name = parameters[i];
 	    var param_val = this.params[param_name];
 	    if (typeof param_val === 'function') {
-		this.marked_params[param_name] = {'type':'function', 'value':param_val};
+		this.params_with_type[param_name] = {'type':'function', 'value':param_val};
 	    } else {
-		this.marked_params[param_name] = {'type':'value', 'value': param_val};
+		this.params_with_type[param_name] = {'type':'value', 'value': param_val};
 	    }
 	}
     }
     Shape.prototype.getComputedParams = function(d, base_width, base_height) {
 	var computed_params = {};
-	var param_names = Object.keys(this.marked_params);
+	var param_names = Object.keys(this.params_with_type);
 	var dimensions = [base_width, base_height];
 	for (var i=0; i<param_names.length; i++) {
 	    var param_name = param_names[i];
-	    var param_val_map = this.marked_params[param_name];
+	    var param_val_map = this.params_with_type[param_name];
 	    var param_val = param_val_map.value;
 	    if (param_name !== 'type') {
 		if (param_val_map.type === 'function') {
 		    param_val = param_val(d);
 		}
 		if (param_val[param_val.length-1] === '%') {
-		    param_val = parseFloat(param_val) / 100;
+		    // check a couple of commonly-used special cases to avoid slower parseFloat 
+		    if (param_val === '100%') {
+			param_val = 1;
+		    } else {
+			param_val = parseFloat(param_val) / 100;
+		    }
 		    param_val *= dimensions[parameter_name_to_dimension_index[param_name]];
 		}
 	    }
@@ -1855,6 +1961,8 @@ module.exports = OncoprintSVGCellView;
 },{}],7:[function(require,module,exports){
 var gl_matrix = require('gl-matrix');
 
+// TODO: antialiasing
+
 var getCanvasContext = function ($canvas) {
     try {
 	var canvas = $canvas[0];
@@ -1869,6 +1977,7 @@ var getCanvasContext = function ($canvas) {
 	ctx.blendEquation(ctx.FUNC_ADD);
 	ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE_MINUS_SRC_ALPHA);
 	ctx.depthMask(false);
+	
 	return ctx;
     } catch (e) {
 	return null;
@@ -2184,7 +2293,45 @@ var OncoprintWebGLCellView = (function () {
 
 		    addVertexColor(vertex_color_array, shape.fill, 3 * 8);
 		} else if (shape.type === "line") {
-		    // TODO: implement line
+		    // For simplicity of dealing with webGL we'll implement lines as thin triangle pairs
+		    var x1 = parseFloat(shape.x1) + offset_x;
+		    var x2 = parseFloat(shape.x2) + offset_x;
+		    var y1 = parseFloat(shape.y1);
+		    var y2 = parseFloat(shape.y2);
+		    
+		    if (x1 !== x2) {
+			// WLOG make x1,y1 the one on the left
+			if (Math.min(x1, x2) === x2) {
+			    var tmpx1 = x1;
+			    var tmpy1 = y1;
+			    x1 = x2;
+			    y1 = y2;
+			    x2 = tmpx1;
+			    y2 = tmpy1;
+			}
+		    }
+		    
+		    var perpendicular_vector = [y2 - y1, x1 - x2];
+		    var perpendicular_vector_length = Math.sqrt(perpendicular_vector[0]*perpendicular_vector[0] + perpendicular_vector[1]*perpendicular_vector[1]);
+		    var unit_perp_vector = [perpendicular_vector[0]/perpendicular_vector_length, perpendicular_vector[1]/perpendicular_vector_length];
+		    
+		    var half_stroke_width = parseFloat(shape['stroke-width'])/2;
+		    var direction1 = [unit_perp_vector[0]*half_stroke_width, unit_perp_vector[1]*half_stroke_width];
+		    var direction2 = [direction1[0]*-1, direction1[1]*-1];
+		    var A = [x1 + direction1[0], y1 + direction1[1]];
+		    var B = [x1 + direction2[0], y1 + direction2[1]];
+		    var C = [x2 + direction1[0], y2 + direction1[1]];
+		    var D = [x2 + direction2[0], y2 + direction2[1]];
+		    
+		    vertex_position_array.push(A[0], A[1], j);
+		    vertex_position_array.push(B[0], B[1], j);
+		    vertex_position_array.push(C[0], C[1], j);
+		    
+		    vertex_position_array.push(C[0], C[1], j);
+		    vertex_position_array.push(D[0], D[1], j);
+		    vertex_position_array.push(B[0], B[1], j);
+		    
+		    addVertexColor(vertex_color_array, shape.stroke, 3*2);
 		}
 	    }
 	}

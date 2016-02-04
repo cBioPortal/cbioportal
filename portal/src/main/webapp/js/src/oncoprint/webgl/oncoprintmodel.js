@@ -3,6 +3,7 @@ function ifndef(x, val) {
 }
 
 var OncoprintModel = (function () {
+    var MIN_ZOOM = 0.00001;
     function OncoprintModel(init_cell_padding, init_cell_padding_on,
 	    init_horz_zoom, init_vert_zoom, 
 	    init_cell_width, init_track_group_padding) {
@@ -54,13 +55,18 @@ var OncoprintModel = (function () {
 	return this.horz_zoom;
     }
 
+    OncoprintModel.prototype.getMinZoom = function() {
+	return MIN_ZOOM;
+    }
+    
     OncoprintModel.prototype.setHorzZoom = function (z) {
-	if (z <= 1 && z >= 0) {
+	var min_zoom = this.getMinZoom();
+	if (z <= 1 && z >= min_zoom) {
 	    this.horz_zoom = z;
 	} else if (z > 1) {
 	    this.horz_zoom = 1;
-	} else if (z < 0) {
-	    this.horz_zoom = 0;
+	} else if (z < min_zoom) {
+	    this.horz_zoom = min_zoom;
 	}
 	return this.horz_zoom;
     }

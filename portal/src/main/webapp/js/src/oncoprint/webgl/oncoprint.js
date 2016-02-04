@@ -17,9 +17,9 @@ var Oncoprint = (function () {
 	var self = this;
 	var $oncoprint_ctr = $('<span></span>').css({'position':'relative', 'display':'inline-block'}).appendTo(ctr_selector);
 	
-	var $label_canvas = $('<canvas width="150" height="250"></canvas>').css({'display':'inline-block', 'position':'absolute', 'left':'0px', 'top':'0px'});
-	var $cell_div = $('<div>').css({'width':width, 'height':'250', 'overflow-x':'scroll', 'overflow-y':'hidden', 'display':'inline-block', 'position':'absolute', 'left':'150px', 'top':'0px'});
-	var $cell_canvas = $('<canvas width="'+width+'" height="250"></canvas>').css({'position':'absolute', 'top':'0px', 'left':'0px'});
+	var $label_canvas = $('<canvas width="150" height="250"></canvas>').css({'display':'inline-block', 'position':'absolute', 'left':'0px', 'top':'0px'}).addClass("noselect");
+	var $cell_div = $('<div>').css({'width':width, 'height':'250', 'overflow-x':'scroll', 'overflow-y':'hidden', 'display':'inline-block', 'position':'absolute', 'left':'150px', 'top':'0px'}).addClass("noselect");
+	var $cell_canvas = $('<canvas width="'+width+'" height="250"></canvas>').css({'position':'absolute', 'top':'0px', 'left':'0px'}).addClass("noselect");
 	var $dummy_scroll_div = $('<div>').css({'width':'20000', 'position':'absolute', 'top':'0', 'left':'0px', 'height':'1px'});
 	
 	$label_canvas.appendTo($oncoprint_ctr);
@@ -77,6 +77,7 @@ var Oncoprint = (function () {
 	    return o;
 	});
 	
+	this.suppressRendering();
 	this.model.addTracks(params_list);
 	// Update views
 	this.cell_view.addTracks(this.model, track_ids);
@@ -85,6 +86,7 @@ var Oncoprint = (function () {
 	if (this.keep_sorted) {
 	    this.sort();
 	}
+	this.releaseRendering();
 	resizeContainer(this);
 	return track_ids;
     }
@@ -102,7 +104,7 @@ var Oncoprint = (function () {
 	resizeContainer(this);
     }
 
-    Oncoprint.prototype.zoomToFitHorz = function(ids) {
+    Oncoprint.prototype.getZoomToFitHorz = function(ids) {
 	var width_to_fit_in;
 	if (typeof ids === 'undefined') {
 	    width_to_fit_in = this.cell_view.getWidth(this.model, true);
@@ -115,11 +117,14 @@ var Oncoprint = (function () {
 	    width_to_fit_in = ((furthest_right_id + 3) * (this.model.getCellWidth(true) + this.model.getCellPadding(true)));
 	}
 	var zoom = Math.min(1, this.cell_view.visible_area_width / width_to_fit_in);
-	this.setHorzZoom(zoom);
 	return zoom;
     }
     Oncoprint.prototype.getHorzZoom = function () {
 	return this.model.getHorzZoom();
+    }
+    
+    Oncoprint.prototype.getMinZoom = function() {
+	return this.model.getMinZoom();
     }
 
     Oncoprint.prototype.setHorzZoom = function (z) {

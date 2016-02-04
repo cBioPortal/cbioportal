@@ -1,5 +1,7 @@
 var gl_matrix = require('gl-matrix');
 
+// TODO: antialiasing
+
 var getCanvasContext = function ($canvas) {
     try {
 	var canvas = $canvas[0];
@@ -14,6 +16,7 @@ var getCanvasContext = function ($canvas) {
 	ctx.blendEquation(ctx.FUNC_ADD);
 	ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE_MINUS_SRC_ALPHA);
 	ctx.depthMask(false);
+	
 	return ctx;
     } catch (e) {
 	return null;
@@ -329,7 +332,45 @@ var OncoprintWebGLCellView = (function () {
 
 		    addVertexColor(vertex_color_array, shape.fill, 3 * 8);
 		} else if (shape.type === "line") {
-		    // TODO: implement line
+		    // For simplicity of dealing with webGL we'll implement lines as thin triangle pairs
+		    var x1 = parseFloat(shape.x1) + offset_x;
+		    var x2 = parseFloat(shape.x2) + offset_x;
+		    var y1 = parseFloat(shape.y1);
+		    var y2 = parseFloat(shape.y2);
+		    
+		    if (x1 !== x2) {
+			// WLOG make x1,y1 the one on the left
+			if (Math.min(x1, x2) === x2) {
+			    var tmpx1 = x1;
+			    var tmpy1 = y1;
+			    x1 = x2;
+			    y1 = y2;
+			    x2 = tmpx1;
+			    y2 = tmpy1;
+			}
+		    }
+		    
+		    var perpendicular_vector = [y2 - y1, x1 - x2];
+		    var perpendicular_vector_length = Math.sqrt(perpendicular_vector[0]*perpendicular_vector[0] + perpendicular_vector[1]*perpendicular_vector[1]);
+		    var unit_perp_vector = [perpendicular_vector[0]/perpendicular_vector_length, perpendicular_vector[1]/perpendicular_vector_length];
+		    
+		    var half_stroke_width = parseFloat(shape['stroke-width'])/2;
+		    var direction1 = [unit_perp_vector[0]*half_stroke_width, unit_perp_vector[1]*half_stroke_width];
+		    var direction2 = [direction1[0]*-1, direction1[1]*-1];
+		    var A = [x1 + direction1[0], y1 + direction1[1]];
+		    var B = [x1 + direction2[0], y1 + direction2[1]];
+		    var C = [x2 + direction1[0], y2 + direction1[1]];
+		    var D = [x2 + direction2[0], y2 + direction2[1]];
+		    
+		    vertex_position_array.push(A[0], A[1], j);
+		    vertex_position_array.push(B[0], B[1], j);
+		    vertex_position_array.push(C[0], C[1], j);
+		    
+		    vertex_position_array.push(C[0], C[1], j);
+		    vertex_position_array.push(D[0], D[1], j);
+		    vertex_position_array.push(B[0], B[1], j);
+		    
+		    addVertexColor(vertex_color_array, shape.stroke, 3*2);
 		}
 	    }
 	}

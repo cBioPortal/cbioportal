@@ -29,7 +29,7 @@ var Shape = (function() {
     };
     function Shape(params) {
 	this.params = params;
-	this.marked_params = {};
+	this.params_with_type = {};
 	this.completeWithDefaults();
 	this.markParameterTypes();
     }
@@ -46,26 +46,31 @@ var Shape = (function() {
 	    var param_name = parameters[i];
 	    var param_val = this.params[param_name];
 	    if (typeof param_val === 'function') {
-		this.marked_params[param_name] = {'type':'function', 'value':param_val};
+		this.params_with_type[param_name] = {'type':'function', 'value':param_val};
 	    } else {
-		this.marked_params[param_name] = {'type':'value', 'value': param_val};
+		this.params_with_type[param_name] = {'type':'value', 'value': param_val};
 	    }
 	}
     }
     Shape.prototype.getComputedParams = function(d, base_width, base_height) {
 	var computed_params = {};
-	var param_names = Object.keys(this.marked_params);
+	var param_names = Object.keys(this.params_with_type);
 	var dimensions = [base_width, base_height];
 	for (var i=0; i<param_names.length; i++) {
 	    var param_name = param_names[i];
-	    var param_val_map = this.marked_params[param_name];
+	    var param_val_map = this.params_with_type[param_name];
 	    var param_val = param_val_map.value;
 	    if (param_name !== 'type') {
 		if (param_val_map.type === 'function') {
 		    param_val = param_val(d);
 		}
 		if (param_val[param_val.length-1] === '%') {
-		    param_val = parseFloat(param_val) / 100;
+		    // check a couple of commonly-used special cases to avoid slower parseFloat 
+		    if (param_val === '100%') {
+			param_val = 1;
+		    } else {
+			param_val = parseFloat(param_val) / 100;
+		    }
 		    param_val *= dimensions[parameter_name_to_dimension_index[param_name]];
 		}
 	    }

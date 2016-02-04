@@ -1,3 +1,5 @@
+#!/usr/bin/env python2.7
+
 '''
 Copyright (c) 2016 The Hyve B.V.
 This code is licensed under the GNU Affero General Public License (AGPL),
@@ -108,7 +110,7 @@ class ValidateDataSystemTester(unittest.TestCase):
         exit_status = validateData.main_validate(args)
         self.assertEquals(1, exit_status)
         # TODO - set logger in main_validate and read out buffer here to assert on nr of errors
-        
+
     def test_normal_samples_list_in_maf(self):
         '''
         For mutations MAF files there is a column called "Matched_Norm_Sample_Barcode". 
@@ -125,4 +127,7 @@ class ValidateDataSystemTester(unittest.TestCase):
         exit_status = validateData.main_validate(args)
         # should fail because of errors with invalid Matched_Norm_Sample_Barcode values
         self.assertEquals(1, exit_status)
-        
+
+
+if __name__ == '__main__':
+    unittest.main(buffer=True)

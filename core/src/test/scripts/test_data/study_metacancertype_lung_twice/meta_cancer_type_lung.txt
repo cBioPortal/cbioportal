@@ -1,5 +1,0 @@
-type_of_cancer: luad
-name: Lung Adenocarcinoma
-clinical_trial_keywords: lung,pulmonary,adenocarcinoma of the lung
-dedicated_color: Gainsboro
-short_name: Lung

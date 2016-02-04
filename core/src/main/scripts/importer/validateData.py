@@ -162,7 +162,7 @@ class Validator(object):
     REQUIRED_HEADERS = []
     REQUIRE_COLUMN_ORDER = True
 
-    def __init__(self, study_dir, meta_dict, logger, hugo_entrez_map):
+    def __init__(self, study_dir, meta_dict, logger, hugo_entrez_map, aliases_entrez_map):
         """Initialize a validator for a particular data file.
 
         :param study_dir: the path at which the study files can be found
@@ -177,6 +177,7 @@ class Validator(object):
         self.cols = []
         self.numCols = 0
         self.hugo_entrez_map = hugo_entrez_map
+        self.aliases_entrez_map = aliases_entrez_map
         self.newlines = ('',)
         self.studyId = ''
         self.headerWritten = False
@@ -457,40 +458,48 @@ class Validator(object):
         """
         if entrez_id is not None:
             if gene_symbol is not None:
-                if gene_symbol not in self.hugo_entrez_map:
+                if gene_symbol not in self.hugo_entrez_map and gene_symbol not in self.aliases_entrez_map:
                     self.logger.error(
                         'Gene symbol not known to the cBioPortal instance',
                         extra={'line_number': self.line_number,
                                'cause': gene_symbol})
                     return False
-                elif entrez_id not in self.hugo_entrez_map[gene_symbol]:
+                elif entrez_id not in (self.hugo_entrez_map.get(gene_symbol, []) + self.aliases_entrez_map.get(gene_symbol, [])):
                     self.logger.error(
                         'Gene symbol does not match given Entrez id',
                         extra={'line_number': self.line_number,
                                'cause': '(' + gene_symbol + ',' + entrez_id + ')'})
                     return False
             else:
-                if entrez_id not in itertools.chain(
-                        *self.hugo_entrez_map.values()):
+                if entrez_id not in (itertools.chain(*self.hugo_entrez_map.values()) + 
+                                    itertools.chain(*self.aliases_entrez_map.values())):
                     self.logger.error(
                         'Entrez gene id not known to the cBioPortal instance.',
                         extra={'line_number': self.line_number,
                                'cause': entrez_id})
                     return False
         elif gene_symbol is not None:
-            if gene_symbol not in self.hugo_entrez_map:
+            if gene_symbol not in self.hugo_entrez_map and gene_symbol not in self.aliases_entrez_map:
                 self.logger.error(
                     'Gene symbol not known to the cBioPortal instance.',
                     extra={'line_number': self.line_number,
                            'cause': gene_symbol})
                 return False
-            elif len(self.hugo_entrez_map[gene_symbol]) > 1:
+            elif len(self.hugo_entrez_map.get(gene_symbol, [])) > 1:
                 self.logger.error(
                     'Gene symbol maps to multiple Entrez ids (%s), '
                     'please specify which one you mean',
                     '/'.join(self.hugo_entrez_map[gene_symbol]),
                     extra={'line_number': self.line_number,
                           'cause': gene_symbol})
+            elif len(self.aliases_entrez_map.get(gene_symbol, [])) > 1:
+                # TODO - maybe this should be warning instead? Depends on how loader deals with this
+                self.logger.error(
+                    'Gene alias maps to multiple Entrez ids (%s), '
+                    'please specify which one you mean',
+                    '/'.join(self.hugo_entrez_map[gene_symbol]),
+                    extra={'line_number': self.line_number,
+                          'cause': gene_symbol})    
         else:
             self.logger.error(
                 'No Entrez id or gene symbol provided for gene',
@@ -1378,7 +1387,7 @@ class CancerTypeValidator(Validator):
 # Functions
 
 
-def process_metadata_files(directory, logger, hugo_entrez_map):
+def process_metadata_files(directory, logger, hugo_entrez_map, aliases_entrez_map):
 
     """Parse the meta files in a directory and create data file validators.
 
@@ -1440,7 +1449,7 @@ def process_metadata_files(directory, logger, hugo_entrez_map):
         if 'data_filename' in meta and 'data_filename' in cbioportal_common.META_FIELD_MAP[meta_file_type]:
             validator_class = globals()[VALIDATOR_IDS[meta_file_type]]
             validator = validator_class(directory, meta, logger,
-                                        hugo_entrez_map)
+                                        hugo_entrez_map, aliases_entrez_map)
             validators_by_type[meta_file_type].append(validator)
         else:
             validators_by_type[meta_file_type].append(None)
@@ -1523,19 +1532,26 @@ def request_from_portal_api(service_url, logger, id_field=None):
         return transformed_dict
 
 
-def get_hugo_entrez_map(server_url, logger):
+def get_symbol_entrez_map(server_url, logger, retrieve_aliases = False):
     """
     Returns a dict with hugo symbols and respective entrezIds, e.g.:
     # dict: {'LOC105377913': ['105377913'], 'LOC105377912': ['105377912'],  hugo: [entrez], hugo: [entrez, entrez]...
     """
-    json_data = request_from_portal_api(server_url + '/api/genes', logger)
+    if retrieve_aliases: 
+        service = '/api/genesaliases'
+        symbol_field_name = 'gene_alias'
+    else:
+        service = '/api/genes'
+        symbol_field_name = 'hugo_gene_symbol'
+    # get data
+    json_data = request_from_portal_api(server_url + service, logger)
     # json_data is list of dicts, each entry containing e.g. dict: {'hugo_gene_symbol': 'SRXN1', 'entrez_gene_id': '140809'}
     # We want to transform this to the format dict: {hugo: entrez, hugo: entrez...
     result_dict = {}
     for data_item in json_data:
-        if data_item['hugo_gene_symbol'] not in result_dict:
-            result_dict[data_item['hugo_gene_symbol']] = []
-        result_dict[data_item['hugo_gene_symbol']].append(
+        if data_item[symbol_field_name] not in result_dict:
+            result_dict[data_item[symbol_field_name]] = []
+        result_dict[data_item[symbol_field_name]].append(
                 data_item['entrez_gene_id'])
     return result_dict
 
@@ -1559,12 +1575,13 @@ def interface(args=None):
     return parser
 
 
-def validate_study(study_dir, logger, hugo_entrez_map):
+def validate_study(study_dir, logger, hugo_entrez_map, aliases_entrez_map):
 
     """Validate the study in study_dir, logging messages to the logger.
 
-    The argument hugo_entrez_map should be a dict listing the canonical
-    gene symbols and corresponding Entrez identifiers defined in the portal.
+    The arguments hugo_entrez_map and aliases_entrez_map should be dicts listing the
+    gene symbols and corresponding Entrez identifiers defined in the portal api/genes and 
+    api/genesaliases services.
     """
 
     global DEFINED_CANCER_TYPES
@@ -1573,7 +1590,7 @@ def validate_study(study_dir, logger, hugo_entrez_map):
     # walk over the meta files in the dir and get properties of the study
     (validators_by_meta_type,
      study_cancer_type,
-     study_id) = process_metadata_files(study_dir, logger, hugo_entrez_map)
+     study_id) = process_metadata_files(study_dir, logger, hugo_entrez_map, aliases_entrez_map)
 
     # first parse and validate cancer type files
     studydefined_cancer_types = []
@@ -1714,9 +1731,10 @@ def main_validate(args):
     # retrieve clinical attributes defined in the portal
     ClinicalValidator.request_attrs(SERVER_URL, logger)
     # Entrez values for Hugo symbols in the portal
-    hugo_entrez_map = get_hugo_entrez_map(SERVER_URL, logger)
+    hugo_entrez_map = get_symbol_entrez_map(SERVER_URL, logger)
+    aliases_entrez_map = get_symbol_entrez_map(SERVER_URL, logger, True)
 
-    validate_study(study_dir, logger, hugo_entrez_map)
+    validate_study(study_dir, logger, hugo_entrez_map, aliases_entrez_map)
 
     if html_handler is not None:
         collapsing_html_handler.flush()

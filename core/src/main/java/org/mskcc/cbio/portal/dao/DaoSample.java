@@ -196,17 +196,11 @@ public class DaoSample {
         return new ArrayList<Sample>(samples.values());
     }
 
-    public static Sample getSampleByCancerStudyAndSampleId(int cancerStudyId, String stableSampleId) { return getSampleByCancerStudyAndSampleId(cancerStudyId, stableSampleId, null); }
-
-
-    public static Sample getSampleByCancerStudyAndSampleId(int cancerStudyId, String stableSampleId, ProgressMonitor pMonitor)
+    public static Sample getSampleByCancerStudyAndSampleId(int cancerStudyId, String stableSampleId)
     {
         Map<String, Sample> samples = byCancerStudyIdAndStableSampleId.get(cancerStudyId);
         if (samples==null) {
-            if (pMonitor != null)
-                pMonitor.logWarning("Couldn't find sample "+stableSampleId+" in study "+cancerStudyId);
-            else
-                System.err.println("Couldn't find sample "+stableSampleId+" in study "+cancerStudyId);
+            ProgressMonitor.logWarning("Couldn't find sample "+stableSampleId+" in study "+cancerStudyId);
             return null;
         }
         

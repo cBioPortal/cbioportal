@@ -51,17 +51,14 @@ public class ImportFusionData
 {
 	public static final String FUSION = "Fusion";
 
-	private ProgressMonitor pMonitor;
 	private File fusionFile;
 	private int geneticProfileId;
 
 	public ImportFusionData(File fusionFile,
-			int geneticProfileId,
-			ProgressMonitor pMonitor)
+			int geneticProfileId)
 	{
 		this.fusionFile = fusionFile;
 		this.geneticProfileId = geneticProfileId;
-		this.pMonitor = pMonitor;
 	}
 
 	public void importData() throws IOException, DaoException
@@ -91,11 +88,8 @@ public class ImportFusionData
         GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileById(geneticProfileId);
 		while ((line = buf.readLine()) != null)
 		{
-			if( pMonitor != null)
-			{
-				pMonitor.incrementCurValue();
-				ConsoleUtil.showProgress(pMonitor);
-			}
+            ProgressMonitor.incrementCurValue();
+            ConsoleUtil.showProgress();
 
 			if( !line.startsWith("#") && line.trim().length() > 0)
 			{
@@ -106,8 +100,7 @@ public class ImportFusionData
                 ImportDataUtil.addPatients(new String[] { StableIdUtil.getPatientId(barCode) }, geneticProfileId);
                 ImportDataUtil.addSamples(new String[] { StableIdUtil.getSampleId(barCode) }, geneticProfileId);
 		        Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(geneticProfile.getCancerStudyId(),
-                                                                            StableIdUtil.getSampleId(barCode),
-                                                                            pMonitor);
+                                                                            StableIdUtil.getSampleId(barCode));
 		        if (sample == null) {
 		        	assert StableIdUtil.isNormal(barCode);
 		        	line = buf.readLine();
@@ -130,12 +123,12 @@ public class ImportFusionData
 
 				if (gene == null) {
 					// If Entrez Gene ID Fails, try Symbol.
-					gene = daoGene.getNonAmbiguousGene(geneSymbol, null, pMonitor);
+					gene = daoGene.getNonAmbiguousGene(geneSymbol, null);
 				}
 
 				if(gene == null)
 				{
-					pMonitor.logWarning("Gene not found:  " + geneSymbol + " ["
+					ProgressMonitor.logWarning("Gene not found:  " + geneSymbol + " ["
 					                    + entrezGeneId + "]. Ignoring it "
 					                    + "and all fusion data associated with it!");
 				}

@@ -53,14 +53,26 @@ public class ProgressMonitor {
     private TreeSet<String> warnings = new TreeSet<>();
     private HashMap<String, Integer> warningCounts = new HashMap<>();
 
+    private static final ProgressMonitor progressMonitor = new ProgressMonitor();
+
+    /**
+     * Private ctor for enforcing singleton
+     */
+    private ProgressMonitor() {
+        
+    }
+    
+    private static boolean isRunningOnServer() {
+        return ServerDetector.getServerId() != null;
+    } 
     /**
      * Sets Console Flag.
      * When set to true Progress Monitor Messages are displayed to System.out.
      *
      * @param consoleFlag Console Mode Flag.
      */
-    public void setConsoleMode(boolean consoleFlag) {
-        this.consoleMode = consoleFlag;
+    public static void setConsoleMode(boolean consoleFlag) {
+        progressMonitor.consoleMode = consoleFlag;
     }
 
     /**
@@ -68,8 +80,8 @@ public class ProgressMonitor {
      *
      * @return Boolean Flag.
      */
-    public boolean isConsoleMode() {
-        return this.consoleMode;
+    public static boolean isConsoleMode() {
+        return !isRunningOnServer() && progressMonitor.consoleMode;
     }
 
     /**
@@ -77,11 +89,11 @@ public class ProgressMonitor {
      *
      * @return double value.
      */
-    public double getPercentComplete() {
-        if (curValue == 0) {
+    public static double getPercentComplete() {
+        if (progressMonitor.curValue == 0) {
             return 0.0;
         } else {
-            return (curValue / (double) maxValue);
+            return (progressMonitor.curValue / (double) progressMonitor.maxValue);
         }
     }
 
@@ -90,8 +102,8 @@ public class ProgressMonitor {
      *
      * @return max value.
      */
-    public int getMaxValue() {
-        return maxValue;
+    public static int getMaxValue() {
+        return progressMonitor.maxValue;
     }
 
     /**
@@ -99,9 +111,9 @@ public class ProgressMonitor {
      *
      * @param maxValue Max Value.
      */
-    public void setMaxValue(int maxValue) {
-        this.maxValue = maxValue;
-        this.curValue = 0;
+    public static void setMaxValue(int maxValue) {
+        progressMonitor.maxValue = maxValue;
+        progressMonitor.curValue = 0;
     }
 
     /**
@@ -109,15 +121,15 @@ public class ProgressMonitor {
      *
      * @return Current Value.
      */
-    public int getCurValue() {
-        return curValue;
+    public static int getCurValue() {
+        return progressMonitor.curValue;
     }
 
     /**
      * Increments the Current Value.
      */
-    public void incrementCurValue() {
-        curValue++;
+    public static void incrementCurValue() {
+        progressMonitor.curValue++;
     }
 
     /**
@@ -125,8 +137,8 @@ public class ProgressMonitor {
      *
      * @param curValue Current Value.
      */
-    public void setCurValue(int curValue) {
-        this.curValue = curValue;
+    public static void setCurValue(int curValue) {
+        progressMonitor.curValue = curValue;
     }
 
     /**
@@ -134,8 +146,8 @@ public class ProgressMonitor {
      *
      * @return Current Task Message.
      */
-    public String getCurrentMessage() {
-        return currentMessage;
+    public static String getCurrentMessage() {
+        return progressMonitor.currentMessage;
     }
 
     /**
@@ -143,8 +155,10 @@ public class ProgressMonitor {
      *
      * @return String Object.
      */
-    public String getLog() {
-        return log.toString();
+    public static String getLog() {
+        if (isRunningOnServer())
+            return null;
+        return progressMonitor.log.toString();
     }
 
     /**
@@ -152,28 +166,34 @@ public class ProgressMonitor {
      *
      * @param currentMessage Current Task Message.
      */
-    public void setCurrentMessage(String currentMessage) {
-        this.currentMessage = currentMessage;
-        this.log.append(currentMessage + "\n");
-        if (consoleMode) {
+    public static void setCurrentMessage(String currentMessage) {
+        if (isRunningOnServer())
+            return;
+        progressMonitor.currentMessage = currentMessage;
+        progressMonitor.log.append(currentMessage + "\n");
+        if (progressMonitor.consoleMode) {
             System.err.println(currentMessage);
         }
     }
 
-    public void logWarning(String warning) {
+    public static void logWarning(String warning) {
         logger.log(Level.WARN, warning);
-        warnings.add(warning);
-        if (!warningCounts.containsKey(warning)) {
-            warningCounts.put(warning, 0);
+        if (isRunningOnServer())
+            return;
+        progressMonitor.warnings.add(warning);
+        if (!progressMonitor.warningCounts.containsKey(warning)) {
+            progressMonitor.warningCounts.put(warning, 0);
         }
-        warningCounts.put(warning, warningCounts.get(warning)+1);
+        progressMonitor.warningCounts.put(warning, progressMonitor.warningCounts.get(warning)+1);
     }
 
-    public ArrayList<String> getWarnings() {
+    public static ArrayList<String> getWarnings() {
         ArrayList<String> ret = new ArrayList<>();
-        for(Iterator<String> sit = warnings.iterator(); sit.hasNext(); ) {
+        if (isRunningOnServer())
+            return ret;
+        for(Iterator<String> sit = progressMonitor.warnings.iterator(); sit.hasNext(); ) {
             String w = sit.next();
-            ret.add(w + "; "+warningCounts.get(w)+"x");
+            ret.add(w + "; "+progressMonitor.warningCounts.get(w)+"x");
         }
         return ret;
     }

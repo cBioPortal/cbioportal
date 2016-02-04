@@ -339,16 +339,7 @@ public class DaoGeneOptimized {
      * @param chr chromosome
      * @return a gene that can be non-ambiguously determined, or null if cannot.
      */
-    public CanonicalGene getNonAmbiguousGene(String geneId, String chr) { return getNonAmbiguousGene(geneId, chr, null); }
-
-        /**
-         * Look for gene that can be non-ambiguously determined.
-         * @param geneId an Entrez Gene ID or HUGO symbol or gene alias
-         * @param chr chromosome
-         * @param pMonitor for import warnings
-         * @return a gene that can be non-ambiguously determined, or null if cannot.
-         */
-    public CanonicalGene getNonAmbiguousGene(String geneId, String chr, ProgressMonitor pMonitor) {
+    public CanonicalGene getNonAmbiguousGene(String geneId, String chr) {
         List<CanonicalGene> genes = guessGene(geneId, chr);
         if (genes.isEmpty()) {
             return null;
@@ -371,10 +362,7 @@ public class DaoGeneOptimized {
         }
         sb.deleteCharAt(sb.length()-1);
         
-        if (pMonitor != null)
-            pMonitor.logWarning(sb.toString());
-        else
-            System.err.println(sb.toString());
+        ProgressMonitor.logWarning(sb.toString());
         return null;
         
     }

@@ -30,7 +30,8 @@ class MetaFileTypes(object):
     CANCER_TYPE = 'meta_cancer_type'
     CLINICAL = 'meta_clinical'
     CNA = 'meta_CNA'
-    LOG2 = 'meta_log2CNA'
+    CNA_LOG2 = 'meta_log2CNA'
+    CNA_CONTINUOUS = 'meta_contCNA'
     SEG = 'meta_segment'
     EXPRESSION = 'meta_expression'
     MUTATION = 'meta_mutations_extended'
@@ -76,7 +77,17 @@ META_FIELD_MAP = {
         'profile_description': True,
         'data_filename': True
     },
-    MetaFileTypes.LOG2: {
+    MetaFileTypes.CNA_LOG2: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'datatype': True,
+        'stable_id': True,
+        'show_profile_in_analysis_tab': True,
+        'profile_name': True,
+        'profile_description': True,
+        'data_filename': True
+    },
+    MetaFileTypes.CNA_CONTINUOUS: {
         'cancer_study_identifier': True,
         'genetic_alteration_type': True,
         'datatype': True,
@@ -164,9 +175,10 @@ IMPORTER_CLASSNAME_BY_META_TYPE = {
     MetaFileTypes.STUDY: IMPORT_STUDY_CLASS,
     MetaFileTypes.CANCER_TYPE: IMPORT_CANCER_TYPE_CLASS,
     MetaFileTypes.CLINICAL: "org.mskcc.cbio.portal.scripts.ImportClinicalData",
-    MetaFileTypes.CNA: "org.mskcc.cbio.portal.scripts.ImportProfileData",
-    # TODO: check if this is correct
-    MetaFileTypes.LOG2: "org.mskcc.cbio.portal.scripts.ImportProfileData",
+    MetaFileTypes.CNA: "org.mskcc.cbio.portal.scripts.ImportProfileData", # ? how will this import data into cna_event? 
+    MetaFileTypes.CNA_LOG2: "org.mskcc.cbio.portal.scripts.ImportProfileData",
+    MetaFileTypes.CNA_CONTINUOUS: "org.mskcc.cbio.portal.scripts.ImportProfileData",
+    # TODO: check if this is correct 
     MetaFileTypes.SEG: "org.mskcc.cbio.portal.scripts.ImportCopyNumberSegmentData",
     MetaFileTypes.EXPRESSION: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.MUTATION: "org.mskcc.cbio.portal.scripts.ImportProfileData",
@@ -373,19 +385,7 @@ class CollapsingLogMessageHandler(logging.handlers.MemoryHandler):
 
 def get_meta_file_type(metaDictionary, logger, filename):
     """
-     Returns one of the metatypes :
-        MetaFileTypes.SEG = 'meta_segment'
-        MetaFileTypes.STUDY = 'meta_study'
-        MetaFileTypes.CANCER_TYPE = 'meta_cancer_type'
-        MetaFileTypes.MUTATION = 'meta_mutations_extended'
-        MetaFileTypes.CNA = 'meta_CNA'
-        MetaFileTypes.CLINICAL = 'meta_clinical'
-        MetaFileTypes.LOG2 = 'meta_log2CNA'
-        MetaFileTypes.EXPRESSION = 'meta_expression'
-        MetaFileTypes.FUSION = 'meta_fusions'
-        MetaFileTypes.METHYLATION = 'meta_methylation'
-        MetaFileTypes.RPPA = 'meta_rppa'
-        MetaFileTypes.TIMELINE = 'meta_timeline'
+     Returns one of the metatypes found in MetaFileTypes
     """
     # GENETIC_ALTERATION_TYPE    DATATYPE    meta
     alt_type_datatype_to_meta = {
@@ -399,9 +399,8 @@ def get_meta_file_type(metaDictionary, logger, filename):
         ("PROTEIN_LEVEL", "Z-SCORE"): MetaFileTypes.RPPA,
         # cna
         ("COPY_NUMBER_ALTERATION", "DISCRETE"): MetaFileTypes.CNA,
-        #("COPY_NUMBER_ALTERATION", "CONTINUOUS"): MetaFileTypes.CNA, 
-        # log2cna
-        ("COPY_NUMBER_ALTERATION", "LOG2-VALUE"): MetaFileTypes.LOG2,
+        ("COPY_NUMBER_ALTERATION", "CONTINUOUS"): MetaFileTypes.CNA_CONTINUOUS, 
+        ("COPY_NUMBER_ALTERATION", "LOG2-VALUE"): MetaFileTypes.CNA_LOG2,
         # expression
         ("MRNA_EXPRESSION", "CONTINUOUS"): MetaFileTypes.EXPRESSION,
         ("MRNA_EXPRESSION", "Z-SCORE"): MetaFileTypes.EXPRESSION,
@@ -412,6 +411,10 @@ def get_meta_file_type(metaDictionary, logger, filename):
         ("COPY_NUMBER_ALTERATION", "SEG"): MetaFileTypes.SEG,
         ("METHYLATION", "CONTINUOUS"): MetaFileTypes.METHYLATION,
         ("FUSION", "FUSION"): MetaFileTypes.FUSION
+        # TODO
+        # GISTIC_GENES_AMP, datatype: Q-VALUE'
+        # GISTIC_GENES_DEL, datatype: Q-VALUE'
+        # MUTSIG, datatype: Q-VALUE'
     }
     result = None
     if 'genetic_alteration_type' in metaDictionary and 'datatype' in metaDictionary:

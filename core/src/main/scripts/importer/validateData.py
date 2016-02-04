@@ -43,11 +43,12 @@ PORTAL_CANCER_TYPES = None
 
 VALIDATOR_IDS = {
     cbioportal_common.MetaFileTypes.CNA:'CNAValidator',
+    cbioportal_common.MetaFileTypes.CNA_LOG2:'Log2Validator',
+    cbioportal_common.MetaFileTypes.CNA_CONTINUOUS:'ContinuousValuesValidator',
     cbioportal_common.MetaFileTypes.MUTATION:'MutationsExtendedValidator',
     cbioportal_common.MetaFileTypes.CANCER_TYPE:'CancerTypeValidator',
     cbioportal_common.MetaFileTypes.CLINICAL:'ClinicalValidator',
     cbioportal_common.MetaFileTypes.SEG:'SegValidator',
-    cbioportal_common.MetaFileTypes.LOG2:'Log2Validator',
     cbioportal_common.MetaFileTypes.EXPRESSION:'ExpressionValidator',
     cbioportal_common.MetaFileTypes.FUSION:'FusionValidator',
     cbioportal_common.MetaFileTypes.METHYLATION:'MethylationValidator',
@@ -1188,6 +1189,13 @@ class SegValidator(Validator):
 
 
 class Log2Validator(GenewiseFileValidator):
+
+    def checkValue(self, value, col_index):
+        """Check a value in a sample column."""
+        # TODO check these values
+        pass
+
+class ContinuousValuesValidator(GenewiseFileValidator):
 
     def checkValue(self, value, col_index):
         """Check a value in a sample column."""

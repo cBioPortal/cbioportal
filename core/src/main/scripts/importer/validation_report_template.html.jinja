@@ -203,10 +203,10 @@
 
     <div class="jumbotron">
       <!--  alert alert-danger, alert-success or alert-warning -->
-      <div class="alert {% if max_level == 'ERROR' %}alert-danger{% elif max_level == 'WARNING' %}alert-warning{% else %}alert-success{% endif %}">
+      <div class="alert {% if max_level in ['ERROR','CRITICAL'] %}alert-danger{% elif max_level == 'WARNING' %}alert-warning{% else %}alert-success{% endif %}">
         Validation status:
         <strong>
-        {% if max_level == 'ERROR' %}
+        {% if max_level in ['ERROR','CRITICAL'] %}
           Failed
         {% elif max_level == 'WARNING' %}
           Please check
@@ -219,7 +219,7 @@
       <div>
       {% macro generate_group_html(filename, file_record_list) %}
         {% set file_level_list = file_record_list|map(attribute='levelname')|list %}
-        {% if 'ERROR' in file_level_list %}
+        {% if 'ERROR' in file_level_list or 'CRITICAL' in file_level_list %}
           {% set file_level = 'ERROR' %}
         {% elif 'WARNING' in file_level_list %}
           {% set file_level = 'WARNING' %}

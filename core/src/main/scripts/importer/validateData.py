@@ -673,6 +673,7 @@ class MutationsExtendedValidator(Validator):
 
     """Sub-class mutations_extended validator."""
 
+    # TODO - maybe this should comply to https://wiki.nci.nih.gov/display/TCGA/Mutation+Annotation+Format+%28MAF%29+Specification ? 
     REQUIRED_HEADERS = [
         'Tumor_Sample_Barcode',
         'Hugo_Symbol', # Required to initialize the Mutation Mapper tabs

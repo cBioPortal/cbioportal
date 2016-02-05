@@ -41,7 +41,28 @@
             tissueImageLoaded = true;
         }
     }
-    $("#link-tissue-images").click(loadImages);
+    
+    $(document).ready( function() {
+    	//whether this tab has already been initialized or not:
+    	var tab_init = false;
+    	//function that will listen to tab changes and init this one when applicable:
+    	function tabsUpdate() {
+	        if ($("#tissue-images-div").is(":visible")) {
+		    	if (tab_init === false) {
+		    		loadImages();
+		            tab_init = true;
+		            console.log("tab_images tab initialized");
+		        }
+	    	}
+    	}
+        //this is for the scenario where the tab is open by default (as part of URL >> #tab_name at the end of URL):
+    	window.setTimeout(tabsUpdate,1);
+        //this is for the scenario where the user navigates to this tab:
+        $("#patient-tabs").bind("tabsactivate", function(event, ui) {
+        	tabsUpdate();
+        });
+    });        
+    
 </script>
 
 <div id="tissue-images-div"><img src="images/ajax-loader.gif"/></div>

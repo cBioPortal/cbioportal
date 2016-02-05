@@ -161,6 +161,7 @@ class Validator(object):
 
     REQUIRED_HEADERS = []
     REQUIRE_COLUMN_ORDER = True
+    ALLOW_BLANKS = False
 
     def __init__(self, study_dir, meta_dict, logger, hugo_entrez_map, aliases_entrez_map):
         """Initialize a validator for a particular data file.
@@ -338,12 +339,13 @@ class Validator(object):
                               self.numCols, line_col_count,
                               extra={'line_number': self.line_number})
 
-        for col_index, col_name in enumerate(self.cols):
-            if col_index < line_col_count and data[col_index] == '':
-                self.logger.error("Blank cell found in column '%s'",
-                                  col_name,
-                                  extra={'line_number': self.line_number,
-                                         'column_number': col_index + 1})
+        if not self.ALLOW_BLANKS:
+            for col_index, col_name in enumerate(self.cols):
+                if col_index < line_col_count and data[col_index] == '':
+                    self.logger.error("Blank cell found in column '%s'",
+                                      col_name,
+                                      extra={'line_number': self.line_number,
+                                             'column_number': col_index + 1})
 
     def _checkUnorderedRequiredColumns(self):
         """Check for missing column headers, independent of their position.
@@ -489,20 +491,25 @@ class Validator(object):
                            'cause': gene_symbol})
                 return False
             elif len(self.hugo_entrez_map.get(gene_symbol, [])) > 1:
+                # nb: this should actually never occur, see also https://github.com/cBioPortal/cbioportal/issues/799
                 self.logger.error(
                     'Gene symbol maps to multiple Entrez ids (%s), '
                     'please specify which one you mean',
                     '/'.join(self.hugo_entrez_map[gene_symbol]),
                     extra={'line_number': self.line_number,
                           'cause': gene_symbol})
-            elif len(self.aliases_entrez_map.get(gene_symbol, [])) > 1:
+                return False
+            elif len(self.hugo_entrez_map.get(gene_symbol, [])) == 0 and len(self.aliases_entrez_map.get(gene_symbol, [])) > 1:
+                # If gene_symbol was only in aliases_entrez_map, then hugo_entrez_map.get(gene_symbol) will be empty
+                # and we need to check the aliases_entrez_map.
                 # TODO - maybe this should be warning instead? Depends on how loader deals with this
                 self.logger.error(
-                    'Gene alias maps to multiple Entrez ids (%s), '
+                    'Gene alias (%s) maps to multiple Entrez ids (%s), '
                     'please specify which one you mean',
-                    '/'.join(self.hugo_entrez_map[gene_symbol]),
-                    extra={'line_number': self.line_number,
-                          'cause': gene_symbol})    
+                    gene_symbol,
+                    '/'.join(self.aliases_entrez_map[gene_symbol]),
+                    extra={'line_number': self.line_number})
+                return False
         else:
             self.logger.error(
                 'No Entrez id or gene symbol provided for gene',
@@ -668,9 +675,14 @@ class MutationsExtendedValidator(Validator):
 
     REQUIRED_HEADERS = [
         'Tumor_Sample_Barcode',
-        'Amino_Acid_Change'
+        'Hugo_Symbol', # Required to initialize the Mutation Mapper tabs
+        'HGVSp_Short', # Required to initialize the Mutation Diagram
+        'Variant_Type', # Required to initialize the Mutation Diagram
+        'Protein_position', # Required to initialize the 3D viewer
+        'SWISSPROT' # Needed for consistent PDB structure matching.
     ]
     REQUIRE_COLUMN_ORDER = False
+    ALLOW_BLANKS = True
 
     # Used for mapping column names to the corresponding function that does a check on the value.
     # This can be done for other filetypes besides maf - not currently implemented.

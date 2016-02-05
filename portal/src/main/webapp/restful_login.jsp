@@ -30,8 +30,19 @@
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --%>
 
+<%@ page import="org.apache.commons.logging.Log" %>
+<%@ page import="org.apache.commons.logging.LogFactory" %>
+
 <%
+    Log log = LogFactory.getLog(this.getClass());
     request.setAttribute("html_title", "MSK cBioPortal");
+    String userId = (String)session.getAttribute("user_id");
+    if (userId != null) {
+       log.info("restful_login: Query initiated by user: " + userId);
+    }
+    else {
+       log.info("restful_login: Query initiated by unknown user.");
+    }
 %>
 
 <jsp:include page="WEB-INF/jsp/global/header.jsp" flush="true" />

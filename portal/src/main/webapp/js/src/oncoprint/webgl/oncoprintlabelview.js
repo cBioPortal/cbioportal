@@ -77,7 +77,7 @@ var OncoprintLabelView = (function () {
     }
     var renderAllLabels = function(view) {
 	var font_size = view.getFontSize();
-	view.ctx.font = font_size +'px serif';
+	view.ctx.font = 'bold '+font_size +'px serif';
 	view.ctx.clearRect(0,0,view.$canvas[0].width,view.$canvas[0].height);
 	var tracks = view.tracks;
 	for (var i=0; i<tracks.length; i++) {

@@ -3,6 +3,7 @@ var OncoprintSVGCellView = require('./oncoprintsvgcellview.js');
 var OncoprintWebGLCellView = require('./oncoprintwebglcellview.js');
 var OncoprintLabelView = require('./oncoprintlabelview.js');
 var OncoprintRuleSet = require('./oncoprintruleset.js');
+var OncoprintTrackOptionsView = require('./oncoprinttrackoptionsview.js');
 
 var Oncoprint = (function () {
     // this is the controller
@@ -18,12 +19,16 @@ var Oncoprint = (function () {
 	var $oncoprint_ctr = $('<span></span>').css({'position':'relative', 'display':'inline-block'}).appendTo(ctr_selector);
 	
 	var $label_canvas = $('<canvas width="150" height="250"></canvas>').css({'display':'inline-block', 'position':'absolute', 'left':'0px', 'top':'0px'}).addClass("noselect");
-	var $cell_div = $('<div>').css({'width':width, 'height':'250', 'overflow-x':'scroll', 'overflow-y':'hidden', 'display':'inline-block', 'position':'absolute', 'left':'150px', 'top':'0px'}).addClass("noselect");
+	var $track_options_div = $('<div width="50" height="250"></div>').css({'position':'absolute', 'left':'150px', 'top':'0px'}).addClass("noselect");
+	
+	var $cell_div = $('<div>').css({'width':width, 'height':'250', 'overflow-x':'scroll', 'overflow-y':'hidden', 'display':'inline-block', 'position':'absolute', 'left':'200px', 'top':'0px'}).addClass("noselect");
 	var $cell_canvas = $('<canvas width="'+width+'" height="250"></canvas>').css({'position':'absolute', 'top':'0px', 'left':'0px'}).addClass("noselect");
 	var $dummy_scroll_div = $('<div>').css({'width':'20000', 'position':'absolute', 'top':'0', 'left':'0px', 'height':'1px'});
 	
 	$label_canvas.appendTo($oncoprint_ctr);
 	$cell_div.appendTo($oncoprint_ctr);
+	$track_options_div.appendTo($oncoprint_ctr);
+
 	
 	$cell_canvas.appendTo($cell_div);
 	$dummy_scroll_div.appendTo($cell_div);
@@ -35,6 +40,8 @@ var Oncoprint = (function () {
 	// Precisely one of the following should be uncommented
 	// this.cell_view = new OncoprintSVGCellView($svg_dev);
 	this.cell_view = new OncoprintWebGLCellView($cell_div, $cell_canvas, $dummy_scroll_div);
+	
+	this.track_options_view = new OncoprintTrackOptionsView($track_options_div, function(track_id) { self.removeTrack(track_id); });
 
 	this.label_view = new OncoprintLabelView($label_canvas);
 	this.label_view.setDragCallback(function(target_track, new_previous_track) {
@@ -60,6 +67,7 @@ var Oncoprint = (function () {
 	this.model.moveTrack(target_track, new_previous_track);
 	this.cell_view.moveTrack(this.model);
 	this.label_view.moveTrack(this.model);
+	this.track_options_view.moveTrack(this.model);
 	
 	if (this.keep_sorted) {
 	    this.sort();
@@ -82,6 +90,7 @@ var Oncoprint = (function () {
 	// Update views
 	this.cell_view.addTracks(this.model, track_ids);
 	this.label_view.addTracks(this.model, track_ids);
+	this.track_options_view.addTracks(this.model);
 	
 	if (this.keep_sorted) {
 	    this.sort();
@@ -97,6 +106,7 @@ var Oncoprint = (function () {
 	// Update views
 	this.cell_view.removeTrack(this.model, track_id);
 	this.label_view.removeTrack(this.model, track_id);
+	this.track_options_view.removeTrack(this.model, track_id);
 	
 	if (this.keep_sorted) {
 	    this.sort();
@@ -170,6 +180,24 @@ var Oncoprint = (function () {
 	}
     }
 
+    Oncoprint.prototype.setTrackSortDirection = function(track_id, dir) {
+	if (this.model.isTrackSortDirectionChangeable(track_id)) {
+	    this.model.setTrackSortDirection(track_id, dir);
+	    
+	    if (this.keep_sorted) {
+		this.sort();
+	    }
+	}
+	return this.model.getTrackSortDirection(track_id);
+    }
+    
+    Oncoprint.prototype.getTrackSortDirection = function(track_id) {
+	return this.model.getTrackSortDirection(track_id);
+    }
+    
+    Oncoprint.prototype.toggleSortBy = function(track_id) {
+    }
+    
     Oncoprint.prototype.sort = function() {
 	this.model.sort();
 	this.cell_view.sort(this.model);

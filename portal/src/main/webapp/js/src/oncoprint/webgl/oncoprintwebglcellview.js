@@ -398,10 +398,16 @@ var OncoprintWebGLCellView = (function () {
 	return this.ctx !== null;
     }
     OncoprintWebGLCellView.prototype.removeTrack = function (model, track_id) {
-	/*delete this.vertex_position_array[track_id];
+	delete this.identified_shape_list_list[track_id];
+	delete this.vertex_position_array_without_y_offset[track_id];
+	delete this.vertex_position_array[track_id];
 	delete this.vertex_color_array[track_id];
-	computeVertexesAndRenderTracks(this, model);*/
-	throw "removeTrack not implemented";
+	
+	var track_ids = model.getTracks();
+	for (var i=0; i<track_ids.length; i++) {
+	    computeVertexPositionsWithYOffset(this, model, track_ids[i]);
+	}
+	renderAllTracks(this, model);
     }
     OncoprintWebGLCellView.prototype.moveTrack = function (model) {
 	var track_ids = model.getTracks();

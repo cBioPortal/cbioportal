@@ -40,6 +40,8 @@ var OncoprintModel = (function () {
 	this.track_removable = {};
 	this.track_sort_cmp_fn = {};
 	this.track_sort_direction_changeable = {};
+	
+	this.track_sort_direction = {}; // 1: ascending, -1: descending, 0: not
     }
 
     OncoprintModel.prototype.toggleCellPadding = function () {
@@ -99,6 +101,13 @@ var OncoprintModel = (function () {
     }
     OncoprintModel.prototype.getBottomPadding = function() {
 	return this.bottom_padding;
+    }
+    OncoprintModel.prototype.getTrackSortDirection = function(track_id) {
+	return this.track_sort_direction[track_id];
+    }
+    OncoprintModel.prototype.setTrackSortDirection = function(track_id, dir) {
+	// see above for dir options
+	this.track_sort_direction[track_id] = dir;
     }
 
     var computeIdIndex = function(model) {
@@ -203,14 +212,18 @@ var OncoprintModel = (function () {
 	    return d + '';
 	});
 	model.track_removable[track_id] = ifndef(removable, false);
+	
 	model.track_sort_cmp_fn[track_id] = ifndef(sortCmpFn, function (a, b) {
 	    return 0;
 	});
+	
 	model.track_sort_direction_changeable[track_id] = ifndef(sort_direction_changeable, false);
 	model.setTrackData(track_id, ifndef(data, []));
 	
 	model.track_rule_set[track_id] = ifndef(rule_set, undefined);
 
+	model.track_sort_direction[track_id] = 1;
+	
 	target_group = ifndef(target_group, 0);
 	while (target_group >= model.track_groups.length) {
 	    model.track_groups.push([]);
@@ -244,6 +257,7 @@ var OncoprintModel = (function () {
 	delete this.track_removable[track_id];
 	delete this.track_sort_cmp_fn[track_id];
 	delete this.track_sort_direction_changeable[track_id];
+	delete this.track_sort_direction[track_id];
 
 	var containing_track_group = _getContainingTrackGroup(this, track_id, true);
 	if (containing_track_group) {
@@ -338,8 +352,16 @@ var OncoprintModel = (function () {
 	return this.track_group_padding;
     }
 
+    OncoprintModel.prototype.doesTrackHaveOptions = function(track_id) {
+	return this.isTrackRemovable(track_id) || this.isTrackSortDirectionChangeable(track_id);
+    }
+    
     OncoprintModel.prototype.isTrackRemovable = function (track_id) {
 	return this.track_removable[track_id];
+    }
+    
+    OncoprintModel.prototype.isTrackSortDirectionChangeable = function (track_id) {
+	return this.track_sort_direction_changeable[track_id];
     }
 
     OncoprintModel.prototype.getRuleSet = function (track_id) {
@@ -406,6 +428,7 @@ var OncoprintModel = (function () {
 	    var track_id = track_sort_priority[i];
 	    precomputed_comparators[track_id] = new PrecomputedComparator(this.getTrackData(track_id),
 									  this.getTrackSortComparator(track_id),
+									  this.getTrackSortDirection(track_id),
 									  this.getTrackDataIdKey(track_id));
 	}
 	
@@ -431,7 +454,6 @@ var OncoprintModel = (function () {
     OncoprintModel.prototype.setRuleSet = function(track_id, rule_set) {
 	// TODO
     }
-    
     OncoprintModel.prototype.computeDisplayTrackData = function(track_id) {
 	// Visible ids, in the correct order
 	var id_key = this.getTrackDataIdKey(track_id);
@@ -448,14 +470,17 @@ var OncoprintModel = (function () {
 })();
 
 var PrecomputedComparator = (function() {
-    function PrecomputedComparator(list, comparator, element_identifier_key) {
-	var sorted_list = list.sort(comparator);
-	this.change_points = []; // i is a change point iff comp(elt[i], elt[i+1]) < 0
+    function PrecomputedComparator(list, comparator, sort_direction, element_identifier_key) {
+	var directed_comparator = function(a,b) {
+	    return comparator(a,b) * sort_direction;
+	};
+	var sorted_list = list.sort(directed_comparator);
+	this.change_points = []; // i is a change point iff comp(elt[i], elt[i+1]) !== 0
 	for (var i=0; i<sorted_list.length; i++) {
 	    if (i === sorted_list.length - 1) {
 		break;
 	    }
-	    if (comparator(sorted_list[i], sorted_list[i+1]) < 0) {
+	    if (comparator(sorted_list[i], sorted_list[i+1]) !== 0) {
 		this.change_points.push(i);
 	    }
 	}

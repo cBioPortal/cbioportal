@@ -62,6 +62,7 @@
 <script type="text/javascript" src="js/lib/underscore-min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/lib/backbone-min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/lib/d3.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/lib/plotly.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/lib/igv_webstart.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/lib/genomespace.js"></script>
 <script src="https://gsui.genomespace.org/jsui/upload/gsuploadwindow.js" type="text/javascript"></script>
@@ -100,4 +101,3 @@
 <script type="text/javascript" src="js/src/download-data-form-validation.js"></script>
 <script type="text/javascript" src="js/lib/jstree.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/api/cbioportal-client.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript" src="js/src/cross-cancer-plots.js?<%=GlobalProperties.getAppVersion()%>"></script>

@@ -697,7 +697,12 @@ class MutationsExtendedValidator(Validator):
         't_ref_count':'check_t_ref_count',
         'n_alt_count':'check_n_alt_count',
         'n_ref_count':'check_n_ref_count',
-        'HGVSp_Short': 'checkAminoAcidChange'
+        'Tumor_Sample_Barcode': 'checkNotBlank',
+        'Hugo_Symbol': 'checkNotBlank', 
+        'HGVSp_Short': 'checkAminoAcidChange',
+        'Variant_Type': 'checkNotBlank',
+        'Protein_position': 'checkNotBlank', 
+        'SWISSPROT': 'checkNotBlank' 
     }
 
     def __init__(self, *args, **kwargs):
@@ -844,7 +849,18 @@ class MutationsExtendedValidator(Validator):
         """Test whether a string is a valid amino acid change specification."""
         # TODO implement this test, may require bundling the hgvs package:
         # https://pypi.python.org/pypi/hgvs/
+        return self.checkNotBlank(value)
+
+
+    def checkNotBlank(self, value):
+        """Test whether a string is blank."""
+        # TODO implement this test, may require bundling the hgvs package:
+        # https://pypi.python.org/pypi/hgvs/
+        if value is None or value == '':
+            return False
         return True
+            
+
 
 
 class ClinicalValidator(Validator):

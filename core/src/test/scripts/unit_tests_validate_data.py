@@ -9,16 +9,21 @@ version 3, or (at your option) any later version.
 import unittest
 import sys
 import logging.handlers
-
 from importer import cbioportal_common
 from importer import validateData
-
-import hugoEntrezMap
+import json
 
 # globals:
 hugo_mapping_file = 'test_data/Homo_sapiens.gene_info.gz'
 ncbi_file = open(hugo_mapping_file)
-hugo_entrez_map = hugoEntrezMap.parse_ncbi_file(ncbi_file)
+# these two files contain the contents of the /api/genes and /api/genesaliases, respectively:
+with open('test_data/genes.json') as data_file:    
+    hugo_entrez_map = validateData.transform_symbol_entrez_map(json.load(data_file), 'hugo_gene_symbol')
+with open('test_data/genesaliases.json') as data_file:    
+    aliases_entrez_map = validateData.transform_symbol_entrez_map(json.load(data_file), 'gene_alias')
+
+
+
 # hard-code known clinical attributes
 KNOWN_PATIENT_ATTRS = {
     "PATIENT_ID": {"display_name":"Patient Identifier","description":"Identifier to uniquely specify a patient.","datatype":"STRING","is_patient_attribute":"1","priority":"1"},
@@ -157,7 +162,7 @@ class DataFileTestCase(StudyValidationTestCase):
         if extra_meta_fields is not None:
             meta_dict.update(extra_meta_fields)
         validator = validator_class('test_data', meta_dict,
-                                    self.logger, hugo_entrez_map)
+                                    self.logger, hugo_entrez_map, aliases_entrez_map)
         validator.validate()
         return self.get_log_records()
 
@@ -416,8 +421,8 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         for record in record_list:
             self.assertEqual(record.levelno, logging.ERROR)
         # expecting these to be the cause:
-        self.assertEqual(record_list[0].cause, 'xxACAP3')
-        self.assertEqual(record_list[1].cause, 'xxAGRN')
+        self.assertEqual(record_list[0].cause, 'XXACAP3')
+        self.assertEqual(record_list[1].cause, 'XXAGRN')
 
     def test_both_name_and_entrez_but_invalid_entrez(self):
         """Test when a file has both the Hugo name and Entrez ID columns, but entrez is invalid."""
@@ -455,11 +460,13 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         for record in record_list:
             self.assertEqual(record.levelno, logging.ERROR)
         # expecting these to be the cause:
-        self.assertEqual(record_list[0].cause, 'xxATAD3A')
-        self.assertEqual(record_list[1].cause, 'xxATAD3B')
+        self.assertEqual(record_list[0].cause, 'XXATAD3A')
+        self.assertEqual(record_list[1].cause, 'XXATAD3B')
 
     def test_name_only_but_ambiguous(self):
-        """Test when a file has a Hugo name column but none for Entrez IDs, and hugo maps to multiple Entrez ids."""
+        """Test when a file has a Hugo name column but none for Entrez IDs, and hugo maps to multiple Entrez ids.
+        This test is also an indirect test of the aliases functionality as this is now the only place
+        where ambiguity could arise (in gene table Hugo symbol is now unique)"""
         self.logger.setLevel(logging.ERROR)
         record_list = self.validate('data_cna_genecol_presence_hugo_only_ambiguous.txt',
                                     validateData.CNAValidator)
@@ -468,7 +475,7 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         record = record_list.pop()
         self.assertEqual(record.levelno, logging.ERROR)
         # expecting this gene to be the cause
-        self.assertEqual(record.cause, 'COX2')
+        self.assertIn('TRAPPC2P1', record.message)
 
     def test_entrez_only_but_invalid(self):
         """Test when a file has an Entrez ID column but none for Hugo names, and entrez is wrong."""
@@ -624,7 +631,7 @@ class StudyCompositionTestCase(StudyValidationTestCase):
         self.logger.setLevel(logging.ERROR)
         validateData.validate_study(
             'test_data/study_cancertype_two_files',
-            self.logger, hugo_entrez_map)
+            self.logger, hugo_entrez_map, aliases_entrez_map)
         record_list = self.get_log_records()
         # expecting two errors: one about the two cancer type files, and
         # about the cancer type of the study not having been defined
@@ -647,7 +654,7 @@ class StableIdValidationTestCase(StudyValidationTestCase):
         """Tests to check behavior when stable_id is not needed (warning) or wrong(error)."""
         validateData.process_metadata_files(
             'test_data/study_metastableid',
-            self.logger, hugo_entrez_map)
+            self.logger, hugo_entrez_map, aliases_entrez_map)
         record_list = self.get_log_records()
         # expecting 1 warning, 1 error:
         self.assertEqual(len(record_list), 3)
@@ -667,6 +674,9 @@ class StableIdValidationTestCase(StudyValidationTestCase):
         # expecting one warning about stable_id not being recognized in clinical:
         self.assertEqual(warning.levelno, logging.WARNING)
         self.assertEqual(warning.cause, 'stable_id')
+
+
+# TODO - add extra unit tests for the genesaliases scenarios (now only test_name_only_but_ambiguous tests part of this)
 
 if __name__ == '__main__':
     unittest.main(buffer=True)

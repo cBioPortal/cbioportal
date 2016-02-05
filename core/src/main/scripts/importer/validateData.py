@@ -459,7 +459,8 @@ class Validator(object):
         Return True if the pair was valid, False otherwise.
         """
         # set to upper, as both maps contain symbols in upper
-        gene_symbol = gene_symbol.upper()
+        if gene_symbol is not None:
+            gene_symbol = gene_symbol.upper()
         
         if entrez_id is not None:
             if gene_symbol is not None:
@@ -476,8 +477,8 @@ class Validator(object):
                                'cause': '(' + gene_symbol + ',' + entrez_id + ')'})
                     return False
             else:
-                if entrez_id not in (itertools.chain(*self.hugo_entrez_map.values()) +  
-                                    itertools.chain(*self.aliases_entrez_map.values())): #this should be first check
+                if (entrez_id not in itertools.chain(*self.hugo_entrez_map.values()) and  
+                    entrez_id not in itertools.chain(*self.aliases_entrez_map.values())): #this should be first check
                     self.logger.error(
                         'Entrez gene id not known to the cBioPortal instance.',
                         extra={'line_number': self.line_number,
@@ -696,7 +697,7 @@ class MutationsExtendedValidator(Validator):
         't_ref_count':'check_t_ref_count',
         'n_alt_count':'check_n_alt_count',
         'n_ref_count':'check_n_ref_count',
-        'Amino_Acid_Change': 'checkAminoAcidChange'
+        'HGVSp_Short': 'checkAminoAcidChange'
     }
 
     def __init__(self, *args, **kwargs):
@@ -1563,6 +1564,14 @@ def get_symbol_entrez_map(server_url, logger, retrieve_aliases = False):
     json_data = request_from_portal_api(server_url + service, logger)
     # json_data is list of dicts, each entry containing e.g. dict: {'hugo_gene_symbol': 'SRXN1', 'entrez_gene_id': '140809'}
     # We want to transform this to the format dict: {hugo: entrez, hugo: entrez...
+    result_dict = transform_symbol_entrez_map(json_data, symbol_field_name)
+    return result_dict
+
+
+def transform_symbol_entrez_map(json_data, symbol_field_name):
+    """ json_data is list of dicts, each entry containing e.g. dict: {'hugo_gene_symbol': 'SRXN1', 'entrez_gene_id': '140809'}
+    We want to transform this to the format dict: {hugo: entrez, hugo: entrez...
+    """
     result_dict = {}
     for data_item in json_data:
         symbol = data_item[symbol_field_name].upper()

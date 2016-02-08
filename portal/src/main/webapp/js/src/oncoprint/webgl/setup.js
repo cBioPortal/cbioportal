@@ -250,7 +250,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 					'sortCmpFn': numericalSortFn, 
 					'rule_set_params': {'type':'bar', 'value_key': 'attr_val', 'value_range':[0,undefined]}, 
 					'data_id_key':'sample', 'target_group':0,
-					'removable':true, 'sort_direction_changeable':true}]);
+					'removable':true, 'sort_direction_changeable':true, 'init_sort_direction':0}]);
 	    });
 	} else if (attr_id === 'FRACTION_GENOME_ALTERED') {
 	    var data_fetched = new $.Deferred();
@@ -273,7 +273,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		});
 	    }
 	    data_fetched.then(function() {
-		oncoprint.addTracks([{'data': fraction_genome_altered_clinical_data, 'label': 'Fraction Genome Altered', 'sortCmpFn': numericalSortFn, 'rule_set_params': {'type':'bar', 'value_key':'attr_val', 'value_range':[0,1]}, 'data_id_key':'sample', 'removable':true, 'sort_direction_changeable':true}]);
+		oncoprint.addTracks([{'data': fraction_genome_altered_clinical_data, 'label': 'Fraction Genome Altered', 'sortCmpFn': numericalSortFn, 'rule_set_params': {'type':'bar', 'value_key':'attr_val', 'value_range':[0,1]}, 'data_id_key':'sample', 'removable':true, 'sort_direction_changeable':true, 'init_sort_direction':0}]);
 	    });
 	} else {
 	    QuerySession.getSampleClinicalData([attr_id]).then(function(data) {
@@ -286,7 +286,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		    rule_set_params = {'type':'categorical', 'category_key':'attr_val'};
 		    sortCmpFn = stringSortFn;
 		}
-		oncoprint.addTracks([{'data':addBlankData(data), 'label':attr.display_name, 'sortCmpFn':sortCmpFn, 'rule_set_params':rule_set_params, 'data_id_key':'sample','removable':true, 'sort_direction_changeable':true}]);
+		oncoprint.addTracks([{'data':addBlankData(data), 'label':attr.display_name, 'sortCmpFn':sortCmpFn, 'rule_set_params':rule_set_params, 'data_id_key':'sample','removable':true, 'sort_direction_changeable':true, 'init_sort_direction':0}]);
 	    });
 	}
     };
@@ -322,7 +322,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
     (function setUpToolbar() {
 	var unaltered_cases_hidden = false;
 	var zoom = 1.0;
-	var zoom_increment = 0.2;
+	var zoom_discount = 0.7;
 	var cell_padding_on = true;
 	var unaltered_cases_hidden = false;
 
@@ -400,11 +400,11 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    setUpHoverEffect($slider);
 
 	    onClick($(toolbar_selector + ' #oncoprint_zoomout'), function () {
-		$slider[0].value = oncoprint.setHorzZoom(oncoprint.getHorzZoom() - zoom_increment);
+		$slider[0].value = oncoprint.setHorzZoom(oncoprint.getHorzZoom()*zoom_discount);
 		$slider.trigger('change');
 	    });
 	    onClick($(toolbar_selector + ' #oncoprint_zoomin'), function () {
-		$slider[0].value = oncoprint.setHorzZoom(oncoprint.getHorzZoom() + zoom_increment);
+		$slider[0].value = oncoprint.setHorzZoom(oncoprint.getHorzZoom()/zoom_discount);
 		$slider.trigger('change');
 	    });
 

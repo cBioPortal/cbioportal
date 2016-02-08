@@ -1,5 +1,5 @@
 var OncoprintTrackOptionsView = (function() {
-    function OncoprintTrackOptionsView($div, removeCallback) {
+    function OncoprintTrackOptionsView($div, removeCallback, sortChangeCallback) {
 	// removeCallback: function(track_id)
 	var position = $div.css('position');
 	if (position !== 'absolute' && position !=='relative') {
@@ -7,6 +7,8 @@ var OncoprintTrackOptionsView = (function() {
 	}
 	
 	this.removeCallback = removeCallback;
+	this.sortChangeCallback = sortChangeCallback;
+	
 	this.$div = $div;
 	this.img_size;
 	
@@ -66,7 +68,7 @@ var OncoprintTrackOptionsView = (function() {
     };
     
     var renderTrackOptions = function(view, model, track_id) {
-	if (model.isTrackRemovable(track_id) || model.isTrackSortDirectionChangeable(track_id)) {
+	if (model.isTrackRemovable(track_id)) {
 	    
 	    var $div = $('<div>').appendTo(view.$div).css({'position':'absolute', 'left':'0px', 'top':model.getTrackTop(track_id)+'px'});
 	    var $img = $('<img/>').appendTo($div).attr({'src':'images/menudots.svg', 'width':view.img_size, 'height':view.img_size}).css({'float':'left', 'cursor':'pointer','border':'1px solid rgba(125,125,125,0)'});
@@ -93,6 +95,78 @@ var OncoprintTrackOptionsView = (function() {
 		hideMenusExcept(view, track_id);
 	    });
 	}
+	if (model.isTrackSortDirectionChangeable(track_id)) {
+	    var $svg = $(makeSVGElement('svg')).appendTo(view.$div).attr({'width':view.img_size, 'height':view.img_size}).css({'position':'absolute', 'left':(view.img_size+5)+'px', 'top':model.getTrackTop(track_id)+'px', 'cursor':'pointer'});
+	    var increasing_points = [[0, view.img_size], [view.img_size, view.img_size], [view.img_size, 0.25 * view.img_size]].map(function (a) {
+		return a[0] + ',' + a[1];
+	    }).join(' ');
+	    var decreasing_points = [[0, 0.25 * view.img_size], [0, view.img_size], [view.img_size, view.img_size]].map(function (a) {
+		return a[0] + ',' + a[1];
+	    }).join(' ');
+	    var none_points = [[0, 0.5 * view.img_size], [0, view.img_size], [view.img_size, view.img_size], [view.img_size, 0.5 * view.img_size]].map(function (a) {
+		return a[0] + ',' + a[1];
+	    }).join(' ');
+	    
+	    var selected_color = 'rgba(255,179,100,1)';
+	    var hover_color = 'rgba(255,179,100,0.6)';
+	    
+	    var $triangle = $(makeSVGElement('polygon', {
+		points: increasing_points,
+		fill: +selected_color,
+		stroke: 'rga(0,0,0,0.7)'
+	    })).appendTo($svg);
+	    
+	    var updateTriangle = function(hover_direction) {
+		var hover;
+		var direction;
+		if (typeof hover_direction !== 'undefined') {
+		    hover = true;
+		    direction = hover_direction;
+		} else {
+		    hover = false;
+		    direction = model.getTrackSortDirection(track_id);
+		}
+		var points = (direction === 0 ? none_points : (direction === 1 ? increasing_points : decreasing_points));
+		var fill = (hover ? hover_color : selected_color);
+		$triangle.attr({'points':points, 'fill':fill});
+	    };
+	    
+	    updateTriangle();
+	    
+	    $svg.hover(function() {
+		var curr_direction = model.getTrackSortDirection(track_id);
+		var display_direction;
+		if (curr_direction === 1) {
+		    display_direction = -1;
+		} else if (curr_direction === -1) {
+		    display_direction = 0;
+		} else if (curr_direction === 0) {
+		    display_direction = 1;
+		}
+		updateTriangle(display_direction);
+	    },
+	    function() {
+		updateTriangle();
+	    });
+	    
+	    $svg.click(function() {
+		view.sortChangeCallback(track_id);
+		updateTriangle();
+	    });
+	    
+	    
+	    
+	}
+    };
+    
+    var makeSVGElement = function(tag, attrs) {
+	var el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+	for (var k in attrs) {
+	    if (attrs.hasOwnProperty(k)) {
+		el.setAttribute(k, attrs[k]);
+	    }
+	}
+	return el;
     };
     
     OncoprintTrackOptionsView.prototype.addTracks = function(model) {

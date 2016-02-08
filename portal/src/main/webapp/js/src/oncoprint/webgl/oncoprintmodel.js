@@ -188,7 +188,7 @@ var OncoprintModel = (function () {
 		    params.track_height, params.track_padding,
 		    params.data_id_key, params.tooltipFn,
 		    params.removable, params.label,
-		    params.sortCmpFn, params.sort_direction_changeable,
+		    params.sortCmpFn, params.sort_direction_changeable, params.init_sort_direction,
 		    params.data, params.rule_set);
 	}
     }
@@ -201,7 +201,7 @@ var OncoprintModel = (function () {
 	    track_height, track_padding,
 	    data_id_key, tooltipFn,
 	    removable, label,
-	    sortCmpFn, sort_direction_changeable,
+	    sortCmpFn, sort_direction_changeable, init_sort_direction,
 	    data, rule_set) {
 	model.track_label[track_id] = ifndef(label, "Label");
 	model.track_height[track_id] = ifndef(track_height, 23);
@@ -222,7 +222,7 @@ var OncoprintModel = (function () {
 	
 	model.track_rule_set[track_id] = ifndef(rule_set, undefined);
 
-	model.track_sort_direction[track_id] = 1;
+	model.track_sort_direction[track_id] = ifndef(init_sort_direction, 1);
 	
 	target_group = ifndef(target_group, 0);
 	while (target_group >= model.track_groups.length) {
@@ -432,6 +432,7 @@ var OncoprintModel = (function () {
 									  this.getTrackDataIdKey(track_id));
 	}
 	
+	var curr_id_to_index = this.getIdToIndexMap();
 	var combinedComparator = function(idA, idB) {
 	    var res = 0;
 	    for (var i=0; i<track_sort_priority.length; i++) {
@@ -439,6 +440,10 @@ var OncoprintModel = (function () {
 		if (res !== 0) {
 		    break;
 		}
+	    }
+	    if (res === 0) {
+		// stable sort
+		res = ( curr_id_to_index[idA] < curr_id_to_index[idB] ? -1 : 1); // will never be the same, no need to check for 0
 	    }
 	    return res;
 	}
@@ -471,10 +476,7 @@ var OncoprintModel = (function () {
 
 var PrecomputedComparator = (function() {
     function PrecomputedComparator(list, comparator, sort_direction, element_identifier_key) {
-	var directed_comparator = function(a,b) {
-	    return comparator(a,b) * sort_direction;
-	};
-	var sorted_list = list.sort(directed_comparator);
+	var sorted_list = list.sort(comparator);
 	this.change_points = []; // i is a change point iff comp(elt[i], elt[i+1]) !== 0
 	for (var i=0; i<sorted_list.length; i++) {
 	    if (i === sorted_list.length - 1) {
@@ -484,6 +486,7 @@ var PrecomputedComparator = (function() {
 		this.change_points.push(i);
 	    }
 	}
+	this.sort_direction = sort_direction;
 	// Note that by this process change_points is sorted
 	this.id_to_index = {};
 	for (var i=0; i<sorted_list.length; i++) {
@@ -491,6 +494,9 @@ var PrecomputedComparator = (function() {
 	}
     }
     PrecomputedComparator.prototype.compare = function(idA, idB) {
+	if (this.sort_direction === 0) {
+	    return 0;
+	}
 	var indA = this.id_to_index[idA];
 	var indB = this.id_to_index[idB];
 	var should_negate_result = false;
@@ -524,6 +530,7 @@ var PrecomputedComparator = (function() {
 	if (should_negate_result) {
 	    res = res * -1;
 	}
+	res = res*this.sort_direction;
 	return res;
     }
     return PrecomputedComparator;

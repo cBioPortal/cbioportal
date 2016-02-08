@@ -478,7 +478,7 @@ var ConditionRuleSet = (function() {
     
     ConditionRuleSet.prototype.removeRule = function(rule_id) {
 	RuleSet.prototype.removeRule.call(this, rule_id);
-	delete this.rule_id_to_condition(rule_id);
+	delete this.rule_id_to_condition[rule_id];
     }
     
     return ConditionRuleSet;

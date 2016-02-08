@@ -41,7 +41,11 @@ var Oncoprint = (function () {
 	// this.cell_view = new OncoprintSVGCellView($svg_dev);
 	this.cell_view = new OncoprintWebGLCellView($cell_div, $cell_canvas, $dummy_scroll_div);
 	
-	this.track_options_view = new OncoprintTrackOptionsView($track_options_div, function(track_id) { self.removeTrack(track_id); });
+	this.track_options_view = new OncoprintTrackOptionsView($track_options_div, 
+								function(track_id) { self.removeTrack(track_id); }, 
+								function(track_id) {
+								    self.cycleTrackSortDirection(track_id);
+								});
 
 	this.label_view = new OncoprintLabelView($label_canvas);
 	this.label_view.setDragCallback(function(target_track, new_previous_track) {
@@ -189,6 +193,19 @@ var Oncoprint = (function () {
 	    }
 	}
 	return this.model.getTrackSortDirection(track_id);
+    }
+    
+    Oncoprint.prototype.cycleTrackSortDirection = function(track_id) {
+	var curr_dir = this.model.getTrackSortDirection(track_id);
+	var next_dir;
+	if (curr_dir === 1) {
+	    next_dir = -1;
+	} else if (curr_dir === -1) {
+	    next_dir = 0;
+	} else if (curr_dir === 0) {
+	    next_dir = 1;
+	}
+	this.setTrackSortDirection(track_id, next_dir);
     }
     
     Oncoprint.prototype.getTrackSortDirection = function(track_id) {

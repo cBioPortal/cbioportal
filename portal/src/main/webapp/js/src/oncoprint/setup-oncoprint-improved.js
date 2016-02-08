@@ -604,8 +604,6 @@ window.setUpOncoprint = function(ctr_id, config) {
 			var slider = $('<input>', {
 				id: "oncoprint_zoom_slider",
 				type: "range",
-				width: "80",
-				height: "16",
 				min: 0,
 				max: 1,
 				step: 0.01,

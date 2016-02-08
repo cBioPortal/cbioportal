@@ -137,7 +137,7 @@
 
         var oTable = $("#"+table_id).dataTable( {
                 "sDom": sDom, // selectable columns
-                "oColVis": { "aiExclude": [ mutTableIndices["id"] ] }, // always hide id column
+                "oColVis": { "aiExclude": [ mutTableIndices["id"], mutTableIndices["pancan_mutations"] ] }, // always hide id column
                 "bJQueryUI": true,
                 "bDestroy": true,
                 "aaData": data,
@@ -740,6 +740,7 @@
                     },
                     {// pancan mutations
                         "aTargets": [ mutTableIndices["pancan_mutations"] ],
+                        "bVisible": false, // hide pancan column for now for performance reason
                         "sClass": "center-align-td",
                         "bSearchable": false,
                         "mDataProp": function(source,type,value) {
@@ -923,7 +924,7 @@
                     addDrugsTooltip("."+table_id+"-drug-tip", 'top right', 'bottom center');
                     addCosmicTooltip(table_id);
                     listenToBamIgvClick(".igv-link");
-                    drawPanCanThumbnails(this);
+                    //drawPanCanThumbnails(this);
                     if(oncokbInstance){
                         oncokbInstance.addEvents(this, 'gene');
                         oncokbInstance.addEvents(this, 'alteration');

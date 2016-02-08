@@ -65,14 +65,10 @@ public class DaoMutSig {
      */
 
     public static int addMutSig(MutSig mutSig) throws DaoException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
 
         CanonicalGene gene = mutSig.getCanonicalGene();
-        MySQLbulkLoader.bulkLoadOff();
-        try {
-            if (MySQLbulkLoader.isBulkLoad()) {
+        
+        if (MySQLbulkLoader.isBulkLoad()) {
                 //  write to the temp file maintained by the MySQLbulkLoader
                 MySQLbulkLoader.getMySQLbulkLoader("mut_sig").insertRecord(Integer.toString(mutSig.getCancerType()),
                         Long.toString(gene.getEntrezGeneId()),
@@ -84,35 +80,39 @@ public class DaoMutSig {
 
                 // return 1 because normal insert will return 1 if no error occurs
                 return 1;
-            } else {
-                if (mutSig != null) {
-                    con = JdbcUtil.getDbConnection(DaoMutSig.class);
+            }
+        
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            if (mutSig != null) {
+                con = JdbcUtil.getDbConnection(DaoMutSig.class);
 
-                    pstmt = con.prepareStatement
-                            ("INSERT INTO mut_sig (`CANCER_STUDY_ID`," +
-                                    "`ENTREZ_GENE_ID`, " +
-                                    "`RANK`, " +
-                                    "`NumBasesCovered`, " +
-                                    "`NumMutations`, " +
-                                    "`P_Value`, " +
-                                    "`Q_Value`) "  +
-                                    "VALUES (?,?,?,?,?,?,?)");
+                pstmt = con.prepareStatement
+                        ("INSERT INTO mut_sig (`CANCER_STUDY_ID`," +
+                                "`ENTREZ_GENE_ID`, " +
+                                "`RANK`, " +
+                                "`NumBasesCovered`, " +
+                                "`NumMutations`, " +
+                                "`P_Value`, " +
+                                "`Q_Value`) "  +
+                                "VALUES (?,?,?,?,?,?,?)");
 
-                    pstmt.setInt(1, mutSig.getCancerType());
-                    pstmt.setLong(2,gene.getEntrezGeneId());
-                    pstmt.setInt(3,mutSig.getRank());
-                    pstmt.setInt(4,mutSig.getNumBasesCovered());
-                    pstmt.setInt(5,mutSig.getNumMutations());
-                    pstmt.setFloat(6, mutSig.getpValue());
-                    pstmt.setFloat(7, mutSig.getqValue());
+                pstmt.setInt(1, mutSig.getCancerType());
+                pstmt.setLong(2,gene.getEntrezGeneId());
+                pstmt.setInt(3,mutSig.getRank());
+                pstmt.setInt(4,mutSig.getNumBasesCovered());
+                pstmt.setInt(5,mutSig.getNumMutations());
+                pstmt.setFloat(6, mutSig.getpValue());
+                pstmt.setFloat(7, mutSig.getqValue());
 
 
-                    return pstmt.executeUpdate();
-                }
+                return pstmt.executeUpdate();
+            }
 
-                else {
-                    return 0;
-                }
+            else {
+                return 0;
             }
 
         } catch (SQLException e) {

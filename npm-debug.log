@@ -1,0 +1,168 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/Users/jiaojiao/local/bin/node',
+1 verbose cli   '/Users/jiaojiao/local/bin/npm',
+1 verbose cli   'install',
+1 verbose cli   '-g',
+1 verbose cli   'grunt-cli' ]
+2 info using npm@2.11.3
+3 info using node@v0.12.7
+4 verbose install initial load of /Users/jiaojiao/local/lib/package.json
+5 verbose readDependencies loading dependencies from /Users/jiaojiao/local/lib/package.json
+6 silly cache add args [ 'grunt-cli', null ]
+7 verbose cache add spec grunt-cli
+8 silly cache add parsed spec { raw: 'grunt-cli',
+8 silly cache add   scope: null,
+8 silly cache add   name: 'grunt-cli',
+8 silly cache add   rawSpec: '',
+8 silly cache add   spec: '*',
+8 silly cache add   type: 'range' }
+9 silly addNamed grunt-cli@*
+10 verbose addNamed "*" is a valid semver range for grunt-cli
+11 silly addNameRange { name: 'grunt-cli', range: '*', hasData: false }
+12 silly mapToRegistry name grunt-cli
+13 silly mapToRegistry using default registry
+14 silly mapToRegistry registry https://registry.npmjs.org/
+15 silly mapToRegistry uri https://registry.npmjs.org/grunt-cli
+16 verbose addNameRange registry:https://registry.npmjs.org/grunt-cli not in flight; fetching
+17 verbose request uri https://registry.npmjs.org/grunt-cli
+18 verbose request no auth needed
+19 info attempt registry request try #1 at 3:20:21 PM
+20 verbose request id fd5f430eed1e1e9b
+21 http request GET https://registry.npmjs.org/grunt-cli
+22 http 200 https://registry.npmjs.org/grunt-cli
+23 silly get cb [ 200,
+23 silly get   { server: 'CouchDB/1.5.0 (Erlang OTP/R16B03)',
+23 silly get     etag: '"8WUJF21745HJ32NZ44EYYAHND"',
+23 silly get     'content-type': 'application/json',
+23 silly get     'cache-control': 'max-age=300',
+23 silly get     'content-length': '22355',
+23 silly get     'accept-ranges': 'bytes',
+23 silly get     date: 'Fri, 29 Jan 2016 20:20:21 GMT',
+23 silly get     via: '1.1 varnish',
+23 silly get     age: '262',
+23 silly get     connection: 'keep-alive',
+23 silly get     'x-served-by': 'cache-atl6220-ATL',
+23 silly get     'x-cache': 'HIT',
+23 silly get     'x-cache-hits': '8',
+23 silly get     'x-timer': 'S1454098821.845806,VS0,VE0',
+23 silly get     vary: 'Accept' } ]
+24 verbose get saving grunt-cli to /Users/jiaojiao/.npm/registry.npmjs.org/grunt-cli/.cache.json
+25 silly addNameRange number 2 { name: 'grunt-cli', range: '*', hasData: true }
+26 silly addNameRange versions [ 'grunt-cli',
+26 silly addNameRange   [ '0.1.0',
+26 silly addNameRange     '0.1.1',
+26 silly addNameRange     '0.1.2',
+26 silly addNameRange     '0.1.3',
+26 silly addNameRange     '0.1.4',
+26 silly addNameRange     '0.1.5',
+26 silly addNameRange     '0.1.6',
+26 silly addNameRange     '0.1.7',
+26 silly addNameRange     '0.1.8',
+26 silly addNameRange     '0.1.9',
+26 silly addNameRange     '0.1.10',
+26 silly addNameRange     '0.1.11',
+26 silly addNameRange     '0.1.12',
+26 silly addNameRange     '0.1.13' ] ]
+27 silly addNamed grunt-cli@0.1.13
+28 verbose addNamed "0.1.13" is a plain semver version for grunt-cli
+29 silly mapToRegistry name grunt-cli
+30 silly mapToRegistry using default registry
+31 silly mapToRegistry registry https://registry.npmjs.org/
+32 silly mapToRegistry uri https://registry.npmjs.org/grunt-cli
+33 verbose addRemoteTarball https://registry.npmjs.org/grunt-cli/-/grunt-cli-0.1.13.tgz not in flight; adding
+34 verbose addRemoteTarball [ 'https://registry.npmjs.org/grunt-cli/-/grunt-cli-0.1.13.tgz',
+34 verbose addRemoteTarball   'e9ebc4047631f5012d922770c39378133cad10f4' ]
+35 info retry fetch attempt 1 at 3:20:21 PM
+36 info attempt registry request try #1 at 3:20:21 PM
+37 http fetch GET https://registry.npmjs.org/grunt-cli/-/grunt-cli-0.1.13.tgz
+38 http fetch 200 https://registry.npmjs.org/grunt-cli/-/grunt-cli-0.1.13.tgz
+39 silly fetchAndShaCheck shasum e9ebc4047631f5012d922770c39378133cad10f4
+40 verbose addTmpTarball /var/folders/cj/v3j48b4d2kgckvw7g_04bn2w0000gp/T/npm-78268-87f2777d/registry.npmjs.org/grunt-cli/-/grunt-cli-0.1.13.tgz not in flight; adding
+41 verbose addTmpTarball already have metadata; skipping unpack for grunt-cli@0.1.13
+42 silly cache afterAdd grunt-cli@0.1.13
+43 verbose afterAdd /Users/jiaojiao/.npm/grunt-cli/0.1.13/package/package.json not in flight; writing
+44 verbose afterAdd /Users/jiaojiao/.npm/grunt-cli/0.1.13/package/package.json written
+45 silly install resolved [ { name: 'grunt-cli',
+45 silly install resolved     description: 'The grunt command line interface.',
+45 silly install resolved     version: '0.1.13',
+45 silly install resolved     author: { name: 'Grunt Team' },
+45 silly install resolved     homepage: 'http://gruntjs.com/',
+45 silly install resolved     repository: { type: 'git', url: 'git://github.com/gruntjs/grunt-cli.git' },
+45 silly install resolved     bugs: { url: 'http://github.com/gruntjs/grunt-cli/issues' },
+45 silly install resolved     licenses: [ [Object] ],
+45 silly install resolved     bin: { grunt: 'bin/grunt' },
+45 silly install resolved     engines: { node: '>= 0.8.0' },
+45 silly install resolved     scripts: { test: 'node bin/grunt test' },
+45 silly install resolved     preferGlobal: true,
+45 silly install resolved     dependencies: { nopt: '~1.0.10', 'findup-sync': '~0.1.0', resolve: '~0.3.1' },
+45 silly install resolved     devDependencies: { grunt: '~0.4.0', 'grunt-contrib-jshint': '~0.2.0' },
+45 silly install resolved     contributors: [ [Object], [Object], [Object], [Object] ],
+45 silly install resolved     _id: 'grunt-cli@0.1.13',
+45 silly install resolved     dist:
+45 silly install resolved      { shasum: 'e9ebc4047631f5012d922770c39378133cad10f4',
+45 silly install resolved        tarball: 'http://registry.npmjs.org/grunt-cli/-/grunt-cli-0.1.13.tgz' },
+45 silly install resolved     _from: 'grunt-cli@*',
+45 silly install resolved     _npmVersion: '1.3.24',
+45 silly install resolved     _npmUser: { name: 'tkellen', email: 'tyler@sleekcode.net' },
+45 silly install resolved     maintainers: [ [Object] ],
+45 silly install resolved     directories: {},
+45 silly install resolved     _shasum: 'e9ebc4047631f5012d922770c39378133cad10f4',
+45 silly install resolved     _resolved: 'https://registry.npmjs.org/grunt-cli/-/grunt-cli-0.1.13.tgz' } ]
+46 info install grunt-cli@0.1.13 into /Users/jiaojiao/local/lib
+47 info installOne grunt-cli@0.1.13
+48 verbose installOne of grunt-cli to /Users/jiaojiao/local/lib not in flight; installing
+49 verbose lock using /Users/jiaojiao/.npm/_locks/grunt-cli-94b236a80a33d199.lock for /Users/jiaojiao/local/lib/node_modules/grunt-cli
+50 silly install write writing grunt-cli 0.1.13 to /Users/jiaojiao/local/lib/node_modules/grunt-cli
+51 verbose unbuild lib/node_modules/grunt-cli
+52 info preuninstall grunt-cli@0.1.13
+53 info uninstall grunt-cli@0.1.13
+54 verbose unbuild rmStuff grunt-cli@0.1.13 from /Users/jiaojiao/local/lib/node_modules
+55 silly gentlyRm /Users/jiaojiao/local/bin/grunt is being gently removed
+56 silly gentlyRm verifying /Users/jiaojiao/local is an npm working directory
+57 silly gentlyRm containing path /Users/jiaojiao/local is under npm's control, in /Users/jiaojiao/local
+58 silly gentlyRm deletion target /Users/jiaojiao/local/bin/grunt is under /Users/jiaojiao/local
+59 verbose gentlyRm vacuuming from /Users/jiaojiao/local/bin/grunt up to /Users/jiaojiao/local
+60 silly vacuum-fs removing /Users/jiaojiao/local/bin/grunt
+61 silly vacuum-fs quitting because other entries in /Users/jiaojiao/local/bin
+62 info postuninstall grunt-cli@0.1.13
+63 silly gentlyRm /Users/jiaojiao/local/lib/node_modules/grunt-cli is being purged from base /Users/jiaojiao/local
+64 verbose gentlyRm don't care about contents; nuking /Users/jiaojiao/local/lib/node_modules/grunt-cli
+65 silly vacuum-fs purging /Users/jiaojiao/local/lib/node_modules/grunt-cli
+66 verbose unlock done using /Users/jiaojiao/.npm/_locks/grunt-cli-94b236a80a33d199.lock for /Users/jiaojiao/local/lib/node_modules/grunt-cli
+67 verbose stack Error: EACCES, unlink '/Users/jiaojiao/local/lib/node_modules/grunt-cli/.travis.yml'
+67 verbose stack     at Error (native)
+68 verbose cwd /Users/jiaojiao/repos/cbioportal
+69 error Darwin 14.4.0
+70 error argv "/Users/jiaojiao/local/bin/node" "/Users/jiaojiao/local/bin/npm" "install" "-g" "grunt-cli"
+71 error node v0.12.7
+72 error npm  v2.11.3
+73 error path /Users/jiaojiao/local/lib/node_modules/grunt-cli/.travis.yml
+74 error code EACCES
+75 error errno -13
+76 error Error: EACCES, unlink '/Users/jiaojiao/local/lib/node_modules/grunt-cli/.travis.yml'
+76 error     at Error (native)
+76 error  { [Error: EACCES, unlink '/Users/jiaojiao/local/lib/node_modules/grunt-cli/.travis.yml']
+76 error   errno: -13,
+76 error   code: 'EACCES',
+76 error   path: '/Users/jiaojiao/local/lib/node_modules/grunt-cli/.travis.yml' }
+77 error Please try running this command again as root/Administrator.
+78 verbose exit [ -13, true ]
+79 verbose unbuild lib/node_modules/grunt-cli
+80 info preuninstall grunt-cli@0.1.13
+81 info uninstall grunt-cli@0.1.13
+82 verbose unbuild rmStuff grunt-cli@0.1.13 from /Users/jiaojiao/local/lib/node_modules
+83 silly gentlyRm /Users/jiaojiao/local/bin/grunt is being gently removed
+84 silly gentlyRm verifying /Users/jiaojiao/local is an npm working directory
+85 silly gentlyRm containing path /Users/jiaojiao/local is under npm's control, in /Users/jiaojiao/local
+86 silly gentlyRm deletion target /Users/jiaojiao/local/bin/grunt is under /Users/jiaojiao/local
+87 verbose gentlyRm vacuuming from /Users/jiaojiao/local/bin/grunt up to /Users/jiaojiao/local
+88 info postuninstall grunt-cli@0.1.13
+89 silly gentlyRm /Users/jiaojiao/local/lib/node_modules/grunt-cli is being purged from base /Users/jiaojiao/local
+90 verbose gentlyRm don't care about contents; nuking /Users/jiaojiao/local/lib/node_modules/grunt-cli
+91 silly vacuum-fs purging /Users/jiaojiao/local/lib/node_modules/grunt-cli
+92 error error rolling back Error: EACCES, unlink '/Users/jiaojiao/local/lib/node_modules/grunt-cli/.npmignore'
+92 error error rolling back     at Error (native)
+92 error error rolling back  { [Error: EACCES, unlink '/Users/jiaojiao/local/lib/node_modules/grunt-cli/.npmignore']
+92 error error rolling back   errno: -13,
+92 error error rolling back   code: 'EACCES',
+92 error error rolling back   path: '/Users/jiaojiao/local/lib/node_modules/grunt-cli/.npmignore' }

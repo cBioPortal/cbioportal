@@ -220,27 +220,29 @@
 
             <tr>
                         <td>
-                            Cancer Type: <select id="cancerTypes"><option value="all">All</option></select>
+                            Cancer type: <select id="cancerTypes"><option value="all">All</option></select>
                         </td>
                       
            
                     <td width="30%"><div>
-                    Y-Axis Value: <select id="yAxis"><option value="Frequency">Alteration Frequency</option><option value="Count">Absolute Counts</option></select>
+                    Y-Axis value: <select id="yAxis"><option value="Frequency">Alteration frequency</option><option value="Count">Absolute counts</option></select>
                      </div> 
                      </td>
                     <td width="15%" valign="top"> 
-                        <span class="diagram-general-slider-text" id="sliderLabel">Min. alteration </span>
+                        <span class="diagram-general-slider-text" id="sliderLabel">Min alteration </span>
                         <span class="diagram-general-slider-value" id="currentValue">0%</span>
                     </td>
-                    <td width="20%" valign="top">  
-                        <div style="width:80%">
-                            <div id="sliderEventTest"></div>
+                    <td width="15%" valign="top">  
+                        <div style="width:100%">
+                            <div id="sliderMinY"></div>
                             <span class="diagram-general-slider-min-label" id="minLabel">0</span>
                             <span class="diagram-general-slider-max-label" style="float:right" id="maxLabel"></span>
-                    
+                            
                         </div>
                      </td>
-
+                    <td valign="top">
+                        <input id="minY" size="4" type="text">
+                    </td>
             </tr>
     
                   
@@ -253,24 +255,26 @@
                             </span>
                         </td>
                 
-                        <td width="30%" valign="top">Sort X-Axis by: <select id="sortBy">
-                                                    <option value="YAxis">Y-Axis Values</option>
-                                                    <option value="CancerTypes">Cancer Types</option>
+                        <td width="30%" valign="top">Sort x-axis by: <select id="sortBy">
+                                                    <option value="YAxis">Y-Axis values</option>
+                                                    <option value="CancerTypes">Cancer types</option>
                                             </select>
                      </td>
                        <td width="15%" valign="top"> 
-                        <span class="diagram-general-slider-text" >Min total sample number </span>
+                        <span class="diagram-general-slider-text" >Min total sample # </span>
                         <span class="diagram-general-slider-value" id="currentTotalSample">0</span>
                     </td>
-                    <td width="20%" valign="top">  
-                        <div style="width:80%">
+                    <td width="15%" valign="top">  
+                        <div style="width:100%">
                             <div id="totalSampleSlider"></div>
                             <span class="diagram-general-slider-min-label">0</span>
                             <span class="diagram-general-slider-max-label" style="float:right" id="maxLabelTotalSample"></span>
-                    
+                            
                         </div>
-                     </td>
-
+                    </td>
+                    <td valign="top">
+                        <input id="minTotal" size="4" type="text">
+                    </td>
                     </tr>
             
             <tr>

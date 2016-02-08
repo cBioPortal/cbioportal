@@ -693,7 +693,7 @@
                             })).render();
 
 
-                            $("#sliderEventTest").slider({ 
+                            $("#sliderMinY").slider({ 
                                 value: 0,
                                 min: 0, 
                                 max: Math.ceil(100*maxYAxis)
@@ -707,10 +707,12 @@
                              });
                              $("#maxLabelTotalSample").text(maxtotalSample);
                              
-                            var redrawHistogram = function(sliderValue, totalSamSliderValue) {  
-                                if(sliderValue === null || sliderValue === undefined){
-                                    sliderValue = 0;
-                                } 
+                            var redrawHistogram = function() { 
+                                var sliderValue = $("#sliderMinY").slider("value");
+                                var totalSamSliderValue = $("#totalSampleSlider").slider("value");
+                                 
+                                $("#minY").val(sliderValue);
+                                $("#minTotal").val(totalSamSliderValue);
                                 // Add axis label
                                 histogram.select("#yAxisTitle")
                                     .text( $("#yAxis").val() === "Frequency" ? "Alteration Frequency" : "Count")
@@ -736,33 +738,6 @@
                                 var stacked = $("#histogram-show-colors").is(":checked");
                                 var outX = width + 1000;
                                
-                               
-                               var maxYAxis = 0;
-                               if($("#yAxis").val() === "Frequency"){
-                                   for(var i = 0;i < histDataOrg.length;i++){
-                                            if(calculateFrequency(histDataOrg[i], 0, "all") + .05 > maxYAxis){
-                                                maxYAxis = calculateFrequency(histDataOrg[i], 0, "all") + .05;
-                                            }
-                                    }
-                                    maxYAxis = Math.min(maxYAxis, 1.0);
-                                    $("#sliderLabel").text("Min. alteration ");
-                                    $("#maxLabel").text(Math.ceil(100*maxYAxis)+"%");
-                                    $("#sliderEventTest").slider( "option", "max", Math.ceil(100*maxYAxis) );
-                                    $("#currentValue").text(sliderValue+"%");
-                               }else if($("#yAxis").val() === "Count"){
-                                   for(var i = 0;i < histDataOrg.length;i++){
-                                        if(histDataOrg[i].alterations["all"] > maxYAxis){
-                                            maxYAxis = histDataOrg[i].alterations["all"];
-                                        }
-                                    }
-
-                                    $("#sliderLabel").text("Min. # altered sample ");
-                                    $("#maxLabel").text(maxYAxis);
-                                    $("#sliderEventTest").slider( "option", "max", maxYAxis );
-                                    $("#currentValue").text(sliderValue);
-                               }
-                               
-
                                 yScale.domain([0, maxYAxis ]).range([histBottom-paddingTop, 0]);
  
                                 yAxisEl
@@ -1042,7 +1017,32 @@
                        
                             
                             $("#yAxis").on("change", function(){
-                                 
+                                $("#sliderMinY").slider({value: 0});
+                               maxYAxis = 0;
+                               if($("#yAxis").val() === "Frequency"){
+                                   for(var i = 0;i < histDataOrg.length;i++){
+                                            if(calculateFrequency(histDataOrg[i], 0, "all") + .05 > maxYAxis){
+                                                maxYAxis = calculateFrequency(histDataOrg[i], 0, "all") + .05;
+                                            }
+                                    }
+                                    maxYAxis = Math.min(maxYAxis, 1.0);
+                                    $("#sliderLabel").text("Min alteration ");
+                                    $("#maxLabel").text(Math.ceil(100*maxYAxis)+"%");
+                                    $("#sliderMinY").slider( "option", "max", Math.ceil(100*maxYAxis) );
+                                    $("#currentValue").text("0%");
+                               }else if($("#yAxis").val() === "Count"){
+                                   for(var i = 0;i < histDataOrg.length;i++){
+                                        if(histDataOrg[i].alterations["all"] > maxYAxis){
+                                            maxYAxis = histDataOrg[i].alterations["all"];
+                                        }
+                                    }
+
+                                    $("#sliderLabel").text("Min altered sample #");
+                                    $("#maxLabel").text(maxYAxis);
+                                    $("#sliderMinY").slider( "option", "max", maxYAxis );
+                                    $("#currentValue").text("0");
+                               }
+                                
                                 redrawHistogram();
                             });
                             $("#cancerTypes").on("change", function(){
@@ -1050,14 +1050,30 @@
                                 redrawHistogram();
                             });
                             
-                            $("#sliderEventTest").on("slidechange", function(e, ui){
-                                
-                                redrawHistogram(ui.value, null);
+                            $("#sliderMinY").on("slidechange", function(e, ui){
+                                var tempStr = ui.value + ($("#yAxis").val() === "Frequency" ? "%" : "");
+                                $("#currentValue").text(tempStr);
+                                redrawHistogram();
                                 
                             });
+                            $("#minY").on("keyup", function(e){
+                                if(e.keyCode == 13)
+                                {
+                                    $("#sliderMinY").slider({value: $("#minY").val()});
+                                    redrawHistogram();
+                                }
+                            });
+                            $("#minTotal").on("keyup", function(e){
+                                if(e.keyCode == 13)
+                                {
+                                    $("#totalSampleSlider").slider({value: $("#minTotal").val()});
+                                    redrawHistogram(); 
+                                }
+                            });
+                            
                             $("#totalSampleSlider").on("slidechange", function(e, ui){
                                 
-                                redrawHistogram(null, ui.value);
+                                redrawHistogram();
                                 
                             });
 
@@ -1592,43 +1608,3 @@
 
 
 })(window.jQuery, window._, window.Backbone, window.d3);
-
-
-///////////////jiaojiao added 
-var PanCancerTemplateCache = (function () {
-  var _cache = {};
-
-  /**
-   * Compiles the template for the given template id
-   * by using underscore template function.
-   *
-   * @param templateId    html id of the template content
-   * @returns function    compiled template function
-   */
-  function compileTemplate(templateId)
-  {
-     return _.template($("#" + templateId).html());
-  }
-
-  /**
-   * Gets the template function corresponding to the given template id.
-   *
-   * @param templateId    html id of the template content
-   * @returns function    template function
-   */
-  function getTemplateFn(templateId)
-  {
-     // try to use the cached value first
-     var templateFn = _cache[templateId];
-
-     // compile if not compiled yet
-     if (templateFn == null)
-     {
-        templateFn = compileTemplate(templateId);
-        _cache[templateId] = templateFn;
-     }
-     return templateFn;
-   }
-
-   return { getTemplateFn: getTemplateFn };
-})();

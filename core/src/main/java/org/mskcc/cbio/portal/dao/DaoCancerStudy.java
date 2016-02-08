@@ -76,6 +76,7 @@ public final class DaoCancerStudy {
         DaoPatient.reCache();
         DaoSample.reCache();
         DaoClinicalData.reCache();
+        DaoInfo.setVersion();
         System.out.println("Finished recaching... ");
     }
     

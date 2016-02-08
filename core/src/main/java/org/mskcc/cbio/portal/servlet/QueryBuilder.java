@@ -114,6 +114,8 @@ public class QueryBuilder extends HttpServlet {
     public static final String INTERNAL_EXTENDED_MUTATION_LIST = "INTERNAL_EXTENDED_MUTATION_LIST";
     public static final String DATA_PRIORITY = "data_priority";
     public static final String SELECTED_PATIENT_SAMPLE_ID_MAP = "selected_patient_sample_id_map";
+    public static final String DB_VERSION = "db_version";
+    public static final String DB_ERROR = "db_error";
     private static final String DB_CONNECT_ERROR = ("An error occurred while trying to connect to the database." +
                                                     "  This could happen if the database does not contain any cancer studies.");
 
@@ -249,6 +251,14 @@ public class QueryBuilder extends HttpServlet {
 	        }
          
             httpServletRequest.setAttribute(XDEBUG_OBJECT, xdebug);
+            
+            // Get the db version
+            String dbPortalVersion = GlobalProperties.getDbVersion();
+            String dbVersion = DaoInfo.getVersion();
+            if (!dbPortalVersion.equals(dbVersion))
+            {
+                httpServletRequest.setAttribute(DB_ERROR, "Current DB Version: " + dbVersion + "<br/>" + "Portal DB Version: " + dbPortalVersion);
+            }
 
             boolean errorsExist = validateForm(action, profileList, geneticProfileIdSet, geneList,
                                                sampleSetId, sampleIds, httpServletRequest);

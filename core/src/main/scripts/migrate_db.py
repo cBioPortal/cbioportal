@@ -92,55 +92,41 @@ def get_db_version(cursor):
         return None
     
     if not version_table_exists:
-        return (0,0,0)
+        return 0
 
     # Now query the table for the version number
     try:
         cursor.execute('select ' + VERSION_FIELD + ' from ' + VERSION_TABLE)
         for row in cursor.fetchall():
-            version = tuple(map(int, row[0].strip().split('.')))
+            version = int(row[0].strip())
     except MySQLdb.Error, msg:
         print >> ERROR_FILE, msg
         return None
 
     return version
 
-def is_version_larger(version1, version2):
-    """ Checks if version 1 is larger than version 2 """
-    
-    if version1[0] > version2[0]:
-        return True
-    if version2[0] > version1[0]:
-        return False
-    if version1[1] > version2[1]:
-        return True
-    if version2[1] > version1[1]:
-        return False
-    if version1[2] > version2[2]:
-        return True
-    return False
-
 def run_migration(db_version, sql_filename, cursor):
     """
 
         Goes through the sql and runs lines based on the version numbers. SQL version should be stated as follows:
 
-        ##version: 1.0.0
+        ##version: 1
         INSERT INTO ...
 
-        ##version: 1.1.0
+        ##version: 2
         CREATE TABLE ...
     
     """
     
     sql_file = open(sql_filename, 'r')
-    sql_version = (0,0,0)
+    sql_version = 0
     run_line = False
 
     for line in sql_file:
         if line.startswith('##'):
-            sql_version = tuple(map(int, line.split(':')[1].strip().split('.')))
-            run_line = is_version_larger(sql_version, db_version)
+            sql_version = int(line.split(':')[1].strip())
+            if sql_version > db_version:
+                run_line = True
             continue
 
         # skip blank lines

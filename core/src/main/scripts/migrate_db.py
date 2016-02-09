@@ -139,7 +139,17 @@ def run_migration(db_version, sql_filename, cursor):
             except MySQLdb.Error, msg:
                 print >> ERROR_FILE, msg
                 sys.exit(1)
-            
+def warn_user():
+    """
+
+    warn the user before the script runs, give them a chance to
+    back up their database if desired
+    """
+    response = raw_input('WARNING: This script will alter your database! Be sure to back up your data before running.\nContinue running DB migration? (y/n) ').strip()
+    while response is not 'y' and response is not 'n':
+        response = raw_input('Did not recognize response.\nContinue running DB migration? (y/n) ').strip()
+    if response is 'n':
+        sys.exit()
 
 def usage():
     print >> OUTPUT_FILE, 'migrate_db.py --properties-file [portal properties file] --sql [sql migration file]'
@@ -147,6 +157,8 @@ def usage():
 def main():
     """ main function to run mysql migration """
     
+    warn_user()
+
     try:
         opts, args = getopt.getopt(sys.argv[1:], '', ['properties-file=', 'sql='])
     except getopt.error, msg:

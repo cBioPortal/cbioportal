@@ -13,9 +13,6 @@ from importer import cbioportal_common
 from importer import validateData
 import json
 
-# globals:
-hugo_mapping_file = 'test_data/Homo_sapiens.gene_info.gz'
-ncbi_file = open(hugo_mapping_file)
 # these two files contain the contents of the /api/genes and /api/genesaliases, respectively:
 with open('test_data/genes.json') as data_file:    
     hugo_entrez_map = validateData.transform_symbol_entrez_map(json.load(data_file), 'hugo_gene_symbol')

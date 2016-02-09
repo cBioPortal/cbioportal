@@ -1,8 +1,8 @@
-##version: 1
+##version: 1.0.0
 CREATE TABLE info (DB_SCHEMA_VERSION VARCHAR(8));
 INSERT INTO info VALUES ("1");
 
-##version: 2 
+##version: 1.1.0
 CREATE TABLE sample_list LIKE patient_list;
 INSERT sample_list SELECT * FROM patient_list;
 CREATE TABLE sample_list_list LIKE patient_list_list;

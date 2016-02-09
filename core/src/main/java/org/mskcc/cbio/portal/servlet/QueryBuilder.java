@@ -253,8 +253,10 @@ public class QueryBuilder extends HttpServlet {
             httpServletRequest.setAttribute(XDEBUG_OBJECT, xdebug);
             
             // Get the db version
-            String dbPortalVersion = GlobalProperties.getDbVersion();
+            String dbPortalVersion = DBVersionUtil.getDbVersion();
             String dbVersion = DaoInfo.getVersion();
+            LOG.info("version - "+dbPortalVersion);
+            LOG.info("version - "+dbVersion);
             if (!dbPortalVersion.equals(dbVersion))
             {
                 httpServletRequest.setAttribute(DB_ERROR, "Current DB Version: " + dbVersion + "<br/>" + "Portal DB Version: " + dbPortalVersion);

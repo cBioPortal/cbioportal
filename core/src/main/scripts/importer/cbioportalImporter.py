@@ -255,7 +255,7 @@ def main(args):
         else: 
             #find jar files in lib folder and add them to classpath:
             import glob
-            jars = glob.glob(portal_home + "/portal/target/portal/WEB-INF/lib/core-*-SNAPSHOTs.jar")
+            jars = glob.glob(portal_home + "/portal/target/portal/WEB-INF/lib/core-*-SNAPSHOT.jar")
             if len(jars) != 1:
                 print 'Expected to find 1 core-*-SNAPSHOTs.jar, but found: ' + str(len(jars))
                 sys.exit(2)

@@ -68,7 +68,7 @@ public class DBVersionUtil {
         }
         
         if (is == null) {
-            is = DBVersionUtil.class.getClassLoader().getResourceAsStream("cgds.sql");
+            is = DBVersionUtil.class.getClassLoader().getResourceAsStream(DBVersionUtil.CGDS_SQL_FILENAME);
         }
          
         return is;

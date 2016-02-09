@@ -725,4 +725,4 @@ CREATE TABLE `clinical_event_data` (
 CREATE TABLE `info` (
     `DB_SCHEMA_VERSION` varchar(8)
 );
-INSERT INTO info (`DB_SCHEMA_VERSION`) VALUES ("1.1.0");
+INSERT INTO info VALUES ('1.1.0');

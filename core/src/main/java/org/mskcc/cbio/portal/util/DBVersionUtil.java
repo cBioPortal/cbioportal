@@ -100,11 +100,6 @@ public class DBVersionUtil {
     {
         return DBVersionUtil.dbVersion;
     }
-    
-    public static void main(String[] args)
-    {
-        System.out.println(getDbVersion());
-    }
 }
 
 

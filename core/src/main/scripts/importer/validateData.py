@@ -867,13 +867,9 @@ class MutationsExtendedValidator(Validator):
 
     def checkNotBlank(self, value):
         """Test whether a string is blank."""
-        # TODO implement this test, may require bundling the hgvs package:
-        # https://pypi.python.org/pypi/hgvs/
         if value is None or value == '':
             return False
         return True
-            
-
 
 
 class ClinicalValidator(Validator):

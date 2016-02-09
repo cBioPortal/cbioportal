@@ -95,7 +95,6 @@ public class LargeTestSetGenerator {
 			"citation: The Hyve, Pieter Lukasse\n"+
 			"pmid: 23000897\n"+
 			"groups: PUBLIC;GDAC;SU2C-PI3K\n"+
-			"dedicated_color: Yellow\n"+
 			"short_name: " + studyId+ " (TEST)");
 		resultFile.close();
 	}

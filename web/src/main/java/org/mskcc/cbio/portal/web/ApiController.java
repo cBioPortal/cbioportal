@@ -13,6 +13,7 @@ import org.mskcc.cbio.portal.model.DBClinicalField;
 import org.mskcc.cbio.portal.model.DBClinicalPatientData;
 import org.mskcc.cbio.portal.model.DBClinicalSampleData;
 import org.mskcc.cbio.portal.model.DBGene;
+import org.mskcc.cbio.portal.model.DBGeneAlias;
 import org.mskcc.cbio.portal.model.DBGeneticProfile;
 import org.mskcc.cbio.portal.model.DBPatient;
 import org.mskcc.cbio.portal.model.DBProfileData;
@@ -99,6 +100,17 @@ public class ApiController {
 		    return service.getGenes(hugo_gene_symbols);
 	    }
     }
+    
+    @Transactional
+    @RequestMapping(value = "/genesaliases", method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody List<DBGeneAlias> getGenesAliases(@RequestParam(required = false) List<Long> entrez_gene_ids) {
+	    if (entrez_gene_ids == null) {
+		    return service.getGenesAliases();
+	    } else {
+		    return service.getGenesAliases(entrez_gene_ids);
+	    }
+    }
+
     
     @Transactional
     @RequestMapping(value = "/geneticprofiles", method = {RequestMethod.GET, RequestMethod.POST})

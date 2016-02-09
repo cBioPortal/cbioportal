@@ -8,6 +8,7 @@
 import os
 import sys
 import getopt
+import MySQLdb
 from cbioportal_common import *
 
 # ------------------------------------------------------------------------------
@@ -22,8 +23,45 @@ IMPORT_CASE_LIST = "import-case-list"
 
 COMMANDS = [IMPORT_CANCER_TYPE, IMPORT_STUDY, REMOVE_STUDY, IMPORT_STUDY_DATA, IMPORT_CASE_LIST]
 
+CGDS_SQL_FILE = 'core/src/main/resouces/cgds.sql'
+PORTAL_HOME = "PORTAL_HOME"
+
 # ------------------------------------------------------------------------------
 # sub-routines
+
+def get_portal_properties(properties_filename):
+    """ Returns a properties object """
+    
+    properties = {}
+    properties_file = open(properties_filename, 'r')
+
+    for line in properties_file:
+        line = line.strip()
+
+        # skip line if its blank or a comment
+        if len(line) == 0 or line.startswith('#'):
+            continue
+        
+        # store name/value
+        property = line.split('=')
+        if len(property) != 2:
+            print >> ERROR_FILE, 'Skipping invalid entry in proeprty file: ' + line
+            continue
+        properties[property[0]] = property[1].strip()
+    properties_file.close()
+
+    if (DATABASE_HOST not in properties or len(properties[DATABASE_HOST]) == 0 or
+        DATABASE_NAME not in properties or len(properties[DATABASE_NAME]) == 0 or
+        DATABASE_USER not in properties or len(properties[DATABASE_USER]) == 0 or
+        DATABASE_PW not in properties or len(properties[DATABASE_PW]) == 0):
+        print >> ERROR_FILE, 'Missing one or more required properties, please check property file'
+        return none
+    
+    # return an instance of PortalProperties
+    return PortalProperties(properties[DATABASE_HOST],
+                            properties[DATABASE_NAME],
+                            properties[DATABASE_USER],
+                            properties[DATABASE_PW])
 
 def import_cancer_type(jvm_args, meta_filename):
 	args = jvm_args.split(' ')
@@ -103,10 +141,78 @@ def check_files(meta_filename, data_filename):
         print >> ERROR_FILE, 'data-file cannot be found: ' + data_filename
         sys.exit(2)
 
+def check_db(portal_properties):
+    cursor = get_db_cursor(portal_properties)
+    db_version = (0,0,0)
+    if cursor is not None:
+        db_version = get_db_version(cursor)
+    portal_db_version = get_portal_db_version()
+    
+    if portal_db_version is not db_version:
+        print >> OUTPUT_FILE, 'This version of the portal is out of sync with the database. You must run the database migration script located at PORTAL_HOME/core/src/main/scripts/migrate_db.py before continuing'
+        sys.exit()
+
+def get_portal_db_version():
+    portal_home = os.environ[PORTAL_HOME]
+    cgds_filename = os.path.join(portal_home, CGDS_SQL_FILE)
+
+    if not os.path.exists(cgds_filename):
+        print >> ERROR_FILE, 'could not find cgds.sql. Ensure that PORTAL_HOME environment variable is set.'
+        sys.exit(1)
+    cgds_file = open(cgds_filename, 'rU')
+
+    for line in cgds_file:
+        if VERSION_LINE in line:
+            return line[line.find('("') + 2, line.find('")')]
+
+def get_db_cursor(portal_properties):
+    """ Establishes a MySQL connection """
+
+    try:
+        connection = MySQLdb.connect(host=portal_properties.database_host, 
+            port = 3306, 
+            user = portal_properties.database_user,
+            passwd = portal_properties.database_pw,
+            db = portal_properties.database_name)
+    except MySQLdb.Error, msg:
+        print >> ERROR_FILE, msg
+        return None
+
+    if connection is not None:
+        return connection.cursor()
+
+def get_db_version(cursor):
+    """ gets the version number of the database """
+
+    # First, see if the version table exists
+    version_table_exists = False
+    try:
+        cursor.execute('select table_name from information_schema.tables')
+        for row in cursor.fetchall():
+            if VERSION_TABLE == row[0].lower().strip():
+                version_table_exists = True
+    except MySQLdb.Error, msg:
+        print >> ERROR_FILE, msg
+        return None
+    
+    if not version_table_exists:
+        return (0,0,0)
+
+    # Now query the table for the version number
+    try:
+        cursor.execute('select ' + VERSION_FIELD + ' from ' + VERSION_TABLE)
+        for row in cursor.fetchall():
+            version = tuple(map(int, row[0].strip().split('.')))
+    except MySQLdb.Error, msg:
+        print >> ERROR_FILE, msg
+        return None
+
+    return version
+
 def main():
     # parse command line options
     try:
-        opts, args = getopt.getopt(sys.argv[1:], '', ['jvm-args=', 'command=', 'meta-filename=', 'data-filename='])
+        opts, args = getopt.getopt(sys.argv[1:], '', ['jvm-args=', 'command=', 'meta-filename=', 'data-filename=', 'properties-filename='])
     except getopt.error, msg:
         print >> ERROR_FILE, msg
         usage()
@@ -117,6 +223,7 @@ def main():
     jvm_args = ''
     meta_filename = ''
     data_filename = ''
+    properties_filename = ''
 
     for o, a in opts:
         if o == '--jvm-args':
@@ -127,7 +234,16 @@ def main():
             meta_filename = a
         elif o == '--data-filename':
             data_filename = a
+        elif o == '--properties-filename':
+            properties_filename = a
 
+    if not os.path.exists(properties_filename):
+        print >> ERROR_FILE, 'properties file cannot be found'
+        usage()
+        sys.exit(2)
+
+    portal_properties = get_portal_properties(properties_filename)
+    check_db(portal_properties)
     check_args(command, jvm_args, meta_filename, data_filename)
     check_files(meta_filename, data_filename)
     process_command(jvm_args, command, meta_filename, data_filename)

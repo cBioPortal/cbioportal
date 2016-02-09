@@ -84,9 +84,12 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
         }
         
         $('#cna_summary_wrapper_table').hide();
-        if (!genomicEventObs.hasMut||!genomicEventObs.hasSeg) $('#mut-cna-scatter').hide();
+        var showMutCnaPlot = false;//genomicEventObs.hasMut&&genomicEventObs.hasSeg;
+        if (!showMutCnaPlot) {
+            $('#mut-cna-scatter').hide();
+        }
         if (showGenomicOverview) initGenomicsOverview();
-        if (genomicEventObs.hasMut&&genomicEventObs.hasSeg) {
+        if (showMutCnaPlot) {
             loadMutCnaAndPlot("mut-cna-scatter");
             addMutCnaPlotTooltip("mut-cna-scatter");
         }
@@ -96,7 +99,8 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
         var chmInfo = new ChmInfo();
 
         var genomic_overview_length = $("#td-content").width() - 75;
-        genomic_overview_length -= ((genomicEventObs.hasMut && genomicEventObs.hasSeg) ? 110 : 0);
+        var showMutCnaPlot = false;//genomicEventObs.hasMut&&genomicEventObs.hasSeg;
+        genomic_overview_length -= (showMutCnaPlot ? 110 : 0);
         genomic_overview_length -= (hasAlleleFrequencyData&&caseIds.length===1 ? 110 : 0);
         var config = new GenomicOverviewConfig(
                 (genomicEventObs.hasMut?caseIds.length:0)+(genomicEventObs.hasSeg?caseIds.length:0), genomic_overview_length);

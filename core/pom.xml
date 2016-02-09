@@ -407,6 +407,7 @@
                 <exclude>sample_data/**</exclude>
                 <exclude>db/*.png</exclude>
                 <exclude>db/*.pdf</exclude>
+                <exclude>db/migration.sql</exclude>
             </excludes>
 		</resource>
 	  </resources>

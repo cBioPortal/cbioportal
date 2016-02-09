@@ -222,7 +222,7 @@ def interface():
                         help='Command for import.')
     parser.add_argument('-s', '--study_directory',type=str, required=False,
                         help='Path to Study Directory')
-    parser.add_argument('-jar', '--jar_path',type=str, required=True,
+    parser.add_argument('-jar', '--jar_path',type=str, required=False,
                         help='Path to core JAR file')
     parser.add_argument('-meta', '--meta_filename',type=str, required=False,
                         help='Path to meta file')
@@ -245,6 +245,20 @@ def main(args):
     module_logger.addHandler(error_handler)
     LOGGER = module_logger
 
+    # jar_path is optional. If not set, try to make it up based on PORTAL_HOME
+    if args.jar_path is None:
+        portal_home = os.environ.get('PORTAL_HOME', None)
+        if portal_home is None:
+            # PORTAL_HOME also not set...quit trying with error: 
+            print 'Either --jar_path needs to be given or environment variable PORTAL_HOME needs to be set'
+            sys.exit(2)
+        else: 
+            #find jar files in lib folder and add them to classpath:
+            import glob
+            jars = glob.glob(portal_home + "/portal/target/portal/WEB-INF/lib/core-*-SNAPSHOT.jar")
+            args.jar_path = ":".join(jars)
+            print args.jar_path
+        
     # process the options
     jvm_args = "-Dspring.profiles.active=dbcp -cp " + args.jar_path
     study_directory = args.study_directory

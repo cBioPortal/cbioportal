@@ -401,6 +401,7 @@ def get_meta_file_type(metaDictionary, logger, filename):
         ("COPY_NUMBER_ALTERATION", "DISCRETE"): MetaFileTypes.CNA,
         ("COPY_NUMBER_ALTERATION", "CONTINUOUS"): MetaFileTypes.CNA_CONTINUOUS, 
         ("COPY_NUMBER_ALTERATION", "LOG2-VALUE"): MetaFileTypes.CNA_LOG2,
+        ("COPY_NUMBER_ALTERATION", "SEG"): MetaFileTypes.SEG,
         # expression
         ("MRNA_EXPRESSION", "CONTINUOUS"): MetaFileTypes.EXPRESSION,
         ("MRNA_EXPRESSION", "Z-SCORE"): MetaFileTypes.EXPRESSION,
@@ -408,7 +409,6 @@ def get_meta_file_type(metaDictionary, logger, filename):
         # mutations
         ("MUTATION_EXTENDED", "MAF"): MetaFileTypes.MUTATION,
         # others
-        ("COPY_NUMBER_ALTERATION", "SEG"): MetaFileTypes.SEG,
         ("METHYLATION", "CONTINUOUS"): MetaFileTypes.METHYLATION,
         ("FUSION", "FUSION"): MetaFileTypes.FUSION
         # TODO

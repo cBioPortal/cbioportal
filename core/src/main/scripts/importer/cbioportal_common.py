@@ -504,9 +504,11 @@ def parse_metadata_file(filename,
 
     :param filename: name of the meta file
     :param logger: the logging.Logger instance to log warnings and errors to
-    :param study_id: cancer study id found in previous files (or None). All subsequent
-                     meta files should comply to this in the field 'cancer_study_identifier'
-    :param genome_name: supported reference genome name, for validation
+    :param study_id: (optional - set if you want study_id to be validated) 
+                    cancer study id found in previous files (or None). All subsequent
+                    meta files should comply to this in the field 'cancer_study_identifier'
+    :param genome_name: (optional - set if you want this to be validated)
+                    supported reference genome name, for validation
     :param case_list: whether this meta file is a case list (special case)
     """
 
@@ -583,7 +585,7 @@ def parse_metadata_file(filename,
 
     # type-specific validations
     if meta_file_type == MetaFileTypes.SEG:
-        if metaDictionary['reference_genome_id'] != genome_name:
+        if genome_name is not None and metaDictionary['reference_genome_id'] != genome_name:
             logger.error(
                 'Reference_genome_id is not %s',
                 genome_name,

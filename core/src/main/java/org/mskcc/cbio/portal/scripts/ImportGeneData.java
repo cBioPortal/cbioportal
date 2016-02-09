@@ -45,53 +45,124 @@ import java.util.*;
 public class ImportGeneData {
 
     public static void importData(ProgressMonitor pMonitor, File geneFile) throws IOException, DaoException {
-        MySQLbulkLoader.bulkLoadOn();
-        FileReader reader = new FileReader(geneFile);
-        BufferedReader buf = new BufferedReader(reader);
-        String line = buf.readLine();
-        DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-        while (line != null) {
-            if (pMonitor != null) {
-                pMonitor.incrementCurValue();
-                ConsoleUtil.showProgress(pMonitor);
-            }
-            if (!line.startsWith("#")) {
-                String parts[] = line.split("\t");
-                int entrezGeneId = Integer.parseInt(parts[1]);
-                String geneSymbol = parts[2];
-                String locusTag = parts[3];
-                String strAliases = parts[4];
-                String strXrefs = parts[5];
-                String cytoband = parts[7];
-                String desc = parts[8];
-                String type = parts[9];
-                Set<String> aliases = new HashSet<String>();
-                if (!locusTag.equals("-")) {
-                    aliases.add(locusTag);
+        Map<String, Set<CanonicalGene>> genesWithSymbolFromNomenClatureAuthority = new LinkedHashMap<>();
+        Map<String, Set<CanonicalGene>> genesWithoutSymbolFromNomenClatureAuthority = new LinkedHashMap<>();
+        try (FileReader reader = new FileReader(geneFile)) {
+            BufferedReader buf = new BufferedReader(reader);
+            String line;
+            while ((line = buf.readLine()) != null) {
+                if (pMonitor != null) {
+                    pMonitor.incrementCurValue();
+                    ConsoleUtil.showProgress(pMonitor);
                 }
-                if (!strAliases.equals("-")) {
-                    aliases.addAll(Arrays.asList(strAliases.split("\\|")));
+                if (line.startsWith("#")) {
+                    continue;
                 }
                 
-                if (geneSymbol.startsWith("MIR") && type.equalsIgnoreCase("miscRNA")) {
-                    line = buf.readLine();
-                    continue; // ignore miRNA; process seperately
-                }
-                
-                CanonicalGene gene = new CanonicalGene(entrezGeneId, geneSymbol,
-                        aliases);
-                if (!cytoband.equals("-")) {
-                    gene.setCytoband(cytoband);
-                }
-                gene.setType(type);
-                daoGene.addGene(gene);
+                    String parts[] = line.split("\t");
+                    int taxonimy = Integer.parseInt(parts[0]);
+                    if (taxonimy!=9606) {
+                        // only import human genes
+                        continue;
+                    }
+                    
+                    int entrezGeneId = Integer.parseInt(parts[1]);
+                    String geneSymbol = parts[2];
+                    String locusTag = parts[3];
+                    String strAliases = parts[4];
+                    String strXrefs = parts[5];
+                    String cytoband = parts[7];
+                    String desc = parts[8];
+                    String type = parts[9];
+                    String mainSymbol = parts[10]; // use 10 instead of 2 since column 2 may have duplication
+                    Set<String> aliases = new HashSet<String>();
+                    if (!locusTag.equals("-")) {
+                        aliases.add(locusTag);
+                    }
+                    if (!strAliases.equals("-")) {
+                        aliases.addAll(Arrays.asList(strAliases.split("\\|")));
+                    }
+                    
+                    if (geneSymbol.startsWith("MIR") && type.equalsIgnoreCase("miscRNA")) {
+                        line = buf.readLine();
+                        continue; // ignore miRNA; process seperately
+                    }
+                    
+                    CanonicalGene gene = null;
+                    if (!mainSymbol.equals("-")) {
+                        gene = new CanonicalGene(entrezGeneId, mainSymbol, aliases);
+                        Set<CanonicalGene> genes = genesWithSymbolFromNomenClatureAuthority.get(mainSymbol);
+                        if (genes==null) {
+                            genes = new HashSet<CanonicalGene>();
+                            genesWithSymbolFromNomenClatureAuthority.put(mainSymbol, genes);
+                        }
+                        genes.add(gene);
+                    } else if (!geneSymbol.equals("-")) {
+                        gene = new CanonicalGene(entrezGeneId, geneSymbol, aliases);
+                        Set<CanonicalGene> genes = genesWithoutSymbolFromNomenClatureAuthority.get(geneSymbol);
+                        if (genes==null) {
+                            genes = new HashSet<CanonicalGene>();
+                            genesWithoutSymbolFromNomenClatureAuthority.put(geneSymbol, genes);
+                        }
+                        genes.add(gene);
+                    }
+                    
+                    if (gene!=null) {
+                        if (!cytoband.equals("-")) {
+                            gene.setCytoband(cytoband);
+                        }
+                        gene.setType(type);
+                    }
             }
-            line = buf.readLine();
         }
-        reader.close();
+        
+        MySQLbulkLoader.bulkLoadOn();
+        DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
+
+        // Add genes with symbol from nomenclature authority
+        for (Map.Entry<String, Set<CanonicalGene>> entry : genesWithSymbolFromNomenClatureAuthority.entrySet()) {
+            Set<CanonicalGene> genes = entry.getValue();
+            if (genes.size()==1) {
+                daoGene.addGene(genes.iterator().next());
+            } else {
+                logDuplicateGeneSymbolWarning(pMonitor, entry.getKey(), genes);
+            }
+        }
+
+        // Add genes with symbol from nomenclature authority
+        for (Map.Entry<String, Set<CanonicalGene>> entry : genesWithoutSymbolFromNomenClatureAuthority.entrySet()) {
+            Set<CanonicalGene> genes = entry.getValue();
+            String symbol = entry.getKey();
+            if (genes.size()==1) {
+                CanonicalGene gene = genes.iterator().next();
+                if (!genesWithSymbolFromNomenClatureAuthority.containsKey(symbol)) {
+                    daoGene.addGene(gene);
+                } else {
+                    // ignore entries with a symbol that have the same value as stardard one
+                    pMonitor.logWarning("Ignored line with entrez gene id "+gene.getEntrezGeneId()
+                            + ". "+symbol+" is already imported.");
+                }
+            } else {
+                logDuplicateGeneSymbolWarning(pMonitor, symbol, genes);
+            }
+        }
+        
         if (MySQLbulkLoader.isBulkLoad()) {
            MySQLbulkLoader.flushAll();
         }        
+    }
+    
+    private static void logDuplicateGeneSymbolWarning(ProgressMonitor pMonitor, String symbol, Set<CanonicalGene> genes) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("More than 1 gene has the same symbol ")
+                .append(symbol)
+                .append(":");
+        for (CanonicalGene gene : genes) {
+            sb.append(" ")
+                    .append(gene.getEntrezGeneId())
+                    .append(". Ignore...");
+        }
+        pMonitor.logWarning(sb.toString());
     }
 
     private static void importGeneLength(ProgressMonitor pMonitor, File geneFile) throws IOException, DaoException {

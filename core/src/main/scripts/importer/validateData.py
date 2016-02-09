@@ -35,7 +35,6 @@ DEFINED_SAMPLE_IDS = None
 DEFINED_CANCER_TYPES = None
 
 # portal-specific globals
-SERVER_URL = 'http://localhost/cbioportal'
 PORTAL_CANCER_TYPES = None
 
 
@@ -1721,7 +1720,6 @@ def main_validate(args):
     """Main function: process parsed arguments and validate the study."""
 
     # global portal properties
-    global SERVER_URL
     global PORTAL_CANCER_TYPES
 
     # get a logger to emit messages
@@ -1732,7 +1730,7 @@ def main_validate(args):
 
     # process the options
     study_dir = args.study_directory
-    SERVER_URL = args.url_server
+    server_url = args.url_server
 
     html_output_filename = args.html_table
 
@@ -1778,14 +1776,14 @@ def main_validate(args):
 
     # retrieve cancer types defined in the portal
     PORTAL_CANCER_TYPES = request_from_portal_api(
-        SERVER_URL + '/api/cancertypes',
+        server_url + '/api/cancertypes',
         logger,
         id_field='id')
     # retrieve clinical attributes defined in the portal
-    ClinicalValidator.request_attrs(SERVER_URL, logger)
+    ClinicalValidator.request_attrs(server_url, logger)
     # Entrez values for Hugo symbols in the portal
-    hugo_entrez_map = get_symbol_entrez_map(SERVER_URL, logger)
-    aliases_entrez_map = get_symbol_entrez_map(SERVER_URL, logger, True)
+    hugo_entrez_map = get_symbol_entrez_map(server_url, logger)
+    aliases_entrez_map = get_symbol_entrez_map(server_url, logger, True)
 
     validate_study(study_dir, logger, hugo_entrez_map, aliases_entrez_map)
 

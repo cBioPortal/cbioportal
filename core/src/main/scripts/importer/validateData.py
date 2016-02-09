@@ -28,7 +28,7 @@ import cbioportal_common
 
 # Only supported reference genome build number and name
 NCBI_BUILD_NUMBER = 37
-GENOMIC_BUILD_COUNTERPART = 'hg19'
+GENOMIC_BUILD_NAME = 'hg19'
 
 # study-specific globals
 DEFINED_SAMPLE_IDS = None
@@ -511,6 +511,19 @@ class Validator(object):
                     '/'.join(self.aliases_entrez_map[gene_symbol]),
                     extra={'line_number': self.line_number})
                 return False
+            else: # means  len(self.hugo_entrez_map.get(gene_symbol, [])) == 1:
+                found_entrez_id = self.hugo_entrez_map[gene_symbol][0]
+                # check if there are other *different* entrez ids associated to this symbol:
+                other_entrez_ids_in_aliases = [x for x in self.aliases_entrez_map.get(gene_symbol, []) if x != found_entrez_id ]
+                if len(other_entrez_ids_in_aliases) >= 1:
+                    # Give warning, as the symbol has been used before to refer to different entrez_ids over time:
+                    self.logger.warning(
+                    'Gene symbol (%s) maps to a single entrez id (%s), '
+                    'but this symbol is also associated to other entrez ids as an alias. The system will assume '
+                    'the mapped entrez id to be the intended one.',
+                    gene_symbol,
+                    found_entrez_id,
+                    extra={'line_number': self.line_number}) 
         else:
             self.logger.error(
                 'No Entrez id or gene symbol provided for gene',
@@ -1163,7 +1176,9 @@ class SegValidator(Validator):
 
         if (
                 'loc.start' in parsed_coords and 'loc.end' in parsed_coords and
-                parsed_coords['loc.start'] >= parsed_coords['loc.end'] - 1):
+                parsed_coords['loc.start'] >= parsed_coords['loc.end']): 
+            # is an error according to UCSC "0" convention, end location excluded. 
+            # see also https://groups.google.com/forum/#!topic/igv-help/LjffjxPul2M 
             self.logger.error(
                 'Start position of segment is not lower than end position',
                 extra={'line_number': self.line_number,
@@ -1453,7 +1468,7 @@ def process_metadata_files(directory, logger, hugo_entrez_map, aliases_entrez_ma
     for filename in filenames:
 
         meta, meta_file_type = cbioportal_common.parse_metadata_file(
-            filename, logger, study_id, GENOMIC_BUILD_COUNTERPART)
+            filename, logger, study_id, GENOMIC_BUILD_NAME)
         if meta_file_type is None:
             continue
         # validate stable_id to be unique (check can be removed once we deprecate this field):

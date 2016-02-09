@@ -39,7 +39,7 @@ import org.mskcc.cbio.portal.servlet.QueryBuilder;
 
 public class DBVersionUtil {
     
-    private static final String VERSION_LINE = "INSERT into info values";
+    private static final String VERSION_LINE = "INSERT INTO info VALUES";
     private static final String CGDS_SQL_FILENAME = "cgds.sql";
     public static final String HOME_DIR = "PORTAL_HOME";
     

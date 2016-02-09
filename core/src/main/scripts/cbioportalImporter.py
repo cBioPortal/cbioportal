@@ -21,10 +21,27 @@ REMOVE_STUDY = "remove-study"
 IMPORT_STUDY_DATA = "import-study-data"
 IMPORT_CASE_LIST = "import-case-list"
 
+DATABASE_HOST = 'db.host'
+DATABASE_NAME = 'db.portal_db_name'
+DATABASE_USER = 'db.user'
+DATABASE_PW = 'db.password'
+VERSION_TABLE = 'info'
+VERSION_FIELD = 'DB_SCHEMA_VERSION'
+
 COMMANDS = [IMPORT_CANCER_TYPE, IMPORT_STUDY, REMOVE_STUDY, IMPORT_STUDY_DATA, IMPORT_CASE_LIST]
 
-CGDS_SQL_FILE = 'core/src/main/resouces/cgds.sql'
+CGDS_SQL_FILE = 'core/src/main/resources/cgds.sql'
 PORTAL_HOME = "PORTAL_HOME"
+
+VERSION_LINE = 'INSERT INTO info VALUES'
+
+class PortalProperties(object):
+    
+    def __init__(self, database_host, database_name, database_user, database_pw):
+        self.database_host = database_host
+        self.database_name = database_name
+        self.database_user = database_user
+        self.database_pw = database_pw
 
 # ------------------------------------------------------------------------------
 # sub-routines
@@ -122,7 +139,8 @@ def process_command(jvm_args, command, meta_filename, data_filename):
 def usage():
     print >> OUTPUT_FILE, ('cbioportalImporter.py --jvm-args (args to jvm) ' +
 							'--command [%s] --meta-filename <path to metafile> ' +
-							'--data-filename <path to datafile>' % (COMMANDS))
+							'--data-filename <path to datafile> ' +
+                            '--properties-filename <path to properties file> ' % (COMMANDS))
 
 def check_args(command, jvm_args, meta_filename, data_filename):
     if (jvm_args == '' or command not in COMMANDS or meta_filename == ''):
@@ -143,13 +161,15 @@ def check_files(meta_filename, data_filename):
 
 def check_db(portal_properties):
     cursor = get_db_cursor(portal_properties)
-    db_version = (0,0,0)
+    db_version = ""
     if cursor is not None:
-        db_version = get_db_version(cursor)
-    portal_db_version = get_portal_db_version()
+        db_version = '.'.join(map(str,get_db_version(cursor))).strip()
+    portal_db_version = get_portal_db_version().strip()
     
-    if portal_db_version is not db_version:
+    if portal_db_version != db_version:
         print >> OUTPUT_FILE, 'This version of the portal is out of sync with the database. You must run the database migration script located at PORTAL_HOME/core/src/main/scripts/migrate_db.py before continuing'
+        print >> OUTPUT_FILE, 'Portal Version of DB: ' + portal_db_version
+        print >> OUTPUT_FILE, 'DB Version: ' + db_version
         sys.exit()
 
 def get_portal_db_version():
@@ -163,7 +183,7 @@ def get_portal_db_version():
 
     for line in cgds_file:
         if VERSION_LINE in line:
-            return line[line.find('("') + 2, line.find('")')]
+            return line[line.find('("') + 2:line.find('")')]
 
 def get_db_cursor(portal_properties):
     """ Establishes a MySQL connection """

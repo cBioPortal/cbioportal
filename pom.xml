@@ -198,6 +198,7 @@
     <bundle.namespace>org.mskcc.mondrian</bundle.namespace>
     <timestamp>${maven.build.timestamp}</timestamp>
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
+    <db.version>1.1.0</db.version>
   </properties>
 
   <!-- modules -->
@@ -428,6 +429,22 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/maven.properties</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <excludes>
+                    <exclude>**/maven.properties</exclude>
+                </excludes>
+            </resource>
+        </resources>
         <!-- this plugin will allow us to share resources with children -->
         <plugins>
             <plugin>

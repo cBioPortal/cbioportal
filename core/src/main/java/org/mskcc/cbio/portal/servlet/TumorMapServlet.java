@@ -107,7 +107,7 @@ public class TumorMapServlet extends HttpServlet {
         String cancerStudyIds = request.getParameter(QueryBuilder.CANCER_STUDY_ID);
         
          // Get the db version
-         String dbPortalVersion = DBVersionUtil.getDbVersion();
+         String dbPortalVersion = MavenProperties.getDbVersion();
          String dbVersion = DaoInfo.getVersion();
          if (!dbPortalVersion.equals(dbVersion))
          {

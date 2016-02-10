@@ -9,6 +9,7 @@ import os
 import sys
 import getopt
 import MySQLdb
+import xml.etree.ElementTree as ET
 from cbioportal_common import *
 
 # ------------------------------------------------------------------------------
@@ -30,10 +31,10 @@ VERSION_FIELD = 'DB_SCHEMA_VERSION'
 
 COMMANDS = [IMPORT_CANCER_TYPE, IMPORT_STUDY, REMOVE_STUDY, IMPORT_STUDY_DATA, IMPORT_CASE_LIST]
 
-CGDS_SQL_FILE = 'core/src/main/resources/db/cgds.sql'
 PORTAL_HOME = "PORTAL_HOME"
 
-VERSION_LINE = 'INSERT INTO info VALUES'
+POM_FILENAME = 'pom.xml'
+DB_VERSION = 'db.version'
 
 class PortalProperties(object):
     
@@ -174,16 +175,16 @@ def check_db(portal_properties):
 
 def get_portal_db_version():
     portal_home = os.environ[PORTAL_HOME]
-    cgds_filename = os.path.join(portal_home, CGDS_SQL_FILE)
+    pom_filename = os.path.join(portal_home, POM_FILENAME)
 
-    if not os.path.exists(cgds_filename):
-        print >> ERROR_FILE, 'could not find cgds.sql. Ensure that PORTAL_HOME environment variable is set.'
+    if not os.path.exists(pom_filename):
+        print >> ERROR_FILE, 'could not find pom.xml. Ensure that PORTAL_HOME environment variable is set.'
         sys.exit(1)
-    cgds_file = open(cgds_filename, 'rU')
-
-    for line in cgds_file:
-        if VERSION_LINE in line:
-            return line[line.find('("') + 2:line.find('")')]
+    
+    for event, ele in ET.iterparse(pom_filename):
+        if DB_VERSION in ele.tag:
+            return ele.text.strip()
+        ele.clear()
 
 def get_db_cursor(portal_properties):
     """ Establishes a MySQL connection """

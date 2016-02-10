@@ -33,70 +33,51 @@
 package org.mskcc.cbio.portal.util;
 
 import java.io.*;
+import java.util.Properties;
 
-public class DBVersionUtil {
+public class MavenProperties {
     
     private static final String VERSION_LINE = "INSERT INTO info VALUES";
-    private static final String CGDS_SQL_FILENAME = "db" + File.separator + "cgds.sql";
+    private static final String RESOURCE_FILENAME =  "maven.properties";
     public static final String HOME_DIR = "PORTAL_HOME";
+    public static final String DATABASE_VERSION = "db.version";
     
-    private static final String dbVersion = readDbVersion();
+    private static final Properties properties = initializeMavenProperties();
     
     
-    private static String readDbVersion()
+    private static Properties initializeMavenProperties()
     {
-        return processSqlFile(getResourceStream());
+        return loadProperties(getResourceStream());
     }
     
     private static InputStream getResourceStream()
     {
         String resourceFilename = null;
         InputStream is = null;
-
-        try {
-            String home = System.getenv(HOME_DIR);
-            if (home != null) {
-                 resourceFilename =
-                    home + File.separator + DBVersionUtil.CGDS_SQL_FILENAME;
-                is = new FileInputStream(resourceFilename);
-            }
-        }
-        catch (FileNotFoundException e) {
-        }
         
-        if (is == null) {
-            is = DBVersionUtil.class.getClassLoader().getResourceAsStream(DBVersionUtil.CGDS_SQL_FILENAME);
-        }
-         
+        is = MavenProperties.class.getClassLoader().getResourceAsStream(MavenProperties.RESOURCE_FILENAME);
+  
         return is;
     }
     
-    private static String processSqlFile(InputStream is)
+    private static Properties loadProperties(InputStream resourceInputStream)
     {
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new BufferedInputStream(is)));
-        String line = null;
-        String version = "0";
-        try
-        {
-            while((line = bufferedReader.readLine()) != null)
-            {
-                if(line.contains(DBVersionUtil.VERSION_LINE))
-                {
-                    System.out.println(line);
-                    version = line.substring(line.indexOf("('") + 2, line.indexOf("')"));
-                }
-            }
-        } catch (IOException e)
-        {
-            System.out.println("Failed to process cgds.sql");
-        } 
-        
-        return version;
+        Properties properties = new Properties();
+
+        try {
+            properties.load(resourceInputStream);
+            resourceInputStream.close();
+        }
+        catch (IOException e) {
+            System.out.println("Failed to read maven properties");
+        }
+
+        return properties;
     }
     
     public static String getDbVersion()
     {
-        return DBVersionUtil.dbVersion;
+        return properties.getProperty(DATABASE_VERSION);
     }
     
     public static void main(String[] args)

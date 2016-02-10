@@ -32,7 +32,7 @@
 
 package org.mskcc.cbio.portal.dao;
 
-import org.mskcc.cbio.portal.util.DBVersionUtil;
+import org.mskcc.cbio.portal.util.MavenProperties;
 
 /**
  * Exception Occurred while reading/writing data to database.
@@ -69,7 +69,7 @@ public class DaoException extends Exception {
      */
     public String getMessage() {
         String dbVersion = DaoInfo.getVersion();
-        String portalDbVersion = DBVersionUtil.getDbVersion();
+        String portalDbVersion = MavenProperties.getDbVersion();
         return "Database Version: " + dbVersion + " Portal DB Version Expected: " + portalDbVersion + msg;
     }
 }

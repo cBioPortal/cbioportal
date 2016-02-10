@@ -62,9 +62,6 @@ META_FIELD_MAP = {
         'cancer_study_identifier': True,
         'genetic_alteration_type': True,
         'datatype': True,
-        'show_profile_in_analysis_tab': True,
-        'profile_name': True,
-        'profile_description': True,
         'data_filename': True
     },
     MetaFileTypes.CNA: {

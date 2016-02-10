@@ -33,9 +33,6 @@
 package org.mskcc.cbio.portal.util;
 
 import java.io.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.mskcc.cbio.portal.servlet.QueryBuilder;
 
 public class DBVersionUtil {
     
@@ -85,7 +82,8 @@ public class DBVersionUtil {
             {
                 if(line.contains(DBVersionUtil.VERSION_LINE))
                 {
-                    version = line.substring(line.indexOf("(\"") + 2, line.indexOf("\")"));
+                    System.out.println(line);
+                    version = line.substring(line.indexOf("('") + 2, line.indexOf("')"));
                 }
             }
         } catch (IOException e)
@@ -99,6 +97,11 @@ public class DBVersionUtil {
     public static String getDbVersion()
     {
         return DBVersionUtil.dbVersion;
+    }
+    
+    public static void main(String[] args)
+    {
+        System.out.println(getDbVersion());
     }
 }
 

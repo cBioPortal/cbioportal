@@ -44,6 +44,7 @@ public class DaoInfo {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
+        version = "-1";
         try {
             con = JdbcUtil.getDbConnection(DaoInfo.class);
             pstmt = con.prepareStatement

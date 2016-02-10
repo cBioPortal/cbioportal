@@ -693,6 +693,7 @@ class MutationsExtendedValidator(Validator):
         'HGVSp_Short', # Required to initialize the Mutation Diagram
         'Variant_Type', # Required to initialize the Mutation Diagram
         'Protein_position', # Required to initialize the 3D viewer
+        'Variant_Classification', # seems to be important during loading/filtering step.
         'SWISSPROT' # Needed for consistent PDB structure matching.
     ]
     REQUIRE_COLUMN_ORDER = False
@@ -713,7 +714,8 @@ class MutationsExtendedValidator(Validator):
         'Hugo_Symbol': 'checkNotBlank', 
         'HGVSp_Short': 'checkAminoAcidChange',
         'Variant_Type': 'checkNotBlank',
-        'Protein_position': 'checkNotBlank', 
+        'Protein_position': 'checkNotBlank',
+        'Variant_Classification': 'checkNotBlank',
         'SWISSPROT': 'checkNotBlank' 
     }
 
@@ -866,7 +868,7 @@ class MutationsExtendedValidator(Validator):
 
     def checkNotBlank(self, value):
         """Test whether a string is blank."""
-        if value is None or value == '':
+        if value is None or value.strip() == '':
             return False
         return True
 

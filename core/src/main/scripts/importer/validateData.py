@@ -1046,6 +1046,14 @@ class ClinicalValidator(Validator):
                                    'cause': value})
                         num_errors += 1
 
+        # some warnings for special cases:
+        if 'OS_MONTHS' not in self.cols or 'OS_STATUS' not in self.cols:
+            self.logger.warning('Columns OS_MONTHS and/or OS_STATUS not found. Overall survival analysis feature will '
+                                'not be available for this study.')
+        if 'DFS_MONTHS' not in self.cols or 'DFS_STATUS' not in self.cols:
+            self.logger.warning('Columns DFS_MONTHS and/or DFS_STATUS not found. Disease free analysis feature will '
+                                'not be available for this study.')
+        
         return num_errors
 
     def checkLine(self, data):
@@ -1061,6 +1069,12 @@ class ClinicalValidator(Validator):
                                'column_number': col_index + 1,
                                'cause': value})
                 self.sampleIds.add(value.strip())
+            if col_index == self.cols.index('PATIENT_ID') and value.strip() == '':
+                self.logger.error(
+                        'PATIENT_ID should not be empty',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
 
     @classmethod
     def request_attrs(cls, server_url, logger):

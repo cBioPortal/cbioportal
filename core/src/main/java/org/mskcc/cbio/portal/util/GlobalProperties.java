@@ -190,6 +190,8 @@ public class GlobalProperties {
     
     public static final String RECACHE_STUDY_AFTER_UPDATE = "recache_study_after_update";
     
+    public static final String DB_VERSION = "db.version";
+    
     private static Log LOG = LogFactory.getLog(GlobalProperties.class);
     private static Properties properties = initializeProperties();
 
@@ -701,6 +703,10 @@ public class GlobalProperties {
             return false;
         }
         return Boolean.parseBoolean(recacheStudyAfterUpdate);
+    }
+    
+    public static String getDbVersion() {
+        return properties.getProperty(DB_VERSION);
     }
     
     public static void main(String[] args)

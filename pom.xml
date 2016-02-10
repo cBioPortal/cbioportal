@@ -434,14 +434,14 @@
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
                 <includes>
-                    <include>**/maven.properties</include>
+                    <include>**/portal.properties</include>
                 </includes>
             </resource>
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>false</filtering>
                 <excludes>
-                    <exclude>**/maven.properties</exclude>
+                    <exclude>**/portal.properties</exclude>
                 </excludes>
             </resource>
         </resources>

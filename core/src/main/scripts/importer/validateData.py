@@ -471,7 +471,7 @@ class Validator(object):
                     return False
                 elif entrez_id not in (self.hugo_entrez_map.get(gene_symbol, []) + self.aliases_entrez_map.get(gene_symbol, [])):
                     self.logger.error(
-                        'Gene symbol does not match given Entrez id',
+                        'Hugo symbol and Entrez identifier do not match',
                         extra={'line_number': self.line_number,
                                'cause': '(' + gene_symbol + ',' + entrez_id + ')'})
                     return False

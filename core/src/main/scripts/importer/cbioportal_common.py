@@ -62,9 +62,6 @@ META_FIELD_MAP = {
         'cancer_study_identifier': True,
         'genetic_alteration_type': True,
         'datatype': True,
-        'show_profile_in_analysis_tab': True,
-        'profile_name': True,
-        'profile_description': True,
         'data_filename': True
     },
     MetaFileTypes.CNA: {
@@ -308,8 +305,8 @@ class LogfileStyleFormatter(ValidationMessageFormatter):
         record.cause_indicator = self.format_aggregated(
             record,
             'cause',
-            "; found in file: '%s'",
-            "; found in file: ['%s']",
+            "; wrong value: '%s'",
+            "; wrong values: ['%s']",
             join_string="', '",
             optional=True)
 
@@ -402,6 +399,7 @@ def get_meta_file_type(metaDictionary, logger, filename):
         ("COPY_NUMBER_ALTERATION", "DISCRETE"): MetaFileTypes.CNA,
         ("COPY_NUMBER_ALTERATION", "CONTINUOUS"): MetaFileTypes.CNA_CONTINUOUS, 
         ("COPY_NUMBER_ALTERATION", "LOG2-VALUE"): MetaFileTypes.CNA_LOG2,
+        ("COPY_NUMBER_ALTERATION", "SEG"): MetaFileTypes.SEG,
         # expression
         ("MRNA_EXPRESSION", "CONTINUOUS"): MetaFileTypes.EXPRESSION,
         ("MRNA_EXPRESSION", "Z-SCORE"): MetaFileTypes.EXPRESSION,
@@ -409,7 +407,6 @@ def get_meta_file_type(metaDictionary, logger, filename):
         # mutations
         ("MUTATION_EXTENDED", "MAF"): MetaFileTypes.MUTATION,
         # others
-        ("COPY_NUMBER_ALTERATION", "SEG"): MetaFileTypes.SEG,
         ("METHYLATION", "CONTINUOUS"): MetaFileTypes.METHYLATION,
         ("FUSION", "FUSION"): MetaFileTypes.FUSION
         # TODO

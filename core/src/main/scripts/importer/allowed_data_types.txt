@@ -1,3 +1,4 @@
+# Users, admins: DO NOT CHANGE THIS FILE! 
 # These are the combinations of GENETIC_ALTERATION_TYPE, DATATYPE and STABLE_ID that will
 # be allowed by the validator. Changing this file is not recommended by end users as parts of the 
 # cBioPortal code currently depend on some of these stable IDs to be exactly as they are specified

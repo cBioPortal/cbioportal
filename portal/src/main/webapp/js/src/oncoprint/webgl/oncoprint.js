@@ -26,6 +26,7 @@ var Oncoprint = (function () {
 	var $cell_div = $('<div>').css({'width':width, 'height':'250', 'overflow-x':'scroll', 'overflow-y':'hidden', 'display':'inline-block', 'position':'absolute', 'left':'200px', 'top':'0px'}).addClass("noselect");
 	var $cell_canvas = $('<canvas width="'+width+'" height="250"></canvas>').css({'position':'absolute', 'top':'0px', 'left':'0px'}).addClass("noselect");
 	var $dummy_scroll_div = $('<div>').css({'width':'20000', 'position':'absolute', 'top':'0', 'left':'0px', 'height':'1px'});
+	var $cell_overlay_canvas = $('<canvas width="'+width+'" height="250"></canvas>').css({'position':'absolute', 'top':'0px', 'left':'0px'}).addClass("noselect");
 	
 	$label_canvas.appendTo($oncoprint_ctr);
 	$cell_div.appendTo($oncoprint_ctr);
@@ -35,6 +36,7 @@ var Oncoprint = (function () {
 	
 	$cell_canvas.appendTo($cell_div);
 	$dummy_scroll_div.appendTo($cell_div);
+	$cell_overlay_canvas.appendTo($cell_div);
 	
 	this.$container = $oncoprint_ctr;
 	
@@ -42,7 +44,7 @@ var Oncoprint = (function () {
 
 	// Precisely one of the following should be uncommented
 	// this.cell_view = new OncoprintSVGCellView($svg_dev);
-	this.cell_view = new OncoprintWebGLCellView($cell_div, $cell_canvas, $dummy_scroll_div);
+	this.cell_view = new OncoprintWebGLCellView($cell_div, $cell_canvas, $cell_overlay_canvas, $dummy_scroll_div, this.model);
 	
 	this.track_options_view = new OncoprintTrackOptionsView($track_options_div, 
 								function(track_id) { self.removeTrack(track_id); }, 
@@ -65,6 +67,7 @@ var Oncoprint = (function () {
 	$cell_div.scroll(function() {
 	    var scroll_left = $cell_div.scrollLeft();
 	    $cell_canvas.css('left', scroll_left);
+	    $cell_overlay_canvas.css('left', scroll_left);
 	    cell_view.scroll(model, scroll_left);
 	});
     }

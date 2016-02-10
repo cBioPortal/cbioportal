@@ -27,10 +27,10 @@ var OncoprintLabelView = (function () {
 	    
 	    view.$canvas.on("mousemove", function(evt) {
 		if (view.dragged_label_track_id !== null) {
-		    view.drag_mouse_y = evt.offsetY;
+		    view.drag_mouse_y = evt.pageY - view.$canvas.offset().top;
 		    renderAllLabels(view);
 		} else {
-		    if (isMouseOnLabel(view, evt.offsetY) !== null) {
+		    if (isMouseOnLabel(view, evt.pageY - view.$canvas.offset().top) !== null) {
 			view.$canvas.css('cursor', 'move');
 		    } else {
 			view.$canvas.css('cursor', 'auto');

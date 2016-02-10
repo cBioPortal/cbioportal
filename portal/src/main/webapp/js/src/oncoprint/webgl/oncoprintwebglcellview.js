@@ -2,7 +2,7 @@ var gl_matrix = require('gl-matrix');
 
 // TODO: antialiasing
 
-var getCanvasContext = function ($canvas) {
+var getWebGLCanvasContext = function ($canvas) {
     try {
 	var canvas = $canvas[0];
 	var ctx = canvas.getContext("experimental-webgl", {alpha: false});
@@ -73,10 +73,12 @@ var createShader = function (view, source, type) {
 };
 
 var OncoprintWebGLCellView = (function () {
-    function OncoprintWebGLCellView($container, $canvas, $dummy_scroll_div) {
+    function OncoprintWebGLCellView($container, $canvas, $overlay_canvas, $dummy_scroll_div, model) {
 	this.$container = $container;
 	this.$canvas = $canvas;
-	getContextAndSetUpMatrices(this);
+	this.$overlay_canvas = $overlay_canvas;
+	getWebGLContextAndSetUpMatrices(this);
+	getOverlayContextAndClear(this);
 	this.visible_area_width = $canvas[0].width;
 	
 	this.scroll_x = 0;
@@ -125,11 +127,42 @@ var OncoprintWebGLCellView = (function () {
 	    self.shader_program = shader_program;
 	})(this);
 
-	
+	(function initializeOverlayEvents(self) {
+	    self.$overlay_canvas.on("mousemove", function(evt) {
+		var offset = self.$overlay_canvas.offset();
+		var mouseX = evt.pageX - offset.left;
+		var mouseY = evt.pageY - offset.top;
+		var overlapping_cell = model.getOverlappingCell(mouseX, mouseY);
+		if (overlapping_cell !== null) {
+		    var left = model.getColumnLeft(overlapping_cell.id);
+		    overlayPaintRect(self, left, model.getTrackTops(overlapping_cell.track), model.getCellWidth(), model.getTrackHeight(overlapping_cell.track));
+		} else {
+		    clearOverlay(self);
+		}
+	    });
+	})(this);
     }
     
-    var getContextAndSetUpMatrices = function(view) {
-	view.ctx = getCanvasContext(view.$canvas);
+    var overlayPaintRect = function(view, x, y, width, height) {
+	var ctx = view.overlay_ctx;
+	clearOverlay(view);
+	ctx.strokeStyle = "rgba(0,0,0,1)";
+	ctx.strokeWidth = 10;
+	ctx.strokeRect(x, y, width, height);
+    };
+    
+    var clearOverlay = function(view) {
+	view.overlay_ctx.fillStyle = "rgba(0,0,0,0)";
+	view.overlay_ctx.clearRect(0,0,view.$overlay_canvas[0].width, view.$overlay_canvas[0].height);
+    };
+    
+    var getOverlayContextAndClear = function(view) {
+	view.overlay_ctx = view.$overlay_canvas[0].getContext('2d');
+	clearOverlay(view);
+    };
+    
+    var getWebGLContextAndSetUpMatrices = function(view) {
+	view.ctx = getWebGLCanvasContext(view.$canvas);
 	(function initializeMatrices(self) {
 	    var mvMatrix = gl_matrix.mat4.create();
 	    gl_matrix.mat4.lookAt(mvMatrix, [0, 0, 1], [0, 0, 0], [0, 1, 0]);
@@ -146,9 +179,11 @@ var OncoprintWebGLCellView = (function () {
 	var width = view.getWidth(model);
 	view.$dummy_scroll_div.css('width', width);
 	view.$canvas[0].height = height;
+	view.$overlay_canvas[0].height = height;
 	view.$container.css('height', height);
 	view.$container.scrollLeft(Math.min(view.$container.scrollLeft(),width-view.visible_area_width))
-	getContextAndSetUpMatrices(view);
+	getWebGLContextAndSetUpMatrices(view);
+	getOverlayContextAndClear(view);
     };
     var renderAllTracks = function (view, model) {
 	if (view.rendering_suppressed) {
@@ -213,7 +248,7 @@ var OncoprintWebGLCellView = (function () {
 	}
     };
     var computeVertexPositionsWithYOffset = function(view, model, track_id) {
-	var offset_y = model.getTrackTop(track_id);
+	var offset_y = model.getTrackTops(track_id);
 	var positions_with_y_offset = {};
 
 	for (var horz_zone_id in view.vertex_position_array_without_y_offset[track_id]) {
@@ -237,12 +272,7 @@ var OncoprintWebGLCellView = (function () {
 	view.vertex_color_array[track_id] = {};
 	
 	var identified_shape_list_list = view.identified_shape_list_list[track_id];
-	var id_order = model.getIdOrder();
-	var id_to_index = {};
-	for (var i=0; i<id_order.length; i++) {
-	    id_to_index[id_order[i]] = i;
-	}
-	var offset_x_inc = model.getCellPadding() + model.getCellWidth();
+	var id_to_left = model.getColumnLeft();
 	var halfsqrt2 = Math.sqrt(2) / 2;
 	// Compute vertex and color arrays
 	var vertex_position_array;
@@ -250,10 +280,10 @@ var OncoprintWebGLCellView = (function () {
 	for (var i = 0; i < identified_shape_list_list.length; i++) {
 	    var shape_list = identified_shape_list_list[i].shape_list;
 	    var id = identified_shape_list_list[i].id;
-	    if (typeof id_to_index[id] === 'undefined') {
+	    if (typeof id_to_left[id] === 'undefined') {
 		continue;
 	    }
-	    var offset_x = offset_x_inc * id_to_index[id];
+	    var offset_x = id_to_left[id];
 	    var horz_zone_id = Math.floor(offset_x / view.visible_area_width);
 	    
 	    view.vertex_position_array_without_y_offset[track_id][horz_zone_id] = view.vertex_position_array_without_y_offset[track_id][horz_zone_id] || [];

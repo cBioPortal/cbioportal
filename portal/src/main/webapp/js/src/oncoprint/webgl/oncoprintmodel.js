@@ -1,3 +1,5 @@
+var binarysearch = require('./binarysearch.js');
+
 function ifndef(x, val) {
     return (typeof x === "undefined" ? val : x);
 }
@@ -45,10 +47,14 @@ var OncoprintModel = (function () {
 	this.track_sort_direction_changeable = {};
 	
 	this.track_sort_direction = {}; // 1: ascending, -1: descending, 0: not
+	
+	this.cached_track_tops = {};
+	this.cached_column_left = {};//id -> left coord
     }
 
     OncoprintModel.prototype.toggleCellPadding = function () {
 	this.cell_padding_on = !this.cell_padding_on;
+	computeColumnLeft(this);
 	return this.cell_padding_on;
     }
 
@@ -73,6 +79,7 @@ var OncoprintModel = (function () {
 	} else if (z < min_zoom) {
 	    this.horz_zoom = min_zoom;
 	}
+	computeColumnLeft(this);
 	return this.horz_zoom;
     }
     
@@ -88,6 +95,7 @@ var OncoprintModel = (function () {
 	} else if (z < 0) {
 	    this.vert_zoom = 0;
 	}
+	computeTrackTops(this);
 	return this.vert_zoom;
     }
 
@@ -175,6 +183,7 @@ var OncoprintModel = (function () {
     
     OncoprintModel.prototype.setCellPaddingOn = function(cell_padding_on) {
 	this.cell_padding_on = cell_padding_on;
+	computeColumnLeft(this);
     }
     OncoprintModel.prototype.getIdOrder = function (all) {
 	if (all) {
@@ -198,6 +207,7 @@ var OncoprintModel = (function () {
 	this.id_order = ids.slice();
 	computeIdIndex(this);
 	computeVisibleIdOrder(this);
+	computeColumnLeft(this);
 	
 	var track_ids = this.getTracks();
 	for (var i=0; i<track_ids.length; i++) {
@@ -213,6 +223,7 @@ var OncoprintModel = (function () {
 	    this.hidden_ids[to_hide[j]] = true;
 	}
 	computeVisibleIdOrder(this);
+	computeColumnLeft(this);
     }
 
     OncoprintModel.prototype.moveTrackGroup = function (from_index, to_index) {
@@ -227,6 +238,7 @@ var OncoprintModel = (function () {
 	    }
 	}
 	this.track_groups = new_groups;
+	computeTrackTops(this);
 	return this.track_groups;
     }
 
@@ -240,6 +252,7 @@ var OncoprintModel = (function () {
 		    params.sortCmpFn, params.sort_direction_changeable, params.init_sort_direction,
 		    params.data, params.rule_set);
 	}
+	computeTrackTops(this);
     }
     
     OncoprintModel.prototype.setTrackDataIdKey = function(track_id, data_id_key) {
@@ -316,43 +329,64 @@ var OncoprintModel = (function () {
 	    containing_track_group.splice(
 		    containing_track_group.indexOf(track_id), 1);
 	}
+	
+	computeTrackTops(this);
     }
-    OncoprintModel.prototype.getTrackTop = function (track_id) {
-	var groups = this.getTrackGroups();
-	var y = 0;
-	for (var i = 0; i < groups.length; i++) {
-	    var group = groups[i];
-	    var found = false;
-	    for (var j = 0; j < group.length; j++) {
-		if (group[j] === track_id) {
-		    found = true;
-		    break;
-		}
-		y += 2 * this.getTrackPadding(group[j]);
-		y += this.getTrackHeight(group[j]);
-	    }
-	    if (found) {
-		break;
-	    }
-	    y += this.getTrackGroupPadding();
+    
+    var computeColumnLeft = function(model) {
+	var cell_width = model.getCellWidth();
+	var cell_padding = model.getCellPadding();
+	var left = {};
+	var ids = model.getIdOrder();
+	for (var i=0; i<ids.length; i++) {
+	    left[ids[i]] = i*(cell_width + cell_padding);
 	}
-	return y;
-    }
-    OncoprintModel.prototype.getTrackTops = function (track_id) {
+	model.cached_column_left = left;
+    };
+    
+    var computeTrackTops = function(model) {
 	var tops = {};
-	var groups = this.getTrackGroups();
+	var groups = model.getTrackGroups();
 	var y = 0;
 	for (var i = 0; i < groups.length; i++) {
 	    var group = groups[i];
 	    for (var j = 0; j < group.length; j++) {
 		var track_id = group[j];
 		tops[track_id] = y;
-		y += 2 * this.getTrackPadding(track_id);
-		y += this.getTrackHeight(track_id);
+		y += 2 * model.getTrackPadding(track_id);
+		y += model.getTrackHeight(track_id);
 	    }
-	    y += this.getTrackGroupPadding();
+	    if (group.length > 0) {
+		y += model.getTrackGroupPadding();
+	    }
 	}
-	return tops;
+	model.cached_track_tops = tops;
+    };
+    
+    OncoprintModel.prototype.getOverlappingCell = function(x,y) {
+	// First, see if it's in a column
+	var id_order = this.getIdOrder();
+	var column_left = this.getColumnLeft();
+	var nearest_id_index = binarysearch(id_order, x, function(id) { return column_left[id];}, true);
+	if (x < column_left[id_order[nearest_id_index]] + this.getCellWidth()) {
+	    var id = id_order[nearest_id_index];
+	    var tracks = this.getTracks();
+	    var track_tops = this.getTrackTops();
+	    var nearest_track_index = binarysearch(tracks, y, function(track) { return track_tops[track];}, true);
+	    var nearest_track = tracks[nearest_track_index];
+	    if (y < track_tops[nearest_track] + this.getTrackHeight(nearest_track)) {
+		return {'id':id, 'track':nearest_track, 'top':track_tops[nearest_track], 'left':column_left[id]};
+	    }
+	}
+	return null;
+    };
+    
+    OncoprintModel.prototype.getTrackTops = function (desired_track_id) {
+	if (typeof desired_track_id === 'undefined') {
+	    return this.cached_track_tops;
+	} else {
+	    return this.cached_track_tops[desired_track_id];
+	}
     }
     OncoprintModel.prototype.getContainingTrackGroup = function (track_id) {
 	return _getContainingTrackGroup(this, track_id, false);
@@ -373,10 +407,18 @@ var OncoprintModel = (function () {
 	return ret;
     }
 
+    OncoprintModel.prototype.getColumnLeft = function(id) {
+	if (typeof id === 'undefined') {
+	    return this.cached_column_left;
+	} else {
+	    return this.cached_column_left[id];
+	}
+    }
+    
     OncoprintModel.prototype.getViewHeight = function() {
 	var tracks = this.getTracks();
 	var last_track = tracks[tracks.length-1];
-	return this.getTrackTop(last_track)+this.getTrackHeight(last_track)+2*this.getTrackPadding(last_track)
+	return this.getTrackTops(last_track)+this.getTrackHeight(last_track)+2*this.getTrackPadding(last_track)
 		    + this.getBottomPadding();
     }
     OncoprintModel.prototype.moveTrack = function (track_id, new_previous_track) {
@@ -386,6 +428,8 @@ var OncoprintModel = (function () {
 	    var new_position = (new_previous_track === null ? 0 : track_group.indexOf(new_previous_track)+1);
 	    track_group.splice(new_position, 0, track_id);
 	}
+	
+	computeTrackTops(this);
     }
 
     OncoprintModel.prototype.getTrackLabel = function (track_id) {
@@ -402,10 +446,6 @@ var OncoprintModel = (function () {
 
     OncoprintModel.prototype.getTrackGroupPadding = function () {
 	return this.track_group_padding;
-    }
-
-    OncoprintModel.prototype.doesTrackHaveOptions = function(track_id) {
-	return this.isTrackRemovable(track_id) || this.isTrackSortDirectionChangeable(track_id);
     }
     
     OncoprintModel.prototype.isTrackRemovable = function (track_id) {

@@ -70,7 +70,7 @@ var OncoprintTrackOptionsView = (function() {
     var renderTrackOptions = function(view, model, track_id) {
 	if (model.isTrackRemovable(track_id)) {
 	    
-	    var $div = $('<div>').appendTo(view.$div).css({'position':'absolute', 'left':'0px', 'top':model.getTrackTop(track_id)+'px'});
+	    var $div = $('<div>').appendTo(view.$div).css({'position':'absolute', 'left':'0px', 'top':model.getTrackTops(track_id)+'px'});
 	    var $img = $('<img/>').appendTo($div).attr({'src':'images/menudots.svg', 'width':view.img_size, 'height':view.img_size}).css({'float':'left', 'cursor':'pointer','border':'1px solid rgba(125,125,125,0)'});
 	    var $dropdown = $('<ul>').appendTo($div).css({'display':'none', 'list-style-type':'none', 'padding-left':'6', 'padding-right':'6', 'float':'right','background-color':'rgb(255,255,255)'});
 	    
@@ -96,7 +96,7 @@ var OncoprintTrackOptionsView = (function() {
 	    });
 	}
 	if (model.isTrackSortDirectionChangeable(track_id)) {
-	    var $svg = $(makeSVGElement('svg')).appendTo(view.$div).attr({'width':view.img_size, 'height':view.img_size}).css({'position':'absolute', 'left':(view.img_size+5)+'px', 'top':model.getTrackTop(track_id)+'px', 'cursor':'pointer'});
+	    var $svg = $(makeSVGElement('svg')).appendTo(view.$div).attr({'width':view.img_size, 'height':view.img_size}).css({'position':'absolute', 'left':(view.img_size+5)+'px', 'top':model.getTrackTops(track_id)+'px', 'cursor':'pointer'});
 	    var increasing_points = [[0, view.img_size], [view.img_size, view.img_size], [view.img_size, 0.25 * view.img_size]].map(function (a) {
 		return a[0] + ',' + a[1];
 	    }).join(' ');

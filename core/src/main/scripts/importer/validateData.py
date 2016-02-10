@@ -510,7 +510,7 @@ class Validator(object):
                     '/'.join(self.aliases_entrez_map[gene_symbol]),
                     extra={'line_number': self.line_number})
                 return False
-            else: # means  len(self.hugo_entrez_map.get(gene_symbol, [])) == 1:
+            elif len(self.hugo_entrez_map.get(gene_symbol, [])) == 1:
                 found_entrez_id = self.hugo_entrez_map[gene_symbol][0]
                 # check if there are other *different* entrez ids associated to this symbol:
                 other_entrez_ids_in_aliases = [x for x in self.aliases_entrez_map.get(gene_symbol, []) if x != found_entrez_id ]

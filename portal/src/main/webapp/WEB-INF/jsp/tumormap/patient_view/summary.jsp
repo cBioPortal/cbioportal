@@ -84,9 +84,12 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
         }
         
         $('#cna_summary_wrapper_table').hide();
-        if (!genomicEventObs.hasMut||!genomicEventObs.hasSeg) $('#mut-cna-scatter').hide();
+        var showMutCnaPlot = false;//genomicEventObs.hasMut&&genomicEventObs.hasSeg;
+        if (!showMutCnaPlot) {
+            $('#mut-cna-scatter').hide();
+        }
         if (showGenomicOverview) initGenomicsOverview();
-        if (genomicEventObs.hasMut&&genomicEventObs.hasSeg) {
+        if (showMutCnaPlot) {
             loadMutCnaAndPlot("mut-cna-scatter");
             addMutCnaPlotTooltip("mut-cna-scatter");
         }
@@ -96,7 +99,8 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
         var chmInfo = new ChmInfo();
 
         var genomic_overview_length = $("#td-content").width() - 75;
-        genomic_overview_length -= ((genomicEventObs.hasMut && genomicEventObs.hasSeg) ? 110 : 0);
+        var showMutCnaPlot = false;//genomicEventObs.hasMut&&genomicEventObs.hasSeg;
+        genomic_overview_length -= (showMutCnaPlot ? 110 : 0);
         genomic_overview_length -= (hasAlleleFrequencyData&&caseIds.length===1 ? 110 : 0);
         var config = new GenomicOverviewConfig(
                 (genomicEventObs.hasMut?caseIds.length:0)+(genomicEventObs.hasSeg?caseIds.length:0), genomic_overview_length);
@@ -296,21 +300,6 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
 </script>
 
 <style>
-fieldset.fieldset-border {
-    /*border: 0px solid #ccc !important;
-    -webkit-box-shadow:  0px 0px 0px 0px #000;
-            box-shadow:  0px 0px 0px 0px #000;*/
-}
-
-legend.legend-border {
-    font-size: 12px !important;
-    text-align: left !important;
-    width:auto;
-    padding:0 10px;
-    border-bottom:none;
-    color:#1974b8;
-    margin-bottom: 0px;
-}
 #mutation_summary_table tbody tr div {
     white-space: nowrap;
 }
@@ -322,8 +311,8 @@ legend.legend-border {
 <%}%>
 
 <%if(showGenomicOverview){%>
-<fieldset class="fieldset-border ui-widget-content">
-<legend class="legend-border">Genomic Overview</legend>
+<fieldset id="patient-view-summary-fieldset" class="ui-widget-content">
+<legend>Genomic Overview</legend>
 <table>
     <tr>
         <td><div id="genomics-overview"></div></td>

@@ -304,8 +304,8 @@ class LogfileStyleFormatter(ValidationMessageFormatter):
         record.cause_indicator = self.format_aggregated(
             record,
             'cause',
-            "; found in file: '%s'",
-            "; found in file: ['%s']",
+            "; wrong value: '%s'",
+            "; wrong values: ['%s']",
             join_string="', '",
             optional=True)
 

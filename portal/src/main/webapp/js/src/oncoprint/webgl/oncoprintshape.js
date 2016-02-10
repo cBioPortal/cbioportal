@@ -81,6 +81,8 @@ var Shape = (function() {
     return Shape;
 })();
 
+
+
 var Rectangle = (function() {
     function Rectangle(params) {
 	Shape.call(this, params);

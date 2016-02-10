@@ -4,6 +4,7 @@ var OncoprintWebGLCellView = require('./oncoprintwebglcellview.js');
 var OncoprintLabelView = require('./oncoprintlabelview.js');
 var OncoprintRuleSet = require('./oncoprintruleset.js');
 var OncoprintTrackOptionsView = require('./oncoprinttrackoptionsview.js');
+var OncoprintLegendView = require('./oncoprintlegendrenderer.js');//TODO: rename
 
 var Oncoprint = (function () {
     // this is the controller
@@ -20,6 +21,7 @@ var Oncoprint = (function () {
 	
 	var $label_canvas = $('<canvas width="150" height="250"></canvas>').css({'display':'inline-block', 'position':'absolute', 'left':'0px', 'top':'0px'}).addClass("noselect");
 	var $track_options_div = $('<div width="50" height="250"></div>').css({'position':'absolute', 'left':'150px', 'top':'0px'}).addClass("noselect");
+	var $legend_svg = $('<svg width="600" height="100"></svg>').css({'position':'absolute', 'top':'250px'}).addClass("noselect");
 	
 	var $cell_div = $('<div>').css({'width':width, 'height':'250', 'overflow-x':'scroll', 'overflow-y':'hidden', 'display':'inline-block', 'position':'absolute', 'left':'200px', 'top':'0px'}).addClass("noselect");
 	var $cell_canvas = $('<canvas width="'+width+'" height="250"></canvas>').css({'position':'absolute', 'top':'0px', 'left':'0px'}).addClass("noselect");
@@ -28,6 +30,7 @@ var Oncoprint = (function () {
 	$label_canvas.appendTo($oncoprint_ctr);
 	$cell_div.appendTo($oncoprint_ctr);
 	$track_options_div.appendTo($oncoprint_ctr);
+	$legend_svg.appendTo($oncoprint_ctr);
 
 	
 	$cell_canvas.appendTo($cell_div);
@@ -52,6 +55,8 @@ var Oncoprint = (function () {
 	    self.moveTrack(target_track, new_previous_track);
 	});
 	
+	this.legend_view = new OncoprintLegendView($legend_svg, 10, 20);
+	
 	this.keep_sorted = true;
 	// We need to handle scrolling this way because for some reason huge 
 	//  canvas elements have terrible resolution.
@@ -65,7 +70,7 @@ var Oncoprint = (function () {
     }
 
     var resizeContainer = function(oncoprint) {
-	oncoprint.$container.css({'min-height':oncoprint.model.getViewHeight()});
+	oncoprint.$container.css({'min-height':oncoprint.model.getViewHeight() + 250});
     }
     Oncoprint.prototype.moveTrack = function(target_track, new_previous_track) {
 	this.model.moveTrack(target_track, new_previous_track);
@@ -95,6 +100,7 @@ var Oncoprint = (function () {
 	this.cell_view.addTracks(this.model, track_ids);
 	this.label_view.addTracks(this.model, track_ids);
 	this.track_options_view.addTracks(this.model);
+	this.legend_view.addTracks(this.model);
 	
 	if (this.keep_sorted) {
 	    this.sort();
@@ -220,9 +226,10 @@ var Oncoprint = (function () {
 	this.cell_view.sort(this.model);
     }
     
-    Oncoprint.prototype.setRuleSet = function(track_id, rule_set_params) {
-	this.model.setRuleSet(track_id, OncoprintRuleSet(rule_set_params));
-	this.cell_view.setRuleSet(this.model);
+    Oncoprint.prototype.shareRuleSet = function(source_track_id, target_track_id) {
+	this.model.shareRuleSet(source_track_id, target_track_id);
+	this.cell_view.shareRuleSet(this.model, target_track_id);
+	this.legend_view.shareRuleSet(this.model);
     }
     
     Oncoprint.prototype.setSortConfig = function(params) {

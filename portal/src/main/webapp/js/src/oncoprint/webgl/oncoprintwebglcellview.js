@@ -21,7 +21,7 @@ var getCanvasContext = function ($canvas) {
     } catch (e) {
 	return null;
     }
-}
+};
 
 var extractRGBA = function (str) {
     var ret = [0, 0, 0, 1];
@@ -40,7 +40,7 @@ var extractRGBA = function (str) {
 	    parseFloat(match[4])];
     }
     return ret;
-}
+};
 var createShaderProgram = function (view, vertex_shader, fragment_shader) {
     var program = view.ctx.createProgram();
     view.ctx.attachShader(program, vertex_shader);
@@ -56,7 +56,7 @@ var createShaderProgram = function (view, vertex_shader, fragment_shader) {
     }
 
     return program;
-}
+};
 var createShader = function (view, source, type) {
     var shader = view.ctx.createShader(view.ctx[type]);
     view.ctx.shaderSource(shader, source);
@@ -70,7 +70,7 @@ var createShader = function (view, source, type) {
     }
 
     return shader;
-}
+};
 
 var OncoprintWebGLCellView = (function () {
     function OncoprintWebGLCellView($container, $canvas, $dummy_scroll_div) {
@@ -136,10 +136,10 @@ var OncoprintWebGLCellView = (function () {
 	    self.mvMatrix = mvMatrix;
 
 	    var pMatrix = gl_matrix.mat4.create();
-	    gl_matrix.mat4.ortho(pMatrix, 0, self.ctx.viewportWidth, self.ctx.viewportHeight, 0, -1, 100); // y axis inverted so that y increases down like SVG
+	    gl_matrix.mat4.ortho(pMatrix, 0, self.ctx.viewportWidth, self.ctx.viewportHeight, 0, -5, 1000); // y axis inverted so that y increases down like SVG
 	    self.pMatrix = pMatrix;
 	})(view);
-    }
+    };
 
     var resizeAndClear = function(view, model) {
 	var height = model.getViewHeight();
@@ -149,7 +149,7 @@ var OncoprintWebGLCellView = (function () {
 	view.$container.css('height', height);
 	view.$container.scrollLeft(Math.min(view.$container.scrollLeft(),width-view.visible_area_width))
 	getContextAndSetUpMatrices(view);
-    }
+    };
     var renderAllTracks = function (view, model) {
 	if (view.rendering_suppressed) {
 	    return;
@@ -205,13 +205,13 @@ var OncoprintWebGLCellView = (function () {
 	view.ctx.uniformMatrix4fv(view.shader_program.pMatrixUniform, false, view.pMatrix);
 	view.ctx.uniformMatrix4fv(view.shader_program.mvMatrixUniform, false, view.mvMatrix);
 	view.ctx.drawArrays(view.ctx.TRIANGLES, 0, vertex_position_buffer.numItems);
-    }
+    };
     var addVertexColor = function (vertex_color_array, rgba_str, n_times) {
 	var color = extractRGBA(rgba_str);
 	for (var h = 0; h < n_times; h++) {
 	    vertex_color_array.push(color[0], color[1], color[2], color[3]);
 	}
-    }
+    };
     var computeVertexPositionsWithYOffset = function(view, model, track_id) {
 	var offset_y = model.getTrackTop(track_id);
 	var positions_with_y_offset = {};
@@ -231,7 +231,7 @@ var OncoprintWebGLCellView = (function () {
 	    }
 	}
 	view.vertex_position_array[track_id] = positions_with_y_offset;
-    }
+    };
     var computeVertexPositionsWithoutYOffsetAndVertexColors = function (view, model, track_id) {
 	view.vertex_position_array_without_y_offset[track_id] = {};
 	view.vertex_color_array[track_id] = {};
@@ -264,16 +264,16 @@ var OncoprintWebGLCellView = (function () {
 		var shape = shape_list[j];
 		if (shape.type === "rectangle") {
 		    // Stroke
-		    var x = parseFloat(shape.x) + offset_x, y = parseFloat(shape.y), height = parseFloat(shape.height), width = parseFloat(shape.width);
+		    var x = parseFloat(shape.x) + offset_x, y = parseFloat(shape.y),  height = parseFloat(shape.height), width = parseFloat(shape.width);
 		    var stroke_width = parseFloat(shape['stroke-width']);
 		    if (stroke_width > 0) {
-			vertex_position_array.push(x - stroke_width, y - stroke_width, -3);
-			vertex_position_array.push(x + width + stroke_width, y - stroke_width, -3);
-			vertex_position_array.push(x + width + stroke_width, y + height + stroke_width, -3);
+			vertex_position_array.push(x - stroke_width, y - stroke_width, -1);
+			vertex_position_array.push(x + width + stroke_width, y - stroke_width, -1);
+			vertex_position_array.push(x + width + stroke_width, y + height + stroke_width, -1);
 
-			vertex_position_array.push(x - stroke_width, y - stroke_width, -3);
-			vertex_position_array.push(x + width + stroke_width, y + height + stroke_width, -3);
-			vertex_position_array.push(x - stroke_width, y + height + stroke_width, -3);
+			vertex_position_array.push(x - stroke_width, y - stroke_width, -1);
+			vertex_position_array.push(x + width + stroke_width, y + height + stroke_width, -1);
+			vertex_position_array.push(x - stroke_width, y + height + stroke_width, -1);
 
 			addVertexColor(vertex_color_array, shape.stroke, 6);
 		    }
@@ -374,26 +374,14 @@ var OncoprintWebGLCellView = (function () {
 		}
 	    }
 	}
-    }
-    
-    var computeVertexesAndRenderTracks = function(view, model) {
-	var track_ids = model.getTracks();
-	for (var i = 0; i<track_ids.length; i++) {
-	    computeVertexPositionsWithoutYOffsetAndVertexColors(view, model, track_ids[i]);
-	}
-	renderAllTracks(view);
-    }
-    var computeIdentifiedShapeListList = function(view, model, track_id) {
-	var track_data = model.getTrackData(track_id);
-	var track_data_id_key = model.getTrackDataIdKey(track_id);
-	var shape_list_list = model.getRuleSet(track_id).apply(track_data, model.getCellWidth(), model.getTrackHeight(track_id));
-	view.identified_shape_list_list[track_id] = shape_list_list.map(function (list, index) {
-	    return {
-		id: track_data[index][track_data_id_key],
-		shape_list: list
-	    };
+    };
+    var computeSortedIdentifiedShapeListList = function(view, model, track_id) {
+	var identified_shape_list_list = model.getIdentifiedShapeListList(track_id);
+	view.identified_shape_list_list[track_id] = identified_shape_list_list.map(function(obj) {
+	    obj.shape_list.sort(function(shapeA, shapeB) { return parseFloat(shapeA.z) - parseFloat(shapeB.z); });
+	    return obj;
 	});
-    }
+    };
     OncoprintWebGLCellView.prototype.isUsable = function () {
 	return this.ctx !== null;
     }
@@ -418,7 +406,7 @@ var OncoprintWebGLCellView = (function () {
     }
     OncoprintWebGLCellView.prototype.addTracks = function (model, track_ids) {
 	for (var i=0; i<track_ids.length; i++) {
-	    computeIdentifiedShapeListList(this, model, track_ids[i]);
+	    computeSortedIdentifiedShapeListList(this, model, track_ids[i]);
 	    computeVertexPositionsWithoutYOffsetAndVertexColors(this, model, track_ids[i]);
 	    computeVertexPositionsWithYOffset(this, model, track_ids[i]);
 	}
@@ -463,15 +451,15 @@ var OncoprintWebGLCellView = (function () {
 	renderAllTracks(this, model);
     }
     OncoprintWebGLCellView.prototype.setTrackData = function(model, track_id) {
-	computeIdentifiedShapeListList(this, model, track_id);
+	computeSortedIdentifiedShapeListList(this, model, track_id);
 	computeVertexPositionsWithoutYOffsetAndVertexColors(this, model, track_id);
 	computeVertexPositionsWithYOffset(this, model, track_id);
 	renderAllTracks(this, model);
     }
-    OncoprintWebGLCellView.prototype.setRuleSet = function(model, track_id) {
-	computeIdentifiedShapeListList(this, model, track_id);
-	computeVertexPositionsWithoutYOffsetAndVertexColors(this, model, track_id);
-	computeVertexPositionsWithYOffset(this, model, track_id);
+    OncoprintWebGLCellView.prototype.shareRuleSet = function(model, target_track_id) {
+	computeSortedIdentifiedShapeListList(this, model, target_track_id);
+	computeVertexPositionsWithoutYOffsetAndVertexColors(this, model, target_track_id);
+	computeVertexPositionsWithYOffset(this, model, target_track_id);
 	renderAllTracks(this, model);
     }
     OncoprintWebGLCellView.prototype.linkRuleSet = function(model, track_id) {
@@ -489,7 +477,7 @@ var OncoprintWebGLCellView = (function () {
     OncoprintWebGLCellView.prototype.setHorzZoom = function(model) {
 	var track_ids = model.getTracks();
 	for (var i=0; i<track_ids.length; i++) {
-	    computeIdentifiedShapeListList(this, model, track_ids[i]);
+	    computeSortedIdentifiedShapeListList(this, model, track_ids[i]);
 	    computeVertexPositionsWithoutYOffsetAndVertexColors(this, model, track_ids[i]);
 	    computeVertexPositionsWithYOffset(this, model, track_ids[i]);
 	}
@@ -499,7 +487,7 @@ var OncoprintWebGLCellView = (function () {
     OncoprintWebGLCellView.prototype.setVertZoom = function(model) {
 	var track_ids = model.getTracks();
 	for (var i=0; i<track_ids.length; i++) {
-	    computeIdentifiedShapeListList(this, model, track_ids[i]);
+	    computeSortedIdentifiedShapeListList(this, model, track_ids[i]);
 	    computeVertexPositionsWithoutYOffsetAndVertexColors(this, model, track_ids[i]);
 	    computeVertexPositionsWithYOffset(this, model, track_ids[i]);
 	}

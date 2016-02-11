@@ -181,7 +181,7 @@ IMPORTER_CLASSNAME_BY_META_TYPE = {
     MetaFileTypes.MUTATION: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.METHYLATION: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.FUSION: "org.mskcc.cbio.portal.scripts.ImportProfileData",
-    MetaFileTypes.RPPA: "org.mskcc.cbio.portal.scripts.ImportProteinArrayData",
+    MetaFileTypes.RPPA: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.TIMELINE: "org.mskcc.cbio.portal.scripts.ImportTimelineData",
     MetaFileTypes.CASE_LIST: IMPORT_CASE_LIST_CLASS
     # TODO: enable when documented
@@ -194,7 +194,6 @@ IMPORTER_REQUIRES_METADATA = {
     "org.mskcc.cbio.portal.scripts.ImportCopyNumberSegmentData" : True,
     "org.mskcc.cbio.portal.scripts.ImportGisticData" : False,
     "org.mskcc.cbio.portal.scripts.ImportMutSigData" : False,
-    "org.mskcc.cbio.portal.scripts.ImportProteinArrayData" : False,
     "org.mskcc.cbio.portal.scripts.ImportProfileData" : True,
     "org.mskcc.cbio.portal.scripts.ImportTimelineData" : True
 }
@@ -394,6 +393,7 @@ def get_meta_file_type(metaDictionary, logger, filename):
         ("CLINICAL", "TIMELINE"): MetaFileTypes.TIMELINE,
         # rppa
         ("PROTEIN_LEVEL", "LOG2-VALUE"): MetaFileTypes.RPPA,
+        ("PROTEIN_LEVEL", "Z-SCORE"): MetaFileTypes.RPPA,
         # cna
         ("COPY_NUMBER_ALTERATION", "DISCRETE"): MetaFileTypes.CNA,
         ("COPY_NUMBER_ALTERATION", "CONTINUOUS"): MetaFileTypes.CNA_CONTINUOUS, 

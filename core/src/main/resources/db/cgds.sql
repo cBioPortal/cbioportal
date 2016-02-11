@@ -725,4 +725,5 @@ CREATE TABLE `clinical_event_data` (
 CREATE TABLE `info` (
     `DB_SCHEMA_VERSION` varchar(8)
 );
+-- THIS MUST BE KEPT IN SYNC WITH db.version PROPERTY IN pom.xml
 INSERT INTO info VALUES ('1.1.0');

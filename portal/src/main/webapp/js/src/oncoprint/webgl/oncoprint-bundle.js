@@ -28,6 +28,7 @@ var OncoprintLabelView = require('./oncoprintlabelview.js');
 var OncoprintRuleSet = require('./oncoprintruleset.js');
 var OncoprintTrackOptionsView = require('./oncoprinttrackoptionsview.js');
 var OncoprintLegendView = require('./oncoprintlegendrenderer.js');//TODO: rename
+var OncoprintToolTip = require('./oncoprinttooltip.js');
 
 var Oncoprint = (function () {
     // this is the controller
@@ -64,10 +65,12 @@ var Oncoprint = (function () {
 	this.$container = $oncoprint_ctr;
 	
 	this.model = new OncoprintModel();
+	
+	this.tooltip = new OncoprintToolTip($oncoprint_ctr);
 
 	// Precisely one of the following should be uncommented
 	// this.cell_view = new OncoprintSVGCellView($svg_dev);
-	this.cell_view = new OncoprintWebGLCellView($cell_div, $cell_canvas, $cell_overlay_canvas, $dummy_scroll_div, this.model);
+	this.cell_view = new OncoprintWebGLCellView($cell_div, $cell_canvas, $cell_overlay_canvas, $dummy_scroll_div, this.model, this.tooltip);
 	
 	this.track_options_view = new OncoprintTrackOptionsView($track_options_div, 
 								function(track_id) { self.removeTrack(track_id); }, 
@@ -81,6 +84,7 @@ var Oncoprint = (function () {
 	});
 	
 	this.legend_view = new OncoprintLegendView($legend_svg, 10, 20);
+	
 	
 	this.keep_sorted = true;
 	// We need to handle scrolling this way because for some reason huge 
@@ -298,7 +302,7 @@ var Oncoprint = (function () {
     return Oncoprint;
 })();
 module.exports = Oncoprint;
-},{"./oncoprintlabelview.js":3,"./oncoprintlegendrenderer.js":4,"./oncoprintmodel.js":5,"./oncoprintruleset.js":6,"./oncoprintsvgcellview.js":9,"./oncoprinttrackoptionsview.js":10,"./oncoprintwebglcellview.js":11}],3:[function(require,module,exports){
+},{"./oncoprintlabelview.js":3,"./oncoprintlegendrenderer.js":4,"./oncoprintmodel.js":5,"./oncoprintruleset.js":6,"./oncoprintsvgcellview.js":9,"./oncoprinttooltip.js":10,"./oncoprinttrackoptionsview.js":11,"./oncoprintwebglcellview.js":12}],3:[function(require,module,exports){
 var OncoprintLabelView = (function () {
     function OncoprintLabelView($canvas) {
 	var view = this;
@@ -927,6 +931,19 @@ var OncoprintModel = (function () {
 	}
 	return null;
     };
+    
+    OncoprintModel.prototype.getTrackDatum = function(track_id, id) {
+	var data = this.getTrackData(track_id);
+	var datum_id_key = this.getTrackDataIdKey(track_id);
+	var datum = null;
+	for (var i=0; i<data.length; i++) {
+	    if (data[i][datum_id_key] === id) {
+		datum = data[i];
+		break;
+	    }
+	}
+	return datum;
+    }
     
     OncoprintModel.prototype.getTrackTops = function (desired_track_id) {
 	if (typeof desired_track_id === 'undefined') {
@@ -2300,6 +2317,27 @@ var OncoprintSVGCellView = (function () {
 
 module.exports = OncoprintSVGCellView;
 },{}],10:[function(require,module,exports){
+var OncoprintToolTip = (function() {
+    function OncoprintToolTip($container) {
+	this.$container = $container;
+	this.$div = $('<div></div>').appendTo($container).css({'background-color':'rgba(255,255,255,1)', 'position':'absolute', 'display':'none', 'border':'1px solid black'});
+    }
+    OncoprintToolTip.prototype.show = function(page_x, page_y, html_str) {
+	this.$div.show();
+	this.$div.html(html_str);
+	var container_offset = this.$container.offset();
+	var x = page_x - container_offset.left;
+	var y = page_y - container_offset.top - 100;
+	this.$div.css({'top':y, 'left':x});
+    }
+    OncoprintToolTip.prototype.hide = function() {
+	this.$div.hide();
+    }
+    return OncoprintToolTip;
+})();
+
+module.exports = OncoprintToolTip;
+},{}],11:[function(require,module,exports){
 var OncoprintTrackOptionsView = (function() {
     function OncoprintTrackOptionsView($div, removeCallback, sortChangeCallback) {
 	// removeCallback: function(track_id)
@@ -2485,7 +2523,7 @@ var OncoprintTrackOptionsView = (function() {
 })();
 
 module.exports = OncoprintTrackOptionsView;
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 var gl_matrix = require('gl-matrix');
 
 // TODO: antialiasing
@@ -2561,13 +2599,14 @@ var createShader = function (view, source, type) {
 };
 
 var OncoprintWebGLCellView = (function () {
-    function OncoprintWebGLCellView($container, $canvas, $overlay_canvas, $dummy_scroll_div, model) {
+    function OncoprintWebGLCellView($container, $canvas, $overlay_canvas, $dummy_scroll_div, model, tooltip) {
 	this.$container = $container;
 	this.$canvas = $canvas;
 	this.$overlay_canvas = $overlay_canvas;
 	getWebGLContextAndSetUpMatrices(this);
 	getOverlayContextAndClear(this);
 	this.visible_area_width = $canvas[0].width;
+	this.tooltip = tooltip;
 	
 	this.scroll_x = 0;
 	this.$dummy_scroll_div = $dummy_scroll_div;
@@ -2617,24 +2656,29 @@ var OncoprintWebGLCellView = (function () {
 
 	(function initializeOverlayEvents(self) {
 	    self.$overlay_canvas.on("mousemove", function(evt) {
+		clearOverlay(self);
 		var offset = self.$overlay_canvas.offset();
 		var mouseX = evt.pageX - offset.left;
 		var mouseY = evt.pageY - offset.top;
-		var overlapping_cell = model.getOverlappingCell(mouseX, mouseY);
+		var overlapping_cell = model.getOverlappingCell(mouseX + self.scroll_x, mouseY);
 		if (overlapping_cell !== null) {
-		    var left = model.getColumnLeft(overlapping_cell.id);
-		    overlayPaintRect(self, left, model.getTrackTops(overlapping_cell.track), model.getCellWidth(), model.getTrackHeight(overlapping_cell.track));
+		    var left = model.getColumnLeft(overlapping_cell.id) - self.scroll_x;
+		    overlayPaintRect(self, left, model.getTrackTops(overlapping_cell.track), model.getCellWidth(), model.getTrackHeight(overlapping_cell.track), "rgba(0,0,0,1)");
+		    var tracks = model.getTracks();
+		    for (var i=0; i<tracks.length; i++) {
+			overlayPaintRect(self, left, model.getTrackTops(tracks[i]), model.getCellWidth(), model.getTrackHeight(tracks[i]), "rgba(0,0,0,0.5)");
+		    }
+		    tooltip.show(evt.pageX, evt.pageY, model.getTrackTooltipFn(overlapping_cell.track)(model.getTrackDatum(overlapping_cell.track, overlapping_cell.id)));
 		} else {
-		    clearOverlay(self);
+		    tooltip.hide();
 		}
 	    });
 	})(this);
     }
     
-    var overlayPaintRect = function(view, x, y, width, height) {
+    var overlayPaintRect = function(view, x, y, width, height, color) {
 	var ctx = view.overlay_ctx;
-	clearOverlay(view);
-	ctx.strokeStyle = "rgba(0,0,0,1)";
+	ctx.strokeStyle = color;
 	ctx.strokeWidth = 10;
 	ctx.strokeRect(x, y, width, height);
     };
@@ -3029,7 +3073,7 @@ var OncoprintWebGLCellView = (function () {
 
 module.exports = OncoprintWebGLCellView;
 
-},{"gl-matrix":13}],12:[function(require,module,exports){
+},{"gl-matrix":14}],13:[function(require,module,exports){
 $(document).ready(function() {
 	
 	/*var o = new Oncoprint($('#svg'), $('#canvas'));
@@ -3058,7 +3102,7 @@ $(document).ready(function() {
 });
 
 window.Oncoprint = require('./oncoprint.js');
-},{"./oncoprint.js":2}],13:[function(require,module,exports){
+},{"./oncoprint.js":2}],14:[function(require,module,exports){
 /**
  * @fileoverview gl-matrix - High performance matrix and vector operations
  * @author Brandon Jones
@@ -3096,7 +3140,7 @@ exports.quat = require("./gl-matrix/quat.js");
 exports.vec2 = require("./gl-matrix/vec2.js");
 exports.vec3 = require("./gl-matrix/vec3.js");
 exports.vec4 = require("./gl-matrix/vec4.js");
-},{"./gl-matrix/common.js":14,"./gl-matrix/mat2.js":15,"./gl-matrix/mat2d.js":16,"./gl-matrix/mat3.js":17,"./gl-matrix/mat4.js":18,"./gl-matrix/quat.js":19,"./gl-matrix/vec2.js":20,"./gl-matrix/vec3.js":21,"./gl-matrix/vec4.js":22}],14:[function(require,module,exports){
+},{"./gl-matrix/common.js":15,"./gl-matrix/mat2.js":16,"./gl-matrix/mat2d.js":17,"./gl-matrix/mat3.js":18,"./gl-matrix/mat4.js":19,"./gl-matrix/quat.js":20,"./gl-matrix/vec2.js":21,"./gl-matrix/vec3.js":22,"./gl-matrix/vec4.js":23}],15:[function(require,module,exports){
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -3150,7 +3194,7 @@ glMatrix.toRadian = function(a){
 
 module.exports = glMatrix;
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -3454,7 +3498,7 @@ mat2.LDU = function (L, D, U, a) {
 
 module.exports = mat2;
 
-},{"./common.js":14}],16:[function(require,module,exports){
+},{"./common.js":15}],17:[function(require,module,exports){
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -3773,7 +3817,7 @@ mat2d.frob = function (a) {
 
 module.exports = mat2d;
 
-},{"./common.js":14}],17:[function(require,module,exports){
+},{"./common.js":15}],18:[function(require,module,exports){
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -4340,7 +4384,7 @@ mat3.frob = function (a) {
 
 module.exports = mat3;
 
-},{"./common.js":14}],18:[function(require,module,exports){
+},{"./common.js":15}],19:[function(require,module,exports){
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -5625,7 +5669,7 @@ mat4.frob = function (a) {
 
 module.exports = mat4;
 
-},{"./common.js":14}],19:[function(require,module,exports){
+},{"./common.js":15}],20:[function(require,module,exports){
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -6180,7 +6224,7 @@ quat.str = function (a) {
 
 module.exports = quat;
 
-},{"./common.js":14,"./mat3.js":17,"./vec3.js":21,"./vec4.js":22}],20:[function(require,module,exports){
+},{"./common.js":15,"./mat3.js":18,"./vec3.js":22,"./vec4.js":23}],21:[function(require,module,exports){
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -6705,7 +6749,7 @@ vec2.str = function (a) {
 
 module.exports = vec2;
 
-},{"./common.js":14}],21:[function(require,module,exports){
+},{"./common.js":15}],22:[function(require,module,exports){
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -7416,7 +7460,7 @@ vec3.str = function (a) {
 
 module.exports = vec3;
 
-},{"./common.js":14}],22:[function(require,module,exports){
+},{"./common.js":15}],23:[function(require,module,exports){
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -7955,4 +7999,4 @@ vec4.str = function (a) {
 
 module.exports = vec4;
 
-},{"./common.js":14}]},{},[12]);
+},{"./common.js":15}]},{},[13]);

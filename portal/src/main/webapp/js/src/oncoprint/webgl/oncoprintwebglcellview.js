@@ -73,13 +73,14 @@ var createShader = function (view, source, type) {
 };
 
 var OncoprintWebGLCellView = (function () {
-    function OncoprintWebGLCellView($container, $canvas, $overlay_canvas, $dummy_scroll_div, model) {
+    function OncoprintWebGLCellView($container, $canvas, $overlay_canvas, $dummy_scroll_div, model, tooltip) {
 	this.$container = $container;
 	this.$canvas = $canvas;
 	this.$overlay_canvas = $overlay_canvas;
 	getWebGLContextAndSetUpMatrices(this);
 	getOverlayContextAndClear(this);
 	this.visible_area_width = $canvas[0].width;
+	this.tooltip = tooltip;
 	
 	this.scroll_x = 0;
 	this.$dummy_scroll_div = $dummy_scroll_div;
@@ -129,24 +130,29 @@ var OncoprintWebGLCellView = (function () {
 
 	(function initializeOverlayEvents(self) {
 	    self.$overlay_canvas.on("mousemove", function(evt) {
+		clearOverlay(self);
 		var offset = self.$overlay_canvas.offset();
 		var mouseX = evt.pageX - offset.left;
 		var mouseY = evt.pageY - offset.top;
-		var overlapping_cell = model.getOverlappingCell(mouseX, mouseY);
+		var overlapping_cell = model.getOverlappingCell(mouseX + self.scroll_x, mouseY);
 		if (overlapping_cell !== null) {
-		    var left = model.getColumnLeft(overlapping_cell.id);
-		    overlayPaintRect(self, left, model.getTrackTops(overlapping_cell.track), model.getCellWidth(), model.getTrackHeight(overlapping_cell.track));
+		    var left = model.getColumnLeft(overlapping_cell.id) - self.scroll_x;
+		    overlayPaintRect(self, left, model.getTrackTops(overlapping_cell.track), model.getCellWidth(), model.getTrackHeight(overlapping_cell.track), "rgba(0,0,0,1)");
+		    var tracks = model.getTracks();
+		    for (var i=0; i<tracks.length; i++) {
+			overlayPaintRect(self, left, model.getTrackTops(tracks[i]), model.getCellWidth(), model.getTrackHeight(tracks[i]), "rgba(0,0,0,0.5)");
+		    }
+		    tooltip.show(evt.pageX, evt.pageY, model.getTrackTooltipFn(overlapping_cell.track)(model.getTrackDatum(overlapping_cell.track, overlapping_cell.id)));
 		} else {
-		    clearOverlay(self);
+		    tooltip.hide();
 		}
 	    });
 	})(this);
     }
     
-    var overlayPaintRect = function(view, x, y, width, height) {
+    var overlayPaintRect = function(view, x, y, width, height, color) {
 	var ctx = view.overlay_ctx;
-	clearOverlay(view);
-	ctx.strokeStyle = "rgba(0,0,0,1)";
+	ctx.strokeStyle = color;
 	ctx.strokeWidth = 10;
 	ctx.strokeRect(x, y, width, height);
     };

@@ -5,6 +5,7 @@ var OncoprintLabelView = require('./oncoprintlabelview.js');
 var OncoprintRuleSet = require('./oncoprintruleset.js');
 var OncoprintTrackOptionsView = require('./oncoprinttrackoptionsview.js');
 var OncoprintLegendView = require('./oncoprintlegendrenderer.js');//TODO: rename
+var OncoprintToolTip = require('./oncoprinttooltip.js');
 
 var Oncoprint = (function () {
     // this is the controller
@@ -41,10 +42,12 @@ var Oncoprint = (function () {
 	this.$container = $oncoprint_ctr;
 	
 	this.model = new OncoprintModel();
+	
+	this.tooltip = new OncoprintToolTip($oncoprint_ctr);
 
 	// Precisely one of the following should be uncommented
 	// this.cell_view = new OncoprintSVGCellView($svg_dev);
-	this.cell_view = new OncoprintWebGLCellView($cell_div, $cell_canvas, $cell_overlay_canvas, $dummy_scroll_div, this.model);
+	this.cell_view = new OncoprintWebGLCellView($cell_div, $cell_canvas, $cell_overlay_canvas, $dummy_scroll_div, this.model, this.tooltip);
 	
 	this.track_options_view = new OncoprintTrackOptionsView($track_options_div, 
 								function(track_id) { self.removeTrack(track_id); }, 
@@ -58,6 +61,7 @@ var Oncoprint = (function () {
 	});
 	
 	this.legend_view = new OncoprintLegendView($legend_svg, 10, 20);
+	
 	
 	this.keep_sorted = true;
 	// We need to handle scrolling this way because for some reason huge 

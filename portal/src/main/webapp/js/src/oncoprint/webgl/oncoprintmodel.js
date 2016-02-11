@@ -381,6 +381,19 @@ var OncoprintModel = (function () {
 	return null;
     };
     
+    OncoprintModel.prototype.getTrackDatum = function(track_id, id) {
+	var data = this.getTrackData(track_id);
+	var datum_id_key = this.getTrackDataIdKey(track_id);
+	var datum = null;
+	for (var i=0; i<data.length; i++) {
+	    if (data[i][datum_id_key] === id) {
+		datum = data[i];
+		break;
+	    }
+	}
+	return datum;
+    }
+    
     OncoprintModel.prototype.getTrackTops = function (desired_track_id) {
 	if (typeof desired_track_id === 'undefined') {
 	    return this.cached_track_tops;

@@ -22,7 +22,7 @@ var Oncoprint = (function () {
 	
 	var $label_canvas = $('<canvas width="150" height="250"></canvas>').css({'display':'inline-block', 'position':'absolute', 'left':'0px', 'top':'0px'}).addClass("noselect");
 	var $track_options_div = $('<div width="50" height="250"></div>').css({'position':'absolute', 'left':'150px', 'top':'0px'}).addClass("noselect");
-	var $legend_svg = $('<svg width="600" height="100"></svg>').css({'position':'absolute', 'top':'250px'}).addClass("noselect");
+	var $legend_table = $('<table width="600" height="100"></svg>').css({'position':'absolute', 'top':'250px'}).addClass("noselect");
 	
 	var $cell_div = $('<div>').css({'width':width, 'height':'250', 'overflow-x':'scroll', 'overflow-y':'hidden', 'display':'inline-block', 'position':'absolute', 'left':'200px', 'top':'0px'}).addClass("noselect");
 	var $cell_canvas = $('<canvas width="'+width+'" height="250"></canvas>').css({'position':'absolute', 'top':'0px', 'left':'0px'}).addClass("noselect");
@@ -32,7 +32,7 @@ var Oncoprint = (function () {
 	$label_canvas.appendTo($oncoprint_ctr);
 	$cell_div.appendTo($oncoprint_ctr);
 	$track_options_div.appendTo($oncoprint_ctr);
-	$legend_svg.appendTo($oncoprint_ctr);
+	$legend_table.appendTo($oncoprint_ctr);
 
 	
 	$cell_canvas.appendTo($cell_div);
@@ -60,7 +60,7 @@ var Oncoprint = (function () {
 	    self.moveTrack(target_track, new_previous_track);
 	});
 	
-	this.legend_view = new OncoprintLegendView($legend_svg, 10, 20);
+	this.legend_view = new OncoprintLegendView($legend_table, 10, 20);
 	
 	
 	this.keep_sorted = true;

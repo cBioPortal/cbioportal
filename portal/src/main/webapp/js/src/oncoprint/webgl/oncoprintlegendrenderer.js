@@ -11,25 +11,23 @@ var makeSVGElement = function (tag, attrs) {
 };
 
 var OncoprintLegendView = (function() {
-    function OncoprintLegendView($svg, base_width, base_height) {
-	this.$svg = $svg;
+    function OncoprintLegendView($table, base_width, base_height) {
+	this.$table = $table;
 	this.base_width = base_width;
 	this.base_height = base_height;
     }
     
     var renderLegend = function(view, model) {
-	view.$svg.empty();
+	view.$table.empty();
 	var rule_sets = model.getRuleSets();
-	var y = 0;
 	for (var i=0; i<rule_sets.length; i++) {
-	    var x = 0;
 	    if (rule_sets[i].exclude_from_legend) {
 		continue;
 	    }
+	    var $row = $('<tr></tr>').appendTo(view.$table);
+	    var $label_td = $('<td></td>').appendTo($row);
 	    if (typeof rule_sets[i].legend_label !== 'undefined') {
-		var rule_set_label = makeSVGElement('text', {'x':x, 'y':y+5});
-		rule_set_label.textContent = rule_sets[i].legend_label;
-		view.$svg.append(rule_set_label);
+		$('<p></p>').appendTo($label_td).css({'font-weight':'bold'}).text(rule_sets[i].legend_label);
 	    }
 	    var rules = model.getActiveRules(rule_sets[i].rule_set_id);
 	    for (var j=0; j<rules.length; j++) {
@@ -37,26 +35,24 @@ var OncoprintLegendView = (function() {
 		if (rule.exclude_from_legend) {
 		    continue;
 		}
+		var $rule_td = $('<td></td>').appendTo($row);
+		var $rule_svg = $('<svg width="'+view.base_width+'" height="'+view.base_height+'"></svg>').appendTo($rule_td);
 		var config = rule.getLegendConfig();
 		if (config.type === 'rule') {
 		    var concrete_shapes = rule.apply(rules[j].target, model.getCellWidth(true), view.base_height);
 		    var svg_elts = concrete_shapes.map(function(shape) {
-			return shapeToSVG(shape, x, y);
+			return shapeToSVG(shape, 0, 0);
 		    });
 		    if (typeof rule.legend_label !== 'undefined') {
-			var rule_label = makeSVGElement('text', {'x':x, 'y':y+5});
-			rule_label.textContent = rule.legend_label;
-			view.$svg.append(rule_label);
+			$('<p></p>').appendTo($rule_td).html(rule.legend_label);
 		    }
 		    for (var h=0; h<svg_elts.length; h++) {
-			view.$svg.append($(svg_elts[h]));
+			$rule_svg.append($(svg_elts[h]));
 		    }
 		} else if (config.type === 'number') {
 		    
 		}
-		x += 20;
 	    }
-	    y += 20;
 	}
     };
     

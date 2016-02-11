@@ -45,7 +45,7 @@ var Oncoprint = (function () {
 	
 	var $label_canvas = $('<canvas width="150" height="250"></canvas>').css({'display':'inline-block', 'position':'absolute', 'left':'0px', 'top':'0px'}).addClass("noselect");
 	var $track_options_div = $('<div width="50" height="250"></div>').css({'position':'absolute', 'left':'150px', 'top':'0px'}).addClass("noselect");
-	var $legend_svg = $('<svg width="600" height="100"></svg>').css({'position':'absolute', 'top':'250px'}).addClass("noselect");
+	var $legend_table = $('<table width="600" height="100"></svg>').css({'position':'absolute', 'top':'250px'}).addClass("noselect");
 	
 	var $cell_div = $('<div>').css({'width':width, 'height':'250', 'overflow-x':'scroll', 'overflow-y':'hidden', 'display':'inline-block', 'position':'absolute', 'left':'200px', 'top':'0px'}).addClass("noselect");
 	var $cell_canvas = $('<canvas width="'+width+'" height="250"></canvas>').css({'position':'absolute', 'top':'0px', 'left':'0px'}).addClass("noselect");
@@ -55,7 +55,7 @@ var Oncoprint = (function () {
 	$label_canvas.appendTo($oncoprint_ctr);
 	$cell_div.appendTo($oncoprint_ctr);
 	$track_options_div.appendTo($oncoprint_ctr);
-	$legend_svg.appendTo($oncoprint_ctr);
+	$legend_table.appendTo($oncoprint_ctr);
 
 	
 	$cell_canvas.appendTo($cell_div);
@@ -83,7 +83,7 @@ var Oncoprint = (function () {
 	    self.moveTrack(target_track, new_previous_track);
 	});
 	
-	this.legend_view = new OncoprintLegendView($legend_svg, 10, 20);
+	this.legend_view = new OncoprintLegendView($legend_table, 10, 20);
 	
 	
 	this.keep_sorted = true;
@@ -522,25 +522,23 @@ var makeSVGElement = function (tag, attrs) {
 };
 
 var OncoprintLegendView = (function() {
-    function OncoprintLegendView($svg, base_width, base_height) {
-	this.$svg = $svg;
+    function OncoprintLegendView($table, base_width, base_height) {
+	this.$table = $table;
 	this.base_width = base_width;
 	this.base_height = base_height;
     }
     
     var renderLegend = function(view, model) {
-	view.$svg.empty();
+	view.$table.empty();
 	var rule_sets = model.getRuleSets();
-	var y = 0;
 	for (var i=0; i<rule_sets.length; i++) {
-	    var x = 0;
 	    if (rule_sets[i].exclude_from_legend) {
 		continue;
 	    }
+	    var $row = $('<tr></tr>').appendTo(view.$table);
+	    var $label_td = $('<td></td>').appendTo($row);
 	    if (typeof rule_sets[i].legend_label !== 'undefined') {
-		var rule_set_label = makeSVGElement('text', {'x':x, 'y':y+5});
-		rule_set_label.textContent = rule_sets[i].legend_label;
-		view.$svg.append(rule_set_label);
+		$('<p></p>').appendTo($label_td).css({'font-weight':'bold'}).text(rule_sets[i].legend_label);
 	    }
 	    var rules = model.getActiveRules(rule_sets[i].rule_set_id);
 	    for (var j=0; j<rules.length; j++) {
@@ -548,26 +546,24 @@ var OncoprintLegendView = (function() {
 		if (rule.exclude_from_legend) {
 		    continue;
 		}
+		var $rule_td = $('<td></td>').appendTo($row);
+		var $rule_svg = $('<svg width="'+view.base_width+'" height="'+view.base_height+'"></svg>').appendTo($rule_td);
 		var config = rule.getLegendConfig();
 		if (config.type === 'rule') {
 		    var concrete_shapes = rule.apply(rules[j].target, model.getCellWidth(true), view.base_height);
 		    var svg_elts = concrete_shapes.map(function(shape) {
-			return shapeToSVG(shape, x, y);
+			return shapeToSVG(shape, 0, 0);
 		    });
 		    if (typeof rule.legend_label !== 'undefined') {
-			var rule_label = makeSVGElement('text', {'x':x, 'y':y+5});
-			rule_label.textContent = rule.legend_label;
-			view.$svg.append(rule_label);
+			$('<p></p>').appendTo($rule_td).html(rule.legend_label);
 		    }
 		    for (var h=0; h<svg_elts.length; h++) {
-			view.$svg.append($(svg_elts[h]));
+			$rule_svg.append($(svg_elts[h]));
 		    }
 		} else if (config.type === 'number') {
 		    
 		}
-		x += 20;
 	    }
-	    y += 20;
 	}
     };
     
@@ -1741,7 +1737,7 @@ var CategoricalRuleSet = (function () {
 	ruleset.addRule(ruleset.category_key, category, rule_params);
     };
 
-    CategoricalRuleSet.prototype.apply = function (data, cell_width, cell_height) {
+    CategoricalRuleSet.prototype.apply = function (data, cell_width, cell_height, out_active_rules) {
 	// First ensure there is a color for all categories
 	for (var i = 0, data_len = data.length; i < data_len; i++) {
 	    if (data[i][NA_STRING]) {
@@ -1755,7 +1751,7 @@ var CategoricalRuleSet = (function () {
 	    }
 	}
 	// Then propagate the call up
-	return LookupRuleSet.prototype.apply.call(this, data, cell_width, cell_height);
+	return LookupRuleSet.prototype.apply.call(this, data, cell_width, cell_height, out_active_rules);
     };
 
     return CategoricalRuleSet;
@@ -1799,7 +1795,7 @@ var LinearInterpRuleSet = (function () {
 	return ret;
     };
 
-    LinearInterpRuleSet.prototype.apply = function (data, cell_width, cell_height) {
+    LinearInterpRuleSet.prototype.apply = function (data, cell_width, cell_height, out_active_rules) {
 	// First find value range
 	var value_min = Number.POSITIVE_INFINITY;
 	var value_max = Number.NEGATIVE_INFINITY;
@@ -1821,7 +1817,7 @@ var LinearInterpRuleSet = (function () {
 	this.updateLinearRules();
 
 	// Then propagate the call up
-	return ConditionRuleSet.prototype.apply.call(this, data, cell_width, cell_height);
+	return ConditionRuleSet.prototype.apply.call(this, data, cell_width, cell_height, out_active_rules);
     };
 
     LinearInterpRuleSet.prototype.updateLinearRules = function () {
@@ -2355,14 +2351,14 @@ module.exports = OncoprintSVGCellView;
 var OncoprintToolTip = (function() {
     function OncoprintToolTip($container) {
 	this.$container = $container;
-	this.$div = $('<div></div>').appendTo($container).css({'background-color':'rgba(255,255,255,1)', 'position':'absolute', 'display':'none', 'border':'1px solid black'});
+	this.$div = $('<div></div>').appendTo($container).css({'background-color':'rgba(255,255,255,1)', 'position':'absolute', 'display':'none', 'border':'1px solid black', 'max-width':300, 'min-width':150});
     }
     OncoprintToolTip.prototype.show = function(page_x, page_y, html_str) {
 	this.$div.show();
 	this.$div.html(html_str);
 	var container_offset = this.$container.offset();
 	var x = page_x - container_offset.left;
-	var y = page_y - container_offset.top - 100;
+	var y = page_y - container_offset.top - 80;
 	this.$div.css({'top':y, 'left':x});
     }
     OncoprintToolTip.prototype.hide = function() {

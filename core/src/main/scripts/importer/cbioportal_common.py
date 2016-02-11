@@ -394,7 +394,6 @@ def get_meta_file_type(metaDictionary, logger, filename):
         ("CLINICAL", "TIMELINE"): MetaFileTypes.TIMELINE,
         # rppa
         ("PROTEIN_LEVEL", "LOG2-VALUE"): MetaFileTypes.RPPA,
-        ("PROTEIN_LEVEL", "Z-SCORE"): MetaFileTypes.RPPA,
         # cna
         ("COPY_NUMBER_ALTERATION", "DISCRETE"): MetaFileTypes.CNA,
         ("COPY_NUMBER_ALTERATION", "CONTINUOUS"): MetaFileTypes.CNA_CONTINUOUS, 

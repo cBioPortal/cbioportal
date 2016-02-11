@@ -706,7 +706,12 @@ public class GlobalProperties {
     }
     
     public static String getDbVersion() {
-        return properties.getProperty(DB_VERSION);
+        String version = properties.getProperty(DB_VERSION);
+        if (version == null)
+        {
+            return "0";
+        }
+        return version;
     }
     
     public static void main(String[] args)

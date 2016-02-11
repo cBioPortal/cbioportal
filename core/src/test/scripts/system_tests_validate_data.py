@@ -8,6 +8,9 @@ version 3, or (at your option) any later version.
 
 import unittest
 import logging
+import tempfile
+import os
+import shutil
 from importer import validateData
 
 # globals:
@@ -94,6 +97,35 @@ class ValidateDataSystemTester(unittest.TestCase):
         exit_status = validateData.main_validate(args)
         # TODO - assert if html file is present
         self.assertEquals(0, exit_status)
+
+
+    def test_errorline_output(self):
+        '''Test if error file is generated when '--error_file' is given.'''
+        temp_dir_path = tempfile.mkdtemp()
+        try:
+            out_file_name = os.path.join(temp_dir_path, 'error_file.txt')
+            # build up arguments and run
+            argv = ['--study_directory','test_data/study_maf_test/',
+                    '--url_server', server,
+                    '--error_file', out_file_name]
+            parsed_args = validateData.interface(argv)
+            exit_status = validateData.main_validate(parsed_args)
+            # flush logging handlers used in validateData
+            validator_logger = logging.getLogger(validateData.__name__)
+            for logging_handler in validator_logger.handlers:
+                logging_handler.flush()
+            # assert that the results are as expected
+            self.assertEquals(1, exit_status)
+            self.assertTrue(os.path.exists(out_file_name))
+            with open(out_file_name, 'rU') as out_file, \
+                 open('test_data/study_maf_test/error_file.txt', 'rU') as ref_file:
+                for ref_line in ref_file:
+                    out_line = out_file.readline()
+                    self.assertEquals(out_line, ref_line)
+                self.assertEquals(out_file.readline(), '')
+        finally:
+            shutil.rmtree(temp_dir_path)
+
 
     def test_problem_in_clinical(self):
         '''

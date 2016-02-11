@@ -248,6 +248,8 @@ class ValidationMessageFormatter(logging.Formatter):
         first `max_join` values to strings, concatenate them separated by
         `join_string`, and format the result according to `multiple_fmt`.
 
+        If `max_join` is None, join all values and apply no maximum length.
+
         If `optional` is True and both the field and its list are absent,
         return an empty string.
         """
@@ -256,6 +258,9 @@ class ValidationMessageFormatter(logging.Formatter):
         if attr_val is not None:
             attr_indicator = single_fmt % attr_val
         elif attr_list is not None:
+            # treat None as 'format all of them, no maximum'
+            if max_join is None:
+                max_join = len(attr_list)
             string_list = list(str(val) for val in attr_list[:max_join])
             num_skipped = len(attr_list) - len(string_list)
             if num_skipped != 0:

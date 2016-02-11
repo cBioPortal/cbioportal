@@ -132,6 +132,32 @@ class Jinja2HtmlHandler(logging.handlers.BufferingHandler):
             f.write(doc)
 
 
+class ErrorFileFormatter(cbioportal_common.ValidationMessageFormatter):
+
+    """Fasta-like formatter listing lines on which error messages occurred."""
+
+    def __init__(self):
+        """Initialize a logging Formatter with an appropriate format string."""
+        super(ErrorFileFormatter, self).__init__(
+            '>%(filename_)s | %(message)s\n%(line_string)s')
+
+    def format(self, record):
+        """Aggregate line numbers to a line_string and format the record."""
+        record.line_string = self.format_aggregated(
+            record, 'line_number',
+            single_fmt='%d',
+            multiple_fmt='%s', join_string='\n', max_join=None,
+            optional=False)
+        return super(ErrorFileFormatter, self).format(record)
+
+
+class LineMessageFilter(logging.Filter):
+    """Filter that selects only validation messages about a line in a file."""
+    def filter(self, record):
+        return int(hasattr(record, 'filename_') and
+                   hasattr(record, 'line_number'))
+
+
 class CombiningLoggerAdapter(logging.LoggerAdapter):
     """LoggerAdapter that combines its own context info with that in calls."""
     def process(self, msg, kwargs):
@@ -1635,6 +1661,9 @@ def interface(args=None):
                              'your URL is not http://localhost/cbioportal')
     parser.add_argument('-html', '--html_table', type=str, required=False,
                         help='path to html report output file')
+    parser.add_argument('-e', '--error_file', type=str, required=False,
+                        help='File to which to write line numbers on which '
+                             'errors were found, for scripts')
     parser.add_argument('-v', '--verbose', required=False, action='store_true',
                         help='report status info messages in addition '
                              'to errors and warnings')
@@ -1789,6 +1818,19 @@ def main_validate(args):
             target=html_handler)
         collapsing_html_handler.setLevel(output_loglevel)
         logger.addHandler(collapsing_html_handler)
+
+    if args.error_file:
+        errfile_handler = logging.FileHandler(args.error_file, 'w')
+        errfile_handler.setFormatter(ErrorFileFormatter())
+        # TODO extend CollapsingLogMessageHandler to flush to multiple targets,
+        # and get rid of the duplicated buffering of messages here
+        coll_errfile_handler = cbioportal_common.CollapsingLogMessageHandler(
+            capacity=1e6,
+            flushLevel=logging.CRITICAL,
+            target=errfile_handler)
+        coll_errfile_handler.setLevel(logging.ERROR)
+        coll_errfile_handler.addFilter(LineMessageFilter())
+        logger.addHandler(coll_errfile_handler)
 
     # retrieve cancer types defined in the portal
     PORTAL_CANCER_TYPES = request_from_portal_api(

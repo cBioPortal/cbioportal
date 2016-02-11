@@ -194,6 +194,22 @@ public class DaoSample {
         
         return new ArrayList<Sample>(samples.values());
     }
+    
+    /**
+     * This method returns the list of sample (stable) ids for a study, e.g. TCGA-A1-A0SB-01, etc.
+     * 
+     * @param cancerStudyId : the cancer study internal id
+     * @return
+     */
+    public static List<String> getSampleStableIdsByCancerStudy(int cancerStudyId) 
+    {
+    	List<Sample> samples = getSamplesByCancerStudy(cancerStudyId);
+    	List<String> result = new ArrayList<String>();
+    	for (Sample sample : samples) {
+    		result.add(sample.getStableId());
+    	}
+    	return result;
+    }
 
     public static Sample getSampleByCancerStudyAndSampleId(int cancerStudyId, String stableSampleId)
     {

@@ -42,11 +42,10 @@ import org.mskcc.cbio.portal.util.ProgressMonitor;
 public class DeleteAllPatientLists {
 
     public static void main(String[] args) throws Exception {
-        ProgressMonitor pMonitor = new ProgressMonitor();
-        pMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleMode(true);
         DaoPatientList daoPatientList = new DaoPatientList();
         daoPatientList.deleteAllRecords();
         System.out.println ("\nAll Existing Patient Lists Deleted.");
-        ConsoleUtil.showWarnings(pMonitor);
+        ConsoleUtil.showWarnings();
     }
 }

@@ -58,7 +58,6 @@ import java.util.*;
  */
 public class ImportExtendedMutationData{
 
-	private ProgressMonitor pMonitor;
 	private File mutationFile;
 	private int geneticProfileId;
 	private MutationFilter myMutationFilter;
@@ -67,11 +66,9 @@ public class ImportExtendedMutationData{
 	 * construct an ImportExtendedMutationData with no white lists.
 	 * Filter mutations according to the no argument MutationFilter().
 	 */
-	public ImportExtendedMutationData(File mutationFile, int geneticProfileId,
-			ProgressMonitor pMonitor) {
+	public ImportExtendedMutationData(File mutationFile, int geneticProfileId) {
 		this.mutationFile = mutationFile;
 		this.geneticProfileId = geneticProfileId;
-		this.pMonitor = pMonitor;
 
 		// create default MutationFilter
 		myMutationFilter = new MutationFilter( );
@@ -83,11 +80,9 @@ public class ImportExtendedMutationData{
 	 */
 	public ImportExtendedMutationData( File mutationFile,
 			int geneticProfileId,
-			ProgressMonitor pMonitor,
 			String germline_white_list_file) throws IllegalArgumentException {
 		this.mutationFile = mutationFile;
 		this.geneticProfileId = geneticProfileId;
-		this.pMonitor = pMonitor;
 
 		// create MutationFilter
 		myMutationFilter = new MutationFilter(germline_white_list_file);
@@ -130,7 +125,7 @@ public class ImportExtendedMutationData{
 			// fail gracefully if a non-essential column is missing
 			// e.g. if there is no MA_link.var column, we assume that the value is NA and insert it as such
 			fileHasOMAData = true;
-			pMonitor.setCurrentMessage("Extracting OMA Scores from Column Number:  "
+			ProgressMonitor.setCurrentMessage("Extracting OMA Scores from Column Number:  "
 			                           + mafUtil.getMaFImpactIndex());
 		} catch( IllegalArgumentException e) {
 			fileHasOMAData = false;
@@ -141,10 +136,8 @@ public class ImportExtendedMutationData{
         GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileById(geneticProfileId);
 		while( line != null)
 		{
-			if( pMonitor != null) {
-				pMonitor.incrementCurValue();
-				ConsoleUtil.showProgress(pMonitor);
-			}
+            ProgressMonitor.incrementCurValue();
+            ConsoleUtil.showProgress();
                         
 			if( !line.startsWith("#") && line.trim().length() > 0)
 			{
@@ -171,14 +164,14 @@ public class ImportExtendedMutationData{
 				if (validationStatus == null ||
 				    validationStatus.equalsIgnoreCase("Wildtype"))
 				{
-					pMonitor.logWarning("Skipping entry with Validation_Status: Wildtype");
+					ProgressMonitor.logWarning("Skipping entry with Validation_Status: Wildtype");
 					line = buf.readLine();
 					continue;
 				}
 
 				String chr = DaoGeneOptimized.normalizeChr(record.getChr().toUpperCase());
 				if (chr==null) {
-					pMonitor.logWarning("Skipping entry with chromosome value: " + record.getChr());
+					ProgressMonitor.logWarning("Skipping entry with chromosome value: " + record.getChr());
 					line = buf.readLine();
 					continue;
 				}
@@ -242,7 +235,7 @@ public class ImportExtendedMutationData{
 				// skip RNA mutations
 				if (mutationType != null && mutationType.equalsIgnoreCase("rna"))
 				{
-					pMonitor.logWarning("Skipping entry with mutation type: RNA");
+					ProgressMonitor.logWarning("Skipping entry with mutation type: RNA");
 					line = buf.readLine();
 					continue;
 				}
@@ -279,7 +272,7 @@ public class ImportExtendedMutationData{
 				}
 
 				if(gene == null) {
-					pMonitor.logWarning("Gene not found:  " + geneSymbol + " ["
+					ProgressMonitor.logWarning("Gene not found:  " + geneSymbol + " ["
 					                    + entrezGeneId + "]. Ignoring it "
 					                    + "and all mutation data associated with it!");
 				} else {
@@ -388,7 +381,7 @@ public class ImportExtendedMutationData{
                 // calculate mutation count for every sample
                 DaoMutation.calculateMutationCount(geneticProfileId);
 		
-                pMonitor.setCurrentMessage(myMutationFilter.getStatistics() );
+                ProgressMonitor.setCurrentMessage(myMutationFilter.getStatistics() );
 
 	}
 

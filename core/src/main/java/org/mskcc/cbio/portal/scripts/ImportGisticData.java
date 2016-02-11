@@ -52,7 +52,6 @@ import org.mskcc.cbio.portal.validate.validationException;
  *      table_del.conf_99.txt
  */
 public class ImportGisticData {
-    private ProgressMonitor pMonitor;
     private File gisticTableFile;
     private File gistic_nonTableFile;
     private File metaDataFile;
@@ -81,15 +80,14 @@ public class ImportGisticData {
         File gistic_f = new File(args[0]);
         int cancerStudyInternalId = gisticReader.getCancerStudyInternalId(args[1]);
 
-        ProgressMonitor pMonitor = new ProgressMonitor();
-        pMonitor.setConsoleMode(false);
+        ProgressMonitor.setConsoleMode(false);
 
         System.out.println("Reading data from: " + gistic_f.getAbsolutePath());
         System.out.println("CancerStudyId: " + cancerStudyInternalId);
 
         int lines = FileUtil.getNumLines(gistic_f);
         System.out.println(" --> total number of lines: " + lines);
-        pMonitor.setMaxValue(lines);
+        ProgressMonitor.setMaxValue(lines);
 
         ArrayList<Gistic> gistics = null;
 
@@ -111,6 +109,6 @@ public class ImportGisticData {
                 System.err.println(e);
             }
         }
-        ConsoleUtil.showWarnings(pMonitor);
+        ConsoleUtil.showWarnings();
     }
 }

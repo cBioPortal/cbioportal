@@ -41,7 +41,7 @@ def get_db_cursor(portal_properties):
         return None
 
     if connection is not None:
-        return connection.cursor()
+        return connection, connection.cursor()
 
 def get_portal_properties(properties_filename):
     """ Returns a properties object """
@@ -120,7 +120,7 @@ def is_version_larger(version1, version2):
         return True
     return False
 
-def run_migration(db_version, sql_filename, cursor):
+def run_migration(db_version, sql_filename, connection, cursor):
     """
 
         Goes through the sql and runs lines based on the version numbers. SQL version should be stated as follows:
@@ -136,7 +136,8 @@ def run_migration(db_version, sql_filename, cursor):
     sql_file = open(sql_filename, 'r')
     sql_version = (0,0,0)
     run_line = False
-
+    statements = {}
+    statement = ''
     for line in sql_file:
         if line.startswith('##'):
             sql_version = tuple(map(int, line.split(':')[1].strip().split('.')))
@@ -148,11 +149,33 @@ def run_migration(db_version, sql_filename, cursor):
             continue
         # only execute sql line if the last version seen in the file is greater than the db_version
         if run_line:
+            line = line.strip()
+            statement = statement + ' ' + line
+            if line.endswith(';'):
+                if sql_version not in statements:
+                    statements[sql_version] = [statement]
+                else:
+                    statements[sql_version].append(statement)
+                statement = ''
+    run_statements(statements, connection, cursor)
+def run_statements(statements, connection, cursor):
+    try:
+        cursor.execute('SET autocommit=0;')
+    except MySQLdb.Error, msg:
+        print >> ERROR_FILE, msg
+        sys.exit(1)
+
+    for version,statement_list in statements.iteritems():
+        print >> OUTPUT_FILE, 'Running statments for version: ' + '.'.join(map(str,version))
+        for statement in statement_list:
+            print >> OUTPUT_FILE, '\tExecuting statement: ' + statement.strip()
             try:
-                cursor.execute(line.strip())
+                cursor.execute(statement.strip())
             except MySQLdb.Error, msg:
                 print >> ERROR_FILE, msg
                 sys.exit(1)
+        connection.commit();
+
 def warn_user():
     """
 
@@ -201,7 +224,7 @@ def main():
 
     # set up - get properties and db cursor
     portal_properties = get_portal_properties(properties_filename)
-    cursor = get_db_cursor(portal_properties)
+    connection, cursor = get_db_cursor(portal_properties)
 
     if cursor is None:
         print >> ERROR_FILE, 'failure connecting to sql database'
@@ -209,7 +232,9 @@ def main():
 
     # execute - get the database version and run the migration
     db_version = get_db_version(cursor)
-    run_migration(db_version, sql_filename, cursor)
+    run_migration(db_version, sql_filename, connection, cursor)
+    connection.close();
+    
 
 # do main
 if __name__ == '__main__':

@@ -1861,11 +1861,11 @@ if __name__ == '__main__':
         parsed_args = interface()
         # run the script
         exit_status = main_validate(parsed_args)
-        print >>sys.stderr, ('Validation of study {status}.'.format(
-            status={0: 'succeeded',
-                    1: 'failed',
-                    2: 'not performed as problems occurred',
-                    3: 'succeeded with warnings'}.get(exit_status, 'unknown')))
     finally:
         logging.shutdown()
         del logging._handlerList[:]  # workaround for harmless exceptions on exit
+    print >>sys.stderr, ('Validation of study {status}.'.format(
+        status={0: 'succeeded',
+                1: 'failed',
+                2: 'not performed as problems occurred',
+                3: 'succeeded with warnings'}.get(exit_status, 'unknown')))

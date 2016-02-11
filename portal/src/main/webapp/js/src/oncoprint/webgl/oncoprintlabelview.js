@@ -79,12 +79,28 @@ var OncoprintLabelView = (function () {
 	var font_size = view.getFontSize();
 	view.ctx.font = 'bold '+font_size +'px serif';
 	view.ctx.clearRect(0,0,view.$canvas[0].width,view.$canvas[0].height);
+	view.ctx.fillStyle = 'black';
 	var tracks = view.tracks;
 	for (var i=0; i<tracks.length; i++) {
 	    view.ctx.fillText(view.labels[tracks[i]], 0, view.label_tops[tracks[i]]);
 	}
 	if (view.dragged_label_track_id !== null) {
 	    view.ctx.strokeText(view.labels[view.dragged_label_track_id], 0, view.drag_mouse_y-font_size/2);
+	    view.ctx.fillStyle = 'rgba(0,0,0,0.6)';
+	    var label_above_mouse = getLabelAboveMouse(view, view.drag_mouse_y, null);
+	    var label_below_mouse = getLabelBelowMouse(view, view.drag_mouse_y, null);
+	    var rect_y;
+	    if (label_above_mouse === view.dragged_label_track_id || label_below_mouse === view.dragged_label_track_id) {
+		return;
+	    }
+	    if (label_above_mouse !== null && label_below_mouse !== null) {
+		rect_y = (view.label_tops[label_above_mouse] + view.label_tops[label_below_mouse])/2;
+	    } else if (label_above_mouse === null) {
+		rect_y = 0;
+	    } else if (label_below_mouse === null) {
+		rect_y = view.label_tops[tracks[tracks.length-1]] + view.minimum_track_height;
+	    }
+	    view.ctx.fillRect(0, rect_y, view.ctx.measureText(view.labels[view.dragged_label_track_id]).width, view.minimum_track_height);
 	}
     }
     
@@ -110,6 +126,25 @@ var OncoprintLabelView = (function () {
 		    continue;
 		}
 		if (view.label_tops[track_ids[i]] > mouse_y) {
+		    break;
+		} else {
+		    candidate_track = track_ids[i];
+		}
+	    }
+	    return candidate_track;
+	}
+    }
+    var getLabelBelowMouse = function(view, mouse_y, track_to_exclude) {
+	var track_ids = view.tracks;
+	if (mouse_y > view.label_tops[track_ids[track_ids.length-1]]) {
+	    return null;
+	} else {
+	    var candidate_track = null;
+	    for (var i=track_ids.length-1; i>=0; i--) {
+		if (track_to_exclude !== null && track_to_exclude === track_ids[i]) {
+		    continue;
+		}
+		if (view.label_tops[track_ids[i]] < mouse_y) {
 		    break;
 		} else {
 		    candidate_track = track_ids[i];

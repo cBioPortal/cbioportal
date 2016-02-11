@@ -23,6 +23,7 @@ IMPORT_STUDY_CLASS = "org.mskcc.cbio.portal.scripts.ImportCancerStudy"
 REMOVE_STUDY_CLASS = "org.mskcc.cbio.portal.scripts.RemoveCancerStudy"
 IMPORT_CANCER_TYPE_CLASS = "org.mskcc.cbio.portal.scripts.ImportTypesOfCancers"
 IMPORT_CASE_LIST_CLASS = "org.mskcc.cbio.portal.scripts.ImportPatientList"
+ADD_CASE_LIST_CLASS = "org.mskcc.cbio.portal.scripts.AddCaseList"
 
 class MetaFileTypes(object):
     """how we differentiate between data types."""
@@ -56,7 +57,8 @@ META_FIELD_MAP = {
         'short_name': True,
         'citation': False,
         'pmid': False,
-        'groups': False
+        'groups': False,
+        'add_global_case_list': False
     },
     MetaFileTypes.CLINICAL: {
         'cancer_study_identifier': True,

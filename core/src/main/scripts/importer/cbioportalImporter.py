@@ -21,6 +21,7 @@ from cbioportal_common import IMPORT_CANCER_TYPE_CLASS
 from cbioportal_common import IMPORT_STUDY_CLASS
 from cbioportal_common import REMOVE_STUDY_CLASS
 from cbioportal_common import IMPORT_CASE_LIST_CLASS
+from cbioportal_common import ADD_CASE_LIST_CLASS
 from cbioportal_common import run_java
 
 
@@ -103,6 +104,14 @@ def import_case_list(jvm_args, meta_filename):
     args.append(IMPORT_CASE_LIST_CLASS)
     args.append(meta_filename)
     run_java(*args)
+    
+def add_global_case_list(jvm_args, study_id):
+    args = jvm_args.split(' ')
+    args.append(ADD_CASE_LIST_CLASS)
+    args.append(study_id)
+    args.append("all")
+    run_java(*args)
+    
 
 def process_case_lists(jvm_args, case_list_dir):
     case_list_files = (os.path.join(case_list_dir, x) for
@@ -133,6 +142,7 @@ def process_directory(jvm_args, study_directory):
         not (f.startswith('.') or f.endswith('~')))
     study_id = None
     study_metafile = None
+    study_metadata = None
     cancer_type_filepairs = []
     clinical_filepairs = []
     non_clinical_filepairs = []
@@ -145,7 +155,7 @@ def process_directory(jvm_args, study_directory):
         if meta_file_type is None:
             # invalid meta file, let's die
             raise RuntimeError('Invalid meta file: ' + f)
-        # remember study id to skip ones referencing a different one
+        # remember study id to give an error in case any other file is referencing a different one
         if study_id is None and 'cancer_study_identifier' in metadata:
             study_id = metadata['cancer_study_identifier']
 
@@ -155,6 +165,7 @@ def process_directory(jvm_args, study_directory):
                     'Multiple meta_study files found: {} and {}'.format(
                         study_metafile, f))
             study_metafile = f
+            study_metadata = metadata
         elif meta_file_type == MetaFileTypes.CANCER_TYPE:
             cancer_type_filepairs.append(
                 (f, os.path.join(study_directory, metadata['data_filename'])))
@@ -189,6 +200,9 @@ def process_directory(jvm_args, study_directory):
     case_list_dirname = os.path.join(study_directory, 'case_lists')
     if os.path.isdir(case_list_dirname):
         process_case_lists(jvm_args, case_list_dirname)
+    
+    if study_metadata.get('add_global_case_list', 'false').lower() == 'true':
+        add_global_case_list(jvm_args, study_id)
 
 
 def usage():

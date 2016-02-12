@@ -47,13 +47,10 @@ import org.mskcc.cbio.portal.web_api.ConnectionManager;
  */
 public final class ImportUniProtIdMapping {
     private final File uniProtIdMapping;
-    private final ProgressMonitor progressMonitor;
 
-    public ImportUniProtIdMapping(final File uniProtIdMapping, final ProgressMonitor progressMonitor) {
+    public ImportUniProtIdMapping(final File uniProtIdMapping) {
         checkNotNull(uniProtIdMapping, "uniProtIdMapping must not be null");
-        checkNotNull(progressMonitor, "progressMonitor must not be null");
         this.uniProtIdMapping = uniProtIdMapping;
-        this.progressMonitor = progressMonitor;
     }
 
     public void importData() throws DaoException, IOException {
@@ -66,8 +63,8 @@ public final class ImportUniProtIdMapping {
         Map<String, Integer> mapUniprotAccEntrezGeneId = new HashMap<String, Integer>();
         Map<String, String> mapUniprotAccUniprotId = new HashMap<String, String>();
         for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-            progressMonitor.incrementCurValue();
-            ConsoleUtil.showProgress(progressMonitor);
+            ProgressMonitor.incrementCurValue();
+            ConsoleUtil.showProgress();
             
             String[] parts = line.split("\t");
             if (!swissAccessions.contains(parts[0])) {
@@ -125,8 +122,7 @@ public final class ImportUniProtIdMapping {
             System.out.println("command line usage: importUniProtIdMapping.pl <uniprot_id_mapping.txt>");
             return;
         }
-        ProgressMonitor progressMonitor = new ProgressMonitor();
-        progressMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleMode(true);
 		SpringUtil.initDataSource();
         try {
             DaoUniProtIdMapping.deleteAllRecords();
@@ -134,8 +130,8 @@ public final class ImportUniProtIdMapping {
             System.out.println("Reading uniprot id mappings from:  " + uniProtIdMapping.getAbsolutePath());
             int lines = FileUtil.getNumLines(uniProtIdMapping);
             System.out.println(" --> total number of lines:  " + lines);
-            progressMonitor.setMaxValue(lines);
-            ImportUniProtIdMapping importUniProtIdMapping = new ImportUniProtIdMapping(uniProtIdMapping, progressMonitor);
+            ProgressMonitor.setMaxValue(lines);
+            ImportUniProtIdMapping importUniProtIdMapping = new ImportUniProtIdMapping(uniProtIdMapping);
             importUniProtIdMapping.importData();
         }
         catch (DaoException e) {
@@ -145,7 +141,7 @@ public final class ImportUniProtIdMapping {
             e.printStackTrace();
         }
         finally {
-            ConsoleUtil.showWarnings(progressMonitor);
+            ConsoleUtil.showWarnings();
             System.err.println("Done.");
         }
     }

@@ -123,8 +123,7 @@ public class ImportProfileData{
        }
 
 		SpringUtil.initDataSource();
-        ProgressMonitor pMonitor = new ProgressMonitor();
-        pMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleMode(true);
         System.err.println("Reading data from:  " + dataFile.getAbsolutePath());
         GeneticProfile geneticProfile = null;
          try {
@@ -138,28 +137,27 @@ public class ImportProfileData{
         System.err.println(" --> profile name:  " + geneticProfile.getProfileName());
         System.err.println(" --> genetic alteration type:  " + geneticProfile.getGeneticAlterationType());
         System.err.println(" --> total number of lines:  " + numLines);
-        pMonitor.setMaxValue(numLines);
+        ProgressMonitor.setMaxValue(numLines);
         
         if (geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED)) {
 
    
             ImportExtendedMutationData importer = new ImportExtendedMutationData( dataFile,
-                  geneticProfile.getGeneticProfileId(), pMonitor);
+                  geneticProfile.getGeneticProfileId());
             System.out.println( importer.toString() );
             importer.importData();
         }
 	    else if (geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.FUSION)) {
 	        ImportFusionData importer = new ImportFusionData(dataFile,
-				geneticProfile.getGeneticProfileId(),
-				pMonitor);
+				geneticProfile.getGeneticProfileId());
 	        importer.importData();
         } else {
             ImportTabDelimData importer = new ImportTabDelimData(dataFile, geneticProfile.getTargetLine(),
-                    geneticProfile.getGeneticProfileId(), pMonitor);
+                    geneticProfile.getGeneticProfileId());
             importer.importData();
         }
       
-        ConsoleUtil.showWarnings(pMonitor);
+        ConsoleUtil.showWarnings();
         System.err.println("Done.");
         Date end = new Date();
         long totalTime = end.getTime() - start.getTime();

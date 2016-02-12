@@ -378,8 +378,7 @@ public class ImportClinicalData {
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
-        ProgressMonitor pMonitor = new ProgressMonitor();
-        pMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleMode(true);
 
         if (args.length < 2) {
             System.out.println("command line usage:  importClinical <clinical.txt> <cancer_study_id> [is_sample_data]");
@@ -397,7 +396,7 @@ public class ImportClinicalData {
 				System.out.println("Reading data from:  " + clinical_f.getAbsolutePath());
 				int numLines = FileUtil.getNumLines(clinical_f);
 				System.out.println(" --> total number of lines:  " + numLines);
-				pMonitor.setMaxValue(numLines);
+				ProgressMonitor.setMaxValue(numLines);
 
 				ImportClinicalData importClinicalData = new ImportClinicalData(cancerStudy,
                                                                                clinical_f);
@@ -418,7 +417,7 @@ public class ImportClinicalData {
 		} catch (Exception e) {
 			System.err.println ("Error:  " + e.getMessage());
         } finally {
-            ConsoleUtil.showWarnings(pMonitor);
+            ConsoleUtil.showWarnings();
         }
     }
 }

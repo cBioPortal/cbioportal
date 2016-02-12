@@ -75,15 +75,14 @@ public class FetchPfamGraphicsData
                 
                 Set<String> uniprotAccs = ImportUniProtIdMapping.getSwissProtAccessionHuman();
                 
-                ProgressMonitor pMonitor = new ProgressMonitor();
-                pMonitor.setConsoleMode(true);
-                pMonitor.setMaxValue(uniprotAccs.size());
+                ProgressMonitor.setConsoleMode(true);
+                ProgressMonitor.setMaxValue(uniprotAccs.size());
 
 		// read all
 		for (String uniprotId : uniprotAccs)
 		{
-                            pMonitor.incrementCurValue();
-                            ConsoleUtil.showProgress(pMonitor);
+                            ProgressMonitor.incrementCurValue();
+                            ConsoleUtil.showProgress();
                             
                             // avoid to add a duplicate entry
                             if (keySet.contains(uniprotId))

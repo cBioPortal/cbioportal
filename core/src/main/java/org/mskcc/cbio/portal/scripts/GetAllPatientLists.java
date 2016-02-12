@@ -44,8 +44,7 @@ import java.util.ArrayList;
 public class GetAllPatientLists {
 
     public static void main(String[] args) throws Exception {
-        ProgressMonitor pMonitor = new ProgressMonitor();
-        pMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleMode(true);
         DaoPatientList daoPatientList = new DaoPatientList();
         ArrayList <PatientList> patientListMaster = daoPatientList.getAllPatientLists();
         for (PatientList patientList:  patientListMaster) {

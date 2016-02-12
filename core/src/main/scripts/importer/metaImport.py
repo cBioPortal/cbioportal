@@ -63,8 +63,10 @@ def interface():
 if __name__ == '__main__':
     # Parse user input
     args = interface()
-    # supply a parameter that the validation script expects to have parsed
+    # supply parameter that the validation script expects to have parsed
     args.error_file = False
+    args.no_portal_checks = False
+
     study_dir = args.study_directory
 
     # Validate the study directory.

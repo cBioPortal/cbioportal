@@ -142,5 +142,6 @@ public class AddCaseList {
       }
       
       ConsoleUtil.showWarnings();
+      System.err.println("Done.");
    }
 }

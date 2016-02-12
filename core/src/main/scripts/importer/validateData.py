@@ -1374,7 +1374,7 @@ class CancerTypeValidator(Validator):
         'type_of_cancer',
         'name',
         'clinical_trial_keywords',
-        'dedicated_color',
+        'color',
         'parent_type_of_cancer'
     )
 

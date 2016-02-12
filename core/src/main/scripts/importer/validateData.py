@@ -146,7 +146,7 @@ class ErrorFileFormatter(cbioportal_common.ValidationMessageFormatter):
         record.line_string = self.format_aggregated(
             record, 'line_number',
             single_fmt='%d',
-            multiple_fmt='%s', join_string='\n', max_join=None,
+            multiple_fmt='%s', join_string=',', max_join=None,
             optional=False)
         return super(ErrorFileFormatter, self).format(record)
 

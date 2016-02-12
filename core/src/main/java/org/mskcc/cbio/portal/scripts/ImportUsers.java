@@ -60,7 +60,7 @@ public class ImportUsers {
             return;
         }
 
-        ProgressMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleMode(args);
 
 		SpringUtil.initDataSource();
 

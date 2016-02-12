@@ -47,7 +47,7 @@ public class RemoveCancerStudy {
         }
         String cancerStudyIdentifier = args[0];
 
-        ProgressMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleMode(args);
 		SpringUtil.initDataSource();
         if (DaoCancerStudy.doesCancerStudyExistByStableId(cancerStudyIdentifier)) {
             System.out.println("Cancer study with identifier " + cancerStudyIdentifier + " found in database, removing...");

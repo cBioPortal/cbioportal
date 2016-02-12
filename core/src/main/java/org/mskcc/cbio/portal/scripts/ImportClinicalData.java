@@ -378,13 +378,13 @@ public class ImportClinicalData {
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
-        ProgressMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleMode(args);
 
         if (args.length < 2) {
             System.out.println("command line usage:  importClinical <clinical.txt> <cancer_study_id> [is_sample_data]");
             return;
         }
-
+        
 		try {
 			SpringUtil.initDataSource();
 			CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(args[1]);

@@ -62,6 +62,7 @@ public class ExportProfileData {
             return;
         } else {
             System.out.println(geneticProfile.getProfileName());
+            ProgressMonitor.setConsoleMode(args);
             export(geneticProfile);
         }
     }
@@ -72,7 +73,6 @@ public class ExportProfileData {
         ArrayList<Integer> sampleList = outputHeader(profile, writer);
 
         DaoGeneticAlteration daoGeneticAlteration = DaoGeneticAlteration.getInstance();
-        ProgressMonitor.setConsoleMode(true);
         Set<CanonicalGene> geneSet = daoGeneticAlteration.getGenesInProfile(profile.getGeneticProfileId());
         ProgressMonitor.setMaxValue(geneSet.size());
         Iterator<CanonicalGene> geneIterator = geneSet.iterator();

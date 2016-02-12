@@ -79,7 +79,7 @@ public class ImportDrugs {
             System.out.println("command line usage:  importDrugs.pl <XXXX.txt>");
             return;
         }
-        ProgressMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleMode(args);
 		SpringUtil.initDataSource();
 
         File file = new File(args[0]);

@@ -115,6 +115,7 @@ public class ImportCopyNumberSegmentData {
         }
 
         importCopyNumberSegmentFileMetadata(cancerStudy, properties);
+        ProgressMonitor.setConsoleMode(args);
         importCopyNumberSegmentFileData(cancerStudy, filenames[0]);
         
         System.err.println("Done.");
@@ -174,8 +175,6 @@ public class ImportCopyNumberSegmentData {
 
     private static void importCopyNumberSegmentFileData(CancerStudy cancerStudy, String dataFilename) throws Exception
     {
-        ProgressMonitor.setConsoleMode(true);
-        
         File file = new File(dataFilename);
         System.out.println("Reading data from:  " + file.getAbsolutePath());
         int numLines = FileUtil.getNumLines(file);

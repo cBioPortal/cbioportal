@@ -122,7 +122,7 @@ public class AddCaseList {
          System.out.println("command line usage:  addCaseList.pl " + "<study identifier> <case list type>");
             return;
       }
-      ProgressMonitor.setConsoleMode(true);
+      ProgressMonitor.setConsoleMode(args);
       
       String cancerStudyIdentifier = args[0];
       String caseListType = args[1];

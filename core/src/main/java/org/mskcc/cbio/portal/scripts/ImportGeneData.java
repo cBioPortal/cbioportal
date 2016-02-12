@@ -254,7 +254,7 @@ public class ImportGeneData {
             System.out.println("command line usage:  importGenes.pl <ncbi_genes.txt> <supp-genes.txt> <microrna.txt> <all_exon_loci.bed>");
             return;
         }
-        ProgressMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleMode(args);
         
 
         File geneFile = new File(args[0]);

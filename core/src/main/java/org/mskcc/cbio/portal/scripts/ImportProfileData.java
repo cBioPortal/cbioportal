@@ -123,7 +123,7 @@ public class ImportProfileData{
        }
 
 		SpringUtil.initDataSource();
-        ProgressMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleMode(args);
         System.err.println("Reading data from:  " + dataFile.getAbsolutePath());
         GeneticProfile geneticProfile = null;
          try {

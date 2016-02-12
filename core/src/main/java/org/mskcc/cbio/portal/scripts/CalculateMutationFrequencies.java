@@ -46,7 +46,7 @@ public class CalculateMutationFrequencies {
 
     public static void main(String[] args) throws Exception {
         HashMap <CanonicalGene, HashSet<Integer>> mutationMap = new HashMap<CanonicalGene, HashSet<Integer>>();
-        ProgressMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleMode(args);
 
         if (args.length != 2) {
             System.out.println ("You must specify a stable case set id and stable cancer study id.");

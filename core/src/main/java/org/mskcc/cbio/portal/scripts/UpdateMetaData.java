@@ -50,7 +50,7 @@ public class UpdateMetaData {
             return;
         }
 
-        ProgressMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleMode(args);
 		SpringUtil.initDataSource();
         File descriptorFile = new File(args[0]);
 

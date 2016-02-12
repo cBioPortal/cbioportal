@@ -152,7 +152,7 @@ public class ImportSif {
             System.out.println("command line usage:  importSif.pl <sif.txt> <data_source>");
             return;
         }
-        ProgressMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleMode(args);
 
 		SpringUtil.initDataSource();
 

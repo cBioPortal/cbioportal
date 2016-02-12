@@ -43,10 +43,10 @@ import java.io.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.commons.lang.StringUtils;
+
 
 /**
- * Code to Import Copy Number Alteration or MRNA Expression Data.
+ * Code to Import Copy Number Alteration, MRNA Expression Data, or protein RPPA data
  *
  * @author Ethan Cerami
  */
@@ -69,12 +69,11 @@ public class ImportTabDelimData {
     private String targetLine;
     private int geneticProfileId;
     private GeneticProfile geneticProfile;
-    private HashSet<String> microRnaIdSet;
 
     /**
      * Constructor.
      *
-     * @param dataFile         Data File containing CNA data.
+     * @param dataFile         Data File containing Copy Number Alteration, MRNA Expression Data, or protein RPPA data
      * @param targetLine       The line we want to import.
      *                         If null, all lines are imported.
      * @param geneticProfileId GeneticProfile ID.
@@ -88,7 +87,7 @@ public class ImportTabDelimData {
     /**
      * Constructor.
      *
-     * @param dataFile         Data File containing CNA data.
+     * @param dataFile         Data File containing Copy Number Alteration, MRNA Expression Data, or protein RPPA data
      * @param geneticProfileId GeneticProfile ID.
      */
     public ImportTabDelimData(File dataFile, int geneticProfileId) {
@@ -97,14 +96,12 @@ public class ImportTabDelimData {
     }
 
     /**
-     * Import the CNA Data.
+     * Import the Copy Number Alteration, MRNA Expression Data, or protein RPPA data
      *
      * @throws IOException  IO Error.
      * @throws DaoException Database Error.
      */
     public void importData() throws IOException, DaoException {
-        DaoMicroRna daoMicroRna = new DaoMicroRna();
-        microRnaIdSet = daoMicroRna.getEntireSet();
 
         geneticProfile = DaoGeneticProfile.getGeneticProfileById(geneticProfileId);
 
@@ -312,11 +309,12 @@ public class ImportTabDelimData {
         if (MySQLbulkLoader.isBulkLoad()) {
            MySQLbulkLoader.flushAll();
         }
-        
+        buf.close(); //TODO do in finally
         if (numRecordsStored == 0) {
             throw new DaoException ("Something has gone wrong!  I did not save any records" +
                     " to the database!");
         }
+        
     }
 
     private void storeGeneticAlterations(String[] values, DaoGeneticAlteration daoGeneticAlteration,
@@ -347,12 +345,12 @@ public class ImportTabDelimData {
         
         Pattern p = Pattern.compile("(p[STY][0-9]+)");
         Matcher m = p.matcher(arrayId);
-        String type, residue;
+        String residue;
         if (!m.find()) {
-            type = "protein_level";
+            //type is "protein_level":
             return genes;
         } else {
-            type = "phosphorylation";
+            //type is "phosphorylation":
             residue = m.group(1);
             return importPhosphoGene(genes, residue);
         }

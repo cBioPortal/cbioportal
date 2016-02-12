@@ -51,7 +51,7 @@ public class ImportTypesOfCancers {
             return;
         }
 
-        ProgressMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleMode(args);
 
         File file = new File(args[0]);
 	// default to clobber = true (existing behavior)

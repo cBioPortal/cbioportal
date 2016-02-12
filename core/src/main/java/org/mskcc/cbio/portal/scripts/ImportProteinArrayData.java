@@ -271,7 +271,7 @@ public class ImportProteinArrayData {
 		SpringUtil.initDataSource();
         int cancerStudyId = DaoCancerStudy.getCancerStudyByStableId(args[1]).getInternalId();
         
-        ProgressMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleMode(args);
 
         File file = new File(args[0]);
         System.out.println("Reading data from:  " + file.getAbsolutePath());

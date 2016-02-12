@@ -108,7 +108,7 @@ public class ConvertCosmicVcfToMaf {
             System.out.println("command line usage:  importCosmicData.pl <CosmicCodingMuts.vcf> <CosmicCodingMuts.maf>");
             return;
         }
-        ProgressMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleMode(args);
 
         File vcf = new File(args[0]);
         System.out.println("Reading data from:  " + vcf.getAbsolutePath());

@@ -123,7 +123,7 @@ public class ImportHprd {
             System.out.println("command line usage:  importHprd.pl <hprd.txt>");
             return;
         }
-        ProgressMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleMode(args);
 		SpringUtil.initDataSource();
 
         try {

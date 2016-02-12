@@ -118,7 +118,7 @@ public class AddCaseList {
    public static void main(String[] args) throws Exception {
 
       // check args
-      if (args.length != 2) {
+      if (args.length < 2) {
          System.out.println("command line usage:  addCaseList.pl " + "<study identifier> <case list type>");
             return;
       }

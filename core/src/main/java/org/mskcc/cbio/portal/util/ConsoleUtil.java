@@ -52,7 +52,7 @@ public class ConsoleUtil {
      *
      */
     public static synchronized void showProgress() {
-        if (ProgressMonitor.isConsoleMode()) {
+        if (ProgressMonitor.isShowProgress()) {
             int currentValue = ProgressMonitor.getCurValue();
             if (currentValue % 100 == 0) {
                 System.err.print(".");

@@ -62,7 +62,7 @@ public class ExportProfileData {
             return;
         } else {
             System.out.println(geneticProfile.getProfileName());
-            ProgressMonitor.setConsoleMode(args);
+            ProgressMonitor.setConsoleModeAndParseShowProgress(args);
             export(geneticProfile);
         }
     }

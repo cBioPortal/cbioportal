@@ -378,7 +378,7 @@ public class ImportClinicalData {
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
-        ProgressMonitor.setConsoleMode(args);
+        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
 
         if (args.length < 2) {
             System.out.println("command line usage:  importClinical <clinical.txt> <cancer_study_id> [is_sample_data]");

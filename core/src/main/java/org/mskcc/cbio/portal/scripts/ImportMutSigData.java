@@ -54,7 +54,7 @@ public class ImportMutSigData {
             return;
         }
 
-        ProgressMonitor.setConsoleMode(args);
+        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
 		SpringUtil.initDataSource();
 
         File mutSigFile = new File(args[0]);

@@ -123,7 +123,7 @@ public class ImportPathwayCommonsExtSif {
             System.out.println("command line usage:  importHprd.pl <sif.txt>");
             return;
         }
-        ProgressMonitor.setConsoleMode(args);
+        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
 		SpringUtil.initDataSource();
 
         try {

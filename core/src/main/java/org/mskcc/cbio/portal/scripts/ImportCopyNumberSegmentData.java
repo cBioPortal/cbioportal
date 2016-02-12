@@ -115,7 +115,7 @@ public class ImportCopyNumberSegmentData {
         }
 
         importCopyNumberSegmentFileMetadata(cancerStudy, properties);
-        ProgressMonitor.setConsoleMode(args);
+        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
         importCopyNumberSegmentFileData(cancerStudy, filenames[0]);
         
         System.err.println("Done.");

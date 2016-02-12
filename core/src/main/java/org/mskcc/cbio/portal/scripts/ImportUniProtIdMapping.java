@@ -122,7 +122,7 @@ public final class ImportUniProtIdMapping {
             System.out.println("command line usage: importUniProtIdMapping.pl <uniprot_id_mapping.txt>");
             return;
         }
-        ProgressMonitor.setConsoleMode(args);
+        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
 		SpringUtil.initDataSource();
         try {
             DaoUniProtIdMapping.deleteAllRecords();

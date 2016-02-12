@@ -143,7 +143,7 @@ public class ImportPatientList {
          System.out.println("command line usage:  importCaseListData.pl " + "<data_file.txt or directory>");
             return;
       }
-      ProgressMonitor.setConsoleMode(args);
+      ProgressMonitor.setConsoleModeAndParseShowProgress(args);
       File dataFile = new File(args[0]);
       if (dataFile.isDirectory()) {
          File files[] = dataFile.listFiles();

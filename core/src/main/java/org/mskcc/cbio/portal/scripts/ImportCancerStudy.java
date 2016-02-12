@@ -48,7 +48,7 @@ public class ImportCancerStudy {
             return;
         }
 
-        ProgressMonitor.setConsoleMode(args);
+        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
 
         File file = new File(args[0]);
 		SpringUtil.initDataSource();

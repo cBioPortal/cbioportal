@@ -290,7 +290,7 @@ public final class ImportPdbUniprotResidueMappingFromSifts {
         
         String pdbCacheDir = args.length>2 ? args[2] : System.getProperty("java.io.tmpdir");
     
-        ProgressMonitor.setConsoleMode(args);
+        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
 
 		SpringUtil.initDataSource();
         

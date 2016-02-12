@@ -169,7 +169,7 @@ public final class ImportPdbUniprotResidueMappingFromMA {
             return;
         }
         
-        ProgressMonitor.setConsoleMode(args);
+        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
 
 		SpringUtil.initDataSource();
         

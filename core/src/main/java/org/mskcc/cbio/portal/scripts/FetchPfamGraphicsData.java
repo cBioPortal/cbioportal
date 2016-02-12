@@ -208,7 +208,7 @@ public class FetchPfamGraphicsData
 
                     System.out.println("Fetching started...");
                     Date start = new Date();
-                    ProgressMonitor.setConsoleMode(args);
+                    ProgressMonitor.setConsoleModeAndParseShowProgress(args);
                     int numErrors = driver(output, incremental);
                     Date end = new Date();
                     System.out.println("Fetching finished.");

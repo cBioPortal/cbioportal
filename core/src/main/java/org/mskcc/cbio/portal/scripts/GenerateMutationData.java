@@ -268,7 +268,7 @@ public class GenerateMutationData {
         }
 
 		// setup some vars
-        ProgressMonitor.setConsoleMode(args);
+        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
         ProgressMonitor.setCurrentMessage("Generating mutation data file...");
         File allCasesFile = new File(args[0]);
         File sequencedGeneFile = new File(args[1]);

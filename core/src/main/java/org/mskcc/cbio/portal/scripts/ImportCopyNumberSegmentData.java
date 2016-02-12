@@ -125,6 +125,7 @@ public class ImportCopyNumberSegmentData {
     {
         String[] filenames = new String[2];
         OptionParser parser = new OptionParser();
+        parser.accepts("noprogress");
         OptionSpec<String> data = parser.accepts( "data",
             "copy number segment data file" ).withRequiredArg().describedAs( "copy_number_segment_file.seg" ).ofType( String.class );
         OptionSpec<String> meta = parser.accepts( "meta",

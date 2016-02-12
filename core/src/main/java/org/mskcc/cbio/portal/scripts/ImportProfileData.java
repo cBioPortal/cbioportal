@@ -77,6 +77,7 @@ public class ImportProfileData{
 
        // using a real options parser, helps avoid bugs
        parser = new OptionParser();
+       parser.accepts("noprogress");
        OptionSpec<Void> help = parser.accepts( "help", "print this help info" );
        OptionSpec<String> data = parser.accepts( "data",
                "profile data file" ).withRequiredArg().describedAs( "data_file.txt" ).ofType( String.class );

@@ -45,7 +45,6 @@ import org.mskcc.cbio.portal.dao.DaoException;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.userdetails.UserDetails;
 
 
 /**
@@ -102,9 +101,11 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
                 return false;
             }
 
-            UserDetails user = (UserDetails) authentication.getPrincipal();
+            // Actually, it's not entirely clear why we do this null test, since the
+            // authentication will always have authorities.
+            Object user = authentication.getPrincipal();
             if (user != null) {
-                return hasPermission(cancerStudy, user);
+                return hasPermission(cancerStudy, authentication);
             } else {
                 return false;
             }
@@ -120,18 +121,18 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
      * Helper function to determine if given user has access to given cancer study.
      *
      * @param cancerStudy String ID of the cancer study to check for
-     * @param user Spring UserDetails of the logged-in user.
+     * @param user Spring Authentication of the logged-in user.
      * @return boolean
      */
-    private boolean hasPermission(CancerStudy cancerStudy, UserDetails user) {
+    private boolean hasPermission(CancerStudy cancerStudy, Authentication authentication) {
 
-        Set<String> grantedAuthorities = getGrantedAuthorities(user);
+        Set<String> grantedAuthorities = getGrantedAuthorities(authentication);
 
         String stableStudyID = cancerStudy.getCancerStudyStableId();
 
         if (log.isDebugEnabled()) {
             log.debug("hasPermission(), cancer study stable id: " + stableStudyID);
-            log.debug("hasPermission(), user: " + user.getUsername());
+            log.debug("hasPermission(), user: " + authentication.getPrincipal().toString());
             for (String authority : grantedAuthorities) {
                 log.debug("hasPermission(), authority: " + authority);
             }
@@ -196,9 +197,9 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
         return toReturn;
     }
 
-    private Set<String> getGrantedAuthorities(UserDetails user) {
+    private Set<String> getGrantedAuthorities(Authentication authentication) {
         String appName = GlobalProperties.getAppName().toUpperCase();
-        Set<String> allAuthorities = AuthorityUtils.authorityListToSet(user.getAuthorities());
+        Set<String> allAuthorities = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
         Set<String> grantedAuthorities = new HashSet<>();
 
         if (GlobalProperties.filterGroupsByAppName()) {

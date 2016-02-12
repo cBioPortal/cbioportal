@@ -37,6 +37,14 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 
+<!-- js files: -->
+<script type="text/javascript" src="js/lib/jquery.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/lib/underscore-min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/lib/backbone-min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+
+<script type="text/javascript" src="js/lib/showdown.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/lib/showdown-github.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
+<script type="text/javascript" src="js/src/url_based_content.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <% request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::About Us"); %>
 
@@ -46,10 +54,7 @@
       <table cellspacing="2px">
         <tr>
             <td>
-                <h1>About Us</h1>
-                <div class="markdown">
-                <P><jsp:include page="<%= GlobalProperties.getAboutHtml() %>" flush="true" /></p>
-                </div>
+                <div id="aboutPage" class="markdown"></div>
             </td>
         </tr>
     </table>
@@ -72,3 +77,14 @@
 <jsp:include page="WEB-INF/jsp/global/xdebug.jsp" flush="true" />
 </body>
 </html>
+
+<script>
+    $(document).ready( function() {
+        // retrieve link for About Us and generate the page
+        var aboutLink = '<%= GlobalProperties.getAboutHtml()%>';
+        var baseUrl = '<%= GlobalProperties.getBaseUrl()%>';
+        var markdownDocumentation = '<%= GlobalProperties.isMarkdownDocumentation()%>';
+        var generatePage = new GeneratePage(baseUrl, aboutLink, markdownDocumentation, "#aboutPage");
+        generatePage.init();
+    });
+</script>

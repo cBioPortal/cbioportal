@@ -47,7 +47,7 @@
 // Gideon Dresdner <dresdnerg@cbio.mskcc.org>
 // September 2013
 //
-function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_data, el, params) {
+function PancanMutationHistogram(byPositionData, byKeywordData, byGeneData, cancer_study_meta_data, el, params) {
 
     params = params || {};
     if (params.sparkline) {
@@ -72,29 +72,40 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
     // --- data munging --- //
 
     // copy
+    var byposition_data = deep_copy(byPositionData);
     var bykeyword_data = deep_copy(byKeywordData);
     var bygene_data = deep_copy(byGeneData);
 
     // extend
+    var position = "residue#"+byposition_data[0].protein_pos_start;
+    byposition_data = extend_by_zero_set(byposition_data)
+        .map(function(d) { d.position = position; return d; });     // make sure everything has a key.  TODO: remove this extra list traversal
     var keyword = bykeyword_data[0].keyword;
     bykeyword_data = extend_by_zero_set(bykeyword_data)
         .map(function(d) { d.keyword = keyword; return d; });     // make sure everything has a key.  TODO: remove this extra list traversal
     bygene_data = extend_by_zero_set(bygene_data);
 
     var cancer_study2datum = {
+        byposition: generate_cancer_study2datum(byposition_data),
         bykeyword: generate_cancer_study2datum(bykeyword_data),
         bygene: generate_cancer_study2datum(bygene_data)
     };
     
     var commonKeys = _.intersection( _.keys(cancer_study2datum.bykeyword), _.keys(cancer_study2datum.bygene) );
+    byposition_data = [];
     bykeyword_data = [];
     bygene_data = [];
     _.each(commonKeys, function(aKey) {
+	byposition_data.push(cancer_study2datum.byposition[aKey]);
 	bykeyword_data.push(cancer_study2datum.bykeyword[aKey]);
         bygene_data.push(cancer_study2datum.bygene[aKey]);
     });
 
 
+    if (byposition_data.length !== bykeyword_data.length) {
+        throw new Error("must be same length");
+    }
+    
     if (bygene_data.length !== bykeyword_data.length) {
         throw new Error("must be same length");
     }
@@ -120,15 +131,10 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
     
     var totalByGene = _.reduce(bygene_data, function(memo, datum){ return memo + datum.count; }, 0);
     var totalByKeyword = _.reduce(bykeyword_data, function(memo, datum){ return memo + datum.count; }, 0);
+    var totalByPosition = _.reduce(byposition_data, function(memo, datum){ return memo + datum.count; }, 0);
     var totalSequenced = _.reduce(cancer_study2meta_data, function(memo, datum){ return memo + datum.num_sequenced_samples; }, 0);
 
-    _.mixin({
-        unzip: function(array) {
-            return _.zip.apply(_, array);
-        }
-    });
-
-    var all_data = bykeyword_data.concat(bygene_data);
+    var all_data = byposition_data.concat(bykeyword_data).concat(bygene_data);
     try {
         all_data = _.chain(all_data)
             .map(compute_frequency)
@@ -251,14 +257,15 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
 
     // --- bar chart ---
 
-    var googleblue = "LimeGreen";
-    var googlered = "Green";
+    var pcolor = "#00C853";
+    var kcolor = "#69F0AE";
+    var gcolor = "#B9F6CA";
 
     var layer = svg.selectAll(".layer")
         .data(layers)
         .enter().append("g")
         .attr("class", "layer")
-        .style("fill", function(d, i) { return [googlered, googleblue][i]; });
+        .style("fill", function(d, i) { return [pcolor, kcolor, gcolor][i]; });
 
     var rect = layer.selectAll("rect")
         .data(function(d) { return d; })
@@ -339,8 +346,9 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
         .attr('stroke', '#000')
         .attr('shape-rendering', 'crispEdges');
 
-    var hugo_gene_name = _.find(layers[0], function(d) { return d.hugo !== undefined; }).hugo;
-    var keyword = _.find(layers[0], function(d) { return d.keyword !== undefined; }).keyword;
+    var hugo_gene_name = _.find(layers[1], function(d) { return d.hugo !== undefined; }).hugo;
+    var keyword = _.find(layers[1], function(d) { return d.keyword !== undefined; }).keyword + " mutations";
+    var position = hugo_gene_name + " " + _.find(layers[0], function(d) { return d.position !== undefined; }).position + " mutations";
 
     // star the current cancer study if this_cancer_study is provided.
     if (!_.isUndefined(params.this_cancer_study)) {
@@ -405,12 +413,13 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
                 events: {
                     render: function(event, api) {
                         var data = getRectsByCancerStudy(d).map(function(rect) { return rect[0].__data__; });
+                        var byposition = data.filter(function(d) { return _.has(d, "position"); })[0] || {};
                         var bykeyword = data.filter(function(d) { return _.has(d, "keyword"); })[0] || {};
-                        var bygene = data.filter(function(d) { return !_.has(d, "keyword"); })[0] || {};
+                        var bygene = data.filter(function(d) { return !_.has(d, "position") && !_.has(d, "keyword"); })[0] || {};
                         var cancer_study = bygene.cancer_study;     // there should always be a bygene datum
                         var total = cancer_study2meta_data[cancer_study].num_sequenced_samples;
                         var text = "<p style='font-weight:bold;'>" + cancer_study + "</p>"
-                            + countText(bykeyword, bygene, total);
+                            + countText(byposition, bykeyword, bygene, total);
 
                         api.set('content.text', text);
                     }
@@ -426,10 +435,13 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
         return (_.template("<span><b>{{percent}}</b> (<b>{{count}}</b> of {{total}} sequenced samples)</span>"))({percent: percent, count: count, total: total});
     }
     
-    function countText(bykeyword, bygene, total) {
-        return "<p style='color: " + googlered + "; margin-bottom:0;'>"
+    function countText(byposition, bykeyword, bygene, total) {
+        
+        return "<p style='color: " + pcolor + "; margin-bottom:0;'><b>"
+                + position  + ": "  + qtip_template(byposition, total) + "</b></p>"
+                +"<p style='color: " + kcolor + "; margin-bottom:0;'>"
                 + keyword  + ": "  + qtip_template(bykeyword, total) + "</p>"
-                + "<p style='color: " + googleblue + "; margin-top:0;'>"
+                + "<p style='color: " + gcolor + "; margin-top:0;'>"
                 + "Other " + hugo_gene_name +  " mutations: "  + qtip_template(bygene, total) + "</p>";
     }
 
@@ -440,6 +452,6 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
     return {
         el: el,
         qtip: qtip,
-        overallCountText: function() {return countText({count:totalByKeyword}, {count:totalByGene}, totalSequenced);}
+        overallCountText: function() {return countText({count:totalByPosition}, {count:totalByKeyword}, {count:totalByGene}, totalSequenced);}
     };
 };

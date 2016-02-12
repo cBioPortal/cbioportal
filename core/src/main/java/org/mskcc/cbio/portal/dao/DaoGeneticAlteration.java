@@ -32,18 +32,15 @@
 
 package org.mskcc.cbio.portal.dao;
 
+import org.codehaus.jackson.node.ObjectNode;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Set;
-import java.util.HashSet;
+import java.util.*;
+
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -77,6 +74,14 @@ public class DaoGeneticAlteration {
         return daoGeneticAlteration;
     }
 
+    public static interface AlterationProcesser {
+        ObjectNode process(
+            long entrezGeneId,
+            String[] values,
+            ArrayList<Integer> orderedSampleList
+        );
+    }
+
     /**
      * Adds a Row of Genetic Alterations associated with a Genetic Profile ID and Entrez Gene ID.
      * @param geneticProfileId Genetic Profile ID.
@@ -87,9 +92,6 @@ public class DaoGeneticAlteration {
      */
     public int addGeneticAlterations(int geneticProfileId, long entrezGeneId, String[] values)
             throws DaoException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
         StringBuffer valueBuffer = new StringBuffer();
         for (String value:  values) {
             if (value.contains(DELIM)) {
@@ -98,26 +100,30 @@ public class DaoGeneticAlteration {
             }
             valueBuffer.append(value).append(DELIM);
         }
-
+        
+       if (MySQLbulkLoader.isBulkLoad() ) {
+          //  write to the temp file maintained by the MySQLbulkLoader
+          MySQLbulkLoader.getMySQLbulkLoader("genetic_alteration").insertRecord(Integer.toString( geneticProfileId ),
+                  Long.toString( entrezGeneId ), valueBuffer.toString());
+          // return 1 because normal insert will return 1 if no error occurs
+          return 1;
+        } 
+       
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        
         try {
-           if (MySQLbulkLoader.isBulkLoad() ) {
-              //  write to the temp file maintained by the MySQLbulkLoader
-              MySQLbulkLoader.getMySQLbulkLoader("genetic_alteration").insertRecord(Integer.toString( geneticProfileId ),
-                      Long.toString( entrezGeneId ), valueBuffer.toString());
-              // return 1 because normal insert will return 1 if no error occurs
-              return 1;
-           } else {
-                con = JdbcUtil.getDbConnection(DaoGeneticAlteration.class);
-                pstmt = con.prepareStatement
-                        ("INSERT INTO genetic_alteration (`GENETIC_PROFILE_ID`, " +
-                                " `ENTREZ_GENE_ID`," +
-                                " `VALUES`) "
-                                + "VALUES (?,?,?)");
-                pstmt.setInt(1, geneticProfileId);
-                pstmt.setLong(2, entrezGeneId);
-                pstmt.setString(3, valueBuffer.toString());
-                return pstmt.executeUpdate();
-           }
+            con = JdbcUtil.getDbConnection(DaoGeneticAlteration.class);
+            pstmt = con.prepareStatement
+                    ("INSERT INTO genetic_alteration (GENETIC_PROFILE_ID, " +
+                            " ENTREZ_GENE_ID," +
+                            " VALUES) "
+                            + "VALUES (?,?,?)");
+            pstmt.setInt(1, geneticProfileId);
+            pstmt.setLong(2, entrezGeneId);
+            pstmt.setString(3, valueBuffer.toString());
+            return pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -136,7 +142,7 @@ public class DaoGeneticAlteration {
      */
     public String getGeneticAlteration(int geneticProfileId, int sampleId,
             long entrezGeneId) throws DaoException {
-        HashMap <Integer, String> sampleMap = getGeneticAlterationMap (geneticProfileId, entrezGeneId);
+        HashMap <Integer, String> sampleMap = getGeneticAlterationMap(geneticProfileId, entrezGeneId);
         if (sampleMap.containsKey(sampleId)) {
             return sampleMap.get(sampleId);
         } else {
@@ -210,6 +216,59 @@ public class DaoGeneticAlteration {
     }
 
     /**
+     * Process SQL result alteration data
+     * @param geneticProfileId  Genetic Profile ID.
+     * @param entrezGeneIds      Entrez Gene IDs.
+     * @param processor         Implementation of AlterationProcesser Interface
+     * @return ArrayList<ObjectNode>
+     * @throws DaoException Database Error, MathException
+     */
+    public static ArrayList<ObjectNode> getProcessedAlterationData(
+            int geneticProfileId,               //queried profile internal id (num)
+            //Set<Long> entrezGeneIds,            //list of genes in calculation gene pool (all genes or only cancer genes)
+            int offSet,                         //OFFSET for LIMIT (to get only one segment of the genes)
+            AlterationProcesser processor       //implemented interface
+    ) throws DaoException {
+
+        ArrayList<ObjectNode> result = new ArrayList<>();
+
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        ArrayList<Integer> orderedSampleList = DaoGeneticProfileSamples.getOrderedSampleList(geneticProfileId);
+        if (orderedSampleList == null || orderedSampleList.size() ==0) {
+            throw new IllegalArgumentException ("Could not find any samples for genetic" +
+                    " profile ID:  " + geneticProfileId);
+        }
+
+        try {
+            con = JdbcUtil.getDbConnection(DaoGeneticAlteration.class);
+
+            pstmt = con.prepareStatement("SELECT * FROM genetic_alteration WHERE"
+                    + " GENETIC_PROFILE_ID = " + geneticProfileId
+                    + " LIMIT 3000 OFFSET " + offSet);
+
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                long entrezGeneId = rs.getLong("ENTREZ_GENE_ID");
+                String[] values = rs.getString("VALUES").split(DELIM);
+                ObjectNode datum = processor.process(
+                        entrezGeneId,
+                        values,
+                        orderedSampleList);
+                if (datum != null) result.add(datum);
+            }
+            return result;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoGeneticAlteration.class, con, pstmt, rs);
+        }
+
+    }
+
+    /**
      * Gets all Genes in a Specific Genetic Profile.
      * @param geneticProfileId  Genetic Profile ID.
      * @return Set of Canonical Genes.
@@ -234,6 +293,65 @@ public class DaoGeneticAlteration {
                 geneList.add(daoGene.getGene(entrezGeneId));
             }
             return geneList;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoGeneticAlteration.class, con, pstmt, rs);
+        }
+    }
+
+    /**
+     * Gets all Genes in a Specific Genetic Profile.
+     * @param geneticProfileId  Genetic Profile ID.
+     * @return Set of Canonical Genes.
+     * @throws DaoException Database Error.
+     */
+    public static Set<Long> getGenesIdInProfile(int geneticProfileId) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        Set<Long> geneList = new HashSet<>();
+        DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
+
+        try {
+            con = JdbcUtil.getDbConnection(DaoGeneticAlteration.class);
+            pstmt = con.prepareStatement
+                    ("SELECT * FROM genetic_alteration WHERE GENETIC_PROFILE_ID = ?");
+            pstmt.setInt(1, geneticProfileId);
+
+            rs = pstmt.executeQuery();
+            while  (rs.next()) {
+                Long entrezGeneId = rs.getLong("ENTREZ_GENE_ID");
+                geneList.add(entrezGeneId);
+            }
+            return geneList;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoGeneticAlteration.class, con, pstmt, rs);
+        }
+    }
+
+    /**
+     * Gets the total number of all genes in a Specific Genetic Profile.
+     * @param geneticProfileId  Genetic Profile ID.
+     * @return number of Canonical Genes.
+     * @throws DaoException Database Error.
+     */
+    public static int getGenesCountInProfile(int geneticProfileId) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection(DaoGeneticAlteration.class);
+            pstmt = con.prepareStatement
+                    ("SELECT COUNT(*) FROM genetic_alteration WHERE GENETIC_PROFILE_ID = ?");
+            pstmt.setInt(1, geneticProfileId);
+            rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+            return 0;
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

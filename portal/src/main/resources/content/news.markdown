@@ -1,3 +1,11 @@
+# November 9, 2015
+* __New features__:
+    * Links to MyCancerGenome.org for mutations
+    * Improved display of selection samples on the study view page
+* __Improvements__:
+    * "Enrichments" analysis is now run across all genes
+    * The "Network" tab is now using Cytoscape.js (Adobe Flash is no longer required)
+
 # October 6, 2015
 * __New TCGA data__:
     * [Breast Invasive Carcinoma (TCGA, Cell 2015)](study.do?cancer_study_id=brca_tcga_pub2015)

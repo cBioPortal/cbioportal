@@ -35,11 +35,37 @@
 
 <script type="text/javascript">
     
-    var cnaTableIndices = cbio.util.arrayToAssociatedArrayIndices(["id","case_ids","gene","cytoband","alteration","mrna","altrate","drug"]);
+    var cnaTableIndices = cbio.util.arrayToAssociatedArrayIndices(["id","case_ids","gene","alteration", "annotation","cytoband","mrna","altrate","drug"]);
     function buildCnaDataTable(cnas, cnaEventIds, table_id, sDom, iDisplayLength, sEmptyInfo) {
         var data = [];
+        var oncokbInstance;
+
+        if(OncoKB.getAccess()) {
+            var oncokbInstanceManager = new OncoKB.addInstanceManager();
+            oncokbInstance = oncokbInstanceManager.addInstance('patient-cna');
+            if(oncokbGeneStatus) {
+                oncokbInstance.setGeneStatus(oncokbGeneStatus);
+            }
+            oncokbInstance.setTumorType(OncoKB.utils.getTumorTypeFromClinicalDataMap(clinicalDataMap));
+        }
+
         for (var i=0, nEvents=cnaEventIds.length; i<nEvents; i++) {
-                data.push([cnaEventIds[i]]);
+            if(oncokbInstance) {
+                var _id = cnaEventIds[i];
+                var alter = '';
+                switch(cnas.getValue(_id, "alter")) {
+                    case 2:
+                        alter = 'amplification';
+                        break;
+                    case -2:
+                        alter = 'inactivating mutations';
+                        break;
+                    default:
+                        alter = null;
+                }
+                oncokbInstance.addVariant(_id, cnas.getValue(_id, "gene"), alter, null, alter);
+            }
+            data.push([cnaEventIds[i]]);
         }
         var oTable = $('#'+table_id).dataTable( {
                 "sDom": sDom, // selectable columns
@@ -102,13 +128,17 @@
                                 var entrez = cnas.getValue(source[0], "entrez");
                                 var tip = "<a href=\"http://www.ncbi.nlm.nih.gov/gene/"
                                     +entrez+"\">NCBI Gene</a>";
-                                var sanger = cnas.getValue(source[0], 'sanger');
-                                if (sanger) {
-                                    tip += "<br/><a href=\"http://cancer.sanger.ac.uk/cosmic/gene/overview?ln="
-                                        +gene+"\">Sanger Cancer Gene Census</a>";
-                                }
+//                                var sanger = cnas.getValue(source[0], 'sanger');
+//                                if (sanger) {
+//                                    tip += "<br/><a href=\"http://cancer.sanger.ac.uk/cosmic/gene/overview?ln="
+//                                        +gene+"\">Sanger Cancer Gene Census</a>";
+//                                }
                                 var ret = "<b>"+gene+"</b>";
-                                if (tip) {
+                                if(cnas.colExists('oncokb')) {
+                                    ret = "<span class='"+table_id+"-tip oncokb oncokb_gene' gene='"+gene+"' oncokbId='"+source[0]+"'>"+ret+"</span>";
+                                }else if(OncoKB.getAccess()){
+                                    ret += "<img width='12' height='12' class='loader' src='images/ajax-loader.gif'/>";
+                                }else {
                                     ret = "<span class='"+table_id+"-tip' alt='"+tip+"'>"+ret+"</span>";
                                 }
                                 return ret;
@@ -151,7 +181,9 @@
                                     break;
                                 default: strAlt='Unknown';
                                 }
-                                return "<b>"+strAlt+"</b>"
+                                strAlt = "<b>"+strAlt+"</b>";
+
+                                return strAlt;
                             } else if (type==='filter') {
                                 switch(cnas.getValue(source[0], "alter")) {
                                 case 2: return 'AMP';
@@ -160,6 +192,48 @@
                                 }
                             } else {
                                 return cnas.getValue(source[0], "alter");
+                            }
+                        }
+                    },
+                    {// annotation
+                        "aTargets": [mutTableIndices["annotation"]],
+                        "sClass": "no-wrap-td",
+                        "sType": "sort-icons",
+                        "mDataProp": function (source, type, value) {
+                            if (type === 'set') {
+                                return '';
+                            } else if (type === 'display') {
+                                var str = '';
+                                if (cnas.colExists('oncokb')) {
+                                    str += "&nbsp;<span class='oncokb oncokb_alteration oncogenic' oncokbId='" + source[0] + "'></span>";
+                                    str += "<span class='oncokb oncokb_column' oncokbId='" + source[0] + "'></span>";
+                                } else if (OncoKB.getAccess()) {
+                                    str += '<img width="13" height="13" class="loader" src="images/ajax-loader.gif"/>';
+                                }
+                                return str;
+                            } else if (type === 'sort') {
+                                var datum = {
+                                    mutation: {
+                                        myCancerGenome: [],
+                                        isHotspot: false
+                                    },
+                                    oncokb:{}
+                                };
+
+                                if(cnas.colExists('mycancergenome')) {
+                                    datum.mutation.myCancerGenome = cnas.getValue(source[0], 'mycancergenome');
+                                }
+
+                                if(cnas.colExists('is-hotspot')) {
+                                    datum.mutation.isHotspot = cnas.getValue(source[0], 'is-hotspot');
+                                }
+
+                                if (cnas.colExists('oncokb')) {
+                                    datum.oncokb = cnas.getValue(source[0], 'oncokb');
+                                }
+                                return datum;
+                            } else {
+                                return '';
                             }
                         }
                     },
@@ -211,6 +285,7 @@
                     },
                     {// Drugs
                         "aTargets": [ cnaTableIndices['drug'] ],
+                        "bVisible": false,
                         "sClass": "center-align-td",
                         "mDataProp": 
                             function(source,type,value) {
@@ -248,6 +323,11 @@
                     plotCnaAltRate("."+table_id+"-cna-cohort",cnas);
                     addNoteTooltip("."+table_id+"-tip");
                     addDrugsTooltip("."+table_id+"-drug-tip", 'top right', 'bottom center');
+                    if(oncokbInstance){
+                        oncokbInstance.addEvents(this, 'gene');
+                        oncokbInstance.addEvents(this, 'alteration');
+                        oncokbInstance.addEvents(this, 'column');
+                    }
                 },
                 "bPaginate": true,
                 "sPaginationType": "two_button",
@@ -262,6 +342,24 @@
                 "aLengthMenu": [[5,10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]]
         } );
 
+        if(oncokbInstance) {
+            oncokbInstance.getEvidence().then(function () {
+                var tableData = oTable.fnGetData();
+                var oncokbEvidence = [];
+                _.each(tableData, function(ele, i) {
+                    oncokbEvidence.push(oncokbInstance.getVariant(ele[0]).evidence);
+                });
+                cnas.addData('oncokb', oncokbEvidence)
+                if (tableData.length > 0)
+                {
+                    _.each(tableData, function(ele, i) {
+                        oTable.fnUpdate(null, i, cnaTableIndices["annotation"], false, false);
+                    });
+
+                    oTable.fnUpdate(null, 0, cnaTableIndices['annotation']);
+                }
+            });
+        }
         oTable.css("width","100%");
         addNoteTooltip("#"+table_id+" th.cna-header");
         return oTable;

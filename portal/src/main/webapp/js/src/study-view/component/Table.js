@@ -41,8 +41,7 @@ var Table = function() {
         dataTable = '',
         callbacks = {},
         checkboxChildId = -1,
-        initStatus = false,
-        self = this;
+        initStatus = false;
     
     function init(input) {
         initStatus = true;
@@ -99,10 +98,10 @@ var Table = function() {
         var _div = "<div id='"+divs.mainId+"' class='study-view-dc-chart study-view-tables h1half w2'>"+
             "<div id='"+divs.headerId+"'style='height: 16px; width:100%; float:left; text-align:center;'>"+
                 "<div class='titleWrapper' id='"+divs.titleWrapperId+"'>"+
-                    "<img id='"+divs.reloadId+"' class='study-view-title-icon hidden hover' src='images/reload-alt.svg'/>"+    
-//                    "<div id='"+divs.downloadWrapperId+"' class='study-view-download-icon'>" +
-//                        "<img id='"+divs.downloadId+"' style='float:left' src='images/in.svg'/>"+
-//                    "</div>"+
+                    "<img id='"+divs.reloadId+"' class='study-view-title-icon hidden hover' src='images/reload-alt.svg'/>"+
+                        "<div id='"+divs.downloadWrapperId+"' class='study-view-download-icon'>" +
+                        "<img id='"+divs.downloadId+"' style='float:left' src='images/in.svg'/>"+
+                        "</div>"+
                     "<img class='study-view-drag-icon' src='images/move.svg'/>"+
                     "<span id='"+divs.deleteIconId+"' class='study-view-tables-delete'>x</span>"+
                 "</div>"+
@@ -136,8 +135,8 @@ var Table = function() {
 
     function initTable(data) {
         var table = $('#' + divs.tableId);
-        var tableHeaderStr = '';
-        var tableBodyStr = '';
+        var tableHeaderStr = [];
+        var tableBodyStr = [];
         var i = 0, j = 0;
         var hasSelected = false;
         var selectedKeys = [];
@@ -155,44 +154,44 @@ var Table = function() {
         if(typeof data === 'object' && data.hasOwnProperty('selectedSamples')) {
             selectedSamples = data.selectedSamples;
         }
-        var tableHtml = '<table><thead><tr></tr></thead><tbody></tbody></table>';
-        table.html(tableHtml);
+        var tableHtml = ['<table><thead><tr>']; //
 
-        var tableHeader = table.find('table thead tr');
         
         //Append table header
         for(i=0; i< attrL; i++){
-            tableHeaderStr += '<th style=" white-space: nowrap;" ';
+            tableHeaderStr.push('<th style=" white-space: nowrap;" ');
             if(attr[i].hasOwnProperty('qtip')) {
-                tableHeaderStr += ' class="hasQtip" qtip="' + attr[i].qtip + '"';
+                tableHeaderStr.push(' class="hasQtip" qtip="' + attr[i].qtip + '"');
             }
-            tableHeaderStr += '>'+ attr[i].displayName||'Unknown' +'</th>';
+            tableHeaderStr.push('>'+ attr[i].displayName||'Unknown' +'</th>');
         }
-        tableHeader.append(tableHeaderStr);
-        
-        var tableBody = table.find('tbody');
+        tableHtml.push(tableHeaderStr.join(''));
+        tableHtml.push('</tr></thead><tbody>');//
         
         //Append table body
         for(i = 0; i < arrL; i++){
 
             if(typeof data === 'object' && data.selected instanceof Array && data.selected.length > 0 && datumIsSelected(data.selected, arr[i])) {
-                tableBodyStr += '<tr class="highlightRow" style="white-space: nowrap;">';
+                tableBodyStr.push('<tr class="highlightRow" style="white-space: nowrap;">');
             }else{
-                tableBodyStr += '<tr style="white-space: nowrap;">';
+                tableBodyStr.push('<tr style="white-space: nowrap;">');
             }
 
             for(j = 0; j < attrL; j++) {
-                tableBodyStr += '<td' + (attr[j].name === 'samples' ? ' class="clickable"' : '') + '>' + arr[i][attr[j].name] + '</td>';
+                // added an id for the clickable component
+                tableBodyStr.push('<td' + ( (attr[j].name === 'samples' && +arr[i].hasOwnProperty('uniqueId')) ? ' id='+ divs.tableId + '-' + arr[i].uniqueId : '') + '>' + arr[i][attr[j].name] + '</td>');
             }
-            tableBodyStr += '</tr>';
+            tableBodyStr.push('</tr>');
         }
-        tableBody.append(tableBodyStr);
+        tableHtml.push(tableBodyStr.join(''));
+        tableHtml.push('</tbody></table>');
 
+        table.html(tableHtml.join(''));
         if(selectedSamples.length === 0){
             hideReload();
         }
     }
-    
+
     function initDataTable() {
         var dataTableOpts = {
             "sDom": 'rt<f>',
@@ -311,10 +310,13 @@ var Table = function() {
                     var _gene = source[geneIndex];
                     if (type==='display') {
                         var str = '';
+
+                        // add qtip for selecting the gene
+                        str += '<span class="hasQtip selectHighlight" qtip="Click '+_gene+' to add to your query">';
                         if(_gene.toString().length > 6) {
-                            str += '<span class="hasQtip" qtip="'+_gene+'">'+_gene.substring(0,4) + '...'+'</span>';
+                            str += _gene.substring(0,4) + '...'+'</span>';
                         }else {
-                            str += _gene;
+                            str += _gene+'</span>';
                         }
 
                         if(qvalIndex !== -1 && attr[qvalIndex].displayName && source[qvalIndex]) {
@@ -348,16 +350,10 @@ var Table = function() {
                         $(this).find('td:nth-child('+checkboxChildId+') input:checkbox').attr('checked', true);
                     }
                 });
-                
-                $('#'+ divs.tableId).find('table tbody tr td.clickable').unbind('hover');
-                $('#'+ divs.tableId).find('table tbody tr td.clickable').hover(function(e, i) {
-                    $(this).siblings().addBack().addClass('hoverRow');
-                },function(e, i) {
-                    $(this).siblings().addBack().removeClass('hoverRow');
-                });
-                
-                //rowClick();
+
                 checkboxClick();
+                // add functionality for when the add gene icon is clicked
+                addGeneClickSetup();
             };
         }
         dataTable = $('#'+ divs.tableId +' table').dataTable(dataTableOpts);
@@ -369,7 +365,8 @@ var Table = function() {
             show: {event: "mouseover"},
             hide: {fixed: true, delay: 200, event: "mouseout"},
             style: { classes: 'qtip-light qtip-rounded' },
-            position: {my:'top right',at:'bottom center',viewport: $(window)}
+            // changed positioning of the qtips
+            position: {my:'center right',at:'center left',viewport: $(window)}
         });
     }
     
@@ -385,30 +382,75 @@ var Table = function() {
     }
     
     function addEvents() {
+        $('#' + divs.tableId + '-download-icon').qtip('destroy', true);
+        $('#' + divs.tableId + '-download-icon-wrapper').qtip('destroy', true);
+
+        $('#' + divs.tableId + '-download-icon-wrapper').qtip({
+            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
+            show: {event: "mouseover", delay: 0},
+            hide: {fixed:true, delay: 100, event: "mouseout"},
+            position: {my:'bottom left',at:'top right', viewport: $(window)},
+            content: {
+                text:   "Download"
+            }
+        });
+
+        $('#' + divs.tableId + '-download-icon').qtip({
+            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'  },
+            show: {event: "click", delay: 0},
+            hide: {fixed:true, delay: 100, event: "mouseout "},
+            position: {my:'top center',at:'bottom center', viewport: $(window)},
+            content: {
+                text:
+                "<div style='display:inline-block;'>"+
+                "<button id='"+divs.tableId+"-tsv' style=\"width:50px\">TXT</button>"+
+                "</div>"
+            },
+            events: {
+                show: function() {
+                    $('#' + divs.tableId + '-download-icon-wrapper').qtip('api').hide();
+                },
+                render: function() {
+                    $("#"+divs.tableId+"-tsv").click(function(){
+                        var content = '';
+
+                        attr.forEach(function(e) {
+                            content += e.name === 'uniqueId' ? '' : ((e.displayName||'Unknown') + '\t');
+                        });
+                        content = content.slice(0,-1);
+
+                        arr.forEach(function(e){
+                            content += '\r\n';
+                            attr.forEach(function(e1){
+                                content += e1.name === 'uniqueId' ? '' : (e[e1.name] + '\t');
+                            });
+                            content = content.slice(0,-1);
+                        });
+
+                        var downloadOpts = {
+//                            filename: cancerStudyName + "_" + divs.title + ".txt",
+                            filename: StudyViewParams.params.studyId + "_" + divs.title + ".txt",
+                            contentType: "text/plain;charset=utf-8",
+                            preProcess: false
+                        };
+
+                        cbio.download.initDownload(content, downloadOpts);
+                    });
+                }
+            }
+        });
         deleteTable();
     }
-    
-    function rowClick() {
-        $('#' + divs.tableId + ' table tbody tr td.clickable').unbind('click');
-        $('#' + divs.tableId + ' table tbody tr td.clickable').click(function () {
-            var shiftClicked = StudyViewWindowEvents.getShiftKeyDown(),
-            highlightedRowsData = '';
 
-            if(!shiftClicked) {
-                var _isClicked = $(this).parent().hasClass('highlightRow');
-                $('#' + divs.tableId + ' tbody').find('.highlightRow').removeClass('highlightRow');
-                $('#' + divs.tableId + ' tbody').find('input:checkbox').attr('checked', false);
-                if(!_isClicked) {
-                    $(this).siblings().addBack().toggleClass('highlightRow');
-                    $(this).parent().toggleClass('highlightRow');
-                    $(this).parent().find('input:checkbox').attr('checked', true);
-                }
-            }else{
-                $(this).siblings().addBack().toggleClass('highlightRow');
-                $(this).parent().toggleClass('highlightRow');
-                $(this).parent().find('input:checkbox').attr('checked', !($(this).parent().find('input:checkbox').attr('checked')));
+
+    function addGeneClickSetup(){
+        $('#'+divs.tableId+' table tbody tr td:first-child span').unbind('click');
+        $('#'+divs.tableId+' table tbody tr td:first-child span').click(function () {
+
+            if(callbacks.hasOwnProperty('addGeneClick')) {
+                // call addGeneClick with this row's data
+                callbacks.addGeneClick(dataTable.api().row($(this).parent().parent()).data());
             }
-            clickFunc();
         });
     }
 
@@ -417,11 +459,12 @@ var Table = function() {
         $('#' + divs.tableId + ' table tbody tr td:nth-child('+checkboxChildId+') input:checkbox').change(function () {
             $(this).parent().siblings().addBack().toggleClass('highlightRow');
             $(this).parent().parent().toggleClass('highlightRow');
-            clickFunc();
+
+            clickFunc(dataTable.api().row($(this).parent().parent()).data() , $(this).prop("checked"));
         });
     }
 
-    function clickFunc() {
+    function clickFunc(clickedRowData, rowChecked) {
         var highlightedRowsData = dataTable.api().rows('.highlightRow').data();
 
         if(highlightedRowsData.length === 0) {
@@ -431,7 +474,7 @@ var Table = function() {
         }
 
         if(callbacks.hasOwnProperty('rowClick')) {
-            callbacks.rowClick(divs.tableId, highlightedRowsData);
+            callbacks.rowClick(divs.tableId, highlightedRowsData, clickedRowData, rowChecked);
         }
     }
     
@@ -439,7 +482,7 @@ var Table = function() {
         $('#'+ divs.deleteIconId).unbind('click');
         $('#'+ divs.deleteIconId).click(function() {
             if(callbacks.hasOwnProperty('deleteTable')) {
-                callbacks.deleteTable(divs.mainId, divs.title);
+                callbacks.deleteTable(divs.tableId, divs.title);
             }else {
                 redraw();
             }
@@ -452,7 +495,7 @@ var Table = function() {
             $('#' + divs.tableId + ' tbody').find('.highlightRow').removeClass('highlightRow');
             $('#' + divs.tableId + ' tbody tr td:nth-child('+checkboxChildId+') input:checkbox').attr('checked', false);
             if(callbacks.hasOwnProperty('rowClick')) {
-                callbacks.rowClick(divs.tableId, []);
+                callbacks.rowClick(divs.tableId, [], [], false);
             }
             redraw();
             hideReload();

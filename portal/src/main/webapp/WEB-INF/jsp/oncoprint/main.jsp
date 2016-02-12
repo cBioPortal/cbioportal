@@ -84,7 +84,7 @@
             <button type="button" class="btn btn-default" id="oncoprint-diagram-downloads-icon" style="background-color:#efefef;margin:0px"><img class="oncoprint-diagram-downloads-icon" src="images/in.svg" alt="icon" width="16" height="16" /></button>      
             <div class="btn-group btn-group-sm">
                 <button type="button" id="oncoprint_zoomout" class="btn btn-default" style="background-color:#efefef;margin:0px"><img src="images/zoom-out.svg" alt="icon" width="16" height="16" /></button>
-                <span class="btn btn-default" id="oncoprint_diagram_slider_icon" style="background-color:#efefef;width: 120px;display:inline"></span> 
+                <span class="btn btn-default" id="oncoprint_diagram_slider_icon" style="background-color:#efefef;width: 100px;display:inline"></span> 
                 <button type="button" id="oncoprint_zoomin" class="btn btn-default" style="background-color:#efefef;margin:0px"><img src="images/zoom-in.svg" alt="icon" width="16" height="16" /></button>
             </div>
         </div>
@@ -121,7 +121,7 @@
         <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/new/oncoprint.js?<%=GlobalProperties.getAppVersion()%>"></script>
         <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/OncoprintUtils.js?<%=GlobalProperties.getAppVersion()%>"></script>
         <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/setup-oncoprint-improved.js?<%=GlobalProperties.getAppVersion()%>"></script>
-        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/studyview.js?<%=GlobalProperties.getAppVersion()%>"></script>
+        <script type="text/javascript" charset="utf-8" src="js/src/oncoprint/oncoprint-analysis-setup.js?<%=GlobalProperties.getAppVersion()%>"></script>
         
         <!--<script data-main="js/src/oncoprint/main-boilerplate.js?<%=GlobalProperties.getAppVersion()%>" type="text/javascript" src="js/require.js?<%=GlobalProperties.getAppVersion()%>"></script>-->
     </div>

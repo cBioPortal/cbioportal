@@ -39,6 +39,7 @@ import org.apache.commons.logging.*;
 import java.sql.*;
 import java.util.*;
 import javax.sql.DataSource;
+import org.apache.commons.dbcp.BasicDataSource;
 
 /**
  * Connection Utility for JDBC.
@@ -57,7 +58,7 @@ public class JdbcUtil {
     public static DataSource getDataSource() {
     	return ds;
     }
-
+    
     /**
      * Sets the data source
      * @param value the data source

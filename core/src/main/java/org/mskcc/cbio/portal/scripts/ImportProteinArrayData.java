@@ -37,7 +37,7 @@ import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.*;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import java.io.*;
 import java.util.*;
@@ -77,8 +77,9 @@ public class ImportProteinArrayData {
         BufferedReader buf = new BufferedReader(reader);
         String line = buf.readLine();
         String[] sampleIds = line.split("\t");
-        ImportDataUtil.addPatients(sampleIds, profile.getGeneticProfileId());
-        ImportDataUtil.addSamples(sampleIds, profile.getGeneticProfileId());
+//        sampleIds = Arrays.copyOfRange(sampleIds, 1, sampleIds.length);
+//        ImportDataUtil.addPatients(sampleIds, profile.getGeneticProfileId());
+//        ImportDataUtil.addSamples(sampleIds, profile.getGeneticProfileId());
         Sample[] samples = new Sample[sampleIds.length-1];
         for (int i=1; i<sampleIds.length; i++) {
             samples[i-1] = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudyId, StableIdUtil.getSampleId(sampleIds[i]));
@@ -97,7 +98,7 @@ public class ImportProteinArrayData {
            
             double[] zscores = convertToZscores(strs);
             for (int i=0; i<zscores.length; i++) {
-                if (samples[i]==null) {
+                if (samples[i]==null || Double.isNaN(zscores[i])) {
                     continue;
                 }
                 int sampleId = samples[i].getInternalId();
@@ -114,18 +115,42 @@ public class ImportProteinArrayData {
 
     private double[] convertToZscores(String[] strs) {
         double[] data = new double[strs.length-1];
+        boolean nan = false;
         for (int i=1; i<strs.length; i++) { // ignore the first column
-            data[i-1] = Double.parseDouble(strs[i]);
+            try {
+                data[i-1] = Double.parseDouble(strs[i]);
+            } catch (Exception e) {
+                data[i-1] = Double.NaN;
+                nan = true;
+            }
         }
         
-        DescriptiveStatistics ds = new DescriptiveStatistics(data);
+        DescriptiveStatistics ds = new DescriptiveStatistics(nan?copyWithNoNaN(data):data);
         double mean = ds.getMean();
         double std = ds.getStandardDeviation();
         
         for (int i=0; i<data.length; i++) {
-            data[i] = (data[i]-mean)/std;
+            if (!Double.isNaN(data[i])) {
+                data[i] = (data[i]-mean)/std;
+            }
         }
         return data;
+    }
+    
+    private double[] copyWithNoNaN(double[] data) {
+        List<Double> list = new ArrayList<Double>();
+        for (double d : data) {
+            if (!Double.isNaN(d)) {
+                list.add(d);
+            }
+        }
+        
+        double[] ret = new double[list.size()];
+        for (int i=0; i<list.size(); i++) {
+            ret[i] = list.get(i);
+        }
+        
+        return ret;
     }
     
     private String importArrayInfo(String info) throws DaoException {

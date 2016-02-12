@@ -44,7 +44,8 @@ var orAnalysis = (function() {
             sub_tab_mutations: "or-analysis-subtab-mutations",
             sub_tab_mrna_exp: "or-analysis-subtab-mrna-exp",
             sub_tab_advanced: "or-analysis-subtab-advanced",
-            sub_tab_protein_exp: "or-analysis-subtab-protein-exp"
+            sub_tab_protein_exp: "or-analysis-subtab-protein-exp",
+            gene_set_warning: "enrichments-tab-gene-set-warning"
         },
         texts: {
             sub_tab_copy_num: "Copy-number",
@@ -127,17 +128,6 @@ var orAnalysis = (function() {
                 p_val: 6,
                 q_val: 7,
                 plot: 8
-            },
-            phospho_exp: {
-                gene: 0,
-                altered_mean: 1,
-                unaltered_mean: 2,
-                altered_stdev: 3,
-                unaltered_stdev: 4,
-                p_val: 5,
-                q_val: 6,
-                plot: 7
-
             }
         },
         _title_ids : {
@@ -176,11 +166,11 @@ var orAjaxParam = function(alteredCaseList, unalteredCaseList, profileId, geneSe
         _tmp_unaltered_case_id_list += _caseId + " ";
     });
     
-    this.cancer_study_id = window.PortalGlobals.getCancerStudyId();
+    this.cancer_study_id = window.QuerySession.getCancerStudyIds()[0];
     this.altered_case_id_list = _tmp_altered_case_id_list;
     this.unaltered_case_id_list = _tmp_unaltered_case_id_list;
     this.profile_id = profileId;
-    this.gene_list = window.PortalGlobals.getGeneListString();
+    this.gene_list = window.QuerySession.getQueryGenes().join(" ");
     this.gene_set = geneSet;
 };
 

@@ -159,5 +159,6 @@ public class ImportPatientList {
          ImportPatientList.importPatientList(dataFile);
       }
       ConsoleUtil.showWarnings();
+      System.err.println("Done.");
    }
 }

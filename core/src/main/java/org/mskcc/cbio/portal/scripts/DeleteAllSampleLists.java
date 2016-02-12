@@ -46,6 +46,6 @@ public class DeleteAllSampleLists {
         DaoSampleList daoSampleList = new DaoSampleList();
         daoSampleList.deleteAllRecords();
         System.out.println ("\nAll Existing Sample Lists Deleted.");
-        ConsoleUtil.showWarnings(pMonitor);
+        ConsoleUtil.showWarnings();
     }
 }

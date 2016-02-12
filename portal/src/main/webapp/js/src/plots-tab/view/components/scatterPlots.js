@@ -837,7 +837,7 @@ var scatterPlots = (function() {
     function applyMouseover() {
         elem.dotsGroup.selectAll("path").each(function(d) {
             var _content = "<strong><a href='" +
-                cbio.util.getLinkToSampleView(window.PortalGlobals.getCancerStudyId(), d.caseId) +
+                cbio.util.getLinkToSampleView(window.QuerySession.getCancerStudyIds()[0], d.caseId) +
                 "' target = '_blank'>" + d.caseId +
                 "</a></strong>";
             if (genetic_vs_genetic()) {

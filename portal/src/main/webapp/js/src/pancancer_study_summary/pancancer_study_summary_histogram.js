@@ -74,7 +74,7 @@ function PancancerStudySummaryHistogram()
      * 
      * @param histogramEl: el where the histogram should be rendered
      * @param model: the model with the parameters for sorting/filtering (see HistogramSettings model in pancancer_study_summary.js)
-     * @param dmPresenter: instance of DataManagerPresenter (see DataManagerPresenter in pancancer_study_summary.js)
+     * @param dmPresenter: instance of ServicePresenter (see ServicePresenter in pancancer_study_summary.js)
      * @param geneId: the gene id of the current tab
      * 
      */
@@ -636,7 +636,7 @@ function PancancerStudySummaryHistogram()
  * format expected by the histogram view.
  * 
  * @param model: the model with the parameters for sorting/filtering (see HistogramSettings model in pancancer_study_summary.js)
- * @param dmPresenter: instance of DataManagerPresenter (see DataManagerPresenter in pancancer_study_summary.js)
+ * @param dmPresenter: instance of ServicePresenter (see ServicePresenter in pancancer_study_summary.js)
  * @param geneId: the gene id of the current tab
  */
 function HistogramPresenter(model, dmPresenter, geneId)

@@ -99,7 +99,7 @@
 	This breaks down into mutation, copy number and mRNA expression changes affecting the gene across all cases.
 </p>
 <p class="regular">
-	Click <a id="show_gene_legend" onclick="handleMenuEvent('gene_legend');">here</a> to see the gene legend.
+	Click <a id="show_node_legend">here</a> to see the gene legend.
 </p>
 
 <p class="heading">
@@ -115,7 +115,7 @@
 	 (regardless of whether or not any such gene is in the current network of interest) targeted by this drug.
 </p>
 <p class="regular">
-	Click <a id="show_drug_legend" onclick="handleMenuEvent('drug_legend');">here</a> to see the drug legend.
+	Click <a id="show_drug_legend">here</a> to see the drug legend.
 </p>
 
 <p class="heading">
@@ -150,7 +150,7 @@
 	</ul>
 </p>
 <p class="regular">
-	Click <a id="show_edge_legend" onclick="handleMenuEvent('edge_legend')">here</a> to see the color codes.
+	Click <a id="show_edge_legend">here</a> to see the color codes.
 </p>
 <p class="regular">
 	Complete details are available on the <a href="http://www.pathwaycommons.org/pc/sif_interaction_rules.do" target="_blank">Pathway Commons web site</a>.

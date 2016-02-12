@@ -79,7 +79,7 @@ var StudyViewSurvivalPlotView = (function() {
      * @returns {Array} return name array of saved curves
      */
     function getSavedCurveName(_id) {
-        if (savedCurveInfo.hasOwnProperty(_id)) {
+        if (_.isObject(savedCurveInfo[_id])) {
             return Object.keys(savedCurveInfo[_id]);
         } else {
             return [];
@@ -715,7 +715,7 @@ var StudyViewSurvivalPlotView = (function() {
                 if (_color) {
                     instanceSettings.line_color = _color;
                     instanceSettings.mouseover_color = _color;
-                    instanceSettings.curveId = _color.toString().substring(1) + "-" + _plotKey;
+                    instanceSettings.curveId = _plotKey + "-" + _color.toString().substring(1);
                     //Assemble the input
                     var instance = {};
                     instance.data = instanceData;
@@ -784,7 +784,7 @@ var StudyViewSurvivalPlotView = (function() {
                 if (_color) {
                     instanceSettings.line_color = _color;
                     instanceSettings.mouseover_color = _color;
-                    instanceSettings.curveId = _color.toString().substring(1) + "-" + _plotKey;
+                    instanceSettings.curveId = _plotKey + "-" + _color.toString().substring(1);
                     //Assemble the input
                     var instance = {};
                     instance.data = instanceData;
@@ -829,7 +829,7 @@ var StudyViewSurvivalPlotView = (function() {
         for (var key in plotsInfo) {
             var _curveInfoLength = curveInfo[key].length;
             for (var i = 0; i < _curveInfoLength; i++) {
-                survivalPlot[key].removeCurve(curveInfo[key][i].color.toString().substring(1) + "-" + key);
+                survivalPlot[key].removeCurve(key+ "-" + curveInfo[key][i].color.toString().substring(1));
             }
             
             $("#" + opts[key].divs.main).qtip('destroy', true);
@@ -935,7 +935,7 @@ var StudyViewSurvivalPlotView = (function() {
                             $(_parent).remove();
                             removeCurveFunc(_index, _plotKey);
                             redrawLabel(_plotKey);
-                            survivalPlot[_plotKey].removeCurve(_color.toString().substring(1) + "-" + _plotKey);
+                            survivalPlot[_plotKey].removeCurve(_plotKey + "-" + _color.toString().substring(1));
                         } else if ($(this).attr('name') === 'saved-close') {
                             var _parent = $(this).parent(),
                                 _name = $(_parent).find('text').attr('oValue');
@@ -964,10 +964,10 @@ var StudyViewSurvivalPlotView = (function() {
 
                         if (_textColor === '#000000') {
                             $(_text).css('fill', 'red');
-                            highlightCurve(_rectColor.substring(1) + "-" + _plotKey);
+                            highlightCurve(_plotKey + "-" + _rectColor.substring(1));
                         } else {
                             $(_text).css('fill', 'black');
-                            resetCurve(_rectColor.substring(1) + "-" + _plotKey);
+                            resetCurve(_plotKey + "-" + _rectColor.substring(1));
                         }
 
                     });
@@ -1181,7 +1181,7 @@ var StudyViewSurvivalPlotView = (function() {
                 StudyViewUtil.changePosition(
                         '#' + opts[i].divs.main,
                         '#' + opts[i].divs.bodyLabel,
-                        "#dc-plots");
+                        "#summary");
             }
         }
     }

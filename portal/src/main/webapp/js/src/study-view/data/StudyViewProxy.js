@@ -153,13 +153,18 @@ var StudyViewProxy = (function() {
                     _dataLength = _data.length,
                     _sampleIds = Object.keys(sampleToPatientMapping),
                     _sequencedSampleIds = [],
+                    _cnaSampleIds = [],
+                    _allSampleIds = [],
                     _locks=0;
 
                 //Uppercase all attr_id
                 for(var i= 0; i < a1[0].attributes.length; i++){
                     var caseAttr = new CaseAttr();
                     caseAttr.attr_id =  a1[0].attributes[i].attr_id.toUpperCase();
-                    if(! a1[0].attributes[i].hasOwnProperty('display_name') ||  a1[0].attributes[i].display_name){
+                    if(_.isString(a1[0].attributes[i].display_name)){
+                        caseAttr.display_name = a1[0].attributes[i].display_name;
+                    } else {
+                        //Fallback to using ID if there is no display_name
                         caseAttr.display_name =  a1[0].attributes[i].attr_id;
                     }
                     caseAttr.display_name = toPascalCase(caseAttr.display_name);
@@ -209,20 +214,29 @@ var StudyViewProxy = (function() {
                 var filteredA3 = removeExtraData(_sampleIds,a3[0]);
 
                 //Find sequenced sample Ids
+                // TODO: this is very hacky, we should switch to the cbioportal-client.js
                 if(a5[0]) {
                     var _lists = a5[0].split('\n');
                     for(var i = 0; i < _lists.length; i++) {
-                        if(_lists[i].indexOf('sequenced samples') !== -1) {
-                            var _info = _lists[i].split('\t');
-                            if(_info.length === 5) {
-                                _sequencedSampleIds = _info[4].split(' ');
-                            }
-                            break;
+                        var _parts = _lists[i].split('\t');
+                        if(_parts.length < 5) continue;
+                        if (_parts[0] === parObject.studyId+"_sequenced") {
+                            _sequencedSampleIds = _parts[4].trim().split(' ');
+                        } else if (_parts[0] === parObject.studyId+"_cna") {
+                            _cnaSampleIds = _parts[4].trim().split(' ');
+                        } else if (_parts[0] === parObject.studyId+"_all") {
+                            _allSampleIds = _parts[4].trim().split(' ');
                         }
                     }
+                    
+                    obtainDataObject.sequencedSampleIds = 
+                            _sequencedSampleIds.length>0 ? _sequencedSampleIds : _allSampleIds;
+                    obtainDataObject.cnaSampleIds = 
+                            _cnaSampleIds.length>0 ? _cnaSampleIds : _allSampleIds;
+                    
                 }
 
-                //Add new attribute MUTATIOIN COUNT for each case if have any
+                //Add new attribute MUTATION COUNT for each case if have any
                 if(Object.keys(filteredA2).length !== 0){
                     var _newAttr = new CaseAttr();
                     _newAttr.attr_id = 'MUTATION_COUNT';
@@ -252,9 +266,8 @@ var StudyViewProxy = (function() {
                     _newAttr.keys = Object.keys(_keys);
                     obtainDataObject.attr.push(_newAttr);
                 }else {
-                    var cnaLength = obtainDataObject.arr.length;
-                    for(var i = 0; i < cnaLength; i++) {
-                        if(obtainDataObject.arr[i].hasOwnProperty('MUTATION_COUNT')) {
+                    for(var i = 0, arrSize = obtainDataObject.arr.length; i < arrSize; i++) {
+                        if (!_.isUndefined(obtainDataObject.arr[i].MUTATION_COUNT)) {
                             delete obtainDataObject.arr[i].MUTATION_COUNT;
                         }
                     }
@@ -282,9 +295,8 @@ var StudyViewProxy = (function() {
                     _newAttri.keys = Object.keys(_keys);
                     obtainDataObject.attr.push(_newAttri);
                 }else {
-                    var cnaLength = obtainDataObject.arr.length;
-                    for(var i = 0; i < cnaLength; i++) {
-                        if(obtainDataObject.arr[i].hasOwnProperty('COPY_NUMBER_ALTERATIONS')) {
+                    for(var i = 0, arrSize = obtainDataObject.arr.length; i < arrSize; i++) {
+                        if(!_.isUndefined(obtainDataObject.arr[i].COPY_NUMBER_ALTERATIONS)) {
                             delete obtainDataObject.arr[i].COPY_NUMBER_ALTERATIONS;
                         }
                     }
@@ -356,7 +368,9 @@ var StudyViewProxy = (function() {
 
         for(var i = 0, _patientIdsL = _patientIds.length; i < _patientIdsL; i++) {
             if(_sampleIds.indexOf(_patientIds[i]) === -1) {
-                _sampleIds = _sampleIds.concat(patientToSampleMapping[_patientIds[i]]);
+                if(!_.isUndefined(patientToSampleMapping[_patientIds[i]])) {
+                    _sampleIds = _sampleIds.concat(patientToSampleMapping[_patientIds[i]]);
+                }
             }
         }
         return _.uniq(_sampleIds);
@@ -383,23 +397,20 @@ var StudyViewProxy = (function() {
 
     function toPascalCase(str) {
         var arr = str.split(/\s|_/);
-//        for(var i=0,l=arr.length; i<l; i++) {
-//            arr[i] = arr[i].substr(0,1).toUpperCase() + 
-//                     (arr[i].length > 1 ? arr[i].substr(1).toLowerCase() : "");
-//        } 
         return arr.join(" ");
     }
 
     function getCNAData(){
         var deferred = $.Deferred();
 
-        if(obtainDataObject.hasOwnProperty('cna') && obtainDataObject.cna){
+        if(!_.isUndefined(obtainDataObject.cna)){
             deferred.resolve(obtainDataObject.cna);
         }else{
             if(hasCNA) {
                 $.ajax({type: "POST", url: "cna.json", data: ajaxParameters.cnaData})
                     .then(function(data){
                         obtainDataObject.cna = data;
+                        obtainDataObject.cnaSampleBased = convertCNAData(data);
                         deferred.resolve(obtainDataObject.cna);
                     }, function(status){
                         obtainDataObject.cna = '';
@@ -412,6 +423,147 @@ var StudyViewProxy = (function() {
         return deferred.promise();
     }
 
+    /**
+     * Convert copy number alteration data into sample ID based object.
+     * It will be used to quickly get selected samples' CNA data.
+     *
+     * @param data  Object  It contains caseIds, alter, cytoban, gene and gistic information. Each attribute is an array.
+     *                      Reminder: the length for each attribute should be the same.
+     * @returns {{}} Sample ID based CNA data.
+     */
+    function convertCNAData(data) {
+        var converted = {};
+
+        if (data) {
+            for (var i = 0, dataL = data.gene.length; i < dataL; i++) {
+                var caseIds = data.caseIds[i];
+
+                for (var j = 0, caseIdsL = caseIds.length; j < caseIdsL; j++) {
+                    if (_.isUndefined(converted[caseIds[j]])) {
+                        converted[caseIds[j]] = [];
+                    }
+                    converted[caseIds[j]].push({
+                        alter: data.alter[i],
+                        cytoband: data.cytoband[i],
+                        gene: data.gene[i],
+                        gistic: data.gistic[i]
+                    });
+                }
+            }
+        }
+        return converted;
+    }
+
+    /**
+     * Only return selected samples' copy number alterations data.
+     *
+     * @param sampleIds Array   List of sample IDs.
+     * @returns data    Object  Keep the original CNA data format.
+     */
+    function getCNABasedOnSampleIds(sampleIds) {
+        var data = {
+            alter: [],
+            caseIds: [],
+            cytoband: [],
+            gistic: [],
+            gene: []
+        };
+        if (sampleIds.length === this.getSampleIds().length) {
+            return obtainDataObject.cna;
+        }
+        if (!_.isUndefined(obtainDataObject.cnaSampleBased)) {
+            var geneSpecific = {};
+            var numOfSample = sampleIds.length;
+            for (var i = 0; i < numOfSample; i++) {
+                if (obtainDataObject.cnaSampleBased[sampleIds[i]]) {
+                    for (var j = 0, numOfGenes = obtainDataObject.cnaSampleBased[sampleIds[i]].length; j < numOfGenes; j++) {
+                        var key = obtainDataObject.cnaSampleBased[sampleIds[i]][j].gene + obtainDataObject.cnaSampleBased[sampleIds[i]][j].alter;
+                        if (_.isUndefined(geneSpecific[key])) {
+                            var datum = obtainDataObject.cnaSampleBased[sampleIds[i]][j];
+                            geneSpecific[key] = data.caseIds.length;
+                            data.alter.push(datum.alter);
+                            data.caseIds.push([]);
+                            data.cytoband.push(datum.cytoband);
+                            data.gistic.push(datum.gistic);
+                            data.gene.push(datum.gene);
+                        }
+                        data.caseIds[geneSpecific[key]].push(sampleIds[i]);
+                    }
+                }
+            }
+        }
+
+        return data;
+    }
+
+    /**
+     * Convert mutated gene data into sample ID based object.
+     * It will be used to quickly get selected samples' mutated gene data.
+     *
+     * @param   data    Array  It is the list of mutated genes. Each item contains caseIds, cytoband, gene_symbol, length and num_muts.
+     * @returns {{}}    Object Sample ID based mutated genes data.
+     */
+    function convertMutatedGeneData(data) {
+        var converted = {};
+
+        if (data) {
+            for (var i = 0, dataL = data.length; i < dataL; i++) {
+                var gene = data[i];
+                var geneSymbol = gene.gene_symbol;
+                var caseIds = gene.caseIds;
+
+                for (var j = 0, caseIdsL = caseIds.length; j < caseIdsL; j++) {
+                    if (_.isUndefined(converted[caseIds[j]])) {
+                        converted[caseIds[j]] = {};
+                    }
+                    if (_.isUndefined(converted[caseIds[j]][geneSymbol])) {
+                        converted[caseIds[j]][geneSymbol] = _.extend({}, gene);
+                        converted[caseIds[j]][geneSymbol].num_muts = 0;
+                    }
+                    ++converted[caseIds[j]][geneSymbol].num_muts;
+                }
+            }
+        }
+        return converted;
+    }
+
+    /**
+     * Only return selected samples' mutated gene data.
+     *
+     * @param sampleIds Array   List of sample IDs.
+     * @returns data    Array   List of mutated genes data. Its order is the same with sample IDs.
+     */
+    function getMutatedGeneDataBasedOnSampleIds(sampleIds) {
+        var data = [];
+        if (sampleIds instanceof Array) {
+            if(sampleIds.length === this.getSampleIds().length) {
+                return obtainDataObject.mutatedGenes;
+            }
+            if(_.isObject(obtainDataObject.mutatedGenesSampleBased)){
+                var geneSpecific = {};
+                var numOfSample = sampleIds.length;
+                for (var i = 0; i < numOfSample; i++) {
+                    if (obtainDataObject.mutatedGenesSampleBased[sampleIds[i]]) {
+                        var sample = obtainDataObject.mutatedGenesSampleBased[sampleIds[i]];
+                        for(var geneSymbol in sample) {
+                            if (_.isUndefined(geneSpecific[geneSymbol])) {
+                                geneSpecific[geneSymbol] = _.extend({}, sample[geneSymbol]);
+                                geneSpecific[geneSymbol].caseIds = [];
+                                geneSpecific[geneSymbol].num_muts = 0;
+                            }
+                            geneSpecific[geneSymbol].num_muts += sample[geneSymbol].num_muts;
+                            geneSpecific[geneSymbol].caseIds.push(sampleIds[i]);
+
+                        }
+                    }
+                }
+                data = _.values(geneSpecific);
+            }
+        }
+
+        return data;
+    }
+
     function getMutatedGenesData(){
         var deferred = $.Deferred();
 
@@ -422,6 +574,7 @@ var StudyViewProxy = (function() {
                 $.ajax({type: "POST", url: "mutations.json", data: ajaxParameters.mutatedGenesData})
                     .then(function(data){
                         obtainDataObject.mutatedGenes = data;
+                        obtainDataObject.mutatedGenesSampleBased = convertMutatedGeneData(data);
                         deferred.resolve(obtainDataObject.mutatedGenes);
                     }, function(status){
                         obtainDataObject.mutatedGenes = '';
@@ -438,7 +591,7 @@ var StudyViewProxy = (function() {
         var  _arr = [];
         if(sampleIds instanceof Array) {
             var sampleL = sampleIds.length;
-            
+
             for(var i = 0; i < sampleL; i++) {
                 if(sampleIdArrMapping.hasOwnProperty(sampleIds[i])) {
                     _arr.push(obtainDataObject.arr[sampleIdArrMapping[sampleIds[i]]]);
@@ -460,16 +613,37 @@ var StudyViewProxy = (function() {
         getArrDataBySampleIds: getArrDataBySampleIds,
         getAttrData: function(){ return obtainDataObject.attr;},
         getMutatedGenesData: getMutatedGenesData,
+        getMutatedGeneDataBasedOnSampleIds: getMutatedGeneDataBasedOnSampleIds,
+        getCNABasedOnSampleIds: getCNABasedOnSampleIds,
         getGisticData: function(){return obtainDataObject.gistic;},
         getCNAData: getCNAData,
         getSampleidToPatientidMap: function(){return obtainDataObject.sampleidToPatientidMap;},
         getPatientIdsBySampleIds: getPatientIdsBySampleIds,
         getSampleIdsByPatientIds: getSampleIdsByPatientIds,
+        getSequencedSampleIds: function() {return obtainDataObject.sequencedSampleIds;},
+        getCnaSampleIds: function() {return obtainDataObject.cnaSampleIds;},
         getPatientIds: function () {
             return Object.keys(patientToSampleMapping);
         },
         getSampleIds: function () {
             return Object.keys(sampleToPatientMapping);
+        },
+        getAllData: function () {
+            return obtainDataObject;
+        },
+        sampleIdExist: function (id) {
+            if (_.isString(id)) {
+                return sampleToPatientMapping.hasOwnProperty(id);
+            } else if (_.isArray(id)) {
+                var exist = true;
+                for (var i = 0, size = id.length; i < size; i++) {
+                    if (!sampleToPatientMapping.hasOwnProperty(id[i])) {
+                        exist = false;
+                    }
+                    break;
+                }
+                return exist;
+            }
         }
     };
 }());

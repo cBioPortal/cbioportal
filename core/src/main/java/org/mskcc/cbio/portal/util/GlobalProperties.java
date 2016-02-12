@@ -161,12 +161,17 @@ public class GlobalProperties {
     public static final String SKIN_CUSTOM_HEADER_TABS="skin.custom_header_tabs";
 
     // properties for the FAQ, about us, news and examples
-    public static final String SKIN_FAQ="skin.faq";
-    public static final String DEFAULT_SKIN_FAQ="content/faq.html";
-    public static final String SKIN_ABOUT="skin.about";
-    public static final String DEFAULT_SKIN_ABOUT="content/about_us.html";
-    public static final String SKIN_NEWS="skin.news";
-    public static final String DEFAULT_SKIN_NEWS="content/news.html";
+    public static final String SKIN_BASEURL="skin.documentation.baseurl";
+    public static final String DEFAULT_SKIN_BASEURL="https://github.com/cBioPortal/cbioportal/wiki/";
+    public static final String SKIN_DOCUMENTATION_MARKDOWN="skin.documentation.markdown";
+
+    public static final String SKIN_FAQ="skin.documentation.faq";
+    public static final String DEFAULT_SKIN_FAQ="FAQ.md";
+    public static final String SKIN_ABOUT="skin.documentation.about";
+    public static final String DEFAULT_SKIN_ABOUT="About-Us.md";
+    public static final String SKIN_NEWS="skin.documentation.news";
+    public static final String DEFAULT_SKIN_NEWS="News.md";
+
     public static final String SKIN_EXAMPLES_RIGHT_COLUMN="skin.examples_right_column";
     public static final String DEFAULT_SKIN_EXAMPLES_RIGHT_COLUMN="../../../content/examples.html";
     
@@ -294,9 +299,8 @@ public class GlobalProperties {
         return properties.getProperty(AUTHENTICATE);
     }
 
-	public static boolean usersMustBeAuthorized()
-    {
-		return Boolean.parseBoolean(properties.getProperty(AUTHORIZATION));
+	public static boolean usersMustBeAuthorized() {
+        return Boolean.parseBoolean(properties.getProperty(AUTHORIZATION));
 	}
 
     public static String getAppName()
@@ -326,20 +330,32 @@ public class GlobalProperties {
     public static String getFaqHtml()
     {
         String faqHtml = properties.getProperty(SKIN_FAQ);
-        return (faqHtml == null) ? DEFAULT_SKIN_FAQ : "content/"+faqHtml;
+        return (faqHtml == null) ? DEFAULT_SKIN_FAQ : getContentString(faqHtml);
     }
     // get custom About html or the default
     public static String getAboutHtml()
     {
         String aboutHtml = properties.getProperty(SKIN_ABOUT);
-        return (aboutHtml == null) ? DEFAULT_SKIN_ABOUT : "content/"+aboutHtml;
+        return (aboutHtml == null) ? DEFAULT_SKIN_ABOUT : getContentString(aboutHtml);
     }
     // get custom News html or the default
     public static String getNewsHtml()
     {
         String newsHtml = properties.getProperty(SKIN_NEWS);
-        return (newsHtml == null) ? DEFAULT_SKIN_NEWS : "content/"+newsHtml;
+        return (newsHtml == null) ? DEFAULT_SKIN_NEWS : getContentString(newsHtml);
     }
+    // get custom News html or the default
+    public static String getBaseUrl()
+    {
+        String baseUrl = properties.getProperty(SKIN_BASEURL);
+        return (baseUrl == null) ? DEFAULT_SKIN_BASEURL : baseUrl;
+    }
+    public static boolean isMarkdownDocumentation()
+    {
+        String markdownFlag = properties.getProperty(SKIN_DOCUMENTATION_MARKDOWN);
+        return markdownFlag == null || Boolean.parseBoolean(markdownFlag);
+    }
+
     // get custom Example Queries for the right column html or the default
     public static String getExamplesRightColumnHtml()
     {
@@ -347,6 +363,10 @@ public class GlobalProperties {
         return (examplesRightColumnHtml == null) ? DEFAULT_SKIN_EXAMPLES_RIGHT_COLUMN : "../../../content/"+examplesRightColumnHtml;
     }
 
+    private static String getContentString(String contentString){
+        if(getBaseUrl().equalsIgnoreCase("")) return "content/"+contentString;
+        return contentString;
+    }
 
     // get the login contact html
     public static String getLoginContactHtml()

@@ -99,7 +99,7 @@ public class TestImportExtendedMutationData {
         //exception.expect(IllegalArgumentException.class);
         //exception.expectMessage(containsString("Gene list 'no_such_germline_whitelistfile' not found"));
 
-        new ImportExtendedMutationData(file, geneticProfileId, "no_such_germline_whitelistfile");
+        new ImportExtendedMutationData(file, geneticProfileId);
 	}
 	
 	@Test

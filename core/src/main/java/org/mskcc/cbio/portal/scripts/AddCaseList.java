@@ -50,10 +50,10 @@ public class AddCaseList {
 	 * @param pMonitor
 	 * @throws Exception
 	 */
-	private static void addAllCasesList(CancerStudy theCancerStudy, ProgressMonitor pMonitor) throws Exception {
+	private static void addAllCasesList(CancerStudy theCancerStudy) throws Exception {
 		String cancerStudyIdentifier = theCancerStudy.getCancerStudyStableId();
 		String stableId = cancerStudyIdentifier + "_all";
-		pMonitor.setCurrentMessage("Adding case list:  " + stableId + "..."); 
+		ProgressMonitor.setCurrentMessage("Adding case list:  " + stableId + "..."); 
 		
 		String patientListCategoryStr = "other"; //TODO : check if this is important...
 		PatientListCategory patientListCategory = PatientListCategory.get(patientListCategoryStr); 
@@ -73,7 +73,7 @@ public class AddCaseList {
 		      sampleIDsList.add(s.getStableId());
 		   }
 		}
-		addCaseList(stableId, theCancerStudy, patientListCategory, patientListName, patientListDescription,  sampleIDsList, pMonitor);
+		addCaseList(stableId, theCancerStudy, patientListCategory, patientListName, patientListDescription,  sampleIDsList);
 	}
    
 	/**
@@ -90,7 +90,7 @@ public class AddCaseList {
 	 */
    public static void addCaseList(String stableId, CancerStudy theCancerStudy, 
 		   PatientListCategory patientListCategory, String patientListName, String patientListDescription, 
-		   ArrayList<String> sampleIDsList, ProgressMonitor pMonitor) throws Exception {
+		   ArrayList<String> sampleIDsList) throws Exception {
 
       DaoPatientList daoPatientList = new DaoPatientList();
       PatientList patientList = daoPatientList.getPatientListByStableId(stableId);
@@ -110,9 +110,9 @@ public class AddCaseList {
 
       patientList = daoPatientList.getPatientListByStableId(stableId);
 
-      pMonitor.setCurrentMessage(" --> stable ID:  " + patientList.getStableId());
-      pMonitor.setCurrentMessage(" --> patient list name:  " + patientList.getName());
-      pMonitor.setCurrentMessage(" --> number of patients:  " + sampleIDsList.size());
+      ProgressMonitor.setCurrentMessage(" --> stable ID:  " + patientList.getStableId());
+      ProgressMonitor.setCurrentMessage(" --> patient list name:  " + patientList.getName());
+      ProgressMonitor.setCurrentMessage(" --> number of patients:  " + sampleIDsList.size());
    }
 
    public static void main(String[] args) throws Exception {
@@ -122,8 +122,7 @@ public class AddCaseList {
          System.out.println("command line usage:  addCaseList.pl " + "<study identifier> <case list type>");
             return;
       }
-      ProgressMonitor pMonitor = new ProgressMonitor();
-      pMonitor.setConsoleMode(true);
+      ProgressMonitor.setConsoleMode(true);
       
       String cancerStudyIdentifier = args[0];
       String caseListType = args[1];
@@ -139,9 +138,9 @@ public class AddCaseList {
       
       if (caseListType.equals("all")) {
 	      //Add "all" case list:
-	      AddCaseList.addAllCasesList(theCancerStudy, pMonitor);
+	      AddCaseList.addAllCasesList(theCancerStudy);
       }
       
-      ConsoleUtil.showWarnings(pMonitor);
+      ConsoleUtil.showWarnings();
    }
 }

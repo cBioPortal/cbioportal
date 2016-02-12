@@ -34,6 +34,7 @@ package org.mskcc.cbio.portal.util;
 
 import org.apache.log4j.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.TreeSet;
@@ -73,6 +74,22 @@ public class ProgressMonitor {
      */
     public static void setConsoleMode(boolean consoleFlag) {
         progressMonitor.consoleMode = consoleFlag;
+    }
+    
+    /**
+     * Try to infer console mode from args. If an argument 
+     * with name "--noprogress" is found, then consoleMode is set to false
+     * 
+     * @param args
+     */
+    public static void setConsoleMode(String[] args) {
+    	if (Arrays.asList(args).contains("--noprogress")) {
+    		setConsoleMode(false);
+    	} else {
+    		//default:
+    		setConsoleMode(true);
+    	}
+    		
     }
 
     /**

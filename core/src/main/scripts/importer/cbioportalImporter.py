@@ -48,12 +48,14 @@ def import_cancer_type(jvm_args, meta_filename):
     args.append(IMPORT_CANCER_TYPE_CLASS)
     args.append(meta_filename)
     args.append("false") # don't clobber existing table
+    args.append("--noprogress") # don't report memory usage and % progress
     run_java(*args)
 
 def import_study(jvm_args, meta_filename):
     args = jvm_args.split(' ')
     args.append(IMPORT_STUDY_CLASS)
     args.append(meta_filename)
+    args.append("--noprogress") # don't report memory usage and % progress
     run_java(*args)
 
 def remove_study(jvm_args, meta_filename):
@@ -66,6 +68,7 @@ def remove_study(jvm_args, meta_filename):
         print >> ERROR_FILE, 'Not a study meta file: ' + meta_filename
         return
     args.append(meta_dict['cancer_study_identifier'])
+    args.append("--noprogress") # don't report memory usage and % progress
     run_java(*args)
 
 def import_study_data(jvm_args, meta_filename, data_filename):
@@ -97,12 +100,14 @@ def import_study_data(jvm_args, meta_filename, data_filename):
         args.append("--data")
         args.append(data_filename)
 
+    args.append("--noprogress") # don't report memory usage and % progress
     run_java(*args)
 
 def import_case_list(jvm_args, meta_filename):
     args = jvm_args.split(' ')
     args.append(IMPORT_CASE_LIST_CLASS)
     args.append(meta_filename)
+    args.append("--noprogress") # don't report memory usage and % progress
     run_java(*args)
     
 def add_global_case_list(jvm_args, study_id):
@@ -110,6 +115,7 @@ def add_global_case_list(jvm_args, study_id):
     args.append(ADD_CASE_LIST_CLASS)
     args.append(study_id)
     args.append("all")
+    args.append("--noprogress") # don't report memory usage and % progress
     run_java(*args)
     
 

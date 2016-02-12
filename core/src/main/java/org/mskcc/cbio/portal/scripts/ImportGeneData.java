@@ -44,17 +44,15 @@ import java.util.*;
  */
 public class ImportGeneData {
 
-    public static void importData(ProgressMonitor pMonitor, File geneFile) throws IOException, DaoException {
+    public static void importData(File geneFile) throws IOException, DaoException {
         Map<String, Set<CanonicalGene>> genesWithSymbolFromNomenClatureAuthority = new LinkedHashMap<>();
         Map<String, Set<CanonicalGene>> genesWithoutSymbolFromNomenClatureAuthority = new LinkedHashMap<>();
         try (FileReader reader = new FileReader(geneFile)) {
             BufferedReader buf = new BufferedReader(reader);
             String line;
             while ((line = buf.readLine()) != null) {
-                if (pMonitor != null) {
-                    pMonitor.incrementCurValue();
-                    ConsoleUtil.showProgress(pMonitor);
-                }
+                ProgressMonitor.incrementCurValue();
+                ConsoleUtil.showProgress();
                 if (line.startsWith("#")) {
                     continue;
                 }
@@ -125,7 +123,7 @@ public class ImportGeneData {
             if (genes.size()==1) {
                 daoGene.addGene(genes.iterator().next());
             } else {
-                logDuplicateGeneSymbolWarning(pMonitor, entry.getKey(), genes);
+                logDuplicateGeneSymbolWarning(entry.getKey(), genes);
             }
         }
 
@@ -139,11 +137,11 @@ public class ImportGeneData {
                     daoGene.addGene(gene);
                 } else {
                     // ignore entries with a symbol that have the same value as stardard one
-                    pMonitor.logWarning("Ignored line with entrez gene id "+gene.getEntrezGeneId()
+                    ProgressMonitor.logWarning("Ignored line with entrez gene id "+gene.getEntrezGeneId()
                             + ". "+symbol+" is already imported.");
                 }
             } else {
-                logDuplicateGeneSymbolWarning(pMonitor, symbol, genes);
+                logDuplicateGeneSymbolWarning(symbol, genes);
             }
         }
         
@@ -152,7 +150,7 @@ public class ImportGeneData {
         }        
     }
     
-    private static void logDuplicateGeneSymbolWarning(ProgressMonitor pMonitor, String symbol, Set<CanonicalGene> genes) {
+    private static void logDuplicateGeneSymbolWarning(String symbol, Set<CanonicalGene> genes) {
         StringBuilder sb = new StringBuilder();
         sb.append("More than 1 gene has the same symbol ")
                 .append(symbol)
@@ -162,10 +160,10 @@ public class ImportGeneData {
                     .append(gene.getEntrezGeneId())
                     .append(". Ignore...");
         }
-        pMonitor.logWarning(sb.toString());
+        ProgressMonitor.logWarning(sb.toString());
     }
 
-    private static void importGeneLength(ProgressMonitor pMonitor, File geneFile) throws IOException, DaoException {
+    private static void importGeneLength(File geneFile) throws IOException, DaoException {
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
         FileReader reader = new FileReader(geneFile);
         BufferedReader buf = new BufferedReader(reader);
@@ -173,10 +171,8 @@ public class ImportGeneData {
         CanonicalGene currentGene = null;
         List<long[]> loci = new ArrayList<long[]>();
         while ((line=buf.readLine()) != null) {
-            if (pMonitor != null) {
-                pMonitor.incrementCurValue();
-                ConsoleUtil.showProgress(pMonitor);
-            }
+            ProgressMonitor.incrementCurValue();
+            ConsoleUtil.showProgress();
             if (!line.startsWith("#")) {
                 String parts[] = line.split("\t");
                 CanonicalGene gene = daoGeneOptimized.getNonAmbiguousGene(parts[3], parts[0]);
@@ -223,17 +219,15 @@ public class ImportGeneData {
         return bitSet.cardinality();
     }
     
-    static void importSuppGeneData(ProgressMonitor pMonitor, File suppGeneFile) throws IOException, DaoException {
+    static void importSuppGeneData(File suppGeneFile) throws IOException, DaoException {
         MySQLbulkLoader.bulkLoadOff();
         FileReader reader = new FileReader(suppGeneFile);
         BufferedReader buf = new BufferedReader(reader);
         String line;
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         while ((line = buf.readLine()) != null) {
-            if (pMonitor != null) {
-                pMonitor.incrementCurValue();
-                ConsoleUtil.showProgress(pMonitor);
-            }
+            ProgressMonitor.incrementCurValue();
+            ConsoleUtil.showProgress();
             if (!line.startsWith("#")) {
                 String parts[] = line.split("\t");
                 CanonicalGene gene = new CanonicalGene(parts[0]);
@@ -260,17 +254,16 @@ public class ImportGeneData {
             System.out.println("command line usage:  importGenes.pl <ncbi_genes.txt> <supp-genes.txt> <microrna.txt> <all_exon_loci.bed>");
             return;
         }
-        ProgressMonitor pMonitor = new ProgressMonitor();
-        pMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
         
 
         File geneFile = new File(args[0]);
         System.out.println("Reading gene data from:  " + geneFile.getAbsolutePath());
         int numLines = FileUtil.getNumLines(geneFile);
         System.out.println(" --> total number of lines:  " + numLines);
-        pMonitor.setMaxValue(numLines);
-        ImportGeneData.importData(pMonitor, geneFile);
-        ConsoleUtil.showWarnings(pMonitor);
+        ProgressMonitor.setMaxValue(numLines);
+        ImportGeneData.importData(geneFile);
+        ConsoleUtil.showWarnings();
         System.err.println("Done. Restart tomcat to make sure the cache is replaced with the new data.");
         
         if (args.length>=2) {
@@ -278,8 +271,8 @@ public class ImportGeneData {
             System.out.println("Reading supp. gene data from:  " + suppGeneFile.getAbsolutePath());
             numLines = FileUtil.getNumLines(suppGeneFile);
             System.out.println(" --> total number of lines:  " + numLines);
-            pMonitor.setMaxValue(numLines);
-            ImportGeneData.importSuppGeneData(pMonitor, suppGeneFile);
+            ProgressMonitor.setMaxValue(numLines);
+            ImportGeneData.importSuppGeneData(suppGeneFile);
         }
         
         if (args.length>=3) {
@@ -287,8 +280,8 @@ public class ImportGeneData {
             System.out.println("Reading miRNA data from:  " + miRNAFile.getAbsolutePath());
             numLines = FileUtil.getNumLines(miRNAFile);
             System.out.println(" --> total number of lines:  " + numLines);
-            pMonitor.setMaxValue(numLines);
-            ImportMicroRNAIDs.importData(pMonitor, miRNAFile);
+            ProgressMonitor.setMaxValue(numLines);
+            ImportMicroRNAIDs.importData(miRNAFile);
     }
         
         if (args.length>=4) {
@@ -296,8 +289,8 @@ public class ImportGeneData {
             System.out.println("Reading loci data from:  " + lociFile.getAbsolutePath());
             numLines = FileUtil.getNumLines(lociFile);
             System.out.println(" --> total number of lines:  " + numLines);
-            pMonitor.setMaxValue(numLines);
-            ImportGeneData.importGeneLength(pMonitor, lociFile);
+            ProgressMonitor.setMaxValue(numLines);
+            ImportGeneData.importGeneLength(lociFile);
         }
     }
 }

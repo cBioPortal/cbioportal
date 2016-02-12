@@ -70,6 +70,7 @@ public class ExportDataForDownload {
       usageLine = "command line usage for ExportProfileData:";
 
       parser = new OptionParser();
+      parser.accepts("noprogress");
       OptionSpec<String> htmlIndexFile = parser.accepts( "htmlIndexFile", "output file to store html " +
               "index of files produced" ).
          withRequiredArg().describedAs( "htmlIndexFile" ).ofType( String.class );

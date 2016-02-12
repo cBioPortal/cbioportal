@@ -63,8 +63,6 @@ public class TestImportExtendedMutationData {
 
 	int studyId;
 	int geneticProfileId;
-    ProgressMonitor pMonitor = new ProgressMonitor();
-	
 	@Before
 	public void setUp() throws DaoException {
 		studyId = DaoCancerStudy.getCancerStudyByStableId("study_tcga_pub").getInternalId();
@@ -81,7 +79,7 @@ public class TestImportExtendedMutationData {
 		DaoGeneticProfile.addGeneticProfile(geneticProfile);
 		geneticProfileId = DaoGeneticProfile.getGeneticProfileByStableId("test").getGeneticProfileId();
 
-        pMonitor.setConsoleMode(false);
+        ProgressMonitor.setConsoleMode(false);
 
         loadGenes();
 	}
@@ -101,7 +99,7 @@ public class TestImportExtendedMutationData {
         //exception.expect(IllegalArgumentException.class);
         //exception.expectMessage(containsString("Gene list 'no_such_germline_whitelistfile' not found"));
 
-        new ImportExtendedMutationData(file, geneticProfileId, pMonitor);
+        new ImportExtendedMutationData(file, geneticProfileId);
 	}
 	
 	@Test
@@ -112,7 +110,7 @@ public class TestImportExtendedMutationData {
         
 		// TBD: change this to use getResourceAsStream()
         File file = new File("target/test-classes/data_mutations_extended.txt");
-        ImportExtendedMutationData parser = new ImportExtendedMutationData(file, geneticProfileId, pMonitor);
+        ImportExtendedMutationData parser = new ImportExtendedMutationData(file, geneticProfileId);
         parser.importData();
         MySQLbulkLoader.flushAll();
         
@@ -137,7 +135,7 @@ public class TestImportExtendedMutationData {
         File file = new File("target/test-classes/data_mutations_extended.txt");
 
 		// TBD: change this to use getResourceAsStream()
-        ImportExtendedMutationData parser = new ImportExtendedMutationData(file, geneticProfileId, pMonitor);//, "target/test-classes/test_germline_white_list_file2.txt");
+        ImportExtendedMutationData parser = new ImportExtendedMutationData(file, geneticProfileId);//, "target/test-classes/test_germline_white_list_file2.txt");
         parser.importData();
         MySQLbulkLoader.flushAll();
 
@@ -158,7 +156,7 @@ public class TestImportExtendedMutationData {
 	@Test
     public void testImportExtendedMutationDataOncotated() throws IOException, DaoException {
         File file = new File("target/test-classes/data_mutations_oncotated.txt");
-        ImportExtendedMutationData parser = new ImportExtendedMutationData(file, geneticProfileId, pMonitor);
+        ImportExtendedMutationData parser = new ImportExtendedMutationData(file, geneticProfileId);
         parser.importData();
         MySQLbulkLoader.flushAll();
         

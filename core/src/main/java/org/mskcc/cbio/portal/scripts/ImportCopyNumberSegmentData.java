@@ -48,15 +48,13 @@ import java.util.regex.*;
  * @author jj
  */
 public class ImportCopyNumberSegmentData {
-    private ProgressMonitor pMonitor;
     private int cancerStudyId;
     private File file;
     
-    public ImportCopyNumberSegmentData(File file, int cancerStudyId, ProgressMonitor pMonitor)
+    public ImportCopyNumberSegmentData(File file, int cancerStudyId)
     {
         this.file = file;
         this.cancerStudyId = cancerStudyId;
-        this.pMonitor = pMonitor;
     }
     
     public void importData() throws Exception
@@ -67,10 +65,8 @@ public class ImportCopyNumberSegmentData {
         String line = buf.readLine(); // skip header line
         long segId = DaoCopyNumberSegment.getLargestId();
         while ((line=buf.readLine()) != null) {
-            if (pMonitor != null) {
-                pMonitor.incrementCurValue();
-                ConsoleUtil.showProgress(pMonitor);
-            }
+            ProgressMonitor.incrementCurValue();
+            ConsoleUtil.showProgress();
             
             String[] strs = line.split("\t");
             if (strs.length<6) {
@@ -119,6 +115,7 @@ public class ImportCopyNumberSegmentData {
         }
 
         importCopyNumberSegmentFileMetadata(cancerStudy, properties);
+        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
         importCopyNumberSegmentFileData(cancerStudy, filenames[0]);
         
         System.err.println("Done.");
@@ -128,6 +125,7 @@ public class ImportCopyNumberSegmentData {
     {
         String[] filenames = new String[2];
         OptionParser parser = new OptionParser();
+        parser.accepts("noprogress");
         OptionSpec<String> data = parser.accepts( "data",
             "copy number segment data file" ).withRequiredArg().describedAs( "copy_number_segment_file.seg" ).ofType( String.class );
         OptionSpec<String> meta = parser.accepts( "meta",
@@ -178,15 +176,12 @@ public class ImportCopyNumberSegmentData {
 
     private static void importCopyNumberSegmentFileData(CancerStudy cancerStudy, String dataFilename) throws Exception
     {
-        ProgressMonitor pMonitor = new ProgressMonitor();
-        pMonitor.setConsoleMode(true);
-        
         File file = new File(dataFilename);
         System.out.println("Reading data from:  " + file.getAbsolutePath());
         int numLines = FileUtil.getNumLines(file);
         System.out.println(" --> total number of lines:  " + numLines);
-        pMonitor.setMaxValue(numLines);
-        ImportCopyNumberSegmentData parser = new ImportCopyNumberSegmentData(file, cancerStudy.getInternalId(), pMonitor);
+        ProgressMonitor.setMaxValue(numLines);
+        ImportCopyNumberSegmentData parser = new ImportCopyNumberSegmentData(file, cancerStudy.getInternalId());
         parser.importData();
     }
 

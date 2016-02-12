@@ -223,11 +223,14 @@ public class MySQLbulkLoader {
          String replace = (processingClinicalData()) ? " REPLACE" : "";
          String command = "LOAD DATA LOCAL INFILE '" + tempFileName + "'" + replace + " INTO TABLE " + tableName;
          stmt.execute( command );
+         
          int updateCount = stmt.getUpdateCount();
-         System.out.println(""+updateCount+" records inserted into "+tableName);
+         System.out.println(updateCount+" records inserted into "+tableName);
          int nLines = FileUtil.getNumLines(tempFileHandle);
          if (nLines!=updateCount && !processingClinicalData()) {
-             System.err.println("Error: but there are "+nLines+" lines in the temp file "+tempFileName);
+             System.err.println("Error: only "+updateCount+" of the "+nLines+" records were inserted. ");
+             if (stmt.getWarnings() != null)
+            	 System.err.println(stmt.getWarnings().getMessage());
          } else {
              tempFileHandle.delete();
          }

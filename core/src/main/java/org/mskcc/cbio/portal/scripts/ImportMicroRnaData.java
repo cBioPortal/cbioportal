@@ -48,12 +48,10 @@ import java.io.IOException;
  * Command Line Tool to Import MicroRNA Data.
  */
 public class ImportMicroRnaData {
-    private ProgressMonitor pMonitor;
     private File geneFile;
 
-    public ImportMicroRnaData(File geneFile, ProgressMonitor pMonitor) {
+    public ImportMicroRnaData(File geneFile) {
         this.geneFile = geneFile;
-        this.pMonitor = pMonitor;
     }
 
     public void importData() throws IOException, DaoException {
@@ -64,10 +62,8 @@ public class ImportMicroRnaData {
         line = buf.readLine();
         DaoMicroRna daoMicroRna = new DaoMicroRna();
         while (line != null) {
-            if (pMonitor != null) {
-                pMonitor.incrementCurValue();
-                ConsoleUtil.showProgress(pMonitor);
-            }
+            ProgressMonitor.incrementCurValue();
+            ConsoleUtil.showProgress();
             if (!line.startsWith("#")) {
                 String parts[] = line.split("\t");
                 String id = parts[0];
@@ -86,17 +82,16 @@ public class ImportMicroRnaData {
             System.out.println("command line usage:  importMicroRna.pl <micro_rna.txt>");
             return;
         }
-        ProgressMonitor pMonitor = new ProgressMonitor();
-        pMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
 
         File microRnaFile = new File(args[0]);
         System.out.println("Reading data from:  " + microRnaFile.getAbsolutePath());
         int numLines = FileUtil.getNumLines(microRnaFile);
         System.out.println(" --> total number of lines:  " + numLines);
-        pMonitor.setMaxValue(numLines);
-        ImportMicroRnaData parser = new ImportMicroRnaData(microRnaFile, pMonitor);
+        ProgressMonitor.setMaxValue(numLines);
+        ImportMicroRnaData parser = new ImportMicroRnaData(microRnaFile);
         parser.importData();
-        ConsoleUtil.showWarnings(pMonitor);
+        ConsoleUtil.showWarnings();
         System.err.println("Done.");
     }
 }

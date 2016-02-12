@@ -58,13 +58,12 @@ public class TestImportProfileData {
 
 	int studyId;
 	int geneticProfileId;
-    ProgressMonitor pMonitor = new ProgressMonitor();
 	
 	@Before
 	public void setUp() throws DaoException {
 
 
-		pMonitor.setConsoleMode(false);
+		ProgressMonitor.setConsoleMode(false);
 
         loadGenes();
 	}
@@ -81,7 +80,8 @@ public class TestImportProfileData {
         		};
         
         ImportProfileData.main(args);
-        
+        //This test is to check if the ImportProfileData class indeed adds the study stable Id in front of the 
+        //dataset study id (e.g. studyStableId + "_breast_mutations"):
         String studyStableId = "study_tcga_pub";
 		studyId = DaoCancerStudy.getCancerStudyByStableId(studyStableId).getInternalId();
 		int sampleId = DaoSample.getSampleByCancerStudyAndSampleId(studyId, "TCGA-AA-3664-01").getInternalId();

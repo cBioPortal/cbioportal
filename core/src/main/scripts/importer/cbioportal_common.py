@@ -23,6 +23,7 @@ IMPORT_STUDY_CLASS = "org.mskcc.cbio.portal.scripts.ImportCancerStudy"
 REMOVE_STUDY_CLASS = "org.mskcc.cbio.portal.scripts.RemoveCancerStudy"
 IMPORT_CANCER_TYPE_CLASS = "org.mskcc.cbio.portal.scripts.ImportTypesOfCancers"
 IMPORT_CASE_LIST_CLASS = "org.mskcc.cbio.portal.scripts.ImportPatientList"
+ADD_CASE_LIST_CLASS = "org.mskcc.cbio.portal.scripts.AddCaseList"
 
 class MetaFileTypes(object):
     """how we differentiate between data types."""
@@ -56,7 +57,8 @@ META_FIELD_MAP = {
         'short_name': True,
         'citation': False,
         'pmid': False,
-        'groups': False
+        'groups': False,
+        'add_global_case_list': False
     },
     MetaFileTypes.CLINICAL: {
         'cancer_study_identifier': True,
@@ -181,7 +183,7 @@ IMPORTER_CLASSNAME_BY_META_TYPE = {
     MetaFileTypes.MUTATION: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.METHYLATION: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.FUSION: "org.mskcc.cbio.portal.scripts.ImportProfileData",
-    MetaFileTypes.RPPA: "org.mskcc.cbio.portal.scripts.ImportProteinArrayData",
+    MetaFileTypes.RPPA: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.TIMELINE: "org.mskcc.cbio.portal.scripts.ImportTimelineData",
     MetaFileTypes.CASE_LIST: IMPORT_CASE_LIST_CLASS
     # TODO: enable when documented
@@ -194,7 +196,6 @@ IMPORTER_REQUIRES_METADATA = {
     "org.mskcc.cbio.portal.scripts.ImportCopyNumberSegmentData" : True,
     "org.mskcc.cbio.portal.scripts.ImportGisticData" : False,
     "org.mskcc.cbio.portal.scripts.ImportMutSigData" : False,
-    "org.mskcc.cbio.portal.scripts.ImportProteinArrayData" : False,
     "org.mskcc.cbio.portal.scripts.ImportProfileData" : True,
     "org.mskcc.cbio.portal.scripts.ImportTimelineData" : True
 }
@@ -605,6 +606,7 @@ def run_java(*args):
         java_command = os.path.join(java_home, 'bin', 'java')
     else:
         java_command = 'java'
+    print '\n\n'
     process = Popen([java_command] + list(args), stdout=PIPE, stderr=STDOUT,
                     universal_newlines=True)
     ret = []

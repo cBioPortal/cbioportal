@@ -47,18 +47,15 @@ import java.util.*;
 public class ImportPfamGraphicsData
 {
 	private File pfamFile;
-	private ProgressMonitor pMonitor;
 
 	/**
 	 * Constructor.
 	 *
 	 * @param pfamFile  pfam file containing (uniprot id -> json data) mapping
-	 * @param pMonitor  progress monitor
 	 */
-	public ImportPfamGraphicsData(File pfamFile, ProgressMonitor pMonitor)
+	public ImportPfamGraphicsData(File pfamFile)
 	{
 		this.pfamFile = pfamFile;
-		this.pMonitor = pMonitor;
 	}
 
 	/**
@@ -112,10 +109,9 @@ public class ImportPfamGraphicsData
             return;
 		}
 
-		ProgressMonitor pMonitor = new ProgressMonitor(); // TODO pMonitor is not used at all
 		SpringUtil.initDataSource();
 		File input = new File(args[0]);
-		ImportPfamGraphicsData importer = new ImportPfamGraphicsData(input, pMonitor);
+		ImportPfamGraphicsData importer = new ImportPfamGraphicsData(input);
 
 		try
 		{

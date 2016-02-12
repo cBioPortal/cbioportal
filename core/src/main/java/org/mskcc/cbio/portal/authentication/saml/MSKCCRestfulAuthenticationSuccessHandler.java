@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2016 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -30,26 +30,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.mskcc.cbio.portal.scripts;
+package org.mskcc.cbio.portal.authentication.saml;
 
-import org.mskcc.cbio.portal.dao.DaoSampleList;
-import org.mskcc.cbio.portal.model.SampleList;
-import org.mskcc.cbio.portal.util.ProgressMonitor;
+import java.io.IOException;
 
-import java.util.ArrayList;
+import javax.servlet.http.*;
+import javax.servlet.ServletException;
 
-/**
- * Command Line Tool to Export All Sample Lists to the Console.
- */
-public class GetAllSampleLists {
-
-    public static void main(String[] args) throws Exception {
-        ProgressMonitor.setConsoleMode(true);
-        DaoSampleList daoSampleList = new DaoSampleList();
-        ArrayList <SampleList> sampleListMaster = daoSampleList.getAllSampleLists();
-        for (SampleList sampleList:  sampleListMaster) {
-            System.out.println (sampleList.getSampleListId() + ": "
-                    + sampleList.getStableId() + ": " + sampleList.getName());
-        }
-    }
+import org.springframework.security.web.*; 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+ 
+public class MSKCCRestfulAuthenticationSuccessHandler implements AuthenticationSuccessHandler
+{
+	private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
+	
+	@Override
+	public void onAuthenticationSuccess(HttpServletRequest request, 
+			HttpServletResponse response, Authentication authentication) throws IOException, ServletException
+    {
+		HttpSession session = request.getSession();
+        session.setAttribute("user_id", request.getParameter("user_id"));
+        redirectStrategy.sendRedirect(request, response, "/restful_login.jsp");
+	}
+ 
+	public RedirectStrategy getRedirectStrategy() {
+		return redirectStrategy;
+	}
+ 
+	public void setRedirectStrategy(RedirectStrategy redirectStrategy) {
+		this.redirectStrategy = redirectStrategy;
+	}
 }

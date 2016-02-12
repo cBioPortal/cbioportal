@@ -26,12 +26,10 @@ import static org.junit.Assert.assertEquals;
 @Transactional
 public class TestPanCancerStudySummaryImport {
 
-    private ProgressMonitor pMonitor = new ProgressMonitor();
-
     // This test depends on the data seed_mini_pancancer.sql being loaded first
     @Test
     public void testPanCancerImport() throws Exception {
-        pMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleMode(true);
 
         // have to do add the pan_cancer cancer type first
         addCancerType("pan_cancer", "Pan-Cancer", "other", "Red", "PANCAN", "tissue");

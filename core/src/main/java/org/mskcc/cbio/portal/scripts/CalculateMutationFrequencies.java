@@ -46,8 +46,7 @@ public class CalculateMutationFrequencies {
 
     public static void main(String[] args) throws Exception {
         HashMap <CanonicalGene, HashSet<Integer>> mutationMap = new HashMap<CanonicalGene, HashSet<Integer>>();
-        ProgressMonitor pMonitor = new ProgressMonitor();
-        pMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleMode(true);
 
         if (args.length != 2) {
             System.out.println ("You must specify a stable case set id and stable cancer study id.");
@@ -66,17 +65,20 @@ public class CalculateMutationFrequencies {
             System.out.println ("Patient set id:  " + sampleSetName + " does not exist in database.");
             return;
         }
-        pMonitor.setCurrentMessage("Using sample set:  " + sampleSet.getName());
-        pMonitor.setCurrentMessage("Number of samples:  " + sampleSet.getSampleList().size());
+
+        ProgressMonitor.setCurrentMessage("Using patient set:  " + sampleSet.getName());
+        ProgressMonitor.setCurrentMessage("Number of patients:  " + sampleSet.getSampleList().size());
 
         //  Delete all Existing Mutation Frequency Records
-        pMonitor.setCurrentMessage("Deleting all existing mutation frequency records");
+        ProgressMonitor.setCurrentMessage("Deleting all existing mutation frequency records");
+        DaoMutationFrequency daoMutationFrequency = new DaoMutationFrequency();
+        daoMutationFrequency.deleteAllRecords();
 
         //  Get all mutations
         ArrayList<ExtendedMutation> mutationList = DaoMutation.getAllMutations();
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
 
-        pMonitor.setCurrentMessage("Getting All Mutations...");
+        ProgressMonitor.setCurrentMessage("Getting All Mutations...");
         //  Iterate through all mutation records
         for (ExtendedMutation mutation: mutationList) {
             long entrezGeneId = mutation.getEntrezGeneId();
@@ -108,7 +110,7 @@ public class CalculateMutationFrequencies {
         }
         Collections.sort(geneList, new SingleGeneComparator());
 
-        pMonitor.setCurrentMessage("Here are all genes mutated > 4%:");
+        ProgressMonitor.setCurrentMessage("Here are all genes mutated > 4%:");
         DecimalFormat formatter = new DecimalFormat("#,###,###.###");
 
         for (int i=0; i< geneList.size(); i++) {
@@ -117,6 +119,13 @@ public class CalculateMutationFrequencies {
                 System.out.println (gene.getHugoGeneSymbolAllCaps() + "\t"
                         + formatter.format(gene.getSomaticMutationFrequency()));
             }
+        }
+
+        ProgressMonitor.setCurrentMessage("Storing results to database.");
+        for (int i=0; i<geneList.size(); i++) {
+            CanonicalGene gene = geneList.get(i);
+            daoMutationFrequency.addGene(gene.getEntrezGeneId(), gene.getSomaticMutationFrequency(),
+                    sampleSet.getCancerStudyId());
         }
     }
 }

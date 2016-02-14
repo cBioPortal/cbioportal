@@ -48,8 +48,7 @@ public class ImportCancerStudy {
             return;
         }
 
-        ProgressMonitor pMonitor = new ProgressMonitor();
-        pMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleMode(true);
 
         File file = new File(args[0]);
 		SpringUtil.initDataSource();
@@ -58,7 +57,7 @@ public class ImportCancerStudy {
         System.out.println ("ID:  " + cancerStudy.getInternalId());
         System.out.println ("Name:  " + cancerStudy.getName());
         System.out.println ("Description:  " + cancerStudy.getDescription());
-        ConsoleUtil.showWarnings(pMonitor);
+        ConsoleUtil.showWarnings();
         System.err.println("Done.");
     }
 }

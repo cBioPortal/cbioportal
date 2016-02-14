@@ -54,10 +54,8 @@ public final class ImportPdbUniprotResidueMappingFromMA {
      * 
      *
      * @param mappingFile pdb-uniprot-residue-mapping.txt.
-     * @param pMonitor Progress Monitor.
      */
-    public static void importMutationAssessorData(File mappingFile, double identpThrehold,
-            ProgressMonitor pMonitor) throws DaoException, IOException {
+    public static void importMutationAssessorData(File mappingFile, double identpThrehold) throws DaoException, IOException {
         MySQLbulkLoader.bulkLoadOn();
         FileReader reader = new FileReader(mappingFile);
         BufferedReader buf = new BufferedReader(reader);
@@ -127,8 +125,8 @@ public final class ImportPdbUniprotResidueMappingFromMA {
                         pdbUniprotResidueMappings.clear();
                         while (line !=null && !line.startsWith(">")) {
                             line = buf.readLine();
-                            pMonitor.incrementCurValue();
-                            ConsoleUtil.showProgress(pMonitor);
+                            ProgressMonitor.incrementCurValue();
+                            ConsoleUtil.showProgress();
                         }
                         continue;
                     }
@@ -145,8 +143,8 @@ public final class ImportPdbUniprotResidueMappingFromMA {
             
             line = buf.readLine();
             
-            pMonitor.incrementCurValue();
-            ConsoleUtil.showProgress(pMonitor);
+            ProgressMonitor.incrementCurValue();
+            ConsoleUtil.showProgress();
         }
         
         // last one
@@ -171,8 +169,7 @@ public final class ImportPdbUniprotResidueMappingFromMA {
             return;
         }
         
-        ProgressMonitor pMonitor = new ProgressMonitor();
-        pMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleMode(true);
 
 		SpringUtil.initDataSource();
         
@@ -182,14 +179,14 @@ public final class ImportPdbUniprotResidueMappingFromMA {
             System.out.println("Reading PDB-UniProt residue mapping from:  " + file.getAbsolutePath());
             int numLines = FileUtil.getNumLines(file);
             System.out.println(" --> total number of lines:  " + numLines);
-            pMonitor.setMaxValue(numLines);
-            importMutationAssessorData(file, identpThrehold, pMonitor);
+            ProgressMonitor.setMaxValue(numLines);
+            importMutationAssessorData(file, identpThrehold);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (DaoException e) {
             e.printStackTrace();
         } finally {
-            ConsoleUtil.showWarnings(pMonitor);
+            ConsoleUtil.showWarnings();
             System.err.println("Done.");
         }
     }

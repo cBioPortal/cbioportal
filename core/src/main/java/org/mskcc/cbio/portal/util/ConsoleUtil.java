@@ -50,11 +50,10 @@ public class ConsoleUtil {
      * For future reference, ANSI Codes are here:
      * http://www.dee.ufcg.edu.br/~rrbrandt/tools/ansi.html
      *
-     * @param pMonitor ProgressMonitor Object.
      */
-    public static synchronized void showProgress(ProgressMonitor pMonitor) {
-        if (pMonitor.isConsoleMode()) {
-            int currentValue = pMonitor.getCurValue();
+    public static synchronized void showProgress() {
+        if (ProgressMonitor.isConsoleMode()) {
+            int currentValue = ProgressMonitor.getCurValue();
             if (currentValue % 100 == 0) {
                 System.err.print(".");
             }
@@ -64,7 +63,7 @@ public class ConsoleUtil {
             // TODO: build the solution into ProgressMonitor
             if (currentValue % 1000 == 0) {
                 NumberFormat format = DecimalFormat.getPercentInstance();
-                double percent = pMonitor.getPercentComplete();
+                double percent = ProgressMonitor.getPercentComplete();
                 msg = new String("Percentage Complete:  "
                         + format.format(percent));
                 System.err.println("\n" + msg);
@@ -74,14 +73,14 @@ public class ConsoleUtil {
                         + ", Mem used:  " + getMegabytes(used) + ", Mem free:  "
                         + getMegabytes(rt.freeMemory()));
             }
-            if (currentValue == pMonitor.getMaxValue()) {
+            if (currentValue == ProgressMonitor.getMaxValue()) {
                 System.err.println();
             }
         }
     }
 
-    public static void showWarnings(ProgressMonitor pMonitor) {
-        ArrayList warningList = pMonitor.getWarnings();
+    public static void showWarnings() {
+        ArrayList warningList = ProgressMonitor.getWarnings();
         if (warningList.size() > 0) {
             System.err.println("\nWarnings / Errors:");
             System.err.println("-------------------");

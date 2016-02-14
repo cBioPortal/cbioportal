@@ -44,7 +44,6 @@ import java.io.File;
  */
 
 public class ImportMutSigData {
-    private ProgressMonitor pMonitor;
     private File mutSigFile;
     private File metaDataFile;
 
@@ -55,19 +54,18 @@ public class ImportMutSigData {
             return;
         }
 
-        ProgressMonitor pMonitor = new ProgressMonitor();
-        pMonitor.setConsoleMode(false);
+        ProgressMonitor.setConsoleMode(false);
 		SpringUtil.initDataSource();
 
         File mutSigFile = new File(args[0]);
         System.out.println("Reading data from: " + mutSigFile.getAbsolutePath());
         int numLines = FileUtil.getNumLines(mutSigFile);
         System.out.println(" --> total number of lines:  " + numLines);
-        pMonitor.setMaxValue(numLines);
+        ProgressMonitor.setMaxValue(numLines);
 
         int internalId = MutSigReader.getInternalId(args[1]);
-        MutSigReader.loadMutSig(internalId, mutSigFile, pMonitor);
+        MutSigReader.loadMutSig(internalId, mutSigFile);
 
-        ConsoleUtil.showWarnings(pMonitor);
+        ConsoleUtil.showWarnings();
     }
 }

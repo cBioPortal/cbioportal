@@ -906,7 +906,8 @@ class MutationsExtendedValidator(Validator):
     def checkValidationStatus(self, value):
         if value == '':
             return True
-        if value.lower() not in ('valid', 'unknown', 'na', 'untested'):
+        if value.lower() not in ('untested', 'inconclusive',
+                                 'valid', 'invalid'):
             return False
         return True
     

@@ -521,7 +521,6 @@ class Validator(object):
                 self.portal.alias_entrez_map is None):
             return True
 
-
         # check whether anything is unknown or contradictory to the portal
         # TODO reorder to perform as many checks as sensible with assumptions
         if entrez_id is not None:
@@ -1514,7 +1513,8 @@ def process_metadata_files(directory, portal_instance, logger):
     # get filenames for all meta files in the directory
     filenames = [os.path.join(directory, f) for
                  f in os.listdir(directory) if
-                 re.search(r'(\b|_)meta(\b|_)', f) and
+                 re.search(r'(\b|_)meta(\b|[_0-9])', f,
+                           flags=re.IGNORECASE) and
                  not f.startswith('.') and 
                  not f.endswith('~')]
     

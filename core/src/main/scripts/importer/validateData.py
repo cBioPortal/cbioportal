@@ -304,12 +304,16 @@ class Validator(object):
             for line_number, fields in enumerate(csvreader,
                                                  start=line_number + 1):
                 self.line_number = line_number
-                if fields[0].startswith('#'):
+                if all(x.strip() == '' for x in fields):
+                    self.logger.error(
+                        'Blank line',
+                        extra={'line_number': self.line_number})
+                elif fields[0].startswith('#'):
                     self.logger.error(
                         "Data line starting with '#' skipped",
                         extra={'line_number': self.line_number})
-                    continue
-                self.checkLine(fields)
+                else:
+                    self.checkLine(fields)
 
             # (tuple of) string(s) of the newlines read (for 'rU' mode files)
             self.newlines = data_file.newlines
@@ -366,10 +370,6 @@ class Validator(object):
 
         :param data: The list of values parsed from the line
         """
-
-        if all(x == '' for x in data):
-            self.logger.error("Blank line",
-                              extra={'line_number': self.line_number})
 
         if data[:self.numCols] == self.cols:
             if self.logger.isEnabledFor(logging.ERROR):
@@ -493,6 +493,7 @@ class Validator(object):
             return False
         return True
 
+    # TODO let this function know the column numbers for logging messages
     def checkGeneIdentification(self, gene_symbol=None, entrez_id=None):
         """Check if a symbol-Entrez pair is valid, logging an error if not.
 

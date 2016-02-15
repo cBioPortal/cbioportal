@@ -328,6 +328,7 @@ class CollapsingLogMessageHandler(logging.handlers.MemoryHandler):
     records to another handler.
     """
 
+    # TODO make it collapse messages on emit, instead of keeping it all in RAM
     def flush(self):
 
         """Aggregate LogRecords by message and send them to the target handler.

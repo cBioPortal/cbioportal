@@ -588,6 +588,19 @@ class SegFileValidationTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record_list[1].line_number, 41)
         self.assertEqual(record_list[1].column_number, 4)
 
+    def test_blank_line(self):
+        """Validate a .seg with a blank data line."""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_seg_blank_line.seg',
+                                    validateData.SegValidator,
+                                    extra_meta_fields={'reference_genome_id':
+                                                           'hg19'})
+        self.assertEqual(len(record_list), 1)
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.line_number, 35)
+        self.assertIn('blank', record.getMessage().lower())
+
 
 class StudyCompositionTestCase(LogBufferTestCase):
 

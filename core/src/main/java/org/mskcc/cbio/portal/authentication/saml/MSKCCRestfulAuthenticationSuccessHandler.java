@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2016 Memorial Sloan-Kettering Cancer Center.
  *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
@@ -30,34 +30,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.mskcc.cbio.portal.scripts;
+package org.mskcc.cbio.portal.authentication.saml;
 
-import org.mskcc.cbio.portal.util.*;
-import org.mskcc.cbio.portal.dao.DaoCancerStudy;
+import java.io.IOException;
 
-/**
- * Command Line Tool to Remove a Single Cancer Study.
- */
-public class RemoveCancerStudy {
+import javax.servlet.http.*;
+import javax.servlet.ServletException;
 
-    public static void main(String[] args) throws Exception {
-        if (args.length == 0) {
-            System.out.println("command line usage: RemoveCancerStudy <cancer_study_identifier>");
-            return;
-        }
-        String cancerStudyIdentifier = args[0];
-
-        ProgressMonitor.setConsoleMode(true);
-		SpringUtil.initDataSource();
-        if (DaoCancerStudy.doesCancerStudyExistByStableId(cancerStudyIdentifier)) {
-            System.out.println("Cancer study with identifier " + cancerStudyIdentifier + " found in database, removing...");
-            DaoCancerStudy.deleteCancerStudy(cancerStudyIdentifier);
-        }
-        else {
-            System.out.format("Cancer study with identifier " + cancerStudyIdentifier + " does not exist the the database, not removing...");
-        }
-
-        ConsoleUtil.showWarnings();
-        System.err.println("Done.");
-    }
+import org.springframework.security.web.*; 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+ 
+public class MSKCCRestfulAuthenticationSuccessHandler implements AuthenticationSuccessHandler
+{
+	private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
+	
+	@Override
+	public void onAuthenticationSuccess(HttpServletRequest request, 
+			HttpServletResponse response, Authentication authentication) throws IOException, ServletException
+    {
+		HttpSession session = request.getSession();
+        session.setAttribute("user_id", request.getParameter("user_id"));
+        redirectStrategy.sendRedirect(request, response, "/restful_login.jsp");
+	}
+ 
+	public RedirectStrategy getRedirectStrategy() {
+		return redirectStrategy;
+	}
+ 
+	public void setRedirectStrategy(RedirectStrategy redirectStrategy) {
+		this.redirectStrategy = redirectStrategy;
+	}
 }

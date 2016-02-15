@@ -1206,10 +1206,9 @@ class SegValidator(Validator):
                                                       parsed_coords['chrom']]):
                     self.logger.error(
                         'Genomic position beyond end of chromosome '
-                        '(chr%(chr)s:0-%(end)s)',
-                        {'chr': parsed_coords['chrom'],
-                         'end': self.chromosome_lengths[
-                                    parsed_coords['chrom']]},
+                        '(chr%s:0-%s)',
+                        parsed_coords['chrom'],
+                        self.chromosome_lengths[parsed_coords['chrom']],
                         extra={'line_number': self.line_number,
                                'column_number': col_index + 1,
                                'cause': value})

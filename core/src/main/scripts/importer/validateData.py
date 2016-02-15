@@ -591,13 +591,13 @@ class Validator(object):
                 if len(other_entrez_ids_in_aliases) >= 1:
                     # Give warning, as the symbol has been used before to refer to different entrez_ids over time:
                     self.logger.warning(
-                        'Gene symbol maps to a single Entrez id (%s), '
-                        'but this symbol is also associated to other genes '
-                        'as an alias. The system will assume '
-                        'the mapped Entrez id to be the intended one.',
-                    found_entrez_id,
-                    extra={'line_number': self.line_number,
-                           'cause': gene_symbol})
+                        'This Hugo gene symbol maps to a single Entrez gene '
+                        'ID, but is also associated to other genes as an '
+                        'alias. The system will assume the official Hugo '
+                        'symbol to be the intended one.',
+                        found_entrez_id,
+                        extra={'line_number': self.line_number,
+                               'cause': gene_symbol})
 
         return True
 

@@ -527,7 +527,7 @@ class Validator(object):
         if entrez_id is not None:
             if entrez_id not in self.portal.entrez_set:
                 self.logger.error(
-                    'Entrez gene id not known to the cBioPortal instance.',
+                    'Entrez gene id not known to the cBioPortal instance',
                     extra={'line_number': self.line_number,
                            'cause': entrez_id})
                 return False
@@ -535,16 +535,18 @@ class Validator(object):
             elif gene_symbol is not None:
                 if (gene_symbol not in self.portal.hugo_entrez_map and
                         gene_symbol not in self.portal.alias_entrez_map):
-                    self.logger.error(
-                        'Corresponding gene symbol not known to the cBioPortal instance',
+                    self.logger.warning(
+                        'Entrez ID exists, but the gene symbol specified is '
+                        'not known to the cBioPortal instance',
                         extra={'line_number': self.line_number,
                                'cause': gene_symbol})
                     return False
                 elif entrez_id not in itertools.chain(
                         self.portal.hugo_entrez_map.get(gene_symbol, []),
                         self.portal.alias_entrez_map.get(gene_symbol, [])):
-                    self.logger.error(
-                        'Hugo symbol and Entrez identifier do not match',
+                    self.logger.warning(
+                        'Gene symbol and Entrez identifier do not match, the '
+                        'symbol will be ignored',
                         extra={'line_number': self.line_number,
                                'cause': '(' + gene_symbol + ',' + entrez_id + ')'})
                     return False
@@ -552,7 +554,7 @@ class Validator(object):
             if (gene_symbol not in self.portal.hugo_entrez_map and
                     gene_symbol not in self.portal.alias_entrez_map):
                 self.logger.error(
-                    'Gene symbol not known to the cBioPortal instance.',
+                    'Gene symbol not known to the cBioPortal instance',
                     extra={'line_number': self.line_number,
                            'cause': gene_symbol})
                 return False
@@ -575,11 +577,11 @@ class Validator(object):
                 # and we need to check the aliases_entrez_map.
                 # TODO - maybe this should be warning instead? Depends on how loader deals with this
                 self.logger.error(
-                    'Gene alias (%s) maps to multiple Entrez ids (%s), '
+                    'Gene alias maps to multiple Entrez ids (%s), '
                     'please specify which one you mean',
-                    gene_symbol,
                     '/'.join(self.portal.alias_entrez_map[gene_symbol]),
-                    extra={'line_number': self.line_number})
+                    extra={'line_number': self.line_number,
+                           'cause': gene_symbol})
                 return False
             elif num_entrezs_for_hugo == 1:
                 found_entrez_id = self.portal.hugo_entrez_map[gene_symbol][0]

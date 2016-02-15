@@ -392,13 +392,13 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
 
     def test_both_name_and_entrez_but_invalid_hugo(self):
         """Test when a file has both the Hugo name and Entrez ID columns, but hugo is invalid."""
-        self.logger.setLevel(logging.ERROR)
+        self.logger.setLevel(logging.WARNING)
         record_list = self.validate('data_cna_genecol_presence_both_invalid_hugo.txt',
                                     validateData.CNAValidator)
         # expecting two error messages:
         self.assertEqual(len(record_list), 2)
         for record in record_list:
-            self.assertEqual(record.levelno, logging.ERROR)
+            self.assertEqual(record.levelno, logging.WARNING)
         # expecting these to be the cause:
         self.assertEqual(record_list[0].cause, 'XXACAP3')
         self.assertEqual(record_list[1].cause, 'XXAGRN')
@@ -418,13 +418,13 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
 
     def test_both_name_and_entrez_but_invalid_couple(self):
         """Test when a file has both the Hugo name and Entrez ID columns, both valid, but association is invalid."""
-        self.logger.setLevel(logging.ERROR)
+        self.logger.setLevel(logging.WARNING)
         record_list = self.validate('data_cna_genecol_presence_both_invalid_couple.txt',
                                     validateData.CNAValidator)
         # expecting two error messages:
         self.assertEqual(len(record_list), 2)
         for record in record_list:
-            self.assertEqual(record.levelno, logging.ERROR)
+            self.assertEqual(record.levelno, logging.WARNING)
         # expecting these to be the cause:
         self.assertIn('ACAP3', record_list[0].cause)
         self.assertIn('116983', record_list[1].cause)
@@ -454,7 +454,7 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         record = record_list.pop()
         self.assertEqual(record.levelno, logging.ERROR)
         # expecting this gene to be the cause
-        self.assertIn('TRAPPC2P1', record.message)
+        self.assertEquals(record.cause, 'TRAPPC2P1')
 
     def test_entrez_only_but_invalid(self):
         """Test when a file has an Entrez ID column but none for Hugo names, and entrez is wrong."""

@@ -183,6 +183,12 @@ class PortalInstance(object):
         self.clinical_attribute_dict = clinical_attribute_dict
         self.hugo_entrez_map = hugo_entrez_map
         self.alias_entrez_map = alias_entrez_map
+        self.entrez_set = set()
+        for entrez_map in (hugo_entrez_map, alias_entrez_map):
+            if entrez_map is not None:
+                for entrez_list in entrez_map.values():
+                    for entrez_id in entrez_list:
+                        self.entrez_set.add(entrez_id)
 
 
 class Validator(object):
@@ -204,7 +210,6 @@ class Validator(object):
     REQUIRED_HEADERS = []
     REQUIRE_COLUMN_ORDER = True
     ALLOW_BLANKS = False
-
 
     def __init__(self, study_dir, meta_dict, portal_instance, logger):
         """Initialize a validator for a particular data file.
@@ -516,34 +521,32 @@ class Validator(object):
                 self.portal.alias_entrez_map is None):
             return True
 
+
         # check whether anything is unknown or contradictory to the portal
+        # TODO reorder to perform as many checks as sensible with assumptions
         if entrez_id is not None:
-            if gene_symbol is not None:
+            if entrez_id not in self.portal.entrez_set:
+                self.logger.error(
+                    'Entrez gene id not known to the cBioPortal instance.',
+                    extra={'line_number': self.line_number,
+                           'cause': entrez_id})
+                return False
+            # if the gene symbol is specified too
+            elif gene_symbol is not None:
                 if (gene_symbol not in self.portal.hugo_entrez_map and
                         gene_symbol not in self.portal.alias_entrez_map):
                     self.logger.error(
-                        'Gene symbol not known to the cBioPortal instance',
+                        'Corresponding gene symbol not known to the cBioPortal instance',
                         extra={'line_number': self.line_number,
                                'cause': gene_symbol})
                     return False
-                elif entrez_id not in (
-                        self.portal.hugo_entrez_map.get(gene_symbol, []) +
+                elif entrez_id not in itertools.chain(
+                        self.portal.hugo_entrez_map.get(gene_symbol, []),
                         self.portal.alias_entrez_map.get(gene_symbol, [])):
                     self.logger.error(
                         'Hugo symbol and Entrez identifier do not match',
                         extra={'line_number': self.line_number,
                                'cause': '(' + gene_symbol + ',' + entrez_id + ')'})
-                    return False
-            else:
-                # TODO build a set once for speed, and check this before even looking at hugo
-                if (entrez_id not in itertools.chain(
-                            *self.portal.hugo_entrez_map.values()) and
-                    entrez_id not in itertools.chain(
-                            *self.portal.alias_entrez_map.values())):
-                    self.logger.error(
-                        'Entrez gene id not known to the cBioPortal instance.',
-                        extra={'line_number': self.line_number,
-                               'cause': entrez_id})
                     return False
         elif gene_symbol is not None:
             if (gene_symbol not in self.portal.hugo_entrez_map and

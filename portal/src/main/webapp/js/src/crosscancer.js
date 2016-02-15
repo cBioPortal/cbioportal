@@ -724,9 +724,6 @@
                                 ;
                                 histData = filterAndSortData(histDataOrg, sliderValue, metaData, totalSamSliderValue);
                               
-                                if(totalSamSliderValue !== undefined && totalSamSliderValue !== null){
-                                    $("#currentTotalSample").text(totalSamSliderValue);
-                                }
                                 
 				studyWidth = Math.min(((width - (paddingLeft + paddingRight)) / histData.length) * .75, maxStudyBarWidth);
 				studyLocIncrements = studyWidth / .75;
@@ -1029,7 +1026,7 @@
                                     $("#sliderLabel").text("Min alteration ");
                                     $("#maxLabel").text(Math.ceil(100*maxYAxis)+"%");
                                     $("#sliderMinY").slider( "option", "max", Math.ceil(100*maxYAxis) );
-                                    $("#currentValue").text("0%");
+                                     
                                }else if($("#yAxis").val() === "Count"){
                                    for(var i = 0;i < histDataOrg.length;i++){
                                         if(histDataOrg[i].alterations["all"] > maxYAxis){
@@ -1037,10 +1034,10 @@
                                         }
                                     }
 
-                                    $("#sliderLabel").text("Min altered sample #");
+                                    $("#sliderLabel").text("Min altered samples #");
                                     $("#maxLabel").text(maxYAxis);
                                     $("#sliderMinY").slider( "option", "max", maxYAxis );
-                                    $("#currentValue").text("0");
+                                     
                                }
                                 
                                 redrawHistogram();
@@ -1052,7 +1049,7 @@
                             
                             $("#sliderMinY").on("slidechange", function(e, ui){
                                 var tempStr = ui.value + ($("#yAxis").val() === "Frequency" ? "%" : "");
-                                $("#currentValue").text(tempStr);
+                                 
                                 redrawHistogram();
                                 
                             });

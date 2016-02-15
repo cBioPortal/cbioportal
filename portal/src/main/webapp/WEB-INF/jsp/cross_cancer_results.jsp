@@ -230,7 +230,7 @@
                      </td>
                     <td width="15%" valign="top"> 
                         <span class="diagram-general-slider-text" id="sliderLabel">Min alteration </span>
-                        <span class="diagram-general-slider-value" id="currentValue">0%</span>
+                        
                     </td>
                     <td width="15%" valign="top">  
                         <div style="width:100%">
@@ -261,8 +261,8 @@
                                             </select>
                      </td>
                        <td width="15%" valign="top"> 
-                        <span class="diagram-general-slider-text" >Min total sample # </span>
-                        <span class="diagram-general-slider-value" id="currentTotalSample">0</span>
+                        <span class="diagram-general-slider-text" >Min total samples # </span>
+                       
                     </td>
                     <td width="15%" valign="top">  
                         <div style="width:100%">

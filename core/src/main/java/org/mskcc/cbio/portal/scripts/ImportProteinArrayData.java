@@ -48,17 +48,15 @@ import java.util.regex.*;
  * @author jj
  */
 public class ImportProteinArrayData {
-    private ProgressMonitor pMonitor;
     private int cancerStudyId;
     private String cancerStudyStableId;
     private File arrayData;
     
     public ImportProteinArrayData(File arrayData, int cancerStudyId, 
-            String cancerStudyStableId, ProgressMonitor pMonitor) {
+            String cancerStudyStableId) {
         this.arrayData = arrayData;
         this.cancerStudyId = cancerStudyId;
         this.cancerStudyStableId = cancerStudyStableId;
-        this.pMonitor = pMonitor;
     }
     
     /**
@@ -87,10 +85,8 @@ public class ImportProteinArrayData {
         
         ArrayList<Integer> internalSampleIds = new ArrayList<Integer>();
         while ((line=buf.readLine()) != null) {
-            if (pMonitor != null) {
-                pMonitor.incrementCurValue();
-                ConsoleUtil.showProgress(pMonitor);
-            }
+            ProgressMonitor.incrementCurValue();
+            ConsoleUtil.showProgress();
             
             String[] strs = line.split("\t");
             String arrayInfo = strs[0];
@@ -183,7 +179,7 @@ public class ImportProteinArrayData {
                             StringUtils.join(genes, "/"), residue, null);
             daoPAI.addProteinArrayInfo(pai);
             for (String symbol : genes) {
-                CanonicalGene gene = daoGene.getNonAmbiguousGene(symbol);
+                CanonicalGene gene = daoGene.getNonAmbiguousGene(symbol, null);
                 if (gene==null) {
                     System.err.println(symbol+" not exist");
                     continue;
@@ -275,17 +271,16 @@ public class ImportProteinArrayData {
 		SpringUtil.initDataSource();
         int cancerStudyId = DaoCancerStudy.getCancerStudyByStableId(args[1]).getInternalId();
         
-        ProgressMonitor pMonitor = new ProgressMonitor();
-        pMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
 
         File file = new File(args[0]);
         System.out.println("Reading data from:  " + file.getAbsolutePath());
         int numLines = FileUtil.getNumLines(file);
         System.out.println(" --> total number of lines:  " + numLines);
-        pMonitor.setMaxValue(numLines);
-        ImportProteinArrayData parser = new ImportProteinArrayData(file, cancerStudyId, args[1], pMonitor);
+        ProgressMonitor.setMaxValue(numLines);
+        ImportProteinArrayData parser = new ImportProteinArrayData(file, cancerStudyId, args[1]);
         parser.importData();
-        ConsoleUtil.showWarnings(pMonitor);
+        ConsoleUtil.showWarnings();
         System.err.println("Done.");
     }
     

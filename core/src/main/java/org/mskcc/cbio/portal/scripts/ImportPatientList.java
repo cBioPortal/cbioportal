@@ -44,8 +44,8 @@ import java.util.*;
  */
 public class ImportPatientList {
 
-   public static void importPatientList(File dataFile, ProgressMonitor pMonitor) throws Exception {
-      pMonitor.setCurrentMessage("Read data from:  " + dataFile.getAbsolutePath());
+   public static void importPatientList(File dataFile) throws Exception {
+      ProgressMonitor.setCurrentMessage("Read data from:  " + dataFile.getAbsolutePath());
       Properties properties = new Properties();
       properties.load(new FileInputStream(dataFile));
 
@@ -109,7 +109,7 @@ public class ImportPatientList {
          } else if (!sampleIDsList.contains(s.getStableId())) {
             sampleIDsList.add(s.getStableId());
          } else {
-             System.err.println("Warning: duplicated sample ID "+s.getStableId()+" in case list "+stableId);
+             ProgressMonitor.logWarning("Warning: duplicated sample ID "+s.getStableId()+" in case list "+stableId);
          }
       }
 
@@ -131,9 +131,9 @@ public class ImportPatientList {
 
       patientList = daoPatientList.getPatientListByStableId(stableId);
 
-      pMonitor.setCurrentMessage(" --> stable ID:  " + patientList.getStableId());
-      pMonitor.setCurrentMessage(" --> patient list name:  " + patientList.getName());
-      pMonitor.setCurrentMessage(" --> number of patients:  " + sampleIDsList.size());
+      ProgressMonitor.setCurrentMessage(" --> stable ID:  " + patientList.getStableId());
+      ProgressMonitor.setCurrentMessage(" --> patient list name:  " + patientList.getName());
+      ProgressMonitor.setCurrentMessage(" --> number of patients:  " + sampleIDsList.size());
    }
 
    public static void main(String[] args) throws Exception {
@@ -143,22 +143,22 @@ public class ImportPatientList {
          System.out.println("command line usage:  importCaseListData.pl " + "<data_file.txt or directory>");
             return;
       }
-      ProgressMonitor pMonitor = new ProgressMonitor();
-      pMonitor.setConsoleMode(true);
+      ProgressMonitor.setConsoleModeAndParseShowProgress(args);
       File dataFile = new File(args[0]);
       if (dataFile.isDirectory()) {
          File files[] = dataFile.listFiles();
          for (File file : files) {
             if (file.getName().endsWith("txt")) {
-               ImportPatientList.importPatientList(file, pMonitor);
+               ImportPatientList.importPatientList(file);
             }
          }
          if (files.length == 0) {
-             pMonitor.setCurrentMessage("No patient lists found in directory, skipping import: " + dataFile.getCanonicalPath());
+             ProgressMonitor.setCurrentMessage("No patient lists found in directory, skipping import: " + dataFile.getCanonicalPath());
          }
       } else {
-         ImportPatientList.importPatientList(dataFile, pMonitor);
+         ImportPatientList.importPatientList(dataFile);
       }
-      ConsoleUtil.showWarnings(pMonitor);
+      ConsoleUtil.showWarnings();
+      System.err.println("Done.");
    }
 }

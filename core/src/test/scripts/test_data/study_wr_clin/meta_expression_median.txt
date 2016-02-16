@@ -5,4 +5,4 @@ stable_id: mrna
 profile_description: Expression levels (Agilent microarray).
 show_profile_in_analysis_tab: false
 profile_name: mRNA expression (microarray)
-data_file_path: data_expression_median.txt
+data_filename: data_expression_median.txt

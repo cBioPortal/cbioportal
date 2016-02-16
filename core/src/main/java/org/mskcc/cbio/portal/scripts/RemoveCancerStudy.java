@@ -47,9 +47,9 @@ public class RemoveCancerStudy {
         }
         String cancerStudyIdentifier = args[0];
 
-        ProgressMonitor pMonitor = new ProgressMonitor();
-        pMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
 		SpringUtil.initDataSource();
+		System.out.println("Checking if Cancer study with identifier " + cancerStudyIdentifier + " already exists before removing...");
         if (DaoCancerStudy.doesCancerStudyExistByStableId(cancerStudyIdentifier)) {
             System.out.println("Cancer study with identifier " + cancerStudyIdentifier + " found in database, removing...");
             DaoCancerStudy.deleteCancerStudy(cancerStudyIdentifier);
@@ -58,7 +58,7 @@ public class RemoveCancerStudy {
             System.out.format("Cancer study with identifier " + cancerStudyIdentifier + " does not exist the the database, not removing...");
         }
 
-        ConsoleUtil.showWarnings(pMonitor);
+        ConsoleUtil.showWarnings();
         System.err.println("Done.");
     }
 }

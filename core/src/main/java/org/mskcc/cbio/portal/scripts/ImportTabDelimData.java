@@ -43,10 +43,10 @@ import java.io.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.commons.lang.StringUtils;
+
 
 /**
- * Code to Import Copy Number Alteration or MRNA Expression Data.
+ * Code to Import Copy Number Alteration, MRNA Expression Data, or protein RPPA data
  *
  * @author Ethan Cerami
  */
@@ -65,52 +65,43 @@ public class ImportTabDelimData {
      */
     public static final String CONSENSUS_TARGET = "consensus";
 
-    private ProgressMonitor pMonitor;
     private File mutationFile;
     private String targetLine;
     private int geneticProfileId;
     private GeneticProfile geneticProfile;
-    private HashSet<String> microRnaIdSet;
 
     /**
      * Constructor.
      *
-     * @param dataFile         Data File containing CNA data.
+     * @param dataFile         Data File containing Copy Number Alteration, MRNA Expression Data, or protein RPPA data
      * @param targetLine       The line we want to import.
      *                         If null, all lines are imported.
      * @param geneticProfileId GeneticProfile ID.
-     * @param pMonitor         Progress Monitor Object.
      */
-    public ImportTabDelimData(File dataFile, String targetLine, int geneticProfileId,
-            ProgressMonitor pMonitor) {
+    public ImportTabDelimData(File dataFile, String targetLine, int geneticProfileId) {
         this.mutationFile = dataFile;
         this.targetLine = targetLine;
         this.geneticProfileId = geneticProfileId;
-        this.pMonitor = pMonitor;
     }
 
     /**
      * Constructor.
      *
-     * @param dataFile         Data File containing CNA data.
+     * @param dataFile         Data File containing Copy Number Alteration, MRNA Expression Data, or protein RPPA data
      * @param geneticProfileId GeneticProfile ID.
-     * @param pMonitor         Progress Monitor Object.
      */
-    public ImportTabDelimData(File dataFile, int geneticProfileId, ProgressMonitor pMonitor) {
+    public ImportTabDelimData(File dataFile, int geneticProfileId) {
         this.mutationFile = dataFile;
         this.geneticProfileId = geneticProfileId;
-        this.pMonitor = pMonitor;
     }
 
     /**
-     * Import the CNA Data.
+     * Import the Copy Number Alteration, MRNA Expression Data, or protein RPPA data
      *
      * @throws IOException  IO Error.
      * @throws DaoException Database Error.
      */
     public void importData() throws IOException, DaoException {
-        DaoMicroRna daoMicroRna = new DaoMicroRna();
-        microRnaIdSet = daoMicroRna.getEntireSet();
 
         geneticProfile = DaoGeneticProfile.getGeneticProfileById(geneticProfileId);
 
@@ -134,7 +125,7 @@ public class ImportTabDelimData {
         }
         ImportDataUtil.addPatients(sampleIds, geneticProfileId);
         ImportDataUtil.addSamples(sampleIds, geneticProfileId);
-        pMonitor.setCurrentMessage("Import tab delimited data for " + sampleIds.length + " samples.");
+        ProgressMonitor.setCurrentMessage("Import tab delimited data for " + sampleIds.length + " samples.");
 
         // Add Samples to the Database
         ArrayList <Integer> orderedSampleList = new ArrayList<Integer>();
@@ -183,10 +174,8 @@ public class ImportTabDelimData {
         int lenParts = parts.length;
         
         while (line != null) {
-            if (pMonitor != null) {
-                pMonitor.incrementCurValue();
-                ConsoleUtil.showProgress(pMonitor);
-            }
+            ProgressMonitor.incrementCurValue();
+            ConsoleUtil.showProgress();
             
             //  Ignore lines starting with #
             if (!line.startsWith("#") && line.trim().length() > 0) {
@@ -259,13 +248,13 @@ public class ImportTabDelimData {
 //                                        storeMicroRnaAlterations(values, daoMicroRnaAlteration, geneId);
 //                                        numRecordsStored++;
 //                                    } else {
-                                        pMonitor.logWarning("microRNA is not known to me:  [" + hugo
+                                        ProgressMonitor.logWarning("microRNA is not known to me:  [" + hugo
                                             + "]. Ignoring it "
                                             + "and all tab-delimited data associated with it!");
 //                                    }
                                 } else {
                                     String gene = (hugo != null) ? hugo : entrez;
-                                    pMonitor.logWarning("Gene not found:  [" + gene
+                                    ProgressMonitor.logWarning("Gene not found:  [" + gene
                                         + "]. Ignoring it "
                                         + "and all tab-delimited data associated with it!");
                                 }
@@ -320,11 +309,12 @@ public class ImportTabDelimData {
         if (MySQLbulkLoader.isBulkLoad()) {
            MySQLbulkLoader.flushAll();
         }
-        
+        buf.close(); //TODO do in finally
         if (numRecordsStored == 0) {
             throw new DaoException ("Something has gone wrong!  I did not save any records" +
                     " to the database!");
         }
+        
     }
 
     private void storeGeneticAlterations(String[] values, DaoGeneticAlteration daoGeneticAlteration,
@@ -347,7 +337,7 @@ public class ImportTabDelimData {
         
         List<CanonicalGene> genes = new ArrayList<CanonicalGene>();
         for (String symbol : symbols) {
-            CanonicalGene gene = daoGene.getNonAmbiguousGene(symbol);
+            CanonicalGene gene = daoGene.getNonAmbiguousGene(symbol, null);
             if (gene!=null) {
                 genes.add(gene);
             }
@@ -355,12 +345,12 @@ public class ImportTabDelimData {
         
         Pattern p = Pattern.compile("(p[STY][0-9]+)");
         Matcher m = p.matcher(arrayId);
-        String type, residue;
+        String residue;
         if (!m.find()) {
-            type = "protein_level";
+            //type is "protein_level":
             return genes;
         } else {
-            type = "phosphorylation";
+            //type is "phosphorylation":
             residue = m.group(1);
             return importPhosphoGene(genes, residue);
         }

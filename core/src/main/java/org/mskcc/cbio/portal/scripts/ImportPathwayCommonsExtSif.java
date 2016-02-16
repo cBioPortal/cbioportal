@@ -44,18 +44,15 @@ import java.io.*;
  * @author Ethan Cerami.
  */
 public class ImportPathwayCommonsExtSif {
-    private ProgressMonitor pMonitor;
     private File sifFile;
 
     /**
      * Constructor.
      *
      * @param sifFile SIF File.
-     * @param pMonitor Progress Monitor.
      */
-    public ImportPathwayCommonsExtSif(File sifFile, ProgressMonitor pMonitor) {
+    public ImportPathwayCommonsExtSif(File sifFile) {
         this.sifFile = sifFile;
-        this.pMonitor = pMonitor;
     }
 
     /**
@@ -74,10 +71,8 @@ public class ImportPathwayCommonsExtSif {
         BufferedReader buf = new BufferedReader(reader);
         String line = buf.readLine(); // skip the first line
         while ((line = buf.readLine()) != null) {
-            if (pMonitor != null) {
-                pMonitor.incrementCurValue();
-                ConsoleUtil.showProgress(pMonitor);
-            }
+            ProgressMonitor.incrementCurValue();
+            ConsoleUtil.showProgress();
             
             String parts[] = line.split("\t");
             
@@ -87,10 +82,10 @@ public class ImportPathwayCommonsExtSif {
 
             String geneAId = parts[0];
 
-            CanonicalGene geneA = daoGene.getNonAmbiguousGene(geneAId);
+            CanonicalGene geneA = daoGene.getNonAmbiguousGene(geneAId, null);
             if (geneA != null) {
                 String geneBId = parts[2];
-                CanonicalGene geneB = daoGene.getNonAmbiguousGene(geneBId);
+                CanonicalGene geneB = daoGene.getNonAmbiguousGene(geneBId, null);
 
                 if (geneB != null) {
                     String interactionType = parts[1];
@@ -114,8 +109,8 @@ public class ImportPathwayCommonsExtSif {
         if (MySQLbulkLoader.isBulkLoad()) {
            MySQLbulkLoader.flushAll();
         }
-        pMonitor.setCurrentMessage("Total number of interactions saved:  " + numInteractionsSaved);
-        pMonitor.setCurrentMessage("Total number of interactions not saved, due to " +
+        ProgressMonitor.setCurrentMessage("Total number of interactions saved:  " + numInteractionsSaved);
+        ProgressMonitor.setCurrentMessage("Total number of interactions not saved, due to " +
                 "invalid gene IDs:  " + numInteractionsNotSaved);
     }
 
@@ -128,8 +123,7 @@ public class ImportPathwayCommonsExtSif {
             System.out.println("command line usage:  importHprd.pl <sif.txt>");
             return;
         }
-        ProgressMonitor pMonitor = new ProgressMonitor();
-        pMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
 		SpringUtil.initDataSource();
 
         try {
@@ -137,15 +131,15 @@ public class ImportPathwayCommonsExtSif {
             System.out.println("Reading interactions from:  " + sifFile.getAbsolutePath());
             int numLines = FileUtil.getNumLines(sifFile);
             System.out.println(" --> total number of lines:  " + numLines);
-            pMonitor.setMaxValue(numLines);
-            ImportPathwayCommonsExtSif parser = new ImportPathwayCommonsExtSif(sifFile, pMonitor);
+            ProgressMonitor.setMaxValue(numLines);
+            ImportPathwayCommonsExtSif parser = new ImportPathwayCommonsExtSif(sifFile);
             parser.importData();
         } catch (IOException e) {
             e.printStackTrace();
         } catch (DaoException e) {
             e.printStackTrace();
         } finally {
-            ConsoleUtil.showWarnings(pMonitor);
+            ConsoleUtil.showWarnings();
             System.err.println("Done.");
         }
     }

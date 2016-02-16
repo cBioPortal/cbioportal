@@ -1,0 +1,2 @@
+>brca_tcga_pub.maf | Normal sample id not in list of sample ids configured in corresponding metafile. Please check your metafile field 'normal_samples_list'.
+7,8,9,10,11,12,13,14,15

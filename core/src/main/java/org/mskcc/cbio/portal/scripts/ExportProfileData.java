@@ -62,6 +62,7 @@ public class ExportProfileData {
             return;
         } else {
             System.out.println(geneticProfile.getProfileName());
+            ProgressMonitor.setConsoleModeAndParseShowProgress(args);
             export(geneticProfile);
         }
     }
@@ -72,21 +73,19 @@ public class ExportProfileData {
         ArrayList<Integer> sampleList = outputHeader(profile, writer);
 
         DaoGeneticAlteration daoGeneticAlteration = DaoGeneticAlteration.getInstance();
-        ProgressMonitor pMonitor = new ProgressMonitor();
-        pMonitor.setConsoleMode(true);
         Set<CanonicalGene> geneSet = daoGeneticAlteration.getGenesInProfile(profile.getGeneticProfileId());
-        pMonitor.setMaxValue(geneSet.size());
+        ProgressMonitor.setMaxValue(geneSet.size());
         Iterator<CanonicalGene> geneIterator = geneSet.iterator();
-        outputProfileData(profile, writer, sampleList, daoGeneticAlteration, pMonitor, geneIterator);
+        outputProfileData(profile, writer, sampleList, daoGeneticAlteration, geneIterator);
         System.out.println ("\nProfile data written to:  " + fileName);
     }
 
     private static void outputProfileData(GeneticProfile profile, FileWriter writer,
             ArrayList<Integer> sampleList, DaoGeneticAlteration daoGeneticAlteration,
-            ProgressMonitor pMonitor, Iterator<CanonicalGene> geneIterator) throws IOException, DaoException {
+            Iterator<CanonicalGene> geneIterator) throws IOException, DaoException {
         while (geneIterator.hasNext()) {
-            ConsoleUtil.showProgress(pMonitor);
-            pMonitor.incrementCurValue();
+            ConsoleUtil.showProgress();
+            ProgressMonitor.incrementCurValue();
             CanonicalGene currentGene = geneIterator.next();
             writer.write(currentGene.getHugoGeneSymbolAllCaps() + TAB);
             writer.write(Long.toString(currentGene.getEntrezGeneId()));

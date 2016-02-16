@@ -51,28 +51,31 @@ public class ImportTypesOfCancers {
             return;
         }
 
-        ProgressMonitor pMonitor = new ProgressMonitor();
-        pMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
 
         File file = new File(args[0]);
 	// default to clobber = true (existing behavior)
 	boolean clobber = (args.length == 2 && (args[1].equalsIgnoreCase("f") || args[1].equalsIgnoreCase("false"))) ? false : true;	
-        load(pMonitor, file, clobber);
+        load(file, clobber);
     }
 
-    public static void load(ProgressMonitor pMonitor, File file) throws IOException, DaoException {
+    public static void load(File file) throws IOException, DaoException {
 		SpringUtil.initDataSource();
-        ImportTypesOfCancers.load(pMonitor, file, true);
+        ImportTypesOfCancers.load(file, true);
     }
 
-    public static void load(ProgressMonitor pMonitor, File file, boolean clobber) throws IOException, DaoException {
+    public static void load(File file, boolean clobber) throws IOException, DaoException {
         if (clobber) DaoTypeOfCancer.deleteAllRecords();
         TypeOfCancer aTypeOfCancer = new TypeOfCancer();
         Scanner scanner = new Scanner(file);
 
         while(scanner.hasNextLine()) {
             String[] tokens = scanner.nextLine().split("\t", -1);
-            assert tokens.length == 5;
+            if (tokens.length != 5) {
+                throw new IOException(
+                    "Cancer type file '" + file.getPath() +
+                    "' is not a five-column tab-delimited file");
+            }
 
             String typeOfCancerId = tokens[0].trim();
             aTypeOfCancer.setTypeOfCancerId(typeOfCancerId.toLowerCase());
@@ -83,8 +86,8 @@ public class ImportTypesOfCancers {
             aTypeOfCancer.setParentTypeOfCancerId(tokens[4].trim().toLowerCase());
             DaoTypeOfCancer.addTypeOfCancer(aTypeOfCancer);
         }
-        pMonitor.setCurrentMessage("Loaded " + DaoTypeOfCancer.getCount() + " TypesOfCancers.");
-        ConsoleUtil.showWarnings(pMonitor);
+        ProgressMonitor.setCurrentMessage("Loaded " + DaoTypeOfCancer.getCount() + " TypesOfCancers.");
+        ConsoleUtil.showWarnings();
     }
 
 }

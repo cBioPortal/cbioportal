@@ -73,11 +73,13 @@ public class ImportProfileData{
        /*
         * usage:
         * --data <data_file.txt> --meta <meta_file.txt> --loadMode [directLoad|bulkLoad (default)] "
+        * 
+        * nb: an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
         */
 
        // using a real options parser, helps avoid bugs
        parser = new OptionParser();
-       parser.accepts("noprogress");
+       parser.accepts("noprogress", "this option can be given to avoid the messages regarding memory usage and % complete");
        OptionSpec<Void> help = parser.accepts( "help", "print this help info" );
        OptionSpec<String> data = parser.accepts( "data",
                "profile data file" ).withRequiredArg().describedAs( "data_file.txt" ).ofType( String.class );

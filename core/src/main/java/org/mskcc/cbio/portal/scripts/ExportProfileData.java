@@ -52,6 +52,7 @@ public class ExportProfileData {
         // check args
         if (args.length < 1) {
             System.out.println("command line usage:  exportProfileData.pl " + "<stable_genetic_profile_id>");
+            // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
             return;
         }
         String stableGeneticProfileId = args[0];

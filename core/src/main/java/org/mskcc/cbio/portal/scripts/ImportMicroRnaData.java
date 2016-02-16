@@ -82,7 +82,7 @@ public class ImportMicroRnaData {
             System.out.println("command line usage:  importMicroRna.pl <micro_rna.txt>");
             return;
         }
-        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
+        ProgressMonitor.setConsoleMode(true);
 
         File microRnaFile = new File(args[0]);
         System.out.println("Reading data from:  " + microRnaFile.getAbsolutePath());

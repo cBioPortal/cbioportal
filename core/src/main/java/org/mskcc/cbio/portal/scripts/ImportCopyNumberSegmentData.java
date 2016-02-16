@@ -99,6 +99,7 @@ public class ImportCopyNumberSegmentData {
     {
         if (args.length < 4) {
             System.out.println("command line usage:  importCopyNumberSegmentData --data <copy_number_segment_file.seg> --meta <meta_cna_seg.txt>");
+            // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
             return;
         }
 

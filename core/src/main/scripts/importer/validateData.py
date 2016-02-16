@@ -597,7 +597,6 @@ class Validator(object):
                         'ID, but is also associated to other genes as an '
                         'alias. The system will assume the official Hugo '
                         'symbol to be the intended one.',
-                        found_entrez_id,
                         extra={'line_number': self.line_number,
                                'cause': gene_symbol})
 

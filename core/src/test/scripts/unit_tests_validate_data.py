@@ -469,6 +469,22 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record_list[0].cause, '-54998')
         self.assertEqual(record_list[1].cause, '-126792')
 
+    def test_unambiguous_hugo_also_used_as_alias(self):
+        """Test referencing a gene by a Hugo symbol occurring as an alias too.
+
+        This should yield a warning, as the gene for which it is an alias
+        might be the gene intended by the user.
+        """
+        self.logger.setLevel(logging.WARNING)
+        record_list = self.validate('data_cna_genecol_presence_hugo_only_possible_alias.txt',
+                                    validateData.CNAValidator)
+        # expecting one error message
+        self.assertEqual(len(record_list), 1)
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.WARNING)
+        # expecting this gene to be the cause
+        self.assertEquals(record.cause, 'ACT')
+
 
 class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
 

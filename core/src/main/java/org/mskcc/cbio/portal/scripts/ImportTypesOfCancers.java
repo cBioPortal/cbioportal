@@ -59,12 +59,8 @@ public class ImportTypesOfCancers {
         load(file, clobber);
     }
 
-    public static void load(File file) throws IOException, DaoException {
-		SpringUtil.initDataSource();
-        ImportTypesOfCancers.load(file, true);
-    }
-
     public static void load(File file, boolean clobber) throws IOException, DaoException {
+		SpringUtil.initDataSource();
         if (clobber) DaoTypeOfCancer.deleteAllRecords();
         TypeOfCancer aTypeOfCancer = new TypeOfCancer();
         Scanner scanner = new Scanner(file);
@@ -89,5 +85,6 @@ public class ImportTypesOfCancers {
         ProgressMonitor.setCurrentMessage("Loaded " + DaoTypeOfCancer.getCount() + " TypesOfCancers.");
         ConsoleUtil.showWarnings();
     }
+    
 
 }

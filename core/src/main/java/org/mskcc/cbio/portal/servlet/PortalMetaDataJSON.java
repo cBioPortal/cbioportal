@@ -244,7 +244,7 @@ public class PortalMetaDataJSON extends HttpServlet {
                     cancerStudyMap.put(cancerStudy.getCancerStudyStableId(), jsonCancerStudySubMap);
                     String typeOfCancerId = cancerStudy.getTypeOfCancerId().toLowerCase();
                     if (typeOfCancerMap.get(typeOfCancerId) == null) {
-                    	//should not occur if DB is on InoDB mode with referential constraints:
+                    	//should not occur if DB is on InnoDB mode with referential constraints:
                     	throw new RuntimeException("Cancer type record not found for: " + typeOfCancerId);
                     }
                     visibleTypeOfCancerMap.put(typeOfCancerId, typeOfCancerMap.get(typeOfCancerId).getName());

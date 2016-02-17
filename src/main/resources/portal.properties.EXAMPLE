@@ -99,8 +99,12 @@ always_show_study_group=
 # patient view settings
 patient_view_placeholder=false
 patient_view_genomic_overview_cna_cutoff=0.2,1.5
-digitalslidearchive.iframe.url=http://cancer.digitalslidearchive.net/index_mskcc.php?slide_name=
-digitalslidearchive.meta.url=http://cancer.digitalslidearchive.net/local_php/get_slide_list_from_db_groupid_not_needed.php?slide_name_filter=
+
+digitalslidearchive.patientidregex=TCGA-
+digitalslidearchive.sampleidregex=
+digitalslidearchive.iframe.url=http://cancer.digitalslidearchive.net/index_mskcc.php?slide_name={patientid}
+digitalslidearchive.meta.url=http://cancer.digitalslidearchive.net/local_php/get_slide_list_from_db_groupid_not_needed.php?slide_name_filter={patientid}
+digitalslidearchive.resultregex=<data total_count='([0-9]+)'>
 tumor_image.url=http://cbio.mskcc.org/cancergenomics/tcga-tumor-images/
 tcga_path_report.url=https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/{cancer.type}/bcr/nationwidechildrens.org/pathology_reports/reports/
 

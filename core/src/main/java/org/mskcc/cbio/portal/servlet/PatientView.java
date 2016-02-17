@@ -466,7 +466,7 @@ public class PatientView extends HttpServlet {
         request.setAttribute(PATIENT_ID, patientId);
         
         // images
-        String tisImageUrl = getTissueImageIframeUrl(cancerStudy.getCancerStudyStableId(), samples.size()>1?patientId:sampleId);
+        String tisImageUrl = getTissueImageIframeUrl(cancerStudy.getCancerStudyStableId(), patientId, sampleId);
         if (tisImageUrl!=null) {
             request.setAttribute(TISSUE_IMAGES, tisImageUrl);
         }
@@ -481,19 +481,20 @@ public class PatientView extends HttpServlet {
         }
     }
     
-    private String getTissueImageIframeUrl(String cancerStudyId, String caseId) {
-        if (!caseId.toUpperCase().startsWith("TCGA-")) {
+    private String getTissueImageIframeUrl(String cancerStudyId, String patientId, String sampleId) {
+        if (!Pattern.matches(GlobalProperties.getDigitalSlideArchivePatientIdRegex(), patientId) &&
+            !Pattern.matches(GlobalProperties.getDigitalSlideArchiveSampleIdRegex(), sampleId)) {
             return null;
         }
         
         // test if images exist for the case
-        String metaUrl = GlobalProperties.getDigitalSlideArchiveMetaUrl(caseId);
+        String metaUrl = GlobalProperties.getDigitalSlideArchiveMetaUrl(patientId, sampleId);
         
         HttpClient client = ConnectionManager.getHttpClient(5000);
 
         GetMethod method = new GetMethod(metaUrl);
 
-        Pattern p = Pattern.compile("<data total_count='([0-9]+)'>");
+        Pattern p = Pattern.compile(GlobalProperties.getDigitalSlideArchiveResultRegex());
         try {
             int statusCode = client.executeMethod(method);
             if (statusCode == HttpStatus.SC_OK) {
@@ -503,7 +504,7 @@ public class PatientView extends HttpServlet {
                     Matcher m = p.matcher(line);
                     if (m.find()) {
                         int count = Integer.parseInt(m.group(1));
-                        return count>0 ? GlobalProperties.getDigitalSlideArchiveIframeUrl(caseId) : null;
+                        return count>0 ? GlobalProperties.getDigitalSlideArchiveIframeUrl(patientId, sampleId) : null;
                     }
                 }
                 

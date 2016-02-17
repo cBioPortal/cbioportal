@@ -106,10 +106,16 @@ public class GlobalProperties {
     public static final String DEFAULT_SKIN_DATASETS_FOOTER = "Data sets of TCGA studies were downloaded from Broad " +
             "Firehose (http://gdac.broadinstitute.org) and updated monthly. In some studies, data sets were from the " +
             "TCGA working groups directly.";
-
+    public static final String PATIENT_VIEW_DEFAULT_DIGITAL_SLIDE_PATIENT_ID_REGEX = "TCGA-.*";
+    public static final String PATIENT_VIEW_DEFAULT_DIGITAL_SLIDE_SAMPLE_ID_REGEX = "TCGA-.*";
+    public static final String PATIENT_VIEW_DEFAULT_DIGITAL_SLIDE_RESULT_REGEX = "<data total_count='([0-9]+)'>";
+    
     public static final String PATIENT_VIEW_PLACEHOLDER = "patient_view_placeholder";
     public static final String PATIENT_VIEW_CNA_TUMORMAP_CNA_CUTOFF = "patient_view_genomic_overview_cna_cutoff";
     public static final double[] DEFAULT_TUMORMAP_CNA_CUTOFF = new double[]{0.2,1.5};
+    public static final String PATIENT_VIEW_DIGITAL_SLIDE_PATIENT_ID_REGEX = "digitalslidearchive.patientidregex";
+    public static final String PATIENT_VIEW_DIGITAL_SLIDE_SAMPLE_ID_REGEX = "digitalslidearchive.sampleidregex";
+    public static final String PATIENT_VIEW_DIGITAL_SLIDE_RESULT_REGEX = "digitalslidearchive.resultregex";
     public static final String PATIENT_VIEW_DIGITAL_SLIDE_IFRAME_URL = "digitalslidearchive.iframe.url";
     public static final String PATIENT_VIEW_DIGITAL_SLIDE_META_URL = "digitalslidearchive.meta.url";
     public static final String PATIENT_VIEW_TCGA_PATH_REPORT_URL = "tcga_path_report.url";
@@ -600,16 +606,39 @@ public class GlobalProperties {
 				"=" + locus);
     }
 
-    public static String getDigitalSlideArchiveIframeUrl(String caseId)
+    // if patient id matches this, we'll check if there is a slide
+    public static String getDigitalSlideArchivePatientIdRegex()
     {
-        String url = properties.getProperty(PATIENT_VIEW_DIGITAL_SLIDE_IFRAME_URL);
-        return url+caseId;
+        String regex = properties.getProperty(PATIENT_VIEW_DIGITAL_SLIDE_PATIENT_ID_REGEX);
+        return regex == null || regex == "" ? PATIENT_VIEW_DEFAULT_DIGITAL_SLIDE_PATIENT_ID_REGEX : regex;
     }
 
-    public static String getDigitalSlideArchiveMetaUrl(String caseId)
+    // if sample id matches this, we'll check if there is a slide
+    public static String getDigitalSlideArchiveSampleIdRegex()
+    {
+        String regex = properties.getProperty(PATIENT_VIEW_DIGITAL_SLIDE_SAMPLE_ID_REGEX);
+        return regex == null || regex == "" ? PATIENT_VIEW_DEFAULT_DIGITAL_SLIDE_SAMPLE_ID_REGEX : regex;
+    }
+
+    // if sample id matches this, we'll check if there is a slide
+    public static String getDigitalSlideArchiveResultRegex()
+    {
+        String regex = properties.getProperty(PATIENT_VIEW_DIGITAL_SLIDE_RESULT_REGEX);
+        return regex == null || regex == "" ? PATIENT_VIEW_DEFAULT_DIGITAL_SLIDE_RESULT_REGEX : regex;
+    }
+
+    public static String getDigitalSlideArchiveIframeUrl(String patientId, String sampleId)
+    {
+        String url = properties.getProperty(PATIENT_VIEW_DIGITAL_SLIDE_IFRAME_URL);
+        url = url.replace("{patientid}", patientId).replace("{sampleid}", sampleId);
+        return url;
+    }
+
+    public static String getDigitalSlideArchiveMetaUrl(String patientId, String sampleId)
     {
         String url = properties.getProperty(PATIENT_VIEW_DIGITAL_SLIDE_META_URL);
-        return url+caseId;
+        url = url.replace("{patientid}", patientId).replace("{sampleid}", sampleId);
+        return url;
     }
 
     public static String[] getTCGAPathReportUrl(String typeOfCancer)

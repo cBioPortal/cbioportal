@@ -49,8 +49,6 @@ var sbgnStyleSheet = cytoscape.stylesheet()
 .selector("node:selected")
 .css({
   'border-color': '#d67614',
-  'target-arrow-color': '#000',
-<<<<<<< HEAD
   'text-outline-color': '#000'
 })
 .selector("node:active")
@@ -103,26 +101,30 @@ var sbgnStyleSheet = cytoscape.stylesheet()
   'selection-box-border-color': '#d67614'
 }); // end of sbgnStyleSheet
 
-  function popUpSBGNView()
+function popUpSBGNView()
+{
+  //Get node ids from URL !!
+  var container = $('#sbgnCanvas');
+  var urlString = window.location.search.substring(1).split("&");
+  var nodeA = urlString[0];
+  var nodeB = urlString[1];
+
+  //Construct PC2 url from pop up url !
+  var pc2URL = "http://www.pathwaycommons.org/pc2/";
+  var format = "graph?format=SBGN";
+  var kind = "&kind=PATHSBETWEEN";
+  var sourceA = "&source="+nodeA;
+  var sourceB = "&source="+nodeB;
+  var pc2URL = pc2URL + format + kind + sourceA + sourceB;
+
+  //Add loading spinner
+  container.append('<i class="fa fa-spinner fa-5x fa-spin"></i>');
+
+  $.ajax(
   {
-    //Get node ids from URL !!
-    var container = $('#sbgnCanvas');
-    var urlString = window.location.search.substring(1).split("&");
-    var nodeA = urlString[0];
-    var nodeB = urlString[1];
-
-    //Construct PC2 url from pop up url !
-    var pc2URL = "http://www.pathwaycommons.org/pc2/";
-    var format = "graph?format=SBGN";
-    var kind = "&kind=PATHSBETWEEN";
-    var sourceA = "&source="+nodeA;
-    var sourceB = "&source="+nodeB;
-    var pc2URL = pc2URL + format + kind + sourceA + sourceB;
-
-    //Add loading spinner
-    container.append('<i class="fa fa-spinner fa-5x fa-spin"></i>');
-
-    $.get(pc2URL, function(data)
+    url: pc2URL,
+    type: 'GET',
+    success: function(data)
     {
       //Remove loading spinner !
       container.empty();
@@ -139,7 +141,7 @@ var sbgnStyleSheet = cytoscape.stylesheet()
       }
 
       var cy = window.cy = cytoscape(
-        {
+      {
           container: document.getElementById('sbgnCanvas'),
           elements:graphData,
           style: sbgnStyleSheet,
@@ -147,8 +149,8 @@ var sbgnStyleSheet = cytoscape.stylesheet()
           {
             name: 'cose-bilkent',
             animate: false,
-	    randomize: true,
-	    fit: true
+            randomize: true,
+            fit: true
           },
           showOverlay: false,
           minZoom: 0.125,
@@ -159,6 +161,14 @@ var sbgnStyleSheet = cytoscape.stylesheet()
           ready: function ()
           {
             //refreshPaddings();
+            //Remove Ports
+            cy.nodes().removeData("ports");
+            cy.edges().removeData("portsource");
+            cy.edges().removeData("porttarget");
+
+            cy.nodes().data("ports", []);
+            cy.edges().data("portsource", []);
+            cy.edges().data("porttarget", []);
 
             var panProps = ({
               fitPadding: 10,
@@ -175,16 +185,17 @@ var sbgnStyleSheet = cytoscape.stylesheet()
             cy.on('tap', 'node', function (event)
             {
             });
-          },
-
+          }
         });
       },
-      error: function(request, status, error)
+      error: function(data)
       {
         //Remove loading spinner !
         container.empty();
-        if(error === "460")
-          container.text('Server responded with error ' + error + "-No Results (e.g., when a search or graph query found no data)");
+        if(data.statusText === "460")
+        container.text('Server responded with error ' + data.statusText + "-No Results (e.g., when a search or graph query found no data)");
       }
     });
+    //End of get request from pc2
+
   }

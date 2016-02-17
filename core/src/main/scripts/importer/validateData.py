@@ -1601,18 +1601,11 @@ def processCaseListDirectory(caseListDir, cancerStudyId, logger):
     logger.info('Validation of case lists complete')
 
 
-def request_from_portal_api(service_url, logger, id_field=None):
-    """Send a request to the portal API and return the decoded JSON object.
-
-    If id_field is specified, expect the object to be a list of dicts,
-    and instead return a dict indexed by the specified field of said
-    dictionaries. E.g.:
-    [{'id': 'spam', 'val1': 1}, {'id':'eggs', 'val1':42}] ->
-    {'spam': {'val1': 1}, 'eggs': {'val1': 42}}
-    """
-    url_split = service_url.split('/api/', 1)
+def request_from_portal_api(server_url, api_name, logger):
+    """Send a request to the portal API and return the decoded JSON object."""
+    service_url = server_url + '/api/' + api_name
     logger.info("Requesting %s from portal at '%s'",
-                url_split[1], url_split[0])
+                api_name, server_url)
     # this may raise a requests.exceptions.RequestException subclass,
     # usually because the URL provided on the command line was invalid or
     # did not include the http:// part
@@ -1624,53 +1617,59 @@ def request_from_portal_api(service_url, logger, id_field=None):
             'Connection error for URL: {url}. Administrator: please check if '
             '[{url}] is accessible. Message: {msg}'.format(url=service_url,
                                                            msg=e.message))
-    json_data = response.json()
-    if id_field is None:
-        return json_data
-    else:
-        transformed_dict = {}
-        # return a dict indexed by the specified field of said
-        # dictionaries. E.g.:
-        #[{'id': 'spam', 'val1': 1}, {'id':'eggs', 'val1':42}] ->
-        # {'spam': {'val1': 1}, 'eggs': {'val1': 42}}
-        for attr in json_data:
-            # make a copy of the attr dict
-            attr_dict = dict(attr)
-            # remove id field:
-            if not id_field in attr_dict:
-                raise RuntimeError('Unexpected error while calling web-service. '
-                                   'Please check if given {url} is correct'.format(url=service_url))
-            del attr_dict[id_field]
-            transformed_dict[attr[id_field]] = attr_dict
-        return transformed_dict
+    return response.json()
 
 
-def get_symbol_entrez_map(server_url, logger, aliases=False):
+def index_api_data(parsed_json, id_field):
+    """Transform a list of dicts into a dict indexed by one of their fields.
+
+    >>> index_api_data([{'id': 'eggs', 'val1': 42, 'foo': True},
+    ...                     {'id': 'spam', 'val1': 1, 'foo': True}], 'id')
+    {'eggs': {'val1': 42, 'foo': True}, 'spam': {'val1': 1, 'foo': True}}
+    >>> index_api_data([{'id': 'eggs', 'val1': 42, 'foo': True},
+    ...                     {'id': 'spam', 'val1': 1, 'foo': True}], 'val1')
+    {1: {'foo': True, 'id': 'spam'}, 42: {'foo': True, 'id': 'eggs'}}
     """
-    Returns a dict with hugo symbols and respective entrezIds, e.g.:
-    # dict: {'LOC105377913': ['105377913'], 'LOC105377912': ['105377912'],  hugo: [entrez], hugo: [entrez, entrez]...
-    """
-    if aliases:
-        service = '/api/genesaliases'
-        symbol_field_name = 'gene_alias'
-    else:
-        service = '/api/genes'
-        symbol_field_name = 'hugo_gene_symbol'
-    # get data
-    json_data = request_from_portal_api(server_url + service, logger)
-    # json_data is list of dicts, each entry containing e.g. dict: {'hugo_gene_symbol': 'SRXN1', 'entrez_gene_id': '140809'}
-    # We want to transform this to the format dict: {hugo: entrez, hugo: entrez...
-    result_dict = transform_symbol_entrez_map(json_data, symbol_field_name)
-    return result_dict
+    transformed_dict = {}
+    for attr in parsed_json:
+        # make a copy of the attr dict
+        # remove id field:
+        if not id_field in attr:
+            raise RuntimeError("Field '{}' not found in json object".format(
+                                   id_field))
+        id_val = attr[id_field]
+        if id_val in transformed_dict:
+            raise RuntimeError("Identifier '{}' found more than once in json "
+                               "object".format(id_val))
+        # make a copy of the sub-dictionary without the id field
+        attr_dict = dict(attr)
+        del attr_dict[id_field]
+        transformed_dict[id_val] = attr_dict
+    return transformed_dict
 
 
-def transform_symbol_entrez_map(json_data, symbol_field_name):
-    """ json_data is list of dicts, each entry containing e.g. dict: {'hugo_gene_symbol': 'SRXN1', 'entrez_gene_id': '140809'}
-    We want to transform this to the format dict: {hugo: entrez, hugo: entrez...
+def transform_symbol_entrez_map(json_data,
+                                id_field='hugo_gene_symbol',
+                                values_field='entrez_gene_id'):
+    """Transform a list of homogeneous dicts into a dict of lists.
+
+    Using the values of the `id_field` entries as the keys, mapping to lists
+    of corresponding `values_field` entries.
+
+    >>> transform_symbol_entrez_map(
+    ...     [{"hugo_gene_symbol": "A1BG", "entrez_gene_id": 1},
+    ...      {"hugo_gene_symbol": "A2M", "entrez_gene_id": 2}])
+    {'A2M': [2], 'A1BG': [1]}
+    >>> transform_symbol_entrez_map(
+    ...     [{"gene_alias": "A1B", "entrez_gene_id": 1},
+    ...      {"gene_alias": "ANG3", "entrez_gene_id": 738},
+    ...      {"gene_alias": "ANG3", "entrez_gene_id": 9068}],
+    ...     id_field="gene_alias")
+    {'ANG3': [738, 9068], 'A1B': [1]}
     """
     result_dict = {}
     for data_item in json_data:
-        symbol = data_item[symbol_field_name].upper()
+        symbol = data_item[id_field].upper()
         if symbol not in result_dict:
             result_dict[symbol] = []
         result_dict[symbol].append(
@@ -1678,28 +1677,64 @@ def transform_symbol_entrez_map(json_data, symbol_field_name):
     return result_dict
 
 
-def request_clinical_attributess(server_url, logger):
-    """Request clinical attributes from the portal API and return a dict."""
-    srv_patient_attrs = request_from_portal_api(
-        server_url + '/api/clinicalattributes/patients',
-        logger,
-        id_field='attr_id')
-    srv_sample_attrs = request_from_portal_api(
-        server_url + '/api/clinicalattributes/samples',
-        logger,
-        id_field='attr_id')
+def merge_clinical_attributes(patient_attr_dict, sample_attr_dict):
+    """Merge two dicts, raising an exception if the keys overlap.
+
+    >>> merge_clinical_attributes({"SEX":
+    ...                                {"is_patient_attribute": 1},
+    ...                            "AGE":
+    ...                                {"is_patient_attribute": 1}},
+    ...                           {"GLEASON_SCORE":
+    ...                                {"is_patient_attribute": 0}})
+    {'AGE': {'is_patient_attribute': 1}, 'GLEASON_SCORE': {'is_patient_attribute': 0}, 'SEX': {'is_patient_attribute': 1}}
+    """
     # if this happens, the database structure has changed and this script
     # needs to be updated
-    id_overlap = (set(srv_patient_attrs.keys()) &
-                  set(srv_sample_attrs.keys()))
+    id_overlap = patient_attr_dict.viewkeys() & sample_attr_dict.viewkeys()
     if id_overlap:
         raise ValueError(
-            'The portal at {url} returned these clinical attributes '
-            'both for samples and for patients: {attrs}'.format(
-                url=server_url,
-                attrs=', '.join(id_overlap)))
-    srv_patient_attrs.update(srv_sample_attrs)
-    return srv_patient_attrs
+            'Portal data listed these clinical attributes '
+            'both for samples and for patients: {}'.format(
+                ', '.join(id_overlap)))
+    # merge the sample attributes into the first dict
+    patient_attr_dict.update(sample_attr_dict)
+    return patient_attr_dict
+
+
+def load_portal_info(url, logger):
+    """Create a PortalInstance object based on a server API."""
+    portal_dict = {}
+    for api_name, transform_function in (
+            ('cancertypes',
+                lambda json_data: index_api_data(json_data, 'id')),
+            ('clinicalattributes/patients',
+                lambda json_data: index_api_data(json_data, 'attr_id')),
+            ('clinicalattributes/samples',
+                lambda json_data: index_api_data(json_data, 'attr_id')),
+            ('genes',
+                lambda json_data: transform_symbol_entrez_map(
+                                        json_data, 'hugo_gene_symbol')),
+            ('genesaliases',
+                lambda json_data: transform_symbol_entrez_map(
+                                        json_data, 'gene_alias'))):
+        parsed_json = request_from_portal_api(url, api_name, logger)
+        if parsed_json is not None and transform_function is not None:
+            parsed_json = transform_function(parsed_json)
+        portal_dict[api_name] = parsed_json
+    if all(d is None for d in portal_dict.values()):
+        raise IOError('No portal information found at {}'.format(
+                          url))
+    # merge clinical attributes into a single dictionary
+    clinical_attr_dict = None
+    if (portal_dict['clinicalattributes/patients'] is not None and
+            portal_dict['clinicalattributes/samples'] is not None):
+        clinical_attr_dict = merge_clinical_attributes(
+            portal_dict['clinicalattributes/patients'],
+            portal_dict['clinicalattributes/samples'])
+    return PortalInstance(cancer_type_dict=portal_dict['cancertypes'],
+                          clinical_attribute_dict=clinical_attr_dict,
+                          hugo_entrez_map=portal_dict['genes'],
+                          alias_entrez_map=portal_dict['genesaliases'])
 
 
 # ------------------------------------------------------------------------------
@@ -1904,21 +1939,7 @@ def main_validate(args):
                                          hugo_entrez_map=None,
                                          alias_entrez_map=None)
     else:
-        # retrieve cancer types defined in the portal
-        portal_cancer_types = request_from_portal_api(
-            server_url + '/api/cancertypes',
-            logger,
-            id_field='id')
-        # retrieve clinical attributes defined in the portal
-        portal_clin_attrs = request_clinical_attributess(server_url, logger)
-        # Entrez values for Hugo symbols and synonyms in the portal
-        hugo_entrez_map = get_symbol_entrez_map(server_url, logger)
-        alias_entrez_map = get_symbol_entrez_map(server_url, logger,
-                                                 aliases=True)
-        portal_instance = PortalInstance(portal_cancer_types,
-                                         portal_clin_attrs,
-                                         hugo_entrez_map,
-                                         alias_entrez_map)
+        portal_instance = load_portal_info(server_url, logger)
 
     validate_study(study_dir, portal_instance, logger)
 
@@ -1926,16 +1947,16 @@ def main_validate(args):
         collapsing_html_handler.flush()
         html_handler.generateHtml()
 
-    exit_status = exit_status_handler.get_exit_status()
-    return exit_status
+    return exit_status_handler.get_exit_status()
+
 
 # ------------------------------------------------------------------------------
-# vamanos 
+# vamanos
 
 if __name__ == '__main__':
     try:
         # parse command line options
-        parsed_args = interface()
+        parsed_args = interface(sys.argv)
         # run the script
         exit_status = main_validate(parsed_args)
     finally:

@@ -140,6 +140,7 @@ var orPlots = (function() {
 			generate_plots();
 		});
 	});
+
     };
 
     var generate_plots = function() {
@@ -148,7 +149,9 @@ var orPlots = (function() {
 
         //attach headers & download button
         var _title = "Boxplots of " + profile_name + " data for altered and unaltered cases " +
-            "<button id='" + div_id + "_enrichments_pdf_download'>PDF</button>";
+            "<button id='" + div_id + "_enrichments_pdf_download'>PDF</button>" +
+            "<button id='" + div_id + "_enrichments_svg_download'>SVG</button>" +
+            "<button id='" + div_id + "_enrichments_data_download'>Data</button>";
         $("#" + div_id).append(_title);
         $("#" + div_id + "_enrichments_pdf_download").click(function() {
             var downloadOptions = {
@@ -158,6 +161,26 @@ var orPlots = (function() {
             };
             cbio.download.initDownload($("#" + div_id + " svg")[0], downloadOptions);
         });
+        $("#" + div_id + "_enrichments_svg_download").click(function() {
+            var xmlSerializer = new XMLSerializer();
+            var download_str = cbio.download.addSvgHeader(xmlSerializer.serializeToString($("#" + div_id + " svg")[0]));
+            cbio.download.clientSideDownload([download_str], "enrichments-plots.svg", "application/svg+xml");
+        });
+        $("#" + div_id + "_enrichments_data_download").click(function() {
+            cbio.download.clientSideDownload([get_tab_delimited_data()], "enrichments-plots-data.txt");
+        });
+
+        function get_tab_delimited_data() {
+            var result_str = "Sample Id" + "\t" + gene + ", " + profile_name + "\t" + "Alteration" + "\n";
+            _.each(dotsArr, function(dot) {
+                if (dot.hasOwnProperty("alteration")) {
+                    result_str += dot.case_id + "\t" + dot.y_val + "\t" + dot.alteration + "\n";
+                } else {
+                    result_str += dot.case_id + "\t" + dot.y_val + "\t" + "Non" + "\n";
+                }
+            });
+            return result_str;
+        }
 
         //init canvas
         elem.svg = d3.select("#" + div_id)

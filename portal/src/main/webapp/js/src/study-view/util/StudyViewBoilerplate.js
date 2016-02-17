@@ -33,7 +33,7 @@
 
 var StudyViewBoilerplate ={
     headerCaseSelectCustomDialog: {
-        id: 'modal', // Since we're only creating one modal, give it an ID so we can style it
+        id: 'study-view-case-select-custom-dialog', // Since we're only creating one modal, give it an ID so we can style it
         content: {
                 text: '',
                 title: {
@@ -390,11 +390,13 @@ var StudyViewBoilerplate ={
     },
     
     customDialogDiv:
-            "<div class='hidden' id='study-view-case-select-custom-dialog'>" +
-                "Please input IDs (one per line)" +
+            "<div class='study-view-hidden' id='study-view-case-select-custom-dialog'>" +
+                '<b>Please input IDs (one per line)</b>' +
                 "<textarea rows='20' cols='50' id='study-view-case-select-custom-input'></textarea><br/>" +
-                '<input type="radio" name="study-view-case-select-custom-radio" value="sample" checked>By sample ID' +
-                '<input type="radio" name="study-view-case-select-custom-radio" value="patient">By patient ID' +
+                '<label><input type="radio" id="study-view-case-select-custom-radio-sample" name="study-view-case-select-custom-radio" value="sample" checked>' +
+                'By sample ID</label>' +
+                '<label><input type="radio" id="study-view-case-select-custom-radio-patient"  name="study-view-case-select-custom-radio" value="patient">' +
+                'By patient ID</label>' +
                 "<button type='button' id='study-view-case-select-custom-submit-btn' style='float: right;'>Select</button>" +
             "</div>",
     addChartDiv:

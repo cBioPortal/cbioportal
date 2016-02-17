@@ -153,17 +153,26 @@ var StudyViewProxy = (function() {
                     _dataLength = _data.length,
                     _sampleIds = Object.keys(sampleToPatientMapping),
                     _sequencedSampleIds = [],
+                    _cnaSampleIds = [],
+                    _allSampleIds = [],
                     _locks=0;
+
+                //Keep original data format.
+                obtainDataObject.webserviceData = a1[0];
 
                 //Uppercase all attr_id
                 for(var i= 0; i < a1[0].attributes.length; i++){
                     var caseAttr = new CaseAttr();
                     caseAttr.attr_id =  a1[0].attributes[i].attr_id.toUpperCase();
-                    if(a1[0].attributes[i].display_name){
+                    if(_.isString(a1[0].attributes[i].display_name)){
                         caseAttr.display_name = a1[0].attributes[i].display_name;
                     } else {
-                        //Fallback to using ID if there is no display_name
-                        caseAttr.display_name =  a1[0].attributes[i].attr_id;
+                        if (caseAttr.attr_id === 'CASE_ID') {
+                            caseAttr.display_name = "Sample ID";
+                        } else {
+                            //Fallback to using ID if there is no display_name
+                            caseAttr.display_name = caseAttr.attr_id;
+                        }
                     }
                     caseAttr.display_name = toPascalCase(caseAttr.display_name);
                     caseAttr.datatype = a1[0].attributes[i].datatype;
@@ -212,20 +221,29 @@ var StudyViewProxy = (function() {
                 var filteredA3 = removeExtraData(_sampleIds,a3[0]);
 
                 //Find sequenced sample Ids
+                // TODO: this is very hacky, we should switch to the cbioportal-client.js
                 if(a5[0]) {
                     var _lists = a5[0].split('\n');
                     for(var i = 0; i < _lists.length; i++) {
-                        if(_lists[i].indexOf('sequenced samples') !== -1) {
-                            var _info = _lists[i].split('\t');
-                            if(_info.length === 5) {
-                                _sequencedSampleIds = _info[4].split(' ');
-                            }
-                            break;
+                        var _parts = _lists[i].split('\t');
+                        if(_parts.length < 5) continue;
+                        if (_parts[0] === parObject.studyId+"_sequenced") {
+                            _sequencedSampleIds = _parts[4].split(' ');
+                        } else if (_parts[0] === parObject.studyId+"_cna") {
+                            _cnaSampleIds = _parts[4].split(' ');
+                        } else if (_parts[0] === parObject.studyId+"_all") {
+                            _allSampleIds = _parts[4].split(' ');
                         }
                     }
+                    
+                    obtainDataObject.sequencedSampleIds = 
+                            _sequencedSampleIds.length>0 ? _sequencedSampleIds : _allSampleIds;
+                    obtainDataObject.cnaSampleIds = 
+                            _cnaSampleIds.length>0 ? _cnaSampleIds : _allSampleIds;
+                    
                 }
 
-                //Add new attribute MUTATIOIN COUNT for each case if have any
+                //Add new attribute MUTATION COUNT for each case if have any
                 if(Object.keys(filteredA2).length !== 0){
                     var _newAttr = new CaseAttr();
                     _newAttr.attr_id = 'MUTATION_COUNT';
@@ -255,9 +273,8 @@ var StudyViewProxy = (function() {
                     _newAttr.keys = Object.keys(_keys);
                     obtainDataObject.attr.push(_newAttr);
                 }else {
-                    var cnaLength = obtainDataObject.arr.length;
-                    for(var i = 0; i < cnaLength; i++) {
-                        if(obtainDataObject.arr[i]['MUTATION_COUNT']) {
+                    for(var i = 0, arrSize = obtainDataObject.arr.length; i < arrSize; i++) {
+                        if (!_.isUndefined(obtainDataObject.arr[i].MUTATION_COUNT)) {
                             delete obtainDataObject.arr[i].MUTATION_COUNT;
                         }
                     }
@@ -285,9 +302,8 @@ var StudyViewProxy = (function() {
                     _newAttri.keys = Object.keys(_keys);
                     obtainDataObject.attr.push(_newAttri);
                 }else {
-                    var cnaLength = obtainDataObject.arr.length;
-                    for(var i = 0; i < cnaLength; i++) {
-                        if(obtainDataObject.arr[i]['COPY_NUMBER_ALTERATIONS']) {
+                    for(var i = 0, arrSize = obtainDataObject.arr.length; i < arrSize; i++) {
+                        if(!_.isUndefined(obtainDataObject.arr[i].COPY_NUMBER_ALTERATIONS)) {
                             delete obtainDataObject.arr[i].COPY_NUMBER_ALTERATIONS;
                         }
                     }
@@ -359,7 +375,9 @@ var StudyViewProxy = (function() {
 
         for(var i = 0, _patientIdsL = _patientIds.length; i < _patientIdsL; i++) {
             if(_sampleIds.indexOf(_patientIds[i]) === -1) {
-                _sampleIds = _sampleIds.concat(patientToSampleMapping[_patientIds[i]]);
+                if(!_.isUndefined(patientToSampleMapping[_patientIds[i]])) {
+                    _sampleIds = _sampleIds.concat(patientToSampleMapping[_patientIds[i]]);
+                }
             }
         }
         return _.uniq(_sampleIds);
@@ -386,17 +404,13 @@ var StudyViewProxy = (function() {
 
     function toPascalCase(str) {
         var arr = str.split(/\s|_/);
-//        for(var i=0,l=arr.length; i<l; i++) {
-//            arr[i] = arr[i].substr(0,1).toUpperCase() + 
-//                     (arr[i].length > 1 ? arr[i].substr(1).toLowerCase() : "");
-//        } 
         return arr.join(" ");
     }
 
     function getCNAData(){
         var deferred = $.Deferred();
 
-        if(obtainDataObject.cna){
+        if(!_.isUndefined(obtainDataObject.cna)){
             deferred.resolve(obtainDataObject.cna);
         }else{
             if(hasCNA) {
@@ -464,7 +478,7 @@ var StudyViewProxy = (function() {
         if (sampleIds.length === this.getSampleIds().length) {
             return obtainDataObject.cna;
         }
-        if (obtainDataObject['cnaSampleBased']) {
+        if (!_.isUndefined(obtainDataObject.cnaSampleBased)) {
             var geneSpecific = {};
             var numOfSample = sampleIds.length;
             for (var i = 0; i < numOfSample; i++) {
@@ -501,13 +515,19 @@ var StudyViewProxy = (function() {
 
         if (data) {
             for (var i = 0, dataL = data.length; i < dataL; i++) {
-                var caseIds = data[i].caseIds;
+                var gene = data[i];
+                var geneSymbol = gene.gene_symbol;
+                var caseIds = gene.caseIds;
 
                 for (var j = 0, caseIdsL = caseIds.length; j < caseIdsL; j++) {
                     if (_.isUndefined(converted[caseIds[j]])) {
-                        converted[caseIds[j]] = [];
+                        converted[caseIds[j]] = {};
                     }
-                    converted[caseIds[j]].push(data[i]);
+                    if (_.isUndefined(converted[caseIds[j]][geneSymbol])) {
+                        converted[caseIds[j]][geneSymbol] = _.extend({}, gene);
+                        converted[caseIds[j]][geneSymbol].num_muts = 0;
+                    }
+                    ++converted[caseIds[j]][geneSymbol].num_muts;
                 }
             }
         }
@@ -526,18 +546,21 @@ var StudyViewProxy = (function() {
             if(sampleIds.length === this.getSampleIds().length) {
                 return obtainDataObject.mutatedGenes;
             }
-            if(_.isObject(obtainDataObject['mutatedGenesSampleBased'])){
+            if(_.isObject(obtainDataObject.mutatedGenesSampleBased)){
                 var geneSpecific = {};
                 var numOfSample = sampleIds.length;
                 for (var i = 0; i < numOfSample; i++) {
                     if (obtainDataObject.mutatedGenesSampleBased[sampleIds[i]]) {
-                        for (var j = 0, numOfGenes = obtainDataObject.mutatedGenesSampleBased[sampleIds[i]].length; j < numOfGenes; j++) {
-                            var  geneSymbol = obtainDataObject.mutatedGenesSampleBased[sampleIds[i]][j].gene_symbol;
+                        var sample = obtainDataObject.mutatedGenesSampleBased[sampleIds[i]];
+                        for(var geneSymbol in sample) {
                             if (_.isUndefined(geneSpecific[geneSymbol])) {
-                                geneSpecific[geneSymbol] = obtainDataObject.mutatedGenesSampleBased[sampleIds[i]][j];
+                                geneSpecific[geneSymbol] = _.extend({}, sample[geneSymbol]);
                                 geneSpecific[geneSymbol].caseIds = [];
+                                geneSpecific[geneSymbol].num_muts = 0;
                             }
+                            geneSpecific[geneSymbol].num_muts += sample[geneSymbol].num_muts;
                             geneSpecific[geneSymbol].caseIds.push(sampleIds[i]);
+
                         }
                     }
                 }
@@ -604,11 +627,33 @@ var StudyViewProxy = (function() {
         getSampleidToPatientidMap: function(){return obtainDataObject.sampleidToPatientidMap;},
         getPatientIdsBySampleIds: getPatientIdsBySampleIds,
         getSampleIdsByPatientIds: getSampleIdsByPatientIds,
+        getSequencedSampleIds: function() {return obtainDataObject.sequencedSampleIds;},
+        getCnaSampleIds: function() {return obtainDataObject.cnaSampleIds;},
         getPatientIds: function () {
             return Object.keys(patientToSampleMapping);
         },
         getSampleIds: function () {
             return Object.keys(sampleToPatientMapping);
+        },
+        getAllData: function () {
+            return obtainDataObject;
+        },
+        sampleIdExist: function (id) {
+            if (_.isString(id)) {
+                return sampleToPatientMapping.hasOwnProperty(id);
+            } else if (_.isArray(id)) {
+                var exist = true;
+                for (var i = 0, size = id.length; i < size; i++) {
+                    if (!sampleToPatientMapping.hasOwnProperty(id[i])) {
+                        exist = false;
+                    }
+                    break;
+                }
+                return exist;
+            }
+        },
+        getWebserviceData: function() {
+            return obtainDataObject.webserviceData;
         }
     };
 }());

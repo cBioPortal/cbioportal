@@ -30,49 +30,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.mskcc.cbio.portal.util;
+package org.mskcc.cbio.portal.web;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.mskcc.cbio.portal.model.GenePanel;
 import org.mskcc.cbio.portal.service.GenePanelService;
-import org.springframework.context.support.GenericXmlApplicationContext;
 
-import javax.sql.DataSource;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.stereotype.Controller;
+import org.springframework.beans.factory.annotation.Autowired;
 
-public class SpringUtil
+
+@Controller
+@RequestMapping("/genepanel")
+public class GenePanelController
 {
-	private static final Log log = LogFactory.getLog(SpringUtil.class);
+    @Autowired
+    private GenePanelService genePanelService;
 
-	private static AccessControl accessControl;
-	private static ApplicationContext context;
-
-    public static GenePanelService getGenePanelService()
+    @RequestMapping(value="/{stableId}")
+    public @ResponseBody GenePanel getGenePanel(@PathVariable String stableId)
     {
-        GenericXmlApplicationContext ctx = new GenericXmlApplicationContext();
-        ctx.getEnvironment().setActiveProfiles("dbcp");
-        ctx.load("classpath:applicationContext-business.xml");
-        ctx.refresh();
-        return (GenePanelService)ctx.getBean("genePanelService");
+        return genePanelService.getByStableId(stableId);
     }
-
-    public static void setAccessControl(AccessControl accessControl) {
-    	log.debug("Setting access control");
-		SpringUtil.accessControl = accessControl;
-	}
-
-	public static AccessControl getAccessControl()
-    {
-		return accessControl;
-    }
-
-	public static synchronized void initDataSource()
-	{
-		if (SpringUtil.context == null) {
-			context = new ClassPathXmlApplicationContext("classpath:applicationContext-business.xml");
-		}
-	}
-
 }

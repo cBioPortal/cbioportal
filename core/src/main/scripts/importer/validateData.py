@@ -19,6 +19,7 @@ import re
 import csv
 import itertools
 import requests
+import json
 
 import cbioportal_common
 
@@ -1620,6 +1621,22 @@ def request_from_portal_api(server_url, api_name, logger):
     return response.json()
 
 
+def read_portal_json_file(dir_path, api_name, logger):
+    """Parse a JSON file named `api_name`.json in `dir_path`.
+
+    Replacing any forward slashes in the API name by underscores.
+    """
+    parsed_json = None
+    json_fn = os.path.join(dir_path, '{}.json'.format(
+                                         api_name.replace('/', '_')))
+    if os.path.isfile(json_fn):
+        logger.info('Reading portal information from %s',
+                    json_fn)
+        with open(json_fn, 'rU') as json_file:
+            parsed_json = json.load(json_file)
+    return parsed_json
+
+
 def index_api_data(parsed_json, id_field):
     """Transform a list of dicts into a dict indexed by one of their fields.
 
@@ -1701,8 +1718,13 @@ def merge_clinical_attributes(patient_attr_dict, sample_attr_dict):
     return patient_attr_dict
 
 
-def load_portal_info(url, logger):
-    """Create a PortalInstance object based on a server API."""
+def load_portal_info(path, logger, offline=False):
+    """Create a PortalInstance object based on a server API or offline dir.
+
+    If `offline` is True, interpret `path` as the path to a directory of JSON
+    files. Otherwise expect `path` to be the URL of a cBioPortal server and
+    use its web API.
+    """
     portal_dict = {}
     for api_name, transform_function in (
             ('cancertypes',
@@ -1717,13 +1739,16 @@ def load_portal_info(url, logger):
             ('genesaliases',
                 lambda json_data: transform_symbol_entrez_map(
                                         json_data, 'gene_alias'))):
-        parsed_json = request_from_portal_api(url, api_name, logger)
+        if offline:
+            parsed_json = read_portal_json_file(path, api_name, logger)
+        else:
+            parsed_json = request_from_portal_api(path, api_name, logger)
         if parsed_json is not None and transform_function is not None:
             parsed_json = transform_function(parsed_json)
         portal_dict[api_name] = parsed_json
     if all(d is None for d in portal_dict.values()):
         raise IOError('No portal information found at {}'.format(
-                          url))
+                          path))
     # merge clinical attributes into a single dictionary
     clinical_attr_dict = None
     if (portal_dict['clinicalattributes/patients'] is not None and
@@ -1740,16 +1765,24 @@ def load_portal_info(url, logger):
 # ------------------------------------------------------------------------------
 def interface(args=None):
     parser = argparse.ArgumentParser(description='cBioPortal study validator')
-    parser.add_argument('-s', '--study_directory', type=str, required=True,
-                        help='path to directory.')
-    parser.add_argument('-n', '--no_portal_checks',
-                        required=False, action='store_true',
-                        help='Skip tests requiring information from the '
-                             'cBioPortal installation')
-    parser.add_argument('-u', '--url_server', type=str, required=False,
-                        default='http://localhost/cbioportal',
-                        help='URL to cBioPortal server. You can set this if '
-                             'your URL is not http://localhost/cbioportal')
+    parser.add_argument('-s', '--study_directory',
+                        type=str, required=True, help='path to directory.')
+    portal_mode_group = parser.add_mutually_exclusive_group()
+    portal_mode_group.add_argument('-u', '--url_server',
+                                   type=str,
+                                   default='http://localhost/cbioportal',
+                                   help='URL to cBioPortal server. You can '
+                                        'set this if your URL is not '
+                                        'http://localhost/cbioportal')
+    portal_mode_group.add_argument('-p', '--portal_info_dir',
+                                   type=str,
+                                   help='Path to a directory of cBioPortal '
+                                        'info files to be used instead of '
+                                        'contacting a server')
+    portal_mode_group.add_argument('-n', '--no_portal_checks',
+                                   action='store_true',
+                                   help='Skip tests requiring information '
+                                        'from the cBioPortal installation')
     parser.add_argument('-html', '--html_table', type=str, required=False,
                         help='path to html report output file')
     parser.add_argument('-e', '--error_file', type=str, required=False,

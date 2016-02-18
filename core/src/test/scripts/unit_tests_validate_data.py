@@ -473,9 +473,10 @@ class SegFileValidationTestCase(PostClinicalDataFileTestCase):
 
     """Tests for the various validations of data in segment CNA data files."""
 
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         """Override a static method to skip a UCSC HTTP query in each test."""
-        super(SegFileValidationTestCase, self).setUp()
+        super(SegFileValidationTestCase, cls).setUpClass()
         @staticmethod
         def load_chromosome_lengths(genome_build):
             if genome_build != 'hg19':
@@ -490,14 +491,14 @@ class SegFileValidationTestCase(PostClinicalDataFileTestCase):
                     u'3': 198022430, u'4': 191154276, u'5': 180915260,
                     u'6': 171115067, u'7': 159138663, u'8': 146364022,
                     u'9': 141213431, u'X': 155270560, u'Y': 59373566}
-        self.orig_chromlength_method = validateData.SegValidator.load_chromosome_lengths
+        cls.orig_chromlength_method = validateData.SegValidator.load_chromosome_lengths
         validateData.SegValidator.load_chromosome_lengths = load_chromosome_lengths
 
-
-    def tearDown(self):
-        """Restore the environment to before setUp() was called."""
-        super(SegFileValidationTestCase, self).tearDown()
-        validateData.SegValidator.load_chromosome_lengths = self.orig_chromlength_method
+    @classmethod
+    def tearDownClass(cls):
+        """Restore the environment to before setUpClass() was called."""
+        validateData.SegValidator.load_chromosome_lengths = cls.orig_chromlength_method
+        super(SegFileValidationTestCase, cls).tearDownClass()
 
     def test_valid_seg(self):
         """Validate a segment file without file format errors."""

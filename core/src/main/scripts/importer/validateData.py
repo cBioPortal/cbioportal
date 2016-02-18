@@ -1971,6 +1971,9 @@ def main_validate(args):
                                          clinical_attribute_dict=None,
                                          hugo_entrez_map=None,
                                          alias_entrez_map=None)
+    elif args.portal_info_dir:
+        portal_instance = load_portal_info(args.portal_info_dir, logger,
+                                           offline=True)
     else:
         portal_instance = load_portal_info(server_url, logger)
 

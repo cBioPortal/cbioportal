@@ -43,8 +43,9 @@ import java.io.File;
 public class ImportCancerStudy {
 
     public static void main(String[] args) throws Exception {
-        if (args.length == 0) {
+        if (args.length < 1) {
             System.out.println("command line usage: importCancerStudy.pl <cancer_study.txt>");
+            // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
             return;
         }
 

@@ -264,6 +264,7 @@ public class GenerateMutationData {
         if (args.length < 4) {
             System.out.println("command line usage:  generateMutationData.pl " +
                     "<case-list> <sequenced-gene-list> <sequenced-cases> <known-mutation-file>");
+            // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
             return;
         }
 

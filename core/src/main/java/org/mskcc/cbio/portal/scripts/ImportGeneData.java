@@ -254,9 +254,8 @@ public class ImportGeneData {
             System.out.println("command line usage:  importGenes.pl <ncbi_genes.txt> <supp-genes.txt> <microrna.txt> <all_exon_loci.bed>");
             return;
         }
-        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
+        ProgressMonitor.setConsoleMode(true);
         
-
         File geneFile = new File(args[0]);
         System.out.println("Reading gene data from:  " + geneFile.getAbsolutePath());
         int numLines = FileUtil.getNumLines(geneFile);

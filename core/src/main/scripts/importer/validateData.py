@@ -34,9 +34,6 @@ GENOMIC_BUILD_NAME = 'hg19'
 DEFINED_SAMPLE_IDS = None
 DEFINED_CANCER_TYPES = None
 
-# portal-specific globals
-PORTAL_CANCER_TYPES = None
-
 
 # ----------------------------------------------------------------------------
 
@@ -170,14 +167,40 @@ class CombiningLoggerAdapter(logging.LoggerAdapter):
         return msg, kwargs
 
 
+class PortalInstance(object):
+
+    """Represent a portal instance, storing the data needed for validation.
+
+    This holds a number of dictionaries representing the particular
+    datatypes queried from the portal, each of which may be None
+    if the checks are to be skipped.
+    """
+
+    def __init__(self, cancer_type_dict, clinical_attribute_dict,
+                 hugo_entrez_map, alias_entrez_map):
+        """Represent a portal instance with the given dictionaries."""
+        self.cancer_type_dict = cancer_type_dict
+        self.clinical_attribute_dict = clinical_attribute_dict
+        self.hugo_entrez_map = hugo_entrez_map
+        self.alias_entrez_map = alias_entrez_map
+        self.entrez_set = set()
+        for entrez_map in (hugo_entrez_map, alias_entrez_map):
+            if entrez_map is not None:
+                for entrez_list in entrez_map.values():
+                    for entrez_id in entrez_list:
+                        self.entrez_set.add(entrez_id)
+
+
 class Validator(object):
 
     """Abstract validator class for tab-delimited data files.
 
-    Subclassed by validators for specific data file types, which should
-    define a 'REQUIRED_HEADERS' attribute listing the required column
-    headers and a `REQUIRE_COLUMN_ORDER` boolean stating whether their
-    position is significant.
+    Subclassed by validators for specific data file types, which
+    should define a 'REQUIRED_HEADERS' attribute listing the required
+    column headers and a `REQUIRE_COLUMN_ORDER` boolean stating
+    whether their position is significant. Unless ALLOW_BLANKS is
+    set to True, empty cells in lines below the column header will
+    be reported as errors.
 
     The methods `processTopLines`, `checkHeader`, `checkLine` and `onComplete`
     may be overridden (calling their superclass methods) to perform any
@@ -188,27 +211,26 @@ class Validator(object):
     REQUIRE_COLUMN_ORDER = True
     ALLOW_BLANKS = False
 
-    def __init__(self, study_dir, meta_dict, logger, hugo_entrez_map, aliases_entrez_map):
+    def __init__(self, study_dir, meta_dict, portal_instance, logger):
         """Initialize a validator for a particular data file.
 
         :param study_dir: the path at which the study files can be found
         :param meta_dict: dictionary of fields found in corresponding meta file
                          (such as stable id and data file name)
+        :param portal_instance: a PortalInstance object for which to validate
         :param logger: logger instance for writing the log messages
-        :param hugo_entrez_map: dictionary of Hugo-Entrez mapping in the portal
         """
         self.filename = os.path.join(study_dir, meta_dict['data_filename'])
         self.filenameShort = os.path.basename(self.filename)
         self.line_number = 0
         self.cols = []
         self.numCols = 0
-        self.hugo_entrez_map = hugo_entrez_map
-        self.aliases_entrez_map = aliases_entrez_map
         self.newlines = ('',)
         self.studyId = ''
         self.headerWritten = False
         # This one is set to True if file could be parsed/read until the end (happens in onComplete)
         self.fileCouldBeParsed = False
+        self.portal = portal_instance
         self.logger = CombiningLoggerAdapter(
             logger,
             extra={'filename_': self.filenameShort})
@@ -282,12 +304,16 @@ class Validator(object):
             for line_number, fields in enumerate(csvreader,
                                                  start=line_number + 1):
                 self.line_number = line_number
-                if fields[0].startswith('#'):
+                if all(x.strip() == '' for x in fields):
+                    self.logger.error(
+                        'Blank line',
+                        extra={'line_number': self.line_number})
+                elif fields[0].startswith('#'):
                     self.logger.error(
                         "Data line starting with '#' skipped",
                         extra={'line_number': self.line_number})
-                    continue
-                self.checkLine(fields)
+                else:
+                    self.checkLine(fields)
 
             # (tuple of) string(s) of the newlines read (for 'rU' mode files)
             self.newlines = data_file.newlines
@@ -344,10 +370,6 @@ class Validator(object):
 
         :param data: The list of values parsed from the line
         """
-
-        if all(x == '' for x in data):
-            self.logger.error("Blank line",
-                              extra={'line_number': self.line_number})
 
         if data[:self.numCols] == self.cols:
             if self.logger.isEnabledFor(logging.ERROR):
@@ -471,6 +493,7 @@ class Validator(object):
             return False
         return True
 
+    # TODO let this function know the column numbers for logging messages
     def checkGeneIdentification(self, gene_symbol=None, entrez_id=None):
         """Check if a symbol-Entrez pair is valid, logging an error if not.
 
@@ -486,74 +509,97 @@ class Validator(object):
         # set to upper, as both maps contain symbols in upper
         if gene_symbol is not None:
             gene_symbol = gene_symbol.upper()
-        
-        if entrez_id is not None:
-            if gene_symbol is not None:
-                if gene_symbol not in self.hugo_entrez_map and gene_symbol not in self.aliases_entrez_map:
-                    self.logger.error(
-                        'Gene symbol not known to the cBioPortal instance',
-                        extra={'line_number': self.line_number,
-                               'cause': gene_symbol})
-                    return False
-                elif entrez_id not in (self.hugo_entrez_map.get(gene_symbol, []) + self.aliases_entrez_map.get(gene_symbol, [])):
-                    self.logger.error(
-                        'Hugo symbol and Entrez identifier do not match',
-                        extra={'line_number': self.line_number,
-                               'cause': '(' + gene_symbol + ',' + entrez_id + ')'})
-                    return False
-            else:
-                if (entrez_id not in itertools.chain(*self.hugo_entrez_map.values()) and  
-                    entrez_id not in itertools.chain(*self.aliases_entrez_map.values())): #this should be first check
-                    self.logger.error(
-                        'Entrez gene id not known to the cBioPortal instance.',
-                        extra={'line_number': self.line_number,
-                               'cause': entrez_id})
-                    return False
-        elif gene_symbol is not None:
-            if gene_symbol not in self.hugo_entrez_map and gene_symbol not in self.aliases_entrez_map:
-                self.logger.error(
-                    'Gene symbol not known to the cBioPortal instance.',
-                    extra={'line_number': self.line_number,
-                           'cause': gene_symbol})
-                return False
-            elif len(self.hugo_entrez_map.get(gene_symbol, [])) > 1:
-                # nb: this should actually never occur, see also https://github.com/cBioPortal/cbioportal/issues/799
-                self.logger.error(
-                    'Gene symbol maps to multiple Entrez ids (%s), '
-                    'please specify which one you mean',
-                    '/'.join(self.hugo_entrez_map[gene_symbol]),
-                    extra={'line_number': self.line_number,
-                          'cause': gene_symbol})
-                return False
-            elif len(self.hugo_entrez_map.get(gene_symbol, [])) == 0 and len(self.aliases_entrez_map.get(gene_symbol, [])) > 1:
-                # If gene_symbol was only in aliases_entrez_map, then hugo_entrez_map.get(gene_symbol) will be empty
-                # and we need to check the aliases_entrez_map.
-                # TODO - maybe this should be warning instead? Depends on how loader deals with this
-                self.logger.error(
-                    'Gene alias (%s) maps to multiple Entrez ids (%s), '
-                    'please specify which one you mean',
-                    gene_symbol,
-                    '/'.join(self.aliases_entrez_map[gene_symbol]),
-                    extra={'line_number': self.line_number})
-                return False
-            elif len(self.hugo_entrez_map.get(gene_symbol, [])) == 1:
-                found_entrez_id = self.hugo_entrez_map[gene_symbol][0]
-                # check if there are other *different* entrez ids associated to this symbol:
-                other_entrez_ids_in_aliases = [x for x in self.aliases_entrez_map.get(gene_symbol, []) if x != found_entrez_id ]
-                if len(other_entrez_ids_in_aliases) >= 1:
-                    # Give warning, as the symbol has been used before to refer to different entrez_ids over time:
-                    self.logger.warning(
-                    'Gene symbol (%s) maps to a single entrez id (%s), '
-                    'but this symbol is also associated to other entrez ids as an alias. The system will assume '
-                    'the mapped entrez id to be the intended one.',
-                    gene_symbol,
-                    found_entrez_id,
-                    extra={'line_number': self.line_number}) 
-        else:
+
+        # check whether at least one is present
+        if entrez_id is None and gene_symbol is None:
             self.logger.error(
                 'No Entrez id or gene symbol provided for gene',
                 extra={'line_number': self.line_number})
             return False
+
+        # if portal information is absent, skip the rest of the checks
+        if (self.portal.hugo_entrez_map is None or
+                self.portal.alias_entrez_map is None):
+            return True
+
+        # check whether anything is unknown or contradictory to the portal
+        # TODO reorder to perform as many checks as sensible with assumptions
+        if entrez_id is not None:
+            if entrez_id not in self.portal.entrez_set:
+                self.logger.error(
+                    'Entrez gene id not known to the cBioPortal instance',
+                    extra={'line_number': self.line_number,
+                           'cause': entrez_id})
+                return False
+            # if the gene symbol is specified too
+            elif gene_symbol is not None:
+                if (gene_symbol not in self.portal.hugo_entrez_map and
+                        gene_symbol not in self.portal.alias_entrez_map):
+                    self.logger.warning(
+                        'Entrez ID exists, but the gene symbol specified is '
+                        'not known to the cBioPortal instance',
+                        extra={'line_number': self.line_number,
+                               'cause': gene_symbol})
+                    return False
+                elif entrez_id not in itertools.chain(
+                        self.portal.hugo_entrez_map.get(gene_symbol, []),
+                        self.portal.alias_entrez_map.get(gene_symbol, [])):
+                    self.logger.warning(
+                        'Gene symbol and Entrez identifier do not match, the '
+                        'symbol will be ignored',
+                        extra={'line_number': self.line_number,
+                               'cause': '(' + gene_symbol + ',' + entrez_id + ')'})
+                    return False
+        elif gene_symbol is not None:
+            if (gene_symbol not in self.portal.hugo_entrez_map and
+                    gene_symbol not in self.portal.alias_entrez_map):
+                self.logger.error(
+                    'Gene symbol not known to the cBioPortal instance',
+                    extra={'line_number': self.line_number,
+                           'cause': gene_symbol})
+                return False
+            num_entrezs_for_hugo = len(
+                self.portal.hugo_entrez_map.get(gene_symbol, []))
+            num_entrezs_for_alias = len(
+                self.portal.alias_entrez_map.get(gene_symbol, []))
+            if num_entrezs_for_hugo > 1:
+                # nb: this should actually never occur, see also https://github.com/cBioPortal/cbioportal/issues/799
+                self.logger.error(
+                    'Gene symbol maps to multiple Entrez ids (%s), '
+                    'please specify which one you mean',
+                    '/'.join(self.portal.hugo_entrez_map[gene_symbol]),
+                    extra={'line_number': self.line_number,
+                          'cause': gene_symbol})
+                return False
+            elif num_entrezs_for_hugo == 0 and num_entrezs_for_alias > 1:
+                # If gene_symbol was only in aliases_entrez_map, then
+                # hugo_entrez_map.get(gene_symbol) will be empty
+                # and we need to check the aliases_entrez_map.
+                # TODO - maybe this should be warning instead? Depends on how loader deals with this
+                self.logger.error(
+                    'Gene alias maps to multiple Entrez ids (%s), '
+                    'please specify which one you mean',
+                    '/'.join(self.portal.alias_entrez_map[gene_symbol]),
+                    extra={'line_number': self.line_number,
+                           'cause': gene_symbol})
+                return False
+            elif num_entrezs_for_hugo == 1:
+                found_entrez_id = self.portal.hugo_entrez_map[gene_symbol][0]
+                # check if there are other *different* entrez ids associated to this symbol:
+                other_entrez_ids_in_aliases = [
+                    x for x in
+                    self.portal.alias_entrez_map.get(gene_symbol, []) if
+                    x != found_entrez_id]
+                if len(other_entrez_ids_in_aliases) >= 1:
+                    # Give warning, as the symbol has been used before to refer to different entrez_ids over time:
+                    self.logger.warning(
+                        'This Hugo gene symbol maps to a single Entrez gene '
+                        'ID, but is also associated to other genes as an '
+                        'alias. The system will assume the official Hugo '
+                        'symbol to be the intended one.',
+                        extra={'line_number': self.line_number,
+                               'cause': gene_symbol})
+
         return True
 
     def _checkRepeatedColumns(self):
@@ -861,7 +907,8 @@ class MutationsExtendedValidator(Validator):
     def checkValidationStatus(self, value):
         if value == '':
             return True
-        if value.lower() not in ('valid', 'unknown', 'na', 'untested'):
+        if value.lower() not in ('untested', 'inconclusive',
+                                 'valid', 'invalid'):
             return False
         return True
     
@@ -908,8 +955,6 @@ class ClinicalValidator(Validator):
         'SAMPLE_ID'
     ]
     REQUIRE_COLUMN_ORDER = False
-
-    srv_attrs = None
 
     def __init__(self, *args, **kwargs):
         super(ClinicalValidator, self).__init__(*args, **kwargs)
@@ -1035,8 +1080,12 @@ class ClinicalValidator(Validator):
                     "Clinical header not in all caps",
                     extra={'line_number': self.line_number,
                            'cause': col_name})
+            # skip all further checks for this column if portal info is absent
+            if self.portal.clinical_attribute_dict is None:
+                continue
             # look up how the attribute is defined in the portal
-            srv_attr_properties = self.srv_attrs.get(col_name)
+            srv_attr_properties = self.portal.clinical_attribute_dict.get(
+                                      col_name)
             if srv_attr_properties is None:
                 self.logger.warning(
                     'New %s-level attribute will be added to the portal',
@@ -1081,7 +1130,7 @@ class ClinicalValidator(Validator):
         if 'DFS_MONTHS' not in self.cols or 'DFS_STATUS' not in self.cols:
             self.logger.warning('Columns DFS_MONTHS and/or DFS_STATUS not found. Disease free analysis feature will '
                                 'not be available for this study.')
-        
+
         return num_errors
 
     def checkLine(self, data):
@@ -1103,30 +1152,6 @@ class ClinicalValidator(Validator):
                         extra={'line_number': self.line_number,
                                'column_number': col_index + 1,
                                'cause': value})
-
-    @classmethod
-    def request_attrs(cls, server_url, logger):
-        """Initialize cls.srv_attrs using the portal API."""
-        cls.srv_attrs = request_from_portal_api(
-            server_url + '/api/clinicalattributes/patients',
-            logger,
-            id_field='attr_id')
-        srv_sample_attrs = request_from_portal_api(
-            server_url + '/api/clinicalattributes/samples',
-            logger,
-            id_field='attr_id')
-        # if this happens, the database structure has changed and this script
-        # needs to be updated
-        id_overlap = (set(cls.srv_attrs.keys()) &
-                      set(srv_sample_attrs.keys()))
-        if id_overlap:
-            raise ValueError(
-                'The portal at {url} returned these clinical attributes '
-                'both for samples and for patients: {attrs}'.format(
-                    url=server_url,
-                    attrs=', '.join(id_overlap)))
-        else:
-            cls.srv_attrs.update(srv_sample_attrs)
 
 
 class SegValidator(Validator):
@@ -1184,10 +1209,9 @@ class SegValidator(Validator):
                                                       parsed_coords['chrom']]):
                     self.logger.error(
                         'Genomic position beyond end of chromosome '
-                        '(chr%(chr)s:0-%(end)s)',
-                        {'chr': parsed_coords['chrom'],
-                         'end': self.chromosome_lengths[
-                                    parsed_coords['chrom']]},
+                        '(chr%s:0-%s)',
+                        parsed_coords['chrom'],
+                        self.chromosome_lengths[parsed_coords['chrom']],
                         extra={'line_number': self.line_number,
                                'column_number': col_index + 1,
                                'cause': value})
@@ -1371,7 +1395,7 @@ class CancerTypeValidator(Validator):
         'type_of_cancer',
         'name',
         'clinical_trial_keywords',
-        'dedicated_color',
+        'color',
         'parent_type_of_cancer'
     )
 
@@ -1412,8 +1436,9 @@ class CancerTypeValidator(Validator):
                 # keywords on https://www.w3.org/TR/css3-color/#svg-color
                 if field_name == 'parent_type_of_cancer':
                     parent_cancer_type = data[col_index].lower()
-                    if not (parent_cancer_type in PORTAL_CANCER_TYPES or
-                            parent_cancer_type in self.defined_cancer_types):
+                    if (self.portal.cancer_type_dict is not None and not
+                            (parent_cancer_type in self.portal.cancer_type_dict or
+                             parent_cancer_type in self.defined_cancer_types)):
                         self.logger.error(
                             "Unknown parent for cancer type '%s'",
                             line_cancer_type,
@@ -1427,8 +1452,9 @@ class CancerTypeValidator(Validator):
                     extra={'line_number': self.line_number,
                            'cause': line_cancer_type})
             # compare the cancer_type definition with the portal instance
-            if line_cancer_type in PORTAL_CANCER_TYPES:
-                existing_info = PORTAL_CANCER_TYPES[line_cancer_type]
+            if (self.portal.cancer_type_dict is not None and
+                    line_cancer_type in self.portal.cancer_type_dict):
+                existing_info = self.portal.cancer_type_dict[line_cancer_type]
                 # depending on version, the API may not return this field
                 if 'short_name' in existing_info:
                     if existing_info['short_name'].lower() != line_cancer_type:
@@ -1456,7 +1482,7 @@ class CancerTypeValidator(Validator):
                             extra={'line_number': self.line_number,
                                    'column_number': col_index + 1,
                                    'cause': value})
-            else:
+            elif self.portal.cancer_type_dict is not None:
                 self.logger.warning(
                     'New disease type will be added to the portal',
                     extra={'line_number': self.line_number,
@@ -1468,11 +1494,12 @@ class CancerTypeValidator(Validator):
         finally:
             self.logger.logger.removeHandler(tracking_handler)
 
+
 # ------------------------------------------------------------------------------
 # Functions
 
 
-def process_metadata_files(directory, logger, hugo_entrez_map, aliases_entrez_map):
+def process_metadata_files(directory, portal_instance, logger):
 
     """Parse the meta files in a directory and create data file validators.
 
@@ -1488,7 +1515,8 @@ def process_metadata_files(directory, logger, hugo_entrez_map, aliases_entrez_ma
     # get filenames for all meta files in the directory
     filenames = [os.path.join(directory, f) for
                  f in os.listdir(directory) if
-                 re.search(r'(\b|_)meta(\b|_)', f) and
+                 re.search(r'(\b|_)meta(\b|[_0-9])', f,
+                           flags=re.IGNORECASE) and
                  not f.startswith('.') and 
                  not f.endswith('~')]
     
@@ -1533,8 +1561,8 @@ def process_metadata_files(directory, logger, hugo_entrez_map, aliases_entrez_ma
         # check if data_filename is set AND if data_filename is a supported field according to META_FIELD_MAP:
         if 'data_filename' in meta and 'data_filename' in cbioportal_common.META_FIELD_MAP[meta_file_type]:
             validator_class = globals()[VALIDATOR_IDS[meta_file_type]]
-            validator = validator_class(directory, meta, logger,
-                                        hugo_entrez_map, aliases_entrez_map)
+            validator = validator_class(directory, meta,
+                                        portal_instance, logger)
             validators_by_type[meta_file_type].append(validator)
         else:
             validators_by_type[meta_file_type].append(None)
@@ -1617,12 +1645,12 @@ def request_from_portal_api(service_url, logger, id_field=None):
         return transformed_dict
 
 
-def get_symbol_entrez_map(server_url, logger, retrieve_aliases = False):
+def get_symbol_entrez_map(server_url, logger, aliases=False):
     """
     Returns a dict with hugo symbols and respective entrezIds, e.g.:
     # dict: {'LOC105377913': ['105377913'], 'LOC105377912': ['105377912'],  hugo: [entrez], hugo: [entrez, entrez]...
     """
-    if retrieve_aliases: 
+    if aliases:
         service = '/api/genesaliases'
         symbol_field_name = 'gene_alias'
     else:
@@ -1650,11 +1678,39 @@ def transform_symbol_entrez_map(json_data, symbol_field_name):
     return result_dict
 
 
+def request_clinical_attributess(server_url, logger):
+    """Request clinical attributes from the portal API and return a dict."""
+    srv_patient_attrs = request_from_portal_api(
+        server_url + '/api/clinicalattributes/patients',
+        logger,
+        id_field='attr_id')
+    srv_sample_attrs = request_from_portal_api(
+        server_url + '/api/clinicalattributes/samples',
+        logger,
+        id_field='attr_id')
+    # if this happens, the database structure has changed and this script
+    # needs to be updated
+    id_overlap = (set(srv_patient_attrs.keys()) &
+                  set(srv_sample_attrs.keys()))
+    if id_overlap:
+        raise ValueError(
+            'The portal at {url} returned these clinical attributes '
+            'both for samples and for patients: {attrs}'.format(
+                url=server_url,
+                attrs=', '.join(id_overlap)))
+    srv_patient_attrs.update(srv_sample_attrs)
+    return srv_patient_attrs
+
+
 # ------------------------------------------------------------------------------
 def interface(args=None):
-    parser = argparse.ArgumentParser(description='cBioPortal meta Validator')
+    parser = argparse.ArgumentParser(description='cBioPortal study validator')
     parser.add_argument('-s', '--study_directory', type=str, required=True,
                         help='path to directory.')
+    parser.add_argument('-n', '--no_portal_checks',
+                        required=False, action='store_true',
+                        help='Skip tests requiring information from the '
+                             'cBioPortal installation')
     parser.add_argument('-u', '--url_server', type=str, required=False,
                         default='http://localhost/cbioportal',
                         help='URL to cBioPortal server. You can set this if '
@@ -1672,22 +1728,33 @@ def interface(args=None):
     return parser
 
 
-def validate_study(study_dir, logger, hugo_entrez_map, aliases_entrez_map):
+def validate_study(study_dir, portal_instance, logger):
 
-    """Validate the study in study_dir, logging messages to the logger.
+    """Validate the study in `study_dir`, logging messages to `logger`.
 
-    The arguments hugo_entrez_map and aliases_entrez_map should be dicts listing the
-    gene symbols and corresponding Entrez identifiers defined in the portal api/genes and 
-    api/genesaliases services.
+    This will verify that the study is compatible with the portal configuration
+    represented by the PortalInstance object `portal_instance`, if its
+    attributes are not None.
     """
 
     global DEFINED_CANCER_TYPES
     global DEFINED_SAMPLE_IDS
 
+    if portal_instance.cancer_type_dict is None:
+        logger.warning('Skipping validations relating to cancer types '
+                       'defined in the portal')
+    if portal_instance.clinical_attribute_dict is None:
+        logger.warning('Skipping validations relating to clinical attributes '
+                       'defined in the portal')
+    if (portal_instance.hugo_entrez_map is None or
+            portal_instance.alias_entrez_map is None):
+        logger.warning('Skipping validations relating to gene identifiers and '
+                       'aliases defined in the portal')
+
     # walk over the meta files in the dir and get properties of the study
     (validators_by_meta_type,
      study_cancer_type,
-     study_id) = process_metadata_files(study_dir, logger, hugo_entrez_map, aliases_entrez_map)
+     study_id) = process_metadata_files(study_dir, portal_instance, logger)
 
     # first parse and validate cancer type files
     studydefined_cancer_types = []
@@ -1711,8 +1778,9 @@ def validate_study(study_dir, logger, hugo_entrez_map, aliases_entrez_map):
     if cbioportal_common.MetaFileTypes.STUDY not in validators_by_meta_type:
         logger.error('No valid study file detected')
         return
-    if not (study_cancer_type in PORTAL_CANCER_TYPES or
-            study_cancer_type in DEFINED_CANCER_TYPES):
+    if portal_instance.cancer_type_dict is not None and not (
+                study_cancer_type in portal_instance.cancer_type_dict or
+                study_cancer_type in DEFINED_CANCER_TYPES):
         logger.error(
             'Cancer type of study is neither known to the portal nor defined '
             'in a cancer_type file',
@@ -1763,9 +1831,6 @@ def validate_study(study_dir, logger, hugo_entrez_map, aliases_entrez_map):
 def main_validate(args):
 
     """Main function: process parsed arguments and validate the study."""
-
-    # global portal properties
-    global PORTAL_CANCER_TYPES
 
     # get a logger to emit messages
     logger = logging.getLogger(__name__)
@@ -1832,18 +1897,30 @@ def main_validate(args):
         coll_errfile_handler.addFilter(LineMessageFilter())
         logger.addHandler(coll_errfile_handler)
 
-    # retrieve cancer types defined in the portal
-    PORTAL_CANCER_TYPES = request_from_portal_api(
-        server_url + '/api/cancertypes',
-        logger,
-        id_field='id')
-    # retrieve clinical attributes defined in the portal
-    ClinicalValidator.request_attrs(server_url, logger)
-    # Entrez values for Hugo symbols in the portal
-    hugo_entrez_map = get_symbol_entrez_map(server_url, logger)
-    aliases_entrez_map = get_symbol_entrez_map(server_url, logger, True)
+    # load portal-specific information
+    if args.no_portal_checks:
+        portal_instance = PortalInstance(cancer_type_dict=None,
+                                         clinical_attribute_dict=None,
+                                         hugo_entrez_map=None,
+                                         alias_entrez_map=None)
+    else:
+        # retrieve cancer types defined in the portal
+        portal_cancer_types = request_from_portal_api(
+            server_url + '/api/cancertypes',
+            logger,
+            id_field='id')
+        # retrieve clinical attributes defined in the portal
+        portal_clin_attrs = request_clinical_attributess(server_url, logger)
+        # Entrez values for Hugo symbols and synonyms in the portal
+        hugo_entrez_map = get_symbol_entrez_map(server_url, logger)
+        alias_entrez_map = get_symbol_entrez_map(server_url, logger,
+                                                 aliases=True)
+        portal_instance = PortalInstance(portal_cancer_types,
+                                         portal_clin_attrs,
+                                         hugo_entrez_map,
+                                         alias_entrez_map)
 
-    validate_study(study_dir, logger, hugo_entrez_map, aliases_entrez_map)
+    validate_study(study_dir, portal_instance, logger)
 
     if html_handler is not None:
         collapsing_html_handler.flush()

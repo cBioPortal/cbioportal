@@ -144,7 +144,8 @@ def process_directory(jvm_args, study_directory):
     meta_filenames = (
         os.path.join(study_directory, f) for
         f in os.listdir(study_directory) if
-        re.search(r'(\b|_)meta(\b|_)', f) and
+        re.search(r'(\b|_)meta(\b|[_0-9])', f,
+                  flags=re.IGNORECASE) and
         not (f.startswith('.') or f.endswith('~')))
     study_id = None
     study_metafile = None

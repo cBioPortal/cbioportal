@@ -35,6 +35,8 @@ KNOWN_PATIENT_ATTRS = {
 KNOWN_SAMPLE_ATTRS = {
     "SAMPLE_ID": {"display_name":"Sample Identifier","description":"A unique sample identifier.","datatype":"STRING","is_patient_attribute":"0","priority":"1"},
 }
+KNOWN_ATTRS = dict(KNOWN_PATIENT_ATTRS)
+KNOWN_ATTRS.update(KNOWN_SAMPLE_ATTRS)
 
 # hard-code known cancer types
 KNOWN_CANCER_TYPES = {
@@ -50,6 +52,11 @@ KNOWN_CANCER_TYPES = {
 # mock-code sample ids defined in a study
 DEFINED_SAMPLE_IDS = ["TCGA-A1-A0SB-01", "TCGA-A1-A0SD-01", "TCGA-A1-A0SE-01", "TCGA-A1-A0SH-01", "TCGA-A2-A04U-01",
 "TCGA-B6-A0RS-01", "TCGA-BH-A0HP-01", "TCGA-BH-A18P-01", "TCGA-BH-A18H-01", "TCGA-C8-A138-01", "TCGA-A2-A0EY-01", "TCGA-A8-A08G-01"]
+
+PORTAL_INSTANCE = validateData.PortalInstance(KNOWN_CANCER_TYPES,
+                                              KNOWN_ATTRS,
+                                              hugo_entrez_map,
+                                              aliases_entrez_map)
 
 
 # TODO - something like this could be done for a web-services stub:
@@ -118,34 +125,8 @@ class LogBufferTestCase(unittest.TestCase):
         for record in record_list:
             print formatter.format(record)
 
-class StudyValidationTestCase(LogBufferTestCase):
 
-    """Testcase for any functionality used while validating a study.
-
-    This class takes care of initialising globals that should have been
-    set before validate_study is called.
-    """
-
-    def setUp(self):
-        """Hard-code portal attributes."""
-        super(StudyValidationTestCase, self).setUp()
-        # set known clinical attributes
-        self.orig_srv_attrs = validateData.ClinicalValidator.srv_attrs
-        mock_srv_attrs = dict(KNOWN_PATIENT_ATTRS)
-        mock_srv_attrs.update(KNOWN_SAMPLE_ATTRS)
-        validateData.ClinicalValidator.srv_attrs = mock_srv_attrs
-        # set known cancer types
-        self.orig_portal_cancer_types = validateData.PORTAL_CANCER_TYPES
-        validateData.PORTAL_CANCER_TYPES = KNOWN_CANCER_TYPES
-
-    def tearDown(self):
-        """Restore the environment to before setUp() was called."""
-        validateData.ClinicalValidator.srv_attrs = self.orig_srv_attrs
-        validateData.PORTAL_CANCER_TYPES = self.orig_portal_cancer_types
-        super(StudyValidationTestCase, self).tearDown()
-
-
-class DataFileTestCase(StudyValidationTestCase):
+class DataFileTestCase(LogBufferTestCase):
 
     """Superclass for testcases validating a particular data file.
 
@@ -159,7 +140,8 @@ class DataFileTestCase(StudyValidationTestCase):
         if extra_meta_fields is not None:
             meta_dict.update(extra_meta_fields)
         validator = validator_class('test_data', meta_dict,
-                                    self.logger, hugo_entrez_map, aliases_entrez_map)
+                                    PORTAL_INSTANCE,
+                                    self.logger)
         validator.validate()
         return self.get_log_records()
 
@@ -410,13 +392,13 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
 
     def test_both_name_and_entrez_but_invalid_hugo(self):
         """Test when a file has both the Hugo name and Entrez ID columns, but hugo is invalid."""
-        self.logger.setLevel(logging.ERROR)
+        self.logger.setLevel(logging.WARNING)
         record_list = self.validate('data_cna_genecol_presence_both_invalid_hugo.txt',
                                     validateData.CNAValidator)
         # expecting two error messages:
         self.assertEqual(len(record_list), 2)
         for record in record_list:
-            self.assertEqual(record.levelno, logging.ERROR)
+            self.assertEqual(record.levelno, logging.WARNING)
         # expecting these to be the cause:
         self.assertEqual(record_list[0].cause, 'XXACAP3')
         self.assertEqual(record_list[1].cause, 'XXAGRN')
@@ -436,13 +418,13 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
 
     def test_both_name_and_entrez_but_invalid_couple(self):
         """Test when a file has both the Hugo name and Entrez ID columns, both valid, but association is invalid."""
-        self.logger.setLevel(logging.ERROR)
+        self.logger.setLevel(logging.WARNING)
         record_list = self.validate('data_cna_genecol_presence_both_invalid_couple.txt',
                                     validateData.CNAValidator)
         # expecting two error messages:
         self.assertEqual(len(record_list), 2)
         for record in record_list:
-            self.assertEqual(record.levelno, logging.ERROR)
+            self.assertEqual(record.levelno, logging.WARNING)
         # expecting these to be the cause:
         self.assertIn('ACAP3', record_list[0].cause)
         self.assertIn('116983', record_list[1].cause)
@@ -472,7 +454,7 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         record = record_list.pop()
         self.assertEqual(record.levelno, logging.ERROR)
         # expecting this gene to be the cause
-        self.assertIn('TRAPPC2P1', record.message)
+        self.assertEquals(record.cause, 'TRAPPC2P1')
 
     def test_entrez_only_but_invalid(self):
         """Test when a file has an Entrez ID column but none for Hugo names, and entrez is wrong."""
@@ -486,6 +468,22 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         # expecting these to be the cause:
         self.assertEqual(record_list[0].cause, '-54998')
         self.assertEqual(record_list[1].cause, '-126792')
+
+    def test_unambiguous_hugo_also_used_as_alias(self):
+        """Test referencing a gene by a Hugo symbol occurring as an alias too.
+
+        This should yield a warning, as the gene for which it is an alias
+        might be the gene intended by the user.
+        """
+        self.logger.setLevel(logging.WARNING)
+        record_list = self.validate('data_cna_genecol_presence_hugo_only_possible_alias.txt',
+                                    validateData.CNAValidator)
+        # expecting one error message
+        self.assertEqual(len(record_list), 1)
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.WARNING)
+        # expecting this gene to be the cause
+        self.assertEquals(record.cause, 'ACT')
 
 
 class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
@@ -606,8 +604,21 @@ class SegFileValidationTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record_list[1].line_number, 41)
         self.assertEqual(record_list[1].column_number, 4)
 
+    def test_blank_line(self):
+        """Validate a .seg with a blank data line."""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_seg_blank_line.seg',
+                                    validateData.SegValidator,
+                                    extra_meta_fields={'reference_genome_id':
+                                                           'hg19'})
+        self.assertEqual(len(record_list), 1)
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.line_number, 35)
+        self.assertIn('blank', record.getMessage().lower())
 
-class StudyCompositionTestCase(StudyValidationTestCase):
+
+class StudyCompositionTestCase(LogBufferTestCase):
 
     """Tests for validations of the number of files of certain types."""
 
@@ -628,7 +639,8 @@ class StudyCompositionTestCase(StudyValidationTestCase):
         self.logger.setLevel(logging.ERROR)
         validateData.validate_study(
             'test_data/study_cancertype_two_files',
-            self.logger, hugo_entrez_map, aliases_entrez_map)
+            PORTAL_INSTANCE,
+            self.logger)
         record_list = self.get_log_records()
         # expecting two errors: one about the two cancer type files, and
         # about the cancer type of the study not having been defined
@@ -643,7 +655,7 @@ class StudyCompositionTestCase(StudyValidationTestCase):
         self.assertEqual(record_list[1].cause, 'luad')
 
 
-class StableIdValidationTestCase(StudyValidationTestCase):
+class StableIdValidationTestCase(LogBufferTestCase):
 
     """Tests to ensure stable_id validation works correctly."""
 
@@ -651,7 +663,8 @@ class StableIdValidationTestCase(StudyValidationTestCase):
         """Tests to check behavior when stable_id is not needed (warning) or wrong(error)."""
         validateData.process_metadata_files(
             'test_data/study_metastableid',
-            self.logger, hugo_entrez_map, aliases_entrez_map)
+            PORTAL_INSTANCE,
+            self.logger)
         record_list = self.get_log_records()
         # expecting 1 warning, 1 error:
         self.assertEqual(len(record_list), 3)

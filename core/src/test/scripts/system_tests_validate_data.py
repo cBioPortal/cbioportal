@@ -126,6 +126,35 @@ class ValidateDataSystemTester(unittest.TestCase):
         finally:
             shutil.rmtree(temp_dir_path)
 
+    def test_portal_mismatch(self):
+        '''Test if validation fails when data contradicts the portal.'''
+        # build up arguments and run
+        argv = ['--study_directory', 'test_data/study_portal_mismatch',
+                '--verbose',
+                '--url_server', server]
+        parsed_args = validateData.interface(argv)
+        exit_status = validateData.main_validate(parsed_args)
+        # flush logging handlers used in validateData
+        validator_logger = logging.getLogger(validateData.__name__)
+        for logging_handler in validator_logger.handlers:
+            logging_handler.flush()
+        # expecting only warnings (about the skipped checks), no errors
+        self.assertEquals(exit_status, 1)
+
+    def test_no_portal_checks(self):
+        '''Test if validation skips portal-specific checks when instructed.'''
+        # build up arguments and run
+        argv = ['--study_directory', 'test_data/study_portal_mismatch',
+                '--verbose',
+                '--no_portal_checks']
+        parsed_args = validateData.interface(argv)
+        exit_status = validateData.main_validate(parsed_args)
+        # flush logging handlers used in validateData
+        validator_logger = logging.getLogger(validateData.__name__)
+        for logging_handler in validator_logger.handlers:
+            logging_handler.flush()
+        # expecting only warnings (about the skipped checks), no errors
+        self.assertEquals(exit_status, 3)
 
     def test_problem_in_clinical(self):
         '''

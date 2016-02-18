@@ -243,13 +243,18 @@ public class PortalMetaDataJSON extends HttpServlet {
                     Map jsonCancerStudySubMap = cancerStudyMap(cancerStudy, !full_studies_data);
                     cancerStudyMap.put(cancerStudy.getCancerStudyStableId(), jsonCancerStudySubMap);
                     String typeOfCancerId = cancerStudy.getTypeOfCancerId().toLowerCase();
+                    if (typeOfCancerMap.get(typeOfCancerId) == null) {
+                    	//should not occur if DB is on InnoDB mode with referential constraints:
+                    	throw new RuntimeException("Cancer type record not found for: " + typeOfCancerId);
+                    }
                     visibleTypeOfCancerMap.put(typeOfCancerId, typeOfCancerMap.get(typeOfCancerId).getName());
-		    // climb the oncotree
-		    String currId = typeOfCancerMap.get(typeOfCancerId).getParentTypeOfCancerId();
-		    while (!currId.equals("tissue")) {
-			    visibleTypeOfCancerMap.put(currId, typeOfCancerMap.get(currId).getName());
-			    currId = typeOfCancerMap.get(currId).getParentTypeOfCancerId();
-		    }
+
+                    // climb the oncotree
+				    String currId = typeOfCancerMap.get(typeOfCancerId).getParentTypeOfCancerId();
+				    while (!currId.equals("tissue")) {
+					    visibleTypeOfCancerMap.put(currId, typeOfCancerMap.get(currId).getName());
+					    currId = typeOfCancerMap.get(currId).getParentTypeOfCancerId();
+				    }
                     visibleCancerColors.put(typeOfCancerId, cancerColors.get(typeOfCancerId));
                     visibleShortNames.put(typeOfCancerId, shortNames.get(typeOfCancerId));
                 }

@@ -11,72 +11,26 @@ import sys
 import logging.handlers
 from importer import cbioportal_common
 from importer import validateData
-import json
-
-# these two files contain the contents of the /api/genes and /api/genesaliases, respectively:
-with open('test_data/genes.json') as data_file:    
-    hugo_entrez_map = validateData.transform_symbol_entrez_map(json.load(data_file), 'hugo_gene_symbol')
-with open('test_data/genesaliases.json') as data_file:    
-    aliases_entrez_map = validateData.transform_symbol_entrez_map(json.load(data_file), 'gene_alias')
 
 
-
-# hard-code known clinical attributes
-KNOWN_PATIENT_ATTRS = {
-    "PATIENT_ID": {"display_name":"Patient Identifier","description":"Identifier to uniquely specify a patient.","datatype":"STRING","is_patient_attribute":"1","priority":"1"},
-    "OS_STATUS": {"display_name":"Overall Survival Status","description":"Overall patient survival status.","datatype":"STRING","is_patient_attribute":"1","priority":"1"},
-    "OS_MONTHS": {"display_name":"Overall Survival (Months)","description":"Overall survival in months since initial diagnosis.","datatype":"NUMBER","is_patient_attribute":"1","priority":"1"},
-    "DFS_STATUS": {"display_name":"Disease Free Status","description":"Disease free status since initial treatment.","datatype":"STRING","is_patient_attribute":"1","priority":"1"},
-    "DFS_MONTHS": {"display_name":"Disease Free (Months)","description":"Disease free (months) since initial treatment.","datatype":"NUMBER","is_patient_attribute":"1","priority":"1"},
-    "SUBTYPE": {"display_name":"Subtype","description":"Subtype description.","datatype":"STRING","is_patient_attribute":"0","priority":"1"},
-    "CANCER_TYPE": {"display_name":"Cancer Type","description":"Disease type.","datatype":"STRING","is_patient_attribute":"0","priority":"1"},
-    "CANCER_TYPE_DETAILED": {"display_name":"Cancer Type Detailed","description":"Cancer Type Detailed.","datatype":"STRING","is_patient_attribute":"0","priority":"1"}
-}
-KNOWN_SAMPLE_ATTRS = {
-    "SAMPLE_ID": {"display_name":"Sample Identifier","description":"A unique sample identifier.","datatype":"STRING","is_patient_attribute":"0","priority":"1"},
-}
-KNOWN_ATTRS = dict(KNOWN_PATIENT_ATTRS)
-KNOWN_ATTRS.update(KNOWN_SAMPLE_ATTRS)
-
-# hard-code known cancer types
-KNOWN_CANCER_TYPES = {
-    # tissues as parents
-    "breast": {"name":"Breast","color":"HotPink"},
-    "prostate": {"name":"Prostate","color":"Cyan"},
-    "lung": {"name":"Lung","color":"Gainsboro"},
-    # cancer types
-    "brca": {"name":"Invasive Breast Carcinoma","color":"HotPink"},
-    "prad": {"name":"Prostate Adenocarcinoma","color":"Cyan"}
-}
-
-# mock-code sample ids defined in a study
-DEFINED_SAMPLE_IDS = ["TCGA-A1-A0SB-01", "TCGA-A1-A0SD-01", "TCGA-A1-A0SE-01", "TCGA-A1-A0SH-01", "TCGA-A2-A04U-01",
-"TCGA-B6-A0RS-01", "TCGA-BH-A0HP-01", "TCGA-BH-A18P-01", "TCGA-BH-A18H-01", "TCGA-C8-A138-01", "TCGA-A2-A0EY-01", "TCGA-A8-A08G-01"]
-
-PORTAL_INSTANCE = validateData.PortalInstance(KNOWN_CANCER_TYPES,
-                                              KNOWN_ATTRS,
-                                              hugo_entrez_map,
-                                              aliases_entrez_map)
+# globals for mock data used throughout the module
+DEFINED_SAMPLE_IDS = None
+PORTAL_INSTANCE = None
 
 
-# TODO - something like this could be done for a web-services stub:
-# def dumy_request_from_portal_api(service_url, logger):
-#     """Send a request to the portal API and return the decoded JSON object."""
-#     if logger.isEnabledFor(logging.INFO):
-#         url_split = service_url.split('/api/', 1)
-#         logger.info("Requesting %s from portal at '%s'",
-#                     url_split[1], url_split[0])
-#     response = requests.get(service_url)
-#     try:
-#         response.raise_for_status()
-#     except requests.exceptions.HTTPError as e:
-#         raise IOError(
-#             'Connection error for URL: {url}. Administrator: please check if '
-#             '[{url}] is accessible. Message: {msg}'.format(url=service_url,
-#                                                            msg=e.message))
-#     return response.json()
-#
-# validateData.request_from_portal_api = dumy_request_from_portal_api
+def setUpModule():
+    """Initialise mock data used throughout the module."""
+    global DEFINED_SAMPLE_IDS
+    global PORTAL_INSTANCE
+    # mock-code sample ids defined in a study
+    DEFINED_SAMPLE_IDS = ["TCGA-A1-A0SB-01", "TCGA-A1-A0SD-01", "TCGA-A1-A0SE-01", "TCGA-A1-A0SH-01", "TCGA-A2-A04U-01",
+    "TCGA-B6-A0RS-01", "TCGA-BH-A0HP-01", "TCGA-BH-A18P-01", "TCGA-BH-A18H-01", "TCGA-C8-A138-01", "TCGA-A2-A0EY-01", "TCGA-A8-A08G-01"]
+    # these two files contain the contents of the /api/genes and /api/genesaliases, respectively:
+    logger = logging.getLogger(__name__)
+    # parse mock API results from a local directory
+    PORTAL_INSTANCE = validateData.load_portal_info('test_data/api_json/',
+                                                    logger,
+                                                    offline=True)
 
 
 class LogBufferTestCase(unittest.TestCase):

@@ -94,6 +94,7 @@ var OncoprintWebGLCellView = (function () {
 	this.vertex_position_array = {}; // track_id -> zone_id -> vertex list
 	this.vertex_color_array = {}; // track_id -> zone_id -> vertex list
 
+	this.rendering_suppressed = false;
 	
 	
 	(function initializeShaders(self) {// Initialize shaders

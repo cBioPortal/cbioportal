@@ -15,9 +15,13 @@ var OncoprintLegendView = (function() {
 	this.$table = $table;
 	this.base_width = base_width;
 	this.base_height = base_height;
+	this.rendering_suppressed = false;
     }
     
     var renderLegend = function(view, model) {
+	if (view.rendering_suppressed) {
+	    return;
+	}
 	view.$table.empty();
 	var rule_sets = model.getRuleSets();
 	for (var i=0; i<rule_sets.length; i++) {
@@ -50,7 +54,9 @@ var OncoprintLegendView = (function() {
 			$rule_svg.append($(svg_elts[h]));
 		    }
 		} else if (config.type === 'number') {
-		    
+		    $('<p></p>').appendTo($rule_td).html(config.range[0]);
+		    $rule_svg.append(makeSVGElement('polygon', {'points':'0,20 40,20 40,0', 'fill':config.color}));
+		    $('<p></p>').appendTo($rule_td).html(config.range[1]);
 		}
 	    }
 	}
@@ -61,6 +67,15 @@ var OncoprintLegendView = (function() {
     }
     
     OncoprintLegendView.prototype.shareRuleSet = function(model) {
+	renderLegend(this, model);
+    }
+    
+    OncoprintLegendView.prototype.suppressRendering = function() {
+	this.rendering_suppressed = true;
+    }
+    
+    OncoprintLegendView.prototype.releaseRendering = function(model) {
+	this.rendering_suppressed = false;
 	renderLegend(this, model);
     }
     

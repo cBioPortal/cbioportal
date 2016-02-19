@@ -15,6 +15,24 @@ var sign = function (x) {
     }
 }
 
+var timeoutSeparatedLoop = function(array, loopFn) {
+    // loopFn is function(elt, index, array) {
+    var finished_promise = new $.Deferred();
+    var loopBlock = function(i) {
+	if (i >= array.length) {
+	    finished_promise.resolve();
+	    return;
+	}
+	
+	loopFn(array[i], i, array);
+	setTimeout(function() {
+	    loopBlock(i+1);
+	}, 0);
+    };
+    loopBlock(0);
+    return finished_promise.promise();
+}
+
 var makeGeneticAlterationComparator = function (distinguish_mutations) {
     var cna_key = 'cna';
     var cna_order = invertArray(['AMPLIFIED', 'HOMODELETED', 'GAINED', 'HEMIZYGOUSLYDELETED', 'DIPLOID', undefined]);
@@ -66,12 +84,26 @@ var makeGeneticAlterationComparator = function (distinguish_mutations) {
 };
 
 
-
+var makeSVGElement = function (tag, attrs) {
+    var el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    for (var k in attrs) {
+	if (attrs.hasOwnProperty(k)) {
+	    el.setAttribute(k, attrs[k]);
+	}
+    }
+    return el;
+};
 	
 window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_selector) {
+    
     $('#oncoprint #everything').show();
     $('#oncoprint #oncoprint-diagram-toolbar-buttons').show();
     var oncoprint = new window.Oncoprint(ctr_selector, 1050);
+    
+    var $loading_bar_svg = $('<svg width="100" height="50"></svg>').appendTo(ctr_selector);
+    $loading_bar_svg.append(makeSVGElement("rect", {"width":100, "height":50, "stroke":"black","fill":"white"}));
+    var $loading_bar = $(makeSVGElement("rect", {"width":100, "height":50, "fill":"green"})).prependTo($loading_bar_svg);
+    
     var genetic_alteration_track_ids = [];
     var clinical_track_ids = [];
 
@@ -194,9 +226,9 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    if (d1.na && d2.na) {
 		return 0;
 	    } else if (d1.na && !d2.na) {
-		return 1;
+		return 2;
 	    } else if (!d1.na && d2.na) {
-		return -1;
+		return -2;
 	    } else {
 		return (d1.attr_val < d2.attr_val ? -1 : (d1.attr_val === d2.attr_val ? 0 : 1));
 	    }
@@ -205,9 +237,9 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    if (d1.na && d2.na) {
 		return 0;
 	    } else if (d1.na && !d2.na) {
-		return 1;
+		return 2;
 	    } else if (!d1.na && d2.na) {
-		return -1;
+		return -2;
 	    } else {
 		return d1.attr_val.localeCompare(d2.attr_val);
 	    }
@@ -305,22 +337,22 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	var rule_set_params = {
 	    type: 'gene',
 	};
-	//oncoprint.suppressRendering();
-	genetic_alteration_track_ids = genetic_alteration_track_ids.concat(oncoprint.addTracks(Object.keys(data_by_gene).map(function (gene) {
-	    return {'data': data_by_gene[gene], 'rule_set_params': $.extend({}, rule_set_params, {'legend_label':'Genetic Alteration'}), 'data_id_key': 'sample', 'label': gene,
+	oncoprint.suppressRendering();
+	timeoutSeparatedLoop(Object.keys(data_by_gene), function(gene, i, array) {
+	    var track_params = {'data': data_by_gene[gene], 'rule_set_params': $.extend({}, rule_set_params, {'legend_label':'Genetic Alteration'}), 'data_id_key': 'sample', 'label': gene,
 		'sortCmpFn': makeGeneticAlterationComparator(true), 'target_group':1, 'tooltipFn':function(d) { return d.sample; }};
-	})));
-	for (var i=1; i<genetic_alteration_track_ids.length; i++) {
-	    oncoprint.shareRuleSet(genetic_alteration_track_ids[0], genetic_alteration_track_ids[i]);
-	}
-	//oncoprint.releaseRendering();
+	    genetic_alteration_track_ids = genetic_alteration_track_ids.concat(oncoprint.addTracks([track_params]));
+	    $loading_bar.attr("width", (i/array.length)*parseFloat($loading_bar_svg.attr("width")));
+	}).then(function() {
+	    for (var i=1; i<genetic_alteration_track_ids.length; i++) {
+		oncoprint.shareRuleSet(genetic_alteration_track_ids[0], genetic_alteration_track_ids[i]);
+	    }
+	    oncoprint.keepSorted();
+	    oncoprint.releaseRendering();
+	    $loading_bar_svg.remove();
+	});
     });
     window.oncoprint = oncoprint;
-
-
-
-
-
 
     (function setUpToolbar() {
 	var unaltered_cases_hidden = false;

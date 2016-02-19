@@ -55,15 +55,16 @@ var Oncoprint = (function () {
 								    self.cycleTrackSortDirection(track_id);
 								});
 
-	this.label_view = new OncoprintLabelView($label_canvas);
+	this.label_view = new OncoprintLabelView($label_canvas, this.model);
 	this.label_view.setDragCallback(function(target_track, new_previous_track) {
 	    self.moveTrack(target_track, new_previous_track);
 	});
 	
 	this.legend_view = new OncoprintLegendView($legend_table, 10, 20);
 	
+	this.rendering_suppressed = false;
 	
-	this.keep_sorted = true;
+	this.keep_sorted = false;
 	// We need to handle scrolling this way because for some reason huge 
 	//  canvas elements have terrible resolution.
 	var cell_view = this.cell_view;
@@ -74,11 +75,12 @@ var Oncoprint = (function () {
 	    $cell_overlay_canvas.css('left', scroll_left);
 	    cell_view.scroll(model, scroll_left);
 	});
+	
     }
 
     var resizeContainer = function(oncoprint) {
 	oncoprint.$container.css({'min-height':oncoprint.model.getViewHeight() + 250});
-    }
+    };
     Oncoprint.prototype.moveTrack = function(target_track, new_previous_track) {
 	this.model.moveTrack(target_track, new_previous_track);
 	this.cell_view.moveTrack(this.model);
@@ -91,6 +93,14 @@ var Oncoprint = (function () {
 	
 	resizeContainer(this);
     }
+    
+    Oncoprint.prototype.keepSorted = function(keep_sorted) {
+	this.keep_sorted = (typeof keep_sorted === 'undefined' ? true : keep_sorted);
+	if (this.keep_sorted) {
+	    this.sort();
+	}
+    }
+    
     Oncoprint.prototype.addTracks = function (params_list) {
 	// Update model
 	var track_ids = [];
@@ -101,7 +111,6 @@ var Oncoprint = (function () {
 	    return o;
 	});
 	
-	this.suppressRendering();
 	this.model.addTracks(params_list);
 	// Update views
 	this.cell_view.addTracks(this.model, track_ids);
@@ -112,8 +121,9 @@ var Oncoprint = (function () {
 	if (this.keep_sorted) {
 	    this.sort();
 	}
-	this.releaseRendering();
-	resizeContainer(this);
+	if (!this.rendering_suppressed) {
+	    resizeContainer(this);
+	}
 	return track_ids;
     }
 
@@ -178,8 +188,8 @@ var Oncoprint = (function () {
 	return this.model.getVertZoom();
     }
 
-    Oncoprint.prototype.setTrackData = function (track_id, data) {
-	this.model.setTrackData(track_id, data);
+    Oncoprint.prototype.setTrackData = function (track_id, data, data_id_key) {
+	this.model.setTrackData(track_id, data, data_id_key);
 	this.cell_view.setTrackData(this.model, track_id);
 	
 	if (this.keep_sorted) {
@@ -225,9 +235,6 @@ var Oncoprint = (function () {
 	return this.model.getTrackSortDirection(track_id);
     }
     
-    Oncoprint.prototype.toggleSortBy = function(track_id) {
-    }
-    
     Oncoprint.prototype.sort = function() {
 	this.model.sort();
 	this.cell_view.sort(this.model);
@@ -259,11 +266,18 @@ var Oncoprint = (function () {
     }
     
     Oncoprint.prototype.suppressRendering = function() {
+	this.rendering_suppressed = true;
+	this.label_view.suppressRendering();
 	this.cell_view.suppressRendering();
+	this.legend_view.suppressRendering();
     }
     
     Oncoprint.prototype.releaseRendering = function() {
+	this.rendering_suppressed = false;
+	resizeContainer(this);
+	this.label_view.releaseRendering(this.model);
 	this.cell_view.releaseRendering(this.model);
+	this.legend_view.releaseRendering(this.model);
     }
     
     Oncoprint.prototype.hideIds = function(to_hide, show_others) {

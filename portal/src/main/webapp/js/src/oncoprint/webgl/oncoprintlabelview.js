@@ -1,8 +1,9 @@
 var OncoprintLabelView = (function () {
-    function OncoprintLabelView($canvas) {
+    function OncoprintLabelView($canvas, model) {
 	var view = this;
 	this.$canvas = $canvas;
 	this.base_font_size = 14;
+	this.model = model;
 	
 	// stuff from model
 	this.label_tops = {};
@@ -10,6 +11,8 @@ var OncoprintLabelView = (function () {
 	this.tracks = [];
 	this.minimum_track_height = Number.POSITIVE_INFINITY;
 	this.maximum_label_width = Number.NEGATIVE_INFINITY;
+	
+	this.rendering_suppressed = false;
 	
 	setUpContext(this);
 	
@@ -27,7 +30,9 @@ var OncoprintLabelView = (function () {
 	    
 	    view.$canvas.on("mousemove", function(evt) {
 		if (view.dragged_label_track_id !== null) {
-		    view.drag_mouse_y = evt.pageY - view.$canvas.offset().top;
+		    var track_group = model.getContainingTrackGroup(view.dragged_label_track_id);
+		    view.drag_mouse_y = Math.min(evt.pageY - view.$canvas.offset().top, view.label_tops[track_group[track_group.length-1]] + model.getTrackHeight(track_group[track_group.length-1]));
+		    view.drag_mouse_y = Math.max(view.drag_mouse_y, view.label_tops[track_group[0]]-5);
 		    renderAllLabels(view);
 		} else {
 		    if (isMouseOnLabel(view, evt.pageY - view.$canvas.offset().top) !== null) {
@@ -40,7 +45,8 @@ var OncoprintLabelView = (function () {
 	    
 	    view.$canvas.on("mouseup mouseleave", function(evt) {
 		if (view.dragged_label_track_id !== null) {
-		    var previous_track_id = getLabelAboveMouse(view, evt.offsetY, view.dragged_label_track_id);
+		    var track_group = model.getContainingTrackGroup(view.dragged_label_track_id);
+		    var previous_track_id = getLabelAbove(view, track_group, evt.offsetY, view.dragged_label_track_id);
 		    stopDragging(view, previous_track_id);
 		}
 	    });
@@ -76,19 +82,23 @@ var OncoprintLabelView = (function () {
 	setUpContext(view);
     }
     var renderAllLabels = function(view) {
+	if (view.rendering_suppressed) {
+	    return;
+	}
 	var font_size = view.getFontSize();
 	view.ctx.font = 'bold '+font_size +'px serif';
 	view.ctx.clearRect(0,0,view.$canvas[0].width,view.$canvas[0].height);
 	view.ctx.fillStyle = 'black';
 	var tracks = view.tracks;
 	for (var i=0; i<tracks.length; i++) {
-	    view.ctx.fillText(view.labels[tracks[i]], 0, view.label_tops[tracks[i]]);
+	    view.ctx.fillText(view .labels[tracks[i]], 0, view.label_tops[tracks[i]]);
 	}
 	if (view.dragged_label_track_id !== null) {
 	    view.ctx.strokeText(view.labels[view.dragged_label_track_id], 0, view.drag_mouse_y-font_size/2);
 	    view.ctx.fillStyle = 'rgba(0,0,0,0.6)';
-	    var label_above_mouse = getLabelAboveMouse(view, view.drag_mouse_y, null);
-	    var label_below_mouse = getLabelBelowMouse(view, view.drag_mouse_y, null);
+	    var group = view.model.getContainingTrackGroup(view.dragged_label_track_id);
+	    var label_above_mouse = getLabelAbove(view, group, view.drag_mouse_y, null);
+	    var label_below_mouse = getLabelBelow(view, group, view.drag_mouse_y, null);
 	    var rect_y;
 	    if (label_above_mouse === view.dragged_label_track_id || label_below_mouse === view.dragged_label_track_id) {
 		return;
@@ -96,16 +106,16 @@ var OncoprintLabelView = (function () {
 	    if (label_above_mouse !== null && label_below_mouse !== null) {
 		rect_y = (view.label_tops[label_above_mouse] + view.label_tops[label_below_mouse])/2;
 	    } else if (label_above_mouse === null) {
-		rect_y = 0;
+		rect_y = view.label_tops[group[0]];
 	    } else if (label_below_mouse === null) {
-		rect_y = view.label_tops[tracks[tracks.length-1]] + view.minimum_track_height;
+		rect_y = view.label_tops[group[group.length-1]] + view.model.getTrackHeight(group[group.length-1]);
 	    }
 	    view.ctx.fillRect(0, rect_y, view.ctx.measureText(view.labels[view.dragged_label_track_id]).width, view.minimum_track_height);
 	}
     }
     
     var isMouseOnLabel = function(view, mouse_y) {
-	var candidate_track = getLabelAboveMouse(view, mouse_y);
+	var candidate_track = getLabelAbove(view, view.tracks, mouse_y, null);
 	if (candidate_track === null) {
 	    return null;
 	}
@@ -115,9 +125,8 @@ var OncoprintLabelView = (function () {
 	    return null;
 	}
     }
-    var getLabelAboveMouse = function(view, mouse_y, track_to_exclude) {
-	var track_ids = view.tracks;
-	if (mouse_y < view.label_tops[track_ids[0]]) {
+    var getLabelAbove = function(view, track_ids, y, track_to_exclude) {
+	if (y < view.label_tops[track_ids[0]]) {
 	    return null;
 	} else {
 	    var candidate_track = null;
@@ -125,7 +134,7 @@ var OncoprintLabelView = (function () {
 		if (track_to_exclude !== null && track_to_exclude === track_ids[i]) {
 		    continue;
 		}
-		if (view.label_tops[track_ids[i]] > mouse_y) {
+		if (view.label_tops[track_ids[i]] > y) {
 		    break;
 		} else {
 		    candidate_track = track_ids[i];
@@ -134,9 +143,8 @@ var OncoprintLabelView = (function () {
 	    return candidate_track;
 	}
     }
-    var getLabelBelowMouse = function(view, mouse_y, track_to_exclude) {
-	var track_ids = view.tracks;
-	if (mouse_y > view.label_tops[track_ids[track_ids.length-1]]) {
+    var getLabelBelow = function(view, track_ids, y, track_to_exclude) {
+	if (y > view.label_tops[track_ids[track_ids.length-1]]) {
 	    return null;
 	} else {
 	    var candidate_track = null;
@@ -144,7 +152,7 @@ var OncoprintLabelView = (function () {
 		if (track_to_exclude !== null && track_to_exclude === track_ids[i]) {
 		    continue;
 		}
-		if (view.label_tops[track_ids[i]] < mouse_y) {
+		if (view.label_tops[track_ids[i]] < y) {
 		    break;
 		} else {
 		    candidate_track = track_ids[i];
@@ -197,6 +205,15 @@ var OncoprintLabelView = (function () {
 	updateFromModel(this, model);
 	resizeAndClear(this, model);
 	renderAllLabels(this, model);
+    }
+    
+    OncoprintLabelView.prototype.suppressRendering = function() {
+	this.rendering_suppressed = true;
+    }
+    
+    OncoprintLabelView.prototype.releaseRendering = function() {
+	this.rendering_suppressed = false;
+	renderAllLabels(this);
     }
 
     return OncoprintLabelView;

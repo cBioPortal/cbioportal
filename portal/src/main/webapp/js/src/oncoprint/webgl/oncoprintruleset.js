@@ -53,6 +53,8 @@ var NA_SHAPES = [
     {
 	'type': 'rectangle',
 	'fill': 'rgba(238, 238, 238, 1)',
+	'stroke': 'rgba(210,210,210,1)',
+	'stroke-width':'1',
 	'z': 0,
     },
     {
@@ -695,7 +697,7 @@ var BarRuleSet = (function () {
 		    fill: this.fill,
 		}],
 	    exclude_from_legend: false,
-	    legend_config: {'type':'number', 'range':this.inferred_value_range}
+	    legend_config: {'type':'number', 'range':this.inferred_value_range, 'color':this.fill}
 	});
     };
 

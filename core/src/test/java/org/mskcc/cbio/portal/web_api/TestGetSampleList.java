@@ -30,9 +30,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.mskcc.cbio.portal.dao;
+package org.mskcc.cbio.portal.web_api;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -40,41 +39,21 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.junit.Assert.*;
+
 /**
- * JUnit test for DaoMutationFrequency class.
+ * JUnit test for GetSampleLists class.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
 @TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
 @Transactional
-public class TestDaoMutationFrequency {
+public class TestGetSampleList {
 
-	@Ignore
-	@Test
-    public void testDaoMutationFrequency() throws DaoException {
-        // DaoMutationFrequency is not used any more
-//        ResetDatabase.resetDatabase();
-//        DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-//        daoGene.addGene(new CanonicalGene(672, "BRCA1"));
-//        daoGene.addGene(new CanonicalGene(675, "BRCA2"));
-//
-//        DaoMutationFrequency daoMutationFrequency = new DaoMutationFrequency();
-//        daoMutationFrequency.addGene(672, 0.06, 2);
-//        daoMutationFrequency.addGene(675, 0.10, 2);
-//
-//        ArrayList <CanonicalGene> list = daoMutationFrequency.getTop100SomaticMutatedGenes(2);
-//        assertEquals (2, list.size());
-//        CanonicalGene gene0 = list.get(0);
-//        assertEquals (675, gene0.getEntrezGeneId());
-//        assertEquals ("BRCA2", gene0.getHugoGeneSymbolAllCaps());
-//        assertEquals (0.10, gene0.getSomaticMutationFrequency(), 0.0001);
-//
-//        CanonicalGene gene1 = list.get(1);
-//        assertEquals (672, gene1.getEntrezGeneId());
-//        assertEquals ("BRCA1", gene1.getHugoGeneSymbolAllCaps());
-//        assertEquals (0.06, gene1.getSomaticMutationFrequency(), 0.0001);
-//        
-//        daoMutationFrequency.deleteAllRecords();
-//        assertEquals ( null, daoMutationFrequency.getSomaticMutationFrequency( 672 ) );
-    }
+   @Test
+   public void testGetSampleList() throws Exception {
+
+      String[] sampleList = GetSampleLists.getSampleListsAsTable("study_tcga_pub").split("\n");
+      assertTrue(sampleList[1].startsWith("study_tcga_pub_all\tAll Tumors\tAll tumor samples (14 samples)\t1\tTCGA-A1-A0SB-01"));
+   }
 }

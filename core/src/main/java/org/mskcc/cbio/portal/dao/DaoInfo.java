@@ -30,22 +30,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.mskcc.cbio.portal.scripts;
+package org.mskcc.cbio.portal.dao;
 
-import org.mskcc.cbio.portal.dao.DaoPatientList;
-import org.mskcc.cbio.portal.util.ConsoleUtil;
-import org.mskcc.cbio.portal.util.ProgressMonitor;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
-/**
- * Command Line Tool to Delete All Patient Lists.
- */
-public class DeleteAllPatientLists {
-
-    public static void main(String[] args) throws Exception {
-        ProgressMonitor.setConsoleMode(true);
-        DaoPatientList daoPatientList = new DaoPatientList();
-        daoPatientList.deleteAllRecords();
-        System.out.println ("\nAll Existing Patient Lists Deleted.");
-        ConsoleUtil.showWarnings();
+public class DaoInfo {
+    private static String version;
+    
+    public static synchronized void setVersion() {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        version = "-1";
+        try {
+            con = JdbcUtil.getDbConnection(DaoInfo.class);
+            pstmt = con.prepareStatement
+                    ("SELECT * FROM info");
+            rs = pstmt.executeQuery();
+            if (rs.next()) {
+                version = rs.getString("DB_SCHEMA_VERSION");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            JdbcUtil.closeAll(DaoDrug.class, con, pstmt, rs);
+        }
+    }
+    
+    public static String getVersion() {
+        return version;
     }
 }

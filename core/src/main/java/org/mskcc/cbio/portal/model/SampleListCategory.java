@@ -39,7 +39,7 @@ import java.util.Map;
 /**
  * Enumeration for Patient List Controlled Vocabulary (CV) Category.
  */
-public enum PatientListCategory {
+public enum SampleListCategory {
     ALL_CASES_IN_STUDY("all_cases_in_study"),
     ALL_CASES_WITH_MUTATION_DATA("all_cases_with_mutation_data"),
     ALL_CASES_WITH_CNA_DATA("all_cases_with_cna_data"),
@@ -54,18 +54,18 @@ public enum PatientListCategory {
     OTHER("other");
 
     // Init the look up map.
-    private static final Map<String, PatientListCategory> lookup
-            = new HashMap<String, PatientListCategory>();
+    private static final Map<String, SampleListCategory> lookup
+            = new HashMap<String, SampleListCategory>();
 
     static {
-        for(PatientListCategory c : EnumSet.allOf(PatientListCategory.class))  {
+        for(SampleListCategory c : EnumSet.allOf(SampleListCategory.class))  {
             lookup.put(c.getCategory(), c);
         }
     }
 
     private String category;
 
-    private PatientListCategory(String category) {
+    private SampleListCategory(String category) {
         this.category = category;
     }
 
@@ -74,15 +74,15 @@ public enum PatientListCategory {
     /**
      * Gets the matching category by category name.
      * @param category  category name.
-     * @return PatientListCategory Object.
+     * @return SampleListCategory Object.
      */
-    public static PatientListCategory get(String category) {
-        PatientListCategory match = lookup.get(category);
+    public static SampleListCategory get(String category) {
+        SampleListCategory match = lookup.get(category);
         if (match != null) {
             return match;
         } else {
             StringBuffer validOptions = new StringBuffer();
-            for(PatientListCategory c : EnumSet.allOf(PatientListCategory.class))  {
+            for(SampleListCategory c : EnumSet.allOf(SampleListCategory.class))  {
                 validOptions.append(c.getCategory() + ", ");
             }
             String validStr = validOptions.substring(0, validOptions.length()-2) + ".";

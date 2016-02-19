@@ -31,10 +31,10 @@
     select
         INTERNAL_ID as internalId,
         STABLE_ID as stableId,
-        DESCRIPTION as description
+        DESCRIPTION as description,
         CANCER_STUDY_ID as cancerStudyId
     from gene_panel
-    where CANCER_STUDY_ID = #{cancerStudyId}
+    where CANCER_STUDY_ID in (select CANCER_STUDY_ID from cancer_study where CANCER_STUDY_IDENTIFIER = #{studyId})
 </select>
 
 <select id="getListByInternalId" resultType="Long" parameterType="Integer">

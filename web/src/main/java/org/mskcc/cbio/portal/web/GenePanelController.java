@@ -50,11 +50,6 @@ public class GenePanelController
     @Autowired
     private GenePanelService genePanelService;
 
-    @RequestMapping(value="/{stableId}")
-    public @ResponseBody GenePanel getGenePanel(@PathVariable String stableId)
-    {
-        return genePanelService.getByStableId(stableId);
-    }
     @RequestMapping(value="/{studyId}")
     public @ResponseBody List<GenePanel> getGenePanels(@PathVariable String studyId)
     {

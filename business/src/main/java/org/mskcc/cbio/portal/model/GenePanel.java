@@ -46,5 +46,5 @@ public class GenePanel implements Serializable
     public String stableId;
     public String description;
     public List<String> geneList;
-    public String cancerStudyId;
+    public int cancerStudyId;
 }

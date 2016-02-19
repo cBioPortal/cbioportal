@@ -80,6 +80,7 @@ public class GenePanelService
         genePanel.stableId = stableId;
         genePanel.description = description;
         genePanel.geneList = geneSymbols;
+        genePanel.cancerStudyId = study.internal_id;
 
         return genePanel;
     }

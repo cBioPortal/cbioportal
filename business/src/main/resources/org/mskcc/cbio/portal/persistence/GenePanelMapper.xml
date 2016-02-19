@@ -6,8 +6,8 @@
 <cache/>
 
 <insert id="insertGenePanel" parameterType="map" useGeneratedKeys="true" keyProperty="internal_id" keyColumn="internal_id">
-    insert into gene_panel (STABLE_ID, DESCRIPTION)
-        values (#{stable_id},#{description})
+    insert into gene_panel (STABLE_ID, DESCRIPTION, CANCER_STUDY_ID)
+        values (#{stable_id},#{description},#{cancer_study_id})
 </insert>
 
 <insert id="insertGenePanelList" parameterType="map" useGeneratedKeys="false">
@@ -21,9 +21,20 @@
     select
         INTERNAL_ID as internalId,
         STABLE_ID as stableId,
-        DESCRIPTION as description
+        DESCRIPTION as description,
+        CANCER_STUDY_ID as cancerStudyId
     from gene_panel
     where STABLE_ID = #{stableId}
+</select>
+
+<select id="getPanelsByStudyId" resultType="GenePanel" parameterType="String">
+    select
+        INTERNAL_ID as internalId,
+        STABLE_ID as stableId,
+        DESCRIPTION as description
+        CANCER_STUDY_ID as cancerStudyId
+    from gene_panel
+    where CANCER_STUDY_ID = #{cancerStudyId}
 </select>
 
 <select id="getListByInternalId" resultType="Long" parameterType="Integer">

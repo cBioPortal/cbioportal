@@ -32,6 +32,9 @@
 
 package org.mskcc.cbio.portal.web;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.mskcc.cbio.portal.model.GenePanel;
 import org.mskcc.cbio.portal.service.GenePanelService;
 
@@ -51,5 +54,10 @@ public class GenePanelController
     public @ResponseBody GenePanel getGenePanel(@PathVariable String stableId)
     {
         return genePanelService.getByStableId(stableId);
+    }
+    @RequestMapping(value="/{studyId}")
+    public @ResponseBody List<GenePanel> getGenePanels(@PathVariable String studyId)
+    {
+        return genePanelService.getByStudyId(studyId);
     }
 }

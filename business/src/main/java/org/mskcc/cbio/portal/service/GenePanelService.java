@@ -51,16 +51,21 @@ public class GenePanelService
     private GenePanelMapper genePanelMapper;
     @Autowired
     private GeneService geneService;
+    @Autowired
+    private StudyService studyService;
 
     @Transactional
-    public GenePanel insertGenePanel(String stableId, String description, List<String> geneSymbols)
+    public GenePanel insertGenePanel(String stableId, String description, String cancerStudyId, List<String> geneSymbols)
     {
         List<Long> entrezGeneIds = getGeneIds(geneSymbols);
+
+        DBStudy study = getStudy(cancerStudyId);
 
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("internal_id", 0);
         map.put("stable_id", stableId);
         map.put("description", description);
+        map.put("cancer_study_id", study.internal_id);
         genePanelMapper.insertGenePanel(map);
         
         int internalId = (Integer)map.get("internal_id");
@@ -108,6 +113,30 @@ public class GenePanelService
         gp.geneList = getGeneSymbols(entrezIds);  
         return gp;
     }
+    
+    public List<GenePanel> getByStudyId(String studyId)
+    {
+        List<GenePanel> gps = genePanelMapper.getPanelsByStudyId(studyId);
+        List<GenePanel> to_return = new ArrayList<GenePanel>();
+        assert gps != null;
+        
+        for (GenePanel gp : gps) {
+            List<Long> entrezIds = genePanelMapper.getListByInternalId(gp.internalId);
+            assert !entrezIds.isEmpty();
+            gp.geneList = getGeneSymbols(entrezIds);  
+            to_return.add(gp);
+        }
+        
+        return to_return;
+    }
+    
+    private DBStudy getStudy(String cancerStudyId)
+	{
+                        String[] studies = {cancerStudyId};
+                        List<DBStudy> study = studyService.byStableId(new ArrayList<String>(Arrays.asList(studies)));
+                        assert study.size() == 1;
+                        return study.iterator().next();	
+	}
 
     public void deleteGenePanel(String stableId)
     {

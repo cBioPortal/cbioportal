@@ -27,14 +27,16 @@ public class ImportGenePanel {
 
         String stableId = getPropertyValue("stable_id", properties, true);
         String description = getPropertyValue("description", properties, false);
+        String cancerStudyId = getPropertyValue("cancer_study_identifier", properties, true);
         List<String> geneSymbols = getGeneSymbols("gene_list", properties);
 
         GenePanelService genePanelService = SpringUtil.getGenePanelService();
-        genePanelService.insertGenePanel(stableId, description, geneSymbols);
+        genePanelService.insertGenePanel(stableId, description, cancerStudyId, geneSymbols);
         GenePanel gp = genePanelService.getByStableId(stableId);
 
         ProgressMonitor.setCurrentMessage(" --> internal ID: " + gp.internalId);
         ProgressMonitor.setCurrentMessage(" --> stable ID: " + gp.stableId);
+        ProgressMonitor.setCurrentMessage(" --> study ID: " + gp.cancerStudyId);
         ProgressMonitor.setCurrentMessage(" --> number of gene symbols: " + gp.geneList.size());
     }
 

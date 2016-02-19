@@ -141,7 +141,8 @@ public class ImportPatientList {
       // check args
       if (args.length < 1) {
          System.out.println("command line usage:  importCaseListData.pl " + "<data_file.txt or directory>");
-            return;
+         // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
+         return;
       }
       ProgressMonitor.setConsoleModeAndParseShowProgress(args);
       File dataFile = new File(args[0]);

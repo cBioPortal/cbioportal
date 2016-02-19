@@ -44,6 +44,7 @@ import java.util.ArrayList;
 public class GetAllPatientLists {
 
     public static void main(String[] args) throws Exception {
+        // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
         ProgressMonitor.setConsoleModeAndParseShowProgress(args);
         DaoPatientList daoPatientList = new DaoPatientList();
         ArrayList <PatientList> patientListMaster = daoPatientList.getAllPatientLists();

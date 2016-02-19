@@ -109,7 +109,7 @@ public class ImportSangerCensusData {
             System.out.println("command line usage:  importSangerCensus.pl <sanger.txt>");
             return;
         }
-        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
+        ProgressMonitor.setConsoleMode(true);
 
 		SpringUtil.initDataSource();
 

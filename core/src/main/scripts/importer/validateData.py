@@ -389,7 +389,7 @@ class Validator(object):
 
         if not self.ALLOW_BLANKS:
             for col_index, col_name in enumerate(self.cols):
-                if col_index < line_col_count and data[col_index] == '':
+                if col_index < line_col_count and data[col_index].strip() == '':
                     self.logger.error("Blank cell found in column '%s'",
                                       col_name,
                                       extra={'line_number': self.line_number,

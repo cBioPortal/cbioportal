@@ -120,7 +120,8 @@ public class AddCaseList {
       // check args
       if (args.length < 2) {
          System.out.println("command line usage:  addCaseList.pl " + "<study identifier> <case list type>");
-            return;
+         // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
+         return;
       }
       ProgressMonitor.setConsoleModeAndParseShowProgress(args);
       

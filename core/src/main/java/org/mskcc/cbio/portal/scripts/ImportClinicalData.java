@@ -382,6 +382,7 @@ public class ImportClinicalData {
 
         if (args.length < 2) {
             System.out.println("command line usage:  importClinical <clinical.txt> <cancer_study_id> [is_sample_data]");
+            // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
             return;
         }
         

@@ -41,7 +41,6 @@ import joptsimple.*;
 import java.io.*;
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.regex.*;
 
 /**
  * Import protein array antibody information into database.
@@ -97,28 +96,39 @@ public class ImportCopyNumberSegmentData {
     
     public static void main(String[] args) throws Exception
     {
+    	ProgressMonitor.setConsoleModeAndParseShowProgress(args);
         if (args.length < 4) {
             System.out.println("command line usage:  importCopyNumberSegmentData --data <copy_number_segment_file.seg> --meta <meta_cna_seg.txt>");
+            // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
             return;
         }
+        try {
+		    String[] filenames = getFilenames(args);
+		    Properties properties = new Properties();
+		    properties.load(new FileInputStream(filenames[1]));
 
-        String[] filenames = getFilenames(args);
-        Properties properties = new Properties();
-        properties.load(new FileInputStream(filenames[1]));
-
-		SpringUtil.initDataSource();
-        CancerStudy cancerStudy = getCancerStudy(properties);
-        
-        if (segmentDataExistsForCancerStudy(cancerStudy)) {
-            System.err.println("Ignoring this file since seg data for cancer study " + cancerStudy.getCancerStudyStableId() + " has already been imported: " + filenames[0]);
-            return;
-        }
-
-        importCopyNumberSegmentFileMetadata(cancerStudy, properties);
-        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
-        importCopyNumberSegmentFileData(cancerStudy, filenames[0]);
-        
-        System.err.println("Done.");
+		    System.out.println("Reading data from:  " + filenames[0]);
+		    
+			SpringUtil.initDataSource();
+		    CancerStudy cancerStudy = getCancerStudy(properties);
+		    
+		    if (segmentDataExistsForCancerStudy(cancerStudy)) {
+		        System.err.println("Ignoring this file since seg data for cancer study " + cancerStudy.getCancerStudyStableId() + " has already been imported: " + filenames[0]);
+		        return;
+		    }
+		
+		    importCopyNumberSegmentFileMetadata(cancerStudy, properties);
+		    ProgressMonitor.setConsoleModeAndParseShowProgress(args);
+		    importCopyNumberSegmentFileData(cancerStudy, filenames[0]);
+		    
+		    System.err.println("Done.");
+	    } catch (Exception e) {
+	    	String errorMessage = "Error:  " + e.getMessage();
+			System.err.println(errorMessage);
+			ProgressMonitor.logWarning(errorMessage); 
+	    } finally {
+	        ConsoleUtil.showWarnings();
+	    }
     }
 
     private static String[] getFilenames(String[] args) throws Exception
@@ -152,9 +162,9 @@ public class ImportCopyNumberSegmentData {
 
     private static CancerStudy getCancerStudy(Properties properties) throws Exception
     {
-        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(properties.getProperty("cancer_study_identifier"));
+        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(properties.getProperty("cancer_study_identifier").trim());
         if (cancerStudy == null) {
-            throw new Exception("Unknown cancer study: " + properties.getProperty("cancer_study_identifier"));
+            throw new Exception("Unknown cancer study: " + properties.getProperty("cancer_study_identifier").trim());
         }
         return cancerStudy;
     }
@@ -168,16 +178,15 @@ public class ImportCopyNumberSegmentData {
     {
         CopyNumberSegmentFile copyNumSegFile = new CopyNumberSegmentFile();
         copyNumSegFile.cancerStudyId = cancerStudy.getInternalId();
-        copyNumSegFile.referenceGenomeId = getRefGenId(properties.getProperty("reference_genome_id")); 
-        copyNumSegFile.description = properties.getProperty("description");
-        copyNumSegFile.filename = properties.getProperty("data_filename");
+        copyNumSegFile.referenceGenomeId = getRefGenId(properties.getProperty("reference_genome_id").trim()); 
+        copyNumSegFile.description = properties.getProperty("description").trim();
+        copyNumSegFile.filename = properties.getProperty("data_filename").trim();
         DaoCopyNumberSegmentFile.addCopyNumberSegmentFile(copyNumSegFile);
     }
 
     private static void importCopyNumberSegmentFileData(CancerStudy cancerStudy, String dataFilename) throws Exception
     {
         File file = new File(dataFilename);
-        System.out.println("Reading data from:  " + file.getAbsolutePath());
         int numLines = FileUtil.getNumLines(file);
         System.out.println(" --> total number of lines:  " + numLines);
         ProgressMonitor.setMaxValue(numLines);

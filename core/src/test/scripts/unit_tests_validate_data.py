@@ -28,7 +28,7 @@ def setUpModule():
     # these two files contain the contents of the /api/genes and /api/genesaliases, respectively:
     logger = logging.getLogger(__name__)
     # parse mock API results from a local directory
-    PORTAL_INSTANCE = validateData.load_portal_info('test_data/api_json/',
+    PORTAL_INSTANCE = validateData.load_portal_info('test_data/api_json_unit_tests/',
                                                     logger,
                                                     offline=True)
 

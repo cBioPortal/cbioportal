@@ -484,6 +484,11 @@ var OncoprintWebGLCellView = (function () {
     }
     OncoprintWebGLCellView.prototype.releaseRendering = function(model) {
 	this.rendering_suppressed = false;
+	var track_ids = model.getTracks();
+	for (var i=0; i<track_ids.length; i++) {
+	    computeSortedIdentifiedShapeListList(this, model, track_ids[i]);
+	    computeVertexPositionsAndVertexColors(this, model, track_ids[i]);
+	}
 	renderAllTracks(this, model);
     }
     OncoprintWebGLCellView.prototype.hideIds = function(model) {

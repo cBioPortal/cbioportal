@@ -32,7 +32,6 @@
 
         
 <div id="oncoprint" style="padding-top:10px; padding-bottom:10px; padding-left:10px; border: 1px solid #CCC;">
-    <img id="outer_loader_img" src="images/ajax-loader.gif"/>
     <!--<div id="oncoprint_progress_indicator">
         <p id="oncoprint_progress_indicator_text"></p>
         <svg width="200px" height="20px" style="outline: 1px solid #888888">

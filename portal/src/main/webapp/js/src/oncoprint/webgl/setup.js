@@ -82,7 +82,34 @@ var makeGeneticAlterationComparator = function (distinguish_mutations) {
 	return 0;
     };
 };
+var sampleViewAnchorTag = function (sample_id) {
+    var href = cbio.util.getLinkToSampleView(window.cancer_study_id_selected, sample_id);
+    return '<a href="' + href + '">' + sample_id + '</a>';
+};
+var geneticAlterationToolTip = function(d) {
+    var ret = '';
+    if (d.mutation) {
+	ret += 'Mutation: <b>' + d.mutation + '</b><br>';
+    }
+    if (d.cna) {
+	ret += 'Copy Number Alteration: <b>' + d.cna + '</b><br>';
+    }
+    if (d.mrna) {
+	ret += '<b>MRNA: <b>' + d.mrna + '</b><br>';
+    }
+    if (d.rppa) {
+	ret += '<b>RPPA: <b>' + d.rppa + '</b><br>';
+    }
+    ret += sampleViewAnchorTag(d.sample);
+    return ret;
+};
 
+var clinicalToolTip = function(d) {
+    var ret = '';
+    ret += 'value: <b>' + d.attr_val + '</b><br>';
+    ret += sampleViewAnchorTag(d.sample);
+    return ret;
+};
 
 var makeSVGElement = function (tag, attrs) {
     var el = document.createElementNS('http://www.w3.org/2000/svg', tag);
@@ -210,7 +237,6 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
     });
     
     var addClinicalAttributeTrack = function(attr_id) {
-	console.log(attr_id);
 	var addBlankData = function(data) {
 	    var present = {};
 	    for (var i=0; i<data.length; i++) {
@@ -282,7 +308,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 					'sortCmpFn': numericalSortFn, 
 					'rule_set_params': {'type':'bar', 'value_key': 'attr_val', 'value_range':[0,undefined], 'legend_label':attr.display_name}, 
 					'data_id_key':'sample', 'target_group':0,
-					'removable':true, 'sort_direction_changeable':true, 'init_sort_direction':0, 'tooltipFn':function(d) { return d.sample; }}]);
+					'removable':true, 'sort_direction_changeable':true, 'init_sort_direction':0, 'tooltipFn':clinicalToolTip}]);
 	    });
 	} else if (attr_id === 'FRACTION_GENOME_ALTERED') {
 	    var data_fetched = new $.Deferred();
@@ -305,7 +331,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		});
 	    }
 	    data_fetched.then(function() {
-		oncoprint.addTracks([{'data': fraction_genome_altered_clinical_data, 'label': 'Fraction Genome Altered', 'sortCmpFn': numericalSortFn, 'rule_set_params': {'type':'bar', 'value_key':'attr_val', 'value_range':[0,1], 'legend_label':attr.display_name}, 'data_id_key':'sample', 'removable':true, 'sort_direction_changeable':true, 'init_sort_direction':0, 'tooltipFn':function(d) { return d.sample; }}]);
+		oncoprint.addTracks([{'data': fraction_genome_altered_clinical_data, 'label': 'Fraction Genome Altered', 'sortCmpFn': numericalSortFn, 'rule_set_params': {'type':'bar', 'value_key':'attr_val', 'value_range':[0,1], 'legend_label':attr.display_name}, 'data_id_key':'sample', 'removable':true, 'sort_direction_changeable':true, 'init_sort_direction':0, 'tooltipFn':clinicalToolTip}]);
 	    });
 	} else {
 	    QuerySession.getSampleClinicalData([attr_id]).then(function(data) {
@@ -319,7 +345,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		    sortCmpFn = stringSortFn;
 		}
 		rule_set_params.legend_label = attr.display_name;
-		oncoprint.addTracks([{'data':addBlankData(data), 'label':attr.display_name, 'sortCmpFn':sortCmpFn, 'rule_set_params':rule_set_params, 'data_id_key':'sample','removable':true, 'sort_direction_changeable':true, 'init_sort_direction':0, 'tooltipFn':function(d) { return d.sample; }}]);
+		oncoprint.addTracks([{'data':addBlankData(data), 'label':attr.display_name, 'sortCmpFn':sortCmpFn, 'rule_set_params':rule_set_params, 'data_id_key':'sample','removable':true, 'sort_direction_changeable':true, 'init_sort_direction':0, 'tooltipFn':clinicalToolTip}]);
 	    });
 	}
     };
@@ -340,7 +366,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	oncoprint.suppressRendering();
 	timeoutSeparatedLoop(Object.keys(data_by_gene), function(gene, i, array) {
 	    var track_params = {'data': data_by_gene[gene], 'rule_set_params': $.extend({}, rule_set_params, {'legend_label':'Genetic Alteration'}), 'data_id_key': 'sample', 'label': gene,
-		'sortCmpFn': makeGeneticAlterationComparator(true), 'target_group':1, 'tooltipFn':function(d) { return d.sample; }};
+		'sortCmpFn': makeGeneticAlterationComparator(true), 'target_group':1, 'tooltipFn':geneticAlterationToolTip};
 	    genetic_alteration_track_ids = genetic_alteration_track_ids.concat(oncoprint.addTracks([track_params]));
 	    $loading_bar.attr("width", (i/array.length)*parseFloat($loading_bar_svg.attr("width")));
 	}).then(function() {

@@ -1,5 +1,4 @@
 $(document).ready(function() {
-	
 	/*var o = new Oncoprint($('#svg'), $('#canvas'));
 	var data = [{sample:'a', data:5}, {sample:'b', data:10}];
 	while (data.length < 1000) {

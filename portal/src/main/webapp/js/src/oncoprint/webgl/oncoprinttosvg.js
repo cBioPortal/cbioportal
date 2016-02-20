@@ -13,6 +13,8 @@ var makeSVGElement = function (tag, attrs) {
 var cellsToSVG = function(model) {
     var tracks = model.getTracks();
     var id_to_index_map = model.getIdToIndexMap();
+    var column_left = model.getColumnLeft();
+    var track_tops = model.getTr
     var shape_lists = {};
     
     (function prepareShapeLists() {
@@ -45,7 +47,6 @@ var cellsToSVG = function(model) {
 	    });
 	}
     })();
-    
     var root = makeSVGElement("svg");
     
 };

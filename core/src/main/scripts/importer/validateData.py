@@ -1992,7 +1992,7 @@ def main_validate(args):
 if __name__ == '__main__':
     try:
         # parse command line options
-        parsed_args = interface(sys.argv)
+        parsed_args = interface()
         # run the script
         exit_status = main_validate(parsed_args)
     finally:

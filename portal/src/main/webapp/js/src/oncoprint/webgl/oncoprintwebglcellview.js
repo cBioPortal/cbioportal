@@ -147,10 +147,10 @@ var OncoprintWebGLCellView = (function () {
 		var overlapping_cell = model.getOverlappingCell(mouseX + self.scroll_x, mouseY);
 		if (overlapping_cell !== null) {
 		    var left = model.getColumnLeft(overlapping_cell.id) - self.scroll_x;
-		    overlayPaintRect(self, left, model.getTrackTops(overlapping_cell.track), model.getCellWidth(), model.getTrackHeight(overlapping_cell.track), "rgba(0,0,0,1)");
+		    overlayPaintRect(self, left, model.getCellTops(overlapping_cell.track), model.getCellWidth(), model.getCellHeight(overlapping_cell.track), "rgba(0,0,0,1)");
 		    var tracks = model.getTracks();
 		    for (var i=0; i<tracks.length; i++) {
-			overlayPaintRect(self, left, model.getTrackTops(tracks[i]), model.getCellWidth(), model.getTrackHeight(tracks[i]), "rgba(0,0,0,0.5)");
+			overlayPaintRect(self, left, model.getCellTops(tracks[i]), model.getCellWidth(), model.getCellHeight(tracks[i]), "rgba(0,0,0,0.5)");
 		    }
 		    tooltip.show(evt.pageX, evt.pageY, model.getTrackTooltipFn(overlapping_cell.track)(model.getTrackDatum(overlapping_cell.track, overlapping_cell.id)));
 		} else {

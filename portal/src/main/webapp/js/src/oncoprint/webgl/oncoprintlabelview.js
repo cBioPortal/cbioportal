@@ -31,8 +31,8 @@ var OncoprintLabelView = (function () {
 	    view.$canvas.on("mousemove", function(evt) {
 		if (view.dragged_label_track_id !== null) {
 		    var track_group = model.getContainingTrackGroup(view.dragged_label_track_id);
-		    view.drag_mouse_y = Math.min(evt.pageY - view.$canvas.offset().top, view.label_tops[track_group[track_group.length-1]] + model.getTrackHeight(track_group[track_group.length-1]));
-		    view.drag_mouse_y = Math.max(view.drag_mouse_y, view.label_tops[track_group[0]]-5);
+		    view.drag_mouse_y = Math.min(evt.pageY - view.$canvas.offset().top, view.track_tops[track_group[track_group.length-1]] + model.getTrackHeight(track_group[track_group.length-1]));
+		    view.drag_mouse_y = Math.max(view.drag_mouse_y, view.track_tops[track_group[0]]-5);
 		    renderAllLabels(view);
 		} else {
 		    if (isMouseOnLabel(view, evt.pageY - view.$canvas.offset().top) !== null) {
@@ -55,12 +55,13 @@ var OncoprintLabelView = (function () {
     }
     var updateFromModel = function(view, model) {
 	var track_tops = model.getTrackTops();
-	var label_tops = track_tops;
+	var label_tops = model.getLabelTops();
 	/*for (var track_id in label_tops) {
 	    if (label_tops.hasOwnProperty(track_id)) {
 		label_tops[track_id] += model.getTrackPadding(track_id);
 	    }
 	}*/
+	view.track_tops = track_tops;
 	view.label_tops = label_tops;
 	view.tracks = model.getTracks();
 	
@@ -99,18 +100,21 @@ var OncoprintLabelView = (function () {
 	    var group = view.model.getContainingTrackGroup(view.dragged_label_track_id);
 	    var label_above_mouse = getLabelAbove(view, group, view.drag_mouse_y, null);
 	    var label_below_mouse = getLabelBelow(view, group, view.drag_mouse_y, null);
-	    var rect_y;
+	    var rect_y, rect_height;
 	    if (label_above_mouse === view.dragged_label_track_id || label_below_mouse === view.dragged_label_track_id) {
 		return;
 	    }
 	    if (label_above_mouse !== null && label_below_mouse !== null) {
 		rect_y = (view.label_tops[label_above_mouse] + view.label_tops[label_below_mouse])/2;
+		rect_height = view.label_tops[label_below_mouse] - rect_y;
 	    } else if (label_above_mouse === null) {
-		rect_y = view.label_tops[group[0]];
+		rect_y = 0;
+		rect_height = view.label_tops[group[0]];
 	    } else if (label_below_mouse === null) {
 		rect_y = view.label_tops[group[group.length-1]] + view.model.getTrackHeight(group[group.length-1]);
+		rect_height = view.minimum_track_height;
 	    }
-	    view.ctx.fillRect(0, rect_y, view.ctx.measureText(view.labels[view.dragged_label_track_id]).width, view.minimum_track_height);
+	    view.ctx.fillRect(0, rect_y, view.ctx.measureText(view.labels[view.dragged_label_track_id]).width, rect_height);
 	}
     }
     

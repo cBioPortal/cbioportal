@@ -377,8 +377,8 @@ var OncoprintLabelView = (function () {
 	    view.$canvas.on("mousemove", function(evt) {
 		if (view.dragged_label_track_id !== null) {
 		    var track_group = model.getContainingTrackGroup(view.dragged_label_track_id);
-		    view.drag_mouse_y = Math.min(evt.pageY - view.$canvas.offset().top, view.label_tops[track_group[track_group.length-1]] + model.getTrackHeight(track_group[track_group.length-1]));
-		    view.drag_mouse_y = Math.max(view.drag_mouse_y, view.label_tops[track_group[0]]-5);
+		    view.drag_mouse_y = Math.min(evt.pageY - view.$canvas.offset().top, view.track_tops[track_group[track_group.length-1]] + model.getTrackHeight(track_group[track_group.length-1]));
+		    view.drag_mouse_y = Math.max(view.drag_mouse_y, view.track_tops[track_group[0]]-5);
 		    renderAllLabels(view);
 		} else {
 		    if (isMouseOnLabel(view, evt.pageY - view.$canvas.offset().top) !== null) {
@@ -401,12 +401,13 @@ var OncoprintLabelView = (function () {
     }
     var updateFromModel = function(view, model) {
 	var track_tops = model.getTrackTops();
-	var label_tops = track_tops;
+	var label_tops = model.getLabelTops();
 	/*for (var track_id in label_tops) {
 	    if (label_tops.hasOwnProperty(track_id)) {
 		label_tops[track_id] += model.getTrackPadding(track_id);
 	    }
 	}*/
+	view.track_tops = track_tops;
 	view.label_tops = label_tops;
 	view.tracks = model.getTracks();
 	
@@ -445,18 +446,21 @@ var OncoprintLabelView = (function () {
 	    var group = view.model.getContainingTrackGroup(view.dragged_label_track_id);
 	    var label_above_mouse = getLabelAbove(view, group, view.drag_mouse_y, null);
 	    var label_below_mouse = getLabelBelow(view, group, view.drag_mouse_y, null);
-	    var rect_y;
+	    var rect_y, rect_height;
 	    if (label_above_mouse === view.dragged_label_track_id || label_below_mouse === view.dragged_label_track_id) {
 		return;
 	    }
 	    if (label_above_mouse !== null && label_below_mouse !== null) {
 		rect_y = (view.label_tops[label_above_mouse] + view.label_tops[label_below_mouse])/2;
+		rect_height = view.label_tops[label_below_mouse] - rect_y;
 	    } else if (label_above_mouse === null) {
-		rect_y = view.label_tops[group[0]];
+		rect_y = 0;
+		rect_height = view.label_tops[group[0]];
 	    } else if (label_below_mouse === null) {
 		rect_y = view.label_tops[group[group.length-1]] + view.model.getTrackHeight(group[group.length-1]);
+		rect_height = view.minimum_track_height;
 	    }
-	    view.ctx.fillRect(0, rect_y, view.ctx.measureText(view.labels[view.dragged_label_track_id]).width, view.minimum_track_height);
+	    view.ctx.fillRect(0, rect_y, view.ctx.measureText(view.labels[view.dragged_label_track_id]).width, rect_height);
 	}
     }
     
@@ -701,7 +705,7 @@ var OncoprintModel = (function () {
 	
 	// Track Properties
 	this.track_label = {};
-	this.track_height = {};
+	this.cell_height = {};
 	this.track_padding = {};
 	this.track_data_id_key = {};
 	this.track_tooltip_fn = {};
@@ -735,19 +739,10 @@ var OncoprintModel = (function () {
 	
 	this.id_to_index = {};
 	
-	
 	this.track_groups = [];
 	this.track_group_sort_priority = [];
 	
-	
-
-	
-
-	
 	this.track_id_to_datum = {};
-	
-
-	
 	
 	this.track_tops = new CachedProperty({}, function () {
 	    var tops = {};
@@ -758,7 +753,6 @@ var OncoprintModel = (function () {
 		for (var j = 0; j < group.length; j++) {
 		    var track_id = group[j];
 		    tops[track_id] = y;
-		    y += 2 * model.getTrackPadding(track_id);
 		    y += model.getTrackHeight(track_id);
 		}
 		if (group.length > 0) {
@@ -850,7 +844,7 @@ var OncoprintModel = (function () {
 	var active_rules = {};
 	var data = this.getTrackData(track_id);
 	var id_key = this.getTrackDataIdKey(track_id);
-	var shapes = this.getRuleSet(track_id).apply(data, this.getCellWidth(base_width), this.getTrackHeight(track_id), active_rules);
+	var shapes = this.getRuleSet(track_id).apply(data, this.getCellWidth(base_width), this.getCellHeight(track_id), active_rules);
 	this.track_active_rules[track_id] = active_rules;
 	return shapes.map(function(shape_list, index) {
 	    return {
@@ -884,12 +878,12 @@ var OncoprintModel = (function () {
 	return this.cell_width * (base ? 1 : this.horz_zoom);
     }
 
-    OncoprintModel.prototype.getTrackHeight = function (track_id) {
-	return this.track_height[track_id] * this.vert_zoom;
+    OncoprintModel.prototype.getCellHeight = function (track_id) {
+	return this.cell_height[track_id] * this.vert_zoom;
     }
     
-    OncoprintModel.prototype.getRenderedTrackHeight = function(track_id) {
-	return this.getTrackHeight(track_id) + 2*this.getTrackPadding(track_id);
+    OncoprintModel.prototype.getTrackHeight = function(track_id) {
+	return this.getCellHeight(track_id) + 2*this.getTrackPadding(track_id);
     }
 
     OncoprintModel.prototype.getTrackPadding = function (track_id) {
@@ -981,7 +975,7 @@ var OncoprintModel = (function () {
 	for (var i = 0; i < params_list.length; i++) {
 	    var params = params_list[i];
 	    addTrack(this, params.track_id, params.target_group,
-		    params.track_height, params.track_padding,
+		    params.cell_height, params.track_padding,
 		    params.data_id_key, params.tooltipFn,
 		    params.removable, params.label,
 		    params.sortCmpFn, params.sort_direction_changeable, params.init_sort_direction,
@@ -991,13 +985,13 @@ var OncoprintModel = (function () {
     }
   
     var addTrack = function (model, track_id, target_group,
-	    track_height, track_padding,
+	    cell_height, track_padding,
 	    data_id_key, tooltipFn,
 	    removable, label,
 	    sortCmpFn, sort_direction_changeable, init_sort_direction,
 	    data, rule_set) {
 	model.track_label[track_id] = ifndef(label, "Label");
-	model.track_height[track_id] = ifndef(track_height, 23);
+	model.cell_height[track_id] = ifndef(cell_height, 23);
 	model.track_padding[track_id] = ifndef(track_padding, 5);
 
 	model.track_tooltip_fn[track_id] = ifndef(tooltipFn, function (d) {
@@ -1054,7 +1048,7 @@ var OncoprintModel = (function () {
 	delete this.track_data[track_id];
 	delete this.track_rule_set[track_id];
 	delete this.track_label[track_id];
-	delete this.track_height[track_id];
+	delete this.cell_height[track_id];
 	delete this.track_padding[track_id];
 	delete this.track_data_id_key[track_id];
 	delete this.track_tooltip_fn[track_id];
@@ -1080,11 +1074,11 @@ var OncoprintModel = (function () {
 	if (x < column_left[id_order[nearest_id_index]] + this.getCellWidth()) {
 	    var id = id_order[nearest_id_index];
 	    var tracks = this.getTracks();
-	    var track_tops = this.getTrackTops();
-	    var nearest_track_index = binarysearch(tracks, y, function(track) { return track_tops[track];}, true);
+	    var cell_tops = this.getCellTops();
+	    var nearest_track_index = binarysearch(tracks, y, function(track) { return cell_tops[track];}, true);
 	    var nearest_track = tracks[nearest_track_index];
-	    if (y < track_tops[nearest_track] + this.getTrackHeight(nearest_track)) {
-		return {'id':id, 'track':nearest_track, 'top':track_tops[nearest_track], 'left':column_left[id]};
+	    if (y < cell_tops[nearest_track] + this.getCellHeight(nearest_track)) {
+		return {'id':id, 'track':nearest_track, 'top':cell_tops[nearest_track], 'left':column_left[id]};
 	    }
 	}
 	return null;
@@ -1119,7 +1113,11 @@ var OncoprintModel = (function () {
 	}
     }
     OncoprintModel.prototype.getLabelTops = function(desired_track_id) {
-	return this.getCellTops(desired_track_id);
+	if (typeof desired_track_id === 'undefined') {
+	    return this.label_tops.get();
+	} else {
+	    return this.label_tops.get()[desired_track_id];
+	}
     }
     
     OncoprintModel.prototype.getContainingTrackGroup = function (track_id) {
@@ -1152,7 +1150,7 @@ var OncoprintModel = (function () {
     OncoprintModel.prototype.getViewHeight = function() {
 	var tracks = this.getTracks();
 	var last_track = tracks[tracks.length-1];
-	return this.getTrackTops(last_track)+this.getTrackHeight(last_track)+2*this.getTrackPadding(last_track)
+	return this.getTrackTops(last_track)+this.getTrackHeight(last_track)
 		    + this.getBottomPadding();
     }
     OncoprintModel.prototype.moveTrack = function (track_id, new_previous_track) {
@@ -2847,10 +2845,10 @@ var OncoprintWebGLCellView = (function () {
 		var overlapping_cell = model.getOverlappingCell(mouseX + self.scroll_x, mouseY);
 		if (overlapping_cell !== null) {
 		    var left = model.getColumnLeft(overlapping_cell.id) - self.scroll_x;
-		    overlayPaintRect(self, left, model.getTrackTops(overlapping_cell.track), model.getCellWidth(), model.getTrackHeight(overlapping_cell.track), "rgba(0,0,0,1)");
+		    overlayPaintRect(self, left, model.getCellTops(overlapping_cell.track), model.getCellWidth(), model.getCellHeight(overlapping_cell.track), "rgba(0,0,0,1)");
 		    var tracks = model.getTracks();
 		    for (var i=0; i<tracks.length; i++) {
-			overlayPaintRect(self, left, model.getTrackTops(tracks[i]), model.getCellWidth(), model.getTrackHeight(tracks[i]), "rgba(0,0,0,0.5)");
+			overlayPaintRect(self, left, model.getCellTops(tracks[i]), model.getCellWidth(), model.getCellHeight(tracks[i]), "rgba(0,0,0,0.5)");
 		    }
 		    tooltip.show(evt.pageX, evt.pageY, model.getTrackTooltipFn(overlapping_cell.track)(model.getTrackDatum(overlapping_cell.track, overlapping_cell.id)));
 		} else {

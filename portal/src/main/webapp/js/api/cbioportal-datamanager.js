@@ -429,7 +429,16 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			},
 			'getMutationProfileId': function() {
 				return profile_ids.mutation_profile_id;
-			}
+			},
+                                                      'getGenePanels': function() {
+                                                          	var def = new $.Deferred();
+				window.cbioportal_client.getGenePanels({study_id: [this.getCancerStudyIds()[0]]}).then(function(data) {
+					def.resolve(makeOncoprintGenePanelData(data));
+				}).fail(function() {
+					def.reject();
+				});
+				return def.promise();
+                                                      }
 						
 		};
 		var fetchOncoprintGeneData = (function() {
@@ -638,6 +647,9 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 								
 				return {data:patient_data, altered: altered_patients, unaltered:unaltered_patients};
 			};
+                                                      var makeGenePanelData = function (webservice_gp_data) {
+                                                          return webservice_gp_data;
+                                                      };
 			var setDefaultOQL = function() {
 				var default_oql_uniq = {};
 				objEach(profile_types, function(type, profile_id) {

@@ -43,7 +43,8 @@ public interface GenePanelMapper
 
     GenePanel getPanelByStableId(@Param("stableId") String stableId);
     List<Long> getListByInternalId(@Param("internalId") int internalId);
-    List<GenePanel> getPanelsByStudyId(@Param("studyId") String studyId);
+    List<GenePanel> getGenePanels(@Param("study_id") String study_id);
+    List<GenePanel> getAllGenePanels();
 
     void deleteGenePanel(@Param("stableId") String stableId);
     void deleteGenePanelList(@Param("internalId") int internalId);

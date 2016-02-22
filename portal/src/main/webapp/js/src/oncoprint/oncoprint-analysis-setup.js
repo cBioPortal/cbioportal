@@ -7,7 +7,7 @@ $(document).ready(function() {
 	$('#oncoprint_controls').html(_.template($('#main-controls-template').html())());
 
 	
-	$.when(window.QuerySession.getGenomicEventData(), window.QuerySession.getPatientSampleIdMap(), window.QuerySession.getCombinedPatientGenomicEventData()).then(function(sample_genomic_event_data, sample_patient_map, patient_genomic_event_data) {
+	$.when(window.QuerySession.getGenePanels(), window.QuerySession.getGenomicEventData(), window.QuerySession.getPatientSampleIdMap(), window.QuerySession.getCombinedPatientGenomicEventData()).then(function(gene_panel_data, sample_genomic_event_data, sample_patient_map, patient_genomic_event_data) {
 			(function invokeOldDataManagers() {
 				var genes = window.QuerySession.getQueryGenes();
 				window.PortalDataColl.setOncoprintData(utils.process_data(sample_genomic_event_data, genes));
@@ -19,6 +19,7 @@ $(document).ready(function() {
 				sample_to_patient: sample_patient_map,
 				sample_gene_data: sample_genomic_event_data,
 				patient_gene_data: patient_genomic_event_data,
+                                                                        gene_panel_data: gene_panel_data,
 				toolbar_selector: '#oncoprint-diagram-toolbar-buttons',
 				toolbar_fade_hitzone_selector: '#oncoprint',
 				sample_list: window.QuerySession.getSampleIds(),

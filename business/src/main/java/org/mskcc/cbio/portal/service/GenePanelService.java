@@ -115,9 +115,25 @@ public class GenePanelService
         return gp;
     }
     
-    public List<GenePanel> getByStudyId(String studyId)
+    public List<GenePanel> getGenePanels(String study_id)
     {
-        List<GenePanel> gps = genePanelMapper.getPanelsByStudyId(studyId);
+        List<GenePanel> gps = genePanelMapper.getGenePanels(study_id);
+        List<GenePanel> to_return = new ArrayList<GenePanel>();
+        assert gps != null;
+        
+        for (GenePanel gp : gps) {
+            List<Long> entrezIds = genePanelMapper.getListByInternalId(gp.internalId);
+            assert !entrezIds.isEmpty();
+            gp.geneList = getGeneSymbols(entrezIds);  
+            to_return.add(gp);
+        }
+        
+        return to_return;
+    }
+    
+     public List<GenePanel> getGenePanels()
+    {
+        List<GenePanel> gps = genePanelMapper.getAllGenePanels();
         List<GenePanel> to_return = new ArrayList<GenePanel>();
         assert gps != null;
         

@@ -13000,6 +13000,13 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies)
 			"proteinChange": function(datum) {
 				return datum.mutation.proteinChange;
 			},
+			"mutationType": function(datum) {
+				// use display value for mutation type, not the sort value
+				var mutationType = MutationDetailsTableFormatter.getMutationType(
+					datum.mutation.mutationType);
+
+				return mutationType.text;
+			},
 			"cosmic": function(datum) {
 				return datum.mutation.cosmicCount;
 			},

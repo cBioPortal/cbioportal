@@ -78,7 +78,7 @@ var OncoprintLabelView = (function () {
 	view.ctx.textBaseline="top";
     }
     var resizeAndClear = function(view, model) {
-	view.$canvas[0].height = model.getViewHeight();
+	view.$canvas[0].height = model.getCellViewHeight();
 	view.$canvas[0].width = view.getWidth();
 	setUpContext(view);
     }
@@ -105,14 +105,14 @@ var OncoprintLabelView = (function () {
 		return;
 	    }
 	    if (label_above_mouse !== null && label_below_mouse !== null) {
-		rect_y = (view.label_tops[label_above_mouse] + view.label_tops[label_below_mouse])/2;
+		rect_y = view.label_tops[label_above_mouse] + view.ctx.measureText("m").width;
 		rect_height = view.label_tops[label_below_mouse] - rect_y;
 	    } else if (label_above_mouse === null) {
-		rect_y = 0;
-		rect_height = view.label_tops[group[0]];
+		rect_y = view.label_tops[group[0]] - view.ctx.measureText("m").width;
+		rect_height = view.ctx.measureText("m").width;
 	    } else if (label_below_mouse === null) {
-		rect_y = view.label_tops[group[group.length-1]] + view.model.getTrackHeight(group[group.length-1]);
-		rect_height = view.minimum_track_height;
+		rect_y = view.label_tops[group[group.length-1]] + view.ctx.measureText("m").width;;
+		rect_height = view.ctx.measureText("m").width;
 	    }
 	    view.ctx.fillRect(0, rect_y, view.ctx.measureText(view.labels[view.dragged_label_track_id]).width, rect_height);
 	}
@@ -200,7 +200,6 @@ var OncoprintLabelView = (function () {
 	for (var i=0; i<track_ids.length; i++) {
 	    this.labels[track_ids[i]] = model.getTrackLabel(track_ids[i]);
 	}
-	
 	updateFromModel(this, model);
 	resizeAndClear(this, model);
 	renderAllLabels(this, model);

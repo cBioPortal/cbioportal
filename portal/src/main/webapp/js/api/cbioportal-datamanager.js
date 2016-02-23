@@ -725,10 +725,10 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 								dm_ret.altered_samples = oql_process_result.altered;
 								dm_ret.unaltered_samples = oql_process_result.unaltered;
 
-								var oql_process_result_patient = makePatientData(oql_process_result);
+								/*var oql_process_result_patient = makePatientData(oql_process_result);
 								dm_ret.patient_gene_data = oql_process_result_patient.data;
 								dm_ret.altered_patients = oql_process_result_patient.altered;
-								dm_ret.unaltered_patients = oql_process_result_patient.unaltered;
+								dm_ret.unaltered_patients = oql_process_result_patient.unaltered;*/
 
 								data_fetched = true;
 								def.resolve();

@@ -542,6 +542,8 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			}
 		    },
 		    function () {
+			oncoprint.keepSorted(false);
+			oncoprint.suppressRendering();
 			if (mutations_colored_by_type && !sorted_by_mutation_type) {
 			    sorted_by_mutation_type = true;
 			} else if (mutations_colored_by_type && sorted_by_mutation_type) {
@@ -550,6 +552,8 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			    mutations_colored_by_type = true;
 			    sorted_by_mutation_type = false;
 			}
+			oncoprint.keepSorted();
+			oncoprint.releaseRendering();
 		    });
 	})();
     })();

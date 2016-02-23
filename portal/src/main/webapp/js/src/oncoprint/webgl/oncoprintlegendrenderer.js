@@ -62,6 +62,10 @@ var OncoprintLegendView = (function() {
 	}
     };
     
+    OncoprintLegendView.prototype.removeTrack = function(model) {
+	renderLegend(this, model);
+    }
+    
     OncoprintLegendView.prototype.addTracks = function(model) {
 	renderLegend(this, model);
     }

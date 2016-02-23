@@ -11,6 +11,7 @@ var OncoprintTrackOptionsView = (function() {
 	
 	this.$div = $div;
 	this.img_size;
+	this.width = 0;
 	
 	this.track_options_$elts = {};
 	
@@ -68,8 +69,9 @@ var OncoprintTrackOptionsView = (function() {
     };
     
     var renderTrackOptions = function(view, model, track_id) {
+	var width_contributions = [];
 	if (model.isTrackRemovable(track_id)) {
-	    
+	    width_contributions.push(view.img_size);
 	    var $div = $('<div>').appendTo(view.$div).css({'position':'absolute', 'left':'0px', 'top':model.getTrackTops(track_id)+'px'});
 	    var $img = $('<img/>').appendTo($div).attr({'src':'images/menudots.svg', 'width':view.img_size, 'height':view.img_size}).css({'float':'left', 'cursor':'pointer','border':'1px solid rgba(125,125,125,0)'});
 	    var $dropdown = $('<ul>').appendTo($div).css({'display':'none', 'list-style-type':'none', 'padding-left':'6', 'padding-right':'6', 'float':'right','background-color':'rgb(255,255,255)'});
@@ -96,6 +98,8 @@ var OncoprintTrackOptionsView = (function() {
 	    });
 	}
 	if (model.isTrackSortDirectionChangeable(track_id)) {
+	    width_contributions.push(5);
+	    width_contributions.push(view.img_size);
 	    var $svg = $(makeSVGElement('svg')).appendTo(view.$div).attr({'width':view.img_size, 'height':view.img_size}).css({'position':'absolute', 'left':(view.img_size+5)+'px', 'top':model.getTrackTops(track_id)+'px', 'cursor':'pointer'});
 	    var increasing_points = [[0, view.img_size], [view.img_size, view.img_size], [view.img_size, 0.25 * view.img_size]].map(function (a) {
 		return a[0] + ',' + a[1];
@@ -153,10 +157,10 @@ var OncoprintTrackOptionsView = (function() {
 		view.sortChangeCallback(track_id);
 		updateTriangle();
 	    });
-	    
-	    
-	    
 	}
+	view.width = Math.max(view.width, width_contributions.reduce(function(acc, curr) {
+	    return acc + curr;
+	}, 0));
     };
     
     var makeSVGElement = function(tag, attrs) {
@@ -169,6 +173,9 @@ var OncoprintTrackOptionsView = (function() {
 	return el;
     };
     
+    OncoprintTrackOptionsView.prototype.getWidth = function() {
+	return this.width;
+    }
     OncoprintTrackOptionsView.prototype.addTracks = function(model) {
 	renderAllOptions(this, model);
     }

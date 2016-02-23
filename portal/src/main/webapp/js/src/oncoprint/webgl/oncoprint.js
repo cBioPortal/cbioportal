@@ -40,6 +40,9 @@ var Oncoprint = (function () {
 	$cell_overlay_canvas.appendTo($cell_div);
 	
 	this.$container = $oncoprint_ctr;
+	this.$cell_div = $cell_div;
+	this.$legend_table = $legend_table;
+	this.$track_options_div = $track_options_div;
 	
 	this.model = new OncoprintModel();
 	
@@ -78,9 +81,19 @@ var Oncoprint = (function () {
 	
     }
 
-    var resizeContainer = function(oncoprint) {
-	oncoprint.$container.css({'min-height':oncoprint.model.getViewHeight() + 250});
+    var resizeAndOrganize = function(oncoprint) {
+	oncoprint.$container.css({'min-height':oncoprint.model.getCellViewHeight() + oncoprint.$legend_table.height()});
+	oncoprint.$track_options_div.css({'left':oncoprint.label_view.getWidth()});
+	oncoprint.$cell_div.css({'left':oncoprint.label_view.getWidth() + oncoprint.track_options_view.getWidth() + 15});
+	oncoprint.$legend_table.css({'top':oncoprint.model.getCellViewHeight()});
     };
+    
+    var resizeAndOrganizeAfterTimeout = function(oncoprint) {
+	setTimeout(function() {
+	    resizeAndOrganize(oncoprint);
+	}, 0);
+    };
+    
     Oncoprint.prototype.moveTrack = function(target_track, new_previous_track) {
 	this.model.moveTrack(target_track, new_previous_track);
 	this.cell_view.moveTrack(this.model);
@@ -91,7 +104,7 @@ var Oncoprint = (function () {
 	    this.sort();
 	}
 	
-	resizeContainer(this);
+	resizeAndOrganizeAfterTimeout(this);
     }
     
     Oncoprint.prototype.keepSorted = function(keep_sorted) {
@@ -122,7 +135,7 @@ var Oncoprint = (function () {
 	    this.sort();
 	}
 	if (!this.rendering_suppressed) {
-	    resizeContainer(this);
+	    resizeAndOrganizeAfterTimeout(this);
 	}
 	return track_ids;
     }
@@ -134,11 +147,12 @@ var Oncoprint = (function () {
 	this.cell_view.removeTrack(this.model, track_id);
 	this.label_view.removeTrack(this.model, track_id);
 	this.track_options_view.removeTrack(this.model, track_id);
+	this.legend_view.removeTrack(this.model);
 	
 	if (this.keep_sorted) {
 	    this.sort();
 	}
-	resizeContainer(this);
+	resizeAndOrganizeAfterTimeout(this);
     }
 
     Oncoprint.prototype.getZoomToFitHorz = function(ids) {
@@ -184,7 +198,7 @@ var Oncoprint = (function () {
 	this.cell_view.setVertZoom(this.model, z);
 	this.label_view.setVertZoom(this.model, z);
 	
-	resizeContainer(this);
+	resizeAndOrganizeAfterTimeout(this);
 	return this.model.getVertZoom();
     }
 
@@ -195,7 +209,7 @@ var Oncoprint = (function () {
 	if (this.keep_sorted) {
 	    this.sort();
 	}
-	resizeContainer(this);
+	resizeAndOrganizeAfterTimeout(this);
     }
 
     Oncoprint.prototype.setTrackGroupSortPriority = function(priority) {
@@ -205,6 +219,7 @@ var Oncoprint = (function () {
 	if (this.keep_sorted) {
 	    this.sort();
 	}
+	resizeAndOrganizeAfterTimeout(this);
     }
 
     Oncoprint.prototype.setTrackSortDirection = function(track_id, dir) {
@@ -216,6 +231,13 @@ var Oncoprint = (function () {
 	    }
 	}
 	return this.model.getTrackSortDirection(track_id);
+    }
+    
+    Oncoprint.prototype.setTrackSortComparator = function(track_id, sortCmpFn) {
+	this.model.setTrackSortComparator(track_id, sortCmpFn);
+	if (this.keep_sorted) {
+	    this.sort();
+	}
     }
     
     Oncoprint.prototype.cycleTrackSortDirection = function(track_id) {
@@ -246,6 +268,13 @@ var Oncoprint = (function () {
 	this.legend_view.shareRuleSet(this.model);
     }
     
+    Oncoprint.prototype.setRuleSet = function(track_id, rule_set_params) {
+	this.model.setRuleSet(track_id, OncoprintRuleSet(rule_set_params));
+	this.cell_view.setRuleSet(this.model);
+	this.legend_view.setRuleSet(this.model);
+	resizeAndOrganizeAfterTimeout(this);
+    }
+    
     Oncoprint.prototype.setSortConfig = function(params) {
 	this.model.setSortConfig(params);
 	this.cell_view.setSortConfig(this.model);
@@ -274,10 +303,10 @@ var Oncoprint = (function () {
     
     Oncoprint.prototype.releaseRendering = function() {
 	this.rendering_suppressed = false;
-	resizeContainer(this);
 	this.label_view.releaseRendering(this.model);
 	this.cell_view.releaseRendering(this.model);
 	this.legend_view.releaseRendering(this.model);
+	resizeAndOrganizeAfterTimeout(this);
     }
     
     Oncoprint.prototype.hideIds = function(to_hide, show_others) {

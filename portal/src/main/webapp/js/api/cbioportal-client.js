@@ -29,7 +29,7 @@ window.cbioportal_client = (function() {
 			'GeneticProfileData': { endpoint: 'api/geneticprofiledata' },
 			'Samples': { endpoint: 'api/samples' },
 			'Studies': { endpoint: 'api/studies' },
-                                                      'GenePanels': {endpoint: 'api/genepanel'}
+                                                      'GenePanels': {endpoint: 'api/genepanels'}
 		};
 		var ret = {};
 		for (var fn_name in functionNameToEndpointProperties) {
@@ -467,7 +467,7 @@ window.cbioportal_client = (function() {
 		}, [["study_id"], ["study_id", "patient_ids"]]),
                                     getGenePanels: enforceRequiredArguments(function (args) {
                                         return raw_service.getGenePanels(args);
-                                    }, [["study_id"]])
+                                    }, [["study_ids"]])
 	};
 	return cached_service;
 })();

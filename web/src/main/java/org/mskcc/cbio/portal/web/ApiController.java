@@ -181,11 +181,11 @@ public class ApiController {
     
     @Transactional
     @RequestMapping(value = "/genepanels", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody List<GenePanel> getGenePanels(@RequestParam(required = false) String study_id) {
-        if (study_id == null) {
+    public @ResponseBody List<GenePanel> getGenePanels(@RequestParam(required = false) List<String> study_ids) {
+        if (study_ids == null) {
             return gps.getGenePanels();
         } else {
-            return gps.getGenePanels(study_id);
+            return gps.getGenePanels(study_ids);
         }
     }
 }

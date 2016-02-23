@@ -115,9 +115,9 @@ public class GenePanelService
         return gp;
     }
     
-    public List<GenePanel> getGenePanels(String study_id)
+    public List<GenePanel> getGenePanels(List<String> study_ids)
     {
-        List<GenePanel> gps = genePanelMapper.getGenePanels(study_id);
+        List<GenePanel> gps = genePanelMapper.getGenePanels(study_ids);
         List<GenePanel> to_return = new ArrayList<GenePanel>();
         assert gps != null;
         

@@ -333,6 +333,9 @@ window.oncoprint_RuleSet = (function() {
 		self.addStaticRule(makeNARuleParams(function(d) {
 			return d.hasOwnProperty("na");
 		}, 'NA'));
+                                    self.addStaticRule(makeNARuleParams(function(d) {
+                                        return d.gene_panel === false;
+                                    }, 'Not Sequenced'));
 		self.getLegendDiv = function(active_rules, cell_width, cell_height) {
 			var div = d3.select(document.createElement('div'));
 			_.each(self.getRules(), function(rule) {

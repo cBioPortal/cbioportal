@@ -27,14 +27,14 @@
     where STABLE_ID = #{stableId}
 </select>
 
-<select id="getGenePanels" resultType="GenePanel" parameterType="String">
-    select
+<select id="getGenePanels" resultType="GenePanel">
+     select
         INTERNAL_ID as internalId,
         STABLE_ID as stableId,
         DESCRIPTION as description,
         CANCER_STUDY_ID as cancerStudyId
     from gene_panel
-    where CANCER_STUDY_ID in (select CANCER_STUDY_ID from cancer_study where CANCER_STUDY_IDENTIFIER = #{study_id})
+    where CANCER_STUDY_ID in (select CANCER_STUDY_ID from cancer_study where CANCER_STUDY_IDENTIFIER in <foreach item="item" collection="study_ids" open="(" separator="," close=")">#{item}</foreach>)
 </select>
 
 <select id="getAllGenePanels" resultType="GenePanel">

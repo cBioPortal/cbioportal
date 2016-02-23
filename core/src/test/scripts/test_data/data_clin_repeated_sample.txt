@@ -1,0 +1,15 @@
+#Patient Identifier	Sample Identifier	Overall Survival (Months)	Overall Survival Status	Disease Free (Months)	Disease Free Status
+#Identifier to uniquely specify a patient.	A unique sample identifier.	Overall survival in months since initial diagnosis.	Overall patient survival status.	Disease free (months) since initial treatment.	Disease free status since initial treatment.
+#STRING	STRING	NUMBER	STRING	NUMBER	STRING
+#PATIENT	SAMPLE	PATIENT	PATIENT	PATIENT	PATIENT
+#1	1	1	1	1	1
+PATIENT_ID	SAMPLE_ID	OS_MONTHS	OS_STATUS	DFS_MONTHS	DFS_STATUS
+TEST-PAT1	TEST-PAT1-SAMPLE1	272	LIVING	272	Recurred/Progressed
+TEST-PAT1	TEST-PAT1-SAMPLE2	208	LIVING	208	Recurred/Progressed
+TEST-PAT1	TEST-PAT1-SAMPLE3	60	DECEASED	60	Recurred/Progressed
+TEST-PAT1	TEST-PAT1-SAMPLE4	151	LIVING	151	Recurred/Progressed
+TEST-PAT1	TEST-PAT1-SAMPLE5	290	LIVING	290	Recurred/Progressed
+TEST-PAT1	TEST-PAT1-SAMPLE2	208	LIVING	208	Recurred/Progressed
+TEST-PAT1	TEST-PAT1-SAMPLE6	88	LIVING	88	Recurred/Progressed
+TEST-PAT2	TEST-PAT2-SAMPLE1	72	LIVING	72	Recurred/Progressed
+TEST-PAT2	TEST-PAT2-SAMPLE2	161	DECEASED	161	NA

@@ -1146,6 +1146,12 @@ class ClinicalValidator(Validator):
                         extra={'line_number': self.line_number,
                                'column_number': col_index + 1,
                                'cause': value})
+                if value in self.sampleIds:
+                    self.logger.error(
+                        'Sample defined twice in clinical file',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
                 self.sampleIds.add(value.strip())
             if col_index == self.cols.index('PATIENT_ID') and value.strip() == '':
                 self.logger.error(

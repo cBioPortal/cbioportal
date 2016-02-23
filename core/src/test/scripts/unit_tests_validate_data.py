@@ -212,6 +212,22 @@ class ClinicalColumnDefsTestCase(DataFileTestCase):
         self.assertEqual(record_list[1].column_number, 7)
 
 
+class ClinicalValuesTestCase(DataFileTestCase):
+
+    """Tests for validations on the values of clinical attributes."""
+
+    def test_sample_twice_in_one_file(self):
+        """Test when a sample is defined twice in the same file."""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_clin_repeated_sample.txt',
+                                    validateData.ClinicalValidator)
+        self.assertEqual(len(record_list), 1)
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.line_number, 12)
+        self.assertEqual(record.column_number, 2)
+
+
 class CancerTypeFileValidationTestCase(DataFileTestCase):
 
     """Tests for validations of cancer type files in a study."""

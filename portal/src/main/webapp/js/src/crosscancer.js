@@ -87,12 +87,12 @@
         var isThereGain = false;
         var filterAndSortData = function(histDataOrg, sliderValue, metaData, totalSamSliderValue) {
             var threshold = 0;
-            if(sliderValue !== undefined && sliderValue !== null){
+            if(!_.isNaN(sliderValue) && !_.isUndefined(sliderValue)){
                 threshold = sliderValue;
             }
             
             var totalSamThreshold = 0;
-            if(totalSamSliderValue !== undefined && totalSamSliderValue !== null){
+            if(!_.isNaN(totalSamSliderValue) && !_.isUndefined(totalSamSliderValue)){
                 totalSamThreshold = totalSamSliderValue;
             }
     
@@ -195,12 +195,12 @@
                             
                             
                             var cancerTypes = _.uniq(_.map(histDataOrg, function(e){return metaData.type_of_cancers[metaData.cancer_studies[e.studyId].type_of_cancer];}));
-                            $.each(cancerTypes, function(key, value) {   
+                            _.each(cancerTypes, function(value){
                                 $('#cancerTypes')
                                     .append($("<option></option>")
                                     .attr("value",value)
                                     .text(value)); 
-                           });
+                            });
 
                             var histData = filterAndSortData(histDataOrg, null ,metaData);
 

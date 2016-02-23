@@ -32,56 +32,43 @@
 
 package org.mskcc.cbio.portal.util;
 
-import org.mskcc.cbio.portal.model.SampleList;
+import static org.junit.Assert.*;
 
-import java.util.Formatter;
-import java.util.List;
+import java.util.ArrayList;
 
-public class OncoPrintUtil {
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mskcc.cbio.portal.dao.DaoUser;
+import org.mskcc.cbio.portal.model.User;
+import java.io.*;
+import java.util.*;
+import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.*;
 
-    /**
-     * Constructs the OncoPrint patient set description.
-     *
-     * @param sampleSetId String
-     * @param sampleSets List<SampleList>
-     *
-     * @return String
-     */
-    public static String getSampleSetDescription(String sampleSetId, List<SampleList> sampleSets) {
+/**
+ * JUnit test for DaoUser class.
+ */
 
-        StringBuilder builder = new StringBuilder();
-        for (SampleList sampleSet : sampleSets) {
-            if (sampleSetId.equals(sampleSet.getStableId())) {
-                builder.append(sampleSet.getName() + ": " + sampleSet.getDescription());
-            }
-        }
-        return builder.toString();
+public class TestGlobalProperties {
+	public final String DB_VERSION = "db.version";
+    public final String PROPERTIES_FILENAME = "portal.properties";
+
+    @Test
+    public void testVersionsMatch() throws Exception {
+        InputStream is = TestGlobalProperties.class.getClassLoader().getResourceAsStream(PROPERTIES_FILENAME);
+        Properties properties = loadProperties(is);
+        assertNotNull(properties.getProperty(DB_VERSION));
+
     }
 
-    /**
-     * Format percentage.
-     *
-     * <p/>
-     * if value == 0 return "--"
-     * case value
-     * 0: return "--"
-     * 0<value<=0.01: return "<1%"
-     * 1<value: return "<value>%"
-     *
-     * @param value double
-     *
-     * @return String
-     */
-    public static String alterationValueToString(double value) {
-
-        // in oncoPrint show 0 percent as 0%, not --
-        if (0.0 < value && value <= 0.01) {
-            return "<1%";
+    private static Properties loadProperties(InputStream is) {
+        Properties properties = new Properties();
+        try {
+            properties.load(is);
+            is.close();
         }
-
-        // if( 1.0 < value ){
-        Formatter f = new Formatter();
-        f.format("%.0f", value * 100.0);
-        return f.out().toString() + "%";
+        catch (IOException e) {}
+        return properties;
+    
     }
 }

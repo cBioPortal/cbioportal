@@ -300,18 +300,18 @@ public class TestWebService {
       NullHttpServletRequest aNullHttpServletRequest = new NullHttpServletRequest();
       
       CancerStudy study = DaoCancerStudy.getCancerStudyByStableId("study_tcga_pub");
-      DaoPatientList daoPatientList = new DaoPatientList();
-      PatientList patientList = new PatientList();
-      patientList.setName("Name0");
-      patientList.setDescription("Description0");
-      patientList.setStableId("stable_0");
-      patientList.setCancerStudyId(study.getInternalId());
-      patientList.setPatientListCategory(PatientListCategory.ALL_CASES_WITH_CNA_DATA);
-      ArrayList<String> patients = new ArrayList<String>();
-      patients.add("TCGA-1-S1");
-      patients.add("TCGA-2-S1");
-      patientList.setPatientList(patients);
-      daoPatientList.addPatientList(patientList);
+      DaoSampleList daoSampleList = new DaoSampleList();
+      SampleList sampleList = new SampleList();
+      sampleList.setName("Name0");
+      sampleList.setDescription("Description0");
+      sampleList.setStableId("stable_0");
+      sampleList.setCancerStudyId(study.getInternalId());
+      sampleList.setSampleListCategory(SampleListCategory.ALL_CASES_WITH_CNA_DATA);
+      ArrayList<String> samples = new ArrayList<String>();
+      samples.add("TCGA-1-S1");
+      samples.add("TCGA-2-S1");
+      sampleList.setSampleList(samples);
+      daoSampleList.addSampleList(sampleList);
       
       aNullHttpServletRequest.setParameter(WebService.CASE_SET_ID, "stable_0" );
       studies = WebserviceParserUtils.getCancerStudyIDs(aNullHttpServletRequest);

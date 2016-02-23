@@ -129,11 +129,11 @@
     function getAlterations() {
     <%
         JSONObject alterationResults = new JSONObject();
-        for (String patientId : mergedPatientList) {
+        for (String sampleId : mergedSampleList) {
             JSONObject _alterationResult = new JSONObject();
             for (GeneWithScore geneWithScore : geneWithScoreList) {
                 String singleGeneResult = "";
-                String value = mergedProfile.getValue(geneWithScore.getGene(), patientId);
+                String value = mergedProfile.getValue(geneWithScore.getGene(), sampleId);
                 ValueParser parser = ValueParser.generateValueParser( geneWithScore.getGene(), value,
                         zScoreThreshold, rppaScoreThreshold, theOncoPrintSpecification );
                 if( null == parser){
@@ -169,7 +169,7 @@
                 }
                 _alterationResult.put(geneWithScore.getGene(), singleGeneResult);
             }
-            alterationResults.put(patientId, _alterationResult);
+            alterationResults.put(sampleId, _alterationResult);
         }
     %>
         var alterationResults = jQuery.parseJSON('<%=alterationResults%>');;

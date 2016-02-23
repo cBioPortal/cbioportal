@@ -39,7 +39,7 @@ import org.mskcc.cbio.portal.model.CanonicalGene;
 
 /**
  * 
- * Given expression and CNV data for a set of samples (patients), generate normalized expression values. 
+ * Given expression and CNV data for a set of samples generate normalized expression values. 
  * 
  * Each gene is normalized separately. First, the expression distribution for unaltered copies of the 
  * gene is estimated by calculating the mean and variance of the expression values for samples in which 
@@ -541,7 +541,7 @@ public class NormalizeExpressionLevels{
     # 
     # The different sample types for (4) are:
     #  ...
-    # 11  normal tissue (not always matched to a cancer patient, used for mRNA, microRNA, methylation) 
+    # 11  normal tissue (not always matched to a cancer sample, used for mRNA, microRNA, methylation) 
    */
    public static boolean isTCGANormal(String name){
       String suffix = "";

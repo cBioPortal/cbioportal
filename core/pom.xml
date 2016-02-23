@@ -403,10 +403,10 @@
 	  <resources>
 		<resource>
 		  <directory>src/main/resources</directory>
-		  <excludes>
-			<exclude>db/**</exclude>
-			<exclude>sample_data/**</exclude>
-		  </excludes>
+            <excludes>
+                <exclude>sample_data/**</exclude>
+                <exclude>db/**</exclude>
+            </excludes>
 		</resource>
 	  </resources>
 

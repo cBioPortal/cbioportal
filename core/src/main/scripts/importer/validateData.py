@@ -1172,6 +1172,9 @@ class SegValidator(Validator):
         super(SegValidator, self).__init__(*args, **kwargs)
         self.chromosome_lengths = self.load_chromosome_lengths(
             self.meta_dict['reference_genome_id'])
+        # add 23 and 24 "chromosomes" as aliases to X and Y, respectively:
+        self.chromosome_lengths['23'] = self.chromosome_lengths['X']
+        self.chromosome_lengths['24'] = self.chromosome_lengths['Y']
 
     def checkLine(self, data):
         super(SegValidator, self).checkLine(data)

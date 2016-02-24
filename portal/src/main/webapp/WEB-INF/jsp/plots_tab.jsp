@@ -93,6 +93,12 @@
         display: inline-block;
         margin-bottom: 10px;
     }
+    #plots-sidebar h6 {
+        display: inline-block;
+        margin-bottom: -10px;
+        margin-top: -10px;
+        font-weight: 400;
+    }
     #plots-sidebar select {
         max-width: 180px;
     }

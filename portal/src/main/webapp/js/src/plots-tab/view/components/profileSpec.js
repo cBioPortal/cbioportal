@@ -130,13 +130,41 @@ var profileSpec = (function() {
         
         function append() {
             $("#" + ids.sidebar[axis].log_scale + "-div").empty();
-            if ($("#" + ids.sidebar[axis].profile_name).val().toLowerCase().indexOf(("zscores")) === -1 &&
-                $("#" + ids.sidebar[axis].profile_name).val().toLowerCase().indexOf(("rna_seq")) !== -1) { //if rna seq (no z-score) profile, show log scale option
-                    $("#" + ids.sidebar[axis].log_scale + "-div").append(
-                        "<h5>Apply Log Scale</h5>" +
-                        "<input type='checkbox' id='" + ids.sidebar[axis].log_scale + "' checked>");
-                    $("#" + ids.sidebar[axis].log_scale).change(function() { scatterPlots.log_scale(); });
-            }      
+            if ($("#" + ids.sidebar[axis].profile_type).val() === "MRNA_EXPRESSION") {
+                if ($("#" + ids.sidebar[axis].profile_name).val().toLowerCase().indexOf("zscores") === -1) {
+                    if ($("#" + ids.sidebar[axis].profile_name).val().toLowerCase().indexOf(("rna_seq")) === -1) { //if rna seq (no z-score) profile, show log scale option only
+                        $("#" + ids.sidebar[axis].log_scale + "-div").append("<h5>Normalization</h5>");
+                        $("#" + ids.sidebar[axis].log_scale + "-div").append("<select id='" + ids.sidebar[axis].log_scale + "'>");
+                        $("#" + ids.sidebar[axis].log_scale).append(
+                            "<option value='zscores'>Convert to z-scores</option>" +
+                            "<option value='original'>Original Values</option>"
+                        );
+                        $("#" + ids.sidebar[axis].log_scale).change(function() {
+                            if ($("#" + ids.sidebar[axis].log_scale).val() === "zscores") {
+                                
+                            } else if ($("#" + ids.sidebar[axis].log_scale).val() === "logscale") {
+                                scatterPlots.log_scale();
+                            } else if ($("#" + ids.sidebar[axis].log_scale).val() === "original") {
+                            }
+                        });
+                    } else { //other, allow applying either log scale or convert to z-scores
+                        $("#" + ids.sidebar[axis].log_scale + "-div").append("<h5>Normalization</h5>");
+                        $("#" + ids.sidebar[axis].log_scale + "-div").append("<select id='" + ids.sidebar[axis].log_scale + "'>");
+                        $("#" + ids.sidebar[axis].log_scale).append(
+                            "<option value='zscores'>Convert to z-scores</option>" +
+                            "<option value='logscale'>Apply Log Scale</option>" +
+                            "<option value='original'>Original Values</option>"
+                        );
+                        $("#" + ids.sidebar[axis].log_scale).change(function() {
+                            if ($("#" + ids.sidebar[axis].log_scale).val() === "zscores") {
+                            } else if ($("#" + ids.sidebar[axis].log_scale).val() === "logscale") {
+                                scatterPlots.log_scale();
+                            } else if ($("#" + ids.sidebar[axis].log_scale).val() === "original") {
+                            }
+                        });
+                    }
+                }                
+            }
         }
         
     }

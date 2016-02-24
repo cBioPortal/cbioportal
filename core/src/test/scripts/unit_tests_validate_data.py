@@ -467,16 +467,15 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         '''
         # set level according to this test case:
         self.logger.setLevel(logging.ERROR)
-        record_list = self.validate('data_mutations_invalid_norm_samples.maf',
+        record_list = self.validate('mutations/data_mutations_invalid_norm_samples.maf',
                                     validateData.MutationsExtendedValidator,
                                     {'normal_samples_list':
                                      'TCGA-B6-A0RS-10,TCGA-BH-A0HP-10,TCGA-BH-A18P-11, TCGA-BH-A18H-10'})
-        # we expect 2 errors about columns in wrong order,
-        # and one about the file not being parseable:
+        # we expect 3 errors about invalid normal samples:
         self.assertEqual(len(record_list), 3)
         # check if both messages come from printDataInvalidStatement:
         found_one_of_the_expected = False
-        for error in record_list[:2]:
+        for error in record_list:
             self.assertEqual("ERROR", error.levelname)
             self.assertEqual("printDataInvalidStatement", error.funcName)
             if "TCGA-C8-A138-10" == error.cause:
@@ -484,7 +483,49 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
 
         self.assertEqual(True, found_one_of_the_expected)
 
-
+    
+    def test_missing_aa_change_column(self):
+        """One of Amino_Acid_Change or HGVSp_Short is required, so
+        there should be a warning if both Amino_Acid_Change and HGVSp_Short are missing"""
+        # set level according to this test case:
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('mutations/data_mutations_missing_aa_change_column.maf',
+                                    validateData.MutationsExtendedValidator)
+        # we expect 2 errors, something like:
+        # ERROR: data_mutations_missing_aa_change_column.maf: line 1: At least one of the columns HGVSp_Short or Amino_Acid_Change needs to be present.
+        # ERROR: data_mutations_missing_aa_change_column.maf: Invalid column header, file cannot be parsed
+        self.assertEqual(len(record_list), 2)
+        # check if both messages come from printDataInvalidStatement:
+        self.assertIn("hgvsp_short", record_list[0].getMessage().lower())
+        self.assertIn("invalid column header", record_list[1].getMessage().lower())
+    
+    
+    def test_warning_for_missing_SWISSPROT(self):
+        """If SWISSPROT is missing (or present and empty), user should be warned about it"""
+        # set level according to this test case:
+        self.logger.setLevel(logging.WARNING)
+        record_list = self.validate('mutations/data_mutations_missing_swissprot.maf',
+                                    validateData.MutationsExtendedValidator)
+        # we expect 1 warning, something like
+        # WARNING: data_mutations_missing_swissprot.maf: line 1: SWISSPROT column is recommended if you want to make sure that a specific isoform is used for the PFAM domains drawing in the mutations view.; wrong value: 'SWISSPROT column not found'
+        self.assertEqual(len(record_list), 1)
+        # check if both messages come from printDataInvalidStatement:
+        self.assertIn("swissprot", record_list[0].getMessage().lower())
+        
+    
+    def test_isValidAminoAcidChange(self):
+        """Tests if proper warning is given if aa change column is present, but contains wrong (blank) value"""
+        # set level according to this test case:
+        self.logger.setLevel(logging.WARNING)
+        record_list = self.validate('mutations/data_mutations_empty_aa_change_column.maf',
+                                    validateData.MutationsExtendedValidator)
+        # we expect 1 warning, something like
+        # WARNING: data_mutations_empty_aa_change_column.maf: line 2: Amino acid change cannot be parsed from Amino_Acid_Change column value. This mutation record will get a generic "MUTATED" flag; wrong value: 'empty value found'
+        self.assertEqual(len(record_list), 2)
+        # check if both messages come from printDataInvalidStatement:
+        self.assertIn("amino acid change cannot be parsed", record_list[0].getMessage().lower())
+    
+    
 class SegFileValidationTestCase(PostClinicalDataFileTestCase):
 
     """Tests for the various validations of data in segment CNA data files."""

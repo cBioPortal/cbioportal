@@ -30,60 +30,45 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.mskcc.cbio.portal.dao;
+package org.mskcc.cbio.portal.util;
+
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.TransactionConfiguration;
-import org.springframework.transaction.annotation.Transactional;
-
+import org.mskcc.cbio.portal.dao.DaoUser;
+import org.mskcc.cbio.portal.model.User;
+import java.io.*;
+import java.util.*;
 import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.*;
 
 /**
- * JUnit tests for DaoMicroRna class.
+ * JUnit test for DaoUser class.
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
-@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
-@Transactional
-public class TestDaoMicroRna {
 
-	@Test
-    public void testDaoMicroRnaBulkloadOff() throws DaoException {
+public class TestGlobalProperties {
+	public final String DB_VERSION = "db.version";
+    public final String PROPERTIES_FILENAME = "portal.properties";
 
-        // test with both values of MySQLbulkLoader.isBulkLoad()
-        MySQLbulkLoader.bulkLoadOff();
-        runTheTest();
-        MySQLbulkLoader.bulkLoadOn();
+    @Test
+    public void testVersionsMatch() throws Exception {
+        InputStream is = TestGlobalProperties.class.getClassLoader().getResourceAsStream(PROPERTIES_FILENAME);
+        Properties properties = loadProperties(is);
+        assertNotNull(properties.getProperty(DB_VERSION));
+
     }
 
-	@Test
-    public void testDaoMicroRnaBulkloadOn() throws DaoException {
-
-        runTheTest();
-    }
-
-    private void runTheTest() throws DaoException{
-        
-        DaoMicroRna daoMicroRna = new DaoMicroRna();
-        daoMicroRna.addMicroRna("hsa-let-7a", "hsa-let-7a-1");
-        daoMicroRna.addMicroRna("hsa-let-7a", "hsa-let-7a-2");
-
-        // if bulkLoading, execute LOAD FILE
-        if( MySQLbulkLoader.isBulkLoad()){
-           MySQLbulkLoader.flushAll();
+    private static Properties loadProperties(InputStream is) {
+        Properties properties = new Properties();
+        try {
+            properties.load(is);
+            is.close();
         }
-        daoMicroRna.addMicroRna("hsa-let-7a", "hsa-let-7a-3");
-
-        // if bulkLoading, execute LOAD FILE
-        if( MySQLbulkLoader.isBulkLoad()){
-           MySQLbulkLoader.flushAll();
-        }
-        ArrayList<String> variantIdList = daoMicroRna.getVariantIds("hsa-let-7a");
-        assertEquals (3, variantIdList.size());
+        catch (IOException e) {}
+        return properties;
+    
     }
 }

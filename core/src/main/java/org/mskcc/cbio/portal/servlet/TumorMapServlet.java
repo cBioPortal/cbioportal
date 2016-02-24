@@ -106,6 +106,14 @@ public class TumorMapServlet extends HttpServlet {
             throws ServletException, IOException {
         String cancerStudyIds = request.getParameter(QueryBuilder.CANCER_STUDY_ID);
         
+         // Get the db version
+         String dbPortalVersion = GlobalProperties.getDbVersion();
+         String dbVersion = DaoInfo.getVersion();
+         if (!dbPortalVersion.equals(dbVersion))
+         {
+             request.setAttribute(QueryBuilder.DB_ERROR, "Current DB Version: " + dbVersion + "<br/>" + "Portal DB Version: " + dbPortalVersion);
+         }
+        
         try {
             boolean includeMut = "mut".equalsIgnoreCase(type);
             boolean includeCna = "cna".equalsIgnoreCase(type);

@@ -30,58 +30,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.mskcc.cbio.portal.util;
+package org.mskcc.cbio.portal.dao;
 
-import org.mskcc.cbio.portal.model.SampleList;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
-import java.util.Formatter;
-import java.util.List;
-
-public class OncoPrintUtil {
-
-    /**
-     * Constructs the OncoPrint patient set description.
-     *
-     * @param sampleSetId String
-     * @param sampleSets List<SampleList>
-     *
-     * @return String
-     */
-    public static String getSampleSetDescription(String sampleSetId, List<SampleList> sampleSets) {
-
-        StringBuilder builder = new StringBuilder();
-        for (SampleList sampleSet : sampleSets) {
-            if (sampleSetId.equals(sampleSet.getStableId())) {
-                builder.append(sampleSet.getName() + ": " + sampleSet.getDescription());
+public class DaoInfo {
+    private static String version;
+    
+    public static synchronized void setVersion() {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        version = "-1";
+        try {
+            con = JdbcUtil.getDbConnection(DaoInfo.class);
+            pstmt = con.prepareStatement
+                    ("SELECT * FROM info");
+            rs = pstmt.executeQuery();
+            if (rs.next()) {
+                version = rs.getString("DB_SCHEMA_VERSION");
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            JdbcUtil.closeAll(DaoInfo.class, con, pstmt, rs);
         }
-        return builder.toString();
     }
-
-    /**
-     * Format percentage.
-     *
-     * <p/>
-     * if value == 0 return "--"
-     * case value
-     * 0: return "--"
-     * 0<value<=0.01: return "<1%"
-     * 1<value: return "<value>%"
-     *
-     * @param value double
-     *
-     * @return String
-     */
-    public static String alterationValueToString(double value) {
-
-        // in oncoPrint show 0 percent as 0%, not --
-        if (0.0 < value && value <= 0.01) {
-            return "<1%";
-        }
-
-        // if( 1.0 < value ){
-        Formatter f = new Formatter();
-        f.format("%.0f", value * 100.0);
-        return f.out().toString() + "%";
+    
+    public static String getVersion() {
+        return version;
     }
 }

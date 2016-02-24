@@ -30,58 +30,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.mskcc.cbio.portal.util;
+package org.mskcc.cbio.portal.scripts;
 
-import org.mskcc.cbio.portal.model.SampleList;
+import org.mskcc.cbio.portal.dao.DaoSampleList;
+import org.mskcc.cbio.portal.util.ConsoleUtil;
+import org.mskcc.cbio.portal.util.ProgressMonitor;
 
-import java.util.Formatter;
-import java.util.List;
+/**
+ * Command Line Tool to Delete All Sample Lists.
+ */
+public class DeleteAllSampleLists {
 
-public class OncoPrintUtil {
-
-    /**
-     * Constructs the OncoPrint patient set description.
-     *
-     * @param sampleSetId String
-     * @param sampleSets List<SampleList>
-     *
-     * @return String
-     */
-    public static String getSampleSetDescription(String sampleSetId, List<SampleList> sampleSets) {
-
-        StringBuilder builder = new StringBuilder();
-        for (SampleList sampleSet : sampleSets) {
-            if (sampleSetId.equals(sampleSet.getStableId())) {
-                builder.append(sampleSet.getName() + ": " + sampleSet.getDescription());
-            }
-        }
-        return builder.toString();
-    }
-
-    /**
-     * Format percentage.
-     *
-     * <p/>
-     * if value == 0 return "--"
-     * case value
-     * 0: return "--"
-     * 0<value<=0.01: return "<1%"
-     * 1<value: return "<value>%"
-     *
-     * @param value double
-     *
-     * @return String
-     */
-    public static String alterationValueToString(double value) {
-
-        // in oncoPrint show 0 percent as 0%, not --
-        if (0.0 < value && value <= 0.01) {
-            return "<1%";
-        }
-
-        // if( 1.0 < value ){
-        Formatter f = new Formatter();
-        f.format("%.0f", value * 100.0);
-        return f.out().toString() + "%";
+    public static void main(String[] args) throws Exception {
+        // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
+        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
+        DaoSampleList daoSampleList = new DaoSampleList();
+        daoSampleList.deleteAllRecords();
+        System.out.println ("\nAll Existing Sample Lists Deleted.");
+        ConsoleUtil.showWarnings();
     }
 }

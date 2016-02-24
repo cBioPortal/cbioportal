@@ -205,7 +205,7 @@ var hasMutSig = <%=hasMutSig%>;
 var caseSetId = '<%=caseSetId%>';
 var caseIds = <%=jsonCaseIds%>;
 var cancer_study_id = cancerStudyId; //Some components using this as global ID
-var appVersion = <%=GlobalProperties.getAppVersion()%>?<%=GlobalProperties.getAppVersion()%>:'0000001';
+var appVersion = '<%=GlobalProperties.getAppVersion()%>';
 var hasMutation = <%=hasMutation%>;
 var hasCNA = <%=hasCNA%>;
 

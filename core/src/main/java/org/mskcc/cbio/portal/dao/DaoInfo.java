@@ -56,7 +56,7 @@ public class DaoInfo {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            JdbcUtil.closeAll(DaoDrug.class, con, pstmt, rs);
+            JdbcUtil.closeAll(DaoInfo.class, con, pstmt, rs);
         }
     }
     

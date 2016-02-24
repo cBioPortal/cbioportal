@@ -40,17 +40,26 @@ def interface():
     parser = argparse.ArgumentParser(description='cBioPortal meta Importer')
     parser.add_argument('-s', '--study_directory', type=str, required=True,
                         help='path to directory.')
-    parser.add_argument('-u', '--url_server', type=str, required=True,
-                        help='URL to cBioPortal server, e.g. http://localhost:8080/cbioportal')
-    parser.add_argument('-html', '--html_table', type=str, required=False,
-                        help='path to html report')
-    parser.add_argument('-v', '--verbose', required=False, action='store_true',
-                        help='report status info messages while validating')
-    parser.add_argument('-o', '--override_warning', required=False,
-                        action='store_true',
-                        help='override warnings and continue importing')
+    portal_mode_group = parser.add_mutually_exclusive_group()
+    portal_mode_group.add_argument('-u', '--url_server',
+                                   type=str,
+                                   default='http://localhost/cbioportal',
+                                   help='URL to cBioPortal server. You can '
+                                        'set this if your URL is not '
+                                        'http://localhost/cbioportal')
+    portal_mode_group.add_argument('-p', '--portal_info_dir',
+                                   type=str,
+                                   help='Path to a directory of cBioPortal '
+                                        'info files to be used instead of '
+                                        'contacting the web API')
     parser.add_argument('-jar', '--jar_path', type=str, required=True,
                         help='path to core jar file.')
+    parser.add_argument('-html', '--html_table', type=str,
+                        help='path to html report')
+    parser.add_argument('-v', '--verbose', action='store_true',
+                        help='report status info messages while validating')
+    parser.add_argument('-o', '--override_warning', action='store_true',
+                        help='override warnings and continue importing')
 
     parser = parser.parse_args()
     return parser
@@ -63,7 +72,7 @@ def interface():
 if __name__ == '__main__':
     # Parse user input
     args = interface()
-    # supply parameter that the validation script expects to have parsed
+    # supply parameters that the validation script expects to have parsed
     args.error_file = False
     args.no_portal_checks = False
 

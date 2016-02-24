@@ -32,20 +32,25 @@
 
 package org.mskcc.cbio.portal.scripts;
 
-import org.mskcc.cbio.portal.dao.DaoPatientList;
-import org.mskcc.cbio.portal.util.ConsoleUtil;
+import org.mskcc.cbio.portal.dao.DaoSampleList;
+import org.mskcc.cbio.portal.model.SampleList;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
 
+import java.util.ArrayList;
+
 /**
- * Command Line Tool to Delete All Patient Lists.
+ * Command Line Tool to Export All Sample Lists to the Console.
  */
-public class DeleteAllPatientLists {
+public class GetAllSampleLists {
 
     public static void main(String[] args) throws Exception {
+        // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
         ProgressMonitor.setConsoleModeAndParseShowProgress(args);
-        DaoPatientList daoPatientList = new DaoPatientList();
-        daoPatientList.deleteAllRecords();
-        System.out.println ("\nAll Existing Patient Lists Deleted.");
-        ConsoleUtil.showWarnings();
+        DaoSampleList daoSampleList = new DaoSampleList();
+        ArrayList <SampleList> sampleListMaster = daoSampleList.getAllSampleLists();
+        for (SampleList sampleList:  sampleListMaster) {
+            System.out.println (sampleList.getSampleListId() + ": "
+                    + sampleList.getStableId() + ": " + sampleList.getName());
+        }
     }
 }

@@ -121,7 +121,7 @@ public class ImportCosmicData {
         }
 		SpringUtil.initDataSource();
         DaoCosmicData.deleteAllRecords();
-        ProgressMonitor.setConsoleModeAndParseShowProgress(args);
+        ProgressMonitor.setConsoleMode(true);
 
         File file = new File(args[0]);
         System.out.println("Reading data from:  " + file.getAbsolutePath());

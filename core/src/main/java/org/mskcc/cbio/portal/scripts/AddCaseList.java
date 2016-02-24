@@ -27,12 +27,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
-import org.mskcc.cbio.portal.dao.DaoPatientList;
 import org.mskcc.cbio.portal.dao.DaoSample;
+import org.mskcc.cbio.portal.dao.DaoSampleList;
 import org.mskcc.cbio.portal.model.CancerStudy;
-import org.mskcc.cbio.portal.model.PatientList;
-import org.mskcc.cbio.portal.model.PatientListCategory;
 import org.mskcc.cbio.portal.model.Sample;
+import org.mskcc.cbio.portal.model.SampleList;
+import org.mskcc.cbio.portal.model.SampleListCategory;
 import org.mskcc.cbio.portal.util.ConsoleUtil;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
 import org.mskcc.cbio.portal.util.SpringUtil;
@@ -55,11 +55,11 @@ public class AddCaseList {
 		String stableId = cancerStudyIdentifier + "_all";
 		ProgressMonitor.setCurrentMessage("Adding case list:  " + stableId + "..."); 
 		
-		String patientListCategoryStr = "other"; //TODO : check if this is important...
-		PatientListCategory patientListCategory = PatientListCategory.get(patientListCategoryStr); 
+		String sampleListCategoryStr = "other"; //TODO : check if this is important...
+		SampleListCategory sampleListCategory = SampleListCategory.get(sampleListCategoryStr); 
 		   
-		String patientListDescription = "All cases in study";
-		String patientListName = patientListDescription;
+		String sampleListDescription = "All cases in study";
+		String sampleListName = sampleListDescription;
 				
 		// construct sample id list
 		ArrayList<String> sampleIDsList = new ArrayList<String>();
@@ -73,7 +73,7 @@ public class AddCaseList {
 		      sampleIDsList.add(s.getStableId());
 		   }
 		}
-		addCaseList(stableId, theCancerStudy, patientListCategory, patientListName, patientListDescription,  sampleIDsList);
+		addCaseList(stableId, theCancerStudy, sampleListCategory, sampleListName, sampleListDescription,  sampleIDsList);
 	}
    
 	/**
@@ -81,38 +81,38 @@ public class AddCaseList {
 	 * 
 	 * @param stableId
 	 * @param theCancerStudy
-	 * @param patientListCategory
-	 * @param patientListName
-	 * @param patientListDescription
+	 * @param sampleListCategory
+	 * @param sampleListName
+	 * @param sampleListDescription
 	 * @param sampleIDsList
 	 * @param pMonitor
 	 * @throws Exception
 	 */
    public static void addCaseList(String stableId, CancerStudy theCancerStudy, 
-		   PatientListCategory patientListCategory, String patientListName, String patientListDescription, 
+		   SampleListCategory sampleListCategory, String sampleListName, String sampleListDescription, 
 		   ArrayList<String> sampleIDsList) throws Exception {
 
-      DaoPatientList daoPatientList = new DaoPatientList();
-      PatientList patientList = daoPatientList.getPatientListByStableId(stableId);
-      if (patientList != null) {
-         throw new IllegalArgumentException("Patient list with this stable Id already exists:  " + stableId);
+      DaoSampleList daoSampleList = new DaoSampleList();
+      SampleList sampleList = daoSampleList.getSampleListByStableId(stableId);
+      if (sampleList != null) {
+         throw new IllegalArgumentException("Case list with this stable Id already exists:  " + stableId);
       }
 
-      patientList = new PatientList();
-      patientList.setStableId(stableId);
+      sampleList = new SampleList();
+      sampleList.setStableId(stableId);
       int cancerStudyId = theCancerStudy.getInternalId();
-      patientList.setCancerStudyId(cancerStudyId);
-      patientList.setPatientListCategory(patientListCategory);
-      patientList.setName(patientListName);
-      patientList.setDescription(patientListDescription);
-      patientList.setPatientList(sampleIDsList);
-      daoPatientList.addPatientList(patientList);
+      sampleList.setCancerStudyId(cancerStudyId);
+      sampleList.setSampleListCategory(sampleListCategory);
+      sampleList.setName(sampleListName);
+      sampleList.setDescription(sampleListDescription);
+      sampleList.setSampleList(sampleIDsList);
+      daoSampleList.addSampleList(sampleList);
 
-      patientList = daoPatientList.getPatientListByStableId(stableId);
+      sampleList = daoSampleList.getSampleListByStableId(stableId);
 
-      ProgressMonitor.setCurrentMessage(" --> stable ID:  " + patientList.getStableId());
-      ProgressMonitor.setCurrentMessage(" --> patient list name:  " + patientList.getName());
-      ProgressMonitor.setCurrentMessage(" --> number of patients:  " + sampleIDsList.size());
+      ProgressMonitor.setCurrentMessage(" --> stable ID:  " + sampleList.getStableId());
+      ProgressMonitor.setCurrentMessage(" --> case list name:  " + sampleList.getName());
+      ProgressMonitor.setCurrentMessage(" --> number of cases:  " + sampleIDsList.size());
    }
 
    public static void main(String[] args) throws Exception {
@@ -120,7 +120,8 @@ public class AddCaseList {
       // check args
       if (args.length < 2) {
          System.out.println("command line usage:  addCaseList.pl " + "<study identifier> <case list type>");
-            return;
+         // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
+         return;
       }
       ProgressMonitor.setConsoleModeAndParseShowProgress(args);
       

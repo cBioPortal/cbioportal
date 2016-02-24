@@ -10,6 +10,7 @@ db.portal_db_name=cbioportal
 db.driver=com.mysql.jdbc.Driver
 db.connection_string=jdbc:mysql://localhost/
 db.tomcat_resource_name=jdbc/cbioportal
+db.version=${db.version}
 
 # web page cosmetics
 skin.title=cBioPortal for Cancer Genomics

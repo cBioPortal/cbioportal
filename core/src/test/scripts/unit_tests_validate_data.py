@@ -11,72 +11,26 @@ import sys
 import logging.handlers
 from importer import cbioportal_common
 from importer import validateData
-import json
-
-# these two files contain the contents of the /api/genes and /api/genesaliases, respectively:
-with open('test_data/genes.json') as data_file:    
-    hugo_entrez_map = validateData.transform_symbol_entrez_map(json.load(data_file), 'hugo_gene_symbol')
-with open('test_data/genesaliases.json') as data_file:    
-    aliases_entrez_map = validateData.transform_symbol_entrez_map(json.load(data_file), 'gene_alias')
 
 
-
-# hard-code known clinical attributes
-KNOWN_PATIENT_ATTRS = {
-    "PATIENT_ID": {"display_name":"Patient Identifier","description":"Identifier to uniquely specify a patient.","datatype":"STRING","is_patient_attribute":"1","priority":"1"},
-    "OS_STATUS": {"display_name":"Overall Survival Status","description":"Overall patient survival status.","datatype":"STRING","is_patient_attribute":"1","priority":"1"},
-    "OS_MONTHS": {"display_name":"Overall Survival (Months)","description":"Overall survival in months since initial diagnosis.","datatype":"NUMBER","is_patient_attribute":"1","priority":"1"},
-    "DFS_STATUS": {"display_name":"Disease Free Status","description":"Disease free status since initial treatment.","datatype":"STRING","is_patient_attribute":"1","priority":"1"},
-    "DFS_MONTHS": {"display_name":"Disease Free (Months)","description":"Disease free (months) since initial treatment.","datatype":"NUMBER","is_patient_attribute":"1","priority":"1"},
-    "SUBTYPE": {"display_name":"Subtype","description":"Subtype description.","datatype":"STRING","is_patient_attribute":"0","priority":"1"},
-    "CANCER_TYPE": {"display_name":"Cancer Type","description":"Disease type.","datatype":"STRING","is_patient_attribute":"0","priority":"1"},
-    "CANCER_TYPE_DETAILED": {"display_name":"Cancer Type Detailed","description":"Cancer Type Detailed.","datatype":"STRING","is_patient_attribute":"0","priority":"1"}
-}
-KNOWN_SAMPLE_ATTRS = {
-    "SAMPLE_ID": {"display_name":"Sample Identifier","description":"A unique sample identifier.","datatype":"STRING","is_patient_attribute":"0","priority":"1"},
-}
-KNOWN_ATTRS = dict(KNOWN_PATIENT_ATTRS)
-KNOWN_ATTRS.update(KNOWN_SAMPLE_ATTRS)
-
-# hard-code known cancer types
-KNOWN_CANCER_TYPES = {
-    # tissues as parents
-    "breast": {"name":"Breast","color":"HotPink"},
-    "prostate": {"name":"Prostate","color":"Cyan"},
-    "lung": {"name":"Lung","color":"Gainsboro"},
-    # cancer types
-    "brca": {"name":"Invasive Breast Carcinoma","color":"HotPink"},
-    "prad": {"name":"Prostate Adenocarcinoma","color":"Cyan"}
-}
-
-# mock-code sample ids defined in a study
-DEFINED_SAMPLE_IDS = ["TCGA-A1-A0SB-01", "TCGA-A1-A0SD-01", "TCGA-A1-A0SE-01", "TCGA-A1-A0SH-01", "TCGA-A2-A04U-01",
-"TCGA-B6-A0RS-01", "TCGA-BH-A0HP-01", "TCGA-BH-A18P-01", "TCGA-BH-A18H-01", "TCGA-C8-A138-01", "TCGA-A2-A0EY-01", "TCGA-A8-A08G-01"]
-
-PORTAL_INSTANCE = validateData.PortalInstance(KNOWN_CANCER_TYPES,
-                                              KNOWN_ATTRS,
-                                              hugo_entrez_map,
-                                              aliases_entrez_map)
+# globals for mock data used throughout the module
+DEFINED_SAMPLE_IDS = None
+PORTAL_INSTANCE = None
 
 
-# TODO - something like this could be done for a web-services stub:
-# def dumy_request_from_portal_api(service_url, logger):
-#     """Send a request to the portal API and return the decoded JSON object."""
-#     if logger.isEnabledFor(logging.INFO):
-#         url_split = service_url.split('/api/', 1)
-#         logger.info("Requesting %s from portal at '%s'",
-#                     url_split[1], url_split[0])
-#     response = requests.get(service_url)
-#     try:
-#         response.raise_for_status()
-#     except requests.exceptions.HTTPError as e:
-#         raise IOError(
-#             'Connection error for URL: {url}. Administrator: please check if '
-#             '[{url}] is accessible. Message: {msg}'.format(url=service_url,
-#                                                            msg=e.message))
-#     return response.json()
-#
-# validateData.request_from_portal_api = dumy_request_from_portal_api
+def setUpModule():
+    """Initialise mock data used throughout the module."""
+    global DEFINED_SAMPLE_IDS
+    global PORTAL_INSTANCE
+    # mock-code sample ids defined in a study
+    DEFINED_SAMPLE_IDS = ["TCGA-A1-A0SB-01", "TCGA-A1-A0SD-01", "TCGA-A1-A0SE-01", "TCGA-A1-A0SH-01", "TCGA-A2-A04U-01",
+    "TCGA-B6-A0RS-01", "TCGA-BH-A0HP-01", "TCGA-BH-A18P-01", "TCGA-BH-A18H-01", "TCGA-C8-A138-01", "TCGA-A2-A0EY-01", "TCGA-A8-A08G-01"]
+    # these two files contain the contents of the /api/genes and /api/genesaliases, respectively:
+    logger = logging.getLogger(__name__)
+    # parse mock API results from a local directory
+    PORTAL_INSTANCE = validateData.load_portal_info('test_data/api_json_unit_tests/',
+                                                    logger,
+                                                    offline=True)
 
 
 class LogBufferTestCase(unittest.TestCase):
@@ -256,6 +210,22 @@ class ClinicalColumnDefsTestCase(DataFileTestCase):
         self.assertEqual(record_list[1].levelno, logging.ERROR)
         self.assertEqual(record_list[1].line_number, 5)
         self.assertEqual(record_list[1].column_number, 7)
+
+
+class ClinicalValuesTestCase(DataFileTestCase):
+
+    """Tests for validations on the values of clinical attributes."""
+
+    def test_sample_twice_in_one_file(self):
+        """Test when a sample is defined twice in the same file."""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('data_clin_repeated_sample.txt',
+                                    validateData.ClinicalValidator)
+        self.assertEqual(len(record_list), 1)
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.ERROR)
+        self.assertEqual(record.line_number, 12)
+        self.assertEqual(record.column_number, 2)
 
 
 class CancerTypeFileValidationTestCase(DataFileTestCase):
@@ -497,16 +467,15 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         '''
         # set level according to this test case:
         self.logger.setLevel(logging.ERROR)
-        record_list = self.validate('data_mutations_invalid_norm_samples.maf',
+        record_list = self.validate('mutations/data_mutations_invalid_norm_samples.maf',
                                     validateData.MutationsExtendedValidator,
                                     {'normal_samples_list':
                                      'TCGA-B6-A0RS-10,TCGA-BH-A0HP-10,TCGA-BH-A18P-11, TCGA-BH-A18H-10'})
-        # we expect 2 errors about columns in wrong order,
-        # and one about the file not being parseable:
+        # we expect 3 errors about invalid normal samples:
         self.assertEqual(len(record_list), 3)
         # check if both messages come from printDataInvalidStatement:
         found_one_of_the_expected = False
-        for error in record_list[:2]:
+        for error in record_list:
             self.assertEqual("ERROR", error.levelname)
             self.assertEqual("printDataInvalidStatement", error.funcName)
             if "TCGA-C8-A138-10" == error.cause:
@@ -514,14 +483,57 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
 
         self.assertEqual(True, found_one_of_the_expected)
 
-
+    
+    def test_missing_aa_change_column(self):
+        """One of Amino_Acid_Change or HGVSp_Short is required, so
+        there should be a warning if both Amino_Acid_Change and HGVSp_Short are missing"""
+        # set level according to this test case:
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate('mutations/data_mutations_missing_aa_change_column.maf',
+                                    validateData.MutationsExtendedValidator)
+        # we expect 2 errors, something like:
+        # ERROR: data_mutations_missing_aa_change_column.maf: line 1: At least one of the columns HGVSp_Short or Amino_Acid_Change needs to be present.
+        # ERROR: data_mutations_missing_aa_change_column.maf: Invalid column header, file cannot be parsed
+        self.assertEqual(len(record_list), 2)
+        # check if both messages come from printDataInvalidStatement:
+        self.assertIn("hgvsp_short", record_list[0].getMessage().lower())
+        self.assertIn("invalid column header", record_list[1].getMessage().lower())
+    
+    
+    def test_warning_for_missing_SWISSPROT(self):
+        """If SWISSPROT is missing (or present and empty), user should be warned about it"""
+        # set level according to this test case:
+        self.logger.setLevel(logging.WARNING)
+        record_list = self.validate('mutations/data_mutations_missing_swissprot.maf',
+                                    validateData.MutationsExtendedValidator)
+        # we expect 1 warning, something like
+        # WARNING: data_mutations_missing_swissprot.maf: line 1: SWISSPROT column is recommended if you want to make sure that a specific isoform is used for the PFAM domains drawing in the mutations view.; wrong value: 'SWISSPROT column not found'
+        self.assertEqual(len(record_list), 1)
+        # check if both messages come from printDataInvalidStatement:
+        self.assertIn("swissprot", record_list[0].getMessage().lower())
+        
+    
+    def test_isValidAminoAcidChange(self):
+        """Tests if proper warning is given if aa change column is present, but contains wrong (blank) value"""
+        # set level according to this test case:
+        self.logger.setLevel(logging.WARNING)
+        record_list = self.validate('mutations/data_mutations_empty_aa_change_column.maf',
+                                    validateData.MutationsExtendedValidator)
+        # we expect 1 warning, something like
+        # WARNING: data_mutations_empty_aa_change_column.maf: line 2: Amino acid change cannot be parsed from Amino_Acid_Change column value. This mutation record will get a generic "MUTATED" flag; wrong value: 'empty value found'
+        self.assertEqual(len(record_list), 2)
+        # check if both messages come from printDataInvalidStatement:
+        self.assertIn("amino acid change cannot be parsed", record_list[0].getMessage().lower())
+    
+    
 class SegFileValidationTestCase(PostClinicalDataFileTestCase):
 
     """Tests for the various validations of data in segment CNA data files."""
 
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         """Override a static method to skip a UCSC HTTP query in each test."""
-        super(SegFileValidationTestCase, self).setUp()
+        super(SegFileValidationTestCase, cls).setUpClass()
         @staticmethod
         def load_chromosome_lengths(genome_build):
             if genome_build != 'hg19':
@@ -536,14 +548,14 @@ class SegFileValidationTestCase(PostClinicalDataFileTestCase):
                     u'3': 198022430, u'4': 191154276, u'5': 180915260,
                     u'6': 171115067, u'7': 159138663, u'8': 146364022,
                     u'9': 141213431, u'X': 155270560, u'Y': 59373566}
-        self.orig_chromlength_method = validateData.SegValidator.load_chromosome_lengths
+        cls.orig_chromlength_method = validateData.SegValidator.load_chromosome_lengths
         validateData.SegValidator.load_chromosome_lengths = load_chromosome_lengths
 
-
-    def tearDown(self):
-        """Restore the environment to before setUp() was called."""
-        super(SegFileValidationTestCase, self).tearDown()
-        validateData.SegValidator.load_chromosome_lengths = self.orig_chromlength_method
+    @classmethod
+    def tearDownClass(cls):
+        """Restore the environment to before setUpClass() was called."""
+        validateData.SegValidator.load_chromosome_lengths = cls.orig_chromlength_method
+        super(SegFileValidationTestCase, cls).tearDownClass()
 
     def test_valid_seg(self):
         """Validate a segment file without file format errors."""

@@ -265,6 +265,7 @@ public class ImportProteinArrayData {
 //        args = new String[] {"/Users/jgao/projects/cbio-portal-data/studies/cellline/douglevine_ccl/data_rppa.txt","cellline_douglevine_ccl"};
         if (args.length < 2) {
             System.out.println("command line usage:  importRPPAData.pl <RPPA_data.txt> <Cancer study identifier>");
+            // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
             return;
         }
         
@@ -288,19 +289,20 @@ public class ImportProteinArrayData {
      * add extra antibodies of normalized phosphoprotein data
      * @param args
      * @throws Exception 
+     * TODO - apparently not used...REMOVE?? 
      */
     public static void main_normalize_phospho(String[] args) throws Exception {
         DaoProteinArrayData daoPAD = DaoProteinArrayData.getInstance();
         DaoProteinArrayInfo daoPAI = DaoProteinArrayInfo.getInstance();
         DaoProteinArrayTarget daoPAT = DaoProteinArrayTarget.getInstance();
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-        DaoPatientList daoPatientList = new DaoPatientList();
+        DaoSampleList daoSampleList = new DaoSampleList();
         ArrayList<CancerStudy> studies = DaoCancerStudy.getAllCancerStudies();
         for (CancerStudy study : studies) {
             int studyId = study.getInternalId();
-            PatientList patientlist = daoPatientList.getPatientListByStableId(study.getCancerStudyStableId()+"_RPPA");
-            if (patientlist==null) continue;
-            List<Integer> sampleIds = InternalIdUtil.getInternalSampleIds(studyId, patientlist.getPatientList());
+            SampleList sampleList = daoSampleList.getSampleListByStableId(study.getCancerStudyStableId()+"_RPPA");
+            if (sampleList==null) continue;
+            List<Integer> sampleIds = InternalIdUtil.getInternalSampleIds(studyId, sampleList.getSampleList());
             ArrayList<ProteinArrayInfo> phosphoArrays = daoPAI.getProteinArrayInfoForType(
                     studyId, Collections.singleton("phosphorylation"));
             ArrayList<ProteinArrayInfo> proteinArrays = daoPAI.getProteinArrayInfoForType(

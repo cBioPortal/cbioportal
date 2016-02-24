@@ -40,11 +40,11 @@ import java.io.*;
 import java.util.*;
 
 /**
- * Command Line tool to Import Patient Lists.
+ * Command Line tool to Import Sample Lists.
  */
-public class ImportPatientList {
+public class ImportSampleList {
 
-   public static void importPatientList(File dataFile) throws Exception {
+   public static void importSampleList(File dataFile) throws Exception {
       ProgressMonitor.setCurrentMessage("Read data from:  " + dataFile.getAbsolutePath());
       Properties properties = new Properties();
       properties.load(new FileInputStream(dataFile));
@@ -70,23 +70,23 @@ public class ImportPatientList {
                   + cancerStudyIdentifier + "' not found in dbms or inaccessible to user.");
       }
 
-      String patientListName = properties.getProperty("case_list_name");
+      String sampleListName = properties.getProperty("case_list_name");
        
-      String patientListCategoryStr = properties.getProperty("case_list_category");
-      if (patientListCategoryStr  == null || patientListCategoryStr.length() == 0) {
-          patientListCategoryStr = "other";
+      String sampleListCategoryStr = properties.getProperty("case_list_category");
+      if (sampleListCategoryStr  == null || sampleListCategoryStr.length() == 0) {
+          sampleListCategoryStr = "other";
       }
-      PatientListCategory patientListCategory = PatientListCategory.get(patientListCategoryStr); 
+      SampleListCategory sampleListCategory = SampleListCategory.get(sampleListCategoryStr); 
        
-      String patientListDescription = properties.getProperty("case_list_description");
+      String sampleListDescription = properties.getProperty("case_list_description");
       String sampleListStr = properties.getProperty("case_list_ids");
-      if (patientListName == null) {
+      if (sampleListName == null) {
          throw new IllegalArgumentException("case_list_name is not specified.");
-      } else if (patientListDescription == null) {
+      } else if (sampleListDescription == null) {
          throw new IllegalArgumentException("case_list_description is not specified.");
       }
 
-      // construct patient id list
+      // construct sample id list
       ArrayList<String> sampleIDsList = new ArrayList<String>();
       String[] sampleIds = sampleListStr.split("\t");
       for (String sampleId : sampleIds) {
@@ -113,27 +113,27 @@ public class ImportPatientList {
          }
       }
 
-      DaoPatientList daoPatientList = new DaoPatientList();
-      PatientList patientList = daoPatientList.getPatientListByStableId(stableId);
-      if (patientList != null) {
+      DaoSampleList daoSampleList = new DaoSampleList();
+      SampleList sampleList = daoSampleList.getSampleListByStableId(stableId);
+      if (sampleList != null) {
          throw new IllegalArgumentException("Patient list with this stable Id already exists:  " + stableId);
       }
 
-      patientList = new PatientList();
-      patientList.setStableId(stableId);
+      sampleList = new SampleList();
+      sampleList.setStableId(stableId);
       int cancerStudyId = theCancerStudy.getInternalId();
-      patientList.setCancerStudyId(cancerStudyId);
-      patientList.setPatientListCategory(patientListCategory);
-      patientList.setName(patientListName);
-      patientList.setDescription(patientListDescription);
-      patientList.setPatientList(sampleIDsList);
-      daoPatientList.addPatientList(patientList);
+      sampleList.setCancerStudyId(cancerStudyId);
+      sampleList.setSampleListCategory(sampleListCategory);
+      sampleList.setName(sampleListName);
+      sampleList.setDescription(sampleListDescription);
+      sampleList.setSampleList(sampleIDsList);
+      daoSampleList.addSampleList(sampleList);
 
-      patientList = daoPatientList.getPatientListByStableId(stableId);
+      sampleList = daoSampleList.getSampleListByStableId(stableId);
 
-      ProgressMonitor.setCurrentMessage(" --> stable ID:  " + patientList.getStableId());
-      ProgressMonitor.setCurrentMessage(" --> patient list name:  " + patientList.getName());
-      ProgressMonitor.setCurrentMessage(" --> number of patients:  " + sampleIDsList.size());
+      ProgressMonitor.setCurrentMessage(" --> stable ID:  " + sampleList.getStableId());
+      ProgressMonitor.setCurrentMessage(" --> sample list name:  " + sampleList.getName());
+      ProgressMonitor.setCurrentMessage(" --> number of samples:  " + sampleIDsList.size());
    }
 
    public static void main(String[] args) throws Exception {
@@ -141,7 +141,8 @@ public class ImportPatientList {
       // check args
       if (args.length < 1) {
          System.out.println("command line usage:  importCaseListData.pl " + "<data_file.txt or directory>");
-            return;
+         // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
+         return;
       }
       ProgressMonitor.setConsoleModeAndParseShowProgress(args);
       File dataFile = new File(args[0]);
@@ -149,14 +150,14 @@ public class ImportPatientList {
          File files[] = dataFile.listFiles();
          for (File file : files) {
             if (file.getName().endsWith("txt")) {
-               ImportPatientList.importPatientList(file);
+               ImportSampleList.importSampleList(file);
             }
          }
          if (files.length == 0) {
              ProgressMonitor.setCurrentMessage("No patient lists found in directory, skipping import: " + dataFile.getCanonicalPath());
          }
       } else {
-         ImportPatientList.importPatientList(dataFile);
+         ImportSampleList.importSampleList(dataFile);
       }
       ConsoleUtil.showWarnings();
       System.err.println("Done.");

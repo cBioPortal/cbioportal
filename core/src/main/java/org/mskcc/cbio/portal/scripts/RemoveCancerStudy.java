@@ -41,8 +41,9 @@ import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 public class RemoveCancerStudy {
 
     public static void main(String[] args) throws Exception {
-        if (args.length == 0) {
+        if (args.length < 1) {
             System.out.println("command line usage: RemoveCancerStudy <cancer_study_identifier>");
+            // an extra --noprogress option can be given to avoid the messages regarding memory usage and % complete
             return;
         }
         String cancerStudyIdentifier = args[0];

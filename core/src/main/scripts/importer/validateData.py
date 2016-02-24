@@ -19,6 +19,7 @@ import re
 import csv
 import itertools
 import requests
+import json
 
 import cbioportal_common
 
@@ -388,7 +389,7 @@ class Validator(object):
 
         if not self.ALLOW_BLANKS:
             for col_index, col_name in enumerate(self.cols):
-                if col_index < line_col_count and data[col_index] == '':
+                if col_index < line_col_count and data[col_index].strip() == '':
                     self.logger.error("Blank cell found in column '%s'",
                                       col_name,
                                       extra={'line_number': self.line_number,
@@ -762,11 +763,7 @@ class MutationsExtendedValidator(Validator):
     REQUIRED_HEADERS = [
         'Tumor_Sample_Barcode',
         'Hugo_Symbol', # Required to initialize the Mutation Mapper tabs
-        'HGVSp_Short', # Required to initialize the Mutation Diagram
-        'Variant_Type', # Required to initialize the Mutation Diagram
-        'Protein_position', # Required to initialize the 3D viewer
         'Variant_Classification', # seems to be important during loading/filtering step.
-        'SWISSPROT' # Needed for consistent PDB structure matching.
     ]
     REQUIRE_COLUMN_ORDER = False
     ALLOW_BLANKS = True
@@ -784,11 +781,10 @@ class MutationsExtendedValidator(Validator):
         'n_ref_count':'check_n_ref_count',
         'Tumor_Sample_Barcode': 'checkNotBlank',
         'Hugo_Symbol': 'checkNotBlank', 
-        'HGVSp_Short': 'checkAminoAcidChange',
-        'Variant_Type': 'checkNotBlank',
-        'Protein_position': 'checkNotBlank',
+        'HGVSp_Short': 'checkHgvspShort',
+        'Amino_Acid_Change': 'checkAminoAcidChange',
         'Variant_Classification': 'checkNotBlank',
-        'SWISSPROT': 'checkNotBlank' 
+        'SWISSPROT': 'checkSwissProt'
     }
 
     def __init__(self, *args, **kwargs):
@@ -807,6 +803,21 @@ class MutationsExtendedValidator(Validator):
                               'Entrez_Gene_Id needs to be present.',
                               extra={'line_number': self.line_number})
             num_errors += 1
+            
+        if not 'SWISSPROT' in self.cols:
+            self.logger.warning('SWISSPROT column is recommended if you want to make ' 
+                                'sure that a specific isoform is used for the '
+                                'PFAM domains drawing in the mutations view.',
+                              extra={'line_number': self.line_number,
+                                     'cause':'SWISSPROT column not found'})
+                              
+        # one of these columns should be present:
+        if not ('HGVSp_Short' in self.cols or 'Amino_Acid_Change' in self.cols):
+            self.logger.error('At least one of the columns HGVSp_Short or '
+                              'Amino_Acid_Change needs to be present.',
+                              extra={'line_number': self.line_number})
+            num_errors += 1
+            
         return num_errors
 
     def checkLine(self, data):
@@ -832,7 +843,7 @@ class MutationsExtendedValidator(Validator):
                 checking_function = getattr(
                     self,
                     self.CHECK_FUNCTION_MAP[col_name])
-                if not checking_function(value):
+                if not checking_function(value, data):
                     self.printDataInvalidStatement(value, col_index)
                 elif self.extra_exists or self.extra:
                     raise RuntimeError(('Checking function %s set an error '
@@ -881,13 +892,13 @@ class MutationsExtendedValidator(Validator):
     # the function name that is created to check it.
 
 
-    def checkNCBIbuild(self, value):
+    def checkNCBIbuild(self, value, data):
         if self.checkInt(value) and value != '':
             if int(value) != NCBI_BUILD_NUMBER:
                 return False
         return True
     
-    def checkMatchedNormSampleBarcode(self, value):
+    def checkMatchedNormSampleBarcode(self, value, data):
         if value != '':
             if 'normal_samples_list' in self.meta_dict and self.meta_dict['normal_samples_list'] != '':
                 normal_samples_list = [x.strip() for x in self.meta_dict['normal_samples_list'].split(',')]
@@ -899,50 +910,96 @@ class MutationsExtendedValidator(Validator):
         return True
     
     
-    def checkVerificationStatus(self, value):
-        if value.lower() not in ('', 'verified', 'unknown'):
+    def checkVerificationStatus(self, value, data):
+        # if value is not blank, then it should be one of these:
+        if self.checkNotBlank(value, data) and value.lower() not in ('verified', 'unknown'):
             return False
         return True
     
-    def checkValidationStatus(self, value):
-        if value == '':
-            return True
-        if value.lower() not in ('untested', 'inconclusive',
+    def checkValidationStatus(self, value, data):
+        # if value is not blank, then it should be one of these:
+        if self.checkNotBlank(value, data) and value.lower() not in ('untested', 'inconclusive',
                                  'valid', 'invalid'):
             return False
         return True
     
-    def check_t_alt_count(self, value):
+    def check_t_alt_count(self, value, data):
         if not self.checkInt(value) and value != '':
             return False
         return True
     
-    def check_t_ref_count(self, value):
+    def check_t_ref_count(self, value, data):
         if not self.checkInt(value) and value != '':
             return False
         return True
     
-    def check_n_alt_count(self, value):
+    def check_n_alt_count(self, value, data):
         if not self.checkInt(value) and value != '':
             return False
         return True
 
-    def check_n_ref_count(self, value):
+    def check_n_ref_count(self, value, data):
         if not self.checkInt(value) and value != '':
             return False
         return True
 
-    def checkAminoAcidChange(self, value):
+    def isValidAminoAcidChange(self, value, data):
         """Test whether a string is a valid amino acid change specification."""
         # TODO implement this test, may require bundling the hgvs package:
         # https://pypi.python.org/pypi/hgvs/
-        return self.checkNotBlank(value)
+        
+        # for now, we will only check as follows: 
+        if self.checkNotBlank(value, data):
+            return True
+        else:
+            # is blank, so check:
+            # if Variant_Classification in ["Splice_Site", ....] 
+            # then it is allowed to be blank, 
+            # otherwise it should not be blank 
+            variant_classification = data[self.cols.index('Variant_Classification')]
+            if variant_classification in ('Splice_Site'):
+                return True
+            else:
+                return False
+            
+            
+    def checkHgvspShort(self, value, data):
+        """Test whether HGVSp_Short can be parsed as an amino acid change."""
+        return self.checkAminoAcidChange(value, data, column_name = 'HGVSp_Short') 
 
 
-    def checkNotBlank(self, value):
+    def checkAminoAcidChange(self, value, data, column_name = 'Amino_Acid_Change'):
+        """Test whether the amino acid change value is 'valid' according to isValidAminoAcidChange."""
+        if not self.isValidAminoAcidChange(value, data):
+            # we give a warning if value is not valid telling user his 
+            # record will get a default value "MUTATED" when loaded in the DB.
+            self.logger.warning('Amino acid change cannot be parsed from %s column value. '
+                                'This mutation record will get a generic "MUTATED" flag',
+                                column_name,
+                              extra={'line_number': self.line_number,
+                                     'cause': 'empty value found'}) 
+        
+        # it is just a warning, so we can return True always:
+        return True
+
+
+    def checkNotBlank(self, value, data):
         """Test whether a string is blank."""
         if value is None or value.strip() == '':
             return False
+        return True
+    
+    def checkSwissProt(self, value, data):
+        """Test whether SWISSPROT string is blank and give warning if blank."""
+        if value is None or value.strip() == '':
+            self.logger.warning('SWISSPROT column was given, but value is empty. ' 
+                                'This column is recommended if you want to make ' 
+                                'sure that a specific isoform is used for the '
+                                'PFAM domains drawing in the mutations view.',
+                              extra={'line_number': self.line_number,
+                                     'cause':'SWISSPROT column found empty'})
+            
+        # it is just a warning, so we can return True always:
         return True
 
 
@@ -1145,6 +1202,12 @@ class ClinicalValidator(Validator):
                         extra={'line_number': self.line_number,
                                'column_number': col_index + 1,
                                'cause': value})
+                if value in self.sampleIds:
+                    self.logger.error(
+                        'Sample defined twice in clinical file',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
                 self.sampleIds.add(value.strip())
             if col_index == self.cols.index('PATIENT_ID') and value.strip() == '':
                 self.logger.error(
@@ -1171,6 +1234,9 @@ class SegValidator(Validator):
         super(SegValidator, self).__init__(*args, **kwargs)
         self.chromosome_lengths = self.load_chromosome_lengths(
             self.meta_dict['reference_genome_id'])
+        # add 23 and 24 "chromosomes" as aliases to X and Y, respectively:
+        self.chromosome_lengths['23'] = self.chromosome_lengths['X']
+        self.chromosome_lengths['24'] = self.chromosome_lengths['Y']
 
     def checkLine(self, data):
         super(SegValidator, self).checkLine(data)
@@ -1601,18 +1667,11 @@ def processCaseListDirectory(caseListDir, cancerStudyId, logger):
     logger.info('Validation of case lists complete')
 
 
-def request_from_portal_api(service_url, logger, id_field=None):
-    """Send a request to the portal API and return the decoded JSON object.
-
-    If id_field is specified, expect the object to be a list of dicts,
-    and instead return a dict indexed by the specified field of said
-    dictionaries. E.g.:
-    [{'id': 'spam', 'val1': 1}, {'id':'eggs', 'val1':42}] ->
-    {'spam': {'val1': 1}, 'eggs': {'val1': 42}}
-    """
-    url_split = service_url.split('/api/', 1)
+def request_from_portal_api(server_url, api_name, logger):
+    """Send a request to the portal API and return the decoded JSON object."""
+    service_url = server_url + '/api/' + api_name
     logger.info("Requesting %s from portal at '%s'",
-                url_split[1], url_split[0])
+                api_name, server_url)
     # this may raise a requests.exceptions.RequestException subclass,
     # usually because the URL provided on the command line was invalid or
     # did not include the http:// part
@@ -1624,53 +1683,75 @@ def request_from_portal_api(service_url, logger, id_field=None):
             'Connection error for URL: {url}. Administrator: please check if '
             '[{url}] is accessible. Message: {msg}'.format(url=service_url,
                                                            msg=e.message))
-    json_data = response.json()
-    if id_field is None:
-        return json_data
-    else:
-        transformed_dict = {}
-        # return a dict indexed by the specified field of said
-        # dictionaries. E.g.:
-        #[{'id': 'spam', 'val1': 1}, {'id':'eggs', 'val1':42}] ->
-        # {'spam': {'val1': 1}, 'eggs': {'val1': 42}}
-        for attr in json_data:
-            # make a copy of the attr dict
-            attr_dict = dict(attr)
-            # remove id field:
-            if not id_field in attr_dict:
-                raise RuntimeError('Unexpected error while calling web-service. '
-                                   'Please check if given {url} is correct'.format(url=service_url))
-            del attr_dict[id_field]
-            transformed_dict[attr[id_field]] = attr_dict
-        return transformed_dict
+    return response.json()
 
 
-def get_symbol_entrez_map(server_url, logger, aliases=False):
+def read_portal_json_file(dir_path, api_name, logger):
+    """Parse a JSON file named `api_name`.json in `dir_path`.
+
+    Replacing any forward slashes in the API name by underscores.
     """
-    Returns a dict with hugo symbols and respective entrezIds, e.g.:
-    # dict: {'LOC105377913': ['105377913'], 'LOC105377912': ['105377912'],  hugo: [entrez], hugo: [entrez, entrez]...
+    parsed_json = None
+    json_fn = os.path.join(dir_path, '{}.json'.format(
+                                         api_name.replace('/', '_')))
+    if os.path.isfile(json_fn):
+        logger.info('Reading portal information from %s',
+                    json_fn)
+        with open(json_fn, 'rU') as json_file:
+            parsed_json = json.load(json_file)
+    return parsed_json
+
+
+def index_api_data(parsed_json, id_field):
+    """Transform a list of dicts into a dict indexed by one of their fields.
+
+    >>> index_api_data([{'id': 'eggs', 'val1': 42, 'foo': True},
+    ...                     {'id': 'spam', 'val1': 1, 'foo': True}], 'id')
+    {'eggs': {'val1': 42, 'foo': True}, 'spam': {'val1': 1, 'foo': True}}
+    >>> index_api_data([{'id': 'eggs', 'val1': 42, 'foo': True},
+    ...                     {'id': 'spam', 'val1': 1, 'foo': True}], 'val1')
+    {1: {'foo': True, 'id': 'spam'}, 42: {'foo': True, 'id': 'eggs'}}
     """
-    if aliases:
-        service = '/api/genesaliases'
-        symbol_field_name = 'gene_alias'
-    else:
-        service = '/api/genes'
-        symbol_field_name = 'hugo_gene_symbol'
-    # get data
-    json_data = request_from_portal_api(server_url + service, logger)
-    # json_data is list of dicts, each entry containing e.g. dict: {'hugo_gene_symbol': 'SRXN1', 'entrez_gene_id': '140809'}
-    # We want to transform this to the format dict: {hugo: entrez, hugo: entrez...
-    result_dict = transform_symbol_entrez_map(json_data, symbol_field_name)
-    return result_dict
+    transformed_dict = {}
+    for attr in parsed_json:
+        # make a copy of the attr dict
+        # remove id field:
+        if not id_field in attr:
+            raise RuntimeError("Field '{}' not found in json object".format(
+                                   id_field))
+        id_val = attr[id_field]
+        if id_val in transformed_dict:
+            raise RuntimeError("Identifier '{}' found more than once in json "
+                               "object".format(id_val))
+        # make a copy of the sub-dictionary without the id field
+        attr_dict = dict(attr)
+        del attr_dict[id_field]
+        transformed_dict[id_val] = attr_dict
+    return transformed_dict
 
 
-def transform_symbol_entrez_map(json_data, symbol_field_name):
-    """ json_data is list of dicts, each entry containing e.g. dict: {'hugo_gene_symbol': 'SRXN1', 'entrez_gene_id': '140809'}
-    We want to transform this to the format dict: {hugo: entrez, hugo: entrez...
+def transform_symbol_entrez_map(json_data,
+                                id_field='hugo_gene_symbol',
+                                values_field='entrez_gene_id'):
+    """Transform a list of homogeneous dicts into a dict of lists.
+
+    Using the values of the `id_field` entries as the keys, mapping to lists
+    of corresponding `values_field` entries.
+
+    >>> transform_symbol_entrez_map(
+    ...     [{"hugo_gene_symbol": "A1BG", "entrez_gene_id": 1},
+    ...      {"hugo_gene_symbol": "A2M", "entrez_gene_id": 2}])
+    {'A2M': [2], 'A1BG': [1]}
+    >>> transform_symbol_entrez_map(
+    ...     [{"gene_alias": "A1B", "entrez_gene_id": 1},
+    ...      {"gene_alias": "ANG3", "entrez_gene_id": 738},
+    ...      {"gene_alias": "ANG3", "entrez_gene_id": 9068}],
+    ...     id_field="gene_alias")
+    {'ANG3': [738, 9068], 'A1B': [1]}
     """
     result_dict = {}
     for data_item in json_data:
-        symbol = data_item[symbol_field_name].upper()
+        symbol = data_item[id_field].upper()
         if symbol not in result_dict:
             result_dict[symbol] = []
         result_dict[symbol].append(
@@ -1678,43 +1759,95 @@ def transform_symbol_entrez_map(json_data, symbol_field_name):
     return result_dict
 
 
-def request_clinical_attributess(server_url, logger):
-    """Request clinical attributes from the portal API and return a dict."""
-    srv_patient_attrs = request_from_portal_api(
-        server_url + '/api/clinicalattributes/patients',
-        logger,
-        id_field='attr_id')
-    srv_sample_attrs = request_from_portal_api(
-        server_url + '/api/clinicalattributes/samples',
-        logger,
-        id_field='attr_id')
+def merge_clinical_attributes(patient_attr_dict, sample_attr_dict):
+    """Merge two dicts, raising an exception if the keys overlap.
+
+    >>> merge_clinical_attributes({"SEX":
+    ...                                {"is_patient_attribute": 1},
+    ...                            "AGE":
+    ...                                {"is_patient_attribute": 1}},
+    ...                           {"GLEASON_SCORE":
+    ...                                {"is_patient_attribute": 0}})
+    {'AGE': {'is_patient_attribute': 1}, 'GLEASON_SCORE': {'is_patient_attribute': 0}, 'SEX': {'is_patient_attribute': 1}}
+    """
     # if this happens, the database structure has changed and this script
     # needs to be updated
-    id_overlap = (set(srv_patient_attrs.keys()) &
-                  set(srv_sample_attrs.keys()))
+    id_overlap = patient_attr_dict.viewkeys() & sample_attr_dict.viewkeys()
     if id_overlap:
         raise ValueError(
-            'The portal at {url} returned these clinical attributes '
-            'both for samples and for patients: {attrs}'.format(
-                url=server_url,
-                attrs=', '.join(id_overlap)))
-    srv_patient_attrs.update(srv_sample_attrs)
-    return srv_patient_attrs
+            'Portal data listed these clinical attributes '
+            'both for samples and for patients: {}'.format(
+                ', '.join(id_overlap)))
+    # merge the sample attributes into the first dict
+    patient_attr_dict.update(sample_attr_dict)
+    return patient_attr_dict
+
+
+def load_portal_info(path, logger, offline=False):
+    """Create a PortalInstance object based on a server API or offline dir.
+
+    If `offline` is True, interpret `path` as the path to a directory of JSON
+    files. Otherwise expect `path` to be the URL of a cBioPortal server and
+    use its web API.
+    """
+    portal_dict = {}
+    for api_name, transform_function in (
+            ('cancertypes',
+                lambda json_data: index_api_data(json_data, 'id')),
+            ('clinicalattributes/patients',
+                lambda json_data: index_api_data(json_data, 'attr_id')),
+            ('clinicalattributes/samples',
+                lambda json_data: index_api_data(json_data, 'attr_id')),
+            ('genes',
+                lambda json_data: transform_symbol_entrez_map(
+                                        json_data, 'hugo_gene_symbol')),
+            ('genesaliases',
+                lambda json_data: transform_symbol_entrez_map(
+                                        json_data, 'gene_alias'))):
+        if offline:
+            parsed_json = read_portal_json_file(path, api_name, logger)
+        else:
+            parsed_json = request_from_portal_api(path, api_name, logger)
+        if parsed_json is not None and transform_function is not None:
+            parsed_json = transform_function(parsed_json)
+        portal_dict[api_name] = parsed_json
+    if all(d is None for d in portal_dict.values()):
+        raise IOError('No portal information found at {}'.format(
+                          path))
+    # merge clinical attributes into a single dictionary
+    clinical_attr_dict = None
+    if (portal_dict['clinicalattributes/patients'] is not None and
+            portal_dict['clinicalattributes/samples'] is not None):
+        clinical_attr_dict = merge_clinical_attributes(
+            portal_dict['clinicalattributes/patients'],
+            portal_dict['clinicalattributes/samples'])
+    return PortalInstance(cancer_type_dict=portal_dict['cancertypes'],
+                          clinical_attribute_dict=clinical_attr_dict,
+                          hugo_entrez_map=portal_dict['genes'],
+                          alias_entrez_map=portal_dict['genesaliases'])
 
 
 # ------------------------------------------------------------------------------
 def interface(args=None):
     parser = argparse.ArgumentParser(description='cBioPortal study validator')
-    parser.add_argument('-s', '--study_directory', type=str, required=True,
-                        help='path to directory.')
-    parser.add_argument('-n', '--no_portal_checks',
-                        required=False, action='store_true',
-                        help='Skip tests requiring information from the '
-                             'cBioPortal installation')
-    parser.add_argument('-u', '--url_server', type=str, required=False,
-                        default='http://localhost/cbioportal',
-                        help='URL to cBioPortal server. You can set this if '
-                             'your URL is not http://localhost/cbioportal')
+    parser.add_argument('-s', '--study_directory',
+                        type=str, required=True, help='path to directory.')
+    portal_mode_group = parser.add_mutually_exclusive_group()
+    portal_mode_group.add_argument('-u', '--url_server',
+                                   type=str,
+                                   default='http://localhost/cbioportal',
+                                   help='URL to cBioPortal server. You can '
+                                        'set this if your URL is not '
+                                        'http://localhost/cbioportal')
+    portal_mode_group.add_argument('-p', '--portal_info_dir',
+                                   type=str,
+                                   help='Path to a directory of cBioPortal '
+                                        'info files to be used instead of '
+                                        'contacting a server')
+    portal_mode_group.add_argument('-n', '--no_portal_checks',
+                                   action='store_true',
+                                   help='Skip tests requiring information '
+                                        'from the cBioPortal installation')
     parser.add_argument('-html', '--html_table', type=str, required=False,
                         help='path to html report output file')
     parser.add_argument('-e', '--error_file', type=str, required=False,
@@ -1903,22 +2036,11 @@ def main_validate(args):
                                          clinical_attribute_dict=None,
                                          hugo_entrez_map=None,
                                          alias_entrez_map=None)
+    elif args.portal_info_dir:
+        portal_instance = load_portal_info(args.portal_info_dir, logger,
+                                           offline=True)
     else:
-        # retrieve cancer types defined in the portal
-        portal_cancer_types = request_from_portal_api(
-            server_url + '/api/cancertypes',
-            logger,
-            id_field='id')
-        # retrieve clinical attributes defined in the portal
-        portal_clin_attrs = request_clinical_attributess(server_url, logger)
-        # Entrez values for Hugo symbols and synonyms in the portal
-        hugo_entrez_map = get_symbol_entrez_map(server_url, logger)
-        alias_entrez_map = get_symbol_entrez_map(server_url, logger,
-                                                 aliases=True)
-        portal_instance = PortalInstance(portal_cancer_types,
-                                         portal_clin_attrs,
-                                         hugo_entrez_map,
-                                         alias_entrez_map)
+        portal_instance = load_portal_info(server_url, logger)
 
     validate_study(study_dir, portal_instance, logger)
 
@@ -1926,11 +2048,11 @@ def main_validate(args):
         collapsing_html_handler.flush()
         html_handler.generateHtml()
 
-    exit_status = exit_status_handler.get_exit_status()
-    return exit_status
+    return exit_status_handler.get_exit_status()
+
 
 # ------------------------------------------------------------------------------
-# vamanos 
+# vamanos
 
 if __name__ == '__main__':
     try:

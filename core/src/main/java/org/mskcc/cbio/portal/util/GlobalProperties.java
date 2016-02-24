@@ -75,7 +75,6 @@ public class GlobalProperties {
     public static final String DEFAULT_APP_NAME = "public_portal";
     
     public static final String APP_VERSION = "app.version";
-
     public static final String SKIN_TITLE = "skin.title";
     public static final String DEFAULT_SKIN_TITLE = "cBioPortal for Cancer Genomics";
     public static final String SKIN_BLURB = "skin.blurb";
@@ -184,13 +183,14 @@ public class GlobalProperties {
     public static final String SKIN_STUDY_VIEW_LINK_TEXT="skin.study_view.link_text";
     public static final String DEFAULT_SKIN_STUDY_VIEW_LINK_TEXT="To build your own case set, try out our enhanced " +
             "Study View.";
-
-
+    
     public static final String MYCANCERGENOME_URL = "mycancergenome.url";
     public static final String ONCOKB_GENE_STATUS = "oncokb.geneStatus";
     public static final String SHOW_HOTSPOT = "show.hotspot";
     
     public static final String RECACHE_STUDY_AFTER_UPDATE = "recache_study_after_update";
+    
+    public static final String DB_VERSION = "db.version";
     
     private static Log LOG = LogFactory.getLog(GlobalProperties.class);
     private static Properties properties = initializeProperties();
@@ -330,7 +330,7 @@ public class GlobalProperties {
         String appVersion = properties.getProperty(APP_VERSION);
         return (appVersion == null) ? "1.0" : appVersion;
     }
-
+    
     public static String getTitle()
     {
         String skinTitle = properties.getProperty(SKIN_TITLE);
@@ -703,5 +703,19 @@ public class GlobalProperties {
             return false;
         }
         return Boolean.parseBoolean(recacheStudyAfterUpdate);
+    }
+    
+    public static String getDbVersion() {
+        String version = properties.getProperty(DB_VERSION);
+        if (version == null)
+        {
+            return "0";
+        }
+        return version;
+    }
+    
+    public static void main(String[] args)
+    {
+        System.out.println(getAppVersion());
     }
 }

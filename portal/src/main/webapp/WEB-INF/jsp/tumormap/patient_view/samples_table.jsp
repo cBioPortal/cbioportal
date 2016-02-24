@@ -125,7 +125,8 @@
     -webkit-appearance: searchfield;
 }
 .clinical-attr-table table.dataTable>tbody>tr>td {
-    white-space: nowrap;
+    white-space: pre-wrap;
+    max-width: 800px;
 }
 .clinical-attr-table .DTTT_container.ui-buttonset.ui-buttonset-multi a {
     width: 50px;

@@ -34,8 +34,10 @@ package org.mskcc.cbio.portal.dao;
 
 import java.util.ArrayList;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mskcc.cbio.portal.model.*;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
@@ -44,46 +46,50 @@ import org.springframework.transaction.annotation.Transactional;
 import static org.junit.Assert.*;
 
 /**
- * JUnit tests for DaoMicroRna class.
+ * JUnit test for DaoCase List.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
 @TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
 @Transactional
-public class TestDaoMicroRna {
+public class TestDaoSampleList {
+	
+	CancerStudy study;
+	
+	@Before
+	public void setUp() throws DaoException {
+		study = DaoCancerStudy.getCancerStudyByStableId("study_tcga_pub");
+        Patient p = new Patient(study, "TCGA-1");
+        int pId = DaoPatient.addPatient(p);
+        DaoSample.addSample(new Sample("TCGA-1-S1", pId, "brca"));
+
+        p = new Patient(study, "TCGA-2");
+        pId = DaoPatient.addPatient(p);
+        DaoSample.addSample(new Sample("TCGA-2-S1", pId, "brca"));
+	}
 
 	@Test
-    public void testDaoMicroRnaBulkloadOff() throws DaoException {
-
-        // test with both values of MySQLbulkLoader.isBulkLoad()
-        MySQLbulkLoader.bulkLoadOff();
-        runTheTest();
-        MySQLbulkLoader.bulkLoadOn();
-    }
-
-	@Test
-    public void testDaoMicroRnaBulkloadOn() throws DaoException {
-
-        runTheTest();
-    }
-
-    private void runTheTest() throws DaoException{
+    public void testDaoSampleList() throws DaoException {
+        DaoSampleList daoSampleList = new DaoSampleList();
+        SampleList sampleList = new SampleList();
+        sampleList.setName("Name0");
+        sampleList.setDescription("Description0");
+        sampleList.setStableId("stable_0");
+        sampleList.setCancerStudyId(study.getInternalId());
+        sampleList.setSampleListCategory(SampleListCategory.ALL_CASES_WITH_CNA_DATA);
+        ArrayList<String> samples = new ArrayList<String>();
+        samples.add("TCGA-1-S1");
+        samples.add("TCGA-2-S1");
+        sampleList.setSampleList(samples);
+        daoSampleList.addSampleList(sampleList);
         
-        DaoMicroRna daoMicroRna = new DaoMicroRna();
-        daoMicroRna.addMicroRna("hsa-let-7a", "hsa-let-7a-1");
-        daoMicroRna.addMicroRna("hsa-let-7a", "hsa-let-7a-2");
-
-        // if bulkLoading, execute LOAD FILE
-        if( MySQLbulkLoader.isBulkLoad()){
-           MySQLbulkLoader.flushAll();
-        }
-        daoMicroRna.addMicroRna("hsa-let-7a", "hsa-let-7a-3");
-
-        // if bulkLoading, execute LOAD FILE
-        if( MySQLbulkLoader.isBulkLoad()){
-           MySQLbulkLoader.flushAll();
-        }
-        ArrayList<String> variantIdList = daoMicroRna.getVariantIds("hsa-let-7a");
-        assertEquals (3, variantIdList.size());
+        // Only patients with samples are returned. No samples, no returny in the listy.
+        SampleList sampleListFromDb = daoSampleList.getSampleListByStableId("stable_0");
+        assertEquals("Name0", sampleListFromDb.getName());
+        assertEquals("Description0", sampleListFromDb.getDescription());
+        assertEquals(SampleListCategory.ALL_CASES_WITH_CNA_DATA, sampleListFromDb.getSampleListCategory());
+        assertEquals("stable_0", sampleListFromDb.getStableId());
+        assertEquals(2, sampleListFromDb.getSampleList().size());
     }
+
 }

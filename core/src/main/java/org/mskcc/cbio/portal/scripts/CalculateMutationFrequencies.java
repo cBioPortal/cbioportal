@@ -53,25 +53,24 @@ public class CalculateMutationFrequencies {
             return;
         }
 
-        String patientSetName = args[0];
-        DaoPatientList daoPatientList = new DaoPatientList();
-        PatientList patientSet = daoPatientList.getPatientListByStableId(patientSetName);
+        String sampleSetName = args[0];
+        DaoSampleList daoSampleList = new DaoSampleList();
+        SampleList sampleSet = daoSampleList.getSampleListByStableId(sampleSetName);
         CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(args[1]);
         HashSet <Integer> masterSampleSet = new HashSet<Integer>();
         // NOTE - as of 12/12/14, patient lists contain sample ids
-        masterSampleSet.addAll(InternalIdUtil.getInternalNonNormalSampleIds(cancerStudy.getInternalId(), patientSet.getPatientList()));
+        masterSampleSet.addAll(InternalIdUtil.getInternalNonNormalSampleIds(cancerStudy.getInternalId(), sampleSet.getSampleList()));
 
-        if (patientSet == null) {
-            System.out.println ("Patient set id:  " + patientSetName + " does not exist in database.");
+        if (sampleSet == null) {
+            System.out.println ("Patient set id:  " + sampleSetName + " does not exist in database.");
             return;
         }
-        ProgressMonitor.setCurrentMessage("Using patient set:  " + patientSet.getName());
-        ProgressMonitor.setCurrentMessage("Number of patients:  " + patientSet.getPatientList().size());
+
+        ProgressMonitor.setCurrentMessage("Using patient set:  " + sampleSet.getName());
+        ProgressMonitor.setCurrentMessage("Number of patients:  " + sampleSet.getSampleList().size());
 
         //  Delete all Existing Mutation Frequency Records
         ProgressMonitor.setCurrentMessage("Deleting all existing mutation frequency records");
-        DaoMutationFrequency daoMutationFrequency = new DaoMutationFrequency();
-        daoMutationFrequency.deleteAllRecords();
 
         //  Get all mutations
         ArrayList<ExtendedMutation> mutationList = DaoMutation.getAllMutations();
@@ -104,7 +103,7 @@ public class CalculateMutationFrequencies {
         ArrayList <CanonicalGene> geneList = new ArrayList <CanonicalGene>();
         for (CanonicalGene gene:  mutationMap.keySet()) {
             HashSet <Integer> mutationCaseSet = mutationMap.get(gene);
-            gene.setSomaticMutationFrequency(mutationCaseSet.size() / (double) patientSet.getPatientList().size());
+            gene.setSomaticMutationFrequency(mutationCaseSet.size() / (double) sampleSet.getSampleList().size());
             geneList.add(gene);
         }
         Collections.sort(geneList, new SingleGeneComparator());
@@ -123,10 +122,7 @@ public class CalculateMutationFrequencies {
         ProgressMonitor.setCurrentMessage("Storing results to database.");
         for (int i=0; i<geneList.size(); i++) {
             CanonicalGene gene = geneList.get(i);
-            daoMutationFrequency.addGene(gene.getEntrezGeneId(), gene.getSomaticMutationFrequency(),
-                    patientSet.getCancerStudyId());
         }
-
     }
 }
 

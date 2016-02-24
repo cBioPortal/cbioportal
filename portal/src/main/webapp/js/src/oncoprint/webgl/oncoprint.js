@@ -7,6 +7,8 @@ var OncoprintTrackOptionsView = require('./oncoprinttrackoptionsview.js');
 var OncoprintLegendView = require('./oncoprintlegendrenderer.js');//TODO: rename
 var OncoprintToolTip = require('./oncoprinttooltip.js');
 
+var makeSVGElement = require('./makesvgelement.js');
+
 var Oncoprint = (function () {
     // this is the controller
     var nextTrackId = (function () {
@@ -160,12 +162,16 @@ var Oncoprint = (function () {
 	if (typeof ids === 'undefined') {
 	    width_to_fit_in = this.cell_view.getWidth(this.model, true);
 	} else {
-	    var furthest_right_id = -1;
+	    var furthest_right_id_index = -1;
+	    var furthest_right_id;
 	    var id_to_index_map = this.model.getIdToIndexMap();
 	    for (var i=0; i<ids.length; i++) {
-		furthest_right_id = Math.max(id_to_index_map[ids[i]], furthest_right_id);
+		if (id_to_index_map[ids[i]] > furthest_right_id_index) {
+		    furthest_right_id_index = id_to_index_map[ids[i]];
+		    furthest_right_id = ids[i];
+		}
 	    }
-	    width_to_fit_in = ((furthest_right_id + 3) * (this.model.getCellWidth(true) + this.model.getCellPadding(true)));
+	    width_to_fit_in = this.model.getColumnLeft(furthest_right_id) + this.model.getCellWidth(true);
 	}
 	var zoom = Math.min(1, this.cell_view.visible_area_width / width_to_fit_in);
 	return zoom;
@@ -270,7 +276,7 @@ var Oncoprint = (function () {
     
     Oncoprint.prototype.setRuleSet = function(track_id, rule_set_params) {
 	this.model.setRuleSet(track_id, OncoprintRuleSet(rule_set_params));
-	this.cell_view.setRuleSet(this.model);
+	this.cell_view.setRuleSet(this.model, track_id);
 	this.legend_view.setRuleSet(this.model);
 	resizeAndOrganizeAfterTimeout(this);
     }
@@ -317,6 +323,19 @@ var Oncoprint = (function () {
     Oncoprint.prototype.setCellPaddingOn = function(cell_padding_on) {
 	this.model.setCellPaddingOn(cell_padding_on);
 	this.cell_view.setCellPaddingOn(this.model);
+    }
+    
+    Oncoprint.prototype.toSVG = function() {
+	var width = this.label_view.getWidth() + this.cell_view.getWidth(this.model);
+	var height = this.model.getCellViewHeight();
+	var root = makeSVGElement('svg', {'width':width, 'height':height});
+	root.appendChild(this.label_view.toSVGGroup(this.model, 0, 0));
+	root.appendChild(this.cell_view.toSVGGroup(this.model, this.label_view.getWidth(), 0));
+	return root;
+    }
+    
+    Oncoprint.prototype.getIdOrder = function(all) {
+	return this.model.getIdOrder(all);
     }
     
     return Oncoprint;

@@ -54,7 +54,7 @@ var NA_SHAPES = [
 	'type': 'rectangle',
 	'fill': 'rgba(238, 238, 238, 1)',
 	'stroke': 'rgba(210,210,210,1)',
-	'stroke-width':'1',
+	'stroke-width': '1',
 	'z': 0,
     },
     {
@@ -65,185 +65,225 @@ var NA_SHAPES = [
 	'y2': '100%',
 	'stroke': 'rgba(85, 85, 85, 0.7)',
 	'stroke-width': '1',
-	'z':'1',
+	'z': '1',
     },
 ];
 var NA_STRING = "na";
 var NA_LABEL = "N/A";
 
-var DEFAULT_GENETIC_ALTERATION_PARAMS = {
-    rule_params: {
-	'*': {
+var non_mutation_rule_params = {
+    '*': {
+	shapes: [{
+		'type': 'rectangle',
+		'fill': 'rgba(211, 211, 211, 1)',
+		'z': 1
+	    }],
+	exclude_from_legend: true,
+    },
+    'cna': {
+	'AMPLIFIED': {
 	    shapes: [{
 		    'type': 'rectangle',
-		    'fill': 'rgba(211, 211, 211, 1)',
-		    'z': 1
+		    'fill': 'rgba(255,0,0,1)',
+		    'x': '0%',
+		    'y': '0%',
+		    'width': '100%',
+		    'height': '100%',
+		    'z': 2,
 		}],
-	    exclude_from_legend: true,
+	    legend_label: 'Amplification',
 	},
-	'cna': {
-	    'AMPLIFIED': {
-		shapes: [{
-			'type': 'rectangle',
-			'fill': 'rgba(255,0,0,1)',
-			'x': '0%',
-			'y': '0%',
-			'width': '100%',
-			'height': '100%',
-			'z':2,
-		    }],
-		legend_label: 'Amplification',
-	    },
-	    'GAINED': {
-		shapes: [{
-			'type': 'rectangle',
-			'fill': 'rgba(255,182,193,1)',
-			'x': '0%',
-			'y': '0%',
-			'width': '100%',
-			'height': '100%',
-			'z':2,
-		    }],
-		legend_label: 'Gain',
-	    },
-	    'HOMODELETED': {
-		shapes: [{
-			'type': 'rectangle',
-			'fill': 'rgba(0,0,255,1)',
-			'x': '0%',
-			'y': '0%',
-			'width': '100%',
-			'height': '100%',
-			'z':2,
-		    }],
-		legend_label: 'Deep Deletion',
-	    },
-	    'HEMIZYGOUSLYDELETED': {
-		shapes: [{
-			'type': 'rectangle',
-			'fill': 'rgba(143, 216, 216,1)',
-			'x': '0%',
-			'y': '0%',
-			'width': '100%',
-			'height': '100%',
-			'z':2,
-		    }],
-		legend_label: 'Shallow Deletion',
-	    }
+	'GAINED': {
+	    shapes: [{
+		    'type': 'rectangle',
+		    'fill': 'rgba(255,182,193,1)',
+		    'x': '0%',
+		    'y': '0%',
+		    'width': '100%',
+		    'height': '100%',
+		    'z': 2,
+		}],
+	    legend_label: 'Gain',
 	},
-	'mrna': {
-	    'UPREGULATED': {
-		shapes: [{
-			'type': 'rectangle',
-			'fill': 'rgba(0, 0, 0, 0)',
-			'stroke': 'rgba(255, 153, 153, 1)',
-			'stroke-width': '2',
-			'x': '0%',
-			'y': '0%',
-			'width': '100%',
-			'height': '100%',
-			'z': 0,
-		    }],
-		legend_label: 'mRNA Upregulation',
-	    },
-	    'DOWNREGULATED': {
-		shapes: [{
-			'type': 'rectangle',
-			'fill': 'rgba(0, 0, 0, 0)',
-			'stroke': 'rgba(102, 153, 204, 1)',
-			'stroke-width': '2',
-			'x': '0%',
-			'y': '0%',
-			'width': '100%',
-			'height': '100%',
-			'z': 0,
-		    }],
-		legend_label: 'mRNA Downregulation',
-	    },
+	'HOMODELETED': {
+	    shapes: [{
+		    'type': 'rectangle',
+		    'fill': 'rgba(0,0,255,1)',
+		    'x': '0%',
+		    'y': '0%',
+		    'width': '100%',
+		    'height': '100%',
+		    'z': 2,
+		}],
+	    legend_label: 'Deep Deletion',
 	},
-	'rppa': {
-	    'UPREGULATED': {
-		shapes: [{
-			'type': 'triangle',
-			'x1': '50%',
-			'y1': '0%',
-			'x2': '100%',
-			'y2': '33.33%',
-			'x3': '0%',
-			'y3': '33.33%',
-			'fill': 'rgba(0,0,0,1)',
-			'z':4,
-		    }],
-		legend_label: 'Protein Upregulation',
-	    },
-	    'DOWNREGULATED': {
-		shapes: [{
-			'type': 'triangle',
-			'x1': '50%',
-			'y1': '100%',
-			'x2': '100%',
-			'y2': '66.66%',
-			'x3': '0%',
-			'y3': '66.66%',
-			'fill': 'rgba(0,0,0,1)',
-			'z':4,
-		    }],
-		legend_label: 'Protein Downregulation',
-	    }
+	'HEMIZYGOUSLYDELETED': {
+	    shapes: [{
+		    'type': 'rectangle',
+		    'fill': 'rgba(143, 216, 216,1)',
+		    'x': '0%',
+		    'y': '0%',
+		    'width': '100%',
+		    'height': '100%',
+		    'z': 2,
+		}],
+	    legend_label: 'Shallow Deletion',
+	}
+    },
+    'mrna': {
+	'UPREGULATED': {
+	    shapes: [{
+		    'type': 'rectangle',
+		    'fill': 'rgba(0, 0, 0, 0)',
+		    'stroke': 'rgba(255, 153, 153, 1)',
+		    'stroke-width': '2',
+		    'x': '0%',
+		    'y': '0%',
+		    'width': '100%',
+		    'height': '100%',
+		    'z': 0,
+		}],
+	    legend_label: 'mRNA Upregulation',
 	},
-	'mut_type': {
-	    'MISSENSE': {
-		shapes: [{
-			'type': 'rectangle',
-			'fill': '#008000',
-			'x': '0%',
-			'y': '33.33%',
-			'width': '100%',
-			'height': '33.33%',
-			'z':5.2,
-		    }],
-		legend_label: 'Missense Mutation',
-	    },
-	    'INFRAME': {
-		shapes: [{
-			'type': 'rectangle',
-			'fill': 'rgba(159, 129, 112, 1)',
-			'x': '0%',
-			'y': '33.33%',
-			'width': '100%',
-			'height': '33.33%',
-			'z':5.2,
-		    }],
-		legend_label: 'Inframe Mutation',
-	    },
-	    'TRUNC': {
-		shapes: [{
-			'type': 'rectangle',
-			'fill': 'rgba(0, 0, 0, 1)',
-			'x': '0%',
-			'y': '33.33%',
-			'width': '100%',
-			'height': '33.33%',
-			'z':5.2,
-		    }],
-		legend_label: 'Truncating Mutation',
-	    },
-	    'FUSION': {
-		shapes: [{
-			'type': 'triangle',
-			'fill': 'rgba(0, 0, 0, 1)',
-			'x1': '0%',
-			'y1': '0%',
-			'x2': '100%',
-			'y2': '50%',
-			'x3': '0%',
-			'y3': '100%',
-			'z':5.1,
-		    }],
-		legend_label: 'Fusion',
-	    }
+	'DOWNREGULATED': {
+	    shapes: [{
+		    'type': 'rectangle',
+		    'fill': 'rgba(0, 0, 0, 0)',
+		    'stroke': 'rgba(102, 153, 204, 1)',
+		    'stroke-width': '2',
+		    'x': '0%',
+		    'y': '0%',
+		    'width': '100%',
+		    'height': '100%',
+		    'z': 0,
+		}],
+	    legend_label: 'mRNA Downregulation',
+	},
+    },
+    'rppa': {
+	'UPREGULATED': {
+	    shapes: [{
+		    'type': 'triangle',
+		    'x1': '50%',
+		    'y1': '0%',
+		    'x2': '100%',
+		    'y2': '33.33%',
+		    'x3': '0%',
+		    'y3': '33.33%',
+		    'fill': 'rgba(0,0,0,1)',
+		    'z': 4,
+		}],
+	    legend_label: 'Protein Upregulation',
+	},
+	'DOWNREGULATED': {
+	    shapes: [{
+		    'type': 'triangle',
+		    'x1': '50%',
+		    'y1': '100%',
+		    'x2': '100%',
+		    'y2': '66.66%',
+		    'x3': '0%',
+		    'y3': '66.66%',
+		    'fill': 'rgba(0,0,0,1)',
+		    'z': 4,
+		}],
+	    legend_label: 'Protein Downregulation',
+	}
+    },
+};
+
+var distinguish_mutation_rule_params = {
+    'mut_type': {
+	'MISSENSE': {
+	    shapes: [{
+		    'type': 'rectangle',
+		    'fill': '#008000',
+		    'x': '0%',
+		    'y': '33.33%',
+		    'width': '100%',
+		    'height': '33.33%',
+		    'z': 5.2,
+		}],
+	    legend_label: 'Missense Mutation',
+	},
+	'INFRAME': {
+	    shapes: [{
+		    'type': 'rectangle',
+		    'fill': 'rgba(159, 129, 112, 1)',
+		    'x': '0%',
+		    'y': '33.33%',
+		    'width': '100%',
+		    'height': '33.33%',
+		    'z': 5.2,
+		}],
+	    legend_label: 'Inframe Mutation',
+	},
+	'TRUNC': {
+	    shapes: [{
+		    'type': 'rectangle',
+		    'fill': 'rgba(0, 0, 0, 1)',
+		    'x': '0%',
+		    'y': '33.33%',
+		    'width': '100%',
+		    'height': '33.33%',
+		    'z': 5.2,
+		}],
+	    legend_label: 'Truncating Mutation',
+	},
+	'FUSION': {
+	    shapes: [{
+		    'type': 'triangle',
+		    'fill': 'rgba(0, 0, 0, 1)',
+		    'x1': '0%',
+		    'y1': '0%',
+		    'x2': '100%',
+		    'y2': '50%',
+		    'x3': '0%',
+		    'y3': '100%',
+		    'z': 5.1,
+		}],
+	    legend_label: 'Fusion',
 	}
     }
+};
+
+var dont_distinguish_mutation_rule_params = {
+    'mut_type': {
+	'MISSENSE,INFRAME,TRUNC': {
+	    shapes: [{
+		    'type': 'rectangle',
+		    'fill': '#008000',
+		    'x': '0%',
+		    'y': '33.33%',
+		    'width': '100%',
+		    'height': '33.33%',
+		    'z': 5.2,
+		}],
+	    legend_label: 'Mutation',
+	},
+	'FUSION': {
+	    shapes: [{
+		    'type': 'triangle',
+		    'fill': 'rgba(0, 0, 0, 1)',
+		    'x1': '0%',
+		    'y1': '0%',
+		    'x2': '100%',
+		    'y2': '50%',
+		    'x3': '0%',
+		    'y3': '100%',
+		    'z': 5.1,
+		}],
+	    legend_label: 'Fusion',
+	}
+    }
+};
+
+var DEFAULT_GENETIC_ALTERATION_PARAMS = {
+    rule_params: $.extend({}, non_mutation_rule_params, distinguish_mutation_rule_params)
+};
+
+var DEFAULT_GENETIC_ALTERATION_PARAMS_DONT_DISTINGUISH_MUTATIONS = {
+    rule_params: $.extend({}, non_mutation_rule_params, dont_distinguish_mutation_rule_params)
 };
 
 var RuleSet = (function () {
@@ -260,7 +300,7 @@ var RuleSet = (function () {
 	this.exclude_from_legend = params.exclude_from_legend;
 	this.active_rule_ids = {};
 	this.rules_with_id = [];
-	
+
     }
 
     RuleSet.prototype.getLegendLabel = function () {
@@ -283,10 +323,10 @@ var RuleSet = (function () {
 	this.rules_with_id.push({id: rule_id, rule: new Rule(params)});
 	return rule_id;
     }
-    
+
     RuleSet.prototype.removeRule = function (rule_id) {
 	var index = -1;
-	for (var i=0; i<this.rules_with_id.length; i++) {
+	for (var i = 0; i < this.rules_with_id.length; i++) {
 	    if (this.rules_with_id[i].id === rule_id) {
 		index = i;
 		break;
@@ -300,7 +340,7 @@ var RuleSet = (function () {
 
     RuleSet.prototype.getRuleWithId = function (rule_id) {
 	var ret = null;
-	for (var i=0; i<this.rules_with_id.length; i++) {
+	for (var i = 0; i < this.rules_with_id.length; i++) {
 	    if (this.rules_with_id[i].id === rule_id) {
 		ret = this.rules_with_id[i];
 		break;
@@ -332,10 +372,10 @@ var RuleSet = (function () {
     RuleSet.prototype.apply = function (data, cell_width, cell_height, out_active_rules) {
 	// Returns a list of lists of concrete shapes, in the same order as data
 	var ret = [];
-	for (var i=0; i<data.length; i++) {
+	for (var i = 0; i < data.length; i++) {
 	    var rules = this.getRulesWithId(data[i]);
 	    if (typeof out_active_rules !== 'undefined') {
-		for (var j=0; j<rules.length; j++) {
+		for (var j = 0; j < rules.length; j++) {
 		    out_active_rules[rules[j].id] = true;
 		}
 	    }
@@ -343,24 +383,24 @@ var RuleSet = (function () {
 	}
 	return ret;
     }
-    
+
     return RuleSet;
 })();
 
-var LookupRuleSet = (function() {
+var LookupRuleSet = (function () {
     function LookupRuleSet(params) {
 	RuleSet.call(this, params);
 	this.lookup_map_by_key_and_value = {};
 	this.lookup_map_by_key = {};
 	this.universal_rules = [];
-	
-	this.rule_id_to_condition = {};
-	
+
+	this.rule_id_to_conditions = {};
+
 	this.addRule(NA_STRING, true, {
 	    shapes: NA_SHAPES,
 	    legend_label: NA_LABEL,
 	    exclude_from_legend: false,
-	    legend_config:{'type':'rule', 'target':{'na':true}}
+	    legend_config: {'type': 'rule', 'target': {'na': true}}
 	});
     }
     LookupRuleSet.prototype = Object.create(RuleSet.prototype);
@@ -385,91 +425,103 @@ var LookupRuleSet = (function() {
 	}
 	return ret;
     }
-    
-    LookupRuleSet.prototype.addRule = function(condition_key, condition_value, params) {
-	var rule_id = RuleSet.prototype.addRule.call(this, params);
 
+    var indexRuleForLookup = function (rule_set, condition_key, condition_value, rule_with_id) {
 	if (condition_key === null) {
-	    this.universal_rules.push(this.getRuleWithId(rule_id));
+	    rule_set.universal_rules.push(rule_with_id);
 	} else {
 	    if (condition_value === null) {
-		this.lookup_map_by_key[condition_key] = this.getRuleWithId(rule_id);
+		rule_set.lookup_map_by_key[condition_key] = rule_with_id;
 	    } else {
-		this.lookup_map_by_key_and_value[condition_key] = this.lookup_map_by_key_and_value[condition_key] || {};
-		this.lookup_map_by_key_and_value[condition_key][condition_value] = this.getRuleWithId(rule_id);
+		rule_set.lookup_map_by_key_and_value[condition_key] = rule_set.lookup_map_by_key_and_value[condition_key] || {};
+		rule_set.lookup_map_by_key_and_value[condition_key][condition_value] = rule_with_id;
 	    }
 	}
-	this.rule_id_to_condition[rule_id] = {key: condition_key, value: condition_value};
+	rule_set.rule_id_to_conditions[rule_with_id.id] = rule_set.rule_id_to_conditions[rule_with_id.id] || [];
+	rule_set.rule_id_to_conditions[rule_with_id.id].push({key: condition_key, value: condition_value});
+    };
+
+    LookupRuleSet.prototype.addRule = function (condition_key, condition_value, params) {
+	var rule_id = RuleSet.prototype.addRule.call(this, params);
+
+	indexRuleForLookup(this, condition_key, condition_value, this.getRuleWithId(rule_id));
+
 	return rule_id;
     }
-    
-    LookupRuleSet.prototype.removeRule = function(rule_id) {
+
+    LookupRuleSet.prototype.linkExistingRule = function (condition_key, condition_value, existing_rule_id) {
+	indexRuleForLookup(this, condition_key, condition_value, this.getRuleWithId(existing_rule_id));
+    }
+
+    LookupRuleSet.prototype.removeRule = function (rule_id) {
 	RuleSet.prototype.removeRule.call(this, rule_id);
 
-	var condition = this.rule_id_to_condition[rule_id];
-	if (condition.key === null) {
-	    var index = -1;
-	    for (var i=0; i<this.universal_rules.length; i++) {
-		if (this.universal_rules[i].id === rule_id) {
-		    index = i;
-		    break;
+	while (this.rule_id_to_conditions[rule_id].length > 0) {
+	    var condition = this.rule_id_to_conditions[rule_id].pop();
+	    if (condition.key === null) {
+		var index = -1;
+		for (var i = 0; i < this.universal_rules.length; i++) {
+		    if (this.universal_rules[i].id === rule_id) {
+			index = i;
+			break;
+		    }
+		}
+		if (index > -1) {
+		    this.universal_rules.splice(index, 1);
+		}
+	    } else {
+		if (condition.value === null) {
+		    delete this.lookup_map_by_key[condition.key];
+		} else {
+		    delete this.lookup_map_by_key_and_value[condition.key][condition.value];
 		}
 	    }
-	    if (index > -1) {
-		this.universal_rules.splice(index, 1);
-	    }
-	} else {
-	    if (condition.value === null) {
-		delete this.lookup_map_by_key[condition.key];
-	    } else {
-		delete this.lookup_map_by_key_and_value[condition.key][condition.value];
-	    }
 	}
-	delete this.rule_id_to_condition[rule_id];
+	delete this.rule_id_to_conditions[rule_id];
     }
     return LookupRuleSet;
 })();
 
-var ConditionRuleSet = (function() {
+var ConditionRuleSet = (function () {
     function ConditionRuleSet(params) {
 	RuleSet.call(this, params);
 	this.rule_id_to_condition = {};
-	
+
 	this.addRule(function (d) {
-		return d[NA_STRING] === true;
-	    },
-	    { shapes: NA_SHAPES,
-	    legend_label: NA_LABEL,
-	    exclude_from_legend: false,
-	    legend_config:{'type':'rule', 'target':{'na':true}}
-	});
+	    return d[NA_STRING] === true;
+	},
+		{shapes: NA_SHAPES,
+		    legend_label: NA_LABEL,
+		    exclude_from_legend: false,
+		    legend_config: {'type': 'rule', 'target': {'na': true}}
+		});
     }
     ConditionRuleSet.prototype = Object.create(RuleSet.prototype);
-    
+
     ConditionRuleSet.prototype.getRulesWithId = function (datum) {
 	if (typeof datum === 'undefined') {
 	    return this.rules_with_id;
 	}
 	var ret = [];
-	for (var i=0; i<this.rules_with_id.length; i++) {
+	for (var i = 0; i < this.rules_with_id.length; i++) {
 	    if (this.rule_id_to_condition[this.rules_with_id[i].id](datum)) {
 		ret.push(this.rules_with_id[i]);
 	    }
 	}
 	return ret;
     }
-    
-    ConditionRuleSet.prototype.addRule = function(condition, params) {
+
+    ConditionRuleSet.prototype.addRule = function (condition, params) {
 	var rule_id = RuleSet.prototype.addRule.call(this, params);
 	this.rule_id_to_condition[rule_id] = condition;
 	return rule_id;
     }
-    
-    ConditionRuleSet.prototype.removeRule = function(rule_id) {
+
+    ConditionRuleSet.prototype.removeRule = function (rule_id) {
 	RuleSet.prototype.removeRule.call(this, rule_id);
 	delete this.rule_id_to_condition[rule_id];
     }
-    
+
     return ConditionRuleSet;
 })();
 
@@ -509,7 +561,7 @@ var CategoricalRuleSet = (function () {
 		}],
 	    legend_label: category,
 	    exclude_from_legend: false,
-	    legend_config: {'type':'rule', 'target':legend_rule_target}
+	    legend_config: {'type': 'rule', 'target': legend_rule_target}
 	};
 	ruleset.addRule(ruleset.category_key, category, rule_params);
     };
@@ -646,22 +698,22 @@ var GradientRuleSet = (function () {
 	var value_key = this.value_key;
 	var color_range = this.color_range;
 	this.gradient_rule = this.addRule(function (d) {
-		return d[NA_STRING] !== true;
-	    },
-	    {shapes: [{
-		    type: 'rectangle',
-		    fill: function (d) {
-			var t = interpFn(d[value_key]);
-			return "rgba(" + color_range.map(
-				function (arr) {
-				    return (1 - t) * arr[0]
-					    + t * arr[1];
-				}).join(",") + ")";
-		    }
-		}],
-	    exclude_from_legend: false,
-	    legend_config: {'type':'gradient', 'range':this.inferred_value_range}
-	});
+	    return d[NA_STRING] !== true;
+	},
+		{shapes: [{
+			    type: 'rectangle',
+			    fill: function (d) {
+				var t = interpFn(d[value_key]);
+				return "rgba(" + color_range.map(
+					function (arr) {
+					    return (1 - t) * arr[0]
+						    + t * arr[1];
+					}).join(",") + ")";
+			    }
+			}],
+		    exclude_from_legend: false,
+		    legend_config: {'type': 'gradient', 'range': this.inferred_value_range}
+		});
     };
 
     return GradientRuleSet;
@@ -682,23 +734,23 @@ var BarRuleSet = (function () {
 	var interpFn = this.makeInterpFn();
 	var value_key = this.value_key;
 	this.bar_rule = this.addRule(function (d) {
-		return d[NA_STRING] !== true;
-	    },
-	    {shapes: [{
-		    type: 'rectangle',
-		    y: function (d) {
-			var t = interpFn(d[value_key]);
-			return (1 - t) * 100 + "%";
-		    },
-		    height: function (d) {
-			var t = interpFn(d[value_key]);
-			return t * 100 + "%";
-		    },
-		    fill: this.fill,
-		}],
-	    exclude_from_legend: false,
-	    legend_config: {'type':'number', 'range':this.inferred_value_range, 'color':this.fill}
-	});
+	    return d[NA_STRING] !== true;
+	},
+		{shapes: [{
+			    type: 'rectangle',
+			    y: function (d) {
+				var t = interpFn(d[value_key]);
+				return (1 - t) * 100 + "%";
+			    },
+			    height: function (d) {
+				var t = interpFn(d[value_key]);
+				return t * 100 + "%";
+			    },
+			    fill: this.fill,
+			}],
+		    exclude_from_legend: false,
+		    legend_config: {'type': 'number', 'range': this.inferred_value_range, 'color': this.fill}
+		});
     };
 
     return BarRuleSet;
@@ -716,13 +768,17 @@ var GeneticAlterationRuleSet = (function () {
 		if (rule_params.hasOwnProperty(key)) {
 		    var key_rule_params = rule_params[key];
 		    if (key === '*') {
-			self.addRule(null, null, shallowExtend(rule_params['*'], {'legend_config':{'type':'rule', 'target':{}}}));
+			self.addRule(null, null, shallowExtend(rule_params['*'], {'legend_config': {'type': 'rule', 'target': {}}}));
 		    } else {
 			for (var value in key_rule_params) {
 			    if (key_rule_params.hasOwnProperty(value)) {
+				var equiv_values = value.split(",");
 				var legend_rule_target = {};
-				legend_rule_target[key] = value;
-				self.addRule(key, (value === '*' ? null : value), shallowExtend(key_rule_params[value], {'legend_config':{'type':'rule', 'target':legend_rule_target}}));
+				legend_rule_target[equiv_values[0]] = value;
+				var rule_id = self.addRule(key, (equiv_values[0] === '*' ? null : equiv_values[0]), shallowExtend(key_rule_params[value], {'legend_config': {'type': 'rule', 'target': legend_rule_target}}));
+				for (var i = 1; i < equiv_values.length; i++) {
+				    self.linkExistingRule(key, (equiv_values[i] === '*' ? null : equiv_values[i]), rule_id);
+				}
 			    }
 			}
 		    }
@@ -737,7 +793,7 @@ var GeneticAlterationRuleSet = (function () {
 
 var Rule = (function () {
     function Rule(params) {
-	this.shapes = params.shapes.map(function(shape){ 
+	this.shapes = params.shapes.map(function (shape) {
 	    if (shape.type === 'rectangle') {
 		return new Shape.Rectangle(shape);
 	    } else if (shape.type === 'triangle') {
@@ -752,7 +808,7 @@ var Rule = (function () {
 	this.exclude_from_legend = params.exclude_from_legend;
 	this.legend_config = params.legend_config;// {'type':'rule', 'target': {'mut_type':'MISSENSE'}} or {'type':'number', 'color':'rgba(1,2,3,1), 'range':[lower, upper]} or {'type':'gradient', 'color_range':['rgba(...)' or '#...', 'rgba(...)' or '#...'], 'number_range':[lower, upper]}
     }
-    Rule.prototype.getLegendConfig = function() {
+    Rule.prototype.getLegendConfig = function () {
 	return this.legend_config;
     }
     Rule.prototype.apply = function (d, cell_width, cell_height) {
@@ -781,6 +837,10 @@ module.exports = function (params) {
 	return new BarRuleSet(params);
     } else if (params.type === 'gene') {
 	// TODO: specification of params
-	return new GeneticAlterationRuleSet($.extend({}, DEFAULT_GENETIC_ALTERATION_PARAMS, params));
+	if (!!params.dont_distinguish_mutations) {
+	    return new GeneticAlterationRuleSet($.extend({}, DEFAULT_GENETIC_ALTERATION_PARAMS_DONT_DISTINGUISH_MUTATIONS, params));
+	} else {
+	    return new GeneticAlterationRuleSet($.extend({}, DEFAULT_GENETIC_ALTERATION_PARAMS, params));
+	}
     }
 }

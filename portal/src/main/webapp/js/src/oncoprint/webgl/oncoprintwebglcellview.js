@@ -1,4 +1,6 @@
 var gl_matrix = require('gl-matrix');
+var makeSVGElement = require('./makesvgelement.js');
+var shapeToSVG = require('./oncoprintshapetosvg.js');
 
 // TODO: antialiasing
 
@@ -510,6 +512,12 @@ var OncoprintWebGLCellView = (function () {
 	computeVertexPositionsAndVertexColors(this, model, track_id);
 	renderAllTracks(this, model);
     }
+     OncoprintWebGLCellView.prototype.setRuleSet = function(model, target_track_id) {
+	clearZoneBuffers(this, model, target_track_id);
+	computeSortedIdentifiedShapeListList(this, model, target_track_id);
+	computeVertexPositionsAndVertexColors(this, model, target_track_id);
+	renderAllTracks(this, model);
+    }
     OncoprintWebGLCellView.prototype.shareRuleSet = function(model, target_track_id) {
 	clearZoneBuffers(this, model, target_track_id);
 	computeSortedIdentifiedShapeListList(this, model, target_track_id);
@@ -556,6 +564,40 @@ var OncoprintWebGLCellView = (function () {
 	    computeVertexPositionsAndVertexColors(this, model, track_ids[i]);
 	}
 	renderAllTracks(this, model);
+    }
+    
+    OncoprintWebGLCellView.prototype.toSVGGroup = function(model, offset_x, offset_y) {
+	var root = makeSVGElement('g', {'transform':'translate('+(offset_x || 0)+','+(offset_y || 0)+')'});
+	var cell_tops = model.getCellTops();
+	var tracks = model.getTracks();
+	var zoomedColumnLeft = model.getZoomedColumnLeft();
+	for (var i=0; i<tracks.length; i++) {
+	    var track_id = tracks[i];
+	    var offset_y = cell_tops[track_id];
+	    var identified_shape_list_list = model.getIdentifiedShapeListList(track_id, false);
+	    for (var j=0; j<identified_shape_list_list.length; j++) {
+		var id_sl = identified_shape_list_list[j];
+		var id = id_sl.id;
+		var sl = id_sl.shape_list;
+		var offset_x = zoomedColumnLeft[id];
+		// sort in z order
+		sl.sort(function(shapeA, shapeB) {
+		    var zA = parseFloat(shapeA.z);
+		    var zB = parseFloat(shapeB.z);
+		    if (zA < zB) {
+			return -1;
+		    } else if (zA > zB) {
+			return 1;
+		    } else {
+			return 0;
+		    }
+		});
+		for (var h=0; h<sl.length; h++) {
+		    root.appendChild(shapeToSVG(sl[h], offset_x, offset_y));
+		}
+	    }
+	}
+	return root;
     }
     return OncoprintWebGLCellView;
 })();

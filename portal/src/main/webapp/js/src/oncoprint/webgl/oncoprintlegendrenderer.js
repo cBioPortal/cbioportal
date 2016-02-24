@@ -74,6 +74,10 @@ var OncoprintLegendView = (function() {
 	renderLegend(this, model);
     }
     
+    OncoprintLegendView.prototype.setRuleSet = function(model) {
+	renderLegend(this, model);
+    }
+    
     OncoprintLegendView.prototype.suppressRendering = function() {
 	this.rendering_suppressed = true;
     }

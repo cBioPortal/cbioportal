@@ -11,7 +11,7 @@ var OncoprintToolTip = (function() {
 	var container_offset = this.$container.offset();
 	var x = page_x - container_offset.left - this.$div.width()/2;
 	var y = page_y - container_offset.top - this.$div.height()-5;
-	this.$div.css({'top':y, 'left':x});
+	this.$div.css({'top':y, 'left':x, 'z-index':9999});
 	
 	var self = this;
 	this.$div.on("mousemove", function(evt) {

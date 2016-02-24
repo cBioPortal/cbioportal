@@ -1,3 +1,5 @@
+var makeSVGElement = require('./makesvgelement.js');
+
 var OncoprintLabelView = (function () {
     function OncoprintLabelView($canvas, model) {
 	var view = this;
@@ -92,11 +94,12 @@ var OncoprintLabelView = (function () {
 	view.ctx.fillStyle = 'black';
 	var tracks = view.tracks;
 	for (var i=0; i<tracks.length; i++) {
-	    view.ctx.fillText(view .labels[tracks[i]], 0, view.label_tops[tracks[i]]);
+	    view.ctx.fillText(view.labels[tracks[i]], 0, view.label_tops[tracks[i]]);
 	}
 	if (view.dragged_label_track_id !== null) {
+	    view.ctx.strokeStyle = 'rgba(255,0,0,0.95)';
 	    view.ctx.strokeText(view.labels[view.dragged_label_track_id], 0, view.drag_mouse_y-font_size/2);
-	    view.ctx.fillStyle = 'rgba(0,0,0,0.6)';
+	    view.ctx.fillStyle = 'rgba(0,0,0,0.15)';
 	    var group = view.model.getContainingTrackGroup(view.dragged_label_track_id);
 	    var label_above_mouse = getLabelAbove(view, group, view.drag_mouse_y, null);
 	    var label_below_mouse = getLabelBelow(view, group, view.drag_mouse_y, null);
@@ -217,6 +220,26 @@ var OncoprintLabelView = (function () {
     OncoprintLabelView.prototype.releaseRendering = function() {
 	this.rendering_suppressed = false;
 	renderAllLabels(this);
+    }
+    
+    OncoprintLabelView.prototype.toSVGGroup = function(model, offset_x, offset_y) {
+	var root = makeSVGElement('g', {'transform':'translate('+(offset_x || 0)+','+(offset_y || 0)+')'});
+	var label_tops = model.getLabelTops();
+	var tracks = model.getTracks();
+	for (var i=0; i<tracks.length; i++) {
+	    var track_id = tracks[i];
+	    var y = label_tops[track_id];
+	    var label = model.getTrackLabel(track_id);
+	    var text_elt = makeSVGElement('text', {'x':0, 'y':y, 
+						    'font-family':'serif', 
+						    'font-size':this.getFontSize(), 
+						    'font-weight':'bold',
+						    'text-anchor':'start',
+						    'alignment-baseline':'text-before-edge'});
+	    text_elt.textContent = label;
+	    root.appendChild(text_elt);
+	}
+	return root;
     }
 
     return OncoprintLabelView;

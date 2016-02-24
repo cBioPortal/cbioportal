@@ -48,6 +48,16 @@ module.exports = function(array, target_key, keyFn, return_closest_if_not_found)
     }
 }
 },{}],3:[function(require,module,exports){
+module.exports = function (tag, attrs) {
+    var el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    for (var k in attrs) {
+	if (attrs.hasOwnProperty(k)) {
+	    el.setAttribute(k, attrs[k]);
+	}
+    }
+    return el;
+};
+},{}],4:[function(require,module,exports){
 var OncoprintModel = require('./oncoprintmodel.js');
 var OncoprintSVGCellView = require('./oncoprintsvgcellview.js');
 var OncoprintWebGLCellView = require('./oncoprintwebglcellview.js');
@@ -56,6 +66,8 @@ var OncoprintRuleSet = require('./oncoprintruleset.js');
 var OncoprintTrackOptionsView = require('./oncoprinttrackoptionsview.js');
 var OncoprintLegendView = require('./oncoprintlegendrenderer.js');//TODO: rename
 var OncoprintToolTip = require('./oncoprinttooltip.js');
+
+var makeSVGElement = require('./makesvgelement.js');
 
 var Oncoprint = (function () {
     // this is the controller
@@ -210,12 +222,16 @@ var Oncoprint = (function () {
 	if (typeof ids === 'undefined') {
 	    width_to_fit_in = this.cell_view.getWidth(this.model, true);
 	} else {
-	    var furthest_right_id = -1;
+	    var furthest_right_id_index = -1;
+	    var furthest_right_id;
 	    var id_to_index_map = this.model.getIdToIndexMap();
 	    for (var i=0; i<ids.length; i++) {
-		furthest_right_id = Math.max(id_to_index_map[ids[i]], furthest_right_id);
+		if (id_to_index_map[ids[i]] > furthest_right_id_index) {
+		    furthest_right_id_index = id_to_index_map[ids[i]];
+		    furthest_right_id = ids[i];
+		}
 	    }
-	    width_to_fit_in = ((furthest_right_id + 3) * (this.model.getCellWidth(true) + this.model.getCellPadding(true)));
+	    width_to_fit_in = this.model.getColumnLeft(furthest_right_id) + this.model.getCellWidth(true);
 	}
 	var zoom = Math.min(1, this.cell_view.visible_area_width / width_to_fit_in);
 	return zoom;
@@ -320,7 +336,7 @@ var Oncoprint = (function () {
     
     Oncoprint.prototype.setRuleSet = function(track_id, rule_set_params) {
 	this.model.setRuleSet(track_id, OncoprintRuleSet(rule_set_params));
-	this.cell_view.setRuleSet(this.model);
+	this.cell_view.setRuleSet(this.model, track_id);
 	this.legend_view.setRuleSet(this.model);
 	resizeAndOrganizeAfterTimeout(this);
     }
@@ -369,10 +385,25 @@ var Oncoprint = (function () {
 	this.cell_view.setCellPaddingOn(this.model);
     }
     
+    Oncoprint.prototype.toSVG = function() {
+	var width = this.label_view.getWidth() + this.cell_view.getWidth(this.model);
+	var height = this.model.getCellViewHeight();
+	var root = makeSVGElement('svg', {'width':width, 'height':height});
+	root.appendChild(this.label_view.toSVGGroup(this.model, 0, 0));
+	root.appendChild(this.cell_view.toSVGGroup(this.model, this.label_view.getWidth(), 0));
+	return root;
+    }
+    
+    Oncoprint.prototype.getIdOrder = function(all) {
+	return this.model.getIdOrder(all);
+    }
+    
     return Oncoprint;
 })();
 module.exports = Oncoprint;
-},{"./oncoprintlabelview.js":4,"./oncoprintlegendrenderer.js":5,"./oncoprintmodel.js":6,"./oncoprintruleset.js":7,"./oncoprintsvgcellview.js":10,"./oncoprinttooltip.js":11,"./oncoprinttrackoptionsview.js":12,"./oncoprintwebglcellview.js":13}],4:[function(require,module,exports){
+},{"./makesvgelement.js":3,"./oncoprintlabelview.js":5,"./oncoprintlegendrenderer.js":6,"./oncoprintmodel.js":7,"./oncoprintruleset.js":8,"./oncoprintsvgcellview.js":11,"./oncoprinttooltip.js":12,"./oncoprinttrackoptionsview.js":13,"./oncoprintwebglcellview.js":14}],5:[function(require,module,exports){
+var makeSVGElement = require('./makesvgelement.js');
+
 var OncoprintLabelView = (function () {
     function OncoprintLabelView($canvas, model) {
 	var view = this;
@@ -467,11 +498,12 @@ var OncoprintLabelView = (function () {
 	view.ctx.fillStyle = 'black';
 	var tracks = view.tracks;
 	for (var i=0; i<tracks.length; i++) {
-	    view.ctx.fillText(view .labels[tracks[i]], 0, view.label_tops[tracks[i]]);
+	    view.ctx.fillText(view.labels[tracks[i]], 0, view.label_tops[tracks[i]]);
 	}
 	if (view.dragged_label_track_id !== null) {
+	    view.ctx.strokeStyle = 'rgba(255,0,0,0.95)';
 	    view.ctx.strokeText(view.labels[view.dragged_label_track_id], 0, view.drag_mouse_y-font_size/2);
-	    view.ctx.fillStyle = 'rgba(0,0,0,0.6)';
+	    view.ctx.fillStyle = 'rgba(0,0,0,0.15)';
 	    var group = view.model.getContainingTrackGroup(view.dragged_label_track_id);
 	    var label_above_mouse = getLabelAbove(view, group, view.drag_mouse_y, null);
 	    var label_below_mouse = getLabelBelow(view, group, view.drag_mouse_y, null);
@@ -593,12 +625,32 @@ var OncoprintLabelView = (function () {
 	this.rendering_suppressed = false;
 	renderAllLabels(this);
     }
+    
+    OncoprintLabelView.prototype.toSVGGroup = function(model, offset_x, offset_y) {
+	var root = makeSVGElement('g', {'transform':'translate('+(offset_x || 0)+','+(offset_y || 0)+')'});
+	var label_tops = model.getLabelTops();
+	var tracks = model.getTracks();
+	for (var i=0; i<tracks.length; i++) {
+	    var track_id = tracks[i];
+	    var y = label_tops[track_id];
+	    var label = model.getTrackLabel(track_id);
+	    var text_elt = makeSVGElement('text', {'x':0, 'y':y, 
+						    'font-family':'serif', 
+						    'font-size':this.getFontSize(), 
+						    'font-weight':'bold',
+						    'text-anchor':'start',
+						    'alignment-baseline':'text-before-edge'});
+	    text_elt.textContent = label;
+	    root.appendChild(text_elt);
+	}
+	return root;
+    }
 
     return OncoprintLabelView;
 })();
 
 module.exports = OncoprintLabelView;
-},{}],5:[function(require,module,exports){
+},{"./makesvgelement.js":3}],6:[function(require,module,exports){
 var shapeToSVG = require('./oncoprintshapetosvg.js');
 
 var makeSVGElement = function (tag, attrs) {
@@ -675,6 +727,10 @@ var OncoprintLegendView = (function() {
 	renderLegend(this, model);
     }
     
+    OncoprintLegendView.prototype.setRuleSet = function(model) {
+	renderLegend(this, model);
+    }
+    
     OncoprintLegendView.prototype.suppressRendering = function() {
 	this.rendering_suppressed = true;
     }
@@ -688,7 +744,7 @@ var OncoprintLegendView = (function() {
 })();
 
 module.exports = OncoprintLegendView;
-},{"./oncoprintshapetosvg.js":9}],6:[function(require,module,exports){
+},{"./oncoprintshapetosvg.js":10}],7:[function(require,module,exports){
 var binarysearch = require('./binarysearch.js');
 var CachedProperty = require('./CachedProperty.js');
 
@@ -1447,7 +1503,7 @@ var PrecomputedComparator = (function() {
     return PrecomputedComparator;
 })();
 module.exports = OncoprintModel;
-},{"./CachedProperty.js":1,"./binarysearch.js":2}],7:[function(require,module,exports){
+},{"./CachedProperty.js":1,"./binarysearch.js":2}],8:[function(require,module,exports){
 /* Rule:
  * 
  * condition: function from datum to boolean
@@ -1504,7 +1560,7 @@ var NA_SHAPES = [
 	'type': 'rectangle',
 	'fill': 'rgba(238, 238, 238, 1)',
 	'stroke': 'rgba(210,210,210,1)',
-	'stroke-width':'1',
+	'stroke-width': '1',
 	'z': 0,
     },
     {
@@ -1515,185 +1571,225 @@ var NA_SHAPES = [
 	'y2': '100%',
 	'stroke': 'rgba(85, 85, 85, 0.7)',
 	'stroke-width': '1',
-	'z':'1',
+	'z': '1',
     },
 ];
 var NA_STRING = "na";
 var NA_LABEL = "N/A";
 
-var DEFAULT_GENETIC_ALTERATION_PARAMS = {
-    rule_params: {
-	'*': {
+var non_mutation_rule_params = {
+    '*': {
+	shapes: [{
+		'type': 'rectangle',
+		'fill': 'rgba(211, 211, 211, 1)',
+		'z': 1
+	    }],
+	exclude_from_legend: true,
+    },
+    'cna': {
+	'AMPLIFIED': {
 	    shapes: [{
 		    'type': 'rectangle',
-		    'fill': 'rgba(211, 211, 211, 1)',
-		    'z': 1
+		    'fill': 'rgba(255,0,0,1)',
+		    'x': '0%',
+		    'y': '0%',
+		    'width': '100%',
+		    'height': '100%',
+		    'z': 2,
 		}],
-	    exclude_from_legend: true,
+	    legend_label: 'Amplification',
 	},
-	'cna': {
-	    'AMPLIFIED': {
-		shapes: [{
-			'type': 'rectangle',
-			'fill': 'rgba(255,0,0,1)',
-			'x': '0%',
-			'y': '0%',
-			'width': '100%',
-			'height': '100%',
-			'z':2,
-		    }],
-		legend_label: 'Amplification',
-	    },
-	    'GAINED': {
-		shapes: [{
-			'type': 'rectangle',
-			'fill': 'rgba(255,182,193,1)',
-			'x': '0%',
-			'y': '0%',
-			'width': '100%',
-			'height': '100%',
-			'z':2,
-		    }],
-		legend_label: 'Gain',
-	    },
-	    'HOMODELETED': {
-		shapes: [{
-			'type': 'rectangle',
-			'fill': 'rgba(0,0,255,1)',
-			'x': '0%',
-			'y': '0%',
-			'width': '100%',
-			'height': '100%',
-			'z':2,
-		    }],
-		legend_label: 'Deep Deletion',
-	    },
-	    'HEMIZYGOUSLYDELETED': {
-		shapes: [{
-			'type': 'rectangle',
-			'fill': 'rgba(143, 216, 216,1)',
-			'x': '0%',
-			'y': '0%',
-			'width': '100%',
-			'height': '100%',
-			'z':2,
-		    }],
-		legend_label: 'Shallow Deletion',
-	    }
+	'GAINED': {
+	    shapes: [{
+		    'type': 'rectangle',
+		    'fill': 'rgba(255,182,193,1)',
+		    'x': '0%',
+		    'y': '0%',
+		    'width': '100%',
+		    'height': '100%',
+		    'z': 2,
+		}],
+	    legend_label: 'Gain',
 	},
-	'mrna': {
-	    'UPREGULATED': {
-		shapes: [{
-			'type': 'rectangle',
-			'fill': 'rgba(0, 0, 0, 0)',
-			'stroke': 'rgba(255, 153, 153, 1)',
-			'stroke-width': '2',
-			'x': '0%',
-			'y': '0%',
-			'width': '100%',
-			'height': '100%',
-			'z': 0,
-		    }],
-		legend_label: 'mRNA Upregulation',
-	    },
-	    'DOWNREGULATED': {
-		shapes: [{
-			'type': 'rectangle',
-			'fill': 'rgba(0, 0, 0, 0)',
-			'stroke': 'rgba(102, 153, 204, 1)',
-			'stroke-width': '2',
-			'x': '0%',
-			'y': '0%',
-			'width': '100%',
-			'height': '100%',
-			'z': 0,
-		    }],
-		legend_label: 'mRNA Downregulation',
-	    },
+	'HOMODELETED': {
+	    shapes: [{
+		    'type': 'rectangle',
+		    'fill': 'rgba(0,0,255,1)',
+		    'x': '0%',
+		    'y': '0%',
+		    'width': '100%',
+		    'height': '100%',
+		    'z': 2,
+		}],
+	    legend_label: 'Deep Deletion',
 	},
-	'rppa': {
-	    'UPREGULATED': {
-		shapes: [{
-			'type': 'triangle',
-			'x1': '50%',
-			'y1': '0%',
-			'x2': '100%',
-			'y2': '33.33%',
-			'x3': '0%',
-			'y3': '33.33%',
-			'fill': 'rgba(0,0,0,1)',
-			'z':4,
-		    }],
-		legend_label: 'Protein Upregulation',
-	    },
-	    'DOWNREGULATED': {
-		shapes: [{
-			'type': 'triangle',
-			'x1': '50%',
-			'y1': '100%',
-			'x2': '100%',
-			'y2': '66.66%',
-			'x3': '0%',
-			'y3': '66.66%',
-			'fill': 'rgba(0,0,0,1)',
-			'z':4,
-		    }],
-		legend_label: 'Protein Downregulation',
-	    }
+	'HEMIZYGOUSLYDELETED': {
+	    shapes: [{
+		    'type': 'rectangle',
+		    'fill': 'rgba(143, 216, 216,1)',
+		    'x': '0%',
+		    'y': '0%',
+		    'width': '100%',
+		    'height': '100%',
+		    'z': 2,
+		}],
+	    legend_label: 'Shallow Deletion',
+	}
+    },
+    'mrna': {
+	'UPREGULATED': {
+	    shapes: [{
+		    'type': 'rectangle',
+		    'fill': 'rgba(0, 0, 0, 0)',
+		    'stroke': 'rgba(255, 153, 153, 1)',
+		    'stroke-width': '2',
+		    'x': '0%',
+		    'y': '0%',
+		    'width': '100%',
+		    'height': '100%',
+		    'z': 0,
+		}],
+	    legend_label: 'mRNA Upregulation',
 	},
-	'mut_type': {
-	    'MISSENSE': {
-		shapes: [{
-			'type': 'rectangle',
-			'fill': '#008000',
-			'x': '0%',
-			'y': '33.33%',
-			'width': '100%',
-			'height': '33.33%',
-			'z':5.2,
-		    }],
-		legend_label: 'Missense Mutation',
-	    },
-	    'INFRAME': {
-		shapes: [{
-			'type': 'rectangle',
-			'fill': 'rgba(159, 129, 112, 1)',
-			'x': '0%',
-			'y': '33.33%',
-			'width': '100%',
-			'height': '33.33%',
-			'z':5.2,
-		    }],
-		legend_label: 'Inframe Mutation',
-	    },
-	    'TRUNC': {
-		shapes: [{
-			'type': 'rectangle',
-			'fill': 'rgba(0, 0, 0, 1)',
-			'x': '0%',
-			'y': '33.33%',
-			'width': '100%',
-			'height': '33.33%',
-			'z':5.2,
-		    }],
-		legend_label: 'Truncating Mutation',
-	    },
-	    'FUSION': {
-		shapes: [{
-			'type': 'triangle',
-			'fill': 'rgba(0, 0, 0, 1)',
-			'x1': '0%',
-			'y1': '0%',
-			'x2': '100%',
-			'y2': '50%',
-			'x3': '0%',
-			'y3': '100%',
-			'z':5.1,
-		    }],
-		legend_label: 'Fusion',
-	    }
+	'DOWNREGULATED': {
+	    shapes: [{
+		    'type': 'rectangle',
+		    'fill': 'rgba(0, 0, 0, 0)',
+		    'stroke': 'rgba(102, 153, 204, 1)',
+		    'stroke-width': '2',
+		    'x': '0%',
+		    'y': '0%',
+		    'width': '100%',
+		    'height': '100%',
+		    'z': 0,
+		}],
+	    legend_label: 'mRNA Downregulation',
+	},
+    },
+    'rppa': {
+	'UPREGULATED': {
+	    shapes: [{
+		    'type': 'triangle',
+		    'x1': '50%',
+		    'y1': '0%',
+		    'x2': '100%',
+		    'y2': '33.33%',
+		    'x3': '0%',
+		    'y3': '33.33%',
+		    'fill': 'rgba(0,0,0,1)',
+		    'z': 4,
+		}],
+	    legend_label: 'Protein Upregulation',
+	},
+	'DOWNREGULATED': {
+	    shapes: [{
+		    'type': 'triangle',
+		    'x1': '50%',
+		    'y1': '100%',
+		    'x2': '100%',
+		    'y2': '66.66%',
+		    'x3': '0%',
+		    'y3': '66.66%',
+		    'fill': 'rgba(0,0,0,1)',
+		    'z': 4,
+		}],
+	    legend_label: 'Protein Downregulation',
+	}
+    },
+};
+
+var distinguish_mutation_rule_params = {
+    'mut_type': {
+	'MISSENSE': {
+	    shapes: [{
+		    'type': 'rectangle',
+		    'fill': '#008000',
+		    'x': '0%',
+		    'y': '33.33%',
+		    'width': '100%',
+		    'height': '33.33%',
+		    'z': 5.2,
+		}],
+	    legend_label: 'Missense Mutation',
+	},
+	'INFRAME': {
+	    shapes: [{
+		    'type': 'rectangle',
+		    'fill': 'rgba(159, 129, 112, 1)',
+		    'x': '0%',
+		    'y': '33.33%',
+		    'width': '100%',
+		    'height': '33.33%',
+		    'z': 5.2,
+		}],
+	    legend_label: 'Inframe Mutation',
+	},
+	'TRUNC': {
+	    shapes: [{
+		    'type': 'rectangle',
+		    'fill': 'rgba(0, 0, 0, 1)',
+		    'x': '0%',
+		    'y': '33.33%',
+		    'width': '100%',
+		    'height': '33.33%',
+		    'z': 5.2,
+		}],
+	    legend_label: 'Truncating Mutation',
+	},
+	'FUSION': {
+	    shapes: [{
+		    'type': 'triangle',
+		    'fill': 'rgba(0, 0, 0, 1)',
+		    'x1': '0%',
+		    'y1': '0%',
+		    'x2': '100%',
+		    'y2': '50%',
+		    'x3': '0%',
+		    'y3': '100%',
+		    'z': 5.1,
+		}],
+	    legend_label: 'Fusion',
 	}
     }
+};
+
+var dont_distinguish_mutation_rule_params = {
+    'mut_type': {
+	'MISSENSE,INFRAME,TRUNC': {
+	    shapes: [{
+		    'type': 'rectangle',
+		    'fill': '#008000',
+		    'x': '0%',
+		    'y': '33.33%',
+		    'width': '100%',
+		    'height': '33.33%',
+		    'z': 5.2,
+		}],
+	    legend_label: 'Mutation',
+	},
+	'FUSION': {
+	    shapes: [{
+		    'type': 'triangle',
+		    'fill': 'rgba(0, 0, 0, 1)',
+		    'x1': '0%',
+		    'y1': '0%',
+		    'x2': '100%',
+		    'y2': '50%',
+		    'x3': '0%',
+		    'y3': '100%',
+		    'z': 5.1,
+		}],
+	    legend_label: 'Fusion',
+	}
+    }
+};
+
+var DEFAULT_GENETIC_ALTERATION_PARAMS = {
+    rule_params: $.extend({}, non_mutation_rule_params, distinguish_mutation_rule_params)
+};
+
+var DEFAULT_GENETIC_ALTERATION_PARAMS_DONT_DISTINGUISH_MUTATIONS = {
+    rule_params: $.extend({}, non_mutation_rule_params, dont_distinguish_mutation_rule_params)
 };
 
 var RuleSet = (function () {
@@ -1710,7 +1806,7 @@ var RuleSet = (function () {
 	this.exclude_from_legend = params.exclude_from_legend;
 	this.active_rule_ids = {};
 	this.rules_with_id = [];
-	
+
     }
 
     RuleSet.prototype.getLegendLabel = function () {
@@ -1733,10 +1829,10 @@ var RuleSet = (function () {
 	this.rules_with_id.push({id: rule_id, rule: new Rule(params)});
 	return rule_id;
     }
-    
+
     RuleSet.prototype.removeRule = function (rule_id) {
 	var index = -1;
-	for (var i=0; i<this.rules_with_id.length; i++) {
+	for (var i = 0; i < this.rules_with_id.length; i++) {
 	    if (this.rules_with_id[i].id === rule_id) {
 		index = i;
 		break;
@@ -1750,7 +1846,7 @@ var RuleSet = (function () {
 
     RuleSet.prototype.getRuleWithId = function (rule_id) {
 	var ret = null;
-	for (var i=0; i<this.rules_with_id.length; i++) {
+	for (var i = 0; i < this.rules_with_id.length; i++) {
 	    if (this.rules_with_id[i].id === rule_id) {
 		ret = this.rules_with_id[i];
 		break;
@@ -1782,10 +1878,10 @@ var RuleSet = (function () {
     RuleSet.prototype.apply = function (data, cell_width, cell_height, out_active_rules) {
 	// Returns a list of lists of concrete shapes, in the same order as data
 	var ret = [];
-	for (var i=0; i<data.length; i++) {
+	for (var i = 0; i < data.length; i++) {
 	    var rules = this.getRulesWithId(data[i]);
 	    if (typeof out_active_rules !== 'undefined') {
-		for (var j=0; j<rules.length; j++) {
+		for (var j = 0; j < rules.length; j++) {
 		    out_active_rules[rules[j].id] = true;
 		}
 	    }
@@ -1793,24 +1889,24 @@ var RuleSet = (function () {
 	}
 	return ret;
     }
-    
+
     return RuleSet;
 })();
 
-var LookupRuleSet = (function() {
+var LookupRuleSet = (function () {
     function LookupRuleSet(params) {
 	RuleSet.call(this, params);
 	this.lookup_map_by_key_and_value = {};
 	this.lookup_map_by_key = {};
 	this.universal_rules = [];
-	
-	this.rule_id_to_condition = {};
-	
+
+	this.rule_id_to_conditions = {};
+
 	this.addRule(NA_STRING, true, {
 	    shapes: NA_SHAPES,
 	    legend_label: NA_LABEL,
 	    exclude_from_legend: false,
-	    legend_config:{'type':'rule', 'target':{'na':true}}
+	    legend_config: {'type': 'rule', 'target': {'na': true}}
 	});
     }
     LookupRuleSet.prototype = Object.create(RuleSet.prototype);
@@ -1835,91 +1931,103 @@ var LookupRuleSet = (function() {
 	}
 	return ret;
     }
-    
-    LookupRuleSet.prototype.addRule = function(condition_key, condition_value, params) {
-	var rule_id = RuleSet.prototype.addRule.call(this, params);
 
+    var indexRuleForLookup = function (rule_set, condition_key, condition_value, rule_with_id) {
 	if (condition_key === null) {
-	    this.universal_rules.push(this.getRuleWithId(rule_id));
+	    rule_set.universal_rules.push(rule_with_id);
 	} else {
 	    if (condition_value === null) {
-		this.lookup_map_by_key[condition_key] = this.getRuleWithId(rule_id);
+		rule_set.lookup_map_by_key[condition_key] = rule_with_id;
 	    } else {
-		this.lookup_map_by_key_and_value[condition_key] = this.lookup_map_by_key_and_value[condition_key] || {};
-		this.lookup_map_by_key_and_value[condition_key][condition_value] = this.getRuleWithId(rule_id);
+		rule_set.lookup_map_by_key_and_value[condition_key] = rule_set.lookup_map_by_key_and_value[condition_key] || {};
+		rule_set.lookup_map_by_key_and_value[condition_key][condition_value] = rule_with_id;
 	    }
 	}
-	this.rule_id_to_condition[rule_id] = {key: condition_key, value: condition_value};
+	rule_set.rule_id_to_conditions[rule_with_id.id] = rule_set.rule_id_to_conditions[rule_with_id.id] || [];
+	rule_set.rule_id_to_conditions[rule_with_id.id].push({key: condition_key, value: condition_value});
+    };
+
+    LookupRuleSet.prototype.addRule = function (condition_key, condition_value, params) {
+	var rule_id = RuleSet.prototype.addRule.call(this, params);
+
+	indexRuleForLookup(this, condition_key, condition_value, this.getRuleWithId(rule_id));
+
 	return rule_id;
     }
-    
-    LookupRuleSet.prototype.removeRule = function(rule_id) {
+
+    LookupRuleSet.prototype.linkExistingRule = function (condition_key, condition_value, existing_rule_id) {
+	indexRuleForLookup(this, condition_key, condition_value, this.getRuleWithId(existing_rule_id));
+    }
+
+    LookupRuleSet.prototype.removeRule = function (rule_id) {
 	RuleSet.prototype.removeRule.call(this, rule_id);
 
-	var condition = this.rule_id_to_condition[rule_id];
-	if (condition.key === null) {
-	    var index = -1;
-	    for (var i=0; i<this.universal_rules.length; i++) {
-		if (this.universal_rules[i].id === rule_id) {
-		    index = i;
-		    break;
+	while (this.rule_id_to_conditions[rule_id].length > 0) {
+	    var condition = this.rule_id_to_conditions[rule_id].pop();
+	    if (condition.key === null) {
+		var index = -1;
+		for (var i = 0; i < this.universal_rules.length; i++) {
+		    if (this.universal_rules[i].id === rule_id) {
+			index = i;
+			break;
+		    }
+		}
+		if (index > -1) {
+		    this.universal_rules.splice(index, 1);
+		}
+	    } else {
+		if (condition.value === null) {
+		    delete this.lookup_map_by_key[condition.key];
+		} else {
+		    delete this.lookup_map_by_key_and_value[condition.key][condition.value];
 		}
 	    }
-	    if (index > -1) {
-		this.universal_rules.splice(index, 1);
-	    }
-	} else {
-	    if (condition.value === null) {
-		delete this.lookup_map_by_key[condition.key];
-	    } else {
-		delete this.lookup_map_by_key_and_value[condition.key][condition.value];
-	    }
 	}
-	delete this.rule_id_to_condition[rule_id];
+	delete this.rule_id_to_conditions[rule_id];
     }
     return LookupRuleSet;
 })();
 
-var ConditionRuleSet = (function() {
+var ConditionRuleSet = (function () {
     function ConditionRuleSet(params) {
 	RuleSet.call(this, params);
 	this.rule_id_to_condition = {};
-	
+
 	this.addRule(function (d) {
-		return d[NA_STRING] === true;
-	    },
-	    { shapes: NA_SHAPES,
-	    legend_label: NA_LABEL,
-	    exclude_from_legend: false,
-	    legend_config:{'type':'rule', 'target':{'na':true}}
-	});
+	    return d[NA_STRING] === true;
+	},
+		{shapes: NA_SHAPES,
+		    legend_label: NA_LABEL,
+		    exclude_from_legend: false,
+		    legend_config: {'type': 'rule', 'target': {'na': true}}
+		});
     }
     ConditionRuleSet.prototype = Object.create(RuleSet.prototype);
-    
+
     ConditionRuleSet.prototype.getRulesWithId = function (datum) {
 	if (typeof datum === 'undefined') {
 	    return this.rules_with_id;
 	}
 	var ret = [];
-	for (var i=0; i<this.rules_with_id.length; i++) {
+	for (var i = 0; i < this.rules_with_id.length; i++) {
 	    if (this.rule_id_to_condition[this.rules_with_id[i].id](datum)) {
 		ret.push(this.rules_with_id[i]);
 	    }
 	}
 	return ret;
     }
-    
-    ConditionRuleSet.prototype.addRule = function(condition, params) {
+
+    ConditionRuleSet.prototype.addRule = function (condition, params) {
 	var rule_id = RuleSet.prototype.addRule.call(this, params);
 	this.rule_id_to_condition[rule_id] = condition;
 	return rule_id;
     }
-    
-    ConditionRuleSet.prototype.removeRule = function(rule_id) {
+
+    ConditionRuleSet.prototype.removeRule = function (rule_id) {
 	RuleSet.prototype.removeRule.call(this, rule_id);
 	delete this.rule_id_to_condition[rule_id];
     }
-    
+
     return ConditionRuleSet;
 })();
 
@@ -1959,7 +2067,7 @@ var CategoricalRuleSet = (function () {
 		}],
 	    legend_label: category,
 	    exclude_from_legend: false,
-	    legend_config: {'type':'rule', 'target':legend_rule_target}
+	    legend_config: {'type': 'rule', 'target': legend_rule_target}
 	};
 	ruleset.addRule(ruleset.category_key, category, rule_params);
     };
@@ -2096,22 +2204,22 @@ var GradientRuleSet = (function () {
 	var value_key = this.value_key;
 	var color_range = this.color_range;
 	this.gradient_rule = this.addRule(function (d) {
-		return d[NA_STRING] !== true;
-	    },
-	    {shapes: [{
-		    type: 'rectangle',
-		    fill: function (d) {
-			var t = interpFn(d[value_key]);
-			return "rgba(" + color_range.map(
-				function (arr) {
-				    return (1 - t) * arr[0]
-					    + t * arr[1];
-				}).join(",") + ")";
-		    }
-		}],
-	    exclude_from_legend: false,
-	    legend_config: {'type':'gradient', 'range':this.inferred_value_range}
-	});
+	    return d[NA_STRING] !== true;
+	},
+		{shapes: [{
+			    type: 'rectangle',
+			    fill: function (d) {
+				var t = interpFn(d[value_key]);
+				return "rgba(" + color_range.map(
+					function (arr) {
+					    return (1 - t) * arr[0]
+						    + t * arr[1];
+					}).join(",") + ")";
+			    }
+			}],
+		    exclude_from_legend: false,
+		    legend_config: {'type': 'gradient', 'range': this.inferred_value_range}
+		});
     };
 
     return GradientRuleSet;
@@ -2132,23 +2240,23 @@ var BarRuleSet = (function () {
 	var interpFn = this.makeInterpFn();
 	var value_key = this.value_key;
 	this.bar_rule = this.addRule(function (d) {
-		return d[NA_STRING] !== true;
-	    },
-	    {shapes: [{
-		    type: 'rectangle',
-		    y: function (d) {
-			var t = interpFn(d[value_key]);
-			return (1 - t) * 100 + "%";
-		    },
-		    height: function (d) {
-			var t = interpFn(d[value_key]);
-			return t * 100 + "%";
-		    },
-		    fill: this.fill,
-		}],
-	    exclude_from_legend: false,
-	    legend_config: {'type':'number', 'range':this.inferred_value_range, 'color':this.fill}
-	});
+	    return d[NA_STRING] !== true;
+	},
+		{shapes: [{
+			    type: 'rectangle',
+			    y: function (d) {
+				var t = interpFn(d[value_key]);
+				return (1 - t) * 100 + "%";
+			    },
+			    height: function (d) {
+				var t = interpFn(d[value_key]);
+				return t * 100 + "%";
+			    },
+			    fill: this.fill,
+			}],
+		    exclude_from_legend: false,
+		    legend_config: {'type': 'number', 'range': this.inferred_value_range, 'color': this.fill}
+		});
     };
 
     return BarRuleSet;
@@ -2166,13 +2274,17 @@ var GeneticAlterationRuleSet = (function () {
 		if (rule_params.hasOwnProperty(key)) {
 		    var key_rule_params = rule_params[key];
 		    if (key === '*') {
-			self.addRule(null, null, shallowExtend(rule_params['*'], {'legend_config':{'type':'rule', 'target':{}}}));
+			self.addRule(null, null, shallowExtend(rule_params['*'], {'legend_config': {'type': 'rule', 'target': {}}}));
 		    } else {
 			for (var value in key_rule_params) {
 			    if (key_rule_params.hasOwnProperty(value)) {
+				var equiv_values = value.split(",");
 				var legend_rule_target = {};
-				legend_rule_target[key] = value;
-				self.addRule(key, (value === '*' ? null : value), shallowExtend(key_rule_params[value], {'legend_config':{'type':'rule', 'target':legend_rule_target}}));
+				legend_rule_target[equiv_values[0]] = value;
+				var rule_id = self.addRule(key, (equiv_values[0] === '*' ? null : equiv_values[0]), shallowExtend(key_rule_params[value], {'legend_config': {'type': 'rule', 'target': legend_rule_target}}));
+				for (var i = 1; i < equiv_values.length; i++) {
+				    self.linkExistingRule(key, (equiv_values[i] === '*' ? null : equiv_values[i]), rule_id);
+				}
 			    }
 			}
 		    }
@@ -2187,7 +2299,7 @@ var GeneticAlterationRuleSet = (function () {
 
 var Rule = (function () {
     function Rule(params) {
-	this.shapes = params.shapes.map(function(shape){ 
+	this.shapes = params.shapes.map(function (shape) {
 	    if (shape.type === 'rectangle') {
 		return new Shape.Rectangle(shape);
 	    } else if (shape.type === 'triangle') {
@@ -2202,7 +2314,7 @@ var Rule = (function () {
 	this.exclude_from_legend = params.exclude_from_legend;
 	this.legend_config = params.legend_config;// {'type':'rule', 'target': {'mut_type':'MISSENSE'}} or {'type':'number', 'color':'rgba(1,2,3,1), 'range':[lower, upper]} or {'type':'gradient', 'color_range':['rgba(...)' or '#...', 'rgba(...)' or '#...'], 'number_range':[lower, upper]}
     }
-    Rule.prototype.getLegendConfig = function() {
+    Rule.prototype.getLegendConfig = function () {
 	return this.legend_config;
     }
     Rule.prototype.apply = function (d, cell_width, cell_height) {
@@ -2231,10 +2343,14 @@ module.exports = function (params) {
 	return new BarRuleSet(params);
     } else if (params.type === 'gene') {
 	// TODO: specification of params
-	return new GeneticAlterationRuleSet($.extend({}, DEFAULT_GENETIC_ALTERATION_PARAMS, params));
+	if (!!params.dont_distinguish_mutations) {
+	    return new GeneticAlterationRuleSet($.extend({}, DEFAULT_GENETIC_ALTERATION_PARAMS_DONT_DISTINGUISH_MUTATIONS, params));
+	} else {
+	    return new GeneticAlterationRuleSet($.extend({}, DEFAULT_GENETIC_ALTERATION_PARAMS, params));
+	}
     }
 }
-},{"./oncoprintshape.js":8}],8:[function(require,module,exports){
+},{"./oncoprintshape.js":9}],9:[function(require,module,exports){
 var Shape = (function() {
     var default_parameter_values = {
 	    'width': '100%', 
@@ -2370,7 +2486,7 @@ module.exports = {
     'Ellipse':Ellipse,
     'Line':Line
 };
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 var makeSVGElement = function (tag, attrs) {
     var el = document.createElementNS('http://www.w3.org/2000/svg', tag);
     for (var k in attrs) {
@@ -2440,7 +2556,7 @@ module.exports = function(oncoprint_shape_computed_params, offset_x, offset_y) {
 	return lineToSVG(oncoprint_shape_computed_params, offset_x, offset_y);
     }
 };
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 // FIRST PASS: no optimization
 var OncoprintSVGCellView = (function () {
     function OncoprintSVGCellView($svg) {
@@ -2574,7 +2690,7 @@ var OncoprintSVGCellView = (function () {
 })();
 
 module.exports = OncoprintSVGCellView;
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 var OncoprintToolTip = (function() {
     function OncoprintToolTip($container) {
 	this.$container = $container;
@@ -2588,7 +2704,7 @@ var OncoprintToolTip = (function() {
 	var container_offset = this.$container.offset();
 	var x = page_x - container_offset.left - this.$div.width()/2;
 	var y = page_y - container_offset.top - this.$div.height()-5;
-	this.$div.css({'top':y, 'left':x});
+	this.$div.css({'top':y, 'left':x, 'z-index':9999});
 	
 	var self = this;
 	this.$div.on("mousemove", function(evt) {
@@ -2628,7 +2744,7 @@ var OncoprintToolTip = (function() {
 })();
 
 module.exports = OncoprintToolTip;
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 var OncoprintTrackOptionsView = (function() {
     function OncoprintTrackOptionsView($div, removeCallback, sortChangeCallback) {
 	// removeCallback: function(track_id)
@@ -2821,8 +2937,10 @@ var OncoprintTrackOptionsView = (function() {
 })();
 
 module.exports = OncoprintTrackOptionsView;
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 var gl_matrix = require('gl-matrix');
+var makeSVGElement = require('./makesvgelement.js');
+var shapeToSVG = require('./oncoprintshapetosvg.js');
 
 // TODO: antialiasing
 
@@ -3334,6 +3452,12 @@ var OncoprintWebGLCellView = (function () {
 	computeVertexPositionsAndVertexColors(this, model, track_id);
 	renderAllTracks(this, model);
     }
+     OncoprintWebGLCellView.prototype.setRuleSet = function(model, target_track_id) {
+	clearZoneBuffers(this, model, target_track_id);
+	computeSortedIdentifiedShapeListList(this, model, target_track_id);
+	computeVertexPositionsAndVertexColors(this, model, target_track_id);
+	renderAllTracks(this, model);
+    }
     OncoprintWebGLCellView.prototype.shareRuleSet = function(model, target_track_id) {
 	clearZoneBuffers(this, model, target_track_id);
 	computeSortedIdentifiedShapeListList(this, model, target_track_id);
@@ -3381,12 +3505,46 @@ var OncoprintWebGLCellView = (function () {
 	}
 	renderAllTracks(this, model);
     }
+    
+    OncoprintWebGLCellView.prototype.toSVGGroup = function(model, offset_x, offset_y) {
+	var root = makeSVGElement('g', {'transform':'translate('+(offset_x || 0)+','+(offset_y || 0)+')'});
+	var cell_tops = model.getCellTops();
+	var tracks = model.getTracks();
+	var zoomedColumnLeft = model.getZoomedColumnLeft();
+	for (var i=0; i<tracks.length; i++) {
+	    var track_id = tracks[i];
+	    var offset_y = cell_tops[track_id];
+	    var identified_shape_list_list = model.getIdentifiedShapeListList(track_id, false);
+	    for (var j=0; j<identified_shape_list_list.length; j++) {
+		var id_sl = identified_shape_list_list[j];
+		var id = id_sl.id;
+		var sl = id_sl.shape_list;
+		var offset_x = zoomedColumnLeft[id];
+		// sort in z order
+		sl.sort(function(shapeA, shapeB) {
+		    var zA = parseFloat(shapeA.z);
+		    var zB = parseFloat(shapeB.z);
+		    if (zA < zB) {
+			return -1;
+		    } else if (zA > zB) {
+			return 1;
+		    } else {
+			return 0;
+		    }
+		});
+		for (var h=0; h<sl.length; h++) {
+		    root.appendChild(shapeToSVG(sl[h], offset_x, offset_y));
+		}
+	    }
+	}
+	return root;
+    }
     return OncoprintWebGLCellView;
 })();
 
 module.exports = OncoprintWebGLCellView;
 
-},{"gl-matrix":15}],14:[function(require,module,exports){
+},{"./makesvgelement.js":3,"./oncoprintshapetosvg.js":10,"gl-matrix":16}],15:[function(require,module,exports){
 $(document).ready(function() {
 	/*var o = new Oncoprint($('#svg'), $('#canvas'));
 	var data = [{sample:'a', data:5}, {sample:'b', data:10}];
@@ -3414,7 +3572,7 @@ $(document).ready(function() {
 });
 
 window.Oncoprint = require('./oncoprint.js');
-},{"./oncoprint.js":3}],15:[function(require,module,exports){
+},{"./oncoprint.js":4}],16:[function(require,module,exports){
 /**
  * @fileoverview gl-matrix - High performance matrix and vector operations
  * @author Brandon Jones
@@ -3452,7 +3610,7 @@ exports.quat = require("./gl-matrix/quat.js");
 exports.vec2 = require("./gl-matrix/vec2.js");
 exports.vec3 = require("./gl-matrix/vec3.js");
 exports.vec4 = require("./gl-matrix/vec4.js");
-},{"./gl-matrix/common.js":16,"./gl-matrix/mat2.js":17,"./gl-matrix/mat2d.js":18,"./gl-matrix/mat3.js":19,"./gl-matrix/mat4.js":20,"./gl-matrix/quat.js":21,"./gl-matrix/vec2.js":22,"./gl-matrix/vec3.js":23,"./gl-matrix/vec4.js":24}],16:[function(require,module,exports){
+},{"./gl-matrix/common.js":17,"./gl-matrix/mat2.js":18,"./gl-matrix/mat2d.js":19,"./gl-matrix/mat3.js":20,"./gl-matrix/mat4.js":21,"./gl-matrix/quat.js":22,"./gl-matrix/vec2.js":23,"./gl-matrix/vec3.js":24,"./gl-matrix/vec4.js":25}],17:[function(require,module,exports){
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -3506,7 +3664,7 @@ glMatrix.toRadian = function(a){
 
 module.exports = glMatrix;
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -3810,7 +3968,7 @@ mat2.LDU = function (L, D, U, a) {
 
 module.exports = mat2;
 
-},{"./common.js":16}],18:[function(require,module,exports){
+},{"./common.js":17}],19:[function(require,module,exports){
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -4129,7 +4287,7 @@ mat2d.frob = function (a) {
 
 module.exports = mat2d;
 
-},{"./common.js":16}],19:[function(require,module,exports){
+},{"./common.js":17}],20:[function(require,module,exports){
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -4696,7 +4854,7 @@ mat3.frob = function (a) {
 
 module.exports = mat3;
 
-},{"./common.js":16}],20:[function(require,module,exports){
+},{"./common.js":17}],21:[function(require,module,exports){
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -5981,7 +6139,7 @@ mat4.frob = function (a) {
 
 module.exports = mat4;
 
-},{"./common.js":16}],21:[function(require,module,exports){
+},{"./common.js":17}],22:[function(require,module,exports){
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -6536,7 +6694,7 @@ quat.str = function (a) {
 
 module.exports = quat;
 
-},{"./common.js":16,"./mat3.js":19,"./vec3.js":23,"./vec4.js":24}],22:[function(require,module,exports){
+},{"./common.js":17,"./mat3.js":20,"./vec3.js":24,"./vec4.js":25}],23:[function(require,module,exports){
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -7061,7 +7219,7 @@ vec2.str = function (a) {
 
 module.exports = vec2;
 
-},{"./common.js":16}],23:[function(require,module,exports){
+},{"./common.js":17}],24:[function(require,module,exports){
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -7772,7 +7930,7 @@ vec3.str = function (a) {
 
 module.exports = vec3;
 
-},{"./common.js":16}],24:[function(require,module,exports){
+},{"./common.js":17}],25:[function(require,module,exports){
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -8311,4 +8469,4 @@ vec4.str = function (a) {
 
 module.exports = vec4;
 
-},{"./common.js":16}]},{},[14]);
+},{"./common.js":17}]},{},[15]);

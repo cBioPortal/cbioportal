@@ -763,11 +763,7 @@ class MutationsExtendedValidator(Validator):
     REQUIRED_HEADERS = [
         'Tumor_Sample_Barcode',
         'Hugo_Symbol', # Required to initialize the Mutation Mapper tabs
-        'HGVSp_Short', # Required to initialize the Mutation Diagram
-        'Variant_Type', # Required to initialize the Mutation Diagram
-        'Protein_position', # Required to initialize the 3D viewer
         'Variant_Classification', # seems to be important during loading/filtering step.
-        'SWISSPROT' # Needed for consistent PDB structure matching.
     ]
     REQUIRE_COLUMN_ORDER = False
     ALLOW_BLANKS = True
@@ -785,11 +781,10 @@ class MutationsExtendedValidator(Validator):
         'n_ref_count':'check_n_ref_count',
         'Tumor_Sample_Barcode': 'checkNotBlank',
         'Hugo_Symbol': 'checkNotBlank', 
-        'HGVSp_Short': 'checkAminoAcidChange',
-        'Variant_Type': 'checkNotBlank',
-        'Protein_position': 'checkNotBlank',
+        'HGVSp_Short': 'checkHgvspShort',
+        'Amino_Acid_Change': 'checkAminoAcidChange',
         'Variant_Classification': 'checkNotBlank',
-        'SWISSPROT': 'checkNotBlank' 
+        'SWISSPROT': 'checkSwissProt'
     }
 
     def __init__(self, *args, **kwargs):
@@ -808,6 +803,21 @@ class MutationsExtendedValidator(Validator):
                               'Entrez_Gene_Id needs to be present.',
                               extra={'line_number': self.line_number})
             num_errors += 1
+            
+        if not 'SWISSPROT' in self.cols:
+            self.logger.warning('SWISSPROT column is recommended if you want to make ' 
+                                'sure that a specific isoform is used for the '
+                                'PFAM domains drawing in the mutations view.',
+                              extra={'line_number': self.line_number,
+                                     'cause':'SWISSPROT column not found'})
+                              
+        # one of these columns should be present:
+        if not ('HGVSp_Short' in self.cols or 'Amino_Acid_Change' in self.cols):
+            self.logger.error('At least one of the columns HGVSp_Short or '
+                              'Amino_Acid_Change needs to be present.',
+                              extra={'line_number': self.line_number})
+            num_errors += 1
+            
         return num_errors
 
     def checkLine(self, data):
@@ -833,7 +843,7 @@ class MutationsExtendedValidator(Validator):
                 checking_function = getattr(
                     self,
                     self.CHECK_FUNCTION_MAP[col_name])
-                if not checking_function(value):
+                if not checking_function(value, data):
                     self.printDataInvalidStatement(value, col_index)
                 elif self.extra_exists or self.extra:
                     raise RuntimeError(('Checking function %s set an error '
@@ -882,13 +892,13 @@ class MutationsExtendedValidator(Validator):
     # the function name that is created to check it.
 
 
-    def checkNCBIbuild(self, value):
+    def checkNCBIbuild(self, value, data):
         if self.checkInt(value) and value != '':
             if int(value) != NCBI_BUILD_NUMBER:
                 return False
         return True
     
-    def checkMatchedNormSampleBarcode(self, value):
+    def checkMatchedNormSampleBarcode(self, value, data):
         if value != '':
             if 'normal_samples_list' in self.meta_dict and self.meta_dict['normal_samples_list'] != '':
                 normal_samples_list = [x.strip() for x in self.meta_dict['normal_samples_list'].split(',')]
@@ -900,50 +910,96 @@ class MutationsExtendedValidator(Validator):
         return True
     
     
-    def checkVerificationStatus(self, value):
-        if value.lower() not in ('', 'verified', 'unknown'):
+    def checkVerificationStatus(self, value, data):
+        # if value is not blank, then it should be one of these:
+        if self.checkNotBlank(value, data) and value.lower() not in ('verified', 'unknown'):
             return False
         return True
     
-    def checkValidationStatus(self, value):
-        if value == '':
-            return True
-        if value.lower() not in ('untested', 'inconclusive',
+    def checkValidationStatus(self, value, data):
+        # if value is not blank, then it should be one of these:
+        if self.checkNotBlank(value, data) and value.lower() not in ('untested', 'inconclusive',
                                  'valid', 'invalid'):
             return False
         return True
     
-    def check_t_alt_count(self, value):
+    def check_t_alt_count(self, value, data):
         if not self.checkInt(value) and value != '':
             return False
         return True
     
-    def check_t_ref_count(self, value):
+    def check_t_ref_count(self, value, data):
         if not self.checkInt(value) and value != '':
             return False
         return True
     
-    def check_n_alt_count(self, value):
+    def check_n_alt_count(self, value, data):
         if not self.checkInt(value) and value != '':
             return False
         return True
 
-    def check_n_ref_count(self, value):
+    def check_n_ref_count(self, value, data):
         if not self.checkInt(value) and value != '':
             return False
         return True
 
-    def checkAminoAcidChange(self, value):
+    def isValidAminoAcidChange(self, value, data):
         """Test whether a string is a valid amino acid change specification."""
         # TODO implement this test, may require bundling the hgvs package:
         # https://pypi.python.org/pypi/hgvs/
-        return self.checkNotBlank(value)
+        
+        # for now, we will only check as follows: 
+        if self.checkNotBlank(value, data):
+            return True
+        else:
+            # is blank, so check:
+            # if Variant_Classification in ["Splice_Site", ....] 
+            # then it is allowed to be blank, 
+            # otherwise it should not be blank 
+            variant_classification = data[self.cols.index('Variant_Classification')]
+            if variant_classification in ('Splice_Site'):
+                return True
+            else:
+                return False
+            
+            
+    def checkHgvspShort(self, value, data):
+        """Test whether HGVSp_Short can be parsed as an amino acid change."""
+        return self.checkAminoAcidChange(value, data, column_name = 'HGVSp_Short') 
 
 
-    def checkNotBlank(self, value):
+    def checkAminoAcidChange(self, value, data, column_name = 'Amino_Acid_Change'):
+        """Test whether the amino acid change value is 'valid' according to isValidAminoAcidChange."""
+        if not self.isValidAminoAcidChange(value, data):
+            # we give a warning if value is not valid telling user his 
+            # record will get a default value "MUTATED" when loaded in the DB.
+            self.logger.warning('Amino acid change cannot be parsed from %s column value. '
+                                'This mutation record will get a generic "MUTATED" flag',
+                                column_name,
+                              extra={'line_number': self.line_number,
+                                     'cause': 'empty value found'}) 
+        
+        # it is just a warning, so we can return True always:
+        return True
+
+
+    def checkNotBlank(self, value, data):
         """Test whether a string is blank."""
         if value is None or value.strip() == '':
             return False
+        return True
+    
+    def checkSwissProt(self, value, data):
+        """Test whether SWISSPROT string is blank and give warning if blank."""
+        if value is None or value.strip() == '':
+            self.logger.warning('SWISSPROT column was given, but value is empty. ' 
+                                'This column is recommended if you want to make ' 
+                                'sure that a specific isoform is used for the '
+                                'PFAM domains drawing in the mutations view.',
+                              extra={'line_number': self.line_number,
+                                     'cause':'SWISSPROT column found empty'})
+            
+        # it is just a warning, so we can return True always:
         return True
 
 

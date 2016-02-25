@@ -64,4 +64,13 @@ public class SpringUtil
 		}
 	}
 
+    /**
+     * Get the app context as initialized or refreshed by initDataSource()
+     *
+     * @return the Spring Framework application context
+     */
+    public static ApplicationContext getApplicationContext() {
+        return context;
+    }
+
 }

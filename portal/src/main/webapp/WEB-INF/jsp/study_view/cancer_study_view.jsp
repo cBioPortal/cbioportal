@@ -38,7 +38,7 @@
 <%@ page import="java.util.List" %>
 
 <%
-request.setAttribute("tumormap", true);
+request.setAttribute("standard-js-css", true);
 String isDemoMode = request.getParameter("demo");
 boolean showPlaceHoder;
 if (isDemoMode!=null) {

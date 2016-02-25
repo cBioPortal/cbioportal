@@ -51,7 +51,7 @@ ServletXssUtil xssUtil = ServletXssUtil.getInstance();
 ObjectMapper jsonMapper = new ObjectMapper();
 boolean print = "1".equals(request.getParameter("print"));
 boolean isPatientView = "patient".equals(request.getAttribute(PatientView.VIEW_TYPE));
-request.setAttribute("tumormap", true);
+request.setAttribute("standard-js-css", true);
 List<String> caseIds = (List<String>)request.getAttribute(PatientView.SAMPLE_ID);
 String jsonCaseIds = jsonMapper.writeValueAsString(caseIds);
 String caseIdStr = StringUtils.join(caseIds," ");
@@ -161,7 +161,7 @@ if (patientViewError!=null) {
     }
 %>
 
-<jsp:include page="../../global/header.jsp" flush="true" />
+<jsp:include page="../global/header.jsp" flush="true" />
 
 <%if(numTumors>1&&caseIds.size()==1) {%>
     <p style="background-color: lightyellow; margin-bottom: 5px;"> This patient has
@@ -286,14 +286,14 @@ if (patientViewError!=null) {
 
 <tr>
     <td colspan="3">
-	<jsp:include page="../../global/footer.jsp" flush="true" />
+	<jsp:include page="../global/footer.jsp" flush="true" />
     </td>
 </tr>
 
 </table>
 </center>
 </div>
-<jsp:include page="../../global/xdebug.jsp" flush="true" />
+<jsp:include page="../global/xdebug.jsp" flush="true" />
 
 <style type="text/css" title="currentStyle">
         @import "css/data_table_jui.css?<%=GlobalProperties.getAppVersion()%>";

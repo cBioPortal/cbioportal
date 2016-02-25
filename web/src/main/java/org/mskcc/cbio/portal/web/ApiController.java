@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
 
 import org.mskcc.cbio.portal.service.GenePanelService;
-import org.mskcc.cbio.portal.model.GenePanel;
 
 /**
  *
@@ -35,9 +34,6 @@ import org.mskcc.cbio.portal.model.GenePanel;
 public class ApiController {
     @Autowired
     private ApiService service;
-    
-    @Autowired
-    private GenePanelService gps;
 
     /* DISPATCHERS */
     @Transactional
@@ -177,15 +173,5 @@ public class ApiController {
 	    } else {
 		    return service.getStudies(study_ids);
 	    }
-    }
-    
-    @Transactional
-    @RequestMapping(value = "/genepanels", method = {RequestMethod.GET, RequestMethod.POST})
-    public @ResponseBody List<GenePanel> getGenePanels(@RequestParam(required = false) List<String> study_ids) {
-        if (study_ids == null) {
-            return gps.getGenePanels();
-        } else {
-            return gps.getGenePanels(study_ids);
-        }
     }
 }

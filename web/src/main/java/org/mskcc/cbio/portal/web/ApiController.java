@@ -24,8 +24,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
 
-import org.mskcc.cbio.portal.service.GenePanelService;
-
 /**
  *
  * @author abeshoua

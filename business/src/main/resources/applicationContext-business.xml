@@ -7,7 +7,8 @@
      xsi:schemaLocation="
      http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
      http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
-     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd" xmlns:aop="http://www.springframework.org/schema/aop">
 
      <beans profile="jndi,dbcp">
 
@@ -31,9 +32,23 @@
 
         <!-- these are required to get properly autowired mappers into our service classes -->
         <!-- when creating services via manually loading this context file -->
+        <bean id="entityMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+            <property name="mapperInterface" value="org.mskcc.cbio.portal.persistence.EntityMapper" />
+            <property name="sqlSessionFactory" ref="sqlSessionFactory" />
+        </bean>
         <bean id="genePanelMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
             <property name="mapperInterface" value="org.mskcc.cbio.portal.persistence.GenePanelMapper" />
             <property name="sqlSessionFactory" ref="sqlSessionFactory" />
+        </bean>
+        <bean id="entityAttributeMapper" class="org.mybatis.spring.mapper.MapperFactorybean">
+            <property name="mapperInterface" value="org.mskcc.cbio.portal.persistence.EntityAttributeMapper" />
+            <property name="sqlSessionFactory" ref="sqlSessionFactory" />                
+        </bean>
+        <bean id="entityService" class="org.mskcc.cbio.portal.service.EntityService">
+            <property name="entityMapper" ref="entityMapper" />
+        </bean>
+        <bean id="entityAttributeService" class="org.mskcc.cbio.portal.service.EntityAttributeService">
+            <property name="entityAttributeMapper" ref="entityAttributeMapper" />
         </bean>
 
         <!-- enable component scanning (beware that this does not enable mapper scanning!) -->    

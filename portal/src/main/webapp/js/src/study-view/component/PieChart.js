@@ -695,7 +695,7 @@ var PieChart = function(){
 //                "dc.redrawAll();'><span title='Reset Chart'"+
 //                "class='study-view-dc-chart-change' style='float:left; font-size:10px;'>"+
 //                "RESET</span></a>" +
-                "<img id='"+ DIV.chartDiv +"-reload-icon' class='study-view-title-icon hidden hover' src='images/reload-alt.svg'/>"+
+                "<img id='"+ DIV.chartDiv +"-reload-icon' class='study-view-title-icon study-view-hidden hover' src='images/reload-alt.svg'/>"+
                 _plotDataButtonDiv +
                 "<img id='"+ DIV.chartDiv +"-pie-icon' class='study-view-title-icon hover' src='images/pie.svg'/>"+
                 "<img id='"+ DIV.chartDiv +"-table-icon' class='study-view-title-icon study-view-table-icon hover' src='images/table.svg'/>"+

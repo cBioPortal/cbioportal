@@ -57,22 +57,18 @@ public final class DaoCancerStudy {
 	}
 
     private DaoCancerStudy() {}
-    
+
     private static final Map<String, java.util.Date> cacheDateByStableId = new HashMap<String, java.util.Date>();
     private static final Map<Integer, java.util.Date> cacheDateByInternalId = new HashMap<Integer, java.util.Date>();
     private static final Map<String,CancerStudy> byStableId = new HashMap<String,CancerStudy>();
     private static final Map<Integer,CancerStudy> byInternalId = new HashMap<Integer,CancerStudy>();
-    private static long lastCached = Long.MIN_VALUE;
     
     static {
         SpringUtil.initDataSource();
-        reCacheAll(System.currentTimeMillis());
+        reCacheAll();
     }
 
-    private static synchronized void reCacheAll(long time) {
-        if (lastCached >= time) {
-            return;
-        }
+    private static synchronized void reCacheAll() {
         
         System.out.println("Recaching... ");
         DaoCancerStudy.reCache();
@@ -80,8 +76,8 @@ public final class DaoCancerStudy {
         DaoPatient.reCache();
         DaoSample.reCache();
         DaoClinicalData.reCache();
+        DaoInfo.setVersion();
         System.out.println("Finished recaching... ");
-        lastCached = System.currentTimeMillis();
     }
     
     private static synchronized void reCache() {
@@ -99,10 +95,7 @@ public final class DaoCancerStudy {
             while (rs.next()) {
                 CancerStudy cancerStudy = extractCancerStudy(rs);
                 cacheCancerStudy(cancerStudy, new java.util.Date());
-				setStatus(Status.AVAILABLE, cancerStudy.getCancerStudyStableId());
             }
-		} catch (DaoException e) {
-			e.printStackTrace();
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
@@ -306,7 +299,7 @@ public final class DaoCancerStudy {
         CancerStudy existing = getCancerStudyByStableId(stableId);
         if (existing!=null) {
             if (overwrite) {
-				setStatus(Status.UNAVAILABLE, stableId);
+				//setStatus(Status.UNAVAILABLE, stableId);
                 deleteCancerStudy(existing.getInternalId());
             } else {
                 throw new DaoException("Cancer study " + stableId + "is already imported.");
@@ -350,7 +343,7 @@ public final class DaoCancerStudy {
             JdbcUtil.closeAll(DaoCancerStudy.class, con, pstmt, rs);
         }
 
-        setImportDate(cancerStudy.getInternalId());
+        reCacheAll();
     }
 
     /**
@@ -440,7 +433,7 @@ public final class DaoCancerStudy {
     {
         CancerStudy study = getCancerStudyByStableId(cancerStudyStableId);
         if (study != null){
-			setStatus(Status.UNAVAILABLE, cancerStudyStableId);
+			//setStatus(Status.UNAVAILABLE, cancerStudyStableId);
             deleteCancerStudy(study.getInternalId());
         }
     }
@@ -495,13 +488,13 @@ public final class DaoCancerStudy {
                 "delete from mutation_count where GENETIC_PROFILE_ID IN (select GENETIC_PROFILE_ID from genetic_profile where CANCER_STUDY_ID=?);",
                 "delete from clinical_event_data where CLINICAL_EVENT_ID IN (select CLINICAL_EVENT_ID from clinical_event where PATIENT_ID in (SELECT INTERNAL_ID FROM patient where CANCER_STUDY_ID=?))",
                 "delete from clinical_event where PATIENT_ID in (SELECT INTERNAL_ID FROM patient where CANCER_STUDY_ID=?)",
-                "delete from patient_list_list where LIST_ID IN (select LIST_ID from patient_list where CANCER_STUDY_ID=?);",
+                "delete from sample_list_list where LIST_ID IN (select LIST_ID from sample_list where CANCER_STUDY_ID=?);",
                 "delete from clinical_sample where INTERNAL_ID IN (select INTERNAL_ID from sample where PATIENT_ID in (select INTERNAL_ID from patient where CANCER_STUDY_ID=?));",
                 "delete from sample where PATIENT_ID IN (select INTERNAL_ID from patient where CANCER_STUDY_ID=?);",
                 "delete from clinical_patient where INTERNAL_ID IN (select INTERNAL_ID from patient where CANCER_STUDY_ID=?);",
                 "delete from patient where CANCER_STUDY_ID=?;",
                 "delete from copy_number_seg where CANCER_STUDY_ID=?;",
-                "delete from patient_list where CANCER_STUDY_ID=?;",
+                "delete from sample_list where CANCER_STUDY_ID=?;",
                 "delete from genetic_profile where CANCER_STUDY_ID=?;",
                 "delete from gistic_to_gene where GISTIC_ROI_ID IN (select GISTIC_ROI_ID from gistic where CANCER_STUDY_ID=?);",
                 "delete from gistic where CANCER_STUDY_ID=?;",
@@ -522,6 +515,7 @@ public final class DaoCancerStudy {
         } finally {
             JdbcUtil.closeAll(DaoCancerStudy.class, con, pstmt, rs);
         }
+        reCacheAll();
         System.out.print("delete a study "+internalCancerStudyId);
     }
 

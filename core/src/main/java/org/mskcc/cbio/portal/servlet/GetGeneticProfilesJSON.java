@@ -84,8 +84,8 @@ public class GetGeneticProfilesJSON extends HttpServlet  {
                           HttpServletResponse httpServletResponse) throws ServletException, IOException {
 
         String cancerStudyIdentifier = httpServletRequest.getParameter("cancer_study_id");
-        String patientSetId = httpServletRequest.getParameter("case_set_id");
-        String patientIdsKey = httpServletRequest.getParameter("case_ids_key");
+        String sampleSetId = httpServletRequest.getParameter("case_set_id");
+        String sampleIdsKey = httpServletRequest.getParameter("case_ids_key");
         String geneListStr = httpServletRequest.getParameter("gene_list");
         if (httpServletRequest instanceof XssRequestWrapper) {
             geneListStr = ((XssRequestWrapper)httpServletRequest).getRawParameter("gene_list");
@@ -108,7 +108,7 @@ public class GetGeneticProfilesJSON extends HttpServlet  {
 
             if (list.size() > 0) {
                 //Retrieve all the profiles available for this cancer study
-                if (patientSetId == null && geneListStr == null) {
+                if (sampleSetId == null && geneListStr == null) {
                     for (GeneticProfile geneticProfile : list) {
                         JSONObject tmpProfileObj = new JSONObject();
                         tmpProfileObj.put("STABLE_ID", geneticProfile.getStableId());
@@ -117,30 +117,32 @@ public class GetGeneticProfilesJSON extends HttpServlet  {
                         tmpProfileObj.put("GENETIC_ALTERATION_TYPE", geneticProfile.getGeneticAlterationType().toString());
                         tmpProfileObj.put("CANCER_STUDY_ID", geneticProfile.getCancerStudyId());
                         tmpProfileObj.put("SHOW_PROFILE_IN_ANALYSIS_TAB", geneticProfile.showProfileInAnalysisTab());
+                        // added datatype to be able to make distinction between log data and non-log data
+                        tmpProfileObj.put("DATATYPE", geneticProfile.getDatatype());
                         result.put(geneticProfile.getStableId(), tmpProfileObj);
                     }
                     httpServletResponse.setContentType("application/json");
                     PrintWriter out = httpServletResponse.getWriter();
                     JSONValue.writeJSONString(result, out);
-                } else if (geneListStr != null && patientSetId != null && patientIdsKey != null) { //Only return data available profiles for each queried gene
+                } else if (geneListStr != null && sampleSetId != null && sampleIdsKey != null) { //Only return data available profiles for each queried gene
                     String[] geneList = geneListStr.split("\\s+");
                     try {
                         //Get patient ID list
-                        DaoPatientList daoPatientList = new DaoPatientList();
-                        PatientList patientList;
-                        ArrayList<String> patientIdList = new ArrayList<String>();
-                        if (patientSetId.equals("-1") && patientIdsKey.length() != 0) {
-                            String strPatientIds = PatientSetUtil.getPatientIds(patientIdsKey);
-                            String[] patientArray = strPatientIds.split("\\s+");
-                            for (String item : patientArray) {
-                                patientIdList.add(item);
+                        DaoSampleList daoSampleList = new DaoSampleList();
+                        SampleList sampleList;
+                        ArrayList<String> sampleIdList = new ArrayList<String>();
+                        if (sampleSetId.equals("-1") && sampleIdsKey.length() != 0) {
+                            String strSampleIds = SampleSetUtil.getSampleIds(sampleIdsKey);
+                            String[] sampleArray = strSampleIds.split("\\s+");
+                            for (String item : sampleArray) {
+                                sampleIdList.add(item);
                             }
                         } else {
-                            patientList = daoPatientList.getPatientListByStableId(patientSetId);
-                            patientIdList = patientList.getPatientList();
+                            sampleList = daoSampleList.getSampleListByStableId(sampleSetId);
+                            sampleIdList = sampleList.getSampleList();
                         }
                         // NOTE - as of 12/12/14, patient lists contain sample ids
-                        List<Integer> internalSampleIds = InternalIdUtil.getInternalNonNormalSampleIds(cancerStudyId, patientIdList);
+                        List<Integer> internalSampleIds = InternalIdUtil.getInternalNonNormalSampleIds(cancerStudyId, sampleIdList);
 
                         for (String geneId : geneList) {
                             //Get gene
@@ -161,6 +163,8 @@ public class GetGeneticProfilesJSON extends HttpServlet  {
                                     tmpProfileObj.put("GENETIC_ALTERATION_TYPE", geneticProfile.getGeneticAlterationType().toString());
                                     tmpProfileObj.put("CANCER_STUDY_ID", geneticProfile.getCancerStudyId());
                                     tmpProfileObj.put("SHOW_PROFILE_IN_ANALYSIS_TAB", geneticProfile.showProfileInAnalysisTab());
+                                    // added datatype to be able to make distinction between log data and non-log data
+                                    tmpProfileObj.put("DATATYPE", geneticProfile.getDatatype());
                                     tmpResult.put(geneticProfile.getStableId(), tmpProfileObj);
                                 }
                             }

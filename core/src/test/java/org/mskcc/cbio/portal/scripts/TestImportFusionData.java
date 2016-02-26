@@ -79,12 +79,11 @@ public class TestImportFusionData
 
             MySQLbulkLoader.bulkLoadOn();
 
-            ProgressMonitor pMonitor = new ProgressMonitor();
-            pMonitor.setConsoleMode(false);
+            ProgressMonitor.setConsoleMode(false);
 
             // TODO change this to use getResourceAsStream()
             File file = new File("target/test-classes/data_fusions.txt");
-            ImportFusionData parser = new ImportFusionData(file, geneticProfileId, pMonitor);
+            ImportFusionData parser = new ImportFusionData(file, geneticProfileId);
 
 			loadGenes();
 			parser.importData();

@@ -82,7 +82,7 @@ public class GetAlterationDataJSON extends HttpServlet {
                           HttpServletResponse httpServletResponse) throws ServletException, IOException {
 
         String cancerStudyIdentifier = httpServletRequest.getParameter("cancer_study_id");
-        String patientSetId = httpServletRequest.getParameter("case_set_id");
+        String sampleSetId = httpServletRequest.getParameter("case_set_id");
         String patientIdsKey = httpServletRequest.getParameter("case_ids_key");
         
         String rawGeneIdList;
@@ -99,7 +99,7 @@ public class GetAlterationDataJSON extends HttpServlet {
         try {
 
             GeneticProfile final_gp = DaoGeneticProfile.getGeneticProfileByStableId(profileId);
-            List<String> stableSampleIds = CoExpUtil.getPatientIds(patientSetId, patientIdsKey);
+            List<String> stableSampleIds = CoExpUtil.getSampleIds(sampleSetId, patientIdsKey);
             List<Integer> sampleIds = InternalIdUtil.getInternalSampleIds(final_gp.getCancerStudyId(), stableSampleIds);
 
             ObjectMapper mapper = new ObjectMapper();

@@ -234,7 +234,7 @@ public class WebService extends HttpServlet {
                 getProfileData(httpServletRequest, writer);
             } else if (cmd.equals("getCaseLists")) {
                 // PROVIDES CANCER_STUDY_ID
-                getPatientLists(httpServletRequest, writer);
+                getSampleLists(httpServletRequest, writer);
             } else if (cmd.equals("getClinicalData")) {
                 // PROVIDES case_set_id
                 getClinicalData(httpServletRequest, writer);
@@ -243,9 +243,6 @@ public class WebService extends HttpServlet {
             } else if (cmd.equals("getMutationData")) {
                 // PROVIDES genetic_profile_id
                 getMutationData(httpServletRequest, writer);
-            } else if (cmd.equals("getMutationFrequency")) {
-                // PROVIDES CANCER_STUDY_ID
-                getMutationFrequency(httpServletRequest, writer);
             } else {
                 throw new ProtocolException("Unrecognized command: " + cmd);
             }
@@ -337,19 +334,6 @@ public class WebService extends HttpServlet {
         writer.print(out);
     }
 
-    private void getMutationFrequency(HttpServletRequest httpServletRequest, PrintWriter writer)
-            throws DaoException, ProtocolException {
-
-        String cancerStudyId = WebserviceParserUtils.getCancerStudyId(httpServletRequest);
-        if (cancerStudyId == null) {
-            outputMissingParameterError(writer, CANCER_STUDY_ID);
-        } else {
-            String out = GetMutationFrequencies.getMutationFrequencies(Integer.parseInt(cancerStudyId),
-                    httpServletRequest);
-            writer.print(out);
-        }
-    }
-
     private void getGeneticProfiles(HttpServletRequest httpServletRequest, PrintWriter writer)
             throws DaoException {
 
@@ -362,14 +346,14 @@ public class WebService extends HttpServlet {
         }
     }
 
-    private void getPatientLists(HttpServletRequest httpServletRequest, PrintWriter writer)
+    private void getSampleLists(HttpServletRequest httpServletRequest, PrintWriter writer)
             throws DaoException {
 
         String cancerStudyStableId = WebserviceParserUtils.getCancerStudyId(httpServletRequest);
         if (cancerStudyStableId == null) {
             outputMissingParameterError(writer, CANCER_STUDY_ID);
         } else {
-            String out = GetPatientLists.getPatientListsAsTable(cancerStudyStableId);
+            String out = GetSampleLists.getSampleListsAsTable(cancerStudyStableId);
             writer.print(out);
         }
     }

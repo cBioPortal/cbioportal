@@ -85,9 +85,8 @@ public class DumpPortalInfo {
         // check args
         if (args.length != 1 || args[0] == "-h" || args[0] == "--help") {
             System.err.println(
-                    "command line usage:  dumpPortalInfo.pl " +
+                    "Command line usage:  dumpPortalInfo.pl " +
                     "<name for the output directory>");
-            System.err.println();
             System.err.println();
             System.exit(EX_USAGE);
         }
@@ -103,7 +102,7 @@ public class DumpPortalInfo {
         File outputDir = new File(outputDirName);
         if (!outputDir.mkdir()) {
             System.err.printf(
-                    "Could not create new directory '%s'." +
+                    "Could not create new directory '%s'.\n",
                     outputDir.getPath());
             System.exit(EX_CANTCREAT);
         }

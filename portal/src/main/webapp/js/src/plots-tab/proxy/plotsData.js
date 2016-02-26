@@ -36,6 +36,7 @@ var plotsData = (function() {
         dotsContent = {}; //json of datums -- final recipe for rendering the view
         
     var ajaxCall = function(axis, callback_func) {
+        
         if ($("input:radio[name='" + ids.sidebar[axis].data_type + "']:checked").val() === vals.data_type.genetic) {
             
             function inner_profile_callback_func(profileData) { 
@@ -79,6 +80,7 @@ var plotsData = (function() {
             $.post("webservice.do", paramsGetClinicalAttributes, inner_callback_func, "json");
 
         }
+        
     };
 
     var merge = function(axis, result) {

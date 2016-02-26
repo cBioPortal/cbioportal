@@ -151,16 +151,12 @@ var profileSpec = (function() {
                         $("#" + ids.sidebar[axis].log_scale + "-div").append("<h5>Normalization</h5>");
                         $("#" + ids.sidebar[axis].log_scale + "-div").append("<select id='" + ids.sidebar[axis].log_scale + "'>");
                         $("#" + ids.sidebar[axis].log_scale).append(
+                            "<option value='original'>Original Values</option>" +
                             "<option value='zscores'>Convert to z-scores</option>" +
-                            "<option value='logscale'>Apply Log Scale</option>" +
-                            "<option value='original'>Original Values</option>"
+                            "<option value='logscale'>Apply Log Scale</option>"
                         );
                         $("#" + ids.sidebar[axis].log_scale).change(function() {
-                            if ($("#" + ids.sidebar[axis].log_scale).val() === "zscores") {
-                            } else if ($("#" + ids.sidebar[axis].log_scale).val() === "logscale") {
-                                scatterPlots.log_scale();
-                            } else if ($("#" + ids.sidebar[axis].log_scale).val() === "original") {
-                            }
+                            apply_conversion();
                         });
                     }
                 }                

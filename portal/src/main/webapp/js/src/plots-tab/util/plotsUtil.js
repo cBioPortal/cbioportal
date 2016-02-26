@@ -273,5 +273,82 @@ var is_discretized = function(axis) {
     }
 };
 
+var apply_conversion = function() {
+    var x_log = false, x_z_score = false, x_original = false,
+        y_log = false, y_z_score = false, y_original = false;
+    if (document.getElementById(ids.sidebar.x.log_scale)) {
+        switch($("#" + ids.sidebar.x.log_scale).val()){
+            case "logscale":
+                x_log = true;
+                break;
+            case "zscores":
+                x_z_score = true;
+                break;
+            case "original":
+                x_original = true;
+                break;
+        }
+    } else {
+        x_original = true;
+    }
+    if (document.getElementById(ids.sidebar.y.log_scale)) {
+        switch($("#" + ids.sidebar.y.log_scale).val()){
+            case "logscale":
+                y_log = true;
+                break;
+            case "zscores":
+                y_z_score = true;
+                break;
+            case "original":
+                y_original = true;
+                break;
+        }
+    } else {
+        y_original = true;
+    }
+    scatterPlots.convert(
+        {
+            "log_scale": 
+                {
+                    "x": x_log, 
+                    "y": y_log
+                }, 
+            "z_score": 
+                {
+                    "x": x_z_score,
+                    "y": y_z_score
+                }, 
+            "original": 
+                {
+                    "x": x_original,
+                    "y": y_original
+                }
+        });
+
+}
+
+function calc_avg(data){
+
+    var sum = 0;
+    _.each(data, function(_data) { if (_data !== "NaN") sum += sum + parseFloat(_data);});
+    
+    var avg = sum / data.length;
+    return avg;
+}
+
+function calc_stdDev(_data, avg) {
+    var _squareDiffs = _data.map(function(value){
+        var diff = value - avg;
+        var sqr = diff * diff;
+        return sqr;
+    });
+    var _avgSquareDiff = calc_avg(_squareDiffs);
+    return Math.sqrt(_avgSquareDiff);
+}
+
+function calc_z_score(_x, _mean, _sigma) {
+    return (_x - _mean) / _sigma;
+}
+
 
 

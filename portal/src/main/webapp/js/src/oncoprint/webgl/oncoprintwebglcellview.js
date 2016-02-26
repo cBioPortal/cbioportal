@@ -1,6 +1,5 @@
 var gl_matrix = require('gl-matrix');
-var makeSVGElement = require('./makesvgelement.js');
-var shapeToSVG = require('./oncoprintshapetosvg.js');
+var svgfactory = require('./svgfactory.js');
 
 // TODO: antialiasing
 
@@ -82,7 +81,9 @@ var OncoprintWebGLCellView = (function () {
 	getWebGLContextAndSetUpMatrices(this);
 	getOverlayContextAndClear(this);
 	this.visible_area_width = $canvas[0].width;
+	
 	this.tooltip = tooltip;
+	this.tooltip.center = true;
 	
 	this.scroll_x = 0;
 	this.$dummy_scroll_div = $dummy_scroll_div;
@@ -159,7 +160,7 @@ var OncoprintWebGLCellView = (function () {
 		    for (var i=0; i<tracks.length; i++) {
 			overlayPaintRect(self, left, model.getCellTops(tracks[i]), model.getCellWidth(), model.getCellHeight(tracks[i]), "rgba(0,0,0,0.5)");
 		    }
-		    tooltip.show(model.getZoomedColumnLeft(overlapping_cell.id) + model.getCellWidth()/2 + offset.left - self.scroll_x, model.getCellTops(overlapping_cell.track)+offset.top, model.getTrackTooltipFn(overlapping_cell.track)(model.getTrackDatum(overlapping_cell.track, overlapping_cell.id)));
+		    tooltip.show(0, model.getZoomedColumnLeft(overlapping_cell.id) + model.getCellWidth()/2 + offset.left - self.scroll_x, model.getCellTops(overlapping_cell.track)+offset.top, model.getTrackTooltipFn(overlapping_cell.track)(model.getTrackDatum(overlapping_cell.track, overlapping_cell.id)));
 		} else {
 		    tooltip.hideIfNotAlreadyGoingTo(1000);
 		}
@@ -433,15 +434,11 @@ var OncoprintWebGLCellView = (function () {
 	view.vertex_position_array[track_id] = zone_to_vertex_position_array;
 	view.vertex_color_array[track_id] = zone_to_vertex_color_array;
     };
-    var computeSortedIdentifiedShapeListList = function(view, model, track_id) {
+    var getShapes = function(view, model, track_id) {
 	if (view.rendering_suppressed) {
 	    return;
 	}
-	var identified_shape_list_list = model.getIdentifiedShapeListList(track_id, true);
-	view.identified_shape_list_list[track_id] = identified_shape_list_list.map(function(obj) {
-	    obj.shape_list.sort(function(shapeA, shapeB) { return parseFloat(shapeA.z) - parseFloat(shapeB.z); });
-	    return obj;
-	});
+	view.identified_shape_list_list[track_id] = model.getIdentifiedShapeListList(track_id, true, true);
     };
     OncoprintWebGLCellView.prototype.isUsable = function () {
 	return this.ctx !== null;
@@ -461,7 +458,7 @@ var OncoprintWebGLCellView = (function () {
     OncoprintWebGLCellView.prototype.addTracks = function (model, track_ids) {
 	clearZoneBuffers(this, model);
 	for (var i=0; i<track_ids.length; i++) {
-	    computeSortedIdentifiedShapeListList(this, model, track_ids[i]);
+	    getShapes(this, model, track_ids[i]);
 	    computeVertexPositionsAndVertexColors(this, model, track_ids[i]);
 	}
 	renderAllTracks(this, model);
@@ -493,7 +490,7 @@ var OncoprintWebGLCellView = (function () {
 	this.rendering_suppressed = false;
 	var track_ids = model.getTracks();
 	for (var i=0; i<track_ids.length; i++) {
-	    computeSortedIdentifiedShapeListList(this, model, track_ids[i]);
+	    getShapes(this, model, track_ids[i]);
 	    computeVertexPositionsAndVertexColors(this, model, track_ids[i]);
 	}
 	renderAllTracks(this, model);
@@ -508,19 +505,19 @@ var OncoprintWebGLCellView = (function () {
     }
     OncoprintWebGLCellView.prototype.setTrackData = function(model, track_id) {
 	clearZoneBuffers(this, model, track_id);
-	computeSortedIdentifiedShapeListList(this, model, track_id);
+	getShapes(this, model, track_id);
 	computeVertexPositionsAndVertexColors(this, model, track_id);
 	renderAllTracks(this, model);
     }
      OncoprintWebGLCellView.prototype.setRuleSet = function(model, target_track_id) {
 	clearZoneBuffers(this, model, target_track_id);
-	computeSortedIdentifiedShapeListList(this, model, target_track_id);
+	getShapes(this, model, target_track_id);
 	computeVertexPositionsAndVertexColors(this, model, target_track_id);
 	renderAllTracks(this, model);
     }
     OncoprintWebGLCellView.prototype.shareRuleSet = function(model, target_track_id) {
 	clearZoneBuffers(this, model, target_track_id);
-	computeSortedIdentifiedShapeListList(this, model, target_track_id);
+	getShapes(this, model, target_track_id);
 	computeVertexPositionsAndVertexColors(this, model, target_track_id);
 	renderAllTracks(this, model);
     }
@@ -547,7 +544,7 @@ var OncoprintWebGLCellView = (function () {
 	clearZoneBuffers(this, model);
 	var track_ids = model.getTracks();
 	for (var i=0; i<track_ids.length; i++) {
-	    computeSortedIdentifiedShapeListList(this, model, track_ids[i]);
+	    getShapes(this, model, track_ids[i]);
 	    computeVertexPositionsAndVertexColors(this, model, track_ids[i]);
 	}
 	renderAllTracks(this, model);
@@ -567,33 +564,21 @@ var OncoprintWebGLCellView = (function () {
     }
     
     OncoprintWebGLCellView.prototype.toSVGGroup = function(model, offset_x, offset_y) {
-	var root = makeSVGElement('g', {'transform':'translate('+(offset_x || 0)+','+(offset_y || 0)+')'});
+	var root = svgfactory.group((offset_x || 0), (offset_y || 0));
 	var cell_tops = model.getCellTops();
 	var tracks = model.getTracks();
 	var zoomedColumnLeft = model.getZoomedColumnLeft();
 	for (var i=0; i<tracks.length; i++) {
 	    var track_id = tracks[i];
 	    var offset_y = cell_tops[track_id];
-	    var identified_shape_list_list = model.getIdentifiedShapeListList(track_id, false);
+	    var identified_shape_list_list = model.getIdentifiedShapeListList(track_id, false, true);
 	    for (var j=0; j<identified_shape_list_list.length; j++) {
 		var id_sl = identified_shape_list_list[j];
 		var id = id_sl.id;
 		var sl = id_sl.shape_list;
 		var offset_x = zoomedColumnLeft[id];
-		// sort in z order
-		sl.sort(function(shapeA, shapeB) {
-		    var zA = parseFloat(shapeA.z);
-		    var zB = parseFloat(shapeB.z);
-		    if (zA < zB) {
-			return -1;
-		    } else if (zA > zB) {
-			return 1;
-		    } else {
-			return 0;
-		    }
-		});
 		for (var h=0; h<sl.length; h++) {
-		    root.appendChild(shapeToSVG(sl[h], offset_x, offset_y));
+		    root.appendChild(svgfactory.fromShape(sl[h], offset_x, offset_y));
 		}
 	    }
 	}

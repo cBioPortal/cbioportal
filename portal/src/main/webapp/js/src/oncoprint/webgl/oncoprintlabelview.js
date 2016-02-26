@@ -1,12 +1,13 @@
-var makeSVGElement = require('./makesvgelement.js');
+var svgfactory = require('./svgfactory.js');
 
 var OncoprintLabelView = (function () {
-    function OncoprintLabelView($canvas, model) {
+    function OncoprintLabelView($canvas, model, tooltip) {
 	var view = this;
 	this.$canvas = $canvas;
 	this.base_font_size = 14;
 	this.model = model;
-	
+	this.tooltip = tooltip;
+	this.tooltip.center = false;
 	// stuff from model
 	this.label_tops = {};
 	this.labels = {};
@@ -14,6 +15,7 @@ var OncoprintLabelView = (function () {
 	this.minimum_track_height = Number.POSITIVE_INFINITY;
 	this.maximum_label_width = Number.NEGATIVE_INFINITY;
 	
+	this.maximum_label_length = 18;
 	this.rendering_suppressed = false;
 	
 	setUpContext(this);
@@ -24,6 +26,7 @@ var OncoprintLabelView = (function () {
 	    view.drag_mouse_y = null;
 	    
 	    view.$canvas.on("mousedown", function(evt) {
+		view.tooltip.hide();
 		var track_id = isMouseOnLabel(view, evt.offsetY);
 		if (track_id !== null) {
 		    startDragging(view, track_id, evt.offsetY);
@@ -37,10 +40,18 @@ var OncoprintLabelView = (function () {
 		    view.drag_mouse_y = Math.max(view.drag_mouse_y, view.track_tops[track_group[0]]-5);
 		    renderAllLabels(view);
 		} else {
-		    if (isMouseOnLabel(view, evt.pageY - view.$canvas.offset().top) !== null) {
+		    var hovered_track = isMouseOnLabel(view, evt.pageY - view.$canvas.offset().top);
+		    if (hovered_track !== null) {
 			view.$canvas.css('cursor', 'move');
+			var offset = view.$canvas.offset();
+			var tooltip_html = "<b>hold to drag</b>";
+			if (isNecessaryToShortenLabel(view, view.labels[hovered_track])) {
+			    tooltip_html = view.labels[hovered_track] + '<br>' + tooltip_html;
+			}
+			view.tooltip.fadeIn(200, renderedLabelWidth(view, view.labels[hovered_track]) + offset.left, view.label_tops[hovered_track] + offset.top, tooltip_html);
 		    } else {
 			view.$canvas.css('cursor', 'auto');
+			view.tooltip.hide();
 		    }
 		}
 	    });
@@ -51,27 +62,27 @@ var OncoprintLabelView = (function () {
 		    var previous_track_id = getLabelAbove(view, track_group, evt.offsetY, view.dragged_label_track_id);
 		    stopDragging(view, previous_track_id);
 		}
+		view.tooltip.hide();
 	    });
 	})(this);
 	
     }
+    var renderedLabelWidth = function(view, label) {
+	return view.ctx.measureText(shortenLabelIfNecessary(view, label)).width;
+    };
     var updateFromModel = function(view, model) {
 	var track_tops = model.getTrackTops();
 	var label_tops = model.getLabelTops();
-	/*for (var track_id in label_tops) {
-	    if (label_tops.hasOwnProperty(track_id)) {
-		label_tops[track_id] += model.getTrackPadding(track_id);
-	    }
-	}*/
 	view.track_tops = track_tops;
 	view.label_tops = label_tops;
 	view.tracks = model.getTracks();
 	
 	view.minimum_track_height = Number.POSITIVE_INFINITY;
-	view.maximum_label_width = Number.NEGATIVE_INFINITY;
+	view.maximum_label_width = 0;
 	for (var i=0; i<view.tracks.length; i++) {
 	    view.minimum_track_height = Math.min(view.minimum_track_height, model.getTrackHeight(view.tracks[i]));
-	    view.maximum_label_width = Math.max(view.maximum_label_width, view.ctx.measureText(view.labels[view.tracks[i]]).width);
+	    var shortened_label = shortenLabelIfNecessary(view, view.labels[view.tracks[i]]);
+	    view.maximum_label_width = Math.max(view.maximum_label_width, view.ctx.measureText(shortened_label).width);
 	}
     }
     var setUpContext = function(view) {
@@ -84,6 +95,16 @@ var OncoprintLabelView = (function () {
 	view.$canvas[0].width = view.getWidth();
 	setUpContext(view);
     }
+    var isNecessaryToShortenLabel = function(view, label) {
+	return label.length > view.maximum_label_length;
+    };
+    var shortenLabelIfNecessary = function(view, label) {
+	if (isNecessaryToShortenLabel(view, label)) {
+	    return label.substring(0, view.maximum_label_length-3) + '...';
+	} else {
+	    return label;
+	}
+    };
     var renderAllLabels = function(view) {
 	if (view.rendering_suppressed) {
 	    return;
@@ -94,11 +115,11 @@ var OncoprintLabelView = (function () {
 	view.ctx.fillStyle = 'black';
 	var tracks = view.tracks;
 	for (var i=0; i<tracks.length; i++) {
-	    view.ctx.fillText(view.labels[tracks[i]], 0, view.label_tops[tracks[i]]);
+	    view.ctx.fillText(shortenLabelIfNecessary(view, view.labels[tracks[i]]), 0, view.label_tops[tracks[i]]);
 	}
 	if (view.dragged_label_track_id !== null) {
 	    view.ctx.strokeStyle = 'rgba(255,0,0,0.95)';
-	    view.ctx.strokeText(view.labels[view.dragged_label_track_id], 0, view.drag_mouse_y-font_size/2);
+	    view.ctx.strokeText(shortenLabelIfNecessary(view, view.labels[view.dragged_label_track_id]), 0, view.drag_mouse_y-font_size/2);
 	    view.ctx.fillStyle = 'rgba(0,0,0,0.15)';
 	    var group = view.model.getContainingTrackGroup(view.dragged_label_track_id);
 	    var label_above_mouse = getLabelAbove(view, group, view.drag_mouse_y, null);
@@ -117,7 +138,7 @@ var OncoprintLabelView = (function () {
 		rect_y = view.label_tops[group[group.length-1]] + view.ctx.measureText("m").width;;
 		rect_height = view.ctx.measureText("m").width;
 	    }
-	    view.ctx.fillRect(0, rect_y, view.ctx.measureText(view.labels[view.dragged_label_track_id]).width, rect_height);
+	    view.ctx.fillRect(0, rect_y, view.getWidth(), rect_height);
 	}
     }
     
@@ -180,7 +201,8 @@ var OncoprintLabelView = (function () {
 	renderAllLabels(view);
     }
     OncoprintLabelView.prototype.getWidth = function() {
-	return this.maximum_label_width + 40;
+	//return this.maximum_label_width + 20;
+	return Math.max(this.maximum_label_width + 10, 150);
     }
     OncoprintLabelView.prototype.getFontSize = function() {
 	return Math.max(Math.min(this.base_font_size, this.minimum_track_height), 7);
@@ -222,21 +244,15 @@ var OncoprintLabelView = (function () {
 	renderAllLabels(this);
     }
     
-    OncoprintLabelView.prototype.toSVGGroup = function(model, offset_x, offset_y) {
-	var root = makeSVGElement('g', {'transform':'translate('+(offset_x || 0)+','+(offset_y || 0)+')'});
+    OncoprintLabelView.prototype.toSVGGroup = function(model, full_labels, offset_x, offset_y) {
+	var root = svgfactory.group((offset_x || 0), (offset_y || 0));
 	var label_tops = model.getLabelTops();
 	var tracks = model.getTracks();
 	for (var i=0; i<tracks.length; i++) {
 	    var track_id = tracks[i];
 	    var y = label_tops[track_id];
 	    var label = model.getTrackLabel(track_id);
-	    var text_elt = makeSVGElement('text', {'x':0, 'y':y, 
-						    'font-family':'serif', 
-						    'font-size':this.getFontSize(), 
-						    'font-weight':'bold',
-						    'text-anchor':'start',
-						    'alignment-baseline':'text-before-edge'});
-	    text_elt.textContent = label;
+	    var text_elt = svgfactory.text((full_labels ? label : shortenLabelIfNecessary(this, label)), 0, y, this.getFontSize(), 'serif', 'bold'); 
 	    root.appendChild(text_elt);
 	}
 	return root;

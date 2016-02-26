@@ -159,9 +159,12 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
     };
 
     var refreshClinicalAttributeSelector = function() {
-	var none_option = {display_name: 'none', attr_id: undefined};
+	//var none_option = {display_name: 'none', attr_id: undefined, display_order:-1};
 	//var attributes_to_populate = [none_option].concat(unused_clinical_attributes);
 	var attributes_to_populate = unused_clinical_attributes;
+	attributes_to_populate.sort(function(attrA, attrB) {
+	    return attrA.display_order - attrB.display_order;
+	});
 	var $selector = $(toolbar_selector + ' #select_clinical_attributes');
 	$selector.empty();
 	for (var i=0; i<attributes_to_populate.length; i++) {
@@ -169,7 +172,25 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		    .attr("value", attributes_to_populate[i].attr_id)
 		    .text(attributes_to_populate[i].display_name);
 	}
+	$(toolbar_selector + " #select_clinical_attributes").val('');
 	$(toolbar_selector + " #select_clinical_attributes").trigger("liszt:updated");
+	$(toolbar_selector + " #select_clinical_attributes_chzn").addClass("chzn-with-drop");
+    };
+    
+    var moveAttributeFromUsedToUnused = function(attr_id) {
+	var attr = null;
+	var index = -1;
+	for (var i=0; i<used_clinical_attributes.length; i++) {
+	    if (used_clinical_attributes[i].attr_id === attr_id) {
+		attr = used_clinical_attributes[i];
+		index = i;
+		break;
+	    }
+	}
+	if (attr !== null) {
+	    used_clinical_attributes.splice(index, 1);
+	    unused_clinical_attributes.push(attr);
+	}
     };
     
     (function fetchClinicalAttributes() {
@@ -275,16 +296,25 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    }
 	};
 	var attr = null;
+	var index = -1;
 	for (var i=0; i<unused_clinical_attributes.length; i++) {
 	    if (unused_clinical_attributes[i].attr_id === attr_id) {
 		attr = unused_clinical_attributes[i];
+		index = i;
 		break;
 	    }
 	}
 	if (attr === null) {
 	    return;
 	}
+	used_clinical_attributes.push(attr);
+	unused_clinical_attributes.splice(index, 1);
+	refreshClinicalAttributeSelector();
 	
+	var removeAttributeHandler = function() {
+	    moveAttributeFromUsedToUnused(attr_id);
+	    refreshClinicalAttributeSelector();
+	};
 	// TODO: replace mutation count and cna fraction with api service
 	if (attr_id === '# mutations') {
 	    var data_fetched = new $.Deferred();
@@ -312,7 +342,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 					'sortCmpFn': numericalSortFn, 
 					'rule_set_params': {'type':'bar', 'value_key': 'attr_val', 'value_range':[0,undefined], 'legend_label':attr.display_name}, 
 					'data_id_key':'sample', 'target_group':0,
-					'removable':true, 'sort_direction_changeable':true, 'init_sort_direction':0, 'tooltipFn':clinicalToolTip}]);
+					'removable':true, 'removeCallback':removeAttributeHandler, 'sort_direction_changeable':true, 'init_sort_direction':0, 'tooltipFn':clinicalToolTip}]);
 	    });
 	} else if (attr_id === 'FRACTION_GENOME_ALTERED') {
 	    var data_fetched = new $.Deferred();
@@ -335,7 +365,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		});
 	    }
 	    data_fetched.then(function() {
-		oncoprint.addTracks([{'data': fraction_genome_altered_clinical_data, 'label': 'Fraction Genome Altered', 'sortCmpFn': numericalSortFn, 'rule_set_params': {'type':'bar', 'value_key':'attr_val', 'value_range':[0,1], 'legend_label':attr.display_name}, 'data_id_key':'sample', 'removable':true, 'sort_direction_changeable':true, 'init_sort_direction':0, 'tooltipFn':clinicalToolTip}]);
+		oncoprint.addTracks([{'data': fraction_genome_altered_clinical_data, 'label': 'Fraction Genome Altered', 'sortCmpFn': numericalSortFn, 'rule_set_params': {'type':'bar', 'value_key':'attr_val', 'value_range':[0,1], 'legend_label':attr.display_name}, 'data_id_key':'sample', 'removable':true, 'removeCallback':removeAttributeHandler, 'sort_direction_changeable':true, 'init_sort_direction':0, 'tooltipFn':clinicalToolTip}]);
 	    });
 	} else {
 	    QuerySession.getSampleClinicalData([attr_id]).then(function(data) {
@@ -349,7 +379,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		    sortCmpFn = stringSortFn;
 		}
 		rule_set_params.legend_label = attr.display_name;
-		oncoprint.addTracks([{'data':addBlankData(data), 'label':attr.display_name, 'sortCmpFn':sortCmpFn, 'rule_set_params':rule_set_params, 'data_id_key':'sample','removable':true, 'sort_direction_changeable':true, 'init_sort_direction':0, 'tooltipFn':clinicalToolTip}]);
+		oncoprint.addTracks([{'data':addBlankData(data), 'label':attr.display_name, 'sortCmpFn':sortCmpFn, 'rule_set_params':rule_set_params, 'data_id_key':'sample','removable':true, 'removeCallback':removeAttributeHandler, 'sort_direction_changeable':true, 'init_sort_direction':0, 'tooltipFn':clinicalToolTip}]);
 	    });
 	}
     };
@@ -453,12 +483,16 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    var $slider = $('<input>', {
 		id: "oncoprint_zoom_slider",
 		type: "range",
-		min: oncoprint.getMinZoom(),
+		min: 0,
 		max: 1,
 		step: 0.0001,
 		value: 1,
-		change: function () {
-		    this.value = oncoprint.setHorzZoom(parseFloat(this.value));
+		change: function (evt) {
+		    if (evt.originalEvent) {
+			this.value = oncoprint.setHorzZoom(parseFloat(this.value));
+		    } else {
+			this.value = oncoprint.getHorzZoom();
+		    }
 		}
 	    });
 
@@ -473,11 +507,11 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    setUpHoverEffect($slider);
 
 	    onClick($(toolbar_selector + ' #oncoprint_zoomout'), function () {
-		$slider[0].value = oncoprint.setHorzZoom(oncoprint.getHorzZoom()*zoom_discount);
+		oncoprint.setHorzZoom(oncoprint.getHorzZoom()*zoom_discount);
 		$slider.trigger('change');
 	    });
 	    onClick($(toolbar_selector + ' #oncoprint_zoomin'), function () {
-		$slider[0].value = oncoprint.setHorzZoom(oncoprint.getHorzZoom()/zoom_discount);
+		oncoprint.setHorzZoom(oncoprint.getHorzZoom()/zoom_discount);
 		$slider.trigger('change');
 	    });
 
@@ -527,8 +561,8 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	(function setUpZoomToFit() {
 	    QuerySession.getAlteredSamples().then(function (altered_samples) {
 		setUpHoverEffect($(toolbar_selector + ' #oncoprint_zoomtofit'));
-		onClick($(toolbar_selector + ' #oncoprint_zoomtofit'), function () {
-		    $zoom_slider[0].value = oncoprint.getZoomToFitHorz(altered_samples);
+		onClick($(toolbar_selector + ' #oncoprint_zoomtofit'), function () {;
+		    oncoprint.setHorzZoom(oncoprint.getZoomToFitHorz(altered_samples));
 		    $zoom_slider.trigger('change');
 		});
 		addQTipTo($(toolbar_selector + ' #oncoprint_zoomtofit'), {

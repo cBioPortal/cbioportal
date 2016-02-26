@@ -25,7 +25,7 @@ var objectValues = function(obj) {
 };
 
 var OncoprintModel = (function () {
-    var MIN_ZOOM = 0.00001;
+    var MIN_ZOOM_PIXELS = 100;
     function OncoprintModel(init_cell_padding, init_cell_padding_on,
 	    init_horz_zoom, init_vert_zoom, 
 	    init_cell_width, init_track_group_padding) {
@@ -51,6 +51,7 @@ var OncoprintModel = (function () {
 	this.track_data_id_key = {};
 	this.track_tooltip_fn = {};
 	this.track_removable = {};
+	this.track_remove_callback = {};
 	this.track_sort_cmp_fn = {};
 	this.track_sort_direction_changeable = {};
 	this.track_sort_direction = {}; // 1: ascending, -1: descending, 0: not
@@ -160,7 +161,7 @@ var OncoprintModel = (function () {
     }
 
     OncoprintModel.prototype.getMinZoom = function() {
-	return MIN_ZOOM;
+	return MIN_ZOOM_PIXELS / (this.getIdOrder().length*this.getCellWidth(true) + (this.getIdOrder().length-1)*this.getCellPadding(true));
     }
     
     OncoprintModel.prototype.setHorzZoom = function (z) {
@@ -193,13 +194,28 @@ var OncoprintModel = (function () {
     }
 
 
-    OncoprintModel.prototype.getIdentifiedShapeListList = function(track_id, base_width) {
+    OncoprintModel.prototype.getIdentifiedShapeListList = function(track_id, use_base_width, sort_by_z) {
 	var active_rules = {};
 	var data = this.getTrackData(track_id);
 	var id_key = this.getTrackDataIdKey(track_id);
-	var shapes = this.getRuleSet(track_id).apply(data, this.getCellWidth(base_width), this.getCellHeight(track_id), active_rules);
+	var shapes = this.getRuleSet(track_id).apply(data, this.getCellWidth(use_base_width), this.getCellHeight(track_id), active_rules);
 	this.track_active_rules[track_id] = active_rules;
+	
+	var z_comparator = function(shapeA, shapeB) {
+	    var zA = parseFloat(shapeA.z);
+	    var zB = parseFloat(shapeB.z);
+	    if (zA < zB) {
+		return -1;
+	    } else if (zA > zB) {
+		return 1;
+	    } else {
+		return 0;
+	    }
+	};
 	return shapes.map(function(shape_list, index) {
+	    if (sort_by_z) {
+		shape_list.sort(z_comparator);
+	    }
 	    return {
 		id: data[index][id_key],
 		shape_list: shape_list
@@ -330,7 +346,7 @@ var OncoprintModel = (function () {
 	    addTrack(this, params.track_id, params.target_group,
 		    params.cell_height, params.track_padding,
 		    params.data_id_key, params.tooltipFn,
-		    params.removable, params.label,
+		    params.removable, params.removeCallback, params.label,
 		    params.sortCmpFn, params.sort_direction_changeable, params.init_sort_direction,
 		    params.data, params.rule_set);
 	}
@@ -340,7 +356,7 @@ var OncoprintModel = (function () {
     var addTrack = function (model, track_id, target_group,
 	    cell_height, track_padding,
 	    data_id_key, tooltipFn,
-	    removable, label,
+	    removable, removeCallback, label,
 	    sortCmpFn, sort_direction_changeable, init_sort_direction,
 	    data, rule_set) {
 	model.track_label[track_id] = ifndef(label, "Label");
@@ -351,6 +367,7 @@ var OncoprintModel = (function () {
 	    return d + '';
 	});
 	model.track_removable[track_id] = ifndef(removable, false);
+	model.track_remove_callback[track_id] = ifndef(removeCallback, function() {});
 	
 	model.track_sort_cmp_fn[track_id] = ifndef(sortCmpFn, function (a, b) {
 	    return 0;
@@ -411,6 +428,7 @@ var OncoprintModel = (function () {
    
     OncoprintModel.prototype.removeTrack = function (track_id) {
 	var rule_set_id = this.track_rule_set_id[track_id];
+	this.track_remove_callback[track_id]();
 	
 	delete this.track_data[track_id];
 	delete this.track_rule_set_id[track_id];
@@ -420,6 +438,7 @@ var OncoprintModel = (function () {
 	delete this.track_data_id_key[track_id];
 	delete this.track_tooltip_fn[track_id];
 	delete this.track_removable[track_id];
+	delete this.track_remove_callback[track_id];
 	delete this.track_sort_cmp_fn[track_id];
 	delete this.track_sort_direction_changeable[track_id];
 	delete this.track_sort_direction[track_id];

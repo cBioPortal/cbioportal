@@ -52,7 +52,7 @@ function shallowExtend(target, source) {
 var NA_SHAPES = [
     {
 	'type': 'rectangle',
-	'fill': 'rgba(238, 238, 238, 1)',
+	'fill': 'rgba(255, 255, 255, 1)',
 	'stroke': 'rgba(210,210,210,1)',
 	'stroke-width': '1',
 	'z': 0,
@@ -526,7 +526,14 @@ var ConditionRuleSet = (function () {
 })();
 
 var CategoricalRuleSet = (function () {
-    var colors = ["#3366cc", "#dc3912", "#ff9900", "#109618",
+    function CategoricalRuleSet(params) {
+	/* params
+	 * - category_key
+	 * - categoryToColor
+	 */
+	LookupRuleSet.call(this, params);
+	
+	this.colors = ["#3366cc", "#dc3912", "#ff9900", "#109618",
 	"#990099", "#0099c6", "#dd4477", "#66aa00",
 	"#b82e2e", "#316395", "#994499", "#22aa99",
 	"#aaaa11", "#6633cc", "#e67300", "#8b0707",
@@ -534,13 +541,6 @@ var CategoricalRuleSet = (function () {
 	"#b77322", "#16d620", "#b91383", "#f4359e",
 	"#9c5935", "#a9c413", "#2a778d", "#668d1c",
 	"#bea413", "#0c5922", "#743411"]; // Source: D3
-
-    function CategoricalRuleSet(params) {
-	/* params
-	 * - category_key
-	 * - categoryToColor
-	 */
-	LookupRuleSet.call(this, params);
 	this.category_key = params.category_key;
 	this.category_to_color = ifndef(params.category_to_color, {});
 	for (var category in this.category_to_color) {
@@ -574,7 +574,7 @@ var CategoricalRuleSet = (function () {
 	    }
 	    var category = data[i][this.category_key];
 	    if (!this.category_to_color.hasOwnProperty(category)) {
-		var color = colors.pop();
+		var color = this.colors.pop();
 		this.category_to_color[category] = color;
 		addCategoryRule(this, category, color);
 	    }

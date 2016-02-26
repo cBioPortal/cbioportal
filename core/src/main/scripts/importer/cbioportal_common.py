@@ -166,7 +166,7 @@ META_FIELD_MAP = {
         'case_list_name': True,
         'case_list_description': True,
         'case_list_ids': True,
-        'case_list_category': False
+        'case_list_category': False # TODO this is used in org.mskcc.cbio.portal.model.AnnotatedPatientSets.getDefaultPatientList(), decide whether to keeep, see #494
     }
 }
 

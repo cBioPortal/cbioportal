@@ -493,7 +493,11 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		    } else {
 			this.value = oncoprint.getHorzZoom();
 		    }
-		}
+		},
+	    });
+	    
+	    oncoprint.onHorzZoom(function() {
+		$zoom_slider.trigger('change');
 	    });
 
 	    appendTo($slider, zoom_elt);
@@ -508,11 +512,9 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 
 	    onClick($(toolbar_selector + ' #oncoprint_zoomout'), function () {
 		oncoprint.setHorzZoom(oncoprint.getHorzZoom()*zoom_discount);
-		$slider.trigger('change');
 	    });
 	    onClick($(toolbar_selector + ' #oncoprint_zoomin'), function () {
 		oncoprint.setHorzZoom(oncoprint.getHorzZoom()/zoom_discount);
-		$slider.trigger('change');
 	    });
 
 	    return $slider;
@@ -563,7 +565,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		setUpHoverEffect($(toolbar_selector + ' #oncoprint_zoomtofit'));
 		onClick($(toolbar_selector + ' #oncoprint_zoomtofit'), function () {;
 		    oncoprint.setHorzZoom(oncoprint.getZoomToFitHorz(altered_samples));
-		    $zoom_slider.trigger('change');
+		    oncoprint.scrollTo(0);
 		});
 		addQTipTo($(toolbar_selector + ' #oncoprint_zoomtofit'), {
 		content: {text: "Zoom to fit altered cases in screen"},

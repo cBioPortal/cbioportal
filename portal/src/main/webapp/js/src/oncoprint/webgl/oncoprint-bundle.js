@@ -109,7 +109,14 @@ var Oncoprint = (function () {
 	this.model = new OncoprintModel();
 	// Precisely one of the following should be uncommented
 	// this.cell_view = new OncoprintSVGCellView($svg_dev);
-	this.cell_view = new OncoprintWebGLCellView($cell_div, $cell_canvas, $cell_overlay_canvas, $dummy_scroll_div, this.model, new OncoprintToolTip($oncoprint_ctr));
+	this.cell_view = new OncoprintWebGLCellView($cell_div, $cell_canvas, $cell_overlay_canvas, $dummy_scroll_div, this.model, new OncoprintToolTip($oncoprint_ctr), function(left, right) {
+	    var curr_zoom = self.model.getHorzZoom();
+	    var unzoomed_left = left/curr_zoom;
+	    var unzoomed_right = right/curr_zoom;
+	    var new_zoom = Math.min(1, self.cell_view.visible_area_width / (unzoomed_right-unzoomed_left));
+	    self.$cell_div.scrollLeft(unzoomed_left*new_zoom);
+	    self.setHorzZoom(new_zoom);
+	});
 	
 	this.track_options_view = new OncoprintTrackOptionsView($track_options_div, 
 								function(track_id) { self.removeTrack(track_id); }, 
@@ -136,6 +143,9 @@ var Oncoprint = (function () {
 	    cell_view.scroll(model, scroll_left);
 	});
 	
+	
+	this.horz_zoom_callbacks = [];
+	
     }
 
     var resizeAndOrganize = function(oncoprint) {
@@ -152,8 +162,11 @@ var Oncoprint = (function () {
     };
     
     
-    Oncoprint.prototype.onZoom = function(callback) {
-	this.model.onZoom(callback);
+    Oncoprint.prototype.scrollTo = function(left) {
+	this.$cell_div.scrollLeft(left);
+    }
+    Oncoprint.prototype.onHorzZoom = function(callback) {
+	this.horz_zoom_callbacks.push(callback);
     }
     Oncoprint.prototype.moveTrack = function(target_track, new_previous_track) {
 	this.model.moveTrack(target_track, new_previous_track);
@@ -249,6 +262,9 @@ var Oncoprint = (function () {
 	// Update views
 	this.cell_view.setHorzZoom(this.model);
 
+	for (var i=0; i<this.horz_zoom_callbacks.length; i++) {
+	    this.horz_zoom_callbacks[i](this.model.getHorzZoom());
+	}
 	return this.model.getHorzZoom();
     }
     
@@ -3196,7 +3212,7 @@ var createShader = function (view, source, type) {
 };
 
 var OncoprintWebGLCellView = (function () {
-    function OncoprintWebGLCellView($container, $canvas, $overlay_canvas, $dummy_scroll_div, model, tooltip) {
+    function OncoprintWebGLCellView($container, $canvas, $overlay_canvas, $dummy_scroll_div, model, tooltip, highlight_area_callback) {
 	this.$container = $container;
 	this.$canvas = $canvas;
 	this.$overlay_canvas = $overlay_canvas;
@@ -3219,6 +3235,8 @@ var OncoprintWebGLCellView = (function () {
 	this.vertex_color_array = {}; // track_id -> zone_id -> vertex list
 
 	this.rendering_suppressed = false;
+	
+	this.highlight_area_callback = (typeof highlight_area_callback === 'undefined' ? function() {} : highlight_area_callback); // function(left, right) { ... }
 	
 	
 	(function initializeShaders(self) {// Initialize shaders
@@ -3264,6 +3282,12 @@ var OncoprintWebGLCellView = (function () {
 	})(this);
 
 	(function initializeOverlayEvents(self) {
+	    var dragging = false;
+	    var drag_time_minimum = 200;
+	    var drag_is_valid = false;
+	    var drag_is_valid_timeout = null;
+	    var drag_start_x;
+	    
 	    $(document).on("mousemove", function () {
 		clearOverlay(self);
 		tooltip.hide();
@@ -3274,19 +3298,55 @@ var OncoprintWebGLCellView = (function () {
 		var offset = self.$overlay_canvas.offset();
 		var mouseX = evt.pageX - offset.left;
 		var mouseY = evt.pageY - offset.top;
-		var overlapping_cell = model.getOverlappingCell(mouseX + self.scroll_x, mouseY);
-		if (overlapping_cell !== null) {
-		    var left = model.getZoomedColumnLeft(overlapping_cell.id) - self.scroll_x;
-		    overlayPaintRect(self, left, model.getCellTops(overlapping_cell.track), model.getCellWidth(), model.getCellHeight(overlapping_cell.track), "rgba(0,0,0,1)");
-		    var tracks = model.getTracks();
-		    for (var i=0; i<tracks.length; i++) {
-			overlayPaintRect(self, left, model.getCellTops(tracks[i]), model.getCellWidth(), model.getCellHeight(tracks[i]), "rgba(0,0,0,0.5)");
+		if (!dragging) {
+		    var overlapping_cell = model.getOverlappingCell(mouseX + self.scroll_x, mouseY);
+		    if (overlapping_cell !== null) {
+			var left = model.getZoomedColumnLeft(overlapping_cell.id) - self.scroll_x;
+			overlayPaintRect(self, left, model.getCellTops(overlapping_cell.track), model.getCellWidth(), model.getCellHeight(overlapping_cell.track), "rgba(0,0,0,1)");
+			var tracks = model.getTracks();
+			for (var i=0; i<tracks.length; i++) {
+			    overlayPaintRect(self, left, model.getCellTops(tracks[i]), model.getCellWidth(), model.getCellHeight(tracks[i]), "rgba(0,0,0,0.5)");
+			}
+			tooltip.show(0, model.getZoomedColumnLeft(overlapping_cell.id) + model.getCellWidth()/2 + offset.left - self.scroll_x, model.getCellTops(overlapping_cell.track)+offset.top, model.getTrackTooltipFn(overlapping_cell.track)(model.getTrackDatum(overlapping_cell.track, overlapping_cell.id)));
+		    } else {
+			tooltip.hideIfNotAlreadyGoingTo(1000);
 		    }
-		    tooltip.show(0, model.getZoomedColumnLeft(overlapping_cell.id) + model.getCellWidth()/2 + offset.left - self.scroll_x, model.getCellTops(overlapping_cell.track)+offset.top, model.getTrackTooltipFn(overlapping_cell.track)(model.getTrackDatum(overlapping_cell.track, overlapping_cell.id)));
-		} else {
-		    tooltip.hideIfNotAlreadyGoingTo(1000);
+		}
+		
+		if (dragging) {
+		    var left = Math.min(mouseX, drag_start_x);
+		    var right = Math.max(mouseX, drag_start_x);
+		    self.overlay_ctx.fillStyle = 'rgba(0,0,0,0.3)';
+		    self.overlay_ctx.fillRect(left,0,right-left, model.getCellViewHeight());
 		}
 	    });
+	    
+	    self.$overlay_canvas.on("mousedown", function(evt) {
+		dragging = true;
+		drag_is_valid = false;
+		drag_is_valid_timeout = setTimeout(function() {
+		    drag_is_valid = true;
+		}, drag_time_minimum);
+		drag_start_x = evt.pageX - self.$overlay_canvas.offset().left;
+		
+		tooltip.hide();
+	    });
+	    self.$overlay_canvas.on("mouseup", function(evt) {
+		dragging = false;
+		clearTimeout(drag_is_valid_timeout);
+		if (!drag_is_valid) {
+		    return;
+		}
+		var drag_end_x = evt.pageX - self.$overlay_canvas.offset().left;
+		var left = Math.min(drag_start_x, drag_end_x);
+		var right = Math.max(drag_start_x, drag_end_x);
+		self.highlight_area_callback(left, right);
+	    });
+	    self.$overlay_canvas.on("mouseleave", function(evt) {
+		dragging = false;
+		clearTimeout(drag_is_valid_timeout);
+	    });
+	    
 	})(this);
     }
     

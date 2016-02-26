@@ -49,7 +49,14 @@ var Oncoprint = (function () {
 	this.model = new OncoprintModel();
 	// Precisely one of the following should be uncommented
 	// this.cell_view = new OncoprintSVGCellView($svg_dev);
-	this.cell_view = new OncoprintWebGLCellView($cell_div, $cell_canvas, $cell_overlay_canvas, $dummy_scroll_div, this.model, new OncoprintToolTip($oncoprint_ctr));
+	this.cell_view = new OncoprintWebGLCellView($cell_div, $cell_canvas, $cell_overlay_canvas, $dummy_scroll_div, this.model, new OncoprintToolTip($oncoprint_ctr), function(left, right) {
+	    var curr_zoom = self.model.getHorzZoom();
+	    var unzoomed_left = left/curr_zoom;
+	    var unzoomed_right = right/curr_zoom;
+	    var new_zoom = Math.min(1, self.cell_view.visible_area_width / (unzoomed_right-unzoomed_left));
+	    self.$cell_div.scrollLeft(unzoomed_left*new_zoom);
+	    self.setHorzZoom(new_zoom);
+	});
 	
 	this.track_options_view = new OncoprintTrackOptionsView($track_options_div, 
 								function(track_id) { self.removeTrack(track_id); }, 
@@ -76,6 +83,9 @@ var Oncoprint = (function () {
 	    cell_view.scroll(model, scroll_left);
 	});
 	
+	
+	this.horz_zoom_callbacks = [];
+	
     }
 
     var resizeAndOrganize = function(oncoprint) {
@@ -92,8 +102,11 @@ var Oncoprint = (function () {
     };
     
     
-    Oncoprint.prototype.onZoom = function(callback) {
-	this.model.onZoom(callback);
+    Oncoprint.prototype.scrollTo = function(left) {
+	this.$cell_div.scrollLeft(left);
+    }
+    Oncoprint.prototype.onHorzZoom = function(callback) {
+	this.horz_zoom_callbacks.push(callback);
     }
     Oncoprint.prototype.moveTrack = function(target_track, new_previous_track) {
 	this.model.moveTrack(target_track, new_previous_track);
@@ -189,6 +202,9 @@ var Oncoprint = (function () {
 	// Update views
 	this.cell_view.setHorzZoom(this.model);
 
+	for (var i=0; i<this.horz_zoom_callbacks.length; i++) {
+	    this.horz_zoom_callbacks[i](this.model.getHorzZoom());
+	}
 	return this.model.getHorzZoom();
     }
     

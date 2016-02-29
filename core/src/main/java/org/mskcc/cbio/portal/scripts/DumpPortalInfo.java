@@ -84,10 +84,17 @@ public class DumpPortalInfo {
 
         // check args
         if (args.length != 1 || args[0] == "-h" || args[0] == "--help") {
-            System.err.println(
-                    "Command line usage:  dumpPortalInfo.pl " +
-                    "<name for the output directory>");
-            System.err.println();
+            System.err.print(
+                    "Command line usage:  dumpPortalInfo.pl" +
+                    " <name for the output directory>\n" +
+                    "\n" +
+                    "Generate a folder of files describing the portal " +
+                    "configuration.\n" +
+                    "\n" +
+                    "This is a subset of the information provided by the " +
+                    "web API,\n" +
+                    "intended for offline use of the validation script for " +
+                    "study data.\n");
             System.exit(EX_USAGE);
         }
         String outputDirName = args[0];

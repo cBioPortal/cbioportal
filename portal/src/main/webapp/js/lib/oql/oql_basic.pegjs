@@ -12,7 +12,7 @@ Number = "-" number: Number { return "-"+number;}
         / whole_part:NaturalNumber "." decimal_part:NaturalNumber { return whole_part + "." + decimal_part;}
         / "." decimal_part:NaturalNumber { return "."+decimal_part;}
         / whole_part:NaturalNumber {return whole_part;}
-String = word:[-_.@/a-zA-Z0-9]+ { return word.join("") }
+String = word:[-_.@/a-zA-Z0-9*]+ { return word.join("") }
 AminoAcid = letter:[GPAVLIMCFYWHKRQNEDST] { return letter; }
 
 sp = space:[ \t\r]+

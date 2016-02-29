@@ -6,6 +6,7 @@ var OncoprintRuleSet = require('./oncoprintruleset.js');
 var OncoprintTrackOptionsView = require('./oncoprinttrackoptionsview.js');
 var OncoprintLegendView = require('./oncoprintlegendrenderer.js');//TODO: rename
 var OncoprintToolTip = require('./oncoprinttooltip.js');
+var OncoprintTrackInfoView = require('./oncoprinttrackinfoview.js');
 
 var svgfactory = require('./svgfactory.js');
 
@@ -54,13 +55,15 @@ var Oncoprint = (function () {
 	    var unzoomed_left = left/curr_zoom;
 	    var unzoomed_right = right/curr_zoom;
 	    var new_zoom = Math.min(1, self.cell_view.visible_area_width / (unzoomed_right-unzoomed_left));
-	    self.$cell_div.scrollLeft(unzoomed_left*new_zoom);
 	    self.setHorzZoom(new_zoom);
+	    self.$cell_div.scrollLeft(unzoomed_left*new_zoom);
 	});
 	
 	this.track_options_view = new OncoprintTrackOptionsView($track_options_div, 
 								function(track_id) { self.removeTrack(track_id); }, 
 								function(track_id, dir) { self.setTrackSortDirection(track_id, dir); });
+								
+	//this.track_info_view = new OncoprintTrackInfoView($track_info_div);
 
 	this.label_view = new OncoprintLabelView($label_canvas, this.model, new OncoprintToolTip($oncoprint_ctr));
 	this.label_view.setDragCallback(function(target_track, new_previous_track) {

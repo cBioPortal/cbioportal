@@ -86,6 +86,7 @@ var OncoprintWebGLCellView = (function () {
 	this.tooltip.center = true;
 	
 	this.scroll_x = 0;
+	this.scroll_y = 0;
 	this.$dummy_scroll_div = $dummy_scroll_div;
 
 	this.identified_shape_list_list = {};
@@ -107,6 +108,8 @@ var OncoprintWebGLCellView = (function () {
 		'',
 		'uniform float scrollX;',
 		'uniform float zoomX;',
+		'uniform float scrollY;',
+		'uniform float zoomY;',
 		'uniform mat4 uMVMatrix;',
 		'uniform mat4 uPMatrix;',
 		'uniform float offsetY;',
@@ -146,6 +149,7 @@ var OncoprintWebGLCellView = (function () {
 	(function initializeOverlayEvents(self) {
 	    var dragging = false;
 	    var drag_time_minimum = 200;
+	    var drag_diff_minimum = 10;
 	    var drag_is_valid = false;
 	    var drag_is_valid_timeout = null;
 	    var drag_start_x;
@@ -172,7 +176,7 @@ var OncoprintWebGLCellView = (function () {
 			tooltip.show(0, model.getZoomedColumnLeft(overlapping_cell.id) + model.getCellWidth()/2 + offset.left - self.scroll_x, model.getCellTops(overlapping_cell.track)+offset.top, model.getTrackTooltipFn(overlapping_cell.track)(model.getTrackDatum(overlapping_cell.track, overlapping_cell.id)));
 		    } else {
 			tooltip.hideIfNotAlreadyGoingTo(1000);
-		    }
+		    }3
 		}
 		
 		if (dragging) {
@@ -200,9 +204,12 @@ var OncoprintWebGLCellView = (function () {
 		    return;
 		}
 		var drag_end_x = evt.pageX - self.$overlay_canvas.offset().left;
+		if (Math.abs(drag_start_x - drag_end_x) < drag_diff_minimum) {
+		    return;
+		}
 		var left = Math.min(drag_start_x, drag_end_x);
 		var right = Math.max(drag_start_x, drag_end_x);
-		self.highlight_area_callback(left, right);
+		self.highlight_area_callback(left+self.scroll_x, right+self.scroll_x);
 	    });
 	    self.$overlay_canvas.on("mouseleave", function(evt) {
 		dragging = false;

@@ -40,6 +40,7 @@ var Table = function() {
         selectedSamples = [],
         dataTable = '',
         callbacks = {},
+        headerQtip,
         checkboxChildId = -1,
         initStatus = false;
     
@@ -76,6 +77,8 @@ var Table = function() {
             divs.downloadId = tableId + '-download-icon';
             divs.downloadWrapperId = tableId + '-download-icon-wrapper';
             divs.loaderId = tableId + '-loader';
+            // store the header qtip if available
+            headerQtip = input.opts.hasOwnProperty('headerQtip')?input.opts.headerQtip:undefined;
         }else {
             initStatus = false;
         }
@@ -440,6 +443,7 @@ var Table = function() {
             }
         });
         deleteTable();
+        addTableHeaderQtip();
     }
 
 
@@ -475,6 +479,13 @@ var Table = function() {
 
         if(callbacks.hasOwnProperty('rowClick')) {
             callbacks.rowClick(divs.tableId, highlightedRowsData, clickedRowData, rowChecked);
+        }
+    }
+
+    // if there's a qtip for the table header, add it
+    function addTableHeaderQtip(){
+        if(!_.isUndefined(headerQtip)) {
+            qtip('#'+ divs.titleId, headerQtip);
         }
     }
     

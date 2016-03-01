@@ -83,7 +83,8 @@ public class DumpPortalInfo {
     public static void main(String[] args) throws Exception {
 
         // check args
-        if (args.length != 1 || args[0] == "-h" || args[0] == "--help") {
+        if (args.length != 1 ||
+                args[0].equals("-h") || args[0].equals("--help")) {
             System.err.print(
                     "Command line usage:  dumpPortalInfo.pl" +
                     " <name for the output directory>\n" +
@@ -98,6 +99,9 @@ public class DumpPortalInfo {
             System.exit(EX_USAGE);
         }
         String outputDirName = args[0];
+        System.err.printf(
+                "Writing portal info files to directory '%s'...\n",
+                outputDirName);
 
         // initialize progress monitor to print status output
         ProgressMonitor.setConsoleMode(true);

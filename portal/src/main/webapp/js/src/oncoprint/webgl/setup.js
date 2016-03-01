@@ -153,6 +153,10 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
     var onClick = function($elt, callback) {
 	addEventHandler($elt, 'click', callback);
     };
+    var onMouseDownAndClick = function($elt, mousedown_callback, click_callback) {
+	addEventHandler($elt, 'mousedown', mousedown_callback);
+	addEventHandler($elt, 'click', click_callback);
+    };
     var onHover = function($elt, enter_callback, leave_callback) {
 	addEventHandler($elt, 'mouseenter', enter_callback);
 	addEventHandler($elt, 'mouseleave', leave_callback);
@@ -456,27 +460,39 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 
 
 	var setUpButton = function ($elt, img_urls, qtip_descs, index_fn, callback) {
+	    index_fn = index_fn || function() { return 0; };
 	    var updateButton = function () {
-		$elt.find('img').attr('src', img_urls[index_fn()]);
+		if (img_urls.length > 0) {
+		    $elt.find('img').attr('src', img_urls[index_fn()]);
+		}
+		$elt.css({'background-color':'#efefef'});
 	    };
 	    var hoverButton = function () {
-		$elt.find('img').attr('src', img_urls[(index_fn() + 1) % img_urls.length]);
+		if (img_urls.length > 0) {
+		    $elt.find('img').attr('src', img_urls[(index_fn() + 1) % img_urls.length]);
+		}
+		$elt.css({'background-color':'#d9d9d9'});
 	    };
-	    addQTipTo($elt, {
-		content: {text: function () {
-			return qtip_descs[index_fn()];
-		    }},
-		position: {my: 'bottom middle', at: 'top middle', viewport: $(window)},
-		style: {classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite'},
-		show: {event: "mouseover"},
-		hide: {fixed: true, delay: 100, event: "mouseout"}
-	    });
+	    if (qtip_descs.length > 0) {
+		addQTipTo($elt, {
+		    content: {text: function () {
+			    return qtip_descs[index_fn()];
+			}},
+		    position: {my: 'bottom middle', at: 'top middle', viewport: $(window)},
+		    style: {classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite'},
+		    show: {event: "mouseover"},
+		    hide: {fixed: true, delay: 100, event: "mouseout"}
+		});
+	    }
 	    onHover($elt, function() {
 		hoverButton();
 	    }, function() {
 		updateButton();
 	    });
-	    onClick($elt, function () {
+	    onMouseDownAndClick($elt, function() {
+		$elt.css({'background-color':'#c7c7c7'});
+	    },
+	    function() {
 		callback();
 		updateButton();
 	    });
@@ -514,10 +530,10 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    });
 	    setUpHoverEffect($slider);
 
-	    onClick($(toolbar_selector + ' #oncoprint_zoomout'), function () {
+	    setUpButton($(toolbar_selector + ' #oncoprint_zoomout'), [], ["Zoom out of oncoprint"], null, function () {
 		oncoprint.setHorzZoom(oncoprint.getHorzZoom()*zoom_discount);
 	    });
-	    onClick($(toolbar_selector + ' #oncoprint_zoomin'), function () {
+	    setUpButton($(toolbar_selector + ' #oncoprint_zoomin'), [], ["Zoom in to oncoprint"], null, function () {
 		oncoprint.setHorzZoom(oncoprint.getHorzZoom()/zoom_discount);
 	    });
 
@@ -566,17 +582,9 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	})();
 	(function setUpZoomToFit() {
 	    QuerySession.getAlteredSamples().then(function (altered_samples) {
-		setUpHoverEffect($(toolbar_selector + ' #oncoprint_zoomtofit'));
-		onClick($(toolbar_selector + ' #oncoprint_zoomtofit'), function () {;
+		setUpButton($(toolbar_selector + ' #oncoprint_zoomtofit'), [], ["Zoom to fit altered cases in screen"], null, function() {
 		    oncoprint.setHorzZoom(oncoprint.getZoomToFitHorz(altered_samples));
 		    oncoprint.scrollTo(0);
-		});
-		addQTipTo($(toolbar_selector + ' #oncoprint_zoomtofit'), {
-		content: {text: "Zoom to fit altered cases in screen"},
-		position: {my: 'bottom middle', at: 'top middle', viewport: $(window)},
-		style: {classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite'},
-		show: {event: "mouseover"},
-		hide: {fixed: true, delay: 100, event: "mouseout"}
 		});
 	    });
 	})();

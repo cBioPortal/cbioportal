@@ -634,6 +634,10 @@ var OncoprintWebGLCellView = (function () {
 		var id = id_sl.id;
 		var sl = id_sl.shape_list;
 		var offset_x = zoomedColumnLeft[id];
+		if (typeof offset_x === 'undefined') {
+		    // hidden id
+		    continue;
+		}
 		for (var h=0; h<sl.length; h++) {
 		    root.appendChild(svgfactory.fromShape(sl[h], offset_x, offset_y));
 		}

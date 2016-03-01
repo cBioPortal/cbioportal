@@ -69,8 +69,9 @@
                  <span id="oncoprint_diagram_sortby_label" data-bind="label">Sort by</span>&nbsp;<span class="caret"></span>
                </button>
                <ul class="dropdown-menu">
-                   <li style="list-style-type:none;cursor:pointer" value="genes"><a id="genes_first_a">gene data first</a></li>
-                 <li style="list-style-type:none;cursor:pointer;" value="clinical" id="clinical_first"><a id="clinical_first_a">clinical data first</a></li>
+                   <!--<li style="list-style-type:none;cursor:pointer" value="genes"><a id="genes_first_a">gene data first</a></li>
+                 <li style="list-style-type:none;cursor:pointer;" value="clinical" id="clinical_first"><a id="clinical_first_a">clinical data first</a></li>-->
+                   <li style="list-style-type:none; cursor:pointer;" value="data" id="by_data"><a id="by_data_a">by data</a></li>
                  <li style="list-style-type:none;cursor:pointer" value="alphabetical"><a id="alphabetically_first_a">alphabetically by case id</a></li>
                  <li style="list-style-type:none;cursor:pointer" value="custom"><a id="user_defined_first_a">user-defined case list / default</a></li>
                </ul>

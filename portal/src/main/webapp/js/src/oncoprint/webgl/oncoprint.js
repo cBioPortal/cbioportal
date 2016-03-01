@@ -377,6 +377,20 @@ var Oncoprint = (function () {
 	}
     }
     
+    Oncoprint.prototype.disableInteraction = function() {
+	//this.label_view.disableInteraction();
+	//this.cell_view.disableInteraction();
+	this.track_options_view.disableInteraction();
+	//this.track_info_view.disableInteraction();
+	//this.legend_view.disableInteraction();
+    }
+    Oncoprint.prototype.enableInteraction = function() {
+	//this.label_view.enableInteraction();
+	//this.cell_view.enableInteraction();
+	this.track_options_view.enableInteraction();
+	//this.track_info_view.enableInteraction();
+	//this.legend_view.enableInteraction();
+    }
     Oncoprint.prototype.suppressRendering = function() {
 	this.rendering_suppressed = true;
 	this.label_view.suppressRendering();

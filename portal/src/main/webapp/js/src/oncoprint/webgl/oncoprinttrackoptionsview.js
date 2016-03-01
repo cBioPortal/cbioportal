@@ -10,6 +10,7 @@ var OncoprintTrackOptionsView = (function() {
 	this.sortChangeCallback = sortChangeCallback; // function(track_id, dir) { ... }
 	
 	this.$div = $div;
+	
 	this.img_size;
 	
 	this.rendering_suppressed = false;
@@ -26,6 +27,8 @@ var OncoprintTrackOptionsView = (function() {
 		}
 	    }
 	});
+	
+	this.interaction_disabled = false;
     }
     
     var renderAllOptions = function(view, model) {
@@ -155,6 +158,12 @@ var OncoprintTrackOptionsView = (function() {
 	}
     };
     
+    OncoprintTrackOptionsView.prototype.enableInteraction = function() {
+	this.interaction_disabled = false;
+    }
+    OncoprintTrackOptionsView.prototype.disableInteraction = function() {
+	this.interaction_disabled = true;
+    }
     OncoprintTrackOptionsView.prototype.suppressRendering = function() {
 	this.rendering_suppressed = true;
     }

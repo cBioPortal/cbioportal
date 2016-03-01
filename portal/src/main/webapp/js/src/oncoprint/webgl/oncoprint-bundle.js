@@ -437,6 +437,20 @@ var Oncoprint = (function () {
 	}
     }
     
+    Oncoprint.prototype.disableInteraction = function() {
+	//this.label_view.disableInteraction();
+	//this.cell_view.disableInteraction();
+	this.track_options_view.disableInteraction();
+	//this.track_info_view.disableInteraction();
+	//this.legend_view.disableInteraction();
+    }
+    Oncoprint.prototype.enableInteraction = function() {
+	//this.label_view.enableInteraction();
+	//this.cell_view.enableInteraction();
+	this.track_options_view.enableInteraction();
+	//this.track_info_view.enableInteraction();
+	//this.legend_view.enableInteraction();
+    }
     Oncoprint.prototype.suppressRendering = function() {
 	this.rendering_suppressed = true;
 	this.label_view.suppressRendering();
@@ -616,8 +630,8 @@ var OncoprintLabelView = (function () {
 	    view.ctx.fillText(shortenLabelIfNecessary(view, view.labels[tracks[i]]), 0, view.label_tops[tracks[i]]);
 	}
 	if (view.dragged_label_track_id !== null) {
-	    view.ctx.strokeStyle = 'rgba(255,0,0,0.95)';
-	    view.ctx.strokeText(shortenLabelIfNecessary(view, view.labels[view.dragged_label_track_id]), 0, view.drag_mouse_y-font_size/2);
+	    view.ctx.fillStyle = 'rgba(255,0,0,0.95)';
+	    view.ctx.fillText(shortenLabelIfNecessary(view, view.labels[view.dragged_label_track_id]), 0, view.drag_mouse_y-font_size/2);
 	    view.ctx.fillStyle = 'rgba(0,0,0,0.15)';
 	    var group = view.model.getContainingTrackGroup(view.dragged_label_track_id);
 	    var label_above_mouse = getLabelAbove(view, group, view.drag_mouse_y, null);
@@ -943,6 +957,9 @@ var OncoprintModel = (function () {
 	    init_cell_width, init_track_group_padding) {
 		
 	var model = this;	
+	
+	// Global properties
+	this.sort_config = {};
 	
 	// Rendering Properties
 	this.horz_zoom = ifndef(init_horz_zoom, 1);
@@ -1597,10 +1614,16 @@ var OncoprintModel = (function () {
 	this.track_group_sort_priority = priority;
 	this.sort();
     }
-    
-    OncoprintModel.prototype.sort = function() {
-	var track_group_sort_priority = this.track_group_sort_priority;
-	var track_groups = this.getTrackGroups();
+    var sortAlphabetical = function(model) {
+	var id_order = model.getIdOrder(true).slice();
+	id_order.sort(function(a,b) {
+	    return a.localeCompare(b);
+	});
+	model.setIdOrder(id_order);
+    };
+    var sortByTracks = function(model) {
+	var track_group_sort_priority = model.track_group_sort_priority;
+	var track_groups = model.getTrackGroups();
 	var track_groups_in_sort_order;
 	
 	if (track_group_sort_priority.length < track_groups.length) {
@@ -1615,8 +1638,8 @@ var OncoprintModel = (function () {
 	    return acc.concat(next);
 	}, []);
 	
-	var precomputed_comparator = this.precomputed_comparator.get();
-	var curr_id_to_index = this.getIdToIndexMap();
+	var precomputed_comparator = model.precomputed_comparator.get();
+	var curr_id_to_index = model.getIdToIndexMap();
 	var combinedComparator = function(idA, idB) {
 	    var res = 0;
 	    for (var i=0; i<track_sort_priority.length; i++) {
@@ -1631,13 +1654,23 @@ var OncoprintModel = (function () {
 	    }
 	    return res;
 	}
-	var id_order = this.getIdOrder(true).slice();
+	var id_order = model.getIdOrder(true).slice();
 	id_order.sort(combinedComparator);
-	this.setIdOrder(id_order);
+	model.setIdOrder(id_order);
+    };
+    OncoprintModel.prototype.sort = function() {
+	this.sort_config = this.sort_config || {};
+	if (this.sort_config.type === "alphabetical") {
+	    sortAlphabetical(this);
+	} else if (this.sort_config.type === "order") {
+	    this.setIdOrder(this.sort_config.order);
+	} else {
+	    sortByTracks(this);
+	}
     }
     
     OncoprintModel.prototype.setSortConfig = function(params) {
-	// TODO
+	this.sort_config = params;
     }
 
     return OncoprintModel;
@@ -3092,6 +3125,7 @@ var OncoprintTrackOptionsView = (function() {
 	this.sortChangeCallback = sortChangeCallback; // function(track_id, dir) { ... }
 	
 	this.$div = $div;
+	
 	this.img_size;
 	
 	this.rendering_suppressed = false;
@@ -3108,6 +3142,8 @@ var OncoprintTrackOptionsView = (function() {
 		}
 	    }
 	});
+	
+	this.interaction_disabled = false;
     }
     
     var renderAllOptions = function(view, model) {
@@ -3237,6 +3273,12 @@ var OncoprintTrackOptionsView = (function() {
 	}
     };
     
+    OncoprintTrackOptionsView.prototype.enableInteraction = function() {
+	this.interaction_disabled = false;
+    }
+    OncoprintTrackOptionsView.prototype.disableInteraction = function() {
+	this.interaction_disabled = true;
+    }
     OncoprintTrackOptionsView.prototype.suppressRendering = function() {
 	this.rendering_suppressed = true;
     }

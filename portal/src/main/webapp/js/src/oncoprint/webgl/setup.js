@@ -541,11 +541,20 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	})();
 	
 	(function setUpSortBySelector() {
-	    $(toolbar_selector + ' #genes_first_a').click(function () {
+	    /*$(toolbar_selector + ' #genes_first_a').click(function () {
 		oncoprint.setTrackGroupSortPriority([1, 0]);
 	    });
 	    $(toolbar_selector + ' #clinical_first_a').click(function () {
 		oncoprint.setTrackGroupSortPriority([0, 1]);
+	    });*/
+	    $(toolbar_selector + ' #by_data_a').click(function () {
+		oncoprint.setSortConfig({'type':'tracks'});
+	    });
+	    $(toolbar_selector + ' #alphabetically_first_a').click(function() {
+		oncoprint.setSortConfig({'type':'alphabetical'});
+	    });
+	    $(toolbar_selector + ' #user_defined_first_a').click(function() {
+		oncoprint.setSortConfig({'type':'order', order:QuerySession.getSampleIds()});
 	    });
 	})();
 	

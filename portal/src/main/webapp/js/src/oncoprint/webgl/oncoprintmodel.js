@@ -32,6 +32,9 @@ var OncoprintModel = (function () {
 		
 	var model = this;	
 	
+	// Global properties
+	this.sort_config = {};
+	
 	// Rendering Properties
 	this.horz_zoom = ifndef(init_horz_zoom, 1);
 	this.vert_zoom = ifndef(init_vert_zoom, 1);
@@ -685,10 +688,16 @@ var OncoprintModel = (function () {
 	this.track_group_sort_priority = priority;
 	this.sort();
     }
-    
-    OncoprintModel.prototype.sort = function() {
-	var track_group_sort_priority = this.track_group_sort_priority;
-	var track_groups = this.getTrackGroups();
+    var sortAlphabetical = function(model) {
+	var id_order = model.getIdOrder(true).slice();
+	id_order.sort(function(a,b) {
+	    return a.localeCompare(b);
+	});
+	model.setIdOrder(id_order);
+    };
+    var sortByTracks = function(model) {
+	var track_group_sort_priority = model.track_group_sort_priority;
+	var track_groups = model.getTrackGroups();
 	var track_groups_in_sort_order;
 	
 	if (track_group_sort_priority.length < track_groups.length) {
@@ -703,8 +712,8 @@ var OncoprintModel = (function () {
 	    return acc.concat(next);
 	}, []);
 	
-	var precomputed_comparator = this.precomputed_comparator.get();
-	var curr_id_to_index = this.getIdToIndexMap();
+	var precomputed_comparator = model.precomputed_comparator.get();
+	var curr_id_to_index = model.getIdToIndexMap();
 	var combinedComparator = function(idA, idB) {
 	    var res = 0;
 	    for (var i=0; i<track_sort_priority.length; i++) {
@@ -719,13 +728,23 @@ var OncoprintModel = (function () {
 	    }
 	    return res;
 	}
-	var id_order = this.getIdOrder(true).slice();
+	var id_order = model.getIdOrder(true).slice();
 	id_order.sort(combinedComparator);
-	this.setIdOrder(id_order);
+	model.setIdOrder(id_order);
+    };
+    OncoprintModel.prototype.sort = function() {
+	this.sort_config = this.sort_config || {};
+	if (this.sort_config.type === "alphabetical") {
+	    sortAlphabetical(this);
+	} else if (this.sort_config.type === "order") {
+	    this.setIdOrder(this.sort_config.order);
+	} else {
+	    sortByTracks(this);
+	}
     }
     
     OncoprintModel.prototype.setSortConfig = function(params) {
-	// TODO
+	this.sort_config = params;
     }
 
     return OncoprintModel;

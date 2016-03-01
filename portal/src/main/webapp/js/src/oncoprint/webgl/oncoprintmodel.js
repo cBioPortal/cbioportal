@@ -60,6 +60,7 @@ var OncoprintModel = (function () {
 	this.track_data = {};
 	this.track_rule_set_id = {}; // track id -> rule set id
 	this.track_active_rules = {}; // from track id to active rule map (map with rule ids as keys)
+	this.track_info = {};
 	
 	// Rule Set Properties
 	this.rule_sets = {}; // map from rule set id to rule set
@@ -274,6 +275,14 @@ var OncoprintModel = (function () {
 	return this.cell_height[track_id] * this.vert_zoom;
     }
     
+    OncoprintModel.prototype.getTrackInfo = function(track_id) {
+	return this.track_info[track_id];
+    }
+    
+    OncoprintModel.prototype.setTrackInfo = function(track_id, msg) {
+	this.track_info[track_id] = msg;
+    }
+    
     OncoprintModel.prototype.getTrackHeight = function(track_id) {
 	return this.getCellHeight(track_id) + 2*this.getTrackPadding(track_id);
     }
@@ -372,7 +381,7 @@ var OncoprintModel = (function () {
 	    addTrack(this, params.track_id, params.target_group,
 		    params.cell_height, params.track_padding,
 		    params.data_id_key, params.tooltipFn,
-		    params.removable, params.removeCallback, params.label,
+		    params.removable, params.removeCallback, params.label, params.track_info,
 		    params.sortCmpFn, params.sort_direction_changeable, params.init_sort_direction,
 		    params.data, params.rule_set);
 	}
@@ -382,7 +391,7 @@ var OncoprintModel = (function () {
     var addTrack = function (model, track_id, target_group,
 	    cell_height, track_padding,
 	    data_id_key, tooltipFn,
-	    removable, removeCallback, label,
+	    removable, removeCallback, label, track_info,
 	    sortCmpFn, sort_direction_changeable, init_sort_direction,
 	    data, rule_set) {
 	model.track_label[track_id] = ifndef(label, "Label");
@@ -402,6 +411,8 @@ var OncoprintModel = (function () {
 	model.track_sort_direction_changeable[track_id] = ifndef(sort_direction_changeable, false);
 	model.track_data[track_id] = ifndef(data, []);
 	model.track_data_id_key[track_id] = ifndef(data_id_key, 'id');
+	
+	model.track_info[track_id] = ifndef(track_info, "");
 	
 	if (typeof rule_set !== 'undefined') {
 	    model.rule_sets[rule_set.rule_set_id] = rule_set;
@@ -468,6 +479,7 @@ var OncoprintModel = (function () {
 	delete this.track_sort_cmp_fn[track_id];
 	delete this.track_sort_direction_changeable[track_id];
 	delete this.track_sort_direction[track_id];
+	delete this.track_info[track_id];
 
 	var containing_track_group = _getContainingTrackGroup(this, track_id, true);
 	if (containing_track_group) {

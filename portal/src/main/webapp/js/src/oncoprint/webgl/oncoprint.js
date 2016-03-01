@@ -21,20 +21,67 @@ var Oncoprint = (function () {
     })();
     function Oncoprint(ctr_selector, width) {
 	var self = this;
-	var $oncoprint_ctr = $('<span></span>').css({'position':'relative', 'display':'inline-block'}).appendTo(ctr_selector);
+	this.ctr_selector = ctr_selector;
 	
-	var $label_canvas = $('<canvas width="150" height="250"></canvas>').css({'display':'inline-block', 'position':'absolute', 'left':'0px', 'top':'0px'}).addClass("noselect");
-	var $track_options_div = $('<div width="50" height="250"></div>').css({'position':'absolute', 'left':'150px', 'top':'0px'}).addClass("noselect");
-	var $legend_div = $('<div></div>').css({'position':'absolute', 'top':'250px'}).addClass("noselect");
+	var $oncoprint_ctr = $('<span></span>')
+			    .css({'position':'relative', 'display':'inline-block'})
+			    .appendTo(ctr_selector);
 	
-	var $cell_div = $('<div>').css({'width':width, 'height':'250', 'overflow-x':'scroll', 'overflow-y':'hidden', 'display':'inline-block', 'position':'absolute', 'left':'200px', 'top':'0px'}).addClass("noselect");
-	var $cell_canvas = $('<canvas width="'+width+'" height="250"></canvas>').css({'position':'absolute', 'top':'0px', 'left':'0px'}).addClass("noselect");
-	var $dummy_scroll_div = $('<div>').css({'width':'20000', 'position':'absolute', 'top':'0', 'left':'0px', 'height':'1px'});
-	var $cell_overlay_canvas = $('<canvas width="'+width+'" height="250"></canvas>').css({'position':'absolute', 'top':'0px', 'left':'0px'}).addClass("noselect");
+	var $label_canvas = $('<canvas></canvas>')
+			    .css({'display':'inline-block', 
+				'position':'absolute', 
+				'left':'0px', 
+				'top':'0px'})
+			    .addClass("noselect")
+			    .attr({'width':'150', 'height':'250'});
+		    
+	var $track_options_div = $('<div></div>')
+				.css({'position':'absolute', 
+					'left':'150px', 
+					'top':'0px'})
+				.addClass("noselect")
+				.attr({'width':'50', 'height':'250'});
+			
+	var $legend_div = $('<div></div>')
+			    .css({'position':'absolute', 
+				    'top':'250px'})
+			    .addClass("noselect");
+	
+	var $cell_div = $('<div>')
+			.css({'width':width, 
+			    'height':'250', 
+			    'overflow-x':'scroll', 
+			    'overflow-y':'hidden', 
+			    'display':'inline-block', 
+			    'position':'absolute', 
+			    'left':'200px', 
+			    'top':'0px'})
+			.addClass("noselect");
+		
+	var $cell_canvas = $('<canvas width="'+width+'" height="250"></canvas>')
+			    .css({'position':'absolute', 'top':'0px', 'left':'0px'})
+			    .addClass("noselect");
+		    
+	var $dummy_scroll_div = $('<div>')
+				.css({'width':'20000', 
+				    'position':'absolute', 
+				    'top':'0', 
+				    'left':'0px', 
+				    'height':'1px'});
+				
+	var $cell_overlay_canvas = $('<canvas width="'+width+'" height="250"></canvas>')
+				    .css({'position':'absolute', 
+					    'top':'0px', 
+					    'left':'0px'})
+				    .addClass("noselect");
+			    
+	var $track_info_div = $('<div>')
+				.css({'position':'absolute'});
 	
 	$label_canvas.appendTo($oncoprint_ctr);
 	$cell_div.appendTo($oncoprint_ctr);
 	$track_options_div.appendTo($oncoprint_ctr);
+	$track_info_div.appendTo($oncoprint_ctr);
 	$legend_div.appendTo($oncoprint_ctr);
 
 	
@@ -46,6 +93,7 @@ var Oncoprint = (function () {
 	this.$cell_div = $cell_div;
 	this.$legend_div = $legend_div;
 	this.$track_options_div = $track_options_div;
+	this.$track_info_div = $track_info_div;
 	
 	this.model = new OncoprintModel();
 	// Precisely one of the following should be uncommented
@@ -62,6 +110,7 @@ var Oncoprint = (function () {
 	this.track_options_view = new OncoprintTrackOptionsView($track_options_div, 
 								function(track_id) { self.removeTrack(track_id); }, 
 								function(track_id, dir) { self.setTrackSortDirection(track_id, dir); });
+	this.track_info_view = new OncoprintTrackInfoView($track_info_div);
 								
 	//this.track_info_view = new OncoprintTrackInfoView($track_info_div);
 
@@ -92,9 +141,11 @@ var Oncoprint = (function () {
     }
 
     var resizeAndOrganize = function(oncoprint) {
+	var ctr_width = $(oncoprint.ctr_selector).width();
 	oncoprint.$container.css({'min-height':oncoprint.model.getCellViewHeight() + oncoprint.$legend_div.height() + 20});
 	oncoprint.$track_options_div.css({'left':oncoprint.label_view.getWidth()});
-	oncoprint.$cell_div.css({'left':oncoprint.label_view.getWidth() + oncoprint.track_options_view.getWidth()});
+	oncoprint.$track_info_div.css({'left':oncoprint.label_view.getWidth() + oncoprint.track_options_view.getWidth()});
+	oncoprint.$cell_div.css({'left':oncoprint.label_view.getWidth() + oncoprint.track_options_view.getWidth() + oncoprint.track_info_view.getWidth()});
 	oncoprint.$legend_div.css({'top':oncoprint.model.getCellViewHeight() + 20});
     };
     
@@ -116,6 +167,7 @@ var Oncoprint = (function () {
 	this.cell_view.moveTrack(this.model);
 	this.label_view.moveTrack(this.model);
 	this.track_options_view.moveTrack(this.model);
+	this.track_info_view.moveTrack(this.model);
 	
 	if (this.keep_sorted) {
 	    this.sort();
@@ -146,6 +198,7 @@ var Oncoprint = (function () {
 	this.cell_view.addTracks(this.model, track_ids);
 	this.label_view.addTracks(this.model, track_ids);
 	this.track_options_view.addTracks(this.model);
+	this.track_info_view.addTracks(this.model);
 	this.legend_view.addTracks(this.model);
 	
 	if (this.keep_sorted) {
@@ -164,6 +217,7 @@ var Oncoprint = (function () {
 	this.cell_view.removeTrack(this.model, track_id);
 	this.label_view.removeTrack(this.model, track_id);
 	this.track_options_view.removeTrack(this.model, track_id);
+	this.track_info_view.removeTrack(this.model);
 	this.legend_view.removeTrack(this.model);
 	
 	if (this.keep_sorted) {
@@ -279,6 +333,11 @@ var Oncoprint = (function () {
     
     Oncoprint.prototype.getTrackSortDirection = function(track_id) {
 	return this.model.getTrackSortDirection(track_id);
+    }
+    
+    Oncoprint.prototype.setTrackInfo = function(track_id, msg) {
+	this.model.setTrackInfo(track_id, msg);
+	this.track_info_view.setTrackInfo(this.model);
     }
     
     Oncoprint.prototype.sort = function() {

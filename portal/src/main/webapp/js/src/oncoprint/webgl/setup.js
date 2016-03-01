@@ -398,18 +398,22 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    type: 'gene',
 	};
 	oncoprint.suppressRendering();
-	timeoutSeparatedLoop(Object.keys(data_by_gene), function(gene, i, array) {
-	    var track_params = {'data': data_by_gene[gene], 'rule_set_params': $.extend({}, rule_set_params, {'legend_label':'Genetic Alteration'}), 'data_id_key': 'sample', 'label': gene,
-		'sortCmpFn': makeGeneticAlterationComparator(true), 'target_group':1, 'tooltipFn':geneticAlterationToolTip};
-	    genetic_alteration_track_ids = genetic_alteration_track_ids.concat(oncoprint.addTracks([track_params]));
-	    $loading_bar.attr("width", (i/array.length)*parseFloat($loading_bar_svg.attr("width")));
-	}).then(function() {
-	    for (var i=1; i<genetic_alteration_track_ids.length; i++) {
-		oncoprint.shareRuleSet(genetic_alteration_track_ids[0], genetic_alteration_track_ids[i]);
-	    }
-	    oncoprint.keepSorted();
-	    oncoprint.releaseRendering();
-	    $loading_bar_svg.remove();
+	var total_samples = QuerySession.getSampleIds().length;
+	QuerySession.getAlteredSamplesWholePercentageByGene().then(function(altered_sample_percentage_by_gene) {
+	    timeoutSeparatedLoop(Object.keys(data_by_gene), function(gene, i, array) {
+		var track_params = {'data': data_by_gene[gene], 'rule_set_params': $.extend({}, rule_set_params, {'legend_label':'Genetic Alteration'}), 'data_id_key': 'sample', 'label': gene,
+		    'sortCmpFn': makeGeneticAlterationComparator(true), 'target_group':1, 'tooltipFn':geneticAlterationToolTip,
+		    'track_info':altered_sample_percentage_by_gene[gene] + '%'};
+		genetic_alteration_track_ids = genetic_alteration_track_ids.concat(oncoprint.addTracks([track_params]));
+		$loading_bar.attr("width", (i/array.length)*parseFloat($loading_bar_svg.attr("width")));
+	    }).then(function() {
+		for (var i=1; i<genetic_alteration_track_ids.length; i++) {
+		    oncoprint.shareRuleSet(genetic_alteration_track_ids[0], genetic_alteration_track_ids[i]);
+		}
+		oncoprint.keepSorted();
+		oncoprint.releaseRendering();
+		$loading_bar_svg.remove();
+	    });
 	});
     });
     window.oncoprint = oncoprint;

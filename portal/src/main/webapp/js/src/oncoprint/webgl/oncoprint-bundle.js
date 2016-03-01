@@ -81,20 +81,67 @@ var Oncoprint = (function () {
     })();
     function Oncoprint(ctr_selector, width) {
 	var self = this;
-	var $oncoprint_ctr = $('<span></span>').css({'position':'relative', 'display':'inline-block'}).appendTo(ctr_selector);
+	this.ctr_selector = ctr_selector;
 	
-	var $label_canvas = $('<canvas width="150" height="250"></canvas>').css({'display':'inline-block', 'position':'absolute', 'left':'0px', 'top':'0px'}).addClass("noselect");
-	var $track_options_div = $('<div width="50" height="250"></div>').css({'position':'absolute', 'left':'150px', 'top':'0px'}).addClass("noselect");
-	var $legend_div = $('<div></div>').css({'position':'absolute', 'top':'250px'}).addClass("noselect");
+	var $oncoprint_ctr = $('<span></span>')
+			    .css({'position':'relative', 'display':'inline-block'})
+			    .appendTo(ctr_selector);
 	
-	var $cell_div = $('<div>').css({'width':width, 'height':'250', 'overflow-x':'scroll', 'overflow-y':'hidden', 'display':'inline-block', 'position':'absolute', 'left':'200px', 'top':'0px'}).addClass("noselect");
-	var $cell_canvas = $('<canvas width="'+width+'" height="250"></canvas>').css({'position':'absolute', 'top':'0px', 'left':'0px'}).addClass("noselect");
-	var $dummy_scroll_div = $('<div>').css({'width':'20000', 'position':'absolute', 'top':'0', 'left':'0px', 'height':'1px'});
-	var $cell_overlay_canvas = $('<canvas width="'+width+'" height="250"></canvas>').css({'position':'absolute', 'top':'0px', 'left':'0px'}).addClass("noselect");
+	var $label_canvas = $('<canvas></canvas>')
+			    .css({'display':'inline-block', 
+				'position':'absolute', 
+				'left':'0px', 
+				'top':'0px'})
+			    .addClass("noselect")
+			    .attr({'width':'150', 'height':'250'});
+		    
+	var $track_options_div = $('<div></div>')
+				.css({'position':'absolute', 
+					'left':'150px', 
+					'top':'0px'})
+				.addClass("noselect")
+				.attr({'width':'50', 'height':'250'});
+			
+	var $legend_div = $('<div></div>')
+			    .css({'position':'absolute', 
+				    'top':'250px'})
+			    .addClass("noselect");
+	
+	var $cell_div = $('<div>')
+			.css({'width':width, 
+			    'height':'250', 
+			    'overflow-x':'scroll', 
+			    'overflow-y':'hidden', 
+			    'display':'inline-block', 
+			    'position':'absolute', 
+			    'left':'200px', 
+			    'top':'0px'})
+			.addClass("noselect");
+		
+	var $cell_canvas = $('<canvas width="'+width+'" height="250"></canvas>')
+			    .css({'position':'absolute', 'top':'0px', 'left':'0px'})
+			    .addClass("noselect");
+		    
+	var $dummy_scroll_div = $('<div>')
+				.css({'width':'20000', 
+				    'position':'absolute', 
+				    'top':'0', 
+				    'left':'0px', 
+				    'height':'1px'});
+				
+	var $cell_overlay_canvas = $('<canvas width="'+width+'" height="250"></canvas>')
+				    .css({'position':'absolute', 
+					    'top':'0px', 
+					    'left':'0px'})
+				    .addClass("noselect");
+			    
+	var $track_info_div = $('<div>')
+				.css({'position':'absolute'});
 	
 	$label_canvas.appendTo($oncoprint_ctr);
 	$cell_div.appendTo($oncoprint_ctr);
 	$track_options_div.appendTo($oncoprint_ctr);
+	$track_info_div.appendTo($oncoprint_ctr);
 	$legend_div.appendTo($oncoprint_ctr);
 
 	
@@ -106,6 +153,7 @@ var Oncoprint = (function () {
 	this.$cell_div = $cell_div;
 	this.$legend_div = $legend_div;
 	this.$track_options_div = $track_options_div;
+	this.$track_info_div = $track_info_div;
 	
 	this.model = new OncoprintModel();
 	// Precisely one of the following should be uncommented
@@ -122,6 +170,7 @@ var Oncoprint = (function () {
 	this.track_options_view = new OncoprintTrackOptionsView($track_options_div, 
 								function(track_id) { self.removeTrack(track_id); }, 
 								function(track_id, dir) { self.setTrackSortDirection(track_id, dir); });
+	this.track_info_view = new OncoprintTrackInfoView($track_info_div);
 								
 	//this.track_info_view = new OncoprintTrackInfoView($track_info_div);
 
@@ -152,9 +201,11 @@ var Oncoprint = (function () {
     }
 
     var resizeAndOrganize = function(oncoprint) {
+	var ctr_width = $(oncoprint.ctr_selector).width();
 	oncoprint.$container.css({'min-height':oncoprint.model.getCellViewHeight() + oncoprint.$legend_div.height() + 20});
 	oncoprint.$track_options_div.css({'left':oncoprint.label_view.getWidth()});
-	oncoprint.$cell_div.css({'left':oncoprint.label_view.getWidth() + oncoprint.track_options_view.getWidth()});
+	oncoprint.$track_info_div.css({'left':oncoprint.label_view.getWidth() + oncoprint.track_options_view.getWidth()});
+	oncoprint.$cell_div.css({'left':oncoprint.label_view.getWidth() + oncoprint.track_options_view.getWidth() + oncoprint.track_info_view.getWidth()});
 	oncoprint.$legend_div.css({'top':oncoprint.model.getCellViewHeight() + 20});
     };
     
@@ -176,6 +227,7 @@ var Oncoprint = (function () {
 	this.cell_view.moveTrack(this.model);
 	this.label_view.moveTrack(this.model);
 	this.track_options_view.moveTrack(this.model);
+	this.track_info_view.moveTrack(this.model);
 	
 	if (this.keep_sorted) {
 	    this.sort();
@@ -206,6 +258,7 @@ var Oncoprint = (function () {
 	this.cell_view.addTracks(this.model, track_ids);
 	this.label_view.addTracks(this.model, track_ids);
 	this.track_options_view.addTracks(this.model);
+	this.track_info_view.addTracks(this.model);
 	this.legend_view.addTracks(this.model);
 	
 	if (this.keep_sorted) {
@@ -224,6 +277,7 @@ var Oncoprint = (function () {
 	this.cell_view.removeTrack(this.model, track_id);
 	this.label_view.removeTrack(this.model, track_id);
 	this.track_options_view.removeTrack(this.model, track_id);
+	this.track_info_view.removeTrack(this.model);
 	this.legend_view.removeTrack(this.model);
 	
 	if (this.keep_sorted) {
@@ -339,6 +393,11 @@ var Oncoprint = (function () {
     
     Oncoprint.prototype.getTrackSortDirection = function(track_id) {
 	return this.model.getTrackSortDirection(track_id);
+    }
+    
+    Oncoprint.prototype.setTrackInfo = function(track_id, msg) {
+	this.model.setTrackInfo(track_id, msg);
+	this.track_info_view.setTrackInfo(this.model);
     }
     
     Oncoprint.prototype.sort = function() {
@@ -905,6 +964,7 @@ var OncoprintModel = (function () {
 	this.track_data = {};
 	this.track_rule_set_id = {}; // track id -> rule set id
 	this.track_active_rules = {}; // from track id to active rule map (map with rule ids as keys)
+	this.track_info = {};
 	
 	// Rule Set Properties
 	this.rule_sets = {}; // map from rule set id to rule set
@@ -1119,6 +1179,14 @@ var OncoprintModel = (function () {
 	return this.cell_height[track_id] * this.vert_zoom;
     }
     
+    OncoprintModel.prototype.getTrackInfo = function(track_id) {
+	return this.track_info[track_id];
+    }
+    
+    OncoprintModel.prototype.setTrackInfo = function(track_id, msg) {
+	this.track_info[track_id] = msg;
+    }
+    
     OncoprintModel.prototype.getTrackHeight = function(track_id) {
 	return this.getCellHeight(track_id) + 2*this.getTrackPadding(track_id);
     }
@@ -1217,7 +1285,7 @@ var OncoprintModel = (function () {
 	    addTrack(this, params.track_id, params.target_group,
 		    params.cell_height, params.track_padding,
 		    params.data_id_key, params.tooltipFn,
-		    params.removable, params.removeCallback, params.label,
+		    params.removable, params.removeCallback, params.label, params.track_info,
 		    params.sortCmpFn, params.sort_direction_changeable, params.init_sort_direction,
 		    params.data, params.rule_set);
 	}
@@ -1227,7 +1295,7 @@ var OncoprintModel = (function () {
     var addTrack = function (model, track_id, target_group,
 	    cell_height, track_padding,
 	    data_id_key, tooltipFn,
-	    removable, removeCallback, label,
+	    removable, removeCallback, label, track_info,
 	    sortCmpFn, sort_direction_changeable, init_sort_direction,
 	    data, rule_set) {
 	model.track_label[track_id] = ifndef(label, "Label");
@@ -1247,6 +1315,8 @@ var OncoprintModel = (function () {
 	model.track_sort_direction_changeable[track_id] = ifndef(sort_direction_changeable, false);
 	model.track_data[track_id] = ifndef(data, []);
 	model.track_data_id_key[track_id] = ifndef(data_id_key, 'id');
+	
+	model.track_info[track_id] = ifndef(track_info, "");
 	
 	if (typeof rule_set !== 'undefined') {
 	    model.rule_sets[rule_set.rule_set_id] = rule_set;
@@ -1313,6 +1383,7 @@ var OncoprintModel = (function () {
 	delete this.track_sort_cmp_fn[track_id];
 	delete this.track_sort_direction_changeable[track_id];
 	delete this.track_sort_direction[track_id];
+	delete this.track_info[track_id];
 
 	var containing_track_group = _getContainingTrackGroup(this, track_id, true);
 	if (containing_track_group) {
@@ -2936,28 +3007,43 @@ var OncoprintTrackInfoView = (function() {
 	for (var i=0; i<tracks.length; i++) {
 	    minimum_track_height = Math.min(minimum_track_height, model.getTrackHeight(tracks[i]));
 	}
-	view.font_size = minimum_track_height;
+	//view.font_size = minimum_track_height;
 	
 	view.width = 0;
 	var label_tops = model.getLabelTops();
 	for (var i=0; i<tracks.length; i++) {
-	    var $new_label = $('<span>').css({'font-family':view.font_family, 'font-weight':view.font_weight, 'font-size':view.font_size});
+	    var $new_label = $('<span>').css({'position':'absolute', 
+					    'font-family':view.font_family, 
+					    'font-weight':view.font_weight, 
+					    'font-size':view.font_size})
+					.addClass('noselect');
 	    $new_label.text(model.getTrackInfo(tracks[i]));
-	    $new_label.appendTo(view.$div).css({'top':label_tops[tracks[i]]});
-	    view.width = Math.max(view.width, $new_label.width());
+	    $new_label.appendTo(view.$div);
+	    $new_label.css({'top':label_tops[tracks[i]] + (model.getCellHeight(tracks[i]) - $new_label[0].clientHeight)/2});
+	    view.width = Math.max(view.width, $new_label[0].clientWidth);
 	}
     };
+    var resize = function(view, model) {
+	view.$div.css({'width':view.getWidth(), 'height':model.getCellViewHeight()});
+    };
     OncoprintTrackInfoView.prototype.getWidth = function() {
-	return this.width;
+	return this.width + 10;
     }
     OncoprintTrackInfoView.prototype.addTracks = function(model) {
 	renderAllInfo(this, model);
+	resize(this, model);
     }
     OncoprintTrackInfoView.prototype.moveTrack = function(model) {
 	renderAllInfo(this, model);
+	resize(this, model);
     }
     OncoprintTrackInfoView.prototype.removeTrack = function(model) {
 	renderAllInfo(this, model);
+	resize(this, model);
+    }
+    OncoprintTrackInfoView.prototype.setTrackInfo = function(model) {
+	renderAllInfo(this, model);
+	resize(this, model);
     }
     return OncoprintTrackInfoView;
 })();

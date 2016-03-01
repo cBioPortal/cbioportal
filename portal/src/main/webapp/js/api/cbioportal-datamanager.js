@@ -255,6 +255,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			maskData: function (oql_query, data, is_patient_data) {
 				var parse_res = parse(oql_query);
 				var id_key = (is_patient_data ? "patient" : "sample");
+				var gene_key = config.gene_key;
 				// Mask all data
 				var i, _len;
 				var masked_data = data;
@@ -266,19 +267,27 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 				var unaltered = {};
 				for (i = 0, _len = masked_data.length; i < _len; i++) {
 					var d = masked_data[i];
+					var gene = d[gene_key];
+					altered[gene] = altered[gene] || {};
 					if (isDatumAltered(d)) {
-						altered[d[id_key]] = true;
+					    altered[gene][d[id_key]] = true;
 					}
 				}
+				var genes = Object.keys(altered);
+				var genes_len = genes.length;
+				var j;
 				for (i = 0, _len = masked_data.length; i < _len; i++) {
-					var d = masked_data[i];
-					var id = d[id_key]
-					unmarkDatumAltered(d);
-					if (!altered.hasOwnProperty(id)) {
-						unaltered[id] = true;
-					}
+				    var d = masked_data[i];
+				    var id = d[id_key]
+				    unmarkDatumAltered(d);
+				    for (j=0; j<genes_len; j++) {
+				        if (!altered[genes[j]][id]) {
+					    unaltered[genes[j]] = unaltered[genes[j]] || {};
+					    unaltered[genes[j]][id] = true;
+				        }
+				    }
 				}
-				return {data: masked_data, altered: Object.keys(altered), unaltered: Object.keys(unaltered)};
+				return {data: masked_data, altered: altered, unaltered: unaltered};
 			},
 			setDefaultOQL: function(alterations) {
 				config.default_oql = alterations;
@@ -367,6 +376,42 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 					def.reject();
 				});
 				return def.promise();
+			},
+			'getAlteredSamplesByGene':function() {
+			    var def = new $.Deferred();
+			    var self = this;
+			    fetchOncoprintGeneData().then(function() {
+				def.resolve(self.altered_samples_by_gene);
+			    }).fail(function() {
+				def.reject();
+			    });
+			    return def.promise();
+			},
+			'getAlteredSamplesWholePercentageByGene':function() {
+			    var def = new $.Deferred();
+			    var self = this;
+			    fetchOncoprintGeneData().then(function() {
+				var ret = {};
+				for (var gene in self.altered_samples_by_gene) {
+				    if (self.altered_samples_by_gene.hasOwnProperty(gene)) {
+					ret[gene] = Math.round(100 * Object.keys(self.altered_samples_by_gene[gene]).length / self.getSampleIds().length);
+				    }
+				}
+				def.resolve(ret);
+			    }).fail(function() {
+				def.reject();
+			    });
+			    return def.promise();
+			},
+			'getUnalteredSamplesByGene':function() {
+			    var def = new $.Deferred();
+			    var self = this;
+			    fetchOncoprintGeneData().then(function() {
+				def.resolve(self.unaltered_samples_by_gene);
+			    }).fail(function() {
+				def.reject();
+			    });
+			    return def.promise();
 			},
 			'getAlteredPatients': function() {
 				var def = new $.Deferred();
@@ -722,8 +767,35 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 								var oql_process_result = OQLHandler.maskData(dm_ret.getOQLQuery(), unmasked_sample_data);
 								
 								dm_ret.sample_gene_data = oql_process_result.data;
-								dm_ret.altered_samples = oql_process_result.altered;
-								dm_ret.unaltered_samples = oql_process_result.unaltered;
+								dm_ret.altered_samples_by_gene = oql_process_result.altered;
+								dm_ret.unaltered_samples_by_gene = oql_process_result.unaltered;
+								
+								var altered_samples = {};
+								var genes = Object.keys(oql_process_result.altered);
+								for (var i=0; i<genes.length; i++) {
+								    var ids = Object.keys(oql_process_result.altered[genes[i]]);
+								    for (var j=0; j<ids.length; j++) {
+									altered_samples[ids[j]] = true;
+								    }
+								}
+								dm_ret.altered_samples = Object.keys(altered_samples);
+								
+								var unaltered_samples = {};
+								var ids = dm_ret.getSampleIds();
+								genes = Object.keys(oql_process_result.unaltered);
+								for (var j=0; j<ids.length; j++) {
+								    var unaltered_in_all = true;
+								    for (var i=0; i<genes.length; i++) {
+									if (!oql_process_result.unaltered[genes[i]][ids[j]]) {
+									    unaltered_in_all = false;
+									    break;
+									}
+								    }
+								    if (unaltered_in_all) {
+									unaltered_samples[ids[j]] = true;
+								    }
+								}
+								dm_ret.unaltered_samples = Object.keys(unaltered_samples);
 
 								/*var oql_process_result_patient = makePatientData(oql_process_result);
 								dm_ret.patient_gene_data = oql_process_result_patient.data;

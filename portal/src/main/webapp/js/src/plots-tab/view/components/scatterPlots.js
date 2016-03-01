@@ -451,7 +451,7 @@ var scatterPlots = (function() {
     
     function convert(_input_obj) {
         
-        //calculate log_scale
+        // ---- calculate log_scale ----
     
         var re_scale_log_scale = function(_axis) {
             var _stat = plotsData.stat();
@@ -558,7 +558,7 @@ var scatterPlots = (function() {
             }
         };
         
-        //calculate z-scores
+        // ---- calculate z-scores ----
         var stdDev, avg;
         var re_scale_z_score = function(_axis) {
             var _stat = plotsData.stat();
@@ -573,51 +573,155 @@ var scatterPlots = (function() {
             return _new_scale;
         }
         
-        var re_draw_axis_z_score = function() {
-            
+        var re_draw_axis_z_score = function(_axis) {
+            d3.select("#" + div).select("." + d3_class[_axis].axis).remove();
+            var _new_scale = re_scale_z_score(_axis);
+            var _new_axis = d3.svg.axis()
+                .scale(_new_scale)
+                .orient(settings.axis[_axis].orient)
+                .tickSize(6, 0, 0)
+                .tickPadding([8]);
+    
+            var top_x, top_y;
+            if (_axis === "x") {
+                top_x = 0;
+                top_y = settings.axis.y.range_min;
+            } else if (_axis === "y") {
+                top_x = settings.axis.x.range_min;
+                top_y = 0;
+            }
+            elem.svg.append("g")
+                .style("stroke-width", 1.5)
+                .style("fill", "none")
+                .style("stroke", "grey")
+                .style("shape-rendering", "crispEdges")
+                .attr("transform", "translate(" + top_x + ", " + top_y + ")")
+                .attr("class", d3_class[_axis].axis)
+                .call(_new_axis)
+                .selectAll("text")
+                .style("font-family", "sans-serif")
+                .style("font-size", "12px")
+                .style("stroke-width", 0.5)
+                .style("stroke", "black")
+                .style("fill", "black");
         }
         
-        var update_axis_title_z_score = function() {
-            
+        var update_axis_title_z_score = function(_axis, opt) {
+            var _previous_text = d3.select("#plots-box").select("." + d3_class[_axis].axis_title).text();
+            if (opt === "remove") {
+                if (_previous_text.indexOf("z-Scores") !== -1) {
+                    _previous_text = _previous_text.replace(/z-Scores/g, '');
+                    d3.select("#plots-box").select("." + d3_class[_axis].axis_title).text(_previous_text);
+                    var _pre_x = d3.select("#" + ids.main_view.div).select("." + d3_class[_axis].title_help).attr("x");
+                    var _pre_y = d3.select("#" + ids.main_view.div).select("." + d3_class[_axis].title_help).attr("y");
+                    if (_axis === "x") {
+                        d3.select("#" + ids.main_view.div).select("." + d3_class[_axis].title_help).attr("x", parseInt(_pre_x) - 20);
+                    } else if (_axis === "y") {
+                        d3.select("#" + ids.main_view.div).select("." + d3_class[_axis].title_help).attr("y", parseInt(_pre_y) + 20);
+                    }                    
+                }
+            } else if (opt === "append") {
+                if (_previous_text.indexOf("z-Scores") === -1) {
+                    _previous_text = _previous_text.replace("(", "z-Scores (");
+                    d3.select("#plots-box").select("." + d3_class[_axis].axis_title).text(_previous_text);
+                    var _pre_x = d3.select("#" + ids.main_view.div).select("." + d3_class[_axis].title_help).attr("x");
+                    var _pre_y = d3.select("#" + ids.main_view.div).select("." + d3_class[_axis].title_help).attr("y");
+                    if (_axis === "x") {
+                        d3.select("#" + ids.main_view.div).select("." + d3_class[_axis].title_help).attr("x", parseInt(_pre_x) + 20);
+                    } else if (_axis === "y") {
+                        d3.select("#" + ids.main_view.div).select("." + d3_class[_axis].title_help).attr("y", parseInt(_pre_y) - 20);
+                    }                    
+                }
+            }
         }
+    
+        var update_stat_z_score = function(_axis) {
+            //flip the axis
+            _axis = (_axis === "x")? "y": "x";
+            var _stat = jQuery.extend(true, {}, plotsData.stat());
+            _stat[_axis].min = calc_z_score(_stat[_axis].min, avg, stdDev);
+            _stat[_axis].max = calc_z_score(_stat[_axis].max, avg, stdDev);
+            if (_axis === "x") _stat[_axis].edge = (_stat[_axis].max - _stat[_axis].min) * 0.1;
+            else if (_axis === "y") _stat[_axis].edge = (_stat[_axis].max - _stat[_axis].min) * 0.2;
+            return _stat;
+        };
+    
+        var update_data_z_score = function(_axis) {
+            var _data = jQuery.extend(true, [], data);
+            var _attr_name = (_axis === "x")? "yVal": "xVal";
+            $.each(_data, function(index, _obj) {
+                _obj[_attr_name] = calc_z_score(_obj[_attr_name], avg, stdDev);
+            });
+            return _data;
+        };
+    
+        var update_box_plots_z_score = function(_data, _stat) {
+            d3.select("#" + div).select("." + d3_class.box_plots).remove();
+            var _elem = jQuery.extend(true, {}, elem);
+            var _axis = (stat.box_plots_axis === "x")? "y": "x";
+            _elem[_axis].scale = re_scale_z_score(_axis);
+            boxPlots.init(_data, _stat, stat.box_plots_axis, _elem);
+        };
         
-
         var _new_x_scale, _new_y_scale;
         if (_input_obj.log_scale.x) {
             _new_x_scale = re_scale_log_scale("x");
             re_draw_axis_log_scale("x");
+            update_axis_title_z_score("x", "remove");
             update_axis_title_log_scale("x", "append");
         } else if (_input_obj.z_score.x) {
             var _arr = [];
-            elem.dotsGroup.selectAll("path").each(function() { _arr.push(d3.select(this).attr("x_val")); });
+            elem.dotsGroup.selectAll("path").each(function() { 
+                _arr.push(d3.select(this).attr("x_val")); 
+            });
             avg = calc_avg(_arr);
             stdDev = calc_stdDev(_arr, avg);
             _new_x_scale = re_scale_z_score("x");
+            re_draw_axis_z_score("x");
+            update_axis_title_z_score("x", "append");
+            update_axis_title_log_scale("x", "remove");
         } else if (_input_obj.original.x) {
             initAxis("x");
             drawAxis("x");
+            update_axis_title_z_score("x", "remove");
             update_axis_title_log_scale("x", "remove");
         }
         if (_input_obj.log_scale.y) {
             _new_y_scale = re_scale_log_scale("y");
             re_draw_axis_log_scale("y");
             update_axis_title_log_scale("y", "append");
+            update_axis_title_z_score("y", "remove");
         } else if (_input_obj.z_score.y) {
             var _arr = [];
-            elem.dotsGroup.selectAll("path").each(function() { _arr.push(d3.select(this).attr("y_val")); });
+            elem.dotsGroup.selectAll("path").each(function() { 
+                if (d3.select(this).attr("x_val") === "0") {
+                    _arr.push(d3.select(this).attr("y_val"));   
+                } 
+            });
             avg = calc_avg(_arr);
             stdDev = calc_stdDev(_arr, avg);
             _new_y_scale = re_scale_z_score("y");
+            re_draw_axis_z_score("y");
+            update_axis_title_log_scale("y", "remove")
+            update_axis_title_z_score("y", "append");
         } else if (_input_obj.original.y) {
             initAxis("y");
             drawAxis("y");
+            update_axis_title_z_score("y", "remove");
             update_axis_title_log_scale("y", "remove");
         }
         
         if (_input_obj.original.x && _input_obj.original.y) {
             if (stat.applied_box_plots) restore_box_plots_log_scale();
         } else {
-            if (stat.applied_box_plots) update_box_plots_log_scale(update_data_log_scale(stat.box_plots_axis), update_stat_log_scale(stat.box_plots_axis));
+            if (stat.applied_box_plots) {
+                var _axis = stat.box_plots_axis === "x"? "y": "x";
+                if (_input_obj.log_scale[_axis]) {
+                    update_box_plots_log_scale(update_data_log_scale(stat.box_plots_axis), update_stat_log_scale(stat.box_plots_axis));
+                } else if (_input_obj.z_score[_axis]) {
+                    update_box_plots_z_score(update_data_z_score(stat.box_plots_axis), update_stat_z_score(stat.box_plots_axis));
+                }
+            } 
         }
         
         elem.dotsGroup.selectAll("path")
@@ -638,6 +742,7 @@ var scatterPlots = (function() {
                     _y = _new_y_scale(_y_val);
                 } else if (_input_obj.z_score.y) {
                     var _y_val = calc_z_score(d3.select(this).attr("y_val"), avg, stdDev);
+                    console.log(_y_val);
                     _y = _new_y_scale(_y_val);
                 } else {
                     _y = d3.select(this).attr("y_pos");
@@ -645,7 +750,6 @@ var scatterPlots = (function() {
                 return "translate(" + _x + ", " + _y + ")";
             });
     }
-
     
     function appendTitle(axis) { //axis titles
         var elt = ($("input:radio[name='" + ids.sidebar[axis].data_type + "']:checked").val() === vals.data_type.genetic)? document.getElementById(ids.sidebar[axis].profile_name):document.getElementById(ids.sidebar[axis].clin_attr);
@@ -767,42 +871,6 @@ var scatterPlots = (function() {
                             return d;
                         });
         }
-        
-        //no-mutation data info
-//        var _stat = plotsData.stat();
-//        if (!_stat.x.has_mutation_data && $("input:radio[name='" + ids.sidebar.x.data_type + "']:checked").val() === vals.data_type.genetic) {
-//            var mut_exp_x = 
-//                elem.svg.selectAll(".mut_exp_x")
-//                .data(["*No Mutation Data for " + $("#" + ids.sidebar.x.gene).val()])
-//                .enter().append("g")
-//                .attr("class", "mut_exp_x")
-//                .attr("transform", function() {
-//                    return "translate(615, 500)";
-//                });
-//                mut_exp_x.append("text")
-//                    .attr("dx", ".75em")
-//                    .attr("dy", ".35em")
-//                    .style("text-anchor", "front")
-//                    .style("font-size", "11px")
-//                    .text(function(d) {return d;}); 
-//        }
-//        if (!_stat.y.has_mutation_data && $("input:radio[name='" + ids.sidebar.y.data_type + "']:checked").val() === vals.data_type.genetic) {
-//            if (!(genetic_vs_genetic() && isSameGene())) {
-//                var mut_exp_y = elem.svg.selectAll(".mut_exp_y")
-//                    .data(["*No Mutation Data for " + $("#" + ids.sidebar.y.gene).val()])
-//                    .enter().append("g")
-//                    .attr("class", "mut_exp_y")
-//                    .attr("transform", function() {
-//                        return "translate(615, 510)";
-//                    });
-//                    mut_exp_y.append("text")
-//                            .attr("dx", ".75em")
-//                            .attr("dy", ".35em")
-//                            .style("font-size", "11px")
-//                            .style("text-anchor", "front")
-//                            .text(function(d) {return d;});                 
-//                }
-//        }
     }
     
     function applyMouseover() {

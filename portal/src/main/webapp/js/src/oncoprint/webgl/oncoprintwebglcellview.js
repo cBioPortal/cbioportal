@@ -155,11 +155,17 @@ var OncoprintWebGLCellView = (function () {
 	    var drag_start_x;
 	    
 	    $(document).on("mousemove", function () {
+		if (self.rendering_suppressed) {
+		    return;
+		}
 		clearOverlay(self);
 		tooltip.hide();
 	    });
 	    self.$overlay_canvas.on("mousemove", function(evt) {
 		evt.stopPropagation();
+		if (self.rendering_suppressed) {
+		    return;
+		}
 		clearOverlay(self);
 		var offset = self.$overlay_canvas.offset();
 		var mouseX = evt.pageX - offset.left;
@@ -175,7 +181,7 @@ var OncoprintWebGLCellView = (function () {
 			}
 			tooltip.show(0, model.getZoomedColumnLeft(overlapping_cell.id) + model.getCellWidth()/2 + offset.left - self.scroll_x, model.getCellTops(overlapping_cell.track)+offset.top, model.getTrackTooltipFn(overlapping_cell.track)(model.getTrackDatum(overlapping_cell.track, overlapping_cell.id)));
 		    } else {
-			tooltip.hideIfNotAlreadyGoingTo(1000);
+			tooltip.hideIfNotAlreadyGoingTo(700);
 		    }3
 		}
 		

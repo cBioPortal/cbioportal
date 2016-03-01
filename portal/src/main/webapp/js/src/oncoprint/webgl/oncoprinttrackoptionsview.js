@@ -12,6 +12,8 @@ var OncoprintTrackOptionsView = (function() {
 	this.$div = $div;
 	this.img_size;
 	
+	this.rendering_suppressed = false;
+	
 	this.track_options_$elts = {};
 	
 	this.menu_shown = {};
@@ -27,6 +29,9 @@ var OncoprintTrackOptionsView = (function() {
     }
     
     var renderAllOptions = function(view, model) {
+	if (this.rendering_suppressed) {
+	    return;
+	}
 	view.$div.empty();
 	
 	var tracks = model.getTracks();
@@ -150,16 +155,13 @@ var OncoprintTrackOptionsView = (function() {
 	}
     };
     
-    var makeSVGElement = function(tag, attrs) {
-	var el = document.createElementNS('http://www.w3.org/2000/svg', tag);
-	for (var k in attrs) {
-	    if (attrs.hasOwnProperty(k)) {
-		el.setAttribute(k, attrs[k]);
-	    }
-	}
-	return el;
-    };
-    
+    OncoprintTrackOptionsView.prototype.suppressRendering = function() {
+	this.rendering_suppressed = true;
+    }
+    OncoprintTrackOptionsView.prototype.releaseRendering = function(model) {
+	this.rendering_suppressed = false;
+	renderAllOptions(this, model);
+    }
     OncoprintTrackOptionsView.prototype.getWidth = function() {
 	return 10 + this.img_size;
     }

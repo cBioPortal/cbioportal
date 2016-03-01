@@ -128,8 +128,8 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
     var oncoprint = new window.Oncoprint(ctr_selector, 1050);
     
     var $loading_bar_svg = $('<svg width="100" height="50"></svg>').appendTo(ctr_selector);
-    $loading_bar_svg.append(makeSVGElement("rect", {"width":100, "height":50, "stroke":"black","fill":"white"}));
-    var $loading_bar = $(makeSVGElement("rect", {"width":100, "height":50, "fill":"green"})).prependTo($loading_bar_svg);
+    $loading_bar_svg.append(makeSVGElement("rect", {"width":100, "height":25, "stroke":"black","fill":"white"}));
+    var $loading_bar = $(makeSVGElement("rect", {"width":0, "height":25, "fill":"green", "stroke":"dark green"})).appendTo($loading_bar_svg);
     
     var genetic_alteration_track_ids = [];
     var clinical_track_ids = [];

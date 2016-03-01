@@ -108,8 +108,7 @@ var Oncoprint = (function () {
 			    .addClass("noselect");
 	
 	var $cell_div = $('<div>')
-			.css({'width':width, 
-			    'height':'250', 
+			.css({'width':width,
 			    'overflow-x':'scroll', 
 			    'overflow-y':'hidden', 
 			    'display':'inline-block', 
@@ -118,18 +117,19 @@ var Oncoprint = (function () {
 			    'top':'0px'})
 			.addClass("noselect");
 		
-	var $cell_canvas = $('<canvas width="'+width+'" height="250"></canvas>')
+	var $cell_canvas = $('<canvas></canvas>')
+			    .attr('width', width)
 			    .css({'position':'absolute', 'top':'0px', 'left':'0px'})
 			    .addClass("noselect");
 		    
 	var $dummy_scroll_div = $('<div>')
-				.css({'width':'20000', 
-				    'position':'absolute', 
+				.css({'position':'absolute', 
 				    'top':'0', 
 				    'left':'0px', 
 				    'height':'1px'});
 				
-	var $cell_overlay_canvas = $('<canvas width="'+width+'" height="250"></canvas>')
+	var $cell_overlay_canvas = $('<canvas></canvas>')
+				    .attr('width', width)
 				    .css({'position':'absolute', 
 					    'top':'0px', 
 					    'left':'0px'})
@@ -441,6 +441,8 @@ var Oncoprint = (function () {
 	this.rendering_suppressed = true;
 	this.label_view.suppressRendering();
 	this.cell_view.suppressRendering();
+	this.track_options_view.suppressRendering();
+	this.track_info_view.suppressRendering();
 	this.legend_view.suppressRendering();
     }
     
@@ -448,6 +450,8 @@ var Oncoprint = (function () {
 	this.rendering_suppressed = false;
 	this.label_view.releaseRendering(this.model);
 	this.cell_view.releaseRendering(this.model);
+	this.track_options_view.releaseRendering(this.model);
+	this.track_info_view.releaseRendering(this.model);
 	this.legend_view.releaseRendering(this.model);
 	resizeAndOrganizeAfterTimeout(this);
     }
@@ -469,7 +473,11 @@ var Oncoprint = (function () {
 	root.appendChild(everything_group);
 	var label_view_group = this.label_view.toSVGGroup(this.model, true, 0, 0);
 	everything_group.appendChild(label_view_group);
-	everything_group.appendChild(this.cell_view.toSVGGroup(this.model, label_view_group.getBBox().width + label_view_group.getBBox().x + 20, 0));
+	var track_info_group_x = label_view_group.getBBox().width + 30;
+	var track_info_group = this.track_info_view.toSVGGroup(this.model, track_info_group_x, 0);
+	everything_group.appendChild(track_info_group);
+	var cell_view_group_x = track_info_group_x + track_info_group.getBBox().width + 10;
+	everything_group.appendChild(this.cell_view.toSVGGroup(this.model, cell_view_group_x, 0));
 	everything_group.appendChild(this.legend_view.toSVGGroup(this.model, 0, label_view_group.getBBox().y + label_view_group.getBBox().height+20));
 	
 	var everything_box = everything_group.getBBox();
@@ -2992,6 +3000,8 @@ var OncoprintToolTip = (function() {
 
 module.exports = OncoprintToolTip;
 },{}],13:[function(require,module,exports){
+var svgfactory = require('./svgfactory.js');
+
 var OncoprintTrackInfoView = (function() {
     function OncoprintTrackInfoView($div) {
 	this.$div = $div;
@@ -2999,16 +3009,15 @@ var OncoprintTrackInfoView = (function() {
 	this.font_family = 'serif';
 	this.font_weight = 'bold';
 	this.width = 0;
+	
+	this.rendering_suppressed = false;
     }
     var renderAllInfo = function(view, model) {
+	if (view.rendering_suppressed) {
+	    return;
+	}
 	view.$div.empty();
 	var tracks = model.getTracks();
-	var minimum_track_height = Number.POSITIVE_INFINITY;
-	for (var i=0; i<tracks.length; i++) {
-	    minimum_track_height = Math.min(minimum_track_height, model.getTrackHeight(tracks[i]));
-	}
-	//view.font_size = minimum_track_height;
-	
 	view.width = 0;
 	var label_tops = model.getLabelTops();
 	for (var i=0; i<tracks.length; i++) {
@@ -3045,11 +3054,32 @@ var OncoprintTrackInfoView = (function() {
 	renderAllInfo(this, model);
 	resize(this, model);
     }
+    OncoprintTrackInfoView.prototype.suppressRendering = function() {
+	this.rendering_suppressed = true;
+    }
+    OncoprintTrackInfoView.prototype.releaseRendering = function(model) {
+	this.rendering_suppressed = false;
+	renderAllInfo(this, model);
+	resize(this, model);
+    }
+    OncoprintTrackInfoView.prototype.toSVGGroup = function(model, offset_x, offset_y) {
+	var root = svgfactory.group((offset_x || 0), (offset_y || 0));
+	var label_tops = model.getLabelTops();
+	var tracks = model.getTracks();
+	for (var i=0; i<tracks.length; i++) {
+	    var track_id = tracks[i];
+	    var y = label_tops[track_id];
+	    var info = model.getTrackInfo(track_id);
+	    var text_elt = svgfactory.text(info, 0, y, this.font_size, this.font_family, this.font_weight);
+	    root.appendChild(text_elt);
+	}
+	return root;
+    }
     return OncoprintTrackInfoView;
 })();
 
 module.exports = OncoprintTrackInfoView;
-},{}],14:[function(require,module,exports){
+},{"./svgfactory.js":16}],14:[function(require,module,exports){
 var OncoprintTrackOptionsView = (function() {
     function OncoprintTrackOptionsView($div, removeCallback, sortChangeCallback) {
 	// removeCallback: function(track_id)
@@ -3063,6 +3093,8 @@ var OncoprintTrackOptionsView = (function() {
 	
 	this.$div = $div;
 	this.img_size;
+	
+	this.rendering_suppressed = false;
 	
 	this.track_options_$elts = {};
 	
@@ -3079,6 +3111,9 @@ var OncoprintTrackOptionsView = (function() {
     }
     
     var renderAllOptions = function(view, model) {
+	if (this.rendering_suppressed) {
+	    return;
+	}
 	view.$div.empty();
 	
 	var tracks = model.getTracks();
@@ -3202,16 +3237,13 @@ var OncoprintTrackOptionsView = (function() {
 	}
     };
     
-    var makeSVGElement = function(tag, attrs) {
-	var el = document.createElementNS('http://www.w3.org/2000/svg', tag);
-	for (var k in attrs) {
-	    if (attrs.hasOwnProperty(k)) {
-		el.setAttribute(k, attrs[k]);
-	    }
-	}
-	return el;
-    };
-    
+    OncoprintTrackOptionsView.prototype.suppressRendering = function() {
+	this.rendering_suppressed = true;
+    }
+    OncoprintTrackOptionsView.prototype.releaseRendering = function(model) {
+	this.rendering_suppressed = false;
+	renderAllOptions(this, model);
+    }
     OncoprintTrackOptionsView.prototype.getWidth = function() {
 	return 10 + this.img_size;
     }
@@ -3387,11 +3419,17 @@ var OncoprintWebGLCellView = (function () {
 	    var drag_start_x;
 	    
 	    $(document).on("mousemove", function () {
+		if (self.rendering_suppressed) {
+		    return;
+		}
 		clearOverlay(self);
 		tooltip.hide();
 	    });
 	    self.$overlay_canvas.on("mousemove", function(evt) {
 		evt.stopPropagation();
+		if (self.rendering_suppressed) {
+		    return;
+		}
 		clearOverlay(self);
 		var offset = self.$overlay_canvas.offset();
 		var mouseX = evt.pageX - offset.left;
@@ -3407,7 +3445,7 @@ var OncoprintWebGLCellView = (function () {
 			}
 			tooltip.show(0, model.getZoomedColumnLeft(overlapping_cell.id) + model.getCellWidth()/2 + offset.left - self.scroll_x, model.getCellTops(overlapping_cell.track)+offset.top, model.getTrackTooltipFn(overlapping_cell.track)(model.getTrackDatum(overlapping_cell.track, overlapping_cell.id)));
 		    } else {
-			tooltip.hideIfNotAlreadyGoingTo(1000);
+			tooltip.hideIfNotAlreadyGoingTo(700);
 		    }3
 		}
 		

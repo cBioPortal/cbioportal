@@ -48,8 +48,7 @@ var Oncoprint = (function () {
 			    .addClass("noselect");
 	
 	var $cell_div = $('<div>')
-			.css({'width':width, 
-			    'height':'250', 
+			.css({'width':width,
 			    'overflow-x':'scroll', 
 			    'overflow-y':'hidden', 
 			    'display':'inline-block', 
@@ -58,18 +57,19 @@ var Oncoprint = (function () {
 			    'top':'0px'})
 			.addClass("noselect");
 		
-	var $cell_canvas = $('<canvas width="'+width+'" height="250"></canvas>')
+	var $cell_canvas = $('<canvas></canvas>')
+			    .attr('width', width)
 			    .css({'position':'absolute', 'top':'0px', 'left':'0px'})
 			    .addClass("noselect");
 		    
 	var $dummy_scroll_div = $('<div>')
-				.css({'width':'20000', 
-				    'position':'absolute', 
+				.css({'position':'absolute', 
 				    'top':'0', 
 				    'left':'0px', 
 				    'height':'1px'});
 				
-	var $cell_overlay_canvas = $('<canvas width="'+width+'" height="250"></canvas>')
+	var $cell_overlay_canvas = $('<canvas></canvas>')
+				    .attr('width', width)
 				    .css({'position':'absolute', 
 					    'top':'0px', 
 					    'left':'0px'})
@@ -381,6 +381,8 @@ var Oncoprint = (function () {
 	this.rendering_suppressed = true;
 	this.label_view.suppressRendering();
 	this.cell_view.suppressRendering();
+	this.track_options_view.suppressRendering();
+	this.track_info_view.suppressRendering();
 	this.legend_view.suppressRendering();
     }
     
@@ -388,6 +390,8 @@ var Oncoprint = (function () {
 	this.rendering_suppressed = false;
 	this.label_view.releaseRendering(this.model);
 	this.cell_view.releaseRendering(this.model);
+	this.track_options_view.releaseRendering(this.model);
+	this.track_info_view.releaseRendering(this.model);
 	this.legend_view.releaseRendering(this.model);
 	resizeAndOrganizeAfterTimeout(this);
     }
@@ -409,7 +413,11 @@ var Oncoprint = (function () {
 	root.appendChild(everything_group);
 	var label_view_group = this.label_view.toSVGGroup(this.model, true, 0, 0);
 	everything_group.appendChild(label_view_group);
-	everything_group.appendChild(this.cell_view.toSVGGroup(this.model, label_view_group.getBBox().width + label_view_group.getBBox().x + 20, 0));
+	var track_info_group_x = label_view_group.getBBox().width + 30;
+	var track_info_group = this.track_info_view.toSVGGroup(this.model, track_info_group_x, 0);
+	everything_group.appendChild(track_info_group);
+	var cell_view_group_x = track_info_group_x + track_info_group.getBBox().width + 10;
+	everything_group.appendChild(this.cell_view.toSVGGroup(this.model, cell_view_group_x, 0));
 	everything_group.appendChild(this.legend_view.toSVGGroup(this.model, 0, label_view_group.getBBox().y + label_view_group.getBBox().height+20));
 	
 	var everything_box = everything_group.getBBox();

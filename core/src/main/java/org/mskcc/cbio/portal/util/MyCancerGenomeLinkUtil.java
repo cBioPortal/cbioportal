@@ -46,6 +46,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.net.ssl.HttpsURLConnection;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.model.CanonicalGene;
@@ -60,14 +61,7 @@ public final class MyCancerGenomeLinkUtil {
             = new HashMap<String,Map<String, Map<String, String>>>();
     
     static {
-        String mcgUrl = GlobalProperties.getMyCancerGenomeUrl();
-        if(mcgUrl != null && !mcgUrl.isEmpty()) {
-            Map<String, String> mapCancerTypeLink = getCancerTypeLinks();
-
-            for (Map.Entry<String,String> entry : mapCancerTypeLink.entrySet()) {
-                getVariantLinksForCancerType(LINK_MAP, entry.getValue(), GlobalProperties.getMyCancerGenomeUrl()+entry.getKey());
-            }
-        };
+        //setMyCancerGenomeLinksV2();
     }
 
     /**
@@ -100,6 +94,209 @@ public final class MyCancerGenomeLinkUtil {
     }
     
     /**
+     * scrape all from site map
+     */
+    private static void setMyCancerGenomeLinksV1() throws IOException {
+        URL url = new URL(GlobalProperties.getMyCancerGenomeUrl()+"/sitemap");
+        HttpsURLConnection con = (HttpsURLConnection)url.openConnection();
+        InputStream is = con.getInputStream();
+        BufferedReader in = new BufferedReader(new InputStreamReader(is));
+
+        String line;
+        while ((line = in.readLine()) != null
+                && !line.contains("<a id=\"variants\">")) {}
+
+        if (line==null) {
+            System.err.println("MyCancerGenome format change");
+            return;
+        }
+
+        line = in.readLine();
+
+        Pattern pM = Pattern.compile("([A-Z0-9\\-]+) +c\\. *[^ ]+ +\\((.+)\\) Mutations? in (.+)",Pattern.CASE_INSENSITIVE);
+        Pattern pM2 = Pattern.compile("([A-Z0-9\\-]+) ?\\(([A-Z0-9\\-]+)\\) c\\. *[^ ]+ \\((.+)\\) Mutations? in (.+)",Pattern.CASE_INSENSITIVE);
+        Pattern pM3 = Pattern.compile("([A-Z0-9\\-]+) Mutations? in (.+)",Pattern.CASE_INSENSITIVE);
+        Pattern pA = Pattern.compile("([A-Z0-9\\-]+) Amplifications? in (.+)",Pattern.CASE_INSENSITIVE);
+        Pattern pA2 = Pattern.compile("([A-Z0-9\\-]+) \\(([A-Z0-9\\-]+)\\) Amplifications? in (.+)",Pattern.CASE_INSENSITIVE);
+        Pattern pF = Pattern.compile("([A-Z0-9\\-]+) Fusions? in (.+)",Pattern.CASE_INSENSITIVE);
+        Pattern pF2 = Pattern.compile("([A-Z0-9\\-]+) \\(([A-Z0-9\\-]+)\\) Fusions? in (.+)",Pattern.CASE_INSENSITIVE);
+
+        DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
+
+        Map<String,String> links = getLinks(line, "<a href=\\\"([^\\\"]+)\\\">([^<]+)</a>");
+        for (Map.Entry<String,String> entry : links.entrySet()) {
+            String href = entry.getKey();
+            String text = entry.getValue();
+            Set<String> geneSymbols = new HashSet<String>();
+            String mutation = null;
+            String cancer = null;
+            Matcher m = pM.matcher(text);
+            if (m.matches()) {
+                CanonicalGene gene = daoGeneOptimized.getNonAmbiguousGene(m.group(1));
+                if (gene == null) {
+                    System.err.println("Could not recoganize gene: "+text);
+                    continue;
+                }
+                geneSymbols.add(gene.getHugoGeneSymbolAllCaps());
+                mutation = m.group(2);
+                cancer = m.group(3);
+            } else {
+                m = pM2.matcher(text);
+                if (m.matches()) {
+                    CanonicalGene gene = daoGeneOptimized.getNonAmbiguousGene(m.group(1));
+                    if (gene == null) {
+                        gene = daoGeneOptimized.getNonAmbiguousGene(m.group(2));
+                    }
+                    if (gene == null) {
+                        System.err.println("Could not recoganize gene: "+text);
+                        continue;
+                    }
+                    geneSymbols.add(gene.getHugoGeneSymbolAllCaps());
+                    mutation = m.group(3);
+                    cancer = m.group(4);
+                } else {
+                    m = pM3.matcher(text);
+                    if (m.matches()) {
+                        CanonicalGene gene = daoGeneOptimized.getNonAmbiguousGene(m.group(1));
+                        if (gene == null) {
+                            System.err.println("Could not recoganize gene: "+text);
+                            continue;
+                        }
+                        geneSymbols.add(gene.getHugoGeneSymbolAllCaps());
+                        mutation = "mutation";
+                        cancer = m.group(2);
+                    } else {
+                        m = pA.matcher(text);
+                        if (m.matches()) {
+                            CanonicalGene gene = daoGeneOptimized.getNonAmbiguousGene(m.group(1));
+                            if (gene == null) {
+                                System.err.println("Could not recoganize gene: "+text);
+                                continue;
+                            }
+                            geneSymbols.add(gene.getHugoGeneSymbolAllCaps());
+                            mutation = "amplification";
+                            cancer = m.group(2);
+                        } else {
+                            m = pA2.matcher(text);
+                            if (m.matches()) {
+                                CanonicalGene gene = daoGeneOptimized.getNonAmbiguousGene(m.group(1));
+                                if (gene == null) {
+                                    gene = daoGeneOptimized.getNonAmbiguousGene(m.group(2));
+                                }
+                                if (gene == null) {
+                                    System.err.println("Could not recoganize gene: "+text);
+                                    continue;
+                                }
+                                geneSymbols.add(gene.getHugoGeneSymbolAllCaps());
+                                mutation = "amplification";
+                                cancer = m.group(3);
+                            } else {
+                                m = pF.matcher(text);
+                                if (m.matches()) {
+                                    CanonicalGene gene = daoGeneOptimized.getNonAmbiguousGene(m.group(1));
+                                    if (gene!=null) {
+                                        geneSymbols.add(gene.getHugoGeneSymbolAllCaps());
+                                    }
+
+                                    if (m.group(1).contains("-")) {
+                                        for (String part : m.group(1).split("-")) {
+                                            gene = daoGeneOptimized.getNonAmbiguousGene(part);
+                                            if (gene!=null) {
+                                                geneSymbols.add(gene.getHugoGeneSymbolAllCaps());
+                                            }
+                                        }
+                                    }
+                                    if (geneSymbols.isEmpty()) {
+                                        System.err.println("Could not recoganize gene: "+text);
+                                        continue;
+                                    }
+                                    mutation = "fusion";
+                                    cancer = m.group(2);
+                                } else {
+                                    m = pF.matcher(text);
+                                    if (m.matches()) {
+                                        CanonicalGene gene = daoGeneOptimized.getNonAmbiguousGene(m.group(1));
+                                        if (gene!=null) {
+                                            geneSymbols.add(gene.getHugoGeneSymbolAllCaps());
+                                        }
+
+                                        if (m.group(1).contains("-")) {
+                                            for (String part : m.group(1).split("-")) {
+                                                gene = daoGeneOptimized.getNonAmbiguousGene(part);
+                                                if (gene!=null) {
+                                                    geneSymbols.add(gene.getHugoGeneSymbolAllCaps());
+                                                }
+                                            }
+                                        }
+
+                                        gene = daoGeneOptimized.getNonAmbiguousGene(m.group(2));
+                                        if (gene!=null) {
+                                            geneSymbols.add(gene.getHugoGeneSymbolAllCaps());
+                                        }
+
+                                        if (m.group(1).contains("-")) {
+                                            for (String part : m.group(2).split("-")) {
+                                                gene = daoGeneOptimized.getNonAmbiguousGene(part);
+                                                if (gene!=null) {
+                                                    geneSymbols.add(gene.getHugoGeneSymbolAllCaps());
+                                                }
+                                            }
+                                        }
+
+                                        if (geneSymbols.isEmpty()) {
+                                            System.err.println("Could not recoganize gene: "+text);
+                                            continue;
+                                        }
+                                        mutation = "fusion";
+                                        cancer = m.group(3);
+                                    } else {
+
+
+                                        System.out.println(text);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                }
+            }
+
+            if (!geneSymbols.isEmpty()) {
+                for (String geneSymbol : geneSymbols) {
+                    Map<String, Map<String, String>> mapVariantCancerLink = LINK_MAP.get(geneSymbol);
+                    if (mapVariantCancerLink==null) {
+                        mapVariantCancerLink = new HashMap<String, Map<String, String>>();
+                        LINK_MAP.put(geneSymbol, mapVariantCancerLink);
+                    }
+
+                    Map<String, String> mapCancerLink = mapVariantCancerLink.get(mutation);
+                    if (mapCancerLink==null) {
+                        mapCancerLink = new TreeMap<String,String>();
+                        mapVariantCancerLink.put(mutation, mapCancerLink);
+                    }
+                    mapCancerLink.put(cancer, href);
+                }
+
+            }
+        }
+    }
+    
+    /**
+     * Scraping page by page
+     */
+    private static void setMyCancerGenomeLinksV2() {
+        String mcgUrl = GlobalProperties.getMyCancerGenomeUrl();
+        if(mcgUrl != null && !mcgUrl.isEmpty()) {
+            Map<String, String> mapCancerTypeLink = getCancerTypeLinks();
+
+            for (Map.Entry<String,String> entry : mapCancerTypeLink.entrySet()) {
+                getVariantLinksForCancerType(LINK_MAP, entry.getValue(), GlobalProperties.getMyCancerGenomeUrl()+entry.getKey());
+            }
+        };
+    }
+    
+    /**
      * 
      * @return Map<Cancer, URL>
      * @throws IOException 
@@ -109,7 +306,8 @@ public final class MyCancerGenomeLinkUtil {
         
         try {
             URL url = new URL(GlobalProperties.getMyCancerGenomeUrl()+"/sitemap");
-            InputStream is = url.openStream();
+            HttpsURLConnection con = (HttpsURLConnection)url.openConnection();
+            InputStream is = con.getInputStream();
             BufferedReader in = new BufferedReader(new InputStreamReader(is));
 
             String line;
@@ -139,8 +337,8 @@ public final class MyCancerGenomeLinkUtil {
         String content = null;
         try {
             URL url = new URL(cancerink);
-
-            InputStream is = url.openStream();
+            HttpsURLConnection con = (HttpsURLConnection)url.openConnection();
+            InputStream is = con.getInputStream();
             BufferedReader in = new BufferedReader(new InputStreamReader(is));
 
             StringBuilder sb = new StringBuilder();
@@ -328,6 +526,11 @@ public final class MyCancerGenomeLinkUtil {
             links.put(href, text);
         }
         return links;
+    }
+    
+    public static void main(String[] args) throws IOException {
+        //setMyCancerGenomeLinksV1();
+        setMyCancerGenomeLinksV2();
     }
 }
 

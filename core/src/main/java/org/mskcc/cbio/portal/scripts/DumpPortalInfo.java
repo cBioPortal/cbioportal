@@ -111,9 +111,12 @@ public class DumpPortalInfo {
                 ApiService.class);
 
         File outputDir = new File(outputDirName);
-        if (!outputDir.mkdir()) {
+        // this will do nothing if the directory already exists:
+        // the files will simply be overwritten
+        outputDir.mkdir();
+        if (!outputDir.isDirectory()) {
             System.err.printf(
-                    "Could not create new directory '%s'.\n",
+                    "Could not create directory '%s'.\n",
                     outputDir.getPath());
             System.exit(EX_CANTCREAT);
         }

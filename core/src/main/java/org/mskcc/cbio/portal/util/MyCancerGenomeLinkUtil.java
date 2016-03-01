@@ -44,6 +44,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.net.ssl.HttpsURLConnection;
@@ -61,7 +63,12 @@ public final class MyCancerGenomeLinkUtil {
             = new HashMap<String,Map<String, Map<String, String>>>();
     
     static {
-        //setMyCancerGenomeLinksV2();
+        if (GlobalProperties.showMyCancerGenomeUrl()) {
+            setMyCancerGenomeLinkFromLocal();
+            //setMyCancerGenomeLinksV1();
+            //setMyCancerGenomeLinksV2();
+        }
+        
     }
 
     /**
@@ -91,6 +98,43 @@ public final class MyCancerGenomeLinkUtil {
             }
         }
         return list;
+    }
+    
+    private static final String MYCANCERGENOME_FILE = "/mycancergenome.txt";
+    private static void setMyCancerGenomeLinkFromLocal() {
+        DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
+        try (BufferedReader in = new BufferedReader(
+                new InputStreamReader(MyCancerGenomeLinkUtil.class.getResourceAsStream(MYCANCERGENOME_FILE)))) {
+            String line;
+            while ((line=in.readLine())!=null && line.startsWith("#")) {}
+            
+            for (; line!=null; line=in.readLine()) {
+                String[] parts = line.trim().split("\t",-1);
+                if (parts.length<4) {
+                    continue;
+                }
+                
+                CanonicalGene gene = daoGeneOptimized.getNonAmbiguousGene(parts[0]);
+                if (gene!=null) {
+                    String hugo = gene.getHugoGeneSymbolAllCaps();
+                    Map<String, Map<String, String>> mapVariantCancerLink = LINK_MAP.get(hugo);
+                    if (mapVariantCancerLink == null) {
+                        mapVariantCancerLink = new HashMap<String, Map<String, String>>();
+                        LINK_MAP.put(hugo, mapVariantCancerLink);
+                    }
+                    
+                    Map<String, String> mapCancerLink = mapVariantCancerLink.get(parts[1]);
+                    if (mapCancerLink == null) {
+                        mapCancerLink = new HashMap<String, String>();
+                        mapVariantCancerLink.put(parts[1], mapCancerLink);
+                    }
+                    
+                    mapCancerLink.put(parts[2], parts[3]);
+                }
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
     }
     
     /**
@@ -526,11 +570,6 @@ public final class MyCancerGenomeLinkUtil {
             links.put(href, text);
         }
         return links;
-    }
-    
-    public static void main(String[] args) throws IOException {
-        //setMyCancerGenomeLinksV1();
-        setMyCancerGenomeLinksV2();
     }
 }
 

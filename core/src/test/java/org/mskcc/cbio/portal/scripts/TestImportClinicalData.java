@@ -32,16 +32,15 @@
 
 package org.mskcc.cbio.portal.scripts;
 
-import junit.framework.TestCase;
-
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.util.ProgressMonitor;
-import org.mskcc.cbio.portal.scripts.ImportClinicalData;
+import org.mskcc.cbio.portal.util.SpringUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
@@ -55,7 +54,7 @@ import java.util.*;
 /**
  * Tests Import of Clinical Data.
  *
- * @author Ethan Cerami.
+ * @author Ethan Cerami, Pieter Lukasse
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/applicationContext-dao.xml" })
@@ -64,16 +63,36 @@ import java.util.*;
 public class TestImportClinicalData {
 
 	CancerStudy study;
+	@Autowired
+	ApplicationContext applicationContext;
 	
 	@Before 
 	public void setUp() throws DaoException
 	{
+		//set it, to avoid this being set to the runtime (not for testing) application context:
+		SpringUtil.setApplicationContext(applicationContext);
 		study = DaoCancerStudy.getCancerStudyByStableId("study_tcga_pub");
-		DaoGeneticProfile.reCache();
-		DaoPatient.reCache();
-		DaoSample.reCache();
 	}
 
+	
+    /**
+     * Test importing of Clinical Data File.
+     *
+     * @throws DaoException Database Access Error.
+     * @throws IOException  IO Error.
+     */
+	@Test
+    public void testImportClinicalDataNewStudy() throws Exception {
+		//new dummy study to simulate importing clinical data in empty study:
+		CancerStudy cancerStudy = new CancerStudy("testnew","testnew","testnew","brca",true);
+        DaoCancerStudy.addCancerStudy(cancerStudy);
+        
+        study = DaoCancerStudy.getCancerStudyByStableId("testnew");
+		// TBD: change this to use getResourceAsStream()
+        File clinicalFile = new File("target/test-classes/clinical_data_small.txt");
+        ImportClinicalData importClinicalData = new ImportClinicalData(study, clinicalFile);
+        importClinicalData.importData();
+	}
 
     /**
      * Test importing of Clinical Data File.

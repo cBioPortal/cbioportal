@@ -365,7 +365,9 @@ def get_db_version(cursor):
 def interface():
     parser = argparse.ArgumentParser(description='cBioPortal meta Importer')
     parser.add_argument('-c', '--command', type=str, required=False,
-                        help='Command for import.')
+                        help='Command for import. Allowed commands: import-cancer-type, '
+                             'import-study, import-study-data, import-case-list or '
+                             'remove-study')
     parser.add_argument('-s', '--study_directory',type=str, required=False,
                         help='Path to Study Directory')
     parser.add_argument('-jar', '--jar_path',type=str, required=False,

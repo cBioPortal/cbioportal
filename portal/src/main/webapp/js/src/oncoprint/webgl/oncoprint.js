@@ -143,6 +143,12 @@ var Oncoprint = (function () {
 	});
     }
 
+    var resizeLegendAfterTimeout = function(oncoprint) {
+	setTimeout(function() {
+	    oncoprint.$container.css({'min-height':oncoprint.model.getCellViewHeight() + oncoprint.$legend_div.height() + 20});
+	    oncoprint.$legend_div.css({'top':oncoprint.model.getCellViewHeight() + 20});
+	}, 0);
+    };
     var resizeAndOrganize = function(oncoprint) {
 	var ctr_width = $(oncoprint.ctr_selector).width();
 	oncoprint.$container.css({'min-height':oncoprint.model.getCellViewHeight() + oncoprint.$legend_div.height() + 20});
@@ -418,6 +424,18 @@ var Oncoprint = (function () {
     Oncoprint.prototype.hideIds = function(to_hide, show_others) {
 	this.model.hideIds(to_hide, show_others);
 	this.cell_view.hideIds(this.model);
+    }
+    
+    Oncoprint.prototype.hideTrackLegend = function(track_id) {
+	this.model.hideTrackLegend(track_id);
+	this.legend_view.hideTrackLegend(this.model);
+	resizeLegendAfterTimeout(this);
+    }
+    
+    Oncoprint.prototype.showTrackLegend = function(track_id) {
+	this.model.showTrackLegend(track_id);
+	this.legend_view.showTrackLegend(this.model);
+	resizeLegendAfterTimeout(this);
     }
     
     Oncoprint.prototype.setCellPaddingOn = function(cell_padding_on) {

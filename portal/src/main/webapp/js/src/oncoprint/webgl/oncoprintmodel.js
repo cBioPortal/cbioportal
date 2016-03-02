@@ -204,6 +204,7 @@ var OncoprintModel = (function () {
 	return this.horz_zoom;
     }
     
+    
     OncoprintModel.prototype.getVertZoom = function() {
 	return this.vert_zoom;
     }
@@ -220,6 +221,13 @@ var OncoprintModel = (function () {
 	return this.vert_zoom;
     }
 
+    OncoprintModel.prototype.hideTrackLegend = function(track_id) {
+	this.getRuleSet(track_id).exclude_from_legend = true;
+    }
+    
+    OncoprintModel.prototype.showTrackLegend = function(track_id) {
+	this.getRuleSet(track_id).exclude_from_legend = false;
+    }
 
     OncoprintModel.prototype.getIdentifiedShapeListList = function(track_id, use_base_width, sort_by_z) {
 	var active_rules = {};
@@ -468,7 +476,7 @@ var OncoprintModel = (function () {
    
     OncoprintModel.prototype.removeTrack = function (track_id) {
 	var rule_set_id = this.track_rule_set_id[track_id];
-	this.track_remove_callback[track_id]();
+	this.track_remove_callback[track_id](track_id);
 	
 	delete this.track_data[track_id];
 	delete this.track_rule_set_id[track_id];

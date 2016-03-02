@@ -125,6 +125,14 @@ var OncoprintLegendView = (function() {
 	renderLegend(this, model);
     }
     
+    OncoprintLegendView.prototype.hideTrackLegend = function(model) {
+	renderLegend(this, model);
+    }
+    
+    OncoprintLegendView.prototype.showTrackLegend = function(model) {
+	renderLegend(this, model);
+    }
+    
     OncoprintLegendView.prototype.suppressRendering = function() {
 	this.rendering_suppressed = true;
     }

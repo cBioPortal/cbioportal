@@ -95,7 +95,7 @@ public class CheckGeneSymbolJSON extends HttpServlet {
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
 
         //  Use the OQL Parser to Extract the Gene Symbols
-	String[] geneList = genes.split(",");
+        String[] geneList = genes.split(",");
 
         for(String symbol: geneList) {
             Map map = new HashMap();

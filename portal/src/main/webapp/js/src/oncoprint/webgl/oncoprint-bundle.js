@@ -210,7 +210,7 @@ var Oncoprint = (function () {
 	oncoprint.$track_info_div.css({'left':oncoprint.label_view.getWidth() + oncoprint.track_options_view.getWidth()});
 	var cell_div_left = oncoprint.label_view.getWidth() + oncoprint.track_options_view.getWidth() + oncoprint.track_info_view.getWidth();
 	oncoprint.$cell_div.css({'left':cell_div_left});
-	oncoprint.cell_view.setWidth(ctr_width - cell_div_left, oncoprint.model);
+	oncoprint.cell_view.setWidth(ctr_width - cell_div_left-20, oncoprint.model);
 	oncoprint.$legend_div.css({'top':oncoprint.model.getCellViewHeight() + 20});
     };
     

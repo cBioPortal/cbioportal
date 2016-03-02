@@ -203,17 +203,17 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	QuerySession.getSampleClinicalAttributes().then(function (sample_attrs) {
 	    unused_clinical_attributes = unused_clinical_attributes.concat(sample_attrs);
 	    clinical_attributes_calls_returned += 1;
-	    if (clinical_attributes_calls_returned === 2) {
+	    if (clinical_attributes_calls_returned === 1) {
 		clinical_attributes_init_fetched.resolve();
 	    }
 	});
-	QuerySession.getPatientClinicalAttributes().then(function (patient_attrs) {
+	/*QuerySession.getPatientClinicalAttributes().then(function (patient_attrs) {
 	    unused_clinical_attributes = unused_clinical_attributes.concat(patient_attrs);
 	    clinical_attributes_calls_returned += 1;
 	    if (clinical_attributes_calls_returned === 2) {
 		clinical_attributes_init_fetched.resolve();
 	    }
-	});
+	});*/
     })();
 
     clinical_attributes_init_fetched.then(function () {

@@ -714,7 +714,7 @@ var OncoprintLabelView = (function () {
     }
     OncoprintLabelView.prototype.getWidth = function() {
 	//return this.maximum_label_width + 20;
-	return Math.max(this.maximum_label_width + 10, 150);
+	return Math.max(this.maximum_label_width + 10, 70);
     }
     OncoprintLabelView.prototype.getFontSize = function() {
 	return Math.max(Math.min(this.base_font_size, this.minimum_track_height), 7);

@@ -38,7 +38,7 @@
 <%@ page import="java.util.List" %>
 
 <%
-request.setAttribute("tumormap", true);
+request.setAttribute("standard-js-css", true);
 String isDemoMode = request.getParameter("demo");
 boolean showPlaceHoder;
 if (isDemoMode!=null) {
@@ -192,8 +192,6 @@ if (cancerStudyViewError!=null) {
                 vertical-align: middle;
         }
 </style>
-
-<script type="text/javascript" src="js/src/cancer-study-view/load-clinical-data.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <script type="text/javascript">
 var cancerStudyId = '<%=cancerStudy.getCancerStudyStableId()%>';

@@ -107,8 +107,8 @@ public class GlobalProperties {
             "TCGA working groups directly.";
 
     public static final String PATIENT_VIEW_PLACEHOLDER = "patient_view_placeholder";
-    public static final String PATIENT_VIEW_CNA_TUMORMAP_CNA_CUTOFF = "patient_view_genomic_overview_cna_cutoff";
-    public static final double[] DEFAULT_TUMORMAP_CNA_CUTOFF = new double[]{0.2,1.5};
+    public static final String PATIENT_VIEW_GENOMIC_OVERVIEW_CNA_CUTOFF = "patient_view_genomic_overview_cna_cutoff";
+    public static final double[] DEFAULT_GENOMIC_OVERVIEW_CNA_CUTOFF = new double[]{0.2,1.5};
     public static final String PATIENT_VIEW_DIGITAL_SLIDE_IFRAME_URL = "digitalslidearchive.iframe.url";
     public static final String PATIENT_VIEW_DIGITAL_SLIDE_META_URL = "digitalslidearchive.meta.url";
     public static final String PATIENT_VIEW_TCGA_PATH_REPORT_URL = "tcga_path_report.url";
@@ -183,7 +183,8 @@ public class GlobalProperties {
     public static final String SKIN_STUDY_VIEW_LINK_TEXT="skin.study_view.link_text";
     public static final String DEFAULT_SKIN_STUDY_VIEW_LINK_TEXT="To build your own case set, try out our enhanced " +
             "Study View.";
-    
+
+    public static final String MYCANCERGENOME_SHOW = "mycancergenome.show";
     public static final String MYCANCERGENOME_URL = "mycancergenome.url";
     public static final String ONCOKB_GENE_STATUS = "oncokb.geneStatus";
     public static final String SHOW_HOTSPOT = "show.hotspot";
@@ -453,9 +454,9 @@ public class GlobalProperties {
 
     public static double[] getPatientViewGenomicOverviewCnaCutoff()
     {
-        String cutoff = properties.getProperty(PATIENT_VIEW_CNA_TUMORMAP_CNA_CUTOFF);
+        String cutoff = properties.getProperty(PATIENT_VIEW_GENOMIC_OVERVIEW_CNA_CUTOFF);
         if (cutoff==null) {
-            return DEFAULT_TUMORMAP_CNA_CUTOFF;
+            return DEFAULT_GENOMIC_OVERVIEW_CNA_CUTOFF;
         }
 
         String[] strs = cutoff.split(",");
@@ -685,6 +686,12 @@ public class GlobalProperties {
         }
         
         return group;
+    }
+    
+    public static boolean showMyCancerGenomeUrl()
+    {
+        String show = properties.getProperty(MYCANCERGENOME_SHOW);
+        return show != null && Boolean.parseBoolean(show);
     }
     
     public static String getMyCancerGenomeUrl()

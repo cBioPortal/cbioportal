@@ -135,9 +135,12 @@ var Oncoprint = (function () {
 	    cell_view.scroll(model, scroll_left);
 	});
 	
-	
 	this.horz_zoom_callbacks = [];
 	
+	
+	$(window).resize(function() {
+	    resizeAndOrganize(self);
+	});
     }
 
     var resizeAndOrganize = function(oncoprint) {
@@ -145,7 +148,9 @@ var Oncoprint = (function () {
 	oncoprint.$container.css({'min-height':oncoprint.model.getCellViewHeight() + oncoprint.$legend_div.height() + 20});
 	oncoprint.$track_options_div.css({'left':oncoprint.label_view.getWidth()});
 	oncoprint.$track_info_div.css({'left':oncoprint.label_view.getWidth() + oncoprint.track_options_view.getWidth()});
-	oncoprint.$cell_div.css({'left':oncoprint.label_view.getWidth() + oncoprint.track_options_view.getWidth() + oncoprint.track_info_view.getWidth()});
+	var cell_div_left = oncoprint.label_view.getWidth() + oncoprint.track_options_view.getWidth() + oncoprint.track_info_view.getWidth();
+	oncoprint.$cell_div.css({'left':cell_div_left});
+	oncoprint.cell_view.setWidth(ctr_width - cell_div_left, oncoprint.model);
 	oncoprint.$legend_div.css({'top':oncoprint.model.getCellViewHeight() + 20});
     };
     
@@ -229,7 +234,7 @@ var Oncoprint = (function () {
     Oncoprint.prototype.getZoomToFitHorz = function(ids) {
 	var width_to_fit_in;
 	if (typeof ids === 'undefined') {
-	    width_to_fit_in = this.cell_view.getWidth(this.model, true);
+	    width_to_fit_in = this.cell_view.getTotalWidth(this.model, true);
 	} else {
 	    var furthest_right_id_index = -1;
 	    var furthest_right_id;

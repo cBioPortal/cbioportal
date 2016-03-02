@@ -195,9 +195,12 @@ var Oncoprint = (function () {
 	    cell_view.scroll(model, scroll_left);
 	});
 	
-	
 	this.horz_zoom_callbacks = [];
 	
+	
+	$(window).resize(function() {
+	    resizeAndOrganize(self);
+	});
     }
 
     var resizeAndOrganize = function(oncoprint) {
@@ -205,7 +208,9 @@ var Oncoprint = (function () {
 	oncoprint.$container.css({'min-height':oncoprint.model.getCellViewHeight() + oncoprint.$legend_div.height() + 20});
 	oncoprint.$track_options_div.css({'left':oncoprint.label_view.getWidth()});
 	oncoprint.$track_info_div.css({'left':oncoprint.label_view.getWidth() + oncoprint.track_options_view.getWidth()});
-	oncoprint.$cell_div.css({'left':oncoprint.label_view.getWidth() + oncoprint.track_options_view.getWidth() + oncoprint.track_info_view.getWidth()});
+	var cell_div_left = oncoprint.label_view.getWidth() + oncoprint.track_options_view.getWidth() + oncoprint.track_info_view.getWidth();
+	oncoprint.$cell_div.css({'left':cell_div_left});
+	oncoprint.cell_view.setWidth(ctr_width - cell_div_left, oncoprint.model);
 	oncoprint.$legend_div.css({'top':oncoprint.model.getCellViewHeight() + 20});
     };
     
@@ -289,7 +294,7 @@ var Oncoprint = (function () {
     Oncoprint.prototype.getZoomToFitHorz = function(ids) {
 	var width_to_fit_in;
 	if (typeof ids === 'undefined') {
-	    width_to_fit_in = this.cell_view.getWidth(this.model, true);
+	    width_to_fit_in = this.cell_view.getTotalWidth(this.model, true);
 	} else {
 	    var furthest_right_id_index = -1;
 	    var furthest_right_id;
@@ -3563,12 +3568,16 @@ var OncoprintWebGLCellView = (function () {
 
     var resizeAndClear = function(view, model) {
 	var height = model.getCellViewHeight();
-	var width = view.getWidth(model);
-	view.$dummy_scroll_div.css('width', width);
+	var total_width = view.getTotalWidth(model);
+	var visible_area_width = view.visible_area_width;
+	view.$dummy_scroll_div.css('width', total_width);
 	view.$canvas[0].height = height;
 	view.$overlay_canvas[0].height = height;
+	view.$canvas[0].width = visible_area_width;
+	view.$overlay_canvas[0].width = visible_area_width;
 	view.$container.css('height', height);
-	view.$container.scrollLeft(Math.min(view.$container.scrollLeft(),width-view.visible_area_width))
+	view.$container.css('width', visible_area_width);
+	view.$container.scrollLeft(Math.min(view.$container.scrollLeft(),total_width-view.visible_area_width))
 	getWebGLContextAndSetUpMatrices(view);
 	getOverlayContextAndClear(view);
     };
@@ -3913,8 +3922,25 @@ var OncoprintWebGLCellView = (function () {
 	renderAllTracks(this, model);
     }
     
-    OncoprintWebGLCellView.prototype.getWidth = function(model, base) {
+    OncoprintWebGLCellView.prototype.getTotalWidth = function(model, base) {
 	return (model.getCellWidth(base) + model.getCellPadding(base))*model.getIdOrder().length;
+    }
+    
+    OncoprintWebGLCellView.prototype.getWidth = function() {
+	return this.visible_area_width;
+    }
+    
+    OncoprintWebGLCellView.prototype.setWidth = function(w, model) {
+	this.visible_area_width = w;
+	
+	// need to rezone for new visible area width
+	clearZoneBuffers(this, model);
+	var track_ids = model.getTracks();
+	for (var i=0; i<track_ids.length; i++) {
+	    // need to recompute this only because of rezoning for scrolls
+	    computeVertexPositionsAndVertexColors(this, model, track_ids[i]);
+	}
+	renderAllTracks(this, model); // in the process it will call resizeAndClear
     }
     
     OncoprintWebGLCellView.prototype.setCellPaddingOn = function(model) {

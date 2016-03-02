@@ -38,8 +38,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import javax.sql.DataSource;
-
 public class SpringUtil
 {
 	private static final Log log = LogFactory.getLog(SpringUtil.class);
@@ -62,6 +60,16 @@ public class SpringUtil
 		if (SpringUtil.context == null) {
 			context = new ClassPathXmlApplicationContext("classpath:applicationContext-business.xml");
 		}
+	}
+
+	/**
+	 * setter to allow override by unit test classes (which run in different context, connecting
+	 * to test DB).
+	 * 
+	 * @param context
+	 */
+	public static void setApplicationContext(ApplicationContext context) {
+		SpringUtil.context = context;		
 	}
 
 }

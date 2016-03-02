@@ -89,8 +89,16 @@ var ccPlots = (function (Plotly, _, $) {
                 };
                 window.cbioportal_client.getStudies(_get_study_params).then(
                     function(_study_meta) {
+                        
                         study_meta = _study_meta;
-
+    
+                        // generate the content of the study selection expendable section
+                        $("#cc_plots_study_selection_btn").attr("data-toggle", "collapse");
+                        $("#cc_plots_study_selection_btn").removeClass("disabled");
+                        _.each(study_meta, function(_study_meta_obj) {
+                            $("#cc_plots_select_study_box").append("<input type='checkbox' name='cc_plots_selected_studies' value='" + _study_meta_obj.id + "'>" + _study_meta_obj.name + "<br>");
+                        });
+                        
                         //map study full name to each sample
                         _.each(_.filter(profile_data, function(_obj) { return !(_obj.hasOwnProperty("mutation_status")); }), function(_profile_data_obj) {
                             _.each(study_meta, function(_study_meta_obj) {
@@ -443,8 +451,10 @@ var ccPlots = (function (Plotly, _, $) {
             function timer() {
                 if (window.studies !== undefined) {
                     clearInterval(tmp);
-
-                    //default settings
+                    
+                    document.getElementById("cc_plots_gene_list").disabled = false;
+                    
+                    // default settings
                     gene = [];
                     gene.length = 0;
                     gene.push($("#cc_plots_gene_list").val());
@@ -505,8 +515,6 @@ var ccPlots = (function (Plotly, _, $) {
                         };
                         cbio.download.clientSideDownload([get_tab_delimited_data()], "plots-data.txt");
                     });
-
-
                     fetch_profile_data(_.pluck(_.pluck(window.studies.models, "attributes"), "studyId"));
                 }
             }

@@ -32,7 +32,7 @@
 
 <style>
     #cc-plots-sidebar {
-        height: 25px;
+        /*height: 25px;*/
         width: 1160px;
     }
     #cc-plots-sidebar h5 {
@@ -58,7 +58,7 @@
         <div id="cc-plots-sidebar">
             <h5>Gene</h5>
             <span id="cc_plots_gene_list_select" onchange="ccPlots.update_gene();">
-                <select id="cc_plots_gene_list"></select>
+                <select disabled id="cc_plots_gene_list" style="width:50px"></select>
             </span>
             <h5>Sort By</h5>
             <input type="radio" name="cc_plots_study_order_opt" onchange="ccPlots.update_study_order()" value="alphabetic" checked/> Cancer Study
@@ -68,9 +68,16 @@
             <h5>Show Mutations</h5>
             <input type="checkbox" id="cc_plots_show_mutations" onchange="ccPlots.toggle_show_mutations()" checked/>
             <h5>Download</h5>
-            <button id="cc_plots_pdf_download" type="button">PDF</button>
-            <button id="cc_plots_svg_download" type="button">SVG</button>
-            <button id="cc_plots_data_download" type="button">Data</button>
+            <button class="btn btn-default btn-xs" type="button" id="cc_plots_pdf_download">PDF</button>
+            <button class="btn btn-default btn-xs" type="button" id="cc_plots_svg_download">SVG</button>
+            <button class="btn btn-default btn-xs" type="button" id="cc_plots_data_download">Data</button>
+            <h5>Select Studies</h5>
+            <button class="btn btn-default btn-xs disabled" type="button" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample" id="cc_plots_study_selection_btn">
+                <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="false"></span>
+            </button>
+            <div class="collapse" id="collapseExample">
+                <div class="well" id="cc_plots_select_study_box"></div>
+            </div>
         </div>
     </tr>
     <tr>

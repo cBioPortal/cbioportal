@@ -61,6 +61,15 @@ public class SpringUtil
 			context = new ClassPathXmlApplicationContext("classpath:applicationContext-business.xml");
 		}
 	}
+	
+	/**
+     * Get the app context as initialized or refreshed by initDataSource()
+     *
+     * @return the Spring Framework application context
+     */
+    public static ApplicationContext getApplicationContext() {
+        return context;
+    }
 
 	/**
 	 * setter to allow override by unit test classes (which run in different context, connecting

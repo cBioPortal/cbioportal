@@ -114,7 +114,7 @@ oncokb.url=
 show.hotspot=true
 
 # Link to My Cancer Genome. Please disable (set to false) when using cBioPortal with patient identifiable data due My Cancer Genome license restrictions.
-mycancergenome.show=false
+mycancergenome.show=true
 
 # igv bam linking
 igv.bam.linking=

@@ -34,7 +34,6 @@ package org.mskcc.cbio.portal.dao;
 
 import org.mskcc.cbio.portal.model.*;
 
-import org.apache.commons.collections.map.MultiKeyMap;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
 
 import java.sql.*;
@@ -214,9 +213,30 @@ public class DaoSample {
 
     public static Sample getSampleByCancerStudyAndSampleId(int cancerStudyId, String stableSampleId)
     {
+    	return getSampleByCancerStudyAndSampleId(cancerStudyId, stableSampleId, true);
+    	
+    }
+    
+    /**
+     * Same as getSampleByCancerStudyAndSampleId, but with extra option on whether or not
+     * to log extra warning when sample is not found. 
+     * 
+     * @param cancerStudyId
+     * @param stableSampleId
+     * @param errorWhenNotFound : set to true to log warning in ProgressMonitor in case sample is not found. 
+     * Some processes, like ImportClinicalData do not want an error here, but use the null result as a flag
+     * to decide whether a new sample should be added to the DB. These processes should set this parameter
+     * to false.
+     * 
+     * @return Sample object if sample was found in cache, null otherwise.
+     */
+    public static Sample getSampleByCancerStudyAndSampleId(int cancerStudyId, String stableSampleId, boolean errorWhenNotFound)
+    {
         Map<String, Sample> samples = byCancerStudyIdAndStableSampleId.get(cancerStudyId);
         if (samples==null) {
-            ProgressMonitor.logWarning("Couldn't find sample "+stableSampleId+" in study "+cancerStudyId);
+        	if (errorWhenNotFound) {
+        		ProgressMonitor.logWarning("Couldn't find sample "+stableSampleId+" in study "+cancerStudyId);
+        	}
             return null;
         }
         

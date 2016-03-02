@@ -298,7 +298,7 @@ public class ImportClinicalData {
                 }
                 sampleId = StableIdUtil.getSampleId(sampleId);
                 if (patient != null) {
-                    Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudy.getInternalId(), sampleId);
+                    Sample sample = DaoSample.getSampleByCancerStudyAndSampleId(cancerStudy.getInternalId(), sampleId, false);
                     if (sample != null) {
                         internalSampleId = sample.getInternalId();
                     }

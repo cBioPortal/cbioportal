@@ -49,7 +49,7 @@ var GeneSymbolValidator = (function($) {
         $("#main_submit").attr("disabled", "disabled");
 
         var genes = [];
-        var genesStr = $("#gene_list").val();
+        var genesStr = oql_parser.parse($("#gene_list").val()).map(function(parsed_line) { return parsed_line.gene;}).join(",");
         $.post(
             'CheckGeneSymbol.json',
             { 'genes': genesStr },

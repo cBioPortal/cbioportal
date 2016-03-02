@@ -42,6 +42,9 @@ import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.ExtendedMutation;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
+import org.mskcc.cbio.portal.util.SpringUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
@@ -58,11 +61,14 @@ public class TestImportProfileData {
 
 	int studyId;
 	int geneticProfileId;
+	@Autowired
+	ApplicationContext applicationContext;
 	
 	@Before
 	public void setUp() throws DaoException {
 
-
+		//set it, to avoid this being set to the runtime application context (instead of the test application context):
+		SpringUtil.setApplicationContext(applicationContext);
 		ProgressMonitor.setConsoleMode(false);
 
         loadGenes();

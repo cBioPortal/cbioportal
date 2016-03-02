@@ -9,7 +9,7 @@ var GenelistModel = Backbone.Model.extend({
     },
 
     getCleanGeneString: function(delim){
-	delim = delim || " ";
+        delim = delim || " ";
         return this.getCleanGeneArray().join(delim);
     },
 

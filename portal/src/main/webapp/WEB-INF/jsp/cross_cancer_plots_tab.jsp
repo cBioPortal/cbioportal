@@ -57,23 +57,23 @@
     <tr>
         <div id="cc-plots-sidebar">
             <h5>Gene</h5>
-            <span id="cc_plots_gene_list_select" onchange="ccPlots.update_gene();">
+            <span id="cc_plots_gene_list_select" onchange="ccPlots.update();">
                 <select disabled id="cc_plots_gene_list" style="width:50px"></select>
             </span>
             <h5>Sort By</h5>
-            <input type="radio" name="cc_plots_study_order_opt" onchange="ccPlots.update_study_order()" value="alphabetic" checked/> Cancer Study
-            <input type="radio" name="cc_plots_study_order_opt" onchange="ccPlots.update_study_order()" value="median"/> Median
+            <input type="radio" name="cc_plots_study_order_opt" onchange="ccPlots.update()" value="alphabetic" checked/> Cancer Study
+            <input type="radio" name="cc_plots_study_order_opt" onchange="ccPlots.update()" value="median"/> Median
             <h5>Log Scale</h5>
-            <input type="checkbox" id="cc_plots_log_scale" onchange="ccPlots.toggle_log_scale()" checked/>
+            <input type="checkbox" id="cc_plots_log_scale" onchange="ccPlots.update()" checked/>
             <h5>Show Mutations</h5>
-            <input type="checkbox" id="cc_plots_show_mutations" onchange="ccPlots.toggle_show_mutations()" checked/>
+            <input type="checkbox" id="cc_plots_show_mutations" onchange="ccPlots.update()" checked/>
             <h5>Download</h5>
             <button class="btn btn-default btn-xs" type="button" id="cc_plots_pdf_download">PDF</button>
             <button class="btn btn-default btn-xs" type="button" id="cc_plots_svg_download">SVG</button>
             <button class="btn btn-default btn-xs" type="button" id="cc_plots_data_download">Data</button>
-            <h5>Select Studies</h5>
-            <button class="btn btn-default btn-xs disabled" type="button" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample" id="cc_plots_study_selection_btn">
-                <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="false"></span>
+            <h5></h5>
+            <button class="btn btn-default btn-sm disabled" type="button" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample" id="cc_plots_study_selection_btn">
+                <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="false"></span> &nbsp;Select Studies
             </button>
             <div class="collapse" id="collapseExample">
                 <div class="well" id="cc_plots_select_study_box"></div>

@@ -174,7 +174,7 @@ var OncoprintModel = (function () {
     }
 
     OncoprintModel.prototype.getMinZoom = function() {
-	return MIN_ZOOM_PIXELS / (this.getIdOrder().length*this.getCellWidth(true) + (this.getIdOrder().length-1)*this.getCellPadding(true));
+	return Math.min(MIN_ZOOM_PIXELS / (this.getIdOrder().length*this.getCellWidth(true) + (this.getIdOrder().length-1)*this.getCellPadding(true)), 1);
     }
     
     OncoprintModel.prototype.setHorzScroll = function(s) {

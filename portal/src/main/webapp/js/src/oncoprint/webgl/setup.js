@@ -120,6 +120,7 @@ var makeSVGElement = function (tag, attrs) {
     }
     return el;
 };
+
 	
 window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_selector) {
     
@@ -396,6 +397,12 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 
 
     QuerySession.getGenomicEventData().then(function (data) {
+	(function invokeOldDataManagers() {
+	    var genes = window.QuerySession.getQueryGenes();
+	    window.PortalDataColl.setOncoprintData(window.OncoprintUtils.process_data(data, genes));
+	    PortalDataColl.setOncoprintStat(window.OncoprintUtils.alteration_info(data));
+	})();
+	
 	var data_by_gene = {};
 	for (var i = 0; i < data.length; i++) {
 	    var d = data[i];

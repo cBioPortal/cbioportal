@@ -1,0 +1,1 @@
+window.Oncoprint = require('./oncoprint.js');

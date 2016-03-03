@@ -48,8 +48,6 @@ module.exports = function(array, target_key, keyFn, return_closest_if_not_found)
     }
 }
 },{}],3:[function(require,module,exports){
-window.Oncoprint = require('./oncoprint.js');
-},{"./oncoprint.js":5}],4:[function(require,module,exports){
 module.exports = function (tag, attrs) {
     var el = document.createElementNS('http://www.w3.org/2000/svg', tag);
     for (var k in attrs) {
@@ -59,7 +57,7 @@ module.exports = function (tag, attrs) {
     }
     return el;
 };
-},{}],5:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 var OncoprintModel = require('./oncoprintmodel.js');
 var OncoprintSVGCellView = require('./oncoprintsvgcellview.js');
 var OncoprintWebGLCellView = require('./oncoprintwebglcellview.js');
@@ -534,7 +532,7 @@ var Oncoprint = (function () {
     return Oncoprint;
 })();
 module.exports = Oncoprint;
-},{"./oncoprintlabelview.js":6,"./oncoprintlegendrenderer.js":7,"./oncoprintmodel.js":8,"./oncoprintruleset.js":9,"./oncoprintsvgcellview.js":12,"./oncoprinttooltip.js":13,"./oncoprinttrackinfoview.js":14,"./oncoprinttrackoptionsview.js":15,"./oncoprintwebglcellview.js":16,"./svgfactory.js":17}],6:[function(require,module,exports){
+},{"./oncoprintlabelview.js":5,"./oncoprintlegendrenderer.js":6,"./oncoprintmodel.js":7,"./oncoprintruleset.js":8,"./oncoprintsvgcellview.js":11,"./oncoprinttooltip.js":12,"./oncoprinttrackinfoview.js":13,"./oncoprinttrackoptionsview.js":14,"./oncoprintwebglcellview.js":15,"./svgfactory.js":16}],5:[function(require,module,exports){
 var svgfactory = require('./svgfactory.js');
 
 var OncoprintLabelView = (function () {
@@ -799,7 +797,7 @@ var OncoprintLabelView = (function () {
 })();
 
 module.exports = OncoprintLabelView;
-},{"./svgfactory.js":17}],7:[function(require,module,exports){
+},{"./svgfactory.js":16}],6:[function(require,module,exports){
 var svgfactory = require('./svgfactory.js');
 
 var OncoprintLegendView = (function() {
@@ -866,8 +864,10 @@ var OncoprintLegendView = (function() {
 	    var rule_set_group = svgfactory.group(0,y);
 	    everything_group.appendChild(rule_set_group);
 	    (function addLabel() {
-		var label = svgfactory.text(rule_sets[i].legend_label, 0, y, 12, 'Arial', 'bold');
-		rule_set_group.appendChild(label);
+		if (rule_sets[i].legend_label && rule_sets[i].legend_label.length > 0) {
+		    var label = svgfactory.text(rule_sets[i].legend_label, 0, y, 12, 'Arial', 'bold');
+		    rule_set_group.appendChild(label);
+		}
 	    })();
 	    
 	    var x = rule_start_x + view.padding_after_rule_set_label;
@@ -956,7 +956,7 @@ var OncoprintLegendView = (function() {
 })();
 
 module.exports = OncoprintLegendView;
-},{"./svgfactory.js":17}],8:[function(require,module,exports){
+},{"./svgfactory.js":16}],7:[function(require,module,exports){
 var binarysearch = require('./binarysearch.js');
 var CachedProperty = require('./CachedProperty.js');
 
@@ -1133,7 +1133,7 @@ var OncoprintModel = (function () {
     }
 
     OncoprintModel.prototype.getMinZoom = function() {
-	return MIN_ZOOM_PIXELS / (this.getIdOrder().length*this.getCellWidth(true) + (this.getIdOrder().length-1)*this.getCellPadding(true));
+	return Math.min(MIN_ZOOM_PIXELS / (this.getIdOrder().length*this.getCellWidth(true) + (this.getIdOrder().length-1)*this.getCellPadding(true)), 1);
     }
     
     OncoprintModel.prototype.setHorzScroll = function(s) {
@@ -1795,7 +1795,7 @@ var PrecomputedComparator = (function() {
     return PrecomputedComparator;
 })();
 module.exports = OncoprintModel;
-},{"./CachedProperty.js":1,"./binarysearch.js":2}],9:[function(require,module,exports){
+},{"./CachedProperty.js":1,"./binarysearch.js":2}],8:[function(require,module,exports){
 /* Rule:
  * 
  * condition: function from datum to boolean
@@ -2396,7 +2396,7 @@ var LinearInterpRuleSet = (function () {
 	this.inferred_value_range;
 
 	this.makeInterpFn = function () {
-	    var range = getEffectiveValueRange(this);
+	    var range = this.getEffectiveValueRange();
 	    if (range[0] === range[1]) {
 		// Make sure non-zero denominator
 		range[0] -= range[0] / 2;
@@ -2411,13 +2411,13 @@ var LinearInterpRuleSet = (function () {
     }
     LinearInterpRuleSet.prototype = Object.create(ConditionRuleSet.prototype);
 
-    var getEffectiveValueRange = function (ruleset) {
-	var ret = (ruleset.value_range && [ruleset.value_range[0], ruleset.value_range[1]]) || [undefined, undefined];
+    LinearInterpRuleSet.prototype.getEffectiveValueRange = function () {
+	var ret = (this.value_range && this.value_range.slice()) || [undefined, undefined];
 	if (typeof ret[0] === "undefined") {
-	    ret[0] = ruleset.inferred_value_range[0];
+	    ret[0] = this.inferred_value_range[0];
 	}
 	if (typeof ret[1] === "undefined") {
-	    ret[1] = ruleset.inferred_value_range[1];
+	    ret[1] = this.inferred_value_range[1];
 	}
 	return ret;
     };
@@ -2510,7 +2510,7 @@ var GradientRuleSet = (function () {
 			    }
 			}],
 		    exclude_from_legend: false,
-		    legend_config: {'type': 'gradient', 'range': this.inferred_value_range}
+		    legend_config: {'type': 'gradient', 'range': this.getEffectiveValueRange()}
 		});
     };
 
@@ -2547,7 +2547,7 @@ var BarRuleSet = (function () {
 			    fill: this.fill,
 			}],
 		    exclude_from_legend: false,
-		    legend_config: {'type': 'number', 'range': this.inferred_value_range, 'color': this.fill}
+		    legend_config: {'type': 'number', 'range': this.getEffectiveValueRange(), 'color': this.fill}
 		});
     };
 
@@ -2642,7 +2642,7 @@ module.exports = function (params) {
 	}
     }
 }
-},{"./oncoprintshape.js":10}],10:[function(require,module,exports){
+},{"./oncoprintshape.js":9}],9:[function(require,module,exports){
 var Shape = (function() {
     var default_parameter_values = {
 	    'width': '100%', 
@@ -2778,7 +2778,7 @@ module.exports = {
     'Ellipse':Ellipse,
     'Line':Line
 };
-},{}],11:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 var makeSVGElement = function (tag, attrs) {
     var el = document.createElementNS('http://www.w3.org/2000/svg', tag);
     for (var k in attrs) {
@@ -2848,7 +2848,7 @@ module.exports = function(oncoprint_shape_computed_params, offset_x, offset_y) {
 	return lineToSVG(oncoprint_shape_computed_params, offset_x, offset_y);
     }
 };
-},{}],12:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 // FIRST PASS: no optimization
 var OncoprintSVGCellView = (function () {
     function OncoprintSVGCellView($svg) {
@@ -2982,7 +2982,7 @@ var OncoprintSVGCellView = (function () {
 })();
 
 module.exports = OncoprintSVGCellView;
-},{}],13:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 var OncoprintToolTip = (function() {
     function OncoprintToolTip($container) {
 	this.$container = $container;
@@ -3073,7 +3073,7 @@ var OncoprintToolTip = (function() {
 })();
 
 module.exports = OncoprintToolTip;
-},{}],14:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 var svgfactory = require('./svgfactory.js');
 
 var OncoprintTrackInfoView = (function() {
@@ -3153,7 +3153,7 @@ var OncoprintTrackInfoView = (function() {
 })();
 
 module.exports = OncoprintTrackInfoView;
-},{"./svgfactory.js":17}],15:[function(require,module,exports){
+},{"./svgfactory.js":16}],14:[function(require,module,exports){
 var OncoprintTrackOptionsView = (function() {
     function OncoprintTrackOptionsView($div, removeCallback, sortChangeCallback) {
 	// removeCallback: function(track_id)
@@ -3344,7 +3344,7 @@ var OncoprintTrackOptionsView = (function() {
 })();
 
 module.exports = OncoprintTrackOptionsView;
-},{}],16:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 var gl_matrix = require('gl-matrix');
 var svgfactory = require('./svgfactory.js');
 
@@ -4019,7 +4019,7 @@ var OncoprintWebGLCellView = (function () {
 
 module.exports = OncoprintWebGLCellView;
 
-},{"./svgfactory.js":17,"gl-matrix":18}],17:[function(require,module,exports){
+},{"./svgfactory.js":16,"gl-matrix":18}],16:[function(require,module,exports){
 var makeSVGElement = require('./makesvgelement.js');
 var shapeToSVG = require('./oncoprintshapetosvg.js');
 module.exports = {
@@ -4037,8 +4037,12 @@ module.exports = {
 	return elt;
     },
     group: function(x,y) {
+	x = x || 0;
+	y = y || 0;
 	return makeSVGElement('g', {
-	    'transform':'translate('+(x || 0)+','+(y || 0)+')',
+	    'transform':'translate('+x+','+y+')',
+	    'x':x,
+	    'y':y
 	});
     },
     svg: function(width, height) {
@@ -4052,12 +4056,41 @@ module.exports = {
     },
     polygon: function(points, fill) {
 	return makeSVGElement('polygon', {'points': points, 'fill':fill});
-    }
+    },
 };
 
 
 
-},{"./makesvgelement.js":4,"./oncoprintshapetosvg.js":11}],18:[function(require,module,exports){
+},{"./makesvgelement.js":3,"./oncoprintshapetosvg.js":10}],17:[function(require,module,exports){
+var Oncoprint = require('./oncoprint.js');
+$(document).ready(function() {
+	window.oncoprint = new Oncoprint('#oncoprint');
+	var data = [];
+	while (data.length < 1000) {
+		data.push({'sample':Math.random(), data:Math.random()*10});
+	}
+	var rule_set_params = {
+		type: 'bar',
+		value_key: 'data',
+		value_range:[0,10],
+		legend_label: 'Data'
+	};
+	window.oncoprint.addTracks([{'data':data, 'rule_set_params': rule_set_params, 'data_id_key':'sample'},
+		    {'data':data, 'rule_set_params': rule_set_params, 'data_id_key':'sample'},
+		    {'data':data, 'rule_set_params': rule_set_params, 'data_id_key':'sample'},
+		    {'data':data, 'rule_set_params': rule_set_params, 'target_group':1, 'data_id_key':'sample'},
+		    {'data':data, 'rule_set_params':rule_set_params, 'target_group':2, 'data_id_key':'sample'}]);
+		
+	window.addTracks = function() {
+	    var tracks_to_add = [];
+	    for (var i=0; i<30; i++) {
+		tracks_to_add.push({'data':data, 'rule_set_params':rule_set_params, 'target_group':3, 'data_id_key':'sample'});
+	    }
+	    window.oncoprint.addTracks(tracks_to_add);
+	}
+});
+
+},{"./oncoprint.js":4}],18:[function(require,module,exports){
 /**
  * @fileoverview gl-matrix - High performance matrix and vector operations
  * @author Brandon Jones
@@ -8954,4 +8987,4 @@ vec4.str = function (a) {
 
 module.exports = vec4;
 
-},{"./common.js":19}]},{},[3]);
+},{"./common.js":19}]},{},[17]);

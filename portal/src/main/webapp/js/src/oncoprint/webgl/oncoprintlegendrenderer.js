@@ -64,8 +64,10 @@ var OncoprintLegendView = (function() {
 	    var rule_set_group = svgfactory.group(0,y);
 	    everything_group.appendChild(rule_set_group);
 	    (function addLabel() {
-		var label = svgfactory.text(rule_sets[i].legend_label, 0, y, 12, 'Arial', 'bold');
-		rule_set_group.appendChild(label);
+		if (rule_sets[i].legend_label && rule_sets[i].legend_label.length > 0) {
+		    var label = svgfactory.text(rule_sets[i].legend_label, 0, y, 12, 'Arial', 'bold');
+		    rule_set_group.appendChild(label);
+		}
 	    })();
 	    
 	    var x = rule_start_x + view.padding_after_rule_set_label;
@@ -91,7 +93,7 @@ var OncoprintLegendView = (function() {
     };
     
     var ruleToSVGGroup = function(rule, view, model) {
-	var root = makeSVGElement('g');
+	var root = svgfactory.group(0,0);
 	var config = rule.getLegendConfig();
 	if (config.type === 'rule') {
 	    var concrete_shapes = rule.apply(config.target, model.getCellWidth(true), view.base_height);
@@ -143,7 +145,7 @@ var OncoprintLegendView = (function() {
     }
     
     OncoprintLegendView.prototype.toSVGGroup = function(model, offset_x, offset_y) {
-	var root = makeSVGElement('g', {'transform':'translate('+(offset_x || 0)+','+(offset_y || 0)+')'});
+	var root = svgfactory.group((offset_x || 0), (offset_y || 0));
 	this.$svg.append(root);
 	renderLegend(this, model, root);
 	root.parentNode.removeChild(root);

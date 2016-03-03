@@ -598,7 +598,7 @@ var LinearInterpRuleSet = (function () {
 	this.inferred_value_range;
 
 	this.makeInterpFn = function () {
-	    var range = getEffectiveValueRange(this);
+	    var range = this.getEffectiveValueRange();
 	    if (range[0] === range[1]) {
 		// Make sure non-zero denominator
 		range[0] -= range[0] / 2;
@@ -613,13 +613,13 @@ var LinearInterpRuleSet = (function () {
     }
     LinearInterpRuleSet.prototype = Object.create(ConditionRuleSet.prototype);
 
-    var getEffectiveValueRange = function (ruleset) {
-	var ret = (ruleset.value_range && [ruleset.value_range[0], ruleset.value_range[1]]) || [undefined, undefined];
+    LinearInterpRuleSet.prototype.getEffectiveValueRange = function () {
+	var ret = (this.value_range && this.value_range.slice()) || [undefined, undefined];
 	if (typeof ret[0] === "undefined") {
-	    ret[0] = ruleset.inferred_value_range[0];
+	    ret[0] = this.inferred_value_range[0];
 	}
 	if (typeof ret[1] === "undefined") {
-	    ret[1] = ruleset.inferred_value_range[1];
+	    ret[1] = this.inferred_value_range[1];
 	}
 	return ret;
     };
@@ -712,7 +712,7 @@ var GradientRuleSet = (function () {
 			    }
 			}],
 		    exclude_from_legend: false,
-		    legend_config: {'type': 'gradient', 'range': this.inferred_value_range}
+		    legend_config: {'type': 'gradient', 'range': this.getEffectiveValueRange()}
 		});
     };
 
@@ -749,7 +749,7 @@ var BarRuleSet = (function () {
 			    fill: this.fill,
 			}],
 		    exclude_from_legend: false,
-		    legend_config: {'type': 'number', 'range': this.inferred_value_range, 'color': this.fill}
+		    legend_config: {'type': 'number', 'range': this.getEffectiveValueRange(), 'color': this.fill}
 		});
     };
 

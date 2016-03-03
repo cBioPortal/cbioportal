@@ -15,8 +15,12 @@ module.exports = {
 	return elt;
     },
     group: function(x,y) {
+	x = x || 0;
+	y = y || 0;
 	return makeSVGElement('g', {
-	    'transform':'translate('+(x || 0)+','+(y || 0)+')',
+	    'transform':'translate('+x+','+y+')',
+	    'x':x,
+	    'y':y
 	});
     },
     svg: function(width, height) {
@@ -30,7 +34,7 @@ module.exports = {
     },
     polygon: function(points, fill) {
 	return makeSVGElement('polygon', {'points': points, 'fill':fill});
-    }
+    },
 };
 
 

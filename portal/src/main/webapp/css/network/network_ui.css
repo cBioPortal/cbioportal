@@ -600,7 +600,6 @@ table #network_wrapper{
 #relations_tab, #genes_tab, #help_tab, #element_details_tab
 {
 	height: 575px;
-	width: 245px;
 }
 
 #edge_source_filter

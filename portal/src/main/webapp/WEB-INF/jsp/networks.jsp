@@ -182,7 +182,7 @@
                         showNetworkMessage(graphml, "#network #netmsg");
 
                         // when the data is available call send2cytoscapeweb
-                        send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
+                        //send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
                     });
             }
 

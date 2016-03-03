@@ -3144,6 +3144,9 @@ NetworkVis.prototype._refreshRelationsTabUIVisibility = function()
  */
 NetworkVis.prototype._initRelationsTab = function()
 {
+  $(this.relationsTabSelector + " #edge_type_filter").empty();
+  $(this.relationsTabSelector + " #edge_source_filter").empty();
+
   for (var key in this.edgeTypeConstants)
   {
     $(this.relationsTabSelector + " #edge_type_filter").append
@@ -3165,6 +3168,19 @@ NetworkVis.prototype._initRelationsTab = function()
   }
 
   $(this.relationsTabSelector + " #edge_type_filter").append('<tr><td><button id="showInteractionTypeVisibilityUI" type="button">Modify...</button></td></tr>');
+
+  // add source filtering options
+
+  for (var key in this._edgeSourceVisibility)
+  {
+      $(this.relationsTabSelector + " #edge_source_filter").append(
+          '<tr class="' + _safeProperty(key) + '">' +
+          '<td class="edge-source-checkbox" style="padding-left: 10px;">' +
+          '<label>' + key + '</label>' +
+          '</td></tr>');
+  }
+
+  $(this.relationsTabSelector + " #edge_source_filter").append('<tr><td><button id="showInteractionSourceVisibilityUI" type="button">Modify...</button></td></tr>');
 }
 
 /**
@@ -3228,19 +3244,6 @@ NetworkVis.prototype._refreshRelationsTab = function()
 
     // TODO remove old source filters?
     //$(this.relationsTabSelector + " #edge_source_filter tr").remove();
-
-    // add source filtering options
-
-    for (var key in this._edgeSourceVisibility)
-    {
-        $(this.relationsTabSelector + " #edge_source_filter").append(
-            '<tr class="' + _safeProperty(key) + '">' +
-            '<td class="edge-source-checkbox" style="padding-left: 10px;">' +
-            '<label>' + key + '</label>' +
-            '</td></tr>');
-    }
-
-    $(this.relationsTabSelector + " #edge_source_filter").append('<tr><td><button id="showInteractionSourceVisibilityUI" type="button">Modify...</button></td></tr>');
 
 
     // <tr class="unknown">

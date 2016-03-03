@@ -387,7 +387,7 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 				left="+((window.innerWidth/2)-popUpWidth/2)+"px,\
 				top="+((window.innerHeight/2)-popupHeight/2)+"px";
 
-			var sbgnPageURL = "/cbioportal/sbgn-view.jsp";
+			var sbgnPageURL = "/cbioportal/sbgn-view.html";
 			windowObjectReference = window.open(sbgnPageURL+"?"+sourceNodeID+"&"+targetNodeID,"SBGN View", strWindowFeatures);
 		});
 

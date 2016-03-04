@@ -64,7 +64,7 @@
 
 
     String oncokbUrl = (String) GlobalProperties.getOncoKBUrl();
-    String myCancerGenomeUrl = (String) GlobalProperties.getMyCancerGenomeUrl();
+    boolean showMyCancerGenomeUrl = (Boolean) GlobalProperties.showMyCancerGenomeUrl();
     String oncokbGeneStatus = (String) GlobalProperties.getOncoKBGeneStatus();
     boolean showHotspot = (Boolean) GlobalProperties.showHotspot();
     String userName = GlobalProperties.getAuthenticatedUserName();
@@ -124,11 +124,10 @@
 </table>
 
 <script>
-    var myCancerGenomeUrl = '<%=myCancerGenomeUrl%>';
     var oncokbGeneStatus = <%=oncokbGeneStatus%>;
     var showHotspot = <%=showHotspot%>;
-    var enableMyCancerGenome = myCancerGenomeUrl?true:false;
     var userName = '<%=userName%>';
+    var enableMyCancerGenome = <%=showMyCancerGenomeUrl%>;
 
    function waitForElementToDisplay(selector, time) {
         if(document.querySelector(selector) !== null) {

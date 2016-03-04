@@ -683,8 +683,9 @@ var scatterPlots = (function() {
             elem.dotsGroup.selectAll("path").each(function() { 
                 _arr.push(d3.select(this).attr("x_val")); 
             });
-            avg = calc_avg(_arr);
-            stdDev = calc_stdDev(_arr, avg);
+            var _stat = plotsData.stat();
+            avg = _stat.x.avg;
+            stdDev = _stat.x.std_dev;
             _new_x_scale = re_scale_z_score("x");
             re_draw_axis_z_score("x");
             update_axis_title_z_score("x", "append");
@@ -707,8 +708,9 @@ var scatterPlots = (function() {
                     _arr.push(d3.select(this).attr("y_val"));   
                 } 
             });
-            avg = calc_avg(_arr);
-            stdDev = calc_stdDev(_arr, avg);
+            var _stat = plotsData.stat();
+            avg = _stat.y.avg;
+            stdDev = _stat.y.std_dev;
             _new_y_scale = re_scale_z_score("y");
             re_draw_axis_z_score("y");
             update_axis_title_log_scale("y", "remove")

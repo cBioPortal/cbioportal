@@ -18,13 +18,17 @@ var plotsData = (function() {
                     min: "",
                     max: "",
                     edge: "",
-                    has_mutation_data: false
+                    has_mutation_data: false,
+                    avg: 0,
+                    std_dev: 0
                 },
                 y: {
                     min: "",
                     max: "",
                     edge: "",
-                    has_mutation_data: false
+                    has_mutation_data: false,
+                    avg: 0,
+                    std_dev: 0
                 },
                 hasCnaAnno: false,
                 retrieved: false
@@ -44,11 +48,45 @@ var plotsData = (function() {
             
             function inner_profile_callback_func(profileData) { 
                 var _tmp = {}; //convert to json format
+                
                 for (var key in profileData[$("#" + ids.sidebar[axis].gene).val()]) {
                     var _obj = profileData[$("#" + ids.sidebar[axis].gene).val()][key];
                     _tmp[key] = _obj[$("#" + ids.sidebar[axis].profile_name).val()];
                 }
-                callback_func(axis, _tmp);
+
+                // calculate z score
+                var _params = {
+                    cancer_study_id: window.QuerySession.getCancerStudyIds()[0],
+                    gene_list: $("#" + ids.sidebar[axis].gene).val(),
+                    genetic_profile_id: $("#" + ids.sidebar[axis].profile_name).val(),
+                    case_set_id: window.QuerySession.getCancerStudyIds()[0] + "_all"
+                };
+                $.post("getProfileData.json", _params, function(_result_all) {
+                    
+                    var _params = {
+                        cancer_study_id: window.QuerySession.getCancerStudyIds()[0],
+                        gene_list: $("#" + ids.sidebar[axis].gene).val(),
+                        genetic_profile_id: window.QuerySession.getCancerStudyIds()[0] + "_gistic",
+                        case_set_id: window.QuerySession.getCancerStudyIds()[0] + "_all" 
+                    };
+                    $.post("getProfileData.json", _params, function(_result_gistic) {
+                        
+                        var _all_sample_data = [];
+                        _.each(Object.keys(_result_all[$("#" + ids.sidebar[axis].gene).val()]), function(_sample_id) {
+                            var _gistic_val = _result_gistic[$("#" + ids.sidebar[axis].gene).val()][_sample_id][window.QuerySession.getCancerStudyIds()[0] + "_gistic"];
+                            var _profile_val = _result_all[$("#" + ids.sidebar[axis].gene).val()][_sample_id][$("#" + ids.sidebar[axis].profile_name).val()];
+
+                            if (_gistic_val === "0" && !isNaN(_profile_val)) {
+                                _all_sample_data.push(_profile_val);
+                            }
+                        });
+
+                        stat[axis].avg = calc_avg(_all_sample_data);
+                        stat[axis].std_dev = calc_stdDev(_all_sample_data, stat[axis].avg);
+                        callback_func(axis, _tmp);                        
+
+                    }, "json");
+                }, "json");
             }
             
             var paramsGetProfileData = {  //webservice call to get profile data

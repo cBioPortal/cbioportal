@@ -446,10 +446,8 @@ var apply_conversion = function() {
 function calc_avg(data){
     var sum = 0;
     _.each(data, function(_data) { 
-        if (_data !== "NaN") 
-            sum += parseFloat(_data);
+        sum += parseFloat(_data);
     });
-    
     var avg = sum / data.length;
     return avg;
 }

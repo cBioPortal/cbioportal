@@ -89,8 +89,8 @@ public class GetProfileDataJSON extends HttpServlet  {
 
         //Get URL Parameters
         String cancerStudyIdentifier = httpServletRequest.getParameter("cancer_study_id");
-        String patientSetId = httpServletRequest.getParameter("case_set_id");
-        String patientIdsKey = httpServletRequest.getParameter("case_ids_key");
+        String sampleSetId = httpServletRequest.getParameter("case_set_id");
+        String sampleIdsKey = httpServletRequest.getParameter("case_ids_key");
         String rawGeneIdList;
         if (httpServletRequest instanceof XssRequestWrapper) {
             rawGeneIdList = ((XssRequestWrapper)httpServletRequest).getRawParameter("gene_list");
@@ -115,21 +115,21 @@ public class GetProfileDataJSON extends HttpServlet  {
             }
 
             //Get patient ID list
-            DaoPatientList daoPatientList = new DaoPatientList();
-            PatientList patientList = null;
-            ArrayList<String> patientIdList = new ArrayList<String>();
-            if (patientSetId.equals("-1")) {
-                String strPatientIds = PatientSetUtil.getPatientIds(patientIdsKey);
-                String[] patientArray = strPatientIds.split("\\s+");
-                for (String item : patientArray) {
-                    patientIdList.add(item);
+            DaoSampleList daoSampleList = new DaoSampleList();
+            SampleList sampleList = null;
+            ArrayList<String> sampleIdList = new ArrayList<String>();
+            if (sampleSetId.equals("-1")) {
+                String strSampleIds = SampleSetUtil.getSampleIds(sampleIdsKey);
+                String[] sampleArray = strSampleIds.split("\\s+");
+                for (String item : sampleArray) {
+                    sampleIdList.add(item);
                 }
             } else {
-                patientList = daoPatientList.getPatientListByStableId(patientSetId);
-                patientIdList = patientList.getPatientList();
+                sampleList = daoSampleList.getSampleListByStableId(sampleSetId);
+                sampleIdList = sampleList.getSampleList();
             }
             // NOTE - as of 12/12/14, patient lists contain sample ids
-            List<Integer> internalSampleIds = InternalIdUtil.getInternalNonNormalSampleIds(cancerStudy.getInternalId(), patientIdList);
+            List<Integer> internalSampleIds = InternalIdUtil.getInternalNonNormalSampleIds(cancerStudy.getInternalId(), sampleIdList);
             List<String> stableSampleIds = InternalIdUtil.getStableSampleIds(internalSampleIds);
 
             //Get profile data

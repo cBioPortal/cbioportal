@@ -83,11 +83,11 @@ INSERT INTO "mutation_event" ("MUTATION_EVENT_ID","ENTREZ_GENE_ID","CHR","START_
 -- mutation_count
 --INSERT INTO "mutation_count" ("GENETIC_PROFILE_ID","SAMPLE_ID","MUTATION_COUNT") VALUES (6,2,32);
 
--- patient_list
---INSERT INTO "patient_list" ("LIST_ID", "STABLE_ID", "CATEGORY", "CANCER_STUDY_ID", "NAME", "DESCRIPTION") VALUES (1,'study_tcga_pub_all','other',1,'All Tumors','All tumor samples (14 samples)');
+-- sample_list
+--INSERT INTO "sample_list" ("LIST_ID", "STABLE_ID", "CATEGORY", "CANCER_STUDY_ID", "NAME", "DESCRIPTION") VALUES (1,'study_tcga_pub_all','other',1,'All Tumors','All tumor samples (14 samples)');
 
--- patient_list_list
---INSERT INTO "patient_list_list" ("LIST_ID","PATIENT_ID") VALUES (1,1);
+-- sample_list_list
+--INSERT INTO "sample_list_list" ("LIST_ID","SAMPLE_ID") VALUES (1,1);
 
 -- sample_cna_event
 --INSERT INTO "sample_cna_event" ("CNA_EVENT_ID","SAMPLE_ID","GENETIC_PROFILE_ID") VALUES (2774,4,2);

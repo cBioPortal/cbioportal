@@ -57,13 +57,13 @@ public class ClassifierService {
     private SampleMapper sampleMapper;
     
     @Transactional
-    public Classifier insertClassifierData(String studyId, List<String> sampleIds, String classifierData){
+    public Classifier insertClassifierData(String sampleId, String classifierData){
         Map<String, Object> map = new HashMap<String, Object>();
         
         //sampleMapper.getSamplesBySample returns as list, so get the first (only) sample in sampleList to get the sample internalId
-        List<DBSample> sampleList = sampleMapper.getSamplesBySample(studyId, sampleIds);        
-        DBSample sample = sampleList.get(0);
-        int internalId = sample.internal_id;
+        //List<DBSample> sampleList = sampleMapper.getSamplesBySample(studyId, sampleIds);        
+        //DBSample sample = sampleList.get(0);
+        int internalId = classifierMapper.getInternalIdBySampleId(sampleId);//sample.internal_id;
         
         
         map.put("internal_id", internalId);
@@ -76,12 +76,17 @@ public class ClassifierService {
 
         return classifier;        
     }
-
-    public Classifier getClassifierData(String studyId, List<String> sampleIds){
+    
+    public int getInternalIdBySampleId(String sampleId){
+        int internalId = classifierMapper.getInternalIdBySampleId(sampleId);
+        return internalId;
+    }
+    
+    public Classifier getClassifierData(int internalId){
         //sampleMapper.getSamplesBySample returns as list, so get the first (only) sample in sampleList to get the sample internalId
-        List<DBSample> sampleList = sampleMapper.getSamplesBySample(studyId, sampleIds);        
-        DBSample sample = sampleList.get(0);
-        int internalId = sample.internal_id;
+        //List<DBSample> sampleList = sampleMapper.getSamplesBySample(studyId, sampleIds);        
+        //DBSample sample = sampleList.get(0);
+        //int internalId = classifierMapper.getInternalIdBySampleId(sampleId);//sample.internal_id;
         
         Classifier classifier = classifierMapper.getClassifierData(internalId);
         return classifier;

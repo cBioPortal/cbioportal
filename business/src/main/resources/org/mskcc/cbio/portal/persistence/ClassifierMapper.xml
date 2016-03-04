@@ -11,6 +11,13 @@
     
 </insert>
 
+<select id="getInternalIdBySampleId" resultType="Integer" parameterType="String">
+    select 
+        INTERNAL_ID as internalId,
+    from sample
+    where STABLE_ID = #{sampleId}
+</select>
+
 <select id="getClassifierData" resultType="Classifier" parameterType="Integer">
     select 
         INTERNAL_ID as internalId,

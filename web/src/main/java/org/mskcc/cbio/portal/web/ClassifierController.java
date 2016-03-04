@@ -52,10 +52,10 @@ public class ClassifierController {
     private ClassifierService classifierService;
     
     @RequestMapping(value="/{sampleId}")
-    public @ResponseBody Classifier getClassifierDataBySampleId(@PathVariable String studyId, @PathVariable List<String> sampleIds){
+    public @ResponseBody Classifier getClassifierDataBySampleId(@PathVariable int internalId){
         //int internalId = classifierService.getInternalIdByStableSampleId(sampleId);  
         
         //get the internalId within the classifierService.getClassifierData method.. 
-        return classifierService.getClassifierData(studyId, sampleIds);
+        return classifierService.getClassifierData(internalId);
     }                
 }

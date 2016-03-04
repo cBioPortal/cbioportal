@@ -44,5 +44,8 @@ import java.util.*;
 
 public interface ClassifierMapper {
     void insertClassifierData(Map<String, Object> map);
-    Classifier getClassifierData(@Param("studyId") String studyId, @Param("sampleId") String sampleId);
+    int getInternalIdBySampleId(@Param("sampleId") String sampleId);
+    Classifier getClassifierData(@Param("internalId") int internalId);
+
+    //public int getInternalIdBySampleId(String sampleId);
 }

@@ -32,6 +32,7 @@
 
 package org.mskcc.cbio.portal.web;
 
+import java.util.*;
 import org.mskcc.cbio.portal.model.Classifier;
 import org.mskcc.cbio.portal.service.ClassifierService;
 
@@ -41,7 +42,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  *
- * @author Angelica Ochoa <ochoaa@mskcc.org>
+ * @author ochoaa
  */
 
 @Controller
@@ -51,10 +52,10 @@ public class ClassifierController {
     private ClassifierService classifierService;
     
     @RequestMapping(value="/{sampleId}")
-    public @ResponseBody Classifier getClassifierDataBySampleId(@PathVariable int studyId, @PathVariable String sampleId){
+    public @ResponseBody Classifier getClassifierDataBySampleId(@PathVariable String studyId, @PathVariable List<String> sampleIds){
         //int internalId = classifierService.getInternalIdByStableSampleId(sampleId);  
         
         //get the internalId within the classifierService.getClassifierData method.. 
-        return classifierService.getClassifierData(studyId, sampleId);
+        return classifierService.getClassifierData(studyId, sampleIds);
     }                
 }

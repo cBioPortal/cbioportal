@@ -39,10 +39,10 @@ import java.util.*;
 
 /**
  *
- * @author Angelica Ochoa <ochoaa@mskcc.org>
+ * @author ochoaa
  */
 
 public interface ClassifierMapper {
     void insertClassifierData(Map<String, Object> map);
-    Classifier getClassifierData(@Param("studyId") int studyId, @Param("sampleId") String sampleId);
+    Classifier getClassifierData(@Param("studyId") String studyId, @Param("sampleId") String sampleId);
 }

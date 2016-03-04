@@ -46,7 +46,7 @@ import java.util.*;
 
 /**
  *
- * @author Angelica Ochoa <ochoaa@mskcc.org>
+ * @author ochoaa
  */
 
 @Service
@@ -57,7 +57,7 @@ public class ClassifierService {
     private SampleMapper sampleMapper;
     
     @Transactional
-    public Classifier insertClassifierData(int studyId, List<String> sampleIds, String classifierData){
+    public Classifier insertClassifierData(String studyId, List<String> sampleIds, String classifierData){
         Map<String, Object> map = new HashMap<String, Object>();
         
         //sampleMapper.getSamplesBySample returns as list, so get the first (only) sample in sampleList to get the sample internalId
@@ -77,7 +77,7 @@ public class ClassifierService {
         return classifier;        
     }
 
-    public Classifier getClassifierData(int studyId, List<String> sampleIds){
+    public Classifier getClassifierData(String studyId, List<String> sampleIds){
         //sampleMapper.getSamplesBySample returns as list, so get the first (only) sample in sampleList to get the sample internalId
         List<DBSample> sampleList = sampleMapper.getSamplesBySample(studyId, sampleIds);        
         DBSample sample = sampleList.get(0);

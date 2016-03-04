@@ -86,22 +86,9 @@ var sampleViewAnchorTag = function (sample_id) {
     var href = cbio.util.getLinkToSampleView(window.cancer_study_id_selected, sample_id);
     return '<a href="' + href + '">' + sample_id + '</a>';
 };
-var geneticAlterationToolTip = function(d) {
-    var ret = '';
-    if (d.mutation) {
-	ret += 'Mutation: <b>' + d.mutation + '</b><br>';
-    }
-    if (d.cna) {
-	ret += 'Copy Number Alteration: <b>' + d.cna + '</b><br>';
-    }
-    if (d.mrna) {
-	ret += '<b>MRNA: <b>' + d.mrna + '</b><br>';
-    }
-    if (d.rppa) {
-	ret += '<b>RPPA: <b>' + d.rppa + '</b><br>';
-    }
-    ret += sampleViewAnchorTag(d.sample);
-    return ret;
+var patientViewAnchorTag = function(patient_id) {
+    var href = cbio.util.getLinkToPatientView(window.cancer_study_id_selected, patient_id);
+    return '<a href="' + href + '">' + patient_id + '</a>';
 };
 
 var clinicalToolTip = function(d) {
@@ -126,13 +113,17 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
     
     $('#oncoprint #everything').show();
     $('#oncoprint #oncoprint-diagram-toolbar-buttons').show();
-    var oncoprint = new window.Oncoprint(ctr_selector, 1050);
     
-    var $loading_bar_svg = $('<svg width="100" height="50"></svg>').appendTo(ctr_selector);
+    $(ctr_selector).css({'position':'relative'});
+    var $loading_bar_svg = $('<svg width="100" height="50"></svg><br>').appendTo(ctr_selector);
     $loading_bar_svg.append(makeSVGElement("rect", {"width":100, "height":25, "stroke":"black","fill":"white"}));
     var $loading_bar = $(makeSVGElement("rect", {"width":0, "height":25, "fill":"green", "stroke":"dark green"})).appendTo($loading_bar_svg);
     
+    var oncoprint = new window.Oncoprint(ctr_selector, 1050);
+    
+    
     var genetic_alteration_track_ids = [];
+    var gene_to_track_id = {};
     var clinical_track_ids = [];
 
     var used_clinical_attributes = [];
@@ -141,6 +132,28 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
     var clinical_attribute_selector_ready = new $.Deferred();
     
     var to_remove_evt_on_destroy = [];
+    var using_sample_data = true;
+    
+    var makeGeneticAlterationTooltip = function(sample_data) {
+	return function (d) {
+	    var ret = '';
+	    if (d.mutation) {
+		ret += 'Mutation: <b>' + d.mutation + '</b><br>';
+	    }
+	    if (d.cna) {
+		ret += 'Copy Number Alteration: <b>' + d.cna + '</b><br>';
+	    }
+	    if (d.mrna) {
+		ret += '<b>MRNA: <b>' + d.mrna + '</b><br>';
+	    }
+	    if (d.rppa) {
+		ret += '<b>RPPA: <b>' + d.rppa + '</b><br>';
+	    }
+	    ret += (sample_data ? sampleViewAnchorTag(d.sample) : patientViewAnchorTag(d.patient));
+	    return ret;
+	}
+    };
+
     
     
     var mutation_count_clinical_data = [];
@@ -395,49 +408,95 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	}
     };
 
-
-    QuerySession.getGenomicEventData().then(function (data) {
-	(function invokeOldDataManagers() {
+    var initOncoprint = function() {
+	var def = new $.Deferred();
+	QuerySession.getGenomicEventData().then(function (data) {
 	    var genes = window.QuerySession.getQueryGenes();
-	    window.PortalDataColl.setOncoprintData(window.OncoprintUtils.process_data(data, genes));
-	    PortalDataColl.setOncoprintStat(window.OncoprintUtils.alteration_info(data));
-	})();
-	
-	var data_by_gene = {};
-	for (var i = 0; i < data.length; i++) {
-	    var d = data[i];
-	    if (!data_by_gene[d.gene]) {
-		data_by_gene[d.gene] = [];
-	    }
-	    data_by_gene[d.gene].push(d);
-	}
-	var rule_set_params = {
-	    type: 'gene',
-	};
-	oncoprint.suppressRendering();
-	var total_samples = QuerySession.getSampleIds().length;
-	QuerySession.getAlteredSamplesWholePercentageByGene().then(function(altered_sample_percentage_by_gene) {
-	    timeoutSeparatedLoop(Object.keys(data_by_gene), function(gene, i, array) {
-		var track_params = {'data': data_by_gene[gene], 'rule_set_params': $.extend({}, rule_set_params, {'legend_label':'Genetic Alteration'}), 'data_id_key': 'sample', 'label': gene,
-		    'sortCmpFn': makeGeneticAlterationComparator(true), 'target_group':1, 'tooltipFn':geneticAlterationToolTip,
-		    'track_info':altered_sample_percentage_by_gene[gene] + '%'};
-		genetic_alteration_track_ids = genetic_alteration_track_ids.concat(oncoprint.addTracks([track_params]));
-		$loading_bar.attr("width", (i/array.length)*parseFloat($loading_bar_svg.attr("width")));
-	    }).then(function() {
-		for (var i=1; i<genetic_alteration_track_ids.length; i++) {
-		    oncoprint.shareRuleSet(genetic_alteration_track_ids[0], genetic_alteration_track_ids[i]);
+	    (function invokeOldDataManagers() {
+		window.PortalDataColl.setOncoprintData(window.OncoprintUtils.process_data(data, genes));
+		PortalDataColl.setOncoprintStat(window.OncoprintUtils.alteration_info(data));
+	    })();
+	    
+	    oncoprint.suppressRendering();
+	    
+	    for (var i=0; i<genes.length; i++) {
+		var track_params = {'rule_set_params': {'type':'gene', 'legend_label':'Genetic Alteration'}, 'label': genes[i],
+			'sortCmpFn': makeGeneticAlterationComparator(true), 'target_group': 1};
+		var new_track_id = oncoprint.addTracks([track_params])[0];
+		gene_to_track_id[genes[i]] = new_track_id;
+		genetic_alteration_track_ids.push(new_track_id);
+		if (i > 0) {
+		    oncoprint.shareRuleSet(genetic_alteration_track_ids[0], new_track_id);
 		}
+	    }
+	    oncoprint.releaseRendering();
+	    def.resolve();
+	});
+	return def.promise();
+    };
+    var loadSampleDataOncoprint = function() {
+	var done = new $.Deferred();
+	$.when(QuerySession.getGenomicEventData(), QuerySession.getAlteredSamplesWholePercentageByGene()).then(function(data, altered_sample_percentage_by_gene) {
+	    var data_by_gene = {};
+	    for (var i=0; i<data.length; i++) {
+		var d = data[i];
+		if (!data_by_gene[d.gene]) {
+		    data_by_gene[d.gene] = [];
+		}
+		data_by_gene[d.gene].push(d);
+	    }
+	    $loading_bar_svg.show();
+	    oncoprint.suppressRendering();
+	    oncoprint.keepSorted(false);
+	    timeoutSeparatedLoop(Object.keys(data_by_gene), function (gene, i, array) {
+		var track_id = gene_to_track_id[gene];
+		oncoprint.setTrackData(track_id, data_by_gene[gene], 'sample');
+		oncoprint.setTrackInfo(track_id, altered_sample_percentage_by_gene[gene] + '%');
+		oncoprint.setTrackTooltipFn(track_id, makeGeneticAlterationTooltip(true));
+		$loading_bar.attr("width", (i / array.length) * parseFloat($loading_bar_svg.attr("width")));
+	    }).then(function () {
 		oncoprint.keepSorted();
 		oncoprint.releaseRendering();
-		$loading_bar_svg.remove();
+		$loading_bar_svg.hide();
+		done.resolve();
 	    });
 	});
-    });
+	return done.promise();
+    };
+    var loadPatientDataOncoprint = function() {
+	var done = new $.Deferred();
+	$.when(QuerySession.getCombinedPatientGenomicEventData(), QuerySession.getAlteredPatientsWholePercentageByGene()).then(function(data, altered_patient_percentage_by_gene) {
+	    var data_by_gene = {};
+	    for (var i=0; i<data.length; i++) {
+		var d = data[i];
+		if (!data_by_gene[d.gene]) {
+		    data_by_gene[d.gene] = [];
+		}
+		data_by_gene[d.gene].push(d);
+	    }
+	    $loading_bar_svg.show();
+	    oncoprint.suppressRendering();
+	    oncoprint.keepSorted(false);
+	    timeoutSeparatedLoop(Object.keys(data_by_gene), function (gene, i, array) {
+		var track_id = gene_to_track_id[gene];
+		oncoprint.setTrackData(track_id, data_by_gene[gene], 'patient');
+		oncoprint.setTrackInfo(track_id, altered_patient_percentage_by_gene[gene] + '%');
+		oncoprint.setTrackTooltipFn(track_id, makeGeneticAlterationTooltip(false));
+		$loading_bar.attr("width", (i / array.length) * parseFloat($loading_bar_svg.attr("width")));
+	    }).then(function () {
+		oncoprint.keepSorted();
+		oncoprint.releaseRendering();
+		$loading_bar_svg.hide();
+		done.resolve();
+	    });
+	});
+	return done.promise();
+    };
+    initOncoprint().then((using_sample_data ? loadSampleDataOncoprint : loadPatientDataOncoprint));
     window.oncoprint = oncoprint;
 
     (function setUpToolbar() {
 	var unaltered_cases_hidden = false;
-	var zoom = 1.0;
 	var zoom_discount = 0.7;
 	var cell_padding_on = true;
 	var unaltered_cases_hidden = false;
@@ -586,7 +645,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		    });
 	})();
 	(function setUpHideUnalteredCases() {
-	    QuerySession.getUnalteredSamples().then(function (unaltered_samples) {
+	    $.when(QuerySession.getUnalteredSamples(), QuerySession.getUnalteredPatients()).then(function (unaltered_samples, unaltered_patients) {
 		setUpButton($(toolbar_selector + ' #oncoprint-diagram-removeUCases-icon'),
 			['images/unremoveUCases.svg','images/removeUCases.svg'],
 			['Hide unaltered cases', 'Show unaltered cases'],
@@ -596,7 +655,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			function () {
 			    unaltered_cases_hidden = !unaltered_cases_hidden;
 			    if (unaltered_cases_hidden) {
-				oncoprint.hideIds(unaltered_samples, true);
+				oncoprint.hideIds((using_sample_data ? unaltered_samples : unaltered_patients), true);
 			    } else {
 				oncoprint.hideIds([], true);
 			    }
@@ -604,9 +663,9 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    });
 	})();
 	(function setUpZoomToFit() {
-	    QuerySession.getAlteredSamples().then(function (altered_samples) {
+	    $.when(QuerySession.getAlteredSamples(), QuerySession.getAlteredPatients()).then(function(altered_samples, altered_patients) {
 		setUpButton($(toolbar_selector + ' #oncoprint_zoomtofit'), [], ["Zoom to fit altered cases in screen"], null, function() {
-		    oncoprint.setHorzZoom(oncoprint.getZoomToFitHorz(altered_samples));
+		    oncoprint.setHorzZoom(oncoprint.getZoomToFitHorz((using_sample_data ? altered_samples : altered_patients)));
 		    oncoprint.scrollTo(0);
 		});
 	    });
@@ -670,6 +729,110 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			    }
 			});
 	})();
+	(function setUpTogglePatientSampleBtn() {
+	    var previous_switch_done = new $.Deferred();
+	    previous_switch_done.resolve();
+	    setUpButton($(toolbar_selector + ' #oncoprint_diagram_topatientid_icon'),
+			['images/cool2.svg', 'images/cool.svg'],
+			['Show events per patient', 'Show events per sample'],
+			function() { return +(!using_sample_data); },
+			function() {
+			    if (previous_switch_done.state() !== "resolved") {
+				return;
+			    }
+			    using_sample_data = !using_sample_data;
+			    if (using_sample_data) {
+				previous_switch_done = loadSampleDataOncoprint();
+			    } else {
+				previous_switch_done = loadPatientDataOncoprint();
+			    }
+			}
+	    );
+	    /*
+	    if (!config.swap_patient_sample) {
+		return;
+	    }
+	    var toolbar_btn = $(toolbar_selector + ' #oncoprint_diagram_topatientid_icon');
+	    var header_btn = $('#switchPatientSample');
+	    var imgs = ['images/cool2.svg', 'images/cool.svg'];
+	    var toolbar_descs = ['Show events per sample', 'Show events per patient'];
+	    var header_text = ['Show all samples', 'Show only one column per patient'];
+	    var header_descs = ['All samples from a patient are merged into one column. Click to split samples into multiple columns.',
+		'Each sample for each patient is in a separate column. Click to show only one column per patient'];
+	    var updateBtn = function () {
+		toolbar_btn.find('img').attr('src', imgs[+using_sample_data]);
+		header_btn.text(header_text[+using_sample_data]);
+	    };
+	    var updateURL = function () {
+		var new_url = window.location.href;
+		new_url = changeURLParam("show_samples", using_sample_data, new_url);
+		window.history.pushState({"html": window.location.html, "pageTitle": window.location.pageTitle}, "", new_url);
+	    };
+	    toolbar_btn.add(header_btn).click(function () {
+		using_sample_data = !using_sample_data;
+		updateBtn();
+		oncoprintFadeTo(0.5).then(function () {
+		    if (!using_sample_data) {
+			oncoprint.setIdOrder([]);
+			_.each(genetic_alteration_tracks, function (track_id) {
+			    oncoprint.setTrackDatumIdKey(track_id, 'patient');
+			    oncoprint.setTrackTooltip(track_id, gaTooltipPatient);
+			    oncoprint.setTrackData(track_id, patient_data__gene[track_data_name[track_id]]);
+			});
+			_.each(clinical_tracks, function (track_id) {
+			    oncoprint.setTrackDatumIdKey(track_id, 'patient');
+			    oncoprint.setTrackTooltip(track_id, cTooltipPatient);
+			    oncoprint.setTrackData(track_id, patient_data__clinical[track_data_name[track_id]]);
+			});
+			updatePercentAlteredIndicator();
+			$(toolbar_selector + ' .oncoprint-sample-download').text("Patient order");
+		    } else {
+			oncoprint.setIdOrder([]);
+			_.each(genetic_alteration_tracks, function (track_id) {
+			    oncoprint.setTrackDatumIdKey(track_id, 'sample');
+			    oncoprint.setTrackTooltip(track_id, gaTooltipSample);
+			    oncoprint.setTrackData(track_id, sample_data__gene[track_data_name[track_id]]);
+			});
+			_.each(clinical_tracks, function (track_id) {
+			    oncoprint.setTrackDatumIdKey(track_id, 'sample');
+			    oncoprint.setTrackTooltip(track_id, cTooltipSample);
+			    oncoprint.setTrackData(track_id, sample_data__clinical[track_data_name[track_id]]);
+			});
+			updatePercentAlteredIndicator();
+			$(toolbar_selector + ' .oncoprint-sample-download').text("Sample order");
+		    }
+		    if (unaltered_cases_hidden) {
+			hideUnalteredIds();
+		    }
+		    oncoprint.sort();
+		    oncoprintFadeIn();
+		    updateURL();
+		});
+	    });
+	    updateBtn();
+	    to_click_remove.push(toolbar_btn);
+	    to_click_remove.push(header_btn);
+	    toolbar_btn.qtip({
+		content: {text: function () {
+			return toolbar_descs[+using_sample_data];
+		    }},
+		position: {my: 'bottom middle', at: 'top middle', viewport: $(window)},
+		style: {classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite'},
+		show: {event: "mouseover"},
+		hide: {fixed: true, delay: 100, event: "mouseout"}
+	    });
+	    header_btn.qtip({
+		content: {text: function () {
+			return header_descs[+using_sample_data];
+		    }},
+		position: {my: 'bottom middle', at: 'top middle', viewport: $(window)},
+		style: {classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightwhite'},
+		show: {event: "mouseover"},
+		hide: {fixed: true, delay: 100, event: "mouseout"}
+	    });
+	    to_qtip_destroy.push(toolbar_btn);
+	    to_qtip_destroy.push(header_btn);*/
+	})();
 	(function setUpDownload() {
 	    addQTipTo($(toolbar_selector + ' #oncoprint-diagram-downloads-icon'), {
 				//id: "#oncoprint-diagram-downloads-icon-qtip",
@@ -678,9 +841,11 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 				hide: {fixed: true, delay: 100, event: "mouseout"},
 				position: {my: 'top center', at: 'bottom center', viewport: $(window)},
 				content: {
-					text: "<button class='oncoprint-diagram-download' type='pdf' style='cursor:pointer;width:90px;'>PDF</button> <br/>" +
-						"<button class='oncoprint-diagram-download' type='svg' style='cursor:pointer;width:90px;'>SVG</button> <br/>" +
-						"<button class='oncoprint-sample-download'  type='txt' style='cursor:pointer;width:90px;'>Patient order</button>"
+					text: function() {
+						return "<button class='oncoprint-diagram-download' type='pdf' style='cursor:pointer;width:90px;'>PDF</button> <br/>" +
+							"<button class='oncoprint-diagram-download' type='svg' style='cursor:pointer;width:90px;'>SVG</button> <br/>" +
+							"<button class='oncoprint-sample-download'  type='txt' style='cursor:pointer;width:90px;'>"+(using_sample_data ? "Sample" : "Patient")+" order</button>"
+					    }
 				},
 				events: {
 					render: function (event) {
@@ -703,7 +868,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 						});
 
 						$('.oncoprint-sample-download').click(function () {
-							var idTypeStr = "Sample";
+							var idTypeStr = (using_sample_data ? "Sample" : "Patient");
 							var content = idTypeStr + " order in the Oncoprint is: \n";
 							content += oncoprint.getIdOrder().join('\n');
 							var downloadOpts = {

@@ -105,6 +105,7 @@ var Oncoprint = (function () {
 	    var new_zoom = Math.min(1, self.cell_view.visible_area_width / (unzoomed_right-unzoomed_left));
 	    self.setHorzZoom(new_zoom);
 	    self.$cell_div.scrollLeft(unzoomed_left*new_zoom);
+	    self.id_clipboard = self.model.getIdsInLeftInterval(unzoomed_left, unzoomed_right);
 	});
 	
 	this.track_options_view = new OncoprintTrackOptionsView($track_options_div, 
@@ -141,6 +142,10 @@ var Oncoprint = (function () {
 	$(window).resize(function() {
 	    resizeAndOrganize(self);
 	});
+	
+	
+	this.id_clipboard = [];
+	this.clipboard_change_callbacks = [];
     }
 
     var resizeLegendAfterTimeout = function(oncoprint) {
@@ -351,6 +356,10 @@ var Oncoprint = (function () {
 	this.track_info_view.setTrackInfo(this.model);
     }
     
+    Oncoprint.prototype.setTrackTooltipFn = function(track_id, tooltipFn) {
+	this.model.setTrackTooltipFn(track_id, tooltipFn);
+    }
+    
     Oncoprint.prototype.sort = function() {
 	this.model.sort();
 	this.cell_view.sort(this.model);
@@ -467,6 +476,19 @@ var Oncoprint = (function () {
     
     Oncoprint.prototype.getIdOrder = function(all) {
 	return this.model.getIdOrder(all);
+    }
+    
+    Oncoprint.prototype.setIdClipboardContents = function(array) {
+	this.id_clipboard = array.slice();
+	for (var i=0; i<this.clipboard_change_callbacks.length; i++) {
+	    this.clipboard_change_callbacks[i](array);
+	}
+    }
+    Oncoprint.prototype.getIdClipboardContents = function() {
+	return this.id_clipboard.slice();
+    }
+    Oncoprint.prototype.onClipboardChange = function(callback) {
+	this.clipboard_change_callbacks.push(callback);
     }
     
     return Oncoprint;

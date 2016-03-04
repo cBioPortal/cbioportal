@@ -167,6 +167,7 @@ var Oncoprint = (function () {
 	    var new_zoom = Math.min(1, self.cell_view.visible_area_width / (unzoomed_right-unzoomed_left));
 	    self.setHorzZoom(new_zoom);
 	    self.$cell_div.scrollLeft(unzoomed_left*new_zoom);
+	    self.id_clipboard = self.model.getIdsInLeftInterval(unzoomed_left, unzoomed_right);
 	});
 	
 	this.track_options_view = new OncoprintTrackOptionsView($track_options_div, 
@@ -203,6 +204,10 @@ var Oncoprint = (function () {
 	$(window).resize(function() {
 	    resizeAndOrganize(self);
 	});
+	
+	
+	this.id_clipboard = [];
+	this.clipboard_change_callbacks = [];
     }
 
     var resizeLegendAfterTimeout = function(oncoprint) {
@@ -413,6 +418,10 @@ var Oncoprint = (function () {
 	this.track_info_view.setTrackInfo(this.model);
     }
     
+    Oncoprint.prototype.setTrackTooltipFn = function(track_id, tooltipFn) {
+	this.model.setTrackTooltipFn(track_id, tooltipFn);
+    }
+    
     Oncoprint.prototype.sort = function() {
 	this.model.sort();
 	this.cell_view.sort(this.model);
@@ -529,6 +538,19 @@ var Oncoprint = (function () {
     
     Oncoprint.prototype.getIdOrder = function(all) {
 	return this.model.getIdOrder(all);
+    }
+    
+    Oncoprint.prototype.setIdClipboardContents = function(array) {
+	this.id_clipboard = array.slice();
+	for (var i=0; i<this.clipboard_change_callbacks.length; i++) {
+	    this.clipboard_change_callbacks[i](array);
+	}
+    }
+    Oncoprint.prototype.getIdClipboardContents = function() {
+	return this.id_clipboard.slice();
+    }
+    Oncoprint.prototype.onClipboardChange = function(callback) {
+	this.clipboard_change_callbacks.push(callback);
     }
     
     return Oncoprint;
@@ -866,8 +888,10 @@ var OncoprintLegendView = (function() {
 	    var rule_set_group = svgfactory.group(0,y);
 	    everything_group.appendChild(rule_set_group);
 	    (function addLabel() {
-		var label = svgfactory.text(rule_sets[i].legend_label, 0, y, 12, 'Arial', 'bold');
-		rule_set_group.appendChild(label);
+		if (rule_sets[i].legend_label && rule_sets[i].legend_label.length > 0) {
+		    var label = svgfactory.text(rule_sets[i].legend_label, 0, y, 12, 'Arial', 'bold');
+		    rule_set_group.appendChild(label);
+		}
 	    })();
 	    
 	    var x = rule_start_x + view.padding_after_rule_set_label;
@@ -1133,7 +1157,7 @@ var OncoprintModel = (function () {
     }
 
     OncoprintModel.prototype.getMinZoom = function() {
-	return MIN_ZOOM_PIXELS / (this.getIdOrder().length*this.getCellWidth(true) + (this.getIdOrder().length-1)*this.getCellPadding(true));
+	return Math.min(MIN_ZOOM_PIXELS / (this.getIdOrder().length*this.getCellWidth(true) + (this.getIdOrder().length-1)*this.getCellPadding(true)), 1);
     }
     
     OncoprintModel.prototype.setHorzScroll = function(s) {
@@ -1537,6 +1561,20 @@ var OncoprintModel = (function () {
 	return ret;
     }
 
+    OncoprintModel.prototype.getIdsInLeftInterval = function(left, right) {
+	var cell_width = this.getCellWidth(true);
+	var cell_padding = this.getCellPadding(true);
+	var id_order = this.getIdOrder();
+	
+	// left_id_index and right_id_index are inclusive
+	var left_id_index = Math.floor(left/(cell_width + cell_padding));
+	var left_remainder = left - left_id_index*(cell_width + cell_padding);
+	if (left_remainder > cell_width) {
+	    left_id_index += 1;
+	}
+	var right_id_index = Math.floor(right/(cell_width + cell_padding));
+	return id_order.slice(left_id_index, right_id_index+1);
+    }
     OncoprintModel.prototype.getColumnLeft = function(id) {
 	if (typeof id === 'undefined') {
 	    return this.column_left.get();
@@ -1579,6 +1617,9 @@ var OncoprintModel = (function () {
 
     OncoprintModel.prototype.getTrackTooltipFn = function (track_id) {
 	return this.track_tooltip_fn[track_id];
+    }
+    OncoprintModel.prototype.setTrackTooltipFn = function (track_id, tooltipFn) {
+	this.track_tooltip_fn[track_id] = tooltipFn;
     }
 
     OncoprintModel.prototype.getTrackDataIdKey = function (track_id) {
@@ -2396,7 +2437,7 @@ var LinearInterpRuleSet = (function () {
 	this.inferred_value_range;
 
 	this.makeInterpFn = function () {
-	    var range = getEffectiveValueRange(this);
+	    var range = this.getEffectiveValueRange();
 	    if (range[0] === range[1]) {
 		// Make sure non-zero denominator
 		range[0] -= range[0] / 2;
@@ -2411,13 +2452,13 @@ var LinearInterpRuleSet = (function () {
     }
     LinearInterpRuleSet.prototype = Object.create(ConditionRuleSet.prototype);
 
-    var getEffectiveValueRange = function (ruleset) {
-	var ret = (ruleset.value_range && [ruleset.value_range[0], ruleset.value_range[1]]) || [undefined, undefined];
+    LinearInterpRuleSet.prototype.getEffectiveValueRange = function () {
+	var ret = (this.value_range && this.value_range.slice()) || [undefined, undefined];
 	if (typeof ret[0] === "undefined") {
-	    ret[0] = ruleset.inferred_value_range[0];
+	    ret[0] = this.inferred_value_range[0];
 	}
 	if (typeof ret[1] === "undefined") {
-	    ret[1] = ruleset.inferred_value_range[1];
+	    ret[1] = this.inferred_value_range[1];
 	}
 	return ret;
     };
@@ -2510,7 +2551,7 @@ var GradientRuleSet = (function () {
 			    }
 			}],
 		    exclude_from_legend: false,
-		    legend_config: {'type': 'gradient', 'range': this.inferred_value_range}
+		    legend_config: {'type': 'gradient', 'range': this.getEffectiveValueRange()}
 		});
     };
 
@@ -2547,7 +2588,7 @@ var BarRuleSet = (function () {
 			    fill: this.fill,
 			}],
 		    exclude_from_legend: false,
-		    legend_config: {'type': 'number', 'range': this.inferred_value_range, 'color': this.fill}
+		    legend_config: {'type': 'number', 'range': this.getEffectiveValueRange(), 'color': this.fill}
 		});
     };
 
@@ -4037,8 +4078,12 @@ module.exports = {
 	return elt;
     },
     group: function(x,y) {
+	x = x || 0;
+	y = y || 0;
 	return makeSVGElement('g', {
-	    'transform':'translate('+(x || 0)+','+(y || 0)+')',
+	    'transform':'translate('+x+','+y+')',
+	    'x':x,
+	    'y':y
 	});
     },
     svg: function(width, height) {
@@ -4052,7 +4097,7 @@ module.exports = {
     },
     polygon: function(points, fill) {
 	return makeSVGElement('polygon', {'points': points, 'fill':fill});
-    }
+    },
 };
 
 

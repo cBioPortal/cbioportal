@@ -42,7 +42,7 @@ var OncoprintLegendView = (function() {
 	}
 	return maximum;
     };
-    var renderLegend = function(view, model, target_svg) {
+    var renderLegend = function(view, model, target_svg, show_all) {
 	if (view.rendering_suppressed) {
 	    return;
 	}
@@ -58,7 +58,7 @@ var OncoprintLegendView = (function() {
 	var y = 0;
 	var rule_start_x = getMaximumLabelWidth(view, model);
 	for (var i=0; i<rule_sets.length; i++) {
-	    if (rule_sets[i].exclude_from_legend) {
+	    if (rule_sets[i].exclude_from_legend && !show_all) {
 		continue;
 	    }
 	    var rule_set_group = svgfactory.group(0,y);
@@ -147,7 +147,7 @@ var OncoprintLegendView = (function() {
     OncoprintLegendView.prototype.toSVGGroup = function(model, offset_x, offset_y) {
 	var root = svgfactory.group((offset_x || 0), (offset_y || 0));
 	this.$svg.append(root);
-	renderLegend(this, model, root);
+	renderLegend(this, model, root, true);
 	root.parentNode.removeChild(root);
 	return root;
     }

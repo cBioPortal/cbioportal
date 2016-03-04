@@ -730,6 +730,13 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 					});
 				});
 
+				var listToTrueSet = function(list) {
+				    var ret = {};
+				    for (var i=0; i<list.length; i++) {
+					ret[list[i]] = true;
+				    }
+				    return ret;
+				};
 				// a patient is altered if at least one of its samples is altered
 				// a patient is unaltered if none of its samples are altered
 				var altered_patients = {};
@@ -738,9 +745,11 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 				var unaltered_samples = oql_process_result.unaltered;
 				for (var gene in altered_samples) {
 				    if (altered_samples.hasOwnProperty(gene)) {
-					altered_patients[gene] = _.uniq(_.map(altered_samples[gene], function(s) { return sample_to_patient[s];}));
-					unaltered_patients[gene] = _.difference(_.uniq(_.map(unaltered_samples[gene], function(s) { return sample_to_patient[s];})), 
+					altered_patients[gene] = _.uniq(_.map(Object.keys(altered_samples[gene]), function(s) { return sample_to_patient[s];}));
+					unaltered_patients[gene] = _.difference(_.uniq(_.map(Object.keys(unaltered_samples[gene]), function(s) { return sample_to_patient[s];})), 
 										altered_patients[gene]);
+					altered_patients[gene] = listToTrueSet(altered_patients[gene]);
+					unaltered_patients[gene] = listToTrueSet(unaltered_patients[gene]);
 				    }
 				}
 								
@@ -813,6 +822,28 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 								    }
 								    return union;
 								};
+								var setIntersection = function (list_of_sets) {
+								    var intersection = {};
+								    for (var i = 0; i < list_of_sets.length; i++) {
+									var set = list_of_sets[i];
+									if (i === 0) {
+									    for (var k in set) {
+										if (set.hasOwnProperty(k)) {
+										    intersection[k] = true;
+										}
+									    }
+									} else {
+									    for (var k in intersection) {
+										if (intersection.hasOwnProperty(k)) {
+										    if (!set.hasOwnProperty(k)) {
+											delete intersection[k];
+										    }
+										}
+									    }
+									}
+								    }
+								    return intersection;
+								};
 								var objectValues = function (obj) {
 								    return Object.keys(obj).map(function (key) {
 									return obj[key];
@@ -825,14 +856,14 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 								dm_ret.altered_samples_by_gene = oql_process_result.altered;
 								dm_ret.unaltered_samples_by_gene = oql_process_result.unaltered;
 								dm_ret.altered_samples = Object.keys(setUnion(objectValues(oql_process_result.altered)));
-								dm_ret.unaltered_samples = Object.keys(setUnion(objectValues(oql_process_result.unaltered)));
+								dm_ret.unaltered_samples = Object.keys(setIntersection(objectValues(oql_process_result.unaltered)));
 
 								var oql_process_result_patient = makePatientData(oql_process_result);
 								dm_ret.patient_gene_data = oql_process_result_patient.data;
 								dm_ret.altered_patients_by_gene = oql_process_result_patient.altered;
 								dm_ret.unaltered_patients_by_gene = oql_process_result_patient.unaltered;
 								dm_ret.altered_patients = Object.keys(setUnion(objectValues(oql_process_result_patient.altered)));
-								dm_ret.unaltered_patients = Object.keys(setUnion(objectValues(oql_process_result_patient.unaltered)));
+								dm_ret.unaltered_patients = Object.keys(setIntersection(objectValues(oql_process_result_patient.unaltered)));
 
 								data_fetched = true;
 								def.resolve();

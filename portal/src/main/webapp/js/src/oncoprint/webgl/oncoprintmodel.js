@@ -578,6 +578,20 @@ var OncoprintModel = (function () {
 	return ret;
     }
 
+    OncoprintModel.prototype.getIdsInLeftInterval = function(left, right) {
+	var cell_width = this.getCellWidth(true);
+	var cell_padding = this.getCellPadding(true);
+	var id_order = this.getIdOrder();
+	
+	// left_id_index and right_id_index are inclusive
+	var left_id_index = Math.floor(left/(cell_width + cell_padding));
+	var left_remainder = left - left_id_index*(cell_width + cell_padding);
+	if (left_remainder > cell_width) {
+	    left_id_index += 1;
+	}
+	var right_id_index = Math.floor(right/(cell_width + cell_padding));
+	return id_order.slice(left_id_index, right_id_index+1);
+    }
     OncoprintModel.prototype.getColumnLeft = function(id) {
 	if (typeof id === 'undefined') {
 	    return this.column_left.get();
@@ -620,6 +634,9 @@ var OncoprintModel = (function () {
 
     OncoprintModel.prototype.getTrackTooltipFn = function (track_id) {
 	return this.track_tooltip_fn[track_id];
+    }
+    OncoprintModel.prototype.setTrackTooltipFn = function (track_id, tooltipFn) {
+	this.track_tooltip_fn[track_id] = tooltipFn;
     }
 
     OncoprintModel.prototype.getTrackDataIdKey = function (track_id) {

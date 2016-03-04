@@ -768,6 +768,17 @@ class MutationsExtendedValidator(Validator):
     REQUIRE_COLUMN_ORDER = False
     ALLOW_BLANKS = True
 
+    # MutationFilter.java filters these types. Therefore, there is no reason to add warnings and errors for them 
+    SKIP_VARIANT_TYPES = [
+        'Silent', 
+        'Intron', 
+        '3\'UTR', 
+        '3\'Flank', 
+        '5\'UTR',
+        '5\'Flank',
+        'IGR'
+    ]
+
     # Used for mapping column names to the corresponding function that does a check on the value.
     # This can be done for other filetypes besides maf - not currently implemented.
     CHECK_FUNCTION_MAP = {
@@ -834,42 +845,43 @@ class MutationsExtendedValidator(Validator):
 
         super(MutationsExtendedValidator, self).checkLine(data)
 
-        for col_name in self.CHECK_FUNCTION_MAP:
-            # if optional column was found, validate it:
-            if col_name in self.cols:
-                col_index = self.cols.index(col_name)
-                value = data[col_index]
-                # get the checking method for this column if available, or None
-                checking_function = getattr(
-                    self,
-                    self.CHECK_FUNCTION_MAP[col_name])
-                if not checking_function(value, data):
-                    self.printDataInvalidStatement(value, col_index)
-                elif self.extra_exists or self.extra:
-                    raise RuntimeError(('Checking function %s set an error '
-                                        'message but reported no error') %
-                                       checking_function.__name__)
+        if not self.skipValidation(data):
+            for col_name in self.CHECK_FUNCTION_MAP:
+                # if optional column was found, validate it:
+                if col_name in self.cols:
+                    col_index = self.cols.index(col_name)
+                    value = data[col_index]
+                    # get the checking method for this column if available, or None
+                    checking_function = getattr(
+                        self,
+                        self.CHECK_FUNCTION_MAP[col_name])
+                    if not checking_function(value, data):
+                        self.printDataInvalidStatement(value, col_index)
+                    elif self.extra_exists or self.extra:
+                        raise RuntimeError(('Checking function %s set an error '
+                                            'message but reported no error') %
+                                           checking_function.__name__)
         
-        # validate Tumor_Sample_Barcode value to make sure it exists in study sample list:
-        sample_id_column_index = self.cols.index('Tumor_Sample_Barcode')
-        value = data[sample_id_column_index]
-        self.checkSampleId(value, column_number=sample_id_column_index + 1)
+            # validate Tumor_Sample_Barcode value to make sure it exists in study sample list:
+            sample_id_column_index = self.cols.index('Tumor_Sample_Barcode')
+            value = data[sample_id_column_index]
+            self.checkSampleId(value, column_number=sample_id_column_index + 1)
                
-        # parse hugo and entrez to validate them together: 
-        hugo_symbol = None
-        entrez_id = None
-        if 'Hugo_Symbol' in self.cols:
-            hugo_symbol = data[self.cols.index('Hugo_Symbol')]
-            # treat the empty string as a missing value
-            if hugo_symbol == '':
-                hugo_symbol = None
-        if 'Entrez_Gene_Id' in self.cols:
-            entrez_id = data[self.cols.index('Entrez_Gene_Id')]
-            # treat the empty string as a missing value
-            if entrez_id == '':
-                entrez_id = None
-        # validate hugo and entrez together:
-        self.checkGeneIdentification(hugo_symbol, entrez_id)
+            # parse hugo and entrez to validate them together: 
+            hugo_symbol = None
+            entrez_id = None
+            if 'Hugo_Symbol' in self.cols:
+                hugo_symbol = data[self.cols.index('Hugo_Symbol')]
+                # treat the empty string as a missing value
+                if hugo_symbol == '':
+                    hugo_symbol = None
+            if 'Entrez_Gene_Id' in self.cols:
+                entrez_id = data[self.cols.index('Entrez_Gene_Id')]
+                # treat the empty string as a missing value
+                if entrez_id == '':
+                    entrez_id = None
+            # validate hugo and entrez together:
+            self.checkGeneIdentification(hugo_symbol, entrez_id)
 
     def printDataInvalidStatement(self, value, col_index):
         """Prints out statement for invalid values detected."""
@@ -982,6 +994,13 @@ class MutationsExtendedValidator(Validator):
         # it is just a warning, so we can return True always:
         return True
 
+    def skipValidation(self, data):
+        """Test whether line should be verified based on the variant classification"""
+        variant_classification = data[self.cols.index('Variant_Classification')]
+        if variant_classification in self.SKIP_VARIANT_TYPES:
+            return True
+        else:
+            return False
 
     def checkNotBlank(self, value, data):
         """Test whether a string is blank."""

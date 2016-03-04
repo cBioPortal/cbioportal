@@ -31,38 +31,6 @@ body {
   height:50px;
 }
 
-fieldset#login-fieldset, fieldset#clinical-timeline-fieldset, fieldset#patient-view-summary-fieldset {
-    padding: 5px 10px;
-}
-
-fieldset#login-fieldset {
-    border: 2px groove threedface;
-}
-
-fieldset#clinical-timeline-fieldset, fieldset#patient-view-summary-fieldset {
-    border: 1px solid #aaaaaa;
-}
-
-fieldset#login-fieldset > legend {
-    width: 96px;
-    border-bottom: none;
-    color: #666666;
-    font-family: verdana, arial, sans-serif;
-    font-size: 12px;
-    margin-bottom: 0;
-}
-
-fieldset#clinical-timeline-fieldset > legend,
-fieldset#patient-view-summary-fieldset > legend {
-    font-size: 12px !important;
-    text-align: left !important;
-    width: auto;
-    padding: 0 10px;
-    border-bottom: none;
-    color: #1974b8;
-    margin-bottom: 0px;
-}
-
 #header_site_name{
   font-size:24px;
   font-weight:bold;
@@ -1585,15 +1553,11 @@ ul.ui-autocomplete li.ui-menu-item { font-size: 0.6em; text-align: left; }
 }
 
 /* OncoKB integration styles */
-/*Default max width is 280px*/
 .oncokb-qtip {
     max-width: 600px !important;
 }
 .oncokb-qtip-sm {
     max-width: 400px !important;
-}
-.oncokb-qtip-xs {
-    max-width: 330px !important;
 }
 .oncokb-qtip table.dataTable {
     font-size: 11px !important;
@@ -1614,25 +1578,3 @@ ul.oncokb li {
 .qtip-content div.oncokb{
     padding-top: 5px;
 }
-.oncokbFeedback {
-    text-decoration: underline;
-}
-.oncokbFeedback:hover, .bootstrap-dialog-close:hover {
-    cursor: pointer;
-}
-.oncokb .fa-angle-right:hover, .oncokb .fa-angle-down:hover {
-    cursor: pointer;
-}
-.bootstrap-dialog-close {
-    float: right;
-    width: 100%;
-    text-align: right;
-    color: grey;
-}
-
-/* BootstrapDialog styles*/
-.modal-dialog {
-    height:920px;
-    padding: 0;
-}
-

@@ -1,5 +1,8 @@
 var plotsData = (function() {
     
+    //global variable for the callback function
+	var readyCallBackFunction;
+	
     var data = {
                 x: {
                     raw: [],
@@ -151,13 +154,19 @@ var plotsData = (function() {
                 if (clinical_attr_is_discretized("x") &&
                     clinical_attr_is_discretized("y")) {
                     stat.retrieved = true;
+                    readyCallBackFunction();
                 } else {
                     analyseData();
-                    stat.retrieved = true;                     
+                    stat.retrieved = true;  
+                    readyCallBackFunction();
                 }
-
+                
             }
         }
+        else if (data.x.stat || data.y.stat) {
+        	readyCallBackFunction();
+        }
+        
     };
     
     function mutationCallback(mutationData) {
@@ -203,6 +212,7 @@ var plotsData = (function() {
                         });
                         analyseData();
                         stat.retrieved = true;
+                        readyCallBackFunction();
                     };
 
                     var paramsGetProfileData = {  //webservice call to get profile data
@@ -218,6 +228,7 @@ var plotsData = (function() {
             } else {
                 analyseData();
                 stat.retrieved = true;
+                readyCallBackFunction();
             }
         } else if (genetic_vs_clinical()) {
             //translate: assign text value a numeric value for clinical data
@@ -242,6 +253,7 @@ var plotsData = (function() {
             }
             analyseData();
             stat.retrieved = true; 
+            readyCallBackFunction();
         } 
     }
 
@@ -295,31 +307,31 @@ var plotsData = (function() {
     }
 
     return {
-        fetch: function(axis) {
+    	/**
+    	 * This function will fetch the data for the given axis and call the callback function
+    	 * given in readyCallBack once the data is received. 
+    	 * 
+    	 * @axis: x or y axis
+    	 * @readyCallBack: function to call once data is received
+    	 */
+        fetch: function(axis, readyCallBack) {
             
+        	readyCallBackFunction = readyCallBack;
+        	
             stat.retrieved = false;
             
             data[axis].stat = false;
             data[axis].raw.length = 0;
             dotsContent = {}; 
             
-            var tmp = setInterval(function () {timer();}, 1000);
-            function timer() {
-                if (metaData.getRetrieveStatus() !== -1) {
-                    clearInterval(tmp);
-                    ajaxCall(axis, merge);
-                }
-            }
+            ajaxCall(axis, merge);
         },
-        get: function(callback_func) {
-            var tmp = setInterval(function () {timer();}, 1000);
-            function timer() {
-                //if (Object.keys(dotsContent).length !== 0) {
-                if (stat.retrieved) {
-                    clearInterval(tmp);
-                    callback_func(dotsContent); 
-                }
-            }
+        /**
+         * Returns the object with the data items in a format ready
+         * for rendering the view
+         */
+        get: function() {
+        	return dotsContent; 
         },
         stat: function() {
             return stat;

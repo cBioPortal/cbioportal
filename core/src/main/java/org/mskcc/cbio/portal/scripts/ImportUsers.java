@@ -60,8 +60,7 @@ public class ImportUsers {
             return;
         }
 
-        ProgressMonitor pMonitor = new ProgressMonitor();
-        pMonitor.setConsoleMode(true);
+        ProgressMonitor.setConsoleMode(true);
 
 		SpringUtil.initDataSource();
 
@@ -71,10 +70,8 @@ public class ImportUsers {
         String line = buf.readLine();
         int count = 0;
         while (line != null) {
-            if (pMonitor != null) {
-                pMonitor.incrementCurValue();
-                ConsoleUtil.showProgress(pMonitor);
-            }
+            ProgressMonitor.incrementCurValue();
+            ConsoleUtil.showProgress();
             if (!line.startsWith("#") && line.trim().length() > 0) {
                 try {
                     addUser(line);
@@ -86,7 +83,7 @@ public class ImportUsers {
             line = buf.readLine();
         }
         System.err.println("Added " + count + " user access rights.");
-        ConsoleUtil.showWarnings(pMonitor);
+        ConsoleUtil.showWarnings();
         System.err.println("Done.");
     }
 

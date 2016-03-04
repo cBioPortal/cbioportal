@@ -81,6 +81,30 @@
 <script type="text/javascript" src="js/lib/d3.min.js?<%=GlobalProperties.getAppVersion()%>"></script>
 
 <script type="text/javascript">
+    $(document).ready( function() {
+    	//whether this tab has already been initialized or not:
+    	var tab_init = false;
+    	//function that will listen to tab changes and init this one when applicable:
+    	function tabsUpdate() {
+    		if ($("#network").is(":visible")) {
+	    		if (tab_init === false) {
+		        	showNetwork();
+		            tab_init = true;
+		            console.log("network tab initialized");
+		        }
+		        $(window).trigger("resize");
+	    	}
+    	}
+        //this is for the scenario where the tab is open by default (as part of URL >> #tab_name at the end of URL):
+    	tabsUpdate();
+        //this is for the scenario where the user navigates to this tab:
+        $("#tabs").bind("tabsactivate", function(event, ui) {
+        	tabsUpdate();
+        });
+    });
+
+
+
 
 			var genomicData = {};
 			// Send genomic data query again
@@ -154,12 +178,12 @@
                         //show debug message !
                         showXDebug(graphml);
                         showNetworkMessage(graphml, "#network #netmsg");
+
+                        // when the data is available call send2cytoscapeweb
+                        send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
                     });
             }
 
-            $(document).ready(function() {
-                showNetwork();
-            });
         </script>
 
 <jsp:include page="network_views.jsp"/>

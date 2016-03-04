@@ -56,6 +56,7 @@ public class JdbcUtil {
      * @return the data source
      */
     public static DataSource getDataSource() {
+        if (ds==null) ds = initDataSource();
     	return ds;
     }
     
@@ -65,6 +66,33 @@ public class JdbcUtil {
      */
     public static void setDataSource(DataSource value) {
     	ds = value;
+    }
+    
+    private static DataSource initDataSource() {
+        DatabaseProperties dbProperties = DatabaseProperties.getInstance();
+        String host = dbProperties.getDbHost();
+        String userName = dbProperties.getDbUser();
+        String password = dbProperties.getDbPassword();
+        String database = dbProperties.getDbName();
+
+        String url ="jdbc:mysql://" + host + "/" + database +
+                        "?user=" + userName + "&password=" + password +
+                        "&zeroDateTimeBehavior=convertToNull";
+        
+        //  Set up poolable data source
+        BasicDataSource ds = new BasicDataSource();
+        ds.setDriverClassName("com.mysql.jdbc.Driver");
+        ds.setUsername(userName);
+        ds.setPassword(password);
+        ds.setUrl(url);
+
+        //  By pooling/reusing PreparedStatements, we get a major performance gain
+        ds.setPoolPreparedStatements(true);
+        ds.setMaxActive(100);
+        
+        activeConnectionCount = new HashMap<String,Integer>();
+        
+        return ds;
     }
 
     /**
@@ -91,7 +119,7 @@ public class JdbcUtil {
         
         Connection con;
         try {
-            con = ds.getConnection();
+            con = getDataSource().getConnection();
         }
         catch (Exception e) {
             logMessage(e.getMessage());

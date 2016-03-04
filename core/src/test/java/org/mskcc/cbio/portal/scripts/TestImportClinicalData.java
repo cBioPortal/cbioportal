@@ -65,8 +65,6 @@ public class TestImportClinicalData {
 
 	CancerStudy study;
 	
-	ProgressMonitor pMonitor = new ProgressMonitor();
-
 	@Before 
 	public void setUp() throws DaoException
 	{

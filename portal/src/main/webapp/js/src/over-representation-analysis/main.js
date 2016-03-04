@@ -32,12 +32,12 @@
 
 
 /**
- * 
+ *
  * Main page for Initiating over representation analysis view
  *
  * Author: yichaoS
  * Date: 3/10/2015
- * 
+ *
  */
 
 var or_tab = (function() {
@@ -134,7 +134,8 @@ var or_tab = (function() {
             var _obj = profile_obj_list[_key];
             if (_obj.GENETIC_ALTERATION_TYPE === orAnalysis.profile_type.mrna &&
                 _obj.STABLE_ID.toLowerCase().indexOf("z-scores") === -1 &&
-                _obj.STABLE_ID.toLowerCase().indexOf("zscores") === -1) {
+                _obj.STABLE_ID.toLowerCase().indexOf("zscores") === -1 &&
+                _obj.DATATYPE.toLowerCase()!="z-score"){
                 _profile_list.push(_obj);
             }
         });
@@ -155,8 +156,9 @@ var or_tab = (function() {
         var _profile_list = [];
         $.each(Object.keys(profile_obj_list), function(_index, _key) {
             var _obj = profile_obj_list[_key];
-            if ((_obj.GENETIC_ALTERATION_TYPE === orAnalysis.profile_type.protein_exp &&
-                _obj.STABLE_ID.toLowerCase().indexOf("zscores") === -1)) {
+            if (_obj.GENETIC_ALTERATION_TYPE === orAnalysis.profile_type.protein_exp &&
+                _obj.STABLE_ID.toLowerCase().indexOf("zscores") === -1 &&
+                _obj.DATATYPE.toLowerCase()!="z-score") {
                 _obj.NAME = "Phosphoprotein / Protein expression (RPPA)";
                 _profile_list.push(_obj);
             }
@@ -165,6 +167,49 @@ var or_tab = (function() {
         var orSubTabProteinExp = new orSubTabView();
         orSubTabProteinExp.init(orAnalysis.ids.sub_tab_protein_exp, _profile_list, orAnalysis.profile_type.protein_exp, gene_set);
     };
+
+    /**
+     * based on the profiles retrieved, checks whether there is valid data available for the plots
+     * @param profiles
+     * @returns {{expression: boolean, mutations: boolean, cna: boolean, protein: boolean}}
+     */
+    function getValidProfiles(profiles){
+        var validProfiles = {
+            expression: false,
+            mutations: false,
+            cna: false,
+            protein: false
+        };
+
+        $.each(profiles, function(key, curProfile){
+            if(curProfile.GENETIC_ALTERATION_TYPE == orAnalysis.profile_type.mrna && !isZScoreProfile(curProfile)){
+                validProfiles.expression = true;
+            }
+            else if(curProfile.GENETIC_ALTERATION_TYPE == orAnalysis.profile_type.protein_exp && !isZScoreProfile(curProfile)){
+                validProfiles.protein = true;
+            }
+            else if(curProfile.GENETIC_ALTERATION_TYPE == orAnalysis.profile_type.copy_num) {
+                validProfiles.cna = true;
+            }
+            else if(curProfile.GENETIC_ALTERATION_TYPE == orAnalysis.profile_type.mutations){
+                validProfiles.mutations = true;
+            }
+        });
+        return validProfiles;
+    }
+
+    /**
+     * check whether we're dealing with a z-score profile
+     * apparently the id can also contain z-score. Hopefully in the future we can switch to only DATATYPE
+     * @param profile
+     * @returns {boolean}
+     */
+    function isZScoreProfile(profile){
+        var id = profile.STABLE_ID.toLowerCase();
+        return (profile.DATATYPE.toLowerCase()=='z-score' ||
+            id.indexOf("z-scores") != -1 ||
+            id.indexOf("zscores") != -1);
+    }
 
     var init_ajax = function() {
 
@@ -179,25 +224,20 @@ var or_tab = (function() {
 
             profile_obj_list = result;
 
-            //Extract genetic profile info
-            $.each(Object.keys(profile_obj_list), function(index, key) {
-                var _obj = result[key];
-                if($.inArray(_obj.GENETIC_ALTERATION_TYPE, profile_type_list) === -1) {
-                    profile_type_list.push(_obj.GENETIC_ALTERATION_TYPE);
-                }
-            });
+            // retrieve which profiles are valid for the plot tabs
+            var validProfiles = getValidProfiles(profile_obj_list);
 
             //Generate sub tabs
-            if ($.inArray("MUTATION_EXTENDED", profile_type_list) !== -1) { // study has mutation data
+            if (validProfiles.mutations) { // study has mutation data which we can show
                 $("#" + orAnalysis.ids.sub_tabs_list).append("<li><a href='#" + orAnalysis.ids.sub_tab_mutations + "' class='or-analysis-tabs-ref'><span>" + orAnalysis.texts.sub_tab_mutations + "</span></a></li>");
             }
-            if ($.inArray("COPY_NUMBER_ALTERATION", profile_type_list) !== -1) { //study has copy number data
+            if (validProfiles.cna) { //study has copy number data
                 $("#" + orAnalysis.ids.sub_tabs_list).append("<li><a href='#" + orAnalysis.ids.sub_tab_copy_num + "' class='or-analysis-tabs-ref'><span>" + orAnalysis.texts.sub_tab_copy_num + "</span></a></li>");
             }
-            if ($.inArray("MRNA_EXPRESSION", profile_type_list) !== -1) { //study has expression data
+            if (validProfiles.expression) { //study has expression data
                 $("#" + orAnalysis.ids.sub_tabs_list).append("<li><a href='#" + orAnalysis.ids.sub_tab_mrna_exp + "' class='or-analysis-tabs-ref'><span>" + orAnalysis.texts.sub_tab_mrna_exp + "</span></a></li>");
             }
-            if ($.inArray("PROTEIN_LEVEL", profile_type_list) !== -1) { //study has RPPA data
+            if (validProfiles.protein) { //study has RPPA data
                 $("#" + orAnalysis.ids.sub_tabs_list).append("<li><a href='#" + orAnalysis.ids.sub_tab_protein_exp + "' class='or-analysis-tabs-ref'><span>" + orAnalysis.texts.sub_tab_protein_exp + "</span></a></li>");
             }
 
@@ -211,14 +251,13 @@ var or_tab = (function() {
             $("#" + orAnalysis.ids.sub_tabs_div).tabs("option", "active", 0);
             $(window).trigger("resize");
 
-            //init sub tab contents
-            if ($.inArray("MUTATION_EXTENDED", profile_type_list) !== -1) { // study has mutation data
+            if (validProfiles.mutations) { // study has valid mutation data
                 init_mutations_tab(gene_set_opt);
-            } else if ($.inArray("COPY_NUMBER_ALTERATION", profile_type_list) !== -1) {
+            } else if (validProfiles.cna) {
                 init_copy_num_tab(gene_set_opt);
-            } else if ($.inArray("MRNA_EXPRESSION", profile_type_list) !== -1) {
+            } else if (validProfiles.expression) {
                 init_mrna_exp_tab(gene_set_opt);
-            } else if ($.inArray("PROTEIN_LEVEL", profile_type_list) !== -1) {
+            } else if (validProfiles.protein) {
                 init_protein_exp_tab(gene_set_opt);
             }
 
@@ -238,7 +277,6 @@ var or_tab = (function() {
         }).fail(function( jqXHR, textStatus ) {
             alert( "Request failed: " + textStatus );
         });
-
     }
 
     var update = function() {

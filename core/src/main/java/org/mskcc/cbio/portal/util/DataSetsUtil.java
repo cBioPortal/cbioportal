@@ -60,7 +60,7 @@ public class DataSetsUtil {
 
 	private DaoSample daoSample;
 	private DaoPatient daoPatient;
-	private DaoPatientList daoPatientList;
+	private DaoSampleList daoSampleList;
 
 	/**
 	 * Constructor (private).
@@ -70,7 +70,7 @@ public class DataSetsUtil {
 		try {
 			daoSample = new DaoSample();
 			daoPatient = new DaoPatient();
-			daoPatientList = new DaoPatientList();
+			daoSampleList = new DaoSampleList();
 			// totalNumberOfSamples will be set while computing stats
 			totalNumberOfSamples = 0;
 			cancerStudyStats = computeCancerStudyStats();
@@ -146,16 +146,16 @@ public class DataSetsUtil {
 		return toReturn;
 	}
 
-	private int getCount(CancerStudy cancerStudy, String patientListSuffix) throws DaoException
+	private int getCount(CancerStudy cancerStudy, String sampleListSuffix) throws DaoException
 	{
 		int count = 0;
 		
-		String patientListID = cancerStudy.getCancerStudyStableId() + patientListSuffix;
-		PatientList desiredPatientList = daoPatientList.getPatientListByStableId(patientListID);
+		String sampleListID = cancerStudy.getCancerStudyStableId() + sampleListSuffix;
+		SampleList desiredSampleList = daoSampleList.getSampleListByStableId(sampleListID);
 
-		if (desiredPatientList != null) {
+		if (desiredSampleList != null) {
 			// NOTE - as of 12/12/14, patient lists contain sample ids
-			count = desiredPatientList.getPatientList().size();
+			count = desiredSampleList.getSampleList().size();
 		}
 		
 		return count;

@@ -373,8 +373,8 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 		{
 			var sourceNodeID = evt.cyTarget.source()._private.data.label;
 			var targetNodeID = evt.cyTarget.target()._private.data.label;
-			var popUpWidth = 1024;
-			var popupHeight = 600;
+			var popUpWidth = 1200;
+			var popupHeight = 760;
 
 			var strWindowFeatures =
 				"menubar=no,\
@@ -387,7 +387,7 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 				left="+((window.innerWidth/2)-popUpWidth/2)+"px,\
 				top="+((window.innerHeight/2)-popupHeight/2)+"px";
 
-			var sbgnPageURL = "/cbioportal/sbgn-view.html";
+			var sbgnPageURL = "/cbioportal/content/SBGNViz.js/sample-app/index.html";
 			windowObjectReference = window.open(sbgnPageURL+"?"+sourceNodeID+"&"+targetNodeID,"SBGN View", strWindowFeatures);
 		});
 

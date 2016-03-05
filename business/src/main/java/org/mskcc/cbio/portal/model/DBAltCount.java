@@ -19,62 +19,15 @@ import java.io.Serializable;
 
 public class DBAltCount implements Serializable {
     public int count;
-    public int studyID;
-    public String id;
+    public String studyID;
     public String gene;
     public int start;
     public int end;
-
-    public int getCount() {
-        return count;
-    }
-
-    public void setCount(int count) {
-        this.count = count;
-    }
-
-    public int getStudyID() {
-        return studyID;
-    }
-
-    public void setStudyID(int studyID) {
-        this.studyID = studyID;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getGene() {
-        return gene;
-    }
-
-    public void setGene(String gene) {
-        this.gene = gene;
-    }
-
-    public int getStart() {
-        return start;
-    }
-
-    public void setStart(int start) {
-        this.start = start;
-    }
-
-    public int getEnd() {
-        return end;
-    }
-
-    public void setEnd(int end) {
-        this.end = end;
-    }
-
-   
-    
-    
      
+//   public void setIntField(String fieldName, int value)
+//        throws NoSuchFieldException, IllegalAccessException {
+//        Field field = getClass().getDeclaredField(fieldName);
+//        field.setInt(this, value);
+//   }
+    
 }

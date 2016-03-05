@@ -6,7 +6,12 @@
 package org.mskcc.cbio.portal.web;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
 import org.mskcc.cbio.portal.service.ApiService;
 import org.mskcc.cbio.portal.model.DBCancerType;
 import org.mskcc.cbio.portal.model.DBAltCount;
@@ -48,15 +53,31 @@ public class ApiController {
 
     @Transactional
     @RequestMapping(value = "/mutation_count", method = {RequestMethod.GET})
-    public @ResponseBody List<DBAltCount> getMutations(@RequestParam(required = true) String type, @RequestParam(required = true) Boolean per_study, @RequestParam(required = true) List<String> ids, @RequestParam(required = true) List<String> genes, @RequestParam(required = true) List<Integer> starts, @RequestParam(required = true) List<Integer> ends, @RequestParam(required = false) List<String> echo) {
-        return service.getMutations(type, per_study, ids, genes, starts, ends, echo);
+    public @ResponseBody List<Map<String, String>> getMutationsCounts(HttpServletRequest request, @RequestParam(required = true) String type, @RequestParam(required = true) Boolean per_study, @RequestParam(required = true) List<String> gene, @RequestParam(required = true) List<Integer> start, @RequestParam(required = true) List<Integer> end, @RequestParam(required = false) List<String> echo) {
         
+        Enumeration<String> parameterNames = request.getParameterNames();
+        String[] fixedInput = {"type", "per_study", "gene", "start", "end", "echo"};
+        Map<String,String[]> customizedAttrs = new HashMap<String,String[]>();
+        while (parameterNames.hasMoreElements()) {
+
+            String paramName = parameterNames.nextElement();
+            if(!Arrays.asList(fixedInput).contains(paramName)){
+                
+                String[] paramValues = request.getParameterValues(paramName);
+                customizedAttrs.put(paramName, paramValues[0].split(","));
+            }
+
+           
+        }
+
+        return service.getMutationsCounts(customizedAttrs, type, per_study, gene, start, end, echo);
+                
     }
     
     @Transactional
     @RequestMapping(value = "/mutation_count", method = {RequestMethod.POST})
-    public @ResponseBody List<DBAltCount> getMutations(@RequestBody DBAltCountInput body) {
-         return service.getMutationsJSON(body);
+    public @ResponseBody List<Map<String, String>> getMutationsCounts(@RequestBody DBAltCountInput body) {
+         return service.getMutationsCountsJSON(body);
     }
 
     @Transactional

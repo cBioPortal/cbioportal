@@ -3,7 +3,7 @@
  
  <mapper namespace="org.mskcc.cbio.portal.persistence.MutationMapper">
  
- <select id="getMutations" resultType="DBAltCount">
+ <select id="getMutationsCounts" resultType="DBAltCount">
      
      select count(distinct patient.INTERNAL_ID) as count from mutation_event, mutation, gene, sample, patient
      where gene.HUGO_GENE_SYMBOL = #{gene} and mutation_event.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID and mutation_event.START_POSITION <![CDATA[ >= ]]>  #{start} and mutation_event.END_POSITION <![CDATA[ <= ]]>  #{end}
@@ -12,11 +12,11 @@
  </select>
  
  
- <select id="getMutationsPerStudy" resultType="DBAltCount">
+ <select id="getMutationsCountsPerStudy" resultType="DBAltCount">
  
-    select distinct patient.CANCER_STUDY_ID as studyID, count( patient.INTERNAL_ID) as count from mutation_event, mutation, gene, sample, patient
+    select distinct cancer_study.CANCER_STUDY_IDENTIFIER as studyID, count( patient.INTERNAL_ID) as count from mutation_event, mutation, gene, sample, patient, cancer_study
      where gene.HUGO_GENE_SYMBOL = #{gene} and mutation_event.ENTREZ_GENE_ID = gene.ENTREZ_GENE_ID and mutation_event.START_POSITION <![CDATA[ >= ]]>  #{start} and mutation_event.END_POSITION <![CDATA[ <= ]]>  #{end}
-     and mutation_event.MUTATION_EVENT_ID = mutation.MUTATION_EVENT_ID and mutation.SAMPLE_ID = sample.INTERNAL_ID and sample.PATIENT_ID = patient.INTERNAL_ID  
+     and mutation_event.MUTATION_EVENT_ID = mutation.MUTATION_EVENT_ID and mutation.SAMPLE_ID = sample.INTERNAL_ID and sample.PATIENT_ID = patient.INTERNAL_ID  and cancer_study.CANCER_STUDY_ID = patient.CANCER_STUDY_ID
      group by   patient.CANCER_STUDY_ID;
  </select>
  

@@ -18,22 +18,6 @@
     padding: 0 0 5px 0;
 }
 */
-* {
-    -webkit-box-sizing: content-box;
-    -moz-box-sizing: content-box;
-    box-sizing: content-box;
-}
-
-table {
-    border-collapse: separate;
-    border-spacing: 2px;
-    border-color: grey;
-}
-
-embed {
-    height: 20px !important;    
-}
-
 #study_view_add_chart_chzn {
     margin-top: -3px;
     width: 250px !important;
@@ -103,7 +87,6 @@ embed {
     border: solid 1px;
     border-radius: 5px;
     border-color: darkgrey;
-    line-height: 18px;
 }
 .study-view-header-button:hover {
     cursor: pointer;
@@ -116,7 +99,7 @@ embed {
     height:auto;
     overflow: hidden;
 }
-#study-view-charts {
+#study-view-charts {	
     width:1200px;
     height:auto;
     margin:0 auto;
@@ -214,15 +197,6 @@ embed {
     display: none;
     z-index: 1;
 }
-
-#study-view-case-select-custom-dialog input[type="radio"] {
-    margin: 3px;
-}
-
-#study-view-case-select-custom-dialog {
-    margin: 3px 0;
-}
-
 #clinical_table_info {
     float: left;
 }
@@ -243,7 +217,7 @@ embed {
     float: left;
 }*/
 #study-view-word-cloud-title {
-    width:180px;
+    width:180px; 
     text-align:center;
     margin-bottom: 20px;
 }
@@ -287,10 +261,6 @@ embed {
 .study-view-qtip table.dataTable td.pieLabelValue {
     padding: 3px 2px 3px 0 !important;
 }
-
-#qtip-study-view-case-select-custom-dialog .qtip-title {
-    font-size: 14px;
-}
 .smallTable thead th {
     font-size: 10px !important;
 }
@@ -304,7 +274,7 @@ embed {
     margin-left: 3px;
 }
 /* CLASS styles */
-.study-view-header{
+.study-view-header{    
     //border-style: solid;
     //border-width: 1px;
     //border-color: lightgrey;
@@ -325,7 +295,7 @@ embed {
     display: inline-block;
     line-height: 30px;
 }
-.study-view-header:hover{
+.study-view-header:hover{    
     cursor: pointer !important;
     background-color: #2986e2 !important;
     color: white !important;
@@ -346,7 +316,7 @@ embed {
 .boxRight {
     //box-shadow: -2px 2px 2px lightgrey;
 }
-.study-view-hidden {
+.hidden {
     display: none;
 }
 .show {
@@ -358,7 +328,7 @@ embed {
     border-spacing: 0px;
 }
 .study-view-scatter-plot-checkbox {
-    margin: 5px 10px 0px 0px;
+    margin: 5px 10px 0px 0px; 
     color: grey;
     font-size: 10px;
 }
@@ -513,15 +483,15 @@ embed {
     margin-right: 5px;
     color: grey;
     cursor: pointer;
-}
+} 
 
-.study-view-chart-plot-delete{
+.study-view-chart-plot-delete{  
     margin-right: 5px;
     color: grey;
     cursor: pointer;
     float: right;
 }
-.study-view-chart-cloud-delete{
+.study-view-chart-cloud-delete{  
     margin-right: 5px;
     color: lightgray;
     cursor: pointer;
@@ -648,7 +618,7 @@ pieH3{
 }
 .data-pie-chart {
     width:100px;
-    float:left;
+    float:left;	
     text-align:center;
 }
 .subData {
@@ -753,7 +723,7 @@ pieH3{
     fill-opacity: .125;
     shape-rendering: crispEdges;
     z-index: -1;
-}
+} 
 .row_selected{
     background-color: lightgray;
 }
@@ -812,7 +782,7 @@ pieH3{
     -moz-transition: All 0.3s ease;
     -o-transition: All 0.3s ease;
     -ms-transition: All 0.3s ease;
-    transition: All 0.3s ease;
+    transition: All 0.3s ease;    
 }
 
 Style for search box in dataTable of Summaery Tab
@@ -954,7 +924,7 @@ ul li a:hover, ul li a:focus {
 #data-table-chart table.dataTable>thead>tr>th:nth-child(1) {background-color: white; white-space: nowrap;}
 #data-table-chart table.dataTable>thead>tr>th {
     //white-space:nowrap;
-    //-webkit-transform: rotate(315deg);
+    //-webkit-transform: rotate(315deg);  
     //-moz-transform: rotate(315deg);
     //-ms-transform: rotate(315deg);
    // -o-transform: rotate(315deg);
@@ -992,12 +962,11 @@ ul li a:hover, ul li a:focus {
 }
 #clinical_table_wrapper .DTTT_container.ui-buttonset.ui-buttonset-multi a {
     width: 50px;
-    height: 13px;
-    line-height: 13px;
+    height: 20px;
+    line-height: 20px;
 }
 #clinical_table_wrapper .DTTT_container.ui-buttonset.ui-buttonset-multi {
     float: left;
-    margin-bottom: 0;
 }
 div.DTTT_print_info {
     position: absolute;
@@ -1092,7 +1061,7 @@ textarea.expand{
 textarea.expandFocusOut{
     width: 175px;
     font-size: 0.8em;
-    height: 30px;
+    height: 18px;
     line-height: 17px;
 }
 textarea.expandFocusIn{
@@ -1145,83 +1114,4 @@ input.disabled{
 }
 span.close{
 cursor: pointer;
-}
-
-/* Enhanced fixed datatable styles*/
-.EFDT-top-btn {
-    margin-right: 5px;
-}
-
-.EFDT-show-hide, .EFDT-fixed-choose, .EFDT-download {
-    float: left;
-}
-.dropdown-checkbox-toggle {
-    color: #333;
-    background-color: #fff;
-    display: inline-block;
-    padding: 6px 12px;
-    margin-bottom: 0;
-    font-size: 14px;
-    font-weight: normal;
-    line-height: 1.42857143;
-    text-align: center;
-    white-space: nowrap;
-    vertical-align: middle;
-    -ms-touch-action: manipulation;
-    touch-action: manipulation;
-    cursor: pointer;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    background-image: none;
-    border: 1px solid #ccc;
-    border-radius: 4px
-}
-
-.EFDT-header-filters-reset {
-    cursor: pointer;
-    text-decoration: underline;
-}
-
-.EFDT-download-btn {
-    float: left;
-}
-
-.EFDT-header-filters {
-    margin: 3px 5px;
-}
-
-.EFDT-header {
-    text-align: center;
-    vertical-align: middle;
-    font-size: 12px;
-}
-.EFDT-filter {
-    float: right;
-}
-
-.EFDT-table-prefix {
-    margin-bottom: 10px;
-    width:1200px;
-}
-.EFDT-header-filters .form-control {
-    width: 86%  !important;
-    height: inherit !important;
-}
-
-.EFDT-result-info {
-    float: left;
-}
-
-.EFDT-result-info-content {
-    display: inline-block;
-    white-space: nowrap;
-    padding: 6px 12px;
-    font-size: 14px;
-    line-height: 1.428571429;
-}
-
-.EFDT-table .btn {
-    font-weight: normal !important;
 }

@@ -119,7 +119,8 @@ var DataGrabber = React.createClass({displayName: "DataGrabber",
             React.createElement("div", null,
                 React.createElement("div", {className: "EFDT-download-btn EFDT-top-btn"},
 
-                    getData != "COPY" ? React.createElement(FileGrabber, {content: content, downloadFileName: this.props.downloadFileName}) : React.createElement("div", null)
+                    getData != "COPY" ? React.createElement(FileGrabber, {content: content, downloadFileName: this.props.downloadFileName}) :
+                        React.createElement("div", null)
 
                 ),
                 React.createElement("div", {className: "EFDT-download-btn EFDT-top-btn"},
@@ -136,10 +137,16 @@ var DataGrabber = React.createClass({displayName: "DataGrabber",
 // Generates qTip when string length is larger than 20
 var QtipWrapper = React.createClass({displayName: "QtipWrapper",
     render: function () {
-        var label = this.props.rawLabel, qtipFlag = false;
+        var label = this.props.rawLabel, qtipFlag = false, attr = this.props.attr;
         if (label && label.length > 20) {
             qtipFlag = true;
             label = label.substring(0, 20) + '...';
+        }
+
+        if (attr === 'CASE_ID') {
+            label = React.createElement("a", {target: "_blank", href: cbio.util.getLinkToSampleView(cancerStudyId, label)}, label)
+        } else if (attr === 'PATIENT_ID') {
+            label = React.createElement("a", {target: "_blank", href: cbio.util.getLinkToPatientView(cancerStudyId, label)}, label)
         }
         return (
             React.createElement("span", {className: qtipFlag?"hasQtip":"", "data-qtip": this.props.rawLabel},
@@ -410,7 +417,7 @@ var CustomizeCell = React.createClass({displayName: "CustomizeCell",
         return (
             React.createElement(Cell, {columnKey: field},
                 React.createElement("span", {style: flag ? {backgroundColor:'yellow'} : {}},
-                    React.createElement(QtipWrapper, {rawLabel: data[rowIndex][field]})
+                    React.createElement(QtipWrapper, {rawLabel: data[rowIndex][field], attr: field})
                 )
             )
         );

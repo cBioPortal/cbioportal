@@ -999,6 +999,12 @@ class MutationsExtendedValidator(Validator):
         """Test whether line should be verified based on the variant classification"""
         variant_classification = data[self.cols.index('Variant_Classification')]
         if variant_classification in self.SKIP_VARIANT_TYPES:
+            self.logger.info('Validation of line skipped due to cBioPortal\'s filtering. '
+                                'Filtered types: [%s]',
+                                ', '.join(self.SKIP_VARIANT_TYPES),
+                                extra={'line_number': self.line_number,
+                                       'cause': 'validation skipped due to filtering', 
+                                       })
             return True
         else:
             return False

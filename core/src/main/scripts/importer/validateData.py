@@ -776,7 +776,8 @@ class MutationsExtendedValidator(Validator):
         '3\'Flank', 
         '5\'UTR',
         '5\'Flank',
-        'IGR'
+        'IGR',
+        'RNA'
     ]
 
     # Used for mapping column names to the corresponding function that does a check on the value.

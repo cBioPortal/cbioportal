@@ -891,6 +891,8 @@ $(document).ready(function ()
           $("#perform-layout").click(function (e) {
             var nodesData = getNodesData();
 
+            //Collapse complexes before layout
+            expandCollapseUtilities.simpleCollapseGivenNodes(cy.nodes("[sbgnclass='complex']"));
             beforePerformLayout();
 
             sbgnLayoutProp.applyLayout();

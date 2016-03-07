@@ -724,8 +724,8 @@ var calculatePaddings = function(paddingPercent) {
     if (theNode.children() == null || theNode.children().length == 0) {
       var collapsedChildren = theNode._private.data.collapsedChildren;
       if (collapsedChildren == null || collapsedChildren.length == 0) {
-        total += Number(theNode._private.data.sbgnbbox.w);
-        total += Number(theNode._private.data.sbgnbbox.h);
+        total += Number(theNode.width());
+        total += Number(theNode.height());
         numOfSimples++;
       }
       else {
@@ -1252,6 +1252,18 @@ var SBGNContainer = Backbone.View.extend({
       ready: function ()
       {
         window.cy = this;
+
+        //Remove Ports
+        cy.nodes().removeData("ports");
+        cy.edges().removeData("portsource");
+        cy.edges().removeData("porttarget");
+
+        cy.nodes().data("ports", []);
+        cy.edges().data("portsource", []);
+        cy.edges().data("porttarget", []);
+
+        //Collapse complexes before layout
+        expandCollapseUtilities.simpleCollapseGivenNodes(cy.nodes("[sbgnclass='complex']"));
 
         var edges = cy.edges();
 //        console.log(edges.length);

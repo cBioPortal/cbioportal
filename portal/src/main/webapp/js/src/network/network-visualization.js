@@ -355,6 +355,23 @@ NetworkVis.prototype._createMergingEdges = function()
     this.edgesToBeMerged = this._vis.edges("[mergeStatus='toBeMerged']");
 }
 
+/**
+* Hides interaction source popup
+ */
+NetworkVis.prototype._closeInteractionSourcePopUp = function ()
+{
+  self.updateEdges();
+  $(self.interactionSourceVisibilitySelector).dialog('close');
+}
+
+/**
+ * Hides interaction type popup
+ */
+NetworkVis.prototype._closeInteractionTypePopUp = function ()
+{
+  self.updateEdges();
+  $(self.interactionTypeVisibilitySelector).dialog('close');
+}
 
 /**
  * Hides all dialogs upon selecting a tab other than the network tab.
@@ -371,6 +388,8 @@ NetworkVis.prototype.hideDialogs = function (evt, ui)
     $(this.drugLegendSelector).dialog("close");
     $(this.edgeLegendSelector).dialog("close");
     $(this.interactionTypeVisibilitySelector).dialog("close");
+    $(this.interactionSourceVisibilitySelector).dialog("close");
+
 };
 
 /**
@@ -2490,13 +2509,15 @@ NetworkVis.prototype._initDialogs = function()
     $(this.interactionTypeVisibilitySelector).dialog({autoOpen: false,
                                    resizable: false,
                                    width: 300,
-                                   height: 500});
+                                   height: 500,
+                                   close: this._interactionSourceVisibilitySelector});
 
    //adjust edge source UI visibility dialog
    $(this.interactionSourceVisibilitySelector).dialog({autoOpen: false,
                                   resizable: false,
                                   width: 300,
-                                  height: 300});
+                                  height: 300,
+                                  close: this._closeInteractionSourcePopUp});
 };
 
 /**
@@ -3402,13 +3423,11 @@ NetworkVis.prototype._initControlFunctions = function()
     };
 
     var closeInteractionTypePopUp = function () {
-        self.updateEdges();
-        $(self.interactionTypeVisibilitySelector).dialog('close');
+        self._closeInteractionTypePopUp();
     };
 
     var closeInteractionSourcePopUp = function () {
-        self.updateEdges();
-        $(self.interactionSourceVisibilitySelector).dialog('close');
+        self._closeInteractionSourcePopUp();
     };
 
     var selectAll_InteractionTypeVisibility = function () {
@@ -4243,6 +4262,8 @@ NetworkVis.prototype._createInteractionSourceVisibilityWindow = function(divId)
   $("#" + divId).append(html);
   return "#" + id;
 }
+
+
 
 NetworkVis.prototype._createInteractionTypeVisibilityWindow = function(divId)
 {

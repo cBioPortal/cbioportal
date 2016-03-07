@@ -83,7 +83,7 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
         var chmInfo = new ChmInfo();
 
         var genomic_overview_length = $("#td-content").width() - 75;
-        genomic_overview_length -= (hasAlleleFrequencyData&&caseIds.length===1 ? 110 : 0);
+        genomic_overview_length -= (hasAlleleFrequencyData&&caseIds.length>0 ? 110 : 0);
         var config = new GenomicOverviewConfig(
                 (genomicEventObs.hasMut?caseIds.length:0)+(genomicEventObs.hasSeg?caseIds.length:0), genomic_overview_length);
 
@@ -163,6 +163,7 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
     <label>
         <input id="allelefreq_curve_toggle" type="checkbox" checked />density estimation
     </label>
+    <br/>
 </div>
 </fieldset>
 <br/>

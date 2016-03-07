@@ -1092,7 +1092,7 @@ textarea.expand{
 textarea.expandFocusOut{
     width: 175px;
     font-size: 0.8em;
-    height: 30px;
+    height: 18px;
     line-height: 17px;
 }
 textarea.expandFocusIn{

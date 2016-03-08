@@ -100,7 +100,7 @@ function NetworkVis(divId)
 
     // flags
     this._autoLayout = false;
-    this._removeDisconnected = false;
+    this._removeDisconnected = true;
     this._nodeLabelsVisible = false;
     this._edgeLabelsVisible = false;
     this._panZoomVisible = false;
@@ -2047,7 +2047,7 @@ NetworkVis.prototype._resolveXref = function(xref)
 NetworkVis.prototype._resetFlags = function()
 {
     this._autoLayout = false;
-    this._removeDisconnected = false;
+    this._removeDisconnected = true;
     this._nodeLabelsVisible = true;
     this._edgeLabelsVisible = false;
     this._panZoomVisible = true;
@@ -2478,6 +2478,7 @@ NetworkVis.prototype._updateMenuCheckIcons = function()
  */
 NetworkVis.prototype._initDialogs = function()
 {
+    var self = this;
     // adjust settings panel
     $(this.settingsDialogSelector).dialog({autoOpen: false,
                                      resizable: false,
@@ -2510,14 +2511,14 @@ NetworkVis.prototype._initDialogs = function()
                                    resizable: false,
                                    width: 300,
                                    height: 500,
-                                   close: this._interactionSourceVisibilitySelector});
+                                   close: function( event, ui ) {self._closeInteractionTypePopUp()}});
 
    //adjust edge source UI visibility dialog
    $(this.interactionSourceVisibilitySelector).dialog({autoOpen: false,
                                   resizable: false,
                                   width: 300,
                                   height: 300,
-                                  close: this._closeInteractionSourcePopUp});
+                                  close: function( event, ui ) {self._closeInteractionSourcePopUp()}});
 };
 
 /**

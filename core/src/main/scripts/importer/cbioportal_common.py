@@ -39,6 +39,7 @@ class MetaFileTypes(object):
     METHYLATION = 'meta_methylation'
     FUSION = 'meta_fusions'
     RPPA = 'meta_rppa'
+    GISTIC_GENES = 'meta_gistic_genes'
     TIMELINE = 'meta_timeline'
     CASE_LIST = 'case_list'
 
@@ -155,6 +156,13 @@ META_FIELD_MAP = {
         'profile_description': True,
         'data_filename': True
     },
+    MetaFileTypes.GISTIC_GENES: {
+        'cancer_study_identifier': True,
+        'genetic_alteration_type': True,
+        'datatype': True,
+        'reference_genome_id': True,
+        'data_filename': True
+    },
     MetaFileTypes.TIMELINE: {
         'cancer_study_identifier': True,
         'genetic_alteration_type': True,
@@ -184,10 +192,10 @@ IMPORTER_CLASSNAME_BY_META_TYPE = {
     MetaFileTypes.METHYLATION: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.FUSION: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.RPPA: "org.mskcc.cbio.portal.scripts.ImportProfileData",
+    MetaFileTypes.GISTIC: "org.mskcc.cbio.portal.scripts.ImportGisticData",
     MetaFileTypes.TIMELINE: "org.mskcc.cbio.portal.scripts.ImportTimelineData",
     MetaFileTypes.CASE_LIST: IMPORT_CASE_LIST_CLASS
     # TODO: enable when documented
-    #MetaFileTypes.GISTIC: "org.mskcc.cbio.portal.scripts.ImportGisticData",
     #MetaFileTypes.MUTATION_SIGNIFICANCE: "org.mskcc.cbio.portal.scripts.ImportMutSigData"
 }
 
@@ -415,10 +423,11 @@ def get_meta_file_type(metaDictionary, logger, filename):
         ("MUTATION_EXTENDED", "MAF"): MetaFileTypes.MUTATION,
         # others
         ("METHYLATION", "CONTINUOUS"): MetaFileTypes.METHYLATION,
-        ("FUSION", "FUSION"): MetaFileTypes.FUSION
+        ("FUSION", "FUSION"): MetaFileTypes.FUSION,
+        # cross-sample molecular statistics (for gene selection)
+        ("GISTIC_GENES_AMP", "Q-VALUE"): MetaFileTypes.GISTIC_GENES,
+        ("GISTIC_GENES_DEL", "Q-VALUE"): MetaFileTypes.GISTIC_GENES
         # TODO
-        # GISTIC_GENES_AMP, datatype: Q-VALUE'
-        # GISTIC_GENES_DEL, datatype: Q-VALUE'
         # MUTSIG, datatype: Q-VALUE'
     }
     result = None

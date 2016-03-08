@@ -50,6 +50,7 @@ VALIDATOR_IDS = {
     cbioportal_common.MetaFileTypes.FUSION:'FusionValidator',
     cbioportal_common.MetaFileTypes.METHYLATION:'MethylationValidator',
     cbioportal_common.MetaFileTypes.RPPA:'RPPAValidator',
+    cbioportal_common.MetaFileTypes.GISTIC_GENES: 'GisticGenesValidator',
     cbioportal_common.MetaFileTypes.TIMELINE:'TimelineValidator'
 }
 

@@ -579,6 +579,7 @@ class Validator(object):
                 # hugo_entrez_map.get(gene_symbol) will be empty
                 # and we need to check the aliases_entrez_map.
                 # TODO - maybe this should be warning instead? Depends on how loader deals with this
+                # TODO: move matched IDs out of the message for collapsing
                 self.logger.error(
                     'Gene alias maps to multiple Entrez ids (%s), '
                     'please specify which one you mean',

@@ -234,8 +234,19 @@ var orTable = function(plot_div, minionco_div, loading_div) {
 
             ],
             "fnRowCallback": function(nRow, aData) {
+                
+                //adjust font size
+                $('td:eq(' + col_index.gene + ')', nRow).css("font-size", "10px");
+                $('td:eq(' + col_index.log_ratio + ')', nRow).css("font-size", "11px");
+                $('td:eq(' + col_index.p_val + ')', nRow).css("font-size", "11px");
+                $('td:eq(' + col_index.q_val + ')', nRow).css("font-size", "11px");
+                $('td:eq(' + col_index.altered_pct + ')', nRow).css("font-size", "11px");
+                $('td:eq(' + col_index.unaltered_pct + ')', nRow).css("font-size", "11px");
+                $('td:eq(' + col_index.direction + ')', nRow).css("font-size", "10px");
+                
                 //bold gene names
                 $('td:eq(' + col_index.gene + ')', nRow).css("font-weight", "bold");
+                
 
                 if (profile_type === orAnalysis.profile_type.copy_num || profile_type === orAnalysis.profile_type.mutations) {
                     if (aData[col_index.log_ratio] > 0 || aData[col_index.log_ratio] === ">10") {
@@ -541,7 +552,7 @@ var orTable = function(plot_div, minionco_div, loading_div) {
 
         $("#" + btn_id).click(function() {
 
-            if (window.PortalGlobals.getCaseSetId() !== "-1") {
+            if (window.QuerySession.getCaseSetId() !== "-1") {
             	var _start_pos_gene_list = document.URL.indexOf("gene_list=") + "gene_list=".length;
 				var _end_pos_gene_list = document.URL.indexOf("&", _start_pos_gene_list);
 				var pre_gene_list = document.URL.substring(0, _start_pos_gene_list);

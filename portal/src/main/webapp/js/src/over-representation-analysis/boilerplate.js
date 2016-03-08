@@ -73,18 +73,18 @@ var orAnalysis = (function() {
             protein_exp: "PROTEIN_LEVEL"
         },
         col_width : {
-            gene: 170, //150
+            gene: 200, //150
             cytoband: 100,
-            altered_pct: 80, //90
-            unaltered_pct: 80, //90
-            log_ratio: 80,
-            p_val: 80,
-            q_val: 80,
+            altered_pct: 100, //90
+            unaltered_pct: 100, //90
+            log_ratio: 70,
+            p_val: 120,
+            q_val: 100,
             altered_mean: 95,
             unaltered_mean: 95,
             altered_stdev: 95,
             unaltered_stdev: 95,
-            direction: 250,
+            direction: 170,
             plot: 50
         },
         col_index: {
@@ -148,8 +148,8 @@ var orAnalysis = (function() {
             help_icon_img_src: "images/help.png"
         },
         text: {
-            mutex: "Tendency towards mutual exclusivity",
-            cooccurrence: "Tendency towards co-occurrence"
+            mutex: "Mutual exclusivity",
+            cooccurrence: "Co-occurrence"
         }
     };
 

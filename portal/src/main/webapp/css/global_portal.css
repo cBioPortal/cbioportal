@@ -1369,7 +1369,7 @@ cursor: default;
 
 /* This refers to a subgroup of profiles that all share the same alteration type,
    e.g. a group of expression profiles. */
-.genomic_profiles_subgroup{
+.genomic_profiles_subgroup {
    margin-left:20px;
    margin-top:2px;
    margin-bottom:5px;

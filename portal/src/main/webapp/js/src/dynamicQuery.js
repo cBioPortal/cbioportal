@@ -52,7 +52,7 @@ var PROFILE_COPY_NUMBER_ALTERATION = "PROFILE_COPY_NUMBER_ALTERATION"
 var PROFILE_MRNA_EXPRESSION = "PROFILE_MRNA_EXPRESSION";
 var PROFILE_PROTEIN = "PROFILE_PROTEIN";
 var PROFILE_PROTEIN_EXPRESSION = "PROFILE_PROTEIN_EXPRESSION";
-var PROFILE_METHYLATION = "PROFILE_METHYLATION"
+var PROFILE_METHYLATION = "PROFILE_METHYLATION";
 
 var caseSetSelectionOverriddenByUser = false;
 var selectedStudiesStorageKey = "cbioportal_selected_studies";
@@ -1370,78 +1370,73 @@ initialize_jstree(window.tab_index === "tab_download" ? flat_jstree_data : jstre
 // 2.  1 profile of targetType --> show as checkbox
 // 3.  >1 profiles of targetType --> show group checkbox plus radio buttons
 function addGenomicProfiles (genomic_profiles, targetAlterationType, targetClass, targetTitle) {
-    var numProfiles = 0;
+    
+    var profiles = [];
     var profileHtml = "";
-    var downloadTab = false;
+    var downloadTab = (window.tab_index === "tab_download")? true: false;
+    
 
-    //  Determine whether we are in the download tab
-    if (window.tab_index == "tab_download") {
-        downloadTab = true;
-    }
-
-    //  First count how many profiles match the targetAltertion type
+    
     jQuery.each(genomic_profiles,function(key, genomic_profile) {
         if (genomic_profile.alteration_type == targetAlterationType) {
-            if (downloadTab || genomic_profile.show_in_analysis_tab == true) {
-                numProfiles++;
-            }
-        }
-    }); //  end for each genomic profile loop
-
-    if (numProfiles == 0) {
-        return;
-    } else if(numProfiles >1 && downloadTab == false) {
-        // enable submit button
-        $('#main_submit').attr('disabled', false);
-        //  If we have more than 1 profile, output group checkbox
-        //  assign a class to associate the checkbox with any subgroups (radio buttons)
-        profileHtml += "<input type='checkbox' class='" + targetClass + "'>"
-         + targetTitle + " data."
-            + " Select one of the profiles below:";
-        profileHtml += "<div class='genomic_profiles_subgroup'>";
-    }
-
-    //  Iterate through all genomic profiles
-    jQuery.each(genomic_profiles,function(key, genomic_profile) {
-
-        if (genomic_profile.alteration_type == targetAlterationType) {
-            if (downloadTab || genomic_profile.show_in_analysis_tab == true) {
-                //  Branch depending on number of profiles
-                var optionType = "checkbox";
-                if (downloadTab) {
-                    optionType = "radio";
-                } else {
-                    if (numProfiles == 1) {
-                        optionType = "checkbox";
-                    } else if (numProfiles > 1) {
-                        optionType = "radio";
-                    }
+            if (targetClass === PROFILE_MRNA_EXPRESSION) {
+                if (genomic_profile.name.toLowerCase().indexOf("z-scores") === -1) {
+                    profiles.push(genomic_profile);
+                }        
+            } else {
+                if (downloadTab || genomic_profile.show_in_analysis_tab === true) {
+                    profiles.push(genomic_profile);
                 }
-                profileHtml += outputGenomicProfileOption (downloadTab, optionType,
-                        targetClass, genomic_profile.id, genomic_profile.name, genomic_profile.description);
+            }
+
+        }
+    });
+    
+    if (profiles.length > 1) {
+        $('#main_submit').attr('disabled', false);
+        profileHtml += "<input type='checkbox' class='" + targetClass + "'>"
+            + targetTitle + " data."
+            + " Select one of the profiles below:<br>";
+    }
+    
+    _.each(profiles, function(_profile_obj) {
+        var optionType = "checkbox";
+        if (downloadTab) {
+            optionType = "radio";
+        } else {
+            if (profiles.length > 1) {
+                optionType = "radio";                
+            } else {
+                optionType = "checkbox";
             }
         }
-    }); //  end for each genomic profile loop
-
-    if(numProfiles >1) {
-        //  If we have more than 1 profile, output the end div tag
+        profileHtml += outputGenomicProfileOption (downloadTab, optionType,
+            targetClass, _profile_obj.id, _profile_obj.name, _profile_obj.description);
+    });
+    
+    if(profiles.length > 1) {
         profileHtml += "</div>";
     }
-
-    if(targetClass == PROFILE_MRNA_EXPRESSION && downloadTab == false){
-        var inputName = 'Z_SCORE_THRESHOLD';
-        profileHtml += "<div id='z_score_threshold' class='score_threshold'>Enter a z-score threshold &#177: "
-        + "<input type='text' name='" + inputName + "' size='6' value='"
-                + window.zscore_threshold + "'>"
-        + "</div>";
+    
+    if(targetClass === PROFILE_MRNA_EXPRESSION && downloadTab === false){
+        profileHtml += "<div id='z_score_threshold' class='score_threshold'>" 
+                    + "Select z-score reference samples :"
+                    + "<select id='mrna_z_score_reference'>"
+                    + "<option value='diploid'>Diploid</option>"
+                    + "<option value='all'>All</option>"
+                    + "</select>&nbsp;&nbsp;";
+        profileHtml += "Enter a z-score threshold &#177 :"
+                    + "<input type='text' name='Z_SCORE_THRESHOLD' style='width:30px;height:15px;' value='"
+                    + window.zscore_threshold + "'>"
+                    + "</div>";
     }
-
+    
     if(targetClass == PROFILE_PROTEIN_EXPRESSION && downloadTab == false){
         var inputName = 'RPPA_SCORE_THRESHOLD';
         profileHtml += "<div id='rppa_score_threshold' class='score_threshold'>Enter a RPPA z-score threshold &#177: "
-        + "<input type='text' name='" + inputName + "' size='6' value='"
-                + window.rppa_score_threshold + "'>"
-        + "</div>";
+            + "<input type='text' name='" + inputName + "' style='width:30px;height:15px;' value='"
+            + window.rppa_score_threshold + "'>"
+            + "</div>";
     }
     
     $("#genomic_profiles").append(profileHtml);
@@ -1462,14 +1457,17 @@ function outputGenomicProfileOption (downloadTab, optionType, targetClass, id, n
     } else {
         paramName = "genetic_profile_ids_" + targetClass;
     }
-
+    
+    var _style = (optionType === "radio")?" style='margin-left:50px'": "";
     var html =  "<input type='" + optionType + "' "
         + "id='" + id + "'"
         + " name='" + paramName + "'"
         + " class='" + targetClass + "'"
-        + " value='" + id +"'>" + '&nbsp;&nbsp;' + name + "</input>"
+        + _style +
+        + " value='" + id +"'>" + name + "</input>"
         + "  <img class='profile_help' src='images/help.png' title='"
         + description + "'><br/>";
+   
     return html;
 }
 

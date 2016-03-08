@@ -50,7 +50,7 @@ define("Oncoprint",
 
                 if(typeof(PortalGlobals) !== 'undefined')
                 {
-                    var SampleIdMapPatientId = PortalGlobals.getPatientSampleIdMap();
+                    //var SampleIdMapPatientId = PortalGlobals.getPatientSampleIdMap();
                 }
                 var newGeneData = [];
                 var newclinicalData = [];

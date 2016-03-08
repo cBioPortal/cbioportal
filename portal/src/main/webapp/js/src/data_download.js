@@ -246,7 +246,6 @@ $(document).ready( function() {
 
         function getGeneticProfileCallback(result) {
             DataDownloadTab.setProfiles(result);
-            //DataDownloadTab.init();
             //Bind tab clicking event listener
             $("#tabs").bind("tabsactivate", function(event, ui) {
                 if (ui.newTab.text().trim().toLowerCase() === "download") {

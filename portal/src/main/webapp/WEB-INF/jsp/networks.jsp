@@ -145,19 +145,22 @@
             }
 
             var showNetwork = function() {
-                var networkParams = {<%=QueryBuilder.GENE_LIST%>:'<%=genes4Network%>',
-                     <%=QueryBuilder.GENETIC_PROFILE_IDS%>:'<%=geneticProfileIds4Network%>',
-                     <%=QueryBuilder.CANCER_STUDY_ID%>:'<%=cancerTypeId4Network%>',
-                     <%=QueryBuilder.CASE_IDS_KEY%>:'<%=caseIdsKey4Network%>',
-                     <%=QueryBuilder.CASE_SET_ID%>:'<%=caseSetId4Network%>',
-                     <%=QueryBuilder.Z_SCORE_THRESHOLD%>:'<%=zScoreThesholdStr4Network%>',
-                     heat_map:$("#heat_map").html(),
-                     xdebug:'<%=useXDebug%>',
-                     netsrc:'<%=netSrc%>',
-                     linkers:'<%=nLinker%>',
-                     netsize:'<%=netSize%>',
-                     diffusion:'<%=diffusion%>',
-                    };
+                
+                var networkParams = {
+                    gene_list:'<%=genes4Network%>',
+                    genetic_profile_ids:window.QuerySession.getGeneticProfileIds(),
+                    cancer_study_id:'<%=cancerTypeId4Network%>',
+                    case_ids_key:'<%=caseIdsKey4Network%>',
+                    case_set_id:'<%=caseSetId4Network%>',
+                    Z_SCORE_THRESHOLD:'<%=zScoreThesholdStr4Network%>',
+                    heat_map:$("#heat_map").html(),
+                    xdebug:'<%=useXDebug%>',
+                    netsrc:'<%=netSrc%>',
+                    linkers:'<%=nLinker%>',
+                    netsize:'<%=netSize%>',
+                    diffusion:'<%=diffusion%>'
+                };
+                
                 // get the graphml data from the server
                 $.post("network.do",
                     networkParams,

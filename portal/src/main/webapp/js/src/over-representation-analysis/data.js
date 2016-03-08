@@ -141,7 +141,7 @@ var orData = function() {
         }
 
         if (_p_val < orAnalysis.settings.p_val_threshold && _q_val < orAnalysis.settings.p_val_threshold && _result_str !== "--") {
-            _result_str += "&nbsp;&nbsp;&nbsp;<span class='label label-or-analysis-significant'>Significant</span>";
+            _result_str += "&nbsp;<span class='label label-or-analysis-significant' style='font-size: 8px'>Significant</span>";
         }
 
         return _result_str;

@@ -68,7 +68,7 @@ public class FileUploadRequestWrapper extends HttpServletRequestWrapper {
   * Return all request parameter names, for both regular controls and file upload 
   * controls.
   */
-  @Override public Enumeration getParameterNames() {
+  @Override public Enumeration<String> getParameterNames() {
     Set<String> allNames = new LinkedHashSet<String>();
     allNames.addAll(fRegularParams.keySet());
     allNames.addAll(fFileParams.keySet());
@@ -120,8 +120,16 @@ public class FileUploadRequestWrapper extends HttpServletRequestWrapper {
   * Return a {@code Map<String, String>} for all regular parameters.
   * Does not return any file upload paramters at all. 
   */
-  @Override public Map getParameterMap() {
-    return Collections.unmodifiableMap(fRegularParams);
+  @Override public Map<String,String[]> getParameterMap() {
+    Map< String,List<String> > parameterListMap = Collections.unmodifiableMap(fRegularParams);
+    Map<String,String[]> parameterArray = new HashMap<String,String[]>();
+    for (Map.Entry< String,List<String> > mapEntry : parameterListMap.entrySet()) {
+      List<String> stringList = mapEntry.getValue();
+      String[] stringArray = new String[stringList.size()];
+      stringArray = stringList.toArray(stringArray);
+      parameterArray.put(mapEntry.getKey(),stringArray);
+    }
+    return parameterArray;
   }
   
   /**

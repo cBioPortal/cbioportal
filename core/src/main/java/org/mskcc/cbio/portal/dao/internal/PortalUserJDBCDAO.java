@@ -132,10 +132,10 @@ public class PortalUserJDBCDAO implements PortalUserDAO {
 	public void addPortalUser(User user)
 	{
 		String sql = "insert into users (email, name, enabled) values(:email, :name, :enabled)";
-		Map namedParameters = new HashMap();
+		Map<String,String> namedParameters = new HashMap<String,String>();
 		namedParameters.put("email", user.getEmail());
 		namedParameters.put("name", user.getName());
-		namedParameters.put("enabled", user.isEnabled() ? new Integer(1) : new Integer(0));
+		namedParameters.put("enabled", user.isEnabled() ? "1" : "0");
 		namedParameterJdbcTemplate.update(sql, namedParameters);
 	}
 
@@ -143,7 +143,7 @@ public class PortalUserJDBCDAO implements PortalUserDAO {
 	{
 		for (String authority : userAuthorities.getAuthorities()) {
 			String sql = "insert into authorities (email, authority) values(:email, :authority)";
-			Map namedParameters = new HashMap();
+			Map<String,String> namedParameters = new HashMap<String,String>();
 			namedParameters.put("email", userAuthorities.getEmail());
 			namedParameters.put("authority", authority);
 			namedParameterJdbcTemplate.update(sql, namedParameters);

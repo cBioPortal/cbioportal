@@ -100,7 +100,7 @@ public final class NetworkUtils {
      */
     public static void mergeNodesWithSameSymbol(Network net) {
         Map<String,Node> mapSymbolNode = new HashMap<String,Node>();
-        Set<Node> deleteNodes = new HashSet();
+        Set<Node> deleteNodes = new HashSet<Node>();
         for (Node node : net.getNodes()) {
             String symbol = getSymbol(node);
             if (symbol!=null) {

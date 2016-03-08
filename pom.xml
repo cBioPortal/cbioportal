@@ -410,6 +410,12 @@
       <artifactId>spring-social-google</artifactId>
       <version>${org.springframework.social.google-version}</version>
     </dependency>
+    <!-- guava -->
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>19.0</version>
+    </dependency>
   </dependencies>
 
   <build>

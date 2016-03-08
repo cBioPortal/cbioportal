@@ -36,6 +36,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Locale;
@@ -43,123 +45,196 @@ import java.util.Map;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletInputStream;
+import javax.servlet.AsyncContext;
+import javax.servlet.DispatcherType;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.servlet.http.Part;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 
 /**
  * Useful for unit testing code that uses HttpServletRequest.
  * From http://www.jguru.com/faq/view.jsp?EID=110660
  */
 public class NullHttpServletRequest implements HttpServletRequest{
-   private Hashtable parameters = new Hashtable();
-      
-   public void setParameter(String key, String value) {
-      parameters.put(key, value);
-   }
-   
-   public String getParameter(String key) {
-      return (String)this.parameters.get(key);
-   }
+  private Hashtable parameters = new Hashtable();
 
-   public Enumeration getParameterNames(){
-      return this.parameters.keys();
+  public void setParameter(String key, String value) {
+    parameters.put(key, value);
   }
 
-   public Cookie[] getCookies() {return null;}
-   public String getMethod(){return null;}
-   public String getRequestURI(){return null;}
-   public String getServletPath(){return null;}
-   public String getPathInfo(){return null;}
-   public String getPathTranslated(){return null;}
-   public String getQueryString(){return null;}
-   public String getRemoteUser(){return null;}
-   public String getAuthType(){return null;}
-   public String getHeader(String name){return null;}
-   public int getIntHeader(String name){return 0;}
-   public long getDateHeader(String name){return 0;}
-   public Enumeration getHeaderNames(){return null;}
-   public HttpSession getSession(boolean create){return null;}
-   public String getRequestedSessionId(){return null;}
-   public boolean isRequestedSessionIdValid(){return false;}
-   public boolean isRequestedSessionIdFromCookie(){return false;}
-   public boolean isRequestedSessionIdFromUrl(){return false;}
-   public int getContentLength(){return 0;}
-   public String getContentType(){return null;}
-   public String getProtocol(){return null;}
-   public String getScheme(){return null;}
-   public String getServerName(){return null;}
-   public int getServerPort(){return 0;}
-   public String getRemoteAddr(){return null;}
-   public String getRemoteHost(){return null;}
-   public String getRealPath(String path){return null;}
-   public ServletInputStream getInputStream() throws IOException{return null;}
-   public String[] getParameterValues(String name){return null;}
-   public Enumeration getAttributeNames(){return null;}
-   public Object getAttribute(String name){return null;}
-   public HttpSession getSession(){return null;}
-   public BufferedReader getReader() throws IOException{return null;}
-   public String getCharacterEncoding(){return null;}
-   public void setAttribute(String name, Object o) {}
-   public boolean isRequestedSessionIdFromURL() {return false;}
+  public String getParameter(String key) {
+    return (String)this.parameters.get(key);
+  }
 
-   public Locale getLocale() {
-      // TODO Auto-generated method stub
-      return null;
-   }
+  public Enumeration getParameterNames(){
+    return this.parameters.keys();
+  }
 
-   public Enumeration getLocales() {
-      // TODO Auto-generated method stub
-      return null;
-   }
+  public Cookie[] getCookies() {return null;}
+  public String getMethod(){return null;}
+  public String getRequestURI(){return null;}
+  public String getServletPath(){return null;}
+  public String getPathInfo(){return null;}
+  public String getPathTranslated(){return null;}
+  public String getQueryString(){return null;}
+  public String getRemoteUser(){return null;}
+  public String getAuthType(){return null;}
+  public String getHeader(String name){return null;}
+  public int getIntHeader(String name){return 0;}
+  public long getDateHeader(String name){return 0;}
+  public Enumeration getHeaderNames(){return null;}
+  public HttpSession getSession(boolean create){return null;}
+  public String getRequestedSessionId(){return null;}
+  public boolean isRequestedSessionIdValid(){return false;}
+  public boolean isRequestedSessionIdFromCookie(){return false;}
+  public boolean isRequestedSessionIdFromUrl(){return false;}
+  public int getContentLength(){return 0;}
+  public String getContentType(){return null;}
+  public String getProtocol(){return null;}
+  public String getScheme(){return null;}
+  public String getServerName(){return null;}
+  public int getServerPort(){return 0;}
+  public String getRemoteAddr(){return null;}
+  public String getRemoteHost(){return null;}
+  public String getRealPath(String path){return null;}
+  public ServletInputStream getInputStream() throws IOException{return null;}
+  public String[] getParameterValues(String name){return null;}
+  public Enumeration getAttributeNames(){return null;}
+  public Object getAttribute(String name){return null;}
+  public HttpSession getSession(){return null;}
+  public BufferedReader getReader() throws IOException{return null;}
+  public String getCharacterEncoding(){return null;}
+  public void setAttribute(String name, Object o) {}
+  public boolean isRequestedSessionIdFromURL() {return false;}
 
-   public Map getParameterMap() {
-      // TODO Auto-generated method stub
-      return null;
-   }
+  public Locale getLocale() {
+    // TODO Auto-generated method stub
+    return null;
+  }
 
-   public RequestDispatcher getRequestDispatcher(String arg0) {
-      // TODO Auto-generated method stub
-      return null;
-   }
+  public Enumeration getLocales() {
+    // TODO Auto-generated method stub
+    return null;
+  }
 
-   public boolean isSecure() {
-      // TODO Auto-generated method stub
-      return false;
-   }
+  public Map getParameterMap() {
+    // TODO Auto-generated method stub
+    return null;
+  }
 
-   public void removeAttribute(String arg0) {
-      // TODO Auto-generated method stub
-      
-   }
+  public RequestDispatcher getRequestDispatcher(String arg0) {
+    // TODO Auto-generated method stub
+    return null;
+  }
 
-   public void setCharacterEncoding(String arg0) throws UnsupportedEncodingException {
-      // TODO Auto-generated method stub
-      
-   }
+  public boolean isSecure() {
+    // TODO Auto-generated method stub
+    return false;
+  }
 
-   public String getContextPath() {
-      // TODO Auto-generated method stub
-      return null;
-   }
+  public void removeAttribute(String arg0) {
+    // TODO Auto-generated method stub
+  }
 
-   public Enumeration getHeaders(String arg0) {
-      // TODO Auto-generated method stub
-      return null;
-   }
+  public void setCharacterEncoding(String arg0) throws UnsupportedEncodingException {
+    // TODO Auto-generated method stub
+  }
 
-   public StringBuffer getRequestURL() {
-      // TODO Auto-generated method stub
-      return null;
-   }
+  public String getContextPath() {
+    // TODO Auto-generated method stub
+    return null;
+  }
 
-   public Principal getUserPrincipal() {
-      // TODO Auto-generated method stub
-      return null;
-   }
+  public Enumeration getHeaders(String arg0) {
+    // TODO Auto-generated method stub
+    return null;
+  }
 
-   public boolean isUserInRole(String arg0) {
-      // TODO Auto-generated method stub
-      return false;
-   }
+  public Part getPart(String name) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  public Collection<Part> getParts() {
+    // TODO Auto-generated method stub
+    return new ArrayList<Part>();
+  }
+
+  public StringBuffer getRequestURL() {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  public Principal getUserPrincipal() {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  public boolean isUserInRole(String arg0) {
+    // TODO Auto-generated method stub
+    return false;
+  }
+
+  public void login(String username, String password) {
+  }
+
+  public void logout() {
+  }
+
+  public boolean authenticate(HttpServletResponse response) {
+    return true;
+  }
+
+  public DispatcherType getDispatcherType() {
+    return null;
+  }
+
+  public AsyncContext getAsyncContext() {
+    return null;
+  }
+
+  public boolean isAsyncStarted() {
+    return false;
+  }
+
+  public boolean isAsyncSupported() {
+    return false;
+  }
+
+  public AsyncContext startAsync() {
+    return null;
+  }
+
+  public AsyncContext startAsync(ServletRequest servletRequest, ServletResponse servletResponse) {
+    return null;
+  }
+
+  public ServletContext getServletContext() {
+    return null;
+  }
+
+  public int getLocalPort() {
+    return 0;
+  }
+
+  public String getLocalAddr() {
+    return "";
+  }
+
+  public String getLocalName() {
+    return "";
+  }
+
+  public int getRemotePort() {
+    return 0;
+  }
+
+  public String getRemoteName() {
+    return "";
+  }
 }

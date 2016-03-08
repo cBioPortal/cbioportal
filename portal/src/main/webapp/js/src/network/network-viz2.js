@@ -183,19 +183,19 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 
 				switch (ele._private.data['type'].toLowerCase())
 				{
-					case "controls-state-change-of": return "#A12525"; break;
+					case "controls-state-change-of": return "#e96e6e"; break;
 					case "controls-transport-of": return "#2F4DC5"; break;
-					case "controls-phosphorylation-of": return "#E8FA1E"; break;
+					case "controls-phosphorylation-of": return "#acb45a"; break;
 					case "controls-expression-of": return "#169127"; break;
 					case "catalysis-precedes": return "#313077"; break;
 					case "consumption-controled-by": return "#11968F"; break;
 					case "controls-production-of": return "#176381"; break;
-					case "controls-transport-of-chemical": return "#602190"; break;
-					case "used-to-produce": return "#A92297"; break;
+					case "controls-transport-of-chemical": return "#8e27db"; break;
+					case "used-to-produce": return "#4f0b46"; break;
 					case "chemical-affects": return "#786E43"; break;
 					case "in-complex-with": return "#6B3A27"; break;
 					case "interacts-with": return "#39A8D5"; break;
-					case "neighbor-of": return "#E10E54"; break;
+					case "neighbor-of": return "#98284d"; break;
 					case "reacts-with": return "#A6DC50"; break;
 					case "MERGED": return "#646464"; break;
 					case "DRUG_TARGET": return "#FFB600"; break;
@@ -238,20 +238,21 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 
 				switch (ele._private.data['type'].toLowerCase())
 				{
-					case "controls-state-change-of": return "#A12525"; break;
+					case "controls-state-change-of": return "#e96e6e"; break;
 					case "controls-transport-of": return "#2F4DC5"; break;
-					case "controls-phosphorylation-of": return "#E8FA1E"; break;
+					case "controls-phosphorylation-of": return "#acb45a"; break;
 					case "controls-expression-of": return "#169127"; break;
 					case "catalysis-precedes": return "#313077"; break;
 					case "consumption-controled-by": return "#11968F"; break;
 					case "controls-production-of": return "#176381"; break;
-					case "controls-transport-of-chemical": return "#602190"; break;
-					case "used-to-produce": return "#A92297"; break;
+					case "controls-transport-of-chemical": return "#8e27db"; break;
+					case "used-to-produce": return "#4f0b46"; break;
 					case "chemical-affects": return "#786E43"; break;
 					case "in-complex-with": return "#6B3A27"; break;
 					case "interacts-with": return "#39A8D5"; break;
-					case "neighbor-of": return "#E10E54"; break;
+					case "neighbor-of": return "#98284d"; break;
 					case "reacts-with": return "#A6DC50"; break;
+					case "MERGED": return "#646464"; break;
 					case "DRUG_TARGET": return "#FFB600"; break;
 					default: return "#A583AB"; break;
 				}

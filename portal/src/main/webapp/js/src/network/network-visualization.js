@@ -38,19 +38,19 @@ function NetworkVis(divId)
     // edge type constants
     this.edgeTypeConstants =
     {
-      CONTROLS_STATE_CHANGE_OF :             { name: "controls-state-change-of",        color: '#A12525' , desc: 'Controls State Change of'},
+      CONTROLS_STATE_CHANGE_OF :             { name: "controls-state-change-of",        color: '#e96e6e' , desc: 'Controls State Change of'},
       CONTROLS_TRANSPORT_OF :                { name: "controls-transport-of",           color: '#2F4DC5' , desc: 'Controls Transport of'},
-      CONTROLS_PHOSPHORYLATION_OF :          { name: "controls-phosphorylation-of",     color: '#E8FA1E' , desc: 'Controls Phosphorylation of'},
+      CONTROLS_PHOSPHORYLATION_OF :          { name: "controls-phosphorylation-of",     color: '#acb45a' , desc: 'Controls Phosphorylation of'},
       CONTROLS_EXPRESSION_OF :               { name: "controls-expression-of",          color: '#169127' , desc: 'Controls Expression of'},
       CATALYSIS_PRECEDES :                   { name: "catalysis-precedes",              color: '#313077' , desc: 'Catalysis Precedes'},
       CONSUMPTION_CONTROLED_BY :             { name: "consumption-controled-by",        color: '#11968F' , desc: 'Consumption Controled by'},
       CONTROLS_PRODUCTION_OF :               { name: "controls-production-of",          color: '#176381' , desc: 'Controls Production of'},
-      CONTROLS_TRANSPORT_OF_CHEMICAL :       { name: "controls-transport-of-chemical",  color: '#602190' , desc: 'Controls Transport of Chemical'},
-      USED_TO_PRODUCE :                      { name: "used-to-produce",                 color: '#A92297' , desc: 'Used to Produce'},
+      CONTROLS_TRANSPORT_OF_CHEMICAL :       { name: "controls-transport-of-chemical",  color: '#8e27db' , desc: 'Controls Transport of Chemical'},
+      USED_TO_PRODUCE :                      { name: "used-to-produce",                 color: '#4f0b46' , desc: 'Used to Produce'},
       CHEMICAL_AFFECTS :                     { name: "chemical-affects",                color: '#786E43' , desc: 'Chemical Affects'},
       IN_COMPLEX_WITH :                      { name: "in-complex-with",                 color: '#6B3A27' , desc: 'In Complex With'},
       INTERACTS_WITH :                       { name: "interacts-with",                  color: '#39A8D5' , desc: 'Interacts With'},
-      NEIGHBOR_OF :                          { name: "neighbor-of",                     color: '#E10E54' , desc: 'Neighbor of'},
+      NEIGHBOR_OF :                          { name: "neighbor-of",                     color: '#98284d' , desc: 'Neighbor of'},
       REACTS_WITH :                          { name: "reacts-with",                     color: '#A6DC50' , desc: 'Reacts With'},
       TARGETED_BY_DRUG :                     { name: "targeted-by-drug",                color: '#FFB600' , desc: 'Targeted by Drug'},
       OTHER :                                { name: "other",                           color: '#646464' , desc: 'Other'},
@@ -360,8 +360,8 @@ NetworkVis.prototype._createMergingEdges = function()
  */
 NetworkVis.prototype._closeInteractionSourcePopUp = function ()
 {
-  self.updateEdges();
-  $(self.interactionSourceVisibilitySelector).dialog('close');
+  this.updateEdges();
+  $(this.interactionSourceVisibilitySelector).dialog('close');
 }
 
 /**
@@ -369,8 +369,8 @@ NetworkVis.prototype._closeInteractionSourcePopUp = function ()
  */
 NetworkVis.prototype._closeInteractionTypePopUp = function ()
 {
-  self.updateEdges();
-  $(self.interactionTypeVisibilitySelector).dialog('close');
+  this.updateEdges();
+  $(this.interactionTypeVisibilitySelector).dialog('close');
 }
 
 /**

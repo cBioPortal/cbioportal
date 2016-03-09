@@ -379,10 +379,12 @@ var ccPlots = (function (Plotly, _, $) {
                 opacity: 1,
                 marker: {
                     color: 'grey',
-                    size: 7
+                    size: 1,
+                    outlierwidth: 0,
+                    outliercolor: 'white'
                 },
-                line: { width: 1},
-                boxpoints: false,
+                line: { width: 1, outliercolor: 'white'},
+                boxpoints: 'outliers',
                 showlegend: false,
                 whiskerwidth: 1
             };

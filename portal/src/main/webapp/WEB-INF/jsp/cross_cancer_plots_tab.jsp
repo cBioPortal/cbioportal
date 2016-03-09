@@ -58,7 +58,7 @@
         <div id="cc-plots-sidebar">
             <h5>Gene</h5>
             <span id="cc_plots_gene_list_select" onchange="ccPlots.update();">
-                <select disabled id="cc_plots_gene_list" style="width:50px"></select>
+                <select disabled id="cc_plots_gene_list" style="width:80px"></select>
             </span>
             <h5>Sort By</h5>
             <input type="radio" name="cc_plots_study_order_opt" onchange="ccPlots.update()" value="alphabetic" checked/> Cancer Study

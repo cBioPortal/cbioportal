@@ -1,6 +1,7 @@
 window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_ids, sample_ids, z_score_threshold, rppa_score_threshold,
 					case_set_properties, cancer_study_names, profile_ids) {
-	var oql_parser = window.oql_parser;
+	
+    var oql_parser = window.oql_parser;
 	var OQLHandler = (function (config) {
 		var default_config = {
 			gene_key:"gene",
@@ -429,7 +430,13 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			},
 			'getMutationProfileId': function() {
 				return profile_ids.mutation_profile_id;
-			}
+			},
+            'getZscoreThreshold': function() {
+                return z_score_threshold;
+            },
+            'getRPPSzscoreThreshold': function() {
+                return rppa_score_threshold;
+            }
 						
 		};
 		var fetchOncoprintGeneData = (function() {

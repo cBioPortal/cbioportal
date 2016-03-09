@@ -291,6 +291,9 @@ var OncoprintWebGLCellView = (function () {
 	    var track_id = tracks[i];
 	    var cell_top = model.getCellTops(track_id);
 	    var buffers = getZoneBuffers(view, track_id, horz_zone_id);
+	    if (buffers.position.numItems === 0) {
+		continue;
+	    }
 	    view.ctx.useProgram(view.shader_program);
 	    view.ctx.bindBuffer(view.ctx.ARRAY_BUFFER, buffers.position);
 	    view.ctx.vertexAttribPointer(view.shader_program.vertexPositionAttribute, buffers.position.itemSize, view.ctx.FLOAT, false, 0, 0);

@@ -1000,6 +1000,18 @@ var objectValues = function(obj) {
     });
 };
 
+var arrayUnique = function(arr) {
+    var present = {};
+    var unique = [];
+    for (var i=0; i<arr.length; i++) {
+	if (typeof present[arr[i]] === 'undefined') {
+	    present[arr[i]] = true;
+	    unique.push(arr[i]);
+	}
+    }
+    return unique;
+};
+
 var OncoprintModel = (function () {
     var MIN_ZOOM_PIXELS = 100;
     function OncoprintModel(init_cell_padding, init_cell_padding_on,
@@ -1252,8 +1264,14 @@ var OncoprintModel = (function () {
     }
     
     OncoprintModel.prototype.getRuleSets = function() {
+	// return rule sets, sorted by associating each with the lowest track id its on
 	var self = this;
-	return Object.keys(this.rule_sets).map(function(rule_set_id) {
+	var sorted_tracks = this.getTracks().sort();
+	var rule_set_ids = sorted_tracks.map(function(track_id) {
+	    return self.track_rule_set_id[track_id];
+	});
+	var unique_rule_set_ids = arrayUnique(rule_set_ids);
+	return unique_rule_set_ids.map(function(rule_set_id) {
 	    return self.rule_sets[rule_set_id];
 	});
     }
@@ -3679,6 +3697,9 @@ var OncoprintWebGLCellView = (function () {
 	    var track_id = tracks[i];
 	    var cell_top = model.getCellTops(track_id);
 	    var buffers = getZoneBuffers(view, track_id, horz_zone_id);
+	    if (buffers.position.numItems === 0) {
+		continue;
+	    }
 	    view.ctx.useProgram(view.shader_program);
 	    view.ctx.bindBuffer(view.ctx.ARRAY_BUFFER, buffers.position);
 	    view.ctx.vertexAttribPointer(view.shader_program.vertexPositionAttribute, buffers.position.itemSize, view.ctx.FLOAT, false, 0, 0);

@@ -84,6 +84,7 @@ doTest("TP53:PROT<=-2\n", [{gene:"TP53", alterations:[{alteration_type: "prot", 
 
 doTest("BRAF:MUT=V600E", [{gene:"BRAF", alterations:[{alteration_type: "mut", constr_rel: "=", constr_type:"name", constr_val:"V600E"}]}])
 doTest("BRAF:MUT=V600", [{gene:"BRAF", alterations:[{alteration_type: "mut", constr_rel: "=", constr_type:"position", constr_val:600}]}])
+doTest("MIR-493*:MUT=V600", [{gene:"MIR-493*", alterations:[{alteration_type: "mut", constr_rel: "=", constr_type:"position", constr_val:600}]}])
 
 if (!failed_a_test) {
 	console.log("Passed all tests!");

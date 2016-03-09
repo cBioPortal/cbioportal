@@ -24,12 +24,16 @@ before_script:
     - cp .travis/settings.xml ~/.m2
     - mysql --user travis --password= <<< 'CREATE DATABASE cgds_test'
     - cp src/main/resources/spring.security.url.intercepts .travis/src/main/resources
+    - phantomjs --version
 
 script:
     - export PORTAL_HOME=$(pwd)
     - cp $PORTAL_HOME/src/main/resources/portal.properties.EXAMPLE $PORTAL_HOME/src/main/resources/portal.properties
     - cp $PORTAL_HOME/src/main/resources/log4j.properties.EXAMPLE $PORTAL_HOME/src/main/resources/log4j.properties
-    - ~/maven/$MAVEN_VERSION/bin/mvn -e -DPORTAL_HOME=$PORTAL_HOME -Ddb.user=travis -Ddb.password= clean install
+    - ~/maven/$MAVEN_VERSION/bin/mvn -e -DPORTAL_HOME=$PORTAL_HOME -Ppublic -DskipTests -Ddb.user=cbio_user -Ddb.password=cbio_pass -Ddb.portal_db_name=public_test -Ddb.connection_string=jdbc:mysql://cbioportal-public.c1xhhbwn8izk.us-east-1.rds.amazonaws.com:3306/ -Ddb.host=cbioportal-public.c1xhhbwn8izk.us-east-1.rds.amazonaws.com clean install
+    - java -Ddbconnector=dbcp -jar portal/target/dependency/webapp-runner.jar --expand-war portal/target/cbioportal.war &
+    - sleep 10s
+    - bash -x test/end-to-end/test_make_screenshots.sh
 
 notifications:
   slack: cbioportal:S2qVTFTFMtizONhCOe8BYxS6

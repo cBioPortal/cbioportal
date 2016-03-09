@@ -42,7 +42,7 @@
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-<%if(request.getAttribute("tumormap")!=null){%>
+<%if(request.getAttribute("standard-js-css")!=null){%>
 <jsp:include page="css_include_standard.jsp" flush="true" />
 <jsp:include page="js_include_standard.jsp" flush="true" />
 <%} else {%>

@@ -89,8 +89,9 @@ var ccPlots = (function (Plotly, _, $) {
                 };
                 window.cbioportal_client.getStudies(_get_study_params).then(
                     function(_study_meta) {
+                        
                         study_meta = _study_meta;
-
+    
                         //map study full name to each sample
                         _.each(_.filter(profile_data, function(_obj) { return !(_obj.hasOwnProperty("mutation_status")); }), function(_profile_data_obj) {
                             _.each(study_meta, function(_study_meta_obj) {
@@ -111,6 +112,17 @@ var ccPlots = (function (Plotly, _, $) {
                             study_ids = _.uniq(_.pluck(_.sortBy(profile_data, "study_short_name"), "study_id"));
                             study_meta = _.sortBy(study_meta, "short_name");
                         }
+    
+                        //map study full name to each sample
+                        _.each(_.filter(profile_data, function(_obj) { return !(_obj.hasOwnProperty("mutation_status")); }), function(_profile_data_obj) {
+                            _.each(study_meta, function(_study_meta_obj) {
+                                if(_study_meta_obj.id === _profile_data_obj.study_id) {
+                                    _profile_data_obj.study_name = _study_meta_obj.name;
+                                    _profile_data_obj.study_description = _study_meta_obj.description;
+                                    _profile_data_obj.study_short_name = _study_meta_obj.short_name;
+                                }
+                            });
+                        });
 
                         //TODO: apply legit ways to extract profiles, now it's a hack, assuming every study has ONE rna seq v2 profile, and named under the SAME convention
                         mrna_profiles =  _.map(study_ids, function(_study_id) { return _study_id + "_rna_seq_v2_mrna"});
@@ -193,25 +205,14 @@ var ccPlots = (function (Plotly, _, $) {
                             var _non_mut_group = _.filter(_non_mut_or_not_sequenced_group, function(_obj) { return _obj.sequenced === true; });
                             var _not_sequenced_group = _.filter(_non_mut_or_not_sequenced_group, function(_obj) { return _obj.sequenced === false; });
 
-                            //exclude non provisional study
+                            // exclude non provisional study
                             _non_mut_group = _.filter(_non_mut_group, function(_obj) { return _obj.study_id.indexOf("tcga_pub") === -1; });
                             _not_sequenced_group = _.filter(_not_sequenced_group, function(_obj) { return _obj.study_id.indexOf("tcga_pub") === -1; });
                             _mix_mut_group = _.filter(_mix_mut_group, function(_obj) { return _obj.study_id.indexOf("tcga_pub") === -1; });
                             study_meta = _.filter(study_meta, function(_obj) { return _obj.id.indexOf("tcga_pub") === -1; });
                             study_ids = _.filter(study_ids, function(study_id) { return study_id.indexOf("tcga_pub") === -1 });
                             mrna_profiles = _.filter(mrna_profiles, function(mrna_profile) { return mrna_profile.indexOf("tcga_pub") === -1; });
-
-                            //exclude esophagus
-                            var _tmp_target_study_obj = _.filter(study_meta, function(obj) { return obj.name.indexOf("Esophageal") !== -1 });
-                            _non_mut_group = _.filter(_non_mut_group, function(_obj) { return _obj.study_name.indexOf("Esophageal") === -1; });
-                            _not_sequenced_group = _.filter(_not_sequenced_group, function(_obj) { return _obj.study_name.indexOf("Esophageal") === -1; });
-                            _mix_mut_group = _.filter(_mix_mut_group, function(_obj) { return _obj.study_name.indexOf("Esophageal") === -1; });
-                            study_meta = _.filter(study_meta, function(_obj) { return _obj.name.indexOf("Esophageal") === -1; });
-                            if (_tmp_target_study_obj.length !== 0) {
-                                study_ids = _.filter(study_ids, function(study_id) { return study_id.indexOf(_tmp_target_study_obj[0].id) === -1; });
-                                mrna_profiles = _.filter(mrna_profiles, function(mrna_profile) { return mrna_profile.indexOf(_tmp_target_study_obj[0].id) === -1; });
-                            }
-
+                            
                             //join groups
                             formatted_data = _non_mut_group.concat(_mix_mut_group, _not_sequenced_group);
 
@@ -422,6 +423,7 @@ var ccPlots = (function (Plotly, _, $) {
 
         $("#cc_plots_box").empty();
         Plotly.newPlot('cc_plots_box', data, layout, {showLink: false});
+        $("#cc_plots_box").append("<span style='color:grey;position:relative;top:-40px;left:10px;'>*TCGA provisional only. Stomach Adenocarcinoma and Esophageal Carcinoma are initially excluded (click <a href='#' onclick='ccPlots.include_all()'>here</a> to include).</span>");
 
         //link to sample view
         var ccPlotsElem = document.getElementById('cc_plots_box');
@@ -430,6 +432,39 @@ var ccPlots = (function (Plotly, _, $) {
             var _pts_sample_id = data.points[0].data.sample_id[data.points[0].pointNumber];
             window.open(cbio.util.getLinkToSampleView(_pts_study_id, _pts_sample_id));
         });
+    
+        // generate the content of the study selection expendable section
+        $("#cc_plots_study_selection_btn").attr("data-toggle", "collapse");
+        $("#cc_plots_study_selection_btn").removeClass("disabled");
+        if($("#cc_plots_select_study_box").is(":empty")) {
+
+            // html 
+            $("#cc_plots_select_study_box").append("select <a href='#' id='cc_plots_select_all'>all</a> / <a href='#' id='cc_plots_select_none'>none</a><br><br>");
+            _.each(study_meta, function(_study_meta_obj) {
+                $("#cc_plots_select_study_box").append("<input type='checkbox' id='cc_plots_" + _study_meta_obj.id + "_sel' name='cc_plots_selected_studies' value='" + _study_meta_obj.id + "' checked>" + _study_meta_obj.name + "<br>");
+            });
+            $("#cc_plots_select_all").click(function() {
+                _.each(document.getElementsByName("cc_plots_selected_studies"), function(elem) { elem.checked = true; });
+                ccPlots.update();
+            });
+            $("#cc_plots_select_none").click(function() {
+                _.each(document.getElementsByName("cc_plots_selected_studies"), function(elem) { elem.checked = false; });
+                ccPlots.update();
+            });
+            
+            // attach event listener
+            $("input[name='cc_plots_selected_studies']").change(function() {
+                ccPlots.update();
+            });
+            
+            // exclude certain studies
+            var _tmp_study_obj = _.filter(study_meta, function(obj) { return obj.short_name.indexOf("Stomach") !== -1 })[0];
+            document.getElementById("cc_plots_" + _tmp_study_obj.id + "_sel").checked = false;
+            _tmp_study_obj = _.filter(study_meta, function(obj) { return obj.short_name.indexOf("Esophagus") !== -1 })[0];
+            document.getElementById("cc_plots_" + _tmp_study_obj.id + "_sel").checked = false;
+            ccPlots.update();
+        }
+
 
     }
 
@@ -438,9 +473,12 @@ var ccPlots = (function (Plotly, _, $) {
             var tmp = setInterval(function () {timer();}, 1000);
             function timer() {
                 if (window.studies !== undefined) {
+                    
                     clearInterval(tmp);
-
-                    //default settings
+                    
+                    document.getElementById("cc_plots_gene_list").disabled = false;
+                    
+                    // default settings
                     gene = [];
                     gene.length = 0;
                     gene.push($("#cc_plots_gene_list").val());
@@ -448,7 +486,7 @@ var ccPlots = (function (Plotly, _, $) {
                     show_mutations = document.getElementById("cc_plots_show_mutations").checked;
                     study_order = $('input[name=cc_plots_study_order_opt]:checked').val();
 
-                    //init download buttons
+                    // init download buttons
                     $("#cc_plots_svg_download").click(function() {
                         var xmlSerializer = new XMLSerializer();
                         var main_plots_str = xmlSerializer.serializeToString($("#cc_plots_box svg")[0]);
@@ -501,38 +539,33 @@ var ccPlots = (function (Plotly, _, $) {
                         };
                         cbio.download.clientSideDownload([get_tab_delimited_data()], "plots-data.txt");
                     });
-
-
+                    
+                    // fetch data and init view
                     fetch_profile_data(_.pluck(_.pluck(window.studies.models, "attributes"), "studyId"));
                 }
             }
         },
-        update_gene: function() {
+        update: function() {
+            
+            // menu selection status
             gene = [];
             gene.length = 0;
             gene.push($("#cc_plots_gene_list").val());
-            $("#cc_plots_box").empty();
-            $("#cc_plots_box").append("<img src='images/ajax-loader.gif' id='cc_plots_loading' style='padding:200px;'/>");
-            fetch_profile_data(_.pluck(_.pluck(window.studies.models, "attributes"), "studyId"));
-        },
-        update_study_order: function() {
             study_order = $('input[name=cc_plots_study_order_opt]:checked').val();
-            $("#cc_plots_box").empty();
-            $("#cc_plots_box").append("<img src='images/ajax-loader.gif' id='cc_plots_loading' style='padding:200px;'/>");
-            fetch_profile_data(_.pluck(_.pluck(window.studies.models, "attributes"), "studyId"));
-        },
-        toggle_log_scale: function() {
             apply_log_scale = document.getElementById("cc_plots_log_scale").checked;
-            $("#cc_plots_box").empty();
-            $("#cc_plots_box").append("<img src='images/ajax-loader.gif' id='cc_plots_loading' style='padding:200px;'/>");
-            fetch_profile_data(_.pluck(_.pluck(window.studies.models, "attributes"), "studyId"));
-        },
-        toggle_show_mutations: function() {
             show_mutations = document.getElementById("cc_plots_show_mutations").checked;
             $("#cc_plots_box").empty();
             $("#cc_plots_box").append("<img src='images/ajax-loader.gif' id='cc_plots_loading' style='padding:200px;'/>");
-            fetch_profile_data(_.pluck(_.pluck(window.studies.models, "attributes"), "studyId"));
+            var _selected_study_ids = $("input[name=cc_plots_selected_studies]:checked").map(function() { return this.value; }).get();
+            
+            // re-generate the view
+            fetch_profile_data(_selected_study_ids);
+        },
+        include_all: function() {
+            _.each(document.getElementsByName("cc_plots_selected_studies"), function(elem) {elem.checked = true;});
+            ccPlots.update();
         }
+        
     };
 
 }(window.Plotly, window._, window.jQuery));

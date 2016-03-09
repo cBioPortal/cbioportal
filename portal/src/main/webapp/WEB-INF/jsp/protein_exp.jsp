@@ -116,18 +116,7 @@
 
 <script type="text/javascript" src="js/src/protein_exp/rppa_plots.js?<%=GlobalProperties.getAppVersion()%>"></script>
 <script type="text/javascript" src="js/src/protein_exp/protein_exp_datatable.js?<%=GlobalProperties.getAppVersion()%>"></script>
-<script type="text/javascript">
-    function getRppaPlotsCaseList() {
-        var obj = {};
-        $.each(window.PortalGlobals.getAlteredSampleIdList().split(" "), function(_index, _sampleId) {
-            obj[_sampleId] = "altered";
-        });
-        $.each(window.PortalGlobals.getUnalteredSampleIdList().split(" "), function(_index, _sampleId) {
-            obj[_sampleId] = "unaltered";
-        });
-        return obj;
-    }
-    
+<script type="text/javascript">    
     function getProteinArrayTypes() {
         var ret = Array();
         var i = 0;
@@ -140,11 +129,11 @@
     function getAlterations() {
     <%
         JSONObject alterationResults = new JSONObject();
-        for (String patientId : mergedPatientList) {
+        for (String sampleId : mergedSampleList) {
             JSONObject _alterationResult = new JSONObject();
             for (GeneWithScore geneWithScore : geneWithScoreList) {
                 String singleGeneResult = "";
-                String value = mergedProfile.getValue(geneWithScore.getGene(), patientId);
+                String value = mergedProfile.getValue(geneWithScore.getGene(), sampleId);
                 ValueParser parser = ValueParser.generateValueParser( geneWithScore.getGene(), value,
                         zScoreThreshold, rppaScoreThreshold, theOncoPrintSpecification );
                 if( null == parser){
@@ -180,7 +169,7 @@
                 }
                 _alterationResult.put(geneWithScore.getGene(), singleGeneResult);
             }
-            alterationResults.put(patientId, _alterationResult);
+            alterationResults.put(sampleId, _alterationResult);
         }
     %>
         var alterationResults = jQuery.parseJSON('<%=alterationResults%>');;

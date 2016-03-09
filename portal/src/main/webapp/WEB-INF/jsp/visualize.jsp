@@ -30,8 +30,8 @@
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --%>
 
-<%@ include file="global/global_variables.jsp" %>
 
+<%@ include file="global/global_variables.jsp" %>
 <jsp:include page="global/header.jsp" flush="true" />
 <%@ page import="java.util.Map" %>
 
@@ -76,7 +76,7 @@
     } else {
 %>
 
-<div id="tabs" style="overflow: hidden">
+<div id="tabs">
     <ul>
     <%
         Boolean showMutTab = false;
@@ -164,8 +164,7 @@
                 out.println ("<li><a href='#coexp' class='result-tab' id='coexp-result-tab'>Co-Expression</a></li>");
             }
             if (has_mrna || has_copy_no || showMutTab) {
-                out.println("<li><a href='#or_analysis' id='enrichments-result-tab' class='result-tab' style='height: 18px;'>Enrichments&nbsp;" +
-                 "<span class='new-feature-label'>&nbsp;New&nbsp;</span></a></li>");
+                out.println("<li><a href='#or_analysis' id='enrichments-result-tab' class='result-tab'>Enrichments</a></li>");
             }
             if (has_survival) {
                 out.println ("<li><a href='#survival' class='result-tab' id='survival-result-tab'>Survival</a></li>");
@@ -173,7 +172,7 @@
             if (includeNetworks) {
                 out.println ("<li><a href='#network' class='result-tab' id='network-result-tab'>Network</a></li>");
             }
-            if (showIGVtab){
+            if (showIGVtab && !((String)request.getAttribute(QueryBuilder.CANCER_STUDY_ID)).equals("mskimpact")){
                 out.println ("<li><a href='#igv_tab' class='result-tab' id='igv-result-tab'>IGV</a></li>");
             }
             out.println ("<li><a href='#data_download' class='result-tab' id='data-download-result-tab'>Download</a></li>");
@@ -183,7 +182,7 @@
             out.println ("<div class=\"section\" id=\"bookmark_email\">");
 
             // diable bookmark link if case set is user-defined
-            if (patientSetId.equals("-1"))
+            if (sampleSetId.equals("-1"))
             {
                 out.println("<br>");
                 out.println("<h4>The bookmark option is not available for user-defined case lists.</h4>");
@@ -214,7 +213,7 @@
 
         <%@ include file="plots_tab.jsp" %>
 
-        <% if (showIGVtab) { %>
+        <% if (showIGVtab && !((String)request.getAttribute(QueryBuilder.CANCER_STUDY_ID)).equals("mskimpact")) { %>
             <%@ include file="igv.jsp" %>
         <% } %>
 
@@ -249,7 +248,6 @@
         <% } %>
 
         <%@ include file="data_download.jsp" %>
-        <%@ include file="image_tabs_data.jsp" %>
 
 </div> <!-- end tabs div -->
 <% } %>
@@ -289,6 +287,7 @@
 			        clearInterval(interval);
 			        if (firstTime)
 			        {
+                $(window).resize();
 				        send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
 				        firstTime = false;
 			        }
@@ -298,19 +297,27 @@
 
         $("a.result-tab").click(function(){
 
-            if($(this).attr("href")=="#network") {
-                if(firstTime)
+            if($(this).attr("href")=="#network")
+            {
+              var interval = setInterval(function() {
+                if (window.networkGraphJSON != null)
                 {
-                  send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
-                  firstTime = false;
-                }
-	            else
-                {
-	                // TODO this is a workaround to adjust cytoscape canvas
-	                // and probably not the best way to do it...
-	                $(window).resize();
-                }
+                  clearInterval(interval);
+                  if(firstTime)
+                  {
+                    $(window).resize();
+                    send2cytoscapeweb(window.networkGraphJSON, "cytoscapeweb", "network");
+                    firstTime = false;
+                  }
+                else
+                  {
+                    // TODO this is a workaround to adjust cytoscape canvas
+                    // and probably not the best way to do it...
+                    $(window).resize();
+                  }
 
+                }
+              }, 50);
             } else {
                 if($(this).attr("href")=="#bookmark_email") {
                     $("#bookmark-link").attr("href",window.location.href);

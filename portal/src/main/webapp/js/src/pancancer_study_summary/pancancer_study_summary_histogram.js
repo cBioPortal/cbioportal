@@ -65,7 +65,7 @@ function PancancerStudySummaryHistogram()
     };
     
     var filterCriteriaChanged = function(model) {
-    	return model.hasChanged("cancerType") || model.hasChanged("cancerTypeDetailed") || model.hasChanged("minAlteredSamples");
+    	return model.hasChanged("cancerType") || model.hasChanged("cancerTypeDetailed") || model.hasChanged("minAlteredSamples") ||	model.hasChanged("minTotalSamples");
     }
     
     
@@ -74,7 +74,7 @@ function PancancerStudySummaryHistogram()
      * 
      * @param histogramEl: el where the histogram should be rendered
      * @param model: the model with the parameters for sorting/filtering (see HistogramSettings model in pancancer_study_summary.js)
-     * @param dmPresenter: instance of DataManagerPresenter (see DataManagerPresenter in pancancer_study_summary.js)
+     * @param dmPresenter: instance of ServicePresenter (see ServicePresenter in pancancer_study_summary.js)
      * @param geneId: the gene id of the current tab
      * 
      */
@@ -83,7 +83,8 @@ function PancancerStudySummaryHistogram()
 	    
 		//if data will change, e.g. because a cancer type was added or removed to the 
 		//filter criteria, then get processed data again: 
-	    if (filterCriteriaChanged(model)) {
+	    if (!this.histogramPresenter || filterCriteriaChanged(model)) {
+	    	console.log("Initial fetch data or Filter criteria changed, filtering/processing/sorting data...");
 	    	//get data via presenter layer:
 			this.histogramPresenter = new HistogramPresenter(model, dmPresenter, geneId);
 			//Get data:
@@ -96,8 +97,8 @@ function PancancerStudySummaryHistogram()
 	    }
 	    else {
 	    	var histData = this.histogramPresenter.histData;
-	    	//only sorting/scaling has changed. Adjust/redraw histogram accordingly:
-	    	var histogram = drawHistogram(histData, model, histogramEl);
+	    	//only sorting has changed. Adjust/redraw histogram accordingly:
+	    	var histogram = continueDrawHistogram(histData, model, histogramEl);
 			//animation, sorting also the histogram:
 			sortItems(histData, model, histogram);
 	    }
@@ -111,7 +112,14 @@ function PancancerStudySummaryHistogram()
 	 * @param histogramEl: el where the histogram should be rendered
 	 */
     var drawHistogram = function(histData, model, histogramEl) {
-		
+		// Add loading image to histogramEl
+		$(histogramEl).html("<div style='width:"+width+"px; height:"+height+"px'><img src='images/ajax-loader.gif'</div>");
+		// call continueDraHistogram with a 1 ms delay to ensure the image is shown
+		window.setTimeout(continueDrawHistogram, 1, histData, model, histogramEl);
+	}
+
+	var continueDrawHistogram = function(histData, model, histogramEl) {
+
     	var getY = function(d, type) {
     		return getYValue(d, type, model.get("dataTypeYAxis"));
     	};
@@ -157,10 +165,9 @@ function PancancerStudySummaryHistogram()
 		var isThereAmplification = false;
 		var isThereDeletion = false;
 		var isThereMultiple = false;
-		
-		// Empty the content
-	    $(histogramEl).html("");
-	
+
+		$(histogramEl).html("");
+
 	    // and initialize the histogram
 	    var histogram = d3.select(histogramEl)
 	        .append("svg")
@@ -493,7 +500,7 @@ function PancancerStudySummaryHistogram()
 	    ;
 	    	
 	    }
-	    
+
 	    return histogram;
 	};
 	    
@@ -553,8 +560,7 @@ function PancancerStudySummaryHistogram()
 			        });
 		    }
     	}
-        
-    };    
+    };
 	
 	/**
 	 * View for the qtip / tool tip showing the summary table with 
@@ -631,7 +637,7 @@ function PancancerStudySummaryHistogram()
  * format expected by the histogram view.
  * 
  * @param model: the model with the parameters for sorting/filtering (see HistogramSettings model in pancancer_study_summary.js)
- * @param dmPresenter: instance of DataManagerPresenter (see DataManagerPresenter in pancancer_study_summary.js)
+ * @param dmPresenter: instance of ServicePresenter (see ServicePresenter in pancancer_study_summary.js)
  * @param geneId: the gene id of the current tab
  */
 function HistogramPresenter(model, dmPresenter, geneId)
@@ -649,16 +655,23 @@ function HistogramPresenter(model, dmPresenter, geneId)
 		this.histData = this._getHistogramData();		
 		
 		var finalHistData = [];
-		//filter data on nr of samples:
+		//filter data on nr of altered samples:
 		var minAlteredSamples = model.get("minAlteredSamples");
-		
+
+		//filter data on nr of samples:
+		var minTotalSamples = model.get("minTotalSamples");
+
 		for (var i = 0; i < this.histData.length; i++) {
-			var yValue = getYValue(this.histData[i], "all", model.get("dataTypeYAxis"));
-			if (model.get("dataTypeYAxis") == "Alteration Frequency")
-				yValue = yValue*100; //multiply by 100 because minAlteredSamples is in %
-				
-			if (yValue >= minAlteredSamples)
-				finalHistData.push(this.histData[i]);
+			// retrieve the caseSetLength and check whether it meets the minimum number of samples requirement
+			var caseSetLength = this.histData[i].caseSetLength;
+			if(caseSetLength>=minTotalSamples) {
+				var yValue = getYValue(this.histData[i], "all", model.get("dataTypeYAxis"));
+				if (model.get("dataTypeYAxis") == "Alteration Frequency")
+					yValue = yValue * 100; //multiply by 100 because minAlteredSamples is in %
+
+				if (yValue >= minAlteredSamples)
+					finalHistData.push(this.histData[i]);
+			}
 		}
 		
 		this.histData = finalHistData;

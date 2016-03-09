@@ -109,12 +109,11 @@ public class MutSigReader {
      * Adds MutSigs to CDGS database.
      * @param internalId        CancerStudy database record
      * @param mutSigFile        MutSigFile
-     * @param pMonitor          pMonitor
      * @return                  number of MutSig records loaded
      * @throws IOException
      * @throws DaoException
      */
-    public static int loadMutSig(int internalId, File mutSigFile, ProgressMonitor pMonitor) throws IOException, DaoException {
+    public static int loadMutSig(int internalId, File mutSigFile) throws IOException, DaoException {
         int loadedMutSigs = 0;
         MySQLbulkLoader.bulkLoadOff();
         FileReader reader = new FileReader(mutSigFile);
@@ -163,10 +162,8 @@ public class MutSigReader {
         int rank = 0;
         for (String line = buf.readLine();line != null;line = buf.readLine()) {
 
-            if (pMonitor != null) {
-                pMonitor.incrementCurValue();
-                ConsoleUtil.showProgress(pMonitor);
-            }
+            ProgressMonitor.incrementCurValue();
+            ConsoleUtil.showProgress();
             
             MutSig mutSig = new MutSig();
             mutSig.setCancerType(internalId);

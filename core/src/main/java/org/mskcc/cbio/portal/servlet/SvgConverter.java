@@ -108,7 +108,8 @@ public class SvgConverter extends HttpServlet {
 	    // TODO - update antisamy.xml to support svg-xml
 	    if (httpServletRequest instanceof XssRequestWrapper)
 	    {
-		    xml = ((XssRequestWrapper) httpServletRequest).getRawParameter("svgelement");
+            format = ((XssRequestWrapper) httpServletRequest).getRawParameter("filetype");
+            xml = ((XssRequestWrapper) httpServletRequest).getRawParameter("svgelement");
 	    }
 
 	    if (format.equals("pdf_data"))

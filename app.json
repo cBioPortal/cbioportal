@@ -1,0 +1,31 @@
+{
+  "name": "cBioPortal",
+  "description":"The cBioPortal for Cancer Genomics provides visualization, analysis and download of large-scale cancer genomics data sets.",
+  "repository":"https://github.com/cbioportal/cbioportal",
+  "logo":"http://www.cbioportal.org/images/cbioportal_logo.png",
+  "keywords": [
+    "java",
+    "tomcat",
+    "javascript",
+    "cancer",
+    "genomics"
+  ],
+  "env": {
+    "JAVA_OPTS": {
+      "description":"options for jvm",
+      "value": "-Xmx300m -Xms300m -XX:+UseCompressedOops"
+    },
+    "MAVEN_CUSTOM_OPTS": {
+        "description":"set heroku profile for mvn",
+        "value":"-Pheroku,public -DskipTests -Ddb.user=cbio_user -Ddb.password=cbio_pass -Ddb.portal_db_name=public_test -Ddb.connection_string=jdbc:mysql://cbioportal-public.c1xhhbwn8izk.us-east-1.rds.amazonaws.com:3306/ -Ddb.host=cbioportal-public.c1xhhbwn8izk.us-east-1.rds.amazonaws.com"
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "https://github.com/inodb/cbioportal-buildpack"
+    },
+    {
+      "url": "https://github.com/heroku/heroku-buildpack-java"
+    }
+  ]
+}

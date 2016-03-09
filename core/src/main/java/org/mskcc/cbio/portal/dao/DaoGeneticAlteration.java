@@ -32,10 +32,6 @@
 
 package org.mskcc.cbio.portal.dao;
 
-import org.apache.commons.math.MathException;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.node.ArrayNode;
-import org.codehaus.jackson.node.JsonNodeFactory;
 import org.codehaus.jackson.node.ObjectNode;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 
@@ -83,7 +79,7 @@ public class DaoGeneticAlteration {
             long entrezGeneId,
             String[] values,
             ArrayList<Integer> orderedSampleList
-        ) throws MathException;
+        );
     }
 
     /**
@@ -96,9 +92,6 @@ public class DaoGeneticAlteration {
      */
     public int addGeneticAlterations(int geneticProfileId, long entrezGeneId, String[] values)
             throws DaoException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
         StringBuffer valueBuffer = new StringBuffer();
         for (String value:  values) {
             if (value.contains(DELIM)) {
@@ -107,26 +100,30 @@ public class DaoGeneticAlteration {
             }
             valueBuffer.append(value).append(DELIM);
         }
-
+        
+       if (MySQLbulkLoader.isBulkLoad() ) {
+          //  write to the temp file maintained by the MySQLbulkLoader
+          MySQLbulkLoader.getMySQLbulkLoader("genetic_alteration").insertRecord(Integer.toString( geneticProfileId ),
+                  Long.toString( entrezGeneId ), valueBuffer.toString());
+          // return 1 because normal insert will return 1 if no error occurs
+          return 1;
+        } 
+       
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        
         try {
-           if (MySQLbulkLoader.isBulkLoad() ) {
-              //  write to the temp file maintained by the MySQLbulkLoader
-              MySQLbulkLoader.getMySQLbulkLoader("genetic_alteration").insertRecord(Integer.toString( geneticProfileId ),
-                      Long.toString( entrezGeneId ), valueBuffer.toString());
-              // return 1 because normal insert will return 1 if no error occurs
-              return 1;
-           } else {
-                con = JdbcUtil.getDbConnection(DaoGeneticAlteration.class);
-                pstmt = con.prepareStatement
-                        ("INSERT INTO genetic_alteration (GENETIC_PROFILE_ID, " +
-                                " ENTREZ_GENE_ID," +
-                                " VALUES) "
-                                + "VALUES (?,?,?)");
-                pstmt.setInt(1, geneticProfileId);
-                pstmt.setLong(2, entrezGeneId);
-                pstmt.setString(3, valueBuffer.toString());
-                return pstmt.executeUpdate();
-           }
+            con = JdbcUtil.getDbConnection(DaoGeneticAlteration.class);
+            pstmt = con.prepareStatement
+                    ("INSERT INTO genetic_alteration (GENETIC_PROFILE_ID, " +
+                            " ENTREZ_GENE_ID," +
+                            " VALUES) "
+                            + "VALUES (?,?,?)");
+            pstmt.setInt(1, geneticProfileId);
+            pstmt.setLong(2, entrezGeneId);
+            pstmt.setString(3, valueBuffer.toString());
+            return pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -231,7 +228,7 @@ public class DaoGeneticAlteration {
             //Set<Long> entrezGeneIds,            //list of genes in calculation gene pool (all genes or only cancer genes)
             int offSet,                         //OFFSET for LIMIT (to get only one segment of the genes)
             AlterationProcesser processor       //implemented interface
-    ) throws DaoException, MathException {
+    ) throws DaoException {
 
         ArrayList<ObjectNode> result = new ArrayList<>();
 

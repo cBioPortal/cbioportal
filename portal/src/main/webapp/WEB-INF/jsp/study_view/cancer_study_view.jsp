@@ -30,20 +30,15 @@
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --%>
 
-<%@ page import="org.json.simple.JSONValue"%>
-<%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
-<%@ page import="org.mskcc.cbio.portal.servlet.CancerStudyView" %>
-<%@ page import="org.mskcc.cbio.portal.servlet.PatientView" %>
+<%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
+<%@ page import="org.json.simple.JSONValue" %>
 <%@ page import="org.mskcc.cbio.portal.model.CancerStudy" %>
 <%@ page import="org.mskcc.cbio.portal.model.GeneticProfile" %>
-<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
+<%@ page import="org.mskcc.cbio.portal.servlet.*" %>
 <%@ page import="java.util.List" %>
-<%@ page import="org.apache.commons.lang.StringUtils" %>
-<%@ page import="org.json.simple.JSONValue" %>
-<%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
 
 <%
-request.setAttribute("tumormap", true);
+request.setAttribute("standard-js-css", true);
 String isDemoMode = request.getParameter("demo");
 boolean showPlaceHoder;
 if (isDemoMode!=null) {
@@ -113,7 +108,7 @@ if (cancerStudyViewError!=null) {
 <div id="study-tabs">
     <ul>
         
-    <li id="li-1"><a href='#dc-plots' id='study-tab-dc-plots-a' class='study-tab' title='Study Summary'>Study Summary</a></li>
+    <li id="li-1"><a href='#summary' id='study-tab-summary-a' class='study-tab' title='Study Summary'>Study Summary</a></li>
     <!--<li><a href='#clinical-plots' class='study-tab' title='DC Plots'>Study Summary</a></li>-->
     <li><a href='#clinical' id='study-tab-clinical-a' class='study-tab' title='Clinical Data'>Clinical Data</a></li>
     
@@ -127,7 +122,7 @@ if (cancerStudyViewError!=null) {
     
     </ul>
     
-    <div class="study-section" id="dc-plots">
+    <div class="study-section" id="summary">
         <%@ include file="dcplots.jsp" %>
     </div>
     
@@ -198,8 +193,6 @@ if (cancerStudyViewError!=null) {
         }
 </style>
 
-<script type="text/javascript" src="js/src/cancer-study-view/load-clinical-data.js?<%=GlobalProperties.getAppVersion()%>"></script>
-
 <script type="text/javascript">
 var cancerStudyId = '<%=cancerStudy.getCancerStudyStableId()%>';
 var cancerStudyName = '<%=StringEscapeUtils.escapeJavaScript(cancerStudy.getName())%>';
@@ -210,13 +203,27 @@ var hasMutSig = <%=hasMutSig%>;
 var caseSetId = '<%=caseSetId%>';
 var caseIds = <%=jsonCaseIds%>;
 var cancer_study_id = cancerStudyId; //Some components using this as global ID
-var appVersion = <%=GlobalProperties.getAppVersion()%>?<%=GlobalProperties.getAppVersion()%>:'0000001';
+var appVersion = '<%=GlobalProperties.getAppVersion()%>';
 var hasMutation = <%=hasMutation%>;
 var hasCNA = <%=hasCNA%>;
 
 
 $("#study-tabs").tabs({disabled: true});
-$("#study-tabs").tabs("enable", 0);
+
+$('#study-tab-summary-a').click(function () {
+    if (!$(this).parent().hasClass('ui-state-disabled') && !$(this).hasClass("tab-clicked")) {
+        var _data = StudyViewProxy.getAllData();
+        if (!(_data.attr.length === 1 && _data.attr[0].attr_id === 'CASE_ID')) {
+            StudyViewSummaryTabController.init(_data);
+        } else {
+            $("#summary-loading-wait").css('display', 'none');
+            $("#summary").append("<div style='width:100%'>" +
+                "There isn't any information for this study.</div>");
+        }
+        $('#study-tab-summary-a').addClass("tab-clicked");
+    }
+    window.location.hash = '#summary';
+});
 
 $('#study-tab-clinical-a').click(function(){
     if (!$(this).parent().hasClass('ui-state-disabled') && !$(this).hasClass("tab-clicked")) {
@@ -230,20 +237,25 @@ $('#study-tab-clinical-a').click(function(){
             $('#study-tab-clinical-a').addClass("tab-clicked");
         }, 200);
     }
+    window.location.hash = '#clinical';
 });
 
 $('#study-tab-mutations-a').click(function(){
     if (!$(this).parent().hasClass('ui-state-disabled') && !$(this).hasClass("tab-clicked")) {
         StudyViewMutationsTabController.init();
         $(this).addClass("tab-clicked");
+        StudyViewMutationsTabController.getDataTable().fnAdjustColumnSizing();
     }
+    window.location.hash = '#mutations';
 });
 
 $('#study-tab-cna-a').click(function(){
     if (!$(this).parent().hasClass('ui-state-disabled') && !$(this).hasClass("tab-clicked")) {
         StudyViewCNATabController.init();
         $(this).addClass("tab-clicked");
+        StudyViewCNATabController.getDataTable().fnAdjustColumnSizing();
     }
+    window.location.hash = '#cna';
 });
 </script>
 

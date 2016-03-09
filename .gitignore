@@ -1,4 +1,5 @@
 nb-configuration.xml
+nbactions-private.xml
 oncotator/src/main/resources/db.properties
 portal/Portal-Google-Code.ipr
 portal/Portal-Google-Code.iws
@@ -17,7 +18,6 @@ importer/nbactions.xml
 portal/nb-configuration.xml
 portal/nbactions.xml
 portal/src/main/webapp/META-INF/context.xml
-portal/src/main/webapp/WEB-INF/web.xml
 \.orig\..*$
 \.orig$
 \.chg\..*$
@@ -76,6 +76,4 @@ nbactions.xml
 */.classpath
 */.project
 dependency-reduced-pom.xml
-
-
 /core/nbactions-private.xml

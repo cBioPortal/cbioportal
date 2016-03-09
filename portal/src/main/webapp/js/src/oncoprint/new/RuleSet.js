@@ -170,7 +170,7 @@ window.oncoprint_RuleSet = (function() {
 			g.each(function(d,i) {
 				var category = params.getCategory(d);
 				if (!params.color.hasOwnProperty(category) && category !== "NA") {
-					var new_color = d3_colors.pop();
+					var new_color = d3_colors.shift();
 					params.color[category] = new_color;
 					addColorRule(new_color, category);
 				}
@@ -260,9 +260,16 @@ window.oncoprint_RuleSet = (function() {
 						return typeof d[_key] !== 'undefined';
 					}
 				} else {
-					return function(d) {
-						return d[_key] === _value;
-					};
+					if (_value[0] === "-") {
+					    var actual_value = _value.substring(1);
+					    return function(d) {
+						    return typeof d[_key] !== 'undefined' && d[_key] !== actual_value;
+					    };
+					} else {
+					    return function(d) {
+						    return d[_key] === _value;
+					    };
+					}
 				}
 			})(key, value) : undefined;
 			var shape, attrs, styles, z_index;

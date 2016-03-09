@@ -68,7 +68,7 @@
         
         <div class="btn-group btn-group-sm">
             <button type="button" id="oncoprinter_zoomout" class="btn btn-default" style="background-color:#efefef"><img src="images/zoom-out.svg" alt="icon" width="16" height="16" /></button>
-            <span class="btn btn-default" id="oncoprint_diagram_slider_icon" style="background-color:#efefef;width: 120px;display:inline"></span>
+            <span class="btn btn-default" id="oncoprint_diagram_slider_icon" style="background-color:#efefef;width: 100px;display:inline"></span>
             <button type="button" id="oncoprinter_zoomin" class="btn btn-default" style="background-color:#efefef"><img src="images/zoom-in.svg" alt="icon" width="16" height="16" /></button>
         </div>
     </div>

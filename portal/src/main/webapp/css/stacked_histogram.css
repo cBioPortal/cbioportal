@@ -1,0 +1,11 @@
+.axis path,
+.axis line {
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+}
+
+.axis text {
+    font-family: Verdana, Arial, sans-serif;
+    font-size: 11px;
+}

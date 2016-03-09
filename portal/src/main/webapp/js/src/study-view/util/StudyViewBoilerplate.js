@@ -33,7 +33,7 @@
 
 var StudyViewBoilerplate ={
     headerCaseSelectCustomDialog: {
-        id: 'modal', // Since we're only creating one modal, give it an ID so we can style it
+        id: 'study-view-case-select-custom-dialog', // Since we're only creating one modal, give it an ID so we can style it
         content: {
                 text: '',
                 title: {
@@ -210,7 +210,7 @@ var StudyViewBoilerplate ={
             title: "Mutation Count vs CNA",
             fileName: "",
             xTitleHelp: "Fraction of genome that has log2 copy number value above 0.2 or bellow -0.2",
-            yTitleHelp: "Number of sometic non-synonymous mutations"
+            yTitleHelp: "Number of somatic non-synonymous mutations"
         },
         legends: []
     },
@@ -229,6 +229,7 @@ var StudyViewBoilerplate ={
             _headerLeft = $('<div></div>'),
             _headerRight = $('<div></div>'),
 
+            _successBanner = $('<div></div>'),
             _breadcrumbs = $('<div></div>'),
             _span3 = $('<span></span>'),
             // span for the number of items found
@@ -236,12 +237,13 @@ var StudyViewBoilerplate ={
             _span2 = $("<input type='button' />"),
             _span4 = $("<input type='button' />"),
             _span5 = $('<span></span>'),
-            _span6 = $("<input type='button' />"),
-            _form = $('<form></form>'),
+            _span6 = $("<span></span>"),
+            _form = $('<form id="study-view-form"></form>'),
             _input1 = $('<input></input>'),
             _input2 = $('<input></input>'),
             _input3 = $('<input></input>'),
-            _input4 = $('<input></input>');
+            _input4 = $('<input></input>'),
+            _queryByGene = $('<span></span>');
         
         _headerLeft.attr('id','study-view-header-left');
 
@@ -271,6 +273,7 @@ var StudyViewBoilerplate ={
             .attr({
                 type: "hidden",
                 name: "case_set_id",
+                id: "study-view-header-left-case_set-id",
                 value: "-1"
             });
         _input3
@@ -285,7 +288,6 @@ var StudyViewBoilerplate ={
                 type: "submit",
                 id: "study-view-header-left-1",
                 value: "Query",
-//                class: "study-view-header hidden"
                 class: "study-view-header-button"
             });
         _form.append(_input1);
@@ -306,19 +308,12 @@ var StudyViewBoilerplate ={
             .attr({
                 'id': 'study-view-header-left-3'
                 })
-            .text('Total number of samples selected: ');
-
-       // tumormap.do?cancer_study_id=acyc_mskcc&case_id=9534#nav_case_ids=9534,6277
-        //Build View cases button linking to patient view
-        _span4
-            .attr({
-                'id': 'study-view-header-left-4',
-                'class': 'study-view-header-button'})
-            .val('View');
+            .text('Samples selected: ');
 
         // span5 attributes
         _span5.attr({
-            'id': 'study-view-header-left-5'
+            'id': 'study-view-header-left-5',
+            'class': 'study-view-header-button'
         });
 
         //Download button
@@ -326,15 +321,22 @@ var StudyViewBoilerplate ={
             .attr({
                 'id': 'study-view-header-left-6',
                 'class': 'study-view-header-button'})
-            .val('Download');
+            .html('<img src="images/in.svg" />');
+
+        _successBanner
+            .attr({
+               id: 'successBanner',
+               class: 'alert alert-success fade in',
+               style: 'display: none'
+            });
 
         // span3 is now the first item, span5 added, image added
         _headerLeft.append(_span3);
         _headerLeft.append(_span5);
+        _headerLeft.append(_span6);
+        _headerLeft.append(_queryByGene);
         _headerLeft.append("<img id='arrow_studyview' src='images/arrow_studyview.png'>");
         _headerLeft.append(_form);
-        _headerLeft.append(_span4);
-        _headerLeft.append(_span6);
 
         _headerRight.attr('id','study-view-header-right');
         _headerRight.append(_span1);
@@ -342,10 +344,28 @@ var StudyViewBoilerplate ={
         _header.append(_headerLeft);
         _header.append(_headerRight);
 
+
+        _queryByGene
+            .attr({
+               'id': 'query-by-gene-span'
+            });
+
+        var queryByGeneTextArea = $('<textarea></textarea>');
+        queryByGeneTextArea
+            .attr({
+                'id': 'query-by-gene-textarea',
+                'class': 'expand expandFocusOut',
+                'rows': '1',
+                'cols': '10'
+            });
+
+        _queryByGene.append('<span id="queryByGeneTextSpan"></span>');
+        _queryByGene.append(queryByGeneTextArea);
+
         // add a container for the breadcrumbs
         _breadcrumbs.attr({
             id: 'breadcrumbs_container',
-            class: 'hidden'
+            class: 'study-view-hidden'
         });
         _breadcrumbs.append('<span style="float:left">Your selections: </span>');
         _breadcrumbs.append('<div style="float:left" class="breadcrumbs_items"></div>');
@@ -358,20 +378,17 @@ var StudyViewBoilerplate ={
     },
     
     customDialogDiv:
-            "<div class='hidden' id='study-view-case-select-custom-dialog'>" +
-                "Please input IDs (one per line)" +
+            "<div class='study-view-hidden' id='study-view-case-select-custom-dialog'>" +
+                '<b>Please input IDs (one per line)</b>' +
                 "<textarea rows='20' cols='50' id='study-view-case-select-custom-input'></textarea><br/>" +
-                '<input type="radio" name="study-view-case-select-custom-radio" value="sample" checked>By sample ID' +
-                '<input type="radio" name="study-view-case-select-custom-radio" value="patient">By patient ID' +
+                '<label><input type="radio" id="study-view-case-select-custom-radio-sample" name="study-view-case-select-custom-radio" value="sample" checked>' +
+                'By sample ID</label>' +
+                '<label><input type="radio" id="study-view-case-select-custom-radio-patient"  name="study-view-case-select-custom-radio" value="patient">' +
+                'By patient ID</label>' +
                 "<button type='button' id='study-view-case-select-custom-submit-btn' style='float: right;'>Select</button>" +
             "</div>",
     addChartDiv:
             "<select id='study-view-add-chart' class='chosen-select'><option id=''>Add Chart</option></select>",
-//            "<div  id='study-view-add-chart' class='study-view-header'>" +
-//                "<span>Add Chart</span><br>" +
-//                "<ul>" +
-//                "</ul>" +
-//            "</div>",
     
     tutorialDiv:
             "<div  id='study-view-tutorial' class='study-view-header'>" +
@@ -420,10 +437,6 @@ var StudyViewBoilerplate ={
             "<div id='study-view-scatter-plot-body-top-chart'></div>"+
             "<div id='study-view-scatter-plot-body-svg'></div>"+
             "<div id='study-view-scatter-plot-body-right-chart'></div></div>"+
-//            "<div id='study-view-scatter-plot-side'>"+
-//            "<div class='study-view-side-item'><input type='checkbox' id='study-view-scatter-plot-log-scale-x'></input><span class='study-view-scatter-plot-checkbox'>Log Scale X</span></div>"+
-//            "<div class='study-view-side-item'><input type='checkbox' id='study-view-scatter-plot-log-scale-y'></input><span class='study-view-scatter-plot-checkbox'>Log Scale y</span></div>"+
-//            "</div>"+
             "<div id='study-view-scatter-plot-loader' class='study-view-loader'>"+
             "<img src='images/ajax-loader.gif'/></div>"+
             "<div id='study-view-scatter-plot-control-panel'></div>"+
@@ -438,7 +451,6 @@ var StudyViewBoilerplate ={
             "</table>",
 
     // added for breadcrumbs
-    // "<div class='breadcrumb_container' style='display: inline-block'>"+
     breadCrumbDiv:
         "<div class='breadcrumb_container'>"+
             "<span class='breadcrumb_item'></span>"+

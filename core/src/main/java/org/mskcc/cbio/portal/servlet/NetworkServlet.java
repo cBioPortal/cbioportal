@@ -616,12 +616,12 @@ public class NetworkServlet extends HttpServlet {
                 }
 
             } else if (profile.getGeneticAlterationType() == GeneticAlterationType.MRNA_EXPRESSION) {
-                ArrayList< Set<String> > samples = getMRnaAlteredSamples(profile.getGeneticProfileId(),
+                Set<String>[] samples = getMRnaAlteredSamples(profile.getGeneticProfileId(),
                         internalSampleIds, entrezGeneId, zScoreThreshold);
-                alteredSamples.addAll(samples.get(0));
-                alteredSamples.addAll(samples.get(1));
-                node.setAttribute(NODE_ATTR_PERCENT_MRNA_WAY_UP, 1.0*samples.get(0).size()/internalSampleIds.size());
-                node.setAttribute(NODE_ATTR_PERCENT_MRNA_WAY_DOWN, 1.0*samples.get(1).size()/internalSampleIds.size());
+                alteredSamples.addAll(samples[0]);
+                alteredSamples.addAll(samples[1]);
+                node.setAttribute(NODE_ATTR_PERCENT_MRNA_WAY_UP, 1.0*samples[0].size()/internalSampleIds.size());
+                node.setAttribute(NODE_ATTR_PERCENT_MRNA_WAY_DOWN, 1.0*samples[1].size()/internalSampleIds.size());
             }
         }
 
@@ -686,15 +686,16 @@ public class NetworkServlet extends HttpServlet {
      * contains down-regulated cases.
      * @throws DaoException
      */
-    private ArrayList< Set<String> > getMRnaAlteredSamples(int geneticProfileId, List<Integer> internalSampleIds,
+    private Set<String>[] getMRnaAlteredSamples(int geneticProfileId, List<Integer> internalSampleIds,
             long entrezGeneId, double zScoreThreshold) throws DaoException {
         GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileById(geneticProfileId);
         Map<Integer,String> sampleMap = DaoGeneticAlteration.getInstance()
                 .getGeneticAlterationMap(geneticProfileId,entrezGeneId);
         sampleMap.keySet().retainAll(internalSampleIds);
-        ArrayList< Set<String> > samples = new ArrayList< Set<String> >(2);
-        samples.set(0,new HashSet<String>());
-        samples.set(1,new HashSet<String>());
+        Set<String>[] samples = new Set[2];
+        samples[0] = new HashSet<String>();
+        samples[1] = new HashSet<String>();
+
         for (Map.Entry<Integer,String> entry : sampleMap.entrySet()) {
             double mrna;
             try {
@@ -704,9 +705,9 @@ public class NetworkServlet extends HttpServlet {
             }
             Sample sample = DaoSample.getSampleById(entry.getKey());
             if (mrna>=zScoreThreshold) {
-                samples.get(0).add(sample.getStableId());
+                samples[0].add(sample.getStableId());
             } else if (mrna<=-zScoreThreshold) {
-                samples.get(1).add(sample.getStableId());
+                samples[1].add(sample.getStableId());
             }
         }
 

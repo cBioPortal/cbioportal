@@ -704,16 +704,16 @@ public class MutationDataUtils {
 		return tumorType;
 	}
 
-    protected List< List<String> > convertCosmicDataToMatrix(Set<CosmicMutationFrequency> cosmic) {
+    protected List<List> convertCosmicDataToMatrix(Set<CosmicMutationFrequency> cosmic) {
         if (cosmic==null) {
             return null;
         }
-        List< List<String> > mat = new ArrayList< List<String> >(cosmic.size());
+        List<List> mat = new ArrayList(cosmic.size());
         for (CosmicMutationFrequency cmf : cosmic) {
-            List<String> l = new ArrayList<String>(3);
+            List l = new ArrayList(3);
             l.add(cmf.getId());
             l.add(cmf.getAminoAcidChange());
-            l.add(Integer.toString(cmf.getFrequency()));
+            l.add(cmf.getFrequency());
             mat.add(l);
         }
         return mat;

@@ -86,7 +86,7 @@ public final class WebserviceParserUtils {
             }
         }
         else if (samples != null) {     // todo: this is a hack, samples is just another word for patients
-            return new ArrayList<String>(Arrays.asList(samples.split(" ")));
+            return new ArrayList(Arrays.asList(samples.split(" ")));
         }
         else {
             throw new ProtocolException(WebService.CASE_SET_ID + " or " + WebService.CASE_LIST + " must be specified.");

@@ -314,9 +314,9 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			'getCancerStudyIds': function() {
 				return this.cancer_study_ids;
 			},
-						'getSampleSelect': function() {
-								return this.sample_select;
-						},
+            'getSampleSelect': function() {
+                    return this.sample_select;
+            },
 			'getGenomicEventData': function() {
 				var def = new $.Deferred();
 				var self = this;

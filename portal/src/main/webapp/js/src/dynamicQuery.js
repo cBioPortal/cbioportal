@@ -176,19 +176,15 @@ function loadMetaData() {
 
     function loadContent() {
         //  Get Portal JSON Meta Data via JQuery AJAX
-	window.metaDataPromise = $.Deferred();
+	    window.metaDataPromise = $.Deferred();
 
         jQuery.getJSON("portal_meta_data.json?partial_studies=true&partial_genesets=true",function(json){
-            //  Store JSON Data in global variable for later use
+            // Store JSON Data in global variable for later use
             window.metaDataJson = json;
-	    window.metaDataPromise.resolve(json);
-
+	        window.metaDataPromise.resolve(json);
             // Load data of selected study right at the outset before continuing
             $.getJSON("portal_meta_data.json?study_id="+window.cancer_study_id_selected, function(json) {
-                console.log("Loading metadata for "+window.cancer_study_id_selected);
-                // this code should be about the same as in loadStudyMetaData
                 window.metaDataJson.cancer_studies[window.cancer_study_id_selected] = json;
-                //  Add Meta Data to current page
                 addMetaDataToPage();
                 showNewContent();
             });
@@ -1424,7 +1420,7 @@ function addGenomicProfiles (genomic_profiles, targetAlterationType, targetClass
                     + "<select id='mrna_z_score_reference'>"
                     + "<option value='diploid'>Diploid</option>"
                     + "<option value='all'>All</option>"
-                    + "</select>&nbsp;&nbsp;";
+                    + "</select><br>";
         profileHtml += "Enter a z-score threshold &#177 :"
                     + "<input type='text' name='Z_SCORE_THRESHOLD' style='width:30px;height:15px;' value='"
                     + window.zscore_threshold + "'>"

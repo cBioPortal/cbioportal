@@ -109,9 +109,9 @@
 			var genomicData = {};
 			// Send genomic data query again
 		    var geneDataQuery = {
-                cancer_study_id: "<%=cancerTypeId%>",
-		        genes: genes,
-		        geneticProfileIds: geneticProfiles,
+                cancer_study_id: window.QuerySession.getCancerStudyIds()[0],
+		        genes: window.QuerySession.getQueryGenes(),
+		        geneticProfileIds: window.QuerySession.getGeneticProfileIds(),
 		        z_score_threshold: <%=zScoreThreshold%>,
 		        rppa_score_threshold: <%=rppaScoreThreshold%>
 		    };

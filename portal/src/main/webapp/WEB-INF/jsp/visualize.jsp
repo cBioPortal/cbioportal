@@ -70,10 +70,6 @@
         out.println ("</div>");
     }
 
-    if (geneWithScoreList.size() == 0) {
-        out.println ("<b>Please go back and try again.</b>");
-        out.println ("</div>");
-    } else {
 %>
 
 <div id="tabs">
@@ -81,124 +77,121 @@
     <%
         Boolean showMutTab = false;
         Boolean showCancerTypesSummary = false;
-        if (geneWithScoreList.size() > 0) {
 
-            Enumeration paramEnum = request.getParameterNames();
-            StringBuffer buf = new StringBuffer(request.getAttribute(QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING) + "?");
+        Enumeration paramEnum = request.getParameterNames();
+        StringBuffer buf = new StringBuffer(request.getAttribute(QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING) + "?");
 
-            while (paramEnum.hasMoreElements())
+        while (paramEnum.hasMoreElements())
+        {
+            String paramName = (String) paramEnum.nextElement();
+            String values[] = request.getParameterValues(paramName);
+
+            if (values != null && values.length >0)
             {
-                String paramName = (String) paramEnum.nextElement();
-                String values[] = request.getParameterValues(paramName);
-
-                if (values != null && values.length >0)
+                for (int i=0; i<values.length; i++)
                 {
-                    for (int i=0; i<values.length; i++)
+                    String currentValue = values[i].trim();
+
+                    if (currentValue.contains("mutation"))
                     {
-                        String currentValue = values[i].trim();
-
-                        if (currentValue.contains("mutation"))
-                        {
-                            showMutTab = true;
-                        }
-
-                        if (paramName.equals(QueryBuilder.GENE_LIST)
-                            && currentValue != null)
-                        {
-                            //  Spaces must be converted to semis
-                            currentValue = Utilities.appendSemis(currentValue);
-                            //  Extra spaces must be removed.  Otherwise OMA Links will not work.
-                            currentValue = currentValue.replaceAll("\\s+", " ");
-                            //currentValue = URLEncoder.encode(currentValue);
-                        }
-                        else if (paramName.equals(QueryBuilder.CASE_IDS) ||
-                                paramName.equals(QueryBuilder.CLINICAL_PARAM_SELECTION))
-                        {
-                            // do not include case IDs anymore (just skip the parameter)
-                            // if we need to support user-defined case lists in the future,
-                            // we need to replace this "parameter" with the "attribute" caseIdsKey
-
-                            // also do not include clinical param selection parameter, since
-                            // it is only related to user-defined case sets, we need to take care
-                            // of unsafe characters such as '<' and '>' if we decide to add this
-                            // parameter in the future
-                            continue;
-                        }
-
-                        // this is required to prevent XSS attacks
-                        currentValue = xssUtil.getCleanInput(currentValue);
-                        //currentValue = StringEscapeUtils.escapeJavaScript(currentValue);
-                        //currentValue = StringEscapeUtils.escapeHtml(currentValue);
-                        currentValue = URLEncoder.encode(currentValue);
-
-                        buf.append (paramName + "=" + currentValue + "&");
+                        showMutTab = true;
                     }
+
+                    if (paramName.equals(QueryBuilder.GENE_LIST)
+                        && currentValue != null)
+                    {
+                        //  Spaces must be converted to semis
+                        currentValue = Utilities.appendSemis(currentValue);
+                        //  Extra spaces must be removed.  Otherwise OMA Links will not work.
+                        currentValue = currentValue.replaceAll("\\s+", " ");
+                        //currentValue = URLEncoder.encode(currentValue);
+                    }
+                    else if (paramName.equals(QueryBuilder.CASE_IDS) ||
+                            paramName.equals(QueryBuilder.CLINICAL_PARAM_SELECTION))
+                    {
+                        // do not include case IDs anymore (just skip the parameter)
+                        // if we need to support user-defined case lists in the future,
+                        // we need to replace this "parameter" with the "attribute" caseIdsKey
+
+                        // also do not include clinical param selection parameter, since
+                        // it is only related to user-defined case sets, we need to take care
+                        // of unsafe characters such as '<' and '>' if we decide to add this
+                        // parameter in the future
+                        continue;
+                    }
+
+                    // this is required to prevent XSS attacks
+                    currentValue = xssUtil.getCleanInput(currentValue);
+                    //currentValue = StringEscapeUtils.escapeJavaScript(currentValue);
+                    //currentValue = StringEscapeUtils.escapeHtml(currentValue);
+                    currentValue = URLEncoder.encode(currentValue);
+
+                    buf.append (paramName + "=" + currentValue + "&");
                 }
             }
-
-            // determine whether to show the cancerTypesSummaryTab
-            // retrieve the cancerTypesMap and create an iterator for the values
-            Map<String, List<String>>  cancerTypesMap = (Map<String, List<String>>) request.getAttribute(QueryBuilder.CANCER_TYPES_MAP);
-            if(cancerTypesMap.keySet().size() > 1) {
-            	showCancerTypesSummary = true;
-            }
-            else if (cancerTypesMap.keySet().size() == 1 && cancerTypesMap.values().iterator().next().size() > 1 )  {
-            	showCancerTypesSummary = true;
-            }
-            out.println ("<li><a href='#summary' class='result-tab' id='oncoprint-result-tab'>OncoPrint</a></li>");
-            // if showCancerTypesSummary is try, add the list item
-            if(showCancerTypesSummary){
-                out.println ("<li><a href='#pancancer_study_summary' class='result-tab' title='Cancer types summary'>"
-                + "Cancer Types Summary</a></li>");
-            }
-
-            if (computeLogOddsRatio && geneWithScoreList.size() > 1) {
-                out.println ("<li><a href='#mutex' class='result-tab' id='mutex-result-tab'>"
-                + "Mutual Exclusivity</a></li>");
-            }
-            out.println ("<li><a href='#plots' class='result-tab' id='plots-result-tab'>Plots</a></li>");
-            if (showMutTab){
-                out.println ("<li><a href='#mutation_details' class='result-tab' id='mutation-result-tab'>Mutations</a></li>");
-            }
-            if (showCoexpTab) {
-                out.println ("<li><a href='#coexp' class='result-tab' id='coexp-result-tab'>Co-Expression</a></li>");
-            }
-            if (has_mrna || has_copy_no || showMutTab) {
-                out.println("<li><a href='#or_analysis' id='enrichments-result-tab' class='result-tab'>Enrichments</a></li>");
-            }
-            if (has_survival) {
-                out.println ("<li><a href='#survival' class='result-tab' id='survival-result-tab'>Survival</a></li>");
-            }
-            if (includeNetworks) {
-                out.println ("<li><a href='#network' class='result-tab' id='network-result-tab'>Network</a></li>");
-            }
-            if (showIGVtab && !((String)request.getAttribute(QueryBuilder.CANCER_STUDY_ID)).equals("mskimpact")){
-                out.println ("<li><a href='#igv_tab' class='result-tab' id='igv-result-tab'>IGV</a></li>");
-            }
-            out.println ("<li><a href='#data_download' class='result-tab' id='data-download-result-tab'>Download</a></li>");
-            out.println ("<li><a href='#bookmark_email' class='result-tab' id='bookmark-result-tab'>Bookmark</a></li>");
-            out.println ("</ul>");
-
-            out.println ("<div class=\"section\" id=\"bookmark_email\">");
-
-            // diable bookmark link if case set is user-defined
-            if (sampleSetId.equals("-1"))
-            {
-                out.println("<br>");
-                out.println("<h4>The bookmark option is not available for user-defined case lists.</h4>");
-            }
-            else
-            {
-                out.println ("<h4>Right click</b> on the link below to bookmark your results or send by email:</h4><br><a id='bookmark-link' href='#'>" + request.getAttribute
-                        (QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING) + "?...</a>");
-                out.println("<br><br>");
-                out.println("If you would like to use a <b>shorter URL that will not break in email postings</b>, you can use the<br><a href='https://bitly.com/'>bitly.com</a> service below:<BR>");
-                out.println("<BR><button type='button' id='bitly-generator'>Shorten URL</button>");
-                out.println("<div id='bitly'></div>");
-            }
-
-            out.println("</div>");
         }
+
+        // determine whether to show the cancerTypesSummaryTab
+        // retrieve the cancerTypesMap and create an iterator for the values
+        Map<String, List<String>>  cancerTypesMap = (Map<String, List<String>>) request.getAttribute(QueryBuilder.CANCER_TYPES_MAP);
+        if(cancerTypesMap.keySet().size() > 1) {
+            showCancerTypesSummary = true;
+        }
+        else if (cancerTypesMap.keySet().size() == 1 && cancerTypesMap.values().iterator().next().size() > 1 )  {
+            showCancerTypesSummary = true;
+        }
+        out.println ("<li><a href='#summary' class='result-tab' id='oncoprint-result-tab'>OncoPrint</a></li>");
+        // if showCancerTypesSummary is try, add the list item
+        if(showCancerTypesSummary){
+            out.println ("<li><a href='#pancancer_study_summary' class='result-tab' title='Cancer types summary'>"
+            + "Cancer Types Summary</a></li>");
+        }
+
+        out.println ("<li><a href='#mutex' class='result-tab' id='mutex-result-tab'>"
+        + "Mutual Exclusivity</a></li>");
+
+        out.println ("<li><a href='#plots' class='result-tab' id='plots-result-tab'>Plots</a></li>");
+        if (showMutTab){
+            out.println ("<li><a href='#mutation_details' class='result-tab' id='mutation-result-tab'>Mutations</a></li>");
+        }
+
+        out.println ("<li><a href='#coexp' class='result-tab' id='coexp-result-tab'>Co-Expression</a></li>");
+
+        if (has_mrna || has_copy_no || showMutTab) {
+            out.println("<li><a href='#or_analysis' id='enrichments-result-tab' class='result-tab'>Enrichments</a></li>");
+        }
+        if (has_survival) {
+            out.println ("<li><a href='#survival' class='result-tab' id='survival-result-tab'>Survival</a></li>");
+        }
+        if (includeNetworks) {
+            out.println ("<li><a href='#network' class='result-tab' id='network-result-tab'>Network</a></li>");
+        }
+        if (showIGVtab && !((String)request.getAttribute(QueryBuilder.CANCER_STUDY_ID)).equals("mskimpact")){
+            out.println ("<li><a href='#igv_tab' class='result-tab' id='igv-result-tab'>IGV</a></li>");
+        }
+        out.println ("<li><a href='#data_download' class='result-tab' id='data-download-result-tab'>Download</a></li>");
+        out.println ("<li><a href='#bookmark_email' class='result-tab' id='bookmark-result-tab'>Bookmark</a></li>");
+        out.println ("</ul>");
+
+        out.println ("<div class=\"section\" id=\"bookmark_email\">");
+
+        // diable bookmark link if case set is user-defined
+        if (sampleSetId.equals("-1"))
+        {
+            out.println("<br>");
+            out.println("<h4>The bookmark option is not available for user-defined case lists.</h4>");
+        }
+        else
+        {
+            out.println ("<h4>Right click</b> on the link below to bookmark your results or send by email:</h4><br><a id='bookmark-link' href='#'>" + request.getAttribute
+                    (QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING) + "?...</a>");
+            out.println("<br><br>");
+            out.println("If you would like to use a <b>shorter URL that will not break in email postings</b>, you can use the<br><a href='https://bitly.com/'>bitly.com</a> service below:<BR>");
+            out.println("<BR><button type='button' id='bitly-generator'>Shorten URL</button>");
+            out.println("<div id='bitly'></div>");
+        }
+
+        out.println("</div>");
     %>
 
         <div class="section" id="summary">
@@ -221,9 +214,7 @@
             <%@ include file="survival_tab.jsp" %>
         <% } %>
 
-        <% if (computeLogOddsRatio && geneWithScoreList.size() > 1) { %>
-            <%@ include file="mutex_tab.jsp" %>
-        <% } %>
+        <%@ include file="mutex_tab.jsp" %>
 
         <% if (mutationDetailLimitReached != null) {
             out.println("<div class=\"section\" id=\"mutation_details\">");
@@ -239,9 +230,7 @@
             <%@ include file="networks.jsp" %>
         <% } %>
 
-        <% if (showCoexpTab) { %>
-            <%@ include file="co_expression.jsp" %>
-        <% } %>
+        <%@ include file="co_expression.jsp" %>
 
         <% if (has_mrna || has_copy_no || showMutTab) { %>
             <%@ include file="over_representation_analysis.jsp" %>
@@ -250,7 +239,6 @@
         <%@ include file="data_download.jsp" %>
 
 </div> <!-- end tabs div -->
-<% } %>
 
 </div>
 </td>
@@ -271,7 +259,6 @@
     $(document).ready(function() {
         var firstTime = true;
 
-        $("#toggle_query_form").tipTip();
         // check if network tab is initially selected
         if ($("div.section#network").is(":visible"))
         {

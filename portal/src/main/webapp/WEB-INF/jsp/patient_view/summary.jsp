@@ -253,7 +253,7 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
                 },
 	            show: {event: "mouseover"},
                 hide: {fixed: true, delay: 100, event: "mouseout"},
-                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow', tip: false},
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow', tip: false},
                 //position: {my:'left top',at:'bottom center'}
                 position: {my:'top right',at:'top left',viewport: $(window)}
             });

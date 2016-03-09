@@ -192,7 +192,7 @@ IMPORTER_CLASSNAME_BY_META_TYPE = {
     MetaFileTypes.METHYLATION: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.FUSION: "org.mskcc.cbio.portal.scripts.ImportProfileData",
     MetaFileTypes.RPPA: "org.mskcc.cbio.portal.scripts.ImportProfileData",
-    MetaFileTypes.GISTIC: "org.mskcc.cbio.portal.scripts.ImportGisticData",
+    MetaFileTypes.GISTIC_GENES: "org.mskcc.cbio.portal.scripts.ImportGisticData",
     MetaFileTypes.TIMELINE: "org.mskcc.cbio.portal.scripts.ImportTimelineData",
     MetaFileTypes.CASE_LIST: IMPORT_CASE_LIST_CLASS
     # TODO: enable when documented

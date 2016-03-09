@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.mskcc.cbio.portal.web;
+package org.mskcc.cbio.portal.web.api;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +23,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.Example;
+import io.swagger.annotations.ExampleProperty;
 
 /**
  *
@@ -90,6 +97,21 @@ public class ApiController {
 	    }
     }
     
+    @ApiOperation(value = "getGenes-wheep1",
+        nickname = "getGenes-wheep2")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "hugo_gene_symbols",
+            value = "Comma separated list of hugo gene symbols-wheep4",
+            required = false,
+            dataType = "string",
+            paramType = "query")
+    })
+    @ApiResponses({
+        @ApiResponse(code = 200, message = "Success-wheep5",
+            response = DBGene.class,
+            responseContainer = "List"),
+        @ApiResponse(code = 400, message = "Bad Request-wheep6")
+    })
     @Transactional
     @RequestMapping(value = "/genes", method = {RequestMethod.GET, RequestMethod.POST})
     public @ResponseBody List<DBGene> getGenes(@RequestParam(required = false) List<String> hugo_gene_symbols) {

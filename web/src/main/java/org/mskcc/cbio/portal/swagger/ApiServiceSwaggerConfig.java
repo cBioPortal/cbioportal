@@ -17,7 +17,7 @@ public class ApiServiceSwaggerConfig {
     public Docket api(){
         return new Docket(DocumentationType.SWAGGER_2)
             .select()
-            .apis(RequestHandlerSelectors.basePackage("org.mskcc.cbio.portal.web"))
+            .apis(RequestHandlerSelectors.basePackage("org.mskcc.cbio.portal.web.api"))
             //.paths(PathSelectors.any())
             .build()
             .pathMapping("/api")
@@ -27,8 +27,8 @@ public class ApiServiceSwaggerConfig {
     private ApiInfo apiInfo() {
         ApiInfo apiInfo = new ApiInfo(
             "cBioPortal web API", 
-            "A data service interface for supplying JSON format data to the cBioPortal javascript data manager", 
-            "1.0",
+            "A web service for supplying JSON formatted data to cBioPortal clients.", 
+            "1.0 (beta)",
             "www.cbioportal.org",
             "cbioportal@googlegroups.com", 
             "License", 

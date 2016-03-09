@@ -123,6 +123,7 @@ var Oncoprint = (function () {
 	this.legend_view = new OncoprintLegendView($legend_div, 10, 20);
 	
 	this.rendering_suppressed = false;
+	this.rendering_suppressed_depth = 0;
 	
 	this.keep_sorted = false;
 	// We need to handle scrolling this way because for some reason huge 
@@ -334,19 +335,6 @@ var Oncoprint = (function () {
 	}
     }
     
-    Oncoprint.prototype.cycleTrackSortDirection = function(track_id) {
-	var curr_dir = this.model.getTrackSortDirection(track_id);
-	var next_dir;
-	if (curr_dir === 1) {
-	    next_dir = -1;
-	} else if (curr_dir === -1) {
-	    next_dir = 0;
-	} else if (curr_dir === 0) {
-	    next_dir = 1;
-	}
-	this.setTrackSortDirection(track_id, next_dir);
-    }
-    
     Oncoprint.prototype.getTrackSortDirection = function(track_id) {
 	return this.model.getTrackSortDirection(track_id);
     }
@@ -412,6 +400,7 @@ var Oncoprint = (function () {
 	//this.legend_view.enableInteraction();
     }
     Oncoprint.prototype.suppressRendering = function() {
+	this.rendering_suppressed_depth += 1;
 	this.rendering_suppressed = true;
 	this.label_view.suppressRendering();
 	this.cell_view.suppressRendering();
@@ -421,13 +410,17 @@ var Oncoprint = (function () {
     }
     
     Oncoprint.prototype.releaseRendering = function() {
-	this.rendering_suppressed = false;
-	this.label_view.releaseRendering(this.model);
-	this.cell_view.releaseRendering(this.model);
-	this.track_options_view.releaseRendering(this.model);
-	this.track_info_view.releaseRendering(this.model);
-	this.legend_view.releaseRendering(this.model);
-	resizeAndOrganizeAfterTimeout(this);
+	this.rendering_suppressed_depth -= 1;
+	this.rendering_suppressed_depth = Math.max(0, this.rendering_suppressed_depth);
+	if (this.rendering_suppressed_depth === 0) {
+	    this.rendering_suppressed = false;
+	    this.label_view.releaseRendering(this.model);
+	    this.cell_view.releaseRendering(this.model);
+	    this.track_options_view.releaseRendering(this.model);
+	    this.track_info_view.releaseRendering(this.model);
+	    this.legend_view.releaseRendering(this.model);
+	    resizeAndOrganizeAfterTimeout(this);
+	}
     }
     
     Oncoprint.prototype.hideIds = function(to_hide, show_others) {

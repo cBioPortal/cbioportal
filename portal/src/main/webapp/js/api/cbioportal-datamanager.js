@@ -481,7 +481,7 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 				// TODO: handle more than one study
 				var def = new $.Deferred();
 				window.cbioportal_client.getSampleClinicalData({study_id: [this.getCancerStudyIds()[0]], attribute_ids: attribute_ids, sample_ids: this.getSampleIds()}).then(function(data) {
-					def.resolve(makeOncoprintClinicalData(data));
+					def.resolve(makeOncoprintClinicalData(data, true));
 				}).fail(function() {
 					def.reject();
 				});
@@ -493,6 +493,21 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 			    this.getPatientIds().then(function(patient_ids) {
 				window.cbioportal_client.getPatientClinicalAttributes({study_id: [self.getCancerStudyIds()[0]], patient_ids: patient_ids}).then(function(attrs) {
 				    def.resolve(attrs);
+				}).fail(function() {
+				    def.reject();
+				});
+			    }).fail(function() {
+				def.reject();
+			    });
+			    return def.promise();
+			},
+			'getPatientClinicalData': function(attribute_ids) {
+			    // TODO: handle more than one study
+			    var def = new $.Deferred();
+			    var self = this;
+			    this.getPatientIds().then(function(patient_ids) {
+				window.cbioportal_client.getPatientClinicalData({study_id: [self.getCancerStudyIds()[0]], attribute_ids: attribute_ids, patient_ids: patient_ids}).then(function(data) {
+				    def.resolve(makeOncoprintClinicalData(data, false));
 				}).fail(function() {
 				    def.reject();
 				});
@@ -879,11 +894,17 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 				return def.promise();
 			};
 		})();
-		var makeOncoprintClinicalData = function(webservice_clinical_data) {
+		var makeOncoprintClinicalData = function(webservice_clinical_data, sample_data) {
 			var ret = [];
 			for (var i=0, _len=webservice_clinical_data.length; i<_len; i++) {
 				var d = webservice_clinical_data[i];
-				ret.push({'attr_id':d.attr_id, 'attr_val':d.attr_val, 'sample':d.sample_id});
+				var datum = {'attr_id':d.attr_id, 'attr_val':d.attr_val};
+				if (sample_data) {
+				    datum.sample = d.sample_id;
+				} else {
+				    datum.patient = d.patient_id;
+				}
+				ret.push(datum);
 			}
 			return ret;
 		};

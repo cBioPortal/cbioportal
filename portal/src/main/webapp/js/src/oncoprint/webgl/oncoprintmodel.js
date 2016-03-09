@@ -71,13 +71,17 @@ var OncoprintModel = (function () {
 	// Cached and Recomputed Properties
 	this.track_present_ids = new CachedProperty({}, function(model, track_id) {
 	    var curr_track_present_ids = model.track_present_ids.get();
-	    var ids = {};
-	    var data = model.getTrackData(track_id);
-	    var data_id_key = model.getTrackDataIdKey(track_id);
-	    for (var i = 0; i < data.length; i++) {
-		ids[data[i][data_id_key]] = true;
+	    if (model.getContainingTrackGroup(track_id) !== null) {
+		var ids = {};
+		var data = model.getTrackData(track_id);
+		var data_id_key = model.getTrackDataIdKey(track_id);
+		for (var i = 0; i < data.length; i++) {
+		    ids[data[i][data_id_key]] = true;
+		}
+		curr_track_present_ids[track_id] = ids;
+	    } else {
+		delete curr_track_present_ids[track_id];
 	    }
-	    curr_track_present_ids[track_id] = ids;
 	    return curr_track_present_ids;
 	});
 	this.present_ids = new CachedProperty({}, function() {
@@ -415,7 +419,7 @@ var OncoprintModel = (function () {
 	model.track_removable[track_id] = ifndef(removable, false);
 	model.track_remove_callback[track_id] = ifndef(removeCallback, function() {});
 	
-	model.track_sort_cmp_fn[track_id] = ifndef(sortCmpFn, function (a, b) {
+	model.track_sort_cmp_fn[track_id] = ifndef(sortCmpFn, function () {
 	    return 0;
 	});
 	
@@ -449,6 +453,7 @@ var OncoprintModel = (function () {
 
     var _getContainingTrackGroup = function (oncoprint_model, track_id, return_reference) {
 	var group;
+	track_id = parseInt(track_id);
 	for (var i = 0; i < oncoprint_model.track_groups.length; i++) {
 	    if (oncoprint_model.track_groups[i].indexOf(track_id) > -1) {
 		group = oncoprint_model.track_groups[i];
@@ -458,7 +463,7 @@ var OncoprintModel = (function () {
 	if (group) {
 	    return (return_reference ? group : group.slice());
 	} else {
-	    return undefined;
+	    return null;
 	}
     }
 
@@ -493,11 +498,13 @@ var OncoprintModel = (function () {
 	delete this.track_info[track_id];
 
 	var containing_track_group = _getContainingTrackGroup(this, track_id, true);
-	if (containing_track_group) {
+	if (containing_track_group !== null) {
 	    containing_track_group.splice(
 		    containing_track_group.indexOf(track_id), 1);
 	}
 	this.track_tops.update();
+	this.track_present_ids.update(this, track_id);
+	this.setIdOrder(Object.keys(this.present_ids.get()));
 	
 	var rule_set_used = isRuleSetUsed(this, rule_set_id);
 	if (!rule_set_used) {
@@ -619,7 +626,7 @@ var OncoprintModel = (function () {
     }
     OncoprintModel.prototype.moveTrack = function (track_id, new_previous_track) {
 	var track_group = _getContainingTrackGroup(this, track_id, true);
-	if (track_group) {
+	if (track_group !== null) {
 	    track_group.splice(track_group.indexOf(track_id), 1);
 	    var new_position = (new_previous_track === null ? 0 : track_group.indexOf(new_previous_track)+1);
 	    track_group.splice(new_position, 0, track_id);

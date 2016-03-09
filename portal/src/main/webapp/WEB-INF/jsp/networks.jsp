@@ -36,16 +36,8 @@
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 
 <%
-    String genes4Network = StringUtils.join((List)request.getAttribute(QueryBuilder.GENE_LIST)," ");
-    String geneticProfileIds4Network = xssUtil.getCleanerInput(StringUtils.join(geneticProfileIdSet," "));
-    String cancerTypeId4Network = xssUtil.getCleanerInput((String)request.getAttribute(QueryBuilder.CANCER_STUDY_ID));
-// 	String caseIds4Network = ((String)request.getAttribute(QueryBuilder.CASE_IDS)).
-// 			replaceAll("\\s", " ").trim(); // convert white spaces to space (to prevent network tab to crash)
-	String caseIdsKey4Network = xssUtil.getCleanerInput((String)request.getAttribute(QueryBuilder.CASE_IDS_KEY));
-    String caseSetId4Network = xssUtil.getCleanerInput((String)request.getAttribute(QueryBuilder.CASE_SET_ID));
     String zScoreThesholdStr4Network =
 		    xssUtil.getCleanerInput(request.getAttribute(QueryBuilder.Z_SCORE_THRESHOLD).toString());
-    //String useXDebug = xssUtil.getCleanInput(request, "xdebug");
 	String useXDebug = request.getParameter("xdebug");
     if (useXDebug==null)
         useXDebug = "0";
@@ -110,8 +102,8 @@
 			// Send genomic data query again
 		    var geneDataQuery = {
                 cancer_study_id: window.QuerySession.getCancerStudyIds()[0],
-		        genes: window.QuerySession.getQueryGenes(),
-		        geneticProfileIds: window.QuerySession.getGeneticProfileIds(),
+		        genes: window.QuerySession.getQueryGenes().join(" "),
+		        geneticProfileIds: window.QuerySession.getGeneticProfileIds().join(" "),
 		        z_score_threshold: <%=zScoreThreshold%>,
 		        rppa_score_threshold: <%=rppaScoreThreshold%>
 		    };
@@ -147,11 +139,11 @@
             var showNetwork = function() {
                 
                 var networkParams = {
-                    gene_list:'<%=genes4Network%>',
-                    genetic_profile_ids:window.QuerySession.getGeneticProfileIds(),
-                    cancer_study_id:'<%=cancerTypeId4Network%>',
-                    case_ids_key:'<%=caseIdsKey4Network%>',
-                    case_set_id:'<%=caseSetId4Network%>',
+                    gene_list: window.QuerySession.getQueryGenes().join(" "),
+                    genetic_profile_ids: window.QuerySession.getGeneticProfileIds().join(" "),
+                    cancer_study_id: window.QuerySession.getCancerStudyIds()[0],
+                    case_ids_key:window.QuerySession.getCaseIdsKey(),
+                    case_set_id:window.QuerySession.getCaseSetId(),
                     Z_SCORE_THRESHOLD:'<%=zScoreThesholdStr4Network%>',
                     heat_map:$("#heat_map").html(),
                     xdebug:'<%=useXDebug%>',

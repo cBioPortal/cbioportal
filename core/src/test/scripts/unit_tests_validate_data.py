@@ -470,18 +470,23 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         record_list = self.validate('mutations/data_mutations_invalid_norm_samples.maf',
                                     validateData.MutationsExtendedValidator,
                                     {'normal_samples_list':
-                                     'TCGA-B6-A0RS-10,TCGA-BH-A0HP-10,TCGA-BH-A18P-11, TCGA-BH-A18H-10'})
-        # we expect 3 errors about invalid normal samples:
-        self.assertEqual(len(record_list), 3)
+                                        'TCGA-BH-A18H-10,'
+                                        'TCGA-B6-A0RS-10,'
+                                        ''  # TCGA-BH-A0HP-10
+                                        'TCGA-BH-A18P-11, '
+                                        'TCGA-C8-A138-10'
+                                        'TCGA-A2-A0EY-10,'
+                                        ''})  # TCGA-A8-A08G-10
+        # we expect 2 errors about invalid normal samples
+        self.assertEqual(len(record_list), 2)
         # check if both messages come from printDataInvalidStatement:
         found_one_of_the_expected = False
         for error in record_list:
             self.assertEqual("ERROR", error.levelname)
             self.assertEqual("printDataInvalidStatement", error.funcName)
-            if "TCGA-C8-A138-10" == error.cause:
+            if error.cause == 'TCGA-BH-A0HP-10':
                 found_one_of_the_expected = True
-
-        self.assertEqual(True, found_one_of_the_expected)
+        self.assertTrue(found_one_of_the_expected)
 
     
     def test_missing_aa_change_column(self):

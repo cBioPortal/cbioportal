@@ -470,18 +470,23 @@ class MutationsSpecialCasesTestCase(PostClinicalDataFileTestCase):
         record_list = self.validate('mutations/data_mutations_invalid_norm_samples.maf',
                                     validateData.MutationsExtendedValidator,
                                     {'normal_samples_list':
-                                     'TCGA-B6-A0RS-10,TCGA-BH-A0HP-10,TCGA-BH-A18P-11, TCGA-BH-A18H-10'})
-        # we expect 3 errors about invalid normal samples:
-        self.assertEqual(len(record_list), 3)
+                                        'TCGA-BH-A18H-10,'
+                                        'TCGA-B6-A0RS-10,'
+                                        ''  # TCGA-BH-A0HP-10
+                                        'TCGA-BH-A18P-11, '
+                                        'TCGA-C8-A138-10'
+                                        'TCGA-A2-A0EY-10,'
+                                        ''})  # TCGA-A8-A08G-10
+        # we expect 2 errors about invalid normal samples
+        self.assertEqual(len(record_list), 2)
         # check if both messages come from printDataInvalidStatement:
         found_one_of_the_expected = False
         for error in record_list:
             self.assertEqual("ERROR", error.levelname)
             self.assertEqual("printDataInvalidStatement", error.funcName)
-            if "TCGA-C8-A138-10" == error.cause:
+            if error.cause == 'TCGA-BH-A0HP-10':
                 found_one_of_the_expected = True
-
-        self.assertEqual(True, found_one_of_the_expected)
+        self.assertTrue(found_one_of_the_expected)
 
     
     def test_missing_aa_change_column(self):
@@ -628,6 +633,125 @@ class SegFileValidationTestCase(PostClinicalDataFileTestCase):
         self.assertEqual(record.levelno, logging.ERROR)
         self.assertEqual(record.line_number, 35)
         self.assertIn('blank', record.getMessage().lower())
+
+
+class GisticGenesValidationTestCase(PostClinicalDataFileTestCase):
+
+    """Tests for validations of data in aggregated GISTIC genes files.
+
+    See validateData.GisticGenesValidator for more information.
+    """
+
+    def test_valid_amp_file(self):
+        """Test validation of an amp file that should yield no warnings."""
+        self.logger.setLevel(logging.INFO)
+        record_list = self.validate(
+                'data_gisticgenes_amp_valid.txt',
+                validateData.GisticGenesValidator,
+                extra_meta_fields={
+                    'genetic_alteration_type': 'GISTIC_GENES_AMP',
+                    'reference_genome_id': 'hg19'})
+        # expecting two info messages, at the start and the end of validation
+        self.assertEqual(len(record_list), 2)
+        for record in record_list:
+            self.assertEqual(record.levelno, logging.INFO)
+
+    def test_valid_del_file(self):
+        """Test validation of a del file that should yield no warnings."""
+        self.logger.setLevel(logging.INFO)
+        record_list = self.validate(
+                'data_gisticgenes_del_valid.txt',
+                validateData.GisticGenesValidator,
+                extra_meta_fields={
+                    'genetic_alteration_type': 'GISTIC_GENES_DEL',
+                    'reference_genome_id': 'hg19'})
+        # expecting two info messages, at the start and the end of validation
+        self.assertEqual(len(record_list), 2)
+        for record in record_list:
+            self.assertEqual(record.levelno, logging.INFO)
+
+    def test_region_without_genes(self):
+        """Test validation of regions with no genes."""
+        self.logger.setLevel(logging.WARNING)
+        record_list = self.validate(
+                'data_gisticgenes_del_region_without_genes.txt',
+                validateData.GisticGenesValidator,
+                extra_meta_fields={
+                    'genetic_alteration_type': 'GISTIC_GENES_DEL',
+                    'reference_genome_id': 'hg19'})
+        # expecting warnings about the empty gene lists on two lines
+        self.assertEqual(len(record_list), 2)
+        for record in record_list:
+            self.assertEqual(record.levelno, logging.WARNING)
+            self.assertEqual(record.column_number, 5)
+        self.assertEqual(record_list[0].line_number, 4)
+        self.assertEqual(record_list[1].line_number, 5)
+
+    def test_zero_length_peak(self):
+        """Test validation of a zero-bases-short peak."""
+        self.logger.setLevel(logging.WARNING)
+        record_list = self.validate(
+                'data_gisticgenes_del_zero_length_peak.txt',
+                validateData.GisticGenesValidator,
+                extra_meta_fields={
+                    'genetic_alteration_type': 'GISTIC_GENES_DEL',
+                    'reference_genome_id': 'hg19'})
+        self.assertEqual(len(record_list), 1)
+        record = record_list.pop()
+        self.assertEqual(record.levelno, logging.WARNING)
+        self.assertEqual(record.line_number, 5)
+        self.assertIn('242476062', record.cause)
+
+    def test_format_errors(self):
+        """Test validation of a file with genome-unspecific errors."""
+        self.logger.setLevel(logging.ERROR)
+        record_list = self.validate(
+                'data_gisticgenes_del_format_errors.txt',
+                validateData.GisticGenesValidator,
+                extra_meta_fields={
+                    'genetic_alteration_type': 'GISTIC_GENES_DEL',
+                    'reference_genome_id': 'hg19'})
+        # expecting various errors, about two per line
+        self.assertEqual(len(record_list), 9)
+        for record in record_list:
+            self.assertEqual(record.levelno, logging.ERROR)
+        record_iterator = iter(record_list)
+        # invalid 'amp' value
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 2)
+        self.assertEqual(record.column_number, 6)
+        # mismatch between chromosome number in chromosome and cytoband cols
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 2)
+        self.assertEqual(record.cause,'(1p36.13, 2)')
+        # q-value not a real number
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 3)
+        self.assertEqual(record.column_number, 8)
+        # reversed start and end positions
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 3)
+        self.assertIn('not lower', record.getMessage())
+        # incorrect 'amp' value
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 4)
+        self.assertEqual(record.column_number, 6)
+        # no p or q in cytoband
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 4)
+        self.assertEqual(record.column_number, 7)
+        # missing chromosome
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 5)
+        self.assertEqual(record.column_number, 2)
+        # missing chromosome in cytoband
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 5)
+        self.assertEqual(record.column_number, 7)
+        # blank gene in list
+        record = record_iterator.next()
+        self.assertEqual(record.line_number, 6)
+        self.assertEqual(record.cause, '')
 
 
 class StudyCompositionTestCase(LogBufferTestCase):

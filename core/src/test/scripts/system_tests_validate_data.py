@@ -11,6 +11,7 @@ import logging
 import tempfile
 import os
 import shutil
+import difflib
 from importer import validateData
 
 # globals:
@@ -120,10 +121,14 @@ class ValidateDataSystemTester(unittest.TestCase):
             self.assertTrue(os.path.exists(out_file_name))
             with open(out_file_name, 'rU') as out_file, \
                  open('test_data/study_maf_test/error_file.txt', 'rU') as ref_file:
-                for ref_line in ref_file:
-                    out_line = out_file.readline()
-                    self.assertEquals(out_line, ref_line)
-                self.assertEquals(out_file.readline(), '')
+                diff_result = difflib.context_diff(
+                        ref_file.readlines(),
+                        out_file.readlines(),
+                        fromfile='Expected error file',
+                        tofile='Generated error file')
+            diff_line_list = list(diff_result)
+            self.assertEqual(diff_line_list, [],
+                             msg='\n' + ''.join(diff_line_list))
         finally:
             shutil.rmtree(temp_dir_path)
 

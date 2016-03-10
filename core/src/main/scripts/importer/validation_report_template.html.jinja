@@ -246,7 +246,7 @@
               <th>Value Encountered</th>
             </tr>
             {% for record in file_record_list %}
-            {% if record.levelname  == 'ERROR' %}
+            {% if record.levelname  == 'ERROR' or record.levelname == 'CRITICAL' %}
             {% set record_class = 'red' %}
             {% elif record.levelname == 'WARNING' %}
             {% set record_class = 'yellow' %}

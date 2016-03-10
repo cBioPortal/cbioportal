@@ -241,7 +241,7 @@ class Validator(object):
 
         """Validate the data file."""
 
-        self.logger.info('Starting validation of file')
+        self.logger.debug('Starting validation of file')
 
         with open(self.filename, 'rU') as data_file:
 
@@ -1669,7 +1669,7 @@ def process_metadata_files(directory, portal_instance, logger):
 
 def processCaseListDirectory(caseListDir, cancerStudyId, logger):
 
-    logger.info('Validating case lists')
+    logger.debug('Validating case lists')
 
     case_lists = [os.path.join(caseListDir, x) for x in os.listdir(caseListDir)]
 
@@ -1696,7 +1696,7 @@ def processCaseListDirectory(caseListDir, cancerStudyId, logger):
 def request_from_portal_api(server_url, api_name, logger):
     """Send a request to the portal API and return the decoded JSON object."""
     service_url = server_url + '/api/' + api_name
-    logger.info("Requesting %s from portal at '%s'",
+    logger.debug("Requesting %s from portal at '%s'",
                 api_name, server_url)
     # this may raise a requests.exceptions.RequestException subclass,
     # usually because the URL provided on the command line was invalid or
@@ -1721,7 +1721,7 @@ def read_portal_json_file(dir_path, api_name, logger):
     json_fn = os.path.join(dir_path, '{}.json'.format(
                                          api_name.replace('/', '_')))
     if os.path.isfile(json_fn):
-        logger.info('Reading portal information from %s',
+        logger.debug('Reading portal information from %s',
                     json_fn)
         with open(json_fn, 'rU') as json_file:
             parsed_json = json.load(json_file)

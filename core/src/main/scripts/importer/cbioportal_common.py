@@ -380,8 +380,8 @@ class CollapsingLogMessageHandler(logging.handlers.MemoryHandler):
         super(CollapsingLogMessageHandler, self).flush()
 
     def shouldFlush(self, record):
-        """Collapse and flush every time an info message is emitted."""
-        return (record.levelno == logging.INFO or
+        """Collapse and flush every time a debug message is emitted."""
+        return (record.levelno == logging.DEBUG or
                 super(CollapsingLogMessageHandler, self).shouldFlush(record))
 
 

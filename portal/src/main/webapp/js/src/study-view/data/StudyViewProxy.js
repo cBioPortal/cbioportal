@@ -221,11 +221,11 @@ var StudyViewProxy = (function() {
                         var _parts = _lists[i].split('\t');
                         if(_parts.length < 5) continue;
                         if (_parts[0] === parObject.studyId+"_sequenced") {
-                            _sequencedSampleIds = _parts[4].split(' ');
+                            _sequencedSampleIds = _parts[4].trim().split(' ');
                         } else if (_parts[0] === parObject.studyId+"_cna") {
-                            _cnaSampleIds = _parts[4].split(' ');
+                            _cnaSampleIds = _parts[4].trim().split(' ');
                         } else if (_parts[0] === parObject.studyId+"_all") {
-                            _allSampleIds = _parts[4].split(' ');
+                            _allSampleIds = _parts[4].trim().split(' ');
                         }
                     }
                     

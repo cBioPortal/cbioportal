@@ -417,7 +417,7 @@ function removeHighlights() {
 
 function changeParent(param) {
   //If there is an inner param firstly call the function with it
-  //Inner param is created if the change parent operation requires 
+  //Inner param is created if the change parent operation requires
   //another change parent operation in it.
   if (param.innerParam) {
     changeParent(param.innerParam);
@@ -437,7 +437,7 @@ function changeParent(param) {
 
   //If new parent is not null some checks should be performed
   if (newParent) {
-    //check if the node was the anchestor of it's new parent 
+    //check if the node was the anchestor of it's new parent
     var wasAnchestorOfNewParent = false;
     var temp = newParent.parent()[0];
     while (temp != null) {
@@ -452,7 +452,7 @@ function changeParent(param) {
       var parentOfNewParent = newParent.parent()[0];
       addRemoveUtilities.changeParent(newParent, newParent._private.data.parent, node._private.data.parent);
       oldParentId = node._private.data.parent;
-      //We have an internal change parent operation to redo this operation 
+      //We have an internal change parent operation to redo this operation
       //we need an inner param to call the function with it at the beginning
       result.innerParam = {
         node: newParent,
@@ -547,7 +547,7 @@ function resizeNode(param) {
     node.data("width", param.width);
     node.data("height", param.height);
   }
-  
+
   node._private.data.sbgnbbox.w = node.width();
   node._private.data.sbgnbbox.h = node.height();
   return result;
@@ -561,7 +561,7 @@ function changeNodeLabel(param) {
   result.sbgnlabel = node._private.data.sbgnlabel;
 
   node._private.data.sbgnlabel = param.sbgnlabel;
-  
+
   node.removeClass('changeContent');
   node.addClass('changeContent');
 
@@ -732,12 +732,12 @@ function changeBendPoints(param){
     distances: param.set?edge.data('distances'):param.distances,
     set: true//As the result will not be used for the first function call params should be used to set the data
   };
-  
+
   //Check if we need to set the weights and distances by the param values
   if(param.set) {
     param.weights?edge.data('weights', param.weights):edge.removeData('weights');
     param.distances?edge.data('distances', param.distances):edge.removeData('distances');
-    
+
     //refresh the curve style as the number of bend point would be changed by the previous operation
     if(param.weights){
       edge.css('curve-style', 'segments');
@@ -746,7 +746,7 @@ function changeBendPoints(param){
       edge.css('curve-style', 'bezier');
     }
   }
-  
+
   return result;
 }
 
@@ -969,7 +969,7 @@ function EditorActionsManager()
   };
 
   /*
-   * 
+   *
    * This method indicates whether the undo stack is empty
    */
   this.isUndoStackEmpty = function () {
@@ -977,7 +977,7 @@ function EditorActionsManager()
   }
 
   /*
-   * 
+   *
    * This method indicates whether the redo stack is empty
    */
   this.isRedoStackEmpty = function () {

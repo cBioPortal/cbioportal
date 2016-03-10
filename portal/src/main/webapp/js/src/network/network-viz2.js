@@ -183,8 +183,8 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 
 				switch (ele._private.data['type'].toLowerCase())
 				{
-					case "controls-state-change-of": return "#e96e6e"; break;
-					case "controls-transport-of": return "#2F4DC5"; break;
+					case "controls-state-change-of": return "#2F4DC5"; break;
+					case "controls-transport-of": return "#e96e6e"; break;
 					case "controls-phosphorylation-of": return "#acb45a"; break;
 					case "controls-expression-of": return "#169127"; break;
 					case "catalysis-precedes": return "#313077"; break;
@@ -238,8 +238,8 @@ function send2cytoscapeweb(elements, cytoscapeDivId, networkDivId)
 
 				switch (ele._private.data['type'].toLowerCase())
 				{
-					case "controls-state-change-of": return "#e96e6e"; break;
-					case "controls-transport-of": return "#2F4DC5"; break;
+					case "controls-state-change-of": return "#2F4DC5"; break;
+					case "controls-transport-of": return "#e96e6e"; break;
 					case "controls-phosphorylation-of": return "#acb45a"; break;
 					case "controls-expression-of": return "#169127"; break;
 					case "catalysis-precedes": return "#313077"; break;

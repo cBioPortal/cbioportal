@@ -38,8 +38,8 @@ function NetworkVis(divId)
     // edge type constants
     this.edgeTypeConstants =
     {
-      CONTROLS_STATE_CHANGE_OF :             { name: "controls-state-change-of",        color: '#e96e6e' , desc: 'Controls State Change of'},
-      CONTROLS_TRANSPORT_OF :                { name: "controls-transport-of",           color: '#2F4DC5' , desc: 'Controls Transport of'},
+      CONTROLS_STATE_CHANGE_OF :             { name: "controls-state-change-of",        color: '#2F4DC5' , desc: 'Controls State Change of'},
+      CONTROLS_TRANSPORT_OF :                { name: "controls-transport-of",           color: '#e96e6e' , desc: 'Controls Transport of'},
       CONTROLS_PHOSPHORYLATION_OF :          { name: "controls-phosphorylation-of",     color: '#acb45a' , desc: 'Controls Phosphorylation of'},
       CONTROLS_EXPRESSION_OF :               { name: "controls-expression-of",          color: '#169127' , desc: 'Controls Expression of'},
       CATALYSIS_PRECEDES :                   { name: "catalysis-precedes",              color: '#313077' , desc: 'Catalysis Precedes'},

@@ -35,5 +35,6 @@
     <mvc:resources mapping="/js/**" location="/js/"/>
     <mvc:resources mapping="/content/**" location="/content/"/>
     <mvc:resources mapping="/gfx/**" location="/gfx/"/>
+    <mvc:resources mapping="/swf/**" location="/swf/"/>
     <mvc:annotation-driven enable-matrix-variables="true"/>
 </beans>

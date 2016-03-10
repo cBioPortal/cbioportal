@@ -110,7 +110,7 @@
 </script>
 
 <script type="text/template" id="example_mutation_data_template">
-	<jsp:include page="mutation-file-example.txt"/>
+	<%@ include file="mutation-file-example.txt"/ %>
 </script>
 
 <!-- Customized Mutation Table components -->

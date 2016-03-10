@@ -2253,7 +2253,7 @@ def main_validate(args):
 
     # get a logger to emit messages
     logger = logging.getLogger(__name__)
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.DEBUG)
     exit_status_handler = MaxLevelTrackingHandler()
     logger.addHandler(exit_status_handler)
 
@@ -2266,7 +2266,7 @@ def main_validate(args):
     # determine the log level for terminal and html output
     output_loglevel = logging.WARNING
     if args.verbose:
-        output_loglevel = logging.INFO
+        output_loglevel = logging.DEBUG
 
     # check existence of directory
     if not os.path.exists(study_dir):

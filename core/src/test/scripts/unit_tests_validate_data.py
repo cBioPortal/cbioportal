@@ -46,7 +46,7 @@ class LogBufferTestCase(unittest.TestCase):
     def setUp(self):
         """Set up a logger with a buffering handler."""
         self.logger = logging.getLogger(self.__class__.__name__)
-        self.logger.setLevel(logging.INFO)
+        self.logger.setLevel(logging.DEBUG)
         # add a handler to buffer log records for validation
         self.buffer_handler = logging.handlers.BufferingHandler(capacity=1e6)
         self.logger.addHandler(self.buffer_handler)
@@ -175,7 +175,7 @@ class ClinicalColumnDefsTestCase(DataFileTestCase):
         # expecting two info messages: at start and end of file
         self.assertEqual(len(record_list), 2)
         for record in record_list:
-            self.assertEqual(record.levelno, logging.INFO)
+            self.assertIn(record.levelno, [logging.DEBUG, logging.INFO])
 
     def test_wrong_definitions(self):
         """Test when record definitions do not match with portal."""
@@ -285,7 +285,7 @@ class CancerTypeFileValidationTestCase(DataFileTestCase):
         # expecting only the two info messages about the file being validated
         self.assertEqual(len(record_list), 2)
         for record in record_list:
-            self.assertEqual(record.levelno, logging.INFO)
+            self.assertIn(record.levelno, [logging.DEBUG, logging.INFO])
 
     def test_cancer_type_disagreeing_with_portal(self):
         """Test when an existing cancer type is redefined by a study."""
@@ -327,7 +327,7 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         # expecting two info messages: at start and end of file
         self.assertEqual(len(record_list), 2)
         for record in record_list:
-            self.assertEqual(record.levelno, logging.INFO)
+            self.assertIn(record.levelno, [logging.DEBUG, logging.INFO])
 
     def test_name_only(self):
         """Test when a file has a Hugo name column but none for Entrez IDs."""
@@ -336,7 +336,7 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         # expecting two info messages: at start and end of file
         self.assertEqual(len(record_list), 2)
         for record in record_list:
-            self.assertEqual(record.levelno, logging.INFO)
+            self.assertIn(record.levelno, [logging.DEBUG, logging.INFO])
 
     def test_entrez_only(self):
         """Test when a file has an Entrez ID column but none for Hugo names."""
@@ -345,7 +345,7 @@ class GeneIdColumnsTestCase(PostClinicalDataFileTestCase):
         # expecting two info messages: at start and end of file
         self.assertEqual(len(record_list), 2)
         for record in record_list:
-            self.assertEqual(record.levelno, logging.INFO)
+            self.assertIn(record.levelno, [logging.DEBUG, logging.INFO])
 
     def test_neither_name_nor_entrez(self):
         """Test when a file lacks both the Entrez ID and Hugo name columns."""
@@ -571,7 +571,7 @@ class SegFileValidationTestCase(PostClinicalDataFileTestCase):
         # expecting nothing but the info messages at start and end of file
         self.assertEqual(len(record_list), 2)
         for record in record_list:
-            self.assertEqual(record.levelno, logging.INFO)
+            self.assertIn(record.levelno, [logging.DEBUG, logging.INFO])
 
 
     def test_unparsable_seg_columns(self):
@@ -644,7 +644,7 @@ class GisticGenesValidationTestCase(PostClinicalDataFileTestCase):
 
     def test_valid_amp_file(self):
         """Test validation of an amp file that should yield no warnings."""
-        self.logger.setLevel(logging.INFO)
+        self.logger.setLevel(logging.DEBUG)
         record_list = self.validate(
                 'data_gisticgenes_amp_valid.txt',
                 validateData.GisticGenesValidator,
@@ -654,11 +654,11 @@ class GisticGenesValidationTestCase(PostClinicalDataFileTestCase):
         # expecting two info messages, at the start and the end of validation
         self.assertEqual(len(record_list), 2)
         for record in record_list:
-            self.assertEqual(record.levelno, logging.INFO)
+            self.assertIn(record.levelno, [logging.DEBUG, logging.INFO])
 
     def test_valid_del_file(self):
         """Test validation of a del file that should yield no warnings."""
-        self.logger.setLevel(logging.INFO)
+        self.logger.setLevel(logging.DEBUG)
         record_list = self.validate(
                 'data_gisticgenes_del_valid.txt',
                 validateData.GisticGenesValidator,
@@ -668,7 +668,7 @@ class GisticGenesValidationTestCase(PostClinicalDataFileTestCase):
         # expecting two info messages, at the start and the end of validation
         self.assertEqual(len(record_list), 2)
         for record in record_list:
-            self.assertEqual(record.levelno, logging.INFO)
+            self.assertIn(record.levelno, [logging.DEBUG, logging.INFO])
 
     def test_region_without_genes(self):
         """Test validation of regions with no genes."""

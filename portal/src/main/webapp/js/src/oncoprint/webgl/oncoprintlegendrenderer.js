@@ -8,6 +8,8 @@ var OncoprintLegendView = (function() {
 	this.base_height = base_height;
 	this.rendering_suppressed = false;
 	
+	this.width = $div.width();
+	
 	this.rule_set_label_config = {
 	    weight: 'bold',
 	    size: 12,
@@ -81,6 +83,11 @@ var OncoprintLegendView = (function() {
 		var group = ruleToSVGGroup(rule, view, model);
 		group.setAttribute('transform', 'translate('+x+','+y+')');
 		rule_set_group.appendChild(group);
+		if (x + group.getBBox().width > view.width) {
+		    x = rule_start_x + view.padding_after_rule_set_label;
+		    y = rule_set_group.getBBox().y + rule_set_group.getBBox().height;
+		    group.setAttribute('transform', 'translate('+x+','+y+')');
+		}
 		x += group.getBBox().width;
 		x += view.padding_between_rules;
 	    }
@@ -104,13 +111,33 @@ var OncoprintLegendView = (function() {
 		root.appendChild(svgfactory.text(rule.legend_label, model.getCellWidth(true) + 5, view.base_height/2, 12, 'Arial', 'normal'));
 	    }
 	} else if (config.type === 'number') {
-	    root.appendChild(svgfactory.text(config.range[0], 0, 0, 12, 'Arial', 'normal'));
-	    root.appendChild(svgfactory.text(config.range[1], 50, 0, 12, 'Arial', 'normal'));
+	    var lower_str = config.range[0] + '';
+	    var upper_str = config.range[1] + '';
+	    var num_decimal_digits = 2;
+	    if (lower_str.indexOf('.') === upper_str.indexOf('.')) {
+		var lower_decimal_part = lower_str.substring(lower_str.indexOf('.')+1);
+		var upper_decimal_part = upper_str.substring(upper_str.indexOf('.')+1);
+		var i = 0;
+		while (lower_decimal_part[i] === upper_decimal_part[i]) {
+		    i++;
+		}
+		num_decimal_digits = Math.min(num_decimal_digits, i+1);
+	    }
+	    var display_range = config.range.map(function(x) {
+		var num_digit_multiplier = Math.pow(10, num_decimal_digits);
+		return Math.round(x * num_digit_multiplier) / num_digit_multiplier;
+	    });
+	    root.appendChild(svgfactory.text(display_range[0], 0, 0, 12, 'Arial', 'normal'));
+	    root.appendChild(svgfactory.text(display_range[1], 50, 0, 12, 'Arial', 'normal'));
 	    root.appendChild(svgfactory.polygon('5,20 45,20 45,0', config.color));
 	}
 	return root;
     };
     
+    OncoprintLegendView.prototype.setWidth = function(w, model) {
+	this.width = w;
+	renderLegend(this, model);
+    }
     OncoprintLegendView.prototype.removeTrack = function(model) {
 	renderLegend(this, model);
     }

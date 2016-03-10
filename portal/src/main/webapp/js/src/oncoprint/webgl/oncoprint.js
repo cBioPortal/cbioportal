@@ -164,6 +164,7 @@ var Oncoprint = (function () {
 	oncoprint.$cell_div.css({'left':cell_div_left});
 	oncoprint.cell_view.setWidth(ctr_width - cell_div_left-20, oncoprint.model);
 	oncoprint.$legend_div.css({'top':oncoprint.model.getCellViewHeight() + 20});
+	oncoprint.legend_view.setWidth(ctr_width, oncoprint.model);
     };
     
     var resizeAndOrganizeAfterTimeout = function(oncoprint) {

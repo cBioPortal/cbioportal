@@ -85,8 +85,8 @@ var OncoprintModel = (function () {
 	    var curr_track_present_ids = model.track_present_ids.get();
 	    if (model.getContainingTrackGroup(track_id) !== null) {
 		var ids = {};
-		var data = model.getTrackData(track_id);
-		var data_id_key = model.getTrackDataIdKey(track_id);
+		var data = model.getTrackData(track_id) || [];
+		var data_id_key = model.getTrackDataIdKey(track_id) || '';
 		for (var i = 0; i < data.length; i++) {
 		    ids[data[i][data_id_key]] = true;
 		}

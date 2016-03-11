@@ -472,6 +472,26 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	var setSortOrder = function(order) {
 	    oncoprint.setSortConfig({'type':'order', 'order':order});
 	};
+	
+	var getPercent = function(proportion) {
+	    return Math.round(proportion*100) + '%';
+	};
+	
+	var updateAlteredPercentIndicator = function(state) {
+	    $.when(QuerySession.getAlteredSamples(), QuerySession.getAlteredPatients(), QuerySession.getPatientIds())
+		    .then(function(altered_samples, altered_patients, patient_ids) {
+			var text = "Altered in ";
+			text += (state.using_sample_data ? altered_samples.length : altered_patients.length);
+			text += " (";
+			text += getPercent(state.using_sample_data ? (altered_samples.length / QuerySession.getSampleIds().length) : (altered_patients.length / patient_ids.length));
+			text +=") of ";
+			text += (state.using_sample_data ? QuerySession.getSampleIds().length : patient_ids.length);
+			text += " ";
+			text += (state.using_sample_data ? "samples" : "cases/patients");
+			$('#altered_value').text(text);
+	    });
+	};
+	
 	return {
 	    'first_genetic_alteration_track': null,
 	    'genetic_alteration_tracks': {}, // track_id -> gene
@@ -527,6 +547,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		    if (this.sorting_by_given_order) {
 			setSortOrder(QuerySession.getSampleIds());
 		    }
+		    updateAlteredPercentIndicator(this);
 		    return populateSampleData();
 		} else if (sample_or_patient === 'patient') {
 		    this.using_sample_data = false;
@@ -538,6 +559,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 			    setSortOrder((self.using_sample_data ? QuerySession.getSampleIds() : self.patient_order));
 			});
 		    }
+		    updateAlteredPercentIndicator(this);
 		    return populatePatientData();
 		}
 	    },

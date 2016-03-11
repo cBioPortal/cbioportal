@@ -1035,17 +1035,18 @@ class MutationsExtendedValidator(Validator):
 
 class ClinicalValidator(Validator):
 
-    """Validator for clinical data files."""
+    """Abstract Validator class for clinical data files.
 
-    REQUIRED_HEADERS = [
-        'PATIENT_ID',
-        'SAMPLE_ID'
-    ]
+    Subclasses define the columns that must be present in REQUIRED_HEADERS,
+    and the value of the 'is_patient_attribute' property for attributes
+    defined in this file in PROP_IS_PATIENT_ATTRIBUTE.
+    """
+
     REQUIRE_COLUMN_ORDER = False
+    PROP_IS_PATIENT_ATTRIBUTE = None
 
     def __init__(self, *args, **kwargs):
         super(ClinicalValidator, self).__init__(*args, **kwargs)
-        self.sampleIds = set()
         self.attr_defs = []
 
     def processTopLines(self, line_list):
@@ -1055,12 +1056,11 @@ class ClinicalValidator(Validator):
         LINE_NAMES = ('display_name',
                       'description',
                       'datatype',
-                      'attribute_type',
                       'priority')
 
         if not line_list:
             self.logger.error(
-                'No data type header comments found in clinical data file',
+                'No data type definition headers found in clinical data file',
                 extra={'line_number': self.line_number})
             return False
         if len(line_list) != len(LINE_NAMES):
@@ -1083,7 +1083,7 @@ class ClinicalValidator(Validator):
         for line_index, row in enumerate(csvreader):
 
             if attr_defs is None:
-                # make a list of as many lists as long as there are columns
+                # make a list of as many dictionaries as there are columns
                 num_attrs = len(row)
                 attr_defs = [OrderedDict() for i in range(num_attrs)]
             elif len(row) != num_attrs:
@@ -1096,7 +1096,7 @@ class ClinicalValidator(Validator):
 
             for col_index, value in enumerate(row):
 
-                # test for invalid values in these (otherwise parseable) lines
+                # test for invalid values in these columns
                 if value in ('', 'NA'):
                     self.logger.error(
                         'Empty %s field in clinical attribute definition',
@@ -1111,23 +1111,13 @@ class ClinicalValidator(Validator):
                     VALID_DATATYPES = ('STRING', 'NUMBER', 'BOOLEAN')
                     if value not in VALID_DATATYPES:
                         self.logger.error(
-                            'Invalid data type definition, must be one of'
-                            ' [%s]',
+                            'Invalid data type definition, must be one of '
+                            '[%s]',
                             ', '.join(VALID_DATATYPES),
                             extra={'line_number': line_index + 1,
                                    'colum_number': col_index + 1,
                                    'cause': value})
                         invalid_values = True
-                elif LINE_NAMES[line_index] == 'attribute_type':
-                    VALID_ATTR_TYPES = ('PATIENT', 'SAMPLE')
-                    if value not in VALID_ATTR_TYPES:
-                        self.logger.error(
-                            'Invalid attribute type definition, must be one of'
-                            ' [%s]',
-                            ', '.join(VALID_ATTR_TYPES),
-                            extra={'line_number': line_index + 1,
-                                   'colum_number': col_index + 1,
-                                   'cause': value})
                         invalid_values = True
                 elif LINE_NAMES[line_index] == 'priority':
                     try:
@@ -1135,13 +1125,13 @@ class ClinicalValidator(Validator):
                             raise ValueError()
                     except ValueError:
                         self.logger.error(
-                            'Priority definition must be a positive integer',
+                            'Priority definition is not a positive integer',
                             extra={'line_number': line_index + 1,
                                    'column_number': col_index + 1,
                                    'cause': value})
                         invalid_values = True
                 else:
-                    raise Exception('Unknown clinical header line name')
+                    raise RuntimeError('Unknown clinical header line name')
 
                 attr_defs[col_index][LINE_NAMES[line_index]] = value
 
@@ -1164,7 +1154,7 @@ class ClinicalValidator(Validator):
         for col_index, col_name in enumerate(self.cols):
             if not col_name.isupper():
                 self.logger.warning(
-                    "Clinical header not in all caps",
+                    "Clinical attribute name not in all caps",
                     extra={'line_number': self.line_number,
                            'cause': col_name})
             # skip all further checks for this column if portal info is absent
@@ -1176,56 +1166,102 @@ class ClinicalValidator(Validator):
             if srv_attr_properties is None:
                 self.logger.warning(
                     'New %s-level attribute will be added to the portal',
-                    self.attr_defs[col_index]['attribute_type'].lower(),
+                    {0: 'sample', 1: 'patient'}[
+                            self.PROP_IS_PATIENT_ATTRIBUTE],
+                    extra={'line_number': self.line_number,
+                           'column_number': col_index + 1,
+                           'cause': col_name})
+            # disallow homonymous patient-level and sample-level attributes
+            elif (srv_attr_properties['is_patient_attribute'] !=
+                  self.PROP_IS_PATIENT_ATTRIBUTE):
+                self.logger.error(
+                    'Attribute is defined in the portal installation as a '
+                    '%s-level attribute',
+                    {0: 'sample', 1: 'patient'}[
+                            srv_attr_properties['is_patient_attribute']],
                     extra={'line_number': self.line_number,
                            'column_number': col_index + 1,
                            'cause': col_name})
             else:
-                # translate one property having a different format in the API
-                transl_attr_properties = {}
-                for prop in srv_attr_properties:
-                    # define the 'attribute_type' property as it is found in
-                    # files, based on 'is_patient_attribute' from the API
-                    if prop == 'is_patient_attribute':
-                        if srv_attr_properties[prop] == '1':
-                            transl_attr_properties['attribute_type'] = 'PATIENT'
-                        else:
-                            transl_attr_properties['attribute_type'] = 'SAMPLE'
-                    # all of the other properties just match the file format
-                    elif prop in ('display_name', 'description',
-                                  'datatype', 'priority'):
-                        transl_attr_properties[prop] = srv_attr_properties[prop]
                 # compare values defined in the file with the existing ones
                 for attr_property in self.attr_defs[col_index]:
                     value = self.attr_defs[col_index][attr_property]
-                    if value != transl_attr_properties[attr_property]:
+                    if value != srv_attr_properties[attr_property]:
                         self.logger.error(
                             "%s definition for attribute '%s' does not match "
                             "the portal, '%s' expected",
                             attr_property,
                             col_name,
-                            transl_attr_properties[attr_property],
+                            srv_attr_properties[attr_property],
                             extra={'line_number': self.attr_defs[col_index].keys().index(attr_property) + 1,
                                    'column_number': col_index + 1,
                                    'cause': value})
+                        # TODO: assume that the value in the portal is intended
+                        # and continue validation based on that
                         num_errors += 1
-
-        # some warnings for special cases:
-        if 'OS_MONTHS' not in self.cols or 'OS_STATUS' not in self.cols:
-            self.logger.warning('Columns OS_MONTHS and/or OS_STATUS not found. Overall survival analysis feature will '
-                                'not be available for this study.')
-        if 'DFS_MONTHS' not in self.cols or 'DFS_STATUS' not in self.cols:
-            self.logger.warning('Columns DFS_MONTHS and/or DFS_STATUS not found. Disease free analysis feature will '
-                                'not be available for this study.')
 
         return num_errors
 
     def checkLine(self, data):
+        """Check the values in a line of data."""
         super(ClinicalValidator, self).checkLine(data)
-        for col_index, value in enumerate(data):
-            # TODO check the values in the other cols, required and optional
-            # TODO check if cancer types in clinical attributes are defined
-            if col_index == self.cols.index('SAMPLE_ID'):
+        for col_index, col_name in enumerate(self.cols):
+            # treat cells beyond the end of the line as blanks,
+            # super().checkLine() has already logged an error
+            value = ''
+            if col_index < len(data):
+                value = data[col_index].strip()
+            # if not blank, check if values match the datatype
+            if value in ('', 'NA'):
+                pass
+            elif self.attr_defs[col_index]['datatype'] == 'NUMBER':
+                if not self.checkFloat(value):
+                    self.logger.error(
+                        'Value of attribute type NUMBER is not a real number',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
+            elif self.attr_defs[col_index]['datatype'] == 'BOOLEAN':
+                VALID_BOOLEANS = ('TRUE', 'FALSE')
+                if not value in VALID_BOOLEANS:
+                    self.logger.error(
+                        'Invalid value of attribute type BOOLEAN, must be one '
+                        'of [%s]',
+                        ', '.join(VALID_BOOLEANS),
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
+            # make sure that PATIENT_ID is present
+            if col_name == 'PATIENT_ID':
+                if value in ('', 'NA'):
+                    self.logger.error(
+                        'Missing PATIENT_ID',
+                        extra={'line_number': self.line_number,
+                               'column_number': col_index + 1,
+                               'cause': value})
+
+
+class SampleClinicalValidator(ClinicalValidator):
+
+    """Validator for files defining and setting sample-level attributes."""
+
+    REQUIRED_HEADERS = ['SAMPLE_ID', 'PATIENT_ID']
+    PROP_IS_PATIENT_ATTRIBUTE = 0
+
+    def __init__(self, *args, **kwargs):
+        super(SampleClinicalValidator, self).__init__(*args, **kwargs)
+        self.sampleIds = set()
+
+    def checkLine(self, data):
+        """Check the values in a line of data."""
+        super(SampleClinicalValidator, self).checkLine(data)
+        for col_index, col_name in enumerate(self.cols):
+            # treat cells beyond the end of the line as blanks,
+            # super().checkLine() has already logged an error
+            value = ''
+            if col_index < len(data):
+                value = data[col_index].strip()
+            if col_name == 'SAMPLE_ID':
                 if DEFINED_SAMPLE_IDS and value not in DEFINED_SAMPLE_IDS:
                     self.logger.error(
                         'Defining new sample id in secondary clinical file',
@@ -1239,12 +1275,37 @@ class ClinicalValidator(Validator):
                                'column_number': col_index + 1,
                                'cause': value})
                 self.sampleIds.add(value.strip())
-            if col_index == self.cols.index('PATIENT_ID') and value.strip() == '':
-                self.logger.error(
-                        'PATIENT_ID should not be empty',
-                        extra={'line_number': self.line_number,
-                               'column_number': col_index + 1,
-                               'cause': value})
+            # TODO: check the values in the other documented columns
+
+
+class PatientClinicalValidator(ClinicalValidator):
+    """Validator for files defining and setting patient-level attributes."""
+    REQUIRED_HEADERS = ['PATIENT_ID']
+    PROP_IS_PATIENT_ATTRIBUTE = 1
+    def checkHeader(self, cols):
+        """Validate headers in patient-specific clinical data files."""
+        super(PatientClinicalValidator, self).checkHeader(self, cols)
+        # warnings about missing optional columns
+        if 'OS_MONTHS' not in self.cols or 'OS_STATUS' not in self.cols:
+            self.logger.warning(
+                'Columns OS_MONTHS and/or OS_STATUS not found. Overall '
+                'survival analysis feature will not be available for this '
+                'study.')
+        if 'DFS_MONTHS' not in self.cols or 'DFS_STATUS' not in self.cols:
+            self.logger.warning(
+                'Columns DFS_MONTHS and/or DFS_STATUS not found. Disease '
+                'free analysis feature will not be available for this study.')
+
+    def checkLine(self, data):
+        """Check the values in a line of data."""
+        super(PatientClinicalValidator, self).checkLine(data)
+        for col_index, col_name in enumerate(self.cols):
+            # treat cells beyond the end of the line as blanks,
+            # super().checkLine() has already logged an error
+            value = ''
+            if col_index < len(data):
+                value = data[col_index].strip()
+            # TODO check the values for [CAISIS_]*_STATUS columns
 
 
 class SegValidator(Validator):
@@ -1273,7 +1334,7 @@ class SegValidator(Validator):
 
         parsed_coords = {}
         for col_index, col_name in enumerate(self.cols):
-            value = data[col_index]
+            value = data[col_index].strip()
             if col_name == 'ID':
                 self.checkSampleId(value, column_number=col_index + 1)
             elif col_name == 'chrom':

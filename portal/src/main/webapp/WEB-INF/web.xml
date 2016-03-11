@@ -255,19 +255,6 @@
         <url-pattern>/omaRedirect.do</url-pattern>
     </servlet-mapping>
 
-    <servlet>
-        <servlet-name>link_out</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.LinkOut</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>link_out</servlet-name>
-        <url-pattern>/link.do</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>link_out</servlet-name>
-        <url-pattern>/ln</url-pattern>
-    </servlet-mapping>
-
 	<servlet>
 		<servlet-name>pfam_sequence_json</servlet-name>
 		<servlet-class>org.mskcc.cbio.portal.servlet.PfamSequenceServlet</servlet-class>

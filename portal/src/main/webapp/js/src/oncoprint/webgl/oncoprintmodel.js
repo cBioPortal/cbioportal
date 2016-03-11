@@ -5,6 +5,52 @@ function ifndef(x, val) {
     return (typeof x === "undefined" ? val : x);
 }
 
+var UnionOfSets = (function() {
+    // a set, to be passed in as argument, is an object where the values are truthy
+    function UnionOfSets() {
+	this.union_count = {};
+	this.sets = {};
+    }
+    var setOfKeys = function (obj) {
+	var set = {};
+	for (var k in obj) {
+	    if (typeof obj[k] !== 'undefined') {
+		set[k] = true;
+	    }
+	}
+	return set;
+    };
+    UnionOfSets.prototype.putSet = function(id, set) {
+	this.removeSet(id);
+	this.sets[id] = set;
+	
+	var union_count = this.union_count;
+	for (var k in set) {
+	    if (set[k]) {
+		this.union_count[k] = this.union_count[k] || 0;
+		this.union_count[k] += 1;
+	    }
+	}
+    }
+    UnionOfSets.prototype.removeSet = function(id) {
+	var union_count = this.union_count;
+	var old_set = this.sets[id] || {};
+	for (var k in old_set) {
+	    if (old_set[k]) {
+		union_count[k] -= 1;
+		if (union_count[k] === 0) {
+		    delete union_count[k];
+		}
+	    }
+	}
+	delete this.sets[id];
+    }
+    UnionOfSets.prototype.getUnion = function() {
+	return setOfKeys(this.union_count);
+    }
+    return UnionOfSets;
+})();
+
 var setUnion = function(list_of_sets) {
     var union = {};
     for (var i=0; i<list_of_sets.length; i++) {
@@ -81,8 +127,8 @@ var OncoprintModel = (function () {
 	this.rule_sets = {}; // map from rule set id to rule set
 	
 	// Cached and Recomputed Properties
-	this.track_present_ids = new CachedProperty({}, function(model, track_id) {
-	    var curr_track_present_ids = model.track_present_ids.get();
+	this.track_present_ids = new CachedProperty(new UnionOfSets(), function(model, track_id) {
+	    var union = model.track_present_ids.get();
 	    if (model.getContainingTrackGroup(track_id) !== null) {
 		var ids = {};
 		var data = model.getTrackData(track_id) || [];
@@ -90,14 +136,14 @@ var OncoprintModel = (function () {
 		for (var i = 0; i < data.length; i++) {
 		    ids[data[i][data_id_key]] = true;
 		}
-		curr_track_present_ids[track_id] = ids;
+		union.putSet(track_id, ids);
 	    } else {
-		delete curr_track_present_ids[track_id];
+		union.removeSet(track_id);
 	    }
-	    return curr_track_present_ids;
+	    return union;
 	});
 	this.present_ids = new CachedProperty({}, function() {
-	    return setUnion(objectValues(model.track_present_ids.get()));
+	    return model.track_present_ids.get().getUnion();
 	});
 	this.track_present_ids.addBoundProperty(this.present_ids);
 	

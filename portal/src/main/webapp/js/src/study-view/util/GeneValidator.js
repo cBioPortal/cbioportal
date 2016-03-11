@@ -56,7 +56,7 @@ function GeneValidator(geneAreaId, geneModel){
 
         // clean the textArea string, removing doubles and non-word characters (except -)
         var genesStr = geneModel.getCleanGeneString();
-            //self.cleanAreaString(geneModel.get("geneString")).join(" ")
+        //self.cleanAreaString(geneModel.get("geneString")).join(" ")
         //$(geneAreaId).val(genesStr);
 
         var genes = [];

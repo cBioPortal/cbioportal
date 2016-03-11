@@ -40,26 +40,6 @@
 <%@ page import="org.mskcc.cbio.portal.util.IGVLinking" %>
 <%@ page import="org.mskcc.cbio.portal.dao.DaoGeneOptimized" %>
 <%@ page import="org.mskcc.cbio.portal.model.CanonicalGene" %>
-<%
-      // construct gene list parameter to IGV
-      // use geneWithScoreList so we don't get any OQL
-      List<String> onlyGenesList = new ArrayList<String>();
-      for (GeneWithScore geneWithScore : geneWithScoreList) {
-          CanonicalGene gene = DaoGeneOptimized.getInstance().getGene(geneWithScore.getGene());
-           
-          if (gene!=null && !gene.isMicroRNA() && !gene.isPhosphoProtein()) {
-              onlyGenesList.add(geneWithScore.getGene());
-          }
-      }
-      String encodedGeneList = "";
-      if (onlyGenesList.size() > 0) {
-          try {
-              encodedGeneList = URLEncoder.encode(Joiner.on(' ').join(onlyGenesList), "UTF-8");
-          }
-          catch(UnsupportedEncodingException e) {
-          }
-      }
-%>
 
 <div class="section" id="igv_tab">
     <table>
@@ -86,10 +66,10 @@
                     </ul>
                 </p>
 
-                <br>
-                    <% String[] segViewingArgs = IGVLinking.getIGVArgsForSegViewing(cancerTypeId, encodedGeneList); %>
-                    <a id="igvLaunch" href="#" onclick="prepIGVLaunch('<%= segViewingArgs[0] %>','<%= segViewingArgs[1] %>','<%= segViewingArgs[2] %>','<%= segViewingArgs[3] %>')"><img src="images/webstart.jpg" alt=""/></a>
-                <br>
+                <%--<br>--%>
+                    <%--<% String[] segViewingArgs = IGVLinking.getIGVArgsForSegViewing(cancerTypeId, encodedGeneList); %>--%>
+                    <%--<a id="igvLaunch" href="#" onclick="prepIGVLaunch('<%= segViewingArgs[0] %>','<%= segViewingArgs[1] %>','<%= segViewingArgs[2] %>','<%= segViewingArgs[3] %>')"><img src="images/webstart.jpg" alt=""/></a>--%>
+                <%--<br>--%>
 
                 <p>
                     Once you click the launch button, you may need to select Open with Java&#8482;

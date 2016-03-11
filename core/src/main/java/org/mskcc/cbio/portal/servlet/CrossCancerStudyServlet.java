@@ -39,8 +39,8 @@ import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.util.XssRequestWrapper;
 import org.mskcc.cbio.portal.web_api.GetGeneticProfiles;
-import org.mskcc.cbio.portal.validate.gene.GeneValidator;
-import org.mskcc.cbio.portal.validate.gene.GeneValidationException;
+//import org.mskcc.cbio.portal.validate.gene.GeneValidator;
+//import org.mskcc.cbio.portal.validate.gene.GeneValidationException;
 import org.mskcc.cbio.portal.util.XDebug;
 import org.mskcc.cbio.portal.web_api.ProtocolException;
 import org.owasp.validator.html.PolicyException;
@@ -94,14 +94,13 @@ public class CrossCancerStudyServlet extends HttpServlet {
 	    /*String[] cancerStudyIdList;
 	    String cancerStudyIdListString = httpServletRequest.getParameter(QueryBuilder.CANCER_STUDY_LIST);*/
 
-	        // we need the raw gene list
-	        if (httpServletRequest instanceof XssRequestWrapper)
-	        {
-		        geneList = ((XssRequestWrapper)httpServletRequest).getRawParameter(
-				        QueryBuilder.GENE_LIST);
+            // we need the raw gene list
+            if (httpServletRequest instanceof XssRequestWrapper) {
+                geneList = ((XssRequestWrapper) httpServletRequest).getRawParameter(
+                    QueryBuilder.GENE_LIST);
 			/*cancerStudyIdListString = ((XssRequestWrapper)httpServletRequest).getRawParameter(
 					QueryBuilder.CANCER_STUDY_LIST);*/
-	        }
+            }
 		/*
 		if (cancerStudyIdListString != null) {
 			cancerStudyIdList = cancerStudyIdListString.split(",");
@@ -120,31 +119,33 @@ public class CrossCancerStudyServlet extends HttpServlet {
 */
             if (httpServletRequest.getRequestURL() != null) {
                 httpServletRequest.setAttribute(QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING,
-                        httpServletRequest.getRequestURL().toString());
+                    httpServletRequest.getRequestURL().toString());
             }
-	    
+
             httpServletRequest.setAttribute(QueryBuilder.CANCER_STUDY_ID,
-                    AccessControl.ALL_CANCER_STUDIES_ID);
-	//	      AccessControl.MULTIPLE_CANCER_STUDIES_ID);
+                AccessControl.ALL_CANCER_STUDIES_ID);
+            //	      AccessControl.MULTIPLE_CANCER_STUDIES_ID);
 	    /*httpServletRequest.setAttribute(QueryBuilder.CANCER_TYPES_INTERNAL, cancerStudyList);*/
             httpServletRequest.setAttribute(QueryBuilder.XDEBUG_OBJECT, xdebug);
 
             String action = httpServletRequest.getParameter(QueryBuilder.ACTION_NAME);
 
             if (action != null && action.equals(QueryBuilder.ACTION_SUBMIT)) {
-                GeneValidator geneValidator = new GeneValidator(geneList);
+                //GeneValidator geneValidator = new GeneValidator(geneList);
                 dispatchToResultsJSP(httpServletRequest, httpServletResponse);
             } else {
                 dispatchToIndexJSP(httpServletRequest, httpServletResponse);
             }
-        } catch (GeneValidationException e) {
-            httpServletRequest.setAttribute(QueryBuilder.STEP4_ERROR_MSG, e.getMessage());
-            dispatchToIndexJSP(httpServletRequest, httpServletResponse);
-        } catch (DaoException e) {
+//        } catch (GeneValidationException e) {
+//            httpServletRequest.setAttribute(QueryBuilder.STEP4_ERROR_MSG, e.getMessage());
+//            dispatchToIndexJSP(httpServletRequest, httpServletResponse);
+//        } catch (DaoException e) {
+//            throw new ServletException(e);
+//        }/* catch (ProtocolException e) {
+//            throw new ServletException(e);
+        } catch (Exception e) {
             throw new ServletException(e);
-        }/* catch (ProtocolException e) {
-            throw new ServletException(e);
-		}*/
+        }
     }
 
     private void dispatchToResultsJSP(HttpServletRequest httpServletRequest,

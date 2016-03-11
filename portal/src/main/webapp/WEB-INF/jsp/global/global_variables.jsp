@@ -72,7 +72,6 @@
     //Info about Genetic Profiles
     ArrayList<GeneticProfile> profileList = (ArrayList<GeneticProfile>) request.getAttribute(QueryBuilder.PROFILE_LIST_INTERNAL);
     HashSet<String> geneticProfileIdSet = (HashSet<String>) request.getAttribute(QueryBuilder.GENETIC_PROFILE_IDS);
-    ProfileData mergedProfile = (ProfileData)request.getAttribute(QueryBuilder.MERGED_PROFILE_DATA_INTERNAL);
     // put geneticProfileIds into the proper form for the JSON request
     String geneticProfiles = StringUtils.join(geneticProfileIdSet.iterator(), " ");
     geneticProfiles = xssUtil.getCleanerInput(geneticProfiles.trim());
@@ -100,9 +99,7 @@
     oql = xssUtil.getCleanerInput(oql);
 
     //Info from data analysis/summary
-    ProfileDataSummary dataSummary = new ProfileDataSummary( mergedProfile, theOncoPrintSpecification, zScoreThreshold, rppaScoreThreshold );
     DecimalFormat percentFormat = new DecimalFormat("###,###.#%");
-    String percentCasesAffected = percentFormat.format(dataSummary.getPercentCasesAffected());
 
     //Info about queried cancer study
     ArrayList<CancerStudy> cancerStudies = (ArrayList<CancerStudy>)request.getAttribute(QueryBuilder.CANCER_TYPES_INTERNAL);
@@ -126,7 +123,6 @@
     }
     GeneSetUtil geneSetUtil = GeneSetUtil.getInstance();
     ArrayList<GeneSet> geneSetList = geneSetUtil.getGeneSetList();
-    ArrayList <GeneWithScore> geneWithScoreList = dataSummary.getGeneFrequencyList();
     String geneSetName = "";
     for (GeneSet geneSet:  geneSetList) {
         if (geneSetChoice.equals(geneSet.getId())) {
@@ -138,8 +134,6 @@
 
     //Info about Patient Set(s)/Patients
     ArrayList<SampleList> sampleSets = (ArrayList<SampleList>)request.getAttribute(QueryBuilder.CASE_SETS_INTERNAL);
-    ArrayList<String> mergedSampleList = mergedProfile.getCaseIdList();
-    int mergedSampleListSize = mergedSampleList.size();
     String sampleSetId = (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
     String sampleSetName = "";
     String sampleSetDescription = "";
@@ -185,18 +179,6 @@
     Object patientSampleIdMap = request.getAttribute(QueryBuilder.SELECTED_PATIENT_SAMPLE_ID_MAP);
     
     String patientCaseSelect = (String)request.getAttribute(QueryBuilder.PATIENT_CASE_SELECT);
-    //list of altered & unaltered sample ids
-    ArrayList<String> alteredSampleIdList = new ArrayList<String>();
-    ArrayList<String> unalteredSampleIdList = new ArrayList<String>();
-    for (String patientId : mergedSampleList) {
-        if (dataSummary.isCaseAltered(patientId)) {
-            alteredSampleIdList.add(patientId);
-        } else {
-            unalteredSampleIdList.add(patientId);
-        }
-    }
-    String alteredSampleIdsStr = StringUtils.join(alteredSampleIdList, " ");
-    String unalteredSampleIdsStr = StringUtils.join(unalteredSampleIdList, " ");
 
 %>
 
@@ -306,7 +288,6 @@
         getCaseSetName: function() { return '<%= sampleSetName %>'},  //Name for user chose standard case set
         getCaseIdsKey: function() { return '<%= sampleIdsKey %>'; },   //A key arrsigned to use build case set
         getCases: function() { return '<%= samples %>'; }, // list of queried case ids
-        getMergedCases: function() { return '<%=  mergedSampleList %>'; },
 
         //samples
         setSampleIds: function(_inputArr) { global_sample_ids = _inputArr; },
@@ -342,17 +323,6 @@
         getGeneticProfiles: function() { return '<%=geneticProfiles%>'; },
 
         //altered vs. unaltered
-        getAlteredSampleIdList: function() { return '<%=alteredSampleIdsStr%>'; },
-        getUnalteredSampleIdList: function() { return '<%=unalteredSampleIdsStr%>'; },
-        getAlteredSampleIdArray: function() {
-            var _str = '<%=alteredSampleIdsStr%>';
-            return _str.split(/\s+/);
-
-        },
-        getUnalteredSampleIdArray: function() {
-            var _str = '<%=unalteredSampleIdsStr%>';
-            return _str.split(/\s+/);
-        },
         getNumOfTotalCases: function() { return num_total_cases; },
         getNumOfAlteredCases: function() { return num_altered_cases; },
         getPercentageOfAlteredCases: function() { return ((num_altered_cases / num_total_cases) * 100).toFixed(1); },
@@ -532,9 +502,6 @@ $(document).ready(function() {
     }
     tmpGeneStr = tmpGeneStr.trim();
 
-    // protein_exp.jsp
-    String cancerStudyId_RPPA =
-            (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
 
 %>
 <script type="text/javascript">

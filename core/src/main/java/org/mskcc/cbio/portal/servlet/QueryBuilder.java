@@ -36,7 +36,7 @@ import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.web_api.*;
-import org.mskcc.cbio.portal.validate.gene.*;
+//import org.mskcc.cbio.portal.validate.gene.*;
 import org.mskcc.cbio.portal.util.AccessControl;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.*;
 
@@ -354,7 +354,7 @@ public class QueryBuilder extends HttpServlet {
        
         ArrayList<String> geneList = new ArrayList<String>();
         geneList.addAll( theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes());
-        ArrayList<String> tempGeneList = new ArrayList<String>();
+        ArrayList<String> tempGeneList = new ArrayList<String>(); 
         for (String gene : geneList){
             tempGeneList.add(gene);
         }
@@ -462,7 +462,7 @@ public class QueryBuilder extends HttpServlet {
               new GetProfileData(profile, geneList, StringUtils.join(setOfSampleIds, " "));
             ProfileData pData = remoteCall.getProfileData();
             DownloadLink downloadLink = new DownloadLink(profile, geneList, sampleIds,
-                    remoteCall.getRawContent());
+                remoteCall.getRawContent());
             downloadLinkSet.add(downloadLink);
             warningUnion.addAll(remoteCall.getWarnings());
             if( pData == null ){
@@ -643,7 +643,7 @@ public class QueryBuilder extends HttpServlet {
                 	}
                 }
 
-                errorsExist = validateGenes(geneList, httpServletRequest, errorsExist);
+                //errorsExist = validateGenes(geneList, httpServletRequest, errorsExist);
 
                 //  Additional validation rules
                 //  If we have selected mRNA Expression Data Check Box, but failed to
@@ -676,16 +676,16 @@ public class QueryBuilder extends HttpServlet {
         return errorsExist;
     }
 
-    private boolean validateGenes(String geneList, HttpServletRequest httpServletRequest,
-            boolean errorsExist) throws DaoException {
-        try {
-            GeneValidator geneValidator = new GeneValidator(geneList);
-        } catch (GeneValidationException e) {
-            errorsExist = true;
-            httpServletRequest.setAttribute(STEP4_ERROR_MSG, e.getMessage());
-        }
-        return errorsExist;
-    }
+//    private boolean validateGenes(String geneList, HttpServletRequest httpServletRequest,
+//            boolean errorsExist) throws DaoException {
+//        try {
+//            GeneValidator geneValidator = new GeneValidator(geneList);
+//        } catch (GeneValidationException e) {
+//            errorsExist = true;
+//            httpServletRequest.setAttribute(STEP4_ERROR_MSG, e.getMessage());
+//        }
+//        return errorsExist;
+//    }
     
     private void forwardToErrorPage(HttpServletRequest request, HttpServletResponse response,
                                     String userMessage, XDebug xdebug)

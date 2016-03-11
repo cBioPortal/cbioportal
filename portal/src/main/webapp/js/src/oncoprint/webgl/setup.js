@@ -280,10 +280,18 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		window.history.pushState({"html":window.location.html,"pageTitle":window.location.pageTitle},"", new_url);
 	    },
 	    'getInitDataType': function() {
-		return (init_show_samples === 'true' ? 'sample' : 'patient');
+		if (init_show_samples === null) {
+		    return null;
+		} else {
+		    return (init_show_samples === 'true' ? 'sample' : 'patient');
+		}
 	    },
 	    'getInitUsedClinicalAttrs': function() {
-		return init_clinical_attrs.trim().split(",").map(decodeURIComponent);
+		if (init_clinical_attrs === null) {
+		    return null;
+		} else {
+		    return init_clinical_attrs.trim().split(",").map(decodeURIComponent);
+		}
 	    },
 	    'getDataType': function() {
 		var using_sample_data = getParamValue(SAMPLE_DATA_PARAM);
@@ -441,6 +449,29 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		}
 	    }
 	};
+	var loadPatientOrder = function(state) {
+	    if (state.patient_order_loaded.state() === "resolved") {
+		return;
+	    } else {
+		QuerySession.getPatientSampleIdMap().then(function(sample_to_patient) {
+		    var patients = QuerySession.getSampleIds().map(function(s) { return sample_to_patient[s];});
+		    var patient_added_to_order = {};
+		    var patient_order = [];
+		    for (var i=0; i<patients.length; i++) {
+			if (!patient_added_to_order[patients[i]]) {
+			    patient_added_to_order[patients[i]] = true;
+			    patient_order.push(patients[i]);
+			}
+		    }
+		    state.patient_order = patient_order;
+		    state.patient_order_loaded.resolve();
+		});
+	    }
+	};
+	
+	var setSortOrder = function(order) {
+	    oncoprint.setSortConfig({'type':'order', 'order':order});
+	};
 	return {
 	    'first_genetic_alteration_track': null,
 	    'genetic_alteration_tracks': {}, // track_id -> gene
@@ -458,6 +489,11 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    'clinical_track_legends_shown': false,
 	    'mutations_colored_by_type': true,
 	    'sorted_by_mutation_type': true,
+	    
+	    'patient_order_loaded': new $.Deferred(),
+	    'patient_order': [],
+	    
+	    'sorting_by_given_order': false,
 	    
 	    'useAttribute': function (attr_id) {
 		var index = this.unused_clinical_attributes.findIndex(function (attr) {
@@ -488,10 +524,20 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 		if (sample_or_patient === 'sample') {
 		    this.using_sample_data = true;
 		    URL.update();
+		    if (this.sorting_by_given_order) {
+			setSortOrder(QuerySession.getSampleIds());
+		    }
 		    return populateSampleData();
 		} else if (sample_or_patient === 'patient') {
 		    this.using_sample_data = false;
 		    URL.update();
+		    loadPatientOrder(this);
+		    if (this.sorting_by_given_order) {
+			var self = this;
+			this.patient_order_loaded.then(function() {
+			    setSortOrder((self.using_sample_data ? QuerySession.getSampleIds() : self.patient_order));
+			});
+		    }
 		    return populatePatientData();
 		}
 	    },
@@ -1021,7 +1067,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	return def.promise();
     })().then(function addInitialClinicalTracks() {
 	State.clinical_attributes_fetched.then(function() {
-	    var url_clinical_attrs = URL.getInitUsedClinicalAttrs();
+	    var url_clinical_attrs = URL.getInitUsedClinicalAttrs() || [];
 	    if (url_clinical_attrs.length > 0) {
 		for (var i=0; i<url_clinical_attrs.length; i++) {
 		    State.useAndAddAttribute(url_clinical_attrs[i]);
@@ -1152,12 +1198,17 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 	    });*/
 	    $(toolbar_selector + ' #by_data_a').click(function () {
 		oncoprint.setSortConfig({'type':'tracks'});
+		State.sorting_by_given_order = false;
 	    });
 	    $(toolbar_selector + ' #alphabetically_first_a').click(function() {
 		oncoprint.setSortConfig({'type':'alphabetical'});
+		State.sorting_by_given_order = false;
 	    });
 	    $(toolbar_selector + ' #user_defined_first_a').click(function() {
-		oncoprint.setSortConfig({'type':'order', order:QuerySession.getSampleIds()});
+		State.sorting_by_given_order = true;
+		State.patient_order_loaded.then(function() {
+		    oncoprint.setSortConfig({'type':'order', order: (State.using_sample_data ? QuerySession.getSampleIds() : State.patient_order)});
+		});
 	    });
 	})();
 	
@@ -1412,7 +1463,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 				},
 				events: {
 					render: function (event) {
-						$('.oncoprint-diagram-download').click(function () {
+						$('body').on('click', '.oncoprint-diagram-download', function () {
 							var fileType = $(this).attr("type");
 							if (fileType === 'pdf')
 							{
@@ -1430,7 +1481,7 @@ window.CreateCBioPortalOncoprintWithToolbar = function (ctr_selector, toolbar_se
 							}
 						});
 
-						$('.oncoprint-sample-download').click(function () {
+						$('body').on('click', '.oncoprint-sample-download', function () {
 							var idTypeStr = (State.using_sample_data ? "Sample" : "Patient");
 							var content = idTypeStr + " order in the Oncoprint is: \n";
 							content += oncoprint.getIdOrder().join('\n');

@@ -115,7 +115,7 @@ var Oncoprint = (function () {
 								
 	//this.track_info_view = new OncoprintTrackInfoView($track_info_div);
 
-	this.label_view = new OncoprintLabelView($label_canvas, this.model, new OncoprintToolTip($oncoprint_ctr));
+	this.label_view = new OncoprintLabelView($label_canvas, this.model, new OncoprintToolTip($oncoprint_ctr, {noselect: true}));
 	this.label_view.setDragCallback(function(target_track, new_previous_track) {
 	    self.moveTrack(target_track, new_previous_track);
 	});

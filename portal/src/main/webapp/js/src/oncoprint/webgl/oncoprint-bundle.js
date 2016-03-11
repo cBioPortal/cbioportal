@@ -177,7 +177,7 @@ var Oncoprint = (function () {
 								
 	//this.track_info_view = new OncoprintTrackInfoView($track_info_div);
 
-	this.label_view = new OncoprintLabelView($label_canvas, this.model, new OncoprintToolTip($oncoprint_ctr));
+	this.label_view = new OncoprintLabelView($label_canvas, this.model, new OncoprintToolTip($oncoprint_ctr, {noselect: true}));
 	this.label_view.setDragCallback(function(target_track, new_previous_track) {
 	    self.moveTrack(target_track, new_previous_track);
 	});
@@ -3071,9 +3071,13 @@ var OncoprintSVGCellView = (function () {
 module.exports = OncoprintSVGCellView;
 },{}],13:[function(require,module,exports){
 var OncoprintToolTip = (function() {
-    function OncoprintToolTip($container) {
+    function OncoprintToolTip($container, params) {
+	params = params || {};
 	this.$container = $container;
-	this.$div = $('<div></div>').appendTo($container).css({'background-color':'rgba(255,255,255,1)', 'position':'absolute', 'display':'none', 'border':'1px solid black', 'max-width':300, 'min-width':150}).addClass("noselect");
+	this.$div = $('<div></div>').appendTo($container).css({'background-color':'rgba(255,255,255,1)', 'position':'absolute', 'display':'none', 'border':'1px solid black', 'max-width':300, 'min-width':150});
+	if (params.noselect) {
+	    this.$div.addClass("noselect");
+	}
 	this.hide_timeout_id = undefined;
 	this.show_timeout_id = undefined;
 	this.center = false;

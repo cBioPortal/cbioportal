@@ -760,11 +760,11 @@ window.initDatamanager = function (genetic_profile_ids, oql_query, cancer_study_
 				var unaltered_samples = oql_process_result.unaltered;
 				for (var gene in altered_samples) {
 				    if (altered_samples.hasOwnProperty(gene)) {
-					altered_patients[gene] = _.uniq(_.map(Object.keys(altered_samples[gene]), function(s) { return sample_to_patient[s];}));
-					unaltered_patients[gene] = _.difference(_.uniq(_.map(Object.keys(unaltered_samples[gene]), function(s) { return sample_to_patient[s];})), 
+					altered_patients[gene] = _.uniq(_.map(Object.keys(altered_samples[gene] || {}), function(s) { return sample_to_patient[s];}));
+					unaltered_patients[gene] = _.difference(_.uniq(_.map(Object.keys(unaltered_samples[gene] || {}), function(s) { return sample_to_patient[s];})), 
 										altered_patients[gene]);
-					altered_patients[gene] = listToTrueSet(altered_patients[gene]);
-					unaltered_patients[gene] = listToTrueSet(unaltered_patients[gene]);
+					altered_patients[gene] = listToTrueSet(altered_patients[gene] || []);
+					unaltered_patients[gene] = listToTrueSet(unaltered_patients[gene] || []);
 				    }
 				}
 								

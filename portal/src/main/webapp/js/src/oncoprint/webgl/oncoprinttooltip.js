@@ -1,7 +1,11 @@
 var OncoprintToolTip = (function() {
-    function OncoprintToolTip($container) {
+    function OncoprintToolTip($container, params) {
+	params = params || {};
 	this.$container = $container;
-	this.$div = $('<div></div>').appendTo($container).css({'background-color':'rgba(255,255,255,1)', 'position':'absolute', 'display':'none', 'border':'1px solid black', 'max-width':300, 'min-width':150}).addClass("noselect");
+	this.$div = $('<div></div>').appendTo($container).css({'background-color':'rgba(255,255,255,1)', 'position':'absolute', 'display':'none', 'border':'1px solid black', 'max-width':300, 'min-width':150});
+	if (params.noselect) {
+	    this.$div.addClass("noselect");
+	}
 	this.hide_timeout_id = undefined;
 	this.show_timeout_id = undefined;
 	this.center = false;
